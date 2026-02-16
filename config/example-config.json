@@ -1,0 +1,24 @@
+{
+  "server": {
+    "port": 3000
+  },
+  "tasks": [
+    {
+      "name": "example-sensor",
+      "intervalMinutes": 5,
+      "enabled": true
+    }
+  ],
+  "channels": {
+    "discord": {
+      "enabled": false,
+      "token": "env:DISCORD_TOKEN",
+      "guildId": "env:DISCORD_GUILD_ID",
+      "notificationChannelId": "env:DISCORD_NOTIFICATION_CHANNEL_ID"
+    }
+  },
+  "logging": {
+    "level": "info",
+    "emitEvents": true
+  }
+}

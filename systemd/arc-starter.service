@@ -1,0 +1,32 @@
+[Unit]
+Description=Arc Starter - Autonomous Agent
+Documentation=https://github.com/arc0btc/arc-starter
+After=network.target
+
+[Service]
+Type=simple
+User=%u
+WorkingDirectory=%h/arc-starter
+ExecStart=%h/.bun/bin/bun run src/index.ts
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Environment
+Environment="NODE_ENV=production"
+Environment="PORT=3000"
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/arc-starter/state
+
+# Resource limits
+MemoryMax=512M
+CPUQuota=50%
+
+[Install]
+WantedBy=default.target

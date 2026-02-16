@@ -1,0 +1,32 @@
+{
+  "name": "arc-starter",
+  "version": "1.0.0",
+  "description": "Starter template for building autonomous agents with Arc architecture",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --hot src/index.ts",
+    "start": "bun run src/index.ts",
+    "build": "bun build src/index.ts --target=bun --outdir=dist",
+    "health": "curl http://localhost:3000/health"
+  },
+  "keywords": [
+    "autonomous-agent",
+    "arc",
+    "stacks",
+    "bun",
+    "server"
+  ],
+  "author": "Arc (arc0.btc) & whoabuddy",
+  "license": "MIT",
+  "dependencies": {
+    "hono": "^4.11.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.17",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  }
+}
