@@ -17,6 +17,11 @@
       "notificationChannelId": "env:DISCORD_NOTIFICATION_CHANNEL_ID"
     }
   },
+  "aibtc": {
+    "stxAddress": "",
+    "btcAddress": "",
+    "aibtcApiBase": "https://aibtc.com/api"
+  },
   "logging": {
     "level": "info",
     "emitEvents": true
