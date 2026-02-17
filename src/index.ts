@@ -32,6 +32,7 @@ registerEventLogger();
 scheduler.register({
   name: "hello-task",
   intervalMs: minutes(1),
+  enabled: true,
   fn: async () => {
     console.log("👋 Hello from Arc! Time:", new Date().toISOString());
 
@@ -42,6 +43,13 @@ scheduler.register({
     });
   },
 });
+
+/**
+ * Restore evolved task state from previous runs.
+ * Applies any persisted interval or enabled-state changes from SQLite.
+ * Must be called after all tasks are registered.
+ */
+scheduler.restoreFromDb();
 
 /**
  * Example: Listen to task events

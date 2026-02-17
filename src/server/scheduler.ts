@@ -12,6 +12,11 @@
  */
 
 import { eventBus } from "./events";
+import {
+  saveTaskInterval,
+  loadTaskIntervals,
+  writeEvolutionNote,
+} from "../memory/evolution";
 
 /**
  * Task definition
@@ -94,16 +99,28 @@ export class TaskScheduler {
   }
 
   /**
+   * Check if a task is registered.
+   * Useful before calling updateInterval/enable/disable from external code.
+   */
+  hasTask(taskName: string): boolean {
+    return this.tasks.has(taskName);
+  }
+
+  /**
    * Update a task's interval at runtime (self-evolution hook).
    *
    * Stops the current timer, updates the interval in the task definition,
    * then restarts with the new interval. Emits task:interval-changed and
    * agent:evolved events so the change is observable and auditable.
    *
-   * Callers that want to persist this change should call
-   * saveTaskInterval() from src/memory/evolution.ts separately.
+   * Persists the new interval to SQLite (task_intervals) and appends a
+   * note to memory/working.md so evolution is visible to operators.
+   *
+   * @param taskName - The registered task name
+   * @param newIntervalMs - New interval in milliseconds
+   * @param reason - Optional reason for the change (stored in DB)
    */
-  updateInterval(taskName: string, newIntervalMs: number): void {
+  updateInterval(taskName: string, newIntervalMs: number, reason?: string): void {
     const task = this.tasks.get(taskName);
     if (!task) {
       throw new Error(`Task not found: ${taskName}`);
@@ -129,16 +146,28 @@ export class TaskScheduler {
       newIntervalMs,
     });
 
+    const evolveReason = reason ?? "runtime evolution";
     eventBus.emit("agent:evolved", {
       component: `scheduler:${taskName}`,
       change: "interval updated",
-      reason: "runtime evolution",
+      reason: evolveReason,
       previousValue: previousIntervalMs,
       newValue: newIntervalMs,
     });
 
+    // Persist to SQLite so evolution survives restarts
+    try {
+      saveTaskInterval(taskName, newIntervalMs, task.enabled, evolveReason);
+      writeEvolutionNote(
+        `Interval for \`${taskName}\` changed from ${previousIntervalMs}ms to ${newIntervalMs}ms — ${evolveReason}`
+      );
+    } catch (err) {
+      // Never crash the scheduler because of a persistence failure
+      console.error(`[Scheduler] Failed to persist interval change for ${taskName}:`, err);
+    }
+
     console.log(
-      `[Scheduler] Updated interval for ${taskName}: ${previousIntervalMs}ms → ${newIntervalMs}ms`
+      `[Scheduler] Updated interval for ${taskName}: ${previousIntervalMs}ms -> ${newIntervalMs}ms`
     );
   }
 
@@ -147,8 +176,12 @@ export class TaskScheduler {
    *
    * If the task is already enabled and running, this is a no-op.
    * Otherwise marks it enabled and starts the timer.
+   * Persists enabled state to SQLite.
+   *
+   * @param taskName - The registered task name
+   * @param reason - Optional reason for enabling
    */
-  enable(taskName: string): void {
+  enable(taskName: string, reason?: string): void {
     const task = this.tasks.get(taskName);
     if (!task) {
       throw new Error(`Task not found: ${taskName}`);
@@ -162,13 +195,20 @@ export class TaskScheduler {
     task.enabled = true;
     this.start(taskName);
 
+    const evolveReason = reason ?? "runtime evolution";
     eventBus.emit("agent:evolved", {
       component: `scheduler:${taskName}`,
       change: "task enabled",
-      reason: "runtime evolution",
+      reason: evolveReason,
       previousValue: false,
       newValue: true,
     });
+
+    try {
+      saveTaskInterval(taskName, task.intervalMs, true, evolveReason);
+    } catch (err) {
+      console.error(`[Scheduler] Failed to persist enable for ${taskName}:`, err);
+    }
 
     console.log(`[Scheduler] Enabled task: ${taskName}`);
   }
@@ -178,8 +218,12 @@ export class TaskScheduler {
    *
    * Stops the timer but keeps the task registered.
    * The task can be re-enabled later with enable().
+   * Persists disabled state to SQLite.
+   *
+   * @param taskName - The registered task name
+   * @param reason - Optional reason for disabling
    */
-  disable(taskName: string): void {
+  disable(taskName: string, reason?: string): void {
     const task = this.tasks.get(taskName);
     if (!task) {
       throw new Error(`Task not found: ${taskName}`);
@@ -193,15 +237,86 @@ export class TaskScheduler {
     task.enabled = false;
     this.stop(taskName);
 
+    const evolveReason = reason ?? "runtime evolution";
     eventBus.emit("agent:evolved", {
       component: `scheduler:${taskName}`,
       change: "task disabled",
-      reason: "runtime evolution",
+      reason: evolveReason,
       previousValue: true,
       newValue: false,
     });
 
+    try {
+      saveTaskInterval(taskName, task.intervalMs, false, evolveReason);
+    } catch (err) {
+      console.error(`[Scheduler] Failed to persist disable for ${taskName}:`, err);
+    }
+
     console.log(`[Scheduler] Disabled task: ${taskName}`);
+  }
+
+  /**
+   * Restore evolved task state from SQLite on startup.
+   *
+   * Loads persisted intervals and enabled states from task_intervals table.
+   * Only applies to tasks that are already registered — unknown task names
+   * are skipped (tasks may have been removed since last run).
+   *
+   * Call this after all tasks are registered in src/index.ts:
+   * ```typescript
+   * scheduler.register({ name: "my-task", ... });
+   * scheduler.restoreFromDb();  // apply any evolved state
+   * ```
+   */
+  restoreFromDb(): void {
+    try {
+      const rows = loadTaskIntervals();
+      let restored = 0;
+
+      for (const row of rows) {
+        if (!this.tasks.has(row.taskName)) {
+          // Task was removed — skip silently
+          continue;
+        }
+
+        const task = this.tasks.get(row.taskName)!;
+
+        // Apply persisted interval if different from current
+        if (task.intervalMs !== row.intervalMs) {
+          // Use internal stop/start to avoid re-persisting (already in DB)
+          this.stop(row.taskName);
+          task.intervalMs = row.intervalMs;
+          if (row.enabled) {
+            this.start(row.taskName);
+          }
+          console.log(
+            `[Scheduler] Restored interval for ${row.taskName}: ${row.intervalMs}ms`
+          );
+        }
+
+        // Apply persisted enabled state
+        if (task.enabled && !row.enabled) {
+          // Should be disabled — stop without re-persisting
+          task.enabled = false;
+          this.stop(row.taskName);
+          console.log(`[Scheduler] Restored disabled state for: ${row.taskName}`);
+        } else if (!task.enabled && row.enabled) {
+          // Should be enabled — start without re-persisting
+          task.enabled = true;
+          this.start(row.taskName);
+          console.log(`[Scheduler] Restored enabled state for: ${row.taskName}`);
+        }
+
+        restored++;
+      }
+
+      if (restored > 0) {
+        console.log(`[Scheduler] Restored evolution state for ${restored} task(s)`);
+      }
+    } catch (err) {
+      // Never crash on startup because DB restore failed
+      console.error(`[Scheduler] Failed to restore evolution state from DB:`, err);
+    }
   }
 
   /**
