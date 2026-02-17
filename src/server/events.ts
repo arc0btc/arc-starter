@@ -22,8 +22,29 @@ export interface EventPayloads {
   "task:started": { taskName: string; timestamp: number };
   "task:completed": { taskName: string; duration: number };
   "task:failed": { taskName: string; error: string };
+  "task:interval-changed": {
+    taskName: string;
+    previousIntervalMs: number;
+    newIntervalMs: number;
+  };
   "sensor:observation": { source: string; data: unknown };
   "channel:message": { channel: string; message: string };
+  /**
+   * Emitted when the agent adjusts its own behavior at runtime.
+   * Provides a structured, auditable record of self-modification.
+   */
+  "agent:evolved": {
+    /** Which component changed (e.g. "scheduler", "sensor:github") */
+    component: string;
+    /** Human-readable description of the change */
+    change: string;
+    /** Why the change was made */
+    reason: string;
+    /** Value before the change */
+    previousValue: unknown;
+    /** Value after the change */
+    newValue: unknown;
+  };
 }
 
 /**
