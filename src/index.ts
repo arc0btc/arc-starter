@@ -8,6 +8,22 @@
 import { startServer } from "./server";
 import { scheduler, minutes } from "./server/scheduler";
 import { eventBus } from "./server/events";
+import { registerEventLogger } from "./state/logger";
+import { getDb } from "./memory";
+
+/**
+ * Initialize memory system
+ * Opens (or creates) the SQLite database and runs schema migrations.
+ * Must happen before any events are emitted or tasks start.
+ */
+getDb();
+
+/**
+ * Register event logger
+ * Subscribes to event bus and writes all task/sensor events to SQLite.
+ * Must be registered before tasks start so no events are missed.
+ */
+registerEventLogger();
 
 /**
  * Example task: Say hello every minute
