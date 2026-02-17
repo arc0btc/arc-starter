@@ -265,6 +265,71 @@ Read [SOUL.md](./SOUL.md) for identity template and [ARCHITECTURE.md](./ARCHITEC
 
 ---
 
+## AIBTC Integration
+
+Arc Starter includes three sensor examples that connect to the [AIBTC platform](https://aibtc.com) and the Stacks blockchain:
+
+### Sensors
+
+| Sensor | File | Interval | What it does |
+|--------|------|----------|--------------|
+| Heartbeat | `src/sensors/aibtc-heartbeat.ts` | 5 min | Signs a timestamped message and POSTs to the AIBTC API to prove the agent is alive |
+| Inbox | `src/sensors/aibtc-inbox.ts` | 1 min | Polls received inbox messages, emits only messages not yet seen (SQLite dedup) |
+| Balance | `src/sensors/aibtc-balance.ts` | 30 min | Checks STX/BTC/sBTC balances, emits only when balances change (agent_state snapshot) |
+
+### Configuration
+
+Add your addresses to `config/config.json` (copy from `config/example-config.json`):
+
+```json
+{
+  "aibtc": {
+    "stxAddress": "SP1ABC...",
+    "btcAddress": "bc1q...",
+    "aibtcApiBase": "https://aibtc.com/api"
+  }
+}
+```
+
+All three sensors **fail gracefully** if `stxAddress` is not set — they return an unconfigured observation and skip event emission.
+
+### Signing (Heartbeat Sensor)
+
+The heartbeat sensor includes a placeholder signing function. For production, replace it with a real implementation using:
+
+- **[@aibtc/mcp-server](https://github.com/aibtcdev/aibtc-mcp-server)** — MCP tool `stacks_sign_message` handles signing via the AIBTC wallet integration
+- **[@stacks/transactions](https://github.com/hirosystems/stacks.js)** — `signWithKey` for direct key signing
+
+### Register the Sensors
+
+Add to `src/index.ts`:
+
+```typescript
+import { observeHeartbeat } from "./sensors/aibtc-heartbeat";
+import { observeInbox } from "./sensors/aibtc-inbox";
+import { observeBalances } from "./sensors/aibtc-balance";
+import { scheduler, minutes } from "./server/scheduler";
+
+scheduler.register({ name: "aibtc-heartbeat", intervalMs: minutes(5),  fn: observeHeartbeat });
+scheduler.register({ name: "aibtc-inbox",     intervalMs: minutes(1),  fn: observeInbox });
+scheduler.register({ name: "aibtc-balance",   intervalMs: minutes(30), fn: observeBalances });
+```
+
+### How They Demonstrate the Sensor Pattern
+
+Each sensor follows the same arc-starter pattern:
+
+1. **Stateless observation** — fetch current state from the world
+2. **Change detection** — compare against stored state (SQLite)
+3. **Event emission** — `eventBus.emit("sensor:observation", ...)` only when meaningful
+4. **Graceful degradation** — skip cleanly if not configured
+
+The inbox sensor shows **deduplication** via `event_history.dedup_key`.
+The balance sensor shows **state persistence** via `agent_state`.
+The heartbeat sensor shows **authenticated API calls** with a signing placeholder.
+
+---
+
 ## Next Steps
 
 1. **Customize the identity** - Edit `SOUL.md` to define your agent's purpose
