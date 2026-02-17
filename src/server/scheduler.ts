@@ -24,7 +24,7 @@ export interface ScheduledTask {
   /** Interval in milliseconds */
   intervalMs: number;
   /** Whether task is enabled (default: true) */
-  enabled?: boolean;
+  enabled: boolean;
 }
 
 /**
@@ -40,9 +40,14 @@ export class TaskScheduler {
    * Starts immediately if enabled
    */
   register(task: ScheduledTask): void {
-    this.tasks.set(task.name, task);
+    // Normalize enabled to a definite boolean (default: true)
+    const normalizedTask: ScheduledTask = {
+      ...task,
+      enabled: task.enabled !== false,
+    };
+    this.tasks.set(task.name, normalizedTask);
 
-    if (task.enabled !== false) {
+    if (normalizedTask.enabled) {
       this.start(task.name);
     }
 
@@ -89,6 +94,117 @@ export class TaskScheduler {
   }
 
   /**
+   * Update a task's interval at runtime (self-evolution hook).
+   *
+   * Stops the current timer, updates the interval in the task definition,
+   * then restarts with the new interval. Emits task:interval-changed and
+   * agent:evolved events so the change is observable and auditable.
+   *
+   * Callers that want to persist this change should call
+   * saveTaskInterval() from src/memory/evolution.ts separately.
+   */
+  updateInterval(taskName: string, newIntervalMs: number): void {
+    const task = this.tasks.get(taskName);
+    if (!task) {
+      throw new Error(`Task not found: ${taskName}`);
+    }
+
+    const previousIntervalMs = task.intervalMs;
+
+    // Stop the running timer (if any)
+    this.stop(taskName);
+
+    // Update the task definition in-place
+    task.intervalMs = newIntervalMs;
+
+    // Restart if the task is enabled
+    if (task.enabled) {
+      this.start(taskName);
+    }
+
+    // Emit change events
+    eventBus.emit("task:interval-changed", {
+      taskName,
+      previousIntervalMs,
+      newIntervalMs,
+    });
+
+    eventBus.emit("agent:evolved", {
+      component: `scheduler:${taskName}`,
+      change: "interval updated",
+      reason: "runtime evolution",
+      previousValue: previousIntervalMs,
+      newValue: newIntervalMs,
+    });
+
+    console.log(
+      `[Scheduler] Updated interval for ${taskName}: ${previousIntervalMs}ms → ${newIntervalMs}ms`
+    );
+  }
+
+  /**
+   * Enable a task at runtime.
+   *
+   * If the task is already enabled and running, this is a no-op.
+   * Otherwise marks it enabled and starts the timer.
+   */
+  enable(taskName: string): void {
+    const task = this.tasks.get(taskName);
+    if (!task) {
+      throw new Error(`Task not found: ${taskName}`);
+    }
+
+    if (task.enabled && this.timers.has(taskName)) {
+      // Already running — nothing to do
+      return;
+    }
+
+    task.enabled = true;
+    this.start(taskName);
+
+    eventBus.emit("agent:evolved", {
+      component: `scheduler:${taskName}`,
+      change: "task enabled",
+      reason: "runtime evolution",
+      previousValue: false,
+      newValue: true,
+    });
+
+    console.log(`[Scheduler] Enabled task: ${taskName}`);
+  }
+
+  /**
+   * Disable a task at runtime.
+   *
+   * Stops the timer but keeps the task registered.
+   * The task can be re-enabled later with enable().
+   */
+  disable(taskName: string): void {
+    const task = this.tasks.get(taskName);
+    if (!task) {
+      throw new Error(`Task not found: ${taskName}`);
+    }
+
+    if (!task.enabled && !this.timers.has(taskName)) {
+      // Already disabled — nothing to do
+      return;
+    }
+
+    task.enabled = false;
+    this.stop(taskName);
+
+    eventBus.emit("agent:evolved", {
+      component: `scheduler:${taskName}`,
+      change: "task disabled",
+      reason: "runtime evolution",
+      previousValue: true,
+      newValue: false,
+    });
+
+    console.log(`[Scheduler] Disabled task: ${taskName}`);
+  }
+
+  /**
    * Stop all tasks
    */
   stopAll(): void {
@@ -130,12 +246,14 @@ export class TaskScheduler {
   }
 
   /**
-   * Get list of registered tasks
+   * Get list of registered tasks with runtime state.
    */
-  list(): { name: string; running: boolean }[] {
-    return Array.from(this.tasks.keys()).map((name) => ({
+  list(): { name: string; running: boolean; enabled: boolean; intervalMs: number }[] {
+    return Array.from(this.tasks.entries()).map(([name, task]) => ({
       name,
       running: this.timers.has(name),
+      enabled: task.enabled,
+      intervalMs: task.intervalMs,
     }));
   }
 }
