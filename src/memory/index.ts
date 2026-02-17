@@ -51,3 +51,11 @@ export {
   type LearningArea,
   type LearningSource,
 } from "./learnings";
+
+// Evolution state persistence
+export {
+  saveTaskInterval,
+  loadTaskIntervals,
+  writeEvolutionNote,
+  type TaskIntervalRow,
+} from "./evolution";

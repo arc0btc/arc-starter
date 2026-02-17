@@ -92,12 +92,13 @@ describe("Example Sensor", () => {
     });
 
     test("simulates async delay", async () => {
-      const start = Date.now();
+      const start = performance.now();
       await observeMockAPI();
-      const duration = Date.now() - start;
+      const duration = performance.now() - start;
 
-      // Should take at least 100ms (simulated delay)
-      expect(duration).toBeGreaterThanOrEqual(100);
+      // Should take at least 90ms (simulated 100ms delay with tolerance for
+      // timer precision variance — performance.now() is sub-millisecond)
+      expect(duration).toBeGreaterThanOrEqual(90);
     });
   });
 });

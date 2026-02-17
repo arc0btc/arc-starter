@@ -152,6 +152,28 @@ VALUES
   ('cycle_count',   '0',    datetime('now')),
   ('last_cycle_at', 'null', datetime('now')),
   ('next_cycle_at', 'null', datetime('now'));
+
+
+-- ============================================================
+-- Table: task_intervals
+-- Persists runtime evolution decisions about task scheduling.
+-- Loaded on startup so evolution survives restarts.
+--
+-- Fields:
+-- task_name   — matches ScheduledTask.name (unique key)
+-- interval_ms — the evolved interval in milliseconds
+-- enabled     — 1 if task should run, 0 if disabled
+-- updated_at  — ISO 8601 timestamp of last evolution
+-- reason      — why this interval was set (from EvolutionSuggestion)
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS task_intervals (
+  task_name   TEXT    PRIMARY KEY,
+  interval_ms INTEGER NOT NULL,
+  enabled     INTEGER NOT NULL DEFAULT 1,
+  updated_at  TEXT    NOT NULL,
+  reason      TEXT
+);
 `;
 
 let _db: Database | null = null;
