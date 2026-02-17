@@ -11,7 +11,7 @@
  * - Tasks can be stopped and restarted
  */
 
-import { eventBus } from "./events";
+import { eventBus, TypedEventBus } from "./events";
 import {
   saveTaskInterval,
   loadTaskIntervals,
@@ -39,6 +39,15 @@ export interface ScheduledTask {
 export class TaskScheduler {
   private tasks = new Map<string, ScheduledTask>();
   private timers = new Map<string, Timer>();
+  private bus: TypedEventBus;
+
+  /**
+   * @param bus - Optional event bus for dependency injection (useful in tests).
+   *              Defaults to the global eventBus singleton.
+   */
+  constructor(bus?: TypedEventBus) {
+    this.bus = bus ?? eventBus;
+  }
 
   /**
    * Register a new task
@@ -140,14 +149,14 @@ export class TaskScheduler {
     }
 
     // Emit change events
-    eventBus.emit("task:interval-changed", {
+    this.bus.emit("task:interval-changed", {
       taskName,
       previousIntervalMs,
       newIntervalMs,
     });
 
     const evolveReason = reason ?? "runtime evolution";
-    eventBus.emit("agent:evolved", {
+    this.bus.emit("agent:evolved", {
       component: `scheduler:${taskName}`,
       change: "interval updated",
       reason: evolveReason,
@@ -196,7 +205,7 @@ export class TaskScheduler {
     this.start(taskName);
 
     const evolveReason = reason ?? "runtime evolution";
-    eventBus.emit("agent:evolved", {
+    this.bus.emit("agent:evolved", {
       component: `scheduler:${taskName}`,
       change: "task enabled",
       reason: evolveReason,
@@ -238,7 +247,7 @@ export class TaskScheduler {
     this.stop(taskName);
 
     const evolveReason = reason ?? "runtime evolution";
-    eventBus.emit("agent:evolved", {
+    this.bus.emit("agent:evolved", {
       component: `scheduler:${taskName}`,
       change: "task disabled",
       reason: evolveReason,
@@ -335,7 +344,7 @@ export class TaskScheduler {
   private async executeTask(task: ScheduledTask): Promise<void> {
     const startTime = Date.now();
 
-    eventBus.emit("task:started", {
+    this.bus.emit("task:started", {
       taskName: task.name,
       timestamp: startTime,
     });
@@ -344,14 +353,14 @@ export class TaskScheduler {
       await task.fn();
 
       const duration = Date.now() - startTime;
-      eventBus.emit("task:completed", {
+      this.bus.emit("task:completed", {
         taskName: task.name,
         duration,
       });
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      eventBus.emit("task:failed", {
+      this.bus.emit("task:failed", {
         taskName: task.name,
         error: errorMessage,
       });
