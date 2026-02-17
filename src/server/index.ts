@@ -15,6 +15,11 @@
 import { Hono } from "hono";
 import { eventBus } from "./events";
 import { scheduler } from "./scheduler";
+import {
+  queryRecentCyclesAPI,
+  queryLearningsAPI,
+  queryEventsAPI,
+} from "../query-tools/memory-query";
 
 /**
  * HTTP server application
@@ -45,8 +50,51 @@ app.get("/", (c) => {
     description: "Autonomous agent server template",
     endpoints: {
       health: "/health",
+      memory: {
+        cycles: "/api/memory/cycles",
+        learnings: "/api/memory/learnings",
+        events: "/api/memory/events",
+      },
     },
   });
+});
+
+/**
+ * Memory API endpoints
+ * Query the agent's SQLite memory from HTTP.
+ */
+
+/**
+ * GET /api/memory/cycles
+ * Query params: count (default 10)
+ * Returns recent non-idle cycles with phase results and timing.
+ */
+app.get("/api/memory/cycles", (c) => {
+  const count = parseInt(c.req.query("count") ?? "10", 10);
+  return c.json(queryRecentCyclesAPI(count));
+});
+
+/**
+ * GET /api/memory/learnings
+ * Query params: search (optional text query), count (default 20)
+ * With search: FTS5 BM25-ranked results.
+ * Without search: top N by importance.
+ */
+app.get("/api/memory/learnings", (c) => {
+  const search = c.req.query("search");
+  const count = parseInt(c.req.query("count") ?? "20", 10);
+  return c.json(queryLearningsAPI(search, count));
+});
+
+/**
+ * GET /api/memory/events
+ * Query params: type (optional event type filter), count (default 20)
+ * Returns recent events from event_history, newest first.
+ */
+app.get("/api/memory/events", (c) => {
+  const type = c.req.query("type");
+  const count = parseInt(c.req.query("count") ?? "20", 10);
+  return c.json(queryEventsAPI(type, count));
 });
 
 /**
