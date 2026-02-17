@@ -104,6 +104,10 @@ export function insertLearning(input: LearningInput): string {
 /**
  * Full-text search over learnings using FTS5 BM25 ranking.
  * Lower BM25 score = more relevant (SQLite FTS5 convention).
+ *
+ * Query formatting: each word in the query becomes a separate FTS5 token.
+ * Terms are joined with AND semantics (all terms must appear).
+ * Special FTS5 characters are stripped to avoid query syntax errors.
  */
 export function searchLearnings(
   query: string,
@@ -111,6 +115,15 @@ export function searchLearnings(
   count: number = 10
 ): LearningSearchResult[] {
   const db = getDb();
+
+  // Build a safe FTS5 query: split on whitespace, wrap each token in double quotes,
+  // join with space (implicit AND in FTS5). This avoids column:term misinterpretation
+  // and special character errors from punctuation in user queries.
+  const ftsQuery = query
+    .split(/\s+/)
+    .filter((t) => t.length > 0)
+    .map((t) => `"${t.replace(/"/g, "")}"`)
+    .join(" ");
 
   let sql: string;
   let params: unknown[];
@@ -128,7 +141,7 @@ export function searchLearnings(
       ORDER BY bm25_score
       LIMIT ?
     `;
-    params = [query, area, count];
+    params = [ftsQuery, area, count];
   } else {
     sql = `
       SELECT l.id, l.content, l.area, l.source, l.tags, l.importance,
@@ -142,7 +155,7 @@ export function searchLearnings(
       ORDER BY bm25_score
       LIMIT ?
     `;
-    params = [query, count];
+    params = [ftsQuery, count];
   }
 
   const stmt = db.prepare(sql);

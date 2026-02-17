@@ -163,10 +163,12 @@ let _db: Database | null = null;
 export function getDb(dbPath: string = DEFAULT_DB_PATH): Database {
   if (_db) return _db;
 
-  // Ensure state directory exists
-  const dir = dbPath.substring(0, dbPath.lastIndexOf("/"));
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
+  // Ensure state directory exists (skip for in-memory databases)
+  if (dbPath !== ":memory:" && dbPath.includes("/")) {
+    const dir = dbPath.substring(0, dbPath.lastIndexOf("/"));
+    if (dir && !existsSync(dir)) {
+      mkdirSync(dir, { recursive: true });
+    }
   }
 
   _db = new Database(dbPath, { create: true });

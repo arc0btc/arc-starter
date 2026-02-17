@@ -61,8 +61,10 @@ export function writeEvent(input: EventHistoryInput): number | null {
     input.dedupKey ?? null
   );
 
-  const rowId = Number(result.lastInsertRowid);
-  return rowId > 0 ? rowId : null;
+  // If no rows were changed (INSERT OR IGNORE skipped), return null
+  if (result.changes === 0) return null;
+
+  return Number(result.lastInsertRowid);
 }
 
 /**
