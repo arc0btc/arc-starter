@@ -8,8 +8,11 @@ dist/
 build/
 *.tsbuildinfo
 
-# Runtime state
-state/
+# Runtime state — track directory, not database files
+state/*.db
+state/*.db-journal
+state/*.db-wal
+state/*.db-shm
 *.db
 *.db-journal
 *.db-wal
