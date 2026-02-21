@@ -1,32 +1,55 @@
+# Arc Starter - Systemd User Service
+#
+# Type=oneshot: runs one dispatch cycle and exits. The timer re-invokes every 5 minutes.
+# This is a --user service. Install with:
+#
+#   mkdir -p ~/.config/systemd/user/
+#   ln -s ~/arc-starter/systemd/arc-starter.service ~/.config/systemd/user/
+#   ln -s ~/arc-starter/systemd/arc-starter.timer ~/.config/systemd/user/
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now arc-starter.timer
+#
+# Monitor:
+#   journalctl --user -u arc-starter.service -f
+#   systemctl --user status arc-starter.timer
+
 [Unit]
-Description=Arc Starter - Autonomous Agent
-Documentation=https://github.com/arc0btc/arc-starter
-After=network.target
+Description=Arc Starter - autonomous agent loop (one cycle)
+After=network-online.target
 
 [Service]
-Type=simple
-User=%u
+Type=oneshot
+
+# Working directory — db/ is relative to this
 WorkingDirectory=%h/arc-starter
-ExecStart=%h/.bun/bin/bun run src/index.ts
-Restart=on-failure
-RestartSec=10
+
+# Run the dispatch loop (exits after one cycle)
+ExecStart=%h/.bun/bin/bun %h/arc-starter/src/loop.ts
+
+# PATH includes bun so subprocesses can find it
+Environment=PATH=%h/.bun/bin:%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+
+# Secrets file (optional — create if you have API keys to load)
+EnvironmentFile=-%h/arc-starter/.arc-secrets
+
+# Timeout: a dispatch cycle can take several minutes; give it 8 to be safe
+TimeoutStartSec=480
+
+# Logging
 StandardOutput=journal
 StandardError=journal
-
-# Environment
-Environment="NODE_ENV=production"
-Environment="PORT=3000"
+SyslogIdentifier=arc-starter
 
 # Security
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=read-only
-ReadWritePaths=%h/arc-starter/state
 
-# Resource limits
-MemoryMax=512M
-CPUQuota=50%
+# Allow writes to the database and memory directories
+ReadWritePaths=%h/arc-starter/db
+ReadWritePaths=%h/arc-starter/memory
+ReadWritePaths=%h/.claude
 
 [Install]
 WantedBy=default.target

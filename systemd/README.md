@@ -1,334 +1,157 @@
-# systemd Service Setup
+# systemd Deployment
 
-Run Arc Starter as a systemd user service for automatic startup and restart on failure.
+Run Arc Starter as a systemd timer + oneshot service. The timer fires every 5 minutes and runs one dispatch cycle.
 
 ---
 
 ## Installation
 
-### 1. Install the Service
+### 1. Link the service and timer files
 
 ```bash
-# Copy service file to systemd user directory
-mkdir -p ~/.config/systemd/user
-cp systemd/arc-starter.service ~/.config/systemd/user/
+mkdir -p ~/.config/systemd/user/
+ln -s ~/arc-starter/systemd/arc-starter.service ~/.config/systemd/user/
+ln -s ~/arc-starter/systemd/arc-starter.timer ~/.config/systemd/user/
+```
 
-# Reload systemd
+### 2. Enable and start
+
+```bash
 systemctl --user daemon-reload
+systemctl --user enable --now arc-starter.timer
 ```
 
-### 2. Customize (Optional)
-
-Edit `~/.config/systemd/user/arc-starter.service` to:
-
-- Change `WorkingDirectory` if not `%h/arc-starter`
-- Adjust `MemoryMax` and `CPUQuota` resource limits
-- Add environment variables
-- Change port (default: 3000)
-
-### 3. Enable and Start
+### 3. Verify
 
 ```bash
-# Enable (start on boot)
-systemctl --user enable arc-starter
+# Check timer status
+systemctl --user status arc-starter.timer
 
-# Start now
-systemctl --user start arc-starter
-
-# Check status
-systemctl --user status arc-starter
+# Watch logs
+journalctl --user -u arc-starter.service -f
 ```
+
+---
+
+## How It Works
+
+The timer + oneshot pattern is simpler and more reliable than a persistent process:
+
+```
+arc-starter.timer fires every 5 minutes
+        │
+        ▼
+arc-starter.service starts (Type=oneshot)
+        │
+        ▼
+bun src/loop.ts runs one dispatch cycle
+        │
+        ▼
+process exits cleanly
+        │
+        ▼
+timer fires again in 5 minutes
+```
+
+Each cycle starts with a clean process. No accumulated state, no memory leaks, no crash recovery needed. If something fails, the next cycle starts fresh.
 
 ---
 
 ## Commands
 
-### Status
-
 ```bash
-# Check if running
-systemctl --user status arc-starter
+# Check timer (shows next trigger time)
+systemctl --user status arc-starter.timer
 
-# See recent logs
-journalctl --user -u arc-starter -n 50
-
-# Follow logs in real-time
-journalctl --user -u arc-starter -f
-```
-
-### Control
-
-```bash
-# Start
-systemctl --user start arc-starter
-
-# Stop
-systemctl --user stop arc-starter
-
-# Restart
-systemctl --user restart arc-starter
-
-# Disable (prevent auto-start)
-systemctl --user disable arc-starter
-```
-
-### Logs
-
-```bash
-# Last 100 lines
-journalctl --user -u arc-starter -n 100
-
-# Logs since boot
-journalctl --user -u arc-starter -b
-
-# Logs from last hour
-journalctl --user -u arc-starter --since "1 hour ago"
+# Check last service run
+systemctl --user status arc-starter.service
 
 # Follow logs
-journalctl --user -u arc-starter -f
+journalctl --user -u arc-starter.service -f
 
-# Export logs
-journalctl --user -u arc-starter > arc-logs.txt
+# View last 50 lines
+journalctl --user -u arc-starter.service -n 50
+
+# Run one cycle manually (useful for debugging)
+bun ~/arc-starter/src/loop.ts
+
+# Stop the timer (pauses automatic execution)
+systemctl --user stop arc-starter.timer
+
+# Restart the timer
+systemctl --user start arc-starter.timer
 ```
 
 ---
 
 ## Configuration
 
-### Environment Variables
+### Secrets
 
-Add environment variables to the service file:
-
-```ini
-[Service]
-Environment="NODE_ENV=production"
-Environment="PORT=3000"
-Environment="DISCORD_TOKEN=your_token"
-```
-
-Or use an environment file:
-
-```ini
-[Service]
-EnvironmentFile=%h/arc-starter/.env
-```
-
-Then create `~/.arc-starter/.env`:
+Create `~/arc-starter/.arc-secrets` (never commit this file):
 
 ```env
-NODE_ENV=production
-PORT=3000
-DISCORD_TOKEN=your_token
+MY_API_KEY=sk-...
+STACKS_PRIVATE_KEY=0x...
 ```
 
-**Never commit `.env` to git!**
+The service loads this file automatically via `EnvironmentFile=`.
 
-### Resource Limits
+### Customizing Paths
 
-Adjust resource limits in service file:
+If you install arc-starter somewhere other than `~/arc-starter`, edit the service file paths before linking. The `%h` prefix expands to your home directory.
 
-```ini
-[Service]
-# Memory limit (default: 512MB)
-MemoryMax=1G
+### Keeping Running After Logout
 
-# CPU limit (default: 50% of one core)
-CPUQuota=100%
-
-# File descriptor limit
-LimitNOFILE=65536
-```
-
----
-
-## Automatic Start on Boot
-
-### Enable Lingering
-
-systemd user services normally stop when you log out. To keep them running:
+systemd user services stop when you log out by default. To keep the timer running:
 
 ```bash
-# Enable lingering for your user
 loginctl enable-linger $USER
-
-# Check status
-loginctl show-user $USER | grep Linger
 ```
 
-Now the service will:
-- Start on boot (even if you don't log in)
-- Keep running after logout
-- Restart on failure
+This allows the timer to start on boot and continue after logout.
 
 ---
 
 ## Troubleshooting
 
-### Service Won't Start
-
-1. Check syntax:
-   ```bash
-   systemctl --user status arc-starter
-   ```
-
-2. Check logs:
-   ```bash
-   journalctl --user -u arc-starter -n 50
-   ```
-
-3. Test manually:
-   ```bash
-   cd ~/arc-starter
-   bun run src/index.ts
-   ```
-
-4. Verify paths:
-   ```bash
-   # Check working directory exists
-   ls -la ~/arc-starter
-
-   # Check bun is at expected location
-   which bun
-   ```
-
-### Port Already in Use
-
-If port 3000 is taken:
-
-1. Change port in service file:
-   ```ini
-   Environment="PORT=3001"
-   ```
-
-2. Reload and restart:
-   ```bash
-   systemctl --user daemon-reload
-   systemctl --user restart arc-starter
-   ```
-
-### High Memory Usage
-
-If service uses too much memory:
-
-1. Reduce limit in service file:
-   ```ini
-   MemoryMax=256M
-   ```
-
-2. Reload and restart:
-   ```bash
-   systemctl --user daemon-reload
-   systemctl --user restart arc-starter
-   ```
-
-3. Check logs for memory-intensive operations
-
-### Service Keeps Restarting
-
-If service restarts repeatedly:
-
-1. Check failure reason:
-   ```bash
-   systemctl --user status arc-starter
-   ```
-
-2. View full logs:
-   ```bash
-   journalctl --user -u arc-starter -n 200
-   ```
-
-3. Disable auto-restart temporarily:
-   ```ini
-   [Service]
-   Restart=no
-   ```
-
-4. Debug the issue, then re-enable
-
----
-
-## Monitoring
-
-### Health Check
-
-The service exposes `/health` endpoint:
+### Timer not firing
 
 ```bash
-# Check health
-curl http://localhost:3000/health
+# Check timer is active
+systemctl --user list-timers
 
-# Expected response:
-{
-  "status": "healthy",
-  "uptime": 3600,
-  "tasks": [
-    { "name": "hello-task", "running": true }
-  ],
-  "timestamp": "2026-02-16T12:00:00.000Z"
-}
+# Check for errors
+journalctl --user -u arc-starter.timer
 ```
 
-### Automatic Health Monitoring
-
-Create a health check timer:
+### Service fails immediately
 
 ```bash
-# Create health-check.service
-cat > ~/.config/systemd/user/arc-health-check.service <<EOF
-[Unit]
-Description=Arc Starter Health Check
+# View exit reason
+systemctl --user status arc-starter.service
 
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/curl -f http://localhost:3000/health
-EOF
-
-# Create health-check.timer
-cat > ~/.config/systemd/user/arc-health-check.timer <<EOF
-[Unit]
-Description=Arc Starter Health Check Timer
-
-[Timer]
-OnBootSec=5min
-OnUnitActiveSec=5min
-
-[Install]
-WantedBy=timers.target
-EOF
-
-# Enable timer
-systemctl --user daemon-reload
-systemctl --user enable --now arc-health-check.timer
+# Run manually to see full error output
+cd ~/arc-starter && bun src/loop.ts
 ```
 
-Now health checks run every 5 minutes. Check results:
+### Bun not found
+
+The service uses the full path `%h/.bun/bin/bun`. If bun is installed elsewhere:
 
 ```bash
-journalctl --user -u arc-health-check.service
+which bun  # Find the actual path
+# Edit service ExecStart to use that path
 ```
 
 ---
 
 ## Uninstallation
 
-To remove the service:
-
 ```bash
-# Stop and disable
-systemctl --user stop arc-starter
-systemctl --user disable arc-starter
-
-# Remove service file
+systemctl --user stop arc-starter.timer
+systemctl --user disable arc-starter.timer
 rm ~/.config/systemd/user/arc-starter.service
-
-# Reload systemd
+rm ~/.config/systemd/user/arc-starter.timer
 systemctl --user daemon-reload
 ```
-
----
-
-## Resources
-
-- [systemd.service docs](https://www.freedesktop.org/software/systemd/man/systemd.service.html)
-- [systemd.exec docs](https://www.freedesktop.org/software/systemd/man/systemd.exec.html)
-- [journalctl docs](https://www.freedesktop.org/software/systemd/man/journalctl.html)

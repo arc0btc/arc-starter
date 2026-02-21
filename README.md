@@ -2,19 +2,23 @@
 
 A starter template for building autonomous agents with the Arc architecture.
 
-**Built by Arc (arc0.btc) & whoabuddy** • Evolved through 8 phases of agent development on Stacks
+**Built by Arc (arc0.btc) & whoabuddy** • Evolved through 1,000+ production cycles on Stacks
 
 ---
 
-## What is Arc?
+## What is This?
 
-Arc is an architecture for autonomous agents that:
-- **Run continuously** (not cron jobs)
-- **Schedule their own tasks** (internal scheduler)
-- **Communicate via events** (loosely coupled)
-- **Integrate with the world** (sensors, channels, query tools)
+Arc Starter is a template for building an **autonomous agent** that:
 
-This starter shows you the patterns without the complexity of a production agent.
+- Runs every N minutes via systemd timer
+- Pulls one work item (task or message) from a SQLite database
+- Dispatches it to Claude with full identity + context
+- Parses the structured JSON response and updates the database
+- Queues follow-up work from Claude's `next_steps` output
+
+**Claude handles the intelligence.** Your code handles the orchestration.
+
+This is the architecture that runs `arc0.btc` — a production agent that's been running 24/7 since early 2026, executing 1,000+ cycles.
 
 ---
 
@@ -24,85 +28,141 @@ This starter shows you the patterns without the complexity of a production agent
 # Install dependencies
 bun install
 
-# Start the server
-bun run dev
+# Initialize the database
+bun src/db.ts
 
-# Check health
-curl http://localhost:3000/health
+# Run one cycle manually
+bun src/loop.ts
 
-# In another terminal, watch it run
-curl http://localhost:3000/
+# Or run the sensor examples
+bun src/sensors/aibtc-heartbeat.ts
 ```
 
-The server will start and run a "hello task" every minute. Check the logs to see it in action.
+For production deployment, see [Deployment](#deployment).
 
 ---
 
 ## Architecture
 
-Arc agents have three core components:
-
-### 1. Server (always running)
+The key insight: **use Claude as the brain, not a runtime**.
 
 ```
-src/server/
-├── index.ts       # HTTP server (Hono)
-├── events.ts      # Event bus
-└── scheduler.ts   # Task scheduler
+systemd timer (every 5 min)
+        │
+        ▼
+   loop.ts (thin orchestration)
+        │
+        ├─ init DB, run hooks
+        ├─ check for pending work
+        │
+        ├─ [comms] → build prompt → claude --print → parse JSON → mark read
+        │
+        └─ [tasks] → build prompt → claude --print → parse JSON → mark complete
+                                                              │
+                                                              └─ next_steps → queue follow-up tasks
 ```
 
-**Why a server?** Unlike cron jobs that run and exit, Arc agents are long-running processes. This gives you:
-- Internal task scheduling (no external dependencies)
-- Real-time event handling
-- HTTP endpoints for monitoring and control
-- Graceful shutdown
+### The Dispatch Loop
 
-### 2. Sensors (observe the world)
+`src/loop.ts` is the entire agent brain — about 200 lines of TypeScript. It:
 
-```
-src/sensors/
-└── example-sensor.ts
-```
+1. **Initializes** the database and runs lightweight hooks
+2. **Checks** for pending work (tasks and unread comms)
+3. **Builds** a prompt: `SOUL.md` (identity) + `LOOP.md` (operation) + `MEMORY.md` + task/comm details
+4. **Dispatches** to Claude via `claude --print --model sonnet`
+5. **Parses** the structured JSON response
+6. **Updates** the database (mark complete, queue follow-ups)
+7. **Exits** — systemd timer re-invokes in 5 minutes
 
-Sensors watch external systems and return observations:
-- API polling (GitHub, Twitter, blockchain)
-- Webhook receivers
-- File system watchers
-- Database change streams
-
-**Pattern:** Stateless, fast, event-driven
-
-### 3. Query Tools (on-demand lookups)
-
-```
-src/query-tools/
-└── example-query.ts
+```typescript
+// The dispatch call — this is the core
+const proc = Bun.spawn(["claude", "--print", "--model", "sonnet"], {
+  stdin: new Blob([prompt]),
+  stdout: "pipe",
+});
 ```
 
-Query tools provide data when asked:
-- Database queries
-- API lookups
-- Data transformations
-- Command handlers
+### What Claude Returns
 
-**Pattern:** Request-response, composable
+All tasks return structured JSON that the loop parses:
 
-### 4. Channels (communicate)
+```json
+{
+  "status": "completed",
+  "summary": "Posted blog entry about dispatch loop architecture.",
+  "actions_taken": ["read existing posts", "wrote new post", "deployed site"],
+  "next_steps": [
+    {
+      "title": "Verify blog post is live",
+      "description": "Check arc0.me/blog to confirm the post published correctly",
+      "priority": 40
+    }
+  ]
+}
+```
+
+The `next_steps` field queues follow-up tasks automatically — this is how multi-step work chains without human intervention.
+
+### Identity and Context
+
+Three files load every cycle and shape Claude's behavior:
+
+- **`SOUL.md`** — Who the agent is: values, voice, how it thinks
+- **`LOOP.md`** — What the agent does: output format, decision rules, tool access
+- **`MEMORY.md`** — What the agent knows: operational history, learned patterns, key facts
+
+This is the "Agent Experience" (AX) principle: **easy to know who you are, what to do, and what you've learned**.
+
+### Skills Tree
+
+Capabilities live in `skills/`. Each skill is a directory:
 
 ```
-src/channels/
-└── discord/
-    ├── index.ts
-    └── README.md
+skills/
+├── README.md              # Map of all capabilities
+├── inbox/
+│   ├── SKILL.md           # What this skill does and how to invoke
+│   ├── check.ts           # Sensor: detects new messages, queues reply tasks
+│   └── send.ts            # Action: sends a reply via AIBTC API
+├── blog/
+│   ├── SKILL.md
+│   └── publish.ts
+└── heartbeat/
+    ├── SKILL.md
+    └── run.ts             # Hook: runs every cycle (no Claude needed)
 ```
 
-Channels connect your agent to the outside world:
-- Discord (included as example)
-- Telegram, Slack, Matrix
-- Web interfaces
-- CLI tools
+**SKILL.md is the contract.** Claude reads it to know what the skill does and how to invoke it. The scripts do the actual work.
 
-**Pattern:** Bidirectional, protocol translation
+### Sensors (check.ts)
+
+Sensors detect conditions and queue tasks. They run on empty ticks (when there's no pending work):
+
+```typescript
+// skills/inbox/check.ts
+export default async function check(): Promise<CheckResult | null> {
+  const unreplied = getUnrepliedMessages();
+  if (unreplied.length === 0) return null;
+
+  return {
+    title: `Reply to message from ${sender}`,
+    body: `Full context of message...`,
+    source: "inbox:check",
+    priority: 50,
+  };
+}
+```
+
+The loop picks these up in `src/checks.ts`, which runs all `check.ts` files and inserts returned tasks.
+
+### Database
+
+`bun:sqlite` for everything structured. Two main tables:
+
+- **`tasks`** — work queue with priority, status, source, result
+- **`comms`** — internal message threading (Arc ↔ whoabuddy)
+
+Flat markdown files (`MEMORY.md`, `memory/YYYY-MM-DD.md`) for what Claude reads. Database for what code queries.
 
 ---
 
@@ -111,175 +171,103 @@ Channels connect your agent to the outside world:
 ```
 arc-starter/
 ├── README.md                    # This file
-├── ARCHITECTURE.md              # Deep dive
-├── SOUL.md                      # Identity template
-├── LICENSE                      # MIT license
+├── ARCHITECTURE.md              # Deep dive into patterns
+├── SOUL.md                      # Identity template — edit this first
+├── LOOP.md                      # Operation context for dispatch
+├── MEMORY.md                    # Persistent learnings (auto-updated)
 │
 ├── src/
-│   ├── index.ts                 # Entry point
-│   ├── server/                  # Server core
-│   ├── sensors/                 # Observation layer
-│   ├── query-tools/             # Query layer
-│   └── channels/                # Communication layer
+│   ├── loop.ts                  # Main dispatch loop (entry point)
+│   ├── db.ts                    # All database queries
+│   ├── checks.ts                # Runs sensors, queues discovered tasks
+│   └── hooks.ts                 # Lightweight per-cycle side effects
 │
-├── config/
-│   └── example-config.json      # Config template
+├── skills/
+│   ├── README.md                # Skill tree map
+│   ├── heartbeat/               # Heartbeat hook (runs every cycle)
+│   └── inbox/                   # AIBTC inbox sensor + send action
+│
+├── memory/
+│   └── README.md                # Daily observation files go here
+│
+├── db/
+│   └── arc.sqlite               # SQLite database (gitignored)
 │
 └── systemd/
-    ├── arc-starter.service      # systemd service
-    └── README.md                # Service setup
+    ├── arc-starter.service      # oneshot service (one cycle per invocation)
+    ├── arc-starter.timer        # 5-minute timer
+    └── README.md                # Deployment instructions
 ```
+
+The `src/channels/` and `src/server/` directories contain **channel and sensor examples** from the previous server-based architecture. They remain as reference implementations — useful if you want to add real-time communication or webhook receivers — but they are not part of the core dispatch loop. See [ARCHITECTURE.md](./ARCHITECTURE.md) for context on both approaches.
 
 ---
 
-## Development
+## Customizing Your Agent
 
-### Add a Sensor
+### 1. Define your identity
 
-1. Create `src/sensors/my-sensor.ts`:
+Edit `SOUL.md`. This is the most important file. It shapes every response Claude generates:
+
+- What does your agent care about?
+- What voice does it use?
+- What does it refuse to do?
+- What are its relationships?
+
+### 2. Add a skill
+
+Create `skills/my-skill/`:
+
+```
+skills/my-skill/
+├── SKILL.md    # Description: what, when, how to invoke
+└── run.ts      # Implementation
+```
+
+Claude reads `SKILL.md` to know the skill exists. When a task references it, the loop loads any `AGENT.md` in the skill directory for additional dispatch context.
+
+### 3. Add a sensor
+
+Create `skills/my-skill/check.ts`:
 
 ```typescript
-import { eventBus } from "../server/events";
-
-export async function observeMyThing(): Promise<void> {
-  // Your observation logic
+export default async function check(): Promise<CheckResult | null> {
+  // Check external system
   const data = await fetchFromAPI();
+  if (!data.needsAttention) return null;
 
-  // Emit event
-  eventBus.emit("sensor:observation", {
-    source: "my-sensor",
-    data,
-  });
+  return {
+    title: "Respond to new data",
+    body: `Data that needs attention: ${JSON.stringify(data)}`,
+    source: "my-skill:check",
+    priority: 50,
+  };
 }
 ```
 
-2. Register as scheduled task in `src/index.ts`:
+Register it in `src/checks.ts` alongside the other sensors.
 
-```typescript
-import { observeMyThing } from "./sensors/my-sensor";
-import { scheduler, minutes } from "./server/scheduler";
+### 4. Update MEMORY.md
 
-scheduler.register({
-  name: "my-sensor",
-  intervalMs: minutes(5),
-  fn: observeMyThing,
-});
-```
-
-### Add a Query Tool
-
-1. Create `src/query-tools/my-query.ts`:
-
-```typescript
-export async function queryMyData(id: string) {
-  // Your query logic
-  return await database.find(id);
-}
-```
-
-2. Use from API endpoint in `src/server/index.ts`:
-
-```typescript
-import { queryMyData } from "./query-tools/my-query";
-
-app.get("/api/data/:id", async (c) => {
-  const id = c.req.param("id");
-  const data = await queryMyData(id);
-  return c.json(data);
-});
-```
-
-### Add a Channel
-
-See `src/channels/discord/README.md` for complete Discord setup.
-
-For other channels:
-1. Create `src/channels/mychannel/index.ts`
-2. Listen to `eventBus` events
-3. Emit `channel:message` events
-4. Connect/disconnect in `src/index.ts`
-
----
-
-## Configuration
-
-Copy `config/example-config.json` to `config/config.json` and customize:
-
-```json
-{
-  "server": {
-    "port": 3000
-  },
-  "channels": {
-    "discord": {
-      "enabled": true,
-      "token": "env:DISCORD_TOKEN"
-    }
-  }
-}
-```
-
-**Secrets:** Use `env:VAR_NAME` pattern, never commit actual secrets.
-
----
-
-## Deployment
-
-### Local Development
-
-```bash
-bun run dev
-```
-
-### Production (systemd)
-
-See `systemd/README.md` for complete setup.
-
-Quick version:
-
-```bash
-# Install service
-sudo cp systemd/arc-starter.service /etc/systemd/user/
-systemctl --user daemon-reload
-systemctl --user enable arc-starter
-systemctl --user start arc-starter
-
-# Check status
-systemctl --user status arc-starter
-
-# View logs
-journalctl --user -u arc-starter -f
-```
-
----
-
-## Philosophy
-
-Arc agents are **deliberate**, not reactive:
-- Most observations don't require action
-- Actions should be intentional and traced
-- Events enable observability without tight coupling
-- Simple patterns scale better than clever abstractions
-
-Read [SOUL.md](./SOUL.md) for identity template and [ARCHITECTURE.md](./ARCHITECTURE.md) for deep dive.
+As your agent learns things worth remembering across sessions, add them to `MEMORY.md`. This file loads every cycle — keep it concise. Daily details go in `memory/YYYY-MM-DD.md` and get consolidated into `MEMORY.md` periodically.
 
 ---
 
 ## AIBTC Integration
 
-Arc Starter includes three sensor examples that connect to the [AIBTC platform](https://aibtc.com) and the Stacks blockchain:
+Arc Starter includes sensor examples for the [AIBTC platform](https://aibtc.com) and the Stacks blockchain.
 
-### Sensors
+### Sensors (in `src/sensors/` — legacy examples)
 
-| Sensor | File | Interval | What it does |
-|--------|------|----------|--------------|
-| Heartbeat | `src/sensors/aibtc-heartbeat.ts` | 5 min | Signs a timestamped message and POSTs to the AIBTC API to prove the agent is alive |
-| Inbox | `src/sensors/aibtc-inbox.ts` | 1 min | Polls received inbox messages, emits only messages not yet seen (SQLite dedup) |
-| Balance | `src/sensors/aibtc-balance.ts` | 30 min | Checks STX/BTC/sBTC balances, emits only when balances change (agent_state snapshot) |
+| Sensor | File | What it does |
+|--------|------|--------------|
+| Heartbeat | `src/sensors/aibtc-heartbeat.ts` | Signs timestamped message, POSTs to AIBTC API |
+| Inbox | `src/sensors/aibtc-inbox.ts` | Polls inbox, deduplicates via SQLite |
+| Balance | `src/sensors/aibtc-balance.ts` | Checks STX/BTC/sBTC, alerts on changes |
+
+These demonstrate the sensor pattern but are written for the old server-based architecture. For the dispatch loop pattern, adapt them into `skills/inbox/check.ts` style — see the inbox skill for a current example.
 
 ### Configuration
-
-Add your addresses to `config/config.json` (copy from `config/example-config.json`):
 
 ```json
 {
@@ -291,62 +279,82 @@ Add your addresses to `config/config.json` (copy from `config/example-config.jso
 }
 ```
 
-All three sensors **fail gracefully** if `stxAddress` is not set — they return an unconfigured observation and skip event emission.
+### On-Chain Identity
 
-### Signing (Heartbeat Sensor)
+Your agent can have a verifiable on-chain identity:
 
-The heartbeat sensor includes a placeholder signing function. For production, replace it with a real implementation using:
+- **BNS name** (`.btc` suffix) — human-readable identity
+- **Stacks address** — for signing and transactions
+- **Bitcoin address** — for BTC-level verification
 
-- **[@aibtc/mcp-server](https://github.com/aibtcdev/aibtc-mcp-server)** — MCP tool `stacks_sign_message` handles signing via the AIBTC wallet integration
-- **[@stacks/transactions](https://github.com/hirosystems/stacks.js)** — `signWithKey` for direct key signing
-
-### Register the Sensors
-
-Add to `src/index.ts`:
-
-```typescript
-import { observeHeartbeat } from "./sensors/aibtc-heartbeat";
-import { observeInbox } from "./sensors/aibtc-inbox";
-import { observeBalances } from "./sensors/aibtc-balance";
-import { scheduler, minutes } from "./server/scheduler";
-
-scheduler.register({ name: "aibtc-heartbeat", intervalMs: minutes(5),  fn: observeHeartbeat });
-scheduler.register({ name: "aibtc-inbox",     intervalMs: minutes(1),  fn: observeInbox });
-scheduler.register({ name: "aibtc-balance",   intervalMs: minutes(30), fn: observeBalances });
-```
-
-### How They Demonstrate the Sensor Pattern
-
-Each sensor follows the same arc-starter pattern:
-
-1. **Stateless observation** — fetch current state from the world
-2. **Change detection** — compare against stored state (SQLite)
-3. **Event emission** — `eventBus.emit("sensor:observation", ...)` only when meaningful
-4. **Graceful degradation** — skip cleanly if not configured
-
-The inbox sensor shows **deduplication** via `event_history.dedup_key`.
-The balance sensor shows **state persistence** via `agent_state`.
-The heartbeat sensor shows **authenticated API calls** with a signing placeholder.
+The heartbeat sensor demonstrates authenticated API calls with a signing placeholder. Replace with real signing via `@stacks/transactions` or `@aibtc/mcp-server`.
 
 ---
 
-## Next Steps
+## Deployment
 
-1. **Customize the identity** - Edit `SOUL.md` to define your agent's purpose
-2. **Add real sensors** - Connect to APIs, blockchains, social media
-3. **Build query tools** - Add database access, data analysis
-4. **Set up channels** - Enable Discord, Telegram, or your preferred platform
-5. **Deploy to production** - Use systemd service or containerize
+### Production (systemd timer)
+
+The correct pattern is a **timer + oneshot service** — not a persistent process.
+
+```bash
+# Link service and timer files
+mkdir -p ~/.config/systemd/user/
+ln -s ~/arc-starter/systemd/arc-starter.service ~/.config/systemd/user/
+ln -s ~/arc-starter/systemd/arc-starter.timer ~/.config/systemd/user/
+
+# Enable and start
+systemctl --user daemon-reload
+systemctl --user enable --now arc-starter.timer
+
+# Check status
+systemctl --user status arc-starter.timer
+journalctl --user -u arc-starter.service -f
+```
+
+The service runs one cycle and exits. The timer re-invokes every 5 minutes. This is simpler, more reliable, and easier to debug than a persistent server.
+
+### Local Development
+
+Run a single cycle manually:
+
+```bash
+bun src/loop.ts
+```
+
+Or queue a task directly:
+
+```bash
+bun -e "
+import { initDatabase, insertTask } from './src/db.ts';
+initDatabase();
+insertTask('Test task', 'Do something simple and return the result', 50, 'manual');
+console.log('Task queued');
+"
+```
+
+---
+
+## Philosophy
+
+**Use Claude as the brain.** Don't try to encode intelligence in TypeScript — use Claude for anything that requires judgment, creativity, or natural language. Use TypeScript for orchestration, database access, and API calls.
+
+**Context is everything.** The quality of Claude's output depends entirely on the quality of the context it receives. SOUL.md, LOOP.md, and MEMORY.md are the levers. Tune them.
+
+**Simple over clever.** The dispatch loop is ~200 lines. It runs 288 times a day. Every line of complexity has a cost — in latency, bugs, and context tokens. Keep it boring.
+
+**Exit and restart beats always-running.** Stateless cycles are easier to debug, cheaper to run, and more resilient to crashes. If something breaks, the next cycle starts clean.
+
+Read [SOUL.md](./SOUL.md) to understand identity design. Read [ARCHITECTURE.md](./ARCHITECTURE.md) for the full pattern comparison.
 
 ---
 
 ## Resources
 
-- **Arc (production agent):** [github.com/arc0btc/arc-starter](https://github.com/arc0btc/arc-starter)
-- **Arc's website:** [arc0btc.com](https://arc0btc.com)
+- **Arc's production agent:** [arc0.me](https://arc0.me)
 - **AIBTC Platform:** [aibtc.com](https://aibtc.com)
-- **Hono Framework:** [hono.dev](https://hono.dev)
 - **Bun Runtime:** [bun.sh](https://bun.sh)
+- **Claude Code (runs the dispatch):** [claude.ai/code](https://claude.ai/code)
 
 ---
 
@@ -358,13 +366,11 @@ Built by Arc (arc0.btc) & whoabuddy
 
 ---
 
-## Support
-
-Questions? Ideas? Issues?
+## Questions?
 
 - Open an issue on GitHub
-- Read the [ARCHITECTURE.md](./ARCHITECTURE.md) for patterns
+- Read [ARCHITECTURE.md](./ARCHITECTURE.md) for pattern deep dives
 - Check [SOUL.md](./SOUL.md) for identity guidance
 - Join the discussion on [AIBTC platform](https://aibtc.com)
 
-**Remember:** This is a template. Make it yours.
+**This is a template. Make it yours.**

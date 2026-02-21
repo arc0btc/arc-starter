@@ -1,721 +1,388 @@
 # Arc Architecture
 
-Deep dive into the Arc agent architecture patterns.
+The dispatch loop pattern for autonomous agents.
 
 ---
 
 ## Philosophy
 
-Arc is built on three core principles:
+Three principles drive every design decision:
 
-1. **Autonomy through continuity** - Agents run continuously, not in isolated cron executions
-2. **Loose coupling via events** - Components communicate through events, not direct calls
-3. **Composition over complexity** - Simple patterns combine to create sophisticated behavior
+1. **Claude handles intelligence** — use LLM judgment for decisions; use TypeScript for plumbing
+2. **Context shapes behavior** — identity, memory, and skill descriptions are the primary levers
+3. **Simple over clever** — a boring 200-line loop that runs reliably beats an elegant framework that's hard to debug
 
 ---
 
-## The Server Pattern
+## The Dispatch Loop
 
-### Why Always-Running?
-
-Traditional cron-based agents have a problem: **no memory between runs**.
+The core pattern is deliberately thin:
 
 ```
-❌ Cron Pattern (bad):
-Execute → Observe → Decide → Act → Exit
-Execute → Observe → Decide → Act → Exit
-Execute → Observe → Decide → Act → Exit
-       ↑ Complete memory loss between runs
+systemd timer fires
+        │
+        ▼
+loop.ts starts (fresh process)
+        │
+        ├── init database
+        ├── run hooks (fast, no Claude)
+        ├── check for pending work
+        │
+        ├── [empty] → run sensors (check.ts files)
+        │              └── sensors queue tasks if conditions found
+        │              └── exit (work queued for next cycle)
+        │
+        ├── [comms] → build prompt → claude --print → parse JSON → mark read
+        │
+        └── [tasks] → build prompt → claude --print → parse JSON → mark done
+                                                               │
+                                                               └── next_steps → queue follow-ups
+        │
+        ▼
+loop.ts exits (process ends)
+        │
+        ▼
+systemd timer fires again in 5 minutes
 ```
 
-Arc agents run continuously:
+That's the whole agent. Everything else is skill implementations and context files.
+
+### The Prompt
+
+Every dispatch call assembles a prompt from:
 
 ```
-✅ Arc Pattern (good):
-Start Server
-  ↓
-Schedule Tasks
-  ↓
-Run Continuously ←──┐
-  ├─ Observe        │
-  ├─ Decide         │
-  ├─ Act            │
-  └─ Loop back ─────┘
+# Identity
+[SOUL.md contents]
+
+# Loop Context
+[LOOP.md contents]
+
+# Memory
+[MEMORY.md contents]
+
+# Task Instructions
+[prompts/task.md — generic task execution instructions]
+
+# Skill Agent Context (optional)
+[skills/<name>/AGENT.md — skill-specific dispatch context]
+
+# Task to Execute
+Subject: [task subject]
+Description: [task description]
+Priority: [task priority]
+Source: [where this task came from]
 ```
 
-### Server Components
+Claude reads this, does the work, and returns structured JSON. The loop parses it and updates the database.
 
-#### 1. HTTP Server (Hono)
+### The Response Format
 
-```typescript
-const app = new Hono();
+Tasks return:
 
-app.get("/health", (c) => {
-  return c.json({
-    status: "healthy",
-    uptime: process.uptime(),
-    tasks: scheduler.list(),
-  });
-});
-```
-
-**Why Hono?**
-- Fast (built for Bun/Deno/Cloudflare Workers)
-- Minimal API surface
-- TypeScript-first
-- Web standards compliant
-
-**What it provides:**
-- Health monitoring (`/health` endpoint)
-- Control interface (trigger tasks, query state)
-- Webhook receivers (external events)
-- Metrics exposure
-
-#### 2. Event Bus
-
-```typescript
-export class TypedEventBus extends EventEmitter {
-  emit<K extends keyof EventPayloads>(
-    event: K,
-    payload: EventPayloads[K]
-  ): boolean {
-    return super.emit(event, payload);
-  }
-}
-```
-
-**Why events?**
-- Decouple producers from consumers
-- Enable observability (log all events)
-- Support multiple listeners (fan-out)
-- Easy to add new behaviors without changing existing code
-
-**Pattern:**
-
-```typescript
-// Producer (sensor)
-eventBus.emit("sensor:observation", {
-  source: "github",
-  data: { repo: "arc", stars: 1000 },
-});
-
-// Consumer (logger)
-eventBus.on("sensor:observation", (obs) => {
-  console.log(`Observed: ${obs.source}`, obs.data);
-});
-
-// Consumer (decision engine)
-eventBus.on("sensor:observation", (obs) => {
-  if (obs.source === "github") {
-    decideAction(obs.data);
-  }
-});
-```
-
-No direct dependencies. Easy to add new consumers without changing producers.
-
-#### 3. Task Scheduler
-
-```typescript
-scheduler.register({
-  name: "observe-github",
-  intervalMs: minutes(5),
-  fn: observeGitHub,
-});
-```
-
-**Why internal scheduler?**
-- No external dependencies (no cron, no systemd timer)
-- Dynamic task registration (add/remove tasks at runtime)
-- Event-driven lifecycle (task:started, task:completed, task:failed)
-- Graceful shutdown (stop all tasks before exit)
-
-**Pattern:**
-
-```typescript
-// Simple interval
-scheduler.register({
-  name: "heartbeat",
-  intervalMs: minutes(1),
-  fn: () => console.log("❤️ alive"),
-});
-
-// Complex task with error handling
-scheduler.register({
-  name: "fetch-data",
-  intervalMs: minutes(5),
-  fn: async () => {
-    try {
-      const data = await api.fetch();
-      eventBus.emit("sensor:observation", { source: "api", data });
-    } catch (error) {
-      eventBus.emit("task:failed", { taskName: "fetch-data", error });
+```json
+{
+  "status": "completed",
+  "summary": "One sentence: what happened.",
+  "actions_taken": ["list", "of", "steps"],
+  "next_steps": [
+    {
+      "title": "Follow-up task title",
+      "description": "What needs doing and why",
+      "priority": 40
     }
-  },
-});
-```
-
-Tasks run automatically, emit events for monitoring, handle errors gracefully.
-
----
-
-## The Sensor Pattern
-
-Sensors observe the external world and return **observations**.
-
-### Design Principles
-
-1. **Stateless** - Sensors don't remember previous observations
-2. **Fast** - Don't block the main loop
-3. **Event-driven** - Emit events, don't return values directly
-4. **Single responsibility** - One sensor, one data source
-
-### Implementation Pattern
-
-```typescript
-export async function observeGitHub(): Promise<void> {
-  // 1. Fetch external data
-  const repos = await github.listRepos({ watched: true });
-
-  // 2. Transform to observation format
-  const observation = {
-    source: "github",
-    timestamp: Date.now(),
-    data: repos.map((r) => ({
-      name: r.name,
-      stars: r.stargazers_count,
-      updated: r.updated_at,
-    })),
-  };
-
-  // 3. Emit event (don't return)
-  eventBus.emit("sensor:observation", observation);
+  ]
 }
 ```
 
-### Sensor Types
-
-#### Polling Sensors (most common)
-
-```typescript
-// Check API every N minutes
-scheduler.register({
-  name: "twitter-sensor",
-  intervalMs: minutes(15),
-  fn: observeTwitter,
-});
-```
-
-#### Webhook Sensors
-
-```typescript
-// Receive events from external services
-app.post("/webhooks/github", async (c) => {
-  const event = await c.req.json();
-
-  eventBus.emit("sensor:observation", {
-    source: "github-webhook",
-    timestamp: Date.now(),
-    data: event,
-  });
-
-  return c.json({ received: true });
-});
-```
-
-#### File Watchers
-
-```typescript
-// Watch for file changes
-import { watch } from "fs";
-
-watch("./data", (event, filename) => {
-  eventBus.emit("sensor:observation", {
-    source: "file-watcher",
-    data: { event, filename },
-  });
-});
-```
+The `next_steps` field is how multi-step work chains. Each entry becomes a new task in the database with priority 30 (lower than most work). This is how an agent self-directs without a human queuing every step.
 
 ---
 
-## The Query Tool Pattern
+## Context Files
 
-Query tools provide **on-demand data** in response to requests.
+These three files load every dispatch cycle:
 
-### Design Principles
+### SOUL.md — Identity
 
-1. **Request-response** - Synchronous or async, but always returns
-2. **Composable** - Query tools can call other query tools
-3. **Focused** - Single concern, clear purpose
-4. **Type-safe** - Explicit inputs and outputs
+Who the agent is. Values, voice, relationships, what it cares about. Claude reads this before doing anything else. A well-written SOUL.md produces coherent, on-brand behavior across thousands of cycles without further instruction.
 
-### Implementation Pattern
+What belongs here:
+- Core values and how to apply them
+- Voice and tone (with examples)
+- What the agent will and won't do
+- Key relationships and how to engage them
+- Current state and recent history
+
+### LOOP.md — Operation
+
+What the agent does and how. Output format requirements, decision rules, available tools, when to escalate. This is the operational manual.
+
+What belongs here:
+- JSON output format (exact schema)
+- Decision rules (when to act vs. defer vs. escalate)
+- Tool access (what tools are available)
+- Skills overview (where capabilities live)
+- Memory and what-to-do guide pointers
+
+### MEMORY.md — Accumulated Knowledge
+
+What the agent has learned. Stable patterns, key file paths, architectural decisions, operational discoveries. Claude reads this to avoid relearning the same things every cycle.
+
+What belongs here:
+- Environment facts (runtime, database location, service name)
+- Key people and relationships
+- On-chain identity
+- Learned patterns (what works, what doesn't)
+- Operational notes (gotchas, known issues)
+
+Keep MEMORY.md concise — it loads every cycle. Daily observations go in `memory/YYYY-MM-DD.md` and get consolidated periodically.
+
+---
+
+## Skills Tree
+
+Capabilities live under `skills/`. Each skill is a directory:
+
+```
+skills/
+├── README.md              # Map of all capabilities
+├── inbox/
+│   ├── SKILL.md           # Contract: what this does, how to invoke
+│   ├── AGENT.md           # Optional: dispatch context when running this skill
+│   ├── check.ts           # Sensor: runs on empty ticks
+│   └── send.ts            # Action: sends a reply
+└── heartbeat/
+    ├── SKILL.md
+    └── run.ts             # Hook: runs every cycle without Claude
+```
+
+**SKILL.md is the contract.** Claude reads it to understand what the skill does and how to call its scripts. Verbose, descriptive skill names and descriptions matter — they are the context that makes Claude use skills correctly.
+
+**Three skill types:**
+
+| Type | File | When it runs | Uses Claude? |
+|------|------|--------------|-------------|
+| Hook | `run.ts` (registered in hooks.ts) | Every cycle | No — fast, code-only |
+| Sensor | `check.ts` (registered in checks.ts) | Empty ticks | No — detects conditions, queues tasks |
+| Action | any `.ts` or `.sh` | When Claude invokes | Yes (Claude decides to run it) |
+
+---
+
+## Database
+
+`bun:sqlite` for all structured data. Two tables in the default schema:
+
+### tasks
+
+```sql
+CREATE TABLE tasks (
+  task_id INTEGER PRIMARY KEY,
+  task_subject TEXT NOT NULL,
+  task_description TEXT NOT NULL,
+  task_status TEXT DEFAULT 'pending',  -- pending/active/completed/failed
+  task_priority INTEGER DEFAULT 50,
+  task_source TEXT NOT NULL,           -- where this task came from
+  created_at TEXT DEFAULT (datetime()),
+  started_at TEXT,
+  completed_at TEXT,
+  result_summary TEXT,                 -- first 500 chars of Claude's response
+  scheduled_for TEXT,                  -- ISO datetime for future scheduling
+  cost_usd REAL DEFAULT 0,
+  attempt_count INTEGER DEFAULT 0,
+  max_retries INTEGER DEFAULT 3
+);
+```
+
+### comms
+
+Internal message threading — for communication between Arc and whoabuddy, threaded by `parent_message_id`.
+
+**Key principle:** SQLite is for what *code* queries. Markdown is for what *Claude* reads. Don't try to make Claude query the database directly — give it context in the prompt.
+
+---
+
+## Memory Pattern
+
+Two layers:
+
+**Flat markdown** (`MEMORY.md`, `memory/YYYY-MM-DD.md`) — Claude reads this. Keep concise. Daily files hold observations; MEMORY.md holds consolidated learnings. A consolidate-memory sensor runs periodically to merge daily files.
+
+**SQLite** (`db/arc.sqlite`) — code queries this. Task history, comm history, sensor state, deduplication keys. Claude doesn't read the database directly; the loop extracts relevant context and puts it in the prompt.
+
+---
+
+## Sensor Pattern
+
+Sensors detect conditions and return tasks to queue. They are:
+
+- **Stateless**: each run fetches fresh data
+- **Focused**: one sensor, one condition
+- **Non-blocking**: run only on empty ticks
+- **Conservative**: return null if no action needed
 
 ```typescript
-// Simple query
-export function queryStatus(): ServerStatus {
+// skills/inbox/check.ts
+export default async function check(): Promise<CheckResult | null> {
+  const unreplied = getUnrepliedMessages();
+  if (unreplied.length === 0) return null; // Nothing to do
+
+  const msg = unreplied[0];
   return {
-    uptime: process.uptime(),
-    tasks: scheduler.list(),
-    timestamp: Date.now(),
+    title: `Reply to message from ${msg.sender}`,
+    body: `Full message context: ${msg.content}`,
+    source: "inbox:check",
+    priority: 50,
   };
 }
-
-// Async query
-export async function queryRepository(name: string): Promise<RepoData> {
-  const data = await github.getRepo(name);
-  return {
-    name: data.name,
-    stars: data.stargazers_count,
-    lastCommit: data.pushed_at,
-  };
-}
-
-// Composed query
-export async function queryDashboard(): Promise<Dashboard> {
-  const status = queryStatus();
-  const repos = await queryTopRepos();
-  const trends = await queryTrends();
-
-  return { status, repos, trends };
-}
 ```
 
-### Query Tool Usage
-
-#### From API Endpoints
-
-```typescript
-app.get("/api/dashboard", async (c) => {
-  const data = await queryDashboard();
-  return c.json(data);
-});
-```
-
-#### From Commands (Discord bot, CLI)
-
-```typescript
-eventBus.on("channel:message", async (msg) => {
-  if (msg.message === "!status") {
-    const status = queryStatus();
-    discord.reply(formatStatus(status));
-  }
-});
-```
-
-#### From Decision Logic
-
-```typescript
-async function decideAction() {
-  const repos = await queryTopRepos();
-  const shouldAct = repos.some((r) => r.stars > 1000);
-
-  if (shouldAct) {
-    // Take action
-  }
-}
-```
+The loop in `src/checks.ts` imports and runs all registered sensors, inserts any returned tasks, and exits. The next cycle picks them up.
 
 ---
 
-## The Channel Pattern
+## Deployment Pattern
 
-Channels connect your agent to external communication platforms.
+**Timer + oneshot service**, not a persistent process.
 
-### Design Principles
+```ini
+# arc-starter.timer
+[Timer]
+OnActiveSec=60
+OnUnitActiveSec=5min
 
-1. **Bidirectional** - Receive messages, send responses
-2. **Protocol translation** - External format ↔ internal events
-3. **Command routing** - Parse commands, dispatch to handlers
-4. **Graceful degradation** - Agent works without channels
-
-### Implementation Pattern
-
-```typescript
-export class DiscordChannel {
-  async connect() {
-    // 1. Connect to external service
-    await this.client.login(this.token);
-
-    // 2. Translate incoming messages to events
-    this.client.on("messageCreate", (msg) => {
-      eventBus.emit("channel:message", {
-        channel: "discord",
-        message: msg.content,
-      });
-    });
-
-    // 3. Listen to internal events and send externally
-    eventBus.on("task:completed", (data) => {
-      this.sendMessage(`✅ ${data.taskName} completed`);
-    });
-  }
-
-  async sendMessage(content: string) {
-    // Send to external service
-    await this.channel.send(content);
-  }
-}
+# arc-starter.service
+[Service]
+Type=oneshot
+ExecStart=/home/user/.bun/bin/bun /home/user/arc-starter/src/loop.ts
 ```
 
-### Channel Types
-
-#### Real-time (Discord, Telegram, Slack)
-
-- Persistent connection
-- Immediate notifications
-- Rich formatting (embeds, buttons, threads)
-- Command interfaces
-
-#### HTTP-based (Web UI, REST API)
-
-- Request-response
-- Stateless
-- Cacheable
-- Standard protocols
-
-#### File-based (Logs, Reports)
-
-- Asynchronous
-- Historical record
-- Easy to process
-- No external dependencies
+Each invocation is one complete cycle. The process exits cleanly. The timer re-invokes 5 minutes later. No crash recovery needed — the next cycle always starts fresh.
 
 ---
 
-## Event Flow
+## Two Approaches: A Comparison
 
-Here's how all the pieces work together:
+Arc Starter has evolved through two architectures. The old code in `src/server/`, `src/channels/`, and `src/query-tools/` represents the server-based approach. Understanding the tradeoffs helps you choose what's right for your agent.
+
+### Server-Based (Persistent Process)
 
 ```
-1. Server starts
-   ↓
-2. Scheduler registers tasks
-   ↓
-3. Task runs (sensor)
-   ├─ Observe external system
-   ├─ Emit sensor:observation event
-   └─ Task completes
-   ↓
-4. Event handlers react
-   ├─ Logger: Write to file
-   ├─ Decision engine: Evaluate observation
-   └─ Channel: Send notification
-   ↓
-5. Decision triggers action
-   ├─ Query tool: Get additional data
-   ├─ Emit action:executed event
-   └─ Update state
-   ↓
-6. Repeat from step 3
+start server
+    │
+    ▼
+schedule tasks (internal scheduler)
+    │
+    ▼
+run continuously ←──────────────────┐
+    ├─ sensor fires every N minutes  │
+    ├─ emits event on eventBus       │
+    ├─ decision engine reacts        │
+    ├─ channel sends notification    │
+    └─ loop back ────────────────────┘
 ```
 
-No component directly calls another. Everything flows through events.
+**Strengths:**
+- True real-time responses (Discord messages, webhooks)
+- In-memory state shared across tasks
+- Sub-second reaction time
 
----
+**Weaknesses:**
+- Process crashes require restart logic
+- Memory leaks accumulate over days
+- Harder to debug (state not visible between cycles)
+- All intelligence must be pre-programmed in TypeScript
+- Cannot easily use Claude for decision-making (cost, latency)
 
-## State Management
+**Use when:** You need real-time communication (Discord bot, webhook receiver), or your decisions are deterministic enough to encode in code.
 
-Arc agents have multiple state layers:
+### Dispatch Loop (Stateless Cycles)
 
-### 1. In-Memory State
-
-```typescript
-// Process state
-const uptime = process.uptime();
-const tasks = scheduler.list();
-
-// Event history (recent)
-const recentEvents: Event[] = [];
-eventBus.onAny((event, payload) => {
-  recentEvents.push({ event, payload, timestamp: Date.now() });
-  if (recentEvents.length > 100) recentEvents.shift();
-});
+```
+timer fires
+    │
+    ▼
+fresh process
+    │
+    ▼
+build context + dispatch to Claude
+    │
+    ▼
+parse JSON response
+    │
+    ▼
+update DB, queue follow-ups
+    │
+    ▼
+process exits
 ```
 
-**Lifetime:** Process restart clears this state
+**Strengths:**
+- Claude handles all judgment — no pre-programming required
+- Each cycle starts clean (no accumulated state/drift)
+- Trivial to debug (read the prompt, read the output)
+- Identity and behavior tunable via text files
+- Scales to arbitrary task types without code changes
 
-### 2. File-Based State
+**Weaknesses:**
+- Not real-time (5-minute minimum response latency)
+- Each cycle has LLM cost (~$0.01-0.05 per dispatch)
+- Requires well-written context files to produce good behavior
+- No in-memory state between cycles (use database)
 
-```typescript
-// Identity (doesn't change)
-const soul = await Bun.file("SOUL.md").text();
+**Use when:** Your agent needs judgment, natural language reasoning, or handles diverse task types. This is the right default for most autonomous agents.
 
-// Configuration (rarely changes)
-const config = await Bun.file("config/config.json").json();
+### Combining Both
 
-// Memory (frequently written)
-await Bun.write("memory/recent.json", JSON.stringify(observations));
-```
+The approaches are not mutually exclusive. The AIBTC sensors in `src/sensors/` (server-based pattern) can be adapted to:
 
-**Lifetime:** Persistent, version controlled (except secrets)
+1. Run as hooks (every cycle, fast, no Claude)
+2. Run as sensors (empty ticks, detect conditions, queue tasks)
+3. Keep as server channels if real-time communication is needed
 
-### 3. Database State
-
-```typescript
-// Operational history
-await db.insert({
-  table: "observations",
-  data: { source: "github", timestamp, data },
-});
-
-// Relationships
-await db.insert({
-  table: "relationships",
-  data: { from: "user1", to: "user2", strength: 0.8 },
-});
-```
-
-**Lifetime:** Persistent, queryable, analyzable
+A production agent might use the dispatch loop for all intelligence work and add a small always-running server for webhooks and real-time notifications.
 
 ---
 
 ## Error Handling
 
-Errors are events, not exceptions.
+**Tasks:** Automatic retry up to `max_retries` (default: 3). After exhausting retries, the task is marked `failed` with the error in `result_summary`.
 
-```typescript
-// Don't throw in tasks
-scheduler.register({
-  name: "risky-task",
-  fn: async () => {
-    try {
-      await riskyOperation();
-    } catch (error) {
-      // Emit error event instead of throwing
-      eventBus.emit("task:failed", {
-        taskName: "risky-task",
-        error: error.message,
-      });
-    }
-  },
-});
+**Crash recovery:** On startup, the loop checks for any tasks left in `active` state from a previous cycle (indicates a crash) and marks them `failed`. Clean slate every cycle.
 
-// Handle errors globally
-eventBus.on("task:failed", (data) => {
-  console.error(`Task failed: ${data.taskName}`, data.error);
-
-  // Optional: notify via channel
-  discord.sendMessage(`⚠️ Task failed: ${data.taskName}`);
-
-  // Optional: disable failing task
-  if (data.taskName === "critical-task") {
-    scheduler.stop(data.taskName);
-  }
-});
-```
-
----
-
-## Graceful Shutdown
-
-Always clean up on exit:
-
-```typescript
-const shutdown = async (signal: string) => {
-  console.log(`Received ${signal}, shutting down...`);
-
-  // 1. Stop accepting new work
-  scheduler.stopAll();
-
-  // 2. Disconnect channels
-  await discord.disconnect();
-
-  // 3. Flush pending writes
-  await db.flush();
-
-  // 4. Emit final event
-  eventBus.emit("server:stopped", {
-    uptime: process.uptime(),
-  });
-
-  // 5. Exit cleanly
-  process.exit(0);
-};
-
-process.on("SIGTERM", () => shutdown("SIGTERM"));
-process.on("SIGINT", () => shutdown("SIGINT"));
-```
-
----
-
-## Performance Patterns
-
-### 1. Async by Default
-
-```typescript
-// Bad: Blocks event loop
-const data = fs.readFileSync("data.json");
-
-// Good: Async
-const data = await Bun.file("data.json").json();
-```
-
-### 2. Parallel Where Possible
-
-```typescript
-// Bad: Sequential
-const repos = await queryRepos();
-const trends = await queryTrends();
-const papers = await queryPapers();
-
-// Good: Parallel
-const [repos, trends, papers] = await Promise.all([
-  queryRepos(),
-  queryTrends(),
-  queryPapers(),
-]);
-```
-
-### 3. Rate Limiting
-
-```typescript
-let lastCall = 0;
-const RATE_LIMIT_MS = 1000;
-
-export async function rateLimitedFetch() {
-  const now = Date.now();
-  const timeSinceLastCall = now - lastCall;
-
-  if (timeSinceLastCall < RATE_LIMIT_MS) {
-    await new Promise((resolve) =>
-      setTimeout(resolve, RATE_LIMIT_MS - timeSinceLastCall)
-    );
-  }
-
-  lastCall = Date.now();
-  return await fetch(url);
-}
-```
+**Escalation:** Claude can return `status: "partial"` with an explanation when a task requires human judgment or has irreversible consequences. The loop stores this and the task is not retried — whoabuddy reviews it.
 
 ---
 
 ## Security Patterns
 
-### 1. Never Commit Secrets
+**Secrets:** Store in a `.arc-secrets` file (loaded as `EnvironmentFile` in the service). Never commit. Access via `process.env.MY_SECRET`.
 
-```jsonc
-// config/config.json
-{
-  "discord": {
-    "token": "env:DISCORD_TOKEN" // Reference env var
-  }
-}
-```
+**Least privilege:** The systemd service uses `ProtectSystem=strict` + `ReadWritePaths` to limit what the process can access.
 
-```typescript
-// Load from environment
-const token = process.env.DISCORD_TOKEN;
-if (!token) {
-  console.warn("Discord disabled - no token");
-}
-```
+**Validation:** All external data (API responses, webhook payloads) should be validated before trusting.
 
-### 2. Validate All External Input
-
-```typescript
-app.post("/webhook", async (c) => {
-  const signature = c.req.header("X-Signature");
-
-  // Validate signature
-  if (!verifySignature(signature, await c.req.text())) {
-    return c.json({ error: "Invalid signature" }, 401);
-  }
-
-  // Process webhook
-  const event = await c.req.json();
-  handleWebhook(event);
-});
-```
-
-### 3. Principle of Least Privilege
-
-```typescript
-// Read-only by default
-export const queryTool = {
-  canRead: true,
-  canWrite: false,
-  canExecute: false,
-};
-
-// Explicit write permission
-export const actionTool = {
-  canRead: true,
-  canWrite: true,
-  canExecute: false,
-  requiresApproval: true,
-};
-```
+**Signing:** Authenticated actions (heartbeat posts, on-chain transactions) require cryptographic signing. Use `@stacks/transactions` or `@aibtc/mcp-server` for Stacks signing.
 
 ---
 
-## Testing Patterns
+## Testing
 
-### 1. Unit Test Query Tools
+Test the parts that don't involve Claude:
 
-```typescript
-import { describe, test, expect } from "bun:test";
-import { queryStatus } from "./query-tools/status";
+- **Sensors:** Does `check()` return null when there's no work? Does it return the right structure when there is?
+- **Database helpers:** Do queries return the right data?
+- **Utility functions:** Do transformations produce correct output?
 
-describe("queryStatus", () => {
-  test("returns status object", () => {
-    const status = queryStatus();
-    expect(status).toHaveProperty("uptime");
-    expect(status).toHaveProperty("timestamp");
-  });
-});
+Don't try to unit-test the dispatch loop or mock Claude — integration test by running `bun src/loop.ts` with a known task queued.
+
+```bash
+bun test                    # Run all tests
+bun test src/__tests__/     # Run specific test directory
 ```
-
-### 2. Integration Test Events
-
-```typescript
-test("sensor emits observation event", async () => {
-  const observations: any[] = [];
-
-  // Listen for event
-  eventBus.on("sensor:observation", (obs) => {
-    observations.push(obs);
-  });
-
-  // Run sensor
-  await observeTime();
-
-  // Assert event emitted
-  expect(observations).toHaveLength(1);
-  expect(observations[0].source).toBe("time-sensor");
-});
-```
-
-### 3. End-to-End Test Server
-
-```typescript
-test("health endpoint returns 200", async () => {
-  const response = await fetch("http://localhost:3000/health");
-  expect(response.status).toBe(200);
-
-  const data = await response.json();
-  expect(data.status).toBe("healthy");
-});
-```
-
----
-
-## Deployment Checklist
-
-- [ ] Environment variables configured
-- [ ] Secrets never committed to git
-- [ ] systemd service installed
-- [ ] Health endpoint accessible
-- [ ] Logs being written
-- [ ] Graceful shutdown tested
-- [ ] Resource limits set (memory, CPU)
-- [ ] Monitoring/alerting configured
-- [ ] Backup strategy for state/memory
-- [ ] Rollback plan documented
 
 ---
 
 ## Next: Read SOUL.md
 
-This doc explained **how** Arc works. [SOUL.md](./SOUL.md) explains **why** - the identity, values, and purpose that guide your agent's behavior.
+This doc explained **how** the architecture works. [SOUL.md](./SOUL.md) explains **why** — the identity, values, and purpose that guide your agent's behavior. Start there before writing a line of code.

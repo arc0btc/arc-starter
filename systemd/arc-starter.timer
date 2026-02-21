@@ -1,0 +1,23 @@
+# Arc Starter - Systemd Timer
+#
+# Triggers arc-starter.service every 5 minutes.
+# First run is 60 seconds after the timer unit is activated.
+#
+# Install alongside arc-starter.service — see that file for full instructions.
+
+[Unit]
+Description=Arc Starter autonomous agent loop — 5-minute timer
+After=network-online.target
+
+[Timer]
+# Wait 60s after timer activation before first run
+OnActiveSec=60
+
+# Re-run 5 minutes after the last activation
+OnUnitActiveSec=5min
+
+# Allow up to 30s of jitter to avoid thundering-herd on shared systems
+AccuracySec=30
+
+[Install]
+WantedBy=timers.target
