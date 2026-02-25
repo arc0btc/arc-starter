@@ -323,6 +323,43 @@ function cmdSkills(args: string[]): void {
   }
 }
 
+function cmdSensorsList(): void {
+  const skills = discoverSkills();
+  const sensors = skills.filter((s) => s.hasSensor);
+
+  if (sensors.length === 0) {
+    process.stdout.write("No sensors found.\n");
+    return;
+  }
+
+  const header = pad("name", 22) + pad("description", 42) + "sensor path";
+  process.stdout.write(header + "\n");
+  process.stdout.write("-".repeat(header.length) + "\n");
+
+  for (const skill of sensors) {
+    const line =
+      pad(truncate(skill.name, 20), 22) +
+      pad(truncate(skill.description, 40), 42) +
+      join(skill.path, "sensor.ts");
+    process.stdout.write(line + "\n");
+  }
+}
+
+async function cmdSensorsRun(): Promise<void> {
+  const { runSensors } = await import("./sensors.ts");
+  initDatabase();
+  await runSensors();
+}
+
+async function cmdSensors(args: string[]): Promise<void> {
+  const sub = args[0];
+  if (sub === "list") {
+    cmdSensorsList();
+  } else {
+    await cmdSensorsRun();
+  }
+}
+
 function cmdHelp(): void {
   process.stdout.write(`arc - autonomous agent CLI
 
@@ -357,6 +394,12 @@ COMMANDS
   skills run <name> [args]
     Run a skill's cli.ts with the given args.
 
+  sensors
+    Run all sensors once and exit.
+
+  sensors list
+    List discovered sensors (skills with sensor.ts).
+
   help
     Show this help message.
 
@@ -370,6 +413,8 @@ EXAMPLES
   arc skills
   arc skills show manage-skills
   arc skills run manage-skills create my-skill --description "Does X"
+  arc sensors list
+  arc sensors
 `);
 }
 
@@ -401,6 +446,9 @@ async function main(): Promise<void> {
       break;
     case "skills":
       cmdSkills(argv.slice(1));
+      break;
+    case "sensors":
+      await cmdSensors(argv.slice(1));
       break;
     case "help":
     case "--help":
