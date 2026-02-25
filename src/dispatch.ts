@@ -96,7 +96,6 @@ function clearDispatchLock(): void {
 // ---- File helpers ----
 
 function readFile(filePath: string): string {
-  if (!existsSync(filePath)) return "";
   try {
     return readFileSync(filePath, "utf-8");
   } catch {
@@ -290,12 +289,11 @@ async function dispatch(prompt: string): Promise<DispatchResult> {
 
       // Prefer total_cost_usd from result (most accurate — includes tool use overhead)
       const totalCostField = parsed["total_cost_usd"];
-      cost_usd =
-        typeof totalCostField === "number"
-          ? totalCostField
-          : usage
-            ? calculateApiCostUsd(usage.input_tokens || 0, usage.output_tokens || 0)
-            : 0;
+      if (typeof totalCostField === "number") {
+        cost_usd = totalCostField;
+      } else if (usage) {
+        cost_usd = calculateApiCostUsd(usage.input_tokens || 0, usage.output_tokens || 0);
+      }
 
       // Capture token counts
       if (usage) {
@@ -481,9 +479,8 @@ export async function runDispatch(): Promise<void> {
     const postStatus = getTaskById(task.id);
     if (postStatus && postStatus.status !== "active") {
       log(
-        `dispatch: task #${task.id} was closed by LLM (status=${postStatus.status}) — recording cost`
+        `dispatch: task #${task.id} was closed by LLM (status=${postStatus.status})`
       );
-      updateTaskCost(task.id, cost_usd, api_cost_usd, input_tokens, output_tokens);
     } else {
       // 8b. Fallback: LLM did not call arc tasks close — loop closes it
       log(
@@ -491,8 +488,8 @@ export async function runDispatch(): Promise<void> {
       );
       const summary = result.slice(0, 500) || "Completed — no output";
       markTaskCompleted(task.id, summary, result || undefined);
-      updateTaskCost(task.id, cost_usd, api_cost_usd, input_tokens, output_tokens);
     }
+    updateTaskCost(task.id, cost_usd, api_cost_usd, input_tokens, output_tokens);
 
     // Update cycle log with cost/token data
     const duration_ms = Date.now() - dispatchStart;
