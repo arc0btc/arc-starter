@@ -71,6 +71,26 @@ export async function shouldRun(name: string, intervalMinutes: number): Promise<
   return Date.now() >= nextAllowed;
 }
 
+// Combines interval gating + state claim into a single call.
+// Returns false if the sensor should not run. Returns true and writes
+// an "ok" state claim if the sensor should proceed.
+export async function claimSensorRun(name: string, intervalMinutes: number): Promise<boolean> {
+  const canRun = await shouldRun(name, intervalMinutes);
+  if (!canRun) return false;
+
+  const existing = await readHookState(name);
+  const nextVersion = existing ? existing.version + 1 : 1;
+
+  await writeHookState(name, {
+    last_ran: new Date().toISOString(),
+    last_result: "ok",
+    version: nextVersion,
+    consecutive_failures: 0,
+  });
+
+  return true;
+}
+
 // ---- Sensor runner ----
 
 interface SensorResult {

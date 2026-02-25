@@ -6,7 +6,7 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { shouldRun, writeHookState, readHookState } from "../../src/sensors.ts";
+import { claimSensorRun } from "../../src/sensors.ts";
 import { initDatabase, insertTask, pendingTaskExistsForSource, getRecentCycles, getPendingTasks } from "../../src/db.ts";
 
 const SENSOR_NAME = "health";
@@ -60,26 +60,10 @@ function checkStaleLock(): boolean {
 }
 
 export default async function healthSensor(): Promise<string> {
-  // Ensure db is initialized (sensors may be called standalone)
   initDatabase();
 
-  // Gate: only run if enough time has passed
-  const ok = await shouldRun(SENSOR_NAME, INTERVAL_MINUTES);
-  if (!ok) {
-    return "skip";
-  }
-
-  // Read current state to get version for increment
-  const existing = await readHookState(SENSOR_NAME);
-  const nextVersion = existing ? existing.version + 1 : 1;
-
-  // Write updated state immediately (claim the run slot)
-  await writeHookState(SENSOR_NAME, {
-    last_ran: new Date().toISOString(),
-    last_result: "ok",
-    version: nextVersion,
-    consecutive_failures: 0,
-  });
+  const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
+  if (!claimed) return "skip";
 
   // Check for stale cycle
   const staleCycle = checkStaleCycle();
