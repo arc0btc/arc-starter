@@ -1,0 +1,15 @@
+{
+  "name": "arc-agent",
+  "version": "0.0.1",
+  "description": "Arc autonomous agent — minimal task-based loop, Bun runtime, CLI-first",
+  "type": "module",
+  "bin": {
+    "arc": "./src/cli.ts"
+  },
+  "scripts": {
+    "db:init": "bun src/db.ts",
+    "sensors": "bun src/sensors.ts",
+    "dispatch": "bun src/dispatch.ts",
+    "arc": "bun src/cli.ts"
+  }
+}
