@@ -1,6 +1,5 @@
 #!/usr/bin/env bun
 
-import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
@@ -16,39 +15,7 @@ import {
   getTaskById,
 } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
-
-// ---- Arg parsing helper ----
-
-interface ParsedArgs {
-  flags: Record<string, string>;
-  positional: string[];
-}
-
-function parseFlags(args: string[]): ParsedArgs {
-  const flags: Record<string, string> = {};
-  const positional: string[] = [];
-
-  let i = 0;
-  while (i < args.length) {
-    const arg = args[i];
-    if (arg.startsWith("--")) {
-      const key = arg.slice(2);
-      const next = args[i + 1];
-      if (next !== undefined && !next.startsWith("--")) {
-        flags[key] = next;
-        i += 2;
-      } else {
-        flags[key] = "true";
-        i += 1;
-      }
-    } else {
-      positional.push(arg);
-      i += 1;
-    }
-  }
-
-  return { flags, positional };
-}
+import { parseFlags, pad, truncate } from "./utils.ts";
 
 // ---- Commands ----
 
@@ -416,16 +383,6 @@ EXAMPLES
   arc sensors list
   arc sensors
 `);
-}
-
-// ---- String helpers ----
-
-function pad(s: string, width: number): string {
-  return s.length >= width ? s + " " : s + " ".repeat(width - s.length);
-}
-
-function truncate(s: string, max: number): string {
-  return s.length > max ? s.slice(0, max - 1) + "~" : s;
 }
 
 // ---- Entry point ----

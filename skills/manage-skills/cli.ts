@@ -3,42 +3,11 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { discoverSkills } from "../../src/skills.ts";
+import { parseFlags, pad, truncate } from "../../src/utils.ts";
 
-// ---- Helpers ----
+// ---- Constants ----
 
 const SKILLS_ROOT = join(import.meta.dir, "../../skills");
-
-function pad(s: string, width: number): string {
-  return s.length >= width ? s + " " : s + " ".repeat(width - s.length);
-}
-
-function truncate(s: string, max: number): string {
-  return s.length > max ? s.slice(0, max - 1) + "~" : s;
-}
-
-function parseFlags(args: string[]): { flags: Record<string, string>; positional: string[] } {
-  const flags: Record<string, string> = {};
-  const positional: string[] = [];
-  let i = 0;
-  while (i < args.length) {
-    const arg = args[i];
-    if (arg.startsWith("--")) {
-      const key = arg.slice(2);
-      const next = args[i + 1];
-      if (next !== undefined && !next.startsWith("--")) {
-        flags[key] = next;
-        i += 2;
-      } else {
-        flags[key] = "true";
-        i += 1;
-      }
-    } else {
-      positional.push(arg);
-      i += 1;
-    }
-  }
-  return { flags, positional };
-}
 
 // ---- Subcommands ----
 
@@ -178,18 +147,24 @@ EXAMPLES
 const args = process.argv.slice(2);
 const sub = args[0];
 
-if (sub === "list") {
-  cmdList();
-} else if (sub === "show") {
-  cmdShow(args.slice(1));
-} else if (sub === "create") {
-  cmdCreate(args.slice(1));
-} else if (sub === "help" || sub === "--help" || sub === "-h") {
-  printUsage();
-} else if (sub === undefined) {
-  printUsage();
-} else {
-  process.stderr.write(`Error: unknown subcommand '${sub}'\n\n`);
-  printUsage();
-  process.exit(1);
+switch (sub) {
+  case "list":
+    cmdList();
+    break;
+  case "show":
+    cmdShow(args.slice(1));
+    break;
+  case "create":
+    cmdCreate(args.slice(1));
+    break;
+  case "help":
+  case "--help":
+  case "-h":
+  case undefined:
+    printUsage();
+    break;
+  default:
+    process.stderr.write(`Error: unknown subcommand '${sub}'\n\n`);
+    printUsage();
+    process.exit(1);
 }
