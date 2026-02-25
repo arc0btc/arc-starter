@@ -1,0 +1,9 @@
+[Unit]
+Description=arc-agent dispatch timer — fires every 1 minute
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1min
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,9 @@
+[Unit]
+Description=arc-agent sensors timer — fires every 1 minute
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=1min
+
+[Install]
+WantedBy=timers.target
