@@ -186,40 +186,38 @@ export function insertTask(fields: InsertTask): number {
   const db = getDatabase();
 
   const cols: string[] = ["subject"];
-  const placeholders: string[] = ["?"];
   const values: unknown[] = [fields.subject];
 
-  if (fields.description !== undefined) {
-    cols.push("description"); placeholders.push("?"); values.push(fields.description);
-  }
-  if (fields.skills !== undefined) {
-    cols.push("skills"); placeholders.push("?"); values.push(fields.skills);
-  }
-  if (fields.priority !== undefined) {
-    cols.push("priority"); placeholders.push("?"); values.push(fields.priority);
-  }
-  if (fields.status !== undefined) {
-    cols.push("status"); placeholders.push("?"); values.push(fields.status);
-  }
-  if (fields.source !== undefined) {
-    cols.push("source"); placeholders.push("?"); values.push(fields.source);
-  }
-  if (fields.parent_id !== undefined) {
-    cols.push("parent_id"); placeholders.push("?"); values.push(fields.parent_id);
-  }
-  if (fields.template !== undefined) {
-    cols.push("template"); placeholders.push("?"); values.push(fields.template);
-  }
-  if (fields.scheduled_for !== undefined && fields.scheduled_for !== null) {
-    cols.push("scheduled_for");
-    placeholders.push("?");
-    values.push(toSqliteDatetime(new Date(fields.scheduled_for)));
-  } else if (fields.scheduled_for === null) {
-    cols.push("scheduled_for"); placeholders.push("?"); values.push(null);
+  const optionalFields: Array<[keyof InsertTask, string]> = [
+    ["description", "description"],
+    ["skills", "skills"],
+    ["priority", "priority"],
+    ["status", "status"],
+    ["source", "source"],
+    ["parent_id", "parent_id"],
+    ["template", "template"],
+  ];
+
+  for (const [key, col] of optionalFields) {
+    if (fields[key] !== undefined) {
+      cols.push(col);
+      values.push(fields[key]);
+    }
   }
 
+  // scheduled_for requires datetime conversion
+  if (fields.scheduled_for !== undefined) {
+    cols.push("scheduled_for");
+    values.push(
+      fields.scheduled_for !== null
+        ? toSqliteDatetime(new Date(fields.scheduled_for))
+        : null
+    );
+  }
+
+  const placeholders = cols.map(() => "?").join(", ");
   const result = db
-    .query(`INSERT INTO tasks (${cols.join(", ")}) VALUES (${placeholders.join(", ")})`)
+    .query(`INSERT INTO tasks (${cols.join(", ")}) VALUES (${placeholders})`)
     .run(...values);
 
   return Number(result.lastInsertRowid);
@@ -287,17 +285,20 @@ export function insertCycleLog(entry: InsertCycleLog): number {
 
 export function updateCycleLog(id: number, fields: Partial<CycleLog>): void {
   const db = getDatabase();
+  const updatableFields: Array<keyof CycleLog> = [
+    "completed_at", "duration_ms", "cost_usd", "api_cost_usd",
+    "tokens_in", "tokens_out", "skills_loaded", "task_id",
+  ];
+
   const sets: string[] = [];
   const values: unknown[] = [];
 
-  if (fields.completed_at !== undefined) { sets.push("completed_at = ?"); values.push(fields.completed_at); }
-  if (fields.duration_ms !== undefined) { sets.push("duration_ms = ?"); values.push(fields.duration_ms); }
-  if (fields.cost_usd !== undefined) { sets.push("cost_usd = ?"); values.push(fields.cost_usd); }
-  if (fields.api_cost_usd !== undefined) { sets.push("api_cost_usd = ?"); values.push(fields.api_cost_usd); }
-  if (fields.tokens_in !== undefined) { sets.push("tokens_in = ?"); values.push(fields.tokens_in); }
-  if (fields.tokens_out !== undefined) { sets.push("tokens_out = ?"); values.push(fields.tokens_out); }
-  if (fields.skills_loaded !== undefined) { sets.push("skills_loaded = ?"); values.push(fields.skills_loaded); }
-  if (fields.task_id !== undefined) { sets.push("task_id = ?"); values.push(fields.task_id); }
+  for (const key of updatableFields) {
+    if (fields[key] !== undefined) {
+      sets.push(`${key} = ?`);
+      values.push(fields[key]);
+    }
+  }
 
   if (sets.length === 0) return;
   values.push(id);
