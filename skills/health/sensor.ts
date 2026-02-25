@@ -7,7 +7,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { shouldRun, writeHookState, readHookState } from "../../src/sensors.ts";
-import { initDatabase, insertTask, getDatabase, getRecentCycles, getPendingTasks } from "../../src/db.ts";
+import { initDatabase, insertTask, pendingTaskExistsForSource, getRecentCycles, getPendingTasks } from "../../src/db.ts";
 
 const SENSOR_NAME = "health";
 const INTERVAL_MINUTES = 5;
@@ -59,15 +59,6 @@ function checkStaleLock(): boolean {
   }
 }
 
-// Returns true if any health alert task is pending or active (dedup gate).
-function healthAlertActive(source: string): boolean {
-  const db = getDatabase();
-  const row = db
-    .query("SELECT 1 FROM tasks WHERE source = ? AND status IN ('pending', 'active') LIMIT 1")
-    .get(source);
-  return row !== null;
-}
-
 export default async function healthSensor(): Promise<string> {
   // Ensure db is initialized (sensors may be called standalone)
   initDatabase();
@@ -92,7 +83,7 @@ export default async function healthSensor(): Promise<string> {
 
   // Check for stale cycle
   const staleCycle = checkStaleCycle();
-  if (staleCycle && !healthAlertActive(TASK_SOURCE)) {
+  if (staleCycle && !pendingTaskExistsForSource(TASK_SOURCE)) {
     insertTask({
       subject: "health alert: dispatch stale or stuck",
       description:
@@ -105,7 +96,7 @@ export default async function healthSensor(): Promise<string> {
 
   // Check for stale lock
   const staleLock = checkStaleLock();
-  if (staleLock && !healthAlertActive(STALE_LOCK_SOURCE)) {
+  if (staleLock && !pendingTaskExistsForSource(STALE_LOCK_SOURCE)) {
     insertTask({
       subject: "health alert: stale dispatch lock detected",
       description:

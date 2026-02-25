@@ -180,6 +180,14 @@ export function taskExistsForSource(source: string): boolean {
   return row !== null;
 }
 
+export function pendingTaskExistsForSource(source: string): boolean {
+  const db = getDatabase();
+  const row = db
+    .query("SELECT 1 FROM tasks WHERE source = ? AND status IN ('pending', 'active') LIMIT 1")
+    .get(source);
+  return row !== null;
+}
+
 // ---- Task mutations ----
 
 export function insertTask(fields: InsertTask): number {

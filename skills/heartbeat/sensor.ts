@@ -5,22 +5,11 @@
 // Deduplicates by checking for pending or active tasks with source "sensor:heartbeat".
 
 import { shouldRun, writeHookState, readHookState } from "../../src/sensors.ts";
-import { initDatabase, insertTask, getDatabase } from "../../src/db.ts";
+import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "heartbeat";
 const INTERVAL_MINUTES = 360; // 6 hours
 const TASK_SOURCE = "sensor:heartbeat";
-
-// Returns true if a pending or active heartbeat task already exists.
-// Unlike taskExistsForSource() which checks all statuses, this only
-// blocks duplicate creation while one is still in flight.
-function heartbeatTaskActive(): boolean {
-  const db = getDatabase();
-  const row = db
-    .query("SELECT 1 FROM tasks WHERE source = ? AND status IN ('pending', 'active') LIMIT 1")
-    .get(TASK_SOURCE);
-  return row !== null;
-}
 
 export default async function heartbeatSensor(): Promise<string> {
   // Ensure db is initialized (sensors may be called standalone)
@@ -45,7 +34,7 @@ export default async function heartbeatSensor(): Promise<string> {
   });
 
   // Dedup: skip if a pending or active heartbeat task already exists
-  if (heartbeatTaskActive()) {
+  if (pendingTaskExistsForSource(TASK_SOURCE)) {
     // Update state to reflect skip
     await writeHookState(SENSOR_NAME, {
       last_ran: new Date().toISOString(),
