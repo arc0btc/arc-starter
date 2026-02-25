@@ -191,7 +191,6 @@ function cmdTasks(args: string[]): void {
 }
 
 async function cmdRun(): Promise<void> {
-  const { initDatabase } = await import("./db.ts");
   const { runDispatch } = await import("./dispatch.ts");
   initDatabase();
   await runDispatch();
