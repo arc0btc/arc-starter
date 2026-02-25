@@ -2,7 +2,7 @@
 
 ## Phase 1: Initialize project and write architecture doc
 Goal: Create the project skeleton (package.json, tsconfig.json, directory structure, git init) and write CLAUDE.md -- the architecture document that replaces both ARCHITECTURE.md and LOOP.md from v4. This is the foundation every subsequent phase builds on.
-Status: pending
+Status: completed
 Dependencies: none
 
 ### Details
@@ -40,7 +40,7 @@ Dependencies: none
 
 ## Phase 2: Build database layer
 Goal: Implement `src/db.ts` with the complete schema (tasks, memory_versions, cycle_log) and all query/mutation functions. This is the data foundation everything depends on.
-Status: pending
+Status: completed
 Dependencies: Phase 1
 
 ### Details
@@ -135,7 +135,7 @@ Cycle log:
 
 ## Phase 3: Build CLI with status and task commands
 Goal: Implement `src/cli.ts` as the `arc` command entry point with `status`, `tasks`, and `run` (placeholder) subcommands. This is the primary interface for both humans and Arc.
-Status: pending
+Status: completed
 Dependencies: Phase 2
 
 ### Details
@@ -195,7 +195,7 @@ Dependencies: Phase 2
 
 ## Phase 4: Build manage-skills skill and skill discovery
 Goal: Create the manage-skills skill (SKILL.md, AGENT.md, cli.ts) and implement skill discovery in the CLI. This establishes the skill pattern that all future skills follow.
-Status: pending
+Status: completed
 Dependencies: Phase 3
 
 ### Details
@@ -312,7 +312,7 @@ Brief instructions for a subagent that creates/modifies skills. Should cover:
 
 ## Phase 5: Build dispatch engine
 Goal: Implement `src/dispatch.ts` -- the core dispatch loop that picks a task, resolves skill context, builds a prompt, calls `claude` via stream-JSON, and records results. This is the most complex piece.
-Status: pending
+Status: completed
 Dependencies: Phase 4
 
 ### Details
@@ -386,7 +386,7 @@ Dependencies: Phase 4
 
 ## Phase 6: Build sensors runner
 Goal: Implement `src/sensors.ts` -- discovers and runs all `skills/*/sensor.ts` files in parallel with shouldRun gating. Create a heartbeat sensor as the first concrete sensor.
-Status: pending
+Status: completed
 Dependencies: Phase 5
 
 ### Details
