@@ -64,10 +64,11 @@ function cmdStatus(): void {
 
   const costRow = db
     .query(
-      "SELECT COALESCE(SUM(cost_usd), 0) as total FROM tasks WHERE date(created_at) = date('now')"
+      "SELECT COALESCE(SUM(cost_usd), 0) as total, COALESCE(SUM(api_cost_usd), 0) as api_total FROM tasks WHERE date(created_at) = date('now')"
     )
-    .get() as { total: number };
+    .get() as { total: number; api_total: number };
   const costToday = costRow.total;
+  const apiCostToday = costRow.api_total;
 
   const pendingStr = `pending: ${pendingCount}`;
   const activeStr = `active: ${activeCount}`;
@@ -76,12 +77,15 @@ function cmdStatus(): void {
   if (lastCycle) {
     const ts = lastCycle.started_at;
     const dur = lastCycle.duration_ms !== null ? `${lastCycle.duration_ms}ms` : "running";
-    process.stdout.write(`last cycle: ${ts} (${dur})\n`);
+    const cycleCost = lastCycle.cost_usd ? ` cost=$${lastCycle.cost_usd.toFixed(6)}` : "";
+    process.stdout.write(`last cycle: ${ts} (${dur})${cycleCost}\n`);
   } else {
     process.stdout.write("last cycle: none\n");
   }
 
-  process.stdout.write(`cost today: $${costToday.toFixed(4)}\n`);
+  process.stdout.write(
+    `cost today: $${costToday.toFixed(4)} (actual) / $${apiCostToday.toFixed(4)} (api est)\n`
+  );
   process.stdout.write("sensors: unknown\n");
 }
 
@@ -219,8 +223,11 @@ function cmdTasks(args: string[]): void {
   }
 }
 
-function cmdRun(): void {
-  process.stdout.write("Dispatch not yet implemented. See Phase 5.\n");
+async function cmdRun(): Promise<void> {
+  const { initDatabase } = await import("./db.ts");
+  const { runDispatch } = await import("./dispatch.ts");
+  initDatabase();
+  await runDispatch();
 }
 
 function cmdSkillsList(): void {
@@ -378,7 +385,7 @@ function truncate(s: string, max: number): string {
 
 // ---- Entry point ----
 
-function main(): void {
+async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   const cmd = argv[0];
 
@@ -390,7 +397,7 @@ function main(): void {
       cmdTasks(argv.slice(1));
       break;
     case "run":
-      cmdRun();
+      await cmdRun();
       break;
     case "skills":
       cmdSkills(argv.slice(1));
@@ -408,4 +415,7 @@ function main(): void {
   }
 }
 
-main();
+main().catch((err) => {
+  console.error(`Error: ${err}`);
+  process.exit(1);
+});
