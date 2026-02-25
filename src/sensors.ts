@@ -128,14 +128,13 @@ export async function runSensors(): Promise<void> {
     }
   });
 
-  const settled = await Promise.allSettled(promises);
-  const results: SensorResult[] = settled.map((r) => {
-    if (r.status === "fulfilled") return r.value;
-    return { name: "unknown", ok: false, skipped: false, durationMs: 0, error: String(r.reason) };
-  });
+  const results = await Promise.all(promises);
 
   for (const r of results) {
-    const status = r.skipped ? "skip" : r.ok ? "ok" : "error";
+    let status: string;
+    if (r.skipped) status = "skip";
+    else if (r.ok) status = "ok";
+    else status = "error";
     const detail = r.error ? ` (${r.error})` : "";
     process.stdout.write(`  sensor ${r.name}: ${status} ${r.durationMs}ms${detail}\n`);
   }

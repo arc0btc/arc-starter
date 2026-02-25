@@ -106,20 +106,16 @@ function readFile(filePath: string): string {
 
 // ---- Skill context resolver ----
 
-/**
- * Parse the task's skills JSON array and load each SKILL.md into a context block.
- * Returns an empty string if no skills are specified or none have SKILL.md files.
- */
-function resolveSkillContext(skillsJson: string | null): string {
-  if (!skillsJson) return "";
-
-  let skillNames: string[];
+function parseSkillNames(skillsJson: string | null): string[] {
+  if (!skillsJson) return [];
   try {
-    skillNames = JSON.parse(skillsJson) as string[];
+    return JSON.parse(skillsJson) as string[];
   } catch {
-    return "";
+    return [];
   }
+}
 
+function resolveSkillContext(skillNames: string[]): string {
   const blocks: string[] = [];
   for (const name of skillNames) {
     const skillMdPath = join(SKILLS_DIR, name, "SKILL.md");
@@ -128,20 +124,7 @@ function resolveSkillContext(skillsJson: string | null): string {
       blocks.push(`# Skill: ${name}\n${content}`);
     }
   }
-
   return blocks.join("\n\n");
-}
-
-/**
- * Extract loaded skill names from the JSON array for logging.
- */
-function getSkillNames(skillsJson: string | null): string[] {
-  if (!skillsJson) return [];
-  try {
-    return JSON.parse(skillsJson) as string[];
-  } catch {
-    return [];
-  }
 }
 
 // ---- Parent chain builder ----
@@ -165,14 +148,14 @@ function buildParentChain(task: Task): string {
 
 // ---- Prompt builder ----
 
-function buildPrompt(task: Task, recentCycles: string): string {
+function buildPrompt(task: Task, skillNames: string[], recentCycles: string): string {
   const now = new Date();
   const utc = now.toISOString().replace("T", " ").slice(0, 19) + " UTC";
   const mst = new Date(now.getTime() - 7 * 3600_000).toISOString().replace("T", " ").slice(0, 19) + " MST";
 
   const soul = readFile(join(ROOT, "SOUL.md"));
   const memory = readFile(join(ROOT, "memory", "MEMORY.md"));
-  const skillContext = resolveSkillContext(task.skills);
+  const skillContext = resolveSkillContext(skillNames);
   const parentChain = buildParentChain(task);
 
   const parts: string[] = [
@@ -454,7 +437,7 @@ export async function runDispatch(): Promise<void> {
   );
 
   // 4. Build context for prompt
-  const skillNames = getSkillNames(task.skills);
+  const skillNames = parseSkillNames(task.skills);
   if (skillNames.length > 0) {
     log(`dispatch: loading skills: ${skillNames.join(", ")}`);
   }
@@ -466,7 +449,7 @@ export async function runDispatch(): Promise<void> {
     )
     .join("\n");
 
-  const prompt = buildPrompt(task, recentCycles);
+  const prompt = buildPrompt(task, skillNames, recentCycles);
 
   // 5. Mark task active and write lock
   markTaskActive(task.id);
