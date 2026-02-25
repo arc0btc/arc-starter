@@ -5,7 +5,6 @@ import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import {
   initDatabase,
-  getDatabase,
   insertTask,
   getPendingTasks,
   getActiveTasks,
@@ -20,8 +19,7 @@ import { parseFlags, pad, truncate } from "./utils.ts";
 // ---- Commands ----
 
 function cmdStatus(): void {
-  initDatabase();
-  const db = getDatabase();
+  const db = initDatabase();
 
   const pendingCount = getPendingTasks().length;
   const activeCount = getActiveTasks().length;
@@ -61,8 +59,7 @@ function cmdTasksList(args: string[]): void {
   const limit = flags["limit"] ? parseInt(flags["limit"], 10) : 20;
   const statusFilter = flags["status"];
 
-  initDatabase();
-  const db = getDatabase();
+  const db = initDatabase();
 
   let rows: Array<{
     id: number;
@@ -131,10 +128,10 @@ function cmdTasksAdd(args: string[]): void {
   initDatabase();
   const id = insertTask({
     subject,
-    description: flags["description"] ?? undefined,
+    description: flags["description"],
     skills: skillsJson,
     priority,
-    source: flags["source"] ?? undefined,
+    source: flags["source"],
     parent_id: parentId,
   });
 
