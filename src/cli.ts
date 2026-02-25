@@ -1,5 +1,9 @@
 #!/usr/bin/env bun
 
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import {
   initDatabase,
   getDatabase,
@@ -11,6 +15,7 @@ import {
   markTaskFailed,
   getTaskById,
 } from "./db.ts";
+import { discoverSkills } from "./skills.ts";
 
 // ---- Arg parsing helper ----
 
@@ -218,8 +223,97 @@ function cmdRun(): void {
   process.stdout.write("Dispatch not yet implemented. See Phase 5.\n");
 }
 
-function cmdSkills(): void {
-  process.stdout.write("Skills not yet implemented. See Phase 4.\n");
+function cmdSkillsList(): void {
+  const skills = discoverSkills();
+
+  if (skills.length === 0) {
+    process.stdout.write("No skills found.\n");
+    return;
+  }
+
+  const header =
+    pad("name", 22) +
+    pad("description", 42) +
+    pad("sensor", 7) +
+    "cli";
+  process.stdout.write(header + "\n");
+  process.stdout.write("-".repeat(header.length) + "\n");
+
+  for (const skill of skills) {
+    const line =
+      pad(truncate(skill.name, 20), 22) +
+      pad(truncate(skill.description, 40), 42) +
+      pad(skill.hasSensor ? "yes" : "no", 7) +
+      (skill.hasCli ? "yes" : "no");
+    process.stdout.write(line + "\n");
+  }
+}
+
+function cmdSkillsShow(args: string[]): void {
+  const name = args[0];
+  if (!name) {
+    process.stderr.write("Error: skill name is required\n");
+    process.stderr.write("Usage: arc skills show <name>\n");
+    process.exit(1);
+  }
+
+  const skills = discoverSkills();
+  const skill = skills.find((s) => s.name === name);
+
+  if (!skill) {
+    process.stderr.write(`Error: skill '${name}' not found\n`);
+    process.exit(1);
+  }
+
+  const content = readFileSync(join(skill.path, "SKILL.md"), "utf-8");
+  process.stdout.write(content);
+}
+
+function cmdSkillsRun(args: string[]): void {
+  const skillName = args[0];
+  if (!skillName) {
+    process.stderr.write("Error: skill name is required\n");
+    process.stderr.write("Usage: arc skills run <name> [args]\n");
+    process.exit(1);
+  }
+
+  const skills = discoverSkills();
+  const skill = skills.find((s) => s.name === skillName);
+
+  if (!skill) {
+    process.stderr.write(`Error: skill '${skillName}' not found\n`);
+    process.exit(1);
+  }
+
+  if (!skill.hasCli) {
+    process.stderr.write(`Error: skill '${skillName}' has no cli.ts\n`);
+    process.exit(1);
+  }
+
+  const cliPath = join(skill.path, "cli.ts");
+  const skillArgs = args.slice(1);
+
+  const result = spawnSync("bun", [cliPath, ...skillArgs], {
+    stdio: "inherit",
+  });
+
+  if (result.error) {
+    process.stderr.write(`Error: failed to run skill CLI: ${result.error.message}\n`);
+    process.exit(1);
+  }
+
+  process.exit(result.status ?? 0);
+}
+
+function cmdSkills(args: string[]): void {
+  const sub = args[0];
+  if (sub === "show") {
+    cmdSkillsShow(args.slice(1));
+  } else if (sub === "run") {
+    cmdSkillsRun(args.slice(1));
+  } else {
+    cmdSkillsList();
+  }
 }
 
 function cmdHelp(): void {
@@ -248,7 +342,13 @@ COMMANDS
     Start the dispatch loop (not yet implemented).
 
   skills
-    Manage skills (not yet implemented).
+    List all discovered skills. Columns: name, description, sensor, cli.
+
+  skills show <name>
+    Print the full SKILL.md content for a skill.
+
+  skills run <name> [args]
+    Run a skill's cli.ts with the given args.
 
   help
     Show this help message.
@@ -260,6 +360,9 @@ EXAMPLES
   arc tasks add "research something" --priority 3 --source human
   arc tasks close 7 completed "finished successfully"
   arc run
+  arc skills
+  arc skills show manage-skills
+  arc skills run manage-skills create my-skill --description "Does X"
 `);
 }
 
@@ -290,7 +393,7 @@ function main(): void {
       cmdRun();
       break;
     case "skills":
-      cmdSkills();
+      cmdSkills(argv.slice(1));
       break;
     case "help":
     case "--help":
