@@ -562,6 +562,13 @@ export async function runDispatch(): Promise<void> {
 // ---- Standalone entry point ----
 
 if (import.meta.main) {
+  const criticalFiles = ["SOUL.md", "CLAUDE.md"];
+  for (const file of criticalFiles) {
+    if (!existsSync(join(ROOT, file))) {
+      console.error(`[${new Date().toISOString()}] dispatch: preflight failed — missing ${file}`);
+      process.exit(1);
+    }
+  }
   initDatabase();
   runDispatch()
     .then(() => log("dispatch: complete"))

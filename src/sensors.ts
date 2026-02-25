@@ -8,7 +8,7 @@
 //
 // State files live in db/hook-state/{name}.json (already in .gitignore).
 
-import { mkdirSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { discoverSkills } from "./skills.ts";
 import { initDatabase } from "./db.ts";
@@ -147,6 +147,14 @@ export async function runSensors(): Promise<void> {
 // ---- Main (standalone) ----
 
 if (import.meta.main) {
+  const ROOT = new URL("..", import.meta.url).pathname;
+  const criticalFiles = ["SOUL.md", "CLAUDE.md"];
+  for (const file of criticalFiles) {
+    if (!existsSync(join(ROOT, file))) {
+      console.error(`[${new Date().toISOString()}] sensors: preflight failed — missing ${file}`);
+      process.exit(1);
+    }
+  }
   initDatabase();
   await runSensors();
 }
