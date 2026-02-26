@@ -4,7 +4,6 @@
 // Detects stale dispatch cycles and stale dispatch locks.
 // Creates high-priority alert tasks when anomalies are found.
 
-import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { claimSensorRun } from "../../src/sensors.ts";
 import { initDatabase, insertTask, pendingTaskExistsForSource, getRecentCycles, getPendingTasks } from "../../src/db.ts";
@@ -37,14 +36,14 @@ function checkStaleCycle(): boolean {
 }
 
 /** Returns true if a dispatch lock file exists but the recorded PID is no longer alive. */
-function checkStaleLock(): boolean {
-  if (!existsSync(DISPATCH_LOCK_FILE)) return false;
+async function checkStaleLock(): Promise<boolean> {
+  const file = Bun.file(DISPATCH_LOCK_FILE);
+  if (!(await file.exists())) return false;
 
   try {
-    const lock = JSON.parse(readFileSync(DISPATCH_LOCK_FILE, "utf-8")) as { pid: number };
+    const lock = (await file.json()) as { pid: number };
     return !isPidAlive(lock.pid);
   } catch {
-    // Unreadable lock file — treat as stale
     return true;
   }
 }
@@ -55,7 +54,6 @@ export default async function healthSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
-  // Check for stale cycle
   const staleCycle = checkStaleCycle();
   if (staleCycle && !pendingTaskExistsForSource(TASK_SOURCE)) {
     insertTask({
@@ -68,8 +66,7 @@ export default async function healthSensor(): Promise<string> {
     });
   }
 
-  // Check for stale lock
-  const staleLock = checkStaleLock();
+  const staleLock = await checkStaleLock();
   if (staleLock && !pendingTaskExistsForSource(STALE_LOCK_SOURCE)) {
     insertTask({
       subject: "health alert: stale dispatch lock detected",

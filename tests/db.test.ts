@@ -145,16 +145,6 @@ describe("tasks table", () => {
 });
 
 describe("cycle_log table", () => {
-  let db: Database;
-
-  beforeEach(() => {
-    db = createTestDb();
-  });
-
-  afterEach(() => {
-    db.close();
-  });
-
   test("insert and retrieve a cycle log entry", () => {
     const result = db
       .query("INSERT INTO cycle_log (started_at, task_id) VALUES (?, ?)")

@@ -1,6 +1,8 @@
 #!/usr/bin/env bun
 
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { spawnSync } from "node:child_process";
 import {
   initDatabase,
   insertTask,
@@ -11,7 +13,7 @@ import {
   markTaskFailed,
   getTaskById,
 } from "./db.ts";
-import { discoverSkills, type SkillInfo } from "./skills.ts";
+import { discoverSkills } from "./skills.ts";
 import { parseFlags, pad, truncate } from "./utils.ts";
 import { handleCredsCli } from "../skills/credentials/cli.ts";
 
@@ -113,16 +115,11 @@ function cmdTasksAdd(args: string[]): void {
     process.exit(1);
   }
 
-  const skillsRaw = flags["skills"];
-  const skillsJson = skillsRaw
-    ? JSON.stringify(skillsRaw.split(",").map((s) => s.trim()))
+  const skillsJson = flags["skills"]
+    ? JSON.stringify(flags["skills"].split(",").map((s) => s.trim()))
     : undefined;
-
-  const parentRaw = flags["parent"];
-  const parentId = parentRaw ? parseInt(parentRaw, 10) : undefined;
-
-  const priorityRaw = flags["priority"];
-  const priority = priorityRaw ? parseInt(priorityRaw, 10) : undefined;
+  const parentId = flags["parent"] ? parseInt(flags["parent"], 10) : undefined;
+  const priority = flags["priority"] ? parseInt(flags["priority"], 10) : undefined;
 
   initDatabase();
   const id = insertTask({
@@ -141,11 +138,11 @@ function cmdTasksClose(args: string[]): void {
   const { flags } = parseFlags(args);
   const usage = 'Usage: arc tasks close --id N --status completed|failed --summary "text"\n';
 
-  const rawId = flags["id"];
   const status = flags["status"];
   const summary = flags["summary"];
+  const id = parseInt(flags["id"] ?? "", 10);
 
-  if (!rawId || isNaN(parseInt(rawId, 10))) {
+  if (isNaN(id)) {
     process.stderr.write("Error: --id must be a number\n" + usage);
     process.exit(1);
   }
@@ -158,7 +155,6 @@ function cmdTasksClose(args: string[]): void {
     process.exit(1);
   }
 
-  const id = parseInt(rawId, 10);
   initDatabase();
 
   const task = getTaskById(id);

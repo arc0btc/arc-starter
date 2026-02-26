@@ -53,11 +53,6 @@ export async function writeHookState(name: string, state: HookState): Promise<vo
 
 // ---- Scheduling ----
 
-// Returns true if the sensor should run based on its interval.
-//
-// A sensor should run when:
-//   - It has never run (state is null), OR
-//   - At least intervalMinutes minutes have passed since last_ran
 export async function shouldRun(name: string, intervalMinutes: number): Promise<boolean> {
   const state = await readHookState(name);
   if (state === null) return true;
@@ -66,13 +61,9 @@ export async function shouldRun(name: string, intervalMinutes: number): Promise<
   return Date.now() >= nextAllowed;
 }
 
-// Combines interval gating + state claim into a single call.
-// Returns false if the sensor should not run. Returns true and writes
-// an "ok" state claim if the sensor should proceed.
 export async function claimSensorRun(name: string, intervalMinutes: number): Promise<boolean> {
   const state = await readHookState(name);
 
-  // Check interval gating inline to avoid a redundant readHookState call
   if (state !== null) {
     const intervalMs = intervalMinutes * 60 * 1000;
     const nextAllowed = new Date(state.last_ran).getTime() + intervalMs;
@@ -99,9 +90,6 @@ interface SensorResult {
   error?: string;
 }
 
-// Discover all skills/<name>/sensor.ts files and run them in parallel.
-// Each sensor is responsible for its own shouldRun() gating.
-// Logs per-sensor result: name, ok/error/skip, duration.
 export async function runSensors(): Promise<void> {
   const skills = discoverSkills();
   const sensorsToRun = skills.filter((s) => s.hasSensor);

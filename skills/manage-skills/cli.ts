@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { discoverSkills } from "../../src/skills.ts";
 import { parseFlags, pad, truncate } from "../../src/utils.ts";
@@ -49,7 +49,7 @@ function cmdShow(args: string[]): void {
   process.stdout.write(content);
 }
 
-function cmdCreate(args: string[]): void {
+async function cmdCreate(args: string[]): Promise<void> {
   const { flags, positional } = parseFlags(args);
   const name = positional[0];
 
@@ -112,8 +112,7 @@ TODO: Describe how to use this skill.
 - [ ] TODO: Add skill-specific checklist items
 `;
 
-  mkdirSync(skillDir, { recursive: true });
-  writeFileSync(join(skillDir, "SKILL.md"), template, "utf-8");
+  await Bun.write(join(skillDir, "SKILL.md"), template);
 
   process.stdout.write(`Created skill '${name}' at skills/${name}/SKILL.md\n`);
   process.stdout.write(`Edit the file to complete the skill definition.\n`);
@@ -144,7 +143,7 @@ EXAMPLES
 
 // ---- Entry point ----
 
-function main(): void {
+async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const sub = args[0];
 
@@ -156,7 +155,7 @@ function main(): void {
       cmdShow(args.slice(1));
       break;
     case "create":
-      cmdCreate(args.slice(1));
+      await cmdCreate(args.slice(1));
       break;
     case "help":
     case "--help":
@@ -171,4 +170,7 @@ function main(): void {
   }
 }
 
-main();
+main().catch((err) => {
+  process.stderr.write(`Error: ${err instanceof Error ? err.message : String(err)}\n`);
+  process.exit(1);
+});

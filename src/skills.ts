@@ -53,14 +53,12 @@ function parseFrontmatter(content: string): Frontmatter {
       continue;
     }
 
-    // Collect list items under tags
-    if (inTagsList && trimmed.startsWith("- ")) {
-      result.tags.push(trimmed.slice(2).trim());
-      continue;
-    }
-
-    // Any non-list-item line ends tag collection
-    if (inTagsList && !trimmed.startsWith("- ")) {
+    // Collect list items under tags, or end tag collection on non-list line
+    if (inTagsList) {
+      if (trimmed.startsWith("- ")) {
+        result.tags.push(trimmed.slice(2).trim());
+        continue;
+      }
       inTagsList = false;
     }
 

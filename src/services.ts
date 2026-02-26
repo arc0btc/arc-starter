@@ -19,11 +19,11 @@ const PLATFORM = platform();
 // ---- Shared helpers ----
 
 function bunPath(): string {
-  const result = spawnSync("which", ["bun"]);
-  if (result.status !== 0) {
+  const path = Bun.which("bun");
+  if (!path) {
     throw new Error("bun not found on PATH");
   }
-  return result.stdout.toString().trim();
+  return path;
 }
 
 function run(cmd: string, args: string[], opts?: { quiet?: boolean }): { ok: boolean; stdout: string; stderr: string } {
@@ -133,16 +133,10 @@ function systemdStatus(): void {
 
 const LAUNCHD_DIR = join(HOME, "Library/LaunchAgents");
 
-const AGENTS = {
-  sensors: {
-    label: "com.arc-agent.sensors",
-    interval: 60,
-  },
-  dispatch: {
-    label: "com.arc-agent.dispatch",
-    interval: 60,
-  },
-} as const;
+const AGENTS = [
+  { label: "com.arc-agent.sensors", interval: 60, command: "sensors" },
+  { label: "com.arc-agent.dispatch", interval: 60, command: "run" },
+] as const;
 
 function plistPath(label: string): string {
   return join(LAUNCHD_DIR, `${label}.plist`);
@@ -186,29 +180,24 @@ function launchdInstall(): void {
   mkdirSync(LAUNCHD_DIR, { recursive: true });
   mkdirSync(join(ROOT, "logs"), { recursive: true });
 
-  // sensors
-  const sensorsPlist = plistPath(AGENTS.sensors.label);
-  writeFileSync(sensorsPlist, generatePlist(AGENTS.sensors, "sensors"));
-  process.stdout.write(`  Wrote ${AGENTS.sensors.label}.plist\n`);
-
-  // dispatch
-  const dispatchPlist = plistPath(AGENTS.dispatch.label);
-  writeFileSync(dispatchPlist, generatePlist(AGENTS.dispatch, "run"));
-  process.stdout.write(`  Wrote ${AGENTS.dispatch.label}.plist\n`);
+  for (const agent of AGENTS) {
+    const plist = plistPath(agent.label);
+    writeFileSync(plist, generatePlist(agent, agent.command));
+    process.stdout.write(`  Wrote ${agent.label}.plist\n`);
+  }
 
   process.stdout.write("\n");
 
-  // Unload first if already loaded (ignore errors)
-  run("launchctl", ["unload", sensorsPlist], { quiet: true });
-  run("launchctl", ["unload", dispatchPlist], { quiet: true });
-
-  run("launchctl", ["load", sensorsPlist]);
-  run("launchctl", ["load", dispatchPlist]);
+  for (const agent of AGENTS) {
+    const plist = plistPath(agent.label);
+    run("launchctl", ["unload", plist], { quiet: true });
+    run("launchctl", ["load", plist]);
+  }
   process.stdout.write("Loaded launch agents\n");
 }
 
 function launchdUninstall(): void {
-  for (const agent of Object.values(AGENTS)) {
+  for (const agent of AGENTS) {
     const plist = plistPath(agent.label);
     if (existsSync(plist)) {
       run("launchctl", ["unload", plist], { quiet: true });
@@ -221,7 +210,7 @@ function launchdUninstall(): void {
 
 function launchdStatus(): void {
   let found = false;
-  for (const agent of Object.values(AGENTS)) {
+  for (const agent of AGENTS) {
     const { stdout } = run("launchctl", ["list", agent.label], { quiet: true });
     if (stdout.includes(agent.label)) {
       process.stdout.write(`${agent.label}: running\n`);

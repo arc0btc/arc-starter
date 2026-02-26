@@ -136,17 +136,12 @@ function buildParentChain(task: Task): string {
 
 // ---- Prompt builder ----
 
-/** Format a Date as "YYYY-MM-DD HH:MM:SS" for display. */
-function formatDatetime(date: Date): string {
-  return date.toISOString().replace("T", " ").slice(0, 19);
-}
-
 const MST_OFFSET_MS = 7 * 3600_000;
 
 function buildPrompt(task: Task, skillNames: string[], recentCycles: string): string {
   const now = new Date();
-  const utc = formatDatetime(now) + " UTC";
-  const mst = formatDatetime(new Date(now.getTime() - MST_OFFSET_MS)) + " MST";
+  const utc = toSqliteDatetime(now) + " UTC";
+  const mst = toSqliteDatetime(new Date(now.getTime() - MST_OFFSET_MS)) + " MST";
 
   const soul = readFile(join(ROOT, "SOUL.md"));
   const memory = readFile(join(ROOT, "memory", "MEMORY.md"));
