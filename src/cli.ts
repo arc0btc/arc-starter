@@ -15,6 +15,7 @@ import {
 } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
 import { parseFlags, pad, truncate } from "./utils.ts";
+import { credentials } from "./credentials.ts";
 
 // CLI is hand-rolled — intentionally zero-dep. If the surface grows significantly,
 // consider citty (https://github.com/unjs/citty) as a lightweight alternative to Commander.
@@ -189,6 +190,116 @@ function cmdTasks(args: string[]): void {
     cmdTasksClose(args.slice(1));
   } else {
     cmdTasksList(args);
+  }
+}
+
+async function cmdCreds(args: string[]): Promise<void> {
+  const { flags, positional } = parseFlags(args);
+  const sub = positional[0];
+
+  const credsUsage = `Usage: arc creds <command> [options]
+
+Commands:
+  list                                    List stored credentials (names only, no values)
+  get --service NAME --key NAME           Retrieve a credential value
+  set --service NAME --key NAME --value V Add or update a credential
+  delete --service NAME --key NAME        Remove a credential
+  unlock                                  Verify password and show store info
+
+Options:
+  --password PW    Master password (overrides ARC_CREDS_PASSWORD env var)
+`;
+
+  if (!sub || sub === "--help" || sub === "-h") {
+    process.stdout.write(credsUsage);
+    process.exit(sub ? 0 : 1);
+  }
+
+  const password = flags["password"] ?? process.env.ARC_CREDS_PASSWORD;
+
+  try {
+    switch (sub) {
+      case "list": {
+        await credentials.unlock(password);
+        const items = credentials.list();
+        if (items.length === 0) {
+          process.stdout.write("No credentials stored.\n");
+        } else {
+          const byService = Map.groupBy(items, (i) => i.service);
+          for (const [service, creds] of byService) {
+            process.stdout.write(`${service}/\n`);
+            for (const c of creds) {
+              const date = new Date(c.updatedAt).toLocaleDateString();
+              process.stdout.write(`  ${c.key}  (updated: ${date})\n`);
+            }
+          }
+        }
+        break;
+      }
+
+      case "get": {
+        const service = flags["service"];
+        const key = flags["key"];
+        if (!service || !key) {
+          process.stderr.write("Error: --service and --key are required\n");
+          process.stderr.write("Usage: arc creds get --service NAME --key NAME\n");
+          process.exit(1);
+        }
+        await credentials.unlock(password);
+        const value = credentials.get(service, key);
+        if (value === null) {
+          process.stderr.write(`Not found: ${service}/${key}\n`);
+          process.exit(1);
+        }
+        process.stdout.write(value + "\n");
+        break;
+      }
+
+      case "set": {
+        const service = flags["service"];
+        const key = flags["key"];
+        const value = flags["value"];
+        if (!service || !key || !value) {
+          process.stderr.write("Error: --service, --key, and --value are required\n");
+          process.stderr.write("Usage: arc creds set --service NAME --key NAME --value VALUE\n");
+          process.exit(1);
+        }
+        await credentials.unlock(password);
+        await credentials.set(service, key, value);
+        process.stdout.write(`Set ${service}/${key}\n`);
+        break;
+      }
+
+      case "delete": {
+        const service = flags["service"];
+        const key = flags["key"];
+        if (!service || !key) {
+          process.stderr.write("Error: --service and --key are required\n");
+          process.stderr.write("Usage: arc creds delete --service NAME --key NAME\n");
+          process.exit(1);
+        }
+        await credentials.unlock(password);
+        const deleted = await credentials.del(service, key);
+        process.stdout.write(deleted ? `Deleted ${service}/${key}\n` : `Not found: ${service}/${key}\n`);
+        break;
+      }
+
+      case "unlock": {
+        await credentials.unlock(password);
+        const items = credentials.list();
+        process.stdout.write(`Store: ${credentials.storePath()}\n`);
+        process.stdout.write(`Credentials: ${items.length}\n`);
+        break;
+      }
+
+      default:
+        process.stderr.write(`Error: unknown creds command '${sub}'\n\n`);
+        process.stdout.write(credsUsage);
+        process.exit(1);
+    }
+  } catch (err) {
+    process.stderr.write(`Error: ${err instanceof Error ? err.message : String(err)}\n`);
+    process.exit(1);
   }
 }
 
@@ -373,6 +484,21 @@ COMMANDS
   tasks close --id N --status completed|failed --summary TEXT
     Close a task with a result summary.
 
+  creds list
+    List stored credentials (service/key names only, no values).
+
+  creds get --service NAME --key NAME
+    Retrieve a credential value.
+
+  creds set --service NAME --key NAME --value VALUE
+    Add or update a credential.
+
+  creds delete --service NAME --key NAME
+    Remove a credential.
+
+  creds unlock
+    Verify password and show store path and credential count.
+
   run
     Trigger a single dispatch cycle.
 
@@ -409,6 +535,10 @@ EXAMPLES
   arc tasks --status completed --limit 5
   arc tasks add --subject "research something" --priority 3 --source human
   arc tasks close --id 7 --status completed --summary "finished successfully"
+  arc creds list
+  arc creds set --service openrouter --key api_key --value sk-xxxx
+  arc creds get --service openrouter --key api_key
+  arc creds delete --service openrouter --key api_key
   arc run
   arc skills
   arc skills show --name manage-skills
@@ -431,6 +561,9 @@ async function main(): Promise<void> {
       break;
     case "tasks":
       cmdTasks(argv.slice(1));
+      break;
+    case "creds":
+      await cmdCreds(argv.slice(1));
       break;
     case "run":
       await cmdRun();
