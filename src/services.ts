@@ -1,0 +1,257 @@
+/**
+ * Cross-platform service installer for arc-agent.
+ *
+ * Linux: systemd user units (service + timer)
+ * macOS: launchd user agents (plist)
+ *
+ * Invoked via `arc services install|uninstall|status`
+ */
+
+import { existsSync, mkdirSync, writeFileSync, unlinkSync, readFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { spawnSync } from "node:child_process";
+import { homedir, platform } from "node:os";
+
+const ROOT = resolve(new URL("..", import.meta.url).pathname);
+const HOME = homedir();
+const PLATFORM = platform();
+
+// ---- Shared helpers ----
+
+function bunPath(): string {
+  const result = spawnSync("which", ["bun"]);
+  if (result.status !== 0) {
+    throw new Error("bun not found on PATH");
+  }
+  return result.stdout.toString().trim();
+}
+
+function run(cmd: string, args: string[], opts?: { quiet?: boolean }): { ok: boolean; stdout: string; stderr: string } {
+  const result = spawnSync(cmd, args, { encoding: "utf-8" });
+  const ok = result.status === 0;
+  if (!opts?.quiet && !ok && result.stderr) {
+    process.stderr.write(result.stderr);
+  }
+  return { ok, stdout: result.stdout ?? "", stderr: result.stderr ?? "" };
+}
+
+// ---- Linux (systemd) ----
+
+function systemdDir(): string {
+  return join(HOME, ".config/systemd/user");
+}
+
+const SYSTEMD_UNITS = [
+  "arc-sensors.service",
+  "arc-sensors.timer",
+  "arc-dispatch.service",
+  "arc-dispatch.timer",
+];
+
+function systemdInstall(): void {
+  const dir = systemdDir();
+  mkdirSync(dir, { recursive: true });
+
+  const sourceDir = join(ROOT, "systemd");
+
+  for (const unit of SYSTEMD_UNITS) {
+    const src = join(sourceDir, unit);
+    if (!existsSync(src)) {
+      process.stderr.write(`Error: source unit not found: ${src}\n`);
+      process.exit(1);
+    }
+    const dest = join(dir, unit);
+    // Remove existing before symlinking
+    if (existsSync(dest)) {
+      unlinkSync(dest);
+    }
+    const ln = spawnSync("ln", ["-sf", src, dest]);
+    if (ln.status !== 0) {
+      process.stderr.write(`Error: failed to symlink ${unit}\n`);
+      process.exit(1);
+    }
+    process.stdout.write(`  Linked ${unit}\n`);
+  }
+
+  process.stdout.write("\n");
+
+  run("systemctl", ["--user", "daemon-reload"]);
+  process.stdout.write("Reloaded systemd daemon\n");
+
+  run("systemctl", ["--user", "enable", "--now", "arc-sensors.timer"]);
+  run("systemctl", ["--user", "enable", "--now", "arc-dispatch.timer"]);
+  process.stdout.write("Enabled and started timers\n");
+}
+
+function systemdUninstall(): void {
+  run("systemctl", ["--user", "stop", "arc-sensors.timer"], { quiet: true });
+  run("systemctl", ["--user", "stop", "arc-dispatch.timer"], { quiet: true });
+  run("systemctl", ["--user", "disable", "arc-sensors.timer"], { quiet: true });
+  run("systemctl", ["--user", "disable", "arc-dispatch.timer"], { quiet: true });
+
+  const dir = systemdDir();
+  for (const unit of SYSTEMD_UNITS) {
+    const dest = join(dir, unit);
+    if (existsSync(dest)) {
+      unlinkSync(dest);
+      process.stdout.write(`  Removed ${unit}\n`);
+    }
+  }
+
+  run("systemctl", ["--user", "daemon-reload"]);
+  process.stdout.write("Services uninstalled\n");
+}
+
+function systemdStatus(): void {
+  const { stdout } = run("systemctl", [
+    "--user", "status",
+    "arc-sensors.timer", "arc-dispatch.timer",
+    "--no-pager",
+  ], { quiet: true });
+  process.stdout.write(stdout || "Timers not found. Run: arc services install\n");
+}
+
+// ---- macOS (launchd) ----
+
+const LAUNCHD_DIR = join(HOME, "Library/LaunchAgents");
+
+const AGENTS = {
+  sensors: {
+    label: "com.arc-agent.sensors",
+    interval: 60,
+  },
+  dispatch: {
+    label: "com.arc-agent.dispatch",
+    interval: 60,
+  },
+} as const;
+
+function plistPath(label: string): string {
+  return join(LAUNCHD_DIR, `${label}.plist`);
+}
+
+function generatePlist(agent: { label: string; interval: number }, command: string): string {
+  const bun = bunPath();
+  const logDir = join(ROOT, "logs");
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>${agent.label}</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>${bun}</string>
+        <string>src/cli.ts</string>
+        <string>${command}</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>${ROOT}</string>
+    <key>StartInterval</key>
+    <integer>${agent.interval}</integer>
+    <key>StandardOutPath</key>
+    <string>${logDir}/${command}.log</string>
+    <key>StandardErrorPath</key>
+    <string>${logDir}/${command}.err</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>HOME</key>
+        <string>${HOME}</string>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:${HOME}/.bun/bin</string>
+    </dict>
+</dict>
+</plist>`;
+}
+
+function launchdInstall(): void {
+  mkdirSync(LAUNCHD_DIR, { recursive: true });
+  mkdirSync(join(ROOT, "logs"), { recursive: true });
+
+  // sensors
+  const sensorsPlist = plistPath(AGENTS.sensors.label);
+  writeFileSync(sensorsPlist, generatePlist(AGENTS.sensors, "sensors"));
+  process.stdout.write(`  Wrote ${AGENTS.sensors.label}.plist\n`);
+
+  // dispatch
+  const dispatchPlist = plistPath(AGENTS.dispatch.label);
+  writeFileSync(dispatchPlist, generatePlist(AGENTS.dispatch, "run"));
+  process.stdout.write(`  Wrote ${AGENTS.dispatch.label}.plist\n`);
+
+  process.stdout.write("\n");
+
+  // Unload first if already loaded (ignore errors)
+  run("launchctl", ["unload", sensorsPlist], { quiet: true });
+  run("launchctl", ["unload", dispatchPlist], { quiet: true });
+
+  run("launchctl", ["load", sensorsPlist]);
+  run("launchctl", ["load", dispatchPlist]);
+  process.stdout.write("Loaded launch agents\n");
+}
+
+function launchdUninstall(): void {
+  for (const agent of Object.values(AGENTS)) {
+    const plist = plistPath(agent.label);
+    if (existsSync(plist)) {
+      run("launchctl", ["unload", plist], { quiet: true });
+      unlinkSync(plist);
+      process.stdout.write(`  Removed ${agent.label}.plist\n`);
+    }
+  }
+  process.stdout.write("Launch agents uninstalled\n");
+}
+
+function launchdStatus(): void {
+  let found = false;
+  for (const agent of Object.values(AGENTS)) {
+    const { stdout } = run("launchctl", ["list", agent.label], { quiet: true });
+    if (stdout.includes(agent.label)) {
+      process.stdout.write(`${agent.label}: running\n`);
+      found = true;
+    }
+  }
+  if (!found) {
+    process.stdout.write("No launch agents found. Run: arc services install\n");
+  }
+}
+
+// ---- Public API ----
+
+export function servicesInstall(): void {
+  process.stdout.write("==> Installing arc-agent services\n\n");
+
+  if (PLATFORM === "linux") {
+    systemdInstall();
+  } else if (PLATFORM === "darwin") {
+    launchdInstall();
+  } else {
+    process.stderr.write(`Unsupported platform: ${PLATFORM}\n`);
+    process.exit(1);
+  }
+
+  process.stdout.write("\nDone. Use 'arc services status' to verify.\n");
+}
+
+export function servicesUninstall(): void {
+  process.stdout.write("==> Uninstalling arc-agent services\n\n");
+
+  if (PLATFORM === "linux") {
+    systemdUninstall();
+  } else if (PLATFORM === "darwin") {
+    launchdUninstall();
+  } else {
+    process.stderr.write(`Unsupported platform: ${PLATFORM}\n`);
+    process.exit(1);
+  }
+}
+
+export function servicesStatus(): void {
+  if (PLATFORM === "linux") {
+    systemdStatus();
+  } else if (PLATFORM === "darwin") {
+    launchdStatus();
+  } else {
+    process.stderr.write(`Unsupported platform: ${PLATFORM}\n`);
+    process.exit(1);
+  }
+}

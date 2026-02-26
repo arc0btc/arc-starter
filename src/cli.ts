@@ -16,6 +16,9 @@ import {
 import { discoverSkills } from "./skills.ts";
 import { parseFlags, pad, truncate } from "./utils.ts";
 
+// CLI is hand-rolled — intentionally zero-dep. If the surface grows significantly,
+// consider citty (https://github.com/unjs/citty) as a lightweight alternative to Commander.
+
 // ---- Commands ----
 
 function cmdStatus(): void {
@@ -323,6 +326,25 @@ async function cmdSensors(args: string[]): Promise<void> {
   }
 }
 
+function cmdServices(args: string[]): void {
+  const { servicesInstall, servicesUninstall, servicesStatus } = require("./services.ts");
+  const sub = args[0];
+  switch (sub) {
+    case "install":
+      servicesInstall();
+      break;
+    case "uninstall":
+      servicesUninstall();
+      break;
+    case "status":
+      servicesStatus();
+      break;
+    default:
+      process.stderr.write("Usage: arc services install|uninstall|status\n");
+      process.exit(sub ? 1 : 0);
+  }
+}
+
 function cmdHelp(): void {
   process.stdout.write(`arc - autonomous agent CLI
 
@@ -363,6 +385,15 @@ COMMANDS
   sensors list
     List discovered sensors (skills with sensor.ts).
 
+  services install
+    Install platform services (systemd on Linux, launchd on macOS).
+
+  services uninstall
+    Stop and remove platform services.
+
+  services status
+    Show service status.
+
   help
     Show this help message.
 
@@ -378,6 +409,7 @@ EXAMPLES
   arc skills run manage-skills create my-skill --description "Does X"
   arc sensors list
   arc sensors
+  arc services install
 `);
 }
 
@@ -402,6 +434,9 @@ async function main(): Promise<void> {
       break;
     case "sensors":
       await cmdSensors(argv.slice(1));
+      break;
+    case "services":
+      cmdServices(argv.slice(1));
       break;
     case "help":
     case "--help":
