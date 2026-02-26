@@ -132,13 +132,12 @@ export async function unlock(password?: string): Promise<void> {
   const pw = password ?? process.env.ARC_CREDS_PASSWORD;
   if (!pw) throw new Error("Password required: pass arg or set ARC_CREDS_PASSWORD");
 
+  _password = pw;
   const file = Bun.file(getStoreFile());
   if (await file.exists()) {
     _store = await load(pw);
-    _password = pw;
   } else {
     _store = emptyStore();
-    _password = pw;
     await save();
     process.stderr.write("[credentials] New store created\n");
   }

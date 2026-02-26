@@ -1,10 +1,5 @@
 import { describe, expect, test, beforeEach, afterEach } from "bun:test";
 import { Database } from "bun:sqlite";
-import { unlinkSync, existsSync } from "node:fs";
-
-// We test the db module by importing it and using a test database.
-// The db module uses a singleton, so we need to reset it between tests.
-// Instead, we test the SQL logic directly against a fresh in-memory DB.
 
 const SCHEMA = `
   CREATE TABLE IF NOT EXISTS tasks (
@@ -47,23 +42,19 @@ const SCHEMA = `
   );
 `;
 
-function createTestDb(): Database {
-  const db = new Database(":memory:");
+let db: Database;
+
+beforeEach(() => {
+  db = new Database(":memory:");
   db.run("PRAGMA journal_mode = WAL");
   db.exec(SCHEMA);
-  return db;
-}
+});
+
+afterEach(() => {
+  db.close();
+});
 
 describe("tasks table", () => {
-  let db: Database;
-
-  beforeEach(() => {
-    db = createTestDb();
-  });
-
-  afterEach(() => {
-    db.close();
-  });
 
   test("insert and retrieve a task", () => {
     const result = db

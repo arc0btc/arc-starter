@@ -1,8 +1,6 @@
 #!/usr/bin/env bun
 
 import { join } from "node:path";
-import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
 import {
   initDatabase,
   insertTask,
@@ -13,7 +11,7 @@ import {
   markTaskFailed,
   getTaskById,
 } from "./db.ts";
-import { discoverSkills } from "./skills.ts";
+import { discoverSkills, type SkillInfo } from "./skills.ts";
 import { parseFlags, pad, truncate } from "./utils.ts";
 import { handleCredsCli } from "../skills/credentials/cli.ts";
 
@@ -31,17 +29,13 @@ function cmdStatus(): void {
   const cycles = getRecentCycles(1);
   const lastCycle = cycles.length > 0 ? cycles[0] : null;
 
-  const costRow = db
+  const { total: costToday, api_total: apiCostToday } = db
     .query(
       "SELECT COALESCE(SUM(cost_usd), 0) as total, COALESCE(SUM(api_cost_usd), 0) as api_total FROM tasks WHERE date(created_at) = date('now')"
     )
     .get() as { total: number; api_total: number };
-  const costToday = costRow.total;
-  const apiCostToday = costRow.api_total;
 
-  const pendingStr = `pending: ${pendingCount}`;
-  const activeStr = `active: ${activeCount}`;
-  process.stdout.write(`${pendingStr}  ${activeStr}\n`);
+  process.stdout.write(`pending: ${pendingCount}  active: ${activeCount}\n`);
 
   if (lastCycle) {
     const ts = lastCycle.started_at;
