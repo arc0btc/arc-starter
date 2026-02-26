@@ -73,6 +73,11 @@ arc sensors                                   # run all sensors once
 arc sensors list                              # list discovered sensors
 arc services install|uninstall|status         # manage platform services
 arc run                                       # trigger a dispatch cycle
+arc creds list                                # list credential keys (no values shown)
+arc creds get --service NAME --key KEY        # retrieve a single credential value
+arc creds set --service NAME --key KEY --value VALUE  # store or update a credential
+arc creds delete --service NAME --key KEY    # remove a credential
+arc creds unlock                              # verify ARC_CREDS_PASSWORD works
 ```
 
 Every action Arc can take must be expressible as an `arc` command. This is the CLI-first principle.
@@ -223,3 +228,5 @@ arc tasks close --id <id> --status completed --summary "<summary>"
 - `src/services.ts` — Cross-platform service installer (systemd/launchd, generates units dynamically)
 - `templates/` — Task templates for recurring or structured work
 - `bin/arc` — CLI wrapper (symlinked to ~/.local/bin/arc by installer)
+- `src/credentials.ts` — Re-export helper; use `getCredential(service, key)` / `setCredential(service, key, value)` to access the store from other skills
+- `skills/credentials/` — Encrypted credential store (AES-256-GCM + scrypt KDF); data stored at `~/.aibtc/credentials.enc`; password from `ARC_CREDS_PASSWORD` env var

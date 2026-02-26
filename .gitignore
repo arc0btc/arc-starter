@@ -6,3 +6,4 @@ db/hook-state/
 logs/
 .env
 .planning/
+credentials.enc
