@@ -12,8 +12,13 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { homedir } from "node:os";
 
-const STORE_DIR = path.join(homedir(), ".aibtc");
-const STORE_FILE = path.join(STORE_DIR, "credentials.enc");
+function getStoreDir(): string {
+  return process.env.ARC_CREDS_DIR ?? path.join(homedir(), ".aibtc");
+}
+
+function getStoreFile(): string {
+  return path.join(getStoreDir(), "credentials.enc");
+}
 
 const SCRYPT_PARAMS = { N: 16384, r: 8, p: 1, keyLen: 32 } as const;
 const VERSION = 1;
@@ -103,16 +108,16 @@ function emptyStore(): CredentialStore {
 
 async function save(): Promise<void> {
   if (!_store || !_password) throw new Error("Store not unlocked");
-  await fs.mkdir(STORE_DIR, { recursive: true });
+  await fs.mkdir(getStoreDir(), { recursive: true });
   const file: EncryptedFile = {
     version: VERSION,
     encrypted: await encrypt(JSON.stringify(_store), _password),
   };
-  await fs.writeFile(STORE_FILE, JSON.stringify(file, null, 2));
+  await fs.writeFile(getStoreFile(), JSON.stringify(file, null, 2));
 }
 
 async function load(password: string): Promise<CredentialStore> {
-  const raw = await fs.readFile(STORE_FILE, "utf-8");
+  const raw = await fs.readFile(getStoreFile(), "utf-8");
   const file: EncryptedFile = JSON.parse(raw) as EncryptedFile;
   return JSON.parse(await decrypt(file.encrypted, password)) as CredentialStore;
 }
@@ -121,17 +126,27 @@ export async function unlock(password?: string): Promise<void> {
   if (_store) return;
   const pw = password ?? process.env.ARC_CREDS_PASSWORD;
   if (!pw) throw new Error("Password required: pass arg or set ARC_CREDS_PASSWORD");
+
+  // Check whether the store file exists. Only create a new store if missing.
+  let fileExists = false;
   try {
-    await fs.access(STORE_FILE);
-    _store = await load(pw);
+    await fs.access(getStoreFile());
+    fileExists = true;
   } catch {
+    // File does not exist — will create a new store below.
+  }
+
+  if (fileExists) {
+    // File exists: decrypt it. Any error here (wrong password, corrupt file) propagates.
+    _store = await load(pw);
+    _password = pw;
+  } else {
+    // New store: encrypt and persist an empty credential set.
     _store = emptyStore();
     _password = pw;
     await save();
     process.stderr.write("[credentials] New store created\n");
-    return;
   }
-  _password = pw;
 }
 
 export function lock(): void {
@@ -188,7 +203,7 @@ export function list(): Array<{ service: string; key: string; updatedAt: string 
 }
 
 export function storePath(): string {
-  return STORE_FILE;
+  return getStoreFile();
 }
 
 export const credentials = {
