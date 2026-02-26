@@ -94,7 +94,7 @@ Enable it during install (`--autonomous` flag) or set it manually in `.env`.
 ## Creating skills
 
 ```bash
-arc skills run manage-skills create my-skill --description "Does something useful"
+arc skills run --name manage-skills -- create my-skill --description "Does something useful"
 ```
 
 This creates `skills/my-skill/` with a `SKILL.md` template. Add optional files:

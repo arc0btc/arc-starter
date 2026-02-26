@@ -52,27 +52,33 @@ Every SKILL.md must include a `## Checklist` section. Items must be concretely t
 ## sensor.ts Pattern
 
 ```typescript
-import type { Database } from "bun:sqlite";
+import { claimSensorRun } from "../../src/sensors.ts";
+import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
-export default function sensor(db: Database): void {
-  // Gate: only run when conditions are met
-  if (!shouldRun(db)) return;
+const SENSOR_NAME = "my-skill";
+const INTERVAL_MINUTES = 10;
+const TASK_SOURCE = "sensor:my-skill";
 
-  // Create tasks when conditions are detected
-  // insertTask(db, { subject: "...", source: "sensor:skill-name" });
-}
+export default async function mySkillSensor(): Promise<string> {
+  initDatabase();
 
-function shouldRun(db: Database): boolean {
-  // Return true when this sensor should fire
-  return false;
+  const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
+  if (!claimed) return "skip";
+
+  if (pendingTaskExistsForSource(TASK_SOURCE)) return "skip";
+
+  insertTask({ subject: "detected something", source: TASK_SOURCE, priority: 5 });
+  return "ok";
 }
 ```
 
 Rules:
-- Export a default function accepting `(db: Database): void`
-- Always include a `shouldRun` gate to avoid constant firing
+- Export an async default function taking no arguments, returning `Promise<string>`
+- Return `"skip"` when gated out, `"ok"` when work was done
+- Use `claimSensorRun(name, intervalMinutes)` for interval gating
+- Use `pendingTaskExistsForSource()` to deduplicate tasks
 - Use `source: "sensor:<skill-name>"` when creating tasks
-- Keep sensor logic lightweight — it runs every dispatch cycle
+- Keep sensor logic lightweight — no LLM calls
 
 ## cli.ts Pattern
 

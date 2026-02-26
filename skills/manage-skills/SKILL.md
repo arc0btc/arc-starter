@@ -50,13 +50,26 @@ Instructions for a subagent assigned a task that uses this skill. Describe what 
 
 ### sensor.ts
 
-A sensor runs during the agent dispatch loop. It detects conditions and creates tasks.
+A sensor runs every minute via the sensors service. It detects conditions and creates tasks. Sensors take no arguments, return `"skip"` or `"ok"`, and use `claimSensorRun()` for interval gating.
 
 ```typescript
-export default function sensor(db: Database): void {
-  if (!shouldRun()) return;
-  // check conditions
-  // createTask(...)
+import { claimSensorRun } from "../../src/sensors.ts";
+import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+
+const SENSOR_NAME = "my-skill";
+const INTERVAL_MINUTES = 10;
+const TASK_SOURCE = "sensor:my-skill";
+
+export default async function mySkillSensor(): Promise<string> {
+  initDatabase();
+
+  const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
+  if (!claimed) return "skip";
+
+  if (pendingTaskExistsForSource(TASK_SOURCE)) return "skip";
+
+  insertTask({ subject: "detected something", source: TASK_SOURCE, priority: 5 });
+  return "ok";
 }
 ```
 
@@ -81,7 +94,7 @@ Parse `process.argv.slice(2)` directly. Exit with code 1 on errors.
 Use the scaffold command to generate a starter template:
 
 ```
-arc skills run manage-skills create <name> --description "what it does"
+arc skills run --name manage-skills -- create <name> --description "what it does"
 ```
 
 ## Checklist
@@ -90,15 +103,15 @@ arc skills run manage-skills create <name> --description "what it does"
 - [ ] Frontmatter `name` matches directory name
 - [ ] SKILL.md is under 2000 tokens
 - [ ] If `cli.ts` present: `bun skills/<name>/cli.ts` runs without error
-- [ ] If `sensor.ts` present: exports a default function accepting `(db: Database)`
+- [ ] If `sensor.ts` present: exports an async default function returning `Promise<string>`
 - [ ] If `AGENT.md` present: describes inputs, outputs, and any gotchas
 
 ## CLI Commands
 
 ```
-arc skills                        List all discovered skills
-arc skills show <name>            Print SKILL.md for a skill
-arc skills run <name> [args]      Run a skill's cli.ts with args
+arc skills                                  List all discovered skills
+arc skills show --name <name>               Print SKILL.md for a skill
+arc skills run --name <name> [-- args]      Run a skill's cli.ts with args
 ```
 
 Direct skill CLI (bypasses arc):

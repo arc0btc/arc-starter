@@ -173,14 +173,24 @@ else
   echo "✓ $LOCAL_BIN already on PATH"
 fi
 
-# ---- 8. Enable session persistence ----
+# ---- 8. Set timezone to MST (America/Denver) ----
+if [[ "$OS" == "Linux" ]] && command -v timedatectl &>/dev/null; then
+  CURRENT_TZ=$(timedatectl show --property=Timezone --value 2>/dev/null || echo "unknown")
+  if [[ "$CURRENT_TZ" == "America/Denver" ]]; then
+    echo "✓ timezone already set to America/Denver (MST)"
+  else
+    sudo timedatectl set-timezone America/Denver 2>/dev/null && echo "✓ timezone set to America/Denver (MST)" || echo "→ could not set timezone — run: sudo timedatectl set-timezone America/Denver"
+  fi
+fi
+
+# ---- 9. Enable session persistence ----
 if [[ "$OS" == "Linux" ]]; then
   if command -v loginctl &>/dev/null; then
     loginctl enable-linger "$(whoami)" 2>/dev/null && echo "✓ loginctl linger enabled (services survive logout + start at boot)" || echo "→ loginctl enable-linger requires sudo — run: sudo loginctl enable-linger $(whoami)"
   fi
 fi
 
-# ---- 9. Autonomous mode (DANGEROUS=true) ----
+# ---- 10. Autonomous mode (DANGEROUS=true) ----
 if $AUTONOMOUS; then
   echo "DANGEROUS=true" > "$ENV_FILE"
   echo "✓ autonomous mode enabled (.env created with DANGEROUS=true)"
@@ -204,7 +214,7 @@ else
   fi
 fi
 
-# ---- 10. SOUL.md ----
+# ---- 11. SOUL.md ----
 if [[ ! -f "$REPO_DIR/SOUL.md" ]]; then
   cp "$REPO_DIR/SOUL.template.md" "$REPO_DIR/SOUL.md"
   echo "✓ created SOUL.md from template (edit this to define your agent's identity)"
@@ -212,7 +222,7 @@ else
   echo "✓ SOUL.md exists"
 fi
 
-# ---- 11. Verify ----
+# ---- 12. Verify ----
 echo ""
 echo "==> Verification"
 bun src/cli.ts status
