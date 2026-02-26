@@ -138,6 +138,20 @@ echo "→ Initializing database..."
 bun src/db.ts
 echo "✓ database ready"
 
+# ---- 6.5. Credential store directory ----
+echo "→ Setting up credential store directory..."
+mkdir -p "$HOME/.aibtc"
+echo "✓ ~/.aibtc/ directory ready (credential store location)"
+
+# Inform the operator about ARC_CREDS_PASSWORD without auto-generating it.
+if grep -q "^ARC_CREDS_PASSWORD=" "$ENV_FILE" 2>/dev/null; then
+  echo "✓ ARC_CREDS_PASSWORD is set in .env (credential store enabled)"
+else
+  echo "→ ARC_CREDS_PASSWORD not set — add the following to .env to enable the credential store:"
+  echo "  ARC_CREDS_PASSWORD=your-secure-password"
+  echo "  (arc creds set/get/list commands require this to be set)"
+fi
+
 # ---- 7. Symlink arc CLI ----
 echo "→ Installing arc CLI..."
 LOCAL_BIN="$HOME/.local/bin"
