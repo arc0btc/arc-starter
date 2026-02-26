@@ -3,10 +3,12 @@
 #
 # Works on: macOS (arm64/x64), Linux (Debian/Ubuntu)
 # Installs: tmux, bun, gh, claude CLI
-# Configures: git identity from GitHub profile, database, arc wrapper, linger
+# Configures: git identity from GitHub profile, database, arc CLI, linger
 # Idempotent: safe to run multiple times
 #
-# Usage: bash scripts/install-prerequisites.sh
+# Usage:
+#   bash scripts/install-prerequisites.sh              # interactive (default)
+#   bash scripts/install-prerequisites.sh --autonomous # enable DANGEROUS=true for unattended dispatch
 
 set -euo pipefail
 
@@ -15,10 +17,24 @@ REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$REPO_DIR"
 
 OS="$(uname -s)"
+AUTONOMOUS=false
+
+# Parse flags
+for arg in "$@"; do
+  case "$arg" in
+    --autonomous) AUTONOMOUS=true ;;
+    *)
+      echo "Unknown flag: $arg"
+      echo "Usage: bash scripts/install-prerequisites.sh [--autonomous]"
+      exit 1
+      ;;
+  esac
+done
 
 echo "==> arc-agent prerequisites"
 echo "    Repo: $REPO_DIR"
 echo "    OS:   $OS"
+echo "    Mode: $(if $AUTONOMOUS; then echo "autonomous (DANGEROUS=true)"; else echo "interactive"; fi)"
 echo ""
 
 # ---- 1. tmux (session persistence) ----
@@ -122,16 +138,14 @@ echo "→ Initializing database..."
 bun src/db.ts
 echo "✓ database ready"
 
-# ---- 7. Install arc wrapper ----
-echo "→ Installing arc CLI wrapper..."
+# ---- 7. Symlink arc CLI ----
+echo "→ Installing arc CLI..."
 LOCAL_BIN="$HOME/.local/bin"
 mkdir -p "$LOCAL_BIN"
-cat > "$LOCAL_BIN/arc" <<WRAPPER
-#!/usr/bin/env bash
-exec bun "$REPO_DIR/src/cli.ts" "\$@"
-WRAPPER
-chmod +x "$LOCAL_BIN/arc"
-echo "✓ arc installed to $LOCAL_BIN/arc"
+
+# Symlink from project bin/arc so updates are automatic
+ln -sf "$REPO_DIR/bin/arc" "$LOCAL_BIN/arc"
+echo "✓ arc symlinked: $LOCAL_BIN/arc -> $REPO_DIR/bin/arc"
 
 # Ensure ~/.local/bin is on PATH
 if ! echo "$PATH" | tr ':' '\n' | grep -qx "$LOCAL_BIN"; then
@@ -151,7 +165,40 @@ if [[ "$OS" == "Linux" ]]; then
   fi
 fi
 
-# ---- 9. Verify ----
+# ---- 9. Autonomous mode (DANGEROUS=true) ----
+ENV_FILE="$REPO_DIR/.env"
+if $AUTONOMOUS; then
+  echo "DANGEROUS=true" > "$ENV_FILE"
+  echo "✓ autonomous mode enabled (.env created with DANGEROUS=true)"
+  echo ""
+  echo "  ┌─────────────────────────────────────────────────────────────┐"
+  echo "  │  DANGEROUS=true grants Claude Code full filesystem and     │"
+  echo "  │  command access during dispatch. The agent can read, write, │"
+  echo "  │  and execute anything your user account can.               │"
+  echo "  │                                                            │"
+  echo "  │  This is required for autonomous operation.                │"
+  echo "  │  To disable: delete .env or remove DANGEROUS=true          │"
+  echo "  └─────────────────────────────────────────────────────────────┘"
+else
+  if [[ ! -f "$ENV_FILE" ]]; then
+    echo "# Uncomment to enable autonomous dispatch (grants full permissions to Claude Code)" > "$ENV_FILE"
+    echo "# DANGEROUS=true" >> "$ENV_FILE"
+    echo "→ autonomous mode not enabled (run with --autonomous to enable)"
+    echo "  To enable later: uncomment DANGEROUS=true in .env"
+  else
+    echo "✓ .env exists (not modified)"
+  fi
+fi
+
+# ---- 10. SOUL.md ----
+if [[ ! -f "$REPO_DIR/SOUL.md" ]]; then
+  cp "$REPO_DIR/SOUL.template.md" "$REPO_DIR/SOUL.md"
+  echo "✓ created SOUL.md from template (edit this to define your agent's identity)"
+else
+  echo "✓ SOUL.md exists"
+fi
+
+# ---- 11. Verify ----
 echo ""
 echo "==> Verification"
 bun src/cli.ts status
@@ -161,9 +208,5 @@ echo "==> Prerequisites installed"
 echo ""
 echo "Next steps:"
 echo "  1. Run 'claude' once to authenticate (if first time)"
-echo "  2. arc services install    # enable timers (systemd or launchd)"
-echo ""
-echo "⚠  Unattended dispatch requires DANGEROUS=true in the environment."
-echo "   This grants Claude Code full filesystem and command access."
-echo "   The install script does NOT set this automatically."
-echo "   To enable: export DANGEROUS=true (or add to systemd unit EnvironmentFile)"
+echo "  2. Edit SOUL.md to define your agent's identity"
+echo "  3. arc services install    # enable timers (systemd or launchd)"

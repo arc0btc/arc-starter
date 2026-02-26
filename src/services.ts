@@ -41,36 +41,54 @@ function systemdDir(): string {
   return join(HOME, ".config/systemd/user");
 }
 
-const SYSTEMD_UNITS = [
-  "arc-sensors.service",
-  "arc-sensors.timer",
-  "arc-dispatch.service",
-  "arc-dispatch.timer",
+function generateServiceUnit(command: string, description: string, timeoutSec?: number): string {
+  const bun = bunPath();
+  const envFile = join(ROOT, ".env");
+  const envLine = existsSync(envFile) ? `EnvironmentFile=${envFile}\n` : "";
+  const timeoutLine = timeoutSec ? `TimeoutStopSec=${timeoutSec}\n` : "";
+  return `[Unit]
+Description=${description}
+After=network.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=${ROOT}
+ExecStart=${bun} src/cli.ts ${command}
+Environment="HOME=${HOME}"
+Environment="PATH=/usr/local/bin:/usr/bin:/bin:${HOME}/.bun/bin"
+${envLine}${timeoutLine}StandardOutput=journal
+StandardError=journal
+`;
+}
+
+function generateTimerUnit(description: string, bootSec: string, intervalSec: string): string {
+  return `[Unit]
+Description=${description}
+
+[Timer]
+OnBootSec=${bootSec}
+OnUnitActiveSec=${intervalSec}
+
+[Install]
+WantedBy=timers.target
+`;
+}
+
+const SYSTEMD_UNITS: Array<{ name: string; content: () => string }> = [
+  { name: "arc-sensors.service", content: () => generateServiceUnit("sensors", "arc-agent sensors runner") },
+  { name: "arc-sensors.timer", content: () => generateTimerUnit("arc-agent sensors timer — fires every 1 minute", "1min", "1min") },
+  { name: "arc-dispatch.service", content: () => generateServiceUnit("run", "arc-agent dispatch runner", 3600) },
+  { name: "arc-dispatch.timer", content: () => generateTimerUnit("arc-agent dispatch timer — fires every 1 minute", "2min", "1min") },
 ];
 
 function systemdInstall(): void {
   const dir = systemdDir();
   mkdirSync(dir, { recursive: true });
 
-  const sourceDir = join(ROOT, "systemd");
-
   for (const unit of SYSTEMD_UNITS) {
-    const src = join(sourceDir, unit);
-    if (!existsSync(src)) {
-      process.stderr.write(`Error: source unit not found: ${src}\n`);
-      process.exit(1);
-    }
-    const dest = join(dir, unit);
-    // Remove existing before symlinking
-    if (existsSync(dest)) {
-      unlinkSync(dest);
-    }
-    const ln = spawnSync("ln", ["-sf", src, dest]);
-    if (ln.status !== 0) {
-      process.stderr.write(`Error: failed to symlink ${unit}\n`);
-      process.exit(1);
-    }
-    process.stdout.write(`  Linked ${unit}\n`);
+    const dest = join(dir, unit.name);
+    writeFileSync(dest, unit.content());
+    process.stdout.write(`  Wrote ${unit.name}\n`);
   }
 
   process.stdout.write("\n");
@@ -91,10 +109,10 @@ function systemdUninstall(): void {
 
   const dir = systemdDir();
   for (const unit of SYSTEMD_UNITS) {
-    const dest = join(dir, unit);
+    const dest = join(dir, unit.name);
     if (existsSync(dest)) {
       unlinkSync(dest);
-      process.stdout.write(`  Removed ${unit}\n`);
+      process.stdout.write(`  Removed ${unit.name}\n`);
     }
   }
 

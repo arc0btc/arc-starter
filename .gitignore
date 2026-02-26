@@ -4,3 +4,4 @@ db/*.sqlite-*
 db/dispatch-lock.json
 db/hook-state/
 logs/
+.env

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Arc CLI wrapper — resolves repo root relative to this script's location.
+# Symlink this to ~/.local/bin/arc (the install script does this automatically).
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+exec bun "$REPO_DIR/src/cli.ts" "$@"

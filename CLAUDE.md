@@ -216,5 +216,6 @@ arc tasks close <id> completed --summary "<summary>"
 - `src/dispatch.ts` — Dispatch service entry point
 - `src/db.ts` — Database initialization and schema
 - `src/cli.ts` — CLI entry point (`arc` command)
+- `src/services.ts` — Cross-platform service installer (systemd/launchd, generates units dynamically)
 - `templates/` — Task templates for recurring or structured work
-- `systemd/` — Unit files for sensors.service, sensors.timer, dispatch.service, dispatch.timer
+- `bin/arc` — CLI wrapper (symlinked to ~/.local/bin/arc by installer)

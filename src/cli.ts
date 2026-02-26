@@ -326,8 +326,8 @@ async function cmdSensors(args: string[]): Promise<void> {
   }
 }
 
-function cmdServices(args: string[]): void {
-  const { servicesInstall, servicesUninstall, servicesStatus } = require("./services.ts");
+async function cmdServices(args: string[]): Promise<void> {
+  const { servicesInstall, servicesUninstall, servicesStatus } = await import("./services.ts");
   const sub = args[0];
   switch (sub) {
     case "install":
@@ -436,7 +436,7 @@ async function main(): Promise<void> {
       await cmdSensors(argv.slice(1));
       break;
     case "services":
-      cmdServices(argv.slice(1));
+      await cmdServices(argv.slice(1));
       break;
     case "help":
     case "--help":
