@@ -3,8 +3,8 @@
 // Discovers all skills/<name>/sensor.ts files and runs them in parallel.
 // Each sensor is responsible for its own shouldRun() gating.
 //
-// Also provides the shouldRun infrastructure (HookState, readHookState,
-// writeHookState) ported from v4's hook-state.ts, adapted for arc-agent-v5.
+// Provides the shouldRun infrastructure (HookState, readHookState,
+// writeHookState, claimSensorRun) used by individual sensor files.
 //
 // State files live in db/hook-state/{name}.json (already in .gitignore).
 
@@ -17,25 +17,22 @@ import { initDatabase } from "./db.ts";
 
 const HOOK_STATE_DIR = new URL("../db/hook-state", import.meta.url).pathname;
 
+// Ensure state directory exists once at module load
+mkdirSync(HOOK_STATE_DIR, { recursive: true });
+
 // ---- Types ----
 
 export interface HookState {
-  // ISO-8601 timestamp of the last execution attempt
   last_ran: string;
-  // Outcome of the last run
   last_result: "ok" | "error" | "skip";
-  // Monotonic counter — increments on every writeHookState call
   version: number;
-  // Number of consecutive errors — resets to 0 on "ok" or "skip"
   consecutive_failures: number;
 }
 
 // ---- Read ----
 
-// Read hook state from db/hook-state/{name}.json.
-// Returns null if the file does not exist or cannot be parsed.
+/** Read hook state from db/hook-state/{name}.json. Returns null if missing or unparsable. */
 export async function readHookState(name: string): Promise<HookState | null> {
-  mkdirSync(HOOK_STATE_DIR, { recursive: true });
   const filePath = join(HOOK_STATE_DIR, `${name}.json`);
   try {
     const file = Bun.file(filePath);
@@ -48,10 +45,8 @@ export async function readHookState(name: string): Promise<HookState | null> {
 
 // ---- Write ----
 
-// Write hook state to db/hook-state/{name}.json.
-// Ensures the directory exists before writing.
+/** Write hook state to db/hook-state/{name}.json. */
 export async function writeHookState(name: string, state: HookState): Promise<void> {
-  mkdirSync(HOOK_STATE_DIR, { recursive: true });
   const filePath = join(HOOK_STATE_DIR, `${name}.json`);
   await Bun.write(filePath, JSON.stringify(state));
 }
@@ -154,10 +149,7 @@ export async function runSensors(): Promise<void> {
   const results = await Promise.all(promises);
 
   for (const r of results) {
-    let status: string;
-    if (r.skipped) status = "skip";
-    else if (r.ok) status = "ok";
-    else status = "error";
+    const status = r.skipped ? "skip" : r.ok ? "ok" : "error";
     const detail = r.error ? ` (${r.error})` : "";
     process.stdout.write(`  sensor ${r.name}: ${status} ${r.durationMs}ms${detail}\n`);
   }

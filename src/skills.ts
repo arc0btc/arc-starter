@@ -21,69 +21,54 @@ interface Frontmatter {
   tags: string[];
 }
 
+/** Strip leading/trailing quotes from a YAML value. */
+function unquote(value: string): string {
+  return value.trim().replace(/^['"]|['"]$/g, "");
+}
+
 function parseFrontmatter(content: string): Frontmatter {
   const result: Frontmatter = { name: "", description: "", tags: [] };
 
-  // Find the YAML frontmatter block between first and second ---
-  const lines = content.split("\n");
-  let inFrontmatter = false;
-  let frontmatterDone = false;
+  // Extract the YAML block between the first pair of --- delimiters
+  const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
+  if (!fmMatch) return result;
+
+  const lines = fmMatch[1].split("\n");
   let inTagsList = false;
 
   for (const line of lines) {
     const trimmed = line.trim();
 
-    if (!inFrontmatter && trimmed === "---") {
-      inFrontmatter = true;
+    // Inline array: tags: [a, b, c]
+    const inlineTagsMatch = trimmed.match(/^tags:\s*\[(.+)\]$/);
+    if (inlineTagsMatch) {
+      result.tags = inlineTagsMatch[1].split(",").map(unquote);
+      inTagsList = false;
       continue;
     }
 
-    if (inFrontmatter && !frontmatterDone && trimmed === "---") {
-      frontmatterDone = true;
-      break;
+    // Multiline tags list header
+    if (trimmed === "tags:") {
+      inTagsList = true;
+      continue;
     }
 
-    if (inFrontmatter && !frontmatterDone) {
-      // Check for inline array: tags: [a, b, c]
-      const inlineTagsMatch = trimmed.match(/^tags:\s*\[(.+)\]$/);
-      if (inlineTagsMatch) {
-        result.tags = inlineTagsMatch[1]
-          .split(",")
-          .map((t) => t.trim().replace(/^['"]|['"]$/g, ""));
-        inTagsList = false;
-        continue;
-      }
+    // Collect list items under tags
+    if (inTagsList && trimmed.startsWith("- ")) {
+      result.tags.push(trimmed.slice(2).trim());
+      continue;
+    }
 
-      // Check for tags: key (multiline list follows)
-      if (trimmed === "tags:") {
-        inTagsList = true;
-        continue;
-      }
+    // Any non-list-item line ends tag collection
+    if (inTagsList && !trimmed.startsWith("- ")) {
+      inTagsList = false;
+    }
 
-      // Collect list items under tags
-      if (inTagsList && trimmed.startsWith("- ")) {
-        result.tags.push(trimmed.slice(2).trim());
-        continue;
-      }
-
-      // Any other key resets tag list mode
-      if (!trimmed.startsWith("- ")) {
-        inTagsList = false;
-      }
-
-      // name: value
-      const nameMatch = trimmed.match(/^name:\s*(.+)$/);
-      if (nameMatch) {
-        result.name = nameMatch[1].trim().replace(/^['"]|['"]$/g, "");
-        continue;
-      }
-
-      // description: value
-      const descMatch = trimmed.match(/^description:\s*(.+)$/);
-      if (descMatch) {
-        result.description = descMatch[1].trim().replace(/^['"]|['"]$/g, "");
-        continue;
-      }
+    // Simple key: value pairs
+    const kvMatch = trimmed.match(/^(name|description):\s*(.+)$/);
+    if (kvMatch) {
+      const [, key, value] = kvMatch;
+      result[key as "name" | "description"] = unquote(value);
     }
   }
 

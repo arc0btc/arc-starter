@@ -144,27 +144,31 @@ EXAMPLES
 
 // ---- Entry point ----
 
-const args = process.argv.slice(2);
-const sub = args[0];
+function main(): void {
+  const args = process.argv.slice(2);
+  const sub = args[0];
 
-switch (sub) {
-  case "list":
-    cmdList();
-    break;
-  case "show":
-    cmdShow(args.slice(1));
-    break;
-  case "create":
-    cmdCreate(args.slice(1));
-    break;
-  case "help":
-  case "--help":
-  case "-h":
-  case undefined:
-    printUsage();
-    break;
-  default:
-    process.stderr.write(`Error: unknown subcommand '${sub}'\n\n`);
-    printUsage();
-    process.exit(1);
+  switch (sub) {
+    case "list":
+      cmdList();
+      break;
+    case "show":
+      cmdShow(args.slice(1));
+      break;
+    case "create":
+      cmdCreate(args.slice(1));
+      break;
+    case "help":
+    case "--help":
+    case "-h":
+    case undefined:
+      printUsage();
+      break;
+    default:
+      process.stderr.write(`Error: unknown subcommand '${sub}'\n\n`);
+      printUsage();
+      process.exit(1);
+  }
 }
+
+main();

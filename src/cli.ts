@@ -144,24 +144,22 @@ function cmdTasksAdd(args: string[]): void {
 
 function cmdTasksClose(args: string[]): void {
   const { flags } = parseFlags(args);
+  const usage = 'Usage: arc tasks close --id N --status completed|failed --summary "text"\n';
 
   const rawId = flags["id"];
   const status = flags["status"];
   const summary = flags["summary"];
 
   if (!rawId || isNaN(parseInt(rawId, 10))) {
-    process.stderr.write("Error: --id must be a number\n");
-    process.stderr.write("Usage: arc tasks close --id N --status completed|failed --summary \"text\"\n");
+    process.stderr.write("Error: --id must be a number\n" + usage);
     process.exit(1);
   }
   if (status !== "completed" && status !== "failed") {
-    process.stderr.write("Error: --status must be 'completed' or 'failed'\n");
-    process.stderr.write("Usage: arc tasks close --id N --status completed|failed --summary \"text\"\n");
+    process.stderr.write("Error: --status must be 'completed' or 'failed'\n" + usage);
     process.exit(1);
   }
   if (!summary) {
-    process.stderr.write("Error: --summary is required\n");
-    process.stderr.write("Usage: arc tasks close --id N --status completed|failed --summary \"text\"\n");
+    process.stderr.write("Error: --summary is required\n" + usage);
     process.exit(1);
   }
 

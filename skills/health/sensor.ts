@@ -8,6 +8,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { claimSensorRun } from "../../src/sensors.ts";
 import { initDatabase, insertTask, pendingTaskExistsForSource, getRecentCycles, getPendingTasks } from "../../src/db.ts";
+import { isPidAlive } from "../../src/utils.ts";
 
 const SENSOR_NAME = "health";
 const INTERVAL_MINUTES = 5;
@@ -19,8 +20,7 @@ const PRIORITY = 9;
 const ROOT = new URL("../../", import.meta.url).pathname;
 const DISPATCH_LOCK_FILE = join(ROOT, "db", "dispatch-lock.json");
 
-// Returns true if the last dispatch cycle was more than 30 minutes ago
-// AND there are pending tasks that should have been processed.
+/** Returns true if the last dispatch cycle was more than 30 minutes ago and pending tasks exist. */
 function checkStaleCycle(): boolean {
   const cycles = getRecentCycles(1);
   if (cycles.length === 0) return false;
@@ -36,25 +36,15 @@ function checkStaleCycle(): boolean {
   return pending.length > 0;
 }
 
-// Returns true if a dispatch lock file exists but the recorded PID is no longer alive.
+/** Returns true if a dispatch lock file exists but the recorded PID is no longer alive. */
 function checkStaleLock(): boolean {
   if (!existsSync(DISPATCH_LOCK_FILE)) return false;
 
-  let pid: number;
   try {
     const lock = JSON.parse(readFileSync(DISPATCH_LOCK_FILE, "utf-8")) as { pid: number };
-    pid = lock.pid;
+    return !isPidAlive(lock.pid);
   } catch {
     // Unreadable lock file — treat as stale
-    return true;
-  }
-
-  try {
-    process.kill(pid, 0);
-    // PID is alive — lock is legitimate
-    return false;
-  } catch {
-    // PID is dead — lock is stale
     return true;
   }
 }

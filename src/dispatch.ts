@@ -26,12 +26,12 @@ import {
   updateTaskCost,
   toSqliteDatetime,
 } from "./db.ts";
+import { isPidAlive } from "./utils.ts";
 
 // ---- Constants ----
 
 const ROOT = new URL("..", import.meta.url).pathname;
-const DB_DIR = join(ROOT, "db");
-const DISPATCH_LOCK_FILE = join(DB_DIR, "dispatch-lock.json");
+const DISPATCH_LOCK_FILE = join(ROOT, "db", "dispatch-lock.json");
 const SKILLS_DIR = join(ROOT, "skills");
 
 // ---- Logging ----
@@ -64,15 +64,6 @@ function checkDispatchLock(): DispatchLock | null {
     return JSON.parse(readFileSync(DISPATCH_LOCK_FILE, "utf-8")) as DispatchLock;
   } catch {
     return null;
-  }
-}
-
-function isPidAlive(pid: number): boolean {
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch {
-    return false;
   }
 }
 
@@ -115,15 +106,13 @@ function parseSkillNames(skillsJson: string | null): string[] {
 }
 
 function resolveSkillContext(skillNames: string[]): string {
-  const blocks: string[] = [];
-  for (const name of skillNames) {
-    const skillMdPath = join(SKILLS_DIR, name, "SKILL.md");
-    const content = readFile(skillMdPath);
-    if (content) {
-      blocks.push(`# Skill: ${name}\n${content}`);
-    }
-  }
-  return blocks.join("\n\n");
+  return skillNames
+    .map((name) => {
+      const content = readFile(join(SKILLS_DIR, name, "SKILL.md"));
+      return content ? `# Skill: ${name}\n${content}` : "";
+    })
+    .filter(Boolean)
+    .join("\n\n");
 }
 
 // ---- Parent chain builder ----
@@ -147,10 +136,17 @@ function buildParentChain(task: Task): string {
 
 // ---- Prompt builder ----
 
+/** Format a Date as "YYYY-MM-DD HH:MM:SS" for display. */
+function formatDatetime(date: Date): string {
+  return date.toISOString().replace("T", " ").slice(0, 19);
+}
+
+const MST_OFFSET_MS = 7 * 3600_000;
+
 function buildPrompt(task: Task, skillNames: string[], recentCycles: string): string {
   const now = new Date();
-  const utc = now.toISOString().replace("T", " ").slice(0, 19) + " UTC";
-  const mst = new Date(now.getTime() - 7 * 3600_000).toISOString().replace("T", " ").slice(0, 19) + " MST";
+  const utc = formatDatetime(now) + " UTC";
+  const mst = formatDatetime(new Date(now.getTime() - MST_OFFSET_MS)) + " MST";
 
   const soul = readFile(join(ROOT, "SOUL.md"));
   const memory = readFile(join(ROOT, "memory", "MEMORY.md"));
@@ -163,16 +159,16 @@ function buildPrompt(task: Task, skillNames: string[], recentCycles: string): st
     "",
   ];
 
-  if (soul) {
-    parts.push("# Identity", soul, "");
-  }
-
-  if (memory) {
-    parts.push("# Memory", memory, "");
-  }
-
-  if (recentCycles) {
-    parts.push("# Recent Cycles", recentCycles, "");
+  // Add optional sections — each guarded by content presence
+  const optionalSections: Array<[string, string]> = [
+    ["# Identity", soul],
+    ["# Memory", memory],
+    ["# Recent Cycles", recentCycles],
+  ];
+  for (const [heading, content] of optionalSections) {
+    if (content) {
+      parts.push(heading, content, "");
+    }
   }
 
   if (skillContext) {
@@ -311,11 +307,11 @@ async function dispatch(prompt: string): Promise<DispatchResult> {
   for await (const chunk of proc.stdout) {
     lineBuffer += decoder.decode(chunk, { stream: true });
     const lines = lineBuffer.split("\n");
-    // All lines except the last are complete
-    for (let i = 0; i < lines.length - 1; i++) {
-      processLine(lines[i]);
+    // Process all complete lines; keep the last (possibly incomplete) segment
+    lineBuffer = lines.pop()!;
+    for (const line of lines) {
+      processLine(line);
     }
-    lineBuffer = lines[lines.length - 1];
   }
   // Flush any remaining buffer content
   processLine(lineBuffer);
@@ -334,52 +330,42 @@ async function dispatch(prompt: string): Promise<DispatchResult> {
 
 // ---- Auto-commit ----
 
+/** Spawn a git command in the repo root, capturing output. */
+async function git(...args: string[]): Promise<{ exitCode: number; stdout: string; stderr: string }> {
+  const proc = Bun.spawn(["git", ...args], { cwd: ROOT, stdout: "pipe", stderr: "pipe" });
+  const [exitCode, stdout, stderr] = await Promise.all([
+    proc.exited,
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text(),
+  ]);
+  return { exitCode, stdout, stderr };
+}
+
 async function commitCycleChanges(): Promise<void> {
   try {
     // Stage specific directories — never .env or db/*.sqlite
     const stageDirs = ["memory/", "skills/", "src/", "templates/"];
     for (const dir of stageDirs) {
       if (existsSync(join(ROOT, dir))) {
-        const addProc = Bun.spawn(["git", "add", dir], {
-          cwd: ROOT,
-          stdout: "pipe",
-          stderr: "pipe",
-        });
-        await addProc.exited;
+        await git("add", dir);
       }
     }
 
     // Check if there's anything staged
-    const diffProc = Bun.spawn(["git", "diff", "--cached", "--quiet"], {
-      cwd: ROOT,
-      stdout: "pipe",
-      stderr: "pipe",
-    });
-    const diffExit = await diffProc.exited;
+    const { exitCode: diffExit } = await git("diff", "--cached", "--quiet");
     if (diffExit === 0) return; // nothing to commit
 
     // Count staged files for the commit message
-    const statProc = Bun.spawn(["git", "diff", "--cached", "--name-only"], {
-      cwd: ROOT,
-      stdout: "pipe",
-      stderr: "pipe",
-    });
-    const statOut = await new Response(statProc.stdout).text();
-    const fileCount = statOut.trim().split("\n").filter(Boolean).length;
+    const { stdout: stagedFiles } = await git("diff", "--cached", "--name-only");
+    const fileCount = stagedFiles.trim().split("\n").filter(Boolean).length;
 
     // Commit with conventional message
     const msg = `chore(loop): auto-commit after dispatch cycle [${fileCount} file(s)]`;
-    const commitProc = Bun.spawn(["git", "commit", "-m", msg], {
-      cwd: ROOT,
-      stdout: "pipe",
-      stderr: "pipe",
-    });
-    const commitExit = await commitProc.exited;
+    const { exitCode: commitExit, stderr } = await git("commit", "-m", msg);
     if (commitExit === 0) {
       log(`dispatch: auto-committed ${fileCount} file(s)`);
     } else {
-      const errText = await new Response(commitProc.stderr).text();
-      log(`dispatch: auto-commit failed — ${errText.trim()}`);
+      log(`dispatch: auto-commit failed — ${stderr.trim()}`);
     }
   } catch (err) {
     log(`dispatch: auto-commit error — ${err}`);

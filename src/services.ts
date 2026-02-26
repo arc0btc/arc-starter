@@ -235,41 +235,32 @@ function launchdStatus(): void {
 
 // ---- Public API ----
 
-export function servicesInstall(): void {
-  process.stdout.write("==> Installing arc-agent services\n\n");
+interface PlatformHandlers {
+  linux: () => void;
+  darwin: () => void;
+}
 
-  if (PLATFORM === "linux") {
-    systemdInstall();
-  } else if (PLATFORM === "darwin") {
-    launchdInstall();
+function dispatchByPlatform(handlers: PlatformHandlers): void {
+  const handler = handlers[PLATFORM as keyof PlatformHandlers];
+  if (handler) {
+    handler();
   } else {
     process.stderr.write(`Unsupported platform: ${PLATFORM}\n`);
     process.exit(1);
   }
+}
 
+export function servicesInstall(): void {
+  process.stdout.write("==> Installing arc-agent services\n\n");
+  dispatchByPlatform({ linux: systemdInstall, darwin: launchdInstall });
   process.stdout.write("\nDone. Use 'arc services status' to verify.\n");
 }
 
 export function servicesUninstall(): void {
   process.stdout.write("==> Uninstalling arc-agent services\n\n");
-
-  if (PLATFORM === "linux") {
-    systemdUninstall();
-  } else if (PLATFORM === "darwin") {
-    launchdUninstall();
-  } else {
-    process.stderr.write(`Unsupported platform: ${PLATFORM}\n`);
-    process.exit(1);
-  }
+  dispatchByPlatform({ linux: systemdUninstall, darwin: launchdUninstall });
 }
 
 export function servicesStatus(): void {
-  if (PLATFORM === "linux") {
-    systemdStatus();
-  } else if (PLATFORM === "darwin") {
-    launchdStatus();
-  } else {
-    process.stderr.write(`Unsupported platform: ${PLATFORM}\n`);
-    process.exit(1);
-  }
+  dispatchByPlatform({ linux: systemdStatus, darwin: launchdStatus });
 }

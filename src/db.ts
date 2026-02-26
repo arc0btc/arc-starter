@@ -196,20 +196,15 @@ export function insertTask(fields: InsertTask): number {
   const cols: string[] = ["subject"];
   const values: unknown[] = [fields.subject];
 
-  const optionalFields: Array<[keyof InsertTask, string]> = [
-    ["description", "description"],
-    ["skills", "skills"],
-    ["priority", "priority"],
-    ["status", "status"],
-    ["source", "source"],
-    ["parent_id", "parent_id"],
-    ["template", "template"],
+  const optionalColumns: Array<keyof InsertTask> = [
+    "description", "skills", "priority", "status",
+    "source", "parent_id", "template",
   ];
 
-  for (const [key, col] of optionalFields) {
-    if (fields[key] !== undefined) {
+  for (const col of optionalColumns) {
+    if (fields[col] !== undefined) {
       cols.push(col);
-      values.push(fields[key]);
+      values.push(fields[col]);
     }
   }
 

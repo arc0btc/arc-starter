@@ -1,3 +1,15 @@
+// ---- Process utilities ----
+
+/** Check if a process with the given PID is still alive. */
+export function isPidAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 // ---- Arg parsing ----
 
 export interface ParsedArgs {
