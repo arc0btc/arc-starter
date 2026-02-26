@@ -25,7 +25,10 @@ The `template` column links tasks to `templates/` for recurring or structured wo
 ### Two Services
 
 **Sensors** (no LLM, fast, parallel):
-- Timer: 1-5 minutes depending on load
+- The systemd/launchd timer fires every **1 minute** — this is the floor frequency
+- Each sensor controls its own cadence via `claimSensorRun(name, intervalMinutes)`
+- The interval is defined per-sensor in `sensor.ts` (e.g., health=5min, heartbeat=360min)
+- The timer fires frequently; sensors self-gate and return `"skip"` when it's not time yet
 - Each sensor is a TypeScript file at `skills/<name>/sensor.ts`
 - All sensors run in parallel via `Promise.allSettled()`
 - A sensor failure never blocks others
@@ -48,7 +51,7 @@ Skills live under `skills/<name>/`. Each skill can have:
 - `SKILL.md` — Orchestrator context. What the skill does, CLI syntax, composability, data schemas. Loaded into dispatch context when the task lists this skill. Keeps the orchestrator's context lean.
 - `AGENT.md` — Subagent briefing. Detailed execution instructions. Never loaded into the orchestrator's context. Pass it to subagents via the Task tool when delegating heavy work.
 - `sensor.ts` — Auto-run by the sensors service. Detects signals, creates tasks.
-- `cli.ts` — CLI commands exposed via `arc <skill-name> <command>`. Every action Arc can take must be expressible as an `arc` command.
+- `cli.ts` — CLI commands exposed via `arc skills run --name <skill> -- <command>`. Every action Arc can take must be expressible as an `arc` command.
 
 Arc is an orchestrator. Read SKILL.md, keep context lean, delegate detailed execution to subagents that receive AGENT.md. Do not load AGENT.md into your own context.
 
@@ -56,21 +59,20 @@ Arc is an orchestrator. Read SKILL.md, keep context lean, delegate detailed exec
 
 ## CLI: Primary Interface
 
-The CLI is the tool boundary. If a capability doesn't have a CLI command, create the skill first.
+The CLI is the tool boundary. If a capability doesn't have a CLI command, create the skill first. All arguments use named flags (`--flag value`), never positional args.
 
 ```
-arc status              # current task queue summary, last dispatch result
-arc tasks               # list pending/active tasks
-arc tasks add           # create a new task interactively or from flags
-arc tasks close <id>    # mark task completed
-arc skills              # list installed skills with status
-arc run                 # trigger a dispatch cycle manually
-arc run sensors         # run sensors manually
-```
-
-Skills expose additional commands:
-```
-arc <skill-name> <command> [args]
+arc status                                    # task counts, last cycle, cost today
+arc tasks [--status STATUS] [--limit N]       # list tasks (default: pending + active)
+arc tasks add --subject TEXT [--priority N]    # create a task
+arc tasks close --id N --status completed|failed --summary TEXT
+arc skills                                    # list installed skills
+arc skills show --name NAME                   # print SKILL.md content
+arc skills run --name NAME [-- extra-args]    # run a skill's CLI
+arc sensors                                   # run all sensors once
+arc sensors list                              # list discovered sensors
+arc services install|uninstall|status         # manage platform services
+arc run                                       # trigger a dispatch cycle
 ```
 
 Every action Arc can take must be expressible as an `arc` command. This is the CLI-first principle.
@@ -202,8 +204,10 @@ Output is free-form for tasks. Prose, structured text, code — whatever is most
 For creating follow-up tasks during execution, use the CLI:
 ```
 arc tasks add --subject "<subject>" --priority <n> --source "task:<id>"
-arc tasks close <id> completed --summary "<summary>"
+arc tasks close --id <id> --status completed --summary "<summary>"
 ```
+
+**Git commits:** The dispatched session is responsible for committing its own work. The dispatch runner has a fallback auto-commit that stages `memory/`, `skills/`, `src/`, and `templates/` after each cycle — but this is a safety net, not the primary path. Commit deliberately during the session. Dispatch never pushes to remote.
 
 ---
 

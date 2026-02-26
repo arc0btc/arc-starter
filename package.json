@@ -7,6 +7,7 @@
     "arc": "./src/cli.ts"
   },
   "scripts": {
+    "test": "bun test",
     "db:init": "bun src/db.ts",
     "sensors": "bun src/sensors.ts",
     "dispatch": "bun src/dispatch.ts",

@@ -197,9 +197,9 @@ function buildPrompt(task: Task, skillNames: string[], recentCycles: string): st
   parts.push(
     "# Instructions",
     "Use `arc` CLI commands for all actions:",
-    `- Close this task: arc tasks close ${task.id} completed|failed "summary"`,
-    `- Create follow-up: arc tasks add "subject" --skills s1,s2 --parent ${task.id}`,
-    "- Create a skill: arc skills run manage-skills create <name>",
+    `- Close this task: arc tasks close --id ${task.id} --status completed|failed --summary "summary"`,
+    `- Create follow-up: arc tasks add --subject "subject" --skills s1,s2 --parent ${task.id}`,
+    `- Create a skill: arc skills run --name manage-skills -- create my-skill --description "Does X"`,
     "- Update memory: edit memory/MEMORY.md directly",
     "Do NOT use raw SQL, direct DB writes, or ad-hoc scripts.",
   );

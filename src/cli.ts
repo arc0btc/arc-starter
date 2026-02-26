@@ -109,11 +109,12 @@ function cmdTasksList(args: string[]): void {
 }
 
 function cmdTasksAdd(args: string[]): void {
-  const { flags, positional } = parseFlags(args);
+  const { flags } = parseFlags(args);
 
-  const subject = positional[0];
+  const subject = flags["subject"];
   if (!subject) {
-    process.stderr.write("Error: subject is required for 'tasks add'\n");
+    process.stderr.write("Error: --subject is required for 'tasks add'\n");
+    process.stderr.write("Usage: arc tasks add --subject \"text\" [--description TEXT] [--priority N] [--source TEXT] [--skills S1,S2] [--parent ID]\n");
     process.exit(1);
   }
 
@@ -142,22 +143,25 @@ function cmdTasksAdd(args: string[]): void {
 }
 
 function cmdTasksClose(args: string[]): void {
-  const { positional } = parseFlags(args);
+  const { flags } = parseFlags(args);
 
-  const rawId = positional[0];
-  const status = positional[1];
-  const summary = positional[2];
+  const rawId = flags["id"];
+  const status = flags["status"];
+  const summary = flags["summary"];
 
   if (!rawId || isNaN(parseInt(rawId, 10))) {
-    process.stderr.write("Error: ID must be a number\n");
+    process.stderr.write("Error: --id must be a number\n");
+    process.stderr.write("Usage: arc tasks close --id N --status completed|failed --summary \"text\"\n");
     process.exit(1);
   }
   if (status !== "completed" && status !== "failed") {
-    process.stderr.write("Error: status must be 'completed' or 'failed'\n");
+    process.stderr.write("Error: --status must be 'completed' or 'failed'\n");
+    process.stderr.write("Usage: arc tasks close --id N --status completed|failed --summary \"text\"\n");
     process.exit(1);
   }
   if (!summary) {
-    process.stderr.write("Error: summary is required\n");
+    process.stderr.write("Error: --summary is required\n");
+    process.stderr.write("Usage: arc tasks close --id N --status completed|failed --summary \"text\"\n");
     process.exit(1);
   }
 
@@ -223,10 +227,11 @@ function cmdSkillsList(): void {
 }
 
 function cmdSkillsShow(args: string[]): void {
-  const name = args[0];
+  const { flags } = parseFlags(args);
+  const name = flags["name"];
   if (!name) {
-    process.stderr.write("Error: skill name is required\n");
-    process.stderr.write("Usage: arc skills show <name>\n");
+    process.stderr.write("Error: --name is required\n");
+    process.stderr.write("Usage: arc skills show --name <name>\n");
     process.exit(1);
   }
 
@@ -243,10 +248,11 @@ function cmdSkillsShow(args: string[]): void {
 }
 
 function cmdSkillsRun(args: string[]): void {
-  const skillName = args[0];
+  const { flags } = parseFlags(args);
+  const skillName = flags["name"];
   if (!skillName) {
-    process.stderr.write("Error: skill name is required\n");
-    process.stderr.write("Usage: arc skills run <name> [args]\n");
+    process.stderr.write("Error: --name is required\n");
+    process.stderr.write("Usage: arc skills run --name <name> [-- extra-args]\n");
     process.exit(1);
   }
 
@@ -264,7 +270,9 @@ function cmdSkillsRun(args: string[]): void {
   }
 
   const cliPath = join(skill.path, "cli.ts");
-  const skillArgs = args.slice(1);
+  // Pass through everything after -- as skill args
+  const dashDashIdx = args.indexOf("--");
+  const skillArgs = dashDashIdx >= 0 ? args.slice(dashDashIdx + 1) : [];
 
   const result = spawnSync("bun", [cliPath, ...skillArgs], {
     stdio: "inherit",
@@ -360,24 +368,24 @@ COMMANDS
     Valid statuses: pending, active, completed, failed, blocked.
     --limit defaults to 20.
 
-  tasks add "subject" [--description TEXT] [--priority N] [--source TEXT]
-                      [--skills SKILL1,SKILL2] [--parent ID]
+  tasks add --subject TEXT [--description TEXT] [--priority N] [--source TEXT]
+            [--skills SKILL1,SKILL2] [--parent ID]
     Create a new task.
 
-  tasks close ID completed|failed "summary"
+  tasks close --id N --status completed|failed --summary TEXT
     Close a task with a result summary.
 
   run
-    Start the dispatch loop (not yet implemented).
+    Trigger a single dispatch cycle.
 
   skills
     List all discovered skills. Columns: name, description, sensor, cli.
 
-  skills show <name>
+  skills show --name NAME
     Print the full SKILL.md content for a skill.
 
-  skills run <name> [args]
-    Run a skill's cli.ts with the given args.
+  skills run --name NAME [-- extra-args]
+    Run a skill's cli.ts. Pass extra args after --.
 
   sensors
     Run all sensors once and exit.
@@ -401,12 +409,12 @@ EXAMPLES
   arc status
   arc tasks
   arc tasks --status completed --limit 5
-  arc tasks add "research something" --priority 3 --source human
-  arc tasks close 7 completed "finished successfully"
+  arc tasks add --subject "research something" --priority 3 --source human
+  arc tasks close --id 7 --status completed --summary "finished successfully"
   arc run
   arc skills
-  arc skills show manage-skills
-  arc skills run manage-skills create my-skill --description "Does X"
+  arc skills show --name manage-skills
+  arc skills run --name manage-skills -- create my-skill --description "Does X"
   arc sensors list
   arc sensors
   arc services install

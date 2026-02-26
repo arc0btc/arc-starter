@@ -38,18 +38,20 @@ arc services install
 
 ## CLI
 
+All arguments use named flags (`--flag value`) for consistency.
+
 ```
-arc status                    # task counts, last cycle, cost today
-arc tasks                     # list pending/active tasks
-arc tasks add "subject"       # create a task
-arc tasks close ID completed "summary"
-arc run                       # trigger a dispatch cycle
-arc skills                    # list installed skills
-arc skills show <name>        # print skill context
-arc skills run <name> [args]  # run a skill's CLI
-arc sensors                   # run all sensors once
-arc services install          # enable timer services
-arc services status           # check service status
+arc status                                              # task counts, last cycle, cost today
+arc tasks [--status STATUS] [--limit N]                 # list tasks (default: pending + active)
+arc tasks add --subject "text" [--priority N]           # create a task
+arc tasks close --id N --status completed --summary "text"
+arc run                                                 # trigger a dispatch cycle
+arc skills                                              # list installed skills
+arc skills show --name NAME                             # print skill context
+arc skills run --name NAME [-- extra-args]              # run a skill's CLI
+arc sensors                                             # run all sensors once
+arc sensors list                                        # list discovered sensors
+arc services install|uninstall|status                   # manage timer services
 ```
 
 ## Key files
