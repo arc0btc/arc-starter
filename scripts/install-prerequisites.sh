@@ -18,6 +18,7 @@ cd "$REPO_DIR"
 
 OS="$(uname -s)"
 AUTONOMOUS=false
+ENV_FILE="$REPO_DIR/.env"
 
 # Parse flags
 for arg in "$@"; do
@@ -180,7 +181,6 @@ if [[ "$OS" == "Linux" ]]; then
 fi
 
 # ---- 9. Autonomous mode (DANGEROUS=true) ----
-ENV_FILE="$REPO_DIR/.env"
 if $AUTONOMOUS; then
   echo "DANGEROUS=true" > "$ENV_FILE"
   echo "✓ autonomous mode enabled (.env created with DANGEROUS=true)"

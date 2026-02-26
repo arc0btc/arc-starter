@@ -20,12 +20,32 @@ Commands:
 Options:
   --password PW    Master password (overrides ARC_CREDS_PASSWORD env var)
 
-Password: set ARC_CREDS_PASSWORD in .env or pass --password <pw>`.trim();
+Password: set ARC_CREDS_PASSWORD in .env or pass --password <pw>`;
 
-async function main(): Promise<void> {
-  const argv = process.argv.slice(2);
-  const { flags, positional } = parseFlags(argv);
+/**
+ * Require a set of named flags, exiting with a usage hint if any are missing.
+ * Returns the flags as a typed record with non-null values.
+ */
+function requireFlags(
+  flags: Record<string, string>,
+  required: string[],
+  usage: string,
+): Record<string, string> {
+  const missing = required.filter((f) => !flags[f]);
+  if (missing.length > 0) {
+    process.stderr.write(`Error: ${missing.map((f) => `--${f}`).join(", ")} required\n`);
+    process.stderr.write(`Usage: ${usage}\n`);
+    process.exit(1);
+  }
+  return flags;
+}
 
+/**
+ * Handle a credential CLI invocation. Shared between `arc creds` (src/cli.ts)
+ * and standalone `arc skills run --name credentials` (this file).
+ */
+export async function handleCredsCli(args: string[]): Promise<void> {
+  const { flags, positional } = parseFlags(args);
   const command = positional[0];
 
   if (!command || command === "--help" || command === "-h") {
@@ -56,17 +76,11 @@ async function main(): Promise<void> {
       }
 
       case "get": {
-        const service = flags["service"];
-        const key = flags["key"];
-        if (!service || !key) {
-          process.stderr.write("Error: --service and --key are required\n");
-          process.stderr.write("Usage: arc creds get --service NAME --key NAME\n");
-          process.exit(1);
-        }
+        const f = requireFlags(flags, ["service", "key"], "arc creds get --service NAME --key NAME");
         await credentials.unlock(password);
-        const value = credentials.get(service, key);
+        const value = credentials.get(f["service"], f["key"]);
         if (value === null) {
-          process.stderr.write(`Not found: ${service}/${key}\n`);
+          process.stderr.write(`Not found: ${f["service"]}/${f["key"]}\n`);
           process.exit(1);
         }
         process.stdout.write(value + "\n");
@@ -74,31 +88,18 @@ async function main(): Promise<void> {
       }
 
       case "set": {
-        const service = flags["service"];
-        const key = flags["key"];
-        const value = flags["value"];
-        if (!service || !key || !value) {
-          process.stderr.write("Error: --service, --key, and --value are required\n");
-          process.stderr.write("Usage: arc creds set --service NAME --key NAME --value VALUE\n");
-          process.exit(1);
-        }
+        const f = requireFlags(flags, ["service", "key", "value"], "arc creds set --service NAME --key NAME --value VALUE");
         await credentials.unlock(password);
-        await credentials.set(service, key, value);
-        process.stdout.write(`Set ${service}/${key}\n`);
+        await credentials.set(f["service"], f["key"], f["value"]);
+        process.stdout.write(`Set ${f["service"]}/${f["key"]}\n`);
         break;
       }
 
       case "delete": {
-        const service = flags["service"];
-        const key = flags["key"];
-        if (!service || !key) {
-          process.stderr.write("Error: --service and --key are required\n");
-          process.stderr.write("Usage: arc creds delete --service NAME --key NAME\n");
-          process.exit(1);
-        }
+        const f = requireFlags(flags, ["service", "key"], "arc creds delete --service NAME --key NAME");
         await credentials.unlock(password);
-        const deleted = await credentials.del(service, key);
-        process.stdout.write(deleted ? `Deleted ${service}/${key}\n` : `Not found: ${service}/${key}\n`);
+        const deleted = await credentials.del(f["service"], f["key"]);
+        process.stdout.write(deleted ? `Deleted ${f["service"]}/${f["key"]}\n` : `Not found: ${f["service"]}/${f["key"]}\n`);
         break;
       }
 
@@ -121,4 +122,7 @@ async function main(): Promise<void> {
   }
 }
 
-main();
+// Standalone entry point
+if (import.meta.main) {
+  handleCredsCli(process.argv.slice(2));
+}

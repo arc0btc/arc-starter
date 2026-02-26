@@ -1,6 +1,5 @@
 /**
  * Credential store for Arc.
- * Ported from ~/arc0btc/skills/credentials/store.ts.
  *
  * Storage: ~/.aibtc/credentials.enc
  * Encryption: AES-256-GCM + scrypt KDF
@@ -53,6 +52,12 @@ interface EncryptedFile {
 
 let _store: CredentialStore | null = null;
 let _password: string | null = null;
+
+/** Assert the store is unlocked and return it. Throws if locked. */
+function requireStore(): CredentialStore {
+  if (!_store) throw new Error("Store not unlocked");
+  return _store;
+}
 
 async function deriveKey(password: string, salt: Buffer): Promise<Buffer> {
   return new Promise((resolve, reject) => {
@@ -127,21 +132,11 @@ export async function unlock(password?: string): Promise<void> {
   const pw = password ?? process.env.ARC_CREDS_PASSWORD;
   if (!pw) throw new Error("Password required: pass arg or set ARC_CREDS_PASSWORD");
 
-  // Check whether the store file exists. Only create a new store if missing.
-  let fileExists = false;
-  try {
-    await fs.access(getStoreFile());
-    fileExists = true;
-  } catch {
-    // File does not exist — will create a new store below.
-  }
-
-  if (fileExists) {
-    // File exists: decrypt it. Any error here (wrong password, corrupt file) propagates.
+  const file = Bun.file(getStoreFile());
+  if (await file.exists()) {
     _store = await load(pw);
     _password = pw;
   } else {
-    // New store: encrypt and persist an empty credential set.
     _store = emptyStore();
     _password = pw;
     await save();
@@ -159,43 +154,43 @@ export function isUnlocked(): boolean {
 }
 
 export function get(service: string, key: string): string | null {
-  if (!_store) throw new Error("Store not unlocked");
-  return _store.credentials.find((c) => c.service === service && c.key === key)?.value ?? null;
+  const store = requireStore();
+  return store.credentials.find((c) => c.service === service && c.key === key)?.value ?? null;
 }
 
 export function getService(service: string): Array<{ key: string; value: string }> {
-  if (!_store) throw new Error("Store not unlocked");
-  return _store.credentials
+  const store = requireStore();
+  return store.credentials
     .filter((c) => c.service === service)
     .map((c) => ({ key: c.key, value: c.value }));
 }
 
 export async function set(service: string, key: string, value: string): Promise<void> {
-  if (!_store) throw new Error("Store not unlocked");
+  const store = requireStore();
   const now = new Date().toISOString();
-  const idx = _store.credentials.findIndex((c) => c.service === service && c.key === key);
+  const idx = store.credentials.findIndex((c) => c.service === service && c.key === key);
   if (idx >= 0) {
-    _store.credentials[idx] = { ..._store.credentials[idx], value, updatedAt: now };
+    store.credentials[idx] = { ...store.credentials[idx], value, updatedAt: now };
   } else {
-    _store.credentials.push({ service, key, value, updatedAt: now });
+    store.credentials.push({ service, key, value, updatedAt: now });
   }
-  _store.updatedAt = now;
+  store.updatedAt = now;
   await save();
 }
 
 export async function del(service: string, key: string): Promise<boolean> {
-  if (!_store) throw new Error("Store not unlocked");
-  const idx = _store.credentials.findIndex((c) => c.service === service && c.key === key);
+  const store = requireStore();
+  const idx = store.credentials.findIndex((c) => c.service === service && c.key === key);
   if (idx < 0) return false;
-  _store.credentials.splice(idx, 1);
-  _store.updatedAt = new Date().toISOString();
+  store.credentials.splice(idx, 1);
+  store.updatedAt = new Date().toISOString();
   await save();
   return true;
 }
 
 export function list(): Array<{ service: string; key: string; updatedAt: string }> {
-  if (!_store) throw new Error("Store not unlocked");
-  return _store.credentials.map((c) => ({
+  const store = requireStore();
+  return store.credentials.map((c) => ({
     service: c.service,
     key: c.key,
     updatedAt: c.updatedAt,

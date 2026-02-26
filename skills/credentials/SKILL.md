@@ -74,15 +74,4 @@ const apiKey = credentials.get("openrouter", "api_key");
 
 ## Environment
 
-`ARC_CREDS_PASSWORD` must be set in `.env` at the project root. Bun auto-loads `.env` on startup. Store is initialized empty on first unlock — no migration needed for new entries.
-
-## Checklist
-
-- [ ] `skills/credentials/SKILL.md` exists with valid frontmatter (name, description, tags)
-- [ ] Frontmatter `name` matches directory name (credentials)
-- [ ] `skills/credentials/store.ts` exists and compiles: `bun build --target bun skills/credentials/store.ts`
-- [ ] `skills/credentials/AGENT.md` exists with subagent instructions
-- [ ] `skills/credentials/cli.ts` exists (Phase 2)
-- [ ] `ARC_CREDS_PASSWORD` is set in `.env`
-- [ ] `~/.aibtc/credentials.enc` is listed in `.gitignore`
-- [ ] SKILL.md is under 2000 tokens
+`ARC_CREDS_PASSWORD` must be set in `.env` at the project root. Bun auto-loads `.env` on startup. Store is initialized empty on first unlock -- no migration needed for new entries.
