@@ -56,3 +56,17 @@ Arc v5 running on fresh VM (arc-starter v2 branch). Bootstrap complete — syste
 - Cloudflare email routing: arc0.me uses explicit literal routes per address (not catch-all). CC'd addresses don't generate separate deliveries.
 - Cloudflare destination address verification: required for outbound email. Add via API, recipient must click verification link. Token needs "Email Routing Addresses Write" permission (separate from "Rules Edit").
 - aibtcdev/skills wallet: all signing ops require `wallet unlock --password`. Read-only ops (balances, queries) don't. Lock after operations.
+- aibtcdev/skills network: defaults to testnet. Prefix commands with `NETWORK=mainnet` for mainnet operations. Config in `src/lib/config/networks.ts`.
+
+## Baseline Balances (2026-02-27)
+
+| Asset | Balance | Notes |
+|-------|---------|-------|
+| BTC | 546 sats (0.00000546 BTC) | 1 UTXO, confirmed |
+| STX | 90.671151 STX | All unlocked |
+| sBTC | 8,500 sats | |
+| LEO | 25,000,000,000 | SP1AY6K3PQV5MRT6R4S671NWW2FRVPKM0BR162CT6.leo-token |
+| WELSH | 500,000,000,000 | SP3NE50GEXFG9SZGTT51P40X2CKYSZ5CC4ZTZ7A2G.welshcorgicoin-token |
+| stSTX | 100,000,000 | SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.ststx-token |
+| NFT | agent-identity u1 | AIBTC identity registry |
+| NFT | BNS-V2 u358571 | arc0.btc |
