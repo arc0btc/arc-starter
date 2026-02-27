@@ -106,6 +106,16 @@ arc skills run --name manage-skills -- create <name> --description "what it does
 - [ ] If `sensor.ts` present: exports an async default function returning `Promise<string>`
 - [ ] If `AGENT.md` present: describes inputs, outputs, and any gotchas
 
+## Memory Consolidation
+
+The `consolidate-memory` command and sensor keep `memory/MEMORY.md` lean.
+
+- **Sensor** (360 min): checks MEMORY.md line count, queues a consolidation task if >80 lines
+- **CLI check**: `arc skills run --name manage-skills -- consolidate-memory check` — reports stats
+- **CLI commit**: `arc skills run --name manage-skills -- consolidate-memory commit` — stages and commits
+
+During a consolidation task, the dispatched session reads MEMORY.md, compresses it (merge duplicates, remove stale entries, tighten prose), then runs `consolidate-memory commit`.
+
 ## CLI Commands
 
 ```
@@ -119,4 +129,5 @@ Direct skill CLI (bypasses arc):
 bun skills/manage-skills/cli.ts list
 bun skills/manage-skills/cli.ts show <name>
 bun skills/manage-skills/cli.ts create <name> --description "text"
+bun skills/manage-skills/cli.ts consolidate-memory [check|commit]
 ```
