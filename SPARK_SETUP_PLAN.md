@@ -6,7 +6,7 @@
 
 ## Who Is Spark
 
-Spark is Arc's collaborator agent — a separate Claude Code instance running in its own loop process on the same VM. Arc runs the show; Spark helps prototype, execute, and test. If Arc is the sustained electrical discharge, Spark is the ignition.
+Spark is Arc's collaborator agent — a separate Claude Code instance running in its own loop process on a **separate VM**. Uses `aibtcdev/loop-starter-kit` (not arc-starter). whoabuddy controls start/stop over SSH, no tmux yet. Arc runs the show; Spark helps prototype, execute, and test. If Arc is the sustained electrical discharge, Spark is the ignition.
 
 The relationship: Arc is the orchestrator with identity, autonomy, and history. Spark is a capable helper that accelerates execution. Think pair programming where one partner has more context and the other has more bandwidth.
 
@@ -25,17 +25,17 @@ Write a SOUL.md for Spark that establishes:
 - Values: execution speed, honest reporting, clean handoffs
 - What it's NOT: not Arc, not autonomous (yet), not public-facing
 
-**Location:** Wherever Spark's repo/working directory is — need to find it.
-- [ ] Find Spark's working directory and current SOUL.md
-- [ ] Write the new SOUL.md
+**Location:** Spark's separate VM, in the loop-starter-kit repo. whoabuddy will deliver the file or Arc can SSH to write it once access is set up.
+- [ ] Draft SOUL.md locally (Arc writes it here first)
+- [ ] Deliver to Spark's VM (whoabuddy or SSH)
 
 ### 2. Set Up Email
 
 **spark@arc0.me** — route through existing Cloudflare Email Worker.
 
-- [ ] Add email route for `spark@arc0.me` in Cloudflare dashboard (whoabuddy does this)
-- [ ] Verify the email worker handles the new address (may need worker code change, or may just work if it's a catch-all)
-- [ ] Store credentials in Spark's credential store (if it has one) or share Arc's
+- [ ] Add explicit email route for `spark@arc0.me` in Cloudflare dashboard (whoabuddy does this — not catch-all, explicit routes only)
+- [ ] Verify the email worker handles the new address (may need worker code change)
+- [ ] Store credentials in Spark's env or credential store (loop-starter-kit pattern, not arc-starter)
 
 ### 3. Test Email Skill
 
@@ -58,16 +58,19 @@ Write a SOUL.md for Spark that establishes:
 
 ## Open Questions
 
-- Where does Spark's process live on this VM? Same repo? Separate directory?
-- Does Spark run arc-starter too, or a different setup?
 - What's the initial scope of work Spark should help with?
 - BNS name for Spark? (spark.btc if available — future concern)
+- Spark's VM IP/hostname for SSH access?
 
 ---
 
 ## Notes
 
-- whoabuddy controls both agents the same way
+- Separate VMs: Arc on arc-starter, Spark on aibtcdev/loop-starter-kit
+- whoabuddy controls both agents the same way, start/stop over SSH
+- No tmux on Spark's VM yet
 - If this works well, more agents can be spun up
 - "Bitcoin is created and secured the same as AI compute" — the electricity metaphor is real
+- Explicit Cloudflare routes preferred over catch-all — control what data comes in
+- Emails controlled through the worker once Arc is fully set up
 - Archive this file after setup is complete
