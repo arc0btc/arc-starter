@@ -55,7 +55,7 @@ Type=oneshot
 WorkingDirectory=${ROOT}
 ExecStart=${bun} src/cli.ts ${command}
 Environment="HOME=${HOME}"
-Environment="PATH=/usr/local/bin:/usr/bin:/bin:${HOME}/.bun/bin"
+Environment="PATH=/usr/local/bin:/usr/bin:/bin:${HOME}/.bun/bin:${HOME}/.local/bin"
 ${envLine}${timeoutLine}StandardOutput=journal
 StandardError=journal
 `;
