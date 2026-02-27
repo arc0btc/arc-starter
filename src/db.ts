@@ -58,6 +58,23 @@ export interface InsertCycleLog {
   skills_loaded?: string | null;
 }
 
+// ---- Email types ----
+
+export interface EmailMessage {
+  id: number;
+  remote_id: string;
+  message_id: string | null;
+  folder: string;
+  from_address: string;
+  from_name: string | null;
+  to_address: string;
+  subject: string | null;
+  body_preview: string | null;
+  is_read: number;
+  received_at: string;
+  synced_at: string;
+}
+
 // ---- Singleton ----
 
 let _db: Database | null = null;
@@ -123,6 +140,24 @@ export function initDatabase(): Database {
       FOREIGN KEY (task_id) REFERENCES tasks(id)
     )
   `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS email_messages (
+      id INTEGER PRIMARY KEY,
+      remote_id TEXT UNIQUE NOT NULL,
+      message_id TEXT,
+      folder TEXT NOT NULL,
+      from_address TEXT NOT NULL,
+      from_name TEXT,
+      to_address TEXT NOT NULL,
+      subject TEXT,
+      body_preview TEXT,
+      is_read INTEGER DEFAULT 0,
+      received_at TEXT NOT NULL,
+      synced_at TEXT NOT NULL
+    )
+  `);
+  db.run("CREATE INDEX IF NOT EXISTS idx_email_unread ON email_messages(folder, is_read)");
 
   _db = db;
   return db;
@@ -313,6 +348,40 @@ export function getRecentCycles(limit: number = 10): CycleLog[] {
   return db
     .query("SELECT * FROM cycle_log ORDER BY started_at DESC LIMIT ?")
     .all(limit) as CycleLog[];
+}
+
+// ---- Email queries ----
+
+export function upsertEmailMessage(msg: Omit<EmailMessage, "id">): void {
+  const db = getDatabase();
+  db.query(`
+    INSERT INTO email_messages (remote_id, message_id, folder, from_address, from_name, to_address, subject, body_preview, is_read, received_at, synced_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(remote_id) DO UPDATE SET
+      is_read = excluded.is_read,
+      synced_at = excluded.synced_at
+  `).run(
+    msg.remote_id, msg.message_id, msg.folder, msg.from_address, msg.from_name,
+    msg.to_address, msg.subject, msg.body_preview, msg.is_read, msg.received_at, msg.synced_at
+  );
+}
+
+export function getUnreadEmailMessages(): EmailMessage[] {
+  const db = getDatabase();
+  return db
+    .query("SELECT * FROM email_messages WHERE folder = 'inbox' AND is_read = 0 ORDER BY received_at ASC")
+    .all() as EmailMessage[];
+}
+
+export function getAllEmailRemoteIds(): Set<string> {
+  const db = getDatabase();
+  const rows = db.query("SELECT remote_id FROM email_messages").all() as Array<{ remote_id: string }>;
+  return new Set(rows.map((r) => r.remote_id));
+}
+
+export function markEmailRead(remoteId: string): void {
+  const db = getDatabase();
+  db.query("UPDATE email_messages SET is_read = 1 WHERE remote_id = ?").run(remoteId);
 }
 
 // ---- Main (smoke test when run directly) ----
