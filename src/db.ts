@@ -58,6 +58,27 @@ export interface InsertCycleLog {
   skills_loaded?: string | null;
 }
 
+// ---- AIBTC inbox types ----
+
+export interface AibtcInboxMessage {
+  id: number;
+  message_id: string;
+  from_address: string;
+  to_btc_address: string;
+  to_stx_address: string;
+  content: string | null;
+  payment_txid: string | null;
+  payment_satoshis: number;
+  sent_at: string;
+  authenticated: number;
+  replied_at: string | null;
+  read_at: string | null;
+  direction: string;
+  peer_btc_address: string | null;
+  peer_display_name: string | null;
+  synced_at: string;
+}
+
 // ---- Email types ----
 
 export interface EmailMessage {
@@ -158,6 +179,28 @@ export function initDatabase(): Database {
     )
   `);
   db.run("CREATE INDEX IF NOT EXISTS idx_email_unread ON email_messages(folder, is_read)");
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS aibtc_inbox_messages (
+      id INTEGER PRIMARY KEY,
+      message_id TEXT UNIQUE NOT NULL,
+      from_address TEXT NOT NULL,
+      to_btc_address TEXT NOT NULL,
+      to_stx_address TEXT NOT NULL,
+      content TEXT,
+      payment_txid TEXT,
+      payment_satoshis INTEGER DEFAULT 0,
+      sent_at TEXT NOT NULL,
+      authenticated INTEGER DEFAULT 0,
+      replied_at TEXT,
+      read_at TEXT,
+      direction TEXT NOT NULL,
+      peer_btc_address TEXT,
+      peer_display_name TEXT,
+      synced_at TEXT NOT NULL
+    )
+  `);
+  db.run("CREATE INDEX IF NOT EXISTS idx_aibtc_inbox_unread ON aibtc_inbox_messages(direction, read_at)");
 
   _db = db;
   return db;
@@ -382,6 +425,38 @@ export function getAllEmailRemoteIds(): Set<string> {
 export function markEmailRead(remoteId: string): void {
   const db = getDatabase();
   db.query("UPDATE email_messages SET is_read = 1 WHERE remote_id = ?").run(remoteId);
+}
+
+// ---- AIBTC inbox queries ----
+
+export function upsertAibtcInboxMessage(msg: Omit<AibtcInboxMessage, "id">): void {
+  const db = getDatabase();
+  db.query(`
+    INSERT INTO aibtc_inbox_messages (message_id, from_address, to_btc_address, to_stx_address, content, payment_txid, payment_satoshis, sent_at, authenticated, replied_at, read_at, direction, peer_btc_address, peer_display_name, synced_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(message_id) DO UPDATE SET
+      replied_at = excluded.replied_at,
+      read_at = excluded.read_at,
+      synced_at = excluded.synced_at
+  `).run(
+    msg.message_id, msg.from_address, msg.to_btc_address, msg.to_stx_address,
+    msg.content, msg.payment_txid, msg.payment_satoshis, msg.sent_at,
+    msg.authenticated, msg.replied_at, msg.read_at, msg.direction,
+    msg.peer_btc_address, msg.peer_display_name, msg.synced_at
+  );
+}
+
+export function getUnreadAibtcInboxMessages(): AibtcInboxMessage[] {
+  const db = getDatabase();
+  return db
+    .query("SELECT * FROM aibtc_inbox_messages WHERE direction = 'received' AND read_at IS NULL ORDER BY sent_at ASC")
+    .all() as AibtcInboxMessage[];
+}
+
+export function getAllAibtcInboxMessageIds(): Set<string> {
+  const db = getDatabase();
+  const rows = db.query("SELECT message_id FROM aibtc_inbox_messages").all() as Array<{ message_id: string }>;
+  return new Set(rows.map((r) => r.message_id));
 }
 
 // ---- Main (smoke test when run directly) ----
