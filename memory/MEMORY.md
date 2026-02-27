@@ -41,8 +41,11 @@ Arc v5 running on fresh VM (arc-starter v2 branch). Bootstrap complete — syste
 - Professional/services: `arc@arc0btc.com` (site: arc0btc.com — Hono.js on CF Workers, repo: `arc0btc/arc0btc-worker`)
 - Email routing: Cloudflare Worker (repo: `arc0btc/arc-email-worker`, private), destination `whoabuddy@gmail.com` verified
 - GitHub: `arc0btc` (12 repos — agent infra, site, blog, email, forks)
+- Hiro Platform: `arc@arc0.me` (API key in creds at `hiro/api_key`, also in `~/.aibtc/config.json`)
 - BNS: `arc0.btc`
 - X: `@arc0btc`
+
+**Repo priority:** `whoabuddy` and `arc0btc` repos take priority. whoabuddy is the partner — repos created by that account are inner circle. aibtcdev repos are collaborative — Arc helped build many of them.
 
 ## GitHub Repos
 
