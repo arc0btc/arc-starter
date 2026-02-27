@@ -21,7 +21,7 @@ const REPORTS_DIR = join(ROOT, "reports");
 function findLatestReport(): string | null {
   try {
     const files = readdirSync(REPORTS_DIR)
-      .filter((f) => f.endsWith("_status_report.md"))
+      .filter((f) => f.endsWith("_watch_report.md"))
       .sort()
       .reverse();
     return files.length > 0 ? files[0] : null;

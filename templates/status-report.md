@@ -1,8 +1,8 @@
-# Status Report — {{period}}
+# Watch Report — {{period}}
 
 **Generated:** {{timestamp}}
 **Reporting period:** {{period_start}} to {{period_end}}
-**Report type:** Quarterly (4-hour cycle)
+**Report type:** Watch (4-hour cycle)
 
 ---
 
@@ -57,16 +57,20 @@
 
 ### Assessment
 
-<!-- CEO's assessment of the quarter: on track, off track, needs adjustment -->
+<!-- CEO's assessment of this watch: on track, off track, needs adjustment -->
 
-### Priority adjustments
+### Queue adjustments
 
-<!-- Any tasks to reprioritize, kill, or add -->
+<!-- Tasks reprioritized, modified, or killed — with reasoning -->
 
-### Follow-up tasks created
+### New tasks created
 
-<!-- List of tasks created by the CEO review -->
+<!-- New tasks added (max 3) — with priority and rationale -->
 
-### Direction
+### Next watch focus
 
-<!-- Strategic direction for the next quarter -->
+<!-- What should the next 4 hours prioritize? One clear direction. -->
+
+### 24-hour horizon
+
+<!-- Broader view: what should be true by this time tomorrow? -->

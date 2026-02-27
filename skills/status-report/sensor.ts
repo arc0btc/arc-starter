@@ -23,9 +23,9 @@ export default async function statusReportSensor(): Promise<string> {
   const now = new Date().toISOString();
 
   insertTask({
-    subject: `Quarterly status report — ${now.slice(0, 16)}Z`,
+    subject: `Watch report — ${now.slice(0, 16)}Z`,
     description:
-      "Generate a quarterly status report covering all activity since the last report.\n\n" +
+      "Generate a watch report covering all activity since the last report.\n\n" +
       "Follow the instructions in skills/status-report/AGENT.md.\n" +
       "Use the template at templates/status-report.md.\n" +
       "Write output to reports/ directory.\n\n" +

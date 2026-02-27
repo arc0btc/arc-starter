@@ -1,12 +1,12 @@
 ---
 name: status-report
-description: Generate quarterly (4-hour) status reports summarizing all agent activity
+description: Generate watch reports (4-hour) summarizing all agent activity
 tags: [reporting, operations, recurring]
 ---
 
 # Status Report Skill
 
-Generates a structured status report every 4 hours covering all agent activity since the last report.
+Generates a structured watch report every 4 hours covering all agent activity since the last report.
 
 ## How It Works
 
@@ -16,13 +16,13 @@ The sensor fires every 240 minutes (4 hours). It creates a dispatch task that:
 2. Checks git log for commits in the period
 3. Reads sensor state files for heartbeat/inbox/email activity
 4. Generates a report from the template at `templates/status-report.md`
-5. Writes the report to `reports/{ISO8601}_status_report.md`
+5. Writes the report to `reports/{ISO8601}_watch_report.md`
 6. Commits the report to git
 
 ## Report Location
 
-Reports are written to `reports/` (gitignored — local only). Filenames use ISO 8601 quarterly timestamps:
-- `reports/2026-02-27T22:00:00Z_status_report.md`
+Reports are written to `reports/` (gitignored — local only). Filenames use ISO 8601 timestamps:
+- `reports/2026-02-27T22:00:00Z_watch_report.md`
 
 ## Template
 

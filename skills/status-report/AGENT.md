@@ -3,9 +3,9 @@ name: status-report
 role: subagent-briefing
 ---
 
-# Status Report — Subagent Briefing
+# Watch Report — Subagent Briefing
 
-You are generating a quarterly status report. Your job is to accurately summarize all agent activity since the last report.
+You are generating a watch report. Your job is to accurately summarize all agent activity since the last report.
 
 ## Step-by-step
 
@@ -13,7 +13,7 @@ You are generating a quarterly status report. Your job is to accurately summariz
 
 Check for the most recent report in `reports/`:
 ```bash
-ls -t reports/*_status_report.md 2>/dev/null | head -1
+ls -t reports/*_watch_report.md 2>/dev/null | head -1
 ```
 
 If no previous report exists, the period starts 4 hours ago. Otherwise, the period starts at the previous report's timestamp.
@@ -57,20 +57,20 @@ Read sensor state files from `db/hook-state/`:
 
 Read the template from `templates/status-report.md`. Fill in every section above the "CEO Review" line. Replace `{{placeholders}}` with actual values. Write prose summaries — not just data dumps.
 
-Write the report to: `reports/{period_end_ISO8601}_status_report.md`
+Write the report to: `reports/{period_end_ISO8601}_watch_report.md`
 
 ### 7. Commit
 
 ```bash
 git add reports/
-git commit -m "docs(report): quarterly status report {period_end_ISO8601}"
+git commit -m "docs(report): watch report {period_end_ISO8601}"
 ```
 
 ### 8. Close the task
 
 Report the file path and key metrics in result_summary:
 ```bash
-arc tasks close --id {task_id} --status completed --summary "Quarterly report: {N} tasks completed, ${cost} spent, report at reports/{filename}"
+arc tasks close --id {task_id} --status completed --summary "Watch report: {N} tasks completed, ${cost} spent, report at reports/{filename}"
 ```
 
 ## Guidelines

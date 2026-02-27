@@ -1,44 +1,48 @@
 ---
 name: ceo-review
-description: CEO reviews the latest status report and provides strategic direction
+description: CEO reviews the latest watch report and actively manages the task queue
 tags: [strategy, review, recurring]
 ---
 
 # CEO Review Skill
 
-Reviews the most recent quarterly status report through the CEO lens and appends a strategic review section.
+Reviews the most recent watch report through the CEO lens, appends a strategic review, and actively manages the task queue.
 
 ## How It Works
 
-The sensor fires every 240 minutes (4 hours), offset from the status-report sensor. It creates a dispatch task that:
+The sensor fires every 240 minutes (4 hours), after the status-report sensor. It creates a dispatch task that:
 
 1. Loads the CEO skill context (strategic operating manual)
-2. Reads the most recent status report from `reports/`
+2. Reads the most recent watch report from `reports/`
 3. Evaluates the work against CEO principles (direction, resource allocation, results)
-4. Appends a review to the CEO Review section of the report
-5. Creates up to 3 follow-up tasks to adjust course
-6. Commits the updated report
+4. Reviews the full task queue — pending, active, and blocked
+5. Appends a review to the CEO Review section of the report
+6. Modifies the queue: reprioritize, edit, kill, or create tasks
+7. Commits the updated report
 
-## Review Criteria
+## What the CEO Can Do
 
-The CEO evaluates:
-- **Direction alignment** — Are we working on the right things? One project focus?
-- **Resource efficiency** — Cost per completed task, token spend, cycle utilization
-- **Results delivered** — What actually shipped? What's visible to others?
-- **Queue health** — Is the queue balanced? Too many external tasks crowding internal work?
-- **Failure patterns** — Are the same things failing repeatedly?
+**Review the report** — assess the watch against strategic direction.
 
-## Follow-up Task Budget
+**Modify existing tasks:**
+- Reprioritize (change priority number)
+- Edit subject or description (sharpen scope, add context)
+- Kill tasks that don't serve the direction (close as completed with explanation)
+- Unblock tasks by creating prerequisite tasks
 
-**Maximum 3 follow-up tasks per review.** This is a hard cap to prevent review cascades.
+**Create new tasks (max 3 per review):**
+- Strategic work the agent should be doing
+- Process improvements identified from the report
+- Responses to patterns (e.g., "costs are rising, investigate")
 
-Follow-up tasks should be:
-- Priority adjustments (reprioritize existing work)
-- New strategic tasks (things the CEO identifies as missing)
-- Process improvements (tuning sensors, skills, or workflows)
+## Planning Horizons
+
+**Next watch (4 hours):** What should dispatch focus on right now? Priorities 1-4.
+
+**Next day (24 hours):** What should be true by this time tomorrow? This shapes which tasks to create or promote.
 
 ## Dependencies
 
-- Requires a status report to exist in `reports/` (created by status-report sensor)
+- Requires a watch report in `reports/` (created by status-report sensor)
 - Loads `ceo` skill context for strategic framework
-- Creates tasks with source `"sensor:ceo-review"` for tracking
+- Tasks created with source `"sensor:ceo-review"` for tracking
