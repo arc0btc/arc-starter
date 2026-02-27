@@ -11,6 +11,7 @@ import {
   getRecentCycles,
   markTaskCompleted,
   markTaskFailed,
+  markTaskBlocked,
   getTaskById,
 } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
@@ -136,7 +137,7 @@ function cmdTasksAdd(args: string[]): void {
 
 function cmdTasksClose(args: string[]): void {
   const { flags } = parseFlags(args);
-  const usage = 'Usage: arc tasks close --id N --status completed|failed --summary "text"\n';
+  const usage = 'Usage: arc tasks close --id N --status completed|failed|blocked --summary "text"\n';
 
   const status = flags["status"];
   const summary = flags["summary"];
@@ -146,8 +147,8 @@ function cmdTasksClose(args: string[]): void {
     process.stderr.write("Error: --id must be a number\n" + usage);
     process.exit(1);
   }
-  if (status !== "completed" && status !== "failed") {
-    process.stderr.write("Error: --status must be 'completed' or 'failed'\n" + usage);
+  if (status !== "completed" && status !== "failed" && status !== "blocked") {
+    process.stderr.write("Error: --status must be 'completed', 'failed', or 'blocked'\n" + usage);
     process.exit(1);
   }
   if (!summary) {
@@ -165,6 +166,8 @@ function cmdTasksClose(args: string[]): void {
 
   if (status === "completed") {
     markTaskCompleted(id, summary);
+  } else if (status === "blocked") {
+    markTaskBlocked(id, summary);
   } else {
     markTaskFailed(id, summary);
   }
@@ -361,7 +364,7 @@ COMMANDS
             [--skills SKILL1,SKILL2] [--parent ID]
     Create a new task.
 
-  tasks close --id N --status completed|failed --summary TEXT
+  tasks close --id N --status completed|failed|blocked --summary TEXT
     Close a task with a result summary.
 
   creds list
