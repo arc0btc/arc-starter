@@ -35,6 +35,8 @@ The report template lives at `templates/status-report.md`. The dispatch task fil
 - `git log` — commits made during the reporting period
 - `db/hook-state/*.json` — sensor run history
 - Task `result_summary` fields — one-line outcomes
+- GitHub API (`gh api /users/whoabuddy/events`) — partner activity from interactive sessions
+- GitHub API (`gh api /users/arc0btc/events`) — own repo push activity
 
 ## CLI
 

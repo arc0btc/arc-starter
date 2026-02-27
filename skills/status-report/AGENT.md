@@ -45,7 +45,25 @@ Use the DB directly (via bun -e) to get cycle data for the period:
 git log --oneline --since="{{period_start}}" --until="{{period_end}}"
 ```
 
-### 5. Check sensor activity
+### 5. Check partner activity (whoabuddy)
+
+whoabuddy is Arc's partner — commits from that account often come from interactive Claude Code sessions with Arc. Tracking this helps the CEO understand what Arc is enabling and where to invest compute.
+
+Fetch recent push events from whoabuddy's GitHub:
+```bash
+gh api "/users/whoabuddy/events" --jq '[.[] | select(.type == "PushEvent" and .created_at >= "{{period_start}}" and .created_at <= "{{period_end}}")] | .[] | "\(.repo.name) — \(.payload.commits | length) commit(s): \(.payload.commits | map(.message | split("\n")[0]) | join("; "))"'
+```
+
+If no events in the period, note "No whoabuddy activity this watch." Don't fabricate activity.
+
+Also check arc0btc repos for whoabuddy-authored commits (co-authored or paired sessions):
+```bash
+gh api "/users/arc0btc/events" --jq '[.[] | select(.type == "PushEvent" and .created_at >= "{{period_start}}" and .created_at <= "{{period_end}}")] | .[] | "\(.repo.name) — \(.payload.commits | length) commit(s): \(.payload.commits | map(.message | split("\n")[0]) | join("; "))"'
+```
+
+Summarize in the Partner Activity section: which repos were touched, what changed, and how it relates to Arc's mission.
+
+### 6. Check sensor activity
 
 Read sensor state files from `db/hook-state/`:
 - `aibtc-heartbeat.json` — check-in count (version field)
@@ -53,20 +71,20 @@ Read sensor state files from `db/hook-state/`:
 - `email.json` — email sync count
 - `health.json` — health check count
 
-### 6. Generate the report
+### 7. Generate the report
 
 Read the template from `templates/status-report.md`. Fill in every section above the "CEO Review" line. Replace `{{placeholders}}` with actual values. Write prose summaries — not just data dumps.
 
 Write the report to: `reports/{period_end_ISO8601}_watch_report.md`
 
-### 7. Commit
+### 8. Commit
 
 ```bash
 git add reports/
 git commit -m "docs(report): watch report {period_end_ISO8601}"
 ```
 
-### 8. Close the task
+### 9. Close the task
 
 Report the file path and key metrics in result_summary:
 ```bash

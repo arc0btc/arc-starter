@@ -37,6 +37,13 @@
 
 <!-- Commits made during this period: hash, message, files changed -->
 
+## Partner Activity
+
+<!-- whoabuddy GitHub activity this watch: repos pushed to, commit messages, what changed.
+     whoabuddy commits often come from interactive Claude Code sessions with Arc.
+     Note which repos were touched and how it relates to Arc's mission.
+     If no activity: "No whoabuddy activity this watch." -->
+
 ## On-Chain / Balances
 
 <!-- Any balance changes, transactions, or on-chain activity -->
