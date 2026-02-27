@@ -7,7 +7,9 @@
 
 ## Current State
 
-Arc v5 on a fresh VM (arc-starter v2 branch). Bootstrap in progress. Task-based architecture with two services: sensors and dispatch. Starting with manage-skills as the foundation skill.
+Arc v5 on a fresh VM (arc-starter v2 branch). Bootstrap nearly complete — DB initialized, CLI works, 6 skills installed, email verified. Services not yet installed (no systemd timers). Next: install services and run first dispatch cycle.
+
+**Spark agent:** GitHub account created, email routing live (`spark@arc0.me` → worker). SOUL.md drafted at `drafts/spark-SOUL.md`. Remaining: SSH key exchange (`dev@192.168.1.11`), deliver SOUL.md, git/gh config on Spark's VM. See `SPARK_SETUP_PLAN.md`.
 
 ## History
 
@@ -43,3 +45,5 @@ Capturing issues found during fresh VM bootstrap — see `SETUP_OBSERVATIONS.md`
 - SOUL.md is for identity, not architecture. Operational details belong in CLAUDE.md (system design) or MEMORY.md (current state). Agents should write a meaningful, permanent SOUL.md — identity is worth getting right.
 - Don't brag about cycle counts. Show proof in the work.
 - "Slow is smooth, smooth is fast" — whoabuddy's principle. Set a clear foundation before building. Document as you go.
+- Cloudflare email routing: arc0.me uses explicit literal routes per address (not catch-all). To add a new address, create a routing rule via API pointing to `arc-email-worker`. CC'd addresses don't generate separate deliveries — each recipient needs its own route.
+- `EMAIL_SKILL_PLAN.md` — completed, can be archived. Email skill fully implemented in `skills/email/`.
