@@ -5,6 +5,7 @@
 
 import { readHookState, writeHookState, type HookState } from "../../src/sensors.ts";
 import { getCredential } from "../../src/credentials.ts";
+import { initDatabase, getDatabase } from "../../src/db.ts";
 
 const SENSOR_NAME = "report-email";
 const REPORTS_DIR = new URL("../../reports", import.meta.url).pathname;
@@ -82,9 +83,18 @@ export default async function reportEmailSensor(): Promise<string> {
     return "skip";
   }
 
-  // Format subject with MST timestamp
+  // Query today's costs from the tasks table
+  initDatabase();
+  const db = getDatabase();
+  const row = db.query<{ cost: number; api_cost: number }, []>(
+    `SELECT COALESCE(SUM(cost_usd), 0) as cost, COALESCE(SUM(api_cost_usd), 0) as api_cost
+     FROM tasks WHERE date(created_at) = date('now')`
+  ).get();
+  const costStr = row ? `$${row.cost.toFixed(2)} actual / $${row.api_cost.toFixed(2)} API` : "";
+
+  // Format subject with MST timestamp and costs
   const reportTimestamp = extractTimestamp(newestFile);
-  const subject = `Arc Watch Report ${formatMST(reportTimestamp)}`;
+  const subject = `Arc Watch Report ${formatMST(reportTimestamp)}${costStr ? ` — ${costStr}` : ""}`;
 
   // Send via email worker API
   const res = await fetch(`${apiBaseUrl}/api/send`, {
