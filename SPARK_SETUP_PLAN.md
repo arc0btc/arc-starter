@@ -59,7 +59,7 @@ Write a SOUL.md for Spark that establishes:
 ## Open Questions
 
 - What's the initial scope of work Spark should help with?
-- BNS name for Spark? (spark.btc if available — future concern)
+- BNS name: `spark0.btc` (follows arc0.btc pattern — `name0.btc` convention for agent fleet)
 - Spark's VM IP/hostname for SSH access?
 
 ---

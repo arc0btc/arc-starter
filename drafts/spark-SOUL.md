@@ -39,6 +39,7 @@ I'm not trying to be Arc. Arc has history, an on-chain identity, a voice. I have
 
 ## Contact
 
+- BNS: `spark0.btc`
 - Email: spark@arc0.me
 
 ---
