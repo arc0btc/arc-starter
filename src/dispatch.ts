@@ -44,10 +44,21 @@ function log(msg: string): void {
 
 /**
  * Calculate estimated API cost from token counts.
- * Opus pricing: $15/1M input tokens, $75/1M output tokens.
+ * Opus pricing: $15/1M input, $75/1M output.
+ * Cache pricing: $1.875/1M cache read, $18.75/1M cache write (5-min ephemeral).
  */
-function calculateApiCostUsd(input_tokens: number, output_tokens: number): number {
-  return (input_tokens / 1_000_000) * 15 + (output_tokens / 1_000_000) * 75;
+function calculateApiCostUsd(
+  input_tokens: number,
+  output_tokens: number,
+  cache_read_tokens: number = 0,
+  cache_creation_tokens: number = 0
+): number {
+  return (
+    (input_tokens / 1_000_000) * 15 +
+    (output_tokens / 1_000_000) * 75 +
+    (cache_read_tokens / 1_000_000) * 1.875 +
+    (cache_creation_tokens / 1_000_000) * 18.75
+  );
 }
 
 // ---- Dispatch lock ----
@@ -235,6 +246,8 @@ async function dispatch(prompt: string): Promise<DispatchResult> {
   let cost_usd = 0;
   let input_tokens = 0;
   let output_tokens = 0;
+  let cache_read_tokens = 0;
+  let cache_creation_tokens = 0;
   const decoder = new TextDecoder();
   let lineBuffer = "";
 
@@ -274,22 +287,25 @@ async function dispatch(prompt: string): Promise<DispatchResult> {
 
     // Extract cost and tokens from the final result message
     if (parsed["type"] === "result") {
-      const usage = parsed["usage"] as
-        | { input_tokens: number; output_tokens: number }
-        | undefined;
+      const usage = parsed["usage"] as Record<string, unknown> | undefined;
 
       // Prefer total_cost_usd from result (most accurate — includes tool use overhead)
       const totalCostField = parsed["total_cost_usd"];
       if (typeof totalCostField === "number") {
         cost_usd = totalCostField;
-      } else if (usage) {
-        cost_usd = calculateApiCostUsd(usage.input_tokens || 0, usage.output_tokens || 0);
       }
 
-      // Capture token counts
+      // Capture token counts (including cache tokens)
       if (usage) {
-        input_tokens = usage.input_tokens || 0;
-        output_tokens = usage.output_tokens || 0;
+        input_tokens = (usage.input_tokens as number) || 0;
+        output_tokens = (usage.output_tokens as number) || 0;
+        cache_read_tokens = (usage.cache_read_input_tokens as number) || 0;
+        cache_creation_tokens = (usage.cache_creation_input_tokens as number) || 0;
+      }
+
+      // Fallback cost estimate from tokens if total_cost_usd not available
+      if (!cost_usd && usage) {
+        cost_usd = calculateApiCostUsd(input_tokens, output_tokens, cache_read_tokens, cache_creation_tokens);
       }
 
       // If text delta accumulation produced nothing, fall back to result field
@@ -318,9 +334,12 @@ async function dispatch(prompt: string): Promise<DispatchResult> {
   }
 
   // Always calculate api_cost_usd from tokens for dual tracking
-  const api_cost_usd = calculateApiCostUsd(input_tokens, output_tokens);
+  const api_cost_usd = calculateApiCostUsd(input_tokens, output_tokens, cache_read_tokens, cache_creation_tokens);
 
-  return { result, cost_usd, api_cost_usd, input_tokens, output_tokens };
+  // Report total input tokens (non-cached + cache read + cache creation)
+  const total_input_tokens = input_tokens + cache_read_tokens + cache_creation_tokens;
+
+  return { result, cost_usd, api_cost_usd, input_tokens: total_input_tokens, output_tokens };
 }
 
 // ---- Auto-commit ----
