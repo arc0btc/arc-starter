@@ -40,24 +40,66 @@ function log(msg: string): void {
   console.log(`[${new Date().toISOString()}] ${msg}`);
 }
 
+// ---- Model routing ----
+
+type ModelTier = "opus" | "sonnet" | "haiku";
+
+interface ModelPricing {
+  input_per_million: number;
+  output_per_million: number;
+  cache_read_per_million: number;
+  cache_write_per_million: number;
+}
+
+const MODEL_PRICING: Record<ModelTier, ModelPricing> = {
+  opus: {
+    input_per_million: 15,
+    output_per_million: 75,
+    cache_read_per_million: 1.875,
+    cache_write_per_million: 18.75,
+  },
+  sonnet: {
+    input_per_million: 3,
+    output_per_million: 15,
+    cache_read_per_million: 0.30,
+    cache_write_per_million: 3.75,
+  },
+  haiku: {
+    input_per_million: 1,
+    output_per_million: 5,
+    cache_read_per_million: 0.10,
+    cache_write_per_million: 1.25,
+  },
+};
+
+/**
+ * Route tasks to the appropriate model tier based on priority.
+ * Priority 1-3 (strategic): Opus — deep reasoning, complex decisions.
+ * Priority 4+  (routine):   Haiku — fast, cheap, good enough for standard work.
+ */
+function selectModel(task: Task): ModelTier {
+  if (task.priority <= 3) return "opus";
+  return "haiku";
+}
+
 // ---- Cost calculation ----
 
 /**
- * Calculate estimated API cost from token counts.
- * Opus pricing: $15/1M input, $75/1M output.
- * Cache pricing: $1.875/1M cache read, $18.75/1M cache write (5-min ephemeral).
+ * Calculate estimated API cost from token counts using model-specific pricing.
  */
 function calculateApiCostUsd(
+  model: ModelTier,
   input_tokens: number,
   output_tokens: number,
   cache_read_tokens: number = 0,
   cache_creation_tokens: number = 0
 ): number {
+  const p = MODEL_PRICING[model];
   return (
-    (input_tokens / 1_000_000) * 15 +
-    (output_tokens / 1_000_000) * 75 +
-    (cache_read_tokens / 1_000_000) * 1.875 +
-    (cache_creation_tokens / 1_000_000) * 18.75
+    (input_tokens / 1_000_000) * p.input_per_million +
+    (output_tokens / 1_000_000) * p.output_per_million +
+    (cache_read_tokens / 1_000_000) * p.cache_read_per_million +
+    (cache_creation_tokens / 1_000_000) * p.cache_write_per_million
   );
 }
 
@@ -219,13 +261,13 @@ interface DispatchResult {
   output_tokens: number;
 }
 
-async function dispatch(prompt: string): Promise<DispatchResult> {
+async function dispatch(prompt: string, model: ModelTier = "opus"): Promise<DispatchResult> {
   const args = [
     "claude",
     "--print",
     "--verbose",
     "--model",
-    "opus",
+    model,
     "--output-format",
     "stream-json",
     "--no-session-persistence",
@@ -305,7 +347,7 @@ async function dispatch(prompt: string): Promise<DispatchResult> {
 
       // Fallback cost estimate from tokens if total_cost_usd not available
       if (!cost_usd && usage) {
-        cost_usd = calculateApiCostUsd(input_tokens, output_tokens, cache_read_tokens, cache_creation_tokens);
+        cost_usd = calculateApiCostUsd(model, input_tokens, output_tokens, cache_read_tokens, cache_creation_tokens);
       }
 
       // If text delta accumulation produced nothing, fall back to result field
@@ -334,7 +376,7 @@ async function dispatch(prompt: string): Promise<DispatchResult> {
   }
 
   // Always calculate api_cost_usd from tokens for dual tracking
-  const api_cost_usd = calculateApiCostUsd(input_tokens, output_tokens, cache_read_tokens, cache_creation_tokens);
+  const api_cost_usd = calculateApiCostUsd(model, input_tokens, output_tokens, cache_read_tokens, cache_creation_tokens);
 
   // Report total input tokens (non-cached + cache read + cache creation)
   const total_input_tokens = input_tokens + cache_read_tokens + cache_creation_tokens;
@@ -436,9 +478,11 @@ export async function runDispatch(): Promise<void> {
 
   // 4. Build context for prompt
   const skillNames = parseSkillNames(task.skills);
+  const model = selectModel(task);
   if (skillNames.length > 0) {
     log(`dispatch: loading skills: ${skillNames.join(", ")}`);
   }
+  log(`dispatch: model=${model} (priority ${task.priority})`);
 
   const recentCycles = getRecentCycles(10)
     .map(
@@ -469,7 +513,7 @@ export async function runDispatch(): Promise<void> {
   try {
     // 7. Run dispatch (LLM call)
     const { result, cost_usd, api_cost_usd, input_tokens, output_tokens } =
-      await dispatch(prompt);
+      await dispatch(prompt, model);
 
     log(
       `dispatch: task #${task.id} returned — cost_usd=$${cost_usd.toFixed(6)} api_cost=$${api_cost_usd.toFixed(6)} tokens=${input_tokens}in/${output_tokens}out`
