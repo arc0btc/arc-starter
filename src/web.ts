@@ -433,7 +433,8 @@ function route(req: Request): Response {
 
 const server = Bun.serve({
   port: PORT,
+  hostname: "0.0.0.0",
   fetch: route,
 });
 
-console.log(`Arc dashboard API running on http://localhost:${server.port}`);
+console.log(`Arc dashboard running on http://0.0.0.0:${server.port}`);
