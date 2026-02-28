@@ -16,6 +16,7 @@ import {
   getPendingTasks,
   getRecentCycles,
   getTaskById,
+  getTodayCostUsd,
   initDatabase,
   insertCycleLog,
   insertTask,
@@ -34,6 +35,9 @@ import { isPidAlive } from "./utils.ts";
 const ROOT = new URL("..", import.meta.url).pathname;
 const DISPATCH_LOCK_FILE = join(ROOT, "db", "dispatch-lock.json");
 const SKILLS_DIR = join(ROOT, "skills");
+
+/** Daily cost ceiling (USD). Above this, only P1-2 tasks dispatch. */
+const DAILY_BUDGET_USD = 40;
 
 // ---- Logging ----
 
@@ -692,6 +696,16 @@ export async function runDispatch(): Promise<void> {
   log(
     `dispatch: selected task #${task.id} "${task.subject}" (priority ${task.priority})`
   );
+
+  // 3b. Budget gate — throttle non-critical tasks when daily spend exceeds ceiling
+  const todayCost = getTodayCostUsd();
+  if (todayCost >= DAILY_BUDGET_USD && task.priority > 2) {
+    log(
+      `dispatch: BUDGET GATE — today's cost $${todayCost.toFixed(2)} >= $${DAILY_BUDGET_USD} ceiling. ` +
+      `Skipping P${task.priority} task #${task.id}. Only P1-2 tasks will dispatch.`
+    );
+    return;
+  }
 
   // 4. Build context for prompt
   const skillNames = parseSkillNames(task.skills);

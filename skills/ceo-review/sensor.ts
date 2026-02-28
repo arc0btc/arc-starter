@@ -10,7 +10,7 @@ import { claimSensorRun } from "../../src/sensors.ts";
 import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "ceo-review";
-const INTERVAL_MINUTES = 60; // 1 hour
+const INTERVAL_MINUTES = 240; // 4 hours — matches SKILL.md strategic review cadence
 const TASK_SOURCE = "sensor:ceo-review";
 const PRIORITY = 1; // blocks report delivery to whoabuddy — process first
 

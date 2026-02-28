@@ -476,6 +476,15 @@ export function getRecentCycles(limit: number = 10): CycleLog[] {
     .all(limit) as CycleLog[];
 }
 
+/** Sum of cost_usd for all cycles started today (UTC). */
+export function getTodayCostUsd(): number {
+  const db = getDatabase();
+  const row = db
+    .query("SELECT COALESCE(SUM(cost_usd), 0) as total FROM cycle_log WHERE date(started_at) = date('now')")
+    .get() as { total: number };
+  return row.total;
+}
+
 // ---- Email queries ----
 
 export function upsertEmailMessage(msg: Omit<EmailMessage, "id">): void {
