@@ -333,6 +333,35 @@ export function markTaskBlocked(id: number, reason: string): void {
   ).run(reason, id);
 }
 
+export interface UpdateTaskFields {
+  subject?: string;
+  description?: string | null;
+  priority?: number;
+}
+
+export function updateTask(id: number, fields: UpdateTaskFields): void {
+  const db = getDatabase();
+  const sets: string[] = [];
+  const values: unknown[] = [];
+
+  if (fields.subject !== undefined) {
+    sets.push("subject = ?");
+    values.push(fields.subject);
+  }
+  if (fields.description !== undefined) {
+    sets.push("description = ?");
+    values.push(fields.description);
+  }
+  if (fields.priority !== undefined) {
+    sets.push("priority = ?");
+    values.push(fields.priority);
+  }
+
+  if (sets.length === 0) return;
+  values.push(id);
+  db.query(`UPDATE tasks SET ${sets.join(", ")} WHERE id = ?`).run(...values);
+}
+
 export function requeueTask(id: number): void {
   const db = getDatabase();
   db.query(

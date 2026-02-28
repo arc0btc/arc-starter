@@ -13,6 +13,7 @@ import {
   markTaskFailed,
   markTaskBlocked,
   getTaskById,
+  updateTask,
 } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
 import { parseFlags, pad, truncate } from "./utils.ts";
@@ -175,12 +176,58 @@ function cmdTasksClose(args: string[]): void {
   process.stdout.write(`Closed task #${id} as ${status}\n`);
 }
 
+function cmdTasksUpdate(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const usage =
+    'Usage: arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N]\n';
+
+  const id = parseInt(flags["id"] ?? "", 10);
+  if (isNaN(id)) {
+    process.stderr.write("Error: --id must be a number\n" + usage);
+    process.exit(1);
+  }
+
+  const subject = flags["subject"];
+  const description = flags["description"];
+  const priority = flags["priority"] ? parseInt(flags["priority"], 10) : undefined;
+
+  if (priority !== undefined && isNaN(priority)) {
+    process.stderr.write("Error: --priority must be a number\n" + usage);
+    process.exit(1);
+  }
+
+  if (subject === undefined && description === undefined && priority === undefined) {
+    process.stderr.write(
+      "Error: at least one of --subject, --description, or --priority is required\n" + usage
+    );
+    process.exit(1);
+  }
+
+  initDatabase();
+
+  const task = getTaskById(id);
+  if (!task) {
+    process.stderr.write(`Error: task #${id} not found\n`);
+    process.exit(1);
+  }
+
+  updateTask(id, { subject, description, priority });
+
+  const updated: string[] = [];
+  if (subject !== undefined) updated.push("subject");
+  if (description !== undefined) updated.push("description");
+  if (priority !== undefined) updated.push("priority");
+  process.stdout.write(`Updated task #${id}: ${updated.join(", ")}\n`);
+}
+
 function cmdTasks(args: string[]): void {
   const sub = args[0];
   if (sub === "add") {
     cmdTasksAdd(args.slice(1));
   } else if (sub === "close") {
     cmdTasksClose(args.slice(1));
+  } else if (sub === "update") {
+    cmdTasksUpdate(args.slice(1));
   } else {
     cmdTasksList(args);
   }
@@ -364,6 +411,9 @@ COMMANDS
             [--skills SKILL1,SKILL2] [--parent ID]
     Create a new task.
 
+  tasks update --id N [--subject TEXT] [--description TEXT] [--priority N]
+    Update a task's subject, description, or priority.
+
   tasks close --id N --status completed|failed|blocked --summary TEXT
     Close a task with a result summary.
 
@@ -417,6 +467,7 @@ EXAMPLES
   arc tasks
   arc tasks --status completed --limit 5
   arc tasks add --subject "research something" --priority 3 --source human
+  arc tasks update --id 7 --priority 3 --subject "revised subject"
   arc tasks close --id 7 --status completed --summary "finished successfully"
   arc creds list
   arc creds set --service openrouter --key api_key --value sk-xxxx
