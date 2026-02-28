@@ -683,6 +683,68 @@
     .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
     .copy-btn.copied { color: var(--success); border-color: var(--success); }
 
+    /* ---- Live Update Animations ---- */
+    @keyframes slide-in {
+      from { opacity: 0; transform: translateY(-20px); max-height: 0; }
+      to   { opacity: 1; transform: translateY(0); max-height: 200px; }
+    }
+
+    @keyframes flash-green {
+      0%   { background: rgba(34, 197, 94, 0.25); }
+      100% { background: var(--bg-card); }
+    }
+
+    @keyframes flash-red {
+      0%   { background: rgba(239, 68, 68, 0.25); }
+      100% { background: var(--bg-card); }
+    }
+
+    @keyframes sensor-ping {
+      0%   { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); }
+      70%  { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+
+    @keyframes cost-bump {
+      0%   { color: var(--accent); transform: scale(1); }
+      50%  { color: #fff; transform: scale(1.15); }
+      100% { color: var(--accent); transform: scale(1); }
+    }
+
+    .feed-item.slide-in {
+      animation: slide-in 0.4s ease-out forwards;
+    }
+
+    .feed-item.flash-green {
+      animation: flash-green 1.5s ease-out forwards;
+    }
+
+    .feed-item.flash-red {
+      animation: flash-red 1.5s ease-out forwards;
+    }
+
+    .sensor-card .status-dot.ping {
+      animation: sensor-ping 0.8s ease-out;
+    }
+
+    .cost-ticker.bump span {
+      animation: cost-bump 0.6s ease-out;
+      display: inline-block;
+    }
+
+    /* ---- SSE Connection Status ---- */
+    .sse-status {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-left: var(--space-xs);
+      vertical-align: middle;
+    }
+
+    .sse-status.connected { background: var(--success); }
+    .sse-status.disconnected { background: var(--error); }
+
     /* ---- Scrollbar ---- */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
@@ -698,7 +760,7 @@
       <div class="header-identity">
         <div class="avatar">A</div>
         <div>
-          <div class="header-name">Arc <span class="status-dot live" id="status-dot" title="Live"></span></div>
+          <div class="header-name">Arc <span class="status-dot live" id="status-dot" title="Live"></span><span class="sse-status disconnected" id="sse-dot" title="SSE disconnected"></span></div>
           <div class="header-bns">arc0.btc</div>
         </div>
       </div>
@@ -1183,7 +1245,11 @@
         var identity = results[5].status === 'fulfilled' ? results[5].value : null;
 
         if (status)   { updateHeader(status); renderMetrics(status, costs ? costs.costs : []); }
-        if (tasks)    renderFeed(tasks.tasks || []);
+        if (tasks) {
+          renderFeed(tasks.tasks || []);
+          // Populate known IDs so SSE doesn't re-add existing tasks
+          (tasks.tasks || []).forEach(function(t) { knownTaskIds.add(t.id); });
+        }
         if (sensors)  renderSensors(sensors.sensors || []);
         if (skills)   renderSkills(skills.skills || []);
         if (identity) renderIdentity(identity);
@@ -1191,23 +1257,26 @@
         console.error('Dashboard init error:', e);
       }
 
-      // SSE for live updates
+      // SSE for live updates (polling fallback activates on disconnect)
       connectSSE();
 
-      // Fallback refresh every 30s
-      setInterval(refreshAll, 30000);
+      // Safety net: full refresh every 60s regardless
+      setInterval(refreshAll, 60000);
     }
 
     function refreshAll() {
       fetchJSON('/api/status').then(function(s) {
         updateHeader(s);
+        bumpCostTicker(s.cost_today_usd);
         fetchJSON('/api/costs?range=day').then(function(c) {
           renderMetrics(s, c.costs || []);
         });
       }).catch(function() {});
 
       fetchJSON('/api/tasks?limit=30').then(function(d) {
-        renderFeed(d.tasks || []);
+        var tasks = d.tasks || [];
+        renderFeed(tasks);
+        tasks.forEach(function(t) { knownTaskIds.add(t.id); });
       }).catch(function() {});
 
       fetchJSON('/api/sensors').then(function(d) {
@@ -1215,18 +1284,251 @@
       }).catch(function() {});
     }
 
+    // ---- Live Update Helpers ----
+
+    // Track known task IDs to avoid duplicate events
+    var knownTaskIds = new Set();
+
+    function buildFeedItemHTML(t) {
+      var cls = statusBorderClass(t.status);
+      var skills = '';
+      try {
+        var arr = typeof t.skills === 'string' ? JSON.parse(t.skills) : t.skills;
+        if (arr && arr.length) skills = arr.map(function(s) { return '<span class="pill pill-muted">' + esc(s) + '</span>'; }).join(' ');
+      } catch(e) {}
+
+      return '<li class="feed-item ' + cls + '" onclick="toggleDetail(this)">'
+        + '<span class="status-dot ' + (t.status === 'active' ? 'live' : '') + '" style="margin-top:6px;'
+        + (t.status === 'completed' ? 'background:var(--success)' : t.status === 'failed' ? 'background:var(--error)' : t.status === 'blocked' ? 'background:var(--blocked)' : '') + '"></span>'
+        + '<div class="feed-body">'
+        + '<div class="feed-subject">' + esc(t.subject) + '</div>'
+        + '<div class="feed-meta">'
+        + '<span class="' + statusBadgeClass(t.status) + '">' + esc(t.status) + '</span>'
+        + (t.source ? ' <span class="pill pill-muted">' + esc(t.source) + '</span>' : '')
+        + ' ' + skills
+        + ' <span>' + relativeTime(t.created_at) + '</span>'
+        + (t.cost_usd ? ' <span>' + formatCost(t.cost_usd) + '</span>' : '')
+        + '</div>'
+        + '<div class="feed-detail" data-task-id="' + t.id + '"><p class="placeholder">Loading...</p></div>'
+        + '</div>'
+        + '</li>';
+    }
+
+    function prependToFeed(task) {
+      if (knownTaskIds.has(task.id)) return;
+      knownTaskIds.add(task.id);
+
+      var list = document.getElementById('feed-list');
+      var placeholder = list.querySelector('.placeholder');
+      if (placeholder) list.innerHTML = '';
+
+      var temp = document.createElement('div');
+      temp.innerHTML = buildFeedItemHTML(task);
+      var item = temp.firstElementChild;
+      item.classList.add('slide-in');
+      list.insertBefore(item, list.firstChild);
+
+      // Update feed count
+      var count = document.getElementById('feed-count');
+      var n = list.querySelectorAll('.feed-item').length;
+      count.textContent = n + ' tasks';
+
+      // Cap feed list at 40 items
+      while (list.children.length > 40) {
+        list.removeChild(list.lastChild);
+      }
+    }
+
+    function flashFeedItem(taskId, status) {
+      var detail = document.querySelector('.feed-detail[data-task-id="' + taskId + '"]');
+      if (!detail) return;
+
+      var item = detail.closest('.feed-item');
+      if (!item) return;
+
+      // Update status visuals
+      var dot = item.querySelector('.status-dot');
+      var badge = item.querySelector('.pill');
+      var cls = statusBorderClass(status);
+
+      item.className = 'feed-item ' + cls;
+      if (status === 'completed') {
+        item.classList.add('flash-green');
+        if (dot) { dot.className = 'status-dot'; dot.style.background = 'var(--success)'; }
+      } else if (status === 'failed') {
+        item.classList.add('flash-red');
+        if (dot) { dot.className = 'status-dot'; dot.style.background = 'var(--error)'; }
+      }
+
+      if (badge) {
+        badge.className = statusBadgeClass(status);
+        badge.textContent = status;
+      }
+
+      // Clear animation class after it plays
+      setTimeout(function() {
+        item.classList.remove('flash-green', 'flash-red');
+      }, 1600);
+
+      // Reset cached detail so re-expand fetches fresh data
+      detail.innerHTML = '<p class="placeholder">Loading...</p>';
+      detail.classList.remove('open');
+    }
+
+    function pingSensor(name) {
+      var cards = document.querySelectorAll('.sensor-card');
+      for (var i = 0; i < cards.length; i++) {
+        var nameEl = cards[i].querySelector('.sensor-name');
+        if (nameEl && nameEl.textContent === name) {
+          var dot = cards[i].querySelector('.status-dot');
+          if (dot) {
+            dot.classList.remove('ping');
+            void dot.offsetWidth; // force reflow for re-trigger
+            dot.classList.add('ping');
+          }
+          // Update last-ran text
+          var detail = cards[i].querySelector('.sensor-detail');
+          if (detail) detail.textContent = 'just now';
+
+          // Update card status to ok
+          cards[i].className = 'sensor-card ok';
+          break;
+        }
+      }
+    }
+
+    function bumpCostTicker(newCost) {
+      var el = document.getElementById('cost-today');
+      var current = parseFloat(el.textContent.replace('$', '')) || 0;
+      if (newCost <= current) { el.textContent = formatCost(newCost); return; }
+
+      var ticker = el.parentElement;
+      ticker.classList.remove('bump');
+      void ticker.offsetWidth;
+      ticker.classList.add('bump');
+
+      // Animate the number up
+      var start = current;
+      var diff = newCost - start;
+      var steps = 20;
+      var step = 0;
+      var iv = setInterval(function() {
+        step++;
+        var val = start + (diff * (step / steps));
+        el.textContent = formatCost(val);
+        if (step >= steps) {
+          clearInterval(iv);
+          el.textContent = formatCost(newCost);
+          setTimeout(function() { ticker.classList.remove('bump'); }, 300);
+        }
+      }, 30);
+    }
+
+    // ---- SSE Connection ----
+
+    var sseRetryDelay = 2000;
+    var sseMaxDelay = 30000;
+    var sseConnected = false;
+    var pollFallbackId = null;
+
+    function setSSEStatus(connected) {
+      sseConnected = connected;
+      var dot = document.getElementById('sse-dot');
+      if (connected) {
+        dot.className = 'sse-status connected';
+        dot.title = 'SSE connected';
+        // Stop polling fallback when SSE is live
+        if (pollFallbackId) { clearInterval(pollFallbackId); pollFallbackId = null; }
+      } else {
+        dot.className = 'sse-status disconnected';
+        dot.title = 'SSE disconnected — polling';
+        // Start polling fallback at 10s
+        if (!pollFallbackId) {
+          pollFallbackId = setInterval(refreshAll, 10000);
+        }
+      }
+    }
+
     function connectSSE() {
       var events = new EventSource('/api/events');
 
-      events.addEventListener('task:created', function() { refreshAll(); });
-      events.addEventListener('task:completed', function() { refreshAll(); });
-      events.addEventListener('task:failed', function() { refreshAll(); });
-      events.addEventListener('cycle:completed', function() { refreshAll(); });
+      events.addEventListener('open', function() {
+        setSSEStatus(true);
+        sseRetryDelay = 2000; // reset backoff on success
+      });
+
+      events.addEventListener('heartbeat', function() {
+        setSSEStatus(true);
+      });
+
+      events.addEventListener('task:created', function(e) {
+        try {
+          var task = JSON.parse(e.data);
+          prependToFeed(task);
+          refreshStatus();
+        } catch(err) { console.error('SSE task:created parse error', err); }
+      });
+
+      events.addEventListener('task:completed', function(e) {
+        try {
+          var task = JSON.parse(e.data);
+          flashFeedItem(task.id, 'completed');
+          refreshStatus();
+        } catch(err) { console.error('SSE task:completed parse error', err); }
+      });
+
+      events.addEventListener('task:failed', function(e) {
+        try {
+          var task = JSON.parse(e.data);
+          flashFeedItem(task.id, 'failed');
+          refreshStatus();
+        } catch(err) { console.error('SSE task:failed parse error', err); }
+      });
+
+      events.addEventListener('cycle:started', function() {
+        // Update status dot to live
+        var dot = document.getElementById('status-dot');
+        dot.className = 'status-dot live';
+        dot.title = 'Dispatch running';
+      });
+
+      events.addEventListener('cycle:completed', function(e) {
+        try {
+          var cycle = JSON.parse(e.data);
+          refreshStatus();
+          // Refresh cost chart
+          fetchJSON('/api/costs?range=day').then(function(c) {
+            fetchJSON('/api/status').then(function(s) {
+              renderMetrics(s, c.costs || []);
+            });
+          }).catch(function() {});
+        } catch(err) { console.error('SSE cycle:completed parse error', err); }
+      });
+
+      events.addEventListener('sensor:ran', function(e) {
+        try {
+          var data = JSON.parse(e.data);
+          pingSensor(data.name);
+        } catch(err) { console.error('SSE sensor:ran parse error', err); }
+      });
 
       events.onerror = function() {
         events.close();
-        setTimeout(connectSSE, 10000);
+        setSSEStatus(false);
+        // Exponential backoff reconnect
+        setTimeout(function() {
+          sseRetryDelay = Math.min(sseRetryDelay * 1.5, sseMaxDelay);
+          connectSSE();
+        }, sseRetryDelay);
       };
+    }
+
+    // Lightweight status refresh (header + metrics only)
+    function refreshStatus() {
+      fetchJSON('/api/status').then(function(s) {
+        updateHeader(s);
+        bumpCostTicker(s.cost_today_usd);
+      }).catch(function() {});
     }
 
     init();

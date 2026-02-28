@@ -4,7 +4,7 @@
 // Run: bun src/web.ts (or via arc skills run --name dashboard -- start)
 
 import { Database } from "bun:sqlite";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, extname } from "node:path";
 import { discoverSkills } from "./skills.ts";
 
@@ -268,6 +268,17 @@ function handleEvents(): Response {
   let lastTaskId = (db.query("SELECT MAX(id) as max_id FROM tasks").get() as { max_id: number | null })?.max_id ?? 0;
   let lastCycleId = (db.query("SELECT MAX(id) as max_id FROM cycle_log").get() as { max_id: number | null })?.max_id ?? 0;
 
+  // Track sensor hook-state mtimes for sensor:ran events
+  const sensorMtimes = new Map<string, number>();
+  if (existsSync(HOOK_STATE_DIR)) {
+    for (const file of readdirSync(HOOK_STATE_DIR).filter(f => f.endsWith(".json"))) {
+      try {
+        const mtime = statSync(join(HOOK_STATE_DIR, file)).mtimeMs;
+        sensorMtimes.set(file, mtime);
+      } catch { /* skip */ }
+    }
+  }
+
   const stream = new ReadableStream({
     start(controller) {
       const encoder = new TextEncoder();
@@ -318,6 +329,23 @@ function handleEvents(): Response {
               send("cycle:started", cycle);
             }
             lastCycleId = cycle.id;
+          }
+
+          // Check for sensor activity (hook-state file mtime changes)
+          if (existsSync(HOOK_STATE_DIR)) {
+            for (const file of readdirSync(HOOK_STATE_DIR).filter(f => f.endsWith(".json"))) {
+              try {
+                const mtime = statSync(join(HOOK_STATE_DIR, file)).mtimeMs;
+                const prev = sensorMtimes.get(file);
+                if (prev !== undefined && mtime > prev) {
+                  const name = file.replace(".json", "");
+                  const content = readFileSync(join(HOOK_STATE_DIR, file), "utf-8");
+                  const state = JSON.parse(content) as { last_ran: string; last_result: string };
+                  send("sensor:ran", { name, last_ran: state.last_ran, last_result: state.last_result });
+                }
+                sensorMtimes.set(file, mtime);
+              } catch { /* skip */ }
+            }
           }
         } catch {
           // DB might be busy, skip this tick
