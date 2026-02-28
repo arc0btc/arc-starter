@@ -9,14 +9,14 @@ tags:
 
 # Wallet Skill
 
-Wraps the aibtcdev/skills wallet and signing tools for Arc dispatch. Manages the `arc0btc` wallet at `~/.aibtc/wallets/`.
+Wraps the aibtcdev/skills wallet and signing tools for Arc dispatch. Manages the `arc0btc` wallet at `~/.aibtc/wallets/`. Includes x402 relay health diagnostics.
 
 ## Security Model
 
 - **Wallet password** is stored in Arc's encrypted credential store at `wallet/password`.
 - **Signing auto-unlocks and locks** — `btc-sign` and `stacks-sign` handle unlock/lock internally. No manual unlock needed.
 - **`unlock` command** verifies the password works (test operation, not required before signing).
-- **Read-only commands** (`info`, `status`, `btc-verify`) do not require unlock.
+- **Read-only commands** (`info`, `status`, `btc-verify`, `check-relay-health`) do not require unlock.
 - **Never expose** the mnemonic, password, or private keys in task output.
 
 **Note:** The upstream wallet manager holds unlock state in memory per-process. Signing operations run unlock + sign + lock in a single process via `sign-runner.ts`.
@@ -31,6 +31,7 @@ arc skills run --name wallet -- status
 arc skills run --name wallet -- btc-sign --message "text"
 arc skills run --name wallet -- stacks-sign --message "text"
 arc skills run --name wallet -- btc-verify --message "text" --signature "sig" [--expected-signer "addr"]
+arc skills run --name wallet -- check-relay-health [--relay-url <url>] [--sponsor-address <address>]
 arc skills run --name wallet -- x402 <x402-subcommand> [flags]
 ```
 
@@ -57,6 +58,16 @@ Sign a plain text message. Auto-unlocks and locks the wallet internally — no m
 ### btc-verify
 
 Verify a Bitcoin message signature. Accepts `--expected-signer` to check against a specific address. No unlock required.
+
+### check-relay-health
+
+Check x402 sponsor relay health and sponsor nonce status. Queries the relay `/health` endpoint and fetches sponsor nonce data from the Hiro API. Detects nonce gaps (transactions may be stuck) and mempool congestion (pending transactions). Reports relay reachability, sponsor nonce state, and any issues. No unlock required.
+
+**Flags:**
+- `--relay-url` (optional): Base URL of sponsor relay. Default: `https://sponsor.aibtc.dev`
+- `--sponsor-address` (optional): STX address of relay sponsor. Default: `SP1PMPPVCMVW96FSWFV30KJQ4MNBMZ8MRWR3JWQ7`
+
+**Output:** JSON object with `healthy` (boolean), `relay` (status + health data), `sponsor` (nonce state), `issues` (array of detected problems), and `hint`.
 
 ### x402
 

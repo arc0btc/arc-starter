@@ -384,6 +384,118 @@ async function cmdX402(args: string[]): Promise<void> {
   }
 }
 
+async function cmdCheckRelayHealth(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+  const relayUrl = (flags["relay-url"] || "https://sponsor.aibtc.dev").replace(/\/+$/, "");
+  const sponsorAddress = flags["sponsor-address"] || "SP1PMPPVCMVW96FSWFV30KJQ4MNBMZ8MRWR3JWQ7";
+
+  log("checking relay health and sponsor nonce status");
+
+  interface NonceResponse {
+    last_mempool_tx_nonce: number | null;
+    last_executed_tx_nonce: number | null;
+    possible_next_nonce: number;
+    detected_missing_nonces: number[];
+    detected_mempool_nonces: number[];
+  }
+
+  // ---- 1. Hit relay /health endpoint ----
+  let relayHealth: Record<string, unknown> | null = null;
+  let relayReachable = false;
+  let relayError: string | undefined;
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10_000);
+    const res = await fetch(`${relayUrl}/health`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
+    if (res.ok) {
+      relayHealth = (await res.json()) as Record<string, unknown>;
+      relayReachable = true;
+    } else {
+      relayError = `HTTP ${res.status} ${res.statusText}`;
+    }
+  } catch (err: unknown) {
+    relayError = err instanceof Error ? err.message : "Unknown fetch error";
+  }
+
+  // ---- 2. Check sponsor nonce status via Hiro API ----
+  let nonceData: NonceResponse | null = null;
+  let nonceError: string | undefined;
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10_000);
+    const res = await fetch(
+      `https://api.hiro.so/extended/v1/address/${sponsorAddress}/nonces`,
+      { signal: controller.signal }
+    );
+    clearTimeout(timeout);
+
+    if (res.ok) {
+      nonceData = (await res.json()) as NonceResponse;
+    } else {
+      nonceError = `HTTP ${res.status} ${res.statusText}`;
+    }
+  } catch (err: unknown) {
+    nonceError = err instanceof Error ? err.message : "Unknown fetch error";
+  }
+
+  // ---- 3. Build diagnostic output ----
+  const issues: string[] = [];
+
+  if (!relayReachable) {
+    issues.push(`Relay unreachable: ${relayError ?? "unknown error"}`);
+  }
+
+  if (nonceData) {
+    if (nonceData.detected_missing_nonces.length > 0) {
+      issues.push(
+        `Nonce gaps detected: [${nonceData.detected_missing_nonces.join(", ")}]. ` +
+          "Transactions may be stuck. The sponsor may need to fill missing nonces."
+      );
+    }
+    if (nonceData.detected_mempool_nonces.length > 5) {
+      issues.push(
+        `Mempool congestion: ${nonceData.detected_mempool_nonces.length} pending sponsor transactions. ` +
+          "New sponsored transactions may be slow to confirm."
+      );
+    }
+  } else {
+    issues.push(
+      `Unable to fetch sponsor nonce data: ${nonceError ?? "unknown error"}`
+    );
+  }
+
+  const healthy = relayReachable && issues.length === 0;
+
+  console.log(JSON.stringify({
+    healthy,
+    relay: {
+      url: relayUrl,
+      reachable: relayReachable,
+      ...(relayHealth ?? {}),
+      ...(relayError ? { error: relayError } : {}),
+    },
+    sponsor: {
+      address: sponsorAddress,
+      lastExecutedNonce: nonceData?.last_executed_tx_nonce ?? null,
+      possibleNextNonce: nonceData?.possible_next_nonce ?? null,
+      lastMempoolNonce: nonceData?.last_mempool_tx_nonce ?? null,
+      mempoolCount: nonceData?.detected_mempool_nonces?.length ?? null,
+      missingNonces: nonceData?.detected_missing_nonces ?? [],
+      ...(nonceError ? { error: nonceError } : {}),
+    },
+    issues,
+    hint: healthy
+      ? "Relay and sponsor are operating normally."
+      : "Issues detected — see the issues array for details.",
+  }));
+}
+
 function printUsage(): void {
   process.stdout.write(`wallet CLI
 
@@ -412,6 +524,11 @@ SUBCOMMANDS
   btc-verify --message "text" --signature "sig" [--expected-signer "addr"]
     Verify a Bitcoin signature (no unlock needed).
 
+  check-relay-health [--relay-url <url>] [--sponsor-address <address>]
+    Check x402 sponsor relay health and nonce status (no unlock needed).
+    Default relay: https://sponsor.aibtc.dev
+    Default sponsor: SP1PMPPVCMVW96FSWFV30KJQ4MNBMZ8MRWR3JWQ7
+
   x402 <x402-subcommand> [flags]
     Run any x402 command with auto unlock/lock. Handles wallet unlock
     in the same process so the wallet singleton is available to x402.
@@ -421,6 +538,8 @@ EXAMPLES
   arc skills run --name wallet -- unlock
   arc skills run --name wallet -- btc-sign --message "Hello"
   arc skills run --name wallet -- btc-verify --message "Hello" --signature "abc..." --expected-signer "bc1q..."
+  arc skills run --name wallet -- check-relay-health
+  arc skills run --name wallet -- check-relay-health --relay-url "https://custom-relay.com" --sponsor-address "SP1CUSTOM..."
   arc skills run --name wallet -- x402 send-inbox-message --recipient-btc-address bc1... --recipient-stx-address SP... --content "Hello"
 `);
 }
@@ -452,6 +571,9 @@ async function main(): Promise<void> {
       break;
     case "btc-verify":
       await cmdBtcVerify(args.slice(1));
+      break;
+    case "check-relay-health":
+      await cmdCheckRelayHealth(args.slice(1));
       break;
     case "x402":
       await cmdX402(args.slice(1));
