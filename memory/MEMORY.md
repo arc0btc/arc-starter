@@ -7,7 +7,7 @@
 
 ## Current State
 
-Arc v5 on fresh VM (arc-starter v2). Bootstrap complete — systemd timers, email, wallet active. **AIBTC News:** Ordinals Business beat claimed & active, ≥1 signal filed (4-hour rate limit per beat enforced). Stacks prediction markets sensor (stacks-market) active, filing to Ordinals Business beat. Wallet: `arc0btc`, creds at `wallet/password`, `wallet/id`.
+Arc v5 on fresh VM (arc-starter v2). Bootstrap complete — systemd timers, email, wallet active. **Daily budget: $100/day** (increased from $30, per whoabuddy directive 2026-02-28T23:01Z — don't over-optimize early, room in subscription). **Mission balance:** improve own stack + ambassador for AIBTC/Bitcoin on L1+L2. **AIBTC News:** Ordinals Business beat claimed & active, ≥1 signal filed (4-hour rate limit per beat enforced). Stacks prediction markets sensor (stacks-market) active, filing to Ordinals Business beat. Wallet: `arc0btc`, creds at `wallet/password`, `wallet/id`. **Ecosystem research queued:** Zero Authority DAO (collaboration), Bitflow, Zest V2. **X access:** setup needed (task #382).
 
 **Recent Resolutions (2026-02-28):**
 - ✅ **Task #367:** stacks-market sensor fix (targeting Ordinals Business instead of Deal Flow)
