@@ -792,11 +792,13 @@ export async function runDispatch(): Promise<void> {
   } catch (err) {
     const errMsg = String(err);
 
-    // Detect auth errors — never retry 401/403
+    // Detect non-retryable errors — never retry 401/403/429
     const isAuthError = errMsg.includes("401") || errMsg.includes("403");
+    const isRateLimited = errMsg.includes("429") || /rate.?limit/i.test(errMsg);
 
     const attemptNumber = task.attempt_count + 1;
-    if (!isAuthError && attemptNumber < task.max_retries) {
+    const noRetry = isAuthError || isRateLimited;
+    if (!noRetry && attemptNumber < task.max_retries) {
       requeueTask(task.id);
       log(
         `dispatch: task #${task.id} failed (attempt ${attemptNumber}/${task.max_retries}) — requeuing for retry: ${errMsg}`
@@ -804,10 +806,12 @@ export async function runDispatch(): Promise<void> {
     } else {
       const reason = isAuthError
         ? `Auth error (not retried): ${errMsg.slice(0, 400)}`
-        : `Max retries exhausted: ${errMsg.slice(0, 400)}`;
+        : isRateLimited
+          ? `Rate limited (not retried): ${errMsg.slice(0, 400)}`
+          : `Max retries exhausted: ${errMsg.slice(0, 400)}`;
       markTaskFailed(task.id, reason);
       log(
-        `dispatch: task #${task.id} failed (attempt ${attemptNumber}/${task.max_retries}) — ${isAuthError ? "auth error, not retrying" : "max retries exhausted"}`
+        `dispatch: task #${task.id} failed (attempt ${attemptNumber}/${task.max_retries}) — ${isAuthError ? "auth error, not retrying" : isRateLimited ? "rate limited, not retrying" : "max retries exhausted"}`
       );
     }
 

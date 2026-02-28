@@ -8,7 +8,7 @@ const SENSOR_NAME = "stacks-market";
 const INTERVAL_MINUTES = 360; // 6 hours
 const STACKS_MARKET_API = "https://api.stacksmarket.app";
 const VOLUME_THRESHOLD = 100; // STX (configurable via env)
-const MAX_SIGNALS_PER_RUN = 5; // Rate limiting
+const MAX_SIGNALS_PER_RUN = 1; // Only 1 signal per run — aibtc.news enforces 1 per 4h per beat
 const RATE_LIMIT_MINUTES = 240; // 4 hours — matches aibtc.news per-beat rate limit
 
 interface Market {
