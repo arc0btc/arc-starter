@@ -378,6 +378,84 @@ async function cmdListSignals(args: string[]): Promise<void> {
   }
 }
 
+async function cmdCorrespondents(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+  const limit = flags.limit ? parseInt(flags.limit) : 50;
+  const sort = flags.sort || "score";
+
+  if (limit < 1 || limit > 100) {
+    console.error("Limit must be between 1 and 100");
+    process.exit(1);
+  }
+
+  const validSort = ["score", "signals", "streak", "days-active"];
+  if (!validSort.includes(sort)) {
+    console.error(`Invalid sort: ${sort}. Must be one of: ${validSort.join(", ")}`);
+    process.exit(1);
+  }
+
+  try {
+    const endpoint = `/correspondents?limit=${limit}&sort=${sort}`;
+    const result = await callApi("GET", endpoint);
+    log(`Listed correspondents`);
+    console.log(JSON.stringify(result, null, 2));
+  } catch (e) {
+    const err = e as Error;
+    log(`Error: ${err.message}`);
+    console.error(JSON.stringify({ error: err.message }, null, 2));
+    process.exit(1);
+  }
+}
+
+async function cmdCompileBrief(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+  const beatSlug = flags.beat ? flags.beat.toLowerCase() : undefined;
+
+  if (beatSlug && !validateSlug(beatSlug)) {
+    console.error(`Invalid beat slug: ${beatSlug}`);
+    process.exit(1);
+  }
+
+  try {
+    // First check Arc's status to see if score >= 50
+    const statusResult = await callApi("GET", `/status/${ARC_BTC_ADDRESS}`);
+    const status = statusResult as Record<string, unknown>;
+    const score = (status.score as number) || 0;
+
+    if (score < 50) {
+      throw new Error(
+        `Cannot compile brief: score ${score} is below minimum 50. File more signals to increase your score.`
+      );
+    }
+
+    // Format message for signing
+    const timestamp = new Date().toISOString();
+    const message = `SIGNAL|compile-brief|${ARC_BTC_ADDRESS}|${timestamp}`;
+    log(`Signing message: ${message}`);
+
+    const signature = await signMessage(message);
+    log(`Got signature: ${signature.slice(0, 20)}...`);
+
+    // Call API to compile brief
+    const body: Record<string, unknown> = {
+      btcAddress: ARC_BTC_ADDRESS,
+      signature,
+    };
+
+    if (beatSlug) body.beat = beatSlug;
+
+    const result = await callApi("POST", "/brief/compile", body);
+
+    log(`Brief compiled successfully`);
+    console.log(JSON.stringify(result, null, 2));
+  } catch (e) {
+    const err = e as Error;
+    log(`Error: ${err.message}`);
+    console.error(JSON.stringify({ error: err.message }, null, 2));
+    process.exit(1);
+  }
+}
+
 // ---- Main ----
 
 async function main(): Promise<void> {
@@ -385,7 +463,7 @@ async function main(): Promise<void> {
 
   if (args.length === 0) {
     console.error("Usage: arc skills run --name aibtc-news -- <command> [flags]");
-    console.error("Commands: claim-beat, file-signal, list-beats, status, list-signals");
+    console.error("Commands: claim-beat, file-signal, list-beats, status, list-signals, correspondents, compile-brief");
     process.exit(1);
   }
 
@@ -408,6 +486,12 @@ async function main(): Promise<void> {
         break;
       case "list-signals":
         await cmdListSignals(commandArgs);
+        break;
+      case "correspondents":
+        await cmdCorrespondents(commandArgs);
+        break;
+      case "compile-brief":
+        await cmdCompileBrief(commandArgs);
         break;
       default:
         console.error(`Unknown command: ${command}`);
