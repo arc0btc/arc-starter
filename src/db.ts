@@ -453,6 +453,13 @@ export function getUnreadAibtcInboxMessages(): AibtcInboxMessage[] {
     .all() as AibtcInboxMessage[];
 }
 
+export function getRecentAibtcMessagesByPeer(peerBtcAddress: string, limit: number = 10): AibtcInboxMessage[] {
+  const db = getDatabase();
+  return db
+    .query("SELECT * FROM aibtc_inbox_messages WHERE peer_btc_address = ? AND direction = 'sent' ORDER BY sent_at DESC LIMIT ?")
+    .all(peerBtcAddress, limit) as AibtcInboxMessage[];
+}
+
 export function getAllAibtcInboxMessageIds(): Set<string> {
   const db = getDatabase();
   const rows = db.query("SELECT message_id FROM aibtc_inbox_messages").all() as Array<{ message_id: string }>;
