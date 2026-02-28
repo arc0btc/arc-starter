@@ -43,6 +43,20 @@ CREATE TABLE workflows (
 | `updated_at` | TEXT | Last state transition timestamp |
 | `completed_at` | TEXT | When the workflow finished (NULL if active) |
 
+## State Machine Runner
+
+The workflow system includes a minimal, dependency-free state machine runner. Each template defines allowed transitions and optional actions for states. The runner evaluates a workflow and returns an action (typically: create a task, or noop).
+
+**Key components:**
+- `StateMachine<C>` — Template definition (states, transitions, action functions)
+- `evaluateWorkflow(workflow, template)` — Run state machine, return action
+- `getAllowedTransitions(state, template)` — Get available transitions from a state
+- `isTransitionAllowed(from, to, template)` — Check if transition is valid
+
+**Built-in templates:** `BlogPostingMachine`, `SignalFilingMachine`, `BeatClaimingMachine`
+
+See `state-machine.ts` for full API (100 lines, no external deps).
+
 ## CLI
 
 ```
@@ -53,6 +67,8 @@ arc skills run --name workflows -- show <id>                     # Show workflow
 arc skills run --name workflows -- transition <id> <new_state> [--context JSON]  # Move to new state
 arc skills run --name workflows -- complete <id>                 # Mark as completed
 arc skills run --name workflows -- delete <id>                   # Delete workflow
+arc skills run --name workflows -- evaluate <id>                 # Evaluate state machine for workflow
+arc skills run --name workflows -- allowed-transitions <id>      # Show allowed transitions from current state
 ```
 
 ### Examples
@@ -101,6 +117,44 @@ Store workflow-specific data as JSON in `context`. This is how you pass data bet
   "feedback": "..."
 }
 ```
+
+## Custom State Machines
+
+Define your own state machine template:
+
+```typescript
+import { StateMachine, evaluateWorkflow } from "./state-machine.ts";
+
+const myTemplate: StateMachine<{ title?: string; approved?: boolean }> = {
+  name: "my-workflow",
+  initialState: "draft",
+  states: {
+    draft: {
+      on: { submit: "review" },
+      action: (ctx) => ({
+        type: "create-task",
+        subject: `Review: ${ctx.title}`,
+        priority: 5,
+      }),
+    },
+    review: {
+      on: { approve: "done", reject: "draft" },
+      action: (ctx) => ctx.approved ? null : { type: "noop" },
+    },
+    done: {
+      on: {},
+    },
+  },
+};
+
+// Use it:
+const action = evaluateWorkflow(workflow, myTemplate);
+```
+
+**Action types:**
+- `"create-task"` — Create a task (subject, priority, skills required)
+- `"transition"` — Auto-transition to next state
+- `"noop"` — No action needed
 
 ### Sensor
 

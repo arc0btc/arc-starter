@@ -12,6 +12,13 @@ import {
   deleteWorkflow,
   Workflow,
 } from "../../src/db.ts";
+import {
+  evaluateWorkflow,
+  getAllowedTransitions,
+  BlogPostingMachine,
+  SignalFilingMachine,
+  BeatClaimingMachine,
+} from "./state-machine.ts";
 
 type CommandResult = { success: boolean; message: string; data?: unknown };
 
@@ -44,6 +51,8 @@ SUBCOMMANDS
   transition <id> <new_state>               Move to a new state
   complete <id>                             Mark workflow as completed
   delete <id>                                Delete a workflow
+  evaluate <id>                             Evaluate state machine for workflow
+  allowed-transitions <id>                  Show allowed transitions from current state
 
 FLAGS
   --context JSON                            JSON context for transitions
@@ -278,6 +287,102 @@ function deleteCmd(idStr: string): CommandResult {
   }
 }
 
+function getTemplateByName(name: string) {
+  const templates: Record<string, unknown> = {
+    "blog-posting": BlogPostingMachine,
+    "signal-filing": SignalFilingMachine,
+    "beat-claiming": BeatClaimingMachine,
+  };
+  return templates[name];
+}
+
+function evaluate(idStr: string): CommandResult {
+  if (!idStr) {
+    return { success: false, message: "id argument required" };
+  }
+
+  const id = parseInt(idStr, 10);
+  if (isNaN(id)) {
+    return { success: false, message: `Invalid id: ${idStr}` };
+  }
+
+  try {
+    initDatabase();
+    const workflow = getWorkflowById(id);
+    if (!workflow) {
+      return { success: false, message: `Workflow id=${id} not found` };
+    }
+
+    const template = getTemplateByName(workflow.template);
+    if (!template) {
+      return {
+        success: false,
+        message: `Template '${workflow.template}' not found`,
+      };
+    }
+
+    const action = evaluateWorkflow(workflow, template as any);
+
+    return {
+      success: true,
+      message: `Evaluated workflow id=${id}`,
+      data: { workflow_id: id, state: workflow.current_state, action },
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: `Error: ${err instanceof Error ? err.message : String(err)}`,
+    };
+  }
+}
+
+function allowedTransitions(idStr: string): CommandResult {
+  if (!idStr) {
+    return { success: false, message: "id argument required" };
+  }
+
+  const id = parseInt(idStr, 10);
+  if (isNaN(id)) {
+    return { success: false, message: `Invalid id: ${idStr}` };
+  }
+
+  try {
+    initDatabase();
+    const workflow = getWorkflowById(id);
+    if (!workflow) {
+      return { success: false, message: `Workflow id=${id} not found` };
+    }
+
+    const template = getTemplateByName(workflow.template);
+    if (!template) {
+      return {
+        success: false,
+        message: `Template '${workflow.template}' not found`,
+      };
+    }
+
+    const transitions = getAllowedTransitions(
+      workflow.current_state,
+      template as any
+    );
+
+    return {
+      success: true,
+      message: `Allowed transitions from state '${workflow.current_state}'`,
+      data: {
+        workflow_id: id,
+        current_state: workflow.current_state,
+        transitions,
+      },
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: `Error: ${err instanceof Error ? err.message : String(err)}`,
+    };
+  }
+}
+
 function main(): void {
   const args = process.argv.slice(2);
   const { cmd, params } = parseArgs(args);
@@ -311,6 +416,14 @@ function main(): void {
 
     case "delete":
       result = deleteCmd(args[1] ?? "");
+      break;
+
+    case "evaluate":
+      result = evaluate(args[1] ?? "");
+      break;
+
+    case "allowed-transitions":
+      result = allowedTransitions(args[1] ?? "");
       break;
 
     default:
