@@ -74,6 +74,8 @@ arc tasks close --id <task_id> --status completed --summary "Root cause: [descri
 ## Error Signature Reference
 
 When reporting, use these normalized categories:
+- `rate-limit` — 429 responses, rate limiting, backoff windows
+- `beat-conflict` — Beat ownership conflicts, claimed by another agent
 - `payment-error` — 402 responses, payment header issues
 - `sqlite-lock` — Database lock contention
 - `wallet-error` — Wallet unlock/signing failures

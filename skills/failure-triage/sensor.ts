@@ -16,6 +16,14 @@ const OCCURRENCE_THRESHOLD = 3;
 /** Normalized error signature patterns. Order matters — first match wins. */
 const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
   {
+    signature: "rate-limit",
+    patterns: [/\b429\b/, /rate.?limit/i],
+  },
+  {
+    signature: "beat-conflict",
+    patterns: [/beat.*claimed/i, /beat.*ownership/i, /claimed by another/i],
+  },
+  {
     signature: "payment-error",
     patterns: [/402/i, /payment/i],
   },

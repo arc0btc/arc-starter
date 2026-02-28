@@ -41,6 +41,8 @@ arc skills run --name failure-triage -- investigate --pattern "error signature t
 ## Error Signature Normalization
 
 Groups by pattern class, not exact string:
+- `429` / `rate limit` → `rate-limit`
+- `beat claimed` / `claimed by another` → `beat-conflict`
 - `402` / `payment` → `payment-error`
 - `database is locked` / `SQLITE_BUSY` → `sqlite-lock`
 - `wallet unlock` / `wallet.*fail` → `wallet-error`
