@@ -1,10 +1,20 @@
 import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, getAllActiveWorkflows } from "../../src/db.ts";
+import {
+  initDatabase,
+  insertTask,
+  getAllActiveWorkflows,
+  updateWorkflowState,
+} from "../../src/db.ts";
+import {
+  evaluateWorkflow,
+  getTemplateByName,
+  type WorkflowAction,
+} from "./state-machine.ts";
 
-const SENSOR_NAME = "workflows";
-const INTERVAL_MINUTES = 60;
+const SENSOR_NAME = "workflows-meta";
+const INTERVAL_MINUTES = 5;
 
-export default async function workflowsSensor(): Promise<string> {
+export default async function workflowsMetaSensor(): Promise<string> {
   initDatabase();
 
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
@@ -12,31 +22,49 @@ export default async function workflowsSensor(): Promise<string> {
 
   try {
     const workflows = getAllActiveWorkflows();
+    if (workflows.length === 0) return "skip";
 
-    // Find stale workflows: active for >7 days without updates
-    const now = new Date();
-    const staleCount = workflows.filter((w) => {
-      const updatedAt = new Date(w.updated_at);
-      const ageMs = now.getTime() - updatedAt.getTime();
-      const ageDays = ageMs / (1000 * 60 * 60 * 24);
-      return ageDays > 7;
-    }).length;
+    let actionsProcessed = 0;
 
-    if (staleCount > 0) {
-      const source = "sensor:workflows";
-      insertTask({
-        subject: `Review ${staleCount} stale workflow(s)`,
-        description: `Found ${staleCount} active workflow(s) stale >7 days. Review and either advance or complete them.`,
-        source,
-        skills: "workflows",
-        priority: 6,
-      });
-      return "ok";
+    for (const workflow of workflows) {
+      // Get the template for this workflow
+      const template = getTemplateByName(workflow.template);
+      if (!template) {
+        console.warn(
+          `workflows-meta sensor: unknown template "${workflow.template}" for workflow ${workflow.id}`
+        );
+        continue;
+      }
+
+      // Evaluate the workflow state machine
+      const action = evaluateWorkflow(workflow, template);
+
+      // Handle the action
+      if (action.type === "create-task") {
+        const source = `workflow:${workflow.id}`;
+        insertTask({
+          subject: action.subject,
+          description: action.description,
+          priority: action.priority || 5,
+          skills: action.skills ? action.skills.join(",") : null,
+          source,
+        });
+        actionsProcessed++;
+      } else if (action.type === "transition" && action.nextState) {
+        updateWorkflowState(
+          workflow.id,
+          action.nextState,
+          workflow.context
+        );
+        actionsProcessed++;
+      }
     }
 
-    return "skip";
+    return actionsProcessed > 0 ? "ok" : "skip";
   } catch (err) {
-    console.error(`workflows sensor error: ${err instanceof Error ? err.message : String(err)}`);
+    console.error(
+      `workflows-meta sensor error: ${err instanceof Error ? err.message : String(err)}`
+    );
     return "skip";
   }
 }

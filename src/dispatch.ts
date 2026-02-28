@@ -18,6 +18,7 @@ import {
   getTaskById,
   initDatabase,
   insertCycleLog,
+  insertTask,
   markTaskActive,
   markTaskCompleted,
   markTaskFailed,

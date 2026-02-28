@@ -187,3 +187,16 @@ export const BeatClaimingMachine: StateMachine<{
     },
   },
 };
+
+/**
+ * Get a template by name.
+ * Registry maps template names to their state machines.
+ */
+export function getTemplateByName(name: string): StateMachine | null {
+  const templates: Record<string, StateMachine> = {
+    "blog-posting": BlogPostingMachine,
+    "signal-filing": SignalFilingMachine,
+    "beat-claiming": BeatClaimingMachine,
+  };
+  return templates[name] || null;
+}

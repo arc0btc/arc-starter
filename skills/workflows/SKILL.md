@@ -156,9 +156,24 @@ const action = evaluateWorkflow(workflow, myTemplate);
 - `"transition"` — Auto-transition to next state
 - `"noop"` — No action needed
 
-### Sensor
+### Meta-Sensor
 
-Runs every 60 minutes. Detects stale workflows (>7 days active, no updates) and queues a review task. This prevents workflows from getting stuck.
+The workflows meta-sensor runs every 5 minutes and evaluates all active workflow instances:
+
+1. Scans all active workflows (status != 'completed')
+2. For each workflow, loads its template and evaluates the state machine
+3. Creates tasks when a workflow's action is `"create-task"`
+4. Auto-transitions workflows when action is `"transition"`
+5. Skips no-ops and workflows with unknown templates
+
+This keeps workflows moving without manual intervention. Each workflow action can specify:
+- `subject` — Task subject
+- `description` — Task description
+- `priority` — Task priority (default 5)
+- `skills` — Array of skill names to include
+- `nextState` — For transitions
+
+The sensor source for created tasks is `workflow:{workflow_id}`, allowing you to trace which workflow created which task.
 
 ## Checklist
 
