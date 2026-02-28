@@ -19,6 +19,16 @@ const WORKTREE_DIR = join(ROOT, ".worktrees");
 
 // ---- Helpers ----
 
+async function getActualBranchName(name: string): Promise<string> {
+  // Try dispatch naming first (what dispatch.ts creates)
+  const dispatchBranch = `dispatch/${name}`;
+  const { exitCode } = await git("rev-parse", "--verify", dispatchBranch);
+  if (exitCode === 0) return dispatchBranch;
+
+  // Fall back to worktree naming (manual creation)
+  return `worktree/${name}`;
+}
+
 function parseFlags(args: string[]): { flags: Record<string, string>; positional: string[] } {
   const flags: Record<string, string> = {};
   const positional: string[] = [];
@@ -113,9 +123,7 @@ async function cmdValidate(name: string): Promise<void> {
   }
 
   // Get list of .ts files changed vs HEAD
-  const branchName = existsSync(join(worktreePath, ".git"))
-    ? name
-    : `worktree/${name}`;
+  const branchName = await getActualBranchName(name);
 
   const { stdout } = await git("diff", "--name-only", `HEAD...${branchName}`, "--", "*.ts");
   const changedFiles = stdout.trim().split("\n").filter(Boolean);
@@ -155,7 +163,7 @@ async function cmdMerge(name: string): Promise<void> {
 
   // Validate first
   console.log("Validating...");
-  const branchName = `worktree/${name}`;
+  const branchName = await getActualBranchName(name);
   const { stdout } = await git("diff", "--name-only", `HEAD...${branchName}`, "--", "*.ts");
   const changedFiles = stdout.trim().split("\n").filter(Boolean);
 
