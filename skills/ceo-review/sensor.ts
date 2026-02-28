@@ -1,6 +1,6 @@
 // ceo-review/sensor.ts
 //
-// Creates a CEO review task every 4 hours, offset to run after the status report.
+// Creates a CEO review task every hour, offset to run after the status report.
 // Checks that a recent report exists before creating the review task.
 // Pure TypeScript — no LLM.
 
@@ -10,7 +10,7 @@ import { claimSensorRun } from "../../src/sensors.ts";
 import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "ceo-review";
-const INTERVAL_MINUTES = 240; // 4 hours
+const INTERVAL_MINUTES = 60; // 1 hour
 const TASK_SOURCE = "sensor:ceo-review";
 const PRIORITY = 1; // blocks report delivery to whoabuddy — process first
 
@@ -44,8 +44,16 @@ async function reportHasReview(filename: string): Promise<boolean> {
   }
 }
 
+/** True when current time is in quiet hours (8pm–6am PST / UTC-8). */
+function isQuietHours(): boolean {
+  const pstHour = (new Date().getUTCHours() - 8 + 24) % 24;
+  return pstHour >= 20 || pstHour < 6;
+}
+
 export default async function ceoReviewSensor(): Promise<string> {
   initDatabase();
+
+  if (isQuietHours()) return "skip";
 
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
