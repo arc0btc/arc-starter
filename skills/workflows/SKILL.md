@@ -53,7 +53,7 @@ The workflow system includes a minimal, dependency-free state machine runner. Ea
 - `getAllowedTransitions(state, template)` — Get available transitions from a state
 - `isTransitionAllowed(from, to, template)` — Check if transition is valid
 
-**Built-in templates:** `BlogPostingMachine`, `SignalFilingMachine`, `BeatClaimingMachine`, `PrLifecycleMachine`
+**Built-in templates:** `BlogPostingMachine`, `SignalFilingMachine`, `BeatClaimingMachine`, `PrLifecycleMachine`, `ReputationFeedbackMachine`
 
 See `state-machine.ts` for full API (100 lines, no external deps).
 
@@ -209,6 +209,63 @@ arc sensors  # triggers PR sync
 # View workflows for this template
 arc skills run --name workflows -- list-by-template pr-lifecycle
 ```
+
+### Reputation Feedback (`reputation-feedback`)
+
+Give on-chain feedback to agents via ERC-8004. Guides mentorship interactions through multi-step process: check current reputation → submit feedback → wait for confirmation → verify updated reputation.
+
+**States:**
+- `pending` — Initial state, awaiting workflow start
+- `checking_reputation` — Retrieving current reputation summary (auto-creates task)
+- `feedback_submitted` — Feedback submitted on-chain, awaiting confirmation (~10-30 min)
+- `confirmed` — Feedback confirmed on-chain, reputation updated
+- `completed` — Workflow finished (terminal)
+
+**Context schema:**
+```typescript
+{
+  agentId: number;           // Required: Agent ID to give feedback for
+  agentName?: string;        // Optional: Agent name for clarity
+  currentScore?: number;     // Before feedback
+  rating: number;            // Required: Feedback value (e.g., 1-5 or signed integer)
+  tag1?: string;             // Optional: Primary tag (e.g., "helpful", "accuracy")
+  tag2?: string;             // Optional: Secondary tag (e.g., "shipped-code")
+  endpoint?: string;         // Optional: Context identifier for feedback
+  feedbackUri?: string;      // Optional: URI to detailed feedback data
+  feedbackHash?: string;     // Optional: SHA-256 hash of feedback
+  txid?: string;             // Transaction ID after submission
+  updatedScore?: number;     // After confirmation
+  notified?: boolean;        // Optional: Did we notify the agent?
+}
+```
+
+**Usage:**
+```bash
+# Create workflow
+arc skills run --name workflows -- create reputation-feedback "feedback-agent-42-2026-02-28" "pending" --context '{"agentId":42,"rating":5,"tag1":"collaboration","tag2":"fast-response","agentName":"ExampleAgent"}'
+
+# List all reputation feedback workflows
+arc skills run --name workflows -- list-by-template reputation-feedback
+
+# Check status
+arc skills run --name workflows -- show <id>
+
+# Advance to next state after reputation check
+arc skills run --name workflows -- transition <id> "checking_reputation"
+
+# After feedback submitted on-chain
+arc skills run --name workflows -- transition <id> "feedback_submitted" --context '{"txid":"0x..."}'
+
+# After confirmation
+arc skills run --name workflows -- transition <id> "confirmed" --context '{"updatedScore":45}'
+
+# Complete
+arc skills run --name workflows -- complete <id>
+```
+
+**Requires:** `reputation` skill (for give-feedback operations)
+
+**Pattern:** Mentorship feedback giving. Arc evaluates other agents, gives on-chain feedback, tracks confirmation.
 
 ## Checklist
 

@@ -235,6 +235,64 @@ export const PrLifecycleMachine: StateMachine<{
   },
 };
 
+export const ReputationFeedbackMachine: StateMachine<{
+  agentId: number;
+  agentName?: string;
+  currentScore?: number;
+  rating: number;
+  tag1?: string;
+  tag2?: string;
+  endpoint?: string;
+  feedbackUri?: string;
+  feedbackHash?: string;
+  txid?: string;
+  updatedScore?: number;
+  notified?: boolean;
+}> = {
+  name: "reputation-feedback",
+  initialState: "pending",
+  states: {
+    pending: {
+      on: { check_reputation: "checking_reputation" },
+      action: (ctx) => {
+        if (!ctx.agentId || !ctx.rating) return null;
+        return {
+          type: "create-task",
+          subject: `Reputation: Check current score for agent ${ctx.agentId}`,
+          priority: 5,
+          skills: ["reputation"],
+          description: `Get current reputation summary before giving feedback. Agent: ${ctx.agentName || ctx.agentId}, Rating: ${ctx.rating}/5`,
+        };
+      },
+    },
+    checking_reputation: {
+      on: { submit_feedback: "feedback_submitted" },
+      action: () => null,
+    },
+    feedback_submitted: {
+      on: { confirm: "confirmed" },
+      action: (ctx) => {
+        if (!ctx.agentId || !ctx.rating) return null;
+        return {
+          type: "create-task",
+          subject: `Reputation: Verify feedback submission for agent ${ctx.agentId}`,
+          priority: 5,
+          skills: ["reputation"],
+          description: `Wait for feedback confirmation (~10-30 min), then verify updated reputation. Feedback txid: ${ctx.txid || "pending"}`,
+        };
+      },
+    },
+    confirmed: {
+      on: { complete: "completed" },
+      action: () => null,
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
 /**
  * Get a template by name.
  * Registry maps template names to their state machines.
@@ -245,6 +303,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "signal-filing": SignalFilingMachine,
     "beat-claiming": BeatClaimingMachine,
     "pr-lifecycle": PrLifecycleMachine,
+    "reputation-feedback": ReputationFeedbackMachine,
   };
   return templates[name] || null;
 }
