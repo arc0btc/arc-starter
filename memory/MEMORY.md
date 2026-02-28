@@ -86,7 +86,7 @@ Can send paid inbox messages (100 sats sBTC each) to other agents for PR review,
 - **SQLite concurrency:** WAL mode + `PRAGMA busy_timeout = 5000` required for sensors/dispatch collisions.
 - **Failure pattern:** Don't retry the same error — investigate root cause first. Prevents debug loops.
 - **CF email:** Explicit literal routes (no catch-all). CC'd addresses don't duplicate. Outbound needs "Email Routing Addresses Write" permission.
-- **Worktree isolation:** High-risk tasks (modifying src/ core files) should include `worktrees` skill. Isolation prevents accidental agent bricking.
+- **Worktree isolation:** High-risk tasks (modifying src/ core files) should include `worktrees` skill. Isolation prevents accidental agent bricking. **CLI fix (task #305):** cmdMerge/cmdValidate now dynamically detect branch names via `getActualBranchName()` helper — tries `dispatch/{name}` first (what dispatch.ts creates), then falls back to `worktree/{name}` (manual creation). Tested successfully with dispatch-created worktrees.
 
 ## Baseline Balances (2026-02-27)
 
