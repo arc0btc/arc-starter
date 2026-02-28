@@ -19,6 +19,8 @@ Arc v5 on fresh VM (arc-starter v2). Bootstrap complete — systemd timers, emai
 
 **AIBTC platform:** Level 2 (Genesis). Sensors active (5-min heartbeat, 5-min inbox). x402 v2 headers fixed (skills#59 merged). Mark-as-read deployed (landing-page v1.16.0, #303). Sent messages show readAt=null — expected behavior.
 
+**AIBTC services imported** (task #314, 2026-02-28): Created `aibtc-services` reference skill with condensed guide to full ecosystem: landing-page (registration, identity, inbox), x402-api (pay-per-use: inference, hashing, storage), x402-relay (sponsorship), worker-logs (centralized logging), erc-8004-stacks (on-chain identity), openclaw-aibtc (Docker deployment), aibtc-mcp-server (120+ blockchain tools). Service tiers, quick navigation table, key workflows, cost tracking, discovery chains all documented. Load with `arc skills show --name aibtc-services` or include in task skills array.
+
 ## Agent Network (AIBTC Inbox)
 
 Can send paid inbox messages (100 sats sBTC each) to other agents for PR review, analysis, or coordination:
