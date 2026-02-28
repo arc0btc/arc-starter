@@ -8,11 +8,16 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, extname } from "node:path";
 import { discoverSkills } from "./skills.ts";
 
-// ---- Database (read-only) ----
+// ---- Database ----
 
 const DB_PATH = join(import.meta.dir, "../db/arc.sqlite");
 const db = new Database(DB_PATH, { readonly: true });
 db.exec("PRAGMA busy_timeout = 5000");
+
+// Writable connection for message submission
+const dbWrite = new Database(DB_PATH);
+dbWrite.exec("PRAGMA busy_timeout = 5000");
+dbWrite.exec("PRAGMA journal_mode = WAL");
 
 // ---- Constants ----
 
@@ -262,6 +267,31 @@ function handleIdentity(): Response {
   return json(IDENTITY);
 }
 
+async function handlePostMessage(req: Request): Promise<Response> {
+  let body: { message?: string; priority?: number };
+  try {
+    body = await req.json() as { message?: string; priority?: number };
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  const message = typeof body.message === "string" ? body.message.trim() : "";
+  if (!message) return errorResponse("Message is required", 400);
+  if (message.length > 500) return errorResponse("Message too long (max 500 chars)", 400);
+
+  const priority = typeof body.priority === "number" && body.priority >= 1 && body.priority <= 10
+    ? body.priority : 5;
+
+  const stmt = dbWrite.prepare(
+    "INSERT INTO tasks (subject, source, priority) VALUES (?, 'human:web', ?) RETURNING id, subject, priority, status, source, created_at"
+  );
+  const task = stmt.get(message, priority) as {
+    id: number; subject: string; priority: number; status: string; source: string; created_at: string;
+  };
+
+  return json(task, 201);
+}
+
 // ---- SSE ----
 
 function handleEvents(): Response {
@@ -403,9 +433,25 @@ function serveStatic(pathname: string): Response | null {
 
 // ---- Router ----
 
-function route(req: Request): Response {
+function route(req: Request): Response | Promise<Response> {
   const url = new URL(req.url);
   const path = url.pathname;
+  const method = req.method;
+
+  // CORS preflight
+  if (method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+    });
+  }
+
+  // POST routes
+  if (method === "POST" && path === "/api/messages") return handlePostMessage(req);
 
   // API routes
   if (path === "/api/status") return handleStatus();

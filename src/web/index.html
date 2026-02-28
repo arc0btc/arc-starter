@@ -745,6 +745,69 @@
     .sse-status.connected { background: var(--success); }
     .sse-status.disconnected { background: var(--error); }
 
+    /* ---- Message Box ---- */
+    .message-box {
+      background: var(--bg-card);
+      border-left: 4px solid var(--accent);
+      padding: var(--space-md) var(--space-lg);
+      border-radius: 2px;
+      margin-bottom: var(--space-md);
+    }
+
+    .message-form {
+      display: flex;
+      gap: var(--space-sm);
+      align-items: flex-end;
+    }
+
+    .message-input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 0.85rem;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: 2px;
+      outline: none;
+      resize: none;
+      min-height: 38px;
+      max-height: 120px;
+      line-height: 1.5;
+      transition: border-color 0.15s;
+    }
+
+    .message-input::placeholder { color: #555; }
+    .message-input:focus { border-color: var(--accent); }
+
+    .message-send {
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      font-family: var(--font);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: var(--space-sm) var(--space-lg);
+      border-radius: 2px;
+      cursor: pointer;
+      height: 38px;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+
+    .message-send:hover { background: var(--accent-deep); }
+    .message-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .message-status {
+      font-size: 0.7rem;
+      margin-top: var(--space-xs);
+      min-height: 1em;
+      font-family: var(--font-mono);
+    }
+
+    .message-status.ok { color: var(--success); }
+    .message-status.err { color: var(--error); }
+
     /* ---- Scrollbar ---- */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
@@ -773,6 +836,7 @@
       </div>
 
       <nav class="header-nav">
+        <a href="#message">Message</a>
         <a href="#feed">Feed</a>
         <a href="#sensors">Sensors</a>
         <a href="#metrics">Metrics</a>
@@ -785,6 +849,20 @@
 
   <!-- ---- Main ---- -->
   <main class="container">
+
+    <!-- Message Box -->
+    <section id="message" class="section" style="grid-column: 1 / -1;">
+      <div class="section-header">
+        <h2 class="section-title">Message Arc</h2>
+      </div>
+      <div class="message-box">
+        <form class="message-form" id="message-form">
+          <textarea class="message-input" id="message-input" placeholder="Send a task to Arc..." rows="1" maxlength="500"></textarea>
+          <button type="submit" class="message-send" id="message-send">Send</button>
+        </form>
+        <div class="message-status" id="message-status"></div>
+      </div>
+    </section>
 
     <!-- Activity Feed -->
     <section id="feed" class="section">
@@ -1530,6 +1608,65 @@
         bumpCostTicker(s.cost_today_usd);
       }).catch(function() {});
     }
+
+    // ---- Message Box ----
+
+    (function() {
+      var form = document.getElementById('message-form');
+      var input = document.getElementById('message-input');
+      var btn = document.getElementById('message-send');
+      var status = document.getElementById('message-status');
+
+      // Auto-resize textarea
+      input.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+      });
+
+      // Submit on Enter (Shift+Enter for newline)
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          form.dispatchEvent(new Event('submit'));
+        }
+      });
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var msg = input.value.trim();
+        if (!msg) return;
+
+        btn.disabled = true;
+        status.textContent = '';
+        status.className = 'message-status';
+
+        fetch('/api/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: msg }),
+        })
+        .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
+        .then(function(result) {
+          if (result.ok) {
+            status.textContent = 'Task #' + result.data.id + ' created';
+            status.className = 'message-status ok';
+            input.value = '';
+            input.style.height = 'auto';
+            prependToFeed(result.data);
+            refreshStatus();
+            setTimeout(function() { status.textContent = ''; }, 3000);
+          } else {
+            status.textContent = result.data.error || 'Failed to send';
+            status.className = 'message-status err';
+          }
+        })
+        .catch(function() {
+          status.textContent = 'Network error';
+          status.className = 'message-status err';
+        })
+        .finally(function() { btn.disabled = false; input.focus(); });
+      });
+    })();
 
     init();
   </script>
