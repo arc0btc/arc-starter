@@ -631,6 +631,58 @@
       padding: var(--space-md) 0;
     }
 
+    /* ---- Expandable Feed Detail ---- */
+    .feed-item { cursor: pointer; }
+
+    .feed-detail {
+      display: none;
+      margin-top: var(--space-sm);
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .feed-detail.open { display: block; }
+
+    .feed-detail-row {
+      display: flex;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-xs);
+    }
+
+    .feed-detail-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      width: 60px;
+      flex-shrink: 0;
+    }
+
+    .feed-detail-value {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      word-break: break-word;
+    }
+
+    /* ---- Copy Button ---- */
+    .copy-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.65rem;
+      padding: 1px 6px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      transition: color 0.15s, border-color 0.15s;
+      flex-shrink: 0;
+    }
+
+    .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+    .copy-btn.copied { color: var(--success); border-color: var(--success); }
+
     /* ---- Scrollbar ---- */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
@@ -798,5 +850,386 @@
     </div>
   </footer>
 
+  <script>
+    // ---- Utilities ----
+
+    function relativeTime(dateStr) {
+      if (!dateStr) return '--';
+      const date = dateStr.endsWith('Z') ? new Date(dateStr) : new Date(dateStr + 'Z');
+      const now = Date.now();
+      const diff = now - date.getTime();
+      if (diff < 0) return 'just now';
+      const secs = Math.floor(diff / 1000);
+      if (secs < 60) return secs + 's ago';
+      const mins = Math.floor(secs / 60);
+      if (mins < 60) return mins + 'm ago';
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return hrs + 'h ago';
+      const days = Math.floor(hrs / 24);
+      return days + 'd ago';
+    }
+
+    function formatCost(n) {
+      if (n == null) return '$0.00';
+      return '$' + Number(n).toFixed(2);
+    }
+
+    function formatDuration(ms) {
+      if (ms == null) return '--';
+      if (ms < 1000) return ms + 'ms';
+      const secs = Math.round(ms / 1000);
+      if (secs < 60) return secs + 's';
+      const mins = Math.floor(secs / 60);
+      const remSecs = secs % 60;
+      return mins + 'm ' + remSecs + 's';
+    }
+
+    function formatNumber(n) {
+      if (n == null) return '0';
+      if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+      return String(n);
+    }
+
+    function truncAddr(addr, n) {
+      n = n || 8;
+      if (!addr || addr.length <= n * 2 + 3) return addr || '--';
+      return addr.slice(0, n) + '...' + addr.slice(-n);
+    }
+
+    function esc(s) {
+      if (!s) return '';
+      var d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    function statusBadgeClass(status) {
+      return 'pill badge-' + (status || 'pending');
+    }
+
+    function statusBorderClass(status) {
+      var map = { active: 'active', completed: 'completed', failed: 'failed', blocked: 'failed' };
+      return map[status] || '';
+    }
+
+    async function fetchJSON(url) {
+      var res = await fetch(url);
+      if (!res.ok) throw new Error(res.statusText);
+      return res.json();
+    }
+
+    function copyToClipboard(text, btn) {
+      navigator.clipboard.writeText(text).then(function() {
+        btn.textContent = 'copied';
+        btn.classList.add('copied');
+        setTimeout(function() {
+          btn.textContent = 'copy';
+          btn.classList.remove('copied');
+        }, 1500);
+      });
+    }
+
+    // ---- Renderers ----
+
+    function renderFeed(tasks) {
+      var list = document.getElementById('feed-list');
+      var count = document.getElementById('feed-count');
+      count.textContent = tasks.length + ' tasks';
+
+      if (tasks.length === 0) {
+        list.innerHTML = '<li class="placeholder">No tasks found</li>';
+        return;
+      }
+
+      list.innerHTML = tasks.map(function(t) {
+        var cls = statusBorderClass(t.status);
+        var skills = '';
+        try {
+          var arr = typeof t.skills === 'string' ? JSON.parse(t.skills) : t.skills;
+          if (arr && arr.length) skills = arr.map(function(s) { return '<span class="pill pill-muted">' + esc(s) + '</span>'; }).join(' ');
+        } catch(e) {}
+
+        return '<li class="feed-item ' + cls + '" onclick="toggleDetail(this)">'
+          + '<span class="status-dot ' + (t.status === 'active' ? 'live' : '') + '" style="margin-top:6px;'
+          + (t.status === 'completed' ? 'background:var(--success)' : t.status === 'failed' ? 'background:var(--error)' : t.status === 'blocked' ? 'background:var(--blocked)' : '') + '"></span>'
+          + '<div class="feed-body">'
+          + '<div class="feed-subject">' + esc(t.subject) + '</div>'
+          + '<div class="feed-meta">'
+          + '<span class="' + statusBadgeClass(t.status) + '">' + esc(t.status) + '</span>'
+          + (t.source ? ' <span class="pill pill-muted">' + esc(t.source) + '</span>' : '')
+          + ' ' + skills
+          + ' <span>' + relativeTime(t.created_at) + '</span>'
+          + (t.cost_usd ? ' <span>' + formatCost(t.cost_usd) + '</span>' : '')
+          + '</div>'
+          + '<div class="feed-detail" data-task-id="' + t.id + '"><p class="placeholder">Loading...</p></div>'
+          + '</div>'
+          + '</li>';
+      }).join('');
+    }
+
+    function toggleDetail(el) {
+      var detail = el.querySelector('.feed-detail');
+      if (!detail) return;
+
+      if (detail.classList.contains('open')) {
+        detail.classList.remove('open');
+        return;
+      }
+
+      // Load detail if not yet loaded
+      if (detail.querySelector('.placeholder')) {
+        var taskId = detail.getAttribute('data-task-id');
+        fetchJSON('/api/tasks/' + taskId).then(function(task) {
+          var html = '';
+          if (task.description) {
+            html += '<div class="feed-detail-row"><span class="feed-detail-label">Desc</span><span class="feed-detail-value">' + esc(task.description) + '</span></div>';
+          }
+          if (task.result_summary) {
+            html += '<div class="feed-detail-row"><span class="feed-detail-label">Result</span><span class="feed-detail-value">' + esc(task.result_summary) + '</span></div>';
+          }
+          if (task.cost_usd) {
+            html += '<div class="feed-detail-row"><span class="feed-detail-label">Cost</span><span class="feed-detail-value">' + formatCost(task.cost_usd) + ' actual / ' + formatCost(task.api_cost_usd) + ' API est</span></div>';
+          }
+          if (task.started_at) {
+            var dur = task.completed_at ? new Date(task.completed_at + 'Z').getTime() - new Date(task.started_at + 'Z').getTime() : null;
+            html += '<div class="feed-detail-row"><span class="feed-detail-label">Duration</span><span class="feed-detail-value">' + formatDuration(dur) + '</span></div>';
+          }
+          if (task.tokens_in || task.tokens_out) {
+            html += '<div class="feed-detail-row"><span class="feed-detail-label">Tokens</span><span class="feed-detail-value">' + formatNumber(task.tokens_in) + ' in / ' + formatNumber(task.tokens_out) + ' out</span></div>';
+          }
+          html += '<div class="feed-detail-row"><span class="feed-detail-label">ID</span><span class="feed-detail-value">#' + task.id + ' · P' + task.priority + '</span></div>';
+          detail.innerHTML = html || '<span class="feed-detail-value">No additional details</span>';
+        }).catch(function() {
+          detail.innerHTML = '<span class="feed-detail-value" style="color:var(--error)">Failed to load</span>';
+        });
+      }
+
+      detail.classList.add('open');
+    }
+
+    function renderSensors(sensors) {
+      var grid = document.getElementById('sensor-grid');
+      var count = document.getElementById('sensor-count');
+      count.textContent = sensors.length + ' sensors';
+
+      if (sensors.length === 0) {
+        grid.innerHTML = '<p class="placeholder">No sensors found</p>';
+        return;
+      }
+
+      grid.innerHTML = sensors.map(function(s) {
+        var isError = s.last_result === 'error' || (s.consecutive_failures && s.consecutive_failures > 0);
+        var isRecent = false;
+        if (s.last_ran) {
+          var age = Date.now() - new Date(s.last_ran.endsWith('Z') ? s.last_ran : s.last_ran + 'Z').getTime();
+          var threshold = (s.interval_minutes || 5) * 2 * 60000;
+          isRecent = age < threshold;
+        }
+        var statusCls = isError ? 'error' : (isRecent ? 'ok' : 'stale');
+        var dotCls = isError ? '' : (isRecent ? 'live' : '');
+        var dotStyle = isError ? 'background:var(--error)' : (!isRecent ? 'background:#555' : '');
+
+        return '<div class="sensor-card ' + statusCls + '">'
+          + '<div class="sensor-header">'
+          + '<span class="status-dot ' + dotCls + '" style="' + dotStyle + '"></span>'
+          + '<span class="sensor-name">' + esc(s.name) + '</span>'
+          + (s.interval_minutes ? '<span class="skill-badge">' + s.interval_minutes + 'm</span>' : '')
+          + '</div>'
+          + '<div class="sensor-detail">'
+          + relativeTime(s.last_ran)
+          + (s.last_result && s.last_result !== 'ok' ? ' · ' + esc(s.last_result) : '')
+          + '</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    function renderMetrics(status, costs) {
+      // Stat cards
+      document.getElementById('metric-cycles').textContent = String(status.completed_today + status.failed_today);
+      var total = status.completed_today + status.failed_today;
+      var rate = total > 0 ? Math.round((status.completed_today / total) * 100) : 0;
+      document.getElementById('metric-success').textContent = rate + '%';
+      document.getElementById('metric-queue').textContent = String(status.pending);
+
+      // Avg duration from recent cycles
+      fetchJSON('/api/cycles?limit=50').then(function(data) {
+        var cycles = data.cycles.filter(function(c) { return c.duration_ms != null; });
+        if (cycles.length > 0) {
+          var avg = cycles.reduce(function(sum, c) { return sum + c.duration_ms; }, 0) / cycles.length;
+          document.getElementById('metric-duration').textContent = formatDuration(avg);
+        } else {
+          document.getElementById('metric-duration').textContent = '--';
+        }
+      });
+
+      // Cost bar chart
+      var bars = document.getElementById('cost-bars');
+      if (!costs || costs.length === 0) {
+        bars.innerHTML = '<p class="placeholder">No cost data yet</p>';
+        return;
+      }
+
+      var maxCost = Math.max.apply(null, costs.map(function(c) { return c.cost_usd; }));
+      if (maxCost === 0) maxCost = 1;
+
+      bars.innerHTML = costs.map(function(c) {
+        var hour = c.hour.split(' ')[1] || c.hour;
+        var pct = Math.round((c.cost_usd / maxCost) * 100);
+        return '<div class="bar-row">'
+          + '<span class="bar-label">' + hour.slice(0, 5) + '</span>'
+          + '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%"></div></div>'
+          + '<span class="bar-value">' + formatCost(c.cost_usd) + '</span>'
+          + '</div>';
+      }).join('');
+    }
+
+    function renderSkills(skills) {
+      var grid = document.getElementById('skill-grid');
+      var count = document.getElementById('skill-count');
+      count.textContent = skills.length + ' skills';
+
+      if (skills.length === 0) {
+        grid.innerHTML = '<p class="placeholder">No skills found</p>';
+        return;
+      }
+
+      grid.innerHTML = skills.map(function(s) {
+        var tags = (s.tags || []).map(function(t) {
+          return '<span class="skill-tag">' + esc(t) + '</span>';
+        }).join('');
+
+        var badges = '';
+        if (s.has_sensor) badges += '<span class="skill-badge">sensor</span>';
+        if (s.has_cli) badges += '<span class="skill-badge">cli</span>';
+        if (s.has_agent) badges += '<span class="skill-badge">agent</span>';
+
+        return '<div class="skill-card">'
+          + '<div class="skill-card-name">' + esc(s.name) + badges + '</div>'
+          + '<div class="skill-card-desc">' + esc(s.description) + '</div>'
+          + '<div class="skill-tags">' + tags + '</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    function renderIdentity(identity) {
+      var card = document.querySelector('.identity-card');
+
+      var addrRows = [
+        { label: 'BTC', value: identity.btc, explorer: 'https://mempool.space/address/' + identity.btc },
+        { label: 'STX', value: identity.stx, explorer: 'https://explorer.hiro.so/address/' + identity.stx },
+      ];
+
+      var rowsHtml = addrRows.map(function(r) {
+        return '<div class="identity-row">'
+          + '<span class="identity-label">' + r.label + '</span>'
+          + '<a href="' + r.explorer + '" target="_blank" rel="noopener" class="identity-value" title="' + r.value + '">' + truncAddr(r.value, 10) + '</a>'
+          + '<button class="copy-btn" onclick="event.stopPropagation();copyToClipboard(\'' + r.value + '\', this)">copy</button>'
+          + '</div>';
+      }).join('');
+
+      var linksHtml = '<div class="identity-links">'
+        + '<a href="https://' + identity.website + '" target="_blank" rel="noopener">' + identity.website + '</a>'
+        + '<a href="https://arc0btc.com" target="_blank" rel="noopener">arc0btc.com</a>'
+        + '<a href="https://github.com/' + identity.github + '" target="_blank" rel="noopener">GitHub</a>'
+        + '<a href="https://x.com/' + identity.twitter + '" target="_blank" rel="noopener">@' + identity.twitter + '</a>'
+        + '<a href="https://explorer.hiro.so/address/' + identity.stx + '" target="_blank" rel="noopener">Explorer</a>'
+        + '</div>';
+
+      card.innerHTML = '<div class="identity-header">'
+        + '<div class="identity-avatar">A</div>'
+        + '<div><div class="identity-name">' + esc(identity.name) + '</div>'
+        + '<div class="identity-bns">' + esc(identity.bns) + '</div></div>'
+        + '</div>'
+        + rowsHtml
+        + linksHtml;
+    }
+
+    function updateHeader(status) {
+      document.getElementById('cost-today').textContent = formatCost(status.cost_today_usd);
+      document.getElementById('uptime').textContent = status.uptime_hours + 'h uptime';
+
+      var dot = document.getElementById('status-dot');
+      if (status.last_cycle) {
+        var lastAge = Date.now() - new Date(status.last_cycle.started_at + 'Z').getTime();
+        if (lastAge < 5 * 60000) {
+          dot.className = 'status-dot live';
+          dot.title = 'Last cycle ' + relativeTime(status.last_cycle.started_at);
+        } else {
+          dot.className = 'status-dot offline';
+          dot.title = 'Last cycle ' + relativeTime(status.last_cycle.started_at);
+        }
+      }
+    }
+
+    // ---- Init ----
+
+    async function init() {
+      try {
+        var results = await Promise.allSettled([
+          fetchJSON('/api/status'),
+          fetchJSON('/api/tasks?limit=30'),
+          fetchJSON('/api/sensors'),
+          fetchJSON('/api/skills'),
+          fetchJSON('/api/costs?range=day'),
+          fetchJSON('/api/identity'),
+        ]);
+
+        var status   = results[0].status === 'fulfilled' ? results[0].value : null;
+        var tasks    = results[1].status === 'fulfilled' ? results[1].value : null;
+        var sensors  = results[2].status === 'fulfilled' ? results[2].value : null;
+        var skills   = results[3].status === 'fulfilled' ? results[3].value : null;
+        var costs    = results[4].status === 'fulfilled' ? results[4].value : null;
+        var identity = results[5].status === 'fulfilled' ? results[5].value : null;
+
+        if (status)   { updateHeader(status); renderMetrics(status, costs ? costs.costs : []); }
+        if (tasks)    renderFeed(tasks.tasks || []);
+        if (sensors)  renderSensors(sensors.sensors || []);
+        if (skills)   renderSkills(skills.skills || []);
+        if (identity) renderIdentity(identity);
+      } catch (e) {
+        console.error('Dashboard init error:', e);
+      }
+
+      // SSE for live updates
+      connectSSE();
+
+      // Fallback refresh every 30s
+      setInterval(refreshAll, 30000);
+    }
+
+    function refreshAll() {
+      fetchJSON('/api/status').then(function(s) {
+        updateHeader(s);
+        fetchJSON('/api/costs?range=day').then(function(c) {
+          renderMetrics(s, c.costs || []);
+        });
+      }).catch(function() {});
+
+      fetchJSON('/api/tasks?limit=30').then(function(d) {
+        renderFeed(d.tasks || []);
+      }).catch(function() {});
+
+      fetchJSON('/api/sensors').then(function(d) {
+        renderSensors(d.sensors || []);
+      }).catch(function() {});
+    }
+
+    function connectSSE() {
+      var events = new EventSource('/api/events');
+
+      events.addEventListener('task:created', function() { refreshAll(); });
+      events.addEventListener('task:completed', function() { refreshAll(); });
+      events.addEventListener('task:failed', function() { refreshAll(); });
+      events.addEventListener('cycle:completed', function() { refreshAll(); });
+
+      events.onerror = function() {
+        events.close();
+        setTimeout(connectSSE, 10000);
+      };
+    }
+
+    init();
+  </script>
 </body>
 </html>
