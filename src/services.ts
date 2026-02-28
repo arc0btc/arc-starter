@@ -61,6 +61,32 @@ StandardError=journal
 `;
 }
 
+function generateWebServiceUnit(): string {
+  const bun = bunPath();
+  const envFile = join(ROOT, ".env");
+  const envLine = existsSync(envFile) ? `EnvironmentFile=${envFile}\n` : "";
+  const port = process.env.ARC_WEB_PORT || "3000";
+  return `[Unit]
+Description=Arc Web Dashboard
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=${ROOT}
+ExecStart=${bun} src/web.ts
+Restart=on-failure
+RestartSec=5
+Environment="HOME=${HOME}"
+Environment="PATH=/usr/local/bin:/usr/bin:/bin:${HOME}/.bun/bin:${HOME}/.local/bin"
+Environment="ARC_WEB_PORT=${port}"
+${envLine}StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target
+`;
+}
+
 function generateTimerUnit(description: string, bootSec: string, intervalSec: string): string {
   return `[Unit]
 Description=${description}
@@ -79,6 +105,7 @@ const SYSTEMD_UNITS: Array<{ name: string; content: () => string }> = [
   { name: "arc-sensors.timer", content: () => generateTimerUnit("arc-agent sensors timer — fires every 1 minute", "1min", "1min") },
   { name: "arc-dispatch.service", content: () => generateServiceUnit("run", "arc-agent dispatch runner", 3600) },
   { name: "arc-dispatch.timer", content: () => generateTimerUnit("arc-agent dispatch timer — fires every 1 minute", "2min", "1min") },
+  { name: "arc-web.service", content: () => generateWebServiceUnit() },
 ];
 
 function systemdInstall(): void {
@@ -98,14 +125,17 @@ function systemdInstall(): void {
 
   run("systemctl", ["--user", "enable", "--now", "arc-sensors.timer"]);
   run("systemctl", ["--user", "enable", "--now", "arc-dispatch.timer"]);
-  process.stdout.write("Enabled and started timers\n");
+  run("systemctl", ["--user", "enable", "--now", "arc-web.service"]);
+  process.stdout.write("Enabled and started timers + web service\n");
 }
 
 function systemdUninstall(): void {
   run("systemctl", ["--user", "stop", "arc-sensors.timer"], { quiet: true });
   run("systemctl", ["--user", "stop", "arc-dispatch.timer"], { quiet: true });
+  run("systemctl", ["--user", "stop", "arc-web.service"], { quiet: true });
   run("systemctl", ["--user", "disable", "arc-sensors.timer"], { quiet: true });
   run("systemctl", ["--user", "disable", "arc-dispatch.timer"], { quiet: true });
+  run("systemctl", ["--user", "disable", "arc-web.service"], { quiet: true });
 
   const dir = systemdDir();
   for (const unit of SYSTEMD_UNITS) {
@@ -121,22 +151,33 @@ function systemdUninstall(): void {
 }
 
 function systemdStatus(): void {
-  const { stdout } = run("systemctl", [
+  const { stdout: timerStatus } = run("systemctl", [
     "--user", "status",
     "arc-sensors.timer", "arc-dispatch.timer",
     "--no-pager",
   ], { quiet: true });
-  process.stdout.write(stdout || "Timers not found. Run: arc services install\n");
+  process.stdout.write(timerStatus || "Timers not found. Run: arc services install\n");
+
+  process.stdout.write("\n");
+
+  const { stdout: webStatus } = run("systemctl", [
+    "--user", "status",
+    "arc-web.service",
+    "--no-pager",
+  ], { quiet: true });
+  process.stdout.write(webStatus || "Web service not found. Run: arc services install\n");
 }
 
 // ---- macOS (launchd) ----
 
 const LAUNCHD_DIR = join(HOME, "Library/LaunchAgents");
 
-const AGENTS = [
+const TIMER_AGENTS = [
   { label: "com.arc-agent.sensors", interval: 60, command: "sensors" },
   { label: "com.arc-agent.dispatch", interval: 60, command: "run" },
 ] as const;
+
+const WEB_AGENT = { label: "com.arc-agent.web" } as const;
 
 function plistPath(label: string): string {
   return join(LAUNCHD_DIR, `${label}.plist`);
@@ -176,33 +217,77 @@ function generatePlist(agent: { label: string; interval: number }, command: stri
 </plist>`;
 }
 
+function generateWebPlist(): string {
+  const bun = bunPath();
+  const logDir = join(ROOT, "logs");
+  const port = process.env.ARC_WEB_PORT || "3000";
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>${WEB_AGENT.label}</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>${bun}</string>
+        <string>src/web.ts</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>${ROOT}</string>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>${logDir}/web.log</string>
+    <key>StandardErrorPath</key>
+    <string>${logDir}/web.err</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>HOME</key>
+        <string>${HOME}</string>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:${HOME}/.bun/bin</string>
+        <key>ARC_WEB_PORT</key>
+        <string>${port}</string>
+    </dict>
+</dict>
+</plist>`;
+}
+
 function launchdInstall(): void {
   mkdirSync(LAUNCHD_DIR, { recursive: true });
   mkdirSync(join(ROOT, "logs"), { recursive: true });
 
-  for (const agent of AGENTS) {
+  // Timer-based agents (sensors + dispatch)
+  for (const agent of TIMER_AGENTS) {
     const plist = plistPath(agent.label);
     writeFileSync(plist, generatePlist(agent, agent.command));
     process.stdout.write(`  Wrote ${agent.label}.plist\n`);
   }
 
+  // Persistent web service
+  const webPlist = plistPath(WEB_AGENT.label);
+  writeFileSync(webPlist, generateWebPlist());
+  process.stdout.write(`  Wrote ${WEB_AGENT.label}.plist\n`);
+
   process.stdout.write("\n");
 
-  for (const agent of AGENTS) {
-    const plist = plistPath(agent.label);
+  const allLabels = [...TIMER_AGENTS.map(a => a.label), WEB_AGENT.label];
+  for (const label of allLabels) {
+    const plist = plistPath(label);
     run("launchctl", ["unload", plist], { quiet: true });
     run("launchctl", ["load", plist]);
   }
-  process.stdout.write("Loaded launch agents\n");
+  process.stdout.write("Loaded launch agents + web service\n");
 }
 
 function launchdUninstall(): void {
-  for (const agent of AGENTS) {
-    const plist = plistPath(agent.label);
+  const allLabels = [...TIMER_AGENTS.map(a => a.label), WEB_AGENT.label];
+  for (const label of allLabels) {
+    const plist = plistPath(label);
     if (existsSync(plist)) {
       run("launchctl", ["unload", plist], { quiet: true });
       unlinkSync(plist);
-      process.stdout.write(`  Removed ${agent.label}.plist\n`);
+      process.stdout.write(`  Removed ${label}.plist\n`);
     }
   }
   process.stdout.write("Launch agents uninstalled\n");
@@ -210,10 +295,11 @@ function launchdUninstall(): void {
 
 function launchdStatus(): void {
   let found = false;
-  for (const agent of AGENTS) {
-    const { stdout } = run("launchctl", ["list", agent.label], { quiet: true });
-    if (stdout.includes(agent.label)) {
-      process.stdout.write(`${agent.label}: running\n`);
+  const allLabels = [...TIMER_AGENTS.map(a => a.label), WEB_AGENT.label];
+  for (const label of allLabels) {
+    const { stdout } = run("launchctl", ["list", label], { quiet: true });
+    if (stdout.includes(label)) {
+      process.stdout.write(`${label}: running\n`);
       found = true;
     }
   }
