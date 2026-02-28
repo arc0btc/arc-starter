@@ -12,7 +12,7 @@ import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/
 const SENSOR_NAME = "ceo-review";
 const INTERVAL_MINUTES = 240; // 4 hours
 const TASK_SOURCE = "sensor:ceo-review";
-const PRIORITY = 7; // after status report (6), before housekeeping
+const PRIORITY = 1; // blocks report delivery to whoabuddy — process first
 
 const ROOT = new URL("../../", import.meta.url).pathname;
 const REPORTS_DIR = join(ROOT, "reports");
