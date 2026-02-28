@@ -44,15 +44,17 @@ Check the Research Intelligence section of the watch report. If research reports
 
 If no research reports exist, skip this step.
 
-### 4. Evaluate against CEO principles
+### 4. Evaluate against strategic direction
 
-**Direction:** Is the agent working on the one thing that matters most? Or scattered?
+Read the "Current Strategic Direction" section in SKILL.md. Evaluate this watch against Arc's actual priorities, not just generic CEO principles.
 
-**Resources:** Cost-per-outcome this watch. Token spend trending up or down? Are cycles being wasted on low-value work?
+**Direction:** Is the agent working on the priority stack in order? Responsiveness > cost discipline > mastery > public presence > ecosystem contribution. Or is it scattered on low-priority work while high-priority items wait?
 
-**Results:** What actually shipped? What's visible to the outside? Completed tasks are activity, not results.
+**Resources:** Check daily cost against the $30 target. Is the trend improving or worsening? Are cycles being wasted on sensor noise, redundant investigations, or over-engineering?
 
-**Queue balance:** External signals (AIBTC inbox, email) should serve the mission, not replace it. Is the ratio right?
+**Results:** What actually shipped that's *visible externally*? Completed tasks are activity, not results. Blog posts, PR reviews, answered messages, deployed features — those are results.
+
+**On/off track:** Compare against the "on track" and "off track" indicators in the strategic direction. Call it directly.
 
 ### 5. Shape the queue
 
