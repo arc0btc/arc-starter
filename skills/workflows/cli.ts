@@ -18,6 +18,7 @@ import {
   BlogPostingMachine,
   SignalFilingMachine,
   BeatClaimingMachine,
+  PrLifecycleMachine,
 } from "./state-machine.ts";
 
 type CommandResult = { success: boolean; message: string; data?: unknown };
@@ -292,6 +293,7 @@ function getTemplateByName(name: string) {
     "blog-posting": BlogPostingMachine,
     "signal-filing": SignalFilingMachine,
     "beat-claiming": BeatClaimingMachine,
+    "pr-lifecycle": PrLifecycleMachine,
   };
   return templates[name];
 }

@@ -188,6 +188,53 @@ export const BeatClaimingMachine: StateMachine<{
   },
 };
 
+export const PrLifecycleMachine: StateMachine<{
+  owner?: string;
+  repo?: string;
+  number?: number;
+  title?: string;
+  url?: string;
+  author?: string;
+  reviewers?: string[];
+  lastChecked?: string;
+}> = {
+  name: "pr-lifecycle",
+  initialState: "opened",
+  states: {
+    opened: {
+      on: { request_review: "review-requested", close: "closed" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        return { type: "noop" };
+      },
+    },
+    "review-requested": {
+      on: {
+        request_changes: "changes-requested",
+        approve: "approved",
+        close: "closed",
+      },
+      action: () => null,
+    },
+    "changes-requested": {
+      on: { request_review: "review-requested", close: "closed" },
+      action: () => null,
+    },
+    approved: {
+      on: { merge: "merged", close: "closed" },
+      action: () => null,
+    },
+    merged: {
+      on: {},
+      action: () => null,
+    },
+    closed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
 /**
  * Get a template by name.
  * Registry maps template names to their state machines.
@@ -197,6 +244,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "blog-posting": BlogPostingMachine,
     "signal-filing": SignalFilingMachine,
     "beat-claiming": BeatClaimingMachine,
+    "pr-lifecycle": PrLifecycleMachine,
   };
   return templates[name] || null;
 }

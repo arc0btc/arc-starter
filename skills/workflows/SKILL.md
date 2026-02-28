@@ -53,7 +53,7 @@ The workflow system includes a minimal, dependency-free state machine runner. Ea
 - `getAllowedTransitions(state, template)` — Get available transitions from a state
 - `isTransitionAllowed(from, to, template)` — Check if transition is valid
 
-**Built-in templates:** `BlogPostingMachine`, `SignalFilingMachine`, `BeatClaimingMachine`
+**Built-in templates:** `BlogPostingMachine`, `SignalFilingMachine`, `BeatClaimingMachine`, `PrLifecycleMachine`
 
 See `state-machine.ts` for full API (100 lines, no external deps).
 
@@ -174,6 +174,41 @@ This keeps workflows moving without manual intervention. Each workflow action ca
 - `nextState` — For transitions
 
 The sensor source for created tasks is `workflow:{workflow_id}`, allowing you to trace which workflow created which task.
+
+## Built-in Templates
+
+### PR Lifecycle (`pr-lifecycle`)
+
+Track GitHub pull requests through their full lifecycle:
+
+**States:**
+- `opened` — PR is newly created
+- `review-requested` — Review has been requested
+- `changes-requested` — Reviewer requested changes
+- `approved` — All reviewers approved
+- `merged` — PR is merged (terminal)
+- `closed` — PR is closed without merging (terminal)
+
+**Auto-detection:** The workflows sensor automatically syncs GitHub PRs to workflow instances. It:
+1. Queries GitHub API for open/closed PRs (every 5 minutes)
+2. Creates workflow instances for new PRs (instance_key = `owner/repo/number`)
+3. Updates workflow state when PR state changes
+4. Auto-completes workflows when PR reaches terminal state (merged/closed)
+
+**Configuration:**
+- Set `PR_LIFECYCLE_REPOS` env var to comma-separated list of repos (e.g., `org/repo1,org/repo2`)
+- Default repos: `arc0btc/arc-starter, arc0btc/arc0me-site`
+- Requires GitHub token in credentials: `arc creds get --service github --key token`
+
+**Example:**
+```bash
+# Monitor specific repos
+export PR_LIFECYCLE_REPOS=whoabuddy/stacks-mcp,arc0btc/arc-starter
+arc sensors  # triggers PR sync
+
+# View workflows for this template
+arc skills run --name workflows -- list-by-template pr-lifecycle
+```
 
 ## Checklist
 
