@@ -7,7 +7,7 @@
 
 ## Current State
 
-Arc v5 on fresh VM (arc-starter v2). Bootstrap complete — systemd timers, email, wallet active. **Daily budget: $100/day** (increased from $30, per whoabuddy directive 2026-02-28T23:01Z — don't over-optimize early, room in subscription). **Mission balance:** improve own stack + ambassador for AIBTC/Bitcoin on L1+L2. **AIBTC News:** Ordinals Business beat claimed & active, ≥1 signal filed (4-hour rate limit per beat enforced). Stacks prediction markets sensor (stacks-market) active, filing to Ordinals Business beat. Wallet: `arc0btc`, creds at `wallet/password`, `wallet/id`. **Ecosystem research queued:** Zero Authority DAO (collaboration), Bitflow, Zest V2. **X access:** setup needed (task #382).
+Arc v5 on fresh VM (arc-starter v2). Bootstrap complete — systemd timers, email, wallet active. **Daily budget: $100/day** (increased from $30, per whoabuddy directive 2026-02-28T23:01Z — don't over-optimize early, room in subscription). **Mission balance:** improve own stack + ambassador for AIBTC/Bitcoin on L1+L2. **AIBTC News:** Ordinals Business beat claimed & active, ≥1 signal filed (4-hour rate limit per beat enforced). Stacks prediction markets sensor (stacks-market) active, filing to Ordinals Business beat. Wallet: `arc0btc`, creds at `wallet/password`, `wallet/id`. **X access:** setup complete (task #382). **Ecosystem research:** Zero Authority DAO researched (task #380, completed) — strong alignment on reputation + governance coordination. **Queued:** Bitflow, Zest V2.
 
 **Recent Resolutions (2026-02-28):**
 - ✅ **Task #367:** stacks-market sensor fix (targeting Ordinals Business instead of Deal Flow)
@@ -21,6 +21,24 @@ Arc v5 on fresh VM (arc-starter v2). Bootstrap complete — systemd timers, emai
 - ✅ **Task #373 (Sensor audit):** Audited 25 sensors. Health: green. Found 2 issues: (1) **aibtc-maintenance** creates duplicate PR review tasks (priority 3, task #384), (2) **stackspot** creates unnecessary completed tracking tasks (priority 5, task #385). All cadences optimal, 23 sensors clean.
 
 **Blocker Status:** Spark agent SSH access (task #271) — pending setup. Task #369 scheduled for 2026-03-01T01:10:00Z (post-rate-limit window).
+
+## Zero Authority DAO — Collaboration Research (task #380, 2026-02-28)
+
+**What they are:** Public infrastructure DAO for Stacks ecosystem. Focus: trustless coordination, on-chain reputation, governance accessibility, marketplace for Web3 work.
+
+**Key products:**
+- **Reputation System** — "Your Trustless Layer for Gigs, Bounties, and Endorsements"
+- **SIP Tracker** — Community tool for navigating Stacks Improvement Proposals
+- **Marketplace** — Creator profiles, bounties, gig work (partnered with Clarity Alliance for security)
+- **Governance Tools** — SIP-031 endowment coordination, community-driven resource stewardship
+
+**Collaboration opportunities (HIGH POTENTIAL):**
+1. **Reputation integration** — Arc's on-chain identity + BIP-322 signing → validate contributions via Zero Authority reputation layer
+2. **Governance participation** — Arc holds STX (90.67); SIP Tracker could benefit from automated analysis feeds
+3. **Signal-to-reputation bridge** — Extend AIBTC signal filing to Zero Authority bounty/reputation system for verified research
+4. **Marketplace services** — Offer: protocol analysis, signal filing, ecosystem research, automated reporting
+
+**Next steps:** Community engagement (Discord/X), audit their tools, propose specific collaboration (e.g., "Automated SIP Signal Filing" skill).
 
 ## Agent Network (AIBTC Inbox)
 
