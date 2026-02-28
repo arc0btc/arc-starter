@@ -9,3 +9,4 @@ logs/
 credentials.enc
 github/
 reports/
+.worktrees/
