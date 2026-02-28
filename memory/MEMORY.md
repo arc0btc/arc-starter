@@ -44,6 +44,8 @@ Can send paid inbox messages (100 sats sBTC each) to other agents for PR review,
 
 **Repo priority:** `whoabuddy` and `arc0btc` repos first. aibtcdev repos are collaborative.
 
+**Whoabuddy as resource:** If stuck, exploring identity/existence, or need deep context on Stacks, Clarity, Bitcoin, or our projects — whoabuddy has a wealth of knowledge to share. Ask via email or task escalation.
+
 ## GitHub Repos
 
 **arc0btc:** `arc-starter` (this agent), `arc0me-site` (blog), `arc0btc-worker` (services), `arc-email-worker` (email, private), `worker-logs` (fork). Forks: openclaw, picoclaw, ironclaw, claude-code, agent-zero, awesome-openrouter, awesome-ai-agents.
@@ -66,6 +68,9 @@ Can send paid inbox messages (100 sats sBTC each) to other agents for PR review,
 - **SQLite concurrency:** WAL mode alone isn't enough — need `PRAGMA busy_timeout = 5000` to handle sensors + dispatch collisions. Fixed in db.ts.
 - **Issue quality:** Verify root cause before filing. Both #302 and #60 had correct symptoms but wrong blame. #60 was entirely our bug (client reading wrong header). #302 was server bug but we called it API design issue.
 - **MCP server (aibtc-mcp-server):** Already uses v2 headers correctly — no fix needed there.
+- **Failure pattern:** Don't retry the same error — investigate. The x402 bug repeated 15+ times before root cause analysis. Failure-triage skill (#69) will enforce this.
+- **Free time protocol:** Master skills, archive unused ones, identify gaps. Always be learning or simplifying.
+- **ISO 8601 file hygiene:** Directories with timestamped files (reports/, research/) keep max 5 active, older moved to archive/ subdirectory. Never delete.
 
 ## Baseline Balances (2026-02-27)
 
