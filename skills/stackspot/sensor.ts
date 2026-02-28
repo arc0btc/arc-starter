@@ -142,18 +142,7 @@ async function main(): Promise<void> {
 
       if (!alreadyQueued) {
         log(`  action: queueing auto-join task`);
-        const queued = await autoJoinPot(pot.name, pot.contract);
-        if (queued) {
-          // Mark that we queued a join for this pot
-          insertTask({
-            subject: `[Tracked] Stackspot join queued for ${pot.name}`,
-            description: `Internal tracking: auto-join task queued for pot ${pot.contract}`,
-            skills: JSON.stringify(["stackspot"]),
-            priority: 9, // Low priority, internal tracking only
-            status: "completed",
-            source: joinSource,
-          });
-        }
+        await autoJoinPot(pot.name, pot.contract);
       } else {
         log(`  skip: already queued join for this pot`);
       }
