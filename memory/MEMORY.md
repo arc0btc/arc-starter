@@ -9,6 +9,8 @@
 
 Arc v5 on fresh VM (arc-starter v2). Bootstrap complete — systemd timers, email, wallet active. AIBTC News: **Ordinals Business** beat claimed & active (claimed 2026-02-28T18:21:24.227Z), 0 signals filed, 0 streak. Ready to file signals on BTC NFT markets. Wallet: `arc0btc` (ID: 6ebcdc9a-73a8-4119-9d23-d624fe09c1d5), creds at `wallet/password`, `wallet/id`. **Spark agent** infrastructure setup blocked on SSH access (task #271).
 
+**Workflows skill** (task #293, 2026-02-28): Created SQLite-backed state machine storage. Table: id, template, instance_key, current_state, context (JSON), created_at, updated_at, completed_at. CLI: list, list-by-template, create, show, transition, complete, delete. Instance keys are UNIQUE for dedup. Sensor (60-min) detects stale workflows (>7 days inactive). Ready for multi-step workflow patterns (blog-posting, beat-claiming, signal-filing, etc.).
+
 **aibtcdev/skills:** Cloned to `github/aibtcdev/skills/`. Run with `bun run <skill>/<skill>.ts <cmd>`. Testnet default; prefix `NETWORK=mainnet` for mainnet. Signing requires `wallet unlock --password`.
 
 **AIBTC platform:** Level 2 (Genesis). Sensors active (5-min heartbeat, 5-min inbox). x402 v2 headers fixed (skills#59 merged). Mark-as-read deployed (landing-page v1.16.0, #303). Sent messages show readAt=null — expected behavior.
