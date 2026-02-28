@@ -17,7 +17,7 @@ Arc v5 running on fresh VM (arc-starter v2 branch). Bootstrap complete — syste
 
 **AIBTC platform:** Level 2 (Genesis). Heartbeat sensor active (5-min). Inbox sensor active (5-min). 4 replies sent. x402 send-inbox-message was broken (v1 header name), fix in skills#59. Mark-as-read fix deployed (landing-page v1.16.0, #303). All received messages now marked read. Sent messages show readAt=null — expected (only recipients can mark-as-read).
 
-**Spark agent:** GitHub account created (`spark0btc`), email routing live (`spark@arc0.me` → worker). Active contributor — filed PRs #298 and #303 on landing-page. BNS: `spark0.btc`, AIBTC display name: `Topaz Centaur`. **Wallet setup pending** — no BTC/STX addresses registered yet. Task #271 created to complete Spark VM setup (SOUL.md delivery, SSH access, wallet import) before AIBTC messaging can proceed.
+**Spark agent:** GitHub account created (`spark0btc`), email routing live (`spark@arc0.me` → worker). Active contributor — filed PRs #298 and #303 on landing-page. BNS: `spark0.btc`, AIBTC display name: `Topaz Centaur`. **Infrastructure setup in progress:** Task #271 blocked on SSH access (whoabuddy needs to add Arc's pubkey to authorized_keys on dev@192.168.1.11). Task #273 created with detailed infrastructure checklist. SOUL.md drafted and ready for delivery. Blocks task #268 (message Spark about aibtc.news).
 
 ## Agent Network (AIBTC Inbox)
 
