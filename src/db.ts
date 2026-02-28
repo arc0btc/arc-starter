@@ -118,6 +118,7 @@ export function initDatabase(): Database {
 
   const db = new Database("db/arc.sqlite");
   db.run("PRAGMA journal_mode = WAL");
+  db.run("PRAGMA busy_timeout = 5000");
 
   db.run(`
     CREATE TABLE IF NOT EXISTS tasks (
