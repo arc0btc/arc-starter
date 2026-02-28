@@ -4,14 +4,50 @@
 // Runs every 1 minute via sensor cadence gating.
 
 import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource, getUnreadEmailMessages, type EmailMessage } from "../../src/db.ts";
-import { syncEmail } from "./sync.ts";
+import { initDatabase, insertTask, pendingTaskExistsForSource, getUnreadEmailMessages, markEmailRead, type EmailMessage } from "../../src/db.ts";
+import { syncEmail, getEmailCredentials } from "./sync.ts";
 
 const SENSOR_NAME = "email";
 const INTERVAL_MINUTES = 1;
 
 function log(msg: string): void {
   console.log(`[${new Date().toISOString()}] [email/sensor] ${msg}`);
+}
+
+// --- Noise filter ---
+// Auto-dismiss GitHub automated notifications that don't need a dispatch cycle.
+// Matches: CI run results, Dependabot PRs, GitHub account alerts, push notifications.
+
+const NOISE_SENDERS = new Set([
+  "notifications@github.com", // CI run results (Actions)
+]);
+
+const NOISE_SUBJECT_PATTERNS: RegExp[] = [
+  /\bRun (failed|passed|cancelled|completed)\b/i,    // GitHub Actions CI
+  /\bdependabot\b/i,                                  // Dependabot PRs
+  /\[GitHub\]/i,                                       // GitHub account notifications (SSH keys, etc.)
+  /Your GitHub launch code/i,                          // Onboarding spam
+];
+
+function isNoiseEmail(msg: EmailMessage): boolean {
+  // All emails from notifications@github.com are CI noise
+  if (NOISE_SENDERS.has(msg.from_address)) return true;
+
+  // Check subject patterns against any sender
+  const subject = msg.subject ?? "";
+  return NOISE_SUBJECT_PATTERNS.some((pattern) => pattern.test(subject));
+}
+
+async function markReadQuietly(remoteId: string, apiBaseUrl: string, adminKey: string): Promise<void> {
+  markEmailRead(remoteId);
+  try {
+    await fetch(`${apiBaseUrl}/api/messages/${remoteId}/read`, {
+      method: "POST",
+      headers: { "X-Admin-Key": adminKey },
+    });
+  } catch {
+    // Best-effort remote mark — local is already done
+  }
 }
 
 export default async function emailSensor(): Promise<string> {
@@ -28,8 +64,32 @@ export default async function emailSensor(): Promise<string> {
   }
 
   // Check for unread inbox messages
-  const unread = getUnreadEmailMessages();
-  log(`unread inbox: ${unread.length} message(s)`);
+  const allUnread = getUnreadEmailMessages();
+  log(`unread inbox: ${allUnread.length} message(s)`);
+
+  if (allUnread.length === 0) return "ok";
+
+  // Filter out GitHub automated noise — mark as read without creating tasks
+  const noise = allUnread.filter(isNoiseEmail);
+  const unread = allUnread.filter((msg) => !isNoiseEmail(msg));
+
+  if (noise.length > 0) {
+    log(`filtering ${noise.length} noise email(s) — marking as read`);
+    let creds: { apiBaseUrl: string; adminKey: string } | null = null;
+    try {
+      creds = await getEmailCredentials();
+    } catch {
+      log("could not load email credentials for remote mark-read — local only");
+    }
+    for (const msg of noise) {
+      log(`  noise: [${msg.from_address}] ${msg.subject ?? "(no subject)"}`);
+      if (creds) {
+        await markReadQuietly(msg.remote_id, creds.apiBaseUrl, creds.adminKey);
+      } else {
+        markEmailRead(msg.remote_id);
+      }
+    }
+  }
 
   if (unread.length === 0) return "ok";
 
