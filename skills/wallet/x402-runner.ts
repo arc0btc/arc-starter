@@ -36,19 +36,35 @@ try {
 const x402Args = process.argv.slice(2); // everything after x402-runner.ts
 process.argv = ["bun", "x402.ts", ...x402Args];
 
+// Monkey-patch Commander's parse() to use parseAsync() so we can await the
+// async action. x402.ts calls program.parse() at module level which starts
+// the async action but never awaits it. Without this patch, the process exits
+// before the network request completes.
+const { Command } = await import("../../github/aibtcdev/skills/node_modules/commander/index.js");
+let parseResult: Promise<unknown> | null = null;
+const origParse = Command.prototype.parse;
+Command.prototype.parse = function (this: InstanceType<typeof Command>, ...args: unknown[]) {
+  parseResult = this.parseAsync(...(args as [string[]?, object?]));
+  return this;
+};
+
 // Dynamically import the x402 script. It calls program.parse(process.argv)
-// at module level, which will now see our overridden argv.
+// at module level, which now uses our patched parseAsync.
 try {
   await import("../../github/aibtcdev/skills/x402/x402.ts");
+  // Wait for the async Commander action to complete (network calls, etc.)
+  if (parseResult) {
+    await parseResult;
+  }
 } catch (err) {
   const msg = err instanceof Error ? err.message : String(err);
   console.log(JSON.stringify({ success: false, error: "x402 command failed", detail: msg }));
   wm.lock();
   process.exit(1);
+} finally {
+  // Restore original parse
+  Command.prototype.parse = origParse;
 }
 
-// Lock after command completes. Small delay to let Commander's async action finish.
-setTimeout(() => {
-  wm.lock();
-  process.exit(0);
-}, 500);
+wm.lock();
+process.exit(0);
