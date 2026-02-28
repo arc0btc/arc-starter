@@ -1,5 +1,5 @@
 import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { initDatabase, insertTask, taskExistsForSource, pendingTaskExistsForSource } from "../../src/db.ts";
 import { spawnSync } from "node:child_process";
 
 const SENSOR_NAME = "aibtc-maintenance";
@@ -116,7 +116,7 @@ export default async function aibtcMaintenanceSensor(): Promise<string> {
 
   for (const pr of unreviewed) {
     const source = `sensor:aibtc-maintenance:pr:${pr.repo}#${pr.number}`;
-    if (pendingTaskExistsForSource(source)) continue;
+    if (taskExistsForSource(source)) continue;
 
     insertTask({
       subject: `Review PR #${pr.number} on ${pr.repo}: ${pr.title}`,
