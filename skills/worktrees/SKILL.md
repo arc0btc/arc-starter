@@ -1,3 +1,12 @@
+---
+name: worktrees
+description: Opt-in git worktree isolation for high-risk dispatch tasks
+tags:
+  - isolation
+  - safety
+  - dispatch
+---
+
 # Worktrees
 
 Opt-in isolation for high-risk dispatch tasks using git worktrees. When a task includes `"worktrees"` in its skills array, dispatch runs Claude Code in an isolated copy of the repo. Changes only reach the main tree after syntax validation passes.

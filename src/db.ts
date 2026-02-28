@@ -58,7 +58,7 @@ export interface InsertCycleLog {
   skills_loaded?: string | null;
 }
 
-// ---- AIBTC inbox types ----
+// ---- Workflow types ----
 
 export interface Workflow {
   id: number;
