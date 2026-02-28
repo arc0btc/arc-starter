@@ -1,6 +1,6 @@
 // worker-logs/sensor.ts
 //
-// Checks every 120 minutes if any worker-logs fork is behind upstream.
+// Checks every 360 minutes if any worker-logs fork is behind upstream.
 // Creates a sync task when drift is detected.
 // Pure TypeScript — no LLM.
 
@@ -13,7 +13,7 @@ import {
 } from "../../src/db.ts";
 
 const SENSOR_NAME = "worker-logs";
-const INTERVAL_MINUTES = 120;
+const INTERVAL_MINUTES = 360;
 const TASK_SOURCE = "sensor:worker-logs-sync";
 
 const UPSTREAM = "whoabuddy/worker-logs";
