@@ -13,19 +13,22 @@ Monitors watched GitHub repos for new releases. When a new release is detected, 
 
 ## How It Works
 
-The sensor runs every 120 minutes. For each watched repo, it calls `gh api /repos/:owner/:repo/releases/latest` and compares the tag against stored state in `db/hook-state/release-watcher.json`. When a new tag is found, it creates a low-priority task to review the release.
+The sensor runs every 360 minutes (6 hours). For each watched repo, it calls `gh api /repos/:owner/:repo/releases/latest` and compares the tag against stored state in `db/hook-state/release-watcher-tags.json`. When a new tag is found, it creates a task to review the release.
 
 ## Watched Repos
 
-Same list as aibtc-maintenance:
-- `aibtcdev/landing-page`
-- `aibtcdev/skills`
-- `aibtcdev/x402-api`
-- `aibtcdev/aibtc-mcp-server`
+Core dependencies and ecosystem repos:
+- `oven-sh/bun` — our runtime
+- `anthropics/claude-code` — our dispatch engine
+- `anthropics/anthropic-sdk-typescript` — API SDK
+- `stacks-network/stacks-core` — L2 we build on
+- `hirosystems/stacks.js` — Stacks JS SDK
+- `aibtcdev/skills` — our reference toolkit
+- `aibtcdev/aibtc-mcp-server` — MCP server
 
 ## Sensor Behavior
 
-- **Interval:** 120 minutes
+- **Interval:** 360 minutes (6 hours)
 - **Dedup:** Uses `taskExistsForSource()` — one task per release tag per repo, ever
 - **Source format:** `sensor:release-watcher:{owner}/{repo}@{tag}`
 - **Priority:** 7 (low, informational)

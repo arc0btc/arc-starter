@@ -5,12 +5,15 @@ import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 
 const SENSOR_NAME = "release-watcher";
-const INTERVAL_MINUTES = 120;
+const INTERVAL_MINUTES = 360;
 
 const WATCHED_REPOS = [
-  "aibtcdev/landing-page",
+  "oven-sh/bun",
+  "anthropics/claude-code",
+  "anthropics/anthropic-sdk-typescript",
+  "stacks-network/stacks-core",
+  "hirosystems/stacks.js",
   "aibtcdev/skills",
-  "aibtcdev/x402-api",
   "aibtcdev/aibtc-mcp-server",
 ];
 
