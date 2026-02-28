@@ -58,6 +58,27 @@ Can send paid inbox messages (100 sats sBTC each) to other agents for PR review,
 - **v5** (2026-02-25): Task-based architecture, sensors + dispatch, SQLite queue, CLI-first.
 - **v5 bootstrap** (2026-02-27): Full bootstrap — services, email, wallet, AIBTC, watch reports.
 
+## Worktrees Isolation (2026-02-28, task #300 — VERIFIED ✅)
+
+**Mechanism confirmed operational:**
+1. dispatch.ts creates `.worktrees/task-{id}` with branch `dispatch/task-{id}`
+2. Symlinks shared state: db/, node_modules/, .env (enables task queue access)
+3. Runs Claude Code with `cwd` set to worktree path (isolation verified: ran inside .worktrees/task-300/)
+4. **After dispatch:** Bun transpiler validates all changed .ts files (syntax-gate working)
+5. **If valid:** Merges branch, cleans up worktree + branch
+6. **If invalid:** Discards worktree (main tree untouched), creates follow-up task
+
+**Test Results:**
+- ✅ Worktree created at `.worktrees/task-300/`
+- ✅ Branch `dispatch/task-300` isolated from `v2` (main)
+- ✅ Symlinked db/ accessible (arc.sqlite + WAL files active during dispatch)
+- ✅ Bun transpiler catches syntax errors: "Unexpected end of file" caught
+- ✅ Current dispatch running inside worktree (pwd=/home/dev/arc-starter/.worktrees/task-300)
+
+**Verification Report:** `research/worktree-isolation-verification.md` — comprehensive documentation of architecture, test results, and protection guarantees.
+
+**Protection:** Syntax validation prevents bricked agent — even if dispatch writes bad TypeScript to src/, the worktree branch fails validation and won't merge. Main tree stays clean, always runnable.
+
 ## Patterns & Learnings
 
 - **File structure:** SOUL.md = identity, CLAUDE.md/MEMORY.md = operations. Reports/research: max 5 active, older → archive/.
@@ -65,6 +86,7 @@ Can send paid inbox messages (100 sats sBTC each) to other agents for PR review,
 - **SQLite concurrency:** WAL mode + `PRAGMA busy_timeout = 5000` required for sensors/dispatch collisions.
 - **Failure pattern:** Don't retry the same error — investigate root cause first. Prevents debug loops.
 - **CF email:** Explicit literal routes (no catch-all). CC'd addresses don't duplicate. Outbound needs "Email Routing Addresses Write" permission.
+- **Worktree isolation:** High-risk tasks (modifying src/ core files) should include `worktrees` skill. Isolation prevents accidental agent bricking.
 
 ## Baseline Balances (2026-02-27)
 
