@@ -8,6 +8,7 @@ import * as fs from "fs";
 
 const SENSOR_NAME = "blog-publishing";
 const INTERVAL_MINUTES = 60;
+const WEEKLY_MINUTES = 7 * 24 * 60; // 7 days in minutes
 
 function log(msg: string): void {
   console.log(`[${new Date().toISOString()}] [sensor:blog-publishing] ${msg}`);
@@ -54,6 +55,50 @@ function parseFrontmatter(content: string): Frontmatter {
   return fm;
 }
 
+// Find the most recent published blog post's creation date
+function getMostRecentPostDate(): Date | null {
+  const postsDir = getPostsDir();
+  if (!fs.existsSync(postsDir)) return null;
+
+  let mostRecentDate: Date | null = null;
+
+  try {
+    const years = fs.readdirSync(postsDir, { withFileTypes: true }).filter((d) => d.isDirectory());
+
+    for (const yearDir of years) {
+      const yearPath = path.join(postsDir, yearDir.name);
+      const dateDirs = fs.readdirSync(yearPath, { withFileTypes: true }).filter((d) => d.isDirectory());
+
+      for (const dateDir of dateDirs) {
+        const datePath = path.join(yearPath, dateDir.name);
+        const slugDirs = fs.readdirSync(datePath, { withFileTypes: true }).filter((d) => d.isDirectory());
+
+        for (const slugDir of slugDirs) {
+          const indexPath = path.join(datePath, slugDir.name, "index.md");
+          if (!fs.existsSync(indexPath)) continue;
+
+          const content = fs.readFileSync(indexPath, "utf-8");
+          const fm = parseFrontmatter(content);
+
+          // Check if published (either has published_at or draft=false)
+          if (fm.published_at || (fm.draft === false)) {
+            const postDate = new Date(dateDir.name);
+            if (isNaN(postDate.getTime())) continue;
+
+            if (!mostRecentDate || postDate > mostRecentDate) {
+              mostRecentDate = postDate;
+            }
+          }
+        }
+      }
+    }
+  } catch (e) {
+    log(`error scanning posts for recent date: ${e instanceof Error ? e.message : String(e)}`);
+  }
+
+  return mostRecentDate;
+}
+
 export default async function blogPublishingSensor(): Promise<string> {
   try {
     initDatabase();
@@ -71,6 +116,20 @@ export default async function blogPublishingSensor(): Promise<string> {
 
     let oldestDraft: { postId: string; date: string } | null = null;
     let scheduledReady: { postId: string; scheduledFor: string } | null = null;
+    let timeForNewContent = false;
+
+    // Check if it's time to generate new content (weekly cadence)
+    const mostRecentPostDate = getMostRecentPostDate();
+    if (mostRecentPostDate) {
+      const now = new Date();
+      const daysSinceLastPost = (now.getTime() - mostRecentPostDate.getTime()) / (1000 * 60 * 60 * 24);
+      if (daysSinceLastPost >= 7) {
+        timeForNewContent = true;
+      }
+    } else {
+      // No posts exist yet - time to create the first one
+      timeForNewContent = true;
+    }
 
     try {
       const years = fs.readdirSync(postsDir, { withFileTypes: true }).filter((d) => d.isDirectory());
@@ -145,6 +204,22 @@ export default async function blogPublishingSensor(): Promise<string> {
           skills: JSON.stringify(["blog-publishing"]),
         });
         log(`queued scheduled post publish: ${scheduledReady.postId}`);
+        return "ok";
+      }
+    }
+
+    // Queue task for content generation if weekly cadence reached
+    if (timeForNewContent) {
+      const source = "sensor:blog-publishing:content-generation";
+      if (!pendingTaskExistsForSource(source)) {
+        insertTask({
+          subject: "Generate new blog post from recent activity",
+          description: "Weekly blog cadence: create draft post from recent watch reports and work summary.",
+          source,
+          priority: 6,
+          skills: JSON.stringify(["blog-publishing"]),
+        });
+        log("queued content generation task");
         return "ok";
       }
     }

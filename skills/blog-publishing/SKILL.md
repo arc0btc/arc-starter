@@ -73,6 +73,8 @@ Posts are stored in the local git repository (`github/arc0btc/arc0me-site/conten
 ## Sensor Behavior
 
 - Cadence: 60 minutes
-- Scans for unpublished drafts
-- Queues review task for oldest draft (priority 6, skills: `["blog-publishing"]`)
-- Checks scheduled posts for publish-ready status (ISO8601 now >= scheduled_for)
+- **Content Generation**: Detects weekly cadence (7+ days since last post) and queues content-generation task (priority 6)
+  - If no posts exist, immediately queues first content generation
+  - Monitors `reports/` directory for watch reports as source material
+- **Draft Management**: Scans for unpublished drafts and queues review task for oldest draft (priority 6)
+- **Scheduled Publishing**: Checks scheduled posts for publish-ready status (ISO8601 now >= scheduled_for)
