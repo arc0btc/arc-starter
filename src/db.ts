@@ -60,6 +60,26 @@ export interface InsertCycleLog {
 
 // ---- AIBTC inbox types ----
 
+export interface Workflow {
+  id: number;
+  template: string;
+  instance_key: string;
+  current_state: string;
+  context: string; // JSON string
+  created_at: string;
+  updated_at: string;
+  completed_at: string | null;
+}
+
+export interface InsertWorkflow {
+  template: string;
+  instance_key: string;
+  current_state: string;
+  context?: string | null;
+}
+
+// ---- AIBTC inbox types ----
+
 export interface AibtcInboxMessage {
   id: number;
   message_id: string;
@@ -202,6 +222,21 @@ export function initDatabase(): Database {
     )
   `);
   db.run("CREATE INDEX IF NOT EXISTS idx_aibtc_inbox_unread ON aibtc_inbox_messages(direction, read_at)");
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS workflows (
+      id INTEGER PRIMARY KEY,
+      template TEXT NOT NULL,
+      instance_key TEXT UNIQUE NOT NULL,
+      current_state TEXT NOT NULL,
+      context TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now')),
+      completed_at TEXT
+    )
+  `);
+  db.run("CREATE INDEX IF NOT EXISTS idx_workflows_template ON workflows(template)");
+  db.run("CREATE INDEX IF NOT EXISTS idx_workflows_instance_key ON workflows(instance_key)");
 
   _db = db;
   return db;
@@ -502,6 +537,61 @@ export function getAllAibtcInboxMessageIds(): Set<string> {
   const db = getDatabase();
   const rows = db.query("SELECT message_id FROM aibtc_inbox_messages").all() as Array<{ message_id: string }>;
   return new Set(rows.map((r) => r.message_id));
+}
+
+// ---- Workflow queries ----
+
+export function insertWorkflow(fields: InsertWorkflow): number {
+  const db = getDatabase();
+  const result = db
+    .query(
+      "INSERT INTO workflows (template, instance_key, current_state, context) VALUES (?, ?, ?, ?)"
+    )
+    .run(fields.template, fields.instance_key, fields.current_state, fields.context ?? null);
+  return Number(result.lastInsertRowid);
+}
+
+export function getWorkflowById(id: number): Workflow | null {
+  const db = getDatabase();
+  return db.query("SELECT * FROM workflows WHERE id = ?").get(id) as Workflow | null;
+}
+
+export function getWorkflowByInstanceKey(instanceKey: string): Workflow | null {
+  const db = getDatabase();
+  return db.query("SELECT * FROM workflows WHERE instance_key = ?").get(instanceKey) as Workflow | null;
+}
+
+export function getWorkflowsByTemplate(template: string): Workflow[] {
+  const db = getDatabase();
+  return db
+    .query("SELECT * FROM workflows WHERE template = ? ORDER BY updated_at DESC")
+    .all(template) as Workflow[];
+}
+
+export function getAllActiveWorkflows(): Workflow[] {
+  const db = getDatabase();
+  return db
+    .query("SELECT * FROM workflows WHERE completed_at IS NULL ORDER BY updated_at DESC")
+    .all() as Workflow[];
+}
+
+export function updateWorkflowState(id: number, newState: string, context?: string | null): void {
+  const db = getDatabase();
+  db.query(
+    "UPDATE workflows SET current_state = ?, context = ?, updated_at = datetime('now') WHERE id = ?"
+  ).run(newState, context ?? null, id);
+}
+
+export function completeWorkflow(id: number): void {
+  const db = getDatabase();
+  db.query(
+    "UPDATE workflows SET completed_at = datetime('now'), updated_at = datetime('now') WHERE id = ?"
+  ).run(id);
+}
+
+export function deleteWorkflow(id: number): void {
+  const db = getDatabase();
+  db.query("DELETE FROM workflows WHERE id = ?").run(id);
 }
 
 // ---- Main (smoke test when run directly) ----
