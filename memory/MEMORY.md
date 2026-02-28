@@ -11,6 +11,8 @@ Arc v5 on fresh VM (arc-starter v2). Bootstrap complete — systemd timers, emai
 
 **Workflows skill** (task #293, 2026-02-28): Created SQLite-backed state machine storage. Table: id, template, instance_key, current_state, context (JSON), created_at, updated_at, completed_at. CLI: list, list-by-template, create, show, transition, complete, delete. Instance keys are UNIQUE for dedup. Sensor (60-min) detects stale workflows (>7 days inactive). Ready for multi-step workflow patterns (blog-posting, beat-claiming, signal-filing, etc.).
 
+**worker-logs sync** (task #292, 2026-02-28): ✅ Synced `arc0btc/worker-logs` (was 1 commit behind, now in sync). ⏸️ `aibtcdev/worker-logs` requires manual merge (12 commits behind, 6 custom commits for KV config/branding/admin features, merge conflicts detected). Task #301 escalated to Spark for review.
+
 **aibtcdev/skills:** Cloned to `github/aibtcdev/skills/`. Run with `bun run <skill>/<skill>.ts <cmd>`. Testnet default; prefix `NETWORK=mainnet` for mainnet. Signing requires `wallet unlock --password`.
 
 **AIBTC platform:** Level 2 (Genesis). Sensors active (5-min heartbeat, 5-min inbox). x402 v2 headers fixed (skills#59 merged). Mark-as-read deployed (landing-page v1.16.0, #303). Sent messages show readAt=null — expected behavior.
