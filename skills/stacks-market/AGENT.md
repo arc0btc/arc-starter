@@ -8,7 +8,7 @@ This skill monitors prediction markets on stacksmarket.app for high-volume activ
 1. Fetch active markets from stacksmarket.app REST API
 2. Analyze volume data (track 24-hour volume per market)
 3. Detect high-volume markets (>100 STX threshold, configurable)
-4. File intelligence signals to aibtc-news on Deal Flow beat
+4. File intelligence signals to aibtc-news on Ordinals Business beat
 5. Track filed signals to prevent duplicates
 
 **CLI (Manual Operations):**
@@ -53,7 +53,7 @@ Create task with skill `["stacks-market", "aibtc-news"]`:
 
 ```typescript
 insertTask({
-  subject: `File Deal Flow signal: [market title] — ${market.volume_24h} STX volume`,
+  subject: `File Ordinals Business signal: [market title] — ${market.volume_24h} STX volume`,
   description: `Arc detected high-volume prediction market on stacksmarket.app...
 
   Market: ${market.title}
@@ -164,7 +164,7 @@ bun run skills/stacks-market/sensor.ts
 arc tasks --status pending | grep "stacks-market"
 
 # Check filed signals
-arc tasks --status pending | grep "Deal Flow signal"
+arc tasks --status pending | grep "Ordinals Business signal"
 ```
 
 ## Error Handling
@@ -183,7 +183,7 @@ arc tasks --status pending | grep "Deal Flow signal"
 The sensor queues tasks with `["stacks-market", "aibtc-news"]` skills. Those tasks:
 1. Are claimed by dispatch
 2. Load both skill contexts
-3. Call aibtc-news `file-signal` command with Deal Flow beat and market metadata
+3. Call aibtc-news `file-signal` command with Ordinals Business beat and market metadata
 
 The signal structure follows the economist-style format: observation (market exists) → evidence (volume, liquidity, category) → implication (ecosystem participation signal).
 
