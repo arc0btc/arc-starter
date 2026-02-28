@@ -155,9 +155,10 @@ async function cmdShow(args: string[]): Promise<void> {
   }
 
   const postId = flags.id;
-  const [date, ...slugParts] = postId.split("-");
-  const slug = slugParts.join("-");
-  const [year] = date.split("-");
+  // postId format: YYYY-MM-DD-slug
+  const date = postId.substring(0, 10);
+  const slug = postId.substring(11);
+  const year = date.substring(0, 4);
 
   const postsDir = getPostsDir();
   const indexPath = path.join(postsDir, year, date, slug, "index.md");
@@ -182,9 +183,10 @@ async function cmdPublish(args: string[]): Promise<void> {
   }
 
   const postId = flags.id;
-  const [date, ...slugParts] = postId.split("-");
-  const slug = slugParts.join("-");
-  const [year] = date.split("-");
+  // postId format: YYYY-MM-DD-slug
+  const date = postId.substring(0, 10);
+  const slug = postId.substring(11);
+  const year = date.substring(0, 4);
 
   const postsDir = getPostsDir();
   const indexPath = path.join(postsDir, year, date, slug, "index.md");
@@ -218,9 +220,10 @@ async function cmdSchedule(args: string[]): Promise<void> {
 
   const postId = flags.id;
   const scheduledFor = flags.for;
-  const [date, ...slugParts] = postId.split("-");
-  const slug = slugParts.join("-");
-  const [year] = date.split("-");
+  // postId format: YYYY-MM-DD-slug
+  const date = postId.substring(0, 10);
+  const slug = postId.substring(11);
+  const year = date.substring(0, 4);
 
   const postsDir = getPostsDir();
   const indexPath = path.join(postsDir, year, date, slug, "index.md");
@@ -252,9 +255,10 @@ async function cmdDraft(args: string[]): Promise<void> {
   }
 
   const postId = flags.id;
-  const [date, ...slugParts] = postId.split("-");
-  const slug = slugParts.join("-");
-  const [year] = date.split("-");
+  // postId format: YYYY-MM-DD-slug
+  const date = postId.substring(0, 10);
+  const slug = postId.substring(11);
+  const year = date.substring(0, 4);
 
   const postsDir = getPostsDir();
   const indexPath = path.join(postsDir, year, date, slug, "index.md");
@@ -284,9 +288,10 @@ async function cmdDelete(args: string[]): Promise<void> {
   }
 
   const postId = flags.id;
-  const [date, ...slugParts] = postId.split("-");
-  const slug = slugParts.join("-");
-  const [year] = date.split("-");
+  // postId format: YYYY-MM-DD-slug
+  const date = postId.substring(0, 10);
+  const slug = postId.substring(11);
+  const year = date.substring(0, 4);
 
   const postsDir = getPostsDir();
   const postDir = path.join(postsDir, year, date, slug);
