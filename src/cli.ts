@@ -287,7 +287,10 @@ function cmdSkillsShow(args: string[]): void {
 }
 
 function cmdSkillsRun(args: string[]): void {
-  const { flags } = parseFlags(args);
+  // Parse flags only up to the first --, so skill args don't override --name
+  const dashDashIdx = args.indexOf("--");
+  const argsUpToDashDash = dashDashIdx >= 0 ? args.slice(0, dashDashIdx) : args;
+  const { flags } = parseFlags(argsUpToDashDash);
   const skillName = flags["name"];
   if (!skillName) {
     process.stderr.write("Error: --name is required\n");
@@ -310,7 +313,6 @@ function cmdSkillsRun(args: string[]): void {
 
   const cliPath = join(skill.path, "cli.ts");
   // Pass through everything after -- as skill args
-  const dashDashIdx = args.indexOf("--");
   const skillArgs = dashDashIdx >= 0 ? args.slice(dashDashIdx + 1) : [];
 
   const result = spawnSync("bun", [cliPath, ...skillArgs], {

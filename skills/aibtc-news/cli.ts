@@ -77,29 +77,32 @@ async function signMessage(message: string): Promise<string> {
     throw new Error(`Wallet signing failed: ${stderr}`);
   }
 
-  // Extract JSON output from stdout
-  const lines = stdout.trim().split("\n");
-  let jsonLine = "";
-  for (let i = lines.length - 1; i >= 0; i--) {
-    if (lines[i].startsWith("{")) {
-      jsonLine = lines[i];
-      break;
+  // Extract JSON output from stdout (wallet outputs logs to stderr, JSON to stdout)
+  const combined = (stdout + stderr).trim();
+
+  // Find the first { and try to parse from there
+  const jsonStart = combined.indexOf("{");
+  if (jsonStart === -1) {
+    throw new Error(`No JSON output from wallet signing. Output: ${combined}`);
+  }
+
+  // Try parsing from the first { onwards, handling potential trailing garbage
+  for (let endIdx = combined.length; endIdx > jsonStart; endIdx--) {
+    try {
+      const potentialJson = combined.substring(jsonStart, endIdx);
+      const result = JSON.parse(potentialJson);
+      if (result.signatureBase64) {
+        return result.signatureBase64;
+      }
+      if (result.signature) {
+        return result.signature;
+      }
+    } catch {
+      // Try shorter substring
     }
   }
 
-  if (!jsonLine) {
-    throw new Error(`No JSON output from wallet signing. Stdout: ${stdout}`);
-  }
-
-  try {
-    const result = JSON.parse(jsonLine);
-    if (result.signature) {
-      return result.signature;
-    }
-    throw new Error("No signature field in wallet response");
-  } catch (e) {
-    throw new Error(`Failed to parse wallet response: ${jsonLine}`);
-  }
+  throw new Error(`No valid signature field in wallet response. Output: ${combined}`);
 }
 
 function validateBtcAddress(addr: string): boolean {
