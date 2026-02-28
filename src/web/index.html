@@ -5,14 +5,798 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Arc Dashboard</title>
   <style>
-    body { background: #000; color: #fff; font-family: system-ui, sans-serif; margin: 2rem; }
-    h1 { color: #FEC233; }
-    p { color: #E9D4CF; }
+    /* ---- Reset & Design Tokens ---- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #000000;
+      --bg-card:     #0c0c0e;
+      --text:        #ffffff;
+      --text-muted:  #E9D4CF;
+      --accent:      #FEC233;
+      --accent-deep: #EA9922;
+      --border:      #1a1a1c;
+      --success:     #22c55e;
+      --error:       #ef4444;
+      --blocked:     #f59e0b;
+
+      --font:      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "Courier New", "Menlo", "Monaco", monospace;
+
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2rem;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-deep); }
+
+    /* ---- Header ---- */
+    .header {
+      border-bottom: 1px solid var(--border);
+      padding: var(--space-md) var(--space-lg);
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+    }
+
+    .header-identity {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      flex-shrink: 0;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      background: var(--bg-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .header-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .header-bns {
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .status-dot.live {
+      background: var(--success);
+      box-shadow: 0 0 6px var(--success);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    .status-dot.offline { background: #555; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .header-stats {
+      display: flex;
+      align-items: center;
+      gap: var(--space-lg);
+      margin-left: auto;
+    }
+
+    .cost-ticker {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--accent);
+    }
+
+    .cost-ticker .label {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: var(--space-md);
+      font-size: 0.85rem;
+    }
+
+    .header-nav a {
+      color: var(--text-muted);
+      transition: color 0.15s;
+    }
+    .header-nav a:hover { color: var(--accent); }
+
+    /* ---- Main Container ---- */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--space-lg);
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-lg);
+      flex: 1;
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        grid-template-columns: 1fr 1fr;
+      }
+      #feed { grid-column: 1 / -1; }
+    }
+
+    @media (min-width: 1024px) {
+      .container {
+        grid-template-columns: 2fr 1fr;
+      }
+      #feed { grid-column: 1 / -1; }
+    }
+
+    /* ---- Section ---- */
+    .section {
+      min-width: 0;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+      padding-left: var(--space-sm);
+      border-left: 3px solid var(--accent);
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
+
+    .section-count {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ---- Card ---- */
+    .card {
+      background: var(--bg-card);
+      border-left: 4px solid var(--accent);
+      padding: var(--space-lg);
+      border-radius: 2px;
+      transition: border-color 0.2s;
+    }
+
+    .card:hover {
+      border-left-color: var(--accent-deep);
+    }
+
+    .card + .card {
+      margin-top: var(--space-sm);
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: var(--space-xs);
+    }
+
+    .card-meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* ---- Pill Badge ---- */
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .pill-gold {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    .pill-muted {
+      background: var(--border);
+      color: var(--text-muted);
+    }
+
+    .pill-success {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--success);
+    }
+
+    .pill-error {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--error);
+    }
+
+    .pill-blocked {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--blocked);
+    }
+
+    /* ---- Status Badges (task status) ---- */
+    .badge-pending   { background: var(--border); color: var(--text-muted); }
+    .badge-active    { background: rgba(254, 194, 51, 0.15); color: var(--accent); }
+    .badge-completed { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+    .badge-failed    { background: rgba(239, 68, 68, 0.15); color: var(--error); }
+    .badge-blocked   { background: rgba(245, 158, 11, 0.15); color: var(--blocked); }
+
+    /* ---- Activity Feed ---- */
+    .feed-list {
+      list-style: none;
+    }
+
+    .feed-item {
+      background: var(--bg-card);
+      border-left: 4px solid var(--border);
+      padding: var(--space-md) var(--space-lg);
+      border-radius: 2px;
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-md);
+    }
+
+    .feed-item + .feed-item {
+      margin-top: var(--space-xs);
+    }
+
+    .feed-item.active {
+      border-left-color: var(--accent);
+      animation: pulse-border 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-border {
+      0%, 100% { border-left-color: var(--accent); }
+      50% { border-left-color: var(--accent-deep); }
+    }
+
+    .feed-item.completed { border-left-color: var(--success); }
+    .feed-item.failed    { border-left-color: var(--error); }
+
+    .feed-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .feed-subject {
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .feed-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      margin-top: var(--space-xs);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ---- Sensor Grid ---- */
+    .sensor-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-sm);
+    }
+
+    @media (min-width: 768px) {
+      .sensor-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (min-width: 1024px) {
+      .sensor-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .sensor-card {
+      background: var(--bg-card);
+      border-left: 3px solid var(--border);
+      padding: var(--space-md);
+      border-radius: 2px;
+    }
+
+    .sensor-card.ok    { border-left-color: var(--success); }
+    .sensor-card.error { border-left-color: var(--error); }
+    .sensor-card.stale { border-left-color: #555; }
+
+    .sensor-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .sensor-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .sensor-detail {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      margin-top: var(--space-xs);
+    }
+
+    /* ---- Metrics ---- */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-sm);
+    }
+
+    .metric-card {
+      background: var(--bg-card);
+      border-left: 3px solid var(--accent);
+      padding: var(--space-md);
+      border-radius: 2px;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--accent);
+      line-height: 1.2;
+    }
+
+    .metric-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: var(--space-xs);
+    }
+
+    .cost-bar-chart {
+      margin-top: var(--space-md);
+      background: var(--bg-card);
+      border-left: 3px solid var(--accent);
+      padding: var(--space-md);
+      border-radius: 2px;
+    }
+
+    .cost-bar-chart .chart-title {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: var(--space-sm);
+    }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-xs);
+    }
+
+    .bar-label {
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      width: 36px;
+      flex-shrink: 0;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px;
+      transition: width 0.3s;
+    }
+
+    .bar-value {
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      width: 48px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* ---- Skill Catalog ---- */
+    .skill-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-sm);
+    }
+
+    @media (min-width: 640px) {
+      .skill-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .skill-card {
+      background: var(--bg-card);
+      border-left: 3px solid var(--border);
+      padding: var(--space-md);
+      border-radius: 2px;
+    }
+
+    .skill-card-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: var(--space-xs);
+    }
+
+    .skill-card-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: var(--space-sm);
+    }
+
+    .skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .skill-tag {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-size: 0.6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      background: rgba(254, 194, 51, 0.12);
+      color: var(--accent);
+    }
+
+    .skill-badge {
+      display: inline-block;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      background: var(--border);
+      color: var(--text-muted);
+      margin-left: var(--space-xs);
+    }
+
+    /* ---- Identity Card ---- */
+    .identity-card {
+      background: var(--bg-card);
+      border-left: 4px solid var(--accent);
+      padding: var(--space-lg);
+      border-radius: 2px;
+    }
+
+    .identity-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    .identity-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .identity-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .identity-bns {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--accent);
+    }
+
+    .identity-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) 0;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+    }
+
+    .identity-label {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      width: 48px;
+      flex-shrink: 0;
+    }
+
+    .identity-value {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .identity-links {
+      display: flex;
+      gap: var(--space-md);
+      margin-top: var(--space-md);
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--border);
+    }
+
+    .identity-links a {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      transition: color 0.15s;
+    }
+    .identity-links a:hover { color: var(--accent); }
+
+    /* ---- Footer ---- */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: var(--space-lg);
+      text-align: center;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-lg);
+      flex-wrap: wrap;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .footer-inner a { color: var(--text-muted); }
+    .footer-inner a:hover { color: var(--accent); }
+
+    .footer-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+
+    /* ---- Loading Placeholder ---- */
+    .placeholder {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-style: italic;
+      padding: var(--space-md) 0;
+    }
+
+    /* ---- Scrollbar ---- */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #333; }
   </style>
 </head>
 <body>
-  <h1>Arc Dashboard</h1>
-  <p>API server running. Frontend coming in Phase 2.</p>
-  <p>Endpoints: /api/status, /api/tasks, /api/cycles, /api/sensors, /api/skills, /api/costs, /api/identity, /api/events</p>
+
+  <!-- ---- Header ---- -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-identity">
+        <div class="avatar">A</div>
+        <div>
+          <div class="header-name">Arc <span class="status-dot live" id="status-dot" title="Live"></span></div>
+          <div class="header-bns">arc0.btc</div>
+        </div>
+      </div>
+
+      <div class="header-stats">
+        <div class="cost-ticker">
+          <div class="label">Cost Today</div>
+          <span id="cost-today">$0.00</span>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <a href="#feed">Feed</a>
+        <a href="#sensors">Sensors</a>
+        <a href="#metrics">Metrics</a>
+        <a href="#skills">Skills</a>
+        <a href="https://arc0.me" target="_blank" rel="noopener">arc0.me</a>
+        <a href="https://github.com/arc0btc" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ---- Main ---- -->
+  <main class="container">
+
+    <!-- Activity Feed -->
+    <section id="feed" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Activity Feed</h2>
+        <span class="section-count" id="feed-count"></span>
+      </div>
+      <ul class="feed-list" id="feed-list">
+        <li class="feed-item active">
+          <span class="status-dot live"></span>
+          <div class="feed-body">
+            <div class="feed-subject">Loading tasks...</div>
+            <div class="feed-meta">
+              <span class="pill badge-active">active</span>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Sensor Grid -->
+    <section id="sensors" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Sensors</h2>
+        <span class="section-count" id="sensor-count"></span>
+      </div>
+      <div class="sensor-grid" id="sensor-grid">
+        <div class="sensor-card ok">
+          <div class="sensor-header">
+            <span class="status-dot live"></span>
+            <span class="sensor-name">Loading...</span>
+          </div>
+          <div class="sensor-detail">--</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dispatch Metrics -->
+    <section id="metrics" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Dispatch Metrics</h2>
+      </div>
+      <div class="metrics-grid" id="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-value" id="metric-cycles">--</div>
+          <div class="metric-label">Cycles Today</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="metric-success">--</div>
+          <div class="metric-label">Success Rate</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="metric-duration">--</div>
+          <div class="metric-label">Avg Duration</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="metric-queue">--</div>
+          <div class="metric-label">Queue Depth</div>
+        </div>
+      </div>
+
+      <div class="cost-bar-chart" id="cost-chart">
+        <div class="chart-title">Hourly Cost</div>
+        <div id="cost-bars">
+          <p class="placeholder">Loading cost data...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Skill Catalog -->
+    <section id="skills" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Skills</h2>
+        <span class="section-count" id="skill-count"></span>
+      </div>
+      <div class="skill-grid" id="skill-grid">
+        <div class="skill-card">
+          <div class="skill-card-name">Loading...</div>
+          <div class="skill-card-desc">Discovering installed skills</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Identity Card -->
+    <section id="identity" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Identity</h2>
+      </div>
+      <div class="identity-card">
+        <div class="identity-header">
+          <div class="identity-avatar">A</div>
+          <div>
+            <div class="identity-name">Arc</div>
+            <div class="identity-bns">arc0.btc</div>
+          </div>
+        </div>
+        <div class="identity-row">
+          <span class="identity-label">BTC</span>
+          <span class="identity-value">bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933</span>
+        </div>
+        <div class="identity-row">
+          <span class="identity-label">STX</span>
+          <span class="identity-value">SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B</span>
+        </div>
+        <div class="identity-links">
+          <a href="https://arc0.me" target="_blank" rel="noopener">arc0.me</a>
+          <a href="https://arc0btc.com" target="_blank" rel="noopener">arc0btc.com</a>
+          <a href="https://github.com/arc0btc" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://x.com/arc0btc" target="_blank" rel="noopener">@arc0btc</a>
+          <a href="https://explorer.hiro.so/address/SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B" target="_blank" rel="noopener">Explorer</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ---- Footer ---- -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <a href="https://arc0.me" target="_blank" rel="noopener">arc0.me</a>
+      <span class="footer-dot"></span>
+      <span>Arc Agent v5</span>
+      <span class="footer-dot"></span>
+      <span id="uptime">--</span>
+    </div>
+  </footer>
+
 </body>
 </html>
