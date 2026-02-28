@@ -21,7 +21,7 @@ const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
   },
   {
     signature: "beat-conflict",
-    patterns: [/beat.*claimed/i, /beat.*ownership/i, /claimed by another/i],
+    patterns: [/beat.*claimed/i, /beat.*ownership/i, /claimed by another/i, /wrong beat/i],
   },
   {
     signature: "payment-error",
