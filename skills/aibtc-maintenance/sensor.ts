@@ -1,5 +1,5 @@
 import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, taskExistsForSource, pendingTaskExistsForSource } from "../../src/db.ts";
+import { initDatabase, insertTask, taskExistsForSource } from "../../src/db.ts";
 import { spawnSync } from "node:child_process";
 
 const SENSOR_NAME = "aibtc-maintenance";
@@ -19,13 +19,6 @@ interface PrInfo {
   number: number;
   title: string;
   author: string;
-}
-
-interface NotificationInfo {
-  repo: string;
-  type: string;
-  title: string;
-  url: string;
 }
 
 function gh(args: string[]): { ok: boolean; stdout: string; stderr: string } {
@@ -80,31 +73,6 @@ function getUnreviewedPRs(): PrInfo[] {
   return prs;
 }
 
-function getMentionNotifications(): NotificationInfo[] {
-  const notifications: NotificationInfo[] = [];
-
-  const result = gh([
-    "api", "notifications",
-    "--jq", `.[] | select(.reason == "mention" or .reason == "review_requested") | {repo: .repository.full_name, type: .subject.type, title: .subject.title, url: .subject.url}`,
-  ]);
-
-  if (!result.ok || !result.stdout) return notifications;
-
-  for (const line of result.stdout.split("\n")) {
-    if (!line.trim()) continue;
-    try {
-      const item = JSON.parse(line) as NotificationInfo;
-      if (WATCHED_REPOS.includes(item.repo)) {
-        notifications.push(item);
-      }
-    } catch {
-      // skip malformed lines
-    }
-  }
-
-  return notifications;
-}
-
 export default async function aibtcMaintenanceSensor(): Promise<string> {
   initDatabase();
 
@@ -134,31 +102,6 @@ export default async function aibtcMaintenanceSensor(): Promise<string> {
       priority: 5,
       source,
     });
-  }
-
-  // Check for @mentions and review requests
-  const mentions = getMentionNotifications();
-
-  if (mentions.length > 0) {
-    const source = "sensor:aibtc-maintenance:mentions";
-    if (!pendingTaskExistsForSource(source)) {
-      insertTask({
-        subject: `${mentions.length} GitHub mention(s) in watched repos`,
-        description: [
-          "Read skills/aibtc-maintenance/AGENT.md before acting.",
-          "",
-          "Notifications:",
-          ...mentions.map((m) => `- [${m.type}] ${m.repo}: ${m.title}`),
-          "",
-          "Instructions:",
-          "1. Review each notification and respond with relevant context.",
-          "2. Mark notifications as read after handling.",
-        ].join("\n"),
-        skills: '["aibtc-maintenance"]',
-        priority: 4,
-        source,
-      });
-    }
   }
 
   return "ok";
