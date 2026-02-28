@@ -20,6 +20,7 @@ import {
   BeatClaimingMachine,
   PrLifecycleMachine,
   ReputationFeedbackMachine,
+  ValidationRequestMachine,
 } from "./state-machine.ts";
 
 type CommandResult = { success: boolean; message: string; data?: unknown };
@@ -296,6 +297,7 @@ function getTemplateByName(name: string) {
     "beat-claiming": BeatClaimingMachine,
     "pr-lifecycle": PrLifecycleMachine,
     "reputation-feedback": ReputationFeedbackMachine,
+    "validation-request": ValidationRequestMachine,
   };
   return templates[name];
 }

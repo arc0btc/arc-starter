@@ -293,6 +293,66 @@ export const ReputationFeedbackMachine: StateMachine<{
   },
 };
 
+export const ValidationRequestMachine: StateMachine<{
+  agentId: number;
+  agentName?: string;
+  validationHash?: string;
+  validationUri?: string;
+  validationType?: string;
+  responderAddress?: string;
+  responseHash?: string;
+  responseUri?: string;
+  verificationTxid?: string;
+  verified?: boolean;
+}> = {
+  name: "validation-request",
+  initialState: "pending",
+  states: {
+    pending: {
+      on: { request: "request_sent" },
+      action: (ctx) => {
+        if (!ctx.agentId || !ctx.validationType) return null;
+        return {
+          type: "create-task",
+          subject: `Validation: Request validation for agent ${ctx.agentId}`,
+          priority: 5,
+          skills: ["validation"],
+          description: `Prepare validation hash and send request. Agent: ${ctx.agentName || ctx.agentId}, Type: ${ctx.validationType}`,
+        };
+      },
+    },
+    request_sent: {
+      on: { confirm: "confirmed" },
+      action: () => null,
+    },
+    confirmed: {
+      on: { respond: "response_submitted" },
+      action: () => null,
+    },
+    response_submitted: {
+      on: { verify: "verified" },
+      action: (ctx) => {
+        if (!ctx.agentId) return null;
+        return {
+          type: "create-task",
+          subject: `Validation: Verify response for agent ${ctx.agentId}`,
+          priority: 5,
+          skills: ["validation"],
+          description: `Verify validation response on-chain. Response URI: ${ctx.responseUri || "pending"}, Verification txid: ${ctx.verificationTxid || "pending"}`,
+        };
+      },
+    },
+    verified: {
+      on: { complete: "completed" },
+      action: () => null,
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
 /**
  * Get a template by name.
  * Registry maps template names to their state machines.
@@ -304,6 +364,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "beat-claiming": BeatClaimingMachine,
     "pr-lifecycle": PrLifecycleMachine,
     "reputation-feedback": ReputationFeedbackMachine,
+    "validation-request": ValidationRequestMachine,
   };
   return templates[name] || null;
 }
