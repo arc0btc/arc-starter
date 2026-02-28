@@ -310,6 +310,16 @@ export function completedTaskCountForSource(source: string): number {
   return row?.count ?? 0;
 }
 
+export function recentTaskExistsForSourcePrefix(prefix: string, withinMinutes: number): boolean {
+  const db = getDatabase();
+  const row = db
+    .query(
+      "SELECT 1 FROM tasks WHERE source LIKE ? AND created_at > datetime('now', '-' || ? || ' minutes') LIMIT 1"
+    )
+    .get(`${prefix}%`, withinMinutes);
+  return row !== null;
+}
+
 // ---- Task mutations ----
 
 export function insertTask(fields: InsertTask): number {

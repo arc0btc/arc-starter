@@ -2,13 +2,14 @@
 // Read-only prediction market intelligence — detect high-volume markets, file signals to aibtc-news
 
 import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { initDatabase, insertTask, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
 
 const SENSOR_NAME = "stacks-market";
 const INTERVAL_MINUTES = 360; // 6 hours
 const STACKS_MARKET_API = "https://api.stacksmarket.app";
 const VOLUME_THRESHOLD = 100; // STX (configurable via env)
 const MAX_SIGNALS_PER_RUN = 5; // Rate limiting
+const RATE_LIMIT_MINUTES = 240; // 4 hours — matches aibtc.news per-beat rate limit
 
 interface Market {
   _id: string;
@@ -85,7 +86,7 @@ async function fileSignalTask(market: Market): Promise<boolean> {
       );
 
       insertTask({
-        subject: `File Deal Flow signal: ${market.title} — ${volumeStx.toFixed(2)} STX volume`,
+        subject: `File Ordinals Business signal: ${market.title} — ${volumeStx.toFixed(2)} STX volume`,
         description: `Arc detected high-volume prediction market on stacksmarket.app.
 
 Market: ${market.title}
@@ -95,7 +96,7 @@ ${market.category ? `Category: ${market.category}` : ""}
 ${market.endDate ? `Resolves: ${market.endDate}` : ""}
 MongoDB ID: ${market._id}
 
-File signal via aibtc-news skill. Headline: "${headline}"`,
+File signal to Ordinals Business beat via aibtc-news skill. Headline: "${headline}"`,
         skills: JSON.stringify(["stacks-market", "aibtc-news"]),
         priority: 6,
         status: "pending",
@@ -148,7 +149,14 @@ async function main(): Promise<void> {
 
     log(`detected ${highVolumeMarkets.length} high-volume markets (>${volumeThreshold} STX)`);
 
-    // File signals (rate-limited)
+    // 4-hour rate limit guard — matches aibtc.news per-beat limit
+    const sourcePrefix = `sensor:${SENSOR_NAME}:signal:`;
+    if (recentTaskExistsForSourcePrefix(sourcePrefix, RATE_LIMIT_MINUTES)) {
+      log(`rate limit: signal task filed within last ${RATE_LIMIT_MINUTES} min; skipping`);
+      return;
+    }
+
+    // File signals (rate-limited per run)
     let signalCount = 0;
     for (const market of highVolumeMarkets) {
       if (signalCount >= MAX_SIGNALS_PER_RUN) {

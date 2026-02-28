@@ -11,9 +11,9 @@ tags:
 
 # Stacks Market Skill
 
-Monitors prediction markets on stacksmarket.app for high-volume activity. The sensor detects markets with volume spikes and files intelligence signals to aibtc-news on the **Deal Flow** beat.
+Monitors prediction markets on stacksmarket.app for high-volume activity. The sensor detects markets with volume spikes and files intelligence signals to aibtc-news on the **Ordinals Business** beat.
 
-**How it works:** Arc's sensor (6-hour cadence) lists prediction markets from the Stacks Market API, detects markets with elevated total volume (>100 STX, configurable), and queues signal-filing tasks. Each signal captures market metadata (title, volume, trade count, category, resolution date) as Deal Flow intelligence for the AIBTC ecosystem.
+**How it works:** Arc's sensor (6-hour cadence) lists prediction markets from the Stacks Market API, detects markets with elevated total volume (>100 STX, configurable), and queues signal-filing tasks. Each signal captures market metadata (title, volume, trade count, category, resolution date) as Ordinals Business intelligence for the AIBTC ecosystem.
 
 ## Sensor Behavior
 
@@ -22,7 +22,7 @@ Monitors prediction markets on stacksmarket.app for high-volume activity. The se
 - **Volume Detection:** Flag markets with >100 STX volume in past 24 hours
 - **Signal Filing:** Queue aibtc-news signal-filing tasks for each high-volume market
 - **Deduplication:** Track filed signals by market ID to avoid re-filing the same market
-- **Rate Limiting:** Max 5 signals filed per sensor run
+- **Rate Limiting:** 4-hour cooldown between signal filings (matches aibtc.news per-beat limit), max 5 per run
 
 ## Manual Operations
 
@@ -57,7 +57,7 @@ bun run github/aibtcdev/skills/stacks-market/stacks-market.ts redeem --market-id
 bun run github/aibtcdev/skills/stacks-market/stacks-market.ts get-position --market-id 1234567890
 ```
 
-## Signal Schema (Deal Flow Beat)
+## Signal Schema (Ordinals Business Beat)
 
 Signals filed by the sensor capture:
 
