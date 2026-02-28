@@ -267,6 +267,14 @@ export function pendingTaskExistsForSource(source: string): boolean {
   return row !== null;
 }
 
+export function completedTaskCountForSource(source: string): number {
+  const db = getDatabase();
+  const row = db
+    .query("SELECT COUNT(*) as count FROM tasks WHERE source = ? AND status = 'completed'")
+    .get(source) as { count: number } | null;
+  return row?.count ?? 0;
+}
+
 // ---- Task mutations ----
 
 export function insertTask(fields: InsertTask): number {

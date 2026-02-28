@@ -4,6 +4,7 @@ import {
   getDatabase,
   insertTask,
   pendingTaskExistsForSource,
+  completedTaskCountForSource,
 } from "../../src/db.ts";
 import type { Task } from "../../src/db.ts";
 
@@ -97,6 +98,7 @@ export default async function failureTriageSensor(): Promise<string> {
 
     const source = `sensor:failure-triage:pattern:${shortHash(signature)}`;
     if (pendingTaskExistsForSource(source)) continue;
+    if (completedTaskCountForSource(source) >= 2) continue;
 
     const taskIds = tasks.map((t) => t.id).join(", ");
     const samples = tasks
