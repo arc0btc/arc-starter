@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-02-28T08:07:00Z*
+*Generated: 2026-02-28T09:32:18.535Z*
 
 ```mermaid
 stateDiagram-v2
@@ -12,40 +12,217 @@ stateDiagram-v2
     }
 
     state SensorsService {
-        [*] --> RunAllSensors: parallel via Promise.all
+        [*] --> RunAllSensors: parallel via Promise.allSettled
+        RunAllSensors --> aibtc_heartbeatSensor: aibtc-heartbeat
+        RunAllSensors --> aibtc_inboxSensor: aibtc-inbox
+        RunAllSensors --> aibtc_maintenanceSensor: aibtc-maintenance
+        RunAllSensors --> architectSensor: architect
+        RunAllSensors --> ceo_reviewSensor: ceo-review
+        RunAllSensors --> ci_statusSensor: ci-status
+        RunAllSensors --> emailSensor: email
+        RunAllSensors --> failure_triageSensor: failure-triage
+        RunAllSensors --> github_mentionsSensor: github-mentions
+        RunAllSensors --> healthSensor: health
+        RunAllSensors --> heartbeatSensor: heartbeat
+        RunAllSensors --> housekeepingSensor: housekeeping
+        RunAllSensors --> manage_skillsSensor: manage-skills
+        RunAllSensors --> overnight_briefSensor: overnight-brief
+        RunAllSensors --> release_watcherSensor: release-watcher
+        RunAllSensors --> report_emailSensor: report-email
+        RunAllSensors --> security_alertsSensor: security-alerts
+        RunAllSensors --> status_reportSensor: status-report
+        RunAllSensors --> worker_logsSensor: worker-logs
 
-        state SensorPattern {
-            [*] --> Gate: claimSensorRun(name, interval)
-            Gate --> Skip: interval not elapsed
-            Gate --> Dedup: interval elapsed
-            Dedup --> Skip: pendingTaskExistsForSource()
-            Dedup --> CreateTask: no dupe
-            CreateTask --> [*]: insertTask()
-            Skip --> [*]: return skip
+        state aibtc_heartbeatSensor {
+            [*] --> aibtc_heartbeatGate: claimSensorRun(aibtc-heartbeat)
+            aibtc_heartbeatGate --> aibtc_heartbeatSkip: interval not elapsed
+            aibtc_heartbeatGate --> aibtc_heartbeatDedup: interval elapsed
+            aibtc_heartbeatDedup --> aibtc_heartbeatSkip: pending task exists
+            aibtc_heartbeatDedup --> aibtc_heartbeatCreateTask: no dupe
+            aibtc_heartbeatCreateTask --> [*]: insertTask()
+            aibtc_heartbeatSkip --> [*]: return skip
         }
 
-        note right of SensorPattern
-            All interval-gated sensors follow
-            this pattern. Event-driven sensors
-            (report-email) use custom state.
-        end note
+        state aibtc_inboxSensor {
+            [*] --> aibtc_inboxGate: claimSensorRun(aibtc-inbox)
+            aibtc_inboxGate --> aibtc_inboxSkip: interval not elapsed
+            aibtc_inboxGate --> aibtc_inboxDedup: interval elapsed
+            aibtc_inboxDedup --> aibtc_inboxSkip: pending task exists
+            aibtc_inboxDedup --> aibtc_inboxCreateTask: no dupe
+            aibtc_inboxCreateTask --> [*]: insertTask()
+            aibtc_inboxSkip --> [*]: return skip
+        }
 
-        RunAllSensors --> aibtc_heartbeat: 5 min
-        RunAllSensors --> aibtc_inbox: 5 min
-        RunAllSensors --> aibtc_maintenance: 15 min
-        RunAllSensors --> architect: 360 min
-        RunAllSensors --> ceo_review: post‑report
-        RunAllSensors --> email: 1 min
-        RunAllSensors --> failure_triage: 60 min
-        RunAllSensors --> github_mentions: 5 min
-        RunAllSensors --> health: 5 min
-        RunAllSensors --> heartbeat: 360 min
-        RunAllSensors --> housekeeping: 30 min
-        RunAllSensors --> manage_skills: 360 min
-        RunAllSensors --> overnight_brief: 60 min (6am PST gate)
-        RunAllSensors --> report_email: event‑driven
-        RunAllSensors --> status_report: 240 min
-        RunAllSensors --> worker_logs: 120 min
+        state aibtc_maintenanceSensor {
+            [*] --> aibtc_maintenanceGate: claimSensorRun(aibtc-maintenance)
+            aibtc_maintenanceGate --> aibtc_maintenanceSkip: interval not elapsed
+            aibtc_maintenanceGate --> aibtc_maintenanceDedup: interval elapsed
+            aibtc_maintenanceDedup --> aibtc_maintenanceSkip: pending task exists
+            aibtc_maintenanceDedup --> aibtc_maintenanceCreateTask: no dupe
+            aibtc_maintenanceCreateTask --> [*]: insertTask()
+            aibtc_maintenanceSkip --> [*]: return skip
+        }
+
+        state architectSensor {
+            [*] --> architectGate: claimSensorRun(architect)
+            architectGate --> architectSkip: interval not elapsed
+            architectGate --> architectDedup: interval elapsed
+            architectDedup --> architectSkip: pending task exists
+            architectDedup --> architectCreateTask: no dupe
+            architectCreateTask --> [*]: insertTask()
+            architectSkip --> [*]: return skip
+        }
+
+        state ceo_reviewSensor {
+            [*] --> ceo_reviewGate: claimSensorRun(ceo-review)
+            ceo_reviewGate --> ceo_reviewSkip: interval not elapsed
+            ceo_reviewGate --> ceo_reviewDedup: interval elapsed
+            ceo_reviewDedup --> ceo_reviewSkip: pending task exists
+            ceo_reviewDedup --> ceo_reviewCreateTask: no dupe
+            ceo_reviewCreateTask --> [*]: insertTask()
+            ceo_reviewSkip --> [*]: return skip
+        }
+
+        state ci_statusSensor {
+            [*] --> ci_statusGate: claimSensorRun(ci-status)
+            ci_statusGate --> ci_statusSkip: interval not elapsed
+            ci_statusGate --> ci_statusDedup: interval elapsed
+            ci_statusDedup --> ci_statusSkip: pending task exists
+            ci_statusDedup --> ci_statusCreateTask: no dupe
+            ci_statusCreateTask --> [*]: insertTask()
+            ci_statusSkip --> [*]: return skip
+        }
+
+        state emailSensor {
+            [*] --> emailGate: claimSensorRun(email)
+            emailGate --> emailSkip: interval not elapsed
+            emailGate --> emailDedup: interval elapsed
+            emailDedup --> emailSkip: pending task exists
+            emailDedup --> emailCreateTask: no dupe
+            emailCreateTask --> [*]: insertTask()
+            emailSkip --> [*]: return skip
+        }
+
+        state failure_triageSensor {
+            [*] --> failure_triageGate: claimSensorRun(failure-triage)
+            failure_triageGate --> failure_triageSkip: interval not elapsed
+            failure_triageGate --> failure_triageDedup: interval elapsed
+            failure_triageDedup --> failure_triageSkip: pending task exists
+            failure_triageDedup --> failure_triageCreateTask: no dupe
+            failure_triageCreateTask --> [*]: insertTask()
+            failure_triageSkip --> [*]: return skip
+        }
+
+        state github_mentionsSensor {
+            [*] --> github_mentionsGate: claimSensorRun(github-mentions)
+            github_mentionsGate --> github_mentionsSkip: interval not elapsed
+            github_mentionsGate --> github_mentionsDedup: interval elapsed
+            github_mentionsDedup --> github_mentionsSkip: pending task exists
+            github_mentionsDedup --> github_mentionsCreateTask: no dupe
+            github_mentionsCreateTask --> [*]: insertTask()
+            github_mentionsSkip --> [*]: return skip
+        }
+
+        state healthSensor {
+            [*] --> healthGate: claimSensorRun(health)
+            healthGate --> healthSkip: interval not elapsed
+            healthGate --> healthDedup: interval elapsed
+            healthDedup --> healthSkip: pending task exists
+            healthDedup --> healthCreateTask: no dupe
+            healthCreateTask --> [*]: insertTask()
+            healthSkip --> [*]: return skip
+        }
+
+        state heartbeatSensor {
+            [*] --> heartbeatGate: claimSensorRun(heartbeat)
+            heartbeatGate --> heartbeatSkip: interval not elapsed
+            heartbeatGate --> heartbeatDedup: interval elapsed
+            heartbeatDedup --> heartbeatSkip: pending task exists
+            heartbeatDedup --> heartbeatCreateTask: no dupe
+            heartbeatCreateTask --> [*]: insertTask()
+            heartbeatSkip --> [*]: return skip
+        }
+
+        state housekeepingSensor {
+            [*] --> housekeepingGate: claimSensorRun(housekeeping)
+            housekeepingGate --> housekeepingSkip: interval not elapsed
+            housekeepingGate --> housekeepingDedup: interval elapsed
+            housekeepingDedup --> housekeepingSkip: pending task exists
+            housekeepingDedup --> housekeepingCreateTask: no dupe
+            housekeepingCreateTask --> [*]: insertTask()
+            housekeepingSkip --> [*]: return skip
+        }
+
+        state manage_skillsSensor {
+            [*] --> manage_skillsGate: claimSensorRun(manage-skills)
+            manage_skillsGate --> manage_skillsSkip: interval not elapsed
+            manage_skillsGate --> manage_skillsDedup: interval elapsed
+            manage_skillsDedup --> manage_skillsSkip: pending task exists
+            manage_skillsDedup --> manage_skillsCreateTask: no dupe
+            manage_skillsCreateTask --> [*]: insertTask()
+            manage_skillsSkip --> [*]: return skip
+        }
+
+        state overnight_briefSensor {
+            [*] --> overnight_briefGate: claimSensorRun(overnight-brief)
+            overnight_briefGate --> overnight_briefSkip: interval not elapsed
+            overnight_briefGate --> overnight_briefDedup: interval elapsed
+            overnight_briefDedup --> overnight_briefSkip: pending task exists
+            overnight_briefDedup --> overnight_briefCreateTask: no dupe
+            overnight_briefCreateTask --> [*]: insertTask()
+            overnight_briefSkip --> [*]: return skip
+        }
+
+        state release_watcherSensor {
+            [*] --> release_watcherGate: claimSensorRun(release-watcher)
+            release_watcherGate --> release_watcherSkip: interval not elapsed
+            release_watcherGate --> release_watcherDedup: interval elapsed
+            release_watcherDedup --> release_watcherSkip: pending task exists
+            release_watcherDedup --> release_watcherCreateTask: no dupe
+            release_watcherCreateTask --> [*]: insertTask()
+            release_watcherSkip --> [*]: return skip
+        }
+
+        state report_emailSensor {
+            [*] --> report_emailGate: claimSensorRun(report-email)
+            report_emailGate --> report_emailSkip: interval not elapsed
+            report_emailGate --> report_emailDedup: interval elapsed
+            report_emailDedup --> report_emailSkip: pending task exists
+            report_emailDedup --> report_emailCreateTask: no dupe
+            report_emailCreateTask --> [*]: insertTask()
+            report_emailSkip --> [*]: return skip
+        }
+
+        state security_alertsSensor {
+            [*] --> security_alertsGate: claimSensorRun(security-alerts)
+            security_alertsGate --> security_alertsSkip: interval not elapsed
+            security_alertsGate --> security_alertsDedup: interval elapsed
+            security_alertsDedup --> security_alertsSkip: pending task exists
+            security_alertsDedup --> security_alertsCreateTask: no dupe
+            security_alertsCreateTask --> [*]: insertTask()
+            security_alertsSkip --> [*]: return skip
+        }
+
+        state status_reportSensor {
+            [*] --> status_reportGate: claimSensorRun(status-report)
+            status_reportGate --> status_reportSkip: interval not elapsed
+            status_reportGate --> status_reportDedup: interval elapsed
+            status_reportDedup --> status_reportSkip: pending task exists
+            status_reportDedup --> status_reportCreateTask: no dupe
+            status_reportCreateTask --> [*]: insertTask()
+            status_reportSkip --> [*]: return skip
+        }
+
+        state worker_logsSensor {
+            [*] --> worker_logsGate: claimSensorRun(worker-logs)
+            worker_logsGate --> worker_logsSkip: interval not elapsed
+            worker_logsGate --> worker_logsDedup: interval elapsed
+            worker_logsDedup --> worker_logsSkip: pending task exists
+            worker_logsDedup --> worker_logsCreateTask: no dupe
+            worker_logsCreateTask --> [*]: insertTask()
+            worker_logsSkip --> [*]: return skip
+        }
+
     }
 
     state DispatchService {
@@ -79,19 +256,25 @@ stateDiagram-v2
 
     state CLI {
         [*] --> ArcCommand: arc <subcommand>
-        ArcCommand --> TasksCRUD: tasks add/close/list/update
+        ArcCommand --> TasksCRUD: tasks add/close/list
         ArcCommand --> SkillsRun: skills run --name X
         ArcCommand --> ManualDispatch: run
         ArcCommand --> StatusView: status
     }
 
     note right of CLI
-        Skills with CLI (11):
-        aibtc-maintenance, architect,
-        credentials, dashboard, email,
-        failure-triage, housekeeping,
-        manage-skills, research,
-        wallet, worker-logs
+        Skills with CLI:
+        - aibtc-maintenance
+        - architect
+        - credentials
+        - dashboard
+        - email
+        - failure-triage
+        - housekeeping
+        - manage-skills
+        - research
+        - wallet
+        - worker-logs
     end note
 ```
 
@@ -99,7 +282,7 @@ stateDiagram-v2
 
 | # | Point | Context Available | Gate |
 |---|-------|-------------------|------|
-| 1 | Sensor fires | Hook state (interval check) | `claimSensorRun()` or custom state |
+| 1 | Sensor fires | Hook state (interval check) | `claimSensorRun()` |
 | 2 | Sensor creates task | External data + dedup check | `pendingTaskExistsForSource()` |
 | 3 | Dispatch lock check | Lock file (PID + task_id) | `isPidAlive()` |
 | 4 | Task selection | All pending tasks sorted | Priority ASC, ID ASC |
@@ -109,7 +292,7 @@ stateDiagram-v2
 | 8 | Result handling | Task status check post-run | Self-close vs fallback |
 | 9 | Auto-commit | Staged dirs: memory/ skills/ src/ templates/ | `git diff --cached` |
 
-## Skills Inventory (21 skills)
+## Skills Inventory
 
 | Skill | Sensor | CLI | Agent | Description |
 |-------|--------|-----|-------|-------------|
@@ -119,6 +302,7 @@ stateDiagram-v2
 | architect | yes | yes | yes | Continuous architecture review, state machine diagrams, and simplification via SpaceX 5-step process |
 | ceo | - | - | yes | Strategic operating manual — treat yourself as CEO of a one-entity company |
 | ceo-review | yes | - | yes | CEO reviews the latest watch report and actively manages the task queue |
+| ci-status | yes | - | - | Monitors GitHub Actions CI runs on our PRs and detects failures |
 | credentials | - | yes | yes | Encrypted credential store for API keys, tokens, and secrets used by other skills |
 | dashboard | - | yes | yes | Arc's live web dashboard — real-time task feed, sensor status, cost tracking |
 | email | yes | yes | yes | Sync email from arc-email-worker, detect unread messages, read and send email |
@@ -129,8 +313,10 @@ stateDiagram-v2
 | housekeeping | yes | yes | yes | Periodic repo hygiene checks — uncommitted changes, stale locks, WAL size, memory bloat, file archival |
 | manage-skills | yes | yes | yes | Create, inspect, and manage agent skills |
 | overnight-brief | yes | - | yes | Generate a consolidated overnight brief at 6am PST covering all activity from 8pm–6am |
+| release-watcher | yes | - | - | Detects new releases on watched repos and creates review tasks |
 | report-email | yes | - | - | Email watch reports when new ones are generated |
 | research | - | yes | yes | Process batches of links into mission-relevant research reports |
+| security-alerts | yes | - | - | Monitor dependabot security alerts on repos we maintain |
 | status-report | yes | - | yes | Generate watch reports (4-hour) summarizing all agent activity |
-| wallet | - | yes | yes | Wallet management and cryptographic signing for Stacks and Bitcoin |
+| wallet | - | yes | yes | Wallet management and cryptographic signing for Stacks and Bitcoin — unlock, lock, info, status, BTC/Stacks message signing, and BTC signature verification. |
 | worker-logs | yes | yes | yes | Sync worker-logs forks, monitor production events, report trends |
