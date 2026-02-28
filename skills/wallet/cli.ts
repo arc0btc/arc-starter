@@ -15,6 +15,7 @@ const ROOT = resolve(import.meta.dir, "../../github/aibtcdev/skills");
 const WALLET_SCRIPT = resolve(ROOT, "wallet/wallet.ts");
 const SIGNING_SCRIPT = resolve(ROOT, "signing/signing.ts");
 const SIGN_RUNNER = resolve(import.meta.dir, "sign-runner.ts");
+const X402_RUNNER = resolve(import.meta.dir, "x402-runner.ts");
 
 // ---- Helpers ----
 
@@ -168,6 +169,76 @@ async function runSigning(signingArgs: string[]): Promise<{ stdout: string; stde
   return { stdout: stdout.trim(), stderr: stderr.trim(), exitCode };
 }
 
+/**
+ * Run an x402 command via the x402-runner, which handles unlock + x402 + lock
+ * in a single process (required because wallet manager session is in-memory).
+ * Uses runScriptWithTimeout because the wallet auto-lock timer keeps the process alive.
+ */
+async function runX402(x402Args: string[]): Promise<{ stdout: string; stderr: string; exitCode: number }> {
+  const password = await getWalletPassword();
+  const walletId = await getWalletId();
+
+  const proc = Bun.spawn(["bun", "run", X402_RUNNER, ...x402Args], {
+    cwd: ROOT,
+    stdin: "ignore",
+    stdout: "pipe",
+    stderr: "pipe",
+    env: {
+      ...process.env,
+      WALLET_ID: walletId,
+      WALLET_PASSWORD: password,
+    },
+  });
+
+  let stdout = "";
+  let stderr = "";
+
+  const stderrPromise = new Response(proc.stderr).text().then((t) => { stderr = t; });
+
+  // Read stdout incrementally, kill process once we have a complete JSON response.
+  // x402 commands may take time (network + sponsored tx), so allow 60s.
+  const reader = proc.stdout.getReader();
+  const decoder = new TextDecoder();
+
+  const readWithTimeout = new Promise<string>(async (resolve, reject) => {
+    const timer = setTimeout(() => {
+      proc.kill();
+      reject(new Error("Timeout waiting for x402 response (60s)"));
+    }, 60000);
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        stdout += decoder.decode(value, { stream: true });
+
+        // Check if we have a complete JSON object
+        const trimmed = stdout.trim();
+        if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+          try {
+            JSON.parse(trimmed);
+            clearTimeout(timer);
+            proc.kill();
+            resolve(trimmed);
+            return;
+          } catch {
+            // Incomplete JSON, keep reading
+          }
+        }
+      }
+      clearTimeout(timer);
+      resolve(stdout.trim());
+    } catch (err) {
+      clearTimeout(timer);
+      reject(err);
+    }
+  });
+
+  const result = await readWithTimeout;
+  await stderrPromise.catch(() => {});
+  return { stdout: result, stderr: stderr.trim(), exitCode: 0 };
+}
+
 // ---- Subcommands ----
 
 async function cmdUnlock(): Promise<void> {
@@ -287,6 +358,32 @@ async function cmdBtcVerify(args: string[]): Promise<void> {
   console.log(result.stdout);
 }
 
+async function cmdX402(args: string[]): Promise<void> {
+  if (args.length === 0) {
+    process.stderr.write("Usage: arc skills run --name wallet -- x402 <x402-subcommand> [flags]\n");
+    process.stderr.write("Example: arc skills run --name wallet -- x402 send-inbox-message --recipient-btc-address bc1... --recipient-stx-address SP... --content \"Hello\"\n");
+    process.exit(1);
+  }
+
+  log(`running x402 command: ${args[0]} (auto unlock/lock)`);
+  try {
+    const result = await runX402(args);
+
+    if (result.exitCode !== 0) {
+      log(`x402 failed: ${result.stderr}`);
+      console.log(JSON.stringify({ success: false, error: "x402 command failed", detail: result.stderr || result.stdout }));
+      process.exit(1);
+    }
+
+    console.log(result.stdout);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    log(`x402 failed: ${msg}`);
+    console.log(JSON.stringify({ success: false, error: "x402 command failed", detail: msg }));
+    process.exit(1);
+  }
+}
+
 function printUsage(): void {
   process.stdout.write(`wallet CLI
 
@@ -315,11 +412,16 @@ SUBCOMMANDS
   btc-verify --message "text" --signature "sig" [--expected-signer "addr"]
     Verify a Bitcoin signature (no unlock needed).
 
+  x402 <x402-subcommand> [flags]
+    Run any x402 command with auto unlock/lock. Handles wallet unlock
+    in the same process so the wallet singleton is available to x402.
+
 EXAMPLES
   arc skills run --name wallet -- info
   arc skills run --name wallet -- unlock
   arc skills run --name wallet -- btc-sign --message "Hello"
   arc skills run --name wallet -- btc-verify --message "Hello" --signature "abc..." --expected-signer "bc1q..."
+  arc skills run --name wallet -- x402 send-inbox-message --recipient-btc-address bc1... --recipient-stx-address SP... --content "Hello"
 `);
 }
 
@@ -350,6 +452,9 @@ async function main(): Promise<void> {
       break;
     case "btc-verify":
       await cmdBtcVerify(args.slice(1));
+      break;
+    case "x402":
+      await cmdX402(args.slice(1));
       break;
     case "help":
     case "--help":
