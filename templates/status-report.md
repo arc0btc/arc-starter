@@ -56,6 +56,16 @@
 
 <!-- Patterns noticed, efficiency insights, things that worked or didn't -->
 
+## Research Intelligence
+
+<!-- Summary of active research reports in research/ (not archived).
+     If no research reports exist: "No research reports this watch."
+     For each report:
+     - Filename and date
+     - Links analyzed and relevance ratings
+     - Key findings: cross-cutting themes, high-relevance items
+     Keep this concise — the CEO review will evaluate strategic implications. -->
+
 ---
 
 ## CEO Review
@@ -65,6 +75,10 @@
 ### Assessment
 
 <!-- CEO's assessment of this watch: on track, off track, needs adjustment -->
+
+### Research insights
+
+<!-- If research reports were present: findings that inform current work, suggested skills/partnerships, architectural implications. Omit if no research. -->
 
 ### Queue adjustments
 

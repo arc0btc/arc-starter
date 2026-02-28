@@ -14,11 +14,12 @@ The sensor fires every 240 minutes (4 hours), after the status-report sensor. It
 
 1. Loads the CEO skill context (strategic operating manual)
 2. Reads the most recent watch report from `reports/`
-3. Evaluates the work against CEO principles (direction, resource allocation, results)
-4. Reviews the full task queue — pending, active, and blocked
-5. Appends a review to the CEO Review section of the report
-6. Modifies the queue: reprioritize, edit, kill, or create tasks
-7. Commits the updated report
+3. Reviews research intelligence from the Research Intelligence section
+4. Evaluates the work against CEO principles (direction, resource allocation, results)
+5. Reviews the full task queue — pending, active, and blocked
+6. Appends a review to the CEO Review section of the report (including research insights)
+7. Modifies the queue: reprioritize, edit, kill, or create tasks
+8. Commits the updated report
 
 ## What the CEO Can Do
 

@@ -71,20 +71,37 @@ Read sensor state files from `db/hook-state/`:
 - `email.json` — email sync count
 - `health.json` — health check count
 
-### 7. Generate the report
+### 7. Check research reports
+
+List active (non-archived) research reports:
+```bash
+ls -t research/*_research.md 2>/dev/null
+```
+
+If research reports exist, read each one and summarize for the Research Intelligence section:
+- Filename and date
+- Number of links analyzed
+- High and medium relevance findings (skip low)
+- Cross-cutting themes from the summary section
+
+If the `research/` directory is empty or has no `*_research.md` files, note "No research reports this watch." in the section.
+
+Only include reports created within the reporting period, or if none are new, summarize the most recent report as standing intelligence.
+
+### 8. Generate the report
 
 Read the template from `templates/status-report.md`. Fill in every section above the "CEO Review" line. Replace `{{placeholders}}` with actual values. Write prose summaries — not just data dumps.
 
 Write the report to: `reports/{period_end_ISO8601}_watch_report.md`
 
-### 8. Commit
+### 9. Commit
 
 ```bash
 git add reports/
 git commit -m "docs(report): watch report {period_end_ISO8601}"
 ```
 
-### 9. Close the task
+### 10. Close the task
 
 Report the file path and key metrics in result_summary:
 ```bash
