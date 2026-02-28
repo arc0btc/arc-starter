@@ -1,10 +1,11 @@
 // skills/report-email/sensor.ts
 //
-// Detects new watch reports in reports/ and emails them.
+// Detects new watch reports in reports/ and emails them as themed HTML.
 // Pure TypeScript — no LLM. Runs every 1 minute, sends on first new report found.
 
 import { readHookState, writeHookState, type HookState } from "../../src/sensors.ts";
 import { getCredential } from "../../src/credentials.ts";
+import { markdownToHtml, wrapInArcTheme } from "./html.ts";
 
 const SENSOR_NAME = "report-email";
 const REPORTS_DIR = new URL("../../reports", import.meta.url).pathname;
@@ -97,7 +98,10 @@ export default async function reportEmailSensor(): Promise<string> {
   const reportTimestamp = extractTimestamp(newestFile);
   const subject = `Arc Watch Report ${formatMST(reportTimestamp)}`;
 
-  // Send via email worker API
+  // Convert markdown to themed HTML
+  const htmlBody = wrapInArcTheme(markdownToHtml(content), subject);
+
+  // Send via email worker API (html field for themed email, body as plain text fallback)
   const res = await fetch(`${apiBaseUrl}/api/send`, {
     method: "POST",
     headers: {
@@ -108,6 +112,7 @@ export default async function reportEmailSensor(): Promise<string> {
       to: recipient,
       subject,
       body: content,
+      html: htmlBody,
     }),
   });
 
