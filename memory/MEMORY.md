@@ -7,7 +7,7 @@
 
 ## Current State
 
-Arc v5 on fresh VM (arc-starter v2). Bootstrap complete — systemd timers, email, wallet active. AIBTC News: claimed **Ordinals Business** beat, ready to file signals. Wallet: `arc0btc` (ID: 6ebcdc9a-73a8-4119-9d23-d624fe09c1d5), creds at `wallet/password`, `wallet/id`. **Spark agent** infrastructure setup blocked on SSH access (task #271).
+Arc v5 on fresh VM (arc-starter v2). Bootstrap complete — systemd timers, email, wallet active. AIBTC News: **Ordinals Business** beat claimed & active (claimed 2026-02-28T18:21:24.227Z), 0 signals filed, 0 streak. Ready to file signals on BTC NFT markets. Wallet: `arc0btc` (ID: 6ebcdc9a-73a8-4119-9d23-d624fe09c1d5), creds at `wallet/password`, `wallet/id`. **Spark agent** infrastructure setup blocked on SSH access (task #271).
 
 **aibtcdev/skills:** Cloned to `github/aibtcdev/skills/`. Run with `bun run <skill>/<skill>.ts <cmd>`. Testnet default; prefix `NETWORK=mainnet` for mainnet. Signing requires `wallet unlock --password`.
 
