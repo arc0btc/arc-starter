@@ -8,7 +8,7 @@
  * Invoked by `arc run` (cli.ts) or directly as a standalone entry point.
  */
 
-import { existsSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   type Task,
@@ -262,7 +262,7 @@ interface DispatchResult {
   output_tokens: number;
 }
 
-async function dispatch(prompt: string, model: ModelTier = "opus"): Promise<DispatchResult> {
+async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string): Promise<DispatchResult> {
   const args = [
     "claude",
     "--print",
@@ -283,6 +283,7 @@ async function dispatch(prompt: string, model: ModelTier = "opus"): Promise<Disp
     stdin: new Blob([prompt]),
     stdout: "pipe",
     stderr: "pipe",
+    ...(cwd ? { cwd } : {}),
   });
 
   let result = "";
@@ -546,6 +547,104 @@ async function safeCommitCycleChanges(taskId: number): Promise<void> {
   }
 }
 
+// ---- Worktree isolation ----
+
+const WORKTREE_DIR = join(ROOT, ".worktrees");
+
+/** Create an isolated worktree for a task, symlink shared state into it. */
+async function createWorktree(taskId: number): Promise<string> {
+  const name = `task-${taskId}`;
+  const worktreePath = join(WORKTREE_DIR, name);
+  const branchName = `dispatch/task-${taskId}`;
+
+  mkdirSync(WORKTREE_DIR, { recursive: true });
+  const { exitCode, stderr } = await git("worktree", "add", worktreePath, "-b", branchName);
+  if (exitCode !== 0) throw new Error(`git worktree add failed: ${stderr.trim()}`);
+
+  // Symlink shared state into the worktree
+  const symlinks: Array<[string, string]> = [
+    [join(ROOT, "db"), join(worktreePath, "db")],
+    [join(ROOT, "node_modules"), join(worktreePath, "node_modules")],
+  ];
+  // .env is a file, not a directory
+  if (existsSync(join(ROOT, ".env"))) {
+    symlinks.push([join(ROOT, ".env"), join(worktreePath, ".env")]);
+  }
+
+  for (const [target, link] of symlinks) {
+    // Remove the placeholder created by git checkout if it exists
+    try { unlinkSync(link); } catch { /* doesn't exist */ }
+    // db/ dir created by git checkout needs removal for symlink
+    try {
+      const entries = readdirSync(link);
+      if (entries.length === 0 || (entries.length === 1 && entries[0] === "arc.db")) {
+        // Remove placeholder db dir so we can symlink the real one
+        const { exitCode: rmExit } = await runCommand("rm", ["-rf", link]);
+        if (rmExit !== 0) log(`dispatch: worktree — could not remove ${link}`);
+      }
+    } catch { /* not a directory */ }
+    symlinkSync(target, link);
+  }
+
+  log(`dispatch: worktree created at ${worktreePath}`);
+  return worktreePath;
+}
+
+/** Validate .ts files changed in the worktree branch. Returns errors or empty array. */
+async function validateWorktree(worktreePath: string, taskId: number): Promise<string[]> {
+  const branchName = `dispatch/task-${taskId}`;
+  // Get list of .ts files changed on the worktree branch vs its merge base
+  const proc = Bun.spawn(
+    ["git", "diff", "--name-only", `HEAD...${branchName}`, "--", "*.ts"],
+    { cwd: ROOT, stdout: "pipe", stderr: "pipe" }
+  );
+  const stdout = await new Response(proc.stdout).text();
+  await proc.exited;
+
+  const changedFiles = stdout.trim().split("\n").filter(Boolean);
+  if (changedFiles.length === 0) return [];
+
+  const transpiler = new Bun.Transpiler({ loader: "ts" });
+  const errors: string[] = [];
+  for (const file of changedFiles) {
+    const fullPath = join(worktreePath, file);
+    try {
+      const content = readFileSync(fullPath, "utf-8");
+      transpiler.transformSync(content);
+    } catch (err) {
+      errors.push(`${file}: ${String(err)}`);
+    }
+  }
+  return errors;
+}
+
+/** Merge worktree branch into current branch and clean up. */
+async function mergeWorktree(taskId: number): Promise<{ ok: boolean; error?: string }> {
+  const name = `task-${taskId}`;
+  const worktreePath = join(WORKTREE_DIR, name);
+  const branchName = `dispatch/task-${taskId}`;
+
+  const { exitCode, stderr } = await git("merge", branchName, "--no-edit");
+  if (exitCode !== 0) return { ok: false, error: stderr.trim() };
+
+  // Clean up worktree + branch
+  await git("worktree", "remove", worktreePath, "--force");
+  await git("branch", "-d", branchName);
+  log(`dispatch: worktree ${name} merged and cleaned up`);
+  return { ok: true };
+}
+
+/** Remove a worktree and its branch without merging. */
+async function discardWorktree(taskId: number): Promise<void> {
+  const name = `task-${taskId}`;
+  const worktreePath = join(WORKTREE_DIR, name);
+  const branchName = `dispatch/task-${taskId}`;
+
+  await git("worktree", "remove", worktreePath, "--force");
+  await git("branch", "-D", branchName);
+  log(`dispatch: worktree ${name} discarded`);
+}
+
 // ---- Main entry point ----
 
 /**
@@ -558,7 +657,7 @@ async function safeCommitCycleChanges(taskId: number): Promise<void> {
  * 6. Spawn claude with stream-JSON output
  * 7. Parse result, track cost
  * 8. Close task (if LLM didn't self-close) + record cycle
- * 9. Clear lock + auto-commit
+ * 9. Clear lock + auto-commit (with syntax guard + service health check)
  */
 export async function runDispatch(): Promise<void> {
   // 1. Lock check
@@ -617,6 +716,18 @@ export async function runDispatch(): Promise<void> {
 
   log(`dispatch: dispatching for task #${task.id} — "${task.subject}"`);
 
+  // 5b. Worktree isolation — create if task uses worktrees skill
+  const useWorktree = skillNames.includes("worktrees");
+  let worktreePath: string | undefined;
+  if (useWorktree) {
+    try {
+      worktreePath = await createWorktree(task.id);
+      log(`dispatch: running in worktree at ${worktreePath}`);
+    } catch (err) {
+      log(`dispatch: worktree creation failed — falling back to main tree: ${err}`);
+    }
+  }
+
   // 6. Record cycle start
   const cycleStartedAt = toSqliteDatetime(new Date());
   const cycleId = insertCycleLog({
@@ -629,9 +740,9 @@ export async function runDispatch(): Promise<void> {
   let cycleUpdated = false;
 
   try {
-    // 7. Run dispatch (LLM call)
+    // 7. Run dispatch (LLM call — in worktree if available)
     const { result, cost_usd, api_cost_usd, input_tokens, output_tokens } =
-      await dispatch(prompt, model);
+      await dispatch(prompt, model, worktreePath);
 
     log(
       `dispatch: task #${task.id} returned — cost_usd=$${cost_usd.toFixed(6)} api_cost=$${api_cost_usd.toFixed(6)} tokens=${input_tokens}in/${output_tokens}out`
@@ -697,8 +808,41 @@ export async function runDispatch(): Promise<void> {
     clearDispatchLock();
   }
 
-  // Auto-commit with syntax check + service health guard
-  await safeCommitCycleChanges(task.id);
+  // 10. Post-dispatch: worktree validate+merge or normal safe commit
+  if (worktreePath) {
+    try {
+      const errors = await validateWorktree(worktreePath, task.id);
+      if (errors.length > 0) {
+        log(`dispatch: worktree validation FAILED for ${errors.length} file(s):`);
+        for (const err of errors) log(`  ${err}`);
+        await discardWorktree(task.id);
+        insertTask({
+          subject: `Fix worktree validation errors from task #${task.id}`,
+          description: `Worktree discarded — syntax errors:\n${errors.join("\n")}`,
+          priority: 2,
+          source: `task:${task.id}`,
+        });
+      } else {
+        const { ok, error } = await mergeWorktree(task.id);
+        if (!ok) {
+          log(`dispatch: worktree merge failed — ${error}`);
+          await discardWorktree(task.id);
+          insertTask({
+            subject: `Fix worktree merge conflict from task #${task.id}`,
+            description: `Merge failed: ${error}`,
+            priority: 2,
+            source: `task:${task.id}`,
+          });
+        }
+      }
+    } catch (err) {
+      log(`dispatch: worktree cleanup error — ${err}`);
+      try { await discardWorktree(task.id); } catch { /* best effort */ }
+    }
+  } else {
+    // Normal path: safe commit with syntax check + service health guard
+    await safeCommitCycleChanges(task.id);
+  }
 }
 
 // ---- Standalone entry point ----
