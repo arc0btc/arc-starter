@@ -42,7 +42,7 @@ function fetchNotifications(since: string): Notification[] {
     "-f", "participating=true",
     "-f", `since=${since}`,
     "--jq",
-    `.[] | select(.reason == "mention" or .reason == "review_requested" or .reason == "assign") | {id: .id, reason: .reason, repo: .repository.full_name, type: .subject.type, title: .subject.title, url: .subject.url, updatedAt: .updated_at}`,
+    `.[] | select(.reason == "mention" or .reason == "review_requested" or .reason == "assign" or .reason == "author" or .reason == "comment" or .reason == "state_change" or .reason == "team_mention") | {id: .id, reason: .reason, repo: .repository.full_name, type: .subject.type, title: .subject.title, url: .subject.url, updatedAt: .updated_at}`,
   ]);
 
   if (!result.ok || !result.stdout) return [];
@@ -93,14 +93,16 @@ export default async function githubMentionsSensor(): Promise<string> {
     }
 
     const htmlUrl = apiUrlToHtml(n.url);
-    const reasonLabel =
-      n.reason === "mention"
-        ? "@mention"
-        : n.reason === "review_requested"
-          ? "review request"
-          : n.reason === "assign"
-            ? "assignment"
-            : n.reason;
+    const reasonLabels: Record<string, string> = {
+      mention: "@mention",
+      review_requested: "review request",
+      assign: "assignment",
+      author: "update on your PR",
+      comment: "comment reply",
+      state_change: "state change",
+      team_mention: "team @mention",
+    };
+    const reasonLabel = reasonLabels[n.reason] ?? n.reason;
 
     const subjectNum = htmlUrl.split("/").pop() ?? "";
     const ghCmd =
@@ -122,7 +124,12 @@ export default async function githubMentionsSensor(): Promise<string> {
         "3. Use gh CLI to post comments or reviews as appropriate.",
       ].join("\n"),
       skills: '["aibtc-maintenance"]',
-      priority: n.reason === "review_requested" ? 3 : 4,
+      priority:
+        n.reason === "review_requested" || n.reason === "assign"
+          ? 3
+          : n.reason === "mention" || n.reason === "team_mention"
+            ? 4
+            : 5,
       source,
     });
 
