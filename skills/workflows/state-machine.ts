@@ -353,6 +353,96 @@ export const ValidationRequestMachine: StateMachine<{
   },
 };
 
+export const InscriptionMachine: StateMachine<{
+  dataHash?: string;
+  dataSize?: number;
+  walletAddress?: string;
+  commitTxid?: string;
+  commitFee?: number;
+  commitConfirmed?: boolean;
+  revealTxid?: string;
+  revealFee?: number;
+  revealConfirmed?: boolean;
+  inscriptionId?: string;
+  network?: string;
+}> = {
+  name: "inscription",
+  initialState: "pending",
+  states: {
+    pending: {
+      on: { prepare_commit: "commit_preparing" },
+      action: (ctx) => {
+        if (!ctx.dataHash || !ctx.walletAddress) return null;
+        return {
+          type: "create-task",
+          subject: `Inscription: Prepare commit for ${ctx.dataHash.slice(0, 8)}...`,
+          priority: 5,
+          skills: ["bitcoin"],
+          description: `Prepare commit transaction. Data hash: ${ctx.dataHash}, Wallet: ${ctx.walletAddress}, Network: ${ctx.network || "mainnet"}`,
+        };
+      },
+    },
+    commit_preparing: {
+      on: { broadcast_commit: "commit_broadcasted" },
+      action: () => null,
+    },
+    commit_broadcasted: {
+      on: { confirm_commit: "reveal_pending" },
+      action: (ctx) => {
+        if (!ctx.commitTxid) return null;
+        return {
+          type: "create-task",
+          subject: `Inscription: Confirm commit transaction ${ctx.commitTxid.slice(0, 8)}...`,
+          priority: 5,
+          skills: ["bitcoin"],
+          description: `Wait for commit confirmation (typically 1-6 blocks). Commit txid: ${ctx.commitTxid}`,
+        };
+      },
+    },
+    reveal_pending: {
+      on: { prepare_reveal: "reveal_preparing" },
+      action: () => null,
+    },
+    reveal_preparing: {
+      on: { broadcast_reveal: "reveal_broadcasted" },
+      action: (ctx) => {
+        if (!ctx.commitTxid) return null;
+        return {
+          type: "create-task",
+          subject: `Inscription: Prepare reveal transaction for ${ctx.commitTxid.slice(0, 8)}...`,
+          priority: 5,
+          skills: ["bitcoin"],
+          description: `Prepare reveal transaction using commit UTXO. Commit txid: ${ctx.commitTxid}`,
+        };
+      },
+    },
+    reveal_broadcasted: {
+      on: { confirm_reveal: "confirmed" },
+      action: (ctx) => {
+        if (!ctx.revealTxid) return null;
+        return {
+          type: "create-task",
+          subject: `Inscription: Confirm reveal transaction ${ctx.revealTxid.slice(0, 8)}...`,
+          priority: 5,
+          skills: ["bitcoin"],
+          description: `Wait for reveal confirmation and extract inscription ID. Reveal txid: ${ctx.revealTxid}`,
+        };
+      },
+    },
+    confirmed: {
+      on: { complete: "completed" },
+      action: (ctx) => {
+        if (!ctx.inscriptionId) return null;
+        return { type: "noop" };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
 /**
  * Get a template by name.
  * Registry maps template names to their state machines.
@@ -365,6 +455,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "pr-lifecycle": PrLifecycleMachine,
     "reputation-feedback": ReputationFeedbackMachine,
     "validation-request": ValidationRequestMachine,
+    "inscription": InscriptionMachine,
   };
   return templates[name] || null;
 }

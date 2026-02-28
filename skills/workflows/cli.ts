@@ -21,6 +21,7 @@ import {
   PrLifecycleMachine,
   ReputationFeedbackMachine,
   ValidationRequestMachine,
+  InscriptionMachine,
 } from "./state-machine.ts";
 
 type CommandResult = { success: boolean; message: string; data?: unknown };
@@ -298,6 +299,7 @@ function getTemplateByName(name: string) {
     "pr-lifecycle": PrLifecycleMachine,
     "reputation-feedback": ReputationFeedbackMachine,
     "validation-request": ValidationRequestMachine,
+    "inscription": InscriptionMachine,
   };
   return templates[name];
 }

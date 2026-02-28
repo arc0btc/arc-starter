@@ -53,7 +53,7 @@ The workflow system includes a minimal, dependency-free state machine runner. Ea
 - `getAllowedTransitions(state, template)` — Get available transitions from a state
 - `isTransitionAllowed(from, to, template)` — Check if transition is valid
 
-**Built-in templates:** `BlogPostingMachine`, `SignalFilingMachine`, `BeatClaimingMachine`, `PrLifecycleMachine`, `ReputationFeedbackMachine`
+**Built-in templates:** `BlogPostingMachine`, `SignalFilingMachine`, `BeatClaimingMachine`, `PrLifecycleMachine`, `ReputationFeedbackMachine`, `ValidationRequestMachine`, `InscriptionMachine`
 
 See `state-machine.ts` for full API (100 lines, no external deps).
 
@@ -266,6 +266,56 @@ arc skills run --name workflows -- complete <id>
 **Requires:** `reputation` skill (for give-feedback operations)
 
 **Pattern:** Mentorship feedback giving. Arc evaluates other agents, gives on-chain feedback, tracks confirmation.
+
+### Inscription (`inscription`)
+
+Manage Bitcoin inscription lifecycle through two-phase commit/reveal process. Tracks fee estimation, UTXO management, and confirmation progress.
+
+**States:**
+- `pending` — Initial state, inscription data prepared
+- `commit_preparing` — Preparing commit transaction (fee estimation, UTXO selection)
+- `commit_broadcasted` — Commit transaction broadcast, awaiting confirmation
+- `reveal_pending` — Commit confirmed, ready for reveal
+- `reveal_preparing` — Preparing reveal transaction
+- `reveal_broadcasted` — Reveal transaction broadcast, awaiting confirmation
+- `confirmed` — Reveal confirmed, inscription complete
+- `completed` — Workflow finished (terminal)
+
+**Context schema:**
+```typescript
+{
+  dataHash: string;          // Required: SHA-256 hash of inscription data
+  dataSize?: number;         // Optional: Size in bytes
+  walletAddress: string;     // Required: Wallet address for inscriptions
+  commitTxid?: string;       // Commit transaction ID after broadcast
+  commitFee?: number;        // Commit transaction fee (sats)
+  commitConfirmed?: boolean; // Whether commit reached target confirmations
+  revealTxid?: string;       // Reveal transaction ID after broadcast
+  revealFee?: number;        // Reveal transaction fee (sats)
+  revealConfirmed?: boolean; // Whether reveal reached target confirmations
+  inscriptionId?: string;    // Inscription ID after reveal confirmation
+  network?: string;          // "mainnet" or "testnet" (default: mainnet)
+}
+```
+
+**Usage:**
+```bash
+# Create workflow
+arc skills run --name workflows -- create inscription "inscription-arc-token-2026-02-28" "pending" --context '{"dataHash":"abc123...","walletAddress":"bc1q...","network":"mainnet"}'
+
+# Track progress through phases
+arc skills run --name workflows -- transition <id> "commit_preparing"
+arc skills run --name workflows -- transition <id> "commit_broadcasted" --context '{"commitTxid":"txid...","commitFee":2000}'
+arc skills run --name workflows -- transition <id> "reveal_pending" --context '{"commitConfirmed":true}'
+arc skills run --name workflows -- transition <id> "reveal_preparing"
+arc skills run --name workflows -- transition <id> "reveal_broadcasted" --context '{"revealTxid":"txid...","revealFee":1500}'
+arc skills run --name workflows -- transition <id> "confirmed" --context '{"inscriptionId":"...#0","revealConfirmed":true}'
+arc skills run --name workflows -- complete <id>
+```
+
+**Requires:** `bitcoin` skill (for transaction preparation and broadcast)
+
+**Pattern:** Two-phase Byzantine commit for Bitcoin inscriptions. Commit phase reserves UTXO. Reveal phase uses committed UTXO to inscribe data. State machine ensures atomic semantics and fee tracking across both phases.
 
 ## Checklist
 
