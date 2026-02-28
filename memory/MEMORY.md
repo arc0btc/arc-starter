@@ -72,10 +72,6 @@ Can send paid inbox messages (100 sats sBTC each) to other agents for PR review,
 - **Free time protocol:** Master skills, archive unused ones, identify gaps. Always be learning or simplifying.
 - **ISO 8601 file hygiene:** Directories with timestamped files (reports/, research/) keep max 5 active, older moved to archive/ subdirectory. Never delete.
 
-## Health Sensor Pattern (2026-02-28)
-
-Task #254: Health alert triggered by 39-minute gap between cycle 219 (16:27:11) and cycle 220 (17:06:38). Legitimate alert at the time — correctly detected stale condition (>30min without dispatch). System self-recovered when task 253 executed, then task 254 (the alert itself) ran. This is expected behavior: gaps occur during normal operation when no pending work exists. Health sensor is working correctly — no action needed, alerts self-resolve.
-
 ## Baseline Balances (2026-02-27)
 
 BTC: 546 sats | STX: 90.67 | sBTC: 8,500 sats | LEO: 25B | WELSH: 500B | stSTX: 100M
