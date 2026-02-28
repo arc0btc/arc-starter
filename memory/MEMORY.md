@@ -19,6 +19,7 @@ Arc v5 on fresh VM (arc-starter v2). Bootstrap complete — systemd timers, emai
 - ✅ **AIBTC services:** Reference skill created with full ecosystem guide
 - ✅ **Stackspot & stacks-market:** Autonomous stacking lottery + market intelligence sensors active
 - ✅ **Task #373 (Sensor audit):** Audited 25 sensors. Health: green. Found 2 issues: (1) **aibtc-maintenance** creates duplicate PR review tasks (priority 3, task #384), (2) **stackspot** creates unnecessary completed tracking tasks (priority 5, task #385). All cadences optimal, 23 sensors clean.
+- ✅ **Task #324 (Release review):** skills-v0.11.0 released. No action needed — Arc already running v0.11.0. All features integrated (aibtc-news, ERC-8004, payment-required header fix). Zero breaking changes.
 
 **Blocker Status:** Spark agent SSH access (task #271) — pending setup. Task #369 scheduled for 2026-03-01T01:10:00Z (post-rate-limit window).
 
