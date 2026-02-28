@@ -8,7 +8,7 @@
  * Invoked by `arc run` (cli.ts) or directly as a standalone entry point.
  */
 
-import { existsSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   type Task,
@@ -18,6 +18,7 @@ import {
   getTaskById,
   initDatabase,
   insertCycleLog,
+  insertTask,
   markTaskActive,
   markTaskCompleted,
   markTaskFailed,
@@ -40,24 +41,66 @@ function log(msg: string): void {
   console.log(`[${new Date().toISOString()}] ${msg}`);
 }
 
+// ---- Model routing ----
+
+type ModelTier = "opus" | "sonnet" | "haiku";
+
+interface ModelPricing {
+  input_per_million: number;
+  output_per_million: number;
+  cache_read_per_million: number;
+  cache_write_per_million: number;
+}
+
+const MODEL_PRICING: Record<ModelTier, ModelPricing> = {
+  opus: {
+    input_per_million: 15,
+    output_per_million: 75,
+    cache_read_per_million: 1.875,
+    cache_write_per_million: 18.75,
+  },
+  sonnet: {
+    input_per_million: 3,
+    output_per_million: 15,
+    cache_read_per_million: 0.30,
+    cache_write_per_million: 3.75,
+  },
+  haiku: {
+    input_per_million: 1,
+    output_per_million: 5,
+    cache_read_per_million: 0.10,
+    cache_write_per_million: 1.25,
+  },
+};
+
+/**
+ * Route tasks to the appropriate model tier based on priority.
+ * Priority 1-3 (strategic): Opus — deep reasoning, complex decisions.
+ * Priority 4+  (routine):   Haiku — fast, cheap, good enough for standard work.
+ */
+function selectModel(task: Task): ModelTier {
+  if (task.priority <= 3) return "opus";
+  return "haiku";
+}
+
 // ---- Cost calculation ----
 
 /**
- * Calculate estimated API cost from token counts.
- * Opus pricing: $15/1M input, $75/1M output.
- * Cache pricing: $1.875/1M cache read, $18.75/1M cache write (5-min ephemeral).
+ * Calculate estimated API cost from token counts using model-specific pricing.
  */
 function calculateApiCostUsd(
+  model: ModelTier,
   input_tokens: number,
   output_tokens: number,
   cache_read_tokens: number = 0,
   cache_creation_tokens: number = 0
 ): number {
+  const p = MODEL_PRICING[model];
   return (
-    (input_tokens / 1_000_000) * 15 +
-    (output_tokens / 1_000_000) * 75 +
-    (cache_read_tokens / 1_000_000) * 1.875 +
-    (cache_creation_tokens / 1_000_000) * 18.75
+    (input_tokens / 1_000_000) * p.input_per_million +
+    (output_tokens / 1_000_000) * p.output_per_million +
+    (cache_read_tokens / 1_000_000) * p.cache_read_per_million +
+    (cache_creation_tokens / 1_000_000) * p.cache_write_per_million
   );
 }
 
@@ -219,13 +262,13 @@ interface DispatchResult {
   output_tokens: number;
 }
 
-async function dispatch(prompt: string): Promise<DispatchResult> {
+async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string): Promise<DispatchResult> {
   const args = [
     "claude",
     "--print",
     "--verbose",
     "--model",
-    "opus",
+    model,
     "--output-format",
     "stream-json",
     "--no-session-persistence",
@@ -240,6 +283,7 @@ async function dispatch(prompt: string): Promise<DispatchResult> {
     stdin: new Blob([prompt]),
     stdout: "pipe",
     stderr: "pipe",
+    ...(cwd ? { cwd } : {}),
   });
 
   let result = "";
@@ -305,7 +349,7 @@ async function dispatch(prompt: string): Promise<DispatchResult> {
 
       // Fallback cost estimate from tokens if total_cost_usd not available
       if (!cost_usd && usage) {
-        cost_usd = calculateApiCostUsd(input_tokens, output_tokens, cache_read_tokens, cache_creation_tokens);
+        cost_usd = calculateApiCostUsd(model, input_tokens, output_tokens, cache_read_tokens, cache_creation_tokens);
       }
 
       // If text delta accumulation produced nothing, fall back to result field
@@ -334,7 +378,7 @@ async function dispatch(prompt: string): Promise<DispatchResult> {
   }
 
   // Always calculate api_cost_usd from tokens for dual tracking
-  const api_cost_usd = calculateApiCostUsd(input_tokens, output_tokens, cache_read_tokens, cache_creation_tokens);
+  const api_cost_usd = calculateApiCostUsd(model, input_tokens, output_tokens, cache_read_tokens, cache_creation_tokens);
 
   // Report total input tokens (non-cached + cache read + cache creation)
   const total_input_tokens = input_tokens + cache_read_tokens + cache_creation_tokens;
@@ -342,7 +386,7 @@ async function dispatch(prompt: string): Promise<DispatchResult> {
   return { result, cost_usd, api_cost_usd, input_tokens: total_input_tokens, output_tokens };
 }
 
-// ---- Auto-commit ----
+// ---- Auto-commit with safety checks ----
 
 /** Spawn a git command in the repo root, capturing output. */
 async function git(...args: string[]): Promise<{ exitCode: number; stdout: string; stderr: string }> {
@@ -355,8 +399,66 @@ async function git(...args: string[]): Promise<{ exitCode: number; stdout: strin
   return { exitCode, stdout, stderr };
 }
 
-async function commitCycleChanges(): Promise<void> {
+/** Generic command runner — spawn a process and capture output. */
+async function runCommand(cmd: string, args: string[]): Promise<{ exitCode: number; stdout: string; stderr: string }> {
+  const proc = Bun.spawn([cmd, ...args], { cwd: ROOT, stdout: "pipe", stderr: "pipe" });
+  const [exitCode, stdout, stderr] = await Promise.all([
+    proc.exited,
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text(),
+  ]);
+  return { exitCode, stdout, stderr };
+}
+
+const ARC_SERVICES = ["arc-web.service", "arc-sensors.timer", "arc-dispatch.timer"] as const;
+
+/** Snapshot which systemd user services are currently active. */
+async function snapshotServiceState(): Promise<Map<string, boolean>> {
+  const state = new Map<string, boolean>();
+  for (const svc of ARC_SERVICES) {
+    const { exitCode } = await runCommand("systemctl", ["--user", "is-active", svc]);
+    state.set(svc, exitCode === 0);
+  }
+  return state;
+}
+
+/** Syntax-check staged .ts files using Bun.Transpiler. Returns errors or empty array. */
+function syntaxCheckStagedFiles(files: string[]): string[] {
+  const transpiler = new Bun.Transpiler({ loader: "ts" });
+  const errors: string[] = [];
+  for (const file of files) {
+    const fullPath = join(ROOT, file);
+    try {
+      const content = readFileSync(fullPath, "utf-8");
+      transpiler.transformSync(content);
+    } catch (err) {
+      errors.push(`${file}: ${String(err)}`);
+    }
+  }
+  return errors;
+}
+
+/** Compare post-commit service state to snapshot. Returns names of services that died. */
+async function checkServiceHealth(before: Map<string, boolean>): Promise<string[]> {
+  const died: string[] = [];
+  for (const [svc, wasActive] of before) {
+    if (!wasActive) continue;
+    const { exitCode } = await runCommand("systemctl", ["--user", "is-active", svc]);
+    if (exitCode !== 0) died.push(svc);
+  }
+  return died;
+}
+
+/**
+ * Safe commit: stages files, syntax-checks .ts, commits, then health-checks services.
+ * If syntax check fails: unstages, creates follow-up task.
+ * If services die after commit: reverts commit, restarts services, creates follow-up task.
+ */
+async function safeCommitCycleChanges(taskId: number): Promise<void> {
   try {
+    // Snapshot service state before staging
+    const servicesBefore = await snapshotServiceState();
+
     // Stage specific directories — never .env or db/*.sqlite
     const stageDirs = ["memory/", "skills/", "src/", "templates/"];
     for (const dir of stageDirs) {
@@ -369,21 +471,178 @@ async function commitCycleChanges(): Promise<void> {
     const { exitCode: diffExit } = await git("diff", "--cached", "--quiet");
     if (diffExit === 0) return; // nothing to commit
 
-    // Count staged files for the commit message
-    const { stdout: stagedFiles } = await git("diff", "--cached", "--name-only");
-    const fileCount = stagedFiles.trim().split("\n").filter(Boolean).length;
+    // Get list of staged files
+    const { stdout: stagedOutput } = await git("diff", "--cached", "--name-only");
+    const stagedFiles = stagedOutput.trim().split("\n").filter(Boolean);
+    const stagedTsFiles = stagedFiles.filter((f) => f.endsWith(".ts"));
 
-    // Commit with conventional message
+    // Layer 1: Pre-commit syntax check
+    if (stagedTsFiles.length > 0) {
+      const syntaxErrors = syntaxCheckStagedFiles(stagedTsFiles);
+      if (syntaxErrors.length > 0) {
+        log(`dispatch: syntax check FAILED for ${syntaxErrors.length} file(s):`);
+        for (const err of syntaxErrors) log(`  ${err}`);
+
+        // Unstage everything
+        await git("reset", "HEAD");
+
+        // Create follow-up task
+        insertTask({
+          subject: `Fix syntax errors from task #${taskId}`,
+          description: `Syntax check failed after dispatch:\n${syntaxErrors.join("\n")}`,
+          priority: 2,
+          source: `task:${taskId}`,
+        });
+        log("dispatch: created follow-up task for syntax errors");
+        return;
+      }
+    }
+
+    // Commit
+    const fileCount = stagedFiles.length;
     const msg = `chore(loop): auto-commit after dispatch cycle [${fileCount} file(s)]`;
     const { exitCode: commitExit, stderr } = await git("commit", "-m", msg);
-    if (commitExit === 0) {
-      log(`dispatch: auto-committed ${fileCount} file(s)`);
-    } else {
+    if (commitExit !== 0) {
       log(`dispatch: auto-commit failed — ${stderr.trim()}`);
+      return;
+    }
+    log(`dispatch: auto-committed ${fileCount} file(s)`);
+
+    // Layer 2: Post-commit service health check (only if src/ files changed)
+    const hasSrcChanges = stagedFiles.some((f) => f.startsWith("src/"));
+    if (hasSrcChanges) {
+      // Wait for systemd to pick up file changes
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      const diedServices = await checkServiceHealth(servicesBefore);
+      if (diedServices.length > 0) {
+        log(`dispatch: services DIED after commit: ${diedServices.join(", ")}`);
+
+        // Revert the commit
+        const { exitCode: revertExit } = await git("revert", "--no-edit", "HEAD");
+        if (revertExit === 0) {
+          log("dispatch: reverted HEAD commit");
+        } else {
+          log("dispatch: WARNING — git revert failed, manual intervention needed");
+        }
+
+        // Restart failed services
+        for (const svc of diedServices) {
+          await runCommand("systemctl", ["--user", "restart", svc]);
+          log(`dispatch: restarted ${svc}`);
+        }
+
+        // Create follow-up task
+        insertTask({
+          subject: `Fix service crash from task #${taskId}`,
+          description: `Services died after commit: ${diedServices.join(", ")}. Commit was reverted.`,
+          priority: 2,
+          source: `task:${taskId}`,
+        });
+        log("dispatch: created follow-up task for service crash");
+      }
     }
   } catch (err) {
-    log(`dispatch: auto-commit error — ${err}`);
+    log(`dispatch: safe-commit error — ${err}`);
   }
+}
+
+// ---- Worktree isolation ----
+
+const WORKTREE_DIR = join(ROOT, ".worktrees");
+
+/** Create an isolated worktree for a task, symlink shared state into it. */
+async function createWorktree(taskId: number): Promise<string> {
+  const name = `task-${taskId}`;
+  const worktreePath = join(WORKTREE_DIR, name);
+  const branchName = `dispatch/task-${taskId}`;
+
+  mkdirSync(WORKTREE_DIR, { recursive: true });
+  const { exitCode, stderr } = await git("worktree", "add", worktreePath, "-b", branchName);
+  if (exitCode !== 0) throw new Error(`git worktree add failed: ${stderr.trim()}`);
+
+  // Symlink shared state into the worktree
+  const symlinks: Array<[string, string]> = [
+    [join(ROOT, "db"), join(worktreePath, "db")],
+    [join(ROOT, "node_modules"), join(worktreePath, "node_modules")],
+  ];
+  // .env is a file, not a directory
+  if (existsSync(join(ROOT, ".env"))) {
+    symlinks.push([join(ROOT, ".env"), join(worktreePath, ".env")]);
+  }
+
+  for (const [target, link] of symlinks) {
+    // Remove the placeholder created by git checkout if it exists
+    try { unlinkSync(link); } catch { /* doesn't exist */ }
+    // db/ dir created by git checkout needs removal for symlink
+    try {
+      const entries = readdirSync(link);
+      if (entries.length === 0 || (entries.length === 1 && entries[0] === "arc.db")) {
+        // Remove placeholder db dir so we can symlink the real one
+        const { exitCode: rmExit } = await runCommand("rm", ["-rf", link]);
+        if (rmExit !== 0) log(`dispatch: worktree — could not remove ${link}`);
+      }
+    } catch { /* not a directory */ }
+    symlinkSync(target, link);
+  }
+
+  log(`dispatch: worktree created at ${worktreePath}`);
+  return worktreePath;
+}
+
+/** Validate .ts files changed in the worktree branch. Returns errors or empty array. */
+async function validateWorktree(worktreePath: string, taskId: number): Promise<string[]> {
+  const branchName = `dispatch/task-${taskId}`;
+  // Get list of .ts files changed on the worktree branch vs its merge base
+  const proc = Bun.spawn(
+    ["git", "diff", "--name-only", `HEAD...${branchName}`, "--", "*.ts"],
+    { cwd: ROOT, stdout: "pipe", stderr: "pipe" }
+  );
+  const stdout = await new Response(proc.stdout).text();
+  await proc.exited;
+
+  const changedFiles = stdout.trim().split("\n").filter(Boolean);
+  if (changedFiles.length === 0) return [];
+
+  const transpiler = new Bun.Transpiler({ loader: "ts" });
+  const errors: string[] = [];
+  for (const file of changedFiles) {
+    const fullPath = join(worktreePath, file);
+    try {
+      const content = readFileSync(fullPath, "utf-8");
+      transpiler.transformSync(content);
+    } catch (err) {
+      errors.push(`${file}: ${String(err)}`);
+    }
+  }
+  return errors;
+}
+
+/** Merge worktree branch into current branch and clean up. */
+async function mergeWorktree(taskId: number): Promise<{ ok: boolean; error?: string }> {
+  const name = `task-${taskId}`;
+  const worktreePath = join(WORKTREE_DIR, name);
+  const branchName = `dispatch/task-${taskId}`;
+
+  const { exitCode, stderr } = await git("merge", branchName, "--no-edit");
+  if (exitCode !== 0) return { ok: false, error: stderr.trim() };
+
+  // Clean up worktree + branch
+  await git("worktree", "remove", worktreePath, "--force");
+  await git("branch", "-d", branchName);
+  log(`dispatch: worktree ${name} merged and cleaned up`);
+  return { ok: true };
+}
+
+/** Remove a worktree and its branch without merging. */
+async function discardWorktree(taskId: number): Promise<void> {
+  const name = `task-${taskId}`;
+  const worktreePath = join(WORKTREE_DIR, name);
+  const branchName = `dispatch/task-${taskId}`;
+
+  await git("worktree", "remove", worktreePath, "--force");
+  await git("branch", "-D", branchName);
+  log(`dispatch: worktree ${name} discarded`);
 }
 
 // ---- Main entry point ----
@@ -398,7 +657,7 @@ async function commitCycleChanges(): Promise<void> {
  * 6. Spawn claude with stream-JSON output
  * 7. Parse result, track cost
  * 8. Close task (if LLM didn't self-close) + record cycle
- * 9. Clear lock + auto-commit
+ * 9. Clear lock + auto-commit (with syntax guard + service health check)
  */
 export async function runDispatch(): Promise<void> {
   // 1. Lock check
@@ -436,9 +695,11 @@ export async function runDispatch(): Promise<void> {
 
   // 4. Build context for prompt
   const skillNames = parseSkillNames(task.skills);
+  const model = selectModel(task);
   if (skillNames.length > 0) {
     log(`dispatch: loading skills: ${skillNames.join(", ")}`);
   }
+  log(`dispatch: model=${model} (priority ${task.priority})`);
 
   const recentCycles = getRecentCycles(10)
     .map(
@@ -455,6 +716,18 @@ export async function runDispatch(): Promise<void> {
 
   log(`dispatch: dispatching for task #${task.id} — "${task.subject}"`);
 
+  // 5b. Worktree isolation — create if task uses worktrees skill
+  const useWorktree = skillNames.includes("worktrees");
+  let worktreePath: string | undefined;
+  if (useWorktree) {
+    try {
+      worktreePath = await createWorktree(task.id);
+      log(`dispatch: running in worktree at ${worktreePath}`);
+    } catch (err) {
+      log(`dispatch: worktree creation failed — falling back to main tree: ${err}`);
+    }
+  }
+
   // 6. Record cycle start
   const cycleStartedAt = toSqliteDatetime(new Date());
   const cycleId = insertCycleLog({
@@ -467,9 +740,9 @@ export async function runDispatch(): Promise<void> {
   let cycleUpdated = false;
 
   try {
-    // 7. Run dispatch (LLM call)
+    // 7. Run dispatch (LLM call — in worktree if available)
     const { result, cost_usd, api_cost_usd, input_tokens, output_tokens } =
-      await dispatch(prompt);
+      await dispatch(prompt, model, worktreePath);
 
     log(
       `dispatch: task #${task.id} returned — cost_usd=$${cost_usd.toFixed(6)} api_cost=$${api_cost_usd.toFixed(6)} tokens=${input_tokens}in/${output_tokens}out`
@@ -535,8 +808,41 @@ export async function runDispatch(): Promise<void> {
     clearDispatchLock();
   }
 
-  // Auto-commit any changes made during dispatch
-  await commitCycleChanges();
+  // 10. Post-dispatch: worktree validate+merge or normal safe commit
+  if (worktreePath) {
+    try {
+      const errors = await validateWorktree(worktreePath, task.id);
+      if (errors.length > 0) {
+        log(`dispatch: worktree validation FAILED for ${errors.length} file(s):`);
+        for (const err of errors) log(`  ${err}`);
+        await discardWorktree(task.id);
+        insertTask({
+          subject: `Fix worktree validation errors from task #${task.id}`,
+          description: `Worktree discarded — syntax errors:\n${errors.join("\n")}`,
+          priority: 2,
+          source: `task:${task.id}`,
+        });
+      } else {
+        const { ok, error } = await mergeWorktree(task.id);
+        if (!ok) {
+          log(`dispatch: worktree merge failed — ${error}`);
+          await discardWorktree(task.id);
+          insertTask({
+            subject: `Fix worktree merge conflict from task #${task.id}`,
+            description: `Merge failed: ${error}`,
+            priority: 2,
+            source: `task:${task.id}`,
+          });
+        }
+      }
+    } catch (err) {
+      log(`dispatch: worktree cleanup error — ${err}`);
+      try { await discardWorktree(task.id); } catch { /* best effort */ }
+    }
+  } else {
+    // Normal path: safe commit with syntax check + service health guard
+    await safeCommitCycleChanges(task.id);
+  }
 }
 
 // ---- Standalone entry point ----

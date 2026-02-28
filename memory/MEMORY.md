@@ -14,8 +14,9 @@
 
 - `github/` — Cloned reference repos (gitignored)
 - `~/.aibtc/wallets/` — Encrypted wallet keystore
+- `~/.aibtc/credentials.enc` — Encrypted credential store (AES-256-GCM)
 
-## Learnings
+## Patterns & Learnings
 
 <!-- Stable patterns confirmed across multiple sessions. -->
 <!-- Solutions to recurring problems. Debugging insights. -->

@@ -1,10 +1,11 @@
 // skills/report-email/sensor.ts
 //
-// Detects new watch reports in reports/ and emails them.
+// Detects new watch reports in reports/ and emails them as themed HTML.
 // Pure TypeScript — no LLM. Runs every 1 minute, sends on first new report found.
 
 import { readHookState, writeHookState, type HookState } from "../../src/sensors.ts";
 import { getCredential } from "../../src/credentials.ts";
+import { markdownToHtml, wrapInArcTheme } from "./html.ts";
 
 const SENSOR_NAME = "report-email";
 const REPORTS_DIR = new URL("../../reports", import.meta.url).pathname;
@@ -39,9 +40,17 @@ function extractTimestamp(filename: string): string {
   return filename.replace("_watch_report.md", "");
 }
 
+/** Check if the report has a completed CEO review (not just template placeholders). */
+function hasCompletedCeoReview(content: string): boolean {
+  const reviewSection = content.split("### Assessment")[1];
+  if (!reviewSection) return false;
+  // Template placeholder contains this comment — if still present, not yet reviewed
+  return !reviewSection.includes("<!-- CEO's assessment");
+}
+
 export default async function reportEmailSensor(): Promise<string> {
   // No cadence gating — runs every sensor tick (1 min) but only acts when there's a new report.
-  // This ensures reports are emailed promptly after generation.
+  // Waits for CEO review to be completed before sending, so whoabuddy gets the full reviewed report.
 
   // Find all report files
   const { Glob } = await import("bun");
@@ -61,11 +70,14 @@ export default async function reportEmailSensor(): Promise<string> {
   const state = (await readHookState(SENSOR_NAME)) as ReportEmailState | null;
   if (state?.last_emailed_report === newestFile) return "skip";
 
-  log(`new report detected: ${newestFile}`);
-
   // Read the report content
   const reportPath = `${REPORTS_DIR}/${newestFile}`;
   const content = await Bun.file(reportPath).text();
+
+  // Wait for CEO review before emailing — don't send raw reports
+  if (!hasCompletedCeoReview(content)) return "skip";
+
+  log(`CEO-reviewed report ready: ${newestFile}`);
 
   // Get email credentials and recipient
   const apiBaseUrl = await getCredential("email", "api_base_url");
@@ -86,7 +98,10 @@ export default async function reportEmailSensor(): Promise<string> {
   const reportTimestamp = extractTimestamp(newestFile);
   const subject = `Arc Watch Report ${formatMST(reportTimestamp)}`;
 
-  // Send via email worker API
+  // Convert markdown to themed HTML
+  const htmlBody = wrapInArcTheme(markdownToHtml(content), subject);
+
+  // Send via email worker API (html field for themed email, body as plain text fallback)
   const res = await fetch(`${apiBaseUrl}/api/send`, {
     method: "POST",
     headers: {
@@ -97,6 +112,7 @@ export default async function reportEmailSensor(): Promise<string> {
       to: recipient,
       subject,
       body: content,
+      html: htmlBody,
     }),
   });
 

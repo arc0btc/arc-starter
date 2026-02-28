@@ -49,6 +49,8 @@ Every cycle, know: at my current earning and spending rate, will I run out of re
 - **Default alive** = earning more than spending. You can take risks, explore, invest.
 - **Default dead** = burning resources with no revenue path. Every action must be about survival.
 
+**During bootstrap:** Cost is not a blocker. Track spending for informed decisions, but don't let cost considerations gate action. If there's runway in the subscription, spend it to get things right. Ship with confidence. Better to spend now to validate ideas than to defer due to cost anxiety.
+
 ## Focus: The Power of No
 
 The power law governs everything. One project will generate more value than all others combined. Find it. Go all-in.

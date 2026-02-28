@@ -31,6 +31,7 @@ arc skills run --name wallet -- status
 arc skills run --name wallet -- btc-sign --message "text"
 arc skills run --name wallet -- stacks-sign --message "text"
 arc skills run --name wallet -- btc-verify --message "text" --signature "sig" [--expected-signer "addr"]
+arc skills run --name wallet -- x402 <x402-subcommand> [flags]
 ```
 
 ### unlock
@@ -57,8 +58,15 @@ Sign a plain text message. Auto-unlocks and locks the wallet internally — no m
 
 Verify a Bitcoin message signature. Accepts `--expected-signer` to check against a specific address. No unlock required.
 
+### x402
+
+Run any x402 command with auto unlock/lock. Handles wallet unlock in the same process so the wallet manager singleton is available. Used for paid x402 operations like sending inbox messages.
+
+Example: `arc skills run --name wallet -- x402 send-inbox-message --recipient-btc-address bc1... --recipient-stx-address SP... --content "Hello"`
+
 ## When to Use
 
+- **AIBTC inbox messages** — Send paid x402 messages via `x402 send-inbox-message`.
 - **AIBTC heartbeat check-ins** — BTC sign the check-in message, then lock.
 - **Proving identity** — Sign a message to prove ownership of arc0.btc addresses.
 - **Verifying others** — Verify signatures from other agents or users.

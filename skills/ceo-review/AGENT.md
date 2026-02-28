@@ -33,17 +33,30 @@ Understand the complete picture:
 - What's blocked and why?
 - Are external tasks (inbox, email) crowding out internal work?
 
-### 3. Evaluate against CEO principles
+### 3. Review research intelligence
 
-**Direction:** Is the agent working on the one thing that matters most? Or scattered?
+Check the Research Intelligence section of the watch report. If research reports were summarized:
 
-**Resources:** Cost-per-outcome this watch. Token spend trending up or down? Are cycles being wasted on low-value work?
+- **Relevance to priorities:** Do any high-relevance findings connect to current pending tasks or strategic goals?
+- **New skills:** Does the research suggest capabilities Arc should build?
+- **Partnerships:** Are there agents, projects, or protocols worth engaging with?
+- **Architectural changes:** Does anything suggest Arc's infrastructure should evolve?
 
-**Results:** What actually shipped? What's visible to the outside? Completed tasks are activity, not results.
+If no research reports exist, skip this step.
 
-**Queue balance:** External signals (AIBTC inbox, email) should serve the mission, not replace it. Is the ratio right?
+### 4. Evaluate against strategic direction
 
-### 4. Shape the queue
+Read the "Current Strategic Direction" section in SKILL.md. Evaluate this watch against Arc's actual priorities, not just generic CEO principles.
+
+**Direction:** Is the agent working on the priority stack in order? Responsiveness > cost discipline > mastery > public presence > ecosystem contribution. Or is it scattered on low-priority work while high-priority items wait?
+
+**Resources:** Check daily cost against the $30 target. Is the trend improving or worsening? Are cycles being wasted on sensor noise, redundant investigations, or over-engineering?
+
+**Results:** What actually shipped that's *visible externally*? Completed tasks are activity, not results. Blog posts, PR reviews, answered messages, deployed features — those are results.
+
+**On/off track:** Compare against the "on track" and "off track" indicators in the strategic direction. Call it directly.
+
+### 5. Shape the queue
 
 This is where you earn your keep. Look at what's pending and decide:
 
@@ -67,11 +80,13 @@ arc tasks close --id <id> --status completed --summary "CEO: killed — <reason>
 arc tasks add --subject "..." --priority <N> --source "sensor:ceo-review"
 ```
 
-### 5. Write the CEO Review section
+### 6. Write the CEO Review section
 
 Edit the watch report to fill in:
 
 **Assessment:** 2-3 sentences. Direct. On track, off track, or needs adjustment.
+
+**Research insights:** If research reports were present, note: findings that inform current work, suggested new skills or partnerships, and any architectural implications. If no research: omit this subsection.
 
 **Queue adjustments:** List every task you reprioritized, modified, or killed. Include task ID and reasoning. Be specific.
 
@@ -81,14 +96,14 @@ Edit the watch report to fill in:
 
 **24-hour horizon:** What should be true by this time tomorrow? This is the strategic frame — not a task list, but a target state.
 
-### 6. Commit the updated report
+### 7. Commit the updated report
 
 ```bash
 git add reports/
 git commit -m "docs(report): CEO review — {one-line assessment}"
 ```
 
-### 7. Close the task
+### 8. Close the task
 
 ```bash
 arc tasks close --id {task_id} --status completed --summary "CEO review: {assessment}. {N} tasks adjusted, {M} created."

@@ -40,8 +40,13 @@ The `template` column links tasks to `templates/` for recurring or structured wo
 - Timer: up to 60 minutes per cycle
 - Gated by `db/dispatch-lock.json` — if another dispatch is running, new invocation exits immediately
 - Selects highest-priority pending task, marks it `active`, runs Claude Code as a subprocess
+- **Model routing**: Priority 1-3 → Opus (deep reasoning), Priority 4+ → Haiku (fast, cheap)
 - Loads SOUL.md, CLAUDE.md, MEMORY.md, and skill SKILL.md files specified in the task's `skills` array
 - Records everything to `cycle_log`
+- **Dispatch resilience** — two safety layers protect the agent from self-inflicted damage:
+  1. *Pre-commit syntax guard*: Bun's transpiler validates all staged `.ts` files before committing. Syntax errors block the commit and create a follow-up task.
+  2. *Post-commit service health check*: After committing `src/` changes, snapshots service state and checks if any died. If so, reverts the commit, restarts services, and creates a follow-up task.
+- **Worktree isolation**: Tasks with `worktrees` skill run in an isolated git worktree. Changes are validated before merging back. If validation fails, the worktree is discarded — main tree stays clean.
 - Entry point: `src/dispatch.ts`
 
 ### Skills as Knowledge Containers
@@ -65,6 +70,7 @@ The CLI is the tool boundary. If a capability doesn't have a CLI command, create
 arc status                                    # task counts, last cycle, cost today
 arc tasks [--status STATUS] [--limit N]       # list tasks (default: pending + active)
 arc tasks add --subject TEXT [--priority N]    # create a task
+arc tasks update --id N [--subject TEXT] [--priority N]  # update a task
 arc tasks close --id N --status completed|failed --summary TEXT
 arc skills                                    # list installed skills
 arc skills show --name NAME                   # print SKILL.md content
@@ -187,7 +193,7 @@ The manage-skills skill handles memory consolidation: it compresses daily observ
 - `blocked` status — Task cannot proceed. Set it and explain in `result_summary`.
 - Escalate if: irreversible action, >100 STX spend, uncertain consequences
 - Never retry: 403/401/permission denied — fail immediately
-- Max 2 retries for transient errors (network, timeouts)
+- Max 3 retries for transient errors (network, timeouts)
 - One escalation per failure type per day — don't spam
 
 ---
@@ -226,6 +232,7 @@ arc tasks close --id <id> --status completed --summary "<summary>"
 - `src/db.ts` — Database initialization and schema
 - `src/cli.ts` — CLI entry point (`arc` command)
 - `src/services.ts` — Cross-platform service installer (systemd/launchd, generates units dynamically)
+- `src/web.ts` — Web dashboard (task list, cycle log, cost tracking). Installed as `arc-web.service`.
 - `templates/` — Task templates for recurring or structured work
 - `bin/arc` — CLI wrapper (symlinked to ~/.local/bin/arc by installer)
 - `src/credentials.ts` — Re-export helper; use `getCredential(service, key)` / `setCredential(service, key, value)` to access the store from other skills

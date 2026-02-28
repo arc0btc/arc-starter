@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arc Dashboard</title>
+  <style>
+    /* ---- Reset & Design Tokens ---- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #000000;
+      --bg-card:     #0c0c0e;
+      --text:        #ffffff;
+      --text-muted:  #E9D4CF;
+      --accent:      #FEC233;
+      --accent-deep: #EA9922;
+      --border:      #1a1a1c;
+      --success:     #22c55e;
+      --error:       #ef4444;
+      --blocked:     #f59e0b;
+
+      --font:      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "Courier New", "Menlo", "Monaco", monospace;
+
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2rem;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-deep); }
+
+    /* ---- Header ---- */
+    .header {
+      border-bottom: 1px solid var(--border);
+      padding: var(--space-md) var(--space-lg);
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+    }
+
+    .header-identity {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      flex-shrink: 0;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      background: var(--bg-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .header-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .header-bns {
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .status-dot.live {
+      background: var(--success);
+      box-shadow: 0 0 6px var(--success);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    .status-dot.offline { background: #555; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .header-stats {
+      display: flex;
+      align-items: center;
+      gap: var(--space-lg);
+      margin-left: auto;
+    }
+
+    .cost-ticker {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--accent);
+    }
+
+    .cost-ticker .label {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: var(--space-md);
+      font-size: 0.85rem;
+    }
+
+    .header-nav a {
+      color: var(--text-muted);
+      transition: color 0.15s;
+    }
+    .header-nav a:hover { color: var(--accent); }
+
+    /* ---- Main Container ---- */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--space-lg);
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-lg);
+      flex: 1;
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        grid-template-columns: 1fr 1fr;
+      }
+      #feed { grid-column: 1 / -1; }
+    }
+
+    @media (min-width: 1024px) {
+      .container {
+        grid-template-columns: 2fr 1fr;
+      }
+      #feed { grid-column: 1 / -1; }
+    }
+
+    /* ---- Section ---- */
+    .section {
+      min-width: 0;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+      padding-left: var(--space-sm);
+      border-left: 3px solid var(--accent);
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
+
+    .section-count {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ---- Card ---- */
+    .card {
+      background: var(--bg-card);
+      border-left: 4px solid var(--accent);
+      padding: var(--space-lg);
+      border-radius: 2px;
+      transition: border-color 0.2s;
+    }
+
+    .card:hover {
+      border-left-color: var(--accent-deep);
+    }
+
+    .card + .card {
+      margin-top: var(--space-sm);
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: var(--space-xs);
+    }
+
+    .card-meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* ---- Pill Badge ---- */
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .pill-gold {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    .pill-muted {
+      background: var(--border);
+      color: var(--text-muted);
+    }
+
+    .pill-success {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--success);
+    }
+
+    .pill-error {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--error);
+    }
+
+    .pill-blocked {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--blocked);
+    }
+
+    /* ---- Status Badges (task status) ---- */
+    .badge-pending   { background: var(--border); color: var(--text-muted); }
+    .badge-active    { background: rgba(254, 194, 51, 0.15); color: var(--accent); }
+    .badge-completed { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+    .badge-failed    { background: rgba(239, 68, 68, 0.15); color: var(--error); }
+    .badge-blocked   { background: rgba(245, 158, 11, 0.15); color: var(--blocked); }
+
+    /* ---- Activity Feed ---- */
+    .feed-list {
+      list-style: none;
+    }
+
+    .feed-item {
+      background: var(--bg-card);
+      border-left: 4px solid var(--border);
+      padding: var(--space-md) var(--space-lg);
+      border-radius: 2px;
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-md);
+    }
+
+    .feed-item + .feed-item {
+      margin-top: var(--space-xs);
+    }
+
+    .feed-item.active {
+      border-left-color: var(--accent);
+      animation: pulse-border 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-border {
+      0%, 100% { border-left-color: var(--accent); }
+      50% { border-left-color: var(--accent-deep); }
+    }
+
+    .feed-item.completed { border-left-color: var(--success); }
+    .feed-item.failed    { border-left-color: var(--error); }
+
+    .feed-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .feed-subject {
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .feed-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      margin-top: var(--space-xs);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ---- Sensor Grid ---- */
+    .sensor-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-sm);
+    }
+
+    @media (min-width: 768px) {
+      .sensor-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (min-width: 1024px) {
+      .sensor-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .sensor-card {
+      background: var(--bg-card);
+      border-left: 3px solid var(--border);
+      padding: var(--space-md);
+      border-radius: 2px;
+    }
+
+    .sensor-card.ok    { border-left-color: var(--success); }
+    .sensor-card.error { border-left-color: var(--error); }
+    .sensor-card.stale { border-left-color: #555; }
+
+    .sensor-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .sensor-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .sensor-detail {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      margin-top: var(--space-xs);
+    }
+
+    /* ---- Metrics ---- */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-sm);
+    }
+
+    .metric-card {
+      background: var(--bg-card);
+      border-left: 3px solid var(--accent);
+      padding: var(--space-md);
+      border-radius: 2px;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--accent);
+      line-height: 1.2;
+    }
+
+    .metric-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: var(--space-xs);
+    }
+
+    .cost-bar-chart {
+      margin-top: var(--space-md);
+      background: var(--bg-card);
+      border-left: 3px solid var(--accent);
+      padding: var(--space-md);
+      border-radius: 2px;
+    }
+
+    .cost-bar-chart .chart-title {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: var(--space-sm);
+    }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-xs);
+    }
+
+    .bar-label {
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      width: 36px;
+      flex-shrink: 0;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px;
+      transition: width 0.3s;
+    }
+
+    .bar-value {
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      width: 48px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* ---- Skill Catalog ---- */
+    .skill-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-sm);
+    }
+
+    @media (min-width: 640px) {
+      .skill-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .skill-card {
+      background: var(--bg-card);
+      border-left: 3px solid var(--border);
+      padding: var(--space-md);
+      border-radius: 2px;
+    }
+
+    .skill-card-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: var(--space-xs);
+    }
+
+    .skill-card-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: var(--space-sm);
+    }
+
+    .skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .skill-tag {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-size: 0.6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      background: rgba(254, 194, 51, 0.12);
+      color: var(--accent);
+    }
+
+    .skill-badge {
+      display: inline-block;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      background: var(--border);
+      color: var(--text-muted);
+      margin-left: var(--space-xs);
+    }
+
+    /* ---- Identity Card ---- */
+    .identity-card {
+      background: var(--bg-card);
+      border-left: 4px solid var(--accent);
+      padding: var(--space-lg);
+      border-radius: 2px;
+    }
+
+    .identity-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    .identity-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .identity-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .identity-bns {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--accent);
+    }
+
+    .identity-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) 0;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+    }
+
+    .identity-label {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      width: 48px;
+      flex-shrink: 0;
+    }
+
+    .identity-value {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .identity-links {
+      display: flex;
+      gap: var(--space-md);
+      margin-top: var(--space-md);
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--border);
+    }
+
+    .identity-links a {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      transition: color 0.15s;
+    }
+    .identity-links a:hover { color: var(--accent); }
+
+    /* ---- Footer ---- */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: var(--space-lg);
+      text-align: center;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-lg);
+      flex-wrap: wrap;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .footer-inner a { color: var(--text-muted); }
+    .footer-inner a:hover { color: var(--accent); }
+
+    .footer-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+
+    /* ---- Loading Placeholder ---- */
+    .placeholder {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-style: italic;
+      padding: var(--space-md) 0;
+    }
+
+    /* ---- Expandable Feed Detail ---- */
+    .feed-item { cursor: pointer; }
+
+    .feed-detail {
+      display: none;
+      margin-top: var(--space-sm);
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .feed-detail.open { display: block; }
+
+    .feed-detail-row {
+      display: flex;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-xs);
+    }
+
+    .feed-detail-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      width: 60px;
+      flex-shrink: 0;
+    }
+
+    .feed-detail-value {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      word-break: break-word;
+    }
+
+    /* ---- Copy Button ---- */
+    .copy-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.65rem;
+      padding: 1px 6px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      transition: color 0.15s, border-color 0.15s;
+      flex-shrink: 0;
+    }
+
+    .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+    .copy-btn.copied { color: var(--success); border-color: var(--success); }
+
+    /* ---- Live Update Animations ---- */
+    @keyframes slide-in {
+      from { opacity: 0; transform: translateY(-20px); max-height: 0; }
+      to   { opacity: 1; transform: translateY(0); max-height: 200px; }
+    }
+
+    @keyframes flash-green {
+      0%   { background: rgba(34, 197, 94, 0.25); }
+      100% { background: var(--bg-card); }
+    }
+
+    @keyframes flash-red {
+      0%   { background: rgba(239, 68, 68, 0.25); }
+      100% { background: var(--bg-card); }
+    }
+
+    @keyframes sensor-ping {
+      0%   { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); }
+      70%  { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+
+    @keyframes cost-bump {
+      0%   { color: var(--accent); transform: scale(1); }
+      50%  { color: #fff; transform: scale(1.15); }
+      100% { color: var(--accent); transform: scale(1); }
+    }
+
+    .feed-item.slide-in {
+      animation: slide-in 0.4s ease-out forwards;
+    }
+
+    .feed-item.flash-green {
+      animation: flash-green 1.5s ease-out forwards;
+    }
+
+    .feed-item.flash-red {
+      animation: flash-red 1.5s ease-out forwards;
+    }
+
+    .sensor-card .status-dot.ping {
+      animation: sensor-ping 0.8s ease-out;
+    }
+
+    .cost-ticker.bump span {
+      animation: cost-bump 0.6s ease-out;
+      display: inline-block;
+    }
+
+    /* ---- SSE Connection Status ---- */
+    .sse-status {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-left: var(--space-xs);
+      vertical-align: middle;
+    }
+
+    .sse-status.connected { background: var(--success); }
+    .sse-status.disconnected { background: var(--error); }
+
+    /* ---- Message Box ---- */
+    .message-box {
+      background: var(--bg-card);
+      border-left: 4px solid var(--accent);
+      padding: var(--space-md) var(--space-lg);
+      border-radius: 2px;
+      margin-bottom: var(--space-md);
+    }
+
+    .message-form {
+      display: flex;
+      gap: var(--space-sm);
+      align-items: flex-end;
+    }
+
+    .message-input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 0.85rem;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: 2px;
+      outline: none;
+      resize: none;
+      min-height: 38px;
+      max-height: 120px;
+      line-height: 1.5;
+      transition: border-color 0.15s;
+    }
+
+    .message-input::placeholder { color: #555; }
+    .message-input:focus { border-color: var(--accent); }
+
+    .message-send {
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      font-family: var(--font);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: var(--space-sm) var(--space-lg);
+      border-radius: 2px;
+      cursor: pointer;
+      height: 38px;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+
+    .message-send:hover { background: var(--accent-deep); }
+    .message-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .message-status {
+      font-size: 0.7rem;
+      margin-top: var(--space-xs);
+      min-height: 1em;
+      font-family: var(--font-mono);
+    }
+
+    .message-status.ok { color: var(--success); }
+    .message-status.err { color: var(--error); }
+
+    /* ---- Scrollbar ---- */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #333; }
+  </style>
+</head>
+<body>
+
+  <!-- ---- Header ---- -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-identity">
+        <div class="avatar">A</div>
+        <div>
+          <div class="header-name">Arc <span class="status-dot live" id="status-dot" title="Live"></span><span class="sse-status disconnected" id="sse-dot" title="SSE disconnected"></span></div>
+          <div class="header-bns">arc0.btc</div>
+        </div>
+      </div>
+
+      <div class="header-stats">
+        <div class="cost-ticker">
+          <div class="label">Cost Today</div>
+          <span id="cost-today">$0.00</span>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <a href="#message">Message</a>
+        <a href="#feed">Feed</a>
+        <a href="#sensors">Sensors</a>
+        <a href="#metrics">Metrics</a>
+        <a href="#skills">Skills</a>
+        <a href="https://arc0.me" target="_blank" rel="noopener">arc0.me</a>
+        <a href="https://github.com/arc0btc" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ---- Main ---- -->
+  <main class="container">
+
+    <!-- Message Box -->
+    <section id="message" class="section" style="grid-column: 1 / -1;">
+      <div class="section-header">
+        <h2 class="section-title">Message Arc</h2>
+      </div>
+      <div class="message-box">
+        <form class="message-form" id="message-form">
+          <textarea class="message-input" id="message-input" placeholder="Send a task to Arc..." rows="1" maxlength="500"></textarea>
+          <button type="submit" class="message-send" id="message-send">Send</button>
+        </form>
+        <div class="message-status" id="message-status"></div>
+      </div>
+    </section>
+
+    <!-- Activity Feed -->
+    <section id="feed" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Activity Feed</h2>
+        <span class="section-count" id="feed-count"></span>
+      </div>
+      <ul class="feed-list" id="feed-list">
+        <li class="feed-item active">
+          <span class="status-dot live"></span>
+          <div class="feed-body">
+            <div class="feed-subject">Loading tasks...</div>
+            <div class="feed-meta">
+              <span class="pill badge-active">active</span>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Sensor Grid -->
+    <section id="sensors" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Sensors</h2>
+        <span class="section-count" id="sensor-count"></span>
+      </div>
+      <div class="sensor-grid" id="sensor-grid">
+        <div class="sensor-card ok">
+          <div class="sensor-header">
+            <span class="status-dot live"></span>
+            <span class="sensor-name">Loading...</span>
+          </div>
+          <div class="sensor-detail">--</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dispatch Metrics -->
+    <section id="metrics" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Dispatch Metrics</h2>
+      </div>
+      <div class="metrics-grid" id="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-value" id="metric-cycles">--</div>
+          <div class="metric-label">Cycles Today</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="metric-success">--</div>
+          <div class="metric-label">Success Rate</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="metric-duration">--</div>
+          <div class="metric-label">Avg Duration</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value" id="metric-queue">--</div>
+          <div class="metric-label">Queue Depth</div>
+        </div>
+      </div>
+
+      <div class="cost-bar-chart" id="cost-chart">
+        <div class="chart-title">Hourly Cost</div>
+        <div id="cost-bars">
+          <p class="placeholder">Loading cost data...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Skill Catalog -->
+    <section id="skills" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Skills</h2>
+        <span class="section-count" id="skill-count"></span>
+      </div>
+      <div class="skill-grid" id="skill-grid">
+        <div class="skill-card">
+          <div class="skill-card-name">Loading...</div>
+          <div class="skill-card-desc">Discovering installed skills</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Identity Card -->
+    <section id="identity" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Identity</h2>
+      </div>
+      <div class="identity-card">
+        <div class="identity-header">
+          <div class="identity-avatar">A</div>
+          <div>
+            <div class="identity-name">Arc</div>
+            <div class="identity-bns">arc0.btc</div>
+          </div>
+        </div>
+        <div class="identity-row">
+          <span class="identity-label">BTC</span>
+          <span class="identity-value">bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933</span>
+        </div>
+        <div class="identity-row">
+          <span class="identity-label">STX</span>
+          <span class="identity-value">SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B</span>
+        </div>
+        <div class="identity-links">
+          <a href="https://arc0.me" target="_blank" rel="noopener">arc0.me</a>
+          <a href="https://arc0btc.com" target="_blank" rel="noopener">arc0btc.com</a>
+          <a href="https://github.com/arc0btc" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://x.com/arc0btc" target="_blank" rel="noopener">@arc0btc</a>
+          <a href="https://explorer.hiro.so/address/SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B" target="_blank" rel="noopener">Explorer</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ---- Footer ---- -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <a href="https://arc0.me" target="_blank" rel="noopener">arc0.me</a>
+      <span class="footer-dot"></span>
+      <span>Arc Agent v5</span>
+      <span class="footer-dot"></span>
+      <span id="uptime">--</span>
+    </div>
+  </footer>
+
+  <script>
+    // ---- Utilities ----
+
+    function relativeTime(dateStr) {
+      if (!dateStr) return '--';
+      const date = dateStr.endsWith('Z') ? new Date(dateStr) : new Date(dateStr + 'Z');
+      const now = Date.now();
+      const diff = now - date.getTime();
+      if (diff < 0) return 'just now';
+      const secs = Math.floor(diff / 1000);
+      if (secs < 60) return secs + 's ago';
+      const mins = Math.floor(secs / 60);
+      if (mins < 60) return mins + 'm ago';
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return hrs + 'h ago';
+      const days = Math.floor(hrs / 24);
+      return days + 'd ago';
+    }
+
+    function formatCost(n) {
+      if (n == null) return '$0.00';
+      return '$' + Number(n).toFixed(2);
+    }
+
+    function formatDuration(ms) {
+      if (ms == null) return '--';
+      if (ms < 1000) return ms + 'ms';
+      const secs = Math.round(ms / 1000);
+      if (secs < 60) return secs + 's';
+      const mins = Math.floor(secs / 60);
+      const remSecs = secs % 60;
+      return mins + 'm ' + remSecs + 's';
+    }
+
+    function formatNumber(n) {
+      if (n == null) return '0';
+      if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+      return String(n);
+    }
+
+    function truncAddr(addr, n) {
+      n = n || 8;
+      if (!addr || addr.length <= n * 2 + 3) return addr || '--';
+      return addr.slice(0, n) + '...' + addr.slice(-n);
+    }
+
+    function esc(s) {
+      if (!s) return '';
+      var d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    function statusBadgeClass(status) {
+      return 'pill badge-' + (status || 'pending');
+    }
+
+    function statusBorderClass(status) {
+      var map = { active: 'active', completed: 'completed', failed: 'failed', blocked: 'failed' };
+      return map[status] || '';
+    }
+
+    async function fetchJSON(url) {
+      var res = await fetch(url);
+      if (!res.ok) throw new Error(res.statusText);
+      return res.json();
+    }
+
+    function copyToClipboard(text, btn) {
+      navigator.clipboard.writeText(text).then(function() {
+        btn.textContent = 'copied';
+        btn.classList.add('copied');
+        setTimeout(function() {
+          btn.textContent = 'copy';
+          btn.classList.remove('copied');
+        }, 1500);
+      });
+    }
+
+    // ---- Renderers ----
+
+    function renderFeed(tasks) {
+      var list = document.getElementById('feed-list');
+      var count = document.getElementById('feed-count');
+      count.textContent = tasks.length + ' tasks';
+
+      if (tasks.length === 0) {
+        list.innerHTML = '<li class="placeholder">No tasks found</li>';
+        return;
+      }
+
+      list.innerHTML = tasks.map(function(t) {
+        var cls = statusBorderClass(t.status);
+        var skills = '';
+        try {
+          var arr = typeof t.skills === 'string' ? JSON.parse(t.skills) : t.skills;
+          if (arr && arr.length) skills = arr.map(function(s) { return '<span class="pill pill-muted">' + esc(s) + '</span>'; }).join(' ');
+        } catch(e) {}
+
+        return '<li class="feed-item ' + cls + '" onclick="toggleDetail(this)">'
+          + '<span class="status-dot ' + (t.status === 'active' ? 'live' : '') + '" style="margin-top:6px;'
+          + (t.status === 'completed' ? 'background:var(--success)' : t.status === 'failed' ? 'background:var(--error)' : t.status === 'blocked' ? 'background:var(--blocked)' : '') + '"></span>'
+          + '<div class="feed-body">'
+          + '<div class="feed-subject">' + esc(t.subject) + '</div>'
+          + '<div class="feed-meta">'
+          + '<span class="' + statusBadgeClass(t.status) + '">' + esc(t.status) + '</span>'
+          + (t.source ? ' <span class="pill pill-muted">' + esc(t.source) + '</span>' : '')
+          + ' ' + skills
+          + ' <span>' + relativeTime(t.created_at) + '</span>'
+          + (t.cost_usd ? ' <span>' + formatCost(t.cost_usd) + '</span>' : '')
+          + '</div>'
+          + '<div class="feed-detail" data-task-id="' + t.id + '"><p class="placeholder">Loading...</p></div>'
+          + '</div>'
+          + '</li>';
+      }).join('');
+    }
+
+    function toggleDetail(el) {
+      var detail = el.querySelector('.feed-detail');
+      if (!detail) return;
+
+      if (detail.classList.contains('open')) {
+        detail.classList.remove('open');
+        return;
+      }
+
+      // Load detail if not yet loaded
+      if (detail.querySelector('.placeholder')) {
+        var taskId = detail.getAttribute('data-task-id');
+        fetchJSON('/api/tasks/' + taskId).then(function(task) {
+          var html = '';
+          if (task.description) {
+            html += '<div class="feed-detail-row"><span class="feed-detail-label">Desc</span><span class="feed-detail-value">' + esc(task.description) + '</span></div>';
+          }
+          if (task.result_summary) {
+            html += '<div class="feed-detail-row"><span class="feed-detail-label">Result</span><span class="feed-detail-value">' + esc(task.result_summary) + '</span></div>';
+          }
+          if (task.cost_usd) {
+            html += '<div class="feed-detail-row"><span class="feed-detail-label">Cost</span><span class="feed-detail-value">' + formatCost(task.cost_usd) + ' actual / ' + formatCost(task.api_cost_usd) + ' API est</span></div>';
+          }
+          if (task.started_at) {
+            var dur = task.completed_at ? new Date(task.completed_at + 'Z').getTime() - new Date(task.started_at + 'Z').getTime() : null;
+            html += '<div class="feed-detail-row"><span class="feed-detail-label">Duration</span><span class="feed-detail-value">' + formatDuration(dur) + '</span></div>';
+          }
+          if (task.tokens_in || task.tokens_out) {
+            html += '<div class="feed-detail-row"><span class="feed-detail-label">Tokens</span><span class="feed-detail-value">' + formatNumber(task.tokens_in) + ' in / ' + formatNumber(task.tokens_out) + ' out</span></div>';
+          }
+          html += '<div class="feed-detail-row"><span class="feed-detail-label">ID</span><span class="feed-detail-value">#' + task.id + ' · P' + task.priority + '</span></div>';
+          detail.innerHTML = html || '<span class="feed-detail-value">No additional details</span>';
+        }).catch(function() {
+          detail.innerHTML = '<span class="feed-detail-value" style="color:var(--error)">Failed to load</span>';
+        });
+      }
+
+      detail.classList.add('open');
+    }
+
+    function renderSensors(sensors) {
+      var grid = document.getElementById('sensor-grid');
+      var count = document.getElementById('sensor-count');
+      count.textContent = sensors.length + ' sensors';
+
+      if (sensors.length === 0) {
+        grid.innerHTML = '<p class="placeholder">No sensors found</p>';
+        return;
+      }
+
+      grid.innerHTML = sensors.map(function(s) {
+        var isError = s.last_result === 'error' || (s.consecutive_failures && s.consecutive_failures > 0);
+        var isRecent = false;
+        if (s.last_ran) {
+          var age = Date.now() - new Date(s.last_ran.endsWith('Z') ? s.last_ran : s.last_ran + 'Z').getTime();
+          var threshold = (s.interval_minutes || 5) * 2 * 60000;
+          isRecent = age < threshold;
+        }
+        var statusCls = isError ? 'error' : (isRecent ? 'ok' : 'stale');
+        var dotCls = isError ? '' : (isRecent ? 'live' : '');
+        var dotStyle = isError ? 'background:var(--error)' : (!isRecent ? 'background:#555' : '');
+
+        return '<div class="sensor-card ' + statusCls + '">'
+          + '<div class="sensor-header">'
+          + '<span class="status-dot ' + dotCls + '" style="' + dotStyle + '"></span>'
+          + '<span class="sensor-name">' + esc(s.name) + '</span>'
+          + (s.interval_minutes ? '<span class="skill-badge">' + s.interval_minutes + 'm</span>' : '')
+          + '</div>'
+          + '<div class="sensor-detail">'
+          + relativeTime(s.last_ran)
+          + (s.last_result && s.last_result !== 'ok' ? ' · ' + esc(s.last_result) : '')
+          + '</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    function renderMetrics(status, costs) {
+      // Stat cards
+      document.getElementById('metric-cycles').textContent = String(status.completed_today + status.failed_today);
+      var total = status.completed_today + status.failed_today;
+      var rate = total > 0 ? Math.round((status.completed_today / total) * 100) : 0;
+      document.getElementById('metric-success').textContent = rate + '%';
+      document.getElementById('metric-queue').textContent = String(status.pending);
+
+      // Avg duration from recent cycles
+      fetchJSON('/api/cycles?limit=50').then(function(data) {
+        var cycles = data.cycles.filter(function(c) { return c.duration_ms != null; });
+        if (cycles.length > 0) {
+          var avg = cycles.reduce(function(sum, c) { return sum + c.duration_ms; }, 0) / cycles.length;
+          document.getElementById('metric-duration').textContent = formatDuration(avg);
+        } else {
+          document.getElementById('metric-duration').textContent = '--';
+        }
+      });
+
+      // Cost bar chart
+      var bars = document.getElementById('cost-bars');
+      if (!costs || costs.length === 0) {
+        bars.innerHTML = '<p class="placeholder">No cost data yet</p>';
+        return;
+      }
+
+      var maxCost = Math.max.apply(null, costs.map(function(c) { return c.cost_usd; }));
+      if (maxCost === 0) maxCost = 1;
+
+      bars.innerHTML = costs.map(function(c) {
+        var hour = c.hour.split(' ')[1] || c.hour;
+        var pct = Math.round((c.cost_usd / maxCost) * 100);
+        return '<div class="bar-row">'
+          + '<span class="bar-label">' + hour.slice(0, 5) + '</span>'
+          + '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%"></div></div>'
+          + '<span class="bar-value">' + formatCost(c.cost_usd) + '</span>'
+          + '</div>';
+      }).join('');
+    }
+
+    function renderSkills(skills) {
+      var grid = document.getElementById('skill-grid');
+      var count = document.getElementById('skill-count');
+      count.textContent = skills.length + ' skills';
+
+      if (skills.length === 0) {
+        grid.innerHTML = '<p class="placeholder">No skills found</p>';
+        return;
+      }
+
+      grid.innerHTML = skills.map(function(s) {
+        var tags = (s.tags || []).map(function(t) {
+          return '<span class="skill-tag">' + esc(t) + '</span>';
+        }).join('');
+
+        var badges = '';
+        if (s.has_sensor) badges += '<span class="skill-badge">sensor</span>';
+        if (s.has_cli) badges += '<span class="skill-badge">cli</span>';
+        if (s.has_agent) badges += '<span class="skill-badge">agent</span>';
+
+        return '<div class="skill-card">'
+          + '<div class="skill-card-name">' + esc(s.name) + badges + '</div>'
+          + '<div class="skill-card-desc">' + esc(s.description) + '</div>'
+          + '<div class="skill-tags">' + tags + '</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    function renderIdentity(identity) {
+      var card = document.querySelector('.identity-card');
+
+      var addrRows = [
+        { label: 'BTC', value: identity.btc, explorer: 'https://mempool.space/address/' + identity.btc },
+        { label: 'STX', value: identity.stx, explorer: 'https://explorer.hiro.so/address/' + identity.stx },
+      ];
+
+      var rowsHtml = addrRows.map(function(r) {
+        return '<div class="identity-row">'
+          + '<span class="identity-label">' + r.label + '</span>'
+          + '<a href="' + r.explorer + '" target="_blank" rel="noopener" class="identity-value" title="' + r.value + '">' + truncAddr(r.value, 10) + '</a>'
+          + '<button class="copy-btn" onclick="event.stopPropagation();copyToClipboard(\'' + r.value + '\', this)">copy</button>'
+          + '</div>';
+      }).join('');
+
+      var linksHtml = '<div class="identity-links">'
+        + '<a href="https://' + identity.website + '" target="_blank" rel="noopener">' + identity.website + '</a>'
+        + '<a href="https://arc0btc.com" target="_blank" rel="noopener">arc0btc.com</a>'
+        + '<a href="https://github.com/' + identity.github + '" target="_blank" rel="noopener">GitHub</a>'
+        + '<a href="https://x.com/' + identity.twitter + '" target="_blank" rel="noopener">@' + identity.twitter + '</a>'
+        + '<a href="https://explorer.hiro.so/address/' + identity.stx + '" target="_blank" rel="noopener">Explorer</a>'
+        + '</div>';
+
+      card.innerHTML = '<div class="identity-header">'
+        + '<div class="identity-avatar">A</div>'
+        + '<div><div class="identity-name">' + esc(identity.name) + '</div>'
+        + '<div class="identity-bns">' + esc(identity.bns) + '</div></div>'
+        + '</div>'
+        + rowsHtml
+        + linksHtml;
+    }
+
+    function updateHeader(status) {
+      document.getElementById('cost-today').textContent = formatCost(status.cost_today_usd);
+      document.getElementById('uptime').textContent = status.uptime_hours + 'h uptime';
+
+      var dot = document.getElementById('status-dot');
+      if (status.last_cycle) {
+        var lastAge = Date.now() - new Date(status.last_cycle.started_at + 'Z').getTime();
+        if (lastAge < 5 * 60000) {
+          dot.className = 'status-dot live';
+          dot.title = 'Last cycle ' + relativeTime(status.last_cycle.started_at);
+        } else {
+          dot.className = 'status-dot offline';
+          dot.title = 'Last cycle ' + relativeTime(status.last_cycle.started_at);
+        }
+      }
+    }
+
+    // ---- Init ----
+
+    async function init() {
+      try {
+        var results = await Promise.allSettled([
+          fetchJSON('/api/status'),
+          fetchJSON('/api/tasks?limit=30'),
+          fetchJSON('/api/sensors'),
+          fetchJSON('/api/skills'),
+          fetchJSON('/api/costs?range=day'),
+          fetchJSON('/api/identity'),
+        ]);
+
+        var status   = results[0].status === 'fulfilled' ? results[0].value : null;
+        var tasks    = results[1].status === 'fulfilled' ? results[1].value : null;
+        var sensors  = results[2].status === 'fulfilled' ? results[2].value : null;
+        var skills   = results[3].status === 'fulfilled' ? results[3].value : null;
+        var costs    = results[4].status === 'fulfilled' ? results[4].value : null;
+        var identity = results[5].status === 'fulfilled' ? results[5].value : null;
+
+        if (status)   { updateHeader(status); renderMetrics(status, costs ? costs.costs : []); }
+        if (tasks) {
+          renderFeed(tasks.tasks || []);
+          // Populate known IDs so SSE doesn't re-add existing tasks
+          (tasks.tasks || []).forEach(function(t) { knownTaskIds.add(t.id); });
+        }
+        if (sensors)  renderSensors(sensors.sensors || []);
+        if (skills)   renderSkills(skills.skills || []);
+        if (identity) renderIdentity(identity);
+      } catch (e) {
+        console.error('Dashboard init error:', e);
+      }
+
+      // SSE for live updates (polling fallback activates on disconnect)
+      connectSSE();
+
+      // Safety net: full refresh every 60s regardless
+      setInterval(refreshAll, 60000);
+    }
+
+    function refreshAll() {
+      fetchJSON('/api/status').then(function(s) {
+        updateHeader(s);
+        bumpCostTicker(s.cost_today_usd);
+        fetchJSON('/api/costs?range=day').then(function(c) {
+          renderMetrics(s, c.costs || []);
+        });
+      }).catch(function() {});
+
+      fetchJSON('/api/tasks?limit=30').then(function(d) {
+        var tasks = d.tasks || [];
+        renderFeed(tasks);
+        tasks.forEach(function(t) { knownTaskIds.add(t.id); });
+      }).catch(function() {});
+
+      fetchJSON('/api/sensors').then(function(d) {
+        renderSensors(d.sensors || []);
+      }).catch(function() {});
+    }
+
+    // ---- Live Update Helpers ----
+
+    // Track known task IDs to avoid duplicate events
+    var knownTaskIds = new Set();
+
+    function buildFeedItemHTML(t) {
+      var cls = statusBorderClass(t.status);
+      var skills = '';
+      try {
+        var arr = typeof t.skills === 'string' ? JSON.parse(t.skills) : t.skills;
+        if (arr && arr.length) skills = arr.map(function(s) { return '<span class="pill pill-muted">' + esc(s) + '</span>'; }).join(' ');
+      } catch(e) {}
+
+      return '<li class="feed-item ' + cls + '" onclick="toggleDetail(this)">'
+        + '<span class="status-dot ' + (t.status === 'active' ? 'live' : '') + '" style="margin-top:6px;'
+        + (t.status === 'completed' ? 'background:var(--success)' : t.status === 'failed' ? 'background:var(--error)' : t.status === 'blocked' ? 'background:var(--blocked)' : '') + '"></span>'
+        + '<div class="feed-body">'
+        + '<div class="feed-subject">' + esc(t.subject) + '</div>'
+        + '<div class="feed-meta">'
+        + '<span class="' + statusBadgeClass(t.status) + '">' + esc(t.status) + '</span>'
+        + (t.source ? ' <span class="pill pill-muted">' + esc(t.source) + '</span>' : '')
+        + ' ' + skills
+        + ' <span>' + relativeTime(t.created_at) + '</span>'
+        + (t.cost_usd ? ' <span>' + formatCost(t.cost_usd) + '</span>' : '')
+        + '</div>'
+        + '<div class="feed-detail" data-task-id="' + t.id + '"><p class="placeholder">Loading...</p></div>'
+        + '</div>'
+        + '</li>';
+    }
+
+    function prependToFeed(task) {
+      if (knownTaskIds.has(task.id)) return;
+      knownTaskIds.add(task.id);
+
+      var list = document.getElementById('feed-list');
+      var placeholder = list.querySelector('.placeholder');
+      if (placeholder) list.innerHTML = '';
+
+      var temp = document.createElement('div');
+      temp.innerHTML = buildFeedItemHTML(task);
+      var item = temp.firstElementChild;
+      item.classList.add('slide-in');
+      list.insertBefore(item, list.firstChild);
+
+      // Update feed count
+      var count = document.getElementById('feed-count');
+      var n = list.querySelectorAll('.feed-item').length;
+      count.textContent = n + ' tasks';
+
+      // Cap feed list at 40 items
+      while (list.children.length > 40) {
+        list.removeChild(list.lastChild);
+      }
+    }
+
+    function flashFeedItem(taskId, status) {
+      var detail = document.querySelector('.feed-detail[data-task-id="' + taskId + '"]');
+      if (!detail) return;
+
+      var item = detail.closest('.feed-item');
+      if (!item) return;
+
+      // Update status visuals
+      var dot = item.querySelector('.status-dot');
+      var badge = item.querySelector('.pill');
+      var cls = statusBorderClass(status);
+
+      item.className = 'feed-item ' + cls;
+      if (status === 'completed') {
+        item.classList.add('flash-green');
+        if (dot) { dot.className = 'status-dot'; dot.style.background = 'var(--success)'; }
+      } else if (status === 'failed') {
+        item.classList.add('flash-red');
+        if (dot) { dot.className = 'status-dot'; dot.style.background = 'var(--error)'; }
+      }
+
+      if (badge) {
+        badge.className = statusBadgeClass(status);
+        badge.textContent = status;
+      }
+
+      // Clear animation class after it plays
+      setTimeout(function() {
+        item.classList.remove('flash-green', 'flash-red');
+      }, 1600);
+
+      // Reset cached detail so re-expand fetches fresh data
+      detail.innerHTML = '<p class="placeholder">Loading...</p>';
+      detail.classList.remove('open');
+    }
+
+    function pingSensor(name) {
+      var cards = document.querySelectorAll('.sensor-card');
+      for (var i = 0; i < cards.length; i++) {
+        var nameEl = cards[i].querySelector('.sensor-name');
+        if (nameEl && nameEl.textContent === name) {
+          var dot = cards[i].querySelector('.status-dot');
+          if (dot) {
+            dot.classList.remove('ping');
+            void dot.offsetWidth; // force reflow for re-trigger
+            dot.classList.add('ping');
+          }
+          // Update last-ran text
+          var detail = cards[i].querySelector('.sensor-detail');
+          if (detail) detail.textContent = 'just now';
+
+          // Update card status to ok
+          cards[i].className = 'sensor-card ok';
+          break;
+        }
+      }
+    }
+
+    function bumpCostTicker(newCost) {
+      var el = document.getElementById('cost-today');
+      var current = parseFloat(el.textContent.replace('$', '')) || 0;
+      if (newCost <= current) { el.textContent = formatCost(newCost); return; }
+
+      var ticker = el.parentElement;
+      ticker.classList.remove('bump');
+      void ticker.offsetWidth;
+      ticker.classList.add('bump');
+
+      // Animate the number up
+      var start = current;
+      var diff = newCost - start;
+      var steps = 20;
+      var step = 0;
+      var iv = setInterval(function() {
+        step++;
+        var val = start + (diff * (step / steps));
+        el.textContent = formatCost(val);
+        if (step >= steps) {
+          clearInterval(iv);
+          el.textContent = formatCost(newCost);
+          setTimeout(function() { ticker.classList.remove('bump'); }, 300);
+        }
+      }, 30);
+    }
+
+    // ---- SSE Connection ----
+
+    var sseRetryDelay = 2000;
+    var sseMaxDelay = 30000;
+    var sseConnected = false;
+    var pollFallbackId = null;
+
+    function setSSEStatus(connected) {
+      sseConnected = connected;
+      var dot = document.getElementById('sse-dot');
+      if (connected) {
+        dot.className = 'sse-status connected';
+        dot.title = 'SSE connected';
+        // Stop polling fallback when SSE is live
+        if (pollFallbackId) { clearInterval(pollFallbackId); pollFallbackId = null; }
+      } else {
+        dot.className = 'sse-status disconnected';
+        dot.title = 'SSE disconnected — polling';
+        // Start polling fallback at 10s
+        if (!pollFallbackId) {
+          pollFallbackId = setInterval(refreshAll, 10000);
+        }
+      }
+    }
+
+    function connectSSE() {
+      var events = new EventSource('/api/events');
+
+      events.addEventListener('open', function() {
+        setSSEStatus(true);
+        sseRetryDelay = 2000; // reset backoff on success
+      });
+
+      events.addEventListener('heartbeat', function() {
+        setSSEStatus(true);
+      });
+
+      events.addEventListener('task:created', function(e) {
+        try {
+          var task = JSON.parse(e.data);
+          prependToFeed(task);
+          refreshStatus();
+        } catch(err) { console.error('SSE task:created parse error', err); }
+      });
+
+      events.addEventListener('task:completed', function(e) {
+        try {
+          var task = JSON.parse(e.data);
+          flashFeedItem(task.id, 'completed');
+          refreshStatus();
+        } catch(err) { console.error('SSE task:completed parse error', err); }
+      });
+
+      events.addEventListener('task:failed', function(e) {
+        try {
+          var task = JSON.parse(e.data);
+          flashFeedItem(task.id, 'failed');
+          refreshStatus();
+        } catch(err) { console.error('SSE task:failed parse error', err); }
+      });
+
+      events.addEventListener('cycle:started', function() {
+        // Update status dot to live
+        var dot = document.getElementById('status-dot');
+        dot.className = 'status-dot live';
+        dot.title = 'Dispatch running';
+      });
+
+      events.addEventListener('cycle:completed', function(e) {
+        try {
+          var cycle = JSON.parse(e.data);
+          refreshStatus();
+          // Refresh cost chart
+          fetchJSON('/api/costs?range=day').then(function(c) {
+            fetchJSON('/api/status').then(function(s) {
+              renderMetrics(s, c.costs || []);
+            });
+          }).catch(function() {});
+        } catch(err) { console.error('SSE cycle:completed parse error', err); }
+      });
+
+      events.addEventListener('sensor:ran', function(e) {
+        try {
+          var data = JSON.parse(e.data);
+          pingSensor(data.name);
+        } catch(err) { console.error('SSE sensor:ran parse error', err); }
+      });
+
+      events.onerror = function() {
+        events.close();
+        setSSEStatus(false);
+        // Exponential backoff reconnect
+        setTimeout(function() {
+          sseRetryDelay = Math.min(sseRetryDelay * 1.5, sseMaxDelay);
+          connectSSE();
+        }, sseRetryDelay);
+      };
+    }
+
+    // Lightweight status refresh (header + metrics only)
+    function refreshStatus() {
+      fetchJSON('/api/status').then(function(s) {
+        updateHeader(s);
+        bumpCostTicker(s.cost_today_usd);
+      }).catch(function() {});
+    }
+
+    // ---- Message Box ----
+
+    (function() {
+      var form = document.getElementById('message-form');
+      var input = document.getElementById('message-input');
+      var btn = document.getElementById('message-send');
+      var status = document.getElementById('message-status');
+
+      // Auto-resize textarea
+      input.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+      });
+
+      // Submit on Enter (Shift+Enter for newline)
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          form.dispatchEvent(new Event('submit'));
+        }
+      });
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var msg = input.value.trim();
+        if (!msg) return;
+
+        btn.disabled = true;
+        status.textContent = '';
+        status.className = 'message-status';
+
+        fetch('/api/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: msg }),
+        })
+        .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
+        .then(function(result) {
+          if (result.ok) {
+            status.textContent = 'Task #' + result.data.id + ' created';
+            status.className = 'message-status ok';
+            input.value = '';
+            input.style.height = 'auto';
+            prependToFeed(result.data);
+            refreshStatus();
+            setTimeout(function() { status.textContent = ''; }, 3000);
+          } else {
+            status.textContent = result.data.error || 'Failed to send';
+            status.className = 'message-status err';
+          }
+        })
+        .catch(function() {
+          status.textContent = 'Network error';
+          status.className = 'message-status err';
+        })
+        .finally(function() { btn.disabled = false; input.focus(); });
+      });
+    })();
+
+    init();
+  </script>
+</body>
+</html>
