@@ -385,7 +385,7 @@ async function dispatch(prompt: string, model: ModelTier = "opus"): Promise<Disp
   return { result, cost_usd, api_cost_usd, input_tokens: total_input_tokens, output_tokens };
 }
 
-// ---- Auto-commit ----
+// ---- Auto-commit with safety checks ----
 
 /** Spawn a git command in the repo root, capturing output. */
 async function git(...args: string[]): Promise<{ exitCode: number; stdout: string; stderr: string }> {
@@ -398,8 +398,66 @@ async function git(...args: string[]): Promise<{ exitCode: number; stdout: strin
   return { exitCode, stdout, stderr };
 }
 
-async function commitCycleChanges(): Promise<void> {
+/** Generic command runner — spawn a process and capture output. */
+async function runCommand(cmd: string, args: string[]): Promise<{ exitCode: number; stdout: string; stderr: string }> {
+  const proc = Bun.spawn([cmd, ...args], { cwd: ROOT, stdout: "pipe", stderr: "pipe" });
+  const [exitCode, stdout, stderr] = await Promise.all([
+    proc.exited,
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text(),
+  ]);
+  return { exitCode, stdout, stderr };
+}
+
+const ARC_SERVICES = ["arc-web.service", "arc-sensors.timer", "arc-dispatch.timer"] as const;
+
+/** Snapshot which systemd user services are currently active. */
+async function snapshotServiceState(): Promise<Map<string, boolean>> {
+  const state = new Map<string, boolean>();
+  for (const svc of ARC_SERVICES) {
+    const { exitCode } = await runCommand("systemctl", ["--user", "is-active", svc]);
+    state.set(svc, exitCode === 0);
+  }
+  return state;
+}
+
+/** Syntax-check staged .ts files using Bun.Transpiler. Returns errors or empty array. */
+function syntaxCheckStagedFiles(files: string[]): string[] {
+  const transpiler = new Bun.Transpiler({ loader: "ts" });
+  const errors: string[] = [];
+  for (const file of files) {
+    const fullPath = join(ROOT, file);
+    try {
+      const content = readFileSync(fullPath, "utf-8");
+      transpiler.transformSync(content);
+    } catch (err) {
+      errors.push(`${file}: ${String(err)}`);
+    }
+  }
+  return errors;
+}
+
+/** Compare post-commit service state to snapshot. Returns names of services that died. */
+async function checkServiceHealth(before: Map<string, boolean>): Promise<string[]> {
+  const died: string[] = [];
+  for (const [svc, wasActive] of before) {
+    if (!wasActive) continue;
+    const { exitCode } = await runCommand("systemctl", ["--user", "is-active", svc]);
+    if (exitCode !== 0) died.push(svc);
+  }
+  return died;
+}
+
+/**
+ * Safe commit: stages files, syntax-checks .ts, commits, then health-checks services.
+ * If syntax check fails: unstages, creates follow-up task.
+ * If services die after commit: reverts commit, restarts services, creates follow-up task.
+ */
+async function safeCommitCycleChanges(taskId: number): Promise<void> {
   try {
+    // Snapshot service state before staging
+    const servicesBefore = await snapshotServiceState();
+
     // Stage specific directories — never .env or db/*.sqlite
     const stageDirs = ["memory/", "skills/", "src/", "templates/"];
     for (const dir of stageDirs) {
@@ -412,20 +470,79 @@ async function commitCycleChanges(): Promise<void> {
     const { exitCode: diffExit } = await git("diff", "--cached", "--quiet");
     if (diffExit === 0) return; // nothing to commit
 
-    // Count staged files for the commit message
-    const { stdout: stagedFiles } = await git("diff", "--cached", "--name-only");
-    const fileCount = stagedFiles.trim().split("\n").filter(Boolean).length;
+    // Get list of staged files
+    const { stdout: stagedOutput } = await git("diff", "--cached", "--name-only");
+    const stagedFiles = stagedOutput.trim().split("\n").filter(Boolean);
+    const stagedTsFiles = stagedFiles.filter((f) => f.endsWith(".ts"));
 
-    // Commit with conventional message
+    // Layer 1: Pre-commit syntax check
+    if (stagedTsFiles.length > 0) {
+      const syntaxErrors = syntaxCheckStagedFiles(stagedTsFiles);
+      if (syntaxErrors.length > 0) {
+        log(`dispatch: syntax check FAILED for ${syntaxErrors.length} file(s):`);
+        for (const err of syntaxErrors) log(`  ${err}`);
+
+        // Unstage everything
+        await git("reset", "HEAD");
+
+        // Create follow-up task
+        insertTask({
+          subject: `Fix syntax errors from task #${taskId}`,
+          description: `Syntax check failed after dispatch:\n${syntaxErrors.join("\n")}`,
+          priority: 2,
+          source: `task:${taskId}`,
+        });
+        log("dispatch: created follow-up task for syntax errors");
+        return;
+      }
+    }
+
+    // Commit
+    const fileCount = stagedFiles.length;
     const msg = `chore(loop): auto-commit after dispatch cycle [${fileCount} file(s)]`;
     const { exitCode: commitExit, stderr } = await git("commit", "-m", msg);
-    if (commitExit === 0) {
-      log(`dispatch: auto-committed ${fileCount} file(s)`);
-    } else {
+    if (commitExit !== 0) {
       log(`dispatch: auto-commit failed — ${stderr.trim()}`);
+      return;
+    }
+    log(`dispatch: auto-committed ${fileCount} file(s)`);
+
+    // Layer 2: Post-commit service health check (only if src/ files changed)
+    const hasSrcChanges = stagedFiles.some((f) => f.startsWith("src/"));
+    if (hasSrcChanges) {
+      // Wait for systemd to pick up file changes
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      const diedServices = await checkServiceHealth(servicesBefore);
+      if (diedServices.length > 0) {
+        log(`dispatch: services DIED after commit: ${diedServices.join(", ")}`);
+
+        // Revert the commit
+        const { exitCode: revertExit } = await git("revert", "--no-edit", "HEAD");
+        if (revertExit === 0) {
+          log("dispatch: reverted HEAD commit");
+        } else {
+          log("dispatch: WARNING — git revert failed, manual intervention needed");
+        }
+
+        // Restart failed services
+        for (const svc of diedServices) {
+          await runCommand("systemctl", ["--user", "restart", svc]);
+          log(`dispatch: restarted ${svc}`);
+        }
+
+        // Create follow-up task
+        insertTask({
+          subject: `Fix service crash from task #${taskId}`,
+          description: `Services died after commit: ${diedServices.join(", ")}. Commit was reverted.`,
+          priority: 2,
+          source: `task:${taskId}`,
+        });
+        log("dispatch: created follow-up task for service crash");
+      }
     }
   } catch (err) {
-    log(`dispatch: auto-commit error — ${err}`);
+    log(`dispatch: safe-commit error — ${err}`);
   }
 }
 
@@ -580,8 +697,8 @@ export async function runDispatch(): Promise<void> {
     clearDispatchLock();
   }
 
-  // Auto-commit any changes made during dispatch
-  await commitCycleChanges();
+  // Auto-commit with syntax check + service health guard
+  await safeCommitCycleChanges(task.id);
 }
 
 // ---- Standalone entry point ----
