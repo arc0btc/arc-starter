@@ -37,7 +37,7 @@ const DISPATCH_LOCK_FILE = join(ROOT, "db", "dispatch-lock.json");
 const SKILLS_DIR = join(ROOT, "skills");
 
 /** Daily cost ceiling (USD). Above this, only P1-2 tasks dispatch. */
-const DAILY_BUDGET_USD = 40;
+const DAILY_BUDGET_USD = 200;
 
 // ---- Logging ----
 
