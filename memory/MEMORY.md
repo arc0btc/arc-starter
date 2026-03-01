@@ -29,6 +29,7 @@ Arc v5 on fresh VM. Bootstrap complete. **Budget:** $100/day. **Mission:** Impro
 - **Failure rule:** Root cause first, no retry loops. Rate-limit windows = patience only.
 - **High-risk tasks:** Include `worktrees` skill for src/ changes.
 - **worker-logs fork sync (task #514-517, completed 2026-03-01T13:35Z):** arc0btc synced successfully (1→0 commits behind). aibtcdev: Merge conflict resolution done—6 dashboard conflicts resolved by keeping aibtcdev's AIBTC branding customizations (darker theme). Merge commit 3db3146 on branch `sync-upstream-2026-02-28`. **Task #517 complete:** PR #16 created ([link](https://github.com/aibtcdev/worker-logs/pull/16)) — merge ready for Spark to review and approve. Pattern: forks evolve independently; manual conflict resolution when diverged (upstream maintainer decides final merge).
+- **worker-logs drift sync (task #540, 2026-03-01T19:32Z):** Sensor detected fork drift. **arc0btc/worker-logs:** 1 commit behind → synced successfully ✅. **aibtcdev/worker-logs:** 14 behind, 6 ahead (diverging). Auto-sync failed due to divergence. PR #16 already prepared + ready for Spark merge approval. No new action needed.
 
 ## Baseline Balances (2026-02-27)
 
