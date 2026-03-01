@@ -283,10 +283,18 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string)
     args.push("--dangerously-skip-permissions");
   }
 
+  // Build environment with optimization flags if testing
+  const env = { ...process.env };
+  if (process.env.TEST_TOKEN_OPTIMIZATION === "true") {
+    env.MAX_THINKING_TOKENS = "10000";
+    env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = "50";
+  }
+
   const proc = Bun.spawn(args, {
     stdin: new Blob([prompt]),
     stdout: "pipe",
     stderr: "pipe",
+    env,
     ...(cwd ? { cwd } : {}),
   });
 
