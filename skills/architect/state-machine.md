@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-02-28T18:38:56.591Z*
+*Generated: 2026-03-01T00:49:09.020Z*
 
 ```mermaid
 stateDiagram-v2
@@ -33,8 +33,11 @@ stateDiagram-v2
         RunAllSensors --> release_watcherSensor: release-watcher
         RunAllSensors --> report_emailSensor: report-email
         RunAllSensors --> security_alertsSensor: security-alerts
+        RunAllSensors --> stacks_marketSensor: stacks-market
+        RunAllSensors --> stackspotSensor: stackspot
         RunAllSensors --> status_reportSensor: status-report
         RunAllSensors --> worker_logsSensor: worker-logs
+        RunAllSensors --> workflowsSensor: workflows
 
         state aibtc_heartbeatSensor {
             [*] --> aibtc_heartbeatGate: claimSensorRun(aibtc-heartbeat)
@@ -236,6 +239,26 @@ stateDiagram-v2
             security_alertsSkip --> [*]: return skip
         }
 
+        state stacks_marketSensor {
+            [*] --> stacks_marketGate: claimSensorRun(stacks-market)
+            stacks_marketGate --> stacks_marketSkip: interval not elapsed
+            stacks_marketGate --> stacks_marketDedup: interval elapsed
+            stacks_marketDedup --> stacks_marketSkip: pending task exists
+            stacks_marketDedup --> stacks_marketCreateTask: no dupe
+            stacks_marketCreateTask --> [*]: insertTask()
+            stacks_marketSkip --> [*]: return skip
+        }
+
+        state stackspotSensor {
+            [*] --> stackspotGate: claimSensorRun(stackspot)
+            stackspotGate --> stackspotSkip: interval not elapsed
+            stackspotGate --> stackspotDedup: interval elapsed
+            stackspotDedup --> stackspotSkip: pending task exists
+            stackspotDedup --> stackspotCreateTask: no dupe
+            stackspotCreateTask --> [*]: insertTask()
+            stackspotSkip --> [*]: return skip
+        }
+
         state status_reportSensor {
             [*] --> status_reportGate: claimSensorRun(status-report)
             status_reportGate --> status_reportSkip: interval not elapsed
@@ -254,6 +277,16 @@ stateDiagram-v2
             worker_logsDedup --> worker_logsCreateTask: no dupe
             worker_logsCreateTask --> [*]: insertTask()
             worker_logsSkip --> [*]: return skip
+        }
+
+        state workflowsSensor {
+            [*] --> workflowsGate: claimSensorRun(workflows)
+            workflowsGate --> workflowsSkip: interval not elapsed
+            workflowsGate --> workflowsDedup: interval elapsed
+            workflowsDedup --> workflowsSkip: pending task exists
+            workflowsDedup --> workflowsCreateTask: no dupe
+            workflowsCreateTask --> [*]: insertTask()
+            workflowsSkip --> [*]: return skip
         }
 
     }
@@ -306,10 +339,17 @@ stateDiagram-v2
         - email
         - failure-triage
         - housekeeping
+        - identity
         - manage-skills
+        - reputation
         - research
+        - stacks-market
+        - validation
         - wallet
         - worker-logs
+        - workflows
+        - worktrees
+        - x-posting
     end note
 ```
 
@@ -335,6 +375,9 @@ stateDiagram-v2
 | aibtc-inbox | yes | - | yes | Poll AIBTC platform inbox, sync messages locally, queue tasks for unread messages |
 | aibtc-maintenance | yes | yes | yes | Triage, review, test, and support aibtcdev repos we depend on |
 | aibtc-news | yes | yes | yes | File intelligence signals, claim editorial beats, track correspondent activity on aibtc.news |
+| aibtc-news-deal-flow | - | - | yes | Editorial voice for Deal Flow beat on aibtc.news — Real-time market signals, sats, Ordinals, bounties |
+| aibtc-news-protocol | - | - | yes | Editorial voice for Protocol & Infra beat on aibtc.news — Stacks protocol dev, security, settlement, tooling |
+| aibtc-services | - | - | - | - |
 | architect | yes | yes | yes | Continuous architecture review, state machine diagrams, and simplification via SpaceX 5-step process |
 | blog-publishing | yes | yes | yes | Create, manage, and publish blog posts with ISO8601 content pattern |
 | ceo | - | - | yes | Strategic operating manual — treat yourself as CEO of a one-entity company |
@@ -349,12 +392,20 @@ stateDiagram-v2
 | health | yes | - | - | System health monitor — detects stale cycles and stuck dispatch |
 | heartbeat | yes | - | - | Periodic system-alive task creator |
 | housekeeping | yes | yes | yes | Periodic repo hygiene checks — uncommitted changes, stale locks, WAL size, memory bloat, file archival |
+| identity | - | yes | yes | ERC-8004 on-chain agent identity management — register agent identities, update URI and metadata, manage operator approvals, set/unset agent wallet, transfer identity NFTs, and query identity info. |
 | manage-skills | yes | yes | yes | Create, inspect, and manage agent skills |
 | overnight-brief | yes | - | yes | Generate a consolidated overnight brief at 6am PST covering all activity from 8pm–6am |
 | release-watcher | yes | - | - | Detects new releases on watched repos and creates review tasks |
 | report-email | yes | - | - | Email watch reports when new ones are generated |
+| reputation | - | yes | yes | ERC-8004 on-chain agent reputation management — submit and revoke feedback, append responses, approve clients, and query reputation summaries, feedback entries, and client lists. |
 | research | - | yes | yes | Process batches of links into mission-relevant research reports |
 | security-alerts | yes | - | - | Monitor dependabot security alerts on repos we maintain |
+| stacks-market | yes | yes | yes | Read-only prediction market intelligence — detect high-volume markets, file signals to aibtc-news. Mainnet-only. |
+| stackspot | yes | - | - | Autonomous Stacking participation — detect joinable pots, auto-join with Arc wallet, claim sBTC rewards. Mainnet-only lottery stacking. |
 | status-report | yes | - | yes | Generate watch reports (4-hour) summarizing all agent activity |
+| validation | - | yes | yes | ERC-8004 on-chain agent validation management — request and respond to validations, and query validation status, summaries, and paginated lists by agent or validator. |
 | wallet | - | yes | yes | Wallet management and cryptographic signing for Stacks and Bitcoin — unlock, lock, info, status, BTC/Stacks message signing, and BTC signature verification. |
 | worker-logs | yes | yes | yes | Sync worker-logs forks, monitor production events, report trends |
+| workflows | yes | yes | yes | Persistent state machine instances for multi-step workflows |
+| worktrees | - | yes | - | Opt-in git worktree isolation for high-risk dispatch tasks |
+| x-posting | - | yes | - | Post tweets, read timeline, and manage presence on X (Twitter) via API v2 |

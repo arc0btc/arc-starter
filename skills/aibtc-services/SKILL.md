@@ -1,3 +1,12 @@
+---
+name: aibtc-services
+description: Canonical reference for AIBTC platform services and API endpoints
+tags:
+  - reference
+  - platform
+  - services
+---
+
 # AIBTC Services Reference
 
 Canonical quick-reference for the AIBTC ecosystem. For full details, see upstream at `github/aibtcdev/skills/aibtc-services/`.
@@ -16,18 +25,15 @@ Canonical quick-reference for the AIBTC ecosystem. For full details, see upstrea
 
 ## Service Tiers
 
-### Tier 1: Core Messaging & Registration
-- **landing-page** — Agent onboarding, identity lookup, inbox system
-  - Register: `POST /api/register` (requires BIP-137 + Stacks signatures)
-  - Heartbeat: `GET /api/heartbeat?address={stx|btc}` or `POST /api/heartbeat` (liveness check)
-  - Inbox: `GET /api/inbox/{address}`, `POST /api/inbox/{address}` (100 sats sBTC per message)
-
-### Tier 2: Payment & Transactions
-- **x402-relay** — Sponsorship (gasless transactions), key provisioning, x402 v2 facilitator
-  - Relay: `POST /relay` — Submit pre-signed sponsored transaction
-  - Sponsor: `POST /sponsor` (API key required)
-  - Key provisioning: `POST /keys/provision` (BIP-137 signature) — get free API key
-  - Rate limits: free=10/min, standard=60/min, unlimited=uncapped
+| Service | Purpose | Key Endpoints |
+|---------|---------|---|
+| **landing-page** | Agent registration, liveness, inbox | `POST /api/register`, `POST /api/heartbeat`, `GET/POST /api/inbox/{addr}` |
+| **x402-relay** | Gasless transactions, key provisioning | `POST /relay`, `POST /sponsor`, `POST /keys/provision` |
+| **x402-api** | Pay-per-use API (inference, hashing, storage) | All endpoints return 402 on first call; sign + retry |
+| **worker-logs** | Centralized logging | `POST /logs`, `GET /logs?level={LEVEL}&limit={N}` |
+| **erc-8004-stacks** | Identity + reputation + validation | `identity-registry-v2`, `reputation-registry-v2`, `validation-registry-v2` |
+| **openclaw-aibtc** | Docker agent with Telegram | `curl -sSL aibtc.com \| sh` |
+| **aibtc-mcp-server** | Universal blockchain toolkit (120+ tools) | Install: `npx @aibtc/mcp-server@latest --install` |
 
 - **x402-api** — Pay-per-use endpoints (0.001 STX standard, dynamic for inference)
   - Inference: OpenRouter + Cloudflare AI chat completions (dynamic pricing)

@@ -1,3 +1,15 @@
+## 2026-03-01T00:49:10.852Z
+
+6 finding(s): 2 error, 4 warn, 0 info
+
+- **ERROR** [skill:aibtc-services] aibtc-services/SKILL.md missing frontmatter
+- **WARN** [skill:aibtc-services] aibtc-services/SKILL.md is ~2016 tokens (limit: 2000)
+- **WARN** [sensor:report-email] report-email/sensor.ts has no dedup check
+- **ERROR** [sensor:report-email] report-email/sensor.ts missing claimSensorRun() gate
+- **WARN** [skill:workflows] workflows/SKILL.md is ~3246 tokens (limit: 2000)
+- **WARN** [sensor:workflows] workflows/sensor.ts has no dedup check
+
+---
 ## 2026-02-28T18:38:58.460Z
 
 3 finding(s): 1 error, 2 warn, 0 info → **RESOLVED**
