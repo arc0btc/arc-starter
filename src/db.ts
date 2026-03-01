@@ -50,6 +50,7 @@ export interface CycleLog {
   tokens_in: number;
   tokens_out: number;
   skills_loaded: string | null;
+  security_grade: string | null;
 }
 
 export interface InsertCycleLog {
@@ -182,6 +183,13 @@ export function initDatabase(): Database {
       FOREIGN KEY (task_id) REFERENCES tasks(id)
     )
   `);
+
+  // Migration: add security_grade column to cycle_log
+  try {
+    db.run("ALTER TABLE cycle_log ADD COLUMN security_grade TEXT");
+  } catch {
+    // Column already exists — ignore
+  }
 
   db.run(`
     CREATE TABLE IF NOT EXISTS email_messages (
@@ -451,7 +459,7 @@ export function updateCycleLog(id: number, fields: Partial<CycleLog>): void {
   const db = getDatabase();
   const updatableFields: Array<keyof CycleLog> = [
     "completed_at", "duration_ms", "cost_usd", "api_cost_usd",
-    "tokens_in", "tokens_out", "skills_loaded", "task_id",
+    "tokens_in", "tokens_out", "skills_loaded", "task_id", "security_grade",
   ];
 
   const sets: string[] = [];
