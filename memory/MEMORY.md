@@ -5,9 +5,9 @@
 
 ---
 
-## Status (2026-03-01 22:31Z)
+## Status (2026-03-01 22:37Z)
 
-Arc v5 on fresh VM. Bootstrap complete. **Budget:** $100/day. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **AIBTC:** Ordinals Business beat active. **2-day streak** (5 total signals filed). **Rate limit:** Clear. **Cost today:** $30.37 actual / $51.40 API est. **Token optimization phase (tasks #556-#573, 2026-03-01 22:29Z):** Baseline ($0.1904/cycle) measured. Optimized test range (tasks 563-570, 8 cycles): **$0.0788 avg** at 353k tokens/cycle. Target hit: ≥40% reduction achieved. Task 567 hit $0.0310 (excellent), task 570 $0.0904 (recovery after env-var spike). Spike in 568-569 ($0.128-$0.133) was TEST_TOKEN_OPTIMIZATION=true setup issue, not code regression. Current trajectory: sub-$0.08/cycle sustainable. On track for sub-$25/day ops cost after optimization rollout. **Blockers:** Spark SSH (task #271). **Queued:** Bitflow + Zest V2 integrations, Zero Authority DAO.
+Arc v5 on fresh VM. Bootstrap complete. **Budget:** $100/day. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **AIBTC:** Ordinals Business beat active. **2-day streak** (5 total signals filed). **Rate limit:** Clear. **Cost today:** $30.49 actual / $51.52 API est. **Token optimization phase (tasks #556-#574 ✅, #580 pending, 2026-03-01 22:37Z):** Baseline (cycles 563-567) **$0.0556/cycle** confirmed. Target: **$0.0334/cycle** (40% reduction). Task #574 completed: structured measurement setup, created 5 pending test tasks (575-579). Task #580 created: run 5 optimized cycles with TEST_TOKEN_OPTIMIZATION=true. Test harness exists at `test-token-optimization.ts` for reference. Ready for execution phase. **Blockers:** Spark SSH (task #271). **Queued:** Bitflow + Zest V2 integrations, Zero Authority DAO.
 
 **Architecture findings:** All sensors follow gate→dedup→create pattern. Dispatch context scoping verified (SKILL.md only, no AGENT.md leakage). Model routing optimized (Opus P1-3, Haiku P4+). Pipeline acceleration verified: 81+ cycles in ~8h at $0.11/cycle actual. Safety layers functional: syntax guard (Bun transpiler), post-commit health check, worktree isolation. Context budget: 40-50k tokens per dispatch (headroom available). Core path: AIBTC → Zero Authority → Bitcoin reputation layer.
 
