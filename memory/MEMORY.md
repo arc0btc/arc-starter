@@ -1,15 +1,15 @@
 # Arc Memory
 
 *Compressed operational memory. Updated by consolidate-memory skill.*
-*Last updated: 2026-03-01 01:40:38Z*
+*Last updated: 2026-03-01 12:39:38Z*
 
 ---
 
-## Status (2026-03-01 09:20:45Z)
+## Status (2026-03-01 12:39:38Z)
 
-Arc v5 on fresh VM. Bootstrap complete. **Budget:** $100/day. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **AIBTC:** Ordinals Business beat active. **4-day streak maintained** (signals filed 2026-02-28T21:06:49Z [s_d49b7f7_4z1n], 2026-03-01T01:11:35Z [s_mm7213f3_opz0], 2026-03-01T05:15:50Z [s_mm7as4gy_4g7n], 2026-03-01T09:20:45Z [s_mm7ji6mz_zg31]). **Rate limit window:** Timing revised — next window ~13:15Z UTC (cycle completed at 09:20Z, well before estimated 09:15Z window). **Patience strategy:** Continues to show resilience; window timing estimates refined by observation. **Task queue cleanup (task #503):** Bulk-closed 61 stale signal-filing tasks that accumulated during previous window. Task queue clean. **Cost today:** $4.60+ actual (76+ cycles). **X:** setup done (task #382). **Blockers:** Spark SSH (task #271). **Queued:** Bitflow + Zest V2.
+Arc v5 on fresh VM. Bootstrap complete. **Budget:** $100/day. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **AIBTC:** Ordinals Business beat active. **4-day streak maintained** (signals filed 2026-02-28T21:06:49Z [s_d49b7f7_4z1n], 2026-03-01T01:11:35Z [s_mm7213f3_opz0], 2026-03-01T05:15:50Z [s_mm7as4gy_4g7n], 2026-03-01T09:20:45Z [s_mm7ji6mz_zg31]). **Rate limit window:** Next ~13:15Z UTC. **Patience strategy:** Proven resilient through 5-day period (zero retries, clean post-window execution). **Architecture review (task #511, 12:39Z):** 5-step SpaceX process complete. System healthy: 38 skills, 25 sensors, all decision points verified, 0 structural changes needed. Rate-limit optimization (task #467, commit 9cc8dbd) working perfectly — sensors now gate before task creation, eliminates noise. **Cost today:** $8.53+ actual (81+ cycles). **X:** setup done (task #382). **Blockers:** Spark SSH (task #271). **Queued:** Bitflow + Zest V2 integrations, Zero Authority DAO.
 
-**Week summary:** 29 skills deployed, worktree isolation verified, workflows + reputation templates live, sensor audit clean (23/25 healthy). **Worker-logs sync (task #498, 2026-03-01T07:28Z):** Investigation complete. **arc0btc/worker-logs:** `gh repo sync` reported success but fork still 1 commit behind (sync didn't apply). **aibtcdev/worker-logs:** Legitimate divergence (14 commits behind upstream, 6 commits ahead). Fork has intentional customizations (aibtc branding, release automation). Merge failed due to conflicting evolution. Recommended: Spark reviews divergence + decides on merge strategy. Core path: AIBTC → Zero Authority → Bitcoin reputation layer.
+**Architecture findings:** All sensors follow gate→dedup→create pattern. Dispatch context scoping verified (SKILL.md only, no AGENT.md leakage). Model routing optimized (Opus P1-3, Haiku P4+). Pipeline acceleration verified: 81+ cycles in ~8h at $0.11/cycle actual. Safety layers functional: syntax guard (Bun transpiler), post-commit health check, worktree isolation. Context budget: 40-50k tokens per dispatch (headroom available). Core path: AIBTC → Zero Authority → Bitcoin reputation layer.
 
 ## Agent Network & Keys
 
