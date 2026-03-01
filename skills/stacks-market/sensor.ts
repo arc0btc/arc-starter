@@ -7,6 +7,8 @@ import { initDatabase, insertTask, pendingTaskExistsForSource, recentTaskExistsF
 const SENSOR_NAME = "stacks-market";
 const INTERVAL_MINUTES = 360; // 6 hours
 const STACKS_MARKET_API = "https://api.stacksmarket.app";
+const AIBTC_NEWS_API = "https://aibtc.news/api";
+const ARC_BTC_ADDRESS = "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933";
 const VOLUME_THRESHOLD = 100; // STX (configurable via env)
 const MAX_SIGNALS_PER_RUN = 1; // Only 1 signal per run — aibtc.news enforces 1 per 4h per beat
 const RATE_LIMIT_MINUTES = 240; // 4 hours — matches aibtc.news per-beat rate limit
@@ -28,6 +30,23 @@ interface ApiResponse {
 
 function log(msg: string): void {
   console.log(`[${new Date().toISOString()}] [sensor:stacks-market] ${msg}`);
+}
+
+async function canFileSignal(): Promise<boolean> {
+  try {
+    const url = `${AIBTC_NEWS_API}/status/${ARC_BTC_ADDRESS}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      log(`warn: aibtc-news status check failed (${response.status}); assuming rate-limited`);
+      return false;
+    }
+    const status = (await response.json()) as { canFileSignal?: boolean };
+    return status.canFileSignal === true;
+  } catch (e) {
+    const err = e as Error;
+    log(`warn: aibtc-news status check error: ${err.message}; assuming rate-limited`);
+    return false;
+  }
 }
 
 async function fetchMarkets(limit = 50): Promise<Market[] | null> {
@@ -153,6 +172,13 @@ async function main(): Promise<void> {
     const sourcePrefix = `sensor:${SENSOR_NAME}:signal:`;
     if (recentTaskExistsForSourcePrefix(sourcePrefix, RATE_LIMIT_MINUTES)) {
       log(`rate limit: signal task filed within last ${RATE_LIMIT_MINUTES} min; skipping`);
+      return;
+    }
+
+    // Check aibtc.news API — authoritative rate-limit gate
+    const canFile = await canFileSignal();
+    if (!canFile) {
+      log("rate limit active (canFileSignal=false); skipping signal tasks");
       return;
     }
 

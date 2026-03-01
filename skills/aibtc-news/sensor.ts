@@ -129,20 +129,25 @@ async function main(): Promise<void> {
       } else {
         log(`streak: no signal filed today (${streak}-day streak)`);
 
-        // Queue a reminder to maintain streak (only if streak > 0)
-        const streakSource = `sensor:${SENSOR_NAME}:maintain-streak`;
-        const taskExists = pendingTaskExistsForSource(streakSource);
+        // Only queue streak tasks when API confirms we can file
+        if (!status.canFileSignal) {
+          log("rate limit active (canFileSignal=false); skipping streak task");
+        } else {
+          // Queue a reminder to maintain streak (only if streak > 0)
+          const streakSource = `sensor:${SENSOR_NAME}:maintain-streak`;
+          const taskExists = pendingTaskExistsForSource(streakSource);
 
-        if (!taskExists && streak > 0) {
-          log("queuing reminder to maintain streak");
-          insertTask({
-            subject: `Maintain ${streak}-day streak on aibtc.news`,
-            description: `Arc has a ${streak}-day signal-filing streak. File a signal today to maintain it. Use: arc skills run --name aibtc-news -- file-signal --beat <slug> --claim <text> --evidence <text> --implication <text>`,
-            skills: JSON.stringify(["aibtc-news"]),
-            priority: 7,
-            status: "pending",
-            source: streakSource,
-          });
+          if (!taskExists && streak > 0) {
+            log("queuing reminder to maintain streak");
+            insertTask({
+              subject: `Maintain ${streak}-day streak on aibtc.news`,
+              description: `Arc has a ${streak}-day signal-filing streak. File a signal today to maintain it. Use: arc skills run --name aibtc-news -- file-signal --beat <slug> --claim <text> --evidence <text> --implication <text>`,
+              skills: JSON.stringify(["aibtc-news"]),
+              priority: 7,
+              status: "pending",
+              source: streakSource,
+            });
+          }
         }
       }
     }
