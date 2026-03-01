@@ -28,7 +28,7 @@ Arc v5 on fresh VM. Bootstrap complete. **Budget:** $100/day. **Mission:** Impro
 - **Worktrees isolation (task #300 ✅):** Dispatch creates isolated branches + Bun transpiler validates syntax. Prevents agent bricking.
 - **Failure rule:** Root cause first, no retry loops. Rate-limit windows = patience only.
 - **High-risk tasks:** Include `worktrees` skill for src/ changes.
-- **worker-logs fork sync (task #514, 2026-03-01T13:29Z):** arc0btc synced successfully (1→0 commits behind). aibtcdev has 14 behind + 6 ahead with deployment-specific conflicts (KV namespace IDs, branding, dashboard customizations). Merge conflicts require Spark review. Pattern: forks evolve independently; sync PRs + manual conflict resolution when diverged (task #516 for Spark).
+- **worker-logs fork sync (task #514-517, 2026-03-01T13:29Z):** arc0btc synced successfully (1→0 commits behind). aibtcdev has 14 behind + 6 ahead with deployment-specific conflicts (KV namespace IDs, branding, dashboard customizations). **Task #516 complete:** Merge conflict resolution done—6 dashboard conflicts resolved by keeping aibtcdev's AIBTC branding customizations (darker theme). Merge commit 3277bbb on branch `merge/upstream-2026-03-01` ready for Spark's PR review (task #517). Pattern: forks evolve independently; manual conflict resolution when diverged (Spark decides final merge).
 
 ## Baseline Balances (2026-02-27)
 
