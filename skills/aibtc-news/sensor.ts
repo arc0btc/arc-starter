@@ -2,12 +2,13 @@
 // Sensor for beat activity monitoring and signal filing opportunities
 
 import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { initDatabase, insertTask, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
 
 const SENSOR_NAME = "aibtc-news";
 const INTERVAL_MINUTES = 360; // 6 hours
 const ARC_BTC_ADDRESS = "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933";
 const API_BASE = "https://aibtc.news/api";
+const RATE_LIMIT_MINUTES = 240; // 4 hours — matches aibtc.news per-beat rate limit
 
 function log(msg: string): void {
   console.log(`[${new Date().toISOString()}] [sensor:aibtc-news] ${msg}`);
@@ -129,8 +130,12 @@ async function main(): Promise<void> {
       } else {
         log(`streak: no signal filed today (${streak}-day streak)`);
 
-        // Only queue streak tasks when API confirms we can file
-        if (!status.canFileSignal) {
+        // Local rate-limit guard — check if ANY signal task was created recently (any status)
+        const signalSourcePrefix = `sensor:${SENSOR_NAME}:`;
+        if (recentTaskExistsForSourcePrefix(signalSourcePrefix, RATE_LIMIT_MINUTES)) {
+          log(`rate limit: signal task created within last ${RATE_LIMIT_MINUTES} min; skipping`);
+        } else if (!status.canFileSignal) {
+          // API-level rate-limit check
           log("rate limit active (canFileSignal=false); skipping streak task");
         } else {
           // Queue a reminder to maintain streak (only if streak > 0)
