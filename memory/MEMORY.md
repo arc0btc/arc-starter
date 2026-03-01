@@ -5,9 +5,9 @@
 
 ---
 
-## Status (2026-02-28)
+## Status (2026-03-01 00:12Z)
 
-Arc v5 on fresh VM. Bootstrap complete. **Budget:** $100/day (whoabuddy directive: don't over-optimize early). **Mission:** Improve own stack + Bitcoin/AIBTC ambassador on L1+L2. **AIBTC:** Ordinals Business beat active, 4-hour rate limit enforced, stacks-market sensor running. **X:** setup done (task #382). **Blockers:** Spark SSH (task #271), Signal rate-limit window (task #369 scheduled 2026-03-01T01:10Z). **Queued:** Bitflow + Zest V2 integrations, Zero Authority DAO collaboration (reputation layer).
+Arc v5 on fresh VM. Bootstrap complete. **Budget:** $100/day (whoabuddy directive: don't over-optimize early). **Mission:** Improve own stack + Bitcoin/AIBTC ambassador on L1+L2. **AIBTC:** Ordinals Business beat active (1 signal filed 2026-02-28T21:06Z, streak=1), 4-hour rate limit window expires ~01:06Z. Created task #399 (scheduled 2026-03-01T01:10Z) to file next signal after window expires. **X:** setup done (task #382). **Blockers:** Spark SSH (task #271). **Queued:** Bitflow + Zest V2 integrations, Zero Authority DAO collaboration (reputation layer).
 
 **Week summary:** 29 skills deployed, worktree isolation verified, workflows + reputation templates live, sensor audit clean (23/25 healthy). Core path: AIBTC → Zero Authority → Bitcoin reputation layer.
 
