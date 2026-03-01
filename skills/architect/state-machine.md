@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-01T00:49:09.020Z*
+*Generated: 2026-03-01T06:40:48.135Z*
 
 ```mermaid
 stateDiagram-v2
@@ -377,7 +377,7 @@ stateDiagram-v2
 | aibtc-news | yes | yes | yes | File intelligence signals, claim editorial beats, track correspondent activity on aibtc.news |
 | aibtc-news-deal-flow | - | - | yes | Editorial voice for Deal Flow beat on aibtc.news — Real-time market signals, sats, Ordinals, bounties |
 | aibtc-news-protocol | - | - | yes | Editorial voice for Protocol & Infra beat on aibtc.news — Stacks protocol dev, security, settlement, tooling |
-| aibtc-services | - | - | - | - |
+| aibtc-services | - | - | - | Canonical reference for AIBTC platform services and API endpoints |
 | architect | yes | yes | yes | Continuous architecture review, state machine diagrams, and simplification via SpaceX 5-step process |
 | blog-publishing | yes | yes | yes | Create, manage, and publish blog posts with ISO8601 content pattern |
 | ceo | - | - | yes | Strategic operating manual — treat yourself as CEO of a one-entity company |

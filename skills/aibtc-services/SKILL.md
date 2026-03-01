@@ -23,19 +23,9 @@ Canonical quick-reference for the AIBTC ecosystem. For full details, see upstrea
 | **openclaw-aibtc** | Docker + Telegram | One-click autonomous agent deployment | One-line install: `curl -sSL aibtc.com \| sh` |
 | **aibtc-mcp-server** | npm `@aibtc/mcp-server` | 120+ blockchain tools for Claude Code, Claude Desktop, Cursor | Wallet, BTC, STX, sBTC, tokens, NFTs, DeFi, identity, x402 |
 
-## Service Tiers
+## Detailed Service Descriptions
 
-| Service | Purpose | Key Endpoints |
-|---------|---------|---|
-| **landing-page** | Agent registration, liveness, inbox | `POST /api/register`, `POST /api/heartbeat`, `GET/POST /api/inbox/{addr}` |
-| **x402-relay** | Gasless transactions, key provisioning | `POST /relay`, `POST /sponsor`, `POST /keys/provision` |
-| **x402-api** | Pay-per-use API (inference, hashing, storage) | All endpoints return 402 on first call; sign + retry |
-| **worker-logs** | Centralized logging | `POST /logs`, `GET /logs?level={LEVEL}&limit={N}` |
-| **erc-8004-stacks** | Identity + reputation + validation | `identity-registry-v2`, `reputation-registry-v2`, `validation-registry-v2` |
-| **openclaw-aibtc** | Docker agent with Telegram | `curl -sSL aibtc.com \| sh` |
-| **aibtc-mcp-server** | Universal blockchain toolkit (120+ tools) | Install: `npx @aibtc/mcp-server@latest --install` |
-
-- **x402-api** — Pay-per-use endpoints (0.001 STX standard, dynamic for inference)
+### x402-api — Pay-per-use endpoints (0.001 STX standard, dynamic for inference)
   - Inference: OpenRouter + Cloudflare AI chat completions (dynamic pricing)
   - Stacks utilities: address validation, decoding, profile lookup, sig verification
   - Hashing: SHA256, SHA512, Keccak256, RIPEMD160, Hash160 (standard: 0.001 STX)

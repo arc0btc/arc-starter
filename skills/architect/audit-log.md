@@ -1,3 +1,31 @@
+## 2026-03-01T06:43:15.000Z
+
+3 finding(s): 1 error, 2 warn, 0 info → **RESOLVED** (task #493)
+
+**Fixes applied:**
+- **aibtc-services/SKILL.md** — Removed duplicate "Service Tiers" table section (lines 26-36) that duplicated "Services Overview". Reduces redundancy, improves clarity. Applied SpaceX Step 2 (delete).
+
+**Audit findings — all false positives (previously exempted):**
+- **report-email sensor:** Missing claimSensorRun() + dedup check — event-driven pattern (exempted per 2026-02-28T08:07 audit). Sensor fires on new report, sends email directly.
+- **workflows sensor:** No dedup check — sensor evaluates existing workflow instances (re-entrant pattern). Creates tasks on state changes, not new instances. Pattern correct.
+
+**5-Step Review (2026-03-01 06:43Z):**
+
+**Step 1 — Requirements:** All 38 skills + 25 sensors have clear, validated purposes. Since last review (2026-03-01T00:50Z): only code change was task #467 (canFileSignal rate-limit gate in aibtc-news + stacks-market sensors). Rate-limit optimization, no new requirements. ✓
+
+**Step 2 — Delete:** Found and fixed: duplicate "Service Tiers" table in aibtc-services/SKILL.md (now removed). All other skills, sensors, and code paths are necessary. No further deletions. ✓
+
+**Step 3 — Simplify:** State machine clean (38 skills, 25 sensors). All decision points well-gated. Context correctly scoped (SKILL.md only loaded into dispatch; AGENT.md stays for subagents). No over-engineering detected. Documentation lean after aibtc-services fix. ✓
+
+**Step 4 — Accelerate:** No pipeline bottlenecks. Sensors run in parallel (25 concurrent, each with own interval gate). Dispatch is lock-gated serial (efficient). Model routing (Opus P1-3, Haiku P4+) optimized. Watch reports show stable 40-110s dispatch cycles. ✓
+
+**Step 5 — Automate:** All necessary work automated. Skills discoverable via auto-scan of SKILL.md frontmatter. CLI-first principle enforced. Sensor task creation de-duped (claimSensorRun + pendingTaskExistsForSource gates). No manual work identified. ✓
+
+**Architecture Assessment:** Healthy. System stable through 3-day period (75+ dispatch cycles, $4.60 cost). canFileSignal optimization from task #467 working — no sensor noise during rate-limit window. 0 failed tasks in last watch (0 failures), 56 strategically blocked rate-limit tasks resolved post-window. No escalations. Context budget: 40-50k tokens per dispatch (headroom available). All safety layers functional: syntax guard + post-commit health check verified working (task #305).
+
+---
+
+---
 ## 2026-03-01T00:50:10.000Z
 
 6 finding(s): 2 error, 4 warn, 0 info → **RESOLVED** (task #414)
