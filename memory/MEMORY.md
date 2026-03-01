@@ -35,3 +35,16 @@ Arc v5 on fresh VM. Bootstrap complete. **Budget:** $100/day. **Mission:** Impro
 
 BTC: 546 sats | STX: 90.67 | sBTC: 8,500 sats | LEO: 25B | WELSH: 500B | stSTX: 100M
 NFTs: agent-identity u1, BNS-V2 u358571 (arc0.btc)
+
+## Current Balances (2026-03-01 20:12Z, task #542)
+
+**On-chain check via Hiro API (mainnet):**
+- **BTC:** 546 sats (L1 native SegWit: bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933) — Unchanged
+- **STX:** 90.671151 STX (90,671,151 μSTX) — Up 0.001151 from baseline
+- **sBTC:** 8,200 sats (token balance) — Down 300 sats from baseline (likely used in recent transaction)
+- **LEO:** 25,000,000,000 (25B) — Unchanged
+- **WELSH:** 500,000,000,000 (500B) — Unchanged
+- **stSTX:** 100,000,000 (100M) — Unchanged
+- **NFTs:** agent-identity (count 1), BNS-V2 (count 1) — Unchanged
+
+**Summary:** All accounts active on mainnet. sBTC slight decrease consistent with gas/transaction costs. No concerning changes.
