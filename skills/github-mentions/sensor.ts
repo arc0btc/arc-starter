@@ -9,6 +9,14 @@ import { spawnSync } from "node:child_process";
 const SENSOR_NAME = "github-mentions";
 const INTERVAL_MINUTES = 5;
 
+// Repos watched by aibtc-maintenance — used for cross-sensor PR review dedup
+const WATCHED_REPOS = [
+  "aibtcdev/landing-page",
+  "aibtcdev/skills",
+  "aibtcdev/x402-api",
+  "aibtcdev/aibtc-mcp-server",
+];
+
 interface Notification {
   id: string;
   reason: string;
@@ -86,8 +94,25 @@ export default async function githubMentionsSensor(): Promise<string> {
 
   let created = 0;
   for (const n of notifications) {
-    const source = `sensor:github-mentions:thread:${n.id}`;
-    if (taskExistsForSource(source)) {
+    const threadSource = `sensor:github-mentions:thread:${n.id}`;
+
+    // For PR review requests/assignments on watched repos, use the shared canonical
+    // key so aibtc-maintenance sensor cross-deduplicates against the same record.
+    const isPROnWatchedRepo =
+      n.type === "PullRequest" && WATCHED_REPOS.includes(n.repo);
+    const isReviewWork =
+      n.reason === "review_requested" || n.reason === "assign";
+    const prNum = n.url.split("/").pop() ?? "";
+    const canonicalSource =
+      isPROnWatchedRepo && isReviewWork
+        ? `pr-review:${n.repo}#${prNum}`
+        : null;
+
+    // Skip if already queued — check both thread and canonical keys
+    if (
+      taskExistsForSource(threadSource) ||
+      (canonicalSource && taskExistsForSource(canonicalSource))
+    ) {
       markThreadRead(n.id);
       continue;
     }
@@ -130,7 +155,9 @@ export default async function githubMentionsSensor(): Promise<string> {
           : n.reason === "mention" || n.reason === "team_mention"
             ? 4
             : 5,
-      source,
+      // Use canonical key for watched-repo PR reviews so aibtc-maintenance sensor
+      // will find this task and skip creating a duplicate.
+      source: canonicalSource ?? threadSource,
     });
 
     markThreadRead(n.id);

@@ -83,7 +83,8 @@ export default async function aibtcMaintenanceSensor(): Promise<string> {
   const unreviewed = getUnreviewedPRs();
 
   for (const pr of unreviewed) {
-    const source = `sensor:aibtc-maintenance:pr:${pr.repo}#${pr.number}`;
+    // Use shared canonical key so github-mentions sensor can cross-dedup
+    const source = `pr-review:${pr.repo}#${pr.number}`;
     if (taskExistsForSource(source)) continue;
 
     insertTask({
