@@ -2,6 +2,7 @@ import { claimSensorRun } from "../../src/sensors.ts";
 import {
   initDatabase,
   insertTask,
+  pendingTaskExistsForSource,
   getAllActiveWorkflows,
   updateWorkflowState,
   getWorkflowByInstanceKey,
@@ -281,14 +282,17 @@ export default async function workflowsSensor(): Promise<string> {
       // Handle the action
       if (action.type === "create-task") {
         const source = `workflow:${workflow.id}`;
-        insertTask({
-          subject: action.subject,
-          description: action.description,
-          priority: action.priority || 5,
-          skills: action.skills ? action.skills.join(",") : null,
-          source,
-        });
-        totalActions++;
+        // Dedup: skip if a pending task for this workflow already exists
+        if (!pendingTaskExistsForSource(source)) {
+          insertTask({
+            subject: action.subject,
+            description: action.description,
+            priority: action.priority || 5,
+            skills: action.skills ? action.skills.join(",") : null,
+            source,
+          });
+          totalActions++;
+        }
       } else if (action.type === "transition" && action.nextState) {
         updateWorkflowState(
           workflow.id,

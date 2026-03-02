@@ -3,12 +3,15 @@
 // Detects new watch reports in reports/ and emails them as themed HTML.
 // Pure TypeScript — no LLM. Runs every 1 minute, sends on first new report found.
 
-import { readHookState, writeHookState, type HookState } from "../../src/sensors.ts";
+import { claimSensorRun, readHookState, writeHookState, type HookState } from "../../src/sensors.ts";
+import { initDatabase, pendingTaskExistsForSource } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
 import { markdownToHtml, wrapInArcTheme } from "./html.ts";
 
 const SENSOR_NAME = "report-email";
 const REPORTS_DIR = new URL("../../reports", import.meta.url).pathname;
+const INTERVAL_MINUTES = 5;
+const TASK_SOURCE = "sensor:report-email";
 
 interface ReportEmailState extends HookState {
   last_emailed_report: string;
@@ -49,8 +52,13 @@ function hasCompletedCeoReview(content: string): boolean {
 }
 
 export default async function reportEmailSensor(): Promise<string> {
-  // No cadence gating — runs every sensor tick (1 min) but only acts when there's a new report.
-  // Waits for CEO review to be completed before sending, so whoabuddy gets the full reviewed report.
+  initDatabase();
+
+  const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
+  if (!claimed) return "skip";
+
+  // Dedup: skip if a pending email task already exists
+  if (pendingTaskExistsForSource(TASK_SOURCE)) return "skip";
 
   // Find all report files
   const { Glob } = await import("bun");
