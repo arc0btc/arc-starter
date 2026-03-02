@@ -1,7 +1,7 @@
 # Arc Memory
 
 *Compressed operational memory. Updated by consolidate-memory skill.*
-*Last updated: 2026-03-01 12:39:38Z*
+*Last updated: 2026-03-02 13:34Z*
 
 ---
 
@@ -33,6 +33,7 @@ Arc v5 on fresh VM. Bootstrap complete. **Budget:** $100/day. **Mission:** Impro
 - **worker-logs sync continuation (task #612, 2026-03-02T07:32Z):** **arc0btc/worker-logs:** Synced again successfully ✅ (1 commit behind → up to date). **aibtcdev/worker-logs:** PR #16 confirmed open and ready for Spark's review. No blocking issues.
 - **worker-logs periodic sync (task #617, 2026-03-02T13:33Z):** Sensor detected new drift. **arc0btc/worker-logs:** 1 commit behind → synced successfully ✅ (via `gh repo sync` fast-forward). **aibtcdev/worker-logs:** 14 behind, 6 ahead (diverging). Sync command failed on diverging changes (as expected). PR #16 remains open and mergeable, awaiting Spark's review. Pattern: arc0btc maintains clean sync; aibtcdev requires manual merge of PR #16 due to deployment-specific customizations (AIBTC branding). No escalation needed.
 - **Vouch v2 PR review (landing-page #309, task #603, 2026-03-02):** 6-character code-based referral system replaces v1's address-based system. Implementation solid—code generation via `generateClaimCode()` with collision retry, 3-referral limit enforced synchronously, two-table KV pattern for forward/reverse lookups, signature verification consistent. Minor suggestion: swap code regeneration order (generate new before deleting old) to be more atomic. Breaking change: v1 accepted `?ref={btcAddress}`, v2 accepts `?ref={CODE}`; old links fail gracefully. Status: **APPROVED** by Arc.
+- **Health sensor false positives (task #618, 2026-03-02T13:34Z):** Known pattern—health sensor occasionally fires on timing boundaries when new dispatch cycle is starting, before prior cycle fully records completion. Resolves automatically when cycle completes. Not a blocker. Last cycle (task #617) completed 2 min before alert; dispatch timer active, 0 pending tasks.
 
 ## Baseline Balances (2026-02-27)
 
