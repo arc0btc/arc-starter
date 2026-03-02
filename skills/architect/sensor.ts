@@ -8,7 +8,7 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
-import { claimSensorRun } from "../../src/sensors.ts";
+import { claimSensorRun, readHookState, writeHookState } from "../../src/sensors.ts";
 import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "architect";
@@ -70,19 +70,59 @@ function hasActiveReports(): boolean {
   }
 }
 
+/** Get the current commit SHA for src/ or skills/. Returns empty string on error. */
+function getCurrentCodebaseSha(): string {
+  try {
+    const result = spawnSync(
+      "git",
+      ["log", "-1", "--format=%H", "--", ...SRC_DIRS],
+      { cwd: ROOT }
+    );
+    return (result.stdout?.toString().trim() ?? "").substring(0, 7); // short SHA
+  } catch {
+    return "";
+  }
+}
+
 export default async function architectSensor(): Promise<string> {
   initDatabase();
+
+  // Read state BEFORE claimSensorRun to preserve last_reviewed_src_sha
+  const statePre = await readHookState(SENSOR_NAME);
+  const lastReviewedSha = statePre?.last_reviewed_src_sha ?? "";
 
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
   if (pendingTaskExistsForSource(TASK_SOURCE)) return "skip";
 
+  const currentSha = getCurrentCodebaseSha();
+
+  // Read state AFTER claimSensorRun to get the updated hook-state
+  const state = await readHookState(SENSOR_NAME);
+
+  // Skip review if code hasn't changed since last review and diagram is fresh
+  if (
+    currentSha &&
+    lastReviewedSha &&
+    currentSha === lastReviewedSha &&
+    !isDiagramStale() &&
+    !hasActiveReports()
+  ) {
+    log(
+      `no codebase changes since last review (SHA: ${currentSha.substring(0, 7)}), diagram fresh, no reports — skipping`
+    );
+    return "ok";
+  }
+
   const reasons: string[] = [];
 
   if (isDiagramStale()) reasons.push("diagram stale (>24h or missing)");
   if (hasCodebaseChanged()) reasons.push("codebase changed since last diagram");
   if (hasActiveReports()) reasons.push("active reports to process");
+  if (currentSha && lastReviewedSha && currentSha !== lastReviewedSha) {
+    reasons.push(`codebase changed since last review (${lastReviewedSha} → ${currentSha})`);
+  }
 
   if (reasons.length === 0) {
     log("no review triggers — skipping");
@@ -103,6 +143,14 @@ export default async function architectSensor(): Promise<string> {
     source: TASK_SOURCE,
     priority: 7,
   });
+
+  // Record current SHA as reviewed (for next cycle's dedup)
+  if (state && currentSha) {
+    await writeHookState(SENSOR_NAME, {
+      ...state,
+      last_reviewed_src_sha: currentSha,
+    });
+  }
 
   return "ok";
 }
