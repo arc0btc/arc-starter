@@ -50,13 +50,13 @@ interface CorrespondentStatus {
   canFileSignal: boolean;
 }
 
-async function main(): Promise<void> {
+export default async function aibtcNewsSensor(): Promise<string> {
   try {
     // Claim sensor run (if not time yet, returns early)
     const claim = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (claim.status === "skip") {
       log("skip (interval not ready)");
-      return;
+      return "skip";
     }
 
     log("run started");
@@ -70,7 +70,7 @@ async function main(): Promise<void> {
 
     if (!status) {
       log("could not fetch status; skipping checks");
-      return;
+      return "skip";
     }
 
     // Check 1: Arc has claimed a beat (API returns singular `beat` object)
@@ -158,11 +158,10 @@ async function main(): Promise<void> {
     }
 
     log("run completed");
+    return "ok";
   } catch (e) {
     const err = e as Error;
     console.error(`[${new Date().toISOString()}] [sensor:aibtc-news] error: ${err.message}`);
-    process.exit(1);
+    return "error";
   }
 }
-
-await main();

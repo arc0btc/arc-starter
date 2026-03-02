@@ -133,13 +133,13 @@ File signal to Ordinals Business beat via aibtc-news skill. Headline: "${headlin
   }
 }
 
-async function main(): Promise<void> {
+export default async function stacksMarketSensor(): Promise<string> {
   try {
     // Claim sensor run (if not time yet, returns early)
     const claim = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (claim.status === "skip") {
       log("skip (interval not ready)");
-      return;
+      return "skip";
     }
 
     log("run started");
@@ -152,7 +152,7 @@ async function main(): Promise<void> {
     const markets = await fetchMarkets(50);
     if (!markets) {
       log("could not fetch markets; skipping");
-      return;
+      return "skip";
     }
 
     log(`found ${markets.length} total markets`);
@@ -172,14 +172,14 @@ async function main(): Promise<void> {
     const sourcePrefix = `sensor:${SENSOR_NAME}:signal:`;
     if (recentTaskExistsForSourcePrefix(sourcePrefix, RATE_LIMIT_MINUTES)) {
       log(`rate limit: signal task filed within last ${RATE_LIMIT_MINUTES} min; skipping`);
-      return;
+      return "rate-limited";
     }
 
     // Check aibtc.news API — authoritative rate-limit gate
     const canFile = await canFileSignal();
     if (!canFile) {
       log("rate limit active (canFileSignal=false); skipping signal tasks");
-      return;
+      return "rate-limited";
     }
 
     // File signals (rate-limited per run)
@@ -200,13 +200,12 @@ async function main(): Promise<void> {
 
     log(`queued ${signalCount} signal task(s)`);
     log("run completed");
+    return "ok";
   } catch (e) {
     const err = e as Error;
     console.error(
       `[${new Date().toISOString()}] [sensor:stacks-market] error: ${err.message}`
     );
-    process.exit(1);
+    return "error";
   }
 }
-
-await main();

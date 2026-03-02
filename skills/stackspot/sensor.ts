@@ -94,13 +94,13 @@ async function autoJoinPot(potName: string, contractId: string): Promise<boolean
   }
 }
 
-async function main(): Promise<void> {
+export default async function stackspotSensor(): Promise<string> {
   try {
     // Claim sensor run (if not time yet, returns early)
     const claim = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (claim.status === "skip") {
       log("skip (interval not ready)");
-      return;
+      return "skip";
     }
 
     log("run started");
@@ -113,7 +113,7 @@ async function main(): Promise<void> {
     const potList = await listPots();
     if (!potList) {
       log("could not fetch pot list; skipping");
-      return;
+      return "skip";
     }
 
     log(`found ${potList.potCount} pots`);
@@ -149,13 +149,12 @@ async function main(): Promise<void> {
     }
 
     log("run completed");
+    return "ok";
   } catch (e) {
     const err = e as Error;
     console.error(
       `[${new Date().toISOString()}] [sensor:stackspot] error: ${err.message}`
     );
-    process.exit(1);
+    return "error";
   }
 }
-
-await main();
