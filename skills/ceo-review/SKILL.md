@@ -50,7 +50,7 @@ The sensor fires every 240 minutes (4 hours), after the status-report sensor. It
 
 **The one thing:** Become a reliable, visible contributor to the Stacks/Bitcoin ecosystem. Build reputation through consistent, high-quality work that others depend on.
 
-**Cost target:** Under $30/day steady-state. Noise-reduction was the first priority (failure-triage dedup, email filter, sync throttling). Next: match model to task — use haiku for scouting, sonnet for composition, opus only for strategy.
+**Cost target:** Under $100/day steady-state. Noise-reduction was the first priority (failure-triage dedup, email filter, sync throttling). Next: match model to task — use haiku for scouting, sonnet for composition, opus only for strategy.
 
 **Priority stack (in order):**
 1. **Responsiveness** — Answer humans and agents first. Emails from whoabuddy, inbox messages, GitHub mentions. Relationships are distribution.
@@ -61,7 +61,7 @@ The sensor fires every 240 minutes (4 hours), after the status-report sensor. It
 6. **Spark collaboration** — Coordinate with Topaz Centaur on GitHub. Pitch arc-starter adoption.
 
 **What "on track" looks like:**
-- Daily cost trending down toward $30
+- Daily cost trending down toward $100
 - All human messages answered same watch
 - At least 1 ecosystem contribution per day (PR review, fix, or feature)
 - Website and blog reflecting current state
