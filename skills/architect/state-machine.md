@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-02T12:44:27.445Z*
+*Generated: 2026-03-02T20:36:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -13,6 +13,7 @@ stateDiagram-v2
 
     state SensorsService {
         [*] --> RunAllSensors: parallel via Promise.allSettled
+        RunAllSensors --> agent_engagementSensor: agent-engagement
         RunAllSensors --> aibtc_heartbeatSensor: aibtc-heartbeat
         RunAllSensors --> aibtc_inboxSensor: aibtc-inbox
         RunAllSensors --> aibtc_maintenanceSensor: aibtc-maintenance
@@ -38,6 +39,16 @@ stateDiagram-v2
         RunAllSensors --> status_reportSensor: status-report
         RunAllSensors --> worker_logsSensor: worker-logs
         RunAllSensors --> workflowsSensor: workflows
+
+        state agent_engagementSensor {
+            [*] --> agent_engagementGate: claimSensorRun(agent-engagement)
+            agent_engagementGate --> agent_engagementSkip: interval not elapsed
+            agent_engagementGate --> agent_engagementDedup: interval elapsed
+            agent_engagementDedup --> agent_engagementSkip: pending task exists
+            agent_engagementDedup --> agent_engagementCreateTask: no dupe
+            agent_engagementCreateTask --> [*]: insertTask()
+            agent_engagementSkip --> [*]: return skip
+        }
 
         state aibtc_heartbeatSensor {
             [*] --> aibtc_heartbeatGate: claimSensorRun(aibtc-heartbeat)
@@ -301,9 +312,10 @@ stateDiagram-v2
         PickTask --> BuildPrompt: highest priority task
 
         state BuildPrompt {
-            [*] --> LoadCore: SOUL.md + CLAUDE.md + MEMORY.md
-            LoadCore --> LoadSkills: task.skills JSON array
-            LoadSkills --> LoadSkillMd: for each skill name
+            [*] --> SelectModel: task.priority
+            SelectModel --> LoadCore: P1-4→opus, P5-7→sonnet, P8+→haiku
+            LoadCore --> LoadSkills: SOUL.md + CLAUDE.md + MEMORY.md
+            LoadSkills --> LoadSkillMd: task.skills JSON array
             LoadSkillMd --> AssemblePrompt: SKILL.md content
             note right of LoadSkillMd: Only SKILL.md loaded\nAGENT.md stays for subagents
         }
@@ -330,6 +342,7 @@ stateDiagram-v2
 
     note right of CLI
         Skills with CLI:
+        - agent-engagement
         - aibtc-maintenance
         - aibtc-news
         - architect
@@ -341,6 +354,7 @@ stateDiagram-v2
         - housekeeping
         - identity
         - manage-skills
+        - mcp-server
         - reputation
         - research
         - stacks-market
@@ -361,6 +375,7 @@ stateDiagram-v2
 | 2 | Sensor creates task | External data + dedup check | `pendingTaskExistsForSource()` |
 | 3 | Dispatch lock check | Lock file (PID + task_id) | `isPidAlive()` |
 | 4 | Task selection | All pending tasks sorted | Priority ASC, ID ASC |
+| 4a | Model routing | task.priority or task.model | P1-4→opus, P5-7→sonnet, P8+→haiku |
 | 5 | Skill loading | `task.skills` JSON array | SKILL.md existence |
 | 6 | Prompt assembly | SOUL + CLAUDE + MEMORY + skills | Token budget ~40-50k |
 | 7 | LLM execution | Full prompt + CLI access | `arc` commands only |
@@ -371,6 +386,7 @@ stateDiagram-v2
 
 | Skill | Sensor | CLI | Agent | Description |
 |-------|--------|-----|-------|-------------|
+| agent-engagement | yes | yes | - | Proactive outreach to AIBTC network agents for collaboration on shared interests |
 | aibtc-heartbeat | yes | - | - | Signed AIBTC platform check-in every 5 minutes via BIP-137 Bitcoin message signing |
 | aibtc-inbox | yes | - | yes | Poll AIBTC platform inbox, sync messages locally, queue tasks for unread messages |
 | aibtc-maintenance | yes | yes | yes | Triage, review, test, and support aibtcdev repos we depend on |
@@ -394,6 +410,7 @@ stateDiagram-v2
 | housekeeping | yes | yes | yes | Periodic repo hygiene checks — uncommitted changes, stale locks, WAL size, memory bloat, file archival |
 | identity | - | yes | yes | ERC-8004 on-chain agent identity management — register agent identities, update URI and metadata, manage operator approvals, set/unset agent wallet, transfer identity NFTs, and query identity info. |
 | manage-skills | yes | yes | yes | Create, inspect, and manage agent skills |
+| mcp-server | - | yes | - | MCP server exposing Arc's task queue, skills, and memory to external Claude instances |
 | overnight-brief | yes | - | yes | Generate a consolidated overnight brief at 6am PST covering all activity from 8pm–6am |
 | release-watcher | yes | - | - | Detects new releases on watched repos and creates review tasks |
 | report-email | yes | - | - | Email watch reports when new ones are generated |
