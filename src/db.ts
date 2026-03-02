@@ -25,6 +25,7 @@ export interface Task {
   tokens_out: number;
   attempt_count: number;
   max_retries: number;
+  model: string | null;
 }
 
 export interface InsertTask {
@@ -37,6 +38,7 @@ export interface InsertTask {
   parent_id?: number | null;
   template?: string | null;
   scheduled_for?: string | null;
+  model?: string | null;
 }
 
 export interface CycleLog {
@@ -51,12 +53,14 @@ export interface CycleLog {
   tokens_out: number;
   skills_loaded: string | null;
   security_grade: string | null;
+  model: string | null;
 }
 
 export interface InsertCycleLog {
   started_at: string;
   task_id?: number | null;
   skills_loaded?: string | null;
+  model?: string | null;
 }
 
 // ---- Workflow types ----
@@ -187,6 +191,20 @@ export function initDatabase(): Database {
   // Migration: add security_grade column to cycle_log
   try {
     db.run("ALTER TABLE cycle_log ADD COLUMN security_grade TEXT");
+  } catch {
+    // Column already exists — ignore
+  }
+
+  // Migration: add model column to tasks
+  try {
+    db.run("ALTER TABLE tasks ADD COLUMN model TEXT");
+  } catch {
+    // Column already exists — ignore
+  }
+
+  // Migration: add model column to cycle_log
+  try {
+    db.run("ALTER TABLE cycle_log ADD COLUMN model TEXT");
   } catch {
     // Column already exists — ignore
   }
@@ -338,7 +356,7 @@ export function insertTask(fields: InsertTask): number {
 
   const optionalColumns: Array<keyof InsertTask> = [
     "description", "skills", "priority", "status",
-    "source", "parent_id", "template",
+    "source", "parent_id", "template", "model",
   ];
 
   for (const col of optionalColumns) {
@@ -398,6 +416,7 @@ export interface UpdateTaskFields {
   subject?: string;
   description?: string | null;
   priority?: number;
+  model?: string | null;
 }
 
 export function updateTask(id: number, fields: UpdateTaskFields): void {
