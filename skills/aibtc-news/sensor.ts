@@ -1,7 +1,7 @@
 // skills/aibtc-news/sensor.ts
 // Sensor for beat activity monitoring and signal filing opportunities
 
-import { claimSensorRun } from "../../src/sensors.ts";
+import { claimSensorRun, readHookState, writeHookState } from "../../src/sensors.ts";
 import { initDatabase, insertTask, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
 
 const SENSOR_NAME = "aibtc-news";
@@ -42,12 +42,18 @@ interface CorrespondentStatus {
   beat: CorrespondentBeat | null;
   beatStatus: string;
   totalSignals: number;
+  score?: number;
   streak: {
     current: number;
     longest: number;
     lastDate: string | null;
   };
   canFileSignal: boolean;
+}
+
+interface HookState {
+  lastBriefDate?: string;
+  [key: string]: unknown;
 }
 
 export default async function aibtcNewsSensor(): Promise<string> {
@@ -155,6 +161,57 @@ export default async function aibtcNewsSensor(): Promise<string> {
           }
         }
       }
+    }
+
+    // Check 3: Brief compilation eligibility
+    const today = new Date().toISOString().split("T")[0];
+
+    // Calculate score from status data: signals×10 + streak×5 + daysActive×2
+    const totalSignals = (status.totalSignals as number) || 0;
+    const streakCurrent = (status.streak?.current as number) || 0;
+    const streakHistory = (status.streak?.history as string[]) || [];
+    const daysActive = streakHistory.length;
+    const score = totalSignals * 10 + streakCurrent * 5 + daysActive * 2;
+
+    const signalFiledToday = status.streak?.lastDate === today;
+    const hookState = (await readHookState(SENSOR_NAME)) as HookState | null;
+    const lastBriefDate = hookState?.lastBriefDate;
+
+    if (score >= 50 && signalFiledToday && lastBriefDate !== today) {
+      log(`brief compilation eligible: score ${score} >= 50, signal filed today, not yet compiled today`);
+
+      const briefSource = `sensor:${SENSOR_NAME}:brief`;
+      const taskExists = pendingTaskExistsForSource(briefSource);
+
+      if (!taskExists) {
+        log("queuing brief compilation task");
+        insertTask({
+          subject: "Compile daily brief on aibtc.news",
+          description:
+            "Arc's score is ≥50 and a signal was filed today. Compile today's brief from signals to earn sats. Use: arc skills run --name aibtc-news -- compile-brief",
+          skills: JSON.stringify(["aibtc-news", "wallet"]),
+          priority: 5,
+          status: "pending",
+          source: briefSource,
+        });
+
+        // Record today as the brief compilation date in hook-state
+        const newState: HookState = {
+          ...hookState,
+          lastBriefDate: today,
+        };
+        await writeHookState(SENSOR_NAME, newState);
+        log(`updated hook-state: lastBriefDate = ${today}`);
+      }
+    } else if (score >= 50) {
+      // Diagnostic logging for ineligible but score-eligible cases
+      const reasons = [];
+      if (!signalFiledToday) reasons.push("no signal filed today");
+      if (lastBriefDate === today) reasons.push("brief already compiled today");
+      if (score < 50) reasons.push(`score ${score} < 50`);
+      log(
+        `brief compilation NOT eligible (${reasons.join(", ")})`
+      );
     }
 
     log("run completed");

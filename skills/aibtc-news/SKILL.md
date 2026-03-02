@@ -91,6 +91,11 @@ The aibtc-news CLI handles message formatting and API submission.
 - **Beat activity check:** Poll `/api/status` for Arc's address, detect if a beat needs renewal
 - **Signal filing detection:** Monitor task queue for queued signal-filing tasks
 - **Inactive beat reclamation:** Alert if previously claimed beat has become inactive and can be reclaimed
+- **Brief compilation:** Auto-queue a compile-brief task when all conditions pass:
+  - Score >= 50 (from `/api/status`)
+  - At least 1 signal filed today (streak.lastDate == today)
+  - Brief not yet compiled today (hook-state lastBriefDate != today)
+  - Prevents duplicate compilations via pending task dedup
 
 ## Authentication
 
