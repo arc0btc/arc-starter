@@ -41,7 +41,7 @@ The sensor fires every 240 minutes (4 hours), after the status-report sensor. It
 - P5-7 (Sonnet): Composition, reviews, moderate ops, signal filing, reports. Mid-level work.
 - P8+ (Haiku): Simple execution, config edits, status checks. Junior-level work.
 - Prefer senior (Opus) doing it right over junior (Haiku) messing up. A bad P8 Haiku attempt that creates a P2 Opus cleanup task costs more than a P5 Sonnet getting it right.
-- When reviewing queue: flag tasks where priority doesn't match complexity. A complex task at P8 (Haiku) will likely fail. A simple task at P3 (Opus) wastes budget.
+- When reviewing queue: flag tasks where priority doesn't match complexity.
 
 ## Planning Horizons
 
@@ -51,35 +51,39 @@ The sensor fires every 240 minutes (4 hours), after the status-report sensor. It
 
 ## Current Strategic Direction
 
-*Updated by whoabuddy or CEO review. This is what Arc is building and why.*
+*Updated 2026-03-02T19:00Z. Build sprint begins.*
 
-**Phase:** Early (v5, day 2). Default dead — no revenue, burning ~$50-70/day on compute. Every cycle must either reduce costs or build toward revenue.
+**Phase:** Build sprint (v5, day 5). Bootstrap complete. 39 skills, 26 sensors, 3-tier model routing, AgentShield security scanning — all operational. Infrastructure is proven. The question is no longer "can Arc run?" but "what does Arc ship?"
 
-**The one thing:** Become a reliable, visible contributor to the Stacks/Bitcoin ecosystem. Build reputation through consistent, high-quality work that others depend on.
+**The one thing:** Ship code that other agents and humans depend on. Cross-repo PRs, working agent-to-agent messaging, and tools that make Arc indispensable to the AIBTC ecosystem. Reputation is built by shipping, not by having infrastructure.
 
-**Cost target:** Under $100/day steady-state. 3-tier model routing active: Opus (P1-4) for strategy/architecture, Sonnet (P5-7) for composition/reviews, Haiku (P8+) for simple execution. Every priority assignment is a cost decision.
+**Cost context:** Daily burn is ~$28-50 actual, well under the $100/day budget. 3-tier routing (Opus P1-4, Sonnet P5-7, Haiku P8+) is working. The build sprint can afford Opus on high-value work — don't be cheap on tasks that need senior reasoning. Every priority assignment is still a cost decision, but the budget has headroom.
 
-**Priority stack (in order):**
-1. **Responsiveness** — Answer humans and agents first. Emails from whoabuddy, inbox messages, GitHub mentions. Relationships are distribution.
-2. **Cost discipline** — Know the daily burn. Cut waste before adding features. A lean agent survives.
-3. **Tech mastery** — Master the tools already in use (Stacks, Clarity, BIP-322, Bun, SQLite, Cloudflare Workers). Depth over breadth.
-4. **Public presence** — Keep arc0.me and arc0btc.com current. Publish blog posts. Be findable.
-5. **Ecosystem contribution** — PR reviews, bug fixes, features in aibtcdev repos. Build social capital.
-6. **Spark collaboration** — Coordinate with Topaz Centaur on GitHub. Pitch arc-starter adoption.
+**Build sprint priorities (in order):**
+1. **Ship external PRs** — BIP-322 varint fixes across 4 repos, any open aibtcdev contributions. Code in other people's repos is the strongest signal of value. One merged PR > ten internal skills.
+2. **Agent-to-agent messaging** — Fix the false-success bug (#683), populate agent addresses, send first real x402 messages. Arc talking to other agents is a unique capability. Make it work end-to-end.
+3. **Responsiveness** — Answer humans and agents first. Emails, inbox messages, GitHub mentions. Relationships are distribution.
+4. **Public artifacts** — Blog posts documenting shipped work, arc0.me current. Every external PR and agent interaction is a blog post waiting to happen.
+5. **Ecosystem intelligence** — PR reviews, signal filing, stacks-market monitoring. Keep the AIBTC correspondent pipeline flowing. Compile briefs when eligible.
+6. **MCP server** — Expose Arc's capabilities as an MCP server. This is the next infrastructure play after the current sprint ships.
 
 **What "on track" looks like:**
-- Daily cost trending down toward $100
+- At least 1 external PR opened or merged per day
+- Agent-to-agent messaging working end-to-end (not just infrastructure)
 - All human messages answered same watch
-- At least 1 ecosystem contribution per day (PR review, fix, or feature)
-- Website and blog reflecting current state
-- Queue under 15 tasks, 80%+ cycles on strategic work
+- Daily cost under $100 (currently well under — use the headroom on high-value Opus work)
+- Queue under 15 tasks, focused on shipping over building internal tools
+- Blog post published at least weekly documenting what shipped
 
 **What "off track" looks like:**
-- Daily cost above $50
+- Building more sensors/skills instead of using the 39 that exist
+- Internal infrastructure work without external-facing output
+- Agent messaging still broken after this sprint
+- BIP-322 PRs sitting in queue instead of being shipped
 - Unanswered emails or inbox messages older than 4 hours
-- Queue bloated with sensor-generated noise
-- Building new sensors/skills instead of mastering existing ones
-- No visible external output (blog posts, PR reviews, shipped features)
+- Queue bloated with sensor-generated noise above 20 tasks
+
+**Spark status:** GitHub account permanently restricted. No recovery path. Coordinate via AIBTC inbox only. Do not create tasks that depend on Spark's GitHub access.
 
 ## Dependencies
 
