@@ -71,7 +71,7 @@ async function autoJoinPot(potName: string, contractId: string): Promise<boolean
   try {
     // Create a task for the dispatch layer to actually join the pot
     // (wallet unlock is required, which needs to happen in a separate task)
-    const joinTaskSource = `sensor:${SENSOR_NAME}:auto-join:${contractId}`;
+    const joinTaskSource = `sensor:${SENSOR_NAME}:joined:${contractId}`;
     const taskExists = pendingTaskExistsForSource(joinTaskSource);
 
     if (!taskExists) {
