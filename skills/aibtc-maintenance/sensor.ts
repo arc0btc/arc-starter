@@ -53,6 +53,9 @@ function getUnreviewedPRs(): PrInfo[] {
       }>;
 
       for (const item of items) {
+        // Skip PRs authored by Arc — reviewing your own PR is meaningless
+        if (item.author.login === GITHUB_USER) continue;
+
         const reviewed = item.reviews.some(
           (r) => r.author.login === GITHUB_USER
         );
