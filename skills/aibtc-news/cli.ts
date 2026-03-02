@@ -524,7 +524,12 @@ async function cmdCompileBrief(args: string[]): Promise<void> {
     // First check Arc's status to see if score >= 50
     const statusResult = await callApi("GET", `/status/${ARC_BTC_ADDRESS}`);
     const status = statusResult as Record<string, unknown>;
-    const score = (status.score as number) || 0;
+    // API doesn't return score field — calculate locally from components
+    const totalSignals = (status.totalSignals as number) || 0;
+    const streak = (status.streak as Record<string, unknown>) || {};
+    const streakCurrent = (streak.current as number) || 0;
+    const daysActive = Array.isArray(streak.history) ? streak.history.length : 0;
+    const score = totalSignals * 10 + streakCurrent * 5 + daysActive * 2;
 
     if (score < 50) {
       throw new Error(
