@@ -95,13 +95,14 @@ export default async function aibtcMaintenanceSensor(): Promise<string> {
 
     const isReactRepo = REACT_REPOS.has(pr.repo);
     const skills = isReactRepo
-      ? '["aibtc-maintenance","react-reviewer","composition-patterns"]'
+      ? '["aibtc-maintenance","react-reviewer","composition-patterns","web-design"]'
       : '["aibtc-maintenance"]';
 
     const extraInstructions = isReactRepo
       ? [
           "5. Apply react-reviewer rules (CRITICAL: waterfalls + bundle; HIGH: server-side) — see skills/react-reviewer/AGENT.md.",
           "6. Apply composition-patterns rules — see skills/composition-patterns/AGENT.md.",
+          "7. Apply web-design accessibility/UX rules for UI-touching files — see skills/web-design/AGENT.md.",
         ]
       : [];
 
