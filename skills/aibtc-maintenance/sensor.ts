@@ -12,6 +12,9 @@ const WATCHED_REPOS = [
   "aibtcdev/aibtc-mcp-server",
 ];
 
+// Repos that use React/Next.js — load react-reviewer + composition-patterns for these PRs
+const REACT_REPOS = new Set(["aibtcdev/landing-page"]);
+
 const GITHUB_USER = "arc0btc";
 
 interface PrInfo {
@@ -90,6 +93,18 @@ export default async function aibtcMaintenanceSensor(): Promise<string> {
     const source = `pr-review:${pr.repo}#${pr.number}`;
     if (taskExistsForSource(source)) continue;
 
+    const isReactRepo = REACT_REPOS.has(pr.repo);
+    const skills = isReactRepo
+      ? '["aibtc-maintenance","react-reviewer","composition-patterns"]'
+      : '["aibtc-maintenance"]';
+
+    const extraInstructions = isReactRepo
+      ? [
+          "5. Apply react-reviewer rules (CRITICAL: waterfalls + bundle; HIGH: server-side) — see skills/react-reviewer/AGENT.md.",
+          "6. Apply composition-patterns rules — see skills/composition-patterns/AGENT.md.",
+        ]
+      : [];
+
     insertTask({
       subject: `Review PR #${pr.number} on ${pr.repo}: ${pr.title}`,
       description: [
@@ -101,8 +116,9 @@ export default async function aibtcMaintenanceSensor(): Promise<string> {
         `2. Run: arc skills run --name aibtc-maintenance -- review-pr --repo ${pr.repo} --pr ${pr.number}`,
         "3. Analyze the diff for correctness and known operational issues.",
         "4. Post a review via gh pr review.",
+        ...extraInstructions,
       ].join("\n"),
-      skills: '["aibtc-maintenance"]',
+      skills,
       priority: 5,
       source,
     });
