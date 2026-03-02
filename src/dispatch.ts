@@ -78,12 +78,18 @@ const MODEL_PRICING: Record<ModelTier, ModelPricing> = {
 };
 
 /**
- * Route tasks to the appropriate model tier based on priority.
+ * Route tasks to the appropriate model tier.
+ * Explicit task.model takes precedence; falls back to priority-based routing:
  * P1-4 (senior):   Opus  — new skills/sensors, architecture, deep reasoning, complex code.
  * P5-7 (mid):      Sonnet — composition, reviews, moderate complexity, operational tasks.
  * P8+  (junior):   Haiku  — simple execution, mark-as-read, config edits, status checks.
  */
 function selectModel(task: Task): ModelTier {
+  if (task.model) {
+    const m = task.model;
+    if (m === "opus" || m === "sonnet" || m === "haiku") return m;
+    log(`dispatch: unrecognized task.model="${m}" for task #${task.id}, falling back to priority routing`);
+  }
   if (task.priority <= 4) return "opus";
   if (task.priority <= 7) return "sonnet";
   return "haiku";
@@ -819,7 +825,7 @@ export async function runDispatch(): Promise<void> {
   if (skillNames.length > 0) {
     log(`dispatch: loading skills: ${skillNames.join(", ")}`);
   }
-  log(`dispatch: model=${model} (priority ${task.priority})`);
+  log(`dispatch: model=${model} (${task.model ? "explicit" : `priority ${task.priority}`})`);
 
   const recentCycles = getRecentCycles(10)
     .map(
@@ -854,6 +860,7 @@ export async function runDispatch(): Promise<void> {
     started_at: cycleStartedAt,
     task_id: task.id,
     skills_loaded: skillNames.length > 0 ? JSON.stringify(skillNames) : null,
+    model,
   });
 
   const dispatchStart = Date.now();

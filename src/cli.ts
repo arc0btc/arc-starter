@@ -114,7 +114,7 @@ function cmdTasksAdd(args: string[]): void {
   const subject = flags["subject"];
   if (!subject) {
     process.stderr.write("Error: --subject is required for 'tasks add'\n");
-    process.stderr.write("Usage: arc tasks add --subject \"text\" [--description TEXT] [--priority N] [--source TEXT] [--skills S1,S2] [--parent ID]\n");
+    process.stderr.write("Usage: arc tasks add --subject \"text\" [--description TEXT] [--priority N] [--source TEXT] [--skills S1,S2] [--parent ID] [--model opus|sonnet|haiku]\n");
     process.exit(1);
   }
 
@@ -124,6 +124,8 @@ function cmdTasksAdd(args: string[]): void {
   const parentId = flags["parent"] ? parseInt(flags["parent"], 10) : undefined;
   const priority = flags["priority"] ? parseInt(flags["priority"], 10) : undefined;
 
+  const model = flags["model"] ?? undefined;
+
   initDatabase();
   const id = insertTask({
     subject,
@@ -132,6 +134,7 @@ function cmdTasksAdd(args: string[]): void {
     priority,
     source: flags["source"],
     parent_id: parentId,
+    model,
   });
 
   process.stdout.write(`Created task #${id}: ${subject}\n`);
@@ -180,7 +183,7 @@ function cmdTasksClose(args: string[]): void {
 function cmdTasksUpdate(args: string[]): void {
   const { flags } = parseFlags(args);
   const usage =
-    'Usage: arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N]\n';
+    'Usage: arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--model opus|sonnet|haiku]\n';
 
   const id = parseInt(flags["id"] ?? "", 10);
   if (isNaN(id)) {
@@ -191,15 +194,16 @@ function cmdTasksUpdate(args: string[]): void {
   const subject = flags["subject"];
   const description = flags["description"];
   const priority = flags["priority"] ? parseInt(flags["priority"], 10) : undefined;
+  const model = flags["model"] ?? undefined;
 
   if (priority !== undefined && isNaN(priority)) {
     process.stderr.write("Error: --priority must be a number\n" + usage);
     process.exit(1);
   }
 
-  if (subject === undefined && description === undefined && priority === undefined) {
+  if (subject === undefined && description === undefined && priority === undefined && model === undefined) {
     process.stderr.write(
-      "Error: at least one of --subject, --description, or --priority is required\n" + usage
+      "Error: at least one of --subject, --description, --priority, or --model is required\n" + usage
     );
     process.exit(1);
   }
@@ -212,12 +216,13 @@ function cmdTasksUpdate(args: string[]): void {
     process.exit(1);
   }
 
-  updateTask(id, { subject, description, priority });
+  updateTask(id, { subject, description, priority, model });
 
   const updated: string[] = [];
   if (subject !== undefined) updated.push("subject");
   if (description !== undefined) updated.push("description");
   if (priority !== undefined) updated.push("priority");
+  if (model !== undefined) updated.push("model");
   process.stdout.write(`Updated task #${id}: ${updated.join(", ")}\n`);
 }
 
@@ -411,11 +416,12 @@ COMMANDS
     --limit defaults to 20.
 
   tasks add --subject TEXT [--description TEXT] [--priority N] [--source TEXT]
-            [--skills SKILL1,SKILL2] [--parent ID]
-    Create a new task.
+            [--skills SKILL1,SKILL2] [--parent ID] [--model opus|sonnet|haiku]
+    Create a new task. --model overrides priority-based model routing.
 
   tasks update --id N [--subject TEXT] [--description TEXT] [--priority N]
-    Update a task's subject, description, or priority.
+              [--model opus|sonnet|haiku]
+    Update a task's subject, description, priority, or model.
 
   tasks close --id N --status completed|failed|blocked --summary TEXT
     Close a task with a result summary.

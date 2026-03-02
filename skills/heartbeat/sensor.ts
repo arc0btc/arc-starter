@@ -24,6 +24,7 @@ export default async function heartbeatSensor(): Promise<string> {
     subject: "system alive check",
     source: TASK_SOURCE,
     priority: 1,
+    model: "haiku",
   });
 
   return "ok";

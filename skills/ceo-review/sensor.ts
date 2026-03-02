@@ -80,6 +80,7 @@ export default async function ceoReviewSensor(): Promise<string> {
     skills: '["ceo-review", "ceo"]',
     source: TASK_SOURCE,
     priority: PRIORITY,
+    model: "sonnet",
   });
 
   return "ok";

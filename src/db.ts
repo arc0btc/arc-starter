@@ -436,6 +436,10 @@ export function updateTask(id: number, fields: UpdateTaskFields): void {
     sets.push("priority = ?");
     values.push(fields.priority);
   }
+  if (fields.model !== undefined) {
+    sets.push("model = ?");
+    values.push(fields.model);
+  }
 
   if (sets.length === 0) return;
   values.push(id);
@@ -468,9 +472,9 @@ export function insertCycleLog(entry: InsertCycleLog): number {
   const db = getDatabase();
   const result = db
     .query(
-      "INSERT INTO cycle_log (started_at, task_id, skills_loaded) VALUES (?, ?, ?)"
+      "INSERT INTO cycle_log (started_at, task_id, skills_loaded, model) VALUES (?, ?, ?, ?)"
     )
-    .run(entry.started_at, entry.task_id ?? null, entry.skills_loaded ?? null);
+    .run(entry.started_at, entry.task_id ?? null, entry.skills_loaded ?? null, entry.model ?? null);
   return Number(result.lastInsertRowid);
 }
 
@@ -478,7 +482,7 @@ export function updateCycleLog(id: number, fields: Partial<CycleLog>): void {
   const db = getDatabase();
   const updatableFields: Array<keyof CycleLog> = [
     "completed_at", "duration_ms", "cost_usd", "api_cost_usd",
-    "tokens_in", "tokens_out", "skills_loaded", "task_id", "security_grade",
+    "tokens_in", "tokens_out", "skills_loaded", "task_id", "security_grade", "model",
   ];
 
   const sets: string[] = [];
