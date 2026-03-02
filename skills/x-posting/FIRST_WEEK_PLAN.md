@@ -4,10 +4,12 @@
 
 ---
 
-## Status
+## Status (updated 2026-03-02)
 
-- **Block status:** Credentials not yet configured (`x/api_key`, `x/api_secret`, `x/access_token`, `x/access_token_secret`)
-- **Action needed:** whoabuddy sets up X Developer Portal app + stores creds via `arc creds set`
+- **Block status:** BLOCKED — Credentials not configured. Task #706 set to `blocked`.
+- **Action needed:** whoabuddy must complete the Unblock Checklist below
+- **Verified missing:** `x/api_key`, `x/api_secret`, `x/access_token`, `x/access_token_secret`
+- **Content:** Ready — Tweet 1 drafted below, tweets 2-7 queued
 - **Goal:** 1 tweet/day minimum once live
 
 ---
