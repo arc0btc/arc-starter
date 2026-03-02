@@ -61,7 +61,7 @@ Known operational patterns to check against:
 
 3. Output summary: repos audited, pass/fail counts, issues filed.
 
-### Checklist Items (9)
+### Checklist Items (10)
 
 1. **TypeScript strict** — `tsconfig.json` must have `strict: true`
 2. **Tests exist** — At least one `*.test.ts` or `*.spec.ts` file
@@ -72,6 +72,7 @@ Known operational patterns to check against:
 7. **wrangler.jsonc** — Using `.jsonc` format (not `.toml`)
 8. **Modern Workers** — `export default { fetch }` pattern
 9. **Hono framework** — Using Hono for routing
+10. **RPC bindings** — Uses Cloudflare RPC (Service Bindings with RPC) for inter-worker communication on key read/write paths instead of HTTP fetch
 
 ### Priority Mapping
 

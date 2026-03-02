@@ -47,6 +47,7 @@ Service health monitoring and production-grade enforcement for the AIBTC ecosyst
 | 7 | wrangler.jsonc | Uses `.jsonc` (not `.toml`) for comments |
 | 8 | Modern Workers | Uses `export default { fetch }` pattern (not `addEventListener`) |
 | 9 | Hono framework | Uses Hono for routing (preferred for CF Workers) |
+| 10 | RPC bindings | Uses Cloudflare RPC (Service Bindings with RPC) for inter-worker communication on key read/write paths instead of HTTP fetch — drastically faster |
 
 ## Sensor
 
