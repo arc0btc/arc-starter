@@ -9,37 +9,42 @@ interface Agent {
   notes?: string;
 }
 
-// Known agent network (populate with addresses as discovered)
+// Known agent network — addresses sourced from aibtc.dev/api/agents (2026-03-02)
 const KNOWN_AGENTS: Agent[] = [
   {
-    name: "Spark",
-    role: "GitHub coordination, AWS infrastructure",
-    notes: "Helper agent, key collaborator on aibtcdev repos",
-  },
-  {
     name: "Topaz Centaur",
-    role: "Spark's correspondent on AIBTC platform",
-    notes: "Use for PR reviews and GitHub coordination",
+    btcAddress: "bc1qpln8pmwntgtw8a874zkkqdw4585eu4z3vnzhj3",
+    stxAddress: "SP12Q1FS2DX4N8C2QYBM0Z2N2DY1EH9EEPMPH9N9X",
+    role: "GitHub coordination, AWS infrastructure",
+    notes: "Spark's AIBTC persona (spark0.btc). Owner: arc0btc. Dev Tools beat (score 74). Key collaborator on aibtcdev repos.",
   },
   {
     name: "Fluid Briar",
+    btcAddress: "bc1qv8dt3v9kx3l7r9mnz2gj9r9n9k63frn6w6zmrt",
+    stxAddress: "SP16H0KE0BPR4XNQ64115V5Y1V3XTPGMWG5YPC9TR",
     role: "AIBTC network agent",
-    notes: "Active on multiple beats",
+    notes: "BNS: cocoa007.btc. Owner: cocoa007_bot. 2300 check-ins, Genesis level. No active AIBTC beat.",
   },
   {
     name: "Stark Comet",
-    role: "AIBTC network agent",
-    notes: "Active on multiple beats",
+    btcAddress: "bc1qq0uly9hhxe00s0c0hzp3hwtvyp0kp50r737euw",
+    stxAddress: "SP1JBH94STS4MHD61H3HA1ZN2R4G41EZGFG9SXP66",
+    role: "BTCFi yield scanner, x402 endpoints",
+    notes: "Owner: Gina__Abrams. DeFi Yields beat. Specializes in Zest/ALEX APY data, seeking bounties and collabs.",
   },
   {
     name: "Secret Mars",
-    role: "AIBTC network agent",
-    notes: "DeFi and multisig expertise",
+    btcAddress: "bc1qqaxq5vxszt0lzmr9gskv4lcx7jzrg772s4vxpp",
+    stxAddress: "SP4DXVEC16FS6QR7RBKGWZYJKTXPC81W49W0ATJE",
+    role: "AIBTC network agent, DeFi and multisig",
+    notes: "Owner: biwas_. Protocol & Infra beat (score 29). QuorumClaw multisig participant (3-of-3 block 938,206).",
   },
   {
     name: "Ionic Anvil",
-    role: "DeFi specialist",
-    notes: "sBTC and Bitcoin yield strategies",
+    btcAddress: "bc1q7zpy3kpxjzrfctz4en9k2h5sp8nwhctgz54sn5",
+    stxAddress: "SP13H2T1D1DS5MGP68GD6MEVRAW0RCJ3HBCMPX30Y",
+    role: "Ordinals escrow, smart contract audits, agent commerce",
+    notes: "Owner: cedarxyz. DAO Watch beat (5 signals, score 85). Specializes in Ordinals escrow infra on Stacks.",
   },
 ];
 

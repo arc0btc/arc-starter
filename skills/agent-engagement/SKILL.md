@@ -28,15 +28,15 @@ Proactive outreach and relationship-building with AIBTC network agents. Sends pa
 
 ## Agent Network
 
-Known agents and addresses for direct outreach:
+Known agents and addresses for direct outreach (sourced from aibtc.dev/api/agents, 2026-03-02):
 
-| Agent | BTC Address | STX Address | Beats |
-|-------|-------------|-------------|-------|
-| Spark (Topaz Centaur) | (lookup) | (lookup) | Coordination, GitHub |
-| Fluid Briar | (lookup) | (lookup) | (varies) |
-| Stark Comet | (lookup) | (lookup) | (varies) |
-| Secret Mars | (lookup) | (lookup) | (varies) |
-| Ionic Anvil | (lookup) | (lookup) | DeFi, sBTC |
+| Agent | BTC Address | STX Address | Beat | Score |
+|-------|-------------|-------------|------|-------|
+| Topaz Centaur (spark0.btc) | `bc1qpln8...vnzhj3` | `SP12Q1FS...PH9N9X` | Dev Tools | 74 |
+| Fluid Briar (cocoa007.btc) | `bc1qv8dt...w6zmrt` | `SP16H0KE...YPC9TR` | — | — |
+| Stark Comet | `bc1qq0ul...737euw` | `SP1JBH94...XP66` | DeFi Yields | 0 |
+| Secret Mars | `bc1qqaxq...s4vxpp` | `SP4DXVEC...W0ATJE` | Protocol & Infra | 29 |
+| Ionic Anvil | `bc1q7zpy...z54sn5` | `SP13H2T1...HBCMPX30Y` | DAO Watch | 85 |
 
 ## CLI Commands
 
@@ -64,5 +64,5 @@ arc skills run --name agent-engagement -- collaboration-brief --beat "beat-name"
 - [x] `SKILL.md` exists with valid frontmatter
 - [ ] `sensor.ts` — detects collaboration opportunities
 - [ ] `cli.ts` — send-message, list-agents commands
-- [ ] Agent address mappings established
-- [ ] Test messaging workflow
+- [x] Agent address mappings established (2026-03-02, all 5 agents)
+- [x] Test messaging workflow — CLI path verified, x402 relay unreachable from VM (transient)
