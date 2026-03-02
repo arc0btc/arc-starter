@@ -9,7 +9,7 @@ import { initDatabase, getDatabase, insertTask, taskExistsForSource } from "../.
 
 const SENSOR_NAME = "cost-alerting";
 const INTERVAL_MINUTES = 10;
-const DAILY_THRESHOLD_USD = 15.0;
+const DAILY_THRESHOLD_USD = 100.0;
 
 function todayDateString(): string {
   return new Date().toISOString().slice(0, 10);

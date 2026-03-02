@@ -13,13 +13,13 @@ Sensor that monitors daily Claude Code spend and creates an alert task when the 
 ## How It Works
 
 1. Sensor queries `tasks.cost_usd` for today's completed/active tasks
-2. If daily total exceeds the threshold ($15 default), creates a priority-3 alert task
+2. If daily total exceeds the threshold ($100 default), creates a priority-3 alert task
 3. Uses a date-stamped source key (`sensor:cost-alerting:YYYY-MM-DD`) so alerts are once-per-day
 4. The alert task includes the current spend and threshold in its description
 
 ## Configuration
 
-The threshold is defined as a constant in `sensor.ts`. Default: `$15.00/day`.
+The threshold is defined as a constant in `sensor.ts`. Default: `$100.00/day`.
 
 ## Checklist
 
