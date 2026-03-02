@@ -283,9 +283,11 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string)
     args.push("--dangerously-skip-permissions");
   }
 
-  // Build environment with optimization flags if testing
+  // Build environment with optimization flags if:
+  // 1. Explicitly testing (TEST_TOKEN_OPTIMIZATION=true), OR
+  // 2. Using Haiku model (P4+ priority tasks)
   const env = { ...process.env };
-  if (process.env.TEST_TOKEN_OPTIMIZATION === "true") {
+  if (process.env.TEST_TOKEN_OPTIMIZATION === "true" || model === "haiku") {
     env.MAX_THINKING_TOKENS = "10000";
     env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = "50";
   }
