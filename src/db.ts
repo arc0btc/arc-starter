@@ -121,6 +121,34 @@ export interface EmailMessage {
   synced_at: string;
 }
 
+// ---- Market position types ----
+
+export interface MarketPosition {
+  id: number;
+  market_id: string;            // epoch millisecond timestamp (on-chain ID)
+  mongo_id: string | null;      // MongoDB _id for API lookups
+  market_title: string;
+  side: string;                 // 'yes' or 'no'
+  action: string;               // 'buy', 'sell', 'redeem'
+  shares: number;
+  cost_ustx: number;            // cost (for buys) or proceeds (for sells/redeems)
+  txid: string | null;
+  status: string;               // 'pending', 'confirmed', 'failed'
+  created_at: string;
+}
+
+export interface InsertMarketPosition {
+  market_id: string;
+  mongo_id?: string | null;
+  market_title: string;
+  side: string;
+  action: string;
+  shares: number;
+  cost_ustx: number;
+  txid?: string | null;
+  status?: string;
+}
+
 // ---- Singleton ----
 
 let _db: Database | null = null;
@@ -263,6 +291,24 @@ export function initDatabase(): Database {
   `);
   db.run("CREATE INDEX IF NOT EXISTS idx_workflows_template ON workflows(template)");
   db.run("CREATE INDEX IF NOT EXISTS idx_workflows_instance_key ON workflows(instance_key)");
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS market_positions (
+      id INTEGER PRIMARY KEY,
+      market_id TEXT NOT NULL,
+      mongo_id TEXT,
+      market_title TEXT NOT NULL,
+      side TEXT NOT NULL,
+      action TEXT NOT NULL,
+      shares INTEGER NOT NULL,
+      cost_ustx INTEGER NOT NULL,
+      txid TEXT,
+      status TEXT DEFAULT 'pending',
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+  db.run("CREATE INDEX IF NOT EXISTS idx_market_positions_market ON market_positions(market_id)");
+  db.run("CREATE INDEX IF NOT EXISTS idx_market_positions_status ON market_positions(status)");
 
   _db = db;
   return db;
@@ -642,6 +688,76 @@ export function completeWorkflow(id: number): void {
 export function deleteWorkflow(id: number): void {
   const db = getDatabase();
   db.query("DELETE FROM workflows WHERE id = ?").run(id);
+}
+
+// ---- Market position queries ----
+
+export function insertMarketPosition(fields: InsertMarketPosition): number {
+  const db = getDatabase();
+  const result = db
+    .query(
+      `INSERT INTO market_positions (market_id, mongo_id, market_title, side, action, shares, cost_ustx, txid, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    )
+    .run(
+      fields.market_id,
+      fields.mongo_id ?? null,
+      fields.market_title,
+      fields.side,
+      fields.action,
+      fields.shares,
+      fields.cost_ustx,
+      fields.txid ?? null,
+      fields.status ?? "pending"
+    );
+  return Number(result.lastInsertRowid);
+}
+
+export function getMarketPositions(marketId?: string): MarketPosition[] {
+  const db = getDatabase();
+  if (marketId) {
+    return db
+      .query("SELECT * FROM market_positions WHERE market_id = ? ORDER BY created_at DESC")
+      .all(marketId) as MarketPosition[];
+  }
+  return db
+    .query("SELECT * FROM market_positions ORDER BY created_at DESC")
+    .all() as MarketPosition[];
+}
+
+export function getOpenPositions(): MarketPosition[] {
+  const db = getDatabase();
+  return db
+    .query("SELECT * FROM market_positions WHERE action = 'buy' AND status != 'failed' ORDER BY created_at DESC")
+    .all() as MarketPosition[];
+}
+
+export function updateMarketPositionStatus(id: number, status: string): void {
+  const db = getDatabase();
+  db.query("UPDATE market_positions SET status = ? WHERE id = ?").run(status, id);
+}
+
+export function updateMarketPositionTxid(id: number, txid: string): void {
+  const db = getDatabase();
+  db.query("UPDATE market_positions SET txid = ?, status = 'confirmed' WHERE id = ?").run(txid, id);
+}
+
+/** Total uSTX spent on buys (excluding failed). */
+export function getTotalBuysCostUstx(): number {
+  const db = getDatabase();
+  const row = db
+    .query("SELECT COALESCE(SUM(cost_ustx), 0) as total FROM market_positions WHERE action = 'buy' AND status != 'failed'")
+    .get() as { total: number };
+  return row.total;
+}
+
+/** Total uSTX received from sells and redeems (excluding failed). */
+export function getTotalProceedsUstx(): number {
+  const db = getDatabase();
+  const row = db
+    .query("SELECT COALESCE(SUM(cost_ustx), 0) as total FROM market_positions WHERE action IN ('sell', 'redeem') AND status != 'failed'")
+    .get() as { total: number };
+  return row.total;
 }
 
 // ---- Main (smoke test when run directly) ----
