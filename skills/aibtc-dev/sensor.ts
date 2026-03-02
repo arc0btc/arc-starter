@@ -127,37 +127,11 @@ function auditRepo(repo: string): AuditResult {
     return { repo, gaps };
   }
 
-  // Check for release-please config or release CI on merge to main
+  // Check for release-please config (required — raw merge-to-main deploys are a gap)
   const releasePlease = gh(["api", `repos/${repo}/contents/.release-please-manifest.json`, "--jq", ".name"]);
   const releasePleaseConfig = gh(["api", `repos/${repo}/contents/release-please-config.json`, "--jq", ".name"]);
   if (!releasePlease.ok && !releasePleaseConfig.ok) {
-    // Check if CI deploys on push to main (some repos skip release-please and just build on merge)
-    let hasReleaseCi = false;
-    const hasWorkflows = workflows.ok && workflows.stdout !== "0";
-    if (hasWorkflows) {
-      const wfFiles = gh(["api", `repos/${repo}/contents/.github/workflows`, "--jq", "[.[].name]"]);
-      if (wfFiles.ok) {
-        try {
-          const names = JSON.parse(wfFiles.stdout) as string[];
-          for (const name of names) {
-            const wf = gh(["api", `repos/${repo}/contents/.github/workflows/${name}`, "--jq", ".content"]);
-            if (wf.ok && wf.stdout) {
-              try {
-                const content = Buffer.from(wf.stdout, "base64").toString("utf-8");
-                if (content.includes("release-please") || content.includes("release") ||
-                    (content.includes("push") && content.includes("main") && (content.includes("deploy") || content.includes("wrangler")))) {
-                  hasReleaseCi = true;
-                  break;
-                }
-              } catch { /* skip */ }
-            }
-          }
-        } catch { /* skip */ }
-      }
-    }
-    if (!hasReleaseCi) {
-      gaps.push("No release-please or release CI");
-    }
+    gaps.push("No release-please configuration");
   }
 
   return { repo, gaps };

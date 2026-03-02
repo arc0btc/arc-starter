@@ -68,7 +68,7 @@ Known operational patterns to check against:
 3. **CI runs tests** — GitHub Actions workflow includes test step
 4. **Worker-logs binding** — `wrangler.jsonc` has service binding to worker-logs
 5. **Staging/prod split** — Separate environments in wrangler config
-6. **Release-please** — Automated release management configured; CI runs release/deploy on merge to main where applicable
+6. **Release-please** — Automated release management configured; release CI should be triggered by release-please (not raw merge-to-main builds)
 7. **wrangler.jsonc** — Using `.jsonc` format (not `.toml`)
 8. **Modern Workers** — `export default { fetch }` pattern
 9. **Hono framework** — Using Hono for routing

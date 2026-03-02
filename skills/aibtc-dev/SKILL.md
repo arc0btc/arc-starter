@@ -43,7 +43,7 @@ Service health monitoring and production-grade enforcement for the AIBTC ecosyst
 | 3 | CI runs tests | `.github/workflows/` runs test command |
 | 4 | Worker-logs binding | `wrangler.jsonc` has service binding to worker-logs |
 | 5 | Staging/prod split | Separate `[env.staging]` and `[env.production]` in wrangler config |
-| 6 | Release-please | `.release-please-manifest.json` or `release-please-config.json` exists; CI runs release/deploy on merge to main where applicable |
+| 6 | Release-please | `.release-please-manifest.json` or `release-please-config.json` exists; release CI triggered by release-please (not raw merge-to-main) |
 | 7 | wrangler.jsonc | Uses `.jsonc` (not `.toml`) for comments |
 | 8 | Modern Workers | Uses `export default { fetch }` pattern (not `addEventListener`) |
 | 9 | Hono framework | Uses Hono for routing (preferred for CF Workers) |

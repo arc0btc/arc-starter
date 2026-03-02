@@ -184,42 +184,11 @@ function cmdAudit(args: string[]): void {
       checks.push({ item: "wrangler.jsonc", pass: false, detail: "not a Workers project" });
     }
 
-    // 6. Release-please + release CI
+    // 6. Release-please (required — raw merge-to-main deploys are a gap)
     const releasePlease = gh(["api", `repos/${repo}/contents/.release-please-manifest.json`, "--jq", ".name"]);
     const releasePleaseConfig = gh(["api", `repos/${repo}/contents/release-please-config.json`, "--jq", ".name"]);
     const hasReleasePlease = releasePlease.ok || releasePleaseConfig.ok;
-    // Check if any workflow file mentions release-please or deploys on push to main
-    let hasReleaseCi = false;
-    if (hasCI) {
-      const workflowFiles = gh(["api", `repos/${repo}/contents/.github/workflows`, "--jq", "[.[].name]"]);
-      if (workflowFiles.ok) {
-        try {
-          const names = JSON.parse(workflowFiles.stdout) as string[];
-          for (const name of names) {
-            const wf = gh(["api", `repos/${repo}/contents/.github/workflows/${name}`, "--jq", ".content"]);
-            if (wf.ok && wf.stdout) {
-              try {
-                const content = Buffer.from(wf.stdout, "base64").toString("utf-8");
-                if (content.includes("release-please") || content.includes("release") ||
-                    (content.includes("push") && content.includes("main") && (content.includes("deploy") || content.includes("wrangler")))) {
-                  hasReleaseCi = true;
-                  break;
-                }
-              } catch { /* skip */ }
-            }
-          }
-        } catch { /* skip */ }
-      }
-    }
-    const releasePass = hasReleasePlease || hasReleaseCi;
-    const releaseDetail = hasReleasePlease && hasReleaseCi
-      ? "release-please + release CI"
-      : hasReleasePlease
-        ? "release-please configured, no release CI found"
-        : hasReleaseCi
-          ? "release CI on merge to main (no release-please)"
-          : "no release-please or release CI";
-    checks.push({ item: "Release-please", pass: releasePass, detail: releaseDetail });
+    checks.push({ item: "Release-please", pass: hasReleasePlease, detail: hasReleasePlease ? "configured" : "not configured" });
 
     results.push({ repo, checklist: checks });
   }
