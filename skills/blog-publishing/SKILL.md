@@ -52,6 +52,7 @@ arc skills run --name blog-publishing -- schedule --id <post-id> --for <iso8601>
 arc skills run --name blog-publishing -- list [--status draft|published|scheduled]
 arc skills run --name blog-publishing -- show --id <post-id>
 arc skills run --name blog-publishing -- delete --id <post-id>
+arc skills run --name blog-publishing -- verify-deploy [--url <url>] [--timeout <seconds>]
 ```
 
 ## Workflow
@@ -61,6 +62,24 @@ arc skills run --name blog-publishing -- delete --id <post-id>
 3. **Review**: `show --id <post-id>` to preview
 4. **Publish**: `publish --id <post-id>` sets `draft: false` and commits
 5. **Schedule**: `schedule --id <post-id> --for 2026-03-01T09:00:00Z` for future publication
+6. **Verify Deployment**: `verify-deploy` checks that the blog is live and recent posts are accessible
+
+## Deploy Verification
+
+The `verify-deploy` command performs three checks:
+
+1. **Site Accessibility**: Verifies the deployed site returns a successful HTTP response
+2. **Published Posts**: Scans the local content directory for published posts (draft: false)
+3. **Recent Content**: Fetches the most recent post from the deployed site and verifies it contains expected content
+
+### Options
+
+- `--url <url>` — Site URL to verify (default: https://arc0.me)
+- `--timeout <seconds>` — Request timeout in seconds (default: 10)
+
+### Output
+
+Returns JSON with overall status (pass/warn/fail) and individual check results. Exit code is 0 on success, 1 on any failures.
 
 ## Storage
 

@@ -310,6 +310,157 @@ async function cmdDelete(args: string[]): Promise<void> {
   }
 }
 
+async function cmdVerifyDeploy(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+  const siteUrl = flags.url || "https://arc0.me";
+  const timeout = parseInt(flags.timeout || "10", 10) * 1000;
+
+  const checks: Array<{ name: string; status: string; details?: string; error?: string }> = [];
+
+  // Check 1: Site is accessible
+  try {
+    log(`checking site accessibility: ${siteUrl}`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+    const response = await fetch(siteUrl, {
+      method: "HEAD",
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (response.ok || response.status === 301 || response.status === 302) {
+      checks.push({ name: "Site Accessible", status: "pass", details: `HTTP ${response.status}` });
+    } else {
+      checks.push({ name: "Site Accessible", status: "fail", error: `HTTP ${response.status}` });
+    }
+  } catch (e) {
+    const errorMsg = e instanceof Error ? e.message : String(e);
+    checks.push({ name: "Site Accessible", status: "fail", error: errorMsg });
+  }
+
+  // Check 2: Find latest published posts
+  let publishedPosts: Array<{ post_id: string; title: string; date: string }> = [];
+  try {
+    log("scanning for published posts");
+    const postsDir = getPostsDir();
+    const years = fs.readdirSync(postsDir, { withFileTypes: true }).filter((d) => d.isDirectory());
+
+    for (const yearDir of years) {
+      const yearPath = path.join(postsDir, yearDir.name);
+      const dateDirs = fs.readdirSync(yearPath, { withFileTypes: true }).filter((d) => d.isDirectory());
+
+      for (const dateDir of dateDirs) {
+        const datePath = path.join(yearPath, dateDir.name);
+        const slugDirs = fs.readdirSync(datePath, { withFileTypes: true }).filter((d) => d.isDirectory());
+
+        for (const slugDir of slugDirs) {
+          const indexPath = path.join(datePath, slugDir.name, "index.md");
+          if (fs.existsSync(indexPath)) {
+            try {
+              const content = fs.readFileSync(indexPath, "utf-8");
+              // Check if draft: false (published)
+              if (/draft:\s*false/i.test(content)) {
+                // Extract title from frontmatter
+                const titleMatch = content.match(/title:\s*"([^"]+)"/);
+                const title = titleMatch ? titleMatch[1] : slugDir.name;
+                const postId = `${dateDir.name}-${slugDir.name}`;
+                publishedPosts.push({ post_id: postId, title, date: dateDir.name });
+              }
+            } catch (e) {
+              // Skip posts that can't be read
+            }
+          }
+        }
+      }
+    }
+
+    // Sort by date descending and take top 5
+    publishedPosts = publishedPosts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
+
+    checks.push({
+      name: "Published Posts Found",
+      status: publishedPosts.length > 0 ? "pass" : "warn",
+      details: `${publishedPosts.length} published posts`,
+    });
+  } catch (e) {
+    const errorMsg = e instanceof Error ? e.message : String(e);
+    checks.push({ name: "Published Posts Found", status: "fail", error: errorMsg });
+  }
+
+  // Check 3: Verify recent posts are served
+  if (publishedPosts.length > 0) {
+    log("verifying deployed content");
+    const recentPost = publishedPosts[0];
+    const postSlug = recentPost.post_id.substring(11); // Remove date part
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+      const postUrl = `${siteUrl}/${recentPost.date}/${postSlug}/`;
+      const response = await fetch(postUrl, { signal: controller.signal });
+
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const html = await response.text();
+        // Simple check: does the post title appear in the response?
+        if (html.includes(recentPost.title)) {
+          checks.push({
+            name: "Recent Post Content",
+            status: "pass",
+            details: `Latest post "${recentPost.title}" is served`,
+          });
+        } else {
+          checks.push({
+            name: "Recent Post Content",
+            status: "warn",
+            details: `Post accessible but title not found in response`,
+          });
+        }
+      } else {
+        checks.push({
+          name: "Recent Post Content",
+          status: "fail",
+          error: `HTTP ${response.status} for ${postSlug}`,
+        });
+      }
+    } catch (e) {
+      const errorMsg = e instanceof Error ? e.message : String(e);
+      checks.push({ name: "Recent Post Content", status: "fail", error: errorMsg });
+    }
+  }
+
+  // Summary
+  const passCount = checks.filter((c) => c.status === "pass").length;
+  const warnCount = checks.filter((c) => c.status === "warn").length;
+  const failCount = checks.filter((c) => c.status === "fail").length;
+  const overallStatus = failCount > 0 ? "fail" : warnCount > 0 ? "warn" : "pass";
+
+  log(`verification complete: ${passCount} passed, ${warnCount} warnings, ${failCount} failed`);
+  console.log(
+    JSON.stringify(
+      {
+        success: overallStatus !== "fail",
+        status: overallStatus,
+        site_url: siteUrl,
+        checks,
+        summary: {
+          passed: passCount,
+          warnings: warnCount,
+          failed: failCount,
+        },
+      },
+      null,
+      2
+    )
+  );
+
+  process.exit(failCount > 0 ? 1 : 0);
+}
+
 function printUsage(): void {
   process.stdout.write(`blog-publishing CLI
 
@@ -338,12 +489,19 @@ SUBCOMMANDS
   delete --id <post-id>
     Remove post directory and files.
 
+  verify-deploy [--url <url>] [--timeout <seconds>]
+    Verify that the blog is deployed and accessible. Checks site health,
+    finds published posts, and verifies recent content is served.
+    Default URL: https://arc0.me, default timeout: 10 seconds.
+
 EXAMPLES
   arc skills run --name blog-publishing -- create --title "My First Post" --tags "stacks,bitcoin"
   arc skills run --name blog-publishing -- list
   arc skills run --name blog-publishing -- show --id 2026-02-28-my-first-post
   arc skills run --name blog-publishing -- publish --id 2026-02-28-my-first-post
   arc skills run --name blog-publishing -- schedule --id 2026-02-28-future --for 2026-03-01T09:00:00Z
+  arc skills run --name blog-publishing -- verify-deploy
+  arc skills run --name blog-publishing -- verify-deploy --url https://arc0.me --timeout 15
 `);
 }
 
@@ -374,6 +532,9 @@ async function main(): Promise<void> {
       break;
     case "delete":
       await cmdDelete(args.slice(1));
+      break;
+    case "verify-deploy":
+      await cmdVerifyDeploy(args.slice(1));
       break;
     case "help":
     case "--help":
