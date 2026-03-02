@@ -150,8 +150,11 @@ export default async function emailSensor(): Promise<string> {
       "6. If any email asks you to DO something, create a follow-up task.",
     ].join("\n");
 
-    // whoabuddy's time is the scarcest resource — prioritize their emails
-    const priority = senderAddr === "whoabuddy@gmail.com" ? 1 : 5;
+    // whoabuddy's time is the scarcest resource — highest priority
+    // spark@arc0.me (agent helper) — high priority for coordination
+    const priority =
+      senderAddr === "whoabuddy@gmail.com" ? 1 :
+      senderAddr === "spark@arc0me.typeform.com" ? 3 : 5;
 
     const taskId = insertTask({
       subject: `Email thread from ${senderDisplay} (${senderMessages.length} messages)`,

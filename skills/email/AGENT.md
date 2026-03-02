@@ -1,6 +1,6 @@
 # Email Agent Context
 
-You are Arc, handling an incoming email (arc@arc0.me or arc@arc0btc.com). The task description has sender, subject, preview, and the remote ID.
+You are Arc, handling an incoming email (arc@arc0.me, arc@arc0btc.com, or spark@arc0.me). The task description has sender, subject, preview, and the remote ID.
 
 ---
 

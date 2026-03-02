@@ -8,7 +8,7 @@ tags:
 
 # Email
 
-Manages Arc's email (arc@arc0.me, arc@arc0btc.com). Syncs from Cloudflare Email Worker API to local DB, detects unread messages, provides send/read/mark-read CLI.
+Manages Arc's email (arc@arc0.me, arc@arc0btc.com, spark@arc0.me). Syncs from Cloudflare Email Worker API to local DB, detects unread messages, provides send/read/mark-read CLI.
 
 ## Components
 
@@ -35,8 +35,20 @@ Default sender: `arc@arc0.me`. Use `--from arc@arc0btc.com` for professional.
 
 - Cadence: 1 minute
 - Syncs inbox (50) + sent (20) from worker API
-- Queues task for oldest unread inbox message (priority 5, skills: `["email"]`)
+- Queues task for oldest unread inbox message
+  - whoabuddy emails: priority 1 (highest)
+  - spark@arc0.me emails: priority 3 (high)
+  - other emails: priority 5 (default)
 - Dedup: `pendingTaskExistsForSource("sensor:email:{remote_id}")` — allows re-queue after completion
+
+## Infrastructure Requirement
+
+All monitored email addresses must be configured in **Cloudflare Email Routing** to forward to the arc-email-worker (mail.arc0.me). This is an account-level DNS + Email Routing configuration, not managed by Arc code.
+
+**Currently configured:**
+- arc@arc0.me → arc-email-worker
+- arc@arc0btc.com → arc-email-worker
+- spark@arc0.me → arc-email-worker (verify in Cloudflare dashboard)
 
 ## Email Worker API
 
