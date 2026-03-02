@@ -118,8 +118,10 @@ export default async function emailSensor(): Promise<string> {
     // Build message list (oldest first, already sorted by getUnreadEmailMessages)
     const messageLines: string[] = [];
     const remoteIds: string[] = [];
+    const recipientAddresses = new Set<string>();
     for (const msg of senderMessages) {
       remoteIds.push(msg.remote_id);
+      recipientAddresses.add(msg.to_address);
       messageLines.push(
         `--- Email ${msg.remote_id} ---`,
         `Subject: ${msg.subject ?? "(no subject)"}`,
@@ -130,10 +132,17 @@ export default async function emailSensor(): Promise<string> {
       );
     }
 
+    // Build recipient display (show all recipient addresses and identify agent)
+    const recipientsList = Array.from(recipientAddresses).sort();
+    const recipientDisplay = recipientsList.join(" / ");
+    const isSparkEmail = recipientsList.some((addr) => addr.includes("spark@"));
+    const agentLabel = isSparkEmail ? "Spark's" : "Arc's";
+    const inboxLabel = recipientsList.length === 1 ? `${agentLabel} inbox (${recipientsList[0]})` : `${agentLabel} inbox (${recipientDisplay})`;
+
     const description = [
       "Read skills/email/AGENT.md before acting.",
       "",
-      `Email thread from ${senderDisplay} (${senderMessages.length} unread message${senderMessages.length > 1 ? "s" : ""}) in Arc's inbox (arc@arc0.me / arc@arc0btc.com):`,
+      `Email thread from ${senderDisplay} (${senderMessages.length} unread message${senderMessages.length > 1 ? "s" : ""}) in ${inboxLabel}:`,
       "",
       `From: ${senderDisplay}${senderMessages[0].from_name ? ` <${senderAddr}>` : ""}`,
       `Remote IDs: ${remoteIds.join(", ")}`,
