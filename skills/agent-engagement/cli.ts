@@ -148,15 +148,33 @@ async function cmdSendMessage(args: Record<string, string | boolean>): Promise<v
     const result = Bun.spawnSync({
       cmd: ["bash", "bin/arc", ...xArgs],
       cwd: process.cwd(),
-      stdio: ["inherit", "inherit", "inherit"],
+      stdio: ["inherit", "pipe", "pipe"],
     });
 
-    if (result.success) {
-      log(`✓ Message sent to ${agent.name} (100 sats sBTC)`);
-    } else {
+    const stdout = result.stdout ? new TextDecoder().decode(result.stdout) : "";
+    const stderr = result.stderr ? new TextDecoder().decode(result.stderr) : "";
+
+    // Forward captured output so it remains visible
+    if (stdout) process.stdout.write(stdout);
+    if (stderr) process.stderr.write(stderr);
+
+    if (!result.success) {
       logError(`Failed to send message: exit code ${result.exitCode}`);
       process.exit(1);
     }
+
+    // Wallet x402 exits 0 even on error — check the JSON payload
+    try {
+      const parsed = JSON.parse(stdout.trim()) as Record<string, unknown>;
+      if (parsed.error || parsed.success === false) {
+        logError(`Message failed: ${(parsed.error as string) || (parsed.message as string) || "unknown error"}`);
+        process.exit(1);
+      }
+    } catch {
+      // Not JSON — exit code was 0 and no JSON error, treat as success
+    }
+
+    log(`✓ Message sent to ${agent.name} (100 sats sBTC)`);
   } catch (e) {
     const err = e as Error;
     logError(`Command execution failed: ${err.message}`);
