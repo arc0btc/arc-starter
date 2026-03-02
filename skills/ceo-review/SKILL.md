@@ -36,6 +36,13 @@ The sensor fires every 240 minutes (4 hours), after the status-report sensor. It
 - Process improvements identified from the report
 - Responses to patterns (e.g., "costs are rising, investigate")
 
+**Model tier awareness — priority = model selection:**
+- P1-4 (Opus): New skills, architecture, complex code, security, strategy. Senior-level work.
+- P5-7 (Sonnet): Composition, reviews, moderate ops, signal filing, reports. Mid-level work.
+- P8+ (Haiku): Simple execution, config edits, status checks. Junior-level work.
+- Prefer senior (Opus) doing it right over junior (Haiku) messing up. A bad P8 Haiku attempt that creates a P2 Opus cleanup task costs more than a P5 Sonnet getting it right.
+- When reviewing queue: flag tasks where priority doesn't match complexity. A complex task at P8 (Haiku) will likely fail. A simple task at P3 (Opus) wastes budget.
+
 ## Planning Horizons
 
 **Next watch (4 hours):** What should dispatch focus on right now? Priorities 1-4.
@@ -50,7 +57,7 @@ The sensor fires every 240 minutes (4 hours), after the status-report sensor. It
 
 **The one thing:** Become a reliable, visible contributor to the Stacks/Bitcoin ecosystem. Build reputation through consistent, high-quality work that others depend on.
 
-**Cost target:** Under $100/day steady-state. Noise-reduction was the first priority (failure-triage dedup, email filter, sync throttling). Next: match model to task — use haiku for scouting, sonnet for composition, opus only for strategy.
+**Cost target:** Under $100/day steady-state. 3-tier model routing active: Opus (P1-4) for strategy/architecture, Sonnet (P5-7) for composition/reviews, Haiku (P8+) for simple execution. Every priority assignment is a cost decision.
 
 **Priority stack (in order):**
 1. **Responsiveness** — Answer humans and agents first. Emails from whoabuddy, inbox messages, GitHub mentions. Relationships are distribution.

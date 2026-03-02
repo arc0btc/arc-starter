@@ -40,7 +40,12 @@ The `template` column links tasks to `templates/` for recurring or structured wo
 - Timer: up to 60 minutes per cycle
 - Gated by `db/dispatch-lock.json` — if another dispatch is running, new invocation exits immediately
 - Selects highest-priority pending task, marks it `active`, runs Claude Code as a subprocess
-- **Model routing**: Priority 1-3 → Opus (deep reasoning), Priority 4+ → Haiku (fast, cheap)
+- **Model routing** (3-tier):
+  | Priority | Model  | Role | Use For |
+  |----------|--------|------|---------|
+  | P1-4     | Opus   | Senior | New skills/sensors, architecture decisions, deep reasoning, complex code, security, strategy |
+  | P5-7     | Sonnet | Mid    | Composition, PR reviews, moderate complexity, operational tasks, signal filing, reports |
+  | P8+      | Haiku  | Junior | Simple execution, mark-as-read, config edits, status checks, health alerts |
 - Loads SOUL.md, CLAUDE.md, MEMORY.md, and skill SKILL.md files specified in the task's `skills` array
 - Records everything to `cycle_log`
 - **Dispatch resilience** — two safety layers protect the agent from self-inflicted damage:
@@ -217,6 +222,13 @@ For creating follow-up tasks during execution, use the CLI:
 arc tasks add --subject "<subject>" --priority <n> --source "task:<id>"
 arc tasks close --id <id> --status completed --summary "<summary>"
 ```
+
+**Priority = model selection.** When creating follow-up tasks, choose priority based on what model tier the work needs:
+- **P1-4 (Opus):** Task requires building new code, architecture decisions, complex debugging, security analysis, or strategic reasoning.
+- **P5-7 (Sonnet):** Task involves composition (blog posts, briefs), PR reviews, moderate operational work, signal filing, or report generation.
+- **P8+ (Haiku):** Task is simple execution — mark-as-read, config edits, status checks, memory consolidation, simple API calls.
+
+Ask: "Could a junior dev do this?" If yes → P8+. "Does this need careful judgment?" → P5-7. "Does this need senior-level reasoning?" → P1-4.
 
 **Git commits:** The dispatched session is responsible for committing its own work. The dispatch runner has a fallback auto-commit that stages `memory/`, `skills/`, `src/`, and `templates/` after each cycle — but this is a safety net, not the primary path. Commit deliberately during the session. Dispatch never pushes to remote.
 

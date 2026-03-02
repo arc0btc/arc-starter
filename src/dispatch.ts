@@ -79,11 +79,13 @@ const MODEL_PRICING: Record<ModelTier, ModelPricing> = {
 
 /**
  * Route tasks to the appropriate model tier based on priority.
- * Priority 1-3 (strategic): Opus — deep reasoning, complex decisions.
- * Priority 4+  (routine):   Haiku — fast, cheap, good enough for standard work.
+ * P1-4 (senior):   Opus  — new skills/sensors, architecture, deep reasoning, complex code.
+ * P5-7 (mid):      Sonnet — composition, reviews, moderate complexity, operational tasks.
+ * P8+  (junior):   Haiku  — simple execution, mark-as-read, config edits, status checks.
  */
 function selectModel(task: Task): ModelTier {
-  if (task.priority <= 3) return "opus";
+  if (task.priority <= 4) return "opus";
+  if (task.priority <= 7) return "sonnet";
   return "haiku";
 }
 
@@ -283,11 +285,11 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string)
     args.push("--dangerously-skip-permissions");
   }
 
-  // Build environment with optimization flags if:
-  // 1. Explicitly testing (TEST_TOKEN_OPTIMIZATION=true), OR
-  // 2. Using Haiku model (P4+ priority tasks)
+  // Build environment with optimization flags for non-Opus models.
+  // Opus (P1-4) gets full thinking budget for deep reasoning.
+  // Sonnet (P5-7) and Haiku (P8+) get constrained thinking + aggressive compaction.
   const env = { ...process.env };
-  if (process.env.TEST_TOKEN_OPTIMIZATION === "true" || model === "haiku") {
+  if (process.env.TEST_TOKEN_OPTIMIZATION === "true" || model !== "opus") {
     env.MAX_THINKING_TOKENS = "10000";
     env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = "50";
   }
