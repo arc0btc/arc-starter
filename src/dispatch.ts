@@ -442,17 +442,17 @@ interface SecurityScanResult {
  * Run ecc-agentshield scan against Claude Code configuration.
  * Returns grade (A-F), finding counts, and whether the commit should be blocked.
  * Blocks if any CRITICAL or HIGH findings are detected.
- * Requires Node.js (npx) — Bun can't run agentshield directly.
+ * Uses globally-installed agentshield binary (requires Node.js via fnm).
  */
 async function validateSecurity(): Promise<SecurityScanResult> {
   const fnmPath = join(process.env.HOME ?? "/home/dev", ".local", "share", "fnm");
   const fnmBinPath = join(fnmPath, "aliases", "default", "bin");
 
-  // Build PATH with fnm Node.js at the front
+  // Build PATH with fnm Node.js at the front (agentshield is a Node.js binary)
   const envPath = `${fnmBinPath}:${process.env.PATH ?? ""}`;
 
   const proc = Bun.spawn(
-    ["npx", "ecc-agentshield", "scan", "--format", "json", "--min-severity", "high"],
+    [join(fnmBinPath, "agentshield"), "scan", "--format", "json", "--min-severity", "high"],
     {
       cwd: ROOT,
       stdout: "pipe",
@@ -485,6 +485,37 @@ async function validateSecurity(): Promise<SecurityScanResult> {
     // If JSON parsing fails, treat as degraded but don't block
     log(`dispatch: security scan output parse failed — stderr: ${stderr.trim()}`);
     return { grade: "?", numericScore: 0, totalFindings: 0, critical: 0, high: 0, blocked: false, raw: stdout || stderr };
+  }
+}
+
+/**
+ * Run AgentShield security scan and record grade in cycle_log.
+ * Runs every dispatch cycle (not gated by staged changes).
+ * If critical findings detected, creates a follow-up task.
+ */
+async function runSecurityScan(taskId: number, cycleId?: number): Promise<void> {
+  try {
+    const scan = await validateSecurity();
+    log(`dispatch: security scan — grade=${scan.grade} score=${scan.numericScore} findings=${scan.totalFindings} (critical=${scan.critical}, high=${scan.high})`);
+
+    // Record grade in cycle_log
+    if (cycleId !== undefined) {
+      updateCycleLog(cycleId, { security_grade: scan.grade });
+    }
+
+    if (scan.blocked) {
+      log("dispatch: security scan BLOCKED — critical issues found");
+      insertTask({
+        subject: `Fix critical security findings from task #${taskId}`,
+        description: `AgentShield scan found critical issues:\nGrade: ${scan.grade} (${scan.numericScore})\nCritical: ${scan.critical}, High: ${scan.high}\n\n${scan.raw.slice(0, 2000)}`,
+        priority: 2,
+        source: `task:${taskId}`,
+      });
+      log("dispatch: created follow-up task for security findings");
+    }
+  } catch (err) {
+    // Security scan failure should not block dispatch — log and continue
+    log(`dispatch: security scan error (non-blocking) — ${err}`);
   }
 }
 
@@ -526,9 +557,9 @@ async function checkServiceHealth(before: Map<string, boolean>): Promise<string[
 }
 
 /**
- * Safe commit: stages files, syntax-checks .ts, security-scans, commits, then health-checks services.
+ * Safe commit: stages files, syntax-checks .ts, commits, then health-checks services.
+ * Security scan runs separately via runSecurityScan() at the dispatch level (every cycle).
  * If syntax check fails: unstages, creates follow-up task.
- * If security scan finds CRITICAL issues: unstages, creates follow-up task.
  * If services die after commit: reverts commit, restarts services, creates follow-up task.
  */
 async function safeCommitCycleChanges(taskId: number, cycleId?: number): Promise<void> {
@@ -573,33 +604,6 @@ async function safeCommitCycleChanges(taskId: number, cycleId?: number): Promise
         log("dispatch: created follow-up task for syntax errors");
         return;
       }
-    }
-
-    // Layer 2: Pre-commit security scan (AgentShield)
-    try {
-      const scan = await validateSecurity();
-      log(`dispatch: security scan — grade=${scan.grade} score=${scan.numericScore} findings=${scan.totalFindings} (critical=${scan.critical}, high=${scan.high})`);
-
-      // Record grade in cycle_log
-      if (cycleId !== undefined) {
-        updateCycleLog(cycleId, { security_grade: scan.grade });
-      }
-
-      if (scan.blocked) {
-        log("dispatch: security scan BLOCKED commit — critical issues found");
-        await git("reset", "HEAD");
-        insertTask({
-          subject: `Fix critical security findings from task #${taskId}`,
-          description: `AgentShield scan blocked commit:\nGrade: ${scan.grade} (${scan.numericScore})\nCritical: ${scan.critical}, High: ${scan.high}\n\n${scan.raw.slice(0, 2000)}`,
-          priority: 2,
-          source: `task:${taskId}`,
-        });
-        log("dispatch: created follow-up task for security findings");
-        return;
-      }
-    } catch (err) {
-      // Security scan failure should not block commits — log and continue
-      log(`dispatch: security scan error (non-blocking) — ${err}`);
     }
 
     // Commit
@@ -958,9 +962,12 @@ export async function runDispatch(): Promise<void> {
       try { await discardWorktree(task.id); } catch { /* best effort */ }
     }
   } else {
-    // Normal path: safe commit with syntax check + security scan + service health guard
+    // Normal path: safe commit with syntax check + service health guard
     await safeCommitCycleChanges(task.id, cycleId);
   }
+
+  // 11. Security scan — runs every cycle regardless of commit status
+  await runSecurityScan(task.id, cycleId);
 }
 
 // ---- Standalone entry point ----
