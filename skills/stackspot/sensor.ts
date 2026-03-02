@@ -80,7 +80,7 @@ async function autoJoinPot(potName: string, contractId: string): Promise<boolean
         subject: `Auto-join stackspot pot: ${potName} with 20 STX`,
         description: `Arc detected joinable pot '${potName}' (${contractId}). Auto-joining with 20 STX. Command: bun run github/aibtcdev/skills/stackspot/stackspot.ts join-pot --contract-name ${potName} --amount ${JOIN_AMOUNT_USTX}`,
         skills: JSON.stringify(["stackspot", "wallet"]),
-        priority: 5,
+        priority: 8,
         status: "pending",
         source: joinTaskSource,
       });

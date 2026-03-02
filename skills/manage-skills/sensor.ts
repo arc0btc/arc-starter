@@ -97,7 +97,7 @@ export default async function manageSkillsSensor(): Promise<string> {
           "4. Run: arc skills run --name manage-skills -- consolidate-memory commit",
         ].join("\n"),
         skills: '["manage-skills"]',
-        priority: 7,
+        priority: 8,
         source: TASK_SOURCE,
       });
     }

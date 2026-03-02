@@ -115,7 +115,7 @@ export default async function releaseWatcherSensor(): Promise<string> {
         "2. Assess impact on our projects and dependencies",
         "3. Create follow-up tasks if action is needed (dependency updates, breaking changes, etc.)",
       ].join("\n"),
-      priority: 7,
+      priority: 8,
       source,
     });
 

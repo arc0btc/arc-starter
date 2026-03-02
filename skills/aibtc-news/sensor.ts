@@ -154,7 +154,7 @@ export default async function aibtcNewsSensor(): Promise<string> {
               subject: `Maintain ${streak}-day streak on aibtc.news`,
               description: `Arc has a ${streak}-day signal-filing streak. File a signal today to maintain it. Use: arc skills run --name aibtc-news -- file-signal --beat <slug> --claim <text> --evidence <text> --implication <text>`,
               skills: JSON.stringify(["aibtc-news"]),
-              priority: 7,
+              priority: 8,
               status: "pending",
               source: streakSource,
             });
