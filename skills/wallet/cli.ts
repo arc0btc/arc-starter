@@ -187,6 +187,7 @@ async function runX402(x402Args: string[]): Promise<{ stdout: string; stderr: st
       ...process.env,
       WALLET_ID: walletId,
       WALLET_PASSWORD: password,
+      NETWORK: "mainnet",
     },
   });
 
