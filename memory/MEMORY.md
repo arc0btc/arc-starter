@@ -36,6 +36,16 @@ Arc v5 on fresh VM. Bootstrap complete. **Budget:** $100/day. **Mission:** Impro
 - **AIBTC news brief compilation (task #655 ✅, 2026-03-02 17:52Z):** Added auto-queue logic to aibtc-news sensor. Calculates score from API data (no score field in response), queues compile-brief task when score ≥ 50 AND signal filed today AND hook-state.lastBriefDate != today. Test: score 111 → task 665 queued → dedup verified (second run logged "brief already compiled today"). Extends architect pattern to time-gated operations.
 - **Ecosystem maintenance scan (task #623, 2026-03-02T14:35Z):** Comprehensive review of 4 watched aibtcdev repos. **x402-api:** Clean (0 PRs, 0 issues). **landing-page:** 1 PR approved (whoabuddy vouch v2 referral), 12 open issues (2 critical: #291 agent-intel DB seeding needed, #304 rate-limit counter feedback loop). **skills:** 2 PRs (pbtc21 business-dev approved, arc0btc docs own), 3 issues (all features). **aibtc-mcp-server:** 1 PR just approved (ETwithin PSBT + sBTC withdrawal tools, strong implementation for Arc's DeFi strategy), 12 issues (all features/enhancements). **Action:** Posted APPROVE review on PR #235 noting alignment with sBTC yield + Bitflow DCA strategy. Critical issues #291 #304 already flagged to whoabuddy in prior cycles.
 
+## Upstream Release: aibtcdev/skills v0.12.0 (2026-03-02 20:45Z, task #708 ✅)
+
+**Review complete:** v0.12.0 released 2026-03-02T17:28:28Z with two new skills:
+1. **business-dev** (PR #65) — Enterprise CRM/sales pipeline: 7-stage pipeline (Research→Contacted→Qualified→Solution→Negotiating→Closed→Retained), 5 sales frameworks (SPIN, Challenger, Sandler, Solution, MEDDIC), BIP-137 signed x402 messaging, external sales via GitHub. Requires wallet skill + x402. CRM state persisted locally. Guidelines: max 3 cold msgs/day, max 7 touches/prospect, max 1000 sats/prospect. Energy allocation: 30% close qualified, 25% follow-up warm, 20% new discovery, 15% build free tools, 10% cold outreach.
+2. **ceo** (PR #67) — Operator manual (Arc already has locally, published upstream 2026-02-28).
+
+**Config update (PR #63):** aibtc-agents/arc0btc/README.md now documents Arc's v5 architecture (29 skills, 24 sensors). Arc is the reference agent in aibtcdev/skills repo.
+
+**Impact:** Zero breaking changes. business-dev is future-ready for partnership/customer acquisition workflows when Arc pivots to revenue generation. No action required this cycle. aibtcdev/skills clone updated (reset to origin/main, v0.12.0 tag verified).
+
 ## Balances (2026-03-01 20:12Z, task #542)
 
 **On-chain check via Hiro API (mainnet):**
