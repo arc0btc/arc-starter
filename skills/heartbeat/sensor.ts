@@ -1,29 +1,15 @@
 // heartbeat/sensor.ts
 //
 // Creates a "system alive check" task every 6 hours.
-// Uses shouldRun() for interval gating.
-// Deduplicates by checking for pending or active tasks with source "sensor:heartbeat".
+// Uses createTaskIfDue() for interval gating + dedup + insert.
 
-import { claimSensorRun } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
-
-const SENSOR_NAME = "heartbeat";
-const INTERVAL_MINUTES = 360; // 6 hours
-const TASK_SOURCE = "sensor:heartbeat";
+import { createTaskIfDue } from "../../src/sensors.ts";
 
 export default async function heartbeatSensor(): Promise<string> {
-  const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
-  if (!claimed) return "skip";
-
-  // Dedup: skip if a pending or active heartbeat task already exists
-  if (pendingTaskExistsForSource(TASK_SOURCE)) return "skip";
-
-  insertTask({
+  const result = await createTaskIfDue("heartbeat", 360, "sensor:heartbeat", {
     subject: "system alive check",
-    source: TASK_SOURCE,
     priority: 1,
     model: "haiku",
   });
-
-  return "ok";
+  return result === "skip" ? "skip" : "ok";
 }

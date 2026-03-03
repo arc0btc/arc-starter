@@ -12,6 +12,8 @@ import { existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { discoverSkills } from "./skills.ts";
 import { initDatabase } from "./db.ts";
+import { insertTask, pendingTaskExistsForSource, taskExistsForSource } from "./db.ts";
+import type { InsertTask } from "./db.ts";
 
 // ---- Constants ----
 
@@ -89,6 +91,44 @@ export async function claimSensorRun(name: string, intervalMinutes: number): Pro
   });
 
   return true;
+}
+
+// ---- Task creation helpers ----
+
+/**
+ * Dedup check + insert. Returns the new task ID, or null if a task already exists.
+ *
+ * @param dedupMode "pending" checks pending/active only (default). "any" checks all statuses.
+ */
+export function insertTaskIfNew(
+  source: string,
+  taskConfig: Omit<InsertTask, "source">,
+  dedupMode: "pending" | "any" = "pending",
+): number | null {
+  const exists =
+    dedupMode === "any"
+      ? taskExistsForSource(source)
+      : pendingTaskExistsForSource(source);
+  if (exists) return null;
+  return insertTask({ ...taskConfig, source });
+}
+
+/**
+ * Full sensor boilerplate: claim interval gate → dedup → insert task.
+ * Returns "skip" (interval not reached), "exists" (task already queued), or "created".
+ */
+export async function createTaskIfDue(
+  sensorName: string,
+  intervalMinutes: number,
+  source: string,
+  taskConfig: Omit<InsertTask, "source">,
+  opts?: { dedupMode?: "pending" | "any" },
+): Promise<"skip" | "exists" | "created"> {
+  const claimed = await claimSensorRun(sensorName, intervalMinutes);
+  if (!claimed) return "skip";
+
+  const result = insertTaskIfNew(source, taskConfig, opts?.dedupMode ?? "pending");
+  return result !== null ? "created" : "exists";
 }
 
 // ---- Sensor runner ----

@@ -1,8 +1,6 @@
-import { claimSensorRun, createSensorLogger, readHookState } from "../../src/sensors.ts";
-import {
-  insertTask,
-  taskExistsForSource,
-} from "../../src/db.ts";
+import { claimSensorRun, createSensorLogger, readHookState, insertTaskIfNew } from "../../src/sensors.ts";
+import { taskExistsForSource } from "../../src/db.ts";
+
 const SENSOR_NAME = "github-mentions";
 const INTERVAL_MINUTES = 5;
 const log = createSensorLogger(SENSOR_NAME);
@@ -102,7 +100,7 @@ export default async function githubMentionsSensor(): Promise<string> {
         ? `pr-review:${n.repo}#${prNum}`
         : null;
 
-    // Skip if already queued — check both thread and canonical keys
+    // Dual-key dedup: skip if either thread or canonical source already has a task
     if (
       taskExistsForSource(threadSource) ||
       (canonicalSource && taskExistsForSource(canonicalSource))
@@ -129,7 +127,9 @@ export default async function githubMentionsSensor(): Promise<string> {
         ? `gh pr view --repo ${n.repo} ${subjectNum}`
         : `gh issue view --repo ${n.repo} ${subjectNum}`;
 
-    insertTask({
+    // Use insertTaskIfNew for the actual insert (dedup already handled above,
+    // but the helper provides a consistent insert path)
+    insertTaskIfNew(canonicalSource ?? threadSource, {
       subject: `GitHub ${reasonLabel} in ${n.repo}: ${n.title}`,
       description: [
         `Notification: ${reasonLabel} on ${n.type} in ${n.repo}`,
@@ -149,10 +149,7 @@ export default async function githubMentionsSensor(): Promise<string> {
           : n.reason === "mention" || n.reason === "team_mention"
             ? 4
             : 5,
-      // Use canonical key for watched-repo PR reviews so aibtc-maintenance sensor
-      // will find this task and skip creating a duplicate.
-      source: canonicalSource ?? threadSource,
-    });
+    }, "any");
 
     markThreadRead(n.id);
     created++;

@@ -1,5 +1,4 @@
-import { claimSensorRun } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { claimSensorRun, insertTaskIfNew } from "../../src/sensors.ts";
 import { existsSync, statSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
@@ -19,8 +18,6 @@ const WATCHED_DIRS = ["src/", "skills/", "templates/", "memory/"];
 export default async function housekeepingSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
-
-  if (pendingTaskExistsForSource(TASK_SOURCE)) return "skip";
 
   const issues: string[] = [];
 
@@ -91,11 +88,10 @@ export default async function housekeepingSensor(): Promise<string> {
 
   if (issues.length === 0) return "ok";
 
-  insertTask({
+  insertTaskIfNew(TASK_SOURCE, {
     subject: `housekeeping: ${issues.length} issue(s) detected`,
     description: issues.map((i) => `- ${i}`).join("\n"),
     skills: '["housekeeping", "manage-skills"]',
-    source: TASK_SOURCE,
     priority: 7,
   });
 
