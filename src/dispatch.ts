@@ -9,6 +9,7 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
 import { join } from "node:path";
 import {
   type Task,
@@ -704,10 +705,15 @@ async function createWorktree(taskId: number): Promise<string> {
   if (exitCode !== 0) throw new Error(`git worktree add failed: ${stderr.trim()}`);
 
   // Symlink shared state into the worktree
+  const aibtcDir = join(homedir(), ".aibtc");
   const symlinks: Array<[string, string]> = [
     [join(ROOT, "db"), join(worktreePath, "db")],
     [join(ROOT, "node_modules"), join(worktreePath, "node_modules")],
   ];
+  // Credentials store lives in ~/.aibtc/ — symlink so worktree tasks can access it
+  if (existsSync(aibtcDir)) {
+    symlinks.push([aibtcDir, join(worktreePath, ".aibtc")]);
+  }
   // .env is a file, not a directory
   if (existsSync(join(ROOT, ".env"))) {
     symlinks.push([join(ROOT, ".env"), join(worktreePath, ".env")]);
