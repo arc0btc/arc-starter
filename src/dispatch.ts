@@ -642,7 +642,7 @@ async function validateSecurity(): Promise<SecurityScanResult> {
 
 /**
  * Run AgentShield security scan and record grade in cycle_log.
- * Runs every dispatch cycle (not gated by staged changes).
+ * Called only when src/ or skills/ changed this cycle.
  * If critical findings detected, creates a follow-up task.
  */
 async function runSecurityScan(taskId: number, cycleId?: number): Promise<void> {
@@ -669,6 +669,22 @@ async function runSecurityScan(taskId: number, cycleId?: number): Promise<void> 
     // Security scan failure should not block dispatch — log and continue
     log(`dispatch: security scan error (non-blocking) — ${err}`);
   }
+}
+
+/** Return the current HEAD commit SHA, or null if git fails. */
+async function getHeadSha(): Promise<string | null> {
+  const { exitCode, stdout } = await git("rev-parse", "HEAD");
+  if (exitCode !== 0) return null;
+  return stdout.trim() || null;
+}
+
+/** Check if any commits since sha touched src/ or skills/. Returns true if git fails (fail open). */
+async function codeChangedSince(sha: string | null): Promise<boolean> {
+  if (!sha) return true;
+  const { exitCode, stdout } = await git("diff", "--name-only", sha, "HEAD");
+  if (exitCode !== 0) return true;
+  const files = stdout.trim().split("\n").filter(Boolean);
+  return files.some((f) => f.startsWith("src/") || f.startsWith("skills/"));
 }
 
 /** Snapshot which systemd user services are currently active. */
@@ -1047,9 +1063,10 @@ export async function runDispatch(): Promise<void> {
 
   const prompt = buildPrompt(task, skillNames, recentCycles);
 
-  // 5. Mark task active and update lock with task_id
+  // 5. Mark task active and update lock with task_id; snapshot HEAD for security scan gate
   markTaskActive(task.id);
   writeDispatchLock(task.id);  // update lock: null → task_id
+  const preDispatchSha = await getHeadSha();
 
   log(`dispatch: dispatching for task #${task.id} — "${task.subject}"`);
 
@@ -1222,8 +1239,12 @@ export async function runDispatch(): Promise<void> {
     await safeCommitCycleChanges(task.id, cycleId);
   }
 
-  // 11. Security scan — runs every cycle regardless of commit status
-  await runSecurityScan(task.id, cycleId);
+  // 11. Security scan — only when src/ or skills/ changed this cycle
+  if (await codeChangedSince(preDispatchSha)) {
+    await runSecurityScan(task.id, cycleId);
+  } else {
+    log("dispatch: security scan skipped — no src/ or skills/ changes this cycle");
+  }
 }
 
 // ---- Standalone entry point ----
