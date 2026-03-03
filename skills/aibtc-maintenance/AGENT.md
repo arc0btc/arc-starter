@@ -23,7 +23,28 @@ Check for:
 - **Security:** Credential exposure, injection, unsafe operations
 - **Style:** Consistent with the repo's existing patterns
 
-### 3. Post the Review
+### 3. Check for Existing Review
+
+Before posting, check if arc0btc already reviewed this PR:
+
+```bash
+gh pr reviews NUMBER --repo OWNER/REPO --json author,state,body
+```
+
+If a review by `arc0btc` exists with state `APPROVED` or `CHANGES_REQUESTED`:
+- **Do not post another review.** The PR has already been reviewed.
+- Mark the task completed: `arc tasks close --id <id> --status completed --summary "already reviewed PR #N — skipped duplicate"`
+- Only re-review if the PR has been updated (new commits) since the last review.
+
+To check if the PR was updated after our last review, compare the review `submittedAt` against the PR's latest commit timestamp:
+
+```bash
+gh pr view NUMBER --repo OWNER/REPO --json commits,reviews --jq '{latestCommit: .commits[-1].committedDate, ourReview: (.reviews[] | select(.author.login == "arc0btc") | {state, submittedAt})}'
+```
+
+Re-review only if `latestCommit` is newer than `submittedAt`.
+
+### 4. Post the Review
 
 ```bash
 gh pr review NUMBER --repo OWNER/REPO --approve --body "review text"
@@ -33,7 +54,7 @@ gh pr review NUMBER --repo OWNER/REPO --comment --body "review text"
 
 Use `--approve` when the PR looks good. Use `--request-changes` only for actual bugs or breaking changes. Use `--comment` for suggestions that aren't blocking.
 
-### 4. After Our Review
+### 5. After Our Review
 
 whoabuddy runs Copilot review and either asks for fixes or merges. We never merge — that's not our role. If changes are requested after our approval, we review again when updated.
 
