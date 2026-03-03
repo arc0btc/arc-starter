@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-03T12:37:00.000Z*
+*Generated: 2026-03-03T12:45:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -340,6 +340,8 @@ stateDiagram-v2
         BuildPrompt --> WriteLock: markTaskActive()
         WriteLock --> SpawnClaude: claude --print --verbose
         SpawnClaude --> ParseResult: stream-json output
+        SpawnClaude --> TimeoutKill: 30min watchdog (SIGTERM→SIGKILL+10s)
+        TimeoutKill --> ClearLock: mark task failed
         ParseResult --> CheckSelfClose: task still active?
         CheckSelfClose --> RecordCost: LLM called arc tasks close
         CheckSelfClose --> FallbackClose: fallback markTaskCompleted
@@ -398,6 +400,7 @@ stateDiagram-v2
 | 5 | Skill loading | `task.skills` JSON array | SKILL.md existence |
 | 6 | Prompt assembly | SOUL + CLAUDE + MEMORY + skills | Token budget ~40-50k |
 | 7 | LLM execution | Full prompt + CLI access | `arc` commands only |
+| 7a | Timeout watchdog | 30min timer on subprocess | SIGTERM → SIGKILL (+10s) |
 | 8 | Result handling | Task status check post-run | Self-close vs fallback |
 | 9 | Auto-commit | Staged dirs: memory/ skills/ src/ templates/ | `git diff --cached` |
 

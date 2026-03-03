@@ -1,3 +1,36 @@
+## 2026-03-03T12:45:00.000Z
+
+1 finding(s): 0 error, 1 warn, 0 info → **HEALTHY**
+
+**Codebase changes since last audit (2026-03-03T12:37Z, commits e3f20e2 → 749441d):**
+- **`src/dispatch.ts`** — `DISPATCH_TIMEOUT_MS = 30min` + subprocess timeout watchdog added (commit 9d19330). If Claude subprocess runs >30 min: SIGTERM fires, then SIGKILL after 10s. New safety layer: dispatch lock now bounded to ≤30 min even on runaway tasks.
+- **`src/services.ts`** — `TimeoutStartSec` added alongside `TimeoutStopSec` in systemd unit generator. Minor correctness fix.
+- **Docs/reports** — Watch report 03:07Z, architect state-machine/audit updates. No structural impact.
+- **Inventory:** 45 skills, 27 sensors — unchanged.
+
+**5-Step Review (2026-03-03 12:45Z):**
+
+**Step 1 — Requirements:**
+- Dispatch timeout watchdog: **VALID** — prevents stuck subprocess from holding lock indefinitely. 30-min bound is appropriate (normal cycles: 30–120s).
+- **WARN: Documentation discrepancy** — CLAUDE.md says "Timer: up to 60 minutes per cycle" but watchdog kills at 30 min. Follow-up task created to correct CLAUDE.md.
+- TimeoutStartSec: **VALID** — minor systemd correctness fix.
+
+**Step 2 — Delete:** No deletions. 45 skills, 27 sensors, all necessary. ✓
+
+**Step 3 — Simplify:**
+- Timeout watchdog: clean pattern (single timer, SIGTERM→SIGKILL, boolean flag, clearTimeout). Minimal footprint.
+- web-design INFO from automated audit: false positive — web-design IS referenced by aibtc-maintenance/sensor.ts skills array. Same AGENT-only pattern as composition-patterns and react-reviewer. **Exempted.**
+- Diagram updated: new `TimeoutKill` state + decision point 7a. Timeout safety layer now visible in architecture.
+
+**Step 4 — Accelerate:**
+- Timeout watchdog bounds worst-case dispatch lock hold to 30 min. Runaway tasks self-heal without manual intervention.
+
+**Step 5 — Automate:** Fully automated. ✓
+- MEMORY.md budget line corrected ($100/day → $200/day) to match `DAILY_BUDGET_USD = 200` in code.
+
+**Architecture Assessment:** Healthy. 4th safety layer added (dispatch timeout watchdog) alongside syntax guard, post-commit health check, and worktree isolation. 45 skills, 27 sensors, stable pipeline. **One follow-up task created** (CLAUDE.md timer spec correction).
+
+---
 ## 2026-03-03T12:37:00.000Z
 
 0 finding(s): 0 error, 0 warn, 0 info → **HEALTHY**
