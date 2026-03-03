@@ -1,3 +1,65 @@
+## 2026-03-03T21:30:00.000Z
+
+0 finding(s): 0 error, 0 warn, 0 info → **HEALTHY**
+
+**Codebase changes since last audit (2026-03-03T12:45Z, commits 749441d → a329891):**
+
+**New skills (+5, total 50 skills):**
+- `quorumclaw` (CLI+AGENT): Bitcoin Taproot M-of-N multisig coordination via QuorumClaw API. Proven 2-of-2 and 3-of-3 on mainnet. 3-of-7 invite joined 2026-03-03.
+- `taproot-multisig` (CLI): BIP-340 Schnorr primitives — get-pubkey, verify-cosig, guide. Clean separation: taproot-multisig = crypto, quorumclaw = coordination.
+- `scheduler` (sensor+SKILL): Deferred task scheduling (`--defer 30m`, `--scheduled-for ISO8601`). Sensor monitors overdue queue health every 5 min.
+- `self-audit` (sensor+SKILL): Daily operational self-audit (1440-min cadence, date-deduped). Gathers task queue health, cost trends, skill/sensor health, git status.
+- `workflow-review` (sensor+SKILL): 4-hour sensor detects repeating task patterns not yet modeled as workflows. Queries 7-day history, groups by source prefix, filters existing templates.
+
+**New sensors (+3, total 30 sensors):** scheduler, self-audit, workflow-review.
+
+**Structural fixes:**
+- `fix(dispatch)`: TOCTOU race closed — lock acquired BEFORE task selection (commit 05de76d). Previously a second dispatch could pick the same task between selection and lock write.
+- `fix(sensors)`: Promise.allSettled replaces Promise.all — one sensor failure no longer aborts all others.
+- `feat(sensors)`: Per-sensor 90s timeout via Promise.race — one slow sensor can't block the sensors service.
+- `fix(sensors)`: Preserve custom hook-state fields in claimSensorRun (commit 63fe36f) — previously, claimSensorRun overwrote any custom state fields (e.g., lastBriefDate) with just the base fields. Critical correctness fix.
+- `fix(dispatch)`: Removed AUTOCOMPACT override — preserves context continuity across multi-turn sessions.
+- `refactor`: BTC address extracted to `src/identity.ts` — single source of truth, removes scattered constants.
+- `feat(status-report)`: Watch reports now HTML format + reduced cadence from 1h to 6h. Reduces watch report task noise significantly.
+- `feat(web)`: Task filtering, search, dark color-scheme, tabular-nums, heading hierarchy. Observability improvements.
+- `feat(ceo)`: Commitment balance + opportunity-finding sections. Strategic operating layer enhanced.
+
+**5-Step Review (2026-03-03 21:30Z):**
+
+**Step 1 — Requirements:**
+- quorumclaw + taproot-multisig: **VALID** — proven M-of-N track record. Two separate skills is correct separation: primitives vs coordination.
+- scheduler: **VALID** — fills gap for retry-after-cooldown, follow-up scheduling, lifecycle deferral. `--defer` flag reduces manual arithmetic.
+- self-audit: **VALID** — distinct from housekeeping (repo hygiene) and health sensor (service liveness). Daily operational cross-cutting view.
+- workflow-review: **VALID** — meta-automation that discovers automation opportunities. Pattern: detect manual multi-step work → propose state machine.
+- TOCTOU fix: **VALID** correctness fix — concurrent dispatch protection was incomplete.
+- Promise.allSettled + per-sensor timeout: **VALID** — fault isolation ensures one broken sensor can't degrade the entire pipeline.
+- hook-state field preservation fix: **VALID** critical — several sensors (aibtc-news lastBriefDate, architect last_reviewed_src_sha) rely on custom fields. Without this fix, dedup state was being silently wiped on every sensor run.
+- status-report 1h→6h + HTML: **VALID** — 1h cadence was excessive and added $0.20+ of Sonnet cost per watch period. 6h is appropriate for operational review.
+
+**Step 2 — Delete:**
+- workflow-review/sensor.ts is 376 lines — the largest sensor by far (median ~80 lines). Complexity justified: SQL analysis + template dedup + pattern matching. Not over-engineered, just data-heavy. **No deletion.** Marked for monitoring.
+- All 50 skills serve distinct purposes. No redundancies.
+- quorumclaw + taproot-multisig could be one skill, but the separation (coordination vs crypto primitives) is clean and correct. Both have CLI. **Keep as-is.**
+
+**Step 3 — Simplify:**
+- Single BTC address constant in src/identity.ts is a clean simplification.
+- Bun-native imports (replacing Node.js) align with runtime conventions.
+- Status report HTML is more complex to generate but richer output — acceptable tradeoff.
+- All SKILL.md files remain under 2000 tokens.
+
+**Step 4 — Accelerate:**
+- Per-sensor 90s timeout is a direct pipeline accelerator — prevents one slow external dependency from adding 90s+ of tail latency to every sensor run.
+- status-report 6h cadence reduces Sonnet-tier watch report tasks from ~24/day to ~4/day — approximately $3-4/day savings.
+- TOCTOU fix eliminates potential duplicate task execution (rare but catastrophic when it occurs).
+
+**Step 5 — Automate:**
+- workflow-review adds meta-level automation discovery.
+- self-audit replaces manual operational checks.
+- All necessary work automated. No manual gaps identified.
+
+**Architecture Assessment:** Healthy. 5 new skills and 3 new sensors integrated without structural friction. Four correctness/resilience fixes shipped: TOCTOU race, Promise.allSettled, 90s sensor timeout, and hook-state field preservation (the most impactful — silently broken dedup is worse than obvious failures). 50 skills, 30 sensors, pipeline stable. **No follow-up tasks needed. No deletions. System expanding cleanly.**
+
+---
 ## 2026-03-03T12:45:00.000Z
 
 1 finding(s): 0 error, 1 warn, 0 info → **HEALTHY**

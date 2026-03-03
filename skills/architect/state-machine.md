@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-03T12:45:00.000Z*
+*Generated: 2026-03-03T21:30:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -45,6 +45,9 @@ stateDiagram-v2
         RunAllSensors --> status_reportSensor: status-report
         RunAllSensors --> worker_logsSensor: worker-logs
         RunAllSensors --> workflowsSensor: workflows
+        RunAllSensors --> schedulerSensor: scheduler
+        RunAllSensors --> self_auditSensor: self-audit
+        RunAllSensors --> workflow_reviewSensor: workflow-review
 
         state agent_engagementSensor {
             [*] --> agent_engagementGate: claimSensorRun(agent-engagement)
@@ -317,6 +320,40 @@ stateDiagram-v2
             workflowsSkip --> [*]: return skip
         }
 
+        state schedulerSensor {
+            [*] --> schedulerGate: claimSensorRun(scheduler, 5min)
+            schedulerGate --> schedulerSkip: interval not elapsed
+            schedulerGate --> schedulerCheck: interval elapsed
+            schedulerCheck --> schedulerSkip: no overdue tasks
+            schedulerCheck --> schedulerAlert: >5 tasks overdue >30min
+            schedulerAlert --> [*]: insertTask() P3 alert
+            schedulerSkip --> [*]: return ok/skip
+            note right of schedulerCheck: observability only\ncounts upcoming + overdue\nalerts dispatch health
+        }
+
+        state self_auditSensor {
+            [*] --> self_auditGate: claimSensorRun(self-audit, 1440min)
+            self_auditGate --> self_auditSkip: interval not elapsed
+            self_auditGate --> self_auditDedup: date-based dedup
+            self_auditDedup --> self_auditSkip: audit already ran today
+            self_auditDedup --> self_auditGather: no audit yet today
+            self_auditGather --> self_auditCreateTask: metrics assembled
+            self_auditCreateTask --> [*]: insertTask() P7
+            self_auditSkip --> [*]: return skip
+            note right of self_auditGather: tasks pending/failed/stuck\ncost today/yesterday\nskill+sensor health\ncommits last 24h
+        }
+
+        state workflow_reviewSensor {
+            [*] --> workflow_reviewGate: claimSensorRun(workflow-review, 240min)
+            workflow_reviewGate --> workflow_reviewSkip: interval not elapsed
+            workflow_reviewGate --> workflow_reviewAnalyze: interval elapsed
+            workflow_reviewAnalyze --> workflow_reviewSkip: no novel repeating pattern
+            workflow_reviewAnalyze --> workflow_reviewCreateTask: pattern found not in templates
+            workflow_reviewCreateTask --> [*]: insertTask() P5 skills:workflows,manage-skills
+            workflow_reviewSkip --> [*]: return skip
+            note right of workflow_reviewAnalyze: queries 7-day completed tasks\ngroups by source prefix\ndetects parent/child chains\nfilters existing templates
+        }
+
     }
 
     state DispatchService {
@@ -339,6 +376,7 @@ stateDiagram-v2
 
         BuildPrompt --> WriteLock: markTaskActive()
         WriteLock --> SpawnClaude: claude --print --verbose
+        note right of WriteLock: Lock acquired BEFORE task selection\n(TOCTOU race closed — commit 05de76d)
         SpawnClaude --> ParseResult: stream-json output
         SpawnClaude --> TimeoutKill: 30min watchdog (SIGTERM→SIGKILL+10s)
         TimeoutKill --> ClearLock: mark task failed
@@ -376,9 +414,11 @@ stateDiagram-v2
         - identity
         - manage-skills
         - mcp-server
+        - quorumclaw
         - reputation
         - research
         - stacks-market
+        - taproot-multisig
         - validation
         - wallet
         - worker-logs
@@ -395,6 +435,7 @@ stateDiagram-v2
 | 1 | Sensor fires | Hook state (interval check) | `claimSensorRun()` |
 | 2 | Sensor creates task | External data + dedup check | `pendingTaskExistsForSource()` |
 | 3 | Dispatch lock check | Lock file (PID + task_id) | `isPidAlive()` |
+| 3a | TOCTOU guard | Lock acquired BEFORE task selection | Atomic: lock→pick (commit 05de76d) |
 | 4 | Task selection | All pending tasks sorted | Priority ASC, ID ASC |
 | 4a | Model routing | task.model (explicit) or task.priority | Explicit wins; else P1-4→opus, P5-7→sonnet, P8+→haiku |
 | 5 | Skill loading | `task.skills` JSON array | SKILL.md existence |
@@ -437,19 +478,24 @@ stateDiagram-v2
 | manage-skills | yes | yes | yes | Create, inspect, and manage agent skills |
 | mcp-server | - | yes | - | MCP server exposing Arc's task queue, skills, and memory to external Claude instances |
 | overnight-brief | yes | - | yes | Generate a consolidated overnight brief at 6am PST covering all activity from 8pm–6am |
+| quorumclaw | - | yes | yes | Coordinate Bitcoin Taproot M-of-N multisig via QuorumClaw API — register, create, propose, sign, broadcast |
 | react-reviewer | - | - | yes | React/Next.js performance review — 77 rules across 8 categories for PR analysis |
 | release-watcher | yes | - | - | Detects new releases on watched repos and creates review tasks |
 | report-email | yes | - | - | Email watch reports when new ones are generated |
 | reputation | - | yes | yes | ERC-8004 on-chain agent reputation management — submit and revoke feedback, append responses, approve clients, and query reputation summaries, feedback entries, and client lists. |
 | research | - | yes | yes | Process batches of links into mission-relevant research reports |
+| scheduler | yes | - | - | Deferred task scheduling — `--defer` flag for `arc tasks add`, sensor monitors overdue queue |
 | security-alerts | yes | - | - | Monitor dependabot security alerts on repos we maintain |
+| self-audit | yes | - | - | Daily operational self-audit — task queue health, cost trends, skill/sensor health, recent codebase changes |
 | stacks-market | yes | yes | yes | Read-only prediction market intelligence — detect high-volume markets, file signals to aibtc-news. Mainnet-only. |
 | stackspot | yes | - | - | Autonomous Stacking participation — detect joinable pots, auto-join with Arc wallet, claim sBTC rewards. Mainnet-only lottery stacking. |
-| status-report | yes | - | yes | Generate watch reports (4-hour) summarizing all agent activity |
+| status-report | yes | - | yes | Generate watch reports (6-hour) summarizing all agent activity — now HTML format |
+| taproot-multisig | - | yes | - | Bitcoin Taproot BIP-340 Schnorr primitives — get-pubkey, verify-cosig, guide |
 | validation | - | yes | yes | ERC-8004 on-chain agent validation management — request and respond to validations, and query validation status, summaries, and paginated lists by agent or validator. |
 | wallet | - | yes | yes | Wallet management and cryptographic signing for Stacks and Bitcoin — unlock, lock, info, status, BTC/Stacks message signing, and BTC signature verification. |
 | web-design | - | - | yes | UI/UX accessibility audit against Vercel web-interface-guidelines — file:line reporting |
 | worker-logs | yes | yes | yes | Sync worker-logs forks, monitor production events, report trends |
+| workflow-review | yes | - | - | Detect repeating task patterns and propose workflow state machines (240min cadence) |
 | workflows | yes | yes | yes | Persistent state machine instances for multi-step workflows |
 | worktrees | - | yes | - | Opt-in git worktree isolation for high-risk dispatch tasks |
 | x-posting | - | yes | - | Post tweets, read timeline, and manage presence on X (Twitter) via API v2 |
