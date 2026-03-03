@@ -38,15 +38,19 @@ function formatMST(isoTimestamp: string): string {
 
 /** Extract the ISO timestamp from a report filename like 2026-02-27T22:00:00Z_watch_report.md */
 function extractTimestamp(filename: string): string {
-  return filename.replace("_watch_report.md", "");
+  return filename.replace(/_watch_report\.(md|html)$/, "");
 }
 
 /** Check if the report has a completed CEO review (not just template placeholders). */
 function hasCompletedCeoReview(content: string): boolean {
-  const reviewSection = content.split("### Assessment")[1];
+  // Support both markdown (### Assessment) and HTML (<h3>Assessment</h3>) reports
+  const splitPoint = content.includes("<h3>Assessment</h3>")
+    ? "<h3>Assessment</h3>"
+    : "### Assessment";
+  const reviewSection = content.split(splitPoint)[1];
   if (!reviewSection) return false;
   // Template placeholder contains this comment — if still present, not yet reviewed
-  return !reviewSection.includes("<!-- CEO's assessment");
+  return !reviewSection.includes("<!-- ");
 }
 
 export default async function reportEmailSensor(): Promise<string> {
@@ -58,7 +62,7 @@ export default async function reportEmailSensor(): Promise<string> {
 
   // Find all report files
   const { Glob } = await import("bun");
-  const glob = new Glob("*_watch_report.md");
+  const glob = new Glob("*_watch_report.{md,html}");
   const files: string[] = [];
   for await (const file of glob.scan({ cwd: REPORTS_DIR, absolute: false })) {
     files.push(file);
@@ -102,8 +106,10 @@ export default async function reportEmailSensor(): Promise<string> {
   const reportTimestamp = extractTimestamp(newestFile);
   const subject = `Arc Watch Report ${formatMST(reportTimestamp)}`;
 
-  // Convert markdown to themed HTML
-  const htmlBody = wrapInArcTheme(markdownToHtml(content), subject);
+  // If report is already HTML (.html extension), use it directly; otherwise convert markdown
+  const isHtml = newestFile.endsWith(".html");
+  const htmlBody = isHtml ? content : wrapInArcTheme(markdownToHtml(content), subject);
+  const plainText = isHtml ? subject : content;
 
   // Send via email worker API (html field for themed email, body as plain text fallback)
   const res = await fetch(`${apiBaseUrl}/api/send`, {
@@ -115,7 +121,7 @@ export default async function reportEmailSensor(): Promise<string> {
     body: JSON.stringify({
       to: recipient,
       subject,
-      body: content,
+      body: plainText,
       html: htmlBody,
     }),
   });

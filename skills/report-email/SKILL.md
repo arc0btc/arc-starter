@@ -11,7 +11,7 @@ Sensor-only skill. Detects new watch report files in `reports/` and emails them 
 ## How It Works
 
 - Runs every sensor tick (1 minute)
-- Scans `reports/` for `*_watch_report.md` files
+- Scans `reports/` for `*_watch_report.{md,html}` files
 - Compares newest file against last-emailed (tracked in hook-state)
 - **Waits for CEO review** — only sends once the `### Assessment` section is filled in (no longer contains template placeholder comments)
 - Subject format: `Arc Watch Report 2026-02-27 16:00 MST`

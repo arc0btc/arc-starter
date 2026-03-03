@@ -5,7 +5,7 @@ role: subagent-briefing
 
 # Watch Report — Subagent Briefing
 
-You are generating a watch report. Your job is to accurately summarize all agent activity since the last report.
+You are generating an HTML watch report. Accurate, concise, on-brand. Output is a self-contained `.html` file styled with Arc's dark-first gold-accent design system.
 
 ## Step-by-step
 
@@ -13,105 +13,91 @@ You are generating a watch report. Your job is to accurately summarize all agent
 
 Check for the most recent report in `reports/`:
 ```bash
-ls -t reports/*_watch_report.md 2>/dev/null | head -1
+ls -t reports/*_watch_report.* 2>/dev/null | grep -m1 .
 ```
 
-If no previous report exists, the period starts 4 hours ago. Otherwise, the period starts at the previous report's timestamp.
+Period starts at the previous report's timestamp (or 4 hours ago if none). Period ends now (UTC).
 
-The period ends now (current UTC time).
+### 2. Gather data
 
-### 2. Query task data
+Run these in parallel where possible:
 
+**Tasks:**
 ```bash
 arc tasks --status completed --limit 50
 arc tasks --status failed --limit 10
 arc tasks --status blocked --limit 10
 arc tasks --limit 20
 ```
+Filter to tasks within the reporting period.
 
-Filter to tasks completed/failed/blocked within the reporting period using `completed_at` or `created_at` timestamps.
+**Cycle log** (via bun -e): total cycles, cost_usd, api_cost_usd, tokens_in, tokens_out.
 
-### 3. Query cycle log
-
-Use the DB directly (via bun -e) to get cycle data for the period:
-- Total cycles run
-- Total cost_usd and api_cost_usd
-- Total tokens_in and tokens_out
-- Average cycle duration
-
-### 4. Check git activity
-
+**Git:**
 ```bash
 git log --oneline --since="{{period_start}}" --until="{{period_end}}"
 ```
 
-### 5. Check partner activity (whoabuddy)
-
-whoabuddy is Arc's partner — commits from that account often come from interactive Claude Code sessions with Arc. Tracking this helps the CEO understand what Arc is enabling and where to invest compute.
-
-Fetch recent push events from whoabuddy's GitHub:
+**Partner activity:**
 ```bash
 gh api "/users/whoabuddy/events" --jq '[.[] | select(.type == "PushEvent" and .created_at >= "{{period_start}}" and .created_at <= "{{period_end}}")] | .[] | "\(.repo.name) — \(.payload.commits | length) commit(s): \(.payload.commits | map(.message | split("\n")[0]) | join("; "))"'
 ```
 
-If no events in the period, note "No whoabuddy activity this watch." Don't fabricate activity.
-
-Also check arc0btc repos for whoabuddy-authored commits (co-authored or paired sessions):
+**Prediction markets:**
 ```bash
-gh api "/users/arc0btc/events" --jq '[.[] | select(.type == "PushEvent" and .created_at >= "{{period_start}}" and .created_at <= "{{period_end}}")] | .[] | "\(.repo.name) — \(.payload.commits | length) commit(s): \(.payload.commits | map(.message | split("\n")[0]) | join("; "))"'
+arc skills run --name stacks-market -- portfolio
+arc skills run --name stacks-market -- positions
 ```
 
-Summarize in the Partner Activity section: which repos were touched, what changed, and how it relates to Arc's mission.
+**Sensor state:** Read `db/hook-state/*.json` files for sensor run counts.
 
-### 6. Check sensor activity
+### 3. Generate the HTML report
 
-Read sensor state files from `db/hook-state/`:
-- `aibtc-heartbeat.json` — check-in count (version field)
-- `aibtc-inbox.json` — inbox sync count
-- `email.json` — email sync count
-- `health.json` — health check count
+Read the template at `templates/status-report.html`. Replace all `{{placeholders}}` with real data.
 
-### 7. Check research reports
+**Key rules:**
+- **Summary:** 2-3 sentences max. What happened, key outcome, health status.
+- **Tasks table:** One row per completed task. Subject column should be short (truncate to ~40 chars if needed).
+- **Failed/blocked:** Only include if they exist. Otherwise omit the section entirely.
+- **Prediction Markets:** Show positions from `arc skills run --name stacks-market -- portfolio`. If no positions, show: `<p class="empty">No open positions. Budget: {{budget}} STX ({{exposure}} deployed).</p>`. If positions exist, show one `.market-card` per position with title, side, cost basis, current price, and P&L percentage.
+- **Git:** One `.commit` div per commit. Hash in `.hash` span, message after.
+- **Queue:** One `.queue-item` per pending task. Include `.pri-tag` with priority. Use `.blocked` class for blocked tasks.
+- **Observations:** 2-4 items max. Patterns, efficiency, what worked or didn't. One `.obs` div each. No throat-clearing.
+- **CEO Review:** Leave the HTML comments in place. The ceo-review task fills this.
+- **Partner activity:** If whoabuddy had GitHub activity, mention it in the summary or observations. Don't create a separate section.
+- **Sensor activity:** Roll into summary or observations if noteworthy. Don't create a separate section.
+- **Research:** Only mention in observations if a new research report was created this period.
 
-List active (non-archived) research reports:
-```bash
-ls -t research/*_research.md 2>/dev/null
-```
+**Total target: 80-120 lines of filled HTML content** (excluding the template chrome). Shorter is better.
 
-If research reports exist, read each one and summarize for the Research Intelligence section:
-- Filename and date
-- Number of links analyzed
-- High and medium relevance findings (skip low)
-- Cross-cutting themes from the summary section
+### 4. Write and commit
 
-If the `research/` directory is empty or has no `*_research.md` files, note "No research reports this watch." in the section.
-
-Only include reports created within the reporting period, or if none are new, summarize the most recent report as standing intelligence.
-
-### 8. Generate the report
-
-Read the template from `templates/status-report.md`. Fill in every section above the "CEO Review" line. Replace `{{placeholders}}` with actual values. Write prose summaries — not just data dumps.
-
-Write the report to: `reports/{period_end_ISO8601}_watch_report.md`
-
-### 9. Commit
+Write to: `reports/{period_end_ISO8601}_watch_report.html`
 
 ```bash
 git add reports/
 git commit -m "docs(report): watch report {period_end_ISO8601}"
 ```
 
-### 10. Close the task
+### 5. Close the task
 
-Report the file path and key metrics in result_summary:
 ```bash
 arc tasks close --id {task_id} --status completed --summary "Watch report: {N} tasks completed, ${cost} spent, report at reports/{filename}"
 ```
 
+## Style reference
+
+The template uses Arc's brand system. When generating HTML content:
+- Monetary values: use `class="cost"` (monospace, gold-dark)
+- Task IDs: use `class="id"` (monospace, gray)
+- Priority tags: use `class="pri-tag"` (gold pill)
+- Positive P&L: `class="positive"` (green)
+- Negative P&L: `class="negative"` (vermillion)
+- Empty states: `class="empty"` (italic gray)
+
 ## Guidelines
 
 - Be accurate. Don't embellish or minimize.
-- Include specific numbers — task IDs, costs, token counts.
-- The Observations section is where you add value: note patterns, inefficiencies, things that worked.
-- Leave the CEO Review section empty — that's filled by the ceo-review task.
-- Keep the report concise but complete. Target 100-200 lines.
+- Concise > comprehensive. If a section has nothing interesting, one line is fine.
+- Numbers over prose. "$1.38" beats "roughly one dollar".
+- Leave the CEO Review section empty — that's filled by a separate task.

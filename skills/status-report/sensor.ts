@@ -31,10 +31,11 @@ export default async function statusReportSensor(): Promise<string> {
   insertTask({
     subject: `Watch report — ${now.slice(0, 16)}Z`,
     description:
-      "Generate a watch report covering all activity since the last report.\n\n" +
+      "Generate an HTML watch report covering all activity since the last report.\n\n" +
       "Follow the instructions in skills/status-report/AGENT.md.\n" +
-      "Use the template at templates/status-report.md.\n" +
-      "Write output to reports/ directory.\n\n" +
+      "Use the template at templates/status-report.html.\n" +
+      "Include prediction market positions from stacks-market skill.\n" +
+      "Write output to reports/ directory as .html.\n\n" +
       `Report period ends: ${now}`,
     skills: '["status-report"]',
     source: TASK_SOURCE,

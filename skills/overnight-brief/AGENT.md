@@ -17,7 +17,7 @@ The overnight window is fixed:
 
 Check for the last report/brief in `reports/` to avoid overlap:
 ```bash
-ls -t reports/*_watch_report.md reports/*_overnight_brief.md 2>/dev/null | head -3
+ls -t reports/*_watch_report.* reports/*_overnight_brief.* 2>/dev/null | head -3
 ```
 
 ### 2. Query task data

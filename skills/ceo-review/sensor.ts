@@ -21,7 +21,7 @@ const REPORTS_DIR = join(ROOT, "reports");
 function findLatestReport(): string | null {
   try {
     const files = readdirSync(REPORTS_DIR)
-      .filter((f) => f.endsWith("_watch_report.md"))
+      .filter((f) => f.includes("_watch_report."))
       .sort()
       .reverse();
     return files.length > 0 ? files[0] : null;
@@ -34,11 +34,14 @@ function findLatestReport(): string | null {
 async function reportHasReview(filename: string): Promise<boolean> {
   try {
     const content = await Bun.file(join(REPORTS_DIR, filename)).text();
-    // Check if the Assessment section has content (not just the template placeholder)
-    const reviewSection = content.split("### Assessment")[1];
+    // Support both markdown (### Assessment) and HTML (<h3>Assessment</h3>) reports
+    const splitPoint = content.includes("<h3>Assessment</h3>")
+      ? "<h3>Assessment</h3>"
+      : "### Assessment";
+    const reviewSection = content.split(splitPoint)[1];
     if (!reviewSection) return false;
-    // If it still contains the template comment, it hasn't been reviewed
-    return !reviewSection.includes("<!-- CEO's assessment");
+    // If it still contains template comments, it hasn't been reviewed
+    return !reviewSection.includes("<!-- ");
   } catch {
     return false;
   }
