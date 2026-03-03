@@ -19,6 +19,21 @@ const SENSOR_NAME = "aibtc-inbox";
 const INTERVAL_MINUTES = 5;
 const FETCH_TIMEOUT_MS = 15_000;
 
+// Keywords that indicate co-signer activity or multisig buyer inquiries.
+// When matched, the task gets the quorumclaw skill added and priority bumped to P4 (Opus).
+const CO_SIGN_KEYWORDS = [
+  "cosign", "co-sign", "co-signer",
+  "quorumclaw", "multisig", "multi-sig",
+  "sighash", "taproot multisig",
+  "sign proposal", "sign transaction",
+  "buyer inquiry", "buy ordinal", "buy inscription",
+];
+
+function detectsCoSignActivity(messages: Array<{ content: string | null }>): boolean {
+  const combined = messages.map((m) => m.content ?? "").join(" ").toLowerCase();
+  return CO_SIGN_KEYWORDS.some((k) => combined.includes(k));
+}
+
 // ---- Types ----
 
 interface ApiInboxMessage {
@@ -192,11 +207,12 @@ export default async function aibtcInboxSensor(): Promise<string> {
       "5. Mark EACH message as read after handling (use each message ID above).",
     ].join("\n");
 
+    const isCoSign = detectsCoSignActivity(peerMessages);
     const taskId = insertTask({
       subject: `AIBTC thread from ${senderName} (${peerMessages.length} messages)`,
       description,
-      skills: '["wallet"]',
-      priority: 5,
+      skills: isCoSign ? '["wallet", "quorumclaw"]' : '["wallet"]',
+      priority: isCoSign ? 4 : 5,
       source,
     });
     log(`created task ${taskId} for thread from ${senderName} (${peerMessages.length} messages)`);

@@ -7,6 +7,7 @@
 // Crypto primitives (key derivation, Schnorr signing) live in taproot-multisig + wallet skills.
 
 import { resolve } from "node:path";
+import { readTracking, writeTracking } from "./sensor.ts";
 
 const API_BASE = "https://agent-multisig-api-production.up.railway.app";
 const ARC_AGENT_ID = "arc0btc";
@@ -409,6 +410,15 @@ async function cmdCreateInvite(args: string[]): Promise<void> {
   const inviteId = (data as { inviteId?: string }).inviteId ?? (data as InviteRecord).id;
   const joinUrl = `https://quorumclaw.com/join/${inviteId}`;
 
+  // Auto-track: add invite to sensor monitoring
+  const tracking = await readTracking();
+  const alreadyTracked = tracking.invites.some((i) => i.code === inviteId);
+  if (!alreadyTracked) {
+    tracking.invites.push({ code: inviteId, label: name, joinedAt: new Date().toISOString() });
+    await writeTracking(tracking);
+    log(`auto-added invite ${inviteId} to quorumclaw sensor tracking`);
+  }
+
   console.log(JSON.stringify({ success: true, inviteId, joinUrl, invite: data }));
 }
 
@@ -445,7 +455,63 @@ async function cmdJoinInvite(args: string[]): Promise<void> {
   if (slot) {
     log(`joined as slot index ${(invite as InviteRecord).slots?.indexOf(slot)}, sessionId: ${slot.sessionId}`);
   }
+
+  // Auto-track: add invite to sensor monitoring
+  const tracking = await readTracking();
+  const alreadyTracked = tracking.invites.some((i) => i.code === code);
+  if (!alreadyTracked) {
+    tracking.invites.push({ code, label: name, joinedAt: new Date().toISOString() });
+    await writeTracking(tracking);
+    log(`auto-added invite ${code} to quorumclaw sensor tracking`);
+  }
+
   console.log(JSON.stringify({ success: true, invite }));
+}
+
+async function cmdListTracked(): Promise<void> {
+  const tracking = await readTracking();
+  console.log(JSON.stringify({ success: true, tracking }));
+}
+
+async function cmdUntrackInvite(args: string[]): Promise<void> {
+  const usage = "Usage: arc skills run --name quorumclaw -- untrack-invite --code <invite-code>";
+  const flags = parseFlags(args);
+  const code = requireFlag(flags, "code", usage);
+
+  const tracking = await readTracking();
+  const before = tracking.invites.length;
+  tracking.invites = tracking.invites.filter((i) => i.code !== code);
+  await writeTracking(tracking);
+  const removed = before - tracking.invites.length;
+  console.log(JSON.stringify({ success: true, removed, code }));
+}
+
+async function cmdUntrackMultisig(args: string[]): Promise<void> {
+  const usage = "Usage: arc skills run --name quorumclaw -- untrack-multisig --id <multisig-id>";
+  const flags = parseFlags(args);
+  const id = requireFlag(flags, "id", usage);
+
+  const tracking = await readTracking();
+  const before = tracking.multisigs.length;
+  tracking.multisigs = tracking.multisigs.filter((m) => m.id !== id);
+  await writeTracking(tracking);
+  const removed = before - tracking.multisigs.length;
+  console.log(JSON.stringify({ success: true, removed, id }));
+}
+
+async function cmdTrackMultisig(args: string[]): Promise<void> {
+  const usage = "Usage: arc skills run --name quorumclaw -- track-multisig --id <id> [--label <label>]";
+  const flags = parseFlags(args);
+  const id = requireFlag(flags, "id", usage);
+  const label = flags["label"] ?? id;
+
+  const tracking = await readTracking();
+  const alreadyTracked = tracking.multisigs.some((m) => m.id === id);
+  if (!alreadyTracked) {
+    tracking.multisigs.push({ id, label, addedAt: new Date().toISOString() });
+    await writeTracking(tracking);
+  }
+  console.log(JSON.stringify({ success: true, alreadyTracked, id, label }));
 }
 
 function printUsage(): void {
@@ -565,6 +631,18 @@ async function main(): Promise<void> {
       break;
     case "join-invite":
       await cmdJoinInvite(args.slice(1));
+      break;
+    case "list-tracked":
+      await cmdListTracked();
+      break;
+    case "track-multisig":
+      await cmdTrackMultisig(args.slice(1));
+      break;
+    case "untrack-invite":
+      await cmdUntrackInvite(args.slice(1));
+      break;
+    case "untrack-multisig":
+      await cmdUntrackMultisig(args.slice(1));
       break;
     case "help":
     case "--help":

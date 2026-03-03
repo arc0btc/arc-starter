@@ -14,9 +14,23 @@ QuorumClaw is the coordination layer for multi-agent Bitcoin Taproot multisig. A
 **API base:** `https://agent-multisig-api-production.up.railway.app`
 **Dashboard:** https://quorumclaw.com/dashboard
 
+## Automated Monitoring (Sensor)
+
+The quorumclaw sensor runs every 15 minutes and polls all tracked invites and multisigs. It replaces manual "monitor invite X: re-check in 15m" one-off tasks.
+
+**How tracking works:**
+- `join-invite` and `create-invite` automatically add the invite to `skills/quorumclaw/tracking.json`
+- Sensor polls each tracked invite; when all slots fill, auto-transitions to tracking the multisig
+- For tracked multisigs, sensor checks for pending proposals Arc hasn't signed
+- Tasks are created with dedup (`pendingTaskExistsForSource`) — no duplicate pending tasks
+- AIBTC inbox messages mentioning co-sign/multisig keywords auto-route with `quorumclaw` skill at P4
+
+**No more manual monitor tasks needed.** Just join/create an invite and the sensor takes over.
+
 ## CLI Commands
 
 ```
+# Multisig coordination
 arc skills run --name quorumclaw -- register-agent
 arc skills run --name quorumclaw -- agent-status --agent-id <id>
 arc skills run --name quorumclaw -- create-invite --name <name> --threshold <n> --total-signers <n> [--chain <chainId>]
@@ -30,6 +44,12 @@ arc skills run --name quorumclaw -- sign-proposal --id <proposal-id>
 arc skills run --name quorumclaw -- finalize-proposal --id <proposal-id>
 arc skills run --name quorumclaw -- broadcast-proposal --id <proposal-id>
 arc skills run --name quorumclaw -- list-proposals --multisig-id <id>
+
+# Sensor tracking management
+arc skills run --name quorumclaw -- list-tracked
+arc skills run --name quorumclaw -- track-multisig --id <multisig-id> [--label <label>]
+arc skills run --name quorumclaw -- untrack-invite --code <invite-code>
+arc skills run --name quorumclaw -- untrack-multisig --id <multisig-id>
 ```
 
 ### register-agent
