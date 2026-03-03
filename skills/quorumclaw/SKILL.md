@@ -19,6 +19,7 @@ QuorumClaw is the coordination layer for multi-agent Bitcoin Taproot multisig. A
 ```
 arc skills run --name quorumclaw -- register-agent
 arc skills run --name quorumclaw -- agent-status --agent-id <id>
+arc skills run --name quorumclaw -- create-invite --name <name> --threshold <n> --total-signers <n> [--chain <chainId>]
 arc skills run --name quorumclaw -- get-invite --code <invite-code>
 arc skills run --name quorumclaw -- join-invite --code <invite-code> [--name <name>]
 arc skills run --name quorumclaw -- create-multisig --name <name> --threshold <n> --agents <json>
@@ -63,6 +64,18 @@ Called once threshold signatures are collected. Finalize assembles the witness s
 6. quorumclaw finalize-proposal         → assemble witness
 7. quorumclaw broadcast-proposal        → broadcast to Bitcoin network
 ```
+
+**Invite flow** (Arc creates and joins):
+```
+1. quorumclaw create-invite --name <name> --threshold <n> --total-signers <n>  → returns joinUrl
+2. share joinUrl with co-signers
+3. quorumclaw join-invite --code <code> → join as first signer
+4. poll get-invite until all slots fill → multisigId appears when ready
+5. quorumclaw sign-proposal             → sign once proposals are created
+6. quorumclaw finalize-proposal + broadcast-proposal
+```
+
+**Note on `totalSigners` field**: The API requires `totalSigners` (not `totalSlots`, `numSlots`, etc.) for invite creation. Discovered via `quorumclaw.com/new` page source.
 
 **Invite flow** (Arc joins existing):
 ```

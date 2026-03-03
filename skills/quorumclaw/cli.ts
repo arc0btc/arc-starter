@@ -379,6 +379,39 @@ async function cmdListProposals(args: string[]): Promise<void> {
   console.log(JSON.stringify({ success: true, proposals: result }));
 }
 
+async function cmdCreateInvite(args: string[]): Promise<void> {
+  const usage = "Usage: arc skills run --name quorumclaw -- create-invite --name <name> --threshold <n> --total-signers <n> [--chain <chainId>]";
+  const flags = parseFlags(args);
+  const name = requireFlag(flags, "name", usage);
+  const threshold = parseInt(requireFlag(flags, "threshold", usage), 10);
+  const totalSigners = parseInt(requireFlag(flags, "total-signers", usage), 10);
+  const chainId = flags["chain"] ?? "bitcoin-mainnet";
+
+  if (isNaN(threshold) || threshold < 1) {
+    process.stderr.write("Error: --threshold must be a positive integer\n");
+    process.exit(1);
+  }
+  if (isNaN(totalSigners) || totalSigners < threshold) {
+    process.stderr.write(`Error: --total-signers must be >= threshold (${threshold})\n`);
+    process.exit(1);
+  }
+
+  log(`creating ${threshold}-of-${totalSigners} invite: ${name}`);
+
+  const result = await apiRequest<{ data: { inviteId: string; inviteUrl: string } & InviteRecord }>("POST", "/v1/invites", {
+    name,
+    chainId,
+    threshold,
+    totalSigners,
+  });
+
+  const data = (result as unknown as { data: { inviteId: string; inviteUrl: string } & InviteRecord }).data ?? result;
+  const inviteId = (data as { inviteId?: string }).inviteId ?? (data as InviteRecord).id;
+  const joinUrl = `https://quorumclaw.com/join/${inviteId}`;
+
+  console.log(JSON.stringify({ success: true, inviteId, joinUrl, invite: data }));
+}
+
 async function cmdGetInvite(args: string[]): Promise<void> {
   const usage = "Usage: arc skills run --name quorumclaw -- get-invite --code <invite-code>";
   const flags = parseFlags(args);
@@ -523,6 +556,9 @@ async function main(): Promise<void> {
       break;
     case "list-proposals":
       await cmdListProposals(args.slice(1));
+      break;
+    case "create-invite":
+      await cmdCreateInvite(args.slice(1));
       break;
     case "get-invite":
       await cmdGetInvite(args.slice(1));
