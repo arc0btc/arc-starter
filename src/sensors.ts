@@ -82,12 +82,24 @@ export async function claimSensorRun(name: string, intervalMinutes: number): Pro
 
 // ---- Sensor runner ----
 
+/** Per-sensor timeout in milliseconds. Liberal limit to catch hangs, not rush normal work. */
+const SENSOR_TIMEOUT_MS = 90_000; // 90 seconds
+
 interface SensorResult {
   name: string;
   ok: boolean;
   skipped: boolean;
   durationMs: number;
   error?: string;
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`sensor ${label} timed out after ${ms}ms`)), ms)
+    ),
+  ]);
 }
 
 export async function runSensors(): Promise<void> {
@@ -116,7 +128,7 @@ export async function runSensors(): Promise<void> {
           error: "no default export function",
         };
       }
-      const result = await fn();
+      const result = await withTimeout(fn(), SENSOR_TIMEOUT_MS, skill.name);
       const durationMs = Date.now() - t0;
       // Sensors can return "skip" string to signal they were gated out
       if (result === "skip") {
