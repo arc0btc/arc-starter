@@ -1,4 +1,4 @@
-import { claimSensorRun, createSensorLogger, readHookState, insertTaskIfNew } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, readHookState, pendingTaskExistsForSource, insertTask } from "../../src/sensors.ts";
 
 const SENSOR_NAME = "ci-status";
 const INTERVAL_MINUTES = 15;
@@ -94,7 +94,9 @@ export default async function ciStatusSensor(): Promise<string> {
 
     for (const run of failedRuns) {
       const source = `sensor:ci-status:run:${run.id}`;
-      const taskId = insertTaskIfNew(source, {
+      if (pendingTaskExistsForSource(source)) continue;
+
+      insertTask({
         subject: `CI failure in ${repo}: ${run.name} (${run.head_branch})`,
         description: [
           `Workflow "${run.name}" failed in ${repo}`,
@@ -111,9 +113,10 @@ export default async function ciStatusSensor(): Promise<string> {
         ].join("\n"),
         skills: '["ci-status"]',
         priority: 3,
-      }, "any");
+        source: source,
+      });
 
-      if (taskId !== null) created++;
+      created++;
     }
   }
 

@@ -5,7 +5,7 @@
 // Creates high-priority alert tasks when anomalies are found.
 
 import { join } from "node:path";
-import { claimSensorRun, insertTaskIfNew } from "../../src/sensors.ts";
+import { claimSensorRun, pendingTaskExistsForSource, insertTask } from "../../src/sensors.ts";
 import { getRecentCycles, getPendingTasks } from "../../src/db.ts";
 import { isPidAlive } from "../../src/utils.ts";
 
@@ -52,24 +52,26 @@ export default async function healthSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
-  if (checkStaleCycle()) {
-    insertTaskIfNew(TASK_SOURCE, {
+  if (checkStaleCycle() && !pendingTaskExistsForSource(TASK_SOURCE)) {
+    insertTask({
       subject: "health alert: dispatch stale or stuck",
       description:
         "The last dispatch cycle completed more than 30 minutes ago and there are pending tasks. " +
         "Check arc status, systemd timers, and dispatch logs.",
       priority: PRIORITY,
+      source: TASK_SOURCE,
     });
   }
 
   const staleLock = await checkStaleLock();
-  if (staleLock) {
-    insertTaskIfNew(STALE_LOCK_SOURCE, {
+  if (staleLock && !pendingTaskExistsForSource(STALE_LOCK_SOURCE)) {
+    insertTask({
       subject: "health alert: stale dispatch lock detected",
       description:
         "A dispatch lock file exists at db/dispatch-lock.json but the recorded PID is no longer alive. " +
         "Run: rm db/dispatch-lock.json && arc run",
       priority: PRIORITY,
+      source: STALE_LOCK_SOURCE,
     });
   }
 

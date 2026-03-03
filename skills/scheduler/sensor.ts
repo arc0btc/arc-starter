@@ -9,7 +9,7 @@
 // get a +2 effective priority boost in the sort order. This sensor adds
 // observability and a safety net for stuck queues.
 
-import { claimSensorRun, insertTaskIfNew } from "../../src/sensors.ts";
+import { claimSensorRun, pendingTaskExistsForSource, insertTask } from "../../src/sensors.ts";
 import { getDatabase } from "../../src/db.ts";
 import type { Task } from "../../src/db.ts";
 
@@ -61,9 +61,9 @@ export default async function schedulerSensor(): Promise<string> {
 
   // Create a health alert if scheduled tasks are accumulating without being dispatched.
   // This shouldn't happen in normal operation — dispatch picks them up within 1 minute.
-  if (overdue.length > OVERDUE_ALERT_THRESHOLD) {
+  if (overdue.length > OVERDUE_ALERT_THRESHOLD && !pendingTaskExistsForSource(OVERDUE_ALERT_SOURCE)) {
     const nextSubject = overdue[0]?.subject ?? "unknown";
-    insertTaskIfNew(OVERDUE_ALERT_SOURCE, {
+    insertTask({
       subject: `scheduler alert: ${overdue.length} scheduled tasks overdue by >${OVERDUE_MINUTES}m`,
       description:
         `${overdue.length} tasks with past scheduled_for times are still pending after ${OVERDUE_MINUTES}+ minutes. ` +
@@ -71,6 +71,7 @@ export default async function schedulerSensor(): Promise<string> {
         `Earliest overdue: "${nextSubject}". ` +
         `Check: arc status, arc tasks --status pending, systemd dispatch timer.`,
       priority: 3,
+      source: OVERDUE_ALERT_SOURCE,
     });
   }
 

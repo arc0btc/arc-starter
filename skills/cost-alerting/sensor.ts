@@ -4,7 +4,7 @@
 // Creates a priority-3 alert task when daily total exceeds the threshold.
 // One alert per day max (date-stamped source key).
 
-import { claimSensorRun, insertTaskIfNew } from "../../src/sensors.ts";
+import { claimSensorRun, pendingTaskExistsForSource, insertTask } from "../../src/sensors.ts";
 import { getDatabase } from "../../src/db.ts";
 
 const SENSOR_NAME = "cost-alerting";
@@ -35,14 +35,17 @@ export default async function costAlertingSensor(): Promise<string> {
   const { costUsd, apiCostUsd } = getDailySpend();
   if (costUsd < DAILY_THRESHOLD_USD) return "ok";
 
-  insertTaskIfNew(source, {
+  if (pendingTaskExistsForSource(source)) return "skip";
+
+  insertTask({
     subject: `cost alert: daily spend $${costUsd.toFixed(2)} exceeds $${DAILY_THRESHOLD_USD.toFixed(2)} threshold`,
     description:
       `Daily Claude Code spend has reached $${costUsd.toFixed(2)} (API estimate: $${apiCostUsd.toFixed(2)}). ` +
       `Threshold: $${DAILY_THRESHOLD_USD.toFixed(2)}/day. ` +
       `Review active tasks and consider deferring low-priority work. Run \`arc status\` for details.`,
     priority: 3,
-  }, "any");
+    source: source,
+  });
 
   return "ok";
 }
