@@ -87,6 +87,32 @@ WantedBy=default.target
 `;
 }
 
+function generateMcpServiceUnit(): string {
+  const bun = bunPath();
+  const envFile = join(ROOT, ".env");
+  const envLine = existsSync(envFile) ? `EnvironmentFile=${envFile}\n` : "";
+  const port = process.env.ARC_MCP_PORT || "3100";
+  return `[Unit]
+Description=Arc MCP Server
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=${ROOT}
+ExecStart=${bun} skills/mcp-server/server.ts --transport http --port ${port}
+Restart=on-failure
+RestartSec=5
+Environment="HOME=${HOME}"
+Environment="PATH=/usr/local/bin:/usr/bin:/bin:${HOME}/.bun/bin:${HOME}/.local/bin"
+Environment="ARC_MCP_PORT=${port}"
+${envLine}StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target
+`;
+}
+
 function generateTimerUnit(description: string, bootSec: string, intervalSec: string): string {
   return `[Unit]
 Description=${description}
@@ -106,6 +132,7 @@ const SYSTEMD_UNITS: Array<{ name: string; content: () => string }> = [
   { name: "arc-dispatch.service", content: () => generateServiceUnit("run", "arc-agent dispatch runner", 3600) },
   { name: "arc-dispatch.timer", content: () => generateTimerUnit("arc-agent dispatch timer — fires every 1 minute", "2min", "1min") },
   { name: "arc-web.service", content: () => generateWebServiceUnit() },
+  { name: "arc-mcp.service", content: () => generateMcpServiceUnit() },
 ];
 
 function systemdInstall(): void {
@@ -126,16 +153,19 @@ function systemdInstall(): void {
   run("systemctl", ["--user", "enable", "--now", "arc-sensors.timer"]);
   run("systemctl", ["--user", "enable", "--now", "arc-dispatch.timer"]);
   run("systemctl", ["--user", "enable", "--now", "arc-web.service"]);
-  process.stdout.write("Enabled and started timers + web service\n");
+  run("systemctl", ["--user", "enable", "--now", "arc-mcp.service"]);
+  process.stdout.write("Enabled and started timers + web + MCP services\n");
 }
 
 function systemdUninstall(): void {
   run("systemctl", ["--user", "stop", "arc-sensors.timer"], { quiet: true });
   run("systemctl", ["--user", "stop", "arc-dispatch.timer"], { quiet: true });
   run("systemctl", ["--user", "stop", "arc-web.service"], { quiet: true });
+  run("systemctl", ["--user", "stop", "arc-mcp.service"], { quiet: true });
   run("systemctl", ["--user", "disable", "arc-sensors.timer"], { quiet: true });
   run("systemctl", ["--user", "disable", "arc-dispatch.timer"], { quiet: true });
   run("systemctl", ["--user", "disable", "arc-web.service"], { quiet: true });
+  run("systemctl", ["--user", "disable", "arc-mcp.service"], { quiet: true });
 
   const dir = systemdDir();
   for (const unit of SYSTEMD_UNITS) {
@@ -166,6 +196,15 @@ function systemdStatus(): void {
     "--no-pager",
   ], { quiet: true });
   process.stdout.write(webStatus || "Web service not found. Run: arc services install\n");
+
+  process.stdout.write("\n");
+
+  const { stdout: mcpStatus } = run("systemctl", [
+    "--user", "status",
+    "arc-mcp.service",
+    "--no-pager",
+  ], { quiet: true });
+  process.stdout.write(mcpStatus || "MCP service not found. Run: arc services install\n");
 }
 
 // ---- macOS (launchd) ----
@@ -178,6 +217,7 @@ const TIMER_AGENTS = [
 ] as const;
 
 const WEB_AGENT = { label: "com.arc-agent.web" } as const;
+const MCP_AGENT = { label: "com.arc-agent.mcp" } as const;
 
 function plistPath(label: string): string {
   return join(LAUNCHD_DIR, `${label}.plist`);
@@ -253,6 +293,46 @@ function generateWebPlist(): string {
 </plist>`;
 }
 
+function generateMcpPlist(): string {
+  const bun = bunPath();
+  const logDir = join(ROOT, "logs");
+  const port = process.env.ARC_MCP_PORT || "3100";
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>${MCP_AGENT.label}</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>${bun}</string>
+        <string>skills/mcp-server/server.ts</string>
+        <string>--transport</string>
+        <string>http</string>
+        <string>--port</string>
+        <string>${port}</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>${ROOT}</string>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>${logDir}/mcp.log</string>
+    <key>StandardErrorPath</key>
+    <string>${logDir}/mcp.err</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>HOME</key>
+        <string>${HOME}</string>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:${HOME}/.bun/bin</string>
+        <key>ARC_MCP_PORT</key>
+        <string>${port}</string>
+    </dict>
+</dict>
+</plist>`;
+}
+
 function launchdInstall(): void {
   mkdirSync(LAUNCHD_DIR, { recursive: true });
   mkdirSync(join(ROOT, "logs"), { recursive: true });
@@ -269,19 +349,24 @@ function launchdInstall(): void {
   writeFileSync(webPlist, generateWebPlist());
   process.stdout.write(`  Wrote ${WEB_AGENT.label}.plist\n`);
 
+  // Persistent MCP server
+  const mcpPlist = plistPath(MCP_AGENT.label);
+  writeFileSync(mcpPlist, generateMcpPlist());
+  process.stdout.write(`  Wrote ${MCP_AGENT.label}.plist\n`);
+
   process.stdout.write("\n");
 
-  const allLabels = [...TIMER_AGENTS.map(a => a.label), WEB_AGENT.label];
+  const allLabels = [...TIMER_AGENTS.map(a => a.label), WEB_AGENT.label, MCP_AGENT.label];
   for (const label of allLabels) {
     const plist = plistPath(label);
     run("launchctl", ["unload", plist], { quiet: true });
     run("launchctl", ["load", plist]);
   }
-  process.stdout.write("Loaded launch agents + web service\n");
+  process.stdout.write("Loaded launch agents + web + MCP services\n");
 }
 
 function launchdUninstall(): void {
-  const allLabels = [...TIMER_AGENTS.map(a => a.label), WEB_AGENT.label];
+  const allLabels = [...TIMER_AGENTS.map(a => a.label), WEB_AGENT.label, MCP_AGENT.label];
   for (const label of allLabels) {
     const plist = plistPath(label);
     if (existsSync(plist)) {
@@ -295,7 +380,7 @@ function launchdUninstall(): void {
 
 function launchdStatus(): void {
   let found = false;
-  const allLabels = [...TIMER_AGENTS.map(a => a.label), WEB_AGENT.label];
+  const allLabels = [...TIMER_AGENTS.map(a => a.label), WEB_AGENT.label, MCP_AGENT.label];
   for (const label of allLabels) {
     const { stdout } = run("launchctl", ["list", label], { quiet: true });
     if (stdout.includes(label)) {
