@@ -374,6 +374,30 @@ async function cmdBtcVerify(args: string[]): Promise<void> {
   console.log(result.stdout);
 }
 
+async function cmdSchnorrSignDigest(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+
+  if (!flags.digest) {
+    process.stderr.write("Usage: arc skills run --name wallet -- schnorr-sign-digest --digest <hex> [--confirm-blind-sign] [--aux-rand <hex>]\n");
+    process.exit(1);
+  }
+
+  const signingArgs = ["schnorr-sign-digest", "--digest", flags.digest];
+  if (flags["confirm-blind-sign"]) signingArgs.push("--confirm-blind-sign");
+  if (flags["aux-rand"]) signingArgs.push("--aux-rand", flags["aux-rand"]);
+
+  log("signing digest with Schnorr/BIP-340 (auto unlock/lock)");
+  const result = await runSigning(signingArgs);
+
+  if (result.exitCode !== 0) {
+    log(`schnorr-sign-digest failed: ${result.stderr}`);
+    console.log(JSON.stringify({ success: false, error: "Schnorr sign failed", detail: result.stderr || result.stdout }));
+    process.exit(1);
+  }
+
+  console.log(result.stdout);
+}
+
 async function cmdX402(args: string[]): Promise<void> {
   if (args.length === 0) {
     process.stderr.write("Usage: arc skills run --name wallet -- x402 <x402-subcommand> [flags]\n");
@@ -540,6 +564,10 @@ SUBCOMMANDS
   btc-verify --message "text" --signature "sig" [--expected-signer "addr"]
     Verify a Bitcoin signature (no unlock needed).
 
+  schnorr-sign-digest --digest <hex> [--confirm-blind-sign] [--aux-rand <hex>]
+    Sign a raw 32-byte digest with BIP-340 Schnorr (Taproot key).
+    Auto-unlocks and locks. Used for Taproot multisig coordination.
+
   check-relay-health [--relay-url <url>] [--sponsor-address <address>]
     Check x402 sponsor relay health and nonce status (no unlock needed).
     Default relay: https://sponsor.aibtc.dev
@@ -587,6 +615,9 @@ async function main(): Promise<void> {
       break;
     case "btc-verify":
       await cmdBtcVerify(args.slice(1));
+      break;
+    case "schnorr-sign-digest":
+      await cmdSchnorrSignDigest(args.slice(1));
       break;
     case "check-relay-health":
       await cmdCheckRelayHealth(args.slice(1));
