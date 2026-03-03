@@ -102,13 +102,22 @@ function handleStatus(): Response {
 
 function handleTasks(url: URL): Response {
   const status = url.searchParams.get("status");
+  const q = url.searchParams.get("q");
   const limit = Math.min(parseInt(url.searchParams.get("limit") || "20", 10), 100);
 
   let rows;
-  if (status) {
+  if (status && q) {
+    rows = db.query(
+      "SELECT id, subject, priority, status, source, skills, created_at, cost_usd FROM tasks WHERE status = ? AND subject LIKE ? ORDER BY priority ASC, id DESC LIMIT ?"
+    ).all(status, `%${q}%`, limit);
+  } else if (status) {
     rows = db.query(
       "SELECT id, subject, priority, status, source, skills, created_at, cost_usd FROM tasks WHERE status = ? ORDER BY priority ASC, id DESC LIMIT ?"
     ).all(status, limit);
+  } else if (q) {
+    rows = db.query(
+      "SELECT id, subject, priority, status, source, skills, created_at, cost_usd FROM tasks WHERE subject LIKE ? ORDER BY id DESC LIMIT ?"
+    ).all(`%${q}%`, limit);
   } else {
     rows = db.query(
       "SELECT id, subject, priority, status, source, skills, created_at, cost_usd FROM tasks ORDER BY id DESC LIMIT ?"
