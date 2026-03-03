@@ -1,7 +1,8 @@
 // worker-logs/sensor.ts
 //
-// Checks every 360 minutes if any worker-logs fork is behind upstream.
-// Creates a sync task when drift is detected.
+// Monitors worker-logs forks for meaningful upstream drift.
+// Only creates tasks when upstream has significant new changes (>3 commits behind).
+// Skips known-divergent forks (aibtcdev) since Arc can't resolve that drift.
 // Pure TypeScript — no LLM.
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
@@ -15,7 +16,16 @@ const INTERVAL_MINUTES = 360;
 const TASK_SOURCE = "sensor:worker-logs-sync";
 
 const UPSTREAM = "whoabuddy/worker-logs";
-const FORKS = ["aibtcdev/worker-logs", "arc0btc/worker-logs"];
+
+// Only monitor arc0btc — we own it and can auto-sync.
+// aibtcdev/worker-logs has permanent divergence (6 commits ahead with deployment
+// customizations). PR #16 is the resolution path; Arc can't auto-resolve it.
+const FORKS = ["arc0btc/worker-logs"];
+
+// Ignore small drift — arc0btc is always 1 commit ahead (wrangler config)
+// and briefly 1-2 behind after upstream pushes before sync.
+// Only alert when upstream has substantial new changes.
+const DRIFT_THRESHOLD = 3;
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -61,7 +71,6 @@ export default async function workerLogsSensor(): Promise<string> {
   }
 
   const results = FORKS.map(checkForkDrift);
-  const drifted = results.filter((r) => r.behind > 0);
   const errors = results.filter((r) => r.error);
 
   if (errors.length > 0) {
@@ -70,8 +79,16 @@ export default async function workerLogsSensor(): Promise<string> {
     }
   }
 
+  // Only flag drift above threshold — small drift is normal config divergence
+  const drifted = results.filter((r) => r.behind >= DRIFT_THRESHOLD);
+
   if (drifted.length === 0) {
-    log("all forks in sync with upstream");
+    const minor = results.filter((r) => r.behind > 0 && r.behind < DRIFT_THRESHOLD);
+    if (minor.length > 0) {
+      log(`minor drift (below threshold ${DRIFT_THRESHOLD}): ${minor.map((r) => `${r.repo}: ${r.behind} behind`).join(", ")}`);
+    } else {
+      log("all forks in sync with upstream");
+    }
     return "ok";
   }
 
@@ -79,19 +96,19 @@ export default async function workerLogsSensor(): Promise<string> {
     .map((r) => `${r.repo}: ${r.behind} commits behind`)
     .join(", ");
 
-  log(`drift detected: ${driftSummary}`);
+  log(`significant drift detected: ${driftSummary}`);
 
   insertTask({
     subject: `worker-logs sync needed — ${driftSummary}`,
     description:
-      `Fork drift detected against upstream (${UPSTREAM}).\n\n` +
-      drifted.map((r) => `- ${r.repo}: ${r.behind} commits behind`).join("\n") +
-      `\n\nUse the worker-logs sync command to create PRs:\n` +
+      `Significant fork drift detected against upstream (${UPSTREAM}).\n\n` +
+      drifted.map((r) => `- ${r.repo}: ${r.behind} commits behind (threshold: ${DRIFT_THRESHOLD})`).join("\n") +
+      `\n\nUse the worker-logs sync command:\n` +
       `arc skills run --name worker-logs -- sync\n\n` +
       `Follow instructions in skills/worker-logs/AGENT.md.`,
     skills: '["worker-logs"]',
     source: TASK_SOURCE,
-    priority: 6,
+    priority: 7,
   });
 
   return "ok";
