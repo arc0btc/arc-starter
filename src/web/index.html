@@ -976,7 +976,7 @@
       <div class="header-identity">
         <div class="avatar">A</div>
         <div>
-          <h1 class="header-name">Arc <span class="status-dot live" id="status-dot" title="Live"></span><span class="sse-status disconnected" id="sse-dot" title="SSE disconnected"></span></h1>
+          <h1 class="header-name">Arc <span class="status-dot live" id="status-dot" title="Live" aria-label="Status: live"></span><span class="sse-status disconnected" id="sse-dot" title="SSE disconnected" aria-label="SSE: disconnected"></span></h1>
           <div class="header-bns">arc0.btc</div>
         </div>
       </div>
@@ -1035,7 +1035,7 @@
       </div>
       <ul class="feed-list" id="feed-list">
         <li class="feed-item active">
-          <span class="status-dot live"></span>
+          <span class="status-dot live" aria-hidden="true"></span>
           <div class="feed-body">
             <div class="feed-subject">Loading tasks...</div>
             <div class="feed-meta">
@@ -1055,7 +1055,7 @@
       <div class="sensor-grid" id="sensor-grid">
         <div class="sensor-card ok">
           <div class="sensor-header">
-            <span class="status-dot live"></span>
+            <span class="status-dot live" aria-hidden="true"></span>
             <span class="sensor-name">Loading...</span>
           </div>
           <div class="sensor-detail">--</div>
@@ -1348,10 +1348,11 @@
         var statusCls = isError ? 'error' : (isRecent ? 'ok' : 'stale');
         var dotCls = isError ? '' : (isRecent ? 'live' : '');
         var dotStyle = isError ? 'background:var(--error)' : (!isRecent ? 'background:#555' : '');
+        var dotLabel = isError ? 'Sensor status: error' : (isRecent ? 'Sensor status: active' : 'Sensor status: stale');
 
         return '<div class="sensor-card ' + statusCls + '">'
           + '<div class="sensor-header">'
-          + '<span class="status-dot ' + dotCls + '" style="' + dotStyle + '"></span>'
+          + '<span class="status-dot ' + dotCls + '" style="' + dotStyle + '" aria-label="' + dotLabel + '"></span>'
           + '<span class="sensor-name">' + esc(s.name) + '</span>'
           + (s.interval_minutes ? '<span class="skill-badge">' + s.interval_minutes + 'm</span>' : '')
           + '</div>'
@@ -1474,9 +1475,11 @@
         if (lastAge < 5 * 60000) {
           dot.className = 'status-dot live';
           dot.title = 'Last cycle ' + relativeTime(status.last_cycle.started_at);
+          dot.setAttribute('aria-label', 'Status: live — last cycle ' + relativeTime(status.last_cycle.started_at));
         } else {
           dot.className = 'status-dot offline';
           dot.title = 'Last cycle ' + relativeTime(status.last_cycle.started_at);
+          dot.setAttribute('aria-label', 'Status: offline — last cycle ' + relativeTime(status.last_cycle.started_at));
         }
       }
     }
@@ -1760,11 +1763,13 @@
       if (connected) {
         dot.className = 'sse-status connected';
         dot.title = 'SSE connected';
+        dot.setAttribute('aria-label', 'SSE: connected');
         // Stop polling fallback when SSE is live
         if (pollFallbackId) { clearInterval(pollFallbackId); pollFallbackId = null; }
       } else {
         dot.className = 'sse-status disconnected';
         dot.title = 'SSE disconnected — polling';
+        dot.setAttribute('aria-label', 'SSE: disconnected — polling');
         // Start polling fallback at 10s
         if (!pollFallbackId) {
           pollFallbackId = setInterval(refreshAll, 10000);
@@ -1819,6 +1824,7 @@
         var dot = document.getElementById('status-dot');
         dot.className = 'status-dot live';
         dot.title = 'Dispatch running';
+        dot.setAttribute('aria-label', 'Status: dispatch running');
         announce('Dispatch cycle started');
       });
 
