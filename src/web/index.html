@@ -994,7 +994,7 @@
       </div>
       <div class="message-box">
         <form class="message-form" id="message-form">
-          <textarea class="message-input" id="message-input" placeholder="Send a task to Arc..." rows="1" maxlength="500"></textarea>
+          <textarea class="message-input" id="message-input" placeholder="Send a task to Arc..." rows="1" maxlength="500" aria-label="Send a task to Arc"></textarea>
           <button type="submit" class="message-send" id="message-send">Send</button>
         </form>
         <div class="message-status" id="message-status"></div>
@@ -1008,7 +1008,7 @@
         <span class="section-count" id="feed-count"></span>
       </div>
       <div class="feed-filters">
-        <input class="feed-search" type="search" id="feed-search" placeholder="Search tasks..." autocomplete="off">
+        <input class="feed-search" type="search" id="feed-search" placeholder="Search tasks..." autocomplete="off" aria-label="Search tasks">
         <div class="filter-tabs" id="filter-tabs" role="group" aria-label="Filter by status">
           <button class="filter-tab active" data-status="" aria-pressed="true">All</button>
           <button class="filter-tab" data-status="pending" aria-pressed="false">Pending</button>
