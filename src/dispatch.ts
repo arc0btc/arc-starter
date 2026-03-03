@@ -425,6 +425,12 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string)
   // Report total input tokens (non-cached + cache read + cache creation)
   const total_input_tokens = input_tokens + cache_read_tokens + cache_creation_tokens;
 
+  // Guard against truncated stream: if subprocess exited 0 but never sent a
+  // "result" message, both result and cost_usd will be zero/empty.
+  if (!result && cost_usd === 0) {
+    throw new Error("stream-JSON incomplete: subprocess exited 0 but produced no result and no cost data (likely crashed mid-stream)");
+  }
+
   return { result, cost_usd, api_cost_usd, input_tokens: total_input_tokens, output_tokens };
 }
 
