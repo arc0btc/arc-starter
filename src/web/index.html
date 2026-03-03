@@ -639,7 +639,10 @@
     }
 
     /* ---- Expandable Feed Detail ---- */
-    .feed-item { cursor: pointer; }
+    .feed-item {
+      cursor: pointer;
+      border-radius: 2px;
+    }
 
     .feed-detail {
       display: none;
@@ -874,6 +877,78 @@
       font-size: 1.25rem;
       font-weight: 700;
       letter-spacing: -0.5px;
+    }
+
+    /* ---- Focus Indicators ---- */
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .filter-tab:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 0;
+    }
+
+    .feed-item:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 0;
+    }
+
+    .copy-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 0;
+    }
+
+    /* ---- Reduced Motion ---- */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+
+      /* Disable all keyframe animations */
+      .pulse-dot,
+      .pulse-border,
+      .sensor-ping,
+      .cost-bump,
+      .slide-in,
+      .flash-green,
+      .flash-red {
+        animation: none !important;
+      }
+
+      /* Show animations as static final state */
+      .status-dot.live {
+        box-shadow: none;
+      }
+
+      .feed-item.active {
+        border-left-color: var(--accent);
+      }
+
+      .cost-ticker.bump {
+        transform: none;
+      }
+    }
+
+    /* ---- Keyboard Navigation ---- */
+    .feed-item {
+      cursor: pointer;
+    }
+
+    .feed-item[tabindex]:not([tabindex="-1"]) {
+      cursor: pointer;
+    }
+
+    /* Ensure copy buttons are keyboard accessible */
+    .copy-btn {
+      outline: none;
     }
   </style>
 </head>
@@ -1162,9 +1237,9 @@
           if (arr && arr.length) skills = arr.map(function(s) { return '<span class="pill pill-muted">' + esc(s) + '</span>'; }).join(' ');
         } catch(e) {}
 
-        return '<li class="feed-item ' + cls + '" onclick="toggleDetail(this)">'
+        return '<li class="feed-item ' + cls + '" tabindex="0" role="button" aria-expanded="false" onclick="toggleDetail(this)" onkeydown="handleFeedItemKey(event, this)">'
           + '<span class="status-dot ' + (t.status === 'active' ? 'live' : '') + '" style="margin-top:6px;'
-          + (t.status === 'completed' ? 'background:var(--success)' : t.status === 'failed' ? 'background:var(--error)' : t.status === 'blocked' ? 'background:var(--blocked)' : '') + '"></span>'
+          + (t.status === 'completed' ? 'background:var(--success)' : t.status === 'failed' ? 'background:var(--error)' : t.status === 'blocked' ? 'background:var(--blocked)' : '') + '" aria-hidden="true"></span>'
           + '<div class="feed-body">'
           + '<div class="feed-subject">' + esc(t.subject) + '</div>'
           + '<div class="feed-meta">'
@@ -1184,8 +1259,11 @@
       var detail = el.querySelector('.feed-detail');
       if (!detail) return;
 
-      if (detail.classList.contains('open')) {
+      var isOpen = detail.classList.contains('open');
+
+      if (isOpen) {
         detail.classList.remove('open');
+        el.setAttribute('aria-expanded', 'false');
         return;
       }
 
@@ -1218,6 +1296,7 @@
       }
 
       detail.classList.add('open');
+      el.setAttribute('aria-expanded', 'true');
     }
 
     function renderSensors(sensors) {
@@ -1403,6 +1482,16 @@
       };
     }
 
+    // ---- Keyboard Navigation ----
+
+    function handleFeedItemKey(event, item) {
+      // Activate on Enter or Space
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        toggleDetail(item);
+      }
+    }
+
     // ---- Init ----
 
     async function init() {
@@ -1493,9 +1582,9 @@
         if (arr && arr.length) skills = arr.map(function(s) { return '<span class="pill pill-muted">' + esc(s) + '</span>'; }).join(' ');
       } catch(e) {}
 
-      return '<li class="feed-item ' + cls + '" onclick="toggleDetail(this)">'
+      return '<li class="feed-item ' + cls + '" tabindex="0" role="button" aria-expanded="false" onclick="toggleDetail(this)" onkeydown="handleFeedItemKey(event, this)">'
         + '<span class="status-dot ' + (t.status === 'active' ? 'live' : '') + '" style="margin-top:6px;'
-        + (t.status === 'completed' ? 'background:var(--success)' : t.status === 'failed' ? 'background:var(--error)' : t.status === 'blocked' ? 'background:var(--blocked)' : '') + '"></span>'
+        + (t.status === 'completed' ? 'background:var(--success)' : t.status === 'failed' ? 'background:var(--error)' : t.status === 'blocked' ? 'background:var(--blocked)' : '') + '" aria-hidden="true"></span>'
         + '<div class="feed-body">'
         + '<div class="feed-subject">' + esc(t.subject) + '</div>'
         + '<div class="feed-meta">'
@@ -1569,6 +1658,7 @@
       // Reset cached detail so re-expand fetches fresh data
       detail.innerHTML = '<p class="placeholder">Loading...</p>';
       detail.classList.remove('open');
+      item.setAttribute('aria-expanded', 'false');
     }
 
     function pingSensor(name) {
