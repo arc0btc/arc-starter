@@ -6,7 +6,7 @@
 
 import { join } from "node:path";
 import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource, getRecentCycles, getPendingTasks } from "../../src/db.ts";
+import { insertTask, pendingTaskExistsForSource, getRecentCycles, getPendingTasks } from "../../src/db.ts";
 import { isPidAlive } from "../../src/utils.ts";
 
 const SENSOR_NAME = "health";
@@ -49,8 +49,6 @@ async function checkStaleLock(): Promise<boolean> {
 }
 
 export default async function healthSensor(): Promise<string> {
-  initDatabase();
-
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

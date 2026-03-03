@@ -8,9 +8,8 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { claimSensorRun, readHookState, writeHookState } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
 import {
-  initDatabase,
   insertTask,
   pendingTaskExistsForSource,
   getDatabase,
@@ -28,9 +27,7 @@ const TASK_SOURCE = "sensor:self-audit";
 const ROOT = join(import.meta.dir, "../..");
 const DAILY_BUDGET_USD = parseFloat(process.env.DAILY_BUDGET_USD ?? "200");
 
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] [self-audit/sensor] ${msg}`);
-}
+const log = createSensorLogger(SENSOR_NAME);
 
 // ---- Metric collectors ----
 
@@ -347,8 +344,6 @@ function detectAnomalies(
 // ---- Main sensor ----
 
 export default async function selfAuditSensor(): Promise<string> {
-  initDatabase();
-
   // Read state before claiming to check lastAuditDate
   const statePre = await readHookState(SENSOR_NAME);
   const lastAuditDate = (statePre as Record<string, unknown> | null)

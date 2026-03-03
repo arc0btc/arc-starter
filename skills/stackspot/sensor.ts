@@ -1,8 +1,8 @@
 // skills/stackspot/sensor.ts
 // Autonomous stacking lottery participation — detect joinable pots, auto-join, monitor rewards
 
-import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
+import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "stackspot";
 const INTERVAL_MINUTES = 7; // ~5-10 min range: sensor runs every 7 minutes
@@ -24,9 +24,7 @@ interface PotListResponse {
   pots: PotInfo[];
 }
 
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] [sensor:stackspot] ${msg}`);
-}
+const log = createSensorLogger(SENSOR_NAME);
 
 async function runUpstreamScript(
   script: string,
@@ -104,9 +102,6 @@ export default async function stackspotSensor(): Promise<string> {
     }
 
     log("run started");
-
-    // Initialize database
-    initDatabase();
 
     // List all pots
     log("fetching stackspot pots...");

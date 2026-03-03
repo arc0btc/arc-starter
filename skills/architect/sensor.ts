@@ -8,8 +8,8 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
-import { claimSensorRun, readHookState, writeHookState } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
+import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "architect";
 const INTERVAL_MINUTES = 360; // 6 hours
@@ -21,9 +21,7 @@ const DIAGRAM_PATH = join(ROOT, "skills/architect/state-machine.md");
 const REPORTS_DIR = join(ROOT, "reports");
 const SRC_DIRS = ["src/", "skills/"];
 
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] [architect/sensor] ${msg}`);
-}
+const log = createSensorLogger(SENSOR_NAME);
 
 /** Check if the state machine diagram is stale (>24h old). */
 function isDiagramStale(): boolean {
@@ -85,8 +83,6 @@ function getCurrentCodebaseSha(): string {
 }
 
 export default async function architectSensor(): Promise<string> {
-  initDatabase();
-
   // Read state BEFORE claimSensorRun to preserve last_reviewed_src_sha
   const statePre = await readHookState(SENSOR_NAME);
   const lastReviewedSha = statePre?.last_reviewed_src_sha ?? "";

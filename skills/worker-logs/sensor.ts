@@ -5,9 +5,8 @@
 // Pure TypeScript — no LLM.
 
 import { spawnSync } from "node:child_process";
-import { claimSensorRun } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import {
-  initDatabase,
   insertTask,
   pendingTaskExistsForSource,
 } from "../../src/db.ts";
@@ -19,9 +18,7 @@ const TASK_SOURCE = "sensor:worker-logs-sync";
 const UPSTREAM = "whoabuddy/worker-logs";
 const FORKS = ["aibtcdev/worker-logs", "arc0btc/worker-logs"];
 
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] [worker-logs/sensor] ${msg}`);
-}
+const log = createSensorLogger(SENSOR_NAME);
 
 interface CompareResult {
   repo: string;
@@ -57,8 +54,6 @@ function checkForkDrift(fork: string): CompareResult {
 }
 
 export default async function workerLogsSensor(): Promise<string> {
-  initDatabase();
-
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

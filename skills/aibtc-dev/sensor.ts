@@ -6,8 +6,8 @@
 // Pure TypeScript — no LLM.
 
 import { spawnSync } from "node:child_process";
-import { claimSensorRun, readHookState, writeHookState } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
+import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
 
 const SENSOR_NAME = "aibtc-dev";
@@ -34,9 +34,7 @@ const AIBTC_REPOS = [
   "aibtcdev/ai-agent-chrome-extension",
 ];
 
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] [aibtc-dev/sensor] ${msg}`);
-}
+const log = createSensorLogger(SENSOR_NAME);
 
 function gh(args: string[]): { ok: boolean; stdout: string; stderr: string } {
   const result = spawnSync("gh", args, { timeout: 30_000 });
@@ -140,8 +138,6 @@ function auditRepo(repo: string): AuditResult {
 // ---- Main ----
 
 export default async function aibtcDevSensor(): Promise<string> {
-  initDatabase();
-
   // Read state BEFORE claimSensorRun to preserve custom fields
   const statePre = await readHookState(SENSOR_NAME);
   const lastAuditTimestamp = (statePre as Record<string, unknown> | null)?.lastAuditTimestamp as string | undefined;

@@ -7,7 +7,7 @@
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "ceo-review";
 const INTERVAL_MINUTES = 240; // 4 hours — matches SKILL.md strategic review cadence
@@ -51,8 +51,6 @@ function isQuietHours(): boolean {
 }
 
 export default async function ceoReviewSensor(): Promise<string> {
-  initDatabase();
-
   if (isQuietHours()) return "skip";
 
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);

@@ -1,6 +1,5 @@
-import { claimSensorRun, readHookState } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, readHookState } from "../../src/sensors.ts";
 import {
-  initDatabase,
   insertTask,
   taskExistsForSource,
 } from "../../src/db.ts";
@@ -21,9 +20,7 @@ interface WorkflowRun {
   html_url: string;
 }
 
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] [ci-status/sensor] ${msg}`);
-}
+const log = createSensorLogger(SENSOR_NAME);
 
 function gh(args: string[]): { ok: boolean; stdout: string; stderr: string } {
   const result = spawnSync("gh", args, { timeout: 30_000 });
@@ -75,8 +72,6 @@ function getFailedRuns(repo: string, since: string): WorkflowRun[] {
 }
 
 export default async function ciStatusSensor(): Promise<string> {
-  initDatabase();
-
   const prevState = await readHookState(SENSOR_NAME);
 
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);

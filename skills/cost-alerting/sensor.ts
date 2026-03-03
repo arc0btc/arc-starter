@@ -5,7 +5,7 @@
 // One alert per day max (date-stamped source key).
 
 import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, getDatabase, insertTask, taskExistsForSource } from "../../src/db.ts";
+import { getDatabase, insertTask, taskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "cost-alerting";
 const INTERVAL_MINUTES = 10;
@@ -26,8 +26,6 @@ function getDailySpend(): { costUsd: number; apiCostUsd: number } {
 }
 
 export default async function costAlertingSensor(): Promise<string> {
-  initDatabase();
-
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

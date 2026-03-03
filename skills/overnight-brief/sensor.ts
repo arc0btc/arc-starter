@@ -5,7 +5,7 @@
 // Pure TypeScript — no LLM.
 
 import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "overnight-brief";
 const INTERVAL_MINUTES = 60;
@@ -18,8 +18,6 @@ function getPstHour(): number {
 }
 
 export default async function overnightBriefSensor(): Promise<string> {
-  initDatabase();
-
   // Only fire during the 6am PST hour (6:00–6:59)
   const pstHour = getPstHour();
   if (pstHour !== 6) return "skip";

@@ -1,6 +1,5 @@
 import { claimSensorRun } from "../../src/sensors.ts";
 import {
-  initDatabase,
   getDatabase,
   insertTask,
   pendingTaskExistsForSource,
@@ -69,8 +68,6 @@ function shortHash(s: string): string {
 }
 
 export default async function failureTriageSensor(): Promise<string> {
-  initDatabase();
-
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

@@ -51,6 +51,15 @@ export async function writeHookState(name: string, state: HookState): Promise<vo
   await Bun.write(filePath, JSON.stringify(state));
 }
 
+// ---- Logging ----
+
+/** Create a prefixed logger for a sensor. Usage: `const log = createSensorLogger("health");` */
+export function createSensorLogger(name: string): (msg: string) => void {
+  return (msg: string) => {
+    console.log(`[${new Date().toISOString()}] [${name}/sensor] ${msg}`);
+  };
+}
+
 // ---- Scheduling ----
 
 export async function shouldRun(name: string, intervalMinutes: number): Promise<boolean> {

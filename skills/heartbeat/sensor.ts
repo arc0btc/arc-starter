@@ -5,15 +5,13 @@
 // Deduplicates by checking for pending or active tasks with source "sensor:heartbeat".
 
 import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "heartbeat";
 const INTERVAL_MINUTES = 360; // 6 hours
 const TASK_SOURCE = "sensor:heartbeat";
 
 export default async function heartbeatSensor(): Promise<string> {
-  initDatabase();
-
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

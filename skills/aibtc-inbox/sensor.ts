@@ -3,9 +3,8 @@
 // Syncs AIBTC platform inbox to local DB, queues tasks for new unread messages.
 // Runs every 5 minutes via sensor cadence gating.
 
-import { claimSensorRun } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import {
-  initDatabase,
   insertTask,
   pendingTaskExistsForSource,
   upsertAibtcInboxMessage,
@@ -49,9 +48,7 @@ interface ApiInboxResponse {
 
 // ---- Helpers ----
 
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] [aibtc-inbox/sensor] ${msg}`);
-}
+const log = createSensorLogger(SENSOR_NAME);
 
 function toLocalMessage(msg: ApiInboxMessage): Omit<AibtcInboxMessage, "id"> {
   return {
@@ -76,8 +73,6 @@ function toLocalMessage(msg: ApiInboxMessage): Omit<AibtcInboxMessage, "id"> {
 // ---- Sensor ----
 
 export default async function aibtcInboxSensor(): Promise<string> {
-  initDatabase();
-
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

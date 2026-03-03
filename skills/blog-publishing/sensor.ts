@@ -1,8 +1,8 @@
 // skills/blog-publishing/sensor.ts
 // Auto-detect unpublished drafts and scheduled posts ready for publishing
 
-import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
+import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 import * as path from "path";
 import * as fs from "fs";
 
@@ -10,9 +10,7 @@ const SENSOR_NAME = "blog-publishing";
 const INTERVAL_MINUTES = 60;
 const WEEKLY_MINUTES = 7 * 24 * 60; // 7 days in minutes
 
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] [sensor:blog-publishing] ${msg}`);
-}
+const log = createSensorLogger(SENSOR_NAME);
 
 function getPostsDir(): string {
   return path.join(process.cwd(), "github/arc0btc/arc0me-site/content");
@@ -101,8 +99,6 @@ function getMostRecentPostDate(): Date | null {
 
 export default async function blogPublishingSensor(): Promise<string> {
   try {
-    initDatabase();
-
     const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (!claimed) return "skip";
 

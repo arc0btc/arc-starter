@@ -1,8 +1,8 @@
 // skills/aibtc-news/sensor.ts
 // Sensor for beat activity monitoring and signal filing opportunities
 
-import { claimSensorRun, readHookState, writeHookState } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
+import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
+import { insertTask, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
 
 const SENSOR_NAME = "aibtc-news";
 const INTERVAL_MINUTES = 360; // 6 hours
@@ -10,9 +10,7 @@ const ARC_BTC_ADDRESS = "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933";
 const API_BASE = "https://aibtc.news/api";
 const RATE_LIMIT_MINUTES = 240; // 4 hours — matches aibtc.news per-beat rate limit
 
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] [sensor:aibtc-news] ${msg}`);
-}
+const log = createSensorLogger(SENSOR_NAME);
 
 async function fetchStatus(): Promise<Record<string, unknown> | null> {
   try {
@@ -66,9 +64,6 @@ export default async function aibtcNewsSensor(): Promise<string> {
     }
 
     log("run started");
-
-    // Initialize database
-    initDatabase();
 
     // Fetch Arc's current status
     log("fetching correspondent status...");

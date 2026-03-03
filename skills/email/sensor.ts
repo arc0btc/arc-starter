@@ -3,16 +3,14 @@
 // Syncs email from arc-email-worker API, detects unread messages, queues tasks.
 // Runs every 1 minute via sensor cadence gating.
 
-import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource, getUnreadEmailMessages, markEmailRead, type EmailMessage } from "../../src/db.ts";
+import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
+import { insertTask, pendingTaskExistsForSource, getUnreadEmailMessages, markEmailRead, type EmailMessage } from "../../src/db.ts";
 import { syncEmail, getEmailCredentials } from "./sync.ts";
 
 const SENSOR_NAME = "email";
 const INTERVAL_MINUTES = 1;
 
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] [email/sensor] ${msg}`);
-}
+const log = createSensorLogger(SENSOR_NAME);
 
 // --- Noise filter ---
 // Auto-dismiss GitHub automated notifications that don't need a dispatch cycle.
@@ -51,8 +49,6 @@ async function markReadQuietly(remoteId: string, apiBaseUrl: string, adminKey: s
 }
 
 export default async function emailSensor(): Promise<string> {
-  initDatabase();
-
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

@@ -1,5 +1,5 @@
 import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, taskExistsForSource } from "../../src/db.ts";
+import { insertTask, taskExistsForSource } from "../../src/db.ts";
 import { spawnSync } from "node:child_process";
 
 const SENSOR_NAME = "security-alerts";
@@ -117,8 +117,6 @@ function groupAlerts(
 }
 
 export default async function securityAlertsSensor(): Promise<string> {
-  initDatabase();
-
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

@@ -9,9 +9,8 @@
 //
 // A pattern qualifies when it recurs ≥3 times with ≥2 steps per chain.
 
-import { claimSensorRun, readHookState, writeHookState } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
 import {
-  initDatabase,
   getDatabase,
   insertTask,
   pendingTaskExistsForSource,
@@ -24,9 +23,7 @@ const TASK_SOURCE = "sensor:workflow-review";
 const LOOKBACK_DAYS = 7;
 const MIN_RECURRENCES = 3;
 
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] [workflow-review/sensor] ${msg}`);
-}
+const log = createSensorLogger(SENSOR_NAME);
 
 /** Known process patterns that already have workflow templates or dedicated sensors. */
 const KNOWN_PATTERNS = new Set([
@@ -274,8 +271,6 @@ function detectPatterns(chains: ChainInfo[]): DetectedPattern[] {
 }
 
 export default async function workflowReviewSensor(): Promise<string> {
-  initDatabase();
-
   // Read state BEFORE claimSensorRun to preserve custom fields (proposed_keys)
   const statePre = await readHookState(SENSOR_NAME);
   const proposedKeys: string[] = statePre?.proposed_keys ?? [];

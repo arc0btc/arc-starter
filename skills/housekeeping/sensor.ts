@@ -1,5 +1,5 @@
 import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 import { existsSync, statSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
@@ -18,8 +18,6 @@ const MEMORY_MAX_LINES = 80;
 const WATCHED_DIRS = ["src/", "skills/", "templates/", "memory/"];
 
 export default async function housekeepingSensor(): Promise<string> {
-  initDatabase();
-
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

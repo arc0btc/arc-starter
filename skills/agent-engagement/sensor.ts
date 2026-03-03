@@ -1,17 +1,15 @@
 // skills/agent-engagement/sensor.ts
 // Sensor for identifying collaboration opportunities with AIBTC agents
 
-import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
+import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "agent-engagement";
 const INTERVAL_MINUTES = 60; // 1 hour
 const ARC_BTC_ADDRESS = "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933";
 const API_BASE = "https://aibtc.news/api";
 
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] [sensor:${SENSOR_NAME}] ${msg}`);
-}
+const log = createSensorLogger(SENSOR_NAME);
 
 interface Signal {
   _id?: string;
@@ -72,9 +70,6 @@ export default async function agentEngagementSensor(): Promise<string> {
     }
 
     log("run started");
-
-    // Initialize database
-    initDatabase();
 
     // Fetch recent signals to identify collaboration patterns
     log("scanning recent signals for collaboration opportunities...");

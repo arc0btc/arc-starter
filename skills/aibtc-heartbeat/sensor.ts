@@ -4,8 +4,8 @@
 // No LLM needed — signs message with BTC wallet and POSTs to heartbeat API.
 // Creates a task if the platform reports unread inbox messages.
 
-import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
+import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
 import { resolve } from "node:path";
 
@@ -18,9 +18,7 @@ const HEARTBEAT_URL = "https://aibtc.com/api/heartbeat";
 const SKILLS_ROOT = resolve(import.meta.dir, "../../github/aibtcdev/skills");
 const SIGN_RUNNER = resolve(import.meta.dir, "../wallet/sign-runner.ts");
 
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] [aibtc-heartbeat/sensor] ${msg}`);
-}
+const log = createSensorLogger(SENSOR_NAME);
 
 /**
  * Sign a message using the wallet's sign-runner (handles unlock/sign/lock in one process).
@@ -72,8 +70,6 @@ async function btcSign(message: string): Promise<string | null> {
 }
 
 export default async function aibtcHeartbeatSensor(): Promise<string> {
-  initDatabase();
-
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

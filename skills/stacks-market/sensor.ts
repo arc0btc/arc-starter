@@ -1,8 +1,8 @@
 // skills/stacks-market/sensor.ts
 // Read-only prediction market intelligence — detect high-volume markets, file signals to aibtc-news
 
-import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
+import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
+import { insertTask, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
 
 const SENSOR_NAME = "stacks-market";
 const INTERVAL_MINUTES = 360; // 6 hours
@@ -28,9 +28,7 @@ interface ApiResponse {
   polls?: Market[];
 }
 
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] [sensor:stacks-market] ${msg}`);
-}
+const log = createSensorLogger(SENSOR_NAME);
 
 async function canFileSignal(): Promise<boolean> {
   try {
@@ -143,9 +141,6 @@ export default async function stacksMarketSensor(): Promise<string> {
     }
 
     log("run started");
-
-    // Initialize database
-    initDatabase();
 
     // Fetch markets
     log("fetching prediction markets...");
