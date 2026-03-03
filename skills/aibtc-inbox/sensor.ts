@@ -13,7 +13,7 @@ import {
   getAllAibtcInboxMessageIds,
   type AibtcInboxMessage,
 } from "../../src/db.ts";
-import { ARC_ARC_BTC_ADDRESS } from "../../src/identity.ts";
+import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
 
 const SENSOR_NAME = "aibtc-inbox";
 const INTERVAL_MINUTES = 5;
