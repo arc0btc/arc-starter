@@ -9,12 +9,10 @@
 
 import { existsSync, mkdirSync, writeFileSync, unlinkSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { spawnSync } from "node:child_process";
-import { homedir, platform } from "node:os";
 
 const ROOT = resolve(new URL("..", import.meta.url).pathname);
-const HOME = homedir();
-const PLATFORM = platform();
+const HOME = process.env.HOME!;
+const PLATFORM = process.platform;
 
 // ---- Shared helpers ----
 
@@ -27,12 +25,14 @@ function bunPath(): string {
 }
 
 function run(cmd: string, args: string[], opts?: { quiet?: boolean }): { ok: boolean; stdout: string; stderr: string } {
-  const result = spawnSync(cmd, args, { encoding: "utf-8" });
-  const ok = result.status === 0;
-  if (!opts?.quiet && !ok && result.stderr) {
-    process.stderr.write(result.stderr);
+  const result = Bun.spawnSync([cmd, ...args]);
+  const ok = result.exitCode === 0;
+  const stdout = result.stdout.toString();
+  const stderr = result.stderr.toString();
+  if (!opts?.quiet && !ok && stderr) {
+    process.stderr.write(stderr);
   }
-  return { ok, stdout: result.stdout ?? "", stderr: result.stderr ?? "" };
+  return { ok, stdout, stderr };
 }
 
 // ---- Linux (systemd) ----

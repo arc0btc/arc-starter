@@ -5,7 +5,6 @@
 // CLI for managing worker-logs across three deployments.
 // Subcommands: sync, events, report
 
-import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { parseFlags } from "../../src/utils.ts";
@@ -33,21 +32,15 @@ function cmdSync(): void {
   log("checking fork drift against upstream...");
 
   for (const fork of FORKS) {
-    const result = spawnSync(
-      "gh",
-      [
-        "api",
-        `repos/${fork}/compare/main...${UPSTREAM.replace("/", ":")}:main`,
-        "--jq",
-        ".behind_by",
-      ],
+    const result = Bun.spawnSync(
+      ["gh", "api", `repos/${fork}/compare/main...${UPSTREAM.replace("/", ":")}:main`, "--jq", ".behind_by"],
       { timeout: 15_000 }
     );
 
-    const stdout = result.stdout?.toString().trim() ?? "";
-    const stderr = result.stderr?.toString().trim() ?? "";
+    const stdout = result.stdout.toString().trim();
+    const stderr = result.stderr.toString().trim();
 
-    if (result.status !== 0) {
+    if (result.exitCode !== 0) {
       process.stderr.write(`Error checking ${fork}: ${stderr}\n`);
       continue;
     }
@@ -61,26 +54,13 @@ function cmdSync(): void {
     log(`${fork}: ${behind} commits behind upstream`);
 
     // Check if a sync PR already exists
-    const prCheck = spawnSync(
-      "gh",
-      [
-        "pr",
-        "list",
-        "--repo",
-        fork,
-        "--head",
-        `${UPSTREAM.split("/")[0]}:main`,
-        "--state",
-        "open",
-        "--json",
-        "number",
-        "--jq",
-        "length",
-      ],
+    const prCheck = Bun.spawnSync(
+      ["gh", "pr", "list", "--repo", fork, "--head", `${UPSTREAM.split("/")[0]}:main`,
+       "--state", "open", "--json", "number", "--jq", "length"],
       { timeout: 15_000 }
     );
 
-    const openPrs = parseInt(prCheck.stdout?.toString().trim() ?? "0", 10);
+    const openPrs = parseInt(prCheck.stdout.toString().trim() || "0", 10);
     if (openPrs > 0) {
       log(`${fork}: sync PR already exists`);
       continue;
@@ -88,16 +68,15 @@ function cmdSync(): void {
 
     // Create sync PR using gh repo sync (simplest approach)
     log(`${fork}: creating sync...`);
-    const syncResult = spawnSync(
-      "gh",
-      ["repo", "sync", fork, "--source", UPSTREAM],
+    const syncResult = Bun.spawnSync(
+      ["gh", "repo", "sync", fork, "--source", UPSTREAM],
       { timeout: 30_000 }
     );
 
-    if (syncResult.status === 0) {
+    if (syncResult.exitCode === 0) {
       log(`${fork}: synced successfully`);
     } else {
-      const syncErr = syncResult.stderr?.toString().trim() ?? "";
+      const syncErr = syncResult.stderr.toString().trim();
       process.stderr.write(`Failed to sync ${fork}: ${syncErr}\n`);
     }
   }
@@ -199,17 +178,11 @@ async function cmdReport(): Promise<void> {
   ];
 
   for (const fork of FORKS) {
-    const result = spawnSync(
-      "gh",
-      [
-        "api",
-        `repos/${fork}/compare/main...${UPSTREAM.replace("/", ":")}:main`,
-        "--jq",
-        ".behind_by",
-      ],
+    const result = Bun.spawnSync(
+      ["gh", "api", `repos/${fork}/compare/main...${UPSTREAM.replace("/", ":")}:main`, "--jq", ".behind_by"],
       { timeout: 15_000 }
     );
-    const behind = parseInt(result.stdout?.toString().trim() ?? "0", 10);
+    const behind = parseInt(result.stdout.toString().trim() || "0", 10);
     const status = isNaN(behind) || behind === 0 ? "in sync" : `${behind} commits behind`;
     lines.push(`- **${fork}:** ${status}`);
   }

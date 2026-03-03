@@ -1,7 +1,5 @@
 #!/usr/bin/env bun
 
-import { spawnSync } from "node:child_process";
-
 const WATCHED_REPOS = [
   "aibtcdev/landing-page",
   "aibtcdev/skills",
@@ -25,11 +23,11 @@ function parseFlags(args: string[]): Record<string, string> {
 }
 
 function gh(args: string[]): { ok: boolean; stdout: string; stderr: string } {
-  const result = spawnSync("gh", args, { timeout: 60_000 });
+  const result = Bun.spawnSync(["gh", ...args], { timeout: 60_000 });
   return {
-    ok: result.status === 0,
-    stdout: result.stdout?.toString().trim() ?? "",
-    stderr: result.stderr?.toString().trim() ?? "",
+    ok: result.exitCode === 0,
+    stdout: result.stdout.toString().trim(),
+    stderr: result.stderr.toString().trim(),
   };
 }
 
@@ -191,16 +189,16 @@ function cmdTestIntegration(): void {
   const root = new URL("../..", import.meta.url).pathname;
 
   // Run sensors once and capture output
-  const sensorsResult = spawnSync("bash", ["bin/arc", "sensors"], {
+  const sensorsResult = Bun.spawnSync(["bash", "bin/arc", "sensors"], {
     cwd: root,
     timeout: 120_000,
   });
 
   const output = {
     sensors: {
-      ok: sensorsResult.status === 0,
-      stdout: sensorsResult.stdout?.toString().trim() ?? "",
-      stderr: sensorsResult.stderr?.toString().trim() ?? "",
+      ok: sensorsResult.exitCode === 0,
+      stdout: sensorsResult.stdout.toString().trim(),
+      stderr: sensorsResult.stderr.toString().trim(),
     },
   };
 

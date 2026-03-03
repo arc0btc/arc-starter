@@ -1,6 +1,5 @@
 import { claimSensorRun } from "../../src/sensors.ts";
 import { insertTask, taskExistsForSource } from "../../src/db.ts";
-import { spawnSync } from "node:child_process";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 
@@ -48,16 +47,15 @@ async function writeTagState(state: ReleaseTagState): Promise<void> {
 }
 
 function fetchLatestRelease(repo: string): GhRelease | null {
-  const result = spawnSync(
-    "gh",
-    ["api", `/repos/${repo}/releases/latest`],
+  const result = Bun.spawnSync(
+    ["gh", "api", `/repos/${repo}/releases/latest`],
     { timeout: 30_000 }
   );
 
-  if (result.status !== 0) return null;
+  if (result.exitCode !== 0) return null;
 
   try {
-    const data = JSON.parse(result.stdout?.toString().trim() ?? "{}");
+    const data = JSON.parse(result.stdout.toString().trim() || "{}");
     return {
       tag_name: data.tag_name ?? "",
       name: data.name ?? "",

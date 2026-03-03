@@ -1,15 +1,14 @@
 import { describe, expect, test } from "bun:test";
-import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 
 const CLI = join(import.meta.dir, "../src/cli.ts");
 
 function arc(...args: string[]): { stdout: string; stderr: string; exitCode: number } {
-  const result = spawnSync("bun", [CLI, ...args], { encoding: "utf-8" });
+  const result = Bun.spawnSync(["bun", CLI, ...args]);
   return {
-    stdout: result.stdout ?? "",
-    stderr: result.stderr ?? "",
-    exitCode: result.status ?? 1,
+    stdout: result.stdout.toString(),
+    stderr: result.stderr.toString(),
+    exitCode: result.exitCode,
   };
 }
 

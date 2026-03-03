@@ -3,8 +3,6 @@ import {
   insertTask,
   taskExistsForSource,
 } from "../../src/db.ts";
-import { spawnSync } from "node:child_process";
-
 const SENSOR_NAME = "ci-status";
 const INTERVAL_MINUTES = 15;
 const ACTOR = "arc0btc";
@@ -23,11 +21,11 @@ interface WorkflowRun {
 const log = createSensorLogger(SENSOR_NAME);
 
 function gh(args: string[]): { ok: boolean; stdout: string; stderr: string } {
-  const result = spawnSync("gh", args, { timeout: 30_000 });
+  const result = Bun.spawnSync(["gh", ...args], { timeout: 30_000 });
   return {
-    ok: result.status === 0,
-    stdout: result.stdout?.toString().trim() ?? "",
-    stderr: result.stderr?.toString().trim() ?? "",
+    ok: result.exitCode === 0,
+    stdout: result.stdout.toString().trim(),
+    stderr: result.stderr.toString().trim(),
   };
 }
 

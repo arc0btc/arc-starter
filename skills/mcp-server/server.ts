@@ -19,7 +19,6 @@ import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/
 import { z } from "zod";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { randomUUID } from "node:crypto";
 import { createServer as createHttpServer, type IncomingMessage, type ServerResponse } from "node:http";
 
 import {
@@ -338,7 +337,7 @@ async function startHttp(
           // Create new McpServer + transport per session
           const server = createServer();
           const transport = new StreamableHTTPServerTransport({
-            sessionIdGenerator: () => randomUUID(),
+            sessionIdGenerator: () => crypto.randomUUID(),
             enableJsonResponse: true,
           });
           await server.connect(transport);

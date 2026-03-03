@@ -1,7 +1,5 @@
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import { insertTask, taskExistsForSource } from "../../src/db.ts";
-import { spawnSync } from "node:child_process";
-
 const SENSOR_NAME = "security-alerts";
 const INTERVAL_MINUTES = 360;
 const log = createSensorLogger(SENSOR_NAME);
@@ -51,17 +49,13 @@ interface AlertGroup {
 }
 
 function fetchOpenAlerts(repo: string): DependabotAlert[] | null {
-  const result = spawnSync(
-    "gh",
-    [
-      "api",
-      `/repos/${repo}/dependabot/alerts?state=open&severity=critical,high&per_page=50`,
-    ],
+  const result = Bun.spawnSync(
+    ["gh", "api", `/repos/${repo}/dependabot/alerts?state=open&severity=critical,high&per_page=50`],
     { timeout: 30_000 }
   );
 
-  if (result.status !== 0) {
-    const stderr = result.stderr?.toString().trim() ?? "";
+  if (result.exitCode !== 0) {
+    const stderr = result.stderr.toString().trim();
     if (stderr.includes("403") || stderr.includes("disabled")) {
       log(`dependabot disabled for ${repo}, skipping`);
     } else {
@@ -71,7 +65,7 @@ function fetchOpenAlerts(repo: string): DependabotAlert[] | null {
   }
 
   try {
-    const data = JSON.parse(result.stdout?.toString().trim() ?? "[]");
+    const data = JSON.parse(result.stdout.toString().trim() || "[]");
     if (!Array.isArray(data)) return [];
     return data as DependabotAlert[];
   } catch {

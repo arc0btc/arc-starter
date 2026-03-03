@@ -5,7 +5,6 @@
 // - Repo audit (every 24h): runs production-grade checklist via GitHub API
 // Pure TypeScript — no LLM.
 
-import { spawnSync } from "node:child_process";
 import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
@@ -37,11 +36,11 @@ const AIBTC_REPOS = [
 const log = createSensorLogger(SENSOR_NAME);
 
 function gh(args: string[]): { ok: boolean; stdout: string; stderr: string } {
-  const result = spawnSync("gh", args, { timeout: 30_000 });
+  const result = Bun.spawnSync(["gh", ...args], { timeout: 30_000 });
   return {
-    ok: result.status === 0,
-    stdout: result.stdout?.toString().trim() ?? "",
-    stderr: result.stderr?.toString().trim() ?? "",
+    ok: result.exitCode === 0,
+    stdout: result.stdout.toString().trim(),
+    stderr: result.stderr.toString().trim(),
   };
 }
 

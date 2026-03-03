@@ -9,10 +9,9 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { homedir } from "node:os";
 
 function getStoreDir(): string {
-  return process.env.ARC_CREDS_DIR ?? path.join(homedir(), ".aibtc");
+  return process.env.ARC_CREDS_DIR ?? path.join(process.env.HOME!, ".aibtc");
 }
 
 function getStoreFile(): string {

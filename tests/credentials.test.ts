@@ -1,6 +1,5 @@
 import { describe, expect, test, afterEach } from "bun:test";
 import { mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 // Import the store. Since getStoreDir() reads process.env.ARC_CREDS_DIR lazily
@@ -23,7 +22,7 @@ const ORIGINAL_CREDS_DIR = process.env.ARC_CREDS_DIR;
 const ORIGINAL_CREDS_PASSWORD = process.env.ARC_CREDS_PASSWORD;
 
 function makeTempDir(): string {
-  return mkdtempSync(join(tmpdir(), "arc-creds-test-"));
+  return mkdtempSync(join(process.env.TMPDIR ?? "/tmp", "arc-creds-test-"));
 }
 
 function cleanTempDir(dir: string): void {

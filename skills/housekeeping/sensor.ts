@@ -2,7 +2,6 @@ import { claimSensorRun } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 import { existsSync, statSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { spawnSync } from "node:child_process";
 
 const SENSOR_NAME = "housekeeping";
 const INTERVAL_MINUTES = 30;
@@ -26,8 +25,8 @@ export default async function housekeepingSensor(): Promise<string> {
   const issues: string[] = [];
 
   // 1. Uncommitted changes in tracked files
-  const statusResult = spawnSync("git", ["status", "--porcelain"], { cwd: ROOT });
-  const statusOutput = statusResult.stdout?.toString().trim() ?? "";
+  const statusResult = Bun.spawnSync(["git", "status", "--porcelain"], { cwd: ROOT });
+  const statusOutput = statusResult.stdout.toString().trim();
   if (statusOutput) {
     const lines = statusOutput.split("\n");
     const modified = lines.filter((l) => /^.M/.test(l));

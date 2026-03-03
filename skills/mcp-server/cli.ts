@@ -7,7 +7,6 @@
  */
 
 import { parseFlags } from "../../src/utils.ts";
-import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 
 const SERVER_PATH = join(import.meta.dir, "server.ts");
@@ -52,12 +51,14 @@ function main(): void {
         process.exit(1);
       }
 
-      const result = spawnSync(bunPath, args, {
-        stdio: "inherit",
+      const result = Bun.spawnSync([bunPath, ...args], {
+        stdout: "inherit",
+        stderr: "inherit",
+        stdin: "inherit",
         env: process.env,
       });
 
-      process.exit(result.status ?? 1);
+      process.exit(result.exitCode);
     }
 
     default:

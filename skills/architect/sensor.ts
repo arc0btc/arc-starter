@@ -7,7 +7,6 @@
 
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { spawnSync } from "node:child_process";
 import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
@@ -43,12 +42,11 @@ function hasCodebaseChanged(): boolean {
     const diagramTime = Math.floor(diagramStat.mtimeMs / 1000);
 
     // Use git log to find most recent commit touching src/ or skills/
-    const result = spawnSync(
-      "git",
-      ["log", "-1", "--format=%ct", "--", ...SRC_DIRS],
+    const result = Bun.spawnSync(
+      ["git", "log", "-1", "--format=%ct", "--", ...SRC_DIRS],
       { cwd: ROOT }
     );
-    const lastCommitTime = parseInt(result.stdout?.toString().trim() ?? "0", 10);
+    const lastCommitTime = parseInt(result.stdout.toString().trim() || "0", 10);
     return lastCommitTime > diagramTime;
   } catch {
     return false;
@@ -71,12 +69,11 @@ function hasActiveReports(): boolean {
 /** Get the current commit SHA for src/ or skills/. Returns empty string on error. */
 function getCurrentCodebaseSha(): string {
   try {
-    const result = spawnSync(
-      "git",
-      ["log", "-1", "--format=%H", "--", ...SRC_DIRS],
+    const result = Bun.spawnSync(
+      ["git", "log", "-1", "--format=%H", "--", ...SRC_DIRS],
       { cwd: ROOT }
     );
-    return (result.stdout?.toString().trim() ?? "").substring(0, 7); // short SHA
+    return result.stdout.toString().trim().substring(0, 7); // short SHA
   } catch {
     return "";
   }

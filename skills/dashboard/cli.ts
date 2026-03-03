@@ -1,6 +1,5 @@
 #!/usr/bin/env bun
 
-import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 
 const ROOT = join(import.meta.dir, "../..");
@@ -23,23 +22,20 @@ function start(args: string[]): void {
   }
 
   const bun = bunPath();
-  const result = spawnSync(bun, [WEB_TS], {
-    stdio: "inherit",
+  const result = Bun.spawnSync([bun, WEB_TS], {
+    stdout: "inherit",
+    stderr: "inherit",
+    stdin: "inherit",
     env: { ...process.env, ARC_WEB_PORT: port },
   });
 
-  if (result.error) {
-    process.stderr.write(`Error starting web server: ${result.error.message}\n`);
-    process.exit(1);
-  }
-
-  process.exit(result.status ?? 0);
+  process.exit(result.exitCode);
 }
 
 function stop(): void {
   // Find and kill the bun src/web.ts process
-  const result = spawnSync("pkill", ["-f", "bun.*src/web.ts"], { encoding: "utf-8" });
-  if (result.status === 0) {
+  const result = Bun.spawnSync(["pkill", "-f", "bun.*src/web.ts"]);
+  if (result.exitCode === 0) {
     process.stdout.write("Stopped arc web dashboard\n");
   } else {
     process.stdout.write("No running dashboard process found\n");

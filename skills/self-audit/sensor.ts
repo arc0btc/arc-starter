@@ -5,7 +5,6 @@
 // P7 audit task per day with structured findings.
 // Pure TypeScript — no LLM.
 
-import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
@@ -162,52 +161,47 @@ interface CodebaseMetrics {
 
 function collectCodebaseMetrics(): CodebaseMetrics {
   // Commits in last 24h
-  const commitCountResult = spawnSync(
-    "git",
-    ["rev-list", "--count", "--since=24 hours ago", "HEAD"],
+  const commitCountResult = Bun.spawnSync(
+    ["git", "rev-list", "--count", "--since=24 hours ago", "HEAD"],
     { cwd: ROOT }
   );
   const commitsLast24h = parseInt(
-    commitCountResult.stdout?.toString().trim() ?? "0",
+    commitCountResult.stdout.toString().trim() || "0",
     10
   );
 
   // Recent commit subjects (last 10)
-  const commitLogResult = spawnSync(
-    "git",
-    ["log", "--oneline", "-10", "--format=%s"],
+  const commitLogResult = Bun.spawnSync(
+    ["git", "log", "--oneline", "-10", "--format=%s"],
     { cwd: ROOT }
   );
-  const recentCommitSubjects = (
-    commitLogResult.stdout?.toString().trim() ?? ""
-  )
+  const recentCommitSubjects = commitLogResult.stdout.toString().trim()
     .split("\n")
     .filter(Boolean)
     .slice(0, 5);
 
   // Uncommitted changes
-  const statusResult = spawnSync("git", ["status", "--porcelain"], {
+  const statusResult = Bun.spawnSync(["git", "status", "--porcelain"], {
     cwd: ROOT,
   });
-  const statusLines = (statusResult.stdout?.toString().trim() ?? "")
+  const statusLines = statusResult.stdout.toString().trim()
     .split("\n")
     .filter(Boolean);
 
   // Branch name
-  const branchResult = spawnSync("git", ["branch", "--show-current"], {
+  const branchResult = Bun.spawnSync(["git", "branch", "--show-current"], {
     cwd: ROOT,
   });
-  const branchName = branchResult.stdout?.toString().trim() ?? "unknown";
+  const branchName = branchResult.stdout.toString().trim() || "unknown";
 
   // Ahead/behind remote
   let aheadBehind = "no remote tracking";
-  const abResult = spawnSync(
-    "git",
-    ["rev-list", "--left-right", "--count", `${branchName}...origin/${branchName}`],
+  const abResult = Bun.spawnSync(
+    ["git", "rev-list", "--left-right", "--count", `${branchName}...origin/${branchName}`],
     { cwd: ROOT }
   );
-  if (abResult.status === 0) {
-    const parts = (abResult.stdout?.toString().trim() ?? "").split(/\s+/);
+  if (abResult.exitCode === 0) {
+    const parts = abResult.stdout.toString().trim().split(/\s+/);
     if (parts.length === 2) {
       aheadBehind = `${parts[0]} ahead, ${parts[1]} behind`;
     }

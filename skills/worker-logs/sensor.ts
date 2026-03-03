@@ -4,7 +4,6 @@
 // Creates a sync task when drift is detected.
 // Pure TypeScript — no LLM.
 
-import { spawnSync } from "node:child_process";
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import {
   insertTask,
@@ -29,16 +28,15 @@ interface CompareResult {
 /** Compare a fork's main branch against upstream main. Returns commits behind count. */
 function checkForkDrift(fork: string): CompareResult {
   try {
-    const result = spawnSync(
-      "gh",
-      ["api", `repos/${fork}/compare/main...${UPSTREAM.replace("/", ":")}:main`, "--jq", ".behind_by"],
+    const result = Bun.spawnSync(
+      ["gh", "api", `repos/${fork}/compare/main...${UPSTREAM.replace("/", ":")}:main`, "--jq", ".behind_by"],
       { timeout: 15_000 }
     );
 
-    const stdout = result.stdout?.toString().trim() ?? "";
-    const stderr = result.stderr?.toString().trim() ?? "";
+    const stdout = result.stdout.toString().trim();
+    const stderr = result.stderr.toString().trim();
 
-    if (result.status !== 0) {
+    if (result.exitCode !== 0) {
       return { repo: fork, behind: 0, error: stderr || "gh api failed" };
     }
 

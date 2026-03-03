@@ -2,7 +2,6 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { spawnSync } from "node:child_process";
 import {
   initDatabase,
   insertTask,
@@ -321,16 +320,13 @@ function cmdSkillsRun(args: string[]): void {
   // Pass through everything after -- as skill args
   const skillArgs = dashDashIdx >= 0 ? args.slice(dashDashIdx + 1) : [];
 
-  const result = spawnSync("bun", [cliPath, ...skillArgs], {
-    stdio: "inherit",
+  const result = Bun.spawnSync(["bun", cliPath, ...skillArgs], {
+    stdout: "inherit",
+    stderr: "inherit",
+    stdin: "inherit",
   });
 
-  if (result.error) {
-    process.stderr.write(`Error: failed to run skill CLI: ${result.error.message}\n`);
-    process.exit(1);
-  }
-
-  process.exit(result.status ?? 0);
+  process.exit(result.exitCode);
 }
 
 function cmdSkills(args: string[]): void {

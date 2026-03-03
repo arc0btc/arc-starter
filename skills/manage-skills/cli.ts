@@ -1,7 +1,6 @@
 #!/usr/bin/env bun
 
 import { existsSync, readFileSync } from "node:fs";
-import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { discoverSkills } from "../../src/skills.ts";
 import { parseFlags, pad, truncate } from "../../src/utils.ts";
@@ -168,35 +167,32 @@ function cmdMemoryCommit(): void {
   }
 
   // Stage memory/MEMORY.md
-  const addResult = spawnSync("git", ["add", "memory/MEMORY.md"], {
+  const addResult = Bun.spawnSync(["git", "add", "memory/MEMORY.md"], {
     cwd: ROOT,
-    encoding: "utf-8",
   });
-  if (addResult.status !== 0) {
-    process.stderr.write(`Error staging memory/MEMORY.md: ${addResult.stderr}\n`);
+  if (addResult.exitCode !== 0) {
+    process.stderr.write(`Error staging memory/MEMORY.md: ${addResult.stderr.toString()}\n`);
     process.exit(1);
   }
 
   // Check if there are staged changes
-  const diffResult = spawnSync("git", ["diff", "--cached", "--quiet", "memory/MEMORY.md"], {
+  const diffResult = Bun.spawnSync(["git", "diff", "--cached", "--quiet", "memory/MEMORY.md"], {
     cwd: ROOT,
-    encoding: "utf-8",
   });
 
-  if (diffResult.status === 0) {
+  if (diffResult.exitCode === 0) {
     process.stdout.write("No changes to memory/MEMORY.md — nothing to commit.\n");
     return;
   }
 
   // Commit
-  const commitResult = spawnSync(
-    "git",
-    ["commit", "-m", "docs(memory): consolidate MEMORY.md"],
-    { cwd: ROOT, encoding: "utf-8" }
+  const commitResult = Bun.spawnSync(
+    ["git", "commit", "-m", "docs(memory): consolidate MEMORY.md"],
+    { cwd: ROOT }
   );
 
-  if (commitResult.status !== 0) {
-    process.stderr.write(`Error committing: ${commitResult.stderr}\n`);
+  if (commitResult.exitCode !== 0) {
+    process.stderr.write(`Error committing: ${commitResult.stderr.toString()}\n`);
     process.exit(1);
   }
 

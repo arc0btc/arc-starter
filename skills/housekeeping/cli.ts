@@ -1,7 +1,6 @@
 #!/usr/bin/env bun
 
 import { existsSync, statSync, readdirSync, mkdirSync, renameSync, readFileSync, unlinkSync } from "node:fs";
-import { spawnSync } from "node:child_process";
 import { join, relative } from "node:path";
 import { initDatabase } from "../../src/db.ts";
 
@@ -46,8 +45,8 @@ function runChecks(): CheckReport {
   };
 
   // 1. Git status
-  const statusResult = spawnSync("git", ["status", "--porcelain"], { cwd: ROOT });
-  const statusOutput = statusResult.stdout?.toString().trim() ?? "";
+  const statusResult = Bun.spawnSync(["git", "status", "--porcelain"], { cwd: ROOT });
+  const statusOutput = statusResult.stdout.toString().trim();
   if (statusOutput) {
     const lines = statusOutput.split("\n");
 
@@ -138,18 +137,17 @@ function runFix(): void {
   // 1. Commit uncommitted tracked changes
   if (report.uncommitted.length > 0) {
     process.stdout.write(`fixing: ${report.uncommitted.length} uncommitted file(s)\n`);
-    const addResult = spawnSync("git", ["add", ...report.uncommitted], { cwd: ROOT });
-    if (addResult.status === 0) {
-      const commitResult = spawnSync(
-        "git",
-        ["commit", "-m", `chore(housekeeping): auto-commit tracked changes [${report.uncommitted.length} file(s)]`],
+    const addResult = Bun.spawnSync(["git", "add", ...report.uncommitted], { cwd: ROOT });
+    if (addResult.exitCode === 0) {
+      const commitResult = Bun.spawnSync(
+        ["git", "commit", "-m", `chore(housekeeping): auto-commit tracked changes [${report.uncommitted.length} file(s)]`],
         { cwd: ROOT }
       );
-      if (commitResult.status === 0) {
+      if (commitResult.exitCode === 0) {
         process.stdout.write("  committed tracked changes\n");
         fixed++;
       } else {
-        process.stderr.write(`  commit failed: ${commitResult.stderr?.toString().trim()}\n`);
+        process.stderr.write(`  commit failed: ${commitResult.stderr.toString().trim()}\n`);
       }
     }
   }
@@ -157,18 +155,17 @@ function runFix(): void {
   // 2. Stage and commit untracked files in watched dirs
   if (report.untracked.length > 0) {
     process.stdout.write(`fixing: ${report.untracked.length} untracked file(s) in watched dirs\n`);
-    const addResult = spawnSync("git", ["add", ...report.untracked], { cwd: ROOT });
-    if (addResult.status === 0) {
-      const commitResult = spawnSync(
-        "git",
-        ["commit", "-m", `chore(housekeeping): auto-commit new files [${report.untracked.length} file(s)]`],
+    const addResult = Bun.spawnSync(["git", "add", ...report.untracked], { cwd: ROOT });
+    if (addResult.exitCode === 0) {
+      const commitResult = Bun.spawnSync(
+        ["git", "commit", "-m", `chore(housekeeping): auto-commit new files [${report.untracked.length} file(s)]`],
         { cwd: ROOT }
       );
-      if (commitResult.status === 0) {
+      if (commitResult.exitCode === 0) {
         process.stdout.write("  committed untracked files\n");
         fixed++;
       } else {
-        process.stderr.write(`  commit failed: ${commitResult.stderr?.toString().trim()}\n`);
+        process.stderr.write(`  commit failed: ${commitResult.stderr.toString().trim()}\n`);
       }
     }
   }
