@@ -16,6 +16,7 @@ const WALLET_SCRIPT = resolve(ROOT, "wallet/wallet.ts");
 const SIGNING_SCRIPT = resolve(ROOT, "signing/signing.ts");
 const SIGN_RUNNER = resolve(import.meta.dir, "sign-runner.ts");
 const X402_RUNNER = resolve(import.meta.dir, "x402-runner.ts");
+const BNS_RUNNER = resolve(import.meta.dir, "bns-runner.ts");
 
 // ---- Helpers ----
 
@@ -398,6 +399,53 @@ async function cmdSchnorrSignDigest(args: string[]): Promise<void> {
   console.log(result.stdout);
 }
 
+async function cmdBns(args: string[]): Promise<void> {
+  if (args.length === 0) {
+    process.stderr.write("Usage: arc skills run --name wallet -- bns <bns-subcommand> [flags]\n");
+    process.stderr.write("Example: arc skills run --name wallet -- bns claim-fast --name myname --send-to SP...\n");
+    process.exit(1);
+  }
+
+  log(`running BNS command: ${args[0]} (auto unlock/lock)`);
+  try {
+    const password = await getWalletPassword();
+    const walletId = await getWalletId();
+
+    const proc = Bun.spawn(["bun", "run", BNS_RUNNER, ...args], {
+      cwd: ROOT,
+      stdin: "ignore",
+      stdout: "pipe",
+      stderr: "pipe",
+      env: {
+        ...process.env,
+        WALLET_ID: walletId,
+        WALLET_PASSWORD: password,
+        NETWORK: "mainnet",
+      },
+    });
+
+    const [stdout, stderr] = await Promise.all([
+      new Response(proc.stdout).text(),
+      new Response(proc.stderr).text(),
+    ]);
+
+    const exitCode = await proc.exited;
+
+    if (exitCode !== 0) {
+      log(`bns failed: ${stderr}`);
+      console.log(JSON.stringify({ success: false, error: "BNS command failed", detail: stderr || stdout }));
+      process.exit(1);
+    }
+
+    console.log(stdout.trim());
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    log(`bns failed: ${msg}`);
+    console.log(JSON.stringify({ success: false, error: "BNS command failed", detail: msg }));
+    process.exit(1);
+  }
+}
+
 async function cmdX402(args: string[]): Promise<void> {
   if (args.length === 0) {
     process.stderr.write("Usage: arc skills run --name wallet -- x402 <x402-subcommand> [flags]\n");
@@ -573,6 +621,11 @@ SUBCOMMANDS
     Default relay: https://sponsor.aibtc.dev
     Default sponsor: SP1PMPPVCMVW96FSWFV30KJQ4MNBMZ8MRWR3JWQ7
 
+  bns <bns-subcommand> [flags]
+    Run any BNS command with auto unlock/lock. Handles wallet unlock
+    in the same process so the wallet singleton is available to BNS write ops.
+    Example: claim-fast --name myname --send-to SP...
+
   x402 <x402-subcommand> [flags]
     Run any x402 command with auto unlock/lock. Handles wallet unlock
     in the same process so the wallet singleton is available to x402.
@@ -621,6 +674,9 @@ async function main(): Promise<void> {
       break;
     case "check-relay-health":
       await cmdCheckRelayHealth(args.slice(1));
+      break;
+    case "bns":
+      await cmdBns(args.slice(1));
       break;
     case "x402":
       await cmdX402(args.slice(1));
