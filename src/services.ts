@@ -45,7 +45,7 @@ function generateServiceUnit(command: string, description: string, timeoutSec?: 
   const bun = bunPath();
   const envFile = join(ROOT, ".env");
   const envLine = existsSync(envFile) ? `EnvironmentFile=${envFile}\n` : "";
-  const timeoutLine = timeoutSec ? `TimeoutStopSec=${timeoutSec}\nRuntimeMaxSec=${timeoutSec}\n` : "";
+  const timeoutLine = timeoutSec ? `TimeoutStartSec=${timeoutSec}\nTimeoutStopSec=${timeoutSec}\n` : "";
   return `[Unit]
 Description=${description}
 After=network.target
