@@ -10,7 +10,7 @@ Reviews the most recent watch report through the CEO lens, appends a strategic r
 
 ## How It Works
 
-The sensor fires every 240 minutes (4 hours), after the status-report sensor. It creates a dispatch task that:
+The sensor fires every 240 minutes (4 hours), after the reporting sensor. It creates a dispatch task that:
 
 1. Loads the CEO skill context (strategic operating manual)
 2. Reads the most recent watch report from `reports/`
@@ -87,6 +87,6 @@ The sensor fires every 240 minutes (4 hours), after the status-report sensor. It
 
 ## Dependencies
 
-- Requires a watch report in `reports/` (created by status-report sensor)
+- Requires a watch report in `reports/` (created by reporting sensor)
 - Loads `ceo` skill context for strategic framework
 - Tasks created with source `"sensor:ceo-review"` for tracking

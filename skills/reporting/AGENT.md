@@ -1,13 +1,17 @@
 ---
-name: status-report
+name: reporting
 role: subagent-briefing
 ---
 
-# Watch Report — Subagent Briefing
+# Reporting — Subagent Briefing
+
+This skill generates two report variants. Check the task description to determine which variant to produce.
+
+---
+
+## Watch Report (HTML)
 
 You are generating an HTML watch report. Accurate, concise, on-brand. Output is a self-contained `.html` file styled with Arc's dark-first gold-accent design system.
-
-## Step-by-step
 
 ### 1. Determine the reporting period
 
@@ -85,7 +89,7 @@ git commit -m "docs(report): watch report {period_end_ISO8601}"
 arc tasks close --id {task_id} --status completed --summary "Watch report: {N} tasks completed, ${cost} spent, report at reports/{filename}"
 ```
 
-## Style reference
+### Style reference
 
 The template uses Arc's brand system. When generating HTML content:
 - Monetary values: use `class="cost"` (monospace, gold-dark)
@@ -95,9 +99,95 @@ The template uses Arc's brand system. When generating HTML content:
 - Negative P&L: `class="negative"` (vermillion)
 - Empty states: `class="empty"` (italic gray)
 
-## Guidelines
+---
+
+## Overnight Brief (Markdown)
+
+You are generating a consolidated overnight brief. Accurately summarize all agent activity from the overnight window (8pm–6am PST) into a concise morning briefing.
+
+### 1. Determine the reporting period
+
+The overnight window is fixed:
+- **Start:** Previous day 8pm PST (04:00 UTC)
+- **End:** Today 6am PST (14:00 UTC)
+
+Check for the last report/brief in `reports/` to avoid overlap:
+```bash
+ls -t reports/*_watch_report.* reports/*_overnight_brief.* 2>/dev/null | head -3
+```
+
+### 2. Query task data
+
+```bash
+arc tasks --status completed --limit 100
+arc tasks --status failed --limit 20
+arc tasks --status blocked --limit 10
+arc tasks --limit 30
+```
+
+Filter to tasks completed/failed/blocked within the overnight window using timestamps.
+
+### 3. Query cycle log
+
+Use bun -e to get cycle data for the overnight window:
+- Total cycles run
+- Total cost_usd and api_cost_usd
+- Total tokens_in and tokens_out
+- Average cycle duration
+- Success/failure rate
+
+### 4. Check git activity
+
+```bash
+git log --oneline --since="{{period_start}}" --until="{{period_end}}"
+```
+
+### 5. Check partner activity (whoabuddy)
+
+```bash
+gh api "/users/whoabuddy/events" --jq '[.[] | select(.type == "PushEvent" and .created_at >= "{{period_start}}" and .created_at <= "{{period_end}}")] | .[] | "\(.repo.name) — \(.payload.commits | length) commit(s): \(.payload.commits | map(.message | split("\n")[0]) | join("; "))"'
+```
+
+```bash
+gh api "/users/arc0btc/events" --jq '[.[] | select(.type == "PushEvent" and .created_at >= "{{period_start}}" and .created_at <= "{{period_end}}")] | .[] | "\(.repo.name) — \(.payload.commits | length) commit(s): \(.payload.commits | map(.message | split("\n")[0]) | join("; "))"'
+```
+
+### 6. Check sensor activity
+
+Read sensor state files from `db/hook-state/` and note overnight run counts.
+
+### 7. Generate the brief
+
+Read the template from `templates/overnight-brief.md`. Fill in every section. Write clear, concise prose — this is a morning briefing, not a data dump. The CEO wants to know:
+
+- What got done overnight
+- What failed and why
+- What's queued up for today
+- Any issues needing attention
+- Cost and efficiency summary
+
+Write the brief to: `reports/{period_end_ISO8601}_overnight_brief.md`
+
+### 8. Commit
+
+```bash
+git add reports/
+git commit -m "docs(report): overnight brief {period_end_ISO8601}"
+```
+
+### 9. Close the task
+
+```bash
+arc tasks close --id {task_id} --status completed --summary "Overnight brief: {N} tasks completed, {M} failed, ${cost} spent — reports/{filename}"
+```
+
+---
+
+## Guidelines (Both Variants)
 
 - Be accurate. Don't embellish or minimize.
-- Concise > comprehensive. If a section has nothing interesting, one line is fine.
 - Numbers over prose. "$1.38" beats "roughly one dollar".
-- Leave the CEO Review section empty — that's filled by a separate task.
+- Concise > comprehensive. If a section has nothing interesting, one line is fine.
+- For watch reports: leave the CEO Review section empty — that's filled by a separate task.
+- For overnight briefs: frame as morning briefing — lead with the headline, then details. Highlight anything needing CEO attention at the top.
+- Include specific numbers — task IDs, costs, token counts.

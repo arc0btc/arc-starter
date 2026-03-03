@@ -17,7 +17,7 @@ Load the CEO operating manual first: `arc skills show --name ceo`
 ls -t reports/*_watch_report.* 2>/dev/null | head -1
 ```
 
-Read the full report. If no report exists, close this task — the status-report sensor will create one first.
+Read the full report. If no report exists, close this task — the reporting sensor will create one first.
 
 ### 2. Review the full task queue
 
