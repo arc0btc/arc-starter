@@ -681,8 +681,8 @@ async function snapshotServiceState(): Promise<Map<string, boolean>> {
   return state;
 }
 
-/** Syntax-check staged .ts files using Bun.Transpiler. Returns errors or empty array. */
-function syntaxCheckStagedFiles(files: string[]): string[] {
+/** Syntax-check .ts files using Bun.Transpiler. Returns errors or empty array. */
+function validateSyntax(files: string[]): string[] {
   const transpiler = new Bun.Transpiler({ loader: "ts" });
   const errors: string[] = [];
   for (const file of files) {
@@ -708,102 +708,150 @@ async function checkServiceHealth(before: Map<string, boolean>): Promise<string[
   return died;
 }
 
+// ---- Safe commit helpers ----
+
+interface StageResult {
+  staged: boolean;
+  files: string[];
+  tsFiles: string[];
+}
+
+/**
+ * Stage known directories (memory/, skills/, src/, templates/) and return staged file lists.
+ * Throws on staging failures so callers can escalate.
+ */
+async function stageChanges(): Promise<StageResult> {
+  const stageDirs = ["memory/", "skills/", "src/", "templates/"];
+  for (const dir of stageDirs) {
+    if (existsSync(join(ROOT, dir))) {
+      const { exitCode, stderr } = await git("add", dir);
+      if (exitCode !== 0) {
+        throw new Error(`git add ${dir} failed: ${stderr.trim()}`);
+      }
+    }
+  }
+
+  const { exitCode: diffExit } = await git("diff", "--cached", "--quiet");
+  if (diffExit === 0) return { staged: false, files: [], tsFiles: [] };
+
+  const { stdout } = await git("diff", "--cached", "--name-only");
+  const files = stdout.trim().split("\n").filter(Boolean);
+  const tsFiles = files.filter((f) => f.endsWith(".ts"));
+
+  return { staged: true, files, tsFiles };
+}
+
+interface CommitResult {
+  ok: boolean;
+  error?: string;
+}
+
+/** Run git commit with the given message. Returns ok=false on failure. */
+async function commitWithMessage(message: string): Promise<CommitResult> {
+  const { exitCode, stderr } = await git("commit", "-m", message);
+  if (exitCode !== 0) return { ok: false, error: stderr.trim() };
+  return { ok: true };
+}
+
+/**
+ * After a commit touching src/ files, verify services are still alive.
+ * If any died: revert the commit, restart them, and create a follow-up task.
+ */
+async function revertOnServiceDeath(
+  servicesBefore: Map<string, boolean>,
+  taskId: number,
+): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+
+  const diedServices = await checkServiceHealth(servicesBefore);
+  if (diedServices.length === 0) return;
+
+  log(`dispatch: services DIED after commit: ${diedServices.join(", ")}`);
+
+  const { exitCode: revertExit } = await git("revert", "--no-edit", "HEAD");
+  if (revertExit === 0) {
+    log("dispatch: reverted HEAD commit");
+  } else {
+    log("dispatch: WARNING — git revert failed, manual intervention needed");
+  }
+
+  for (const svc of diedServices) {
+    await runCommand("systemctl", ["--user", "restart", svc]);
+    log(`dispatch: restarted ${svc}`);
+  }
+
+  insertTask({
+    subject: `Fix service crash from task #${taskId}`,
+    description: `Services died after commit: ${diedServices.join(", ")}. Commit was reverted.`,
+    priority: 2,
+    source: `task:${taskId}`,
+  });
+  log("dispatch: created follow-up task for service crash");
+}
+
 /**
  * Safe commit: stages files, syntax-checks .ts, commits, then health-checks services.
  * Security scan runs separately via runSecurityScan() at the dispatch level (every cycle).
+ * If staging fails: escalates with follow-up task.
  * If syntax check fails: unstages, creates follow-up task.
+ * If commit fails: escalates with follow-up task.
  * If services die after commit: reverts commit, restarts services, creates follow-up task.
  */
-async function safeCommitCycleChanges(taskId: number, cycleId?: number): Promise<void> {
+async function safeCommitCycleChanges(taskId: number, _cycleId?: number): Promise<void> {
+  const servicesBefore = await snapshotServiceState();
+
+  let stage: StageResult;
   try {
-    // Snapshot service state before staging
-    const servicesBefore = await snapshotServiceState();
+    stage = await stageChanges();
+  } catch (err) {
+    log(`dispatch: staging failed — ${err}`);
+    insertTask({
+      subject: `Fix staging failure from task #${taskId}`,
+      description: `git add failed during auto-commit:\n${String(err)}`,
+      priority: 2,
+      source: `task:${taskId}`,
+    });
+    return;
+  }
 
-    // Stage specific directories — never .env or db/*.sqlite
-    const stageDirs = ["memory/", "skills/", "src/", "templates/"];
-    for (const dir of stageDirs) {
-      if (existsSync(join(ROOT, dir))) {
-        await git("add", dir);
-      }
-    }
+  if (!stage.staged) return;
 
-    // Check if there's anything staged
-    const { exitCode: diffExit } = await git("diff", "--cached", "--quiet");
-    if (diffExit === 0) return; // nothing to commit
-
-    // Get list of staged files
-    const { stdout: stagedOutput } = await git("diff", "--cached", "--name-only");
-    const stagedFiles = stagedOutput.trim().split("\n").filter(Boolean);
-    const stagedTsFiles = stagedFiles.filter((f) => f.endsWith(".ts"));
-
-    // Layer 1: Pre-commit syntax check
-    if (stagedTsFiles.length > 0) {
-      const syntaxErrors = syntaxCheckStagedFiles(stagedTsFiles);
-      if (syntaxErrors.length > 0) {
-        log(`dispatch: syntax check FAILED for ${syntaxErrors.length} file(s):`);
-        for (const err of syntaxErrors) log(`  ${err}`);
-
-        // Unstage everything
-        await git("reset", "HEAD");
-
-        // Create follow-up task
-        insertTask({
-          subject: `Fix syntax errors from task #${taskId}`,
-          description: `Syntax check failed after dispatch:\n${syntaxErrors.join("\n")}`,
-          priority: 2,
-          source: `task:${taskId}`,
-        });
-        log("dispatch: created follow-up task for syntax errors");
-        return;
-      }
-    }
-
-    // Commit
-    const fileCount = stagedFiles.length;
-    const msg = `chore(loop): auto-commit after dispatch cycle [${fileCount} file(s)]`;
-    const { exitCode: commitExit, stderr } = await git("commit", "-m", msg);
-    if (commitExit !== 0) {
-      log(`dispatch: auto-commit failed — ${stderr.trim()}`);
+  // Layer 1: Pre-commit syntax check
+  if (stage.tsFiles.length > 0) {
+    const syntaxErrors = validateSyntax(stage.tsFiles);
+    if (syntaxErrors.length > 0) {
+      log(`dispatch: syntax check FAILED for ${syntaxErrors.length} file(s):`);
+      for (const err of syntaxErrors) log(`  ${err}`);
+      await git("reset", "HEAD");
+      insertTask({
+        subject: `Fix syntax errors from task #${taskId}`,
+        description: `Syntax check failed after dispatch:\n${syntaxErrors.join("\n")}`,
+        priority: 2,
+        source: `task:${taskId}`,
+      });
+      log("dispatch: created follow-up task for syntax errors");
       return;
     }
-    log(`dispatch: auto-committed ${fileCount} file(s)`);
+  }
 
-    // Layer 2: Post-commit service health check (only if src/ files changed)
-    const hasSrcChanges = stagedFiles.some((f) => f.startsWith("src/"));
-    if (hasSrcChanges) {
-      // Wait for systemd to pick up file changes
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+  // Commit
+  const msg = `chore(loop): auto-commit after dispatch cycle [${stage.files.length} file(s)]`;
+  const commit = await commitWithMessage(msg);
+  if (!commit.ok) {
+    log(`dispatch: auto-commit failed — ${commit.error}`);
+    insertTask({
+      subject: `Fix commit failure from task #${taskId}`,
+      description: `Auto-commit failed during dispatch:\n${commit.error}`,
+      priority: 3,
+      source: `task:${taskId}`,
+    });
+    return;
+  }
+  log(`dispatch: auto-committed ${stage.files.length} file(s)`);
 
-      const diedServices = await checkServiceHealth(servicesBefore);
-      if (diedServices.length > 0) {
-        log(`dispatch: services DIED after commit: ${diedServices.join(", ")}`);
-
-        // Revert the commit
-        const { exitCode: revertExit } = await git("revert", "--no-edit", "HEAD");
-        if (revertExit === 0) {
-          log("dispatch: reverted HEAD commit");
-        } else {
-          log("dispatch: WARNING — git revert failed, manual intervention needed");
-        }
-
-        // Restart failed services
-        for (const svc of diedServices) {
-          await runCommand("systemctl", ["--user", "restart", svc]);
-          log(`dispatch: restarted ${svc}`);
-        }
-
-        // Create follow-up task
-        insertTask({
-          subject: `Fix service crash from task #${taskId}`,
-          description: `Services died after commit: ${diedServices.join(", ")}. Commit was reverted.`,
-          priority: 2,
-          source: `task:${taskId}`,
-        });
-        log("dispatch: created follow-up task for service crash");
-      }
-    }
-  } catch (err) {
-    log(`dispatch: safe-commit error — ${err}`);
+  // Layer 2: Post-commit service health check (only if src/ files changed)
+  if (stage.files.some((f) => f.startsWith("src/"))) {
+    await revertOnServiceDeath(servicesBefore, taskId);
   }
 }
 
