@@ -231,6 +231,13 @@ export function initDatabase(): Database {
   addColumn("tasks", "model", "TEXT");
   addColumn("cycle_log", "model", "TEXT");
 
+  // Indexes
+  db.run("CREATE INDEX IF NOT EXISTS idx_tasks_status_priority ON tasks(status, priority)");
+  db.run("CREATE INDEX IF NOT EXISTS idx_tasks_source ON tasks(source)");
+  db.run("CREATE INDEX IF NOT EXISTS idx_tasks_created_at ON tasks(created_at)");
+  db.run("CREATE INDEX IF NOT EXISTS idx_cycle_log_started_at ON cycle_log(started_at DESC)");
+  db.run("CREATE INDEX IF NOT EXISTS idx_tasks_source_status ON tasks(source, status)");
+
   db.run(`
     CREATE TABLE IF NOT EXISTS email_messages (
       id INTEGER PRIMARY KEY,
