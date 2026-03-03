@@ -97,8 +97,8 @@ async function autoJoinPot(potName: string, contractId: string): Promise<boolean
 export default async function stackspotSensor(): Promise<string> {
   try {
     // Claim sensor run (if not time yet, returns early)
-    const claim = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
-    if (claim.status === "skip") {
+    const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
+    if (!claimed) {
       log("skip (interval not ready)");
       return "skip";
     }

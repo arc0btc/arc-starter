@@ -136,8 +136,8 @@ File signal to Ordinals Business beat via aibtc-news skill. Headline: "${headlin
 export default async function stacksMarketSensor(): Promise<string> {
   try {
     // Claim sensor run (if not time yet, returns early)
-    const claim = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
-    if (claim.status === "skip") {
+    const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
+    if (!claimed) {
       log("skip (interval not ready)");
       return "skip";
     }

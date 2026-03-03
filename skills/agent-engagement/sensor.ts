@@ -65,8 +65,8 @@ async function fetchBeatStatus(): Promise<Record<string, unknown> | null> {
 export default async function agentEngagementSensor(): Promise<string> {
   try {
     // Claim sensor run (if not time yet, returns early)
-    const claim = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
-    if (claim.status === "skip") {
+    const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
+    if (!claimed) {
       log("skip (interval not ready)");
       return "skip";
     }
