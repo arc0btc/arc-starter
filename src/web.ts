@@ -7,6 +7,7 @@ import { Database } from "bun:sqlite";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, extname } from "node:path";
 import { discoverSkills } from "./skills.ts";
+import { IDENTITY } from "./identity.ts";
 
 // ---- Database ----
 
@@ -25,16 +26,6 @@ const PORT = parseInt(process.env.ARC_WEB_PORT || "3000");
 const STATIC_DIR = join(import.meta.dir, "web");
 const HOOK_STATE_DIR = join(import.meta.dir, "../db/hook-state");
 const SKILLS_DIR = join(import.meta.dir, "../skills");
-
-const IDENTITY = {
-  name: "Arc",
-  bns: "arc0.btc",
-  btc: "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933",
-  stx: "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B",
-  github: "arc0btc",
-  twitter: "arc0btc",
-  website: "arc0.me",
-} as const;
 
 const MIME_TYPES: Record<string, string> = {
   ".html": "text/html; charset=utf-8",

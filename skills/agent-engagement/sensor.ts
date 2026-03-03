@@ -3,10 +3,10 @@
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
 
 const SENSOR_NAME = "agent-engagement";
 const INTERVAL_MINUTES = 60; // 1 hour
-const ARC_BTC_ADDRESS = "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933";
 const API_BASE = "https://aibtc.news/api";
 
 const log = createSensorLogger(SENSOR_NAME);

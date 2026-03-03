@@ -9,10 +9,11 @@ import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
 import { resolve } from "node:path";
 
+import { ARC_ARC_BTC_ADDRESS } from "../../src/identity.ts";
+
 const SENSOR_NAME = "aibtc-heartbeat";
 const INTERVAL_MINUTES = 5;
 const TASK_SOURCE = "sensor:aibtc-heartbeat";
-const BTC_ADDRESS = "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933";
 const HEARTBEAT_URL = "https://aibtc.com/api/heartbeat";
 
 const SKILLS_ROOT = resolve(import.meta.dir, "../../github/aibtcdev/skills");
@@ -93,7 +94,7 @@ export default async function aibtcHeartbeatSensor(): Promise<string> {
       body: JSON.stringify({
         timestamp,
         signature,
-        btcAddress: BTC_ADDRESS,
+        btcAddress: ARC_BTC_ADDRESS,
       }),
     });
 
@@ -124,7 +125,7 @@ export default async function aibtcHeartbeatSensor(): Promise<string> {
         description: [
           `The AIBTC heartbeat reported ${unreadCount} unread inbox message(s).`,
           "",
-          `Read inbox: GET https://aibtc.com/api/inbox/${BTC_ADDRESS}`,
+          `Read inbox: GET https://aibtc.com/api/inbox/${ARC_BTC_ADDRESS}`,
           "Process messages and reply if needed.",
         ].join("\n"),
         skills: '["wallet"]',

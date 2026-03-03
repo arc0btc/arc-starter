@@ -3,10 +3,10 @@
 
 import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
+import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
 
 const SENSOR_NAME = "aibtc-news";
 const INTERVAL_MINUTES = 360; // 6 hours
-const ARC_BTC_ADDRESS = "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933";
 const API_BASE = "https://aibtc.news/api";
 const RATE_LIMIT_MINUTES = 240; // 4 hours — matches aibtc.news per-beat rate limit
 

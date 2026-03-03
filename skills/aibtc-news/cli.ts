@@ -3,9 +3,9 @@
 // CLI for claiming beats, filing signals, listing beats/signals, and checking correspondent status
 
 import { readHookState, writeHookState } from "../../src/sensors.ts";
+import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
 
 const API_BASE = "https://aibtc.news/api";
-const ARC_BTC_ADDRESS = "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933";
 const SENSOR_NAME = "aibtc-news";
 
 // ---- Helpers ----

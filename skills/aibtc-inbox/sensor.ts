@@ -13,10 +13,10 @@ import {
   getAllAibtcInboxMessageIds,
   type AibtcInboxMessage,
 } from "../../src/db.ts";
+import { ARC_ARC_BTC_ADDRESS } from "../../src/identity.ts";
 
 const SENSOR_NAME = "aibtc-inbox";
 const INTERVAL_MINUTES = 5;
-const BTC_ADDRESS = "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933";
 const FETCH_TIMEOUT_MS = 15_000;
 
 // ---- Types ----
@@ -82,7 +82,7 @@ export default async function aibtcInboxSensor(): Promise<string> {
 
   let messages: ApiInboxMessage[];
   try {
-    const res = await fetch(`https://aibtc.com/api/inbox/${BTC_ADDRESS}`, {
+    const res = await fetch(`https://aibtc.com/api/inbox/${ARC_BTC_ADDRESS}`, {
       signal: controller.signal,
       headers: { Accept: "application/json" },
     });
