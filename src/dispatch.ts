@@ -39,6 +39,9 @@ const SKILLS_DIR = join(ROOT, "skills");
 /** Daily cost ceiling (USD). Above this, only P1-2 tasks dispatch. */
 const DAILY_BUDGET_USD = 200;
 
+/** Maximum time (ms) a Claude subprocess can run before being killed. 30 minutes. */
+const DISPATCH_TIMEOUT_MS = 30 * 60 * 1000;
+
 // ---- Logging ----
 
 function log(msg: string): void {
@@ -308,6 +311,18 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string)
     ...(cwd ? { cwd } : {}),
   });
 
+  // Timeout watchdog — kill subprocess if it exceeds DISPATCH_TIMEOUT_MS
+  let timedOut = false;
+  const timeoutTimer = setTimeout(() => {
+    timedOut = true;
+    log(`dispatch: subprocess timeout after ${DISPATCH_TIMEOUT_MS / 60_000}min — killing pid ${proc.pid}`);
+    proc.kill("SIGTERM");
+    // Force kill after 10 seconds if SIGTERM doesn't work
+    setTimeout(() => {
+      try { proc.kill("SIGKILL"); } catch { /* already dead */ }
+    }, 10_000);
+  }, DISPATCH_TIMEOUT_MS);
+
   let result = "";
   let cost_usd = 0;
   let input_tokens = 0;
@@ -393,7 +408,12 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string)
   // Flush any remaining buffer content
   processLine(lineBuffer);
 
+  clearTimeout(timeoutTimer);
+
   const exitCode = await proc.exited;
+  if (timedOut) {
+    throw new Error(`claude subprocess timed out after ${DISPATCH_TIMEOUT_MS / 60_000} minutes`);
+  }
   if (exitCode !== 0) {
     const errText = await new Response(proc.stderr).text();
     throw new Error(`claude exited ${exitCode}: ${errText.trim()}`);
