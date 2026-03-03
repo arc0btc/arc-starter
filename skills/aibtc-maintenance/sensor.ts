@@ -1,5 +1,5 @@
 import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, taskExistsForSource } from "../../src/db.ts";
+import { insertTask, taskExistsForSource } from "../../src/db.ts";
 import { spawnSync } from "node:child_process";
 
 const SENSOR_NAME = "aibtc-maintenance";
@@ -80,8 +80,6 @@ function getUnreviewedPRs(): PrInfo[] {
 }
 
 export default async function aibtcMaintenanceSensor(): Promise<string> {
-  initDatabase();
-
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

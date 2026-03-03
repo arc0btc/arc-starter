@@ -1,6 +1,5 @@
-import { claimSensorRun } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import {
-  initDatabase,
   insertTask,
   pendingTaskExistsForSource,
   getAllActiveWorkflows,
@@ -18,6 +17,7 @@ import { getCredential } from "../../src/credentials.ts";
 
 const SENSOR_NAME = "workflows-meta";
 const INTERVAL_MINUTES = 5;
+const log = createSensorLogger(SENSOR_NAME);
 
 interface GithubPR {
   owner: string;
@@ -243,17 +243,13 @@ async function syncGitHubPRs(): Promise<number> {
   }
 
   if (workflowsCreated > 0 || workflowsUpdated > 0) {
-    console.log(
-      `pr-lifecycle: created=${workflowsCreated}, updated=${workflowsUpdated}`
-    );
+    log(`pr-lifecycle: created=${workflowsCreated}, updated=${workflowsUpdated}`);
   }
 
   return workflowsCreated + workflowsUpdated;
 }
 
 export default async function workflowsSensor(): Promise<string> {
-  initDatabase();
-
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
@@ -305,9 +301,7 @@ export default async function workflowsSensor(): Promise<string> {
 
     return totalActions > 0 ? "ok" : "skip";
   } catch (err) {
-    console.error(
-      `workflows sensor error: ${err instanceof Error ? err.message : String(err)}`
-    );
+    log(`error: ${err instanceof Error ? err.message : String(err)}`);
     return "skip";
   }
 }

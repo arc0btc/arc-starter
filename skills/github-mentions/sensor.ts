@@ -1,6 +1,5 @@
-import { claimSensorRun, readHookState } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, readHookState } from "../../src/sensors.ts";
 import {
-  initDatabase,
   insertTask,
   taskExistsForSource,
 } from "../../src/db.ts";
@@ -8,6 +7,7 @@ import { spawnSync } from "node:child_process";
 
 const SENSOR_NAME = "github-mentions";
 const INTERVAL_MINUTES = 5;
+const log = createSensorLogger(SENSOR_NAME);
 
 // Repos watched by aibtc-maintenance — used for cross-sensor PR review dedup
 const WATCHED_REPOS = [
@@ -72,8 +72,6 @@ function markThreadRead(threadId: string): void {
 }
 
 export default async function githubMentionsSensor(): Promise<string> {
-  initDatabase();
-
   // Read previous state before claiming — need the old last_ran as our `since` bound
   const prevState = await readHookState(SENSOR_NAME);
 
@@ -83,9 +81,7 @@ export default async function githubMentionsSensor(): Promise<string> {
   // First run: no prior timestamp to bound the query. Skip task creation,
   // just establish the baseline. Next run will use this timestamp as `since`.
   if (!prevState) {
-    console.log(
-      `[${new Date().toISOString()}] github-mentions: bootstrap — will detect new notifications from next run`
-    );
+    log("bootstrap — will detect new notifications from next run");
     return "ok";
   }
 
@@ -165,9 +161,7 @@ export default async function githubMentionsSensor(): Promise<string> {
   }
 
   if (created > 0) {
-    console.log(
-      `[${new Date().toISOString()}] github-mentions: created ${created} task(s)`
-    );
+    log(`created ${created} task(s)`);
   }
 
   return "ok";

@@ -1,5 +1,5 @@
 import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, taskExistsForSource } from "../../src/db.ts";
+import { insertTask, taskExistsForSource } from "../../src/db.ts";
 import { spawnSync } from "node:child_process";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
@@ -71,8 +71,6 @@ function fetchLatestRelease(repo: string): GhRelease | null {
 }
 
 export default async function releaseWatcherSensor(): Promise<string> {
-  initDatabase();
-
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

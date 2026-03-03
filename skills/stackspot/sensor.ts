@@ -147,9 +147,7 @@ export default async function stackspotSensor(): Promise<string> {
     return "ok";
   } catch (e) {
     const err = e as Error;
-    console.error(
-      `[${new Date().toISOString()}] [sensor:stackspot] error: ${err.message}`
-    );
+    log(`error: ${err.message}`);
     return "error";
   }
 }

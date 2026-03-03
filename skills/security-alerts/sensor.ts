@@ -1,9 +1,10 @@
-import { claimSensorRun } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import { insertTask, taskExistsForSource } from "../../src/db.ts";
 import { spawnSync } from "node:child_process";
 
 const SENSOR_NAME = "security-alerts";
 const INTERVAL_MINUTES = 360;
+const log = createSensorLogger(SENSOR_NAME);
 const TASK_SOURCE_PREFIX = "sensor:security-alerts";
 
 const WATCHED_REPOS = [
@@ -62,11 +63,9 @@ function fetchOpenAlerts(repo: string): DependabotAlert[] | null {
   if (result.status !== 0) {
     const stderr = result.stderr?.toString().trim() ?? "";
     if (stderr.includes("403") || stderr.includes("disabled")) {
-      console.log(
-        `[security-alerts] dependabot disabled for ${repo}, skipping`
-      );
+      log(`dependabot disabled for ${repo}, skipping`);
     } else {
-      console.error(`[security-alerts] error fetching ${repo}: ${stderr}`);
+      log(`error fetching ${repo}: ${stderr}`);
     }
     return null;
   }
@@ -176,16 +175,12 @@ export default async function securityAlertsSensor(): Promise<string> {
       });
 
       tasksCreated++;
-      console.log(
-        `[security-alerts] created task for ${group.pkg} in ${repo} (${alertCount} alert(s), ${group.highestSeverity})`
-      );
+      log(`created task for ${group.pkg} in ${repo} (${alertCount} alert(s), ${group.highestSeverity})`);
     }
   }
 
   if (tasksCreated > 0) {
-    console.log(
-      `[security-alerts] created ${tasksCreated} task(s) for security alerts`
-    );
+    log(`created ${tasksCreated} task(s) for security alerts`);
   }
 
   return tasksCreated > 0 ? "ok" : "skip";

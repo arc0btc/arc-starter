@@ -4,7 +4,7 @@
 // Pure TypeScript — no LLM. The dispatch task does the actual report generation.
 
 import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "status-report";
 const INTERVAL_MINUTES = 60; // 1 hour
@@ -18,8 +18,6 @@ function isQuietHours(): boolean {
 }
 
 export default async function statusReportSensor(): Promise<string> {
-  initDatabase();
-
   if (isQuietHours()) return "skip";
 
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);

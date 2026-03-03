@@ -198,9 +198,7 @@ export default async function stacksMarketSensor(): Promise<string> {
     return "ok";
   } catch (e) {
     const err = e as Error;
-    console.error(
-      `[${new Date().toISOString()}] [sensor:stacks-market] error: ${err.message}`
-    );
+    log(`error: ${err.message}`);
     return "error";
   }
 }

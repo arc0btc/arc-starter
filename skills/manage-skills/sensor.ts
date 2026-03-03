@@ -1,11 +1,12 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
+import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 import { Glob } from "bun";
 
 const SENSOR_NAME = "manage-skills";
 const INTERVAL_MINUTES = 360;
+const log = createSensorLogger(SENSOR_NAME);
 const TASK_SOURCE = "sensor:consolidate-memory";
 const SENSOR_VALIDATION_SOURCE = "sensor:sensor-validation";
 const MEMORY_PATH = join(import.meta.dir, "../../memory/MEMORY.md");
@@ -64,7 +65,7 @@ async function checkSensorPatterns(): Promise<{ valid: boolean; errors: Array<{ 
     }
   } catch (e) {
     const err = e as Error;
-    console.error(`[sensor:manage-skills] sensor validation error: ${err.message}`);
+    log(`sensor validation error: ${err.message}`);
   }
 
   return {
@@ -74,8 +75,6 @@ async function checkSensorPatterns(): Promise<{ valid: boolean; errors: Array<{ 
 }
 
 export default async function manageSkillsSensor(): Promise<string> {
-  initDatabase();
-
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
