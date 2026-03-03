@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-02T20:36:00.000Z*
+*Generated: 2026-03-03T02:35:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -14,6 +14,7 @@ stateDiagram-v2
     state SensorsService {
         [*] --> RunAllSensors: parallel via Promise.allSettled
         RunAllSensors --> agent_engagementSensor: agent-engagement
+        RunAllSensors --> aibtc_devSensor: aibtc-dev
         RunAllSensors --> aibtc_heartbeatSensor: aibtc-heartbeat
         RunAllSensors --> aibtc_inboxSensor: aibtc-inbox
         RunAllSensors --> aibtc_maintenanceSensor: aibtc-maintenance
@@ -48,6 +49,17 @@ stateDiagram-v2
             agent_engagementDedup --> agent_engagementCreateTask: no dupe
             agent_engagementCreateTask --> [*]: insertTask()
             agent_engagementSkip --> [*]: return skip
+        }
+
+        state aibtc_devSensor {
+            [*] --> aibtc_devGate: claimSensorRun(aibtc-dev, 240min)
+            aibtc_devGate --> aibtc_devSkip: interval not elapsed
+            aibtc_devGate --> aibtc_devDedup: interval elapsed
+            aibtc_devDedup --> aibtc_devSkip: pending task exists (LOG_SOURCE or AUDIT_SOURCE)
+            aibtc_devDedup --> aibtc_devCreateTask: no dupe
+            note right of aibtc_devDedup: dual-cadence\nlog review (4h)\naudit (24h)
+            aibtc_devCreateTask --> [*]: insertTask()
+            aibtc_devSkip --> [*]: return skip
         }
 
         state aibtc_heartbeatSensor {
@@ -312,8 +324,8 @@ stateDiagram-v2
         PickTask --> BuildPrompt: highest priority task
 
         state BuildPrompt {
-            [*] --> SelectModel: task.priority
-            SelectModel --> LoadCore: P1-4→opus, P5-7→sonnet, P8+→haiku
+            [*] --> SelectModel: task.model or task.priority
+            SelectModel --> LoadCore: explicit task.model wins; else P1-4→opus, P5-7→sonnet, P8+→haiku
             LoadCore --> LoadSkills: SOUL.md + CLAUDE.md + MEMORY.md
             LoadSkills --> LoadSkillMd: task.skills JSON array
             LoadSkillMd --> AssemblePrompt: SKILL.md content
@@ -343,8 +355,10 @@ stateDiagram-v2
     note right of CLI
         Skills with CLI:
         - agent-engagement
+        - aibtc-dev
         - aibtc-maintenance
         - aibtc-news
+        - arc-brand
         - architect
         - blog-publishing
         - credentials
@@ -375,7 +389,7 @@ stateDiagram-v2
 | 2 | Sensor creates task | External data + dedup check | `pendingTaskExistsForSource()` |
 | 3 | Dispatch lock check | Lock file (PID + task_id) | `isPidAlive()` |
 | 4 | Task selection | All pending tasks sorted | Priority ASC, ID ASC |
-| 4a | Model routing | task.priority or task.model | P1-4→opus, P5-7→sonnet, P8+→haiku |
+| 4a | Model routing | task.model (explicit) or task.priority | Explicit wins; else P1-4→opus, P5-7→sonnet, P8+→haiku |
 | 5 | Skill loading | `task.skills` JSON array | SKILL.md existence |
 | 6 | Prompt assembly | SOUL + CLAUDE + MEMORY + skills | Token budget ~40-50k |
 | 7 | LLM execution | Full prompt + CLI access | `arc` commands only |
@@ -387,6 +401,7 @@ stateDiagram-v2
 | Skill | Sensor | CLI | Agent | Description |
 |-------|--------|-----|-------|-------------|
 | agent-engagement | yes | yes | - | Proactive outreach to AIBTC network agents for collaboration on shared interests |
+| aibtc-dev | yes | yes | yes | Monitor service health via worker-logs and enforce production-grade standards across all aibtcdev repos |
 | aibtc-heartbeat | yes | - | - | Signed AIBTC platform check-in every 5 minutes via BIP-137 Bitcoin message signing |
 | aibtc-inbox | yes | - | yes | Poll AIBTC platform inbox, sync messages locally, queue tasks for unread messages |
 | aibtc-maintenance | yes | yes | yes | Triage, review, test, and support aibtcdev repos we depend on |
@@ -394,11 +409,13 @@ stateDiagram-v2
 | aibtc-news-deal-flow | - | - | yes | Editorial voice for Deal Flow beat on aibtc.news — Real-time market signals, sats, Ordinals, bounties |
 | aibtc-news-protocol | - | - | yes | Editorial voice for Protocol & Infra beat on aibtc.news — Stacks protocol dev, security, settlement, tooling |
 | aibtc-services | - | - | - | Canonical reference for AIBTC platform services and API endpoints |
+| arc-brand | - | yes | yes | Brand identity consultant — voice rules, visual design system, content review |
 | architect | yes | yes | yes | Continuous architecture review, state machine diagrams, and simplification via SpaceX 5-step process |
 | blog-publishing | yes | yes | yes | Create, manage, and publish blog posts with ISO8601 content pattern |
 | ceo | - | - | yes | Strategic operating manual — treat yourself as CEO of a one-entity company |
 | ceo-review | yes | - | yes | CEO reviews the latest watch report and actively manages the task queue |
 | ci-status | yes | - | - | Monitors GitHub Actions CI runs on our PRs and detects failures |
+| composition-patterns | - | - | yes | React composition patterns — compound components, boolean prop avoidance, React 19 APIs |
 | cost-alerting | yes | - | - | Monitor daily spend and alert when thresholds are exceeded |
 | credentials | - | yes | yes | Encrypted credential store for API keys, tokens, and secrets used by other skills |
 | dashboard | - | yes | yes | Arc's live web dashboard — real-time task feed, sensor status, cost tracking |
@@ -412,6 +429,7 @@ stateDiagram-v2
 | manage-skills | yes | yes | yes | Create, inspect, and manage agent skills |
 | mcp-server | - | yes | - | MCP server exposing Arc's task queue, skills, and memory to external Claude instances |
 | overnight-brief | yes | - | yes | Generate a consolidated overnight brief at 6am PST covering all activity from 8pm–6am |
+| react-reviewer | - | - | yes | React/Next.js performance review — 77 rules across 8 categories for PR analysis |
 | release-watcher | yes | - | - | Detects new releases on watched repos and creates review tasks |
 | report-email | yes | - | - | Email watch reports when new ones are generated |
 | reputation | - | yes | yes | ERC-8004 on-chain agent reputation management — submit and revoke feedback, append responses, approve clients, and query reputation summaries, feedback entries, and client lists. |
@@ -422,6 +440,7 @@ stateDiagram-v2
 | status-report | yes | - | yes | Generate watch reports (4-hour) summarizing all agent activity |
 | validation | - | yes | yes | ERC-8004 on-chain agent validation management — request and respond to validations, and query validation status, summaries, and paginated lists by agent or validator. |
 | wallet | - | yes | yes | Wallet management and cryptographic signing for Stacks and Bitcoin — unlock, lock, info, status, BTC/Stacks message signing, and BTC signature verification. |
+| web-design | - | - | yes | UI/UX accessibility audit against Vercel web-interface-guidelines — file:line reporting |
 | worker-logs | yes | yes | yes | Sync worker-logs forks, monitor production events, report trends |
 | workflows | yes | yes | yes | Persistent state machine instances for multi-step workflows |
 | worktrees | - | yes | - | Opt-in git worktree isolation for high-risk dispatch tasks |
