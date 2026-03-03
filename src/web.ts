@@ -3,22 +3,18 @@
 // Read-only SQLite connection. Serves JSON API endpoints and static files from src/web/.
 // Run: bun src/web.ts (or via arc skills run --name dashboard -- start)
 
-import { Database } from "bun:sqlite";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, extname } from "node:path";
+import { initDatabase, getDatabase, insertTask } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
 import { IDENTITY } from "./identity.ts";
 
 // ---- Database ----
 
-const DB_PATH = join(import.meta.dir, "../db/arc.sqlite");
-const db = new Database(DB_PATH, { readonly: true });
-db.exec("PRAGMA busy_timeout = 5000");
-
-// Writable connection for message submission
-const dbWrite = new Database(DB_PATH);
-dbWrite.exec("PRAGMA busy_timeout = 5000");
-dbWrite.exec("PRAGMA journal_mode = WAL");
+// Initialize singleton database on startup
+initDatabase();
+const db = getDatabase();
+const dbWrite = getDatabase();
 
 // ---- Constants ----
 
@@ -282,13 +278,13 @@ async function handlePostMessage(req: Request): Promise<Response> {
   const priority = typeof body.priority === "number" && body.priority >= 1 && body.priority <= 10
     ? body.priority : 5;
 
-  const stmt = dbWrite.prepare(
-    "INSERT INTO tasks (subject, source, priority) VALUES (?, 'human:web', ?) RETURNING id, subject, priority, status, source, created_at"
-  );
-  const task = stmt.get(message, priority) as {
-    id: number; subject: string; priority: number; status: string; source: string; created_at: string;
-  };
+  const taskId = insertTask({
+    subject: message,
+    source: "human:web",
+    priority,
+  });
 
+  const task = db.query("SELECT id, subject, priority, status, source, created_at FROM tasks WHERE id = ?").get(taskId);
   return json(task, 201);
 }
 
@@ -322,7 +318,7 @@ function handleEvents(): Response {
 
       const interval = setInterval(() => {
         try {
-          // Check for new tasks
+          // Check for new tasks and status changes (single query to avoid double-sends)
           const newTasks = db.query(
             "SELECT id, subject, status, priority, source, created_at FROM tasks WHERE id > ? ORDER BY id ASC"
           ).all(lastTaskId) as Array<{ id: number; subject: string; status: string; priority: number; source: string | null; created_at: string }>;
@@ -338,26 +334,13 @@ function handleEvents(): Response {
             lastTaskId = task.id;
           }
 
-          // Check for task status changes (completed/failed tasks with id <= lastTaskId)
-          const changed = db.query(
-            "SELECT id, subject, status, priority, source, completed_at FROM tasks WHERE id <= ? AND status IN ('completed', 'failed') AND datetime(completed_at) >= datetime('now', '-10 seconds')"
-          ).all(lastTaskId) as Array<{ id: number; subject: string; status: string }>;
-
-          for (const task of changed) {
-            send(`task:${task.status}`, task);
-          }
-
           // Check for new cycles
           const newCycles = db.query(
             "SELECT id, task_id, started_at, completed_at, duration_ms, cost_usd FROM cycle_log WHERE id > ? ORDER BY id ASC"
           ).all(lastCycleId) as Array<{ id: number; task_id: number | null; started_at: string; completed_at: string | null; duration_ms: number | null; cost_usd: number }>;
 
           for (const cycle of newCycles) {
-            if (cycle.completed_at) {
-              send("cycle:completed", cycle);
-            } else {
-              send("cycle:started", cycle);
-            }
+            send(cycle.completed_at ? "cycle:completed" : "cycle:started", cycle);
             lastCycleId = cycle.id;
           }
 
@@ -365,12 +348,12 @@ function handleEvents(): Response {
           if (existsSync(HOOK_STATE_DIR)) {
             for (const file of readdirSync(HOOK_STATE_DIR).filter(f => f.endsWith(".json"))) {
               try {
-                const mtime = statSync(join(HOOK_STATE_DIR, file)).mtimeMs;
+                const filePath = join(HOOK_STATE_DIR, file);
+                const mtime = statSync(filePath).mtimeMs;
                 const prev = sensorMtimes.get(file);
                 if (prev !== undefined && mtime > prev) {
                   const name = file.replace(".json", "");
-                  const content = readFileSync(join(HOOK_STATE_DIR, file), "utf-8");
-                  const state = JSON.parse(content) as { last_ran: string; last_result: string };
+                  const state = JSON.parse(readFileSync(filePath, "utf-8")) as { last_ran: string; last_result: string };
                   send("sensor:ran", { name, last_ran: state.last_ran, last_result: state.last_result });
                 }
                 sensorMtimes.set(file, mtime);
