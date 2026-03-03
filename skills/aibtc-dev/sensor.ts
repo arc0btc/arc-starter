@@ -124,10 +124,11 @@ function auditRepo(repo: string): AuditResult {
     return { repo, gaps };
   }
 
-  // Check for release-please config (required — raw merge-to-main deploys are a gap)
+  // Check for release-please config — manifest files OR an existing workflow counts
   const releasePlease = gh(["api", `repos/${repo}/contents/.release-please-manifest.json`, "--jq", ".name"]);
   const releasePleaseConfig = gh(["api", `repos/${repo}/contents/release-please-config.json`, "--jq", ".name"]);
-  if (!releasePlease.ok && !releasePleaseConfig.ok) {
+  const releasePleaseWorkflow = gh(["api", `repos/${repo}/contents/.github/workflows/release-please.yml`, "--jq", ".name"]);
+  if (!releasePlease.ok && !releasePleaseConfig.ok && !releasePleaseWorkflow.ok) {
     gaps.push("No release-please configuration");
   }
 
