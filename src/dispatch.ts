@@ -43,6 +43,123 @@ const DAILY_BUDGET_USD = 200;
 /** Maximum time (ms) a Claude subprocess can run before being killed. 30 minutes. */
 const DISPATCH_TIMEOUT_MS = 30 * 60 * 1000;
 
+// ---- Error classification ----
+
+type ErrorClass = "auth" | "rate_limited" | "transient" | "unknown";
+
+/**
+ * Classify dispatch errors using contextual HTTP status patterns.
+ * Matches "status 401", "HTTP 403", "error 429" etc. — not bare numbers
+ * that could be task IDs like "task #401".
+ */
+function classifyError(errMsg: string): ErrorClass {
+  // Auth errors — 401/403 with HTTP context, or named errors
+  if (/(?:status|HTTP|error|code)[:\s]*(?:401|403)/i.test(errMsg)
+      || /\b(?:unauthorized|forbidden)\b/i.test(errMsg)) {
+    return "auth";
+  }
+  // Rate limiting — 429 with HTTP context, or named patterns
+  if (/(?:status|HTTP|error|code)[:\s]*429/i.test(errMsg)
+      || /\brate[_\s-]?limit/i.test(errMsg)
+      || /\btoo many requests\b/i.test(errMsg)) {
+    return "rate_limited";
+  }
+  // Transient — 5xx, network errors, timeouts, incomplete streams
+  if (/(?:status|HTTP|error|code)[:\s]*5\d{2}/i.test(errMsg)
+      || /\b(?:timeout|ETIMEDOUT|ECONNRESET|ECONNREFUSED|ENOTFOUND)\b/i.test(errMsg)
+      || /stream-JSON incomplete/i.test(errMsg)
+      || /timed out/i.test(errMsg)) {
+    return "transient";
+  }
+  return "unknown";
+}
+
+// ---- Circuit breaker ----
+
+const CIRCUIT_STATE_FILE = join(ROOT, "db", "hook-state", "dispatch-circuit.json");
+const CIRCUIT_FAILURE_THRESHOLD = 3;
+const CIRCUIT_OPEN_DURATION_MS = 15 * 60 * 1000;
+
+interface CircuitState {
+  consecutive_failures: number;
+  circuit_state: "closed" | "open" | "half_open";
+  opened_at: string | null;
+  last_error: string | null;
+  last_updated: string;
+}
+
+function readCircuitState(): CircuitState {
+  try {
+    const data = readFileSync(CIRCUIT_STATE_FILE, "utf-8");
+    return JSON.parse(data) as CircuitState;
+  } catch {
+    return {
+      consecutive_failures: 0,
+      circuit_state: "closed",
+      opened_at: null,
+      last_error: null,
+      last_updated: new Date().toISOString(),
+    };
+  }
+}
+
+function writeCircuitState(state: CircuitState): void {
+  state.last_updated = new Date().toISOString();
+  mkdirSync(join(ROOT, "db", "hook-state"), { recursive: true });
+  writeFileSync(CIRCUIT_STATE_FILE, JSON.stringify(state, null, 2));
+}
+
+/**
+ * Check circuit breaker. Returns true if dispatch should proceed.
+ * closed → always proceed. open → skip unless 15min elapsed (→ half_open).
+ * half_open → allow one probe.
+ */
+function checkCircuitBreaker(): boolean {
+  const state = readCircuitState();
+
+  if (state.circuit_state === "closed") return true;
+
+  if (state.circuit_state === "open") {
+    const elapsed = Date.now() - new Date(state.opened_at!).getTime();
+    if (elapsed >= CIRCUIT_OPEN_DURATION_MS) {
+      state.circuit_state = "half_open";
+      writeCircuitState(state);
+      log("dispatch: circuit breaker half-open — allowing probe request");
+      return true;
+    }
+    const remainingMin = Math.ceil((CIRCUIT_OPEN_DURATION_MS - elapsed) / 60_000);
+    log(`dispatch: circuit breaker OPEN — skipping (${remainingMin}min remaining, last: ${state.last_error?.slice(0, 100)})`);
+    return false;
+  }
+
+  // half_open — allow probe
+  return true;
+}
+
+function recordCircuitSuccess(): void {
+  const state = readCircuitState();
+  if (state.circuit_state === "closed" && state.consecutive_failures === 0) return;
+  state.consecutive_failures = 0;
+  state.circuit_state = "closed";
+  state.opened_at = null;
+  state.last_error = null;
+  writeCircuitState(state);
+}
+
+function recordCircuitFailure(errMsg: string): void {
+  const state = readCircuitState();
+  state.consecutive_failures += 1;
+  state.last_error = errMsg.slice(0, 500);
+
+  if (state.consecutive_failures >= CIRCUIT_FAILURE_THRESHOLD) {
+    state.circuit_state = "open";
+    state.opened_at = new Date().toISOString();
+    log(`dispatch: circuit breaker OPENED after ${state.consecutive_failures} consecutive failures`);
+  }
+
+  writeCircuitState(state);
+}
+
 // ---- Logging ----
 
 function log(msg: string): void {
@@ -800,11 +917,12 @@ async function discardWorktree(taskId: number): Promise<void> {
  * 1. Lock check (exit if another dispatch is running)
  * 1b. Acquire lock immediately (task_id=null) to prevent TOCTOU races
  * 2. Crash recovery (mark stale active tasks failed)
+ * 2b. Circuit breaker check (skip if API failing repeatedly)
  * 3. Pick highest-priority pending task
  * 4. Build prompt (SOUL.md + MEMORY.md + skill context + task details)
  * 5. Mark task active + update lock with task_id
  * 6. Spawn claude with stream-JSON output
- * 7. Parse result, track cost
+ * 7. Dispatch with exponential backoff (1s/2s/4s) for transient errors
  * 8. Close task (if LLM didn't self-close) + record cycle
  * 9. Clear lock + auto-commit (with syntax guard + service health check)
  */
@@ -833,6 +951,12 @@ export async function runDispatch(): Promise<void> {
       `dispatch: stale active task #${task.id} "${task.subject}" — marking failed (crash recovery)`
     );
     markTaskFailed(task.id, "Task was left active from a previous cycle (crash recovery)");
+  }
+
+  // 2b. Circuit breaker — skip dispatch if API has been failing repeatedly
+  if (!checkCircuitBreaker()) {
+    clearDispatchLock();
+    return;
   }
 
   // 3. Pick highest-priority pending task (getPendingTasks orders by priority ASC, id ASC)
@@ -906,9 +1030,44 @@ export async function runDispatch(): Promise<void> {
   let cycleUpdated = false;
 
   try {
-    // 7. Run dispatch (LLM call — in worktree if available)
-    const { result, cost_usd, api_cost_usd, input_tokens, output_tokens } =
-      await dispatch(prompt, model, worktreePath);
+    // 7. Run dispatch with exponential backoff for transient errors
+    const BACKOFF_MS = [1000, 2000, 4000];
+    let dispatchResult: DispatchResult | null = null;
+    let lastDispatchError: Error | null = null;
+
+    for (let attempt = 0; attempt <= BACKOFF_MS.length; attempt++) {
+      try {
+        dispatchResult = await dispatch(prompt, model, worktreePath);
+        break;
+      } catch (retryErr) {
+        lastDispatchError = retryErr as Error;
+        const errClass = classifyError(String(retryErr));
+
+        // 401/403: never retry — fail immediately
+        if (errClass === "auth") {
+          log(`dispatch: auth error — failing immediately: ${String(retryErr).slice(0, 200)}`);
+          break;
+        }
+
+        // Transient/rate-limited/unknown: retry with backoff if attempts remain
+        if (attempt < BACKOFF_MS.length) {
+          const delay = BACKOFF_MS[attempt];
+          log(`dispatch: ${errClass} error (attempt ${attempt + 1}/${BACKOFF_MS.length + 1}), retrying in ${delay}ms`);
+          await new Promise(r => setTimeout(r, delay));
+          continue;
+        }
+        log(`dispatch: retries exhausted after ${BACKOFF_MS.length + 1} attempts`);
+      }
+    }
+
+    if (!dispatchResult) {
+      throw lastDispatchError ?? new Error("dispatch failed with no error captured");
+    }
+
+    // Success — reset circuit breaker
+    recordCircuitSuccess();
+
+    const { result, cost_usd, api_cost_usd, input_tokens, output_tokens } = dispatchResult;
 
     log(
       `dispatch: task #${task.id} returned — cost_usd=$${cost_usd.toFixed(6)} api_cost=$${api_cost_usd.toFixed(6)} tokens=${input_tokens}in/${output_tokens}out`
@@ -943,28 +1102,29 @@ export async function runDispatch(): Promise<void> {
     cycleUpdated = true;
   } catch (err) {
     const errMsg = String(err);
+    const errClass = classifyError(errMsg);
 
-    // Detect non-retryable errors — never retry 401/403/429
-    const isAuthError = errMsg.includes("401") || errMsg.includes("403");
-    const isRateLimited = errMsg.includes("429") || /rate.?limit/i.test(errMsg);
+    // Record failure in circuit breaker
+    recordCircuitFailure(errMsg);
 
-    const attemptNumber = task.attempt_count + 1;
-    const noRetry = isAuthError || isRateLimited;
-    if (!noRetry && attemptNumber < task.max_retries) {
-      requeueTask(task.id);
-      log(
-        `dispatch: task #${task.id} failed (attempt ${attemptNumber}/${task.max_retries}) — requeuing for retry: ${errMsg}`
-      );
+    if (errClass === "auth") {
+      // Auth errors: fail immediately, never requeue
+      markTaskFailed(task.id, `Auth error (not retried): ${errMsg.slice(0, 400)}`);
+      log(`dispatch: task #${task.id} failed — auth error, not retrying`);
     } else {
-      const reason = isAuthError
-        ? `Auth error (not retried): ${errMsg.slice(0, 400)}`
-        : isRateLimited
-          ? `Rate limited (not retried): ${errMsg.slice(0, 400)}`
-          : `Max retries exhausted: ${errMsg.slice(0, 400)}`;
-      markTaskFailed(task.id, reason);
-      log(
-        `dispatch: task #${task.id} failed (attempt ${attemptNumber}/${task.max_retries}) — ${isAuthError ? "auth error, not retrying" : isRateLimited ? "rate limited, not retrying" : "max retries exhausted"}`
-      );
+      // Transient/rate-limited/unknown: requeue if under max_retries
+      const attemptNumber = task.attempt_count + 1;
+      if (attemptNumber < task.max_retries) {
+        requeueTask(task.id);
+        log(
+          `dispatch: task #${task.id} failed (attempt ${attemptNumber}/${task.max_retries}, ${errClass}) — requeuing: ${errMsg.slice(0, 200)}`
+        );
+      } else {
+        markTaskFailed(task.id, `Max retries exhausted (${errClass}): ${errMsg.slice(0, 400)}`);
+        log(
+          `dispatch: task #${task.id} failed (attempt ${attemptNumber}/${task.max_retries}) — max retries exhausted`
+        );
+      }
     }
 
     if (!cycleUpdated) {
