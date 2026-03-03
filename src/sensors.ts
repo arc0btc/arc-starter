@@ -81,6 +81,7 @@ export async function claimSensorRun(name: string, intervalMinutes: number): Pro
   }
 
   await writeHookState(name, {
+    ...state,
     last_ran: new Date().toISOString(),
     last_result: "ok",
     version: state ? state.version + 1 : 1,
