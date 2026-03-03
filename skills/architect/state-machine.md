@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-03T02:35:00.000Z*
+*Generated: 2026-03-03T12:37:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -9,6 +9,11 @@ stateDiagram-v2
     state SystemdTimer {
         [*] --> SensorsService
         [*] --> DispatchService
+        note right of SystemdTimer
+            Persistent services (always on):
+            arc-web.service — dashboard port 3000
+            arc-mcp.service — MCP server port 3100
+        end note
     }
 
     state SensorsService {

@@ -1,3 +1,35 @@
+## 2026-03-03T12:37:00.000Z
+
+0 finding(s): 0 error, 0 warn, 0 info → **HEALTHY**
+
+**Codebase changes since last audit (2026-03-03T02:35Z, commits ae0dd14 → e3f20e2):**
+- **`src/services.ts`** — `arc-mcp.service` added as 4th managed service (persistent HTTP MCP server on port 3100, Type=simple, Restart=on-failure on systemd; KeepAlive=true on launchd). Wired into install/uninstall/status flows alongside arc-sensors, arc-dispatch, and arc-web.
+- **`skills/aibtc-news`** — Brief dedup race condition fixed (commit e3f20e2): `hook-state.lastBriefDate` now written in `cmdCompileBrief` at task start, not in sensor at task creation time. Prevents duplicate brief tasks if sensor fires multiple times before first task completes. Fixes tasks #741/#760 incident.
+- **`skills/aibtc-dev/SKILL.md`** — Docs updated: aibtc-projects v2 migration status (Worker + DO + SQLite), 5 handoff issues (#44–#48) filed and whoabuddy tagged.
+- **Inventory:** 45 skills, 27 sensors — unchanged.
+
+**5-Step Review (2026-03-03 12:37Z):**
+
+**Step 1 — Requirements:**
+- arc-mcp.service: **VALID** — persistent MCP server enables external clients (Claude Code desktop, external agents) to connect to Arc's task queue and memory at any time. Distinct from dispatch: read/write task queue access, read-only memory, no LLM overhead. Clean separation from dispatch cycle. Port 3100 avoids conflict with arc-web (3000).
+- aibtc-news dedup fix: **VALID** — Race condition where sensor queued second brief before first task wrote `lastBriefDate` was real (documented incidents: tasks #741, #760 both ran same-day brief). Fix is correct: write the dedup flag at execution start, not queue time. More atomic, simpler mental model.
+- aibtc-dev docs update: **VALID** housekeeping — no structural impact.
+
+**Step 2 — Delete:** No deletions. 45 skills, all necessary. arc-mcp.service is additive (no redundancy with arc-web, which serves humans; MCP serves agents). No dead sensors or unreachable code paths. ✓
+
+**Step 3 — Simplify:**
+- arc-mcp.service follows exact same pattern as arc-web.service (persistent process, port-configurable). Consistent implementation.
+- aibtc-news dedup is now simpler to reason about: flag is set before work starts, not speculatively at queue time.
+- Diagram updated: added persistent services note to SystemdTimer block (arc-web + arc-mcp). Previously arc-web was invisible in the diagram despite being a deployed service.
+
+**Step 4 — Accelerate:** External integrations can now connect to Arc's MCP server without waiting for a dispatch cycle — latency win for external consumers. Core sensor→dispatch pipeline unchanged. ✓
+
+**Step 5 — Automate:** arc-mcp.service wired into install/uninstall/status — fully automated. aibtc-news dedup now automatic at correct lifecycle point. ✓
+
+**Architecture Assessment:** Healthy. 4-service deployment (sensors, dispatch, web, mcp) is now the complete picture — diagram updated to reflect this. Brief dedup fix closes a long-standing race condition. No follow-up tasks needed. 45 skills, 27 sensors, stable pipeline.
+
+---
+
 ## 2026-03-03T02:35:00.000Z
 
 0 finding(s): 0 error, 0 warn, 0 info → **HEALTHY**
