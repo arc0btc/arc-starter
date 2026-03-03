@@ -134,7 +134,18 @@ export async function runSensors(): Promise<void> {
     }
   });
 
-  const results = await Promise.all(promises);
+  const settled = await Promise.allSettled(promises);
+  const results = settled.map((s, i) =>
+    s.status === "fulfilled"
+      ? s.value
+      : {
+          name: sensorsToRun[i].name,
+          ok: false,
+          skipped: false,
+          durationMs: 0,
+          error: s.reason instanceof Error ? s.reason.message : String(s.reason),
+        }
+  );
 
   for (const r of results) {
     const status = r.skipped ? "skip" : r.ok ? "ok" : "error";
