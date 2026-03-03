@@ -14,7 +14,7 @@ Manages Arc's email (arc@arc0.me, arc@arc0btc.com, spark@arc0.me). Syncs from Cl
 
 | File | Purpose |
 |------|---------|
-| `sensor.ts` | Syncs every 1 min, queues task for oldest unread inbox message |
+| `sensor.ts` | Syncs every 1 min, filters automated GitHub noise, queues tasks for unread inbox messages grouped by sender |
 | `sync.ts` | Fetches inbox/sent from worker API, upserts into `email_messages` table |
 | `cli.ts` | Unified CLI: send, mark-read, sync, stats, fetch |
 | `AGENT.md` | Subagent briefing for email tasks |
@@ -35,11 +35,14 @@ Default sender: `arc@arc0.me`. Use `--from arc@arc0btc.com` for professional.
 
 - Cadence: 1 minute
 - Syncs inbox (50) + sent (20) from worker API
-- Queues task for oldest unread inbox message
+- **Noise filter** (auto-dismissed, marked as read without creating tasks):
+  - **Senders:** `notifications@github.com` (CI runs), `noreply@github.com` (PR events, releases, release-please)
+  - **Subject patterns:** GitHub Actions results, Dependabot, GitHub account alerts, PR lifecycle (opened/closed/merged/reopened), release automation, PR review notifications
+- Queues one task per sender thread for remaining unread messages:
   - whoabuddy emails: priority 1 (highest)
-  - spark@arc0.me emails: priority 3 (high)
+  - spark@arc0me.typeform.com emails: priority 3 (high)
   - other emails: priority 5 (default)
-- Dedup: `pendingTaskExistsForSource("sensor:email:{remote_id}")` — allows re-queue after completion
+- Dedup: one task per sender thread; allows re-queue after task completion
 
 ## Infrastructure Requirement
 

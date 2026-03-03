@@ -18,6 +18,7 @@ const log = createSensorLogger(SENSOR_NAME);
 
 const NOISE_SENDERS = new Set([
   "notifications@github.com", // CI run results (Actions)
+  "noreply@github.com",       // PR/release notifications, dependabot, release-please
 ]);
 
 const NOISE_SUBJECT_PATTERNS: RegExp[] = [
@@ -25,6 +26,9 @@ const NOISE_SUBJECT_PATTERNS: RegExp[] = [
   /\bdependabot\b/i,                                  // Dependabot PRs
   /\[GitHub\]/i,                                       // GitHub account notifications (SSH keys, etc.)
   /Your GitHub launch code/i,                          // Onboarding spam
+  /Pull request.*?(opened|closed|merged|reopened)/i, // PR lifecycle
+  /\brelease(d?)[\s-]?(please|created|published)\b/i, // Release automation
+  /Review (requested|required) on/i,                  // PR review notifications
 ];
 
 function isNoiseEmail(msg: EmailMessage): boolean {
