@@ -1,13 +1,13 @@
 // status-report/sensor.ts
 //
-// Creates a watch report task every hour.
+// Creates a watch report task every 6 hours during active hours.
 // Pure TypeScript — no LLM. The dispatch task does the actual report generation.
 
 import { claimSensorRun } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "status-report";
-const INTERVAL_MINUTES = 60; // 1 hour
+const INTERVAL_MINUTES = 360; // 6 hours
 const TASK_SOURCE = "sensor:status-report";
 const PRIORITY = 6; // below normal work, above housekeeping
 
