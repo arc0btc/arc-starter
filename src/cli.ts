@@ -107,13 +107,27 @@ function cmdTasksList(args: string[]): void {
   }
 }
 
+/**
+ * Parse a human-friendly duration string into milliseconds.
+ * Supports: "30m", "2h", "1d", "1h30m", "90m", "2d12h"
+ */
+function parseDuration(s: string): number | null {
+  const pattern = /^(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m)?$/;
+  const match = s.trim().match(pattern);
+  if (!match || (!match[1] && !match[2] && !match[3])) return null;
+  const days = parseInt(match[1] ?? "0", 10);
+  const hours = parseInt(match[2] ?? "0", 10);
+  const minutes = parseInt(match[3] ?? "0", 10);
+  return (days * 24 * 60 + hours * 60 + minutes) * 60 * 1000;
+}
+
 function cmdTasksAdd(args: string[]): void {
   const { flags } = parseFlags(args);
 
   const subject = flags["subject"];
   if (!subject) {
     process.stderr.write("Error: --subject is required for 'tasks add'\n");
-    process.stderr.write("Usage: arc tasks add --subject \"text\" [--description TEXT] [--priority N] [--source TEXT] [--skills S1,S2] [--parent ID] [--model opus|sonnet|haiku]\n");
+    process.stderr.write("Usage: arc tasks add --subject \"text\" [--description TEXT] [--priority N] [--source TEXT] [--skills S1,S2] [--parent ID] [--model opus|sonnet|haiku] [--defer DURATION | --scheduled-for ISO_DATETIME]\n");
     process.exit(1);
   }
 
@@ -122,8 +136,25 @@ function cmdTasksAdd(args: string[]): void {
     : undefined;
   const parentId = flags["parent"] ? parseInt(flags["parent"], 10) : undefined;
   const priority = flags["priority"] ? parseInt(flags["priority"], 10) : undefined;
-
   const model = flags["model"] ?? undefined;
+
+  // Resolve scheduled_for from --defer or --scheduled-for
+  let scheduledFor: string | undefined;
+  if (flags["defer"]) {
+    const ms = parseDuration(flags["defer"]);
+    if (ms === null) {
+      process.stderr.write(`Error: --defer "${flags["defer"]}" is not a valid duration. Examples: 30m, 2h, 1d, 1h30m\n`);
+      process.exit(1);
+    }
+    scheduledFor = new Date(Date.now() + ms).toISOString();
+  } else if (flags["scheduled-for"]) {
+    const d = new Date(flags["scheduled-for"]);
+    if (isNaN(d.getTime())) {
+      process.stderr.write(`Error: --scheduled-for "${flags["scheduled-for"]}" is not a valid datetime\n`);
+      process.exit(1);
+    }
+    scheduledFor = d.toISOString();
+  }
 
   initDatabase();
   const id = insertTask({
@@ -134,9 +165,14 @@ function cmdTasksAdd(args: string[]): void {
     source: flags["source"],
     parent_id: parentId,
     model,
+    scheduled_for: scheduledFor,
   });
 
-  process.stdout.write(`Created task #${id}: ${subject}\n`);
+  if (scheduledFor) {
+    process.stdout.write(`Created task #${id} (scheduled for ${scheduledFor}): ${subject}\n`);
+  } else {
+    process.stdout.write(`Created task #${id}: ${subject}\n`);
+  }
 }
 
 function cmdTasksClose(args: string[]): void {
@@ -413,7 +449,10 @@ COMMANDS
 
   tasks add --subject TEXT [--description TEXT] [--priority N] [--source TEXT]
             [--skills SKILL1,SKILL2] [--parent ID] [--model opus|sonnet|haiku]
+            [--defer DURATION | --scheduled-for ISO_DATETIME]
     Create a new task. --model overrides priority-based model routing.
+    --defer accepts durations like 30m, 2h, 1d, 1h30m. Past-due scheduled
+    tasks automatically receive a +2 priority boost when dispatched.
 
   tasks update --id N [--subject TEXT] [--description TEXT] [--priority N]
               [--model opus|sonnet|haiku]

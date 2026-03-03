@@ -320,12 +320,25 @@ export function getDatabase(): Database {
 /**
  * Returns tasks eligible for dispatch: status='pending', respects scheduled_for, ordered by
  * priority ASC (1 = highest), then id ASC for stable ordering within same priority.
+ *
+ * Past-due scheduled tasks (scheduled_for < now - 1 min) receive a +2 effective priority
+ * boost (lower number = higher priority, capped at 1) so they aren't starved by
+ * continuously-created unscheduled tasks. The raw `priority` field is unchanged.
  */
 export function getPendingTasks(): Task[] {
   const db = getDatabase();
   return db
     .query(
-      "SELECT * FROM tasks WHERE status = 'pending' AND (scheduled_for IS NULL OR datetime(scheduled_for) <= datetime('now')) ORDER BY priority ASC, id ASC"
+      `SELECT * FROM tasks
+       WHERE status = 'pending'
+         AND (scheduled_for IS NULL OR datetime(scheduled_for) <= datetime('now'))
+       ORDER BY
+         CASE
+           WHEN scheduled_for IS NOT NULL AND datetime(scheduled_for) < datetime('now', '-1 minute')
+           THEN MAX(1, priority - 2)
+           ELSE priority
+         END ASC,
+         id ASC`
     )
     .all() as Task[];
 }
