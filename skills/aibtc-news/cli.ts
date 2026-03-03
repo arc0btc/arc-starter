@@ -2,8 +2,11 @@
 // skills/aibtc-news/cli.ts
 // CLI for claiming beats, filing signals, listing beats/signals, and checking correspondent status
 
+import { readHookState, writeHookState } from "../../src/sensors.ts";
+
 const API_BASE = "https://aibtc.news/api";
 const ARC_BTC_ADDRESS = "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933";
+const SENSOR_NAME = "aibtc-news";
 
 // ---- Helpers ----
 
@@ -536,6 +539,16 @@ async function cmdCompileBrief(args: string[]): Promise<void> {
         `Cannot compile brief: score ${score} is below minimum 50. File more signals to increase your score.`
       );
     }
+
+    // Record today as the brief compilation date in hook-state at task start
+    const today = new Date().toISOString().split("T")[0];
+    const hookState = (await readHookState(SENSOR_NAME)) as Record<string, unknown> | null;
+    const newState = {
+      ...hookState,
+      lastBriefDate: today,
+    };
+    await writeHookState(SENSOR_NAME, newState);
+    log(`updated hook-state: lastBriefDate = ${today}`);
 
     // Format message for signing
     const timestamp = new Date().toISOString();

@@ -194,14 +194,6 @@ export default async function aibtcNewsSensor(): Promise<string> {
           status: "pending",
           source: briefSource,
         });
-
-        // Record today as the brief compilation date in hook-state
-        const newState: HookState = {
-          ...hookState,
-          lastBriefDate: today,
-        };
-        await writeHookState(SENSOR_NAME, newState);
-        log(`updated hook-state: lastBriefDate = ${today}`);
       }
     } else if (score >= 50) {
       // Diagnostic logging for ineligible but score-eligible cases
