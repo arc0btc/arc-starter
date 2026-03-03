@@ -23,6 +23,10 @@ const STATIC_DIR = join(import.meta.dir, "web");
 const HOOK_STATE_DIR = join(import.meta.dir, "../db/hook-state");
 const SKILLS_DIR = join(import.meta.dir, "../skills");
 
+const MAX_SSE_CLIENTS = 50;
+const SSE_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+const sseClients = new Set<ReadableStreamDefaultController<Uint8Array>>();
+
 const MIME_TYPES: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -288,6 +292,11 @@ async function handlePostMessage(req: Request): Promise<Response> {
 // ---- SSE ----
 
 function handleEvents(): Response {
+  if (sseClients.size >= MAX_SSE_CLIENTS) {
+    console.log(`[SSE] Connection rejected: limit reached (${sseClients.size}/${MAX_SSE_CLIENTS})`);
+    return new Response("Too many connections", { status: 503 });
+  }
+
   let lastTaskId = (db.query("SELECT MAX(id) as max_id FROM tasks").get() as { max_id: number | null })?.max_id ?? 0;
   let lastCycleId = (db.query("SELECT MAX(id) as max_id FROM cycle_log").get() as { max_id: number | null })?.max_id ?? 0;
 
@@ -302,18 +311,30 @@ function handleEvents(): Response {
     }
   }
 
+  let cleanupFn: (() => void) | null = null;
+
   const stream = new ReadableStream({
     start(controller) {
+      sseClients.add(controller);
+      console.log(`[SSE] Client connected (${sseClients.size}/${MAX_SSE_CLIENTS} active)`);
+
       const encoder = new TextEncoder();
 
       const send = (event: string, data: unknown): void => {
-        controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
+        try {
+          controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
+        } catch { /* controller may already be closed */ }
       };
 
       // Send initial heartbeat
       send("heartbeat", { time: new Date().toISOString() });
 
-      const interval = setInterval(() => {
+      const refs = {
+        interval: null as ReturnType<typeof setInterval> | null,
+        timeout: null as ReturnType<typeof setTimeout> | null,
+      };
+
+      refs.interval = setInterval(() => {
         try {
           // Check for new tasks and status changes (single query to avoid double-sends)
           const newTasks = db.query(
@@ -362,17 +383,24 @@ function handleEvents(): Response {
         }
       }, 5000);
 
-      // Cleanup on close
-      const cleanup = (): void => {
-        clearInterval(interval);
+      let cleaned = false;
+      cleanupFn = (): void => {
+        if (cleaned) return;
+        cleaned = true;
+        if (refs.interval) clearInterval(refs.interval);
+        if (refs.timeout) clearTimeout(refs.timeout);
+        sseClients.delete(controller);
+        console.log(`[SSE] Client disconnected (${sseClients.size}/${MAX_SSE_CLIENTS} active)`);
       };
 
-      // Store cleanup for cancel
-      (controller as unknown as { _cleanup: () => void })._cleanup = cleanup;
+      refs.timeout = setTimeout(() => {
+        send("timeout", { time: new Date().toISOString() });
+        try { controller.close(); } catch { /* already closed */ }
+        cleanupFn?.();
+      }, SSE_TIMEOUT_MS);
     },
-    cancel(controller) {
-      const cleanup = (controller as unknown as { _cleanup?: () => void })?._cleanup;
-      if (cleanup) cleanup();
+    cancel() {
+      cleanupFn?.();
     },
   });
 
