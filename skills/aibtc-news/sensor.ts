@@ -1,7 +1,7 @@
 // skills/aibtc-news/sensor.ts
 // Sensor for beat activity monitoring and signal filing opportunities
 
-import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, fetchWithRetry, readHookState, writeHookState } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
 import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
 
@@ -9,13 +9,14 @@ const SENSOR_NAME = "aibtc-news";
 const INTERVAL_MINUTES = 360; // 6 hours
 const API_BASE = "https://aibtc.news/api";
 const RATE_LIMIT_MINUTES = 240; // 4 hours — matches aibtc.news per-beat rate limit
+const BRIEF_SCORE_THRESHOLD = 50; // minimum score to queue brief compilation
 
 const log = createSensorLogger(SENSOR_NAME);
 
 async function fetchStatus(): Promise<Record<string, unknown> | null> {
   try {
     const url = `${API_BASE}/status/${ARC_BTC_ADDRESS}`;
-    const response = await fetch(url);
+    const response = await fetchWithRetry(url);
     if (!response.ok) {
       log(`warn: status fetch failed with ${response.status}`);
       return null;
@@ -167,8 +168,8 @@ export default async function aibtcNewsSensor(): Promise<string> {
     const hookState = await readHookState(SENSOR_NAME);
     const lastBriefDate = hookState?.lastBriefDate as string | undefined;
 
-    if (score >= 50 && signalFiledToday && lastBriefDate !== today) {
-      log(`brief compilation eligible: score ${score} >= 50, signal filed today, not yet compiled today`);
+    if (score >= BRIEF_SCORE_THRESHOLD && signalFiledToday && lastBriefDate !== today) {
+      log(`brief compilation eligible: score ${score} >= ${BRIEF_SCORE_THRESHOLD}, signal filed today, not yet compiled today`);
 
       const briefSource = `sensor:${SENSOR_NAME}:brief`;
       const taskExists = pendingTaskExistsForSource(briefSource);
@@ -185,12 +186,12 @@ export default async function aibtcNewsSensor(): Promise<string> {
           source: briefSource,
         });
       }
-    } else if (score >= 50) {
+    } else if (score >= BRIEF_SCORE_THRESHOLD) {
       // Diagnostic logging for ineligible but score-eligible cases
       const reasons = [];
       if (!signalFiledToday) reasons.push("no signal filed today");
       if (lastBriefDate === today) reasons.push("brief already compiled today");
-      if (score < 50) reasons.push(`score ${score} < 50`);
+      if (score < BRIEF_SCORE_THRESHOLD) reasons.push(`score ${score} < ${BRIEF_SCORE_THRESHOLD}`);
       log(
         `brief compilation NOT eligible (${reasons.join(", ")})`
       );

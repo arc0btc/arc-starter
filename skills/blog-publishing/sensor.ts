@@ -9,6 +9,7 @@ import * as fs from "fs";
 const SENSOR_NAME = "blog-publishing";
 const INTERVAL_MINUTES = 60;
 const WEEKLY_MINUTES = 7 * 24 * 60; // 7 days in minutes
+const CADENCE_DAYS_THRESHOLD = 7; // days between blog posts
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -119,7 +120,7 @@ export default async function blogPublishingSensor(): Promise<string> {
     if (mostRecentPostDate) {
       const now = new Date();
       const daysSinceLastPost = (now.getTime() - mostRecentPostDate.getTime()) / (1000 * 60 * 60 * 24);
-      if (daysSinceLastPost >= 7) {
+      if (daysSinceLastPost >= CADENCE_DAYS_THRESHOLD) {
         timeForNewContent = true;
       }
     } else {

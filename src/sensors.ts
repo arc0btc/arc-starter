@@ -63,6 +63,38 @@ export function createSensorLogger(name: string): (msg: string) => void {
   };
 }
 
+// ---- Network helpers ----
+
+/**
+ * Fetch with a single retry on 5xx server errors or network failures.
+ * Client errors (4xx) are returned immediately without retrying.
+ */
+export async function fetchWithRetry(
+  url: string,
+  options?: RequestInit,
+  maxRetries: number = 1,
+  delayMs: number = 2000,
+): Promise<Response> {
+  let lastError: Error | undefined;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    if (attempt > 0) {
+      await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
+    }
+    try {
+      const res = await fetch(url, options);
+      if (res.status >= 500 && attempt < maxRetries) {
+        lastError = new Error(`HTTP ${res.status}`);
+        continue;
+      }
+      return res;
+    } catch (e) {
+      lastError = e as Error;
+      if (attempt < maxRetries) continue;
+    }
+  }
+  throw lastError ?? new Error("fetchWithRetry: exhausted retries");
+}
+
 // ---- Scheduling ----
 
 export async function shouldRun(name: string, intervalMinutes: number): Promise<boolean> {

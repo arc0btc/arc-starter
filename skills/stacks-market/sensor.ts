@@ -1,7 +1,7 @@
 // skills/stacks-market/sensor.ts
 // Read-only prediction market intelligence — detect high-volume markets, file signals to aibtc-news
 
-import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, fetchWithRetry } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
 import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
 
@@ -33,7 +33,7 @@ const log = createSensorLogger(SENSOR_NAME);
 async function canFileSignal(): Promise<boolean> {
   try {
     const url = `${AIBTC_NEWS_API}/status/${ARC_BTC_ADDRESS}`;
-    const response = await fetch(url);
+    const response = await fetchWithRetry(url);
     if (!response.ok) {
       log(`warn: aibtc-news status check failed (${response.status}); assuming rate-limited`);
       return false;
@@ -54,7 +54,7 @@ async function fetchMarkets(limit = 50): Promise<Market[] | null> {
     // Don't filter by status=active; get all markets and filter ourselves
     // This gives us better control over what we consider "active"
 
-    const response = await fetch(url.toString(), {
+    const response = await fetchWithRetry(url.toString(), {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });

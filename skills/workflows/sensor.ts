@@ -1,4 +1,4 @@
-import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, fetchWithRetry } from "../../src/sensors.ts";
 import {
   insertTask,
   pendingTaskExistsForSource,
@@ -72,7 +72,7 @@ function mapPRStateToWorkflowState(pr: GithubPR): WorkflowState {
 async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
   const token = await getCredential("github", "token");
   if (!token) {
-    console.warn("pr-lifecycle: github token not found in credentials");
+    log("pr-lifecycle: github token not found in credentials");
     return [];
   }
 
@@ -81,7 +81,7 @@ async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
   for (const repoPath of repos) {
     const [owner, repo] = repoPath.split("/");
     if (!owner || !repo) {
-      console.warn(`pr-lifecycle: invalid repo path: ${repoPath}`);
+      log(`pr-lifecycle: invalid repo path: ${repoPath}`);
       continue;
     }
 
@@ -106,7 +106,7 @@ async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
         }
       `;
 
-      const response = await fetch("https://api.github.com/graphql", {
+      const response = await fetchWithRetry("https://api.github.com/graphql", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -116,9 +116,7 @@ async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
       });
 
       if (!response.ok) {
-        console.warn(
-          `pr-lifecycle: GitHub API error for ${repoPath}: ${response.status}`
-        );
+        log(`pr-lifecycle: GitHub API error for ${repoPath}: ${response.status}`);
         continue;
       }
 
@@ -142,9 +140,7 @@ async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
       };
 
       if (data.errors) {
-        console.warn(
-          `pr-lifecycle: GraphQL error for ${repoPath}: ${data.errors.map((e) => e.message).join(", ")}`
-        );
+        log(`pr-lifecycle: GraphQL error for ${repoPath}: ${data.errors.map((e) => e.message).join(", ")}`);
         continue;
       }
 
@@ -170,9 +166,7 @@ async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
         });
       }
     } catch (err) {
-      console.warn(
-        `pr-lifecycle: error fetching ${repoPath}: ${err instanceof Error ? err.message : String(err)}`
-      );
+      log(`pr-lifecycle: error fetching ${repoPath}: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
@@ -266,9 +260,7 @@ export default async function workflowsSensor(): Promise<string> {
       // Get the template for this workflow
       const template = getTemplateByName(workflow.template);
       if (!template) {
-        console.warn(
-          `workflows-meta: unknown template "${workflow.template}" for workflow ${workflow.id}`
-        );
+        log(`workflows-meta: unknown template "${workflow.template}" for workflow ${workflow.id}`);
         continue;
       }
 
