@@ -163,18 +163,28 @@ async function cmdSendMessage(args: Record<string, string | boolean>): Promise<v
       process.exit(1);
     }
 
-    // Wallet x402 exits 0 even on error — check the JSON payload
+    // Validate the JSON response — require explicit success + payment txid
+    let parsed: Record<string, unknown>;
     try {
-      const parsed = JSON.parse(stdout.trim()) as Record<string, unknown>;
-      if (parsed.error || parsed.success === false) {
-        logError(`Message failed: ${(parsed.error as string) || (parsed.message as string) || "unknown error"}`);
-        process.exit(1);
-      }
+      parsed = JSON.parse(stdout.trim()) as Record<string, unknown>;
     } catch {
-      // Not JSON — exit code was 0 and no JSON error, treat as success
+      logError("No valid JSON response from x402 command — delivery unconfirmed");
+      process.exit(1);
     }
 
-    log(`✓ Message sent to ${agent.name} (100 sats sBTC)`);
+    if (parsed.error || parsed.success !== true) {
+      logError(`Message failed: ${(parsed.error as string) || (parsed.message as string) || "unknown error"}`);
+      process.exit(1);
+    }
+
+    // Require settlement txid as proof of delivery
+    const payment = parsed.payment as Record<string, unknown> | undefined;
+    if (!payment?.txid) {
+      logError("Message response missing payment txid — delivery not confirmed. Server may have returned 200 without settling the transaction.");
+      process.exit(1);
+    }
+
+    log(`✓ Message delivered to ${agent.name} (txid: ${(payment.txid as string).slice(0, 16)}...)`);
   } catch (e) {
     const err = e as Error;
     logError(`Command execution failed: ${err.message}`);

@@ -237,7 +237,22 @@ async function runX402(x402Args: string[]): Promise<{ stdout: string; stderr: st
 
   const result = await readWithTimeout;
   await stderrPromise.catch(() => {});
-  return { stdout: result, stderr: stderr.trim(), exitCode: 0 };
+
+  // Derive exit code from JSON response instead of hardcoding 0.
+  // The subprocess is killed before it can exit naturally, so we
+  // check the payload to determine success or failure.
+  let exitCode = 0;
+  try {
+    const parsed = JSON.parse(result) as Record<string, unknown>;
+    if (parsed.error || parsed.success === false) {
+      exitCode = 1;
+    }
+  } catch {
+    // Non-JSON output — treat as failure
+    exitCode = 1;
+  }
+
+  return { stdout: result, stderr: stderr.trim(), exitCode };
 }
 
 // ---- Subcommands ----
