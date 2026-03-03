@@ -26,6 +26,7 @@ const SKILLS_DIR = join(import.meta.dir, "../skills");
 const MAX_SSE_CLIENTS = 50;
 const SSE_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
 const sseClients = new Set<ReadableStreamDefaultController<Uint8Array>>();
+const sseCleanups = new WeakMap<ReadableStreamDefaultController<Uint8Array>, () => void>();
 
 const MIME_TYPES: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
@@ -311,8 +312,6 @@ function handleEvents(): Response {
     }
   }
 
-  let cleanupFn: (() => void) | null = null;
-
   const stream = new ReadableStream({
     start(controller) {
       sseClients.add(controller);
@@ -384,7 +383,7 @@ function handleEvents(): Response {
       }, 5000);
 
       let cleaned = false;
-      cleanupFn = (): void => {
+      const cleanup = (): void => {
         if (cleaned) return;
         cleaned = true;
         if (refs.interval) clearInterval(refs.interval);
@@ -393,14 +392,17 @@ function handleEvents(): Response {
         console.log(`[SSE] Client disconnected (${sseClients.size}/${MAX_SSE_CLIENTS} active)`);
       };
 
+      sseCleanups.set(controller, cleanup);
+
       refs.timeout = setTimeout(() => {
         send("timeout", { time: new Date().toISOString() });
         try { controller.close(); } catch { /* already closed */ }
-        cleanupFn?.();
+        cleanup();
       }, SSE_TIMEOUT_MS);
     },
-    cancel() {
-      cleanupFn?.();
+    cancel(controller) {
+      const cleanup = sseCleanups.get(controller);
+      cleanup?.();
     },
   });
 
