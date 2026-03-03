@@ -950,9 +950,25 @@
     .copy-btn {
       outline: none;
     }
+
+    /* Visually hidden but accessible to screen readers */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
   </style>
 </head>
 <body>
+
+  <!-- Screen-reader live region for SSE-driven dynamic updates -->
+  <div id="sse-announcer" role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
 
   <!-- ---- Header ---- -->
   <header class="header">
@@ -997,7 +1013,7 @@
           <textarea class="message-input" id="message-input" placeholder="Send a task to Arc..." rows="1" maxlength="500" aria-label="Send a task to Arc"></textarea>
           <button type="submit" class="message-send" id="message-send">Send</button>
         </form>
-        <div class="message-status" id="message-status"></div>
+        <div class="message-status" id="message-status" aria-live="polite" aria-atomic="true"></div>
       </div>
     </section>
 
@@ -1724,6 +1740,15 @@
 
     // ---- SSE Connection ----
 
+    var sseAnnouncer = document.getElementById('sse-announcer');
+    function announce(msg) {
+      if (!sseAnnouncer) return;
+      sseAnnouncer.textContent = '';
+      // Force a reflow so identical consecutive messages are re-read by screen readers
+      void sseAnnouncer.offsetWidth;
+      sseAnnouncer.textContent = msg;
+    }
+
     var sseRetryDelay = 2000;
     var sseMaxDelay = 30000;
     var sseConnected = false;
@@ -1767,6 +1792,7 @@
           var matchesSearch = !currentSearch || (task.subject || '').toLowerCase().includes(currentSearch.toLowerCase());
           if (matchesFilter && matchesSearch) prependToFeed(task);
           refreshStatus();
+          announce('New task: ' + (task.subject || 'untitled'));
         } catch(err) { console.error('SSE task:created parse error', err); }
       });
 
@@ -1775,6 +1801,7 @@
           var task = JSON.parse(e.data);
           flashFeedItem(task.id, 'completed');
           refreshStatus();
+          announce('Task completed: ' + (task.subject || '#' + task.id));
         } catch(err) { console.error('SSE task:completed parse error', err); }
       });
 
@@ -1783,6 +1810,7 @@
           var task = JSON.parse(e.data);
           flashFeedItem(task.id, 'failed');
           refreshStatus();
+          announce('Task failed: ' + (task.subject || '#' + task.id));
         } catch(err) { console.error('SSE task:failed parse error', err); }
       });
 
@@ -1791,6 +1819,7 @@
         var dot = document.getElementById('status-dot');
         dot.className = 'status-dot live';
         dot.title = 'Dispatch running';
+        announce('Dispatch cycle started');
       });
 
       events.addEventListener('cycle:completed', function(e) {
@@ -1803,6 +1832,7 @@
               renderMetrics(s, c.costs || []);
             });
           }).catch(function() {});
+          announce('Dispatch cycle completed');
         } catch(err) { console.error('SSE cycle:completed parse error', err); }
       });
 
