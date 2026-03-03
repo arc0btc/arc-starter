@@ -26,7 +26,9 @@ Service health monitoring and production-grade enforcement for the AIBTC ecosyst
 
 **Newer / needs modernization:**
 - `aibtcdev/agent-news` — aibtc.news (CF Pages Functions, legacy pattern)
-- `aibtcdev/aibtc-projects` — Project tracker (CF Pages Functions, legacy pattern)
+
+**v2 rewrite in progress (branch: v2, staging: aibtc-projects-staging.stacklets.workers.dev):**
+- `aibtcdev/aibtc-projects` — Project tracker. v1: CF Pages Functions + KV blob (legacy). v2: CF Worker + Durable Object + SQLite + Hono + TypeScript strict + 148 tests. Awaiting DNS cutover (see #44, #48).
 
 **Infrastructure & reference:**
 - `aibtcdev/bitcoin-ai-agent-crew-frontend` — Frontend companion
