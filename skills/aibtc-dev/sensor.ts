@@ -139,8 +139,8 @@ function auditRepo(repo: string): AuditResult {
 export default async function aibtcDevSensor(): Promise<string> {
   // Read state BEFORE claimSensorRun to preserve custom fields
   const statePre = await readHookState(SENSOR_NAME);
-  const lastAuditTimestamp = (statePre as Record<string, unknown> | null)?.lastAuditTimestamp as string | undefined;
-  const lastLogCheck = (statePre as Record<string, unknown> | null)?.lastLogCheck as string | undefined;
+  const lastAuditTimestamp = statePre?.lastAuditTimestamp as string | undefined;
+  const lastLogCheck = statePre?.lastLogCheck as string | undefined;
 
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
@@ -196,7 +196,7 @@ export default async function aibtcDevSensor(): Promise<string> {
         ...state,
         lastLogCheck: new Date().toISOString(),
         lastAuditTimestamp: lastAuditTimestamp ?? "",
-      } as typeof state);
+      });
     }
   } else {
     log("worker-logs/admin_api_key not set — skipping log review");
@@ -259,8 +259,8 @@ export default async function aibtcDevSensor(): Promise<string> {
       await writeHookState(SENSOR_NAME, {
         ...currentState,
         lastAuditTimestamp: new Date().toISOString(),
-        lastLogCheck: (currentState as Record<string, unknown>).lastLogCheck ?? lastLogCheck ?? "",
-      } as typeof currentState);
+        lastLogCheck: currentState.lastLogCheck ?? lastLogCheck ?? "",
+      });
     }
   } else {
     const hoursUntilAudit = Math.round((AUDIT_INTERVAL_HOURS * 3600_000 - (now - lastAuditMs)) / 3600_000);

@@ -49,11 +49,6 @@ interface CorrespondentStatus {
   canFileSignal: boolean;
 }
 
-interface HookState {
-  lastBriefDate?: string;
-  [key: string]: unknown;
-}
-
 export default async function aibtcNewsSensor(): Promise<string> {
   try {
     // Claim sensor run (if not time yet, returns early)
@@ -169,8 +164,8 @@ export default async function aibtcNewsSensor(): Promise<string> {
     const score = totalSignals * 10 + streakCurrent * 5 + daysActive * 2;
 
     const signalFiledToday = status.streak?.lastDate === today;
-    const hookState = (await readHookState(SENSOR_NAME)) as HookState | null;
-    const lastBriefDate = hookState?.lastBriefDate;
+    const hookState = await readHookState(SENSOR_NAME);
+    const lastBriefDate = hookState?.lastBriefDate as string | undefined;
 
     if (score >= 50 && signalFiledToday && lastBriefDate !== today) {
       log(`brief compilation eligible: score ${score} >= 50, signal filed today, not yet compiled today`);

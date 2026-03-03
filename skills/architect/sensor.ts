@@ -82,7 +82,7 @@ function getCurrentCodebaseSha(): string {
 export default async function architectSensor(): Promise<string> {
   // Read state BEFORE claimSensorRun to preserve last_reviewed_src_sha
   const statePre = await readHookState(SENSOR_NAME);
-  const lastReviewedSha = statePre?.last_reviewed_src_sha ?? "";
+  const lastReviewedSha = (statePre?.last_reviewed_src_sha as string) ?? "";
 
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";

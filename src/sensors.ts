@@ -27,6 +27,7 @@ export interface HookState {
   last_result: "ok" | "error" | "skip";
   version: number;
   consecutive_failures: number;
+  [key: string]: unknown;
 }
 
 // ---- Read ----

@@ -131,9 +131,8 @@ async function collectSkillHealthMetrics(): Promise<SkillHealthMetrics> {
       try {
         const name = file.replace(".json", "");
         const state = await readHookState(name);
-        if (state && (state as Record<string, unknown>).consecutive_failures) {
-          const failures = (state as Record<string, unknown>)
-            .consecutive_failures as number;
+        if (state && state.consecutive_failures) {
+          const failures = state.consecutive_failures as number;
           if (failures > 0) {
             sensorsWithIssues.push(`${name} (${failures} failures)`);
           }
@@ -340,8 +339,7 @@ function detectAnomalies(
 export default async function selfAuditSensor(): Promise<string> {
   // Read state before claiming to check lastAuditDate
   const statePre = await readHookState(SENSOR_NAME);
-  const lastAuditDate = (statePre as Record<string, unknown> | null)
-    ?.lastAuditDate as string | undefined;
+  const lastAuditDate = statePre?.lastAuditDate as string | undefined;
   const today = new Date().toISOString().split("T")[0];
 
   // Date-based dedup: only one audit per day

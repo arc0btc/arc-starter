@@ -3,7 +3,7 @@
 // Detects new watch reports in reports/ and emails them as themed HTML.
 // Pure TypeScript — no LLM. Runs every 1 minute, sends on first new report found.
 
-import { claimSensorRun, createSensorLogger, readHookState, writeHookState, type HookState } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
 import { pendingTaskExistsForSource } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
 import { markdownToHtml, wrapInArcTheme } from "./html.ts";
@@ -12,10 +12,6 @@ const SENSOR_NAME = "report-email";
 const REPORTS_DIR = new URL("../../reports", import.meta.url).pathname;
 const INTERVAL_MINUTES = 5;
 const TASK_SOURCE = "sensor:report-email";
-
-interface ReportEmailState extends HookState {
-  last_emailed_report: string;
-}
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -75,7 +71,7 @@ export default async function reportEmailSensor(): Promise<string> {
   const newestFile = files[0];
 
   // Check if already emailed
-  const state = (await readHookState(SENSOR_NAME)) as ReportEmailState | null;
+  const state = await readHookState(SENSOR_NAME);
   if (state?.last_emailed_report === newestFile) return "skip";
 
   // Read the report content
@@ -141,7 +137,7 @@ export default async function reportEmailSensor(): Promise<string> {
     version: state ? state.version + 1 : 1,
     consecutive_failures: 0,
     last_emailed_report: newestFile,
-  } as ReportEmailState);
+  });
 
   return "ok";
 }

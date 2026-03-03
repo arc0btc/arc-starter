@@ -273,7 +273,7 @@ function detectPatterns(chains: ChainInfo[]): DetectedPattern[] {
 export default async function workflowReviewSensor(): Promise<string> {
   // Read state BEFORE claimSensorRun to preserve custom fields (proposed_keys)
   const statePre = await readHookState(SENSOR_NAME);
-  const proposedKeys: string[] = statePre?.proposed_keys ?? [];
+  const proposedKeys: string[] = (statePre?.proposed_keys as string[]) ?? [];
 
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
