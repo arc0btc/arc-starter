@@ -70,7 +70,7 @@ function mapPRStateToWorkflowState(pr: GithubPR): WorkflowState {
  * Fetch PRs from GitHub API for specified repos
  */
 async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
-  const token = getCredential("github", "token");
+  const token = await getCredential("github", "token");
   if (!token) {
     console.warn("pr-lifecycle: github token not found in credentials");
     return [];
@@ -87,8 +87,8 @@ async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
 
     try {
       const query = `
-        query {
-          repository(owner: "${owner}", name: "${repo}") {
+        query($owner: String!, $repo: String!) {
+          repository(owner: $owner, name: $repo) {
             pullRequests(first: 50, states: [OPEN, CLOSED]) {
               nodes {
                 number
@@ -112,7 +112,7 @@ async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ query, variables: { owner, repo } }),
       });
 
       if (!response.ok) {
