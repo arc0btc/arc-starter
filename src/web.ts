@@ -275,13 +275,10 @@ async function handlePostMessage(req: Request): Promise<Response> {
   if (!message) return errorResponse("Message is required", 400);
   if (message.length > 500) return errorResponse("Message too long (max 500 chars)", 400);
 
-  const priority = typeof body.priority === "number" && body.priority >= 1 && body.priority <= 10
-    ? body.priority : 5;
-
   const taskId = insertTask({
     subject: message,
     source: "human:web",
-    priority,
+    priority: 1,
   });
 
   const task = db.query("SELECT id, subject, priority, status, source, created_at FROM tasks WHERE id = ?").get(taskId);
