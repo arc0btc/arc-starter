@@ -296,11 +296,11 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string)
 
   // Build environment with optimization flags for non-Opus models.
   // Opus (P1-4) gets full thinking budget for deep reasoning.
-  // Sonnet (P5-7) and Haiku (P8+) get constrained thinking + aggressive compaction.
+  // Sonnet (P5-7) and Haiku (P8+) get constrained thinking to save cost.
+  // AUTOCOMPACT left at default — preserving context continuity is worth the tokens.
   const env = { ...process.env };
   if (process.env.TEST_TOKEN_OPTIMIZATION === "true" || model !== "opus") {
     env.MAX_THINKING_TOKENS = "10000";
-    env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = "50";
   }
 
   const proc = Bun.spawn(args, {
