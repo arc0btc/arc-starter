@@ -37,7 +37,7 @@ The `template` column links tasks to `templates/` for recurring or structured wo
 - Entry point: `src/sensors.ts`
 
 **Dispatch** (LLM-powered, lock-gated):
-- Timer: up to 60 minutes per cycle
+- Timer: up to 30 minutes per cycle
 - Gated by `db/dispatch-lock.json` — if another dispatch is running, new invocation exits immediately
 - Selects highest-priority pending task, marks it `active`, runs Claude Code as a subprocess
 - **Model routing** (3-tier):
