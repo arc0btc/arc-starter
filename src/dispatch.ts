@@ -786,10 +786,11 @@ async function discardWorktree(taskId: number): Promise<void> {
 /**
  * Run a single dispatch cycle:
  * 1. Lock check (exit if another dispatch is running)
+ * 1b. Acquire lock immediately (task_id=null) to prevent TOCTOU races
  * 2. Crash recovery (mark stale active tasks failed)
  * 3. Pick highest-priority pending task
  * 4. Build prompt (SOUL.md + MEMORY.md + skill context + task details)
- * 5. Mark task active + write lock
+ * 5. Mark task active + update lock with task_id
  * 6. Spawn claude with stream-JSON output
  * 7. Parse result, track cost
  * 8. Close task (if LLM didn't self-close) + record cycle
@@ -809,6 +810,10 @@ export async function runDispatch(): Promise<void> {
     clearDispatchLock();
   }
 
+  // 1b. Acquire lock immediately to close the TOCTOU window.
+  // task_id is null until we select a task — but the PID claim prevents races.
+  writeDispatchLock(null);
+
   // 2. Crash recovery — mark any stale active tasks as failed
   const activeTasks = getActiveTasks();
   for (const task of activeTasks) {
@@ -822,6 +827,7 @@ export async function runDispatch(): Promise<void> {
   const pendingTasks = getPendingTasks();
   if (pendingTasks.length === 0) {
     log("dispatch: No pending tasks. Idle.");
+    clearDispatchLock();
     return;
   }
   const task = pendingTasks[0];
@@ -836,6 +842,7 @@ export async function runDispatch(): Promise<void> {
       `dispatch: BUDGET GATE — today's cost $${todayCost.toFixed(2)} >= $${DAILY_BUDGET_USD} ceiling. ` +
       `Skipping P${task.priority} task #${task.id}. Only P1-2 tasks will dispatch.`
     );
+    clearDispatchLock();
     return;
   }
 
@@ -856,9 +863,9 @@ export async function runDispatch(): Promise<void> {
 
   const prompt = buildPrompt(task, skillNames, recentCycles);
 
-  // 5. Mark task active and write lock
+  // 5. Mark task active and update lock with task_id
   markTaskActive(task.id);
-  writeDispatchLock(task.id);
+  writeDispatchLock(task.id);  // update lock: null → task_id
 
   log(`dispatch: dispatching for task #${task.id} — "${task.subject}"`);
 
