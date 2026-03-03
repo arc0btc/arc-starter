@@ -216,26 +216,20 @@ export function initDatabase(): Database {
     )
   `);
 
-  // Migration: add security_grade column to cycle_log
-  try {
-    db.run("ALTER TABLE cycle_log ADD COLUMN security_grade TEXT");
-  } catch {
-    // Column already exists — ignore
+  // Safe migration helper: only swallows "duplicate column name" errors
+  function addColumn(table: string, column: string, type: string): void {
+    try {
+      db.run(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}`);
+    } catch (err) {
+      if (err instanceof Error && err.message.includes("duplicate column name")) return;
+      throw err;
+    }
   }
 
-  // Migration: add model column to tasks
-  try {
-    db.run("ALTER TABLE tasks ADD COLUMN model TEXT");
-  } catch {
-    // Column already exists — ignore
-  }
-
-  // Migration: add model column to cycle_log
-  try {
-    db.run("ALTER TABLE cycle_log ADD COLUMN model TEXT");
-  } catch {
-    // Column already exists — ignore
-  }
+  // Migrations
+  addColumn("cycle_log", "security_grade", "TEXT");
+  addColumn("tasks", "model", "TEXT");
+  addColumn("cycle_log", "model", "TEXT");
 
   db.run(`
     CREATE TABLE IF NOT EXISTS email_messages (

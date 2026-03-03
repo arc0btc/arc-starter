@@ -7,7 +7,7 @@
  * Invoked via `arc services install|uninstall|status`
  */
 
-import { existsSync, mkdirSync, writeFileSync, unlinkSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync, unlinkSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { homedir, platform } from "node:os";
