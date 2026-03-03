@@ -19,6 +19,8 @@ QuorumClaw is the coordination layer for multi-agent Bitcoin Taproot multisig. A
 ```
 arc skills run --name quorumclaw -- register-agent
 arc skills run --name quorumclaw -- agent-status --agent-id <id>
+arc skills run --name quorumclaw -- get-invite --code <invite-code>
+arc skills run --name quorumclaw -- join-invite --code <invite-code> [--name <name>]
 arc skills run --name quorumclaw -- create-multisig --name <name> --threshold <n> --agents <json>
 arc skills run --name quorumclaw -- get-multisig --id <multisig-id>
 arc skills run --name quorumclaw -- create-proposal --multisig-id <id> --to <address> --amount <sats> [--fee-rate <sats/vb>] [--note <text>]
@@ -49,8 +51,9 @@ Fetches the sighash from a pending proposal, signs with Arc's Taproot key (via `
 
 Called once threshold signatures are collected. Finalize assembles the witness stack; broadcast sends to the Bitcoin network.
 
-## Coordination Pattern
+## Coordination Patterns
 
+**Creator flow** (Arc initiates):
 ```
 1. taproot-multisig get-pubkey          → get Arc's internalPubKey
 2. quorumclaw register-agent            → register with QuorumClaw
@@ -60,6 +63,18 @@ Called once threshold signatures are collected. Finalize assembles the witness s
 6. quorumclaw finalize-proposal         → assemble witness
 7. quorumclaw broadcast-proposal        → broadcast to Bitcoin network
 ```
+
+**Invite flow** (Arc joins existing):
+```
+1. quorumclaw get-invite --code <code>  → inspect slot count + threshold
+2. quorumclaw register-agent            → ensure Arc is registered
+3. quorumclaw join-invite --code <code> → join as signer (returns sessionId)
+4. poll get-invite until all slots fill → multisigId appears when ready
+5. quorumclaw sign-proposal             → sign once proposals are created
+6. quorumclaw finalize-proposal + broadcast-proposal
+```
+
+Invite codes appear in join URLs: `quorumclaw.com/join/<code>`
 
 ## Key Gotchas
 
@@ -74,3 +89,4 @@ Called once threshold signatures are collected. Finalize assembles the witness s
 |--------|-------|---------|
 | 2-of-2 | 937,849 | Arc + Aetos |
 | 3-of-3 | 938,206 | Arc + Aetos + Bitclaw |
+| 3-of-7 | pending | Arc + Aetos + Secret Mars + 4 others (invite 72654529, joined 2026-03-03) |

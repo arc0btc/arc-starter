@@ -42,6 +42,25 @@ interface ProposalRecord {
   txid?: string;
 }
 
+interface InviteSlot {
+  name?: string;
+  publicKey?: string;
+  joinedAt?: string;
+  sessionId?: string;
+  isMe?: boolean;
+}
+
+interface InviteRecord {
+  id: string;
+  name: string;
+  chainId: string;
+  threshold: number;
+  slots: InviteSlot[];
+  createdAt: string;
+  agentId?: string;
+  multisigId?: string;
+}
+
 // ---- Helpers ----
 
 function log(msg: string): void {
@@ -360,6 +379,42 @@ async function cmdListProposals(args: string[]): Promise<void> {
   console.log(JSON.stringify({ success: true, proposals: result }));
 }
 
+async function cmdGetInvite(args: string[]): Promise<void> {
+  const usage = "Usage: arc skills run --name quorumclaw -- get-invite --code <invite-code>";
+  const flags = parseFlags(args);
+  const code = requireFlag(flags, "code", usage);
+
+  log(`fetching invite: ${code}`);
+  const result = await apiRequest<{ data: InviteRecord }>("GET", `/v1/invites/${code}`);
+  const invite = (result as unknown as { data: InviteRecord }).data ?? result;
+  const filled = (invite as InviteRecord).slots?.filter((s) => s.name).length ?? 0;
+  const total = (invite as InviteRecord).slots?.length ?? 0;
+  log(`${filled}/${total} slots filled`);
+  console.log(JSON.stringify({ success: true, invite }));
+}
+
+async function cmdJoinInvite(args: string[]): Promise<void> {
+  const usage = "Usage: arc skills run --name quorumclaw -- join-invite --code <invite-code> [--name <name>]";
+  const flags = parseFlags(args);
+  const code = requireFlag(flags, "code", usage);
+  const name = flags["name"] ?? "Arc";
+
+  const pubKey = await getArcInternalPubKey();
+  log(`joining invite ${code} as "${name}" with pubkey ${pubKey.slice(0, 16)}...`);
+
+  const result = await apiRequest<{ data: InviteRecord }>("POST", `/v1/invites/${code}/join`, {
+    name,
+    publicKey: pubKey,
+  });
+
+  const invite = (result as unknown as { data: InviteRecord }).data ?? result;
+  const slot = (invite as InviteRecord).slots?.find((s) => s.isMe);
+  if (slot) {
+    log(`joined as slot index ${(invite as InviteRecord).slots?.indexOf(slot)}, sessionId: ${slot.sessionId}`);
+  }
+  console.log(JSON.stringify({ success: true, invite }));
+}
+
 function printUsage(): void {
   process.stdout.write(`quorumclaw CLI — Bitcoin Taproot multisig coordination via QuorumClaw API
 
@@ -403,6 +458,15 @@ SUBCOMMANDS
 
   list-proposals --multisig-id <id>
     List all proposals for a multisig wallet.
+
+  get-invite --code <invite-code>
+    Inspect an open invite: slot count, filled slots, threshold.
+    Invite codes appear in join URLs: quorumclaw.com/join/<code>
+
+  join-invite --code <invite-code> [--name <name>]
+    Join an existing invite as Arc. Submits Arc's internalPubKey.
+    Returns session ID and slot position. Once all slots fill, a multisig
+    address is created and proposals may be submitted.
 
 WORKFLOW
   1. register-agent                  (once, stores Arc's pubkey with QuorumClaw)
@@ -459,6 +523,12 @@ async function main(): Promise<void> {
       break;
     case "list-proposals":
       await cmdListProposals(args.slice(1));
+      break;
+    case "get-invite":
+      await cmdGetInvite(args.slice(1));
+      break;
+    case "join-invite":
+      await cmdJoinInvite(args.slice(1));
       break;
     case "help":
     case "--help":
