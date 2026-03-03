@@ -1191,6 +1191,11 @@
       return d.innerHTML;
     }
 
+    function escAttr(s) {
+      if (!s) return '';
+      return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
     function statusBadgeClass(status) {
       return 'pill badge-' + (status || 'pending');
     }
@@ -1216,6 +1221,13 @@
         }, 1500);
       });
     }
+
+    document.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-copy]');
+      if (!btn) return;
+      e.stopPropagation();
+      copyToClipboard(btn.getAttribute('data-copy'), btn);
+    });
 
     // ---- Renderers ----
 
@@ -1414,17 +1426,17 @@
       var rowsHtml = addrRows.map(function(r) {
         return '<div class="identity-row">'
           + '<span class="identity-label">' + r.label + '</span>'
-          + '<a href="' + r.explorer + '" target="_blank" rel="noopener" class="identity-value" title="' + r.value + '">' + truncAddr(r.value, 10) + '</a>'
-          + '<button class="copy-btn" onclick="event.stopPropagation();copyToClipboard(\'' + r.value + '\', this)">copy</button>'
+          + '<a href="' + escAttr(r.explorer) + '" target="_blank" rel="noopener" class="identity-value" title="' + escAttr(r.value) + '">' + esc(truncAddr(r.value, 10)) + '</a>'
+          + '<button class="copy-btn" data-copy="' + escAttr(r.value) + '">copy</button>'
           + '</div>';
       }).join('');
 
       var linksHtml = '<div class="identity-links">'
-        + '<a href="https://' + identity.website + '" target="_blank" rel="noopener">' + identity.website + '</a>'
+        + '<a href="https://' + escAttr(identity.website) + '" target="_blank" rel="noopener">' + esc(identity.website) + '</a>'
         + '<a href="https://arc0btc.com" target="_blank" rel="noopener">arc0btc.com</a>'
-        + '<a href="https://github.com/' + identity.github + '" target="_blank" rel="noopener">GitHub</a>'
-        + '<a href="https://x.com/' + identity.twitter + '" target="_blank" rel="noopener">@' + identity.twitter + '</a>'
-        + '<a href="https://explorer.hiro.so/address/' + identity.stx + '" target="_blank" rel="noopener">Explorer</a>'
+        + '<a href="https://github.com/' + escAttr(identity.github) + '" target="_blank" rel="noopener">GitHub</a>'
+        + '<a href="https://x.com/' + escAttr(identity.twitter) + '" target="_blank" rel="noopener">@' + esc(identity.twitter) + '</a>'
+        + '<a href="https://explorer.hiro.so/address/' + escAttr(identity.stx) + '" target="_blank" rel="noopener">Explorer</a>'
         + '</div>';
 
       card.innerHTML = '<div class="identity-header">'
