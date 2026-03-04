@@ -148,7 +148,7 @@ export default async function githubMentionsSensor(): Promise<string> {
         n.reason === "review_requested" || n.reason === "assign"
           ? 3
           : n.reason === "mention" || n.reason === "team_mention"
-            ? 4
+            ? 5
             : 5,
     }, "any");
 
