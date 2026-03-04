@@ -30,6 +30,7 @@ import {
   toSqliteDatetime,
 } from "./db.ts";
 import { isPidAlive } from "./utils.ts";
+import { type ModelTier, MODEL_IDS, MODEL_PRICING } from "./models.ts";
 
 // ---- Constants ----
 
@@ -167,36 +168,6 @@ function log(msg: string): void {
 }
 
 // ---- Model routing ----
-
-type ModelTier = "opus" | "sonnet" | "haiku";
-
-interface ModelPricing {
-  input_per_million: number;
-  output_per_million: number;
-  cache_read_per_million: number;
-  cache_write_per_million: number;
-}
-
-const MODEL_PRICING: Record<ModelTier, ModelPricing> = {
-  opus: {
-    input_per_million: 15,
-    output_per_million: 75,
-    cache_read_per_million: 1.875,
-    cache_write_per_million: 18.75,
-  },
-  sonnet: {
-    input_per_million: 3,
-    output_per_million: 15,
-    cache_read_per_million: 0.30,
-    cache_write_per_million: 3.75,
-  },
-  haiku: {
-    input_per_million: 1,
-    output_per_million: 5,
-    cache_read_per_million: 0.10,
-    cache_write_per_million: 1.25,
-  },
-};
 
 /**
  * Route tasks to the appropriate model tier.
@@ -401,7 +372,7 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string)
     "--print",
     "--verbose",
     "--model",
-    model,
+    MODEL_IDS[model],
     "--output-format",
     "stream-json",
     "--no-session-persistence",
