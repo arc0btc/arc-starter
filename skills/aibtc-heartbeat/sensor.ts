@@ -9,7 +9,7 @@ import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
 import { resolve } from "node:path";
 
-import { ARC_ARC_BTC_ADDRESS } from "../../src/identity.ts";
+import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
 
 const SENSOR_NAME = "aibtc-heartbeat";
 const INTERVAL_MINUTES = 5;
