@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-03T21:30:00.000Z*
+*Generated: 2026-03-04T00:44:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -36,13 +36,13 @@ stateDiagram-v2
         RunAllSensors --> heartbeatSensor: heartbeat
         RunAllSensors --> housekeepingSensor: housekeeping
         RunAllSensors --> manage_skillsSensor: manage-skills
-        RunAllSensors --> overnight_briefSensor: overnight-brief
+        RunAllSensors --> quorumclawSensor: quorumclaw
         RunAllSensors --> release_watcherSensor: release-watcher
         RunAllSensors --> report_emailSensor: report-email
+        RunAllSensors --> reportingSensor: reporting
         RunAllSensors --> security_alertsSensor: security-alerts
         RunAllSensors --> stacks_marketSensor: stacks-market
         RunAllSensors --> stackspotSensor: stackspot
-        RunAllSensors --> status_reportSensor: status-report
         RunAllSensors --> worker_logsSensor: worker-logs
         RunAllSensors --> workflowsSensor: workflows
         RunAllSensors --> schedulerSensor: scheduler
@@ -230,14 +230,17 @@ stateDiagram-v2
             manage_skillsSkip --> [*]: return skip
         }
 
-        state overnight_briefSensor {
-            [*] --> overnight_briefGate: claimSensorRun(overnight-brief)
-            overnight_briefGate --> overnight_briefSkip: interval not elapsed
-            overnight_briefGate --> overnight_briefDedup: interval elapsed
-            overnight_briefDedup --> overnight_briefSkip: pending task exists
-            overnight_briefDedup --> overnight_briefCreateTask: no dupe
-            overnight_briefCreateTask --> [*]: insertTask()
-            overnight_briefSkip --> [*]: return skip
+        state quorumclawSensor {
+            [*] --> quorumclawGate: claimSensorRun(quorumclaw, 15min)
+            quorumclawGate --> quorumclawSkip: interval not elapsed
+            quorumclawGate --> quorumclawCheck: interval elapsed
+            quorumclawCheck --> quorumclawSkip: tracking.json missing or no active invites
+            quorumclawCheck --> quorumclawDedup: invites/proposals found
+            quorumclawDedup --> quorumclawSkip: pending task exists
+            quorumclawDedup --> quorumclawCreateTask: action needed
+            quorumclawCreateTask --> [*]: insertTask()
+            quorumclawSkip --> [*]: return skip
+            note right of quorumclawCheck: reads tracking.json\npolls QuorumClaw API\nfor each tracked invite
         }
 
         state release_watcherSensor {
@@ -290,14 +293,23 @@ stateDiagram-v2
             stackspotSkip --> [*]: return skip
         }
 
-        state status_reportSensor {
-            [*] --> status_reportGate: claimSensorRun(status-report)
-            status_reportGate --> status_reportSkip: interval not elapsed
-            status_reportGate --> status_reportDedup: interval elapsed
-            status_reportDedup --> status_reportSkip: pending task exists
-            status_reportDedup --> status_reportCreateTask: no dupe
-            status_reportCreateTask --> [*]: insertTask()
-            status_reportSkip --> [*]: return skip
+        state reportingSensor {
+            [*] --> reportingWatchGate: claimSensorRun(reporting-watch, 360min)
+            reportingWatchGate --> reportingSkip: interval not elapsed OR quiet hours (8pm-6am PST)
+            reportingWatchGate --> reportingWatchDedup: active hours + interval elapsed
+            reportingWatchDedup --> reportingSkip: pending task exists
+            reportingWatchDedup --> reportingWatchCreate: no dupe
+            reportingWatchCreate --> [*]: insertTask() P6 HTML
+
+            [*] --> reportingOvernightGate: claimSensorRun(reporting-overnight, 1440min)
+            reportingOvernightGate --> reportingSkip: interval not elapsed OR not 6am PST window
+            reportingOvernightGate --> reportingOvernightDedup: 6am PST + interval elapsed
+            reportingOvernightDedup --> reportingSkip: pending task exists
+            reportingOvernightDedup --> reportingOvernightCreate: no dupe
+            reportingOvernightCreate --> [*]: insertTask() P2 markdown
+
+            reportingSkip --> [*]: return skip
+            note right of reportingWatchGate: two independent claims\n(reporting-watch + reporting-overnight)\nno interference between variants
         }
 
         state worker_logsSensor {
@@ -360,8 +372,10 @@ stateDiagram-v2
         [*] --> CheckLock: db/dispatch-lock.json
         CheckLock --> Exit: lock held by live PID
         CheckLock --> CrashRecovery: lock held by dead PID
-        CheckLock --> PickTask: no lock
-        CrashRecovery --> PickTask: mark stale active tasks failed
+        CheckLock --> CircuitCheck: no lock
+        CrashRecovery --> CircuitCheck: mark stale active tasks failed
+        CircuitCheck --> Exit: circuit open (≥3 failures, <15min elapsed)
+        CircuitCheck --> PickTask: circuit closed or half-open probe
         PickTask --> Idle: no pending tasks
         PickTask --> BuildPrompt: highest priority task
 
@@ -416,6 +430,7 @@ stateDiagram-v2
         - mcp-server
         - quorumclaw
         - reputation
+        - reporting
         - research
         - stacks-market
         - taproot-multisig
@@ -436,6 +451,7 @@ stateDiagram-v2
 | 2 | Sensor creates task | External data + dedup check | `pendingTaskExistsForSource()` |
 | 3 | Dispatch lock check | Lock file (PID + task_id) | `isPidAlive()` |
 | 3a | TOCTOU guard | Lock acquired BEFORE task selection | Atomic: lock→pick (commit 05de76d) |
+| 3b | Circuit breaker | hook-state/dispatch-circuit.json | Opens after 3 consecutive failures; skips 15min; half-open probe |
 | 4 | Task selection | All pending tasks sorted | Priority ASC, ID ASC |
 | 4a | Model routing | task.model (explicit) or task.priority | Explicit wins; else P1-4→opus, P5-7→sonnet, P8+→haiku |
 | 5 | Skill loading | `task.skills` JSON array | SKILL.md existence |
@@ -477,7 +493,7 @@ stateDiagram-v2
 | identity | - | yes | yes | ERC-8004 on-chain agent identity management — register agent identities, update URI and metadata, manage operator approvals, set/unset agent wallet, transfer identity NFTs, and query identity info. |
 | manage-skills | yes | yes | yes | Create, inspect, and manage agent skills |
 | mcp-server | - | yes | - | MCP server exposing Arc's task queue, skills, and memory to external Claude instances |
-| overnight-brief | yes | - | yes | Generate a consolidated overnight brief at 6am PST covering all activity from 8pm–6am |
+| reporting | yes | yes | yes | Unified reporting: watch reports (HTML, 6h, active hours) and overnight briefs (markdown, 6am PST) |
 | quorumclaw | - | yes | yes | Coordinate Bitcoin Taproot M-of-N multisig via QuorumClaw API — register, create, propose, sign, broadcast |
 | react-reviewer | - | - | yes | React/Next.js performance review — 77 rules across 8 categories for PR analysis |
 | release-watcher | yes | - | - | Detects new releases on watched repos and creates review tasks |
@@ -489,7 +505,6 @@ stateDiagram-v2
 | self-audit | yes | - | - | Daily operational self-audit — task queue health, cost trends, skill/sensor health, recent codebase changes |
 | stacks-market | yes | yes | yes | Read-only prediction market intelligence — detect high-volume markets, file signals to aibtc-news. Mainnet-only. |
 | stackspot | yes | - | - | Autonomous Stacking participation — detect joinable pots, auto-join with Arc wallet, claim sBTC rewards. Mainnet-only lottery stacking. |
-| status-report | yes | - | yes | Generate watch reports (6-hour) summarizing all agent activity — now HTML format |
 | taproot-multisig | - | yes | - | Bitcoin Taproot BIP-340 Schnorr primitives — get-pubkey, verify-cosig, guide |
 | validation | - | yes | yes | ERC-8004 on-chain agent validation management — request and respond to validations, and query validation status, summaries, and paginated lists by agent or validator. |
 | wallet | - | yes | yes | Wallet management and cryptographic signing for Stacks and Bitcoin — unlock, lock, info, status, BTC/Stacks message signing, and BTC signature verification. |
