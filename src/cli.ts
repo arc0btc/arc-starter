@@ -22,6 +22,21 @@ import { handleCredsCli } from "../skills/credentials/cli.ts";
 // consider citty (https://github.com/unjs/citty) as a lightweight alternative to Commander.
 // Worktree isolation test: task #304 — verify valid changes merge cleanly.
 
+// ---- Usage strings (shared between error messages and cmdHelp) ----
+
+const USAGE = {
+  tasksAdd:
+    'arc tasks add --subject TEXT [--description TEXT] [--priority N] [--source TEXT]\n' +
+    '              [--skills SKILL1,SKILL2] [--parent ID] [--model opus|sonnet|haiku]\n' +
+    '              [--defer DURATION | --scheduled-for ISO_DATETIME]',
+  tasksUpdate:
+    'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--model opus|sonnet|haiku]',
+  tasksClose:
+    'arc tasks close --id N --status completed|failed|blocked --summary TEXT',
+  skillsShow: 'arc skills show --name NAME',
+  skillsRun:  'arc skills run --name NAME [-- extra-args]',
+} as const;
+
 // ---- Commands ----
 
 function cmdStatus(): void {
@@ -126,8 +141,7 @@ function cmdTasksAdd(args: string[]): void {
 
   const subject = flags["subject"];
   if (!subject) {
-    process.stderr.write("Error: --subject is required for 'tasks add'\n");
-    process.stderr.write("Usage: arc tasks add --subject \"text\" [--description TEXT] [--priority N] [--source TEXT] [--skills S1,S2] [--parent ID] [--model opus|sonnet|haiku] [--defer DURATION | --scheduled-for ISO_DATETIME]\n");
+    process.stderr.write(`Error: --subject is required\nUsage: ${USAGE.tasksAdd}\n`);
     process.exit(1);
   }
 
@@ -177,7 +191,7 @@ function cmdTasksAdd(args: string[]): void {
 
 function cmdTasksClose(args: string[]): void {
   const { flags } = parseFlags(args);
-  const usage = 'Usage: arc tasks close --id N --status completed|failed|blocked --summary "text"\n';
+  const usage = `Usage: ${USAGE.tasksClose}\n`;
 
   const status = flags["status"];
   const summary = flags["summary"];
@@ -217,8 +231,7 @@ function cmdTasksClose(args: string[]): void {
 
 function cmdTasksUpdate(args: string[]): void {
   const { flags } = parseFlags(args);
-  const usage =
-    'Usage: arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--model opus|sonnet|haiku]\n';
+  const usage = `Usage: ${USAGE.tasksUpdate}\n`;
 
   const id = parseInt(flags["id"] ?? "", 10);
   if (isNaN(id)) {
@@ -310,8 +323,7 @@ function cmdSkillsShow(args: string[]): void {
   const { flags } = parseFlags(args);
   const name = flags["name"];
   if (!name) {
-    process.stderr.write("Error: --name is required\n");
-    process.stderr.write("Usage: arc skills show --name <name>\n");
+    process.stderr.write(`Error: --name is required\nUsage: ${USAGE.skillsShow}\n`);
     process.exit(1);
   }
 
@@ -334,8 +346,7 @@ function cmdSkillsRun(args: string[]): void {
   const { flags } = parseFlags(argsUpToDashDash);
   const skillName = flags["name"];
   if (!skillName) {
-    process.stderr.write("Error: --name is required\n");
-    process.stderr.write("Usage: arc skills run --name <name> [-- extra-args]\n");
+    process.stderr.write(`Error: --name is required\nUsage: ${USAGE.skillsRun}\n`);
     process.exit(1);
   }
 
@@ -447,18 +458,15 @@ COMMANDS
     Valid statuses: pending, active, completed, failed, blocked.
     --limit defaults to 20.
 
-  tasks add --subject TEXT [--description TEXT] [--priority N] [--source TEXT]
-            [--skills SKILL1,SKILL2] [--parent ID] [--model opus|sonnet|haiku]
-            [--defer DURATION | --scheduled-for ISO_DATETIME]
+  ${USAGE.tasksAdd}
     Create a new task. --model overrides priority-based model routing.
     --defer accepts durations like 30m, 2h, 1d, 1h30m. Past-due scheduled
     tasks automatically receive a +2 priority boost when dispatched.
 
-  tasks update --id N [--subject TEXT] [--description TEXT] [--priority N]
-              [--model opus|sonnet|haiku]
+  ${USAGE.tasksUpdate}
     Update a task's subject, description, priority, or model.
 
-  tasks close --id N --status completed|failed|blocked --summary TEXT
+  ${USAGE.tasksClose}
     Close a task with a result summary.
 
   creds list
@@ -482,10 +490,10 @@ COMMANDS
   skills
     List all discovered skills. Columns: name, description, sensor, cli.
 
-  skills show --name NAME
+  ${USAGE.skillsShow}
     Print the full SKILL.md content for a skill.
 
-  skills run --name NAME [-- extra-args]
+  ${USAGE.skillsRun}
     Run a skill's cli.ts. Pass extra args after --.
 
   sensors
