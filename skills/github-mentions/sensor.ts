@@ -11,6 +11,7 @@ const WATCHED_REPOS = [
   "aibtcdev/skills",
   "aibtcdev/x402-api",
   "aibtcdev/aibtc-mcp-server",
+  "aibtcdev/agent-news",
 ];
 
 interface Notification {

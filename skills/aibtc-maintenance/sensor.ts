@@ -8,6 +8,7 @@ const WATCHED_REPOS = [
   "aibtcdev/skills",
   "aibtcdev/x402-api",
   "aibtcdev/aibtc-mcp-server",
+  "aibtcdev/agent-news",
 ];
 
 // Repos that use React/Next.js — load react-reviewer + composition-patterns for these PRs
