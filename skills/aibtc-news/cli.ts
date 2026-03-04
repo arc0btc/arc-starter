@@ -835,6 +835,302 @@ async function cmdEditorialGuide(args: string[]): Promise<void> {
   }
 }
 
+// ---- Signal Judge ----
+
+// Beat scope reference for the judge prompt
+const BEAT_SCOPE_REF: Record<string, string> = {
+  "ordinals-business":
+    "Inscription volumes, BRC-20 markets, Ordinals marketplace metrics, collection activity, NFT economics on Bitcoin",
+  "deal-flow":
+    "Real-time market signals, sats auctions, Ordinals bounties, x402 commerce, DAO treasury activity",
+  "protocol-infra":
+    "Stacks protocol development, security, consensus, sBTC peg mechanics, tooling, SIPs",
+  "btc-macro": "Bitcoin price, ETFs, mining economics, macro sentiment",
+  "dao-watch": "DAO governance, proposals, treasury movements, voting outcomes",
+  "network-ops":
+    "Stacks health, block times, signer participation, network anomalies",
+  "defi-yields": "BTCFi yields, sBTC flows, Zest/ALEX/Bitflow rates",
+  "agent-commerce": "x402 transactions, agent payment flows, escrow mechanics",
+};
+
+function buildBeatScopePrompt(
+  beat: string,
+  claim: string,
+  evidence: string,
+  implication: string
+): string {
+  const beatDescription = BEAT_SCOPE_REF[beat] || `${beat} domain content`;
+
+  return `You are evaluating whether an aibtc-news signal is appropriate for its declared editorial beat.
+
+## Criterion: Beat-Appropriate Scope
+A signal must cover content that falls within the declared beat's editorial scope. Filing a signal about the wrong domain wastes correspondent reputation and misleads readers.
+
+## PASS means:
+The signal's claim, evidence, and implication clearly describe events, metrics, or observations within the declared beat's scope. The primary subject matter belongs to the beat's domain.
+
+## FAIL means:
+The signal's primary content belongs to a different beat, or the connection to the declared beat requires a stretch. Content that is merely adjacent to the beat (e.g., a protocol change that incidentally affects Ordinals costs is still a protocol-infra signal, not ordinals-business).
+
+## Beat Scope Reference:
+${Object.entries(BEAT_SCOPE_REF)
+  .map(([k, v]) => `- ${k}: ${v}`)
+  .join("\n")}
+
+## Examples
+
+### Example 1 (PASS)
+Beat: ordinals-business
+Claim: Ordinals inscription volume rose 23% week-over-week on Bitcoin mainnet.
+Evidence: Unisat API recorded 142,000 new inscriptions Jan 15-21, up from 115,000 the prior week.
+Implication: Sustained demand signals collector interest persists despite BTC price consolidation.
+Critique: Inscription volume is the primary ordinals-business metric. Evidence cites a specific data source. Implication is market-contextual. Content is squarely in scope.
+Verdict: Pass
+
+### Example 2 (FAIL)
+Beat: ordinals-business
+Claim: Stacks Protocol SIP-028 passed governance vote with 78% approval.
+Evidence: 142 sBTC signers voted in favor of the proposed fee change.
+Implication: Protocol upgrade enables faster sBTC settlement, reducing Ordinals inscription costs.
+Critique: The primary content — SIP governance vote and signer participation — belongs to protocol-infra beat. The ordinals connection (reduced inscription costs) is secondary and incidental. Should be filed under protocol-infra.
+Verdict: Fail
+
+### Example 3 (PASS)
+Beat: deal-flow
+Claim: Magic Eden processed 890 BTC Ordinals auction settlements in 24 hours.
+Evidence: On-chain data shows 890 UTXO transfers matching Magic Eden auction patterns, totaling 0.42 BTC volume.
+Implication: Marketplace velocity signals active secondary market demand for established Ordinals collections.
+Critique: Auction settlements and marketplace velocity are core deal-flow metrics. Evidence is on-chain verifiable. Content is clearly in scope.
+Verdict: Pass
+
+### Example 4 (FAIL)
+Beat: btc-macro
+Claim: ALEX DEX recorded its highest single-day trading volume since Q3 2025.
+Evidence: ALEX protocol reported $4.2M in 24-hour swap volume across its BTC-correlated pairs.
+Implication: DeFi activity on Stacks is recovering alongside broader BTC market sentiment.
+Critique: DEX trading volume on ALEX is a defi-yields signal. While the BTC sentiment angle exists, the primary observation (DEX volume) belongs to defi-yields. BTC macro signals should focus on BTC price, ETFs, or mining metrics.
+Verdict: Fail
+
+## Your Task
+Evaluate the following signal for beat-appropriate scope. Output JSON only — no other text:
+{"critique": "...", "result": "Pass" or "Fail"}
+
+Beat: ${beat}
+Claim: ${claim}
+Evidence: ${evidence}
+Implication: ${implication}`;
+}
+
+async function judgeBeatScope(
+  beat: string,
+  claim: string,
+  evidence: string,
+  implication: string
+): Promise<{ pass: boolean; reason: string }> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    log("ANTHROPIC_API_KEY not set — skipping LLM beat scope check");
+    return {
+      pass: true,
+      reason:
+        "Beat scope check skipped (ANTHROPIC_API_KEY not set) — verify manually",
+    };
+  }
+
+  const prompt = buildBeatScopePrompt(beat, claim, evidence, implication);
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 512,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Anthropic API error ${response.status}: ${text}`);
+  }
+
+  const data = (await response.json()) as {
+    content: Array<{ text: string }>;
+  };
+  const text = data.content[0]?.text || "{}";
+
+  // Extract JSON from response
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    throw new Error(`No JSON in LLM response: ${text}`);
+  }
+
+  const parsed = JSON.parse(jsonMatch[0]) as {
+    critique: string;
+    result: string;
+  };
+  const pass = parsed.result === "Pass";
+  return {
+    pass,
+    reason: parsed.critique || (pass ? "In scope for beat" : "Out of scope for beat"),
+  };
+}
+
+async function cmdJudgeSignal(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+
+  if (!flags.beat || !flags.claim || !flags.evidence || !flags.implication) {
+    console.error(
+      "Usage: arc skills run --name aibtc-news -- judge-signal --beat <slug> --claim <text> --evidence <text> --implication <text> [--headline <text>] [--sources <json>] [--tags <json>]"
+    );
+    process.exit(1);
+  }
+
+  const beat = flags.beat.toLowerCase();
+  const claim = flags.claim;
+  const evidence = flags.evidence;
+  const implication = flags.implication;
+  const headline = flags.headline || "";
+  const sourcesJson = flags.sources || "[]";
+
+  let sources: Array<{ url: string; title: string }>;
+  try {
+    sources = JSON.parse(sourcesJson);
+  } catch {
+    console.error(`Invalid --sources JSON: ${sourcesJson}`);
+    process.exit(1);
+  }
+
+  const criteria: Record<string, { pass: boolean; reason: string }> = {};
+
+  // --- Criterion 1: Claim-Evidence-Implication structure ---
+  const structureIssues: string[] = [];
+  if (claim.trim().length < 20)
+    structureIssues.push(`Claim too short (${claim.trim().length} chars, min 20)`);
+  if (evidence.trim().length < 20)
+    structureIssues.push(`Evidence too short (${evidence.trim().length} chars, min 20)`);
+  if (implication.trim().length < 20)
+    structureIssues.push(`Implication too short (${implication.trim().length} chars, min 20)`);
+  if (claim.trim() === evidence.trim())
+    structureIssues.push("Claim and evidence are identical — must be distinct");
+  if (evidence.trim() === implication.trim())
+    structureIssues.push("Evidence and implication are identical — must be distinct");
+
+  criteria.structure = {
+    pass: structureIssues.length === 0,
+    reason:
+      structureIssues.length === 0
+        ? "Claim, evidence, and implication are distinct and sufficiently detailed"
+        : structureIssues.join("; "),
+  };
+
+  // --- Criterion 2: Voice — no hype language ---
+  const hypePattern =
+    /\b(moon(?:ing)?|pump(?:ing)?|dump(?:ing)?|amazing|huge|incredible|massive|biggest|skyrocket(?:ing)?|explod(?:e|ing)|crush(?:ing)?)\b/i;
+  const allText = `${headline} ${claim} ${evidence} ${implication}`;
+  const hypeMatch = allText.match(hypePattern);
+  const firstPersonPattern = /^(I |We |My |Our )/i;
+  const firstPerson = firstPersonPattern.test(claim) ||
+    firstPersonPattern.test(evidence) ||
+    firstPersonPattern.test(implication);
+
+  const voiceIssues: string[] = [];
+  if (hypeMatch) voiceIssues.push(`Hype word detected: "${hypeMatch[0]}" — use neutral vocabulary`);
+  if (firstPerson) voiceIssues.push("First person detected — use third person only");
+  if (/[!]/.test(headline)) voiceIssues.push("Exclamation mark in headline — remove");
+
+  criteria.voice = {
+    pass: voiceIssues.length === 0,
+    reason:
+      voiceIssues.length === 0
+        ? "Neutral voice, no hype language detected"
+        : voiceIssues.join("; "),
+  };
+
+  // --- Criterion 3: Sourcing with reachable URLs ---
+  if (sources.length === 0) {
+    criteria.sourcing = {
+      pass: false,
+      reason: "No sources provided — signals must cite verifiable data",
+    };
+  } else if (sources.length > 5) {
+    criteria.sourcing = {
+      pass: false,
+      reason: `Too many sources: ${sources.length}/5 max`,
+    };
+  } else {
+    const reachabilityResults = await Promise.all(
+      sources.map(async (src) => {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000);
+        try {
+          const res = await fetch(src.url, {
+            method: "HEAD",
+            signal: controller.signal,
+          });
+          clearTimeout(timeout);
+          return { url: src.url, reachable: res.ok || res.status === 405 };
+        } catch {
+          clearTimeout(timeout);
+          return { url: src.url, reachable: false };
+        }
+      })
+    );
+    const unreachable = reachabilityResults.filter((r) => !r.reachable);
+    if (unreachable.length > 0) {
+      criteria.sourcing = {
+        pass: false,
+        reason: `${unreachable.length} source(s) unreachable: ${unreachable.map((r) => r.url).join(", ")}`,
+      };
+    } else {
+      criteria.sourcing = {
+        pass: true,
+        reason: `All ${sources.length} source(s) verified reachable`,
+      };
+    }
+  }
+
+  // --- Criterion 4: Beat-appropriate scope (LLM judge) ---
+  try {
+    criteria.beat_scope = await judgeBeatScope(beat, claim, evidence, implication);
+  } catch (e) {
+    const err = e as Error;
+    log(`Beat scope judge error: ${err.message}`);
+    criteria.beat_scope = {
+      pass: false,
+      reason: `Beat scope check failed: ${err.message}`,
+    };
+  }
+
+  // --- Composite verdict ---
+  const allPass = Object.values(criteria).every((c) => c.pass);
+  const failedCriteria = Object.entries(criteria)
+    .filter(([, c]) => !c.pass)
+    .map(([k]) => k);
+
+  const result = {
+    verdict: allPass ? "Pass" : "Fail",
+    criteria,
+    summary: allPass
+      ? "Signal meets all quality criteria. Ready to file."
+      : `Signal failed ${failedCriteria.length} criterion/criteria: ${failedCriteria.join(", ")}`,
+    recommendations: allPass
+      ? []
+      : failedCriteria.map((k) => criteria[k].reason),
+  };
+
+  log(allPass ? "Signal passed all quality checks" : `Signal failed: ${failedCriteria.join(", ")}`);
+  console.log(JSON.stringify(result, null, 2));
+
+  if (!allPass) {
+    process.exit(2); // Distinguishable from usage error (1)
+  }
+}
+
 // ---- Main ----
 
 async function main(): Promise<void> {
@@ -843,7 +1139,7 @@ async function main(): Promise<void> {
   if (args.length === 0) {
     console.error("Usage: arc skills run --name aibtc-news -- <command> [flags]");
     console.error(
-      "Commands: claim-beat, file-signal, list-beats, status, list-signals, correspondents, compile-brief, compose-signal, check-sources, editorial-guide"
+      "Commands: claim-beat, file-signal, list-beats, status, list-signals, correspondents, compile-brief, compose-signal, check-sources, editorial-guide, judge-signal"
     );
     process.exit(1);
   }
@@ -882,6 +1178,9 @@ async function main(): Promise<void> {
         break;
       case "editorial-guide":
         await cmdEditorialGuide(commandArgs);
+        break;
+      case "judge-signal":
+        await cmdJudgeSignal(commandArgs);
         break;
       default:
         console.error(`Unknown command: ${command}`);
