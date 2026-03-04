@@ -18,7 +18,7 @@ const STALE_HOURS = 24;
 const ROOT = join(import.meta.dir, "../..");
 const DIAGRAM_PATH = join(ROOT, "skills/architect/state-machine.md");
 const REPORTS_DIR = join(ROOT, "reports");
-const SRC_DIRS = ["src/", "skills/"];
+const SRC_DIRS = ["src/", "skills/", ":(exclude)skills/architect/"];
 
 const log = createSensorLogger(SENSOR_NAME);
 
