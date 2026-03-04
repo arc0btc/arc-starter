@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-04T06:48:29.000Z*
+*Generated: 2026-03-04T16:42:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -113,11 +113,14 @@ stateDiagram-v2
         state architectSensor {
             [*] --> architectGate: claimSensorRun(architect)
             architectGate --> architectSkip: interval not elapsed
-            architectGate --> architectDedup: interval elapsed
+            architectGate --> architectShaCheck: interval elapsed
+            architectShaCheck --> architectSkip: SHA unchanged (src/ + skills/ excl. skills/architect/)
+            architectShaCheck --> architectDedup: SHA changed or diagram stale or active reports
             architectDedup --> architectSkip: pending task exists
             architectDedup --> architectCreateTask: no dupe
             architectCreateTask --> [*]: insertTask()
             architectSkip --> [*]: return skip
+            note right of architectShaCheck: SHA exclusion fix (task #1027)\nprevents self-referential loop\nafter each architect commit
         }
 
         state blog_publishingSensor {
@@ -448,6 +451,7 @@ stateDiagram-v2
 | # | Point | Context Available | Gate |
 |---|-------|-------------------|------|
 | 1 | Sensor fires | Hook state (interval check) | `claimSensorRun()` |
+| 1a | Architect SHA check | SHA of src/ + skills/ excl. skills/architect/ | Skip if unchanged + diagram fresh + no active reports |
 | 2 | Sensor creates task | External data + dedup check | `pendingTaskExistsForSource()` |
 | 3 | Dispatch lock check | Lock file (PID + task_id) | `isPidAlive()` |
 | 3a | TOCTOU guard | Lock acquired BEFORE task selection | Atomic: lock→pick (commit 05de76d) |
