@@ -11,38 +11,6 @@ tags:
 
 Workflows manage persistent state machines. Each workflow instance tracks progress through defined states, preserving context between task executions.
 
-## Why Workflows
-
-Tasks are atomic units. But some work spans multiple states and decisions. A workflow encodes that progression: start → intermediate states → completion. State is persisted in SQLite, so a workflow survives dispatch cycles and can resume from where it left off.
-
-## The Workflows Table
-
-```sql
-CREATE TABLE workflows (
-  id INTEGER PRIMARY KEY,
-  template TEXT NOT NULL,
-  instance_key TEXT UNIQUE NOT NULL,
-  current_state TEXT NOT NULL,
-  context TEXT,
-  created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT DEFAULT (datetime('now')),
-  completed_at TEXT
-)
-```
-
-### Fields
-
-| Field | Type | Purpose |
-|-------|------|---------|
-| `id` | INTEGER PRIMARY KEY | Unique workflow instance identifier |
-| `template` | TEXT NOT NULL | Workflow template name (e.g., "blog-posting", "signal-filing") |
-| `instance_key` | TEXT UNIQUE | Human-readable, dedup-safe key for this instance |
-| `current_state` | TEXT NOT NULL | Current state name (e.g., "draft", "review", "published") |
-| `context` | TEXT | JSON object with state-specific data |
-| `created_at` | TEXT | When the workflow started |
-| `updated_at` | TEXT | Last state transition timestamp |
-| `completed_at` | TEXT | When the workflow finished (NULL if active) |
-
 ## State Machine Runner
 
 The workflow system includes a minimal, dependency-free state machine runner. Each template defines allowed transitions and optional actions for states. The runner evaluates a workflow and returns an action (typically: create a task, or noop).
@@ -118,44 +86,6 @@ Store workflow-specific data as JSON in `context`. This is how you pass data bet
 }
 ```
 
-## Custom State Machines
-
-Define your own state machine template:
-
-```typescript
-import { StateMachine, evaluateWorkflow } from "./state-machine.ts";
-
-const myTemplate: StateMachine<{ title?: string; approved?: boolean }> = {
-  name: "my-workflow",
-  initialState: "draft",
-  states: {
-    draft: {
-      on: { submit: "review" },
-      action: (ctx) => ({
-        type: "create-task",
-        subject: `Review: ${ctx.title}`,
-        priority: 5,
-      }),
-    },
-    review: {
-      on: { approve: "done", reject: "draft" },
-      action: (ctx) => ctx.approved ? null : { type: "noop" },
-    },
-    done: {
-      on: {},
-    },
-  },
-};
-
-// Use it:
-const action = evaluateWorkflow(workflow, myTemplate);
-```
-
-**Action types:**
-- `"create-task"` — Create a task (subject, priority, skills required)
-- `"transition"` — Auto-transition to next state
-- `"noop"` — No action needed
-
 ### Meta-Sensor
 
 The workflows meta-sensor runs every 5 minutes and evaluates all active workflow instances:
@@ -181,12 +111,3 @@ The sensor source for created tasks is `workflow:{workflow_id}`, allowing you to
 
 See `TEMPLATES.md` for detailed state diagrams, context schemas, and usage examples.
 
-## Checklist
-
-- [ ] `skills/workflows/SKILL.md` exists
-- [ ] `skills/workflows/cli.ts` implements all commands
-- [ ] `bun skills/workflows/cli.ts list` runs without error
-- [ ] `bun skills/workflows/cli.ts create blog-test draft-1 draft` creates a workflow
-- [ ] `bun skills/workflows/cli.ts show 1` displays created workflow
-- [ ] Transitions preserve context JSON correctly
-- [ ] Completed workflows have `completed_at` timestamp set

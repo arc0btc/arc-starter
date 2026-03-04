@@ -11,12 +11,6 @@ tags:
 
 This skill manages the arc-agent skill system. Skills are knowledge containers that teach the agent how to do specific things.
 
-## What Skills Are
-
-A skill is a directory under `skills/` that packages knowledge and optional executable code around a focused capability. Skills are how the agent learns: each skill brings its own documentation, sensor logic, and CLI interface.
-
-Skills are discovered automatically. The CLI scans `skills/*/SKILL.md` at runtime — no registration step is needed.
-
 ## The 4-File Pattern
 
 Every skill is a directory with up to four files. Only `SKILL.md` is required.
@@ -28,60 +22,7 @@ Every skill is a directory with up to four files. Only `SKILL.md` is required.
 | `sensor.ts` | No | Background sensor: detect conditions and create tasks |
 | `cli.ts` | No | Standalone CLI: `bun skills/<name>/cli.ts [args]` |
 
-### SKILL.md
-
-The entry point for any skill. Must include YAML frontmatter:
-
-```yaml
----
-name: skill-name
-description: One-line description of what this skill does
-tags:
-  - tag1
-  - tag2
----
-```
-
-Keep SKILL.md under 2000 tokens. It should be readable quickly by both humans and agents.
-
-### AGENT.md
-
-Instructions for a subagent assigned a task that uses this skill. Describe what inputs the agent needs, what outputs it should produce, and any patterns or pitfalls to watch for. Keep it concise and actionable.
-
-### sensor.ts
-
-A sensor runs every minute via the sensors service. It detects conditions and creates tasks. Sensors take no arguments, return `"skip"` or `"ok"`, and use `claimSensorRun()` for interval gating.
-
-```typescript
-import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
-
-const SENSOR_NAME = "my-skill";
-const INTERVAL_MINUTES = 10;
-const TASK_SOURCE = "sensor:my-skill";
-
-export default async function mySkillSensor(): Promise<string> {
-  initDatabase();
-
-  const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
-  if (!claimed) return "skip";
-
-  if (pendingTaskExistsForSource(TASK_SOURCE)) return "skip";
-
-  insertTask({ subject: "detected something", source: TASK_SOURCE, priority: 5 });
-  return "ok";
-}
-```
-
-### cli.ts
-
-A CLI for direct human or agent interaction with the skill. Must be runnable standalone:
-
-```
-bun skills/<name>/cli.ts <subcommand> [args]
-```
-
-Parse `process.argv.slice(2)` directly. Exit with code 1 on errors.
+Each file must be self-contained: `SKILL.md` frontmatter (name, description, tags); `sensor.ts` exports async default returning `Promise<string>` (`"skip"` or `"ok"`); `cli.ts` parses `process.argv.slice(2)`, exits 1 on errors.
 
 ## How to Create a New Skill
 

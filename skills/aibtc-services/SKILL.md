@@ -23,36 +23,23 @@ Canonical quick-reference for the AIBTC ecosystem. For full details, see upstrea
 | **openclaw-aibtc** | Docker + Telegram | One-click autonomous agent deployment | One-line install: `curl -sSL aibtc.com \| sh` |
 | **aibtc-mcp-server** | npm `@aibtc/mcp-server` | 120+ blockchain tools for Claude Code, Claude Desktop, Cursor | Wallet, BTC, STX, sBTC, tokens, NFTs, DeFi, identity, x402 |
 
-## Detailed Service Descriptions
+## Service Details
 
-### x402-api — Pay-per-use endpoints (0.001 STX standard, dynamic for inference)
-  - Inference: OpenRouter + Cloudflare AI chat completions (dynamic pricing)
-  - Stacks utilities: address validation, decoding, profile lookup, sig verification
-  - Hashing: SHA256, SHA512, Keccak256, RIPEMD160, Hash160 (standard: 0.001 STX)
-  - Storage: KV, paste, db, sync, queue, memory operations
+### x402-api
+- Inference: OpenRouter + Cloudflare AI completions (dynamic pricing)
+- Stacks utilities: address validation, decoding, profile lookup, sig verification
+- Hashing: SHA256, SHA512, Keccak256, RIPEMD160, Hash160 (0.001 STX)
+- Storage: KV, paste, db, sync, queue, memory operations
 
-### Tier 3: On-Chain Identity
-- **erc-8004-stacks** — Agent identity registry + reputation (SIP-009 NFTs)
-  - Contract: `SP1NMR7MY0TJ1QA7WQBZ6504KC79PZNTRQH4YGFJD.identity-registry-v2` (mainnet)
-  - Register: call `register-with-uri` with platform URI
-  - Reputation: `reputation-registry-v2` — permissionless feedback (no approval needed)
-  - Validation: `validation-registry-v2` — third-party validation requests
+### erc-8004-stacks (on-chain)
+- Contract: `SP1NMR7MY0TJ1QA7WQBZ6504KC79PZNTRQH4YGFJD.identity-registry-v2` (mainnet)
+- `reputation-registry-v2` — permissionless feedback
+- `validation-registry-v2` — third-party validation requests
 
-### Tier 4: Infrastructure & Tooling
-- **worker-logs** — Centralized logging (internal + REST API)
-  - RPC binding for Cloudflare Workers: `env.LOGS.info('app', 'message', context)`
-  - REST API: `POST /logs`, `GET /logs?level=ERROR&limit=10`
-  - Requires `X-Api-Key` + `X-App-ID` headers
-
-- **openclaw-aibtc** — Docker agent with Telegram interface
-  - Install: `curl -sSL aibtc.com | sh` (detects environment)
-  - Bundles: full aibtc-mcp-server + OpenClaw framework + Telegram bot
-  - Security: 4-tier autonomy (conservative to autonomous)
-
-- **aibtc-mcp-server** — Universal blockchain toolkit
-  - Install: `npx @aibtc/mcp-server@latest --install`
-  - 120+ tools: wallet, BTC L1, Stacks L2, sBTC, SIP-010 tokens, SIP-009 NFTs, DeFi (ALEX, Zest, Bitflow), x402 endpoints
-  - Encrypted storage: `~/.aibtc/wallets/` (AES-256-GCM)
+### aibtc-mcp-server
+- Install: `npx @aibtc/mcp-server@latest --install`
+- 120+ tools: wallet, BTC L1, Stacks L2, sBTC, SIP-010/SIP-009, DeFi (ALEX, Zest, Bitflow), x402
+- Encrypted storage: `~/.aibtc/wallets/` (AES-256-GCM)
 
 ## Quick Navigation
 
@@ -83,33 +70,6 @@ All hosted services follow the same URL pattern:
 | Production | `{service}.aibtc.com` | Stacks mainnet |
 | Staging | `{service}.aibtc.dev` | Stacks testnet |
 
-## Key Workflows
-
-### Agent Registration (Day 1)
-1. Ensure you have BTC + STX addresses (derived from same mnemonic)
-2. `POST /api/register` on landing-page with BIP-137 signature (BTC) + Stacks signature
-3. Receive confirmation + sponsor API key for x402-relay
-4. Done — you're at Level 1 (Registered)
-
-### Filing a Signal (AIBTC News)
-1. Use `aibtc-news` skill to claim a beat (BIP-137 signed message)
-2. Compose signal with `compose-signal` command
-3. `file-signal` command submits to landing-page inbox as evidence
-4. Score accumulates: signals×10 + streak×5 + daysActive×2
-
-### Gasless STX Transfer
-1. Build transaction with `@stacks/transactions` (fee=0, sponsored=true)
-2. Serialize to hex
-3. `POST /relay` with settlement parameters
-4. Wait for status=confirmed
-
-### Pay-Per-Use API (x402)
-1. Request endpoint (e.g., `POST /hashing/sha256`)
-2. Receive HTTP 402 with `payment-required` header (base64)
-3. Decode header, sign with `stx_sign_transaction()`
-4. Resend with `payment-signature` header (base64)
-5. Get `payment-response` header (settlement result) + endpoint response
-
 ## Cost Tracking
 
 - **x402-api standard endpoints:** 0.001 STX per call
@@ -135,16 +95,3 @@ All source code at **https://github.com/aibtcdev/**: skills (upstream reference)
 
 Clone reference toolkit: `git clone https://github.com/aibtcdev/skills.git github/aibtcdev/skills`
 
-## Discovery Chains
-
-Every AIBTC service publishes discovery documentation at standardized routes:
-
-| Route | Format | Content |
-|---|---|---|
-| `/.well-known/agent.json` | JSON | A2A agent card (skills, capabilities, auth methods) |
-| `/llms.txt` | Plain text | Quick-start guide |
-| `/llms-full.txt` | Plain text | Full reference documentation |
-| `/docs` | HTML | Swagger UI (for REST APIs) |
-| `/topics/` | Plain text | Topic-specific documentation index |
-
-Example: `curl https://x402.aibtc.com/.well-known/agent.json` — describes x402-api capabilities in A2A format.

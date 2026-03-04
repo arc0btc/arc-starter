@@ -85,15 +85,6 @@ Run production-grade checklist. Single repo (`--repo aibtcdev/landing-page`) or 
 ### `status`
 Overview: open issues + open `prod-grade` labeled issues per repo.
 
-## Graduated Autonomy
-
-| Level | Capability | Status |
-|-------|-----------|--------|
-| L1 | Audit repos, file GitHub issues | Active |
-| L2 | Create PRs to fix gaps | Future |
-| L3 | Address PR feedback | Future |
-| L4 | Merge + release | Future |
-
 ## Credentials
 
 ```

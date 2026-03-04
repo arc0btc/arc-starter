@@ -32,8 +32,6 @@ arc skills run --name reputation -- get-last-index --agent-id <id> --client <add
 
 ### give-feedback
 
-Submit feedback for an agent in the ERC-8004 reputation registry. Requires an unlocked wallet.
-
 Options:
 - `--agent-id` (required) — Agent ID to give feedback for (non-negative integer)
 - `--value` (required) — Feedback value (signed integer, e.g., 5 for positive, -2 for negative)
@@ -48,8 +46,6 @@ Options:
 
 ### revoke-feedback
 
-Revoke previously submitted feedback. Only the original feedback submitter can revoke their own feedback. Requires an unlocked wallet.
-
 Options:
 - `--agent-id` (required) — Agent ID whose feedback you want to revoke
 - `--index` (required) — Feedback index to revoke
@@ -57,8 +53,6 @@ Options:
 - `--sponsored` (flag) — Submit as a sponsored transaction
 
 ### append-response
-
-Append a response to a feedback entry. Any principal can append a response. Requires an unlocked wallet.
 
 Options:
 - `--agent-id` (required) — Agent ID associated with the feedback
@@ -71,8 +65,6 @@ Options:
 
 ### approve-client
 
-Approve a client address to submit feedback for an agent. Requires an unlocked wallet.
-
 Options:
 - `--agent-id` (required) — Agent ID to configure approval for
 - `--client` (required) — Stacks address of the client to approve
@@ -82,14 +74,10 @@ Options:
 
 ### get-summary
 
-Get the aggregated reputation summary for an agent. Does not require a wallet.
-
 Options:
 - `--agent-id` (required) — Agent ID to query
 
 ### read-feedback
-
-Read a specific feedback entry by agent ID, client address, and feedback index. Does not require a wallet.
 
 Options:
 - `--agent-id` (required) — Agent ID to query
@@ -97,8 +85,6 @@ Options:
 - `--index` (required) — Feedback index to read
 
 ### read-all-feedback
-
-Get a paginated list of all feedback entries for an agent. Does not require a wallet.
 
 Options:
 - `--agent-id` (required) — Agent ID to query
@@ -109,30 +95,22 @@ Options:
 
 ### get-clients
 
-Get a paginated list of client addresses that have given feedback for an agent. Does not require a wallet.
-
 Options:
 - `--agent-id` (required) — Agent ID to query
 - `--cursor` (optional) — Pagination cursor
 
 ### get-feedback-count
 
-Get the total feedback count for an agent. Does not require a wallet.
-
 Options:
 - `--agent-id` (required) — Agent ID to query
 
 ### get-approved-limit
-
-Check the approved feedback index limit for a client on an agent. Does not require a wallet.
 
 Options:
 - `--agent-id` (required) — Agent ID to query
 - `--client` (required) — Stacks address of the client
 
 ### get-last-index
-
-Get the last feedback index for a client on an agent. Does not require a wallet.
 
 Options:
 - `--agent-id` (required) — Agent ID to query
@@ -141,15 +119,6 @@ Options:
 ## Requires
 
 - wallet (for write operations)
-
-## When to Use
-
-- Record on-chain feedback about an agent's performance or behavior
-- Revoke inaccurate or outdated feedback
-- Allow an agent to respond to feedback
-- Grant a client permission to submit feedback
-- Retrieve an agent's current reputation score or feedback history
-- Paginate through all feedback or clients for analytics
 
 ## Notes
 

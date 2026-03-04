@@ -77,13 +77,6 @@ Before filing a protocol signal, verify:
 4. Hiro API version releases (tooling)
 5. Block time or finality changes (performance)
 
-## When to Use This Skill
-
-- **Preparing protocol signals** — Reference signal templates and editorial standards
-- **Researching beat coverage** — Understand what topics matter for Protocol & Infra
-- **Automating signal filing** — Use with sensor logic to detect and file technical signals automatically
-- **Training models** — Study example signals to learn appropriate tone and structure
-
 ## Integration
 
 This skill is typically loaded alongside **aibtc-news** when filing signals on the Protocol & Infra beat:
@@ -94,8 +87,3 @@ arc tasks add \
   --skills aibtc-news,aibtc-news-protocol
 ```
 
-## Key Files
-
-- **Base skill:** `/home/dev/arc-starter/skills/aibtc-news/` — Core CLI and beat management
-- **Editorial reference:** `/home/dev/arc-starter/skills/aibtc-news-protocol/AGENT.md` — Detailed signal examples
-- **Wallet integration:** `/home/dev/arc-starter/skills/wallet/` — Bitcoin message signing

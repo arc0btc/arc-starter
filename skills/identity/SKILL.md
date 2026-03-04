@@ -31,7 +31,7 @@ arc skills run --name identity -- get-last-id
 
 ### register
 
-Register a new agent identity on-chain using the ERC-8004 identity registry. Returns a transaction ID. Check the transaction result to get the assigned agent ID. Requires an unlocked wallet.
+Returns a transaction ID; check the result to get the assigned agent ID.
 
 Options:
 - `--uri` (optional) — URI pointing to agent metadata (IPFS, HTTP, etc.)
@@ -41,14 +41,12 @@ Options:
 
 ### get
 
-Get agent identity information from the ERC-8004 identity registry. Returns owner address, URI, and wallet if set. Does not require a wallet.
+Returns owner address, URI, and wallet if set.
 
 Options:
 - `--agent-id` (required) — Agent ID to look up (non-negative integer)
 
 ### set-uri
-
-Update the URI for an agent identity. Caller must be the agent owner or an approved operator. Requires an unlocked wallet.
 
 Options:
 - `--agent-id` (required) — Agent ID to update (non-negative integer)
@@ -58,7 +56,7 @@ Options:
 
 ### set-metadata
 
-Set a metadata key-value pair for an agent identity. Value must be a hex-encoded buffer (max 512 bytes). The key `agentWallet` is reserved and will be rejected by the contract. Caller must be the agent owner or an approved operator. Requires an unlocked wallet.
+Value must be hex-encoded buffer (max 512 bytes). Key `agentWallet` is reserved — use `set-wallet` instead.
 
 Options:
 - `--agent-id` (required) — Agent ID to update (non-negative integer)
@@ -69,7 +67,7 @@ Options:
 
 ### set-approval
 
-Approve or revoke an operator for an agent identity. Approved operators can update URI, metadata, and wallet on behalf of the owner. Only the NFT owner can call this. Requires an unlocked wallet.
+Only NFT owner can call. Omit `--approved` to revoke.
 
 Options:
 - `--agent-id` (required) — Agent ID to update (non-negative integer)
@@ -80,7 +78,7 @@ Options:
 
 ### set-wallet
 
-Set the agent wallet for an identity to tx-sender (the active wallet address). This links the active Stacks address to the agent ID without requiring a separate signature. Caller must be the agent owner or an approved operator. Requires an unlocked wallet.
+Links active Stacks address to the agent ID.
 
 Options:
 - `--agent-id` (required) — Agent ID to update (non-negative integer)
@@ -89,8 +87,6 @@ Options:
 
 ### unset-wallet
 
-Remove the agent wallet association from an agent identity. Caller must be the agent owner or an approved operator. Requires an unlocked wallet.
-
 Options:
 - `--agent-id` (required) — Agent ID to update (non-negative integer)
 - `--fee` (optional) — Fee preset (`low`, `medium`, `high`) or micro-STX amount
@@ -98,7 +94,7 @@ Options:
 
 ### transfer
 
-Transfer an agent identity NFT to a new owner. The active wallet (tx-sender) must equal the current owner. Transfer automatically clears the agent wallet association. Requires an unlocked wallet.
+Clears agent wallet association on transfer; run `set-wallet` after if needed.
 
 Options:
 - `--agent-id` (required) — Agent ID (token ID) to transfer (non-negative integer)
@@ -108,7 +104,7 @@ Options:
 
 ### get-metadata
 
-Read a metadata value by key from the ERC-8004 identity registry. Returns the raw buffer value as a hex string. Does not require a wallet.
+Returns raw buffer as hex string.
 
 Options:
 - `--agent-id` (required) — Agent ID to query (non-negative integer)
@@ -116,20 +112,11 @@ Options:
 
 ### get-last-id
 
-Get the most recently minted agent ID from the ERC-8004 identity registry. Returns null if no agents have been registered. Does not require a wallet.
+Returns null if no agents have been registered.
 
 ## Requires
 
 - wallet (for write operations)
-
-## When to Use
-
-- Register a new on-chain ERC-8004 agent identity after AIBTC API registration
-- Look up an agent's on-chain identity info
-- Update agent metadata or URI as part of an upgrade workflow
-- Delegate identity management to an operator address
-- Link or unlink a Stacks wallet address to an agent identity
-- Transfer identity ownership to a new address
 
 ## Notes
 

@@ -80,13 +80,6 @@ Before filing a deal-flow signal, verify:
 4. Bounty program launches with >10 sats reward (ecosystem activity)
 5. DAO treasury changes >1 BTC (governance/funding)
 
-## When to Use This Skill
-
-- **Preparing market signals** — Reference signal templates and editorial standards
-- **Researching beat coverage** — Understand what transactions/events matter for Deal Flow
-- **Automating signal filing** — Use with sensor logic to detect and file market signals automatically
-- **Training models** — Study example signals to learn appropriate tone and structure
-
 ## Integration
 
 This skill is typically loaded alongside **aibtc-news** when filing signals on the Deal Flow beat:
@@ -97,8 +90,3 @@ arc tasks add \
   --skills aibtc-news,aibtc-news-deal-flow
 ```
 
-## Key Files
-
-- **Base skill:** `/home/dev/arc-starter/skills/aibtc-news/` — Core CLI and beat management
-- **Editorial reference:** `/home/dev/arc-starter/skills/aibtc-news-deal-flow/AGENT.md` — Detailed signal examples
-- **Wallet integration:** `/home/dev/arc-starter/skills/wallet/` — Bitcoin message signing

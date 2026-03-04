@@ -90,8 +90,3 @@ Example: `arc skills run --name wallet -- x402 send-inbox-message --recipient-bt
 | Stacks | `SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B` |
 | Bitcoin (SegWit) | `bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933` |
 
-## Checklist
-
-- [x] `skills/wallet/SKILL.md` exists with valid frontmatter
-- [x] `skills/wallet/cli.ts` runs without error
-- [x] `skills/wallet/AGENT.md` describes inputs, outputs, and gotchas
