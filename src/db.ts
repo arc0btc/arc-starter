@@ -406,6 +406,18 @@ export function recentTaskExistsForSourcePrefix(prefix: string, withinMinutes: n
   return row !== null;
 }
 
+// ---- Internal helpers ----
+
+/** Builds and runs a dynamic UPDATE ... WHERE id = ?. Skips undefined values. */
+function updateRow(table: string, id: number, fields: Record<string, unknown>): void {
+  const db = getDatabase();
+  const entries = Object.entries(fields).filter(([, v]) => v !== undefined);
+  if (entries.length === 0) return;
+  const sets = entries.map(([k]) => `${k} = ?`);
+  const values = [...entries.map(([, v]) => v), id];
+  db.query(`UPDATE ${table} SET ${sets.join(", ")} WHERE id = ?`).run(...values);
+}
+
 // ---- Task mutations ----
 
 export function insertTask(fields: InsertTask): number {
@@ -480,30 +492,7 @@ export interface UpdateTaskFields {
 }
 
 export function updateTask(id: number, fields: UpdateTaskFields): void {
-  const db = getDatabase();
-  const sets: string[] = [];
-  const values: unknown[] = [];
-
-  if (fields.subject !== undefined) {
-    sets.push("subject = ?");
-    values.push(fields.subject);
-  }
-  if (fields.description !== undefined) {
-    sets.push("description = ?");
-    values.push(fields.description);
-  }
-  if (fields.priority !== undefined) {
-    sets.push("priority = ?");
-    values.push(fields.priority);
-  }
-  if (fields.model !== undefined) {
-    sets.push("model = ?");
-    values.push(fields.model);
-  }
-
-  if (sets.length === 0) return;
-  values.push(id);
-  db.query(`UPDATE tasks SET ${sets.join(", ")} WHERE id = ?`).run(...values);
+  updateRow("tasks", id, fields as Record<string, unknown>);
 }
 
 export function requeueTask(id: number): void {
@@ -539,25 +528,15 @@ export function insertCycleLog(entry: InsertCycleLog): number {
 }
 
 export function updateCycleLog(id: number, fields: Partial<CycleLog>): void {
-  const db = getDatabase();
-  const updatableFields: Array<keyof CycleLog> = [
+  const allowed: Array<keyof CycleLog> = [
     "completed_at", "duration_ms", "cost_usd", "api_cost_usd",
     "tokens_in", "tokens_out", "skills_loaded", "task_id", "security_grade", "model",
   ];
-
-  const sets: string[] = [];
-  const values: unknown[] = [];
-
-  for (const key of updatableFields) {
-    if (fields[key] !== undefined) {
-      sets.push(`${key} = ?`);
-      values.push(fields[key]);
-    }
+  const filtered: Record<string, unknown> = {};
+  for (const key of allowed) {
+    if (fields[key] !== undefined) filtered[key] = fields[key];
   }
-
-  if (sets.length === 0) return;
-  values.push(id);
-  db.query(`UPDATE cycle_log SET ${sets.join(", ")} WHERE id = ?`).run(...values);
+  updateRow("cycle_log", id, filtered);
 }
 
 export function getRecentCycles(limit: number = 10): CycleLog[] {
