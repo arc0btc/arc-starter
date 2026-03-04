@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-04T16:42:00.000Z*
+*Generated: 2026-03-04T19:00:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -423,9 +423,11 @@ stateDiagram-v2
         - arc-brand
         - architect
         - blog-publishing
+        - content-quality
         - credentials
         - dashboard
         - email
+        - evals
         - failure-triage
         - housekeeping
         - identity
@@ -483,12 +485,14 @@ stateDiagram-v2
 | blog-publishing | yes | yes | yes | Create, manage, and publish blog posts with ISO8601 content pattern |
 | ceo | - | - | yes | Strategic operating manual — treat yourself as CEO of a one-entity company |
 | ceo-review | yes | - | yes | CEO reviews the latest watch report and actively manages the task queue |
+| content-quality | - | yes | - | Pre-publish quality gate — detects AI writing patterns in blog posts, X posts, and AIBTC signals |
 | ci-status | yes | - | - | Monitors GitHub Actions CI runs on our PRs and detects failures |
 | composition-patterns | - | - | yes | React composition patterns — compound components, boolean prop avoidance, React 19 APIs |
 | cost-alerting | yes | - | - | Monitor daily spend and alert when thresholds are exceeded |
 | credentials | - | yes | yes | Encrypted credential store for API keys, tokens, and secrets used by other skills |
 | dashboard | - | yes | yes | Arc's live web dashboard — real-time task feed, sensor status, cost tracking |
 | email | yes | yes | yes | Sync email from arc-email-worker, detect unread messages, read and send email |
+| evals | - | yes | yes | Dispatch quality evaluation — error analysis, LLM judges, calibration against human labels |
 | failure-triage | yes | yes | yes | Detect recurring failure patterns, escalate to investigation instead of retry |
 | github-mentions | yes | - | - | Detects GitHub @mentions, review requests, and assignments via notifications API |
 | health | yes | - | - | System health monitor — detects stale cycles and stuck dispatch |
