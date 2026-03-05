@@ -19,55 +19,61 @@ interface PrInfo {
   author: string;
 }
 
-function gh(args: string[]): { ok: boolean; stdout: string; stderr: string } {
-  const result = Bun.spawnSync(["gh", ...args], { timeout: 30_000 });
-  return {
-    ok: result.exitCode === 0,
-    stdout: result.stdout.toString().trim(),
-    stderr: result.stderr.toString().trim(),
-  };
-}
-
 function getUnreviewedPRs(): PrInfo[] {
-  const prs: PrInfo[] = [];
-
-  for (const repo of WATCHED_REPOS) {
-    const result = gh([
-      "pr", "list",
-      "--repo", repo,
-      "--state", "open",
-      "--json", "number,title,author,reviews",
-      "--limit", "10",
-    ]);
-
-    if (!result.ok) continue;
-
-    try {
-      const items = JSON.parse(result.stdout) as Array<{
-        number: number;
-        title: string;
-        author: { login: string };
-        reviews: Array<{ author: { login: string }; state: string }>;
-      }>;
-
-      for (const item of items) {
-        // Skip PRs authored by Arc — reviewing your own PR is meaningless
-        if (item.author.login === GITHUB_USER) continue;
-
-        const reviewed = item.reviews.some(
-          (r) => r.author.login === GITHUB_USER
-        );
-        if (!reviewed) {
-          prs.push({
-            repo,
-            number: item.number,
-            title: item.title,
-            author: item.author.login,
-          });
+  // Build a single GraphQL query that fetches open PRs from all watched repos at once.
+  // Each repo becomes an aliased field (repo0, repo1, …) to avoid name collisions.
+  const fragments = WATCHED_REPOS.map((repo, i) => {
+    const [owner, name] = repo.split("/");
+    return `repo${i}: repository(owner: "${owner}", name: "${name}") {
+      pullRequests(states: OPEN, first: 10, orderBy: {field: UPDATED_AT, direction: DESC}) {
+        nodes {
+          number
+          title
+          author { login }
+          reviews(first: 50) { nodes { author { login } } }
         }
       }
-    } catch {
-      // malformed JSON, skip
+    }`;
+  });
+
+  const query = `query { ${fragments.join("\n")} }`;
+
+  const result = Bun.spawnSync(
+    ["gh", "api", "graphql", "-f", `query=${query}`],
+    { timeout: 30_000 },
+  );
+  if (result.exitCode !== 0) return [];
+
+  let data: Record<string, { pullRequests: { nodes: Array<{
+    number: number;
+    title: string;
+    author: { login: string };
+    reviews: { nodes: Array<{ author: { login: string } }> };
+  }> } }>;
+
+  try {
+    const parsed = JSON.parse(result.stdout.toString().trim()) as { data: typeof data };
+    data = parsed.data;
+  } catch {
+    return [];
+  }
+
+  const prs: PrInfo[] = [];
+  for (let i = 0; i < WATCHED_REPOS.length; i++) {
+    const repoData = data[`repo${i}`];
+    if (!repoData) continue;
+    const repo = WATCHED_REPOS[i];
+
+    for (const item of repoData.pullRequests.nodes) {
+      // Skip PRs authored by Arc — reviewing your own PR is meaningless
+      if (item.author.login === GITHUB_USER) continue;
+
+      const reviewed = item.reviews.nodes.some(
+        (r) => r.author.login === GITHUB_USER,
+      );
+      if (!reviewed) {
+        prs.push({ repo, number: item.number, title: item.title, author: item.author.login });
+      }
     }
   }
 
