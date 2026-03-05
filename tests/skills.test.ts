@@ -38,19 +38,19 @@ describe("discoverSkills", () => {
     expect(ceo!.tags).toContain("strategy");
   });
 
-  test("heartbeat skill has sensor but no cli", () => {
+  test("aibtc-heartbeat skill has sensor but no cli", () => {
     const skills = discoverSkills();
-    const heartbeat = skills.find((s) => s.name === "heartbeat");
+    const heartbeat = skills.find((s) => s.name === "aibtc-heartbeat");
     expect(heartbeat).toBeDefined();
     expect(heartbeat!.hasSensor).toBe(true);
     expect(heartbeat!.hasCli).toBe(false);
   });
 
-  test("manage-skills skill has cli but no sensor", () => {
+  test("arc-skill-manager skill has cli and sensor", () => {
     const skills = discoverSkills();
     const ms = skills.find((s) => s.name === "arc-skill-manager");
     expect(ms).toBeDefined();
     expect(ms!.hasCli).toBe(true);
-    expect(ms!.hasSensor).toBe(false);
+    expect(ms!.hasSensor).toBe(true);
   });
 });
