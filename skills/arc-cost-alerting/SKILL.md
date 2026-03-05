@@ -19,7 +19,7 @@ Sensor that monitors daily Claude Code spend and creates an alert task when the 
 
 ## Configuration
 
-The threshold is defined as a constant in `sensor.ts`. Default: `$100.00/day`.
+The threshold is defined as a constant in `sensor.ts`. Default: `$30.00/day` (based on $200/week budget).
 
 ## Checklist
 

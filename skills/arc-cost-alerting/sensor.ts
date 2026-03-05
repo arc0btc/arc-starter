@@ -9,7 +9,7 @@ import { getDatabase } from "../../src/db.ts";
 
 const SENSOR_NAME = "arc-cost-alerting";
 const INTERVAL_MINUTES = 10;
-const DAILY_THRESHOLD_USD = 100.0;
+const DAILY_THRESHOLD_USD = 30.0;
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -28,9 +28,6 @@ function getDailySpend(): { costUsd: number; apiCostUsd: number } {
 }
 
 export default async function costAlertingSensor(): Promise<string> {
-  // TEMPORARY: well within budget limits, disable alerts to free compute
-  return "skip";
-
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
