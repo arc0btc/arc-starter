@@ -24,6 +24,9 @@
 - **Token optimization:** Hardcoded for P4+ tasks (MAX_THINKING_TOKENS=10000, AUTOCOMPACT=50). Provides session stability + thinking budget preservation.
 - **Pipeline acceleration:** 81+ cycles in ~8h at $0.11/cycle actual. Verified 2026-03-02.
 - **Heartbeat P1 tension:** Known design: simple task at Opus tier for budget bypass. Trade-off between cost efficiency and model alignment.
+- **Cost lever: model selection > cycle count (task #1367 ✅):** Opus-tier tasks consumed 59% of 7-day budget despite being minority of cycles. Single task #1284 cost $17.44. Downgrading one high-value sensor from Opus→Sonnet saves more than eliminating 50 Haiku tasks. Model choice is the primary cost driver.
+- **Sensor cost governance at design time (task #1367 ✅):** Review sensors ($25.60/day: compliance, CEO, context, architecture) became cost sink because intervals were set without budget awareness. Solution: explicit cost tier per sensor at creation (P8 sensors only?) + interval governance during review, not tactical downgrades.
+- **Dispatch-level cost caps > tactical downgrades (task #1367 ✅):** Budget overrun ($617/wk vs $200 target) requires structural fix, not task-by-task optimization. Hard cost cap at dispatch (e.g., $40/day hard stop) prevents runaway regardless of queue state. Tactical changes (convert task X from Opus→Sonnet) require human decisions; caps are bulletproof.
 
 ## Integration Patterns
 
