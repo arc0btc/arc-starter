@@ -4,13 +4,20 @@ description: Monitors GitHub issues on managed repos (arc0btc/*, aibtcdev/*) and
 tags:
   - sensor
   - github
+  - disabled
 ---
 
 # github-issue-monitor
 
+> **⚠️ SENSOR DISABLED** — `sensor.ts` is renamed to `sensor.ts.disabled`. The sensor does not run.
+>
+> **Reason:** spark0btc GitHub account permanently restricted (2026-03-02). Arc's primary account (arc0btc) is still active but GitHub-facing automation was paused pending a decision on the account strategy.
+>
+> **To re-enable:** rename `sensor.ts.disabled` → `sensor.ts` and restart the sensors service.
+
 Polls managed and collaborative GitHub repos for open issues. Creates a task per new issue so dispatch can triage, respond, or fix.
 
-## Sensor Behavior
+## Sensor Behavior (when enabled)
 
 - **Cadence**: every 15 minutes via `claimSensorRun`
 - **API**: `gh api /repos/{owner}/{repo}/issues?state=open` filtered to exclude PRs
