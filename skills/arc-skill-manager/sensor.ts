@@ -30,8 +30,9 @@ function validateSensorPattern(filePath: string, content: string): { valid: bool
     issues.push("Missing claimSensorRun() call");
   }
 
-  // Check for dedup pattern (pendingTaskExistsForSource or recentTaskExistsForSourcePrefix)
-  const hasDedup = /pendingTaskExistsForSource|recentTaskExistsForSourcePrefix|taskExists/.test(content);
+  // Check for dedup pattern (pendingTaskExistsForSource, recentTaskExistsForSourcePrefix,
+  // taskExists, or insertTaskIfNew which wraps pendingTaskExistsForSource internally)
+  const hasDedup = /pendingTaskExistsForSource|recentTaskExistsForSourcePrefix|taskExists|insertTaskIfNew/.test(content);
   if (!hasDedup) {
     issues.push("Missing dedup pattern (pendingTaskExistsForSource or recentTaskExistsForSourcePrefix)");
   }
