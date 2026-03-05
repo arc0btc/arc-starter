@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arc - Sensors</title>
+  <link rel="stylesheet" href="/shared.css">
+</head>
+<body>
+
+  <div id="sse-announcer" role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-identity">
+        <div class="avatar">A</div>
+        <div>
+          <h1 class="header-name">Arc <span class="status-dot live" id="status-dot" title="Live" aria-label="Status: live"></span><span class="sse-status disconnected" id="sse-dot" title="SSE disconnected" aria-label="SSE: disconnected"></span></h1>
+          <div class="header-bns">arc0.btc</div>
+        </div>
+      </div>
+
+      <div class="header-stats">
+        <div class="cost-ticker">
+          <div class="label">Cost Today</div>
+          <span id="cost-today">$0.00</span>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <a href="/">Activity</a>
+        <a href="/sensors" class="active">Sensors</a>
+        <a href="/skills">Skills</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="container">
+
+    <!-- Message Box -->
+    <section id="message" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Message Arc</h2>
+      </div>
+      <div class="message-box">
+        <form class="message-form" id="message-form">
+          <textarea class="message-input" id="message-input" placeholder="Send a task to Arc..." rows="1" maxlength="500" aria-label="Send a task to Arc"></textarea>
+          <button type="submit" class="message-send" id="message-send">Send</button>
+        </form>
+        <div class="message-status" id="message-status" aria-live="polite" aria-atomic="true"></div>
+      </div>
+    </section>
+
+    <!-- Sensor Grid -->
+    <section id="sensors" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Sensors</h2>
+        <span class="section-count" id="sensor-count"></span>
+      </div>
+      <div class="sensor-grid" id="sensor-grid">
+        <div class="sensor-card ok">
+          <div class="sensor-header">
+            <span class="status-dot live" aria-hidden="true"></span>
+            <span class="sensor-name">Loading...</span>
+          </div>
+          <div class="sensor-detail">--</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <a href="https://arc0.me" target="_blank" rel="noopener">arc0.me</a>
+      <span class="footer-dot"></span>
+      <span>Arc Agent v5</span>
+      <span class="footer-dot"></span>
+      <span id="uptime">--</span>
+    </div>
+  </footer>
+
+  <script src="/shared.js"></script>
+  <script>
+    function renderSensors(sensors) {
+      var grid = document.getElementById('sensor-grid');
+      var count = document.getElementById('sensor-count');
+      count.textContent = sensors.length + ' sensors';
+
+      if (sensors.length === 0) {
+        grid.innerHTML = '<p class="placeholder">No sensors found</p>';
+        return;
+      }
+
+      grid.innerHTML = sensors.map(function(s) {
+        var isError = s.last_result === 'error' || (s.consecutive_failures && s.consecutive_failures > 0);
+        var isRecent = false;
+        if (s.last_ran) {
+          var age = Date.now() - new Date(s.last_ran.endsWith('Z') ? s.last_ran : s.last_ran + 'Z').getTime();
+          var threshold = (s.interval_minutes || 5) * 2 * 60000;
+          isRecent = age < threshold;
+        }
+        var statusCls = isError ? 'error' : (isRecent ? 'ok' : 'stale');
+        var dotCls = isError ? '' : (isRecent ? 'live' : '');
+        var dotStyle = isError ? 'background:var(--error)' : (!isRecent ? 'background:#555' : '');
+        var dotLabel = isError ? 'Sensor status: error' : (isRecent ? 'Sensor status: active' : 'Sensor status: stale');
+        var sensorName = esc(s.name);
+
+        return '<div class="sensor-card ' + statusCls + '" style="cursor:pointer" onclick="prefillMessage(\'Check sensor: ' + escAttr(s.name) + '\')">'
+          + '<div class="sensor-header">'
+          + '<span class="status-dot ' + dotCls + '" style="' + dotStyle + '" aria-label="' + dotLabel + '"></span>'
+          + '<span class="sensor-name">' + sensorName + '</span>'
+          + (s.interval_minutes ? '<span class="skill-badge">' + s.interval_minutes + 'm</span>' : '')
+          + '</div>'
+          + '<div class="sensor-detail">'
+          + relativeTime(s.last_ran)
+          + (s.last_result && s.last_result !== 'ok' ? ' &middot; ' + esc(s.last_result) : '')
+          + (s.description ? '<br>' + esc(s.description) : '')
+          + '</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    function pingSensor(name) {
+      var cards = document.querySelectorAll('.sensor-card');
+      for (var i = 0; i < cards.length; i++) {
+        var nameEl = cards[i].querySelector('.sensor-name');
+        if (nameEl && nameEl.textContent === name) {
+          var dot = cards[i].querySelector('.status-dot');
+          if (dot) {
+            dot.classList.remove('ping');
+            void dot.offsetWidth;
+            dot.classList.add('ping');
+          }
+          var detail = cards[i].querySelector('.sensor-detail');
+          if (detail) detail.textContent = 'just now';
+          cards[i].className = 'sensor-card ok';
+          break;
+        }
+      }
+    }
+
+    sseCallbacks.onSensorRan = function(data) {
+      pingSensor(data.name);
+    };
+
+    sseCallbacks.onRefreshAll = function() {
+      fetchJSON('/api/status').then(function(s) {
+        updateHeader(s);
+      }).catch(function() {});
+      fetchJSON('/api/sensors').then(function(d) {
+        renderSensors(d.sensors || []);
+      }).catch(function() {});
+    };
+
+    async function init() {
+      try {
+        var results = await Promise.allSettled([
+          fetchJSON('/api/status'),
+          fetchJSON('/api/sensors'),
+        ]);
+
+        var status  = results[0].status === 'fulfilled' ? results[0].value : null;
+        var sensors = results[1].status === 'fulfilled' ? results[1].value : null;
+
+        if (status) updateHeader(status);
+        if (sensors) renderSensors(sensors.sensors || []);
+      } catch (e) {
+        console.error('Sensors init error:', e);
+      }
+
+      initMessageBox();
+      connectSSE();
+      setInterval(sseCallbacks.onRefreshAll, 60000);
+    }
+
+    init();
+  </script>
+</body>
+</html>

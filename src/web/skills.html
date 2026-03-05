@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arc - Skills</title>
+  <link rel="stylesheet" href="/shared.css">
+</head>
+<body>
+
+  <div id="sse-announcer" role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-identity">
+        <div class="avatar">A</div>
+        <div>
+          <h1 class="header-name">Arc <span class="status-dot live" id="status-dot" title="Live" aria-label="Status: live"></span><span class="sse-status disconnected" id="sse-dot" title="SSE disconnected" aria-label="SSE: disconnected"></span></h1>
+          <div class="header-bns">arc0.btc</div>
+        </div>
+      </div>
+
+      <div class="header-stats">
+        <div class="cost-ticker">
+          <div class="label">Cost Today</div>
+          <span id="cost-today">$0.00</span>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <a href="/">Activity</a>
+        <a href="/sensors">Sensors</a>
+        <a href="/skills" class="active">Skills</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="container">
+
+    <!-- Message Box -->
+    <section id="message" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Message Arc</h2>
+      </div>
+      <div class="message-box">
+        <form class="message-form" id="message-form">
+          <textarea class="message-input" id="message-input" placeholder="Send a task to Arc..." rows="1" maxlength="500" aria-label="Send a task to Arc"></textarea>
+          <button type="submit" class="message-send" id="message-send">Send</button>
+        </form>
+        <div class="message-status" id="message-status" aria-live="polite" aria-atomic="true"></div>
+      </div>
+    </section>
+
+    <!-- Skill Catalog -->
+    <section id="skills" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Skills</h2>
+        <span class="section-count" id="skill-count"></span>
+      </div>
+      <div class="skill-grid" id="skill-grid">
+        <div class="skill-card">
+          <div class="skill-card-name">Loading...</div>
+          <div class="skill-card-desc">Discovering installed skills</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <a href="https://arc0.me" target="_blank" rel="noopener">arc0.me</a>
+      <span class="footer-dot"></span>
+      <span>Arc Agent v5</span>
+      <span class="footer-dot"></span>
+      <span id="uptime">--</span>
+    </div>
+  </footer>
+
+  <script src="/shared.js"></script>
+  <script>
+    function renderSkills(skills) {
+      var grid = document.getElementById('skill-grid');
+      var count = document.getElementById('skill-count');
+      count.textContent = skills.length + ' skills';
+
+      if (skills.length === 0) {
+        grid.innerHTML = '<p class="placeholder">No skills found</p>';
+        return;
+      }
+
+      grid.innerHTML = skills.map(function(s) {
+        var tags = (s.tags || []).map(function(t) {
+          return '<span class="skill-tag">' + esc(t) + '</span>';
+        }).join('');
+
+        var badges = '';
+        if (s.has_sensor) badges += '<span class="skill-badge">sensor</span>';
+        if (s.has_cli) badges += '<span class="skill-badge">cli</span>';
+        if (s.has_agent) badges += '<span class="skill-badge">agent</span>';
+
+        var skillName = escAttr(s.name);
+
+        return '<div class="skill-card" style="cursor:pointer" onclick="prefillMessage(\'Run skill: ' + skillName + '\')">'
+          + '<div class="skill-card-name">' + esc(s.name) + badges + '</div>'
+          + '<div class="skill-card-desc">' + esc(s.description) + '</div>'
+          + '<div class="skill-tags">' + tags + '</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    sseCallbacks.onRefreshAll = function() {
+      fetchJSON('/api/status').then(function(s) {
+        updateHeader(s);
+      }).catch(function() {});
+    };
+
+    async function init() {
+      try {
+        var results = await Promise.allSettled([
+          fetchJSON('/api/status'),
+          fetchJSON('/api/skills'),
+        ]);
+
+        var status = results[0].status === 'fulfilled' ? results[0].value : null;
+        var skills = results[1].status === 'fulfilled' ? results[1].value : null;
+
+        if (status) updateHeader(status);
+        if (skills) renderSkills(skills.skills || []);
+      } catch (e) {
+        console.error('Skills init error:', e);
+      }
+
+      initMessageBox();
+      connectSSE();
+      setInterval(sseCallbacks.onRefreshAll, 60000);
+    }
+
+    init();
+  </script>
+</body>
+</html>

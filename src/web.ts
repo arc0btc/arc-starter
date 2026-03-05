@@ -477,6 +477,19 @@ function route(req: Request): Response | Promise<Response> {
   const taskMatch = path.match(/^\/api\/tasks\/(\d+)$/);
   if (taskMatch) return handleTaskById(taskMatch[1]);
 
+  // Clean URL routing for multi-page app
+  if (path === "/sensors" || path === "/skills") {
+    const htmlPath = join(STATIC_DIR, path + ".html");
+    if (existsSync(htmlPath)) {
+      return new Response(Bun.file(htmlPath), {
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
+    }
+  }
+
   // Static files
   const staticResponse = serveStatic(path);
   if (staticResponse) return staticResponse;
