@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-05T07:38:00.000Z*
+*Generated: 2026-03-05T12:35:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -56,8 +56,9 @@ stateDiagram-v2
         RunAllSensors --> workflowsSensor: arc-workflows
 
         note right of RunAllSensors
-            35 sensors total (post-rename)
+            35 sensors total
             github-issue-monitor: disabled (.ts.disabled)
+            Reason: spark0btc GitHub restriction (2026-03-02)
         end note
 
         state "Generic Sensor Pattern" as genericSensor {
@@ -78,8 +79,29 @@ stateDiagram-v2
             architectShaCheck --> architectDedup: SHA changed or diagram stale or active reports
             architectDedup --> architectSkip: pending task exists
             architectDedup --> architectCreateTask: no dupe
-            architectCreateTask --> [*]: insertTask()
+            architectCreateTask --> [*]: insertTask() P7 sonnet
             architectSkip --> [*]: return skip
+        }
+
+        state housekeepingSensor {
+            [*] --> housekeepingGate: claimSensorRun(housekeeping, 30min)
+            housekeepingGate --> housekeepingSkip: interval not elapsed
+            housekeepingGate --> housekeepingCheck: interval elapsed
+            housekeepingCheck --> housekeepingSkip: no issues found
+            housekeepingCheck --> housekeepingDedup: issues detected
+            housekeepingDedup --> housekeepingSkip: pending task exists
+            housekeepingDedup --> housekeepingCreateTask: no dupe
+            note right of housekeepingCheck
+                Checks: uncommitted changes, untracked files,
+                stale dispatch lock, WAL size, MEMORY.md size,
+                ISO 8601 file accumulation, stale worktrees (>6h)
+            end note
+            note right of housekeepingCreateTask
+                skills: ["arc-housekeeping","arc-skill-manager"]
+                + arc-worktrees if stale worktrees detected
+            end note
+            housekeepingCreateTask --> [*]: insertTask() P7 haiku
+            housekeepingSkip --> [*]: return skip
         }
 
         state quorumclawSensor {
@@ -156,12 +178,13 @@ stateDiagram-v2
         PickTask --> BuildPrompt: highest priority task
 
         state BuildPrompt {
-            [*] --> SelectModel: task.model or task.priority
-            SelectModel --> LoadCore: explicit task.model wins; else P1-4->opus, P5-7->sonnet, P8+->haiku
+            [*] --> SelectModel: task.model (explicit) or task.priority fallback
+            SelectModel --> LoadCore: explicit model wins; else P1-4→opus, P5-7→sonnet, P8+→haiku
             LoadCore --> LoadSkills: SOUL.md + CLAUDE.md + MEMORY.md
             LoadSkills --> LoadSkillMd: task.skills JSON array
             LoadSkillMd --> AssemblePrompt: SKILL.md content
             note right of LoadSkillMd: Only SKILL.md loaded\nAGENT.md stays for subagents
+            note right of SelectModel: Priority = urgency\nModel = work complexity\nOrthogonal since 2026-03-04
         }
 
         BuildPrompt --> WriteLock: markTaskActive()
@@ -224,6 +247,20 @@ stateDiagram-v2
 | 8 | Result handling | Task status check post-run | Self-close vs fallback |
 | 9 | Auto-commit | Staged dirs: memory/ skills/ src/ templates/ | `git diff --cached` |
 
+## Workflow Templates (state-machine.ts)
+
+| Template | States | Trigger | Notes |
+|----------|--------|---------|-------|
+| blog-posting | draft→review→revision→published | manual | No action functions |
+| signal-filing | detected→formatted→filed | manual | AIBTC editorial workflow |
+| beat-claiming | pending→claimed→active | manual | BeatClaimingMachine only active machine |
+| pr-lifecycle | issue-opened→opened→review-requested→... | github-mentions | Includes aibtcdev repos |
+| reputation-feedback | pending→checking→submitted→confirmed→completed | manual | ERC-8004 reputation |
+| validation-request | pending→sent→confirmed→submitted→verified→completed | manual | ERC-8004 validation |
+| inscription | pending→commit_preparing→...→confirmed→completed | manual | ⚠️ references skill "bitcoin" (invalid — should be bitcoin-wallet) |
+| new-release | detected→assessing→integration_pending→integrating→completed | github-release-watcher | Dynamic skill list from ctx |
+| architecture-review | triggered→reviewing→cleanup_pending→cleaning→completed | arc-workflow-review | ⚠️ creates P4/Opus tasks; sensor routes P7/sonnet |
+
 ## Skills Inventory (58 total)
 
 | Skill | Sensor | CLI | Agent | Description |
@@ -247,7 +284,7 @@ stateDiagram-v2
 | arc-dispatch-evals | - | yes | yes | Dispatch quality evaluation — error analysis, LLM judges |
 | arc-email-sync | yes | yes | yes | Sync email from arc-email-worker, read and send email |
 | arc-failure-triage | yes | yes | yes | Detect recurring failure patterns, escalate (dismissed/crash-recovery filters) |
-| arc-housekeeping | yes | yes | yes | Repo hygiene — locks, WAL size, memory bloat, archival |
+| arc-housekeeping | yes | yes | yes | Repo hygiene — locks, WAL size, memory bloat, archival, stale worktrees |
 | arc-link-research | - | yes | yes | Process batches of links into research reports |
 | arc-mcp-server | - | yes | - | MCP server exposing task queue, skills, memory |
 | arc-performance-analytics | - | - | - | Performance analytics reference |
@@ -278,7 +315,7 @@ stateDiagram-v2
 | erc8004-reputation | - | yes | yes | On-chain agent reputation management |
 | erc8004-validation | - | yes | yes | On-chain agent validation management |
 | github-ci-status | yes | - | - | Monitors GitHub Actions CI runs |
-| github-issue-monitor | disabled | - | - | Issue monitoring for managed repos (disabled) |
+| github-issue-monitor | disabled | - | - | Issue monitoring for managed repos (disabled — spark0btc restriction) |
 | github-mentions | yes | - | - | GitHub @mentions with managed/external repo classification |
 | github-release-watcher | yes | - | - | Detect new releases on watched repos |
 | github-security-alerts | yes | - | - | Monitor dependabot security alerts |

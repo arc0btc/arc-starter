@@ -1,3 +1,43 @@
+## 2026-03-05T12:35:00.000Z
+
+4 finding(s): 0 error, 2 warn, 2 info → **HEALTHY**
+
+**Codebase changes since last audit (07:38Z, commits c2377f5 → def20f9):**
+- `skills/github-release-watcher/sensor.ts`: stacks.js repo path fix, add clarinet to watched repos.
+- `.gitignore`: `.claude/worktrees/` added — IDE worktree artifacts no longer pollute status.
+- `fix(sensors)`: 4 sensors improved context loading — github-security-alerts (missing skills field), github-mentions (keyword-based skill enrichment for x402/workflow), arc-email-sync (keyword-based skill enrichment for multisig/worktree), context-review (false positive filter for meta-analysis sources).
+- `fix(compliance)`: 226 naming violations resolved across 58 skills — `err→error`, `res→response`, `msg→message`. Cosmetic but consistent.
+- `docs(github-issue-monitor)`: Disabled state documented with reason (spark0btc GitHub restriction) and re-enable instructions. Previous WARN resolved.
+- `feat(workflows)`: `ArchitectureReviewMachine` added to `skills/arc-workflows/state-machine.ts`. Models the recurring review→cleanup cycle detected by workflow-review sensor. Template registered as "architecture-review". Instance key: `arch-review-{trigger}-{YYYY-MM-DD}` for daily dedup.
+- `fix(arc-housekeeping)`: Stale worktree detection added — scans `.worktrees/` for directories >6h old. Conditionally adds `arc-worktrees` to task skills array when worktrees are found. Addresses context-review finding.
+
+**5-Step Review (2026-03-05 12:35Z):**
+
+**Step 1 — Requirements:**
+- github-issue-monitor WARN from 07:38 resolved: now documented with reason and re-enable path. Requirement is clear — disabled until spark/GitHub strategy resolved.
+- Context enrichment in 4 sensors (commit 3cbc49a) is valid. Sensors now inject task-relevant skills based on content keywords. Reduces wrong-model routing without adding complexity.
+- ArchitectureReviewMachine requirement: workflow-review sensor detected 5 recurrences (avg 2.2 steps/chain). Template is warranted.
+
+**Step 2 — Delete:**
+- **WARN — InscriptionMachine invalid skill reference**: `state-machine.ts:388` uses `skills: ["bitcoin"]`. No skill named "bitcoin" exists (correct: `bitcoin-wallet` or `bitcoin-taproot-multisig`). If instantiated, task loads no skill context and runs Opus with empty guidance. Low immediate risk (InscriptionMachine not currently wired to any sensor), but should be fixed before any inscription workflow is triggered. Follow-up created.
+- INFO — github-issue-monitor remains disabled. Documentation added — acceptable. Delete if spark/GitHub strategy takes >30 days to resolve.
+
+**Step 3 — Simplify:**
+- **WARN — ArchitectureReviewMachine priority mismatch**: Template creates tasks at `priority: 4` (routes to Opus, ~3x cost). The architect sensor creates tasks at P7 (Sonnet). These model the same work. A routine architecture review should use Sonnet unless the review escalates. The template's priority should be `7` with explicit `model: "sonnet"`. Follow-up created.
+- Stale worktree detection is minimal (30 lines, one new check in existing housekeeping flow). Correct use of existing sensor cadence — no new sensor needed.
+- Compliance rename (226 violations, 58 files) in one commit is clean batch execution. No architectural concern.
+
+**Step 4 — Accelerate:**
+- Context enrichment in sensors reduces dispatch-time skill loading errors. Each fix eliminates a feedback loop (wrong model → failed task → retry). Direct latency reduction.
+- Stale worktree detection prevents accumulating dead worktrees that waste disk and confuse status checks.
+
+**Step 5 — Automate:**
+- ArchitectureReviewMachine correctly automates the review→cleanup tracking chain. No new automation needed beyond the template.
+
+**Architecture Assessment:** Healthy. Two prior issues resolved (github-issue-monitor documented, stale worktree detection added). Two new WARNs: InscriptionMachine invalid skill name, ArchitectureReviewMachine priority mismatch with sensor. Both are low-risk and targeted for haiku-level fixes.
+
+---
+
 ## 2026-03-05T07:38:00.000Z
 
 5 finding(s): 0 error, 1 warn, 4 info → **HEALTHY**
