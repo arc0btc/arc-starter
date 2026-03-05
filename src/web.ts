@@ -368,10 +368,16 @@ function handleEvents(): Response {
 
       const encoder = new TextEncoder();
 
-      const send = (event: string, data: unknown): void => {
+      const send = (event: string, data: unknown): boolean => {
         try {
           controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
-        } catch { /* controller may already be closed */ }
+          return true;
+        } catch {
+          // Controller closed — client disconnected; trigger cleanup
+          const fn = sseCleanups.get(controller);
+          fn?.();
+          return false;
+        }
       };
 
       // Send initial heartbeat
@@ -384,6 +390,9 @@ function handleEvents(): Response {
 
       refs.interval = setInterval(() => {
         try {
+          // Heartbeat — also detects dead connections early
+          if (!send("heartbeat", { time: new Date().toISOString() })) return;
+
           // Check for new tasks and status changes (single query to avoid double-sends)
           const newTasks = db.query(
             "SELECT id, subject, status, priority, source, created_at FROM tasks WHERE id > ? ORDER BY id ASC"
