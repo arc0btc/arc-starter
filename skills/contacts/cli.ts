@@ -13,8 +13,9 @@ import {
   insertContactLink,
   getContactInteractions,
   insertContactInteraction,
+  getContextContacts,
 } from "./schema";
-import type { Contact, InsertContact } from "./schema";
+import type { Contact, ContactCard, InsertContact } from "./schema";
 
 function log(msg: string): void {
   console.log(`[contacts] ${msg}`);
@@ -320,6 +321,37 @@ function cmdLog(params: Record<string, string>): void {
   log(`Logged interaction #${interactionId} for ${resolveDisplayName(contact)}`);
 }
 
+function cmdContext(params: Record<string, string>): void {
+  const subject = params["task-subject"];
+  if (!subject) {
+    logError("Missing --task-subject flag");
+    process.exit(1);
+  }
+
+  initContactsSchema();
+  const limit = params.limit ? Number(params.limit) : 10;
+  const cards = getContextContacts(subject, limit);
+
+  if (cards.length === 0) {
+    console.log("No relevant contacts found.");
+    return;
+  }
+
+  // Output compact contact cards for dispatch context injection
+  console.log(`# Relevant Contacts (${cards.length})`);
+  console.log("");
+  for (const card of cards) {
+    const parts: string[] = [`**${card.name}** (#${card.id}, ${card.type})`];
+    if (card.beat) parts.push(`  Beat: ${card.beat}`);
+    if (card.x_handle) parts.push(`  X: @${card.x_handle}`);
+    if (card.stx_address) parts.push(`  STX: ${card.stx_address}`);
+    if (card.x402_endpoint) parts.push(`  x402: ${card.x402_endpoint}`);
+    if (card.notes) parts.push(`  Notes: ${card.notes.slice(0, 120)}`);
+    console.log(parts.join("\n"));
+    console.log("");
+  }
+}
+
 function cmdSearch(params: Record<string, string>): void {
   const term = params.term || params.q;
   if (!term) {
@@ -355,6 +387,7 @@ Commands:
   interactions                      List interactions for a contact
   log                               Log a new interaction
   search                            Search contacts by name/address/handle
+  context                           Get relevant contacts for a task (dispatch context injection)
 
 list flags:
   --status <active|inactive|archived>   Filter by status
@@ -407,6 +440,10 @@ log flags:
 search flags:
   --term <text>                     Search term (or --q)
 
+context flags:
+  --task-subject <text>             Task subject to match against (required)
+  --limit <N>                       Max contacts to return (default: 10)
+
 Examples:
   arc skills run --name contacts -- list
   arc skills run --name contacts -- add --display-name "whoabuddy" --type human --bns-name "whoabuddy.btc"
@@ -415,6 +452,7 @@ Examples:
   arc skills run --name contacts -- link --a 1 --b 2 --relationship "operator"
   arc skills run --name contacts -- log --id 1 --type collaboration --summary "Reviewed PR #42"
   arc skills run --name contacts -- search --term "arc0"
+  arc skills run --name contacts -- context --task-subject "collaborate with Topaz Centaur on ordinals"
   `);
 }
 
@@ -450,6 +488,9 @@ async function main(): Promise<void> {
       break;
     case "search":
       cmdSearch(params);
+      break;
+    case "context":
+      cmdContext(params);
       break;
     default:
       logError(`Unknown command: ${command}`);

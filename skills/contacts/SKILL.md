@@ -43,7 +43,14 @@ arc skills run --name contacts -- link --a <id> --b <id> --relationship <text> [
 arc skills run --name contacts -- interactions --id <N> [--limit <N>]
 arc skills run --name contacts -- log --id <N> --type <type> --summary <text> [--task <N>] [--at <datetime>]
 arc skills run --name contacts -- search --term <text>
+arc skills run --name contacts -- context --task-subject <text> [--limit <N>]
 ```
+
+## Context Integration
+
+When `contacts` is in a task's skills array, dispatch can call the `context` command to get relevant contacts for the task. The command tokenizes the task subject into keywords (3+ chars), matches against contact names, beats, notes, handles, and agent IDs, then returns compact contact cards sorted by relevance score.
+
+Output format: markdown contact cards with name, type, beat, X handle, STX address, x402 endpoint, and truncated notes. Designed to be injected directly into dispatch context without exceeding token budgets.
 
 ## Importing Schema
 
@@ -69,6 +76,6 @@ Stats persisted in `db/hook-state/contacts-aibtc-discovery.json`.
 
 - [x] `SKILL.md` with valid frontmatter
 - [x] `schema.ts` — 3 tables, types, queries, importable
-- [x] `cli.ts` — 8 commands
+- [x] `cli.ts` — 9 commands (includes `context` for dispatch integration)
 - [x] `AGENT.md` — subagent briefing
 - [x] `sensor.ts` — AIBTC agent discovery (60min cadence)

@@ -269,6 +269,86 @@ export function getContactInteractions(contactId: number, limit: number = 20): C
   ).all(contactId, limit) as ContactInteraction[];
 }
 
+/** Compact contact card for dispatch context injection. */
+export interface ContactCard {
+  id: number;
+  name: string;
+  type: string;
+  beat: string | null;
+  x_handle: string | null;
+  stx_address: string | null;
+  x402_endpoint: string | null;
+  notes: string | null;
+  score: number;
+}
+
+/**
+ * Find contacts relevant to a task subject via keyword matching.
+ * Tokenizes the subject into words (3+ chars), matches each against
+ * display_name, aibtc_name, bns_name, aibtc_beat, notes, agent_id.
+ * Returns compact cards sorted by relevance score (descending).
+ */
+export function getContextContacts(taskSubject: string, limit: number = 10): ContactCard[] {
+  const db = initContactsSchema();
+
+  // Tokenize: split on non-alphanumeric, keep words 3+ chars, lowercase
+  const tokens = taskSubject
+    .split(/[^a-zA-Z0-9]+/)
+    .map((t) => t.toLowerCase())
+    .filter((t) => t.length >= 3);
+
+  if (tokens.length === 0) return [];
+
+  // Deduplicate tokens
+  const uniqueTokens = [...new Set(tokens)];
+
+  // Score each contact by how many tokens match across searchable fields
+  const contacts = db.query("SELECT * FROM contacts WHERE status = 'active' ORDER BY id ASC").all() as Contact[];
+
+  const scored: ContactCard[] = [];
+
+  for (const c of contacts) {
+    const searchable = [
+      c.display_name,
+      c.aibtc_name,
+      c.bns_name,
+      c.aibtc_beat,
+      c.notes,
+      c.agent_id,
+      c.github_handle,
+      c.x_handle,
+    ]
+      .filter(Boolean)
+      .map((s) => (s as string).toLowerCase())
+      .join(" ");
+
+    let score = 0;
+    for (const token of uniqueTokens) {
+      if (searchable.includes(token)) {
+        score++;
+      }
+    }
+
+    if (score > 0) {
+      scored.push({
+        id: c.id,
+        name: resolveDisplayName(c),
+        type: c.type,
+        beat: c.aibtc_beat,
+        x_handle: c.x_handle,
+        stx_address: c.stx_address,
+        x402_endpoint: c.x402_endpoint,
+        notes: c.notes,
+        score,
+      });
+    }
+  }
+
+  // Sort by score desc, then by id asc for stability
+  scored.sort((a, b) => b.score - a.score || a.id - b.id);
+  return scored.slice(0, limit);
+}
+
 export function insertContactInteraction(fields: InsertContactInteraction): number {
   const db = initContactsSchema();
   const occurredAt = fields.occurred_at ?? new Date().toISOString().replace("T", " ").replace(/\.\d{3}Z$/, "");
