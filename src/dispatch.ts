@@ -65,6 +65,10 @@ function classifyError(errMsg: string): ErrorClass {
       || /\btoo many requests\b/i.test(errMsg)) {
     return "rate_limited";
   }
+  // Subprocess timeout — task ran too long, do not retry (would just time out again)
+  if (/claude subprocess timed out/i.test(errMsg)) {
+    return "subprocess_timeout";
+  }
   // Transient — 5xx, network errors, timeouts, incomplete streams
   if (/(?:status|HTTP|error|code)[:\s]*5\d{2}/i.test(errMsg)
       || /\b(?:timeout|ETIMEDOUT|ECONNRESET|ECONNREFUSED|ENOTFOUND)\b/i.test(errMsg)
@@ -1085,6 +1089,12 @@ export async function runDispatch(): Promise<void> {
           break;
         }
 
+        // Subprocess timeout: never retry in inner loop — task needs investigation or restructuring
+        if (errClass === "subprocess_timeout") {
+          log(`dispatch: subprocess timeout — failing immediately (no inner retry): ${String(retryErr).slice(0, 200)}`);
+          break;
+        }
+
         // Transient/rate-limited/unknown: retry with backoff if attempts remain
         if (attempt < BACKOFF_MS.length) {
           const delay = BACKOFF_MS[attempt];
@@ -1147,6 +1157,10 @@ export async function runDispatch(): Promise<void> {
       // Auth errors: fail immediately, never requeue
       markTaskFailed(task.id, `Auth error (not retried): ${errMsg.slice(0, 400)}`);
       log(`dispatch: task #${task.id} failed — auth error, not retrying`);
+    } else if (errClass === "subprocess_timeout") {
+      // Subprocess timeout: task ran longer than ${DISPATCH_TIMEOUT_MS / 60_000}min — fail cleanly
+      markTaskFailed(task.id, `Task timed out after ${DISPATCH_TIMEOUT_MS / 60_000}min. Consider breaking it into smaller subtasks or raising the dispatch timeout.`);
+      log(`dispatch: task #${task.id} failed — subprocess timeout, not retrying`);
     } else {
       // Transient/rate-limited/unknown: requeue if under max_retries
       const attemptNumber = task.attempt_count + 1;
