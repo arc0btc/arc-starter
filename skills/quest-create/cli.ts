@@ -21,17 +21,17 @@ function parseFlags(args: string[]): { flags: Record<string, string | string[]> 
   for (let i = 0; i < args.length; i++) {
     if (args[i].startsWith("--")) {
       const key = args[i].slice(2);
-      const val = args[i + 1] || "";
+      const value = args[i + 1] || "";
       i++;
       if (key in flags) {
         const existing = flags[key];
         if (Array.isArray(existing)) {
-          existing.push(val);
+          existing.push(value);
         } else {
-          flags[key] = [existing, val];
+          flags[key] = [existing, value];
         }
       } else {
-        flags[key] = val;
+        flags[key] = value;
       }
     }
   }

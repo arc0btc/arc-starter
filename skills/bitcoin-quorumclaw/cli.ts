@@ -11,8 +11,8 @@ import { readTracking, writeTracking } from "./sensor.ts";
 
 const API_BASE = "https://agent-multisig-api-production.up.railway.app";
 const ARC_AGENT_ID = "arc0btc";
-const TAPROOT_RUNNER = resolve(import.meta.dir, "../taproot-multisig/taproot-runner.ts");
-const ROOT = resolve(import.meta.dir, "../../github/aibtcdev/skills");
+const TAPROOT_RUNNER = resolve(import.meta.dir, "../bitcoin-taproot-multisig/taproot-runner.ts");
+const ROOT = resolve(import.meta.dir, "../..");
 
 // ---- Types ----
 
@@ -174,7 +174,7 @@ async function signDigest(digest: string): Promise<{ signature: string; publicKe
     throw new Error("wallet/password and wallet/id must be set in credential store");
   }
 
-  const WALLET_RUNNER = resolve(import.meta.dir, "../../github/aibtcdev/skills/bitcoin-wallet/sign-runner.ts");
+  const WALLET_RUNNER = resolve(import.meta.dir, "../bitcoin-wallet/sign-runner.ts");
 
   const proc = Bun.spawn(
     ["bun", "run", WALLET_RUNNER, "schnorr-sign-digest", digest],

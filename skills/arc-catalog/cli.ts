@@ -33,9 +33,9 @@ function parseFrontmatter(content: string): Record<string, unknown> {
     const colonIdx = line.indexOf(":");
     if (colonIdx === -1) continue;
     const key = line.substring(0, colonIdx).trim();
-    const val = line.substring(colonIdx + 1).trim();
-    if (val.startsWith("[") || val === "") continue;
-    fm[key] = val;
+    const value = line.substring(colonIdx + 1).trim();
+    if (value.startsWith("[") || value === "") continue;
+    fm[key] = value;
   }
   // Parse tags array (YAML list format)
   const tagsMatch = match[1].match(/tags:\n((?:\s+-\s+.+\n?)*)/);
