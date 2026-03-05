@@ -99,7 +99,7 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=${ROOT}
-ExecStart=${bun} skills/mcp-server/server.ts --transport http --port ${port}
+ExecStart=${bun} skills/arc-mcp-server/server.ts --transport http --port ${port}
 Restart=on-failure
 RestartSec=5
 Environment="HOME=${HOME}"
@@ -306,7 +306,7 @@ function generateMcpPlist(): string {
     <key>ProgramArguments</key>
     <array>
         <string>${bun}</string>
-        <string>skills/mcp-server/server.ts</string>
+        <string>skills/arc-mcp-server/server.ts</string>
         <string>--transport</string>
         <string>http</string>
         <string>--port</string>

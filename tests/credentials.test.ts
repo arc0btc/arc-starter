@@ -15,7 +15,7 @@ import {
   del,
   list,
   storePath,
-} from "../skills/credentials/store.ts";
+} from "../skills/arc-credentials/store.ts";
 
 // Save original env value so we can restore it between tests.
 const ORIGINAL_CREDS_DIR = process.env.ARC_CREDS_DIR;

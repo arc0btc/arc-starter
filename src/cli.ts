@@ -16,7 +16,7 @@ import {
 } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
 import { parseFlags, pad, truncate } from "./utils.ts";
-import { handleCredsCli } from "../skills/credentials/cli.ts";
+import { handleCredsCli } from "../skills/arc-credentials/cli.ts";
 
 // CLI is hand-rolled — intentionally zero-dep. If the surface grows significantly,
 // consider citty (https://github.com/unjs/citty) as a lightweight alternative to Commander.

@@ -30,7 +30,7 @@ describe("discoverSkills", () => {
 
   test("ceo skill is discovered with correct metadata", () => {
     const skills = discoverSkills();
-    const ceo = skills.find((s) => s.name === "ceo");
+    const ceo = skills.find((s) => s.name === "arc-ceo-strategy");
     expect(ceo).toBeDefined();
     expect(ceo!.hasSensor).toBe(false);
     expect(ceo!.hasCli).toBe(false);
@@ -48,7 +48,7 @@ describe("discoverSkills", () => {
 
   test("manage-skills skill has cli but no sensor", () => {
     const skills = discoverSkills();
-    const ms = skills.find((s) => s.name === "manage-skills");
+    const ms = skills.find((s) => s.name === "arc-skill-manager");
     expect(ms).toBeDefined();
     expect(ms!.hasCli).toBe(true);
     expect(ms!.hasSensor).toBe(false);

@@ -202,7 +202,7 @@ async function cmdPublish(args: string[]): Promise<void> {
       log(`running content-quality gate (${bodyContent.length} chars)`);
 
       const gate = Bun.spawn(
-        ["bash", "bin/arc", "skills", "run", "--name", "content-quality", "--", "gate",
+        ["bash", "bin/arc", "skills", "run", "--name", "arc-content-quality", "--", "gate",
           "--content", bodyContent, "--type", "blog"],
         { cwd: process.cwd(), stdin: "ignore", stdout: "pipe", stderr: "pipe" }
       );

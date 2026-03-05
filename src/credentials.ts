@@ -8,7 +8,7 @@
  * ARC_CREDS_PASSWORD must be set in .env (Bun auto-loads it).
  */
 
-import { credentials } from "../skills/credentials/store.ts";
+import { credentials } from "../skills/arc-credentials/store.ts";
 
 export { credentials };
 

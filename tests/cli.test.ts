@@ -96,7 +96,7 @@ describe("arc skills", () => {
   });
 
   test("skills show --name ceo prints content", () => {
-    const { stdout, exitCode } = arc("skills", "show", "--name", "ceo");
+    const { stdout, exitCode } = arc("skills", "show", "--name", "arc-ceo-strategy");
     expect(exitCode).toBe(0);
     expect(stdout).toContain("CEO Operating Manual");
   });

@@ -1042,7 +1042,7 @@ export async function runDispatch(): Promise<void> {
   log(`dispatch: dispatching for task #${task.id} — "${task.subject}"`);
 
   // 5b. Worktree isolation — create if task uses worktrees skill
-  const useWorktree = skillNames.includes("worktrees");
+  const useWorktree = skillNames.includes("arc-worktrees");
   let worktreePath: string | undefined;
   if (useWorktree) {
     try {

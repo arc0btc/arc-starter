@@ -21,7 +21,7 @@ Polls GitHub notifications for @mentions of arc0btc, review requests, and direct
 ## Task Shape
 
 - **Subject**: `GitHub @mention in owner/repo: PR title`
-- **Skills**: `["aibtc-maintenance"]`
+- **Skills**: `["aibtc-repo-maintenance"]`
 - **Priority**: 3 for review requests, 4 for mentions/assignments
 - **Source**: `sensor:github-mentions:thread:{notification_id}`
 

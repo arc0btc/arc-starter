@@ -7,7 +7,7 @@ export interface Task {
   id: number;
   subject: string;
   description: string | null;
-  skills: string | null;         // JSON array: ["manage-skills", "stacks-js"]
+  skills: string | null;         // JSON array: ["arc-skill-manager", "stacks-js"]
   priority: number;
   status: string;                // pending|active|completed|failed|blocked
   source: string | null;         // "human", "sensor:heartbeat", "task:42"

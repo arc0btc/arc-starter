@@ -26,8 +26,8 @@ const log = createSensorLogger(SENSOR_NAME);
  * Returns the signature string or null on failure.
  */
 async function btcSign(message: string): Promise<string | null> {
-  const password = await getCredential("wallet", "password");
-  const walletId = await getCredential("wallet", "id");
+  const password = await getCredential("bitcoin-wallet", "password");
+  const walletId = await getCredential("bitcoin-wallet", "id");
 
   if (!password || !walletId) {
     log("wallet credentials not found in creds store");
@@ -128,7 +128,7 @@ export default async function aibtcHeartbeatSensor(): Promise<string> {
           `Read inbox: GET https://aibtc.com/api/inbox/${ARC_BTC_ADDRESS}`,
           "Process messages and reply if needed.",
         ].join("\n"),
-        skills: '["wallet"]',
+        skills: '["bitcoin-wallet"]',
         priority: 1,
         model: "haiku",
         source: inboxSource,

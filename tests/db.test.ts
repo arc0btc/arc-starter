@@ -84,10 +84,10 @@ describe("tasks table", () => {
   });
 
   test("skills column stores JSON array", () => {
-    const skills = JSON.stringify(["ceo", "manage-skills"]);
+    const skills = JSON.stringify(["arc-ceo-strategy", "arc-skill-manager"]);
     db.query("INSERT INTO tasks (subject, skills) VALUES (?, ?)").run("skill test", skills);
     const task = db.query("SELECT * FROM tasks WHERE id = 1").get() as Record<string, unknown>;
-    expect(JSON.parse(task.skills as string)).toEqual(["ceo", "manage-skills"]);
+    expect(JSON.parse(task.skills as string)).toEqual(["arc-ceo-strategy", "arc-skill-manager"]);
   });
 
   test("getPendingTasks query respects scheduled_for", () => {

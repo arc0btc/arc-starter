@@ -56,7 +56,7 @@ export async function writeHookState(name: string, state: HookState): Promise<vo
 
 // ---- Logging ----
 
-/** Create a prefixed logger for a sensor. Usage: `const log = createSensorLogger("health");` */
+/** Create a prefixed logger for a sensor. Usage: `const log = createSensorLogger("arc-service-health");` */
 export function createSensorLogger(name: string): (msg: string) => void {
   return (msg: string) => {
     console.log(`[${new Date().toISOString()}] [${name}/sensor] ${msg}`);

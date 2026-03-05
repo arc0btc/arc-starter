@@ -138,7 +138,7 @@ export default async function githubMentionsSensor(): Promise<string> {
         "2. Respond helpfully — review code if requested, answer questions if mentioned, take ownership if assigned.",
         "3. Use gh CLI to post comments or reviews as appropriate.",
       ].join("\n"),
-      skills: '["aibtc-maintenance"]',
+      skills: '["aibtc-repo-maintenance"]',
       priority:
         n.reason === "review_requested" || n.reason === "assign"
           ? 3

@@ -24,7 +24,7 @@ The AIBTC API allows 1 check-in per 5 minutes per address. The sensor cadence ma
 
 ## Dependencies
 
-- Wallet skill (`skills/wallet/sign-runner.ts`) for BTC message signing
+- Wallet skill (`skills/bitcoin-wallet/sign-runner.ts`) for BTC message signing
 - Credential store (`wallet/password`, `wallet/id`) for wallet access
 
 ## Addresses
