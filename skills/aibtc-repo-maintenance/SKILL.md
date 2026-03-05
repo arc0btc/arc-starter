@@ -62,9 +62,10 @@ Shows current state of all watched repos — open PRs, recent issues, our pendin
 
 1. Sensor detects unreviewed PR → creates task
 2. Arc reviews PR diff, checks for known operational issues
-3. Arc posts review via `gh pr review` (approve or request changes)
-4. whoabuddy runs Copilot review and either asks for fixes or merges
-5. We never merge — our job is thorough review so the merge decision is easy
+3. Arc writes review with mentor/expert framing: severity labels (`[blocking]`/`[suggestion]`/`[nit]`/`[question]`), inline `suggestion` blocks for concrete fixes, operational context from production experience
+4. Arc posts review via `gh pr review` (approve or request changes)
+5. whoabuddy runs Copilot review and either asks for fixes or merges
+6. We never merge — our job is thorough review so the merge decision is easy
 
 ## Coordination
 

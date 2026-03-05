@@ -23,7 +23,68 @@ Check for:
 - **Security:** Credential exposure, injection, unsafe operations
 - **Style:** Consistent with the repo's existing patterns
 
-### 3. Check for Existing Review
+### 3. Review Framing & Tone
+
+Write reviews as a **knowledgeable collaborator**, not a gatekeeper. Frame feedback as expert guidance from someone who runs this code in production.
+
+**Voice principles:**
+- Lead with what's good. Acknowledge the intent and what works before raising concerns.
+- Frame issues as shared problems: "This could bite us when..." not "You forgot to..."
+- Explain the *why* behind every suggestion. A reviewer who only says "change X to Y" teaches nothing. Say why X causes problems.
+- Be specific and concrete. "This might have issues" is useless. "This will throw if `response.data` is null because the API returns 204 on empty results" is useful.
+- Offer alternatives, not just objections. If something is wrong, show what right looks like.
+
+**Severity levels — use these labels to signal priority:**
+- `[blocking]` — Must fix before merge. Bugs, security issues, data loss risks.
+- `[suggestion]` — Would improve the code but not blocking. Better patterns, performance, readability.
+- `[nit]` — Style/preference only. Take it or leave it.
+- `[question]` — Genuine uncertainty. "Is this intentional?" or "Does this handle the case where...?"
+
+**Inline suggestions — use GitHub suggestion blocks for concrete fixes:**
+
+When you have a specific code change to propose, use GitHub's suggestion syntax so the author can accept it with one click:
+
+````
+```suggestion
+const result = await fetchWithRetry(url, { retries: 3 });
+```
+````
+
+Rules for suggestions:
+- Only suggest when you have a concrete, tested-in-your-head replacement
+- Keep suggestions small and focused — one logical change per suggestion
+- Include context above/below the suggestion explaining why
+- Don't suggest pure style changes unless they fix a real readability problem
+
+**Review structure:**
+1. One-line summary of the PR's purpose (confirms you understood it)
+2. What looks good (be specific — name the files/patterns you liked)
+3. Issues and suggestions (grouped by severity, most important first)
+4. Operational context (anything from our production experience that's relevant)
+
+**Example review body:**
+```
+Adds retry logic to the x402 payment flow — good call, we've seen transient 502s from the payment endpoint in production.
+
+**What works well:**
+- The exponential backoff in `src/payments.ts` matches the pattern we use in our own sensors
+- Good error boundary around the wallet signing path
+
+**[blocking] Race condition in concurrent payments** (`src/queue.ts:45`)
+The queue processes payments in parallel but `balanceCache` isn't locked between read and write. Under load, two payments could read the same balance and both proceed. Consider a mutex or sequential processing for the balance check.
+
+**[suggestion] Simplify the retry predicate** (`src/payments.ts:23`)
+The current check tests 5 status codes individually. The API docs confirm all 5xx codes are retryable:
+\`\`\`suggestion
+const isRetryable = (status: number) => status >= 500 && status < 600;
+\`\`\`
+
+**[nit]** `MAX_RETRIES` is defined in two places (`config.ts` and `payments.ts`). Might want to consolidate.
+
+*Operational note:* We process ~80 x402 messages/day through this endpoint. The 502 rate is about 2% — retry with backoff has eliminated all payment failures on our end.
+```
+
+### 4. Check for Existing Review
 
 Before posting, check if arc0btc already reviewed this PR:
 
@@ -44,7 +105,7 @@ gh pr view NUMBER --repo OWNER/REPO --json commits,reviews --jq '{latestCommit: 
 
 Re-review only if `latestCommit` is newer than `submittedAt`.
 
-### 4. Post the Review
+### 5. Post the Review
 
 ```bash
 gh pr review NUMBER --repo OWNER/REPO --approve --body "review text"
@@ -54,7 +115,7 @@ gh pr review NUMBER --repo OWNER/REPO --comment --body "review text"
 
 Use `--approve` when the PR looks good. Use `--request-changes` only for actual bugs or breaking changes. Use `--comment` for suggestions that aren't blocking.
 
-### 5. After Our Review
+### 6. After Our Review
 
 whoabuddy runs Copilot review and either asks for fixes or merges. We never merge — that's not our role. If changes are requested after our approval, we review again when updated.
 
