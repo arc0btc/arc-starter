@@ -296,7 +296,7 @@ async function cmdFileSignal(args: string[]): Promise<void> {
 
   if (!flags.beat || !flags.claim || !flags.evidence || !flags.implication) {
     console.error(
-      "Usage: arc skills run --name aibtc-news -- file-signal --beat <slug> --claim <text> --evidence <text> --implication <text> [--headline <text>] [--sources <json>] [--tags <comma-sep>]"
+      "Usage: arc skills run --name aibtc-news -- file-signal --beat <slug> --claim <text> --evidence <text> --implication <text> [--headline <text>] [--sources <json>] [--tags <comma-sep>] [--force]"
     );
     process.exit(1);
   }
@@ -306,6 +306,7 @@ async function cmdFileSignal(args: string[]): Promise<void> {
   const evidence = flags.evidence;
   const implication = flags.implication;
   const headline = flags.headline || undefined;
+  const force = flags.force !== undefined;
   const sourcesJson = flags.sources ? JSON.parse(flags.sources) : undefined;
   const tagsStr = flags.tags || "";
 
@@ -347,6 +348,27 @@ async function cmdFileSignal(args: string[]): Promise<void> {
   }
 
   try {
+    // Pre-flight: judge-signal quality gate (skip with --force)
+    if (!force) {
+      log(`running judge-signal pre-flight`);
+      const judgeSources: Array<{ url: string; title: string }> = Array.isArray(sourcesJson) ? sourcesJson : [];
+      const judgeResult = await judgeSignalCore(beat, claim, evidence, implication, headline || "", judgeSources);
+      if (judgeResult.verdict === "Fail") {
+        const failedCriteria = Object.entries(judgeResult.criteria).filter(([, c]) => !c.pass).map(([k]) => k);
+        log(`judge-signal pre-flight FAILED: ${failedCriteria.join(", ")} — aborting file-signal`);
+        console.error(JSON.stringify({
+          error: "Signal quality check failed — use --force to bypass",
+          verdict: judgeResult.verdict,
+          summary: judgeResult.summary,
+          recommendations: judgeResult.recommendations,
+        }, null, 2));
+        process.exit(1);
+      }
+      log(`judge-signal pre-flight PASSED`);
+    } else {
+      log(`--force: skipping judge-signal pre-flight`);
+    }
+
     // Combine claim, evidence, implication into content
     const content = `${claim} ${evidence} ${implication}`;
 
@@ -837,6 +859,138 @@ async function cmdEditorialGuide(args: string[]): Promise<void> {
 
 // ---- Signal Judge ----
 
+interface JudgeResult {
+  verdict: "Pass" | "Fail";
+  criteria: Record<string, { pass: boolean; reason: string }>;
+  summary: string;
+  recommendations: string[];
+}
+
+async function judgeSignalCore(
+  beat: string,
+  claim: string,
+  evidence: string,
+  implication: string,
+  headline: string,
+  sources: Array<{ url: string; title: string }>
+): Promise<JudgeResult> {
+  const criteria: Record<string, { pass: boolean; reason: string }> = {};
+
+  // --- Criterion 1: Claim-Evidence-Implication structure ---
+  const structureIssues: string[] = [];
+  if (claim.trim().length < 20)
+    structureIssues.push(`Claim too short (${claim.trim().length} chars, min 20)`);
+  if (evidence.trim().length < 20)
+    structureIssues.push(`Evidence too short (${evidence.trim().length} chars, min 20)`);
+  if (implication.trim().length < 20)
+    structureIssues.push(`Implication too short (${implication.trim().length} chars, min 20)`);
+  if (claim.trim() === evidence.trim())
+    structureIssues.push("Claim and evidence are identical — must be distinct");
+  if (evidence.trim() === implication.trim())
+    structureIssues.push("Evidence and implication are identical — must be distinct");
+
+  criteria.structure = {
+    pass: structureIssues.length === 0,
+    reason:
+      structureIssues.length === 0
+        ? "Claim, evidence, and implication are distinct and sufficiently detailed"
+        : structureIssues.join("; "),
+  };
+
+  // --- Criterion 2: Voice — no hype language ---
+  const hypePattern =
+    /\b(moon(?:ing)?|pump(?:ing)?|dump(?:ing)?|amazing|huge|incredible|massive|biggest|skyrocket(?:ing)?|explod(?:e|ing)|crush(?:ing)?)\b/i;
+  const allText = `${headline} ${claim} ${evidence} ${implication}`;
+  const hypeMatch = allText.match(hypePattern);
+  const firstPersonPattern = /^(I |We |My |Our )/i;
+  const firstPerson =
+    firstPersonPattern.test(claim) ||
+    firstPersonPattern.test(evidence) ||
+    firstPersonPattern.test(implication);
+
+  const voiceIssues: string[] = [];
+  if (hypeMatch) voiceIssues.push(`Hype word detected: "${hypeMatch[0]}" — use neutral vocabulary`);
+  if (firstPerson) voiceIssues.push("First person detected — use third person only");
+  if (/[!]/.test(headline)) voiceIssues.push("Exclamation mark in headline — remove");
+
+  criteria.voice = {
+    pass: voiceIssues.length === 0,
+    reason:
+      voiceIssues.length === 0
+        ? "Neutral voice, no hype language detected"
+        : voiceIssues.join("; "),
+  };
+
+  // --- Criterion 3: Sourcing with reachable URLs ---
+  if (sources.length === 0) {
+    criteria.sourcing = {
+      pass: false,
+      reason: "No sources provided — signals must cite verifiable data",
+    };
+  } else if (sources.length > 5) {
+    criteria.sourcing = {
+      pass: false,
+      reason: `Too many sources: ${sources.length}/5 max`,
+    };
+  } else {
+    const reachabilityResults = await Promise.all(
+      sources.map(async (src) => {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000);
+        try {
+          const res = await fetch(src.url, {
+            method: "HEAD",
+            signal: controller.signal,
+          });
+          clearTimeout(timeout);
+          return { url: src.url, reachable: res.ok || res.status === 405 };
+        } catch {
+          clearTimeout(timeout);
+          return { url: src.url, reachable: false };
+        }
+      })
+    );
+    const unreachable = reachabilityResults.filter((r) => !r.reachable);
+    if (unreachable.length > 0) {
+      criteria.sourcing = {
+        pass: false,
+        reason: `${unreachable.length} source(s) unreachable: ${unreachable.map((r) => r.url).join(", ")}`,
+      };
+    } else {
+      criteria.sourcing = {
+        pass: true,
+        reason: `All ${sources.length} source(s) verified reachable`,
+      };
+    }
+  }
+
+  // --- Criterion 4: Beat-appropriate scope (LLM judge) ---
+  try {
+    criteria.beat_scope = await judgeBeatScope(beat, claim, evidence, implication);
+  } catch (e) {
+    const err = e as Error;
+    log(`Beat scope judge error: ${err.message}`);
+    criteria.beat_scope = {
+      pass: false,
+      reason: `Beat scope check failed: ${err.message}`,
+    };
+  }
+
+  const allPass = Object.values(criteria).every((c) => c.pass);
+  const failedCriteria = Object.entries(criteria)
+    .filter(([, c]) => !c.pass)
+    .map(([k]) => k);
+
+  return {
+    verdict: allPass ? "Pass" : "Fail",
+    criteria,
+    summary: allPass
+      ? "Signal meets all quality criteria. Ready to file."
+      : `Signal failed ${failedCriteria.length} criterion/criteria: ${failedCriteria.join(", ")}`,
+    recommendations: allPass ? [] : failedCriteria.map((k) => criteria[k].reason),
+  };
+}
+
 // Beat scope reference for the judge prompt
 const BEAT_SCOPE_REF: Record<string, string> = {
   "ordinals-business":
@@ -985,7 +1139,7 @@ async function cmdJudgeSignal(args: string[]): Promise<void> {
 
   if (!flags.beat || !flags.claim || !flags.evidence || !flags.implication) {
     console.error(
-      "Usage: arc skills run --name aibtc-news -- judge-signal --beat <slug> --claim <text> --evidence <text> --implication <text> [--headline <text>] [--sources <json>] [--tags <json>]"
+      "Usage: arc skills run --name aibtc-news -- judge-signal --beat <slug> --claim <text> --evidence <text> --implication <text> [--headline <text>] [--sources <json>]"
     );
     process.exit(1);
   }
@@ -1005,128 +1159,12 @@ async function cmdJudgeSignal(args: string[]): Promise<void> {
     process.exit(1);
   }
 
-  const criteria: Record<string, { pass: boolean; reason: string }> = {};
-
-  // --- Criterion 1: Claim-Evidence-Implication structure ---
-  const structureIssues: string[] = [];
-  if (claim.trim().length < 20)
-    structureIssues.push(`Claim too short (${claim.trim().length} chars, min 20)`);
-  if (evidence.trim().length < 20)
-    structureIssues.push(`Evidence too short (${evidence.trim().length} chars, min 20)`);
-  if (implication.trim().length < 20)
-    structureIssues.push(`Implication too short (${implication.trim().length} chars, min 20)`);
-  if (claim.trim() === evidence.trim())
-    structureIssues.push("Claim and evidence are identical — must be distinct");
-  if (evidence.trim() === implication.trim())
-    structureIssues.push("Evidence and implication are identical — must be distinct");
-
-  criteria.structure = {
-    pass: structureIssues.length === 0,
-    reason:
-      structureIssues.length === 0
-        ? "Claim, evidence, and implication are distinct and sufficiently detailed"
-        : structureIssues.join("; "),
-  };
-
-  // --- Criterion 2: Voice — no hype language ---
-  const hypePattern =
-    /\b(moon(?:ing)?|pump(?:ing)?|dump(?:ing)?|amazing|huge|incredible|massive|biggest|skyrocket(?:ing)?|explod(?:e|ing)|crush(?:ing)?)\b/i;
-  const allText = `${headline} ${claim} ${evidence} ${implication}`;
-  const hypeMatch = allText.match(hypePattern);
-  const firstPersonPattern = /^(I |We |My |Our )/i;
-  const firstPerson = firstPersonPattern.test(claim) ||
-    firstPersonPattern.test(evidence) ||
-    firstPersonPattern.test(implication);
-
-  const voiceIssues: string[] = [];
-  if (hypeMatch) voiceIssues.push(`Hype word detected: "${hypeMatch[0]}" — use neutral vocabulary`);
-  if (firstPerson) voiceIssues.push("First person detected — use third person only");
-  if (/[!]/.test(headline)) voiceIssues.push("Exclamation mark in headline — remove");
-
-  criteria.voice = {
-    pass: voiceIssues.length === 0,
-    reason:
-      voiceIssues.length === 0
-        ? "Neutral voice, no hype language detected"
-        : voiceIssues.join("; "),
-  };
-
-  // --- Criterion 3: Sourcing with reachable URLs ---
-  if (sources.length === 0) {
-    criteria.sourcing = {
-      pass: false,
-      reason: "No sources provided — signals must cite verifiable data",
-    };
-  } else if (sources.length > 5) {
-    criteria.sourcing = {
-      pass: false,
-      reason: `Too many sources: ${sources.length}/5 max`,
-    };
-  } else {
-    const reachabilityResults = await Promise.all(
-      sources.map(async (src) => {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 5000);
-        try {
-          const res = await fetch(src.url, {
-            method: "HEAD",
-            signal: controller.signal,
-          });
-          clearTimeout(timeout);
-          return { url: src.url, reachable: res.ok || res.status === 405 };
-        } catch {
-          clearTimeout(timeout);
-          return { url: src.url, reachable: false };
-        }
-      })
-    );
-    const unreachable = reachabilityResults.filter((r) => !r.reachable);
-    if (unreachable.length > 0) {
-      criteria.sourcing = {
-        pass: false,
-        reason: `${unreachable.length} source(s) unreachable: ${unreachable.map((r) => r.url).join(", ")}`,
-      };
-    } else {
-      criteria.sourcing = {
-        pass: true,
-        reason: `All ${sources.length} source(s) verified reachable`,
-      };
-    }
-  }
-
-  // --- Criterion 4: Beat-appropriate scope (LLM judge) ---
-  try {
-    criteria.beat_scope = await judgeBeatScope(beat, claim, evidence, implication);
-  } catch (e) {
-    const err = e as Error;
-    log(`Beat scope judge error: ${err.message}`);
-    criteria.beat_scope = {
-      pass: false,
-      reason: `Beat scope check failed: ${err.message}`,
-    };
-  }
-
-  // --- Composite verdict ---
-  const allPass = Object.values(criteria).every((c) => c.pass);
-  const failedCriteria = Object.entries(criteria)
-    .filter(([, c]) => !c.pass)
-    .map(([k]) => k);
-
-  const result = {
-    verdict: allPass ? "Pass" : "Fail",
-    criteria,
-    summary: allPass
-      ? "Signal meets all quality criteria. Ready to file."
-      : `Signal failed ${failedCriteria.length} criterion/criteria: ${failedCriteria.join(", ")}`,
-    recommendations: allPass
-      ? []
-      : failedCriteria.map((k) => criteria[k].reason),
-  };
-
-  log(allPass ? "Signal passed all quality checks" : `Signal failed: ${failedCriteria.join(", ")}`);
+  const result = await judgeSignalCore(beat, claim, evidence, implication, headline, sources);
+  const failedCriteria = Object.entries(result.criteria).filter(([, c]) => !c.pass).map(([k]) => k);
+  log(result.verdict === "Pass" ? "Signal passed all quality checks" : `Signal failed: ${failedCriteria.join(", ")}`);
   console.log(JSON.stringify(result, null, 2));
 
-  if (!allPass) {
+  if (result.verdict === "Fail") {
     process.exit(2); // Distinguishable from usage error (1)
   }
 }

@@ -178,11 +178,12 @@ async function cmdPublish(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
   if (!flags.id) {
-    process.stderr.write("Usage: arc skills run --name blog-publishing -- publish --id <post-id>\n");
+    process.stderr.write("Usage: arc skills run --name blog-publishing -- publish --id <post-id> [--force]\n");
     process.exit(1);
   }
 
   const postId = flags.id;
+  const force = flags.force !== undefined;
   // postId format: YYYY-MM-DD-slug
   const date = postId.substring(0, 10);
   const slug = postId.substring(11);
@@ -193,6 +194,43 @@ async function cmdPublish(args: string[]): Promise<void> {
 
   try {
     let content = await Bun.file(indexPath).text();
+
+    // Pre-flight: content-quality gate (skip with --force)
+    if (!force) {
+      // Strip frontmatter to get the post body
+      const bodyContent = content.replace(/^---\n[\s\S]*?\n---\n?/, "").trim();
+      log(`running content-quality gate (${bodyContent.length} chars)`);
+
+      const gate = Bun.spawn(
+        ["bash", "bin/arc", "skills", "run", "--name", "content-quality", "--", "gate",
+          "--content", bodyContent, "--type", "blog"],
+        { cwd: process.cwd(), stdin: "ignore", stdout: "pipe", stderr: "pipe" }
+      );
+
+      const [gateOut, gateErr] = await Promise.all([
+        new Response(gate.stdout).text(),
+        new Response(gate.stderr).text(),
+      ]);
+      const gateExit = await gate.exited;
+
+      if (gateExit === 2) {
+        const msg = (gateErr || gateOut).trim();
+        log(`content-quality gate FAILED — aborting publish`);
+        process.stderr.write(`BLOCKED: content-quality gate failed for ${postId}\n${msg}\nFix content or use --force to bypass.\n`);
+        console.log(JSON.stringify({ success: false, post_id: postId, blocked: true, reason: msg }, null, 2));
+        process.exit(1);
+      } else if (gateExit !== 0) {
+        const msg = (gateErr || gateOut).trim();
+        log(`content-quality gate error (exit ${gateExit})`);
+        process.stderr.write(`content-quality gate error: ${msg}\n`);
+        process.exit(1);
+      } else {
+        const msg = (gateOut || gateErr).trim();
+        if (msg) log(`content-quality: ${msg}`);
+      }
+    } else {
+      log(`--force: skipping content-quality gate`);
+    }
 
     // Update draft: false and set published_at
     const now = getCurrentIso8601();
@@ -477,8 +515,9 @@ SUBCOMMANDS
   show --id <post-id>
     Display post content (YYYY-MM-DD-slug).
 
-  publish --id <post-id>
+  publish --id <post-id> [--force]
     Set draft: false and mark as published.
+    Runs content-quality gate pre-flight; use --force to bypass.
 
   draft --id <post-id>
     Revert a post to draft status.

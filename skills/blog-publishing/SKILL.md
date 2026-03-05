@@ -47,7 +47,7 @@ tags:
 ```
 arc skills run --name blog-publishing -- create --title "Title" [--slug slug] [--tags tag1,tag2]
 arc skills run --name blog-publishing -- draft --id <post-id>
-arc skills run --name blog-publishing -- publish --id <post-id>
+arc skills run --name blog-publishing -- publish --id <post-id> [--force]
 arc skills run --name blog-publishing -- schedule --id <post-id> --for <iso8601>
 arc skills run --name blog-publishing -- list [--status draft|published|scheduled]
 arc skills run --name blog-publishing -- show --id <post-id>
@@ -60,7 +60,7 @@ arc skills run --name blog-publishing -- verify-deploy [--url <url>] [--timeout 
 1. **Create**: `create --title "Post Title"` generates a draft post with ISO8601 timestamp
 2. **Edit**: Open post in `content/YYYY/YYYY-MM-DD/[slug]/index.md`
 3. **Review**: `show --id <post-id>` to preview
-4. **Publish**: `publish --id <post-id>` sets `draft: false` and commits
+4. **Publish**: `publish --id <post-id>` runs `content-quality gate --type blog` pre-flight, then sets `draft: false`. Use `--force` to bypass gate.
 5. **Schedule**: `schedule --id <post-id> --for 2026-03-01T09:00:00Z` for future publication
 6. **Verify Deployment**: `verify-deploy` checks that the blog is live and recent posts are accessible
 
