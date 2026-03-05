@@ -954,6 +954,26 @@ async function discardWorktree(taskId: number): Promise<void> {
   log(`dispatch: worktree ${name} discarded`);
 }
 
+// ---- Learning retrospective ----
+
+/**
+ * Schedule a lightweight Haiku task to extract non-obvious learnings from a
+ * just-completed P1-4 (Opus) task. Only called on successful completion.
+ * The retrospective runs at P8 to avoid crowding real work.
+ */
+function scheduleRetrospective(task: Task, resultSummary: string, resultDetail: string): void {
+  const excerpt = resultDetail.slice(0, 1500).trim();
+  insertTask({
+    subject: `Retrospective: extract learnings from task #${task.id} — ${task.subject.slice(0, 60)}`,
+    description: `A complex P${task.priority} task just completed. Review the work and extract non-obvious learnings worth keeping.\n\n**Completed task:** #${task.id} — ${task.subject}\n**Result summary:** ${resultSummary.slice(0, 300)}\n**Result excerpt:**\n${excerpt}\n\n**Your job:**\n1. Identify 1–3 non-obvious learnings (patterns, pitfalls, architectural decisions, debugging insights)\n2. Append them to memory/MEMORY.md or the relevant topic file under a clear heading\n3. Only write things that are genuinely reusable — skip obvious or task-specific details\n4. Keep each learning to 1–2 sentences\n\nIf there is nothing worth capturing, close this task as completed with summary "No learnings to capture".`,
+    priority: 8,
+    model: "haiku",
+    source: `task:${task.id}`,
+    parent_id: task.id,
+  });
+  log(`dispatch: scheduled retrospective task for P${task.priority} task #${task.id}`);
+}
+
 // ---- Main entry point ----
 
 /**
@@ -1139,6 +1159,14 @@ export async function runDispatch(): Promise<void> {
       markTaskCompleted(task.id, summary, result || undefined);
     }
     updateTaskCost(task.id, cost_usd, api_cost_usd, input_tokens, output_tokens);
+
+    // 8c. Schedule retrospective for complex P1-4 tasks on successful completion
+    if (task.priority <= 4) {
+      const finalStatus = getTaskById(task.id);
+      if (finalStatus?.status === "completed") {
+        scheduleRetrospective(task, finalStatus.result_summary ?? result.slice(0, 300), result);
+      }
+    }
 
     // Update cycle log with cost/token data
     const duration_ms = Date.now() - dispatchStart;
