@@ -162,9 +162,9 @@ async function runTrade(tradeArgs: string[]): Promise<{ stdout: string; stderr: 
       }
       clearTimeout(timer);
       resolvePromise(stdout.trim());
-    } catch (err) {
+    } catch (error) {
       clearTimeout(timer);
-      reject(err);
+      reject(error);
     }
   });
 

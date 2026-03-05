@@ -56,8 +56,8 @@ function logError(message: string): void {
   console.error(`[agent-engagement] error: ${message}`);
 }
 
-function parseArgs(args: string[]): { cmd: string; params: Record<string, string | boolean>; help: boolean } {
-  const cmd = (args[0] || "") as string;
+function parseArgs(args: string[]): { command: string; params: Record<string, string | boolean>; help: boolean } {
+  const command = (args[0] || "") as string;
   const params: Record<string, string | boolean> = {};
   let help = false;
 
@@ -71,7 +71,7 @@ function parseArgs(args: string[]): { cmd: string; params: Record<string, string
     }
   }
 
-  return { cmd, params, help };
+  return { command, params, help };
 }
 
 async function cmdListAgents(): Promise<void> {
@@ -276,7 +276,7 @@ Arc is tracking Stacks consensus upgrades, Bitcoin interop, and security patches
 }
 
 async function main(): Promise<void> {
-  const { cmd: command, params: args, help } = parseArgs(process.argv.slice(2));
+  const { command, params: args, help } = parseArgs(process.argv.slice(2));
 
   if (help || !command) {
     console.log(`
