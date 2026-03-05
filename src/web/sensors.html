@@ -155,6 +155,15 @@
         <h2 class="section-title">Sensors</h2>
         <span class="section-count" id="sensor-count"></span>
       </div>
+      <div class="feed-filters">
+        <input class="feed-search" type="search" id="sensor-search" placeholder="Search sensors..." autocomplete="off" aria-label="Search sensors">
+        <div class="filter-tabs" id="sensor-filter-tabs" role="group" aria-label="Filter by status">
+          <button class="filter-tab active" data-filter="all" aria-pressed="true">All</button>
+          <button class="filter-tab" data-filter="ok" aria-pressed="false">Active</button>
+          <button class="filter-tab" data-filter="stale" aria-pressed="false">Stale</button>
+          <button class="filter-tab" data-filter="error" aria-pressed="false">Error</button>
+        </div>
+      </div>
       <div class="sensor-grid" id="sensor-grid">
         <div class="sensor-card ok">
           <div class="sensor-card-top">
@@ -181,17 +190,45 @@
 
   <script src="/shared.js"></script>
   <script>
+    var allSensors = [];
+    var sensorFilter = 'all';
+    var sensorSearch = '';
+
+    function getSensorStatus(s) {
+      var isError = s.last_result === 'error' || (s.consecutive_failures && s.consecutive_failures > 0);
+      if (isError) return 'error';
+      if (s.last_ran) {
+        var age = Date.now() - new Date(s.last_ran.endsWith('Z') ? s.last_ran : s.last_ran + 'Z').getTime();
+        var threshold = (s.interval_minutes || 5) * 2 * 60000;
+        if (age < threshold) return 'ok';
+      }
+      return 'stale';
+    }
+
+    function filterSensors(sensors) {
+      return sensors.filter(function(s) {
+        if (sensorSearch && s.name.toLowerCase().indexOf(sensorSearch.toLowerCase()) === -1
+            && (!s.description || s.description.toLowerCase().indexOf(sensorSearch.toLowerCase()) === -1)) {
+          return false;
+        }
+        if (sensorFilter !== 'all' && getSensorStatus(s) !== sensorFilter) return false;
+        return true;
+      });
+    }
+
     function renderSensors(sensors) {
+      allSensors = sensors;
+      var filtered = filterSensors(sensors);
       var grid = document.getElementById('sensor-grid');
       var count = document.getElementById('sensor-count');
-      count.textContent = sensors.length + ' sensors';
+      count.textContent = filtered.length + ' of ' + sensors.length + ' sensors';
 
-      if (sensors.length === 0) {
+      if (filtered.length === 0) {
         grid.innerHTML = '<p class="placeholder">No sensors found</p>';
         return;
       }
 
-      grid.innerHTML = sensors.map(function(s) {
+      grid.innerHTML = filtered.map(function(s) {
         var isError = s.last_result === 'error' || (s.consecutive_failures && s.consecutive_failures > 0);
         var isRecent = false;
         if (s.last_ran) {
@@ -293,6 +330,27 @@
       } catch (e) {
         console.error('Sensors init error:', e);
       }
+
+      // Sensor filter tabs
+      var filterTabsEl = document.getElementById('sensor-filter-tabs');
+      filterTabsEl.addEventListener('click', function(e) {
+        var btn = e.target.closest('.filter-tab');
+        if (!btn) return;
+        sensorFilter = btn.getAttribute('data-filter');
+        filterTabsEl.querySelectorAll('.filter-tab').forEach(function(t) {
+          t.classList.toggle('active', t === btn);
+          t.setAttribute('aria-pressed', t === btn ? 'true' : 'false');
+        });
+        renderSensors(allSensors);
+      });
+
+      // Sensor search
+      var searchInput = document.getElementById('sensor-search');
+      var debouncedSearch = debounce(function() {
+        sensorSearch = searchInput.value.trim();
+        renderSensors(allSensors);
+      }, 300);
+      searchInput.addEventListener('input', debouncedSearch);
 
       initMessageBox();
       connectSSE();
