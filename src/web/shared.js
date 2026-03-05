@@ -324,18 +324,25 @@ function initMessageBox() {
     statusEl.textContent = '';
     statusEl.className = 'message-status';
 
+    var payload = { message: msg };
+    if (typeof replyParentId === 'number' && replyParentId > 0) {
+      payload.parent_id = replyParentId;
+    }
+
     fetch('/api/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: msg }),
+      body: JSON.stringify(payload),
     })
     .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
     .then(function(result) {
       if (result.ok) {
-        statusEl.textContent = 'Task #' + result.data.id + ' created';
+        var replyInfo = (typeof replyParentId === 'number' && replyParentId > 0) ? ' (reply to #' + replyParentId + ')' : '';
+        statusEl.textContent = 'Task #' + result.data.id + ' created' + replyInfo;
         statusEl.className = 'message-status ok';
         input.value = '';
         input.style.height = 'auto';
+        if (typeof clearReplyContext === 'function') clearReplyContext();
         // If activity page has prependToFeed, use it
         if (typeof prependToFeed === 'function') prependToFeed(result.data);
         refreshStatus();

@@ -309,6 +309,33 @@ a:hover { color: var(--accent-deep); }
   word-break: break-word;
 }
 
+/* ---- Feed Detail Actions ---- */
+.feed-detail-actions {
+  margin-top: var(--space-sm);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border);
+}
+
+.reply-btn {
+  background: none;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-family: var(--font);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 3px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.reply-btn:hover {
+  background: var(--accent);
+  color: var(--bg);
+}
+
 /* ---- Metrics ---- */
 .metrics-grid {
   display: grid;
@@ -636,6 +663,7 @@ a:hover { color: var(--accent-deep); }
 
 .message-status.ok { color: var(--success); }
 .message-status.err { color: var(--error); }
+.message-status.reply-context { color: var(--accent); }
 
 /* ---- Copy Button ---- */
 .copy-btn {

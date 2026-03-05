@@ -286,9 +286,9 @@ function handleIdentity(): Response {
 }
 
 async function handlePostMessage(req: Request): Promise<Response> {
-  let body: { message?: string; priority?: number };
+  let body: { message?: string; priority?: number; parent_id?: number };
   try {
-    body = await req.json() as { message?: string; priority?: number };
+    body = await req.json() as { message?: string; priority?: number; parent_id?: number };
   } catch {
     return errorResponse("Invalid JSON body", 400);
   }
@@ -297,13 +297,23 @@ async function handlePostMessage(req: Request): Promise<Response> {
   if (!message) return errorResponse("Message is required", 400);
   if (message.length > 500) return errorResponse("Message too long (max 500 chars)", 400);
 
+  const parentId = typeof body.parent_id === "number" && Number.isInteger(body.parent_id) && body.parent_id > 0
+    ? body.parent_id
+    : undefined;
+
+  if (parentId !== undefined) {
+    const parent = db.query("SELECT id FROM tasks WHERE id = ?").get(parentId);
+    if (!parent) return errorResponse("Parent task not found", 404);
+  }
+
   const taskId = insertTask({
     subject: message,
-    source: "human:web",
+    source: parentId ? `human:web:re:${parentId}` : "human:web",
+    parent_id: parentId,
     priority: 1,
   });
 
-  const task = db.query("SELECT id, subject, priority, status, source, created_at FROM tasks WHERE id = ?").get(taskId);
+  const task = db.query("SELECT id, subject, priority, status, source, parent_id, created_at FROM tasks WHERE id = ?").get(taskId);
   return json(task, 201);
 }
 

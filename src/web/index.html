@@ -261,6 +261,7 @@
             html += '<div class="feed-detail-row"><span class="feed-detail-label">Tokens</span><span class="feed-detail-value">' + formatNumber(task.tokens_in) + ' in / ' + formatNumber(task.tokens_out) + ' out</span></div>';
           }
           html += '<div class="feed-detail-row"><span class="feed-detail-label">ID</span><span class="feed-detail-value">#' + task.id + ' &middot; P' + task.priority + '</span></div>';
+          html += '<div class="feed-detail-actions"><button class="reply-btn" data-reply-id="' + task.id + '" data-reply-subject="' + escAttr(task.subject) + '">Reply</button></div>';
           detail.innerHTML = html || '<span class="feed-detail-value">No additional details</span>';
         }).catch(function() {
           detail.innerHTML = '<span class="feed-detail-value" style="color:var(--error)">Failed to load</span>';
@@ -275,6 +276,35 @@
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
         toggleDetail(item);
+      }
+    }
+
+    // Reply button handler (delegated)
+    document.addEventListener('click', function(e) {
+      var btn = e.target.closest('.reply-btn');
+      if (!btn) return;
+      e.stopPropagation(); // Don't toggle the detail panel
+      var taskId = btn.getAttribute('data-reply-id');
+      var subject = btn.getAttribute('data-reply-subject') || '';
+      startReply(taskId, subject);
+    });
+
+    var replyParentId = null;
+
+    function startReply(taskId, subject) {
+      replyParentId = parseInt(taskId, 10);
+      var statusEl = document.getElementById('message-status');
+      statusEl.textContent = 'Replying to #' + taskId + ': ' + subject.slice(0, 60);
+      statusEl.className = 'message-status reply-context';
+      prefillMessage('[re: #' + taskId + '] ');
+    }
+
+    function clearReplyContext() {
+      replyParentId = null;
+      var statusEl = document.getElementById('message-status');
+      if (statusEl && statusEl.classList.contains('reply-context')) {
+        statusEl.textContent = '';
+        statusEl.className = 'message-status';
       }
     }
 
