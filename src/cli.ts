@@ -39,6 +39,12 @@ const USAGE = {
 
 // ---- Commands ----
 
+/** Max subscription weekly budget (USD).
+ *  Note: total_cost_usd from Claude Code stream-JSON reflects equivalent API cost,
+ *  not direct Max budget consumption. The actual Max throttling mechanism is opaque.
+ *  This serves as a relative usage proxy — higher cost = more budget consumed. */
+const MAX_WEEKLY_BUDGET_USD = 200;
+
 function cmdStatus(): void {
   const db = initDatabase();
 
@@ -48,11 +54,26 @@ function cmdStatus(): void {
   const cycles = getRecentCycles(1);
   const lastCycle = cycles.length > 0 ? cycles[0] : null;
 
-  const { total: costToday, api_total: apiCostToday } = db
+  // Daily cost from cycle_log (more accurate timing than tasks.created_at)
+  const { cost: costToday, api_cost: apiCostToday, tok_in: tokInToday, tok_out: tokOutToday, cycles: cyclesToday } = db
     .query(
-      "SELECT COALESCE(SUM(cost_usd), 0) as total, COALESCE(SUM(api_cost_usd), 0) as api_total FROM tasks WHERE date(created_at) = date('now')"
+      "SELECT COALESCE(SUM(cost_usd), 0) as cost, COALESCE(SUM(api_cost_usd), 0) as api_cost, COALESCE(SUM(tokens_in), 0) as tok_in, COALESCE(SUM(tokens_out), 0) as tok_out, COUNT(*) as cycles FROM cycle_log WHERE date(started_at) = date('now')"
     )
-    .get() as { total: number; api_total: number };
+    .get() as { cost: number; api_cost: number; tok_in: number; tok_out: number; cycles: number };
+
+  // Weekly cost from cycle_log (rolling 7-day window)
+  const { cost: costWeek, api_cost: apiCostWeek, tok_in: tokInWeek, tok_out: tokOutWeek, cycles: cyclesWeek } = db
+    .query(
+      "SELECT COALESCE(SUM(cost_usd), 0) as cost, COALESCE(SUM(api_cost_usd), 0) as api_cost, COALESCE(SUM(tokens_in), 0) as tok_in, COALESCE(SUM(tokens_out), 0) as tok_out, COUNT(*) as cycles FROM cycle_log WHERE started_at >= datetime('now', '-7 days')"
+    )
+    .get() as { cost: number; api_cost: number; tok_in: number; tok_out: number; cycles: number };
+
+  // Max budget bar
+  const pct = Math.min(100, (costWeek / MAX_WEEKLY_BUDGET_USD) * 100);
+  const barWidth = 20;
+  const filled = Math.round((pct / 100) * barWidth);
+  const bar = "\u2588".repeat(filled) + "\u2591".repeat(barWidth - filled);
+  const remaining = Math.max(0, MAX_WEEKLY_BUDGET_USD - costWeek);
 
   process.stdout.write(`pending: ${pendingCount}  active: ${activeCount}\n`);
 
@@ -65,10 +86,18 @@ function cmdStatus(): void {
     process.stdout.write("last cycle: none\n");
   }
 
-  process.stdout.write(
-    `cost today: $${costToday.toFixed(4)} (actual) / $${apiCostToday.toFixed(4)} (api est)\n`
-  );
+  process.stdout.write(`\nmax budget (7d): [${bar}] ${pct.toFixed(1)}% — $${costWeek.toFixed(2)}/$${MAX_WEEKLY_BUDGET_USD} ($${remaining.toFixed(2)} remaining)\n`);
+  process.stdout.write(`  today: $${costToday.toFixed(2)} actual / $${apiCostToday.toFixed(2)} api est (${cyclesToday} cycles)\n`);
+  process.stdout.write(`  week:  $${costWeek.toFixed(2)} actual / $${apiCostWeek.toFixed(2)} api est (${cyclesWeek} cycles)\n`);
+  process.stdout.write(`  tokens today: ${formatTokens(tokInToday)} in / ${formatTokens(tokOutToday)} out\n`);
+  process.stdout.write(`  tokens week:  ${formatTokens(tokInWeek)} in / ${formatTokens(tokOutWeek)} out\n`);
   process.stdout.write("sensors: unknown\n");
+}
+
+function formatTokens(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return String(n);
 }
 
 function cmdTasksList(args: string[]): void {
@@ -451,7 +480,7 @@ USAGE
 
 COMMANDS
   status
-    Show pending/active task counts, last cycle, cost today, sensor state.
+    Show task counts, last cycle, Max budget usage (7d), daily/weekly costs and tokens.
 
   tasks [--status STATUS] [--limit N]
     List tasks. Default: pending + active. --status filters to a single status.
