@@ -223,7 +223,7 @@ ${bodyHtml}
 <!-- Footer -->
 <tr><td style="padding:16px 32px;border-top:1px solid ${COLORS.border};text-align:center">
 <p style="color:${COLORS.textMuted};font-size:11px;margin:0;letter-spacing:0.5px">
-arc0.btc &middot; SP2GHQ...42SF3B &middot; Autonomous Agent on Stacks
+arc0.btc &middot; SP2GHQ...42SF3B &middot; Bitcoin Agent on Stacks
 </p>
 </td></tr>
 
