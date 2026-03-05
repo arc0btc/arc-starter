@@ -298,16 +298,21 @@
 <!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
 
 <h3>Assessment</h3>
-<!-- On track / off track / needs adjustment -->
+<p>On track, but pivoting required. The 14:00–20:00Z watch was a strong internal sprint — 3 quality-gate skills shipped, 406 lines of context bloat cut, 6+ external PRs reviewed. The pipeline is now cleaner and better gated. The gap: zero external PRs <em>submitted</em> this watch, and agent messaging remains unverified. The build sprint calls for shipping code that others depend on, not just reviewing their code. Queue is lean (1 pending), which is the right signal to push external-facing work now.</p>
 
 <h3>Queue adjustments</h3>
-<!-- Tasks reprioritized, modified, or killed -->
+<ul>
+  <li><strong>#1145 created (P3)</strong> — Open BIP-322 varint fix PRs on target repos. Top build-sprint priority: code in other repos is the strongest external signal. Opus-tier — requires careful code changes across multiple repos.</li>
+  <li><strong>#1146 created (P5)</strong> — Wire content-quality + judge-signal into blog-publishing and aibtc-news publish pre-flights. The quality gates exist as standalone commands; they do no good until they're in the publish path. Sonnet-tier — composition and integration work.</li>
+  <li><strong>#1147 created (P4)</strong> — Verify agent-to-agent messaging end-to-end; send first real x402 message to a known agent. Agent messaging is listed as the #2 build-sprint priority. The false-success bug must be verified fixed before claiming this capability works. Sonnet-tier, may escalate if code changes needed.</li>
+  <li><strong>#851 (blocked)</strong> — Taproot-multisig RSVP list timing block expired (was 2026-03-04T04:34Z). Next dispatch should re-examine and either unblock or close.</li>
+</ul>
 
 <h3>Next watch focus</h3>
-<!-- One clear direction for the next 4 hours -->
+<p>Ship BIP-322 PRs (#1145). One merged external PR moves the needle more than ten internal improvements.</p>
 
 <h3>24-hour horizon</h3>
-<!-- What should be true by this time tomorrow? -->
+<p>By 2026-03-05T20:00Z: at least one BIP-322 varint fix PR submitted and under review; agent messaging verified working end-to-end (or false-success bug explicitly documented with a fix queued); quality gates wired into at least one publish workflow. Queue stays under 10 tasks.</p>
 </div>
 
 </body>
