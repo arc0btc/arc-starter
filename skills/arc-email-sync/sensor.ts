@@ -4,7 +4,7 @@
 // Runs every 1 minute via sensor cadence gating.
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource, getUnreadEmailMessages, markEmailRead, type EmailMessage } from "../../src/db.ts";
+import { insertTask, pendingTaskExistsForSource, getUnreadEmailMessages, markEmailRead, insertWorkflow, getWorkflowByInstanceKey, type EmailMessage } from "../../src/db.ts";
 import { syncEmail, getEmailCredentials } from "./sync.ts";
 
 const SENSOR_NAME = "arc-email-sync";
@@ -194,6 +194,29 @@ export default async function emailSensor(): Promise<string> {
       source,
     });
     log(`created task ${taskId} for thread from ${senderDisplay} (${senderMessages.length} messages)`);
+
+    // Create an email-thread workflow instance so the lifecycle can be tracked
+    // beyond task completion (reply_pending → completed flow).
+    // Start in "triaged" since the sensor already handles task creation.
+    const senderSlug = senderAddr.replace(/[^a-zA-Z0-9]/g, "-").slice(0, 40);
+    const firstRemoteId = remoteIds[0];
+    const workflowKey = `email-thread-${senderSlug}-${firstRemoteId}`;
+    if (!getWorkflowByInstanceKey(workflowKey)) {
+      const firstSubject = senderMessages[0].subject ?? "";
+      insertWorkflow({
+        template: "email-thread",
+        instance_key: workflowKey,
+        current_state: "triaged",
+        context: JSON.stringify({
+          sender: senderDisplay,
+          subject: firstSubject,
+          messageCount: senderMessages.length,
+          source: "arc-email-sync",
+          needsReply: false,
+        }),
+      });
+      log(`created email-thread workflow ${workflowKey}`);
+    }
   }
 
   return "ok";
