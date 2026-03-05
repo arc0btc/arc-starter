@@ -60,6 +60,12 @@ describe("arc tasks", () => {
     expect(exitCode).toBe(0);
     expect(stdout).toContain("Created task #");
     expect(stdout).toContain("test task from cli test");
+
+    // Clean up: close the task so it doesn't pollute the queue
+    const match = stdout.match(/Created task #(\d+)/);
+    if (match) {
+      arc("tasks", "close", "--id", match[1], "--status", "completed", "--summary", "cli test cleanup");
+    }
   });
 
   test("tasks close requires --id", () => {
