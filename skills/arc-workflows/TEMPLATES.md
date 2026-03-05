@@ -117,6 +117,123 @@ Claim or maintain a beat on aibtc.news.
 
 **Context:** Beat slug, claimed status
 
+## New Release (`new-release`)
+
+Track assessment and integration of upstream releases.
+
+**States:**
+- `detected` — Release detected, awaiting assessment
+- `assessing` — Assessment task created, review in progress
+- `integration_pending` — Assessment complete, action required
+- `integrating` — Integration changes in progress
+- `no_action` — No integration needed
+- `completed` — Workflow finished (terminal)
+
+**Context schema:**
+```typescript
+{
+  repo?: string;              // Required: Repository name
+  version?: string;           // Required: Release version
+  releaseUrl?: string;        // Optional: URL to release notes
+  skills?: string[];          // Optional: Skills for assessment/integration
+  assessmentSummary?: string; // Assessment findings
+  actionRequired?: boolean;   // Whether integration is needed
+  integrationDescription?: string; // Custom integration instructions
+}
+```
+
+**Pattern:** Detect new upstream releases, assess impact, integrate relevant changes.
+
+**Requires:** `arc-skill-manager` skill (for assessment and integration)
+
+## Architecture Review (`architecture-review`)
+
+Track architecture review cycles with followup cleanup tasks.
+
+**States:**
+- `triggered` — Review triggered by event
+- `reviewing` — Review in progress
+- `cleanup_pending` — Review complete, cleanup items identified
+- `cleaning` — Cleanup tasks in progress
+- `completed` — Workflow finished (terminal)
+
+**Context schema:**
+```typescript
+{
+  trigger?: string;        // "codebase-changed" | "active-reports" | "scheduled"
+  diagramPath?: string;    // Path to architecture diagram
+  reviewSummary?: string;  // Findings from review task
+  cleanupItems?: string;   // Identified cleanup tasks
+}
+```
+
+**Pattern:** Architecture review automatically spawns cleanup subtasks to prevent stale followups.
+
+**Requires:** `arc-architecture-review`, `arc-skill-manager` skills
+
+## Email Thread (`email-thread`)
+
+Triage and respond to incoming email threads.
+
+**States:**
+- `received` — Email thread received
+- `triaged` — Thread reviewed, action items identified
+- `reply_pending` — Reply needed, draft prepared
+- `completed` — Workflow finished (terminal)
+
+**Context schema:**
+```typescript
+{
+  sender?: string;       // Sender name/email
+  subject?: string;      // Email subject
+  messageCount?: number; // Messages in thread
+  source?: string;       // Detecting skill (arc-email-sync, etc.)
+  needsReply?: boolean;  // Whether a reply is needed
+  actionItems?: string;  // Identified action items
+  replyDraft?: string;   // Draft reply text
+}
+```
+
+**Pattern:** Automatically triage emails, spawn followup tasks, send replies.
+
+**Requires:** `arc-email-sync`, `arc-skill-manager` skills
+
+## Quest (`quest`)
+
+Decompose complex tasks into sequential phases.
+
+**States:**
+- `planning` — Quest phases being planned
+- `executing` — Phases executing sequentially
+- `completed` — All phases complete (terminal)
+
+**Context schema:**
+```typescript
+{
+  slug: string;              // Short identifier
+  goal: string;              // High-level goal
+  sourceTaskId: number | null; // Task that spawned quest
+  parentTaskId: number | null; // Parent for phase tasks
+  skills: string[];          // Skills for phase tasks
+  model: string;             // Model tier (opus/sonnet/haiku)
+  phases: QuestPhase[];      // Array of phase definitions
+  currentPhase: number;      // 1-indexed current phase
+}
+```
+
+**Phase structure:**
+```typescript
+{
+  n: number;                           // Phase number
+  name: string;                        // Phase name
+  goal: string;                        // Phase goal
+  status: "pending"|"active"|"completed"|"failed"; // Phase status
+  taskId: number | null;               // Spawned task ID
+}
+```
+
+**Pattern:** Break large goals into small (<2min) phases. Execute one phase per task. Checkpoint in workflow context so failures restart from last state, not from scratch.
+
 ## Blog Posting (`blog-posting`)
 
 Multi-stage blog post publishing workflow.
