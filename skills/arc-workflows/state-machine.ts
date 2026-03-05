@@ -542,7 +542,7 @@ export const ArchitectureReviewMachine: StateMachine<{
         return {
           type: "create-task",
           subject: `architecture review — ${trigger.replace(/-/g, " ")}`,
-          priority: 4,
+          priority: 7,
           skills: ["arc-architecture-review", "arc-skill-manager"],
           description: `Run architecture review (trigger: ${trigger}). After completing, transition this workflow to 'reviewing', then set reviewSummary and cleanupItems in context, then transition to 'cleanup_pending' if there are items or 'completed' if clean.`,
         };
