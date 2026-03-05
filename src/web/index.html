@@ -192,6 +192,19 @@
       return '/api/tasks?' + params.toString();
     }
 
+    function defaultModelForPriority(p) {
+      if (p <= 4) return 'opus';
+      if (p <= 7) return 'sonnet';
+      return 'haiku';
+    }
+
+    function modelPill(model, priority) {
+      var m = model || defaultModelForPriority(priority || 5);
+      var isDefault = !model;
+      var label = esc(m) + (isDefault ? '*' : '');
+      return '<span class="pill pill-muted" title="' + (isDefault ? 'Default for P' + (priority || 5) : 'Explicit') + '">' + label + '</span>';
+    }
+
     function buildFeedItemHTML(t) {
       var cls = statusBorderClass(t.status);
       var skills = '';
@@ -207,6 +220,7 @@
         + '<div class="feed-subject">' + esc(t.subject) + '</div>'
         + '<div class="feed-meta">'
         + '<span class="' + statusBadgeClass(t.status) + '">' + esc(t.status) + '</span>'
+        + ' ' + modelPill(t.model, t.priority)
         + (t.source ? ' <span class="pill pill-muted">' + esc(t.source) + '</span>' : '')
         + ' ' + skills
         + ' <span>' + relativeTime(t.created_at) + '</span>'
@@ -263,6 +277,9 @@
           if (task.tokens_in || task.tokens_out) {
             html += '<div class="feed-detail-row"><span class="feed-detail-label">Tokens</span><span class="feed-detail-value">' + formatNumber(task.tokens_in) + ' in / ' + formatNumber(task.tokens_out) + ' out</span></div>';
           }
+          var detailModel = task.model || defaultModelForPriority(task.priority);
+          var modelNote = task.model ? '' : ' (default)';
+          html += '<div class="feed-detail-row"><span class="feed-detail-label">Model</span><span class="feed-detail-value">' + esc(detailModel) + modelNote + '</span></div>';
           html += '<div class="feed-detail-row"><span class="feed-detail-label">ID</span><span class="feed-detail-value">#' + task.id + ' &middot; P' + task.priority + '</span></div>';
           html += '<div class="feed-detail-actions"><button class="reply-btn" data-reply-id="' + task.id + '" data-reply-subject="' + escAttr(task.subject) + '">Reply</button></div>';
           detail.innerHTML = html || '<span class="feed-detail-value">No additional details</span>';
