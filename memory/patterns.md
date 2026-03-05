@@ -30,6 +30,10 @@
 
 ## Integration Patterns
 
+- **Wallet-aware skill runner pattern (task #1391 ✅):** Stateful singletons (wallet manager) hold unlock state in memory; subprocess isolation breaks this. Solution: dedicated runner (deposit-runner.ts) unlocks the singleton, overrides process.argv, monkey-patches the CLI parser to run within the same process, then locks on exit. This pattern applies whenever state must persist across orchestration boundaries.
+
+- **Cross-repo skill deployment (task #1391 ✅):** Split skills into upstream (pure SDK binding, no wallet logic) + local (wallet-aware wrapper). Upstream lives in aibtcdev/skills (shared ecosystem); local runs arc-starter (wallet access). Read-only commands pass through to upstream; stateful ops stay local. Keeps ecosystem clean while enabling wallet-dependent operations.
+
 - **worker-logs fork sync (task #514-517, #540, #612, #617, active):**
   - **arc0btc/worker-logs** — syncs cleanly via `gh repo sync` (fast-forward, repeats weekly, 1→0 behind typical state).
   - **aibtcdev/worker-logs** — diverging (14 behind, 6 ahead from deployment customizations: AIBTC branding, darker theme). PR #16 prepared awaiting Spark review.
