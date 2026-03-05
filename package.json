@@ -1,7 +1,7 @@
 {
   "name": "arc-agent",
   "version": "0.0.1",
-  "description": "Arc autonomous agent — minimal task-based loop, Bun runtime, CLI-first",
+  "description": "Bitcoin agent — autonomous task-based loop, Bun runtime, CLI-first orchestrator",
   "type": "module",
   "bin": {
     "arc": "./src/cli.ts"
