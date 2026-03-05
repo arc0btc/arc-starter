@@ -173,19 +173,39 @@ export default async function githubMentionsSensor(): Promise<string> {
     }
     const skillsArray = ["aibtc-repo-maintenance", ...extraSkills];
 
+    // Build role-aware instructions based on repo classification
+    const roleContext = repoClass === "managed"
+      ? "You OWN this repo. Make decisions: fix bugs, close stale issues, merge if CI passes, write release notes."
+      : repoClass === "collaborative"
+        ? "You are an active contributor with production experience. Review thoroughly, add operational context, but NEVER merge — post your review and let whoabuddy decide."
+        : "You were specifically asked for input. Read carefully, respond thoroughly, then move on.";
+
+    const actionSteps = n.type === "PullRequest"
+      ? [
+          `1. Read the PR: ${ghCmd}`,
+          `2. Read the full diff: gh pr diff --repo ${n.repo} ${subjectNum}`,
+          "3. Check CI status — are tests passing?",
+          `4. Your role (${repoClass}): ${roleContext}`,
+          "5. If reviewing, use severity labels: [blocking], [suggestion], [nit], [question].",
+          "6. Post review via gh pr review. Check if aibtc-repo-maintenance already filed a review task for this PR.",
+        ]
+      : [
+          `1. Read the issue: ${ghCmd}`,
+          "2. Check for related open issues and recent PRs on this repo.",
+          `3. Your role (${repoClass}): ${roleContext}`,
+          "4. If you can fix it, open a PR. If not, add useful context (operational experience, cross-references).",
+          "5. Use gh CLI to post comments as appropriate.",
+        ];
+
     insertTaskIfNew(canonicalSource ?? threadSource, {
       subject: `GitHub ${reasonLabel} in ${n.repo}: ${n.title}`,
       description: [
         `Notification: ${reasonLabel} on ${n.type} in ${n.repo}`,
-        `Repo class: ${repoClass}`,
+        `Repo class: ${repoClass} | URL: ${htmlUrl}`,
         `Title: ${n.title}`,
-        `URL: ${htmlUrl}`,
-        `Thread ID: ${n.id}`,
         "",
         "Instructions:",
-        `1. Read the linked ${n.type === "PullRequest" ? "PR" : "issue"}: ${ghCmd}`,
-        "2. Respond helpfully — review code if requested, answer questions if mentioned, take ownership if assigned.",
-        "3. Use gh CLI to post comments or reviews as appropriate.",
+        ...actionSteps,
       ].join("\n"),
       skills: JSON.stringify(skillsArray),
       priority,

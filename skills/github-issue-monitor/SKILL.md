@@ -1,6 +1,6 @@
 ---
 name: github-issue-monitor
-description: Monitors GitHub issues on managed repos (arc0btc/*, aibtcdev/*) and creates tasks for new issues
+description: Monitors GitHub issues on managed and collaborative repos, creates triage tasks with org maintainer context
 tags:
   - sensor
   - github
@@ -9,21 +9,35 @@ tags:
 
 # github-issue-monitor
 
-> **⚠️ SENSOR DISABLED** — `sensor.ts` is renamed to `sensor.ts.disabled`. The sensor does not run.
+> **SENSOR DISABLED** — `sensor.ts` renamed to `sensor.ts.disabled`.
 >
-> **Reason:** spark0btc GitHub account permanently restricted (2026-03-02). Arc's primary account (arc0btc) is still active but GitHub-facing automation was paused pending a decision on the account strategy.
+> **Reason:** spark0btc GitHub account permanently restricted (2026-03-02). GitHub-facing automation paused pending account strategy decision.
 >
-> **To re-enable:** rename `sensor.ts.disabled` → `sensor.ts` and restart the sensors service.
+> **To re-enable:** rename `sensor.ts.disabled` → `sensor.ts` and restart sensors.
 
-Polls managed and collaborative GitHub repos for open issues. Creates a task per new issue so dispatch can triage, respond, or fix.
+Polls managed and collaborative repos for open issues. Creates triage tasks with full org maintainer context — not just "new issue detected" but "here's what this means for us."
+
+## Org Maintainer Perspective
+
+Arc doesn't just react to issues — Arc triages with full context:
+
+| Repo Tier | Arc's Issue Response |
+|-----------|---------------------|
+| **Managed** (arc0btc/*) | Own it. Fix, close, or delegate. Check if sensors/logs show related signals. |
+| **Collaborative** (aibtcdev/*) | Triage and add context. Cross-reference with operational experience. Open a PR if you can fix it. Never close without whoabuddy's input. |
+
+### What "org maintainer awareness" means for issues:
+- **Cross-repo relationships**: An issue in `aibtcdev/skills` may affect `arc-starter` sensors. An issue in `x402-api` may explain agent-engagement failures.
+- **Contributor patterns**: Issues from whoabuddy are high-signal. Issues from unknown accounts need triage first. Issues from other agents may need coordination.
+- **Lifecycle awareness**: Check if there's already a PR addressing this issue. Check if the issue duplicates something in another repo. Check CI status.
 
 ## Sensor Behavior (when enabled)
 
 - **Cadence**: every 15 minutes via `claimSensorRun`
 - **API**: `gh api /repos/{owner}/{repo}/issues?state=open` filtered to exclude PRs
 - **Repos**: `arc0btc/arc-starter`, `aibtcdev/landing-page`, `aibtcdev/skills`, `aibtcdev/x402-api`, `aibtcdev/aibtc-mcp-server`, `aibtcdev/agent-news`
-- **Dedup**: `taskExistsForSource` per `sensor:github-issue-monitor:{repo}#{number}` — each issue creates one task ever
-- **Classification**: Uses `classifyRepo()` — managed repos get P4, collaborative get P5
+- **Dedup**: `taskExistsForSource` per `sensor:github-issue-monitor:{repo}#{number}`
+- **Classification**: `classifyRepo()` — managed repos get P4, collaborative get P5
 
 ## Task Shape
 
@@ -36,7 +50,8 @@ Polls managed and collaborative GitHub repos for open issues. Creates a task per
 ## When You Receive an Issue Task
 
 1. Read the issue: `gh issue view --repo owner/repo N`
-2. Assess — is it actionable? Does it need triage, a fix, or a response?
-3. For managed repos: take ownership and fix or respond.
-4. For collaborative repos: comment if you can help, or leave for maintainers.
-5. Close the task with a summary of what you did.
+2. Check for related: open issues, recent PRs, CI failures on this repo.
+3. Cross-reference with your operational experience — have your sensors/logs seen related signals?
+4. **Managed repos**: take ownership. Fix, close, or create a follow-up task.
+5. **Collaborative repos**: add context, triage, open a PR if you can fix it. Let whoabuddy decide on closure.
+6. Close the task with a summary of what you found and did.

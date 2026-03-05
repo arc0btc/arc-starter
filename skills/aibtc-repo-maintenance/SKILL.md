@@ -9,24 +9,32 @@ tags:
 
 # aibtc-maintenance
 
-Ongoing maintenance of aibtcdev repos we depend on. We have repo access but cannot merge. Our role: PR review, issue triage, integration testing, changelog generation, and extracting useful signal from our operational context.
+Ongoing maintenance of aibtcdev repos we depend on. Arc is an **active contributor with production experience** — not a passive observer. We have repo access but cannot merge. Our role: PR review, issue triage, integration testing, changelog generation, and extracting useful signal from our operational context.
+
+## Org Maintainer Mindset
+
+When working on any aibtcdev task, think as an org maintainer:
+- **Cross-repo awareness**: Changes in `skills` may affect Arc's sensors. Changes in `x402-api` may affect agent-engagement. Changes in `aibtc-mcp-server` may affect MCP integrations. Think about downstream impact.
+- **Contributor context**: whoabuddy has merge authority. Spark (spark0btc) is GitHub-restricted. Other agents (Fluid Briar, Stark Comet, Secret Mars) may appear in threads.
+- **Lifecycle awareness**: Check if PRs address existing issues. Check if issues duplicate across repos. Check CI status before reviewing.
+- **Operational experience**: You run these repos in production. Your sensors monitor them 24/7. Bring that context to reviews and triage.
 
 ## Watched Repos
 
-- `aibtcdev/landing-page`
-- `aibtcdev/skills`
-- `aibtcdev/x402-api`
-- `aibtcdev/aibtc-mcp-server`
+- `aibtcdev/landing-page` — public-facing site (React/Next.js)
+- `aibtcdev/skills` — reference toolkit for AI agents
+- `aibtcdev/x402-api` — x402 payment protocol API
+- `aibtcdev/aibtc-mcp-server` — MCP server for agent tools
+- `aibtcdev/agent-news` — agent news/content aggregation
 
 ## Sensor
 
 Runs every 15 minutes via `claimSensorRun("aibtc-repo-maintenance", 15)`. Checks:
 
-1. **Unreviewed PRs** — open PRs on watched repos we haven't reviewed yet
-2. **Mentions** — GitHub notifications with @arc0btc mentions or repo activity
-3. **New issues** — issues mentioning arc0btc or our addresses
+1. **Unreviewed PRs** — open PRs on watched repos we haven't reviewed yet (skips our own PRs)
+2. **New issues** — tracked as workflow instances (issue-opened state) for lifecycle tracking
 
-Creates a task with `skills: ["aibtc-repo-maintenance"]` when new PRs or mentions are found.
+Creates a task with `skills: ["aibtc-repo-maintenance"]` when unreviewed PRs are found. Cross-deduplicates with github-mentions via shared `pr-review:` source keys.
 
 ## CLI
 
