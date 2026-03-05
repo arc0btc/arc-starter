@@ -68,7 +68,7 @@
     </section>
 
     <!-- Identity Card -->
-    <section id="identity" class="section">
+    <section id="identity" class="section span-full">
       <div class="section-header">
         <h2 class="section-title">Identity</h2>
       </div>
@@ -117,9 +117,14 @@
           <div class="metric-label">Last Cycle</div>
         </div>
       </div>
+    </section>
 
+    <!-- Hourly Cost -->
+    <section id="cost-section" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Hourly Cost</h2>
+      </div>
       <div class="cost-bar-chart" id="cost-chart">
-        <div class="chart-title">Hourly Cost</div>
         <div id="cost-bars">
           <p class="placeholder">Loading cost data...</p>
         </div>
@@ -351,8 +356,9 @@
       var rowsHtml = addrRows.map(function(r) {
         return '<div class="identity-row">'
           + '<span class="identity-label">' + r.label + '</span>'
-          + '<a href="' + escAttr(r.explorer) + '" target="_blank" rel="noopener" class="identity-value" title="' + escAttr(r.value) + '">' + esc(truncAddr(r.value, 10)) + '</a>'
+          + '<span class="identity-value">' + esc(r.value) + '</span>'
           + '<button class="copy-btn" data-copy="' + escAttr(r.value) + '">copy</button>'
+          + '<a href="' + escAttr(r.explorer) + '" target="_blank" rel="noopener" class="explorer-btn" title="View on explorer">explorer</a>'
           + '</div>';
       }).join('');
 

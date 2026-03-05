@@ -347,19 +347,10 @@ a:hover { color: var(--accent-deep); }
 
 /* ---- Cost Bar Chart ---- */
 .cost-bar-chart {
-  margin-top: var(--space-md);
   background: var(--bg-card);
   border-left: 3px solid var(--accent);
   padding: var(--space-md);
   border-radius: 2px;
-}
-
-.cost-bar-chart .chart-title {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: var(--space-sm);
 }
 
 .bar-row {
@@ -538,9 +529,9 @@ a:hover { color: var(--accent-deep); }
   font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--text);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  word-break: break-all;
+  min-width: 0;
+  flex: 1;
 }
 
 .identity-links {
@@ -662,6 +653,21 @@ a:hover { color: var(--accent-deep); }
 
 .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
 .copy-btn.copied { color: var(--success); border-color: var(--success); }
+
+/* ---- Explorer Button ---- */
+.explorer-btn {
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  transition: color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.explorer-btn:hover { color: var(--accent); border-color: var(--accent); }
 
 /* ---- Filter Tabs ---- */
 .feed-filters {
