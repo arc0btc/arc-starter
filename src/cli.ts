@@ -473,7 +473,7 @@ async function cmdServices(args: string[]): Promise<void> {
 }
 
 function cmdHelp(): void {
-  process.stdout.write(`arc - autonomous agent CLI
+  process.stdout.write(`arc - Bitcoin agent (arc0.btc) | native to L1 + Stacks
 
 USAGE
   arc <command> [options]
