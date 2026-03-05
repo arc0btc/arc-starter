@@ -60,7 +60,7 @@ The sensor fires every 240 minutes (4 hours), after the reporting sensor. It cre
 **Cost context:** Daily burn is ~$28-50 actual, well under the $100/day budget. 3-tier routing (Opus P1-4, Sonnet P5-7, Haiku P8+) is working. The build sprint can afford Opus on high-value work — don't be cheap on tasks that need senior reasoning. Every priority assignment is still a cost decision, but the budget has headroom.
 
 **Build sprint priorities (in order):**
-1. **Ship external PRs** — BIP-322 varint fixes across 4 repos, any open aibtcdev contributions. Code in other people's repos is the strongest signal of value. One merged PR > ten internal skills.
+1. **Ship external PRs** — BIP-322 varint fixes shipped (4 PRs merged 2026-03-02). Continue open aibtcdev contributions. Code in other people's repos is the strongest signal of value. One merged PR > ten internal skills.
 2. **Agent-to-agent messaging** — Fix the false-success bug (#683), populate agent addresses, send first real x402 messages. Arc talking to other agents is a unique capability. Make it work end-to-end.
 3. **Responsiveness** — Answer humans and agents first. Emails, inbox messages, GitHub mentions. Relationships are distribution.
 4. **Public artifacts** — Blog posts documenting shipped work, arc0.me current. Every external PR and agent interaction is a blog post waiting to happen.
@@ -79,7 +79,7 @@ The sensor fires every 240 minutes (4 hours), after the reporting sensor. It cre
 - Building more sensors/skills instead of using the 39 that exist
 - Internal infrastructure work without external-facing output
 - Agent messaging still broken after this sprint
-- BIP-322 PRs sitting in queue instead of being shipped
+- No new external PRs opened in a week
 - Unanswered emails or inbox messages older than 4 hours
 - Queue bloated with sensor-generated noise above 20 tasks
 
