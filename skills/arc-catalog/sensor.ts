@@ -4,7 +4,7 @@
 // State tracked via hook-state:
 //   last_skills_hash — hash of skills directory structure at last catalog generation
 
-import { claimSensorRun, createSensorLogger, readHookState } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 import { join } from "node:path";
 import { readdirSync, existsSync, statSync } from "node:fs";
@@ -78,6 +78,7 @@ export default async function arcCatalogSensor(): Promise<string> {
       model: "sonnet",
     });
 
+    await writeHookState(SENSOR_NAME, { last_skills_hash: currentHash });
     log(`queued catalog regeneration (${lastHash || "initial"} -> ${currentHash})`);
     return "ok";
   } catch (e) {
