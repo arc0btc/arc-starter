@@ -179,7 +179,19 @@ function cmdTasksAdd(args: string[]): void {
   }
 
   const skillsJson = flags["skills"]
-    ? JSON.stringify(flags["skills"].split(",").map((s) => s.trim()))
+    ? (() => {
+        const raw = flags["skills"].trim();
+        // Accept both JSON array (e.g. '["a","b"]') and comma-separated (e.g. 'a,b')
+        if (raw.startsWith("[")) {
+          try {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) return JSON.stringify(parsed.map(String));
+          } catch {
+            // fall through to comma-split
+          }
+        }
+        return JSON.stringify(raw.split(",").map((s) => s.trim()));
+      })()
     : undefined;
   const parentId = flags["parent"] ? parseInt(flags["parent"], 10) : undefined;
   const priority = flags["priority"] ? parseInt(flags["priority"], 10) : undefined;
