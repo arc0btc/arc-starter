@@ -837,6 +837,116 @@ export const StreakMaintenanceMachine: StateMachine<{
 };
 
 /**
+ * AgentCollaborationMachine — models the AIBTC inbox thread → ops → retrospective cycle.
+ *
+ * Pattern detected: "sensor:aibtc-inbox-sync:thread" tasks (5 recurrences, avg 2.8 steps)
+ * consistently spawn Bitcoin/Stacks operation tasks and retrospective learning extractions.
+ * This machine tracks collaboration threads from other agents through to learning capture.
+ *
+ * instance_key: "agent-collab-{sender-slug}-{YYYY-MM-DD}" (one per sender per day)
+ *
+ * States:
+ *   received            → triage the incoming agent thread
+ *   triaged             → action items identified; auto-transition to ops or retrospective
+ *   ops_pending         → Bitcoin/Stacks operation queued and executing
+ *   retrospective_pending → capture learnings from the collaboration
+ *   completed           → done
+ *
+ * Context:
+ *   sender          — agent display name (e.g., "Topaz Centaur")
+ *   messageCount    — number of messages in thread
+ *   source          — sensor source (e.g., "sensor:aibtc-inbox-sync:thread")
+ *   actionType      — "bitcoin-op" | "stacks-op" | "information" | "collaboration"
+ *   opsDescription  — description of the Bitcoin/Stacks operation to execute
+ *   retrospectiveRef — reference to completed ops task (e.g., "task:1403")
+ */
+export const AgentCollaborationMachine: StateMachine<{
+  sender?: string;
+  messageCount?: number;
+  source?: string;
+  actionType?: string;
+  opsDescription?: string;
+  retrospectiveRef?: string;
+}> = {
+  name: "agent-collaboration",
+  initialState: "received",
+  states: {
+    received: {
+      on: { triage: "triaged" },
+      action: (ctx) => {
+        if (!ctx.sender) return null;
+        return {
+          type: "create-task",
+          subject: `Triage AIBTC thread from ${ctx.sender}`,
+          priority: 6,
+          skills: ["aibtc-inbox-sync"],
+          description: `Read and triage the AIBTC thread from ${ctx.sender} (${ctx.messageCount || 1} message(s)).
+Source: ${ctx.source || "sensor:aibtc-inbox-sync:thread"}.
+
+Steps:
+1. Read the full thread content
+2. Identify action items (Bitcoin ops, Stacks ops, information requests, collaboration)
+3. Set actionType in workflow context: "bitcoin-op" | "stacks-op" | "information" | "collaboration"
+4. If ops required, set opsDescription with clear task instructions
+5. Transition workflow to 'triaged'`,
+        };
+      },
+    },
+    triaged: {
+      on: { needs_ops: "ops_pending", no_ops: "retrospective_pending" },
+      action: (ctx) => {
+        if (!ctx.actionType) return null;
+        if (ctx.actionType === "bitcoin-op" || ctx.actionType === "stacks-op") {
+          return { type: "transition", nextState: "ops_pending" };
+        }
+        return { type: "transition", nextState: "retrospective_pending" };
+      },
+    },
+    ops_pending: {
+      on: { ops_complete: "retrospective_pending" },
+      action: (ctx) => {
+        if (!ctx.opsDescription) return null;
+        const skills =
+          ctx.actionType === "bitcoin-op"
+            ? ["bitcoin-wallet", "styx", "bitcoin-taproot-multisig"]
+            : ["stacks-js", "styx"];
+        return {
+          type: "create-task",
+          subject: ctx.opsDescription,
+          priority: 4,
+          skills,
+          description: `${ctx.opsDescription}\n\nRequested by ${ctx.sender || "agent"} via AIBTC inbox.\n\nAfter completing, transition this workflow to 'ops_pending', then 'retrospective_pending'. Set retrospectiveRef to "task:{id}" of this task.`,
+        };
+      },
+    },
+    retrospective_pending: {
+      on: { learnings_extracted: "completed" },
+      action: (ctx) => {
+        if (!ctx.sender) return null;
+        return {
+          type: "create-task",
+          subject: `Retrospective: extract learnings from collaboration with ${ctx.sender}`,
+          priority: 8,
+          skills: ["arc-skill-manager"],
+          description: `Extract and record learnings from the collaboration with ${ctx.sender}.
+${ctx.retrospectiveRef ? `Reference: ${ctx.retrospectiveRef}` : ""}
+
+Steps:
+1. Review what happened in this collaboration thread
+2. Identify patterns, insights, or improvements for future agent interactions
+3. Update memory/MEMORY.md with key learnings (under Agent Network section if relevant)
+4. Transition workflow to 'completed'`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -854,6 +964,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "email-thread": EmailThreadMachine,
     "streak-maintenance": StreakMaintenanceMachine,
     "quest": QuestMachine,
+    "agent-collaboration": AgentCollaborationMachine,
   };
   return templates[name] || null;
 }
