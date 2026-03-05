@@ -27,9 +27,10 @@ Arc doesn't just react to issues — Arc triages with full context:
 ## Sensor Behavior (when enabled)
 
 - **Cadence**: every 15 minutes via `claimSensorRun`
-- **API**: `gh api /repos/{owner}/{repo}/issues?state=open` filtered to exclude PRs
+- **API**: `gh api /repos/{owner}/{repo}/issues?state=open&sort=updated&since=<24h ago>` filtered to exclude PRs
 - **Repos**: `arc0btc/arc-starter`, `aibtcdev/landing-page`, `aibtcdev/skills`, `aibtcdev/x402-api`, `aibtcdev/aibtc-mcp-server`, `aibtcdev/agent-news`
 - **Dedup**: `taskExistsForSource` per `sensor:github-issue-monitor:{repo}#{number}`
+- **Recency filter**: only issues updated in the last 24h — prevents cold-start bursts on high-volume repos
 - **Classification**: `classifyRepo()` — managed repos get P4, collaborative get P5
 
 ## Task Shape

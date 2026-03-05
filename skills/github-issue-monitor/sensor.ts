@@ -35,12 +35,19 @@ function gh(args: string[]): { ok: boolean; stdout: string; stderr: string } {
   };
 }
 
+function since24h(): string {
+  return new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+}
+
 function fetchOpenIssues(repo: string): GitHubIssue[] {
   const result = gh([
     "api", `/repos/${repo}/issues`,
     "--method", "GET",
     "-f", "state=open",
     "-f", "per_page=25",
+    "-f", "sort=updated",
+    "-f", "direction=desc",
+    "-f", `since=${since24h()}`,
     "--jq",
     `.[] | select(.pull_request == null) | {number: .number, title: .title, user: .user.login, labels: [.labels[].name], html_url: .html_url, created_at: .created_at, updated_at: .updated_at}`,
   ]);
