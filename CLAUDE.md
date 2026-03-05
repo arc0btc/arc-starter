@@ -191,6 +191,12 @@ The arc-skill-manager skill handles memory consolidation: it compresses daily ob
 
 **Error handling:** Every sensor and CLI command catches and logs errors. Dispatch records failures to `cycle_log` and sets `tasks.status = 'failed'`.
 
+**Testing:** Never run test suites inline during dispatch. Tests block the dispatch queue — a hanging test means zero tasks execute until timeout. Instead, follow the issue → PR → CI → review → squash merge flow:
+1. Make changes on a branch, push, open a PR
+2. Let GitHub Actions CI run tests
+3. Review CI results; merge if green
+This applies to all Arc-controlled repos. For `arc-starter` itself, run only targeted syntax checks (e.g. `bun build --no-bundle`), never full test suites. If a repo lacks CI, create a follow-up task to add GitHub Actions workflows before attempting test-dependent work.
+
 ---
 
 ## Escalation
