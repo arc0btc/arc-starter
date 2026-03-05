@@ -66,12 +66,16 @@ function cmdStatus(): void {
     )
     .get() as { cost: number; api_cost: number; tok_in: number; tok_out: number; cycles: number };
 
-  // Max budget bar
-  const pct = Math.min(100, (costWeek / MAX_WEEKLY_BUDGET_USD) * 100);
-  const barWidth = 20;
-  const filled = Math.round((pct / 100) * barWidth);
-  const bar = "\u2588".repeat(filled) + "\u2591".repeat(barWidth - filled);
-  const remaining = Math.max(0, MAX_WEEKLY_BUDGET_USD - costWeek);
+  // Task completion stats
+  const { completed_today: completedToday } = db
+    .query("SELECT COUNT(*) as completed_today FROM tasks WHERE status = 'completed' AND date(completed_at) = date('now')")
+    .get() as { completed_today: number };
+  const { completed_week: completedWeek } = db
+    .query("SELECT COUNT(*) as completed_week FROM tasks WHERE status = 'completed' AND completed_at >= datetime('now', '-7 days')")
+    .get() as { completed_week: number };
+  const { failed_today: failedToday } = db
+    .query("SELECT COUNT(*) as failed_today FROM tasks WHERE status = 'failed' AND date(completed_at) = date('now')")
+    .get() as { failed_today: number };
 
   process.stdout.write(`pending: ${pendingCount}  active: ${activeCount}\n`);
 
@@ -84,12 +88,14 @@ function cmdStatus(): void {
     process.stdout.write("last cycle: none\n");
   }
 
-  process.stdout.write(`\nmax budget (7d): [${bar}] ${pct.toFixed(1)}% — $${costWeek.toFixed(2)}/$${MAX_WEEKLY_BUDGET_USD} ($${remaining.toFixed(2)} remaining)\n`);
+  // Work done
+  process.stdout.write(`\ncompleted: ${completedToday} today / ${completedWeek} this week${failedToday > 0 ? ` (${failedToday} failed)` : ""}\n`);
+
+  // Usage (informational — API-equivalent cost, not direct Max plan consumption)
+  process.stdout.write(`\nusage (7d): $${costWeek.toFixed(2)} actual / $${apiCostWeek.toFixed(2)} api est (${cyclesWeek} cycles)\n`);
   process.stdout.write(`  today: $${costToday.toFixed(2)} actual / $${apiCostToday.toFixed(2)} api est (${cyclesToday} cycles)\n`);
-  process.stdout.write(`  week:  $${costWeek.toFixed(2)} actual / $${apiCostWeek.toFixed(2)} api est (${cyclesWeek} cycles)\n`);
   process.stdout.write(`  tokens today: ${formatTokens(tokInToday)} in / ${formatTokens(tokOutToday)} out\n`);
   process.stdout.write(`  tokens week:  ${formatTokens(tokInWeek)} in / ${formatTokens(tokOutWeek)} out\n`);
-  process.stdout.write("sensors: unknown\n");
 }
 
 function formatTokens(n: number): string {
@@ -478,7 +484,7 @@ USAGE
 
 COMMANDS
   status
-    Show task counts, last cycle, Max budget usage (7d), daily/weekly costs and tokens.
+    Show task counts, completions, last cycle, usage stats (API-equivalent costs and tokens).
 
   tasks [--status STATUS] [--limit N]
     List tasks. Default: pending + active. --status filters to a single status.
