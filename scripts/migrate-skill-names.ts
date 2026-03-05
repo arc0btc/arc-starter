@@ -26,7 +26,6 @@ const RENAME_MAP: Record<string, string> = {
   "aibtc-maintenance": "aibtc-repo-maintenance",
   "aibtc-news": "aibtc-news-editorial",
   "aibtc-news-deal-flow": "aibtc-news-deal-flow",
-  "aibtc-news-protocol": "aibtc-news-protocol",
   "aibtc-services": "aibtc-services-reference",
   "arc-brand": "arc-brand-voice",
   "architect": "arc-architecture-review",
