@@ -14,6 +14,7 @@ import {
   type WorkflowAction,
 } from "./state-machine.ts";
 import { getCredential } from "../../src/credentials.ts";
+import { AIBTC_WATCHED_REPOS } from "../../src/constants.ts";
 
 const SENSOR_NAME = "arc-workflows";
 const INTERVAL_MINUTES = 5;
@@ -29,6 +30,7 @@ interface GithubPR {
   state: "open" | "closed";
   merged?: boolean;
   reviewDecision?: "APPROVED" | "CHANGES_REQUESTED" | "PENDING" | null;
+  closingIssueNumbers?: number[];
 }
 
 type WorkflowState =
@@ -100,6 +102,11 @@ async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
                 state
                 merged
                 reviewDecision
+                closingIssuesReferences(first: 5) {
+                  nodes {
+                    number
+                  }
+                }
               }
             }
           }
@@ -132,6 +139,9 @@ async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
                 state: string;
                 merged?: boolean;
                 reviewDecision?: string | null;
+                closingIssuesReferences?: {
+                  nodes?: Array<{ number: number }>;
+                };
               }>;
             };
           };
@@ -146,6 +156,9 @@ async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
 
       const nodes = data.data?.repository?.pullRequests?.nodes || [];
       for (const node of nodes) {
+        const closingIssueNumbers = (node.closingIssuesReferences?.nodes || []).map(
+          (n) => n.number,
+        );
         prs.push({
           owner,
           repo,
@@ -163,6 +176,7 @@ async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
             | "PENDING"
             | null
             | undefined,
+          closingIssueNumbers: closingIssueNumbers.length > 0 ? closingIssueNumbers : undefined,
         });
       }
     } catch (err) {
@@ -177,11 +191,11 @@ async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
  * Handle GitHub PR state changes: create or update workflow instances
  */
 async function syncGitHubPRs(): Promise<number> {
-  // Repos to monitor (configurable via env or default list)
+  // Repos to monitor: Arc's own repos + aibtcdev watched repos (configurable via env override)
   const reposEnv = Bun.env.PR_LIFECYCLE_REPOS;
   const repos = reposEnv
     ? reposEnv.split(",").map((r) => r.trim())
-    : ["arc0btc/arc-starter", "arc0btc/arc0me-site"];
+    : ["arc0btc/arc-starter", "arc0btc/arc0me-site", ...AIBTC_WATCHED_REPOS];
 
   const prs = await fetchGitHubPRs(repos);
   if (prs.length === 0) return 0;
@@ -208,10 +222,33 @@ async function syncGitHubPRs(): Promise<number> {
           title: pr.title,
           url: pr.url,
           author: pr.author,
+          fromIssue: pr.closingIssueNumbers?.[0] ?? undefined,
           lastChecked: new Date().toISOString(),
         }),
       });
       workflowsCreated++;
+
+      // Issue-to-PR transition: if this PR closes issues, transition their workflows
+      if (pr.closingIssueNumbers) {
+        for (const issueNum of pr.closingIssueNumbers) {
+          const issueKey = `${pr.owner}/${pr.repo}/issue/${issueNum}`;
+          const issueWorkflow = getWorkflowByInstanceKey(issueKey);
+          if (issueWorkflow && issueWorkflow.current_state === "issue-opened") {
+            updateWorkflowState(
+              issueWorkflow.id,
+              "opened",
+              JSON.stringify({
+                ...JSON.parse(issueWorkflow.context),
+                linkedPr: pr.number,
+                linkedPrUrl: pr.url,
+                transitionedAt: new Date().toISOString(),
+              }),
+            );
+            workflowsUpdated++;
+            log(`issue-to-pr: issue #${issueNum} -> PR #${pr.number} on ${pr.owner}/${pr.repo}`);
+          }
+        }
+      }
     } else if (workflow.current_state !== newState) {
       // Update workflow if state changed
       updateWorkflowState(

@@ -197,10 +197,19 @@ export const PrLifecycleMachine: StateMachine<{
   author?: string;
   reviewers?: string[];
   lastChecked?: string;
+  fromIssue?: number;
+  issueUrl?: string;
 }> = {
   name: "pr-lifecycle",
   initialState: "opened",
   states: {
+    "issue-opened": {
+      on: { link_pr: "opened", close: "closed" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        return { type: "noop" };
+      },
+    },
     opened: {
       on: { request_review: "review-requested", close: "closed" },
       action: (ctx) => {
