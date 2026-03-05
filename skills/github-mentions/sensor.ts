@@ -1,6 +1,6 @@
 import { claimSensorRun, createSensorLogger, readHookState, insertTaskIfNew } from "../../src/sensors.ts";
 import { taskExistsForSource } from "../../src/db.ts";
-import { AIBTC_WATCHED_REPOS } from "../../src/constants.ts";
+import { AIBTC_WATCHED_REPOS, classifyRepo, type RepoClass } from "../../src/constants.ts";
 
 const SENSOR_NAME = "github-mentions";
 const INTERVAL_MINUTES = 5;
@@ -8,6 +8,28 @@ const log = createSensorLogger(SENSOR_NAME);
 
 // Repos watched by aibtc-maintenance — used for cross-sensor PR review dedup
 const WATCHED_REPOS = AIBTC_WATCHED_REPOS;
+
+// Notification reasons that always create a task regardless of repo class
+const ALWAYS_ENGAGE: ReadonlySet<string> = new Set([
+  "mention", "review_requested", "assign", "team_mention",
+]);
+
+// Additional reasons allowed for collaborative repos (where Arc contributes)
+const COLLABORATIVE_ENGAGE: ReadonlySet<string> = new Set([
+  "author", "comment", "state_change",
+]);
+
+/** Returns true if this notification warrants a task based on repo classification. */
+function shouldEngage(reason: string, repoClass: RepoClass): boolean {
+  // Direct engagement always passes
+  if (ALWAYS_ENGAGE.has(reason)) return true;
+  // Managed repos: engage on everything
+  if (repoClass === "managed") return true;
+  // Collaborative repos: engage on author/comment/state_change (Arc's own PRs)
+  if (repoClass === "collaborative" && COLLABORATIVE_ENGAGE.has(reason)) return true;
+  // External repos: only direct mentions/reviews
+  return false;
+}
 
 interface Notification {
   id: string;
@@ -81,7 +103,17 @@ export default async function githubMentionsSensor(): Promise<string> {
   if (notifications.length === 0) return "ok";
 
   let created = 0;
+  let gated = 0;
   for (const n of notifications) {
+    const repoClass = classifyRepo(n.repo);
+
+    // Engagement gate: skip low-signal notifications for external/collaborative repos
+    if (!shouldEngage(n.reason, repoClass)) {
+      markThreadRead(n.id);
+      gated++;
+      continue;
+    }
+
     const threadSource = `sensor:github-mentions:thread:${n.id}`;
 
     // For PR review requests/assignments on watched repos, use the shared canonical
@@ -123,12 +155,19 @@ export default async function githubMentionsSensor(): Promise<string> {
         ? `gh pr view --repo ${n.repo} ${subjectNum}`
         : `gh issue view --repo ${n.repo} ${subjectNum}`;
 
-    // Use insertTaskIfNew for the actual insert (dedup already handled above,
-    // but the helper provides a consistent insert path)
+    // Priority: managed repos get higher priority, review requests always high
+    const priority =
+      n.reason === "review_requested" || n.reason === "assign"
+        ? 3
+        : repoClass === "managed"
+          ? 4
+          : 5;
+
     insertTaskIfNew(canonicalSource ?? threadSource, {
       subject: `GitHub ${reasonLabel} in ${n.repo}: ${n.title}`,
       description: [
         `Notification: ${reasonLabel} on ${n.type} in ${n.repo}`,
+        `Repo class: ${repoClass}`,
         `Title: ${n.title}`,
         `URL: ${htmlUrl}`,
         `Thread ID: ${n.id}`,
@@ -139,12 +178,7 @@ export default async function githubMentionsSensor(): Promise<string> {
         "3. Use gh CLI to post comments or reviews as appropriate.",
       ].join("\n"),
       skills: '["aibtc-repo-maintenance"]',
-      priority:
-        n.reason === "review_requested" || n.reason === "assign"
-          ? 3
-          : n.reason === "mention" || n.reason === "team_mention"
-            ? 5
-            : 5,
+      priority,
       model: "sonnet",
     }, "any");
 
@@ -152,8 +186,8 @@ export default async function githubMentionsSensor(): Promise<string> {
     created++;
   }
 
-  if (created > 0) {
-    log(`created ${created} task(s)`);
+  if (created > 0 || gated > 0) {
+    log(`created ${created} task(s), gated ${gated} low-signal notification(s)`);
   }
 
   return "ok";

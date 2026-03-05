@@ -9,3 +9,19 @@ export const AIBTC_WATCHED_REPOS = [
   "aibtcdev/aibtc-mcp-server",
   "aibtcdev/agent-news",
 ] as const;
+
+/** GitHub orgs/owners where Arc is the primary maintainer. */
+export const ARC_MANAGED_ORGS = ["arc0btc"] as const;
+
+/** GitHub orgs where Arc is a collaborator (not owner). */
+export const ARC_COLLABORATIVE_ORGS = ["aibtcdev"] as const;
+
+export type RepoClass = "managed" | "collaborative" | "external";
+
+/** Classify a repo as managed, collaborative, or external based on owner. */
+export function classifyRepo(fullName: string): RepoClass {
+  const owner = fullName.split("/")[0];
+  if ((ARC_MANAGED_ORGS as readonly string[]).includes(owner)) return "managed";
+  if ((ARC_COLLABORATIVE_ORGS as readonly string[]).includes(owner)) return "collaborative";
+  return "external";
+}
