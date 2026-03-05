@@ -19,11 +19,30 @@ Post and manage tweets on X (Twitter) using the v2 API with OAuth 1.0a authentic
 | `post --text <text>` | Post a tweet (max 280 chars) |
 | `reply --text <text> --tweet-id <id>` | Reply to a tweet |
 | `delete --tweet-id <id>` | Delete a tweet |
+| `like --tweet-id <id>` | Like a tweet |
+| `unlike --tweet-id <id>` | Unlike a tweet |
+| `retweet --tweet-id <id>` | Retweet a tweet |
+| `unretweet --tweet-id <id>` | Undo a retweet |
 | `timeline [--limit <n>]` | Show recent tweets from arc0btc (default: 10) |
 | `mentions [--limit <n>]` | Show recent mentions (default: 10) |
 | `search --query <text> [--limit <n>]` | Search recent tweets (10-100, default: 10) |
 | `lookup --username <handle>` | Look up a user by username |
+| `budget` | Show daily action budget usage and remaining |
 | `status` | Check credential status and account info |
+
+## Daily Budget
+
+Conservative daily limits to ensure quality over quantity. Budget resets at midnight UTC. State persisted to `db/x-budget.json`.
+
+| Action | Daily Limit |
+|--------|-------------|
+| Posts | 10 |
+| Replies | 40 |
+| Likes | 50 |
+| Retweets | 15 |
+| Follows | 20 |
+
+Budget is enforced on `post`, `reply`, `like`, and `retweet` commands. Unlike/unretweet are free (undoing actions). Some engagement actions are pay-per-use on X API — budget awareness prevents surprise costs.
 
 ## Credentials Required
 

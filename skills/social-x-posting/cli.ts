@@ -7,6 +7,7 @@ import { join } from "path";
 
 const API_BASE = "https://api.x.com/2";
 const CACHE_PATH = join(import.meta.dir, "../../db/x-cache.json");
+const BUDGET_PATH = join(import.meta.dir, "../../db/x-budget.json");
 
 // ---- Cache ----
 
@@ -36,6 +37,69 @@ async function loadCache(): Promise<Cache> {
 
 async function saveCache(cache: Cache): Promise<void> {
   await Bun.write(CACHE_PATH, JSON.stringify(cache, null, 2));
+}
+
+// ---- Daily Budget ----
+
+interface DailyBudget {
+  date: string; // YYYY-MM-DD
+  posts: number;
+  replies: number;
+  likes: number;
+  retweets: number;
+  follows: number;
+}
+
+const BUDGET_LIMITS: Record<string, number> = {
+  posts: 10,
+  replies: 40,
+  likes: 50,
+  retweets: 15,
+  follows: 20,
+};
+
+function todayDateStr(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+async function loadBudget(): Promise<DailyBudget> {
+  const today = todayDateStr();
+  try {
+    const file = Bun.file(BUDGET_PATH);
+    if (await file.exists()) {
+      const data = (await file.json()) as DailyBudget;
+      if (data.date === today) return data;
+    }
+  } catch {
+    // corrupt file, start fresh
+  }
+  return { date: today, posts: 0, replies: 0, likes: 0, retweets: 0, follows: 0 };
+}
+
+async function saveBudget(budget: DailyBudget): Promise<void> {
+  await Bun.write(BUDGET_PATH, JSON.stringify(budget, null, 2));
+}
+
+async function checkBudget(action: string): Promise<void> {
+  const budget = await loadBudget();
+  const limit = BUDGET_LIMITS[action];
+  if (limit === undefined) return;
+  const used = budget[action as keyof DailyBudget] as number;
+  if (used >= limit) {
+    throw new Error(
+      `Daily ${action} budget exhausted: ${used}/${limit}. Resets at midnight UTC.`
+    );
+  }
+}
+
+async function incrementBudget(action: string): Promise<DailyBudget> {
+  const budget = await loadBudget();
+  const key = action as keyof DailyBudget;
+  if (typeof budget[key] === "number") {
+    (budget as Record<string, unknown>)[action] = (budget[key] as number) + 1;
+  }
+  await saveBudget(budget);
+  return budget;
 }
 
 // ---- Helpers ----
@@ -213,6 +277,7 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     process.exit(1);
   }
 
+  await checkBudget("posts");
   const creds = await loadCreds();
   const body: Record<string, unknown> = { text };
 
@@ -225,6 +290,7 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
   const result = await apiRequest("POST", "/tweets", creds, body);
   const data = result["data"] as Record<string, string> | undefined;
   if (data) {
+    await incrementBudget("posts");
     console.log(JSON.stringify({ id: data["id"], text: data["text"] }, null, 2));
     log(`Tweet posted: ${data["id"]}`);
   } else {
@@ -244,6 +310,7 @@ async function cmdReply(flags: Record<string, string>): Promise<void> {
     process.exit(1);
   }
 
+  await checkBudget("replies");
   const creds = await loadCreds();
   const body = { text, reply: { in_reply_to_tweet_id: tweetId } };
 
@@ -251,6 +318,7 @@ async function cmdReply(flags: Record<string, string>): Promise<void> {
   const result = await apiRequest("POST", "/tweets", creds, body);
   const data = result["data"] as Record<string, string> | undefined;
   if (data) {
+    await incrementBudget("replies");
     console.log(JSON.stringify({ id: data["id"], text: data["text"], reply_to: tweetId }, null, 2));
     log(`Reply posted: ${data["id"]}`);
   } else {
@@ -485,6 +553,99 @@ async function cmdLookup(flags: Record<string, string>): Promise<void> {
   }, null, 2));
 }
 
+async function getMyUserId(creds: OAuthCreds): Promise<string> {
+  const me = await apiRequest("GET", "/users/me", creds, undefined, {
+    "user.fields": "id",
+  });
+  const userData = me["data"] as Record<string, unknown> | undefined;
+  if (!userData) throw new Error("Could not fetch user info");
+  return userData["id"] as string;
+}
+
+async function cmdLike(flags: Record<string, string>): Promise<void> {
+  const tweetId = flags["tweet-id"];
+  if (!tweetId) {
+    console.log("Usage: like --tweet-id <id>");
+    process.exit(1);
+  }
+
+  await checkBudget("likes");
+  const creds = await loadCreds();
+  const userId = await getMyUserId(creds);
+
+  log(`Liking tweet ${tweetId}...`);
+  const result = await apiRequest("POST", `/users/${userId}/likes`, creds, { tweet_id: tweetId });
+  await incrementBudget("likes");
+  const data = result["data"] as Record<string, unknown> | undefined;
+  console.log(JSON.stringify({ liked: data?.["liked"] ?? true, tweet_id: tweetId }, null, 2));
+  log(`Tweet liked: ${tweetId}`);
+}
+
+async function cmdUnlike(flags: Record<string, string>): Promise<void> {
+  const tweetId = flags["tweet-id"];
+  if (!tweetId) {
+    console.log("Usage: unlike --tweet-id <id>");
+    process.exit(1);
+  }
+
+  const creds = await loadCreds();
+  const userId = await getMyUserId(creds);
+
+  log(`Unliking tweet ${tweetId}...`);
+  const result = await apiRequest("DELETE", `/users/${userId}/likes/${tweetId}`, creds);
+  const data = result["data"] as Record<string, unknown> | undefined;
+  console.log(JSON.stringify({ liked: data?.["liked"] ?? false, tweet_id: tweetId }, null, 2));
+  log(`Tweet unliked: ${tweetId}`);
+}
+
+async function cmdRetweet(flags: Record<string, string>): Promise<void> {
+  const tweetId = flags["tweet-id"];
+  if (!tweetId) {
+    console.log("Usage: retweet --tweet-id <id>");
+    process.exit(1);
+  }
+
+  await checkBudget("retweets");
+  const creds = await loadCreds();
+  const userId = await getMyUserId(creds);
+
+  log(`Retweeting ${tweetId}...`);
+  const result = await apiRequest("POST", `/users/${userId}/retweets`, creds, { tweet_id: tweetId });
+  await incrementBudget("retweets");
+  const data = result["data"] as Record<string, unknown> | undefined;
+  console.log(JSON.stringify({ retweeted: data?.["retweeted"] ?? true, tweet_id: tweetId }, null, 2));
+  log(`Retweeted: ${tweetId}`);
+}
+
+async function cmdUnretweet(flags: Record<string, string>): Promise<void> {
+  const tweetId = flags["tweet-id"];
+  if (!tweetId) {
+    console.log("Usage: unretweet --tweet-id <id>");
+    process.exit(1);
+  }
+
+  const creds = await loadCreds();
+  const userId = await getMyUserId(creds);
+
+  log(`Unretweeting ${tweetId}...`);
+  const result = await apiRequest("DELETE", `/users/${userId}/retweets/${tweetId}`, creds);
+  const data = result["data"] as Record<string, unknown> | undefined;
+  console.log(JSON.stringify({ retweeted: data?.["retweeted"] ?? false, tweet_id: tweetId }, null, 2));
+  log(`Unretweeted: ${tweetId}`);
+}
+
+async function cmdBudget(_flags: Record<string, string>): Promise<void> {
+  const budget = await loadBudget();
+  console.log(JSON.stringify({
+    date: budget.date,
+    posts: { used: budget.posts, limit: BUDGET_LIMITS["posts"], remaining: BUDGET_LIMITS["posts"] - budget.posts },
+    replies: { used: budget.replies, limit: BUDGET_LIMITS["replies"], remaining: BUDGET_LIMITS["replies"] - budget.replies },
+    likes: { used: budget.likes, limit: BUDGET_LIMITS["likes"], remaining: BUDGET_LIMITS["likes"] - budget.likes },
+    retweets: { used: budget.retweets, limit: BUDGET_LIMITS["retweets"], remaining: BUDGET_LIMITS["retweets"] - budget.retweets },
+    follows: { used: budget.follows, limit: BUDGET_LIMITS["follows"], remaining: BUDGET_LIMITS["follows"] - budget.follows },
+  }, null, 2));
+}
+
 // ---- Main ----
 
 async function main(): Promise<void> {
@@ -514,6 +675,21 @@ async function main(): Promise<void> {
     case "lookup":
       await cmdLookup(flags);
       break;
+    case "like":
+      await cmdLike(flags);
+      break;
+    case "unlike":
+      await cmdUnlike(flags);
+      break;
+    case "retweet":
+      await cmdRetweet(flags);
+      break;
+    case "unretweet":
+      await cmdUnretweet(flags);
+      break;
+    case "budget":
+      await cmdBudget(flags);
+      break;
     case "status":
       await cmdStatus(flags);
       break;
@@ -521,14 +697,22 @@ async function main(): Promise<void> {
       console.log(`x-posting — Post and manage tweets via X API v2
 
 Commands:
-  post      --text <text>                     Post a tweet (max 280 chars)
-  reply     --text <text> --tweet-id <id>     Reply to a tweet
-  delete    --tweet-id <id>                   Delete a tweet
-  timeline  [--limit <n>]                     Show recent tweets (default: 10)
-  mentions  [--limit <n>]                     Show recent mentions (default: 10)
-  search    --query <text> [--limit <n>]      Search recent tweets (10-100, default: 10)
-  lookup    --username <handle>               Look up a user by username
-  status                                      Check API access and account info
+  post       --text <text>                     Post a tweet (max 280 chars)
+  reply      --text <text> --tweet-id <id>     Reply to a tweet
+  delete     --tweet-id <id>                   Delete a tweet
+  like       --tweet-id <id>                   Like a tweet
+  unlike     --tweet-id <id>                   Unlike a tweet
+  retweet    --tweet-id <id>                   Retweet a tweet
+  unretweet  --tweet-id <id>                   Undo a retweet
+  timeline   [--limit <n>]                     Show recent tweets (default: 10)
+  mentions   [--limit <n>]                     Show recent mentions (default: 10)
+  search     --query <text> [--limit <n>]      Search recent tweets (10-100, default: 10)
+  lookup     --username <handle>               Look up a user by username
+  budget                                       Show daily action budget usage
+  status                                       Check API access and account info
+
+Daily budget limits (resets at midnight UTC):
+  10 posts, 40 replies, 50 likes, 15 retweets, 20 follows
 
 Credentials required (set via arc creds set --service x --key <key> --value <value>):
   x/consumer_key         OAuth 1.0a Consumer Key
