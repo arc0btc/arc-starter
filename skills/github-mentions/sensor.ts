@@ -81,8 +81,9 @@ function fetchNotifications(since: string): Notification[] {
   return notifications;
 }
 
-function markThreadRead(threadId: string): void {
-  gh(["api", "--method", "PATCH", `/notifications/threads/${threadId}`]);
+/** Marks all notifications as read up to the given ISO timestamp (single API call). */
+function markAllRead(lastReadAt: string): void {
+  gh(["api", "--method", "PUT", "/notifications", "-f", `last_read_at=${lastReadAt}`]);
 }
 
 export default async function githubMentionsSensor(): Promise<string> {
@@ -109,7 +110,6 @@ export default async function githubMentionsSensor(): Promise<string> {
 
     // Engagement gate: skip low-signal notifications for external/collaborative repos
     if (!shouldEngage(n.reason, repoClass)) {
-      markThreadRead(n.id);
       gated++;
       continue;
     }
@@ -133,7 +133,6 @@ export default async function githubMentionsSensor(): Promise<string> {
       taskExistsForSource(threadSource) ||
       (canonicalSource && taskExistsForSource(canonicalSource))
     ) {
-      markThreadRead(n.id);
       continue;
     }
 
@@ -182,9 +181,15 @@ export default async function githubMentionsSensor(): Promise<string> {
       model: "sonnet",
     }, "any");
 
-    markThreadRead(n.id);
     created++;
   }
+
+  // Batch mark-as-read: single PUT replaces N individual PATCH calls
+  const latestUpdate = notifications.reduce(
+    (max, n) => (n.updatedAt > max ? n.updatedAt : max),
+    notifications[0].updatedAt,
+  );
+  markAllRead(latestUpdate);
 
   if (created > 0 || gated > 0) {
     log(`created ${created} task(s), gated ${gated} low-signal notification(s)`);
