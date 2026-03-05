@@ -39,11 +39,9 @@ const USAGE = {
 
 // ---- Commands ----
 
-/** Max subscription weekly budget (USD).
- *  Note: total_cost_usd from Claude Code stream-JSON reflects equivalent API cost,
+/** Note: total_cost_usd from Claude Code stream-JSON reflects equivalent API cost,
  *  not direct Max budget consumption. The actual Max throttling mechanism is opaque.
  *  This serves as a relative usage proxy — higher cost = more budget consumed. */
-const MAX_WEEKLY_BUDGET_USD = 200;
 
 function cmdStatus(): void {
   const db = initDatabase();
