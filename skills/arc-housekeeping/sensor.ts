@@ -16,6 +16,8 @@ const LOCK_STALE_MINUTES = 60;
 const WAL_MAX_MB = 10;
 const MEMORY_MAX_LINES = 80;
 const WATCHED_DIRS = ["src/", "skills/", "templates/", "memory/"];
+const WORKTREES_DIR = join(ROOT, ".worktrees");
+const STALE_WORKTREE_HOURS = 6;
 
 export default async function housekeepingSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
@@ -88,14 +90,42 @@ export default async function housekeepingSensor(): Promise<string> {
     issues.push(`${archivalDirs.length} dir(s) need ISO 8601 file archival`);
   }
 
+  // 7. Stale worktrees
+  let staleWorktreeCount = 0;
+  if (existsSync(WORKTREES_DIR)) {
+    try {
+      const entries = readdirSync(WORKTREES_DIR, { withFileTypes: true });
+      const now = Date.now();
+      for (const entry of entries) {
+        if (!entry.isDirectory()) continue;
+        try {
+          const stat = statSync(join(WORKTREES_DIR, entry.name));
+          const ageHours = (now - stat.mtimeMs) / 3_600_000;
+          if (ageHours > STALE_WORKTREE_HOURS) staleWorktreeCount++;
+        } catch {
+          // ignore stat errors
+        }
+      }
+      if (staleWorktreeCount > 0) {
+        issues.push(`${staleWorktreeCount} stale worktree(s) in .worktrees/ (>${STALE_WORKTREE_HOURS}h old)`);
+      }
+    } catch {
+      // ignore
+    }
+  }
+
   if (issues.length === 0) return "ok";
 
   if (pendingTaskExistsForSource(TASK_SOURCE)) return "skip";
 
+  const skills = staleWorktreeCount > 0
+    ? '["arc-housekeeping", "arc-skill-manager", "arc-worktrees"]'
+    : '["arc-housekeeping", "arc-skill-manager"]';
+
   insertTask({
     subject: `housekeeping: ${issues.length} issue(s) detected`,
     description: issues.map((i) => `- ${i}`).join("\n"),
-    skills: '["arc-housekeeping", "arc-skill-manager"]',
+    skills,
     priority: 7,
     model: "haiku",
     source: TASK_SOURCE,
