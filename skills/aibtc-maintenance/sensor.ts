@@ -1,15 +1,11 @@
 import { claimSensorRun } from "../../src/sensors.ts";
 import { insertTask, taskExistsForSource } from "../../src/db.ts";
+import { AIBTC_WATCHED_REPOS } from "../../src/constants.ts";
+
 const SENSOR_NAME = "aibtc-maintenance";
 const INTERVAL_MINUTES = 15;
 
-const WATCHED_REPOS = [
-  "aibtcdev/landing-page",
-  "aibtcdev/skills",
-  "aibtcdev/x402-api",
-  "aibtcdev/aibtc-mcp-server",
-  "aibtcdev/agent-news",
-];
+const WATCHED_REPOS = AIBTC_WATCHED_REPOS;
 
 // Repos that use React/Next.js — load react-reviewer + composition-patterns for these PRs
 const REACT_REPOS = new Set(["aibtcdev/landing-page"]);
@@ -118,6 +114,7 @@ export default async function aibtcMaintenanceSensor(): Promise<string> {
       ].join("\n"),
       skills,
       priority: 5,
+      model: "sonnet",
       source,
     });
   }

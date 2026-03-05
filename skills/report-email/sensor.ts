@@ -107,6 +107,14 @@ export default async function reportEmailSensor(): Promise<string> {
   const htmlBody = isHtml ? content : wrapInArcTheme(markdownToHtml(content), subject);
   const plainText = isHtml ? subject : content;
 
+  // Write state BEFORE sending to prevent duplicate sends on crash-after-send
+  await writeHookState(SENSOR_NAME, {
+    last_ran: new Date().toISOString(),
+    last_result: "ok",
+    version: state ? state.version + 1 : 1,
+    last_emailed_report: newestFile,
+  });
+
   // Send via email worker API (html field for themed email, body as plain text fallback)
   const res = await fetch(`${apiBaseUrl}/api/send`, {
     method: "POST",
@@ -123,21 +131,19 @@ export default async function reportEmailSensor(): Promise<string> {
   });
 
   if (!res.ok) {
+    // Clear state on failure so we retry next cycle
+    await writeHookState(SENSOR_NAME, {
+      last_ran: new Date().toISOString(),
+      last_result: "error",
+      version: state ? state.version + 1 : 1,
+        last_emailed_report: state?.last_emailed_report as string ?? "",
+    });
     const body = await res.text();
     log(`email send failed: HTTP ${res.status} — ${body}`);
     return "error";
   }
 
   log(`emailed report to ${recipient}: "${subject}"`);
-
-  // Update state
-  await writeHookState(SENSOR_NAME, {
-    last_ran: new Date().toISOString(),
-    last_result: "ok",
-    version: state ? state.version + 1 : 1,
-    consecutive_failures: 0,
-    last_emailed_report: newestFile,
-  });
 
   return "ok";
 }

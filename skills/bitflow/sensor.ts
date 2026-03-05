@@ -134,6 +134,7 @@ High spreads may indicate liquidity imbalance, low-volume conditions, or arbitra
 File signal to Ordinals Business beat via aibtc-news skill.`,
         skills: JSON.stringify(["bitflow", "aibtc-news"]),
         priority: 7,
+        model: "haiku",
         status: "pending",
         source: signalSource,
       });

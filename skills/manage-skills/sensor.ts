@@ -100,6 +100,7 @@ export default async function manageSkillsSensor(): Promise<string> {
           ].join("\n"),
           skills: '["manage-skills"]',
           priority: 8,
+          model: "haiku",
           source: TASK_SOURCE,
         });
         results.push("memory-task-created");
@@ -131,6 +132,7 @@ export default async function manageSkillsSensor(): Promise<string> {
         ].join("\n"),
         skills: '["manage-skills"]',
         priority: 8,
+        model: "haiku",
         source: SENSOR_VALIDATION_SOURCE,
       });
       results.push("validation-task-created");

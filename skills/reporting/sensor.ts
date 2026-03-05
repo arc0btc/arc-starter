@@ -7,10 +7,12 @@
 // Each variant uses its own sensor claim to avoid interference.
 // Pure TypeScript — no LLM.
 
-import { claimSensorRun } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 // ---- Shared helpers ----
+
+const log = createSensorLogger("reporting");
 
 /** Current hour in PST (UTC-8). */
 function getPstHour(): number {
@@ -52,6 +54,7 @@ async function watchReportSensor(): Promise<string> {
     skills: '["reporting"]',
     source: WATCH_SOURCE,
     priority: WATCH_PRIORITY,
+    model: "sonnet",
   });
 
   return "ok";
@@ -86,6 +89,7 @@ async function overnightBriefSensor(): Promise<string> {
     skills: '["reporting"]',
     source: OVERNIGHT_SOURCE,
     priority: OVERNIGHT_PRIORITY,
+    model: "sonnet",
   });
 
   return "ok";

@@ -1,18 +1,13 @@
 import { claimSensorRun, createSensorLogger, readHookState, insertTaskIfNew } from "../../src/sensors.ts";
 import { taskExistsForSource } from "../../src/db.ts";
+import { AIBTC_WATCHED_REPOS } from "../../src/constants.ts";
 
 const SENSOR_NAME = "github-mentions";
 const INTERVAL_MINUTES = 5;
 const log = createSensorLogger(SENSOR_NAME);
 
 // Repos watched by aibtc-maintenance — used for cross-sensor PR review dedup
-const WATCHED_REPOS = [
-  "aibtcdev/landing-page",
-  "aibtcdev/skills",
-  "aibtcdev/x402-api",
-  "aibtcdev/aibtc-mcp-server",
-  "aibtcdev/agent-news",
-];
+const WATCHED_REPOS = AIBTC_WATCHED_REPOS;
 
 interface Notification {
   id: string;
@@ -150,6 +145,7 @@ export default async function githubMentionsSensor(): Promise<string> {
           : n.reason === "mention" || n.reason === "team_mention"
             ? 5
             : 5,
+      model: "sonnet",
     }, "any");
 
     markThreadRead(n.id);

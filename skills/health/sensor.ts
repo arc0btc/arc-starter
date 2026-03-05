@@ -5,7 +5,7 @@
 // Creates high-priority alert tasks when anomalies are found.
 
 import { join } from "node:path";
-import { claimSensorRun, pendingTaskExistsForSource, insertTask } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, pendingTaskExistsForSource, insertTask } from "../../src/sensors.ts";
 import { getRecentCycles, getPendingTasks } from "../../src/db.ts";
 import { isPidAlive } from "../../src/utils.ts";
 
@@ -13,7 +13,9 @@ const SENSOR_NAME = "health";
 const INTERVAL_MINUTES = 5;
 const TASK_SOURCE = "sensor:health";
 const STALE_LOCK_SOURCE = "sensor:health:stale-lock";
-const PRIORITY = 9;
+const PRIORITY = 2;
+
+const log = createSensorLogger(SENSOR_NAME);
 
 // Compute repo root: skills/health/sensor.ts → ../../
 const ROOT = new URL("../../", import.meta.url).pathname;
@@ -59,6 +61,7 @@ export default async function healthSensor(): Promise<string> {
         "The last dispatch cycle completed more than 30 minutes ago and there are pending tasks. " +
         "Check arc status, systemd timers, and dispatch logs.",
       priority: PRIORITY,
+      model: "haiku",
       source: TASK_SOURCE,
     });
   }
@@ -71,6 +74,7 @@ export default async function healthSensor(): Promise<string> {
         "A dispatch lock file exists at db/dispatch-lock.json but the recorded PID is no longer alive. " +
         "Run: rm db/dispatch-lock.json && arc run",
       priority: PRIORITY,
+      model: "haiku",
       source: STALE_LOCK_SOURCE,
     });
   }

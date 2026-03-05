@@ -351,6 +351,7 @@ export default async function workflowReviewSensor(): Promise<string> {
     skills: '["workflows", "manage-skills"]',
     source: TASK_SOURCE,
     priority: 5,
+    model: "sonnet",
   });
 
   // Record proposed keys to avoid re-proposing

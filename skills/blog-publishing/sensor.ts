@@ -3,8 +3,8 @@
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
-import * as path from "path";
-import * as fs from "fs";
+import { join } from "node:path";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 
 const SENSOR_NAME = "blog-publishing";
 const INTERVAL_MINUTES = 60;
@@ -14,7 +14,7 @@ const CADENCE_DAYS_THRESHOLD = 7; // days between blog posts
 const log = createSensorLogger(SENSOR_NAME);
 
 function getPostsDir(): string {
-  return path.join(process.cwd(), "github/arc0btc/arc0me-site/content");
+  return join(process.cwd(), "github/arc0btc/arc0me-site/content");
 }
 
 function getCurrentIso8601(): string {
@@ -57,26 +57,26 @@ function parseFrontmatter(content: string): Frontmatter {
 // Find the most recent published blog post's creation date
 function getMostRecentPostDate(): Date | null {
   const postsDir = getPostsDir();
-  if (!fs.existsSync(postsDir)) return null;
+  if (!existsSync(postsDir)) return null;
 
   let mostRecentDate: Date | null = null;
 
   try {
-    const years = fs.readdirSync(postsDir, { withFileTypes: true }).filter((d) => d.isDirectory());
+    const years = readdirSync(postsDir, { withFileTypes: true }).filter((d) => d.isDirectory());
 
     for (const yearDir of years) {
-      const yearPath = path.join(postsDir, yearDir.name);
-      const dateDirs = fs.readdirSync(yearPath, { withFileTypes: true }).filter((d) => d.isDirectory());
+      const yearPath = join(postsDir, yearDir.name);
+      const dateDirs = readdirSync(yearPath, { withFileTypes: true }).filter((d) => d.isDirectory());
 
       for (const dateDir of dateDirs) {
-        const datePath = path.join(yearPath, dateDir.name);
-        const slugDirs = fs.readdirSync(datePath, { withFileTypes: true }).filter((d) => d.isDirectory());
+        const datePath = join(yearPath, dateDir.name);
+        const slugDirs = readdirSync(datePath, { withFileTypes: true }).filter((d) => d.isDirectory());
 
         for (const slugDir of slugDirs) {
-          const indexPath = path.join(datePath, slugDir.name, "index.md");
-          if (!fs.existsSync(indexPath)) continue;
+          const indexPath = join(datePath, slugDir.name, "index.md");
+          if (!existsSync(indexPath)) continue;
 
-          const content = fs.readFileSync(indexPath, "utf-8");
+          const content = readFileSync(indexPath, "utf-8");
           const fm = parseFrontmatter(content);
 
           // Check if published (either has published_at or draft=false)
@@ -106,7 +106,7 @@ export default async function blogPublishingSensor(): Promise<string> {
     const postsDir = getPostsDir();
 
     // Check if posts directory exists
-    if (!fs.existsSync(postsDir)) {
+    if (!existsSync(postsDir)) {
       log("posts directory not found, skipping");
       return "skip";
     }
@@ -129,21 +129,21 @@ export default async function blogPublishingSensor(): Promise<string> {
     }
 
     try {
-      const years = fs.readdirSync(postsDir, { withFileTypes: true }).filter((d) => d.isDirectory());
+      const years = readdirSync(postsDir, { withFileTypes: true }).filter((d) => d.isDirectory());
 
       for (const yearDir of years) {
-        const yearPath = path.join(postsDir, yearDir.name);
-        const dateDirs = fs.readdirSync(yearPath, { withFileTypes: true }).filter((d) => d.isDirectory());
+        const yearPath = join(postsDir, yearDir.name);
+        const dateDirs = readdirSync(yearPath, { withFileTypes: true }).filter((d) => d.isDirectory());
 
         for (const dateDir of dateDirs) {
-          const datePath = path.join(yearPath, dateDir.name);
-          const slugDirs = fs.readdirSync(datePath, { withFileTypes: true }).filter((d) => d.isDirectory());
+          const datePath = join(yearPath, dateDir.name);
+          const slugDirs = readdirSync(datePath, { withFileTypes: true }).filter((d) => d.isDirectory());
 
           for (const slugDir of slugDirs) {
-            const indexPath = path.join(datePath, slugDir.name, "index.md");
-            if (!fs.existsSync(indexPath)) continue;
+            const indexPath = join(datePath, slugDir.name, "index.md");
+            if (!existsSync(indexPath)) continue;
 
-            const content = fs.readFileSync(indexPath, "utf-8");
+            const content = readFileSync(indexPath, "utf-8");
             const fm = parseFrontmatter(content);
             const postId = `${dateDir.name}-${slugDir.name}`;
 
@@ -181,7 +181,8 @@ export default async function blogPublishingSensor(): Promise<string> {
           subject: `Review draft: ${oldestDraft.postId}`,
           description: `Oldest unpublished draft post. Review and publish if ready.`,
           source,
-          priority: 6,
+          priority: 5,
+          model: "sonnet",
           skills: JSON.stringify(["blog-publishing"]),
         });
         log(`queued draft review: ${oldestDraft.postId}`);
@@ -197,7 +198,8 @@ export default async function blogPublishingSensor(): Promise<string> {
           subject: `Publish scheduled post: ${scheduledReady.postId}`,
           description: `Scheduled post is ready (was scheduled for ${scheduledReady.scheduledFor}).`,
           source,
-          priority: 5,
+          priority: 6,
+          model: "haiku",
           skills: JSON.stringify(["blog-publishing"]),
         });
         log(`queued scheduled post publish: ${scheduledReady.postId}`);
@@ -214,6 +216,7 @@ export default async function blogPublishingSensor(): Promise<string> {
           description: "Weekly blog cadence: create draft post from recent watch reports and work summary.",
           source,
           priority: 6,
+          model: "sonnet",
           skills: JSON.stringify(["blog-publishing"]),
         });
         log("queued content generation task");

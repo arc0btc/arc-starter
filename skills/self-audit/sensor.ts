@@ -401,6 +401,7 @@ export default async function selfAuditSensor(): Promise<string> {
     skills: '["self-audit", "manage-skills"]',
     source: TASK_SOURCE,
     priority: 7,
+    model: "sonnet",
   });
 
   log(`audit task created: ${subject}`);

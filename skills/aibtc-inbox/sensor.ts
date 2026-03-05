@@ -158,7 +158,8 @@ export default async function aibtcInboxSensor(): Promise<string> {
       continue;
     }
 
-    const senderName = peerMessages[0].peer_display_name ?? peerMessages[0].from_address;
+    const rawSenderName = peerMessages[0].peer_display_name ?? peerMessages[0].from_address;
+    const senderName = rawSenderName.replace(/[\x00-\x1f\x7f]/g, "").slice(0, 80);
 
     // Build conversation context from recent sent messages to this peer
     const recentSent = getRecentAibtcMessagesByPeer(peer, 5);
@@ -213,6 +214,7 @@ export default async function aibtcInboxSensor(): Promise<string> {
       description,
       skills: isCoSign ? '["wallet", "quorumclaw"]' : '["wallet"]',
       priority: isCoSign ? 4 : 5,
+      model: isCoSign ? "opus" : "sonnet",
       source,
     });
     log(`created task ${taskId} for thread from ${senderName} (${peerMessages.length} messages)`);

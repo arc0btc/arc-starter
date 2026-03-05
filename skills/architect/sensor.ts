@@ -135,6 +135,7 @@ export default async function architectSensor(): Promise<string> {
     skills: '["architect", "manage-skills"]',
     source: TASK_SOURCE,
     priority: 7,
+    model: "sonnet",
   });
 
   // Record current SHA as reviewed (for next cycle's dedup)

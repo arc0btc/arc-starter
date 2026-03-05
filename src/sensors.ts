@@ -29,7 +29,6 @@ export interface HookState {
   last_ran: string;
   last_result: "ok" | "error" | "skip";
   version: number;
-  consecutive_failures: number;
   [key: string]: unknown;
 }
 
@@ -120,7 +119,6 @@ export async function claimSensorRun(name: string, intervalMinutes: number): Pro
     last_ran: new Date().toISOString(),
     last_result: "ok",
     version: state ? state.version + 1 : 1,
-    consecutive_failures: 0,
   });
 
   return true;

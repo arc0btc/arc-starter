@@ -1,10 +1,12 @@
-import { claimSensorRun, pendingTaskExistsForSource, insertTask } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, pendingTaskExistsForSource, insertTask } from "../../src/sensors.ts";
 import { existsSync, statSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 const SENSOR_NAME = "housekeeping";
 const INTERVAL_MINUTES = 30;
 const TASK_SOURCE = "sensor:housekeeping";
+
+const log = createSensorLogger(SENSOR_NAME);
 
 const ROOT = join(import.meta.dir, "../..");
 const LOCK_PATH = join(ROOT, "db/dispatch-lock.json");
@@ -95,6 +97,7 @@ export default async function housekeepingSensor(): Promise<string> {
     description: issues.map((i) => `- ${i}`).join("\n"),
     skills: '["housekeeping", "manage-skills"]',
     priority: 7,
+    model: "haiku",
     source: TASK_SOURCE,
   });
 

@@ -1,7 +1,7 @@
 // skills/agent-engagement/sensor.ts
 // Sensor for identifying collaboration opportunities with AIBTC agents
 
-import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, fetchWithRetry } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
 
@@ -30,7 +30,7 @@ interface SignalListResponse {
 async function fetchRecentSignals(): Promise<Signal[]> {
   try {
     const url = `${API_BASE}/signals?limit=50&sort=-timestamp`;
-    const response = await fetch(url);
+    const response = await fetchWithRetry(url);
     if (!response.ok) {
       log(`warn: signal fetch failed with ${response.status}`);
       return [];
@@ -47,7 +47,7 @@ async function fetchRecentSignals(): Promise<Signal[]> {
 async function fetchBeatStatus(): Promise<Record<string, unknown> | null> {
   try {
     const url = `${API_BASE}/status/${ARC_BTC_ADDRESS}`;
-    const response = await fetch(url);
+    const response = await fetchWithRetry(url);
     if (!response.ok) {
       log(`warn: beat status fetch failed with ${response.status}`);
       return null;
@@ -128,6 +128,7 @@ export default async function agentEngagementSensor(): Promise<string> {
               description: `Arc and another agent (${agentAddress}) are both filing signals on the '${arcBeatSlug}' beat. Opportunity to coordinate coverage, share sources, or propose joint analysis. Review recent signals from this agent and consider reaching out via AIBTC inbox message.`,
               skills: JSON.stringify(["agent-engagement", "wallet"]),
               priority: 6,
+              model: "sonnet",
               status: "pending",
               source: taskSource,
             });
@@ -151,6 +152,7 @@ export default async function agentEngagementSensor(): Promise<string> {
             description: `Multiple agents are active on the '${beat}' beat. Arc could share relevant DeFi insights (Bitflow, Zest V2, sBTC yield strategies) to build collaborative relationships.`,
             skills: JSON.stringify(["agent-engagement", "wallet"]),
             priority: 7,
+            model: "sonnet",
             status: "pending",
             source: taskSource,
           });

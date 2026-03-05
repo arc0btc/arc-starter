@@ -35,7 +35,11 @@ async function runUpstreamScript(
     stdin: "ignore",
     stdout: "pipe",
     stderr: "pipe",
-    env: { ...process.env, NETWORK: "mainnet" }, // Stackspot is mainnet-only
+    env: {
+      HOME: process.env.HOME,
+      PATH: process.env.PATH,
+      NETWORK: "mainnet",
+    },
   });
 
   const [stdout, stderr] = await Promise.all([
@@ -79,6 +83,7 @@ async function autoJoinPot(potName: string, contractId: string): Promise<boolean
         description: `Arc detected joinable pot '${potName}' (${contractId}). Auto-joining with 20 STX. Command: bun run github/aibtcdev/skills/stackspot/stackspot.ts join-pot --contract-name ${potName} --amount ${JOIN_AMOUNT_USTX}`,
         skills: JSON.stringify(["stackspot", "wallet"]),
         priority: 8,
+        model: "haiku",
         status: "pending",
         source: joinTaskSource,
       });

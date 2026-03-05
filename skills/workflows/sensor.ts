@@ -15,7 +15,7 @@ import {
 } from "./state-machine.ts";
 import { getCredential } from "../../src/credentials.ts";
 
-const SENSOR_NAME = "workflows-meta";
+const SENSOR_NAME = "workflows";
 const INTERVAL_MINUTES = 5;
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -276,6 +276,7 @@ export default async function workflowsSensor(): Promise<string> {
             subject: action.subject,
             description: action.description,
             priority: action.priority || 5,
+            model: "sonnet",
             skills: action.skills ? action.skills.join(",") : null,
             source,
           });

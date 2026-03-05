@@ -109,6 +109,7 @@ export default async function workerLogsSensor(): Promise<string> {
     skills: '["worker-logs"]',
     source: TASK_SOURCE,
     priority: 7,
+    model: "haiku",
   });
 
   return "ok";

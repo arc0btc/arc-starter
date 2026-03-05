@@ -165,6 +165,7 @@ export default async function securityAlertsSensor(): Promise<string> {
           "4. If no patch exists, evaluate workarounds or risk acceptance",
         ].join("\n"),
         priority: group.highestPriority,
+        model: "sonnet",
         source,
       });
 

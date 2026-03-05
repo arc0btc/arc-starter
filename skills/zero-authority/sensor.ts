@@ -221,6 +221,7 @@ async function pollDao(dao: TrackedDao, defaults: DaoFunctions): Promise<number>
       description,
       skills: '["zero-authority", "wallet"]',
       priority: 3,
+      model: "opus",
       source,
     });
 

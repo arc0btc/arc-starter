@@ -129,7 +129,8 @@ export default async function aibtcHeartbeatSensor(): Promise<string> {
           "Process messages and reply if needed.",
         ].join("\n"),
         skills: '["wallet"]',
-        priority: 5,
+        priority: 1,
+        model: "haiku",
         source: inboxSource,
       });
       log(`created task ${taskId} for ${unreadCount} unread inbox message(s)`);

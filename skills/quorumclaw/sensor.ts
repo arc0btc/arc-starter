@@ -156,6 +156,7 @@ async function pollInvite(
         ].join("\n"),
         skills: '["quorumclaw", "wallet"]',
         priority: 3,
+        model: "opus",
         source: msSource,
       });
       log(`created sign task for multisig ${record.multisigId}`);
@@ -238,6 +239,7 @@ async function pollMultisig(multisig: TrackedMultisig): Promise<void> {
           .join("\n"),
         skills: '["quorumclaw", "wallet"]',
         priority: 3,
+        model: "opus",
         source,
       });
       log(`  created sign task for proposal ${proposal.id}`);

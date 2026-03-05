@@ -112,6 +112,7 @@ export default async function releaseWatcherSensor(): Promise<string> {
         "3. Create follow-up tasks if action is needed (dependency updates, breaking changes, etc.)",
       ].join("\n"),
       priority: 8,
+      model: "haiku",
       source,
     });
 

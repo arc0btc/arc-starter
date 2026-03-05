@@ -116,6 +116,7 @@ MongoDB ID: ${market._id}
 File signal to Ordinals Business beat via aibtc-news skill. Headline: "${headline}"`,
         skills: JSON.stringify(["stacks-market", "aibtc-news"]),
         priority: 6,
+        model: "haiku",
         status: "pending",
         source: signalSource,
       });

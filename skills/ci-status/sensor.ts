@@ -113,6 +113,7 @@ export default async function ciStatusSensor(): Promise<string> {
         ].join("\n"),
         skills: '["ci-status"]',
         priority: 3,
+        model: "sonnet",
         source: source,
       });
 

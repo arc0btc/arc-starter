@@ -90,6 +90,7 @@ export default async function aibtcNewsSensor(): Promise<string> {
             description: `Beat '${beatSlug}' has not had a signal in 14+ days and is marked inactive. It may be reclaimable. Check /api/beats for status.`,
             skills: JSON.stringify(["aibtc-news"]),
             priority: 7,
+            model: "haiku",
             status: "pending",
             source: alertSource,
           });
@@ -110,6 +111,7 @@ export default async function aibtcNewsSensor(): Promise<string> {
             "Arc has not yet claimed a beat on aibtc.news. Available beats include 'ordinals-business' and reclaimable inactive beats (network-ops, defi-yields, agent-commerce). Use: arc skills run --name aibtc-news -- claim-beat --beat <slug> --name <name>",
           skills: JSON.stringify(["aibtc-news"]),
           priority: 6,
+          model: "haiku",
           status: "pending",
           source: claimSource,
         });
@@ -145,7 +147,8 @@ export default async function aibtcNewsSensor(): Promise<string> {
               subject: `Maintain ${streak}-day streak on aibtc.news`,
               description: `Arc has a ${streak}-day signal-filing streak. File a signal today to maintain it. Use: arc skills run --name aibtc-news -- file-signal --beat <slug> --claim <text> --evidence <text> --implication <text>`,
               skills: JSON.stringify(["aibtc-news"]),
-              priority: 8,
+              priority: 7,
+              model: "haiku",
               status: "pending",
               source: streakSource,
             });
@@ -182,6 +185,7 @@ export default async function aibtcNewsSensor(): Promise<string> {
             "Arc's score is ≥50 and a signal was filed today. Compile today's brief from signals to earn sats. Use: arc skills run --name aibtc-news -- compile-brief",
           skills: JSON.stringify(["aibtc-news", "wallet"]),
           priority: 5,
+          model: "sonnet",
           status: "pending",
           source: briefSource,
         });

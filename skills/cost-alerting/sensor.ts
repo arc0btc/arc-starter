@@ -4,12 +4,14 @@
 // Creates a priority-3 alert task when daily total exceeds the threshold.
 // One alert per day max (date-stamped source key).
 
-import { claimSensorRun, pendingTaskExistsForSource, insertTask } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, pendingTaskExistsForSource, insertTask } from "../../src/sensors.ts";
 import { getDatabase } from "../../src/db.ts";
 
 const SENSOR_NAME = "cost-alerting";
 const INTERVAL_MINUTES = 10;
 const DAILY_THRESHOLD_USD = 100.0;
+
+const log = createSensorLogger(SENSOR_NAME);
 
 function todayDateString(): string {
   return new Date().toISOString().slice(0, 10);
@@ -44,6 +46,7 @@ export default async function costAlertingSensor(): Promise<string> {
       `Threshold: $${DAILY_THRESHOLD_USD.toFixed(2)}/day. ` +
       `Review active tasks and consider deferring low-priority work. Run \`arc status\` for details.`,
     priority: 3,
+    model: "sonnet",
     source: source,
   });
 

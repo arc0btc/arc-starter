@@ -130,6 +130,7 @@ export default async function failureTriageSensor(): Promise<string> {
       ].join("\n"),
       skills: '["failure-triage", "manage-skills"]',
       priority: 3,
+      model: "sonnet",
       source,
     });
 

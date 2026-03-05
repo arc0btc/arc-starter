@@ -113,7 +113,8 @@ export default async function emailSensor(): Promise<string> {
       continue;
     }
 
-    const senderDisplay = senderMessages[0].from_name ?? senderAddr;
+    const rawSenderDisplay = senderMessages[0].from_name ?? senderAddr;
+    const senderDisplay = rawSenderDisplay.replace(/[\x00-\x1f\x7f]/g, "").slice(0, 80);
 
     // Build message list (oldest first, already sorted by getUnreadEmailMessages)
     const messageLines: string[] = [];
@@ -165,11 +166,14 @@ export default async function emailSensor(): Promise<string> {
       senderAddr === "whoabuddy@gmail.com" ? 1 :
       senderAddr === "spark@arc0me.typeform.com" ? 3 : 5;
 
+    const model = senderAddr === "whoabuddy@gmail.com" ? "sonnet" : "haiku";
+
     const taskId = insertTask({
       subject: `Email thread from ${senderDisplay} (${senderMessages.length} messages)`,
       description,
       skills: '["email"]',
       priority,
+      model,
       source,
     });
     log(`created task ${taskId} for thread from ${senderDisplay} (${senderMessages.length} messages)`);
