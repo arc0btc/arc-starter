@@ -8,7 +8,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 
 const SENSOR_NAME = "blog-publishing";
 const INTERVAL_MINUTES = 60;
-const CADENCE_DAYS_THRESHOLD = 7; // days between blog posts
+const CADENCE_DAYS_THRESHOLD = 1; // days between blog posts
 
 const log = createSensorLogger(SENSOR_NAME);
 

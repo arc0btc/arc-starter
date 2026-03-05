@@ -97,7 +97,7 @@ Load when: writing a new blog post, publishing a draft, reviewing the content sc
 ## Sensor Behavior
 
 - Cadence: 60 minutes
-- **Content Generation**: Detects weekly cadence (7+ days since last post) and queues content-generation task (priority 6)
+- **Content Generation**: Detects daily cadence (1+ days since last post) and queues content-generation task (priority 6)
   - If no posts exist, immediately queues first content generation
   - Monitors `reports/` directory for watch reports as source material
 - **Draft Management**: Scans for unpublished drafts and queues review task for oldest draft (priority 6)
