@@ -19,9 +19,11 @@
     .sensor-card {
       padding: var(--space-md) var(--space-lg);
       transition: border-color 0.2s, background 0.2s;
+      cursor: pointer;
     }
     .sensor-card:hover {
       background: #111;
+      border-left-color: var(--accent);
     }
 
     .sensor-card-top {
@@ -78,27 +80,12 @@
 
     .sensor-failures { color: var(--error); font-weight: 600; }
 
-    .sensor-card-action {
-      margin-top: var(--space-sm);
-      padding-top: var(--space-sm);
-      border-top: 1px solid var(--border);
-    }
-
-    .sensor-msg-btn {
-      background: none;
-      border: 1px solid var(--border);
+    .sensor-grid-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: var(--space-lg);
       color: var(--text-muted);
-      font-family: var(--font);
-      font-size: 0.7rem;
-      padding: 2px 8px;
-      border-radius: 3px;
-      cursor: pointer;
-      transition: color 0.15s, border-color 0.15s;
-      width: 100%;
-    }
-    .sensor-msg-btn:hover {
-      color: var(--accent);
-      border-color: var(--accent);
+      font-size: 0.85rem;
     }
   </style>
 </head>
@@ -225,8 +212,23 @@
       var count = document.getElementById('sensor-count');
       count.textContent = filtered.length + ' of ' + sensors.length + ' sensors';
 
+      // Update filter tab counts
+      var counts = { all: sensors.length, ok: 0, stale: 0, error: 0 };
+      sensors.forEach(function(s) { counts[getSensorStatus(s)]++; });
+      var tabs = document.querySelectorAll('#sensor-filter-tabs .filter-tab');
+      tabs.forEach(function(tab) {
+        var f = tab.getAttribute('data-filter');
+        var c = counts[f] != null ? counts[f] : 0;
+        var label = tab.textContent.replace(/\s*\(\d+\)/, '');
+        tab.textContent = label + ' (' + c + ')';
+      });
+
       if (filtered.length === 0) {
-        grid.innerHTML = '<p class="placeholder">No sensors found</p>';
+        var emptyMsg = 'No sensors found';
+        if (sensorFilter === 'error') emptyMsg = 'No sensors with errors';
+        else if (sensorFilter === 'stale') emptyMsg = 'No stale sensors';
+        else if (sensorFilter === 'ok') emptyMsg = 'No active sensors';
+        grid.innerHTML = '<div class="sensor-grid-empty">' + emptyMsg + '</div>';
         return;
       }
 
@@ -261,9 +263,9 @@
         }
 
         var sensorName = esc(s.name);
-        var msgPrefix = 're: sensor:' + escAttr(s.name) + ' \u2014 ';
+        var msgPrefix = 're: sensor:' + escAttr(s.name) + ' \\u2014 ';
 
-        return '<div class="sensor-card ' + statusCls + '" data-sensor="' + escAttr(s.name) + '">'
+        return '<div class="sensor-card ' + statusCls + '" data-sensor="' + escAttr(s.name) + '" onclick="prefillMessage(\'' + msgPrefix + '\')" tabindex="0" role="button">'
           + '<div class="sensor-card-top">'
           + '<span class="status-dot ' + dotCls + '" style="' + dotStyle + '" aria-label="Sensor status: ' + dotLabel + '"></span>'
           + '<span class="sensor-card-name">' + sensorName + '</span>'
@@ -276,9 +278,6 @@
           + '<div><span class="sensor-meta-label">Result</span><br><span class="sensor-meta-value ' + resultCls + '">' + esc(resultText) + '</span></div>'
           + '<div><span class="sensor-meta-label">Interval</span><br><span class="sensor-meta-value">' + (s.interval_minutes ? s.interval_minutes + ' min' : '--') + '</span></div>'
           + '<div><span class="sensor-meta-label">Failures</span><br>' + failuresHtml + '</div>'
-          + '</div>'
-          + '<div class="sensor-card-action">'
-          + '<button class="sensor-msg-btn" onclick="prefillMessage(\'' + msgPrefix + '\')">Message about this sensor</button>'
           + '</div>'
           + '</div>';
       }).join('');
@@ -353,6 +352,14 @@
         renderSensors(allSensors);
       }, 300);
       searchInput.addEventListener('input', debouncedSearch);
+
+      // Keyboard nav for sensor cards
+      document.getElementById('sensor-grid').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          var card = e.target.closest('.sensor-card');
+          if (card) { e.preventDefault(); card.click(); }
+        }
+      });
 
       initMessageBox();
       connectSSE();

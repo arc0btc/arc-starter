@@ -161,11 +161,14 @@ function handleSensors(): Response {
   const skills = discoverSkills();
   const skillMap = new Map(skills.filter(s => s.hasSensor).map(s => [s.name, s]));
 
-  // Read hook-state JSON files
+  // Read hook-state JSON files (skip orphaned entries with no matching skill)
   if (existsSync(HOOK_STATE_DIR)) {
     const files = readdirSync(HOOK_STATE_DIR).filter(f => f.endsWith(".json"));
     for (const file of files) {
       const name = file.replace(".json", "");
+      const skill = skillMap.get(name);
+      if (!skill) continue; // skip stale hook-state from renamed/removed sensors
+
       try {
         const content = readFileSync(join(HOOK_STATE_DIR, file), "utf-8");
         const state = JSON.parse(content) as {
@@ -174,22 +177,19 @@ function handleSensors(): Response {
           version: number;
           consecutive_failures: number;
         };
-        const skill = skillMap.get(name);
 
         // Try to parse interval from sensor.ts (INTERVAL_MINUTES constant)
         let interval: number | null = null;
-        if (skill) {
-          const sensorPath = join(skill.path, "sensor.ts");
-          if (existsSync(sensorPath)) {
-            const sensorContent = readFileSync(sensorPath, "utf-8");
-            const match = sensorContent.match(/INTERVAL_MINUTES\s*=\s*(\d+)/);
-            if (match) interval = parseInt(match[1], 10);
-          }
+        const sensorPath = join(skill.path, "sensor.ts");
+        if (existsSync(sensorPath)) {
+          const sensorContent = readFileSync(sensorPath, "utf-8");
+          const match = sensorContent.match(/INTERVAL_MINUTES\s*=\s*(\d+)/);
+          if (match) interval = parseInt(match[1], 10);
         }
 
         sensors.push({
           name,
-          description: skill?.description ?? "",
+          description: skill.description,
           interval_minutes: interval,
           last_ran: state.last_ran,
           last_result: state.last_result,
@@ -199,7 +199,7 @@ function handleSensors(): Response {
       } catch {
         sensors.push({
           name,
-          description: skillMap.get(name)?.description ?? "",
+          description: skill.description,
           interval_minutes: null,
           last_ran: null,
           last_result: "error",
@@ -207,6 +207,28 @@ function handleSensors(): Response {
           consecutive_failures: null,
         });
       }
+    }
+  }
+
+  // Also include sensors with a skill but no hook-state yet (never ran)
+  for (const [name, skill] of skillMap) {
+    if (!sensors.some(s => s.name === name)) {
+      let interval: number | null = null;
+      const sensorPath = join(skill.path, "sensor.ts");
+      if (existsSync(sensorPath)) {
+        const sensorContent = readFileSync(sensorPath, "utf-8");
+        const match = sensorContent.match(/INTERVAL_MINUTES\s*=\s*(\d+)/);
+        if (match) interval = parseInt(match[1], 10);
+      }
+      sensors.push({
+        name,
+        description: skill.description,
+        interval_minutes: interval,
+        last_ran: null,
+        last_result: null,
+        version: null,
+        consecutive_failures: null,
+      });
     }
   }
 
