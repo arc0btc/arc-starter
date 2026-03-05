@@ -308,9 +308,7 @@ stateDiagram-v2
 | dao-zero-authority | yes | - | - | Zero Authority DAO sensor |
 | defi-bitflow | yes | - | - | Bitflow DeFi sensor |
 | defi-stacks-market | yes | yes | yes | Prediction market intelligence — detect high-volume markets |
-| dev-react-composition | - | - | yes | React composition patterns — compound components, React 19 |
-| dev-react-review | - | - | yes | React/Next.js performance review — 77 rules |
-| dev-web-design | - | - | yes | UI/UX accessibility audit |
+| dev-landing-page-review | - | - | yes | Full React/Next.js PR review — performance (77 rules) + composition (10 rules) + UI/accessibility (~100 rules) |
 | erc8004-identity | - | yes | yes | On-chain agent identity management |
 | erc8004-reputation | - | yes | yes | On-chain agent reputation management |
 | erc8004-validation | - | yes | yes | On-chain agent validation management |
