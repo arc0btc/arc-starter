@@ -1,12 +1,8 @@
 #!/usr/bin/env bun
 
-const WATCHED_REPOS = [
-  "aibtcdev/landing-page",
-  "aibtcdev/skills",
-  "aibtcdev/x402-api",
-  "aibtcdev/aibtc-mcp-server",
-  "aibtcdev/agent-news",
-];
+import { AIBTC_WATCHED_REPOS } from "../../src/constants.ts";
+
+const WATCHED_REPOS = AIBTC_WATCHED_REPOS;
 
 const GITHUB_USER = "arc0btc";
 
@@ -33,7 +29,7 @@ function gh(args: string[]): { ok: boolean; stdout: string; stderr: string } {
 }
 
 function validateRepo(repo: string): void {
-  if (!WATCHED_REPOS.includes(repo)) {
+  if (!(WATCHED_REPOS as readonly string[]).includes(repo)) {
     process.stderr.write(
       `Error: repo '${repo}' not in watched list.\nWatched: ${WATCHED_REPOS.join(", ")}\n`
     );
@@ -207,60 +203,53 @@ function cmdTestIntegration(): void {
 }
 
 function cmdStatus(): void {
-  const repos: Array<{
-    repo: string;
-    openPrs: number;
-    unreviewedPrs: number;
-    openIssues: number;
-  }> = [];
-
-  for (const repo of WATCHED_REPOS) {
-    const prResult = gh([
-      "pr", "list",
-      "--repo", repo,
-      "--state", "open",
-      "--json", "number,reviews",
-      "--limit", "25",
-    ]);
-
-    const issueResult = gh([
-      "issue", "list",
-      "--repo", repo,
-      "--state", "open",
-      "--json", "number",
-      "--limit", "100",
-    ]);
-
-    let openPrs = 0;
-    let unreviewedPrs = 0;
-    let openIssues = 0;
-
-    if (prResult.ok) {
-      try {
-        const prs = JSON.parse(prResult.stdout) as Array<{
-          number: number;
-          reviews: Array<{ author: { login: string } }>;
-        }>;
-        openPrs = prs.length;
-        unreviewedPrs = prs.filter(
-          (pr) => !pr.reviews.some((r) => r.author.login === GITHUB_USER)
-        ).length;
-      } catch {
-        // skip
+  // Single GraphQL query fetches open PRs + issues for all watched repos at once
+  // (replaces 2 REST calls per repo = 10 calls → 1 call)
+  const fragments = WATCHED_REPOS.map((repo, i) => {
+    const [owner, name] = repo.split("/");
+    return `repo${i}: repository(owner: "${owner}", name: "${name}") {
+      pullRequests(states: OPEN, first: 25, orderBy: {field: UPDATED_AT, direction: DESC}) {
+        totalCount
+        nodes {
+          reviews(first: 50) { nodes { author { login } } }
+        }
       }
-    }
-
-    if (issueResult.ok) {
-      try {
-        const issues = JSON.parse(issueResult.stdout) as Array<{ number: number }>;
-        openIssues = issues.length;
-      } catch {
-        // skip
+      issues(states: OPEN, first: 1) {
+        totalCount
       }
-    }
+    }`;
+  });
 
-    repos.push({ repo, openPrs, unreviewedPrs, openIssues });
+  const query = `query { ${fragments.join("\n")} }`;
+  const result = gh(["api", "graphql", "-f", `query=${query}`]);
+
+  if (!result.ok) {
+    process.stderr.write(`Error fetching status: ${result.stderr}\n`);
+    process.exit(1);
   }
+
+  type RepoData = {
+    pullRequests: {
+      totalCount: number;
+      nodes: Array<{ reviews: { nodes: Array<{ author: { login: string } }> } }>;
+    };
+    issues: { totalCount: number };
+  };
+
+  const data = (JSON.parse(result.stdout) as { data: Record<string, RepoData> }).data;
+
+  const repos = WATCHED_REPOS.map((repo, i) => {
+    const repoData = data[`repo${i}`];
+    if (!repoData) return { repo, openPrs: 0, unreviewedPrs: 0, openIssues: 0 };
+
+    const openPrs = repoData.pullRequests.totalCount;
+    const unreviewedPrs = repoData.pullRequests.nodes.filter(
+      (pr) => !pr.reviews.nodes.some((r) => r.author.login === GITHUB_USER)
+    ).length;
+    const openIssues = repoData.issues.totalCount;
+
+    return { repo, openPrs, unreviewedPrs, openIssues };
+  });
 
   console.log(JSON.stringify({ repos }, null, 2));
 }
