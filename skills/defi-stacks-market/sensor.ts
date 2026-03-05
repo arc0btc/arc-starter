@@ -82,28 +82,24 @@ async function fileSignalTask(market: Market): Promise<boolean> {
       // Convert micro-STX to STX (1 STX = 1,000,000 micro-STX)
       const volumeStx = market.totalVolume / 1_000_000;
 
-      const headline = `High-volume prediction market: ${market.title}`;
-      const body = [
-        `Stacks L2 prediction market on stacksmarket.app with ${volumeStx.toFixed(2)} STX total volume.`,
-        market.category ? `Category: ${market.category}` : undefined,
-        market.totalTrades ? `Total trades: ${market.totalTrades}` : undefined,
-        market.endDate ? `Resolves: ${market.endDate}` : undefined,
+      const headline = `High-volume Stacks prediction market: ${market.title}`;
+      const claim = `stacksmarket.app prediction market "${market.title}" reached ${volumeStx.toFixed(2)} STX total volume${market.totalTrades ? ` across ${market.totalTrades} trades` : ""}.`;
+      const evidence = [
+        `Stacks L2 prediction market data from stacksmarket.app.`,
+        market.category ? `Category: ${market.category}.` : undefined,
+        market.endDate ? `Resolves: ${market.endDate}.` : undefined,
+        `MongoDB ID: ${market._id}.`,
       ]
         .filter(Boolean)
-        .join("\n");
-
-      const tags = [
-        "prediction-market",
-        "stacks-l2",
-        market.category ? market.category.toLowerCase().replace(/\s+/g, "-") : "general",
-      ].filter(Boolean);
+        .join(" ");
+      const implication = `Active prediction market liquidity on Stacks L2 signals growing DeFi participation and real-time market signal infrastructure on Bitcoin L2.`;
 
       log(
         `queuing signal task for market: ${market.title} (${market._id}, ${volumeStx.toFixed(2)} STX)`
       );
 
       insertTask({
-        subject: `File Ordinals Business signal: ${market.title} — ${volumeStx.toFixed(2)} STX volume`,
+        subject: `File deal-flow signal: ${market.title} — ${volumeStx.toFixed(2)} STX volume`,
         description: `Arc detected high-volume prediction market on stacksmarket.app.
 
 Market: ${market.title}
@@ -113,7 +109,14 @@ ${market.category ? `Category: ${market.category}` : ""}
 ${market.endDate ? `Resolves: ${market.endDate}` : ""}
 MongoDB ID: ${market._id}
 
-File signal to Ordinals Business beat via aibtc-news skill. Headline: "${headline}"`,
+File this signal to the deal-flow beat (real-time market signals):
+
+arc skills run --name aibtc-news-editorial -- file-signal \\
+  --beat deal-flow \\
+  --headline "${headline}" \\
+  --claim "${claim}" \\
+  --evidence "${evidence}" \\
+  --implication "${implication}"`,
         skills: JSON.stringify(["defi-stacks-market", "aibtc-news-editorial"]),
         priority: 6,
         model: "haiku",
