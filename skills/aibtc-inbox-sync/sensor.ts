@@ -20,7 +20,7 @@ const INTERVAL_MINUTES = 5;
 const FETCH_TIMEOUT_MS = 15_000;
 
 // Keywords that indicate co-signer activity or multisig buyer inquiries.
-// When matched, the task gets the quorumclaw skill added and priority bumped to P4 (Opus).
+// When matched, the task gets the quorumclaw + taproot-multisig skills added and priority bumped to P4 (Opus).
 const CO_SIGN_KEYWORDS = [
   "cosign", "co-sign", "co-signer",
   "bitcoin-quorumclaw", "multisig", "multi-sig",
@@ -28,6 +28,14 @@ const CO_SIGN_KEYWORDS = [
   "sign proposal", "sign transaction",
   "buyer inquiry", "buy ordinal", "buy inscription",
 ];
+
+// Keywords that indicate x402 / agent payment protocol activity.
+const X402_KEYWORDS = ["x402", "agent payment", "402 payment"];
+
+function detectsX402Activity(messages: Array<{ content: string | null }>): boolean {
+  const combined = messages.map((m) => m.content ?? "").join(" ").toLowerCase();
+  return X402_KEYWORDS.some((k) => combined.includes(k));
+}
 
 function detectsCoSignActivity(messages: Array<{ content: string | null }>): boolean {
   const combined = messages.map((m) => m.content ?? "").join(" ").toLowerCase();
@@ -209,10 +217,18 @@ export default async function aibtcInboxSensor(): Promise<string> {
     ].join("\n");
 
     const isCoSign = detectsCoSignActivity(peerMessages);
+    const isX402 = detectsX402Activity(peerMessages);
+    const inboxSkills = ["bitcoin-wallet"];
+    if (isCoSign) {
+      inboxSkills.push("bitcoin-quorumclaw", "bitcoin-taproot-multisig");
+    }
+    if (isX402) {
+      inboxSkills.push("social-agent-engagement");
+    }
     const taskId = insertTask({
       subject: `AIBTC thread from ${senderName} (${peerMessages.length} messages)`,
       description,
-      skills: isCoSign ? '["bitcoin-wallet", "bitcoin-quorumclaw"]' : '["bitcoin-wallet"]',
+      skills: JSON.stringify(inboxSkills),
       priority: isCoSign ? 4 : 5,
       model: isCoSign ? "opus" : "sonnet",
       source,

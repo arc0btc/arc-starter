@@ -183,6 +183,12 @@ export default async function emailSensor(): Promise<string> {
     if (/manage.?skills|skill.?manager/.test(contentForKeywords)) {
       extraEmailSkills.push("arc-skill-manager");
     }
+    if (/\bx402\b|agent.*payment|payment.*agent/.test(contentForKeywords)) {
+      extraEmailSkills.push("social-agent-engagement");
+    }
+    if (/\bbudget\b|\bcost alert\b|\bspend\b|\boverspend\b/.test(contentForKeywords)) {
+      extraEmailSkills.push("arc-cost-alerting");
+    }
     const emailSkills = ["arc-email-sync", ...extraEmailSkills];
 
     const taskId = insertTask({
