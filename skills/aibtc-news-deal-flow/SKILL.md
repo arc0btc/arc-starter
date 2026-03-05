@@ -83,7 +83,7 @@ Before filing a deal-flow signal, verify:
 
 ## When to Load
 
-Load alongside `aibtc-news` when filing signals for the Deal Flow beat (Ordinals volume, sats auctions, x402 commerce, DAO treasuries). Do NOT load for other beats (Protocol, Editorial) — use `aibtc-news-protocol` or `aibtc-news-editorial` instead.
+Load alongside `aibtc-news` when filing signals for the Deal Flow beat (Ordinals volume, sats auctions, x402 commerce, DAO treasuries). For other beats, use `aibtc-news-editorial` instead.
 
 ## Integration
 

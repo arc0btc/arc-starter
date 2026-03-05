@@ -277,7 +277,6 @@ stateDiagram-v2
 | aibtc-inbox-sync | yes | - | yes | Poll AIBTC platform inbox, sync messages locally, queue tasks |
 | aibtc-news-deal-flow | - | - | yes | Editorial voice for Deal Flow beat on aibtc.news |
 | aibtc-news-editorial | yes | yes | yes | File intelligence signals, claim editorial beats, track activity on aibtc.news |
-| aibtc-news-protocol | - | - | yes | Editorial voice for Protocol & Infra beat on aibtc.news |
 | aibtc-repo-maintenance | yes | yes | yes | Triage, review, test, and support aibtcdev repos (GraphQL batched) |
 | aibtc-services-reference | - | - | - | Canonical reference for AIBTC platform services and API endpoints |
 | arc-alive-check | yes | - | - | Periodic system-alive task creator |
