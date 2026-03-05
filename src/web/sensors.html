@@ -263,9 +263,8 @@
         }
 
         var sensorName = esc(s.name);
-        var msgPrefix = 're: sensor:' + escAttr(s.name) + ' \\u2014 ';
 
-        return '<div class="sensor-card ' + statusCls + '" data-sensor="' + escAttr(s.name) + '" onclick="prefillMessage(\'' + msgPrefix + '\')" tabindex="0" role="button">'
+        return '<div class="sensor-card ' + statusCls + '" data-sensor="' + escAttr(s.name) + '" tabindex="0" role="button">'
           + '<div class="sensor-card-top">'
           + '<span class="status-dot ' + dotCls + '" style="' + dotStyle + '" aria-label="Sensor status: ' + dotLabel + '"></span>'
           + '<span class="sensor-card-name">' + sensorName + '</span>'
@@ -352,6 +351,14 @@
         renderSensors(allSensors);
       }, 300);
       searchInput.addEventListener('input', debouncedSearch);
+
+      // Sensor card click → prefill message (event delegation; avoids JS-in-attr injection)
+      document.getElementById('sensor-grid').addEventListener('click', function(e) {
+        var card = e.target.closest('.sensor-card');
+        if (!card) return;
+        var name = card.getAttribute('data-sensor') || '';
+        prefillMessage('re: sensor:' + name + ' \u2014 ');
+      });
 
       // Keyboard nav for sensor cards
       document.getElementById('sensor-grid').addEventListener('keydown', function(e) {

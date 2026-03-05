@@ -249,10 +249,8 @@
         if (s.has_agent) caps += '<span class="skill-badge">agent</span>';
 
         var usageText = s.usage_count === 1 ? '1 task' : (s.usage_count || 0) + ' tasks';
-        var skillName = escAttr(s.name);
-        var msgPrefix = 're: skill:' + skillName + ' \\u2014 ';
 
-        return '<div class="skill-card" onclick="prefillMessage(\'Run skill: ' + skillName + '\')" tabindex="0" role="button">'
+        return '<div class="skill-card" data-skill-name="' + escAttr(s.name) + '" tabindex="0" role="button">'
           + '<div class="skill-card-top">'
           + '<span class="skill-card-name">' + esc(s.name) + '</span>'
           + '</div>'
@@ -260,7 +258,7 @@
           + '<div class="skill-card-caps">' + caps + tags + '</div>'
           + '<div class="skill-card-meta">'
           + '<span class="skill-usage">' + usageText + '</span>'
-          + '<button class="skill-msg-btn" onclick="event.stopPropagation(); prefillMessage(\'' + msgPrefix + '\')">Message about skill</button>'
+          + '<button class="skill-msg-btn" data-skill-name="' + escAttr(s.name) + '">Message about skill</button>'
           + '</div>'
           + '</div>';
       }).join('');
@@ -312,6 +310,22 @@
           t.setAttribute('aria-pressed', t === btn ? 'true' : 'false');
         });
         renderSkills(filterSkills());
+      });
+
+      // Skill grid clicks → prefill message (event delegation; avoids JS-in-attr injection)
+      document.getElementById('skill-grid').addEventListener('click', function(e) {
+        var btn = e.target.closest('.skill-msg-btn');
+        if (btn) {
+          e.stopPropagation();
+          var name = btn.getAttribute('data-skill-name') || '';
+          prefillMessage('re: skill:' + name + ' \u2014 ');
+          return;
+        }
+        var card = e.target.closest('.skill-card');
+        if (card) {
+          var name = card.getAttribute('data-skill-name') || '';
+          prefillMessage('Run skill: ' + name);
+        }
       });
 
       // Keyboard nav for skill cards
