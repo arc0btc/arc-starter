@@ -18,7 +18,7 @@ Everything is a task. The `tasks` table is the universal queue. Sensors create t
 
 Task priority: 1 (highest) to 10 (lowest). Default is 5. Past-due scheduled tasks get a +2 priority boost. Dispatch always picks the lowest-numbered priority first among `status = 'pending'` tasks.
 
-The `skills` column is a JSON array of skill names the dispatched Claude instance should load before starting work. Example: `["manage-skills", "stacks-js"]`. This is how context is scoped per task.
+The `skills` column is a JSON array of skill names the dispatched Claude instance should load before starting work. Example: `["arc-skill-manager", "stacks-js"]`. This is how context is scoped per task.
 
 The `template` column links tasks to `templates/` for recurring or structured work patterns.
 
@@ -51,7 +51,7 @@ The `template` column links tasks to `templates/` for recurring or structured wo
 - **Dispatch resilience** — two safety layers protect the agent from self-inflicted damage:
   1. *Pre-commit syntax guard*: Bun's transpiler validates all staged `.ts` files before committing. Syntax errors block the commit and create a follow-up task.
   2. *Post-commit service health check*: After committing `src/` changes, snapshots service state and checks if any died. If so, reverts the commit, restarts services, and creates a follow-up task.
-- **Worktree isolation**: Tasks with `worktrees` skill run in an isolated git worktree. Changes are validated before merging back. If validation fails, the worktree is discarded — main tree stays clean.
+- **Worktree isolation**: Tasks with `arc-worktrees` skill run in an isolated git worktree. Changes are validated before merging back. If validation fails, the worktree is discarded — main tree stays clean.
 - Entry point: `src/dispatch.ts`
 
 ### Skills as Knowledge Containers
@@ -116,7 +116,7 @@ CREATE TABLE tasks (
   id INTEGER PRIMARY KEY,
   subject TEXT NOT NULL,
   description TEXT,
-  skills TEXT,              -- JSON array: ["manage-skills", "stacks-js"]
+  skills TEXT,              -- JSON array: ["arc-skill-manager", "stacks-js"]
   priority INTEGER DEFAULT 5,
   status TEXT DEFAULT 'pending',  -- pending|active|completed|failed|blocked
   source TEXT,              -- "human", "sensor:heartbeat", "task:42"
@@ -169,7 +169,7 @@ Both fields exist on both `tasks` and `cycle_log` tables. Use `arc status` to se
 
 Memory lives in `memory/MEMORY.md`, versioned by git. This is Arc's long-term memory — compressed learnings, patterns, and operational state that persists across dispatch cycles.
 
-The manage-skills skill handles memory consolidation: it compresses daily observations into MEMORY.md and commits the result.
+The arc-skill-manager skill handles memory consolidation: it compresses daily observations into MEMORY.md and commits the result.
 
 **Memory update protocol:**
 1. During dispatch, append new learnings to `memory/MEMORY.md`
