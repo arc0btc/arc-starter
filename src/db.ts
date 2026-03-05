@@ -753,33 +753,3 @@ export function getTotalProceedsUstx(): number {
   return row.total;
 }
 
-// ---- Main (smoke test when run directly) ----
-
-if (import.meta.main) {
-  console.log("Initializing database...");
-  const db = initDatabase();
-  console.log("Database initialized at db/arc.sqlite");
-
-  const taskId = insertTask({
-    subject: "smoke-test",
-    description: "Verify db init works",
-    source: "test",
-  });
-  console.log(`Inserted task id=${taskId}`);
-
-  const task = getTaskById(taskId);
-  if (!task) throw new Error("getTaskById returned null for newly inserted task");
-  console.log(`Task subject: ${task.subject}`);
-
-  const cycleId = insertCycleLog({
-    started_at: toSqliteDatetime(new Date()),
-    task_id: taskId,
-  });
-  console.log(`Inserted cycle_log id=${cycleId}`);
-
-  const cycles = getRecentCycles(1);
-  console.log(`Recent cycles: ${cycles.length}`);
-
-  console.log("Smoke test passed.");
-  db.close();
-}
