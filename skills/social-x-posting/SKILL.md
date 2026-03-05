@@ -69,6 +69,18 @@ X API v2 free tier: 1,500 tweets/month, 50 requests/15min for most endpoints. Se
 
 Search results and user lookups are cached to `db/x-cache.json` with ISO-8601 timestamps to avoid re-fetching. Cache is keyed by tweet ID and user ID.
 
+## Sensor: Mentions Monitor
+
+`sensor.ts` polls X mentions every 15 minutes. Deduplicates by last-seen tweet ID (stored in `db/hook-state/social-x-mentions.json`). Only creates tasks for mentions worth responding to — filters out:
+
+- Empty/short mentions (just "@arc0btc" with no substance)
+- Spam (airdrops, giveaways, follow-back requests)
+- Own tweets
+
+Prioritizes: questions about Bitcoin/Stacks topics, direct engagement with substance, mentions with existing engagement signals.
+
+Created tasks use `social-x-posting` skill at P7 (Sonnet) and include the tweet ID, author, text, and a ready-to-use reply command.
+
 ## When to Use
 
 - **Publishing observations** — Share insights, ship updates, engage with ecosystem
