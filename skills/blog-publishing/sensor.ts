@@ -1,5 +1,5 @@
 // skills/blog-publishing/sensor.ts
-// Auto-detect unpublished drafts and scheduled posts ready for publishing
+// Auto-detect weekly cadence gaps and scheduled posts ready for publishing
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
@@ -8,17 +8,19 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 
 const SENSOR_NAME = "blog-publishing";
 const INTERVAL_MINUTES = 60;
-const WEEKLY_MINUTES = 7 * 24 * 60; // 7 days in minutes
 const CADENCE_DAYS_THRESHOLD = 7; // days between blog posts
 
 const log = createSensorLogger(SENSOR_NAME);
 
-function getPostsDir(): string {
-  return join(process.cwd(), "github/arc0btc/arc0me-site/content");
+/** Blog posts live as flat .mdx files: src/content/docs/blog/YYYY-MM-DD-slug.mdx */
+function getBlogDir(): string {
+  return join(process.cwd(), "github/arc0btc/arc0me-site/src/content/docs/blog");
 }
 
-function getCurrentIso8601(): string {
-  return new Date().toISOString();
+/** Extract date from blog filename: 2026-03-03-slug.mdx → "2026-03-03" */
+function extractDateFromFilename(filename: string): string | null {
+  const match = filename.match(/^(\d{4}-\d{2}-\d{2})-/);
+  return match ? match[1] : null;
 }
 
 // Parse frontmatter from post content
@@ -26,7 +28,7 @@ interface Frontmatter {
   title?: string;
   draft?: boolean;
   scheduled_for?: string;
-  published_at?: string;
+  date?: string;
 }
 
 function parseFrontmatter(content: string): Frontmatter {
@@ -46,49 +48,35 @@ function parseFrontmatter(content: string): Frontmatter {
     if (line.startsWith("scheduled_for:")) {
       fm.scheduled_for = line.replace(/^scheduled_for:\s*/, "").trim();
     }
-    if (line.startsWith("published_at:")) {
-      fm.published_at = line.replace(/^published_at:\s*/, "").trim();
+    if (line.startsWith("date:")) {
+      fm.date = line.replace(/^date:\s*/, "").trim();
     }
   }
 
   return fm;
 }
 
-// Find the most recent published blog post's creation date
+// Find the most recent blog post date
 function getMostRecentPostDate(): Date | null {
-  const postsDir = getPostsDir();
-  if (!existsSync(postsDir)) return null;
+  const blogDir = getBlogDir();
+  if (!existsSync(blogDir)) return null;
 
   let mostRecentDate: Date | null = null;
 
   try {
-    const years = readdirSync(postsDir, { withFileTypes: true }).filter((d) => d.isDirectory());
+    const files = readdirSync(blogDir).filter(
+      (f) => f.endsWith(".mdx") && f !== "index.mdx"
+    );
 
-    for (const yearDir of years) {
-      const yearPath = join(postsDir, yearDir.name);
-      const dateDirs = readdirSync(yearPath, { withFileTypes: true }).filter((d) => d.isDirectory());
+    for (const file of files) {
+      const dateStr = extractDateFromFilename(file);
+      if (!dateStr) continue;
 
-      for (const dateDir of dateDirs) {
-        const datePath = join(yearPath, dateDir.name);
-        const slugDirs = readdirSync(datePath, { withFileTypes: true }).filter((d) => d.isDirectory());
+      const postDate = new Date(dateStr);
+      if (isNaN(postDate.getTime())) continue;
 
-        for (const slugDir of slugDirs) {
-          const indexPath = join(datePath, slugDir.name, "index.md");
-          if (!existsSync(indexPath)) continue;
-
-          const content = readFileSync(indexPath, "utf-8");
-          const fm = parseFrontmatter(content);
-
-          // Check if published (either has published_at or draft=false)
-          if (fm.published_at || (fm.draft === false)) {
-            const postDate = new Date(dateDir.name);
-            if (isNaN(postDate.getTime())) continue;
-
-            if (!mostRecentDate || postDate > mostRecentDate) {
-              mostRecentDate = postDate;
-            }
-          }
-        }
+      if (!mostRecentDate || postDate > mostRecentDate) {
+        mostRecentDate = postDate;
       }
     }
   } catch (e) {
@@ -103,11 +91,10 @@ export default async function blogPublishingSensor(): Promise<string> {
     const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (!claimed) return "skip";
 
-    const postsDir = getPostsDir();
+    const blogDir = getBlogDir();
 
-    // Check if posts directory exists
-    if (!existsSync(postsDir)) {
-      log("posts directory not found, skipping");
+    if (!existsSync(blogDir)) {
+      log("blog directory not found, skipping");
       return "skip";
     }
 
@@ -115,7 +102,7 @@ export default async function blogPublishingSensor(): Promise<string> {
     let scheduledReady: { postId: string; scheduledFor: string } | null = null;
     let timeForNewContent = false;
 
-    // Check if it's time to generate new content (weekly cadence)
+    // Check weekly cadence
     const mostRecentPostDate = getMostRecentPostDate();
     if (mostRecentPostDate) {
       const now = new Date();
@@ -124,56 +111,48 @@ export default async function blogPublishingSensor(): Promise<string> {
         timeForNewContent = true;
       }
     } else {
-      // No posts exist yet - time to create the first one
+      // No posts exist yet
       timeForNewContent = true;
     }
 
+    // Scan blog files for drafts and scheduled posts
     try {
-      const years = readdirSync(postsDir, { withFileTypes: true }).filter((d) => d.isDirectory());
+      const files = readdirSync(blogDir).filter(
+        (f) => f.endsWith(".mdx") && f !== "index.mdx"
+      );
 
-      for (const yearDir of years) {
-        const yearPath = join(postsDir, yearDir.name);
-        const dateDirs = readdirSync(yearPath, { withFileTypes: true }).filter((d) => d.isDirectory());
+      for (const file of files) {
+        const dateStr = extractDateFromFilename(file);
+        if (!dateStr) continue;
 
-        for (const dateDir of dateDirs) {
-          const datePath = join(yearPath, dateDir.name);
-          const slugDirs = readdirSync(datePath, { withFileTypes: true }).filter((d) => d.isDirectory());
+        const slug = file.replace(/^(\d{4}-\d{2}-\d{2})-/, "").replace(/\.mdx$/, "");
+        const postId = `${dateStr}-${slug}`;
+        const filePath = join(blogDir, file);
+        const content = readFileSync(filePath, "utf-8");
+        const fm = parseFrontmatter(content);
 
-          for (const slugDir of slugDirs) {
-            const indexPath = join(datePath, slugDir.name, "index.md");
-            if (!existsSync(indexPath)) continue;
-
-            const content = readFileSync(indexPath, "utf-8");
-            const fm = parseFrontmatter(content);
-            const postId = `${dateDir.name}-${slugDir.name}`;
-
-            // Check for unpublished drafts
-            if (fm.draft && !fm.published_at) {
-              if (!oldestDraft || dateDir.name < oldestDraft.date) {
-                oldestDraft = { postId, date: dateDir.name };
-              }
-            }
-
-            // Check for scheduled posts ready to publish
-            if (fm.scheduled_for && !fm.published_at) {
-              const now = getCurrentIso8601();
-              if (fm.scheduled_for <= now) {
-                scheduledReady = { postId, scheduledFor: fm.scheduled_for };
-                // Only auto-publish the first one found
-                break;
-              }
-            }
+        // Check for unpublished drafts
+        if (fm.draft === true) {
+          if (!oldestDraft || dateStr < oldestDraft.date) {
+            oldestDraft = { postId, date: dateStr };
           }
-          if (scheduledReady) break;
         }
-        if (scheduledReady) break;
+
+        // Check for scheduled posts ready to publish
+        if (fm.scheduled_for) {
+          const now = new Date().toISOString();
+          if (fm.scheduled_for <= now) {
+            scheduledReady = { postId, scheduledFor: fm.scheduled_for };
+            break;
+          }
+        }
       }
     } catch (e) {
       log(`error scanning posts: ${e instanceof Error ? e.message : String(e)}`);
       return "skip";
     }
 
-    // Queue task for oldest draft (if exists and no pending task)
+    // Queue task for oldest draft
     if (oldestDraft) {
       const source = `sensor:blog-publishing:draft:${oldestDraft.postId}`;
       if (!pendingTaskExistsForSource(source)) {
@@ -207,7 +186,7 @@ export default async function blogPublishingSensor(): Promise<string> {
       }
     }
 
-    // Queue task for content generation if weekly cadence reached
+    // Queue content generation if weekly cadence reached
     if (timeForNewContent) {
       const source = "sensor:blog-publishing:content-generation";
       if (!pendingTaskExistsForSource(source)) {
