@@ -512,6 +512,71 @@ export const NewReleaseMachine: StateMachine<{
 };
 
 /**
+ * ArchitectureReviewMachine — models the recurring architecture review → cleanup cycle.
+ *
+ * Pattern detected: "architecture review" tasks consistently spawn housekeeping
+ * follow-ups (cleanup disabled skills, adjust priorities, archive stale reports).
+ * This machine deduplicates concurrent reviews and ensures cleanup is tracked.
+ *
+ * instance_key: "arch-review-{trigger}-{YYYY-MM-DD}" (one per trigger per day)
+ *
+ * Context:
+ *   trigger      — what triggered the review: "codebase-changed" | "active-reports" | "scheduled"
+ *   diagramPath  — optional path to the current architecture diagram
+ *   reviewSummary — optional summary of findings from the review task
+ *   cleanupItems  — optional stringified list of identified cleanup tasks
+ */
+export const ArchitectureReviewMachine: StateMachine<{
+  trigger?: string;
+  diagramPath?: string;
+  reviewSummary?: string;
+  cleanupItems?: string;
+}> = {
+  name: "architecture-review",
+  initialState: "triggered",
+  states: {
+    triggered: {
+      on: { start_review: "reviewing" },
+      action: (ctx) => {
+        const trigger = ctx.trigger || "scheduled";
+        return {
+          type: "create-task",
+          subject: `architecture review — ${trigger.replace(/-/g, " ")}`,
+          priority: 4,
+          skills: ["arc-architecture-review", "arc-skill-manager"],
+          description: `Run architecture review (trigger: ${trigger}). After completing, transition this workflow to 'reviewing', then set reviewSummary and cleanupItems in context, then transition to 'cleanup_pending' if there are items or 'completed' if clean.`,
+        };
+      },
+    },
+    reviewing: {
+      on: { identify_cleanup: "cleanup_pending", complete: "completed" },
+      action: () => null,
+    },
+    cleanup_pending: {
+      on: { start_cleanup: "cleaning" },
+      action: (ctx) => {
+        if (!ctx.cleanupItems) return null;
+        return {
+          type: "create-task",
+          subject: `housekeeping: architecture review cleanup`,
+          priority: 6,
+          skills: ["arc-skill-manager"],
+          description: `Address cleanup items identified during architecture review.\n\nItems:\n${ctx.cleanupItems}\n\nAfter completing, transition workflow to 'cleaning', then 'completed'.`,
+        };
+      },
+    },
+    cleaning: {
+      on: { complete: "completed" },
+      action: () => null,
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -525,6 +590,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "validation-request": ValidationRequestMachine,
     "inscription": InscriptionMachine,
     "new-release": NewReleaseMachine,
+    "architecture-review": ArchitectureReviewMachine,
   };
   return templates[name] || null;
 }
