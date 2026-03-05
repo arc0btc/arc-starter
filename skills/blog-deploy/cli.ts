@@ -10,17 +10,24 @@ import { getCredential } from "../../src/credentials.ts";
 const SENSOR_NAME = "blog-deploy";
 const SITE_DIR = join(process.cwd(), "github/arc0btc/arc0me-site");
 
-// Resolve npm/npx from fnm node-versions if not on PATH
-function resolveNodeBin(bin: string): string {
-  const which = Bun.spawnSync(["which", bin]);
-  if (which.exitCode === 0) return bin;
-  // Find latest fnm node version
+// Resolve the fnm node bin directory (or empty string if not found / already on PATH)
+function resolveFnmBinDir(): string {
+  const which = Bun.spawnSync(["which", "node"]);
+  if (which.exitCode === 0) return ""; // already on PATH
   const fnmDir = join(process.env.HOME ?? "/root", ".local/share/fnm/node-versions");
   const ls = Bun.spawnSync(["ls", fnmDir]);
   if (ls.exitCode === 0) {
     const versions = ls.stdout.toString().trim().split("\n").filter(Boolean).sort().reverse();
-    if (versions[0]) return join(fnmDir, versions[0], "installation/bin", bin);
+    if (versions[0]) return join(fnmDir, versions[0], "installation/bin");
   }
+  return "";
+}
+
+// Resolve npm/npx from fnm node-versions if not on PATH
+function resolveNodeBin(bin: string, fnmBinDir: string): string {
+  const which = Bun.spawnSync(["which", bin]);
+  if (which.exitCode === 0) return bin;
+  if (fnmBinDir) return join(fnmBinDir, bin);
   return bin;
 }
 
@@ -96,10 +103,12 @@ async function cmdDeploy(args: string[]): Promise<void> {
   }
 
   // Step 1: Build
-  const npm = resolveNodeBin("npm");
-  const npx = resolveNodeBin("npx");
+  const fnmBinDir = resolveFnmBinDir();
+  const nodeEnv = fnmBinDir ? { PATH: `${fnmBinDir}:${process.env.PATH ?? ""}` } : {};
+  const npm = resolveNodeBin("npm", fnmBinDir);
+  const npx = resolveNodeBin("npx", fnmBinDir);
   log("running npm run build...");
-  const build = await runCommand([npm, "run", "build"], SITE_DIR);
+  const build = await runCommand([npm, "run", "build"], SITE_DIR, nodeEnv);
   if (build.exitCode !== 0) {
     process.stderr.write(`Build failed (exit ${build.exitCode}):\n${build.stderr || build.stdout}\n`);
     process.exit(1);
@@ -111,7 +120,7 @@ async function cmdDeploy(args: string[]): Promise<void> {
   const deploy = await runCommand(
     [npx, "wrangler", "deploy", "--env", "production"],
     SITE_DIR,
-    { CLOUDFLARE_API_TOKEN: cfToken }
+    { ...nodeEnv, CLOUDFLARE_API_TOKEN: cfToken }
   );
 
   if (deploy.exitCode !== 0) {
