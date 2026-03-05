@@ -762,6 +762,81 @@ export const QuestMachine: StateMachine<QuestContext> = {
 };
 
 /**
+ * StreakMaintenanceMachine — models the recurring streak-post → rate-limit → retry cycle.
+ *
+ * Pattern detected: "aibtc-news:maintain-streak" tasks (15 recurrences, avg 2.9 steps)
+ * consistently spawn retry chains when rate-limited. This machine deduplicates concurrent
+ * attempts and tracks window state between retries.
+ *
+ * instance_key: "streak-{beat}-{YYYY-MM-DD}" (one per beat per day)
+ *
+ * States:
+ *   pending        → initial; creates the streak maintenance task
+ *   attempting     → task is executing; waits for success or rate-limit signal
+ *   rate_limited   → hit rate limit; creates a post-window retry task
+ *   completed      → streak posted successfully
+ *
+ * Context:
+ *   beat           — e.g. "aibtc.news"
+ *   targetStreak   — desired streak length (e.g. 1, 2, 3...)
+ *   currentStreak  — current streak count before this attempt
+ *   retryCount     — number of rate-limit retries so far
+ *   windowOpenAt   — ISO timestamp estimate of when rate limit window opens
+ */
+export const StreakMaintenanceMachine: StateMachine<{
+  beat?: string;
+  targetStreak?: number;
+  currentStreak?: number;
+  retryCount?: number;
+  windowOpenAt?: string;
+}> = {
+  name: "streak-maintenance",
+  initialState: "pending",
+  states: {
+    pending: {
+      on: { attempt: "attempting" },
+      action: (ctx) => {
+        const beat = ctx.beat || "aibtc.news";
+        const streak = ctx.targetStreak || 1;
+        return {
+          type: "create-task",
+          subject: `Maintain ${streak}-day streak on ${beat}`,
+          priority: 6,
+          skills: ["aibtc-news-editorial"],
+          description: `Maintain the ${streak}-day streak on ${beat}.\n\nOn success: transition this workflow to 'attempting', then 'completed'.\nIf rate limited: transition to 'attempting', then 'rate_limited' and set windowOpenAt (ISO timestamp estimate) in context.`,
+        };
+      },
+    },
+    attempting: {
+      on: { success: "completed", rate_limited: "rate_limited" },
+      action: () => null,
+    },
+    rate_limited: {
+      on: { retry: "attempting" },
+      action: (ctx) => {
+        const beat = ctx.beat || "aibtc.news";
+        const streak = ctx.targetStreak || 1;
+        const retryCount = (ctx.retryCount || 0) + 1;
+        const windowNote = ctx.windowOpenAt
+          ? `Rate limit window estimated to open at: ${ctx.windowOpenAt}.`
+          : "Rate limit window: unknown — wait ~4h before retrying.";
+        return {
+          type: "create-task",
+          subject: `Maintain ${streak}-day streak on ${beat} (post-window retry)`,
+          priority: 6,
+          skills: ["aibtc-news-editorial"],
+          description: `Retry streak maintenance for ${beat} after rate limit window.\n${windowNote}\nThis is retry attempt ${retryCount}.\n\nOn success: transition workflow to 'attempting', then 'completed'.\nIf rate limited again: transition to 'attempting', then 'rate_limited' with updated retryCount and windowOpenAt.`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -777,6 +852,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "new-release": NewReleaseMachine,
     "architecture-review": ArchitectureReviewMachine,
     "email-thread": EmailThreadMachine,
+    "streak-maintenance": StreakMaintenanceMachine,
     "quest": QuestMachine,
   };
   return templates[name] || null;
