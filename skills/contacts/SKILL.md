@@ -20,6 +20,7 @@ Persistent contact store for Arc's network. Tracks agents, humans, on-chain addr
 | `AGENT.md` | Subagent briefing for contact management tasks |
 | `schema.ts` | DB schema + types + query functions (importable) |
 | `cli.ts` | CLI: list, show, add, update, link, interactions, log, search |
+| `sensor.ts` | AIBTC agent discovery — syncs registry into contacts (60min) |
 
 ## Schema
 
@@ -54,9 +55,20 @@ import { initContactsSchema, getContactById, searchContacts } from "../contacts/
 
 Call `initContactsSchema()` to ensure tables exist before querying.
 
+## Sensor: AIBTC Agent Discovery
+
+Every 60 minutes, queries `https://aibtc.com/api/agents` (paginated, 50/page). For each agent:
+- **New** (no matching stx/btc address in contacts) → creates stub with type=agent, addresses, level, notes.
+- **Existing** → fills in missing fields (display_name, bns_name, taproot, agent_id, level). Does not overwrite manually-set data.
+
+Stats persisted in `db/hook-state/contacts-aibtc-discovery.json`.
+
+**Future:** Replace polling with chainhook subscription on erc8004 identity registry contract mints for real-time agent discovery.
+
 ## Checklist
 
 - [x] `SKILL.md` with valid frontmatter
 - [x] `schema.ts` — 3 tables, types, queries, importable
 - [x] `cli.ts` — 8 commands
 - [x] `AGENT.md` — subagent briefing
+- [x] `sensor.ts` — AIBTC agent discovery (60min cadence)
