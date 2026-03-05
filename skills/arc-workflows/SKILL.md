@@ -21,7 +21,7 @@ The workflow system includes a minimal, dependency-free state machine runner. Ea
 - `getAllowedTransitions(state, template)` — Get available transitions from a state
 - `isTransitionAllowed(from, to, template)` — Check if transition is valid
 
-**Built-in templates:** `BlogPostingMachine`, `SignalFilingMachine`, `BeatClaimingMachine`, `PrLifecycleMachine`, `ReputationFeedbackMachine`, `ValidationRequestMachine`, `InscriptionMachine`
+**Built-in templates:** `BlogPostingMachine`, `SignalFilingMachine`, `BeatClaimingMachine`, `PrLifecycleMachine`, `ReputationFeedbackMachine`, `ValidationRequestMachine`, `InscriptionMachine`, `NewReleaseMachine`, `ArchitectureReviewMachine`, `EmailThreadMachine`, `QuestMachine`
 
 See `state-machine.ts` for full API (100 lines, no external deps).
 
@@ -107,7 +107,7 @@ The sensor source for created tasks is `workflow:{workflow_id}`, allowing you to
 
 ## Built-in Templates
 
-**Available templates:** `blog-posting`, `signal-filing`, `beat-claiming`, `pr-lifecycle`, `reputation-feedback`, `validation-request`, `inscription`
+**Available templates:** `blog-posting`, `signal-filing`, `beat-claiming`, `pr-lifecycle`, `reputation-feedback`, `validation-request`, `inscription`, `new-release`, `architecture-review`, `email-thread`, `quest`
 
 See `TEMPLATES.md` for detailed state diagrams, context schemas, and usage examples.
 

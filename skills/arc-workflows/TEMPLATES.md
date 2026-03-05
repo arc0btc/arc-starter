@@ -56,7 +56,7 @@ Give on-chain feedback to agents via ERC-8004. Guides mentorship interactions th
 
 **Pattern:** Mentorship feedback giving. Arc evaluates other agents, gives on-chain feedback, tracks confirmation.
 
-**Requires:** `reputation` skill (for give-feedback operations)
+**Requires:** `erc8004-reputation` skill (for give-feedback operations)
 
 ## Inscription (`inscription`)
 
@@ -91,7 +91,7 @@ Manage Bitcoin inscription lifecycle through two-phase commit/reveal process.
 
 **Pattern:** Two-phase Byzantine commit for Bitcoin inscriptions. Commit phase reserves UTXO. Reveal phase uses committed UTXO to inscribe data. State machine ensures atomic semantics and fee tracking across both phases.
 
-**Requires:** `bitcoin` skill (for transaction preparation and broadcast)
+**Requires:** `bitcoin-wallet` skill (for transaction preparation and broadcast)
 
 ## Validation Request (`validation-request`)
 
