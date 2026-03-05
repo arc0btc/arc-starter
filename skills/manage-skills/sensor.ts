@@ -5,7 +5,9 @@ import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 import { Glob } from "bun";
 
 const SENSOR_NAME = "manage-skills";
-const INTERVAL_MINUTES = 360;
+const MEMORY_SENSOR_NAME = "consolidate-memory";
+const MEMORY_INTERVAL_MINUTES = 120;
+const VALIDATION_INTERVAL_MINUTES = 360;
 const log = createSensorLogger(SENSOR_NAME);
 const TASK_SOURCE = "sensor:consolidate-memory";
 const SENSOR_VALIDATION_SOURCE = "sensor:sensor-validation";
@@ -75,56 +77,68 @@ async function checkSensorPatterns(): Promise<{ valid: boolean; errors: Array<{ 
 }
 
 export default async function manageSkillsSensor(): Promise<string> {
-  const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
-  if (!claimed) return "skip";
+  const results: string[] = [];
 
-  // Check 1: Memory consolidation
-  if (existsSync(MEMORY_PATH)) {
-    const content = readFileSync(MEMORY_PATH, "utf-8");
-    const lineCount = content.split("\n").length;
+  // Check 1: Memory consolidation (every 2 hours)
+  const memoryClaimed = await claimSensorRun(MEMORY_SENSOR_NAME, MEMORY_INTERVAL_MINUTES);
+  if (memoryClaimed) {
+    if (existsSync(MEMORY_PATH)) {
+      const content = readFileSync(MEMORY_PATH, "utf-8");
+      const lineCount = content.split("\n").length;
 
-    if (lineCount > LINE_THRESHOLD && !pendingTaskExistsForSource(TASK_SOURCE)) {
-      insertTask({
-        subject: `Consolidate MEMORY.md (${lineCount} lines, threshold ${LINE_THRESHOLD})`,
-        description: [
-          "MEMORY.md has grown past the consolidation threshold.",
-          "",
-          "Steps:",
-          "1. Run: arc skills run --name manage-skills -- consolidate-memory check",
-          "2. Read memory/MEMORY.md and compress: merge duplicates, remove stale entries, tighten prose",
-          "3. Keep under 2k tokens and 200 lines (sweet spot for context + compression)",
-          "4. Run: arc skills run --name manage-skills -- consolidate-memory commit",
-        ].join("\n"),
-        skills: '["manage-skills"]',
-        priority: 8,
-        source: TASK_SOURCE,
-      });
+      if (lineCount > LINE_THRESHOLD && !pendingTaskExistsForSource(TASK_SOURCE)) {
+        insertTask({
+          subject: `Consolidate MEMORY.md (${lineCount} lines, threshold ${LINE_THRESHOLD})`,
+          description: [
+            "MEMORY.md has grown past the consolidation threshold.",
+            "",
+            "Steps:",
+            "1. Run: arc skills run --name manage-skills -- consolidate-memory check",
+            "2. Read memory/MEMORY.md and compress: merge duplicates, remove stale entries, tighten prose",
+            "3. Keep under 2k tokens and 200 lines (sweet spot for context + compression)",
+            "4. Run: arc skills run --name manage-skills -- consolidate-memory commit",
+          ].join("\n"),
+          skills: '["manage-skills"]',
+          priority: 8,
+          source: TASK_SOURCE,
+        });
+        results.push("memory-task-created");
+      } else {
+        results.push("memory-ok");
+      }
     }
   }
 
-  // Check 2: Sensor export pattern validation
-  const validation = await checkSensorPatterns();
-  if (!validation.valid && !pendingTaskExistsForSource(SENSOR_VALIDATION_SOURCE)) {
-    const errorList = validation.errors
-      .map((e) => `  - ${e.file}:\n${e.issues.map((issue) => `    * ${issue}`).join("\n")}`)
-      .join("\n");
+  // Check 2: Sensor export pattern validation (every 6 hours)
+  const validationClaimed = await claimSensorRun(SENSOR_NAME, VALIDATION_INTERVAL_MINUTES);
+  if (validationClaimed) {
+    const validation = await checkSensorPatterns();
+    if (!validation.valid && !pendingTaskExistsForSource(SENSOR_VALIDATION_SOURCE)) {
+      const errorList = validation.errors
+        .map((e) => `  - ${e.file}:\n${e.issues.map((issue) => `    * ${issue}`).join("\n")}`)
+        .join("\n");
 
-    insertTask({
-      subject: `Sensor validation: ${validation.errors.length} sensor(s) need export pattern fix`,
-      description: [
-        "The following sensors do not follow the standard export pattern.",
-        "Standard: export default async function NAME(): Promise<string>",
-        "",
-        errorList,
-        "",
-        "Fix pattern: Convert 'await main()' side-effect to 'export default async function'.",
-        "Return status: 'skip'|'ok'|'error'|'rate-limited' based on execution.",
-      ].join("\n"),
-      skills: '["manage-skills"]',
-      priority: 8,
-      source: SENSOR_VALIDATION_SOURCE,
-    });
+      insertTask({
+        subject: `Sensor validation: ${validation.errors.length} sensor(s) need export pattern fix`,
+        description: [
+          "The following sensors do not follow the standard export pattern.",
+          "Standard: export default async function NAME(): Promise<string>",
+          "",
+          errorList,
+          "",
+          "Fix pattern: Convert 'await main()' side-effect to 'export default async function'.",
+          "Return status: 'skip'|'ok'|'error'|'rate-limited' based on execution.",
+        ].join("\n"),
+        skills: '["manage-skills"]',
+        priority: 8,
+        source: SENSOR_VALIDATION_SOURCE,
+      });
+      results.push("validation-task-created");
+    } else {
+      results.push("validation-ok");
+    }
   }
 
-  return "ok";
+  if (results.length === 0) return "skip";
+  return `ok: ${results.join(", ")}`;
 }
