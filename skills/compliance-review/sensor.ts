@@ -10,7 +10,7 @@ import {
 } from "../../src/sensors.ts";
 import { discoverSkills, type SkillInfo } from "../../src/skills.ts";
 import { existsSync } from "node:fs";
-import { join, basename } from "node:path";
+import { join, basename, resolve } from "node:path";
 
 const SENSOR_NAME = "compliance-review";
 const INTERVAL_MINUTES = 360;
@@ -158,6 +158,53 @@ async function checkSensorCompliance(skill: SkillInfo): Promise<ComplianceFindin
   return findings;
 }
 
+// ---- Cross-skill path validation ----
+
+// Match: resolve(import.meta.dir, '...') or join(import.meta.dir, '...')
+// Captures the string literal passed as the second argument.
+const CROSS_SKILL_PATH_PATTERN = /(?:resolve|join)\s*\(\s*import\.meta\.dir\s*,\s*["']([^"']+)["']/g;
+
+async function checkCrossSkillPaths(skill: SkillInfo): Promise<ComplianceFinding[]> {
+  const findings: ComplianceFinding[] = [];
+  const files_to_check = ["sensor.ts", "cli.ts"];
+
+  for (const file_name of files_to_check) {
+    const file_path = join(skill.path, file_name);
+    if (!existsSync(file_path)) continue;
+
+    const content = await Bun.file(file_path).text();
+    const lines = content.split("\n");
+
+    for (let line_number = 0; line_number < lines.length; line_number++) {
+      const line = lines[line_number];
+      const trimmed = line.trimStart();
+
+      // Skip comments
+      if (trimmed.startsWith("//") || trimmed.startsWith("*")) continue;
+
+      CROSS_SKILL_PATH_PATTERN.lastIndex = 0;
+      let match: RegExpExecArray | null;
+      while ((match = CROSS_SKILL_PATH_PATTERN.exec(line)) !== null) {
+        const relative_path = match[1];
+
+        // Only validate paths that reference other skill directories (contain '..')
+        if (!relative_path.includes("..")) continue;
+
+        const resolved_path = resolve(skill.path, relative_path);
+        if (!existsSync(resolved_path)) {
+          findings.push({
+            skill_name: skill.name,
+            rule: "cross-skill-path-valid",
+            detail: `${file_name}:${line_number + 1} — hardcoded path does not exist: "${relative_path}"`,
+          });
+        }
+      }
+    }
+  }
+
+  return findings;
+}
+
 async function checkVerboseNaming(skill: SkillInfo): Promise<ComplianceFinding[]> {
   const findings: ComplianceFinding[] = [];
 
@@ -216,6 +263,10 @@ export default async function complianceReviewSensor(): Promise<string> {
       const sensor_findings = await checkSensorCompliance(skill);
       all_findings.push(...sensor_findings);
 
+      // Cross-skill path validation (async — resolves hardcoded paths)
+      const path_findings = await checkCrossSkillPaths(skill);
+      all_findings.push(...path_findings);
+
       // Verbose naming checks (async — reads file content)
       const naming_findings = await checkVerboseNaming(skill);
       all_findings.push(...naming_findings);
@@ -242,6 +293,7 @@ export default async function complianceReviewSensor(): Promise<string> {
       "sensor-interval-const": "Missing INTERVAL_MINUTES",
       "sensor-no-llm": "LLM/AI API Usage in Sensor",
       "verbose-naming": "Abbreviated Naming Violation",
+      "cross-skill-path-valid": "Stale Cross-Skill Path",
     };
 
     let description = `Compliance audit found ${all_findings.length} finding(s) across ${all_skills.length} skills.\n\n`;
