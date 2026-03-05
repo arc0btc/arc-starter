@@ -5,6 +5,102 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Arc - Sensors</title>
   <link rel="stylesheet" href="/shared.css">
+  <style>
+    .sensor-grid {
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 640px) {
+      .sensor-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 1024px) {
+      .sensor-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .sensor-card {
+      padding: var(--space-md) var(--space-lg);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .sensor-card:hover {
+      background: #111;
+    }
+
+    .sensor-card-top {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-sm);
+    }
+
+    .sensor-card-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .sensor-card-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: var(--space-sm);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .sensor-card-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-xs) var(--space-sm);
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+
+    .sensor-meta-label {
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      font-size: 0.6rem;
+      color: #555;
+    }
+
+    .sensor-meta-value {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .sensor-result-ok { color: var(--success); }
+    .sensor-result-error { color: var(--error); }
+    .sensor-result-skip { color: var(--text-muted); }
+
+    .sensor-failures { color: var(--error); font-weight: 600; }
+
+    .sensor-card-action {
+      margin-top: var(--space-sm);
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--border);
+    }
+
+    .sensor-msg-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: var(--font);
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      width: 100%;
+    }
+    .sensor-msg-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+  </style>
 </head>
 <body>
 
@@ -61,11 +157,11 @@
       </div>
       <div class="sensor-grid" id="sensor-grid">
         <div class="sensor-card ok">
-          <div class="sensor-header">
+          <div class="sensor-card-top">
             <span class="status-dot live" aria-hidden="true"></span>
-            <span class="sensor-name">Loading...</span>
+            <span class="sensor-card-name">Loading...</span>
           </div>
-          <div class="sensor-detail">--</div>
+          <div class="sensor-card-desc">Discovering sensors</div>
         </div>
       </div>
     </section>
@@ -106,19 +202,44 @@
         var statusCls = isError ? 'error' : (isRecent ? 'ok' : 'stale');
         var dotCls = isError ? '' : (isRecent ? 'live' : '');
         var dotStyle = isError ? 'background:var(--error)' : (!isRecent ? 'background:#555' : '');
-        var dotLabel = isError ? 'Sensor status: error' : (isRecent ? 'Sensor status: active' : 'Sensor status: stale');
-        var sensorName = esc(s.name);
+        var dotLabel = isError ? 'error' : (isRecent ? 'active' : 'stale');
 
-        return '<div class="sensor-card ' + statusCls + '" style="cursor:pointer" onclick="prefillMessage(\'Check sensor: ' + escAttr(s.name) + '\')">'
-          + '<div class="sensor-header">'
-          + '<span class="status-dot ' + dotCls + '" style="' + dotStyle + '" aria-label="' + dotLabel + '"></span>'
-          + '<span class="sensor-name">' + sensorName + '</span>'
+        // Result display
+        var resultCls = 'sensor-result-skip';
+        var resultText = s.last_result || '--';
+        if (s.last_result === 'ok' || s.last_result === 'skip') {
+          resultCls = s.last_result === 'ok' ? 'sensor-result-ok' : 'sensor-result-skip';
+        } else if (s.last_result === 'error') {
+          resultCls = 'sensor-result-error';
+        }
+
+        // Failures
+        var failuresHtml = '';
+        if (s.consecutive_failures && s.consecutive_failures > 0) {
+          failuresHtml = '<span class="sensor-failures">' + s.consecutive_failures + '</span>';
+        } else {
+          failuresHtml = '<span>0</span>';
+        }
+
+        var sensorName = esc(s.name);
+        var msgPrefix = 're: sensor:' + escAttr(s.name) + ' \u2014 ';
+
+        return '<div class="sensor-card ' + statusCls + '" data-sensor="' + escAttr(s.name) + '">'
+          + '<div class="sensor-card-top">'
+          + '<span class="status-dot ' + dotCls + '" style="' + dotStyle + '" aria-label="Sensor status: ' + dotLabel + '"></span>'
+          + '<span class="sensor-card-name">' + sensorName + '</span>'
           + (s.interval_minutes ? '<span class="skill-badge">' + s.interval_minutes + 'm</span>' : '')
+          + (s.version != null ? '<span class="skill-badge">v' + s.version + '</span>' : '')
           + '</div>'
-          + '<div class="sensor-detail">'
-          + relativeTime(s.last_ran)
-          + (s.last_result && s.last_result !== 'ok' ? ' &middot; ' + esc(s.last_result) : '')
-          + (s.description ? '<br>' + esc(s.description) : '')
+          + '<div class="sensor-card-desc">' + (s.description ? esc(s.description) : '<em>No description</em>') + '</div>'
+          + '<div class="sensor-card-meta">'
+          + '<div><span class="sensor-meta-label">Last ran</span><br><span class="sensor-meta-value">' + relativeTime(s.last_ran) + '</span></div>'
+          + '<div><span class="sensor-meta-label">Result</span><br><span class="sensor-meta-value ' + resultCls + '">' + esc(resultText) + '</span></div>'
+          + '<div><span class="sensor-meta-label">Interval</span><br><span class="sensor-meta-value">' + (s.interval_minutes ? s.interval_minutes + ' min' : '--') + '</span></div>'
+          + '<div><span class="sensor-meta-label">Failures</span><br>' + failuresHtml + '</div>'
+          + '</div>'
+          + '<div class="sensor-card-action">'
+          + '<button class="sensor-msg-btn" onclick="prefillMessage(\'' + msgPrefix + '\')">Message about this sensor</button>'
           + '</div>'
           + '</div>';
       }).join('');
@@ -127,17 +248,18 @@
     function pingSensor(name) {
       var cards = document.querySelectorAll('.sensor-card');
       for (var i = 0; i < cards.length; i++) {
-        var nameEl = cards[i].querySelector('.sensor-name');
-        if (nameEl && nameEl.textContent === name) {
+        if (cards[i].getAttribute('data-sensor') === name) {
           var dot = cards[i].querySelector('.status-dot');
           if (dot) {
             dot.classList.remove('ping');
             void dot.offsetWidth;
             dot.classList.add('ping');
           }
-          var detail = cards[i].querySelector('.sensor-detail');
-          if (detail) detail.textContent = 'just now';
-          cards[i].className = 'sensor-card ok';
+          // Update last ran to "just now"
+          var metaValues = cards[i].querySelectorAll('.sensor-meta-value');
+          if (metaValues[0]) metaValues[0].textContent = 'just now';
+          cards[i].className = cards[i].className.replace(/\b(error|stale)\b/g, '').trim();
+          if (cards[i].className.indexOf('ok') === -1) cards[i].className += ' ok';
           break;
         }
       }
