@@ -16,19 +16,26 @@ function outputJson(result: CommandResult): void {
   process.stdout.write(JSON.stringify(result, null, 2) + "\n");
 }
 
-function parseFlags(args: string[]): { positional: string[]; flags: Record<string, string> } {
-  const positional: string[] = [];
-  const flags: Record<string, string> = {};
+function parseFlags(args: string[]): { flags: Record<string, string | string[]> } {
+  const flags: Record<string, string | string[]> = {};
   for (let i = 0; i < args.length; i++) {
     if (args[i].startsWith("--")) {
       const key = args[i].slice(2);
-      flags[key] = args[i + 1] || "";
+      const val = args[i + 1] || "";
       i++;
-    } else {
-      positional.push(args[i]);
+      if (key in flags) {
+        const existing = flags[key];
+        if (Array.isArray(existing)) {
+          existing.push(val);
+        } else {
+          flags[key] = [existing, val];
+        }
+      } else {
+        flags[key] = val;
+      }
     }
   }
-  return { positional, flags };
+  return { flags };
 }
 
 function getContext(workflow: { context: string | null }): QuestContext | null {
@@ -41,18 +48,18 @@ function instanceKey(slug: string): string {
 }
 
 /**
- * init <slug> "<goal>" [--skills s1,s2] [--model sonnet] [--parent <taskId>]
+ * init --slug <slug> --goal "<goal>" [--skills s1,s2] [--model sonnet] [--parent <taskId>]
  *
  * Creates a quest workflow in `planning` state. The meta-sensor will
  * create the planning task on next evaluation.
  */
 function cmdInit(args: string[]): CommandResult {
-  const { positional, flags } = parseFlags(args);
-  const slug = positional[0];
-  const goal = positional[1];
+  const { flags } = parseFlags(args);
+  const slug = flags.slug as string;
+  const goal = flags.goal as string;
 
   if (!slug || !goal) {
-    return { success: false, message: 'Usage: init <slug> "<goal>" [--skills s1,s2] [--model sonnet] [--parent <taskId>]' };
+    return { success: false, message: 'Usage: init --slug <slug> --goal "<goal>" [--skills s1,s2] [--model sonnet] [--parent <taskId>]' };
   }
 
   initDatabase();
@@ -93,20 +100,22 @@ function cmdInit(args: string[]): CommandResult {
 }
 
 /**
- * plan <slug> "Phase Name: goal" ...
+ * plan --slug <slug> --phase "Phase Name: goal" [--phase ...]
  *
  * Populates phases in the quest workflow context and transitions to `executing`.
  * Called from the planning task after decomposition.
  */
 function cmdPlan(args: string[]): CommandResult {
-  const slug = args[0];
+  const { flags } = parseFlags(args);
+  const slug = flags.slug as string;
   if (!slug) {
-    return { success: false, message: 'Usage: plan <slug> "Phase Name: goal" ...' };
+    return { success: false, message: 'Usage: plan --slug <slug> --phase "Phase Name: goal" [--phase ...]' };
   }
 
-  const phaseArgs = args.slice(1);
+  const phaseFlag = flags.phase;
+  const phaseArgs: string[] = phaseFlag ? (Array.isArray(phaseFlag) ? phaseFlag : [phaseFlag]) : [];
   if (phaseArgs.length === 0) {
-    return { success: false, message: "At least one phase required. Format: \"Phase Name: goal\"" };
+    return { success: false, message: 'At least one --phase required. Format: --phase "Phase Name: goal"' };
   }
   if (phaseArgs.length > 10) {
     return { success: false, message: "Max 10 phases per quest. Decompose further if needed." };
@@ -162,15 +171,16 @@ function cmdPlan(args: string[]): CommandResult {
 }
 
 /**
- * advance <slug>
+ * advance --slug <slug>
  *
  * Marks current phase completed, advances currentPhase counter.
  * Meta-sensor creates next phase task (or completes quest if all done).
  */
 function cmdAdvance(args: string[]): CommandResult {
-  const slug = args[0];
+  const { flags } = parseFlags(args);
+  const slug = flags.slug as string;
   if (!slug) {
-    return { success: false, message: "Usage: advance <slug>" };
+    return { success: false, message: "Usage: advance --slug <slug>" };
   }
 
   initDatabase();
@@ -230,12 +240,13 @@ function cmdAdvance(args: string[]): CommandResult {
 }
 
 /**
- * status [slug]
+ * status [--slug <slug>]
  *
  * Show quest status. If no slug, show all active quests.
  */
 function cmdStatus(args: string[]): CommandResult {
-  const slug = args[0];
+  const { flags } = parseFlags(args);
+  const slug = flags.slug as string | undefined;
 
   initDatabase();
 
@@ -297,19 +308,19 @@ function printUsage(): void {
   process.stdout.write(`quest-create CLI — decompose complex tasks into sequential phases
 
 USAGE
-  arc skills run --name quest-create -- <subcommand> [args]
+  arc skills run --name quest-create -- <subcommand> [--flags]
 
 SUBCOMMANDS
-  init <slug> "<goal>" [--skills s1,s2] [--model sonnet] [--parent <taskId>]
+  init --slug <slug> --goal "<goal>" [--skills s1,s2] [--model sonnet] [--parent <taskId>]
       Create a new quest workflow in 'planning' state
 
-  plan <slug> "Phase Name: goal" ...
+  plan --slug <slug> --phase "Phase Name: goal" [--phase ...]
       Set phases and transition to 'executing' (called from planning task)
 
-  advance <slug>
+  advance --slug <slug>
       Mark current phase done, advance to next (called from phase task)
 
-  status [slug]
+  status [--slug <slug>]
       Show quest status (all quests if no slug given)
 `);
 }

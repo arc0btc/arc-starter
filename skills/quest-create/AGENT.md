@@ -14,7 +14,9 @@ You received a planning task for a quest. Your job is to break the goal into 2-6
    - Sequentially dependent (later phases build on earlier ones)
 4. Run the plan command with your phases:
    ```bash
-   arc skills run --name quest-create -- plan <slug> "Phase Name: specific goal" ...
+   arc skills run --name quest-create -- plan --slug <slug> \
+     --phase "Phase Name: specific goal" \
+     --phase "Phase Name: specific goal" ...
    ```
 5. The plan command creates all phase definitions and starts execution
 
@@ -35,7 +37,7 @@ You received a phase task. Your job is to complete the specific phase work.
 3. Commit your changes (conventional commits)
 4. When done, advance the quest:
    ```bash
-   arc skills run --name quest-create -- advance <slug>
+   arc skills run --name quest-create -- advance --slug <slug>
    ```
 5. The advance command marks your phase complete and queues the next one
 
