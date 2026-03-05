@@ -50,7 +50,14 @@ const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
     signature: "crash-recovery",
     patterns: [/crash recovery/i, /left active from a previous cycle/i, /stuck active/i],
   },
+  {
+    signature: "dismissed",
+    patterns: [/too noisy/i, /cleaning queue/i, /duplicate.*brief/i, /wrong priority/i, /focusing on mentions/i, /recreating with/i, /test task/i],
+  },
 ];
+
+/** Signatures that should never trigger an investigation task — handled elsewhere or intentional. */
+const SKIP_SIGNATURES = new Set(["dismissed", "crash-recovery"]);
 
 /** Extract a normalized error signature from a task's result_summary. */
 function classifyError(text: string): string {
@@ -104,6 +111,7 @@ export default async function failureTriageSensor(): Promise<string> {
 
   for (const [signature, tasks] of groups) {
     if (tasks.length < OCCURRENCE_THRESHOLD) continue;
+    if (SKIP_SIGNATURES.has(signature)) continue;
 
     const source = `sensor:arc-failure-triage:pattern:${shortHash(signature)}`;
     if (pendingTaskExistsForSource(source)) continue;

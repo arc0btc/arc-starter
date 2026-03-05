@@ -43,6 +43,14 @@ const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
     signature: "network-error",
     patterns: [/ECONNREFUSED/i, /ENOTFOUND/i, /fetch failed/i, /network/i],
   },
+  {
+    signature: "crash-recovery",
+    patterns: [/crash recovery/i, /left active from a previous cycle/i, /stuck active/i],
+  },
+  {
+    signature: "dismissed",
+    patterns: [/too noisy/i, /cleaning queue/i, /duplicate.*brief/i, /wrong priority/i, /focusing on mentions/i, /recreating with/i, /test task/i],
+  },
 ];
 
 function classifyError(text: string): string {
