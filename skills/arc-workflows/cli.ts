@@ -15,13 +15,7 @@ import {
 import {
   evaluateWorkflow,
   getAllowedTransitions,
-  BlogPostingMachine,
-  SignalFilingMachine,
-  BeatClaimingMachine,
-  PrLifecycleMachine,
-  ReputationFeedbackMachine,
-  ValidationRequestMachine,
-  InscriptionMachine,
+  getTemplateByName,
 } from "./state-machine.ts";
 
 type CommandResult = { success: boolean; message: string; data?: unknown };
@@ -291,18 +285,6 @@ function deleteCmd(idStr: string): CommandResult {
   }
 }
 
-function getTemplateByName(name: string) {
-  const templates: Record<string, unknown> = {
-    "blog-posting": BlogPostingMachine,
-    "signal-filing": SignalFilingMachine,
-    "beat-claiming": BeatClaimingMachine,
-    "pr-lifecycle": PrLifecycleMachine,
-    "reputation-feedback": ReputationFeedbackMachine,
-    "validation-request": ValidationRequestMachine,
-    "inscription": InscriptionMachine,
-  };
-  return templates[name];
-}
 
 function evaluate(idStr: string): CommandResult {
   if (!idStr) {
@@ -329,7 +311,7 @@ function evaluate(idStr: string): CommandResult {
       };
     }
 
-    const action = evaluateWorkflow(workflow, template as any);
+    const action = evaluateWorkflow(workflow, template);
 
     return {
       success: true,
@@ -371,7 +353,7 @@ function allowedTransitions(idStr: string): CommandResult {
 
     const transitions = getAllowedTransitions(
       workflow.current_state,
-      template as any
+      template
     );
 
     return {
@@ -436,7 +418,7 @@ function main(): void {
 
     default:
       if (command && command !== "--help" && command !== "-h") {
-        process.stderr.write(`Error: unknown subcommand '${cmd}'\n\n`);
+        process.stderr.write(`Error: unknown subcommand '${command}'\n\n`);
       }
       printUsage();
       if (command && command !== "--help" && command !== "-h") {
