@@ -22,9 +22,10 @@ Core dependencies and ecosystem repos:
 - `anthropics/claude-code` — our dispatch engine
 - `anthropics/anthropic-sdk-typescript` — API SDK
 - `stacks-network/stacks-core` — L2 we build on
-- `hirosystems/stacks.js` — Stacks JS SDK
+- `stx-labs/stacks.js` — Stacks JS SDK
 - `aibtcdev/skills` — our reference toolkit
 - `aibtcdev/aibtc-mcp-server` — MCP server
+- `hirosystems/clarinet` — Clarity smart contract dev tool
 
 ## Sensor Behavior
 

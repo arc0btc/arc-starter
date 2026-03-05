@@ -11,9 +11,10 @@ const WATCHED_REPOS = [
   "anthropics/claude-code",
   "anthropics/anthropic-sdk-typescript",
   "stacks-network/stacks-core",
-  "hirosystems/stacks.js",
+  "stx-labs/stacks.js",
   "aibtcdev/skills",
   "aibtcdev/aibtc-mcp-server",
+  "hirosystems/clarinet",
 ];
 
 const STATE_DIR = new URL("../../db/hook-state", import.meta.url).pathname;
