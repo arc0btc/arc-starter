@@ -20,6 +20,8 @@ export interface WorkflowAction {
   priority?: number;
   skills?: string[];
   description?: string;
+  model?: string;
+  parentTaskId?: number;
 }
 
 export interface StateConfig<C = unknown> {
@@ -675,6 +677,91 @@ After sending, transition this workflow to 'completed'.`,
 };
 
 /**
+ * QuestMachine — decomposes complex tasks into sequential phases.
+ *
+ * A quest takes a big goal, breaks it into <2min phases, and executes them
+ * one at a time via the task queue. Workflow context is the checkpoint —
+ * failed phases restart from context, not from scratch.
+ *
+ * instance_key: "quest-{slug}" (one per quest)
+ *
+ * Context:
+ *   slug           — short identifier for the quest
+ *   goal           — high-level goal description
+ *   sourceTaskId   — task that spawned this quest
+ *   parentTaskId   — task ID to use as parent_id for phase tasks
+ *   skills         — skills array for phase tasks
+ *   model          — model to use for phase tasks (opus/sonnet/haiku)
+ *   phases         — array of { n, name, goal, status, taskId }
+ *   currentPhase   — 1-indexed current phase number
+ */
+export interface QuestPhase {
+  n: number;
+  name: string;
+  goal: string;
+  status: "pending" | "active" | "completed" | "failed";
+  taskId: number | null;
+}
+
+export interface QuestContext {
+  slug: string;
+  goal: string;
+  sourceTaskId: number | null;
+  parentTaskId: number | null;
+  skills: string[];
+  model: string;
+  phases: QuestPhase[];
+  currentPhase: number;
+}
+
+export const QuestMachine: StateMachine<QuestContext> = {
+  name: "quest",
+  initialState: "planning",
+  states: {
+    planning: {
+      on: { plan_complete: "executing" },
+      action: (ctx) => {
+        if (!ctx.slug || !ctx.goal) return null;
+        return {
+          type: "create-task",
+          subject: `Quest plan: ${ctx.slug} — decompose into phases`,
+          priority: 3,
+          model: ctx.model || "sonnet",
+          skills: ["quest-create", ...(ctx.skills || [])],
+          parentTaskId: ctx.parentTaskId ?? undefined,
+          description: `Decompose this quest into <2min phases.\n\nGoal: ${ctx.goal}\nSlug: ${ctx.slug}\n\nInstructions:\n1. Read the quest goal and any linked task context\n2. Break the goal into 2-6 sequential phases, each completable in <2min\n3. Run: arc skills run --name quest-create -- plan ${ctx.slug} "Phase Name: goal" ...\n4. The plan command will create phase tasks and advance the workflow`,
+        };
+      },
+    },
+    executing: {
+      on: { all_phases_done: "completed", phase_failed: "failed" },
+      action: (ctx) => {
+        if (!ctx.phases || ctx.phases.length === 0) return null;
+        const current = ctx.phases.find((p) => p.n === ctx.currentPhase);
+        if (!current || current.status !== "pending") return null;
+        return {
+          type: "create-task",
+          subject: `Quest ${ctx.slug} — Phase ${current.n}/${ctx.phases.length}: ${current.name}`,
+          priority: 4,
+          model: ctx.model || "sonnet",
+          skills: ["quest-create", ...(ctx.skills || [])],
+          parentTaskId: ctx.parentTaskId ?? undefined,
+          description: `Quest: ${ctx.slug}\nGoal: ${ctx.goal}\nPhase ${current.n} of ${ctx.phases.length}: ${current.name}\n\nPhase goal: ${current.goal}\n\nInstructions:\n1. Do the work for this phase\n2. When done, run: arc skills run --name quest-create -- advance ${ctx.slug}\n3. The advance command marks this phase complete and queues the next one`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+    failed: {
+      on: { retry: "executing" },
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -690,6 +777,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "new-release": NewReleaseMachine,
     "architecture-review": ArchitectureReviewMachine,
     "email-thread": EmailThreadMachine,
+    "quest": QuestMachine,
   };
   return templates[name] || null;
 }
