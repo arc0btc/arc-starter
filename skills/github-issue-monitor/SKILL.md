@@ -4,16 +4,9 @@ description: Monitors GitHub issues on managed and collaborative repos, creates 
 tags:
   - sensor
   - github
-  - disabled
 ---
 
 # github-issue-monitor
-
-> **SENSOR DISABLED** — `sensor.ts` renamed to `sensor.ts.disabled`.
->
-> **Reason:** spark0btc GitHub account permanently restricted (2026-03-02). GitHub-facing automation paused pending account strategy decision.
->
-> **To re-enable:** rename `sensor.ts.disabled` → `sensor.ts` and restart sensors.
 
 Polls managed and collaborative repos for open issues. Creates triage tasks with full org maintainer context — not just "new issue detected" but "here's what this means for us."
 
