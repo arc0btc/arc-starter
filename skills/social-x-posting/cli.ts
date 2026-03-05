@@ -3,8 +3,40 @@
 // CLI for posting tweets and managing X (Twitter) presence via API v2
 
 import { getCredential } from "../../src/credentials.ts";
+import { join } from "path";
 
 const API_BASE = "https://api.x.com/2";
+const CACHE_PATH = join(import.meta.dir, "../../db/x-cache.json");
+
+// ---- Cache ----
+
+interface CacheEntry {
+  id: string;
+  type: "tweet" | "user";
+  fetched_at: string;
+  data: Record<string, unknown>;
+}
+
+interface Cache {
+  tweets: Record<string, CacheEntry>;
+  users: Record<string, CacheEntry>;
+}
+
+async function loadCache(): Promise<Cache> {
+  try {
+    const file = Bun.file(CACHE_PATH);
+    if (await file.exists()) {
+      return (await file.json()) as Cache;
+    }
+  } catch {
+    // corrupt cache, start fresh
+  }
+  return { tweets: {}, users: {} };
+}
+
+async function saveCache(cache: Cache): Promise<void> {
+  await Bun.write(CACHE_PATH, JSON.stringify(cache, null, 2));
+}
 
 // ---- Helpers ----
 
@@ -351,6 +383,108 @@ async function cmdStatus(_flags: Record<string, string>): Promise<void> {
   }
 }
 
+async function cmdSearch(flags: Record<string, string>): Promise<void> {
+  const query = flags["query"];
+  if (!query) {
+    console.log("Usage: search --query <text> [--limit <n>]");
+    process.exit(1);
+  }
+
+  const limit = flags["limit"] ?? "10";
+  const maxResults = Math.min(Math.max(parseInt(limit, 10) || 10, 10), 100);
+
+  const creds = await loadCreds();
+  log(`Searching tweets: "${query}" (limit: ${maxResults})...`);
+
+  const result = await apiRequest("GET", "/tweets/search/recent", creds, undefined, {
+    query,
+    max_results: maxResults.toString(),
+    "tweet.fields": "created_at,author_id,public_metrics,conversation_id",
+  });
+
+  const tweets = result["data"] as Array<Record<string, unknown>> | undefined;
+  if (!tweets || tweets.length === 0) {
+    console.log("No tweets found.");
+    return;
+  }
+
+  // Cache results
+  const cache = await loadCache();
+  const now = new Date().toISOString();
+  let newCount = 0;
+  for (const tweet of tweets) {
+    const id = tweet["id"] as string;
+    if (!cache.tweets[id]) {
+      newCount++;
+    }
+    cache.tweets[id] = { id, type: "tweet", fetched_at: now, data: tweet };
+  }
+  await saveCache(cache);
+
+  for (const tweet of tweets) {
+    const metrics = tweet["public_metrics"] as Record<string, number> | undefined;
+    console.log(`---`);
+    console.log(`ID: ${tweet["id"]}`);
+    console.log(`Date: ${tweet["created_at"]}`);
+    console.log(`Author: ${tweet["author_id"]}`);
+    console.log(`Text: ${tweet["text"]}`);
+    if (metrics) {
+      console.log(
+        `Engagement: ${metrics["like_count"]} likes, ${metrics["retweet_count"]} RTs, ${metrics["reply_count"]} replies`
+      );
+    }
+  }
+  console.log(`---`);
+  console.log(`Found ${tweets.length} tweets (${newCount} new, cached to db/x-cache.json).`);
+}
+
+async function cmdLookup(flags: Record<string, string>): Promise<void> {
+  const username = flags["username"];
+  if (!username) {
+    console.log("Usage: lookup --username <handle>");
+    process.exit(1);
+  }
+
+  // Strip leading @ if present
+  const handle = username.replace(/^@/, "");
+
+  const creds = await loadCreds();
+  log(`Looking up user: @${handle}...`);
+
+  const result = await apiRequest("GET", `/users/by/username/${handle}`, creds, undefined, {
+    "user.fields": "id,username,name,description,public_metrics,created_at,location,url,verified",
+  });
+
+  const userData = result["data"] as Record<string, unknown> | undefined;
+  if (!userData) {
+    console.log(`User @${handle} not found.`);
+    return;
+  }
+
+  // Cache user
+  const cache = await loadCache();
+  const now = new Date().toISOString();
+  const id = userData["id"] as string;
+  cache.users[id] = { id, type: "user", fetched_at: now, data: userData };
+  await saveCache(cache);
+
+  const metrics = userData["public_metrics"] as Record<string, number> | undefined;
+  console.log(JSON.stringify({
+    id: userData["id"],
+    username: userData["username"],
+    name: userData["name"],
+    description: userData["description"],
+    location: userData["location"],
+    url: userData["url"],
+    created_at: userData["created_at"],
+    verified: userData["verified"],
+    followers: metrics?.["followers_count"],
+    following: metrics?.["following_count"],
+    tweets: metrics?.["tweet_count"],
+    cached_at: now,
+  }, null, 2));
+}
+
 // ---- Main ----
 
 async function main(): Promise<void> {
@@ -374,6 +508,12 @@ async function main(): Promise<void> {
     case "mentions":
       await cmdMentions(flags);
       break;
+    case "search":
+      await cmdSearch(flags);
+      break;
+    case "lookup":
+      await cmdLookup(flags);
+      break;
     case "status":
       await cmdStatus(flags);
       break;
@@ -386,6 +526,8 @@ Commands:
   delete    --tweet-id <id>                   Delete a tweet
   timeline  [--limit <n>]                     Show recent tweets (default: 10)
   mentions  [--limit <n>]                     Show recent mentions (default: 10)
+  search    --query <text> [--limit <n>]      Search recent tweets (10-100, default: 10)
+  lookup    --username <handle>               Look up a user by username
   status                                      Check API access and account info
 
 Credentials required (set via arc creds set --service x --key <key> --value <value>):

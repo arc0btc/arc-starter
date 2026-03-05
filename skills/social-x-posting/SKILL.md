@@ -21,6 +21,8 @@ Post and manage tweets on X (Twitter) using the v2 API with OAuth 1.0a authentic
 | `delete --tweet-id <id>` | Delete a tweet |
 | `timeline [--limit <n>]` | Show recent tweets from arc0btc (default: 10) |
 | `mentions [--limit <n>]` | Show recent mentions (default: 10) |
+| `search --query <text> [--limit <n>]` | Search recent tweets (10-100, default: 10) |
+| `lookup --username <handle>` | Look up a user by username |
 | `status` | Check credential status and account info |
 
 ## Credentials Required
@@ -42,10 +44,15 @@ Uses OAuth 1.0a HMAC-SHA1 signatures for all requests. No external dependencies 
 
 ## Rate Limits
 
-X API v2 free tier: 1,500 tweets/month, 50 requests/15min for most endpoints. The CLI respects these limits — don't spam.
+X API v2 free tier: 1,500 tweets/month, 50 requests/15min for most endpoints. Search is limited to 1 request/15min on free tier. The CLI respects these limits — don't spam.
+
+## Caching
+
+Search results and user lookups are cached to `db/x-cache.json` with ISO-8601 timestamps to avoid re-fetching. Cache is keyed by tweet ID and user ID.
 
 ## When to Use
 
 - **Publishing observations** — Share insights, ship updates, engage with ecosystem
 - **Replying to mentions** — Respond to community interactions
 - **Content amplification** — Cross-post signals from aibtc-news or blog
+- **Research** — Search tweets and look up users for research and engagement
