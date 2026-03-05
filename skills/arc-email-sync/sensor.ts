@@ -168,10 +168,27 @@ export default async function emailSensor(): Promise<string> {
 
     const model = senderAddr === "whoabuddy@gmail.com" ? "sonnet" : "haiku";
 
+    // Enrich skills based on content keywords (subject + body previews)
+    const contentForKeywords = senderMessages
+      .map((m) => `${m.subject ?? ""} ${m.body_preview ?? ""}`)
+      .join(" ")
+      .toLowerCase();
+    const extraEmailSkills: string[] = [];
+    if (/multisig|taproot|musig|bip-340|bip-342/.test(contentForKeywords)) {
+      extraEmailSkills.push("bitcoin-taproot-multisig");
+    }
+    if (/\bworktree\b/.test(contentForKeywords)) {
+      extraEmailSkills.push("arc-worktrees");
+    }
+    if (/manage.?skills|skill.?manager/.test(contentForKeywords)) {
+      extraEmailSkills.push("arc-skill-manager");
+    }
+    const emailSkills = ["arc-email-sync", ...extraEmailSkills];
+
     const taskId = insertTask({
       subject: `Email thread from ${senderDisplay} (${senderMessages.length} messages)`,
       description,
-      skills: '["arc-email-sync"]',
+      skills: JSON.stringify(emailSkills),
       priority,
       model,
       source,

@@ -166,6 +166,7 @@ export default async function securityAlertsSensor(): Promise<string> {
         ].join("\n"),
         priority: group.highestPriority,
         model: "sonnet",
+        skills: '["github-security-alerts"]',
         source,
       });
 

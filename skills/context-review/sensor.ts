@@ -41,6 +41,15 @@ interface ContextFinding {
 
 // ---- Keyword-to-skill mapping ----
 
+// Sources whose descriptions are meta-analysis reports (contain child task subjects
+// as examples). Scanning their descriptions would produce false positives since the
+// description text discusses other tasks rather than describing this task's own work.
+const META_TASK_SOURCES = new Set([
+  "sensor:arc-workflow-review",
+  "sensor:context-review",
+  "sensor:arc-self-audit",
+]);
+
 // Maps skill names to domain keywords that indicate a task likely needs that skill.
 // Only includes skills where keyword detection is meaningful.
 const SKILL_KEYWORD_MAP: Record<string, string[]> = {
@@ -125,7 +134,12 @@ function checkMissingSkillCoverage(
   const loaded_skills = parseSkillsArray(task.skills);
   const loaded_set = new Set(loaded_skills);
 
-  const searchable_text = `${task.subject} ${task.description ?? ""}`.toLowerCase();
+  // Meta-analysis tasks have descriptions that quote other tasks' subjects/content.
+  // Scanning those descriptions would produce false positives, so limit to subject only.
+  const isMetaSource = task.source ? META_TASK_SOURCES.has(task.source.split(":").slice(0, 3).join(":")) : false;
+  const searchable_text = isMetaSource
+    ? task.subject.toLowerCase()
+    : `${task.subject} ${task.description ?? ""}`.toLowerCase();
 
   for (const [skill_name, keywords] of Object.entries(SKILL_KEYWORD_MAP)) {
     if (!valid_skill_names.has(skill_name)) continue;

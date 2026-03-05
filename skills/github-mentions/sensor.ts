@@ -162,6 +162,17 @@ export default async function githubMentionsSensor(): Promise<string> {
           ? 4
           : 5;
 
+    // Enrich skills based on title keywords
+    const titleLower = n.title.toLowerCase();
+    const extraSkills: string[] = [];
+    if (/x402/.test(titleLower) || /agent.*collab|collab.*agent/.test(titleLower)) {
+      extraSkills.push("social-agent-engagement");
+    }
+    if (/\bworkflow\b|ci\/cd|github.actions|\bcicd\b/.test(titleLower)) {
+      extraSkills.push("arc-workflows");
+    }
+    const skillsArray = ["aibtc-repo-maintenance", ...extraSkills];
+
     insertTaskIfNew(canonicalSource ?? threadSource, {
       subject: `GitHub ${reasonLabel} in ${n.repo}: ${n.title}`,
       description: [
@@ -176,7 +187,7 @@ export default async function githubMentionsSensor(): Promise<string> {
         "2. Respond helpfully — review code if requested, answer questions if mentioned, take ownership if assigned.",
         "3. Use gh CLI to post comments or reviews as appropriate.",
       ].join("\n"),
-      skills: '["aibtc-repo-maintenance"]',
+      skills: JSON.stringify(skillsArray),
       priority,
       model: "sonnet",
     }, "any");
