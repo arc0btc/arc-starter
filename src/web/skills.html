@@ -5,6 +5,116 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Arc - Skills</title>
   <link rel="stylesheet" href="/shared.css">
+  <style>
+    .skill-grid {
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 640px) {
+      .skill-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 1024px) {
+      .skill-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .skill-card {
+      padding: var(--space-md) var(--space-lg);
+      transition: border-color 0.2s, background 0.2s;
+      cursor: pointer;
+    }
+    .skill-card:hover {
+      background: #111;
+      border-left-color: var(--accent);
+    }
+
+    .skill-card-top {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-xs);
+    }
+
+    .skill-card-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .skill-card-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: var(--space-sm);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .skill-card-caps {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-bottom: var(--space-sm);
+    }
+
+    .skill-card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--border);
+    }
+
+    .skill-usage {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .skill-msg-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: var(--font);
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .skill-msg-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .skills-search {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 0.85rem;
+      padding: var(--space-xs) var(--space-md);
+      border-radius: 2px;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.15s;
+      margin-bottom: var(--space-md);
+    }
+    .skills-search:focus { border-color: var(--accent); }
+    .skills-search::placeholder { color: #555; }
+
+    .skills-filter-row {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-bottom: var(--space-md);
+    }
+  </style>
 </head>
 <body>
 
@@ -59,6 +169,16 @@
         <h2 class="section-title">Skills</h2>
         <span class="section-count" id="skill-count"></span>
       </div>
+
+      <input class="skills-search" type="search" id="skills-search" placeholder="Search skills by name, description, or tag..." autocomplete="off" aria-label="Search skills">
+
+      <div class="skills-filter-row" id="skills-filters" role="group" aria-label="Filter by capability">
+        <button class="filter-tab active" data-cap="" aria-pressed="true">All</button>
+        <button class="filter-tab" data-cap="sensor" aria-pressed="false">Sensor</button>
+        <button class="filter-tab" data-cap="cli" aria-pressed="false">CLI</button>
+        <button class="filter-tab" data-cap="agent" aria-pressed="false">Agent</button>
+      </div>
+
       <div class="skill-grid" id="skill-grid">
         <div class="skill-card">
           <div class="skill-card-name">Loading...</div>
@@ -82,10 +202,34 @@
 
   <script src="/shared.js"></script>
   <script>
+    var allSkills = [];
+    var currentSearch = '';
+    var currentCap = '';
+
+    function filterSkills() {
+      var q = currentSearch.toLowerCase();
+      return allSkills.filter(function(s) {
+        // Capability filter
+        if (currentCap === 'sensor' && !s.has_sensor) return false;
+        if (currentCap === 'cli' && !s.has_cli) return false;
+        if (currentCap === 'agent' && !s.has_agent) return false;
+
+        // Text search
+        if (!q) return true;
+        if (s.name.toLowerCase().indexOf(q) !== -1) return true;
+        if ((s.description || '').toLowerCase().indexOf(q) !== -1) return true;
+        var tags = s.tags || [];
+        for (var i = 0; i < tags.length; i++) {
+          if (tags[i].toLowerCase().indexOf(q) !== -1) return true;
+        }
+        return false;
+      });
+    }
+
     function renderSkills(skills) {
       var grid = document.getElementById('skill-grid');
       var count = document.getElementById('skill-count');
-      count.textContent = skills.length + ' skills';
+      count.textContent = skills.length + ' skill' + (skills.length !== 1 ? 's' : '');
 
       if (skills.length === 0) {
         grid.innerHTML = '<p class="placeholder">No skills found</p>';
@@ -97,17 +241,25 @@
           return '<span class="skill-tag">' + esc(t) + '</span>';
         }).join('');
 
-        var badges = '';
-        if (s.has_sensor) badges += '<span class="skill-badge">sensor</span>';
-        if (s.has_cli) badges += '<span class="skill-badge">cli</span>';
-        if (s.has_agent) badges += '<span class="skill-badge">agent</span>';
+        var caps = '';
+        if (s.has_sensor) caps += '<span class="skill-badge">sensor</span>';
+        if (s.has_cli) caps += '<span class="skill-badge">cli</span>';
+        if (s.has_agent) caps += '<span class="skill-badge">agent</span>';
 
+        var usageText = s.usage_count === 1 ? '1 task' : (s.usage_count || 0) + ' tasks';
         var skillName = escAttr(s.name);
+        var msgPrefix = 're: skill:' + skillName + ' \\u2014 ';
 
-        return '<div class="skill-card" style="cursor:pointer" onclick="prefillMessage(\'Run skill: ' + skillName + '\')">'
-          + '<div class="skill-card-name">' + esc(s.name) + badges + '</div>'
-          + '<div class="skill-card-desc">' + esc(s.description) + '</div>'
-          + '<div class="skill-tags">' + tags + '</div>'
+        return '<div class="skill-card" onclick="prefillMessage(\'Run skill: ' + skillName + '\')" tabindex="0" role="button">'
+          + '<div class="skill-card-top">'
+          + '<span class="skill-card-name">' + esc(s.name) + '</span>'
+          + '</div>'
+          + '<div class="skill-card-desc">' + (s.description ? esc(s.description) : '<em>No description</em>') + '</div>'
+          + '<div class="skill-card-caps">' + caps + tags + '</div>'
+          + '<div class="skill-card-meta">'
+          + '<span class="skill-usage">' + usageText + '</span>'
+          + '<button class="skill-msg-btn" onclick="event.stopPropagation(); prefillMessage(\'' + msgPrefix + '\')">Message about skill</button>'
+          + '</div>'
           + '</div>';
       }).join('');
     }
@@ -129,10 +281,44 @@
         var skills = results[1].status === 'fulfilled' ? results[1].value : null;
 
         if (status) updateHeader(status);
-        if (skills) renderSkills(skills.skills || []);
+        if (skills) {
+          allSkills = (skills.skills || []).sort(function(a, b) {
+            return b.usage_count - a.usage_count || a.name.localeCompare(b.name);
+          });
+          renderSkills(allSkills);
+        }
       } catch (e) {
         console.error('Skills init error:', e);
       }
+
+      // Search
+      var searchInput = document.getElementById('skills-search');
+      var debouncedSearch = debounce(function() {
+        currentSearch = searchInput.value.trim();
+        renderSkills(filterSkills());
+      }, 200);
+      searchInput.addEventListener('input', debouncedSearch);
+
+      // Capability filter tabs
+      var filtersEl = document.getElementById('skills-filters');
+      filtersEl.addEventListener('click', function(e) {
+        var btn = e.target.closest('.filter-tab');
+        if (!btn) return;
+        currentCap = btn.getAttribute('data-cap');
+        filtersEl.querySelectorAll('.filter-tab').forEach(function(t) {
+          t.classList.toggle('active', t === btn);
+          t.setAttribute('aria-pressed', t === btn ? 'true' : 'false');
+        });
+        renderSkills(filterSkills());
+      });
+
+      // Keyboard nav for skill cards
+      document.getElementById('skill-grid').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          var card = e.target.closest('.skill-card');
+          if (card) { e.preventDefault(); card.click(); }
+        }
+      });
 
       initMessageBox();
       connectSSE();

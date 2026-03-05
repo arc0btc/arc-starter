@@ -216,6 +216,22 @@ function handleSensors(): Response {
 
 function handleSkills(): Response {
   const skills = discoverSkills();
+
+  // Count how often each skill is referenced in tasks (skills JSON array)
+  const usageRows = db.query(
+    "SELECT skills FROM tasks WHERE skills IS NOT NULL AND skills != '[]' AND skills != ''"
+  ).all() as Array<{ skills: string }>;
+
+  const usageMap = new Map<string, number>();
+  for (const row of usageRows) {
+    try {
+      const arr = JSON.parse(row.skills) as string[];
+      for (const name of arr) {
+        usageMap.set(name, (usageMap.get(name) || 0) + 1);
+      }
+    } catch { /* skip malformed */ }
+  }
+
   const result = skills.map(s => ({
     name: s.name,
     description: s.description,
@@ -223,6 +239,7 @@ function handleSkills(): Response {
     has_sensor: s.hasSensor,
     has_cli: s.hasCli,
     has_agent: s.hasAgent,
+    usage_count: usageMap.get(s.name) || 0,
   }));
   return json({ skills: result });
 }
