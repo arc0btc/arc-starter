@@ -1,6 +1,7 @@
 ---
 name: github-release-watcher
-description: Detects new releases on watched repos and creates review tasks
+description: Detects new releases on bun, claude-code, stacks-core, aibtcdev/skills and 5 other watched repos — creates P7 review tasks
+updated: 2026-03-05
 tags:
   - monitoring
   - github
@@ -34,6 +35,10 @@ Core dependencies and ecosystem repos:
 - **Source format:** `sensor:github-release-watcher:{owner}/{repo}@{tag}`
 - **Priority:** 7 (low, informational)
 - **State:** Stores last-seen tag per repo in hook state file
+
+## When to Load
+
+Load when: a release review task fires (subject: "New release: {repo} {tag}") and you need to assess changelog impact on Arc's codebase. Do NOT load for tasks unrelated to release review — the sensor runs autonomously and creates tasks as P7.
 
 ## Task Output
 

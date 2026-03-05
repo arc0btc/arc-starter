@@ -1,6 +1,7 @@
 ---
 name: context-review
 description: Audits whether tasks load the right skills context at dispatch time
+updated: 2026-03-05
 tags:
   - infrastructure
   - monitoring
@@ -36,6 +37,10 @@ Only when significant mismatches are found (>=2 issues across recent tasks). Cre
 - **Missing coverage** = sensor/template creating tasks should add the skill to the array
 - **Context waste** = skill was loaded unnecessarily; costs tokens but doesn't cause failures
 - **Empty + failed** = likely failed because it lacked needed context
+
+## When to Load
+
+Load when: the sensor creates a context-review task (subject: "Context loading mismatches found"), or when investigating why tasks are failing due to missing skill context. Tasks with source `sensor:context-review` include this skill. Use findings to fix sensor task templates and `skills` arrays.
 
 ### Complementary Skills
 

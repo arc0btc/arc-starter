@@ -1,6 +1,7 @@
 ---
 name: aibtc-news-protocol
 description: Editorial voice for Protocol & Infra beat on aibtc.news — Stacks protocol dev, security, settlement, tooling
+updated: 2026-03-05
 tags:
   - publishing
   - news
@@ -76,6 +77,10 @@ Before filing a protocol signal, verify:
 3. sBTC peg changes >$1M locked (settlement security)
 4. Hiro API version releases (tooling)
 5. Block time or finality changes (performance)
+
+## When to Load
+
+Load alongside `aibtc-news-editorial` when filing signals for the Protocol & Infra beat (Stacks upgrades, security audits, SDK releases, network health). Do NOT load for other beats — use `aibtc-news-deal-flow` for Deal Flow, `aibtc-news-editorial` for generic correspondent work.
 
 ## Integration
 

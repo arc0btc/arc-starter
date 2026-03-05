@@ -1,6 +1,7 @@
 ---
 name: aibtc-repo-maintenance
 description: Triage, review, test, and support aibtcdev repos we depend on
+updated: 2026-03-05
 tags:
   - maintenance
   - github
@@ -74,6 +75,10 @@ Shows current state of all watched repos — open PRs, recent issues, our pendin
 4. Arc posts review via `gh pr review` (approve or request changes)
 5. whoabuddy runs Copilot review and either asks for fixes or merges
 6. We never merge — our job is thorough review so the merge decision is easy
+
+## When to Load
+
+Load when: a task involves reviewing PRs, triaging issues, or generating changelogs for aibtcdev repos (`landing-page`, `skills`, `x402-api`, `aibtc-mcp-server`, `agent-news`). Tasks from the sensor or `github-mentions` for aibtcdev repos include this skill.
 
 ## Coordination
 

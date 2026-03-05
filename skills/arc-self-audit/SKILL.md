@@ -1,6 +1,7 @@
 ---
 name: arc-self-audit
 description: Daily operational self-audit — task queue health, cost trends, skill/sensor health, recent codebase changes
+updated: 2026-03-05
 tags:
   - infrastructure
   - monitoring
@@ -31,6 +32,10 @@ Always creates one audit task per day (date-deduped). The task description inclu
 
 - **housekeeping** = repo hygiene (files, locks, WAL, memory bloat)
 - **self-audit** = operational health (tasks, costs, skills, recent work)
+
+## When to Receive This Task
+
+Sensor-only — never explicitly loaded by dispatch. When you receive a daily audit task (subject: "Daily self-audit"), review the metrics in the task description and act on anomalies: fix stuck tasks, investigate failed cycles, escalate if costs are elevated. Close with a one-line summary of findings.
 
 ## Checklist
 

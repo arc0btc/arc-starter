@@ -1,6 +1,7 @@
 ---
 name: aibtc-heartbeat
 description: Signed AIBTC platform check-in every 5 minutes via BIP-137 Bitcoin message signing
+updated: 2026-03-05
 tags:
   - aibtc
   - heartbeat
@@ -32,6 +33,10 @@ The AIBTC API allows 1 check-in per 5 minutes per address. The sensor cadence ma
 | Field | Value |
 |-------|-------|
 | BTC | `bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933` |
+
+## When to Receive This Task
+
+This skill is sensor-only — never explicitly loaded by dispatch. It runs autonomously every 5 minutes. If unread AIBTC inbox messages are detected, it creates a task with `skills: ["bitcoin-wallet"]` to handle the inbox. No dispatch task ever loads this skill directly.
 
 ## Checklist
 

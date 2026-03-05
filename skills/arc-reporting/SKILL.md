@@ -1,6 +1,7 @@
 ---
 name: arc-reporting
 description: Generate watch reports (HTML, 6-hour) and overnight briefs (markdown, daily 6am PST)
+updated: 2026-03-05
 tags: [reporting, operations, recurring]
 ---
 
@@ -33,6 +34,10 @@ Fires once daily at 6am PST. Covers all overnight activity (8pm–6am PST). Morn
 - `db/hook-state/*.json` — sensor run history
 - `stacks-market` skill — portfolio and position data
 - GitHub API — partner (whoabuddy) and own (arc0btc) push events
+
+## When to Load
+
+Load when: the reporting sensor creates a watch report or overnight brief task. Tasks with subject "Generate watch report" or "Generate overnight brief" include this skill. Do NOT load for tasks that consume reports (CEO review loads `arc-ceo-review` separately).
 
 ## CLI
 

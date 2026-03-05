@@ -1,6 +1,7 @@
 ---
 name: arc-scheduler
 description: Manages future task scheduling with deferred creation, overdue detection, and priority boost for past-due tasks
+updated: 2026-03-05
 tags:
   - scheduling
   - tasks
@@ -71,6 +72,10 @@ Past-due scheduled tasks are sorted ahead of same-priority unscheduled tasks. Th
 - Result: the overdue scheduled task dispatches first
 
 Model tier (Opus/Sonnet/Haiku) is still determined by the raw `priority` field.
+
+## When to Load
+
+Do NOT load as a skill — scheduling is done via `arc tasks add --defer` CLI flags directly. This SKILL.md is reference documentation for how the `scheduled_for` column and priority boost work. The sensor runs automatically and requires no dispatch loading.
 
 ## Use Cases
 

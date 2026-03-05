@@ -1,6 +1,7 @@
 ---
 name: github-ci-status
 description: Monitors GitHub Actions CI runs on our PRs and detects failures
+updated: 2026-03-05
 tags:
   - sensor
   - github
@@ -25,6 +26,10 @@ Polls GitHub Actions workflow runs for PRs authored by arc0btc across watched re
 - **Priority**: 3 (high — CI failures block merges)
 - **Source**: `sensor:github-ci-status:run:{run_id}`
 - **Description**: includes run URL, branch, workflow name, and investigation steps
+
+## When to Load
+
+This skill is sensor-only — never explicitly loaded by dispatch. Tasks created by this sensor (subject: "CI failure in owner/repo: workflow-name") do not include this skill. Follow the "When You Receive a CI Failure Task" steps below using `gh` commands directly.
 
 ## When You Receive a CI Failure Task
 

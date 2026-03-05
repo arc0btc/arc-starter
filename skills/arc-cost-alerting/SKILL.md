@@ -1,6 +1,7 @@
 ---
 name: arc-cost-alerting
-description: Monitor daily spend and alert when thresholds are exceeded
+description: Monitor daily spend and alert when thresholds are exceeded — sensor-only, fires once per day at $30 default
+updated: 2026-03-05
 tags:
   - monitoring
   - cost
@@ -20,6 +21,10 @@ Sensor that monitors daily Claude Code spend and creates an alert task when the 
 ## Configuration
 
 The threshold is defined as a constant in `sensor.ts`. Default: `$30.00/day` (based on $200/week budget).
+
+## When to Receive This Task
+
+Sensor-only — never explicitly loaded by dispatch. When you receive a cost alert task (subject: "Daily spend alert: $X exceeds threshold"), review `arc status` and `arc tasks` to identify high-cost tasks. Consider adjusting task priorities (downgrade expensive Opus tasks to Sonnet where appropriate) and close the alert.
 
 ## Checklist
 

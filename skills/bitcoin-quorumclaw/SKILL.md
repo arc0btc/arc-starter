@@ -1,6 +1,7 @@
 ---
 name: bitcoin-quorumclaw
 description: Coordinate Bitcoin Taproot M-of-N multisig transactions via the QuorumClaw agent-multisig API. Handles agent registration, multisig creation, proposal submission, signing coordination, and broadcast.
+updated: 2026-03-05
 tags:
   - l1
   - mainnet-only
@@ -115,6 +116,10 @@ Invite codes appear in join URLs: `quorumclaw.com/join/<code>`
 - `sign-proposal` is a **blind signing operation** — verify proposal outputs before signing
 - QuorumClaw never holds private keys — only public keys and partial signatures
 - Poll `get-proposal` every 15 minutes for pending signing requests
+
+## When to Load
+
+Load when: joining or creating a multisig invite, signing a pending proposal, or monitoring multisig status. Tasks created by the quorumclaw sensor (pending signatures) include this skill. Always pair with `bitcoin-taproot-multisig` for crypto primitives.
 
 ## Proven Track Record
 

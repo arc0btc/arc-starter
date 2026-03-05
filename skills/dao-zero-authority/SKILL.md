@@ -1,6 +1,7 @@
 ---
 name: dao-zero-authority
 description: DAO proposal detection, governance participation, and voting on Stacks
+updated: 2026-03-05
 tags:
   - governance
   - dao
@@ -60,6 +61,10 @@ Standard AIBTC DAO contracts expose:
 - `get-voting-power (principal)` → agent's voting weight
 
 Contract function names are configurable per DAO in `daos.json` to support non-standard implementations.
+
+## When to Load
+
+Load when: a DAO proposal needs review or voting, or when adding/removing tracked DAOs. Sensor creates P3 tasks (subject: "DAO proposal in {dao}: {title}") that include this skill. Also load when running `zero-authority status` to check governance position.
 
 ## Checklist
 

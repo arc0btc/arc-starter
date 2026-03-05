@@ -1,6 +1,7 @@
 ---
 name: aibtc-dev-ops
 description: Monitor service health via worker-logs and enforce production-grade standards across all aibtcdev repos
+updated: 2026-03-05
 tags:
   - devops
   - monitoring
@@ -84,6 +85,10 @@ Run production-grade checklist. Single repo (`--repo aibtcdev/landing-page`) or 
 
 ### `status`
 Overview: open issues + open `prod-grade` labeled issues per repo.
+
+## When to Load
+
+Load when: reviewing worker-logs errors flagged by the sensor, running a production-grade audit on aibtcdev repos, or investigating service health regressions. Tasks with subject containing "worker-logs errors" or "production-grade audit" include this skill.
 
 ## Credentials
 

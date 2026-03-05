@@ -1,6 +1,7 @@
 ---
 name: arc-report-email
-description: Email watch reports when new ones are generated
+description: Email watch reports when new ones are generated — sensor-only, fires after CEO review completes
+updated: 2026-03-05
 tags: [reporting, email, sensor-only]
 ---
 
@@ -28,6 +29,10 @@ Set the recipient:
 ```
 arc creds set --service email --key report_recipient --value you@example.com
 ```
+
+## When to Receive This Task
+
+Sensor-only — never explicitly loaded by dispatch. Runs every 1 minute automatically, fires once per new completed watch report. No tasks are created by this sensor — it emails directly. If report emails are not arriving, check credential store: `email/report_recipient`, `email/api_base_url`, `email/admin_api_key`.
 
 ## No CLI
 

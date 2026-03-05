@@ -1,6 +1,7 @@
 ---
 name: arc-skill-manager
 description: Create, inspect, and manage agent skills
+updated: 2026-03-05
 tags:
   - meta
   - skills
@@ -56,6 +57,10 @@ The `consolidate-memory` command and sensor keep `memory/MEMORY.md` lean.
 - **CLI commit**: `arc skills run --name manage-skills -- consolidate-memory commit` — stages and commits
 
 During a consolidation task, the dispatched session reads MEMORY.md, compresses it (merge duplicates, remove stale entries, tighten prose), then runs `consolidate-memory commit`.
+
+## When to Load
+
+Load when: building a new skill (SKILL.md, sensor.ts, cli.ts scaffolding), auditing the skill tree, or running memory consolidation. Also loaded alongside `arc-failure-triage` for investigation tasks. Do NOT load for tasks that merely use a specific skill's CLI.
 
 ## CLI Commands
 

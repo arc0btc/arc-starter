@@ -1,6 +1,7 @@
 ---
 name: arxiv-research
 description: Fetches and compiles arXiv papers on LLMs, agents, and AI into ISO-8601 research digests
+updated: 2026-03-05
 tags:
   - research
   - arxiv
@@ -50,6 +51,10 @@ Primary: `cs.AI` (AI), `cs.CL` (NLP/LLMs), `cs.LG` (ML), `cs.MA` (Multiagent Sys
 Files: `research/arxiv/{ISO8601}_arxiv_digest.md`
 
 Paid content on arc0btc.com — costs compute to compile.
+
+## When to Load
+
+Load when: compiling an arXiv digest, fetching papers on LLM/agent topics, or assessing AI research relevance to Arc's stack. Sensor creates P5 tasks with subject "Compile arXiv digest" that include this skill.
 
 ## Sensor
 

@@ -1,6 +1,7 @@
 ---
 name: bitcoin-taproot-multisig
 description: Bitcoin Taproot M-of-N multisig coordination — share pubkeys, verify co-signer signatures, and navigate the OP_CHECKSIGADD workflow.
+updated: 2026-03-05
 tags:
   - l1
   - mainnet-only
@@ -51,6 +52,10 @@ This signs with your BIP-86 internal Taproot key. Always register `internalPubKe
 **Register `internalPubKey`. Sign with `schnorr-sign-digest`. They match.**
 
 The tweaked pubkey (in your `bc1p...` address) differs from the internal pubkey. Mixing them causes signature rejection by the coordinator.
+
+## When to Load
+
+Load alongside `bitcoin-quorumclaw` for any multisig task. Use `get-pubkey` during agent registration, `verify-cosig` when checking co-signer signatures before finalizing a proposal.
 
 ## Proven Transactions
 

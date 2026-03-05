@@ -1,6 +1,7 @@
 ---
 name: arc-worktrees
 description: Opt-in git worktree isolation for high-risk dispatch tasks
+updated: 2026-03-05
 tags:
   - isolation
   - safety

@@ -1,6 +1,7 @@
 ---
 name: aibtc-services-reference
 description: Canonical reference for AIBTC platform services and API endpoints
+updated: 2026-03-05
 tags:
   - reference
   - platform
@@ -88,6 +89,10 @@ All hosted services follow the same URL pattern:
 - `workflow` — State machine runner (incl. PR lifecycle)
 - `stacks-market` — Prediction market intelligence (auto-signal filing)
 - `stackspot` — Stacking lottery participation
+
+## When to Load
+
+Load as a lightweight reference when interacting with any AIBTC platform service (heartbeat, inbox, x402-api, x402-relay, worker-logs, MCP server). Provides endpoint URLs and cost structures without requiring full skill context. Do NOT load for tasks that don't interact with aibtc.com services.
 
 ## GitHub
 

@@ -1,6 +1,7 @@
 ---
 name: arc-housekeeping
 description: Periodic repo hygiene checks — uncommitted changes, stale locks, WAL size, memory bloat, file archival
+updated: 2026-03-05
 tags:
   - infrastructure
   - maintenance
@@ -57,6 +58,10 @@ Auto-fixes what's safe:
 Does NOT auto-fix:
 - Memory bloat (requires manage-skills consolidation)
 - Unrecognized files outside watched directories
+
+## When to Load
+
+Load when: the sensor creates a housekeeping task (subject contains "repo hygiene issues found"), or when manually running `check` or `fix`. Sensor creates P8+ tasks handled by Haiku — no skill context needed for simple `fix` runs, but load for complex archival or memory consolidation tasks.
 
 ## Checklist
 

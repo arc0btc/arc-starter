@@ -1,6 +1,7 @@
 ---
 name: social-agent-engagement
 description: Proactive outreach to AIBTC network agents for collaboration on shared interests
+updated: 2026-03-05
 tags:
   - comms
   - collaboration

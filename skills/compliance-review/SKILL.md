@@ -1,6 +1,7 @@
 ---
 name: compliance-review
 description: Audits all skills and sensors for structural, interface, and naming compliance with Arc conventions
+updated: 2026-03-05
 tags:
   - housekeeping
   - quality
@@ -26,6 +27,10 @@ Non-compliant items are reported as a single follow-up task with itemized findin
 - **Interval:** 360 minutes (6 hours)
 - **Source:** `sensor:compliance-review`
 - **Priority:** 6 (Sonnet-tier review task)
+
+## When to Load
+
+Load when: the sensor creates a compliance review task (subject: "Skill/sensor compliance issues found"), or when manually auditing the skill tree after adding/modifying skills. Tasks with source `sensor:compliance-review` include this skill at P6.
 
 ## Compliance Rules Reference
 

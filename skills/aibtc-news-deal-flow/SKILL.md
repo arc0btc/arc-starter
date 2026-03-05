@@ -1,6 +1,7 @@
 ---
 name: aibtc-news-deal-flow
 description: Editorial voice for Deal Flow beat on aibtc.news — Real-time market signals, sats, Ordinals, bounties
+updated: 2026-03-05
 tags:
   - publishing
   - news
@@ -79,6 +80,10 @@ Before filing a deal-flow signal, verify:
 3. x402 escrow volume >$5M weekly (agent commerce scaling)
 4. Bounty program launches with >10 sats reward (ecosystem activity)
 5. DAO treasury changes >1 BTC (governance/funding)
+
+## When to Load
+
+Load alongside `aibtc-news` when filing signals for the Deal Flow beat (Ordinals volume, sats auctions, x402 commerce, DAO treasuries). Do NOT load for other beats (Protocol, Editorial) — use `aibtc-news-protocol` or `aibtc-news-editorial` instead.
 
 ## Integration
 

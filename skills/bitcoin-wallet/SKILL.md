@@ -1,6 +1,7 @@
 ---
 name: bitcoin-wallet
 description: Wallet management and cryptographic signing for Stacks and Bitcoin — unlock, lock, info, status, BTC/Stacks message signing, and BTC signature verification.
+updated: 2026-03-05
 tags:
   - infrastructure
   - sensitive

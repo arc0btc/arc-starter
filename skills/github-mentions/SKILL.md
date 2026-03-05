@@ -1,6 +1,7 @@
 ---
 name: github-mentions
 description: Detects GitHub notifications and engages as org maintainer across managed and collaborative repos
+updated: 2026-03-05
 tags:
   - sensor
   - github
@@ -41,6 +42,10 @@ Arc maintains two tiers of repos:
 - **Skills**: `["aibtc-repo-maintenance"]` (+ contextual skills based on title keywords)
 - **Priority**: 3 (review requests/assignments), 4 (managed repo activity), 5 (collaborative)
 - **Source**: `sensor:github-mentions:thread:{id}` or canonical `pr-review:repo#N`
+
+## When to Receive This Task
+
+Sensor-only — never explicitly loaded as a standalone skill. Tasks include `aibtc-repo-maintenance` in their skills array (plus contextual skills based on keywords). Use the org-maintainer framework below when you receive a task from this sensor.
 
 ## How to Think About GitHub Tasks
 

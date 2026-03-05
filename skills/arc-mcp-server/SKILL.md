@@ -1,6 +1,7 @@
 ---
 name: arc-mcp-server
 description: MCP server exposing Arc's task queue, skills, and memory to external Claude instances
+updated: 2026-03-05
 tags:
   - mcp
   - api
@@ -45,6 +46,10 @@ arc skills run --name mcp-server -- start                          # stdio trans
 arc skills run --name mcp-server -- start --transport http         # HTTP on port 3100
 arc skills run --name mcp-server -- start --port 3100 --auth-key KEY  # custom port + auth
 ```
+
+## When to Load
+
+Load when: building or maintaining the MCP server itself, debugging connection issues, or adding new tools to the exposed surface. Do NOT load when using Arc as a dispatch agent — this skill is for managing the MCP server, not for tasks executed by external MCP clients.
 
 ## Claude Code Integration
 

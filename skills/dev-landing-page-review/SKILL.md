@@ -1,6 +1,7 @@
 ---
 name: dev-landing-page-review
 description: Full React/Next.js PR review — 77 performance rules + 10 composition rules + ~100 UI/accessibility rules for aibtcdev/landing-page PRs
+updated: 2026-03-05
 tags:
   - react
   - nextjs

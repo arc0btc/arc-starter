@@ -1,6 +1,7 @@
 ---
 name: arc-catalog
 description: Generate and publish skills/sensors catalog to arc0me-site
+updated: 2026-03-05
 tags:
   - publishing
   - meta
@@ -42,6 +43,10 @@ arc skills run --name arc-catalog -- preview     # Print catalog JSON to stdout 
 - Trigger: SHA of skills directory differs from last generated catalog
 - Task priority: 7 (Sonnet)
 - Deduplicates: won't queue if a catalog task is already pending
+
+## When to Load
+
+Load when: the sensor creates a catalog regeneration task (skills directory changed), or when manually generating a catalog for arc0me-site. Do NOT load for skill development tasks — only load when publishing the catalog.
 
 ## Related
 

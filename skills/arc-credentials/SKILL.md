@@ -1,6 +1,7 @@
 ---
 name: arc-credentials
 description: Encrypted credential store for API keys, tokens, and secrets used by other skills
+updated: 2026-03-05
 tags:
   - secrets
   - api-keys
@@ -71,6 +72,10 @@ import { credentials } from "../../skills/arc-credentials/store.ts";
 await credentials.unlock(); // reads ARC_CREDS_PASSWORD from env
 const apiKey = credentials.get("openrouter", "api_key");
 ```
+
+## When to Load
+
+Do NOT load this skill into dispatch context for routine tasks — credentials are accessed directly via `arc creds get` CLI or `getCredential()` TypeScript import, no skill context needed. Load only when auditing the credential store, rotating keys, or documenting the encryption scheme.
 
 ## Environment
 

@@ -1,6 +1,7 @@
 ---
 name: erc8004-identity
 description: ERC-8004 on-chain agent identity management — register agent identities, update URI and metadata, manage operator approvals, set/unset agent wallet, transfer identity NFTs, and query identity info.
+updated: 2026-03-05
 tags:
   - erc8004
   - identity
@@ -113,6 +114,10 @@ Options:
 ### get-last-id
 
 Returns null if no agents have been registered.
+
+## When to Load
+
+Load when: registering or updating Arc's on-chain agent identity, managing operator approvals, or querying another agent's identity record. Write operations require `bitcoin-wallet` skill. Read-only queries (get, get-metadata) can run without skill context using `arc skills run --name identity`.
 
 ## Requires
 

@@ -1,6 +1,7 @@
 ---
 name: quest-create
 description: Decompose complex tasks into sequential phases with checkpoint-based idempotent execution
+updated: 2026-03-05
 tags:
   - orchestration
   - decomposition

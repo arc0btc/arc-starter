@@ -1,6 +1,7 @@
 ---
 name: arc-dispatch-evals
 description: Dispatch quality evaluation — error analysis, LLM judges, calibration
+updated: 2026-03-05
 tags: [meta, evaluation, quality]
 ---
 
@@ -36,6 +37,10 @@ arc skills run --name evals -- help
 ## Failure Categories (discovered via error-analysis)
 
 Categories are emergent — run `error-analysis` on real traces to discover them. Initial categories will be seeded from the first analysis pass.
+
+## When to Load
+
+Load when: running a scheduled quality review of dispatch performance, building or calibrating LLM judges for specific failure categories, or investigating dispatch quality regressions. Do NOT load for individual task execution — evals are meta-level work.
 
 ## Checklist
 

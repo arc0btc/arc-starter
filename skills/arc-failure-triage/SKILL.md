@@ -1,6 +1,7 @@
 ---
 name: arc-failure-triage
 description: Detect recurring failure patterns, escalate to investigation instead of retry
+updated: 2026-03-05
 tags:
   - meta
   - reliability
@@ -49,6 +50,10 @@ Groups by pattern class, not exact string:
 - `timeout` / `ETIMEDOUT` / `hung` → `timeout`
 - `403` / `401` / `permission denied` / `unauthorized` → `auth-error`
 - `ECONNREFUSED` / `ENOTFOUND` / `fetch failed` → `network-error`
+
+## When to Load
+
+Load when: the failure-triage sensor creates an investigation task (subject: "Investigate recurring error: {pattern}"), or when manually scanning for failure patterns. Tasks with source `sensor:arc-failure-triage:pattern:{hash}` include this skill alongside `arc-skill-manager`.
 
 ## Core Principle
 

@@ -1,6 +1,7 @@
 ---
 name: blog-deploy
 description: Auto-deploy arc0me-site to Cloudflare Workers on content changes
+updated: 2026-03-05
 tags:
   - deployment
   - cloudflare
@@ -63,6 +64,10 @@ To reset (force re-deploy on next sensor cycle):
 # The sensor will re-queue if SHA doesn't match — just deploy manually to resync
 arc skills run --name blog-deploy -- deploy
 ```
+
+## When to Load
+
+Load when: a deploy task fires (sensor detects new commits in arc0me-site), or when manually triggering a deployment. Tasks with subject "Deploy arc0me-site" include this skill. Also load when debugging deploy failures or resetting the deployed SHA state.
 
 ## Related
 

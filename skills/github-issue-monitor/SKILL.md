@@ -1,6 +1,7 @@
 ---
 name: github-issue-monitor
 description: Monitors GitHub issues on managed and collaborative repos, creates triage tasks with org maintainer context
+updated: 2026-03-05
 tags:
   - sensor
   - github
@@ -40,6 +41,10 @@ Arc doesn't just react to issues — Arc triages with full context:
 - **Priority**: 4 (managed), 5 (collaborative)
 - **Source**: `sensor:github-issue-monitor:{repo}#{number}`
 - **Model**: sonnet
+
+## When to Receive This Task
+
+Sensor-only — never explicitly loaded as a standalone skill. Tasks created by this sensor include `aibtc-repo-maintenance` in their skills array. The steps below apply when you receive a task with source `sensor:github-issue-monitor:{repo}#{number}`.
 
 ## When You Receive an Issue Task
 

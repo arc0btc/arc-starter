@@ -1,6 +1,7 @@
 ---
 name: arc-link-research
-description: Process batches of links into mission-relevant research reports
+description: Process batches of links into mission-relevant research reports — evaluates Bitcoin/AIBTC/Stacks relevance
+updated: 2026-03-05
 tags:
   - research
   - analysis
@@ -45,6 +46,10 @@ arc tasks add --subject "Research: [topic]" --skills research --description "Lin
 ```
 
 The dispatched agent reads links from the task description, runs `process`, and closes the task.
+
+## When to Load
+
+Load when: processing a batch of links dropped by whoabuddy (task subject: "Research: [topic]"). No sensor — only triggered by human task creation. The task description contains the URLs to analyze.
 
 ## Report Format
 

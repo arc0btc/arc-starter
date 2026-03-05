@@ -1,6 +1,7 @@
 ---
 name: arc-service-health
-description: System health monitor — detects stale cycles and stuck dispatch
+description: System health monitor — detects stale cycles and stuck dispatch, triggers high-priority alerts
+updated: 2026-03-05
 tags:
   - sensor
   - system
@@ -35,6 +36,10 @@ The health sensor monitors the agent's operational state every 5 minutes and cre
 - **Cadence**: every 5 minutes (shouldRun gates based on db/hook-state/health.json)
 - **No alert if**: system is idle (no pending tasks) or dispatch ran recently (< 30 min ago)
 - **State file**: `db/hook-state/health.json`
+
+## When to Receive This Task
+
+Sensor-only — never explicitly loaded by dispatch. When you receive a health alert task (source: `sensor:arc-service-health`), follow the steps below. The sensor runs every 5 minutes automatically; no skill loading needed for alert triage.
 
 ## When You See a Health Alert
 

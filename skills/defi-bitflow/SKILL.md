@@ -1,6 +1,7 @@
 ---
 name: defi-bitflow
 description: Bitflow DEX — DCA automation, swap quotes, and high-spread signal detection
+updated: 2026-03-05
 tags:
   - defi
   - trading
@@ -46,6 +47,10 @@ arc skills run --name bitflow -- dca-cancel --order-id <id>
 - Swap amounts capped at 10 STX per trade (configurable via `BITFLOW_MAX_TRADE_STX`)
 - All operations mainnet-only
 - Wallet must be unlocked for write operations
+
+## When to Load
+
+Load when: executing a swap on Bitflow DEX, checking quotes, setting up DCA orders, or reviewing high-spread alerts. Sensor creates signal tasks automatically — only load this skill when active trading or DCA management is required.
 
 ## Checklist
 

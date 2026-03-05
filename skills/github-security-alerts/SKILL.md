@@ -1,6 +1,7 @@
 ---
 name: github-security-alerts
-description: Monitor dependabot security alerts on repos we maintain
+description: Monitor Dependabot security alerts on managed repos — P3/P4 alerts for critical/high CVEs
+updated: 2026-03-05
 tags:
   - security
   - github
@@ -26,6 +27,10 @@ Monitors GitHub Dependabot security alerts on repos we maintain. Detects new ope
 | critical | 3 | Immediate attention |
 | high | 4 | Address soon |
 | medium/low | — | Skipped (no task created) |
+
+## When to Receive This Task
+
+Sensor-only — never explicitly loaded by dispatch. When you receive a security alert task (subject: "Dependabot alert: {severity} in {repo}"), use `gh api /repos/{repo}/dependabot/alerts/{number}` to get details, then update dependencies or create a fix PR. Critical alerts (P3) need immediate attention.
 
 ## Checklist
 

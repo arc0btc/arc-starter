@@ -1,6 +1,7 @@
 ---
 name: arc-performance-analytics
 description: Cost and token analytics by model tier, skill, and time period
+updated: 2026-03-05
 tags:
   - analytics
   - ops
@@ -40,6 +41,10 @@ arc skills run --name performance-analytics -- help
 | P8+ | Haiku | Junior |
 
 Explicit `task.model` overrides priority-based routing.
+
+## When to Load
+
+Load when: the CEO review or a cost alert task requires detailed model-tier spend analysis, or when investigating whether task priorities are mismatched to their actual complexity. Use `summary` and `by-skill` for budget reviews. Do NOT load for routine dispatch tasks.
 
 ## Checklist
 

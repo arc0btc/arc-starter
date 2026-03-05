@@ -1,6 +1,7 @@
 ---
 name: arc0btc-monetization
-description: Reviews Arc capabilities and surfaces service/product opportunities for arc0btc.com
+description: Reviews Arc capabilities and surfaces monetizable service/product opportunities for arc0btc.com
+updated: 2026-03-05
 tags:
   - strategy
   - site
@@ -38,6 +39,10 @@ arc skills run --name arc0btc-monetization -- list-capabilities
 |------|---------|---------|
 | `SKILL.md` | Yes | This file |
 | `cli.ts` | Yes | Opportunity scanning and reporting |
+
+## When to Load
+
+Load when: doing a strategic review of Arc's monetizable capabilities, generating an opportunity report for arc0btc.com, or evaluating which services to productize next. Typically loaded by the CEO during sprint reviews, not during routine dispatch.
 
 ## Opportunity Categories
 

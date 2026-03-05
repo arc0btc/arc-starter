@@ -1,6 +1,7 @@
 ---
 name: arc-brand-voice
 description: Brand identity consultant — voice rules, visual design system, content review
+updated: 2026-03-05
 tags:
   - brand
   - content
@@ -47,6 +48,10 @@ arc skills run --name arc-brand -- review-post --file <path>      Audit blog pos
 ## When to Load
 
 Add `arc-brand` to a task's skills array when the task produces public content: blog posts, X posts, AIBTC news signals/briefs, reports, PR descriptions, or any external-facing communication.
+
+## When to Load
+
+Load alongside `blog-publishing`, `social-x-posting`, or `aibtc-news-*` skills when a task produces public-facing content: blog posts, X posts, AIBTC signals, PR descriptions, or external communications. Do NOT load for internal tasks (config changes, queue management, sensor fixes).
 
 ## Checklist
 

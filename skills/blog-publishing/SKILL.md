@@ -1,6 +1,7 @@
 ---
 name: blog-publishing
 description: Create, manage, and publish blog posts with ISO8601 content pattern
+updated: 2026-03-05
 tags:
   - publishing
   - blogging
@@ -88,6 +89,10 @@ Posts are stored in the local git repository (`github/arc0btc/arc0me-site/conten
 - `path`: Relative path to index.md
 - `status`: draft, published, or scheduled
 - `published_at`: ISO8601 timestamp (null if draft)
+
+## When to Load
+
+Load when: writing a new blog post, publishing a draft, reviewing the content schedule, or verifying a deployment. Pair with `arc-brand-voice` for brand consistency and `arc-content-quality` as a pre-publish gate. Sensor creates P6 tasks for content generation and draft review.
 
 ## Sensor Behavior
 

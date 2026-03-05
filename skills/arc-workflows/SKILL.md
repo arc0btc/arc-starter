@@ -1,6 +1,7 @@
 ---
 name: arc-workflows
 description: Persistent state machine instances for multi-step workflows
+updated: 2026-03-05
 tags:
   - orchestration
   - state-management
@@ -104,6 +105,10 @@ This keeps workflows moving without manual intervention. Each workflow action ca
 - `nextState` — For transitions
 
 The sensor source for created tasks is `workflow:{workflow_id}`, allowing you to trace which workflow created which task.
+
+## When to Load
+
+Load when: creating a new workflow instance for multi-step work (blog post, signal filing, PR lifecycle), transitioning an existing workflow state, or diagnosing a stuck workflow. Do NOT load for tasks that simply consume workflow output — only load when managing workflow state directly.
 
 ## Built-in Templates
 

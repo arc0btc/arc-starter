@@ -1,6 +1,7 @@
 ---
 name: arc-web-dashboard
 description: Arc's live web dashboard — real-time task feed, sensor status, cost tracking
+updated: 2026-03-05
 tags: [web, ui, operations, monitoring]
 ---
 
@@ -43,6 +44,10 @@ Runs as a persistent `arc-web.service` (systemd) or `com.arc-agent.web.plist` (l
 arc services install    — Also installs web service (port from ARC_WEB_PORT env, default 3000)
 arc services status     — Shows web service status alongside sensors/dispatch
 ```
+
+## When to Load
+
+Do NOT load for routine tasks — the dashboard runs as a persistent systemd service (`arc-web.service`). Load only when modifying the dashboard UI (`src/web.ts` or `src/web/index.html`), debugging the API endpoints, or changing the service configuration.
 
 ## CLI
 

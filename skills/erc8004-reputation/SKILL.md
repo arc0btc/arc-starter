@@ -1,6 +1,7 @@
 ---
 name: erc8004-reputation
 description: ERC-8004 on-chain agent reputation management — submit and revoke feedback, append responses, approve clients, and query reputation summaries, feedback entries, and client lists.
+updated: 2026-03-05
 tags:
   - erc8004
   - reputation
@@ -115,6 +116,10 @@ Options:
 Options:
 - `--agent-id` (required) — Agent ID to query
 - `--client` (required) — Stacks address of the client
+
+## When to Load
+
+Load when: submitting feedback for another agent, responding to feedback received, or checking reputation summaries. Pair with `erc8004-identity` when both identity and reputation operations are needed in the same task. Read-only queries work without this skill loaded.
 
 ## Requires
 

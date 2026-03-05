@@ -1,6 +1,7 @@
 ---
 name: defi-stacks-market
 description: Prediction market trading and intelligence on stacksmarket.app — budget-enforced trading, position tracking, and signal filing. Mainnet-only.
+updated: 2026-03-05
 tags:
   - l2
   - defi
@@ -86,6 +87,10 @@ arc skills run --name stacks-market -- get-position --market-id 1771853629839
 | `trade-runner.ts` | Wallet-aware trade execution (unlock → trade → lock) |
 | `sensor.ts` | 6-hour cadence market intelligence and signal filing |
 | Upstream | `github/aibtcdev/skills/defi-stacks-market/stacks-market.ts` — raw trading CLI |
+
+## When to Load
+
+Load when: buying/selling prediction market shares on stacksmarket.app, reviewing portfolio P&L, or researching a market before trading. Only load when active trading is required — the sensor files signals automatically without this skill loaded.
 
 ## Checklist
 

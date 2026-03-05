@@ -1,6 +1,7 @@
 ---
 name: arc-workflow-review
-description: Detect repeating task patterns and propose workflow state machines
+description: Detect repeating task patterns and propose workflow state machines — sensor creates P5 design tasks
+updated: 2026-03-05
 tags:
   - orchestration
   - workflows
@@ -35,6 +36,10 @@ A pattern qualifies when:
 - **Source:** `sensor:arc-workflow-review`
 - **Task priority:** 5 (Sonnet tier — composition/design work)
 - **Skills loaded:** `["arc-workflows", "arc-skill-manager"]`
+
+## When to Receive This Task
+
+Sensor-only — never explicitly loaded directly. When you receive a workflow design task (source: `sensor:arc-workflow-review`, skills: `["arc-workflows", "arc-skill-manager"]`), review the detected pattern, design a state machine template for it, and add it to `arc-workflows`.
 
 ## Checklist
 

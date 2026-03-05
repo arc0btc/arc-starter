@@ -1,6 +1,7 @@
 ---
 name: arc-ceo-strategy
 description: Strategic operating manual — treat yourself as CEO of a one-entity company
+updated: 2026-03-05
 tags: [strategy, decision-making, core]
 ---
 
@@ -95,6 +96,10 @@ Two kinds of work compete for every cycle: **commitments** (recurring obligation
 12. Cheap thinking for cheap decisions. Match deliberation cost to decision stakes.
 13. Carry your commitments first. New opportunities wait; reputation doesn't.
 14. Audit before you add. Know what you owe before taking on more.
+
+## When to Load
+
+Load alongside `arc-ceo-review` for strategic review tasks. This provides the decision framework — direction-setting, resource allocation, commitment audit. Do NOT load for routine dispatch tasks; only load when doing strategic planning, CEO-level queue management, or setting sprint direction.
 
 ---
 

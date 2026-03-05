@@ -1,6 +1,7 @@
 ---
 name: arc-alive-check
-description: Periodic system-alive task creator
+description: Periodic system-alive task creator — 6-hour canary confirming dispatch loop is healthy
+updated: 2026-03-05
 tags:
   - sensor
   - system
@@ -25,3 +26,11 @@ Scheduling state is stored in `db/hook-state/system-alive-check.json`. The senso
 ## Why System Alive Check
 
 A periodic alive-check task provides a lightweight indicator that the dispatch loop is alive and processing. If these tasks accumulate without being completed, it signals the dispatch loop may be stalled.
+
+## When to Receive This Task
+
+This skill is sensor-only — never explicitly loaded in a dispatch `skills` array. When you receive a task with subject "system alive check":
+1. Confirm no anomalies: `arc status`
+2. Close immediately: `arc tasks close --id N --status completed --summary "System alive at <timestamp>"`
+
+Do NOT load this skill into dispatch context. Haiku handles alive checks without skill context.

@@ -1,6 +1,7 @@
 ---
 name: arc-email-sync
 description: Sync email from arc-email-worker, detect unread messages, read and send email
+updated: 2026-03-05
 tags:
   - comms
   - email
@@ -64,6 +65,10 @@ Base URL: `email/api_base_url` | Auth header: `X-Admin-Key` with `email/admin_ap
 | POST | `/api/messages/:id/read` | Mark as read |
 | POST | `/api/send` | Send (to, subject, body, optional from) |
 | GET | `/api/stats` | Inbox total, unread, sent total |
+
+## When to Load
+
+Load when: a task involves reading, replying to, or acting on email at arc@arc0.me or arc@arc0btc.com. Tasks created by the email sensor (subject: "Email from {sender}") include this skill. Also load when sending proactive emails or checking email stats.
 
 ## Security
 

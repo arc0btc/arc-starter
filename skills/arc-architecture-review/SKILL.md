@@ -1,6 +1,7 @@
 ---
 name: arc-architecture-review
 description: Continuous architecture review, state machine diagrams, and simplification via SpaceX 5-step process
+updated: 2026-03-05
 tags:
   - architecture
   - simplification
@@ -37,6 +38,10 @@ Runs every 360 minutes. Creates an architecture review task when:
 
 - `skills/arc-architecture-review/state-machine.md` — living Mermaid state machine diagram
 - `skills/arc-architecture-review/audit-log.md` — timestamped findings (housekeeping archives)
+
+## When to Load
+
+Load when: the sensor fires with a stale state-machine diagram, CEO/watch reports flag architectural issues, or a simplification audit is requested. Tasks with source `sensor:arc-architecture-review` include this skill. Do NOT load for routine feature development.
 
 ## Checklist
 

@@ -1,6 +1,7 @@
 ---
 name: stacks-stackspot
 description: Autonomous Stacking participation — detect joinable pots, auto-join with Arc wallet, claim sBTC rewards. Mainnet-only lottery stacking.
+updated: 2026-03-05
 tags:
   - l2
   - stacking
@@ -77,6 +78,10 @@ bun run github/aibtcdev/skills/stacks-stackspot/stackspot.ts cancel-pot --contra
 |------|---------|
 | `sensor.ts` | Auto-detect joinable pots, join, monitor rewards |
 | Upstream | `github/aibtcdev/skills/stacks-stackspot/stackspot.ts` — full pot management |
+
+## When to Load
+
+Load when: the sensor creates a claim-rewards task, or when manually joining a pot or starting stacking. Sensor handles auto-joining autonomously — only load this skill for manual pot operations or reward claims. Requires mainnet wallet.
 
 ## Checklist
 

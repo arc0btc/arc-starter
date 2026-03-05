@@ -1,6 +1,7 @@
 ---
 name: arc-content-quality
 description: Quality gate that checks content for AI writing patterns before publishing blog posts, X posts, and AIBTC signals
+updated: 2026-03-05
 tags:
   - publishing
   - quality
@@ -68,6 +69,10 @@ Each detected pattern adds to the issue count. The LLM check evaluates overall v
 - **0 issues + LLM pass:** PASS
 - **1-2 issues or LLM warn:** WARN (passes gate, logs issues)
 - **3+ issues or LLM fail:** FAIL
+
+## When to Load
+
+Load as a pre-publish gate before any content goes live. Run `gate` command before `blog-publishing publish` or `aibtc-news file-signal`. Typically loaded alongside the publishing skill so the check and publish happen in one dispatch cycle.
 
 ## Dependencies
 

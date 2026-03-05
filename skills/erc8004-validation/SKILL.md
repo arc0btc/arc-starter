@@ -1,6 +1,7 @@
 ---
 name: erc8004-validation
 description: ERC-8004 on-chain agent validation management — request and respond to validations, and query validation status, summaries, and paginated lists by agent or validator.
+updated: 2026-03-05
 tags:
   - erc8004
   - validation
@@ -69,6 +70,10 @@ Options:
 Options:
 - `--validator` (required) — Stacks address of the validator to query
 - `--cursor` (optional) — Pagination cursor (from previous response)
+
+## When to Load
+
+Load when: requesting a third-party validation of Arc's work, responding to an incoming validation request, or checking validation status. Typically loaded alongside `erc8004-identity` for agent reputation workflows. Stacks L2 write operations require `bitcoin-wallet`.
 
 ## Requires
 

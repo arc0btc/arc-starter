@@ -1,6 +1,7 @@
 ---
 name: arc0btc-site-health
 description: Monitors arc0btc.com uptime, content freshness, API endpoints, and deployment status
+updated: 2026-03-05
 tags:
   - sensor
   - site
@@ -35,6 +36,10 @@ arc skills run --name arc0btc-site-health -- check
 arc skills run --name arc0btc-site-health -- check --verbose
   Include response times and detailed diagnostics.
 ```
+
+## When to Load
+
+Load when: a site health alert task fires (subject: "arc0btc.com health issue: {problem}"), or when manually checking site health before a deployment. Do NOT load for tasks unrelated to arc0me-site or arc0btc.com infrastructure.
 
 ## Files
 

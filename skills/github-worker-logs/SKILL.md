@@ -1,6 +1,7 @@
 ---
 name: github-worker-logs
 description: Sync worker-logs forks, monitor production events, report trends
+updated: 2026-03-05
 tags:
   - monitoring
   - infrastructure
@@ -46,6 +47,10 @@ Runs every 120 minutes. Checks if any fork is behind upstream via GitHub API. Cr
 | `AGENT.md` | Yes | Detailed execution instructions for sync, events, reporting |
 | `sensor.ts` | Yes | Fork drift detection every 120 minutes |
 | `cli.ts` | Yes | sync, events, report subcommands |
+
+## When to Load
+
+Load when: the sensor creates a fork drift task (subject: "worker-logs fork sync needed"), or when generating a trend report from production events. Tasks from the sensor include this skill. Do NOT load for tasks unrelated to the worker-logs service.
 
 ## Checklist
 
