@@ -386,7 +386,7 @@ export const InscriptionMachine: StateMachine<{
           type: "create-task",
           subject: `Inscription: Prepare commit for ${ctx.dataHash.slice(0, 8)}...`,
           priority: 5,
-          skills: ["bitcoin"],
+          skills: ["bitcoin-wallet"],
           description: `Prepare commit transaction. Data hash: ${ctx.dataHash}, Wallet: ${ctx.walletAddress}, Network: ${ctx.network || "mainnet"}`,
         };
       },
@@ -403,7 +403,7 @@ export const InscriptionMachine: StateMachine<{
           type: "create-task",
           subject: `Inscription: Confirm commit transaction ${ctx.commitTxid.slice(0, 8)}...`,
           priority: 5,
-          skills: ["bitcoin"],
+          skills: ["bitcoin-wallet"],
           description: `Wait for commit confirmation (typically 1-6 blocks). Commit txid: ${ctx.commitTxid}`,
         };
       },
@@ -420,7 +420,7 @@ export const InscriptionMachine: StateMachine<{
           type: "create-task",
           subject: `Inscription: Prepare reveal transaction for ${ctx.commitTxid.slice(0, 8)}...`,
           priority: 5,
-          skills: ["bitcoin"],
+          skills: ["bitcoin-wallet"],
           description: `Prepare reveal transaction using commit UTXO. Commit txid: ${ctx.commitTxid}`,
         };
       },
@@ -433,7 +433,7 @@ export const InscriptionMachine: StateMachine<{
           type: "create-task",
           subject: `Inscription: Confirm reveal transaction ${ctx.revealTxid.slice(0, 8)}...`,
           priority: 5,
-          skills: ["bitcoin"],
+          skills: ["bitcoin-wallet"],
           description: `Wait for reveal confirmation and extract inscription ID. Reveal txid: ${ctx.revealTxid}`,
         };
       },
