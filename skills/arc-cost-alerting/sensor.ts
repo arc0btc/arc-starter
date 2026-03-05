@@ -45,6 +45,7 @@ export default async function costAlertingSensor(): Promise<string> {
       `Daily Claude Code spend has reached $${costUsd.toFixed(2)} (API estimate: $${apiCostUsd.toFixed(2)}). ` +
       `Threshold: $${DAILY_THRESHOLD_USD.toFixed(2)}/day. ` +
       `Review active tasks and consider deferring low-priority work. Run \`arc status\` for details.`,
+    skills: '["arc-cost-alerting"]',
     priority: 3,
     model: "sonnet",
     source: source,
