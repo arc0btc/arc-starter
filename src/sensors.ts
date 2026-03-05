@@ -13,6 +13,7 @@ import { join } from "node:path";
 import { discoverSkills } from "./skills.ts";
 import { initDatabase } from "./db.ts";
 import { insertTask, pendingTaskExistsForSource, taskExistsForSource } from "./db.ts";
+export { insertTask, pendingTaskExistsForSource, taskExistsForSource };
 import type { InsertTask } from "./db.ts";
 
 // ---- Constants ----
