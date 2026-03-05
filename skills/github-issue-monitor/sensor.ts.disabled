@@ -79,6 +79,14 @@ export default async function githubIssueMonitorSensor(): Promise<string> {
       const labelStr = issue.labels.length > 0 ? `\nLabels: ${issue.labels.join(", ")}` : "";
       const priority = repoClass === "managed" ? 4 : 5;
 
+      // Enrich skills based on issue title keywords
+      const titleLower = issue.title.toLowerCase();
+      const extraSkills: string[] = [];
+      if (/x402|agent.*collab|engagement/.test(titleLower)) {
+        extraSkills.push("social-agent-engagement");
+      }
+      const issueSkills = ["aibtc-repo-maintenance", ...extraSkills];
+
       insertTaskIfNew(source, {
         subject: `GitHub issue in ${repo}#${issue.number}: ${issue.title}`,
         description: [
@@ -95,7 +103,7 @@ export default async function githubIssueMonitorSensor(): Promise<string> {
           "4. For collaborative repos: comment if you can help, or leave for maintainers.",
           "5. Close this task with a summary of what you did.",
         ].filter(Boolean).join("\n"),
-        skills: '["aibtc-repo-maintenance"]',
+        skills: JSON.stringify(issueSkills),
         priority,
         model: "sonnet",
       }, "any");

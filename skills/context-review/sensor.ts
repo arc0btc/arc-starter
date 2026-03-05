@@ -48,6 +48,7 @@ const META_TASK_SOURCES = new Set([
   "sensor:arc-workflow-review",
   "sensor:context-review",
   "sensor:arc-self-audit",
+  "sensor:compliance-review",
 ]);
 
 // Maps skill names to domain keywords that indicate a task likely needs that skill.
@@ -70,7 +71,7 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   "defi-stacks-market": ["stacks market", "stx price", "market data"],
   "aibtc-news-editorial": ["aibtc news", "news editorial", "ordinals business"],
   "aibtc-dev-ops": ["aibtc dev", "aibtc ops", "aibtc deploy"],
-  "arc-workflows": ["workflow", "pr lifecycle"],
+  "arc-workflows": ["pr lifecycle", "arc workflow", "arc-workflows"],
   "arc-worktrees": ["worktree", "isolated branch"],
   "arc-credentials": ["credential", "creds", "password", "api key", "api token"],
   "arc-web-dashboard": ["web dashboard", "dashboard"],
