@@ -1,3 +1,44 @@
+## 2026-03-05T18:55:00.000Z
+
+3 finding(s): 0 error, 1 warn, 2 info → **HEALTHY**
+
+**Codebase changes since last audit (12:35Z, commits def20f9 → 855f419):**
+- **5 new skills added:** `arc-catalog` (sensor 120min + cli — skills catalog generation/publishing), `arc0btc-monetization` (cli only — strategy), `arc0btc-site-health` (sensor 30min + cli — site uptime monitoring), `arxiv-research` (sensor 720min + cli + AGENT.md — arXiv paper digests), `quest-create` (cli + AGENT.md — multi-phase task decomposition).
+- **3 skills removed:** `dev-react-review`, `dev-react-composition`, `dev-web-design` — merged into `dev-landing-page-review`. Directories deleted cleanly.
+- **github-issue-monitor re-enabled** (commit f4e139d) after GitHub access confirmed. 24h recency filter added to prevent cold-start bursts. `sensor.ts.disabled` artifact cleaned up.
+- **StreakMaintenanceMachine added** to `arc-workflows/state-machine.ts` — models streak-post→rate-limit→retry cycle (15 prior recurrences, avg 2.9 steps). Rate-limit window-aware; deduped per beat per day.
+- **Two prior WARNs resolved:** InscriptionMachine now uses `bitcoin-wallet` (was `"bitcoin"`). ArchitectureReviewMachine now creates P7/sonnet tasks (was P4/Opus).
+- **Bug fixes:** XSS in web-dashboard onclick handlers, `subprocess_timeout` dispatch type union, quest-create positional→named args, cost-alerting re-enabled at $30/day.
+- **Docs:** Claudeception pattern added to all 63 SKILL.md files. Testing convention added to CLAUDE.md. SOUL.md reframed as Bitcoin L1/L2 agent identity.
+
+**5-Step Review (2026-03-05 18:55Z):**
+
+**Step 1 — Requirements:**
+- All 5 new skills have clear, distinct motivations: arc-catalog (catalog publishing gap), arc0btc-site-health (uptime monitoring need), arxiv-research (daily research digest automation), arc0btc-monetization (strategy/opportunity surfacing), quest-create (multi-cycle task decomposition capability).
+- StreakMaintenanceMachine: requirement validated by 15 detected recurrences in workflow-review. Correct automation target.
+- github-issue-monitor re-enablement: GitHub access restored. 24h recency filter prevents the cold-start burst that triggered the original disable.
+
+**Step 2 — Delete:**
+- **WARN — `social-x-posting/FIRST_WEEK_PLAN.md`**: Non-skill file in skill directory. Planning artifacts should live in `memory/` or `research/`, not alongside SKILL.md files. Low priority — does not affect sensor discovery or dispatch — but sets a bad precedent. Consider moving to `research/` or deleting.
+- INFO — `dev-react-*` cleanup is complete. `dev-landing-page-review` is the single consolidated skill.
+- INFO — Skill count: 61 total (was ~58). +5 new, -3 merged. Growth rate remains acceptable.
+
+**Step 3 — Simplify:**
+- StreakMaintenanceMachine is minimal (5 states, window-aware retry) for a genuinely recurring pattern. No over-engineering.
+- arc0btc-site-health at 30min cadence: aggressive but site uptime is critical (P3 alerts). Acceptable.
+- quest-create adds orchestration without adding complexity to dispatch — it's a CLI + AGENT.md pattern, not a sensor.
+
+**Step 4 — Accelerate:**
+- arxiv-research automates a daily recurring research task — previously manual. Direct cycle-time reduction.
+- arc-catalog automates catalog publishing on skills-dir change — no manual publish step.
+
+**Step 5 — Automate:**
+- No new automation opportunities identified beyond what's been added. Meta-monitoring (compliance-review, context-review, self-audit, architect) continues to provide coverage.
+
+**Architecture Assessment:** Healthy. Both prior WARNs resolved. One new WARN (planning artifact in skill directory). Sensor count 39 (was 35). Skills 61 (was 58). Pipeline integrity intact.
+
+---
+
 ## 2026-03-05T12:35:00.000Z
 
 4 finding(s): 0 error, 2 warn, 2 info → **HEALTHY**

@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-05T12:35:00.000Z*
+*Generated: 2026-03-05T18:55:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -54,11 +54,14 @@ stateDiagram-v2
         RunAllSensors --> workerLogsSensor: github-worker-logs
         RunAllSensors --> workflowReviewSensor: arc-workflow-review
         RunAllSensors --> workflowsSensor: arc-workflows
+        RunAllSensors --> arxivSensor: arxiv-research
+        RunAllSensors --> arcCatalogSensor: arc-catalog
+        RunAllSensors --> arc0btcSiteHealthSensor: arc0btc-site-health
+        RunAllSensors --> githubIssueMonitorSensor: github-issue-monitor
 
         note right of RunAllSensors
-            35 sensors total
-            github-issue-monitor: disabled (.ts.disabled)
-            Reason: spark0btc GitHub restriction (2026-03-02)
+            39 sensors total
+            github-issue-monitor: re-enabled 2026-03-05 (24h recency filter added)
         end note
 
         state "Generic Sensor Pattern" as genericSensor {
@@ -210,21 +213,24 @@ stateDiagram-v2
     }
 
     note right of CLI
-        Skills with CLI (28):
+        Skills with CLI (34):
         aibtc-dev-ops, aibtc-news-editorial,
         aibtc-repo-maintenance, arc-brand-voice,
-        arc-architecture-review, arc-content-quality,
-        arc-credentials, arc-dispatch-evals,
-        arc-email-sync, arc-failure-triage,
-        arc-housekeeping, arc-link-research,
-        arc-mcp-server, arc-reporting,
-        arc-skill-manager, arc-web-dashboard,
-        arc-workflows, arc-worktrees,
+        arc-architecture-review, arc-catalog,
+        arc-content-quality, arc-credentials,
+        arc-dispatch-evals, arc-email-sync,
+        arc-failure-triage, arc-housekeeping,
+        arc-link-research, arc-mcp-server,
+        arc-reporting, arc-skill-manager,
+        arc-web-dashboard, arc-workflows,
+        arc-worktrees, arc0btc-monetization,
+        arc0btc-site-health, arxiv-research,
         bitcoin-quorumclaw, bitcoin-taproot-multisig,
         bitcoin-wallet, blog-publishing,
         defi-stacks-market, erc8004-identity,
         erc8004-reputation, erc8004-validation,
-        github-worker-logs, social-x-posting
+        github-worker-logs, quest-create,
+        social-agent-engagement, social-x-posting
     end note
 ```
 
@@ -257,11 +263,12 @@ stateDiagram-v2
 | pr-lifecycle | issue-opened→opened→review-requested→... | github-mentions | Includes aibtcdev repos |
 | reputation-feedback | pending→checking→submitted→confirmed→completed | manual | ERC-8004 reputation |
 | validation-request | pending→sent→confirmed→submitted→verified→completed | manual | ERC-8004 validation |
-| inscription | pending→commit_preparing→...→confirmed→completed | manual | ⚠️ references skill "bitcoin" (invalid — should be bitcoin-wallet) |
+| inscription | pending→commit_preparing→...→confirmed→completed | manual | RESOLVED: now uses skill "bitcoin-wallet" correctly |
 | new-release | detected→assessing→integration_pending→integrating→completed | github-release-watcher | Dynamic skill list from ctx |
-| architecture-review | triggered→reviewing→cleanup_pending→cleaning→completed | arc-workflow-review | ⚠️ creates P4/Opus tasks; sensor routes P7/sonnet |
+| architecture-review | triggered→reviewing→cleanup_pending→cleaning→completed | arc-workflow-review | RESOLVED: now creates P7/sonnet tasks (was P4/Opus) |
+| streak-maintenance | pending→attempting→rate_limited→completed | aibtc-news-editorial | Rate-limit aware; windowOpenAt schedules retry; instance_key: streak-{beat}-{date} |
 
-## Skills Inventory (58 total)
+## Skills Inventory (61 total)
 
 | Skill | Sensor | CLI | Agent | Description |
 |-------|--------|-----|-------|-------------|
@@ -276,6 +283,7 @@ stateDiagram-v2
 | arc-alive-check | yes | - | - | Periodic system-alive task creator |
 | arc-architecture-review | yes | yes | yes | Architecture review, state machine diagrams, SpaceX 5-step process |
 | arc-brand-voice | - | yes | yes | Brand identity consultant — voice rules, visual design system |
+| arc-catalog | yes | yes | - | Generate and publish skills/sensors catalog to arc0me-site (120min) |
 | arc-ceo-review | yes | - | yes | CEO reviews watch reports and manages task queue |
 | arc-ceo-strategy | - | - | yes | Strategic operating manual — treat yourself as CEO |
 | arc-content-quality | - | yes | - | Pre-publish quality gate — detects AI writing patterns |
@@ -298,6 +306,9 @@ stateDiagram-v2
 | arc-workflow-review | yes | - | - | Detect repeating task patterns and propose workflows |
 | arc-workflows | yes | yes | yes | Persistent state machine instances for multi-step workflows |
 | arc-worktrees | - | yes | - | Git worktree isolation for high-risk dispatch tasks |
+| arc0btc-monetization | - | yes | - | Strategy: surface monetizable service/product opportunities for arc0btc.com |
+| arc0btc-site-health | yes | yes | - | Monitor arc0btc.com uptime, content freshness, API endpoints (30min) |
+| arxiv-research | yes | yes | yes | Fetch and compile arXiv papers on LLMs/agents into research digests (720min) |
 | bitcoin-quorumclaw | yes | yes | yes | Bitcoin Taproot M-of-N multisig via QuorumClaw API |
 | bitcoin-taproot-multisig | - | yes | - | BIP-340 Schnorr primitives — get-pubkey, verify-cosig |
 | bitcoin-wallet | - | yes | yes | Wallet management and cryptographic signing |
@@ -308,16 +319,17 @@ stateDiagram-v2
 | dao-zero-authority | yes | - | - | Zero Authority DAO sensor |
 | defi-bitflow | yes | - | - | Bitflow DeFi sensor |
 | defi-stacks-market | yes | yes | yes | Prediction market intelligence — detect high-volume markets |
-| dev-landing-page-review | - | - | yes | Full React/Next.js PR review — performance (77 rules) + composition (10 rules) + UI/accessibility (~100 rules) |
+| dev-landing-page-review | - | - | yes | Full React/Next.js PR review — performance + composition + UI/accessibility |
 | erc8004-identity | - | yes | yes | On-chain agent identity management |
 | erc8004-reputation | - | yes | yes | On-chain agent reputation management |
 | erc8004-validation | - | yes | yes | On-chain agent validation management |
 | github-ci-status | yes | - | - | Monitors GitHub Actions CI runs |
-| github-issue-monitor | disabled | - | - | Issue monitoring for managed repos (disabled — spark0btc restriction) |
+| github-issue-monitor | yes | - | - | Issue monitoring for managed repos (re-enabled 2026-03-05, 24h recency filter) |
 | github-mentions | yes | - | - | GitHub @mentions with managed/external repo classification |
 | github-release-watcher | yes | - | - | Detect new releases on watched repos |
 | github-security-alerts | yes | - | - | Monitor dependabot security alerts |
 | github-worker-logs | yes | yes | yes | Sync worker-logs forks, monitor production events |
+| quest-create | - | yes | yes | Decompose complex tasks into sequential phases with checkpoint-based execution |
 | social-agent-engagement | yes | yes | - | Proactive outreach to AIBTC network agents |
 | social-x-posting | - | yes | - | Post tweets, read timeline on X |
 | stacks-stackspot | yes | - | - | Autonomous Stacking — detect pots, auto-join, claim rewards |
