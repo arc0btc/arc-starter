@@ -577,6 +577,104 @@ export const ArchitectureReviewMachine: StateMachine<{
 };
 
 /**
+ * EmailThreadMachine — models the recurring "email thread from X" → follow-up chain cycle.
+ *
+ * Pattern detected: 24 recurrences, avg 5.4 steps per chain. Email threads consistently
+ * spawn diverse follow-up tasks across many skills, then optionally require a reply.
+ * This machine ensures every email thread is triaged, acted upon, and closed out.
+ *
+ * instance_key: "email-thread-{sender-slug}-{message-id-or-date}" (one per thread)
+ *
+ * States:
+ *   received       → triage the email, identify action items and whether a reply is needed
+ *   triaged        → follow-up tasks have been created (or none needed); decide next step
+ *   reply_pending  → a reply is required; draft and send it
+ *   completed      → done (all tasks spawned, reply sent or not needed)
+ *
+ * Context:
+ *   sender         — display name or email of sender
+ *   subject        — email subject line
+ *   messageCount   — number of messages in thread
+ *   source         — which skill detected it (arc-email-sync, aibtc-inbox-sync, etc.)
+ *   needsReply     — whether a reply should be sent
+ *   actionItems    — comma-separated list of action items identified during triage
+ *   replyDraft     — draft reply text (populated before transitioning to reply_pending)
+ */
+export const EmailThreadMachine: StateMachine<{
+  sender?: string;
+  subject?: string;
+  messageCount?: number;
+  source?: string;
+  needsReply?: boolean;
+  actionItems?: string;
+  replyDraft?: string;
+}> = {
+  name: "email-thread",
+  initialState: "received",
+  states: {
+    received: {
+      on: { triage: "triaged" },
+      action: (ctx) => {
+        if (!ctx.sender) return null;
+        const threadDesc = ctx.subject
+          ? `"${ctx.subject}" from ${ctx.sender}`
+          : `from ${ctx.sender}`;
+        return {
+          type: "create-task",
+          subject: `Triage email thread ${threadDesc}`,
+          priority: 6,
+          skills: ["arc-email-sync", "arc-skill-manager"],
+          description: `Read and triage the email thread ${threadDesc} (${ctx.messageCount || 1} message(s)).
+Source: ${ctx.source || "arc-email-sync"}.
+
+Steps:
+1. Read the full thread content
+2. Identify action items and spawn follow-up tasks for each (use arc tasks add)
+3. Determine whether a reply is required
+4. Transition this workflow to 'triaged' with updated context:
+   - needsReply: true/false
+   - actionItems: comma-separated summary of tasks created
+   - replyDraft: draft reply text (if needsReply is true)`,
+        };
+      },
+    },
+    triaged: {
+      on: { needs_reply: "reply_pending", close: "completed" },
+      action: (ctx) => {
+        if (!ctx.needsReply) return null;
+        // Auto-transition to reply_pending if a reply is needed
+        return {
+          type: "transition",
+          nextState: "reply_pending",
+        };
+      },
+    },
+    reply_pending: {
+      on: { send: "completed" },
+      action: (ctx) => {
+        if (!ctx.sender || !ctx.replyDraft) return null;
+        return {
+          type: "create-task",
+          subject: `Send reply to ${ctx.sender}`,
+          priority: 6,
+          skills: ["arc-email-sync"],
+          description: `Send the following reply to ${ctx.sender} for thread: ${ctx.subject || "(no subject)"}.
+
+Draft reply:
+${ctx.replyDraft}
+
+After sending, transition this workflow to 'completed'.`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -591,6 +689,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "inscription": InscriptionMachine,
     "new-release": NewReleaseMachine,
     "architecture-review": ArchitectureReviewMachine,
+    "email-thread": EmailThreadMachine,
   };
   return templates[name] || null;
 }
