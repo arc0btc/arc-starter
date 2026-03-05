@@ -35,9 +35,9 @@ const KNOWN_PATTERNS = new Set([
   "validation-request",
   "inscription",
   // Sensor sources with established handling (no workflow needed — they're atomic)
-  "sensor:heartbeat",
+  "sensor:aibtc-heartbeat",
   "sensor:arc-service-health",
-  "sensor:consolidate-memory",
+  "sensor:arc-memory-consolidate",
   // Generic sources that aren't meaningful patterns
   "unknown",
   "task:*",

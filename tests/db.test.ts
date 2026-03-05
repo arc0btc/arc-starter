@@ -122,11 +122,11 @@ describe("tasks table", () => {
   });
 
   test("pendingTaskExistsForSource dedup query", () => {
-    db.query("INSERT INTO tasks (subject, source) VALUES (?, ?)").run("sensor task", "sensor:heartbeat");
+    db.query("INSERT INTO tasks (subject, source) VALUES (?, ?)").run("sensor task", "sensor:aibtc-heartbeat");
 
     const exists = db
       .query("SELECT 1 FROM tasks WHERE source = ? AND status IN ('pending', 'active') LIMIT 1")
-      .get("sensor:heartbeat");
+      .get("sensor:aibtc-heartbeat");
     expect(exists).not.toBeNull();
 
     const notExists = db

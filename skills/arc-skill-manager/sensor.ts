@@ -5,12 +5,12 @@ import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 import { Glob } from "bun";
 
 const SENSOR_NAME = "arc-skill-manager";
-const MEMORY_SENSOR_NAME = "consolidate-memory";
+const MEMORY_SENSOR_NAME = "arc-memory-consolidate";
 const MEMORY_INTERVAL_MINUTES = 120;
 const VALIDATION_INTERVAL_MINUTES = 360;
 const log = createSensorLogger(SENSOR_NAME);
-const TASK_SOURCE = "sensor:consolidate-memory";
-const SENSOR_VALIDATION_SOURCE = "sensor:sensor-validation";
+const TASK_SOURCE = "sensor:arc-memory-consolidate";
+const SENSOR_VALIDATION_SOURCE = "sensor:arc-sensor-validation";
 const MEMORY_PATH = join(import.meta.dir, "../../memory/MEMORY.md");
 const LINE_THRESHOLD = 500;
 const SKILLS_ROOT = join(import.meta.dir, "../../skills");

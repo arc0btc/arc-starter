@@ -29,7 +29,7 @@ function isQuietHours(): boolean {
 
 const INTERVAL_MINUTES = 60; // minimum polling interval; variants use their own intervals internally
 
-const WATCH_SENSOR = "reporting-watch";
+const WATCH_SENSOR = "arc-reporting-watch";
 const WATCH_INTERVAL = 360; // 6 hours
 const WATCH_SOURCE = "sensor:arc-reporting-watch";
 const WATCH_PRIORITY = 6;
@@ -64,7 +64,7 @@ async function watchReportSensor(): Promise<string> {
 
 // ---- Overnight brief variant ----
 
-const OVERNIGHT_SENSOR = "reporting-overnight";
+const OVERNIGHT_SENSOR = "arc-reporting-overnight";
 const OVERNIGHT_INTERVAL = 60; // check every hour, but only fire at 6am PST
 const OVERNIGHT_SOURCE = "sensor:arc-reporting-overnight";
 const OVERNIGHT_PRIORITY = 2;

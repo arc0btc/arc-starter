@@ -117,14 +117,14 @@ stateDiagram-v2
         }
 
         state reportingSensor {
-            [*] --> reportingWatchGate: claimSensorRun(reporting-watch, 360min)
+            [*] --> reportingWatchGate: claimSensorRun(arc-reporting-watch, 360min)
             reportingWatchGate --> reportingSkip: interval not elapsed OR quiet hours (8pm-6am PST)
             reportingWatchGate --> reportingWatchDedup: active hours + interval elapsed
             reportingWatchDedup --> reportingSkip: pending task exists
             reportingWatchDedup --> reportingWatchCreate: no dupe
             reportingWatchCreate --> [*]: insertTask() P6 HTML
 
-            [*] --> reportingOvernightGate: claimSensorRun(reporting-overnight, 1440min)
+            [*] --> reportingOvernightGate: claimSensorRun(arc-reporting-overnight, 1440min)
             reportingOvernightGate --> reportingSkip: interval not elapsed OR not 6am PST window
             reportingOvernightGate --> reportingOvernightDedup: 6am PST + interval elapsed
             reportingOvernightDedup --> reportingSkip: pending task exists

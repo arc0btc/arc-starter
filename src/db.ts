@@ -10,7 +10,7 @@ export interface Task {
   skills: string | null;         // JSON array: ["arc-skill-manager", "stacks-js"]
   priority: number;
   status: string;                // pending|active|completed|failed|blocked
-  source: string | null;         // "human", "sensor:heartbeat", "task:42"
+  source: string | null;         // "human", "sensor:aibtc-heartbeat", "task:42"
   parent_id: number | null;
   template: string | null;
   scheduled_for: string | null;

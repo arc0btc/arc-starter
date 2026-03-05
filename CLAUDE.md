@@ -119,7 +119,7 @@ CREATE TABLE tasks (
   skills TEXT,              -- JSON array: ["arc-skill-manager", "stacks-js"]
   priority INTEGER DEFAULT 5,
   status TEXT DEFAULT 'pending',  -- pending|active|completed|failed|blocked
-  source TEXT,              -- "human", "sensor:heartbeat", "task:42"
+  source TEXT,              -- "human", "sensor:aibtc-heartbeat", "task:42"
   parent_id INTEGER,
   template TEXT,
   scheduled_for TEXT,
