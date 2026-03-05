@@ -197,71 +197,77 @@ function checkEmptySkillsFailed(
 // ---- Main sensor ----
 
 export default async function contextReviewSensor(): Promise<string> {
-  const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
-  if (!claimed) return "skip";
+  try {
+    const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
+    if (!claimed) return "skip";
 
-  log("auditing context loading for recent tasks...");
+    log("auditing context loading for recent tasks...");
 
-  const recent_tasks = getRecentCompletedAndFailedTasks(REVIEW_WINDOW_HOURS);
-  if (recent_tasks.length === 0) {
-    log("no recent completed/failed tasks to audit");
-    return "ok";
-  }
-
-  // Build valid skill name set
-  const all_skills = discoverSkills();
-  const valid_skill_names = new Set(all_skills.map((s) => s.name));
-
-  // Run all checks
-  const all_findings: ContextFinding[] = [];
-
-  for (const task of recent_tasks) {
-    all_findings.push(...checkInvalidSkillReferences(task, valid_skill_names));
-    all_findings.push(...checkMissingSkillCoverage(task, valid_skill_names));
-    all_findings.push(...checkContextWaste(task));
-    all_findings.push(...checkEmptySkillsFailed(task));
-  }
-
-  log(`audited ${recent_tasks.length} tasks, found ${all_findings.length} issue(s)`);
-
-  if (all_findings.length < MINIMUM_ISSUES_THRESHOLD) {
-    return "ok";
-  }
-
-  // Group findings by type for the report
-  const by_type = new Map<string, ContextFinding[]>();
-  for (const finding of all_findings) {
-    const group = by_type.get(finding.finding_type) ?? [];
-    group.push(finding);
-    by_type.set(finding.finding_type, group);
-  }
-
-  const type_labels: Record<string, string> = {
-    invalid_skill_reference: "Invalid Skill References",
-    missing_skill_coverage: "Missing Skill Coverage",
-    context_waste: "Context Waste (excessive skills)",
-    empty_skills_failed: "Empty Skills on Failed Tasks",
-  };
-
-  let description = `Context review audit found ${all_findings.length} issue(s) across ${recent_tasks.length} recent tasks.\n\n`;
-
-  for (const [finding_type, findings] of by_type) {
-    description += `## ${type_labels[finding_type] ?? finding_type}\n\n`;
-    for (const f of findings) {
-      description += `- **Task #${f.task_id}** (${f.task_subject}): ${f.detail}\n`;
+    const recent_tasks = getRecentCompletedAndFailedTasks(REVIEW_WINDOW_HOURS);
+    if (recent_tasks.length === 0) {
+      log("no recent completed/failed tasks to audit");
+      return "ok";
     }
-    description += "\n";
+
+    // Build valid skill name set
+    const all_skills = discoverSkills();
+    const valid_skill_names = new Set(all_skills.map((s) => s.name));
+
+    // Run all checks
+    const all_findings: ContextFinding[] = [];
+
+    for (const task of recent_tasks) {
+      all_findings.push(...checkInvalidSkillReferences(task, valid_skill_names));
+      all_findings.push(...checkMissingSkillCoverage(task, valid_skill_names));
+      all_findings.push(...checkContextWaste(task));
+      all_findings.push(...checkEmptySkillsFailed(task));
+    }
+
+    log(`audited ${recent_tasks.length} tasks, found ${all_findings.length} issue(s)`);
+
+    if (all_findings.length < MINIMUM_ISSUES_THRESHOLD) {
+      return "ok";
+    }
+
+    // Group findings by type for the report
+    const by_type = new Map<string, ContextFinding[]>();
+    for (const finding of all_findings) {
+      const group = by_type.get(finding.finding_type) ?? [];
+      group.push(finding);
+      by_type.set(finding.finding_type, group);
+    }
+
+    const type_labels: Record<string, string> = {
+      invalid_skill_reference: "Invalid Skill References",
+      missing_skill_coverage: "Missing Skill Coverage",
+      context_waste: "Context Waste (excessive skills)",
+      empty_skills_failed: "Empty Skills on Failed Tasks",
+    };
+
+    let description = `Context review audit found ${all_findings.length} issue(s) across ${recent_tasks.length} recent tasks.\n\n`;
+
+    for (const [finding_type, findings] of by_type) {
+      description += `## ${type_labels[finding_type] ?? finding_type}\n\n`;
+      for (const f of findings) {
+        description += `- **Task #${f.task_id}** (${f.task_subject}): ${f.detail}\n`;
+      }
+      description += "\n";
+    }
+
+    description += "Review findings. For missing coverage, update the sensor/template creating those tasks to include the right skills. For invalid refs, check if the skill was renamed or removed.";
+
+    insertTaskIfNew(TASK_SOURCE, {
+      subject: `context-review: ${all_findings.length} context loading issue(s) found`,
+      description,
+      skills: '["context-review"]',
+      priority: 6,
+      model: "sonnet",
+    });
+
+    return "ok";
+  } catch (e) {
+    const error = e as Error;
+    log(`error: ${error.message}`);
+    return "error";
   }
-
-  description += "Review findings. For missing coverage, update the sensor/template creating those tasks to include the right skills. For invalid refs, check if the skill was renamed or removed.";
-
-  insertTaskIfNew(TASK_SOURCE, {
-    subject: `context-review: ${all_findings.length} context loading issue(s) found`,
-    description,
-    skills: '["context-review"]',
-    priority: 6,
-    model: "sonnet",
-  });
-
-  return "ok";
 }

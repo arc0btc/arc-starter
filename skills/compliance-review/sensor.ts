@@ -199,69 +199,75 @@ async function checkVerboseNaming(skill: SkillInfo): Promise<ComplianceFinding[]
 // ---- Main sensor ----
 
 export default async function complianceReviewSensor(): Promise<string> {
-  const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
-  if (!claimed) return "skip";
+  try {
+    const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
+    if (!claimed) return "skip";
 
-  log("auditing skill and sensor compliance...");
+    log("auditing skill and sensor compliance...");
 
-  const all_skills = discoverSkills();
-  const all_findings: ComplianceFinding[] = [];
+    const all_skills = discoverSkills();
+    const all_findings: ComplianceFinding[] = [];
 
-  for (const skill of all_skills) {
-    // Structural checks (synchronous)
-    all_findings.push(...checkStructuralCompliance(skill));
+    for (const skill of all_skills) {
+      // Structural checks (synchronous)
+      all_findings.push(...checkStructuralCompliance(skill));
 
-    // Sensor checks (async — reads file content)
-    const sensor_findings = await checkSensorCompliance(skill);
-    all_findings.push(...sensor_findings);
+      // Sensor checks (async — reads file content)
+      const sensor_findings = await checkSensorCompliance(skill);
+      all_findings.push(...sensor_findings);
 
-    // Verbose naming checks (async — reads file content)
-    const naming_findings = await checkVerboseNaming(skill);
-    all_findings.push(...naming_findings);
-  }
-
-  log(`audited ${all_skills.length} skills, found ${all_findings.length} finding(s)`);
-
-  if (all_findings.length === 0) return "ok";
-
-  // Group findings by rule for the report
-  const by_rule = new Map<string, ComplianceFinding[]>();
-  for (const finding of all_findings) {
-    const group = by_rule.get(finding.rule) ?? [];
-    group.push(finding);
-    by_rule.set(finding.rule, group);
-  }
-
-  const rule_labels: Record<string, string> = {
-    "skill-md-exists": "Missing or Empty SKILL.md",
-    "frontmatter-valid": "Invalid Frontmatter",
-    "name-matches-dir": "Name/Directory Mismatch",
-    "sensor-default-export": "Missing Default Export",
-    "sensor-claim-gate": "Missing claimSensorRun() Gate",
-    "sensor-interval-const": "Missing INTERVAL_MINUTES",
-    "sensor-no-llm": "LLM/AI API Usage in Sensor",
-    "verbose-naming": "Abbreviated Naming Violation",
-  };
-
-  let description = `Compliance audit found ${all_findings.length} finding(s) across ${all_skills.length} skills.\n\n`;
-
-  for (const [rule, findings] of by_rule) {
-    description += `## ${rule_labels[rule] ?? rule}\n\n`;
-    for (const finding of findings) {
-      description += `- **${finding.skill_name}**: ${finding.detail}\n`;
+      // Verbose naming checks (async — reads file content)
+      const naming_findings = await checkVerboseNaming(skill);
+      all_findings.push(...naming_findings);
     }
-    description += "\n";
+
+    log(`audited ${all_skills.length} skills, found ${all_findings.length} finding(s)`);
+
+    if (all_findings.length === 0) return "ok";
+
+    // Group findings by rule for the report
+    const by_rule = new Map<string, ComplianceFinding[]>();
+    for (const finding of all_findings) {
+      const group = by_rule.get(finding.rule) ?? [];
+      group.push(finding);
+      by_rule.set(finding.rule, group);
+    }
+
+    const rule_labels: Record<string, string> = {
+      "skill-md-exists": "Missing or Empty SKILL.md",
+      "frontmatter-valid": "Invalid Frontmatter",
+      "name-matches-dir": "Name/Directory Mismatch",
+      "sensor-default-export": "Missing Default Export",
+      "sensor-claim-gate": "Missing claimSensorRun() Gate",
+      "sensor-interval-const": "Missing INTERVAL_MINUTES",
+      "sensor-no-llm": "LLM/AI API Usage in Sensor",
+      "verbose-naming": "Abbreviated Naming Violation",
+    };
+
+    let description = `Compliance audit found ${all_findings.length} finding(s) across ${all_skills.length} skills.\n\n`;
+
+    for (const [rule, findings] of by_rule) {
+      description += `## ${rule_labels[rule] ?? rule}\n\n`;
+      for (const finding of findings) {
+        description += `- **${finding.skill_name}**: ${finding.detail}\n`;
+      }
+      description += "\n";
+    }
+
+    description += "Review each finding and fix or document exceptions. Structural issues should be fixed first.";
+
+    insertTaskIfNew(TASK_SOURCE, {
+      subject: `compliance-review: ${all_findings.length} finding(s) across ${all_skills.length} skills`,
+      description,
+      skills: '["compliance-review"]',
+      priority: 6,
+      model: "sonnet",
+    });
+
+    return "ok";
+  } catch (e) {
+    const error = e as Error;
+    log(`error: ${error.message}`);
+    return "error";
   }
-
-  description += "Review each finding and fix or document exceptions. Structural issues should be fixed first.";
-
-  insertTaskIfNew(TASK_SOURCE, {
-    subject: `compliance-review: ${all_findings.length} finding(s) across ${all_skills.length} skills`,
-    description,
-    skills: '["compliance-review"]',
-    priority: 6,
-    model: "sonnet",
-  });
-
-  return "ok";
 }
