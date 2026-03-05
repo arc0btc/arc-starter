@@ -58,7 +58,7 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   "bitcoin-wallet": ["bitcoin wallet", "btc wallet", "utxo", "send btc", "bitcoin transaction"],
   "bitcoin-taproot-multisig": ["multisig", "taproot", "musig", "bip-340", "bip-342"],
   "arc-housekeeping": ["housekeeping", "wal file", "stale lock", "uncommitted change"],
-  "arc-cost-alerting": ["cost alert", "budget", "overspend"],
+  "arc-cost-alerting": ["cost alert", "budget overrun", "spending limit", "overspend"],
   "arc-skill-manager": ["memory consolidat", "skill manager", "manage-skills"],
   "blog-publishing": ["blog post", "blog draft", "publish blog"],
   "blog-deploy": ["deploy blog", "blog deploy", "wrangler deploy"],
@@ -73,7 +73,7 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   "aibtc-dev-ops": ["aibtc dev", "aibtc ops", "aibtc deploy"],
   "arc-workflows": ["pr lifecycle", "arc workflow", "arc-workflows"],
   "arc-worktrees": ["worktree", "isolated branch"],
-  "arc-credentials": ["credential", "creds", "password", "api key", "api token"],
+  "arc-credentials": ["arc creds", "arc-credentials", "credentials.enc", "creds set", "creds get"],
   "arc-web-dashboard": ["web dashboard", "dashboard"],
 };
 
@@ -134,6 +134,11 @@ function checkMissingSkillCoverage(
   const findings: ContextFinding[] = [];
   const loaded_skills = parseSkillsArray(task.skills);
   const loaded_set = new Set(loaded_skills);
+
+  // Retrospective tasks inherit the parent task's subject verbatim ("Retrospective: extract
+  // learnings from task #N — <parent subject>"). Keyword-matching them produces false positives
+  // because the embedded parent subject may mention any domain. Skip keyword checks entirely.
+  if (task.subject.startsWith("Retrospective:")) return findings;
 
   // Meta-analysis tasks have descriptions that quote other tasks' subjects/content.
   // Scanning those descriptions would produce false positives, so limit to subject only.

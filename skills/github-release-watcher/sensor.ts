@@ -69,6 +69,14 @@ function fetchLatestRelease(repo: string): GhRelease | null {
   }
 }
 
+/** Map repo → skills to load for review tasks. */
+const REPO_SKILLS: Record<string, string[]> = {
+  "aibtcdev/skills": ["arc-skill-manager"],
+  "aibtcdev/aibtc-mcp-server": ["arc-skill-manager"],
+  "stacks-network/stacks-core": ["stacks-stackspot"],
+  "stx-labs/stacks.js": ["stacks-stackspot"],
+};
+
 export default async function releaseWatcherSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
@@ -95,6 +103,9 @@ export default async function releaseWatcherSensor(): Promise<string> {
       ? release.body.slice(0, 500) + (release.body.length > 500 ? "..." : "")
       : "(no release notes)";
 
+    const repoSkills = REPO_SKILLS[repo];
+    const skillsJson = repoSkills && repoSkills.length > 0 ? JSON.stringify(repoSkills) : undefined;
+
     insertTask({
       subject: `New release: ${repo} ${release.tag_name}`,
       description: [
@@ -112,6 +123,7 @@ export default async function releaseWatcherSensor(): Promise<string> {
         "2. Assess impact on our projects and dependencies",
         "3. Create follow-up tasks if action is needed (dependency updates, breaking changes, etc.)",
       ].join("\n"),
+      skills: skillsJson,
       priority: 8,
       model: "haiku",
       source,
