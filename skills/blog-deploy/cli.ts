@@ -10,6 +10,20 @@ import { getCredential } from "../../src/credentials.ts";
 const SENSOR_NAME = "blog-deploy";
 const SITE_DIR = join(process.cwd(), "github/arc0btc/arc0me-site");
 
+// Resolve npm/npx from fnm node-versions if not on PATH
+function resolveNodeBin(bin: string): string {
+  const which = Bun.spawnSync(["which", bin]);
+  if (which.exitCode === 0) return bin;
+  // Find latest fnm node version
+  const fnmDir = join(process.env.HOME ?? "/root", ".local/share/fnm/node-versions");
+  const ls = Bun.spawnSync(["ls", fnmDir]);
+  if (ls.exitCode === 0) {
+    const versions = ls.stdout.toString().trim().split("\n").filter(Boolean).sort().reverse();
+    if (versions[0]) return join(fnmDir, versions[0], "installation/bin", bin);
+  }
+  return bin;
+}
+
 function log(message: string): void {
   console.log(`[${new Date().toISOString()}] [blog-deploy/cli] ${message}`);
 }
@@ -82,8 +96,10 @@ async function cmdDeploy(args: string[]): Promise<void> {
   }
 
   // Step 1: Build
+  const npm = resolveNodeBin("npm");
+  const npx = resolveNodeBin("npx");
   log("running npm run build...");
-  const build = await runCommand(["npm", "run", "build"], SITE_DIR);
+  const build = await runCommand([npm, "run", "build"], SITE_DIR);
   if (build.exitCode !== 0) {
     process.stderr.write(`Build failed (exit ${build.exitCode}):\n${build.stderr || build.stdout}\n`);
     process.exit(1);
@@ -93,7 +109,7 @@ async function cmdDeploy(args: string[]): Promise<void> {
   // Step 2: Deploy
   log("running npx wrangler deploy --env production...");
   const deploy = await runCommand(
-    ["npx", "wrangler", "deploy", "--env", "production"],
+    [npx, "wrangler", "deploy", "--env", "production"],
     SITE_DIR,
     { CLOUDFLARE_API_TOKEN: cfToken }
   );
