@@ -443,6 +443,65 @@ export const InscriptionMachine: StateMachine<{
   },
 };
 
+export const NewReleaseMachine: StateMachine<{
+  repo?: string;
+  version?: string;
+  releaseUrl?: string;
+  skills?: string[];
+  assessmentSummary?: string;
+  actionRequired?: boolean;
+  integrationDescription?: string;
+}> = {
+  name: "new-release",
+  initialState: "detected",
+  states: {
+    detected: {
+      on: { assess: "assessing" },
+      action: (ctx) => {
+        if (!ctx.repo || !ctx.version) return null;
+        const skillList = ctx.skills?.length ? ctx.skills : ["manage-skills"];
+        return {
+          type: "create-task",
+          subject: `Assess release: ${ctx.repo} ${ctx.version}`,
+          priority: 5,
+          skills: skillList,
+          description: `Review release ${ctx.version} of ${ctx.repo} for breaking changes or integration opportunities.${ctx.releaseUrl ? ` Release: ${ctx.releaseUrl}` : ""}\n\nAfter assessment, transition workflow to 'integration_pending' (if action required) or 'no_action' (if nothing to do).`,
+        };
+      },
+    },
+    assessing: {
+      on: { needs_integration: "integration_pending", no_action_needed: "no_action" },
+      action: () => null,
+    },
+    integration_pending: {
+      on: { integrate: "integrating" },
+      action: (ctx) => {
+        if (!ctx.repo || !ctx.version) return null;
+        const skillList = ctx.skills?.length ? ctx.skills : ["manage-skills"];
+        return {
+          type: "create-task",
+          subject: `Integrate: ${ctx.repo} ${ctx.version}`,
+          priority: 4,
+          skills: skillList,
+          description: ctx.integrationDescription || `Apply relevant changes from ${ctx.repo} ${ctx.version} to Arc.`,
+        };
+      },
+    },
+    integrating: {
+      on: { complete: "completed" },
+      action: () => null,
+    },
+    no_action: {
+      on: {},
+      action: () => null,
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
 /**
  * Get a template by name.
  * Registry maps template names to their state machines.
@@ -456,6 +515,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "reputation-feedback": ReputationFeedbackMachine,
     "validation-request": ValidationRequestMachine,
     "inscription": InscriptionMachine,
+    "new-release": NewReleaseMachine,
   };
   return templates[name] || null;
 }
