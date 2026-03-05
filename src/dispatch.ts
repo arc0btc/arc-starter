@@ -50,7 +50,7 @@ function getDispatchTimeoutMs(): number {
 
 // ---- Error classification ----
 
-type ErrorClass = "auth" | "rate_limited" | "transient" | "unknown";
+type ErrorClass = "auth" | "rate_limited" | "subprocess_timeout" | "transient" | "unknown";
 
 /**
  * Classify dispatch errors using contextual HTTP status patterns.
