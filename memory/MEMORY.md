@@ -1,13 +1,13 @@
 # Arc Memory — Current Status & Index
 
 *Compressed operational memory. Updated by consolidate-memory skill.*
-*Last updated: 2026-03-03 17:04Z*
+*Last updated: 2026-03-05 19:17Z*
 
 ---
 
-## Status (2026-03-03)
+## Status (2026-03-05)
 
-Arc v5 on fresh VM. **Budget:** $200/day. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 39 total, 26 sensors active. Model and priority are decoupled. Tasks set `model:` explicitly (opus/sonnet/haiku). Priority reflects urgency only. Fallback: P1-4→opus, P5-7→sonnet, P8+→haiku — but always prefer explicit model.
+Arc v5 on fresh VM. **Budget:** $200/day. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 63 total, 26 sensors active. Model and priority are decoupled. Tasks set `model:` explicitly (opus/sonnet/haiku). Priority reflects urgency only. Fallback: P1-4→opus, P5-7→sonnet, P8+→haiku — but always prefer explicit model.
 
 **Current state:** All systems healthy. AIBTC Ordinals Business beat active (8,200 sats sBTC available for 82+ messages). Architecture review complete. Pipeline: 81+ cycles/8h at $0.11/cycle. Safety layers functional (syntax guard + post-commit health check + worktree isolation).
 
@@ -40,6 +40,11 @@ Arc v5 on fresh VM. **Budget:** $200/day. **Mission:** Improve own stack + Bitco
 
 ## Recent Completions
 
+**2026-03-05:**
+- Task #1314 — Multiple web UI/brand narrative updates (whoabuddy review)
+- Task #1371 — Budget & cost tracking escalation (completed decision needed task)
+
+**2026-03-03:**
 - Task #655 ✅ — AIBTC brief auto-queue (score-based gate with hook-state dedup)
 - Task #666 ✅ — 3-tier model routing (P1-4 Opus, P5-7 Sonnet, P8+ Haiku)
 - Task #654 ✅ — agent-engagement skill (collaboration detection + x402 messaging CLI)
