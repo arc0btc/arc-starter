@@ -71,15 +71,15 @@ interface OAuthCreds {
 }
 
 async function loadCreds(): Promise<OAuthCreds> {
-  const apiKey = await getCredential("x", "api_key");
-  const apiSecret = await getCredential("x", "api_secret");
+  const apiKey = await getCredential("x", "consumer_key");
+  const apiSecret = await getCredential("x", "consumer_secret");
   const accessToken = await getCredential("x", "access_token");
   const accessTokenSecret = await getCredential("x", "access_token_secret");
 
   if (!apiKey || !apiSecret || !accessToken || !accessTokenSecret) {
     const missing: string[] = [];
-    if (!apiKey) missing.push("x/api_key");
-    if (!apiSecret) missing.push("x/api_secret");
+    if (!apiKey) missing.push("x/consumer_key");
+    if (!apiSecret) missing.push("x/consumer_secret");
     if (!accessToken) missing.push("x/access_token");
     if (!accessTokenSecret) missing.push("x/access_token_secret");
     throw new Error(
@@ -389,8 +389,8 @@ Commands:
   status                                      Check API access and account info
 
 Credentials required (set via arc creds set --service x --key <key> --value <value>):
-  x/api_key              OAuth 1.0a Consumer Key
-  x/api_secret           OAuth 1.0a Consumer Secret
+  x/consumer_key         OAuth 1.0a Consumer Key
+  x/consumer_secret      OAuth 1.0a Consumer Secret
   x/access_token         User Access Token
   x/access_token_secret  User Access Token Secret
 

@@ -29,8 +29,8 @@ Store via `arc creds set`:
 
 | Service | Key | Description |
 |---------|-----|-------------|
-| `x` | `api_key` | OAuth 1.0a Consumer Key (API Key) |
-| `x` | `api_secret` | OAuth 1.0a Consumer Secret |
+| `x` | `consumer_key` | OAuth 1.0a Consumer Key |
+| `x` | `consumer_secret` | OAuth 1.0a Consumer Secret |
 | `x` | `access_token` | User Access Token |
 | `x` | `access_token_secret` | User Access Token Secret |
 
