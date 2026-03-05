@@ -48,12 +48,12 @@ const KNOWN_AGENTS: Agent[] = [
   },
 ];
 
-function log(msg: string): void {
-  console.log(`[agent-engagement] ${msg}`);
+function log(message: string): void {
+  console.log(`[agent-engagement] ${message}`);
 }
 
-function logError(msg: string): void {
-  console.error(`[agent-engagement] error: ${msg}`);
+function logError(message: string): void {
+  console.error(`[agent-engagement] error: ${message}`);
 }
 
 function parseArgs(args: string[]): { cmd: string; params: Record<string, string | boolean>; help: boolean } {
@@ -186,8 +186,8 @@ async function cmdSendMessage(args: Record<string, string | boolean>): Promise<v
 
     log(`✓ Message delivered to ${agent.name} (txid: ${(payment.txid as string).slice(0, 16)}...)`);
   } catch (e) {
-    const err = e as Error;
-    logError(`Command execution failed: ${err.message}`);
+    const error = e as Error;
+    logError(`Command execution failed: ${error.message}`);
     process.exit(1);
   }
 }

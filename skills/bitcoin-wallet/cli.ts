@@ -20,8 +20,8 @@ const BNS_RUNNER = resolve(import.meta.dir, "bns-runner.ts");
 
 // ---- Helpers ----
 
-function log(msg: string): void {
-  console.error(`[${new Date().toISOString()}] [wallet/cli] ${msg}`);
+function log(message: string): void {
+  console.error(`[${new Date().toISOString()}] [wallet/cli] ${message}`);
 }
 
 function parseFlags(args: string[]): Record<string, string> {
@@ -112,9 +112,9 @@ async function runScriptWithTimeout(script: string, args: string[], timeoutMs: n
       }
       clearTimeout(timer);
       resolve(stdout.trim());
-    } catch (err) {
+    } catch (error) {
       clearTimeout(timer);
-      reject(err);
+      reject(error);
     }
   });
 
@@ -230,9 +230,9 @@ async function runX402(x402Args: string[]): Promise<{ stdout: string; stderr: st
       }
       clearTimeout(timer);
       resolve(stdout.trim());
-    } catch (err) {
+    } catch (error) {
       clearTimeout(timer);
-      reject(err);
+      reject(error);
     }
   });
 
@@ -266,10 +266,10 @@ async function cmdUnlock(): Promise<void> {
   try {
     const result = await runScriptWithTimeout(WALLET_SCRIPT, ["unlock", "--password", password]);
     console.log(result.stdout);
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    log(`unlock failed: ${msg}`);
-    console.log(JSON.stringify({ success: false, error: "Unlock failed", detail: msg }));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`unlock failed: ${message}`);
+    console.log(JSON.stringify({ success: false, error: "Unlock failed", detail: message }));
     process.exit(1);
   }
 }
@@ -438,10 +438,10 @@ async function cmdBns(args: string[]): Promise<void> {
     }
 
     console.log(stdout.trim());
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    log(`bns failed: ${msg}`);
-    console.log(JSON.stringify({ success: false, error: "BNS command failed", detail: msg }));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`bns failed: ${message}`);
+    console.log(JSON.stringify({ success: false, error: "BNS command failed", detail: message }));
     process.exit(1);
   }
 }
@@ -464,10 +464,10 @@ async function cmdX402(args: string[]): Promise<void> {
     }
 
     console.log(result.stdout);
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    log(`x402 failed: ${msg}`);
-    console.log(JSON.stringify({ success: false, error: "x402 command failed", detail: msg }));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`x402 failed: ${message}`);
+    console.log(JSON.stringify({ success: false, error: "x402 command failed", detail: message }));
     process.exit(1);
   }
 }
@@ -495,19 +495,19 @@ async function cmdCheckRelayHealth(args: string[]): Promise<void> {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10_000);
-    const res = await fetch(`${relayUrl}/health`, {
+    const response = await fetch(`${relayUrl}/health`, {
       signal: controller.signal,
     });
     clearTimeout(timeout);
 
-    if (res.ok) {
-      relayHealth = (await res.json()) as Record<string, unknown>;
+    if (response.ok) {
+      relayHealth = (await response.json()) as Record<string, unknown>;
       relayReachable = true;
     } else {
-      relayError = `HTTP ${res.status} ${res.statusText}`;
+      relayError = `HTTP ${response.status} ${response.statusText}`;
     }
-  } catch (err: unknown) {
-    relayError = err instanceof Error ? err.message : "Unknown fetch error";
+  } catch (fetchError: unknown) {
+    relayError = fetchError instanceof Error ? fetchError.message : "Unknown fetch error";
   }
 
   // ---- 2. Check sponsor nonce status via Hiro API ----
@@ -517,19 +517,19 @@ async function cmdCheckRelayHealth(args: string[]): Promise<void> {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10_000);
-    const res = await fetch(
+    const response = await fetch(
       `https://api.hiro.so/extended/v1/address/${sponsorAddress}/nonces`,
       { signal: controller.signal }
     );
     clearTimeout(timeout);
 
-    if (res.ok) {
-      nonceData = (await res.json()) as NonceResponse;
+    if (response.ok) {
+      nonceData = (await response.json()) as NonceResponse;
     } else {
-      nonceError = `HTTP ${res.status} ${res.statusText}`;
+      nonceError = `HTTP ${response.status} ${response.statusText}`;
     }
-  } catch (err: unknown) {
-    nonceError = err instanceof Error ? err.message : "Unknown fetch error";
+  } catch (fetchError: unknown) {
+    nonceError = fetchError instanceof Error ? fetchError.message : "Unknown fetch error";
   }
 
   // ---- 3. Build diagnostic output ----
@@ -694,7 +694,7 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((err) => {
-  process.stderr.write(`Error: ${err instanceof Error ? err.message : String(err)}\n`);
+main().catch((error) => {
+  process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exit(1);
 });

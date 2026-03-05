@@ -177,8 +177,8 @@ function runFix(): void {
       unlinkSync(LOCK_PATH);
       process.stdout.write("  removed stale lock\n");
       fixed++;
-    } catch (err) {
-      process.stderr.write(`  failed to remove lock: ${err instanceof Error ? err.message : String(err)}\n`);
+    } catch (error) {
+      process.stderr.write(`  failed to remove lock: ${error instanceof Error ? error.message : String(error)}\n`);
     }
   }
 
@@ -190,8 +190,8 @@ function runFix(): void {
       db.run("PRAGMA wal_checkpoint(TRUNCATE)");
       process.stdout.write("  WAL checkpointed\n");
       fixed++;
-    } catch (err) {
-      process.stderr.write(`  checkpoint failed: ${err instanceof Error ? err.message : String(err)}\n`);
+    } catch (error) {
+      process.stderr.write(`  checkpoint failed: ${error instanceof Error ? error.message : String(error)}\n`);
     }
   }
 
@@ -234,9 +234,9 @@ function archiveOldFiles(dirPath: string): number {
     try {
       renameSync(join(dirPath, file), join(archivePath, file));
       moved++;
-    } catch (err) {
+    } catch (error) {
       const rel = relative(ROOT, join(dirPath, file));
-      process.stderr.write(`  failed to archive ${rel}: ${err instanceof Error ? err.message : String(err)}\n`);
+      process.stderr.write(`  failed to archive ${rel}: ${error instanceof Error ? error.message : String(error)}\n`);
     }
   }
 

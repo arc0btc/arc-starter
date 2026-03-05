@@ -66,8 +66,8 @@ async function checkSensorPatterns(): Promise<{ valid: boolean; errors: Array<{ 
       }
     }
   } catch (e) {
-    const err = e as Error;
-    log(`sensor validation error: ${err.message}`);
+    const error = e as Error;
+    log(`sensor validation error: ${error.message}`);
   }
 
   return {

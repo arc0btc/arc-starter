@@ -63,8 +63,8 @@ async function listPots(): Promise<PotListResponse | null> {
 
     return JSON.parse(result.stdout) as PotListResponse;
   } catch (e) {
-    const err = e as Error;
-    log(`warn: list-pots error: ${err.message}`);
+    const error = e as Error;
+    log(`warn: list-pots error: ${error.message}`);
     return null;
   }
 }
@@ -91,8 +91,8 @@ async function autoJoinPot(potName: string, contractId: string): Promise<boolean
     }
     return false;
   } catch (e) {
-    const err = e as Error;
-    log(`warn: auto-join task creation failed: ${err.message}`);
+    const error = e as Error;
+    log(`warn: auto-join task creation failed: ${error.message}`);
     return false;
   }
 }
@@ -151,8 +151,8 @@ export default async function stackspotSensor(): Promise<string> {
     log("run completed");
     return "ok";
   } catch (e) {
-    const err = e as Error;
-    log(`error: ${err.message}`);
+    const error = e as Error;
+    log(`error: ${error.message}`);
     return "error";
   }
 }

@@ -45,8 +45,8 @@ async function fetchTickers(): Promise<Ticker[] | null> {
     const data = (await response.json()) as Ticker[];
     return Array.isArray(data) ? data : null;
   } catch (e) {
-    const err = e as Error;
-    log(`warn: fetch error: ${err.message}`);
+    const error = e as Error;
+    log(`warn: fetch error: ${error.message}`);
     return null;
   }
 }
@@ -145,8 +145,8 @@ File signal to Ordinals Business beat via aibtc-news skill.`,
     log(`queued ${signalCount} spread signal task(s)`);
     return "ok";
   } catch (e) {
-    const err = e as Error;
-    log(`error: ${err.message}`);
+    const error = e as Error;
+    log(`error: ${error.message}`);
     return "error";
   }
 }

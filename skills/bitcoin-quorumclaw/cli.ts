@@ -64,8 +64,8 @@ interface InviteRecord {
 
 // ---- Helpers ----
 
-function log(msg: string): void {
-  console.error(`[${new Date().toISOString()}] [quorumclaw/cli] ${msg}`);
+function log(message: string): void {
+  console.error(`[${new Date().toISOString()}] [quorumclaw/cli] ${message}`);
 }
 
 function parseFlags(args: string[]): Record<string, string> {
@@ -108,11 +108,11 @@ async function apiRequest<T>(
     opts.body = JSON.stringify(body);
   }
 
-  const res = await fetch(url, opts);
-  const text = await res.text();
+  const response = await fetch(url, opts);
+  const text = await response.text();
 
-  if (!res.ok) {
-    throw new Error(`API ${method} ${path} → HTTP ${res.status}: ${text}`);
+  if (!response.ok) {
+    throw new Error(`API ${method} ${path} → HTTP ${response.status}: ${text}`);
   }
 
   try {
@@ -657,8 +657,8 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((err) => {
-  const msg = err instanceof Error ? err.message : String(err);
-  process.stderr.write(`Error: ${msg}\n`);
+main().catch((error) => {
+  const message = error instanceof Error ? error.message : String(error);
+  process.stderr.write(`Error: ${message}\n`);
   process.exit(1);
 });

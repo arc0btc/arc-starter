@@ -52,11 +52,11 @@ function checkForkDrift(fork: string): CompareResult {
 
     const behind = parseInt(stdout, 10);
     return { repo: fork, behind: isNaN(behind) ? 0 : behind };
-  } catch (err) {
+  } catch (error) {
     return {
       repo: fork,
       behind: 0,
-      error: err instanceof Error ? err.message : String(err),
+      error: error instanceof Error ? error.message : String(error),
     };
   }
 }

@@ -22,8 +22,8 @@ const DEPLOYMENTS: Record<string, string> = {
   "testnet": "https://logs.aibtc.dev",
 };
 
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] [worker-logs/cli] ${msg}`);
+function log(message: string): void {
+  console.log(`[${new Date().toISOString()}] [worker-logs/cli] ${message}`);
 }
 
 // ---- Sync subcommand ----
@@ -127,9 +127,9 @@ async function cmdEvents(args: string[]): Promise<void> {
       const text = await response.text();
       console.log(text);
     }
-  } catch (err) {
+  } catch (error) {
     process.stderr.write(
-      `Error fetching ${url}: ${err instanceof Error ? err.message : String(err)}\n`
+      `Error fetching ${url}: ${error instanceof Error ? error.message : String(error)}\n`
     );
     process.exit(1);
   }
@@ -154,10 +154,10 @@ async function cmdReport(): Promise<void> {
 
       const body = await response.text();
       results[name] = { status: response.status, body };
-    } catch (err) {
+    } catch (error) {
       results[name] = {
         status: 0,
-        body: err instanceof Error ? err.message : String(err),
+        body: error instanceof Error ? error.message : String(error),
       };
     }
   }
@@ -287,9 +287,9 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((err) => {
+main().catch((error) => {
   process.stderr.write(
-    `Error: ${err instanceof Error ? err.message : String(err)}\n`
+    `Error: ${error instanceof Error ? error.message : String(error)}\n`
   );
   process.exit(1);
 });

@@ -17,8 +17,8 @@ const TAPROOT_RUNNER = resolve(import.meta.dir, "taproot-runner.ts");
 
 // ---- Helpers ----
 
-function log(msg: string): void {
-  console.error(`[${new Date().toISOString()}] [taproot-multisig/cli] ${msg}`);
+function log(message: string): void {
+  console.error(`[${new Date().toISOString()}] [taproot-multisig/cli] ${message}`);
 }
 
 function parseFlags(args: string[]): Record<string, string> {
@@ -128,10 +128,10 @@ async function cmdVerifyCosig(args: string[]): Promise<void> {
         ? "Signature is valid — this co-signer's key signed this digest."
         : "Signature is INVALID — do not proceed. Key mismatch or digest was tampered.",
     }));
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    log(`verify-cosig failed: ${msg}`);
-    console.log(JSON.stringify({ success: false, error: "verify-cosig failed", detail: msg }));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`verify-cosig failed: ${message}`);
+    console.log(JSON.stringify({ success: false, error: "verify-cosig failed", detail: message }));
     process.exit(1);
   }
 }
@@ -264,7 +264,7 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((err) => {
-  process.stderr.write(`Error: ${err instanceof Error ? err.message : String(err)}\n`);
+main().catch((error) => {
+  process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exit(1);
 });

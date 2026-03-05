@@ -24,8 +24,8 @@ const DEFAULT_SPREAD_THRESHOLD = 5; // 5%
 
 // ---- Helpers ----
 
-function log(msg: string): void {
-  console.error(`[${new Date().toISOString()}] [bitflow/cli] ${msg}`);
+function log(message: string): void {
+  console.error(`[${new Date().toISOString()}] [bitflow/cli] ${message}`);
 }
 
 function parseFlags(args: string[]): Record<string, string> {
@@ -144,9 +144,9 @@ async function runSwap(swapArgs: string[]): Promise<{ stdout: string; stderr: st
       }
       clearTimeout(timer);
       resolvePromise(stdout.trim());
-    } catch (err) {
+    } catch (error) {
       clearTimeout(timer);
-      reject(err);
+      reject(error);
     }
   });
 
@@ -291,8 +291,8 @@ async function cmdSpreads(args: string[]): Promise<void> {
       spreads,
     }));
   } catch (e) {
-    const err = e as Error;
-    console.log(JSON.stringify({ success: false, error: err.message }));
+    const error = e as Error;
+    console.log(JSON.stringify({ success: false, error: error.message }));
     process.exit(1);
   }
 }
@@ -378,7 +378,7 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((err) => {
-  process.stderr.write(`Error: ${err instanceof Error ? err.message : String(err)}\n`);
+main().catch((error) => {
+  process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exit(1);
 });

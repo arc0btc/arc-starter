@@ -112,20 +112,20 @@ function buildChainInfos(tasks: Task[]): ChainInfo[] {
   for (const t of tasks) {
     // Link via parent_id
     if (t.parent_id && byId.has(t.parent_id)) {
-      const arr = childrenOf.get(t.parent_id) ?? [];
-      if (!arr.some((c) => c.id === t.id)) {
-        arr.push(t);
-        childrenOf.set(t.parent_id, arr);
+      const children = childrenOf.get(t.parent_id) ?? [];
+      if (!children.some((c) => c.id === t.id)) {
+        children.push(t);
+        childrenOf.set(t.parent_id, children);
       }
     }
     // Link via "task:N" source
     if (t.source?.startsWith("task:")) {
       const parentId = parseInt(t.source.slice(5), 10);
       if (!isNaN(parentId) && byId.has(parentId) && parentId !== t.id) {
-        const arr = childrenOf.get(parentId) ?? [];
-        if (!arr.some((c) => c.id === t.id)) {
-          arr.push(t);
-          childrenOf.set(parentId, arr);
+        const children = childrenOf.get(parentId) ?? [];
+        if (!children.some((c) => c.id === t.id)) {
+          children.push(t);
+          childrenOf.set(parentId, children);
         }
       }
     }
@@ -198,9 +198,9 @@ function detectPatterns(chains: ChainInfo[]): DetectedPattern[] {
   const bySource = new Map<string, ChainInfo[]>();
   for (const chain of chains) {
     const src = normalizeSource(chain.rootSource);
-    const arr = bySource.get(src) ?? [];
-    arr.push(chain);
-    bySource.set(src, arr);
+    const sourceGroup = bySource.get(src) ?? [];
+    sourceGroup.push(chain);
+    bySource.set(src, sourceGroup);
   }
 
   for (const [src, group] of bySource) {
@@ -233,9 +233,9 @@ function detectPatterns(chains: ChainInfo[]): DetectedPattern[] {
   for (const chain of chains) {
     const key = normalizeRootSubject(chain.rootSubject);
     if (key.length < 3) continue; // skip too-short keys
-    const arr = bySubject.get(key) ?? [];
-    arr.push(chain);
-    bySubject.set(key, arr);
+    const subjectGroup = bySubject.get(key) ?? [];
+    subjectGroup.push(chain);
+    bySubject.set(key, subjectGroup);
   }
 
   for (const [subj, group] of bySubject) {

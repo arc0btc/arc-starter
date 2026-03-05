@@ -4,8 +4,8 @@
 
 // ---- Helpers ----
 
-function log(msg: string): void {
-  console.error(`[${new Date().toISOString()}] [content-quality] ${msg}`);
+function log(message: string): void {
+  console.error(`[${new Date().toISOString()}] [content-quality] ${message}`);
 }
 
 function parseFlags(args: string[]): Record<string, string> {
@@ -394,7 +394,7 @@ try {
       console.error(`Unknown command: ${command}. Commands: check, gate`);
       process.exit(1);
   }
-} catch (err) {
-  console.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
+} catch (error) {
+  console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
   process.exit(1);
 }

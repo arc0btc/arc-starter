@@ -23,8 +23,8 @@ async function fetchStatus(): Promise<Record<string, unknown> | null> {
     }
     return (await response.json()) as Record<string, unknown>;
   } catch (e) {
-    const err = e as Error;
-    log(`warn: status fetch error: ${err.message}`);
+    const error = e as Error;
+    log(`warn: status fetch error: ${error.message}`);
     return null;
   }
 }
@@ -204,8 +204,8 @@ export default async function aibtcNewsSensor(): Promise<string> {
     log("run completed");
     return "ok";
   } catch (e) {
-    const err = e as Error;
-    log(`error: ${err.message}`);
+    const error = e as Error;
+    log(`error: ${error.message}`);
     return "error";
   }
 }

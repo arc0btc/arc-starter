@@ -79,7 +79,7 @@ async function callReadOnly(
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   try {
-    const res = await fetch(url, {
+    const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -88,13 +88,13 @@ async function callReadOnly(
       }),
       signal: controller.signal,
     });
-    if (!res.ok) {
-      console.error(`Read-only call failed: ${functionName} on ${contract} → HTTP ${res.status}`);
-      const body = await res.text().catch(() => "");
+    if (!response.ok) {
+      console.error(`Read-only call failed: ${functionName} on ${contract} → HTTP ${response.status}`);
+      const body = await response.text().catch(() => "");
       if (body) console.error(`Response: ${body.slice(0, 500)}`);
       return null;
     }
-    return (await res.json()) as Record<string, unknown>;
+    return (await response.json()) as Record<string, unknown>;
   } finally {
     clearTimeout(timeout);
   }
@@ -128,9 +128,9 @@ async function getContractInterface(contract: string): Promise<Record<string, un
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     try {
-      const res = await fetch(url, { signal: controller.signal });
-      if (!res.ok) return null;
-      return (await res.json()) as Record<string, unknown>;
+      const response = await fetch(url, { signal: controller.signal });
+      if (!response.ok) return null;
+      return (await response.json()) as Record<string, unknown>;
     } finally {
       clearTimeout(timeout);
     }
@@ -187,7 +187,7 @@ async function cmdAddDao(contract: string, label: string): Promise<void> {
 
     // Check for expected DAO functions
     const expected = Object.values(config.defaults.functions);
-    const missing = expected.filter((fn) => !fnNames.includes(fn));
+    const missing = expected.filter((functionName) => !fnNames.includes(functionName));
     if (missing.length > 0) {
       console.error(`Warning: Contract missing expected functions: ${missing.join(", ")}`);
       console.error(`You may need to specify custom function names with daos.json.`);
@@ -376,9 +376,9 @@ async function cmdStatus(): Promise<void> {
 // ---- Argument parsing ----
 
 function getFlag(args: string[], flag: string): string | undefined {
-  const idx = args.indexOf(flag);
-  if (idx === -1 || idx + 1 >= args.length) return undefined;
-  return args[idx + 1];
+  const flagIndex = args.indexOf(flag);
+  if (flagIndex === -1 || flagIndex + 1 >= args.length) return undefined;
+  return args[flagIndex + 1];
 }
 
 // ---- Main ----

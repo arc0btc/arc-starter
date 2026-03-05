@@ -9,8 +9,8 @@ import { syncEmail, getEmailCredentials } from "./sync.ts";
 
 // ---- Helpers ----
 
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] [email/cli] ${msg}`);
+function log(message: string): void {
+  console.log(`[${new Date().toISOString()}] [email/cli] ${message}`);
 }
 
 function parseFlags(args: string[]): Record<string, string> {
@@ -47,7 +47,7 @@ async function cmdSend(args: string[]): Promise<void> {
 
   log(`sending to ${flags.to}: "${flags.subject}"`);
 
-  const res = await fetch(`${apiBaseUrl}/api/send`, {
+  const response = await fetch(`${apiBaseUrl}/api/send`, {
     method: "POST",
     headers: {
       "X-Admin-Key": adminKey,
@@ -56,11 +56,11 @@ async function cmdSend(args: string[]): Promise<void> {
     body: JSON.stringify(payload),
   });
 
-  const result = await res.json();
+  const result = await response.json();
 
-  if (!res.ok) {
-    log(`send failed: HTTP ${res.status}`);
-    console.log(JSON.stringify({ success: false, status: res.status, error: result }, null, 2));
+  if (!response.ok) {
+    log(`send failed: HTTP ${response.status}`);
+    console.log(JSON.stringify({ success: false, status: response.status, error: result }, null, 2));
     process.exit(1);
   }
 
@@ -86,14 +86,14 @@ async function cmdMarkRead(args: string[]): Promise<void> {
   // Mark on remote worker
   const { apiBaseUrl, adminKey } = await getEmailCredentials();
 
-  const res = await fetch(`${apiBaseUrl}/api/messages/${remoteId}/read`, {
+  const response = await fetch(`${apiBaseUrl}/api/messages/${remoteId}/read`, {
     method: "POST",
     headers: { "X-Admin-Key": adminKey },
   });
 
-  if (!res.ok) {
-    const body = await res.text();
-    log(`remote mark-read failed: HTTP ${res.status} — ${body}`);
+  if (!response.ok) {
+    const body = await response.text();
+    log(`remote mark-read failed: HTTP ${response.status} — ${body}`);
     console.log(JSON.stringify({ success: true, local: true, remote: false, error: `HTTP ${res.status}` }));
   } else {
     log(`marked ${remoteId} as read on remote worker`);
@@ -110,16 +110,16 @@ async function cmdSync(): Promise<void> {
 async function cmdStats(): Promise<void> {
   const { apiBaseUrl, adminKey } = await getEmailCredentials();
 
-  const res = await fetch(`${apiBaseUrl}/api/stats`, {
+  const response = await fetch(`${apiBaseUrl}/api/stats`, {
     headers: { "X-Admin-Key": adminKey, Accept: "application/json" },
   });
 
-  if (!res.ok) {
-    process.stderr.write(`HTTP ${res.status} from email worker\n`);
+  if (!response.ok) {
+    process.stderr.write(`HTTP ${response.status} from email worker\n`);
     process.exit(1);
   }
 
-  const result = await res.json();
+  const result = await response.json();
   console.log(JSON.stringify(result, null, 2));
 }
 
@@ -134,16 +134,16 @@ async function cmdFetch(args: string[]): Promise<void> {
 
   const { apiBaseUrl, adminKey } = await getEmailCredentials();
 
-  const res = await fetch(`${apiBaseUrl}/api/messages/${remoteId}`, {
+  const response = await fetch(`${apiBaseUrl}/api/messages/${remoteId}`, {
     headers: { "X-Admin-Key": adminKey, Accept: "application/json" },
   });
 
-  if (!res.ok) {
-    process.stderr.write(`HTTP ${res.status} from email worker\n`);
+  if (!response.ok) {
+    process.stderr.write(`HTTP ${response.status} from email worker\n`);
     process.exit(1);
   }
 
-  const result = await res.json();
+  const result = await response.json();
   console.log(JSON.stringify(result, null, 2));
 }
 
@@ -213,7 +213,7 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((err) => {
-  process.stderr.write(`Error: ${err instanceof Error ? err.message : String(err)}\n`);
+main().catch((error) => {
+  process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exit(1);
 });

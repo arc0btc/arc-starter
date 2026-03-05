@@ -4,8 +4,8 @@
 
 import { parseFlags } from "../../src/utils.ts";
 
-function log(msg: string): void {
-  console.error(`[${new Date().toISOString()}] [arc-brand/cli] ${msg}`);
+function log(message: string): void {
+  console.error(`[${new Date().toISOString()}] [arc-brand/cli] ${message}`);
 }
 
 // ---- Voice Rule Patterns ----
@@ -489,13 +489,13 @@ async function main(): Promise<void> {
         printUsage();
         process.exit(1);
     }
-  } catch (err) {
-    log(`Fatal error: ${err instanceof Error ? err.message : String(err)}`);
+  } catch (error) {
+    log(`Fatal error: ${error instanceof Error ? error.message : String(error)}`);
     process.exit(1);
   }
 }
 
 main().catch((err) => {
-  process.stderr.write(`Error: ${err instanceof Error ? err.message : String(err)}\n`);
+  process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exit(1);
 });

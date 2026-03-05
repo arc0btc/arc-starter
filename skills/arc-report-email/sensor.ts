@@ -116,7 +116,7 @@ export default async function reportEmailSensor(): Promise<string> {
   });
 
   // Send via email worker API (html field for themed email, body as plain text fallback)
-  const res = await fetch(`${apiBaseUrl}/api/send`, {
+  const response = await fetch(`${apiBaseUrl}/api/send`, {
     method: "POST",
     headers: {
       "X-Admin-Key": adminKey,
@@ -130,7 +130,7 @@ export default async function reportEmailSensor(): Promise<string> {
     }),
   });
 
-  if (!res.ok) {
+  if (!response.ok) {
     // Clear state on failure so we retry next cycle
     await writeHookState(SENSOR_NAME, {
       last_ran: new Date().toISOString(),
@@ -138,8 +138,8 @@ export default async function reportEmailSensor(): Promise<string> {
       version: state ? state.version + 1 : 1,
         last_emailed_report: state?.last_emailed_report as string ?? "",
     });
-    const body = await res.text();
-    log(`email send failed: HTTP ${res.status} — ${body}`);
+    const body = await response.text();
+    log(`email send failed: HTTP ${response.status} — ${body}`);
     return "error";
   }
 

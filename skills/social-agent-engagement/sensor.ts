@@ -38,8 +38,8 @@ async function fetchRecentSignals(): Promise<Signal[]> {
     const data = (await response.json()) as SignalListResponse;
     return data.signals || [];
   } catch (e) {
-    const err = e as Error;
-    log(`warn: signal fetch error: ${err.message}`);
+    const error = e as Error;
+    log(`warn: signal fetch error: ${error.message}`);
     return [];
   }
 }
@@ -54,8 +54,8 @@ async function fetchBeatStatus(): Promise<Record<string, unknown> | null> {
     }
     return (await response.json()) as Record<string, unknown>;
   } catch (e) {
-    const err = e as Error;
-    log(`warn: beat status fetch error: ${err.message}`);
+    const error = e as Error;
+    log(`warn: beat status fetch error: ${error.message}`);
     return null;
   }
 }
@@ -163,8 +163,8 @@ export default async function agentEngagementSensor(): Promise<string> {
     log("run completed");
     return "ok";
   } catch (e) {
-    const err = e as Error;
-    log(`error: ${err.message}`);
+    const error = e as Error;
+    log(`error: ${error.message}`);
     return "error";
   }
 }

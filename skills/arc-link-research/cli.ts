@@ -186,8 +186,8 @@ async function fetchAndAnalyze(url: string): Promise<LinkAnalysis> {
     if (result.takeaways.length === 0) {
       result.takeaways = [`Content from ${new URL(url).hostname} — review manually for detailed takeaways.`];
     }
-  } catch (err) {
-    result.fetchError = err instanceof Error ? err.message : String(err);
+  } catch (error) {
+    result.fetchError = error instanceof Error ? error.message : String(error);
     result.title = new URL(url).hostname;
     result.justification = "Could not fetch — relevance unknown";
     result.takeaways = ["Fetch failed — review link manually."];
@@ -361,6 +361,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((err) => {
-  process.stderr.write(`Error: ${err instanceof Error ? err.message : String(err)}\n`);
+  process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exit(1);
 });

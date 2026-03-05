@@ -33,8 +33,8 @@ const SLIPPAGE_PCT = 5; // 5% slippage tolerance on quotes
 
 // ---- Helpers ----
 
-function log(msg: string): void {
-  console.error(`[${new Date().toISOString()}] [stacks-market/cli] ${msg}`);
+function log(message: string): void {
+  console.error(`[${new Date().toISOString()}] [stacks-market/cli] ${message}`);
 }
 
 function ustxToStx(ustx: number | bigint): string {
@@ -681,7 +681,7 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((err) => {
-  process.stderr.write(`Error: ${err instanceof Error ? err.message : String(err)}\n`);
+main().catch((error) => {
+  process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exit(1);
 });

@@ -10,8 +10,8 @@ const IDENTITY_SCRIPT = resolve(ROOT, "identity/identity.ts");
 
 // ---- Helpers ----
 
-function log(msg: string): void {
-  console.error(`[${new Date().toISOString()}] [identity/cli] ${msg}`);
+function log(message: string): void {
+  console.error(`[${new Date().toISOString()}] [identity/cli] ${message}`);
 }
 
 /**
@@ -74,8 +74,8 @@ Run 'bun run identity/identity.ts <subcommand> --help' for more details.
     }
 
     process.exit(result.exitCode);
-  } catch (err) {
-    log(`Error: ${err instanceof Error ? err.message : String(err)}`);
+  } catch (error) {
+    log(`Error: ${error instanceof Error ? error.message : String(error)}`);
     process.exit(1);
   }
 }

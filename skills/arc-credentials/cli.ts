@@ -116,8 +116,8 @@ export async function handleCredsCli(args: string[]): Promise<void> {
         process.stdout.write(USAGE + "\n");
         process.exit(1);
     }
-  } catch (err) {
-    process.stderr.write(`Error: ${err instanceof Error ? err.message : String(err)}\n`);
+  } catch (error) {
+    process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);
     process.exit(1);
   }
 }

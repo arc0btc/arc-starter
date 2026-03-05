@@ -50,7 +50,7 @@ const ABBREVIATED_PATTERN = new RegExp(
 const LLM_IMPORT_PATTERNS = [
   /import\s.*from\s+["'](?:@anthropic-ai|openai|langchain|ai\/)/,
   /new\s+(?:Anthropic|OpenAI|ChatOpenAI)\b/,
-  /claude|gpt-4|gpt-3/i,
+  /"(?:claude-(?:opus|sonnet|haiku)-[0-9]|gpt-4|gpt-3\.5-turbo)"/,
 ];
 
 // ---- Check functions ----

@@ -179,8 +179,8 @@ async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
           closingIssueNumbers: closingIssueNumbers.length > 0 ? closingIssueNumbers : undefined,
         });
       }
-    } catch (err) {
-      log(`pr-lifecycle: error fetching ${repoPath}: ${err instanceof Error ? err.message : String(err)}`);
+    } catch (error) {
+      log(`pr-lifecycle: error fetching ${repoPath}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -330,8 +330,8 @@ export default async function workflowsSensor(): Promise<string> {
     }
 
     return totalActions > 0 ? "ok" : "skip";
-  } catch (err) {
-    log(`error: ${err instanceof Error ? err.message : String(err)}`);
+  } catch (error) {
+    log(`error: ${error instanceof Error ? error.message : String(error)}`);
     return "skip";
   }
 }

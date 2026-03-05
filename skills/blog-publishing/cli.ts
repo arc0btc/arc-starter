@@ -8,8 +8,8 @@ import * as fs from "fs";
 
 // ---- Helpers ----
 
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] [blog-publishing/cli] ${msg}`);
+function log(message: string): void {
+  console.log(`[${new Date().toISOString()}] [blog-publishing/cli] ${message}`);
 }
 
 function parseFlags(args: string[]): Record<string, string> {
@@ -214,19 +214,19 @@ async function cmdPublish(args: string[]): Promise<void> {
       const gateExit = await gate.exited;
 
       if (gateExit === 2) {
-        const msg = (gateErr || gateOut).trim();
+        const message = (gateErr || gateOut).trim();
         log(`content-quality gate FAILED — aborting publish`);
-        process.stderr.write(`BLOCKED: content-quality gate failed for ${postId}\n${msg}\nFix content or use --force to bypass.\n`);
-        console.log(JSON.stringify({ success: false, post_id: postId, blocked: true, reason: msg }, null, 2));
+        process.stderr.write(`BLOCKED: content-quality gate failed for ${postId}\n${message}\nFix content or use --force to bypass.\n`);
+        console.log(JSON.stringify({ success: false, post_id: postId, blocked: true, reason: message }, null, 2));
         process.exit(1);
       } else if (gateExit !== 0) {
-        const msg = (gateErr || gateOut).trim();
+        const message = (gateErr || gateOut).trim();
         log(`content-quality gate error (exit ${gateExit})`);
-        process.stderr.write(`content-quality gate error: ${msg}\n`);
+        process.stderr.write(`content-quality gate error: ${message}\n`);
         process.exit(1);
       } else {
-        const msg = (gateOut || gateErr).trim();
-        if (msg) log(`content-quality: ${msg}`);
+        const message = (gateOut || gateErr).trim();
+        if (message) log(`content-quality: ${message}`);
       }
     } else {
       log(`--force: skipping content-quality gate`);
@@ -588,7 +588,7 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((err) => {
-  process.stderr.write(`Error: ${err instanceof Error ? err.message : String(err)}\n`);
+main().catch((error) => {
+  process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exit(1);
 });

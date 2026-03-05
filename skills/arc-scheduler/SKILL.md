@@ -1,3 +1,12 @@
+---
+name: arc-scheduler
+description: Manages future task scheduling with deferred creation, overdue detection, and priority boost for past-due tasks
+tags:
+  - scheduling
+  - tasks
+  - core
+---
+
 # Scheduler Skill
 
 Manages future task scheduling. Provides deferred task creation from the CLI and monitors the scheduled task queue for health.

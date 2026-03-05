@@ -67,8 +67,8 @@ async function checkWorkerLogs(adminKey: string, since: string): Promise<LogEntr
     }
     const data = await resp.json();
     return Array.isArray(data) ? (data as LogEntry[]) : [];
-  } catch (err) {
-    log(`worker-logs fetch failed: ${err instanceof Error ? err.message : String(err)}`);
+  } catch (error) {
+    log(`worker-logs fetch failed: ${error instanceof Error ? error.message : String(error)}`);
     return [];
   }
 }

@@ -27,6 +27,8 @@ function isQuietHours(): boolean {
 
 // ---- Watch report variant ----
 
+const INTERVAL_MINUTES = 60; // minimum polling interval; variants use their own intervals internally
+
 const WATCH_SENSOR = "reporting-watch";
 const WATCH_INTERVAL = 360; // 6 hours
 const WATCH_SOURCE = "sensor:arc-reporting-watch";

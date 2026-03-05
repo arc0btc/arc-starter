@@ -31,12 +31,12 @@ const NOISE_SUBJECT_PATTERNS: RegExp[] = [
   /Review (requested|required) on/i,                  // PR review notifications
 ];
 
-function isNoiseEmail(msg: EmailMessage): boolean {
+function isNoiseEmail(email: EmailMessage): boolean {
   // All emails from notifications@github.com are CI noise
-  if (NOISE_SENDERS.has(msg.from_address)) return true;
+  if (NOISE_SENDERS.has(email.from_address)) return true;
 
   // Check subject patterns against any sender
-  const subject = msg.subject ?? "";
+  const subject = email.subject ?? "";
   return NOISE_SUBJECT_PATTERNS.some((pattern) => pattern.test(subject));
 }
 
@@ -71,7 +71,7 @@ export default async function emailSensor(): Promise<string> {
 
   // Filter out GitHub automated noise — mark as read without creating tasks
   const noise = allUnread.filter(isNoiseEmail);
-  const unread = allUnread.filter((msg) => !isNoiseEmail(msg));
+  const unread = allUnread.filter((email) => !isNoiseEmail(email));
 
   if (noise.length > 0) {
     log(`filtering ${noise.length} noise email(s) — marking as read`);
@@ -81,12 +81,12 @@ export default async function emailSensor(): Promise<string> {
     } catch {
       log("could not load email credentials for remote mark-read — local only");
     }
-    for (const msg of noise) {
-      log(`  noise: [${msg.from_address}] ${msg.subject ?? "(no subject)"}`);
+    for (const email of noise) {
+      log(`  noise: [${email.from_address}] ${email.subject ?? "(no subject)"}`);
       if (creds) {
-        await markReadQuietly(msg.remote_id, creds.apiBaseUrl, creds.adminKey);
+        await markReadQuietly(email.remote_id, creds.apiBaseUrl, creds.adminKey);
       } else {
-        markEmailRead(msg.remote_id);
+        markEmailRead(email.remote_id);
       }
     }
   }
@@ -95,12 +95,12 @@ export default async function emailSensor(): Promise<string> {
 
   // Group unread messages by sender
   const threadsBySender = new Map<string, EmailMessage[]>();
-  for (const msg of unread) {
-    const existing = threadsBySender.get(msg.from_address);
+  for (const email of unread) {
+    const existing = threadsBySender.get(email.from_address);
     if (existing) {
-      existing.push(msg);
+      existing.push(email);
     } else {
-      threadsBySender.set(msg.from_address, [msg]);
+      threadsBySender.set(email.from_address, [email]);
     }
   }
 
@@ -120,15 +120,15 @@ export default async function emailSensor(): Promise<string> {
     const messageLines: string[] = [];
     const remoteIds: string[] = [];
     const recipientAddresses = new Set<string>();
-    for (const msg of senderMessages) {
-      remoteIds.push(msg.remote_id);
-      recipientAddresses.add(msg.to_address);
+    for (const email of senderMessages) {
+      remoteIds.push(email.remote_id);
+      recipientAddresses.add(email.to_address);
       messageLines.push(
-        `--- Email ${msg.remote_id} ---`,
-        `Subject: ${msg.subject ?? "(no subject)"}`,
-        `To: ${msg.to_address}`,
-        `Received: ${msg.received_at}`,
-        `Preview: ${msg.body_preview ?? "(no body)"}`,
+        `--- Email ${email.remote_id} ---`,
+        `Subject: ${email.subject ?? "(no subject)"}`,
+        `To: ${email.to_address}`,
+        `Received: ${email.received_at}`,
+        `Preview: ${email.body_preview ?? "(no body)"}`,
         "",
       );
     }

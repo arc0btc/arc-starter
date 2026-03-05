@@ -41,8 +41,8 @@ async function canFileSignal(): Promise<boolean> {
     const status = (await response.json()) as { canFileSignal?: boolean };
     return status.canFileSignal === true;
   } catch (e) {
-    const err = e as Error;
-    log(`warn: aibtc-news status check error: ${err.message}; assuming rate-limited`);
+    const error = e as Error;
+    log(`warn: aibtc-news status check error: ${error.message}; assuming rate-limited`);
     return false;
   }
 }
@@ -67,8 +67,8 @@ async function fetchMarkets(limit = 50): Promise<Market[] | null> {
     const data = (await response.json()) as ApiResponse;
     return data.polls ?? [];
   } catch (e) {
-    const err = e as Error;
-    log(`warn: fetch error: ${err.message}`);
+    const error = e as Error;
+    log(`warn: fetch error: ${error.message}`);
     return null;
   }
 }
@@ -126,8 +126,8 @@ File signal to Ordinals Business beat via aibtc-news skill. Headline: "${headlin
 
     return false;
   } catch (e) {
-    const err = e as Error;
-    log(`warn: signal task creation failed: ${err.message}`);
+    const error = e as Error;
+    log(`warn: signal task creation failed: ${error.message}`);
     return false;
   }
 }
@@ -198,8 +198,8 @@ export default async function stacksMarketSensor(): Promise<string> {
     log("run completed");
     return "ok";
   } catch (e) {
-    const err = e as Error;
-    log(`error: ${err.message}`);
+    const error = e as Error;
+    log(`error: ${error.message}`);
     return "error";
   }
 }

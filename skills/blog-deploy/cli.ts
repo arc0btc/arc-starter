@@ -10,8 +10,8 @@ import { getCredential } from "../../src/credentials.ts";
 const SENSOR_NAME = "blog-deploy";
 const SITE_DIR = join(process.cwd(), "github/arc0btc/arc0me-site");
 
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] [blog-deploy/cli] ${msg}`);
+function log(message: string): void {
+  console.log(`[${new Date().toISOString()}] [blog-deploy/cli] ${message}`);
 }
 
 function parseFlags(args: string[]): Record<string, string | boolean> {
@@ -40,11 +40,11 @@ function getCurrentSha(): string {
 }
 
 async function runCommand(
-  cmd: string[],
+  command: string[],
   cwd: string,
   env?: Record<string, string>
 ): Promise<{ exitCode: number; stdout: string; stderr: string }> {
-  const proc = Bun.spawn(cmd, {
+  const proc = Bun.spawn(command, {
     cwd,
     stdin: "ignore",
     stdout: "pipe",
@@ -190,7 +190,7 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((err) => {
-  process.stderr.write(`Error: ${err instanceof Error ? err.message : String(err)}\n`);
+main().catch((error) => {
+  process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exit(1);
 });

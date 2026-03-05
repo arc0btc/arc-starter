@@ -8,8 +8,8 @@ const API_BASE = "https://api.x.com/2";
 
 // ---- Helpers ----
 
-function log(msg: string): void {
-  console.error(`[${new Date().toISOString()}] [x-posting/cli] ${msg}`);
+function log(message: string): void {
+  console.error(`[${new Date().toISOString()}] [x-posting/cli] ${message}`);
 }
 
 function parseFlags(args: string[]): Record<string, string> {
@@ -30,8 +30,8 @@ function parseFlags(args: string[]): Record<string, string> {
 
 // ---- OAuth 1.0a Signing ----
 
-function percentEncode(str: string): string {
-  return encodeURIComponent(str)
+function percentEncode(text: string): string {
+  return encodeURIComponent(text)
     .replace(/!/g, "%21")
     .replace(/\*/g, "%2A")
     .replace(/'/g, "%27")
@@ -345,8 +345,8 @@ async function cmdStatus(_flags: Record<string, string>): Promise<void> {
         tweets: metrics?.["tweet_count"],
       }, null, 2));
     }
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     console.log(JSON.stringify({ status: "error", message }, null, 2));
   }
 }
@@ -399,7 +399,7 @@ Get credentials from https://developer.x.com/`);
   }
 }
 
-main().catch((err) => {
-  log(`Error: ${err instanceof Error ? err.message : String(err)}`);
+main().catch((error) => {
+  log(`Error: ${error instanceof Error ? error.message : String(error)}`);
   process.exit(1);
 });

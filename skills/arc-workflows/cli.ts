@@ -26,8 +26,8 @@ import {
 
 type CommandResult = { success: boolean; message: string; data?: unknown };
 
-function parseArgs(args: string[]): { cmd: string; params: Record<string, string> } {
-  const cmd = args[0] || "";
+function parseArgs(args: string[]): { command: string; params: Record<string, string> } {
+  const command = args[0] || "";
   const params: Record<string, string> = {};
 
   for (let i = 1; i < args.length; i++) {
@@ -38,7 +38,7 @@ function parseArgs(args: string[]): { cmd: string; params: Record<string, string
     }
   }
 
-  return { cmd, params };
+  return { command, params };
 }
 
 function printUsage(): void {
@@ -76,10 +76,10 @@ function list(): CommandResult {
       message: `Found ${workflows.length} active workflow(s)`,
       data: workflows,
     };
-  } catch (err) {
+  } catch (error) {
     return {
       success: false,
-      message: `Error: ${err instanceof Error ? err.message : String(err)}`,
+      message: `Error: ${error instanceof Error ? error.message : String(error)}`,
     };
   }
 }
@@ -96,10 +96,10 @@ function listByTemplate(template: string): CommandResult {
       message: `Found ${workflows.length} workflow(s) for template '${template}'`,
       data: workflows,
     };
-  } catch (err) {
+  } catch (error) {
     return {
       success: false,
-      message: `Error: ${err instanceof Error ? err.message : String(err)}`,
+      message: `Error: ${error instanceof Error ? error.message : String(error)}`,
     };
   }
 }
@@ -136,10 +136,10 @@ function create(template: string, instanceKey: string, initialState: string): Co
       message: `Created workflow id=${id}`,
       data: { id, template, instance_key: instanceKey, current_state: initialState },
     };
-  } catch (err) {
+  } catch (error) {
     return {
       success: false,
-      message: `Error: ${err instanceof Error ? err.message : String(err)}`,
+      message: `Error: ${error instanceof Error ? error.message : String(error)}`,
     };
   }
 }
@@ -168,10 +168,10 @@ function show(idStr: string): CommandResult {
       message: `Workflow id=${id}`,
       data: { ...workflow, context },
     };
-  } catch (err) {
+  } catch (error) {
     return {
       success: false,
-      message: `Error: ${err instanceof Error ? err.message : String(err)}`,
+      message: `Error: ${error instanceof Error ? error.message : String(error)}`,
     };
   }
 }
@@ -212,10 +212,10 @@ function transition(idStr: string, newState: string, contextJson?: string): Comm
       message: `Transitioned workflow id=${id} to state '${newState}'`,
       data: { id, from_state: workflow.current_state, to_state: newState },
     };
-  } catch (err) {
+  } catch (error) {
     return {
       success: false,
-      message: `Error: ${err instanceof Error ? err.message : String(err)}`,
+      message: `Error: ${error instanceof Error ? error.message : String(error)}`,
     };
   }
 }
@@ -251,10 +251,10 @@ function complete(idStr: string): CommandResult {
       message: `Completed workflow id=${id}`,
       data: { id, final_state: workflow.current_state },
     };
-  } catch (err) {
+  } catch (error) {
     return {
       success: false,
-      message: `Error: ${err instanceof Error ? err.message : String(err)}`,
+      message: `Error: ${error instanceof Error ? error.message : String(error)}`,
     };
   }
 }
@@ -283,10 +283,10 @@ function deleteCmd(idStr: string): CommandResult {
       message: `Deleted workflow id=${id}`,
       data: { id },
     };
-  } catch (err) {
+  } catch (error) {
     return {
       success: false,
-      message: `Error: ${err instanceof Error ? err.message : String(err)}`,
+      message: `Error: ${error instanceof Error ? error.message : String(error)}`,
     };
   }
 }
@@ -336,10 +336,10 @@ function evaluate(idStr: string): CommandResult {
       message: `Evaluated workflow id=${id}`,
       data: { workflow_id: id, state: workflow.current_state, action },
     };
-  } catch (err) {
+  } catch (error) {
     return {
       success: false,
-      message: `Error: ${err instanceof Error ? err.message : String(err)}`,
+      message: `Error: ${error instanceof Error ? error.message : String(error)}`,
     };
   }
 }
@@ -383,21 +383,21 @@ function allowedTransitions(idStr: string): CommandResult {
         transitions,
       },
     };
-  } catch (err) {
+  } catch (error) {
     return {
       success: false,
-      message: `Error: ${err instanceof Error ? err.message : String(err)}`,
+      message: `Error: ${error instanceof Error ? error.message : String(error)}`,
     };
   }
 }
 
 function main(): void {
   const args = process.argv.slice(2);
-  const { cmd, params } = parseArgs(args);
+  const { command, params } = parseArgs(args);
 
   let result: CommandResult;
 
-  switch (cmd) {
+  switch (command) {
     case "list":
       result = list();
       break;
@@ -435,11 +435,11 @@ function main(): void {
       break;
 
     default:
-      if (cmd && cmd !== "--help" && cmd !== "-h") {
+      if (command && command !== "--help" && command !== "-h") {
         process.stderr.write(`Error: unknown subcommand '${cmd}'\n\n`);
       }
       printUsage();
-      if (cmd && cmd !== "--help" && cmd !== "-h") {
+      if (command && command !== "--help" && command !== "-h") {
         process.exit(1);
       }
       process.exit(0);

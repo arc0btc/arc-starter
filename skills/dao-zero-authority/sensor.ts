@@ -95,7 +95,7 @@ async function callReadOnly(
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     try {
-      const res = await fetchWithRetry(url, {
+      const response = await fetchWithRetry(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -104,16 +104,16 @@ async function callReadOnly(
         }),
         signal: controller.signal,
       });
-      if (!res.ok) {
-        log(`read-only call failed: ${functionName} on ${contract} → HTTP ${res.status}`);
+      if (!response.ok) {
+        log(`read-only call failed: ${functionName} on ${contract} → HTTP ${response.status}`);
         return null;
       }
-      return (await res.json()) as Record<string, unknown>;
+      return (await response.json()) as Record<string, unknown>;
     } finally {
       clearTimeout(timeout);
     }
-  } catch (err) {
-    log(`read-only call error: ${functionName} on ${contract} → ${err}`);
+  } catch (error) {
+    log(`read-only call error: ${functionName} on ${contract} → ${error}`);
     return null;
   }
 }
@@ -265,8 +265,8 @@ export default async function zeroAuthoritySensor(): Promise<string> {
     try {
       const created = await pollDao(dao, config.defaults.functions);
       totalTasks += created;
-    } catch (err) {
-      log(`${dao.label}: error — ${err}`);
+    } catch (error) {
+      log(`${dao.label}: error — ${error}`);
     }
   }
 

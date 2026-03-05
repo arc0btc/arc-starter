@@ -104,9 +104,9 @@ export default async function aibtcHeartbeatSensor(): Promise<string> {
       log(`heartbeat API returned ${response.status}: ${JSON.stringify(responseBody)}`);
       return "ok";
     }
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    log(`heartbeat API request failed: ${msg}`);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`heartbeat API request failed: ${message}`);
     return "ok";
   }
 

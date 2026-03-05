@@ -65,22 +65,22 @@ interface ApiInboxResponse {
 
 const log = createSensorLogger(SENSOR_NAME);
 
-function toLocalMessage(msg: ApiInboxMessage): Omit<AibtcInboxMessage, "id"> {
+function toLocalMessage(inboxMessage: ApiInboxMessage): Omit<AibtcInboxMessage, "id"> {
   return {
-    message_id: msg.messageId,
-    from_address: msg.fromAddress,
-    to_btc_address: msg.toBtcAddress,
-    to_stx_address: msg.toStxAddress,
-    content: msg.content,
-    payment_txid: msg.paymentTxid,
-    payment_satoshis: msg.paymentSatoshis,
-    sent_at: msg.sentAt,
-    authenticated: msg.authenticated ? 1 : 0,
-    replied_at: msg.repliedAt ?? null,
-    read_at: msg.readAt ?? null,
-    direction: msg.direction,
-    peer_btc_address: msg.peerBtcAddress ?? null,
-    peer_display_name: msg.peerDisplayName ?? null,
+    message_id: inboxMessage.messageId,
+    from_address: inboxMessage.fromAddress,
+    to_btc_address: inboxMessage.toBtcAddress,
+    to_stx_address: inboxMessage.toStxAddress,
+    content: inboxMessage.content,
+    payment_txid: inboxMessage.paymentTxid,
+    payment_satoshis: inboxMessage.paymentSatoshis,
+    sent_at: inboxMessage.sentAt,
+    authenticated: inboxMessage.authenticated ? 1 : 0,
+    replied_at: inboxMessage.repliedAt ?? null,
+    read_at: inboxMessage.readAt ?? null,
+    direction: inboxMessage.direction,
+    peer_btc_address: inboxMessage.peerBtcAddress ?? null,
+    peer_display_name: inboxMessage.peerDisplayName ?? null,
     synced_at: new Date().toISOString(),
   };
 }
@@ -97,22 +97,22 @@ export default async function aibtcInboxSensor(): Promise<string> {
 
   let messages: ApiInboxMessage[];
   try {
-    const res = await fetch(`https://aibtc.com/api/inbox/${ARC_BTC_ADDRESS}`, {
+    const response = await fetch(`https://aibtc.com/api/inbox/${ARC_BTC_ADDRESS}`, {
       signal: controller.signal,
       headers: { Accept: "application/json" },
     });
     clearTimeout(timeout);
 
-    if (!res.ok) {
-      log(`API returned HTTP ${res.status}`);
+    if (!response.ok) {
+      log(`API returned HTTP ${response.status}`);
       return "ok";
     }
 
-    const body = (await res.json()) as ApiInboxResponse;
+    const body = (await response.json()) as ApiInboxResponse;
     messages = body.inbox?.messages ?? [];
-  } catch (err) {
+  } catch (error) {
     clearTimeout(timeout);
-    log(`fetch failed: ${err}`);
+    log(`fetch failed: ${error}`);
     return "ok";
   }
 
@@ -120,8 +120,8 @@ export default async function aibtcInboxSensor(): Promise<string> {
   const existingIds = getAllAibtcInboxMessageIds();
 
   // Upsert all messages into local DB
-  for (const msg of messages) {
-    upsertAibtcInboxMessage(toLocalMessage(msg));
+  for (const inboxMessage of messages) {
+    upsertAibtcInboxMessage(toLocalMessage(inboxMessage));
   }
 
   log(`synced ${messages.length} messages (${existingIds.size} previously known)`);
@@ -139,13 +139,13 @@ export default async function aibtcInboxSensor(): Promise<string> {
 
   // Group new unread messages by peer
   const threadsByPeer = new Map<string, AibtcInboxMessage[]>();
-  for (const msg of newUnread) {
-    const peer = msg.peer_btc_address ?? msg.from_address;
+  for (const inboxMessage of newUnread) {
+    const peer = inboxMessage.peer_btc_address ?? inboxMessage.from_address;
     const existing = threadsByPeer.get(peer);
     if (existing) {
-      existing.push(msg);
+      existing.push(inboxMessage);
     } else {
-      threadsByPeer.set(peer, [msg]);
+      threadsByPeer.set(peer, [inboxMessage]);
     }
   }
 
@@ -176,13 +176,13 @@ export default async function aibtcInboxSensor(): Promise<string> {
     // Build message list (oldest first, already sorted by getUnreadAibtcInboxMessages)
     const messageLines: string[] = [];
     const messageIds: string[] = [];
-    for (const msg of peerMessages) {
-      messageIds.push(msg.message_id);
+    for (const inboxMessage of peerMessages) {
+      messageIds.push(inboxMessage.message_id);
       messageLines.push(
-        `--- Message ${msg.message_id} ---`,
-        `Sent: ${msg.sent_at}`,
-        `Payment: ${msg.payment_satoshis} sats (txid: ${msg.payment_txid ?? "none"})`,
-        `Content: ${msg.content ?? "(empty)"}`,
+        `--- Message ${inboxMessage.message_id} ---`,
+        `Sent: ${inboxMessage.sent_at}`,
+        `Payment: ${inboxMessage.payment_satoshis} sats (txid: ${inboxMessage.payment_txid ?? "none"})`,
+        `Content: ${inboxMessage.content ?? "(empty)"}`,
         "",
       );
     }

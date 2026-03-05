@@ -10,8 +10,8 @@ const VALIDATION_SCRIPT = resolve(ROOT, "validation/validation.ts");
 
 // ---- Helpers ----
 
-function log(msg: string): void {
-  console.error(`[${new Date().toISOString()}] [validation/cli] ${msg}`);
+function log(message: string): void {
+  console.error(`[${new Date().toISOString()}] [validation/cli] ${message}`);
 }
 
 /**
@@ -70,8 +70,8 @@ Run 'bun run validation/validation.ts <subcommand> --help' for more details.
     }
 
     process.exit(result.exitCode);
-  } catch (err) {
-    log(`Error: ${err instanceof Error ? err.message : String(err)}`);
+  } catch (error) {
+    log(`Error: ${error instanceof Error ? error.message : String(error)}`);
     process.exit(1);
   }
 }

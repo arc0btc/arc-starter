@@ -10,8 +10,8 @@ const SENSOR_NAME = "aibtc-news-editorial";
 
 // ---- Helpers ----
 
-function log(msg: string): void {
-  console.error(`[${new Date().toISOString()}] [aibtc-news/cli] ${msg}`);
+function log(message: string): void {
+  console.error(`[${new Date().toISOString()}] [aibtc-news/cli] ${message}`);
 }
 
 function parseFlags(args: string[]): Record<string, string> {
@@ -284,9 +284,9 @@ async function cmdClaimBeat(args: string[]): Promise<void> {
     log(`Beat claimed successfully`);
     console.log(JSON.stringify(result, null, 2));
   } catch (e) {
-    const err = e as Error;
-    log(`Error: ${err.message}`);
-    console.error(JSON.stringify({ error: err.message }, null, 2));
+    const error = e as Error;
+    log(`Error: ${error.message}`);
+    console.error(JSON.stringify({ error: error.message }, null, 2));
     process.exit(1);
   }
 }
@@ -402,9 +402,9 @@ async function cmdFileSignal(args: string[]): Promise<void> {
     log(`Signal filed successfully`);
     console.log(JSON.stringify(result, null, 2));
   } catch (e) {
-    const err = e as Error;
-    log(`Error: ${err.message}`);
-    console.error(JSON.stringify({ error: err.message }, null, 2));
+    const error = e as Error;
+    log(`Error: ${error.message}`);
+    console.error(JSON.stringify({ error: error.message }, null, 2));
     process.exit(1);
   }
 }
@@ -438,9 +438,9 @@ async function cmdListBeats(args: string[]): Promise<void> {
     log(`Listed beats`);
     console.log(JSON.stringify(result, null, 2));
   } catch (e) {
-    const err = e as Error;
-    log(`Error: ${err.message}`);
-    console.error(JSON.stringify({ error: err.message }, null, 2));
+    const error = e as Error;
+    log(`Error: ${error.message}`);
+    console.error(JSON.stringify({ error: error.message }, null, 2));
     process.exit(1);
   }
 }
@@ -459,9 +459,9 @@ async function cmdStatus(args: string[]): Promise<void> {
     log(`Got status for ${agent}`);
     console.log(JSON.stringify(result, null, 2));
   } catch (e) {
-    const err = e as Error;
-    log(`Error: ${err.message}`);
-    console.error(JSON.stringify({ error: err.message }, null, 2));
+    const error = e as Error;
+    log(`Error: ${error.message}`);
+    console.error(JSON.stringify({ error: error.message }, null, 2));
     process.exit(1);
   }
 }
@@ -500,9 +500,9 @@ async function cmdListSignals(args: string[]): Promise<void> {
     log(`Listed signals`);
     console.log(JSON.stringify(result, null, 2));
   } catch (e) {
-    const err = e as Error;
-    log(`Error: ${err.message}`);
-    console.error(JSON.stringify({ error: err.message }, null, 2));
+    const error = e as Error;
+    log(`Error: ${error.message}`);
+    console.error(JSON.stringify({ error: error.message }, null, 2));
     process.exit(1);
   }
 }
@@ -529,9 +529,9 @@ async function cmdCorrespondents(args: string[]): Promise<void> {
     log(`Listed correspondents`);
     console.log(JSON.stringify(result, null, 2));
   } catch (e) {
-    const err = e as Error;
-    log(`Error: ${err.message}`);
-    console.error(JSON.stringify({ error: err.message }, null, 2));
+    const error = e as Error;
+    log(`Error: ${error.message}`);
+    console.error(JSON.stringify({ error: error.message }, null, 2));
     process.exit(1);
   }
 }
@@ -592,9 +592,9 @@ async function cmdCompileBrief(args: string[]): Promise<void> {
     log(`Brief compiled successfully`);
     console.log(JSON.stringify(result, null, 2));
   } catch (e) {
-    const err = e as Error;
-    log(`Error: ${err.message}`);
-    console.error(JSON.stringify({ error: err.message }, null, 2));
+    const error = e as Error;
+    log(`Error: ${error.message}`);
+    console.error(JSON.stringify({ error: error.message }, null, 2));
     process.exit(1);
   }
 }
@@ -652,9 +652,9 @@ async function cmdComposeSignal(args: string[]): Promise<void> {
 
     console.log(JSON.stringify({ signal, validation }, null, 2));
   } catch (e) {
-    const err = e as Error;
-    log(`Error: ${err.message}`);
-    console.error(JSON.stringify({ error: err.message }, null, 2));
+    const error = e as Error;
+    log(`Error: ${error.message}`);
+    console.error(JSON.stringify({ error: error.message }, null, 2));
     process.exit(1);
   }
 }
@@ -693,7 +693,7 @@ async function cmdCheckSources(args: string[]): Promise<void> {
         const timeout = setTimeout(() => controller.abort(), 5000);
 
         try {
-          const res = await fetch(src.url, {
+          const response = await fetch(src.url, {
             method: "HEAD",
             signal: controller.signal,
           });
@@ -701,23 +701,23 @@ async function cmdCheckSources(args: string[]): Promise<void> {
           return {
             url: src.url,
             title: src.title || "",
-            reachable: res.ok || res.status === 405,
-            status: res.status,
+            reachable: response.ok || response.status === 405,
+            status: response.status,
             note:
-              res.status === 405
+              response.status === 405
                 ? "HEAD not allowed but server responded"
                 : undefined,
           };
-        } catch (err: unknown) {
+        } catch (fetchError: unknown) {
           clearTimeout(timeout);
           const isTimeout =
-            err instanceof Error && err.name === "AbortError";
+            fetchError instanceof Error && fetchError.name === "AbortError";
           return {
             url: src.url,
             title: src.title || "",
             reachable: false,
             status: null,
-            note: isTimeout ? "Request timed out after 5 seconds" : String(err),
+            note: isTimeout ? "Request timed out after 5 seconds" : String(fetchError),
           };
         }
       })
@@ -739,9 +739,9 @@ async function cmdCheckSources(args: string[]): Promise<void> {
       )
     );
   } catch (e) {
-    const err = e as Error;
-    log(`Error: ${err.message}`);
-    console.error(JSON.stringify({ error: err.message }, null, 2));
+    const error = e as Error;
+    log(`Error: ${error.message}`);
+    console.error(JSON.stringify({ error: error.message }, null, 2));
     process.exit(1);
   }
 }
@@ -850,9 +850,9 @@ async function cmdEditorialGuide(args: string[]): Promise<void> {
 
     console.log(JSON.stringify(guide, null, 2));
   } catch (e) {
-    const err = e as Error;
-    log(`Error: ${err.message}`);
-    console.error(JSON.stringify({ error: err.message }, null, 2));
+    const error = e as Error;
+    log(`Error: ${error.message}`);
+    console.error(JSON.stringify({ error: error.message }, null, 2));
     process.exit(1);
   }
 }
@@ -938,12 +938,12 @@ async function judgeSignalCore(
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 5000);
         try {
-          const res = await fetch(src.url, {
+          const response = await fetch(src.url, {
             method: "HEAD",
             signal: controller.signal,
           });
           clearTimeout(timeout);
-          return { url: src.url, reachable: res.ok || res.status === 405 };
+          return { url: src.url, reachable: response.ok || response.status === 405 };
         } catch {
           clearTimeout(timeout);
           return { url: src.url, reachable: false };
@@ -968,11 +968,11 @@ async function judgeSignalCore(
   try {
     criteria.beat_scope = await judgeBeatScope(beat, claim, evidence, implication);
   } catch (e) {
-    const err = e as Error;
-    log(`Beat scope judge error: ${err.message}`);
+    const scopeError = e as Error;
+    log(`Beat scope judge error: ${scopeError.message}`);
     criteria.beat_scope = {
       pass: false,
-      reason: `Beat scope check failed: ${err.message}`,
+      reason: `Beat scope check failed: ${scopeError.message}`,
     };
   }
 
@@ -1225,8 +1225,8 @@ async function main(): Promise<void> {
         process.exit(1);
     }
   } catch (e) {
-    const err = e as Error;
-    log(`Fatal error: ${err.message}`);
+    const error = e as Error;
+    log(`Fatal error: ${error.message}`);
     process.exit(1);
   }
 }

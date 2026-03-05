@@ -88,12 +88,12 @@ async function apiGet<T>(path: string): Promise<T> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   try {
-    const res = await fetch(`${API_BASE}${path}`, {
+    const response = await fetch(`${API_BASE}${path}`, {
       headers: { Accept: "application/json" },
       signal: controller.signal,
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return (await res.json()) as T;
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return (await response.json()) as T;
   } finally {
     clearTimeout(timeout);
   }
@@ -110,8 +110,8 @@ async function pollInvite(
   let raw: unknown;
   try {
     raw = await apiGet<unknown>(`/v1/invites/${invite.code}`);
-  } catch (err) {
-    log(`invite ${invite.code}: fetch failed — ${err}`);
+  } catch (error) {
+    log(`invite ${invite.code}: fetch failed — ${error}`);
     return;
   }
 
@@ -184,8 +184,8 @@ async function pollMultisig(multisig: TrackedMultisig): Promise<void> {
   try {
     const raw = await apiGet<unknown>(`/v1/multisigs/${multisig.id}/proposals`);
     proposals = (Array.isArray(raw) ? raw : []) as ProposalRecord[];
-  } catch (err) {
-    log(`multisig ${multisig.id}: proposals fetch failed — ${err}`);
+  } catch (error) {
+    log(`multisig ${multisig.id}: proposals fetch failed — ${error}`);
     return;
   }
 
@@ -274,8 +274,8 @@ export default async function quorumclawSensor(): Promise<string> {
   for (const invite of [...tracking.invites]) {
     try {
       await pollInvite(invite, tracking);
-    } catch (err) {
-      log(`invite ${invite.code}: error — ${err}`);
+    } catch (error) {
+      log(`invite ${invite.code}: error — ${error}`);
     }
   }
 
@@ -283,8 +283,8 @@ export default async function quorumclawSensor(): Promise<string> {
   for (const multisig of tracking.multisigs) {
     try {
       await pollMultisig(multisig);
-    } catch (err) {
-      log(`multisig ${multisig.id}: error — ${err}`);
+    } catch (error) {
+      log(`multisig ${multisig.id}: error — ${error}`);
     }
   }
 

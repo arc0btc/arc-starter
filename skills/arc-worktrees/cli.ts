@@ -53,8 +53,8 @@ function parseFlags(args: string[]): { flags: Record<string, string>; positional
   return { flags, positional };
 }
 
-async function run(cmd: string, args: string[], cwd?: string): Promise<{ exitCode: number; stdout: string; stderr: string }> {
-  const proc = Bun.spawn([cmd, ...args], { cwd: cwd ?? ROOT, stdout: "pipe", stderr: "pipe" });
+async function run(executable: string, args: string[], cwd?: string): Promise<{ exitCode: number; stdout: string; stderr: string }> {
+  const proc = Bun.spawn([executable, ...args], { cwd: cwd ?? ROOT, stdout: "pipe", stderr: "pipe" });
   const [exitCode, stdout, stderr] = await Promise.all([
     proc.exited,
     new Response(proc.stdout).text(),
@@ -140,14 +140,14 @@ async function cmdValidate(name: string): Promise<void> {
     try {
       const content = readFileSync(fullPath, "utf-8");
       transpiler.transformSync(content);
-    } catch (err) {
-      errors.push(`${file}: ${String(err)}`);
+    } catch (error) {
+      errors.push(`${file}: ${String(error)}`);
     }
   }
 
   if (errors.length > 0) {
     console.error(`Syntax errors in ${errors.length} file(s):`);
-    for (const err of errors) console.error(`  ${err}`);
+    for (const syntaxError of errors) console.error(`  ${syntaxError}`);
     process.exit(1);
   }
 
@@ -175,13 +175,13 @@ async function cmdMerge(name: string): Promise<void> {
       try {
         const content = readFileSync(fullPath, "utf-8");
         transpiler.transformSync(content);
-      } catch (err) {
-        errors.push(`${file}: ${String(err)}`);
+      } catch (error) {
+        errors.push(`${file}: ${String(error)}`);
       }
     }
     if (errors.length > 0) {
       console.error(`Validation failed — ${errors.length} syntax error(s). Not merging.`);
-      for (const err of errors) console.error(`  ${err}`);
+      for (const syntaxError of errors) console.error(`  ${syntaxError}`);
       process.exit(1);
     }
   }
