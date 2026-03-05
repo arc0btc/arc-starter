@@ -41,8 +41,12 @@ const SKILLS_DIR = join(ROOT, "skills");
 /** Daily cost ceiling (USD). Above this, only P1-2 tasks dispatch. */
 const DAILY_BUDGET_USD = 200;
 
-/** Maximum time (ms) a Claude subprocess can run before being killed. 30 minutes. */
-const DISPATCH_TIMEOUT_MS = 30 * 60 * 1000;
+/** Maximum time (ms) a Claude subprocess can run before being killed.
+ *  90 minutes overnight (00:00–08:00 local), 30 minutes otherwise. */
+function getDispatchTimeoutMs(): number {
+  const hour = new Date().getHours();
+  return (hour >= 0 && hour < 8) ? 90 * 60 * 1000 : 30 * 60 * 1000;
+}
 
 // ---- Error classification ----
 
@@ -404,17 +408,18 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string)
     ...(cwd ? { cwd } : {}),
   });
 
-  // Timeout watchdog — kill subprocess if it exceeds DISPATCH_TIMEOUT_MS
+  // Timeout watchdog — kill subprocess if it exceeds the dispatch timeout
+  const dispatchTimeoutMs = getDispatchTimeoutMs();
   let timedOut = false;
   const timeoutTimer = setTimeout(() => {
     timedOut = true;
-    log(`dispatch: subprocess timeout after ${DISPATCH_TIMEOUT_MS / 60_000}min — killing pid ${proc.pid}`);
+    log(`dispatch: subprocess timeout after ${dispatchTimeoutMs / 60_000}min — killing pid ${proc.pid}`);
     proc.kill("SIGTERM");
     // Force kill after 10 seconds if SIGTERM doesn't work
     setTimeout(() => {
       try { proc.kill("SIGKILL"); } catch { /* already dead */ }
     }, 10_000);
-  }, DISPATCH_TIMEOUT_MS);
+  }, dispatchTimeoutMs);
 
   let result = "";
   let cost_usd = 0;
@@ -505,7 +510,7 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string)
 
   const exitCode = await proc.exited;
   if (timedOut) {
-    throw new Error(`claude subprocess timed out after ${DISPATCH_TIMEOUT_MS / 60_000} minutes`);
+    throw new Error(`claude subprocess timed out after ${dispatchTimeoutMs / 60_000} minutes`);
   }
   if (exitCode !== 0) {
     const errText = await new Response(proc.stderr).text();
@@ -1158,8 +1163,8 @@ export async function runDispatch(): Promise<void> {
       markTaskFailed(task.id, `Auth error (not retried): ${errMsg.slice(0, 400)}`);
       log(`dispatch: task #${task.id} failed — auth error, not retrying`);
     } else if (errClass === "subprocess_timeout") {
-      // Subprocess timeout: task ran longer than ${DISPATCH_TIMEOUT_MS / 60_000}min — fail cleanly
-      markTaskFailed(task.id, `Task timed out after ${DISPATCH_TIMEOUT_MS / 60_000}min. Consider breaking it into smaller subtasks or raising the dispatch timeout.`);
+      // Subprocess timeout — fail cleanly, don't retry
+      markTaskFailed(task.id, `Task timed out after ${getDispatchTimeoutMs() / 60_000}min. Consider breaking it into smaller subtasks or raising the dispatch timeout.`);
       log(`dispatch: task #${task.id} failed — subprocess timeout, not retrying`);
     } else {
       // Transient/rate-limited/unknown: requeue if under max_retries
