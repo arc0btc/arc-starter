@@ -12,7 +12,7 @@ const log = createSensorLogger(SENSOR_NAME);
 const TASK_SOURCE = "sensor:consolidate-memory";
 const SENSOR_VALIDATION_SOURCE = "sensor:sensor-validation";
 const MEMORY_PATH = join(import.meta.dir, "../../memory/MEMORY.md");
-const LINE_THRESHOLD = 200;
+const LINE_THRESHOLD = 500;
 const SKILLS_ROOT = join(import.meta.dir, "../../skills");
 
 function validateSensorPattern(filePath: string, content: string): { valid: boolean; issues: string[] } {
@@ -95,7 +95,7 @@ export default async function manageSkillsSensor(): Promise<string> {
             "Steps:",
             "1. Run: arc skills run --name manage-skills -- consolidate-memory check",
             "2. Read memory/MEMORY.md and compress: merge duplicates, remove stale entries, tighten prose",
-            "3. Keep under 2k tokens and 200 lines (sweet spot for context + compression)",
+            "3. Keep under 5k tokens and 500 lines (balance usable knowledge with compression)",
             "4. Run: arc skills run --name manage-skills -- consolidate-memory commit",
           ].join("\n"),
           skills: '["manage-skills"]',

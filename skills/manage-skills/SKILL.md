@@ -51,7 +51,7 @@ arc skills run --name manage-skills -- create <name> --description "what it does
 
 The `consolidate-memory` command and sensor keep `memory/MEMORY.md` lean.
 
-- **Sensor** (360 min): checks MEMORY.md line count, queues a consolidation task if >80 lines
+- **Sensor** (120 min): checks MEMORY.md line count, queues a consolidation task if >500 lines
 - **CLI check**: `arc skills run --name manage-skills -- consolidate-memory check` — reports stats
 - **CLI commit**: `arc skills run --name manage-skills -- consolidate-memory commit` — stages and commits
 

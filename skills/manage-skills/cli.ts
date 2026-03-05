@@ -10,7 +10,7 @@ import { parseFlags, pad, truncate } from "../../src/utils.ts";
 const ROOT = join(import.meta.dir, "../..");
 const SKILLS_ROOT = join(ROOT, "skills");
 const MEMORY_PATH = join(ROOT, "memory/MEMORY.md");
-const MEMORY_LINE_THRESHOLD = 80;
+const MEMORY_LINE_THRESHOLD = 500;
 const MEMORY_TOKEN_ESTIMATE_RATIO = 0.75; // ~0.75 tokens per word
 
 // ---- Subcommands ----
