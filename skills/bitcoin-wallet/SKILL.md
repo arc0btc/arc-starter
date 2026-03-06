@@ -65,7 +65,7 @@ Verify a Bitcoin message signature. Accepts `--expected-signer` to check against
 Check x402 sponsor relay health and sponsor nonce status. Queries the relay `/health` endpoint and fetches sponsor nonce data from the Hiro API. Detects nonce gaps (transactions may be stuck) and mempool congestion (pending transactions). Reports relay reachability, sponsor nonce state, and any issues. No unlock required.
 
 **Flags:**
-- `--relay-url` (optional): Base URL of sponsor relay. Default: `https://sponsor.aibtc.dev`
+- `--relay-url` (optional): Base URL of sponsor relay. Default: `https://x402-relay.aibtc.com`
 - `--sponsor-address` (optional): STX address of relay sponsor. Default: `SP1PMPPVCMVW96FSWFV30KJQ4MNBMZ8MRWR3JWQ7`
 
 **Output:** JSON object with `healthy` (boolean), `relay` (status + health data), `sponsor` (nonce state), `issues` (array of detected problems), and `hint`.

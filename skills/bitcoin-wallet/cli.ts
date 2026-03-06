@@ -474,7 +474,7 @@ async function cmdX402(args: string[]): Promise<void> {
 
 async function cmdCheckRelayHealth(args: string[]): Promise<void> {
   const flags = parseFlags(args);
-  const relayUrl = (flags["relay-url"] || "https://sponsor.aibtc.dev").replace(/\/+$/, "");
+  const relayUrl = (flags["relay-url"] || "https://x402-relay.aibtc.com").replace(/\/+$/, "");
   const sponsorAddress = flags["sponsor-address"] || "SP1PMPPVCMVW96FSWFV30KJQ4MNBMZ8MRWR3JWQ7";
 
   log("checking relay health and sponsor nonce status");
@@ -618,7 +618,7 @@ SUBCOMMANDS
 
   check-relay-health [--relay-url <url>] [--sponsor-address <address>]
     Check x402 sponsor relay health and nonce status (no unlock needed).
-    Default relay: https://sponsor.aibtc.dev
+    Default relay: https://x402-relay.aibtc.com
     Default sponsor: SP1PMPPVCMVW96FSWFV30KJQ4MNBMZ8MRWR3JWQ7
 
   bns <bns-subcommand> [flags]
