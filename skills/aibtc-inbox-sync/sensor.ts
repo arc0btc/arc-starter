@@ -206,9 +206,12 @@ export default async function aibtcInboxSensor(): Promise<string> {
       );
     }
 
+    const isResponseToOutreach = recentSent.length > 0;
+
     const description = [
       "Read skills/aibtc-inbox-sync/AGENT.md before acting.",
       "",
+      ...(isResponseToOutreach ? ["OUTREACH_RESPONSE: true — Arc previously sent messages to this peer. If the reply is substantive, submit ERC-8004 reputation feedback (see AGENT.md step 5).", ""] : []),
       `AIBTC thread from ${senderName} (${peerMessages.length} unread message${peerMessages.length > 1 ? "s" : ""}):`,
       "",
       `Peer: ${senderName} (${peerMessages[0].from_address})`,
@@ -239,6 +242,9 @@ export default async function aibtcInboxSensor(): Promise<string> {
     }
     if (isBitflow) {
       inboxSkills.push("defi-bitflow");
+    }
+    if (isResponseToOutreach) {
+      inboxSkills.push("erc8004-reputation", "contacts");
     }
     const taskId = insertTask({
       subject: `AIBTC thread from ${senderName} (${peerMessages.length} messages)`,
