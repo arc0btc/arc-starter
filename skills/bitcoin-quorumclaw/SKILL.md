@@ -131,6 +131,8 @@ Best-effort: reputation submission failures are logged but never block the broad
 
 Load when: joining or creating a multisig invite, signing a pending proposal, or monitoring multisig status. Tasks created by the quorumclaw sensor (pending signatures) include this skill. Always pair with `bitcoin-taproot-multisig` for crypto primitives.
 
+If a task involves UTXO operations (consolidation, coin selection, wallet inspection), also include `bitcoin-wallet` in the task's skills array. When creating follow-up tasks from a quorumclaw task, always carry over `bitcoin-quorumclaw` (and `bitcoin-wallet` if UTXOs are involved) in `--skills`.
+
 ## Proven Track Record
 
 | Config | Block | Signers |
