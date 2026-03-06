@@ -129,6 +129,36 @@ export default async function releaseWatcherSensor(): Promise<string> {
       source,
     });
 
+    // For aibtcdev/skills releases, also queue a landing-page content review
+    if (repo === "aibtcdev/skills") {
+      const lpSource = `sensor:github-release-watcher:landing-page-review:${repo}@${release.tag_name}`;
+      if (!taskExistsForSource(lpSource)) {
+        insertTask({
+          subject: `Review aibtcdev/landing-page for ${release.tag_name} content gaps`,
+          description: [
+            `New aibtcdev/skills release: ${release.tag_name}`,
+            `URL: ${release.html_url}`,
+            "",
+            "Release notes preview:",
+            bodyPreview,
+            "",
+            "Review the landing page for content gaps introduced by this release:",
+            "- llms.txt: does it list all current skills accurately?",
+            "- Feature/capability descriptions: do they reflect new or updated skills?",
+            "- User and agent experience docs: are they current?",
+            "- Navigation / skills catalog page: any additions needed?",
+            "",
+            `Compare landing page content against the changes in ${release.html_url}`,
+            "Create follow-up tasks for any gaps found.",
+          ].join("\n"),
+          skills: JSON.stringify(["aibtc-repo-maintenance", "dev-landing-page-review"]),
+          priority: 6,
+          source: lpSource,
+        });
+        tasksCreated++;
+      }
+    }
+
     tagState[repo] = release.tag_name;
     tasksCreated++;
   }
