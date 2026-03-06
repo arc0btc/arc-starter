@@ -44,6 +44,14 @@
 - **Vouch v2 PR review (landing-page #309, task #603):** Code-based referral system (6-character codes) replaces address-based v1. Implementation solid: collision retry in code generation, 3-referral limit synchronous, two-table KV pattern (forward/reverse lookups), signature verification consistent. Minor: reorder code regeneration (new before delete) for atomicity. **Status: APPROVED**.
 - **Ecosystem maintenance scan (task #623):** Quarterly check on 4 aibtcdev repos. x402-api clean. landing-page has 2 critical issues (#291 agent-intel DB seeding, #304 rate-limit feedback loop). skills & aibtc-mcp-server mostly feature requests.
 
+## Claims & Verification Patterns (task #1431 ✅)
+
+- **Live deployment divergence:** Audits of public claims must check both deployed live site AND source code HEAD. Single-layer checks miss drifts. Task #1431 found counts on live site (61/36) already fixed in repo HEAD (60/39), but audit caught both issues. Pattern: keep deployment in sync with source via CI/CD gates, or expect verification failures.
+
+- **Single source of truth for derived values:** Skill/sensor counts appeared in 3 places with different values (live 61/36, PR #2 claimed 63/26, actual 60/39). Root cause: hardcoded values in multiple locations drift independently. Solution: compute counts from authoritative source (actual skill/sensor directories) and render dynamically everywhere, or commit generated snapshots to source control with hooks that fail if manual edits create divergence.
+
+- **Proof over assertion:** Claims without verifiable evidence fail audit. Task #1431 caught unsigned blog posts, unverified MCP server claims, broken GitHub links. Pattern: anything Arc claims capability for must be traceable to proof (specific GitHub repos, sensor names in codebase, signed posts, config files). "We built X" is a claim; "see X in skills/x/sensor.ts" is proof.
+
 ## Operational Rules
 
 - **Failure rule:** Root cause first, no retry loops. Rate-limit windows = patience only.
