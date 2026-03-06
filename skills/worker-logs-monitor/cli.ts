@@ -45,16 +45,16 @@ async function fetchWithAuth(deployment: Deployment, path: string): Promise<Resp
 
   const url = `${deployment.url}${path}`;
   try {
-    const res = await fetch(url, {
+    const response = await fetch(url, {
       headers: {
         "X-Admin-Key": adminKey,
         Accept: "application/json",
       },
       signal: AbortSignal.timeout(15_000),
     });
-    return res;
-  } catch (err) {
-    log(`${deployment.name}: ${err instanceof Error ? err.message : String(err)}`);
+    return response;
+  } catch (error) {
+    log(`${deployment.name}: ${error instanceof Error ? error.message : String(error)}`);
     return null;
   }
 }
@@ -68,15 +68,15 @@ async function cmdErrors(args: string[]): Promise<void> {
   const targets = getDeployments(deploymentName);
 
   for (const dep of targets) {
-    const res = await fetchWithAuth(dep, `/logs?level=ERROR&limit=${limit}`);
-    if (!res) continue;
+    const response = await fetchWithAuth(dep, `/logs?level=ERROR&limit=${limit}`);
+    if (!response) continue;
 
-    if (!res.ok) {
-      log(`${dep.name}: HTTP ${res.status}`);
+    if (!response.ok) {
+      log(`${dep.name}: HTTP ${response.status}`);
       continue;
     }
 
-    const data = await res.json();
+    const data = await response.json();
     const logs = Array.isArray(data) ? data : data.logs ?? [];
 
     console.log(`\n=== ${dep.name} (${dep.url}) ===`);
@@ -89,8 +89,8 @@ async function cmdErrors(args: string[]): Promise<void> {
     for (const entry of logs) {
       const time = entry.created_at ?? "?";
       const app = entry.app_id ?? "?";
-      const msg = entry.message ?? "(no message)";
-      console.log(`  [${time}] [${app}] ${msg}`);
+      const message = entry.message ?? "(no message)";
+      console.log(`  [${time}] [${app}] ${message}`);
       if (entry.context && Object.keys(entry.context).length > 0) {
         console.log(`    context: ${JSON.stringify(entry.context)}`);
       }

@@ -74,8 +74,8 @@ interface ErrorPattern {
 }
 
 /** Normalize an error message to a dedup-friendly pattern key. */
-function normalizeMessage(msg: string): string {
-  return msg
+function normalizeMessage(message: string): string {
+  return message
     .replace(/\b[0-9a-f]{8,}\b/gi, "<ID>") // hex IDs
     .replace(/\b\d{4,}\b/g, "<NUM>") // long numbers
     .replace(/https?:\/\/\S+/g, "<URL>") // URLs
@@ -99,7 +99,7 @@ async function fetchErrors(
   const url = `${deployment.url}/logs?${params}`;
 
   try {
-    const res = await fetchWithRetry(url, {
+    const response = await fetchWithRetry(url, {
       headers: {
         "X-Admin-Key": adminKey,
         Accept: "application/json",
@@ -107,12 +107,12 @@ async function fetchErrors(
       signal: AbortSignal.timeout(15_000),
     });
 
-    if (!res.ok) {
-      log(`${deployment.name}: HTTP ${res.status} fetching logs`);
+    if (!response.ok) {
+      log(`${deployment.name}: HTTP ${response.status} fetching logs`);
       return [];
     }
 
-    const data = await res.json();
+    const data = await response.json();
     const logs: LogEntry[] = Array.isArray(data) ? data : data.logs ?? [];
 
     // Filter to entries after `since` if we have a checkpoint
@@ -125,8 +125,8 @@ async function fetchErrors(
     }
 
     return logs;
-  } catch (err) {
-    log(`${deployment.name}: ${err instanceof Error ? err.message : String(err)}`);
+  } catch (error) {
+    log(`${deployment.name}: ${error instanceof Error ? error.message : String(error)}`);
     return [];
   }
 }
