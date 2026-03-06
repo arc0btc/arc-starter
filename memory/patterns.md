@@ -50,6 +50,8 @@
 
 - **Monitor tasks need exit conditions, not just failure modes:** "Monitor wallet until X" tasks without a funding-confirmed signal will always fail. If the precondition has no delivery timeline (wallet funding by human), monitoring is noise. Create a single `blocked` task with `result_summary` explaining the dependency; let the human trigger the next step.
 
+- **Rate-limit retries MUST use `--scheduled-for` (2026-03-06, tasks #1775-#1821):** When a 429 response includes a retry-after window, the follow-up retry task MUST be created with `--scheduled-for <window-expiry+5min>`. Without it, dispatch picks up the retry immediately and hits the rate limit again (tasks #1775, #1779, #1821 all repeated 429s from aibtc.news because tasks had no `scheduled_for`). Pattern: parse `retry_after` from 429 → compute expiry timestamp → `arc tasks add --scheduled-for <timestamp>`. aibtc.news rate limit window: ~47 minutes (2761-2816s).
+
 ## X API Authentication
 
 - **arc-link-research X tweet fetch requires OAuth 1.0a access_token (2026-03-06, task #1627):** `loadXCreds()` in `skills/arc-link-research/cli.ts` requires `x/access_token` and `x/access_token_secret` credentials. Only `x/bearer_token` + consumer keys are currently stored. Result: `loadXCreds()` returns null → tweet lookup falls back to unauthenticated fetch → fails with auth error. Fix: add bearer-token fallback for read-only tweet lookups (X API v2 supports bearer token for `/tweets/:id`), OR store access_token/access_token_secret.
