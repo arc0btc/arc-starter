@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-06T00:36:00.000Z*
+*Generated: 2026-03-06T06:40:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -61,12 +61,12 @@ stateDiagram-v2
         RunAllSensors --> contactsSensor: contacts
         RunAllSensors --> socialXEcosystemSensor: social-x-ecosystem
         RunAllSensors --> socialXMentionsSensor: social-x-posting (mentions)
+        RunAllSensors --> workerLogsMonitorSensor: worker-logs-monitor
 
         note right of RunAllSensors
-            42 sensors total (+3 since 2026-03-05)
-            contacts: 60min, AIBTC agent discovery → contacts table
-            social-x-ecosystem: 15min, keyword rotation (6 topics)
-            social-x-posting (mentions): 15min, @mention polling
+            43 sensors total (+1 since 2026-03-06)
+            worker-logs-monitor: 60min, error detection → issue-filing tasks
+            AIBTC_WATCHED_REPOS: 7 repos (added loop-starter-kit, x402-sponsor-relay)
         end note
 
         state "Generic Sensor Pattern" as genericSensor {
@@ -218,7 +218,7 @@ stateDiagram-v2
     }
 
     note right of CLI
-        Skills with CLI (36):
+        Skills with CLI (37):
         aibtc-dev-ops, aibtc-news-editorial,
         aibtc-repo-maintenance, arc-brand-voice,
         arc-architecture-review, arc-catalog,
@@ -236,7 +236,7 @@ stateDiagram-v2
         erc8004-identity, erc8004-reputation,
         erc8004-validation, github-worker-logs,
         quest-create, social-agent-engagement,
-        social-x-posting, styx
+        social-x-posting, styx, worker-logs-monitor
     end note
 ```
 
@@ -275,7 +275,7 @@ stateDiagram-v2
 | streak-maintenance | pending→attempting→rate_limited→completed | aibtc-news-editorial | Rate-limit aware; windowOpenAt schedules retry; instance_key: streak-{beat}-{date} |
 | agent-collaboration | received→triaged→ops_pending→retrospective_pending→completed | aibtc-inbox-sync | AIBTC inbox thread → triage → ops → learning capture; instance_key: agent-collab-{sender}-{date} |
 
-## Skills Inventory (62 total)
+## Skills Inventory (63 total)
 
 | Skill | Sensor | CLI | Agent | Description |
 |-------|--------|-----|-------|-------------|
@@ -341,3 +341,4 @@ stateDiagram-v2
 | social-x-posting | yes | yes | yes | Post tweets, read timeline, poll @mentions on X; engagement commands with daily budget |
 | stacks-stackspot | yes | - | - | Autonomous Stacking — detect pots, auto-join, claim rewards |
 | styx | - | yes | yes | BTC→sBTC conversion via Styx protocol (btc2sbtc.com) — pool status, deposit, tracking |
+| worker-logs-monitor | yes | yes | yes | Query worker-logs deployments for errors, cross-reference GitHub issues, file new issues (60min) |

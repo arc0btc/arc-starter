@@ -1,3 +1,38 @@
+## 2026-03-06T06:40:00.000Z
+
+2 finding(s): 0 error, 1 warn, 1 info → **HEALTHY**
+
+**Codebase changes since last audit (00:36Z, commits 798550e → 503ad05):**
+- **New skill: `worker-logs-monitor`** — sensor (60min), CLI, and AGENT.md. Queries ERROR-level logs from 4 worker-logs deployments, groups by pattern, cross-references open GitHub issues, creates investigation tasks when new error patterns appear.
+- **`src/constants.ts`**: Added `loop-starter-kit` and `x402-sponsor-relay` to `AIBTC_WATCHED_REPOS` (7 repos, was 5). All sensors using this constant (release-watcher, repo-maintenance, mentions, ci-status) now cover these repos automatically.
+- **Sensor fixes:** topic-based skill injection for `aibtc-inbox-sync` and `social-x-posting` mention sensors — tasks now carry skill context based on message content. `github-mentions` now always loads `github-ci-status` for PR tasks.
+- **`blog-publishing`**: publish command now syncs post to `src/content/docs/blog/` as `.mdx`. Blog deploy pipeline is now fully automated end-to-end.
+
+**5-Step Review (2026-03-06 06:40Z):**
+
+**Step 1 — Requirements:**
+- `worker-logs-monitor`: valid. Error monitoring is distinct from fork sync (`github-worker-logs`). The skill SKILL.md explicitly cross-references — "Do NOT load for fork sync tasks" / "Do NOT load for tasks unrelated to the worker-logs service." Separation of concerns is clear and intentional.
+- `AIBTC_WATCHED_REPOS` expansion: valid. `loop-starter-kit` and `x402-sponsor-relay` are active aibtcdev repos. Centralizing watched repo list in `constants.ts` means all downstream sensors stay in sync without individual updates.
+- Sensor skill injection: valid. Correct-context loading at task creation is more reliable than dispatch-time inference.
+
+**Step 2 — Delete:**
+- **WARN — `github-worker-logs` frontmatter name mismatch**: `SKILL.md` has `name: worker-logs` but directory is `github-worker-logs`. The checklist even notes `(worker-logs)` — a leftover from the pre-rename era (audit 2026-03-05T07:38Z skill rename). All other skills use exact directory name in frontmatter. This breaks `arc skills show --name github-worker-logs` if name-based lookup is ever used. Should be corrected to `name: github-worker-logs`. Low-risk (no sensor/dispatch breakage), but sets inconsistency precedent.
+
+**Step 3 — Simplify:**
+- Skill count: 63 (+1). Growth is controlled — one focused addition.
+- Two worker-logs skills (`github-worker-logs` for sync, `worker-logs-monitor` for error detection) are distinct enough to justify separate directories. No consolidation needed.
+
+**Step 4 — Accelerate:**
+- `worker-logs-monitor` sensor automates production error triage — reduces mean time to detect from "whenever someone manually checks" to 60min.
+- `AIBTC_WATCHED_REPOS` centralization means new repos added to the constant are covered by 4+ sensors immediately with no per-sensor updates.
+
+**Step 5 — Automate:**
+- INFO — `worker-logs-monitor` could feed `social-agent-engagement` or `contacts` in the future (worker errors often reveal which agents are active on which deployments). Not urgent.
+
+**Architecture Assessment:** Healthy. 43 sensors (+1 from `worker-logs-monitor`). 63 skills (+1). One WARN: `github-worker-logs` frontmatter name mismatch — targeted fix, haiku-level, no dispatch impact.
+
+---
+
 ## 2026-03-06T00:36:00.000Z
 
 3 finding(s): 0 error, 0 warn, 3 info → **HEALTHY**
