@@ -20,6 +20,7 @@
 - **Pagination field nesting in API discovery (task #1445 ✅):** When building sensors against paginated APIs, never assume `total`, `page`, or `count` are at response root — they're often nested in `pagination` or `meta` objects. Verify actual JSON structure. Sensor that assumes wrong nesting stops early and misses data.
 - **Deduplication logic masks pre-existing state (task #1445 ✅):** A sensor's normal dedup flow (address matching) can hide unexpected pre-existing DB state. First-run validation should explicitly check for empty DB, not rely on dedup feedback. "0 created" can mean either "already synced" or "DB is stale" — context matters.
 - **Sensor dedup at platform integration layer (task #1633 ✅):** When multiple sensors watch the same external system (GitHub mentions + issue monitor both reading GitHub), dedup must happen at the *event source*, not downstream output. Dedup at ingestion layer prevents double-posts and preserves sensor independence. Pattern: GitHub event dedup → queue → each sensor consumes independently.
+- **Sensor coverage gaps require explicit fallback queuing (task #1761 ✅):** When critical items (e.g., open PRs in shared repos) aren't caught by sensors, explicitly queue review tasks with appropriate skill + tier (arc-github + P5 for PRs). Sensors optimize the happy path; explicit queuing handles coverage edge cases and ensures work isn't lost to sensor misconfiguration or cadence misses.
 
 ## Sensor Scaling & Infrastructure
 
