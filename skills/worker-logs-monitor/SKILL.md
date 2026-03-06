@@ -16,10 +16,10 @@ Queries log data from all worker-logs deployments on a sensor cadence, detects e
 
 | Name | URL | Repo | Cred Key |
 |------|-----|------|----------|
-| arc0btc | https://logs.arc0btc.com | arc0btc/worker-logs | `worker-logs/arc0btc_admin_key` |
-| wbd | https://logs.wbd.host | whoabuddy/worker-logs | `worker-logs/wbd_admin_key` |
-| mainnet | https://logs.aibtc.com | aibtcdev/worker-logs | `worker-logs/aibtc_admin_key` |
-| testnet | https://logs.aibtc.dev | aibtcdev/worker-logs | `worker-logs/aibtc_admin_key` |
+| arc0btc | https://logs.arc0btc.com | arc0btc/worker-logs | `worker-logs/arc0btc_worker_api_key` |
+| wbd | https://logs.wbd.host | whoabuddy/worker-logs | `worker-logs/whoabuddy_admin_api_key` |
+| mainnet | https://logs.aibtc.com | aibtcdev/worker-logs | `worker-logs/aibtc_admin_api_key` |
+| testnet | https://logs.aibtc.dev | aibtcdev/worker-logs | `worker-logs/aibtc_admin_api_key` |
 
 Auth: `X-Admin-Key` header per deployment. Keys stored in credential store under `worker-logs/` service.
 

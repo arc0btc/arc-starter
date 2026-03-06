@@ -33,25 +33,25 @@ const DEPLOYMENTS: Deployment[] = [
     name: "arc0btc",
     url: "https://logs.arc0btc.com",
     repo: "arc0btc/worker-logs",
-    credKey: "arc0btc_admin_key",
+    credKey: "arc0btc_worker_api_key",
   },
   {
     name: "wbd",
     url: "https://logs.wbd.host",
     repo: "whoabuddy/worker-logs",
-    credKey: "wbd_admin_key",
+    credKey: "whoabuddy_admin_api_key",
   },
   {
     name: "mainnet",
     url: "https://logs.aibtc.com",
     repo: "aibtcdev/worker-logs",
-    credKey: "aibtc_admin_key",
+    credKey: "aibtc_admin_api_key",
   },
   {
     name: "testnet",
     url: "https://logs.aibtc.dev",
     repo: "aibtcdev/worker-logs",
-    credKey: "aibtc_admin_key",
+    credKey: "aibtc_admin_api_key",
   },
 ];
 
