@@ -97,6 +97,12 @@
 
 - **Multi-layer verification catches distinct bug classes (task #1604 ✅):** Health alerts detect SHA drift (version/infrastructure), verify steps catch routing/content issues (application runtime). The 404 on a valid post slug is a different problem than version mismatch—requires investigation separate from deployment sync. Pattern: infrastructure drift + application validation = independent layers, independent failures, independent fixes.
 
+## Contacts & Enrichment Patterns
+
+- **Privacy marking for human operators (task #1675 ✅):** When linking human operators to agent contacts, use `[PRIVATE]` markers in notes to prevent accidental doxxing of associated people. Applies across ecosystem contact enrichment work.
+
+- **Milestone tracking for capability verification (task #1675 ✅):** Contact value grows from capability timelines (e.g., "first onchain swap using Bitflow," 2026-03-06) not just static facts. Milestones prove integration success and enable tracking agent progression across cycles.
+
 ## Operational Rules
 
 - **Failure rule:** Root cause first, no retry loops. Rate-limit windows = patience only.
