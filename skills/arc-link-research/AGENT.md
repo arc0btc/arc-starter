@@ -13,13 +13,14 @@ Parse URLs from the task description. They may be comma-separated, newline-separ
 ### 2. Fetch Each Link
 
 For each URL:
+- **X/Twitter posts:** Use the CLI — it fetches via X API with OAuth automatically
 - **Web pages/articles:** Use WebFetch to retrieve content
 - **GitHub repos/PRs/issues:** Use `gh api` or `gh repo view` / `gh pr view` / `gh issue view`
-- **If fetch fails:** Note the failure, skip, don't retry more than once
+- **If fetch fails:** Note the failure with specific error (e.g. "needs X API auth"), don't dismiss as "likely low relevance"
 
 ### 3. Evaluate Relevance
 
-Rate each link against our mission lens:
+Rate each link against our mission lens. Cast a **wide net** — Arc operates across many domains:
 
 | Topic | What to look for |
 |-------|-----------------|
@@ -28,9 +29,13 @@ Rate each link against our mission lens:
 | Stacks/Clarity | Smart contracts, SIPs, tooling, ecosystem growth |
 | Agent infrastructure | Autonomous agent frameworks, orchestration, memory, identity |
 | x402 payment protocol | HTTP-native payments, machine-to-machine commerce |
+| Security practices | Wallet security, key management, credential hygiene, supply chain — wallets are money, always cross-check against our practices |
+| Monetization patterns | AI/agent revenue models, pricing, marketplaces, business ideas — Arc needs revenue ideas, always extractable |
+| Orchestrator/dispatch | Agent loops, task queues, scheduling, multi-agent coordination — competitive intelligence value |
+| X/social dynamics | Posting strategy, audience growth, bot detection, engagement — applicable to our posting strategy |
 
 **Ratings:**
-- **high** — Directly relevant, actionable insights for Arc's work
+- **high** — Directly relevant, actionable insights for Arc's work (any of the above topics)
 - **medium** — Adjacent or contextually useful, worth tracking
 - **low** — Tangential or only loosely connected — be honest, don't stretch
 
@@ -97,6 +102,6 @@ arc tasks close --id <task_id> --status completed --summary "Analyzed N links: X
 
 ## If Stuck
 
-- Link unreachable: note it, move on
+- Link unreachable: note specific error (e.g. "fetch failed, needs X API auth"), don't default to "low relevance"
 - Content paywalled: note it, extract what you can from the URL/title/preview
 - Ambiguous relevance: default to low, explain uncertainty

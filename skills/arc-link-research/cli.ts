@@ -5,6 +5,7 @@
 
 import { existsSync, readdirSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
+import { getCredential } from "../../src/credentials.ts";
 
 const ROOT = join(import.meta.dir, "..", "..");
 const RESEARCH_DIR = join(ROOT, "arc-link-research");
@@ -56,7 +57,120 @@ const MISSION_TOPICS = [
   "Stacks/Clarity ecosystem",
   "Agent infrastructure",
   "x402 payment protocol",
+  "Security practices (wallets, keys, automation)",
+  "AI/agent monetization patterns",
+  "Orchestrator/dispatch architecture",
+  "X/social platform dynamics for agents",
 ];
+
+// ---- X API OAuth 1.0a (reused from social-x-ecosystem) ----
+
+function percentEncode(text: string): string {
+  return encodeURIComponent(text)
+    .replace(/!/g, "%21")
+    .replace(/\*/g, "%2A")
+    .replace(/'/g, "%27")
+    .replace(/\(/g, "%28")
+    .replace(/\)/g, "%29");
+}
+
+function generateNonce(): string {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let nonce = "";
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  for (const byte of bytes) {
+    nonce += chars[byte % chars.length];
+  }
+  return nonce;
+}
+
+async function hmacSha1(key: string, data: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(key),
+    { name: "HMAC", hash: "SHA-1" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign("HMAC", cryptoKey, encoder.encode(data));
+  return btoa(String.fromCharCode(...new Uint8Array(signature)));
+}
+
+interface XOAuthCreds {
+  apiKey: string;
+  apiSecret: string;
+  accessToken: string;
+  accessTokenSecret: string;
+}
+
+async function loadXCreds(): Promise<XOAuthCreds | null> {
+  try {
+    const apiKey = await getCredential("x", "consumer_key");
+    const apiSecret = await getCredential("x", "consumer_secret");
+    const accessToken = await getCredential("x", "access_token");
+    const accessTokenSecret = await getCredential("x", "access_token_secret");
+    if (!apiKey || !apiSecret || !accessToken || !accessTokenSecret) return null;
+    return { apiKey, apiSecret, accessToken, accessTokenSecret };
+  } catch {
+    return null;
+  }
+}
+
+async function xApiGet(
+  endpoint: string,
+  creds: XOAuthCreds,
+  queryParams: Record<string, string> = {}
+): Promise<Record<string, unknown> | null> {
+  const baseUrl = `https://api.x.com/2${endpoint}`;
+  const url = Object.keys(queryParams).length > 0
+    ? `${baseUrl}?${new URLSearchParams(queryParams).toString()}`
+    : baseUrl;
+
+  const oauthParams: Record<string, string> = {
+    oauth_consumer_key: creds.apiKey,
+    oauth_nonce: generateNonce(),
+    oauth_signature_method: "HMAC-SHA1",
+    oauth_timestamp: Math.floor(Date.now() / 1000).toString(),
+    oauth_token: creds.accessToken,
+    oauth_version: "1.0",
+  };
+
+  const allParams = { ...oauthParams, ...queryParams };
+  const sortedKeys = Object.keys(allParams).sort();
+  const paramString = sortedKeys
+    .map((k) => `${percentEncode(k)}=${percentEncode(allParams[k])}`)
+    .join("&");
+  const signatureBase = `GET&${percentEncode(baseUrl)}&${percentEncode(paramString)}`;
+  const signingKey = `${percentEncode(creds.apiSecret)}&${percentEncode(creds.accessTokenSecret)}`;
+  const signature = await hmacSha1(signingKey, signatureBase);
+
+  oauthParams["oauth_signature"] = signature;
+  const headerParts = Object.keys(oauthParams)
+    .sort()
+    .map((k) => `${percentEncode(k)}="${percentEncode(oauthParams[k])}"`)
+    .join(", ");
+
+  const response = await fetch(url, {
+    headers: { Authorization: `OAuth ${headerParts}` },
+    signal: AbortSignal.timeout(15000),
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  return (await response.json()) as Record<string, unknown>;
+}
+
+// Extract tweet ID from x.com or twitter.com URLs
+function parseTweetUrl(url: string): string | null {
+  const match = url.match(/(?:x\.com|twitter\.com)\/[^/]+\/status\/(\d+)/);
+  return match ? match[1] : null;
+}
+
+// ---- Fetch & Analyze ----
 
 async function fetchAndAnalyze(url: string): Promise<LinkAnalysis> {
   const result: LinkAnalysis = {
@@ -112,30 +226,74 @@ async function fetchAndAnalyze(url: string): Promise<LinkAnalysis> {
         }
       }
     } else {
-      // Generic web fetch
-      const response = await fetch(url, {
-        headers: { "User-Agent": "Arc-Research/1.0" },
-        redirect: "follow",
-        signal: AbortSignal.timeout(15000),
-      });
+      // Check if this is a tweet URL — use X API with OAuth
+      const tweetId = parseTweetUrl(url);
+      if (tweetId) {
+        const xCreds = await loadXCreds();
+        if (!xCreds) {
+          throw new Error("Fetch failed, needs X API auth — X credentials not configured");
+        }
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        const tweetData = await xApiGet(`/tweets/${tweetId}`, xCreds, {
+          "tweet.fields": "created_at,author_id,public_metrics,conversation_id,entities",
+          "expansions": "author_id",
+          "user.fields": "name,username,description",
+        });
+
+        if (!tweetData) {
+          throw new Error("Fetch failed, needs X API auth — tweet lookup returned empty");
+        }
+
+        const tweet = tweetData["data"] as Record<string, unknown> | undefined;
+        if (!tweet) {
+          throw new Error("Fetch failed, needs X API auth — no tweet data in response");
+        }
+
+        const tweetText = (tweet["text"] as string) || "";
+        const authorId = (tweet["author_id"] as string) || "unknown";
+
+        // Extract author info from expansions
+        const includes = tweetData["includes"] as Record<string, unknown[]> | undefined;
+        const users = (includes?.["users"] || []) as Array<Record<string, string>>;
+        const author = users.find((u) => u["id"] === authorId);
+        const authorName = author?.["name"] || "unknown";
+        const authorUsername = author?.["username"] || "unknown";
+        const authorDescription = author?.["description"] || "";
+
+        title = `@${authorUsername}: ${tweetText.slice(0, 80)}${tweetText.length > 80 ? "..." : ""}`;
+        content = [
+          `Tweet by @${authorUsername} (${authorName})`,
+          `Author bio: ${authorDescription}`,
+          `Text: ${tweetText}`,
+          `Created: ${tweet["created_at"] || "unknown"}`,
+          `Metrics: ${JSON.stringify(tweet["public_metrics"] || {})}`,
+        ].join("\n");
+      } else {
+        // Generic web fetch
+        const response = await fetch(url, {
+          headers: { "User-Agent": "Arc-Research/1.0" },
+          redirect: "follow",
+          signal: AbortSignal.timeout(15000),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const html = await response.text();
+        // Extract title from HTML
+        const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+        title = titleMatch ? titleMatch[1].trim() : new URL(url).hostname;
+
+        // Strip HTML tags for analysis (rough but functional)
+        content = html
+          .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+          .replace(/<[^>]+>/g, " ")
+          .replace(/\s+/g, " ")
+          .trim()
+          .slice(0, 5000);
       }
-
-      const html = await response.text();
-      // Extract title from HTML
-      const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-      title = titleMatch ? titleMatch[1].trim() : new URL(url).hostname;
-
-      // Strip HTML tags for analysis (rough but functional)
-      content = html
-        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
-        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
-        .replace(/<[^>]+>/g, " ")
-        .replace(/\s+/g, " ")
-        .trim()
-        .slice(0, 5000);
     }
 
     result.title = title;
@@ -144,16 +302,41 @@ async function fetchAndAnalyze(url: string): Promise<LinkAnalysis> {
     const lower = (content + " " + title + " " + url).toLowerCase();
     const signals = {
       high: [
+        // Core mission
         "aibtc", "ai agent", "autonomous agent", "x402", "stacks", "clarity",
         "bitcoin payment", "machine-to-machine", "agent payment", "sbtc",
         "agent infrastructure", "agent-to-agent", "bitcoin ai", "ai bitcoin",
         "micropayment", "http 402", "payment required",
+        // Security (wallets are money)
+        "wallet security", "key management", "seed phrase", "private key",
+        "api key leak", "credential rotation", "supply chain attack",
+        "dependency vulnerability", "automated security", "agent security",
+        "security rule", "security tip", "vibe cod",
+        // Monetization
+        "ai monetization", "agent revenue", "saas ai", "ai pricing",
+        "ai business model", "llm cost", "api monetization", "ai startup",
+        "agent marketplace", "ai service", "make money ai", "ai income",
+        "money on the table", "llm money", "llm business",
+        // Orchestrator/dispatch
+        "agent orchestrat", "dispatch", "task queue", "agent loop",
+        "agent scheduler", "multi-agent", "agent workflow", "agentic",
+        "claude code", "cursor agent", "devin", "codegen agent",
       ],
       medium: [
         "bitcoin", "btc", "smart contract", "blockchain ai", "web3 ai",
         "llm agent", "agent framework", "ai orchestration", "mcp",
         "tool use", "function calling", "ai automation", "crypto ai",
         "decentralized ai", "agent protocol",
+        // Security (broader)
+        "security", "cybersecurity", "vault", "secret management", "2fa", "oauth",
+        "encryption", "zero trust", "vulnerability",
+        // Social/X dynamics
+        "ai twitter", "bot detection", "social media ai", "engagement",
+        "posting strategy", "content strategy", "brand voice",
+        "audience growth", "ai influencer",
+        // Monetization (broader)
+        "freelance ai", "consulting ai", "revenue model", "side project",
+        "passive income", "digital product",
       ],
     };
 
@@ -189,8 +372,8 @@ async function fetchAndAnalyze(url: string): Promise<LinkAnalysis> {
   } catch (error) {
     result.fetchError = error instanceof Error ? error.message : String(error);
     result.title = new URL(url).hostname;
-    result.justification = "Could not fetch — relevance unknown";
-    result.takeaways = ["Fetch failed — review link manually."];
+    result.justification = `Fetch failed — ${result.fetchError}`;
+    result.takeaways = ["Fetch failed — review link manually or check authentication."];
   }
 
   return result;

@@ -9,7 +9,7 @@ tags:
 
 # Research
 
-Processes batches of links (articles, repos, docs, threads) dropped by whoabuddy and evaluates each for relevance to our mission: Bitcoin as the currency of AIs, the AIBTC platform, Stacks/Clarity, agent infrastructure, and the x402 payment protocol.
+Processes batches of links (articles, repos, docs, threads, tweets) dropped by whoabuddy and evaluates each for relevance. Broad extraction lens: Bitcoin/AIBTC/Stacks core mission, plus security practices, monetization patterns, orchestrator/dispatch competitive intelligence, and X/social dynamics. Tweet URLs are fetched via X API with OAuth (no nitter).
 
 ## Components
 
@@ -19,7 +19,7 @@ Processes batches of links (articles, repos, docs, threads) dropped by whoabuddy
 | `AGENT.md` | Subagent briefing for deep link analysis |
 | `cli.ts` | CLI: process links, list reports |
 
-No sensor — triggered by human task creation only.
+No sensor — triggered by human task creation or ecosystem sensor signals. X/Twitter URLs are fetched via authenticated X API (OAuth 1.0a).
 
 ## CLI
 
