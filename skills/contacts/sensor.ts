@@ -7,6 +7,7 @@ import {
   claimSensorRun,
   createSensorLogger,
   fetchWithRetry,
+  pendingTaskExistsForSource,
   readHookState,
   writeHookState,
 } from "../../src/sensors.ts";
@@ -104,6 +105,13 @@ export default async function contactsDiscoverySensor(): Promise<string> {
     const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (!claimed) {
       log("skip (interval not ready)");
+      return "skip";
+    }
+
+    // Dedup: skip if a contacts-sync task is already pending (human-queued or prior cycle)
+    const TASK_SOURCE = `sensor:${SENSOR_NAME}`;
+    if (pendingTaskExistsForSource(TASK_SOURCE)) {
+      log("skip (pending task already queued)");
       return "skip";
     }
 
