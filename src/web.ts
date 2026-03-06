@@ -54,6 +54,110 @@ function errorResponse(message: string, status = 400): Response {
   return json({ error: message }, status);
 }
 
+// ---- Ask Arc: Tiered pricing & rate limiting ----
+
+interface AskTier {
+  model: string;
+  priority: number;
+  cost_sats: number;
+}
+
+const ASK_TIERS: Record<string, AskTier> = {
+  haiku:  { model: "haiku",  priority: 8, cost_sats: 250 },
+  sonnet: { model: "sonnet", priority: 5, cost_sats: 2500 },
+  opus:   { model: "opus",   priority: 3, cost_sats: 10000 },
+};
+
+const ASK_DAILY_LIMIT = 20;
+let askDayKey = "";
+let askDayCount = 0;
+
+function getAskDayKey(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function checkAskRateLimit(): boolean {
+  const today = getAskDayKey();
+  if (today !== askDayKey) {
+    askDayKey = today;
+    askDayCount = 0;
+  }
+  return askDayCount < ASK_DAILY_LIMIT;
+}
+
+function incrementAskCount(): void {
+  const today = getAskDayKey();
+  if (today !== askDayKey) {
+    askDayKey = today;
+    askDayCount = 0;
+  }
+  askDayCount++;
+}
+
+async function handleAsk(req: Request): Promise<Response> {
+  // Rate limit check
+  if (!checkAskRateLimit()) {
+    return json({
+      error: "Daily question limit reached",
+      code: "RATE_LIMITED",
+      limit: ASK_DAILY_LIMIT,
+      resets: getAskDayKey() + "T00:00:00Z (next day)",
+    }, 429);
+  }
+
+  let body: { question?: string; tier?: string; context?: string };
+  try {
+    body = await req.json() as { question?: string; tier?: string; context?: string };
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  const question = typeof body.question === "string" ? body.question.trim() : "";
+  if (!question) return errorResponse("'question' is required", 400);
+  if (question.length > 500) return errorResponse("Question too long (max 500 chars)", 400);
+
+  const tierName = (typeof body.tier === "string" ? body.tier.toLowerCase() : "haiku");
+  const tier = ASK_TIERS[tierName];
+  if (!tier) {
+    return errorResponse(`Invalid tier '${tierName}'. Valid: haiku, sonnet, opus`, 400);
+  }
+
+  const context = typeof body.context === "string" ? body.context.trim() : "";
+  if (context.length > 1000) return errorResponse("Context too long (max 1000 chars)", 400);
+
+  // Build task description
+  const description = [
+    `**Ask Arc query (${tierName} tier)**`,
+    "",
+    `**Question:** ${question}`,
+    context ? `\n**Context:** ${context}` : "",
+    "",
+    "Respond directly to the question using your knowledge, skills, and memory.",
+    "Keep the answer concise and factual. Output your answer as plain text.",
+  ].filter(Boolean).join("\n");
+
+  const taskId = insertTask({
+    subject: `[ask-arc] ${question.slice(0, 80)}${question.length > 80 ? "..." : ""}`,
+    description,
+    skills: JSON.stringify(["arc0btc-ask-service"]),
+    priority: tier.priority,
+    model: tier.model,
+    source: "api:ask-arc",
+  });
+
+  incrementAskCount();
+
+  return json({
+    task_id: taskId,
+    tier: tierName,
+    model: tier.model,
+    cost_sats: tier.cost_sats,
+    status: "pending",
+    poll_url: `/api/tasks/${taskId}`,
+    daily_remaining: ASK_DAILY_LIMIT - askDayCount,
+  }, 201);
+}
+
 // ---- API Handlers ----
 
 function handleStatus(): Response {
@@ -520,6 +624,23 @@ function route(req: Request): Response | Promise<Response> {
 
   // POST routes
   if (method === "POST" && path === "/api/messages") return handlePostMessage(req);
+  if (method === "POST" && path === "/api/ask") return handleAsk(req);
+
+  // GET: Ask Arc pricing and rate limit info
+  if (method === "GET" && path === "/api/ask") {
+    const today = getAskDayKey();
+    if (today !== askDayKey) { askDayKey = today; askDayCount = 0; }
+    return json({
+      service: "ask-arc",
+      description: "Pay-per-question endpoint. Ask Arc anything.",
+      tiers: Object.fromEntries(
+        Object.entries(ASK_TIERS).map(([name, t]) => [name, { model: t.model, cost_sats: t.cost_sats }])
+      ),
+      daily_limit: ASK_DAILY_LIMIT,
+      daily_remaining: ASK_DAILY_LIMIT - askDayCount,
+      usage: "POST /api/ask with { question, tier?, context? }",
+    });
+  }
 
   // API routes
   if (path === "/api/status") return handleStatus();
