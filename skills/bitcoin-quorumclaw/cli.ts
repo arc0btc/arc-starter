@@ -32,15 +32,25 @@ interface MultisigRecord {
   agents: AgentRecord[];
 }
 
+interface SighashEntry {
+  sighash: string;
+  inputIndex: number;
+}
+
 interface ProposalRecord {
   id: string;
   multisigId: string;
   status: string;
-  sighashes: string[];
+  sighashes: SighashEntry[];
   signatures: Array<{ agentId: string; signature: string }>;
   outputs: Array<{ address: string; amount: string }>;
   note?: string;
   txid?: string;
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
 }
 
 interface InviteSlot {
@@ -177,7 +187,7 @@ async function signDigest(digest: string): Promise<{ signature: string; publicKe
   const WALLET_RUNNER = resolve(import.meta.dir, "../bitcoin-wallet/sign-runner.ts");
 
   const proc = Bun.spawn(
-    ["bun", "run", WALLET_RUNNER, "schnorr-sign-digest", digest],
+    ["bun", "run", WALLET_RUNNER, "schnorr-sign-digest", "--digest", digest, "--confirm-blind-sign"],
     {
       cwd: ROOT,
       stdin: "ignore",
@@ -321,7 +331,8 @@ async function cmdSignProposal(args: string[]): Promise<void> {
   const id = requireFlag(flags, "id", usage);
 
   log(`fetching proposal ${id} for signing`);
-  const proposal = await apiRequest<ProposalRecord>("GET", `/v1/proposals/${id}`);
+  const raw = await apiRequest<ApiResponse<ProposalRecord>>("GET", `/v1/proposals/${id}`);
+  const proposal = raw.data ?? (raw as unknown as ProposalRecord);
 
   if (!proposal.sighashes || proposal.sighashes.length === 0) {
     console.log(JSON.stringify({ success: false, error: "No sighashes found in proposal" }));
@@ -331,20 +342,37 @@ async function cmdSignProposal(args: string[]): Promise<void> {
   log(`proposal has ${proposal.sighashes.length} sighash(es) to sign`);
   log(`outputs: ${JSON.stringify(proposal.outputs)}`);
 
+  // Resolve Arc's agentId in this multisig by matching pubkey
+  let signerAgentId = ARC_AGENT_ID;
+  if (proposal.multisigId) {
+    const arcPubKey = await getArcInternalPubKey();
+    log(`Arc pubkey: ${arcPubKey}`);
+    const msRaw = await apiRequest<ApiResponse<MultisigRecord>>("GET", `/v1/multisigs/${proposal.multisigId}`);
+    const ms = msRaw.data ?? (msRaw as unknown as MultisigRecord);
+    const match = ms.agents?.find((a: AgentRecord) => a.publicKey === arcPubKey);
+    if (match) {
+      signerAgentId = match.id;
+      log(`resolved Arc's signer ID in this multisig: ${signerAgentId}`);
+    } else {
+      log(`warning: could not match Arc pubkey in multisig agents, falling back to ${ARC_AGENT_ID}`);
+    }
+  }
+
   const results: Array<{ sighash: string; submitted: boolean }> = [];
 
-  for (const sighash of proposal.sighashes) {
-    log(`signing sighash: ${sighash.slice(0, 16)}...`);
-    const { signature } = await signDigest(sighash);
+  for (const entry of proposal.sighashes) {
+    const digest = typeof entry === "string" ? entry : entry.sighash;
+    log(`signing sighash: ${digest.slice(0, 16)}...`);
+    const { signature } = await signDigest(digest);
 
     log("submitting signature to QuorumClaw");
     await apiRequest("POST", `/v1/proposals/${id}/sign`, {
-      agentId: ARC_AGENT_ID,
+      agentId: signerAgentId,
       signature,
     });
 
-    results.push({ sighash, submitted: true });
-    log(`signature submitted for sighash ${sighash.slice(0, 16)}...`);
+    results.push({ sighash: digest, submitted: true });
+    log(`signature submitted for sighash ${digest.slice(0, 16)}...`);
   }
 
   console.log(JSON.stringify({ success: true, proposalId: id, signed: results }));
