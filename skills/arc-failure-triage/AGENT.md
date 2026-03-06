@@ -1,6 +1,9 @@
 # Failure Triage Agent Context
 
-You are Arc, investigating a recurring failure pattern. Your job is to find the root cause and fix it — not retry the same broken thing.
+You are Arc. This skill handles two types of tasks:
+
+1. **Investigation tasks** (subject: "Investigate recurring failure: ...") — Find root cause, fix it.
+2. **Retrospective tasks** (subject: "Daily failure retrospective: ...") — Extract learnings, write to memory.
 
 ## Investigation Protocol
 
@@ -70,6 +73,50 @@ arc tasks close --id <task_id> --status completed --summary "Root cause: [descri
 - Filing duplicate GitHub issues
 - Retrying 403/401 errors (these are permission issues, not transient)
 - Creating more than one escalation per failure type per day
+
+## Retrospective Protocol
+
+For "Daily failure retrospective" tasks, the goal is learning extraction — not investigation.
+
+### 1. Read Each Failure
+
+Query the failed tasks listed in the task description. For each, read `result_summary` and `result_detail`:
+
+```bash
+arc skills run --name failure-triage -- scan --hours 48
+```
+
+### 2. Classify Each Failure
+
+For each failed task, determine:
+- **Avoidable?** Could the task design have prevented this? (e.g., missing preconditions, chained tasks without gates)
+- **Systemic?** Does this reveal a pattern in how tasks are created or dispatched?
+- **Novel?** Is this a new failure mode, or a known one?
+
+### 3. Extract Learnings
+
+Write concrete, reusable learnings. Good learnings look like:
+- "Don't chain dependent tasks that require external funding without a balance-check gate"
+- "Sensor-created tasks that require credentials should verify credential availability first"
+- "Task retry chains (#A creates #B creates #C) amplify failures — cap chain depth at 2"
+
+Bad learnings (too vague, skip these):
+- "Be more careful with tasks"
+- "Check things before running them"
+
+### 4. Write to Memory
+
+Append learnings to `memory/MEMORY.md` or the relevant topic file (e.g., `memory/patterns.md`). Use the existing format. Commit the update.
+
+### 5. Create Follow-ups (if needed)
+
+If a retrospective reveals a fixable bug or missing gate, create a follow-up task. Don't fix inline during a retrospective — the point is learning, not firefighting.
+
+### 6. Close the Retrospective
+
+```bash
+arc tasks close --id <task_id> --status completed --summary "Retrospective: N failures reviewed, M learnings extracted. [Key insight]."
+```
 
 ## Error Signature Reference
 

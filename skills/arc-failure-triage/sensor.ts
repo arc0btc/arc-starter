@@ -149,5 +149,55 @@ export default async function failureTriageSensor(): Promise<string> {
     created++;
   }
 
-  return created > 0 ? `ok: created ${created} investigation task(s)` : "ok";
+  // --- Daily retrospective pass ---
+  // Create a single daily task to review all recent failures for learnings,
+  // even if they don't form a recurring pattern (below OCCURRENCE_THRESHOLD).
+  const today = new Date().toISOString().slice(0, 10);
+  const retroSource = `sensor:arc-failure-triage:retro:${today}`;
+  if (!pendingTaskExistsForSource(retroSource) && completedTaskCountForSource(retroSource) === 0) {
+    // Only create if there are failures worth reviewing
+    const nonDismissed = failedTasks.filter((t) => {
+      const sig = classifyError(t.result_summary ?? t.subject);
+      return !SKIP_SIGNATURES.has(sig);
+    });
+
+    if (nonDismissed.length > 0) {
+      const listing = nonDismissed
+        .slice(0, 10)
+        .map((t) => {
+          const sig = classifyError(t.result_summary ?? t.subject);
+          return `  - #${t.id} [${sig}]: ${t.result_summary ?? t.subject}`;
+        })
+        .join("\n");
+
+      insertTask({
+        subject: `Daily failure retrospective: ${nonDismissed.length} failed task(s)`,
+        description: [
+          `## Failure Retrospective — ${today}`,
+          "",
+          `**Failed tasks (last ${LOOKBACK_HOURS}h):** ${nonDismissed.length}`,
+          "",
+          "### Tasks to Review",
+          listing,
+          nonDismissed.length > 10 ? `  - ... and ${nonDismissed.length - 10} more` : "",
+          "",
+          "### Instructions",
+          "1. Read each failed task's result_summary and result_detail",
+          "2. For each failure, extract one concrete learning (if any)",
+          "3. Look for systemic patterns: task chaining without gates, missing preconditions, scope creep",
+          "4. Write learnings to memory/MEMORY.md or the relevant topic file",
+          "5. If a failure reveals a fixable bug, create a follow-up task — don't fix inline",
+          "6. Close with a summary of learnings extracted",
+        ].join("\n"),
+        skills: '["arc-failure-triage"]',
+        priority: 7,
+        model: "sonnet",
+        source: retroSource,
+      });
+
+      created++;
+    }
+  }
+
+  return created > 0 ? `ok: created ${created} task(s)` : "ok";
 }

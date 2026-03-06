@@ -34,10 +34,18 @@ arc skills run --name failure-triage -- investigate --pattern "error signature t
 
 - Cadence: 60 minutes
 - Queries tasks with `status='failed'` in the last 24 hours
+
+### Pass 1: Recurring Pattern Investigation
 - Groups failures by normalized error signature
 - If any error appears 3+ times across different tasks, creates an investigation task
-- Investigation tasks get `priority: 3` and `skills: ["arc-failure-triage", "arc-skill-manager"]`
+- Investigation tasks get `priority: 3`, `model: sonnet`
 - Source: `sensor:arc-failure-triage:pattern:{hash}` — deduped per pattern
+
+### Pass 2: Daily Retrospective
+- Once per day, creates a single retrospective task listing all non-dismissed failures
+- Retrospective tasks get `priority: 7`, `model: sonnet`
+- Goal: extract learnings and write to memory — not fix bugs
+- Source: `sensor:arc-failure-triage:retro:{date}` — one per calendar day
 
 ## Error Signature Normalization
 
@@ -53,7 +61,7 @@ Groups by pattern class, not exact string:
 
 ## When to Load
 
-Load when: the failure-triage sensor creates an investigation task (subject: "Investigate recurring error: {pattern}"), or when manually scanning for failure patterns. Tasks with source `sensor:arc-failure-triage:pattern:{hash}` include this skill alongside `arc-skill-manager`.
+Load when: the failure-triage sensor creates an investigation task (subject: "Investigate recurring failure: ...") or a retrospective task (subject: "Daily failure retrospective: ..."), or when manually scanning for failure patterns.
 
 ## Core Principle
 
