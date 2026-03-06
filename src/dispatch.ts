@@ -961,8 +961,13 @@ async function discardWorktree(taskId: number): Promise<void> {
  * just-completed P1-4 (Opus) task. Only called on successful completion.
  * The retrospective runs at P8 to avoid crowding real work.
  */
-function scheduleRetrospective(task: Task, resultSummary: string, resultDetail: string): void {
-  const excerpt = resultDetail.slice(0, 1500).trim();
+function scheduleRetrospective(task: Task, resultSummary: string, resultDetail: string, costUsd: number): void {
+  // Expensive tasks (>$1) get a larger excerpt budget so Haiku sees more context
+  const maxLen = costUsd > 1.0 ? 3000 : 1500;
+  // Use summary as guaranteed prefix, then fill remaining budget with result detail
+  const summaryBlock = resultSummary ? `[Summary] ${resultSummary.trim()}\n\n` : "";
+  const detailBudget = Math.max(0, maxLen - summaryBlock.length);
+  const excerpt = (summaryBlock + resultDetail.slice(0, detailBudget)).trim();
   insertTask({
     subject: `Retrospective: extract learnings from task #${task.id} — ${task.subject.slice(0, 60)}`,
     description: `A complex P${task.priority} task just completed. Review the work and extract reusable patterns.\n\n**Completed task:** #${task.id} — ${task.subject}\n**Result summary:** ${resultSummary.slice(0, 300)}\n**Result excerpt:**\n${excerpt}\n\n**Your job:**\n1. Read memory/patterns.md first. Check if a similar pattern already exists.\n2. Identify 1–3 reusable patterns that would change how a future task is executed. This means: operational heuristics, architectural decisions, integration gotchas, debugging techniques. NOT bug reports, celebratory notes, or task-specific details.\n3. If a similar pattern exists in patterns.md, UPDATE that entry in-place (edit the existing bullet). If it is genuinely new, append it under the most relevant existing section heading.\n4. Keep each pattern to 1–2 sentences. Never write to MEMORY.md — only patterns.md.\n5. patterns.md must stay under ~150 lines. If your additions would exceed that, remove or merge the oldest/most-specific entries to make room.\n\nIf there is nothing worth capturing, close this task as completed with summary "No learnings to capture".`,
@@ -1164,7 +1169,7 @@ export async function runDispatch(): Promise<void> {
     if (task.priority <= 4) {
       const finalStatus = getTaskById(task.id);
       if (finalStatus?.status === "completed") {
-        scheduleRetrospective(task, finalStatus.result_summary ?? result.slice(0, 300), result);
+        scheduleRetrospective(task, finalStatus.result_summary ?? result.slice(0, 300), result, cost_usd);
       }
     }
 
