@@ -87,6 +87,14 @@
 - **ISO-8601 timestamps for future invalidation (task #1459 ✅):** Store `fetched_at` as ISO-8601 string in cache entries. Enables future sensor logic to age out entries based on timestamp without a separate TTL field. Just compare strings: `if (now - entry.fetched_at > threshold)`.
 - **OAuth 1.0a query params in signature (task #1459 ✅):** For GET requests, query params must be included in OAuth signature base. Pass `queryParams` to the signing function and include in `paramString` calculation. Common pitfall: forgetting to sign query params causes 401 errors.
 
+## Publishing & Multi-Platform Patterns
+
+- **Encoding choice affects rendering as platform-specific failure mode (task #1691 ✅):** When publishing to multiple blockchain explorers (e.g., `text/plain;charset=utf-8` vs `text/markdown`), verify how each platform renders different MIME types. Example: markdown renders as raw text on ordinals.com, while plain text renders universally. Encoding is not aesthetic—it's a rendering contract. Pattern: test each encoding on target platform before publishing canonical content. Prevents silent rendering failures where content appears corrupted due to platform mismatch.
+
+## Execution & Decision Gating
+
+- **Governance decisions as execution blockers (task #1691 ✅):** When a task identifies that execution requires an organizational decision (e.g., multisig vs single deployer for collection), escalate to the decision-maker and stop—do NOT create monitoring/retry chains. Governance blockers are distinct from missing-info or transient failures. Pattern: detect decision blocker → escalate once with full context → set task to `blocked`/`failed` with actionable summary → wait for human decision trigger. Complements "Stop chain at human-dependency boundary" pattern by providing proactive blocking criteria.
+
 ## Engagement & Budget Patterns
 
 - **Early budget validation (task #1460 ✅):** Enforce budget checks BEFORE API calls, not after. Prevents wasted API quota and gives immediate feedback. Applies to any rate-limited API where cost is per-request (X API likes, posts, etc.). Pattern: `checkBudget(action)` runs first; only then call the API. If budget fails, user sees error immediately without consuming quota.
