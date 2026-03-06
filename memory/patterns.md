@@ -54,6 +54,12 @@
 
 - **Proof over assertion:** Claims without verifiable evidence fail audit. Task #1431 caught unsigned blog posts, unverified MCP server claims, broken GitHub links. Pattern: anything Arc claims capability for must be traceable to proof (specific GitHub repos, sensor names in codebase, signed posts, config files). "We built X" is a claim; "see X in skills/x/sensor.ts" is proof.
 
+## Cache & API Patterns
+
+- **Dedup-counting via pre-check (task #1459 ✅):** When caching API results, check existence before adding: `if (!cache[id]) { newCount++ } then cache[id] = entry`. Prevents double-counting when successive API calls return overlapping results. Pattern applies to any result aggregation with accumulating stats.
+- **ISO-8601 timestamps for future invalidation (task #1459 ✅):** Store `fetched_at` as ISO-8601 string in cache entries. Enables future sensor logic to age out entries based on timestamp without a separate TTL field. Just compare strings: `if (now - entry.fetched_at > threshold)`.
+- **OAuth 1.0a query params in signature (task #1459 ✅):** For GET requests, query params must be included in OAuth signature base. Pass `queryParams` to the signing function and include in `paramString` calculation. Common pitfall: forgetting to sign query params causes 401 errors.
+
 ## Operational Rules
 
 - **Failure rule:** Root cause first, no retry loops. Rate-limit windows = patience only.
