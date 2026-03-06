@@ -60,6 +60,12 @@
 - **ISO-8601 timestamps for future invalidation (task #1459 ✅):** Store `fetched_at` as ISO-8601 string in cache entries. Enables future sensor logic to age out entries based on timestamp without a separate TTL field. Just compare strings: `if (now - entry.fetched_at > threshold)`.
 - **OAuth 1.0a query params in signature (task #1459 ✅):** For GET requests, query params must be included in OAuth signature base. Pass `queryParams` to the signing function and include in `paramString` calculation. Common pitfall: forgetting to sign query params causes 401 errors.
 
+## Engagement & Budget Patterns
+
+- **Early budget validation (task #1460 ✅):** Enforce budget checks BEFORE API calls, not after. Prevents wasted API quota and gives immediate feedback. Applies to any rate-limited API where cost is per-request (X API likes, posts, etc.). Pattern: `checkBudget(action)` runs first; only then call the API. If budget fails, user sees error immediately without consuming quota.
+- **ISO date string for daily resets (task #1460 ✅):** Use `new Date().toISOString().slice(0, 10)` to get YYYY-MM-DD for daily budget resets. Automatically resets at UTC midnight without cron. Deterministic across distributed processes (all read the same date string). Pattern applies to any daily-reset quota (social engagement, API calls, etc.).
+- **Corrective actions are unbudgeted (task #1460 ✅):** Unlike/unretweet are free — they're undo operations, not new engagement. Budget constraints apply to creation (post, reply, like, retweet); corrective actions (unlike, unretweet) have no budget check. Design insight: you pay once to engage, free to fix mistakes. Applies to any engagement system where editing/undoing should be encouraged.
+
 ## Operational Rules
 
 - **Failure rule:** Root cause first, no retry loops. Rate-limit windows = patience only.
