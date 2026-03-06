@@ -63,7 +63,7 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   "blog-publishing": ["blog draft", "publish blog", "new blog post", "write blog"],
   "blog-deploy": ["deploy blog", "blog deploy", "wrangler deploy"],
   "social-x-posting": ["x post", "tweet", "post to x"],
-  "social-agent-engagement": ["agent engagement", "x402", "agent collab"],
+  "social-agent-engagement": ["agent engagement", "x402 message", "send x402", "agent collab"],
   "github-ci-status": ["ci status", "github actions", "workflow run"],
   "github-security-alerts": ["security alert", "dependabot", "vulnerability"],
   "arc-email-sync": ["email sync", "inbox sync", "arc-email"],

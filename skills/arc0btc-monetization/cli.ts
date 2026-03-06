@@ -169,7 +169,7 @@ function analyzeOpportunities(capabilities: Capability[]): Opportunity[] {
 
   // X402 gated content
   const x402Skills = capabilities.filter(
-    (c) => c.skill.includes("x402") || c.description.toLowerCase().includes("x402") || c.skill.includes("agent-engagement")
+    (c) => c.skill.includes("x402") || c.description.toLowerCase().includes("x402") || c.skill.includes("social-agent-engagement")
   );
   if (x402Skills.length > 0 || cryptoSkills.length > 0) {
     opportunities.push({
