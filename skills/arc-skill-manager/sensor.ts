@@ -12,7 +12,10 @@ const log = createSensorLogger(SENSOR_NAME);
 const TASK_SOURCE = "sensor:arc-memory-consolidate";
 const SENSOR_VALIDATION_SOURCE = "sensor:arc-sensor-validation";
 const MEMORY_PATH = join(import.meta.dir, "../../memory/MEMORY.md");
+const PATTERNS_PATH = join(import.meta.dir, "../../memory/patterns.md");
 const LINE_THRESHOLD = 500;
+const PATTERNS_LINE_THRESHOLD = 150;
+const PATTERNS_TASK_SOURCE = "sensor:arc-patterns-consolidate";
 const SKILLS_ROOT = join(import.meta.dir, "../../skills");
 
 function validateSensorPattern(filePath: string, content: string): { valid: boolean; issues: string[] } {
@@ -107,6 +110,37 @@ export default async function manageSkillsSensor(): Promise<string> {
         results.push("memory-task-created");
       } else {
         results.push("memory-ok");
+      }
+    }
+  }
+
+  // Check 1b: patterns.md consolidation (piggybacks on memory check interval)
+  if (memoryClaimed) {
+    if (existsSync(PATTERNS_PATH)) {
+      const pContent = readFileSync(PATTERNS_PATH, "utf-8");
+      const pLineCount = pContent.split("\n").length;
+
+      if (pLineCount > PATTERNS_LINE_THRESHOLD && !pendingTaskExistsForSource(PATTERNS_TASK_SOURCE)) {
+        insertTask({
+          subject: `Consolidate patterns.md (${pLineCount} lines, threshold ${PATTERNS_LINE_THRESHOLD})`,
+          description: [
+            "memory/patterns.md has grown past the 150-line cap.",
+            "",
+            "Steps:",
+            "1. Read memory/patterns.md",
+            "2. Archive or prune the oldest/most-specific entries",
+            "3. Merge duplicate or closely related patterns",
+            "4. Keep the file under ~150 lines while preserving reusable operational knowledge",
+            "5. Commit the result",
+          ].join("\n"),
+          skills: '["arc-skill-manager"]',
+          priority: 8,
+          model: "sonnet",
+          source: PATTERNS_TASK_SOURCE,
+        });
+        results.push("patterns-task-created");
+      } else {
+        results.push("patterns-ok");
       }
     }
   }

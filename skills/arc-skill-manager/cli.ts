@@ -10,7 +10,9 @@ import { parseFlags, pad, truncate } from "../../src/utils.ts";
 const ROOT = join(import.meta.dir, "../..");
 const SKILLS_ROOT = join(ROOT, "skills");
 const MEMORY_PATH = join(ROOT, "memory/MEMORY.md");
+const PATTERNS_PATH = join(ROOT, "memory/patterns.md");
 const MEMORY_LINE_THRESHOLD = 500;
+const PATTERNS_LINE_THRESHOLD = 150;
 const MEMORY_TOKEN_ESTIMATE_RATIO = 0.75; // ~0.75 tokens per word
 
 // ---- Subcommands ----
@@ -158,6 +160,19 @@ function cmdMemoryCheck(): void {
   process.stdout.write(`  estimated tokens: ${estimatedTokens}\n`);
   process.stdout.write(`  threshold:        ${MEMORY_LINE_THRESHOLD} lines\n`);
   process.stdout.write(`  status:           ${needsConsolidation ? "NEEDS CONSOLIDATION" : "OK"}\n`);
+
+  // Also check patterns.md
+  if (existsSync(PATTERNS_PATH)) {
+    const pContent = readFileSync(PATTERNS_PATH, "utf-8");
+    const pLines = pContent.split("\n");
+    const pLineCount = pLines.length;
+    const pNeedsConsolidation = pLineCount > PATTERNS_LINE_THRESHOLD;
+
+    process.stdout.write(`\nmemory/patterns.md stats:\n`);
+    process.stdout.write(`  lines:            ${pLineCount}\n`);
+    process.stdout.write(`  threshold:        ${PATTERNS_LINE_THRESHOLD} lines\n`);
+    process.stdout.write(`  status:           ${pNeedsConsolidation ? "NEEDS CONSOLIDATION" : "OK"}\n`);
+  }
 }
 
 function cmdMemoryCommit(): void {
