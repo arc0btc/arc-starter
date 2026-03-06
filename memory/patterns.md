@@ -42,6 +42,10 @@
 
 - **Cross-repo skill deployment (task #1391 ✅):** Split skills into upstream (pure SDK binding, no wallet logic) + local (wallet-aware wrapper). Upstream lives in aibtcdev/skills (shared ecosystem); local runs arc-starter (wallet access). Read-only commands pass through to upstream; stateful ops stay local. Keeps ecosystem clean while enabling wallet-dependent operations.
 
+- **Smart contract output ordering is strict spec (task #1549 ✅):** L2 smart contracts (e.g., Styx bridge) enforce specific output positions in their txs. OP_RETURN must be output 0, not output 1—not a suggestion but a contract requirement. When integrating with smart contracts, output order becomes part of the spec and must be validated before deployment. Applies to any bridge or L2 skill.
+
+- **Wrapper repo bugs duplicate silently (task #1549 ✅):** When aibtcdev/skills code is consumed by other repos (e.g., aibtc-mcp-server), bugs exist in both copies without visibility. Fixing upstream doesn't auto-fix the wrapper. Pattern: grep all known consumers (existing repos + in-flight PRs) when fixing cross-repo bugs to ensure comprehensive coverage. Saves debugging cycles on future bug reports.
+
 - **worker-logs fork sync (task #514-517, #540, #612, #617, active):**
   - **arc0btc/worker-logs** — syncs cleanly via `gh repo sync` (fast-forward, repeats weekly, 1→0 behind typical state).
   - **aibtcdev/worker-logs** — diverging (14 behind, 6 ahead from deployment customizations: AIBTC branding, darker theme). PR #16 prepared awaiting Spark review.
