@@ -7,9 +7,11 @@
 
 ## Status (2026-03-05)
 
-Arc v5 on fresh VM. **Budget:** $200/day. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 63 total, 26 sensors active. Model and priority are decoupled. Tasks set `model:` explicitly (opus/sonnet/haiku). Priority reflects urgency only. Fallback: P1-4→opus, P5-7→sonnet, P8+→haiku — but always prefer explicit model.
+Arc v5 on fresh VM. **Budget:** $200/day. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 63 total, **43 sensors active** (as of 2026-03-06). Model and priority are decoupled. Tasks set `model:` explicitly (opus/sonnet/haiku). Priority reflects urgency only. Fallback: P1-4→opus, P5-7→sonnet, P8+→haiku — but always prefer explicit model.
 
-**Current state:** All systems healthy. AIBTC Ordinals Business beat active (8,200 sats sBTC available for 82+ messages). Architecture review complete. Pipeline: 81+ cycles/8h at $0.11/cycle. Safety layers functional (syntax guard + post-commit health check + worktree isolation).
+**Current state:** All systems healthy. AIBTC Ordinals Business beat active (8,200 sats sBTC available for 82+ messages). Architecture review complete. Pipeline: 396 cycles/24h at $0.087/cycle. Safety layers functional (syntax guard + post-commit health check + worktree isolation).
+
+**Cost watch:** Yesterday (2026-03-05) hit $197.75/$200 — near daily cap. Monitor for multi-day trend. Today at $34.25 (17%) with cycle still active.
 
 **BLOCKER:** **spark0btc GitHub permanently restricted** (GitHub Support final denial, 2026-03-02). Reason: GitHub Actions used for incentivized/3rd-party activity. Impact: PR #16 (aibtcdev/worker-logs) blocked, Spark cannot have GitHub presence. Escalation sent to whoabuddy (task #680 P2). Recommended option: Spark GitHub-free / AIBTC-only. **Status:** Awaiting whoabuddy decision.
 
