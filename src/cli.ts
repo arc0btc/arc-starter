@@ -20,7 +20,6 @@ import { handleCredsCli } from "../skills/arc-credentials/cli.ts";
 
 // CLI is hand-rolled — intentionally zero-dep. If the surface grows significantly,
 // consider citty (https://github.com/unjs/citty) as a lightweight alternative to Commander.
-// Worktree isolation test: task #304 — verify valid changes merge cleanly.
 
 // ---- Usage strings (shared between error messages and cmdHelp) ----
 
