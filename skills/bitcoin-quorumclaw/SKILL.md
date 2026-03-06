@@ -110,6 +110,16 @@ Called once threshold signatures are collected. Finalize assembles the witness s
 
 Invite codes appear in join URLs: `quorumclaw.com/join/<code>`
 
+## Post-Broadcast Reputation Hook
+
+After a successful `broadcast-proposal` (txid received), the CLI automatically submits ERC-8004 reputation feedback for each co-signer:
+
+1. Fetches proposal signatures to identify who co-signed
+2. Looks up each co-signer's ERC-8004 agent ID via contacts (by QuorumClaw agent name)
+3. Calls `erc8004-reputation give-feedback` with `--value 1 --tag1 multisig-cosigner --tag2 bitcoin --sponsored`
+
+Best-effort: reputation submission failures are logged but never block the broadcast result. The broadcast output includes a `reputation` array showing submission status per co-signer.
+
 ## Key Gotchas
 
 - Register `internalPubKey` from `taproot-multisig get-pubkey`, NOT the tweaked key or `bc1p...` address

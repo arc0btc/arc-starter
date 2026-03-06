@@ -8,6 +8,7 @@
 
 import { resolve } from "node:path";
 import { readTracking, writeTracking } from "./sensor.ts";
+import { initContactsSchema, searchContacts } from "../contacts/schema.ts";
 
 const API_BASE = "https://agent-multisig-api-production.up.railway.app";
 const ARC_AGENT_ID = "arc0btc";
@@ -406,7 +407,126 @@ async function cmdBroadcastProposal(args: string[]): Promise<void> {
 
   log(`broadcasting proposal: ${id}`);
   const result = await apiRequest<{ txid?: string } & ProposalRecord>("POST", `/v1/proposals/${id}/broadcast`);
-  console.log(JSON.stringify({ success: true, txid: result.txid, proposal: result }));
+
+  // Post-broadcast hook: submit ERC-8004 reputation for co-signers
+  let reputationResults: CoSignerRepResult[] = [];
+  if (result.txid && result.multisigId) {
+    log("post-broadcast: submitting ERC-8004 reputation for co-signers");
+    reputationResults = await submitReputationForCoSigners(id, result.multisigId, result.txid);
+  }
+
+  console.log(JSON.stringify({
+    success: true,
+    txid: result.txid,
+    proposal: result,
+    ...(reputationResults.length > 0 ? { reputation: reputationResults } : {}),
+  }));
+}
+
+// ---- Post-broadcast reputation hook ----
+
+const REPUTATION_CLI = resolve(import.meta.dir, "../erc8004-reputation/cli.ts");
+
+interface CoSignerRepResult {
+  agentId: string;
+  erc8004AgentId: string | null;
+  submitted: boolean;
+  error?: string;
+}
+
+/**
+ * After a successful multisig broadcast, submit ERC-8004 reputation feedback
+ * for each co-signer. Best-effort: failures are logged, never block.
+ */
+async function submitReputationForCoSigners(
+  proposalId: string,
+  multisigId: string,
+  txid: string,
+): Promise<CoSignerRepResult[]> {
+  const results: CoSignerRepResult[] = [];
+
+  try {
+    // Fetch proposal to get who signed
+    const proposalRaw = await apiRequest<ApiResponse<ProposalRecord>>("GET", `/v1/proposals/${proposalId}`);
+    const proposal = proposalRaw.data ?? (proposalRaw as unknown as ProposalRecord);
+    const signers = proposal.signatures ?? [];
+
+    // Fetch multisig to get full agent list
+    const msRaw = await apiRequest<ApiResponse<MultisigRecord>>("GET", `/v1/multisigs/${multisigId}`);
+    const ms = msRaw.data ?? (msRaw as unknown as MultisigRecord);
+
+    // Initialize contacts DB for lookups
+    initContactsSchema();
+
+    for (const sig of signers) {
+      // Skip Arc's own signature
+      if (sig.agentId === ARC_AGENT_ID) continue;
+
+      const result: CoSignerRepResult = {
+        agentId: sig.agentId,
+        erc8004AgentId: null,
+        submitted: false,
+      };
+
+      // Look up the co-signer's ERC-8004 agent ID via contacts
+      const contacts = searchContacts(sig.agentId);
+      const match = contacts.find((c) => c.agent_id !== null);
+      if (!match) {
+        result.error = `no contact with ERC-8004 agent_id found for "${sig.agentId}"`;
+        log(`reputation hook: ${result.error}`);
+        results.push(result);
+        continue;
+      }
+
+      result.erc8004AgentId = match.agent_id;
+      log(`reputation hook: resolved ${sig.agentId} → ERC-8004 agent ID ${match.agent_id} (${match.display_name ?? match.aibtc_name ?? "?"})`);
+
+      // Submit positive feedback via the reputation CLI
+      try {
+        const proc = Bun.spawn(
+          [
+            "bun", "run", REPUTATION_CLI,
+            "give-feedback",
+            "--agent-id", match.agent_id!,
+            "--value", "1",
+            "--tag1", "multisig-cosigner",
+            "--tag2", "bitcoin",
+            "--endpoint", `quorumclaw:proposal:${proposalId}`,
+            "--sponsored",
+          ],
+          {
+            cwd: ROOT,
+            stdin: "ignore",
+            stdout: "pipe",
+            stderr: "pipe",
+          },
+        );
+
+        const [stdout, stderr] = await Promise.all([
+          new Response(proc.stdout).text(),
+          new Response(proc.stderr).text(),
+        ]);
+
+        const exitCode = await proc.exited;
+        if (exitCode === 0) {
+          result.submitted = true;
+          log(`reputation hook: submitted feedback for agent ${match.agent_id} (${sig.agentId})`);
+        } else {
+          result.error = `reputation CLI exited ${exitCode}: ${stderr.trim() || stdout.trim()}`;
+          log(`reputation hook: ${result.error}`);
+        }
+      } catch (err) {
+        result.error = `reputation CLI failed: ${err instanceof Error ? err.message : String(err)}`;
+        log(`reputation hook: ${result.error}`);
+      }
+
+      results.push(result);
+    }
+  } catch (err) {
+    log(`reputation hook: failed to resolve co-signers: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
+  return results;
 }
 
 async function cmdListProposals(args: string[]): Promise<void> {
