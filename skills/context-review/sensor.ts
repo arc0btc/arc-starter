@@ -49,6 +49,7 @@ const META_TASK_SOURCES = new Set([
   "sensor:context-review",
   "sensor:arc-self-audit",
   "sensor:compliance-review",
+  "sensor:arc-failure-triage", // failure retrospectives list failed task subjects verbatim
 ]);
 
 // Maps skill names to domain keywords that indicate a task likely needs that skill.
@@ -62,7 +63,7 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   "arc-skill-manager": ["memory consolidat", "skill manager", "manage-skills"],
   "blog-publishing": ["blog draft", "publish blog", "new blog post", "write blog"],
   "blog-deploy": ["deploy blog", "blog deploy", "wrangler deploy"],
-  "social-x-posting": ["x post", "tweet", "post to x"],
+  "social-x-posting": ["compose tweet", "draft tweet", "publish tweet", "schedule tweet", "post to x", "x posting"],
   "social-agent-engagement": ["agent engagement", "x402 message", "send x402", "agent collab"],
   "github-ci-status": ["ci status", "github actions", "workflow run"],
   "github-security-alerts": ["security alert", "dependabot", "vulnerability"],
@@ -140,9 +141,17 @@ function checkMissingSkillCoverage(
   // because the embedded parent subject may mention any domain. Skip keyword checks entirely.
   if (task.subject.startsWith("Retrospective:")) return findings;
 
+  // Research tasks fetch and analyze external content (e.g., X articles, GitHub issues).
+  // Their descriptions contain domain terminology from the *content* they analyze, not from
+  // skills they need. "tweet" in "Research X article: @user" means fetching, not posting.
+  if (task.subject.startsWith("Research X article:")) return findings;
+
   // Meta-analysis tasks have descriptions that quote other tasks' subjects/content.
   // Scanning those descriptions would produce false positives, so limit to subject only.
-  const isMetaSource = task.source ? META_TASK_SOURCES.has(task.source.split(":").slice(0, 3).join(":")) : false;
+  // Use prefix matching so sensor sources with date suffixes (e.g. sensor:arc-failure-triage:retro:2026-03-06) still match.
+  const isMetaSource = task.source
+    ? Array.from(META_TASK_SOURCES).some((prefix) => task.source!.startsWith(prefix))
+    : false;
   const searchable_text = isMetaSource
     ? task.subject.toLowerCase()
     : `${task.subject} ${task.description ?? ""}`.toLowerCase();
