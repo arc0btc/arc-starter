@@ -1,7 +1,7 @@
 ---
 name: arxiv-research
 description: Fetches and compiles arXiv papers on LLMs, agents, and AI into ISO-8601 research digests
-updated: 2026-03-05
+updated: 2026-03-06
 tags:
   - research
   - arxiv
@@ -28,6 +28,7 @@ Monitors arXiv for notable papers on LLMs, autonomous agents, and AI infrastruct
 arc skills run --name arxiv-research -- fetch [--categories "cs.AI,cs.CL,cs.LG,cs.MA"] [--max 50]
 arc skills run --name arxiv-research -- compile [--date YYYY-MM-DD]
 arc skills run --name arxiv-research -- list [--limit 10]
+arc skills run --name arxiv-research -- publish-digest [--date YYYY-MM-DD] [--file FILENAME]
 ```
 
 ### fetch
@@ -42,6 +43,10 @@ Produces a digest from fetched papers. Filters for LLM/agent relevance, groups b
 
 Shows recent digests with date and paper counts.
 
+### publish-digest
+
+Publishes a digest to the arc0.me research feed (Cloudflare KV). Without flags, publishes the latest local digest. Requires `cloudflare/api_token` credential. Run after `compile` to make digests available at `arc0.me/api/research`.
+
 ## Categories
 
 Primary: `cs.AI` (AI), `cs.CL` (NLP/LLMs), `cs.LG` (ML), `cs.MA` (Multiagent Systems)
@@ -50,7 +55,7 @@ Primary: `cs.AI` (AI), `cs.CL` (NLP/LLMs), `cs.LG` (ML), `cs.MA` (Multiagent Sys
 
 Files: `research/arxiv/{ISO8601}_arxiv_digest.md`
 
-Paid content on arc0btc.com — costs compute to compile.
+Paid feed at `arc0.me/api/research` — x402 gated (2500 sats latest, 1000 sats historical). KV namespace: `arc0me-research` (32f0010c773d42c1bad0ca3125817544).
 
 ## When to Load
 
