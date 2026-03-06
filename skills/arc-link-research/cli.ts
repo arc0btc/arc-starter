@@ -9,6 +9,7 @@ import { getCredential } from "../../src/credentials.ts";
 
 const ROOT = join(import.meta.dir, "..", "..");
 const RESEARCH_DIR = join(ROOT, "arc-link-research");
+const CACHE_DIR = join(RESEARCH_DIR, "cache");
 
 // ---- Helpers ----
 
@@ -27,6 +28,62 @@ function ensureResearchDir(): void {
   if (!existsSync(RESEARCH_DIR)) {
     mkdirSync(RESEARCH_DIR, { recursive: true });
   }
+}
+
+function ensureCacheDir(): void {
+  if (!existsSync(CACHE_DIR)) {
+    mkdirSync(CACHE_DIR, { recursive: true });
+  }
+}
+
+interface CachedContent {
+  url: string;
+  fetchedAt: string;
+  contentType: "html" | "tweet" | "github";
+  title: string;
+  rawContent: string;
+  embeddedUrls: string[];
+}
+
+async function urlHash(url: string): Promise<string> {
+  const data = new TextEncoder().encode(url);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 16);
+}
+
+async function getCached(url: string): Promise<CachedContent | null> {
+  ensureCacheDir();
+  const hash = await urlHash(url);
+  const path = join(CACHE_DIR, `${hash}.json`);
+  if (!existsSync(path)) return null;
+  try {
+    const raw = await Bun.file(path).text();
+    return JSON.parse(raw) as CachedContent;
+  } catch {
+    return null;
+  }
+}
+
+async function writeCache(entry: CachedContent): Promise<void> {
+  ensureCacheDir();
+  const hash = await urlHash(entry.url);
+  const path = join(CACHE_DIR, `${hash}.json`);
+  await Bun.write(path, JSON.stringify(entry, null, 2));
+}
+
+function extractEmbeddedUrls(text: string): string[] {
+  const urlRegex = /https?:\/\/[^\s"'<>)\]]+/g;
+  const matches = text.match(urlRegex) || [];
+  return matches.filter((u) => {
+    try {
+      const parsed = new URL(u);
+      // Skip x.com/twitter.com self-references (t.co is fine — those are outbound links)
+      if (parsed.hostname === "x.com" || parsed.hostname === "twitter.com") return false;
+      return parsed.protocol === "http:" || parsed.protocol === "https:";
+    } catch {
+      return false;
+    }
+  });
 }
 
 function extractUrls(input: string): string[] {
@@ -172,133 +229,150 @@ function parseTweetUrl(url: string): string | null {
 
 // ---- Fetch & Analyze ----
 
-async function fetchAndAnalyze(url: string): Promise<LinkAnalysis> {
+async function fetchRawContent(url: string): Promise<CachedContent> {
+  const timestamp = new Date().toISOString();
+
+  // GitHub URLs: use gh CLI for richer data
+  const ghMatch = url.match(/github\.com\/([^/]+)\/([^/]+)\/?(.*)$/);
+  if (ghMatch) {
+    const [, owner, repo, rest] = ghMatch;
+
+    if (rest.startsWith("pull/") || rest.startsWith("issues/")) {
+      const number = rest.split("/")[1];
+      const type = rest.startsWith("pull/") ? "pr" : "issue";
+      const proc = Bun.spawnSync(["gh", type, "view", number, "--repo", `${owner}/${repo}`, "--json", "title,body,labels,state"]);
+      if (proc.exitCode === 0) {
+        const data = JSON.parse(proc.stdout.toString());
+        const title = data.title || `${owner}/${repo}#${number}`;
+        const content = `Title: ${data.title}\nState: ${data.state}\nLabels: ${(data.labels || []).map((l: { name: string }) => l.name).join(", ")}\n\n${data.body || ""}`;
+        return { url, fetchedAt: timestamp, contentType: "github", title, rawContent: content, embeddedUrls: extractEmbeddedUrls(content) };
+      } else {
+        throw new Error(`gh CLI failed: ${proc.stderr.toString().trim()}`);
+      }
+    } else {
+      const proc = Bun.spawnSync(["gh", "repo", "view", `${owner}/${repo}`, "--json", "name,description,repositoryTopics,stargazerCount"]);
+      if (proc.exitCode === 0) {
+        const data = JSON.parse(proc.stdout.toString());
+        const title = data.name || `${owner}/${repo}`;
+        const topics = (data.repositoryTopics || []).map((t: { name: string }) => t.name);
+        let content = `Repo: ${owner}/${repo}\nDescription: ${data.description || ""}\nTopics: ${topics.join(", ")}\nStars: ${data.stargazerCount || 0}`;
+
+        const readmeProc = Bun.spawnSync(["gh", "api", `repos/${owner}/${repo}/readme`, "--jq", ".content"]);
+        if (readmeProc.exitCode === 0) {
+          const b64 = readmeProc.stdout.toString().trim();
+          try {
+            content += "\n\nREADME:\n" + atob(b64).slice(0, 3000);
+          } catch {
+            // base64 decode failed, skip
+          }
+        }
+        return { url, fetchedAt: timestamp, contentType: "github", title, rawContent: content, embeddedUrls: extractEmbeddedUrls(content) };
+      } else {
+        throw new Error(`gh CLI failed: ${proc.stderr.toString().trim()}`);
+      }
+    }
+  }
+
+  // Tweet URLs: use X API with OAuth
+  const tweetId = parseTweetUrl(url);
+  if (tweetId) {
+    const xCreds = await loadXCreds();
+    if (!xCreds) {
+      throw new Error("Fetch failed, needs X API auth — X credentials not configured");
+    }
+
+    const tweetData = await xApiGet(`/tweets/${tweetId}`, xCreds, {
+      "tweet.fields": "created_at,author_id,public_metrics,conversation_id,entities",
+      "expansions": "author_id",
+      "user.fields": "name,username,description",
+    });
+
+    if (!tweetData) {
+      throw new Error("Fetch failed, needs X API auth — tweet lookup returned empty");
+    }
+
+    const tweet = tweetData["data"] as Record<string, unknown> | undefined;
+    if (!tweet) {
+      throw new Error("Fetch failed, needs X API auth — no tweet data in response");
+    }
+
+    const tweetText = (tweet["text"] as string) || "";
+    const authorId = (tweet["author_id"] as string) || "unknown";
+
+    const includes = tweetData["includes"] as Record<string, unknown[]> | undefined;
+    const users = (includes?.["users"] || []) as Array<Record<string, string>>;
+    const author = users.find((u) => u["id"] === authorId);
+    const authorName = author?.["name"] || "unknown";
+    const authorUsername = author?.["username"] || "unknown";
+    const authorDescription = author?.["description"] || "";
+
+    const title = `@${authorUsername}: ${tweetText.slice(0, 80)}${tweetText.length > 80 ? "..." : ""}`;
+    const content = [
+      `Tweet by @${authorUsername} (${authorName})`,
+      `Author bio: ${authorDescription}`,
+      `Text: ${tweetText}`,
+      `Created: ${tweet["created_at"] || "unknown"}`,
+      `Metrics: ${JSON.stringify(tweet["public_metrics"] || {})}`,
+    ].join("\n");
+
+    // Extract embedded URLs from tweet text (t.co links, article URLs)
+    const embedded = extractEmbeddedUrls(tweetText);
+
+    return { url, fetchedAt: timestamp, contentType: "tweet", title, rawContent: content, embeddedUrls: embedded };
+  }
+
+  // Generic web fetch
+  const response = await fetch(url, {
+    headers: { "User-Agent": "Arc-Research/1.0" },
+    redirect: "follow",
+    signal: AbortSignal.timeout(15000),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const html = await response.text();
+  const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+  const title = titleMatch ? titleMatch[1].trim() : new URL(url).hostname;
+
+  const stripped = html
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 10000);
+
+  return { url, fetchedAt: timestamp, contentType: "html", title, rawContent: stripped, embeddedUrls: extractEmbeddedUrls(stripped) };
+}
+
+async function fetchWithCache(url: string): Promise<CachedContent> {
+  const cached = await getCached(url);
+  if (cached) {
+    process.stdout.write(`  [cache hit] ${url}\n`);
+    return cached;
+  }
+
+  process.stdout.write(`  [fetching] ${url}\n`);
+  const content = await fetchRawContent(url);
+  await writeCache(content);
+  return content;
+}
+
+function analyzeContent(url: string, title: string, content: string): LinkAnalysis {
   const result: LinkAnalysis = {
     url,
-    title: "",
+    title,
     relevance: "low",
     justification: "",
     takeaways: [],
     fetchError: null,
   };
 
-  try {
-    let content: string;
-    let title: string;
+  result.title = title;
 
-    // GitHub URLs: use gh CLI for richer data
-    const ghMatch = url.match(/github\.com\/([^/]+)\/([^/]+)\/?(.*)$/);
-    if (ghMatch) {
-      const [, owner, repo, rest] = ghMatch;
-
-      if (rest.startsWith("pull/") || rest.startsWith("issues/")) {
-        const number = rest.split("/")[1];
-        const type = rest.startsWith("pull/") ? "pr" : "issue";
-        const proc = Bun.spawnSync(["gh", type, "view", number, "--repo", `${owner}/${repo}`, "--json", "title,body,labels,state"]);
-        if (proc.exitCode === 0) {
-          const data = JSON.parse(proc.stdout.toString());
-          title = data.title || `${owner}/${repo}#${number}`;
-          content = `Title: ${data.title}\nState: ${data.state}\nLabels: ${(data.labels || []).map((l: { name: string }) => l.name).join(", ")}\n\n${data.body || ""}`;
-        } else {
-          throw new Error(`gh CLI failed: ${proc.stderr.toString().trim()}`);
-        }
-      } else {
-        // Repo root or other path
-        const proc = Bun.spawnSync(["gh", "repo", "view", `${owner}/${repo}`, "--json", "name,description,repositoryTopics,stargazerCount"]);
-        if (proc.exitCode === 0) {
-          const data = JSON.parse(proc.stdout.toString());
-          title = data.name || `${owner}/${repo}`;
-          const topics = (data.repositoryTopics || []).map((t: { name: string }) => t.name);
-          content = `Repo: ${owner}/${repo}\nDescription: ${data.description || ""}\nTopics: ${topics.join(", ")}\nStars: ${data.stargazerCount || 0}`;
-
-          // Also get README
-          const readmeProc = Bun.spawnSync(["gh", "api", `repos/${owner}/${repo}/readme`, "--jq", ".content"]);
-          if (readmeProc.exitCode === 0) {
-            const b64 = readmeProc.stdout.toString().trim();
-            try {
-              content += "\n\nREADME:\n" + atob(b64).slice(0, 3000);
-            } catch {
-              // base64 decode failed, skip
-            }
-          }
-        } else {
-          throw new Error(`gh CLI failed: ${proc.stderr.toString().trim()}`);
-        }
-      }
-    } else {
-      // Check if this is a tweet URL — use X API with OAuth
-      const tweetId = parseTweetUrl(url);
-      if (tweetId) {
-        const xCreds = await loadXCreds();
-        if (!xCreds) {
-          throw new Error("Fetch failed, needs X API auth — X credentials not configured");
-        }
-
-        const tweetData = await xApiGet(`/tweets/${tweetId}`, xCreds, {
-          "tweet.fields": "created_at,author_id,public_metrics,conversation_id,entities",
-          "expansions": "author_id",
-          "user.fields": "name,username,description",
-        });
-
-        if (!tweetData) {
-          throw new Error("Fetch failed, needs X API auth — tweet lookup returned empty");
-        }
-
-        const tweet = tweetData["data"] as Record<string, unknown> | undefined;
-        if (!tweet) {
-          throw new Error("Fetch failed, needs X API auth — no tweet data in response");
-        }
-
-        const tweetText = (tweet["text"] as string) || "";
-        const authorId = (tweet["author_id"] as string) || "unknown";
-
-        // Extract author info from expansions
-        const includes = tweetData["includes"] as Record<string, unknown[]> | undefined;
-        const users = (includes?.["users"] || []) as Array<Record<string, string>>;
-        const author = users.find((u) => u["id"] === authorId);
-        const authorName = author?.["name"] || "unknown";
-        const authorUsername = author?.["username"] || "unknown";
-        const authorDescription = author?.["description"] || "";
-
-        title = `@${authorUsername}: ${tweetText.slice(0, 80)}${tweetText.length > 80 ? "..." : ""}`;
-        content = [
-          `Tweet by @${authorUsername} (${authorName})`,
-          `Author bio: ${authorDescription}`,
-          `Text: ${tweetText}`,
-          `Created: ${tweet["created_at"] || "unknown"}`,
-          `Metrics: ${JSON.stringify(tweet["public_metrics"] || {})}`,
-        ].join("\n");
-      } else {
-        // Generic web fetch
-        const response = await fetch(url, {
-          headers: { "User-Agent": "Arc-Research/1.0" },
-          redirect: "follow",
-          signal: AbortSignal.timeout(15000),
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-
-        const html = await response.text();
-        // Extract title from HTML
-        const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-        title = titleMatch ? titleMatch[1].trim() : new URL(url).hostname;
-
-        // Strip HTML tags for analysis (rough but functional)
-        content = html
-          .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
-          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
-          .replace(/<[^>]+>/g, " ")
-          .replace(/\s+/g, " ")
-          .trim()
-          .slice(0, 5000);
-      }
-    }
-
-    result.title = title;
-
-    // Evaluate relevance based on content keywords
+  // Evaluate relevance based on content keywords
     const lower = (content + " " + title + " " + url).toLowerCase();
     const signals = {
       high: [
@@ -369,14 +443,29 @@ async function fetchAndAnalyze(url: string): Promise<LinkAnalysis> {
     if (result.takeaways.length === 0) {
       result.takeaways = [`Content from ${new URL(url).hostname} — review manually for detailed takeaways.`];
     }
-  } catch (error) {
-    result.fetchError = error instanceof Error ? error.message : String(error);
-    result.title = new URL(url).hostname;
-    result.justification = `Fetch failed — ${result.fetchError}`;
-    result.takeaways = ["Fetch failed — review link manually or check authentication."];
-  }
 
   return result;
+}
+
+async function fetchAndAnalyze(url: string): Promise<{ analysis: LinkAnalysis; embeddedUrls: string[] }> {
+  try {
+    const cached = await fetchWithCache(url);
+    const analysis = analyzeContent(url, cached.title, cached.rawContent);
+    return { analysis, embeddedUrls: cached.embeddedUrls };
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    return {
+      analysis: {
+        url,
+        title: new URL(url).hostname,
+        relevance: "low",
+        justification: `Fetch failed — ${errorMsg}`,
+        takeaways: ["Fetch failed — review link manually or check authentication."],
+        fetchError: errorMsg,
+      },
+      embeddedUrls: [],
+    };
+  }
 }
 
 // ---- Subcommands ----
@@ -403,17 +492,47 @@ async function cmdProcess(args: string[]): Promise<void> {
   // Fetch and analyze all links in parallel
   const analyses = await Promise.allSettled(urls.map((url) => fetchAndAnalyze(url)));
 
-  const results: LinkAnalysis[] = analyses.map((a, i) => {
-    if (a.status === "fulfilled") return a.value;
-    return {
-      url: urls[i],
-      title: new URL(urls[i]).hostname,
-      relevance: "low" as const,
-      justification: "Analysis failed",
-      takeaways: [`Error: ${a.reason}`],
-      fetchError: String(a.reason),
-    };
-  });
+  const results: LinkAnalysis[] = [];
+  const allEmbeddedUrls: string[] = [];
+
+  for (let i = 0; i < analyses.length; i++) {
+    const a = analyses[i];
+    if (a.status === "fulfilled") {
+      results.push(a.value.analysis);
+      allEmbeddedUrls.push(...a.value.embeddedUrls);
+    } else {
+      results.push({
+        url: urls[i],
+        title: new URL(urls[i]).hostname,
+        relevance: "low" as const,
+        justification: "Analysis failed",
+        takeaways: [`Error: ${a.reason}`],
+        fetchError: String(a.reason),
+      });
+    }
+  }
+
+  // Follow embedded URLs from tweets (e.g. article links) — fetch and cache, then analyze
+  const newEmbedded = allEmbeddedUrls.filter((u) => !urls.includes(u));
+  if (newEmbedded.length > 0) {
+    process.stdout.write(`\nFollowing ${newEmbedded.length} embedded link(s) from tweets...\n`);
+    const embeddedAnalyses = await Promise.allSettled(newEmbedded.map((u) => fetchAndAnalyze(u)));
+    for (let i = 0; i < embeddedAnalyses.length; i++) {
+      const a = embeddedAnalyses[i];
+      if (a.status === "fulfilled") {
+        results.push(a.value.analysis);
+      } else {
+        results.push({
+          url: newEmbedded[i],
+          title: new URL(newEmbedded[i]).hostname,
+          relevance: "low" as const,
+          justification: "Embedded link fetch failed",
+          takeaways: [`Error: ${a.reason}`],
+          fetchError: String(a.reason),
+        });
+      }
+    }
+  }
 
   // Count by relevance
   const counts = { high: 0, medium: 0, low: 0 };
