@@ -8,6 +8,8 @@ export const AIBTC_WATCHED_REPOS = [
   "aibtcdev/x402-api",
   "aibtcdev/aibtc-mcp-server",
   "aibtcdev/agent-news",
+  "aibtcdev/loop-starter-kit",
+  "aibtcdev/x402-sponsor-relay",
 ] as const;
 
 /** GitHub orgs/owners where Arc is the primary maintainer. */

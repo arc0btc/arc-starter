@@ -14,6 +14,9 @@ const MONITORED_REPOS = [
   "aibtcdev/x402-api",
   "aibtcdev/aibtc-mcp-server",
   "aibtcdev/agent-news",
+  "aibtcdev/loop-starter-kit",
+  "aibtcdev/x402-sponsor-relay",
+  "secret-mars/loop-starter-kit",
 ] as const;
 
 interface GitHubIssue {
