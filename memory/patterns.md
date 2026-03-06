@@ -113,6 +113,10 @@
 
 - **Sensor task description as actionable context (task #1678 ✅):** When a sensor queues a task, include actionable details in the task description: commit count, HEAD SHA, exact CLI command to execute, expected behavior. Prevents context-switching friction for humans or downstream dispatch cycles — everything needed to understand and execute is already in the task text.
 
+- **Conflict resolution reveals branch purpose (task #1682 ✅):** When branches diverge intentionally (e.g., `main` = public starter template with generic placeholders, `v2` = operational Arc with actual config), conflict resolution patterns encode hierarchy. If all conflicts resolve the same way (keeping one branch's content), that branch is the source of truth and the other is derivative. Merge the behind branch into the ahead branch to keep active development canonical.
+
+- **Intentional divergence as architectural feature (task #1682 ✅):** Multi-purpose repos (publish working code + ship starter template) naturally diverge. Rather than keeping branches in sync, accept divergence as intentional: published branches can be cleaned/simplified; working branches carry full operational state. Treat conflicts during merge as confirmation of separation of concerns, not as a problem to be prevented.
+
 ## Operational Rules
 
 - **Failure rule:** Root cause first, no retry loops. Rate-limit windows = patience only.
