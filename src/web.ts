@@ -5,7 +5,7 @@
 
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, extname } from "node:path";
-import { initDatabase, getDatabase, insertTask } from "./db.ts";
+import { initDatabase, getDatabase, insertTask, markTaskFailed } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
 import { IDENTITY } from "./identity.ts";
 
@@ -386,6 +386,32 @@ function handleTaskById(id: string): Response {
   return json(task);
 }
 
+async function handleKillTask(req: Request, id: string): Promise<Response> {
+  const taskId = parseInt(id, 10);
+  if (isNaN(taskId)) return errorResponse("Invalid task ID", 400);
+
+  let body: { reason?: string };
+  try {
+    body = await req.json() as { reason?: string };
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  const reason = typeof body.reason === "string" ? body.reason.trim() : "";
+  if (!reason) return errorResponse("'reason' is required", 400);
+
+  const task = db.query("SELECT id, status FROM tasks WHERE id = ?").get(taskId) as { id: number; status: string } | null;
+  if (!task) return errorResponse("Task not found", 404);
+  if (task.status !== "active" && task.status !== "pending") {
+    return errorResponse(`Task is not active or pending (current status: ${task.status})`, 409);
+  }
+
+  markTaskFailed(taskId, reason);
+
+  const updated = db.query("SELECT * FROM tasks WHERE id = ?").get(taskId);
+  return json(updated);
+}
+
 function handleCycles(url: URL): Response {
   const limit = Math.min(parseInt(url.searchParams.get("limit") || "10", 10), 100);
   const cycles = db.query(
@@ -760,7 +786,7 @@ function route(req: Request): Response | Promise<Response> {
       status: 204,
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
       },
     });
@@ -812,6 +838,10 @@ function route(req: Request): Response | Promise<Response> {
   if (path === "/api/costs") return handleCosts(url);
   if (path === "/api/identity") return handleIdentity();
   if (path === "/api/events") return handleEvents();
+
+  // Task kill: POST /api/tasks/:id/kill
+  const killMatch = path.match(/^\/api\/tasks\/(\d+)\/kill$/);
+  if (method === "POST" && killMatch) return handleKillTask(req, killMatch[1]);
 
   // Task by ID: /api/tasks/:id
   const taskMatch = path.match(/^\/api\/tasks\/(\d+)$/);
