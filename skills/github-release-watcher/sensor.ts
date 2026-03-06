@@ -4,7 +4,7 @@ import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 
 const SENSOR_NAME = "github-release-watcher";
-const INTERVAL_MINUTES = 360;
+const INTERVAL_MINUTES = 60;
 
 const WATCHED_REPOS = [
   "oven-sh/bun",
