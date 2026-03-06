@@ -365,14 +365,25 @@ async function cmdSignProposal(args: string[]): Promise<void> {
     log(`signing sighash: ${digest.slice(0, 16)}...`);
     const { signature } = await signDigest(digest);
 
+    const inputIndex = typeof entry === "string" ? undefined : entry.inputIndex;
     log("submitting signature to QuorumClaw");
-    await apiRequest("POST", `/v1/proposals/${id}/sign`, {
-      agentId: signerAgentId,
-      signature,
-    });
-
-    results.push({ sighash: digest, submitted: true });
-    log(`signature submitted for sighash ${digest.slice(0, 16)}...`);
+    try {
+      await apiRequest("POST", `/v1/proposals/${id}/sign`, {
+        agentId: signerAgentId,
+        signature,
+        ...(inputIndex !== undefined && { inputIndex }),
+      });
+      results.push({ sighash: digest, submitted: true });
+      log(`signature submitted for sighash ${digest.slice(0, 16)}...`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes("ALREADY_SIGNED")) {
+        log(`input ${inputIndex ?? "?"} already signed, skipping`);
+        results.push({ sighash: digest, submitted: false });
+      } else {
+        throw err;
+      }
+    }
   }
 
   console.log(JSON.stringify({ success: true, proposalId: id, signed: results }));
