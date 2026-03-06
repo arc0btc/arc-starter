@@ -74,7 +74,7 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   "arc-workflows": ["pr lifecycle", "arc workflow", "arc-workflows"],
   "arc-worktrees": ["worktree", "isolated branch"],
   "arc-credentials": ["arc creds", "arc-credentials", "credentials.enc", "creds set", "creds get"],
-  "arc-web-dashboard": ["web dashboard", "dashboard"],
+  "arc-web-dashboard": ["web dashboard", "arc-web-dashboard"],
 };
 
 // ---- Helpers ----
