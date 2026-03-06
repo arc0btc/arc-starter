@@ -57,7 +57,8 @@ const META_TASK_SOURCES = new Set([
 const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   "stacks-stackspot": ["stacking", "stackspot", "pox", "stx reward"],
   "bitcoin-wallet": ["bitcoin wallet", "btc wallet", "utxo", "send btc", "bitcoin transaction"],
-  "bitcoin-taproot-multisig": ["multisig", "taproot", "musig", "bip-340", "bip-342"],
+  "bitcoin-taproot-multisig": ["taproot multisig", "musig", "multisig psbt", "sign multisig", "m-of-n"],
+  "aibtc-news-classifieds": ["post-classified", "classified ad", "aibtc.news/api/classifieds"],
   "arc-housekeeping": ["housekeeping", "wal file", "stale lock", "uncommitted change"],
   "arc-cost-alerting": ["cost alert", "budget overrun", "spending limit", "overspend"],
   "arc-skill-manager": ["memory consolidat", "skill manager", "manage-skills"],
