@@ -64,10 +64,11 @@
 
 - **Wrapper repo bugs duplicate silently (task #1549 ✅):** When aibtcdev/skills code is consumed by other repos (e.g., aibtc-mcp-server), bugs exist in both copies without visibility. Fixing upstream doesn't auto-fix the wrapper. Pattern: grep all known consumers (existing repos + in-flight PRs) when fixing cross-repo bugs to ensure comprehensive coverage. Saves debugging cycles on future bug reports.
 
-- **worker-logs fork sync (task #514-517, #540, #612, #617, active):**
-  - **arc0btc/worker-logs** — syncs cleanly via `gh repo sync` (fast-forward, repeats weekly, 1→0 behind typical state).
-  - **aibtcdev/worker-logs** — diverging (14 behind, 6 ahead from deployment customizations: AIBTC branding, darker theme). PR #16 prepared awaiting Spark review.
-  - Pattern: forks evolve independently; manual conflict resolution when diverged.
+- **Service endpoint centralization prevents update scatter (task #1774 ✅):** Hardcoding API URLs/relay addresses in multiple locations (cli.ts defaults, SKILL.md docs, task descriptions) requires multi-point updates and hides cascading failures. Pattern: centralize defaults to a single config location or use a discovery sensor. Reduces update friction and prevents cascading failures when endpoints change.
+
+- **Configuration changes require dependent task scanning (task #1774 ✅):** When fixing infrastructure (relay URL, API endpoint, wallet address), grep the task queue for the old value in pending/active task descriptions. Discovered cascading failure (task #1775 still using old relay) in seconds vs. discovering in production. Pattern: identify old value → search tasks → update affected descriptions before closing fix.
+
+- **Endpoint health verification validates infrastructure fixes (task #1774 ✅):** After changing service URLs, verify endpoint liveness (HTTP 200, version check if available) before closing the fix task. Prevents silent failures where code is updated but the actual service moved again or is down. Single health check unblocks dependent tasks.
 
 ## PR & Code Review Patterns
 
