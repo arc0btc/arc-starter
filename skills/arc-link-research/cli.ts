@@ -304,9 +304,9 @@ async function fetchRawContent(url: string): Promise<CachedContent> {
   const tweetId = parseTweetUrl(url);
   if (tweetId) {
     const tweetQueryParams = {
-      "tweet.fields": "created_at,author_id,public_metrics,conversation_id,entities",
+      "tweet.fields": "created_at,author_id,public_metrics,conversation_id,in_reply_to_user_id,note_tweet,article,entities",
       "expansions": "author_id",
-      "user.fields": "name,username,description",
+      "user.fields": "id,name,username,description",
     };
 
     let tweetData: Record<string, unknown> | null = null;
@@ -331,6 +331,11 @@ async function fetchRawContent(url: string): Promise<CachedContent> {
     }
 
     const tweetText = (tweet["text"] as string) || "";
+    const noteTweet = tweet["noteTweet"] ?? tweet["note_tweet"];
+    const fullText: string = (noteTweet as Record<string, unknown> | undefined)?.["text"] as string
+      ?? (noteTweet as string | undefined)
+      ?? tweetText;
+    const articleContent = tweet["article"] as Record<string, unknown> | undefined;
     const authorId = (tweet["author_id"] as string) || "unknown";
 
     const includes = tweetData["includes"] as Record<string, unknown[]> | undefined;
@@ -340,14 +345,20 @@ async function fetchRawContent(url: string): Promise<CachedContent> {
     const authorUsername = author?.["username"] || "unknown";
     const authorDescription = author?.["description"] || "";
 
-    const title = `@${authorUsername}: ${tweetText.slice(0, 80)}${tweetText.length > 80 ? "..." : ""}`;
-    const content = [
+    const displayText = fullText;
+    const title = `@${authorUsername}: ${displayText.slice(0, 80)}${displayText.length > 80 ? "..." : ""}`;
+    const contentParts = [
       `Tweet by @${authorUsername} (${authorName})`,
       `Author bio: ${authorDescription}`,
-      `Text: ${tweetText}`,
+      `Text: ${displayText}`,
       `Created: ${tweet["created_at"] || "unknown"}`,
       `Metrics: ${JSON.stringify(tweet["public_metrics"] || {})}`,
-    ].join("\n");
+    ];
+    if (articleContent) {
+      const articleText = (articleContent["text"] as string) || JSON.stringify(articleContent);
+      contentParts.push(`Article content: ${articleText.slice(0, 50000)}`);
+    }
+    const content = contentParts.join("\n");
 
     // Extract embedded URLs from tweet text (t.co links, article URLs)
     const embedded = extractEmbeddedUrls(tweetText);
