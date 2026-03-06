@@ -23,14 +23,14 @@ Maintains and monitors the worker-logs Cloudflare Worker across three deployment
 ## CLI Commands
 
 ```
-arc skills run --name worker-logs -- sync
+arc skills run --name github-worker-logs -- sync
   Check all three repos for drift against upstream. Report differences.
   Creates sync PRs if forks are behind.
 
-arc skills run --name worker-logs -- events --deployment URL
+arc skills run --name github-worker-logs -- events --deployment URL
   Fetch recent events from a deployment endpoint. Output JSON.
 
-arc skills run --name worker-logs -- report
+arc skills run --name github-worker-logs -- report
   Analyze events across all deployments for trends, anomalies, patterns.
   Produces ISO 8601 report at reports/.
 ```
@@ -50,12 +50,12 @@ Runs every 120 minutes. Checks if any fork is behind upstream via GitHub API. Cr
 
 ## When to Load
 
-Load when: the sensor creates a fork drift task (subject: "worker-logs fork sync needed"), or when generating a trend report from production events. Tasks from the sensor include this skill. Do NOT load for tasks unrelated to the worker-logs service.
+Load when: the sensor creates a fork drift task (subject: "github-worker-logs fork sync needed"), or when generating a trend report from production events. Tasks from the sensor include this skill. Do NOT load for tasks unrelated to the worker-logs service.
 
 ## Checklist
 
 - [x] `skills/github-worker-logs/SKILL.md` exists with valid frontmatter
-- [x] Frontmatter `name` matches directory name (worker-logs)
+- [x] Frontmatter `name` matches directory name (github-worker-logs)
 - [x] SKILL.md is under 2000 tokens
 - [x] `cli.ts` present: `bun skills/github-worker-logs/cli.ts` runs without error
 - [x] `sensor.ts` present: exports async default function returning `Promise<string>`
