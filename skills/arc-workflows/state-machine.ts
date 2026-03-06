@@ -947,6 +947,87 @@ Steps:
 };
 
 /**
+ * SiteHealthAlertMachine — models the recurring site health alert → fix → retrospective cycle.
+ *
+ * Pattern detected: "sensor:arc0btc-site-health" tasks (3 recurrences, avg 2.7 steps)
+ * consistently spawn a fix task followed by a retrospective to capture learnings.
+ * This machine deduplicates concurrent alerts and ensures learnings are captured.
+ *
+ * instance_key: "site-health-{YYYY-MM-DD}" (one per day — multiple alerts same day deduplicate)
+ *
+ * States:
+ *   alert                → health issue detected; creates a fix task
+ *   fixing               → fix task is executing
+ *   retrospective_pending → fix done; create retrospective to extract learnings
+ *   completed            → done
+ *
+ * Context:
+ *   issueCount     — number of issues detected
+ *   issuesSummary  — short description of the issue(s)
+ *   fixSummary     — brief description of what was fixed (populated before retrospective)
+ *   alertDate      — ISO date of the alert (for dedup / reference)
+ */
+export const SiteHealthAlertMachine: StateMachine<{
+  issueCount?: number;
+  issuesSummary?: string;
+  fixSummary?: string;
+  alertDate?: string;
+}> = {
+  name: "site-health-alert",
+  initialState: "alert",
+  states: {
+    alert: {
+      on: { fix: "fixing" },
+      action: (ctx) => {
+        const issues = ctx.issueCount || 1;
+        const summary = ctx.issuesSummary ? `: ${ctx.issuesSummary}` : "";
+        return {
+          type: "create-task",
+          subject: `Fix arc0btc.com health issue(s)${summary}`,
+          priority: 5,
+          skills: ["arc0btc-site-health", "blog-deploy", "blog-publishing"],
+          description: `Site health alert: ${issues} issue(s) detected${summary}.
+
+Steps:
+1. Run arc0btc-site-health CLI to identify the specific issue(s)
+2. Fix using blog-deploy or blog-publishing skills as appropriate
+3. Re-run health check to verify all issues resolved
+4. Transition this workflow: 'fixing' → 'retrospective_pending'
+   - Set fixSummary in context before transitioning`,
+        };
+      },
+    },
+    fixing: {
+      on: { fixed: "retrospective_pending" },
+      action: () => null,
+    },
+    retrospective_pending: {
+      on: { learnings_extracted: "completed" },
+      action: (ctx) => {
+        return {
+          type: "create-task",
+          subject: `Retrospective: arc0btc.com health alert — extract learnings`,
+          priority: 8,
+          skills: ["arc-skill-manager"],
+          description: `Extract learnings from a recent arc0btc.com health alert and its fix.
+${ctx.fixSummary ? `Fix summary: ${ctx.fixSummary}` : ""}${ctx.alertDate ? `\nAlert date: ${ctx.alertDate}` : ""}
+
+Steps:
+1. Review what broke and how it was fixed
+2. Identify if this is a recurring issue type and note the pattern
+3. Add prevention notes to memory/MEMORY.md if a pattern is identified
+4. Transition workflow to 'completed'`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -965,6 +1046,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "streak-maintenance": StreakMaintenanceMachine,
     "quest": QuestMachine,
     "agent-collaboration": AgentCollaborationMachine,
+    "site-health-alert": SiteHealthAlertMachine,
   };
   return templates[name] || null;
 }
