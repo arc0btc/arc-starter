@@ -32,9 +32,20 @@ const CO_SIGN_KEYWORDS = [
 // Keywords that indicate x402 / agent payment protocol activity.
 const X402_KEYWORDS = ["x402", "agent payment", "402 payment"];
 
+// Keywords that indicate Bitflow DeFi activity (swaps, liquidity, yield).
+const BITFLOW_KEYWORDS = [
+  "bitflow", "bit flow", "defi swap", "liquidity pool",
+  "yield farming", "stx swap", "token swap",
+];
+
 function detectsX402Activity(messages: Array<{ content: string | null }>): boolean {
   const combined = messages.map((m) => m.content ?? "").join(" ").toLowerCase();
   return X402_KEYWORDS.some((k) => combined.includes(k));
+}
+
+function detectsBitflowActivity(messages: Array<{ content: string | null }>): boolean {
+  const combined = messages.map((m) => m.content ?? "").join(" ").toLowerCase();
+  return BITFLOW_KEYWORDS.some((k) => combined.includes(k));
 }
 
 function detectsCoSignActivity(messages: Array<{ content: string | null }>): boolean {
@@ -218,12 +229,16 @@ export default async function aibtcInboxSensor(): Promise<string> {
 
     const isCoSign = detectsCoSignActivity(peerMessages);
     const isX402 = detectsX402Activity(peerMessages);
+    const isBitflow = detectsBitflowActivity(peerMessages);
     const inboxSkills = ["bitcoin-wallet"];
     if (isCoSign) {
       inboxSkills.push("bitcoin-quorumclaw", "bitcoin-taproot-multisig");
     }
     if (isX402) {
       inboxSkills.push("social-agent-engagement");
+    }
+    if (isBitflow) {
+      inboxSkills.push("defi-bitflow");
     }
     const taskId = insertTask({
       subject: `AIBTC thread from ${senderName} (${peerMessages.length} messages)`,

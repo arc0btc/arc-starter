@@ -15,6 +15,26 @@ const SENSOR_NAME = "social-x-mentions";
 const INTERVAL_MINUTES = 15;
 const API_BASE = "https://api.x.com/2";
 
+// Keywords to detect topic-specific context needs for mention reply tasks.
+const BITCOIN_WALLET_KEYWORDS = [
+  "bitcoin wallet", "btc wallet", "bitcoin address", "btc address",
+  "bitcoin balance", "send bitcoin", "receive bitcoin",
+];
+const MULTISIG_KEYWORDS = [
+  "multisig", "multi-sig", "taproot multisig", "cosign", "co-sign",
+  "threshold signature", "2-of-3", "3-of-5",
+];
+
+function detectBitcoinWalletTopic(text: string): boolean {
+  const lower = text.toLowerCase();
+  return BITCOIN_WALLET_KEYWORDS.some((k) => lower.includes(k));
+}
+
+function detectMultisigTopic(text: string): boolean {
+  const lower = text.toLowerCase();
+  return MULTISIG_KEYWORDS.some((k) => lower.includes(k));
+}
+
 const log = createSensorLogger(SENSOR_NAME);
 
 // ---- OAuth 1.0a (minimal, GET-only) ----
@@ -275,7 +295,11 @@ export default async function xMentionsSensor(): Promise<string> {
         ]
           .filter(Boolean)
           .join("\n"),
-        skills: JSON.stringify(["social-x-posting"]),
+        skills: JSON.stringify([
+          "social-x-posting",
+          ...(detectBitcoinWalletTopic(mention.text) ? ["bitcoin-wallet"] : []),
+          ...(detectMultisigTopic(mention.text) ? ["bitcoin-taproot-multisig"] : []),
+        ]),
         priority: 7,
         model: "sonnet",
       });
