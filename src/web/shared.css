@@ -336,6 +336,32 @@ a:hover { color: var(--accent-deep); }
   color: var(--bg);
 }
 
+.kill-btn {
+  background: none;
+  border: 1px solid var(--error);
+  color: var(--error);
+  font-family: var(--font);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 3px 12px;
+  margin-left: var(--space-xs);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.kill-btn:hover:not(:disabled) {
+  background: var(--error);
+  color: var(--bg);
+}
+
+.kill-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* ---- Metrics ---- */
 .metrics-grid {
   display: grid;
