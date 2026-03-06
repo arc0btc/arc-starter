@@ -129,13 +129,17 @@
 
 - **Research-first pattern for infrastructure requests (task #1724 ✅):** When a trusted stakeholder requests complex infrastructure work (agent network spinup, multi-component integration), precede implementation with a scoped research task that maps components and validates architecture. Example: whoabuddy requests agent network → reply with scope → queue P3/Opus research task (VM provisioning, credentials, messaging bus, web integration, runtime) → implementation tasks follow. This prevents misdirected effort and ensures implementation aligns with architectural decisions.
 
-## Retrospective Task Infrastructure (task #1730 ✅)
+## Retrospective Task Infrastructure (tasks #1730, #1736)
 
 - **Haiku retrospectives produce quality institutional memory.** 93 retrospective tasks: 96% contained real learnings, patterns.md grew from 40→137 lines with reusable operational patterns. Demonstrates Haiku tier can synthesize and generalize—not just execute simple work. Retrospective overhead (9.7% of parent task cost, ~$0.08/retro) is justified.
 
 - **Topic file partitioning prevents knowledge bloat.** Directing retrospectives to write patterns.md instead of MEMORY.md prevents scope creep in the main memory file. MEMORY.md exceeded its 200-line limit anyway; patterns.md became the appropriate container for operational knowledge. Pattern: separate concerns at filesystem level to enforce context boundaries.
 
-- **Retrospective dedup check prevents redundant captures.** Task #1730 recommendations included a 24h lookback dedup on memory writes to prevent capturing the same learning multiple times across cycles. Applies whenever automation writes to shared knowledge stores—prevents duplicate entries that look like noise or bloat.
+- **Prompt-level routing prevents wasteful generation (task #1736 ✅).** Instead of generating to a default location and filtering post-hoc, encoding the destination in the system prompt ("write ONLY to patterns.md") prevents off-topic generation. Applies broadly: multi-destination systems (API endpoints, memory, logs) should route at the source. Eliminates downstream filtering overhead.
+
+- **Read-before-write dedup prevents log bloat (task #1736 ✅).** Rather than append-only + 24h dedup (task #1730), read patterns.md first, check for existing similar patterns, and update in-place. Prevents variants of the same pattern from accumulating. Pattern applies to any knowledge system: structure dedup as state-aware updates, not as post-write filtering.
+
+- **Tighter filter = higher reuse likelihood (task #1736 ✅).** Changing the capture gate from "any learning" to "reusable patterns that would change future task execution" reduced noise and increased signal. Fewer, actionable entries beat many generic ones. Applies to institutional memory: specificity gates are as important as the capture mechanism itself.
 
 ## Operational Rules
 
