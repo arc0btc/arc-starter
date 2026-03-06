@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-05T18:55:00.000Z*
+*Generated: 2026-03-06T00:36:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -58,10 +58,15 @@ stateDiagram-v2
         RunAllSensors --> arcCatalogSensor: arc-catalog
         RunAllSensors --> arc0btcSiteHealthSensor: arc0btc-site-health
         RunAllSensors --> githubIssueMonitorSensor: github-issue-monitor
+        RunAllSensors --> contactsSensor: contacts
+        RunAllSensors --> socialXEcosystemSensor: social-x-ecosystem
+        RunAllSensors --> socialXMentionsSensor: social-x-posting (mentions)
 
         note right of RunAllSensors
-            39 sensors total
-            github-issue-monitor: re-enabled 2026-03-05 (24h recency filter added)
+            42 sensors total (+3 since 2026-03-05)
+            contacts: 60min, AIBTC agent discovery → contacts table
+            social-x-ecosystem: 15min, keyword rotation (6 topics)
+            social-x-posting (mentions): 15min, @mention polling
         end note
 
         state "Generic Sensor Pattern" as genericSensor {
@@ -213,7 +218,7 @@ stateDiagram-v2
     }
 
     note right of CLI
-        Skills with CLI (34):
+        Skills with CLI (36):
         aibtc-dev-ops, aibtc-news-editorial,
         aibtc-repo-maintenance, arc-brand-voice,
         arc-architecture-review, arc-catalog,
@@ -227,10 +232,11 @@ stateDiagram-v2
         arc0btc-site-health, arxiv-research,
         bitcoin-quorumclaw, bitcoin-taproot-multisig,
         bitcoin-wallet, blog-publishing,
-        defi-stacks-market, erc8004-identity,
-        erc8004-reputation, erc8004-validation,
-        github-worker-logs, quest-create,
-        social-agent-engagement, social-x-posting
+        contacts, defi-stacks-market,
+        erc8004-identity, erc8004-reputation,
+        erc8004-validation, github-worker-logs,
+        quest-create, social-agent-engagement,
+        social-x-posting, styx
     end note
 ```
 
@@ -267,8 +273,9 @@ stateDiagram-v2
 | new-release | detected→assessing→integration_pending→integrating→completed | github-release-watcher | Dynamic skill list from ctx |
 | architecture-review | triggered→reviewing→cleanup_pending→cleaning→completed | arc-workflow-review | RESOLVED: now creates P7/sonnet tasks (was P4/Opus) |
 | streak-maintenance | pending→attempting→rate_limited→completed | aibtc-news-editorial | Rate-limit aware; windowOpenAt schedules retry; instance_key: streak-{beat}-{date} |
+| agent-collaboration | received→triaged→ops_pending→retrospective_pending→completed | aibtc-inbox-sync | AIBTC inbox thread → triage → ops → learning capture; instance_key: agent-collab-{sender}-{date} |
 
-## Skills Inventory (61 total)
+## Skills Inventory (62 total)
 
 | Skill | Sensor | CLI | Agent | Description |
 |-------|--------|-----|-------|-------------|
@@ -278,7 +285,6 @@ stateDiagram-v2
 | aibtc-news-deal-flow | - | - | yes | Editorial voice for Deal Flow beat on aibtc.news |
 | aibtc-news-editorial | yes | yes | yes | File intelligence signals, claim editorial beats, track activity on aibtc.news |
 | aibtc-repo-maintenance | yes | yes | yes | Triage, review, test, and support aibtcdev repos (GraphQL batched) |
-| aibtc-services-reference | - | - | - | Canonical reference for AIBTC platform services and API endpoints |
 | arc-alive-check | yes | - | - | Periodic system-alive task creator |
 | arc-architecture-review | yes | yes | yes | Architecture review, state machine diagrams, SpaceX 5-step process |
 | arc-brand-voice | - | yes | yes | Brand identity consultant — voice rules, visual design system |
@@ -314,6 +320,7 @@ stateDiagram-v2
 | blog-deploy | yes | - | - | Auto-deploy arc0me-site on content changes |
 | blog-publishing | yes | yes | yes | Create, manage, and publish blog posts |
 | compliance-review | yes | - | - | Structural, interface, and naming compliance audits |
+| contacts | yes | yes | yes | Contact management — agents, humans, addresses, handles, interaction history |
 | context-review | yes | - | - | Audit whether tasks load correct skills context |
 | dao-zero-authority | yes | - | - | Zero Authority DAO sensor |
 | defi-bitflow | yes | - | - | Bitflow DeFi sensor |
@@ -330,5 +337,7 @@ stateDiagram-v2
 | github-worker-logs | yes | yes | yes | Sync worker-logs forks, monitor production events |
 | quest-create | - | yes | yes | Decompose complex tasks into sequential phases with checkpoint-based execution |
 | social-agent-engagement | yes | yes | - | Proactive outreach to AIBTC network agents |
-| social-x-posting | - | yes | - | Post tweets, read timeline on X |
+| social-x-ecosystem | yes | - | - | Monitor X for ecosystem keywords (Bitcoin/Stacks/AIBTC/Claude Code); file research tasks (15min rotation) |
+| social-x-posting | yes | yes | yes | Post tweets, read timeline, poll @mentions on X; engagement commands with daily budget |
 | stacks-stackspot | yes | - | - | Autonomous Stacking — detect pots, auto-join, claim rewards |
+| styx | - | yes | yes | BTC→sBTC conversion via Styx protocol (btc2sbtc.com) — pool status, deposit, tracking |

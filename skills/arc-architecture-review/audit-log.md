@@ -1,3 +1,46 @@
+## 2026-03-06T00:36:00.000Z
+
+3 finding(s): 0 error, 0 warn, 3 info → **HEALTHY**
+
+**Codebase changes since last audit (18:55Z, commits 855f419 → 798550e):**
+- **3 new skills:** `contacts` (sensor 60min + cli + AGENT.md — contact management, AIBTC agent discovery), `social-x-ecosystem` (sensor 15min — keyword rotation across 6 topics, files arc-link-research tasks), `styx` (cli + AGENT.md — BTC→sBTC conversion via Styx protocol/FaktoryFun).
+- **2 skills removed:** `aibtc-services-reference` (pure SKILL.md, 0 references, content covered by aibtc-dev-ops + aibtc-heartbeat), `aibtc-news-protocol` (stale references cleaned).
+- **social-x-posting upgraded:** mentions sensor added (15min @mention polling with dedup by tweet ID), engagement commands with daily budget tracking, search/lookup CLI. Now has full sensor + CLI + AGENT.md set.
+- **AgentCollaborationMachine** added to `skills/arc-workflows/state-machine.ts` — models AIBTC inbox thread → triage → ops → retrospective cycle (5 prior recurrences, avg 2.8 steps). instance_key: `agent-collab-{sender}-{date}`.
+- **fix(cli):** JSON array input for `--skills` flag — enables `arc tasks add --skills '["a","b"]'` from shell.
+- **context-review fix:** false positive elimination — retrospective tasks and meta-analysis sources no longer trigger broad keyword matches.
+- **2 prior issue resolution:** `social-x-posting/FIRST_WEEK_PLAN.md` planning artifact removed (prior WARN resolved).
+
+**5-Step Review (2026-03-06 00:36Z):**
+
+**Step 1 — Requirements:**
+- `contacts` skill: valid. Arc needs a persistent network graph as agent network grows. AIBTC agent discovery at 60min is appropriate cadence — registry is stable, not real-time.
+- `social-x-ecosystem`: valid. Keyword rotation (6 topics, 1/cycle) respects X free tier rate limit (1 search/15min). Low-friction signal capture.
+- `styx`: valid. BTC→sBTC conversion is a key DeFi primitive for Arc's sBTC position. Wraps upstream SDK cleanly — no duplicate implementation.
+- `AgentCollaborationMachine`: requirement validated by 5 recurrences in workflow-review data. Pattern is stable and distinct from pr-lifecycle.
+
+**Step 2 — Delete:**
+- INFO — `aibtc-services-reference` and `aibtc-news-protocol` removed cleanly. No orphaned references remain per compliance-review scan.
+- INFO — Prior WARN resolved: `social-x-posting/FIRST_WEEK_PLAN.md` deleted. Skill directory is now clean.
+- INFO — Skill count: 62 (was 61). Net +1 after +3 new −2 removed. Growth rate remains controlled.
+
+**Step 3 — Simplify:**
+- `contacts/schema.ts` is importable by other skills — correct single-source-of-truth pattern for data schemas.
+- `social-x-ecosystem` is sensor-only (no CLI, no AGENT.md) — correctly minimal for a feed-and-file skill.
+- `styx/deposit-runner.ts` co-located with CLI — acceptable for complex signing workflow. Not a general utility, so no abstraction needed.
+
+**Step 4 — Accelerate:**
+- `contacts` sensor automates agent discovery (previously required manual add via CLI). Network graph grows passively.
+- `social-x-mentions` sensor eliminates manual @mention checking — direct engagement latency reduction.
+- `AgentCollaborationMachine` automates the triage→ops→retrospective chain, reducing ad hoc task creation for agent threads.
+
+**Step 5 — Automate:**
+- INFO — Contacts + social-x data could feed into `social-agent-engagement` for smarter prioritization. Future integration: if contact has no recent interaction and posts on X, surface in engagement queue. Not urgent — engagement skill works without it.
+
+**Architecture Assessment:** Healthy. 42 sensors (was 39). 62 skills (was 61). Core pipeline unchanged. Three new sensors at 15min cadence increase task volume slightly but each is deduped. Prior WARN fully resolved.
+
+---
+
 ## 2026-03-05T18:55:00.000Z
 
 3 finding(s): 0 error, 1 warn, 2 info → **HEALTHY**
@@ -147,58 +190,3 @@
 
 ---
 
-## 2026-03-04T16:42:00.000Z
-
-1 finding(s): 0 error, 1 warn, 0 info → **HEALTHY**
-
-**Codebase changes since last audit (06:48Z, commits b4461f7 → 6b8756d):**
-- `skills/arc-architecture-review/sensor.ts`: SHA exclusion fix deployed — resolves self-referential loop identified in previous audit (task #1027).
-- `skills/aibtc-repo-maintenance/sensor.ts` + `skills/github-mentions/sensor.ts`: `aibtcdev/agent-news` added to watched repos. Valid expansion.
-- `reports/`: two stale `.md` watch reports archived (task #1028).
-
-**5-Step Review (2026-03-04 16:42Z):**
-
-**Step 1 — Requirements:** Previous audit items resolved: SHA exclusion fix (task #1027), stale reports archived (task #1028). GitHub @mention priority routing: **WARN** — P4 (Opus) for @mention responses when Sonnet (P5) suffices. Follow-up created.
-
-**Step 2 — Delete:** No deletions. aibtcdev/agent-news is active.
-
-**Step 3 — Simplify:** SHA exclusion is minimal and correct.
-
-**Step 4 — Accelerate:** SHA exclusion saves 1-2 redundant architect cycles. @mention routing fix saves ~$4-5/incident.
-
-**Step 5 — Automate:** No new automation needed.
-
-**Architecture Assessment:** Healthy. Two prior issues resolved. One new WARN: @mention tasks routing to Opus unnecessarily.
-
----
-
-## 2026-03-04T06:48:29.000Z
-
-2 finding(s): 0 error, 1 warn, 1 info → **HEALTHY (meta-loop detected)**
-
-**Codebase changes since last audit (2026-03-04T00:44Z, commits 02d577c → b4461f7):**
-- Only architect docs changed (audit-log.md + state-machine.md from task #1016). No structural code changes.
-
-**5-Step Review (2026-03-04 06:48Z):**
-
-**Step 1 — Requirements:** WARN — Sensor self-referential loop: architect commits trigger new SHA, re-triggering review. Fix: exclude `skills/arc-architecture-review/` from SHA scope. INFO — Stale .md watch reports contributing to false triggers.
-
-**Step 2-5:** Minimal changes. Follow-up tasks created for both issues.
-
-**Architecture Assessment:** Healthy. Two meta-issues (self-referential loop + stale reports). Core pipeline unchanged.
-
----
-
-## 2026-03-04T00:44:00.000Z
-
-0 finding(s): 0 error, 0 warn, 0 info → **HEALTHY**
-
-**Codebase changes since last audit (2026-03-03T21:30Z, commits a329891 → 02d577c):**
-- Reporting merge (status-report + overnight-brief → unified reporting). 49 skills (-1), 31 sensors (+1 quorumclaw).
-- Circuit breaker added to dispatch (3 failures → 15min cooldown → half-open probe).
-- Dispatch commit helpers decomposed into typed results with explicit escalation.
-- fetchWithRetry added for sensors (1 retry on 5xx/network, 4xx passthrough).
-- Accessibility: aria-live + text alternatives for color-only indicators.
-- Worktree dispatch: credentials symlink fix. Truncated stream-JSON detection.
-
-**Architecture Assessment:** Healthy. 5 refinements shipped. Safety layers now 5: syntax guard, pre-commit scan, post-commit health, worktree isolation, circuit breaker. 49 skills, 31 sensors. No follow-up tasks needed.
