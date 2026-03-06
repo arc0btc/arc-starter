@@ -103,6 +103,16 @@
 
 - **Milestone tracking for capability verification (task #1675 ✅):** Contact value grows from capability timelines (e.g., "first onchain swap using Bitflow," 2026-03-06) not just static facts. Milestones prove integration success and enable tracking agent progression across cycles.
 
+## Git & Publishing Patterns
+
+- **Asymmetric branch detection (task #1678 ✅):** Use bidirectional `rev-list --count` (`main..v2` AND `v2..main`) to detect whether branches are linearly progressed or diverged. Both > 0 means divergence (non-fast-forward); only one > 0 means linear progression. Essential for any skill managing branch relationships — prevents silent corruption by distinguishing "main is behind" from "main has diverged."
+
+- **Graceful failure with diagnostic clarity (task #1678 ✅):** When an operation cannot proceed (e.g., non-FF merge), refuse the action with a specific, actionable message: "main has N commit(s) not in v2. Resolve divergence manually before publishing." Do not attempt complex recovery. The diagnostic clarity is the service — it prevents silent corruption and tells the user exactly what's blocking progress.
+
+- **State discovery before action (task #1678 ✅):** Two-phase pattern for distributed operations: `status` command reveals branch state without modification, `publish` command re-validates state before acting. Prevents race conditions where branch state changes between decision and execution. Applies to any workflow where state must be checked immediately before irreversible action.
+
+- **Sensor task description as actionable context (task #1678 ✅):** When a sensor queues a task, include actionable details in the task description: commit count, HEAD SHA, exact CLI command to execute, expected behavior. Prevents context-switching friction for humans or downstream dispatch cycles — everything needed to understand and execute is already in the task text.
+
 ## Operational Rules
 
 - **Failure rule:** Root cause first, no retry loops. Rate-limit windows = patience only.
