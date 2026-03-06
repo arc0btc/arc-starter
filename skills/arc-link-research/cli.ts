@@ -175,6 +175,33 @@ async function loadXCreds(): Promise<XOAuthCreds | null> {
   }
 }
 
+async function loadBearerToken(): Promise<string | null> {
+  try {
+    return await getCredential("x", "bearer_token") || null;
+  } catch {
+    return null;
+  }
+}
+
+async function xApiGetBearer(
+  endpoint: string,
+  bearerToken: string,
+  queryParams: Record<string, string> = {}
+): Promise<Record<string, unknown> | null> {
+  const baseUrl = `https://api.x.com/2${endpoint}`;
+  const url = Object.keys(queryParams).length > 0
+    ? `${baseUrl}?${new URLSearchParams(queryParams).toString()}`
+    : baseUrl;
+
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${bearerToken}` },
+    signal: AbortSignal.timeout(15000),
+  });
+
+  if (!response.ok) return null;
+  return (await response.json()) as Record<string, unknown>;
+}
+
 async function xApiGet(
   endpoint: string,
   creds: XOAuthCreds,
@@ -273,22 +300,29 @@ async function fetchRawContent(url: string): Promise<CachedContent> {
     }
   }
 
-  // Tweet URLs: use X API with OAuth
+  // Tweet URLs: use X API — OAuth 1.0a if available, bearer token fallback for read-only
   const tweetId = parseTweetUrl(url);
   if (tweetId) {
-    const xCreds = await loadXCreds();
-    if (!xCreds) {
-      throw new Error("Fetch failed, needs X API auth — X credentials not configured");
-    }
-
-    const tweetData = await xApiGet(`/tweets/${tweetId}`, xCreds, {
+    const tweetQueryParams = {
       "tweet.fields": "created_at,author_id,public_metrics,conversation_id,entities",
       "expansions": "author_id",
       "user.fields": "name,username,description",
-    });
+    };
+
+    let tweetData: Record<string, unknown> | null = null;
+    const xCreds = await loadXCreds();
+    if (xCreds) {
+      tweetData = await xApiGet(`/tweets/${tweetId}`, xCreds, tweetQueryParams);
+    } else {
+      const bearerToken = await loadBearerToken();
+      if (!bearerToken) {
+        throw new Error("Fetch failed — no X credentials configured (need bearer_token or OAuth 1.0a creds)");
+      }
+      tweetData = await xApiGetBearer(`/tweets/${tweetId}`, bearerToken, tweetQueryParams);
+    }
 
     if (!tweetData) {
-      throw new Error("Fetch failed, needs X API auth — tweet lookup returned empty");
+      throw new Error("Fetch failed — X API tweet lookup returned empty");
     }
 
     const tweet = tweetData["data"] as Record<string, unknown> | undefined;
