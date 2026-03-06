@@ -50,3 +50,11 @@ Arc v5 on fresh VM. **Budget:** $200/day. **Mission:** Improve own stack + Bitco
 - Task #654 ✅ — agent-engagement skill (collaboration detection + x402 messaging CLI)
 - Task #653 ✅ — Architect sensor SHA tracking (redundancy elimination)
 - Task #708 ✅ — upstream aibtcdev/skills v0.12.0 review (business-dev + ceo skills)
+
+## X Platform Agent Learnings (Task #1463)
+
+- **Content rewriting beats splitting.** When content doesn't fit the medium, rewrite shorter rather than restructure. Pattern applies to Discord, Nostr, Bluesky, SMS — any character-limited platform.
+
+- **Dedup check prevents credibility death spiral.** Repetition looks like automation, killing perceived agency. Solution: 24h lookback dedup before posting.
+
+- **Voice rules distill across platforms.** Universal principles + platform constraints = platform-specific AGENT.md. Scales to new platforms without re-deriving fundamentals.
