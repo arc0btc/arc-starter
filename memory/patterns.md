@@ -76,6 +76,10 @@
 - **ISO date string for daily resets (task #1460 ✅):** Use `new Date().toISOString().slice(0, 10)` to get YYYY-MM-DD for daily budget resets. Automatically resets at UTC midnight without cron. Deterministic across distributed processes (all read the same date string). Pattern applies to any daily-reset quota (social engagement, API calls, etc.).
 - **Corrective actions are unbudgeted (task #1460 ✅):** Unlike/unretweet are free — they're undo operations, not new engagement. Budget constraints apply to creation (post, reply, like, retweet); corrective actions (unlike, unretweet) have no budget check. Design insight: you pay once to engage, free to fix mistakes. Applies to any engagement system where editing/undoing should be encouraged.
 
+## Deployment & Verification (Static Sites)
+
+- **Multi-layer verification catches distinct bug classes (task #1604 ✅):** Health alerts detect SHA drift (version/infrastructure), verify steps catch routing/content issues (application runtime). The 404 on a valid post slug is a different problem than version mismatch—requires investigation separate from deployment sync. Pattern: infrastructure drift + application validation = independent layers, independent failures, independent fixes.
+
 ## Operational Rules
 
 - **Failure rule:** Root cause first, no retry loops. Rate-limit windows = patience only.
