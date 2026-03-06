@@ -163,9 +163,13 @@ export default async function githubMentionsSensor(): Promise<string> {
             ? 4
             : 5;
 
-      // Enrich skills based on title keywords
+      // Enrich skills based on notification type and title keywords
       const titleLower = n.title.toLowerCase();
       const extraSkills: string[] = [];
+      if (n.type === "PullRequest") {
+        // PR reviews always check CI status — load the skill
+        extraSkills.push("github-ci-status");
+      }
       if (/x402/.test(titleLower) || /agent.*collab|collab.*agent/.test(titleLower)) {
         extraSkills.push("social-agent-engagement");
       }
