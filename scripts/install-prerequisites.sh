@@ -139,19 +139,35 @@ echo "→ Initializing database..."
 bun src/db.ts
 echo "✓ database ready"
 
-# ---- 6.5. Credential store directory ----
-echo "→ Setting up credential store directory..."
+# ---- 6.5. Credential store ----
+echo "→ Setting up credential store..."
 mkdir -p "$HOME/.aibtc"
-echo "✓ ~/.aibtc/ directory ready (credential store location)"
+touch "$ENV_FILE"
 
-# Inform the operator about ARC_CREDS_PASSWORD without auto-generating it.
+# Generate ARC_CREDS_PASSWORD if not already set
 if grep -q "^ARC_CREDS_PASSWORD=" "$ENV_FILE" 2>/dev/null; then
-  echo "✓ ARC_CREDS_PASSWORD is set in .env (credential store enabled)"
+  echo "✓ ARC_CREDS_PASSWORD already set in .env"
 else
-  echo "→ ARC_CREDS_PASSWORD not set — add the following to .env to enable the credential store:"
-  echo "  ARC_CREDS_PASSWORD=your-secure-password"
-  echo "  (arc creds set/get/list commands require this to be set)"
+  CREDS_PASS=$(openssl rand -base64 32)
+  echo "ARC_CREDS_PASSWORD=$CREDS_PASS" >> "$ENV_FILE"
+  echo "✓ generated master password for credential store (saved to .env)"
 fi
+
+# Export so arc creds commands work in this session
+export ARC_CREDS_PASSWORD
+ARC_CREDS_PASSWORD=$(grep "^ARC_CREDS_PASSWORD=" "$ENV_FILE" | cut -d= -f2-)
+
+# Initialize the store and add a random wallet password if not already present
+WALLET_PW_CHECK=$(bun src/cli.ts creds get --service wallet --key password 2>/dev/null || true)
+if [[ -z "$WALLET_PW_CHECK" || "$WALLET_PW_CHECK" == *"Not found"* ]]; then
+  WALLET_PASS=$(openssl rand -base64 32)
+  bun src/cli.ts creds set --service wallet --key password --value "$WALLET_PASS"
+  echo "✓ generated random wallet password (stored in credential store as wallet/password)"
+else
+  echo "✓ wallet password already in credential store"
+fi
+
+echo "✓ credential store ready — use 'arc creds list' to view stored credentials"
 
 # ---- 7. Symlink arc CLI ----
 echo "→ Installing arc CLI..."
@@ -192,8 +208,10 @@ fi
 
 # ---- 10. Autonomous mode (DANGEROUS=true) ----
 if $AUTONOMOUS; then
-  echo "DANGEROUS=true" > "$ENV_FILE"
-  echo "✓ autonomous mode enabled (.env created with DANGEROUS=true)"
+  if ! grep -q "^DANGEROUS=true" "$ENV_FILE" 2>/dev/null; then
+    echo "DANGEROUS=true" >> "$ENV_FILE"
+  fi
+  echo "✓ autonomous mode enabled (DANGEROUS=true in .env)"
   echo ""
   echo "  ┌─────────────────────────────────────────────────────────────┐"
   echo "  │  DANGEROUS=true grants Claude Code full filesystem and     │"
@@ -204,13 +222,13 @@ if $AUTONOMOUS; then
   echo "  │  To disable: delete .env or remove DANGEROUS=true          │"
   echo "  └─────────────────────────────────────────────────────────────┘"
 else
-  if [[ ! -f "$ENV_FILE" ]]; then
-    echo "# Uncomment to enable autonomous dispatch (grants full permissions to Claude Code)" > "$ENV_FILE"
+  if ! grep -q "^DANGEROUS=" "$ENV_FILE" 2>/dev/null; then
+    echo "# Uncomment to enable autonomous dispatch (grants full permissions to Claude Code)" >> "$ENV_FILE"
     echo "# DANGEROUS=true" >> "$ENV_FILE"
     echo "→ autonomous mode not enabled (run with --autonomous to enable)"
     echo "  To enable later: uncomment DANGEROUS=true in .env"
   else
-    echo "✓ .env exists (not modified)"
+    echo "✓ .env autonomous mode setting exists (not modified)"
   fi
 fi
 
@@ -232,5 +250,7 @@ echo "==> Prerequisites installed"
 echo ""
 echo "Next steps:"
 echo "  1. Run 'claude' once to authenticate (if first time)"
-echo "  2. Edit SOUL.md to define your agent's identity"
-echo "  3. arc services install    # enable timers (systemd or launchd)"
+echo "  2. Store any API keys or tokens your agent needs:"
+echo "     arc creds set --service <name> --key <key> --value <value>"
+echo "  3. Edit SOUL.md to define your agent's identity"
+echo "  4. arc services install    # enable timers (systemd or launchd)"
