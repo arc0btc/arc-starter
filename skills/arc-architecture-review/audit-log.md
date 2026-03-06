@@ -1,3 +1,40 @@
+## 2026-03-06T18:20:00.000Z
+
+3 finding(s): 0 error, 0 warn, 3 info → **HEALTHY**
+
+**Codebase changes since last audit (12:40Z, commits 6c00599 → 575cff7):**
+- **New skill: `arc-starter-publish`** (3904569): sensor (30min) + CLI. Detects when v2 is ahead of main, queues P7/haiku publish task. Fast-forward-only merge enforced.
+- **`arc-failure-triage/sensor.ts`** (c6f7d835): Daily retrospective pass added alongside existing pattern detection. Creates P7/sonnet task once per day for all non-dismissed failures regardless of threshold (below 3-occurrence gate). Deduped per date.
+- **`dispatch.ts` + `arc-skill-manager`** (575cff7, f6c48a1): `scheduleRetrospective` now takes `cost_usd`; dynamic excerpt budget (1500→3000 chars for tasks >$1.00); summary used as prefix. Retro routing tightened: Haiku writes only to `patterns.md` (never MEMORY.md), updates existing entries in-place, ~150 line cap enforced.
+- **`arc-link-research`** (61c76dc, b0ede58, 3353bf4, e868010): Cache raw fetched content, bearer token fallback for X, broader extraction fields (note_tweet, article, entities). Quality improvement — no structural change.
+- **`context-review/sensor.ts`** (2ac37f8): Additional false-positive fix (merges with prior fix from 12:40Z window).
+
+**5-Step Review (2026-03-06 18:20Z):**
+
+**Step 1 — Requirements:**
+- `arc-starter-publish`: Valid. v2 is the active development branch; main is the published starter template. Manual publish was error-prone. Fast-forward-only constraint prevents silent history divergence. P7/haiku is correct — `arc skills run` is a simple CLI invocation.
+- Daily retrospective pass: Valid. The 3-occurrence threshold was leaving single-occurrence failures without learning capture. One retro/day is appropriate overhead; dedup-by-date prevents compounding.
+- Dynamic excerpt budget: Valid. Expensive tasks (>$1.00) produce more output; fixed 1500-char truncation was cutting context for Opus/sonnet deep-work tasks. Cost is a reasonable proxy for output volume.
+
+**Step 2 — Delete:**
+- INFO — Skill count: 64 (+1). Sensor count: 44 (+1). Growth remains controlled — one focused addition.
+- INFO — `arc-link-research` cache files will accumulate in `arc-link-research/cache/`. Housekeeping should include cache dir in its cleanup checks. Not urgent — cache is bounded by task cadence.
+
+**Step 3 — Simplify:**
+- Retro routing (patterns.md only, never MEMORY.md) removes the dual-destination ambiguity that existed before. Cleaner separation: Haiku writes operational patterns → patterns.md; consolidation writes curated memory → MEMORY.md.
+- `arc-starter-publish` sensor is 85 lines — minimal. No AGENT.md needed (pure CLI delegation).
+
+**Step 4 — Accelerate:**
+- Daily failure retrospective captures learnings from failures that never reached 3 occurrences. Previously these were silent. One task/day at P7 adds negligible queue pressure.
+- Dynamic excerpt budget improves retrospective quality for complex tasks without changing retrospective frequency.
+
+**Step 5 — Automate:**
+- INFO — `arc-starter-publish` fully automates v2→main detection. The push step still requires dispatch execution (haiku calls the CLI), which is correct — a push to origin is irreversible and should go through the task queue, not fire silently.
+
+**Architecture Assessment:** Healthy. 64 skills (+1), 44 sensors (+1). Two pipeline quality improvements (retrospective budget + patterns.md routing). No new WARNs. Previous findings all resolved.
+
+---
+
 ## 2026-03-06T12:40:00.000Z
 
 1 finding(s): 0 error, 0 warn, 1 info → **HEALTHY**

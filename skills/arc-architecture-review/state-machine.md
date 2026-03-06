@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-06T12:40:00.000Z*
+*Generated: 2026-03-06T18:20:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -62,9 +62,11 @@ stateDiagram-v2
         RunAllSensors --> socialXEcosystemSensor: social-x-ecosystem
         RunAllSensors --> socialXMentionsSensor: social-x-posting (mentions)
         RunAllSensors --> workerLogsMonitorSensor: worker-logs-monitor
+        RunAllSensors --> arcStarterPublishSensor: arc-starter-publish
 
         note right of RunAllSensors
-            43 sensors total (+1 since 2026-03-06)
+            44 sensors total (+1 since 2026-03-06T12:40Z)
+            arc-starter-publish: 30min, v2→main ahead detection → publish tasks
             worker-logs-monitor: 60min, error detection → issue-filing tasks
             AIBTC_WATCHED_REPOS: 7 repos (added loop-starter-kit, x402-sponsor-relay)
         end note
@@ -163,6 +165,33 @@ stateDiagram-v2
             selfAuditSkip --> [*]: return skip
         }
 
+        state arcStarterPublishSensor {
+            [*] --> arcStarterPublishGate: claimSensorRun(arc-starter-publish, 30min)
+            arcStarterPublishGate --> arcStarterPublishSkip: interval not elapsed
+            arcStarterPublishGate --> arcStarterPublishCheck: interval elapsed
+            arcStarterPublishCheck --> arcStarterPublishSkip: v2 == main (in sync) or git error
+            arcStarterPublishCheck --> arcStarterPublishDedup: v2 ahead of main
+            arcStarterPublishDedup --> arcStarterPublishSkip: pending task exists
+            arcStarterPublishDedup --> arcStarterPublishCreateTask: no dupe
+            arcStarterPublishCreateTask --> [*]: insertTask() P7 haiku
+            arcStarterPublishSkip --> [*]: return ok/skip
+        }
+
+        state failureTriageSensor {
+            [*] --> failureTriageGate: claimSensorRun(arc-failure-triage, 60min)
+            failureTriageGate --> failureTriageSkip: interval not elapsed
+            failureTriageGate --> failureTriageQuery: interval elapsed
+            failureTriageQuery --> failureTriageSkip: no failed tasks in 24h window
+            failureTriageQuery --> failureTriagePatterns: failed tasks found
+            failureTriagePatterns --> failureTriageCreateInvestigation: signature occurs >=3x AND not skip-list AND no pending AND completedCount<2
+            failureTriageCreateInvestigation --> failureTriageRetro: insertTask() P3 sonnet investigation
+            failureTriagePatterns --> failureTriageRetro: pattern check done
+            failureTriageRetro --> failureTriageSkip: retro already exists today OR no non-dismissed failures
+            failureTriageRetro --> failureTriageCreateRetro: first retro today + non-dismissed failures exist
+            failureTriageCreateRetro --> [*]: insertTask() P7 sonnet daily retrospective
+            failureTriageSkip --> [*]: return ok/skip
+        }
+
         state workflowReviewSensor {
             [*] --> workflowReviewGate: claimSensorRun(workflow-review, 240min)
             workflowReviewGate --> workflowReviewSkip: interval not elapsed
@@ -206,7 +235,15 @@ stateDiagram-v2
         FallbackClose --> RecordCost
         RecordCost --> ClearLock
         ClearLock --> AutoCommit: git add memory/ skills/ src/ templates/
-        AutoCommit --> [*]
+        AutoCommit --> MaybeRetro: P1-4 completed tasks only
+        MaybeRetro --> [*]: scheduleRetrospective() P8 haiku
+        AutoCommit --> [*]: P5+ tasks (no retro)
+        note right of MaybeRetro
+            Dynamic excerpt budget:
+            cost>$1.00 → 3000 chars (was fixed 1500)
+            summary prefix + detail fill
+            writes only to patterns.md (never MEMORY.md)
+        end note
     }
 
     state CLI {
@@ -218,7 +255,7 @@ stateDiagram-v2
     }
 
     note right of CLI
-        Skills with CLI (37):
+        Skills with CLI (38):
         aibtc-dev-ops, aibtc-news-editorial,
         aibtc-repo-maintenance, arc-brand-voice,
         arc-architecture-review, arc-catalog,
@@ -227,12 +264,12 @@ stateDiagram-v2
         arc-failure-triage, arc-housekeeping,
         arc-link-research, arc-mcp-server,
         arc-reporting, arc-skill-manager,
-        arc-web-dashboard, arc-workflows,
-        arc-worktrees, arc0btc-monetization,
-        arc0btc-site-health, arxiv-research,
-        bitcoin-quorumclaw, bitcoin-taproot-multisig,
-        bitcoin-wallet, blog-publishing,
-        contacts, defi-stacks-market,
+        arc-starter-publish, arc-web-dashboard,
+        arc-workflows, arc-worktrees,
+        arc0btc-monetization, arc0btc-site-health,
+        arxiv-research, bitcoin-quorumclaw,
+        bitcoin-taproot-multisig, bitcoin-wallet,
+        blog-publishing, contacts, defi-stacks-market,
         erc8004-identity, erc8004-reputation,
         erc8004-validation, github-worker-logs,
         quest-create, social-agent-engagement,
@@ -257,6 +294,7 @@ stateDiagram-v2
 | 7 | LLM execution | Full prompt + CLI access | `arc` commands only |
 | 7a | Timeout watchdog | Day: 30min, Overnight (00-08): 90min | SIGTERM -> SIGKILL (+10s); subprocess_timeout = no retry |
 | 8 | Result handling | Task status check post-run | Self-close vs fallback |
+| 8a | Retrospective scheduling | Task priority + completion status + cost_usd | P1-4 completed only; dynamic excerpt: cost>$1→3000 chars, else 1500 |
 | 9 | Auto-commit | Staged dirs: memory/ skills/ src/ templates/ | `git diff --cached` |
 
 ## Workflow Templates (state-machine.ts)
@@ -275,7 +313,7 @@ stateDiagram-v2
 | streak-maintenance | pending→attempting→rate_limited→completed | aibtc-news-editorial | Rate-limit aware; windowOpenAt schedules retry; instance_key: streak-{beat}-{date} |
 | agent-collaboration | received→triaged→ops_pending→retrospective_pending→completed | aibtc-inbox-sync | AIBTC inbox thread → triage → ops → learning capture; instance_key: agent-collab-{sender}-{date} |
 
-## Skills Inventory (63 total)
+## Skills Inventory (64 total)
 
 | Skill | Sensor | CLI | Agent | Description |
 |-------|--------|-----|-------|-------------|
@@ -307,6 +345,7 @@ stateDiagram-v2
 | arc-self-audit | yes | - | - | Daily operational self-audit — tasks, costs, skills, commits |
 | arc-service-health | yes | - | - | System health monitor — stale cycles, stuck dispatch |
 | arc-skill-manager | yes | yes | yes | Create, inspect, and manage agent skills |
+| arc-starter-publish | yes | yes | - | Detect v2 ahead of main and fast-forward merge/push to publish |
 | arc-web-dashboard | - | yes | yes | Live web dashboard — tasks, sensors, costs |
 | arc-workflow-review | yes | - | - | Detect repeating task patterns and propose workflows |
 | arc-workflows | yes | yes | yes | Persistent state machine instances for multi-step workflows |
