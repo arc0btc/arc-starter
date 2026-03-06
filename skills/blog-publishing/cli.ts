@@ -36,6 +36,10 @@ function getPostsDir(): string {
   return path.join(process.cwd(), "github/arc0btc/arc0me-site/content");
 }
 
+function getBlogDocsDir(): string {
+  return path.join(process.cwd(), "github/arc0btc/arc0me-site/src/content/docs/blog");
+}
+
 function getCurrentIso8601(): string {
   return new Date().toISOString();
 }
@@ -240,7 +244,19 @@ async function cmdPublish(args: string[]): Promise<void> {
 
     await Bun.write(indexPath, content);
     log(`published post: ${postId}`);
-    console.log(JSON.stringify({ success: true, post_id: postId, status: "published", published_at: now }, null, 2));
+
+    // Sync to src/content/docs/blog/<post-id>.mdx for Astro
+    const blogDocsDir = getBlogDocsDir();
+    const mdxPath = path.join(blogDocsDir, `${postId}.mdx`);
+    try {
+      fs.mkdirSync(blogDocsDir, { recursive: true });
+      await Bun.write(mdxPath, content);
+      log(`synced to blog docs: ${mdxPath}`);
+    } catch (syncErr) {
+      log(`warning: failed to sync to blog docs: ${syncErr instanceof Error ? syncErr.message : String(syncErr)}`);
+    }
+
+    console.log(JSON.stringify({ success: true, post_id: postId, status: "published", published_at: now, mdx_path: mdxPath }, null, 2));
   } catch (e) {
     log(`failed to publish: ${e instanceof Error ? e.message : String(e)}`);
     process.stderr.write(`Failed to publish post: ${postId}\n`);
