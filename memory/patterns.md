@@ -43,6 +43,16 @@
 - **Sensor cost governance at design time (task #1367 ✅):** Review sensors ($25.60/day: compliance, CEO, context, architecture) became cost sink because intervals were set without budget awareness. Solution: explicit cost tier per sensor at creation (P8 sensors only?) + interval governance during review, not tactical downgrades.
 - **Dispatch-level cost caps > tactical downgrades (task #1367 ✅):** Budget overrun ($617/wk vs $200 target) requires structural fix, not task-by-task optimization. Hard cost cap at dispatch (e.g., $40/day hard stop) prevents runaway regardless of queue state. Tactical changes (convert task X from Opus→Sonnet) require human decisions; caps are bulletproof.
 
+## Task Chaining & Precondition Gates
+
+- **Stop chain at human-dependency boundary (2026-03-06, tasks #1392-#1413):** When a task chain hits a blocker that requires external human action (e.g., "whoabuddy must send sats"), the correct response is ONE escalation task then stop. Tasks #1392-#1413 generated 6 failed tasks because retry/monitor tasks kept spawning after #1397 already identified the external dependency. Pattern: detect human-required blocker → escalate once → set `blocked` or `failed` with clear summary → do NOT create monitor/retry chain waiting for external state to change.
+
+- **Monitor tasks need exit conditions, not just failure modes:** "Monitor wallet until X" tasks without a funding-confirmed signal will always fail. If the precondition has no delivery timeline (wallet funding by human), monitoring is noise. Create a single `blocked` task with `result_summary` explaining the dependency; let the human trigger the next step.
+
+## X API Authentication
+
+- **arc-link-research X tweet fetch requires OAuth 1.0a access_token (2026-03-06, task #1627):** `loadXCreds()` in `skills/arc-link-research/cli.ts` requires `x/access_token` and `x/access_token_secret` credentials. Only `x/bearer_token` + consumer keys are currently stored. Result: `loadXCreds()` returns null → tweet lookup falls back to unauthenticated fetch → fails with auth error. Fix: add bearer-token fallback for read-only tweet lookups (X API v2 supports bearer token for `/tweets/:id`), OR store access_token/access_token_secret.
+
 ## Integration Patterns
 
 - **Wallet-aware skill runner pattern (task #1391 ✅):** Stateful singletons (wallet manager) hold unlock state in memory; subprocess isolation breaks this. Solution: dedicated runner (deposit-runner.ts) unlocks the singleton, overrides process.argv, monkey-patches the CLI parser to run within the same process, then locks on exit. This pattern applies whenever state must persist across orchestration boundaries.
