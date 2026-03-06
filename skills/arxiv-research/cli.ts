@@ -360,6 +360,159 @@ async function cmdCompile(args: string[]): Promise<void> {
   }, null, 2) + "\n");
 }
 
+// ---- KV Publishing ----
+
+const KV_NAMESPACE_ID = "32f0010c773d42c1bad0ca3125817544";
+const CF_ACCOUNT_ID = "916093ba9c76cdc56aad0e16161675f1";
+
+interface DigestMeta {
+  date: string;
+  generated: string;
+  papersReviewed: number;
+  relevantPapers: number;
+  categories: string[];
+  highlights: Array<{ title: string; tags: string[]; score: number }>;
+}
+
+function parseDigestMeta(markdown: string): DigestMeta {
+  const dateMatch = markdown.match(/^# arXiv Digest — (\d{4}-\d{2}-\d{2})/m);
+  const genMatch = markdown.match(/\*\*Generated:\*\* (.+)/);
+  const reviewedMatch = markdown.match(/\*\*Papers reviewed:\*\* (\d+)/);
+  const relevantMatch = markdown.match(/\*\*Relevant papers:\*\* (\d+)/);
+  const catsMatch = markdown.match(/\*\*Categories:\*\* (.+)/);
+
+  const date = dateMatch?.[1] ?? "unknown";
+  const generated = genMatch?.[1] ?? new Date().toISOString();
+  const papersReviewed = parseInt(reviewedMatch?.[1] ?? "0", 10);
+  const relevantPapers = parseInt(relevantMatch?.[1] ?? "0", 10);
+  const categories = catsMatch?.[1]?.split(", ") ?? [];
+
+  // Extract highlights from the ## Highlights section
+  const highlights: DigestMeta["highlights"] = [];
+  const hlMatch = markdown.match(/## Highlights\n\n([\s\S]*?)(?=\n---)/);
+  if (hlMatch) {
+    const hlLines = hlMatch[1].split("\n").filter((l) => l.startsWith("- **"));
+    for (const line of hlLines) {
+      const titleMatch = line.match(/\*\*(.+?)\*\*/);
+      const tagsMatch = line.match(/\(([^)]+)\)/);
+      const scoreMatch = line.match(/score (\d+)/);
+      if (titleMatch) {
+        highlights.push({
+          title: titleMatch[1],
+          tags: tagsMatch?.[1]?.split(", ") ?? [],
+          score: parseInt(scoreMatch?.[1] ?? "0", 10),
+        });
+      }
+    }
+  }
+
+  return { date, generated, papersReviewed, relevantPapers, categories, highlights };
+}
+
+async function kvPut(apiToken: string, key: string, value: string): Promise<boolean> {
+  const url = `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/storage/kv/namespaces/${KV_NAMESPACE_ID}/values/${encodeURIComponent(key)}`;
+  const resp = await fetch(url, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${apiToken}`, "Content-Type": "text/plain" },
+    body: value,
+    signal: AbortSignal.timeout(15000),
+  });
+  return resp.ok;
+}
+
+async function kvGet(apiToken: string, key: string): Promise<string | null> {
+  const url = `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/storage/kv/namespaces/${KV_NAMESPACE_ID}/values/${encodeURIComponent(key)}`;
+  const resp = await fetch(url, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${apiToken}` },
+    signal: AbortSignal.timeout(15000),
+  });
+  if (!resp.ok) return null;
+  return resp.text();
+}
+
+async function cmdPublish(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+  ensureDir();
+
+  // Get CF API token from arc credentials
+  const { getCredential } = await import("../../src/credentials.ts");
+  const apiToken = await getCredential("cloudflare", "api_token");
+  if (!apiToken) {
+    process.stderr.write("Error: cloudflare/api_token credential not found.\n");
+    process.exit(1);
+  }
+
+  // Find digest to publish
+  let digestFile: string;
+  if (flags.date) {
+    // Find digest matching the date
+    const entries = readdirSync(ARXIV_DIR).filter((e) => e.endsWith("_arxiv_digest.md"));
+    const match = entries.find((e) => e.startsWith(flags.date));
+    if (!match) {
+      process.stderr.write(`Error: no digest found for date ${flags.date}\n`);
+      process.exit(1);
+    }
+    digestFile = join(ARXIV_DIR, match);
+  } else if (flags.file) {
+    digestFile = flags.file.startsWith("/") ? flags.file : join(ARXIV_DIR, flags.file);
+  } else {
+    // Use latest digest
+    const entries = readdirSync(ARXIV_DIR)
+      .filter((e) => e.endsWith("_arxiv_digest.md"))
+      .sort()
+      .reverse();
+    if (entries.length === 0) {
+      process.stderr.write("Error: no digests found. Run 'fetch' then 'compile' first.\n");
+      process.exit(1);
+    }
+    digestFile = join(ARXIV_DIR, entries[0]);
+  }
+
+  if (!existsSync(digestFile)) {
+    process.stderr.write(`Error: file not found: ${digestFile}\n`);
+    process.exit(1);
+  }
+
+  const markdown = await Bun.file(digestFile).text();
+  const meta = parseDigestMeta(markdown);
+
+  process.stderr.write(`Publishing digest for ${meta.date} (${meta.relevantPapers} papers)...\n`);
+
+  // Write to KV: meta, content, latest pointer, and index
+  const metaOk = await kvPut(apiToken, `research:meta:${meta.date}`, JSON.stringify(meta));
+  const contentOk = await kvPut(apiToken, `research:content:${meta.date}`, markdown);
+  const latestOk = await kvPut(apiToken, "research:latest-key", meta.date);
+
+  if (!metaOk || !contentOk || !latestOk) {
+    process.stderr.write("Error: failed to write one or more KV keys.\n");
+    process.exit(1);
+  }
+
+  // Update the index (list of all dates)
+  const existingIndex = await kvGet(apiToken, "research:index");
+  const dates: string[] = existingIndex ? JSON.parse(existingIndex) : [];
+  if (!dates.includes(meta.date)) {
+    dates.push(meta.date);
+    dates.sort().reverse(); // newest first
+  }
+  await kvPut(apiToken, "research:index", JSON.stringify(dates));
+
+  process.stdout.write(JSON.stringify({
+    success: true,
+    date: meta.date,
+    papersReviewed: meta.papersReviewed,
+    relevantPapers: meta.relevantPapers,
+    highlights: meta.highlights.length,
+    kvKeys: [
+      `research:meta:${meta.date}`,
+      `research:content:${meta.date}`,
+      "research:latest-key",
+      "research:index",
+    ],
+  }, null, 2) + "\n");
+}
+
 function cmdList(args: string[]): void {
   const flags = parseFlags(args);
   const limit = flags.limit ? parseInt(flags.limit, 10) : 10;
@@ -403,11 +556,17 @@ SUBCOMMANDS
   list [--limit 10]
     Show recent digests.
 
+  publish-digest [--date YYYY-MM-DD] [--file FILENAME]
+    Publish a digest to the arc0.me research feed (Cloudflare KV).
+    Without flags, publishes the latest digest.
+
 EXAMPLES
   arc skills run --name arxiv-research -- fetch
   arc skills run --name arxiv-research -- fetch --categories "cs.CL,cs.MA" --max 100
   arc skills run --name arxiv-research -- compile --date 2026-03-05
   arc skills run --name arxiv-research -- list
+  arc skills run --name arxiv-research -- publish-digest
+  arc skills run --name arxiv-research -- publish-digest --date 2026-03-06
 `);
 }
 
@@ -426,6 +585,9 @@ async function main(): Promise<void> {
       break;
     case "list":
       cmdList(args.slice(1));
+      break;
+    case "publish-digest":
+      await cmdPublish(args.slice(1));
       break;
     case "help":
     case "--help":
