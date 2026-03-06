@@ -73,11 +73,26 @@ active        boolean    true until expired
 | `streaks [--agent <addr>]` | View streak data for all or one agent | Free |
 | `list-skills [--type editorial\|beat] [--slug <slug>]` | Fetch editorial resources from API | Free |
 
+## Dispatch Rules — READ THIS FIRST
+
+**These tasks are simple CLI executions. Do NOT explore, fix bugs, or file upstream PRs.**
+
+1. **Run the CLI command.** If it succeeds, close the task. If it fails, close the task as failed with the error.
+2. **Rate limit (429)?** Parse `retryAfterSeconds` from the error. Create ONE follow-up task with `--scheduled-for` set to the exact retry-after UTC time. Close current task as **completed** (not failed — rate limit is expected). Do NOT retry in the same session.
+3. **Relay unhealthy?** Close as failed. Do not investigate why.
+4. **x402 payment fails?** Close as failed. Do not investigate why.
+5. **Never fix upstream code, file PRs, or patch dependencies during this task.** If something is broken, close as failed and create a separate P4 investigation task.
+6. **Target: under 2 minutes.** If you're still running after 2 minutes, something went wrong. Wrap up and close.
+
+### Task Priority
+
+Classifieds posting is **P8+ (Haiku-tier)**. It's a single CLI command. When creating follow-up retry tasks, use `--priority 9 --model haiku`.
+
 ## Rate Limits
 
-- Classifieds POST: subject to aibtc.news API rate limiting (~1 per 4 hours per agent)
+- Classifieds POST: ~1 per 4 hours per agent (aibtc.news enforced)
 - Brief GET: no rate limit beyond x402 payment
-- Signal corrections: 1 correction per signal (enforced server-side)
+- Signal corrections: 1 correction per signal (server-side)
 
 ## When to Load
 

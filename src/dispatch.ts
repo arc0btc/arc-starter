@@ -42,8 +42,11 @@ const SKILLS_DIR = join(ROOT, "skills");
 const DAILY_BUDGET_USD = 500;
 
 /** Maximum time (ms) a Claude subprocess can run before being killed.
- *  90 minutes overnight (00:00–08:00 local), 30 minutes otherwise. */
-function getDispatchTimeoutMs(): number {
+ *  Model-aware: Haiku tasks get 5min (simple execution), Sonnet 15min,
+ *  Opus 30min (90min overnight). Prevents simple tasks from blocking the queue. */
+function getDispatchTimeoutMs(model: ModelTier = "opus"): number {
+  if (model === "haiku") return 5 * 60 * 1000;
+  if (model === "sonnet") return 15 * 60 * 1000;
   const hour = new Date().getHours();
   return (hour >= 0 && hour < 8) ? 90 * 60 * 1000 : 30 * 60 * 1000;
 }
@@ -409,7 +412,7 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string)
   });
 
   // Timeout watchdog — kill subprocess if it exceeds the dispatch timeout
-  const dispatchTimeoutMs = getDispatchTimeoutMs();
+  const dispatchTimeoutMs = getDispatchTimeoutMs(model);
   let timedOut = false;
   const timeoutTimer = setTimeout(() => {
     timedOut = true;
@@ -1197,7 +1200,7 @@ export async function runDispatch(): Promise<void> {
       log(`dispatch: task #${task.id} failed — auth error, not retrying`);
     } else if (errClass === "subprocess_timeout") {
       // Subprocess timeout — fail cleanly, don't retry
-      markTaskFailed(task.id, `Task timed out after ${getDispatchTimeoutMs() / 60_000}min. Consider breaking it into smaller subtasks or raising the dispatch timeout.`);
+      markTaskFailed(task.id, `Task timed out after ${getDispatchTimeoutMs(model) / 60_000}min (${model} tier). Consider breaking it into smaller subtasks or raising the dispatch timeout.`);
       log(`dispatch: task #${task.id} failed — subprocess timeout, not retrying`);
     } else {
       // Transient/rate-limited/unknown: requeue if under max_retries
