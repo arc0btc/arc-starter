@@ -17,12 +17,12 @@ import {
 } from "./schema";
 import type { Contact, ContactCard, InsertContact } from "./schema";
 
-function log(msg: string): void {
-  console.log(`[contacts] ${msg}`);
+function log(message: string): void {
+  console.log(`[contacts] ${message}`);
 }
 
-function logError(msg: string): void {
-  console.error(`[contacts] error: ${msg}`);
+function logError(message: string): void {
+  console.error(`[contacts] error: ${message}`);
 }
 
 function parseArgs(args: string[]): { command: string; params: Record<string, string>; help: boolean } {
