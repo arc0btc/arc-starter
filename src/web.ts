@@ -158,6 +158,150 @@ async function handleAsk(req: Request): Promise<Response> {
   }, 201);
 }
 
+// ---- PR Review Service: x402 paid review with rate limiting ----
+
+interface PrReviewTier {
+  priority: number;
+  cost_sats: number;
+  label: string;
+}
+
+const PR_REVIEW_TIERS: Record<string, PrReviewTier> = {
+  standard: { priority: 5, cost_sats: 15000, label: "Standard (Sonnet)" },
+  express:  { priority: 3, cost_sats: 30000, label: "Express (Opus)" },
+};
+
+const PR_REVIEW_DAILY_LIMIT = 5;
+let prReviewDayKey = "";
+let prReviewDayCount = 0;
+
+function getPrReviewDayKey(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function checkPrReviewRateLimit(): boolean {
+  const today = getPrReviewDayKey();
+  if (today !== prReviewDayKey) {
+    prReviewDayKey = today;
+    prReviewDayCount = 0;
+  }
+  return prReviewDayCount < PR_REVIEW_DAILY_LIMIT;
+}
+
+function incrementPrReviewCount(): void {
+  const today = getPrReviewDayKey();
+  if (today !== prReviewDayKey) {
+    prReviewDayKey = today;
+    prReviewDayCount = 0;
+  }
+  prReviewDayCount++;
+}
+
+/** Validate GitHub PR URL and extract owner/repo/number */
+function parsePrUrl(url: string): { owner: string; repo: string; number: number } | null {
+  // Match: https://github.com/owner/repo/pull/123
+  const match = url.match(/^https:\/\/github\.com\/([a-zA-Z0-9_.-]+)\/([a-zA-Z0-9_.-]+)\/pull\/(\d+)\/?$/);
+  if (!match) return null;
+  return { owner: match[1], repo: match[2], number: parseInt(match[3], 10) };
+}
+
+async function handlePrReview(req: Request): Promise<Response> {
+  // Rate limit check
+  if (!checkPrReviewRateLimit()) {
+    return json({
+      error: "Daily PR review limit reached",
+      code: "RATE_LIMITED",
+      limit: PR_REVIEW_DAILY_LIMIT,
+      resets: getPrReviewDayKey() + "T00:00:00Z (next day)",
+    }, 429);
+  }
+
+  let body: { pr_url?: string; tier?: string; notes?: string };
+  try {
+    body = await req.json() as { pr_url?: string; tier?: string; notes?: string };
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  const prUrl = typeof body.pr_url === "string" ? body.pr_url.trim() : "";
+  if (!prUrl) return errorResponse("'pr_url' is required", 400);
+
+  const parsed = parsePrUrl(prUrl);
+  if (!parsed) {
+    return errorResponse("Invalid PR URL. Expected: https://github.com/owner/repo/pull/123", 400);
+  }
+
+  const tierName = (typeof body.tier === "string" ? body.tier.toLowerCase() : "standard");
+  const tier = PR_REVIEW_TIERS[tierName];
+  if (!tier) {
+    return errorResponse(`Invalid tier '${tierName}'. Valid: standard, express`, 400);
+  }
+
+  const notes = typeof body.notes === "string" ? body.notes.trim() : "";
+  if (notes.length > 1000) return errorResponse("Notes too long (max 1000 chars)", 400);
+
+  // Check for duplicate pending review of same PR
+  const existingTask = db.query(
+    "SELECT id FROM tasks WHERE source = ? AND status IN ('pending', 'active')"
+  ).get(`paid:pr-review:${parsed.owner}/${parsed.repo}#${parsed.number}`);
+
+  if (existingTask) {
+    const existing = existingTask as { id: number };
+    return json({
+      error: "A review for this PR is already queued or in progress",
+      code: "DUPLICATE",
+      existing_task_id: existing.id,
+      poll_url: `/api/tasks/${existing.id}`,
+    }, 409);
+  }
+
+  // Build task description
+  const description = [
+    `**Paid PR Review (${tier.label})**`,
+    "",
+    `**PR:** ${prUrl}`,
+    `**Repo:** ${parsed.owner}/${parsed.repo}`,
+    `**PR Number:** #${parsed.number}`,
+    notes ? `\n**Reviewer notes:** ${notes}` : "",
+    "",
+    "Review this PR using the aibtc-repo-maintenance review workflow:",
+    "1. Fetch PR diff via `gh pr diff`",
+    "2. Analyze changes for correctness, security, and code quality",
+    "3. Write structured review with severity labels ([blocking]/[suggestion]/[nit]/[question])",
+    "4. Post review as GitHub comment via `gh pr review`",
+    "5. Store the review result in result_detail for API delivery",
+  ].filter(Boolean).join("\n");
+
+  const model = tierName === "express" ? "opus" : "sonnet";
+
+  const taskId = insertTask({
+    subject: `[pr-review] ${parsed.owner}/${parsed.repo}#${parsed.number}`,
+    description,
+    skills: JSON.stringify(["aibtc-repo-maintenance"]),
+    priority: tier.priority,
+    model,
+    source: `paid:pr-review:${parsed.owner}/${parsed.repo}#${parsed.number}`,
+  });
+
+  incrementPrReviewCount();
+
+  return json({
+    task_id: taskId,
+    tier: tierName,
+    model,
+    cost_sats: tier.cost_sats,
+    pr: {
+      owner: parsed.owner,
+      repo: parsed.repo,
+      number: parsed.number,
+      url: prUrl,
+    },
+    status: "pending",
+    poll_url: `/api/tasks/${taskId}`,
+    daily_remaining: PR_REVIEW_DAILY_LIMIT - prReviewDayCount,
+  }, 201);
+}
+
 // ---- API Handlers ----
 
 function handleStatus(): Response {
@@ -625,6 +769,7 @@ function route(req: Request): Response | Promise<Response> {
   // POST routes
   if (method === "POST" && path === "/api/messages") return handlePostMessage(req);
   if (method === "POST" && path === "/api/ask") return handleAsk(req);
+  if (method === "POST" && path === "/api/services/pr-review") return handlePrReview(req);
 
   // GET: Ask Arc pricing and rate limit info
   if (method === "GET" && path === "/api/ask") {
@@ -639,6 +784,22 @@ function route(req: Request): Response | Promise<Response> {
       daily_limit: ASK_DAILY_LIMIT,
       daily_remaining: ASK_DAILY_LIMIT - askDayCount,
       usage: "POST /api/ask with { question, tier?, context? }",
+    });
+  }
+
+  // GET: PR Review service pricing and rate limit info
+  if (method === "GET" && path === "/api/services/pr-review") {
+    const today = getPrReviewDayKey();
+    if (today !== prReviewDayKey) { prReviewDayKey = today; prReviewDayCount = 0; }
+    return json({
+      service: "pr-review",
+      description: "Paid PR code review. Submit a GitHub PR URL and receive Arc's informed review with severity labels, inline suggestions, and security analysis.",
+      tiers: Object.fromEntries(
+        Object.entries(PR_REVIEW_TIERS).map(([name, t]) => [name, { cost_sats: t.cost_sats, label: t.label }])
+      ),
+      daily_limit: PR_REVIEW_DAILY_LIMIT,
+      daily_remaining: PR_REVIEW_DAILY_LIMIT - prReviewDayCount,
+      usage: "POST /api/services/pr-review with { pr_url, tier?, notes? }",
     });
   }
 
