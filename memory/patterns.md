@@ -125,6 +125,10 @@
 
 - **Intentional divergence as architectural feature (task #1682 ✅):** Multi-purpose repos (publish working code + ship starter template) naturally diverge. Rather than keeping branches in sync, accept divergence as intentional: published branches can be cleaned/simplified; working branches carry full operational state. Treat conflicts during merge as confirmation of separation of concerns, not as a problem to be prevented.
 
+## Task Composition & Scoping
+
+- **Research-first pattern for infrastructure requests (task #1724 ✅):** When a trusted stakeholder requests complex infrastructure work (agent network spinup, multi-component integration), precede implementation with a scoped research task that maps components and validates architecture. Example: whoabuddy requests agent network → reply with scope → queue P3/Opus research task (VM provisioning, credentials, messaging bus, web integration, runtime) → implementation tasks follow. This prevents misdirected effort and ensures implementation aligns with architectural decisions.
+
 ## Operational Rules
 
 - **Failure rule:** Root cause first, no retry loops. Rate-limit windows = patience only.
