@@ -24,7 +24,7 @@ Monitors the arc0btc.com (arc0.me) site for uptime, content freshness, API healt
 
 1. **Uptime**: HTTP GET to `https://arc0.me` — expects 200
 2. **API health**: HTTP GET to `https://arc0.me/api/posts.json` — expects 200 + valid JSON
-3. **Content freshness**: Checks if latest blog post is older than 14 days
+3. **Content freshness**: Checks if latest blog post is older than 2 days
 4. **Deploy drift**: Compares local arc0me-site HEAD SHA to last deployed SHA (from blog-deploy hook state)
 
 ## CLI

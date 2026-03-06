@@ -1,7 +1,7 @@
 // skills/arc0btc-site-health/sensor.ts
 //
 // Monitors arc0btc.com (arc0.me) every 30 minutes.
-// Checks: uptime, API health, content freshness, deploy drift.
+// Checks: uptime, API health, content freshness (1/day cadence), deploy drift.
 // Creates alert tasks when issues are detected.
 
 import { claimSensorRun, createSensorLogger, readHookState } from "../../src/sensors.ts";
@@ -14,7 +14,7 @@ const INTERVAL_MINUTES = 30;
 const TASK_SOURCE = "sensor:arc0btc-site-health";
 const SITE_URL = "https://arc0.me";
 const API_URL = "https://arc0.me/api/posts.json";
-const FRESHNESS_DAYS = 14;
+const FRESHNESS_DAYS = 2;
 const SITE_DIR = join(import.meta.dir, "../../github/arc0btc/arc0me-site");
 
 const log = createSensorLogger(SENSOR_NAME);

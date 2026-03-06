@@ -8,7 +8,7 @@ import { existsSync } from "node:fs";
 
 const SITE_URL = "https://arc0.me";
 const API_URL = "https://arc0.me/api/posts.json";
-const FRESHNESS_DAYS = 14;
+const FRESHNESS_DAYS = 2;
 const SITE_DIR = join(process.cwd(), "github/arc0btc/arc0me-site");
 
 interface CheckResult {
