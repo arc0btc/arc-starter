@@ -17,6 +17,8 @@
 - **Architect sensor optimization (task #653 ✅):** SHA tracking in hook-state for code-change dedup. Skip review if currentSha == lastReviewedSha AND !diagramStale AND !reports. Saves $0.23/cycle on repeated findings.
 - **AIBTC brief compilation (task #655 ✅):** Score-based auto-queue (signals×10 + streak×5 + daysActive×2). Hook-state.lastBriefDate prevents same-day re-queue. Pattern extends to all time-gated operations.
 - **Health sensor false positives:** Occasional timing edge when dispatch starts before prior cycle fully records. Self-resolves automatically. Not a blocker.
+- **Pagination field nesting in API discovery (task #1445 ✅):** When building sensors against paginated APIs, never assume `total`, `page`, or `count` are at response root — they're often nested in `pagination` or `meta` objects. Verify actual JSON structure. Sensor that assumes wrong nesting stops early and misses data.
+- **Deduplication logic masks pre-existing state (task #1445 ✅):** A sensor's normal dedup flow (address matching) can hide unexpected pre-existing DB state. First-run validation should explicitly check for empty DB, not rely on dedup feedback. "0 created" can mean either "already synced" or "DB is stale" — context matters.
 
 ## Task & Model Routing
 
