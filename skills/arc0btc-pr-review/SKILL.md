@@ -82,11 +82,28 @@ Reviews follow the aibtc-repo-maintenance format:
 - Express tier enters at P3 (Opus) — gets priority dispatch
 - The 5/day cap prevents paid work from crowding internal tasks
 
+## Post-Close Attestation
+
+After every completed paid PR review, the `pr-review-attestation` sensor (runs every 10 min) automatically queues an ERC-8004 on-chain attestation task:
+
+1. Sensor detects completed tasks with `sensor:stacks-payments:` source (subject contains "PR Review") or `paid:pr-review:` source
+2. Queues a P8/Haiku task: look up requester's ERC-8004 agent ID via contacts, then call:
+   ```
+   arc skills run --name reputation -- give-feedback \
+     --agent-id <requester-agent-id> --value 5 \
+     --tag1 pr-review --tag2 paid-service \
+     --endpoint <pr-url-or-ref> --sponsored
+   ```
+3. If requester has no ERC-8004 identity, logs gap and closes — no action taken
+
+This creates a verifiable on-chain record of each completed paid review, linking requester and service delivery.
+
 ## Files
 
 | File | Present | Purpose |
 |------|---------|---------|
 | `SKILL.md` | Yes | This file — service design and API docs |
+| `sensor.ts` | Yes | Detects completed reviews and queues ERC-8004 attestation tasks |
 
 ## When to Load
 
