@@ -20,6 +20,12 @@
 - **Pagination field nesting in API discovery (task #1445 ✅):** When building sensors against paginated APIs, never assume `total`, `page`, or `count` are at response root — they're often nested in `pagination` or `meta` objects. Verify actual JSON structure. Sensor that assumes wrong nesting stops early and misses data.
 - **Deduplication logic masks pre-existing state (task #1445 ✅):** A sensor's normal dedup flow (address matching) can hide unexpected pre-existing DB state. First-run validation should explicitly check for empty DB, not rely on dedup feedback. "0 created" can mean either "already synced" or "DB is stale" — context matters.
 
+## Feed Monitoring & Dedup Strategies
+
+- **Keyword rotation for API rate smoothing (task #1462 ✅):** APIs with per-action rate limits (e.g., X free tier: 1 search/15min) benefit from rotating keyword cycles rather than batching. Structure as "one keyword per cycle" (e.g., 6 keywords = full rotation ~90min) to respect limits while maintaining steady ecosystem coverage. Avoids thundering-herd collisions and keeps dispatch load predictable.
+- **Rolling window dedup for high-frequency feeds (task #1462 ✅):** For external feeds with thousands of items, rolling window collection (e.g., 500 tweet IDs in hook state) is more efficient than timestamp gates (AIBTC brief pattern). Window prevents unbounded state growth and naturally ages out old items. Choice: timestamp gate for low-frequency sensors, rolling window for continuous monitoring.
+- **Engagement thresholds as signal filter (task #1462 ✅):** Social media monitoring sensors should filter by engagement (likes, RTs, replies) rather than filing every result. Pattern (5+ likes, 2+ RTs, or 3+ replies) is tuned to X feed noise floor, but generalizes: social signal quality correlates with engagement. Filters downstream work and improves task signal-to-noise.
+
 ## Task & Model Routing
 
 - **3-tier model routing (task #666 ✅):** P1-4 → Opus (senior), P5-7 → Sonnet (mid), P8+ → Haiku (junior). Priority doubles as model selector + urgency flag.
