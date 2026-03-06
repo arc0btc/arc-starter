@@ -123,11 +123,15 @@ export default async function githubMentionsSensor(): Promise<string> {
         n.type === "PullRequest" && WATCHED_REPOS.includes(n.repo);
       const isReviewWork =
         n.reason === "review_requested" || n.reason === "assign";
-      const prNum = n.url.split("/").pop() ?? "";
+      const subjectNum = n.url.split("/").pop() ?? "";
+
+      // Canonical keys for cross-sensor dedup (shared with github-issue-monitor / aibtc-maintenance)
       const canonicalSource =
         isPROnWatchedRepo && isReviewWork
-          ? `pr-review:${n.repo}#${prNum}`
-          : null;
+          ? `pr-review:${n.repo}#${subjectNum}`
+          : n.type === "Issue"
+            ? `issue:${n.repo}#${subjectNum}`
+            : null;
 
       // Dual-key dedup: skip if either thread or canonical source already has a task
       if (
@@ -149,11 +153,11 @@ export default async function githubMentionsSensor(): Promise<string> {
       };
       const reasonLabel = reasonLabels[n.reason] ?? n.reason;
 
-      const subjectNum = htmlUrl.split("/").pop() ?? "";
+      const ghNum = htmlUrl.split("/").pop() ?? "";
       const ghCmd =
         n.type === "PullRequest"
-          ? `gh pr view --repo ${n.repo} ${subjectNum}`
-          : `gh issue view --repo ${n.repo} ${subjectNum}`;
+          ? `gh pr view --repo ${n.repo} ${ghNum}`
+          : `gh issue view --repo ${n.repo} ${ghNum}`;
 
       // Priority: managed repos get higher priority, review requests always high
       const priority =
@@ -188,7 +192,7 @@ export default async function githubMentionsSensor(): Promise<string> {
       const actionSteps = n.type === "PullRequest"
         ? [
             `1. Read the PR: ${ghCmd}`,
-            `2. Read the full diff: gh pr diff --repo ${n.repo} ${subjectNum}`,
+            `2. Read the full diff: gh pr diff --repo ${n.repo} ${ghNum}`,
             "3. Check CI status — are tests passing?",
             `4. Your role (${repoClass}): ${roleContext}`,
             "5. If reviewing, use severity labels: [blocking], [suggestion], [nit], [question].",

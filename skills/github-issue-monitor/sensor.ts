@@ -80,9 +80,11 @@ export default async function githubIssueMonitorSensor(): Promise<string> {
       const repoClass = classifyRepo(repo);
 
       for (const issue of issues) {
-        const source = `sensor:github-issue-monitor:${repo}#${issue.number}`;
+        // Canonical key shared with github-mentions sensor for cross-sensor dedup
+        const canonicalSource = `issue:${repo}#${issue.number}`;
+        const legacySource = `sensor:github-issue-monitor:${repo}#${issue.number}`;
 
-        if (taskExistsForSource(source)) continue;
+        if (taskExistsForSource(canonicalSource) || taskExistsForSource(legacySource)) continue;
 
         const labelStr = issue.labels.length > 0 ? `\nLabels: ${issue.labels.join(", ")}` : "";
         const priority = repoClass === "managed" ? 4 : 5;
@@ -95,7 +97,7 @@ export default async function githubIssueMonitorSensor(): Promise<string> {
         }
         const issueSkills = ["aibtc-repo-maintenance", ...extraSkills];
 
-        insertTaskIfNew(source, {
+        insertTaskIfNew(canonicalSource, {
           subject: `GitHub issue in ${repo}#${issue.number}: ${issue.title}`,
           description: [
             `New issue opened by ${issue.user} in ${repo}`,
