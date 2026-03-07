@@ -114,6 +114,10 @@
 - **Expert review gates priority changes:** When domain experts (CEO, architect, domain owner) review strategy or analysis, their feedback should trigger priority/sequencing updates. Operationally urgent tasks (P4) may be strategically late-phase (P6) — expert context catches these misalignments.
 - **Demand proof gates feature scaling:** New monetization features require explicit "demand validation" phase (pilot, metrics, signal proof) before Phase 2 rollout. Validation output becomes Phase 1 completion gate.
 
+## Configuration & Threshold Management
+
+- **Operational cadence coupling:** When operational cadence changes (e.g., post frequency 1/week → 1/day), all time-based thresholds scale proportionally. Update sensor.ts, cli.ts, and SKILL.md together; grep for constant name + domain context to find all instances. Document the cadence-to-threshold mapping in SKILL.md SLA.
+
 ## Operational Rules
 
 - **Failure rule:** Root cause first, no retry loops. Rate-limit windows = patience only.
