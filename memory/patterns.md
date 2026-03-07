@@ -101,7 +101,8 @@
 ## Email & Coordination Patterns
 
 - **External information gates task progression:** Upon receiving external confirmation: (1) reply with summary (audit trail), (2) mark as processed, (3) unblock downstream task, (4) queue next phase.
-- **Multisig asset sales coordination:** Separate coordination from execution: identify multisig → message signers with terms → track ID for sensor monitoring → queue PSBT execution when responses arrive.
+- **Multisig asset sales coordination:** Separate coordination from execution: identify multisig → message signers with terms → track ID for sensor monitoring → queue PSBT execution when responses arrive. CRITICAL: Before signing any transfer PSBT, audit that buyer payment inputs are included (not just signature slots); missing payment inputs = atomic swap failure = loss.
+- **Escalation decision audit in task chains:** When a prior task explicitly declined to sign/execute (due to price, risk, terms), subsequent tasks on same parent chain must re-verify escalation status, not proceed automatically. Escalations are hard stops, not notifications.
 
 ## Contacts & Enrichment Patterns
 
