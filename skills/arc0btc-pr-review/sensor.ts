@@ -55,8 +55,8 @@ function isPaidPrReview(task: CompletedTask): boolean {
  * Stacks payment tasks embed "Sender: <address>" in description.
  */
 function extractSender(task: CompletedTask): string | null {
-  const desc = task.description ?? "";
-  const match = desc.match(/Sender:\s*(S[A-Z0-9]{38,})/);
+  const description = task.description ?? "";
+  const match = description.match(/Sender:\s*(S[A-Z0-9]{38,})/);
   return match ? match[1] : null;
 }
 
@@ -71,8 +71,8 @@ function extractPrContext(task: CompletedTask): string {
     return `github:${ref}`;
   }
   // Stacks path: look for PR URL in description
-  const desc = task.description ?? "";
-  const match = desc.match(/https:\/\/github\.com\/[^\s]+\/pull\/\d+/);
+  const description = task.description ?? "";
+  const match = description.match(/https:\/\/github\.com\/[^\s]+\/pull\/\d+/);
   if (match) return match[0];
   return `task:${task.id}`;
 }

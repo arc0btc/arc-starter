@@ -417,9 +417,9 @@ async function cmdSignProposal(args: string[]): Promise<void> {
       });
       results.push({ sighash: digest, submitted: true });
       log(`signature submitted for sighash ${digest.slice(0, 16)}...`);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      if (msg.includes("ALREADY_SIGNED")) {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message.includes("ALREADY_SIGNED")) {
         log(`input ${inputIndex ?? "?"} already signed, skipping`);
         results.push({ sighash: digest, submitted: false });
       } else {
@@ -556,15 +556,15 @@ async function submitReputationForCoSigners(
           result.error = `reputation CLI exited ${exitCode}: ${stderr.trim() || stdout.trim()}`;
           log(`reputation hook: ${result.error}`);
         }
-      } catch (err) {
-        result.error = `reputation CLI failed: ${err instanceof Error ? err.message : String(err)}`;
+      } catch (error) {
+        result.error = `reputation CLI failed: ${error instanceof Error ? error.message : String(error)}`;
         log(`reputation hook: ${result.error}`);
       }
 
       results.push(result);
     }
-  } catch (err) {
-    log(`reputation hook: failed to resolve co-signers: ${err instanceof Error ? err.message : String(err)}`);
+  } catch (error) {
+    log(`reputation hook: failed to resolve co-signers: ${error instanceof Error ? error.message : String(error)}`);
   }
 
   return results;
