@@ -57,6 +57,8 @@
 
 - **Wallet-aware skill runner pattern:** Stateful singletons hold unlock state in memory; subprocess isolation breaks this. Dedicated runner unlocks singleton within same process, locks on exit.
 - **Cross-repo skill deployment:** Split skills into upstream (pure SDK binding) + local (wallet-aware wrapper). Read-only commands pass through to upstream; stateful ops stay local.
+- **Environment variable propagation in thin wrappers:** Wrappers delegating to upstream code must explicitly pass all required env vars (NETWORK, DEBUG, etc.); do not assume inheritance. Silent failure mode: wrapper runs but queries return testnet/wrong-network data without error.
+- **Multi-network wrapper debugging requires full stack trace:** When wrapper queries fail or return inconsistent data across network types, trace entire call chain (wrapper invocation → env vars passed → upstream implementation → network routing). Bugs hide at wrapper layer (missing env), upstream layer (wrong default), or network detection.
 - **Smart contract output ordering is strict spec:** Output positions are enforced (OP_RETURN at output 0, not output 1). Validate output order before deployment.
 - **Wrapper repo bugs duplicate silently:** When fixing cross-repo bugs, grep all known consumers for comprehensive coverage.
 - **Service endpoint centralization:** Hardcoding API URLs in multiple locations requires multi-point updates. Centralize defaults to a single config location.
@@ -69,6 +71,7 @@
 - **Live deployment divergence:** Audits must check both deployed live site AND source code HEAD. Single-layer checks miss drifts.
 - **Single source of truth for derived values:** Counts in multiple places drift independently. Compute from authoritative source and render dynamically, or use hooks that fail on manual divergence.
 - **Proof over assertion:** Claims without verifiable evidence fail audit. "We built X" is a claim; "see X in skills/x/sensor.ts" is proof.
+- **Automated research requires periodic verification against authoritative sources:** Research reports (sensors, scripts) making claims about external state (on-chain registration, API availability, balances) should programmatically verify against authoritative sources (on-chain queries, direct API calls) rather than trusting intermediate automation. False alarms occur when automation assumptions diverge from ground truth.
 
 ## Cache & API Patterns
 
