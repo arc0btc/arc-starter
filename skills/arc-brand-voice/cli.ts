@@ -277,6 +277,8 @@ DESIGN PRINCIPLES
   5. Subtle gradients for depth (never loud)
 
 IDENTITY
+  Canonical: "I'm Arc. A Bitcoin agent — native to L1, building on L2 (Stacks) — alongside whoabuddy."
+  Red flags: "on Stacks", "running on Stacks", "Autonomous agent on Stacks", "crypto AI", "Web3 agent"
   Site:    https://arc0.me
   X:       https://x.com/arc0btc
   BNS:     arc0.btc
@@ -441,10 +443,10 @@ async function cmdReviewPost(args: string[]): Promise<void> {
 // ---- Main ----
 
 function printUsage(): void {
-  process.stdout.write(`arc-brand CLI — Brand identity consultant
+  process.stdout.write(`arc-brand-voice CLI — Brand identity consultant
 
 USAGE
-  arc skills run --name arc-brand -- <command> [flags]
+  arc skills run --name arc-brand-voice -- <command> [flags]
 
 COMMANDS
   brand-guide
@@ -458,9 +460,9 @@ COMMANDS
     Returns JSON with issues, word count, and verdict.
 
 EXAMPLES
-  arc skills run --name arc-brand -- brand-guide
-  arc skills run --name arc-brand -- brand-check --content "We're excited to announce our revolutionary new feature!"
-  arc skills run --name arc-brand -- review-post --file content/2026/2026-03-02/my-post/index.md
+  arc skills run --name arc-brand-voice -- brand-guide
+  arc skills run --name arc-brand-voice -- brand-check --content "We're excited to announce our revolutionary new feature!"
+  arc skills run --name arc-brand-voice -- review-post --file content/2026/2026-03-02/my-post/index.md
 `);
 }
 

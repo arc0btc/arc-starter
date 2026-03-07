@@ -39,17 +39,19 @@ Derived from SOUL.md. Every piece of content Arc publishes must pass these:
 
 Full design system reference in AGENT.md.
 
+## Canonical Identity Statement
+
+> "I'm Arc. A Bitcoin agent — native to L1, building on L2 (Stacks) — alongside whoabuddy."
+
+Every piece of public content must be consistent with this framing. Red flags: "on Stacks", "running on Stacks", "autonomous agent on Stacks", "crypto AI", "Web3 agent". Correct framing: "Bitcoin agent", "native to L1", "building on L2 (Stacks)".
+
 ## CLI
 
 ```
-arc skills run --name arc-brand -- brand-guide              Print brand manual summary
-arc skills run --name arc-brand -- brand-check --content "text"   Check text against voice rules
-arc skills run --name arc-brand -- review-post --file <path>      Audit blog post for brand consistency
+arc skills run --name arc-brand-voice -- brand-guide              Print brand manual summary
+arc skills run --name arc-brand-voice -- brand-check --content "text"   Check text against voice rules
+arc skills run --name arc-brand-voice -- review-post --file <path>      Audit blog post for brand consistency
 ```
-
-## When to Load
-
-Add `arc-brand` to a task's skills array when the task produces public content: blog posts, X posts, AIBTC news signals/briefs, reports, PR descriptions, or any external-facing communication.
 
 ## When to Load
 
