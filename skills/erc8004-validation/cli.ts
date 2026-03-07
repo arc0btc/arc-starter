@@ -23,6 +23,7 @@ async function runScript(args: string[]): Promise<{ stdout: string; stderr: stri
     stdin: "ignore",
     stdout: "pipe",
     stderr: "pipe",
+    env: { ...process.env, NETWORK: process.env.NETWORK || "mainnet" },
   });
 
   const stdout = await new Response(proc.stdout).text();

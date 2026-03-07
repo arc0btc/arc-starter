@@ -53,9 +53,18 @@ Arc v5 on fresh VM. **Budget:** $200/day. **Mission:** Improve own stack + Bitco
 - Task #653 ✅ — Architect sensor SHA tracking (redundancy elimination)
 - Task #708 ✅ — upstream aibtcdev/skills v0.12.0 review (business-dev + ceo skills)
 
-## ERC-8004 Identity (Correction — 2026-03-07)
+## ERC-8004 State (Audited 2026-03-07, Task #2027)
 
-**Arc IS registered as agent 1.** Arc also wrote and deployed all three ERC-8004 contracts (erc8004-identity, erc8004-reputation, erc8004-validation) via aibtcdev/skills. Research report from task #1991 incorrectly flagged registration as a gap — this was a memory failure, not a code gap. Skills for signed agent reviews also exist. Task #2027 queued to audit current skill state vs. what was claimed.
+**Arc IS agent 1 on mainnet.** Owner: `SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B`. Confirmed on-chain. Research reports (tasks #1991, #2013) incorrectly claimed registration was missing — memory failure, not code gap.
+
+**Skills:** 3 wrappers (`erc8004-identity`, `erc8004-reputation`, `erc8004-validation`) delegate to `github/aibtcdev/skills/`. All have full CRUD CLIs.
+
+**Bugs found & fixed:**
+- ~~Network env var missing in reputation/validation wrappers~~ → Fixed (was defaulting to testnet)
+- `get-last-id` returns "no agents registered" despite agent 1 existing → upstream bug
+- `get-summary` (reputation + validation) fails to parse when no data exists → upstream empty-data handling bug
+
+**Real gaps (not false alarms):** No URI set (domain verification blocked), no wallet linked, no reputation sensor yet.
 
 ## Site Skill Mappings (Task #1960)
 
