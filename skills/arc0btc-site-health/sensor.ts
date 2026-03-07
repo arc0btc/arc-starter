@@ -15,7 +15,7 @@ const TASK_SOURCE = "sensor:arc0btc-site-health";
 const SITE_URL = "https://arc0.me";
 const API_URL = "https://arc0.me/api/posts.json";
 const FRESHNESS_DAYS = 2;
-const SITE_DIR = join(import.meta.dir, "../../github/arc0btc/arc0me-site");
+const WORKER_DIR = join(process.env.HOME ?? "/home/dev", "arc0btc-worker");
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -90,18 +90,18 @@ async function checkContentFreshness(): Promise<HealthResult> {
 }
 
 async function checkDeployDrift(): Promise<HealthResult> {
-  if (!existsSync(SITE_DIR)) {
-    return { check: "deploy-drift", ok: true, detail: "site dir not found, skipping" };
+  if (!existsSync(WORKER_DIR)) {
+    return { check: "deploy-drift", ok: true, detail: "worker dir not found, skipping" };
   }
 
   try {
-    const result = Bun.spawnSync(["git", "rev-parse", "HEAD"], { cwd: SITE_DIR });
+    const result = Bun.spawnSync(["git", "rev-parse", "HEAD"], { cwd: WORKER_DIR });
     const currentSha = result.stdout.toString().trim().substring(0, 12);
     if (!currentSha) {
       return { check: "deploy-drift", ok: true, detail: "could not read git HEAD" };
     }
 
-    const state = await readHookState("blog-deploy");
+    const state = await readHookState("worker-deploy");
     const lastDeployedSha = (state?.last_deployed_sha as string) ?? "";
 
     if (!lastDeployedSha) {
