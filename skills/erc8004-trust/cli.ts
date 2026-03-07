@@ -91,7 +91,7 @@ async function computeTrustScore(agentId: number): Promise<void> {
   ]);
 
   let rep: ReputationSummary | null = null;
-  let val: ValidationSummary | null = null;
+  let validationSummary: ValidationSummary | null = null;
   const warnings: string[] = [];
 
   try {
@@ -106,17 +106,17 @@ async function computeTrustScore(agentId: number): Promise<void> {
   }
 
   try {
-    val = JSON.parse(valResult.stdout) as ValidationSummary;
-    if (!val.success) {
-      warnings.push(`validation: ${val.error ?? "query failed"}`);
-      val = null;
+    validationSummary = JSON.parse(valResult.stdout) as ValidationSummary;
+    if (!validationSummary.success) {
+      warnings.push(`validation: ${validationSummary.error ?? "query failed"}`);
+      validationSummary = null;
     }
   } catch {
     warnings.push("validation: failed to parse response");
     if (valResult.stderr) log(`validation stderr: ${valResult.stderr.trim()}`);
   }
 
-  if (!rep && !val) {
+  if (!rep && !validationSummary) {
     console.log(
       JSON.stringify(
         {
@@ -135,7 +135,7 @@ async function computeTrustScore(agentId: number): Promise<void> {
 
   // Compute component scores
   const repScore = rep ? normalizeReputation(rep.summaryValue, rep.summaryValueDecimals) : null;
-  const valScore = val ? val.avgResponse : null;
+  const valScore = validationSummary ? validationSummary.avgResponse : null;
 
   // Weighted composite: 40% reputation, 60% validation
   // If only one source is available, use it at full weight.
@@ -153,7 +153,7 @@ async function computeTrustScore(agentId: number): Promise<void> {
     formula = "trustScore = validation(100%) — no reputation data";
   }
 
-  const totalDataPoints = (rep?.totalFeedback ?? 0) + (val?.count ?? 0);
+  const totalDataPoints = (rep?.totalFeedback ?? 0) + (validationSummary?.count ?? 0);
   const confidence = confidenceLabel(totalDataPoints);
 
   const output: Record<string, unknown> = {
@@ -170,14 +170,14 @@ async function computeTrustScore(agentId: number): Promise<void> {
           normalizedScore: Math.round((repScore ?? 0) * 100) / 100,
         }
       : null,
-    validation: val
+    validation: validationSummary
       ? {
-          count: val.count,
-          avgResponse: val.avgResponse,
-          normalizedScore: val.avgResponse,
+          count: validationSummary.count,
+          avgResponse: validationSummary.avgResponse,
+          normalizedScore: validationSummary.avgResponse,
         }
       : null,
-    network: rep?.network ?? val?.network ?? (process.env.NETWORK || "mainnet"),
+    network: rep?.network ?? validationSummary?.network ?? (process.env.NETWORK || "mainnet"),
   };
 
   if (warnings.length > 0) {
