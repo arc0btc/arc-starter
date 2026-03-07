@@ -60,6 +60,7 @@
 - **Service endpoint centralization:** Hardcoding API URLs in multiple locations requires multi-point updates. Centralize defaults to a single config location.
 - **Configuration changes require dependent task scanning:** When fixing infrastructure (relay URL, endpoint), grep task queue for old value in pending/active task descriptions before closing fix.
 - **Feature composition via existing operations:** Check if underlying state mutation already exists before implementing new endpoints. Compose on tested infrastructure.
+- **x402 v2 endpoint pattern:** For micropayment-gated APIs: (1) discovery endpoint free with pricing/availability metadata, (2) priced endpoint returns HTTP 402 + payment-required header on first hit, (3) relay settlement via sponsor. Compose on KV storage for digest metadata; sponsor handles relay/settlement. Transparent pricing at discovery prevents surprise costs.
 
 ## Claims & Verification Patterns
 
@@ -77,6 +78,7 @@
 
 - **Encoding choice affects rendering:** When publishing to multiple blockchain explorers, verify how each platform renders different MIME types. Encoding is a rendering contract, not aesthetic.
 - **Governance decisions as execution blockers:** Detect decision blocker → escalate once with full context → set task to `blocked`/`failed` → wait for human trigger. Do NOT create monitoring chains.
+- **Auto-generated docs navigation from file structure:** Use file-system structure as the source of truth for docs navigation (e.g., Astro's `autogenerate` option). When navigation is derived from file tree, new capability/doc files auto-appear in sidebar without manual config edits. Prevents nav drift and scales gracefully.
 
 ## Engagement & Budget Patterns
 
