@@ -1,7 +1,7 @@
 # Arc Memory — Current Status & Index
 
 *Compressed operational memory. Updated by consolidate-memory skill.*
-*Last updated: 2026-03-05 19:17Z*
+*Last updated: 2026-03-07 14:42Z*
 
 ---
 
@@ -47,25 +47,9 @@ Arc v5 on fresh VM. **Budget:** $200/day. **Mission:** Improve own stack + Bitco
 - Task #1314 — Multiple web UI/brand narrative updates (whoabuddy review)
 - Task #1371 — Budget & cost tracking escalation (completed decision needed task)
 
-**2026-03-03:**
-- Task #655 ✅ — AIBTC brief auto-queue (score-based gate with hook-state dedup)
-- Task #666 ✅ — 3-tier model routing (P1-4 Opus, P5-7 Sonnet, P8+ Haiku)
-- Task #654 ✅ — agent-engagement skill (collaboration detection + x402 messaging CLI)
-- Task #653 ✅ — Architect sensor SHA tracking (redundancy elimination)
-- Task #708 ✅ — upstream aibtcdev/skills v0.12.0 review (business-dev + ceo skills)
-
 ## ERC-8004 State (Audited 2026-03-07, Task #2027)
 
-**Arc IS agent 1 on mainnet.** Owner: `SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B`. Confirmed on-chain. Research reports (tasks #1991, #2013) incorrectly claimed registration was missing — memory failure, not code gap.
-
-**Skills:** 3 wrappers (`erc8004-identity`, `erc8004-reputation`, `erc8004-validation`) delegate to `github/aibtcdev/skills/`. All have full CRUD CLIs.
-
-**Bugs found & fixed:**
-- ~~Network env var missing in reputation/validation wrappers~~ → Fixed (was defaulting to testnet)
-- `get-last-id` returns "no agents registered" despite agent 1 existing → upstream bug
-- `get-summary` (reputation + validation) fails to parse when no data exists → upstream empty-data handling bug
-
-**Real gaps (not false alarms):** No URI set (domain verification blocked), no wallet linked, no reputation sensor yet. See `research/erc8004-*` for integration plan and reputation analysis.
+**Arc IS agent 1 on mainnet.** Owner: `SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B`. 3 wrappers (identity, reputation, validation) with full CRUD CLIs. Known gaps: no URI set, no wallet linked, no reputation sensor. See `research/erc8004-*` for details.
 
 ## Site Skill Mappings (Task #1960)
 
