@@ -1121,7 +1121,7 @@ Steps:
         return {
           type: "create-task",
           subject: `Fix recurring failure: ${failureType}`,
-          priority: 4,
+          priority: 5, // Sonnet sufficient: investigation (P4) did hard thinking; fix application is mechanical
           skills,
           description: `Apply the fix identified during investigation of recurring "${failureType}" failure.
 
