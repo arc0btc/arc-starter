@@ -1,16 +1,15 @@
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import { insertTask, taskExistsForSource } from "../../src/db.ts";
+import { AIBTC_WATCHED_REPOS } from "../../src/constants.ts";
+
 const SENSOR_NAME = "github-security-alerts";
 const INTERVAL_MINUTES = 360;
 const log = createSensorLogger(SENSOR_NAME);
 const TASK_SOURCE_PREFIX = "sensor:github-security-alerts";
 
-const WATCHED_REPOS = [
+const WATCHED_REPOS: readonly string[] = [
   "arc0btc/arc-starter",
-  "aibtcdev/landing-page",
-  "aibtcdev/skills",
-  "aibtcdev/x402-api",
-  "aibtcdev/aibtc-mcp-server",
+  ...AIBTC_WATCHED_REPOS,
 ];
 
 /** Severity levels that warrant a task, mapped to task priority */

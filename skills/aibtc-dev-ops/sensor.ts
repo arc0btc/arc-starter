@@ -8,6 +8,7 @@
 import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
+import { AIBTC_WATCHED_REPOS } from "../../src/constants.ts";
 
 const SENSOR_NAME = "aibtc-dev-ops";
 const INTERVAL_MINUTES = 240; // 4 hours
@@ -18,20 +19,8 @@ const AUDIT_SOURCE = "sensor:aibtc-dev-ops-audit";
 
 const WORKER_LOGS_HOST = "https://logs.aibtc.com";
 
-const AIBTC_REPOS = [
-  "aibtcdev/landing-page",
-  "aibtcdev/x402-api",
-  "aibtcdev/aibtc-mcp-server",
-  "aibtcdev/skills",
-  "aibtcdev/worker-logs",
-  "aibtcdev/ai-agent-crew",
-  "aibtcdev/agent-news",
-  "aibtcdev/aibtc-projects",
-  "aibtcdev/bitcoin-ai-agent-crew-frontend",
-  "aibtcdev/agent-tools-ts",
-  "aibtcdev/communication-tools",
-  "aibtcdev/ai-agent-chrome-extension",
-];
+/** Repos to audit — shared list, excludes worker-logs (infrastructure, not product). */
+const AUDIT_REPOS = AIBTC_WATCHED_REPOS;
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -213,7 +202,7 @@ export default async function aibtcDevSensor(): Promise<string> {
       log("running repo audit checks...");
 
       const results: AuditResult[] = [];
-      for (const repo of AIBTC_REPOS) {
+      for (const repo of AUDIT_REPOS) {
         const result = auditRepo(repo);
         if (result.gaps.length > 0) {
           results.push(result);
@@ -231,7 +220,7 @@ export default async function aibtcDevSensor(): Promise<string> {
         insertTask({
           subject: `Repo audit: ${totalGaps} production-grade gaps across ${results.length} repos`,
           description: [
-            `Production-grade audit found ${totalGaps} gaps across ${results.length} of ${AIBTC_REPOS.length} repos.`,
+            `Production-grade audit found ${totalGaps} gaps across ${results.length} of ${AUDIT_REPOS.length} repos.`,
             "",
             "Gaps found:",
             gapSummary,

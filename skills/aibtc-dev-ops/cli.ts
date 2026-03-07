@@ -1,21 +1,10 @@
 #!/usr/bin/env bun
 
 import { getCredential } from "../../src/credentials.ts";
+import { AIBTC_WATCHED_REPOS } from "../../src/constants.ts";
 
-const AIBTC_REPOS = [
-  "aibtcdev/landing-page",
-  "aibtcdev/x402-api",
-  "aibtcdev/aibtc-mcp-server",
-  "aibtcdev/skills",
-  "aibtcdev/worker-logs",
-  "aibtcdev/ai-agent-crew",
-  "aibtcdev/agent-news",
-  "aibtcdev/aibtc-projects",
-  "aibtcdev/bitcoin-ai-agent-crew-frontend",
-  "aibtcdev/agent-tools-ts",
-  "aibtcdev/communication-tools",
-  "aibtcdev/ai-agent-chrome-extension",
-];
+/** Repos for audit and status — shared canonical list (excludes worker-logs infrastructure). */
+const AIBTC_REPOS: readonly string[] = AIBTC_WATCHED_REPOS;
 
 const WORKER_LOGS_HOST = "https://logs.aibtc.com";
 

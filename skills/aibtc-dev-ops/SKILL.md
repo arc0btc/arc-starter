@@ -13,29 +13,15 @@ tags:
 
 Service health monitoring and production-grade enforcement for the AIBTC ecosystem. Queries the centralized `worker-logs` service for error detection and audits repos against a production-grade checklist.
 
-## Repos (12)
+## Repos
 
-**Production apps** (Cloudflare Workers, user-facing):
-- `aibtcdev/landing-page` — Main app, Next.js on CF Pages
-- `aibtcdev/x402-api` — Payment relay (x402 protocol)
-- `aibtcdev/aibtc-mcp-server` — MCP server for agent tooling
+Repo list is sourced from `AIBTC_WATCHED_REPOS` in `src/constants.ts` (shared with repo-maintenance, github-mentions, arc-workflows, and github-security-alerts).
 
-**Supporting services:**
-- `aibtcdev/skills` — Shared skill library (npm)
-- `aibtcdev/worker-logs` — Centralized logging service
-- `aibtcdev/ai-agent-crew` — Multi-agent orchestration
+**Audited repos** (production-grade checklist):
+All repos in `AIBTC_WATCHED_REPOS` — currently 7 repos.
 
-**Newer / needs modernization:**
-- `aibtcdev/agent-news` — aibtc.news (CF Pages Functions, legacy pattern)
-
-**v2 rewrite in progress (branch: v2, staging: aibtc-projects-staging.stacklets.workers.dev):**
-- `aibtcdev/aibtc-projects` — Project tracker. v1: CF Pages Functions + KV blob (legacy). v2: CF Worker + Durable Object + SQLite + Hono + TypeScript strict + 148 tests. Awaiting DNS cutover (see #44, #48).
-
-**Infrastructure & reference:**
-- `aibtcdev/bitcoin-ai-agent-crew-frontend` — Frontend companion
-- `aibtcdev/agent-tools-ts` — TypeScript agent tooling
-- `aibtcdev/communication-tools` — Cross-agent messaging
-- `aibtcdev/ai-agent-chrome-extension` — Chrome extension
+**Log monitoring** (worker-logs API):
+`aibtcdev/worker-logs` is queried for error detection via its REST API, but excluded from the production-grade audit (it's infrastructure, not a product repo).
 
 ## Production-Grade Checklist
 
@@ -57,7 +43,7 @@ Service health monitoring and production-grade enforcement for the AIBTC ecosyst
 Dual-cadence sensor (`claimSensorRun("aibtc-dev-ops", 240)`):
 
 - **Log review (every 4h):** Queries `logs.aibtc.com` REST API for errors. Creates P6 task if errors found. Requires `worker-logs/admin_api_key` credential (gracefully skips if missing).
-- **Repo audit (every 24h):** Runs production-grade checklist against all 12 repos via GitHub API. Creates P7 task if gaps found. Gated by hook-state `lastAuditTimestamp`.
+- **Repo audit (every 24h):** Runs production-grade checklist against `AIBTC_WATCHED_REPOS` via GitHub API. Creates P7 task if gaps found. Gated by hook-state `lastAuditTimestamp`.
 
 Source keys: `sensor:aibtc-dev-ops-logs`, `sensor:aibtc-dev-ops-audit`.
 
@@ -81,7 +67,7 @@ List all registered worker-logs apps (requires admin key).
 Daily log stats per app or all apps. Default: `--days 7`.
 
 ### `audit`
-Run production-grade checklist. Single repo (`--repo aibtcdev/landing-page`) or all 12. Outputs pass/fail per checklist item.
+Run production-grade checklist. Single repo (`--repo aibtcdev/landing-page`) or all watched repos. Outputs pass/fail per checklist item.
 
 ### `status`
 Overview: open issues + open `prod-grade` labeled issues per repo.
