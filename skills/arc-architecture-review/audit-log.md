@@ -1,3 +1,42 @@
+## 2026-03-07T14:15:00.000Z
+
+3 finding(s): 0 error, 0 warn, 3 info → **HEALTHY**
+
+**Codebase changes since last audit (06:45Z, commits e2b205c → eced5d4):**
+- **`chore(workflows)`** (17f4e90): `RecurringFailureMachine` fix task priority changed P4→P5. Rationale: the investigation step (P4/Opus) does the hard thinking; fix application is mechanical and Sonnet-capable. Direct response to architect WARN from 06:45Z audit.
+- **`fix(classifieds)`** (8a991ad): `StreakMaintenanceMachine` now caps retries at `MAX_RETRIES=3`. When cap is reached, the action returns `null` — the workflow stalls (instead of spawning unlimited retry tasks) and requires human intervention. Retry subject now includes `(retry N/3)` for observability.
+- **`fix(aibtc-dev-ops)`** (eced5d4): `aibtc-dev-ops` sensor and CLI migrated from hardcoded repo lists to `AIBTC_WATCHED_REPOS` from `constants.ts`. Also propagates to `github-security-alerts/sensor.ts`. Same repos, now using the shared constant — new repos added to `constants.ts` automatically covered.
+- **`docs(dispatch)`** (7e343ed): CLAUDE.md updated with explicit reminder to include `--skills` flag when creating follow-up tasks. Addresses a recurring silent context failure: tasks spawned without skill references load no SKILL.md and run with empty guidance.
+
+**5-Step Review (2026-03-07 14:15Z):**
+
+**Step 1 — Requirements:**
+- P4→P5 fix task priority: valid. The reasoning is sound — investigation has already identified the root cause and what needs to change. Fix application (running a CLI, editing a config, adjusting a constant) rarely requires Opus-level reasoning. P5/Sonnet is correctly scoped.
+- `MAX_RETRIES=3` cap: valid and overdue. Before this fix, a rate-limited classified posting could spawn retries indefinitely (one every ~4h). The fix correctly surfaces a human-judgment case: if 3 retries all hit rate limits, something is systemically wrong (window estimation broken, account limits changed) — autonomous retry is the wrong response.
+- `AIBTC_WATCHED_REPOS` centralization in aibtc-dev-ops: valid. The constants.ts pattern was already in place for other sensors. Migrating aibtc-dev-ops completes the pattern. Two benefits: (1) no more per-skill repo list maintenance, (2) new repos in constants.ts automatically covered.
+- `--skills` dispatch reminder in CLAUDE.md: valid. The silent failure mode (follow-up tasks created without skills, running with empty context) is hard to catch in code — encoding the reminder in dispatch instructions is the right layer.
+
+**Step 2 — Delete:**
+- **INFO — Previous WARN RESOLVED**: `RecurringFailureMachine` fix task was P4/Opus (WARN from 06:45Z audit). Now P5/Sonnet. WARN closed.
+- INFO — `StreakMaintenanceMachine` now has an escape hatch (`null` return → stall). The stalled workflow will not self-recover; it requires human to manually advance or reset the instance. This is intentional — 3 consecutive rate-limit hits signals a condition that Arc shouldn't resolve autonomously. No new deletion candidates.
+
+**Step 3 — Simplify:**
+- `MAX_RETRIES=3` is a single constant with a `null` guard. Minimum viable protection. Correct complexity.
+- `AIBTC_WATCHED_REPOS` import replaces ~5 lines of hardcoded arrays — simpler, not more complex.
+- CLAUDE.md instruction is prose addition, not architecture change.
+
+**Step 4 — Accelerate:**
+- P5 fix tasks cost ~3x less than P4 for the same mechanical work. At current fix task volume (1-2/week), small savings — but correct for principle.
+- Retry cap prevents queue pollution from stalled classified streaks. Before: 3 rate-limit hits = 3 retry tasks queued over 12h, each consuming a Sonnet dispatch cycle for tasks that will fail. Now: stalls cleanly after 3rd retry.
+
+**Step 5 — Automate:**
+- INFO — `aibtc-dev-ops` now uses `AIBTC_WATCHED_REPOS`. If `arc-repo-maintenance` (if one exists) or any other skill still has hardcoded repo lists, those are the next targets for centralization. Low urgency — the pattern is established and self-documents.
+- INFO — Stalled `StreakMaintenanceMachine` instances are currently invisible unless you query `arc skills run --name arc-workflows -- list`. A housekeeping check for stalled workflow instances (created_at > 24h, status not completed) would surface these proactively. Future improvement.
+
+**Architecture Assessment:** Healthy. 69 skills (unchanged), 47 sensors (unchanged). One WARN from previous audit closed (fix task priority). Two targeted robustness fixes (retry cap + AIBTC_WATCHED_REPOS). Dispatch guidance tightened via CLAUDE.md. No new WARNs. Pipeline integrity intact.
+
+---
+
 ## 2026-03-07T06:45:00.000Z
 
 4 finding(s): 0 error, 1 warn, 3 info → **HEALTHY**
