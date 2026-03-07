@@ -180,6 +180,9 @@ export default async function githubMentionsSensor(): Promise<string> {
       if (/\bworkflow\b|ci\/cd|github.actions|\bcicd\b/.test(titleLower)) {
         extraSkills.push("arc-workflows");
       }
+      if (/classified|aibtc.?news|news.?classifieds/.test(titleLower)) {
+        extraSkills.push("aibtc-news-classifieds");
+      }
       const skillsArray = ["aibtc-repo-maintenance", ...extraSkills];
 
       // Build role-aware instructions based on repo classification
