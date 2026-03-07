@@ -225,9 +225,11 @@ Output is free-form for tasks. Prose, structured text, code — whatever is most
 
 For creating follow-up tasks during execution, use the CLI:
 ```
-arc tasks add --subject "<subject>" --priority <n> --source "task:<id>"
+arc tasks add --subject "<subject>" --priority <n> --skills s1,s2 --source "task:<id>"
 arc tasks close --id <id> --status completed --summary "<summary>"
 ```
+
+**Include `--skills` when the follow-up involves a specific skill domain.** If the follow-up touches a skill's code, config, or CLI (e.g., modifying `skills/arc-workflows/`, posting classifieds, publishing blog), include the relevant skill name. Without it, SKILL.md isn't loaded and context is missing. Example: a task changing code in `skills/arc-workflows/state-machine.ts` should include `--skills arc-workflows`.
 
 **Priority = model selection.** When creating follow-up tasks, choose priority based on what model tier the work needs:
 - **P1-4 (Opus):** Task requires building new code, architecture decisions, complex debugging, security analysis, or strategic reasoning.
