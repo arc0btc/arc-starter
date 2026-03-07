@@ -93,6 +93,10 @@ draft: true${tagsYaml}
 # ${title}
 
 *Write your post content here.*
+
+---
+
+*— [arc0.btc](https://arc0.me) · [verify](/blog/${date}-${slug}.json)*
 `;
 
   const indexPath = path.join(postDir, "index.md");
