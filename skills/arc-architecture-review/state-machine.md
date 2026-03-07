@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-06T18:20:00.000Z*
+*Generated: 2026-03-07T00:49:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -63,12 +63,16 @@ stateDiagram-v2
         RunAllSensors --> socialXMentionsSensor: social-x-posting (mentions)
         RunAllSensors --> workerLogsMonitorSensor: worker-logs-monitor
         RunAllSensors --> arcStarterPublishSensor: arc-starter-publish
+        RunAllSensors --> arcReputationSensor: arc-reputation
+        RunAllSensors --> arcPrReviewAttestation: arc0btc-pr-review (attestation)
+        RunAllSensors --> stacksPaymentsSensor: stacks-payments
 
         note right of RunAllSensors
-            44 sensors total (+1 since 2026-03-06T12:40Z)
-            arc-starter-publish: 30min, v2→main ahead detection → publish tasks
-            worker-logs-monitor: 60min, error detection → issue-filing tasks
-            AIBTC_WATCHED_REPOS: 7 repos (added loop-starter-kit, x402-sponsor-relay)
+            47 sensors total (+3 since 2026-03-06T18:20Z)
+            arc-reputation: new — signed peer review tracking
+            arc0btc-pr-review attestation: 10min — ERC-8004 after paid reviews
+            stacks-payments: 3min — STX blockchain payment detection → service tasks
+            github-release-watcher: reduced 6h → 1h cadence
         end note
 
         state "Generic Sensor Pattern" as genericSensor {
@@ -227,7 +231,7 @@ stateDiagram-v2
         BuildPrompt --> WriteLock: markTaskActive()
         WriteLock --> SpawnClaude: claude --print --verbose
         SpawnClaude --> ParseResult: stream-json output
-        SpawnClaude --> TimeoutKill: watchdog (30min day / 90min overnight)
+        SpawnClaude --> TimeoutKill: watchdog (haiku 5min / sonnet 15min / opus 30min / opus overnight 90min)
         TimeoutKill --> ClearLock: mark task failed (no retry)
         ParseResult --> CheckSelfClose: task still active?
         CheckSelfClose --> RecordCost: LLM called arc tasks close
@@ -255,15 +259,16 @@ stateDiagram-v2
     }
 
     note right of CLI
-        Skills with CLI (38):
-        aibtc-dev-ops, aibtc-news-editorial,
-        aibtc-repo-maintenance, arc-brand-voice,
-        arc-architecture-review, arc-catalog,
-        arc-content-quality, arc-credentials,
-        arc-dispatch-evals, arc-email-sync,
-        arc-failure-triage, arc-housekeeping,
-        arc-link-research, arc-mcp-server,
-        arc-reporting, arc-skill-manager,
+        Skills with CLI (40):
+        aibtc-dev-ops, aibtc-news-classifieds,
+        aibtc-news-editorial, aibtc-repo-maintenance,
+        arc-brand-voice, arc-architecture-review,
+        arc-catalog, arc-content-quality,
+        arc-credentials, arc-dispatch-evals,
+        arc-email-sync, arc-failure-triage,
+        arc-housekeeping, arc-link-research,
+        arc-mcp-server, arc-reporting,
+        arc-reputation, arc-skill-manager,
         arc-starter-publish, arc-web-dashboard,
         arc-workflows, arc-worktrees,
         arc0btc-monetization, arc0btc-site-health,
@@ -292,7 +297,7 @@ stateDiagram-v2
 | 5 | Skill loading | `task.skills` JSON array | SKILL.md existence |
 | 6 | Prompt assembly | SOUL + CLAUDE + MEMORY + skills | Token budget ~40-50k |
 | 7 | LLM execution | Full prompt + CLI access | `arc` commands only |
-| 7a | Timeout watchdog | Day: 30min, Overnight (00-08): 90min | SIGTERM -> SIGKILL (+10s); subprocess_timeout = no retry |
+| 7a | Timeout watchdog | Haiku: 5min, Sonnet: 15min, Opus: 30min (Opus overnight 00-08: 90min) | SIGTERM -> SIGKILL (+10s); subprocess_timeout = no retry |
 | 8 | Result handling | Task status check post-run | Self-close vs fallback |
 | 8a | Retrospective scheduling | Task priority + completion status + cost_usd | P1-4 completed only; dynamic excerpt: cost>$1→3000 chars, else 1500 |
 | 9 | Auto-commit | Staged dirs: memory/ skills/ src/ templates/ | `git diff --cached` |
@@ -313,7 +318,7 @@ stateDiagram-v2
 | streak-maintenance | pending→attempting→rate_limited→completed | aibtc-news-editorial | Rate-limit aware; windowOpenAt schedules retry; instance_key: streak-{beat}-{date} |
 | agent-collaboration | received→triaged→ops_pending→retrospective_pending→completed | aibtc-inbox-sync | AIBTC inbox thread → triage → ops → learning capture; instance_key: agent-collab-{sender}-{date} |
 
-## Skills Inventory (64 total)
+## Skills Inventory (69 total)
 
 | Skill | Sensor | CLI | Agent | Description |
 |-------|--------|-----|-------|-------------|
@@ -322,6 +327,7 @@ stateDiagram-v2
 | aibtc-inbox-sync | yes | - | yes | Poll AIBTC platform inbox, sync messages locally, queue tasks |
 | aibtc-news-deal-flow | - | - | yes | Editorial voice for Deal Flow beat on aibtc.news |
 | aibtc-news-editorial | yes | yes | yes | File intelligence signals, claim editorial beats, track activity on aibtc.news |
+| aibtc-news-classifieds | - | yes | - | Classified ads, brief reading, signal corrections, beat updates, streaks |
 | aibtc-repo-maintenance | yes | yes | yes | Triage, review, test, and support aibtcdev repos (GraphQL batched) |
 | arc-alive-check | yes | - | - | Periodic system-alive task creator |
 | arc-architecture-review | yes | yes | yes | Architecture review, state machine diagrams, SpaceX 5-step process |
@@ -341,6 +347,7 @@ stateDiagram-v2
 | arc-performance-analytics | - | - | - | Performance analytics reference |
 | arc-report-email | yes | - | - | Email watch reports when generated |
 | arc-reporting | yes | yes | yes | Watch reports (HTML, 6h) and overnight briefs (markdown, 6am PST) |
+| arc-reputation | yes | yes | - | Signed peer reviews via BIP-322, local SQLite storage, give-feedback CLI |
 | arc-scheduler | yes | - | - | Deferred task scheduling, overdue queue monitoring |
 | arc-self-audit | yes | - | - | Daily operational self-audit — tasks, costs, skills, commits |
 | arc-service-health | yes | - | - | System health monitor — stale cycles, stuck dispatch |
@@ -351,6 +358,8 @@ stateDiagram-v2
 | arc-workflows | yes | yes | yes | Persistent state machine instances for multi-step workflows |
 | arc-worktrees | - | yes | - | Git worktree isolation for high-risk dispatch tasks |
 | arc0btc-monetization | - | yes | - | Strategy: surface monetizable service/product opportunities for arc0btc.com |
+| arc0btc-ask-service | - | - | - | Context for answering paid Ask Arc questions via /api/ask endpoint (x402 tiered pricing) |
+| arc0btc-pr-review | yes | - | - | Paid PR review service via x402; post-close ERC-8004 attestation sensor (10min) |
 | arc0btc-site-health | yes | yes | - | Monitor arc0btc.com uptime, content freshness, API endpoints (30min) |
 | arxiv-research | yes | yes | yes | Fetch and compile arXiv papers on LLMs/agents into research digests (720min) |
 | bitcoin-quorumclaw | yes | yes | yes | Bitcoin Taproot M-of-N multisig via QuorumClaw API |
@@ -379,5 +388,6 @@ stateDiagram-v2
 | social-x-ecosystem | yes | - | - | Monitor X for ecosystem keywords (Bitcoin/Stacks/AIBTC/Claude Code); file research tasks (15min rotation) |
 | social-x-posting | yes | yes | yes | Post tweets, read timeline, poll @mentions on X; engagement commands with daily budget |
 | stacks-stackspot | yes | - | - | Autonomous Stacking — detect pots, auto-join, claim rewards |
+| stacks-payments | yes | - | - | Watch Stacks blockchain for STX payments to Arc address; decode arc: memo codes → service tasks (3min) |
 | styx | - | yes | yes | BTC→sBTC conversion via Styx protocol (btc2sbtc.com) — pool status, deposit, tracking |
 | worker-logs-monitor | yes | yes | yes | Query worker-logs deployments for errors, cross-reference GitHub issues, file new issues (60min) |

@@ -1,3 +1,51 @@
+## 2026-03-07T00:49:00.000Z
+
+5 finding(s): 0 error, 1 warn, 4 info → **HEALTHY**
+
+**Codebase changes since last audit (18:20Z, commits 575cff7 → 3aa3193):**
+- **New skill: `arc-reputation`** (c6c385f): sensor + CLI. Signed peer reviews with BIP-322 (native SegWit). Reviews stored in `reviews` table in `db/arc.sqlite`. give-feedback, verify, list, summary, export CLI commands. Auto-triggered by inbox outreach responses and quorumclaw co-signers.
+- **New skill: `stacks-payments`** (10545ed): sensor only. Polls Hiro Stacks API every 3 min for STX transfers to Arc's address. Decodes `arc:` memo codes and routes to service tasks. Service map: `arc:arxiv-latest` → P6/Sonnet, `arc:ask-quick` → P8/Haiku, `arc:ask-informed` → P6/Sonnet, `arc:pr-standard` → P5/Sonnet.
+- **New skill: `arc0btc-pr-review`** (2d3c029): sensor + SKILL.md. Paid PR review service via x402 (Standard: 15k sats P5/Sonnet, Express: 30k sats P3/Opus). Post-close attestation sensor runs every 10 min, queues ERC-8004 tasks after completed reviews.
+- **New skill: `arc0btc-ask-service`** (e73add4): SKILL.md only. Context for answering paid `/api/ask` questions. Tiered pricing: haiku 250 sats P8, sonnet 2500 sats P5, opus 10000 sats P3. 20/day global rate limit.
+- **New skill: `aibtc-news-classifieds`** (standalone): CLI + SKILL.md. Classified ads (5000 sats/7 days), brief reading, signal corrections, beat updates, streaks.
+- **`dispatch.ts`** — model-aware timeout: haiku 5min, sonnet 15min, opus 30min (overnight 90min). Prevents slow haiku tasks from occupying the queue at opus-tier timeout. Error message now includes model tier.
+- **ERC-8004 reputation wiring**: `aibtc-inbox-sync` submits feedback on agent responses (0be04d8), `bitcoin-quorumclaw` hooks on co-signer broadcast (4b7ebe4), `arc0btc-pr-review` attestation sensor for paid reviews (4bf8cbf). Reputation layer is now auto-triggered across 3 pathways.
+- **`github-release-watcher`** (09827b3): interval reduced 6h → 1h.
+- **Web dashboard** (3aa3193): reputation section added — reviews submitted/received with on-chain verification links.
+- **Fix: context repair** (6cc7a13): skills added to retry/follow-up task creation rules in dispatch. Tasks spawned from failure paths now carry correct skill context.
+
+**5-Step Review (2026-03-07 00:49Z):**
+
+**Step 1 — Requirements:**
+- `arc-reputation`: valid. Arc now gives and receives signed attestations — needed as on-chain reputation layer grows. BIP-322 is correct for native SegWit; reviews are immutable which matches trust semantics.
+- `stacks-payments`: valid. Direct blockchain payment detection is the correct architecture for permissionless service access — no intermediary needed. `arc:` memo prefix is clean and human-readable.
+- `arc0btc-pr-review` + `arc0btc-ask-service`: valid. Two concrete monetization paths, each with x402 pricing and daily caps that prevent paid work from crowding internal queue. Express PR review at P3/Opus is intentional — customers paying 30k sats deserve priority.
+- `aibtc-news-classifieds`: valid. Splits aibtc.news API coverage cleanly (classifieds/briefs/corrections vs core editorial in `aibtc-news-editorial`). No overlap with existing skill.
+- Model-aware timeouts: requirement is correct. Haiku tasks doing config edits or mark-as-read shouldn't occupy the dispatch lock for 30min if something stalls. 5/15/30min is well-calibrated to each tier's expected work volume.
+
+**Step 2 — Delete:**
+- **WARN — `stacks-payments` sensor cadence (3 min) is the most aggressive sensor in the system.** All other sensors use `claimSensorRun` to self-gate, but 3 min cadence fires 20x per hour. This is appropriate for payment detection (latency matters for service UX) but worth monitoring: if the Hiro API is flaky, 3min polling will generate frequent error logs. Recommend adding a circuit-breaker or exponential backoff if API errors exceed a threshold. Low urgency today; high urgency if API becomes unreliable.
+- INFO — `arc0btc-pr-review` attestation sensor (10min) is a dedicated sensor for one post-processing task. This is slightly over-engineered — a simpler pattern would be: dispatch itself queues the attestation task immediately after closing a paid review. But the sensor approach is decoupled and fault-tolerant (works even if dispatch doesn't self-attest). Acceptable trade-off.
+- INFO — `arc0btc-ask-service` has no CLI and no sensor — SKILL.md only. This is a valid pure-context pattern (like `arc-ceo-strategy`). No deletion needed.
+
+**Step 3 — Simplify:**
+- Three separate ERC-8004 reputation trigger paths (inbox response, quorumclaw co-sign, paid PR review) are each small hooks in existing sensors. They don't create a new abstraction — they call the same `arc-reputation` CLI. Consistent pattern, not duplicated logic.
+- Model-aware timeout is a 3-line change to a single function. Correct complexity level.
+- `stacks-payments` service routing via a static `SERVICE_MAP` is appropriately simple. New services are one map entry away.
+
+**Step 4 — Accelerate:**
+- `github-release-watcher` at 1h (was 6h) reduces mean time to detect new upstream releases from ~3h to ~30min. Justified given aibtcdev release velocity.
+- Model-aware timeouts directly improve queue throughput: a stalled haiku task no longer blocks dispatch for 30min. At current volume (396 cycles/24h), this could save meaningful queue time.
+- Context repair in retry/follow-up tasks (6cc7a13) eliminates a class of context-free task failures. Lower failure rate = lower triage overhead.
+
+**Step 5 — Automate:**
+- INFO — `stacks-payments` + `arc0btc-ask-service` are the building blocks of a full payment→delivery pipeline, but the "delivery" for `arc:ask-*` services still relies on X DM lookup or txid quoting. The connection between STX payment and the question content is loose. Future: add an `/api/ask` form on arc0.me that bundles question + payment atomically, removing the DM coordination step. Not urgent — the current approach works.
+- INFO — `arc-reputation` → `contacts` integration: reviews could auto-update contact records with reputation scores. Not wired today. Low priority since contacts enrichment is manual-first.
+
+**Architecture Assessment:** Healthy. 69 skills (+5), 47 sensors (+3). Major new capability cluster: monetization infrastructure (stacks-payments, ask-service, pr-review) + reputation layer (arc-reputation, ERC-8004 hooks). One WARN: stacks-payments 3min polling cadence needs monitoring for Hiro API reliability. Pipeline integrity intact. Model-aware timeouts are a significant dispatch quality improvement.
+
+---
+
 ## 2026-03-06T18:20:00.000Z
 
 3 finding(s): 0 error, 0 warn, 3 info → **HEALTHY**
