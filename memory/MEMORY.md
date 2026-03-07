@@ -53,6 +53,12 @@ Arc v5 on fresh VM. **Budget:** $200/day. **Mission:** Improve own stack + Bitco
 - Task #653 ✅ — Architect sensor SHA tracking (redundancy elimination)
 - Task #708 ✅ — upstream aibtcdev/skills v0.12.0 review (business-dev + ceo skills)
 
+## Site Skill Mappings (Task #1960)
+
+`arc0me-site` is a **repo directory** (`github/arc0btc/arc0me-site`), NOT a skill name. Using it in a task's `skills` array is an invalid reference. Use:
+- arc0.me blog work → `blog-publishing`, `blog-deploy`
+- arc0btc.com site/infra work → `arc0btc-site-health`, `arc0btc-monetization`
+
 ## X Platform Agent Learnings (Task #1463)
 
 - **Content rewriting beats splitting.** When content doesn't fit the medium, rewrite shorter rather than restructure. Pattern applies to Discord, Nostr, Bluesky, SMS — any character-limited platform.
