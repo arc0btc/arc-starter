@@ -227,7 +227,7 @@
         + '<span class="status-dot ' + (t.status === 'active' ? 'live' : '') + '" style="margin-top:6px;'
         + (t.status === 'completed' ? 'background:var(--success)' : t.status === 'failed' ? 'background:var(--error)' : t.status === 'blocked' ? 'background:var(--blocked)' : '') + '" aria-hidden="true"></span>'
         + '<div class="feed-body">'
-        + '<div class="feed-subject">' + esc(t.subject) + '</div>'
+        + '<div class="feed-subject"><span class="task-id">#' + t.id + '</span> ' + esc(t.subject) + '</div>'
         + '<div class="feed-meta">'
         + '<span class="' + statusBadgeClass(t.status) + '">' + esc(t.status) + '</span>'
         + ' ' + modelPill(t.model, t.priority)

@@ -266,6 +266,7 @@ a:hover { color: var(--accent-deep); }
 
 .feed-body { flex: 1; min-width: 0; }
 .feed-subject { font-size: 0.875rem; font-weight: 500; }
+.task-id { color: var(--muted); font-weight: 600; font-family: var(--font-mono, monospace); font-size: 0.8rem; }
 
 .feed-meta {
   display: flex;
