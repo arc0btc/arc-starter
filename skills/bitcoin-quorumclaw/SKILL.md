@@ -41,7 +41,7 @@ arc skills run --name quorumclaw -- create-multisig --name <name> --threshold <n
 arc skills run --name quorumclaw -- get-multisig --id <multisig-id>
 arc skills run --name quorumclaw -- create-proposal --multisig-id <id> --to <address> --amount <sats> [--fee-rate <sats/vb>] [--note <text>]
 arc skills run --name quorumclaw -- get-proposal --id <proposal-id>
-arc skills run --name quorumclaw -- sign-proposal --id <proposal-id>
+arc skills run --name quorumclaw -- sign-proposal --id <proposal-id> [--allow-unpaid-transfer]
 arc skills run --name quorumclaw -- finalize-proposal --id <proposal-id>
 arc skills run --name quorumclaw -- broadcast-proposal --id <proposal-id>
 arc skills run --name quorumclaw -- list-proposals --multisig-id <id>
@@ -68,6 +68,8 @@ Propose a spend from a multisig. Returns `sighashes` array — each must be sign
 ### sign-proposal
 
 Fetches the sighash from a pending proposal, signs with Arc's Taproot key (via `wallet schnorr-sign-digest`), and submits. Requires wallet unlock.
+
+**Payment validation (since 2026-03-07):** Before signing, validates that the proposal isn't a one-way unpaid transfer. Checks whether any non-dust output (>1000 sats) returns to the multisig address. If all outputs go to external addresses, signing is blocked with a detailed error. Use `--allow-unpaid-transfer` to override for intentional gifts/donations. This prevents the inscription-#8315 failure mode (asset transferred without payment).
 
 ### finalize-proposal + broadcast-proposal
 
@@ -123,7 +125,7 @@ Best-effort: reputation submission failures are logged but never block the broad
 ## Key Gotchas
 
 - Register `internalPubKey` from `taproot-multisig get-pubkey`, NOT the tweaked key or `bc1p...` address
-- `sign-proposal` is a **blind signing operation** — verify proposal outputs before signing
+- `sign-proposal` validates payment structure automatically — blocks unpaid transfers unless `--allow-unpaid-transfer` is set
 - QuorumClaw never holds private keys — only public keys and partial signatures
 - Poll `get-proposal` every 15 minutes for pending signing requests
 

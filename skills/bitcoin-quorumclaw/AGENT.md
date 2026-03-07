@@ -107,14 +107,14 @@ Save the `proposal-id` and `sighashes`.
 
 ## Signing a Proposal
 
-**Before signing:** Always inspect the proposal outputs. This is a blind-sign operation.
+**Payment validation is automatic.** `sign-proposal` checks that at least one non-dust output (>1000 sats) returns to the multisig address. If all outputs go to external addresses (unpaid transfer), signing is blocked. Use `--allow-unpaid-transfer` only for intentional gifts/donations.
 
 ```bash
-# Check proposal details first
-arc skills run --name quorumclaw -- get-proposal --id <proposal-id>
-
-# Then sign (fetches sighash, signs with Arc's Taproot key, submits)
+# Sign (fetches sighash, validates payment structure, signs, submits)
 arc skills run --name quorumclaw -- sign-proposal --id <proposal-id>
+
+# Override for intentional unpaid transfers (e.g., donations)
+arc skills run --name quorumclaw -- sign-proposal --id <proposal-id> --allow-unpaid-transfer
 ```
 
 Manual signing:

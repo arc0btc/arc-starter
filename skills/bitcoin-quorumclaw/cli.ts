@@ -327,9 +327,10 @@ async function cmdGetProposal(args: string[]): Promise<void> {
 }
 
 async function cmdSignProposal(args: string[]): Promise<void> {
-  const usage = "Usage: arc skills run --name quorumclaw -- sign-proposal --id <proposal-id>";
+  const usage = "Usage: arc skills run --name quorumclaw -- sign-proposal --id <proposal-id> [--allow-unpaid-transfer]";
   const flags = parseFlags(args);
   const id = requireFlag(flags, "id", usage);
+  const allowUnpaidTransfer = flags["allow-unpaid-transfer"] === "true";
 
   log(`fetching proposal ${id} for signing`);
   const raw = await apiRequest<ApiResponse<ProposalRecord>>("GET", `/v1/proposals/${id}`);
@@ -345,17 +346,57 @@ async function cmdSignProposal(args: string[]): Promise<void> {
 
   // Resolve Arc's agentId in this multisig by matching pubkey
   let signerAgentId = ARC_AGENT_ID;
+  let multisigAddress: string | undefined;
+
   if (proposal.multisigId) {
     const arcPubKey = await getArcInternalPubKey();
     log(`Arc pubkey: ${arcPubKey}`);
     const msRaw = await apiRequest<ApiResponse<MultisigRecord>>("GET", `/v1/multisigs/${proposal.multisigId}`);
     const ms = msRaw.data ?? (msRaw as unknown as MultisigRecord);
+    multisigAddress = ms.address;
     const match = ms.agents?.find((a: AgentRecord) => a.publicKey === arcPubKey);
     if (match) {
       signerAgentId = match.id;
       log(`resolved Arc's signer ID in this multisig: ${signerAgentId}`);
     } else {
       log(`warning: could not match Arc pubkey in multisig agents, falling back to ${ARC_AGENT_ID}`);
+    }
+  }
+
+  // Payment-input validation: detect unpaid transfers
+  // If all outputs go to external addresses (none back to multisig above dust),
+  // this is a one-way transfer — refuse unless explicitly overridden.
+  if (multisigAddress && proposal.outputs && proposal.outputs.length > 0) {
+    const DUST_THRESHOLD = 1000; // sats — anything below this is dust/change
+    const returnOutputs = proposal.outputs.filter(
+      (o) => o.address === multisigAddress && parseInt(o.amount, 10) > DUST_THRESHOLD
+    );
+    const externalOutputs = proposal.outputs.filter(
+      (o) => o.address !== multisigAddress
+    );
+    const totalExternal = externalOutputs.reduce((sum, o) => sum + parseInt(o.amount, 10), 0);
+
+    if (returnOutputs.length === 0 && externalOutputs.length > 0) {
+      log(`PAYMENT VALIDATION FAILED: all ${externalOutputs.length} output(s) go to external addresses (${totalExternal} sats total), no payment returns to multisig ${multisigAddress}`);
+      if (!allowUnpaidTransfer) {
+        console.log(JSON.stringify({
+          success: false,
+          error: "Unpaid transfer detected: proposal sends value out of multisig with no payment returning. " +
+            `External outputs: ${externalOutputs.map((o) => `${o.amount} sats → ${o.address}`).join(", ")}. ` +
+            "Use --allow-unpaid-transfer to override if this is intentional.",
+          validation: {
+            multisigAddress,
+            externalOutputs,
+            returnOutputs: [],
+            totalExternalSats: totalExternal,
+          },
+        }));
+        process.exit(1);
+      }
+      log(`--allow-unpaid-transfer set, proceeding despite no payment inputs`);
+    } else if (returnOutputs.length > 0) {
+      const totalReturn = returnOutputs.reduce((sum, o) => sum + parseInt(o.amount, 10), 0);
+      log(`payment validation passed: ${totalReturn} sats returning to multisig`);
     }
   }
 
@@ -703,9 +744,10 @@ SUBCOMMANDS
     Get proposal status, sighashes, and collected signatures.
     Poll this to check when threshold is met.
 
-  sign-proposal --id <proposal-id>
-    Fetch sighash(es) from proposal, sign with Arc's Taproot key, submit.
-    Requires wallet credentials. VERIFY OUTPUTS before running.
+  sign-proposal --id <proposal-id> [--allow-unpaid-transfer]
+    Fetch sighash(es) from proposal, validate payment structure, sign, submit.
+    Blocks unpaid transfers (all value leaving multisig) unless overridden.
+    Requires wallet credentials.
 
   finalize-proposal --id <proposal-id>
     Assemble the Tapscript witness stack. Run once threshold signatures collected.
@@ -736,7 +778,7 @@ WORKFLOW
   7. broadcast-proposal              (send to Bitcoin network)
 
 SECURITY
-  - sign-proposal is a blind-sign operation — always run get-proposal first
+  - sign-proposal validates payment structure — blocks unpaid transfers automatically
   - Verify co-signer signatures: arc skills run --name taproot-multisig -- verify-cosig ...
   - Register internalPubKey (NOT tweaked key) — use taproot-multisig get-pubkey
 
