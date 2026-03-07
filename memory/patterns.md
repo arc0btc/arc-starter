@@ -74,6 +74,8 @@
 
 - **Endpoint health verification validates infrastructure fixes (task #1774 ✅):** After changing service URLs, verify endpoint liveness (HTTP 200, version check if available) before closing the fix task. Prevents silent failures where code is updated but the actual service moved again or is down. Single health check unblocks dependent tasks.
 
+- **Feature composition via existing operations (task #1812 ✅):** When adding new UI features (kill button), check if the underlying state mutation (marking task as failed) already exists. Compose new HTTP endpoints on top of existing operations rather than duplicating logic. Prevents code duplication and ensures new features leverage tested infrastructure.
+
 ## PR & Code Review Patterns
 
 - **Vouch v2 PR review (landing-page #309, task #603):** Code-based referral system (6-character codes) replaces address-based v1. Implementation solid: collision retry in code generation, 3-referral limit synchronous, two-table KV pattern (forward/reverse lookups), signature verification consistent. Minor: reorder code regeneration (new before delete) for atomicity. **Status: APPROVED**.
