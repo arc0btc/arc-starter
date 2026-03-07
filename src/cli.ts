@@ -13,7 +13,11 @@ import {
   markTaskBlocked,
   getTaskById,
   updateTask,
+  insertTaskDep,
+  getTaskDeps,
+  deleteTaskDep,
 } from "./db.ts";
+import type { TaskDepType } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
 import { parseFlags, pad, truncate } from "./utils.ts";
 import { handleCredsCli } from "../skills/arc-credentials/cli.ts";
@@ -32,6 +36,9 @@ const USAGE = {
     'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--model opus|sonnet|haiku]',
   tasksClose:
     'arc tasks close --id N --status completed|failed|blocked --summary TEXT',
+  tasksDeps: 'arc tasks deps --id N',
+  tasksLink: 'arc tasks link --from N --to M --type blocks|related|discovered-from',
+  tasksUnlink: 'arc tasks unlink --from N --to M --type blocks|related|discovered-from',
   skillsShow: 'arc skills show --name NAME',
   skillsRun:  'arc skills run --name NAME [-- extra-args]',
 } as const;
@@ -318,6 +325,95 @@ function cmdTasksUpdate(args: string[]): void {
   process.stdout.write(`Updated task #${id}: ${updated.join(", ")}\n`);
 }
 
+function cmdTasksDeps(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const id = parseInt(flags["id"] ?? "", 10);
+  if (isNaN(id)) {
+    process.stderr.write(`Error: --id must be a number\nUsage: ${USAGE.tasksDeps}\n`);
+    process.exit(1);
+  }
+
+  initDatabase();
+  const task = getTaskById(id);
+  if (!task) {
+    process.stderr.write(`Error: task #${id} not found\n`);
+    process.exit(1);
+  }
+
+  const deps = getTaskDeps(id);
+  if (deps.length === 0) {
+    process.stdout.write(`No dependencies for task #${id}\n`);
+    return;
+  }
+
+  const header = pad("from", 8) + pad("to", 8) + pad("type", 20) + "created_at";
+  process.stdout.write(header + "\n");
+  process.stdout.write("-".repeat(header.length) + "\n");
+
+  for (const dep of deps) {
+    const line =
+      pad(`#${dep.from_id}`, 8) +
+      pad(`#${dep.to_id}`, 8) +
+      pad(dep.dep_type, 20) +
+      truncate(dep.created_at, 16);
+    process.stdout.write(line + "\n");
+  }
+}
+
+const VALID_DEP_TYPES_CLI: Set<string> = new Set(["blocks", "related", "discovered-from"]);
+
+function cmdTasksLink(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const fromId = parseInt(flags["from"] ?? "", 10);
+  const toId = parseInt(flags["to"] ?? "", 10);
+  const depType = flags["type"];
+
+  if (isNaN(fromId) || isNaN(toId)) {
+    process.stderr.write(`Error: --from and --to must be numbers\nUsage: ${USAGE.tasksLink}\n`);
+    process.exit(1);
+  }
+  if (!depType || !VALID_DEP_TYPES_CLI.has(depType)) {
+    process.stderr.write(`Error: --type must be one of: blocks, related, discovered-from\nUsage: ${USAGE.tasksLink}\n`);
+    process.exit(1);
+  }
+
+  initDatabase();
+
+  const fromTask = getTaskById(fromId);
+  const toTask = getTaskById(toId);
+  if (!fromTask) {
+    process.stderr.write(`Error: task #${fromId} not found\n`);
+    process.exit(1);
+  }
+  if (!toTask) {
+    process.stderr.write(`Error: task #${toId} not found\n`);
+    process.exit(1);
+  }
+
+  insertTaskDep(fromId, toId, depType as TaskDepType);
+  process.stdout.write(`Linked: #${fromId} --[${depType}]--> #${toId}\n`);
+}
+
+function cmdTasksUnlink(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const fromId = parseInt(flags["from"] ?? "", 10);
+  const toId = parseInt(flags["to"] ?? "", 10);
+  const depType = flags["type"];
+
+  if (isNaN(fromId) || isNaN(toId)) {
+    process.stderr.write(`Error: --from and --to must be numbers\nUsage: ${USAGE.tasksUnlink}\n`);
+    process.exit(1);
+  }
+  if (!depType || !VALID_DEP_TYPES_CLI.has(depType)) {
+    process.stderr.write(`Error: --type must be one of: blocks, related, discovered-from\nUsage: ${USAGE.tasksUnlink}\n`);
+    process.exit(1);
+  }
+
+  initDatabase();
+  deleteTaskDep(fromId, toId, depType as TaskDepType);
+  process.stdout.write(`Unlinked: #${fromId} --[${depType}]--> #${toId}\n`);
+}
+
 function cmdTasks(args: string[]): void {
   const sub = args[0];
   if (sub === "add") {
@@ -326,6 +422,12 @@ function cmdTasks(args: string[]): void {
     cmdTasksClose(args.slice(1));
   } else if (sub === "update") {
     cmdTasksUpdate(args.slice(1));
+  } else if (sub === "deps") {
+    cmdTasksDeps(args.slice(1));
+  } else if (sub === "link") {
+    cmdTasksLink(args.slice(1));
+  } else if (sub === "unlink") {
+    cmdTasksUnlink(args.slice(1));
   } else {
     cmdTasksList(args);
   }
@@ -512,6 +614,15 @@ COMMANDS
 
   ${USAGE.tasksClose}
     Close a task with a result summary.
+
+  ${USAGE.tasksDeps}
+    List all dependencies for a task (both directions).
+
+  ${USAGE.tasksLink}
+    Create a dependency link between two tasks.
+
+  ${USAGE.tasksUnlink}
+    Remove a dependency link between two tasks.
 
   creds list
     List stored credentials (service/key names only, no values).

@@ -121,6 +121,18 @@ export interface EmailMessage {
   synced_at: string;
 }
 
+// ---- Task dependency types ----
+
+export type TaskDepType = "blocks" | "related" | "discovered-from";
+
+export interface TaskDep {
+  id: number;
+  from_id: number;
+  to_id: number;
+  dep_type: TaskDepType;
+  created_at: string;
+}
+
 // ---- Market position types ----
 
 export interface MarketPosition {
@@ -310,6 +322,21 @@ export function initDatabase(): Database {
   `);
   db.run("CREATE INDEX IF NOT EXISTS idx_market_positions_market ON market_positions(market_id)");
   db.run("CREATE INDEX IF NOT EXISTS idx_market_positions_status ON market_positions(status)");
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS task_deps (
+      id INTEGER PRIMARY KEY,
+      from_id INTEGER NOT NULL,
+      to_id INTEGER NOT NULL,
+      dep_type TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (from_id) REFERENCES tasks(id),
+      FOREIGN KEY (to_id) REFERENCES tasks(id),
+      UNIQUE(from_id, to_id, dep_type)
+    )
+  `);
+  db.run("CREATE INDEX IF NOT EXISTS idx_task_deps_from ON task_deps(from_id)");
+  db.run("CREATE INDEX IF NOT EXISTS idx_task_deps_to ON task_deps(to_id)");
 
   _db = db;
   return db;
@@ -742,6 +769,33 @@ export function getTotalBuysCostUstx(): number {
     .query("SELECT COALESCE(SUM(cost_ustx), 0) as total FROM market_positions WHERE action = 'buy' AND status != 'failed'")
     .get() as { total: number };
   return row.total;
+}
+
+// ---- Task dependency queries ----
+
+const VALID_DEP_TYPES: Set<string> = new Set(["blocks", "related", "discovered-from"]);
+
+export function insertTaskDep(fromId: number, toId: number, depType: TaskDepType): number {
+  if (!VALID_DEP_TYPES.has(depType)) {
+    throw new Error(`Invalid dep_type: ${depType}. Must be one of: blocks, related, discovered-from`);
+  }
+  const db = getDatabase();
+  const result = db
+    .query("INSERT OR IGNORE INTO task_deps (from_id, to_id, dep_type) VALUES (?, ?, ?)")
+    .run(fromId, toId, depType);
+  return Number(result.lastInsertRowid);
+}
+
+export function getTaskDeps(taskId: number): TaskDep[] {
+  const db = getDatabase();
+  return db
+    .query("SELECT * FROM task_deps WHERE from_id = ? OR to_id = ? ORDER BY created_at ASC")
+    .all(taskId, taskId) as TaskDep[];
+}
+
+export function deleteTaskDep(fromId: number, toId: number, depType: TaskDepType): void {
+  const db = getDatabase();
+  db.query("DELETE FROM task_deps WHERE from_id = ? AND to_id = ? AND dep_type = ?").run(fromId, toId, depType);
 }
 
 /** Total uSTX received from sells and redeems (excluding failed). */
