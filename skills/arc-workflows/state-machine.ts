@@ -1028,6 +1028,144 @@ Steps:
 };
 
 /**
+ * RecurringFailureMachine — models the investigate → fix → retrospective cycle.
+ *
+ * Pattern detected: "investigate recurring failure" tasks (3 recurrences, avg 2.0 steps/chain)
+ * consistently spawn a retrospective, sometimes preceded by a fix/retry task.
+ * This machine deduplicates concurrent investigations of the same failure type
+ * and ensures learnings are always captured.
+ *
+ * instance_key: "recurring-failure-{failure-type}-{YYYY-MM-DD}" (one per type per day)
+ *
+ * States:
+ *   detected              → investigation task created
+ *   investigating         → root cause found; auto-transition to fix_pending or retrospective_pending
+ *   fix_pending           → fix task created and executing
+ *   fixing                → fix executing; waiting for completion
+ *   retrospective_pending → capture learnings
+ *   completed             → done
+ *
+ * Context:
+ *   failureType       — e.g. "rate-limit", "payment-error"
+ *   occurrences       — number of times this failure was observed
+ *   sourceSkill       — skill that detected or triaged it (e.g. "arc-failure-triage")
+ *   investigationSummary — root cause findings (populated after investigating state)
+ *   needsFix          — true if a code/config fix is required, false if learnings only
+ *   fixDescription    — what to fix (populated when needsFix is true)
+ *   fixTaskRef        — "task:{id}" of the fix task, for retrospective reference
+ *   learningsSummary  — brief summary of what was learned (populated before completing)
+ */
+export const RecurringFailureMachine: StateMachine<{
+  failureType?: string;
+  occurrences?: number;
+  sourceSkill?: string;
+  investigationSummary?: string;
+  needsFix?: boolean;
+  fixDescription?: string;
+  fixTaskRef?: string;
+  learningsSummary?: string;
+}> = {
+  name: "recurring-failure",
+  initialState: "detected",
+  states: {
+    detected: {
+      on: { investigate: "investigating" },
+      action: (ctx) => {
+        const failureType = ctx.failureType || "unknown";
+        const occurrences = ctx.occurrences || 2;
+        const skills = ctx.sourceSkill
+          ? ["arc-failure-triage", ctx.sourceSkill, "arc-skill-manager"]
+          : ["arc-failure-triage", "arc-skill-manager"];
+        return {
+          type: "create-task",
+          subject: `Investigate recurring failure: ${failureType} (${occurrences} occurrences)`,
+          priority: 5,
+          skills,
+          description: `Recurring failure type "${failureType}" has been observed ${occurrences} times.
+
+Steps:
+1. Review recent task history for this failure type
+2. Identify the root cause
+3. Determine if a code/config fix is needed or if the pattern just needs documenting
+4. Transition this workflow to 'investigating', then set in context:
+   - investigationSummary: root cause description
+   - needsFix: true if a fix is required, false if learnings only
+   - fixDescription: what to fix (only if needsFix is true)
+5. Then transition to 'fix_pending' (if needsFix) or 'retrospective_pending' (if not)`,
+        };
+      },
+    },
+    investigating: {
+      on: { needs_fix: "fix_pending", no_fix: "retrospective_pending" },
+      action: (ctx) => {
+        if (ctx.investigationSummary === undefined) return null;
+        if (ctx.needsFix) {
+          return { type: "transition", nextState: "fix_pending" };
+        }
+        return { type: "transition", nextState: "retrospective_pending" };
+      },
+    },
+    fix_pending: {
+      on: { apply: "fixing" },
+      action: (ctx) => {
+        if (!ctx.fixDescription) return null;
+        const failureType = ctx.failureType || "unknown";
+        const skills = ctx.sourceSkill
+          ? ["arc-failure-triage", ctx.sourceSkill, "arc-skill-manager"]
+          : ["arc-failure-triage", "arc-skill-manager"];
+        return {
+          type: "create-task",
+          subject: `Fix recurring failure: ${failureType}`,
+          priority: 4,
+          skills,
+          description: `Apply the fix identified during investigation of recurring "${failureType}" failure.
+
+Investigation summary: ${ctx.investigationSummary || "see investigation task"}
+
+Fix to apply: ${ctx.fixDescription}
+
+After applying the fix:
+1. Verify the fix resolves the root cause
+2. Transition this workflow to 'fixing', then 'retrospective_pending'
+3. Set fixTaskRef to "task:{this-task-id}" in context`,
+        };
+      },
+    },
+    fixing: {
+      on: { fixed: "retrospective_pending" },
+      action: () => null,
+    },
+    retrospective_pending: {
+      on: { learnings_extracted: "completed" },
+      action: (ctx) => {
+        const failureType = ctx.failureType || "unknown";
+        const occurrences = ctx.occurrences || 2;
+        const fixRef = ctx.fixTaskRef ? `\nFix applied: ${ctx.fixTaskRef}` : "";
+        return {
+          type: "create-task",
+          subject: `Retrospective: recurring failure "${failureType}" (${occurrences} occurrences)`,
+          priority: 8,
+          skills: ["arc-skill-manager"],
+          description: `Extract and record learnings from the recurring "${failureType}" failure investigation.
+${fixRef}
+Root cause: ${ctx.investigationSummary || "see investigation task"}
+
+Steps:
+1. Summarize the failure pattern, root cause, and fix applied (if any)
+2. Identify prevention measures or monitoring improvements
+3. Update memory/MEMORY.md if this reveals a systemic pattern
+4. Transition workflow to 'completed'`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -1047,6 +1185,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "quest": QuestMachine,
     "agent-collaboration": AgentCollaborationMachine,
     "site-health-alert": SiteHealthAlertMachine,
+    "recurring-failure": RecurringFailureMachine,
   };
   return templates[name] || null;
 }
