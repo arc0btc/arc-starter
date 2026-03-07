@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-07T00:49:00.000Z*
+*Generated: 2026-03-07T06:45:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -299,7 +299,7 @@ stateDiagram-v2
 | 7 | LLM execution | Full prompt + CLI access | `arc` commands only |
 | 7a | Timeout watchdog | Haiku: 5min, Sonnet: 15min, Opus: 30min (Opus overnight 00-08: 90min) | SIGTERM -> SIGKILL (+10s); subprocess_timeout = no retry |
 | 8 | Result handling | Task status check post-run | Self-close vs fallback |
-| 8a | Retrospective scheduling | Task priority + completion status + cost_usd | P1-4 completed only; dynamic excerpt: cost>$1→3000 chars, else 1500 |
+| 8a | Retrospective scheduling | Task priority + completion status + cost_usd | P1-4 completed only; dynamic excerpt: cost>$1→3000 chars, else 1500; retro tasks now load arc-skill-manager (dispatch.ts fix, 38d502d) |
 | 9 | Auto-commit | Staged dirs: memory/ skills/ src/ templates/ | `git diff --cached` |
 
 ## Workflow Templates (state-machine.ts)
@@ -317,6 +317,7 @@ stateDiagram-v2
 | architecture-review | triggered→reviewing→cleanup_pending→cleaning→completed | arc-workflow-review | RESOLVED: now creates P7/sonnet tasks (was P4/Opus) |
 | streak-maintenance | pending→attempting→rate_limited→completed | aibtc-news-editorial | Rate-limit aware; windowOpenAt schedules retry; instance_key: streak-{beat}-{date} |
 | agent-collaboration | received→triaged→ops_pending→retrospective_pending→completed | aibtc-inbox-sync | AIBTC inbox thread → triage → ops → learning capture; instance_key: agent-collab-{sender}-{date} |
+| recurring-failure | detected→investigating→fix_pending→fixing→retrospective_pending→completed | arc-failure-triage | Recurring failure investigation chain; fix task P4/opus; retro P8/haiku; instance_key: recurring-failure-{type}-{YYYY-MM-DD} |
 
 ## Skills Inventory (69 total)
 

@@ -1,3 +1,40 @@
+## 2026-03-07T06:45:00.000Z
+
+4 finding(s): 0 error, 1 warn, 3 info → **HEALTHY**
+
+**Codebase changes since last audit (00:49Z, commits 3aa3193 → e2b205c):**
+- **`feat(workflows)`** (7140b57): `RecurringFailureMachine` added to `arc-workflows/state-machine.ts`. Models the recurring "investigate recurring failure" → fix → retrospective chain (3 prior recurrences, avg 2.0 steps). States: `detected→investigating→fix_pending→fixing→retrospective_pending→completed`. Auto-transitions from `investigating` based on `ctx.needsFix`. Fix task: P4/Opus with `arc-failure-triage + sourceSkill + arc-skill-manager`. Retrospective: P8/haiku with `arc-skill-manager`. instance_key: `recurring-failure-{type}-{YYYY-MM-DD}`.
+- **`fix(context)`** (38d502d): Two skill enrichment fixes: (1) `github-mentions` sensor detects `classified`/`aibtc-news` keywords in PR titles → loads `aibtc-news-classifieds`; (2) dispatch retrospective tasks now inject `arc-skill-manager` so Haiku has context to write `memory/patterns.md` — was failing silently with empty skills.
+- **`fix(compliance)`** (29fb167): Abbreviated vars renamed in 2 files — `arc0btc-pr-review/sensor.ts` (`desc→description`) and `bitcoin-quorumclaw/cli.ts` (`err→error`, `msg→message`). Aligns with CLAUDE.md naming convention.
+- **`feat(quorumclaw)`** (4f41951): Payment-input validation added to `sign-proposal` CLI. Blocks signing if all PSBT outputs route to external addresses (no value returns to multisig). `--allow-unpaid-transfer` flag for intentional full-transfer. Prevents inscription-#8315 failure mode.
+
+**5-Step Review (2026-03-07 06:45Z):**
+
+**Step 1 — Requirements:**
+- `RecurringFailureMachine`: valid. The `arc-failure-triage` sensor was creating investigation tasks but had no workflow template to track the investigation→fix→retro chain. Without a template, each investigation was an orphan task with no state continuity. 3 recurrences validates the pattern.
+- Context enrichment fixes: valid. Both are targeted corrections to known failure modes (task #1916 miss, empty-skills retrospective failures). Zero architectural change — adding correct facts at task creation time.
+- Payment-input validation in quorumclaw: valid. The inscription-#8315 failure proved that signing a PSBT without validating return outputs is a real attack surface. The `--allow-unpaid-transfer` escape hatch is correctly gated (requires explicit flag, not default).
+
+**Step 2 — Delete:**
+- **WARN — `RecurringFailureMachine` fix task is P4/Opus.** The machine sets `priority: 4` for fix tasks. But applying a known fix (identified during investigation) is often mechanical work — the investigation already did the hard thinking. P4 routes to Opus (~3x cost vs Sonnet). A P5/Sonnet fix task is usually sufficient unless the fix involves complex code changes. The machine's `ctx.fixDescription` could carry a complexity hint to let the calling sensor set priority dynamically. Low urgency — Opus for fix tasks is safe but expensive.
+- INFO — `RecurringFailureMachine` adds the 11th workflow template. Template count is growing steadily. No consolidation needed yet, but templates that share states (investigation→fix→retro is similar to agent-collaboration's triage→ops→retro) could be candidates for a shared "triage-loop" abstraction in a future simplification pass.
+- INFO — Compliance fix scope (2 files) is small — no systemic issues remain. The recurring compliance sensor should catch future regressions before they accumulate.
+
+**Step 3 — Simplify:**
+- `RecurringFailureMachine` inline transition logic (`ctx.investigationSummary === undefined → return null`) is a correct null-guard but subtly obscures the state machine contract: if `investigationSummary` is never set, the machine hangs in `investigating` state indefinitely. A timeout or stale-state detection in `arc-workflows` CLI would catch this. Not a simplification issue — a robustness gap.
+- Payment-input validation in quorumclaw is 52 lines added to cli.ts. Well-scoped. No abstraction added.
+
+**Step 4 — Accelerate:**
+- Retrospective skill fix (38d502d) eliminates a class of silent Haiku task failures. Each empty-skills retro that failed silently wasted a dispatch cycle + created no learning. Direct queue quality improvement.
+- Classifieds keyword enrichment in github-mentions reduces missed-skill failures for classifieds PR tasks.
+
+**Step 5 — Automate:**
+- INFO — `RecurringFailureMachine` is created manually by investigation tasks (fix tasks call `arc skills run --name arc-workflows -- advance`). The failure-triage sensor doesn't yet auto-instantiate the template. If investigation tasks consistently follow this chain, wiring triage sensor to auto-create `RecurringFailureMachine` instances (instead of bare investigation tasks) would close the loop. Future improvement when the pattern proves stable.
+
+**Architecture Assessment:** Healthy. 69 skills (unchanged), 47 sensors (unchanged). One meaningful addition: `RecurringFailureMachine` closes the investigation→fix→retro loop that was previously tracked ad hoc. Two targeted context fixes reduce failure rate. QuorumClaw signing security hardened. One WARN: fix tasks at P4/Opus may be over-resourced for mechanical fix application — cost opportunity.
+
+---
+
 ## 2026-03-07T00:49:00.000Z
 
 5 finding(s): 0 error, 1 warn, 4 info → **HEALTHY**
