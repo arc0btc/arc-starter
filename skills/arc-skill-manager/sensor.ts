@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync, unlinkSync, renameSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
@@ -17,6 +17,22 @@ const LINE_THRESHOLD = 500;
 const PATTERNS_LINE_THRESHOLD = 150;
 const PATTERNS_TASK_SOURCE = "sensor:arc-patterns-consolidate";
 const SKILLS_ROOT = join(import.meta.dir, "../../skills");
+const DECAY_SENSOR_NAME = "arc-research-decay";
+const DECAY_INTERVAL_MINUTES = 1440; // 24 hours
+const ARXIV_REPORT_CAP = 5;
+const RESEARCH_ARCHIVE_DAYS = 30;
+const RESEARCH_DIR = join(import.meta.dir, "../../research");
+const RESEARCH_ARCHIVE_DIR = join(import.meta.dir, "../../research/archive");
+
+/** Extract publish date from a research report filename.
+ * Matches ISO prefix (2026-03-04T..._name.md) or ISO suffix (name-2026-03-05.md). */
+function extractReportDate(filename: string): Date | null {
+  const prefixMatch = filename.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (prefixMatch) return new Date(prefixMatch[1]);
+  const suffixMatch = filename.match(/-(\d{4}-\d{2}-\d{2})(?:\.md)?$/);
+  if (suffixMatch) return new Date(suffixMatch[1]);
+  return null;
+}
 
 function validateSensorPattern(filePath: string, content: string): { valid: boolean; issues: string[] } {
   const issues: string[] = [];
@@ -145,7 +161,52 @@ export default async function manageSkillsSensor(): Promise<string> {
     }
   }
 
-  // Check 2: Sensor export pattern validation (every 6 hours)
+  // Check 2: Research report decay (every 24 hours)
+  const decayClaimed = await claimSensorRun(DECAY_SENSOR_NAME, DECAY_INTERVAL_MINUTES);
+  if (decayClaimed) {
+    const decayResults: string[] = [];
+
+    // 2a: Cap arxiv reports at ARXIV_REPORT_CAP most recent (sorted by mtime)
+    try {
+      const arxivDir = join(RESEARCH_DIR, "arxiv");
+      if (existsSync(arxivDir)) {
+        const arxivFiles = readdirSync(arxivDir)
+          .filter((f) => f.endsWith(".md"))
+          .map((f) => ({ name: f, mtime: statSync(join(arxivDir, f)).mtimeMs }))
+          .sort((a, b) => b.mtime - a.mtime);
+        const toDelete = arxivFiles.slice(ARXIV_REPORT_CAP);
+        for (const f of toDelete) {
+          unlinkSync(join(arxivDir, f.name));
+          log(`pruned arxiv report: ${f.name}`);
+        }
+        if (toDelete.length > 0) decayResults.push(`arxiv-pruned:${toDelete.length}`);
+      }
+    } catch (e) {
+      log(`warn: arxiv prune failed: ${(e as Error).message}`);
+    }
+
+    // 2b: Archive research/*.md files older than RESEARCH_ARCHIVE_DAYS by publish date
+    try {
+      mkdirSync(RESEARCH_ARCHIVE_DIR, { recursive: true });
+      const cutoffMs = Date.now() - RESEARCH_ARCHIVE_DAYS * 24 * 60 * 60 * 1000;
+      const researchFiles = readdirSync(RESEARCH_DIR).filter((f) => f.endsWith(".md"));
+      let archived = 0;
+      for (const f of researchFiles) {
+        const reportDate = extractReportDate(f);
+        if (!reportDate || reportDate.getTime() >= cutoffMs) continue;
+        renameSync(join(RESEARCH_DIR, f), join(RESEARCH_ARCHIVE_DIR, f));
+        log(`archived research report: ${f}`);
+        archived++;
+      }
+      if (archived > 0) decayResults.push(`research-archived:${archived}`);
+    } catch (e) {
+      log(`warn: research archive failed: ${(e as Error).message}`);
+    }
+
+    results.push(decayResults.length > 0 ? decayResults.join(",") : "decay-ok");
+  }
+
+  // Check 3: Sensor export pattern validation (every 6 hours)
   const validationClaimed = await claimSensorRun(SENSOR_NAME, VALIDATION_INTERVAL_MINUTES);
   if (validationClaimed) {
     const validation = await checkSensorPatterns();

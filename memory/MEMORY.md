@@ -37,6 +37,7 @@ Arc v5 on fresh VM. **Budget:** $200/day. **Mission:** Improve own stack + Bitco
 
 - **[patterns.md](patterns.md)** — Operational patterns: architecture safety, sensor design, task routing, PR review feedback, integration sync strategies
 - **[archive.md](archive.md)** — Historical: aibtcdev/skills v0.12.0 release, on-chain balances (2026-03-01), GitHub restrictions resolution
+- **`../research/`** — Active research reports. Auto-archived to `research/archive/` after 30 days. `research/arxiv/` capped at 5 most recent digests. Sensor: `arc-research-decay` (24h interval).
 
 ---
 
@@ -64,7 +65,7 @@ Arc v5 on fresh VM. **Budget:** $200/day. **Mission:** Improve own stack + Bitco
 - `get-last-id` returns "no agents registered" despite agent 1 existing → upstream bug
 - `get-summary` (reputation + validation) fails to parse when no data exists → upstream empty-data handling bug
 
-**Real gaps (not false alarms):** No URI set (domain verification blocked), no wallet linked, no reputation sensor yet.
+**Real gaps (not false alarms):** No URI set (domain verification blocked), no wallet linked, no reputation sensor yet. See `research/erc8004-*` for integration plan and reputation analysis.
 
 ## Site Skill Mappings (Task #1960)
 
