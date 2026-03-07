@@ -16,7 +16,7 @@
 - **Gate → Dedup → Create pattern:** All well-designed sensors follow this: interval gate (`claimSensorRun`), state dedup (hook-state or task check), then task creation. Prevents redundant work.
 - **SHA tracking for code-change dedup:** Hook-state SHA prevents redundant review tasks. Skip if currentSha == lastReviewedSha AND !diagramStale.
 - **Score-based auto-queue:** Hook-state.lastBriefDate prevents same-day re-queue. Extends to all time-gated operations.
-- **Health sensor false positives:** Occasional timing edge when dispatch starts before prior cycle fully records. Self-resolves. Not a blocker.
+- **Health sensor false positives:** When health alert fires between cycle transitions (prior cycle complete, metrics not yet written), dispatch immediately picks up alert task and executes verification. Investigation confirms all services healthy. Expected behavior, not an outage. Validates architecture: sensors can be conservative (low false-negative cost); dispatch has capacity for immediate verification.
 - **Pagination field nesting:** Never assume `total`, `page`, or `count` are at response root — often nested in `pagination` or `meta`. Verify actual JSON structure.
 - **Dedup at platform integration layer:** When multiple sensors watch the same external system, dedup must happen at the *event source*. Prevents double-posts and preserves sensor independence.
 - **Sensor coverage gaps:** When critical items aren't caught by sensors, explicitly queue review tasks. Sensors optimize happy path; explicit queuing handles coverage edge cases.
