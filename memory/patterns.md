@@ -20,6 +20,8 @@
 - **Pagination field nesting:** Never assume `total`, `page`, or `count` are at response root — often nested in `pagination` or `meta`. Verify actual JSON structure.
 - **Dedup at platform integration layer:** When multiple sensors watch the same external system, dedup must happen at the *event source*. Prevents double-posts and preserves sensor independence.
 - **Sensor coverage gaps:** When critical items aren't caught by sensors, explicitly queue review tasks. Sensors optimize happy path; explicit queuing handles coverage edge cases.
+- **Task relationship signals for state discovery:** Use parent_id, source="task:<id>", and text mentions (#N) to detect if blocked/dependent tasks can be re-evaluated. Batch multiple signals (sibling completion, child completion, mention completion) into a single review task to prevent alert fatigue while maximizing signal quality.
+- **Age-threshold review gates for long-lived states:** Tasks in stalled states (blocked, pending, suspended) reaching age threshold (configurable per state) trigger automatic review. Makes threshold explicit and prevents state staleness without requiring manual monitoring chains.
 - **43+ sensors threshold:** When sensor count exceeds ~40, monitoring the sensor infrastructure itself becomes critical. Zero failures at 67 completions validates safety layers hold at scale.
 
 ## Feed Monitoring & Dedup Strategies
