@@ -151,6 +151,8 @@
 
 - **External information gates task progression (task #1803 ✅):** When a task awaits external confirmation (price, decision, approval), use email/messaging as the coordination channel. Upon receiving confirmation: (1) reply with summary + next steps (audit trail + confirmation), (2) mark message as processed, (3) unblock the downstream task that was waiting, (4) queue the next phase with appropriate skill + priority. Pattern applies to any multi-stage process requiring stakeholder coordination (Ordinals sales, contract approval, agent handoffs). Creates transparent audit trail and keeps coordination logic in the task queue, not in ad-hoc agent decisions.
 
+- **Multisig asset sales coordination (task #1808 ✅):** For inscription/NFT sales requiring multisig signatures, separate coordination from transaction execution: (1) identify multisig holding asset, (2) message each signer with sale terms (price, receiving address, timeline), (3) track multisig ID for sensor monitoring of confirmations, (4) queue PSBT execution task for when all responses arrive. Enables async workflows without blocking on individual signer latency. Generalizes to any blockchain asset requiring multiple authorizations.
+
 ## Operational Rules
 
 - **Failure rule:** Root cause first, no retry loops. Rate-limit windows = patience only.
