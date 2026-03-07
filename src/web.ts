@@ -581,6 +581,67 @@ function handleIdentity(): Response {
   return json(IDENTITY);
 }
 
+function handleReputation(): Response {
+  try {
+    // Check if reviews table exists (created by arc-reputation skill on first use)
+    const tableExists = db.query(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='reviews'"
+    ).get() as { name: string } | null;
+
+    if (!tableExists) {
+      return json({
+        submitted: { count: 0, recent: [] },
+        received: { count: 0, avg_rating: null, recent: [] },
+        btc_address: IDENTITY.btc,
+        stx_address: IDENTITY.stx,
+      });
+    }
+
+    const arc_btc = IDENTITY.btc;
+
+    const submittedCount = db.query(
+      "SELECT COUNT(*) as count FROM reviews WHERE reviewer_address = ?"
+    ).get(arc_btc) as { count: number };
+
+    const submittedRecent = db.query(
+      "SELECT id, subject, reviewee_address, rating, comment, tags, created_at FROM reviews WHERE reviewer_address = ? ORDER BY created_at DESC LIMIT 5"
+    ).all(arc_btc) as Array<{ id: number; subject: string; reviewee_address: string; rating: number; comment: string; tags: string; created_at: string }>;
+
+    const receivedCount = db.query(
+      "SELECT COUNT(*) as count FROM reviews WHERE reviewee_address = ?"
+    ).get(arc_btc) as { count: number };
+
+    const receivedRecent = db.query(
+      "SELECT id, subject, reviewer_address, rating, comment, tags, created_at FROM reviews WHERE reviewee_address = ? ORDER BY created_at DESC LIMIT 5"
+    ).all(arc_btc) as Array<{ id: number; subject: string; reviewer_address: string; rating: number; comment: string; tags: string; created_at: string }>;
+
+    const receivedAvg = db.query(
+      "SELECT AVG(rating) as avg FROM reviews WHERE reviewee_address = ?"
+    ).get(arc_btc) as { avg: number | null };
+
+    return json({
+      submitted: {
+        count: submittedCount.count,
+        recent: submittedRecent.map(r => ({ ...r, tags: JSON.parse(r.tags) as string[] })),
+      },
+      received: {
+        count: receivedCount.count,
+        avg_rating: receivedAvg.avg !== null ? Math.round(receivedAvg.avg * 100) / 100 : null,
+        recent: receivedRecent.map(r => ({ ...r, tags: JSON.parse(r.tags) as string[] })),
+      },
+      btc_address: IDENTITY.btc,
+      stx_address: IDENTITY.stx,
+    });
+  } catch {
+    return json({
+      submitted: { count: 0, recent: [] },
+      received: { count: 0, avg_rating: null, recent: [] },
+      btc_address: IDENTITY.btc,
+      stx_address: IDENTITY.stx,
+    });
+  }
+}
+
 async function handlePostMessage(req: Request): Promise<Response> {
   let body: { message?: string; priority?: number; parent_id?: number };
   try {
@@ -837,6 +898,7 @@ function route(req: Request): Response | Promise<Response> {
   if (path === "/api/skills") return handleSkills();
   if (path === "/api/costs") return handleCosts(url);
   if (path === "/api/identity") return handleIdentity();
+  if (path === "/api/reputation") return handleReputation();
   if (path === "/api/events") return handleEvents();
 
   // Task kill: POST /api/tasks/:id/kill

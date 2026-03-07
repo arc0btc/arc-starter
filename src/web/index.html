@@ -75,6 +75,16 @@
       <div class="identity-card" id="identity-card"></div>
     </section>
 
+    <!-- Reputation -->
+    <section id="reputation" class="section span-full">
+      <div class="section-header">
+        <h2 class="section-title">Reputation</h2>
+      </div>
+      <div id="reputation-content">
+        <p class="placeholder">Loading reputation data...</p>
+      </div>
+    </section>
+
     <!-- Dispatch Metrics -->
     <section id="metrics" class="section">
       <div class="section-header">
@@ -420,6 +430,59 @@
       }).catch(function() {});
     }
 
+    // ---- Reputation ----
+
+    function renderReputation(data) {
+      var el = document.getElementById('reputation-content');
+      if (!el) return;
+
+      var submitted = data.submitted || { count: 0, recent: [] };
+      var received = data.received || { count: 0, avg_rating: null, recent: [] };
+
+      var stxExplorer = 'https://explorer.hiro.so/address/' + encodeURIComponent(data.stx_address) + '?chain=mainnet';
+      var btcExplorer = 'https://mempool.space/address/' + encodeURIComponent(data.btc_address);
+
+      var html = '<div class="metrics-grid" style="margin-bottom:var(--space-sm)">'
+        + '<div class="metric-card"><div class="metric-value">' + submitted.count + '</div><div class="metric-label">Reviews Submitted</div></div>'
+        + '<div class="metric-card"><div class="metric-value">' + received.count + '</div><div class="metric-label">Reviews Received</div></div>'
+        + (received.avg_rating !== null ? '<div class="metric-card"><div class="metric-value">' + received.avg_rating.toFixed(1) + '/5</div><div class="metric-label">Avg Rating</div></div>' : '')
+        + '</div>';
+
+      html += '<div class="reputation-links">'
+        + '<span style="color:var(--text-muted);font-size:0.85rem">Verify on-chain:</span>'
+        + ' <a href="' + escAttr(stxExplorer) + '" target="_blank" rel="noopener" class="explorer-btn">ERC-8004 (Stacks)</a>'
+        + ' <a href="' + escAttr(btcExplorer) + '" target="_blank" rel="noopener" class="explorer-btn">BIP-322 (Bitcoin)</a>'
+        + '</div>';
+
+      function reviewRows(reviews, addrField, addrLabel) {
+        return reviews.map(function(r) {
+          var stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+          var tags = Array.isArray(r.tags) ? r.tags.map(function(t) { return '<span class="pill pill-muted">' + esc(t) + '</span>'; }).join(' ') : '';
+          var addr = r[addrField] || '';
+          return '<li class="reputation-item">'
+            + '<span class="reputation-stars">' + stars + '</span>'
+            + '<span class="reputation-subject">' + esc(r.subject) + '</span>'
+            + (tags ? ' ' + tags : '')
+            + '<span class="reputation-meta">' + addrLabel + ' ' + esc(addr.slice(0, 14)) + (addr.length > 14 ? '…' : '') + ' · ' + relativeTime(r.created_at) + '</span>'
+            + '</li>';
+        }).join('');
+      }
+
+      if (received.recent && received.recent.length > 0) {
+        html += '<div class="reputation-section-label">Received</div><ul class="reputation-list">' + reviewRows(received.recent, 'reviewer_address', 'from') + '</ul>';
+      }
+
+      if (submitted.recent && submitted.recent.length > 0) {
+        html += '<div class="reputation-section-label">Submitted</div><ul class="reputation-list">' + reviewRows(submitted.recent, 'reviewee_address', 'for') + '</ul>';
+      }
+
+      if (submitted.count === 0 && received.count === 0) {
+        html += '<p class="placeholder" style="margin-top:var(--space-sm)">No reviews yet</p>';
+      }
+
+      el.innerHTML = html;
+    }
+
     // ---- Identity ----
 
     function renderIdentity(identity) {
@@ -545,12 +608,14 @@
           fetchJSON(buildTasksUrl()),
           fetchJSON('/api/costs?range=day'),
           fetchJSON('/api/identity'),
+          fetchJSON('/api/reputation'),
         ]);
 
-        var status   = results[0].status === 'fulfilled' ? results[0].value : null;
-        var tasks    = results[1].status === 'fulfilled' ? results[1].value : null;
-        var costs    = results[2].status === 'fulfilled' ? results[2].value : null;
-        var identity = results[3].status === 'fulfilled' ? results[3].value : null;
+        var status     = results[0].status === 'fulfilled' ? results[0].value : null;
+        var tasks      = results[1].status === 'fulfilled' ? results[1].value : null;
+        var costs      = results[2].status === 'fulfilled' ? results[2].value : null;
+        var identity   = results[3].status === 'fulfilled' ? results[3].value : null;
+        var reputation = results[4].status === 'fulfilled' ? results[4].value : null;
 
         if (status) { updateHeader(status); renderMetrics(status, costs ? costs.costs : []); }
         if (tasks) {
@@ -558,6 +623,7 @@
           (tasks.tasks || []).forEach(function(t) { knownTaskIds.add(t.id); });
         }
         if (identity) renderIdentity(identity);
+        if (reputation) renderReputation(reputation);
       } catch (e) {
         console.error('Dashboard init error:', e);
       }

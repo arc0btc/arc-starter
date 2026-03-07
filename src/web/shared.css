@@ -598,6 +598,60 @@ a:hover { color: var(--accent-deep); }
 .identity-links a { font-size: 0.8rem; color: var(--text-muted); transition: color 0.15s; }
 .identity-links a:hover { color: var(--accent); }
 
+/* ---- Reputation ---- */
+.reputation-links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin: var(--space-sm) 0 var(--space-md);
+  flex-wrap: wrap;
+}
+
+.reputation-section-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: var(--space-md) 0 var(--space-xs);
+}
+
+.reputation-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.reputation-item {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  padding: var(--space-xs) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.reputation-stars {
+  color: var(--accent);
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  letter-spacing: 1px;
+}
+
+.reputation-subject {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.reputation-meta {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
 /* ---- Footer ---- */
 .footer {
   border-top: 1px solid var(--border);
