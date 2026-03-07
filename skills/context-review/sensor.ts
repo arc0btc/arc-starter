@@ -75,7 +75,10 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   "aibtc-dev-ops": ["aibtc dev", "aibtc ops", "aibtc deploy"],
   "arc-workflows": ["pr lifecycle", "arc workflow"],
   "arc-worktrees": ["worktree", "isolated branch"],
-  "arc-credentials": ["arc creds", "arc-credentials", "credentials.enc", "creds set", "creds get"],
+  // arc-credentials skill is only needed for auditing/rotating the store, NOT for routine
+  // credential usage. Tasks that say "arc creds get/set" are just using the CLI — they don't
+  // need the skill loaded. Only flag when the task is explicitly about the credential store itself.
+  "arc-credentials": ["credential store audit", "rotate credentials", "kdf rotation", "credentials.enc audit"],
   "arc-web-dashboard": ["web dashboard", "arc-web-dashboard"],
 };
 
