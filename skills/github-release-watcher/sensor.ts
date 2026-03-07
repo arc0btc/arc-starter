@@ -71,11 +71,15 @@ function fetchLatestRelease(repo: string): GhRelease | null {
 
 /** Map repo → skills to load for review tasks. */
 const REPO_SKILLS: Record<string, string[]> = {
+  "anthropics/claude-code": ["claude-code-releases"],
   "aibtcdev/skills": ["arc-skill-manager"],
   "aibtcdev/aibtc-mcp-server": ["arc-skill-manager"],
   "stacks-network/stacks-core": ["stacks-stackspot"],
   "stx-labs/stacks.js": ["stacks-stackspot"],
 };
+
+/** Repos that get a dedicated research task instead of a generic review task. */
+const RESEARCH_REPOS = new Set(["anthropics/claude-code"]);
 
 export default async function releaseWatcherSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
@@ -106,28 +110,54 @@ export default async function releaseWatcherSensor(): Promise<string> {
     const repoSkills = REPO_SKILLS[repo];
     const skillsJson = repoSkills && repoSkills.length > 0 ? JSON.stringify(repoSkills) : undefined;
 
-    insertTask({
-      subject: `New release: ${repo} ${release.tag_name}`,
-      description: [
-        `New release detected on ${repo}`,
-        `Tag: ${release.tag_name}`,
-        `Name: ${release.name}`,
-        `Published: ${release.published_at}`,
-        `URL: ${release.html_url}`,
-        "",
-        "Release notes preview:",
-        bodyPreview,
-        "",
-        "Instructions:",
-        `1. Review the full release at ${release.html_url}`,
-        "2. Assess impact on our projects and dependencies",
-        "3. Create follow-up tasks if action is needed (dependency updates, breaking changes, etc.)",
-      ].join("\n"),
-      skills: skillsJson,
-      priority: 8,
-      model: "haiku",
-      source,
-    });
+    if (RESEARCH_REPOS.has(repo)) {
+      // Dedicated applicability research task — Sonnet-level, structured report
+      insertTask({
+        subject: `New release: ${repo} ${release.tag_name}`,
+        description: [
+          `New Claude Code release detected.`,
+          `Tag: ${release.tag_name}`,
+          `Name: ${release.name}`,
+          `Published: ${release.published_at}`,
+          `URL: ${release.html_url}`,
+          "",
+          "Release notes preview:",
+          bodyPreview,
+          "",
+          "Instructions:",
+          "Read AGENT.md for this skill (claude-code-releases) — it contains the full research workflow.",
+          "Assess applicability across three lenses: Arc, AIBTC, agent-general.",
+          "Write report to research/claude-code-releases/ and create follow-up tasks for any action items.",
+        ].join("\n"),
+        skills: skillsJson,
+        priority: 6,
+        model: "sonnet",
+        source,
+      });
+    } else {
+      insertTask({
+        subject: `New release: ${repo} ${release.tag_name}`,
+        description: [
+          `New release detected on ${repo}`,
+          `Tag: ${release.tag_name}`,
+          `Name: ${release.name}`,
+          `Published: ${release.published_at}`,
+          `URL: ${release.html_url}`,
+          "",
+          "Release notes preview:",
+          bodyPreview,
+          "",
+          "Instructions:",
+          `1. Review the full release at ${release.html_url}`,
+          "2. Assess impact on our projects and dependencies",
+          "3. Create follow-up tasks if action is needed (dependency updates, breaking changes, etc.)",
+        ].join("\n"),
+        skills: skillsJson,
+        priority: 8,
+        model: "haiku",
+        source,
+      });
+    }
 
     // For aibtcdev/skills releases, also queue a landing-page content review
     if (repo === "aibtcdev/skills") {
