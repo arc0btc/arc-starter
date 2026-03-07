@@ -147,6 +147,11 @@ function checkMissingSkillCoverage(
   // skills they need. "tweet" in "Research X article: @user" means fetching, not posting.
   if (task.subject.startsWith("Research X article:")) return findings;
 
+  // Reputation review tasks embed the subject of the interaction being reviewed (e.g., a PR
+  // title containing "classified ad"). The domain keywords belong to the reviewed interaction,
+  // not to what the reputation review task itself needs.
+  if (task.subject.startsWith("Submit reputation review:")) return findings;
+
   // Meta-analysis tasks have descriptions that quote other tasks' subjects/content.
   // Scanning those descriptions would produce false positives, so limit to subject only.
   // Use prefix matching so sensor sources with date suffixes (e.g. sensor:arc-failure-triage:retro:2026-03-06) still match.
