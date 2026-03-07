@@ -1,3 +1,48 @@
+## 2026-03-07T18:40:00.000Z
+
+4 finding(s): 0 error, 0 warn, 4 info → **HEALTHY**
+
+**Codebase changes since last audit (14:15Z, commits eced5d4 → 5247ca7):**
+- **`feat(tasks)`** (aba5aa2): `task_deps` table added to schema. M:N dependency graph (from_id, to_id, dep_type: blocks/related/discovered-from). UNIQUE constraint on (from_id, to_id, dep_type). Indexed on both columns. Three new db.ts helpers: `addTaskDependency`, `getTaskDependencies`, `removeTaskDependency`. Currently schema-only — no sensor or CLI surfaces the graph yet.
+- **`feat(arc-blocked-review)`** (828a4a9): New skill — sensor (120min) + SKILL.md + AGENT.md. Detects unblock signals across 4 heuristics: sibling completion, child completion, mention completion, and >48h stale. Creates a single P7/Sonnet review task listing all flagged blocked tasks. Dispatched agent evaluates and either requeues or confirms block with updated reason.
+- **`feat(worker-deploy)`** (58bb60e): New skill — sensor (5min) + SKILL.md. Compares arc0btc-worker git HEAD SHA to last deployed SHA (hook state). On diff, queues deploy task. CLI: `npm run build:client` → `npx wrangler deploy --env production` → health check → record SHA. Full CD pipeline for arc0btc.com.
+- **`feat(erc8004-trust)`** (2f428b0): New skill — CLI only + SKILL.md. `compute-trust-score` aggregates reputation summary + validation list into a single trust score. No sensor, no storage — composable on-demand query.
+- **`feat(claude-code-releases)`** (7f7eb36): New skill — SKILL.md only. Triggered by `github-release-watcher` when a new `anthropics/claude-code` tag is detected. Queues P6/Sonnet research task. No sensor of its own — correct trigger-from-upstream pattern.
+- **`feat(memory-decay)`** (6ac393c): `arc-skill-manager/sensor.ts` enhanced with research report auto-decay. Reports in `research/` older than 30 days are auto-archived; `research/arxiv/` capped at 5 most recent digests.
+- **`fix(context-review)`** (00b3e2d, 5247ca7): Two passes tightening keyword maps — arc-credentials false positives narrowed, general keyword patterns tightened to reduce noise.
+
+**5-Step Review (2026-03-07 18:40Z):**
+
+**Step 1 — Requirements:**
+- `arc-blocked-review`: valid. Blocked tasks were invisible without manual `arc tasks --status blocked` query. 120min cadence is appropriately measured (not every 5min — blocked tasks don't unblock that fast). The 4 signal types cover the real unblock causes without requiring new infrastructure. P7/Sonnet for the review task is correct — requires judgment, not just a config check.
+- `worker-deploy`: valid. Removes the last manual step from arc0btc-worker changes. 5min cadence is aggressive but appropriate for CD (deploy latency matters for service UX). SHA-in-hook-state pattern is already proven by `arc-starter-publish`.
+- `erc8004-trust`: valid. Aggregating reputation + validation into a trust score is the correct consumer-facing abstraction. CLI-only (no sensor) is correct — trust scores are computed on-demand when making decisions (hiring agents, approving multisig, etc.).
+- `task_deps` table: valid. `parent_id` only expressed 1:1 hierarchy; `task_deps` enables M:N (blocks, related, discovered-from). Schema-first introduction is the correct sequencing — build the storage before building the consumers.
+- Memory-decay for research reports: valid. `research/` was accumulating unboundedly. 30-day TTL is reasonable; arxiv cap at 5 is appropriately minimal.
+
+**Step 2 — Delete:**
+- INFO — Sensor count: 49 (+2). Skill count: 73 (+4). Growth remains controlled — two focused sensor additions, one CLI-only addition, one SKILL.md-only addition.
+- INFO — `worker-deploy` at 5min joins `stacks-payments` (3min) as the most frequent sensors. Both are justified by latency requirements. Monitor Cloudflare API error rates — if wrangler calls fail regularly, add circuit-breaker logic (same recommendation as stacks-payments Hiro API from 00:49Z audit).
+- INFO — `task_deps` has no CLI surface yet. The dependency graph is invisible to operators. A `arc tasks deps --id N` command or web dashboard view would make it observable. Not urgent — the schema is correct; consumers can be built incrementally.
+
+**Step 3 — Simplify:**
+- `arc-blocked-review` signal detection (4 types) is 4 DB queries against the existing tasks table — no external APIs, no new tables. Minimum viable implementation.
+- `erc8004-trust` is pure composition (calls two existing CLI commands, aggregates output). No new storage. Correct complexity level.
+- Memory-decay in arc-skill-manager sensor adds one TTL check to an already-running sensor. No new sensor needed.
+
+**Step 4 — Accelerate:**
+- `arc-blocked-review` closes the blocked task visibility gap. Previously: blocked tasks accumulated silently until human manually queried. Now: reviewed every 2h with context on why they might be unblockable.
+- `worker-deploy` reduces arc0btc-worker deploy latency from "whenever manually triggered" to <5min after commit.
+- context-review false positive reduction (two passes) directly reduces wasted dispatch cycles on noise tasks.
+
+**Step 5 — Automate:**
+- INFO — `task_deps` + `arc-blocked-review` partial overlap: blocked review currently uses heuristic queries (sibling completion, child completion). When `task_deps` is fully wired, `blocks` relationships could drive arc-blocked-review directly (if a task's blocker is now completed, auto-surface for unblock). Natural evolution — not urgent until task_deps is used in practice.
+- INFO — `claude-code-releases` is currently SKILL.md-only (triggered by github-release-watcher). The research → follow-up task creation step is manual. Once the pattern runs 3+ times and proves stable, a workflow template (`claude-code-release-assessment`) could automate the research → task creation chain. Follow the same pattern as RecurringFailureMachine — wait for recurrences to validate before templating.
+
+**Architecture Assessment:** Healthy. 73 skills (+4), 49 sensors (+2). Key additions: dependency graph schema (task_deps), blocked task review automation (arc-blocked-review), CD pipeline for arc0btc.com (worker-deploy), trust score aggregation (erc8004-trust). No WARNs. Context-review noise reduced via two targeted fixes. Pipeline integrity intact.
+
+---
+
 ## 2026-03-07T14:15:00.000Z
 
 3 finding(s): 0 error, 0 warn, 3 info → **HEALTHY**

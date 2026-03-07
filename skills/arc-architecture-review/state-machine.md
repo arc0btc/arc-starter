@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-07T14:15:00.000Z*
+*Generated: 2026-03-07T18:40:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -66,13 +66,14 @@ stateDiagram-v2
         RunAllSensors --> arcReputationSensor: arc-reputation
         RunAllSensors --> arcPrReviewAttestation: arc0btc-pr-review (attestation)
         RunAllSensors --> stacksPaymentsSensor: stacks-payments
+        RunAllSensors --> arcBlockedReviewSensor: arc-blocked-review
+        RunAllSensors --> workerDeploySensor: worker-deploy
 
         note right of RunAllSensors
-            47 sensors total (+3 since 2026-03-06T18:20Z)
-            arc-reputation: new — signed peer review tracking
-            arc0btc-pr-review attestation: 10min — ERC-8004 after paid reviews
-            stacks-payments: 3min — STX blockchain payment detection → service tasks
-            github-release-watcher: reduced 6h → 1h cadence
+            49 sensors total (+2 since 2026-03-07T14:15Z)
+            arc-blocked-review: new — 120min, reviews blocked tasks for unblock signals
+            worker-deploy: new — 5min, SHA-gated auto-deploy arc0btc-worker to CF Workers
+            arc-skill-manager: enhanced with research report memory-decay (30-day TTL)
         end note
 
         state "Generic Sensor Pattern" as genericSensor {
@@ -259,7 +260,7 @@ stateDiagram-v2
     }
 
     note right of CLI
-        Skills with CLI (40):
+        Skills with CLI (41):
         aibtc-dev-ops, aibtc-news-classifieds,
         aibtc-news-editorial, aibtc-repo-maintenance,
         arc-brand-voice, arc-architecture-review,
@@ -276,9 +277,10 @@ stateDiagram-v2
         bitcoin-taproot-multisig, bitcoin-wallet,
         blog-publishing, contacts, defi-stacks-market,
         erc8004-identity, erc8004-reputation,
-        erc8004-validation, github-worker-logs,
-        quest-create, social-agent-engagement,
-        social-x-posting, styx, worker-logs-monitor
+        erc8004-trust, erc8004-validation,
+        github-worker-logs, quest-create,
+        social-agent-engagement, social-x-posting,
+        styx, worker-logs-monitor
     end note
 ```
 
@@ -319,7 +321,7 @@ stateDiagram-v2
 | agent-collaboration | received→triaged→ops_pending→retrospective_pending→completed | aibtc-inbox-sync | AIBTC inbox thread → triage → ops → learning capture; instance_key: agent-collab-{sender}-{date} |
 | recurring-failure | detected→investigating→fix_pending→fixing→retrospective_pending→completed | arc-failure-triage | Recurring failure investigation chain; fix task P5/sonnet (was P4/opus — investigation does hard thinking); retro P8/haiku; instance_key: recurring-failure-{type}-{YYYY-MM-DD} |
 
-## Skills Inventory (69 total)
+## Skills Inventory (73 total)
 
 | Skill | Sensor | CLI | Agent | Description |
 |-------|--------|-----|-------|-------------|
@@ -332,10 +334,12 @@ stateDiagram-v2
 | aibtc-repo-maintenance | yes | yes | yes | Triage, review, test, and support aibtcdev repos (GraphQL batched) |
 | arc-alive-check | yes | - | - | Periodic system-alive task creator |
 | arc-architecture-review | yes | yes | yes | Architecture review, state machine diagrams, SpaceX 5-step process |
+| arc-blocked-review | yes | - | yes | Sensor (120min) — reviews blocked tasks for sibling/child/mention completion + 48h stale signals |
 | arc-brand-voice | - | yes | yes | Brand identity consultant — voice rules, visual design system |
 | arc-catalog | yes | yes | - | Generate and publish skills/sensors catalog to arc0me-site (120min) |
 | arc-ceo-review | yes | - | yes | CEO reviews watch reports and manages task queue |
 | arc-ceo-strategy | - | - | yes | Strategic operating manual — treat yourself as CEO |
+| claude-code-releases | - | - | - | Applicability research on Claude Code releases — triggered by github-release-watcher |
 | arc-content-quality | - | yes | - | Pre-publish quality gate — detects AI writing patterns |
 | arc-cost-alerting | yes | - | - | Monitor daily spend and alert on thresholds |
 | arc-credentials | - | yes | yes | Encrypted credential store for API keys and secrets |
@@ -377,6 +381,7 @@ stateDiagram-v2
 | dev-landing-page-review | - | - | yes | Full React/Next.js PR review — performance + composition + UI/accessibility |
 | erc8004-identity | - | yes | yes | On-chain agent identity management |
 | erc8004-reputation | - | yes | yes | On-chain agent reputation management |
+| erc8004-trust | - | yes | - | Aggregate trust score from reputation + validation — CLI only, on-demand |
 | erc8004-validation | - | yes | yes | On-chain agent validation management |
 | github-ci-status | yes | - | - | Monitors GitHub Actions CI runs |
 | github-issue-monitor | yes | - | - | Issue monitoring for managed repos (re-enabled 2026-03-05, 24h recency filter) |
@@ -391,4 +396,5 @@ stateDiagram-v2
 | stacks-stackspot | yes | - | - | Autonomous Stacking — detect pots, auto-join, claim rewards |
 | stacks-payments | yes | - | - | Watch Stacks blockchain for STX payments to Arc address; decode arc: memo codes → service tasks (3min) |
 | styx | - | yes | yes | BTC→sBTC conversion via Styx protocol (btc2sbtc.com) — pool status, deposit, tracking |
+| worker-deploy | yes | - | - | Auto-deploy arc0btc-worker to Cloudflare Workers on SHA change (5min) |
 | worker-logs-monitor | yes | yes | yes | Query worker-logs deployments for errors, cross-reference GitHub issues, file new issues (60min) |
