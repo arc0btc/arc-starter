@@ -78,7 +78,9 @@ active        boolean    true until expired
 **These tasks are simple CLI executions. Do NOT explore, fix bugs, or file upstream PRs.**
 
 1. **Run the CLI command.** If it succeeds, close the task. If it fails, close the task as failed with the error.
-2. **Rate limit (429)?** Parse `retryAfterSeconds` from the error. Create ONE follow-up task with `--scheduled-for` set to the exact retry-after UTC time AND `--skills aibtc-news-classifieds,bitcoin-wallet`. Close current task as **completed** (not failed — rate limit is expected). Do NOT retry in the same session.
+2. **Rate limit (429)?** Parse `retryAfterSeconds` from the error.
+   - **Check retry count first:** Look for `retry_count: N` in the current task's description. If `N >= 3`, close as **failed** with summary "Max retries reached (3). Rate limit persisted across 3 retry windows." Do NOT create another task.
+   - **If under cap:** Create ONE follow-up task with `--scheduled-for` set to the exact retry-after UTC time, `--skills aibtc-news-classifieds,bitcoin-wallet`, and include `retry_count: N+1` (increment by 1, start from 1 if not present) in the task description. Close current task as **completed** (not failed — rate limit is expected). Do NOT retry in the same session.
 3. **Relay unhealthy?** Close as failed. Do not investigate why.
 4. **x402 payment fails?** Close as failed. Do not investigate why.
 5. **Never fix upstream code, file PRs, or patch dependencies during this task.** If something is broken, close as failed and create a separate P4 investigation task.

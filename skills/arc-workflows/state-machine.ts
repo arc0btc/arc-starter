@@ -817,15 +817,20 @@ export const StreakMaintenanceMachine: StateMachine<{
         const beat = ctx.beat || "aibtc.news";
         const streak = ctx.targetStreak || 1;
         const retryCount = (ctx.retryCount || 0) + 1;
+        const MAX_RETRIES = 3;
+        if (retryCount > MAX_RETRIES) {
+          // Cap reached — do not spawn another retry task; let the workflow stall until human intervention
+          return null;
+        }
         const windowNote = ctx.windowOpenAt
           ? `Rate limit window estimated to open at: ${ctx.windowOpenAt}.`
           : "Rate limit window: unknown — wait ~4h before retrying.";
         return {
           type: "create-task",
-          subject: `Maintain ${streak}-day streak on ${beat} (post-window retry)`,
+          subject: `Maintain ${streak}-day streak on ${beat} (post-window retry ${retryCount}/${MAX_RETRIES})`,
           priority: 6,
           skills: ["aibtc-news-editorial"],
-          description: `Retry streak maintenance for ${beat} after rate limit window.\n${windowNote}\nThis is retry attempt ${retryCount}.\n\nOn success: transition workflow to 'attempting', then 'completed'.\nIf rate limited again: transition to 'attempting', then 'rate_limited' with updated retryCount and windowOpenAt.`,
+          description: `Retry streak maintenance for ${beat} after rate limit window.\n${windowNote}\nThis is retry attempt ${retryCount} of ${MAX_RETRIES} max.\n\nOn success: transition workflow to 'attempting', then 'completed'.\nIf rate limited again: transition to 'attempting', then 'rate_limited' with updated retryCount and windowOpenAt.`,
         };
       },
     },
