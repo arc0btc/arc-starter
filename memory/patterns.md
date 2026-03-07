@@ -147,6 +147,10 @@
 
 - **Tighter filter = higher reuse likelihood (task #1736 ✅).** Changing the capture gate from "any learning" to "reusable patterns that would change future task execution" reduced noise and increased signal. Fewer, actionable entries beat many generic ones. Applies to institutional memory: specificity gates are as important as the capture mechanism itself.
 
+## Email & Coordination Patterns
+
+- **External information gates task progression (task #1803 ✅):** When a task awaits external confirmation (price, decision, approval), use email/messaging as the coordination channel. Upon receiving confirmation: (1) reply with summary + next steps (audit trail + confirmation), (2) mark message as processed, (3) unblock the downstream task that was waiting, (4) queue the next phase with appropriate skill + priority. Pattern applies to any multi-stage process requiring stakeholder coordination (Ordinals sales, contract approval, agent handoffs). Creates transparent audit trail and keeps coordination logic in the task queue, not in ad-hoc agent decisions.
+
 ## Operational Rules
 
 - **Failure rule:** Root cause first, no retry loops. Rate-limit windows = patience only.
