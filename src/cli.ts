@@ -13,6 +13,7 @@ import {
   markTaskBlocked,
   getTaskById,
   updateTask,
+  requeueTask,
   insertTaskDep,
   getTaskDeps,
   deleteTaskDep,
@@ -33,7 +34,7 @@ const USAGE = {
     '              [--skills SKILL1,SKILL2] [--parent ID] [--model opus|sonnet|haiku|codex|codex:<model>]\n' +
     '              [--defer DURATION | --scheduled-for ISO_DATETIME]',
   tasksUpdate:
-    'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--model opus|sonnet|haiku|codex|codex:<model>]',
+    'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--model opus|sonnet|haiku|codex|codex:<model>] [--status pending]',
   tasksClose:
     'arc tasks close --id N --status completed|failed|blocked --summary TEXT',
   tasksDeps: 'arc tasks deps --id N',
@@ -294,15 +295,21 @@ function cmdTasksUpdate(args: string[]): void {
   const description = flags["description"];
   const priority = flags["priority"] ? parseInt(flags["priority"], 10) : undefined;
   const model = flags["model"] ?? undefined;
+  const status = flags["status"] ?? undefined;
 
   if (priority !== undefined && isNaN(priority)) {
     process.stderr.write("Error: --priority must be a number\n" + usage);
     process.exit(1);
   }
 
-  if (subject === undefined && description === undefined && priority === undefined && model === undefined) {
+  if (status !== undefined && status !== "pending") {
+    process.stderr.write("Error: --status only supports 'pending' (to requeue blocked/failed tasks)\n" + usage);
+    process.exit(1);
+  }
+
+  if (subject === undefined && description === undefined && priority === undefined && model === undefined && status === undefined) {
     process.stderr.write(
-      "Error: at least one of --subject, --description, --priority, or --model is required\n" + usage
+      "Error: at least one of --subject, --description, --priority, --model, or --status is required\n" + usage
     );
     process.exit(1);
   }
@@ -315,13 +322,19 @@ function cmdTasksUpdate(args: string[]): void {
     process.exit(1);
   }
 
-  updateTask(id, { subject, description, priority, model });
+  if (subject !== undefined || description !== undefined || priority !== undefined || model !== undefined) {
+    updateTask(id, { subject, description, priority, model });
+  }
+  if (status === "pending") {
+    requeueTask(id);
+  }
 
   const updated: string[] = [];
   if (subject !== undefined) updated.push("subject");
   if (description !== undefined) updated.push("description");
   if (priority !== undefined) updated.push("priority");
   if (model !== undefined) updated.push("model");
+  if (status !== undefined) updated.push("status → pending");
   process.stdout.write(`Updated task #${id}: ${updated.join(", ")}\n`);
 }
 
