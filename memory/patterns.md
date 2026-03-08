@@ -72,6 +72,7 @@
 - **Lock detection + patience gates in remote provisioning:** dpkg locks held by unattended-upgrades are common race conditions during apt provisioning. Pattern: detect lock file → exponential backoff + retry. Critical during base OS provisioning; all apt-based provisioning stages must gate on lock release.
 - **SSH key reuse for fleet provisioning:** Implement as separate provisioning step positioned after base OS setup but before application installation; use idempotent checks (grep -qF) before appending keys. Preserves SSH recovery if later stages fail and enables centralized operator key management for fleet-wide access.
 - **Provisioning outcome documentation:** Multi-stage provisioning chains must document final state in result_detail (SSH credential changes, auth methods enabled/disabled, ports, service status). Without this, dependent SSH/infra tasks waste time rediscovering hidden state. Task #2213 had to debug why password auth failed because provisioning outcome wasn't recorded.
+- **Fresh VM dispatch=0 is normal initialization:** Newly provisioned VMs show "no dispatch cycles" until first cycle completes naturally; distinguish "never run" (fresh/just-provisioned, self-resolves ~1min) from "ran but stopped" (failure requiring investigation). Prevent false alerts by tracking last-seen cycle timestamp in fleet sensor.
 
 ## Claims & Verification Patterns
 
