@@ -57,7 +57,10 @@ const META_TASK_SOURCES = new Set([
 // Only includes skills where keyword detection is meaningful.
 const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   "stacks-stackspot": ["stacking", "stackspot", "pox", "stx reward"],
-  "bitcoin-wallet": ["bitcoin wallet", "btc wallet", "utxo", "send btc", "bitcoin transaction"],
+  // "bitcoin wallet" / "btc wallet" are intentionally excluded — too generic.
+  // Provisioning tasks describe "generate Bitcoin wallets" (setup) without needing this skill.
+  // Only match on unambiguous operational keywords: actual transaction/UTXO work.
+  "bitcoin-wallet": ["utxo", "send btc", "bitcoin transaction", "wallet unlock btc", "spend bitcoin"],
   "bitcoin-taproot-multisig": ["taproot multisig", "musig", "multisig psbt", "sign multisig", "m-of-n"],
   "aibtc-news-classifieds": ["post-classified", "classified ad", "aibtc.news/api/classifieds"],
   "arc-housekeeping": ["housekeeping", "wal file", "stale lock", "uncommitted change"],
