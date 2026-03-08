@@ -457,7 +457,7 @@ async function cmdVerifyDeploy(args: string[]): Promise<void> {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-      const postUrl = `${siteUrl}/${recentPost.date}/${postSlug}/`;
+      const postUrl = `${siteUrl}/blog/${recentPost.post_id}/`;
       const response = await fetch(postUrl, { signal: controller.signal });
 
       clearTimeout(timeoutId);
