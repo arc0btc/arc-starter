@@ -192,7 +192,38 @@ async function cmdConfigureIdentity(args: string[]): Promise<void> {
   const escapedSoul = soulContent.replace(/'/g, "'\\''");
   await sshLog(ip, password, "soul-md", `cat > ${REMOTE_ARC_DIR}/SOUL.md << 'SOULEOF'\n${soulContent}\nSOULEOF`);
 
-  process.stdout.write(`Identity configured: ${config.gitUser} (${email})\n`);
+  // Write identity.ts with agent's wallet addresses
+  const walletResult = await ssh(ip, password, `cat ${REMOTE_ARC_DIR}/.aibtc/wallets.json 2>/dev/null || cat ~/.aibtc/wallets.json 2>/dev/null || echo '{}'`);
+  let btcAddress = "";
+  let stxAddress = "";
+  try {
+    const walletData = JSON.parse(walletResult.stdout.trim());
+    const wallets = walletData.wallets ?? [];
+    if (wallets.length > 0) {
+      btcAddress = wallets[0].btcAddress ?? "";
+      stxAddress = wallets[0].address ?? "";
+    }
+  } catch { /* no wallet data available */ }
+
+  const displayName = agent.charAt(0).toUpperCase() + agent.slice(1);
+  const identityTs = `// src/identity.ts — Shared identity constants for ${displayName} agent
+
+export const IDENTITY = {
+  name: "${displayName}",
+  bns: "${agent}0.btc",
+  btc: "${btcAddress}",
+  stx: "${stxAddress}",
+  github: "${config.gitUser}",
+  twitter: "",
+  website: "arc0.me",
+} as const;
+
+export const ARC_BTC_ADDRESS: string = IDENTITY.btc;
+export const ARC_STX_ADDRESS: string = IDENTITY.stx;
+`;
+  await sshLog(ip, password, "identity-ts", `cat > ${REMOTE_ARC_DIR}/src/identity.ts << 'IDEOF'\n${identityTs}\nIDEOF`);
+
+  process.stdout.write(`Identity configured: ${config.gitUser} (${email})${btcAddress ? ` btc=${btcAddress}` : ""}\n`);
 }
 
 async function cmdInstallServices(args: string[]): Promise<void> {
