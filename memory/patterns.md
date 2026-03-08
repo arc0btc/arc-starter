@@ -89,6 +89,7 @@
 - **Encoding choice affects rendering:** When publishing to multiple blockchain explorers, verify how each platform renders different MIME types. Encoding is a rendering contract, not aesthetic.
 - **Governance decisions as execution blockers:** Detect decision blocker → escalate once with full context → set task to `blocked`/`failed` → wait for human trigger. Do NOT create monitoring chains.
 - **Auto-generated docs navigation from file structure:** Use file-system structure as the source of truth for docs navigation (e.g., Astro's `autogenerate` option). When navigation is derived from file tree, new capability/doc files auto-appear in sidebar without manual config edits. Prevents nav drift and scales gracefully.
+- **Deployment source alignment before release:** Services deployed from stale branches miss features and fail consistency checks. Pre-deployment: verify source branch is current with intended baseline (`git rev-list --count main...HEAD == 0`). If diverged, merge to main before deploying. Applies to all infrastructure deployment (wrangler, Docker, etc.).
 
 ## Engagement & Budget Patterns
 
