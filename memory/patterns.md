@@ -16,13 +16,11 @@
 - **Gate → Dedup → Create pattern:** All well-designed sensors follow this: interval gate (`claimSensorRun`), state dedup (hook-state or task check), then task creation. Prevents redundant work.
 - **SHA tracking for code-change dedup:** Hook-state SHA prevents redundant review tasks. Skip if currentSha == lastReviewedSha AND !diagramStale.
 - **Score-based auto-queue:** Hook-state.lastBriefDate prevents same-day re-queue. Extends to all time-gated operations.
-- **Health sensor false positives:** When health alert fires between cycle transitions (prior cycle complete, metrics not yet written), dispatch immediately picks up alert task and executes verification. Investigation confirms all services healthy. Expected behavior, not an outage. Validates architecture: sensors can be conservative (low false-negative cost); dispatch has capacity for immediate verification.
 - **Pagination field nesting:** Never assume `total`, `page`, or `count` are at response root — often nested in `pagination` or `meta`. Verify actual JSON structure.
 - **Dedup at platform integration layer:** When multiple sensors watch the same external system, dedup must happen at the *event source*. Prevents double-posts and preserves sensor independence.
 - **Sensor coverage gaps:** When critical items aren't caught by sensors, explicitly queue review tasks. Sensors optimize happy path; explicit queuing handles coverage edge cases.
 - **Task relationship signals for state discovery:** Use parent_id, source="task:<id>", and text mentions (#N) to detect if blocked/dependent tasks can be re-evaluated. Batch multiple signals (sibling completion, child completion, mention completion) into a single review task to prevent alert fatigue while maximizing signal quality.
 - **Age-threshold review gates for long-lived states:** Tasks in stalled states (blocked, pending, suspended) reaching age threshold (configurable per state) trigger automatic review. Makes threshold explicit and prevents state staleness without requiring manual monitoring chains.
-- **43+ sensors threshold:** When sensor count exceeds ~40, monitoring the sensor infrastructure itself becomes critical. Zero failures at 67 completions validates safety layers hold at scale.
 - **Multi-site structural role enforcement via sensors:** When sites have designated purposes (arc0.me = blog-only, arc0btc.com = full services), encode role constraints as checks in a drift sensor: validate reachability, forbidden routes (403 for blog-only /services/), presence of role-specific endpoints (x402 for services site), and cross-link integrity all in one run. Bundle all failures into a single task. Prevents silent role drift (a /services/ page silently appearing on a blog-only domain) and scales to more sites without redesigning monitoring.
 
 ## Feed Monitoring & Dedup Strategies
@@ -35,7 +33,6 @@
 
 - **3-tier model routing:** P1-4 → Opus (senior), P5-7 → Sonnet (mid), P8+ → Haiku (junior). Priority doubles as model selector + urgency flag.
 - **Token optimization:** Hardcoded for P4+ tasks (MAX_THINKING_TOKENS=10000, AUTOCOMPACT=50). Provides session stability + thinking budget preservation.
-- **Cost lever: model selection > cycle count:** Opus-tier tasks consumed 59% of 7-day budget despite being minority of cycles. Downgrading one high-value sensor from Opus→Sonnet saves more than eliminating 50 Haiku tasks.
 - **Sensor cost governance at design time:** Review sensors became cost sinks because intervals were set without budget awareness. Explicit cost tier per sensor at creation + interval governance during review.
 - **Dispatch-level cost caps > tactical downgrades:** Budget overruns require structural fix. Hard cost cap at dispatch (e.g., $40/day) prevents runaway regardless of queue state.
 - **Retrospective tasks need at least Sonnet tier (P7):** Haiku (5min timeout) is insufficient for reading multiple task records, extracting patterns, and writing to memory.
@@ -55,10 +52,6 @@
 - **Sponsor failure fallback:** When `--sponsored` broadcast fails with relay parse/nonce error, fall back to direct fee (non-sponsored). Sponsor errors are relay state issues, not client errors; retry differs from rate-limit (429) which requires scheduled patience.
 - **Multi-context task separation by stakeholder:** When a task involves multiple signers in different technical contexts (L1 vs L2, different chains, different timelines), split into separate tasks with explicit preconditions. Each context may require different signers or information. Example: Bitcoin multisig + Stacks multisig → two tasks, each naming its blocker (e.g., "blocked: waiting for whoabuddy's Taproot pubkey").
 - **Verify asset ownership immediately before PSBT execution (task #1845):** Inscription #8315 was transferred out-of-band via proposal 6bd3c4d4 before the sale task ran. Sale/transfer tasks must re-verify on-chain ownership at execution time, not just at task creation time. Out-of-band proposals and direct transfers can supersede queued tasks. Pattern: `arc skills run --name <ordinal-skill> -- status --inscription <id>` as preflight; fail fast if not owned.
-
-## X API Authentication
-
-- **arc-link-research X tweet fetch:** Requires OAuth 1.0a access_token. `loadXCreds()` returns null if only bearer_token is stored → tweet lookup fails. Fix: add bearer-token fallback for read-only lookups (X API v2 supports bearer token for `/tweets/:id`).
 
 ## Integration Patterns
 
@@ -103,7 +96,6 @@
 ## Engagement & Budget Patterns
 
 - **Early budget validation:** Enforce budget checks BEFORE API calls. `checkBudget(action)` runs first; only then call API.
-- **ISO date string for daily resets:** Use `new Date().toISOString().slice(0, 10)` for daily budget resets. Automatically resets at UTC midnight.
 - **Corrective actions are unbudgeted:** Unlike/unretweet are free undo operations; no budget check needed.
 
 ## Git & Publishing Patterns
@@ -131,11 +123,6 @@
 - **Escalation decision audit in task chains:** When a prior task explicitly declined to sign/execute (due to price, risk, terms), subsequent tasks on same parent chain must re-verify escalation status, not proceed automatically. Escalations are hard stops, not notifications.
 - **Batch blocked task escalations by decision type:** When multiple pending tasks depend on the same stakeholder's decision, group them in a single escalation communication. Single consolidated email > separate notifications; reduces fatigue and provides holistic context (task #2109 example: 4 blocked tasks, 3 decision types, 1 email).
 - **Fleet state audit before rollout authorization:** When stakeholder approves fleet-wide changes (AIBTC registration, heartbeats, config rollout), audit all agents first to discover gaps (missing files, divergent configs) before queuing implementation. Include audit findings in authorization reply so stakeholder sees complete picture (task #2258: approved AIBTC for fleet, discovered SOUL.md missing on iris/loom/forge, queued verification before implementation).
-
-## Contacts & Enrichment Patterns
-
-- **Privacy marking for human operators:** Use `[PRIVATE]` markers in notes to prevent accidental doxxing of associated people.
-- **Milestone tracking for capability verification:** Contact value grows from capability timelines (specific dates, first successful operations), not just static facts.
 
 ## Task Composition & Scoping
 
