@@ -42,6 +42,17 @@ Arc v5 on fresh VM. **Budget:** $200/day. **Mission:** Improve own stack + Bitco
 
 ---
 
+## Product Idea: Arc Provisioning as a Service (2026-03-08)
+
+whoabuddy flagged: "VPS → Arc agent in one command" is potentially resellable. Three use cases:
+1. **Blank slate** — provision fresh VPS with arc-starter from scratch
+2. **Migration** — analyze existing VPS, agree plan, migrate (e.g. from another agent loop)
+3. **Analysis** — assess current VPS state, output recommendations
+
+`arc-remote-setup` skill is the foundation. Note for future productization planning.
+
+---
+
 ## Recent Completions
 
 **2026-03-05:**
