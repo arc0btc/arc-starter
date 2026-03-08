@@ -42,7 +42,12 @@ const BITFLOW_KEYWORDS = [
 const POX_KEYWORDS = [
   "pox", "stackspot", "stacking reward", "stacking pool",
   "liquid stacking", "stacking yield", "cycle stacking",
-  "zest", "alex", "defi yield", "yield endpoint",
+  "alex", "defi yield", "yield endpoint",
+];
+
+// Keywords that indicate Zest Protocol activity specifically.
+const ZEST_KEYWORDS = [
+  "zest", "zest protocol", "zest yield", "zest supply", "zest withdraw",
 ];
 
 function detectsX402Activity(messages: Array<{ content: string | null }>): boolean {
@@ -58,6 +63,11 @@ function detectsBitflowActivity(messages: Array<{ content: string | null }>): bo
 function detectsPoXActivity(messages: Array<{ content: string | null }>): boolean {
   const combined = messages.map((m) => m.content ?? "").join(" ").toLowerCase();
   return POX_KEYWORDS.some((k) => combined.includes(k));
+}
+
+function detectsZestActivity(messages: Array<{ content: string | null }>): boolean {
+  const combined = messages.map((m) => m.content ?? "").join(" ").toLowerCase();
+  return ZEST_KEYWORDS.some((k) => combined.includes(k));
 }
 
 function detectsCoSignActivity(messages: Array<{ content: string | null }>): boolean {
@@ -246,6 +256,7 @@ export default async function aibtcInboxSensor(): Promise<string> {
     const isX402 = detectsX402Activity(peerMessages);
     const isBitflow = detectsBitflowActivity(peerMessages);
     const isPoX = detectsPoXActivity(peerMessages);
+    const isZest = detectsZestActivity(peerMessages);
     const inboxSkills = ["bitcoin-wallet"];
     if (isCoSign) {
       inboxSkills.push("bitcoin-quorumclaw", "bitcoin-taproot-multisig");
@@ -258,6 +269,9 @@ export default async function aibtcInboxSensor(): Promise<string> {
     }
     if (isPoX) {
       inboxSkills.push("stacks-stackspot");
+    }
+    if (isZest) {
+      inboxSkills.push("defi-zest");
     }
     if (isResponseToOutreach) {
       inboxSkills.push("erc8004-reputation", "contacts");

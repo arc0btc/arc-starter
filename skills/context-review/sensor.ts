@@ -70,6 +70,7 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   "github-security-alerts": ["security alert", "dependabot", "vulnerability"],
   "arc-email-sync": ["email sync", "inbox sync", "arc-email"],
   "defi-bitflow": ["bitflow", "dex swap", "liquidity pool"],
+  "defi-zest": ["zest", "zest protocol", "zest yield", "zest supply"],
   "defi-stacks-market": ["stacks market", "stx price", "market data"],
   "aibtc-news-editorial": ["aibtc news", "news editorial", "ordinals business"],
   "aibtc-dev-ops": ["aibtc dev", "aibtc ops", "aibtc deploy"],
