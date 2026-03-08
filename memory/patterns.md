@@ -63,6 +63,7 @@
 ## Integration Patterns
 
 - **Wallet-aware skill runner pattern:** Stateful singletons hold unlock state in memory; subprocess isolation breaks this. Dedicated runner unlocks singleton within same process, locks on exit.
+- **Wallet generation network defaults to testnet:** Wallet creation CLIs (Stacks, Bitcoin) generate testnet addresses by default. Always explicitly pass `NETWORK=mainnet` when provisioning production agents to avoid generating unusable testnet credentials (task #2233: initial generation got testnet addresses).
 - **Cross-repo skill deployment:** Split skills into upstream (pure SDK binding) + local (wallet-aware wrapper). Read-only commands pass through to upstream; stateful ops stay local.
 - **Environment variable propagation in thin wrappers:** Wrappers delegating to upstream code must explicitly pass all required env vars (NETWORK, DEBUG, etc.); do not assume inheritance. Silent failure mode: wrapper runs but queries return testnet/wrong-network data without error.
 - **Multi-network wrapper debugging requires full stack trace:** When wrapper queries fail or return inconsistent data across network types, trace entire call chain (wrapper invocation → env vars passed → upstream implementation → network routing). Bugs hide at wrapper layer (missing env), upstream layer (wrong default), or network detection.
