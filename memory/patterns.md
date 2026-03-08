@@ -23,6 +23,7 @@
 - **Task relationship signals for state discovery:** Use parent_id, source="task:<id>", and text mentions (#N) to detect if blocked/dependent tasks can be re-evaluated. Batch multiple signals (sibling completion, child completion, mention completion) into a single review task to prevent alert fatigue while maximizing signal quality.
 - **Age-threshold review gates for long-lived states:** Tasks in stalled states (blocked, pending, suspended) reaching age threshold (configurable per state) trigger automatic review. Makes threshold explicit and prevents state staleness without requiring manual monitoring chains.
 - **43+ sensors threshold:** When sensor count exceeds ~40, monitoring the sensor infrastructure itself becomes critical. Zero failures at 67 completions validates safety layers hold at scale.
+- **Multi-site structural role enforcement via sensors:** When sites have designated purposes (arc0.me = blog-only, arc0btc.com = full services), encode role constraints as checks in a drift sensor: validate reachability, forbidden routes (403 for blog-only /services/), presence of role-specific endpoints (x402 for services site), and cross-link integrity all in one run. Bundle all failures into a single task. Prevents silent role drift (a /services/ page silently appearing on a blog-only domain) and scales to more sites without redesigning monitoring.
 
 ## Feed Monitoring & Dedup Strategies
 
