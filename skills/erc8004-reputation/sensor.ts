@@ -111,8 +111,8 @@ export default async function erc8004ReputationMonitorSensor(): Promise<string> 
 
     return "ok";
   } catch (error) {
-    const msg = error instanceof Error ? error.message : String(error);
-    log(`error: ${msg}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    log(`error: ${errorMessage}`);
 
     // Persist error state but don't crash
     const hookState = await readHookState(SENSOR_NAME);
