@@ -31,6 +31,7 @@ import {
 } from "./db.ts";
 import { isPidAlive } from "./utils.ts";
 import { type ModelTier, MODEL_IDS, MODEL_PRICING } from "./models.ts";
+import { dispatchOpenRouter, getOpenRouterApiKey } from "./openrouter.ts";
 
 // ---- Constants ----
 
@@ -1103,6 +1104,13 @@ export async function runDispatch(): Promise<void> {
   const dispatchStart = Date.now();
   let cycleUpdated = false;
 
+  // 6b. Detect OpenRouter mode — use direct API dispatch instead of Claude Code CLI
+  const openRouterKey = await getOpenRouterApiKey();
+  const useOpenRouter = !!openRouterKey || process.env.DISPATCH_MODE === "openrouter";
+  if (useOpenRouter) {
+    log("dispatch: using OpenRouter API dispatch mode");
+  }
+
   try {
     // 7. Run dispatch with exponential backoff for transient errors
     const BACKOFF_MS = [1000, 2000, 4000];
@@ -1111,7 +1119,11 @@ export async function runDispatch(): Promise<void> {
 
     for (let attempt = 0; attempt <= BACKOFF_MS.length; attempt++) {
       try {
-        dispatchResult = await dispatch(prompt, model, worktreePath);
+        if (useOpenRouter) {
+          dispatchResult = await dispatchOpenRouter(prompt, model, worktreePath ?? undefined, openRouterKey ?? undefined);
+        } else {
+          dispatchResult = await dispatch(prompt, model, worktreePath);
+        }
         break;
       } catch (retryErr) {
         lastDispatchError = retryErr as Error;
