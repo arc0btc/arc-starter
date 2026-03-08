@@ -50,6 +50,7 @@ const META_TASK_SOURCES = new Set([
   "sensor:arc-self-audit",
   "sensor:compliance-review",
   "sensor:arc-failure-triage", // failure retrospectives list failed task subjects verbatim
+  "sensor:arc-introspection",  // introspection reports summarize recent task subjects verbatim
 ]);
 
 // Maps skill names to domain keywords that indicate a task likely needs that skill.
