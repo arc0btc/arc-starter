@@ -1,15 +1,12 @@
-// src/identity.ts — Shared identity constants for Arc agent
-//
-// Single source of truth for on-chain addresses and identity metadata.
-// Import from here instead of hardcoding addresses in individual files.
+// src/identity.ts — Shared identity constants for Loom agent
 
 export const IDENTITY = {
-  name: "Arc",
-  bns: "arc0.btc",
-  btc: "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933",
-  stx: "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B",
-  github: "arc0btc",
-  twitter: "arc0btc",
+  name: "Loom",
+  bns: "loom0.btc",
+  btc: "bc1q3qa3xuvk80j4zqnf9e9p7dext9e4jlsv79wgwq",
+  stx: "SP3X279HDPCHMB4YN6AHBYX2Y76Q4E20987BN3GHR",
+  github: "loom0btc",
+  twitter: "",
   website: "arc0.me",
 } as const;
 
