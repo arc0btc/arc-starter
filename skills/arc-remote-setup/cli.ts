@@ -92,6 +92,13 @@ function requireAgent(args: string[]): { agent: string; config: AgentConfig } {
   return { agent, config };
 }
 
+// ---- Authorized SSH keys (injected into fleet VMs) ----
+
+const AUTHORIZED_KEYS: string[] = [
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG+K+qev6fjXMe0SUXPSX5001hUsSRBlLVEV18MjMQnp whoabuddy@whoabuddydev",
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJvKlYVqpINAdtmF3uH9Z/RG+/+/eMATOH56gf6bVUhN whoabuddy@users.noreply.github.com",
+];
+
 // ---- Subcommands ----
 
 async function cmdSshCheck(args: string[]): Promise<void> {
@@ -240,26 +247,58 @@ async function cmdHealthCheck(args: string[]): Promise<void> {
   process.stdout.write("Health check passed.\n");
 }
 
+async function cmdAddAuthorizedKeys(args: string[]): Promise<void> {
+  const { agent } = requireAgent(args);
+  const ip = await getAgentIp(agent);
+  const password = await getSshPassword();
+
+  process.stdout.write(`Adding authorized SSH keys on ${agent} (${ip})...\n`);
+
+  // Ensure .ssh dir exists with correct permissions
+  await sshLog(ip, password, "ssh-dir", "mkdir -p ~/.ssh && chmod 700 ~/.ssh");
+
+  // Touch authorized_keys with correct permissions
+  await sshLog(ip, password, "auth-keys-file", "touch ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys");
+
+  // Add each key idempotently (grep before append)
+  for (const key of AUTHORIZED_KEYS) {
+    const comment = key.split(" ").pop() ?? "unknown";
+    const escapedKey = key.replace(/\//g, "\\/");
+    const result = await ssh(ip, password, `grep -qF '${escapedKey}' ~/.ssh/authorized_keys`);
+    if (result.ok) {
+      process.stdout.write(`  [${comment}] already present, skipping\n`);
+    } else {
+      await sshLog(ip, password, comment, `echo '${key}' >> ~/.ssh/authorized_keys`);
+      process.stdout.write(`  [${comment}] added\n`);
+    }
+  }
+
+  process.stdout.write("Authorized keys updated.\n");
+}
+
 async function cmdFullSetup(args: string[]): Promise<void> {
   const { agent } = requireAgent(args);
   process.stdout.write(`=== Full setup for ${agent} ===\n\n`);
 
-  process.stdout.write("--- Step 1/6: SSH Check ---\n");
+  process.stdout.write("--- Step 1/7: SSH Check ---\n");
   await cmdSshCheck(args);
 
-  process.stdout.write("\n--- Step 2/6: Provision Base ---\n");
+  process.stdout.write("\n--- Step 2/7: Provision Base ---\n");
   await cmdProvisionBase(args);
 
-  process.stdout.write("\n--- Step 3/6: Install Arc ---\n");
+  process.stdout.write("\n--- Step 3/7: Add Authorized Keys ---\n");
+  await cmdAddAuthorizedKeys(args);
+
+  process.stdout.write("\n--- Step 4/7: Install Arc ---\n");
   await cmdInstallArc(args);
 
-  process.stdout.write("\n--- Step 4/6: Configure Identity ---\n");
+  process.stdout.write("\n--- Step 5/7: Configure Identity ---\n");
   await cmdConfigureIdentity(args);
 
-  process.stdout.write("\n--- Step 5/6: Install Services ---\n");
+  process.stdout.write("\n--- Step 6/7: Install Services ---\n");
   await cmdInstallServices(args);
 
-  process.stdout.write("\n--- Step 6/6: Health Check ---\n");
+  process.stdout.write("\n--- Step 7/7: Health Check ---\n");
   await cmdHealthCheck(args);
 
   process.stdout.write(`\n=== ${agent} setup complete ===\n`);
@@ -325,13 +364,14 @@ Usage:
   arc skills run --name arc-remote-setup -- <command> --agent <name>
 
 Commands:
-  ssh-check           Verify SSH connectivity
-  provision-base      Install bun, git, build tools, set hostname/timezone
-  install-arc         Clone arc-starter, install deps, build check
-  configure-identity  Set git config, create SOUL.md
-  install-services    Install and enable systemd services
-  health-check        Verify services running
-  full-setup          Run all steps in sequence
+  ssh-check              Verify SSH connectivity
+  provision-base         Install bun, git, build tools, set hostname/timezone
+  add-authorized-keys    Inject whoabuddy SSH keys into authorized_keys
+  install-arc            Clone arc-starter, install deps, build check
+  configure-identity     Set git config, create SOUL.md
+  install-services       Install and enable systemd services
+  health-check           Verify services running
+  full-setup             Run all steps in sequence
 
 Agents: ${Object.keys(AGENTS).join(", ")}
 `);
@@ -349,6 +389,9 @@ async function main(): Promise<void> {
       break;
     case "provision-base":
       await cmdProvisionBase(args.slice(1));
+      break;
+    case "add-authorized-keys":
+      await cmdAddAuthorizedKeys(args.slice(1));
       break;
     case "install-arc":
       await cmdInstallArc(args.slice(1));

@@ -17,6 +17,7 @@ Provisions arc-starter on remote Ubuntu VMs via SSH. Foundation for agent fleet 
 ```
 arc skills run --name arc-remote-setup -- ssh-check --agent <name>
 arc skills run --name arc-remote-setup -- provision-base --agent <name>
+arc skills run --name arc-remote-setup -- add-authorized-keys --agent <name>
 arc skills run --name arc-remote-setup -- install-arc --agent <name>
 arc skills run --name arc-remote-setup -- configure-identity --agent <name>
 arc skills run --name arc-remote-setup -- install-services --agent <name>
@@ -42,6 +43,7 @@ arc skills run --name arc-remote-setup -- full-setup --agent <name>
 
 - **ssh-check**: Verify SSH connectivity and print OS info
 - **provision-base**: Set hostname, install bun/git/build-essential, set timezone to UTC
+- **add-authorized-keys**: Inject whoabuddy's SSH keys into ~/.ssh/authorized_keys (idempotent)
 - **install-arc**: Clone arc-starter, bun install, build
 - **configure-identity**: Set git config, generate SOUL.md from template
 - **install-services**: Install systemd sensor + dispatch services
