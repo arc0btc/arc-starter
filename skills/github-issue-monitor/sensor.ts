@@ -98,6 +98,9 @@ export default async function githubIssueMonitorSensor(): Promise<string> {
         if (/x402|agent.*collab|engagement/.test(titleLower)) {
           extraSkills.push("social-agent-engagement");
         }
+        if (/zest/.test(titleLower)) {
+          extraSkills.push("defi-zest");
+        }
         const issueSkills = ["aibtc-repo-maintenance", ...extraSkills];
 
         insertTaskIfNew(canonicalSource, {
