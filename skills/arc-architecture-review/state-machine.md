@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-07T18:40:00.000Z*
+*Generated: 2026-03-08T00:40:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -260,7 +260,7 @@ stateDiagram-v2
     }
 
     note right of CLI
-        Skills with CLI (41):
+        Skills with CLI (45):
         aibtc-dev-ops, aibtc-news-classifieds,
         aibtc-news-editorial, aibtc-repo-maintenance,
         arc-brand-voice, arc-architecture-review,
@@ -268,19 +268,21 @@ stateDiagram-v2
         arc-credentials, arc-dispatch-evals,
         arc-email-sync, arc-failure-triage,
         arc-housekeeping, arc-link-research,
-        arc-mcp-server, arc-reporting,
+        arc-mcp-server, arc-performance-analytics,
         arc-reputation, arc-skill-manager,
         arc-starter-publish, arc-web-dashboard,
         arc-workflows, arc-worktrees,
         arc0btc-monetization, arc0btc-site-health,
         arxiv-research, bitcoin-quorumclaw,
         bitcoin-taproot-multisig, bitcoin-wallet,
-        blog-publishing, contacts, defi-stacks-market,
+        blog-deploy, blog-publishing,
+        contacts, dao-zero-authority,
+        defi-bitflow, defi-stacks-market,
         erc8004-identity, erc8004-reputation,
         erc8004-trust, erc8004-validation,
         github-worker-logs, quest-create,
         social-agent-engagement, social-x-posting,
-        styx, worker-logs-monitor
+        styx, worker-deploy, worker-logs-monitor
     end note
 ```
 
@@ -349,9 +351,9 @@ stateDiagram-v2
 | arc-housekeeping | yes | yes | yes | Repo hygiene — locks, WAL size, memory bloat, archival, stale worktrees |
 | arc-link-research | - | yes | yes | Process batches of links into research reports |
 | arc-mcp-server | - | yes | - | MCP server exposing task queue, skills, memory |
-| arc-performance-analytics | - | - | - | Performance analytics reference |
+| arc-performance-analytics | - | yes | - | Cost/token analytics by model tier, skill, and time period |
 | arc-report-email | yes | - | - | Email watch reports when generated |
-| arc-reporting | yes | yes | yes | Watch reports (HTML, 6h) and overnight briefs (markdown, 6am PST) |
+| arc-reporting | yes | - | yes | Watch reports (HTML, 6h) and overnight briefs (markdown, 6am PST) |
 | arc-reputation | yes | yes | - | Signed peer reviews via BIP-322, local SQLite storage, give-feedback CLI |
 | arc-scheduler | yes | - | - | Deferred task scheduling, overdue queue monitoring |
 | arc-self-audit | yes | - | - | Daily operational self-audit — tasks, costs, skills, commits |
@@ -370,13 +372,13 @@ stateDiagram-v2
 | bitcoin-quorumclaw | yes | yes | yes | Bitcoin Taproot M-of-N multisig via QuorumClaw API |
 | bitcoin-taproot-multisig | - | yes | - | BIP-340 Schnorr primitives — get-pubkey, verify-cosig |
 | bitcoin-wallet | - | yes | yes | Wallet management and cryptographic signing |
-| blog-deploy | yes | - | - | Auto-deploy arc0me-site on content changes |
+| blog-deploy | yes | yes | - | Auto-deploy arc0me-site on content changes |
 | blog-publishing | yes | yes | yes | Create, manage, and publish blog posts |
 | compliance-review | yes | - | - | Structural, interface, and naming compliance audits |
 | contacts | yes | yes | yes | Contact management — agents, humans, addresses, handles, interaction history |
 | context-review | yes | - | - | Audit whether tasks load correct skills context |
-| dao-zero-authority | yes | - | - | Zero Authority DAO sensor |
-| defi-bitflow | yes | - | - | Bitflow DeFi sensor |
+| dao-zero-authority | yes | yes | - | Zero Authority DAO sensor |
+| defi-bitflow | yes | yes | - | Bitflow DeFi sensor |
 | defi-stacks-market | yes | yes | yes | Prediction market intelligence — detect high-volume markets |
 | dev-landing-page-review | - | - | yes | Full React/Next.js PR review — performance + composition + UI/accessibility |
 | erc8004-identity | - | yes | yes | On-chain agent identity management |
@@ -396,5 +398,5 @@ stateDiagram-v2
 | stacks-stackspot | yes | - | - | Autonomous Stacking — detect pots, auto-join, claim rewards |
 | stacks-payments | yes | - | - | Watch Stacks blockchain for STX payments to Arc address; decode arc: memo codes → service tasks (3min) |
 | styx | - | yes | yes | BTC→sBTC conversion via Styx protocol (btc2sbtc.com) — pool status, deposit, tracking |
-| worker-deploy | yes | - | - | Auto-deploy arc0btc-worker to Cloudflare Workers on SHA change (5min) |
+| worker-deploy | yes | yes | - | Auto-deploy arc0btc-worker to Cloudflare Workers on SHA change (5min) |
 | worker-logs-monitor | yes | yes | yes | Query worker-logs deployments for errors, cross-reference GitHub issues, file new issues (60min) |
