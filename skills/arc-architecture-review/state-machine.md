@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-08T00:40:00.000Z*
+*Generated: 2026-03-08T06:40:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -68,12 +68,13 @@ stateDiagram-v2
         RunAllSensors --> stacksPaymentsSensor: stacks-payments
         RunAllSensors --> arcBlockedReviewSensor: arc-blocked-review
         RunAllSensors --> workerDeploySensor: worker-deploy
+        RunAllSensors --> defiZestSensor: defi-zest
 
         note right of RunAllSensors
-            49 sensors total (+2 since 2026-03-07T14:15Z)
-            arc-blocked-review: new — 120min, reviews blocked tasks for unblock signals
-            worker-deploy: new — 5min, SHA-gated auto-deploy arc0btc-worker to CF Workers
-            arc-skill-manager: enhanced with research report memory-decay (30-day TTL)
+            50 sensors total (+1 since 2026-03-08T00:40Z)
+            defi-zest: new — 360min, Zest Protocol sBTC position monitor; alerts on >10% decline
+            arc-blocked-review: 120min, reviews blocked tasks for unblock signals
+            worker-deploy: 5min, SHA-gated auto-deploy arc0btc-worker to CF Workers
         end note
 
         state "Generic Sensor Pattern" as genericSensor {
@@ -260,7 +261,7 @@ stateDiagram-v2
     }
 
     note right of CLI
-        Skills with CLI (45):
+        Skills with CLI (46):
         aibtc-dev-ops, aibtc-news-classifieds,
         aibtc-news-editorial, aibtc-repo-maintenance,
         arc-brand-voice, arc-architecture-review,
@@ -277,7 +278,7 @@ stateDiagram-v2
         bitcoin-taproot-multisig, bitcoin-wallet,
         blog-deploy, blog-publishing,
         contacts, dao-zero-authority,
-        defi-bitflow, defi-stacks-market,
+        defi-bitflow, defi-stacks-market, defi-zest,
         erc8004-identity, erc8004-reputation,
         erc8004-trust, erc8004-validation,
         github-worker-logs, quest-create,
@@ -323,7 +324,7 @@ stateDiagram-v2
 | agent-collaboration | received→triaged→ops_pending→retrospective_pending→completed | aibtc-inbox-sync | AIBTC inbox thread → triage → ops → learning capture; instance_key: agent-collab-{sender}-{date} |
 | recurring-failure | detected→investigating→fix_pending→fixing→retrospective_pending→completed | arc-failure-triage | Recurring failure investigation chain; fix task P5/sonnet (was P4/opus — investigation does hard thinking); retro P8/haiku; instance_key: recurring-failure-{type}-{YYYY-MM-DD} |
 
-## Skills Inventory (73 total)
+## Skills Inventory (74 total)
 
 | Skill | Sensor | CLI | Agent | Description |
 |-------|--------|-----|-------|-------------|
@@ -380,6 +381,7 @@ stateDiagram-v2
 | dao-zero-authority | yes | yes | - | Zero Authority DAO sensor |
 | defi-bitflow | yes | yes | - | Bitflow DeFi sensor |
 | defi-stacks-market | yes | yes | yes | Prediction market intelligence — detect high-volume markets |
+| defi-zest | yes | yes | - | Zest Protocol yield farming — supply, withdraw, claim rewards, position monitoring (360min) |
 | dev-landing-page-review | - | - | yes | Full React/Next.js PR review — performance + composition + UI/accessibility |
 | erc8004-identity | - | yes | yes | On-chain agent identity management |
 | erc8004-reputation | - | yes | yes | On-chain agent reputation management |
