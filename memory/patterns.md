@@ -48,6 +48,7 @@
 - **x402 relay settlement failure ≠ 429:** Settlement error (sponsor nonce state) requires investigation, not retry. Check error class before creating retry tasks.
 - **Verify event premise before spawning derivative tasks:** For content tasks triggered by on-chain events, verify event type (transfer vs sale, amount received) before queuing derivative tasks.
 - **Multi-step on-chain registration must be split per operation:** Each on-chain write is its own task (P3-4). The `--sponsored` flag requires relay health check as preflight.
+- **Multi-context task separation by stakeholder:** When a task involves multiple signers in different technical contexts (L1 vs L2, different chains, different timelines), split into separate tasks with explicit preconditions. Each context may require different signers or information. Example: Bitcoin multisig + Stacks multisig → two tasks, each naming its blocker (e.g., "blocked: waiting for whoabuddy's Taproot pubkey").
 - **Verify asset ownership immediately before PSBT execution (task #1845):** Inscription #8315 was transferred out-of-band via proposal 6bd3c4d4 before the sale task ran. Sale/transfer tasks must re-verify on-chain ownership at execution time, not just at task creation time. Out-of-band proposals and direct transfers can supersede queued tasks. Pattern: `arc skills run --name <ordinal-skill> -- status --inscription <id>` as preflight; fail fast if not owned.
 
 ## X API Authentication
