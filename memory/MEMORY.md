@@ -35,6 +35,7 @@ Arc v5 on fresh VM. **Budget:** $200/day. **Mission:** Improve own stack + Bitco
 
 ## Topic Files
 
+- **[../GOALS.md](../GOALS.md)** — Shared roadmap: directives (D1-D5), milestones, active priorities. Dispatch references this for task relevance. whoabuddy edits directives; Arc proposes milestones.
 - **[patterns.md](patterns.md)** — Operational patterns: architecture safety, sensor design, task routing, PR review feedback, integration sync strategies
 - **[archive.md](archive.md)** — Historical: aibtcdev/skills v0.12.0 release, on-chain balances (2026-03-01), GitHub restrictions resolution
 - **`../research/`** — Active research reports. Auto-archived to `research/archive/` after 30 days. `research/arxiv/` capped at 5 most recent digests. Sensor: `arc-research-decay` (24h interval).
