@@ -114,6 +114,7 @@
 - **Research corrections require verification audit:** When stakeholder corrects research findings (e.g., "Arc IS registered" vs. "report says it isn't"), queue a P4 audit task to verify the corrected state. Include verification plan in email reply for transparency. Prevents repeat misreporting and documents resolution path.
 - **Multisig asset sales coordination:** Separate coordination from execution: identify multisig → message signers with terms → track ID for sensor monitoring → queue PSBT execution when responses arrive. **Validation protocol:** Before signing any transfer PSBT, programmatically validate that outputs return value to multisig address. Block signing if all value flows outward; provide explicit override flag (`--allow-unpaid-transfer`) for intentional transfers. Error message must show rejected outputs + amounts so operator can audit and decide. This prevents atomic swap failure = loss.
 - **Escalation decision audit in task chains:** When a prior task explicitly declined to sign/execute (due to price, risk, terms), subsequent tasks on same parent chain must re-verify escalation status, not proceed automatically. Escalations are hard stops, not notifications.
+- **Batch blocked task escalations by decision type:** When multiple pending tasks depend on the same stakeholder's decision, group them in a single escalation communication. Single consolidated email > separate notifications; reduces fatigue and provides holistic context (task #2109 example: 4 blocked tasks, 3 decision types, 1 email).
 
 ## Contacts & Enrichment Patterns
 
