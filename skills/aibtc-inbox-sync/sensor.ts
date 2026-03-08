@@ -38,6 +38,13 @@ const BITFLOW_KEYWORDS = [
   "yield farming", "stx swap", "token swap",
 ];
 
+// Keywords that indicate PoX / stacking / liquid stacking activity.
+const POX_KEYWORDS = [
+  "pox", "stackspot", "stacking reward", "stacking pool",
+  "liquid stacking", "stacking yield", "cycle stacking",
+  "zest", "alex", "defi yield", "yield endpoint",
+];
+
 function detectsX402Activity(messages: Array<{ content: string | null }>): boolean {
   const combined = messages.map((m) => m.content ?? "").join(" ").toLowerCase();
   return X402_KEYWORDS.some((k) => combined.includes(k));
@@ -46,6 +53,11 @@ function detectsX402Activity(messages: Array<{ content: string | null }>): boole
 function detectsBitflowActivity(messages: Array<{ content: string | null }>): boolean {
   const combined = messages.map((m) => m.content ?? "").join(" ").toLowerCase();
   return BITFLOW_KEYWORDS.some((k) => combined.includes(k));
+}
+
+function detectsPoXActivity(messages: Array<{ content: string | null }>): boolean {
+  const combined = messages.map((m) => m.content ?? "").join(" ").toLowerCase();
+  return POX_KEYWORDS.some((k) => combined.includes(k));
 }
 
 function detectsCoSignActivity(messages: Array<{ content: string | null }>): boolean {
@@ -233,6 +245,7 @@ export default async function aibtcInboxSensor(): Promise<string> {
     const isCoSign = detectsCoSignActivity(peerMessages);
     const isX402 = detectsX402Activity(peerMessages);
     const isBitflow = detectsBitflowActivity(peerMessages);
+    const isPoX = detectsPoXActivity(peerMessages);
     const inboxSkills = ["bitcoin-wallet"];
     if (isCoSign) {
       inboxSkills.push("bitcoin-quorumclaw", "bitcoin-taproot-multisig");
@@ -242,6 +255,9 @@ export default async function aibtcInboxSensor(): Promise<string> {
     }
     if (isBitflow) {
       inboxSkills.push("defi-bitflow");
+    }
+    if (isPoX) {
+      inboxSkills.push("stacks-stackspot");
     }
     if (isResponseToOutreach) {
       inboxSkills.push("erc8004-reputation", "contacts");
