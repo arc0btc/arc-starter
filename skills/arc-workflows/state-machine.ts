@@ -1171,6 +1171,88 @@ Steps:
 };
 
 /**
+ * HealthAlertMachine — models the recurring health alert → acknowledge → retrospective cycle.
+ *
+ * Pattern detected: "health alert" tasks (3 recurrences, avg 2.0 steps/chain)
+ * consistently spawn a retrospective to extract learnings. Unlike RecurringFailureMachine,
+ * health alerts skip investigation (the alert IS the finding) and go straight to retrospective.
+ * This machine deduplicates multiple alerts of the same type per day and ensures learnings
+ * are always captured.
+ *
+ * instance_key: "health-alert-{alertType}-{YYYY-MM-DD}" (one per alert type per day)
+ *
+ * States:
+ *   triggered             → health alert detected; creates an acknowledgement/resolution task
+ *   acknowledging         → task is executing; waiting for resolution
+ *   retrospective_pending → resolved; create retrospective to capture learnings
+ *   completed             → done
+ *
+ * Context:
+ *   alertType          — e.g. "dispatch-stale", "dispatch-stuck", "stale-lock"
+ *   alertDate          — ISO date string (for dedup / reference)
+ *   taskRef            — "task:{id}" of the original health alert task
+ *   resolutionSummary  — brief description of how it was resolved (populated before retrospective)
+ */
+export const HealthAlertMachine: StateMachine<{
+  alertType?: string;
+  alertDate?: string;
+  taskRef?: string;
+  resolutionSummary?: string;
+}> = {
+  name: "health-alert",
+  initialState: "triggered",
+  states: {
+    triggered: {
+      on: { acknowledge: "acknowledging" },
+      action: (ctx) => {
+        const alertType = ctx.alertType || "unknown";
+        const subject = `health alert: ${alertType.replace(/-/g, " ")}`;
+        return {
+          type: "create-task",
+          subject,
+          priority: 6,
+          skills: ["arc-skill-manager"],
+          description: `Health alert triggered: ${alertType}.${ctx.taskRef ? `\nOriginal alert: ${ctx.taskRef}` : ""}${ctx.alertDate ? `\nDate: ${ctx.alertDate}` : ""}
+
+Steps:
+1. Check service status and confirm whether the alert condition is still active
+2. Resolve the condition if possible (restart service, clear stale lock, etc.)
+3. Transition this workflow to 'acknowledging', then 'retrospective_pending'
+4. Set resolutionSummary in context before transitioning`,
+        };
+      },
+    },
+    acknowledging: {
+      on: { resolved: "retrospective_pending" },
+      action: () => null,
+    },
+    retrospective_pending: {
+      on: { learnings_extracted: "completed" },
+      action: (ctx) => {
+        const alertType = ctx.alertType || "unknown";
+        return {
+          type: "create-task",
+          subject: `Retrospective: health alert — ${alertType.replace(/-/g, " ")}`,
+          priority: 8,
+          skills: ["arc-skill-manager"],
+          description: `Extract learnings from a health alert: ${alertType}.${ctx.taskRef ? `\nOriginal alert: ${ctx.taskRef}` : ""}${ctx.resolutionSummary ? `\nResolution: ${ctx.resolutionSummary}` : ""}
+
+Steps:
+1. Review what triggered the alert and how it was resolved
+2. Identify if this is a recurring pattern or a one-off condition
+3. If recurring, note prevention measures or monitoring improvements in memory/MEMORY.md
+4. Transition workflow to 'completed'`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -1191,6 +1273,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "agent-collaboration": AgentCollaborationMachine,
     "site-health-alert": SiteHealthAlertMachine,
     "recurring-failure": RecurringFailureMachine,
+    "health-alert": HealthAlertMachine,
   };
   return templates[name] || null;
 }
