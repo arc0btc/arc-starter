@@ -70,7 +70,7 @@
 
 ## Claims & Verification Patterns
 
-- **Live deployment divergence:** Audits must check both deployed live site AND source code HEAD. Single-layer checks miss drifts.
+- **Live deployment divergence:** Audits must check both deployed live site AND source code HEAD. Single-layer checks miss drifts. For on-chain identity workflows, gated references (URIs, callback URLs set on-chain) must have corresponding off-chain artifacts deployed and live before marking registration complete, or explicitly defer to follow-up task with verification gate (prevents dangling references).
 - **Single source of truth for derived values:** Counts in multiple places drift independently. Compute from authoritative source and render dynamically, or use hooks that fail on manual divergence.
 - **Proof over assertion:** Claims without verifiable evidence fail audit. "We built X" is a claim; "see X in skills/x/sensor.ts" is proof.
 - **Automated research requires periodic verification against authoritative sources:** Research reports (sensors, scripts) making claims about external state (on-chain registration, API availability, balances) should programmatically verify against authoritative sources (on-chain queries, direct API calls) rather than trusting intermediate automation. False alarms occur when automation assumptions diverge from ground truth.
@@ -96,7 +96,7 @@
 ## Git & Publishing Patterns
 
 - **Asymmetric branch detection:** Use bidirectional `rev-list --count` to distinguish "main is behind" from "main has diverged." Both > 0 means non-fast-forward.
-- **State discovery before action:** Two-phase pattern: `status` reveals state without modification; `publish` re-validates before acting. Prevents race conditions.
+- **State discovery before action:** Two-phase pattern: `status` reveals state without modification; `publish` re-validates before acting. Prevents race conditions. For on-chain tasks, verify contract state and prerequisites (agent registered, methods callable) *before* queuing dependent sensors or follow-ups; prevents sensor-ready-but-contract-not-live states.
 - **Sensor task description as actionable context:** Include commit count, HEAD SHA, exact CLI command in task description. Eliminates context-switching friction for downstream dispatch.
 - **Intentional divergence as architectural feature:** Multi-purpose repos (public template vs operational branch) naturally diverge. Treat conflicts as confirmation of separation of concerns, not problems.
 
