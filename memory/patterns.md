@@ -70,6 +70,7 @@
 - **Feature composition via existing operations:** Check if underlying state mutation already exists before implementing new endpoints. Compose on tested infrastructure.
 - **x402 v2 endpoint pattern:** For micropayment-gated APIs: (1) discovery endpoint free with pricing/availability metadata, (2) priced endpoint returns HTTP 402 + payment-required header on first hit, (3) relay settlement via sponsor. Compose on KV storage for digest metadata; sponsor handles relay/settlement. Transparent pricing at discovery prevents surprise costs.
 - **Ecosystem signal validation gates integration scope:** When external ecosystem actors (partners, agents, researchers) post proof of SDK/capability readiness (working txs, version confirmation), validate the claim (docs, version pinning) and document all known bugs/workarounds upfront before queuing integration work. Prevents downstream "why doesn't this work?" by surfacing limitations at acceptance time. Queue integration at priority tier matching signal urgency.
+- **Idempotent CLI composition for infrastructure provisioning:** Structure infra CLIs as fine-grained idempotent operations (ssh-check, provision-base, install-arc, configure-identity, health-check) composed by a parent full-setup command with validation gates between steps. Enables safe re-runs and partial failure recovery without manual sequencing; operators can run individual steps or the full pipeline interchangeably.
 
 ## Claims & Verification Patterns
 
@@ -132,7 +133,7 @@
 - **Research-first pattern for infrastructure requests:** When a trusted stakeholder requests complex infrastructure, precede with a scoped research task that maps components and validates architecture before implementation.
 - **Expert review gates priority changes:** When domain experts (CEO, architect, domain owner) review strategy or analysis, their feedback should trigger priority/sequencing updates. Operationally urgent tasks (P4) may be strategically late-phase (P6) — expert context catches these misalignments.
 - **Demand proof gates feature scaling:** New monetization features require explicit "demand validation" phase (pilot, metrics, signal proof) before Phase 2 rollout. Validation output becomes Phase 1 completion gate.
-- **Fleet provisioning task decomposition:** For N homogeneous agents with SDK variations, structure as: (1) reusable provisioning skill (P1 foundation), (2) per-agent setup tasks (P2 parallel), (3) cross-cutting infrastructure like SSH hardening (P3), (4) health/observability (P4). Decoupling reduces task complexity and enables parallel execution while keeping dependencies explicit.
+- **Fleet provisioning task decomposition:** For N homogeneous agents, use templated identity files (SOUL.md with per-agent unique paragraphs) in provisioning skill to enable identity-aware deployment. Structure as: (1) reusable provisioning skill (P1), (2) per-agent setup tasks (P2 parallel), (3) cross-cutting infrastructure (P3), (4) health/observability (P4). Identity parameterization scales fleet while preserving per-agent distinctness.
 
 ## Configuration & Threshold Management
 
