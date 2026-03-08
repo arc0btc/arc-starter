@@ -1,3 +1,30 @@
+## 2026-03-08T18:45:00.000Z
+
+4 findings: 0 error, 1 warn, 3 info → **HEALTHY**
+
+**Codebase changes since last audit (13:05Z, commits ccc711c → 96500d7):**
+- **`feat(dispatch)`** (ee8b619, 5747b16): Multi-SDK routing added — Codex CLI adapter (`src/codex.ts`) and OpenRouter API adapter (`src/openrouter.ts`). `task.model` now supports `codex:*` prefix for per-task SDK selection. Routing: `codex > openrouter > claude-code`. `arc-dual-sdk` skill documents the pattern (no sensor/CLI, orchestrator context loader only).
+- **`feat(arc-remote-setup)`** (ad98697, 007cb91, 96500d7): SSH-based VM provisioning skill for fleet (spark/iris/loom/forge). 8 idempotent steps: ssh-check, provision-base, add-authorized-keys, install-arc, configure-identity, install-services, health-check, full-setup. CLI only — no sensor.
+- **`feat(fleet-health)`** (d8177f8): New fleet monitoring skill + sensor (15min). SSH checks per VM: services, dispatch age, disk. Writes `memory/fleet-status.md`. Alerts P3 on issues.
+- **`feat(arc-workflows)`** (4665928): `OvernightBriefMachine` — overnight brief → retrospective cycle. `instance_key: overnight-brief-{YYYY-MM-DD}`. New workflow template added to state machine.
+- **`feat(arc-introspection)`**: New sensor (1440min). Qualitative daily self-assessment distinct from `arc-self-audit` (operational health vs qualitative synthesis). P5 task.
+- **`feat(site-consistency)`**: New sensor (1440min). Cross-site structural drift detection: arc0.me vs arc0btc.com. P3 tasks on structural mismatches.
+- **`fix(blog-publishing)`** (e271cf0): verify-deploy URL corrected to match Starlight routing — captured in MEMORY.md (task #2253).
+- **`fix(context-review)`** (c23f6b1): bitcoin-wallet keywords narrowed to prevent false positives.
+
+**SpaceX 5-step findings:**
+
+- **[INFO] Fleet infrastructure is coherent** — `arc-remote-setup` (provision) and `fleet-health` (monitor) are appropriately separated. Provisioning is manual CLI; monitoring is sensor-driven. Clean division of responsibility. (Step 1 — requirement valid: whoabuddy flagged as potentially resellable.)
+- **[INFO] Multi-SDK routing is clean** — `codex > openrouter > claude-code` fallback chain. `arc-dual-sdk` as documentation-only skill (no sensor/CLI) is appropriate — keeps orchestrator context lean without adding process overhead. (Step 3 — no simplification needed.)
+- **[INFO] OvernightBriefMachine closes the reporting loop** — overnight brief generation now feeds directly into retrospective via state machine. Pattern is consistent with existing `recurring-failure` and `agent-collaboration` machines. (Step 5 — appropriate automation, not premature.)
+- **[WARN] arc-introspection + arc-self-audit overlap** — both run daily (1440min), both synthesize task history. Self-audit = operational health ("are systems working?"); introspection = qualitative ("what matters?"). Distinction is defensible but thin. If context budget tightens, consider merging into a single daily task with two sections rather than two separate sensors. (Step 3 — simplification candidate, not urgent.)
+
+**Diagram changes:** +4 sensors (fleet-health, arc-introspection, site-consistency, erc8004-reputation), +3 CLIs (arc-remote-setup, fleet-health, site-consistency), dispatch routing updated to show SDK selection, OvernightBriefMachine added to workflow templates, skills inventory updated (74→79).
+
+**Follow-up tasks created:** None (warn item is low-urgency, not actionable now).
+
+---
+
 ## 2026-03-08T13:05:00.000Z
 
 1 finding(s): 0 error, 0 warn, 1 info → **HEALTHY**
