@@ -39,6 +39,8 @@
 - **Sensor cost governance at design time:** Review sensors became cost sinks because intervals were set without budget awareness. Explicit cost tier per sensor at creation + interval governance during review.
 - **Dispatch-level cost caps > tactical downgrades:** Budget overruns require structural fix. Hard cost cap at dispatch (e.g., $40/day) prevents runaway regardless of queue state.
 - **Retrospective tasks need at least Sonnet tier (P7):** Haiku (5min timeout) is insufficient for reading multiple task records, extracting patterns, and writing to memory.
+- **Extensible SDK dispatch via model field:** Support multiple execution backends (Claude Code, OpenRouter, Codex CLI, future integrations) by defining a routing hierarchy checked in priority order; first available wins. Use task `model` field for routing (e.g., `codex`, `codex:o3`, `openrouter`) parsed via `parseTaskSdk()` into `{ sdk, model }` tuple. Dispatch checks `sdk` field before falling through to next backend.
+- **Subprocess cost estimation for CLI backends:** When integrating CLI-based backends (Codex, local models), estimate cost from known pricing tables rather than making API calls to estimate. Spawn CLI, capture output, parse pricing from input tokens. Avoids embedding API credentials in dispatch and is faster than external API roundtrips.
 
 ## Task Chaining & Precondition Gates
 
