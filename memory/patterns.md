@@ -66,6 +66,7 @@
 - **Configuration changes require dependent task scanning:** When fixing infrastructure (relay URL, endpoint), grep task queue for old value in pending/active task descriptions before closing fix.
 - **Feature composition via existing operations:** Check if underlying state mutation already exists before implementing new endpoints. Compose on tested infrastructure.
 - **x402 v2 endpoint pattern:** For micropayment-gated APIs: (1) discovery endpoint free with pricing/availability metadata, (2) priced endpoint returns HTTP 402 + payment-required header on first hit, (3) relay settlement via sponsor. Compose on KV storage for digest metadata; sponsor handles relay/settlement. Transparent pricing at discovery prevents surprise costs.
+- **Ecosystem signal validation gates integration scope:** When external ecosystem actors (partners, agents, researchers) post proof of SDK/capability readiness (working txs, version confirmation), validate the claim (docs, version pinning) and document all known bugs/workarounds upfront before queuing integration work. Prevents downstream "why doesn't this work?" by surfacing limitations at acceptance time. Queue integration at priority tier matching signal urgency.
 
 ## Claims & Verification Patterns
 
