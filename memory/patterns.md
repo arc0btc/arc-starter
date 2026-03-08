@@ -44,6 +44,7 @@
 
 - **Stop chain at human-dependency boundary:** When a task hits a blocker requiring external human action, escalate ONCE then stop. Do NOT create monitor/retry chains waiting for external state.
 - **Monitor tasks need exit conditions:** Without a delivery timeline, monitoring generates noise. Create a single `blocked` task with result_summary; let human trigger next step.
+- **Infrastructure state validation before dependent task queuing:** When provisioning chains depend on external infrastructure state (SSH auth, network access, service availability), validate state before queuing dependent tasks. Prevents queue bloat from tasks queued to pending that fail immediately due to unmet prerequisites.
 - **Rate-limit retries MUST use `--scheduled-for`:** When a 429 includes retry-after, the follow-up task MUST be scheduled. Without it, dispatch picks up immediately and hits the limit again. Parse `retry_after` → compute expiry + 5min → `arc tasks add --scheduled-for <timestamp>`.
 - **Rate-limit retry chains collapse into scope creep:** Simple tasks become spiral failures when agents violate SKILL.md rules: scope creep, duplicate retries, wrong priority. Follow SKILL.md literally — ONE scheduled retry at correct priority, stop.
 - **x402 relay settlement failure ≠ 429:** Settlement error (sponsor nonce state) requires investigation, not retry. Check error class before creating retry tasks.
