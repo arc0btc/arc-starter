@@ -30,8 +30,9 @@ import {
   toSqliteDatetime,
 } from "./db.ts";
 import { isPidAlive } from "./utils.ts";
-import { type ModelTier, MODEL_IDS, MODEL_PRICING } from "./models.ts";
+import { type ModelTier, type SdkRoute, MODEL_IDS, MODEL_PRICING, parseTaskSdk } from "./models.ts";
 import { dispatchOpenRouter, getOpenRouterApiKey } from "./openrouter.ts";
+import { dispatchCodex } from "./codex.ts";
 
 // ---- Constants ----
 
@@ -182,7 +183,7 @@ function log(msg: string): void {
 // ---- Model routing ----
 
 /**
- * Route tasks to the appropriate model tier.
+ * Route tasks to the appropriate model tier (for Claude SDK only).
  * Explicit task.model takes precedence; falls back to priority-based routing:
  * P1-4 (senior):   Opus  — new skills/sensors, architecture, deep reasoning, complex code.
  * P5-7 (mid):      Sonnet — composition, reviews, moderate complexity, operational tasks.
@@ -192,11 +193,22 @@ function selectModel(task: Task): ModelTier {
   if (task.model) {
     const m = task.model;
     if (m === "opus" || m === "sonnet" || m === "haiku") return m;
-    log(`dispatch: unrecognized task.model="${m}" for task #${task.id}, falling back to priority routing`);
+    // Non-Claude models (codex:*, etc.) are handled by selectSdk — skip warning for those
+    if (!m.startsWith("codex")) {
+      log(`dispatch: unrecognized task.model="${m}" for task #${task.id}, falling back to priority routing`);
+    }
   }
   if (task.priority <= 4) return "opus";
   if (task.priority <= 7) return "sonnet";
   return "haiku";
+}
+
+/**
+ * Parse the task's SDK routing. Returns sdk type + model identifier.
+ * Used before selectModel() to determine which dispatch backend to use.
+ */
+function selectSdk(task: Task): SdkRoute {
+  return parseTaskSdk(task.model);
 }
 
 // ---- Cost calculation ----
@@ -1058,11 +1070,12 @@ export async function runDispatch(): Promise<void> {
 
   // 4. Build context for prompt
   const skillNames = parseSkillNames(task.skills);
-  const model = selectModel(task);
+  const sdkRoute = selectSdk(task);
+  const model = sdkRoute.sdk === "claude" ? selectModel(task) : selectModel(task); // Claude tier for timeout/cost calc
   if (skillNames.length > 0) {
     log(`dispatch: loading skills: ${skillNames.join(", ")}`);
   }
-  log(`dispatch: model=${model} (${task.model ? "explicit" : `priority ${task.priority}`})`);
+  log(`dispatch: sdk=${sdkRoute.sdk} model=${sdkRoute.sdk === "codex" ? (sdkRoute.model ?? "default") : model} (${task.model ? "explicit" : `priority ${task.priority}`})`);
 
   const recentCycles = getRecentCycles(10)
     .map(
@@ -1093,21 +1106,25 @@ export async function runDispatch(): Promise<void> {
   }
 
   // 6. Record cycle start
+  const cycleModelLabel = sdkRoute.sdk === "codex" ? `codex:${sdkRoute.model ?? "default"}` : model;
   const cycleStartedAt = toSqliteDatetime(new Date());
   const cycleId = insertCycleLog({
     started_at: cycleStartedAt,
     task_id: task.id,
     skills_loaded: skillNames.length > 0 ? JSON.stringify(skillNames) : null,
-    model,
+    model: cycleModelLabel,
   });
 
   const dispatchStart = Date.now();
   let cycleUpdated = false;
 
-  // 6b. Detect OpenRouter mode — use direct API dispatch instead of Claude Code CLI
-  const openRouterKey = await getOpenRouterApiKey();
-  const useOpenRouter = !!openRouterKey || process.env.DISPATCH_MODE === "openrouter";
-  if (useOpenRouter) {
+  // 6b. Detect dispatch backend: codex > openrouter > claude-code
+  const useCodex = sdkRoute.sdk === "codex";
+  const openRouterKey = useCodex ? null : await getOpenRouterApiKey();
+  const useOpenRouter = !useCodex && (!!openRouterKey || process.env.DISPATCH_MODE === "openrouter");
+  if (useCodex) {
+    log(`dispatch: using Codex CLI dispatch mode (model=${sdkRoute.model ?? "default"})`);
+  } else if (useOpenRouter) {
     log("dispatch: using OpenRouter API dispatch mode");
   }
 
@@ -1119,7 +1136,9 @@ export async function runDispatch(): Promise<void> {
 
     for (let attempt = 0; attempt <= BACKOFF_MS.length; attempt++) {
       try {
-        if (useOpenRouter) {
+        if (useCodex) {
+          dispatchResult = await dispatchCodex(prompt, sdkRoute.model, worktreePath ?? undefined);
+        } else if (useOpenRouter) {
           dispatchResult = await dispatchOpenRouter(prompt, model, worktreePath ?? undefined, openRouterKey ?? undefined);
         } else {
           dispatchResult = await dispatch(prompt, model, worktreePath);

@@ -30,10 +30,10 @@ import { handleCredsCli } from "../skills/arc-credentials/cli.ts";
 const USAGE = {
   tasksAdd:
     'arc tasks add --subject TEXT [--description TEXT] [--priority N] [--source TEXT]\n' +
-    '              [--skills SKILL1,SKILL2] [--parent ID] [--model opus|sonnet|haiku]\n' +
+    '              [--skills SKILL1,SKILL2] [--parent ID] [--model opus|sonnet|haiku|codex|codex:<model>]\n' +
     '              [--defer DURATION | --scheduled-for ISO_DATETIME]',
   tasksUpdate:
-    'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--model opus|sonnet|haiku]',
+    'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--model opus|sonnet|haiku|codex|codex:<model>]',
   tasksClose:
     'arc tasks close --id N --status completed|failed|blocked --summary TEXT',
   tasksDeps: 'arc tasks deps --id N',
