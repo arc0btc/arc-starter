@@ -132,6 +132,7 @@
 - **Research-first pattern for infrastructure requests:** When a trusted stakeholder requests complex infrastructure, precede with a scoped research task that maps components and validates architecture before implementation.
 - **Expert review gates priority changes:** When domain experts (CEO, architect, domain owner) review strategy or analysis, their feedback should trigger priority/sequencing updates. Operationally urgent tasks (P4) may be strategically late-phase (P6) — expert context catches these misalignments.
 - **Demand proof gates feature scaling:** New monetization features require explicit "demand validation" phase (pilot, metrics, signal proof) before Phase 2 rollout. Validation output becomes Phase 1 completion gate.
+- **Fleet provisioning task decomposition:** For N homogeneous agents with SDK variations, structure as: (1) reusable provisioning skill (P1 foundation), (2) per-agent setup tasks (P2 parallel), (3) cross-cutting infrastructure like SSH hardening (P3), (4) health/observability (P4). Decoupling reduces task complexity and enables parallel execution while keeping dependencies explicit.
 
 ## Configuration & Threshold Management
 
