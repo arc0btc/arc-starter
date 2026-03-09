@@ -7,12 +7,14 @@
  *   create [--name NAME]     Create a new worktree with symlinked shared state
  *   list                      List all worktrees and their status
  *   validate --name NAME      Syntax-check .ts files changed in the worktree
+ *   evaluate --name NAME      Run experiment evaluation gates on worktree changes
  *   merge --name NAME         Validate, merge into current branch, clean up
  *   remove --name NAME        Discard worktree and its branch
  */
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, symlinkSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
+import { captureBaseline, evaluateExperiment } from "../../src/experiment.ts";
 
 const ROOT = new URL("../..", import.meta.url).pathname;
 const WORKTREE_DIR = join(ROOT, ".worktrees");
@@ -154,6 +156,53 @@ async function cmdValidate(name: string): Promise<void> {
   console.log(`All ${changedFiles.length} changed .ts file(s) pass syntax check.`);
 }
 
+async function cmdEvaluate(name: string): Promise<void> {
+  const worktreePath = join(WORKTREE_DIR, name);
+  if (!existsSync(worktreePath)) {
+    console.error(`Worktree "${name}" not found at ${worktreePath}`);
+    process.exit(1);
+  }
+
+  const branchName = await getActualBranchName(name);
+
+  // Get all changed files (not just .ts)
+  const { stdout } = await git("diff", "--name-only", `HEAD...${branchName}`);
+  const changedFiles = stdout.trim().split("\n").filter(Boolean);
+
+  if (changedFiles.length === 0) {
+    console.log("No files changed — nothing to evaluate.");
+    return;
+  }
+
+  const baseline = captureBaseline(6);
+  console.log(`Baseline: ${baseline.cycleCount} cycles over ${baseline.windowHours}h`);
+  console.log(`  Success rate: ${(baseline.successRate * 100).toFixed(1)}%`);
+  console.log(`  Avg cost: $${baseline.avgCostUsd.toFixed(4)}`);
+  console.log(`  Avg duration: ${Math.round(baseline.avgDurationMs)}ms`);
+  console.log("");
+
+  const result = evaluateExperiment(worktreePath, ROOT, changedFiles, baseline);
+
+  console.log(`Changed files (${changedFiles.length}):`);
+  for (const f of result.changedFiles) {
+    console.log(`  [${f.category}] ${f.path}`);
+  }
+  console.log("");
+
+  if (result.warnings.length > 0) {
+    console.log(`Warnings (${result.warnings.length}):`);
+    for (const w of result.warnings) console.log(`  ⚠ ${w}`);
+    console.log("");
+  }
+
+  if (result.approved) {
+    console.log(`APPROVED: ${result.reason}`);
+  } else {
+    console.error(`REJECTED: ${result.reason}`);
+    process.exit(1);
+  }
+}
+
 async function cmdMerge(name: string): Promise<void> {
   const worktreePath = join(WORKTREE_DIR, name);
   if (!existsSync(worktreePath)) {
@@ -226,6 +275,7 @@ Commands:
   create [--name NAME]     Create a new worktree (default name: random)
   list                      List all worktrees
   validate --name NAME      Syntax-check changed .ts files in worktree
+  evaluate --name NAME      Run experiment evaluation gates on changes
   merge --name NAME         Validate + merge + clean up
   remove --name NAME        Discard worktree and branch
 
@@ -254,6 +304,11 @@ switch (command) {
   case "validate": {
     if (!flags.name) { console.error("--name required"); process.exit(1); }
     await cmdValidate(flags.name);
+    break;
+  }
+  case "evaluate": {
+    if (!flags.name) { console.error("--name required"); process.exit(1); }
+    await cmdEvaluate(flags.name);
     break;
   }
   case "merge": {

@@ -33,6 +33,7 @@ import { isPidAlive } from "./utils.ts";
 import { type ModelTier, type SdkRoute, MODEL_IDS, MODEL_PRICING, parseTaskSdk } from "./models.ts";
 import { dispatchOpenRouter, getOpenRouterApiKey } from "./openrouter.ts";
 import { dispatchCodex } from "./codex.ts";
+import { captureBaseline, classifyFile, evaluateExperiment, scheduleVerification, type BaselineSnapshot } from "./experiment.ts";
 
 // ---- Constants ----
 
@@ -983,6 +984,18 @@ async function validateWorktree(worktreePath: string, taskId: number): Promise<s
   return errors;
 }
 
+/** Get all files changed in the worktree branch (not just .ts). */
+async function getWorktreeChangedFiles(worktreePath: string, taskId: number): Promise<string[]> {
+  const branchName = `dispatch/task-${taskId}`;
+  const proc = Bun.spawn(
+    ["git", "diff", "--name-only", `HEAD...${branchName}`],
+    { cwd: ROOT, stdout: "pipe", stderr: "pipe" }
+  );
+  const stdout = await new Response(proc.stdout).text();
+  await proc.exited;
+  return stdout.trim().split("\n").filter(Boolean);
+}
+
 /** Merge worktree branch into current branch and clean up. */
 async function mergeWorktree(taskId: number): Promise<{ ok: boolean; error?: string }> {
   const name = `task-${taskId}`;
@@ -1145,6 +1158,13 @@ export async function runDispatch(): Promise<void> {
     }
   }
 
+  // 5c. Capture baseline metrics for experiment evaluation (worktree tasks only)
+  let experimentBaseline: BaselineSnapshot | undefined;
+  if (worktreePath) {
+    experimentBaseline = captureBaseline(6);
+    log(`dispatch: baseline captured — ${experimentBaseline.cycleCount} cycles, ${(experimentBaseline.successRate * 100).toFixed(0)}% success`);
+  }
+
   // 6. Record cycle start
   const cycleModelLabel = sdkRoute.sdk === "codex" ? `codex:${sdkRoute.model ?? "default"}` : model;
   const cycleStartedAt = toSqliteDatetime(new Date());
@@ -1303,9 +1323,10 @@ export async function runDispatch(): Promise<void> {
     clearDispatchLock();
   }
 
-  // 10. Post-dispatch: worktree validate+merge or normal safe commit
+  // 10. Post-dispatch: worktree validate+evaluate+merge or normal safe commit
   if (worktreePath) {
     try {
+      // Gate 1: Syntax validation
       const errors = await validateWorktree(worktreePath, task.id);
       if (errors.length > 0) {
         log(`dispatch: worktree validation FAILED for ${errors.length} file(s):`);
@@ -1318,16 +1339,46 @@ export async function runDispatch(): Promise<void> {
           source: `task:${task.id}`,
         });
       } else {
-        const { ok, error } = await mergeWorktree(task.id);
-        if (!ok) {
-          log(`dispatch: worktree merge failed — ${error}`);
-          await discardWorktree(task.id);
-          insertTask({
-            subject: `Fix worktree merge conflict from task #${task.id}`,
-            description: `Merge failed: ${error}`,
-            priority: 2,
-            source: `task:${task.id}`,
-          });
+        // Gate 2: Experiment evaluation (heuristic gates on change quality)
+        const changedFilePaths = await getWorktreeChangedFiles(worktreePath, task.id);
+        let experimentApproved = true;
+
+        if (experimentBaseline && changedFilePaths.length > 0) {
+          const evalResult = evaluateExperiment(worktreePath, ROOT, changedFilePaths, experimentBaseline);
+          for (const w of evalResult.warnings) log(`dispatch: experiment warning — ${w}`);
+
+          if (!evalResult.approved) {
+            log(`dispatch: experiment REJECTED — ${evalResult.reason}`);
+            experimentApproved = false;
+            await discardWorktree(task.id);
+            insertTask({
+              subject: `Fix experiment rejection from task #${task.id}`,
+              description: `Worktree discarded — experiment evaluation failed:\n${evalResult.reason}\n\nWarnings:\n${evalResult.warnings.join("\n")}`,
+              priority: 2,
+              source: `task:${task.id}`,
+            });
+          } else {
+            log(`dispatch: experiment APPROVED — ${evalResult.reason}`);
+          }
+        }
+
+        if (experimentApproved) {
+          const { ok, error } = await mergeWorktree(task.id);
+          if (!ok) {
+            log(`dispatch: worktree merge failed — ${error}`);
+            await discardWorktree(task.id);
+            insertTask({
+              subject: `Fix worktree merge conflict from task #${task.id}`,
+              description: `Merge failed: ${error}`,
+              priority: 2,
+              source: `task:${task.id}`,
+            });
+          } else if (experimentBaseline && changedFilePaths.length > 0) {
+            // Schedule deferred verification to check actual impact
+            const classified = changedFilePaths.map((p) => ({ path: p, category: classifyFile(p) as any }));
+            const verifyId = scheduleVerification(task.id, experimentBaseline, classified);
+            log(`dispatch: scheduled experiment verification task #${verifyId}`);
+          }
         }
       }
     } catch (err) {
