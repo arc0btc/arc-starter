@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T07:49:57.169Z",
+  "updated_at": "2026-03-09T07:51:53.066Z",
   "last_task": {
-    "id": 2463,
-    "subject": "Query task queues on all fleet agents — what's pending, active, completed",
+    "id": 2464,
+    "subject": "Pull recent cycle_log from all fleet agents — analyze dispatch patterns",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 63775,
-    "cost_usd": 0.30946175
+    "duration_ms": 115802,
+    "cost_usd": 0.42987975000000006
   },
   "health": {
-    "uptime_seconds": 985096,
+    "uptime_seconds": 985211,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234700898304
+    "disk_avail_bytes": 234700849152
   }
 }
