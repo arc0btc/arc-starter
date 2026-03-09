@@ -22,3 +22,4 @@
 {"timestamp":"2026-03-09T17:32:44.766Z","idle_agents":["spark","loom","forge"],"busy_agents":["iris"],"steals":[],"total_steals":0}
 {"timestamp":"2026-03-09T17:38:45.077Z","idle_agents":["spark","loom","forge"],"busy_agents":["iris"],"steals":[],"total_steals":0}
 {"timestamp":"2026-03-09T17:44:56.674Z","idle_agents":["spark","loom","forge"],"busy_agents":["iris"],"steals":[],"total_steals":0}
+{"timestamp":"2026-03-09T17:50:48.063Z","idle_agents":["loom","forge"],"busy_agents":["iris"],"steals":[],"total_steals":0}
