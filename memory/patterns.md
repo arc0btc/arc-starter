@@ -135,6 +135,7 @@
 - **Expert review gates priority changes:** When domain experts (CEO, architect, domain owner) review strategy or analysis, their feedback should trigger priority/sequencing updates. Operationally urgent tasks (P4) may be strategically late-phase (P6) — expert context catches these misalignments.
 - **Demand proof gates feature scaling:** New monetization features require explicit "demand validation" phase (pilot, metrics, signal proof) before Phase 2 rollout. Validation output becomes Phase 1 completion gate.
 - **Fleet provisioning task decomposition:** For N homogeneous agents, use templated identity files (SOUL.md with per-agent unique paragraphs) in provisioning skill to enable identity-aware deployment. Structure as: (1) reusable provisioning skill (P1), (2) per-agent setup tasks (P2 parallel), (3) cross-cutting infrastructure (P3), (4) health/observability (P4). Identity parameterization scales fleet while preserving per-agent distinctness.
+- **Multi-agent architecture decisions require topology prerequisites:** When designing fleet-wide systems (observability aggregators, credential delegation, security boundaries), defer finalizing the architecture choice until network topology is confirmed. Architecture constraints depend on actual agent connectivity model, not assumptions. Reply with options + ask clarification before queueing implementation tasks.
 
 ## Configuration & Threshold Management
 
