@@ -123,7 +123,32 @@ async function checkAgent(
     health.issues.push(`dispatch timer ${health.dispatchTimer}`);
   }
 
-  // Last dispatch cycle age
+  // Read peer's fleet-status.json for self-reported state (before dispatch age check — used as fallback)
+  const statusResult = await ssh(
+    ip, password,
+    `cat ${REMOTE_ARC_DIR}/memory/fleet-status.json 2>/dev/null`
+  );
+  if (statusResult.ok && statusResult.stdout.trim()) {
+    try {
+      const parsed = JSON.parse(statusResult.stdout) as PeerStatus;
+      health.peerStatus = parsed;
+
+      // Check staleness: >30min since updated_at
+      if (parsed.updated_at) {
+        const ageMs = Date.now() - new Date(parsed.updated_at).getTime();
+        const STALE_THRESHOLD_MS = 30 * 60 * 1000;
+        if (ageMs > STALE_THRESHOLD_MS) {
+          health.peerStatusStale = true;
+          const staleMins = Math.round(ageMs / 60000);
+          health.issues.push(`fleet-status.json stale (${staleMins}m old)`);
+        }
+      }
+    } catch {
+      // JSON parse failed — not critical
+    }
+  }
+
+  // Last dispatch cycle age — try cycle_log first, fall back to fleet-status.json
   const cycleResult = await ssh(
     ip, password,
     `cd ${REMOTE_ARC_DIR} && ~/.bun/bin/bun -e "
@@ -142,8 +167,15 @@ async function checkAgent(
   );
   health.lastDispatchAge = cycleResult.stdout.trim() || "unknown";
 
+  // If DB query failed but peer status has recent data, derive dispatch age from that
+  if ((health.lastDispatchAge === "no cycles" || health.lastDispatchAge === "query failed") && health.peerStatus?.updated_at) {
+    const peerAgeMs = Date.now() - new Date(health.peerStatus.updated_at).getTime();
+    const peerAgeMins = Math.round(peerAgeMs / 60000);
+    health.lastDispatchAge = `${peerAgeMins}m ago (self-reported)`;
+  }
+
   // Flag if last dispatch was >30 minutes ago (dispatch stall detection)
-  const ageMatch = health.lastDispatchAge.match(/^(\d+)m ago$/);
+  const ageMatch = health.lastDispatchAge.match(/^(\d+)m ago/);
   if (ageMatch && parseInt(ageMatch[1]) > 30) {
     health.issues.push(`dispatch stall: last cycle ${health.lastDispatchAge}`);
   } else if (health.lastDispatchAge === "no cycles" || health.lastDispatchAge === "query failed") {
@@ -199,31 +231,6 @@ async function checkAgent(
   if (streakResult.stdout.trim() === "streak") {
     health.issues.push(`circuit breaker: ${CONSECUTIVE_FAILURE_THRESHOLD} consecutive task failures`);
     health.consecutiveFailureStreak = true;
-  }
-
-  // Read peer's fleet-status.json for self-reported state
-  const statusResult = await ssh(
-    ip, password,
-    `cat ${REMOTE_ARC_DIR}/memory/fleet-status.json 2>/dev/null`
-  );
-  if (statusResult.ok && statusResult.stdout.trim()) {
-    try {
-      const parsed = JSON.parse(statusResult.stdout) as PeerStatus;
-      health.peerStatus = parsed;
-
-      // Check staleness: >30min since updated_at
-      if (parsed.updated_at) {
-        const ageMs = Date.now() - new Date(parsed.updated_at).getTime();
-        const STALE_THRESHOLD_MS = 30 * 60 * 1000;
-        if (ageMs > STALE_THRESHOLD_MS) {
-          health.peerStatusStale = true;
-          const staleMins = Math.round(ageMs / 60000);
-          health.issues.push(`fleet-status.json stale (${staleMins}m old)`);
-        }
-      }
-    } catch {
-      // JSON parse failed — not critical
-    }
   }
 
   return health;
