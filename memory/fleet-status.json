@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T12:37:45.094Z",
+  "updated_at": "2026-03-09T12:38:53.619Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 2948,
-    "subject": "Fleet alert: loom service issues — dispatch: no cycles",
+    "id": 2949,
+    "subject": "Fleet alert: forge service issues — dispatch: no cycles",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 57124,
-    "cost_usd": 0.19214425
+    "duration_ms": 65422,
+    "cost_usd": 0.14561375
   },
   "health": {
-    "uptime_seconds": 1002363,
+    "uptime_seconds": 1002432,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234679918592
+    "disk_avail_bytes": 234679881728
   }
 }
