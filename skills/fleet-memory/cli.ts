@@ -50,7 +50,12 @@ function loadHookState(): HookState {
     if (existsSync(HOOK_STATE_PATH)) {
       // Synchronous read for simplicity in CLI
       const text = require("node:fs").readFileSync(HOOK_STATE_PATH, "utf-8");
-      return JSON.parse(text) as HookState;
+      const parsed = JSON.parse(text);
+      return {
+        lastCollectedAt: parsed.lastCollectedAt ?? null,
+        agentHashes: parsed.agentHashes ?? {},
+        agentLineCounts: parsed.agentLineCounts ?? {},
+      };
     }
   } catch {
     // Fall through to default
@@ -257,6 +262,15 @@ async function cmdCollect(
     if (!dryRun) {
       state.lastCollectedAt = new Date().toISOString();
       await saveHookState(state);
+      // Initialize fleet-learnings.md if it doesn't exist yet
+      if (!existsSync(FLEET_LEARNINGS_PATH)) {
+        const timestamp = new Date().toISOString().slice(0, 10);
+        await Bun.write(
+          FLEET_LEARNINGS_PATH,
+          `# Fleet Learnings\n\n*Cross-agent learnings collected by fleet-memory. Auto-generated — do not edit manually.*\n*Distributed to all agents. Reference during dispatch for cross-domain context.*\n\n*First collected: ${timestamp}. No new unique learnings found (agents share Arc's patterns.md baseline).*\n`
+        );
+        process.stdout.write(`Created ${FLEET_LEARNINGS_PATH} (baseline, no new entries)\n`);
+      }
     }
     return;
   }
