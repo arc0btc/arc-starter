@@ -71,6 +71,12 @@ async function btcSign(message: string): Promise<string | null> {
 }
 
 export default async function aibtcHeartbeatSensor(): Promise<string> {
+  // Bail early if this agent has no BTC address configured
+  if (!ARC_BTC_ADDRESS) {
+    log("no BTC address configured for this agent — heartbeat disabled");
+    return "skip";
+  }
+
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
@@ -81,8 +87,8 @@ export default async function aibtcHeartbeatSensor(): Promise<string> {
   // Sign with BTC wallet
   const signature = await btcSign(message);
   if (!signature) {
-    log("signing failed — skipping heartbeat");
-    return "ok";
+    log("ERROR: signing failed — wallet creds may be missing or sign-runner broken");
+    return "error";
   }
 
   // POST to heartbeat API

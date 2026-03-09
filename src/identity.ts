@@ -44,13 +44,13 @@ const IDENTITIES: Record<string, AgentIdentity> = {
   iris: {
     name: "iris0",
     bns: "iris0.btc",
-    btc_segwit: "",
-    btc_taproot: "",
-    stx: "",
+    btc_segwit: "bc1q6savz94q7ps48y78gg3xcfvjhk6jmcgpmftqxe",
+    btc_taproot: "bc1pwlwkzral95md6c6gm40ccm2upps79jyvw9rx3pm2z95zz3w2ywrshlgghk",
+    stx: "SP215BXCEYDT5NXGMPJJKXQADYQXDX92QHN464Y87",
     github: "iris0btc",
     twitter: "",
     website: "",
-    btc: "",
+    btc: "bc1q6savz94q7ps48y78gg3xcfvjhk6jmcgpmftqxe",
   },
   loom: {
     name: "loom0",

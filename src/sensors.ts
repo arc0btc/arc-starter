@@ -246,6 +246,10 @@ export async function runSensors(): Promise<void> {
       if (result === "skip") {
         return { name: skill.name, ok: true, skipped: true, durationMs };
       }
+      // Sensors can return "error" to signal a non-exception failure
+      if (result === "error") {
+        return { name: skill.name, ok: false, skipped: false, durationMs, error: "sensor returned error" };
+      }
       return { name: skill.name, ok: true, skipped: false, durationMs };
     } catch (err) {
       return {
