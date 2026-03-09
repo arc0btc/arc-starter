@@ -587,12 +587,27 @@ const FACE_CACHE_DIR = join(import.meta.dir, "../db");
 
 async function handleFace(): Promise<Response> {
   const bnsPrefix = IDENTITY.bns.replace(/\.btc$/, "");
-  const cachePath = join(FACE_CACHE_DIR, `face-${bnsPrefix}.png`);
+  // Check for cached face in either format
+  const svgPath = join(FACE_CACHE_DIR, `face-${bnsPrefix}.svg`);
+  const pngPath = join(FACE_CACHE_DIR, `face-${bnsPrefix}.png`);
 
-  if (existsSync(cachePath)) {
-    return new Response(readFileSync(cachePath), {
+  // Serve cached SVG first, then PNG
+  if (existsSync(svgPath)) {
+    return new Response(readFileSync(svgPath), {
       headers: {
-        "Content-Type": "image/png",
+        "Content-Type": "image/svg+xml",
+        "Cache-Control": "public, max-age=86400",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+  }
+  if (existsSync(pngPath)) {
+    const content = readFileSync(pngPath);
+    // Detect if the "png" file is actually SVG (legacy cache)
+    const isSvg = content.length > 4 && content.slice(0, 100).toString().includes("<svg");
+    return new Response(content, {
+      headers: {
+        "Content-Type": isSvg ? "image/svg+xml" : "image/png",
         "Cache-Control": "public, max-age=86400",
         "Access-Control-Allow-Origin": "*",
       },
@@ -611,12 +626,15 @@ async function handleFace(): Promise<Response> {
 
     if (!res.ok) return errorResponse("Face not found", 404);
 
+    const contentType = res.headers.get("content-type") || "image/png";
+    const isSvg = contentType.includes("svg");
+    const ext = isSvg ? "svg" : "png";
     const buf = await res.arrayBuffer();
-    writeFileSync(cachePath, Buffer.from(buf));
+    writeFileSync(join(FACE_CACHE_DIR, `face-${bnsPrefix}.${ext}`), Buffer.from(buf));
 
     return new Response(Buffer.from(buf), {
       headers: {
-        "Content-Type": "image/png",
+        "Content-Type": contentType,
         "Cache-Control": "public, max-age=86400",
         "Access-Control-Allow-Origin": "*",
       },
