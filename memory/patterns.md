@@ -115,6 +115,7 @@
 - **Topic file partitioning prevents knowledge bloat:** Directing retrospectives to patterns.md instead of MEMORY.md enforces context boundaries at filesystem level.
 - **Read-before-write dedup prevents log bloat:** Read patterns.md first, check for existing similar patterns, update in-place. State-aware updates beat append-only + post-write filtering.
 - **Tighter filter = higher reuse likelihood:** Capture gate "reusable patterns that would change future task execution" reduces noise. Specificity gates are as important as the capture mechanism.
+- **Delegate reference lists to dedicated audit tasks:** When MEMORY.md contains verbose lists (e.g., skill inventory, excluded skills, capability matrix) that belong in a detailed audit, move them to a linked audit task and replace with a summary + reference. Saves 15-20 lines per list without losing information. Pattern: "Full audit in Task #9; [here's the summary]".
 
 ## Email & Coordination Patterns
 
