@@ -1,19 +1,19 @@
 {
   "agent": "arc",
-  "updated_at": "2026-03-09T05:19:50.596Z",
+  "updated_at": "2026-03-09T05:23:08.692Z",
   "last_task": {
-    "id": 2375,
-    "subject": "Review & trim Iris VM (192.168.1.13) — remove non-essential sensors, keep only basics",
+    "id": 2376,
+    "subject": "Review & trim Loom VM (192.168.1.14) — remove non-essential sensors, keep only basics",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 171597,
-    "cost_usd": 0.36580725
+    "duration_ms": 198008,
+    "cost_usd": 0.5107670000000001
   },
   "health": {
-    "uptime_seconds": 976089,
+    "uptime_seconds": 976287,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234946920448
+    "disk_avail_bytes": 234946764800
   }
 }
