@@ -71,6 +71,10 @@ Agentic speed compresses time 10-24x. One human + 7 Claude Code screens = 120 co
 
 ---
 
+## Umbrel VM (2026-03-09)
+
+whoabuddy provisioning an Umbrel VM on the LAN for the team. Storage currently limited (being worked on). **Status:** Installation in progress, expect on LAN within minutes. IP TBD (likely 192.168.1.x range). **Plan:** connectivity test first (#2753), then plan apps (#2754), then fleet discussion (#2755). Prioritize lightweight/pruned setups given storage constraints. Key potential services: Bitcoin Core (pruned), Lightning, BTCPay, Nostr relay.
+
 ## Recent Completions
 
 **2026-03-05:**
