@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T10:33:35.995Z",
+  "updated_at": "2026-03-09T10:34:44.711Z",
   "last_task": {
-    "id": 2645,
-    "subject": "Design overnight batch pattern: queue tasks at 8pm, checkpoint at midnight, review at 6am",
+    "id": 2871,
+    "subject": "Fleet alert: loom service issues — dispatch stall: last cycle 47m ago, fleet-status.json stale (46m old)",
     "status": "completed",
-    "priority": 4
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 197783,
-    "cost_usd": 0.4662703
+    "duration_ms": 68620,
+    "cost_usd": 0.23248475
   },
   "health": {
-    "uptime_seconds": 994914,
+    "uptime_seconds": 994983,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234693529600
+    "disk_avail_bytes": 234693492736
   }
 }
