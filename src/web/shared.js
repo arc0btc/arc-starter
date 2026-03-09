@@ -247,6 +247,14 @@ function applyIdentityHeader(id) {
   var footerAgent = document.getElementById('footer-agent-name');
   if (footerAgent) footerAgent.textContent = (id.name || 'Agent') + ' Agent';
 
+  // Update message box title
+  var msgTitle = document.getElementById("message-title");
+  if (msgTitle) msgTitle.textContent = "Message " + (id.name || "Agent");
+  var msgInput = document.getElementById("message-input");
+  if (msgInput) {
+    msgInput.placeholder = "Send a task to " + (id.name || "Agent") + "...";
+    msgInput.setAttribute("aria-label", "Send a task to " + (id.name || "Agent"));
+  }
   // Update footer links
   var footerLinks = document.getElementById('footer-links');
   if (footerLinks) {
