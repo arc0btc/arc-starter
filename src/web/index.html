@@ -28,10 +28,11 @@
   <header class="header">
     <div class="header-inner">
       <div class="header-identity">
-        <div class="avatar">A</div>
+        <img class="avatar avatar-img" id="header-avatar" src="/api/face" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+        <div class="avatar avatar-fallback" id="header-avatar-fallback" style="display:none">A</div>
         <div>
-          <h1 class="header-name">Arc <span class="status-dot live" id="status-dot" title="Live" aria-label="Status: live"></span><span class="sse-status disconnected" id="sse-dot" title="SSE disconnected" aria-label="SSE: disconnected"></span></h1>
-          <div class="header-bns">arc0.btc</div>
+          <h1 class="header-name" id="header-name">Arc <span class="status-dot live" id="status-dot" title="Live" aria-label="Status: live"></span><span class="sse-status disconnected" id="sse-dot" title="SSE disconnected" aria-label="SSE: disconnected"></span></h1>
+          <div class="header-bns" id="header-bns">arc0.btc</div>
         </div>
       </div>
 
@@ -175,12 +176,8 @@
 
   <!-- Footer -->
   <footer class="footer">
-    <div class="footer-inner">
-      <a href="https://arc0.me" target="_blank" rel="noopener">arc0.me</a>
-      <span class="footer-dot"></span>
-      <a href="https://arc0btc.com" target="_blank" rel="noopener">arc0btc.com</a>
-      <span class="footer-dot"></span>
-      <span>Arc Agent v5</span>
+    <div class="footer-inner" id="footer-inner">
+      <span>Agent v5</span>
       <span class="footer-dot"></span>
       <span id="uptime">--</span>
     </div>
@@ -489,9 +486,12 @@
       var card = document.getElementById('identity-card');
 
       var addrRows = [
-        { label: 'BTC', value: identity.btc, explorer: 'https://mempool.space/address/' + identity.btc },
-        { label: 'STX', value: identity.stx, explorer: 'https://explorer.hiro.so/address/' + identity.stx },
+        { label: 'L1 (segwit)', value: identity.btc_segwit || identity.btc, explorer: 'https://mempool.space/address/' + (identity.btc_segwit || identity.btc) },
       ];
+      if (identity.btc_taproot) {
+        addrRows.push({ label: 'L1 (taproot)', value: identity.btc_taproot, explorer: 'https://mempool.space/address/' + identity.btc_taproot });
+      }
+      addrRows.push({ label: 'L2 (stacks)', value: identity.stx, explorer: 'https://explorer.hiro.so/address/' + identity.stx });
 
       var rowsHtml = addrRows.map(function(r) {
         return '<div class="identity-row">'
@@ -502,20 +502,26 @@
           + '</div>';
       }).join('');
 
-      var linksHtml = '<div class="identity-links">'
-        + '<a href="https://' + escAttr(identity.website) + '" target="_blank" rel="noopener">' + esc(identity.website) + '</a>'
-        + '<a href="https://arc0btc.com" target="_blank" rel="noopener">arc0btc.com</a>'
-        + '<a href="https://github.com/' + escAttr(identity.github) + '" target="_blank" rel="noopener">GitHub</a>'
-        + '<a href="https://x.com/' + escAttr(identity.twitter) + '" target="_blank" rel="noopener">@' + esc(identity.twitter) + '</a>'
-        + '</div>';
+      var linksHtml = '';
+      if (identity.website || identity.github || identity.twitter) {
+        linksHtml = '<div class="identity-links">';
+        if (identity.website) linksHtml += '<a href="https://' + escAttr(identity.website) + '" target="_blank" rel="noopener">' + esc(identity.website) + '</a>';
+        if (identity.github) linksHtml += '<a href="https://github.com/' + escAttr(identity.github) + '" target="_blank" rel="noopener">GitHub</a>';
+        if (identity.twitter) linksHtml += '<a href="https://x.com/' + escAttr(identity.twitter) + '" target="_blank" rel="noopener">@' + esc(identity.twitter) + '</a>';
+        linksHtml += '</div>';
+      }
 
-      card.innerHTML = '<div class="identity-header">'
-        + '<div class="identity-avatar">A</div>'
-        + '<div><div class="identity-name">' + esc(identity.name) + '</div>'
-        + '<div class="identity-bns">' + esc(identity.bns) + '</div></div>'
-        + '</div>'
-        + rowsHtml
-        + linksHtml;
+      card.innerHTML = rowsHtml + linksHtml;
+
+      // Update header name/bns from identity data
+      var nameEl = document.getElementById('header-name');
+      var bnsEl = document.getElementById('header-bns');
+      if (nameEl) {
+        var spans = nameEl.querySelectorAll('span');
+        nameEl.textContent = identity.name + ' ';
+        for (var i = 0; i < spans.length; i++) nameEl.appendChild(spans[i]);
+      }
+      if (bnsEl) bnsEl.textContent = identity.bns;
     }
 
     // ---- Dispatch Metrics ----
@@ -622,7 +628,27 @@
           renderFeed(tasks.tasks || []);
           (tasks.tasks || []).forEach(function(t) { knownTaskIds.add(t.id); });
         }
-        if (identity) renderIdentity(identity);
+        if (identity) {
+          renderIdentity(identity);
+          document.title = identity.name + ' - Activity';
+          var msgInput = document.getElementById('message-input');
+          if (msgInput) msgInput.placeholder = 'Send a task to ' + identity.name + '...';
+          var msgTitle = document.querySelector('#message .section-title');
+          if (msgTitle) msgTitle.textContent = 'Message ' + identity.name;
+          // Populate footer with website links if present
+          var footer = document.getElementById('footer-inner');
+          if (footer && identity.website) {
+            var link = document.createElement('a');
+            link.href = 'https://' + identity.website;
+            link.target = '_blank';
+            link.rel = 'noopener';
+            link.textContent = identity.website;
+            var dot = document.createElement('span');
+            dot.className = 'footer-dot';
+            footer.insertBefore(dot, footer.firstChild);
+            footer.insertBefore(link, footer.firstChild);
+          }
+        }
         if (reputation) renderReputation(reputation);
       } catch (e) {
         console.error('Dashboard init error:', e);

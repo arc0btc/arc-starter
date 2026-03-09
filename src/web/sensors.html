@@ -97,7 +97,8 @@
   <header class="header">
     <div class="header-inner">
       <div class="header-identity">
-        <div class="avatar">A</div>
+        <img class="avatar avatar-img" src="/api/face" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+        <div class="avatar avatar-fallback" style="display:none">A</div>
         <div>
           <h1 class="header-name">Arc <span class="status-dot live" id="status-dot" title="Live" aria-label="Status: live"></span><span class="sse-status disconnected" id="sse-dot" title="SSE disconnected" aria-label="SSE: disconnected"></span></h1>
           <div class="header-bns">arc0.btc</div>

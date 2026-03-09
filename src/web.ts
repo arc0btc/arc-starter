@@ -3,7 +3,7 @@
 // Read-only SQLite connection. Serves JSON API endpoints and static files from src/web/.
 // Run: bun src/web.ts (or via arc skills run --name dashboard -- start)
 
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, extname } from "node:path";
 import { initDatabase, getDatabase, insertTask, markTaskFailed } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
@@ -581,6 +581,51 @@ function handleIdentity(): Response {
   return json(IDENTITY);
 }
 
+// ---- Bitcoin Face Avatar ----
+
+const FACE_CACHE_DIR = join(import.meta.dir, "../db");
+
+async function handleFace(): Promise<Response> {
+  const bnsPrefix = IDENTITY.bns.replace(/\.btc$/, "");
+  const cachePath = join(FACE_CACHE_DIR, `face-${bnsPrefix}.png`);
+
+  if (existsSync(cachePath)) {
+    return new Response(readFileSync(cachePath), {
+      headers: {
+        "Content-Type": "image/png",
+        "Cache-Control": "public, max-age=86400",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+  }
+
+  // Fetch and cache from bitcoinfaces.xyz
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    const res = await fetch(
+      `https://bitcoinfaces.xyz/api/get-image?name=${bnsPrefix}`,
+      { signal: controller.signal }
+    );
+    clearTimeout(timeout);
+
+    if (!res.ok) return errorResponse("Face not found", 404);
+
+    const buf = await res.arrayBuffer();
+    writeFileSync(cachePath, Buffer.from(buf));
+
+    return new Response(Buffer.from(buf), {
+      headers: {
+        "Content-Type": "image/png",
+        "Cache-Control": "public, max-age=86400",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+  } catch {
+    return errorResponse("Failed to fetch face", 502);
+  }
+}
+
 function handleReputation(): Response {
   try {
     // Check if reviews table exists (created by arc-reputation skill on first use)
@@ -898,6 +943,7 @@ function route(req: Request): Response | Promise<Response> {
   if (path === "/api/skills") return handleSkills();
   if (path === "/api/costs") return handleCosts(url);
   if (path === "/api/identity") return handleIdentity();
+  if (path === "/api/face") return handleFace();
   if (path === "/api/reputation") return handleReputation();
   if (path === "/api/events") return handleEvents();
 
