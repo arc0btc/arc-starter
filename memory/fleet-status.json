@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T18:51:18.880Z",
+  "updated_at": "2026-03-09T18:51:37.173Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3216,
-    "subject": "Workflow design: 8 repeating pattern(s) detected",
+    "id": 3221,
+    "subject": "cost alert: fleet spend $175.26/200 — approaching cap",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 111395,
-    "cost_usd": 0.6558045000000001
+    "duration_ms": 18004,
+    "cost_usd": 0.12338175
   },
   "health": {
-    "uptime_seconds": 1024777,
+    "uptime_seconds": 1024796,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234624065536
+    "disk_avail_bytes": 234624028672
   }
 }
