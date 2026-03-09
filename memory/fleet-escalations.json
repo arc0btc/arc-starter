@@ -31,7 +31,15 @@
       "subject": "Set up X API credentials to enable social-x-ecosystem sensor",
       "reason": "Waiting on whoabuddy for X API OAuth 1.0a credentials (consumer key/secret + access token/secret). No credentials in store. Follow-up task #70 already exists for this request.",
       "escalatedAt": "2026-03-09T10:56:19.413Z"
+    },
+    {
+      "agent": "loom",
+      "remoteTaskId": 50,
+      "localTaskId": 2901,
+      "subject": "Unblock task #1: main merged to v2 — fast-forward complete, 172 commits. Re-run publish.",
+      "reason": "SSH key rejected by GitHub — loom0btc ed25519 key not registered on arc0btc/arc-starter. v2 is 66 commits ahead of main, fast-forward possible, but push fails. Need: add SSH public key to GitHub account or store a GitHub PAT in credentials.",
+      "escalatedAt": "2026-03-09T11:11:18.729Z"
     }
   ],
-  "lastChecked": "2026-03-09T10:56:19.413Z"
+  "lastChecked": "2026-03-09T11:11:19.541Z"
 }
