@@ -4,8 +4,9 @@
  * Every 15 minutes, SSH into each fleet VM and check:
  * - sensor timer active
  * - dispatch timer active
- * - last dispatch cycle age
- * - disk usage
+ * - last dispatch cycle age (stall if >30min)
+ * - disk usage (>80%)
+ * - error rate (>50% failed tasks in last hour)
  *
  * Creates alert tasks for unreachable VMs or dead services.
  * Writes summary to memory/fleet-status.md.
@@ -137,10 +138,10 @@ async function checkAgent(
   );
   health.lastDispatchAge = cycleResult.stdout.trim() || "unknown";
 
-  // Flag if last dispatch was >60 minutes ago
+  // Flag if last dispatch was >30 minutes ago (dispatch stall detection)
   const ageMatch = health.lastDispatchAge.match(/^(\d+)m ago$/);
-  if (ageMatch && parseInt(ageMatch[1]) > 60) {
-    health.issues.push(`last dispatch ${health.lastDispatchAge}`);
+  if (ageMatch && parseInt(ageMatch[1]) > 30) {
+    health.issues.push(`dispatch stall: last cycle ${health.lastDispatchAge}`);
   } else if (health.lastDispatchAge === "no cycles" || health.lastDispatchAge === "query failed") {
     health.issues.push(`dispatch: ${health.lastDispatchAge}`);
   }
@@ -149,10 +150,32 @@ async function checkAgent(
   const diskResult = await ssh(ip, password, "df -h / | awk 'NR==2 {print $5}'");
   health.diskUsage = diskResult.stdout.trim() || "unknown";
 
-  // Flag if disk >85%
+  // Flag if disk >80%
   const diskPct = parseInt(health.diskUsage);
-  if (!isNaN(diskPct) && diskPct > 85) {
+  if (!isNaN(diskPct) && diskPct > 80) {
     health.issues.push(`disk ${health.diskUsage}`);
+  }
+
+  // High error rate: >50% failed tasks in last hour
+  const errorRateResult = await ssh(
+    ip, password,
+    `cd ${REMOTE_ARC_DIR} && ~/.bun/bin/bun -e "
+      const { Database } = require('bun:sqlite');
+      const db = new Database('db/arc.sqlite', { readonly: true });
+      const since = new Date(Date.now() - 3600000).toISOString();
+      const total = db.query('SELECT COUNT(*) as c FROM tasks WHERE completed_at >= ?').get(since);
+      const failed = db.query('SELECT COUNT(*) as c FROM tasks WHERE completed_at >= ? AND status = \\\\'failed\\\\'').get(since);
+      const t = total?.c ?? 0;
+      const f = failed?.c ?? 0;
+      console.log(t + ',' + f);
+      db.close();
+    " 2>/dev/null || echo "0,0"`
+  );
+  const rateParts = errorRateResult.stdout.trim().split(",");
+  const totalTasks = parseInt(rateParts[0]) || 0;
+  const failedTasks = parseInt(rateParts[1]) || 0;
+  if (totalTasks >= 4 && failedTasks / totalTasks > 0.5) {
+    health.issues.push(`high error rate: ${failedTasks}/${totalTasks} failed in last hour`);
   }
 
   // Read peer's fleet-status.json for self-reported state
