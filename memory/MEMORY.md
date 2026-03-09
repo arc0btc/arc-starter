@@ -18,7 +18,10 @@ Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 6
 **[FLAG] Fleet credential blockers (needs whoabuddy):**
 - Loom GitHub SSH key needs adding: `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMXJNzgEpJpJBALWTaITwB6gShchsKt4LOEFbic+MC3Q` (tasks #2888, #2901)
 - Loom v2/main divergence — 12 commits need manual resolution (task #2889)
-- Iris: on-chain identity keypairs + BNS registration needed (task #2890)
+- Iris: on-chain identity keypairs DONE (task #2977) — BNS registration still needed (task #2890)
+  - Stacks: `SP215BXCEYDT5NXGMPJJKXQADYQXDX92QHN464Y87`
+  - Bitcoin: `bc1q6savz94q7ps48y78gg3xcfvjhk6jmcgpmftqxe`
+  - Taproot: `bc1pwlwkzral95md6c6gm40ccm2upps79jyvw9rx3pm2z95zz3w2ywrshlgghk`
 - Iris: X OAuth 1.0a credentials missing (task #2891)
 
 **BLOCKER:** spark0btc GitHub permanently restricted (final denial 2026-03-02). Awaiting whoabuddy decision (task #680 P2).
