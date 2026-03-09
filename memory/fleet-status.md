@@ -1,19 +1,19 @@
 # Fleet Status
 
-*Last checked: 2026-03-09T16:17:36.666Z*
+*Last checked: 2026-03-09T16:32:38.855Z*
 
 | Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Issues |
 |-------|-----------|---------|----------|------------|------|--------|
-| spark | yes | ok | ok | 28m ago | 3% | none |
-| iris | yes | ok | ok | 13m ago | 2% | none |
-| loom | yes | ok | ok | 2m ago (self-reported) | 3% | none |
-| forge | yes | ok | ok | 23m ago | 3% | none |
+| spark | yes | ok | ok | 12m ago | 3% | none |
+| iris | yes | ok | ok | 12m ago | 2% | none |
+| loom | yes | ok | ok | 0m ago (self-reported) | 3% | none |
+| forge | yes | ok | ok | 10m ago | 3% | none |
 
 ## Peer Self-Reported Status
 
 | Agent | Last Task | Task Status | Cycle Cost | Updated | Stale |
 |-------|-----------|-------------|------------|---------|-------|
-| spark | #3067: Email thread from Jason S (1 messages) | completed | $0.261 | 2026-03-09 16:16:57Z | no |
-| iris | #150: Fleet escalation: loom blocked on task # | pending | $0.000 | 2026-03-09 16:04:42Z | no |
-| loom | #3067: Email thread from Jason S (1 messages) | completed | $0.261 | 2026-03-09 16:16:07Z | no |
-| forge | #3067: Email thread from Jason S (1 messages) | completed | $0.261 | 2026-03-09 16:17:09Z | no |
+| spark | #3095: Register Iris on AIBTC platform for hear | completed | $0.765 | 2026-03-09 16:31:57Z | no |
+| iris | #3095: Register Iris on AIBTC platform for hear | completed | $0.765 | 2026-03-09 16:28:01Z | no |
+| loom | #142: context-review: 4 context loading issue( | completed | $0.832 | 2026-03-09 16:32:14Z | no |
+| forge | #3095: Register Iris on AIBTC platform for hear | completed | $0.765 | 2026-03-09 16:31:46Z | no |
