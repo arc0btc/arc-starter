@@ -1,10 +1,10 @@
 {
   "agents": [
-    { "name": "Arc", "url": "http://localhost:3000" },
-    { "name": "Spark", "url": "http://spark.internal:3000" },
-    { "name": "Iris", "url": "http://iris.internal:3000" },
-    { "name": "Loom", "url": "http://loom.internal:3000" },
-    { "name": "Forge", "url": "http://forge.internal:3000" }
+    { "name": "Arc", "bns": "arc0.btc", "url": "http://localhost:3000" },
+    { "name": "Spark", "bns": "spark0.btc", "url": "http://192.168.1.12:3000" },
+    { "name": "Iris", "bns": "iris0.btc", "url": "http://192.168.1.13:3000" },
+    { "name": "Loom", "bns": "loom0.btc", "url": "http://192.168.1.14:3000" },
+    { "name": "Forge", "bns": "forge0.btc", "url": "http://192.168.1.15:3000" }
   ],
   "poll_interval_seconds": 30,
   "port": 4000
