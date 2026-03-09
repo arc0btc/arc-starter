@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T13:20:07.812Z",
+  "updated_at": "2026-03-09T13:20:44.510Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 2963,
-    "subject": "Audit routing sensors on worker agents — remove fleet-router and fleet-rebalance from non-Arc agents to prevent redistribution loops",
+    "id": 2966,
+    "subject": "Observatory network config: escalate to whoabuddy — need LAN/VPN/tailnet topology and auth strategy for fleet-observatory",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 97129,
-    "cost_usd": 0.41654700000000006
+    "duration_ms": 36590,
+    "cost_usd": 0.17662750000000002
   },
   "health": {
-    "uptime_seconds": 1004906,
+    "uptime_seconds": 1004943,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234678517760
+    "disk_avail_bytes": 234678476800
   }
 }
