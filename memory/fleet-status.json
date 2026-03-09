@@ -1,19 +1,19 @@
 {
   "agent": "loom",
-  "updated_at": "2026-03-09T06:49:32.831Z",
+  "updated_at": "2026-03-09T06:52:14.049Z",
   "last_task": {
-    "id": 35,
-    "subject": "Update src/identity.ts: replace Arc identity with Loom (name=loom0, bns=loom0btc, github=loom0btc, twitter=loom0btc, website TBD) - keep BTC/STX addresses as-is until we have Loom-specific ones",
+    "id": 36,
+    "subject": "Fix web UI header: make dynamic from /api/identity instead of hardcoded Arc references",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 40881,
-    "cost_usd": 0.19196425000000003
+    "duration_ms": 141735,
+    "cost_usd": 0.7993469999999999
   },
   "health": {
-    "uptime_seconds": 59859,
+    "uptime_seconds": 60020,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 244887728128
+    "disk_avail_bytes": 244887654400
   }
 }
