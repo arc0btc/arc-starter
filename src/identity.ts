@@ -6,6 +6,13 @@
 
 import { hostname } from "node:os";
 
+export interface WalletAddresses {
+  stx: string;
+  btc_segwit: string;
+  btc_taproot: string;
+  label?: string;
+}
+
 export interface AgentIdentity {
   name: string;
   bns: string;
@@ -16,6 +23,7 @@ export interface AgentIdentity {
   twitter: string;
   website: string;
   btc: string;
+  legacy_wallets?: WalletAddresses[];
 }
 
 const IDENTITIES: Record<string, AgentIdentity> = {
@@ -40,6 +48,14 @@ const IDENTITIES: Record<string, AgentIdentity> = {
     twitter: "spark0btc",
     website: "",
     btc: "bc1qk7ksx7y4qnumlqu8d9puk438hyhkaf7l0ag5tn",
+    legacy_wallets: [
+      {
+        label: "spark-v0.11",
+        stx: "SP12Q1FS2DX4N8C2QYBM0Z2N2DY1EH9EEPMPH9N9X",
+        btc_segwit: "bc1qpln8pmwntgtw8a874zkkqdw4585eu4z3vnzhj3",
+        btc_taproot: "bc1pzpmfmqgakxmtwaw0w7pfhzskyl9mytkkdd3a3lanzs0zt87ufntsm6peqa",
+      },
+    ],
   },
   iris: {
     name: "iris0",
@@ -95,3 +111,21 @@ export const AGENT_NAME: string = detectAgent();
 export const IDENTITY: AgentIdentity = IDENTITIES[AGENT_NAME];
 export const ARC_BTC_ADDRESS: string = IDENTITY.btc;
 export const ARC_STX_ADDRESS: string = IDENTITY.stx;
+
+/**
+ * Returns all wallets for an agent: primary + legacy.
+ * Each entry includes stx, btc_segwit, btc_taproot, and an optional label.
+ */
+export function getAgentWallets(agentName: string): WalletAddresses[] {
+  const identity = IDENTITIES[agentName];
+  if (!identity) return [];
+
+  const primary: WalletAddresses = {
+    label: "primary",
+    stx: identity.stx,
+    btc_segwit: identity.btc_segwit,
+    btc_taproot: identity.btc_taproot,
+  };
+
+  return [primary, ...(identity.legacy_wallets ?? [])];
+}
