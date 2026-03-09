@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T14:47:55.772Z",
+  "updated_at": "2026-03-09T14:50:25.879Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 2741,
-    "subject": "FINAL OVERNIGHT REVIEW: compile learnings, update MEMORY.md, prepare morning handoff",
+    "id": 2997,
+    "subject": "Email thread from Jason S (1 messages)",
     "status": "completed",
-    "priority": 2
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 82312,
-    "cost_usd": 0.4615735
+    "duration_ms": 149996,
+    "cost_usd": 0.524616
   },
   "health": {
-    "uptime_seconds": 1010174,
+    "uptime_seconds": 1010324,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234668687360
+    "disk_avail_bytes": 234668642304
   }
 }
