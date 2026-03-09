@@ -71,6 +71,9 @@ async function btcSign(message: string): Promise<string | null> {
 }
 
 export default async function aibtcHeartbeatSensor(): Promise<string> {
+  // DISABLED: Arc-specific sensor — signs as Arc's BTC address, not appropriate for Loom
+  return "skip";
+
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

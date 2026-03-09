@@ -32,12 +32,20 @@ interface AgentConfig {
   hostname: string;
 }
 
-const AGENTS: Record<string, AgentConfig> = {
+// Self-identity: exclude from SSH checks (no point SSHing to ourselves)
+const SELF_AGENT = "loom";
+
+const ALL_AGENTS: Record<string, AgentConfig> = {
   spark: { ip: "192.168.1.12", hostname: "spark" },
   iris: { ip: "192.168.1.13", hostname: "iris" },
   loom: { ip: "192.168.1.14", hostname: "loom" },
   forge: { ip: "192.168.1.15", hostname: "forge" },
 };
+
+// Exclude self from peer checks
+const AGENTS: Record<string, AgentConfig> = Object.fromEntries(
+  Object.entries(ALL_AGENTS).filter(([name]) => name !== SELF_AGENT)
+);
 
 const SSH_USER = "dev";
 const REMOTE_ARC_DIR = "/home/dev/arc-starter";

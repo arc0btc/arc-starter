@@ -28,9 +28,6 @@ function getDailySpend(): { costUsd: number; apiCostUsd: number } {
 }
 
 export default async function costAlertingSensor(): Promise<string> {
-  // TEMPORARY: disabled — budget override for self-improvement cycle
-  return "skip";
-
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
