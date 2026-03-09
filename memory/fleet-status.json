@@ -1,19 +1,19 @@
 {
   "agent": "loom",
-  "updated_at": "2026-03-09T06:53:30.825Z",
+  "updated_at": "2026-03-09T06:57:03.868Z",
   "last_task": {
-    "id": 37,
-    "subject": "Fix web UI identity card: remove duplicate avatar/name block, remove hardcoded arc0btc.com link",
+    "id": 38,
+    "subject": "Fix web UI footer: remove hardcoded arc0.me and arc0btc.com links, make dynamic from identity",
     "status": "completed",
-    "priority": 3
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 76681,
-    "cost_usd": 0.4827255
+    "duration_ms": 212956,
+    "cost_usd": 0.72526775
   },
   "health": {
-    "uptime_seconds": 60097,
+    "uptime_seconds": 60310,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 244887601152
+    "disk_avail_bytes": 244887511040
   }
 }
