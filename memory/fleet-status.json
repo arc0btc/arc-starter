@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T13:01:55.197Z",
+  "updated_at": "2026-03-09T13:04:02.380Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 2496,
-    "subject": "Test fleet resilience — what happens when a dispatch cycle fails",
+    "id": 2702,
+    "subject": "Generate overnight brief covering fleet standup progress",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 554259,
-    "cost_usd": 1.29826475
+    "duration_ms": 127095,
+    "cost_usd": 0.5874345000000001
   },
   "health": {
-    "uptime_seconds": 1003814,
+    "uptime_seconds": 1003941,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234679259136
+    "disk_avail_bytes": 234679189504
   }
 }
