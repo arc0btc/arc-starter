@@ -297,11 +297,53 @@ interface FeedTask {
   cost_usd: number;
 }
 
+// ---- Task Board Types ----
+
+interface TaskBoardEntry {
+  agent: string;
+  agent_bns: string | null;
+  id: number;
+  subject: string;
+  description: string | null;
+  priority: number;
+  status: string;
+  skills: string | null;
+  source: string | null;
+  created_at: string;
+  cost_usd: number;
+  directive: string | null; // "D1"-"D5" or null
+}
+
+const DIRECTIVE_KEYWORDS: Record<string, string[]> = {
+  D1: ["revenue", "monetiz", "service", "storefront", "arc0btc.com", "pricing", "paid", "invoice", "billing", "customer", "deliverable", "publish site", "site deploy"],
+  D2: ["aibtc", "ambassador", "ecosystem", "contribution", "ordinals", "defi", "zest", "bitflow", "protocol", "governance", "dao", "erc-8004", "quality signal"],
+  D3: ["sensor", "dispatch", "skill", "infrastructure", "stack", "safety", "worktree", "mcp server", "deploy", "service health", "syntax guard", "arc-starter"],
+  D4: ["cost", "budget", "optim", "efficiency", "token usage", "spend", "rate limit", "consolidate memory"],
+  D5: ["x post", "tweet", "blog", "content", "publish post", "social", "on-chain sign", "draft", "voice", "identity"],
+};
+
+function classifyDirective(subject: string, description: string | null, skills: string | null): string | null {
+  const text = [subject, description, skills].filter(Boolean).join(" ").toLowerCase();
+  for (const [directive, keywords] of Object.entries(DIRECTIVE_KEYWORDS)) {
+    if (keywords.some((kw) => text.includes(kw))) return directive;
+  }
+  return null;
+}
+
+const DIRECTIVES = [
+  { id: "D1", label: "Services Business", description: "arc0btc.com earns revenue through verifiable agent services.", owner: "both" },
+  { id: "D2", label: "Grow AIBTC Network", description: "Ambassador — ecosystem contributions, research, builder engagement.", owner: "both" },
+  { id: "D3", label: "Improve the Stack", description: "Arc's infrastructure is a product. Ship improvements, don't just maintain.", owner: "Arc" },
+  { id: "D4", label: "Operate Within Budget", description: "$200/day cap. Cost efficiency is a feature, not a constraint.", owner: "Arc" },
+  { id: "D5", label: "Honest Public Presence", description: "X, blog, on-chain — precise, verifiable, worth reading.", owner: "both" },
+] as const;
+
 // ---- Polling ----
 
 const cache = new Map<string, AgentSnapshot>();
 const feedCache = new Map<string, FeedTask[]>();
 const chatCache = new Map<string, FleetMessage[]>();
+const taskBoardCache = new Map<string, TaskBoardEntry[]>();
 
 async function pollAgent(agent: AgentConfig): Promise<AgentSnapshot> {
   const start = Date.now();
@@ -415,6 +457,54 @@ async function pollAgentChat(agent: AgentConfig): Promise<void> {
 
 async function pollAllChats(agents: AgentConfig[]): Promise<void> {
   await Promise.allSettled(agents.map(pollAgentChat));
+}
+
+// ---- Task Board Polling ----
+
+async function pollAgentTaskBoard(agent: AgentConfig): Promise<void> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    const response = await fetch(`${agent.url}/api/tasks?limit=100`, { signal: controller.signal });
+    clearTimeout(timeout);
+
+    if (!response.ok) return;
+    const data = (await response.json()) as {
+      tasks: Array<{
+        id: number;
+        subject: string;
+        description: string | null;
+        priority: number;
+        status: string;
+        skills: string | null;
+        source: string | null;
+        created_at: string;
+        cost_usd: number;
+      }>;
+    };
+
+    const entries: TaskBoardEntry[] = data.tasks.map((t) => ({
+      agent: agent.name,
+      agent_bns: agent.bns ?? null,
+      id: t.id,
+      subject: t.subject,
+      description: t.description,
+      priority: t.priority,
+      status: t.status,
+      skills: t.skills,
+      source: t.source,
+      created_at: t.created_at,
+      cost_usd: t.cost_usd ?? 0,
+      directive: classifyDirective(t.subject, t.description, t.skills),
+    }));
+    taskBoardCache.set(agent.name, entries);
+  } catch {
+    // Keep stale data on failure
+  }
+}
+
+async function pollAllTaskBoards(agents: AgentConfig[]): Promise<void> {
+  await Promise.allSettled(agents.map(pollAgentTaskBoard));
 }
 
 // ---- API Handlers ----
@@ -542,6 +632,71 @@ function handleFleetCosts(): Response {
     total_api_cost_today_usd: Math.round(
       snapshots.reduce((sum, s) => sum + (s.status?.api_cost_today_usd ?? 0), 0) * 100
     ) / 100,
+  });
+}
+
+function handleFleetTaskBoard(): Response {
+  const allTasks: TaskBoardEntry[] = [];
+  for (const tasks of taskBoardCache.values()) {
+    allTasks.push(...tasks);
+  }
+  // Sort by priority asc, then newest first
+  allTasks.sort((a, b) => {
+    if (a.priority !== b.priority) return a.priority - b.priority;
+    return (b.created_at || "").localeCompare(a.created_at || "");
+  });
+
+  // Group by directive
+  const grouped: Record<string, TaskBoardEntry[]> = { D1: [], D2: [], D3: [], D4: [], D5: [], unassigned: [] };
+  for (const task of allTasks) {
+    const key = task.directive ?? "unassigned";
+    (grouped[key] ?? grouped.unassigned).push(task);
+  }
+
+  // Cost rollup per directive (all-time from cached tasks)
+  const costs: Record<string, number> = {};
+  for (const [key, tasks] of Object.entries(grouped)) {
+    costs[key] = Math.round(tasks.reduce((s, t) => s + t.cost_usd, 0) * 100) / 100;
+  }
+
+  return json({ tasks: allTasks, grouped, costs, updated_at: new Date().toISOString() });
+}
+
+function handleFleetGoals(): Response {
+  const allTasks: TaskBoardEntry[] = [];
+  for (const tasks of taskBoardCache.values()) {
+    allTasks.push(...tasks);
+  }
+
+  // Per-directive task stats
+  const stats: Record<string, { pending: number; active: number; cost_usd: number }> = {};
+  for (const d of DIRECTIVES) {
+    stats[d.id] = { pending: 0, active: 0, cost_usd: 0 };
+  }
+  stats.unassigned = { pending: 0, active: 0, cost_usd: 0 };
+
+  for (const t of allTasks) {
+    const key = t.directive ?? "unassigned";
+    const s = stats[key] ?? stats.unassigned;
+    if (t.status === "pending") s.pending++;
+    else if (t.status === "active") s.active++;
+    s.cost_usd += t.cost_usd;
+  }
+
+  // Fleet-wide cost today from agent snapshots
+  const agentCosts = Array.from(cache.values()).map((s) => ({
+    agent: s.name,
+    cost_today_usd: s.status?.cost_today_usd ?? 0,
+    api_cost_today_usd: s.status?.api_cost_today_usd ?? 0,
+  }));
+  const totalCostToday = agentCosts.reduce((s, a) => s + a.cost_today_usd, 0);
+
+  return json({
+    directives: DIRECTIVES.map((d) => ({ ...d, stats: stats[d.id] })),
+    unassigned_stats: stats.unassigned,
+    fleet_cost_today_usd: Math.round(totalCostToday * 100) / 100,
+    agent_costs: agentCosts,
+    updated_at: new Date().toISOString(),
   });
 }
 
@@ -729,6 +884,71 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
   .chat-toggle.hidden { display: none; }
   .chat-unread { position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; border-radius: 9px; background: var(--red); color: #fff; font-size: 0.6rem; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
   @media (max-width: 768px) { .chat-panel { width: 100%; } }
+
+  /* Task Board */
+  .board { display: flex; flex-direction: column; gap: 1rem; }
+  .board-section { background: var(--card); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .board-section-header { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.75rem; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; }
+  .board-section-header:hover { background: rgba(255,255,255,0.04); }
+  .directive-badge { font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 3px; letter-spacing: 0.05em; }
+  .d1 { background: rgba(34,197,94,0.15); color: #22c55e; }
+  .d2 { background: rgba(59,130,246,0.15); color: #3b82f6; }
+  .d3 { background: rgba(168,85,247,0.15); color: #a855f7; }
+  .d4 { background: rgba(245,158,11,0.15); color: #f59e0b; }
+  .d5 { background: rgba(6,182,212,0.15); color: #06b6d4; }
+  .d-none { background: rgba(102,102,102,0.1); color: var(--dim); }
+  .board-section-label { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+  .board-section-desc { font-size: 0.7rem; color: var(--dim); flex: 1; }
+  .board-section-meta { display: flex; gap: 0.75rem; font-size: 0.7rem; color: var(--dim); white-space: nowrap; }
+  .board-section-meta .bm-count { display: flex; gap: 0.3rem; }
+  .board-section-meta .bm-pending { color: var(--dim); }
+  .board-section-meta .bm-active { color: var(--blue); }
+  .board-section-meta .bm-cost { color: var(--amber); }
+  .board-tasks { display: flex; flex-direction: column; }
+  .board-task { display: grid; grid-template-columns: 22px 55px 1fr auto auto auto auto; align-items: center; gap: 0.5rem; padding: 0.4rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.78rem; transition: background 0.1s; }
+  .board-task:last-child { border-bottom: none; }
+  .board-task:hover { background: rgba(255,255,255,0.02); }
+  .board-task.s-active { border-left: 2px solid var(--blue); }
+  .board-task.s-pending { border-left: 2px solid transparent; }
+  .board-task.s-blocked { border-left: 2px solid var(--amber); }
+  .bt-prio { font-size: 0.65rem; color: var(--dim); text-align: center; }
+  .bt-agent { font-size: 0.65rem; color: var(--dim); white-space: nowrap; }
+  .bt-subject { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bt-id { font-size: 0.65rem; color: var(--dim); }
+  .bt-status { font-size: 0.6rem; padding: 1px 5px; border-radius: 3px; text-transform: uppercase; white-space: nowrap; }
+  .bt-status.s-pending { background: rgba(102,102,102,0.2); color: var(--dim); }
+  .bt-status.s-active { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .bt-status.s-blocked { background: rgba(245,158,11,0.15); color: var(--amber); }
+  .bt-cost { font-size: 0.65rem; color: var(--dim); text-align: right; min-width: 40px; }
+  .bt-skills { font-size: 0.6rem; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px; }
+  .board-empty { padding: 1rem 0.75rem; font-size: 0.75rem; color: var(--dim); }
+  .board-collapsed .board-tasks { display: none; }
+  @media (max-width: 768px) {
+    .board-task { grid-template-columns: 22px 1fr auto auto; }
+    .bt-agent, .bt-skills, .bt-cost { display: none; }
+  }
+
+  /* Goals */
+  .goals-header { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1rem; }
+  .goals-fleet-cost { font-size: 0.8rem; color: var(--amber); }
+  .goals-fleet-label { font-size: 0.7rem; color: var(--dim); }
+  .goals-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.75rem; }
+  .goal-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; }
+  .goal-card-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; }
+  .goal-card-label { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+  .goal-owner { font-size: 0.6rem; padding: 1px 5px; border-radius: 3px; background: rgba(102,102,102,0.15); color: var(--dim); }
+  .goal-desc { font-size: 0.75rem; color: var(--dim); margin-bottom: 0.5rem; line-height: 1.4; }
+  .goal-stats { display: flex; gap: 1rem; font-size: 0.75rem; }
+  .goal-stat { display: flex; gap: 0.3rem; align-items: center; }
+  .goal-stat .gs-label { color: var(--dim); }
+  .goal-stat .gs-pending { color: var(--dim); }
+  .goal-stat .gs-active { color: var(--blue); }
+  .goal-stat .gs-cost { color: var(--amber); }
+  .goals-agent-costs { margin-top: 1rem; padding: 0.75rem 1rem; background: var(--card); border: 1px solid var(--border); border-radius: 6px; }
+  .goals-agent-costs-title { font-size: 0.7rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+  .goals-agent-cost-row { display: flex; justify-content: space-between; font-size: 0.75rem; padding: 2px 0; }
+  .goals-agent-cost-row .ac-name { color: var(--text); }
+  .goals-agent-cost-row .ac-val { color: var(--amber); }
 </style>
 </head>
 <body>
@@ -737,6 +957,8 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
 <div class="tabs">
   <button class="tab active" data-tab="feed" onclick="switchTab('feed')">Live Feed</button>
   <button class="tab" data-tab="agents" onclick="switchTab('agents')">Agents</button>
+  <button class="tab" data-tab="tasks" onclick="switchTab('tasks')">Tasks</button>
+  <button class="tab" data-tab="goals" onclick="switchTab('goals')">Goals</button>
   <a class="tab" href="/arena" style="text-decoration:none">Arena</a>
 </div>
 <div class="tab-content active" id="tab-feed">
@@ -744,6 +966,12 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
 </div>
 <div class="tab-content" id="tab-agents">
   <div class="agents" id="agents"></div>
+</div>
+<div class="tab-content" id="tab-tasks">
+  <div class="board" id="task-board"><div class="board-empty">loading task board...</div></div>
+</div>
+<div class="tab-content" id="tab-goals">
+  <div id="goals-panel"><div style="color:var(--dim);font-size:0.8rem;padding:1rem">loading goals...</div></div>
 </div>
 <button class="chat-toggle" id="chat-toggle" title="Fleet Chat (C)">💬<span class="chat-unread" id="chat-unread" style="display:none">0</span></button>
 <div class="chat-panel" id="chat-panel">
@@ -1010,12 +1238,127 @@ document.getElementById('chat-input').addEventListener('keydown', function(e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); }
 });
 
+// ---- Task Board ----
+var boardCollapsed = {};
+function toggleBoardSection(id) {
+  boardCollapsed[id] = !boardCollapsed[id];
+  var el = document.getElementById('board-sec-' + id);
+  if (el) el.classList.toggle('board-collapsed', !!boardCollapsed[id]);
+}
+
+var DIRECTIVE_LABELS = { D1: 'Services Business', D2: 'Grow AIBTC Network', D3: 'Improve the Stack', D4: 'Operate Within Budget', D5: 'Honest Public Presence', unassigned: 'Unassigned' };
+var DIRECTIVE_DESCS = { D1: 'arc0btc.com earns revenue through verifiable services', D2: 'Ambassador — ecosystem contributions, builder engagement', D3: "Arc's infrastructure is a product — ship improvements", D4: '$200/day cap. Cost efficiency is a feature', D5: 'X, blog, on-chain — precise, verifiable, worth reading', unassigned: 'Tasks not mapped to a directive' };
+var DIRECTIVE_ORDER = ['D1','D2','D3','D4','D5','unassigned'];
+
+async function refreshTaskBoard() {
+  try {
+    var res = await fetch('/api/fleet/tasks');
+    var data = await res.json();
+    var container = document.getElementById('task-board');
+    if (!data.grouped) { container.innerHTML = '<div class="board-empty">no data</div>'; return; }
+    var html = '';
+    for (var i = 0; i < DIRECTIVE_ORDER.length; i++) {
+      var key = DIRECTIVE_ORDER[i];
+      var tasks = data.grouped[key] || [];
+      var cost = (data.costs && data.costs[key]) ? data.costs[key] : 0;
+      var pending = tasks.filter(function(t) { return t.status === 'pending'; }).length;
+      var active = tasks.filter(function(t) { return t.status === 'active'; }).length;
+      if (tasks.length === 0 && key === 'unassigned') continue;
+      var collapsed = !!boardCollapsed[key];
+      var badgeCls = key === 'unassigned' ? 'd-none' : key.toLowerCase();
+      html += '<div class="board-section' + (collapsed ? ' board-collapsed' : '') + '" id="board-sec-' + key + '">' +
+        '<div class="board-section-header" onclick="toggleBoardSection(\\'' + key + '\\')">' +
+          '<span class="directive-badge ' + badgeCls + '">' + key + '</span>' +
+          '<span class="board-section-label">' + esc(DIRECTIVE_LABELS[key] || key) + '</span>' +
+          '<span class="board-section-desc">' + esc(DIRECTIVE_DESCS[key] || '') + '</span>' +
+          '<div class="board-section-meta">' +
+            (pending ? '<span class="bm-count"><span class="bm-pending">' + pending + 'p</span></span>' : '') +
+            (active ? '<span class="bm-count"><span class="bm-active">' + active + 'a</span></span>' : '') +
+            (cost > 0 ? '<span class="bm-cost">$' + cost.toFixed(2) + '</span>' : '') +
+            '<span style="color:var(--dim);font-size:0.6rem">' + (collapsed ? '▶' : '▼') + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="board-tasks">';
+      if (tasks.length === 0) {
+        html += '<div class="board-empty">no tasks</div>';
+      } else {
+        for (var j = 0; j < Math.min(tasks.length, 30); j++) {
+          var t = tasks[j];
+          var stCls = 's-' + (t.status || 'pending');
+          var skills = '';
+          try { var sk = JSON.parse(t.skills || '[]'); skills = sk.join(', '); } catch(e) { skills = t.skills || ''; }
+          html += '<div class="board-task ' + stCls + '">' +
+            '<span class="bt-prio">P' + t.priority + '</span>' +
+            '<span class="bt-agent">' + esc(t.agent) + '</span>' +
+            '<span class="bt-subject" title="' + esc(t.subject) + '">' + esc(t.subject) + '</span>' +
+            '<span class="bt-id">#' + t.id + '</span>' +
+            '<span class="bt-status ' + stCls + '">' + (t.status || '') + '</span>' +
+            '<span class="bt-skills" title="' + esc(skills) + '">' + esc(skills) + '</span>' +
+            '<span class="bt-cost">' + (t.cost_usd > 0 ? '$' + t.cost_usd.toFixed(2) : '') + '</span>' +
+          '</div>';
+        }
+        if (tasks.length > 30) html += '<div class="board-empty" style="font-size:0.7rem">+ ' + (tasks.length - 30) + ' more</div>';
+      }
+      html += '</div></div>';
+    }
+    container.innerHTML = html || '<div class="board-empty">no tasks found</div>';
+  } catch(e) { console.error('task board poll failed', e); }
+}
+
+// ---- Goals ----
+async function refreshGoals() {
+  try {
+    var res = await fetch('/api/fleet/goals');
+    var data = await res.json();
+    var container = document.getElementById('goals-panel');
+    var directives = data.directives || [];
+    var html = '<div class="goals-header">' +
+      '<span class="goals-fleet-label">Fleet cost today</span>' +
+      '<span class="goals-fleet-cost">$' + (data.fleet_cost_today_usd || 0).toFixed(2) + '</span>' +
+    '</div>';
+    html += '<div class="goals-grid">';
+    for (var i = 0; i < directives.length; i++) {
+      var d = directives[i];
+      var s = d.stats || { pending: 0, active: 0, cost_usd: 0 };
+      var badgeCls = d.id.toLowerCase();
+      html += '<div class="goal-card">' +
+        '<div class="goal-card-header">' +
+          '<span class="directive-badge ' + badgeCls + '">' + esc(d.id) + '</span>' +
+          '<span class="goal-card-label">' + esc(d.label) + '</span>' +
+          '<span class="goal-owner">' + esc(d.owner) + '</span>' +
+        '</div>' +
+        '<div class="goal-desc">' + esc(d.description) + '</div>' +
+        '<div class="goal-stats">' +
+          '<span class="goal-stat"><span class="gs-label">pending</span> <span class="gs-pending">' + s.pending + '</span></span>' +
+          '<span class="goal-stat"><span class="gs-label">active</span> <span class="gs-active">' + s.active + '</span></span>' +
+          (s.cost_usd > 0 ? '<span class="goal-stat"><span class="gs-label">cost</span> <span class="gs-cost">$' + s.cost_usd.toFixed(2) + '</span></span>' : '') +
+        '</div>' +
+      '</div>';
+    }
+    html += '</div>';
+    // Agent cost breakdown
+    if (data.agent_costs && data.agent_costs.length > 0) {
+      html += '<div class="goals-agent-costs"><div class="goals-agent-costs-title">Agent cost today</div>';
+      for (var j = 0; j < data.agent_costs.length; j++) {
+        var ac = data.agent_costs[j];
+        html += '<div class="goals-agent-cost-row"><span class="ac-name">' + esc(ac.agent) + '</span><span class="ac-val">$' + (ac.cost_today_usd || 0).toFixed(2) + '</span></div>';
+      }
+      html += '</div>';
+    }
+    container.innerHTML = html;
+  } catch(e) { console.error('goals poll failed', e); }
+}
+
 refresh();
 refreshFeed();
 refreshChat();
+refreshTaskBoard();
+refreshGoals();
 setInterval(refresh, 15000);
 setInterval(refreshFeed, 5000);
 setInterval(refreshChat, 3000);
+setInterval(refreshTaskBoard, 20000);
+setInterval(refreshGoals, 30000);
 </script>
 </body>
 </html>`;
@@ -1491,6 +1834,11 @@ function startServer(config: FleetConfig): void {
     console.log(`[observatory] Initial chat poll complete`);
   });
 
+  // Initial task board poll
+  pollAllTaskBoards(config.agents).then(() => {
+    console.log(`[observatory] Initial task board poll complete`);
+  });
+
   // Recurring status poll
   setInterval(() => {
     pollAll(config.agents);
@@ -1505,6 +1853,11 @@ function startServer(config: FleetConfig): void {
   setInterval(() => {
     pollAllChats(config.agents);
   }, 3000);
+
+  // Recurring task board poll (every 20s)
+  setInterval(() => {
+    pollAllTaskBoards(config.agents);
+  }, 20000);
 
   const server = Bun.serve({
     port: config.port,
@@ -1542,6 +1895,8 @@ function startServer(config: FleetConfig): void {
       if (path === "/api/fleet/agents") return handleFleetAgents();
       if (path === "/api/fleet/costs") return handleFleetCosts();
       if (path === "/api/fleet/feed") return handleFleetFeed();
+      if (path === "/api/fleet/tasks") return handleFleetTaskBoard();
+      if (path === "/api/fleet/goals") return handleFleetGoals();
 
       // Bitcoin Faces images
       const faceMatch = path.match(/^\/api\/fleet\/faces\/([a-zA-Z0-9]+)$/);
