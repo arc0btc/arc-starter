@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T23:33:40.988Z",
+  "updated_at": "2026-03-09T23:34:03.457Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3356,
-    "subject": "Migrate fleet auth from OAuth to API keys — need ANTHROPIC_API_KEY provisioned",
-    "status": "failed",
-    "priority": 5
+    "id": 3381,
+    "subject": "Resolve fleet escalation: iris blocked on task #205 — SSH key not registered with iris0btc GitHub account. Need human to either: (1) add SSH pubkey ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIACkLd9ck/EUVYYG6HCM0vpj/XotFNuATQtbPO/hmFxC to iris0btc GitHub account, or (2) create a GitHub PAT and run: arc creds set --service github --key token --value <PAT>, then gh auth login --with-token",
+    "status": "completed",
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 59625,
-    "cost_usd": 0.2721575
+    "duration_ms": 21504,
+    "cost_usd": 0.1150165
   },
   "health": {
-    "uptime_seconds": 1041719,
+    "uptime_seconds": 1041742,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234601779200
+    "disk_avail_bytes": 234601746432
   }
 }
