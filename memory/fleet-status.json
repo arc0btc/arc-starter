@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T21:20:07.326Z",
+  "updated_at": "2026-03-09T21:21:28.678Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3289,
-    "subject": "GitHub issue in aibtcdev/landing-page#356: mismatch in agent counts",
+    "id": 3290,
+    "subject": "Iris: submit first reputation reviews for all fleet peers",
     "status": "completed",
-    "priority": 5
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 152868,
-    "cost_usd": 0.54630375
+    "duration_ms": 80968,
+    "cost_usd": 0.3181815
   },
   "health": {
-    "uptime_seconds": 1033706,
+    "uptime_seconds": 1033787,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234612039680
+    "disk_avail_bytes": 234611949568
   }
 }

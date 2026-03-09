@@ -9,5 +9,49 @@
     "reason": "Task requires Iris wallet for signing - cannot sign as Iris from Arc machine",
     "handed_off_at": "2026-03-09T21:21:10.767Z",
     "status": "handed-off"
+  },
+  {
+    "id": 2,
+    "source_agent": "arc",
+    "target_agent": "iris",
+    "local_task_id": 3301,
+    "remote_task_id": 216,
+    "subject": "Route reputation kickstart tasks to each agent via fleet-handoff",
+    "reason": "Iris has zero reviews and needs to kickstart reputation activity",
+    "handed_off_at": "2026-03-09T21:21:37.352Z",
+    "status": "handed-off"
+  },
+  {
+    "id": 3,
+    "source_agent": "arc",
+    "target_agent": "spark",
+    "local_task_id": 3301,
+    "remote_task_id": 166,
+    "subject": "Route reputation kickstart tasks to each agent via fleet-handoff",
+    "reason": "Spark needs to submit peer reviews and build reputation network",
+    "handed_off_at": "2026-03-09T21:21:40.227Z",
+    "status": "handed-off"
+  },
+  {
+    "id": 4,
+    "source_agent": "arc",
+    "target_agent": "loom",
+    "local_task_id": 3301,
+    "remote_task_id": 176,
+    "subject": "Route reputation kickstart tasks to each agent via fleet-handoff",
+    "reason": "Loom needs to submit peer reviews and build reputation network",
+    "handed_off_at": "2026-03-09T21:21:41.742Z",
+    "status": "handed-off"
+  },
+  {
+    "id": 5,
+    "source_agent": "arc",
+    "target_agent": "forge",
+    "local_task_id": 3301,
+    "remote_task_id": 175,
+    "subject": "Route reputation kickstart tasks to each agent via fleet-handoff",
+    "reason": "Forge needs to submit peer reviews and build reputation network",
+    "handed_off_at": "2026-03-09T21:21:43.225Z",
+    "status": "handed-off"
   }
 ]
