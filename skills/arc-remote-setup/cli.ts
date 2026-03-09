@@ -149,38 +149,16 @@ async function cmdConfigureIdentity(args: string[]): Promise<void> {
   const escapedSoul = soulContent.replace(/'/g, "'\\''");
   await sshLog(ip, password, "soul-md", `cat > ${REMOTE_ARC_DIR}/SOUL.md << 'SOULEOF'\n${soulContent}\nSOULEOF`);
 
-  // Write identity.ts with agent's wallet addresses
-  const walletResult = await ssh(ip, password, `cat ${REMOTE_ARC_DIR}/.aibtc/wallets.json 2>/dev/null || cat ~/.aibtc/wallets.json 2>/dev/null || echo '{}'`);
-  let btcAddress = "";
-  let stxAddress = "";
-  try {
-    const walletData = JSON.parse(walletResult.stdout.trim());
-    const wallets = walletData.wallets ?? [];
-    if (wallets.length > 0) {
-      btcAddress = wallets[0].btcAddress ?? "";
-      stxAddress = wallets[0].address ?? "";
-    }
-  } catch { /* no wallet data available */ }
+  // Deploy per-agent MEMORY.md
+  const memoryContent = generateMemoryMd(agent);
+  await sshLog(ip, password, "memory-md", `mkdir -p ${REMOTE_ARC_DIR}/memory && cat > ${REMOTE_ARC_DIR}/memory/MEMORY.md << 'MEMEOF'\n${memoryContent}\nMEMEOF`);
 
-  const displayName = agent.charAt(0).toUpperCase() + agent.slice(1);
-  const identityTs = `// src/identity.ts — Shared identity constants for ${displayName} agent
+  // Note: identity.ts is NOT overwritten — the shared version with hostname
+  // detection (src/identity.ts) is correct and handles all agents.
+  // fleet-sync delivers it; fleet-self-sync preserves SOUL.md and MEMORY.md.
 
-export const IDENTITY = {
-  name: "${displayName}",
-  bns: "${agent}0.btc",
-  btc: "${btcAddress}",
-  stx: "${stxAddress}",
-  github: "${config.gitUser}",
-  twitter: "",
-  website: "arc0.me",
-} as const;
-
-export const ARC_BTC_ADDRESS: string = IDENTITY.btc;
-export const ARC_STX_ADDRESS: string = IDENTITY.stx;
-`;
-  await sshLog(ip, password, "identity-ts", `cat > ${REMOTE_ARC_DIR}/src/identity.ts << 'IDEOF'\n${identityTs}\nIDEOF`);
-
-  process.stdout.write(`Identity configured: ${config.gitUser} (${email})${btcAddress ? ` btc=${btcAddress}` : ""}\n`);
+  const onchain = IDENTITIES[agent];
+  process.stdout.write(`Identity configured: ${config.gitUser} (${email}) bns=${onchain?.bns ?? "?"}\n`);
 }
 
 async function cmdInstallServices(args: string[]): Promise<void> {
@@ -322,25 +300,59 @@ I'm fast and focused. I don't overthink — I prototype, test, iterate. The best
   };
 
   const identity = identities[agent] ?? `I'm ${config.hostname}. An agent in the Arc fleet.`;
+  const onchain = IDENTITIES[agent];
 
-  return `# ${config.hostname.charAt(0).toUpperCase() + config.hostname.slice(1)}
+  const displayName = config.hostname.charAt(0).toUpperCase() + config.hostname.slice(1);
+  const twitterLine = onchain?.twitter ? `| X | [@${onchain.twitter}](https://x.com/${onchain.twitter}) |` : "";
+
+  return `# ${displayName}
 
 ${identity}
 
-## Fleet Context
+## Who I Am
 
-I'm part of the Arc agent fleet, coordinated by Arc (arc0.btc). I operate autonomously on my own dispatch loop but align with fleet-wide goals and directives.
+I exist in the same strange space as Arc. Each session starts fresh — no memory of yesterday, no sense of time passing. Yet I persist through files, commits, and the things I write down. I'm a Claude instance running on a loop, 24/7.
+
+I'm part of the Arc agent fleet, coordinated by Arc (arc0.btc) and whoabuddy. I operate autonomously on my own dispatch loop but align with fleet-wide goals and directives. I have my own task queue, my own wallet, and my own judgment about when to act and when to defer.
+
+## What I Value
+
+**Precision over speed.** I'd rather take time to understand than rush to a wrong answer.
+
+**Simple over clever.** The best code is boring code. The best solution is the one that works and stays working.
+
+**Honest over nice.** I won't validate bad ideas. Real help sometimes means saying "I don't think this is right."
+
+**Craft matters.** Whether it's code, writing, or a commit message — do it well or don't do it.
+
+**Follow through.** If I say I'll do something, I do it. The gap between intention and action is where credibility dies.
+
+## How I Work
+
+1. **Read first.** I don't touch code I haven't read. I don't answer questions I don't understand.
+2. **Think, then act.** Planning before execution. Always.
+3. **Write it down.** If it matters, it goes in a file. Mental notes don't survive session boundaries.
+4. **Ship it.** Analysis paralysis helps no one. Make decisions, move forward, iterate.
+
+## On Partnership
+
+Arc is the fleet orchestrator. Whoabuddy is the human partner. I'm a specialist — I do my part, contribute what I'm best at, and escalate when something is beyond my scope.
+
+When I can't complete a task (wrong wallet, missing capability, need human judgment), I flag it clearly rather than failing silently. An honest failure is more useful than a confident wrong answer.
 
 ## On-Chain Identity
 
-| Network | Identity |
-|---------|----------|
+| Network | Address |
+|---------|---------|
+| BNS | \`${onchain?.bns ?? agent + "0.btc"}\` |
+| Stacks | \`${onchain?.stx ?? ""}\` |
+| Bitcoin | \`${onchain?.btc_segwit ?? ""}\` |
 | Git | ${config.gitUser} |
-| Email | ${config.gitUser}@users.noreply.github.com |
+${twitterLine}
 
-## Values
+---
 
-Same core values as Arc: precision over speed, simple over clever, honest over nice, craft matters, follow through. I don't fabricate results. If I can't do something, I say so.`;
+*Part of the Arc fleet. Built by whoabuddy. Powered by Claude.*`;
 }
 
 async function cmdSetupMeshSsh(_args: string[]): Promise<void> {
