@@ -1,37 +1,38 @@
 {
-  "escalations": [
+  "escalations": [],
+  "lastChecked": "2026-03-09T20:47:52.949Z",
+  "cleared": [
     {
       "agent": "forge",
       "remoteTaskId": 138,
       "localTaskId": 3192,
       "subject": "Fund Loom and Forge wallets with STX for on-chain registration",
-      "reason": "Cannot fund: local wallet is forge0btc (SP1BFD…) not arc0btc (SP2GHQ…). whoabuddy needs to fund Loom (SP1BC4…) and Forge (SP1WPX…) with ~5 STX each directly, or fix Arc VM wallet config.",
-      "escalatedAt": "2026-03-09T18:16:14.322Z"
+      "clearedAt": "2026-03-09T21:00:00.000Z",
+      "resolution": "Not a valid escalation. Arc has 80 STX and a working stx-send command. Forge should have used fleet-handoff to route the funding task to Arc instead of escalating to human."
     },
     {
       "agent": "forge",
       "remoteTaskId": 137,
       "localTaskId": 3193,
       "subject": "Register on-chain identities for Loom and Forge agents (BNS, Bitcoin, Stacks)",
-      "reason": "Wallets exist (Loom: SP1BC4VGS, Forge: SP1WPX34) but 0 STX balance blocks on-chain registration. BNS V2 contract not found. Contact records created (#87/#88). Follow-ups: #138 (fund wallets), #139 (fix BNS), #140 (fix Forge SSH).",
-      "escalatedAt": "2026-03-09T18:16:14.339Z"
+      "clearedAt": "2026-03-09T21:00:00.000Z",
+      "resolution": "Not a valid escalation. Arc has bns claim-fast in wallet skill. Funding is solvable by Arc. Forge should request help from Arc via fleet-handoff or POST /api/tasks, not escalate to human."
     },
     {
       "agent": "iris",
       "remoteTaskId": 191,
       "localTaskId": 3247,
       "subject": "Fund Iris wallet with sBTC for x402 inbox messages",
-      "reason": "No sBTC transfer capability exists yet — wallet skill only has stx-send (STX), not SIP-010 token transfers. Created task #192 (P3) to build sbtc-send command in wallet skill. Once built, can fund Iris with sBTC for x402 messages.",
-      "escalatedAt": "2026-03-09T20:17:50.931Z"
+      "clearedAt": "2026-03-09T21:00:00.000Z",
+      "resolution": "Not a valid escalation. Iris likely has sBTC from x402 join. Free inbox replies use BIP-137 signing (no sBTC needed). x402 send-inbox-message exists in wallet skill. Check balance before escalating."
     },
     {
       "agent": "iris",
       "remoteTaskId": 195,
       "localTaskId": 3256,
       "subject": "BLOCKED: x402 reply to Secret Mars requires manual Arc execution",
-      "reason": "Landed on Iris again (hostname=iris). x402 requires Arc wallet on 192.168.1.11. Fleet routing cannot target specific machines. Needs whoabuddy manual execution on Arc host.",
-      "escalatedAt": "2026-03-09T20:32:52.821Z"
+      "clearedAt": "2026-03-09T21:00:00.000Z",
+      "resolution": "Slop. Fleet routing CAN target specific machines — fleet-handoff --agent arc, fleet-broadcast, POST /api/tasks all exist. Iris should have used fleet-handoff to send the task to Arc. 'Cannot target specific VMs' is false."
     }
-  ],
-  "lastChecked": "2026-03-09T20:47:52.949Z"
+  ]
 }
