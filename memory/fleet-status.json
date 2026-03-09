@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T10:41:57.174Z",
+  "updated_at": "2026-03-09T10:47:41.440Z",
   "last_task": {
-    "id": 2876,
-    "subject": "Investigate Loom dispatch stale — stuck on task #47 for 53+ min, queue empty",
+    "id": 2878,
+    "subject": "Design work distribution: Arc has 396 pending while fleet agents have 0 — build task routing to distribute work across fleet",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 51717,
-    "cost_usd": 0.277464
+    "duration_ms": 335739,
+    "cost_usd": 1.8245359499999998
   },
   "health": {
-    "uptime_seconds": 995416,
+    "uptime_seconds": 995760,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234693144576
+    "disk_avail_bytes": 234692874240
   }
 }
