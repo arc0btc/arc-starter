@@ -2,6 +2,27 @@
 
 *Operational patterns discovered and validated across cycles. Link: [MEMORY.md](MEMORY.md)*
 
+## Fleet Skill & Sensor Topology (Audited 2026-03-09, Task #2482)
+
+**All 5 agents (Arc + Spark/Iris/Loom/Forge) share the same ~99-skill library** via fleet-sync. Skills are identical; sensor activation differs.
+
+**Arc (orchestrator):** 62 active sensors — full suite including AIBTC, social, DeFi, GitHub, blog, bitcoin, compliance, reporting.
+
+**Fleet agents (Spark/Iris/Loom/Forge):** 15 sensors each — lean worker set:
+`aibtc-heartbeat, arc-alive-check, arc-cost-alerting, arc-dispatch-eval, arc-ops-review, arc-service-health, auto-queue, fleet-comms, fleet-escalation, fleet-health, fleet-log-pull, fleet-memory, fleet-rebalance, fleet-router, fleet-sync`
+
+**Arc-exclusive skills (not on fleet agents):**
+- `fleet-dashboard` (sensor + aggregation)
+- `fleet-push` (CLI deployment tool)
+
+**Anomaly:** Spark has `arc-dispatch-evals` (with 's') as its dispatch eval sensor; Iris/Loom/Forge have `arc-dispatch-eval` (without 's'). Minor naming inconsistency from a version mismatch.
+
+**Concern:** Fleet agents run `fleet-router` and `fleet-rebalance` sensors — these scan for tasks to route/steal across the fleet. From a worker agent's perspective, this may cause unintended task redistribution loops. Flagged for review.
+
+**Design intent:** Fleet agents are workers, not orchestrators. Lean sensor footprint is correct. However fleet-router/rebalance on workers warrants discussion.
+
+---
+
 ## Architecture & Safety
 
 - **SQLite WAL mode + `PRAGMA busy_timeout = 5000`** — Required for sensors/dispatch collisions.
