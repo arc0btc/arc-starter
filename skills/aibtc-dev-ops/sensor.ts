@@ -97,11 +97,9 @@ function auditRepo(repo: string): AuditResult {
     }
   }
 
-  // Check for CI workflows
-  const workflows = gh(["api", `repos/${repo}/contents/.github/workflows`, "--jq", "length"]);
-  if (!workflows.ok || workflows.stdout === "0") {
-    gaps.push("No CI workflows found");
-  }
+  // CI workflows are the repo maintainers' responsibility, not the fleet's.
+  // Removed: checking for .github/workflows presence — agents don't have write
+  // access to aibtcdev repos and shouldn't be opening PRs to add CI.
 
   // Check for wrangler config (jsonc preferred)
   const wranglerJsonc = gh(["api", `repos/${repo}/contents/wrangler.jsonc`, "--jq", ".name"]);

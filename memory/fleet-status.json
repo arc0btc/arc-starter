@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T17:57:02.957Z",
+  "updated_at": "2026-03-09T17:57:31.603Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3177,
-    "subject": "Fleet silent: iris has not dispatched or reported in >1h",
+    "id": 3178,
+    "subject": "Fleet silent: forge has not dispatched or reported in >1h",
     "status": "completed",
     "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 55463,
-    "cost_usd": 0.238863
+    "duration_ms": 23616,
+    "cost_usd": 0.1457855
   },
   "health": {
-    "uptime_seconds": 1021521,
+    "uptime_seconds": 1021550,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234643685376
+    "disk_avail_bytes": 234643595264
   }
 }
