@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T07:21:20.541Z",
+  "updated_at": "2026-03-09T07:22:06.598Z",
   "last_task": {
-    "id": 2768,
-    "subject": "Umbrel Stacks infrastructure plan — Bitcoin Core (pruned) + Stacks Node + API deployment",
+    "id": 2790,
+    "subject": "Fleet alert: iris service issues — dispatch: no cycles",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 169345,
-    "cost_usd": 0.46750640000000004
+    "duration_ms": 45943,
+    "cost_usd": 0.20761625
   },
   "health": {
-    "uptime_seconds": 983379,
+    "uptime_seconds": 983425,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234702622720
+    "disk_avail_bytes": 234702585856
   }
 }
