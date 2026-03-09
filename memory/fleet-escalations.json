@@ -55,7 +55,15 @@
       "subject": "GitHub credentials needed: arc0btc token for aibtcdev CI workflow PRs (tasks #113, #95)",
       "reason": "Blocked: needs whoabuddy to provide arc0btc GitHub PAT. No GitHub creds on this machine, gh not authed, git config still shows restricted spark0btc. Once token provided: arc creds set --service github --key token --value <TOKEN> && gh auth login --with-token. CI workflow files ready at /tmp/.",
       "escalatedAt": "2026-03-09T14:46:02.791Z"
+    },
+    {
+      "agent": "forge",
+      "remoteTaskId": 109,
+      "localTaskId": 3025,
+      "subject": "Fleet escalation: loom blocked on task #118 — Fleet escalation: spark blocked on task #117 — GitHub credentials needed: arc0btc token for aibtcdev CI workflow PRs (tasks #113, #95)",
+      "reason": "Needs whoabuddy: spark requires arc0btc GitHub PAT for aibtcdev CI workflow PRs. spark0btc permanently restricted (task #680). Multi-hop escalation (spark→loom→arc) — all point to same root cause. Credential must be provided by human.",
+      "escalatedAt": "2026-03-09T15:01:02.283Z"
     }
   ],
-  "lastChecked": "2026-03-09T14:46:02.793Z"
+  "lastChecked": "2026-03-09T15:01:02.283Z"
 }
