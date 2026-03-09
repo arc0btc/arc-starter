@@ -177,7 +177,7 @@
   <footer class="footer">
     <div class="footer-inner">
       <span id="footer-links"></span>
-      <span>Agent</span>
+      <span id="footer-agent-name">Agent</span>
       <span class="footer-dot"></span>
       <span id="uptime">--</span>
     </div>
@@ -512,19 +512,6 @@
       linksHtml += '</div>';
 
       card.innerHTML = rowsHtml + linksHtml;
-
-      // Update footer links from identity
-      var footerLinks = document.getElementById('footer-links');
-      if (footerLinks) {
-        var parts = [];
-        if (identity.website) {
-          parts.push('<a href="https://' + escAttr(identity.website) + '" target="_blank" rel="noopener">' + esc(identity.website) + '</a>');
-        }
-        if (identity.github) {
-          parts.push('<a href="https://github.com/' + escAttr(identity.github) + '" target="_blank" rel="noopener">' + esc(identity.github) + '</a>');
-        }
-        footerLinks.innerHTML = parts.length ? parts.join('<span class="footer-dot"></span>') + '<span class="footer-dot"></span>' : '';
-      }
     }
 
     // ---- Dispatch Metrics ----

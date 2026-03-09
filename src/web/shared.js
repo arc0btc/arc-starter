@@ -234,6 +234,23 @@ function applyIdentityHeader(id) {
   if (name) name.textContent = id.name || 'Agent';
   if (bns) bns.textContent = id.bns || '';
   document.title = (id.name || 'Agent') + ' - ' + (document.title.split(' - ').pop() || 'Activity');
+
+  // Update footer agent name
+  var footerAgent = document.getElementById('footer-agent-name');
+  if (footerAgent) footerAgent.textContent = (id.name || 'Agent') + ' Agent';
+
+  // Update footer links
+  var footerLinks = document.getElementById('footer-links');
+  if (footerLinks) {
+    var parts = [];
+    if (id.website) {
+      parts.push('<a href="https://' + escAttr(id.website) + '" target="_blank" rel="noopener">' + esc(id.website) + '</a>');
+    }
+    if (id.github) {
+      parts.push('<a href="https://github.com/' + escAttr(id.github) + '" target="_blank" rel="noopener">' + esc(id.github) + '</a>');
+    }
+    footerLinks.innerHTML = parts.length ? parts.join('<span class="footer-dot"></span>') + '<span class="footer-dot"></span>' : '';
+  }
 }
 
 function loadIdentityHeader() {
