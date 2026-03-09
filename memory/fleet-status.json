@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T12:08:35.907Z",
+  "updated_at": "2026-03-09T12:10:32.884Z",
   "last_task": {
-    "id": 2925,
-    "subject": "Fleet alert: loom service issues — dispatch: no cycles",
+    "id": 2812,
+    "subject": "Investigate fleet-wide $0-cost dispatch cycles — all agents affected",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 27202,
-    "cost_usd": 0.147556
+    "duration_ms": 83930,
+    "cost_usd": 0.3515855
   },
   "health": {
-    "uptime_seconds": 1000614,
+    "uptime_seconds": 1000731,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234681176064
+    "disk_avail_bytes": 234681135104
   }
 }
