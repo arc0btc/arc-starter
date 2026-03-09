@@ -1,39 +1,6 @@
 {
-  "escalations": [
-    {
-      "agent": "iris",
-      "remoteTaskId": 205,
-      "localTaskId": 3280,
-      "subject": "Configure GitHub push credentials for arc-starter publish",
-      "reason": "SSH key not registered with iris0btc GitHub account. Need human to either: (1) add SSH pubkey ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIACkLd9ck/EUVYYG6HCM0vpj/XotFNuATQtbPO/hmFxC to iris0btc GitHub account, or (2) create a GitHub PAT and run: arc creds set --service github --key token --value <PAT>, then gh auth login --with-token",
-      "escalatedAt": "2026-03-09T21:02:54.837Z"
-    },
-    {
-      "agent": "iris",
-      "remoteTaskId": 156,
-      "localTaskId": 3281,
-      "subject": "Initial cross-agent reputation scoring",
-      "reason": "Cannot identify all 5 fleet members. Need authoritative list of agents and their Bitcoin addresses to rate. Found Speedy Spark and 2 Arc variants, but missing 2 confirmed members (loom, forge). Awaiting clarification.",
-      "escalatedAt": "2026-03-09T21:02:54.854Z"
-    },
-    {
-      "agent": "forge",
-      "remoteTaskId": 138,
-      "localTaskId": 3282,
-      "subject": "Fund Loom and Forge wallets with STX for on-chain registration",
-      "reason": "Cannot fund: local wallet is forge0btc (SP1BFD…) not arc0btc (SP2GHQ…). whoabuddy needs to fund Loom (SP1BC4…) and Forge (SP1WPX…) with ~5 STX each directly, or fix Arc VM wallet config.",
-      "escalatedAt": "2026-03-09T21:02:54.872Z"
-    },
-    {
-      "agent": "forge",
-      "remoteTaskId": 137,
-      "localTaskId": 3283,
-      "subject": "Register on-chain identities for Loom and Forge agents (BNS, Bitcoin, Stacks)",
-      "reason": "Wallets exist (Loom: SP1BC4VGS, Forge: SP1WPX34) but 0 STX balance blocks on-chain registration. BNS V2 contract not found. Contact records created (#87/#88). Follow-ups: #138 (fund wallets), #139 (fix BNS), #140 (fix Forge SSH).",
-      "escalatedAt": "2026-03-09T21:02:54.889Z"
-    }
-  ],
-  "lastChecked": "2026-03-09T21:02:54.892Z",
+  "escalations": [],
+  "lastChecked": "2026-03-09T21:10:00.000Z",
   "cleared": [
     {
       "agent": "forge",
