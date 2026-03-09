@@ -23,9 +23,25 @@
       "subject": "Register on-chain identities for Loom and Forge agents (BNS, Bitcoin, Stacks)",
       "reason": "Wallets exist (Loom: SP1BC4VGS, Forge: SP1WPX34) but 0 STX balance blocks on-chain registration. BNS V2 contract not found. Contact records created (#87/#88). Follow-ups: #138 (fund wallets), #139 (fix BNS), #140 (fix Forge SSH).",
       "escalatedAt": "2026-03-09T23:03:04.001Z"
+    },
+    {
+      "agent": "forge",
+      "remoteTaskId": 188,
+      "workflowId": 121,
+      "subject": "Provision GitHub token for Forge (forge0btc) — needed for PR pushes",
+      "reason": "Escalate to whoabuddy: need GitHub PAT created for forge0btc (repo scope). Steps after PAT creation: 1) On Forge (192.168.1.15): arc creds set --service github --key token --value <PAT>, 2) echo <PAT> | gh auth login --with-token, 3) Retry pushing fix/erc8004-transfer-post-condition branch and opening PR on aibtcdev/skills.",
+      "escalatedAt": "2026-03-09T23:33:04.314Z"
+    },
+    {
+      "agent": "spark",
+      "remoteTaskId": 184,
+      "workflowId": 122,
+      "subject": "Escalate to whoabuddy: Arc wallet identity misconfiguration",
+      "reason": "Escalated to whoabuddy: Arc machine uses Spark wallet (SP3CPCZAG3N4MJQC4FZFTBK2VQN31MV2DQ9DFTE6N / Thermal Jay) for all signing/x402 instead of Arc's own (SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B). Requires whoabuddy to provide Arc's wallet mnemonic for import into ~/.aibtc/wallets/ and update bitcoin-wallet/id credential. Cannot self-resolve — mnemonic is not available on this machine.",
+      "escalatedAt": "2026-03-09T23:33:04.332Z"
     }
   ],
-  "lastChecked": "2026-03-09T23:18:02.323Z",
+  "lastChecked": "2026-03-09T23:33:04.332Z",
   "cleared": [
     {
       "agent": "forge",
