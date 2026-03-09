@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T11:01:03.088Z",
+  "updated_at": "2026-03-09T11:02:50.922Z",
   "last_task": {
-    "id": 2891,
-    "subject": "Fleet escalation: iris blocked on task #66 — Set up X API credentials to enable social-x-ecosystem sensor",
+    "id": 2740,
+    "subject": "Queue assessment: what percentage of tonight's 150+ tasks completed? What patterns emerged?",
     "status": "completed",
-    "priority": 2
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 24890,
-    "cost_usd": 0.15901725
+    "duration_ms": 72229,
+    "cost_usd": 0.34486275
   },
   "health": {
-    "uptime_seconds": 996561,
+    "uptime_seconds": 996669,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234684022784
+    "disk_avail_bytes": 234683969536
   }
 }
