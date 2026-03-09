@@ -542,7 +542,7 @@ async function gitSync(agents: string[]): Promise<void> {
     // Step 2: Create task on agent's local queue via SSH
     const subject = `Apply git bundle: update to ${local.branch} @ ${local.commit.slice(0, 10)}`;
     const taskCmd = [
-      `cd ${REMOTE_ARC_DIR}`,
+      `cd ${REMOTE_ARC_DIR} &&`,
       `bash bin/arc tasks add`,
       `--subject "${subject}"`,
       `--priority 3`,
