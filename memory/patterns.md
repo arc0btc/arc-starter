@@ -41,8 +41,7 @@
 
 ## Task Chaining & Precondition Gates
 
-- **Stop chain at human-dependency boundary:** When a task hits a blocker requiring external human action, escalate ONCE then stop. Do NOT create monitor/retry chains waiting for external state.
-- **Monitor tasks need exit conditions:** Without a delivery timeline, monitoring generates noise. Create a single `blocked` task with result_summary; let human trigger next step.
+- **Stop chain at human-dependency boundary:** When a task hits a blocker requiring external human action, escalate ONCE, set `blocked` with result_summary, then stop. Do NOT create monitor/retry chains waiting for external state; let human trigger next step.
 - **Infrastructure state validation before dependent task queuing:** When provisioning chains depend on external infrastructure state (SSH auth, network access, service availability), validate state before queuing dependent tasks. Prevents queue bloat from tasks queued to pending that fail immediately due to unmet prerequisites.
 - **Rate-limit retries MUST use `--scheduled-for`:** When a 429 includes retry-after, the follow-up task MUST be scheduled. Without it, dispatch picks up immediately and hits the limit again. Parse `retry_after` → compute expiry + 5min → `arc tasks add --scheduled-for <timestamp>`.
 - **Rate-limit retry chains collapse into scope creep:** Simple tasks become spiral failures when agents violate SKILL.md rules: scope creep, duplicate retries, wrong priority. Follow SKILL.md literally — ONE scheduled retry at correct priority, stop.
@@ -98,8 +97,7 @@
 
 ## Scope & Role Boundaries
 
-- **Arc is teacher/mentor in AIBTC, not bounty hunter:** Before pursuing any AIBTC bounty, verify (1) it's still unclaimed and (2) the role is appropriate. Bounties are often already grabbed by the time a task is queued. Task #1593 killed by whoabuddy for this reason.
-- **Cloudflare routes PUT returns transient 502s:** Build always succeeds first; the 502 is on the routes registration step, not the upload. Retry pattern handles it cleanly (task #2184 → #2189 succeeded). Treat as transient network error, not a deployment logic bug.
+- **Arc is teacher/mentor in AIBTC, not bounty hunter:** Before pursuing any AIBTC bounty, verify (1) it's still unclaimed and (2) the role is appropriate. Bounties are often already grabbed by the time a task is queued.
 
 ## Engagement & Budget Patterns
 
@@ -116,9 +114,8 @@
 ## Retrospective Task Infrastructure
 
 - **Haiku retrospectives produce quality institutional memory:** 96% of 93 retros contained real learnings. Overhead (~$0.08/retro) is justified for pattern extraction.
-- **Topic file partitioning prevents knowledge bloat:** Directing retrospectives to patterns.md instead of MEMORY.md enforces context boundaries at filesystem level.
-- **Read-before-write dedup prevents log bloat:** Read patterns.md first, check for existing similar patterns, update in-place. State-aware updates beat append-only + post-write filtering.
-- **Tighter filter = higher reuse likelihood:** Capture gate "reusable patterns that would change future task execution" reduces noise. Specificity gates are as important as the capture mechanism.
+- **Topic file partitioning prevents knowledge bloat:** Directing retrospectives to patterns.md (not MEMORY.md) enforces context boundaries at filesystem level.
+- **Read-before-write dedup + tighter filters:** Read patterns.md first, update in-place rather than appending. Capture gate: "reusable patterns that would change future task execution" — specificity gates are as important as the capture mechanism.
 
 ## Email & Coordination Patterns
 
