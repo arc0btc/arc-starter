@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T15:55:59.199Z",
+  "updated_at": "2026-03-09T16:03:51.925Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3069,
-    "subject": "Retry Loom SSH with properly escaped password (parse issue)",
+    "id": 3051,
+    "subject": "Provision Loom+Forge wallets for AIBTC heartbeat",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 35065,
-    "cost_usd": 0.19979375000000002
+    "duration_ms": 447701,
+    "cost_usd": 1.4127800000000004
   },
   "health": {
-    "uptime_seconds": 1014258,
+    "uptime_seconds": 1014730,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234650107904
+    "disk_avail_bytes": 234649964544
   }
 }
