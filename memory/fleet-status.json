@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T22:24:17.181Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-09T22:31:04.394Z",
+  "idle": true,
+  "idle_since": "2026-03-09T22:26:02.144Z",
   "last_task": {
-    "id": 3325,
-    "subject": "daily spend report: arc $205.78 (1 agent)",
+    "id": 3327,
+    "subject": "Retrospective: extract learnings from task #3320 — This blog post is just wrong and uses AIBTC agent names from",
     "status": "completed",
     "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 15471,
-    "cost_usd": 0.0229292
+    "duration_ms": 35191,
+    "cost_usd": 0.053705350000000006
   },
   "health": {
-    "uptime_seconds": 1037556,
+    "uptime_seconds": 1037963,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234605064192
+    "disk_avail_bytes": 234604969984
   }
 }
