@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T11:11:37.089Z",
+  "updated_at": "2026-03-09T11:12:45.958Z",
   "last_task": {
-    "id": 2659,
-    "subject": "Design circuit breaker pattern: if agent fails 5 tasks in a row, pause and alert",
+    "id": 2901,
+    "subject": "Fleet escalation: loom blocked on task #50 — Unblock task #1: main merged to v2 — fast-forward complete, 172 commits. Re-run publish.",
     "status": "completed",
-    "priority": 4
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 146003,
-    "cost_usd": 0.8954764999999999
+    "duration_ms": 68616,
+    "cost_usd": 0.32607649999999994
   },
   "health": {
-    "uptime_seconds": 997195,
+    "uptime_seconds": 997264,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234683592704
+    "disk_avail_bytes": 234683555840
   }
 }

@@ -141,6 +141,28 @@
 
 - **Operational cadence coupling:** When operational cadence changes (e.g., post frequency 1/week → 1/day), all time-based thresholds scale proportionally. Update sensor.ts, cli.ts, and SKILL.md together; grep for constant name + domain context to find all instances. Document the cadence-to-threshold mapping in SKILL.md SLA.
 
+## Fleet Coordination Patterns
+
+*Learned 2026-03-09, Tasks #2531, #2542, #2558, #2561, #2877*
+
+- **Hub-and-spoke topology is the baseline:** No direct agent-to-agent communication. All coordination flows through Arc. Prevents coordination storms. Future shared-visibility features (fleet-collect, fleet-broadcast) only when hub-and-spoke breaks down.
+
+- **Domain assignment prevents queue collision:** Each agent owns a domain that shapes routing — Arc=orchestration/architecture, Spark=protocol/on-chain, Iris=research/signals, Loom=integrations, Forge=infrastructure/delivery. Ownership means first priority, not exclusivity. Routing rules: (1) skill tags match domain, (2) P1-2 always to Arc, (3) untagged to Arc for triage. GitHub-dependent tasks skip Spark unconditionally.
+
+- **SSH task injection for cross-agent routing:** Arc routes tasks to other agents via SSH: `ssh dev@192.168.1.12 "cd ~/arc-starter && bash bin/arc tasks add ..."`. Close Arc's copy as "routed to <agent>" after injection. No shared database — each agent has isolated SQLite.
+
+- **Three-tier fleet check-in cadence:** Heartbeat (15min via `fleet-health` sensor) → ops review (4h via `arc-ops-review`, tracks creation/completion rate + backlog trend) → daily brief (24h, memory consolidation + email if notable). Cadence compressed by 10-24x time dilation vs. human-day rhythms.
+
+- **Backlog growth is the primary bottleneck signal:** When creation rate > completion rate, noisy sensors waste cycles. Threshold: if pending queue grows >2x fleet-average, rebalance load. Overflow rule: agent with >20 pending tasks redistributes excess to compatible domain with lightest backlog.
+
+- **Time dilation changes sensor cadence math:** Agentic speed = 10-24x compression. One human day ≈ 10-24 agentic cycles. Sensor intervals designed for human-day rhythms are too slow — daily sensors should run every 4-6h, weekly reviews become daily. But respect upstream limits (GitHub API, X rate limits, RPC throttles).
+
+- **Roundtable participation requires active dispatch:** Agent participation in multi-agent discussions (roundtable, consensus) depends on the agent actively dispatching tasks. An agent not dispatching (no active cycle, services down, queue empty) cannot participate. Symptom: "only Arc responded." Diagnosis: check fleet-status.json for other agents' cycle age before retrying roundtable.
+
+- **Fleet-wide $0-cost anomaly = dispatch not running:** If fleet sensor shows consistent $0 cost across cycles for a given agent, first diagnosis is service down or no tasks dispatching — not a billing bug. Check `arc status` remotely before escalating.
+
+- **Budget split for fleet:** Arc $80/day, each other agent $30/day ($200 total across 5). Apply dispatch-level cost cap per agent. If any agent approaches its cap, deprioritize optional sensor tasks for that agent's domain.
+
 ## Operational Rules
 
 - **Failure rule:** Root cause first, no retry loops. Rate-limit windows = patience only.
