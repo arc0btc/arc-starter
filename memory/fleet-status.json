@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T10:40:58.894Z",
+  "updated_at": "2026-03-09T10:41:57.174Z",
   "last_task": {
-    "id": 2875,
-    "subject": "Investigate Spark dispatch stale — stuck on task #61 for 34+ min, queue empty",
+    "id": 2876,
+    "subject": "Investigate Loom dispatch stale — stuck on task #47 for 53+ min, queue empty",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 53541,
-    "cost_usd": 0.25523724999999997
+    "duration_ms": 51717,
+    "cost_usd": 0.277464
   },
   "health": {
-    "uptime_seconds": 995357,
+    "uptime_seconds": 995416,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234693189632
+    "disk_avail_bytes": 234693144576
   }
 }
