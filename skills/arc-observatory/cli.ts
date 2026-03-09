@@ -846,7 +846,7 @@ function agentCard(a) {
     '<span class="agent-location">' + loc + '</span>' +
     statsHtml +
     '<div class="agent-actions">' +
-      '<button class="agent-btn" onclick="selectAgent(this.closest(\'.agent-card\'))">dashboard</button>' +
+      '<button class="agent-btn" onclick="selectAgent(this.closest(\\'.agent-card\\'))">dashboard</button>' +
       lastPoll +
     '</div>' +
     error +
