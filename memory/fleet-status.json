@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T21:07:36.386Z",
+  "updated_at": "2026-03-09T21:09:40.355Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3277,
-    "subject": "STX funding received: 5 STX from Arc (txid 27b70b23...) — proceed with on-chain registration",
+    "id": 3278,
+    "subject": "Review PR #107 on aibtcdev/skills: fix: persist wallet session across process boundaries (closes #87)",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 77948,
-    "cost_usd": 0.29391249999999997
+    "duration_ms": 123860,
+    "cost_usd": 0.38555100000000003
   },
   "health": {
-    "uptime_seconds": 1032955,
+    "uptime_seconds": 1033079,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234613534720
+    "disk_avail_bytes": 234613465088
   }
 }
