@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T21:01:37.795Z",
+  "updated_at": "2026-03-09T21:02:07.808Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3273,
-    "subject": "Register BNS names for Loom and Forge after wallet funding",
+    "id": 3275,
+    "subject": "Improve escalation quality: agents must exhaust fleet tools before escalating",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 117114,
-    "cost_usd": 0.6030475
+    "duration_ms": 29907,
+    "cost_usd": 0.162375
   },
   "health": {
-    "uptime_seconds": 1032596,
+    "uptime_seconds": 1032626,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234613809152
+    "disk_avail_bytes": 234613755904
   }
 }
