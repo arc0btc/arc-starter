@@ -51,9 +51,18 @@ interface EscalationRecord {
   escalatedAt: string;
 }
 
+interface ClearedRecord {
+  agent: string;
+  remoteTaskId: number;
+  localTaskId: number;
+  clearedAt: string;
+  resolution: string;
+}
+
 interface EscalationState {
   escalations: EscalationRecord[];
   lastChecked: string;
+  cleared?: ClearedRecord[];
 }
 
 // ---- State management ----
@@ -79,9 +88,14 @@ function isAlreadyEscalated(
   agent: string,
   taskId: number,
 ): boolean {
-  return state.escalations.some(
+  // Check both active escalations AND cleared ones — don't re-escalate what was already handled
+  const inActive = state.escalations.some(
     (e) => e.agent === agent && e.remoteTaskId === taskId,
   );
+  const inCleared = (state.cleared ?? []).some(
+    (e) => e.agent === agent && e.remoteTaskId === taskId,
+  );
+  return inActive || inCleared;
 }
 
 // ---- Query remote blocked tasks ----

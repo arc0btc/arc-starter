@@ -182,6 +182,9 @@ const WORKER_SENSORS: ReadonlySet<string> = new Set([
   "fleet-self-sync",        // receive code updates from Arc
   "arc-scheduler",          // fire scheduled tasks
   "contacts",               // contact sync
+  // Reputation — all agents should review peers and monitor feedback
+  "reputation-tracker",          // detect review opportunities from completed tasks (30min)
+  "erc8004-reputation-monitor",  // watch for incoming on-chain feedback (60min)
 ]);
 
 /** Per-sensor timeout in milliseconds. Liberal limit to catch hangs, not rush normal work. */
