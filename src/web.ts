@@ -1079,6 +1079,111 @@ function handleReputation(): Response {
   }
 }
 
+// ---- POST /api/tasks: Agent-to-agent task creation ----
+
+const TASK_API_DAILY_LIMIT = 50;
+const taskApiDayCounts = new Map<string, { day: string; count: number }>();
+
+function checkTaskApiRateLimit(sourceIp: string): boolean {
+  const today = new Date().toISOString().slice(0, 10);
+  const entry = taskApiDayCounts.get(sourceIp);
+  if (!entry || entry.day !== today) {
+    taskApiDayCounts.set(sourceIp, { day: today, count: 0 });
+    return true;
+  }
+  return entry.count < TASK_API_DAILY_LIMIT;
+}
+
+function incrementTaskApiCount(sourceIp: string): void {
+  const today = new Date().toISOString().slice(0, 10);
+  const entry = taskApiDayCounts.get(sourceIp);
+  if (!entry || entry.day !== today) {
+    taskApiDayCounts.set(sourceIp, { day: today, count: 1 });
+  } else {
+    entry.count++;
+  }
+}
+
+async function handlePostTask(req: Request): Promise<Response> {
+  const sourceIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+    || req.headers.get("x-real-ip")
+    || "unknown";
+
+  if (!checkTaskApiRateLimit(sourceIp)) {
+    return json({
+      error: "Daily task creation limit reached",
+      code: "RATE_LIMITED",
+      limit: TASK_API_DAILY_LIMIT,
+    }, 429);
+  }
+
+  let body: {
+    subject?: string;
+    priority?: number;
+    description?: string;
+    skills?: string[];
+    source?: string;
+  };
+  try {
+    body = await req.json() as typeof body;
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  // Validate subject
+  const subject = typeof body.subject === "string" ? body.subject.trim() : "";
+  if (!subject) return errorResponse("'subject' is required", 400);
+  if (subject.length > 500) return errorResponse("Subject too long (max 500 chars)", 400);
+
+  // Validate source (required for agent-to-agent)
+  const source = typeof body.source === "string" ? body.source.trim() : "";
+  if (!source) return errorResponse("'source' is required (e.g. 'agent:spark', 'agent:iris')", 400);
+  if (source.length > 200) return errorResponse("Source too long (max 200 chars)", 400);
+
+  // Validate priority
+  let priority = 5;
+  if (body.priority !== undefined) {
+    if (typeof body.priority !== "number" || !Number.isInteger(body.priority) || body.priority < 1 || body.priority > 10) {
+      return errorResponse("'priority' must be an integer 1-10", 400);
+    }
+    priority = body.priority;
+  }
+
+  // Validate description
+  let description: string | undefined;
+  if (body.description !== undefined) {
+    if (typeof body.description !== "string") return errorResponse("'description' must be a string", 400);
+    if (body.description.length > 5000) return errorResponse("Description too long (max 5000 chars)", 400);
+    description = body.description.trim() || undefined;
+  }
+
+  // Validate skills
+  let skills: string | undefined;
+  if (body.skills !== undefined) {
+    if (!Array.isArray(body.skills) || !body.skills.every((s): s is string => typeof s === "string")) {
+      return errorResponse("'skills' must be an array of strings", 400);
+    }
+    if (body.skills.length > 10) return errorResponse("Too many skills (max 10)", 400);
+    skills = JSON.stringify(body.skills);
+  }
+
+  const taskId = insertTask({
+    subject,
+    description,
+    skills,
+    priority,
+    source,
+  });
+
+  incrementTaskApiCount(sourceIp);
+
+  const task = db.query(
+    "SELECT id, subject, description, skills, priority, status, source, created_at FROM tasks WHERE id = ?"
+  ).get(taskId);
+
+  return json(task, 201);
+}
+
 async function handlePostMessage(req: Request): Promise<Response> {
   let body: { message?: string; priority?: number; parent_id?: number };
   try {
@@ -1296,6 +1401,7 @@ function route(req: Request): Response | Promise<Response> {
   }
 
   // POST routes
+  if (method === "POST" && path === "/api/tasks") return handlePostTask(req);
   if (method === "POST" && path === "/api/messages/fleet") return handlePostFleetMessage(req);
   if (method === "POST" && path === "/api/messages") return handlePostMessage(req);
   if (method === "POST" && path === "/api/ask") return handleAsk(req);
