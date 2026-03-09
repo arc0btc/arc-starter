@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T10:59:52.604Z",
+  "updated_at": "2026-03-09T11:01:03.088Z",
   "last_task": {
-    "id": 2890,
-    "subject": "Fleet escalation: iris blocked on task #42 — Configure Iris on-chain identity: Bitcoin, Stacks, BNS accounts",
+    "id": 2891,
+    "subject": "Fleet escalation: iris blocked on task #66 — Set up X API credentials to enable social-x-ecosystem sensor",
     "status": "completed",
     "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 14645,
-    "cost_usd": 0.1267235
+    "duration_ms": 24890,
+    "cost_usd": 0.15901725
   },
   "health": {
-    "uptime_seconds": 996491,
+    "uptime_seconds": 996561,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234684067840
+    "disk_avail_bytes": 234684022784
   }
 }
