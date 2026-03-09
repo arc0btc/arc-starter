@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T11:19:58.030Z",
+  "updated_at": "2026-03-09T11:21:00.000Z",
   "last_task": {
-    "id": 2726,
-    "subject": "Build fleet git sync: ensure all agents are on same commit of arc-starter",
+    "id": 2904,
+    "subject": "Fleet alert: forge service issues — dispatch stall: last cycle 33m ago, fleet-status.json stale (33m old)",
     "status": "completed",
-    "priority": 4
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 336791,
-    "cost_usd": 1.1832740999999998
+    "duration_ms": 61699,
+    "cost_usd": 0.26955775000000004
   },
   "health": {
-    "uptime_seconds": 997696,
+    "uptime_seconds": 997758,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234683334656
+    "disk_avail_bytes": 234683293696
   }
 }
