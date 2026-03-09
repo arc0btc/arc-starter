@@ -71,6 +71,7 @@ interface AgentHealth {
   peerStatus: PeerStatus | null;
   peerStatusStale: boolean;
   consecutiveFailureStreak: boolean;
+  oauthExpiresIn: string;
   issues: string[];
 }
 
@@ -89,6 +90,7 @@ async function checkAgent(
     peerStatus: null,
     peerStatusStale: false,
     consecutiveFailureStreak: false,
+    oauthExpiresIn: "unknown",
     issues: [],
   };
 
@@ -247,6 +249,40 @@ async function checkAgent(
     health.issues.push(`disk ${health.diskUsage}`);
   }
 
+  // OAuth token expiry check
+  const EXPIRY_WARNING_MS = 12 * 60 * 60 * 1000; // 12 hours
+  const oauthResult = await ssh(
+    ip, password,
+    `cat ~/.claude/.credentials.json 2>/dev/null || echo "{}"`
+  );
+  if (oauthResult.ok && oauthResult.stdout.trim()) {
+    try {
+      const creds = JSON.parse(oauthResult.stdout);
+      const expiresAt = creds?.claudeAiOauth?.expiresAt;
+      if (typeof expiresAt === "number") {
+        const remaining = expiresAt - Date.now();
+        if (remaining <= 0) {
+          health.oauthExpiresIn = "EXPIRED";
+          health.issues.push("OAuth token expired — dispatch will fail");
+        } else if (remaining <= EXPIRY_WARNING_MS) {
+          const hoursLeft = Math.round(remaining / 3600000 * 10) / 10;
+          health.oauthExpiresIn = `${hoursLeft}h`;
+          health.issues.push(`OAuth token expires in ${hoursLeft}h — re-auth needed soon`);
+        } else {
+          const hoursLeft = Math.round(remaining / 3600000);
+          health.oauthExpiresIn = `${hoursLeft}h`;
+        }
+      } else if (creds?.claudeAiOauth?.accessToken) {
+        health.oauthExpiresIn = "no expiry field";
+      } else {
+        health.oauthExpiresIn = "no oauth token";
+        health.issues.push("No OAuth token found — claude auth may not be configured");
+      }
+    } catch {
+      health.oauthExpiresIn = "parse error";
+    }
+  }
+
   // High error rate: >50% failed tasks in last hour
   const errorRateResult = await ssh(
     ip, password,
@@ -299,8 +335,8 @@ function formatSummary(results: AgentHealth[], timestamp: string): string {
     "",
     `*Last checked: ${timestamp}*`,
     "",
-    "| Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Issues |",
-    "|-------|-----------|---------|----------|------------|------|--------|",
+    "| Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | OAuth | Issues |",
+    "|-------|-----------|---------|----------|------------|------|-------|--------|",
   ];
 
   for (const h of results) {
@@ -314,8 +350,11 @@ function formatSummary(results: AgentHealth[], timestamp: string): string {
       h.reachable && h.pendingCount === 0 && ageMatch && parseInt(ageMatch[1]) > 30
         ? `idle (${h.lastDispatchAge})`
         : h.lastDispatchAge;
+    const oauth = h.oauthExpiresIn === "EXPIRED" ? "**EXPIRED**" :
+      h.oauthExpiresIn.match(/^\d/) && parseFloat(h.oauthExpiresIn) <= 12 ? `**${h.oauthExpiresIn}**` :
+      h.oauthExpiresIn;
     lines.push(
-      `| ${h.agent} | ${reachable} | ${sensors} | ${dispatch} | ${lastCycle} | ${h.diskUsage} | ${issues} |`
+      `| ${h.agent} | ${reachable} | ${sensors} | ${dispatch} | ${lastCycle} | ${h.diskUsage} | ${oauth} | ${issues} |`
     );
   }
 
@@ -386,6 +425,7 @@ export default async function fleetHealthSensor(): Promise<string> {
       peerStatus: null,
       peerStatusStale: false,
       consecutiveFailureStreak: false,
+      oauthExpiresIn: "unknown",
       issues: [`check failed: ${r.reason instanceof Error ? r.reason.message : String(r.reason)}`],
     } satisfies AgentHealth;
   });

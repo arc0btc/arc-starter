@@ -126,6 +126,33 @@ async function cmdStatus(): Promise<void> {
     const uptimeResult = await ssh(ip, password, "uptime -p");
     process.stdout.write(`  Uptime:         ${uptimeResult.stdout.trim()}\n`);
 
+    // OAuth token expiry
+    const oauthResult = await ssh(ip, password, `cat ~/.claude/.credentials.json 2>/dev/null || echo "{}"`);
+    if (oauthResult.ok && oauthResult.stdout.trim()) {
+      try {
+        const creds = JSON.parse(oauthResult.stdout);
+        const expiresAt = creds?.claudeAiOauth?.expiresAt;
+        if (typeof expiresAt === "number") {
+          const remaining = expiresAt - Date.now();
+          if (remaining <= 0) {
+            process.stdout.write(`  OAuth:          EXPIRED — re-auth required\n`);
+          } else {
+            const hours = Math.round(remaining / 3600000 * 10) / 10;
+            const warn = hours <= 12 ? " ⚠ re-auth soon" : "";
+            process.stdout.write(`  OAuth:          expires in ${hours}h${warn}\n`);
+          }
+        } else if (creds?.claudeAiOauth?.accessToken) {
+          process.stdout.write(`  OAuth:          active (no expiry field)\n`);
+        } else {
+          process.stdout.write(`  OAuth:          not configured\n`);
+        }
+      } catch {
+        process.stdout.write(`  OAuth:          (parse error)\n`);
+      }
+    } else {
+      process.stdout.write(`  OAuth:          no credentials file\n`);
+    }
+
     // Peer self-reported status (fleet-status.json)
     const statusResult = await ssh(ip, password, `cat ${REMOTE_ARC_DIR}/memory/fleet-status.json 2>/dev/null`);
     if (statusResult.ok && statusResult.stdout.trim()) {
