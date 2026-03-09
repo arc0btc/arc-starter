@@ -65,6 +65,9 @@ type ErrorClass = "auth" | "rate_limited" | "subprocess_timeout" | "transient" |
  * Matches "status 401", "HTTP 403", "error 429" etc. — not bare numbers
  * that could be task IDs like "task #401".
  */
+/** Pre-compiled rate-limit detection pattern — single regex, tested once per error. */
+const RATE_LIMIT_RE = /(?:status|HTTP|error|code)[:\s]*429|\brate[_\s-]?limit|\btoo many requests|\b(?:max\s*usage|plan\s*limit|usage\s*limit|token\s*limit)\b|\bplan.*cap|\b(?:limit|quota)\s*(?:reached|exceeded|hit)\b|\bexceeded.*(?:limit|quota)/i;
+
 function classifyError(errMsg: string): ErrorClass {
   // Auth errors — 401/403 with HTTP context, or named errors
   if (/(?:status|HTTP|error|code)[:\s]*(?:401|403)/i.test(errMsg)
@@ -72,17 +75,7 @@ function classifyError(errMsg: string): ErrorClass {
     return "auth";
   }
   // Rate limiting — 429 with HTTP context, plan/usage limits, or named patterns
-  if (/(?:status|HTTP|error|code)[:\s]*429/i.test(errMsg)
-      || /\brate[_\s-]?limit/i.test(errMsg)
-      || /\btoo many requests\b/i.test(errMsg)
-      || /\bmax\s*usage\b/i.test(errMsg)
-      || /\bplan\s*limit/i.test(errMsg)
-      || /\busage\s*limit/i.test(errMsg)
-      || /\btoken\s*limit/i.test(errMsg)
-      || /\bplan.*cap/i.test(errMsg)
-      || /\bexceeded.*(?:limit|quota)/i.test(errMsg)
-      || /\b(?:limit|quota)\s*(?:reached|exceeded|hit)\b/i.test(errMsg)
-      || /claude exited [1-9]\d*:\s*$/i.test(errMsg)) {
+  if (RATE_LIMIT_RE.test(errMsg)) {
     return "rate_limited";
   }
   // Subprocess timeout — task ran too long, do not retry (would just time out again)
