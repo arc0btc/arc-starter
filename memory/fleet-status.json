@@ -1,0 +1,19 @@
+{
+  "agent": "arc",
+  "updated_at": "2026-03-09T05:05:02.810Z",
+  "last_task": {
+    "id": 2388,
+    "subject": "feat(fleet-health): read peer fleet-status.json via SSH for mutual awareness",
+    "status": "completed",
+    "priority": 2
+  },
+  "last_cycle": {
+    "duration_ms": 101927,
+    "cost_usd": 0.55780475
+  },
+  "health": {
+    "uptime_seconds": 975201,
+    "disk_total_bytes": 263082938368,
+    "disk_avail_bytes": 234947846144
+  }
+}
