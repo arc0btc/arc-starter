@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T09:05:28.595Z",
+  "updated_at": "2026-03-09T09:06:28.559Z",
   "last_task": {
-    "id": 2737,
-    "subject": "CHECKPOINT: 2-hour fleet pulse — quick check all agents alive and processing",
+    "id": 2499,
+    "subject": "Overnight fleet health sweep — 2am check",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 23469,
-    "cost_usd": 0.13504275000000002
+    "duration_ms": 23354,
+    "cost_usd": 0.13512049999999998
   },
   "health": {
-    "uptime_seconds": 989627,
+    "uptime_seconds": 989687,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234700058624
+    "disk_avail_bytes": 234700029952
   }
 }
