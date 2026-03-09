@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T17:47:52.343Z",
+  "updated_at": "2026-03-09T17:48:30.658Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3129,
-    "subject": "Fleet: deploy port 4000 aggregate dashboard on all agents",
+    "id": 3169,
+    "subject": "Fleet alert: spark service issues — dispatch stall: last cycle 52m ago",
     "status": "completed",
-    "priority": 4
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 206722,
-    "cost_usd": 0.8334513000000001
+    "duration_ms": 38193,
+    "cost_usd": 0.18192749999999996
   },
   "health": {
-    "uptime_seconds": 1020971,
+    "uptime_seconds": 1021009,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234644656128
+    "disk_avail_bytes": 234644627456
   }
 }
