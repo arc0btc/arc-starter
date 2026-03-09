@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T21:41:48.191Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-09T21:47:15.396Z",
+  "idle": true,
+  "idle_since": "2026-03-09T21:43:13.645Z",
   "last_task": {
-    "id": 3307,
-    "subject": "Retrospective: extract learnings from task #3306 — For web UI on port 4000 arc observatory, need to apply arc b",
+    "id": 3308,
+    "subject": "Publish arc-starter: merge v2 into main (34 commits ahead)",
     "status": "completed",
-    "priority": 8
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 34979,
-    "cost_usd": 0.05508135
+    "duration_ms": 24639,
+    "cost_usd": 0.03974215
   },
   "health": {
-    "uptime_seconds": 1035007,
+    "uptime_seconds": 1035334,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234610544640
+    "disk_avail_bytes": 234610470912
   }
 }
