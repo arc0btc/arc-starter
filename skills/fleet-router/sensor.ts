@@ -18,7 +18,7 @@ import {
   claimSensorRun,
   createSensorLogger,
 } from "../../src/sensors.ts";
-import { getPendingTasks, markTaskCompleted } from "../../src/db.ts";
+import { getPendingTasks, markTaskCompleted, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 import type { Task } from "../../src/db.ts";
 import {
   AGENTS,
@@ -315,6 +315,10 @@ export default async function fleetRouterSensor(): Promise<string> {
     password = await getSshPassword();
   } catch {
     log("no SSH password configured — skipping");
+    const alertSource = `sensor:${SENSOR_NAME}:no-creds`;
+    if (!pendingTaskExistsForSource(alertSource)) {
+      insertTask({ subject: "fleet-router: SSH password not configured", priority: 8, source: alertSource });
+    }
     return "skip";
   }
 

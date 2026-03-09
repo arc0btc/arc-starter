@@ -20,6 +20,7 @@ import {
   getSshPassword,
   ssh,
 } from "../../src/ssh.ts";
+import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "fleet-log-pull";
 const INTERVAL_MINUTES = 30;
@@ -208,6 +209,10 @@ export default async function fleetLogPullSensor(): Promise<string> {
     password = await getSshPassword();
   } catch {
     log("no SSH password configured — skipping");
+    const alertSource = `sensor:${SENSOR_NAME}:no-creds`;
+    if (!pendingTaskExistsForSource(alertSource)) {
+      insertTask({ subject: "fleet-log-pull: SSH password not configured", priority: 8, source: alertSource });
+    }
     return "skip";
   }
 

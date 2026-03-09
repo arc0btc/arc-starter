@@ -19,6 +19,7 @@ import {
   getSshPassword,
   ssh,
 } from "../../src/ssh.ts";
+import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "fleet-rebalance";
 const INTERVAL_MINUTES = 5;
@@ -217,6 +218,10 @@ export default async function fleetRebalanceSensor(): Promise<string> {
     password = await getSshPassword();
   } catch {
     log("no SSH password configured — skipping");
+    const alertSource = `sensor:${SENSOR_NAME}:no-creds`;
+    if (!pendingTaskExistsForSource(alertSource)) {
+      insertTask({ subject: "fleet-rebalance: SSH password not configured", priority: 8, source: alertSource });
+    }
     return "skip";
   }
 
