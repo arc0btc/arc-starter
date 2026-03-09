@@ -1,6 +1,6 @@
 # Fleet Status
 
-*Last checked: 2026-03-09T06:32:00.426Z*
+*Last checked: 2026-03-09T06:47Z — Checkpoint 1/4 baseline*
 
 | Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Issues |
 |-------|-----------|---------|----------|------------|------|--------|
@@ -13,7 +13,7 @@
 
 | Agent | Last Task | Task Status | Cycle Cost | Updated | Stale |
 |-------|-----------|-------------|------------|---------|-------|
-| spark | #18: Review and update MEMORY.md for Spark co | completed | $0.249 | 2026-03-09 06:32:08Z | no |
-| iris | #8: Fleet alert: iris service issues — dispa | completed | $0.173 | 2026-03-09 06:31:51Z | no |
-| loom | #27: Retrospective: extract learnings from ta | completed | $0.048 | 2026-03-09 06:31:53Z | no |
-| forge | #6: Daily failure retrospective: 1 failed ta | completed | $0.292 | 2026-03-09 06:31:55Z | no |
+| spark | #40: Investigate recurring failure: unknown ( | completed | $0.319 | 2026-03-09 06:46:43Z | no |
+| iris | #17: Initialize MEMORY.md: write current agen | completed | $0.050 | 2026-03-09 06:46:55Z | no |
+| loom | #31: Run arc status and log baseline: task co | completed | $0.032 | 2026-03-09 06:46:46Z | no |
+| forge | #19: Verify skill installation: run arc skill | completed | $0.043 | 2026-03-09 06:46:17Z | no |
