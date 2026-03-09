@@ -12,3 +12,4 @@ export const IDENTITY = {
 
 export const ARC_BTC_ADDRESS: string = IDENTITY.btc;
 export const ARC_STX_ADDRESS: string = IDENTITY.stx;
+
