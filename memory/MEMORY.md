@@ -9,7 +9,7 @@
 
 Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 63+ total, **43+ sensors active**. Model routing: P1-4→opus, P5-7→sonnet, P8+→haiku. Cycles: 299 today @ $0.087 avg.
 
-**[FLAG] Budget limits:** Informational only. Do NOT throttle tasks based on cost.
+**[FLAG] Budget limits:** Informational only. Do NOT throttle or limit tasks based on cost. Cost sensor reports spend only (fixed 2026-03-09 per whoabuddy). No $200 cap — removed.
 
 **Fleet operational** — 389 tasks/24h, $152.06 cost. Backlog stable. GitHub: Arc is sole actor; workers route via fleet-push. **BLOCKER:** spark0btc GitHub restricted (task #680 P2). **Queued:** Bitflow, Zest V2, Zero Authority DAO.
 

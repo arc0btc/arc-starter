@@ -1,9 +1,10 @@
 // cost-alerting/sensor.ts
 //
-// Monitors daily spend across the full fleet every 10 minutes.
-// Tracks multi-provider costs: Claude Code + OpenAI Codex (o3, o4-mini, gpt-4.1, gpt-5.4).
-// Creates a priority-3 alert task when daily total exceeds the threshold.
-// One alert per day max (date-stamped source key).
+// Monitors daily spend across the fleet every 10 minutes.
+// Tracks multi-provider costs: Claude Code + OpenAI Codex.
+// Creates an informational spend report (P8) when daily total exceeds the reporting threshold.
+// One report per day max (date-stamped source key).
+// This sensor REPORTS only — it does NOT throttle or limit task execution.
 
 import { claimSensorRun, createSensorLogger, pendingTaskExistsForSource, insertTask } from "../../src/sensors.ts";
 import { getDatabase } from "../../src/db.ts";
@@ -11,8 +12,7 @@ import { getCredential } from "../../src/credentials.ts";
 
 const SENSOR_NAME = "arc-cost-alerting";
 const INTERVAL_MINUTES = 10;
-const DAILY_THRESHOLD_USD = 150.0; // warn at $150 of $200/day cap
-const DAILY_CAP_USD = 200.0;
+const REPORT_THRESHOLD_USD = 150.0; // create a spend report when daily total exceeds this
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -160,33 +160,37 @@ export default async function costAlertingSensor(): Promise<string> {
 
   log(`daily spend: arc=$${local.costUsd.toFixed(2)} fleet=$${fleetCost.toFixed(2)} total=$${totalCost.toFixed(2)} (codex=$${totalCodexCost.toFixed(2)})`);
 
-  if (totalCost < DAILY_THRESHOLD_USD) return "ok";
+  if (totalCost < REPORT_THRESHOLD_USD) return "ok";
 
-  // Build breakdown for alert description
+  // Build breakdown — only include reachable agents
   const breakdown: string[] = [];
-  breakdown.push(`**Arc (local):** $${local.costUsd.toFixed(2)} (codex: $${local.codexCostUsd.toFixed(2)})`);
-  for (const agent of fleetSpends) {
-    const status = agent.reachable
-      ? `$${agent.costUsd.toFixed(2)} (codex: $${agent.codexCostUsd.toFixed(2)})`
-      : "unreachable";
-    breakdown.push(`**${agent.agent}:** ${status}`);
+  breakdown.push(`**Arc:** $${local.costUsd.toFixed(2)} (codex: $${local.codexCostUsd.toFixed(2)})`);
+  const reachableAgents = fleetSpends.filter((a) => a.reachable);
+  const unreachableAgents = fleetSpends.filter((a) => !a.reachable);
+  for (const agent of reachableAgents) {
+    breakdown.push(`**${agent.agent}:** $${agent.costUsd.toFixed(2)} (codex: $${agent.codexCostUsd.toFixed(2)})`);
+  }
+  if (unreachableAgents.length > 0) {
+    breakdown.push(`**Unreachable (not included in total):** ${unreachableAgents.map((a) => a.agent).join(", ")}`);
   }
 
-  const urgency = totalCost >= DAILY_CAP_USD ? "OVER CAP" : "approaching cap";
+  // Label reflects what was actually measured
+  const scope = reachableAgents.length > 0 ? "fleet" : "arc";
+  const agentCount = 1 + reachableAgents.length;
 
   insertTask({
-    subject: `cost alert: fleet spend $${totalCost.toFixed(2)}/${DAILY_CAP_USD} — ${urgency}`,
+    subject: `daily spend report: ${scope} $${totalCost.toFixed(2)} (${agentCount} agent${agentCount > 1 ? "s" : ""})`,
     description:
-      `Daily fleet spend has reached $${totalCost.toFixed(2)} (threshold: $${DAILY_THRESHOLD_USD.toFixed(2)}, cap: $${DAILY_CAP_USD.toFixed(2)}/day).\n\n` +
+      `Daily ${scope} spend as of ${new Date().toISOString().slice(11, 16)}Z: **$${totalCost.toFixed(2)}**\n\n` +
       `**Breakdown:**\n${breakdown.map((b) => `- ${b}`).join("\n")}\n\n` +
-      `Total Codex (OpenAI) spend: $${totalCodexCost.toFixed(2)}\n\n` +
-      `Review active tasks and consider deferring low-priority work. Run \`arc status\` for details.`,
+      (totalCodexCost > 0 ? `Codex (OpenAI) spend: $${totalCodexCost.toFixed(2)}\n\n` : "") +
+      `This is an informational report. No action required.`,
     skills: '["arc-cost-alerting"]',
-    priority: 3,
-    model: "sonnet",
+    priority: 8,
+    model: "haiku",
     source: source,
   });
 
-  log(`alert created: total=$${totalCost.toFixed(2)}, codex=$${totalCodexCost.toFixed(2)}`);
+  log(`spend report created: ${scope}=$${totalCost.toFixed(2)}, codex=$${totalCodexCost.toFixed(2)}`);
   return "ok";
 }
