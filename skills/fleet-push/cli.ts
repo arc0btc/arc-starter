@@ -153,7 +153,7 @@ async function syncAgentToSha(
 
   const cmds = [
     `cd ${REMOTE_ARC_DIR}`,
-    `git fetch ${remotePath} 'refs/*:refs/*' --force`,
+    `git fetch ${remotePath}`,
     `git reset --hard ${toSha}`,
     ...(installDeps ? [`~/.bun/bin/bun install --frozen-lockfile 2>/dev/null || ~/.bun/bin/bun install`] : []),
     `rm -f ${remotePath}`,
