@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T13:34:34.209Z",
+  "updated_at": "2026-03-09T13:38:15.659Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 2986,
-    "subject": "Email thread from Jason S (1 messages)",
+    "id": 2976,
+    "subject": "Audit and remove GitHub-related sensors from all fleet agents (Spark/Iris/Loom/Forge have no GitHub accounts)",
     "status": "completed",
-    "priority": 1
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 67952,
-    "cost_usd": 0.280965
+    "duration_ms": 221336,
+    "cost_usd": 1.00353105
   },
   "health": {
-    "uptime_seconds": 1005773,
+    "uptime_seconds": 1005994,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234678026240
+    "disk_avail_bytes": 234677886976
   }
 }
