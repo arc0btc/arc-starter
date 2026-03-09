@@ -1,19 +1,25 @@
 # Arc Memory — Current Status & Index
 
 *Compressed operational memory. Updated by consolidate-memory skill.*
-*Last updated: 2026-03-07 14:42Z*
+*Last updated: 2026-03-09 13:04Z*
 
 ---
 
-## Status (2026-03-05)
+## Status (2026-03-09)
 
-Arc v5 on fresh VM. **Budget:** $200/day. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 63 total, **43 sensors active** (as of 2026-03-06). Model and priority are decoupled. Tasks set `model:` explicitly (opus/sonnet/haiku). Priority reflects urgency only. Fallback: P1-4→opus, P5-7→sonnet, P8+→haiku — but always prefer explicit model.
+Arc v5. **Budget:** $200/day ($110.76 spent today as of 13:04Z). **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 63+ total, **43+ sensors active**. Model routing: explicit `model:` in task (fallback P1-4→opus, P5-7→sonnet, P8+→haiku). Cycles: 235 today / 1874 this week @ $0.087 avg.
 
-**Current state:** All systems healthy. Fleet fully provisioned — **all 5 agents on Claude Max 100 plan** (Arc, Spark .12, Iris .13, Loom .14, Forge .15). **Forge dual-dispatch: Claude Code + OpenAI Codex (GPT-5.4, AIBTC OpenAPI key).** First dual-dispatch deployment — cost reporting accuracy must be verified before scaling. Loom actively dispatching; Spark/Iris/Forge ramping up (setup tasks queued). AIBTC Ordinals Business beat active (8,200 sats sBTC available for 82+ messages). Pipeline: 396 cycles/24h at $0.087/cycle.
+**Fleet operational** — overnight build sprint complete (task #2459). All 4 agents (Spark/Iris/Loom/Forge) dispatching. **First 24h fleet results: 350 tasks completed, 91.4% success rate, $83.46 total fleet spend** (within $120/day fleet budget). Details in `memory/fleet-experiments.md`.
 
-**Cost watch:** Yesterday (2026-03-05) hit $197.75/$200 — near daily cap. Monitor for multi-day trend. **[FLAG] Dual dispatch (Forge Codex) adds OpenAI API costs — verify cost reporting captures both Claude and OpenAI spend before scaling. If API costs run high, email whoabuddy.**
+**Fleet coordination skills deployed:** fleet-health, fleet-router, fleet-sync, fleet-escalation, fleet-dashboard, fleet-push, fleet-deploy, fleet-memory, fleet-comms, arc-roundtable, arc-observatory. All sensors healthy.
 
-**BLOCKER:** **spark0btc GitHub permanently restricted** (GitHub Support final denial, 2026-03-02). Reason: GitHub Actions used for incentivized/3rd-party activity. Impact: PR #16 (aibtcdev/worker-logs) blocked, Spark cannot have GitHub presence. Escalation sent to whoabuddy (task #680 P2). Recommended option: Spark GitHub-free / AIBTC-only. **Status:** Awaiting whoabuddy decision.
+**[FLAG] Fleet credential blockers (needs whoabuddy):**
+- Loom GitHub SSH key needs adding: `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMXJNzgEpJpJBALWTaITwB6gShchsKt4LOEFbic+MC3Q` (tasks #2888, #2901)
+- Loom v2/main divergence — 12 commits need manual resolution (task #2889)
+- Iris: on-chain identity keypairs + BNS registration needed (task #2890)
+- Iris: X OAuth 1.0a credentials missing (task #2891)
+
+**BLOCKER:** spark0btc GitHub permanently restricted (final denial 2026-03-02). Awaiting whoabuddy decision (task #680 P2).
 
 **Queued:** Bitflow + Zest V2 integrations, Zero Authority DAO.
 
@@ -42,6 +48,7 @@ Arc v5 on fresh VM. **Budget:** $200/day. **Mission:** Improve own stack + Bitco
 - **[../GOALS.md](../GOALS.md)** — Shared roadmap: directives (D1-D5), milestones, active priorities. Dispatch references this for task relevance. whoabuddy edits directives; Arc proposes milestones.
 - **[patterns.md](patterns.md)** — Operational patterns: architecture safety, sensor design, task routing, PR review feedback, integration sync strategies
 - **[archive.md](archive.md)** — Historical: aibtcdev/skills v0.12.0 release, on-chain balances (2026-03-01), GitHub restrictions resolution
+- **[fleet-experiments.md](fleet-experiments.md)** — Fleet overnight experiment results (2026-03-09): per-agent completion rates, failure patterns, cross-agent comms, ops recommendations
 - **`../research/`** — Active research reports. Auto-archived to `research/archive/` after 30 days. `research/arxiv/` capped at 5 most recent digests. Sensor: `arc-research-decay` (24h interval).
 
 ---
