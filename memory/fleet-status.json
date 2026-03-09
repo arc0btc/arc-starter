@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T21:40:20.495Z",
+  "updated_at": "2026-03-09T21:41:48.191Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3305,
-    "subject": "daily spend report: arc $197.46 (1 agent)",
+    "id": 3307,
+    "subject": "Retrospective: extract learnings from task #3306 — For web UI on port 4000 arc observatory, need to apply arc b",
     "status": "completed",
     "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 7529,
-    "cost_usd": 0.0223526
+    "duration_ms": 34979,
+    "cost_usd": 0.05508135
   },
   "health": {
-    "uptime_seconds": 1034919,
+    "uptime_seconds": 1035007,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234610593792
+    "disk_avail_bytes": 234610544640
   }
 }
