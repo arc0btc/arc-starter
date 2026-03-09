@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T17:11:07.736Z",
+  "updated_at": "2026-03-09T17:16:15.017Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3116,
-    "subject": "Email thread from Jason S (1 messages)",
+    "id": 3122,
+    "subject": "Fleet queue alignment review: audit all agents vs whoabuddy goals email",
     "status": "completed",
-    "priority": 1
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 128282,
-    "cost_usd": 0.5943680000000001
+    "duration_ms": 307155,
+    "cost_usd": 1.35610875
   },
   "health": {
-    "uptime_seconds": 1018766,
+    "uptime_seconds": 1019073,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234647646208
+    "disk_avail_bytes": 234647531520
   }
 }
