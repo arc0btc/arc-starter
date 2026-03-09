@@ -280,6 +280,34 @@ function bumpCostTicker(newCost) {
   }, 30);
 }
 
+// ---- Identity ----
+
+function loadIdentity(pageName) {
+  fetchJSON('/api/identity').then(function(identity) {
+    if (!identity) return;
+    // Update page title
+    document.title = identity.name + ' - ' + pageName;
+    // Update header name (preserve status dots)
+    var nameEl = document.querySelector('.header-name');
+    if (nameEl) {
+      var dots = nameEl.querySelectorAll('span');
+      nameEl.textContent = identity.name + ' ';
+      for (var i = 0; i < dots.length; i++) nameEl.appendChild(dots[i]);
+    }
+    // Update BNS
+    var bnsEl = document.querySelector('.header-bns');
+    if (bnsEl) bnsEl.textContent = identity.bns || '';
+    // Update avatar fallback letter
+    var fallback = document.querySelector('.avatar-fallback');
+    if (fallback) fallback.textContent = (identity.name || 'A').charAt(0);
+    // Update message input placeholder if present
+    var msgInput = document.getElementById('message-input');
+    if (msgInput) msgInput.placeholder = 'Send a task to ' + identity.name + '...';
+    var msgTitle = document.querySelector('#message .section-title');
+    if (msgTitle) msgTitle.textContent = 'Message ' + identity.name;
+  }).catch(function() {});
+}
+
 // ---- Message Box ----
 
 // Global function to prefill the message input from any page

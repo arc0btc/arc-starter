@@ -608,6 +608,7 @@
     // ---- Init ----
 
     async function init() {
+      loadIdentity('Activity');
       try {
         var results = await Promise.allSettled([
           fetchJSON('/api/status'),
@@ -630,11 +631,6 @@
         }
         if (identity) {
           renderIdentity(identity);
-          document.title = identity.name + ' - Activity';
-          var msgInput = document.getElementById('message-input');
-          if (msgInput) msgInput.placeholder = 'Send a task to ' + identity.name + '...';
-          var msgTitle = document.querySelector('#message .section-title');
-          if (msgTitle) msgTitle.textContent = 'Message ' + identity.name;
           // Populate footer with website links if present
           var footer = document.getElementById('footer-inner');
           if (footer && identity.website) {

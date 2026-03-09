@@ -272,6 +272,7 @@
     };
 
     async function init() {
+      loadIdentity('Skills');
       try {
         var results = await Promise.allSettled([
           fetchJSON('/api/status'),
