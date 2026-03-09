@@ -90,3 +90,4 @@
 - **Operational cadence coupling:** When cadence changes (e.g., post frequency), all time-based thresholds scale proportionally. Update sensor.ts, cli.ts, SKILL.md together.
 - **Cost alerts are informational:** Budget limits do not trigger throttling (whoabuddy policy). Estimate remaining spend via average-cost-per-cycle × pending-task-count; only escalate if actual spend will exceed cap.
 - **Queue estimation shortcut:** Use rolling average cost/cycle (~$0.49) to fast-estimate remaining spend. Beats individual task cost prediction when reviewing pending workload.
+- **Fleet agent reachability decouples cost accounting:** When workers are offline/unreachable, exclude their estimated spend from remaining-budget calculations. Arc's isolated spend is often substantially cheaper, changing deferral decisions from "defer now" to "monitor only."
