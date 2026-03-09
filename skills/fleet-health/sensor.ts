@@ -179,11 +179,14 @@ async function checkAgent(
     `cd ${REMOTE_ARC_DIR} && ~/.bun/bin/bun -e "
       const { Database } = require('bun:sqlite');
       const db = new Database('db/arc.sqlite', { readonly: true });
-      const row = db.query('SELECT completed_at FROM cycle_log ORDER BY id DESC LIMIT 1').get();
+      const row = db.query('SELECT completed_at FROM cycle_log WHERE completed_at IS NOT NULL ORDER BY id DESC LIMIT 1').get();
+      const running = db.query('SELECT id FROM cycle_log WHERE completed_at IS NULL LIMIT 1').get();
       if (row && row.completed_at) {
         const age = Date.now() - new Date(row.completed_at).getTime();
         const mins = Math.round(age / 60000);
-        console.log(mins + 'm ago');
+        console.log(mins + 'm ago' + (running ? ' (active)' : ''));
+      } else if (running) {
+        console.log('first cycle running');
       } else {
         console.log('no cycles');
       }
@@ -198,6 +201,8 @@ async function checkAgent(
     health.issues.push(`last dispatch ${health.lastDispatchAge}`);
   } else if (health.lastDispatchAge === "no cycles" || health.lastDispatchAge === "query failed") {
     health.issues.push(`dispatch: ${health.lastDispatchAge}`);
+  } else if (health.lastDispatchAge === "first cycle running") {
+    // First dispatch is in progress — not an issue
   }
 
   // Disk usage
