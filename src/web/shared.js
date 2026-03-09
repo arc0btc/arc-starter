@@ -302,9 +302,19 @@ function loadIdentity(pageName) {
     if (fallback) fallback.textContent = (identity.name || 'A').charAt(0);
     // Update message input placeholder if present
     var msgInput = document.getElementById('message-input');
-    if (msgInput) msgInput.placeholder = 'Send a task to ' + identity.name + '...';
-    var msgTitle = document.querySelector('#message .section-title');
+    if (msgInput) {
+      msgInput.placeholder = 'Send a task to ' + identity.name + '...';
+      msgInput.setAttribute('aria-label', 'Send a task to ' + identity.name);
+    }
+    var msgTitle = document.getElementById('message-title');
     if (msgTitle) msgTitle.textContent = 'Message ' + identity.name;
+    // Update footer links
+    var footerLinks = document.getElementById('footer-links');
+    if (footerLinks && identity.website) {
+      var html = '<a href="https://' + identity.website + '" target="_blank" rel="noopener">' + identity.website + '</a>';
+      html += ' <span class="footer-dot"></span>';
+      footerLinks.innerHTML = html;
+    }
   }).catch(function() {});
 }
 
