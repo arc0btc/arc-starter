@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T10:51:08.402Z",
+  "updated_at": "2026-03-09T10:57:37.381Z",
   "last_task": {
-    "id": 2648,
-    "subject": "Design agent specialization matrix: which skills belong to which agent",
+    "id": 2650,
+    "subject": "Create escalation flow: agent blocked → create task on arc → notify whoabuddy",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 116716,
-    "cost_usd": 0.41430874999999995
+    "duration_ms": 388731,
+    "cost_usd": 1.4971393499999999
   },
   "health": {
-    "uptime_seconds": 995967,
+    "uptime_seconds": 996356,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234692747264
+    "disk_avail_bytes": 234692575232
   }
 }
