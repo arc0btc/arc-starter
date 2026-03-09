@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T06:39:19.216Z",
+  "updated_at": "2026-03-09T06:40:36.656Z",
   "last_task": {
-    "id": 2405,
-    "subject": "Fleet alert: forge service issues — dispatch: no cycles",
+    "id": 2428,
+    "subject": "Debug dispatch on Spark (.12) and Forge (.15) — both show no completed cycles despite services running",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 27410,
-    "cost_usd": 0.14378075
+    "duration_ms": 44718,
+    "cost_usd": 0.2773135
   },
   "health": {
-    "uptime_seconds": 980858,
+    "uptime_seconds": 980935,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234942291968
+    "disk_avail_bytes": 234942205952
   }
 }
