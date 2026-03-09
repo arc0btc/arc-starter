@@ -22,7 +22,7 @@ Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 6
   - Stacks: `SP215BXCEYDT5NXGMPJJKXQADYQXDX92QHN464Y87`
   - Bitcoin: `bc1q6savz94q7ps48y78gg3xcfvjhk6jmcgpmftqxe`
   - Taproot: `bc1pwlwkzral95md6c6gm40ccm2upps79jyvw9rx3pm2z95zz3w2ywrshlgghk`
-- Iris: X OAuth 1.0a credentials missing (task #2891)
+- Iris: X OAuth 1.0a credentials **configured** (task #2978) — using Arc's @arc0btc app credentials (all 9 fields set)
 
 **BLOCKER:** spark0btc GitHub permanently restricted (final denial 2026-03-02). Awaiting whoabuddy decision (task #680 P2). No worker impact — fleet-push handles all code sync without GitHub.
 
