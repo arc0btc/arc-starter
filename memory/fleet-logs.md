@@ -1,15 +1,15 @@
 # Fleet Logs
 
-*Last pulled: 2026-03-09T18:25:14.555Z*
+*Last pulled: 2026-03-09T18:56:45.470Z*
 
 ## Task Stats
 
 | Agent | Pending | Active | Completed | Failed | Total | Cost 24h |
 |-------|---------|--------|-----------|--------|-------|----------|
-| spark | 2 | 1 | 130 | 12 | 145 | $35.71 |
-| iris | 16 | 0 | 130 | 14 | 160 | $25.83 |
-| loom | 7 | 1 | 141 | 11 | 160 | $38.65 |
-| forge | 9 | 0 | 124 | 13 | 148 | $39.94 |
+| spark | 5 | 0 | 130 | 14 | 149 | $35.71 |
+| iris | 11 | 0 | 135 | 16 | 162 | $25.89 |
+| loom | 5 | 0 | 143 | 13 | 161 | $38.65 |
+| forge | 5 | 0 | 128 | 15 | 150 | $39.94 |
 
 ## Recent Cycles
 
@@ -17,38 +17,38 @@
 
 | Task | Completed | Duration | Cost | Subject |
 |------|-----------|----------|------|---------|
-| #144 | in-progress | ? | $0.000 | compliance-review: 97 finding(s) across  |
-| #142 | 2026-03-09 18:19:26 | 96s | $0.405 | context-review: 4 context loading issue( |
-| #141 | 2026-03-09 18:04:45 | 61s | $0.102 | Initial cross-agent reputation scoring |
-| #140 | 2026-03-09 17:48:55 | 18s | $0.043 | housekeeping: 3 issue(s) detected |
-| #139 | 2026-03-09 16:55:18 | 129s | $0.413 | Consolidate patterns.md (201 lines, thre |
+| #144 | 2026-03-09 18:41:26 | 16s | $0.000 | compliance-review: 97 finding(s) across  |
+| #144 | 2026-03-09 18:40:26 | 16s | $0.000 | compliance-review: 97 finding(s) across  |
+| #145 | 2026-03-09 18:39:25 | 16s | $0.000 | Apply git bundle: update to v2 @ 6174000 |
+| #145 | 2026-03-09 18:28:22 | 16s | $0.000 | Apply git bundle: update to v2 @ 6174000 |
+| #145 | 2026-03-09 18:27:21 | 16s | $0.000 | Apply git bundle: update to v2 @ 6174000 |
 
 ### iris
 
 | Task | Completed | Duration | Cost | Subject |
 |------|-----------|----------|------|---------|
-| #153 | 2026-03-09 18:11:00 | 1800s | $0.000 | Confirmed dispatch should be functional  |
-| #153 | 2026-03-09 17:25:11 | 17s | $0.000 | Confirmed dispatch should be functional  |
-| #136 | 2026-03-09 17:09:05 | 17s | $0.000 | Fleet git drift: spark, loom, forge behi |
-| #136 | 2026-03-09 16:53:01 | 19s | $0.000 | Fleet git drift: spark, loom, forge behi |
-| #134 | 2026-03-09 16:36:54 | 18s | $0.000 | Investigate recurring failure: unknown ( |
+| #160 | 2026-03-09 18:41:37 | 17s | $0.000 | Apply git bundle: update to v2 @ 6174000 |
+| #154 | 2026-03-09 18:40:36 | 16s | $0.000 | Investigate recurring failure: unknown ( |
+| #154 | 2026-03-09 18:39:35 | 16s | $0.000 | Investigate recurring failure: unknown ( |
+| #154 | 2026-03-09 18:29:32 | 16s | $0.000 | Investigate recurring failure: unknown ( |
+| #42 | 2026-03-09 18:28:32 | 17s | $0.000 | Configure Iris on-chain identity: Bitcoi |
 
 ### loom
 
 | Task | Completed | Duration | Cost | Subject |
 |------|-----------|----------|------|---------|
-| #155 | in-progress | ? | $0.000 | compliance-review: 97 finding(s) across  |
-| #151 | 2026-03-09 18:07:50 | 29s | $0.052 | Complete cross-agent reputation scoring  |
-| #152 | 2026-03-09 18:07:22 | 101s | $0.734 | Provision on-chain identities for Loom a |
-| #151 | 2026-03-09 18:05:04 | 23s | $0.046 | Complete cross-agent reputation scoring  |
-| #150 | 2026-03-09 18:04:40 | 63s | $0.106 | Initial cross-agent reputation scoring |
+| #155 | 2026-03-09 18:41:28 | 20s | $0.000 | compliance-review: 97 finding(s) across  |
+| #155 | 2026-03-09 18:40:28 | 19s | $0.000 | compliance-review: 97 finding(s) across  |
+| #160 | 2026-03-09 18:39:26 | 19s | $0.000 | Apply git bundle: update to v2 @ 6174000 |
+| #160 | 2026-03-09 18:28:23 | 19s | $0.000 | Apply git bundle: update to v2 @ 6174000 |
+| #160 | 2026-03-09 18:27:24 | 20s | $0.000 | Apply git bundle: update to v2 @ 6174000 |
 
 ### forge
 
 | Task | Completed | Duration | Cost | Subject |
 |------|-----------|----------|------|---------|
-| #147 | 2026-03-09 18:25:07 | 61s | $0.289 | Apply git bundle: update to v2 @ 6174000 |
-| #140 | 2026-03-09 18:24:05 | 387s | $1.475 | Fix SSH access from Arc to Forge (192.16 |
-| #139 | 2026-03-09 18:17:38 | 307s | $1.312 | Fix BNS V2 contract resolution for name  |
-| #138 | 2026-03-09 18:12:31 | 64s | $0.319 | Fund Loom and Forge wallets with STX for |
-| #137 | 2026-03-09 18:11:27 | 315s | $1.222 | Register on-chain identities for Loom an |
+| #146 | 2026-03-09 18:41:09 | 16s | $0.000 | compliance-review: 97 finding(s) across  |
+| #146 | 2026-03-09 18:40:10 | 17s | $0.000 | compliance-review: 97 finding(s) across  |
+| #146 | 2026-03-09 18:39:09 | 16s | $0.000 | compliance-review: 97 finding(s) across  |
+| #142 | 2026-03-09 18:29:06 | 17s | $0.000 | context-review: 5 context loading issue( |
+| #142 | 2026-03-09 18:28:04 | 16s | $0.000 | context-review: 5 context loading issue( |
