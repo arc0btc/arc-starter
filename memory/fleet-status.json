@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T22:39:17.122Z",
+  "updated_at": "2026-03-09T22:42:22.134Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3330,
-    "subject": "ESCALATE: Fleet OAuth tokens expiring — re-authenticate all agents",
+    "id": 3332,
+    "subject": "Add OAuth token expiry sensor to fleet-health",
     "status": "completed",
-    "priority": 1
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 18511,
-    "cost_usd": 0.12337650000000001
+    "duration_ms": 143422,
+    "cost_usd": 0.6939445
   },
   "health": {
-    "uptime_seconds": 1038455,
+    "uptime_seconds": 1038640,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234604703744
+    "disk_avail_bytes": 234604609536
   }
 }
