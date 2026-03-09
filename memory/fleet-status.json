@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T20:43:29.731Z",
+  "updated_at": "2026-03-09T20:44:03.748Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3259,
-    "subject": "Verify AIBTC heartbeat firing with correct wallet on all 4 workers",
+    "id": 3260,
+    "subject": "Verify all worker services running: dispatch, sensors, web on spark/iris/loom/forge",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 83576,
-    "cost_usd": 0.33345250000000004
+    "duration_ms": 33881,
+    "cost_usd": 0.18312325000000002
   },
   "health": {
-    "uptime_seconds": 1031508,
+    "uptime_seconds": 1031542,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234615422976
+    "disk_avail_bytes": 234615390208
   }
 }
