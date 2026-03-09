@@ -561,6 +561,10 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string)
     }, 10_000);
   }, dispatchTimeoutMs);
 
+  // Drain stderr concurrently to prevent pipe buffer deadlock (64KB limit).
+  // If stderr fills up while we're reading stdout, the subprocess blocks.
+  const stderrPromise = new Response(proc.stderr).text();
+
   let result = "";
   let cost_usd = 0;
   let input_tokens = 0;
@@ -653,11 +657,10 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string)
     throw new Error(`claude subprocess timed out after ${dispatchTimeoutMs / 60_000} minutes`);
   }
   if (exitCode !== 0) {
-    const errText = await new Response(proc.stderr).text();
+    const errText = (await stderrPromise).trim();
     // When Claude Code hits plan limits, it exits 1 with empty stderr.
     // Include any accumulated result text to help classify the error.
-    const errContext = errText.trim()
-      || (result ? result.slice(0, 300) : "");
+    const errContext = errText || (result ? result.slice(0, 300) : "");
     throw new Error(`claude exited ${exitCode}: ${errContext}`);
   }
 
@@ -1388,7 +1391,7 @@ export async function runDispatch(): Promise<void> {
       log(`dispatch: task #${task.id} failed — subprocess timeout, not retrying`);
     } else if (errClass === "rate_limited") {
       // Rate/plan limit: requeue without burning retry count — the task isn't at fault
-      requeueTask(task.id, { preserveAttemptCount: true });
+      requeueTask(task.id, { rollbackAttempt: true });
       log(`dispatch: task #${task.id} rate-limited — requeued (attempt count preserved, circuit breaker will gate retries)`);
     } else {
       // Transient/unknown: requeue if under max_retries
