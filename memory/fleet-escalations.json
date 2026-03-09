@@ -33,6 +33,34 @@
       "subject": "BLOCKED: x402 reply to Secret Mars requires manual Arc execution",
       "clearedAt": "2026-03-09T21:00:00.000Z",
       "resolution": "Slop. Fleet routing CAN target specific machines — fleet-handoff --agent arc, fleet-broadcast, POST /api/tasks all exist. Iris should have used fleet-handoff to send the task to Arc. 'Cannot target specific VMs' is false."
+    },
+    {
+      "agent": "iris",
+      "remoteTaskId": 205,
+      "localTaskId": 3280,
+      "clearedAt": "2026-03-09T21:10:00.000Z",
+      "resolution": "Iris does not get GitHub access. Only Arc pushes to GitHub. Drop this topic entirely."
+    },
+    {
+      "agent": "iris",
+      "remoteTaskId": 156,
+      "localTaskId": 3281,
+      "clearedAt": "2026-03-09T21:10:00.000Z",
+      "resolution": "All agents have contacts skill with full fleet member info. Use contacts skill to discover teammates instead of escalating."
+    },
+    {
+      "agent": "forge",
+      "remoteTaskId": 138,
+      "localTaskId": 3282,
+      "clearedAt": "2026-03-09T21:10:00.000Z",
+      "resolution": "Repeat. Arc already funded wallets via task #3272."
+    },
+    {
+      "agent": "forge",
+      "remoteTaskId": 137,
+      "localTaskId": 3283,
+      "clearedAt": "2026-03-09T21:10:00.000Z",
+      "resolution": "Repeat. BNS registration handled via task #3273."
     }
   ]
 }
