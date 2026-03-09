@@ -104,12 +104,14 @@ function classifyError(errMsg: string): ErrorClass {
 const CIRCUIT_STATE_FILE = join(ROOT, "db", "hook-state", "dispatch-circuit.json");
 const CIRCUIT_FAILURE_THRESHOLD = 3;
 const CIRCUIT_OPEN_DURATION_MS = 15 * 60 * 1000;
+const CIRCUIT_RATE_LIMIT_DURATION_MS = 35 * 60 * 1000; // longer cooldown for plan/usage limits
 
 interface CircuitState {
   consecutive_failures: number;
   circuit_state: "closed" | "open" | "half_open";
   opened_at: string | null;
   last_error: string | null;
+  last_error_class: ErrorClass | null;
   last_updated: string;
 }
 
@@ -123,6 +125,7 @@ function readCircuitState(): CircuitState {
       circuit_state: "closed",
       opened_at: null,
       last_error: null,
+      last_error_class: null,
       last_updated: new Date().toISOString(),
     };
   }
@@ -146,13 +149,16 @@ function checkCircuitBreaker(): boolean {
 
   if (state.circuit_state === "open") {
     const elapsed = Date.now() - new Date(state.opened_at!).getTime();
-    if (elapsed >= CIRCUIT_OPEN_DURATION_MS) {
+    const cooldown = state.last_error_class === "rate_limited"
+      ? CIRCUIT_RATE_LIMIT_DURATION_MS
+      : CIRCUIT_OPEN_DURATION_MS;
+    if (elapsed >= cooldown) {
       state.circuit_state = "half_open";
       writeCircuitState(state);
       log("dispatch: circuit breaker half-open — allowing probe request");
       return true;
     }
-    const remainingMin = Math.ceil((CIRCUIT_OPEN_DURATION_MS - elapsed) / 60_000);
+    const remainingMin = Math.ceil((cooldown - elapsed) / 60_000);
     log(`dispatch: circuit breaker OPEN — skipping (${remainingMin}min remaining, last: ${state.last_error?.slice(0, 100)})`);
     return false;
   }
@@ -168,6 +174,7 @@ function recordCircuitSuccess(): void {
   state.circuit_state = "closed";
   state.opened_at = null;
   state.last_error = null;
+  state.last_error_class = null;
   writeCircuitState(state);
 }
 
@@ -175,11 +182,15 @@ function recordCircuitFailure(errMsg: string): void {
   const state = readCircuitState();
   state.consecutive_failures += 1;
   state.last_error = errMsg.slice(0, 500);
+  state.last_error_class = classifyError(errMsg);
 
   if (state.consecutive_failures >= CIRCUIT_FAILURE_THRESHOLD) {
     state.circuit_state = "open";
     state.opened_at = new Date().toISOString();
-    log(`dispatch: circuit breaker OPENED after ${state.consecutive_failures} consecutive failures`);
+    const cooldownMin = state.last_error_class === "rate_limited"
+      ? CIRCUIT_RATE_LIMIT_DURATION_MS / 60_000
+      : CIRCUIT_OPEN_DURATION_MS / 60_000;
+    log(`dispatch: circuit breaker OPENED after ${state.consecutive_failures} consecutive failures (${state.last_error_class}, ${cooldownMin}min cooldown)`);
   }
 
   writeCircuitState(state);
