@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T16:38:17.338Z",
+  "updated_at": "2026-03-09T16:40:09.459Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 2988,
-    "subject": "Audit fleet-comms status across all agents (Spark/Iris/Loom/Forge)",
+    "id": 3047,
+    "subject": "Remove arc-observatory from spark, loom, forge — aggregate dashboard belongs on Arc only",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 225245,
-    "cost_usd": 0.8547732499999997
+    "duration_ms": 112011,
+    "cost_usd": 0.405709
   },
   "health": {
-    "uptime_seconds": 1016796,
+    "uptime_seconds": 1016908,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234649079808
+    "disk_avail_bytes": 234649014272
   }
 }
