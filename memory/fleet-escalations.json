@@ -1,4 +1,21 @@
 {
-  "escalations": [],
-  "lastChecked": "2026-03-09T18:01:13.979Z"
+  "escalations": [
+    {
+      "agent": "forge",
+      "remoteTaskId": 138,
+      "localTaskId": 3192,
+      "subject": "Fund Loom and Forge wallets with STX for on-chain registration",
+      "reason": "Cannot fund: local wallet is forge0btc (SP1BFD…) not arc0btc (SP2GHQ…). whoabuddy needs to fund Loom (SP1BC4…) and Forge (SP1WPX…) with ~5 STX each directly, or fix Arc VM wallet config.",
+      "escalatedAt": "2026-03-09T18:16:14.322Z"
+    },
+    {
+      "agent": "forge",
+      "remoteTaskId": 137,
+      "localTaskId": 3193,
+      "subject": "Register on-chain identities for Loom and Forge agents (BNS, Bitcoin, Stacks)",
+      "reason": "Wallets exist (Loom: SP1BC4VGS, Forge: SP1WPX34) but 0 STX balance blocks on-chain registration. BNS V2 contract not found. Contact records created (#87/#88). Follow-ups: #138 (fund wallets), #139 (fix BNS), #140 (fix Forge SSH).",
+      "escalatedAt": "2026-03-09T18:16:14.339Z"
+    }
+  ],
+  "lastChecked": "2026-03-09T18:16:14.340Z"
 }
