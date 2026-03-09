@@ -16,8 +16,8 @@ import {
   getSshPassword,
   ssh,
 } from "../../src/ssh.ts";
-import { routeTask } from "./sensor.ts";
-import type { RoutingDecision } from "./sensor.ts";
+import { routeTask, computeLoadScore } from "./sensor.ts";
+import type { RoutingDecision, AgentLoad } from "./sensor.ts";
 import { join } from "node:path";
 import { readFileSync } from "node:fs";
 
@@ -40,15 +40,15 @@ function readHealthyAgents(): Set<string> {
   return healthy;
 }
 
-async function getRemoteBacklog(
+async function getRemoteLoad(
   agent: string,
   password: string,
-): Promise<number> {
+): Promise<AgentLoad> {
   let ip: string;
   try {
     ip = await getAgentIp(agent);
   } catch {
-    return 999;
+    return { pending: 999, active: 0, score: 999 };
   }
 
   const result = await ssh(
@@ -56,13 +56,17 @@ async function getRemoteBacklog(
     `cd ${REMOTE_ARC_DIR} && ~/.bun/bin/bun -e "
       const { Database } = require('bun:sqlite');
       const db = new Database('db/arc.sqlite', { readonly: true });
-      const row = db.query('SELECT COUNT(*) as c FROM tasks WHERE status = \\\\'pending\\\\'').get();
-      console.log(row?.c ?? 0);
+      const p = db.query('SELECT COUNT(*) as c FROM tasks WHERE status = \\\\'pending\\\\'').get();
+      const a = db.query('SELECT COUNT(*) as c FROM tasks WHERE status = \\\\'active\\\\'').get();
+      console.log((p?.c ?? 0) + ':' + (a?.c ?? 0));
       db.close();
-    " 2>/dev/null || echo "999"`
+    " 2>/dev/null || echo "999:0"`
   );
 
-  return parseInt(result.stdout.trim()) || 999;
+  const parts = result.stdout.trim().split(":");
+  const pending = parseInt(parts[0]) || 999;
+  const active = parseInt(parts[1]) || 0;
+  return { pending, active, score: computeLoadScore(pending, active) };
 }
 
 async function sendToAgent(
@@ -118,25 +122,26 @@ async function cmdDryRun(flags: Record<string, string>): Promise<void> {
     password = "";
   }
 
-  // Get backlogs (or mock them)
-  const backlogs: Record<string, number> = {};
+  // Get loads (or mock them)
+  const loads: Record<string, AgentLoad> = {};
   if (password) {
     const results = await Promise.allSettled(
       [...healthy].map(async (agent) => ({
         agent,
-        count: await getRemoteBacklog(agent, password),
+        load: await getRemoteLoad(agent, password),
       }))
     );
     for (const r of results) {
       if (r.status === "fulfilled") {
-        backlogs[r.value.agent] = r.value.count;
+        loads[r.value.agent] = r.value.load;
       }
     }
   }
 
   for (const agent of Object.keys(AGENTS)) {
     if (healthy.has(agent)) {
-      process.stdout.write(`${agent}: ${backlogs[agent] ?? "?"} pending\n`);
+      const l = loads[agent] ?? { pending: 0, active: 0, score: 0 };
+      process.stdout.write(`${agent}: ${l.pending}p + ${l.active}a = load ${l.score}\n`);
     } else {
       process.stdout.write(`${agent}: (unhealthy/unreachable)\n`);
     }
@@ -151,7 +156,7 @@ async function cmdDryRun(flags: Record<string, string>): Promise<void> {
   for (const agent of Object.keys(AGENTS)) routeCounts[agent] = 0;
 
   for (const task of pending.slice(0, limit)) {
-    const decision = routeTask(task, backlogs, healthy);
+    const decision = routeTask(task, loads, healthy);
     decisions.push(decision);
     routeCounts[decision.target] = (routeCounts[decision.target] ?? 0) + 1;
   }
@@ -193,17 +198,17 @@ async function cmdRoute(flags: Record<string, string>): Promise<void> {
 
   const password = await getSshPassword();
 
-  // Get backlogs
-  const backlogs: Record<string, number> = {};
+  // Get loads
+  const loads: Record<string, AgentLoad> = {};
   const results = await Promise.allSettled(
     [...healthy].map(async (agent) => ({
       agent,
-      count: await getRemoteBacklog(agent, password),
+      load: await getRemoteLoad(agent, password),
     }))
   );
   for (const r of results) {
     if (r.status === "fulfilled") {
-      backlogs[r.value.agent] = r.value.count;
+      loads[r.value.agent] = r.value.load;
     }
   }
 
@@ -214,13 +219,16 @@ async function cmdRoute(flags: Record<string, string>): Promise<void> {
   for (const task of pending) {
     if (routed >= limit) break;
 
-    const decision = routeTask(task, backlogs, healthy);
+    const decision = routeTask(task, loads, healthy);
     if (decision.target === "arc") continue;
 
     const sent = await sendToAgent(decision.target, task, password);
     if (sent) {
       markTaskCompleted(task.id, `Routed to ${decision.target} (${decision.reason})`);
-      backlogs[decision.target] = (backlogs[decision.target] ?? 0) + 1;
+      const prev = loads[decision.target] ?? { pending: 0, active: 0, score: 0 };
+      prev.pending++;
+      prev.score = computeLoadScore(prev.pending, prev.active);
+      loads[decision.target] = prev;
       routed++;
       process.stdout.write(`  ✓ #${task.id} → ${decision.target}: ${task.subject.slice(0, 60)}\n`);
     } else {
@@ -243,7 +251,7 @@ async function cmdStatus(_flags: Record<string, string>): Promise<void> {
     return;
   }
 
-  process.stdout.write("Fleet backlog status:\n\n");
+  process.stdout.write("Fleet load status (pending + active × 5 = load score):\n\n");
 
   for (const agent of Object.keys(AGENTS)) {
     if (!healthy.has(agent)) {
@@ -251,9 +259,10 @@ async function cmdStatus(_flags: Record<string, string>): Promise<void> {
       continue;
     }
 
-    const count = await getRemoteBacklog(agent, password);
-    const bar = "█".repeat(Math.min(count, 40));
-    process.stdout.write(`  ${agent.padEnd(6)} ${String(count).padStart(3)} pending ${bar}\n`);
+    const load = await getRemoteLoad(agent, password);
+    const bar = "█".repeat(Math.min(load.score, 40));
+    const active = load.active > 0 ? ` [dispatching]` : "";
+    process.stdout.write(`  ${agent.padEnd(6)} ${String(load.pending).padStart(3)}p + ${load.active}a = ${String(load.score).padStart(3)} ${bar}${active}\n`);
   }
 
   // Show Arc's count too
@@ -261,7 +270,7 @@ async function cmdStatus(_flags: Record<string, string>): Promise<void> {
     initDatabase();
     const pending = getPendingTasks();
     const bar = "█".repeat(Math.min(pending.length, 40));
-    process.stdout.write(`  ${"arc".padEnd(6)} ${String(pending.length).padStart(3)} pending ${bar}\n`);
+    process.stdout.write(`  ${"arc".padEnd(6)} ${String(pending.length).padStart(3)}p                ${bar}\n`);
   } catch {
     process.stdout.write(`  arc    (db not available)\n`);
   }
@@ -286,9 +295,10 @@ Commands:
 
 Routing rules:
   P1-2 → Arc (always)
-  Skill tag match → domain agent (spark/iris/loom/forge)
-  P8+ untagged → lowest backlog agent
-  Backlog cap: 20 per agent
+  Skill tag match → domain agent (overflow if load > 12)
+  Unmatched P3+ → least-busy agent by load score
+  Load score = pending + (active × 5)
+  Soft cap: 12 (triggers overflow), Hard cap: 20 (skip agent)
 `);
 }
 

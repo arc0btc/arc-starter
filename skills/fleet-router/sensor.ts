@@ -32,6 +32,8 @@ const SENSOR_NAME = "fleet-router";
 const INTERVAL_MINUTES = 30;
 const BATCH_LIMIT = 10;
 const BACKLOG_CAP = 20;
+const SOFT_CAP = 12; // triggers overflow routing to alternate agent
+const ACTIVE_WEIGHT = 5; // active task adds this to load score
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -89,6 +91,26 @@ const GITHUB_PATTERNS = [
   "github", "pr-review", "arc-starter-publish",
 ];
 
+// Overflow paths when primary agent exceeds SOFT_CAP
+const OVERFLOW_TARGETS: Record<string, string[]> = {
+  spark: ["arc"],           // on-chain needs Opus-tier fallback
+  iris: ["arc"],            // research falls back to Arc
+  loom: ["forge"],          // both do code work
+  forge: ["loom"],          // bidirectional overflow
+};
+
+// ---- Load scoring ----
+
+export interface AgentLoad {
+  pending: number;
+  active: number;
+  score: number; // pending + (active * ACTIVE_WEIGHT)
+}
+
+export function computeLoadScore(pending: number, active: number): number {
+  return pending + active * ACTIVE_WEIGHT;
+}
+
 // ---- Routing logic ----
 
 function parseSkills(task: Task): string[] {
@@ -117,10 +139,18 @@ export interface RoutingDecision {
 
 export function routeTask(
   task: Task,
-  agentBacklogs: Record<string, number>,
+  agentLoads: Record<string, AgentLoad>,
   healthyAgents: Set<string>,
 ): RoutingDecision {
   const skills = parseSkills(task);
+
+  // Helper: get load score for an agent (backwards-compat with plain backlog counts)
+  const loadOf = (agent: string): number =>
+    agentLoads[agent]?.score ?? Infinity;
+
+  // Helper: check if agent is available (healthy + under hard cap)
+  const isAvailable = (agent: string): boolean =>
+    healthyAgents.has(agent) && loadOf(agent) < BACKLOG_CAP;
 
   // Rule 1: P1-2 stay on Arc
   if (task.priority <= 2) {
@@ -132,34 +162,52 @@ export function routeTask(
     return { task, target: "arc", reason: "Arc-domain skill" };
   }
 
-  // Rule 3: Match by domain
+  // Rule 3: Match by domain, with load-aware overflow
   for (const rule of DOMAIN_RULES) {
-    if (!healthyAgents.has(rule.agent)) continue;
-    if ((agentBacklogs[rule.agent] ?? 0) >= BACKLOG_CAP) continue;
+    if (skills.length === 0 || !skillMatchesAny(skills, rule.patterns)) continue;
 
-    if (skills.length > 0 && skillMatchesAny(skills, rule.patterns)) {
-      // GitHub check for Spark
-      if (rule.agent === "spark" && skillMatchesAny(skills, GITHUB_PATTERNS)) {
-        continue;
-      }
+    // GitHub check for Spark
+    if (rule.agent === "spark" && skillMatchesAny(skills, GITHUB_PATTERNS)) {
+      continue;
+    }
+
+    // Primary agent available and under soft cap → route directly
+    if (isAvailable(rule.agent) && loadOf(rule.agent) < SOFT_CAP) {
       return { task, target: rule.agent, reason: `skill match → ${rule.agent}` };
+    }
+
+    // Primary agent over soft cap or unavailable → try overflow
+    const overflowCandidates = OVERFLOW_TARGETS[rule.agent] ?? [];
+    for (const overflow of overflowCandidates) {
+      if (overflow === "arc") {
+        // Overflow to Arc means keep locally
+        return { task, target: "arc", reason: `${rule.agent} overloaded (${loadOf(rule.agent)}) → keep on Arc` };
+      }
+      if (isAvailable(overflow) && loadOf(overflow) < SOFT_CAP) {
+        return { task, target: overflow, reason: `${rule.agent} overloaded → overflow to ${overflow}` };
+      }
+    }
+
+    // All overflow targets also busy — still route to primary if under hard cap
+    if (isAvailable(rule.agent)) {
+      return { task, target: rule.agent, reason: `skill match → ${rule.agent} (overflow full)` };
     }
   }
 
-  // Rule 4: P8+ unmatched go to lowest-backlog healthy agent
-  if (task.priority >= 8 && skills.length === 0) {
+  // Rule 4: Unmatched P3+ tasks go to least-busy healthy agent
+  if (task.priority >= 3) {
     let bestAgent = "";
-    let bestBacklog = Infinity;
+    let bestLoad = Infinity;
     for (const agent of Object.keys(AGENTS)) {
-      if (!healthyAgents.has(agent)) continue;
-      const backlog = agentBacklogs[agent] ?? 0;
-      if (backlog < BACKLOG_CAP && backlog < bestBacklog) {
+      if (!isAvailable(agent)) continue;
+      const load = loadOf(agent);
+      if (load < bestLoad) {
         bestAgent = agent;
-        bestBacklog = backlog;
+        bestLoad = load;
       }
     }
     if (bestAgent) {
-      return { task, target: bestAgent, reason: `P8+ lowest backlog → ${bestAgent}` };
+      return { task, target: bestAgent, reason: `least-busy → ${bestAgent} (load: ${bestLoad})` };
     }
   }
 
@@ -194,15 +242,15 @@ function readFleetHealth(): FleetStatusMd {
   return { healthy };
 }
 
-async function getRemoteBacklog(
+async function getRemoteLoad(
   agent: string,
   password: string,
-): Promise<number> {
+): Promise<AgentLoad> {
   let ip: string;
   try {
     ip = await getAgentIp(agent);
   } catch {
-    return Infinity;
+    return { pending: 999, active: 0, score: 999 };
   }
 
   const result = await ssh(
@@ -210,13 +258,17 @@ async function getRemoteBacklog(
     `cd ${REMOTE_ARC_DIR} && ~/.bun/bin/bun -e "
       const { Database } = require('bun:sqlite');
       const db = new Database('db/arc.sqlite', { readonly: true });
-      const row = db.query('SELECT COUNT(*) as c FROM tasks WHERE status = \\'pending\\'').get();
-      console.log(row?.c ?? 0);
+      const p = db.query('SELECT COUNT(*) as c FROM tasks WHERE status = \\\\'pending\\\\'').get();
+      const a = db.query('SELECT COUNT(*) as c FROM tasks WHERE status = \\\\'active\\\\'').get();
+      console.log((p?.c ?? 0) + ':' + (a?.c ?? 0));
       db.close();
-    " 2>/dev/null || echo "999"`
+    " 2>/dev/null || echo "999:0"`
   );
 
-  return parseInt(result.stdout.trim()) || 999;
+  const parts = result.stdout.trim().split(":");
+  const pending = parseInt(parts[0]) || 999;
+  const active = parseInt(parts[1]) || 0;
+  return { pending, active, score: computeLoadScore(pending, active) };
 }
 
 // ---- Send task to remote agent ----
@@ -275,19 +327,20 @@ export default async function fleetRouterSensor(): Promise<string> {
 
   log(`healthy agents: ${[...healthy].join(", ")}`);
 
-  // Get remote backlogs in parallel
-  const backlogEntries = await Promise.allSettled(
+  // Get remote loads in parallel (pending + active counts)
+  const loadEntries = await Promise.allSettled(
     [...healthy].map(async (agent) => ({
       agent,
-      count: await getRemoteBacklog(agent, password),
+      load: await getRemoteLoad(agent, password),
     }))
   );
 
-  const backlogs: Record<string, number> = {};
-  for (const entry of backlogEntries) {
+  const loads: Record<string, AgentLoad> = {};
+  for (const entry of loadEntries) {
     if (entry.status === "fulfilled") {
-      backlogs[entry.value.agent] = entry.value.count;
-      log(`${entry.value.agent} backlog: ${entry.value.count}`);
+      loads[entry.value.agent] = entry.value.load;
+      const l = entry.value.load;
+      log(`${entry.value.agent} load: ${l.pending}p + ${l.active}a = ${l.score}`);
     }
   }
 
@@ -300,7 +353,7 @@ export default async function fleetRouterSensor(): Promise<string> {
   for (const task of pending) {
     if (routed >= BATCH_LIMIT) break;
 
-    const decision = routeTask(task, backlogs, healthy);
+    const decision = routeTask(task, loads, healthy);
     if (decision.target === "arc") continue;
 
     // Send to remote agent
@@ -310,8 +363,11 @@ export default async function fleetRouterSensor(): Promise<string> {
         task.id,
         `Routed to ${decision.target} (${decision.reason})`
       );
-      // Update local backlog tracking
-      backlogs[decision.target] = (backlogs[decision.target] ?? 0) + 1;
+      // Update local load tracking
+      const prev = loads[decision.target] ?? { pending: 0, active: 0, score: 0 };
+      prev.pending++;
+      prev.score = computeLoadScore(prev.pending, prev.active);
+      loads[decision.target] = prev;
       routed++;
       log(`routed task #${task.id} → ${decision.target}: ${task.subject.slice(0, 60)}`);
     } else {
