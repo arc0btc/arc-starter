@@ -43,13 +43,13 @@ async function execOnAgent(
       stdout: result.stdout.trim(),
       stderr: result.stderr.trim(),
     };
-  } catch (err) {
+  } catch (error) {
     return {
       agent,
       ok: false,
       stdout: "",
       stderr: "",
-      error: err instanceof Error ? err.message : String(err),
+      error: error instanceof Error ? error.message : String(error),
     };
   }
 }
@@ -190,9 +190,9 @@ async function main(): Promise<void> {
   let agents: string[];
   try {
     agents = resolveAgents(flags["agents"]);
-  } catch (err) {
+  } catch (error) {
     process.stderr.write(
-      `Error: ${err instanceof Error ? err.message : String(err)}\n`
+      `Error: ${error instanceof Error ? error.message : String(error)}\n`
     );
     process.exit(1);
   }

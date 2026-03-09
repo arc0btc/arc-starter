@@ -81,12 +81,12 @@ async function queryAgent(
 
     const tasks: RemoteTask[] = JSON.parse(result.stdout.trim());
     return { agent, ok: true, tasks };
-  } catch (err) {
+  } catch (error) {
     return {
       agent,
       ok: false,
       tasks: [],
-      error: err instanceof Error ? err.message : String(err),
+      error: error instanceof Error ? error.message : String(error),
     };
   }
 }
@@ -272,9 +272,9 @@ async function main(): Promise<void> {
   let agents: string[];
   try {
     agents = resolveAgents(flags["agents"]);
-  } catch (err) {
+  } catch (error) {
     process.stderr.write(
-      `Error: ${err instanceof Error ? err.message : String(err)}\n`
+      `Error: ${error instanceof Error ? error.message : String(error)}\n`
     );
     process.exit(1);
   }

@@ -59,12 +59,12 @@ async function sendToAgent(
       ok: result.ok,
       output: result.ok ? result.stdout.trim() : result.stderr.trim() || result.stdout.trim(),
     };
-  } catch (err) {
+  } catch (error) {
     return {
       agent,
       ok: false,
       output: "",
-      error: err instanceof Error ? err.message : String(err),
+      error: error instanceof Error ? error.message : String(error),
     };
   }
 }
@@ -96,12 +96,12 @@ async function checkOnAgent(
       ok: result.ok,
       output: result.ok ? result.stdout.trim() : result.stderr.trim() || result.stdout.trim(),
     };
-  } catch (err) {
+  } catch (error) {
     return {
       agent,
       ok: false,
       output: "",
-      error: err instanceof Error ? err.message : String(err),
+      error: error instanceof Error ? error.message : String(error),
     };
   }
 }
@@ -229,9 +229,9 @@ async function main(): Promise<void> {
   let agents: string[];
   try {
     agents = resolveAgents(flags["agents"]);
-  } catch (err) {
+  } catch (error) {
     process.stderr.write(
-      `Error: ${err instanceof Error ? err.message : String(err)}\n`
+      `Error: ${error instanceof Error ? error.message : String(error)}\n`
     );
     process.exit(1);
   }

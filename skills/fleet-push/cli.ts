@@ -176,13 +176,13 @@ async function restartServices(
 
   const restartCmds = services.map((s) => `systemctl --user restart ${s}`);
   const verifyCmds = services.map((s) => `systemctl --user is-active ${s}`);
-  const cmd = [
+  const command = [
     "systemctl --user daemon-reload",
     ...restartCmds,
     ...verifyCmds,
   ].join(" && ");
 
-  const r = await ssh(ip, password, cmd);
+  const r = await ssh(ip, password, command);
   if (!r.ok) {
     process.stderr.write(`  [${agent}] restart failed: ${r.stderr.slice(0, 200)}\n`);
   }

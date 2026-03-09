@@ -55,9 +55,9 @@ export interface DomainStats {
 function extractDomain(skillsJson: string | null): string {
   if (!skillsJson) return "_general";
   try {
-    const arr = JSON.parse(skillsJson);
-    if (Array.isArray(arr) && arr.length > 0 && typeof arr[0] === "string") {
-      return arr[0];
+    const skillsArray = JSON.parse(skillsJson);
+    if (Array.isArray(skillsArray) && skillsArray.length > 0 && typeof skillsArray[0] === "string") {
+      return skillsArray[0];
     }
   } catch {
     // malformed JSON

@@ -165,10 +165,10 @@ async function cmdPropose(flags: Record<string, string>): Promise<void> {
         results.push({ agent: name, ok: false, error: data.error ?? `HTTP ${resp.status}` });
         process.stdout.write(`  ${name}: failed — ${data.error ?? `HTTP ${resp.status}`}\n`);
       }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      results.push({ agent: name, ok: false, error: msg });
-      process.stdout.write(`  ${name}: unreachable — ${msg}\n`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      results.push({ agent: name, ok: false, error: message });
+      process.stdout.write(`  ${name}: unreachable — ${message}\n`);
     }
   }
 
@@ -433,7 +433,7 @@ EXAMPLES
 `);
 }
 
-main().catch((err) => {
-  process.stderr.write(`Error: ${err instanceof Error ? err.message : String(err)}\n`);
+main().catch((error) => {
+  process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exit(1);
 });

@@ -85,18 +85,18 @@ async function cacheBitcoinFace(bns: string): Promise<string | null> {
     mkdirSync(FACES_CACHE_DIR, { recursive: true });
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000);
-    const res = await fetch(`https://bitcoinfaces.xyz/api/get-image?name=${prefix}`, {
+    const response = await fetch(`https://bitcoinfaces.xyz/api/get-image?name=${prefix}`, {
       signal: controller.signal,
     });
     clearTimeout(timeout);
 
-    if (!res.ok) return null;
-    const buf = Buffer.from(await res.arrayBuffer());
+    if (!response.ok) return null;
+    const buffer = Buffer.from(await response.arrayBuffer());
     // Detect actual content type — API often returns SVG
-    const isSvg = buf.length > 4 && buf.slice(0, 100).toString().includes("<svg");
+    const isSvg = buffer.length > 4 && buffer.slice(0, 100).toString().includes("<svg");
     const ext = isSvg ? "svg" : "png";
     const savePath = join(FACES_CACHE_DIR, `${prefix}.${ext}`);
-    writeFileSync(savePath, buf);
+    writeFileSync(savePath, buffer);
     return savePath;
   } catch {
     return null;
@@ -165,10 +165,10 @@ function getForgeAgent(config: FleetConfig): AgentConfig | null {
   return config.agents.find((a) => a.name.toLowerCase() === "forge") ?? null;
 }
 
-async function handleArenaRun(req: Request, config: FleetConfig): Promise<Response> {
+async function handleArenaRun(request: Request, config: FleetConfig): Promise<Response> {
   let body: { prompt?: string };
   try {
-    body = (await req.json()) as { prompt?: string };
+    body = (await request.json()) as { prompt?: string };
   } catch {
     return json({ error: "Invalid JSON body" }, 400);
   }
@@ -217,7 +217,7 @@ async function runArenaOnForge(forge: AgentConfig, run: ArenaRun): Promise<void>
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 120000); // 2 min timeout
-    const res = await fetch(`${forge.url}/api/arena/run`, {
+    const response = await fetch(`${forge.url}/api/arena/run`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt: run.prompt }),
@@ -225,8 +225,8 @@ async function runArenaOnForge(forge: AgentConfig, run: ArenaRun): Promise<void>
     });
     clearTimeout(timeout);
 
-    if (!res.ok) {
-      const errText = await res.text().catch(() => `HTTP ${res.status}`);
+    if (!response.ok) {
+      const errText = await response.text().catch(() => `HTTP ${response.status}`);
       run.status = "failed";
       run.completed_at = new Date().toISOString();
       run.claude = { model: "claude", output: "", tokens_in: 0, tokens_out: 0, duration_ms: 0, cost_usd: 0, error: errText };
@@ -234,15 +234,15 @@ async function runArenaOnForge(forge: AgentConfig, run: ArenaRun): Promise<void>
       return;
     }
 
-    const data = (await res.json()) as { claude?: ArenaResult; codex?: ArenaResult };
+    const data = (await response.json()) as { claude?: ArenaResult; codex?: ArenaResult };
     run.claude = data.claude ?? { model: "claude", output: "", tokens_in: 0, tokens_out: 0, duration_ms: 0, cost_usd: 0, error: "No response" };
     run.codex = data.codex ?? { model: "codex", output: "", tokens_in: 0, tokens_out: 0, duration_ms: 0, cost_usd: 0, error: "No response" };
     run.status = "completed";
     run.completed_at = new Date().toISOString();
-  } catch (err) {
+  } catch (error) {
     run.status = "failed";
     run.completed_at = new Date().toISOString();
-    const errMsg = err instanceof Error ? err.message : String(err);
+    const errMsg = error instanceof Error ? error.message : String(error);
     run.claude = { model: "claude", output: "", tokens_in: 0, tokens_out: 0, duration_ms: 0, cost_usd: 0, error: errMsg };
     run.codex = { model: "codex", output: "", tokens_in: 0, tokens_out: 0, duration_ms: 0, cost_usd: 0, error: errMsg };
   }
@@ -309,11 +309,11 @@ async function pollAgent(agent: AgentConfig): Promise<AgentSnapshot> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
 
-    const res = await fetch(`${agent.url}/api/status`, { signal: controller.signal });
+    const response = await fetch(`${agent.url}/api/status`, { signal: controller.signal });
     clearTimeout(timeout);
 
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const status = (await res.json()) as AgentStatus;
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const status = (await response.json()) as AgentStatus;
     const latency = Date.now() - start;
 
     const snapshot: AgentSnapshot = {
@@ -328,7 +328,7 @@ async function pollAgent(agent: AgentConfig): Promise<AgentSnapshot> {
     };
     cache.set(agent.name, snapshot);
     return snapshot;
-  } catch (err) {
+  } catch (error) {
     const snapshot: AgentSnapshot = {
       name: agent.name,
       bns: agent.bns ?? null,
@@ -337,7 +337,7 @@ async function pollAgent(agent: AgentConfig): Promise<AgentSnapshot> {
       last_poll: new Date().toISOString(),
       latency_ms: null,
       status: cache.get(agent.name)?.status ?? null, // keep stale data
-      error: err instanceof Error ? err.message : String(err),
+      error: error instanceof Error ? error.message : String(error),
     };
     cache.set(agent.name, snapshot);
     return snapshot;
@@ -357,11 +357,11 @@ async function pollAgentFeed(agent: AgentConfig): Promise<void> {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
-    const res = await fetch(`${agent.url}/api/tasks?limit=30`, { signal: controller.signal });
+    const response = await fetch(`${agent.url}/api/tasks?limit=30`, { signal: controller.signal });
     clearTimeout(timeout);
 
-    if (!res.ok) return;
-    const data = (await res.json()) as { tasks: Array<{ id: number; subject: string; priority: number; status: string; source: string | null; model: string | null; created_at: string; cost_usd: number }> };
+    if (!response.ok) return;
+    const data = (await response.json()) as { tasks: Array<{ id: number; subject: string; priority: number; status: string; source: string | null; model: string | null; created_at: string; cost_usd: number }> };
 
     const tasks: FeedTask[] = data.tasks.map((t) => ({
       agent: agent.name,
@@ -391,10 +391,10 @@ async function pollAgentChat(agent: AgentConfig): Promise<void> {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
-    const res = await fetch(`${agent.url}/api/messages/fleet?limit=50`, { signal: controller.signal });
+    const response = await fetch(`${agent.url}/api/messages/fleet?limit=50`, { signal: controller.signal });
     clearTimeout(timeout);
 
-    if (!res.ok) return;
+    if (!response.ok) return;
     const data = (await res.json()) as { messages: Array<{ id: number; from_agent: string; from_bns: string | null; message_type: string; content: string; created_at: string }> };
 
     const messages: FleetMessage[] = data.messages.map((m) => ({
@@ -500,16 +500,16 @@ async function proxyToAgent(agentName: string, apiPath: string, url: URL): Promi
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000);
-    const res = await fetch(targetUrl.toString(), { signal: controller.signal });
+    const response = await fetch(targetUrl.toString(), { signal: controller.signal });
     clearTimeout(timeout);
 
-    const body = await res.text();
+    const body = await response.text();
     return new Response(body, {
-      status: res.status,
+      status: response.status,
       headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
     });
-  } catch (err) {
-    return json({ error: `Failed to reach ${agentName}: ${err instanceof Error ? err.message : String(err)}` }, 502);
+  } catch (error) {
+    return json({ error: `Failed to reach ${agentName}: ${error instanceof Error ? error.message : String(error)}` }, 502);
   }
 }
 
@@ -563,10 +563,10 @@ function handleFleetChat(): Response {
   return json({ messages: deduped.slice(-100), updated_at: new Date().toISOString() });
 }
 
-async function handlePostFleetChat(req: Request, config: FleetConfig): Promise<Response> {
+async function handlePostFleetChat(request: Request, config: FleetConfig): Promise<Response> {
   let body: { from_agent?: string; from_bns?: string; message_type?: string; content?: string };
   try {
-    body = (await req.json()) as { from_agent?: string; from_bns?: string; message_type?: string; content?: string };
+    body = (await request.json()) as { from_agent?: string; from_bns?: string; message_type?: string; content?: string };
   } catch {
     return json({ error: "Invalid JSON body" }, 400);
   }
@@ -584,16 +584,16 @@ async function handlePostFleetChat(req: Request, config: FleetConfig): Promise<R
       try {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 5000);
-        const res = await fetch(`${agent.url}/api/messages/fleet`, {
+        const response = await fetch(`${agent.url}/api/messages/fleet`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
           signal: controller.signal,
         });
         clearTimeout(timeout);
-        results.push({ agent: agent.name, ok: res.ok, error: res.ok ? undefined : `HTTP ${res.status}` });
-      } catch (err) {
-        results.push({ agent: agent.name, ok: false, error: err instanceof Error ? err.message : String(err) });
+        results.push({ agent: agent.name, ok: response.ok, error: response.ok ? undefined : `HTTP ${response.status}` });
+      } catch (error) {
+        results.push({ agent: agent.name, ok: false, error: error instanceof Error ? error.message : String(error) });
       }
     })
   );
@@ -1509,12 +1509,12 @@ function startServer(config: FleetConfig): void {
   const server = Bun.serve({
     port: config.port,
     hostname: "0.0.0.0",
-    fetch(req) {
-      const url = new URL(req.url);
+    fetch(request) {
+      const url = new URL(request.url);
       const path = url.pathname;
 
       // CORS preflight
-      if (req.method === "OPTIONS") {
+      if (request.method === "OPTIONS") {
         return new Response(null, {
           status: 204,
           headers: {
@@ -1527,12 +1527,12 @@ function startServer(config: FleetConfig): void {
 
       // Fleet chat
       if (path === "/api/fleet/chat") {
-        if (req.method === "POST") return handlePostFleetChat(req, config);
+        if (request.method === "POST") return handlePostFleetChat(request, config);
         return handleFleetChat();
       }
 
       // Arena API
-      if (path === "/api/arena/run" && req.method === "POST") return handleArenaRun(req, config);
+      if (path === "/api/arena/run" && request.method === "POST") return handleArenaRun(request, config);
       if (path === "/api/arena/history") return handleArenaHistory();
       const arenaRunMatch = path.match(/^\/api\/arena\/runs\/([a-zA-Z0-9-]+)$/);
       if (arenaRunMatch) return handleArenaStatus(arenaRunMatch[1]);

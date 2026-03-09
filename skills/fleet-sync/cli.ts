@@ -673,8 +673,8 @@ async function main(): Promise<void> {
 }
 
 if (import.meta.main) {
-  main().catch((err) => {
-    process.stderr.write(`fleet-sync error: ${err.message}\n`);
+  main().catch((error) => {
+    process.stderr.write(`fleet-sync error: ${error.message}\n`);
     process.exit(1);
   });
 }

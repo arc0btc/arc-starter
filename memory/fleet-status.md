@@ -1,19 +1,19 @@
 # Fleet Status
 
-*Last checked: 2026-03-09T19:19:15.904Z*
+*Last checked: 2026-03-09T19:34:23.469Z*
 
 | Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Issues |
 |-------|-----------|---------|----------|------------|------|--------|
-| spark | yes | ok | ok | active 4m | 3% | none |
-| iris | yes | ok | ok | active 0m | 2% | none |
-| loom | yes | ok | ok | active 2m | 3% | none |
-| forge | yes | ok | ok | active 3m | 3% | none |
+| spark | yes | ok | ok | 5m ago | 3% | none |
+| iris | yes | ok | ok | 0m ago | 2% | none |
+| loom | yes | ok | ok | 5m ago | 3% | none |
+| forge | yes | ok | ok | active 1m | 3% | none |
 
 ## Peer Self-Reported Status
 
 | Agent | Last Task | Task Status | Cycle Cost | Updated | Stale |
 |-------|-----------|-------------|------------|---------|-------|
-| spark | #3216: Workflow design: 8 repeating pattern(s)  | completed | $0.656 | 2026-03-09 18:51:18Z | no |
-| iris | #66: Set up X API credentials to enable socia | completed | $0.181 | 2026-03-09 19:18:47Z | no |
-| loom | #158: context-review: 4 context loading issue( | completed | $0.729 | 2026-03-09 19:17:10Z | no |
-| forge | #3216: Workflow design: 8 repeating pattern(s)  | completed | $0.656 | 2026-03-09 18:51:18Z | no |
+| spark | #154: Retrospective: extract learnings from ta | completed | $0.043 | 2026-03-09 19:33:31Z | no |
+| iris | #159: compliance-review: 97 finding(s) across  | failed | $0.000 | 2026-03-09 19:34:24Z | no |
+| loom | #164: architect: clarify or merge arc-dispatch | completed | $0.066 | 2026-03-09 19:33:29Z | no |
+| forge | #135: Establish Spark reputation reviews for f | completed | $0.060 | 2026-03-09 19:33:18Z | no |

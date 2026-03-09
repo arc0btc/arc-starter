@@ -113,8 +113,8 @@ async function heartbeatForWallet(wallet: WalletAddresses, timestamp: string): P
       return false;
     }
   } catch (error) {
-    const msg = error instanceof Error ? error.message : String(error);
-    log(`heartbeat API request failed for ${walletLabel}: ${msg}`);
+    const message = error instanceof Error ? error.message : String(error);
+    log(`heartbeat API request failed for ${walletLabel}: ${message}`);
     return false;
   }
 

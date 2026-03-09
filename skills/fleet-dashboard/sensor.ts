@@ -227,9 +227,9 @@ async function collectArcMetrics(): Promise<AgentMetrics> {
     }
 
     db.close();
-  } catch (err) {
+  } catch (error) {
     metrics.issues.push(
-      `local query failed: ${err instanceof Error ? err.message : String(err)}`,
+      `local query failed: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
 

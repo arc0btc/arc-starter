@@ -77,9 +77,9 @@ async function checkAgentSilence(
 
   const cycleTs = cycleResult.stdout.trim();
   if (cycleTs !== "none" && cycleTs !== "error") {
-    const ts = parseInt(cycleTs);
-    if (!isNaN(ts)) {
-      result.lastDispatchMs = now - ts;
+    const timestamp = parseInt(cycleTs);
+    if (!isNaN(timestamp)) {
+      result.lastDispatchMs = now - timestamp;
     }
   }
 

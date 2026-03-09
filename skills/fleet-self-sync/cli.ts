@@ -56,10 +56,10 @@ function needsBunInstall(changedFiles: string[]): boolean {
 // ---- Git helpers ----
 
 async function run(
-  cmd: string[],
+  command: string[],
   opts?: { cwd?: string }
 ): Promise<{ ok: boolean; stdout: string; stderr: string }> {
-  const proc = Bun.spawn(cmd, {
+  const proc = Bun.spawn(command, {
     cwd: opts?.cwd ?? ROOT,
     stdout: "pipe",
     stderr: "pipe",

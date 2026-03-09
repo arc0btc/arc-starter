@@ -165,9 +165,9 @@ async function emailWhoabuddy(
       const text = await response.text();
       log(`email send failed: HTTP ${response.status} — ${text}`);
     }
-  } catch (err) {
+  } catch (error) {
     log(
-      `email send error: ${err instanceof Error ? err.message : String(err)}`,
+      `email send error: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
 }

@@ -65,11 +65,11 @@ function cmdStatus(): void {
     cycles++;
     totalSteals += entry.total_steals;
 
-    const ts = entry.timestamp.replace("T", " ").slice(0, 19) + "Z";
+    const timestamp = entry.timestamp.replace("T", " ").slice(0, 19) + "Z";
     const idle = entry.idle_agents.join(", ") || "none";
     const busy = entry.busy_agents.join(", ") || "none";
 
-    process.stdout.write(`${ts}  idle=[${idle}]  busy=[${busy}]  steals=${entry.total_steals}\n`);
+    process.stdout.write(`${timestamp}  idle=[${idle}]  busy=[${busy}]  steals=${entry.total_steals}\n`);
 
     for (const s of entry.steals) {
       process.stdout.write(`  #${s.task_id} (P${s.priority}) ${s.from_agent} → ${s.to_agent}: ${s.subject.slice(0, 50)}\n`);

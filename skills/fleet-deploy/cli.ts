@@ -85,8 +85,8 @@ async function syncAgent(
     { env: { ...process.env, SSHPASS: password }, stdout: "pipe", stderr: "pipe" }
   );
   if ((await scpProc.exited) !== 0) {
-    const err = (await new Response(scpProc.stderr).text()).trim();
-    process.stderr.write(`  [${agent}] SCP failed: ${err}\n`);
+    const error = (await new Response(scpProc.stderr).text()).trim();
+    process.stderr.write(`  [${agent}] SCP failed: ${error}\n`);
     return false;
   }
 
@@ -121,7 +121,7 @@ async function syncAgent(
 // ---- Service restart ----
 
 async function restartServices(agent: string, ip: string, password: string): Promise<boolean> {
-  const cmd = [
+  const command = [
     "systemctl --user daemon-reload",
     "systemctl --user restart arc-sensors.timer",
     "systemctl --user restart arc-dispatch.timer",
@@ -129,7 +129,7 @@ async function restartServices(agent: string, ip: string, password: string): Pro
     "systemctl --user is-active arc-dispatch.timer",
   ].join(" && ");
 
-  const result = await ssh(ip, password, cmd);
+  const result = await ssh(ip, password, command);
   if (!result.ok) {
     process.stderr.write(`  [${agent}] Service restart failed: ${result.stderr.trim()}\n`);
     return false;
@@ -140,13 +140,13 @@ async function restartServices(agent: string, ip: string, password: string): Pro
 // ---- Health check ----
 
 async function healthCheck(agent: string, ip: string, password: string): Promise<boolean> {
-  const cmd = [
+  const command = [
     `systemctl --user is-active arc-sensors.timer`,
     `systemctl --user is-active arc-dispatch.timer`,
     `cd ${REMOTE_ARC_DIR} && ~/.bun/bin/bun src/cli.ts status`,
   ].join(" && ");
 
-  const result = await ssh(ip, password, cmd);
+  const result = await ssh(ip, password, command);
   if (!result.ok) {
     process.stderr.write(`  [${agent}] Health check failed: ${result.stderr.trim()}\n`);
     return false;
@@ -218,8 +218,8 @@ async function deployAgent(
       result.restarted = true;
       result.healthy = true;
     }
-  } catch (err) {
-    result.error = err instanceof Error ? err.message : String(err);
+  } catch (error) {
+    result.error = error instanceof Error ? error.message : String(error);
   }
 
   return result;

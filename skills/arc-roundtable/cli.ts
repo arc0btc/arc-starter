@@ -127,10 +127,10 @@ async function cmdStart(flags: Record<string, string>): Promise<void> {
         results.push({ agent: name, ok: false, error: data.error ?? `HTTP ${resp.status}` });
         process.stdout.write(`  ${name}: failed — ${data.error ?? `HTTP ${resp.status}`}\n`);
       }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      results.push({ agent: name, ok: false, error: msg });
-      process.stdout.write(`  ${name}: unreachable — ${msg}\n`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      results.push({ agent: name, ok: false, error: message });
+      process.stdout.write(`  ${name}: unreachable — ${message}\n`);
     }
   }
 
@@ -280,9 +280,9 @@ async function cmdRespond(flags: Record<string, string>): Promise<void> {
     } else {
       process.stdout.write(`Warning: could not send to Arc (HTTP ${resp.status})\n`);
     }
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    process.stdout.write(`Warning: could not reach Arc at ${arcUrl} — ${msg}\n`);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    process.stdout.write(`Warning: could not reach Arc at ${arcUrl} — ${message}\n`);
   }
 }
 
@@ -352,7 +352,7 @@ EXAMPLES
 `);
 }
 
-main().catch((err) => {
-  process.stderr.write(`Error: ${err instanceof Error ? err.message : String(err)}\n`);
+main().catch((error) => {
+  process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);
   process.exit(1);
 });

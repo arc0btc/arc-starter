@@ -149,13 +149,13 @@ async function fetchAgentMemory(
       patternsHash: simpleHash(content),
       patternsLineCount: content.split("\n").length,
     };
-  } catch (err) {
+  } catch (error) {
     return {
       agent,
       ok: false,
       patternsContent: "",
       patternsHash: "",
-      error: err instanceof Error ? err.message : String(err),
+      error: error instanceof Error ? error.message : String(error),
     };
   }
 }
@@ -487,9 +487,9 @@ async function main(): Promise<void> {
   let agents: string[];
   try {
     agents = resolveAgents(flags["agents"]);
-  } catch (err) {
+  } catch (error) {
     process.stderr.write(
-      `Error: ${err instanceof Error ? err.message : String(err)}\n`
+      `Error: ${error instanceof Error ? error.message : String(error)}\n`
     );
     process.exit(1);
   }

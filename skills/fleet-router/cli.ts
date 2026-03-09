@@ -82,7 +82,7 @@ async function sendToAgent(
   }
 
   const escSubject = task.subject.replace(/'/g, "'\\''");
-  let cmd = `cd ${REMOTE_ARC_DIR} && bash bin/arc tasks add --subject '${escSubject}' --priority ${task.priority}`;
+  let command = `cd ${REMOTE_ARC_DIR} && bash bin/arc tasks add --subject '${escSubject}' --priority ${task.priority}`;
 
   let skills: string[] = [];
   try {
@@ -91,17 +91,17 @@ async function sendToAgent(
   } catch { /* ignore */ }
 
   if (skills.length > 0) {
-    cmd += ` --skills ${skills.join(",")}`;
+    command += ` --skills ${skills.join(",")}`;
   }
 
   if (task.description) {
     const escDesc = task.description.replace(/'/g, "'\\''").slice(0, 500);
-    cmd += ` --description '${escDesc}'`;
+    command += ` --description '${escDesc}'`;
   }
 
-  cmd += ` --source 'fleet:arc:router'`;
+  command += ` --source 'fleet:arc:router'`;
 
-  const result = await ssh(ip, password, cmd);
+  const result = await ssh(ip, password, command);
   return result.ok;
 }
 

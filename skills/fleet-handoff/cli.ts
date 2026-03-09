@@ -334,9 +334,9 @@ async function cmdStatus(flags: Record<string, string>): Promise<void> {
       } else {
         process.stdout.write(`  Remote task not found or unreachable\n`);
       }
-    } catch (err: unknown) {
+    } catch (error: unknown) {
       process.stdout.write(
-        `  Could not check remote: ${err instanceof Error ? err.message : String(err)}\n`
+        `  Could not check remote: ${error instanceof Error ? error.message : String(error)}\n`
       );
     }
   }

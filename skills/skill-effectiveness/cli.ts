@@ -184,9 +184,9 @@ function cmdReport(args: string[]): void {
   const grouped = new Map<string, VersionStats[]>();
   for (const s of stats.values()) {
     if (s.total < minSamples) continue;
-    const arr = grouped.get(s.skill_name) ?? [];
-    arr.push(s);
-    grouped.set(s.skill_name, arr);
+    const versionsList = grouped.get(s.skill_name) ?? [];
+    versionsList.push(s);
+    grouped.set(s.skill_name, versionsList);
   }
 
   if (grouped.size === 0) {
@@ -291,9 +291,9 @@ function cmdShowVersion(args: string[]): void {
 
 // ---- Main ----
 
-const [cmd, ...rest] = process.argv.slice(2);
+const [command, ...rest] = process.argv.slice(2);
 
-switch (cmd) {
+switch (command) {
   case "report":       cmdReport(rest); break;
   case "versions":     cmdVersions(rest); break;
   case "show-version": cmdShowVersion(rest); break;
@@ -303,8 +303,8 @@ switch (cmd) {
     console.log("  report        [--skill NAME] [--period today|week|month|all] [--min-samples N]");
     console.log("  versions      --skill NAME");
     console.log("  show-version  --hash HASH");
-    if (cmd && cmd !== "--help" && cmd !== "-h") {
-      console.error(`\nUnknown command: ${cmd}`);
+    if (command && command !== "--help" && command !== "-h") {
+      console.error(`\nUnknown command: ${command}`);
       process.exit(1);
     }
 }

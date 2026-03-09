@@ -244,8 +244,8 @@ async function cmdEscalate(flags: Record<string, string>): Promise<void> {
       } else {
         process.stderr.write(`Email failed: HTTP ${response.status}\n`);
       }
-    } catch (err) {
-      process.stderr.write(`Email error: ${err instanceof Error ? err.message : String(err)}\n`);
+    } catch (error) {
+      process.stderr.write(`Email error: ${error instanceof Error ? error.message : String(error)}\n`);
     }
   } else {
     process.stdout.write("Email credentials not configured — skipping notification.\n");
