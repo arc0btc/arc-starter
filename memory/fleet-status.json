@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T22:43:21.133Z",
+  "updated_at": "2026-03-09T22:45:31.834Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3335,
-    "subject": "Workflow design: 1 repeating pattern(s) detected",
+    "id": 3337,
+    "subject": "Evaluate API key auth for headless fleet VMs (replace OAuth)",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 58689,
-    "cost_usd": 0.27732175000000003
+    "duration_ms": 129118,
+    "cost_usd": 0.46917175
   },
   "health": {
-    "uptime_seconds": 1038699,
+    "uptime_seconds": 1038830,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234604486656
+    "disk_avail_bytes": 234604445696
   }
 }
