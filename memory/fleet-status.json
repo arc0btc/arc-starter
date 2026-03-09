@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T17:57:31.603Z",
+  "updated_at": "2026-03-09T18:03:38.753Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3178,
-    "subject": "Fleet silent: forge has not dispatched or reported in >1h",
+    "id": 3130,
+    "subject": "Fleet: reputation sensors + cross-agent reputation scoring",
     "status": "completed",
-    "priority": 2
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 23616,
-    "cost_usd": 0.1457855
+    "duration_ms": 330524,
+    "cost_usd": 1.2540577000000002
   },
   "health": {
-    "uptime_seconds": 1021550,
+    "uptime_seconds": 1021917,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234643595264
+    "disk_avail_bytes": 234639134720
   }
 }

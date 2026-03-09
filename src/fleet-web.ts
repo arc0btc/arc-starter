@@ -72,10 +72,11 @@ async function proxyToAgent(agentIp: string, agentPort: number, apiPath: string,
     const timer = setTimeout(() => controller.abort(), timeout);
     const resp = await fetch(url, { signal: controller.signal });
     clearTimeout(timer);
-    const body = await resp.text();
+    const contentType = resp.headers.get("Content-Type") || "application/json";
+    const body = await resp.arrayBuffer();
     return new Response(body, {
       status: resp.status,
-      headers: { "Content-Type": resp.headers.get("Content-Type") || "application/json", ...corsHeaders() },
+      headers: { "Content-Type": contentType, ...corsHeaders() },
     });
   } catch {
     return json({ error: "unreachable", agent_ip: agentIp }, 502);
