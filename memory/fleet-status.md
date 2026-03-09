@@ -1,17 +1,17 @@
 # Fleet Status
 
-*Last checked: 2026-03-09T09:40:37.059Z*
+*Last checked: 2026-03-09T10:40:39.397Z*
 
 | Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Issues |
 |-------|-----------|---------|----------|------------|------|--------|
-| spark | yes | ok | ok | 1m ago (active) | 2% | none |
-| iris | yes | ok | ok | 1m ago (active) | 2% | none |
-| forge | yes | ok | ok | 8m ago | 3% | none |
+| spark | yes | ok | ok | 37m ago | 2% | fleet-status.json stale (37m old) |
+| iris | yes | ok | ok | 1m ago | 2% | none |
+| forge | yes | ok | ok | 13m ago | 3% | none |
 
 ## Peer Self-Reported Status
 
 | Agent | Last Task | Task Status | Cycle Cost | Updated | Stale |
 |-------|-----------|-------------|------------|---------|-------|
-| spark | #58: Create a hello-world skill with SKILL.md | completed | $0.168 | 2026-03-09 09:39:50Z | no |
-| iris | #60: Retrospective: extract learnings from ta | completed | $0.036 | 2026-03-09 09:39:39Z | no |
-| forge | #46: Retrospective: extract learnings from ta | completed | $0.152 | 2026-03-09 09:32:40Z | no |
+| spark | #61: Retrospective: extract learnings from ta | completed | $0.029 | 2026-03-09 10:04:05Z | **YES** |
+| iris | #89: Retrospective: extract learnings from ta | completed | $0.031 | 2026-03-09 10:39:56Z | no |
+| forge | #50: Retrospective: extract learnings from ta | completed | $0.049 | 2026-03-09 10:27:30Z | no |
