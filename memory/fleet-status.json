@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T20:20:36.896Z",
+  "updated_at": "2026-03-09T20:24:38.402Z",
   "idle": true,
-  "idle_since": "2026-03-09T20:20:36.896Z",
+  "idle_since": "2026-03-09T20:22:37.643Z",
   "last_task": {
-    "id": 3248,
-    "subject": "Retrospective: extract learnings from task #3247 — Fleet escalation: iris blocked on task #191 — Fund Iris wall",
+    "id": 3249,
+    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (11e64cba1b)",
     "status": "completed",
-    "priority": 8
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 29209,
-    "cost_usd": 0.0437971
+    "duration_ms": 19843,
+    "cost_usd": 0.126329
   },
   "health": {
-    "uptime_seconds": 1030135,
+    "uptime_seconds": 1030377,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234618814464
+    "disk_avail_bytes": 234618163200
   }
 }
