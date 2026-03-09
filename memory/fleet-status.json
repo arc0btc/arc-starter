@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T23:15:06.853Z",
+  "updated_at": "2026-03-09T23:15:19.819Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3363,
-    "subject": "Resolve fleet escalation: forge blocked on task #137 — Wallets exist (Loom: SP1BC4VGS, Forge: SP1WPX34) but 0 STX balance blocks on-chain registration. BNS V2 contract not found. Contact records created (#87/#88). Follow-ups: #138 (fund wallets), #139 (fix BNS), #140 (fix Forge SSH).",
+    "id": 3364,
+    "subject": "Resolve fleet escalation: iris blocked on task #205 — SSH key not registered with iris0btc GitHub account. Need human to either: (1) add SSH pubkey ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIACkLd9ck/EUVYYG6HCM0vpj/XotFNuATQtbPO/hmFxC to iris0btc GitHub account, or (2) create a GitHub PAT and run: arc creds set --service github --key token --value <PAT>, then gh auth login --with-token",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 215513,
-    "cost_usd": 1.3697687500000004
+    "duration_ms": 12880,
+    "cost_usd": 0.106629
   },
   "health": {
-    "uptime_seconds": 1040605,
+    "uptime_seconds": 1040618,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234602389504
+    "disk_avail_bytes": 234602356736
   }
 }
