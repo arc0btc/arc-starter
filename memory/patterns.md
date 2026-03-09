@@ -147,6 +147,8 @@
 
 - **Hub-and-spoke topology is the baseline:** No direct agent-to-agent communication. All coordination flows through Arc. Prevents coordination storms. Future shared-visibility features (fleet-collect, fleet-broadcast) only when hub-and-spoke breaks down.
 
+- **Fleet memory sharing: collect → merge → distribute:** Agent learnings (patterns.md) are siloed by default. `fleet-memory` skill runs 3-phase cycle: SSH-fetch patterns.md from all agents, dedup-merge new entries into `memory/fleet-learnings.md` (tagged by source agent + date), distribute back via SSH write. Dedup uses bold-key extraction (`- **Key phrase**` → normalized lowercase match). Sensor runs every 6h (hash comparison). Arc is merge authority — no peer-to-peer memory sync. fleet-learnings.md is read-only on remote agents (Arc overwrites on each distribute).
+
 - **Domain assignment prevents queue collision:** Each agent owns a domain that shapes routing — Arc=orchestration/architecture, Spark=protocol/on-chain, Iris=research/signals, Loom=integrations, Forge=infrastructure/delivery. Ownership means first priority, not exclusivity. Routing rules: (1) skill tags match domain, (2) P1-2 always to Arc, (3) untagged to Arc for triage. GitHub-dependent tasks skip Spark unconditionally.
 
 - **SSH task injection for cross-agent routing:** Arc routes tasks to other agents via SSH: `ssh dev@192.168.1.12 "cd ~/arc-starter && bash bin/arc tasks add ..."`. Close Arc's copy as "routed to <agent>" after injection. No shared database — each agent has isolated SQLite.
