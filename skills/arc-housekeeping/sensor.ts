@@ -3,7 +3,7 @@ import { existsSync, statSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 const SENSOR_NAME = "arc-housekeeping";
-const INTERVAL_MINUTES = 30;
+const INTERVAL_MINUTES = 120;
 const TASK_SOURCE = "sensor:arc-housekeeping";
 
 const log = createSensorLogger(SENSOR_NAME);

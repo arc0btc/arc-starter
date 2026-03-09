@@ -20,7 +20,7 @@ import {
 import { discoverSkills } from "../../src/skills.ts";
 
 const SENSOR_NAME = "arc-self-audit";
-const INTERVAL_MINUTES = 1440; // 24 hours
+const INTERVAL_MINUTES = 720; // 12 hours
 const TASK_SOURCE = "sensor:arc-self-audit";
 
 const ROOT = join(import.meta.dir, "../..");

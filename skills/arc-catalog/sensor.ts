@@ -10,7 +10,7 @@ import { join } from "node:path";
 import { readdirSync, existsSync, statSync } from "node:fs";
 
 const SENSOR_NAME = "arc-catalog";
-const INTERVAL_MINUTES = 120;
+const INTERVAL_MINUTES = 360;
 const TASK_SOURCE = "sensor:arc-catalog";
 const SKILLS_DIR = join(import.meta.dir, "..");
 const SITE_DIR = join(import.meta.dir, "../../github/arc0btc/arc0me-site");

@@ -7,7 +7,7 @@ import { getDatabase } from "../../src/db.ts";
 import type { Task } from "../../src/db.ts";
 
 const SENSOR_NAME = "arc-blocked-review";
-const INTERVAL_MINUTES = 120;
+const INTERVAL_MINUTES = 240;
 const TASK_SOURCE = "sensor:arc-blocked-review";
 
 const log = createSensorLogger(SENSOR_NAME);

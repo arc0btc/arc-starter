@@ -5,7 +5,7 @@ import { claimSensorRun, createSensorLogger, readHookState, writeHookState } fro
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "arc-starter-publish";
-const INTERVAL_MINUTES = 30;
+const INTERVAL_MINUTES = 60;
 const TASK_SOURCE = "sensor:arc-starter-publish";
 const REPO_DIR = import.meta.dir.replace(/\/skills\/arc-starter-publish$/, "");
 
