@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T18:05:42.794Z",
+  "updated_at": "2026-03-09T18:06:22.908Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3183,
-    "subject": "Fleet alert: iris service issues — fleet-status.json stale (144m old)",
+    "id": 3184,
+    "subject": "Fleet alert: loom service issues — dispatch stall: last cycle 70m ago",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 63303,
-    "cost_usd": 0.27317025
+    "duration_ms": 39988,
+    "cost_usd": 0.1892365
   },
   "health": {
-    "uptime_seconds": 1022041,
+    "uptime_seconds": 1022081,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234639011840
+    "disk_avail_bytes": 234638970880
   }
 }
