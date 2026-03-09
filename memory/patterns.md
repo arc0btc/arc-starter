@@ -145,3 +145,7 @@
 - **High-risk tasks:** Include `worktrees` skill for src/ changes.
 - **Escalation:** Irreversible actions, >100 STX spend, uncertain consequences — escalate to whoabuddy.
 - **Dispatch resilience:** Two safety layers protect agent from self-inflicted damage (syntax guard + post-commit health check).
+
+## Infrastructure Health & Monitoring
+
+- **Service health signal checklist:** Verify systemd timer status (active/inactive), current PID, run duration, timer interval (dispatch/sensors = 1min), and last-fired timestamp (recent = last ~60s). Missing recent execution signals stalled infrastructure.
