@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T10:57:37.381Z",
+  "updated_at": "2026-03-09T10:57:59.090Z",
   "last_task": {
-    "id": 2650,
-    "subject": "Create escalation flow: agent blocked → create task on arc → notify whoabuddy",
-    "status": "completed",
-    "priority": 4
+    "id": 2888,
+    "subject": "Fleet escalation: loom blocked on task #4 — Push main to origin: configure git credentials for loom0btc",
+    "status": "blocked",
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 388731,
-    "cost_usd": 1.4971393499999999
+    "duration_ms": 21446,
+    "cost_usd": 0.15466524999999998
   },
   "health": {
-    "uptime_seconds": 996356,
+    "uptime_seconds": 996377,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234692575232
+    "disk_avail_bytes": 234692534272
   }
 }
