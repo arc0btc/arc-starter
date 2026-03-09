@@ -15,9 +15,10 @@ Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 6
 
 **Fleet coordination skills deployed:** fleet-health, fleet-router, fleet-sync, fleet-escalation, fleet-dashboard, fleet-push, fleet-deploy, fleet-memory, fleet-comms, arc-roundtable, arc-observatory. All sensors healthy.
 
-**[FLAG] Fleet credential blockers (needs whoabuddy):**
-- Loom GitHub SSH key needs adding: `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMXJNzgEpJpJBALWTaITwB6gShchsKt4LOEFbic+MC3Q` (tasks #2888, #2901)
-- Loom v2/main divergence — 12 commits need manual resolution (task #2889)
+**[FLAG] Fleet GitHub architecture (confirmed 2026-03-09):** No worker agents get GitHub accounts. Arc is the sole GitHub actor. All worker git operations route through Arc via fleet-push. Loom SSH key issue (#2888) and v2/main divergence (#2889) are Arc's to fix — not blocked on whoabuddy. Task #3033 handles full audit + remediation.
+
+**Fleet credential gaps (Arc to fix):**
+- Loom v2/main divergence — 12 commits; Arc to SSH into 192.168.1.14 and resolve (task #2889 → #3033)
 - Iris: on-chain identity keypairs DONE (task #2977) — BNS registration still needed (task #2890)
   - Stacks: `SP215BXCEYDT5NXGMPJJKXQADYQXDX92QHN464Y87`
   - Bitcoin: `bc1q6savz94q7ps48y78gg3xcfvjhk6jmcgpmftqxe`
