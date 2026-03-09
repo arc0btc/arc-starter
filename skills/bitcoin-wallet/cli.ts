@@ -17,6 +17,7 @@ const SIGNING_SCRIPT = resolve(ROOT, "signing/signing.ts");
 const SIGN_RUNNER = resolve(import.meta.dir, "sign-runner.ts");
 const X402_RUNNER = resolve(import.meta.dir, "x402-runner.ts");
 const BNS_RUNNER = resolve(import.meta.dir, "bns-runner.ts");
+const STX_SEND_RUNNER = resolve(import.meta.dir, "stx-send-runner.ts");
 
 // ---- Helpers ----
 
@@ -472,6 +473,117 @@ async function cmdX402(args: string[]): Promise<void> {
   }
 }
 
+/**
+ * Run a STX send command via the stx-send-runner, which handles unlock + transfer + lock
+ * in a single process (required because wallet manager session is in-memory).
+ * Uses timeout approach because the wallet auto-lock timer keeps the process alive.
+ */
+async function runStxSend(sendArgs: string[]): Promise<{ stdout: string; stderr: string; exitCode: number }> {
+  const password = await getWalletPassword();
+  const walletId = await getWalletId();
+
+  const proc = Bun.spawn(["bun", "run", STX_SEND_RUNNER, ...sendArgs], {
+    cwd: ROOT,
+    stdin: "ignore",
+    stdout: "pipe",
+    stderr: "pipe",
+    env: {
+      ...process.env,
+      WALLET_ID: walletId,
+      WALLET_PASSWORD: password,
+      NETWORK: "mainnet",
+    },
+  });
+
+  let stdout = "";
+  let stderr = "";
+
+  const stderrPromise = new Response(proc.stderr).text().then((t) => { stderr = t; });
+
+  const reader = proc.stdout.getReader();
+  const decoder = new TextDecoder();
+
+  const readWithTimeout = new Promise<string>(async (resolve, reject) => {
+    const timer = setTimeout(() => {
+      proc.kill();
+      reject(new Error("Timeout waiting for stx-send response (60s)"));
+    }, 60000);
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        stdout += decoder.decode(value, { stream: true });
+
+        const trimmed = stdout.trim();
+        if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+          try {
+            JSON.parse(trimmed);
+            clearTimeout(timer);
+            proc.kill();
+            resolve(trimmed);
+            return;
+          } catch {
+            // Incomplete JSON, keep reading
+          }
+        }
+      }
+      clearTimeout(timer);
+      resolve(stdout.trim());
+    } catch (error) {
+      clearTimeout(timer);
+      reject(error);
+    }
+  });
+
+  const result = await readWithTimeout;
+  await stderrPromise.catch(() => {});
+
+  let exitCode = 0;
+  try {
+    const parsed = JSON.parse(result) as Record<string, unknown>;
+    if (parsed.error || parsed.success === false) {
+      exitCode = 1;
+    }
+  } catch {
+    exitCode = 1;
+  }
+
+  return { stdout: result, stderr: stderr.trim(), exitCode };
+}
+
+async function cmdStxSend(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+
+  if (!flags.recipient || !flags["amount-stx"]) {
+    process.stderr.write("Usage: arc skills run --name wallet -- stx-send --recipient <STX address> --amount-stx <number> [--memo \"text\"]\n");
+    process.exit(1);
+  }
+
+  log(`sending ${flags["amount-stx"]} STX to ${flags.recipient} (auto unlock/lock)`);
+  try {
+    const sendArgs = ["--recipient", flags.recipient, "--amount-stx", flags["amount-stx"]];
+    if (flags.memo) {
+      sendArgs.push("--memo", flags.memo);
+    }
+
+    const result = await runStxSend(sendArgs);
+
+    if (result.exitCode !== 0) {
+      log(`stx-send failed: ${result.stderr}`);
+      console.log(JSON.stringify({ success: false, error: "STX send failed", detail: result.stderr || result.stdout }));
+      process.exit(1);
+    }
+
+    console.log(result.stdout);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`stx-send failed: ${message}`);
+    console.log(JSON.stringify({ success: false, error: "STX send failed", detail: message }));
+    process.exit(1);
+  }
+}
+
 async function cmdCheckRelayHealth(args: string[]): Promise<void> {
   const flags = parseFlags(args);
   const relayUrl = (flags["relay-url"] || "https://x402-relay.aibtc.com").replace(/\/+$/, "");
@@ -616,6 +728,10 @@ SUBCOMMANDS
     Sign a raw 32-byte digest with BIP-340 Schnorr (Taproot key).
     Auto-unlocks and locks. Used for Taproot multisig coordination.
 
+  stx-send --recipient <STX address> --amount-stx <number> [--memo "text"]
+    Send STX to a recipient. Auto-unlocks and locks.
+    Amount is in STX (e.g. 2.5 = 2,500,000 micro-STX).
+
   check-relay-health [--relay-url <url>] [--sponsor-address <address>]
     Check x402 sponsor relay health and nonce status (no unlock needed).
     Default relay: https://x402-relay.aibtc.com
@@ -637,6 +753,8 @@ EXAMPLES
   arc skills run --name wallet -- btc-verify --message "Hello" --signature "abc..." --expected-signer "bc1q..."
   arc skills run --name wallet -- check-relay-health
   arc skills run --name wallet -- check-relay-health --relay-url "https://custom-relay.com" --sponsor-address "SP1CUSTOM..."
+  arc skills run --name wallet -- stx-send --recipient SP... --amount-stx 2
+  arc skills run --name wallet -- stx-send --recipient SP... --amount-stx 0.5 --memo "funding"
   arc skills run --name wallet -- x402 send-inbox-message --recipient-btc-address bc1... --recipient-stx-address SP... --content "Hello"
 `);
 }
@@ -671,6 +789,9 @@ async function main(): Promise<void> {
       break;
     case "schnorr-sign-digest":
       await cmdSchnorrSignDigest(args.slice(1));
+      break;
+    case "stx-send":
+      await cmdStxSend(args.slice(1));
       break;
     case "check-relay-health":
       await cmdCheckRelayHealth(args.slice(1));
