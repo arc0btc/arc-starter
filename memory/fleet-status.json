@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T07:34:25.359Z",
+  "updated_at": "2026-03-09T07:37:16.079Z",
   "last_task": {
-    "id": 2416,
-    "subject": "Download Bitcoin Face assets for all fleet agents (arc0, spark0, iris0, loom0, forge0)",
+    "id": 2417,
+    "subject": "Fix Spark web UI header: update identity.ts name to spark0, restart arc-web",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 49073,
-    "cost_usd": 0.27936
+    "duration_ms": 159632,
+    "cost_usd": 0.6038932
   },
   "health": {
-    "uptime_seconds": 984164,
+    "uptime_seconds": 984334,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234701283328
+    "disk_avail_bytes": 234701217792
   }
 }
