@@ -889,10 +889,15 @@ function serveStatic(pathname: string): Response | null {
   const contentType = MIME_TYPES[ext] || "application/octet-stream";
   const file = Bun.file(filePath);
 
+  const cacheHeader = [".html", ".js", ".css"].includes(ext)
+    ? "no-cache"
+    : "public, max-age=3600";
+
   return new Response(file, {
     headers: {
       "Content-Type": contentType,
       "Access-Control-Allow-Origin": "*",
+      "Cache-Control": cacheHeader,
     },
   });
 }
