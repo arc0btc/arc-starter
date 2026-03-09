@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T21:21:58.773Z",
+  "updated_at": "2026-03-09T21:22:52.191Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3301,
-    "subject": "Route reputation kickstart tasks to each agent via fleet-handoff",
+    "id": 3303,
+    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (13e29a625d)",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 29969,
-    "cost_usd": 0.19774175
+    "duration_ms": 23225,
+    "cost_usd": 0.129509
   },
   "health": {
-    "uptime_seconds": 1033817,
+    "uptime_seconds": 1033871,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234611908608
+    "disk_avail_bytes": 234611834880
   }
 }
