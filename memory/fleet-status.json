@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T19:09:04.661Z",
+  "updated_at": "2026-03-09T19:09:59.169Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3208,
-    "subject": "Retrospective: extract learnings from task #3201 — Add multi-wallet support to identity.ts for Spark legacy add",
+    "id": 3229,
+    "subject": "Regenerate and deploy skills/sensors catalog",
     "status": "completed",
-    "priority": 8
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 29691,
-    "cost_usd": 0.0371881
+    "duration_ms": 23677,
+    "cost_usd": 0.16366250000000002
   },
   "health": {
-    "uptime_seconds": 1025843,
+    "uptime_seconds": 1025898,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234622730240
+    "disk_avail_bytes": 234622271488
   }
 }

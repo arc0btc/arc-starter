@@ -46,7 +46,7 @@
 - **Async credential retrieval must be awaited:** `getCredential()` returns Promises; always `await`. Easy to miss in integration code.
 - **Idempotent CLI composition for provisioning:** Fine-grained idempotent operations composed by parent with validation gates.
 - **Provisioning outcome documentation:** Record final state (SSH changes, auth methods, ports, service status) in result_detail to prevent dependent tasks from rediscovering hidden state.
-- **Multi-wallet agent provisioning:** When an agent needs dual wallets (old → new transition), provision both credentials on the same VM. Update identity.ts with legacy addresses field; heartbeat sensors iterate all wallets. Store credentials as separate entries but query as a set.
+- **Multi-wallet agent provisioning & sensor iteration:** Provision dual wallets on same VM; update identity.ts with legacy addresses. Sensors iterate via `getAgentWallets()`. Credential service naming: primary=`bitcoin-wallet`, legacy=`bitcoin-wallet-{label}` (e.g. `bitcoin-wallet-spark-v0.11`). **Sequential iteration** (not parallel) avoids wallet unlock race conditions. Use **distinct task sources** per wallet (e.g. `sensor:aibtc-heartbeat:inbox:primary` vs `inbox:spark-v0.11`) to maintain independent streaks.
 
 ## Claims, Git & State Patterns
 
