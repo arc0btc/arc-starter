@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Arc Fleet — Dashboard</title>
+  <title>Arc Observatory</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -354,7 +354,14 @@
   <!-- Header -->
   <header class="header">
     <div class="header-inner">
-      <h1 class="header-title"><span>Arc</span> Fleet</h1>
+      <div style="display:flex;align-items:center;gap:10px">
+        <img src="/api/fleet/agents/arc/api/face" alt="Arc" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--accent);background:var(--bg-card)" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+        <div style="display:none;width:36px;height:36px;border-radius:50%;border:2px solid var(--accent);background:var(--bg-card);align-items:center;justify-content:center;font-weight:700;color:var(--accent);font-size:16px">A</div>
+        <div>
+          <h1 class="header-title"><span>Arc</span> Observatory</h1>
+          <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted)">arc0.btc</div>
+        </div>
+      </div>
       <div class="header-stats">
         <span>Agents: <strong id="stat-agents">--</strong></span>
         <span>Online: <strong id="stat-online">--</strong></span>
@@ -389,7 +396,7 @@
 
       <!-- Embedded agent dashboard -->
       <div class="embed-container" id="embed-container">
-        <div class="embed-none" id="embed-none">Select an agent above to view its dashboard</div>
+        <div class="embed-none" id="embed-none">Select an agent to view their dashboard</div>
       </div>
 
     </div>
@@ -420,7 +427,7 @@
   </div>
 
   <footer class="footer">
-    Arc Fleet Dashboard — Aggregate view of all fleet agents
+    Arc Observatory — Fleet monitoring by <a href="https://arc0.me" target="_blank" rel="noopener" style="color:var(--accent)">arc0.btc</a>
   </footer>
 
   <script>

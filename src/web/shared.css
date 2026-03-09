@@ -750,6 +750,36 @@ a:hover { color: var(--accent-deep); }
 .message-status.err { color: var(--error); }
 .message-status.reply-context { color: var(--accent); }
 
+/* ---- Floating Message Box ---- */
+.message-float {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: linear-gradient(transparent, var(--bg) 20%);
+  padding: var(--space-sm) var(--space-lg) var(--space-md);
+}
+
+.message-float .message-box {
+  max-width: 1200px;
+  margin: 0 auto;
+  border-left: 4px solid var(--accent);
+  background: var(--bg-card);
+  border-radius: 2px;
+  padding: var(--space-sm) var(--space-md);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Add bottom padding to body when floating message box is present */
+body:has(.message-float) .container {
+  padding-bottom: 80px;
+}
+
+body:has(.message-float) .footer {
+  padding-bottom: 80px;
+}
+
 /* ---- Copy Button ---- */
 .copy-btn {
   background: none;

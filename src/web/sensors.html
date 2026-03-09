@@ -116,26 +116,13 @@
         <a href="/">Activity</a>
         <a href="/sensors" class="active">Sensors</a>
         <a href="/skills">Skills</a>
+        <a href="/identity">Identity</a>
       </nav>
     </div>
   </header>
 
   <!-- Main -->
   <main class="container">
-
-    <!-- Message Box -->
-    <section id="message" class="section">
-      <div class="section-header">
-        <h2 class="section-title">Message Arc</h2>
-      </div>
-      <div class="message-box">
-        <form class="message-form" id="message-form">
-          <textarea class="message-input" id="message-input" placeholder="Send a task to Arc..." rows="1" maxlength="1000" aria-label="Send a task to Arc"></textarea>
-          <button type="submit" class="message-send" id="message-send">Send</button>
-        </form>
-        <div class="message-status" id="message-status" aria-live="polite" aria-atomic="true"></div>
-      </div>
-    </section>
 
     <!-- Sensor Grid -->
     <section id="sensors" class="section">
@@ -164,6 +151,17 @@
     </section>
 
   </main>
+
+  <!-- Floating Message Box -->
+  <div class="message-float">
+    <div class="message-box">
+      <form class="message-form" id="message-form">
+        <textarea class="message-input" id="message-input" placeholder="Send a task..." rows="1" maxlength="1000" aria-label="Send a task"></textarea>
+        <button type="submit" class="message-send" id="message-send">Send</button>
+      </form>
+      <div class="message-status" id="message-status" aria-live="polite" aria-atomic="true"></div>
+    </div>
+  </div>
 
   <!-- Footer -->
   <footer class="footer">
