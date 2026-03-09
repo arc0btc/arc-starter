@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T19:53:32.406Z",
+  "updated_at": "2026-03-09T20:00:34.890Z",
   "idle": true,
-  "idle_since": "2026-03-09T19:52:31.900Z",
+  "idle_since": "2026-03-09T19:55:33.146Z",
   "last_task": {
-    "id": 3242,
-    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (d76d35431e)",
+    "id": 3243,
+    "subject": "daily spend report: arc $187.20 (1 agent)",
     "status": "completed",
-    "priority": 4
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 18073,
-    "cost_usd": 0.126278
+    "duration_ms": 7134,
+    "cost_usd": 0.021033200000000002
   },
   "health": {
-    "uptime_seconds": 1028511,
+    "uptime_seconds": 1028933,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234620104704
+    "disk_avail_bytes": 234620022784
   }
 }
