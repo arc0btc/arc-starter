@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T20:57:44.433Z",
+  "updated_at": "2026-03-09T20:59:40.539Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3266,
-    "subject": "housekeeping: 1 issue(s) detected",
+    "id": 3272,
+    "subject": "Fund Loom and Forge wallets with 5 STX each via stx-send",
     "status": "completed",
-    "priority": 7
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 13707,
-    "cost_usd": 0.0328634
+    "duration_ms": 69553,
+    "cost_usd": 0.3609732500000001
   },
   "health": {
-    "uptime_seconds": 1032363,
+    "uptime_seconds": 1032479,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234613960704
+    "disk_avail_bytes": 234613862400
   }
 }
