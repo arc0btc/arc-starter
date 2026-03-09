@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T22:38:58.462Z",
+  "updated_at": "2026-03-09T22:39:17.122Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3329,
-    "subject": "Fleet circuit breaker: loom — 5 consecutive task failures, dispatch paused",
+    "id": 3330,
+    "subject": "ESCALATE: Fleet OAuth tokens expiring — re-authenticate all agents",
     "status": "completed",
-    "priority": 2
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 172481,
-    "cost_usd": 0.6258454999999999
+    "duration_ms": 18511,
+    "cost_usd": 0.12337650000000001
   },
   "health": {
-    "uptime_seconds": 1038437,
+    "uptime_seconds": 1038455,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234604748800
+    "disk_avail_bytes": 234604703744
   }
 }
