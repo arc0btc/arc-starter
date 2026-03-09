@@ -31,12 +31,15 @@ interface AgentMemory {
   ok: boolean;
   patternsContent: string;
   patternsHash: string;
+  patternsLineCount: number;
   error?: string;
 }
 
 interface HookState {
   lastCollectedAt: string | null;
   agentHashes: Record<string, string>;
+  // Line counts at last collection — used by sensor fast check for delta estimation
+  agentLineCounts: Record<string, number>;
 }
 
 // ---- Hook state ----
@@ -52,7 +55,7 @@ function loadHookState(): HookState {
   } catch {
     // Fall through to default
   }
-  return { lastCollectedAt: null, agentHashes: {} };
+  return { lastCollectedAt: null, agentHashes: {}, agentLineCounts: {} };
 }
 
 async function saveHookState(state: HookState): Promise<void> {
@@ -139,6 +142,7 @@ async function fetchAgentMemory(
       ok: true,
       patternsContent: content,
       patternsHash: simpleHash(content),
+      patternsLineCount: content.split("\n").length,
     };
   } catch (err) {
     return {
@@ -177,6 +181,7 @@ async function cmdCollect(
       patternsContent: "",
       patternsHash: "",
       error: r.reason instanceof Error ? r.reason.message : String(r.reason),
+      patternsLineCount: 0,
     };
   });
 
@@ -242,8 +247,9 @@ async function cmdCollect(
       `  ${mem.agent}: ${agentLearnings.length} total, ${newCount} new (hash ${mem.patternsHash})\n`
     );
 
-    // Update hash in state
+    // Update hash and line count in state (line count used by sensor fast check)
     state.agentHashes[mem.agent] = mem.patternsHash;
+    state.agentLineCounts[mem.agent] = mem.patternsLineCount;
   }
 
   if (newEntries.length === 0) {
