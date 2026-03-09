@@ -348,6 +348,59 @@ async function handleRoundtableRespond(req: Request): Promise<Response> {
   return json({ task_id: taskId, discussion_id: discussionId, status: "pending" }, 201);
 }
 
+// ---- Consensus Vote ----
+
+async function handleConsensusVote(req: Request): Promise<Response> {
+  let body: { proposal_id?: number; topic?: string; description?: string };
+  try {
+    body = await req.json() as { proposal_id?: number; topic?: string; description?: string };
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  const proposalId = typeof body.proposal_id === "number" ? body.proposal_id : 0;
+  if (!proposalId) return errorResponse("'proposal_id' is required (number)", 400);
+
+  const topic = typeof body.topic === "string" ? body.topic.trim() : "";
+  if (!topic) return errorResponse("'topic' is required", 400);
+
+  const description = typeof body.description === "string" ? body.description.trim() : "";
+  if (!description) return errorResponse("'description' is required", 400);
+  if (description.length > 5000) return errorResponse("Description too long (max 5000 chars)", 400);
+
+  // Dedup: check for existing pending/active task for this proposal
+  const source = `consensus:${proposalId}`;
+  const existing = db.query(
+    "SELECT id FROM tasks WHERE source = ? AND status IN ('pending', 'active') LIMIT 1"
+  ).get(source);
+  if (existing) {
+    const ex = existing as { id: number };
+    return json({ error: "Already processing this proposal", task_id: ex.id }, 409);
+  }
+
+  const taskId = insertTask({
+    subject: `[consensus] Vote on proposal #${proposalId}: ${topic}`,
+    description: [
+      `**Fleet Consensus Proposal #${proposalId}**`,
+      "",
+      `**Topic:** ${topic}`,
+      "",
+      description,
+      "",
+      "Evaluate this proposal and cast your vote. Consider: risk, reversibility, alignment with fleet goals.",
+      "",
+      "Cast your vote using:",
+      `\`arc skills run --name fleet-consensus -- vote --id ${proposalId} --vote approve|reject|abstain --reason "YOUR REASONING"\``,
+    ].join("\n"),
+    skills: JSON.stringify(["fleet-consensus"]),
+    priority: 4,
+    model: "opus",
+    source,
+  });
+
+  return json({ task_id: taskId, proposal_id: proposalId, status: "pending" }, 201);
+}
+
 // ---- Fleet Messages ----
 
 async function handlePostFleetMessage(req: Request): Promise<Response> {
@@ -1021,6 +1074,7 @@ function route(req: Request): Response | Promise<Response> {
   if (method === "POST" && path === "/api/ask") return handleAsk(req);
   if (method === "POST" && path === "/api/services/pr-review") return handlePrReview(req);
   if (method === "POST" && path === "/api/roundtable/respond") return handleRoundtableRespond(req);
+  if (method === "POST" && path === "/api/consensus/vote") return handleConsensusVote(req);
 
   // GET: Ask Arc pricing and rate limit info
   if (method === "GET" && path === "/api/ask") {

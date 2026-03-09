@@ -375,6 +375,36 @@ export function initDatabase(): Database {
   `);
   db.run("CREATE INDEX IF NOT EXISTS idx_fleet_messages_created ON fleet_messages(created_at DESC)");
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS consensus_proposals (
+      id INTEGER PRIMARY KEY,
+      topic TEXT NOT NULL,
+      description TEXT NOT NULL,
+      action_payload TEXT,
+      threshold INTEGER DEFAULT 3,
+      total_voters INTEGER DEFAULT 5,
+      status TEXT DEFAULT 'open',
+      proposed_by TEXT DEFAULT 'arc',
+      created_at TEXT DEFAULT (datetime('now')),
+      resolved_at TEXT,
+      expires_at TEXT NOT NULL
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS consensus_votes (
+      id INTEGER PRIMARY KEY,
+      proposal_id INTEGER NOT NULL,
+      agent_name TEXT NOT NULL,
+      vote TEXT NOT NULL,
+      reasoning TEXT,
+      voted_at TEXT NOT NULL,
+      FOREIGN KEY (proposal_id) REFERENCES consensus_proposals(id),
+      UNIQUE(proposal_id, agent_name)
+    )
+  `);
+  db.run("CREATE INDEX IF NOT EXISTS idx_consensus_votes_proposal ON consensus_votes(proposal_id)");
+
   _db = db;
   return db;
 }
