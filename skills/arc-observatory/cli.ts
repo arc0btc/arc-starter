@@ -210,6 +210,7 @@ function handleFleetStatus(): Response {
     agents: snapshots.map((s) => ({
       name: s.name,
       bns: s.bns,
+      url: s.url,
       face_url: s.bns ? `/api/fleet/faces/${getBnsPrefixFromBns(s.bns)}` : null,
       online: s.online,
       latency_ms: s.latency_ms,
@@ -316,12 +317,29 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
   .agent-stats dd { text-align: right; }
   .last-poll { font-size: 0.65rem; color: var(--dim); margin-top: 0.5rem; }
   .error-msg { font-size: 0.7rem; color: var(--red); margin-top: 0.3rem; }
+  .agent-card { cursor: pointer; transition: border-color 0.15s; }
+  .agent-card:hover { border-color: var(--blue); }
+  .agent-card.selected { border-color: var(--blue); box-shadow: 0 0 0 1px var(--blue); }
+  .agent-frame-wrap { margin-top: 1rem; display: none; }
+  .agent-frame-wrap.visible { display: block; }
+  .frame-header { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.75rem; background: var(--card); border: 1px solid var(--blue); border-bottom: none; border-radius: 6px 6px 0 0; font-size: 0.8rem; }
+  .frame-header .frame-title { color: var(--text); }
+  .frame-header .frame-close { color: var(--dim); cursor: pointer; padding: 2px 6px; border-radius: 3px; }
+  .frame-header .frame-close:hover { background: var(--border); color: var(--text); }
+  .agent-frame { width: 100%; height: 80vh; border: 1px solid var(--blue); border-radius: 0 0 6px 6px; background: var(--bg); }
 </style>
 </head>
 <body>
 <h1>arc-observatory <span>// fleet</span></h1>
 <div class="fleet-bar" id="fleet-bar">loading...</div>
 <div class="agents" id="agents"></div>
+<div class="agent-frame-wrap" id="frame-wrap">
+  <div class="frame-header">
+    <span class="frame-title" id="frame-title"></span>
+    <span class="frame-close" id="frame-close">✕ close</span>
+  </div>
+  <iframe class="agent-frame" id="agent-frame" frameborder="0"></iframe>
+</div>
 <script>
 async function refresh() {
   try {
@@ -340,6 +358,11 @@ async function refresh() {
     // Agent cards
     const container = document.getElementById('agents');
     container.innerHTML = data.agents.map(a => agentCard(a)).join('');
+    // Restore selected state after refresh
+    if (selectedAgent) {
+      const sel = container.querySelector('[data-name="' + selectedAgent + '"]');
+      if (sel) sel.classList.add('selected');
+    }
   } catch(e) { console.error('poll failed', e); }
 }
 function stat(label, value) {
@@ -362,12 +385,42 @@ function agentCard(a) {
   }
   const lastPoll = a.last_poll ? '<div class="last-poll">polled ' + new Date(a.last_poll).toLocaleTimeString() + '</div>' : '';
   const error = a.error ? '<div class="error-msg">' + a.error + '</div>' : '';
-  return '<div class="agent-card' + cls + '">' +
+  return '<div class="agent-card' + cls + '" data-url="' + (a.url || '') + '" data-name="' + a.name + '" onclick="selectAgent(this)">' +
     '<div class="agent-header"><div class="agent-identity">' + face +
     '<div class="agent-name-group"><span class="agent-name">' + a.name + '</span>' + bns + '</div>' +
     '</div>' + badge + '</div>' +
     stats + lastPoll + error + '</div>';
 }
+let selectedAgent = null;
+function selectAgent(el) {
+  const url = el.dataset.url;
+  const name = el.dataset.name;
+  if (!url) return;
+  const wrap = document.getElementById('frame-wrap');
+  const frame = document.getElementById('agent-frame');
+  const title = document.getElementById('frame-title');
+  // Toggle off if same agent clicked
+  if (selectedAgent === name) {
+    selectedAgent = null;
+    wrap.classList.remove('visible');
+    frame.src = '';
+    document.querySelectorAll('.agent-card.selected').forEach(c => c.classList.remove('selected'));
+    return;
+  }
+  selectedAgent = name;
+  document.querySelectorAll('.agent-card.selected').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  title.textContent = name + ' dashboard';
+  frame.src = url;
+  wrap.classList.add('visible');
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+document.getElementById('frame-close').addEventListener('click', function() {
+  selectedAgent = null;
+  document.getElementById('frame-wrap').classList.remove('visible');
+  document.getElementById('agent-frame').src = '';
+  document.querySelectorAll('.agent-card.selected').forEach(c => c.classList.remove('selected'));
+});
 refresh();
 setInterval(refresh, 15000);
 </script>
