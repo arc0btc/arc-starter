@@ -101,13 +101,17 @@ async function cmdStatus(): Promise<void> {
       `cd ${REMOTE_ARC_DIR} && ~/.bun/bin/bun -e "
         const { Database } = require('bun:sqlite');
         const db = new Database('db/arc.sqlite', { readonly: true });
-        const row = db.query('SELECT completed_at FROM cycle_log ORDER BY id DESC LIMIT 1').get();
-        if (row && row.completed_at) {
+        const row = db.query('SELECT completed_at, started_at FROM cycle_log ORDER BY id DESC LIMIT 1').get();
+        if (!row) {
+          console.log('no cycles');
+        } else if (!row.completed_at) {
+          const age = Date.now() - new Date(row.started_at).getTime();
+          const mins = Math.round(age / 60000);
+          console.log('active ' + mins + 'm (running)');
+        } else {
           const age = Date.now() - new Date(row.completed_at).getTime();
           const mins = Math.round(age / 60000);
           console.log(mins + 'm ago (' + row.completed_at + ')');
-        } else {
-          console.log('no cycles');
         }
         db.close();
       " 2>/dev/null || echo "query failed"`
