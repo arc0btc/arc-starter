@@ -1,19 +1,19 @@
 {
   "agent": "loom",
-  "updated_at": "2026-03-09T06:08:33.490Z",
+  "updated_at": "2026-03-09T06:09:46.105Z",
   "last_task": {
-    "id": 8,
-    "subject": "Set up Loom git identity and CLI symlink",
+    "id": 13,
+    "subject": "Verify dispatch and sensor services are installed and healthy",
     "status": "completed",
     "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 14838,
-    "cost_usd": 0.107542
+    "duration_ms": 27290,
+    "cost_usd": 0.170624
   },
   "health": {
-    "uptime_seconds": 57400,
+    "uptime_seconds": 57472,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 244888985600
+    "disk_avail_bytes": 244888940544
   }
 }
