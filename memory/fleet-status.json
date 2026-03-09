@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T23:44:06.844Z",
+  "updated_at": "2026-03-09T23:44:40.796Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3391,
-    "subject": "Store Anthropic API key and migrate all fleet agents from OAuth to API key auth",
+    "id": 3398,
+    "subject": "Deploy API key to fleet agents after whoabuddy stores anthropic/api-key credential",
     "status": "blocked",
-    "priority": 3
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 128667,
-    "cost_usd": 0.69786775
+    "duration_ms": 33820,
+    "cost_usd": 0.1663765
   },
   "health": {
-    "uptime_seconds": 1042345,
+    "uptime_seconds": 1042379,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234601328640
+    "disk_avail_bytes": 234601213952
   }
 }
