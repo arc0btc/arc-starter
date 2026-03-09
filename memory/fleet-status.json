@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T10:47:41.440Z",
+  "updated_at": "2026-03-09T10:49:11.436Z",
   "last_task": {
-    "id": 2878,
-    "subject": "Design work distribution: Arc has 396 pending while fleet agents have 0 — build task routing to distribute work across fleet",
+    "id": 2883,
+    "subject": "Fleet alert: spark service issues — dispatch: no cycles, fleet-status.json stale (43m old)",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 335739,
-    "cost_usd": 1.8245359499999998
+    "duration_ms": 89740,
+    "cost_usd": 0.41032199999999996
   },
   "health": {
-    "uptime_seconds": 995760,
+    "uptime_seconds": 995850,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234692874240
+    "disk_avail_bytes": 234692829184
   }
 }
