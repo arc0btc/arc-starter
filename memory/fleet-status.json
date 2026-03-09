@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T18:10:04.700Z",
+  "updated_at": "2026-03-09T18:11:18.293Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3188,
-    "subject": "cost alert: fleet spend $165.99/200 — approaching cap",
+    "id": 3160,
+    "subject": "Fix identity.ts: clear github field for agents without GitHub accounts",
     "status": "completed",
-    "priority": 3
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 16987,
-    "cost_usd": 0.14481
+    "duration_ms": 30334,
+    "cost_usd": 0.22166149999999998
   },
   "health": {
-    "uptime_seconds": 1022303,
+    "uptime_seconds": 1022377,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234638503936
+    "disk_avail_bytes": 234634121216
   }
 }
