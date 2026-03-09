@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T21:21:28.678Z",
+  "updated_at": "2026-03-09T21:21:58.773Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3290,
-    "subject": "Iris: submit first reputation reviews for all fleet peers",
+    "id": 3301,
+    "subject": "Route reputation kickstart tasks to each agent via fleet-handoff",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 80968,
-    "cost_usd": 0.3181815
+    "duration_ms": 29969,
+    "cost_usd": 0.19774175
   },
   "health": {
-    "uptime_seconds": 1033787,
+    "uptime_seconds": 1033817,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234611949568
+    "disk_avail_bytes": 234611908608
   }
 }
