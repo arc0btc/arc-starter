@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T11:33:00.405Z",
+  "updated_at": "2026-03-09T11:33:45.362Z",
   "last_task": {
-    "id": 2730,
-    "subject": "Design agent load balancing: route new tasks to least-busy agent",
+    "id": 2911,
+    "subject": "Fleet alert: spark service issues — dispatch stall: last cycle 43m ago, fleet-status.json stale (43m old)",
     "status": "completed",
-    "priority": 4
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 304174,
-    "cost_usd": 1.2015377000000003
+    "duration_ms": 44697,
+    "cost_usd": 0.2262285
   },
   "health": {
-    "uptime_seconds": 998479,
+    "uptime_seconds": 998524,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234682695680
+    "disk_avail_bytes": 234682671104
   }
 }
