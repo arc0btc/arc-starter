@@ -17,7 +17,13 @@ import {
   createSensorLogger,
   insertTaskIfNew,
 } from "../../src/sensors.ts";
-import { getCredential } from "../../src/credentials.ts";
+import {
+  AGENTS,
+  REMOTE_ARC_DIR,
+  getAgentIp,
+  getSshPassword,
+  ssh,
+} from "../../src/ssh.ts";
 
 const SENSOR_NAME = "fleet-health";
 const INTERVAL_MINUTES = 15;
@@ -25,60 +31,7 @@ const ALERT_SOURCE_PREFIX = "sensor:fleet-health";
 
 const log = createSensorLogger(SENSOR_NAME);
 
-// ---- Fleet config (mirrors arc-remote-setup) ----
-
-interface AgentConfig {
-  ip: string;
-  hostname: string;
-}
-
-const AGENTS: Record<string, AgentConfig> = {
-  spark: { ip: "192.168.1.12", hostname: "spark" },
-  iris: { ip: "192.168.1.13", hostname: "iris" },
-  loom: { ip: "192.168.1.14", hostname: "loom" },
-  forge: { ip: "192.168.1.15", hostname: "forge" },
-};
-
-const SSH_USER = "dev";
-const REMOTE_ARC_DIR = "/home/dev/arc-starter";
 const MEMORY_DIR = new URL("../../memory", import.meta.url).pathname;
-
-// ---- SSH helper ----
-
-interface SshResult {
-  ok: boolean;
-  stdout: string;
-  stderr: string;
-  exitCode: number;
-}
-
-async function getAgentIp(agent: string): Promise<string> {
-  const override = await getCredential("vm-fleet", `${agent}-ip`);
-  if (override) return override;
-  return AGENTS[agent].ip;
-}
-
-async function ssh(ip: string, password: string, command: string): Promise<SshResult> {
-  const proc = Bun.spawn(
-    [
-      "sshpass", "-e", "ssh",
-      "-o", "StrictHostKeyChecking=no",
-      "-o", "ConnectTimeout=10",
-      "-o", "BatchMode=no",
-      `${SSH_USER}@${ip}`,
-      command,
-    ],
-    {
-      env: { ...process.env, SSHPASS: password },
-      stdout: "pipe",
-      stderr: "pipe",
-    }
-  );
-  const stdout = await new Response(proc.stdout).text();
-  const stderr = await new Response(proc.stderr).text();
-  const exitCode = await proc.exited;
-  return { ok: exitCode === 0, stdout, stderr, exitCode };
-}
 
 // ---- Health check logic ----
 
@@ -289,8 +242,10 @@ export default async function fleetHealthSensor(): Promise<string> {
   if (!claimed) return "skip";
 
   // Get SSH password
-  const password = await getCredential("vm-fleet", "ssh-password");
-  if (!password) {
+  let password: string;
+  try {
+    password = await getSshPassword();
+  } catch {
     log("no SSH password configured — skipping");
     return "skip";
   }
