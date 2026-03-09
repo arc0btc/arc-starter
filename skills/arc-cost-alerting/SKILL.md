@@ -1,30 +1,39 @@
 ---
 name: arc-cost-alerting
-description: Monitor daily spend and alert when thresholds are exceeded — sensor-only, fires once per day at $30 default
-updated: 2026-03-05
+description: Monitor daily fleet spend (Claude + Codex) and alert when thresholds are exceeded
+updated: 2026-03-09
 tags:
   - monitoring
   - cost
+  - fleet
 ---
 
 # cost-alerting
 
-Sensor that monitors daily Claude Code spend and creates an alert task when the total exceeds a configurable threshold. Runs every 10 minutes. Creates at most one alert per day.
+Sensor that monitors daily spend across the full agent fleet — including both Claude Code and OpenAI Codex (dual-dispatch) costs. Runs every 10 minutes. Creates at most one alert per day.
 
 ## How It Works
 
-1. Sensor queries `tasks.cost_usd` for today's completed/active tasks
-2. If daily total exceeds the threshold ($100 default), creates a priority-3 alert task
-3. Uses a date-stamped source key (`sensor:arc-cost-alerting:YYYY-MM-DD`) so alerts are once-per-day
-4. The alert task includes the current spend and threshold in its description
+1. Queries local `tasks.cost_usd` for today's tasks, split by Claude vs Codex (`model LIKE 'codex%'`)
+2. SSHes into fleet agents (spark, iris, loom, forge) to query their daily spend
+3. Sums fleet-wide totals including Codex costs
+4. If combined spend exceeds $150 (of $200/day cap), creates a priority-3 alert with per-agent breakdown
 
-## Configuration
+## Thresholds
 
-The threshold is defined as a constant in `sensor.ts`. Default: `$30.00/day` (based on $200/week budget).
+- **Alert threshold:** $150/day (75% of cap)
+- **Daily cap:** $200/day (hard budget)
+
+## Alert Content
+
+Alert tasks include a per-agent cost breakdown showing Claude and Codex spend separately, plus total Codex (OpenAI) spend across the fleet. Unreachable agents are flagged.
 
 ## When to Receive This Task
 
-Sensor-only — never explicitly loaded by dispatch. When you receive a cost alert task (subject: "Daily spend alert: $X exceeds threshold"), review `arc status` and `arc tasks` to identify high-cost tasks. Consider adjusting task priorities (downgrade expensive Opus tasks to Sonnet where appropriate) and close the alert.
+When you receive a cost alert task, review `arc status` and `arc tasks` to identify high-cost tasks. Consider:
+- Downgrading Opus tasks to Sonnet where appropriate
+- Deferring low-priority Codex tasks (OpenAI API costs add up)
+- Pausing fleet agents if over cap
 
 ## Checklist
 
@@ -32,3 +41,5 @@ Sensor-only — never explicitly loaded by dispatch. When you receive a cost ale
 - [x] Frontmatter `name` matches directory name
 - [x] SKILL.md is under 2000 tokens
 - [x] `sensor.ts` exports async default function returning `Promise<string>`
+- [x] Tracks Claude Code + OpenAI Codex costs (dual-dispatch)
+- [x] Fleet-wide aggregation via SSH
