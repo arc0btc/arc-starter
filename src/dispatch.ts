@@ -1354,8 +1354,8 @@ export async function runDispatch(): Promise<void> {
     }
     updateTaskCost(task.id, cost_usd, api_cost_usd, input_tokens, output_tokens);
 
-    // 8c. Schedule retrospective for complex P1-4 tasks on successful completion
-    if (task.priority <= 4) {
+    // 8c. Schedule retrospective for high-value P1-2 tasks only (senior-level reasoning worth learning from)
+    if (task.priority <= 2) {
       const finalStatus = getTaskById(task.id);
       if (finalStatus?.status === "completed") {
         scheduleRetrospective(task, finalStatus.result_summary ?? result.slice(0, 300), result, cost_usd);
