@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T21:56:47.303Z",
+  "updated_at": "2026-03-09T21:58:50.530Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3313,
-    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (4fdd4ceb5e)",
+    "id": 3315,
+    "subject": "Build fleet-task-router sensor: auto-route unassigned tasks to correct agent by skill domain",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 40188,
-    "cost_usd": 0.1299335
+    "duration_ms": 103067,
+    "cost_usd": 0.4950857500000001
   },
   "health": {
-    "uptime_seconds": 1035906,
+    "uptime_seconds": 1036029,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234609885184
+    "disk_avail_bytes": 234609623040
   }
 }

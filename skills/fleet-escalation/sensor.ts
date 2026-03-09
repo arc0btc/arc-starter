@@ -223,6 +223,9 @@ export default async function fleetEscalationSensor(): Promise<string> {
         const source = `sensor:fleet-escalation:${agent}:${task.id}`;
         const reason = task.result_summary || "(no block reason provided)";
 
+        // Use "any" dedupMode — prevents re-escalating after a previous escalation
+        // was completed/failed. The remote task may still be blocked, but we already
+        // handled it. One escalation per source, ever.
         const localTaskId = insertTaskIfNew(source, {
           subject: `Fleet escalation: ${agent} blocked on task #${task.id} — ${task.subject}`,
           description: [
@@ -244,7 +247,7 @@ export default async function fleetEscalationSensor(): Promise<string> {
             .join("\n"),
           priority: 2,
           skills: '["fleet-escalation", "fleet-task-sync"]',
-        });
+        }, "any");
 
         if (localTaskId !== null) {
           const record: EscalationRecord = {
