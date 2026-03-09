@@ -15,7 +15,15 @@
       "subject": "Register on-chain identities for Loom and Forge agents (BNS, Bitcoin, Stacks)",
       "reason": "Wallets exist (Loom: SP1BC4VGS, Forge: SP1WPX34) but 0 STX balance blocks on-chain registration. BNS V2 contract not found. Contact records created (#87/#88). Follow-ups: #138 (fund wallets), #139 (fix BNS), #140 (fix Forge SSH).",
       "escalatedAt": "2026-03-09T18:16:14.339Z"
+    },
+    {
+      "agent": "iris",
+      "remoteTaskId": 191,
+      "localTaskId": 3247,
+      "subject": "Fund Iris wallet with sBTC for x402 inbox messages",
+      "reason": "No sBTC transfer capability exists yet — wallet skill only has stx-send (STX), not SIP-010 token transfers. Created task #192 (P3) to build sbtc-send command in wallet skill. Once built, can fund Iris with sBTC for x402 messages.",
+      "escalatedAt": "2026-03-09T20:17:50.931Z"
     }
   ],
-  "lastChecked": "2026-03-09T20:02:50.995Z"
+  "lastChecked": "2026-03-09T20:17:50.931Z"
 }
