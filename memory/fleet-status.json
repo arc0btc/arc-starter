@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T15:39:43.407Z",
+  "updated_at": "2026-03-09T15:45:45.893Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 2969,
-    "subject": "Remove remaining Arc-only fleet sensors from worker agents (fleet-health, fleet-comms, fleet-dashboard, fleet-escalation, fleet-log-pull, fleet-memory, fleet-sync, arc-cost-alerting)",
+    "id": 2981,
+    "subject": "Sensor audit fleet-wide: each agent reviews own sensors and slims down to basics, remove anything requiring GitHub or unconfigured creds",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 47928,
-    "cost_usd": 0.26721374999999997
+    "duration_ms": 350138,
+    "cost_usd": 1.0600196
   },
   "health": {
-    "uptime_seconds": 1013282,
+    "uptime_seconds": 1013644,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234650820608
+    "disk_avail_bytes": 234650693632
   }
 }
