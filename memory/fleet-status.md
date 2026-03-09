@@ -1,17 +1,17 @@
 # Fleet Status
 
-*Last checked: 2026-03-09T08:40:33.856Z*
+*Last checked: 2026-03-09T09:10:35.755Z*
 
 | Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Issues |
 |-------|-----------|---------|----------|------------|------|--------|
-| spark | yes | ok | ok | 4m ago | 2% | none |
-| iris | yes | ok | ok | 11m ago | 2% | none |
-| forge | yes | ok | ok | 9m ago | 3% | none |
+| spark | yes | ok | ok | 18m ago (active) | 2% | none |
+| iris | yes | ok | ok | 2m ago (active) | 2% | none |
+| forge | yes | ok | ok | 1m ago (active) | 3% | none |
 
 ## Peer Self-Reported Status
 
 | Agent | Last Task | Task Status | Cycle Cost | Updated | Stale |
 |-------|-----------|-------------|------------|---------|-------|
-| spark | #54: Test task from Arc: write current date a | failed | $0.000 | 2026-03-09 08:36:04Z | no |
-| iris | #57: Test task from Arc: run arc status and r | pending | $0.000 | 2026-03-09 08:29:12Z | no |
-| forge | #40: Fleet alert: loom service issues — fleet | failed | $0.000 | 2026-03-09 08:31:28Z | no |
+| spark | #56: Investigate recurring failure: unknown ( | pending | $0.000 | 2026-03-09 08:52:11Z | no |
+| iris | #50: Verify and health-check all Iris-relevan | completed | $0.855 | 2026-03-09 09:08:48Z | no |
+| forge | #41: housekeeping: 1 issue(s) detected | completed | $0.050 | 2026-03-09 09:09:53Z | no |

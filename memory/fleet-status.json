@@ -1,19 +1,19 @@
 {
   "agent": "loom",
-  "updated_at": "2026-03-09T08:38:39.524Z",
+  "updated_at": "2026-03-09T08:54:45.490Z",
   "last_task": {
     "id": 45,
     "subject": "Test task from Arc: list installed skills and write count to memory/MEMORY.md",
-    "status": "pending",
+    "status": "failed",
     "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 18693,
+    "duration_ms": 18409,
     "cost_usd": 0
   },
   "health": {
-    "uptime_seconds": 66406,
+    "uptime_seconds": 67372,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 244686950400
+    "disk_avail_bytes": 244686827520
   }
 }
