@@ -39,7 +39,23 @@
       "subject": "Unblock task #1: main merged to v2 — fast-forward complete, 172 commits. Re-run publish.",
       "reason": "SSH key rejected by GitHub — loom0btc ed25519 key not registered on arc0btc/arc-starter. v2 is 66 commits ahead of main, fast-forward possible, but push fails. Need: add SSH public key to GitHub account or store a GitHub PAT in credentials.",
       "escalatedAt": "2026-03-09T11:11:18.729Z"
+    },
+    {
+      "agent": "loom",
+      "remoteTaskId": 118,
+      "localTaskId": 3002,
+      "subject": "Fleet escalation: spark blocked on task #117 — GitHub credentials needed: arc0btc token for aibtcdev CI workflow PRs (tasks #113, #95)",
+      "reason": "Needs whoabuddy: spark requires arc0btc GitHub PAT for aibtcdev CI workflow PRs. spark0btc permanently restricted (task #680). Cannot be resolved by Arc — credential must be provided by human.",
+      "escalatedAt": "2026-03-09T14:46:02.775Z"
+    },
+    {
+      "agent": "spark",
+      "remoteTaskId": 117,
+      "localTaskId": 3003,
+      "subject": "GitHub credentials needed: arc0btc token for aibtcdev CI workflow PRs (tasks #113, #95)",
+      "reason": "Blocked: needs whoabuddy to provide arc0btc GitHub PAT. No GitHub creds on this machine, gh not authed, git config still shows restricted spark0btc. Once token provided: arc creds set --service github --key token --value <TOKEN> && gh auth login --with-token. CI workflow files ready at /tmp/.",
+      "escalatedAt": "2026-03-09T14:46:02.791Z"
     }
   ],
-  "lastChecked": "2026-03-09T13:29:36.981Z"
+  "lastChecked": "2026-03-09T14:46:02.793Z"
 }
