@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T12:07:08.408Z",
+  "updated_at": "2026-03-09T12:07:45.575Z",
   "last_task": {
-    "id": 2661,
-    "subject": "Create end-of-night summary: compile what got done, what's left, recommendations",
+    "id": 2924,
+    "subject": "Fleet alert: spark service issues — dispatch: no cycles",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 99971,
-    "cost_usd": 0.42296674999999995
+    "duration_ms": 37075,
+    "cost_usd": 0.21342750000000002
   },
   "health": {
-    "uptime_seconds": 1000527,
+    "uptime_seconds": 1000564,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234681290752
+    "disk_avail_bytes": 234681262080
   }
 }
