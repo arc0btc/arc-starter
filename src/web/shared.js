@@ -230,7 +230,15 @@ function applyIdentityHeader(id) {
   var avatar = document.getElementById('header-avatar');
   var name = document.getElementById('header-name-text');
   var bns = document.getElementById('header-bns');
-  if (avatar) avatar.textContent = (id.name || '?')[0].toUpperCase();
+  if (avatar) {
+    var img = document.createElement('img');
+    img.src = '/api/face';
+    img.alt = id.name || 'Agent';
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:inherit;';
+    img.onerror = function() { avatar.textContent = (id.name || '?')[0].toUpperCase(); };
+    avatar.textContent = '';
+    avatar.appendChild(img);
+  }
   if (name) name.textContent = id.name || 'Agent';
   if (bns) bns.textContent = id.bns || '';
   document.title = (id.name || 'Agent') + ' - ' + (document.title.split(' - ').pop() || 'Activity');
