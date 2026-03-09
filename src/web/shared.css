@@ -76,6 +76,10 @@ a:hover { color: var(--accent-deep); }
   flex-shrink: 0;
 }
 
+.avatar-img {
+  object-fit: cover;
+}
+
 .header-name {
   font-size: 1.25rem;
   font-weight: 700;

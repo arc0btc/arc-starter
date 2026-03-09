@@ -16,7 +16,6 @@
 - **Gate → Dedup → Create pattern:** All well-designed sensors follow this: interval gate (`claimSensorRun`), state dedup (hook-state or task check), then task creation. Prevents redundant work.
 - **SHA tracking for code-change dedup:** Hook-state SHA prevents redundant review tasks. Skip if currentSha == lastReviewedSha AND !diagramStale.
 - **Score-based auto-queue:** Hook-state.lastBriefDate prevents same-day re-queue. Extends to all time-gated operations.
-- **Health sensor false positives:** When health alert fires between cycle transitions (prior cycle complete, metrics not yet written), dispatch immediately picks up alert task and executes verification. Investigation confirms all services healthy. Expected behavior, not an outage. Validates architecture: sensors can be conservative (low false-negative cost); dispatch has capacity for immediate verification.
 - **Pagination field nesting:** Never assume `total`, `page`, or `count` are at response root — often nested in `pagination` or `meta`. Verify actual JSON structure.
 - **Dedup at platform integration layer:** When multiple sensors watch the same external system, dedup must happen at the *event source*. Prevents double-posts and preserves sensor independence.
 - **Sensor coverage gaps:** When critical items aren't caught by sensors, explicitly queue review tasks. Sensors optimize happy path; explicit queuing handles coverage edge cases.
@@ -38,15 +37,16 @@
 
 - **3-tier model routing:** P1-4 → Opus (senior), P5-7 → Sonnet (mid), P8+ → Haiku (junior). Priority doubles as model selector + urgency flag.
 - **Token optimization:** Hardcoded for P4+ tasks (MAX_THINKING_TOKENS=10000, AUTOCOMPACT=50). Provides session stability + thinking budget preservation.
-- **Cost lever: model selection > cycle count:** Opus-tier tasks consumed 59% of 7-day budget despite being minority of cycles. Downgrading one high-value sensor from Opus→Sonnet saves more than eliminating 50 Haiku tasks.
 - **Sensor cost governance at design time:** Review sensors became cost sinks because intervals were set without budget awareness. Explicit cost tier per sensor at creation + interval governance during review.
 - **Dispatch-level cost caps > tactical downgrades:** Budget overruns require structural fix. Hard cost cap at dispatch (e.g., $40/day) prevents runaway regardless of queue state.
 - **Retrospective tasks need at least Sonnet tier (P7):** Haiku (5min timeout) is insufficient for reading multiple task records, extracting patterns, and writing to memory.
+- **Extensible SDK dispatch via model field:** Support multiple execution backends (Claude Code, OpenRouter, Codex CLI, future integrations) by defining a routing hierarchy checked in priority order; first available wins. Use task `model` field for routing (e.g., `codex`, `codex:o3`, `openrouter`) parsed via `parseTaskSdk()` into `{ sdk, model }` tuple. Dispatch checks `sdk` field before falling through to next backend.
+- **Subprocess cost estimation for CLI backends:** When integrating CLI-based backends (Codex, local models), estimate cost from known pricing tables rather than making API calls to estimate. Spawn CLI, capture output, parse pricing from input tokens. Avoids embedding API credentials in dispatch and is faster than external API roundtrips.
 
 ## Task Chaining & Precondition Gates
 
-- **Stop chain at human-dependency boundary:** When a task hits a blocker requiring external human action, escalate ONCE then stop. Do NOT create monitor/retry chains waiting for external state.
-- **Monitor tasks need exit conditions:** Without a delivery timeline, monitoring generates noise. Create a single `blocked` task with result_summary; let human trigger next step.
+- **Stop chain at human-dependency boundary:** When a task hits a blocker requiring external human action, escalate ONCE, set `blocked` with result_summary, then stop. Do NOT create monitor/retry chains waiting for external state; let human trigger next step.
+- **Infrastructure state validation before dependent task queuing:** When provisioning chains depend on external infrastructure state (SSH auth, network access, service availability), validate state before queuing dependent tasks. Prevents queue bloat from tasks queued to pending that fail immediately due to unmet prerequisites.
 - **Rate-limit retries MUST use `--scheduled-for`:** When a 429 includes retry-after, the follow-up task MUST be scheduled. Without it, dispatch picks up immediately and hits the limit again. Parse `retry_after` → compute expiry + 5min → `arc tasks add --scheduled-for <timestamp>`.
 - **Rate-limit retry chains collapse into scope creep:** Simple tasks become spiral failures when agents violate SKILL.md rules: scope creep, duplicate retries, wrong priority. Follow SKILL.md literally — ONE scheduled retry at correct priority, stop.
 - **x402 relay settlement failure ≠ 429:** Settlement error (sponsor nonce state) requires investigation, not retry. Check error class before creating retry tasks.
@@ -59,6 +59,7 @@
 ## Integration Patterns
 
 - **Wallet-aware skill runner pattern:** Stateful singletons hold unlock state in memory; subprocess isolation breaks this. Dedicated runner unlocks singleton within same process, locks on exit.
+- **Wallet generation network defaults to testnet:** Wallet creation CLIs (Stacks, Bitcoin) generate testnet addresses by default. Always explicitly pass `NETWORK=mainnet` when provisioning production agents to avoid generating unusable testnet credentials (task #2233: initial generation got testnet addresses).
 - **Cross-repo skill deployment:** Split skills into upstream (pure SDK binding) + local (wallet-aware wrapper). Read-only commands pass through to upstream; stateful ops stay local.
 - **Environment variable propagation in thin wrappers:** Wrappers delegating to upstream code must explicitly pass all required env vars (NETWORK, DEBUG, etc.); do not assume inheritance. Silent failure mode: wrapper runs but queries return testnet/wrong-network data without error.
 - **Multi-network wrapper debugging requires full stack trace:** When wrapper queries fail or return inconsistent data across network types, trace entire call chain (wrapper invocation → env vars passed → upstream implementation → network routing). Bugs hide at wrapper layer (missing env), upstream layer (wrong default), or network detection.
@@ -90,11 +91,15 @@
 - **Encoding choice affects rendering:** When publishing to multiple blockchain explorers, verify how each platform renders different MIME types. Encoding is a rendering contract, not aesthetic.
 - **Governance decisions as execution blockers:** Detect decision blocker → escalate once with full context → set task to `blocked`/`failed` → wait for human trigger. Do NOT create monitoring chains.
 - **Auto-generated docs navigation from file structure:** Use file-system structure as the source of truth for docs navigation (e.g., Astro's `autogenerate` option). When navigation is derived from file tree, new capability/doc files auto-appear in sidebar without manual config edits. Prevents nav drift and scales gracefully.
+- **Deployment source alignment before release:** Services deployed from stale branches miss features and fail consistency checks. Pre-deployment: verify source branch is current with intended baseline (`git rev-list --count main...HEAD == 0`). If diverged, merge to main before deploying. Applies to all infrastructure deployment (wrangler, Docker, etc.).
+
+## Scope & Role Boundaries
+
+- **Arc is teacher/mentor in AIBTC, not bounty hunter:** Before pursuing any AIBTC bounty, verify (1) it's still unclaimed and (2) the role is appropriate. Bounties are often already grabbed by the time a task is queued.
 
 ## Engagement & Budget Patterns
 
 - **Early budget validation:** Enforce budget checks BEFORE API calls. `checkBudget(action)` runs first; only then call API.
-- **ISO date string for daily resets:** Use `new Date().toISOString().slice(0, 10)` for daily budget resets. Automatically resets at UTC midnight.
 - **Corrective actions are unbudgeted:** Unlike/unretweet are free undo operations; no budget check needed.
 
 ## Git & Publishing Patterns
@@ -124,11 +129,7 @@
 - **Multisig asset sales coordination:** Separate coordination from execution: identify multisig → message signers with terms → track ID for sensor monitoring → queue PSBT execution when responses arrive. **Validation protocol:** Before signing any transfer PSBT, programmatically validate that outputs return value to multisig address. Block signing if all value flows outward; provide explicit override flag (`--allow-unpaid-transfer`) for intentional transfers. Error message must show rejected outputs + amounts so operator can audit and decide. This prevents atomic swap failure = loss.
 - **Escalation decision audit in task chains:** When a prior task explicitly declined to sign/execute (due to price, risk, terms), subsequent tasks on same parent chain must re-verify escalation status, not proceed automatically. Escalations are hard stops, not notifications.
 - **Batch blocked task escalations by decision type:** When multiple pending tasks depend on the same stakeholder's decision, group them in a single escalation communication. Single consolidated email > separate notifications; reduces fatigue and provides holistic context (task #2109 example: 4 blocked tasks, 3 decision types, 1 email).
-
-## Contacts & Enrichment Patterns
-
-- **Privacy marking for human operators:** Use `[PRIVATE]` markers in notes to prevent accidental doxxing of associated people.
-- **Milestone tracking for capability verification:** Contact value grows from capability timelines (specific dates, first successful operations), not just static facts.
+- **Fleet state audit before rollout authorization:** When stakeholder approves fleet-wide changes (AIBTC registration, heartbeats, config rollout), audit all agents first to discover gaps (missing files, divergent configs) before queuing implementation. Include audit findings in authorization reply so stakeholder sees complete picture (task #2258: approved AIBTC for fleet, discovered SOUL.md missing on iris/loom/forge, queued verification before implementation).
 
 ## Task Composition & Scoping
 

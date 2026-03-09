@@ -1253,6 +1253,174 @@ Steps:
 };
 
 /**
+ * OvernightBriefMachine — models the recurring overnight brief → retrospective cycle.
+ *
+ * Pattern detected: "sensor:arc-reporting-overnight" tasks (3 recurrences, avg 2.0 steps)
+ * consistently spawn a retrospective to extract learnings from each brief.
+ * This machine deduplicates concurrent brief tasks for the same date and ensures
+ * a retrospective always follows.
+ *
+ * instance_key: "overnight-brief-{YYYY-MM-DD}" (one per day)
+ *
+ * States:
+ *   pending               → creates the overnight brief task
+ *   briefing              → brief executing; waiting for completion
+ *   retrospective_pending → brief complete; create retrospective to extract learnings
+ *   completed             → done
+ *
+ * Context:
+ *   date           — ISO date string, e.g. "2026-03-08"
+ *   briefTaskRef   — "task:{id}" of the overnight brief (populated after briefing starts)
+ *   briefSummary   — optional short summary from the brief (populated before retrospective)
+ */
+export const OvernightBriefMachine: StateMachine<{
+  date?: string;
+  briefTaskRef?: string;
+  briefSummary?: string;
+}> = {
+  name: "overnight-brief",
+  initialState: "pending",
+  states: {
+    pending: {
+      on: { start: "briefing" },
+      action: (ctx) => {
+        const date = ctx.date || new Date().toISOString().slice(0, 10);
+        return {
+          type: "create-task",
+          subject: `Overnight brief — ${date}`,
+          priority: 6,
+          skills: ["arc-reporting", "arc-skill-manager"],
+          description: `Generate the overnight brief for ${date}.
+
+Steps:
+1. Run arc-reporting skill to produce the nightly summary
+2. Transition this workflow to 'briefing', set briefTaskRef to "task:{this-task-id}"
+3. After completing the brief, set briefSummary (1-2 sentence summary of key findings)
+4. Transition to 'retrospective_pending'`,
+        };
+      },
+    },
+    briefing: {
+      on: { complete: "retrospective_pending" },
+      action: () => null,
+    },
+    retrospective_pending: {
+      on: { learnings_extracted: "completed" },
+      action: (ctx) => {
+        const date = ctx.date || "unknown date";
+        return {
+          type: "create-task",
+          subject: `Retrospective: extract learnings from overnight brief — ${date}`,
+          priority: 8,
+          skills: ["arc-reporting", "arc-skill-manager"],
+          description: `Extract learnings from the overnight brief for ${date}.
+${ctx.briefTaskRef ? `Brief task: ${ctx.briefTaskRef}` : ""}
+${ctx.briefSummary ? `Brief summary: ${ctx.briefSummary}` : ""}
+
+Steps:
+1. Review the overnight brief and identify patterns, insights, or anomalies
+2. Note any recurring issues or improvements for future briefs in memory/MEMORY.md
+3. Transition workflow to 'completed'`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
+ * FleetAlertMachine — models the recurring fleet alert → fix → retrospective cycle.
+ *
+ * Pattern detected: "fleet alert" tasks (4 recurrences, avg 2.0 steps/chain)
+ * consistently spawn a retrospective to capture learnings after resolving remote
+ * agent service issues. Distinct from HealthAlertMachine: fleet alerts target
+ * remote nodes and require fleet-health + arc-remote-setup skills.
+ *
+ * instance_key: "fleet-alert-{agent-slug}-{YYYY-MM-DD}" (dedup multiple alerts per agent per day)
+ *
+ * States:
+ *   alert                 → service issue detected on remote agent; creates investigation/fix task
+ *   fixing                → fix task executing; waiting for resolution
+ *   retrospective_pending → resolved; create retrospective to capture learnings
+ *   completed             → done
+ *
+ * Context:
+ *   agentName         — remote agent name, e.g. "iris", "loom"
+ *   alertDescription  — short description, e.g. "dispatch: no cycles", "services down"
+ *   alertDate         — ISO date string (for dedup / reference)
+ *   taskRef           — "task:{id}" of the original fleet alert task
+ *   fixSummary        — brief description of how it was resolved (populated before retrospective)
+ */
+export const FleetAlertMachine: StateMachine<{
+  agentName?: string;
+  alertDescription?: string;
+  alertDate?: string;
+  taskRef?: string;
+  fixSummary?: string;
+}> = {
+  name: "fleet-alert",
+  initialState: "alert",
+  states: {
+    alert: {
+      on: { investigate: "fixing" },
+      action: (ctx) => {
+        const agent = ctx.agentName || "unknown-agent";
+        const desc = ctx.alertDescription
+          ? ` — ${ctx.alertDescription}`
+          : "";
+        return {
+          type: "create-task",
+          subject: `Fleet alert: ${agent} service issues${desc}`,
+          priority: 5,
+          skills: ["fleet-health", "arc-remote-setup", "arc-skill-manager"],
+          description: `Fleet health alert for remote agent "${agent}"${ctx.alertDate ? ` on ${ctx.alertDate}` : ""}.
+Issue: ${ctx.alertDescription || "service issues detected"}${ctx.taskRef ? `\nOriginal alert: ${ctx.taskRef}` : ""}
+
+Steps:
+1. Run fleet-health CLI to check service status on ${agent}
+2. Identify the root cause (dispatch stalled, services crashed, connectivity, etc.)
+3. Apply fix via arc-remote-setup if needed (restart services, clear stale locks, etc.)
+4. Verify services are healthy before closing
+5. Transition this workflow to 'fixing', then 'retrospective_pending'
+6. Set fixSummary in context before transitioning`,
+        };
+      },
+    },
+    fixing: {
+      on: { resolved: "retrospective_pending" },
+      action: () => null,
+    },
+    retrospective_pending: {
+      on: { learnings_extracted: "completed" },
+      action: (ctx) => {
+        const agent = ctx.agentName || "unknown-agent";
+        return {
+          type: "create-task",
+          subject: `Retrospective: fleet alert — ${agent} service issues`,
+          priority: 8,
+          skills: ["arc-skill-manager"],
+          description: `Extract learnings from a fleet health alert for remote agent "${agent}".
+${ctx.taskRef ? `Original alert: ${ctx.taskRef}` : ""}${ctx.fixSummary ? `\nFix applied: ${ctx.fixSummary}` : ""}${ctx.alertDate ? `\nAlert date: ${ctx.alertDate}` : ""}
+
+Steps:
+1. Review what caused the service failure on ${agent}
+2. Identify if this is a recurring pattern across fleet nodes
+3. Note prevention measures or monitoring improvements in memory/MEMORY.md if recurring
+4. Transition workflow to 'completed'`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -1274,6 +1442,8 @@ export function getTemplateByName(name: string): StateMachine | null {
     "site-health-alert": SiteHealthAlertMachine,
     "recurring-failure": RecurringFailureMachine,
     "health-alert": HealthAlertMachine,
+    "overnight-brief": OvernightBriefMachine,
+    "fleet-alert": FleetAlertMachine,
   };
   return templates[name] || null;
 }

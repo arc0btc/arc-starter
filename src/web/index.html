@@ -486,9 +486,12 @@
       var card = document.getElementById('identity-card');
 
       var addrRows = [
-        { label: 'BTC', value: identity.btc, explorer: 'https://mempool.space/address/' + identity.btc },
-        { label: 'STX', value: identity.stx, explorer: 'https://explorer.hiro.so/address/' + identity.stx },
+        { label: 'L1 (segwit)', value: identity.btc_segwit || identity.btc, explorer: 'https://mempool.space/address/' + (identity.btc_segwit || identity.btc) },
       ];
+      if (identity.btc_taproot) {
+        addrRows.push({ label: 'L1 (taproot)', value: identity.btc_taproot, explorer: 'https://mempool.space/address/' + identity.btc_taproot });
+      }
+      addrRows.push({ label: 'L2 (stacks)', value: identity.stx, explorer: 'https://explorer.hiro.so/address/' + identity.stx });
 
       var rowsHtml = addrRows.map(function(r) {
         return '<div class="identity-row">'
@@ -598,6 +601,7 @@
     // ---- Init ----
 
     async function init() {
+      loadIdentity('Activity');
       try {
         var results = await Promise.allSettled([
           fetchJSON('/api/status'),

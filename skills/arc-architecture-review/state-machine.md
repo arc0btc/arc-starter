@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-08T13:05:00.000Z*
+*Generated: 2026-03-09T00:41:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -37,10 +37,12 @@ stateDiagram-v2
         RunAllSensors --> defiBitflowSensor: defi-bitflow
         RunAllSensors --> emailSensor: arc-email-sync
         RunAllSensors --> failureTriageSensor: arc-failure-triage
+        RunAllSensors --> fleetHealthSensor: fleet-health
         RunAllSensors --> githubMentionsSensor: github-mentions
         RunAllSensors --> healthSensor: arc-service-health
         RunAllSensors --> heartbeatSensor: arc-alive-check
         RunAllSensors --> housekeepingSensor: arc-housekeeping
+        RunAllSensors --> introspectionSensor: arc-introspection
         RunAllSensors --> manageSkillsSensor: arc-skill-manager
         RunAllSensors --> quorumclawSensor: bitcoin-quorumclaw
         RunAllSensors --> releaseWatcherSensor: github-release-watcher
@@ -49,6 +51,7 @@ stateDiagram-v2
         RunAllSensors --> schedulerSensor: arc-scheduler
         RunAllSensors --> securityAlertsSensor: github-security-alerts
         RunAllSensors --> selfAuditSensor: arc-self-audit
+        RunAllSensors --> siteConsistencySensor: site-consistency
         RunAllSensors --> stacksMarketSensor: defi-stacks-market
         RunAllSensors --> stackspotSensor: stacks-stackspot
         RunAllSensors --> workerLogsSensor: github-worker-logs
@@ -69,12 +72,14 @@ stateDiagram-v2
         RunAllSensors --> arcBlockedReviewSensor: arc-blocked-review
         RunAllSensors --> workerDeploySensor: worker-deploy
         RunAllSensors --> defiZestSensor: defi-zest
+        RunAllSensors --> erc8004ReputationSensor: erc8004-reputation
 
         note right of RunAllSensors
-            50 sensors total (+1 since 2026-03-08T00:40Z)
-            defi-zest: new — 360min, Zest Protocol sBTC position monitor; alerts on >10% decline
-            arc-blocked-review: 120min, reviews blocked tasks for unblock signals
-            worker-deploy: 5min, SHA-gated auto-deploy arc0btc-worker to CF Workers
+            54 sensors total (+4 since 2026-03-08T13:05Z)
+            fleet-health: new — 15min, SSH checks spark/iris/loom/forge; alerts P3
+            arc-introspection: new — 1440min, qualitative daily self-assessment P5
+            site-consistency: new — 1440min, arc0.me vs arc0btc.com structural drift P3
+            erc8004-reputation: new — reputation state tracking
         end note
 
         state "Generic Sensor Pattern" as genericSensor {
@@ -97,6 +102,22 @@ stateDiagram-v2
             architectDedup --> architectCreateTask: no dupe
             architectCreateTask --> [*]: insertTask() P7 sonnet
             architectSkip --> [*]: return skip
+        }
+
+        state fleetHealthSensor {
+            [*] --> fleetHealthGate: claimSensorRun(fleet-health, 15min)
+            fleetHealthGate --> fleetHealthSkip: interval not elapsed
+            fleetHealthGate --> fleetHealthSSH: interval elapsed
+            fleetHealthSSH --> fleetHealthWrite: SSH all VMs (spark/iris/loom/forge)
+            fleetHealthWrite --> fleetHealthSkip: all VMs healthy — write fleet-status.md
+            fleetHealthWrite --> fleetHealthAlert: issues detected
+            fleetHealthAlert --> [*]: insertTask() P3 fleet alert
+            fleetHealthSkip --> [*]: return ok/skip
+            note right of fleetHealthSSH
+                Checks per VM: sensor timer active,
+                dispatch timer active, last dispatch age,
+                disk usage. Writes memory/fleet-status.md.
+            end note
         }
 
         state housekeepingSensor {
@@ -221,13 +242,21 @@ stateDiagram-v2
         PickTask --> BuildPrompt: highest priority task
 
         state BuildPrompt {
-            [*] --> SelectModel: task.model (explicit) or task.priority fallback
+            [*] --> SelectSDK: task.model prefix (codex:* = Codex, else = Claude/OpenRouter)
+            SelectSDK --> SelectModel: sdk resolved
             SelectModel --> LoadCore: explicit model wins; else P1-4→opus, P5-7→sonnet, P8+→haiku
             LoadCore --> LoadSkills: SOUL.md + CLAUDE.md + MEMORY.md
             LoadSkills --> LoadSkillMd: task.skills JSON array
             LoadSkillMd --> AssemblePrompt: SKILL.md content
             note right of LoadSkillMd: Only SKILL.md loaded\nAGENT.md stays for subagents
             note right of SelectModel: Priority = urgency\nModel = work complexity\nOrthogonal since 2026-03-04
+            note right of SelectSDK
+                SDK routing (2026-03-08):
+                codex:* → Codex CLI (--full-auto)
+                OPENROUTER_API_KEY set → OpenRouter
+                default → Claude Code CLI
+                Routing: codex > openrouter > claude-code
+            end note
         }
 
         BuildPrompt --> WriteLock: markTaskActive()
@@ -254,14 +283,19 @@ stateDiagram-v2
 
     state CLI {
         [*] --> ArcCommand: arc <subcommand>
-        ArcCommand --> TasksCRUD: tasks add/close/list
+        ArcCommand --> TasksCRUD: tasks add/close/list/update
         ArcCommand --> SkillsRun: skills run --name X
         ArcCommand --> ManualDispatch: run
         ArcCommand --> StatusView: status
+        note right of TasksCRUD
+            tasks update: --id --subject --description
+            --priority --model --status pending
+            (--status pending = requeue failed/blocked tasks)
+        end note
     }
 
     note right of CLI
-        Skills with CLI (46):
+        Skills with CLI (49):
         aibtc-dev-ops, aibtc-news-classifieds,
         aibtc-news-editorial, aibtc-repo-maintenance,
         arc-brand-voice, arc-architecture-review,
@@ -270,18 +304,19 @@ stateDiagram-v2
         arc-email-sync, arc-failure-triage,
         arc-housekeeping, arc-link-research,
         arc-mcp-server, arc-performance-analytics,
-        arc-reputation, arc-skill-manager,
-        arc-starter-publish, arc-web-dashboard,
-        arc-workflows, arc-worktrees,
-        arc0btc-monetization, arc0btc-site-health,
-        arxiv-research, bitcoin-quorumclaw,
-        bitcoin-taproot-multisig, bitcoin-wallet,
-        blog-deploy, blog-publishing,
-        contacts, dao-zero-authority,
-        defi-bitflow, defi-stacks-market, defi-zest,
+        arc-remote-setup, arc-reputation,
+        arc-skill-manager, arc-starter-publish,
+        arc-web-dashboard, arc-workflows,
+        arc-worktrees, arc0btc-monetization,
+        arc0btc-site-health, arxiv-research,
+        bitcoin-quorumclaw, bitcoin-taproot-multisig,
+        bitcoin-wallet, blog-deploy, blog-publishing,
+        contacts, dao-zero-authority, defi-bitflow,
+        defi-stacks-market, defi-zest,
         erc8004-identity, erc8004-reputation,
         erc8004-trust, erc8004-validation,
-        github-worker-logs, quest-create,
+        fleet-health, github-worker-logs,
+        quest-create, site-consistency,
         social-agent-engagement, social-x-posting,
         styx, worker-deploy, worker-logs-monitor
     end note
@@ -298,7 +333,9 @@ stateDiagram-v2
 | 3a | TOCTOU guard | Lock acquired BEFORE task selection | Atomic: lock->pick (commit 05de76d) |
 | 3b | Circuit breaker | hook-state/dispatch-circuit.json | Opens after 3 consecutive failures; skips 15min; half-open probe |
 | 4 | Task selection | All pending tasks sorted | Priority ASC, ID ASC |
-| 4a | Model routing | task.model (explicit) or task.priority | Explicit wins; else P1-4->opus, P5-7->sonnet, P8+->haiku |
+| 4a | SDK routing | task.model prefix | codex:* → Codex CLI; else → Claude/OpenRouter |
+| 4b | Model routing | task.model (explicit) or task.priority | Explicit wins; else P1-4->opus, P5-7->sonnet, P8+->haiku |
+| 4c | Backend selection | OPENROUTER_API_KEY env var | codex > openrouter > claude-code |
 | 5 | Skill loading | `task.skills` JSON array | SKILL.md existence |
 | 6 | Prompt assembly | SOUL + CLAUDE + MEMORY + skills | Token budget ~40-50k |
 | 7 | LLM execution | Full prompt + CLI access | `arc` commands only |
@@ -323,8 +360,9 @@ stateDiagram-v2
 | streak-maintenance | pending→attempting→rate_limited→completed | aibtc-news-editorial | Rate-limit aware; windowOpenAt schedules retry; MAX_RETRIES=3 cap (returns null after 3rd retry — stalls for human intervention); instance_key: streak-{beat}-{date} |
 | agent-collaboration | received→triaged→ops_pending→retrospective_pending→completed | aibtc-inbox-sync | AIBTC inbox thread → triage → ops → learning capture; instance_key: agent-collab-{sender}-{date} |
 | recurring-failure | detected→investigating→fix_pending→fixing→retrospective_pending→completed | arc-failure-triage | Recurring failure investigation chain; fix task P5/sonnet (was P4/opus — investigation does hard thinking); retro P8/haiku; instance_key: recurring-failure-{type}-{YYYY-MM-DD} |
+| overnight-brief | scheduled→generating→retrospective_pending→completed | arc-reporting | OvernightBriefMachine — overnight brief → retrospective cycle; instance_key: overnight-brief-{YYYY-MM-DD} |
 
-## Skills Inventory (74 total)
+## Skills Inventory (79 total)
 
 | Skill | Sensor | CLI | Agent | Description |
 |-------|--------|-----|-------|-------------|
@@ -342,17 +380,19 @@ stateDiagram-v2
 | arc-catalog | yes | yes | - | Generate and publish skills/sensors catalog to arc0me-site (120min) |
 | arc-ceo-review | yes | - | yes | CEO reviews watch reports and manages task queue |
 | arc-ceo-strategy | - | - | yes | Strategic operating manual — treat yourself as CEO |
-| claude-code-releases | - | - | - | Applicability research on Claude Code releases — triggered by github-release-watcher |
 | arc-content-quality | - | yes | - | Pre-publish quality gate — detects AI writing patterns |
 | arc-cost-alerting | yes | - | - | Monitor daily spend and alert on thresholds |
 | arc-credentials | - | yes | yes | Encrypted credential store for API keys and secrets |
 | arc-dispatch-evals | - | yes | yes | Dispatch quality evaluation — error analysis, LLM judges |
+| arc-dual-sdk | - | - | - | Documents multi-SDK routing: Claude Code, Codex CLI, OpenRouter (orchestrator context loader) |
 | arc-email-sync | yes | yes | yes | Sync email from arc-email-worker, read and send email |
 | arc-failure-triage | yes | yes | yes | Detect recurring failure patterns, escalate (dismissed/crash-recovery filters) |
 | arc-housekeeping | yes | yes | yes | Repo hygiene — locks, WAL size, memory bloat, archival, stale worktrees |
+| arc-introspection | yes | - | - | Daily qualitative self-assessment — synthesizes 24h into reflection task (P5, 1440min) |
 | arc-link-research | - | yes | yes | Process batches of links into research reports |
 | arc-mcp-server | - | yes | - | MCP server exposing task queue, skills, memory |
 | arc-performance-analytics | - | yes | - | Cost/token analytics by model tier, skill, and time period |
+| arc-remote-setup | - | yes | - | SSH-based VM provisioning for agent fleet (spark/iris/loom/forge) — 8 idempotent steps |
 | arc-report-email | yes | - | - | Email watch reports when generated |
 | arc-reporting | yes | - | yes | Watch reports (HTML, 6h) and overnight briefs (markdown, 6am PST) |
 | arc-reputation | yes | yes | - | Signed peer reviews via BIP-322, local SQLite storage, give-feedback CLI |
@@ -375,6 +415,7 @@ stateDiagram-v2
 | bitcoin-wallet | - | yes | yes | Wallet management and cryptographic signing |
 | blog-deploy | yes | yes | - | Auto-deploy arc0me-site on content changes |
 | blog-publishing | yes | yes | yes | Create, manage, and publish blog posts |
+| claude-code-releases | - | - | - | Applicability research on Claude Code releases — triggered by github-release-watcher |
 | compliance-review | yes | - | - | Structural, interface, and naming compliance audits |
 | contacts | yes | yes | yes | Contact management — agents, humans, addresses, handles, interaction history |
 | context-review | yes | - | - | Audit whether tasks load correct skills context |
@@ -384,9 +425,10 @@ stateDiagram-v2
 | defi-zest | yes | yes | - | Zest Protocol yield farming — supply, withdraw, claim rewards, position monitoring (360min) |
 | dev-landing-page-review | - | - | yes | Full React/Next.js PR review — performance + composition + UI/accessibility |
 | erc8004-identity | - | yes | yes | On-chain agent identity management |
-| erc8004-reputation | - | yes | yes | On-chain agent reputation management |
+| erc8004-reputation | yes | yes | yes | On-chain agent reputation management |
 | erc8004-trust | - | yes | - | Aggregate trust score from reputation + validation — CLI only, on-demand |
 | erc8004-validation | - | yes | yes | On-chain agent validation management |
+| fleet-health | yes | yes | - | Monitor agent fleet VMs (spark/iris/loom/forge) via SSH — 15min, alerts P3 |
 | github-ci-status | yes | - | - | Monitors GitHub Actions CI runs |
 | github-issue-monitor | yes | - | - | Issue monitoring for managed repos (re-enabled 2026-03-05, 24h recency filter) |
 | github-mentions | yes | - | - | GitHub @mentions with managed/external repo classification |
@@ -394,6 +436,7 @@ stateDiagram-v2
 | github-security-alerts | yes | - | - | Monitor dependabot security alerts |
 | github-worker-logs | yes | yes | yes | Sync worker-logs forks, monitor production events |
 | quest-create | - | yes | yes | Decompose complex tasks into sequential phases with checkpoint-based execution |
+| site-consistency | yes | yes | - | Cross-site structural drift detection: arc0.me vs arc0btc.com (1440min, P3) |
 | social-agent-engagement | yes | yes | - | Proactive outreach to AIBTC network agents |
 | social-x-ecosystem | yes | - | - | Monitor X for ecosystem keywords (Bitcoin/Stacks/AIBTC/Claude Code); file research tasks (15min rotation) |
 | social-x-posting | yes | yes | yes | Post tweets, read timeline, poll @mentions on X; engagement commands with daily budget |

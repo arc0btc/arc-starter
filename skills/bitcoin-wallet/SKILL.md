@@ -1,7 +1,7 @@
 ---
 name: bitcoin-wallet
-description: Wallet management and cryptographic signing for Stacks and Bitcoin — unlock, lock, info, status, BTC/Stacks message signing, and BTC signature verification.
-updated: 2026-03-05
+description: Wallet management, cryptographic signing, and STX transfers for Stacks and Bitcoin — unlock, lock, info, status, BTC/Stacks message signing, BTC signature verification, and STX sending.
+updated: 2026-03-09
 tags:
   - infrastructure
   - sensitive
@@ -32,6 +32,7 @@ arc skills run --name wallet -- status
 arc skills run --name wallet -- btc-sign --message "text"
 arc skills run --name wallet -- stacks-sign --message "text"
 arc skills run --name wallet -- btc-verify --message "text" --signature "sig" [--expected-signer "addr"]
+arc skills run --name wallet -- stx-send --recipient <STX address> --amount-stx <number> [--memo "text"]
 arc skills run --name wallet -- check-relay-health [--relay-url <url>] [--sponsor-address <address>]
 arc skills run --name wallet -- x402 <x402-subcommand> [flags]
 ```
@@ -60,6 +61,19 @@ Sign a plain text message. Auto-unlocks and locks the wallet internally — no m
 
 Verify a Bitcoin message signature. Accepts `--expected-signer` to check against a specific address. No unlock required.
 
+### stx-send
+
+Send STX to a recipient address. Auto-unlocks and locks the wallet internally.
+
+**Flags:**
+- `--recipient` (required): Stacks address (SP... for mainnet, ST... for testnet)
+- `--amount-stx` (required): Amount in STX (e.g. `2` or `0.5`). Converted to micro-STX internally.
+- `--memo` (optional): Memo string to attach to the transfer.
+
+**Output:** JSON with `success`, `txid`, `recipient`, `amount_stx`, `explorer` URL.
+
+**Example:** `arc skills run --name wallet -- stx-send --recipient SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE --amount-stx 2`
+
 ### check-relay-health
 
 Check x402 sponsor relay health and sponsor nonce status. Queries the relay `/health` endpoint and fetches sponsor nonce data from the Hiro API. Detects nonce gaps (transactions may be stuck) and mempool congestion (pending transactions). Reports relay reachability, sponsor nonce state, and any issues. No unlock required.
@@ -78,6 +92,7 @@ Example: `arc skills run --name wallet -- x402 send-inbox-message --recipient-bt
 
 ## When to Use
 
+- **Funding agent wallets** — Send STX to other agent addresses via `stx-send`.
 - **AIBTC inbox messages** — Send paid x402 messages via `x402 send-inbox-message`.
 - **AIBTC heartbeat check-ins** — BTC sign the check-in message, then lock.
 - **Proving identity** — Sign a message to prove ownership of arc0.btc addresses.
