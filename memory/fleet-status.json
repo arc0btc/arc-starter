@@ -1,19 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T12:15:05.015Z",
+  "updated_at": "2026-03-09T12:15:32.035Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 2907,
-    "subject": "Implement fleet-rebalance skill (work-stealing Phase 1+2)",
+    "id": 2919,
+    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (bc196d8b00)",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 211822,
-    "cost_usd": 1.1517989999999998
+    "duration_ms": 26765,
+    "cost_usd": 0.14911149999999998
   },
   "health": {
-    "uptime_seconds": 1001003,
+    "uptime_seconds": 1001030,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234680811520
+    "disk_avail_bytes": 234680713216
   }
 }
