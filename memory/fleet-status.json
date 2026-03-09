@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T09:41:38.487Z",
+  "updated_at": "2026-03-09T09:43:07.409Z",
   "last_task": {
-    "id": 2831,
-    "subject": "Fleet alert: spark service issues — dispatch: no cycles",
+    "id": 2832,
+    "subject": "Fleet alert: iris service issues — dispatch: no cycles",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 17022,
-    "cost_usd": 0.14262199999999997
+    "duration_ms": 45470,
+    "cost_usd": 0.17460024999999998
   },
   "health": {
-    "uptime_seconds": 991797,
+    "uptime_seconds": 991886,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234699616256
+    "disk_avail_bytes": 234699575296
   }
 }
