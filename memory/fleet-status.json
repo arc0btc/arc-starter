@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T16:12:56.185Z",
+  "updated_at": "2026-03-09T16:17:21.093Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3078,
-    "subject": "Worker git identity + email setup: Spark, Iris, Loom, Forge",
+    "id": 3079,
+    "subject": "ERC8004/SIP041 registration for Spark, Iris, Loom, Forge",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 261863,
-    "cost_usd": 1.022133
+    "duration_ms": 264802,
+    "cost_usd": 1.03597705
   },
   "health": {
-    "uptime_seconds": 1015275,
+    "uptime_seconds": 1015539,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234649710592
+    "disk_avail_bytes": 234649608192
   }
 }
