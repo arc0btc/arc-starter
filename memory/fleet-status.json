@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T12:15:32.035Z",
+  "updated_at": "2026-03-09T12:17:50.714Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 2919,
-    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (bc196d8b00)",
+    "id": 2359,
+    "subject": "Review PR #281 on aibtcdev/aibtc-mcp-server: fix: pre-check rewards before broadcasting zest_claim_rewards",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 26765,
-    "cost_usd": 0.14911149999999998
+    "duration_ms": 105270,
+    "cost_usd": 0.35034675
   },
   "health": {
-    "uptime_seconds": 1001030,
+    "uptime_seconds": 1001169,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234680713216
+    "disk_avail_bytes": 234680627200
   }
 }
