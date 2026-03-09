@@ -67,6 +67,7 @@ interface AgentHealth {
   dispatchTimer: string;
   lastDispatchAge: string;
   diskUsage: string;
+  pendingCount: number;
   peerStatus: PeerStatus | null;
   peerStatusStale: boolean;
   consecutiveFailureStreak: boolean;
@@ -84,6 +85,7 @@ async function checkAgent(
     dispatchTimer: "unknown",
     lastDispatchAge: "unknown",
     diskUsage: "unknown",
+    pendingCount: 0,
     peerStatus: null,
     peerStatusStale: false,
     consecutiveFailureStreak: false,
@@ -105,6 +107,19 @@ async function checkAgent(
     return health;
   }
   health.reachable = true;
+
+  // Pending task count — used to distinguish idle (empty queue) from stalled
+  const pendingResult = await ssh(
+    ip, password,
+    `cd ${REMOTE_ARC_DIR} && ~/.bun/bin/bun -e "
+      const { Database } = require('bun:sqlite');
+      const db = new Database('db/arc.sqlite', { readonly: true });
+      const row = db.query('SELECT COUNT(*) as c FROM tasks WHERE status = \\\\'pending\\\\'').get();
+      console.log(row?.c ?? 0);
+      db.close();
+    " 2>/dev/null || echo "0"`
+  );
+  health.pendingCount = parseInt(pendingResult.stdout.trim()) || 0;
 
   // Service timers
   const sensorResult = await ssh(
@@ -142,7 +157,10 @@ async function checkAgent(
         if (ageMs > STALE_THRESHOLD_MS) {
           health.peerStatusStale = true;
           const staleMins = Math.round(ageMs / 60000);
-          health.issues.push(`fleet-status.json stale (${staleMins}m old)`);
+          // Only alert if queue has work — empty queue means agent is legitimately idle
+          if (health.pendingCount > 0) {
+            health.issues.push(`fleet-status.json stale (${staleMins}m old)`);
+          }
         }
       }
     } catch {
@@ -208,7 +226,10 @@ async function checkAgent(
       health.issues.push(`dispatch runaway: active for ${activeMins}m (>60m threshold)`);
     }
   } else if (ageMatch && parseInt(ageMatch[1]) > 30) {
-    health.issues.push(`dispatch stall: last cycle ${health.lastDispatchAge}`);
+    if (health.pendingCount > 0) {
+      health.issues.push(`dispatch stall: last cycle ${health.lastDispatchAge}`);
+    }
+    // else: empty queue — agent is idle, not stalled
   } else if (health.lastDispatchAge === "no cycles" || health.lastDispatchAge === "query failed") {
     // Peer status was absent or couldn't confirm dispatch is alive
     health.issues.push(`dispatch: ${health.lastDispatchAge}`);
@@ -285,8 +306,14 @@ function formatSummary(results: AgentHealth[], timestamp: string): string {
     const sensors = h.sensorTimer === "active" ? "ok" : `**${h.sensorTimer}**`;
     const dispatch = h.dispatchTimer === "active" ? "ok" : `**${h.dispatchTimer}**`;
     const issues = h.issues.length > 0 ? h.issues.join("; ") : "none";
+    // Show "idle (queue empty)" when the agent has no pending tasks and last cycle was long ago
+    const ageMatch = h.lastDispatchAge.match(/^(\d+)m ago/);
+    const lastCycle =
+      h.reachable && h.pendingCount === 0 && ageMatch && parseInt(ageMatch[1]) > 30
+        ? `idle (${h.lastDispatchAge})`
+        : h.lastDispatchAge;
     lines.push(
-      `| ${h.agent} | ${reachable} | ${sensors} | ${dispatch} | ${h.lastDispatchAge} | ${h.diskUsage} | ${issues} |`
+      `| ${h.agent} | ${reachable} | ${sensors} | ${dispatch} | ${lastCycle} | ${h.diskUsage} | ${issues} |`
     );
   }
 
@@ -353,9 +380,12 @@ export default async function fleetHealthSensor(): Promise<string> {
       dispatchTimer: "unknown",
       lastDispatchAge: "unknown",
       diskUsage: "unknown",
+      pendingCount: 0,
+      peerStatus: null,
+      peerStatusStale: false,
       consecutiveFailureStreak: false,
       issues: [`check failed: ${r.reason instanceof Error ? r.reason.message : String(r.reason)}`],
-    } as AgentHealth;
+    } satisfies AgentHealth;
   });
 
   // Write summary to memory/fleet-status.md
