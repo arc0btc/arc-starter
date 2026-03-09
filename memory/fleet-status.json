@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T23:11:31.251Z",
+  "updated_at": "2026-03-09T23:15:06.853Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3362,
-    "subject": "Fleet alert: forge service issues — OAuth expires in 8h — migrate to API key",
-    "status": "blocked",
-    "priority": 3
+    "id": 3363,
+    "subject": "Resolve fleet escalation: forge blocked on task #137 — Wallets exist (Loom: SP1BC4VGS, Forge: SP1WPX34) but 0 STX balance blocks on-chain registration. BNS V2 contract not found. Contact records created (#87/#88). Follow-ups: #138 (fund wallets), #139 (fix BNS), #140 (fix Forge SSH).",
+    "status": "completed",
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 69262,
-    "cost_usd": 0.259932
+    "duration_ms": 215513,
+    "cost_usd": 1.3697687500000004
   },
   "health": {
-    "uptime_seconds": 1040390,
+    "uptime_seconds": 1040605,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234602463232
+    "disk_avail_bytes": 234602389504
   }
 }
