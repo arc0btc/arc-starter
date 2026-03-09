@@ -21,6 +21,7 @@ import {
   initDatabase,
   insertCycleLog,
   insertTask,
+  upsertSkillVersion,
   markTaskActive,
   markTaskCompleted,
   markTaskFailed,
@@ -384,6 +385,28 @@ function resolveSkillContext(skillNames: string[]): string {
     })
     .filter(Boolean)
     .join("\n\n");
+}
+
+/**
+ * Hash each loaded SKILL.md, upsert into skill_versions, and return a
+ * {skillName: shortHash} map for recording in cycle_log.skill_hashes.
+ */
+function computeSkillHashes(skillNames: string[]): Record<string, string> {
+  const hashes: Record<string, string> = {};
+  for (const name of skillNames) {
+    const content = readFile(join(SKILLS_DIR, name, "SKILL.md"));
+    if (!content) continue;
+    const hasher = new Bun.CryptoHasher("sha256");
+    hasher.update(content);
+    const hash = hasher.digest("hex").slice(0, 12);
+    hashes[name] = hash;
+    try {
+      upsertSkillVersion(hash, name, content);
+    } catch {
+      // non-fatal: tracking is best-effort
+    }
+  }
+  return hashes;
 }
 
 // ---- Parent chain builder ----
@@ -1214,13 +1237,15 @@ export async function runDispatch(): Promise<void> {
     log(`dispatch: baseline captured — ${experimentBaseline.cycleCount} cycles, ${(experimentBaseline.successRate * 100).toFixed(0)}% success`);
   }
 
-  // 6. Record cycle start
+  // 6. Record cycle start — hash SKILL.md content for effectiveness tracking
   const cycleModelLabel = sdkRoute.sdk === "codex" ? `codex:${sdkRoute.model ?? "default"}` : model;
   const cycleStartedAt = toSqliteDatetime(new Date());
+  const skillHashes = computeSkillHashes(skillNames);
   const cycleId = insertCycleLog({
     started_at: cycleStartedAt,
     task_id: task.id,
     skills_loaded: skillNames.length > 0 ? JSON.stringify(skillNames) : null,
+    skill_hashes: Object.keys(skillHashes).length > 0 ? JSON.stringify(skillHashes) : null,
     model: cycleModelLabel,
   });
 

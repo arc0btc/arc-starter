@@ -52,6 +52,7 @@ export interface CycleLog {
   tokens_in: number;
   tokens_out: number;
   skills_loaded: string | null;
+  skill_hashes: string | null;
   security_grade: string | null;
   model: string | null;
 }
@@ -60,7 +61,16 @@ export interface InsertCycleLog {
   started_at: string;
   task_id?: number | null;
   skills_loaded?: string | null;
+  skill_hashes?: string | null;
   model?: string | null;
+}
+
+export interface SkillVersion {
+  hash: string;
+  skill_name: string;
+  content: string;
+  first_seen: string;
+  last_seen: string;
 }
 
 // ---- Workflow types ----
@@ -238,10 +248,22 @@ export function initDatabase(): Database {
     }
   }
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS skill_versions (
+      hash TEXT PRIMARY KEY,
+      skill_name TEXT NOT NULL,
+      content TEXT NOT NULL,
+      first_seen TEXT NOT NULL,
+      last_seen TEXT NOT NULL
+    )
+  `);
+  db.run("CREATE INDEX IF NOT EXISTS idx_skill_versions_name ON skill_versions(skill_name)");
+
   // Migrations
   addColumn("cycle_log", "security_grade", "TEXT");
   addColumn("tasks", "model", "TEXT");
   addColumn("cycle_log", "model", "TEXT");
+  addColumn("cycle_log", "skill_hashes", "TEXT");
 
   // Indexes
   db.run("CREATE INDEX IF NOT EXISTS idx_tasks_status_priority ON tasks(status, priority)");
@@ -637,22 +659,48 @@ export function insertCycleLog(entry: InsertCycleLog): number {
   const db = getDatabase();
   const result = db
     .query(
-      "INSERT INTO cycle_log (started_at, task_id, skills_loaded, model) VALUES (?, ?, ?, ?)"
+      "INSERT INTO cycle_log (started_at, task_id, skills_loaded, skill_hashes, model) VALUES (?, ?, ?, ?, ?)"
     )
-    .run(entry.started_at, entry.task_id ?? null, entry.skills_loaded ?? null, entry.model ?? null);
+    .run(
+      entry.started_at,
+      entry.task_id ?? null,
+      entry.skills_loaded ?? null,
+      entry.skill_hashes ?? null,
+      entry.model ?? null,
+    );
   return Number(result.lastInsertRowid);
 }
 
 export function updateCycleLog(id: number, fields: Partial<CycleLog>): void {
   const allowed: Array<keyof CycleLog> = [
     "completed_at", "duration_ms", "cost_usd", "api_cost_usd",
-    "tokens_in", "tokens_out", "skills_loaded", "task_id", "security_grade", "model",
+    "tokens_in", "tokens_out", "skills_loaded", "skill_hashes", "task_id", "security_grade", "model",
   ];
   const filtered: Record<string, unknown> = {};
   for (const key of allowed) {
     if (fields[key] !== undefined) filtered[key] = fields[key];
   }
   updateRow("cycle_log", id, filtered);
+}
+
+// ---- Skill versions ----
+
+export function upsertSkillVersion(hash: string, skillName: string, content: string): void {
+  const db = getDatabase();
+  const now = toSqliteDatetime(new Date());
+  db.run(
+    `INSERT INTO skill_versions (hash, skill_name, content, first_seen, last_seen)
+     VALUES (?, ?, ?, ?, ?)
+     ON CONFLICT(hash) DO UPDATE SET last_seen = excluded.last_seen`,
+    [hash, skillName, content, now, now],
+  );
+}
+
+export function getSkillVersions(skillName: string): SkillVersion[] {
+  const db = getDatabase();
+  return db
+    .query("SELECT * FROM skill_versions WHERE skill_name = ? ORDER BY first_seen DESC")
+    .all(skillName) as SkillVersion[];
 }
 
 export function getRecentCycles(limit: number = 10): CycleLog[] {
