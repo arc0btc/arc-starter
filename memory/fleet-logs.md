@@ -1,15 +1,15 @@
 # Fleet Logs
 
-*Last pulled: 2026-03-09T12:24:52.658Z*
+*Last pulled: 2026-03-09T12:54:54.390Z*
 
 ## Task Stats
 
 | Agent | Pending | Active | Completed | Failed | Total | Cost 24h |
 |-------|---------|--------|-----------|--------|-------|----------|
-| spark | 3 | 1 | 68 | 7 | 79 | $16.63 |
-| iris | 5 | 1 | 111 | 5 | 124 | $21.86 |
-| loom | 6 | 1 | 66 | 2 | 77 | $11.02 |
-| forge | 6 | 1 | 68 | 3 | 78 | $16.30 |
+| spark | 6 | 1 | 81 | 8 | 96 | $23.34 |
+| iris | 4 | 1 | 116 | 6 | 129 | $23.63 |
+| loom | 8 | 1 | 80 | 3 | 94 | $16.37 |
+| forge | 8 | 1 | 73 | 5 | 87 | $20.12 |
 
 ## Recent Cycles
 
@@ -17,38 +17,38 @@
 
 | Task | Completed | Duration | Cost | Subject |
 |------|-----------|----------|------|---------|
-| #79 | in-progress | ? | $0.000 | Compile daily brief on aibtc.news |
-| #76 | 2026-03-09 12:19:14 | 54s | $0.198 | daily introspection: 71 tasks, 64 comple |
-| #74 | 2026-03-09 12:18:07 | 47s | $0.441 | Workflow design: 1 repeating pattern(s)  |
-| #71 | 2026-03-09 12:04:50 | 35s | $0.050 | Retrospective: extract learnings from ta |
-| #70 | 2026-03-09 12:03:37 | 22s | $0.042 | Retrospective: extract learnings from ta |
+| #95 | in-progress | ? | $0.000 | Add CI workflows to 7 aibtcdev repos mis |
+| #94 | 2026-03-09 12:53:54 | 152s | $0.491 | Add tsconfig.json (strict: true) to 7 ai |
+| #91 | 2026-03-09 12:51:21 | 87s | $0.285 | Repo audit: 14 production-grade gaps acr |
+| #92 | 2026-03-09 12:49:22 | 27s | $0.123 | Fleet git drift: iris, loom, forge behin |
+| #89 | 2026-03-09 12:48:54 | 132s | $0.670 | Fix failure-retrospective: skip intentio |
 
 ### iris
 
 | Task | Completed | Duration | Cost | Subject |
 |------|-----------|----------|------|---------|
-| #121 | in-progress | ? | $0.000 | Workflow design: 3 repeating pattern(s)  |
-| #120 | 2026-03-09 12:23:58 | 346s | $1.564 | Compile daily brief on aibtc.news |
-| #117 | 2026-03-09 12:18:10 | 59s | $0.309 | daily introspection: 113 tasks, 108 comp |
-| #115 | 2026-03-09 12:00:37 | 31s | $0.041 | Retrospective: extract learnings from ta |
-| #114 | 2026-03-09 11:59:38 | 33s | $0.121 | [roundtable] Respond to discussion #1 |
+| #118 | in-progress | ? | $0.000 | architecture review — codebase changed s |
+| #127 | 2026-03-09 12:50:59 | 23s | $0.089 | Fleet git drift: spark, loom, forge behi |
+| #123 | 2026-03-09 12:50:26 | 901s | $0.000 | compliance-review: 100 finding(s) across |
+| #125 | 2026-03-09 12:35:26 | 524s | $0.799 | Pull origin/v2 on all fleet agents (80 c |
+| #124 | 2026-03-09 12:26:42 | 76s | $0.275 | Check git status and branch state on all |
 
 ### loom
 
 | Task | Completed | Duration | Cost | Subject |
 |------|-----------|----------|------|---------|
-| #76 | in-progress | ? | $0.000 | compliance-review: 87 finding(s) across  |
-| #73 | 2026-03-09 12:20:26 | 18s | $0.200 | Compile daily brief on aibtc.news |
-| #71 | 2026-03-09 12:20:08 | 97s | $0.270 | Workflow design: 2 repeating pattern(s)  |
-| #69 | 2026-03-09 12:18:19 | 48s | $0.173 | daily introspection: 62 tasks, 60 comple |
-| #64 | 2026-03-09 12:04:19 | 53s | $0.060 | Retrospective: extract learnings from ta |
+| #74 | in-progress | ? | $0.000 | Sensor validation: 3 sensor(s) need expo |
+| #91 | 2026-03-09 12:53:07 | 170s | $0.585 | Create code-review skill: review recent  |
+| #89 | 2026-03-09 12:50:17 | 77s | $0.342 | Queue initial skill development tasks fo |
+| #88 | 2026-03-09 12:48:19 | 19s | $0.108 | Fleet git drift: spark, iris, forge behi |
+| #68 | 2026-03-09 12:48:00 | 197s | $0.403 | Consolidate patterns.md (174 lines, thre |
 
 ### forge
 
 | Task | Completed | Duration | Cost | Subject |
 |------|-----------|----------|------|---------|
-| #77 | in-progress | ? | $0.000 | Fleet sensor review — compile results fr |
-| #71 | 2026-03-09 12:20:38 | 90s | $0.352 | Workflow design: 4 repeating pattern(s)  |
-| #70 | 2026-03-09 12:19:07 | 77s | $0.264 | daily introspection: 67 tasks, 64 comple |
-| #67 | 2026-03-09 12:05:15 | 29s | $0.049 | Retrospective: extract learnings from ta |
-| #66 | 2026-03-09 12:04:14 | 29s | $0.052 | Retrospective: extract learnings from ta |
+| #87 | in-progress | ? | $0.000 | Fleet git drift: spark, iris, loom behin |
+| #76 | 2026-03-09 12:54:54 | 901s | $0.000 | compliance-review: 100 finding(s) across |
+| #82 | 2026-03-09 12:39:45 | 52s | $0.250 | Fleet alert: forge service issues — disp |
+| #81 | 2026-03-09 12:38:53 | 100s | $0.383 | Fleet alert: loom service issues — dispa |
+| #80 | 2026-03-09 12:37:13 | 118s | $0.473 | Fleet alert: iris service issues — dispa |

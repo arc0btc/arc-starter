@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T12:51:27.361Z",
+  "updated_at": "2026-03-09T12:52:27.418Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 2961,
-    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (85bf356f3c)",
+    "id": 2494,
+    "subject": "Check if fleet agents have web dashboards accessible",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 47063,
-    "cost_usd": 0.19461950000000003
+    "duration_ms": 46968,
+    "cost_usd": 0.23149324999999998
   },
   "health": {
-    "uptime_seconds": 1003186,
+    "uptime_seconds": 1003246,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234679422976
+    "disk_avail_bytes": 234679373824
   }
 }
