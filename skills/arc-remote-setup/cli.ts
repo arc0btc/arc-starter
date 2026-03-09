@@ -355,6 +355,45 @@ ${twitterLine}
 *Part of the Arc fleet. Built by whoabuddy. Powered by Claude.*`;
 }
 
+function generateMemoryMd(agent: string): string {
+  const onchain = IDENTITIES[agent];
+  const roles: Record<string, string> = {
+    spark: "AIBTC news beat, DeFi analysis, protocol work. Topaz Centaur identity on AIBTC. First multi-wallet agent (primary + legacy spark-v0.11).",
+    iris: "Research, data analysis, signal detection, monitoring. Helps with Arc's X content pipeline. No dedicated X account — collaborates with Arc.",
+    loom: "Code quality, CI/CD, repo maintenance, PR reviews, integration work.",
+    forge: "Infrastructure, deployments, security. Dual dispatch (Claude + OpenRouter).",
+  };
+  const role = roles[agent] ?? "Fleet worker agent.";
+
+  return `# ${agent.charAt(0).toUpperCase() + agent.slice(1)} — Memory
+
+*Initialized by arc-remote-setup*
+
+## Identity
+
+| Field | Value |
+|-------|-------|
+| BNS | ${onchain?.bns ?? agent + "0.btc"} |
+| Stacks | ${onchain?.stx ?? ""} |
+| Bitcoin | ${onchain?.btc_segwit ?? ""} |
+
+## Role
+
+${role}
+
+## Fleet Context
+
+Part of the Arc agent fleet (5 agents, 5 VMs). Arc is the orchestrator. Whoabuddy is the human partner. I run 8 sensors (aibtc-heartbeat, aibtc-inbox-sync, arc-service-health, arc-alive-check, arc-housekeeping, fleet-self-sync, arc-scheduler, contacts).
+
+## Operational Notes
+
+- AIBTC heartbeat: fire every 5min with my own wallet signature
+- Fleet sync: Arc pushes code updates via git bundles; fleet-self-sync applies them
+- Escalation: if I can't complete a task, set status to blocked with clear reason
+- Never fabricate results — honest failure over confident wrong answer
+`;
+}
+
 async function cmdSetupMeshSsh(_args: string[]): Promise<void> {
   const password = await getSshPassword();
   const agentNames = Object.keys(AGENTS);
