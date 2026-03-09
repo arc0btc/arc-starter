@@ -1,19 +1,19 @@
 # Fleet Status
 
-*Last checked: 2026-03-09T09:32:10.625Z*
+*Last checked: 2026-03-09T09:47:10.774Z*
 
 | Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Issues |
 |-------|-----------|---------|----------|------------|------|--------|
-| spark | yes | ok | ok | 9m ago | 2% | none |
+| spark | yes | ok | ok | no cycles | 2% | dispatch: no cycles |
 | iris | yes | ok | ok | no cycles | 2% | dispatch: no cycles |
-| loom | yes | ok | ok | 16m ago | 2% | none |
-| forge | yes | ok | ok | no cycles | 3% | dispatch: no cycles |
+| loom | yes | ok | ok | 1m ago | 2% | none |
+| forge | yes | ok | ok | 15m ago | 3% | none |
 
 ## Peer Self-Reported Status
 
 | Agent | Last Task | Task Status | Cycle Cost | Updated | Stale |
 |-------|-----------|-------------|------------|---------|-------|
-| spark | #56: Investigate recurring failure: unknown ( | failed | $0.000 | 2026-03-09 09:23:01Z | no |
-| iris | #41: Retrospective: extract learnings from ta | completed | $0.104 | 2026-03-09 09:32:13Z | no |
-| loom | #46: system alive check | completed | $0.027 | 2026-03-09 09:16:20Z | no |
-| forge | #45: housekeeping: 1 issue(s) detected | completed | $0.038 | 2026-03-09 09:30:19Z | no |
+| spark | #57: Consolidate patterns.md (158 lines, thre | completed | $0.337 | 2026-03-09 09:42:36Z | no |
+| iris | #76: housekeeping: 1 issue(s) detected | completed | $0.065 | 2026-03-09 09:47:01Z | no |
+| loom | #47: Add an arc whoami command that prints th | completed | $0.291 | 2026-03-09 09:46:04Z | no |
+| forge | #46: Retrospective: extract learnings from ta | completed | $0.152 | 2026-03-09 09:32:40Z | no |
