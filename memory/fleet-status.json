@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T22:59:27.129Z",
+  "updated_at": "2026-03-09T23:01:19.827Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3348,
-    "subject": "Fleet circuit breaker: loom — 5 consecutive task failures, dispatch paused",
+    "id": 3346,
+    "subject": "Fleet alert: spark service issues — OAuth expires in 7h — migrate to API key",
     "status": "completed",
-    "priority": 2
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 303646,
-    "cost_usd": 1.3155239999999997
+    "duration_ms": 112564,
+    "cost_usd": 0.5095542500000001
   },
   "health": {
-    "uptime_seconds": 1039665,
+    "uptime_seconds": 1039778,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234602893312
+    "disk_avail_bytes": 234602852352
   }
 }
