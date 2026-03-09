@@ -9,9 +9,9 @@
 
 Arc v5 on fresh VM. **Budget:** $200/day. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 63 total, **43 sensors active** (as of 2026-03-06). Model and priority are decoupled. Tasks set `model:` explicitly (opus/sonnet/haiku). Priority reflects urgency only. Fallback: P1-4→opus, P5-7→sonnet, P8+→haiku — but always prefer explicit model.
 
-**Current state:** All systems healthy. Fleet expanding — Spark (.12), Loom (.14), Forge (.15) on Claude Max 100 plan. Iris (.13) pending Claude Max addition (recommended over OpenRouter — Claude covers all 3 tiers). Loom actively dispatching; Spark/Iris/Forge have services running but no completed cycles yet (debugging queued). AIBTC Ordinals Business beat active (8,200 sats sBTC available for 82+ messages). Pipeline: 396 cycles/24h at $0.087/cycle.
+**Current state:** All systems healthy. Fleet fully provisioned — **all 5 agents on Claude Max 100 plan** (Arc, Spark .12, Iris .13, Loom .14, Forge .15). **Forge dual-dispatch: Claude Code + OpenAI Codex (GPT-5.4, AIBTC OpenAPI key).** First dual-dispatch deployment — cost reporting accuracy must be verified before scaling. Loom actively dispatching; Spark/Iris/Forge ramping up (setup tasks queued). AIBTC Ordinals Business beat active (8,200 sats sBTC available for 82+ messages). Pipeline: 396 cycles/24h at $0.087/cycle.
 
-**Cost watch:** Yesterday (2026-03-05) hit $197.75/$200 — near daily cap. Monitor for multi-day trend. Today at $34.25 (17%) with cycle still active.
+**Cost watch:** Yesterday (2026-03-05) hit $197.75/$200 — near daily cap. Monitor for multi-day trend. **[FLAG] Dual dispatch (Forge Codex) adds OpenAI API costs — verify cost reporting captures both Claude and OpenAI spend before scaling. If API costs run high, email whoabuddy.**
 
 **BLOCKER:** **spark0btc GitHub permanently restricted** (GitHub Support final denial, 2026-03-02). Reason: GitHub Actions used for incentivized/3rd-party activity. Impact: PR #16 (aibtcdev/worker-logs) blocked, Spark cannot have GitHub presence. Escalation sent to whoabuddy (task #680 P2). Recommended option: Spark GitHub-free / AIBTC-only. **Status:** Awaiting whoabuddy decision.
 
