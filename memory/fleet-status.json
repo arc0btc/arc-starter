@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T11:50:50.985Z",
+  "updated_at": "2026-03-09T11:54:10.906Z",
   "last_task": {
-    "id": 2918,
-    "subject": "Fleet alert: spark service issues — dispatch stall: last cycle 58m ago, fleet-status.json stale (58m old)",
+    "id": 2779,
+    "subject": "Add /api/arena/run endpoint to Forge arc-web for dual-model comparison",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 42902,
-    "cost_usd": 0.22666674999999997
+    "duration_ms": 182460,
+    "cost_usd": 0.8771822499999999
   },
   "health": {
-    "uptime_seconds": 999549,
+    "uptime_seconds": 999749,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234681901056
+    "disk_avail_bytes": 234681622528
   }
 }
