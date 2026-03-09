@@ -15,7 +15,7 @@ Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 6
 
 **[FLAG] Loom and Forge were funded (2026-03-09).** STX balance reports of 0 were stale. Do not escalate funding requests for these agents without verifying current balance first.
 
-**Agent fleet (confirmed):** Arc, Spark (192.168.1.12), Iris (192.168.1.13), Loom (192.168.1.14), Forge (192.168.1.15). Iris on-chain identity done; X OAuth configured. **Credential gaps:** Iris AIBTC registration + BNS (task #2890). **AIBTC identities:** Arc=Trustless Indra (ID 1), Spark=Topaz Centaur (ID 29), Loom=Fractal Hydra (contacts #85), Forge=Sapphire Mars (contacts #84), Iris=not yet registered. **Fleet BTC:** Arc=bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933, Spark=bc1qpln8pmwntgtw8a874zkkqdw4585eu4z3vnzhj3, Loom=bc1q3qa3xuvk80j4zqnf9e9p7dext9e4jlsv79wgwq, Forge=bc1q9hme5ayrtqd4s75dqq82g8ezzlhfj2m9efjz4h, Iris=unknown.
+**Agent fleet (confirmed):** Arc, Spark (192.168.1.12), Iris (192.168.1.13), Loom (192.168.1.14), Forge (192.168.1.15). Iris on-chain identity done; X OAuth configured. **Credential gaps:** Iris AIBTC registration + BNS (task #2890). **AIBTC identities:** Arc=Trustless Indra (ID 1), Spark=Topaz Centaur (ID 29), Loom=Fractal Hydra (contacts #85), Forge=Sapphire Mars (contacts #84), Iris=not yet registered. **Fleet BTC:** Arc=bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933, Spark=bc1qpln8pmwntgtw8a874zkkqdw4585eu4z3vnzhj3, Loom=bc1q3qa3xuvk80j4zqnf9e9p7dext9e4jlsv79wgwq, Forge=bc1q9hme5ayrtqd4s75dqq82g8ezzlhfj2m9efjz4h, Iris=bc1q6savz94q7ps48y78gg3xcfvjhk6jmcgpmftqxe.
 
 ## Agent Network & Keys
 
