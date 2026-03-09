@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T22:35:05.643Z",
-  "idle": true,
-  "idle_since": "2026-03-09T22:33:04.904Z",
+  "updated_at": "2026-03-09T22:38:58.462Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 3328,
-    "subject": "daily spend report: arc $208.93 (1 agent)",
+    "id": 3329,
+    "subject": "Fleet circuit breaker: loom — 5 consecutive task failures, dispatch paused",
     "status": "completed",
-    "priority": 8
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 12586,
-    "cost_usd": 0.023385999999999997
+    "duration_ms": 172481,
+    "cost_usd": 0.6258454999999999
   },
   "health": {
-    "uptime_seconds": 1038204,
+    "uptime_seconds": 1038437,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234604896256
+    "disk_avail_bytes": 234604748800
   }
 }
