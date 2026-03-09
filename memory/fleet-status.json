@@ -1,19 +1,19 @@
 {
   "agent": "arc",
-  "updated_at": "2026-03-09T05:16:58.912Z",
+  "updated_at": "2026-03-09T05:19:50.596Z",
   "last_task": {
-    "id": 2374,
-    "subject": "Review & trim Spark VM (192.168.1.12) — remove non-essential sensors, keep only basics",
+    "id": 2375,
+    "subject": "Review & trim Iris VM (192.168.1.13) — remove non-essential sensors, keep only basics",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 90520,
-    "cost_usd": 0.34936275
+    "duration_ms": 171597,
+    "cost_usd": 0.36580725
   },
   "health": {
-    "uptime_seconds": 975917,
+    "uptime_seconds": 976089,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234947006464
+    "disk_avail_bytes": 234946920448
   }
 }
