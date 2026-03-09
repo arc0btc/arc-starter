@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T10:24:21.319Z",
+  "updated_at": "2026-03-09T10:27:44.636Z",
   "last_task": {
-    "id": 2597,
-    "subject": "Create fleet communication health sensor — detect if agents go silent >1h",
+    "id": 2598,
+    "subject": "Build fleet-broadcast CLI: send a task to all agents simultaneously",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 107369,
-    "cost_usd": 0.42626625
+    "duration_ms": 203075,
+    "cost_usd": 0.6649286999999999
   },
   "health": {
-    "uptime_seconds": 994360,
+    "uptime_seconds": 994563,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234693951488
+    "disk_avail_bytes": 234693824512
   }
 }
