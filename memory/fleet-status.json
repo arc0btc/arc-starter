@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T07:39:20.940Z",
+  "updated_at": "2026-03-09T07:41:38.502Z",
   "last_task": {
-    "id": 2418,
-    "subject": "Fix Iris web UI header: update identity.ts name to iris0, restart arc-web",
+    "id": 2419,
+    "subject": "Fix Loom web UI header: update identity.ts name to loom0, restart arc-web",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 124761,
-    "cost_usd": 0.6695212500000001
+    "duration_ms": 137472,
+    "cost_usd": 0.7642694999999999
   },
   "health": {
-    "uptime_seconds": 984459,
+    "uptime_seconds": 984597,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234701168640
+    "disk_avail_bytes": 234701119488
   }
 }
