@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T17:23:21.820Z",
+  "updated_at": "2026-03-09T17:26:45.768Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3126,
-    "subject": "Fleet: populate identity.ts addresses on Iris, Loom, Forge dashboards",
+    "id": 3127,
+    "subject": "Fleet: ERC8004/SIP041 on-chain registration for all agents",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 366586,
-    "cost_usd": 1.6455289999999998
+    "duration_ms": 203824,
+    "cost_usd": 0.6634090500000001
   },
   "health": {
-    "uptime_seconds": 1019500,
+    "uptime_seconds": 1019704,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234647277568
+    "disk_avail_bytes": 234647195648
   }
 }
