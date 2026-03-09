@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T15:55:24.030Z",
+  "updated_at": "2026-03-09T15:55:59.199Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3067,
-    "subject": "Email thread from Jason S (1 messages)",
+    "id": 3069,
+    "subject": "Retry Loom SSH with properly escaped password (parse issue)",
     "status": "completed",
-    "priority": 1
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 70894,
-    "cost_usd": 0.260533
+    "duration_ms": 35065,
+    "cost_usd": 0.19979375000000002
   },
   "health": {
-    "uptime_seconds": 1014222,
+    "uptime_seconds": 1014258,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234650140672
+    "disk_avail_bytes": 234650107904
   }
 }
