@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T16:44:04.377Z",
+  "updated_at": "2026-03-09T16:51:28.862Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3073,
-    "subject": "Review PR #31 on aibtcdev/agent-news: feat(config): migrate wrangler.toml to wrangler.jsonc",
+    "id": 3085,
+    "subject": "Fix MailChannels send: 'destination address is not a verified address' error",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 86166,
-    "cost_usd": 0.3690577499999999
+    "duration_ms": 444374,
+    "cost_usd": 1.1996574999999998
   },
   "health": {
-    "uptime_seconds": 1017143,
+    "uptime_seconds": 1017587,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234648895488
+    "disk_avail_bytes": 234648248320
   }
 }
