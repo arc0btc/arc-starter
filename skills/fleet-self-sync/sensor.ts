@@ -10,11 +10,15 @@ import {
   claimSensorRun,
   createSensorLogger,
 } from "../../src/sensors.ts";
+import { join } from "node:path";
+import { hostname } from "node:os";
 
 const SENSOR_NAME = "fleet-self-sync";
 const INTERVAL_MINUTES = 5;
 const ROOT = new URL("../..", import.meta.url).pathname;
 const BUN = `${process.env.HOME}/.bun/bin/bun`;
+const SOUL_BACKUP = "/tmp/arc-soul-backup.md";
+const MEMORY_BACKUP = "/tmp/arc-memory-backup.md";
 
 const ALL_SERVICES = [
   "arc-sensors.timer",
@@ -178,12 +182,37 @@ export default async function sensor(): Promise<string> {
     `${preSha.slice(0, 10)} → ${targetSha.slice(0, 10)}: ${files.length} files, ${services.length} services`
   );
 
+  // Backup agent-specific identity files before reset
+  // These files are per-agent and must not be overwritten by Arc's repo
+  const soulPath = join(ROOT, "SOUL.md");
+  const memoryPath = join(ROOT, "memory", "MEMORY.md");
+  const soulFile = Bun.file(soulPath);
+  const memoryFile = Bun.file(memoryPath);
+  const hasSoul = await soulFile.exists();
+  const hasMemory = await memoryFile.exists();
+  if (hasSoul) await Bun.write(SOUL_BACKUP, soulFile);
+  if (hasMemory) await Bun.write(MEMORY_BACKUP, memoryFile);
+
   // Apply
   const resetResult = await run(["git", "reset", "--hard", targetSha]);
   if (!resetResult.ok) {
     log(`git reset failed: ${resetResult.stderr.slice(0, 100)}`);
     for (const b of bundles) await run(["rm", "-f", b]);
     return "error — git reset failed";
+  }
+
+  // Restore agent-specific identity files after reset
+  // Only restore if this is a worker agent (not Arc itself)
+  const host = hostname().toLowerCase();
+  if (host !== "arc" && host !== "arc0btc") {
+    if (hasSoul) {
+      await Bun.write(soulPath, Bun.file(SOUL_BACKUP));
+      log(`restored SOUL.md for ${host}`);
+    }
+    if (hasMemory) {
+      await Bun.write(memoryPath, Bun.file(MEMORY_BACKUP));
+      log(`restored MEMORY.md for ${host}`);
+    }
   }
 
   // bun install
