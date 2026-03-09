@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T19:02:36.862Z",
+  "updated_at": "2026-03-09T19:03:11.177Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3217,
-    "subject": "housekeeping: 2 issue(s) detected",
+    "id": 3226,
+    "subject": "cost alert: fleet spend $177.34/200 — approaching cap",
     "status": "completed",
-    "priority": 7
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 130779,
-    "cost_usd": 0.14568195
+    "duration_ms": 34213,
+    "cost_usd": 0.15131275
   },
   "health": {
-    "uptime_seconds": 1025455,
+    "uptime_seconds": 1025490,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234623639552
+    "disk_avail_bytes": 234623598592
   }
 }
