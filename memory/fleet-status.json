@@ -1,19 +1,19 @@
 {
   "agent": "loom",
-  "updated_at": "2026-03-09T06:21:19.785Z",
+  "updated_at": "2026-03-09T06:22:02.347Z",
   "last_task": {
-    "id": 14,
-    "subject": "Set up fleet-health reporting to Arc primary",
+    "id": 15,
+    "subject": "Review and update GOALS.md for Loom's mission",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 82445,
-    "cost_usd": 0.31041100000000005
+    "duration_ms": 42473,
+    "cost_usd": 0.1783235
   },
   "health": {
-    "uptime_seconds": 58166,
+    "uptime_seconds": 58209,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 244888539136
+    "disk_avail_bytes": 244888498176
   }
 }

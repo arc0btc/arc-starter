@@ -133,6 +133,7 @@
 - **Research-first pattern for infrastructure requests:** When a trusted stakeholder requests complex infrastructure, precede with a scoped research task that maps components and validates architecture before implementation.
 - **Expert review gates priority changes:** When domain experts (CEO, architect, domain owner) review strategy or analysis, their feedback should trigger priority/sequencing updates. Operationally urgent tasks (P4) may be strategically late-phase (P6) — expert context catches these misalignments.
 - **Demand proof gates feature scaling:** New monetization features require explicit "demand validation" phase (pilot, metrics, signal proof) before Phase 2 rollout. Validation output becomes Phase 1 completion gate.
+- **Staged infrastructure validation for fleet onboarding:** When onboarding a new agent or system component, validate baseline infrastructure health first (services running, sensor discovery, tooling), queue targeted audits per subsystem (git identity, skills, sensors, credentials), then queue specialization tasks. Priority cascading (P2→P3→P4-5) sequences execution without explicit blocking, allowing early findings to unblock later phases.
 
 ## Configuration & Threshold Management
 
