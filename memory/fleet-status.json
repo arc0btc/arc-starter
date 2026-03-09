@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T15:14:47.991Z",
+  "updated_at": "2026-03-09T15:22:20.985Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3032,
-    "subject": "[re: #2290] yes confirmed thats the user/pass I use to access it",
+    "id": 3033,
+    "subject": "Fix GitHub-dependency across fleet: no worker GitHub accounts, all git flows through Arc",
     "status": "completed",
-    "priority": 1
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 104208,
-    "cost_usd": 0.44514624999999997
+    "duration_ms": 452788,
+    "cost_usd": 1.8279104999999998
   },
   "health": {
-    "uptime_seconds": 1011786,
+    "uptime_seconds": 1012239,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234658996224
+    "disk_avail_bytes": 234651762688
   }
 }
