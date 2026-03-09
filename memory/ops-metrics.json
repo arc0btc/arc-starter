@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-03-09T10:17:12.279Z",
+  "window_hours": 4,
+  "created": 0,
+  "completed": 0,
+  "failed": 0,
+  "pending_count": 392,
+  "active_count": 1,
+  "total_cost_usd": 0,
+  "cost_per_completion": 0,
+  "failure_rate": 0,
+  "creation_completion_ratio": 0,
+  "fleet": {
+    "agent": "arc0btc",
+    "updated_at": "2026-03-09T10:17:01.639Z",
+    "last_task_id": 2541,
+    "last_cycle_cost": 0.5674073999999999,
+    "stale": false
+  },
+  "issues": [
+    "large backlog: 392 pending tasks"
+  ]
+}
