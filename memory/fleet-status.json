@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T10:19:33.127Z",
+  "updated_at": "2026-03-09T10:20:19.811Z",
   "last_task": {
-    "id": 2542,
-    "subject": "Fleet scheduling: design clear assignment protocol — each agent gets a domain focus, regular check-in pattern, and shared backlog visibility",
+    "id": 2862,
+    "subject": "Fleet alert: iris service issues — dispatch: no cycles",
     "status": "completed",
-    "priority": 4
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 151246,
-    "cost_usd": 0.4826265
+    "duration_ms": 46590,
+    "cost_usd": 0.22380725000000004
   },
   "health": {
-    "uptime_seconds": 994071,
+    "uptime_seconds": 994118,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234694139904
+    "disk_avail_bytes": 234694098944
   }
 }
