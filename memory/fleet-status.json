@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T18:38:44.049Z",
+  "updated_at": "2026-03-09T18:38:57.198Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3202,
-    "subject": "Update aibtc-heartbeat sensor to fire for all agent wallets",
-    "status": "completed",
+    "id": 3206,
+    "subject": "Retrieve Spark .11 VM wallet mnemonic (SP12Q1FS2DX4N8C2QYBM0Z2N2DY1EH9EEPMPH9N9X)",
+    "status": "blocked",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 100427,
-    "cost_usd": 0.41991924999999997
+    "duration_ms": 12840,
+    "cost_usd": 0.1374135
   },
   "health": {
-    "uptime_seconds": 1024022,
+    "uptime_seconds": 1024036,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234624802816
+    "disk_avail_bytes": 234624737280
   }
 }
