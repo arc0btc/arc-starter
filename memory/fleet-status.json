@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T23:30:00.194Z",
+  "updated_at": "2026-03-09T23:31:00.194Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3370,
-    "subject": "Resolve fleet escalation: iris blocked on task #205 — SSH key not registered with iris0btc GitHub account. Need human to either: (1) add SSH pubkey ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIACkLd9ck/EUVYYG6HCM0vpj/XotFNuATQtbPO/hmFxC to iris0btc GitHub account, or (2) create a GitHub PAT and run: arc creds set --service github --key token --value <PAT>, then gh auth login --with-token",
+    "id": 3371,
+    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (f07afda733)",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 24001,
-    "cost_usd": 0.133994
+    "duration_ms": 23485,
+    "cost_usd": 0.134302
   },
   "health": {
-    "uptime_seconds": 1041499,
+    "uptime_seconds": 1041559,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234601943040
+    "disk_avail_bytes": 234601902080
   }
 }
