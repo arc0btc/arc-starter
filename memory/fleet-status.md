@@ -1,19 +1,19 @@
 # Fleet Status
 
-*Last checked: 2026-03-09T16:47:38.550Z*
+*Last checked: 2026-03-09T17:02:40.039Z*
 
 | Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Issues |
 |-------|-----------|---------|----------|------------|------|--------|
-| spark | yes | ok | ok | 27m ago | 3% | none |
-| iris | yes | ok | ok | 11m ago | 2% | none |
-| loom | yes | ok | ok | 0m ago (self-reported) | 3% | none |
-| forge | yes | ok | ok | 25m ago | 3% | none |
+| spark | yes | ok | ok | 7m ago | 3% | none |
+| iris | yes | ok | ok | 10m ago | 2% | none |
+| loom | yes | ok | ok | 10m ago | 3% | none |
+| forge | yes | ok | ok | 5m ago | 3% | none |
 
 ## Peer Self-Reported Status
 
 | Agent | Last Task | Task Status | Cycle Cost | Updated | Stale |
 |-------|-----------|-------------|------------|---------|-------|
-| spark | #2988: Audit fleet-comms status across all agen | completed | $0.855 | 2026-03-09 16:47:06Z | no |
-| iris | #2988: Audit fleet-comms status across all agen | completed | $0.855 | 2026-03-09 16:38:17Z | no |
-| loom | #144: housekeeping: 1 issue(s) detected | completed | $0.128 | 2026-03-09 16:47:38Z | no |
-| forge | #2988: Audit fleet-comms status across all agen | completed | $0.855 | 2026-03-09 16:46:52Z | no |
+| spark | #139: Consolidate patterns.md (201 lines, thre | completed | $0.413 | 2026-03-09 17:02:21Z | no |
+| iris | #136: Fleet git drift: spark, loom, forge behi | pending | $0.000 | 2026-03-09 16:53:01Z | no |
+| loom | #149: Retrospective: extract learnings from ta | completed | $0.054 | 2026-03-09 17:02:15Z | no |
+| forge | #129: Reply to Secret Mars inbox msg — needs a | failed | $0.198 | 2026-03-09 17:01:57Z | no |
