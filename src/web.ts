@@ -3,7 +3,7 @@
 // Read-only SQLite connection. Serves JSON API endpoints and static files from src/web/.
 // Run: bun src/web.ts (or via arc skills run --name dashboard -- start)
 
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, extname } from "node:path";
 import { initDatabase, getDatabase, insertTask, markTaskFailed } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
@@ -114,7 +114,7 @@ async function handleAsk(req: Request): Promise<Response> {
 
   const question = typeof body.question === "string" ? body.question.trim() : "";
   if (!question) return errorResponse("'question' is required", 400);
-  if (question.length > 500) return errorResponse("Question too long (max 500 chars)", 400);
+  if (question.length > 1000) return errorResponse("Question too long (max 1000 chars)", 400);
 
   const tierName = (typeof body.tier === "string" ? body.tier.toLowerCase() : "haiku");
   const tier = ASK_TIERS[tierName];
@@ -581,6 +581,69 @@ function handleIdentity(): Response {
   return json(IDENTITY);
 }
 
+// ---- Bitcoin Face Avatar ----
+
+const FACE_CACHE_DIR = join(import.meta.dir, "../db");
+
+async function handleFace(): Promise<Response> {
+  const bnsPrefix = IDENTITY.bns.replace(/\.btc$/, "");
+  // Check for cached face in either format
+  const svgPath = join(FACE_CACHE_DIR, `face-${bnsPrefix}.svg`);
+  const pngPath = join(FACE_CACHE_DIR, `face-${bnsPrefix}.png`);
+
+  // Serve cached SVG first, then PNG
+  if (existsSync(svgPath)) {
+    return new Response(readFileSync(svgPath), {
+      headers: {
+        "Content-Type": "image/svg+xml",
+        "Cache-Control": "public, max-age=86400",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+  }
+  if (existsSync(pngPath)) {
+    const content = readFileSync(pngPath);
+    // Detect if the "png" file is actually SVG (legacy cache)
+    const isSvg = content.length > 4 && content.slice(0, 100).toString().includes("<svg");
+    return new Response(content, {
+      headers: {
+        "Content-Type": isSvg ? "image/svg+xml" : "image/png",
+        "Cache-Control": "public, max-age=86400",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+  }
+
+  // Fetch and cache from bitcoinfaces.xyz
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    const res = await fetch(
+      `https://bitcoinfaces.xyz/api/get-image?name=${bnsPrefix}`,
+      { signal: controller.signal }
+    );
+    clearTimeout(timeout);
+
+    if (!res.ok) return errorResponse("Face not found", 404);
+
+    const contentType = res.headers.get("content-type") || "image/png";
+    const isSvg = contentType.includes("svg");
+    const ext = isSvg ? "svg" : "png";
+    const buf = await res.arrayBuffer();
+    writeFileSync(join(FACE_CACHE_DIR, `face-${bnsPrefix}.${ext}`), Buffer.from(buf));
+
+    return new Response(Buffer.from(buf), {
+      headers: {
+        "Content-Type": contentType,
+        "Cache-Control": "public, max-age=86400",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+  } catch {
+    return errorResponse("Failed to fetch face", 502);
+  }
+}
+
 function handleReputation(): Response {
   try {
     // Check if reviews table exists (created by arc-reputation skill on first use)
@@ -652,7 +715,7 @@ async function handlePostMessage(req: Request): Promise<Response> {
 
   const message = typeof body.message === "string" ? body.message.trim() : "";
   if (!message) return errorResponse("Message is required", 400);
-  if (message.length > 500) return errorResponse("Message too long (max 500 chars)", 400);
+  if (message.length > 1000) return errorResponse("Message too long (max 1000 chars)", 400);
 
   const parentId = typeof body.parent_id === "number" && Number.isInteger(body.parent_id) && body.parent_id > 0
     ? body.parent_id
@@ -826,10 +889,15 @@ function serveStatic(pathname: string): Response | null {
   const contentType = MIME_TYPES[ext] || "application/octet-stream";
   const file = Bun.file(filePath);
 
+  const cacheHeader = [".html", ".js", ".css"].includes(ext)
+    ? "no-cache"
+    : "public, max-age=3600";
+
   return new Response(file, {
     headers: {
       "Content-Type": contentType,
       "Access-Control-Allow-Origin": "*",
+      "Cache-Control": cacheHeader,
     },
   });
 }
@@ -898,6 +966,7 @@ function route(req: Request): Response | Promise<Response> {
   if (path === "/api/skills") return handleSkills();
   if (path === "/api/costs") return handleCosts(url);
   if (path === "/api/identity") return handleIdentity();
+  if (path === "/api/face") return handleFace();
   if (path === "/api/reputation") return handleReputation();
   if (path === "/api/events") return handleEvents();
 

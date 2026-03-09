@@ -8,6 +8,44 @@
  */
 
 export type ModelTier = "opus" | "sonnet" | "haiku";
+export type SdkType = "claude" | "codex" | "openrouter";
+
+/**
+ * Parsed SDK routing result from a task's model field.
+ *
+ * Examples:
+ *   "opus"        → { sdk: "claude", model: "opus" }
+ *   "codex"       → { sdk: "codex", model: undefined } (use codex default)
+ *   "codex:o3"    → { sdk: "codex", model: "o3" }
+ *   "codex:o4-mini"→ { sdk: "codex", model: "o4-mini" }
+ *   null          → { sdk: "claude", model: undefined } (priority routing)
+ */
+export interface SdkRoute {
+  sdk: SdkType;
+  model: string | undefined;
+}
+
+const CLAUDE_TIERS: Set<string> = new Set(["opus", "sonnet", "haiku"]);
+
+/**
+ * Parse a task's model field into SDK type + model identifier.
+ * Returns sdk="claude" with model=undefined when no model is set (use priority routing).
+ */
+export function parseTaskSdk(taskModel: string | null): SdkRoute {
+  if (!taskModel) return { sdk: "claude", model: undefined };
+
+  // codex or codex:<model>
+  if (taskModel === "codex") return { sdk: "codex", model: undefined };
+  if (taskModel.startsWith("codex:")) {
+    return { sdk: "codex", model: taskModel.slice(6) || undefined };
+  }
+
+  // Claude tiers
+  if (CLAUDE_TIERS.has(taskModel)) return { sdk: "claude", model: taskModel };
+
+  // Unknown — treat as claude with the raw value (dispatch will log a warning)
+  return { sdk: "claude", model: taskModel };
+}
 
 export interface ModelPricing {
   input_per_million: number;
