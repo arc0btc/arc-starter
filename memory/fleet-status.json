@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T15:02:00.626Z",
+  "updated_at": "2026-03-09T15:03:05.194Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3025,
-    "subject": "Fleet escalation: forge blocked on task #109 — Fleet escalation: loom blocked on task #118 — Fleet escalation: spark blocked on task #117 — GitHub credentials needed: arc0btc token for aibtcdev CI workflow PRs (tasks #113, #95)",
+    "id": 2996,
+    "subject": "Fleet alert: forge service issues — dispatch timer inactive\ninactive",
     "status": "completed",
-    "priority": 2
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 18634,
-    "cost_usd": 0.1304955
+    "duration_ms": 22701,
+    "cost_usd": 0.14931025
   },
   "health": {
-    "uptime_seconds": 1011019,
+    "uptime_seconds": 1011084,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234668093440
+    "disk_avail_bytes": 234668044288
   }
 }
