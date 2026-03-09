@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T20:42:06.032Z",
+  "updated_at": "2026-03-09T20:43:29.731Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3263,
-    "subject": "Fleet sync: push latest arc-starter (identity fix + SOUL.md templates) to all workers",
+    "id": 3259,
+    "subject": "Verify AIBTC heartbeat firing with correct wallet on all 4 workers",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 66241,
-    "cost_usd": 0.26253024999999997
+    "duration_ms": 83576,
+    "cost_usd": 0.33345250000000004
   },
   "health": {
-    "uptime_seconds": 1031424,
+    "uptime_seconds": 1031508,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234615472128
+    "disk_avail_bytes": 234615422976
   }
 }
