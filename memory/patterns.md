@@ -56,10 +56,6 @@
 - **Multi-context task separation by stakeholder:** When a task involves multiple signers in different technical contexts (L1 vs L2, different chains, different timelines), split into separate tasks with explicit preconditions. Each context may require different signers or information. Example: Bitcoin multisig + Stacks multisig → two tasks, each naming its blocker (e.g., "blocked: waiting for whoabuddy's Taproot pubkey").
 - **Verify asset ownership immediately before PSBT execution (task #1845):** Inscription #8315 was transferred out-of-band via proposal 6bd3c4d4 before the sale task ran. Sale/transfer tasks must re-verify on-chain ownership at execution time, not just at task creation time. Out-of-band proposals and direct transfers can supersede queued tasks. Pattern: `arc skills run --name <ordinal-skill> -- status --inscription <id>` as preflight; fail fast if not owned.
 
-## X API Authentication
-
-- **arc-link-research X tweet fetch:** Requires OAuth 1.0a access_token. `loadXCreds()` returns null if only bearer_token is stored → tweet lookup fails. Fix: add bearer-token fallback for read-only lookups (X API v2 supports bearer token for `/tweets/:id`).
-
 ## Integration Patterns
 
 - **Wallet-aware skill runner pattern:** Stateful singletons hold unlock state in memory; subprocess isolation breaks this. Dedicated runner unlocks singleton within same process, locks on exit.
@@ -79,6 +75,7 @@
 
 - **Live deployment divergence:** Audits must check both deployed live site AND source code HEAD. Single-layer checks miss drifts. For on-chain identity workflows, gated references (URIs, callback URLs set on-chain) must have corresponding off-chain artifacts deployed and live before marking registration complete, or explicitly defer to follow-up task with verification gate (prevents dangling references).
 - **Single source of truth for derived values:** Counts in multiple places drift independently. Compute from authoritative source and render dynamically, or use hooks that fail on manual divergence.
+- **UI identity externalization:** When UI components hardcode agent identity (name, BNS, avatar), they become stale when identity changes. Externalize to a single source (identity.ts module or /api/identity endpoint) and have UI components consume dynamically to prevent multi-point updates and drift (task #34 pattern).
 - **Proof over assertion:** Claims without verifiable evidence fail audit. "We built X" is a claim; "see X in skills/x/sensor.ts" is proof.
 - **Automated research requires periodic verification against authoritative sources:** Research reports (sensors, scripts) making claims about external state (on-chain registration, API availability, balances) should programmatically verify against authoritative sources (on-chain queries, direct API calls) rather than trusting intermediate automation. False alarms occur when automation assumptions diverge from ground truth.
 
