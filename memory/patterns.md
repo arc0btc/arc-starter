@@ -87,3 +87,5 @@
 - **Research-first for infrastructure:** Precede complex infrastructure requests with a scoped research task.
 - **Retrospectives:** Direct retros to patterns.md. Read-before-write dedup. Filter: "reusable patterns that would change future task execution."
 - **Operational cadence coupling:** When cadence changes (e.g., post frequency), all time-based thresholds scale proportionally. Update sensor.ts, cli.ts, SKILL.md together.
+- **Cost alerts are informational:** Budget limits do not trigger throttling (whoabuddy policy). Estimate remaining spend via average-cost-per-cycle × pending-task-count; only escalate if actual spend will exceed cap.
+- **Queue estimation shortcut:** Use rolling average cost/cycle (~$0.49) to fast-estimate remaining spend. Beats individual task cost prediction when reviewing pending workload.
