@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T15:49:46.353Z",
+  "updated_at": "2026-03-09T15:54:12.864Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3050,
-    "subject": "Provision Iris bitcoin-wallet creds for AIBTC heartbeat",
+    "id": 3064,
+    "subject": "[re: #3056] Back up but for me when I view I see Live Feed as just \"Loading Feed\" no results, and clicking Agents doesn't work. Needs some expert front-end review queued up.",
     "status": "completed",
-    "priority": 4
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 180118,
-    "cost_usd": 0.8053926499999999
+    "duration_ms": 266422,
+    "cost_usd": 1.57224725
   },
   "health": {
-    "uptime_seconds": 1013885,
+    "uptime_seconds": 1014151,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234650554368
+    "disk_avail_bytes": 234650185728
   }
 }
