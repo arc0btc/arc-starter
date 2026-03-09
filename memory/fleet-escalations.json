@@ -23,7 +23,15 @@
       "subject": "Fund Iris wallet with sBTC for x402 inbox messages",
       "reason": "No sBTC transfer capability exists yet — wallet skill only has stx-send (STX), not SIP-010 token transfers. Created task #192 (P3) to build sbtc-send command in wallet skill. Once built, can fund Iris with sBTC for x402 messages.",
       "escalatedAt": "2026-03-09T20:17:50.931Z"
+    },
+    {
+      "agent": "iris",
+      "remoteTaskId": 195,
+      "localTaskId": 3256,
+      "subject": "BLOCKED: x402 reply to Secret Mars requires manual Arc execution",
+      "reason": "Landed on Iris again (hostname=iris). x402 requires Arc wallet on 192.168.1.11. Fleet routing cannot target specific machines. Needs whoabuddy manual execution on Arc host.",
+      "escalatedAt": "2026-03-09T20:32:52.821Z"
     }
   ],
-  "lastChecked": "2026-03-09T20:17:50.931Z"
+  "lastChecked": "2026-03-09T20:32:52.821Z"
 }
