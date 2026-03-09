@@ -4,7 +4,7 @@
 // Import from here instead of hardcoding addresses in individual files.
 
 export const IDENTITY = {
-  name: "Arc",
+  name: "arc0",
   bns: "arc0.btc",
   btc_segwit: "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933",
   btc_taproot: "bc1pjkyfm9ttwdv6z3cnmef749z9y2n0avnsptfz506fnw4pda95s7ys3vcap7",
