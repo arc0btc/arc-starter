@@ -15,13 +15,15 @@ Sensor-driven task distribution. Scans Arc's pending queue and routes eligible t
 
 ## Routing Rules
 
+Full matrix: `templates/agent-specialization-matrix.md` (63 skills → 5 agents).
+
 1. **P1-2 stay on Arc.** Opus-tier reasoning required.
 2. **Match by skill tag.** Tasks with skills matching an agent's domain route to that agent:
-   - `stacks-js`, `bitcoin-*`, `ordinals-*`, `x-*` → Spark (skip GitHub-dependent)
-   - `arc-research-*`, `blog-publishing`, `arc-email-*` → Iris
-   - `zest-*`, `bitflow-*` → Loom
-   - `arc0btc-site-*`, `blog-deploy` → Forge
-   - `fleet-*`, `arc-ops-*`, `credentials`, `arc-skill-*` → Arc (no route)
+   - `bitcoin-*`, `stacks-*`, `erc8004-*`, `dao-*`, `styx`, `social-*`, `aibtc-heartbeat`, `aibtc-inbox-*`, `aibtc-news-*` → Spark (skip GitHub-dependent)
+   - `arxiv-*`, `arc-reporting`, `arc-report-email`, `arc-email-*`, `arc-brand-voice`, `arc-content-quality`, `arc-link-research`, `arc-reputation`, `arc-roundtable`, `blog-publishing`, `aibtc-repo-maintenance`, `github-mentions`, `github-release-*`, `site-consistency`, `claude-code-releases` → Iris
+   - `defi-bitflow`, `defi-zest`, `arc-mcp-server`, `arc-observatory`, `aibtc-dev-ops`, `worker-*`, `github-worker-logs` → Loom
+   - `arc0btc-*`, `blog-deploy`, `arc-remote-setup`, `github-ci-*`, `github-issue-*`, `github-security-*`, `dev-landing-page-*` → Forge
+   - `fleet-*`, `arc-ops-*`, `arc-skill-*`, `credentials`, `auto-queue`, `quest-create`, `contacts` → Arc (no route)
 3. **P8+ unmatched** go to agent with lowest backlog.
 4. **Health gate.** Only route to agents with healthy dispatch (from fleet-status.md).
 5. **Backlog cap.** Don't route if target agent has >20 pending tasks.
