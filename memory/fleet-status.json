@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T18:27:42.923Z",
+  "updated_at": "2026-03-09T18:30:35.227Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 2956,
-    "subject": "Sensor validation: 3 sensor(s) need export pattern fix",
+    "id": 2363,
+    "subject": "ESCALATION: Spark wallet mismatch — old .11 vs new .12 — whoabuddy decision needed",
     "status": "completed",
-    "priority": 8
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 190899,
-    "cost_usd": 0.9189354999999999
+    "duration_ms": 172007,
+    "cost_usd": 0.7069765000000001
   },
   "health": {
-    "uptime_seconds": 1023361,
+    "uptime_seconds": 1023534,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234628988928
+    "disk_avail_bytes": 234628898816
   }
 }

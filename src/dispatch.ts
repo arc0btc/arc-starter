@@ -71,10 +71,18 @@ function classifyError(errMsg: string): ErrorClass {
       || /\b(?:unauthorized|forbidden)\b/i.test(errMsg)) {
     return "auth";
   }
-  // Rate limiting — 429 with HTTP context, or named patterns
+  // Rate limiting — 429 with HTTP context, plan/usage limits, or named patterns
   if (/(?:status|HTTP|error|code)[:\s]*429/i.test(errMsg)
       || /\brate[_\s-]?limit/i.test(errMsg)
-      || /\btoo many requests\b/i.test(errMsg)) {
+      || /\btoo many requests\b/i.test(errMsg)
+      || /\bmax\s*usage\b/i.test(errMsg)
+      || /\bplan\s*limit/i.test(errMsg)
+      || /\busage\s*limit/i.test(errMsg)
+      || /\btoken\s*limit/i.test(errMsg)
+      || /\bplan.*cap/i.test(errMsg)
+      || /\bexceeded.*(?:limit|quota)/i.test(errMsg)
+      || /\b(?:limit|quota)\s*(?:reached|exceeded|hit)\b/i.test(errMsg)
+      || /claude exited [1-9]\d*:\s*$/i.test(errMsg)) {
     return "rate_limited";
   }
   // Subprocess timeout — task ran too long, do not retry (would just time out again)
