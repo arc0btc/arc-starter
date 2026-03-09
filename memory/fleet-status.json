@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T19:13:05.537Z",
+  "updated_at": "2026-03-09T19:17:50.890Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3230,
-    "subject": "cost alert: fleet spend $178.60/200 — approaching cap",
+    "id": 3231,
+    "subject": "[re: #3230] who set this cap? point is to report not limit usage. also values are broken. needs fixing.",
     "status": "completed",
-    "priority": 3
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 29068,
-    "cost_usd": 0.13607975
+    "duration_ms": 253947,
+    "cost_usd": 0.7633588000000001
   },
   "health": {
-    "uptime_seconds": 1026084,
+    "uptime_seconds": 1026369,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234622054400
+    "disk_avail_bytes": 234621915136
   }
 }
