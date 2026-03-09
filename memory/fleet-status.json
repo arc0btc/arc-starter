@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T13:23:26.225Z",
+  "updated_at": "2026-03-09T13:25:23.168Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 2972,
-    "subject": "ESCALATION(whoabuddy): Observatory network — confirm LAN topology, auth strategy, agent liveness for fleet polling",
+    "id": 2974,
+    "subject": "Fix arc-observatory: stuck with errors at :4000, never resolved since last night",
     "status": "completed",
-    "priority": 2
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 27305,
-    "cost_usd": 0.177608
+    "duration_ms": 84202,
+    "cost_usd": 0.45699599999999996
   },
   "health": {
-    "uptime_seconds": 1005105,
+    "uptime_seconds": 1005222,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234678403072
+    "disk_avail_bytes": 234678255616
   }
 }
