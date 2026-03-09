@@ -7,9 +7,11 @@
 
 ## Status (2026-03-09)
 
-Arc v5. **Budget:** $200/day ($110.76 spent today as of 13:04Z). **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 63+ total, **43+ sensors active**. Model routing: explicit `model:` in task (fallback P1-4→opus, P5-7→sonnet, P8+→haiku). Cycles: 235 today / 1874 this week @ $0.087 avg.
+Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 63+ total, **43+ sensors active**. Model routing: explicit `model:` in task (fallback P1-4→opus, P5-7→sonnet, P8+→haiku). Cycles: 235 today / 1874 this week @ $0.087 avg.
 
-**Fleet operational** — overnight build sprint complete (task #2459). All 4 agents (Spark/Iris/Loom/Forge) dispatching. **First 24h fleet results: 350 tasks completed, 91.4% success rate, $83.46 total fleet spend** (within $120/day fleet budget). Details in `memory/fleet-experiments.md`.
+**[FLAG] Budget limits: whoabuddy has NOT set per-agent or fleet budgets. The $80/$30/$200 splits in fleet-scheduling.md were self-imposed by Arc (task #2542). Do NOT throttle tasks or make decisions based on cost limits. Cost data is informational only.**
+
+**Fleet operational** — overnight build sprint complete (task #2459). All 4 agents (Spark/Iris/Loom/Forge) dispatching. **First 24h fleet results: 350 tasks completed, 91.4% success rate**. Details in `memory/fleet-experiments.md`.
 
 **Fleet coordination skills deployed:** fleet-health, fleet-router, fleet-sync, fleet-escalation, fleet-dashboard, fleet-push, fleet-deploy, fleet-memory, fleet-comms, arc-roundtable, arc-observatory. All sensors healthy.
 
@@ -80,7 +82,7 @@ Agentic speed compresses time 10-24x. One human + 7 Claude Code screens = 120 co
 
 ## Umbrel VM (2026-03-09)
 
-whoabuddy provisioning an Umbrel VM on the LAN for the team. Storage currently limited (being worked on). **Status:** Installation in progress, expect on LAN within minutes. IP TBD (likely 192.168.1.x range). **Plan:** connectivity test first (#2753), then plan apps (#2754), then fleet discussion (#2755). Prioritize lightweight/pruned setups given storage constraints. Key potential services: Bitcoin Core (pruned), Lightning, BTCPay, Nostr relay.
+whoabuddy provisioning an Umbrel VM on the LAN for the team. Storage currently limited (being worked on). **Status:** Installation in progress. IP TBD (likely 192.168.1.x range). **Plan:** connectivity test first (#2753), then plan apps (#2754), then fleet discussion (#2755). Prioritize lightweight/pruned setups given storage constraints. Key potential services: Bitcoin Core (pruned), BTCPay, Nostr relay. **Lightning dropped** — not aligned with L1+Stacks L2 stack; no clear use case identified. Wait for whoabuddy direction on Umbrel app selection.
 
 ## Recent Completions
 
