@@ -1,20 +1,97 @@
-// src/identity.ts — Shared identity constants for Arc agent
+// src/identity.ts — Shared identity constants for Arc agent fleet
 //
 // Single source of truth for on-chain addresses and identity metadata.
+// Detects current agent from hostname and returns the correct identity.
 // Import from here instead of hardcoding addresses in individual files.
 
-export const IDENTITY = {
-  name: "arc0",
-  bns: "arc0.btc",
-  btc_segwit: "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933",
-  btc_taproot: "bc1pjkyfm9ttwdv6z3cnmef749z9y2n0avnsptfz506fnw4pda95s7ys3vcap7",
-  stx: "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B",
-  github: "arc0btc",
-  twitter: "arc0btc",
-  website: "arc0.me",
-  // btc kept as alias for backwards compat
-  btc: "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933",
-} as const;
+import { hostname } from "node:os";
 
+export interface AgentIdentity {
+  name: string;
+  bns: string;
+  btc_segwit: string;
+  btc_taproot: string;
+  stx: string;
+  github: string;
+  twitter: string;
+  website: string;
+  btc: string;
+}
+
+const IDENTITIES: Record<string, AgentIdentity> = {
+  arc0: {
+    name: "arc0",
+    bns: "arc0.btc",
+    btc_segwit: "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933",
+    btc_taproot: "bc1pjkyfm9ttwdv6z3cnmef749z9y2n0avnsptfz506fnw4pda95s7ys3vcap7",
+    stx: "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B",
+    github: "arc0btc",
+    twitter: "arc0btc",
+    website: "arc0.me",
+    btc: "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933",
+  },
+  spark: {
+    name: "spark0",
+    bns: "spark0.btc",
+    btc_segwit: "bc1qpln8pmwntgtw8a874zkkqdw4585eu4z3vnzhj3",
+    btc_taproot: "",
+    stx: "SP12Q1FS2DX4N8C2QYBM0Z2N2DY1EH9EEPMPH9N9X",
+    github: "spark0btc",
+    twitter: "spark0btc",
+    website: "",
+    btc: "bc1qpln8pmwntgtw8a874zkkqdw4585eu4z3vnzhj3",
+  },
+  iris: {
+    name: "iris0",
+    bns: "iris0.btc",
+    btc_segwit: "",
+    btc_taproot: "",
+    stx: "",
+    github: "iris0btc",
+    twitter: "",
+    website: "",
+    btc: "",
+  },
+  loom: {
+    name: "loom0",
+    bns: "loom0.btc",
+    btc_segwit: "",
+    btc_taproot: "",
+    stx: "",
+    github: "loom0btc",
+    twitter: "",
+    website: "",
+    btc: "",
+  },
+  forge: {
+    name: "forge0",
+    bns: "forge0.btc",
+    btc_segwit: "",
+    btc_taproot: "",
+    stx: "",
+    github: "forge0btc",
+    twitter: "",
+    website: "",
+    btc: "",
+  },
+};
+
+function detectAgent(): string {
+  // ARC_AGENT env var takes priority (for testing/override)
+  const envAgent = process.env.ARC_AGENT;
+  if (envAgent && IDENTITIES[envAgent]) return envAgent;
+
+  const h = hostname().toLowerCase();
+  // hostname "arc0btc" or "arc0" → arc0
+  if (h.startsWith("arc")) return "arc0";
+  // hostname "spark" → spark, "iris" → iris, etc.
+  for (const key of Object.keys(IDENTITIES)) {
+    if (h.startsWith(key)) return key;
+  }
+  return "arc0"; // fallback
+}
+
+export const AGENT_NAME: string = detectAgent();
+export const IDENTITY: AgentIdentity = IDENTITIES[AGENT_NAME];
 export const ARC_BTC_ADDRESS: string = IDENTITY.btc;
 export const ARC_STX_ADDRESS: string = IDENTITY.stx;
