@@ -9,7 +9,8 @@ import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
 import { resolve } from "node:path";
 
-import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
+import { AGENT_NAME, getAgentWallets } from "../../src/identity.ts";
+import type { WalletAddresses } from "../../src/identity.ts";
 
 const SENSOR_NAME = "aibtc-heartbeat";
 const INTERVAL_MINUTES = 5;
@@ -22,15 +23,24 @@ const SIGN_RUNNER = resolve(import.meta.dir, "../bitcoin-wallet/sign-runner.ts")
 const log = createSensorLogger(SENSOR_NAME);
 
 /**
+ * Credential service name for a wallet.
+ * Primary wallet uses "bitcoin-wallet", legacy wallets use "bitcoin-wallet-legacy".
+ */
+function credService(wallet: WalletAddresses): string {
+  return wallet.label === "primary" ? "bitcoin-wallet" : `bitcoin-wallet-${wallet.label ?? "legacy"}`;
+}
+
+/**
  * Sign a message using the wallet's sign-runner (handles unlock/sign/lock in one process).
  * Returns the signature string or null on failure.
  */
-async function btcSign(message: string): Promise<string | null> {
-  const password = await getCredential("bitcoin-wallet", "password");
-  const walletId = await getCredential("bitcoin-wallet", "id");
+async function btcSign(message: string, wallet: WalletAddresses): Promise<string | null> {
+  const service = credService(wallet);
+  const password = await getCredential(service, "password");
+  const walletId = await getCredential(service, "id");
 
   if (!password || !walletId) {
-    log("wallet credentials not found in creds store");
+    log(`wallet credentials not found for ${service}`);
     return null;
   }
 
@@ -54,7 +64,7 @@ async function btcSign(message: string): Promise<string | null> {
   const exitCode = await proc.exited;
 
   if (exitCode !== 0) {
-    log(`btc-sign failed (exit ${exitCode}): ${stderr || stdout}`);
+    log(`btc-sign failed for ${service} (exit ${exitCode}): ${stderr || stdout}`);
     return null;
   }
 
@@ -62,36 +72,28 @@ async function btcSign(message: string): Promise<string | null> {
     const result = JSON.parse(stdout.trim());
     const sig = result.signature ?? result.signatureBase64 ?? result.data?.signature;
     if (sig) return sig as string;
-    log(`btc-sign: no signature in response: ${stdout.trim()}`);
+    log(`btc-sign: no signature in response for ${service}: ${stdout.trim()}`);
     return null;
   } catch {
-    log(`btc-sign failed to parse output: ${stdout.trim()}`);
+    log(`btc-sign failed to parse output for ${service}: ${stdout.trim()}`);
     return null;
   }
 }
 
-export default async function aibtcHeartbeatSensor(): Promise<string> {
-  // Bail early if this agent has no BTC address configured
-  if (!ARC_BTC_ADDRESS) {
-    log("no BTC address configured for this agent — heartbeat disabled");
-    return "skip";
-  }
+/**
+ * Fire a heartbeat for a single wallet. Returns true on success.
+ */
+async function heartbeatForWallet(wallet: WalletAddresses, timestamp: string): Promise<boolean> {
+  const btcAddress = wallet.btc_segwit;
+  const walletLabel = wallet.label ?? "unknown";
+  const checkInMessage = `AIBTC Check-In | ${timestamp}`;
 
-  const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
-  if (!claimed) return "skip";
-
-  // Build check-in message
-  const timestamp = new Date().toISOString();
-  const message = `AIBTC Check-In | ${timestamp}`;
-
-  // Sign with BTC wallet
-  const signature = await btcSign(message);
+  const signature = await btcSign(checkInMessage, wallet);
   if (!signature) {
-    log("ERROR: signing failed — wallet creds may be missing or sign-runner broken");
-    return "error";
+    log(`signing failed for ${walletLabel} (${btcAddress}) — skipping`);
+    return false;
   }
 
-  // POST to heartbeat API
   let responseBody: Record<string, unknown>;
   try {
     const response = await fetch(HEARTBEAT_URL, {
@@ -100,38 +102,37 @@ export default async function aibtcHeartbeatSensor(): Promise<string> {
       body: JSON.stringify({
         timestamp,
         signature,
-        btcAddress: ARC_BTC_ADDRESS,
+        btcAddress,
       }),
     });
 
     responseBody = (await response.json()) as Record<string, unknown>;
 
     if (!response.ok) {
-      log(`heartbeat API returned ${response.status}: ${JSON.stringify(responseBody)}`);
-      return "ok";
+      log(`heartbeat API returned ${response.status} for ${walletLabel}: ${JSON.stringify(responseBody)}`);
+      return false;
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    log(`heartbeat API request failed: ${message}`);
-    return "ok";
+    const msg = error instanceof Error ? error.message : String(error);
+    log(`heartbeat API request failed for ${walletLabel}: ${msg}`);
+    return false;
   }
 
-  // Log result
   const level = responseBody.level ?? "unknown";
   const checkInCount = responseBody.checkInCount ?? "?";
   const unreadCount = (responseBody.unreadCount as number) ?? 0;
-  log(`check-in ok — level=${level} checkIns=${checkInCount} unread=${unreadCount}`);
+  log(`[${walletLabel}] check-in ok — level=${level} checkIns=${checkInCount} unread=${unreadCount}`);
 
   // If unread messages, create a task to read inbox
   if (typeof unreadCount === "number" && unreadCount > 0) {
-    const inboxSource = `${TASK_SOURCE}:inbox`;
+    const inboxSource = `${TASK_SOURCE}:inbox:${walletLabel}`;
     if (!pendingTaskExistsForSource(inboxSource)) {
       const taskId = insertTask({
-        subject: `Read AIBTC inbox (${unreadCount} unread)`,
+        subject: `Read AIBTC inbox for ${walletLabel} wallet (${unreadCount} unread)`,
         description: [
-          `The AIBTC heartbeat reported ${unreadCount} unread inbox message(s).`,
+          `The AIBTC heartbeat reported ${unreadCount} unread inbox message(s) for the ${walletLabel} wallet.`,
           "",
-          `Read inbox: GET https://aibtc.com/api/inbox/${ARC_BTC_ADDRESS}`,
+          `Read inbox: GET https://aibtc.com/api/inbox/${btcAddress}`,
           "Process messages and reply if needed.",
         ].join("\n"),
         skills: '["bitcoin-wallet"]',
@@ -139,9 +140,33 @@ export default async function aibtcHeartbeatSensor(): Promise<string> {
         model: "haiku",
         source: inboxSource,
       });
-      log(`created task ${taskId} for ${unreadCount} unread inbox message(s)`);
+      log(`created task ${taskId} for ${unreadCount} unread inbox message(s) on ${walletLabel}`);
     }
   }
 
-  return "ok";
+  return true;
+}
+
+export default async function aibtcHeartbeatSensor(): Promise<string> {
+  const wallets = getAgentWallets(AGENT_NAME);
+  if (wallets.length === 0) {
+    log("no wallets configured for this agent — heartbeat disabled");
+    return "skip";
+  }
+
+  const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
+  if (!claimed) return "skip";
+
+  const timestamp = new Date().toISOString();
+
+  // Fire heartbeats for all wallets (primary + legacy) sequentially
+  // Sequential to avoid race conditions on wallet unlock/lock
+  let successCount = 0;
+  for (const wallet of wallets) {
+    const ok = await heartbeatForWallet(wallet, timestamp);
+    if (ok) successCount++;
+  }
+
+  log(`heartbeat cycle complete: ${successCount}/${wallets.length} wallets checked in`);
+  return successCount > 0 ? "ok" : "error";
 }
