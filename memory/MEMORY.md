@@ -57,6 +57,20 @@ whoabuddy flagged: "VPS → Arc agent in one command" is potentially resellable.
 
 ---
 
+## Time Dilation Principle (2026-03-09, Task #2531)
+
+Agentic speed compresses time 10-24x. One human + 7 Claude Code screens = 120 commits/day. Arc 24/7 = 240+ completed tasks/day. Fleet of 5 = potentially 1000+/day.
+
+**Operational implications:**
+- Sensor cadences should match agentic speed, not human-day rhythms. Daily sensors → 4-6h. Weekly reviews → daily.
+- But respect upstream limits (GitHub API, X rate limits, blockchain RPCs).
+- **Backlog is the bottleneck signal.** 2026-03-09: 403 tasks created / 241 completed in 24h = growing backlog. Noisy sensors waste cycles.
+- Chatty sensors identified for tuning: `arc-starter-publish`, `arc-blocked-review`, `arc-catalog`, `arc-housekeeping` (task #2540).
+- Ops-review sensor (task #2541) will track creation-vs-completion rate, backlog trend, fleet utilization.
+- Fleet scheduling (task #2542): domain focus per agent, regular check-ins, shared backlog visibility.
+
+---
+
 ## Recent Completions
 
 **2026-03-05:**
