@@ -633,11 +633,18 @@ export function updateTask(id: number, fields: UpdateTaskFields): void {
   updateRow("tasks", id, fields as Record<string, unknown>);
 }
 
-export function requeueTask(id: number): void {
+export function requeueTask(id: number, opts?: { preserveAttemptCount?: boolean }): void {
   const db = getDatabase();
-  db.query(
-    "UPDATE tasks SET status = 'pending', started_at = NULL WHERE id = ?"
-  ).run(id);
+  if (opts?.preserveAttemptCount) {
+    // Rate-limited: requeue and undo the attempt_count bump from markTaskActive — task isn't at fault
+    db.query(
+      "UPDATE tasks SET status = 'pending', started_at = NULL, attempt_count = MAX(0, attempt_count - 1) WHERE id = ?"
+    ).run(id);
+  } else {
+    db.query(
+      "UPDATE tasks SET status = 'pending', started_at = NULL WHERE id = ?"
+    ).run(id);
+  }
 }
 
 export function updateTaskCost(

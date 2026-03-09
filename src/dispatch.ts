@@ -661,7 +661,11 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string)
   }
   if (exitCode !== 0) {
     const errText = await new Response(proc.stderr).text();
-    throw new Error(`claude exited ${exitCode}: ${errText.trim()}`);
+    // When Claude Code hits plan limits, it exits 1 with empty stderr.
+    // Include any accumulated result text to help classify the error.
+    const errContext = errText.trim()
+      || (result ? result.slice(0, 300) : "");
+    throw new Error(`claude exited ${exitCode}: ${errContext}`);
   }
 
   // Always calculate api_cost_usd from tokens for dual tracking
@@ -1389,8 +1393,12 @@ export async function runDispatch(): Promise<void> {
       // Subprocess timeout — fail cleanly, don't retry
       markTaskFailed(task.id, `Task timed out after ${getDispatchTimeoutMs(model) / 60_000}min (${model} tier). Consider breaking it into smaller subtasks or raising the dispatch timeout.`);
       log(`dispatch: task #${task.id} failed — subprocess timeout, not retrying`);
+    } else if (errClass === "rate_limited") {
+      // Rate/plan limit: requeue without burning retry count — the task isn't at fault
+      requeueTask(task.id, { preserveAttemptCount: true });
+      log(`dispatch: task #${task.id} rate-limited — requeued (attempt count preserved, circuit breaker will gate retries)`);
     } else {
-      // Transient/rate-limited/unknown: requeue if under max_retries
+      // Transient/unknown: requeue if under max_retries
       const attemptNumber = task.attempt_count + 1;
       if (attemptNumber < task.max_retries) {
         requeueTask(task.id);
