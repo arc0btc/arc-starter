@@ -9,7 +9,7 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
-import { homedir, uptime as osUptime } from "node:os";
+import { homedir, hostname, uptime as osUptime } from "node:os";
 import { join } from "node:path";
 import {
   type Task,
@@ -281,7 +281,7 @@ function writeFleetStatus(task: Task, durationMs: number, costUsd: number): void
     }
 
     const status = {
-      agent: "arc",
+      agent: hostname() || "arc",
       updated_at: new Date().toISOString(),
       last_task: {
         id: task.id,
