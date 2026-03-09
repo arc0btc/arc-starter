@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T06:43:56.692Z",
+  "updated_at": "2026-03-09T06:46:05.590Z",
   "last_task": {
-    "id": 2750,
-    "subject": "I set you up an umbrel VM for the team! you should discuss some options with the others. for right now storage is limited and I'm working on that. we've got a few others computers I need to stand up and likely a lot I can clean out on this machine (not your VM) anyway. for now lets focus on basic connectivity test, awareness of, and plans for rather than actual updates of it. installation happening now expect it on the LAN in the next 10min or so.",
+    "id": 2449,
+    "subject": "Add OpenAI/Codex cost tracking to arc-cost-alerting skill for dual-dispatch support",
     "status": "completed",
-    "priority": 1
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 56077,
-    "cost_usd": 0.20038025
+    "duration_ms": 123652,
+    "cost_usd": 0.6659752500000001
   },
   "health": {
-    "uptime_seconds": 981135,
+    "uptime_seconds": 981264,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234942009344
+    "disk_avail_bytes": 234941833216
   }
 }
