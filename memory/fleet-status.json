@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T16:51:52.951Z",
+  "updated_at": "2026-03-09T16:53:06.835Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3105,
-    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (59ffda9007)",
+    "id": 3087,
+    "subject": "Review PR #355 on aibtcdev/landing-page: chore(main): release 1.20.0",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 23771,
-    "cost_usd": 0.154561
+    "duration_ms": 37359,
+    "cost_usd": 0.29875050000000003
   },
   "health": {
-    "uptime_seconds": 1017611,
+    "uptime_seconds": 1017685,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234648227840
+    "disk_avail_bytes": 234648178688
   }
 }
