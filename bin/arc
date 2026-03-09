@@ -9,4 +9,10 @@ while [[ -L "$SOURCE" ]]; do
 done
 SCRIPT_DIR="$(cd "$(dirname "$SOURCE")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Ensure bun is on PATH for non-interactive sessions (e.g. SSH, systemd)
+if ! command -v bun &>/dev/null; then
+  export PATH="$HOME/.bun/bin:$PATH"
+fi
+
 exec bun "$REPO_DIR/src/cli.ts" "$@"
