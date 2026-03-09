@@ -470,6 +470,28 @@ export function recentTaskExistsForSourcePrefix(prefix: string, withinMinutes: n
   return row !== null;
 }
 
+/**
+ * Dedup gate: returns true if a pending/active task with the exact same subject exists.
+ * Catches duplicates that source-based dedup misses (e.g., different sources, same work).
+ */
+export function pendingTaskExistsForSubject(subject: string): boolean {
+  const db = getDatabase();
+  const row = db
+    .query("SELECT 1 FROM tasks WHERE subject = ? AND status IN ('pending', 'active') LIMIT 1")
+    .get(subject);
+  return row !== null;
+}
+
+/**
+ * Insert a task only if no pending/active task with the same subject already exists.
+ * Returns the new task ID, or null if a duplicate was found.
+ */
+export function insertTaskDeduped(fields: InsertTask): number | null {
+  if (pendingTaskExistsForSubject(fields.subject)) return null;
+  if (fields.source && pendingTaskExistsForSource(fields.source)) return null;
+  return insertTask(fields);
+}
+
 // ---- Internal helpers ----
 
 /** Builds and runs a dynamic UPDATE ... WHERE id = ?. Skips undefined values. */

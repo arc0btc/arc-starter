@@ -12,7 +12,7 @@ import { existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { discoverSkills } from "./skills.ts";
 import { initDatabase } from "./db.ts";
-import { insertTask, pendingTaskExistsForSource, taskExistsForSource } from "./db.ts";
+import { insertTask, pendingTaskExistsForSource, pendingTaskExistsForSubject, taskExistsForSource } from "./db.ts";
 export { insertTask, pendingTaskExistsForSource, taskExistsForSource };
 import type { InsertTask } from "./db.ts";
 
@@ -141,6 +141,8 @@ export function insertTaskIfNew(
       ? taskExistsForSource(source)
       : pendingTaskExistsForSource(source);
   if (exists) return null;
+  // Also check subject dedup — catches identical tasks from different sources
+  if (pendingTaskExistsForSubject(taskConfig.subject)) return null;
   return insertTask({ ...taskConfig, source });
 }
 

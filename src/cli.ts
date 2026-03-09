@@ -5,6 +5,8 @@ import { join } from "node:path";
 import {
   initDatabase,
   insertTask,
+  pendingTaskExistsForSubject,
+  pendingTaskExistsForSource,
   getPendingTasks,
   getActiveTasks,
   getRecentCycles,
@@ -223,6 +225,21 @@ function cmdTasksAdd(args: string[]): void {
   }
 
   initDatabase();
+
+  // Dedup: skip if identical pending task exists (unless --force)
+  const force = flags["force"] === "true" || flags["force"] === "";
+  if (!force) {
+    if (pendingTaskExistsForSubject(subject)) {
+      process.stdout.write(`Skipped: pending task with same subject already exists: ${subject}\n`);
+      return;
+    }
+    const source = flags["source"];
+    if (source && pendingTaskExistsForSource(source)) {
+      process.stdout.write(`Skipped: pending task with same source already exists: ${source}\n`);
+      return;
+    }
+  }
+
   const id = insertTask({
     subject,
     description: flags["description"],
