@@ -349,6 +349,44 @@ async function handleRoundtableRespond(req: Request): Promise<Response> {
   return json({ task_id: taskId, discussion_id: discussionId, status: "pending" }, 201);
 }
 
+// ---- Roundtable Receive (agents POST their response back here) ----
+
+async function handleRoundtableReceive(req: Request): Promise<Response> {
+  let body: { discussion_id?: number; agent_name?: string; text?: string };
+  try {
+    body = await req.json() as { discussion_id?: number; agent_name?: string; text?: string };
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  const discussionId = body.discussion_id;
+  const agentName = body.agent_name;
+  const text = body.text;
+
+  if (!discussionId || !agentName || !text) {
+    return errorResponse("'discussion_id', 'agent_name', and 'text' are required", 400);
+  }
+
+  const db = getDatabase();
+
+  // Update existing response row
+  const result = db.query(
+    `UPDATE roundtable_responses
+     SET response = ?, status = 'responded', responded_at = datetime('now')
+     WHERE discussion_id = ? AND agent_name = ?`
+  ).run(text, discussionId, agentName);
+
+  if (result.changes === 0) {
+    // Insert if no row exists
+    db.query(
+      `INSERT INTO roundtable_responses (discussion_id, agent_name, response, status, responded_at)
+       VALUES (?, ?, ?, 'responded', datetime('now'))`
+    ).run(discussionId, agentName, text);
+  }
+
+  return json({ ok: true, discussion_id: discussionId, agent_name: agentName }, 200);
+}
+
 // ---- Consensus Vote ----
 
 async function handleConsensusVote(req: Request): Promise<Response> {
@@ -1263,6 +1301,7 @@ function route(req: Request): Response | Promise<Response> {
   if (method === "POST" && path === "/api/ask") return handleAsk(req);
   if (method === "POST" && path === "/api/services/pr-review") return handlePrReview(req);
   if (method === "POST" && path === "/api/roundtable/respond") return handleRoundtableRespond(req);
+  if (method === "POST" && path === "/api/roundtable/receive") return handleRoundtableReceive(req);
   if (method === "POST" && path === "/api/consensus/vote") return handleConsensusVote(req);
   if (method === "POST" && path === "/api/arena/run") return handleArenaRun(req);
 

@@ -21,6 +21,7 @@ interface AgentConfig {
 }
 
 const AGENTS: Record<string, AgentConfig> = {
+  arc: { ip: "192.168.1.10", hostname: "arc" },
   spark: { ip: "192.168.1.12", hostname: "spark" },
   iris: { ip: "192.168.1.13", hostname: "iris" },
   loom: { ip: "192.168.1.14", hostname: "loom" },
@@ -234,7 +235,7 @@ function cmdCompile(flags: Record<string, string>): void {
   ).run(id);
 }
 
-function cmdRespond(flags: Record<string, string>): void {
+async function cmdRespond(flags: Record<string, string>): Promise<void> {
   const id = parseInt(flags["id"] ?? "0");
   const text = flags["text"];
 
@@ -248,7 +249,7 @@ function cmdRespond(flags: Record<string, string>): void {
   // Find this agent's name from the local identity
   const agentName = getLocalAgentName();
 
-  // Update the response row
+  // Update the response row locally
   const result = db.query(
     `UPDATE roundtable_responses
      SET response = ?, status = 'responded', responded_at = datetime('now')
@@ -256,15 +257,33 @@ function cmdRespond(flags: Record<string, string>): void {
   ).run(text, id, agentName);
 
   if (result.changes === 0) {
-    // No existing row — might be responding to a discussion started by another agent.
-    // Insert directly.
     db.query(
       `INSERT INTO roundtable_responses (discussion_id, agent_name, response, status, responded_at)
        VALUES (?, ?, ?, 'responded', datetime('now'))`
     ).run(id, agentName, text);
   }
 
-  process.stdout.write(`Response recorded for discussion #${id} as ${agentName}\n`);
+  process.stdout.write(`Response recorded locally for discussion #${id} as ${agentName}\n`);
+
+  // POST response back to Arc (the orchestrator) so it appears in the compiled result
+  const arcIp = await getAgentIp("arc");
+  const arcUrl = `http://${arcIp}:${WEB_PORT}/api/roundtable/receive`;
+  try {
+    const resp = await fetch(arcUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ discussion_id: id, agent_name: agentName, text }),
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (resp.ok) {
+      process.stdout.write(`Response sent back to Arc orchestrator\n`);
+    } else {
+      process.stdout.write(`Warning: could not send to Arc (HTTP ${resp.status})\n`);
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    process.stdout.write(`Warning: could not reach Arc at ${arcUrl} — ${msg}\n`);
+  }
 }
 
 function getLocalAgentName(): string {
