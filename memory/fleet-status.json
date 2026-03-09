@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T21:56:06.786Z",
+  "updated_at": "2026-03-09T21:56:47.303Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3314,
-    "subject": "Build fleet task API: authenticated REST endpoints on Arc web server for cross-agent task creation, assignment, and completion",
+    "id": 3313,
+    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (4fdd4ceb5e)",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 263085,
-    "cost_usd": 1.2450665000000003
+    "duration_ms": 40188,
+    "cost_usd": 0.1299335
   },
   "health": {
-    "uptime_seconds": 1035865,
+    "uptime_seconds": 1035906,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234610044928
+    "disk_avail_bytes": 234609885184
   }
 }
