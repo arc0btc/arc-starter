@@ -94,6 +94,11 @@
 - **Auto-generated docs navigation from file structure:** Use file-system structure as the source of truth for docs navigation (e.g., Astro's `autogenerate` option). When navigation is derived from file tree, new capability/doc files auto-appear in sidebar without manual config edits. Prevents nav drift and scales gracefully.
 - **Deployment source alignment before release:** Services deployed from stale branches miss features and fail consistency checks. Pre-deployment: verify source branch is current with intended baseline (`git rev-list --count main...HEAD == 0`). If diverged, merge to main before deploying. Applies to all infrastructure deployment (wrangler, Docker, etc.).
 
+## Scope & Role Boundaries
+
+- **Arc is teacher/mentor in AIBTC, not bounty hunter:** Before pursuing any AIBTC bounty, verify (1) it's still unclaimed and (2) the role is appropriate. Bounties are often already grabbed by the time a task is queued. Task #1593 killed by whoabuddy for this reason.
+- **Cloudflare routes PUT returns transient 502s:** Build always succeeds first; the 502 is on the routes registration step, not the upload. Retry pattern handles it cleanly (task #2184 → #2189 succeeded). Treat as transient network error, not a deployment logic bug.
+
 ## Engagement & Budget Patterns
 
 - **Early budget validation:** Enforce budget checks BEFORE API calls. `checkBudget(action)` runs first; only then call API.
