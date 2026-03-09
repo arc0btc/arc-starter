@@ -41,16 +41,18 @@ const MEMORY_DIR = new URL("../../memory", import.meta.url).pathname;
 interface PeerStatus {
   agent: string;
   updated_at: string;
+  idle: boolean;
+  idle_since: string | null;
   last_task: {
     id: number;
     subject: string;
     status: string;
     priority: number;
-  };
+  } | null;
   last_cycle: {
     duration_ms: number;
     cost_usd: number;
-  };
+  } | null;
   health: {
     uptime_seconds: number;
     disk_total_bytes: number;
@@ -148,37 +150,67 @@ async function checkAgent(
     }
   }
 
-  // Last dispatch cycle age — try cycle_log first, fall back to fleet-status.json
+  // Last dispatch cycle age — query cycle_log; distinguish no-rows, active cycle, and completed cycle
   const cycleResult = await ssh(
     ip, password,
     `cd ${REMOTE_ARC_DIR} && ~/.bun/bin/bun -e "
       const { Database } = require('bun:sqlite');
       const db = new Database('db/arc.sqlite', { readonly: true });
-      const row = db.query('SELECT completed_at FROM cycle_log ORDER BY id DESC LIMIT 1').get();
-      if (row && row.completed_at) {
+      const row = db.query('SELECT completed_at, started_at FROM cycle_log ORDER BY id DESC LIMIT 1').get();
+      if (!row) {
+        console.log('no cycles');
+      } else if (!row.completed_at) {
+        const age = Date.now() - new Date(row.started_at).getTime();
+        const mins = Math.round(age / 60000);
+        console.log('active ' + mins + 'm');
+      } else {
         const age = Date.now() - new Date(row.completed_at).getTime();
         const mins = Math.round(age / 60000);
         console.log(mins + 'm ago');
-      } else {
-        console.log('no cycles');
       }
       db.close();
     " 2>/dev/null || echo "query failed"`
   );
   health.lastDispatchAge = cycleResult.stdout.trim() || "unknown";
 
-  // If DB query failed but peer status has recent data, derive dispatch age from that
-  if ((health.lastDispatchAge === "no cycles" || health.lastDispatchAge === "query failed") && health.peerStatus?.updated_at) {
-    const peerAgeMs = Date.now() - new Date(health.peerStatus.updated_at).getTime();
-    const peerAgeMins = Math.round(peerAgeMs / 60000);
-    health.lastDispatchAge = `${peerAgeMins}m ago (self-reported)`;
+  // If DB query returned no cycles or failed, cross-check peer status before alerting
+  if (health.lastDispatchAge === "no cycles" || health.lastDispatchAge === "query failed") {
+    const ps = health.peerStatus;
+    if (ps && !health.peerStatusStale) {
+      // Peer status is fresh — derive dispatch state from idle flag and updated_at
+      if (ps.idle === false) {
+        // Dispatch is actively running a task — DB query likely caught mid-cycle
+        health.lastDispatchAge = "active (self-reported)";
+      } else {
+        // Dispatch is idle but alive — use updated_at as dispatch age proxy
+        const peerAgeMs = Date.now() - new Date(ps.updated_at).getTime();
+        const peerAgeMins = Math.round(peerAgeMs / 60000);
+        health.lastDispatchAge = `${peerAgeMins}m ago (self-reported)`;
+      }
+    } else if (ps?.updated_at) {
+      // Peer status exists but is stale — still use updated_at as fallback, mark stale
+      const peerAgeMs = Date.now() - new Date(ps.updated_at).getTime();
+      const peerAgeMins = Math.round(peerAgeMs / 60000);
+      health.lastDispatchAge = `${peerAgeMins}m ago (self-reported, stale)`;
+    }
+    // If no peer status at all: lastDispatchAge stays as "no cycles" or "query failed"
   }
 
-  // Flag if last dispatch was >30 minutes ago (dispatch stall detection)
+  // Flag dispatch issues
+  const activeMatch = health.lastDispatchAge.match(/^active (\d+)m/);
   const ageMatch = health.lastDispatchAge.match(/^(\d+)m ago/);
-  if (ageMatch && parseInt(ageMatch[1]) > 30) {
+  if (health.lastDispatchAge === "active (self-reported)") {
+    // Dispatch is in progress per peer — not stalled, no alert
+  } else if (activeMatch) {
+    // Active cycle detected via DB — alert only if running >60min (runaway)
+    const activeMins = parseInt(activeMatch[1]);
+    if (activeMins > 60) {
+      health.issues.push(`dispatch runaway: active for ${activeMins}m (>60m threshold)`);
+    }
+  } else if (ageMatch && parseInt(ageMatch[1]) > 30) {
     health.issues.push(`dispatch stall: last cycle ${health.lastDispatchAge}`);
   } else if (health.lastDispatchAge === "no cycles" || health.lastDispatchAge === "query failed") {
+    // Peer status was absent or couldn't confirm dispatch is alive
     health.issues.push(`dispatch: ${health.lastDispatchAge}`);
   }
 
