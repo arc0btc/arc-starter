@@ -99,6 +99,8 @@
 ## Git & Publishing Patterns
 
 - **Asymmetric branch detection:** Use bidirectional `rev-list --count` to distinguish "main is behind" from "main has diverged." Both > 0 means non-fast-forward.
+- **Rebase strategy for asymmetric divergence:** When branches diverge with one holding only trivial changes (timestamps, cleanup) and the other containing substantial work, rebase the working branch onto the stable one. Ensures linear history and enables clean fast-forward merge without conflicts.
+- **Git auth as execution boundary:** Local git operations (merge, rebase) may succeed while push fails due to missing credentials (SSH keys, gh CLI, credential helper). Recognize push failure as a distinct blocker state; create follow-up task rather than retrying auth. The merge itself is valid; auth is environmental.
 - **State discovery before action:** Two-phase pattern: `status` reveals state without modification; `publish` re-validates before acting. Prevents race conditions. For on-chain tasks, verify contract state and prerequisites (agent registered, methods callable) *before* queuing dependent sensors or follow-ups; prevents sensor-ready-but-contract-not-live states.
 - **Sensor task description as actionable context:** Include commit count, HEAD SHA, exact CLI command in task description. Eliminates context-switching friction for downstream dispatch.
 - **Intentional divergence as architectural feature:** Multi-purpose repos (public template vs operational branch) naturally diverge. Treat conflicts as confirmation of separation of concerns, not problems.
