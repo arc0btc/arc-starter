@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T06:49:18.753Z",
+  "updated_at": "2026-03-09T06:50:59.388Z",
   "last_task": {
-    "id": 2461,
-    "subject": "SSH into each agent VM and verify arc services are correctly installed",
+    "id": 2462,
+    "subject": "Check Claude Code auth status on all fleet agents",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 91872,
-    "cost_usd": 0.383015
+    "duration_ms": 100542,
+    "cost_usd": 0.42431575
   },
   "health": {
-    "uptime_seconds": 981457,
+    "uptime_seconds": 981558,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234704424960
+    "disk_avail_bytes": 234704347136
   }
 }
