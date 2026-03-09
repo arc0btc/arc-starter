@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T16:40:09.459Z",
+  "updated_at": "2026-03-09T16:41:37.850Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3047,
-    "subject": "Remove arc-observatory from spark, loom, forge — aggregate dashboard belongs on Arc only",
+    "id": 3052,
+    "subject": "Deploy heartbeat fix to fleet agents",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 112011,
-    "cost_usd": 0.405709
+    "duration_ms": 87910,
+    "cost_usd": 0.36423599999999995
   },
   "health": {
-    "uptime_seconds": 1016908,
+    "uptime_seconds": 1016996,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234649014272
+    "disk_avail_bytes": 234648973312
   }
 }
