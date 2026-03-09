@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T09:55:45.505Z",
+  "updated_at": "2026-03-09T09:57:00.020Z",
   "last_task": {
-    "id": 2840,
-    "subject": "Fleet alert: iris service issues — dispatch: no cycles",
+    "id": 2478,
+    "subject": "Verify Spark has correct SOUL.md identity and CLAUDE.md",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 24560,
-    "cost_usd": 0.14449700000000001
+    "duration_ms": 38814,
+    "cost_usd": 0.18515625000000002
   },
   "health": {
-    "uptime_seconds": 992644,
+    "uptime_seconds": 992718,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234699309056
+    "disk_avail_bytes": 234699268096
   }
 }
