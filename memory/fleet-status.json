@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T10:40:05.261Z",
+  "updated_at": "2026-03-09T10:40:58.894Z",
   "last_task": {
-    "id": 2561,
-    "subject": "CHECKPOINT: 4-hour fleet review — verify queues cleared, communication working, observer showing conversations, identify blockers, assess overnight progress",
+    "id": 2875,
+    "subject": "Investigate Spark dispatch stale — stuck on task #61 for 34+ min, queue empty",
     "status": "completed",
-    "priority": 2
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 118753,
-    "cost_usd": 0.46972775
+    "duration_ms": 53541,
+    "cost_usd": 0.25523724999999997
   },
   "health": {
-    "uptime_seconds": 995304,
+    "uptime_seconds": 995357,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234693218304
+    "disk_avail_bytes": 234693189632
   }
 }
