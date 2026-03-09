@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-08T18:45:00.000Z*
+*Generated: 2026-03-09T00:41:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -283,10 +283,15 @@ stateDiagram-v2
 
     state CLI {
         [*] --> ArcCommand: arc <subcommand>
-        ArcCommand --> TasksCRUD: tasks add/close/list
+        ArcCommand --> TasksCRUD: tasks add/close/list/update
         ArcCommand --> SkillsRun: skills run --name X
         ArcCommand --> ManualDispatch: run
         ArcCommand --> StatusView: status
+        note right of TasksCRUD
+            tasks update: --id --subject --description
+            --priority --model --status pending
+            (--status pending = requeue failed/blocked tasks)
+        end note
     }
 
     note right of CLI

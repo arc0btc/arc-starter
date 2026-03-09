@@ -1,3 +1,23 @@
+## 2026-03-09T00:41:00.000Z
+
+2 findings: 0 error, 1 warn, 1 info → **HEALTHY**
+
+**Codebase changes since last audit (18:45Z, commits 96500d7 → dd69fd4):**
+- **`feat(cli)`** (dd69fd4): `arc tasks update` gained `--status pending` flag for requeueing failed/blocked tasks. Full signature now: `--id --subject --description --priority --model --status pending`. Enables one-command recovery without SQL.
+
+**SpaceX 5-step findings:**
+
+1. **Requirements** — `--status pending` requeueing is clearly valid: replaces manual SQL `UPDATE tasks SET status='pending'` pattern.
+2. **Delete** — Nothing removed. Delta is additive only.
+3. **Simplify** — [WARN] CLAUDE.md `tasks update` docs are stale. Current line: `arc tasks update --id N [--subject TEXT] [--priority N]`. Missing: `--description`, `--model`, `--status pending`. Docs drift creates confusion for dispatched agents.
+4. **Accelerate** — Requeueing is now O(1) CLI vs manual DB intervention. Good.
+5. **Automate** — No automation opportunity here; this is already a direct CLI action.
+
+**Recommendations:**
+- [ ] [WARN] Update CLAUDE.md `tasks update` docs to reflect full signature (follow-up task created)
+
+---
+
 ## 2026-03-08T18:45:00.000Z
 
 4 findings: 0 error, 1 warn, 3 info → **HEALTHY**
