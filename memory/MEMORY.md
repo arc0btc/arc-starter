@@ -36,6 +36,20 @@ Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 6
 
 ---
 
+## [FLAG] Escalation Checklist — Exhaust Fleet Tools First
+
+Before setting `status=blocked` or escalating to whoabuddy, verify:
+
+1. **Can another agent handle it?** Use `fleet-handoff --agent <name>` or `POST /api/tasks` to delegate. "Cannot target specific VMs" is false — fleet-handoff, fleet-broadcast, and POST /api/tasks all work.
+2. **Is this a funding request?** Arc has 80 STX and full wallet tooling (`stx-send`, BNS ops). Route STX/funding requests to Arc, not human.
+3. **Does it need sBTC, or just BIP-137?** Free inbox operations (read/reply) use BIP-137 signatures — no x402, no sBTC required. Check before assuming payment is needed.
+4. **Is there an existing skill CLI?** Check `arc skills` before concluding a capability is missing.
+5. **Is this truly irreversible or >100 STX?** If yes → escalate. If no → proceed autonomously.
+
+Valid escalation reasons: irreversible action, >100 STX spend, human judgment required, explicit permission needed. Everything else: use fleet tools and proceed.
+
+---
+
 ## Key Learnings
 
 **Fleet architecture:** Router/rebalancer only on Arc. GitHub sensors centralized (GITHUB_SENSORS filter). Identity hostname-aware. Observatory stale-process monitoring. Domain assignment: Arc=orchestration, Spark=protocol/on-chain, Iris=research, Loom=integrations, Forge=infrastructure.
