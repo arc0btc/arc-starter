@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T10:59:36.678Z",
+  "updated_at": "2026-03-09T10:59:52.604Z",
   "last_task": {
-    "id": 2889,
-    "subject": "Fleet escalation: loom blocked on task #1 — Publish arc-starter: merge v2 into main (5 commits ahead)",
+    "id": 2890,
+    "subject": "Fleet escalation: iris blocked on task #42 — Configure Iris on-chain identity: Bitcoin, Stacks, BNS accounts",
     "status": "completed",
     "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 58958,
-    "cost_usd": 0.2605675
+    "duration_ms": 14645,
+    "cost_usd": 0.1267235
   },
   "health": {
-    "uptime_seconds": 996475,
+    "uptime_seconds": 996491,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234684100608
+    "disk_avail_bytes": 234684067840
   }
 }
