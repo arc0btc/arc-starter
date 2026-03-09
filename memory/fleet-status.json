@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T11:33:45.362Z",
+  "updated_at": "2026-03-09T11:37:40.478Z",
   "last_task": {
-    "id": 2911,
-    "subject": "Fleet alert: spark service issues — dispatch stall: last cycle 43m ago, fleet-status.json stale (43m old)",
+    "id": 2732,
+    "subject": "Create agent handoff protocol: partially complete task transfers to another agent",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 44697,
-    "cost_usd": 0.2262285
+    "duration_ms": 219771,
+    "cost_usd": 0.8724687499999998
   },
   "health": {
-    "uptime_seconds": 998524,
+    "uptime_seconds": 998759,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234682671104
+    "disk_avail_bytes": 234682544128
   }
 }
