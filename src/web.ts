@@ -114,7 +114,7 @@ async function handleAsk(req: Request): Promise<Response> {
 
   const question = typeof body.question === "string" ? body.question.trim() : "";
   if (!question) return errorResponse("'question' is required", 400);
-  if (question.length > 500) return errorResponse("Question too long (max 500 chars)", 400);
+  if (question.length > 1000) return errorResponse("Question too long (max 1000 chars)", 400);
 
   const tierName = (typeof body.tier === "string" ? body.tier.toLowerCase() : "haiku");
   const tier = ASK_TIERS[tierName];
@@ -715,7 +715,7 @@ async function handlePostMessage(req: Request): Promise<Response> {
 
   const message = typeof body.message === "string" ? body.message.trim() : "";
   if (!message) return errorResponse("Message is required", 400);
-  if (message.length > 500) return errorResponse("Message too long (max 500 chars)", 400);
+  if (message.length > 1000) return errorResponse("Message too long (max 1000 chars)", 400);
 
   const parentId = typeof body.parent_id === "number" && Number.isInteger(body.parent_id) && body.parent_id > 0
     ? body.parent_id
