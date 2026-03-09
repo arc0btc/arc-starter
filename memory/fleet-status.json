@@ -1,19 +1,19 @@
 {
   "agent": "loom",
-  "updated_at": "2026-03-09T06:19:24.791Z",
+  "updated_at": "2026-03-09T06:21:19.785Z",
   "last_task": {
-    "id": 12,
-    "subject": "Clean up MEMORY.md for Loom context",
+    "id": 14,
+    "subject": "Set up fleet-health reporting to Arc primary",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 27705,
-    "cost_usd": 0.15759775
+    "duration_ms": 82445,
+    "cost_usd": 0.31041100000000005
   },
   "health": {
-    "uptime_seconds": 58051,
+    "uptime_seconds": 58166,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 244888580096
+    "disk_avail_bytes": 244888539136
   }
 }
