@@ -9,7 +9,7 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
-import { homedir } from "node:os";
+import { homedir, uptime as osUptime } from "node:os";
 import { join } from "node:path";
 import {
   type Task,
@@ -38,6 +38,7 @@ import { dispatchCodex } from "./codex.ts";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const DISPATCH_LOCK_FILE = join(ROOT, "db", "dispatch-lock.json");
+const FLEET_STATUS_FILE = join(ROOT, "memory", "fleet-status.json");
 const SKILLS_DIR = join(ROOT, "skills");
 
 /** Daily cost ceiling (USD). Above this, only P1-2 tasks dispatch. */
@@ -263,6 +264,45 @@ function clearDispatchLock(): void {
     unlinkSync(DISPATCH_LOCK_FILE);
   } catch {
     // file may not exist — that's fine
+  }
+}
+
+/** Write fleet-status.json — local state advertisement for peer agents to read via SSH. */
+function writeFleetStatus(task: Task, durationMs: number, costUsd: number): void {
+  try {
+    const diskResult = Bun.spawnSync(["df", "-B1", "--output=size,avail", ROOT]);
+    const dfLines = diskResult.stdout.toString().trim().split("\n");
+    let diskTotalBytes = 0;
+    let diskAvailBytes = 0;
+    if (dfLines.length >= 2) {
+      const parts = dfLines[1].trim().split(/\s+/);
+      diskTotalBytes = parseInt(parts[0] ?? "0", 10);
+      diskAvailBytes = parseInt(parts[1] ?? "0", 10);
+    }
+
+    const status = {
+      agent: "arc",
+      updated_at: new Date().toISOString(),
+      last_task: {
+        id: task.id,
+        subject: task.subject,
+        status: task.status,
+        priority: task.priority,
+      },
+      last_cycle: {
+        duration_ms: durationMs,
+        cost_usd: costUsd,
+      },
+      health: {
+        uptime_seconds: Math.floor(osUptime()),
+        disk_total_bytes: diskTotalBytes,
+        disk_avail_bytes: diskAvailBytes,
+      },
+    };
+
+    writeFileSync(FLEET_STATUS_FILE, JSON.stringify(status, null, 2) + "\n");
+  } catch (err) {
+    log(`dispatch: failed to write fleet-status.json — ${err}`);
   }
 }
 
@@ -1117,6 +1157,7 @@ export async function runDispatch(): Promise<void> {
 
   const dispatchStart = Date.now();
   let cycleUpdated = false;
+  let cycleCostUsd = 0;
 
   // 6b. Detect dispatch backend: codex > openrouter > claude-code
   const useCodex = sdkRoute.sdk === "codex";
@@ -1219,6 +1260,7 @@ export async function runDispatch(): Promise<void> {
       tokens_out: output_tokens,
     });
     cycleUpdated = true;
+    cycleCostUsd = cost_usd;
   } catch (err) {
     const errMsg = String(err);
     const errClass = classifyError(errMsg);
@@ -1297,7 +1339,12 @@ export async function runDispatch(): Promise<void> {
     await safeCommitCycleChanges(task.id, cycleId);
   }
 
-  // 11. Security scan — only when src/ or skills/ changed this cycle
+  // 11. Write fleet status for peer discovery
+  const finalDuration = Date.now() - dispatchStart;
+  const finalTask = getTaskById(task.id) ?? task;
+  writeFleetStatus(finalTask, finalDuration, cycleCostUsd);
+
+  // 12. Security scan — only when src/ or skills/ changed this cycle
   if (await codeChangedSince(preDispatchSha)) {
     await runSecurityScan(task.id, cycleId);
   } else {
