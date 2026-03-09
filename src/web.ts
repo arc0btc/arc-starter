@@ -5,7 +5,7 @@
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, extname } from "node:path";
-import { initDatabase, getDatabase, insertTask, markTaskFailed } from "./db.ts";
+import { initDatabase, getDatabase, insertTask, markTaskFailed, markTaskCompleted } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
 import { IDENTITY } from "./identity.ts";
 import { dispatchCodex } from "./codex.ts";
@@ -1381,6 +1381,192 @@ function serveStatic(pathname: string): Response | null {
   });
 }
 
+// ---- Fleet Task API: Authenticated cross-agent endpoints ----
+
+const FLEET_SECRET = process.env.ARC_FLEET_SECRET || "";
+const KNOWN_AGENTS = new Set(["arc", "spark", "iris", "loom", "forge"]);
+
+function authenticateFleet(req: Request): string | null {
+  if (!FLEET_SECRET) return "ARC_FLEET_SECRET not configured";
+  const auth = req.headers.get("authorization");
+  if (!auth) return "Missing Authorization header";
+  const [scheme, token] = auth.split(" ", 2);
+  if (scheme?.toLowerCase() !== "bearer" || token !== FLEET_SECRET) {
+    return "Invalid fleet credentials";
+  }
+  return null;
+}
+
+function fleetAuthError(message: string): Response {
+  return json({ error: message }, 401);
+}
+
+async function handleFleetCreateTask(req: Request): Promise<Response> {
+  const authErr = authenticateFleet(req);
+  if (authErr) return fleetAuthError(authErr);
+
+  let body: {
+    subject?: string;
+    priority?: number;
+    description?: string;
+    skills?: string[];
+    source?: string;
+    assigned_to?: string;
+    parent_id?: number;
+    model?: string;
+  };
+  try {
+    body = await req.json() as typeof body;
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  const subject = typeof body.subject === "string" ? body.subject.trim() : "";
+  if (!subject) return errorResponse("'subject' is required", 400);
+  if (subject.length > 500) return errorResponse("Subject too long (max 500 chars)", 400);
+
+  const source = typeof body.source === "string" ? body.source.trim() : "";
+  if (!source) return errorResponse("'source' is required (e.g. 'agent:spark')", 400);
+
+  let priority = 5;
+  if (body.priority !== undefined) {
+    if (typeof body.priority !== "number" || !Number.isInteger(body.priority) || body.priority < 1 || body.priority > 10) {
+      return errorResponse("'priority' must be an integer 1-10", 400);
+    }
+    priority = body.priority;
+  }
+
+  let description: string | undefined;
+  if (body.description !== undefined) {
+    if (typeof body.description !== "string") return errorResponse("'description' must be a string", 400);
+    if (body.description.length > 5000) return errorResponse("Description too long (max 5000 chars)", 400);
+    description = body.description.trim() || undefined;
+  }
+
+  let skills: string | undefined;
+  if (body.skills !== undefined) {
+    if (!Array.isArray(body.skills) || !body.skills.every((s): s is string => typeof s === "string")) {
+      return errorResponse("'skills' must be an array of strings", 400);
+    }
+    if (body.skills.length > 10) return errorResponse("Too many skills (max 10)", 400);
+    skills = JSON.stringify(body.skills);
+  }
+
+  let assignedTo: string | undefined;
+  if (body.assigned_to !== undefined) {
+    if (typeof body.assigned_to !== "string") return errorResponse("'assigned_to' must be a string", 400);
+    assignedTo = body.assigned_to.trim().toLowerCase();
+    if (!KNOWN_AGENTS.has(assignedTo)) {
+      return errorResponse(`Unknown agent '${assignedTo}'. Known: ${[...KNOWN_AGENTS].join(", ")}`, 400);
+    }
+  }
+
+  let parentId: number | undefined;
+  if (body.parent_id !== undefined) {
+    if (typeof body.parent_id !== "number" || !Number.isInteger(body.parent_id) || body.parent_id < 1) {
+      return errorResponse("'parent_id' must be a positive integer", 400);
+    }
+    parentId = body.parent_id;
+  }
+
+  let model: string | undefined;
+  if (body.model !== undefined) {
+    if (typeof body.model !== "string") return errorResponse("'model' must be a string", 400);
+    model = body.model.trim() || undefined;
+  }
+
+  const taskId = insertTask({
+    subject,
+    description,
+    skills,
+    priority,
+    source,
+    assigned_to: assignedTo,
+    parent_id: parentId,
+    model,
+  });
+
+  const task = db.query(
+    "SELECT id, subject, description, skills, priority, status, source, assigned_to, model, created_at FROM tasks WHERE id = ?"
+  ).get(taskId);
+
+  return json(task, 201);
+}
+
+function handleFleetGetTasks(url: URL, req: Request): Response {
+  const authErr = authenticateFleet(req);
+  if (authErr) return fleetAuthError(authErr);
+
+  const agent = url.searchParams.get("agent")?.trim().toLowerCase();
+  const status = url.searchParams.get("status") || "pending";
+  const limit = Math.min(parseInt(url.searchParams.get("limit") || "50", 10), 200);
+
+  let rows;
+  if (agent) {
+    rows = db.query(
+      `SELECT id, subject, description, skills, priority, status, source, assigned_to, model, created_at
+       FROM tasks WHERE assigned_to = ? AND status = ? ORDER BY priority ASC, id ASC LIMIT ?`
+    ).all(agent, status, limit);
+  } else {
+    rows = db.query(
+      `SELECT id, subject, description, skills, priority, status, source, assigned_to, model, created_at
+       FROM tasks WHERE assigned_to IS NOT NULL AND status = ? ORDER BY priority ASC, id ASC LIMIT ?`
+    ).all(status, limit);
+  }
+
+  return json({ tasks: rows, count: (rows as unknown[]).length });
+}
+
+async function handleFleetCompleteTask(req: Request, id: string): Promise<Response> {
+  const authErr = authenticateFleet(req);
+  if (authErr) return fleetAuthError(authErr);
+
+  const taskId = parseInt(id, 10);
+  if (isNaN(taskId)) return errorResponse("Invalid task ID", 400);
+
+  let body: {
+    status?: string;
+    summary?: string;
+    detail?: string;
+    cost_usd?: number;
+  };
+  try {
+    body = await req.json() as typeof body;
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  const task = db.query("SELECT id, status, assigned_to FROM tasks WHERE id = ?").get(taskId) as {
+    id: number; status: string; assigned_to: string | null;
+  } | null;
+
+  if (!task) return errorResponse("Task not found", 404);
+  if (task.status !== "pending" && task.status !== "active") {
+    return errorResponse(`Task is not pending or active (current: ${task.status})`, 409);
+  }
+
+  const finalStatus = body.status === "failed" ? "failed" : "completed";
+  const summary = typeof body.summary === "string" ? body.summary.trim() : "";
+  if (!summary) return errorResponse("'summary' is required", 400);
+  if (summary.length > 1000) return errorResponse("Summary too long (max 1000 chars)", 400);
+
+  const detail = typeof body.detail === "string" ? body.detail.trim() : undefined;
+
+  if (finalStatus === "completed") {
+    markTaskCompleted(taskId, summary, detail);
+  } else {
+    markTaskFailed(taskId, summary);
+  }
+
+  // Update cost if provided
+  if (typeof body.cost_usd === "number" && body.cost_usd >= 0) {
+    dbWrite.query("UPDATE tasks SET cost_usd = ? WHERE id = ?").run(body.cost_usd, taskId);
+  }
+
+  const updated = db.query("SELECT * FROM tasks WHERE id = ?").get(taskId);
+  return json(updated);
+}
+
 // ---- Router ----
 
 function route(req: Request): Response | Promise<Response> {
@@ -1395,10 +1581,16 @@ function route(req: Request): Response | Promise<Response> {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
     });
   }
+
+  // Fleet task API (authenticated)
+  if (method === "POST" && path === "/api/fleet/tasks") return handleFleetCreateTask(req);
+  if (method === "GET" && path === "/api/fleet/tasks") return handleFleetGetTasks(url, req);
+  const fleetCompleteMatch = path.match(/^\/api\/fleet\/tasks\/(\d+)\/complete$/);
+  if (method === "POST" && fleetCompleteMatch) return handleFleetCompleteTask(req, fleetCompleteMatch[1]);
 
   // POST routes
   if (method === "POST" && path === "/api/tasks") return handlePostTask(req);

@@ -26,6 +26,7 @@ export interface Task {
   attempt_count: number;
   max_retries: number;
   model: string | null;
+  assigned_to: string | null;
 }
 
 export interface InsertTask {
@@ -39,6 +40,7 @@ export interface InsertTask {
   template?: string | null;
   scheduled_for?: string | null;
   model?: string | null;
+  assigned_to?: string | null;
 }
 
 export interface CycleLog {
@@ -264,6 +266,7 @@ export function initDatabase(): Database {
   addColumn("tasks", "model", "TEXT");
   addColumn("cycle_log", "model", "TEXT");
   addColumn("cycle_log", "skill_hashes", "TEXT");
+  addColumn("tasks", "assigned_to", "TEXT");
 
   // Indexes
   db.run("CREATE INDEX IF NOT EXISTS idx_tasks_status_priority ON tasks(status, priority)");
@@ -271,6 +274,7 @@ export function initDatabase(): Database {
   db.run("CREATE INDEX IF NOT EXISTS idx_tasks_created_at ON tasks(created_at)");
   db.run("CREATE INDEX IF NOT EXISTS idx_cycle_log_started_at ON cycle_log(started_at DESC)");
   db.run("CREATE INDEX IF NOT EXISTS idx_tasks_source_status ON tasks(source, status)");
+  db.run("CREATE INDEX IF NOT EXISTS idx_tasks_assigned_to ON tasks(assigned_to, status)");
 
   db.run(`
     CREATE TABLE IF NOT EXISTS email_messages (
@@ -566,7 +570,7 @@ export function insertTask(fields: InsertTask): number {
 
   const optionalColumns: Array<keyof InsertTask> = [
     "description", "skills", "priority", "status",
-    "source", "parent_id", "template", "model",
+    "source", "parent_id", "template", "model", "assigned_to",
   ];
 
   for (const col of optionalColumns) {
