@@ -2,7 +2,7 @@
  * Codex CLI dispatch adapter — spawns OpenAI Codex CLI as a subprocess.
  *
  * Codex CLI (https://github.com/openai/codex) is an agentic coding tool
- * similar to Claude Code but powered by OpenAI models (o3, o4-mini, gpt-4.1).
+ * similar to Claude Code but powered by OpenAI models (o3, o4-mini, gpt-4.1, gpt-5.4).
  *
  * Differences from Claude Code:
  * - Input via --prompt flag (not stdin)
@@ -26,6 +26,7 @@ const CODEX_PRICING: Record<string, { input: number; output: number }> = {
   "o3":       { input: 2, output: 8 },
   "o4-mini":  { input: 1.10, output: 4.40 },
   "gpt-4.1":  { input: 2, output: 8 },
+  "gpt-5.4":  { input: 2.50, output: 15 },
 };
 
 const DEFAULT_CODEX_MODEL = "o4-mini";

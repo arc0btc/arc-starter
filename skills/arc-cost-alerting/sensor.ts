@@ -1,7 +1,7 @@
 // cost-alerting/sensor.ts
 //
 // Monitors daily spend across the full fleet every 10 minutes.
-// Tracks both Claude Code and OpenAI Codex costs (dual-dispatch).
+// Tracks multi-provider costs: Claude Code + OpenAI Codex (o3, o4-mini, gpt-4.1, gpt-5.4).
 // Creates a priority-3 alert task when daily total exceeds the threshold.
 // One alert per day max (date-stamped source key).
 
