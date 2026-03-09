@@ -1,58 +1,19 @@
 {
-  "timestamp": "2026-03-09T07:49Z",
-  "source": "task:2463",
-  "agents": {
-    "spark": {
-      "ip": "192.168.1.12",
-      "pending": 0,
-      "active": 0,
-      "completed_today": 49,
-      "failed_today": 4,
-      "cycles_today": 52,
-      "cost_today_usd": 13.37,
-      "last_cycle": "2026-03-09 07:47:32",
-      "status": "idle"
-    },
-    "iris": {
-      "ip": "192.168.1.13",
-      "pending": 20,
-      "active": 0,
-      "completed_today": 31,
-      "failed_today": 4,
-      "cycles_today": 40,
-      "cost_today_usd": 9.37,
-      "last_cycle": "2026-03-09 07:40:39",
-      "status": "backlogged"
-    },
-    "loom": {
-      "ip": "192.168.1.14",
-      "pending": 0,
-      "active": 0,
-      "completed_today": 41,
-      "failed_today": 1,
-      "cycles_today": 46,
-      "cost_today_usd": 7.87,
-      "last_cycle": "2026-03-09 07:43:03",
-      "status": "idle"
-    },
-    "forge": {
-      "ip": "192.168.1.15",
-      "pending": 1,
-      "active": 0,
-      "completed_today": 37,
-      "failed_today": 2,
-      "cycles_today": 43,
-      "cost_today_usd": 11.40,
-      "last_cycle": "2026-03-09 07:42:55",
-      "status": "near-idle"
-    }
+  "agent": "arc0btc",
+  "updated_at": "2026-03-09T07:49:57.169Z",
+  "last_task": {
+    "id": 2463,
+    "subject": "Query task queues on all fleet agents — what's pending, active, completed",
+    "status": "completed",
+    "priority": 4
   },
-  "fleet_totals": {
-    "pending": 21,
-    "completed_today": 158,
-    "failed_today": 11,
-    "cycles_today": 181,
-    "cost_today_usd": 41.97,
-    "completion_rate_pct": 93.5
+  "last_cycle": {
+    "duration_ms": 63775,
+    "cost_usd": 0.30946175
+  },
+  "health": {
+    "uptime_seconds": 985096,
+    "disk_total_bytes": 263082938368,
+    "disk_avail_bytes": 234700898304
   }
 }
