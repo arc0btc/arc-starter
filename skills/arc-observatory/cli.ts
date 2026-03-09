@@ -300,26 +300,34 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
   .fleet-stat { display: flex; flex-direction: column; }
   .fleet-stat .label { font-size: 0.7rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; }
   .fleet-stat .value { font-size: 1.2rem; font-weight: 600; }
-  .agents { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
-  .agent-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; }
+  .agents { display: flex; flex-direction: column; gap: 0.75rem; }
+  .agent-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 0.75rem 1rem; cursor: pointer; transition: border-color 0.15s; }
   .agent-card.offline { border-color: var(--red); opacity: 0.7; }
-  .agent-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
-  .agent-identity { display: flex; align-items: center; gap: 0.5rem; }
-  .agent-face { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); }
-  .agent-name-group { display: flex; flex-direction: column; }
-  .agent-name { font-size: 0.95rem; font-weight: 600; }
-  .agent-bns { font-size: 0.7rem; color: var(--dim); }
-  .badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.05em; }
-  .badge.online { background: rgba(34,197,94,0.15); color: var(--green); }
-  .badge.offline { background: rgba(239,68,68,0.15); color: var(--red); }
-  .agent-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; font-size: 0.8rem; }
-  .agent-stats dt { color: var(--dim); }
-  .agent-stats dd { text-align: right; }
-  .last-poll { font-size: 0.65rem; color: var(--dim); margin-top: 0.5rem; }
-  .error-msg { font-size: 0.7rem; color: var(--red); margin-top: 0.3rem; }
-  .agent-card { cursor: pointer; transition: border-color 0.15s; }
   .agent-card:hover { border-color: var(--blue); }
   .agent-card.selected { border-color: var(--blue); box-shadow: 0 0 0 1px var(--blue); }
+  .agent-identity { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+  .agent-face { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border); flex-shrink: 0; }
+  .agent-name { font-size: 0.9rem; font-weight: 600; white-space: nowrap; }
+  .agent-bns { font-size: 0.75rem; color: var(--dim); margin-left: 0.25rem; }
+  .badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+  .badge.online { background: rgba(34,197,94,0.15); color: var(--green); }
+  .badge.offline { background: rgba(239,68,68,0.15); color: var(--red); }
+  .agent-location { font-size: 0.75rem; color: var(--dim); font-family: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .agent-stats-inline { display: flex; gap: 1rem; font-size: 0.75rem; white-space: nowrap; }
+  .agent-stats-inline .stat-item { display: flex; gap: 0.3rem; }
+  .agent-stats-inline .stat-label { color: var(--dim); }
+  .agent-stats-inline .stat-value { color: var(--text); }
+  .agent-actions { display: flex; gap: 0.5rem; align-items: center; }
+  .agent-btn { font-size: 0.7rem; padding: 4px 10px; border-radius: 4px; border: 1px solid var(--border); background: transparent; color: var(--dim); cursor: pointer; white-space: nowrap; font-family: inherit; transition: all 0.15s; }
+  .agent-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .last-poll { font-size: 0.6rem; color: var(--dim); }
+  .error-msg { font-size: 0.7rem; color: var(--red); grid-column: 1 / -1; }
+  @media (max-width: 768px) {
+    .agent-card { grid-template-columns: 1fr; gap: 0.5rem; }
+    .agent-identity { justify-content: space-between; }
+    .agent-stats-inline { flex-wrap: wrap; gap: 0.5rem; }
+    .agent-actions { justify-content: flex-start; }
+  }
   .agent-frame-wrap { margin-top: 1rem; display: none; }
   .agent-frame-wrap.visible { display: block; }
   .frame-header { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.75rem; background: var(--card); border: 1px solid var(--blue); border-bottom: none; border-radius: 6px 6px 0 0; font-size: 0.8rem; }
@@ -373,23 +381,31 @@ function agentCard(a) {
   const badge = a.online ? '<span class="badge online">online</span>' : '<span class="badge offline">offline</span>';
   const face = a.face_url ? '<img class="agent-face" src="' + a.face_url + '" alt="' + a.name + '">' : '';
   const bns = a.bns ? '<span class="agent-bns">' + a.bns + '</span>' : '';
-  let stats = '';
+  // Extract host from URL for location display
+  var loc = '';
+  try { var u = new URL(a.url); loc = u.hostname + (u.port && u.port !== '80' && u.port !== '443' ? ':' + u.port : ''); } catch(e) { loc = a.url || ''; }
+  var statsHtml = '';
   if (a.pending !== null) {
-    stats = '<dl class="agent-stats">' +
-      '<dt>pending</dt><dd>' + a.pending + '</dd>' +
-      '<dt>active</dt><dd>' + (a.active || 0) + '</dd>' +
-      '<dt>completed</dt><dd>' + (a.completed_today || 0) + '</dd>' +
-      '<dt>cost</dt><dd>$' + (a.cost_today_usd || 0).toFixed(2) + '</dd>' +
-      (a.latency_ms ? '<dt>latency</dt><dd>' + a.latency_ms + 'ms</dd>' : '') +
-      '</dl>';
+    statsHtml = '<div class="agent-stats-inline">' +
+      '<span class="stat-item"><span class="stat-label">P</span><span class="stat-value">' + a.pending + '</span></span>' +
+      '<span class="stat-item"><span class="stat-label">A</span><span class="stat-value">' + (a.active || 0) + '</span></span>' +
+      '<span class="stat-item"><span class="stat-label">C</span><span class="stat-value">' + (a.completed_today || 0) + '</span></span>' +
+      '<span class="stat-item"><span class="stat-label">$</span><span class="stat-value">' + (a.cost_today_usd || 0).toFixed(2) + '</span></span>' +
+      (a.latency_ms ? '<span class="stat-item"><span class="stat-label">ms</span><span class="stat-value">' + a.latency_ms + '</span></span>' : '') +
+      '</div>';
   }
-  const lastPoll = a.last_poll ? '<div class="last-poll">polled ' + new Date(a.last_poll).toLocaleTimeString() + '</div>' : '';
-  const error = a.error ? '<div class="error-msg">' + a.error + '</div>' : '';
-  return '<div class="agent-card' + cls + '" data-url="' + (a.url || '') + '" data-name="' + a.name + '" onclick="selectAgent(this)">' +
-    '<div class="agent-header"><div class="agent-identity">' + face +
-    '<div class="agent-name-group"><span class="agent-name">' + a.name + '</span>' + bns + '</div>' +
-    '</div>' + badge + '</div>' +
-    stats + lastPoll + error + '</div>';
+  var lastPoll = a.last_poll ? '<span class="last-poll">polled ' + new Date(a.last_poll).toLocaleTimeString() + '</span>' : '';
+  var error = a.error ? '<div class="error-msg">' + a.error + '</div>' : '';
+  return '<div class="agent-card' + cls + '" data-url="' + (a.url || '') + '" data-name="' + a.name + '">' +
+    '<div class="agent-identity">' + face + '<span class="agent-name">' + a.name + '</span>' + bns + ' ' + badge + '</div>' +
+    '<span class="agent-location">' + loc + '</span>' +
+    statsHtml +
+    '<div class="agent-actions">' +
+      '<button class="agent-btn" onclick="selectAgent(this.closest(\'.agent-card\'))">dashboard</button>' +
+      lastPoll +
+    '</div>' +
+    error +
+  '</div>';
 }
 let selectedAgent = null;
 function selectAgent(el) {
