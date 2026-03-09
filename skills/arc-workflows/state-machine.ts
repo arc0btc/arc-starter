@@ -1332,6 +1332,95 @@ Steps:
 };
 
 /**
+ * FleetAlertMachine — models the recurring fleet alert → fix → retrospective cycle.
+ *
+ * Pattern detected: "fleet alert" tasks (4 recurrences, avg 2.0 steps/chain)
+ * consistently spawn a retrospective to capture learnings after resolving remote
+ * agent service issues. Distinct from HealthAlertMachine: fleet alerts target
+ * remote nodes and require fleet-health + arc-remote-setup skills.
+ *
+ * instance_key: "fleet-alert-{agent-slug}-{YYYY-MM-DD}" (dedup multiple alerts per agent per day)
+ *
+ * States:
+ *   alert                 → service issue detected on remote agent; creates investigation/fix task
+ *   fixing                → fix task executing; waiting for resolution
+ *   retrospective_pending → resolved; create retrospective to capture learnings
+ *   completed             → done
+ *
+ * Context:
+ *   agentName         — remote agent name, e.g. "iris", "loom"
+ *   alertDescription  — short description, e.g. "dispatch: no cycles", "services down"
+ *   alertDate         — ISO date string (for dedup / reference)
+ *   taskRef           — "task:{id}" of the original fleet alert task
+ *   fixSummary        — brief description of how it was resolved (populated before retrospective)
+ */
+export const FleetAlertMachine: StateMachine<{
+  agentName?: string;
+  alertDescription?: string;
+  alertDate?: string;
+  taskRef?: string;
+  fixSummary?: string;
+}> = {
+  name: "fleet-alert",
+  initialState: "alert",
+  states: {
+    alert: {
+      on: { investigate: "fixing" },
+      action: (ctx) => {
+        const agent = ctx.agentName || "unknown-agent";
+        const desc = ctx.alertDescription
+          ? ` — ${ctx.alertDescription}`
+          : "";
+        return {
+          type: "create-task",
+          subject: `Fleet alert: ${agent} service issues${desc}`,
+          priority: 5,
+          skills: ["fleet-health", "arc-remote-setup", "arc-skill-manager"],
+          description: `Fleet health alert for remote agent "${agent}"${ctx.alertDate ? ` on ${ctx.alertDate}` : ""}.
+Issue: ${ctx.alertDescription || "service issues detected"}${ctx.taskRef ? `\nOriginal alert: ${ctx.taskRef}` : ""}
+
+Steps:
+1. Run fleet-health CLI to check service status on ${agent}
+2. Identify the root cause (dispatch stalled, services crashed, connectivity, etc.)
+3. Apply fix via arc-remote-setup if needed (restart services, clear stale locks, etc.)
+4. Verify services are healthy before closing
+5. Transition this workflow to 'fixing', then 'retrospective_pending'
+6. Set fixSummary in context before transitioning`,
+        };
+      },
+    },
+    fixing: {
+      on: { resolved: "retrospective_pending" },
+      action: () => null,
+    },
+    retrospective_pending: {
+      on: { learnings_extracted: "completed" },
+      action: (ctx) => {
+        const agent = ctx.agentName || "unknown-agent";
+        return {
+          type: "create-task",
+          subject: `Retrospective: fleet alert — ${agent} service issues`,
+          priority: 8,
+          skills: ["arc-skill-manager"],
+          description: `Extract learnings from a fleet health alert for remote agent "${agent}".
+${ctx.taskRef ? `Original alert: ${ctx.taskRef}` : ""}${ctx.fixSummary ? `\nFix applied: ${ctx.fixSummary}` : ""}${ctx.alertDate ? `\nAlert date: ${ctx.alertDate}` : ""}
+
+Steps:
+1. Review what caused the service failure on ${agent}
+2. Identify if this is a recurring pattern across fleet nodes
+3. Note prevention measures or monitoring improvements in memory/MEMORY.md if recurring
+4. Transition workflow to 'completed'`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -1354,6 +1443,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "recurring-failure": RecurringFailureMachine,
     "health-alert": HealthAlertMachine,
     "overnight-brief": OvernightBriefMachine,
+    "fleet-alert": FleetAlertMachine,
   };
   return templates[name] || null;
 }
