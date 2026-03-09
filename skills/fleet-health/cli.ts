@@ -122,6 +122,28 @@ async function cmdStatus(): Promise<void> {
     const uptimeResult = await ssh(ip, password, "uptime -p");
     process.stdout.write(`  Uptime:         ${uptimeResult.stdout.trim()}\n`);
 
+    // Peer self-reported status (fleet-status.json)
+    const statusResult = await ssh(ip, password, `cat ${REMOTE_ARC_DIR}/memory/fleet-status.json 2>/dev/null`);
+    if (statusResult.ok && statusResult.stdout.trim()) {
+      try {
+        const ps = JSON.parse(statusResult.stdout);
+        const ageMs = ps.updated_at ? Date.now() - new Date(ps.updated_at).getTime() : 0;
+        const ageMins = Math.round(ageMs / 60000);
+        const stale = ageMins > 30 ? " **STALE**" : "";
+        process.stdout.write(`  Self-report:    updated ${ageMins}m ago${stale}\n`);
+        if (ps.last_task) {
+          process.stdout.write(`  Current task:   #${ps.last_task.id} (P${ps.last_task.priority}) ${ps.last_task.subject}\n`);
+        }
+        if (ps.last_cycle) {
+          process.stdout.write(`  Last cycle:     $${ps.last_cycle.cost_usd.toFixed(3)} / ${Math.round(ps.last_cycle.duration_ms / 1000)}s\n`);
+        }
+      } catch {
+        process.stdout.write(`  Self-report:    (parse error)\n`);
+      }
+    } else {
+      process.stdout.write(`  Self-report:    not available\n`);
+    }
+
     process.stdout.write("\n");
   }
 }

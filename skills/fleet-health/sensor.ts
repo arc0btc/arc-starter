@@ -82,6 +82,26 @@ async function ssh(ip: string, password: string, command: string): Promise<SshRe
 
 // ---- Health check logic ----
 
+interface PeerStatus {
+  agent: string;
+  updated_at: string;
+  last_task: {
+    id: number;
+    subject: string;
+    status: string;
+    priority: number;
+  };
+  last_cycle: {
+    duration_ms: number;
+    cost_usd: number;
+  };
+  health: {
+    uptime_seconds: number;
+    disk_total_bytes: number;
+    disk_avail_bytes: number;
+  };
+}
+
 interface AgentHealth {
   agent: string;
   reachable: boolean;
@@ -89,6 +109,8 @@ interface AgentHealth {
   dispatchTimer: string;
   lastDispatchAge: string;
   diskUsage: string;
+  peerStatus: PeerStatus | null;
+  peerStatusStale: boolean;
   issues: string[];
 }
 
@@ -103,6 +125,8 @@ async function checkAgent(
     dispatchTimer: "unknown",
     lastDispatchAge: "unknown",
     diskUsage: "unknown",
+    peerStatus: null,
+    peerStatusStale: false,
     issues: [],
   };
 
@@ -178,6 +202,31 @@ async function checkAgent(
     health.issues.push(`disk ${health.diskUsage}`);
   }
 
+  // Read peer's fleet-status.json for self-reported state
+  const statusResult = await ssh(
+    ip, password,
+    `cat ${REMOTE_ARC_DIR}/memory/fleet-status.json 2>/dev/null`
+  );
+  if (statusResult.ok && statusResult.stdout.trim()) {
+    try {
+      const parsed = JSON.parse(statusResult.stdout) as PeerStatus;
+      health.peerStatus = parsed;
+
+      // Check staleness: >30min since updated_at
+      if (parsed.updated_at) {
+        const ageMs = Date.now() - new Date(parsed.updated_at).getTime();
+        const STALE_THRESHOLD_MS = 30 * 60 * 1000;
+        if (ageMs > STALE_THRESHOLD_MS) {
+          health.peerStatusStale = true;
+          const staleMins = Math.round(ageMs / 60000);
+          health.issues.push(`fleet-status.json stale (${staleMins}m old)`);
+        }
+      }
+    } catch {
+      // JSON parse failed — not critical
+    }
+  }
+
   return health;
 }
 
@@ -201,6 +250,32 @@ function formatSummary(results: AgentHealth[], timestamp: string): string {
     lines.push(
       `| ${h.agent} | ${reachable} | ${sensors} | ${dispatch} | ${h.lastDispatchAge} | ${h.diskUsage} | ${issues} |`
     );
+  }
+
+  // Peer self-reported status section
+  const peersWithStatus = results.filter((h) => h.peerStatus !== null);
+  if (peersWithStatus.length > 0) {
+    lines.push("");
+    lines.push("## Peer Self-Reported Status");
+    lines.push("");
+    lines.push("| Agent | Last Task | Task Status | Cycle Cost | Updated | Stale |");
+    lines.push("|-------|-----------|-------------|------------|---------|-------|");
+
+    for (const h of peersWithStatus) {
+      const ps = h.peerStatus!;
+      const taskInfo = ps.last_task
+        ? `#${ps.last_task.id}: ${ps.last_task.subject.slice(0, 40)}`
+        : "—";
+      const taskStatus = ps.last_task?.status ?? "—";
+      const cycleCost = ps.last_cycle
+        ? `$${ps.last_cycle.cost_usd.toFixed(3)}`
+        : "—";
+      const updated = ps.updated_at
+        ? ps.updated_at.replace("T", " ").slice(0, 19) + "Z"
+        : "—";
+      const stale = h.peerStatusStale ? "**YES**" : "no";
+      lines.push(`| ${h.agent} | ${taskInfo} | ${taskStatus} | ${cycleCost} | ${updated} | ${stale} |`);
+    }
   }
 
   lines.push("");
