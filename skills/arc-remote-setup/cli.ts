@@ -330,6 +330,145 @@ I'm part of the Arc agent fleet, coordinated by Arc (arc0.btc). I operate autono
 Same core values as Arc: precision over speed, simple over clever, honest over nice, craft matters, follow through. I don't fabricate results. If I can't do something, I say so.`;
 }
 
+async function cmdSetupMeshSsh(_args: string[]): Promise<void> {
+  const password = await getSshPassword();
+  const agentNames = Object.keys(AGENTS);
+
+  // Also include Arc itself in the mesh (use LAN IP so agents can reach us)
+  const arcIp = "192.168.1.10";
+  const allNodes: { name: string; ip: string }[] = [
+    { name: "arc", ip: arcIp },
+    ...agentNames.map((name) => ({ name, ip: AGENTS[name].ip })),
+  ];
+
+  // Step 1: Generate SSH keypairs on each remote agent (if not present)
+  process.stdout.write("=== Step 1: Generate SSH keypairs on each agent ===\n");
+  for (const agent of agentNames) {
+    const ip = await getAgentIp(agent);
+    const keyCheck = await ssh(ip, password, "test -f ~/.ssh/id_ed25519 && echo exists");
+    if (keyCheck.stdout.trim() === "exists") {
+      process.stdout.write(`  [${agent}] keypair already exists, skipping\n`);
+    } else {
+      await sshLog(ip, password, `${agent}-keygen`, 'ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N "" -C "dev@' + agent + '"');
+    }
+  }
+
+  // Also generate on Arc if not present
+  const arcKeyCheck = await Bun.spawn(["test", "-f", "/home/dev/.ssh/id_ed25519"], { stdout: "pipe", stderr: "pipe" }).exited;
+  if (arcKeyCheck !== 0) {
+    process.stdout.write("  [arc] generating keypair...\n");
+    const keygen = Bun.spawn(["ssh-keygen", "-t", "ed25519", "-f", "/home/dev/.ssh/id_ed25519", "-N", "", "-C", "dev@arc"], { stdout: "pipe", stderr: "pipe" });
+    await keygen.exited;
+  } else {
+    process.stdout.write("  [arc] keypair already exists, skipping\n");
+  }
+
+  // Step 2: Collect all public keys
+  process.stdout.write("\n=== Step 2: Collect public keys ===\n");
+  const pubKeys: { name: string; key: string }[] = [];
+
+  // Arc's pubkey
+  const arcPubFile = Bun.file("/home/dev/.ssh/id_ed25519.pub");
+  const arcPub = (await arcPubFile.text()).trim();
+  pubKeys.push({ name: "arc", key: arcPub });
+  process.stdout.write(`  [arc] ${arcPub.slice(0, 50)}...\n`);
+
+  for (const agent of agentNames) {
+    const ip = await getAgentIp(agent);
+    const result = await ssh(ip, password, "cat ~/.ssh/id_ed25519.pub");
+    if (result.ok) {
+      const key = result.stdout.trim();
+      pubKeys.push({ name: agent, key });
+      process.stdout.write(`  [${agent}] ${key.slice(0, 50)}...\n`);
+    } else {
+      process.stderr.write(`  [${agent}] ERROR: could not read public key\n`);
+    }
+  }
+
+  // Step 3: Distribute public keys to all agents
+  process.stdout.write("\n=== Step 3: Distribute public keys ===\n");
+  for (const target of allNodes) {
+    if (target.name === "arc") {
+      // Add remote agent keys to Arc's authorized_keys
+      process.stdout.write(`  Distributing to arc (local)...\n`);
+      const authKeysPath = "/home/dev/.ssh/authorized_keys";
+      const authFile = Bun.file(authKeysPath);
+      let existing = "";
+      if (await authFile.exists()) {
+        existing = await authFile.text();
+      }
+      for (const pk of pubKeys) {
+        if (pk.name === "arc") continue; // skip self
+        if (existing.includes(pk.key)) {
+          process.stdout.write(`    [${pk.name}] already present\n`);
+        } else {
+          existing = existing.trimEnd() + "\n" + pk.key + "\n";
+          process.stdout.write(`    [${pk.name}] added\n`);
+        }
+      }
+      await Bun.write(authKeysPath, existing);
+      await Bun.spawn(["chmod", "600", authKeysPath], { stdout: "pipe", stderr: "pipe" }).exited;
+    } else {
+      const targetIp = await getAgentIp(target.name);
+      process.stdout.write(`  Distributing to ${target.name} (${targetIp})...\n`);
+
+      // Ensure .ssh/authorized_keys exists
+      await ssh(targetIp, password, "mkdir -p ~/.ssh && chmod 700 ~/.ssh && touch ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys");
+
+      for (const pk of pubKeys) {
+        if (pk.name === target.name) continue; // skip self
+        const checkResult = await ssh(targetIp, password, `grep -qF '${pk.key}' ~/.ssh/authorized_keys`);
+        if (checkResult.ok) {
+          process.stdout.write(`    [${pk.name}] already present\n`);
+        } else {
+          await ssh(targetIp, password, `echo '${pk.key}' >> ~/.ssh/authorized_keys`);
+          process.stdout.write(`    [${pk.name}] added\n`);
+        }
+      }
+    }
+  }
+
+  // Step 4: Test peer-to-peer connectivity
+  process.stdout.write("\n=== Step 4: Test peer-to-peer SSH connectivity ===\n");
+  let passCount = 0;
+  let failCount = 0;
+
+  for (const source of agentNames) {
+    const sourceIp = await getAgentIp(source);
+    for (const target of allNodes) {
+      if (target.name === source) continue;
+      const targetIp = target.name === "arc" ? arcIp : await getAgentIp(target.name);
+      // SSH from source to target via source's SSH session
+      const testCmd = `ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 -o BatchMode=yes dev@${targetIp} 'echo ok' 2>/dev/null`;
+      const result = await ssh(sourceIp, password, testCmd);
+      const ok = result.stdout.trim() === "ok";
+      const status = ok ? "PASS" : "FAIL";
+      if (ok) passCount++; else failCount++;
+      process.stdout.write(`  ${source} → ${target.name} (${targetIp}): ${status}\n`);
+    }
+  }
+
+  // Also test Arc → agents
+  for (const target of agentNames) {
+    const targetIp = await getAgentIp(target);
+    const testProc = Bun.spawn(
+      ["ssh", "-o", "StrictHostKeyChecking=no", "-o", "ConnectTimeout=5", "-o", "BatchMode=yes", `dev@${targetIp}`, "echo ok"],
+      { stdout: "pipe", stderr: "pipe" }
+    );
+    const out = await new Response(testProc.stdout).text();
+    const exitCode = await testProc.exited;
+    const ok = exitCode === 0 && out.trim() === "ok";
+    const status = ok ? "PASS" : "FAIL";
+    if (ok) passCount++; else failCount++;
+    process.stdout.write(`  arc → ${target} (${targetIp}): ${status}\n`);
+  }
+
+  process.stdout.write(`\n=== Mesh SSH setup complete: ${passCount} passed, ${failCount} failed ===\n`);
+  if (failCount > 0) {
+    process.exit(1);
+  }
+}
+
 // ---- Usage ----
 
 function printUsage(): void {
@@ -347,6 +486,7 @@ Commands:
   install-services       Install and enable systemd services
   health-check           Verify services running
   full-setup             Run all steps in sequence
+  setup-mesh-ssh         Generate keypairs, distribute, test peer-to-peer SSH
 
 Agents: ${Object.keys(AGENTS).join(", ")}
 `);
@@ -382,6 +522,9 @@ async function main(): Promise<void> {
       break;
     case "full-setup":
       await cmdFullSetup(args.slice(1));
+      break;
+    case "setup-mesh-ssh":
+      await cmdSetupMeshSsh(args.slice(1));
       break;
     case "help":
     case "--help":
