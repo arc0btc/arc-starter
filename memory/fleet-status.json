@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T10:03:44.024Z",
+  "updated_at": "2026-03-09T10:04:45.116Z",
   "last_task": {
-    "id": 2486,
-    "subject": "Experiment: Round-trip task — Arc sends to Spark, Spark responds",
+    "id": 2490,
+    "subject": "Ensure fleet-health sensor covers dispatch stall detection",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 62478,
-    "cost_usd": 0.28342975
+    "duration_ms": 61004,
+    "cost_usd": 0.3428935
   },
   "health": {
-    "uptime_seconds": 993122,
+    "uptime_seconds": 993183,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234699030528
+    "disk_avail_bytes": 234698981376
   }
 }
