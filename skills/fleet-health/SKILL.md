@@ -1,6 +1,6 @@
 ---
 name: fleet-health
-description: Monitor agent fleet VMs — service status, dispatch age, disk usage, OAuth token expiry
+description: Monitor agent fleet VMs — service status, dispatch age, disk usage, auth method
 updated: 2026-03-09
 tags:
   - infrastructure
@@ -16,8 +16,8 @@ Sensor-driven fleet monitoring. Checks all agent VMs every 15 minutes via SSH. C
 ## Sensor Behavior
 
 - **Cadence:** 15 minutes
-- **Checks per VM:** sensor timer active, dispatch timer active, last dispatch age, disk usage, OAuth token expiry, consecutive failure streak
-- **OAuth check:** Reads `~/.claude/.credentials.json` on each VM, alerts when token is within 12h of expiry or already expired
+- **Checks per VM:** sensor timer active, dispatch timer active, last dispatch age, disk usage, auth method, consecutive failure streak
+- **Auth check:** Checks for `ANTHROPIC_API_KEY` in `.env` (preferred). Falls back to OAuth token expiry for VMs not yet migrated.
 - **Alerts:** Creates `Fleet alert: <agent> ...` task (P3) when issues detected
 - **Circuit breaker:** If an agent's last 5 tasks all failed, stops its dispatch timer and creates a P2 escalation task. Dispatch must be manually restarted after investigation.
 - **Output:** Writes summary to `memory/fleet-status.md` on each run

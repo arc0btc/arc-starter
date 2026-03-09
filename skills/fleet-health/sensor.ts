@@ -71,7 +71,7 @@ interface AgentHealth {
   peerStatus: PeerStatus | null;
   peerStatusStale: boolean;
   consecutiveFailureStreak: boolean;
-  oauthExpiresIn: string;
+  authMethod: string; // "api-key", "oauth:<hours>h", "oauth:EXPIRED", "none"
   issues: string[];
 }
 
@@ -90,7 +90,7 @@ async function checkAgent(
     peerStatus: null,
     peerStatusStale: false,
     consecutiveFailureStreak: false,
-    oauthExpiresIn: "unknown",
+    authMethod: "unknown",
     issues: [],
   };
 
@@ -249,37 +249,43 @@ async function checkAgent(
     health.issues.push(`disk ${health.diskUsage}`);
   }
 
-  // OAuth token expiry check
-  const EXPIRY_WARNING_MS = 12 * 60 * 60 * 1000; // 12 hours
-  const oauthResult = await ssh(
+  // Auth method check: prefer API key in .env, fall back to OAuth token
+  const apiKeyResult = await ssh(
     ip, password,
-    `cat ~/.claude/.credentials.json 2>/dev/null || echo "{}"`
+    `grep -q '^ANTHROPIC_API_KEY=' ${REMOTE_ARC_DIR}/.env 2>/dev/null && echo "present" || echo "absent"`
   );
-  if (oauthResult.ok && oauthResult.stdout.trim()) {
+  if (apiKeyResult.stdout.trim() === "present") {
+    health.authMethod = "api-key";
+  } else {
+    // Fall back to OAuth check for VMs not yet migrated
+    const oauthResult = await ssh(
+      ip, password,
+      `cat ~/.claude/.credentials.json 2>/dev/null || echo "{}"`
+    );
     try {
       const creds = JSON.parse(oauthResult.stdout);
       const expiresAt = creds?.claudeAiOauth?.expiresAt;
       if (typeof expiresAt === "number") {
         const remaining = expiresAt - Date.now();
         if (remaining <= 0) {
-          health.oauthExpiresIn = "EXPIRED";
-          health.issues.push("OAuth token expired — dispatch will fail");
-        } else if (remaining <= EXPIRY_WARNING_MS) {
-          const hoursLeft = Math.round(remaining / 3600000 * 10) / 10;
-          health.oauthExpiresIn = `${hoursLeft}h`;
-          health.issues.push(`OAuth token expires in ${hoursLeft}h — re-auth needed soon`);
+          health.authMethod = "oauth:EXPIRED";
+          health.issues.push("OAuth token expired — migrate to API key or re-auth");
         } else {
           const hoursLeft = Math.round(remaining / 3600000);
-          health.oauthExpiresIn = `${hoursLeft}h`;
+          health.authMethod = `oauth:${hoursLeft}h`;
+          if (remaining <= 12 * 60 * 60 * 1000) {
+            health.issues.push(`OAuth expires in ${hoursLeft}h — migrate to API key`);
+          }
         }
       } else if (creds?.claudeAiOauth?.accessToken) {
-        health.oauthExpiresIn = "no expiry field";
+        health.authMethod = "oauth:no-expiry";
       } else {
-        health.oauthExpiresIn = "no oauth token";
-        health.issues.push("No OAuth token found — claude auth may not be configured");
+        health.authMethod = "none";
+        health.issues.push("No auth configured — set ANTHROPIC_API_KEY in .env");
       }
     } catch {
-      health.oauthExpiresIn = "parse error";
+      health.authMethod = "none";
+      health.issues.push("No auth configured — set ANTHROPIC_API_KEY in .env");
     }
   }
 
@@ -335,8 +341,8 @@ function formatSummary(results: AgentHealth[], timestamp: string): string {
     "",
     `*Last checked: ${timestamp}*`,
     "",
-    "| Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | OAuth | Issues |",
-    "|-------|-----------|---------|----------|------------|------|-------|--------|",
+    "| Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Auth | Issues |",
+    "|-------|-----------|---------|----------|------------|------|------|--------|",
   ];
 
   for (const h of results) {
@@ -350,11 +356,12 @@ function formatSummary(results: AgentHealth[], timestamp: string): string {
       h.reachable && h.pendingCount === 0 && ageMatch && parseInt(ageMatch[1]) > 30
         ? `idle (${h.lastDispatchAge})`
         : h.lastDispatchAge;
-    const oauth = h.oauthExpiresIn === "EXPIRED" ? "**EXPIRED**" :
-      h.oauthExpiresIn.match(/^\d/) && parseFloat(h.oauthExpiresIn) <= 12 ? `**${h.oauthExpiresIn}**` :
-      h.oauthExpiresIn;
+    const auth = h.authMethod === "api-key" ? "api-key" :
+      h.authMethod === "none" ? "**NONE**" :
+      h.authMethod.startsWith("oauth:EXPIRED") ? "**EXPIRED**" :
+      h.authMethod;
     lines.push(
-      `| ${h.agent} | ${reachable} | ${sensors} | ${dispatch} | ${lastCycle} | ${h.diskUsage} | ${oauth} | ${issues} |`
+      `| ${h.agent} | ${reachable} | ${sensors} | ${dispatch} | ${lastCycle} | ${h.diskUsage} | ${auth} | ${issues} |`
     );
   }
 
@@ -425,7 +432,7 @@ export default async function fleetHealthSensor(): Promise<string> {
       peerStatus: null,
       peerStatusStale: false,
       consecutiveFailureStreak: false,
-      oauthExpiresIn: "unknown",
+      authMethod: "unknown",
       issues: [`check failed: ${r.reason instanceof Error ? r.reason.message : String(r.reason)}`],
     } satisfies AgentHealth;
   });

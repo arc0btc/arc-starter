@@ -23,6 +23,7 @@ arc skills run --name arc-remote-setup -- configure-identity --agent <name>
 arc skills run --name arc-remote-setup -- install-services --agent <name>
 arc skills run --name arc-remote-setup -- health-check --agent <name>
 arc skills run --name arc-remote-setup -- full-setup --agent <name>
+arc skills run --name arc-remote-setup -- setup-api-key --agent <name>
 ```
 
 ## Agent Names
@@ -38,6 +39,7 @@ arc skills run --name arc-remote-setup -- full-setup --agent <name>
 
 - `vm-fleet` / `ssh-password` — SSH password for dev@<ip>
 - `vm-fleet` / `<agent>-ip` — IP override (defaults to table above)
+- `anthropic` / `api-key` — Shared API key for all agents (or `<agent>-api-key` per agent)
 
 ## Commands
 
@@ -49,6 +51,7 @@ arc skills run --name arc-remote-setup -- full-setup --agent <name>
 - **install-services**: Install systemd sensor + dispatch services
 - **health-check**: Verify services running, check recent dispatch
 - **full-setup**: Run all steps in sequence
+- **setup-api-key**: Inject ANTHROPIC_API_KEY from creds store into VM .env, reload services
 
 All commands are idempotent.
 

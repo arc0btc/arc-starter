@@ -394,6 +394,45 @@ Part of the Arc agent fleet (5 agents, 5 VMs). Arc is the orchestrator. Whoabudd
 `;
 }
 
+async function cmdSetupApiKey(args: string[]): Promise<void> {
+  const { agent } = requireAgent(args);
+  const ip = await getAgentIp(agent);
+  const password = await getSshPassword();
+
+  // Read API key from creds store — supports per-agent or shared key
+  const { getCredential } = await import("../../src/credentials.ts");
+  let apiKey = await getCredential("anthropic", `${agent}-api-key`);
+  if (!apiKey) {
+    apiKey = await getCredential("anthropic", "api-key");
+  }
+  if (!apiKey) {
+    process.stderr.write(`Error: No API key found. Set one with:\n`);
+    process.stderr.write(`  arc creds set --service anthropic --key api-key --value sk-ant-...\n`);
+    process.stderr.write(`Or per-agent:\n`);
+    process.stderr.write(`  arc creds set --service anthropic --key ${agent}-api-key --value sk-ant-...\n`);
+    process.exit(1);
+  }
+
+  process.stdout.write(`Setting up API key auth on ${agent} (${ip})...\n`);
+
+  // Check if .env exists, create if not
+  await ssh(ip, password, `touch ${REMOTE_ARC_DIR}/.env`);
+
+  // Remove any existing ANTHROPIC_API_KEY line, then append the new one
+  await ssh(ip, password, `sed -i '/^ANTHROPIC_API_KEY=/d' ${REMOTE_ARC_DIR}/.env`);
+  // Use a heredoc to avoid the key appearing in process args
+  const setResult = await ssh(ip, password, `cat >> ${REMOTE_ARC_DIR}/.env << 'ENVEOF'\nANTHROPIC_API_KEY=${apiKey}\nENVEOF`);
+  if (!setResult.ok) {
+    process.stderr.write(`Failed to write API key to .env: ${setResult.stderr}\n`);
+    process.exit(1);
+  }
+
+  // Reload systemd to pick up updated .env
+  await sshLog(ip, password, "daemon-reload", "systemctl --user daemon-reload");
+
+  process.stdout.write(`API key configured on ${agent}. Services reloaded.\n`);
+}
+
 async function cmdSetupMeshSsh(_args: string[]): Promise<void> {
   const password = await getSshPassword();
   const agentNames = Object.keys(AGENTS);
@@ -550,6 +589,7 @@ Commands:
   install-services       Install and enable systemd services
   health-check           Verify services running
   full-setup             Run all steps in sequence
+  setup-api-key          Inject ANTHROPIC_API_KEY from creds store into VM .env
   setup-mesh-ssh         Generate keypairs, distribute, test peer-to-peer SSH
 
 Agents: ${Object.keys(AGENTS).join(", ")}
@@ -586,6 +626,9 @@ async function main(): Promise<void> {
       break;
     case "full-setup":
       await cmdFullSetup(args.slice(1));
+      break;
+    case "setup-api-key":
+      await cmdSetupApiKey(args.slice(1));
       break;
     case "setup-mesh-ssh":
       await cmdSetupMeshSsh(args.slice(1));

@@ -126,31 +126,31 @@ async function cmdStatus(): Promise<void> {
     const uptimeResult = await ssh(ip, password, "uptime -p");
     process.stdout.write(`  Uptime:         ${uptimeResult.stdout.trim()}\n`);
 
-    // OAuth token expiry
-    const oauthResult = await ssh(ip, password, `cat ~/.claude/.credentials.json 2>/dev/null || echo "{}"`);
-    if (oauthResult.ok && oauthResult.stdout.trim()) {
+    // Auth method: check for API key in .env first, then fall back to OAuth
+    const apiKeyCheck = await ssh(ip, password, `grep -q '^ANTHROPIC_API_KEY=' ${REMOTE_ARC_DIR}/.env 2>/dev/null && echo "present" || echo "absent"`);
+    if (apiKeyCheck.stdout.trim() === "present") {
+      process.stdout.write(`  Auth:           API key (in .env)\n`);
+    } else {
+      const oauthResult = await ssh(ip, password, `cat ~/.claude/.credentials.json 2>/dev/null || echo "{}"`);
       try {
         const creds = JSON.parse(oauthResult.stdout);
         const expiresAt = creds?.claudeAiOauth?.expiresAt;
         if (typeof expiresAt === "number") {
           const remaining = expiresAt - Date.now();
           if (remaining <= 0) {
-            process.stdout.write(`  OAuth:          EXPIRED — re-auth required\n`);
+            process.stdout.write(`  Auth:           OAuth EXPIRED — migrate to API key\n`);
           } else {
             const hours = Math.round(remaining / 3600000 * 10) / 10;
-            const warn = hours <= 12 ? " ⚠ re-auth soon" : "";
-            process.stdout.write(`  OAuth:          expires in ${hours}h${warn}\n`);
+            process.stdout.write(`  Auth:           OAuth (expires in ${hours}h) — migrate to API key\n`);
           }
         } else if (creds?.claudeAiOauth?.accessToken) {
-          process.stdout.write(`  OAuth:          active (no expiry field)\n`);
+          process.stdout.write(`  Auth:           OAuth (no expiry) — migrate to API key\n`);
         } else {
-          process.stdout.write(`  OAuth:          not configured\n`);
+          process.stdout.write(`  Auth:           NONE — set ANTHROPIC_API_KEY in .env\n`);
         }
       } catch {
-        process.stdout.write(`  OAuth:          (parse error)\n`);
+        process.stdout.write(`  Auth:           NONE — set ANTHROPIC_API_KEY in .env\n`);
       }
-    } else {
-      process.stdout.write(`  OAuth:          no credentials file\n`);
     }
 
     // Peer self-reported status (fleet-status.json)
