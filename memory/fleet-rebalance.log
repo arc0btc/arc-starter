@@ -38,3 +38,4 @@
 {"timestamp":"2026-03-09T20:08:52.194Z","idle_agents":["spark","loom","forge"],"busy_agents":["iris"],"steals":[],"total_steals":0}
 {"timestamp":"2026-03-09T20:14:55.160Z","idle_agents":["spark","loom","forge"],"busy_agents":["iris"],"steals":[],"total_steals":0}
 {"timestamp":"2026-03-09T20:20:54.711Z","idle_agents":["spark","loom","forge"],"busy_agents":["iris"],"steals":[],"total_steals":0}
+{"timestamp":"2026-03-09T20:26:53.798Z","idle_agents":["loom","forge"],"busy_agents":["iris"],"steals":[],"total_steals":0}
