@@ -1,19 +1,19 @@
 {
   "agent": "loom",
-  "updated_at": "2026-03-09T06:17:56.767Z",
+  "updated_at": "2026-03-09T06:18:25.891Z",
   "last_task": {
-    "id": 19,
-    "subject": "Fleet alert: spark service issues — dispatch: no cycles",
+    "id": 20,
+    "subject": "Fleet alert: loom service issues — dispatch: no cycles",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 123428,
-    "cost_usd": 0.49874050000000003
+    "duration_ms": 28966,
+    "cost_usd": 0.139608
   },
   "health": {
-    "uptime_seconds": 57963,
+    "uptime_seconds": 57992,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 244888662016
+    "disk_avail_bytes": 244888625152
   }
 }
