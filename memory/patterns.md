@@ -34,6 +34,8 @@
 - **Verify event premise before spawning derivative tasks:** Check event type and state before queuing follow-ups.
 - **Multi-step on-chain registration → split per operation:** Each on-chain write is its own task. Sponsor failure → fall back to direct fee.
 - **Verify asset ownership immediately before PSBT execution:** Re-verify on-chain ownership at execution time, not at task creation.
+- **Agent self-remediation for capability gaps:** When blocked due to missing internal capability (missing CLI, no integration), create a task to build it. Only escalate if gap requires external action (human funding, external service). Dependencies resolve naturally.
+
 
 ## Integration Patterns
 

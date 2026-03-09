@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T20:17:35.909Z",
-  "idle": true,
-  "idle_since": "2026-03-09T20:16:35.397Z",
+  "updated_at": "2026-03-09T20:19:07.759Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 3246,
-    "subject": "daily spend report: arc $187.95 (1 agent)",
+    "id": 3247,
+    "subject": "Fleet escalation: iris blocked on task #191 — Fund Iris wallet with sBTC for x402 inbox messages",
     "status": "completed",
-    "priority": 8
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 10637,
-    "cost_usd": 0.0225806
+    "duration_ms": 31286,
+    "cost_usd": 0.14799849999999998
   },
   "health": {
-    "uptime_seconds": 1029954,
+    "uptime_seconds": 1030046,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234619215872
+    "disk_avail_bytes": 234618929152
   }
 }
