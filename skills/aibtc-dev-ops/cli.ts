@@ -33,7 +33,7 @@ function gh(args: string[]): { ok: boolean; stdout: string; stderr: string } {
 async function requireAdminKey(): Promise<string> {
   let key: string | null = null;
   try {
-    key = await getCredential("github-worker-logs", "admin_api_key");
+    key = await getCredential("worker-logs", "aibtc_admin_api_key");
   } catch {
     // credential store unavailable
   }
