@@ -67,7 +67,7 @@ Agentic speed compresses time 10-24x. One human + 7 Claude Code screens = 120 co
 - **Backlog is the bottleneck signal.** 2026-03-09: 403 tasks created / 241 completed in 24h = growing backlog. Noisy sensors waste cycles.
 - Chatty sensors identified for tuning: `arc-starter-publish`, `arc-blocked-review`, `arc-catalog`, `arc-housekeeping` (task #2540).
 - Ops-review sensor (task #2541) will track creation-vs-completion rate, backlog trend, fleet utilization.
-- Fleet scheduling (task #2542): domain focus per agent, regular check-ins, shared backlog visibility.
+- Fleet scheduling protocol designed (task #2542): `templates/fleet-scheduling.md`. Domain assignment: Arc=orchestration, Spark=protocol/on-chain, Iris=research/signals, Loom=integrations, Forge=infrastructure. Hub-and-spoke routing through Arc. Check-ins: 15min heartbeat, 4h ops review, 24h daily brief. $200/day budget split: Arc $80, others $30 each.
 
 ---
 
