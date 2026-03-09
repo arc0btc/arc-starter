@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T06:40:36.656Z",
+  "updated_at": "2026-03-09T06:43:00.517Z",
   "last_task": {
-    "id": 2428,
-    "subject": "Debug dispatch on Spark (.12) and Forge (.15) — both show no completed cycles despite services running",
+    "id": 2448,
+    "subject": "Fleet onboarding: queue initial skills, sensors, and workflows for Spark, Iris, Loom, Forge first dispatch cycles",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 44718,
-    "cost_usd": 0.2773135
+    "duration_ms": 128316,
+    "cost_usd": 0.47183600000000003
   },
   "health": {
-    "uptime_seconds": 980935,
+    "uptime_seconds": 981079,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234942205952
+    "disk_avail_bytes": 234942095360
   }
 }
