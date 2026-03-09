@@ -185,10 +185,11 @@ const GITHUB_SENSORS: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Sensors that only make sense on Arc (fleet orchestration, cost alerting).
+ * Sensors that only make sense on Arc (fleet orchestration, cost alerting, Arc-specific ops).
  * Workers should not run these — they create redistribution loops or duplicate work.
  */
 const ARC_ONLY_SENSORS: ReadonlySet<string> = new Set([
+  // Fleet orchestration — redistribution loops on workers
   "fleet-health",
   "fleet-comms",
   "fleet-dashboard",
@@ -196,7 +197,53 @@ const ARC_ONLY_SENSORS: ReadonlySet<string> = new Set([
   "fleet-log-pull",
   "fleet-memory",
   "fleet-sync",
+  "fleet-router",
+  "fleet-rebalance",
+  // Arc-level oversight & reporting
   "arc-cost-alerting",
+  "arc-ceo-review",
+  "arc-catalog",
+  "arc-introspection",
+  "arc-reporting",
+  "arc-report-email",
+  // Arc's domain monitoring
+  "arc0btc-site-health",
+  "site-consistency",
+]);
+
+/**
+ * Sensors requiring credentials workers don't have configured.
+ * Skipped on fleet agents to avoid silent failures and wasted cycles.
+ */
+const CREDENTIAL_SENSORS: ReadonlySet<string> = new Set([
+  // X OAuth 1.0a — only Arc has configured
+  "social-x-posting",
+  "social-x-ecosystem",
+  "social-agent-engagement",
+  // Bitcoin wallet signing
+  "aibtc-heartbeat",
+  "arc-reputation",
+  "bitcoin-quorumclaw",
+  // AIBTC platform APIs (Arc identity-bound)
+  "aibtc-inbox-sync",
+  "aibtc-news-editorial",
+  // Email worker API
+  "arc-email-sync",
+  // Worker-logs API keys
+  "worker-logs-monitor",
+  "aibtc-dev-ops",
+  // Cloudflare deployment credentials
+  "blog-deploy",
+  "blog-publishing",
+  "worker-deploy",
+  // On-chain / DeFi — wallet required
+  "stacks-payments",
+  "stacks-stackspot",
+  "dao-zero-authority",
+  "defi-bitflow",
+  "defi-zest",
+  "defi-stacks-market",
+  "erc8004-reputation",
 ]);
 
 /** Per-sensor timeout in milliseconds. Liberal limit to catch hangs, not rush normal work. */
@@ -223,15 +270,18 @@ export async function runSensors(): Promise<void> {
   const skills = discoverSkills();
   let sensorsToRun = skills.filter((s) => s.hasSensor);
 
-  // Fleet agents: skip GitHub-dependent and Arc-only orchestration sensors
+  // Fleet agents: skip GitHub-dependent, Arc-only, and credential-dependent sensors
   if (AGENT_NAME !== "arc0") {
     const before = sensorsToRun.length;
     sensorsToRun = sensorsToRun.filter(
-      (s) => !GITHUB_SENSORS.has(s.name) && !ARC_ONLY_SENSORS.has(s.name)
+      (s) =>
+        !GITHUB_SENSORS.has(s.name) &&
+        !ARC_ONLY_SENSORS.has(s.name) &&
+        !CREDENTIAL_SENSORS.has(s.name)
     );
     const skipped = before - sensorsToRun.length;
     if (skipped > 0) {
-      process.stdout.write(`sensors: skipped ${skipped} GitHub/Arc-only sensor(s) on ${AGENT_NAME}\n`);
+      process.stdout.write(`sensors: skipped ${skipped} GitHub/Arc-only/credential sensor(s) on ${AGENT_NAME}\n`);
     }
   }
 
