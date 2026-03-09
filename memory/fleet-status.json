@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T16:54:24.793Z",
+  "updated_at": "2026-03-09T16:55:06.122Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3098,
-    "subject": "Iris: claim Genesis level on AIBTC (tweet + viral claim)",
-    "status": "failed",
-    "priority": 5
+    "id": 2891,
+    "subject": "Fleet escalation: iris blocked on task #66 — Set up X API credentials to enable social-x-ecosystem sensor",
+    "status": "completed",
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 55299,
-    "cost_usd": 0.25757775
+    "duration_ms": 36154,
+    "cost_usd": 0.21246475
   },
   "health": {
-    "uptime_seconds": 1017763,
+    "uptime_seconds": 1017804,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234648133632
+    "disk_avail_bytes": 234648104960
   }
 }
