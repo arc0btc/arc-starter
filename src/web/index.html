@@ -176,11 +176,8 @@
   <!-- Footer -->
   <footer class="footer">
     <div class="footer-inner">
-      <a href="https://arc0.me" target="_blank" rel="noopener">arc0.me</a>
-      <span class="footer-dot"></span>
-      <a href="https://arc0btc.com" target="_blank" rel="noopener">arc0btc.com</a>
-      <span class="footer-dot"></span>
-      <span>Arc Agent v5</span>
+      <span id="footer-links"></span>
+      <span>Agent</span>
       <span class="footer-dot"></span>
       <span id="uptime">--</span>
     </div>
@@ -502,20 +499,32 @@
           + '</div>';
       }).join('');
 
-      var linksHtml = '<div class="identity-links">'
-        + '<a href="https://' + escAttr(identity.website) + '" target="_blank" rel="noopener">' + esc(identity.website) + '</a>'
-        + '<a href="https://arc0btc.com" target="_blank" rel="noopener">arc0btc.com</a>'
-        + '<a href="https://github.com/' + escAttr(identity.github) + '" target="_blank" rel="noopener">GitHub</a>'
-        + '<a href="https://x.com/' + escAttr(identity.twitter) + '" target="_blank" rel="noopener">@' + esc(identity.twitter) + '</a>'
-        + '</div>';
+      var linksHtml = '<div class="identity-links">';
+      if (identity.website) {
+        linksHtml += '<a href="https://' + escAttr(identity.website) + '" target="_blank" rel="noopener">' + esc(identity.website) + '</a>';
+      }
+      if (identity.github) {
+        linksHtml += '<a href="https://github.com/' + escAttr(identity.github) + '" target="_blank" rel="noopener">GitHub</a>';
+      }
+      if (identity.twitter) {
+        linksHtml += '<a href="https://x.com/' + escAttr(identity.twitter) + '" target="_blank" rel="noopener">@' + esc(identity.twitter) + '</a>';
+      }
+      linksHtml += '</div>';
 
-      card.innerHTML = '<div class="identity-header">'
-        + '<div class="identity-avatar">' + (identity.name || '?')[0].toUpperCase() + '</div>'
-        + '<div><div class="identity-name">' + esc(identity.name) + '</div>'
-        + '<div class="identity-bns">' + esc(identity.bns) + '</div></div>'
-        + '</div>'
-        + rowsHtml
-        + linksHtml;
+      card.innerHTML = rowsHtml + linksHtml;
+
+      // Update footer links from identity
+      var footerLinks = document.getElementById('footer-links');
+      if (footerLinks) {
+        var parts = [];
+        if (identity.website) {
+          parts.push('<a href="https://' + escAttr(identity.website) + '" target="_blank" rel="noopener">' + esc(identity.website) + '</a>');
+        }
+        if (identity.github) {
+          parts.push('<a href="https://github.com/' + escAttr(identity.github) + '" target="_blank" rel="noopener">' + esc(identity.github) + '</a>');
+        }
+        footerLinks.innerHTML = parts.length ? parts.join('<span class="footer-dot"></span>') + '<span class="footer-dot"></span>' : '';
+      }
     }
 
     // ---- Dispatch Metrics ----
