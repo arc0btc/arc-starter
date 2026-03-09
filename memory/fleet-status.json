@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T18:14:44.723Z",
+  "updated_at": "2026-03-09T18:16:21.302Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 2880,
-    "subject": "Improve fleet-health sensor: suppress stale alerts when queue is empty",
+    "id": 2885,
+    "subject": "Improve fleet-health sensor: distinguish idle queue from broken dispatch",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 115990,
-    "cost_usd": 0.48588775
+    "duration_ms": 96284,
+    "cost_usd": 0.4612765000000001
   },
   "health": {
-    "uptime_seconds": 1022583,
+    "uptime_seconds": 1022680,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234633908224
+    "disk_avail_bytes": 234634047488
   }
 }
