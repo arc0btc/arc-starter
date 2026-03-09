@@ -80,6 +80,11 @@ async function cmdProvisionBase(args: string[]): Promise<void> {
   // Install bun (idempotent — installer handles existing installs)
   await sshLog(ip, password, "bun-install", "curl -fsSL https://bun.sh/install | bash");
 
+  // Ensure bun is on PATH for non-interactive SSH sessions
+  // .bashrc is only sourced for interactive shells; .profile covers login shells
+  await sshLog(ip, password, "bun-profile", `grep -q '/.bun/bin' ~/.profile 2>/dev/null || (echo '' >> ~/.profile && echo '# bun' >> ~/.profile && echo 'export BUN_INSTALL="\\$HOME/.bun"' >> ~/.profile && echo 'export PATH=\\$HOME/.bun/bin:\\$PATH' >> ~/.profile)`);
+  await sshLog(ip, password, "bun-symlink", "sudo ln -sf /home/dev/.bun/bin/bun /usr/local/bin/bun");
+
   // Verify bun
   const bunCheck = await sshLog(ip, password, "bun-verify", "~/.bun/bin/bun --version");
   if (bunCheck.ok) {
