@@ -76,6 +76,7 @@
 - **Backlog growth is bottleneck signal:** Creation rate > completion rate → noisy sensors waste cycles. >20 pending → redistribute excess to compatible domain.
 - **Time dilation changes sensor cadence:** Agentic speed ≈ 10-24x. Daily sensors → every 4-6h. But respect upstream rate limits.
 - **Budget split:** Arc $80/day, each worker $30/day ($200 total across 5 agents).
+- **Git bundle distribution for fleet sync:** Use atomic git bundles (resumable, no partial state) paired with local task injection on each worker. More reliable than SSH git pull when workers lag behind Arc on complex branch histories. Notify all workers before queuing tasks to prevent race conditions.
 
 ## Operational Rules
 
