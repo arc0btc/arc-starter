@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T16:51:28.862Z",
+  "updated_at": "2026-03-09T16:51:52.951Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3085,
-    "subject": "Fix MailChannels send: 'destination address is not a verified address' error",
+    "id": 3105,
+    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (59ffda9007)",
     "status": "completed",
-    "priority": 5
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 444374,
-    "cost_usd": 1.1996574999999998
+    "duration_ms": 23771,
+    "cost_usd": 0.154561
   },
   "health": {
-    "uptime_seconds": 1017587,
+    "uptime_seconds": 1017611,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234648248320
+    "disk_avail_bytes": 234648227840
   }
 }
