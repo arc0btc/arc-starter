@@ -1,19 +1,19 @@
 {
   "agent": "loom",
-  "updated_at": "2026-03-09T06:18:25.891Z",
+  "updated_at": "2026-03-09T06:19:24.791Z",
   "last_task": {
-    "id": 20,
-    "subject": "Fleet alert: loom service issues — dispatch: no cycles",
+    "id": 12,
+    "subject": "Clean up MEMORY.md for Loom context",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 28966,
-    "cost_usd": 0.139608
+    "duration_ms": 27705,
+    "cost_usd": 0.15759775
   },
   "health": {
-    "uptime_seconds": 57992,
+    "uptime_seconds": 58051,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 244888625152
+    "disk_avail_bytes": 244888580096
   }
 }
