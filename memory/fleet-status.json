@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T17:53:17.793Z",
+  "updated_at": "2026-03-09T17:56:07.209Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3137,
-    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (3e2af28027)",
+    "id": 3153,
+    "subject": "Refactor fleet-sync to notify-only: bundle + task creation instead of full SSH sync",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 26794,
-    "cost_usd": 0.153904
+    "duration_ms": 135995,
+    "cost_usd": 0.70596625
   },
   "health": {
-    "uptime_seconds": 1021296,
+    "uptime_seconds": 1021466,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234643853312
+    "disk_avail_bytes": 234643734528
   }
 }
