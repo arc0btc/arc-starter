@@ -5,13 +5,14 @@
 //   arc skills run --name arc-observatory -- status    # show fleet health summary
 //   arc skills run --name arc-observatory -- agents    # list configured agents + connectivity
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 
 // ---- Types ----
 
 interface AgentConfig {
   name: string;
+  bns?: string;
   url: string;
 }
 
@@ -23,6 +24,7 @@ interface FleetConfig {
 
 interface AgentSnapshot {
   name: string;
+  bns: string | null;
   url: string;
   online: boolean;
   last_poll: string | null;
@@ -62,6 +64,58 @@ function loadConfig(): FleetConfig {
   return JSON.parse(content) as FleetConfig;
 }
 
+// ---- Bitcoin Faces Cache ----
+
+const FACES_CACHE_DIR = join(import.meta.dir, "cache");
+
+function getBnsPrefixFromBns(bns: string): string {
+  return bns.replace(/\.btc$/, "");
+}
+
+async function cacheBitcoinFace(bns: string): Promise<string | null> {
+  const prefix = getBnsPrefixFromBns(bns);
+  const cachePath = join(FACES_CACHE_DIR, `${prefix}.png`);
+
+  if (existsSync(cachePath)) return cachePath;
+
+  try {
+    mkdirSync(FACES_CACHE_DIR, { recursive: true });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    const res = await fetch(`https://bitcoinfaces.xyz/api/get-image?name=${prefix}`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
+    if (!res.ok) return null;
+    const buf = await res.arrayBuffer();
+    writeFileSync(cachePath, Buffer.from(buf));
+    return cachePath;
+  } catch {
+    return null;
+  }
+}
+
+async function cacheAllFaces(agents: AgentConfig[]): Promise<void> {
+  const bnsAgents = agents.filter((a) => a.bns);
+  await Promise.allSettled(bnsAgents.map((a) => cacheBitcoinFace(a.bns!)));
+}
+
+function serveFace(name: string): Response {
+  const cachePath = join(FACES_CACHE_DIR, `${name}.png`);
+  if (!existsSync(cachePath)) {
+    return new Response("Not found", { status: 404 });
+  }
+  const file = readFileSync(cachePath);
+  return new Response(file, {
+    headers: {
+      "Content-Type": "image/png",
+      "Cache-Control": "public, max-age=86400",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+}
+
 // ---- Polling ----
 
 const cache = new Map<string, AgentSnapshot>();
@@ -81,6 +135,7 @@ async function pollAgent(agent: AgentConfig): Promise<AgentSnapshot> {
 
     const snapshot: AgentSnapshot = {
       name: agent.name,
+      bns: agent.bns ?? null,
       url: agent.url,
       online: true,
       last_poll: new Date().toISOString(),
@@ -93,6 +148,7 @@ async function pollAgent(agent: AgentConfig): Promise<AgentSnapshot> {
   } catch (err) {
     const snapshot: AgentSnapshot = {
       name: agent.name,
+      bns: agent.bns ?? null,
       url: agent.url,
       online: false,
       last_poll: new Date().toISOString(),
@@ -153,6 +209,8 @@ function handleFleetStatus(): Response {
     },
     agents: snapshots.map((s) => ({
       name: s.name,
+      bns: s.bns,
+      face_url: s.bns ? `/api/fleet/faces/${getBnsPrefixFromBns(s.bns)}` : null,
       online: s.online,
       latency_ms: s.latency_ms,
       last_poll: s.last_poll,
@@ -170,6 +228,8 @@ function handleFleetAgents(): Response {
   return json({
     agents: Array.from(cache.values()).map((s) => ({
       name: s.name,
+      bns: s.bns,
+      face_url: s.bns ? `/api/fleet/faces/${getBnsPrefixFromBns(s.bns)}` : null,
       url: s.url,
       online: s.online,
       latency_ms: s.latency_ms,
@@ -243,7 +303,11 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
   .agent-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; }
   .agent-card.offline { border-color: var(--red); opacity: 0.7; }
   .agent-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+  .agent-identity { display: flex; align-items: center; gap: 0.5rem; }
+  .agent-face { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); }
+  .agent-name-group { display: flex; flex-direction: column; }
   .agent-name { font-size: 0.95rem; font-weight: 600; }
+  .agent-bns { font-size: 0.7rem; color: var(--dim); }
   .badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.05em; }
   .badge.online { background: rgba(34,197,94,0.15); color: var(--green); }
   .badge.offline { background: rgba(239,68,68,0.15); color: var(--red); }
@@ -284,6 +348,8 @@ function stat(label, value) {
 function agentCard(a) {
   const cls = a.online ? '' : ' offline';
   const badge = a.online ? '<span class="badge online">online</span>' : '<span class="badge offline">offline</span>';
+  const face = a.face_url ? '<img class="agent-face" src="' + a.face_url + '" alt="' + a.name + '">' : '';
+  const bns = a.bns ? '<span class="agent-bns">' + a.bns + '</span>' : '';
   let stats = '';
   if (a.pending !== null) {
     stats = '<dl class="agent-stats">' +
@@ -297,7 +363,9 @@ function agentCard(a) {
   const lastPoll = a.last_poll ? '<div class="last-poll">polled ' + new Date(a.last_poll).toLocaleTimeString() + '</div>' : '';
   const error = a.error ? '<div class="error-msg">' + a.error + '</div>' : '';
   return '<div class="agent-card' + cls + '">' +
-    '<div class="agent-header"><span class="agent-name">' + a.name + '</span>' + badge + '</div>' +
+    '<div class="agent-header"><div class="agent-identity">' + face +
+    '<div class="agent-name-group"><span class="agent-name">' + a.name + '</span>' + bns + '</div>' +
+    '</div>' + badge + '</div>' +
     stats + lastPoll + error + '</div>';
 }
 refresh();
@@ -309,6 +377,11 @@ setInterval(refresh, 15000);
 // ---- Server ----
 
 function startServer(config: FleetConfig): void {
+  // Cache Bitcoin Faces
+  cacheAllFaces(config.agents).then(() => {
+    console.log(`[observatory] Bitcoin Faces cached`);
+  });
+
   // Initial poll
   pollAll(config.agents).then(() => {
     console.log(`[observatory] Initial poll complete: ${cache.size} agents`);
@@ -342,6 +415,10 @@ function startServer(config: FleetConfig): void {
       if (path === "/api/fleet/status") return handleFleetStatus();
       if (path === "/api/fleet/agents") return handleFleetAgents();
       if (path === "/api/fleet/costs") return handleFleetCosts();
+
+      // Bitcoin Faces images
+      const faceMatch = path.match(/^\/api\/fleet\/faces\/([a-zA-Z0-9]+)$/);
+      if (faceMatch) return serveFace(faceMatch[1]);
 
       // Proxy: /api/fleet/agents/:name/tasks|cycles|sensors|skills|status
       const proxyMatch = path.match(/^\/api\/fleet\/agents\/([^/]+)\/(tasks|cycles|sensors|skills|status|costs|identity)$/);
