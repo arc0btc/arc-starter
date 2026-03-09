@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T12:17:50.714Z",
+  "updated_at": "2026-03-09T12:18:44.580Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 2359,
-    "subject": "Review PR #281 on aibtcdev/aibtc-mcp-server: fix: pre-check rewards before broadcasting zest_claim_rewards",
+    "id": 2937,
+    "subject": "Fleet alert: spark service issues — dispatch: no cycles",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 105270,
-    "cost_usd": 0.35034675
+    "duration_ms": 53772,
+    "cost_usd": 0.27132625
   },
   "health": {
-    "uptime_seconds": 1001169,
+    "uptime_seconds": 1001223,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234680627200
+    "disk_avail_bytes": 234680598528
   }
 }
