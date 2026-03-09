@@ -13,7 +13,7 @@ import { existsSync } from "node:fs";
 import { join, basename, resolve } from "node:path";
 
 const SENSOR_NAME = "compliance-review";
-const INTERVAL_MINUTES = 360;
+const INTERVAL_MINUTES = 720; // 12 hours — daily structural audit
 const TASK_SOURCE = "sensor:compliance-review";
 
 const log = createSensorLogger(SENSOR_NAME);

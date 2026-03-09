@@ -14,7 +14,7 @@ import { getDatabase } from "../../src/db.ts";
 import type { Task } from "../../src/db.ts";
 
 const SENSOR_NAME = "arc-dispatch-eval";
-const INTERVAL_MINUTES = 120;
+const INTERVAL_MINUTES = 480; // 8 hours — quality review, not urgent
 const LOOKBACK_HOURS = 4;
 const FLAG_THRESHOLD = 2; // min flagged tasks to create improvement task
 const LOW_SCORE_CUTOFF = 2; // total score ≤ this gets flagged

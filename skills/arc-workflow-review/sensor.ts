@@ -18,7 +18,7 @@ import {
 import type { Task } from "../../src/db.ts";
 
 const SENSOR_NAME = "arc-workflow-review";
-const INTERVAL_MINUTES = 240; // 4 hours
+const INTERVAL_MINUTES = 720; // 12 hours — pattern detection is slow-burn
 const TASK_SOURCE = "sensor:arc-workflow-review";
 const LOOKBACK_DAYS = 7;
 const MIN_RECURRENCES = 3;

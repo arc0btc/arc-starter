@@ -14,7 +14,7 @@ import { getDatabase, initDatabase } from "../../src/db.ts";
 import { discoverSkills } from "../../src/skills.ts";
 
 const SENSOR_NAME = "context-review";
-const INTERVAL_MINUTES = 120;
+const INTERVAL_MINUTES = 480; // 8 hours — skill mismatch detection 3x/day
 const TASK_SOURCE = "sensor:context-review";
 const REVIEW_WINDOW_HOURS = 4;
 const MINIMUM_ISSUES_THRESHOLD = 2;

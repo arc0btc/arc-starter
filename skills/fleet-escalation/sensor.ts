@@ -3,16 +3,18 @@
  *
  * Every 15 minutes, SSH into each fleet VM and query for blocked tasks.
  * For each new blocked task found:
- * 1. Create an escalation task on Arc's queue (P2)
+ * 1. Create a FleetEscalationMachine workflow instance (dedup via instance_key)
  * 2. Track the escalation in memory/fleet-escalations.json
  * 3. Send email digest to whoabuddy if any new escalations
+ *
+ * The meta-sensor evaluates active workflows and creates the resolution task
+ * automatically when the workflow reaches the "escalated" state.
  */
 
 import { join } from "node:path";
 import {
   claimSensorRun,
   createSensorLogger,
-  insertTaskIfNew,
 } from "../../src/sensors.ts";
 import {
   AGENTS,
@@ -22,6 +24,10 @@ import {
   ssh,
 } from "../../src/ssh.ts";
 import { getCredential } from "../../src/credentials.ts";
+import {
+  insertWorkflow,
+  getWorkflowByInstanceKey,
+} from "../../src/db.ts";
 
 const SENSOR_NAME = "fleet-escalation";
 const INTERVAL_MINUTES = 15;
@@ -45,7 +51,7 @@ interface BlockedTask {
 interface EscalationRecord {
   agent: string;
   remoteTaskId: number;
-  localTaskId: number;
+  workflowId: number;
   subject: string;
   reason: string;
   escalatedAt: string;
@@ -54,7 +60,7 @@ interface EscalationRecord {
 interface ClearedRecord {
   agent: string;
   remoteTaskId: number;
-  localTaskId: number;
+  workflowId: number;
   clearedAt: string;
   resolution: string;
 }
@@ -81,21 +87,6 @@ async function loadState(): Promise<EscalationState> {
 
 async function saveState(state: EscalationState): Promise<void> {
   await Bun.write(ESCALATIONS_FILE, JSON.stringify(state, null, 2));
-}
-
-function isAlreadyEscalated(
-  state: EscalationState,
-  agent: string,
-  taskId: number,
-): boolean {
-  // Check both active escalations AND cleared ones — don't re-escalate what was already handled
-  const inActive = state.escalations.some(
-    (e) => e.agent === agent && e.remoteTaskId === taskId,
-  );
-  const inCleared = (state.cleared ?? []).some(
-    (e) => e.agent === agent && e.remoteTaskId === taskId,
-  );
-  return inActive || inCleared;
 }
 
 // ---- Query remote blocked tasks ----
@@ -143,7 +134,7 @@ async function emailWhoabuddy(
 
   const lines = newEscalations.map(
     (e) =>
-      `- [${e.agent}] Task #${e.remoteTaskId}: ${e.subject}\n  Reason: ${e.reason || "(no reason given)"}\n  Escalated as Arc task #${e.localTaskId}`,
+      `- [${e.agent}] Task #${e.remoteTaskId}: ${e.subject}\n  Reason: ${e.reason || "(no reason given)"}\n  Escalation workflow id=${e.workflowId} (meta-sensor will create resolution task)`,
   );
 
   const body = [
@@ -218,52 +209,42 @@ export default async function fleetEscalationSensor(): Promise<string> {
       if (blocked.length === 0) return;
 
       for (const task of blocked) {
-        if (isAlreadyEscalated(state, agent, task.id)) continue;
+        const instanceKey = `fleet-escalation-${agent}-${task.id}`;
 
-        const source = `sensor:fleet-escalation:${agent}:${task.id}`;
+        // Dedup: if a workflow already exists for this agent+task, skip
+        const existing = getWorkflowByInstanceKey(instanceKey);
+        if (existing) {
+          log(`${agent} task #${task.id} already has workflow id=${existing.id}, skipping`);
+          continue;
+        }
+
         const reason = task.result_summary || "(no block reason provided)";
 
-        // Use "any" dedupMode — prevents re-escalating after a previous escalation
-        // was completed/failed. The remote task may still be blocked, but we already
-        // handled it. One escalation per source, ever.
-        const localTaskId = insertTaskIfNew(source, {
-          subject: `Fleet escalation: ${agent} blocked on task #${task.id} — ${task.subject}`,
-          description: [
-            `Agent **${agent}** has a blocked task that needs attention.`,
-            "",
-            `**Remote task #${task.id}:** ${task.subject}`,
-            `**Priority:** ${task.priority}`,
-            `**Block reason:** ${reason}`,
-            `**Created:** ${task.created_at}`,
-            task.skills ? `**Skills:** ${task.skills}` : "",
-            "",
-            "**Actions:**",
-            "1. Investigate the block reason",
-            "2. If resolvable by Arc: fix and unblock the remote task",
-            `3. To unblock: \`arc skills run --name fleet-task-sync -- send --agent ${agent} --subject \"Unblock task #${task.id}\" --priority 3\``,
-            "4. If needs whoabuddy: leave this task open for human review",
-          ]
-            .filter(Boolean)
-            .join("\n"),
-          priority: 2,
-          skills: '["fleet-escalation", "fleet-task-sync"]',
-        }, "any");
+        const workflowId = insertWorkflow({
+          template: "fleet-escalation",
+          instance_key: instanceKey,
+          current_state: "escalated",
+          context: JSON.stringify({
+            agentName: agent,
+            blockedTaskId: task.id,
+            blockDescription: reason,
+            alertDate: new Date().toISOString(),
+          }),
+        });
 
-        if (localTaskId !== null) {
-          const record: EscalationRecord = {
-            agent,
-            remoteTaskId: task.id,
-            localTaskId,
-            subject: task.subject,
-            reason,
-            escalatedAt: new Date().toISOString(),
-          };
-          newEscalations.push(record);
-          state.escalations.push(record);
-          log(
-            `escalated: ${agent} task #${task.id} → Arc task #${localTaskId}`,
-          );
-        }
+        const record: EscalationRecord = {
+          agent,
+          remoteTaskId: task.id,
+          workflowId,
+          subject: task.subject,
+          reason,
+          escalatedAt: new Date().toISOString(),
+        };
+        newEscalations.push(record);
+        state.escalations.push(record);
+        log(
+          `created workflow id=${workflowId} for ${agent} task #${task.id} (meta-sensor will create resolution task)`,
+        );
       }
     }),
   );

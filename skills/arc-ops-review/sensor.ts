@@ -22,7 +22,7 @@ import {
 import { getDatabase } from "../../src/db.ts";
 
 const SENSOR_NAME = "arc-ops-review";
-const INTERVAL_MINUTES = 240; // 4 hours
+const INTERVAL_MINUTES = 720; // 12 hours — daily ops check
 const TASK_SOURCE = "sensor:arc-ops-review";
 const LOOKBACK_HOURS = 4;
 

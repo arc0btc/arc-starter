@@ -11,7 +11,7 @@ import { getDatabase } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
 
 const SENSOR_NAME = "arc-cost-alerting";
-const INTERVAL_MINUTES = 10;
+const INTERVAL_MINUTES = 30; // 30 min — still catches spikes
 const REPORT_THRESHOLD_USD = 150.0; // create a spend report when daily total exceeds this
 
 const log = createSensorLogger(SENSOR_NAME);

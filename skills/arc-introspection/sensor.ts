@@ -22,7 +22,7 @@ import {
 } from "../../src/db.ts";
 
 const SENSOR_NAME = "arc-introspection";
-const INTERVAL_MINUTES = 360; // 6 hours
+const INTERVAL_MINUTES = 720; // 12 hours — daily introspection
 const TASK_SOURCE = "sensor:arc-introspection";
 
 const log = createSensorLogger(SENSOR_NAME);

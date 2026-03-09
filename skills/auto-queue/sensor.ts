@@ -20,7 +20,7 @@ import {
 import { getDatabase } from "../../src/db.ts";
 
 const SENSOR_NAME = "auto-queue";
-const INTERVAL_MINUTES = 120;
+const INTERVAL_MINUTES = 360; // 6 hours — don't generate work faster than consumed
 const TASK_SOURCE = "sensor:auto-queue";
 
 const log = createSensorLogger(SENSOR_NAME);

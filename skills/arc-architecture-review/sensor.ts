@@ -11,7 +11,7 @@ import { claimSensorRun, createSensorLogger, readHookState, writeHookState } fro
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "arc-architecture-review";
-const INTERVAL_MINUTES = 360; // 6 hours
+const INTERVAL_MINUTES = 720; // 12 hours — daily architecture check
 const TASK_SOURCE = "sensor:arc-architecture-review";
 const STALE_HOURS = 24;
 

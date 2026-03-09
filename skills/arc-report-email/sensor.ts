@@ -10,7 +10,7 @@ import { markdownToHtml, wrapInArcTheme } from "./html.ts";
 
 const SENSOR_NAME = "arc-report-email";
 const REPORTS_DIR = new URL("../../reports", import.meta.url).pathname;
-const INTERVAL_MINUTES = 5;
+const INTERVAL_MINUTES = 30; // 30 min — reports don't arrive every 5 min
 const TASK_SOURCE = "sensor:arc-report-email";
 
 const log = createSensorLogger(SENSOR_NAME);

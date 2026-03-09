@@ -7,7 +7,7 @@ import { getDatabase } from "../../src/db.ts";
 import type { Task } from "../../src/db.ts";
 
 const SENSOR_NAME = "arc-blocked-review";
-const INTERVAL_MINUTES = 240;
+const INTERVAL_MINUTES = 480; // 8 hours — keep responsive for blocked tasks
 const TASK_SOURCE = "sensor:arc-blocked-review";
 
 const log = createSensorLogger(SENSOR_NAME);
