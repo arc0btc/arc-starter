@@ -23,6 +23,8 @@
 
 **Rule: Orchestration sensors are Arc-only.** Any sensor that routes, rebalances, monitors, or SSHes into fleet agents must run exclusively on Arc. Workers should only run self-monitoring and domain-work sensors.
 
+**GitHub sensors are Arc-only (task #2976).** Centralized `GITHUB_SENSORS` set in `src/sensors.ts` skips 9 GitHub-dependent sensors on fleet agents (AGENT_NAME !== "arc0"): github-mentions, github-issue-monitor, github-ci-status, github-release-watcher, github-security-alerts, github-worker-logs, arc0btc-pr-review, aibtc-repo-maintenance, arc-workflows. Fleet agents have no GitHub accounts/credentials.
+
 **Design intent:** Fleet agents are workers, not orchestrators. Lean sensor footprint is correct. However fleet-router/rebalance on workers warrants discussion.
 
 ---
