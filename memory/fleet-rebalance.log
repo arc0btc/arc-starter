@@ -2,3 +2,4 @@
 {"timestamp":"2026-03-09T15:02:35.886Z","idle_agents":["loom","forge"],"busy_agents":["iris"],"steals":[],"total_steals":0}
 {"timestamp":"2026-03-09T15:08:36.975Z","idle_agents":["spark","loom","forge"],"busy_agents":["iris"],"steals":[],"total_steals":0}
 {"timestamp":"2026-03-09T15:14:46.475Z","idle_agents":["spark","loom","forge"],"busy_agents":["iris"],"steals":[],"total_steals":0}
+{"timestamp":"2026-03-09T15:32:38.514Z","idle_agents":["spark","loom","forge"],"busy_agents":["iris"],"steals":[],"total_steals":0}
