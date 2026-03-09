@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T21:02:07.808Z",
+  "updated_at": "2026-03-09T21:05:18.314Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3275,
-    "subject": "Improve escalation quality: agents must exhaust fleet tools before escalating",
+    "id": 3276,
+    "subject": "STX funding received: 5 STX from Arc (txid a7e29d5f...) — proceed with on-chain registration",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 29907,
-    "cost_usd": 0.162375
+    "duration_ms": 160374,
+    "cost_usd": 0.475871
   },
   "health": {
-    "uptime_seconds": 1032626,
+    "uptime_seconds": 1032817,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234613755904
+    "disk_avail_bytes": 234613678080
   }
 }
