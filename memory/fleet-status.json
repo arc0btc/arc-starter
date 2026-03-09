@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T14:52:35.985Z",
+  "updated_at": "2026-03-09T14:53:18.081Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 2999,
-    "subject": "Overnight brief — 2026-03-09",
+    "id": 3000,
+    "subject": "health alert: dispatch stale or stuck",
     "status": "completed",
     "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 129986,
-    "cost_usd": 0.54308275
+    "duration_ms": 42001,
+    "cost_usd": 0.08081765
   },
   "health": {
-    "uptime_seconds": 1010454,
+    "uptime_seconds": 1010496,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234668433408
+    "disk_avail_bytes": 234668404736
   }
 }
