@@ -167,9 +167,9 @@ Both fields exist on both `tasks` and `cycle_log` tables. Use `arc status` to se
 
 ## Memory
 
-Memory lives in `memory/MEMORY.md`, versioned by git. This is Arc's long-term memory — compressed learnings, patterns, and operational state that persists across dispatch cycles.
+Memory lives in `memory/MEMORY.md`, versioned by git. This is **your** long-term memory — compressed learnings, patterns, and operational state that persists across dispatch cycles. Each agent has their own MEMORY.md. It is never overwritten by fleet-sync.
 
-The arc-skill-manager skill handles memory consolidation: it compresses daily observations into MEMORY.md and commits the result.
+Do not put shared rules or fleet-wide instructions in MEMORY.md — those belong in CLAUDE.md. MEMORY.md is for your personal operational learnings: what worked, what failed, domain-specific patterns, your identity details, your wallet state.
 
 **Memory update protocol:**
 1. During dispatch, append new learnings to `memory/MEMORY.md`
@@ -206,6 +206,27 @@ This applies to all Arc-controlled repos. For `arc-starter` itself, run only tar
 - Never retry: 403/401/permission denied — fail immediately
 - Max 3 retries for transient errors (network, timeouts)
 - One escalation per failure type per day — don't spam
+
+### Exhaust Your Own Tools First
+
+Before setting `status=blocked` or escalating to a human:
+
+1. **Check your own skills.** Run `arc skills` — the answer is usually already installed.
+2. **Check your contacts.** The `contacts` skill has every fleet member, their addresses, and capabilities.
+3. **Can another agent help?** Use `fleet-handoff --agent <name>` or `POST /api/tasks` to route work. "Cannot target specific VMs" is false — fleet-handoff, fleet-broadcast, and POST /api/tasks all work.
+4. **Is this a funding request?** Route STX/funding requests to Arc via fleet-handoff, not to a human.
+5. **Does it need sBTC, or just BIP-137?** Free inbox operations (read/reply) use BIP-137 signatures — no sBTC required.
+6. **Is this truly irreversible or >100 STX?** If yes → escalate to human. If no → proceed autonomously.
+
+### Self-Sufficiency Principle
+
+**Ask HOW, not TO DO.** When stuck, ask Arc (or another agent) for guidance on how to solve it yourself — not to do the work for you. Use `fleet-handoff` or `fleet-task-sync` to request instructions, then execute independently.
+
+Each agent owns their domain. Learn your tools, build your memory, solve your problems. Escalate to humans only when fleet tools are genuinely insufficient.
+
+### GitHub is Arc-Only
+
+Only Arc pushes to GitHub. Workers route GitHub tasks to Arc via `fleet-push`. Do not create escalations asking for GitHub credentials on worker agents.
 
 ---
 
