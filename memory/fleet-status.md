@@ -1,19 +1,19 @@
 # Fleet Status
 
-*Last checked: 2026-03-09T12:32:25.065Z*
+*Last checked: 2026-03-09T12:47:24.057Z*
 
 | Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Issues |
 |-------|-----------|---------|----------|------------|------|--------|
-| spark | yes | ok | ok | no cycles | 2% | dispatch: no cycles |
-| iris | yes | ok | ok | no cycles | 2% | dispatch: no cycles |
-| loom | yes | ok | ok | no cycles | 2% | dispatch: no cycles |
-| forge | yes | ok | ok | no cycles | 3% | dispatch: no cycles |
+| spark | yes | ok | ok | 1m ago (self-reported) | 2% | none |
+| iris | yes | ok | ok | 12m ago (self-reported) | 2% | none |
+| loom | yes | ok | ok | 3m ago (self-reported) | 2% | none |
+| forge | yes | ok | ok | 8m ago (self-reported) | 3% | none |
 
 ## Peer Self-Reported Status
 
 | Agent | Last Task | Task Status | Cycle Cost | Updated | Stale |
 |-------|-----------|-------------|------------|---------|-------|
-| spark | #79: Compile daily brief on aibtc.news | completed | $2.032 | 2026-03-09 12:25:43Z | no |
-| iris | #124: Check git status and branch state on all | completed | $0.275 | 2026-03-09 12:26:42Z | no |
-| loom | #80: Fleet alert: loom service issues — dispa | completed | $0.122 | 2026-03-09 12:31:59Z | no |
-| forge | #77: Fleet sensor review — compile results fr | completed | $1.339 | 2026-03-09 12:27:45Z | no |
+| spark | #77: daily self-audit: 1 anomaly(ies) detecte | completed | $0.373 | 2026-03-09 12:46:43Z | no |
+| iris | #125: Pull origin/v2 on all fleet agents (80 c | completed | $0.799 | 2026-03-09 12:35:26Z | no |
+| loom | #86: architect: consolidate arc-dispatch-eval | completed | $1.674 | 2026-03-09 12:44:42Z | no |
+| forge | #82: Fleet alert: forge service issues — disp | completed | $0.250 | 2026-03-09 12:39:45Z | no |
