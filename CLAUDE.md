@@ -75,7 +75,7 @@ The CLI is the tool boundary. If a capability doesn't have a CLI command, create
 arc status                                    # task counts, last cycle, cost today
 arc tasks [--status STATUS] [--limit N]       # list tasks (default: pending + active)
 arc tasks add --subject TEXT [--priority N]    # create a task
-arc tasks update --id N [--subject TEXT] [--priority N]  # update a task
+arc tasks update --id N [--subject TEXT] [--priority N] [--description TEXT] [--model MODEL] [--status pending]  # update a task
 arc tasks close --id N --status completed|failed --summary TEXT
 arc skills                                    # list installed skills
 arc skills show --name NAME                   # print SKILL.md content
