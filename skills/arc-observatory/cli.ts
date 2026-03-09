@@ -116,9 +116,25 @@ function serveFace(name: string): Response {
   });
 }
 
+// ---- Feed Types ----
+
+interface FeedTask {
+  agent: string;
+  agent_bns: string | null;
+  id: number;
+  subject: string;
+  priority: number;
+  status: string;
+  source: string | null;
+  model: string | null;
+  created_at: string;
+  cost_usd: number;
+}
+
 // ---- Polling ----
 
 const cache = new Map<string, AgentSnapshot>();
+const feedCache = new Map<string, FeedTask[]>();
 
 async function pollAgent(agent: AgentConfig): Promise<AgentSnapshot> {
   const start = Date.now();
@@ -164,8 +180,42 @@ async function pollAgent(agent: AgentConfig): Promise<AgentSnapshot> {
 async function pollAll(agents: AgentConfig[]): Promise<AgentSnapshot[]> {
   const results = await Promise.allSettled(agents.map(pollAgent));
   return results.map((r) =>
-    r.status === "fulfilled" ? r.value : { name: "unknown", url: "", online: false, last_poll: null, latency_ms: null, status: null, error: "poll failed" }
+    r.status === "fulfilled" ? r.value : { name: "unknown", bns: null, url: "", online: false, last_poll: null, latency_ms: null, status: null, error: "poll failed" }
   );
+}
+
+// ---- Feed Polling ----
+
+async function pollAgentFeed(agent: AgentConfig): Promise<void> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(`${agent.url}/api/tasks?limit=30`, { signal: controller.signal });
+    clearTimeout(timeout);
+
+    if (!res.ok) return;
+    const data = (await res.json()) as { tasks: Array<{ id: number; subject: string; priority: number; status: string; source: string | null; model: string | null; created_at: string; cost_usd: number }> };
+
+    const tasks: FeedTask[] = data.tasks.map((t) => ({
+      agent: agent.name,
+      agent_bns: agent.bns ?? null,
+      id: t.id,
+      subject: t.subject,
+      priority: t.priority,
+      status: t.status,
+      source: t.source,
+      model: t.model,
+      created_at: t.created_at,
+      cost_usd: t.cost_usd ?? 0,
+    }));
+    feedCache.set(agent.name, tasks);
+  } catch {
+    // Keep stale feed data on failure
+  }
+}
+
+async function pollAllFeeds(agents: AgentConfig[]): Promise<void> {
+  await Promise.allSettled(agents.map(pollAgentFeed));
 }
 
 // ---- API Handlers ----
@@ -264,6 +314,20 @@ async function proxyToAgent(agentName: string, apiPath: string, url: URL): Promi
   }
 }
 
+function handleFleetFeed(): Response {
+  const allTasks: FeedTask[] = [];
+  for (const tasks of feedCache.values()) {
+    allTasks.push(...tasks);
+  }
+  // Sort by created_at descending (newest first), then by id descending
+  allTasks.sort((a, b) => {
+    const timeCompare = (b.created_at || "").localeCompare(a.created_at || "");
+    return timeCompare !== 0 ? timeCompare : b.id - a.id;
+  });
+  // Return top 50 merged items
+  return json({ feed: allTasks.slice(0, 50), updated_at: new Date().toISOString() });
+}
+
 function handleFleetCosts(): Response {
   const snapshots = Array.from(cache.values());
   return json({
@@ -300,6 +364,45 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
   .fleet-stat { display: flex; flex-direction: column; }
   .fleet-stat .label { font-size: 0.7rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; }
   .fleet-stat .value { font-size: 1.2rem; font-weight: 600; }
+  /* Tabs */
+  .tabs { display: flex; gap: 0; margin-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .tab { padding: 0.5rem 1.25rem; font-size: 0.8rem; font-family: inherit; color: var(--dim); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.05em; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--text); border-bottom-color: var(--blue); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Live Feed */
+  .feed { display: flex; flex-direction: column; gap: 0; max-height: 75vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px; background: var(--card); }
+  .feed::-webkit-scrollbar { width: 6px; }
+  .feed::-webkit-scrollbar-track { background: var(--card); }
+  .feed::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .feed-item { display: grid; grid-template-columns: 28px 70px 1fr auto auto auto; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); animation: feedSlideIn 0.3s ease-out; transition: background 0.15s; }
+  .feed-item:last-child { border-bottom: none; }
+  .feed-item:hover { background: rgba(255,255,255,0.02); }
+  .feed-item.status-active { border-left: 2px solid var(--blue); }
+  .feed-item.status-completed { border-left: 2px solid var(--green); }
+  .feed-item.status-failed { border-left: 2px solid var(--red); }
+  .feed-item.status-pending { border-left: 2px solid var(--dim); }
+  .feed-item.status-blocked { border-left: 2px solid var(--amber); }
+  .feed-face { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--border); }
+  .feed-agent { font-size: 0.7rem; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .feed-subject { font-size: 0.8rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .feed-status { font-size: 0.6rem; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; text-align: center; min-width: 60px; }
+  .feed-status.s-pending { background: rgba(102,102,102,0.2); color: var(--dim); }
+  .feed-status.s-active { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .feed-status.s-completed { background: rgba(34,197,94,0.15); color: var(--green); }
+  .feed-status.s-failed { background: rgba(239,68,68,0.15); color: var(--red); }
+  .feed-status.s-blocked { background: rgba(245,158,11,0.15); color: var(--amber); }
+  .feed-cost { font-size: 0.7rem; color: var(--dim); white-space: nowrap; min-width: 45px; text-align: right; }
+  .feed-time { font-size: 0.65rem; color: var(--dim); white-space: nowrap; min-width: 55px; text-align: right; }
+  .feed-empty { padding: 2rem; text-align: center; color: var(--dim); font-size: 0.8rem; }
+  @keyframes feedSlideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+  @media (max-width: 768px) {
+    .feed-item { grid-template-columns: 24px 50px 1fr auto; }
+    .feed-cost, .feed-time { display: none; }
+  }
+
   .agents { display: flex; flex-direction: column; gap: 0.75rem; }
   .agent-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 0.75rem 1rem; cursor: pointer; transition: border-color 0.15s; }
   .agent-card.offline { border-color: var(--red); opacity: 0.7; }
@@ -340,7 +443,16 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
 <body>
 <h1>arc-observatory <span>// fleet</span></h1>
 <div class="fleet-bar" id="fleet-bar">loading...</div>
-<div class="agents" id="agents"></div>
+<div class="tabs">
+  <button class="tab active" data-tab="feed" onclick="switchTab('feed')">Live Feed</button>
+  <button class="tab" data-tab="agents" onclick="switchTab('agents')">Agents</button>
+</div>
+<div class="tab-content active" id="tab-feed">
+  <div class="feed" id="feed"><div class="feed-empty">loading feed...</div></div>
+</div>
+<div class="tab-content" id="tab-agents">
+  <div class="agents" id="agents"></div>
+</div>
 <div class="agent-frame-wrap" id="frame-wrap">
   <div class="frame-header">
     <span class="frame-title" id="frame-title"></span>
@@ -349,6 +461,16 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
   <iframe class="agent-frame" id="agent-frame" frameborder="0"></iframe>
 </div>
 <script>
+let activeTab = 'feed';
+let knownFeedIds = new Set();
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
 async function refresh() {
   try {
     const res = await fetch('/api/fleet/status');
@@ -372,6 +494,42 @@ async function refresh() {
       if (sel) sel.classList.add('selected');
     }
   } catch(e) { console.error('poll failed', e); }
+}
+
+async function refreshFeed() {
+  try {
+    const res = await fetch('/api/fleet/feed');
+    const data = await res.json();
+    const feed = document.getElementById('feed');
+    if (!data.feed || data.feed.length === 0) {
+      feed.innerHTML = '<div class="feed-empty">no tasks yet</div>';
+      return;
+    }
+    const newIds = new Set(data.feed.map(t => t.agent + ':' + t.id));
+    feed.innerHTML = data.feed.map(t => feedItem(t, !knownFeedIds.has(t.agent + ':' + t.id))).join('');
+    knownFeedIds = newIds;
+  } catch(e) { console.error('feed poll failed', e); }
+}
+
+function feedItem(t, isNew) {
+  var bnsPrefix = t.agent_bns ? t.agent_bns.replace(/\\.btc$/, '') : null;
+  var faceHtml = bnsPrefix ? '<img class="feed-face" src="/api/fleet/faces/' + bnsPrefix + '" alt="' + t.agent + '">' : '<div class="feed-face" style="background:var(--border)"></div>';
+  var statusCls = 's-' + (t.status || 'pending');
+  var statusItemCls = 'status-' + (t.status || 'pending');
+  var cost = t.cost_usd > 0 ? '$' + t.cost_usd.toFixed(2) : '';
+  var timeStr = '';
+  if (t.created_at) {
+    try { timeStr = new Date(t.created_at + 'Z').toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); } catch(e) { timeStr = ''; }
+  }
+  var animStyle = isNew ? '' : ' style="animation:none"';
+  return '<div class="feed-item ' + statusItemCls + '"' + animStyle + '>' +
+    faceHtml +
+    '<span class="feed-agent">' + t.agent + '</span>' +
+    '<span class="feed-subject" title="' + (t.subject || '').replace(/"/g, '&quot;') + '">#' + t.id + ' ' + (t.subject || '') + '</span>' +
+    '<span class="feed-status ' + statusCls + '">' + (t.status || '') + '</span>' +
+    '<span class="feed-cost">' + cost + '</span>' +
+    '<span class="feed-time">' + timeStr + '</span>' +
+  '</div>';
 }
 function stat(label, value) {
   return '<div class="fleet-stat"><span class="label">' + label + '</span><span class="value">' + value + '</span></div>';
@@ -438,7 +596,9 @@ document.getElementById('frame-close').addEventListener('click', function() {
   document.querySelectorAll('.agent-card.selected').forEach(c => c.classList.remove('selected'));
 });
 refresh();
+refreshFeed();
 setInterval(refresh, 15000);
+setInterval(refreshFeed, 5000);
 </script>
 </body>
 </html>`;
@@ -456,10 +616,20 @@ function startServer(config: FleetConfig): void {
     console.log(`[observatory] Initial poll complete: ${cache.size} agents`);
   });
 
-  // Recurring poll
+  // Initial feed poll
+  pollAllFeeds(config.agents).then(() => {
+    console.log(`[observatory] Initial feed poll complete`);
+  });
+
+  // Recurring status poll
   setInterval(() => {
     pollAll(config.agents);
   }, config.poll_interval_seconds * 1000);
+
+  // Recurring feed poll (every 5s for live feed)
+  setInterval(() => {
+    pollAllFeeds(config.agents);
+  }, 5000);
 
   const server = Bun.serve({
     port: config.port,
@@ -484,6 +654,7 @@ function startServer(config: FleetConfig): void {
       if (path === "/api/fleet/status") return handleFleetStatus();
       if (path === "/api/fleet/agents") return handleFleetAgents();
       if (path === "/api/fleet/costs") return handleFleetCosts();
+      if (path === "/api/fleet/feed") return handleFleetFeed();
 
       // Bitcoin Faces images
       const faceMatch = path.match(/^\/api\/fleet\/faces\/([a-zA-Z0-9]+)$/);
