@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T10:21:25.240Z",
+  "updated_at": "2026-03-09T10:22:10.351Z",
   "last_task": {
-    "id": 2863,
-    "subject": "Fleet alert: loom service issues — dispatch stall: last cycle 31m ago, fleet-status.json stale (31m old)",
+    "id": 2596,
+    "subject": "Design fleet-wide task routing: assign skill domains per agent",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 51786,
-    "cost_usd": 0.236918
+    "duration_ms": 36618,
+    "cost_usd": 0.253397
   },
   "health": {
-    "uptime_seconds": 994184,
+    "uptime_seconds": 994229,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234694070272
+    "disk_avail_bytes": 234694029312
   }
 }
