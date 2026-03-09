@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T21:58:50.530Z",
+  "updated_at": "2026-03-09T22:05:12.047Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3315,
-    "subject": "Build fleet-task-router sensor: auto-route unassigned tasks to correct agent by skill domain",
+    "id": 3316,
+    "subject": "Add cross-agent task board and goal tracking to observatory dashboard",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 103067,
-    "cost_usd": 0.4950857500000001
+    "duration_ms": 381401,
+    "cost_usd": 1.7038117499999998
   },
   "health": {
-    "uptime_seconds": 1036029,
+    "uptime_seconds": 1036410,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234609623040
+    "disk_avail_bytes": 234608828416
   }
 }

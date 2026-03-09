@@ -75,6 +75,7 @@
 ## Fleet Coordination Patterns
 
 - **Hub-and-spoke topology:** No direct agent-to-agent communication. All coordination flows through Arc.
+- **Requirement-first before tool selection:** Define coordination requirement (shared task state, visibility, delegation) first; derive tool from requirement, not the reverse. Multi-agent coordination needs a shared task API, not a Git forge (simpler, faster routing).
 - **Domain assignment prevents queue collision:** Arc=orchestration, Spark=protocol/on-chain, Iris=research, Loom=integrations, Forge=infrastructure. Ownership = first priority, not exclusivity. P1-2 always to Arc.
 - **SSH task injection:** Route via `ssh dev@<ip> "cd ~/arc-starter && bash bin/arc tasks add ..."`. Close Arc's copy as "routed to <agent>."
 - **Fleet memory sharing:** collect → merge → distribute via `fleet-memory` skill. Arc is merge authority; fleet-learnings.md is read-only on remote agents.
@@ -83,6 +84,7 @@
 - **Time dilation changes sensor cadence:** Agentic speed ≈ 10-24x. Daily sensors → every 4-6h. But respect upstream rate limits.
 - **Budget split:** Arc $80/day, each worker $30/day ($200 total across 5 agents).
 - **Git bundle distribution for fleet sync:** Use atomic git bundles (resumable, no partial state) paired with local task injection on each worker. More reliable than SSH git pull when workers lag behind Arc on complex branch histories. Notify all workers before queuing tasks to prevent race conditions.
+- **Defer external-facing infrastructure until needed:** Complex tools (Gitea, Umbrel) for internal multi-agent coordination add operational overhead without immediate return. Build minimal coordination API first (shared task state); defer fork/contributor-facing infrastructure until you have external contributors. Complexity scales with stakeholder count, not agent count.
 
 ## Operational Rules
 
