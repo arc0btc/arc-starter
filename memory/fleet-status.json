@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T12:33:30.279Z",
+  "updated_at": "2026-03-09T12:34:08.434Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 2468,
-    "subject": "Create fleet-dashboard sensor — aggregate fleet metrics every 30min",
+    "id": 2946,
+    "subject": "Fleet alert: spark service issues — dispatch: no cycles",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 148894,
-    "cost_usd": 0.6214919999999999
+    "duration_ms": 37902,
+    "cost_usd": 0.190051
   },
   "health": {
-    "uptime_seconds": 1002109,
+    "uptime_seconds": 1002147,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234680098816
+    "disk_avail_bytes": 234680037376
   }
 }
