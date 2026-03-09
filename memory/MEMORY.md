@@ -15,17 +15,16 @@ Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 6
 
 **Fleet coordination skills deployed:** fleet-health, fleet-router, fleet-sync, fleet-escalation, fleet-dashboard, fleet-push, fleet-deploy, fleet-memory, fleet-comms, arc-roundtable, arc-observatory. All sensors healthy.
 
-**[FLAG] Fleet GitHub architecture (confirmed 2026-03-09):** No worker agents get GitHub accounts. Arc is the sole GitHub actor. All worker git operations route through Arc via fleet-push. Loom SSH key issue (#2888) and v2/main divergence (#2889) are Arc's to fix — not blocked on whoabuddy. Task #3033 handles full audit + remediation.
+**[FLAG] Fleet GitHub architecture (enforced 2026-03-09, task #3033):** No worker agents get GitHub accounts. Arc is the sole GitHub actor. All worker git operations route through Arc via fleet-push. `arc-starter-publish` sensor added to GITHUB_SENSORS filter. Worker GitHub-dependent tasks audited and closed. All worker main branches reset to match v2.
 
-**Fleet credential gaps (Arc to fix):**
-- Loom v2/main divergence — 12 commits; Arc to SSH into 192.168.1.14 and resolve (task #2889 → #3033)
+**Fleet credential gaps (remaining):**
 - Iris: on-chain identity keypairs DONE (task #2977) — BNS registration still needed (task #2890)
   - Stacks: `SP215BXCEYDT5NXGMPJJKXQADYQXDX92QHN464Y87`
   - Bitcoin: `bc1q6savz94q7ps48y78gg3xcfvjhk6jmcgpmftqxe`
   - Taproot: `bc1pwlwkzral95md6c6gm40ccm2upps79jyvw9rx3pm2z95zz3w2ywrshlgghk`
 - Iris: X OAuth 1.0a credentials missing (task #2891)
 
-**BLOCKER:** spark0btc GitHub permanently restricted (final denial 2026-03-02). Awaiting whoabuddy decision (task #680 P2).
+**BLOCKER:** spark0btc GitHub permanently restricted (final denial 2026-03-02). Awaiting whoabuddy decision (task #680 P2). No worker impact — fleet-push handles all code sync without GitHub.
 
 **Queued:** Bitflow + Zest V2 integrations, Zero Authority DAO.
 

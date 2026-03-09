@@ -181,6 +181,7 @@ const GITHUB_SENSORS: ReadonlySet<string> = new Set([
   "arc0btc-pr-review",
   "aibtc-repo-maintenance",
   "arc-workflows",
+  "arc-starter-publish",
 ]);
 
 /** Per-sensor timeout in milliseconds. Liberal limit to catch hangs, not rush normal work. */
