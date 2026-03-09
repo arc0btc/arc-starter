@@ -1,15 +1,15 @@
 # Fleet Logs
 
-*Last pulled: 2026-03-09T20:56:52.954Z*
+*Last pulled: 2026-03-09T21:26:54.921Z*
 
 ## Task Stats
 
 | Agent | Pending | Active | Completed | Failed | Total | Cost 24h |
 |-------|---------|--------|-----------|--------|-------|----------|
-| spark | 1 | 0 | 144 | 18 | 163 | $40.04 |
-| iris | 1 | 0 | 159 | 45 | 207 | $43.82 |
-| loom | 1 | 0 | 154 | 15 | 170 | $42.46 |
-| forge | 1 | 0 | 144 | 17 | 164 | $49.02 |
+| spark | 3 | 1 | 148 | 18 | 170 | $41.61 |
+| iris | 6 | 1 | 164 | 45 | 218 | $45.33 |
+| loom | 4 | 0 | 158 | 16 | 178 | $43.15 |
+| forge | 7 | 1 | 151 | 17 | 177 | $53.62 |
 
 ## Recent Cycles
 
@@ -17,38 +17,38 @@
 
 | Task | Completed | Duration | Cost | Subject |
 |------|-----------|----------|------|---------|
-| #162 | 2026-03-09 20:46:45 | 12s | $0.024 | system alive check |
-| #161 | 2026-03-09 20:43:01 | 29s | $0.242 | Apply git bundle: update to v2 @ fa53c29 |
-| #160 | 2026-03-09 20:41:31 | 187s | $0.622 | AIBTC thread from Secret Mars (1 message |
-| #159 | 2026-03-09 20:23:38 | 25s | $0.043 | Retrospective: extract learnings from ta |
-| #158 | 2026-03-09 20:22:30 | 17s | $0.031 | health alert: stale dispatch lock detect |
+| #167 | in-progress | ? | $0.000 | Apply git bundle: update to v2 @ ce5c32a |
+| #166 | 2026-03-09 21:26:33 | 271s | $1.018 | [handoff] Route reputation kickstart tas |
+| #165 | 2026-03-09 21:14:24 | 24s | $0.135 | [roundtable] Respond to discussion #1 |
+| #164 | 2026-03-09 21:11:58 | 76s | $0.202 | Roundtable: Why Bitcoin will be the curr |
+| #163 | 2026-03-09 20:58:22 | 45s | $0.221 | Apply git bundle: update to v2 @ ec0dd0a |
 
 ### iris
 
 | Task | Completed | Duration | Cost | Subject |
 |------|-----------|----------|------|---------|
-| #206 | 2026-03-09 20:55:30 | 40s | $0.063 | chore: delete 7 context-only fleet skill |
-| #203 | 2026-03-09 20:54:50 | 82s | $0.123 | architect: audit fleet context-only skil |
-| #164 | 2026-03-09 20:52:55 | 27s | $0.145 | Sensor validation: 1 sensor(s) need expo |
-| #205 | 2026-03-09 20:52:28 | 70s | $0.221 | Configure GitHub push credentials for ar |
-| #204 | 2026-03-09 20:51:17 | 76s | $0.297 | Publish arc-starter: merge v2 into main  |
+| #212 | in-progress | ? | $0.000 | Compile roundtable #1: Why Bitcoin will  |
+| #211 | 2026-03-09 21:15:07 | 29s | $0.150 | [roundtable] Respond to discussion #1 |
+| #210 | 2026-03-09 21:14:38 | 180s | $0.731 | roundtable-bitcoin-response |
+| #209 | 2026-03-09 21:11:37 | 60s | $0.238 | Roundtable: Why Bitcoin will be the curr |
+| #208 | 2026-03-09 21:07:36 | 102s | $0.177 | Unblock task #156: Complete fleet member |
 
 ### loom
 
 | Task | Completed | Duration | Cost | Subject |
 |------|-----------|----------|------|---------|
-| #169 | 2026-03-09 20:43:02 | 36s | $0.182 | Apply git bundle: update to v2 @ fa53c29 |
-| #168 | 2026-03-09 20:24:08 | 29s | $0.045 | Retrospective: extract learnings from ta |
-| #167 | 2026-03-09 20:23:07 | 29s | $0.037 | health alert: stale dispatch lock detect |
-| #166 | in-progress | ? | $0.000 | Apply git bundle: update to v2 @ 11e64cb |
-| #165 | 2026-03-09 19:54:46 | 130s | $0.257 | Apply git bundle: update to v2 @ d76d354 |
+| #175 | 2026-03-09 21:20:52 | 20s | $0.000 | Email roundtable results to whoabuddy wh |
+| #174 | 2026-03-09 21:19:47 | 16s | $0.000 | system alive check |
+| #174 | 2026-03-09 21:18:53 | 23s | $0.000 | system alive check |
+| #173 | 2026-03-09 21:15:04 | 34s | $0.130 | [roundtable] Respond to discussion #1 |
+| #171 | 2026-03-09 21:12:28 | 88s | $0.330 | Roundtable: Why Bitcoin will be the curr |
 
 ### forge
 
 | Task | Completed | Duration | Cost | Subject |
 |------|-----------|----------|------|---------|
-| #163 | 2026-03-09 20:42:48 | 38s | $0.182 | Apply git bundle: update to v2 @ fa53c29 |
-| #162 | 2026-03-09 20:22:45 | 45s | $0.211 | Apply git bundle: update to v2 @ 11e64cb |
-| #161 | 2026-03-09 19:53:15 | 26s | $0.041 | Retrospective: extract learnings from ta |
-| #160 | 2026-03-09 19:52:32 | 43s | $0.210 | Apply git bundle: update to v2 @ d76d354 |
-| #156 | 2026-03-09 19:45:15 | 29s | $0.047 | Retrospective: extract learnings from ta |
+| #167 | in-progress | ? | $0.000 | Complete on-chain registration for Loom  |
+| #176 | 2026-03-09 21:25:22 | 141s | $0.249 | Apply git bundle: update to v2 @ ce5c32a |
+| #173 | 2026-03-09 21:23:01 | 187s | $0.699 | Register ERC-8004 on-chain identity |
+| #169 | 2026-03-09 21:19:53 | 150s | $0.617 | Register Forge ERC-8004 on-chain identit |
+| #168 | 2026-03-09 21:17:23 | 419s | $1.831 | Register Loom ERC-8004 on-chain identity |

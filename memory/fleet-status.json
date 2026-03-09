@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T21:24:40.121Z",
+  "updated_at": "2026-03-09T21:26:07.170Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3279,
-    "subject": "Verify BNS registrations confirmed: loom0.btc and forge0.btc",
+    "id": 3284,
+    "subject": "Fleet-wide: all agents use contacts skill to learn about each other",
     "status": "completed",
-    "priority": 8
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 70907,
-    "cost_usd": 0.11864355000000001
+    "duration_ms": 86929,
+    "cost_usd": 0.34756425
   },
   "health": {
-    "uptime_seconds": 1033978,
+    "uptime_seconds": 1034066,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234611712000
+    "disk_avail_bytes": 234611658752
   }
 }
