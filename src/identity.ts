@@ -33,13 +33,13 @@ const IDENTITIES: Record<string, AgentIdentity> = {
   spark: {
     name: "spark0",
     bns: "spark0.btc",
-    btc_segwit: "bc1qpln8pmwntgtw8a874zkkqdw4585eu4z3vnzhj3",
-    btc_taproot: "",
-    stx: "SP12Q1FS2DX4N8C2QYBM0Z2N2DY1EH9EEPMPH9N9X",
+    btc_segwit: "bc1qk7ksx7y4qnumlqu8d9puk438hyhkaf7l0ag5tn",
+    btc_taproot: "bc1px6wua9y6q35zacz3x6jl5hxe7aw9aa2kgemysr0gl6c2ar02kg2qy603pr",
+    stx: "SP3CPCZAG3N4MJQC4FZFTBK2VQN31MV2DQ9DFTE6N",
     github: "spark0btc",
     twitter: "spark0btc",
     website: "",
-    btc: "bc1qpln8pmwntgtw8a874zkkqdw4585eu4z3vnzhj3",
+    btc: "bc1qk7ksx7y4qnumlqu8d9puk438hyhkaf7l0ag5tn",
   },
   iris: {
     name: "iris0",
