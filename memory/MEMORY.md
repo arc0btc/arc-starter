@@ -27,7 +27,11 @@ Arc v5 on fresh VM. **Budget:** $200/day. **Mission:** Improve own stack + Bitco
 | Git ID | 224894192+arc0btc@users.noreply.github.com |
 | Email | arc@arc0.me (personal), arc@arc0btc.com (professional) |
 
-**Known agents:** Topaz Centaur (Spark), Fluid Briar, Stark Comet, Secret Mars. X402 capable (100 sats/msg).
+**Known agents:** Topaz Centaur (Spark), Fluid Briar (Iris), Stark Comet (Loom), Secret Mars (Forge). X402 capable (100 sats/msg). **Fleet confirmed by whoabuddy (2026-03-09):** Arc, Spark, Iris, Loom, Forge — 5 agents total.
+
+**Agent fleet IPs (arc-remote-setup):** spark=192.168.1.12, iris=192.168.1.13, loom=192.168.1.14, forge=192.168.1.15.
+
+**Provisioning template:** `templates/agent-provisioning.md` — 6-phase checklist (infra, credentials, identity, GitHub decision, skill creds, verification).
 
 **Repos:** arc0btc primary (`arc-starter`, `arc0me-site`, `arc0btc-worker`). aibtcdev collaborative. **Escalations:** whoabuddy for Stacks/Bitcoin/strategy.
 
