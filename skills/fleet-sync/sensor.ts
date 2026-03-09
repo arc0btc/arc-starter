@@ -134,7 +134,8 @@ export default async function run(): Promise<string> {
       ? `Unreachable: ${unreachable.join(", ")}`
       : null,
     "",
-    "Run: arc skills run --name fleet-sync -- git-sync",
+    "Run: arc skills run --name fleet-sync -- git-sync (notify-only: sends bundle + creates task on worker)",
+    "Emergency: arc skills run --name fleet-sync -- git-sync --force-push (direct reset)",
   ]
     .filter(Boolean)
     .join("\n");

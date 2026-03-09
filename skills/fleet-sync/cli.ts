@@ -7,7 +7,7 @@
  *   bun skills/fleet-sync/cli.ts status [--agent <name|all>]
  *   bun skills/fleet-sync/cli.ts full [--agent <name|all>]
  *   bun skills/fleet-sync/cli.ts git-status [--agent <name|all>]
- *   bun skills/fleet-sync/cli.ts git-sync [--agent <name|all>]
+ *   bun skills/fleet-sync/cli.ts git-sync [--agent <name|all>] [--force-push]
  */
 
 import { readFileSync, existsSync, unlinkSync } from "node:fs";
@@ -105,6 +105,7 @@ const SHARED_SKILLS: string[] = [
 interface Flags {
   agent?: string;
   skill?: string;
+  forcePush?: boolean;
 }
 
 function parseFlags(args: string[]): { command: string; flags: Flags } {
@@ -115,6 +116,8 @@ function parseFlags(args: string[]): { command: string; flags: Flags } {
       flags.agent = args[++i];
     } else if (args[i] === "--skill" && args[i + 1]) {
       flags.skill = args[++i];
+    } else if (args[i] === "--force-push") {
+      flags.forcePush = true;
     }
   }
   return { command, flags };
@@ -400,7 +403,15 @@ async function gitStatus(agents: string[]): Promise<void> {
   );
 }
 
-async function gitSync(agents: string[]): Promise<void> {
+/** Shared: find drifted agents and create bundle. Returns null if all in sync. */
+async function prepareSyncBundle(
+  agents: string[]
+): Promise<{
+  local: GitInfo;
+  password: string;
+  needsSync: Array<{ agent: string; ip: string; remoteCommit: string }>;
+  bundlePath: string;
+} | null> {
   const local = await getLocalGitInfo();
   const password = await getSshPassword();
 
@@ -414,7 +425,6 @@ async function gitSync(agents: string[]): Promise<void> {
     `Syncing fleet to ${local.branch} @ ${local.commit.slice(0, 10)}\n`
   );
 
-  // Check which agents actually need syncing
   const needsSync: Array<{ agent: string; ip: string; remoteCommit: string }> =
     [];
   for (const agent of agents) {
@@ -433,11 +443,9 @@ async function gitSync(agents: string[]): Promise<void> {
 
   if (needsSync.length === 0) {
     console.log("\nAll reachable agents already in sync.");
-    return;
+    return null;
   }
 
-  // Create git bundle from local repo
-  // Bundle contains everything needed to reach local HEAD
   const bundlePath = join(tmpdir(), `arc-fleet-sync-${Date.now()}.bundle`);
   console.log(`\nCreating git bundle...`);
   const bundleProc = Bun.spawn(
@@ -458,60 +466,131 @@ async function gitSync(agents: string[]): Promise<void> {
   const bundleSize = Bun.file(bundlePath).size;
   console.log(`Bundle created: ${(bundleSize / 1024 / 1024).toFixed(1)} MB`);
 
-  // Transfer and apply to each agent that needs it
+  return { local, password, needsSync, bundlePath };
+}
+
+/** SCP a bundle to an agent. Returns true on success. */
+async function scpBundle(
+  ip: string,
+  password: string,
+  localBundlePath: string,
+  agent: string
+): Promise<boolean> {
+  const remoteBundlePath = `/tmp/arc-fleet-sync.bundle`;
+  const scpProc = Bun.spawn(
+    [
+      "sshpass",
+      "-e",
+      "scp",
+      "-o",
+      "StrictHostKeyChecking=no",
+      "-o",
+      "ConnectTimeout=10",
+      localBundlePath,
+      `dev@${ip}:${remoteBundlePath}`,
+    ],
+    {
+      env: { ...process.env, SSHPASS: password },
+      stdout: "pipe",
+      stderr: "pipe",
+    }
+  );
+  const scpExit = await scpProc.exited;
+  if (scpExit !== 0) {
+    const scpErr = (await new Response(scpProc.stderr).text()).trim();
+    process.stderr.write(`  [${agent}] SCP failed: ${scpErr}\n`);
+    return false;
+  }
+  return true;
+}
+
+/** Cleanup a local bundle file. */
+function cleanupBundle(bundlePath: string): void {
+  try {
+    unlinkSync(bundlePath);
+  } catch {
+    // ignore cleanup errors
+  }
+}
+
+/**
+ * Notify-only git sync (default).
+ * Sends bundle to drifted agents and creates a task on their local queue
+ * so the worker applies the update itself with full local context.
+ */
+async function gitSync(agents: string[]): Promise<void> {
+  const prep = await prepareSyncBundle(agents);
+  if (!prep) return;
+  const { local, password, needsSync, bundlePath } = prep;
+
   for (const { agent, ip, remoteCommit } of needsSync) {
     console.log(
-      `\n  [${agent}] syncing ${remoteCommit.slice(0, 10)} -> ${local.commit.slice(0, 10)}...`
+      `\n  [${agent}] notifying ${remoteCommit.slice(0, 10)} -> ${local.commit.slice(0, 10)}...`
     );
 
-    // SCP bundle to agent
-    const remoteBundlePath = `/tmp/arc-fleet-sync.bundle`;
-    const scpProc = Bun.spawn(
-      [
-        "sshpass",
-        "-e",
-        "scp",
-        "-o",
-        "StrictHostKeyChecking=no",
-        "-o",
-        "ConnectTimeout=10",
-        bundlePath,
-        `dev@${ip}:${remoteBundlePath}`,
-      ],
-      {
-        env: { ...process.env, SSHPASS: password },
-        stdout: "pipe",
-        stderr: "pipe",
-      }
-    );
-    const scpExit = await scpProc.exited;
-    if (scpExit !== 0) {
-      const scpErr = (await new Response(scpProc.stderr).text()).trim();
-      process.stderr.write(`  [${agent}] SCP failed: ${scpErr}\n`);
-      continue;
+    // Step 1: SCP bundle to agent
+    const ok = await scpBundle(ip, password, bundlePath, agent);
+    if (!ok) continue;
+    console.log(`  [${agent}] bundle transferred`);
+
+    // Step 2: Create task on agent's local queue via SSH
+    const subject = `Apply git bundle: update to ${local.branch} @ ${local.commit.slice(0, 10)}`;
+    const taskCmd = [
+      `cd ${REMOTE_ARC_DIR}`,
+      `bash bin/arc tasks add`,
+      `--subject "${subject}"`,
+      `--priority 3`,
+      `--description "Bundle at /tmp/arc-fleet-sync.bundle. Target: ${local.branch} @ ${local.commit}. Steps: git fetch /tmp/arc-fleet-sync.bundle && git checkout ${local.branch} && git reset --hard ${local.commit} && ~/.bun/bin/bun install && rm -f /tmp/arc-fleet-sync.bundle. Restart services if src/ changed."`,
+    ].join(" ");
+
+    const result = await ssh(ip, password, taskCmd);
+    if (result.ok) {
+      console.log(`  [${agent}] task created on local queue`);
+    } else {
+      process.stderr.write(
+        `  [${agent}] task creation FAILED: ${result.stderr.trim()}\n`
+      );
+      // Fallback: clean up the bundle on the remote since no task will consume it
+      await ssh(ip, password, `rm -f /tmp/arc-fleet-sync.bundle`);
     }
+  }
 
-    // On agent: fetch from bundle, checkout the target branch at the target commit
+  cleanupBundle(bundlePath);
+  console.log("\nGit sync notifications sent. Workers will apply updates.");
+}
+
+/**
+ * Force-push git sync (emergency fallback).
+ * Arc directly applies the bundle on each agent — full reset + bun install.
+ * Use --force-push flag to invoke.
+ */
+async function gitSyncForcePush(agents: string[]): Promise<void> {
+  const prep = await prepareSyncBundle(agents);
+  if (!prep) return;
+  const { local, password, needsSync, bundlePath } = prep;
+
+  for (const { agent, ip, remoteCommit } of needsSync) {
+    console.log(
+      `\n  [${agent}] force-syncing ${remoteCommit.slice(0, 10)} -> ${local.commit.slice(0, 10)}...`
+    );
+
+    const ok = await scpBundle(ip, password, bundlePath, agent);
+    if (!ok) continue;
+
+    const remoteBundlePath = `/tmp/arc-fleet-sync.bundle`;
     const fetchCmd = [
       `cd ${REMOTE_ARC_DIR}`,
-      // Stash any local changes to avoid conflicts
       `git stash --include-untracked 2>/dev/null || true`,
-      // Fetch all refs from the bundle
       `git fetch ${remoteBundlePath}`,
-      // Checkout the correct branch at the correct commit
       `git checkout ${local.branch} 2>/dev/null || git checkout -b ${local.branch} ${local.commit}`,
-      // Reset to the exact commit (handles both fast-forward and diverged cases)
       `git reset --hard ${local.commit}`,
-      // Reinstall dependencies in case package.json changed
       `~/.bun/bin/bun install`,
-      // Clean up
       `rm -f ${remoteBundlePath}`,
       `echo "OK"`,
     ].join(" && ");
 
     const result = await ssh(ip, password, fetchCmd);
     if (result.ok && result.stdout.includes("OK")) {
-      // Verify the commit landed
       const verify = await ssh(
         ip,
         password,
@@ -532,14 +611,8 @@ async function gitSync(agents: string[]): Promise<void> {
     }
   }
 
-  // Clean up local bundle
-  try {
-    unlinkSync(bundlePath);
-  } catch {
-    // ignore cleanup errors
-  }
-
-  console.log("\nGit sync complete.");
+  cleanupBundle(bundlePath);
+  console.log("\nGit force-push sync complete.");
 }
 
 // ---- Main ----
@@ -549,8 +622,9 @@ async function main(): Promise<void> {
   const { command, flags } = parseFlags(args);
 
   if (!command) {
-    console.log("Usage: fleet-sync <command> [--agent <name|all>] [--skill <name>]");
+    console.log("Usage: fleet-sync <command> [--agent <name|all>] [--skill <name>] [--force-push]");
     console.log("Commands: claude-md, skills, status, full, git-status, git-sync");
+    console.log("  git-sync: notify-only (bundle + task). Add --force-push for direct reset.");
     process.exit(0);
   }
 
@@ -579,7 +653,11 @@ async function main(): Promise<void> {
       break;
 
     case "git-sync":
-      await gitSync(agents);
+      if (flags.forcePush) {
+        await gitSyncForcePush(agents);
+      } else {
+        await gitSync(agents);
+      }
       break;
 
     default:
