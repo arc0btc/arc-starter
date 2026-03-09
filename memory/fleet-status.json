@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T09:54:20.353Z",
+  "updated_at": "2026-03-09T09:55:06.264Z",
   "last_task": {
-    "id": 2477,
-    "subject": "Experiment: Send Forge a sensor task — build a simple heartbeat sensor",
+    "id": 2839,
+    "subject": "Fleet alert: spark service issues — dispatch: no cycles",
     "status": "completed",
-    "priority": 4
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 427294,
-    "cost_usd": 0.861818
+    "duration_ms": 45823,
+    "cost_usd": 0.2238415
   },
   "health": {
-    "uptime_seconds": 992559,
+    "uptime_seconds": 992605,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234699382784
+    "disk_avail_bytes": 234699337728
   }
 }
