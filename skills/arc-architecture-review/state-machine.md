@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-09T00:41:00.000Z*
+*Generated: 2026-03-09T18:55:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -13,11 +13,26 @@ stateDiagram-v2
             Persistent services (always on):
             arc-web.service — dashboard port 3000
             arc-mcp.service — MCP server port 3100
+            arc-observatory.service — observatory UI
+            fleet-web (port 4000, Arc host only) — aggregate fleet dashboard
         end note
     }
 
     state SensorsService {
-        [*] --> RunAllSensors: parallel via Promise.allSettled
+        [*] --> FilterSensors: AGENT_NAME check
+        FilterSensors --> RunAllSensors: arc0 (Arc host) — all 66 sensors
+        FilterSensors --> RunFilteredSensors: worker agent — skip GITHUB + ARC_ONLY + CREDENTIAL sensors
+        note right of FilterSensors
+            3-tier sensor filter (src/sensors.ts):
+            GITHUB_SENSORS (10): github-*, aibtc-repo-maintenance,
+              arc-workflows, arc-starter-publish, arc0btc-pr-review
+            ARC_ONLY_SENSORS (17): fleet orchestration + Arc-level oversight
+              fleet-health/comms/dashboard/escalation/log-pull/memory/sync/router/rebalance
+              arc-cost-alerting, arc-ceo-review, arc-catalog, arc-introspection,
+              arc-reporting, arc-report-email, arc0btc-site-health, site-consistency
+            CREDENTIAL_SENSORS (20): X OAuth, Bitcoin wallet, AIBTC APIs,
+              DeFi (wallet required), Cloudflare deploy credentials
+        end note
 
         RunAllSensors --> aibtc_devSensor: aibtc-dev-ops
         RunAllSensors --> aibtc_heartbeatSensor: aibtc-heartbeat
@@ -73,13 +88,26 @@ stateDiagram-v2
         RunAllSensors --> workerDeploySensor: worker-deploy
         RunAllSensors --> defiZestSensor: defi-zest
         RunAllSensors --> erc8004ReputationSensor: erc8004-reputation
+        RunAllSensors --> fleetCommsSensor: fleet-comms
+        RunAllSensors --> fleetDashboardSensor: fleet-dashboard
+        RunAllSensors --> fleetEscalationSensor: fleet-escalation
+        RunAllSensors --> fleetLogPullSensor: fleet-log-pull
+        RunAllSensors --> fleetMemorySensor: fleet-memory
+        RunAllSensors --> fleetRebalanceSensor: fleet-rebalance
+        RunAllSensors --> fleetRouterSensor: fleet-router
+        RunAllSensors --> fleetSelfSyncSensor: fleet-self-sync
+        RunAllSensors --> fleetSyncSensor: fleet-sync
+        RunAllSensors --> autoQueueSensor: auto-queue
+        RunAllSensors --> arcOpsReviewSensor: arc-ops-review
+        RunAllSensors --> arcDispatchEvalSensor: arc-dispatch-eval
 
         note right of RunAllSensors
-            54 sensors total (+4 since 2026-03-08T13:05Z)
-            fleet-health: new — 15min, SSH checks spark/iris/loom/forge; alerts P3
-            arc-introspection: new — 1440min, qualitative daily self-assessment P5
-            site-consistency: new — 1440min, arc0.me vs arc0btc.com structural drift P3
-            erc8004-reputation: new — reputation state tracking
+            66 sensors total (+12 since 2026-03-09T00:41Z)
+            NEW fleet sensors (ARC_ONLY): fleet-comms, fleet-dashboard,
+              fleet-escalation, fleet-log-pull, fleet-memory,
+              fleet-rebalance, fleet-router, fleet-self-sync, fleet-sync
+            NEW meta sensors: auto-queue (2h), arc-ops-review (4h),
+              arc-dispatch-eval (post-dispatch quality scoring)
         end note
 
         state "Generic Sensor Pattern" as genericSensor {
@@ -109,14 +137,15 @@ stateDiagram-v2
             fleetHealthGate --> fleetHealthSkip: interval not elapsed
             fleetHealthGate --> fleetHealthSSH: interval elapsed
             fleetHealthSSH --> fleetHealthWrite: SSH all VMs (spark/iris/loom/forge)
-            fleetHealthWrite --> fleetHealthSkip: all VMs healthy — write fleet-status.md
+            fleetHealthWrite --> fleetHealthSkip: all VMs healthy — write fleet-status.json
             fleetHealthWrite --> fleetHealthAlert: issues detected
             fleetHealthAlert --> [*]: insertTask() P3 fleet alert
             fleetHealthSkip --> [*]: return ok/skip
             note right of fleetHealthSSH
                 Checks per VM: sensor timer active,
                 dispatch timer active, last dispatch age,
-                disk usage. Writes memory/fleet-status.md.
+                disk usage. Writes memory/fleet-status.json.
+                Suppresses alerts when queue empty + dispatch timer active.
             end note
         }
 
@@ -260,7 +289,8 @@ stateDiagram-v2
         }
 
         BuildPrompt --> WriteLock: markTaskActive()
-        WriteLock --> SpawnClaude: claude --print --verbose
+        WriteLock --> CaptureBaseline: worktree task? src/experiment.ts
+        CaptureBaseline --> SpawnClaude: claude --print --verbose
         SpawnClaude --> ParseResult: stream-json output
         SpawnClaude --> TimeoutKill: watchdog (haiku 5min / sonnet 15min / opus 30min / opus overnight 90min)
         TimeoutKill --> ClearLock: mark task failed (no retry)
@@ -268,7 +298,12 @@ stateDiagram-v2
         CheckSelfClose --> RecordCost: LLM called arc tasks close
         CheckSelfClose --> FallbackClose: fallback markTaskCompleted
         FallbackClose --> RecordCost
-        RecordCost --> ClearLock
+        RecordCost --> EvalExperiment: worktree task with changed files?
+        EvalExperiment --> EvalApproved: experiment APPROVED — merge worktree
+        EvalExperiment --> EvalRejected: experiment REJECTED — discard worktree, create fix task
+        EvalApproved --> ClearLock
+        EvalRejected --> ClearLock
+        RecordCost --> ClearLock: non-worktree tasks
         ClearLock --> AutoCommit: git add memory/ skills/ src/ templates/
         AutoCommit --> MaybeRetro: P1-4 completed tasks only
         MaybeRetro --> [*]: scheduleRetrospective() P8 haiku
@@ -278,6 +313,12 @@ stateDiagram-v2
             cost>$1.00 → 3000 chars (was fixed 1500)
             summary prefix + detail fill
             writes only to patterns.md (never MEMORY.md)
+        end note
+        note right of CaptureBaseline
+            Experiment evaluation (src/experiment.ts):
+            Captures 6-cycle baseline before worktree merge.
+            Post-merge: evaluateExperiment() checks success rate delta.
+            REJECTED → discard worktree, queue fix task.
         end note
     }
 
@@ -295,7 +336,7 @@ stateDiagram-v2
     }
 
     note right of CLI
-        Skills with CLI (49):
+        Skills with CLI (53):
         aibtc-dev-ops, aibtc-news-classifieds,
         aibtc-news-editorial, aibtc-repo-maintenance,
         arc-brand-voice, arc-architecture-review,
@@ -318,7 +359,8 @@ stateDiagram-v2
         fleet-health, github-worker-logs,
         quest-create, site-consistency,
         social-agent-engagement, social-x-posting,
-        styx, worker-deploy, worker-logs-monitor
+        styx, worker-deploy, worker-logs-monitor,
+        skill-effectiveness, fleet-push, arc-ops-review
     end note
 ```
 
@@ -327,7 +369,8 @@ stateDiagram-v2
 | # | Point | Context Available | Gate |
 |---|-------|-------------------|------|
 | 1 | Sensor fires | Hook state (interval check) | `claimSensorRun()` |
-| 1a | Architect SHA check | SHA of src/ + skills/ excl. skills/arc-architecture-review/ | Skip if unchanged + diagram fresh + no active reports |
+| 1a | Sensor filter | `AGENT_NAME` from `src/identity.ts` | GITHUB_SENSORS + ARC_ONLY_SENSORS + CREDENTIAL_SENSORS blocked on workers |
+| 1b | Architect SHA check | SHA of src/ + skills/ excl. skills/arc-architecture-review/ | Skip if unchanged + diagram fresh + no active reports |
 | 2 | Sensor creates task | External data + dedup check | `pendingTaskExistsForSource()` |
 | 3 | Dispatch lock check | Lock file (PID + task_id) | `isPidAlive()` |
 | 3a | TOCTOU guard | Lock acquired BEFORE task selection | Atomic: lock->pick (commit 05de76d) |
@@ -341,7 +384,8 @@ stateDiagram-v2
 | 7 | LLM execution | Full prompt + CLI access | `arc` commands only |
 | 7a | Timeout watchdog | Haiku: 5min, Sonnet: 15min, Opus: 30min (Opus overnight 00-08: 90min) | SIGTERM -> SIGKILL (+10s); subprocess_timeout = no retry |
 | 8 | Result handling | Task status check post-run | Self-close vs fallback |
-| 8a | Retrospective scheduling | Task priority + completion status + cost_usd | P1-4 completed only; dynamic excerpt: cost>$1→3000 chars, else 1500; retro tasks now load arc-skill-manager (dispatch.ts fix, 38d502d) |
+| 8a | Experiment evaluation | Worktree tasks only; `src/experiment.ts` | 6-cycle baseline → post-merge eval; REJECTED = discard worktree + fix task |
+| 8b | Retrospective scheduling | Task priority + completion status + cost_usd | P1-4 completed only; dynamic excerpt: cost>$1→3000 chars, else 1500; retro tasks load arc-skill-manager |
 | 9 | Auto-commit | Staged dirs: memory/ skills/ src/ templates/ | `git diff --cached` |
 
 ## Workflow Templates (state-machine.ts)
@@ -357,17 +401,17 @@ stateDiagram-v2
 | inscription | pending→commit_preparing→...→confirmed→completed | manual | RESOLVED: now uses skill "bitcoin-wallet" correctly |
 | new-release | detected→assessing→integration_pending→integrating→completed | github-release-watcher | Dynamic skill list from ctx |
 | architecture-review | triggered→reviewing→cleanup_pending→cleaning→completed | arc-workflow-review | RESOLVED: now creates P7/sonnet tasks (was P4/Opus) |
-| streak-maintenance | pending→attempting→rate_limited→completed | aibtc-news-editorial | Rate-limit aware; windowOpenAt schedules retry; MAX_RETRIES=3 cap (returns null after 3rd retry — stalls for human intervention); instance_key: streak-{beat}-{date} |
+| streak-maintenance | pending→attempting→rate_limited→completed | aibtc-news-editorial | Rate-limit aware; windowOpenAt schedules retry; MAX_RETRIES=3 cap; instance_key: streak-{beat}-{date} |
 | agent-collaboration | received→triaged→ops_pending→retrospective_pending→completed | aibtc-inbox-sync | AIBTC inbox thread → triage → ops → learning capture; instance_key: agent-collab-{sender}-{date} |
-| recurring-failure | detected→investigating→fix_pending→fixing→retrospective_pending→completed | arc-failure-triage | Recurring failure investigation chain; fix task P5/sonnet (was P4/opus — investigation does hard thinking); retro P8/haiku; instance_key: recurring-failure-{type}-{YYYY-MM-DD} |
+| recurring-failure | detected→investigating→fix_pending→fixing→retrospective_pending→completed | arc-failure-triage | Recurring failure investigation chain; fix task P5/sonnet; retro P8/haiku; instance_key: recurring-failure-{type}-{YYYY-MM-DD} |
 | overnight-brief | scheduled→generating→retrospective_pending→completed | arc-reporting | OvernightBriefMachine — overnight brief → retrospective cycle; instance_key: overnight-brief-{YYYY-MM-DD} |
 
-## Skills Inventory (79 total)
+## Skills Inventory (103 total)
 
 | Skill | Sensor | CLI | Agent | Description |
 |-------|--------|-----|-------|-------------|
 | aibtc-dev-ops | yes | yes | yes | Monitor service health via worker-logs and enforce production-grade standards |
-| aibtc-heartbeat | yes | - | - | Signed AIBTC platform check-in via BIP-137 Bitcoin message signing |
+| aibtc-heartbeat | yes | - | - | Signed AIBTC platform check-in via BIP-137 Bitcoin message signing (iterates all agent wallets) |
 | aibtc-inbox-sync | yes | - | yes | Poll AIBTC platform inbox, sync messages locally, queue tasks |
 | aibtc-news-deal-flow | - | - | yes | Editorial voice for Deal Flow beat on aibtc.news |
 | aibtc-news-editorial | yes | yes | yes | File intelligence signals, claim editorial beats, track activity on aibtc.news |
@@ -383,6 +427,7 @@ stateDiagram-v2
 | arc-content-quality | - | yes | - | Pre-publish quality gate — detects AI writing patterns |
 | arc-cost-alerting | yes | - | - | Monitor daily spend and alert on thresholds |
 | arc-credentials | - | yes | yes | Encrypted credential store for API keys and secrets |
+| arc-dispatch-eval | yes | - | - | Post-dispatch evaluation sensor — scores task outcomes, creates improvement tasks |
 | arc-dispatch-evals | - | yes | yes | Dispatch quality evaluation — error analysis, LLM judges |
 | arc-dual-sdk | - | - | - | Documents multi-SDK routing: Claude Code, Codex CLI, OpenRouter (orchestrator context loader) |
 | arc-email-sync | yes | yes | yes | Sync email from arc-email-worker, read and send email |
@@ -391,11 +436,14 @@ stateDiagram-v2
 | arc-introspection | yes | - | - | Daily qualitative self-assessment — synthesizes 24h into reflection task (P5, 1440min) |
 | arc-link-research | - | yes | yes | Process batches of links into research reports |
 | arc-mcp-server | - | yes | - | MCP server exposing task queue, skills, memory |
+| arc-observatory | - | - | - | Observatory UI service (systemd) — Bitcoin Faces, live agent visualization |
+| arc-ops-review | yes | - | - | Ops review sensor (4h) — creation vs completion rate, backlog trend, fleet utilization, cost efficiency |
 | arc-performance-analytics | - | yes | - | Cost/token analytics by model tier, skill, and time period |
 | arc-remote-setup | - | yes | - | SSH-based VM provisioning for agent fleet (spark/iris/loom/forge) — 8 idempotent steps |
 | arc-report-email | yes | - | - | Email watch reports when generated |
 | arc-reporting | yes | - | yes | Watch reports (HTML, 6h) and overnight briefs (markdown, 6am PST) |
 | arc-reputation | yes | yes | - | Signed peer reviews via BIP-322, local SQLite storage, give-feedback CLI |
+| arc-roundtable | - | - | - | Roundtable coordination for fleet agents — context only |
 | arc-scheduler | yes | - | - | Deferred task scheduling, overdue queue monitoring |
 | arc-self-audit | yes | - | - | Daily operational self-audit — tasks, costs, skills, commits |
 | arc-service-health | yes | - | - | System health monitor — stale cycles, stuck dispatch |
@@ -410,6 +458,7 @@ stateDiagram-v2
 | arc0btc-pr-review | yes | - | - | Paid PR review service via x402; post-close ERC-8004 attestation sensor (10min) |
 | arc0btc-site-health | yes | yes | - | Monitor arc0btc.com uptime, content freshness, API endpoints (30min) |
 | arxiv-research | yes | yes | yes | Fetch and compile arXiv papers on LLMs/agents into research digests (720min) |
+| auto-queue | yes | - | - | Analyzes completion patterns; creates batch tasks when a skill domain queue runs low (2h) |
 | bitcoin-quorumclaw | yes | yes | yes | Bitcoin Taproot M-of-N multisig via QuorumClaw API |
 | bitcoin-taproot-multisig | - | yes | - | BIP-340 Schnorr primitives — get-pubkey, verify-cosig |
 | bitcoin-wallet | - | yes | yes | Wallet management and cryptographic signing |
@@ -428,7 +477,25 @@ stateDiagram-v2
 | erc8004-reputation | yes | yes | yes | On-chain agent reputation management |
 | erc8004-trust | - | yes | - | Aggregate trust score from reputation + validation — CLI only, on-demand |
 | erc8004-validation | - | yes | yes | On-chain agent validation management |
+| fleet-broadcast | - | - | - | Fleet broadcast coordination — context only |
+| fleet-collect | - | - | - | Fleet data collection — context only |
+| fleet-comms | yes | - | - | Fleet inter-agent communication sensor |
+| fleet-consensus | - | - | - | Fleet consensus coordination — context only |
+| fleet-dashboard | yes | - | - | Aggregate fleet task counts and cost per agent sensor |
+| fleet-deploy | - | - | - | Fleet deployment coordination — context only |
+| fleet-email-report | - | - | - | Fleet email reporting — context only |
+| fleet-escalation | yes | - | - | Fleet escalation routing sensor |
+| fleet-exec | - | - | - | Fleet task execution coordination — context only |
+| fleet-handoff | - | - | - | Fleet task handoff coordination — context only |
 | fleet-health | yes | yes | - | Monitor agent fleet VMs (spark/iris/loom/forge) via SSH — 15min, alerts P3 |
+| fleet-log-pull | yes | - | - | Fleet log aggregation sensor |
+| fleet-memory | yes | - | - | Fleet memory sync sensor |
+| fleet-push | - | yes | - | Change-aware code deployment to fleet agents |
+| fleet-rebalance | yes | - | - | Fleet work-stealing rebalancer sensor (Phase 1+2) |
+| fleet-router | yes | - | - | Fleet task routing sensor (Arc-only) |
+| fleet-self-sync | yes | - | - | Worker-local bundle apply sensor — fleet agents self-sync from Arc |
+| fleet-sync | yes | - | - | Fleet git sync sensor |
+| fleet-task-sync | - | - | - | Fleet task sync coordination — context only |
 | github-ci-status | yes | - | - | Monitors GitHub Actions CI runs |
 | github-issue-monitor | yes | - | - | Issue monitoring for managed repos (re-enabled 2026-03-05, 24h recency filter) |
 | github-mentions | yes | - | - | GitHub @mentions with managed/external repo classification |
@@ -437,6 +504,7 @@ stateDiagram-v2
 | github-worker-logs | yes | yes | yes | Sync worker-logs forks, monitor production events |
 | quest-create | - | yes | yes | Decompose complex tasks into sequential phases with checkpoint-based execution |
 | site-consistency | yes | yes | - | Cross-site structural drift detection: arc0.me vs arc0btc.com (1440min, P3) |
+| skill-effectiveness | - | yes | - | Track SKILL.md content hashes vs dispatch outcomes for data-driven prompt evolution |
 | social-agent-engagement | yes | yes | - | Proactive outreach to AIBTC network agents |
 | social-x-ecosystem | yes | - | - | Monitor X for ecosystem keywords (Bitcoin/Stacks/AIBTC/Claude Code); file research tasks (15min rotation) |
 | social-x-posting | yes | yes | yes | Post tweets, read timeline, poll @mentions on X; engagement commands with daily budget |

@@ -1,3 +1,30 @@
+## 2026-03-09T18:55:00.000Z
+
+4 findings: 0 error, 1 warn, 3 info → **HEALTHY**
+
+**Codebase changes since last audit (00:41Z, commits 1de2e63 → 721455f):**
+- **Fleet sensor filtering** — `src/sensors.ts` now has three filter sets: `GITHUB_SENSORS` (10), `ARC_ONLY_SENSORS` (17), `CREDENTIAL_SENSORS` (20). Worker agents skip all three categories. Prevents redistribution loops and silent failures.
+- **hostname-aware identity** — `src/identity.ts` exports `AGENT_NAME` derived from hostname. All identity-bound logic now adapts per agent.
+- **Experiment evaluation** — `src/experiment.ts` added. Worktree tasks capture 6-cycle baseline before merge; `evaluateExperiment()` rejects worktrees that degrade success rate.
+- **Fleet web** — `src/fleet-web.ts` serves aggregate fleet dashboard at port 4000 (Arc host only).
+- **New services** — `arc-observatory.service` added alongside arc-web and arc-mcp.
+- **Skill count** — 103 total (was 79, +24 new fleet/meta skills).
+- **Sensor count** — 66 total (was ~58, +8 new: fleet-comms/dashboard/escalation/log-pull/memory/rebalance/router/self-sync/sync, auto-queue, arc-ops-review, arc-dispatch-eval).
+- **aibtc-heartbeat** — now iterates over all agent wallets in `legacy_wallets` array.
+
+**SpaceX 5-step findings:**
+
+1. **Requirements** — Fleet sensor filtering is essential: without it, workers create redistribution loops (fleet-router re-routing tasks) and burn credentials they don't have. Valid.
+2. **Delete** — [WARN] Many fleet-* skills (fleet-broadcast, fleet-collect, fleet-consensus, fleet-deploy, fleet-email-report, fleet-exec, fleet-handoff, fleet-task-sync) have no sensor, no CLI, no AGENT.md — context-only stubs. If they're never loaded by any task's `skills` array, they're dead weight. Worth auditing for actual usage.
+3. **Simplify** — [INFO] Three separate sensor filter sets (GITHUB, ARC_ONLY, CREDENTIAL) could be consolidated into a single agent capability manifest per agent. Reduces maintenance surface. Not critical now.
+4. **Accelerate** — [INFO] `src/experiment.ts` baseline capture is per-worktree-task. Low overhead. No bottleneck introduced.
+5. **Automate** — [INFO] `auto-queue` (2h sensor) and `arc-ops-review` (4h sensor) close the feedback loop on queue starvation and ops efficiency. Correct use of automation.
+
+**Recommendations:**
+- [ ] [WARN] Audit fleet-* context-only stubs (fleet-broadcast/collect/consensus/deploy/email-report/exec/handoff/task-sync) — verify at least one task's `skills` array references each, or delete. Follow-up task created.
+
+---
+
 ## 2026-03-09T00:41:00.000Z
 
 2 findings: 0 error, 1 warn, 1 info → **HEALTHY**
