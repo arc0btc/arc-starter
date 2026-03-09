@@ -32,6 +32,8 @@ const ALERT_SOURCE_PREFIX = "sensor:fleet-health";
 
 const log = createSensorLogger(SENSOR_NAME);
 
+const CONSECUTIVE_FAILURE_THRESHOLD = 5;
+
 const MEMORY_DIR = new URL("../../memory", import.meta.url).pathname;
 
 // ---- Health check logic ----
@@ -65,6 +67,7 @@ interface AgentHealth {
   diskUsage: string;
   peerStatus: PeerStatus | null;
   peerStatusStale: boolean;
+  consecutiveFailureStreak: boolean;
   issues: string[];
 }
 
@@ -81,6 +84,7 @@ async function checkAgent(
     diskUsage: "unknown",
     peerStatus: null,
     peerStatusStale: false,
+    consecutiveFailureStreak: false,
     issues: [],
   };
 
@@ -176,6 +180,25 @@ async function checkAgent(
   const failedTasks = parseInt(rateParts[1]) || 0;
   if (totalTasks >= 4 && failedTasks / totalTasks > 0.5) {
     health.issues.push(`high error rate: ${failedTasks}/${totalTasks} failed in last hour`);
+  }
+
+  // Consecutive failure streak: last N tasks all failed → circuit breaker
+  const streakResult = await ssh(
+    ip, password,
+    `cd ${REMOTE_ARC_DIR} && ~/.bun/bin/bun -e "
+      const { Database } = require('bun:sqlite');
+      const db = new Database('db/arc.sqlite', { readonly: true });
+      const rows = db.query(
+        'SELECT status FROM tasks WHERE status IN (\\\\'completed\\\\', \\\\'failed\\\\') ORDER BY completed_at DESC LIMIT ${CONSECUTIVE_FAILURE_THRESHOLD}'
+      ).all();
+      const allFailed = rows.length >= ${CONSECUTIVE_FAILURE_THRESHOLD} && rows.every(r => r.status === 'failed');
+      console.log(allFailed ? 'streak' : 'ok');
+      db.close();
+    " 2>/dev/null || echo "ok"`
+  );
+  if (streakResult.stdout.trim() === "streak") {
+    health.issues.push(`circuit breaker: ${CONSECUTIVE_FAILURE_THRESHOLD} consecutive task failures`);
+    health.consecutiveFailureStreak = true;
   }
 
   // Read peer's fleet-status.json for self-reported state
@@ -291,13 +314,22 @@ export default async function fleetHealthSensor(): Promise<string> {
       dispatchTimer: "unknown",
       lastDispatchAge: "unknown",
       diskUsage: "unknown",
+      consecutiveFailureStreak: false,
       issues: [`check failed: ${r.reason instanceof Error ? r.reason.message : String(r.reason)}`],
-    };
+    } as AgentHealth;
   });
 
   // Write summary to memory/fleet-status.md
   const summary = formatSummary(healths, timestamp);
   await Bun.write(join(MEMORY_DIR, "fleet-status.md"), summary);
+
+  // Circuit breaker: pause agents with consecutive failure streaks
+  for (const h of healths) {
+    if (!h.consecutiveFailureStreak || !h.reachable) continue;
+
+    log(`circuit breaker triggered for ${h.agent} — stopping dispatch timer`);
+    await ssh(await getAgentIp(h.agent), password, "systemctl --user stop arc-dispatch.timer 2>/dev/null");
+  }
 
   // Create alert tasks for agents with issues
   let alertCount = 0;
@@ -305,14 +337,19 @@ export default async function fleetHealthSensor(): Promise<string> {
     if (h.issues.length === 0) continue;
 
     const source = `${ALERT_SOURCE_PREFIX}:${h.agent}`;
-    const subject = h.reachable
-      ? `Fleet alert: ${h.agent} service issues — ${h.issues.join(", ")}`
-      : `Fleet alert: ${h.agent} unreachable`;
+
+    // Circuit breaker alerts get P2 (escalation) instead of P3
+    const isCircuitBreaker = h.consecutiveFailureStreak;
+    const subject = isCircuitBreaker
+      ? `Fleet circuit breaker: ${h.agent} — ${CONSECUTIVE_FAILURE_THRESHOLD} consecutive task failures, dispatch paused`
+      : h.reachable
+        ? `Fleet alert: ${h.agent} service issues — ${h.issues.join(", ")}`
+        : `Fleet alert: ${h.agent} unreachable`;
 
     const created = insertTaskIfNew(source, {
       subject,
-      description: `Agent ${h.agent} health check failed.\n\nIssues:\n${h.issues.map((i) => `- ${i}`).join("\n")}\n\nFull status at memory/fleet-status.md`,
-      priority: 3,
+      description: `Agent ${h.agent} health check failed.\n\nIssues:\n${h.issues.map((i) => `- ${i}`).join("\n")}${isCircuitBreaker ? "\n\n**Dispatch timer has been stopped.** Investigate the failure pattern, fix the root cause, then restart:\n```\narc skills run --name arc-remote-setup -- ssh ${h.agent} systemctl --user start arc-dispatch.timer\n```" : ""}\n\nFull status at memory/fleet-status.md`,
+      priority: isCircuitBreaker ? 2 : 3,
       skills: '["fleet-health", "arc-remote-setup"]',
     });
 

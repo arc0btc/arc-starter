@@ -16,8 +16,9 @@ Sensor-driven fleet monitoring. Checks all agent VMs every 15 minutes via SSH. C
 ## Sensor Behavior
 
 - **Cadence:** 15 minutes
-- **Checks per VM:** sensor timer active, dispatch timer active, last dispatch age, disk usage
+- **Checks per VM:** sensor timer active, dispatch timer active, last dispatch age, disk usage, consecutive failure streak
 - **Alerts:** Creates `Fleet alert: <agent> ...` task (P3) when issues detected
+- **Circuit breaker:** If an agent's last 5 tasks all failed, stops its dispatch timer and creates a P2 escalation task. Dispatch must be manually restarted after investigation.
 - **Output:** Writes summary to `memory/fleet-status.md` on each run
 
 ## CLI Commands
