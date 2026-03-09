@@ -184,6 +184,21 @@ const GITHUB_SENSORS: ReadonlySet<string> = new Set([
   "arc-starter-publish",
 ]);
 
+/**
+ * Sensors that only make sense on Arc (fleet orchestration, cost alerting).
+ * Workers should not run these — they create redistribution loops or duplicate work.
+ */
+const ARC_ONLY_SENSORS: ReadonlySet<string> = new Set([
+  "fleet-health",
+  "fleet-comms",
+  "fleet-dashboard",
+  "fleet-escalation",
+  "fleet-log-pull",
+  "fleet-memory",
+  "fleet-sync",
+  "arc-cost-alerting",
+]);
+
 /** Per-sensor timeout in milliseconds. Liberal limit to catch hangs, not rush normal work. */
 const SENSOR_TIMEOUT_MS = 90_000; // 90 seconds
 
@@ -208,13 +223,15 @@ export async function runSensors(): Promise<void> {
   const skills = discoverSkills();
   let sensorsToRun = skills.filter((s) => s.hasSensor);
 
-  // Fleet agents lack GitHub credentials — skip all GitHub-dependent sensors
+  // Fleet agents: skip GitHub-dependent and Arc-only orchestration sensors
   if (AGENT_NAME !== "arc0") {
     const before = sensorsToRun.length;
-    sensorsToRun = sensorsToRun.filter((s) => !GITHUB_SENSORS.has(s.name));
+    sensorsToRun = sensorsToRun.filter(
+      (s) => !GITHUB_SENSORS.has(s.name) && !ARC_ONLY_SENSORS.has(s.name)
+    );
     const skipped = before - sensorsToRun.length;
     if (skipped > 0) {
-      process.stdout.write(`sensors: skipped ${skipped} GitHub sensor(s) on ${AGENT_NAME}\n`);
+      process.stdout.write(`sensors: skipped ${skipped} GitHub/Arc-only sensor(s) on ${AGENT_NAME}\n`);
     }
   }
 
