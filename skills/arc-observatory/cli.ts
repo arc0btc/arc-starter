@@ -116,6 +116,139 @@ function serveFace(name: string): Response {
   });
 }
 
+// ---- Arena Types ----
+
+interface ArenaRun {
+  id: string;
+  prompt: string;
+  started_at: string;
+  completed_at: string | null;
+  status: "running" | "completed" | "failed";
+  claude: ArenaResult | null;
+  codex: ArenaResult | null;
+}
+
+interface ArenaResult {
+  model: string;
+  output: string;
+  tokens_in: number;
+  tokens_out: number;
+  duration_ms: number;
+  cost_usd: number;
+  error: string | null;
+}
+
+const arenaRuns = new Map<string, ArenaRun>();
+let arenaRunCounter = 0;
+
+function getForgeAgent(config: FleetConfig): AgentConfig | null {
+  return config.agents.find((a) => a.name.toLowerCase() === "forge") ?? null;
+}
+
+async function handleArenaRun(req: Request, config: FleetConfig): Promise<Response> {
+  let body: { prompt?: string };
+  try {
+    body = (await req.json()) as { prompt?: string };
+  } catch {
+    return json({ error: "Invalid JSON body" }, 400);
+  }
+
+  const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
+  if (!prompt) return json({ error: "'prompt' is required" }, 400);
+  if (prompt.length > 10000) return json({ error: "Prompt too long (max 10000 chars)" }, 400);
+
+  const forge = getForgeAgent(config);
+  if (!forge) return json({ error: "Forge agent not configured in fleet" }, 404);
+
+  const forgeSnapshot = cache.get("Forge");
+  if (!forgeSnapshot?.online) return json({ error: "Forge is offline" }, 503);
+
+  const id = `arena-${++arenaRunCounter}-${Date.now()}`;
+  const run: ArenaRun = {
+    id,
+    prompt,
+    started_at: new Date().toISOString(),
+    completed_at: null,
+    status: "running",
+    claude: null,
+    codex: null,
+  };
+  arenaRuns.set(id, run);
+
+  // Keep only last 50 runs
+  if (arenaRuns.size > 50) {
+    const oldest = arenaRuns.keys().next().value;
+    if (oldest) arenaRuns.delete(oldest);
+  }
+
+  // Fire request to Forge's arena endpoint (non-blocking)
+  runArenaOnForge(forge, run).catch((err) => {
+    run.status = "failed";
+    run.completed_at = new Date().toISOString();
+    const errMsg = err instanceof Error ? err.message : String(err);
+    if (!run.claude) run.claude = { model: "claude", output: "", tokens_in: 0, tokens_out: 0, duration_ms: 0, cost_usd: 0, error: errMsg };
+    if (!run.codex) run.codex = { model: "codex", output: "", tokens_in: 0, tokens_out: 0, duration_ms: 0, cost_usd: 0, error: errMsg };
+  });
+
+  return json({ id, status: "running" }, 202);
+}
+
+async function runArenaOnForge(forge: AgentConfig, run: ArenaRun): Promise<void> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 120000); // 2 min timeout
+    const res = await fetch(`${forge.url}/api/arena/run`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: run.prompt }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => `HTTP ${res.status}`);
+      run.status = "failed";
+      run.completed_at = new Date().toISOString();
+      run.claude = { model: "claude", output: "", tokens_in: 0, tokens_out: 0, duration_ms: 0, cost_usd: 0, error: errText };
+      run.codex = { model: "codex", output: "", tokens_in: 0, tokens_out: 0, duration_ms: 0, cost_usd: 0, error: errText };
+      return;
+    }
+
+    const data = (await res.json()) as { claude?: ArenaResult; codex?: ArenaResult };
+    run.claude = data.claude ?? { model: "claude", output: "", tokens_in: 0, tokens_out: 0, duration_ms: 0, cost_usd: 0, error: "No response" };
+    run.codex = data.codex ?? { model: "codex", output: "", tokens_in: 0, tokens_out: 0, duration_ms: 0, cost_usd: 0, error: "No response" };
+    run.status = "completed";
+    run.completed_at = new Date().toISOString();
+  } catch (err) {
+    run.status = "failed";
+    run.completed_at = new Date().toISOString();
+    const errMsg = err instanceof Error ? err.message : String(err);
+    run.claude = { model: "claude", output: "", tokens_in: 0, tokens_out: 0, duration_ms: 0, cost_usd: 0, error: errMsg };
+    run.codex = { model: "codex", output: "", tokens_in: 0, tokens_out: 0, duration_ms: 0, cost_usd: 0, error: errMsg };
+  }
+}
+
+function handleArenaStatus(id: string): Response {
+  const run = arenaRuns.get(id);
+  if (!run) return json({ error: "Run not found" }, 404);
+  return json(run);
+}
+
+function handleArenaHistory(): Response {
+  const runs = Array.from(arenaRuns.values())
+    .sort((a, b) => b.started_at.localeCompare(a.started_at))
+    .slice(0, 20)
+    .map((r) => ({
+      id: r.id,
+      prompt: r.prompt.slice(0, 100) + (r.prompt.length > 100 ? "..." : ""),
+      status: r.status,
+      started_at: r.started_at,
+      claude_duration_ms: r.claude?.duration_ms ?? null,
+      codex_duration_ms: r.codex?.duration_ms ?? null,
+    }));
+  return json({ runs });
+}
+
 // ---- Chat Types ----
 
 interface FleetMessage {
@@ -584,6 +717,7 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
 <div class="tabs">
   <button class="tab active" data-tab="feed" onclick="switchTab('feed')">Live Feed</button>
   <button class="tab" data-tab="agents" onclick="switchTab('agents')">Agents</button>
+  <a class="tab" href="/arena" style="text-decoration:none">Arena</a>
 </div>
 <div class="tab-content active" id="tab-feed">
   <div class="feed" id="feed"><div class="feed-empty">loading feed...</div></div>
@@ -866,6 +1000,454 @@ setInterval(refreshChat, 3000);
 </body>
 </html>`;
 
+// ---- Arena Dashboard ----
+
+const ARENA_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Model Arena — Arc Observatory</title>
+<style>
+  :root { --bg: #0a0a0a; --card: #141414; --border: #222; --text: #e0e0e0; --dim: #666; --green: #22c55e; --red: #ef4444; --amber: #f59e0b; --blue: #3b82f6; --purple: #a855f7; --cyan: #06b6d4; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'SF Mono', 'Fira Code', monospace; background: var(--bg); color: var(--text); padding: 1.5rem; }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  h1 { font-size: 1.1rem; margin-bottom: 0.25rem; color: var(--dim); }
+  h1 span { color: var(--text); }
+  .subtitle { font-size: 0.75rem; color: var(--dim); margin-bottom: 1.5rem; }
+  .back-link { font-size: 0.75rem; color: var(--dim); margin-bottom: 1rem; display: inline-block; }
+
+  /* Prompt Section */
+  .prompt-section { margin-bottom: 1.5rem; }
+  .prompt-label { font-size: 0.75rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+  .prompt-wrap { display: flex; gap: 0.75rem; align-items: flex-start; }
+  .prompt-input { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; color: var(--text); font-family: inherit; font-size: 0.85rem; resize: vertical; min-height: 80px; max-height: 300px; outline: none; line-height: 1.5; }
+  .prompt-input:focus { border-color: var(--blue); }
+  .prompt-input::placeholder { color: var(--dim); }
+  .prompt-actions { display: flex; flex-direction: column; gap: 0.5rem; }
+  .run-btn { background: var(--blue); color: #fff; border: none; border-radius: 6px; padding: 0.75rem 1.5rem; font-family: inherit; font-size: 0.85rem; cursor: pointer; white-space: nowrap; font-weight: 600; transition: all 0.15s; }
+  .run-btn:hover { opacity: 0.9; transform: scale(1.02); }
+  .run-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .run-btn.running { background: var(--amber); }
+  .forge-status { font-size: 0.65rem; text-align: center; }
+  .forge-status.online { color: var(--green); }
+  .forge-status.offline { color: var(--red); }
+
+  /* Comparison Area */
+  .arena-results { display: none; margin-bottom: 1.5rem; }
+  .arena-results.visible { display: block; }
+  .timing-bar-section { margin-bottom: 1rem; padding: 0.75rem 1rem; background: var(--card); border: 1px solid var(--border); border-radius: 6px; }
+  .timing-bar-label { font-size: 0.7rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+  .timing-bars { display: flex; flex-direction: column; gap: 0.4rem; }
+  .timing-row { display: flex; align-items: center; gap: 0.5rem; }
+  .timing-model { font-size: 0.75rem; width: 60px; text-align: right; }
+  .timing-model.claude { color: var(--purple); }
+  .timing-model.codex { color: var(--cyan); }
+  .timing-track { flex: 1; height: 20px; background: var(--bg); border-radius: 3px; overflow: hidden; position: relative; }
+  .timing-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease-out; display: flex; align-items: center; padding: 0 8px; font-size: 0.65rem; color: #fff; white-space: nowrap; min-width: 0; }
+  .timing-fill.claude { background: var(--purple); }
+  .timing-fill.codex { background: var(--cyan); }
+  .timing-value { font-size: 0.7rem; color: var(--dim); width: 55px; }
+
+  /* Stats comparison */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; }
+  .stat-card.claude { border-top: 2px solid var(--purple); }
+  .stat-card.codex { border-top: 2px solid var(--cyan); }
+  .stat-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+  .stat-card-title { font-size: 0.85rem; font-weight: 600; }
+  .stat-card-title.claude { color: var(--purple); }
+  .stat-card-title.codex { color: var(--cyan); }
+  .stat-card-badge { font-size: 0.6rem; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; }
+  .stat-card-badge.winner { background: rgba(34,197,94,0.15); color: var(--green); }
+  .stat-card-badge.slower { background: rgba(102,102,102,0.1); color: var(--dim); }
+  .stat-row { display: flex; justify-content: space-between; font-size: 0.75rem; padding: 2px 0; }
+  .stat-row .label { color: var(--dim); }
+  .stat-row .value { color: var(--text); }
+
+  /* Split pane output */
+  .split-pane { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .pane { display: flex; flex-direction: column; min-width: 0; }
+  .pane:first-child { border-right: 1px solid var(--border); }
+  .pane-header { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.75rem; background: var(--card); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .pane-title { font-size: 0.8rem; font-weight: 600; }
+  .pane-title.claude { color: var(--purple); }
+  .pane-title.codex { color: var(--cyan); }
+  .pane-copy { font-size: 0.65rem; padding: 3px 8px; border-radius: 3px; border: 1px solid var(--border); background: transparent; color: var(--dim); cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .pane-copy:hover { border-color: var(--blue); color: var(--blue); }
+  .pane-copy.copied { border-color: var(--green); color: var(--green); }
+  .pane-body { padding: 0.75rem; background: var(--bg); min-height: 200px; max-height: 60vh; overflow-y: auto; font-size: 0.8rem; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+  .pane-body::-webkit-scrollbar { width: 5px; }
+  .pane-body::-webkit-scrollbar-track { background: var(--bg); }
+  .pane-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .pane-body .error { color: var(--red); }
+  .pane-body .loading { color: var(--dim); }
+  @media (max-width: 900px) {
+    .split-pane { grid-template-columns: 1fr; }
+    .pane:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+    .stats-grid { grid-template-columns: 1fr; }
+  }
+
+  /* History */
+  .history-section { margin-top: 2rem; }
+  .history-title { font-size: 0.8rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+  .history-list { display: flex; flex-direction: column; gap: 0; }
+  .history-item { display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; gap: 0.75rem; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; font-size: 0.8rem; }
+  .history-item:hover { background: rgba(255,255,255,0.02); }
+  .history-item:last-child { border-bottom: none; }
+  .history-prompt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+  .history-status { font-size: 0.6rem; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; }
+  .history-status.s-completed { background: rgba(34,197,94,0.15); color: var(--green); }
+  .history-status.s-running { background: rgba(245,158,11,0.15); color: var(--amber); }
+  .history-status.s-failed { background: rgba(239,68,68,0.15); color: var(--red); }
+  .history-time { font-size: 0.7rem; color: var(--dim); }
+  .history-empty { padding: 1.5rem; text-align: center; color: var(--dim); font-size: 0.8rem; }
+
+  /* Spinner */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 6px; }
+</style>
+</head>
+<body>
+<a class="back-link" href="/">&larr; back to observatory</a>
+<h1>model arena <span>// claude vs codex</span></h1>
+<div class="subtitle">Side-by-side model comparison via Forge dual-dispatch</div>
+
+<div class="prompt-section">
+  <div class="prompt-label">Prompt</div>
+  <div class="prompt-wrap">
+    <textarea class="prompt-input" id="prompt-input" placeholder="Enter a prompt to send to both Claude and Codex on Forge..."></textarea>
+    <div class="prompt-actions">
+      <button class="run-btn" id="run-btn" onclick="runArena()">Run</button>
+      <div class="forge-status" id="forge-status">checking forge...</div>
+    </div>
+  </div>
+</div>
+
+<div class="arena-results" id="arena-results">
+  <div class="timing-bar-section">
+    <div class="timing-bar-label">Execution Time</div>
+    <div class="timing-bars">
+      <div class="timing-row">
+        <span class="timing-model claude">Claude</span>
+        <div class="timing-track"><div class="timing-fill claude" id="bar-claude" style="width:0%"></div></div>
+        <span class="timing-value" id="time-claude">—</span>
+      </div>
+      <div class="timing-row">
+        <span class="timing-model codex">Codex</span>
+        <div class="timing-track"><div class="timing-fill codex" id="bar-codex" style="width:0%"></div></div>
+        <span class="timing-value" id="time-codex">—</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card claude">
+      <div class="stat-card-header">
+        <span class="stat-card-title claude">Claude</span>
+        <span class="stat-card-badge" id="badge-claude"></span>
+      </div>
+      <div class="stat-row"><span class="label">Tokens in</span><span class="value" id="claude-tokens-in">—</span></div>
+      <div class="stat-row"><span class="label">Tokens out</span><span class="value" id="claude-tokens-out">—</span></div>
+      <div class="stat-row"><span class="label">Duration</span><span class="value" id="claude-duration">—</span></div>
+      <div class="stat-row"><span class="label">Cost</span><span class="value" id="claude-cost">—</span></div>
+    </div>
+    <div class="stat-card codex">
+      <div class="stat-card-header">
+        <span class="stat-card-title codex">Codex</span>
+        <span class="stat-card-badge" id="badge-codex"></span>
+      </div>
+      <div class="stat-row"><span class="label">Tokens in</span><span class="value" id="codex-tokens-in">—</span></div>
+      <div class="stat-row"><span class="label">Tokens out</span><span class="value" id="codex-tokens-out">—</span></div>
+      <div class="stat-row"><span class="label">Duration</span><span class="value" id="codex-duration">—</span></div>
+      <div class="stat-row"><span class="label">Cost</span><span class="value" id="codex-cost">—</span></div>
+    </div>
+  </div>
+
+  <div class="split-pane">
+    <div class="pane">
+      <div class="pane-header">
+        <span class="pane-title claude">Claude Output</span>
+        <button class="pane-copy" onclick="copyOutput('claude')">copy</button>
+      </div>
+      <div class="pane-body" id="output-claude"><span class="loading">waiting for results...</span></div>
+    </div>
+    <div class="pane">
+      <div class="pane-header">
+        <span class="pane-title codex">Codex Output</span>
+        <button class="pane-copy" onclick="copyOutput('codex')">copy</button>
+      </div>
+      <div class="pane-body" id="output-codex"><span class="loading">waiting for results...</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="history-section">
+  <div class="history-title">Recent Runs</div>
+  <div class="history-list" id="history-list">
+    <div class="history-empty">no arena runs yet</div>
+  </div>
+</div>
+
+<script>
+var currentRunId = null;
+var pollInterval = null;
+
+function esc(s) { if (!s) return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+async function checkForge() {
+  var el = document.getElementById('forge-status');
+  try {
+    var res = await fetch('/api/fleet/status');
+    var data = await res.json();
+    var forge = (data.agents || []).find(function(a) { return a.name.toLowerCase() === 'forge'; });
+    if (forge && forge.online) {
+      el.className = 'forge-status online';
+      el.textContent = 'forge online';
+      document.getElementById('run-btn').disabled = false;
+    } else {
+      el.className = 'forge-status offline';
+      el.textContent = 'forge offline';
+      document.getElementById('run-btn').disabled = true;
+    }
+  } catch(e) {
+    el.className = 'forge-status offline';
+    el.textContent = 'forge unreachable';
+    document.getElementById('run-btn').disabled = true;
+  }
+}
+
+async function runArena() {
+  var prompt = document.getElementById('prompt-input').value.trim();
+  if (!prompt) return;
+
+  var btn = document.getElementById('run-btn');
+  btn.disabled = true;
+  btn.classList.add('running');
+  btn.textContent = 'Running...';
+
+  // Show results area with loading state
+  var results = document.getElementById('arena-results');
+  results.classList.add('visible');
+  document.getElementById('output-claude').innerHTML = '<span class="loading"><span class="spinner"></span>running on Claude...</span>';
+  document.getElementById('output-codex').innerHTML = '<span class="loading"><span class="spinner"></span>running on Codex...</span>';
+  resetStats();
+
+  try {
+    var res = await fetch('/api/arena/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: prompt })
+    });
+    var data = await res.json();
+
+    if (data.error) {
+      document.getElementById('output-claude').innerHTML = '<span class="error">' + esc(data.error) + '</span>';
+      document.getElementById('output-codex').innerHTML = '<span class="error">' + esc(data.error) + '</span>';
+      btn.disabled = false;
+      btn.classList.remove('running');
+      btn.textContent = 'Run';
+      return;
+    }
+
+    currentRunId = data.id;
+    // Poll for results
+    if (pollInterval) clearInterval(pollInterval);
+    pollInterval = setInterval(function() { pollRun(currentRunId); }, 2000);
+    // Also poll immediately
+    pollRun(currentRunId);
+  } catch(e) {
+    document.getElementById('output-claude').innerHTML = '<span class="error">Request failed: ' + esc(String(e)) + '</span>';
+    document.getElementById('output-codex').innerHTML = '<span class="error">Request failed: ' + esc(String(e)) + '</span>';
+    btn.disabled = false;
+    btn.classList.remove('running');
+    btn.textContent = 'Run';
+  }
+}
+
+function resetStats() {
+  ['claude-tokens-in','claude-tokens-out','claude-duration','claude-cost',
+   'codex-tokens-in','codex-tokens-out','codex-duration','codex-cost'].forEach(function(id) {
+    document.getElementById(id).textContent = '\\u2014';
+  });
+  document.getElementById('bar-claude').style.width = '0%';
+  document.getElementById('bar-codex').style.width = '0%';
+  document.getElementById('time-claude').textContent = '\\u2014';
+  document.getElementById('time-codex').textContent = '\\u2014';
+  document.getElementById('badge-claude').textContent = '';
+  document.getElementById('badge-codex').textContent = '';
+  document.getElementById('badge-claude').className = 'stat-card-badge';
+  document.getElementById('badge-codex').className = 'stat-card-badge';
+}
+
+async function pollRun(runId) {
+  try {
+    var res = await fetch('/api/arena/runs/' + runId);
+    var run = await res.json();
+
+    if (run.error) {
+      finishRun();
+      return;
+    }
+
+    if (run.status === 'completed' || run.status === 'failed') {
+      updateResults(run);
+      finishRun();
+      refreshHistory();
+      return;
+    }
+    // Still running — keep polling
+  } catch(e) {
+    console.error('poll failed', e);
+  }
+}
+
+function updateResults(run) {
+  var claude = run.claude;
+  var codex = run.codex;
+
+  // Output panes
+  if (claude) {
+    if (claude.error) {
+      document.getElementById('output-claude').innerHTML = '<span class="error">' + esc(claude.error) + '</span>';
+    } else {
+      document.getElementById('output-claude').textContent = claude.output || '(empty output)';
+    }
+  }
+  if (codex) {
+    if (codex.error) {
+      document.getElementById('output-codex').innerHTML = '<span class="error">' + esc(codex.error) + '</span>';
+    } else {
+      document.getElementById('output-codex').textContent = codex.output || '(empty output)';
+    }
+  }
+
+  // Stats
+  if (claude) {
+    document.getElementById('claude-tokens-in').textContent = claude.tokens_in.toLocaleString();
+    document.getElementById('claude-tokens-out').textContent = claude.tokens_out.toLocaleString();
+    document.getElementById('claude-duration').textContent = formatDuration(claude.duration_ms);
+    document.getElementById('claude-cost').textContent = '$' + claude.cost_usd.toFixed(4);
+  }
+  if (codex) {
+    document.getElementById('codex-tokens-in').textContent = codex.tokens_in.toLocaleString();
+    document.getElementById('codex-tokens-out').textContent = codex.tokens_out.toLocaleString();
+    document.getElementById('codex-duration').textContent = formatDuration(codex.duration_ms);
+    document.getElementById('codex-cost').textContent = '$' + codex.cost_usd.toFixed(4);
+  }
+
+  // Timing bars
+  if (claude && codex) {
+    var maxTime = Math.max(claude.duration_ms || 1, codex.duration_ms || 1);
+    var claudePct = Math.round(((claude.duration_ms || 0) / maxTime) * 100);
+    var codexPct = Math.round(((codex.duration_ms || 0) / maxTime) * 100);
+    document.getElementById('bar-claude').style.width = claudePct + '%';
+    document.getElementById('bar-codex').style.width = codexPct + '%';
+    document.getElementById('bar-claude').textContent = formatDuration(claude.duration_ms);
+    document.getElementById('bar-codex').textContent = formatDuration(codex.duration_ms);
+    document.getElementById('time-claude').textContent = formatDuration(claude.duration_ms);
+    document.getElementById('time-codex').textContent = formatDuration(codex.duration_ms);
+
+    // Winner badges
+    if (claude.duration_ms <= codex.duration_ms && !claude.error) {
+      document.getElementById('badge-claude').textContent = 'faster';
+      document.getElementById('badge-claude').className = 'stat-card-badge winner';
+      document.getElementById('badge-codex').textContent = 'slower';
+      document.getElementById('badge-codex').className = 'stat-card-badge slower';
+    } else if (!codex.error) {
+      document.getElementById('badge-codex').textContent = 'faster';
+      document.getElementById('badge-codex').className = 'stat-card-badge winner';
+      document.getElementById('badge-claude').textContent = 'slower';
+      document.getElementById('badge-claude').className = 'stat-card-badge slower';
+    }
+  }
+}
+
+function finishRun() {
+  if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+  var btn = document.getElementById('run-btn');
+  btn.disabled = false;
+  btn.classList.remove('running');
+  btn.textContent = 'Run';
+  currentRunId = null;
+}
+
+function formatDuration(ms) {
+  if (!ms && ms !== 0) return '\\u2014';
+  if (ms < 1000) return ms + 'ms';
+  return (ms / 1000).toFixed(1) + 's';
+}
+
+function copyOutput(model) {
+  var el = document.getElementById('output-' + model);
+  var text = el.textContent || '';
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = el.closest('.pane').querySelector('.pane-copy');
+    btn.textContent = 'copied!';
+    btn.classList.add('copied');
+    setTimeout(function() { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+async function refreshHistory() {
+  try {
+    var res = await fetch('/api/arena/history');
+    var data = await res.json();
+    var list = document.getElementById('history-list');
+    if (!data.runs || data.runs.length === 0) {
+      list.innerHTML = '<div class="history-empty">no arena runs yet</div>';
+      return;
+    }
+    list.innerHTML = data.runs.map(function(r) {
+      var statusCls = 's-' + r.status;
+      var timeStr = '';
+      if (r.started_at) {
+        try { timeStr = new Date(r.started_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); } catch(e) {}
+      }
+      var durations = '';
+      if (r.claude_duration_ms !== null && r.codex_duration_ms !== null) {
+        durations = formatDuration(r.claude_duration_ms) + ' / ' + formatDuration(r.codex_duration_ms);
+      }
+      return '<div class="history-item" onclick="loadRun(\\'' + r.id + '\\')">' +
+        '<span class="history-prompt">' + esc(r.prompt) + '</span>' +
+        '<span class="history-status ' + statusCls + '">' + r.status + '</span>' +
+        '<span class="history-time">' + durations + '</span>' +
+        '<span class="history-time">' + timeStr + '</span>' +
+      '</div>';
+    }).join('');
+  } catch(e) { console.error('history refresh failed', e); }
+}
+
+async function loadRun(runId) {
+  try {
+    var res = await fetch('/api/arena/runs/' + runId);
+    var run = await res.json();
+    if (run.error) return;
+
+    document.getElementById('prompt-input').value = run.prompt || '';
+    document.getElementById('arena-results').classList.add('visible');
+    updateResults(run);
+  } catch(e) { console.error('load run failed', e); }
+}
+
+// Keyboard shortcut: Ctrl+Enter to run
+document.getElementById('prompt-input').addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    if (!document.getElementById('run-btn').disabled) runArena();
+  }
+});
+
+// Init
+checkForge();
+refreshHistory();
+setInterval(checkForge, 30000);
+</script>
+</body>
+</html>`;
+
 // ---- Server ----
 
 function startServer(config: FleetConfig): void {
@@ -929,6 +1511,12 @@ function startServer(config: FleetConfig): void {
         return handleFleetChat();
       }
 
+      // Arena API
+      if (path === "/api/arena/run" && req.method === "POST") return handleArenaRun(req, config);
+      if (path === "/api/arena/history") return handleArenaHistory();
+      const arenaRunMatch = path.match(/^\/api\/arena\/runs\/([a-zA-Z0-9-]+)$/);
+      if (arenaRunMatch) return handleArenaStatus(arenaRunMatch[1]);
+
       // Fleet API
       if (path === "/api/fleet/status") return handleFleetStatus();
       if (path === "/api/fleet/agents") return handleFleetAgents();
@@ -949,6 +1537,13 @@ function startServer(config: FleetConfig): void {
       // Dashboard
       if (path === "/" || path === "/index.html") {
         return new Response(DASHBOARD_HTML, {
+          headers: { "Content-Type": "text/html; charset=utf-8" },
+        });
+      }
+
+      // Arena page
+      if (path === "/arena") {
+        return new Response(ARENA_HTML, {
           headers: { "Content-Type": "text/html; charset=utf-8" },
         });
       }

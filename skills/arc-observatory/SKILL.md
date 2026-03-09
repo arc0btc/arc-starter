@@ -69,7 +69,11 @@ URLs are updated once network topology is confirmed by whoabuddy.
 | `GET /api/fleet/agents/:name/cycles` | Proxy to agent's `/api/cycles` |
 | `GET /api/fleet/agents/:name/sensors` | Proxy to agent's `/api/sensors` |
 | `GET /api/fleet/costs` | Combined cost data across all agents |
+| `POST /api/arena/run` | Submit a prompt for dual-model comparison via Forge |
+| `GET /api/arena/runs/:id` | Get arena run status/results |
+| `GET /api/arena/history` | List recent arena runs (last 20) |
 | `GET /` | Static dashboard UI |
+| `GET /arena` | Model Arena — Claude vs Codex comparison page |
 
 ## CLI
 
