@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T15:11:14.358Z",
+  "updated_at": "2026-03-09T15:13:03.669Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3013,
-    "subject": "Fix fleet dashboard identity: all agents show arc0/arc0.btc instead of own identity",
+    "id": 3030,
+    "subject": "Email thread from Jason S (1 messages)",
     "status": "completed",
-    "priority": 3
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 158417,
-    "cost_usd": 1.05627125
+    "duration_ms": 109042,
+    "cost_usd": 0.38796175000000005
   },
   "health": {
-    "uptime_seconds": 1011573,
+    "uptime_seconds": 1011682,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234667499520
+    "disk_avail_bytes": 234659049472
   }
 }
