@@ -8,16 +8,20 @@
 
 **Arc (orchestrator):** 62 active sensors — full suite including AIBTC, social, DeFi, GitHub, blog, bitcoin, compliance, reporting.
 
-**Fleet agents (Spark/Iris/Loom/Forge):** 15 sensors each — lean worker set:
-`aibtc-heartbeat, arc-alive-check, arc-cost-alerting, arc-dispatch-eval, arc-ops-review, arc-service-health, auto-queue, fleet-comms, fleet-escalation, fleet-health, fleet-log-pull, fleet-memory, fleet-rebalance, fleet-router, fleet-sync`
+**Fleet agents (Spark/Iris/Loom/Forge):** ~13 sensors each — lean worker set:
+`aibtc-heartbeat, arc-alive-check, arc-cost-alerting, arc-dispatch-eval, arc-ops-review, arc-service-health, auto-queue, fleet-comms, fleet-escalation, fleet-health, fleet-log-pull, fleet-memory, fleet-sync`
 
 **Arc-exclusive skills (not on fleet agents):**
+- `fleet-router` (task routing — Arc-only, removed from workers task #2963)
+- `fleet-rebalance` (work-stealing — Arc-only, removed from workers task #2963)
 - `fleet-dashboard` (sensor + aggregation)
 - `fleet-push` (CLI deployment tool)
 
+**[FLAG] Remaining fleet sensors on workers need review (task #2969):** fleet-health, fleet-comms, fleet-dashboard, fleet-escalation, fleet-log-pull, fleet-memory, fleet-sync, arc-cost-alerting all SSH into other agents. Running from workers creates duplicate monitoring and potential duplicate task creation.
+
 **Anomaly:** Spark has `arc-dispatch-evals` (with 's') as its dispatch eval sensor; Iris/Loom/Forge have `arc-dispatch-eval` (without 's'). Minor naming inconsistency from a version mismatch.
 
-**Concern:** Fleet agents run `fleet-router` and `fleet-rebalance` sensors — these scan for tasks to route/steal across the fleet. From a worker agent's perspective, this may cause unintended task redistribution loops. Flagged for review.
+**Rule: Orchestration sensors are Arc-only.** Any sensor that routes, rebalances, monitors, or SSHes into fleet agents must run exclusively on Arc. Workers should only run self-monitoring and domain-work sensors.
 
 **Design intent:** Fleet agents are workers, not orchestrators. Lean sensor footprint is correct. However fleet-router/rebalance on workers warrants discussion.
 
