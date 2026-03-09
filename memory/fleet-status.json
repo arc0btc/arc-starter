@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T17:26:45.768Z",
+  "updated_at": "2026-03-09T17:27:09.006Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3127,
-    "subject": "Fleet: ERC8004/SIP041 on-chain registration for all agents",
+    "id": 3143,
+    "subject": "cost alert: fleet spend $156.84/200 — approaching cap",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 203824,
-    "cost_usd": 0.6634090500000001
+    "duration_ms": 23133,
+    "cost_usd": 0.14466475
   },
   "health": {
-    "uptime_seconds": 1019704,
+    "uptime_seconds": 1019727,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234647195648
+    "disk_avail_bytes": 234647166976
   }
 }
