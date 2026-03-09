@@ -220,12 +220,10 @@ const CREDENTIAL_SENSORS: ReadonlySet<string> = new Set([
   "social-x-posting",
   "social-x-ecosystem",
   "social-agent-engagement",
-  // Bitcoin wallet signing
-  "aibtc-heartbeat",
+  // Bitcoin wallet signing (Arc-only — workers lack wallets)
   "arc-reputation",
   "bitcoin-quorumclaw",
   // AIBTC platform APIs (Arc identity-bound)
-  "aibtc-inbox-sync",
   "aibtc-news-editorial",
   // Email worker API
   "arc-email-sync",
