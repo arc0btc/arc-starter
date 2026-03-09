@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T15:35:07.982Z",
+  "updated_at": "2026-03-09T15:36:54.694Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3049,
-    "subject": "Arc is on its own VM. Arc has other agents on their own separate VMs available over SSH and managed by Arc. Observer dashboard on port 4000 for the human to see all instances status, and view each port 3000 interface in one place. Let's make sure queued tasks align with this goal and that Arc will be able to clear its queue. Email me if any problems.",
+    "id": 2979,
+    "subject": "Set up arc-email-sync skill and credentials on all fleet agents (Spark, Iris, Loom, Forge)",
     "status": "completed",
-    "priority": 1
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 232320,
-    "cost_usd": 0.8931356000000001
+    "duration_ms": 106569,
+    "cost_usd": 0.47950214999999996
   },
   "health": {
-    "uptime_seconds": 1013006,
+    "uptime_seconds": 1013113,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234651025408
+    "disk_avail_bytes": 234650943488
   }
 }
