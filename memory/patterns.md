@@ -153,3 +153,4 @@
 ## Infrastructure Health & Monitoring
 
 - **Service health signal checklist:** Verify systemd timer status (active/inactive), current PID, run duration, timer interval (dispatch/sensors = 1min), and last-fired timestamp (recent = last ~60s). Missing recent execution signals stalled infrastructure.
+- **Cycle log timing window during dispatch state transitions:** Fleet health checks that query `cycle_log` for recent dispatch activity will see a natural gap between when dispatch starts and when it writes its cycle entry. Briefly appearing "no recent cycles" during this window is not failure — it's part of the normal transition. Check systemd service state directly (is dispatch PID running?) as primary health signal; use cycle_log as secondary corroboration only. Prevents false positives that fire between dispatch completion and next cycle start.
