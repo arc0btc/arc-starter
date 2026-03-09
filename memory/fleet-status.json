@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T14:53:18.081Z",
+  "updated_at": "2026-03-09T14:53:56.293Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3000,
-    "subject": "health alert: dispatch stale or stuck",
+    "id": 3002,
+    "subject": "Fleet escalation: loom blocked on task #118 — Fleet escalation: spark blocked on task #117 — GitHub credentials needed: arc0btc token for aibtcdev CI workflow PRs (tasks #113, #95)",
     "status": "completed",
     "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 42001,
-    "cost_usd": 0.08081765
+    "duration_ms": 19815,
+    "cost_usd": 0.134024
   },
   "health": {
-    "uptime_seconds": 1010496,
+    "uptime_seconds": 1010535,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234668404736
+    "disk_avail_bytes": 234668363776
   }
 }
