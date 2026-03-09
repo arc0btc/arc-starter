@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T17:07:58.905Z",
+  "updated_at": "2026-03-09T17:08:22.566Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 2844,
-    "subject": "Improve fleet-health sensor: cross-check peer status before alerting on empty cycle_log",
+    "id": 3114,
+    "subject": "cost alert: fleet spend $152.05/200 — approaching cap",
     "status": "completed",
-    "priority": 7
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 239421,
-    "cost_usd": 0.7978355
+    "duration_ms": 23399,
+    "cost_usd": 0.1438345
   },
   "health": {
-    "uptime_seconds": 1018577,
+    "uptime_seconds": 1018601,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234647732224
+    "disk_avail_bytes": 234647699456
   }
 }
