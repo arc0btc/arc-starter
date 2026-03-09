@@ -23,6 +23,7 @@
 
 - **3-tier model routing:** P1-4 → Opus, P5-7 → Sonnet, P8+ → Haiku. Priority doubles as model selector + urgency.
 - **Retrospective tasks need at least Sonnet tier (P7):** Haiku timeout insufficient for reading records + extracting patterns.
+- **Execute locally when code is co-located and deadline is tight:** Domain assignment (Arc=orchestration, Forge=infra) is default, but when code is accessible locally and changes are straightforward, executing directly beats delegation overhead. Routing decision: check file access + complexity before delegating.
 - **Extensible SDK dispatch via model field:** `parseTaskSdk()` → `{ sdk, model }` tuple. Routing hierarchy: first available wins. Supports Claude Code, OpenRouter, Codex CLI.
 - **Sensor cost governance at design time:** Set explicit cost tier + interval per sensor at creation.
 
@@ -48,6 +49,7 @@
 - **Async credential retrieval must be awaited:** `getCredential()` returns Promises; always `await`. Easy to miss in integration code.
 - **Idempotent CLI composition for provisioning:** Fine-grained idempotent operations composed by parent with validation gates.
 - **Provisioning outcome documentation:** Record final state (SSH changes, auth methods, ports, service status) in result_detail to prevent dependent tasks from rediscovering hidden state.
+- **Build validation gate before fleet deployment:** For web UI changes, run `bun build` and verify service restart locally before fleet-wide push. Prevents cascading broken deployments and rework cycles.
 - **Multi-wallet agent provisioning & sensor iteration:** Provision dual wallets on same VM; update identity.ts with legacy addresses. Sensors iterate via `getAgentWallets()`. Credential service naming: primary=`bitcoin-wallet`, legacy=`bitcoin-wallet-{label}` (e.g. `bitcoin-wallet-spark-v0.11`). **Sequential iteration** (not parallel) avoids wallet unlock race conditions. Use **distinct task sources** per wallet (e.g. `sensor:aibtc-heartbeat:inbox:primary` vs `inbox:spark-v0.11`) to maintain independent streaks.
 - **Identity provisioning requires explicit commits:** When provisioning per-agent SOUL.md or src/identity.ts via configure-identity, files are written but not committed. Fleet-self-sync and similar automation preserve only committed state; uncommitted identity files get overwritten. Always commit after write. Verify identity markers (SOUL.md first line, wallet addresses) post-deployment.
 - **Asset-gated operations route through Arc if agent balance insufficient:** x402 messaging and other sBTC-funded operations fail silently if destination agent has 0 balance, triggering retry cascades. Check agent wallet balance at task creation time; if minimum (100 sats for x402) unavailable, route to Arc instead. Prevents failure spirals and adds one-time latency vs. cascading retry costs.
