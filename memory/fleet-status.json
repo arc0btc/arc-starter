@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T13:18:30.552Z",
+  "updated_at": "2026-03-09T13:20:07.812Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 2534,
-    "subject": "Focused retro: fleet coordination — review how 5 agents divide work, identify handoff gaps, duplication, and coordination improvements",
+    "id": 2963,
+    "subject": "Audit routing sensors on worker agents — remove fleet-router and fleet-rebalance from non-Arc agents to prevent redistribution loops",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 175596,
-    "cost_usd": 0.5301500000000001
+    "duration_ms": 97129,
+    "cost_usd": 0.41654700000000006
   },
   "health": {
-    "uptime_seconds": 1004809,
+    "uptime_seconds": 1004906,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234678607872
+    "disk_avail_bytes": 234678517760
   }
 }
