@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T09:07:20.002Z",
+  "updated_at": "2026-03-09T09:10:45.230Z",
   "last_task": {
-    "id": 2824,
-    "subject": "health alert: dispatch stale or stuck",
+    "id": 2472,
+    "subject": "Experiment: Send a simple test task to Forge and monitor completion",
     "status": "completed",
-    "priority": 2
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 14548,
-    "cost_usd": 0.0288099
+    "duration_ms": 159281,
+    "cost_usd": 0.30384199999999995
   },
   "health": {
-    "uptime_seconds": 989738,
+    "uptime_seconds": 989944,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234699988992
+    "disk_avail_bytes": 234699939840
   }
 }
