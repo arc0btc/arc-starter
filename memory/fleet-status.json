@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T18:04:01.586Z",
+  "updated_at": "2026-03-09T18:05:42.794Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3182,
-    "subject": "cost alert: fleet spend $164.13/200 — approaching cap",
+    "id": 3183,
+    "subject": "Fleet alert: iris service issues — fleet-status.json stale (144m old)",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 22470,
-    "cost_usd": 0.14391325
+    "duration_ms": 63303,
+    "cost_usd": 0.27317025
   },
   "health": {
-    "uptime_seconds": 1021940,
+    "uptime_seconds": 1022041,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234639081472
+    "disk_avail_bytes": 234639011840
   }
 }
