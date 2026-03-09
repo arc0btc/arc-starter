@@ -1,19 +1,19 @@
 {
   "agent": "arc",
-  "updated_at": "2026-03-09T05:15:28.136Z",
+  "updated_at": "2026-03-09T05:16:58.912Z",
   "last_task": {
-    "id": 2410,
-    "subject": "For the UI on port 3000 all the fleet VMs still show Arc / arc0.btc in the header. Let's queue tasks to fix all agents Arc included: in the header use the Bitcoin Face next to name and BNS name. Arc is \"arc0\" and the rest match their BNS name. Also queue a task to save the Bitcoin Face for each agent as an asset next to Arc's assets so we can reuse. If you append &onchain=true you'll get the recursive inscription SVG per the spec, Drop identity dupe block. Restart web services when done on each.",
+    "id": 2374,
+    "subject": "Review & trim Spark VM (192.168.1.12) — remove non-essential sensors, keep only basics",
     "status": "completed",
-    "priority": 1
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 270330,
-    "cost_usd": 0.9710593500000001
+    "duration_ms": 90520,
+    "cost_usd": 0.34936275
   },
   "health": {
-    "uptime_seconds": 975826,
+    "uptime_seconds": 975917,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234947092480
+    "disk_avail_bytes": 234947006464
   }
 }
