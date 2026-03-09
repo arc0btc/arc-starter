@@ -302,6 +302,52 @@ async function handlePrReview(req: Request): Promise<Response> {
   }, 201);
 }
 
+// ---- Roundtable ----
+
+async function handleRoundtableRespond(req: Request): Promise<Response> {
+  let body: { discussion_id?: number; prompt?: string };
+  try {
+    body = await req.json() as { discussion_id?: number; prompt?: string };
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  const discussionId = typeof body.discussion_id === "number" ? body.discussion_id : 0;
+  if (!discussionId) return errorResponse("'discussion_id' is required (number)", 400);
+
+  const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
+  if (!prompt) return errorResponse("'prompt' is required", 400);
+  if (prompt.length > 5000) return errorResponse("Prompt too long (max 5000 chars)", 400);
+
+  // Check for existing pending/active task for this discussion
+  const source = `roundtable:${discussionId}`;
+  const existing = db.query(
+    "SELECT id FROM tasks WHERE source = ? AND status IN ('pending', 'active') LIMIT 1"
+  ).get(source);
+  if (existing) {
+    const ex = existing as { id: number };
+    return json({ error: "Already processing this discussion", task_id: ex.id }, 409);
+  }
+
+  const taskId = insertTask({
+    subject: `[roundtable] Respond to discussion #${discussionId}`,
+    description: [
+      `**Roundtable Discussion #${discussionId}**`,
+      "",
+      prompt,
+      "",
+      "Respond thoughtfully to this discussion prompt. Post your response back using:",
+      `\`arc skills run --name arc-roundtable -- respond --id ${discussionId} --text "YOUR RESPONSE"\``,
+    ].join("\n"),
+    skills: JSON.stringify(["arc-roundtable"]),
+    priority: 5,
+    model: "sonnet",
+    source,
+  });
+
+  return json({ task_id: taskId, discussion_id: discussionId, status: "pending" }, 201);
+}
+
 // ---- API Handlers ----
 
 function handleStatus(): Response {
@@ -925,6 +971,7 @@ function route(req: Request): Response | Promise<Response> {
   if (method === "POST" && path === "/api/messages") return handlePostMessage(req);
   if (method === "POST" && path === "/api/ask") return handleAsk(req);
   if (method === "POST" && path === "/api/services/pr-review") return handlePrReview(req);
+  if (method === "POST" && path === "/api/roundtable/respond") return handleRoundtableRespond(req);
 
   // GET: Ask Arc pricing and rate limit info
   if (method === "GET" && path === "/api/ask") {

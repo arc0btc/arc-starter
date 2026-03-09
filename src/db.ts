@@ -338,6 +338,31 @@ export function initDatabase(): Database {
   db.run("CREATE INDEX IF NOT EXISTS idx_task_deps_from ON task_deps(from_id)");
   db.run("CREATE INDEX IF NOT EXISTS idx_task_deps_to ON task_deps(to_id)");
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS roundtable_discussions (
+      id INTEGER PRIMARY KEY,
+      topic TEXT NOT NULL,
+      prompt TEXT NOT NULL,
+      started_by TEXT DEFAULT 'arc',
+      status TEXT DEFAULT 'open',
+      created_at TEXT DEFAULT (datetime('now')),
+      compiled_at TEXT
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS roundtable_responses (
+      id INTEGER PRIMARY KEY,
+      discussion_id INTEGER NOT NULL,
+      agent_name TEXT NOT NULL,
+      response TEXT,
+      status TEXT DEFAULT 'pending',
+      responded_at TEXT,
+      FOREIGN KEY (discussion_id) REFERENCES roundtable_discussions(id)
+    )
+  `);
+  db.run("CREATE INDEX IF NOT EXISTS idx_roundtable_responses_discussion ON roundtable_responses(discussion_id)");
+
   _db = db;
   return db;
 }
