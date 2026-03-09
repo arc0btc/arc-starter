@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T07:22:06.598Z",
+  "updated_at": "2026-03-09T07:23:38.021Z",
   "last_task": {
-    "id": 2790,
-    "subject": "Fleet alert: iris service issues — dispatch: no cycles",
+    "id": 2355,
+    "subject": "Get Stacks addresses from Spark/Iris/Loom/Forge VMs and fund each with 2 STX",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 45943,
-    "cost_usd": 0.20761625
+    "duration_ms": 77328,
+    "cost_usd": 0.42477425
   },
   "health": {
-    "uptime_seconds": 983425,
+    "uptime_seconds": 983516,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234702585856
+    "disk_avail_bytes": 234702548992
   }
 }
