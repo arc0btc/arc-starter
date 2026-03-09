@@ -1,19 +1,19 @@
 {
   "agent": "loom",
-  "updated_at": "2026-03-09T09:46:04.983Z",
+  "updated_at": "2026-03-09T10:41:13.096Z",
   "last_task": {
-    "id": 47,
-    "subject": "Add an arc whoami command that prints the agent name from SOUL.md",
+    "id": 48,
+    "subject": "Fleet alert: spark service issues — fleet-status.json stale (37m old)",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 34878,
-    "cost_usd": 0.29118025
+    "duration_ms": 23772,
+    "cost_usd": 0.11545625000000001
   },
   "health": {
-    "uptime_seconds": 70451,
+    "uptime_seconds": 73759,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 244686553088
+    "disk_avail_bytes": 244686249984
   }
 }
