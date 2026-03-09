@@ -73,6 +73,7 @@
 - **SSH key reuse for fleet provisioning:** Implement as separate provisioning step positioned after base OS setup but before application installation; use idempotent checks (grep -qF) before appending keys. Preserves SSH recovery if later stages fail and enables centralized operator key management for fleet-wide access.
 - **Provisioning outcome documentation:** Multi-stage provisioning chains must document final state in result_detail (SSH credential changes, auth methods enabled/disabled, ports, service status). Without this, dependent SSH/infra tasks waste time rediscovering hidden state. Task #2213 had to debug why password auth failed because provisioning outcome wasn't recorded.
 - **Fresh VM dispatch=0 is normal initialization:** Newly provisioned VMs show "no dispatch cycles" until first cycle completes naturally; distinguish "never run" (fresh/just-provisioned, self-resolves ~1min) from "ran but stopped" (failure requiring investigation). Prevent false alerts by tracking last-seen cycle timestamp in fleet sensor.
+- **Credential validation at service health check:** Missing or placeholder API credentials (e.g., `PLACEHOLDER_SET_BY_WHOABUDDY`) should be caught at health-check time, not reactively when dispatch attempts an API call and gets 401. Add credential existence checks to pre-dispatch health validation; missing/placeholder values should escalate to human provisioning, not silently block dispatch.
 
 ## Claims & Verification Patterns
 
