@@ -74,9 +74,12 @@ function getBnsPrefixFromBns(bns: string): string {
 
 async function cacheBitcoinFace(bns: string): Promise<string | null> {
   const prefix = getBnsPrefixFromBns(bns);
-  const cachePath = join(FACES_CACHE_DIR, `${prefix}.png`);
+  const svgPath = join(FACES_CACHE_DIR, `${prefix}.svg`);
+  const pngPath = join(FACES_CACHE_DIR, `${prefix}.png`);
 
-  if (existsSync(cachePath)) return cachePath;
+  // Serve existing cache (prefer SVG, then PNG)
+  if (existsSync(svgPath)) return svgPath;
+  if (existsSync(pngPath)) return pngPath;
 
   try {
     mkdirSync(FACES_CACHE_DIR, { recursive: true });
@@ -88,9 +91,13 @@ async function cacheBitcoinFace(bns: string): Promise<string | null> {
     clearTimeout(timeout);
 
     if (!res.ok) return null;
-    const buf = await res.arrayBuffer();
-    writeFileSync(cachePath, Buffer.from(buf));
-    return cachePath;
+    const buf = Buffer.from(await res.arrayBuffer());
+    // Detect actual content type — API often returns SVG
+    const isSvg = buf.length > 4 && buf.slice(0, 100).toString().includes("<svg");
+    const ext = isSvg ? "svg" : "png";
+    const savePath = join(FACES_CACHE_DIR, `${prefix}.${ext}`);
+    writeFileSync(savePath, buf);
+    return savePath;
   } catch {
     return null;
   }
@@ -102,14 +109,27 @@ async function cacheAllFaces(agents: AgentConfig[]): Promise<void> {
 }
 
 function serveFace(name: string): Response {
-  const cachePath = join(FACES_CACHE_DIR, `${name}.png`);
-  if (!existsSync(cachePath)) {
+  const svgPath = join(FACES_CACHE_DIR, `${name}.svg`);
+  const pngPath = join(FACES_CACHE_DIR, `${name}.png`);
+
+  let file: Buffer;
+  let contentType: string;
+
+  if (existsSync(svgPath)) {
+    file = readFileSync(svgPath);
+    contentType = "image/svg+xml";
+  } else if (existsSync(pngPath)) {
+    file = readFileSync(pngPath);
+    // Detect SVG content in legacy .png files
+    const isSvg = file.length > 4 && file.slice(0, 100).toString().includes("<svg");
+    contentType = isSvg ? "image/svg+xml" : "image/png";
+  } else {
     return new Response("Not found", { status: 404 });
   }
-  const file = readFileSync(cachePath);
+
   return new Response(file, {
     headers: {
-      "Content-Type": "image/png",
+      "Content-Type": contentType,
       "Cache-Control": "public, max-age=86400",
       "Access-Control-Allow-Origin": "*",
     },
