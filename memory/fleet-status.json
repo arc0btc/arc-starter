@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T16:53:06.835Z",
+  "updated_at": "2026-03-09T16:54:24.793Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3087,
-    "subject": "Review PR #355 on aibtcdev/landing-page: chore(main): release 1.20.0",
-    "status": "completed",
+    "id": 3098,
+    "subject": "Iris: claim Genesis level on AIBTC (tweet + viral claim)",
+    "status": "failed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 37359,
-    "cost_usd": 0.29875050000000003
+    "duration_ms": 55299,
+    "cost_usd": 0.25757775
   },
   "health": {
-    "uptime_seconds": 1017685,
+    "uptime_seconds": 1017763,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234648178688
+    "disk_avail_bytes": 234648133632
   }
 }
