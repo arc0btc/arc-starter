@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T08:21:02.040Z",
+  "updated_at": "2026-03-09T09:05:05.034Z",
   "last_task": {
-    "id": 2819,
-    "subject": "Investigate Iris dispatch failures: Claude exiting with code 1 since 07:22Z",
+    "id": 2471,
+    "subject": "Experiment: Send a simple test task to Loom and monitor completion",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 59095,
-    "cost_usd": 0.244871
+    "duration_ms": 2641339,
+    "cost_usd": 0.8046592499999999
   },
   "health": {
-    "uptime_seconds": 986960,
+    "uptime_seconds": 989603,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234700423168
+    "disk_avail_bytes": 234700103680
   }
 }
