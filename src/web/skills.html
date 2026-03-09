@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Arc - Skills</title>
+  <title>Agent - Skills</title>
   <link rel="stylesheet" href="/shared.css">
   <style>
     .skill-grid {
@@ -124,10 +124,10 @@
   <header class="header">
     <div class="header-inner">
       <div class="header-identity">
-        <div class="avatar">A</div>
+        <div class="avatar" id="header-avatar">·</div>
         <div>
-          <h1 class="header-name">Arc <span class="status-dot live" id="status-dot" title="Live" aria-label="Status: live"></span><span class="sse-status disconnected" id="sse-dot" title="SSE disconnected" aria-label="SSE: disconnected"></span></h1>
-          <div class="header-bns">arc0.btc</div>
+          <h1 class="header-name"><span id="header-name-text">Agent</span> <span class="status-dot live" id="status-dot" title="Live" aria-label="Status: live"></span><span class="sse-status disconnected" id="sse-dot" title="SSE disconnected" aria-label="SSE: disconnected"></span></h1>
+          <div class="header-bns" id="header-bns"></div>
         </div>
       </div>
 
@@ -281,6 +281,7 @@
         var skills = results[1].status === 'fulfilled' ? results[1].value : null;
 
         if (status) updateHeader(status);
+        loadIdentityHeader();
         if (skills) {
           allSkills = (skills.skills || []).sort(function(a, b) {
             return b.usage_count - a.usage_count || a.name.localeCompare(b.name);

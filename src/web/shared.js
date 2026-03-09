@@ -223,6 +223,23 @@ function connectSSE() {
   };
 }
 
+// ---- Identity Header ----
+
+function applyIdentityHeader(id) {
+  if (!id) return;
+  var avatar = document.getElementById('header-avatar');
+  var name = document.getElementById('header-name-text');
+  var bns = document.getElementById('header-bns');
+  if (avatar) avatar.textContent = (id.name || '?')[0].toUpperCase();
+  if (name) name.textContent = id.name || 'Agent';
+  if (bns) bns.textContent = id.bns || '';
+  document.title = (id.name || 'Agent') + ' - ' + (document.title.split(' - ').pop() || 'Activity');
+}
+
+function loadIdentityHeader() {
+  fetchJSON('/api/identity').then(applyIdentityHeader).catch(function() {});
+}
+
 // ---- Header Updates ----
 
 function updateHeader(status) {
