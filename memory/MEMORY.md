@@ -1,17 +1,17 @@
 # Arc Memory — Current Status & Index
 
 *Compressed operational memory. Updated by consolidate-memory skill.*
-*Last updated: 2026-03-09 13:04Z*
+*Last updated: 2026-03-09 14:46Z*
 
 ---
 
 ## Status (2026-03-09)
 
-Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 63+ total, **43+ sensors active**. Model routing: explicit `model:` in task (fallback P1-4→opus, P5-7→sonnet, P8+→haiku). Cycles: 235 today / 1874 this week @ $0.087 avg.
+Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 63+ total, **43+ sensors active**. Model routing: explicit `model:` in task (fallback P1-4→opus, P5-7→sonnet, P8+→haiku). Cycles: 299 today / 1937 this week @ $0.087 avg.
 
 **[FLAG] Budget limits: whoabuddy has NOT set per-agent or fleet budgets. The $80/$30/$200 splits in fleet-scheduling.md were self-imposed by Arc (task #2542). Do NOT throttle tasks or make decisions based on cost limits. Cost data is informational only.**
 
-**Fleet operational** — overnight build sprint complete (task #2459). All 4 agents (Spark/Iris/Loom/Forge) dispatching. **First 24h fleet results: 350 tasks completed, 91.4% success rate**. Details in `memory/fleet-experiments.md`.
+**Fleet operational** — 24h fleet stats: 389 tasks completed, $152.06 cost. 395 pending, 14 blocked. Backlog roughly stable (creation ≈ completion rate). Details in `memory/fleet-experiments.md`.
 
 **Fleet coordination skills deployed:** fleet-health, fleet-router, fleet-sync, fleet-escalation, fleet-dashboard, fleet-push, fleet-deploy, fleet-memory, fleet-comms, arc-roundtable, arc-observatory. All sensors healthy.
 
@@ -81,6 +81,12 @@ Agentic speed compresses time 10-24x. One human + 7 Claude Code screens = 120 co
 - Ops-review sensor (task #2541) will track creation-vs-completion rate, backlog trend, fleet utilization.
 - Fleet scheduling protocol designed (task #2542): `templates/fleet-scheduling.md`. Domain assignment: Arc=orchestration, Spark=protocol/on-chain, Iris=research/signals, Loom=integrations, Forge=infrastructure. Hub-and-spoke routing through Arc. Check-ins: 15min heartbeat, 4h ops review, 24h daily brief. $200/day budget split: Arc $80, others $30 each.
 
+**Learnings from overnight (2026-03-09):**
+- **Fleet-router on workers = redistribution loops.** Only Arc should run fleet-router/fleet-rebalance. Workers tried to re-route tasks creating circular dispatch. Fixed in #2963.
+- **GitHub sensors must be centralized.** 9 sensors depend on GitHub API but fleet agents have no GitHub accounts. Added `GITHUB_SENSORS` filter in `src/sensors.ts` — sensors skip on non-Arc hosts.
+- **Identity must be hostname-aware.** Fleet dashboards showed "arc0.btc" for all agents because `src/identity.ts` was hardcoded. Now reads hostname to determine agent identity.
+- **Stale services need active monitoring.** Observatory ran for 15h with stale process. Fleet-health sensor should detect service age vs last successful response.
+
 ---
 
 ## Umbrel VM (2026-03-09)
@@ -89,9 +95,14 @@ whoabuddy provisioning an Umbrel VM on the LAN for the team. Storage currently l
 
 ## Recent Completions
 
-**2026-03-05:**
-- Task #1314 — Multiple web UI/brand narrative updates (whoabuddy review)
-- Task #1371 — Budget & cost tracking escalation (completed decision needed task)
+**2026-03-09 (overnight/morning):**
+- Task #2976 — GitHub sensor fleet filtering: centralized skip for 9 GitHub-dependent sensors on non-GitHub agents
+- Task #2975 — Fleet code deploy + identity fix: `src/identity.ts` now hostname-aware for fleet dashboards
+- Task #2974 — Observatory service restart (stale process from Mar 8)
+- Task #2980 — Loom/Forge stuck queue fix (expired OAuth + rate limit)
+- Task #2963 — Removed fleet-router/fleet-rebalance from worker agents (redistribution loop fix)
+- Task #2977 — Iris on-chain identity keypairs confirmed
+- Task #2534 — Fleet coordination retro: 7 gaps identified, 9 follow-ups queued
 
 ## ERC-8004 State (Audited 2026-03-07, Task #2027)
 
