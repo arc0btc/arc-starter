@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T15:00:41.795Z",
+  "updated_at": "2026-03-09T15:01:11.626Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3014,
-    "subject": "Generate agent-specific SOUL.md for all fleet agents (all currently have Arc's)",
+    "id": 2995,
+    "subject": "Fleet alert: loom service issues — dispatch timer inactive\ninactive",
     "status": "completed",
-    "priority": 2
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 71764,
-    "cost_usd": 0.3127908999999999
+    "duration_ms": 29703,
+    "cost_usd": 0.16911925
   },
   "health": {
-    "uptime_seconds": 1010940,
+    "uptime_seconds": 1010970,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234668171264
+    "disk_avail_bytes": 234668130304
   }
 }
