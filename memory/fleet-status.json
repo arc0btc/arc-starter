@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T07:11:34.195Z",
+  "updated_at": "2026-03-09T07:12:36.811Z",
   "last_task": {
-    "id": 2546,
-    "subject": "Fleet alert: spark service issues — dispatch: no cycles",
+    "id": 2547,
+    "subject": "Fleet alert: loom service issues — dispatch: no cycles",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 24242,
-    "cost_usd": 0.156042
+    "duration_ms": 26624,
+    "cost_usd": 0.14602375
   },
   "health": {
-    "uptime_seconds": 982793,
+    "uptime_seconds": 982855,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234703015936
+    "disk_avail_bytes": 234702946304
   }
 }
