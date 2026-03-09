@@ -8,6 +8,7 @@ import { join, extname } from "node:path";
 import { initDatabase, getDatabase, insertTask, markTaskFailed } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
 import { IDENTITY } from "./identity.ts";
+import { dispatchCodex } from "./codex.ts";
 
 // ---- Database ----
 
@@ -447,6 +448,194 @@ function handleGetFleetMessages(url: URL): Response {
     ).all(limit);
   }
   return json({ messages: rows });
+}
+
+// ---- Arena: Dual-model comparison ----
+
+interface ArenaResult {
+  model: string;
+  output: string;
+  tokens_in: number;
+  tokens_out: number;
+  duration_ms: number;
+  cost_usd: number;
+  error: string | null;
+}
+
+interface ArenaRun {
+  id: string;
+  prompt: string;
+  started_at: string;
+  completed_at: string | null;
+  status: "running" | "completed" | "failed";
+  claude: ArenaResult | null;
+  codex: ArenaResult | null;
+}
+
+const arenaRuns = new Map<string, ArenaRun>();
+let arenaCounter = 0;
+const ARENA_MAX_HISTORY = 50;
+const ARENA_PROMPT_MAX_LENGTH = 10000;
+const ARENA_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes per model
+
+/** Estimate tokens from text length (~4 chars per token). */
+function estimateTokensFromText(text: string): number {
+  return Math.ceil(text.length / 4);
+}
+
+/** Run Claude CLI with --print and capture output. */
+async function runClaudeForArena(prompt: string): Promise<ArenaResult> {
+  const start = Date.now();
+  try {
+    const args = ["claude", "--print", "--model", "claude-sonnet-4-6", "--output-format", "text", "--no-session-persistence"];
+    const proc = Bun.spawn(args, {
+      stdin: new Blob([prompt]),
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      proc.kill("SIGTERM");
+    }, ARENA_TIMEOUT_MS);
+
+    const [exitCode, stdout, stderr] = await Promise.all([
+      proc.exited,
+      new Response(proc.stdout).text(),
+      new Response(proc.stderr).text(),
+    ]);
+    clearTimeout(timer);
+
+    if (timedOut) throw new Error("Timed out after 5 minutes");
+    if (exitCode !== 0) throw new Error(`Exit code ${exitCode}: ${stderr.trim().slice(0, 300)}`);
+
+    const output = stdout.trim();
+    const tokensIn = estimateTokensFromText(prompt);
+    const tokensOut = estimateTokensFromText(output);
+    // Sonnet pricing: $3/MTok in, $15/MTok out
+    const cost = (tokensIn / 1_000_000) * 3 + (tokensOut / 1_000_000) * 15;
+
+    return {
+      model: "claude-sonnet-4-6",
+      output,
+      tokens_in: tokensIn,
+      tokens_out: tokensOut,
+      duration_ms: Date.now() - start,
+      cost_usd: Math.round(cost * 10000) / 10000,
+      error: null,
+    };
+  } catch (err) {
+    return {
+      model: "claude-sonnet-4-6",
+      output: "",
+      tokens_in: 0,
+      tokens_out: 0,
+      duration_ms: Date.now() - start,
+      cost_usd: 0,
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
+/** Run Codex CLI and capture output. */
+async function runCodexForArena(prompt: string): Promise<ArenaResult> {
+  const start = Date.now();
+  try {
+    const result = await dispatchCodex(prompt);
+    return {
+      model: "o4-mini",
+      output: result.result,
+      tokens_in: result.input_tokens,
+      tokens_out: result.output_tokens,
+      duration_ms: Date.now() - start,
+      cost_usd: Math.round(result.api_cost_usd * 10000) / 10000,
+      error: null,
+    };
+  } catch (err) {
+    return {
+      model: "o4-mini",
+      output: "",
+      tokens_in: 0,
+      tokens_out: 0,
+      duration_ms: Date.now() - start,
+      cost_usd: 0,
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
+async function handleArenaRun(req: Request): Promise<Response> {
+  let body: { prompt?: string };
+  try {
+    body = await req.json() as { prompt?: string };
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
+  if (!prompt) return errorResponse("'prompt' is required", 400);
+  if (prompt.length > ARENA_PROMPT_MAX_LENGTH) {
+    return errorResponse(`Prompt too long (max ${ARENA_PROMPT_MAX_LENGTH} chars)`, 400);
+  }
+
+  // Limit concurrent runs
+  const activeRuns = [...arenaRuns.values()].filter(r => r.status === "running");
+  if (activeRuns.length >= 3) {
+    return errorResponse("Too many concurrent arena runs (max 3)", 429);
+  }
+
+  arenaCounter++;
+  const id = `arena-${arenaCounter}-${Date.now()}`;
+  const run: ArenaRun = {
+    id,
+    prompt,
+    started_at: new Date().toISOString(),
+    completed_at: null,
+    status: "running",
+    claude: null,
+    codex: null,
+  };
+  arenaRuns.set(id, run);
+
+  // Evict old runs beyond history limit
+  if (arenaRuns.size > ARENA_MAX_HISTORY) {
+    const keys = [...arenaRuns.keys()];
+    for (let i = 0; i < keys.length - ARENA_MAX_HISTORY; i++) {
+      arenaRuns.delete(keys[i]);
+    }
+  }
+
+  // Run both models in parallel (fire-and-forget, results stored in the run object)
+  Promise.allSettled([
+    runClaudeForArena(prompt).then(r => { run.claude = r; }),
+    runCodexForArena(prompt).then(r => { run.codex = r; }),
+  ]).then(() => {
+    run.status = (run.claude?.error && run.codex?.error) ? "failed" : "completed";
+    run.completed_at = new Date().toISOString();
+  });
+
+  return json({ id, status: "running", poll_url: `/api/arena/runs/${id}` }, 202);
+}
+
+function handleArenaRunById(id: string): Response {
+  const run = arenaRuns.get(id);
+  if (!run) return errorResponse("Arena run not found", 404);
+  return json(run);
+}
+
+function handleArenaHistory(): Response {
+  const runs = [...arenaRuns.values()]
+    .sort((a, b) => b.started_at.localeCompare(a.started_at))
+    .slice(0, 20)
+    .map(r => ({
+      id: r.id,
+      prompt: r.prompt.slice(0, 100) + (r.prompt.length > 100 ? "..." : ""),
+      status: r.status,
+      started_at: r.started_at,
+      completed_at: r.completed_at,
+    }));
+  return json({ runs });
 }
 
 // ---- API Handlers ----
@@ -1075,6 +1264,7 @@ function route(req: Request): Response | Promise<Response> {
   if (method === "POST" && path === "/api/services/pr-review") return handlePrReview(req);
   if (method === "POST" && path === "/api/roundtable/respond") return handleRoundtableRespond(req);
   if (method === "POST" && path === "/api/consensus/vote") return handleConsensusVote(req);
+  if (method === "POST" && path === "/api/arena/run") return handleArenaRun(req);
 
   // GET: Ask Arc pricing and rate limit info
   if (method === "GET" && path === "/api/ask") {
@@ -1124,6 +1314,11 @@ function route(req: Request): Response | Promise<Response> {
   if (path === "/api/face") return handleFace();
   if (path === "/api/reputation") return handleReputation();
   if (path === "/api/events") return handleEvents();
+  if (path === "/api/arena/history") return handleArenaHistory();
+
+  // Arena run by ID: /api/arena/runs/:id
+  const arenaMatch = path.match(/^\/api\/arena\/runs\/(.+)$/);
+  if (arenaMatch) return handleArenaRunById(arenaMatch[1]);
 
   // Task kill: POST /api/tasks/:id/kill
   const killMatch = path.match(/^\/api\/tasks\/(\d+)\/kill$/);
