@@ -602,6 +602,17 @@ async function cmdServices(args: string[]): Promise<void> {
   }
 }
 
+function cmdWhoami(): void {
+  const soulPath = join(import.meta.dir, "../SOUL.md");
+  const content = readFileSync(soulPath, "utf-8");
+  const match = content.match(/^#\s+(.+)$/m);
+  if (!match) {
+    process.stderr.write("Error: could not find agent name in SOUL.md\n");
+    process.exit(1);
+  }
+  process.stdout.write(match[1].trim() + "\n");
+}
+
 function cmdHelp(): void {
   process.stdout.write(`arc - Bitcoin agent (arc0.btc) | native to L1 + Stacks
 
@@ -679,6 +690,9 @@ COMMANDS
   services status
     Show service status.
 
+  whoami
+    Print the agent name from SOUL.md.
+
   help
     Show this help message.
 
@@ -730,6 +744,9 @@ async function main(): Promise<void> {
       break;
     case "services":
       await cmdServices(argv.slice(1));
+      break;
+    case "whoami":
+      cmdWhoami();
       break;
     case "help":
     case "--help":
