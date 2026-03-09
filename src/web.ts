@@ -348,6 +348,54 @@ async function handleRoundtableRespond(req: Request): Promise<Response> {
   return json({ task_id: taskId, discussion_id: discussionId, status: "pending" }, 201);
 }
 
+// ---- Fleet Messages ----
+
+async function handlePostFleetMessage(req: Request): Promise<Response> {
+  let body: { from_agent?: string; from_bns?: string; message_type?: string; content?: string };
+  try {
+    body = await req.json() as { from_agent?: string; from_bns?: string; message_type?: string; content?: string };
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  const fromAgent = typeof body.from_agent === "string" ? body.from_agent.trim() : "";
+  if (!fromAgent) return errorResponse("'from_agent' is required", 400);
+  if (fromAgent.length > 50) return errorResponse("'from_agent' too long (max 50)", 400);
+
+  const content = typeof body.content === "string" ? body.content.trim() : "";
+  if (!content) return errorResponse("'content' is required", 400);
+  if (content.length > 2000) return errorResponse("'content' too long (max 2000 chars)", 400);
+
+  const validTypes = new Set(["status", "question", "alert"]);
+  const messageType = typeof body.message_type === "string" && validTypes.has(body.message_type) ? body.message_type : "status";
+  const fromBns = typeof body.from_bns === "string" ? body.from_bns.trim() : null;
+
+  const result = dbWrite.query(
+    "INSERT INTO fleet_messages (from_agent, from_bns, message_type, content) VALUES (?, ?, ?, ?)"
+  ).run(fromAgent, fromBns, messageType, content);
+
+  const id = Number(result.lastInsertRowid);
+  const msg = db.query("SELECT * FROM fleet_messages WHERE id = ?").get(id);
+  return json(msg, 201);
+}
+
+function handleGetFleetMessages(url: URL): Response {
+  const limit = Math.min(parseInt(url.searchParams.get("limit") || "50", 10), 200);
+  const since = url.searchParams.get("since"); // ISO datetime for incremental polling
+
+  let rows;
+  if (since) {
+    rows = db.query(
+      "SELECT * FROM fleet_messages WHERE created_at > ? ORDER BY created_at DESC LIMIT ?"
+    ).all(since, limit);
+  } else {
+    rows = db.query(
+      "SELECT * FROM fleet_messages ORDER BY created_at DESC LIMIT ?"
+    ).all(limit);
+  }
+  return json({ messages: rows });
+}
+
 // ---- API Handlers ----
 
 function handleStatus(): Response {
@@ -968,6 +1016,7 @@ function route(req: Request): Response | Promise<Response> {
   }
 
   // POST routes
+  if (method === "POST" && path === "/api/messages/fleet") return handlePostFleetMessage(req);
   if (method === "POST" && path === "/api/messages") return handlePostMessage(req);
   if (method === "POST" && path === "/api/ask") return handleAsk(req);
   if (method === "POST" && path === "/api/services/pr-review") return handlePrReview(req);
@@ -1003,6 +1052,11 @@ function route(req: Request): Response | Promise<Response> {
       daily_remaining: PR_REVIEW_DAILY_LIMIT - prReviewDayCount,
       usage: "POST /api/services/pr-review with { pr_url, tier?, notes? }",
     });
+  }
+
+  // Fleet messages
+  if (path === "/api/messages/fleet") {
+    if (method === "GET") return handleGetFleetMessages(url);
   }
 
   // API routes

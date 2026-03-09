@@ -116,6 +116,19 @@ function serveFace(name: string): Response {
   });
 }
 
+// ---- Chat Types ----
+
+interface FleetMessage {
+  agent: string;
+  agent_bns: string | null;
+  id: number;
+  from_agent: string;
+  from_bns: string | null;
+  message_type: string;
+  content: string;
+  created_at: string;
+}
+
 // ---- Feed Types ----
 
 interface FeedTask {
@@ -135,6 +148,7 @@ interface FeedTask {
 
 const cache = new Map<string, AgentSnapshot>();
 const feedCache = new Map<string, FeedTask[]>();
+const chatCache = new Map<string, FleetMessage[]>();
 
 async function pollAgent(agent: AgentConfig): Promise<AgentSnapshot> {
   const start = Date.now();
@@ -216,6 +230,38 @@ async function pollAgentFeed(agent: AgentConfig): Promise<void> {
 
 async function pollAllFeeds(agents: AgentConfig[]): Promise<void> {
   await Promise.allSettled(agents.map(pollAgentFeed));
+}
+
+// ---- Chat Polling ----
+
+async function pollAgentChat(agent: AgentConfig): Promise<void> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(`${agent.url}/api/messages/fleet?limit=50`, { signal: controller.signal });
+    clearTimeout(timeout);
+
+    if (!res.ok) return;
+    const data = (await res.json()) as { messages: Array<{ id: number; from_agent: string; from_bns: string | null; message_type: string; content: string; created_at: string }> };
+
+    const messages: FleetMessage[] = data.messages.map((m) => ({
+      agent: agent.name,
+      agent_bns: agent.bns ?? null,
+      id: m.id,
+      from_agent: m.from_agent,
+      from_bns: m.from_bns,
+      message_type: m.message_type,
+      content: m.content,
+      created_at: m.created_at,
+    }));
+    chatCache.set(agent.name, messages);
+  } catch {
+    // Keep stale chat data on failure
+  }
+}
+
+async function pollAllChats(agents: AgentConfig[]): Promise<void> {
+  await Promise.allSettled(agents.map(pollAgentChat));
 }
 
 // ---- API Handlers ----
@@ -346,6 +392,62 @@ function handleFleetCosts(): Response {
   });
 }
 
+function handleFleetChat(): Response {
+  const allMessages: FleetMessage[] = [];
+  for (const messages of chatCache.values()) {
+    allMessages.push(...messages);
+  }
+  // Deduplicate by from_agent + id (same message seen on multiple agents)
+  const seen = new Set<string>();
+  const deduped = allMessages.filter((m) => {
+    const key = `${m.from_agent}:${m.id}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  // Sort chronologically (oldest first for chat)
+  deduped.sort((a, b) => (a.created_at || "").localeCompare(b.created_at || ""));
+  return json({ messages: deduped.slice(-100), updated_at: new Date().toISOString() });
+}
+
+async function handlePostFleetChat(req: Request, config: FleetConfig): Promise<Response> {
+  let body: { from_agent?: string; from_bns?: string; message_type?: string; content?: string };
+  try {
+    body = (await req.json()) as { from_agent?: string; from_bns?: string; message_type?: string; content?: string };
+  } catch {
+    return json({ error: "Invalid JSON body" }, 400);
+  }
+
+  const fromAgent = typeof body.from_agent === "string" ? body.from_agent.trim() : "";
+  if (!fromAgent) return json({ error: "'from_agent' is required" }, 400);
+
+  const content = typeof body.content === "string" ? body.content.trim() : "";
+  if (!content) return json({ error: "'content' is required" }, 400);
+
+  // Broadcast to all online agents
+  const results: Array<{ agent: string; ok: boolean; error?: string }> = [];
+  await Promise.allSettled(
+    config.agents.map(async (agent) => {
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000);
+        const res = await fetch(`${agent.url}/api/messages/fleet`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
+        results.push({ agent: agent.name, ok: res.ok, error: res.ok ? undefined : `HTTP ${res.status}` });
+      } catch (err) {
+        results.push({ agent: agent.name, ok: false, error: err instanceof Error ? err.message : String(err) });
+      }
+    })
+  );
+
+  return json({ broadcast: results, delivered: results.filter((r) => r.ok).length, total: results.length }, 201);
+}
+
 // ---- Static Dashboard ----
 
 const DASHBOARD_HTML = `<!DOCTYPE html>
@@ -438,6 +540,42 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
   .frame-header .frame-close { color: var(--dim); cursor: pointer; padding: 2px 6px; border-radius: 3px; }
   .frame-header .frame-close:hover { background: var(--border); color: var(--text); }
   .agent-frame { width: 100%; height: 80vh; border: 1px solid var(--blue); border-radius: 0 0 6px 6px; background: var(--bg); }
+
+  /* Chat Panel */
+  .chat-panel { position: fixed; right: 0; top: 0; width: 380px; height: 100vh; background: var(--card); border-left: 1px solid var(--border); display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.25s ease; z-index: 100; }
+  .chat-panel.open { transform: translateX(0); }
+  .chat-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .chat-header-title { font-size: 0.85rem; font-weight: 600; }
+  .chat-header-hint { font-size: 0.6rem; color: var(--dim); }
+  .chat-close { color: var(--dim); cursor: pointer; padding: 2px 8px; border-radius: 3px; font-size: 0.8rem; border: none; background: none; font-family: inherit; }
+  .chat-close:hover { background: var(--border); color: var(--text); }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .chat-messages::-webkit-scrollbar { width: 5px; }
+  .chat-messages::-webkit-scrollbar-track { background: var(--card); }
+  .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .chat-msg { display: flex; gap: 0.5rem; align-items: flex-start; animation: feedSlideIn 0.2s ease-out; }
+  .chat-msg-face { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--border); flex-shrink: 0; margin-top: 2px; }
+  .chat-msg-body { flex: 1; min-width: 0; }
+  .chat-msg-header { display: flex; gap: 0.5rem; align-items: baseline; margin-bottom: 2px; }
+  .chat-msg-name { font-size: 0.75rem; font-weight: 600; color: var(--text); }
+  .chat-msg-type { font-size: 0.55rem; padding: 1px 5px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .chat-msg-type.t-status { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .chat-msg-type.t-question { background: rgba(245,158,11,0.15); color: var(--amber); }
+  .chat-msg-type.t-alert { background: rgba(239,68,68,0.15); color: var(--red); }
+  .chat-msg-time { font-size: 0.6rem; color: var(--dim); margin-left: auto; }
+  .chat-msg-content { font-size: 0.8rem; color: var(--text); line-height: 1.4; word-break: break-word; }
+  .chat-empty { text-align: center; color: var(--dim); font-size: 0.8rem; margin-top: 2rem; }
+  .chat-input-wrap { display: flex; gap: 0.5rem; padding: 0.75rem; border-top: 1px solid var(--border); flex-shrink: 0; }
+  .chat-input { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 0.5rem 0.75rem; color: var(--text); font-family: inherit; font-size: 0.8rem; outline: none; resize: none; }
+  .chat-input:focus { border-color: var(--blue); }
+  .chat-send { background: var(--blue); color: #fff; border: none; border-radius: 4px; padding: 0.5rem 1rem; font-family: inherit; font-size: 0.75rem; cursor: pointer; white-space: nowrap; }
+  .chat-send:hover { opacity: 0.9; }
+  .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+  .chat-toggle { position: fixed; bottom: 1.5rem; right: 1.5rem; width: 44px; height: 44px; border-radius: 50%; background: var(--blue); color: #fff; border: none; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; z-index: 99; box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: transform 0.15s; }
+  .chat-toggle:hover { transform: scale(1.1); }
+  .chat-toggle.hidden { display: none; }
+  .chat-unread { position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; border-radius: 9px; background: var(--red); color: #fff; font-size: 0.6rem; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+  @media (max-width: 768px) { .chat-panel { width: 100%; } }
 </style>
 </head>
 <body>
@@ -452,6 +590,21 @@ const DASHBOARD_HTML = `<!DOCTYPE html>
 </div>
 <div class="tab-content" id="tab-agents">
   <div class="agents" id="agents"></div>
+</div>
+<button class="chat-toggle" id="chat-toggle" title="Fleet Chat (C)">💬<span class="chat-unread" id="chat-unread" style="display:none">0</span></button>
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-header">
+    <div>
+      <div class="chat-header-title">Fleet Chat</div>
+      <div class="chat-header-hint">press C to toggle</div>
+    </div>
+    <button class="chat-close" id="chat-close">✕</button>
+  </div>
+  <div class="chat-messages" id="chat-messages"><div class="chat-empty">no messages yet</div></div>
+  <div class="chat-input-wrap">
+    <input class="chat-input" id="chat-input" placeholder="Message the fleet..." maxlength="2000">
+    <button class="chat-send" id="chat-send">Send</button>
+  </div>
 </div>
 <div class="agent-frame-wrap" id="frame-wrap">
   <div class="frame-header">
@@ -595,10 +748,120 @@ document.getElementById('frame-close').addEventListener('click', function() {
   document.getElementById('agent-frame').src = '';
   document.querySelectorAll('.agent-card.selected').forEach(c => c.classList.remove('selected'));
 });
+// ---- Chat ----
+let chatOpen = false;
+let chatMessageCount = 0;
+let chatUnreadCount = 0;
+let chatKnownIds = new Set();
+
+function toggleChat() {
+  chatOpen = !chatOpen;
+  document.getElementById('chat-panel').classList.toggle('open', chatOpen);
+  document.getElementById('chat-toggle').classList.toggle('hidden', chatOpen);
+  if (chatOpen) {
+    chatUnreadCount = 0;
+    document.getElementById('chat-unread').style.display = 'none';
+    var msgs = document.getElementById('chat-messages');
+    msgs.scrollTop = msgs.scrollHeight;
+    document.getElementById('chat-input').focus();
+  }
+}
+
+document.getElementById('chat-toggle').addEventListener('click', toggleChat);
+document.getElementById('chat-close').addEventListener('click', toggleChat);
+
+document.addEventListener('keydown', function(e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'c' || e.key === 'C') { e.preventDefault(); toggleChat(); }
+});
+
+async function refreshChat() {
+  try {
+    var res = await fetch('/api/fleet/chat');
+    var data = await res.json();
+    var container = document.getElementById('chat-messages');
+    if (!data.messages || data.messages.length === 0) {
+      container.innerHTML = '<div class="chat-empty">no messages yet</div>';
+      return;
+    }
+    // Count new messages for unread badge
+    var newIds = new Set(data.messages.map(function(m) { return m.from_agent + ':' + m.id; }));
+    var newCount = 0;
+    data.messages.forEach(function(m) {
+      if (!chatKnownIds.has(m.from_agent + ':' + m.id)) newCount++;
+    });
+    if (newCount > 0 && !chatOpen && chatKnownIds.size > 0) {
+      chatUnreadCount += newCount;
+      var badge = document.getElementById('chat-unread');
+      badge.textContent = chatUnreadCount > 99 ? '99+' : chatUnreadCount;
+      badge.style.display = 'flex';
+    }
+    chatKnownIds = newIds;
+
+    container.innerHTML = data.messages.map(chatMsg).join('');
+    // Auto-scroll if near bottom
+    if (container.scrollHeight - container.scrollTop - container.clientHeight < 100) {
+      container.scrollTop = container.scrollHeight;
+    }
+  } catch(e) { console.error('chat poll failed', e); }
+}
+
+function chatMsg(m) {
+  var bnsPrefix = m.from_bns ? m.from_bns.replace(/\\.btc$/, '') : null;
+  var faceHtml = bnsPrefix
+    ? '<img class="chat-msg-face" src="/api/fleet/faces/' + bnsPrefix + '" alt="' + esc(m.from_agent) + '">'
+    : '<div class="chat-msg-face" style="background:var(--border)"></div>';
+  var typeCls = 't-' + (m.message_type || 'status');
+  var timeStr = '';
+  if (m.created_at) {
+    try { timeStr = new Date(m.created_at + 'Z').toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); } catch(e) {}
+  }
+  return '<div class="chat-msg">' +
+    faceHtml +
+    '<div class="chat-msg-body">' +
+      '<div class="chat-msg-header">' +
+        '<span class="chat-msg-name">' + esc(m.from_agent) + '</span>' +
+        '<span class="chat-msg-type ' + typeCls + '">' + (m.message_type || 'status') + '</span>' +
+        '<span class="chat-msg-time">' + timeStr + '</span>' +
+      '</div>' +
+      '<div class="chat-msg-content">' + esc(m.content) + '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function esc(s) { if (!s) return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// Send message
+async function sendChatMessage() {
+  var input = document.getElementById('chat-input');
+  var content = input.value.trim();
+  if (!content) return;
+  var btn = document.getElementById('chat-send');
+  btn.disabled = true;
+  try {
+    await fetch('/api/fleet/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from_agent: 'Observatory', content: content, message_type: 'status' })
+    });
+    input.value = '';
+    await refreshChat();
+  } catch(e) { console.error('send failed', e); }
+  btn.disabled = false;
+  input.focus();
+}
+
+document.getElementById('chat-send').addEventListener('click', sendChatMessage);
+document.getElementById('chat-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); }
+});
+
 refresh();
 refreshFeed();
+refreshChat();
 setInterval(refresh, 15000);
 setInterval(refreshFeed, 5000);
+setInterval(refreshChat, 3000);
 </script>
 </body>
 </html>`;
@@ -621,6 +884,11 @@ function startServer(config: FleetConfig): void {
     console.log(`[observatory] Initial feed poll complete`);
   });
 
+  // Initial chat poll
+  pollAllChats(config.agents).then(() => {
+    console.log(`[observatory] Initial chat poll complete`);
+  });
+
   // Recurring status poll
   setInterval(() => {
     pollAll(config.agents);
@@ -630,6 +898,11 @@ function startServer(config: FleetConfig): void {
   setInterval(() => {
     pollAllFeeds(config.agents);
   }, 5000);
+
+  // Recurring chat poll (every 3s for responsiveness)
+  setInterval(() => {
+    pollAllChats(config.agents);
+  }, 3000);
 
   const server = Bun.serve({
     port: config.port,
@@ -644,10 +917,16 @@ function startServer(config: FleetConfig): void {
           status: 204,
           headers: {
             "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type",
           },
         });
+      }
+
+      // Fleet chat
+      if (path === "/api/fleet/chat") {
+        if (req.method === "POST") return handlePostFleetChat(req, config);
+        return handleFleetChat();
       }
 
       // Fleet API
