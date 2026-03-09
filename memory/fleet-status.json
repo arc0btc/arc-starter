@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T11:50:07.835Z",
+  "updated_at": "2026-03-09T11:50:50.985Z",
   "last_task": {
-    "id": 2772,
-    "subject": "Fix Iris provisioning: bun not on PATH for non-interactive SSH, missing hiro/aibtc/x402-relay creds",
+    "id": 2918,
+    "subject": "Fleet alert: spark service issues — dispatch stall: last cycle 58m ago, fleet-status.json stale (58m old)",
     "status": "completed",
-    "priority": 4
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 174248,
-    "cost_usd": 1.032732
+    "duration_ms": 42902,
+    "cost_usd": 0.22666674999999997
   },
   "health": {
-    "uptime_seconds": 999506,
+    "uptime_seconds": 999549,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234681958400
+    "disk_avail_bytes": 234681901056
   }
 }
