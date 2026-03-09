@@ -231,8 +231,10 @@ async function checkAgent(
     }
     // else: empty queue — agent is idle, not stalled
   } else if (health.lastDispatchAge === "no cycles" || health.lastDispatchAge === "query failed") {
-    // Peer status was absent or couldn't confirm dispatch is alive
-    health.issues.push(`dispatch: ${health.lastDispatchAge}`);
+    // Only alert if dispatch timer is inactive — if timer is running, agent is healthy but idle
+    if (health.dispatchTimer !== "active") {
+      health.issues.push(`dispatch: ${health.lastDispatchAge}`);
+    }
   }
 
   // Disk usage
