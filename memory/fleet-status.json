@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T10:09:02.689Z",
+  "updated_at": "2026-03-09T10:14:38.620Z",
   "last_task": {
-    "id": 2501,
-    "subject": "Ensure all fleet agents have arc-service-health sensor active",
+    "id": 2520,
+    "subject": "Implement experiment-and-merge pattern for self-improvement tasks — worktree + outcome evaluation gate before merge",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 48264,
-    "cost_usd": 0.25474325
+    "duration_ms": 324340,
+    "cost_usd": 1.2614147499999997
   },
   "health": {
-    "uptime_seconds": 993441,
+    "uptime_seconds": 993777,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234698821632
+    "disk_avail_bytes": 234694414336
   }
 }
