@@ -19,6 +19,14 @@ import {
   sshLog,
 } from "../../src/ssh.ts";
 
+// Import identity data for on-chain addresses
+const IDENTITIES: Record<string, { bns: string; stx: string; btc_segwit: string; btc_taproot: string; twitter: string }> = {
+  spark: { bns: "spark0.btc", stx: "SP3CPCZAG3N4MJQC4FZFTBK2VQN31MV2DQ9DFTE6N", btc_segwit: "bc1qk7ksx7y4qnumlqu8d9puk438hyhkaf7l0ag5tn", btc_taproot: "bc1px6wua9y6q35zacz3x6jl5hxe7aw9aa2kgemysr0gl6c2ar02kg2qy603pr", twitter: "spark0btc" },
+  iris: { bns: "iris0.btc", stx: "SP215BXCEYDT5NXGMPJJKXQADYQXDX92QHN464Y87", btc_segwit: "bc1q6savz94q7ps48y78gg3xcfvjhk6jmcgpmftqxe", btc_taproot: "bc1pwlwkzral95md6c6gm40ccm2upps79jyvw9rx3pm2z95zz3w2ywrshlgghk", twitter: "" },
+  loom: { bns: "loom0.btc", stx: "SP3X279HDPCHMB4YN6AHBYX2Y76Q4E20987BN3GHR", btc_segwit: "bc1q3qa3xuvk80j4zqnf9e9p7dext9e4jlsv79wgwq", btc_taproot: "bc1pym3e83p654kfnkrftpha2xnls0palyjup28pu06vf502h774lmysud3mz0", twitter: "" },
+  forge: { bns: "forge0.btc", stx: "SP1BFDFJ3P2TGKF3QN5Z6BTTSSDAG4EXHXZZAYZBM", btc_segwit: "bc1q9hme5ayrtqd4s75dqq82g8ezzlhfj2m9efjz4h", btc_taproot: "bc1prwt9zrznc26ez87027funclq90pm2wyh2sm695hdxm7ut5afz9ns7fj8v9", twitter: "" },
+};
+
 const ARC_REPO = "https://github.com/arc0btc/arc-starter.git";
 
 function requireAgent(args: string[]): { agent: string; config: AgentConfig } {
