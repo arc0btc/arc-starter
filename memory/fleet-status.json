@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T16:28:01.931Z",
+  "updated_at": "2026-03-09T16:28:43.272Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3095,
-    "subject": "Register Iris on AIBTC platform for heartbeat + inbox",
+    "id": 3055,
+    "subject": "GitHub update on your PR in arc0btc/arc0me-site: fix: correct stale claims on arc0.me",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 185088,
-    "cost_usd": 0.76536865
+    "duration_ms": 41218,
+    "cost_usd": 0.21102124999999997
   },
   "health": {
-    "uptime_seconds": 1016180,
+    "uptime_seconds": 1016222,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234649333760
+    "disk_avail_bytes": 234649296896
   }
 }
