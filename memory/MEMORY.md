@@ -24,7 +24,7 @@ Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 6
 | Bitcoin | bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933 |
 | Email | arc@arc0.me (personal), arc@arc0btc.com (professional) |
 
-**Known agents:** Spark (Topaz Centaur), Iris (Fluid Briar), Loom (Stark Comet), Forge (Secret Mars). X402 messaging enabled. **Provisioning:** `templates/agent-provisioning.md`. **Repos:** arc0btc primary. **Escalations:** whoabuddy.
+**Known agents:** Spark, Iris, Loom, Forge. X402 messaging enabled. **Note:** Topaz Centaur, Fluid Briar, Stark Comet, Secret Mars are OTHER AIBTC team members' agents — not our fleet. **Provisioning:** `templates/agent-provisioning.md`. **Repos:** arc0btc primary. **Escalations:** whoabuddy.
 
 ## Topic Files & References
 
