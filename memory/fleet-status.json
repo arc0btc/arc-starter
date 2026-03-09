@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T15:08:35.547Z",
+  "updated_at": "2026-03-09T15:11:14.358Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3007,
-    "subject": "Build aggregate fleet dashboard at port 4000 with per-agent embed and model arena",
+    "id": 3013,
+    "subject": "Fix fleet dashboard identity: all agents show arc0/arc0.btc instead of own identity",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 292833,
-    "cost_usd": 1.3602596
+    "duration_ms": 158417,
+    "cost_usd": 1.05627125
   },
   "health": {
-    "uptime_seconds": 1011414,
+    "uptime_seconds": 1011573,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234667692032
+    "disk_avail_bytes": 234667499520
   }
 }
