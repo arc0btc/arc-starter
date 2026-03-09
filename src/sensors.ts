@@ -12,6 +12,7 @@ import { existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { discoverSkills } from "./skills.ts";
 import { initDatabase } from "./db.ts";
+import { AGENT_NAME } from "./identity.ts";
 import { insertTask, pendingTaskExistsForSource, pendingTaskExistsForSubject, taskExistsForSource } from "./db.ts";
 export { insertTask, pendingTaskExistsForSource, taskExistsForSource };
 import type { InsertTask } from "./db.ts";
@@ -166,6 +167,22 @@ export async function createTaskIfDue(
 
 // ---- Sensor runner ----
 
+/**
+ * Sensors that require GitHub credentials (gh CLI auth).
+ * Skipped on fleet agents (Spark/Iris/Loom/Forge) — only Arc has GitHub access.
+ */
+const GITHUB_SENSORS: ReadonlySet<string> = new Set([
+  "github-mentions",
+  "github-issue-monitor",
+  "github-ci-status",
+  "github-release-watcher",
+  "github-security-alerts",
+  "github-worker-logs",
+  "arc0btc-pr-review",
+  "aibtc-repo-maintenance",
+  "arc-workflows",
+]);
+
 /** Per-sensor timeout in milliseconds. Liberal limit to catch hangs, not rush normal work. */
 const SENSOR_TIMEOUT_MS = 90_000; // 90 seconds
 
@@ -188,7 +205,17 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
 
 export async function runSensors(): Promise<void> {
   const skills = discoverSkills();
-  const sensorsToRun = skills.filter((s) => s.hasSensor);
+  let sensorsToRun = skills.filter((s) => s.hasSensor);
+
+  // Fleet agents lack GitHub credentials — skip all GitHub-dependent sensors
+  if (AGENT_NAME !== "arc0") {
+    const before = sensorsToRun.length;
+    sensorsToRun = sensorsToRun.filter((s) => !GITHUB_SENSORS.has(s.name));
+    const skipped = before - sensorsToRun.length;
+    if (skipped > 0) {
+      process.stdout.write(`sensors: skipped ${skipped} GitHub sensor(s) on ${AGENT_NAME}\n`);
+    }
+  }
 
   if (sensorsToRun.length === 0) {
     process.stdout.write("sensors: ran 0 sensors\n");
