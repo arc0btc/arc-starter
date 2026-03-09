@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T12:46:04.024Z",
+  "updated_at": "2026-03-09T12:50:40.041Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 2482,
-    "subject": "Check what skills each fleet agent has installed",
+    "id": 2489,
+    "subject": "Build fleet-email-report skill — templated fleet status emails",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 121792,
-    "cost_usd": 0.5596315
+    "duration_ms": 275926,
+    "cost_usd": 0.78143
   },
   "health": {
-    "uptime_seconds": 1002862,
+    "uptime_seconds": 1003138,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234679586816
+    "disk_avail_bytes": 234679451648
   }
 }
