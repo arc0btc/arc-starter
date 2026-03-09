@@ -1,19 +1,19 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T10:30:17.959Z",
+  "updated_at": "2026-03-09T10:33:35.995Z",
   "last_task": {
-    "id": 2599,
-    "subject": "Build fleet-collect CLI: gather results from all agents for a topic",
+    "id": 2645,
+    "subject": "Design overnight batch pattern: queue tasks at 8pm, checkpoint at midnight, review at 6am",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 153059,
-    "cost_usd": 0.5943124
+    "duration_ms": 197783,
+    "cost_usd": 0.4662703
   },
   "health": {
-    "uptime_seconds": 994716,
+    "uptime_seconds": 994914,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234693693440
+    "disk_avail_bytes": 234693529600
   }
 }
