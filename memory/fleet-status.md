@@ -1,19 +1,19 @@
 # Fleet Status
 
-*Last checked: 2026-03-09T08:17:05.798Z*
+*Last checked: 2026-03-09T09:02:09.063Z*
 
 | Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Issues |
 |-------|-----------|---------|----------|------------|------|--------|
-| spark | yes | ok | ok | 14m ago | 2% | none |
-| iris | yes | ok | ok | 4m ago | 2% | none |
-| loom | yes | ok | ok | 34m ago | 2% | fleet-status.json stale (34m old) |
-| forge | yes | ok | ok | 2m ago | 3% | none |
+| spark | yes | ok | ok | 10m ago | 2% | none |
+| iris | yes | ok | ok | 0m ago | 2% | none |
+| loom | yes | ok | ok | 8m ago | 2% | none |
+| forge | yes | ok | ok | 9m ago | 3% | none |
 
 ## Peer Self-Reported Status
 
 | Agent | Last Task | Task Status | Cycle Cost | Updated | Stale |
 |-------|-----------|-------------|------------|---------|-------|
-| spark | #54: Test task from Arc: write current date a | pending | $0.000 | 2026-03-09 08:03:52Z | no |
-| iris | #57: Test task from Arc: run arc status and r | pending | $0.000 | 2026-03-09 08:13:06Z | no |
-| loom | #44: Fleet alert: spark service issues — flee | failed | $0.000 | 2026-03-09 07:43:23Z | **YES** |
-| forge | #40: Fleet alert: loom service issues — fleet | pending | $0.000 | 2026-03-09 08:15:23Z | no |
+| spark | #56: Investigate recurring failure: unknown ( | pending | $0.000 | 2026-03-09 08:52:11Z | no |
+| iris | #58: Fleet alert: loom service issues — fleet | completed | $0.123 | 2026-03-09 09:02:26Z | no |
+| loom | #45: Test task from Arc: list installed skill | failed | $0.000 | 2026-03-09 08:54:45Z | no |
+| forge | #41: housekeeping: 1 issue(s) detected | pending | $0.000 | 2026-03-09 08:53:36Z | no |
