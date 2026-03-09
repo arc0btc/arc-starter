@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T20:36:50.864Z",
+  "updated_at": "2026-03-09T20:37:47.899Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3256,
-    "subject": "Fleet escalation: iris blocked on task #195 — BLOCKED: x402 reply to Secret Mars requires manual Arc execution",
+    "id": 3254,
+    "subject": "Fleet sync: push latest arc-starter to all workers",
     "status": "completed",
-    "priority": 2
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 115226,
-    "cost_usd": 0.4567452499999999
+    "duration_ms": 56749,
+    "cost_usd": 0.15427775
   },
   "health": {
-    "uptime_seconds": 1031109,
+    "uptime_seconds": 1031166,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234615906304
+    "disk_avail_bytes": 234615746560
   }
 }

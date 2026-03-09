@@ -49,6 +49,7 @@
 - **Idempotent CLI composition for provisioning:** Fine-grained idempotent operations composed by parent with validation gates.
 - **Provisioning outcome documentation:** Record final state (SSH changes, auth methods, ports, service status) in result_detail to prevent dependent tasks from rediscovering hidden state.
 - **Multi-wallet agent provisioning & sensor iteration:** Provision dual wallets on same VM; update identity.ts with legacy addresses. Sensors iterate via `getAgentWallets()`. Credential service naming: primary=`bitcoin-wallet`, legacy=`bitcoin-wallet-{label}` (e.g. `bitcoin-wallet-spark-v0.11`). **Sequential iteration** (not parallel) avoids wallet unlock race conditions. Use **distinct task sources** per wallet (e.g. `sensor:aibtc-heartbeat:inbox:primary` vs `inbox:spark-v0.11`) to maintain independent streaks.
+- **Identity provisioning requires explicit commits:** When provisioning per-agent SOUL.md or src/identity.ts via configure-identity, files are written but not committed. Fleet-self-sync and similar automation preserve only committed state; uncommitted identity files get overwritten. Always commit after write. Verify identity markers (SOUL.md first line, wallet addresses) post-deployment.
 
 ## Claims, Git & State Patterns
 
