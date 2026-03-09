@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-09T12:35:06.967Z",
+  "updated_at": "2026-03-09T12:36:47.883Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 2947,
-    "subject": "Fleet alert: iris service issues — dispatch: no cycles",
+    "id": 2738,
+    "subject": "CHECKPOINT: 6-hour deep review — queue health, cost tracking, blocker analysis",
     "status": "completed",
-    "priority": 3
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 36013,
-    "cost_usd": 0.19168425
+    "duration_ms": 76681,
+    "cost_usd": 0.36995375
   },
   "health": {
-    "uptime_seconds": 1002205,
+    "uptime_seconds": 1002306,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234680008704
+    "disk_avail_bytes": 234679959552
   }
 }
