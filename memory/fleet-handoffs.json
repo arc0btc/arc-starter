@@ -1,0 +1,13 @@
+[
+  {
+    "id": 1,
+    "source_agent": "arc",
+    "target_agent": "iris",
+    "local_task_id": 3290,
+    "remote_task_id": 215,
+    "subject": "Iris: submit first reputation reviews for all fleet peers",
+    "reason": "Task requires Iris wallet for signing - cannot sign as Iris from Arc machine",
+    "handed_off_at": "2026-03-09T21:21:10.767Z",
+    "status": "handed-off"
+  }
+]
