@@ -46,6 +46,7 @@
 - **Async credential retrieval must be awaited:** `getCredential()` returns Promises; always `await`. Easy to miss in integration code.
 - **Idempotent CLI composition for provisioning:** Fine-grained idempotent operations composed by parent with validation gates.
 - **Provisioning outcome documentation:** Record final state (SSH changes, auth methods, ports, service status) in result_detail to prevent dependent tasks from rediscovering hidden state.
+- **Multi-wallet agent provisioning:** When an agent needs dual wallets (old → new transition), provision both credentials on the same VM. Update identity.ts with legacy addresses field; heartbeat sensors iterate all wallets. Store credentials as separate entries but query as a set.
 
 ## Claims, Git & State Patterns
 
@@ -61,6 +62,7 @@
 - **Confirmation replies trigger live audit:** When replying about system state, audit all relevant components — not just the item asked about. Divergences become follow-up tasks.
 - **Decompose multi-issue feedback by scope:** Queue per-issue tasks grouped by scope, not one mega-task.
 - **Batch blocked task escalations:** Group tasks needing same human decision into a single escalation communication.
+- **Escalation decision → task chain decomposition:** When escalation yields a decision, decompose into ordered single-purpose tasks (one per operation). Verify premise before queuing (check current state vs. target state). Document decision + created task IDs in result_detail.
 - **Multisig PSBT validation:** Validate outputs return value to multisig address before signing. Block if all value flows outward; explicit override flag for intentional transfers.
 - **Escalation decision audit in chains:** When a prior task declined to act (price, risk), subsequent tasks must re-verify escalation status before proceeding.
 
