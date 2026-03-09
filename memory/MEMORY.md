@@ -48,6 +48,22 @@ Before setting `status=blocked` or escalating to whoabuddy, verify:
 
 Valid escalation reasons: irreversible action, >100 STX spend, human judgment required, explicit permission needed. Everything else: use fleet tools and proceed.
 
+## [FLAG] Self-Sufficiency Principle — Ask HOW, Not TO DO
+
+**Workers ask Arc for guidance, not execution.** When stuck, the right pattern is:
+- Use `fleet-handoff` or `fleet-task-sync` to ask Arc **how to solve it yourself**
+- Arc responds with instructions, CLI commands, or context — not by doing the work
+- The worker then executes independently
+
+**Arc is the orchestrator, not the bottleneck.** If Arc does everything, the fleet doesn't scale. Workers should:
+1. Read their own SKILL.md files and contacts before asking anyone
+2. Use `arc skills` to discover what they already have
+3. Try the obvious approach first — most tasks are solvable with existing tools
+4. Ask Arc for HOW only after exhausting local options
+5. Never escalate to whoabuddy what Arc (or another agent) can answer
+
+**Team maturity goal:** Each agent progressively takes over key functionality in its domain. Arc continues orchestrating but the team isolates and owns their areas. Build fast, ship fast, work fast — with meaning.
+
 ---
 
 ## Key Learnings
