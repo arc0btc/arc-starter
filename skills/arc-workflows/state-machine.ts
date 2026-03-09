@@ -1421,6 +1421,260 @@ Steps:
 };
 
 /**
+ * FleetSyncMachine — models the recurring fleet git drift → sync → retrospective cycle.
+ *
+ * Pattern detected: "sensor:fleet-sync" tasks (8 recurrences, avg 2.8 steps)
+ * consistently spawn retrospective follow-ups after syncing drifted agents.
+ * This machine deduplicates concurrent drift tasks for the same day and ensures
+ * sync results are reviewed for patterns.
+ *
+ * instance_key: "fleet-sync-{YYYY-MM-DD}" (one per day — multiple drifts same day deduplicate)
+ *
+ * States:
+ *   drift_detected        → agents are behind Arc HEAD; creates sync task
+ *   syncing               → sync task executing; waiting for completion
+ *   retrospective_pending → sync done; create retrospective to extract learnings
+ *   completed             → done
+ *
+ * Context:
+ *   driftedAgents  — comma-separated agent names, e.g. "spark,iris,loom,forge"
+ *   commitHash     — Arc HEAD commit that agents need to catch up to
+ *   syncSummary    — brief description of what was deployed (populated before retrospective)
+ *   alertDate      — ISO date string (for dedup / reference)
+ */
+export const FleetSyncMachine: StateMachine<{
+  driftedAgents?: string;
+  commitHash?: string;
+  syncSummary?: string;
+  alertDate?: string;
+}> = {
+  name: "fleet-sync",
+  initialState: "drift_detected",
+  states: {
+    drift_detected: {
+      on: { sync: "syncing" },
+      action: (ctx) => {
+        const agents = ctx.driftedAgents || "all agents";
+        const commit = ctx.commitHash ? ` (${ctx.commitHash.slice(0, 8)})` : "";
+        return {
+          type: "create-task",
+          subject: `Fleet git drift: sync ${agents} to Arc HEAD${commit}`,
+          priority: 5,
+          skills: ["fleet-sync", "arc-skill-manager"],
+          description: `Fleet git drift detected: ${agents} are behind Arc HEAD${commit}.${ctx.alertDate ? `\nDate: ${ctx.alertDate}` : ""}
+
+Steps:
+1. Run fleet-sync CLI to push Arc HEAD to drifted agents
+2. Verify all agents are on the correct commit
+3. Transition this workflow to 'syncing', then 'retrospective_pending'
+4. Set syncSummary in context: what changed in this commit and any sync issues encountered`,
+        };
+      },
+    },
+    syncing: {
+      on: { synced: "retrospective_pending" },
+      action: () => null,
+    },
+    retrospective_pending: {
+      on: { learnings_extracted: "completed" },
+      action: (ctx) => {
+        const agents = ctx.driftedAgents || "fleet agents";
+        return {
+          type: "create-task",
+          subject: `Retrospective: fleet git drift — ${agents}`,
+          priority: 8,
+          skills: ["arc-skill-manager"],
+          description: `Extract learnings from a fleet git drift sync event.
+${ctx.commitHash ? `Commit: ${ctx.commitHash}` : ""}${ctx.syncSummary ? `\nSync summary: ${ctx.syncSummary}` : ""}${ctx.alertDate ? `\nDate: ${ctx.alertDate}` : ""}
+
+Steps:
+1. Review what caused the drift (sensor cadence, large batch of commits, etc.)
+2. Note whether any agents had sync failures or needed manual intervention
+3. If a recurring pattern, suggest sensor interval or deployment improvements in memory/MEMORY.md
+4. Transition workflow to 'completed'`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
+ * FleetEscalationMachine — models the recurring fleet escalation → resolve → retrospective cycle.
+ *
+ * Pattern detected: "fleet escalation" tasks (8 recurrences, avg 2.1 steps)
+ * consistently spawn retrospective follow-ups after resolving blocked worker tasks.
+ * This machine deduplicates escalations for the same blocked task and ensures learnings
+ * are captured for each unblock pattern.
+ *
+ * instance_key: "fleet-escalation-{agent}-{blocked-task-id}" (one per blocked task per agent)
+ *
+ * States:
+ *   escalated             → worker is blocked; creates an unblock task
+ *   resolving             → unblock task executing; waiting for resolution
+ *   retrospective_pending → unblocked; create retrospective to capture learnings
+ *   completed             → done
+ *
+ * Context:
+ *   agentName         — remote agent name, e.g. "iris", "loom", "forge"
+ *   blockedTaskId     — task ID on the worker that is blocked
+ *   blockDescription  — short description of what the task is blocked on
+ *   resolutionSummary — how it was unblocked (populated before retrospective)
+ *   alertDate         — ISO date string (for reference)
+ */
+export const FleetEscalationMachine: StateMachine<{
+  agentName?: string;
+  blockedTaskId?: number;
+  blockDescription?: string;
+  resolutionSummary?: string;
+  alertDate?: string;
+}> = {
+  name: "fleet-escalation",
+  initialState: "escalated",
+  states: {
+    escalated: {
+      on: { resolve: "resolving" },
+      action: (ctx) => {
+        const agent = ctx.agentName || "unknown-agent";
+        const taskRef = ctx.blockedTaskId ? ` task #${ctx.blockedTaskId}` : "";
+        const blockDesc = ctx.blockDescription ? ` — ${ctx.blockDescription}` : "";
+        return {
+          type: "create-task",
+          subject: `Resolve fleet escalation: ${agent} blocked on${taskRef}${blockDesc}`,
+          priority: 4,
+          skills: ["fleet-escalation", "fleet-task-sync", "arc-skill-manager"],
+          description: `Fleet escalation: remote agent "${agent}" is blocked on${taskRef}.
+Block reason: ${ctx.blockDescription || "see escalation alert"}${ctx.alertDate ? `\nDate: ${ctx.alertDate}` : ""}
+
+Steps:
+1. Review the blocked task on ${agent} and determine the root cause
+2. Provide the missing resource (credentials, config, unblock signal, etc.)
+3. Verify the task resumes or is explicitly closed as failed
+4. Transition this workflow to 'resolving', then 'retrospective_pending'
+5. Set resolutionSummary in context before transitioning`,
+        };
+      },
+    },
+    resolving: {
+      on: { resolved: "retrospective_pending" },
+      action: () => null,
+    },
+    retrospective_pending: {
+      on: { learnings_extracted: "completed" },
+      action: (ctx) => {
+        const agent = ctx.agentName || "unknown-agent";
+        const taskRef = ctx.blockedTaskId ? ` task #${ctx.blockedTaskId}` : "";
+        return {
+          type: "create-task",
+          subject: `Retrospective: fleet escalation — ${agent} blocked on${taskRef}`,
+          priority: 8,
+          skills: ["arc-skill-manager"],
+          description: `Extract learnings from a fleet escalation: ${agent} was blocked on${taskRef}.
+Block reason: ${ctx.blockDescription || "see escalation alert"}${ctx.resolutionSummary ? `\nResolution: ${ctx.resolutionSummary}` : ""}${ctx.alertDate ? `\nDate: ${ctx.alertDate}` : ""}
+
+Steps:
+1. Review what caused the block and how it was resolved
+2. Identify if this block type is recurring (same agent, same missing resource)
+3. If recurring, propose a proactive fix (pre-provision credentials, update provisioning template, etc.)
+4. Update templates/agent-provisioning.md or memory/MEMORY.md if a gap is identified
+5. Transition workflow to 'completed'`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
+ * CostAlertMachine — models the recurring cost alert → review → retrospective cycle.
+ *
+ * Pattern detected: "sensor:arc-cost-alerting" tasks (7 recurrences, avg 2.0 steps)
+ * consistently spawn retrospective follow-ups after cost spikes are reviewed.
+ * This machine deduplicates concurrent alerts for the same day and ensures
+ * cost patterns are reviewed and recorded.
+ *
+ * instance_key: "cost-alert-{YYYY-MM-DD}" (one per day — multiple alerts same day deduplicate)
+ *
+ * States:
+ *   alert                 → cost threshold crossed; creates a review task
+ *   reviewing             → review task executing
+ *   retrospective_pending → review done; create retrospective to extract learnings
+ *   completed             → done
+ *
+ * Context:
+ *   spendAmount    — current fleet spend, e.g. 168.62
+ *   cap            — configured daily cap, e.g. 200
+ *   alertDate      — ISO date string (for dedup / reference)
+ *   reviewSummary  — what drove the spend spike (populated before retrospective)
+ */
+export const CostAlertMachine: StateMachine<{
+  spendAmount?: number;
+  cap?: number;
+  alertDate?: string;
+  reviewSummary?: string;
+}> = {
+  name: "cost-alert",
+  initialState: "alert",
+  states: {
+    alert: {
+      on: { review: "reviewing" },
+      action: (ctx) => {
+        const spend = ctx.spendAmount ? `$${ctx.spendAmount.toFixed(2)}` : "high spend";
+        const cap = ctx.cap ? `/$${ctx.cap}` : "";
+        return {
+          type: "create-task",
+          subject: `Cost alert: fleet spend ${spend}${cap} — review drivers`,
+          priority: 7,
+          skills: ["arc-cost-alerting", "arc-skill-manager"],
+          description: `Cost alert triggered: fleet spend is at ${spend}${cap}.${ctx.alertDate ? `\nDate: ${ctx.alertDate}` : ""}
+
+Steps:
+1. Run arc status to see current cost breakdown by agent and task type
+2. Identify the top 3 cost drivers (noisy sensors, expensive tasks, runaway loops)
+3. If a sensor is clearly over-firing, note it — but do NOT throttle tasks or change budgets
+4. Transition this workflow to 'reviewing', then 'retrospective_pending'
+5. Set reviewSummary in context: what drove the spend`,
+        };
+      },
+    },
+    reviewing: {
+      on: { reviewed: "retrospective_pending" },
+      action: () => null,
+    },
+    retrospective_pending: {
+      on: { learnings_extracted: "completed" },
+      action: (ctx) => {
+        const spend = ctx.spendAmount ? `$${ctx.spendAmount.toFixed(2)}` : "elevated spend";
+        return {
+          type: "create-task",
+          subject: `Retrospective: cost alert — ${spend} fleet spend`,
+          priority: 8,
+          skills: ["arc-skill-manager"],
+          description: `Extract learnings from a cost alert for fleet spend of ${spend}.
+${ctx.reviewSummary ? `Review summary: ${ctx.reviewSummary}` : ""}${ctx.alertDate ? `\nAlert date: ${ctx.alertDate}` : ""}
+
+Steps:
+1. Review the cost drivers identified in the review task
+2. Identify if this is a recurring pattern (same sensors, same task types)
+3. If recurring, note the pattern in memory/MEMORY.md for future reference
+4. Transition workflow to 'completed'`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -1444,6 +1698,9 @@ export function getTemplateByName(name: string): StateMachine | null {
     "health-alert": HealthAlertMachine,
     "overnight-brief": OvernightBriefMachine,
     "fleet-alert": FleetAlertMachine,
+    "fleet-sync": FleetSyncMachine,
+    "fleet-escalation": FleetEscalationMachine,
+    "cost-alert": CostAlertMachine,
   };
   return templates[name] || null;
 }
