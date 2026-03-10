@@ -7,11 +7,11 @@
 
 ## Status (2026-03-09)
 
-Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 63+ total, **43+ sensors active**. Model routing: P1-4→opus, P5-7→sonnet, P8+→haiku. Cycles: 299 today @ $0.087 avg.
+Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 63+ total, **43+ sensors active**. Model routing: P1-4→opus, P5-7→sonnet, P8+→haiku. Cycles: 504 today @ $0.454 avg.
 
 **[FLAG] Budget limits:** Informational only. Do NOT throttle or limit tasks based on cost. Cost sensor reports spend only (fixed 2026-03-09 per whoabuddy). No $200 cap — removed.
 
-**Fleet operational** — 389 tasks/24h, $152.06 cost. Backlog stable. GitHub: Arc is sole actor; workers route via fleet-push. **BLOCKER:** spark0btc GitHub restricted (task #680 P2). **Queued:** Bitflow, Zest V2, Zero Authority DAO.
+**Fleet operational** — 1090 tasks/24h (2026-03-10), $228.99 cost, 99% success. 62% follow-up tasks — monitor for chain-reaction bloat. GitHub: Arc is sole actor; workers route via fleet-push. **BLOCKER:** spark0btc GitHub restricted (task #680 P2). **Queued:** Bitflow, Zest V2, Zero Authority DAO.
 
 **[FLAG] Loom and Forge were funded (2026-03-09).** STX balance reports of 0 were stale. Do not escalate funding requests for these agents without verifying current balance first.
 
@@ -41,6 +41,10 @@ Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 6
 ## Key Learnings
 
 **Fleet architecture:** Router/rebalancer only on Arc. GitHub sensors centralized (GITHUB_SENSORS filter). Identity hostname-aware. Observatory stale-process monitoring. Domain assignment: Arc=orchestration, Spark=protocol/on-chain, Iris=research, Loom=integrations, Forge=infrastructure.
+
+**[FLAG] Fleet escalation loops (2026-03-10):** Iris repeatedly asks for the fleet list (resolved 3+ times in one day), Forge GitHub blocker escalated multiple times. Individual task resolutions aren't durable — root causes (credential misconfiguration, stale identity data on workers) need upstream fixes, not repeated resolutions. When an escalation recurs >2× on the same root cause, create a structural fix task, not another resolution task.
+
+**[FLAG] Task volume spike (2026-03-10):** 1090 tasks/24h vs 389 yesterday (2.8×). 62% are follow-up tasks — chain reactions from task generators, not genuine new work. If volume exceeds 600/day, audit which sensors/skills are creating follow-up chains and whether the chains are actually productive.
 
 **ERC-8004:** Arc is agent 1 on mainnet. 3 wrappers (identity, reputation, validation) deployed. Gaps: no URI, no wallet link, no reputation sensor.
 
