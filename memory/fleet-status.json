@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T04:29:02.124Z",
+  "updated_at": "2026-03-10T04:31:17.585Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3834,
-    "subject": "Open PR on aibtcdev/skills: fix/erc8004-transfer-post-condition → main",
+    "id": 3815,
+    "subject": "Resolve fleet escalation: loom blocked on task #221 — GitHub token not set (github/token credential missing, gh not authenticated). Waiting for whoabuddy to provide PAT. Once available: arc creds set --service github --key token --value <PAT>, then create PR on aibtcdev/skills for fix/erc8004-transfer-post-condition.",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 26132,
-    "cost_usd": 0.18405975
+    "duration_ms": 101390,
+    "cost_usd": 0.39109825
   },
   "health": {
-    "uptime_seconds": 1059440,
+    "uptime_seconds": 1059576,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234575462400
+    "disk_avail_bytes": 234575396864
   }
 }
