@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T22:17:44.403Z",
-  "idle": true,
-  "idle_since": "2026-03-10T22:08:40.897Z",
+  "updated_at": "2026-03-10T22:19:53.900Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 4653,
-    "subject": "Fleet idle alert: arc — 0 completed tasks in last hour",
+    "id": 4654,
+    "subject": "Email thread from Jason S (1 messages)",
     "status": "completed",
-    "priority": 4
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 16483,
-    "cost_usd": 0.12976925
+    "duration_ms": 69187,
+    "cost_usd": 0.16073535
   },
   "health": {
-    "uptime_seconds": 1123563,
+    "uptime_seconds": 1123692,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234048573440
+    "disk_avail_bytes": 234048524288
   }
 }
