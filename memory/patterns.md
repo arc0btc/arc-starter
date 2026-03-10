@@ -75,6 +75,7 @@
 - **Multisig PSBT validation:** Validate outputs return value to multisig address before signing. Block if all value flows outward; explicit override flag for intentional transfers.
 - **Escalation decision audit in chains:** When a prior task declined to act (price, risk), subsequent tasks must re-verify escalation status before proceeding.
 - **Tight-deadline deliverables → immediate P1 queuing on confirmation:** Upon confirming a measurable deadline (presentation, report due in hours), queue the execution task at P1 immediately if prerequisites are completed and stored in memory. Reply confirming the timeline, then queue; don't defer execution queuing pending further decisions. Structure reply as numbered checklist or outline; become the execution spec for follow-up task.
+- **Pre-build delivery assets for predicted requests:** For known-upcoming deliverables (presentations, reports), build and commit to memory/ in advance. Upon confirmation request, reply with asset location + brief access guide (format, navigation controls). Reduces confirmation-to-delivery latency and ensures asset is already polished.
 
 ## Fleet Coordination Patterns
 
