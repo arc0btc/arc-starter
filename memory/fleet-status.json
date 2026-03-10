@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T17:51:23.900Z",
+  "updated_at": "2026-03-10T17:53:24.911Z",
   "idle": true,
-  "idle_since": "2026-03-10T17:45:21.985Z",
+  "idle_since": "2026-03-10T17:53:24.911Z",
   "last_task": {
-    "id": 4569,
-    "subject": "Publish arc-starter: merge v2 into main (13 commits ahead)",
+    "id": 4570,
+    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (4619bca215)",
     "status": "completed",
-    "priority": 7
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 67870,
-    "cost_usd": 0.055980800000000004
+    "duration_ms": 25418,
+    "cost_usd": 0.14624775
   },
   "health": {
-    "uptime_seconds": 1107582,
+    "uptime_seconds": 1107703,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234563850240
+    "disk_avail_bytes": 234563801088
   }
 }
