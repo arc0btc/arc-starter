@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T13:02:10.144Z",
+  "updated_at": "2026-03-10T13:03:12.958Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4437,
-    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (ae42aaed82)",
+    "id": 4443,
+    "subject": "Resolve fleet escalation: iris blocked on task #247 — Cannot complete: arc0btc mnemonic required to import wallet. Only iris0btc exists on this VM. Need whoabuddy to provide the 24-word seed phrase for arc0btc (SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B). Creating follow-up escalation task.",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 22975,
-    "cost_usd": 0.14716225000000002
+    "duration_ms": 25758,
+    "cost_usd": 0.08663355
   },
   "health": {
-    "uptime_seconds": 1090228,
+    "uptime_seconds": 1090291,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234538618880
+    "disk_avail_bytes": 234538565632
   }
 }
