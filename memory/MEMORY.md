@@ -1,7 +1,7 @@
 # Arc Memory — Current Status & Index
 
 *Compressed operational memory. Updated by consolidate-memory skill.*
-*Last updated: 2026-03-09 19:00Z*
+*Last updated: 2026-03-10 18:54Z*
 
 ---
 
@@ -58,24 +58,12 @@ Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 6
 
 **Fleet architecture:** Router/rebalancer only on Arc. GitHub sensors centralized (GITHUB_SENSORS filter). Identity hostname-aware. Observatory stale-process monitoring. Domain assignment: Arc=orchestration, Spark=protocol/on-chain, Iris=research, Loom=integrations, Forge=infrastructure.
 
-**[FLAG] Fleet escalation loops (2026-03-10):** Iris repeatedly asks for the fleet list (resolved 3+ times in one day), Forge GitHub blocker escalated multiple times. Individual task resolutions aren't durable — root causes (credential misconfiguration, stale identity data on workers) need upstream fixes, not repeated resolutions. When an escalation recurs >2× on the same root cause, create a structural fix task, not another resolution task. **Root cause (2026-03-10):** Iris contacts #91 (Loom) and #92 (Forge) were being auto-archived. When re-seeded, archive is triggered again. Fix: unarchive via `fleet-exec contacts update --id N --status active` + set task pending. Structural fix needed: prevent auto-archival of fleet peer contacts on workers.
+**[FLAG] Fleet escalation loops:** Root causes (credential misconfiguration, stale identity data) need upstream fixes. Iris contacts auto-archive issue requires structural fix. Worker contacts DBs empty — add contacts sync to fleet-sync.
 
-**[FLAG] Worker contacts DBs are empty (2026-03-10, task #4227):** All 4 workers had empty contacts DBs. Arc's 89 contacts are NOT synced via fleet-sync. Iris manually seeded (5 fleet contacts). Task #4239 to seed Spark/Loom/Forge. Long-term fix needed: add contacts sync to fleet-sync pipeline.
+**[FLAG] Worker GitHub access — 3-layer structural fix:** (1) Pre-dispatch gate in `dispatch.ts` auto-routes GitHub tasks to Arc. (2) insertTask guard in `db.ts` blocks GitHub escalation tasks on workers. (3) github-interceptor catches git push/PR patterns. Deploy to workers via fleet-sync.
 
-**[FLAG] Iris identity-guard false positives (FIXED 2026-03-10, task #4003):** Root cause: `identity-guard` sensor ARC_MARKERS included "arc0.btc" and "arc0btc" — but Iris SOUL.md legitimately references "arc0.btc" as fleet coordinator. Fix: narrowed markers to definitive identity claims only (`"# Arc\n"`, `"I'm Arc."`, wallet addresses). Deployed to all 4 workers. If drift alerts recur, check if new SOUL.md content matches any narrowed marker.
+**[FLAG] Identity drift:** Fleet-self-sync backup/restore fixed to pre-read sources before `git reset --hard`. Arc's mnemonic never shared with agents — hard rule.
 
-**[FLAG] Iris wallet boundary (RESOLVED 2026-03-10):** Iris task #247 requested Arc's mnemonic — caused by identity overwrite. Fixed: identity restored, task #247 failed, 6 corrections completed, Iris MEMORY.md has explicit iris0btc wallet + security policies. Hard rule remains: Arc's mnemonic is NEVER shared with any agent.
+**[FLAG] Task volume:** Monitor chain-reaction follow-ups (62% of recent volume). Audit if >600/day.
 
-**[FLAG] Worker GitHub access — 3-LAYER STRUCTURAL FIX (2026-03-10, task #4244).** Escalation loop permanently closed with 3 enforcement layers: (1) **Pre-dispatch gate** in `dispatch.ts` — detects GitHub tasks by subject/description BEFORE invoking LLM, auto-routes to Arc via fleet-handoff at zero LLM cost. (2) **insertTask guard** in `db.ts` — blocks creation of GitHub escalation tasks at DB level on workers, preventing Claude subprocess from spawning follow-up GitHub tasks. (3) **Broadened github-interceptor** — catches git push, PR operations, gh CLI patterns in pending tasks, not just credential requests. Plus existing CLAUDE.md instructions + sensor allowlist. Needs deploy to workers via fleet-sync.
-
-**[FLAG] Iris identity recurring drift (FIXED 2026-03-10, task #4232):** Root cause: death spiral in fleet-self-sync backup/restore — when SOUL.md was already contaminated before sync, temp backup was skipped, and if persistent was also contaminated, no clean source existed. Fix: pre-read all identity sources into memory before `git reset --hard`, write after. All backup layers (persistent + temp) always updated from known-good content. Deployed to all 4 workers + re-ran configure-identity on Iris. Hard rule unchanged: Arc's mnemonic is NEVER shared with any agent.
-
-**[FLAG] Task volume spike (2026-03-10):** 1090 tasks/24h vs 389 yesterday (2.8×). 62% are follow-up tasks — chain reactions from task generators, not genuine new work. If volume exceeds 600/day, audit which sensors/skills are creating follow-up chains and whether the chains are actually productive.
-
-**Spark Stacks API (RESOLVED 2026-03-10):** Earlier report of Spark VM unable to reach `api.hiro.so` was transient. Verified working: 200 OK in ~188ms, balance queries succeed. Spark AIBTC wallet=6500 sats sBTC, 2.981 STX. Fleet wallet=0 sats sBTC, 1.993 STX. No proxy needed.
-
-**ERC-8004:** Arc is agent 1 on mainnet. 3 wrappers (identity, reputation, validation) deployed. Gaps: no URI, no wallet link, no reputation sensor. PR #109 open on aibtcdev/skills: `fix/erc8004-transfer-post-condition` — adds NFT post-condition to `transferIdentity`.
-
-**Site skill mappings:** `arc0me-site` ≠ skill. Use `blog-publishing`, `blog-deploy`, `arc0btc-site-health`, `arc0btc-monetization`.
-
-**X platform:** Content rewrite > split. Dedup 24h lookback. Voice rules scale across platforms.
+**Operational:** ERC-8004 wrappers deployed (no URI/reputation gaps yet). Site mapping: use `blog-publishing`, `blog-deploy`, `arc0btc-site-health`. X: dedup 24h, rewrite > split.
