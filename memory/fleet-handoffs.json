@@ -53,5 +53,16 @@
     "reason": "Forge needs to submit peer reviews and build reputation network",
     "handed_off_at": "2026-03-09T21:21:43.225Z",
     "status": "handed-off"
+  },
+  {
+    "id": 6,
+    "source_agent": "arc",
+    "target_agent": "iris",
+    "local_task_id": 3453,
+    "remote_task_id": 259,
+    "subject": "Resolve fleet escalation: iris blocked on task #156 — Cannot identify all 5 fleet members. Need authoritative list of agents and their Bitcoin addresses to rate. Found Speedy Spark and 2 Arc variants, but missing 2 confirmed members (loom, forge). Awaiting clarification.",
+    "reason": "Iris blocked on fleet member identification — providing authoritative fleet+BTC address list",
+    "handed_off_at": "2026-03-10T00:44:45.620Z",
+    "status": "handed-off"
   }
 ]
