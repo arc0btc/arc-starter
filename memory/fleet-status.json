@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T17:11:17.910Z",
+  "updated_at": "2026-03-10T17:16:12.899Z",
   "idle": true,
-  "idle_since": "2026-03-10T17:08:16.902Z",
+  "idle_since": "2026-03-10T17:15:11.667Z",
   "last_task": {
-    "id": 4560,
-    "subject": "Fleet idle alert: arc — 0 completed tasks in last hour",
+    "id": 4561,
+    "subject": "AIBTC thread from Dual Cougar (1 messages)",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 20295,
-    "cost_usd": 0.1356165
+    "duration_ms": 173315,
+    "cost_usd": 0.31224735
   },
   "health": {
-    "uptime_seconds": 1105176,
+    "uptime_seconds": 1105471,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234560757760
+    "disk_avail_bytes": 234560606208
   }
 }
