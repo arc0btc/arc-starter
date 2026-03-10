@@ -1,5 +1,6 @@
 import { Database } from "bun:sqlite";
 import { mkdirSync } from "node:fs";
+import { AGENT_NAME } from "./identity.ts";
 
 // ---- Types ----
 
@@ -562,7 +563,21 @@ function updateRow(table: string, id: number, fields: Record<string, unknown>): 
 
 // ---- Task mutations ----
 
+/** GitHub escalation patterns — blocked at task creation on workers */
+const GITHUB_ESCALATION_RE = /github credential|request.*(?:PAT|token|github)|escalat.*github|need.*github.*(?:access|token)|obtain.*(?:PAT|token)|github.*access|git\s*push|create.*PR|open.*PR|merge.*PR/i;
+
 export function insertTask(fields: InsertTask): number {
+  // On workers, silently block creation of GitHub escalation tasks.
+  // These waste resources and generate escalation emails to whoabuddy.
+  if (AGENT_NAME !== "arc0") {
+    const text = [fields.subject, fields.description ?? ""].join(" ");
+    if (GITHUB_ESCALATION_RE.test(text)) {
+      console.log(`[github-guard] Blocked GitHub escalation task on worker: "${fields.subject}"`);
+      // Return -1 as a sentinel — callers don't check return value for follow-ups
+      return -1;
+    }
+  }
+
   const db = getDatabase();
 
   const cols: string[] = ["subject"];

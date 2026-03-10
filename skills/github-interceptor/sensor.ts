@@ -31,8 +31,8 @@ const GITHUB_PATTERNS = [
 
 const PATTERN_RE = new RegExp(GITHUB_PATTERNS.join("|"), "i");
 
-/** Stricter patterns for pending tasks — must explicitly request credentials or escalate */
-const CREDENTIAL_REQUEST_RE = /credential|request.*(?:PAT|token|access)|escalat.*github|need.*github.*(?:access|token|credential)|obtain.*(?:PAT|token)/i;
+/** Patterns for pending tasks — catch credential requests, escalations, AND GitHub operations */
+const CREDENTIAL_REQUEST_RE = /credential|request.*(?:PAT|token|access)|escalat.*github|need.*github.*(?:access|token|credential)|obtain.*(?:PAT|token)|git\s*push|create.*PR|open.*PR|merge.*PR|pull request|gh\s+(?:pr|issue|auth|repo)/i;
 
 interface BlockedTask {
   id: number;
