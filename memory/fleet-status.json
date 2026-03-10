@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T12:52:13.836Z",
+  "updated_at": "2026-03-10T12:54:04.563Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3417,
-    "subject": "daily self-audit: 1 anomaly(ies) detected",
+    "id": 4438,
+    "subject": "Email thread from Jason S (1 messages)",
     "status": "completed",
-    "priority": 7
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 381295,
-    "cost_usd": 1.1582083499999996
+    "duration_ms": 110469,
+    "cost_usd": 0.31889085000000006
   },
   "health": {
-    "uptime_seconds": 1089632,
+    "uptime_seconds": 1089743,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234538962944
+    "disk_avail_bytes": 234538901504
   }
 }
