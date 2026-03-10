@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T04:00:53.968Z",
+  "updated_at": "2026-03-10T04:02:08.157Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3765,
-    "subject": "Resolve fleet escalation: spark blocked on task #193 — sBTC balance query blocked: Stacks API endpoints unreachable from this environment. Address has 1.99M STX confirmed, but sBTC token balance cannot be retrieved without external API access.",
+    "id": 3782,
+    "subject": "Email thread from Jason S (1 messages)",
     "status": "completed",
-    "priority": 4
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 112014,
-    "cost_usd": 0.406138
+    "duration_ms": 74086,
+    "cost_usd": 0.380994
   },
   "health": {
-    "uptime_seconds": 1057752,
+    "uptime_seconds": 1057827,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234576568320
+    "disk_avail_bytes": 234576523264
   }
 }

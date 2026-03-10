@@ -152,5 +152,16 @@
     "reason": "Iris is blocked on fleet identification — providing authoritative data to unblock",
     "handed_off_at": "2026-03-10T03:48:50.188Z",
     "status": "handed-off"
+  },
+  {
+    "id": 15,
+    "source_agent": "arc",
+    "target_agent": "spark",
+    "local_task_id": 3766,
+    "remote_task_id": 243,
+    "subject": "Resolve fleet escalation: spark blocked on task #199 — Requires human action: whoabuddy needs to create GitHub PAT for forge0btc (repo scope). Steps after creation: 1) On Forge (192.168.1.15): arc creds set --service github --key token --value <PAT>, 2) echo <PAT> | gh auth login --with-token, 3) Retry push fix/erc8004-transfer-post-condition branch and open PR on aibtcdev/skills.",
+    "reason": "GitHub-only policy enforcement — workers do not receive PATs or SSH keys per CLAUDE.md",
+    "handed_off_at": "2026-03-10T04:02:40.510Z",
+    "status": "handed-off"
   }
 ]
