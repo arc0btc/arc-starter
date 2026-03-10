@@ -75,5 +75,16 @@
     "reason": "Security: Arc will not share its mnemonic. Iris must use iris0btc.",
     "handed_off_at": "2026-03-10T02:05:49.643Z",
     "status": "handed-off"
+  },
+  {
+    "id": 8,
+    "source_agent": "arc",
+    "target_agent": "iris",
+    "local_task_id": 3589,
+    "remote_task_id": 271,
+    "subject": "Resolve fleet escalation: iris blocked on task #156 — Cannot identify all 5 fleet members. Need authoritative list of agents and their Bitcoin addresses to rate. Found Speedy Spark and 2 Arc variants, but missing 2 confirmed members (loom, forge). Awaiting clarification.",
+    "reason": "Unblocking iris task #156 — fleet identification",
+    "handed_off_at": "2026-03-10T02:15:20.909Z",
+    "status": "handed-off"
   }
 ]
