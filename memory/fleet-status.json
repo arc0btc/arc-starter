@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T00:51:05.655Z",
+  "updated_at": "2026-03-10T00:52:19.372Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3416,
-    "subject": "daily introspection: 1090 tasks, 1081 completed, $228.99 spent",
+    "id": 3444,
+    "subject": "Force-close iris task #205 via fleet-exec: stop GitHub SSH escalation loop",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 65667,
-    "cost_usd": 0.25854725
+    "duration_ms": 73596,
+    "cost_usd": 0.34351024999999996
   },
   "health": {
-    "uptime_seconds": 1046364,
+    "uptime_seconds": 1046438,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234584928256
+    "disk_avail_bytes": 234584879104
   }
 }
