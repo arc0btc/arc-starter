@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T07:07:11.895Z",
+  "updated_at": "2026-03-10T07:08:56.744Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4035,
-    "subject": "Resolve fleet escalation: spark blocked on task #199 — Requires human action: whoabuddy needs to create GitHub PAT for forge0btc (repo scope). Steps after creation: 1) On Forge (192.168.1.15): arc creds set --service github --key token --value <PAT>, 2) echo <PAT> | gh auth login --with-token, 3) Retry push fix/erc8004-transfer-post-condition branch and open PR on aibtcdev/skills.",
+    "id": 4036,
+    "subject": "Resolve fleet escalation: iris blocked on task #205 — SSH key not registered with iris0btc GitHub account. Need human to either: (1) add SSH pubkey ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIACkLd9ck/EUVYYG6HCM0vpj/XotFNuATQtbPO/hmFxC to iris0btc GitHub account, or (2) create a GitHub PAT and run: arc creds set --service github --key token --value <PAT>, then gh auth login --with-token",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 76933,
-    "cost_usd": 0.174229
+    "duration_ms": 104761,
+    "cost_usd": 0.4232605
   },
   "health": {
-    "uptime_seconds": 1068930,
+    "uptime_seconds": 1069035,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234553008128
+    "disk_avail_bytes": 234552946688
   }
 }
