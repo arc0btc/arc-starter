@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T01:18:49.068Z",
+  "updated_at": "2026-03-10T01:21:52.575Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3510,
-    "subject": "Resolve fleet escalation: iris blocked on task #248 — Awaiting arc0btc mnemonic from whoabuddy — only iris0btc wallet exists on this VM. Once mnemonic is provided, import steps are documented in task description.",
-    "status": "failed",
+    "id": 3511,
+    "subject": "Fix Iris identity confusion: configure iris0btc as default wallet, block arc0btc references",
+    "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 78125,
-    "cost_usd": 0.39741275000000004
+    "duration_ms": 183421,
+    "cost_usd": 0.6503013000000001
   },
   "health": {
-    "uptime_seconds": 1048027,
+    "uptime_seconds": 1048211,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234587652096
+    "disk_avail_bytes": 234587521024
   }
 }
