@@ -265,16 +265,21 @@ async function checkAgent(
     try {
       const creds = JSON.parse(oauthResult.stdout);
       const expiresAt = creds?.claudeAiOauth?.expiresAt;
+      const hasRefreshToken = Boolean(creds?.claudeAiOauth?.refreshToken);
       if (typeof expiresAt === "number") {
         const remaining = expiresAt - Date.now();
-        if (remaining <= 0) {
+        if (remaining <= 0 && !hasRefreshToken) {
           health.authMethod = "oauth:EXPIRED";
-          health.issues.push("OAuth token expired — migrate to API key or re-auth");
+          health.issues.push("OAuth token expired with no refresh token — re-auth required");
+        } else if (remaining <= 0) {
+          // Expired but has refresh token — Claude Code will auto-refresh
+          health.authMethod = "oauth:auto-refresh";
         } else {
           const hoursLeft = Math.round(remaining / 3600000);
-          health.authMethod = `oauth:${hoursLeft}h`;
-          if (remaining <= 12 * 60 * 60 * 1000) {
-            health.issues.push(`OAuth expires in ${hoursLeft}h — migrate to API key`);
+          health.authMethod = hasRefreshToken ? `oauth:ok` : `oauth:${hoursLeft}h`;
+          // Only alert if no refresh token and expiry is soon
+          if (!hasRefreshToken && remaining <= 12 * 60 * 60 * 1000) {
+            health.issues.push(`OAuth expires in ${hoursLeft}h — no refresh token, re-auth needed`);
           }
         }
       } else if (creds?.claudeAiOauth?.accessToken) {
