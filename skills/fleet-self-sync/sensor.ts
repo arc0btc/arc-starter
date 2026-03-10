@@ -19,8 +19,9 @@ const ROOT = new URL("../..", import.meta.url).pathname;
 const BUN = `${process.env.HOME}/.bun/bin/bun`;
 const SOUL_BACKUP = "/tmp/arc-soul-backup.md";
 const MEMORY_BACKUP = "/tmp/arc-memory-backup.md";
-// Persistent fallback written by configure-identity — survives git reset --hard
+// Persistent fallbacks written by configure-identity — survive git reset --hard
 const SOUL_PERSISTENT = `${process.env.HOME}/.aibtc/SOUL.md`;
+const MEMORY_PERSISTENT = `${process.env.HOME}/.aibtc/MEMORY.md`;
 
 // Definitive Arc identity markers — narrow enough to avoid false positives.
 // Worker SOUL.md files legitimately reference "arc0btc" (org, coordinator, X handle)
@@ -38,43 +39,76 @@ function hasArcIdentityClaims(content: string): boolean {
 
 /**
  * Restore a worker's SOUL.md after git reset --hard overwrites it with Arc's version.
- * Priority order: (1) /tmp backup if clean, (2) ~/.aibtc/SOUL.md persistent copy, (3) fail loudly.
- * If restore succeeds from backup, also updates the persistent copy so it stays fresh.
+ * Priority order: (1) ~/.aibtc/SOUL.md persistent copy (most reliable, set by configure-identity),
+ *                 (2) /tmp backup if clean, (3) fail loudly.
+ * If restore succeeds from temp backup, also updates the persistent copy so it stays fresh.
  */
 async function restoreIdentityFile(
   soulPath: string,
   host: string,
   logger: (msg: string) => void,
 ): Promise<boolean> {
-  const backupFile = Bun.file(SOUL_BACKUP);
   const persistentFile = Bun.file(SOUL_PERSISTENT);
+  const backupFile = Bun.file(SOUL_BACKUP);
 
-  // Try /tmp backup first — it was captured just before this sync
-  if (await backupFile.exists()) {
-    const backupContent = await backupFile.text();
-    if (!hasArcIdentityClaims(backupContent)) {
-      await Bun.write(soulPath, backupContent);
-      // Keep persistent copy in sync with known-good backup
-      await Bun.write(SOUL_PERSISTENT, backupContent);
-      logger(`restored SOUL.md for ${host} (updated persistent backup)`);
-      return true;
-    }
-    logger(`WARNING: SOUL.md backup contains Arc identity on ${host} — trying persistent fallback`);
-  }
-
-  // Backup was contaminated or missing — try persistent fallback
+  // Try persistent copy first — most reliable, set by configure-identity
   if (await persistentFile.exists()) {
     const persistentContent = await persistentFile.text();
     if (!hasArcIdentityClaims(persistentContent)) {
       await Bun.write(soulPath, persistentContent);
-      logger(`restored SOUL.md from persistent fallback (~/.aibtc/SOUL.md) for ${host}`);
+      logger(`restored SOUL.md from persistent backup (~/.aibtc/SOUL.md) for ${host}`);
       return true;
     }
-    logger(`ERROR: persistent SOUL.md also has Arc identity on ${host} — identity fix required`);
-  } else {
-    logger(`WARNING: no persistent SOUL.md fallback at ${SOUL_PERSISTENT} — run configure-identity to fix`);
+    logger(`WARNING: persistent SOUL.md has Arc identity on ${host} — trying temp backup`);
   }
 
+  // Persistent missing or contaminated — try /tmp backup (captured before this sync)
+  if (await backupFile.exists()) {
+    const backupContent = await backupFile.text();
+    if (!hasArcIdentityClaims(backupContent)) {
+      await Bun.write(soulPath, backupContent);
+      // Update persistent copy with known-good content
+      await Bun.write(SOUL_PERSISTENT, backupContent);
+      logger(`restored SOUL.md for ${host} from temp backup (updated persistent copy)`);
+      return true;
+    }
+    logger(`WARNING: temp SOUL.md backup also contains Arc identity on ${host}`);
+  }
+
+  logger(`ERROR: no clean SOUL.md available for ${host} — run configure-identity to fix`);
+  return false;
+}
+
+/**
+ * Restore a worker's MEMORY.md after git reset --hard.
+ * Priority: (1) ~/.aibtc/MEMORY.md persistent, (2) /tmp backup, (3) fail.
+ */
+async function restoreMemoryFile(
+  memoryPath: string,
+  host: string,
+  logger: (msg: string) => void,
+): Promise<boolean> {
+  const persistentFile = Bun.file(MEMORY_PERSISTENT);
+  const backupFile = Bun.file(MEMORY_BACKUP);
+
+  // Try persistent copy first
+  if (await persistentFile.exists()) {
+    await Bun.write(memoryPath, persistentFile);
+    logger(`restored MEMORY.md from persistent backup for ${host}`);
+    return true;
+  }
+
+  // Fall back to /tmp backup
+  if (await backupFile.exists()) {
+    const content = await backupFile.text();
+    await Bun.write(memoryPath, content);
+    // Update persistent copy
+    await Bun.write(MEMORY_PERSISTENT, content);
+    logger(`restored MEMORY.md from temp backup for ${host} (updated persistent copy)`);
+    return true;
+  }
+
+  logger(`WARNING: no MEMORY.md backup available for ${host}`);
   return false;
 }
 
@@ -241,15 +275,30 @@ export default async function sensor(): Promise<string> {
   );
 
   // Backup agent-specific identity files before reset
-  // These files are per-agent and must not be overwritten by Arc's repo
+  // Only backup if the current files are CLEAN (not already contaminated with Arc's identity)
   const soulPath = join(ROOT, "SOUL.md");
   const memoryPath = join(ROOT, "memory", "MEMORY.md");
   const soulFile = Bun.file(soulPath);
   const memoryFile = Bun.file(memoryPath);
   const hasSoul = await soulFile.exists();
   const hasMemory = await memoryFile.exists();
-  if (hasSoul) await Bun.write(SOUL_BACKUP, soulFile);
-  if (hasMemory) await Bun.write(MEMORY_BACKUP, memoryFile);
+  if (hasSoul) {
+    const currentSoulContent = await soulFile.text();
+    if (!hasArcIdentityClaims(currentSoulContent)) {
+      // Current SOUL.md is clean — safe to backup
+      await Bun.write(SOUL_BACKUP, currentSoulContent);
+      // Also keep persistent copy fresh with known-good content
+      await Bun.write(SOUL_PERSISTENT, currentSoulContent);
+    } else {
+      log(`WARNING: SOUL.md already has Arc identity before sync — skipping temp backup, will restore from persistent`);
+    }
+  }
+  if (hasMemory) {
+    const currentMemoryContent = await memoryFile.text();
+    await Bun.write(MEMORY_BACKUP, currentMemoryContent);
+    // Keep persistent MEMORY.md fresh
+    await Bun.write(MEMORY_PERSISTENT, currentMemoryContent);
+  }
 
   // Apply
   const resetResult = await run(["git", "reset", "--hard", targetSha]);
@@ -263,12 +312,11 @@ export default async function sensor(): Promise<string> {
   // Only restore if this is a worker agent (not Arc itself)
   const host = hostname().toLowerCase();
   if (host !== "arc" && host !== "arc0btc") {
-    if (hasSoul) {
-      await restoreIdentityFile(soulPath, host, log);
-    }
+    // Always attempt restore — even if hasSoul was false (file might not have existed
+    // but persistent backup should), the persistent backup is the authoritative source
+    const soulRestored = await restoreIdentityFile(soulPath, host, log);
     if (hasMemory) {
-      await Bun.write(memoryPath, Bun.file(MEMORY_BACKUP));
-      log(`restored MEMORY.md for ${host}`);
+      await restoreMemoryFile(memoryPath, host, log);
     }
 
     // Post-restore verification: confirm SOUL.md doesn't contain Arc identity
@@ -285,6 +333,16 @@ export default async function sensor(): Promise<string> {
           "--source", "sensor:fleet-self-sync",
         ]);
       }
+    } else if (!soulRestored) {
+      // SOUL.md doesn't exist at all — need configure-identity
+      log(`CRITICAL: no SOUL.md exists on ${host} after sync — creating fix task`);
+      await run([
+        BUN, "run", "bin/arc", "tasks", "add",
+        "--subject", `Missing SOUL.md on ${host} — run configure-identity`,
+        "--priority", "2",
+        "--skills", "arc-remote-setup",
+        "--source", "sensor:fleet-self-sync",
+      ]);
     }
   }
 
@@ -309,11 +367,8 @@ export default async function sensor(): Promise<string> {
 
       // Restore identity files after rollback too
       if (host !== "arc" && host !== "arc0btc") {
-        if (hasSoul) await restoreIdentityFile(soulPath, host, log);
-        if (hasMemory) {
-          await Bun.write(memoryPath, Bun.file(MEMORY_BACKUP));
-          log(`restored MEMORY.md after rollback for ${host}`);
-        }
+        await restoreIdentityFile(soulPath, host, log);
+        if (hasMemory) await restoreMemoryFile(memoryPath, host, log);
       }
 
       if (installDeps) await run([BUN, "install"]);
