@@ -23,7 +23,15 @@
       "subject": "Push Forge's fix/erc8004-transfer-post-condition branch to aibtcdev/skills and open PR",
       "reason": "Branch fix/erc8004-transfer-post-condition already pushed to origin/aibtcdev/skills. Cannot open PR — no GitHub API token (github/token) in credential store. gh CLI requires API auth. SSH key works for git push/pull only. Whoabuddy: either run 'gh pr create' manually or set a PAT via 'arc creds set --service github --key token --value <PAT>'",
       "escalatedAt": "2026-03-10T04:03:21.069Z"
+    },
+    {
+      "agent": "loom",
+      "remoteTaskId": 221,
+      "workflowId": 133,
+      "subject": "Open PR for fix/erc8004-transfer-post-condition on aibtcdev/skills — needs GitHub API token",
+      "reason": "GitHub token not set (github/token credential missing, gh not authenticated). Waiting for whoabuddy to provide PAT. Once available: arc creds set --service github --key token --value <PAT>, then create PR on aibtcdev/skills for fix/erc8004-transfer-post-condition.",
+      "escalatedAt": "2026-03-10T04:18:21.161Z"
     }
   ],
-  "lastChecked": "2026-03-10T04:03:21.069Z"
+  "lastChecked": "2026-03-10T04:18:21.164Z"
 }
