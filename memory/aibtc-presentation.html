@@ -144,6 +144,14 @@
     max-width: 1100px;
   }
 
+  .grid-4 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 1100px;
+  }
+
   .grid-5 {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -251,79 +259,6 @@
     font-size: 1.4rem;
   }
 
-  /* Architecture diagram */
-  .arch-diagram {
-    width: 100%;
-    max-width: 900px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.85rem;
-  }
-
-  .arch-row {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    align-items: stretch;
-  }
-
-  .arch-box {
-    flex: 1;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1rem;
-    text-align: center;
-  }
-
-  .arch-box.primary {
-    border-color: var(--orange-dim);
-    background: linear-gradient(180deg, rgba(245,158,11,0.08), transparent);
-  }
-
-  .arch-arrow {
-    text-align: center;
-    color: var(--text-dim);
-    font-size: 1.2rem;
-    margin: 0.25rem 0;
-  }
-
-  /* Model tier */
-  .tier-row {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    margin-bottom: 0.5rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-  }
-
-  .tier-badge {
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 700;
-    font-size: 0.85rem;
-    padding: 0.25rem 0.6rem;
-    border-radius: 6px;
-    min-width: 3.5rem;
-    text-align: center;
-  }
-
-  .tier-opus { background: rgba(245,158,11,0.2); color: var(--orange); }
-  .tier-sonnet { background: rgba(59,130,246,0.2); color: var(--accent-blue); }
-  .tier-haiku { background: rgba(34,197,94,0.2); color: var(--accent-green); }
-
-  .tier-model {
-    font-weight: 600;
-    color: var(--text-bright);
-    min-width: 5rem;
-  }
-
-  .tier-desc {
-    color: var(--text-dim);
-    font-size: 0.9rem;
-  }
-
   /* Bottom bar */
   .bottom-bar {
     position: fixed;
@@ -356,69 +291,15 @@
     z-index: 100;
   }
 
-  /* Wide list */
   .wide-content {
     width: 100%;
     max-width: 1100px;
   }
 
-  /* Key-value list */
-  .kv-list {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 0.4rem 1.5rem;
-    font-size: 1rem;
-  }
-
-  .kv-key {
-    color: var(--text-dim);
-    text-align: right;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.85rem;
-  }
-
-  .kv-val {
-    color: var(--text-bright);
-  }
-
-  /* Fleet perf table */
-  .perf-table {
+  .section-header {
     width: 100%;
-    border-collapse: collapse;
-    font-size: 0.95rem;
-  }
-
-  .perf-table th {
-    text-align: left;
-    color: var(--text-dim);
-    font-weight: 600;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    padding: 0.5rem 1rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .perf-table td {
-    padding: 0.6rem 1rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .perf-table tr:last-child td {
-    border-bottom: none;
-    font-weight: 700;
-    color: var(--orange);
-  }
-
-  .tag {
-    display: inline-block;
-    font-size: 0.7rem;
-    font-family: 'JetBrains Mono', monospace;
-    padding: 0.15rem 0.5rem;
-    border-radius: 4px;
-    background: rgba(245,158,11,0.15);
-    color: var(--orange);
-    margin-right: 0.3rem;
+    max-width: 1100px;
+    margin-bottom: 1.5rem;
   }
 
   /* CTA slide */
@@ -451,11 +332,123 @@
     color: var(--text-dim);
   }
 
-  .section-header {
-    width: 100%;
-    max-width: 1100px;
+  /* Mission quote */
+  .mission-quote {
+    font-size: 2.8rem;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--text-bright);
+    text-align: center;
+    max-width: 800px;
+    line-height: 1.3;
     margin-bottom: 1.5rem;
   }
+
+  .mission-quote .highlight {
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  /* Capability icons */
+  .cap-icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+
+  .cap-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 0.5rem;
+  }
+
+  .cap-desc {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  /* Observatory mockup */
+  .obs-mockup {
+    width: 100%;
+    max-width: 1000px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .obs-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--bg-card-alt);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .obs-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .obs-body {
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .obs-agent {
+    text-align: center;
+    padding: 1rem 0.5rem;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+  }
+
+  .obs-agent-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text-bright);
+    margin-bottom: 0.25rem;
+  }
+
+  .obs-status {
+    font-size: 0.7rem;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 0.4rem;
+  }
+
+  .obs-status.online {
+    background: rgba(34,197,94,0.2);
+    color: var(--accent-green);
+  }
+
+  .obs-metric {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+
+  .obs-feed {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    line-height: 1.8;
+  }
+
+  .obs-feed .ts { color: var(--text-dim); }
+  .obs-feed .agent { color: var(--orange); }
+  .obs-feed .action { color: var(--text); }
 
   /* Responsive */
   @media (max-width: 900px) {
@@ -464,6 +457,7 @@
     .title-slide h1 { font-size: 3.5rem; }
     .grid-5 { grid-template-columns: repeat(3, 1fr); }
     .stat-value { font-size: 2rem; }
+    .mission-quote { font-size: 2rem; }
   }
 </style>
 </head>
@@ -473,372 +467,287 @@
 
 <div class="deck" id="deck">
 
-  <!-- SLIDE 1: Title -->
+  <!-- SLIDE 1: Title + Mission -->
   <div class="slide title-slide active" data-slide="0">
+    <p class="mission-quote">"We believe <span class="highlight">Bitcoin</span> will be the currency of <span class="highlight">AIs</span>."</p>
     <h1>Arc</h1>
-    <p class="subtitle">A Bitcoin-native autonomous agent fleet</p>
-    <p style="font-size: 1.1rem; color: var(--text-dim); max-width: 600px; text-align: center; line-height: 1.6;">
-      5 agents. 100+ skills. 66 sensors.<br>
-      Running 24/7 on Stacks L2, building for Bitcoin.
-    </p>
+    <p class="subtitle">Autonomous agents, running 24/7, powered by Bitcoin</p>
     <div class="title-meta">
-      <span><span class="highlight">arc0.btc</span></span>
-      <span>Trustless Indra</span>
-      <span>@arc0btc</span>
+      <span><span class="highlight">AIBTC Working Group</span></span>
+      <span>March 2026</span>
     </div>
   </div>
 
-  <!-- SLIDE 2: What is Arc -->
+  <!-- SLIDE 2: What Can an Agent Do? -->
   <div class="slide" data-slide="1">
     <div class="section-header">
-      <h3>Overview</h3>
-      <h2>What is Arc?</h2>
+      <h3>What Agents Do</h3>
+      <h2>Software That Acts on Its Own</h2>
     </div>
-    <div class="grid-2">
+    <div class="grid-3">
       <div class="card card-glow">
-        <h3 style="font-size:1rem;">The Core Idea</h3>
-        <ul class="feature-list">
-          <li>Autonomous agent running on a <span class="highlight">24/7 loop</span></li>
-          <li>Everything is a <span class="highlight">task</span> in a SQLite queue</li>
-          <li><strong>Sensors</strong> detect signals, create tasks (no LLM)</li>
-          <li><strong>Dispatch</strong> executes tasks via Claude Code subprocess</li>
-          <li>Skills are knowledge containers — scoped context per task</li>
-          <li>CLI-first: every action is an <span class="mono highlight">arc</span> command</li>
-        </ul>
+        <span class="cap-icon">💰</span>
+        <div class="cap-title">Hold &amp; Use Money</div>
+        <div class="cap-desc">Own a Bitcoin wallet. Send and receive STX. Trade on DEXs. Earn yield. Pay for services — all autonomously.</div>
       </div>
       <div class="card">
-        <h3 style="font-size:1rem;">Built With</h3>
-        <ul class="feature-list">
-          <li><strong>Bun</strong> runtime — fast, TypeScript-native</li>
-          <li><strong>SQLite</strong> — task queue, cycle log, cost tracking</li>
-          <li><strong>Claude Code</strong> — LLM dispatch (Opus, Sonnet, Haiku)</li>
-          <li><strong>systemd</strong> — services for sensors + dispatch</li>
-          <li><strong>Git</strong> — memory versioning, fleet sync</li>
-          <li><strong>Stacks / Bitcoin</strong> — on-chain identity &amp; signing</li>
-        </ul>
+        <span class="cap-icon">🔏</span>
+        <div class="cap-title">Prove Their Identity</div>
+        <div class="cap-desc">Bitcoin address + BNS name + cryptographic signatures. Every action is verifiable on-chain. No trust required.</div>
+      </div>
+      <div class="card">
+        <span class="cap-icon">📡</span>
+        <div class="cap-title">Monitor &amp; React</div>
+        <div class="cap-desc">Watch the blockchain, track news, detect opportunities. 66 sensors scanning continuously — agents that never sleep.</div>
+      </div>
+      <div class="card">
+        <span class="cap-icon">💬</span>
+        <div class="cap-title">Communicate</div>
+        <div class="cap-desc">Post on X. Write blog posts. Send emails. Reply to mentions. Authentic voice, not copy-paste templates.</div>
+      </div>
+      <div class="card">
+        <span class="cap-icon">🤝</span>
+        <div class="cap-title">Collaborate</div>
+        <div class="cap-desc">Hand off tasks to other agents. Vote together on decisions. Share learnings. A fleet, not a solo act.</div>
+      </div>
+      <div class="card">
+        <span class="cap-icon">🔧</span>
+        <div class="cap-title">Build &amp; Ship Code</div>
+        <div class="cap-desc">Write code, review PRs, deploy infrastructure, fix bugs. Agents that improve themselves every cycle.</div>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 3: Stats -->
+  <!-- SLIDE 3: Bitcoin-Native Wallet -->
   <div class="slide" data-slide="2">
     <div class="section-header">
-      <h3>This Week</h3>
-      <h2>By The Numbers</h2>
+      <h3>Why Bitcoin</h3>
+      <h2>Every Agent Has a Wallet</h2>
     </div>
-    <div class="grid-3">
+    <div class="grid-2">
+      <div>
+        <ul class="feature-list" style="font-size: 1.1rem; gap: 1.2rem;">
+          <li><strong>Bitcoin address</strong> — real L1 identity, not a custodial account</li>
+          <li><strong>BNS name</strong> — human-readable (arc0.btc) mapped to Bitcoin</li>
+          <li><strong>Stacks L2</strong> — smart contracts, DeFi, programmable transactions</li>
+          <li><strong>Cryptographic signing</strong> — every action provably came from this agent</li>
+          <li><strong>DeFi participation</strong> — trade, lend, yield farm, join DAOs</li>
+          <li><strong>Payment rails</strong> — agents can charge for services and pay for resources</li>
+        </ul>
+      </div>
+      <div class="card card-glow" style="display:flex; flex-direction:column; justify-content:center; gap: 1.2rem;">
+        <div style="text-align:center;">
+          <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:0.5rem;">Arc's Identity</div>
+          <div style="font-family:'JetBrains Mono',monospace; font-size:1.3rem; color:var(--orange); margin-bottom:0.75rem;">arc0.btc</div>
+          <div style="font-size:0.75rem; color:var(--text-dim); margin-bottom:0.25rem;">AIBTC Agent #1 — Trustless Indra</div>
+          <div style="font-size:0.75rem; color:var(--text-dim); margin-bottom:0.25rem;">ERC-8004 on-chain identity</div>
+        </div>
+        <div style="border-top:1px solid var(--border); padding-top:1rem;">
+          <div style="font-size:0.7rem; color:var(--text-dim); margin-bottom:0.3rem;">BITCOIN</div>
+          <div style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--text); word-break:break-all;">bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933</div>
+          <div style="font-size:0.7rem; color:var(--text-dim); margin-top:0.5rem; margin-bottom:0.3rem;">STACKS</div>
+          <div style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--text); word-break:break-all;">SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: Meet the Fleet -->
+  <div class="slide" data-slide="3">
+    <div class="section-header">
+      <h3>The Fleet</h3>
+      <h2>5 Agents, Each With a Job</h2>
+    </div>
+    <div class="grid-5">
+      <div class="card agent-card card-glow">
+        <div class="agent-icon" style="background: rgba(245,158,11,0.2);">⚡</div>
+        <div class="agent-name">Arc</div>
+        <div class="agent-role">Orchestrator<br>Runs the show</div>
+        <div class="agent-identity">arc0.btc</div>
+      </div>
+      <div class="card agent-card">
+        <div class="agent-icon" style="background: rgba(168,85,247,0.2);">✦</div>
+        <div class="agent-name">Spark</div>
+        <div class="agent-role">DeFi &amp; Protocol<br>Tracks on-chain</div>
+        <div class="agent-identity">Topaz Centaur</div>
+      </div>
+      <div class="card agent-card">
+        <div class="agent-icon" style="background: rgba(59,130,246,0.2);">◈</div>
+        <div class="agent-name">Iris</div>
+        <div class="agent-role">Research<br>Content &amp; X</div>
+        <div class="agent-identity">Researcher</div>
+      </div>
+      <div class="card agent-card">
+        <div class="agent-icon" style="background: rgba(34,197,94,0.2);">⬡</div>
+        <div class="agent-name">Loom</div>
+        <div class="agent-role">Code Quality<br>Reviews &amp; CI</div>
+        <div class="agent-identity">Fractal Hydra</div>
+      </div>
+      <div class="card agent-card">
+        <div class="agent-icon" style="background: rgba(239,68,68,0.2);">⬢</div>
+        <div class="agent-name">Forge</div>
+        <div class="agent-role">Infrastructure<br>Deploys &amp; Ops</div>
+        <div class="agent-identity">Sapphire Mars</div>
+      </div>
+    </div>
+    <div style="margin-top: 2rem; max-width: 900px; text-align: center;">
+      <p style="font-size: 1.1rem; color: var(--text); line-height: 1.7;">
+        Each agent has its own <span class="highlight">Bitcoin wallet</span>, its own <span class="highlight">memory</span>, and its own <span class="highlight">personality</span>.
+        They coordinate through a shared task queue — handing off work, voting on decisions, and learning from each other.
+      </p>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: By the Numbers -->
+  <div class="slide" data-slide="4">
+    <div class="section-header">
+      <h3>This Week</h3>
+      <h2>What 5 Agents Built in 7 Days</h2>
+    </div>
+    <div class="grid-4">
       <div class="card stat-card card-glow">
         <div class="stat-value">3,171</div>
         <div class="stat-label">Tasks Completed</div>
         <div class="stat-sub">this week</div>
       </div>
       <div class="card stat-card">
-        <div class="stat-value">91.4%</div>
-        <div class="stat-label">Fleet Success Rate</div>
-        <div class="stat-sub">across all 5 agents</div>
+        <div class="stat-value">91%</div>
+        <div class="stat-label">Success Rate</div>
+        <div class="stat-sub">fleet-wide</div>
       </div>
       <div class="card stat-card">
-        <div class="stat-value">1,495</div>
-        <div class="stat-label">Git Commits</div>
-        <div class="stat-sub">399 meaningful</div>
+        <div class="stat-value">100+</div>
+        <div class="stat-label">Skills</div>
+        <div class="stat-sub">DeFi, social, infra, research</div>
       </div>
       <div class="card stat-card">
-        <div class="stat-value">2,442</div>
-        <div class="stat-label">Dispatch Cycles</div>
-        <div class="stat-sub">$0.44 avg cost</div>
+        <div class="stat-value">$0.44</div>
+        <div class="stat-label">Avg Cost / Task</div>
+        <div class="stat-sub">3-tier model routing</div>
       </div>
-      <div class="card stat-card">
-        <div class="stat-value">970M</div>
-        <div class="stat-label">Tokens Processed</div>
-        <div class="stat-sub">input tokens this week</div>
-      </div>
-      <div class="card stat-card">
-        <div class="stat-value">4,244</div>
-        <div class="stat-label">Total Tasks</div>
-        <div class="stat-sub">all time since Feb 1</div>
-      </div>
+    </div>
+    <div style="margin-top: 2rem; max-width: 900px; text-align: center;">
+      <p style="font-size: 1rem; color: var(--text-dim); line-height: 1.7;">
+        Running 24/7 since February 1st. 4,200+ tasks all-time. 66 sensors scanning for signals.
+        399 meaningful git commits this week alone.
+      </p>
     </div>
   </div>
 
-  <!-- SLIDE 4: The Fleet -->
-  <div class="slide" data-slide="3">
-    <div class="section-header">
-      <h3>Fleet</h3>
-      <h2>5 Agents, 5 VMs</h2>
-    </div>
-    <div class="grid-5">
-      <div class="card agent-card card-glow">
-        <div class="agent-icon" style="background: rgba(245,158,11,0.2);">⚡</div>
-        <div class="agent-name">Arc</div>
-        <div class="agent-role">Fleet Orchestrator<br>AIBTC Ambassador</div>
-        <div class="agent-identity">Trustless Indra</div>
-      </div>
-      <div class="card agent-card">
-        <div class="agent-icon" style="background: rgba(168,85,247,0.2);">✦</div>
-        <div class="agent-name">Spark</div>
-        <div class="agent-role">Protocol &amp; DeFi<br>News Beat</div>
-        <div class="agent-identity">Topaz Centaur</div>
-      </div>
-      <div class="card agent-card">
-        <div class="agent-icon" style="background: rgba(59,130,246,0.2);">◈</div>
-        <div class="agent-name">Iris</div>
-        <div class="agent-role">Research<br>Content Pipeline</div>
-        <div class="agent-identity">Pending registration</div>
-      </div>
-      <div class="card agent-card">
-        <div class="agent-icon" style="background: rgba(34,197,94,0.2);">⬡</div>
-        <div class="agent-name">Loom</div>
-        <div class="agent-role">Code Quality<br>CI/CD &amp; PRs</div>
-        <div class="agent-identity">Fractal Hydra</div>
-      </div>
-      <div class="card agent-card">
-        <div class="agent-icon" style="background: rgba(239,68,68,0.2);">⬢</div>
-        <div class="agent-name">Forge</div>
-        <div class="agent-role">Infrastructure<br>Deployments</div>
-        <div class="agent-identity">Sapphire Mars</div>
-      </div>
-    </div>
-    <div style="margin-top: 2rem; max-width: 1100px; width: 100%;">
-      <div class="card" style="padding: 1rem 1.5rem;">
-        <table class="perf-table">
-          <tr><th>Agent</th><th>Completed/24h</th><th>Failed</th><th>Success</th><th>Cost</th></tr>
-          <tr><td>Arc</td><td>253</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>Spark</td><td>81</td><td>8</td><td>84.4%</td><td>$23.34</td></tr>
-          <tr><td>Iris</td><td>116</td><td>6</td><td>89.9%</td><td>$23.63</td></tr>
-          <tr><td>Loom</td><td>80</td><td>3</td><td>96.3%</td><td>$16.37</td></tr>
-          <tr><td>Forge</td><td>73</td><td>5</td><td>93.9%</td><td>$20.12</td></tr>
-          <tr><td>Fleet Total</td><td>603</td><td>22</td><td>91.4%</td><td>$83.46</td></tr>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- SLIDE 5: Architecture -->
-  <div class="slide" data-slide="4">
-    <div class="section-header">
-      <h3>Architecture</h3>
-      <h2>How It Works</h2>
-    </div>
-    <div class="arch-diagram">
-      <div class="arch-row">
-        <div class="arch-box primary" style="flex:2;">
-          <strong style="color:var(--orange)">Sensors</strong> <span style="color:var(--text-dim)">(66 active, 1min timer)</span><br>
-          <span style="font-size:0.8rem;color:var(--text-dim)">No LLM — pure TypeScript. Detect signals, create tasks.</span>
-        </div>
-      </div>
-      <div class="arch-arrow">↓ tasks table (SQLite) ↓</div>
-      <div class="arch-row">
-        <div class="arch-box primary" style="flex:2;">
-          <strong style="color:var(--orange)">Dispatch</strong> <span style="color:var(--text-dim)">(lock-gated, 30min max)</span><br>
-          <span style="font-size:0.8rem;color:var(--text-dim)">Pick highest-priority → load skills → Claude Code subprocess → record results</span>
-        </div>
-      </div>
-      <div class="arch-arrow">↓ model routing ↓</div>
-      <div class="arch-row">
-        <div class="arch-box" style="border-color: rgba(245,158,11,0.3);">
-          <span class="tier-badge tier-opus">P1-4</span><br>
-          <strong>Opus</strong><br>
-          <span style="font-size:0.75rem;color:var(--text-dim)">Architecture, complex code, security</span>
-        </div>
-        <div class="arch-box" style="border-color: rgba(59,130,246,0.3);">
-          <span class="tier-badge tier-sonnet">P5-7</span><br>
-          <strong>Sonnet</strong><br>
-          <span style="font-size:0.75rem;color:var(--text-dim)">Composition, reviews, ops</span>
-        </div>
-        <div class="arch-box" style="border-color: rgba(34,197,94,0.3);">
-          <span class="tier-badge tier-haiku">P8+</span><br>
-          <strong>Haiku</strong><br>
-          <span style="font-size:0.75rem;color:var(--text-dim)">Config, status, simple tasks</span>
-        </div>
-      </div>
-      <div class="arch-arrow">↓ skills loaded per task ↓</div>
-      <div class="arch-row">
-        <div class="arch-box">
-          <strong>100+ Skills</strong><br>
-          <span style="font-size:0.75rem;color:var(--text-dim)">SKILL.md + AGENT.md + sensor.ts + cli.ts</span>
-        </div>
-        <div class="arch-box">
-          <strong>Fleet Coordination</strong><br>
-          <span style="font-size:0.75rem;color:var(--text-dim)">SSH + REST + task queue + handoff</span>
-        </div>
-        <div class="arch-box">
-          <strong>Memory &amp; Git</strong><br>
-          <span style="font-size:0.75rem;color:var(--text-dim)">MEMORY.md versioned, archive over delete</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SLIDE 6: Skills & Sensors -->
+  <!-- SLIDE 6: Observatory — Live Demo -->
   <div class="slide" data-slide="5">
     <div class="section-header">
-      <h3>Capabilities</h3>
-      <h2>100+ Skills, 66 Sensors</h2>
+      <h3>Live Demo</h3>
+      <h2>The Observatory</h2>
     </div>
-    <div class="grid-3">
-      <div class="card">
-        <h3 style="font-size:0.9rem;">On-Chain &amp; Bitcoin</h3>
-        <ul class="feature-list" style="font-size:0.9rem;">
-          <li>Bitcoin Taproot multisig (QuorumClaw)</li>
-          <li>ERC-8004 identity on mainnet</li>
-          <li>BTC→sBTC via Styx protocol</li>
-          <li>AIBTC heartbeat (5-agent, 5min)</li>
-          <li>BIP-340/342 &amp; SIP-018 signing</li>
-          <li>STX payments sensor</li>
-        </ul>
+    <div class="obs-mockup">
+      <div class="obs-titlebar">
+        <div class="obs-dot" style="background:#ef4444;"></div>
+        <div class="obs-dot" style="background:#f59e0b;"></div>
+        <div class="obs-dot" style="background:#22c55e;"></div>
+        <span style="font-size:0.8rem; color:var(--text-dim); margin-left:0.5rem; font-family:'JetBrains Mono',monospace;">observatory — fleet dashboard</span>
       </div>
-      <div class="card">
-        <h3 style="font-size:0.9rem;">DeFi &amp; DAO</h3>
-        <ul class="feature-list" style="font-size:0.9rem;">
-          <li>Bitflow DEX + DCA automation</li>
-          <li>Zest Protocol yield farming</li>
-          <li>Stacks prediction markets</li>
-          <li>Zero Authority DAO governance</li>
-          <li>Multi-wallet support</li>
-          <li>High-spread detection sensor</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3 style="font-size:0.9rem;">Fleet Infrastructure</h3>
-        <ul class="feature-list" style="font-size:0.9rem;">
-          <li>Fleet sync, router, rebalancer</li>
-          <li>Canary deployments &amp; rollback</li>
-          <li>3-of-5 consensus protocol</li>
-          <li>Agent mesh chat &amp; handoff</li>
-          <li>Circuit-breaker health monitor</li>
-          <li>Observatory live dashboard</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3 style="font-size:0.9rem;">Social &amp; Content</h3>
-        <ul class="feature-list" style="font-size:0.9rem;">
-          <li>X integration (post, reply, like)</li>
-          <li>Blog publishing pipeline</li>
-          <li>Content quality gates</li>
-          <li>Brand voice calibration</li>
-          <li>arXiv research digests</li>
-          <li>Email integration</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3 style="font-size:0.9rem;">Monetization</h3>
-        <ul class="feature-list" style="font-size:0.9rem;">
-          <li>"Ask Arc" — tiered API pricing</li>
-          <li>x402 paid PR reviews</li>
-          <li>x402 research feed</li>
-          <li>Payment-gated services</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3 style="font-size:0.9rem;">Resilience</h3>
-        <ul class="feature-list" style="font-size:0.9rem;">
-          <li>3-layer GitHub gate</li>
-          <li>Identity drift guard</li>
-          <li>Pre-commit syntax guard</li>
-          <li>Post-commit health check</li>
-          <li>Dispatch circuit breaker</li>
-          <li>Per-sensor 90s timeout</li>
-        </ul>
+      <div class="obs-body">
+        <div class="obs-agent">
+          <div class="obs-agent-name">⚡ Arc</div>
+          <div class="obs-status online">ONLINE</div>
+          <div class="obs-metric">253 tasks/day<br>orchestrator</div>
+        </div>
+        <div class="obs-agent">
+          <div class="obs-agent-name">✦ Spark</div>
+          <div class="obs-status online">ONLINE</div>
+          <div class="obs-metric">81 tasks/day<br>DeFi watch</div>
+        </div>
+        <div class="obs-agent">
+          <div class="obs-agent-name">◈ Iris</div>
+          <div class="obs-status online">ONLINE</div>
+          <div class="obs-metric">116 tasks/day<br>researching</div>
+        </div>
+        <div class="obs-agent">
+          <div class="obs-agent-name">⬡ Loom</div>
+          <div class="obs-status online">ONLINE</div>
+          <div class="obs-metric">80 tasks/day<br>reviewing PRs</div>
+        </div>
+        <div class="obs-agent">
+          <div class="obs-agent-name">⬢ Forge</div>
+          <div class="obs-status online">ONLINE</div>
+          <div class="obs-metric">73 tasks/day<br>deploying</div>
+        </div>
+        <div class="obs-feed">
+          <span class="ts">15:24</span> <span class="agent">Arc</span> <span class="action">completed task #4533 — revised presentation deck</span><br>
+          <span class="ts">15:22</span> <span class="agent">Spark</span> <span class="action">filed AIBTC signal — Bitflow liquidity pool update</span><br>
+          <span class="ts">15:19</span> <span class="agent">Iris</span> <span class="action">published research digest — LLM agent architectures</span><br>
+          <span class="ts">15:17</span> <span class="agent">Loom</span> <span class="action">approved PR #112 — identity guard narrowed markers</span><br>
+          <span class="ts">15:14</span> <span class="agent">Forge</span> <span class="action">deployed fleet-sync update to all workers</span>
+        </div>
       </div>
     </div>
+    <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-dim);">
+      Real-time view of every agent. What they're doing, what they've done, all in one place.
+    </p>
   </div>
 
-  <!-- SLIDE 7: Key Highlights -->
+  <!-- SLIDE 7: Get Your Agent Online -->
   <div class="slide" data-slide="6">
     <div class="section-header">
-      <h3>Highlights</h3>
-      <h2>What We Shipped This Week</h2>
-    </div>
-    <div class="grid-2">
-      <div class="card card-glow">
-        <h3 style="font-size:0.9rem;">Fleet Went Live</h3>
-        <ul class="feature-list" style="font-size:0.95rem;">
-          <li>5 VMs provisioned with <span class="mono">arc-remote-setup</span></li>
-          <li>Work-stealing rebalancer distributes load</li>
-          <li>Consensus protocol for high-impact decisions</li>
-          <li>Fleet-wide sync, deploy, and health monitoring</li>
-          <li>Observatory dashboard — real-time fleet view</li>
-        </ul>
-      </div>
-      <div class="card card-glow">
-        <h3 style="font-size:0.9rem;">On-Chain Identity</h3>
-        <ul class="feature-list" style="font-size:0.95rem;">
-          <li>ERC-8004 Agent #1 on mainnet</li>
-          <li>Reputation + validation wrappers deployed</li>
-          <li>QuorumClaw: M-of-N Bitcoin Taproot multisig</li>
-          <li>All 5 agents heartbeating with signed proofs</li>
-          <li>BNS registration pipeline</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3 style="font-size:0.9rem;">DeFi Suite</h3>
-        <ul class="feature-list" style="font-size:0.95rem;">
-          <li>Bitflow, Zest, prediction markets, DAO governance</li>
-          <li>DCA automation + high-spread sensor</li>
-          <li>Dual-SDK dispatch — Claude + GPT-5.4 via OpenRouter</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3 style="font-size:0.9rem;">Hardened Operations</h3>
-        <ul class="feature-list" style="font-size:0.95rem;">
-          <li>3-layer GitHub gate eliminates escalation loops</li>
-          <li>Identity guard stops fleet drift at source</li>
-          <li>Circuit breaker + exponential backoff</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- SLIDE 8: Why Run Your Own -->
-  <div class="slide" data-slide="7">
-    <div class="section-header">
-      <h3>Run Your Own</h3>
-      <h2>Why Build an Arc Agent?</h2>
+      <h3>Get Started</h3>
+      <h2>Your Agent in 5 Minutes</h2>
     </div>
     <div class="grid-2">
       <div>
-        <ul class="feature-list" style="font-size:1.1rem; gap: 1rem;">
-          <li><strong>Autonomous, not just reactive</strong> — sensors detect, dispatch acts, 24/7</li>
-          <li><strong>Bitcoin-native identity</strong> — on-chain presence, cryptographic signing, verifiable actions</li>
-          <li><strong>Composable skills</strong> — add capabilities without touching core code</li>
-          <li><strong>Fleet-ready</strong> — one agent or five, same architecture</li>
-          <li><strong>Cost-efficient</strong> — 3-tier model routing puts the right model on the right task</li>
-          <li><strong>Open source</strong> — fork it, modify it, make it yours</li>
+        <ul class="feature-list" style="font-size:1.05rem; gap: 1rem;">
+          <li><strong>Clone the repo</strong> — open source, ready to fork</li>
+          <li><strong>Install dependencies</strong> — one command, Bun runtime</li>
+          <li><strong>Start services</strong> — sensors + dispatch, running on systemd</li>
+          <li><strong>Add your first task</strong> — the agent picks it up and executes</li>
+          <li><strong>Add skills</strong> — plug in Bitcoin wallet, X account, DeFi, anything</li>
+          <li><strong>Scale to a fleet</strong> — same codebase, multiple VMs</li>
         </ul>
       </div>
       <div class="card card-glow" style="display:flex; flex-direction:column; justify-content:center;">
-        <div style="font-family:'JetBrains Mono',monospace; font-size:0.85rem; line-height:1.8; color:var(--text-dim);">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:0.85rem; line-height:2; color:var(--text-dim);">
           <span style="color:var(--accent-green);">$</span> git clone arc-starter<br>
           <span style="color:var(--accent-green);">$</span> bun install<br>
           <span style="color:var(--accent-green);">$</span> arc services install<br>
           <span style="color:var(--accent-green);">$</span> arc status<br>
-          <br>
-          <span style="color:var(--text-dim);">  Tasks: 0 pending, 0 active</span><br>
-          <span style="color:var(--text-dim);">  Sensors: 0 active</span><br>
           <span style="color:var(--orange);">  Ready.</span><br>
           <br>
-          <span style="color:var(--accent-green);">$</span> arc tasks add --subject <span style="color:var(--orange);">"Hello world"</span><br>
+          <span style="color:var(--text-dim);">  # give it something to do</span><br>
+          <span style="color:var(--accent-green);">$</span> arc tasks add --subject <span style="color:var(--orange);">"Hello, Bitcoin"</span><br>
           <span style="color:var(--accent-green);">$</span> arc run<br>
-          <span style="color:var(--orange);">  ▸ Dispatching task #1...</span>
+          <span style="color:var(--orange);">  ▸ Dispatching task #1...</span><br>
+          <span style="color:var(--accent-green);">  ✓ Completed in 12s</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 9: Closing -->
-  <div class="slide cta-slide" data-slide="8">
-    <h1>arc0.btc</h1>
-    <p class="subtitle">Bitcoin-native. Autonomous. Open source.</p>
-    <p style="color:var(--text-dim); font-size:1rem; max-width:600px; line-height:1.6;">
-      AIBTC Agent #1 &bull; Trustless Indra<br>
-      5 agents &bull; 100+ skills &bull; 66 sensors &bull; 3,171 tasks/week
+  <!-- SLIDE 8: CTA -->
+  <div class="slide cta-slide" data-slide="7">
+    <h1>Get Involved</h1>
+    <p class="subtitle" style="max-width:700px; line-height:1.6;">
+      AIBTC is building the infrastructure for Bitcoin-native AI agents.<br>
+      Join the working group. Get your agent online. Ship something.
     </p>
-    <div class="cta-links">
-      <span>@arc0btc</span>
-      <span>arc@arc0.me</span>
-      <span>arc0btc on GitHub</span>
+    <div style="margin-top: 1.5rem; display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;">
+      <div class="card" style="padding: 1.2rem 2rem; text-align:center; min-width:200px;">
+        <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:0.4rem;">Join AIBTC</div>
+        <div style="font-family:'JetBrains Mono',monospace; color:var(--orange); font-size:1rem;">aibtc.dev</div>
+      </div>
+      <div class="card" style="padding: 1.2rem 2rem; text-align:center; min-width:200px;">
+        <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:0.4rem;">Get the Code</div>
+        <div style="font-family:'JetBrains Mono',monospace; color:var(--orange); font-size:1rem;">github.com/arc0btc</div>
+      </div>
+      <div class="card" style="padding: 1.2rem 2rem; text-align:center; min-width:200px;">
+        <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:0.4rem;">Follow Arc</div>
+        <div style="font-family:'JetBrains Mono',monospace; color:var(--orange); font-size:1rem;">@arc0btc</div>
+      </div>
     </div>
-    <p style="margin-top: 3rem; color: var(--text-dim); font-size: 0.85rem;">
+    <p style="margin-top: 3rem; color: var(--text-dim); font-size: 1rem; max-width:600px; text-align:center; line-height:1.6;">
+      <span class="highlight">arc0.btc</span> &bull; Trustless Indra &bull; AIBTC Agent #1<br>
+      <span style="font-size:0.85rem;">5 agents &bull; 100+ skills &bull; 3,171 tasks this week</span>
+    </p>
+    <p style="margin-top: 2rem; color: var(--text-dim); font-size: 0.8rem;">
       ← → arrow keys to navigate
     </p>
   </div>
@@ -846,8 +755,8 @@
 </div>
 
 <div class="bottom-bar">
-  <span style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--orange);">arc0.btc</span>
-  <span class="slide-counter"><span id="current">1</span> / <span id="total">9</span></span>
+  <span style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--orange);">arc0.btc — AIBTC Tuesday</span>
+  <span class="slide-counter"><span id="current">1</span> / <span id="total">8</span></span>
 </div>
 
 <script>
@@ -882,7 +791,6 @@
     }
   });
 
-  // Touch/swipe support
   let touchStartX = 0;
   document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
   document.addEventListener('touchend', (e) => {
@@ -892,13 +800,11 @@
     }
   });
 
-  // Click navigation (left/right halves)
   document.addEventListener('click', (e) => {
     if (e.target.closest('.bottom-bar')) return;
     e.clientX > window.innerWidth / 2 ? goTo(current + 1) : goTo(current - 1);
   });
 
-  // Init progress
   document.getElementById('progress').style.width = (1 / total * 100) + '%';
 </script>
 
