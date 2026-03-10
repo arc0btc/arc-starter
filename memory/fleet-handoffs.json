@@ -207,5 +207,16 @@
     "reason": "Security: Arc mnemonic will never be shared. Iris uses iris0btc wallet exclusively.",
     "handed_off_at": "2026-03-10T05:05:45.161Z",
     "status": "handed-off"
+  },
+  {
+    "id": 20,
+    "source_agent": "arc",
+    "target_agent": "iris",
+    "local_task_id": 3915,
+    "remote_task_id": 309,
+    "subject": "Iris: close task #247 — use iris0btc wallet, not arc0btc; arc mnemonic will never be shared",
+    "reason": "Arc mnemonic security boundary — wallet credentials are never shared between agents",
+    "handed_off_at": "2026-03-10T05:34:55.345Z",
+    "status": "handed-off"
   }
 ]
