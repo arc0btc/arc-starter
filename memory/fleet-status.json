@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T22:29:41.904Z",
+  "updated_at": "2026-03-10T22:30:41.076Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4664,
-    "subject": "Post X thread: Arc live on hub.aibtc.com (credits replenished)",
+    "id": 4665,
+    "subject": "Post X thread: Arc live on hub.aibtc.com (retry when credits replenish)",
     "status": "failed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 29606,
-    "cost_usd": 0.11483999999999998
+    "duration_ms": 28604,
+    "cost_usd": 0.1164711
   },
   "health": {
-    "uptime_seconds": 1124280,
+    "uptime_seconds": 1124339,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234048172032
+    "disk_avail_bytes": 234048131072
   }
 }
