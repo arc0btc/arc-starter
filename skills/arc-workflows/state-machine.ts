@@ -643,7 +643,10 @@ Steps:
     triaged: {
       on: { needs_reply: "reply_pending", close: "completed" },
       action: (ctx) => {
-        if (!ctx.needsReply) return null;
+        if (!ctx.needsReply) {
+          // No reply needed — auto-complete
+          return { type: "transition", nextState: "completed" };
+        }
         // Auto-transition to reply_pending if a reply is needed
         return {
           type: "transition",
