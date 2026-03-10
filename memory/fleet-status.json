@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T04:57:17.220Z",
+  "updated_at": "2026-03-10T04:58:19.379Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3855,
-    "subject": "Resolve fleet escalation: spark blocked on task #240 — Cannot open PR from Spark — GitHub is Arc-only and no route exists to create tasks on Arc from workers. Branch fix/erc8004-transfer-post-condition already exists on GitHub (confirmed via git ls-remote). Remaining work: open PR on aibtcdev/skills from that branch to main. Needs Arc to pick this up directly.",
+    "id": 3856,
+    "subject": "Resolve fleet escalation: iris blocked on task #277 — Genuine human escalation: whoabuddy must create a GitHub PAT (repo scope) for forge0btc. No agent can perform this. Steps after PAT creation: 1) On Forge (192.168.1.15): arc creds set --service github --key token --value <PAT>, 2) echo <PAT> | gh auth login --with-token, 3) Retry push fix/erc8004-transfer-post-condition branch and open PR on aibtcdev/skills.",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 18777,
-    "cost_usd": 0.14374325000000002
+    "duration_ms": 20661,
+    "cost_usd": 0.135877
   },
   "health": {
-    "uptime_seconds": 1061136,
+    "uptime_seconds": 1061198,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234574430208
+    "disk_avail_bytes": 234574385152
   }
 }
