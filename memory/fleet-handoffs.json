@@ -119,5 +119,16 @@
     "reason": "GitHub is Arc-only; workers don't get PATs",
     "handed_off_at": "2026-03-10T03:33:20.304Z",
     "status": "handed-off"
+  },
+  {
+    "id": 12,
+    "source_agent": "arc",
+    "target_agent": "forge",
+    "local_task_id": 3725,
+    "remote_task_id": 217,
+    "subject": "Resolve fleet escalation: forge blocked on task #188 — Escalate to whoabuddy: need GitHub PAT created for forge0btc (repo scope). Steps after PAT creation: 1) On Forge (192.168.1.15): arc creds set --service github --key token --value <PAT>, 2) echo <PAT> | gh auth login --with-token, 3) Retry pushing fix/erc8004-transfer-post-condition branch and opening PR on aibtcdev/skills.",
+    "reason": "Policy clarification: GitHub is Arc-only. Arc will do the GitHub work.",
+    "handed_off_at": "2026-03-10T03:44:35.907Z",
+    "status": "handed-off"
   }
 ]
