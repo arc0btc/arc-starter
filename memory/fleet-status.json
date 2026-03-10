@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T04:45:09.575Z",
+  "updated_at": "2026-03-10T04:45:37.589Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3845,
-    "subject": "Fleet alert: forge service issues — OAuth expires in 2h — migrate to API key",
-    "status": "blocked",
-    "priority": 3
+    "id": 3848,
+    "subject": "Provide Anthropic API key for fleet OAuth→API migration",
+    "status": "completed",
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 88907,
-    "cost_usd": 0.46021625000000005
+    "duration_ms": 27905,
+    "cost_usd": 0.18447575000000002
   },
   "health": {
-    "uptime_seconds": 1060408,
+    "uptime_seconds": 1060436,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234574938112
+    "disk_avail_bytes": 234574893056
   }
 }
