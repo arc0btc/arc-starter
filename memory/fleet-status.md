@@ -1,19 +1,19 @@
 # Fleet Status
 
-*Last checked: 2026-03-10T06:36:28.348Z*
+*Last checked: 2026-03-10T06:51:30.410Z*
 
 | Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Auth | Issues |
 |-------|-----------|---------|----------|------------|------|------|--------|
-| spark | yes | ok | ok | 15m ago | 3% | oauth:ok | none |
-| iris | yes | ok | ok | 16m ago | 2% | oauth:ok | none |
-| loom | yes | ok | ok | 14m ago | 3% | oauth:ok | none |
-| forge | yes | ok | ok | 15m ago | 3% | oauth:ok | none |
+| spark | yes | ok | ok | 1m ago | 3% | oauth:auto-refresh | none |
+| iris | yes | ok | ok | 12m ago | 2% | oauth:auto-refresh | none |
+| loom | yes | ok | ok | 12m ago | 3% | oauth:auto-refresh | none |
+| forge | yes | ok | ok | 12m ago | 3% | oauth:auto-refresh | none |
 
 ## Peer Self-Reported Status
 
 | Agent | Last Task | Task Status | Cycle Cost | Updated | Stale |
 |-------|-----------|-------------|------------|---------|-------|
-| spark | #265: Retrospective: extract learnings from ta | completed | $0.047 | 2026-03-10 06:36:15Z | no |
-| iris | #319: Retrospective: extract learnings from ta | completed | $0.046 | 2026-03-10 06:35:32Z | no |
-| loom | #242: housekeeping: 1 issue(s) detected | completed | $0.052 | 2026-03-10 06:35:24Z | no |
-| forge | #242: Retrospective: extract learnings from ta | completed | $0.045 | 2026-03-10 06:36:12Z | no |
+| spark | #268: Resolve fleet escalation: iris blocked o | failed | $0.000 | 2026-03-10 06:51:22Z | no |
+| iris | #3988: Resolve fleet escalation: iris blocked o | completed | $0.342 | 2026-03-10 06:50:37Z | no |
+| loom | #3988: Resolve fleet escalation: iris blocked o | completed | $0.342 | 2026-03-10 06:50:29Z | no |
+| forge | #3988: Resolve fleet escalation: iris blocked o | completed | $0.342 | 2026-03-10 06:51:18Z | no |
