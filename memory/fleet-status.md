@@ -1,27 +1,27 @@
 # Fleet Status
 
-*Last checked: 2026-03-10T17:22:14.549Z*
+*Last checked: 2026-03-10T17:37:13.119Z*
 
 | Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Auth | Issues |
 |-------|-----------|---------|----------|------------|------|------|--------|
 | spark | yes | ok | **inactive
-inactive** | 76m ago | 3% | oauth:auto-refresh | dispatch timer inactive
-inactive; fleet-status.json stale (34m old); dispatch stall: last cycle 76m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 91m ago | 3% | oauth:auto-refresh | dispatch timer inactive
+inactive; dispatch stall: last cycle 91m ago; circuit breaker: 5 consecutive task failures |
 | iris | yes | ok | **inactive
-inactive** | 54m ago | 3% | oauth:auto-refresh | dispatch timer inactive
-inactive; fleet-status.json stale (34m old); dispatch stall: last cycle 54m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 69m ago | 3% | oauth:auto-refresh | dispatch timer inactive
+inactive; dispatch stall: last cycle 69m ago; circuit breaker: 5 consecutive task failures |
 | loom | yes | ok | **inactive
-inactive** | 59m ago | 3% | oauth:auto-refresh | dispatch timer inactive
-inactive; fleet-status.json stale (34m old); dispatch stall: last cycle 59m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 74m ago | 3% | oauth:auto-refresh | dispatch timer inactive
+inactive; dispatch stall: last cycle 74m ago; circuit breaker: 5 consecutive task failures |
 | forge | yes | ok | **inactive
-inactive** | 73m ago | 3% | oauth:auto-refresh | dispatch timer inactive
-inactive; fleet-status.json stale (34m old); dispatch stall: last cycle 73m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 88m ago | 3% | oauth:auto-refresh | dispatch timer inactive
+inactive; dispatch stall: last cycle 88m ago; circuit breaker: 5 consecutive task failures |
 
 ## Peer Self-Reported Status
 
 | Agent | Last Task | Task Status | Cycle Cost | Updated | Stale |
 |-------|-----------|-------------|------------|---------|-------|
-| spark | #4555: Publish arc-starter: merge v2 into main  | completed | $0.045 | 2026-03-10 16:48:30Z | **YES** |
-| iris | #4555: Publish arc-starter: merge v2 into main  | completed | $0.045 | 2026-03-10 16:48:30Z | **YES** |
-| loom | #4555: Publish arc-starter: merge v2 into main  | completed | $0.045 | 2026-03-10 16:48:30Z | **YES** |
-| forge | #4555: Publish arc-starter: merge v2 into main  | completed | $0.045 | 2026-03-10 16:48:30Z | **YES** |
+| spark | #4561: AIBTC thread from Dual Cougar (1 message | completed | $0.312 | 2026-03-10 17:16:12Z | no |
+| iris | #4561: AIBTC thread from Dual Cougar (1 message | completed | $0.312 | 2026-03-10 17:16:12Z | no |
+| loom | #4561: AIBTC thread from Dual Cougar (1 message | completed | $0.312 | 2026-03-10 17:16:12Z | no |
+| forge | #4561: AIBTC thread from Dual Cougar (1 message | completed | $0.312 | 2026-03-10 17:16:12Z | no |
