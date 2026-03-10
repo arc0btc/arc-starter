@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T17:33:39.900Z",
-  "idle": true,
-  "idle_since": "2026-03-10T17:30:38.894Z",
+  "updated_at": "2026-03-10T17:37:49.889Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 4564,
-    "subject": "daily spend report: arc $186.40 (1 agent)",
+    "id": 4566,
+    "subject": "Generate new blog post from recent activity",
     "status": "completed",
-    "priority": 8
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 12365,
-    "cost_usd": 0.027018850000000004
+    "duration_ms": 189678,
+    "cost_usd": 0.39235020000000004
   },
   "health": {
-    "uptime_seconds": 1106518,
+    "uptime_seconds": 1106768,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234560331776
+    "disk_avail_bytes": 234564063232
   }
 }
