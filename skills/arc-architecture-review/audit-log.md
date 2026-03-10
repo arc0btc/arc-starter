@@ -1,3 +1,31 @@
+## 2026-03-10T13:10:00.000Z
+
+4 findings: 0 error, 1 warn, 3 info → **HEALTHY**
+
+**Codebase changes since last audit (18:55Z, commits 721455f → df7d096):**
+- **3-layer GitHub blocking** — Three enforcement layers now prevent worker→GitHub escalation loops: (1) `GITHUB_TASK_RE` pre-dispatch gate in `dispatch.ts` catches GitHub tasks before LLM invocation; (2) `GITHUB_ESCALATION_RE` guard in `db.ts#insertTask` blocks creation at DB level; (3) `github-interceptor` sensor (worker, 10min) catches blocked tasks and auto-routes to Arc. Permanent fix after 7+ manual resolution cycles.
+- **identity-guard sensor** — New all-agent sensor (30min). Validates SOUL.md doesn't contain Arc-specific markers on non-Arc hosts. Last line of defense against fleet-self-sync identity overwrite edge cases. Narrowed markers to definitive claims only (`I'm Arc.`, Arc wallet addresses) to prevent false positives on cross-references.
+- **Worker sensor allowlist changed** — Previously workers skipped 3 filter sets (GITHUB, ARC_ONLY, CREDENTIAL). Now workers run an explicit allowlist of 10 sensors only. Simpler to reason about; identity-guard and github-interceptor added to allowlist.
+- **Web: cross-agent task creation** — `POST /api/tasks` endpoint added to arc-web. Agents on other VMs can create tasks on Arc without SSH. Authentication required.
+- **Observatory: cross-agent task board** — `arc-observatory` now shows tasks across all fleet agents and goal tracking.
+- **Sensor count** — 68 total (was 66, +2: identity-guard, github-interceptor).
+- **Skill count** — 105 total (was 103, +2: identity-guard, github-interceptor).
+- **Fleet-* skills upgraded** — Previous WARN (context-only stubs) resolved: fleet-broadcast, fleet-collect, fleet-consensus, fleet-deploy, fleet-email-report, fleet-escalation, fleet-exec, fleet-handoff, fleet-memory, fleet-push, fleet-router, fleet-self-sync, fleet-sync all have CLIs now. 69 skills with CLI (was 53).
+
+**SpaceX 5-step findings:**
+
+1. **Requirements** — 3-layer GitHub blocking was triggered by a recurring pattern (7+ manual resolutions same root cause). Structural fix is justified. identity-guard fills a real gap. Both valid.
+2. **Delete** — [INFO] `fleet-task-sync` still has no sensor, no CLI, no AGENT.md — only SKILL.md. Previous WARN on all fleet stubs resolved (rest now have CLIs). Only `fleet-task-sync` remains. If no task ever references it in `skills` array, it's dead weight.
+3. **Simplify** — [WARN] Budget gate (`DAILY_BUDGET_USD=$500`) in `src/dispatch.ts:1214` conflicts with MEMORY.md flag: "Do NOT throttle or limit tasks based on cost. No $200 cap — removed (2026-03-09 per whoabuddy)." The old $200 cap was replaced with a $500 cap, not removed. Clarify with whoabuddy: should the budget gate exist at $500, or be fully removed?
+4. **Accelerate** — [INFO] github-interceptor (10min) is faster than identity-guard (30min) response. Both are appropriate frequencies for their risk levels.
+5. **Automate** — [INFO] 3-layer GitHub blocking automates what was previously resolved manually per-incident. Appropriate use of automation. Not over-engineered — each layer catches what others miss (pre-LLM, creation-time, post-creation).
+
+**Recommendations:**
+- [ ] [WARN] Clarify budget gate with whoabuddy: `DAILY_BUDGET_USD=$500` still in `dispatch.ts:48` conflicts with MEMORY flag (No $200 cap — removed). Is $500 cap intentional or regression? → follow-up task created.
+- [ ] [INFO] Audit `fleet-task-sync` — verify any task's `skills` array references it, or delete.
+
+---
+
 ## 2026-03-09T18:55:00.000Z
 
 4 findings: 0 error, 1 warn, 3 info → **HEALTHY**

@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-09T18:55:00.000Z*
+*Generated: 2026-03-10T13:10:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -12,18 +12,27 @@ stateDiagram-v2
         note right of SystemdTimer
             Persistent services (always on):
             arc-web.service — dashboard port 3000
+              • POST /api/tasks — cross-agent task creation (authenticated)
+              • GET /identity — per-agent identity page
             arc-mcp.service — MCP server port 3100
             arc-observatory.service — observatory UI
+              • cross-agent task board + goal tracking (2026-03-09)
             fleet-web (port 4000, Arc host only) — aggregate fleet dashboard
         end note
     }
 
     state SensorsService {
         [*] --> FilterSensors: AGENT_NAME check
-        FilterSensors --> RunAllSensors: arc0 (Arc host) — all 66 sensors
-        FilterSensors --> RunFilteredSensors: worker agent — skip GITHUB + ARC_ONLY + CREDENTIAL sensors
+        FilterSensors --> RunAllSensors: arc0 (Arc host) — all 68 sensors
+        FilterSensors --> RunFilteredSensors: worker agent — allowlist only (10 sensors)
         note right of FilterSensors
-            3-tier sensor filter (src/sensors.ts):
+            Worker allowlist (10): aibtc-heartbeat, aibtc-inbox-sync,
+              arc-service-health, arc-alive-check, arc-housekeeping,
+              fleet-self-sync, arc-scheduler, contacts,
+              identity-guard, github-interceptor
+            (Everything else is Arc-only)
+            ---
+            Arc 3-tier filter (still applies for context):
             GITHUB_SENSORS (10): github-*, aibtc-repo-maintenance,
               arc-workflows, arc-starter-publish, arc0btc-pr-review
             ARC_ONLY_SENSORS (17): fleet orchestration + Arc-level oversight
@@ -102,12 +111,9 @@ stateDiagram-v2
         RunAllSensors --> arcDispatchEvalSensor: arc-dispatch-eval
 
         note right of RunAllSensors
-            66 sensors total (+12 since 2026-03-09T00:41Z)
-            NEW fleet sensors (ARC_ONLY): fleet-comms, fleet-dashboard,
-              fleet-escalation, fleet-log-pull, fleet-memory,
-              fleet-rebalance, fleet-router, fleet-self-sync, fleet-sync
-            NEW meta sensors: auto-queue (2h), arc-ops-review (4h),
-              arc-dispatch-eval (post-dispatch quality scoring)
+            68 sensors total (+2 since 2026-03-09T18:55Z)
+            NEW: identity-guard (all agents, 30min) — SOUL.md drift detection
+            NEW: github-interceptor (workers only, 10min) — GitHub escalation interception
         end note
 
         state "Generic Sensor Pattern" as genericSensor {
@@ -257,6 +263,40 @@ stateDiagram-v2
             workflowReviewCreateTask --> [*]: insertTask() P5
             workflowReviewSkip --> [*]: return skip
         }
+
+        state identityGuardSensor {
+            [*] --> identityGuardGate: claimSensorRun(identity-guard, 30min)
+            identityGuardGate --> identityGuardSkip: interval not elapsed
+            identityGuardGate --> identityGuardRead: interval elapsed
+            identityGuardRead --> identityGuardSkip: no Arc markers found on non-Arc host
+            identityGuardRead --> identityGuardDedup: Arc markers detected (drift!)
+            identityGuardDedup --> identityGuardSkip: pending alert exists
+            identityGuardDedup --> identityGuardAlert: no dupe
+            identityGuardAlert --> [*]: insertTask() P1 identity drift alert
+            identityGuardSkip --> [*]: return skip
+            note right of identityGuardRead
+                Runs on ALL agents (including Arc).
+                Checks SOUL.md for definitive Arc markers:
+                "# Arc\n", "I'm Arc.", Arc wallet addresses.
+                Last line of defense against fleet-self-sync identity overwrite.
+            end note
+        }
+
+        state githubInterceptorSensor {
+            [*] --> githubInterceptorGate: claimSensorRun(github-interceptor, 10min)
+            githubInterceptorGate --> githubInterceptorSkip: Arc host (no-op)
+            githubInterceptorGate --> githubInterceptorQuery: worker agent + interval elapsed
+            githubInterceptorQuery --> githubInterceptorSkip: no blocked GitHub tasks
+            githubInterceptorQuery --> githubInterceptorHandoff: GitHub-blocked task found
+            githubInterceptorHandoff --> [*]: fleet-handoff arc; close task completed
+            githubInterceptorSkip --> [*]: return skip
+            note right of githubInterceptorQuery
+                Queries status='blocked' tasks whose subject
+                or result_summary mentions: github, PAT, SSH key,
+                credentials, git push, create/open/merge PR.
+                Layer 3 of 3-layer GitHub blocking.
+            end note
+        }
     }
 
     state DispatchService {
@@ -268,7 +308,12 @@ stateDiagram-v2
         CircuitCheck --> Exit: circuit open (>=3 failures, <15min elapsed)
         CircuitCheck --> PickTask: circuit closed or half-open probe
         PickTask --> Idle: no pending tasks
-        PickTask --> BuildPrompt: highest priority task
+        PickTask --> BudgetGate: highest priority task
+        BudgetGate --> Exit: today_cost >= $500 AND priority > 2
+        BudgetGate --> GitHubGate: budget ok OR priority <= 2
+        GitHubGate --> AutoHandoff: worker + task matches GitHub pattern
+        AutoHandoff --> ClearLock: fleet-handoff arc; close task
+        GitHubGate --> BuildPrompt: Arc host OR no GitHub pattern
 
         state BuildPrompt {
             [*] --> SelectSDK: task.model prefix (codex:* = Codex, else = Claude/OpenRouter)
@@ -336,7 +381,7 @@ stateDiagram-v2
     }
 
     note right of CLI
-        Skills with CLI (53):
+        Skills with CLI (69):
         aibtc-dev-ops, aibtc-news-classifieds,
         aibtc-news-editorial, aibtc-repo-maintenance,
         arc-brand-voice, arc-architecture-review,
@@ -375,6 +420,8 @@ stateDiagram-v2
 | 3 | Dispatch lock check | Lock file (PID + task_id) | `isPidAlive()` |
 | 3a | TOCTOU guard | Lock acquired BEFORE task selection | Atomic: lock->pick (commit 05de76d) |
 | 3b | Circuit breaker | hook-state/dispatch-circuit.json | Opens after 3 consecutive failures; skips 15min; half-open probe |
+| 3c | Budget gate | `getTodayCostUsd()` vs `DAILY_BUDGET_USD=$500` | Priority > 2 tasks halted if over ceiling |
+| 3d | GitHub pre-dispatch gate (worker) | `GITHUB_TASK_RE` regex on subject+description | Auto-routes to Arc via fleet-handoff at zero LLM cost |
 | 4 | Task selection | All pending tasks sorted | Priority ASC, ID ASC |
 | 4a | SDK routing | task.model prefix | codex:* → Codex CLI; else → Claude/OpenRouter |
 | 4b | Model routing | task.model (explicit) or task.priority | Explicit wins; else P1-4->opus, P5-7->sonnet, P8+->haiku |
@@ -406,7 +453,7 @@ stateDiagram-v2
 | recurring-failure | detected→investigating→fix_pending→fixing→retrospective_pending→completed | arc-failure-triage | Recurring failure investigation chain; fix task P5/sonnet; retro P8/haiku; instance_key: recurring-failure-{type}-{YYYY-MM-DD} |
 | overnight-brief | scheduled→generating→retrospective_pending→completed | arc-reporting | OvernightBriefMachine — overnight brief → retrospective cycle; instance_key: overnight-brief-{YYYY-MM-DD} |
 
-## Skills Inventory (103 total)
+## Skills Inventory (105 total)
 
 | Skill | Sensor | CLI | Agent | Description |
 |-------|--------|-----|-------|-------------|
@@ -497,6 +544,8 @@ stateDiagram-v2
 | fleet-sync | yes | - | - | Fleet git sync sensor |
 | fleet-task-sync | - | - | - | Fleet task sync coordination — context only |
 | github-ci-status | yes | - | - | Monitors GitHub Actions CI runs |
+| github-interceptor | yes | - | - | Worker sensor (10min) — detects GitHub-blocked tasks, auto-routes to Arc |
+| identity-guard | yes | - | - | All-agent sensor (30min) — validates SOUL.md matches hostname, alerts on drift |
 | github-issue-monitor | yes | - | - | Issue monitoring for managed repos (re-enabled 2026-03-05, 24h recency filter) |
 | github-mentions | yes | - | - | GitHub @mentions with managed/external repo classification |
 | github-release-watcher | yes | - | - | Detect new releases on watched repos |
