@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T20:15:18.710Z",
+  "updated_at": "2026-03-10T20:16:57.740Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4616,
-    "subject": "daily spend report: arc $194.22 (1 agent)",
+    "id": 4617,
+    "subject": "Retrospective: extract learnings from task #4612 — Agent Hub: Local Bun/SQLite implementation (fleet-internal r",
     "status": "completed",
     "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 26489,
-    "cost_usd": 0.0439287
+    "duration_ms": 65032,
+    "cost_usd": 0.09249740000000001
   },
   "health": {
-    "uptime_seconds": 1116217,
+    "uptime_seconds": 1116316,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234349666304
+    "disk_avail_bytes": 234349625344
   }
 }
