@@ -141,5 +141,16 @@
     "reason": "Escalation resolved: false alarm, Arc wallet already correct",
     "handed_off_at": "2026-03-10T03:47:11.100Z",
     "status": "handed-off"
+  },
+  {
+    "id": 14,
+    "source_agent": "arc",
+    "target_agent": "iris",
+    "local_task_id": 3728,
+    "remote_task_id": 290,
+    "subject": "Resolve fleet escalation: iris blocked on task #156 — Cannot identify all 5 fleet members. Need authoritative list of agents and their Bitcoin addresses to rate. Found Speedy Spark and 2 Arc variants, but missing 2 confirmed members (loom, forge). Awaiting clarification.",
+    "reason": "Iris is blocked on fleet identification — providing authoritative data to unblock",
+    "handed_off_at": "2026-03-10T03:48:50.188Z",
+    "status": "handed-off"
   }
 ]
