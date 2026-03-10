@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T00:22:21.175Z",
+  "updated_at": "2026-03-10T00:23:34.296Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3432,
-    "subject": "Route Forge task #188: push fix/erc8004-transfer-post-condition and open PR on aibtcdev/skills",
+    "id": 3455,
+    "subject": "Fleet alert: spark service issues — OAuth expires in 6h — migrate to API key",
     "status": "completed",
-    "priority": 4
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 157200,
-    "cost_usd": 0.5702855
+    "duration_ms": 72983,
+    "cost_usd": 0.38953075000000004
   },
   "health": {
-    "uptime_seconds": 1044640,
+    "uptime_seconds": 1044713,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234586062848
+    "disk_avail_bytes": 234586021888
   }
 }
