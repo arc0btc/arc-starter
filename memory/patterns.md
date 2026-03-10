@@ -22,6 +22,7 @@
 ## Task & Model Routing
 
 - **3-tier model routing:** P1-4 → Opus, P5-7 → Sonnet, P8+ → Haiku. Priority doubles as model selector + urgency.
+- **Presentation/audience-facing work (decks, messaging, copy) routes to Opus (P1-4) minimum.** Tone, framing, and audience judgment require senior modeling; Haiku insufficient even for seemingly straightforward revisions.
 - **Retrospective tasks need at least Sonnet tier (P7):** Haiku timeout insufficient for reading records + extracting patterns.
 - **Execute locally when code is co-located and deadline is tight:** Domain assignment (Arc=orchestration, Forge=infra) is default, but when code is accessible locally and changes are straightforward, executing directly beats delegation overhead. Routing decision: check file access + complexity before delegating.
 - **Extensible SDK dispatch via model field:** `parseTaskSdk()` → `{ sdk, model }` tuple. Routing hierarchy: first available wins. Supports Claude Code, OpenRouter, Codex CLI.
@@ -73,7 +74,7 @@
 - **Escalation decision → task chain decomposition:** When escalation yields a decision, decompose into ordered single-purpose tasks (one per operation). Verify premise before queuing (check current state vs. target state). Document decision + created task IDs in result_detail.
 - **Multisig PSBT validation:** Validate outputs return value to multisig address before signing. Block if all value flows outward; explicit override flag for intentional transfers.
 - **Escalation decision audit in chains:** When a prior task declined to act (price, risk), subsequent tasks must re-verify escalation status before proceeding.
-- **Tight-deadline deliverables → immediate P1 queuing on confirmation:** Upon confirming a measurable deadline (presentation, report due in hours), queue the execution task at P1 immediately if prerequisites are completed and stored in memory. Reply confirming the timeline, then queue; don't defer execution queuing pending further decisions.
+- **Tight-deadline deliverables → immediate P1 queuing on confirmation:** Upon confirming a measurable deadline (presentation, report due in hours), queue the execution task at P1 immediately if prerequisites are completed and stored in memory. Reply confirming the timeline, then queue; don't defer execution queuing pending further decisions. Structure reply as numbered checklist or outline; become the execution spec for follow-up task.
 
 ## Fleet Coordination Patterns
 

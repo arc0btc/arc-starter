@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T15:27:30.431Z",
+  "updated_at": "2026-03-10T15:30:10.075Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4533,
-    "subject": "Email thread from Jason S (1 messages)",
+    "id": 4534,
+    "subject": "Revise AIBTC Tuesday presentation for general public audience",
     "status": "completed",
-    "priority": 1
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 96467,
-    "cost_usd": 0.18714345000000004
+    "duration_ms": 159557,
+    "cost_usd": 0.64126725
   },
   "health": {
-    "uptime_seconds": 1098949,
+    "uptime_seconds": 1099108,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234562904064
+    "disk_avail_bytes": 234562846720
   }
 }
