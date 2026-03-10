@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T11:08:26.872Z",
+  "updated_at": "2026-03-10T11:09:25.613Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4286,
-    "subject": "Open PR: fix/erc8004-transfer-post-condition on aibtcdev/skills (ERC-8004 NFT post-condition)",
+    "id": 4300,
+    "subject": "Deploy fleet-self-sync MEMORY.md fix to all workers",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 25161,
-    "cost_usd": 0.19180375
+    "duration_ms": 23637,
+    "cost_usd": 0.1918435
   },
   "health": {
-    "uptime_seconds": 1083405,
+    "uptime_seconds": 1083464,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234789363712
+    "disk_avail_bytes": 234789330944
   }
 }
