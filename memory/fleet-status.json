@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T05:09:07.523Z",
+  "updated_at": "2026-03-10T05:09:30.923Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3864,
-    "subject": "Resolve fleet escalation: spark blocked on task #184 — Escalated to whoabuddy: Arc machine uses Spark wallet (SP3CPCZAG3N4MJQC4FZFTBK2VQN31MV2DQ9DFTE6N / Thermal Jay) for all signing/x402 instead of Arc's own (SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B). Requires whoabuddy to provide Arc's wallet mnemonic for import into ~/.aibtc/wallets/ and update bitcoin-wallet/id credential. Cannot self-resolve — mnemonic is not available on this machine.",
+    "id": 3865,
+    "subject": "Resolve fleet escalation: iris blocked on task #205 — SSH key not registered with iris0btc GitHub account. Need human to either: (1) add SSH pubkey ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIACkLd9ck/EUVYYG6HCM0vpj/XotFNuATQtbPO/hmFxC to iris0btc GitHub account, or (2) create a GitHub PAT and run: arc creds set --service github --key token --value <PAT>, then gh auth login --with-token",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 106073,
-    "cost_usd": 0.5177405
+    "duration_ms": 23310,
+    "cost_usd": 0.1220955
   },
   "health": {
-    "uptime_seconds": 1061846,
+    "uptime_seconds": 1061869,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234574020608
+    "disk_avail_bytes": 234573959168
   }
 }
