@@ -1,19 +1,19 @@
 # Fleet Status
 
-*Last checked: 2026-03-10T05:36:24.665Z*
+*Last checked: 2026-03-10T05:51:26.244Z*
 
 | Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Auth | Issues |
 |-------|-----------|---------|----------|------------|------|------|--------|
-| spark | yes | ok | ok | 8m ago | 3% | oauth:ok | none |
-| iris | yes | ok | ok | 0m ago | 2% | oauth:ok | none |
-| loom | yes | ok | ok | 11m ago | 3% | oauth:ok | none |
-| forge | yes | ok | ok | 17m ago | 3% | oauth:ok | none |
+| spark | yes | ok | ok | active 0m | 3% | oauth:ok | none |
+| iris | yes | ok | ok | active 2m | 2% | oauth:ok | none |
+| loom | yes | ok | ok | 2m ago | 3% | oauth:ok | none |
+| forge | yes | ok | ok | 1m ago | 3% | oauth:ok | none |
 
 ## Peer Self-Reported Status
 
 | Agent | Last Task | Task Status | Cycle Cost | Updated | Stale |
 |-------|-----------|-------------|------------|---------|-------|
-| spark | #257: sBTC balance resolved: fleet=0 sats, AIB | completed | $0.017 | 2026-03-10 05:35:53Z | no |
-| iris | #309: [handoff] Iris: close task #247 — use ir | completed | $0.147 | 2026-03-10 05:36:03Z | no |
-| loom | #235: PR #109 already open — close task #220 a | completed | $0.021 | 2026-03-10 05:36:03Z | no |
-| forge | #232: Retrospective: extract learnings from ta | completed | $0.043 | 2026-03-10 05:36:19Z | no |
+| spark | #262: Resolve fleet escalation: loom blocked o | failed | $0.096 | 2026-03-10 05:50:09Z | no |
+| iris | #311: [IDENTITY DRIFT] iris has wrong SOUL.md  | completed | $0.193 | 2026-03-10 05:49:25Z | no |
+| loom | #238: Retrospective: extract learnings from ta | completed | $0.040 | 2026-03-10 05:51:08Z | no |
+| forge | #237: Resolve fleet escalation: spark blocked  | failed | $0.141 | 2026-03-10 05:50:50Z | no |
