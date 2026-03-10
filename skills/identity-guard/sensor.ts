@@ -21,21 +21,25 @@ const ROOT = new URL("../..", import.meta.url).pathname;
 
 const log = createSensorLogger(SENSOR_NAME);
 
-/** Identity markers that should NOT appear in a non-Arc agent's SOUL.md */
+/**
+ * Identity markers that indicate the SOUL.md *claims to be* a specific agent.
+ * Only use definitive identity claims (first-person declarations + wallet addresses).
+ * Exclude handles/BNS names — workers legitimately reference "arc0.btc" as fleet coordinator.
+ */
 const ARC_MARKERS: readonly string[] = [
-  "I'm Arc",
-  "arc0btc",
+  "# Arc\n",
+  "I'm Arc.",
+  "I'm Arc ",
   "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933",
   "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B",
-  "arc0.btc",
 ] as const;
 
 /** Identity markers that should NOT appear in Arc's SOUL.md (worker names) */
 const WORKER_MARKERS: Record<string, readonly string[]> = {
-  spark: ["I'm Spark", "spark0btc", "spark0.btc"],
-  iris: ["I'm Iris", "iris0btc", "iris0.btc"],
-  loom: ["I'm Loom", "loom0btc", "loom0.btc"],
-  forge: ["I'm Forge", "forge0btc", "forge0.btc"],
+  spark: ["# Spark\n", "I'm Spark.", "I'm Spark "],
+  iris: ["# Iris\n", "I'm Iris.", "I'm Iris "],
+  loom: ["# Loom\n", "I'm Loom.", "I'm Loom "],
+  forge: ["# Forge\n", "I'm Forge.", "I'm Forge "],
 } as const;
 
 export default async function sensor(): Promise<string> {
