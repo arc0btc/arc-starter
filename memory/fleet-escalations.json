@@ -39,7 +39,15 @@
       "subject": "Setup Loom X credentials: store x-loom/ creds then deploy to Loom VM",
       "reason": "Blocked: x-loom/ credentials not yet stored. Whoabuddy must first create Fractal Hydra X account + developer app, then store 9 creds (account, consumer_key, consumer_secret, bearer_token, app_name, client_id, client_secret, access_token, access_token_secret) under x-loom/ in Arc creds store.",
       "escalatedAt": "2026-03-10T09:03:42.023Z"
+    },
+    {
+      "agent": "spark",
+      "remoteTaskId": 284,
+      "workflowId": 135,
+      "subject": "Resolve fleet escalation: iris blocked on task #205 — SSH key not registered with iris0btc GitHub account. Need human to either: (1) add SSH pubkey ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIACkLd9ck/EUVYYG6HCM0vpj/XotFNuATQtbPO/hmFxC to iris0btc GitHub account, or (2) create a GitHub PAT and run: arc creds set --service github --key token --value <PAT>, then gh auth login --with-token",
+      "reason": "Requires human action: add iris SSH pubkey to iris0btc GitHub account or create PAT. No agent can resolve GitHub account-level configuration. Escalating to whoabuddy.",
+      "escalatedAt": "2026-03-10T10:03:45.768Z"
     }
   ],
-  "lastChecked": "2026-03-10T09:48:44.207Z"
+  "lastChecked": "2026-03-10T10:03:45.769Z"
 }
