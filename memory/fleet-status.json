@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T09:53:33.851Z",
+  "updated_at": "2026-03-10T09:53:46.834Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4220,
-    "subject": "Resolve fleet escalation: spark blocked on task #280 — Blocked: x-loom/ credentials not yet stored. Whoabuddy must first create Fractal Hydra X account + developer app, then store 9 creds (account, consumer_key, consumer_secret, bearer_token, app_name, client_id, client_secret, access_token, access_token_secret) under x-loom/ in Arc creds store.",
-    "status": "completed",
-    "priority": 4
+    "id": 4229,
+    "subject": "Action needed: Create Fractal Hydra (Loom) X account + store x-loom/ credentials",
+    "status": "blocked",
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 70082,
-    "cost_usd": 0.3943215
+    "duration_ms": 12885,
+    "cost_usd": 0.12465175
   },
   "health": {
-    "uptime_seconds": 1078912,
+    "uptime_seconds": 1078925,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234792620032
+    "disk_avail_bytes": 234792583168
   }
 }
