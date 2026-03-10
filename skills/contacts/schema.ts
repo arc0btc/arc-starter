@@ -349,6 +349,16 @@ export function getContextContacts(taskSubject: string, limit: number = 10): Con
   return scored.slice(0, limit);
 }
 
+export function getContactByAgentId(agentId: string): Contact | null {
+  const db = initContactsSchema();
+  return db.query("SELECT * FROM contacts WHERE agent_id = ?").get(agentId) as Contact | null;
+}
+
+export function getContactByNameAndType(displayName: string, type: string): Contact | null {
+  const db = initContactsSchema();
+  return db.query("SELECT * FROM contacts WHERE display_name = ? AND type = ?").get(displayName, type) as Contact | null;
+}
+
 export function getContactByAddress(stxAddress: string | null, btcAddress: string | null): Contact | null {
   const db = initContactsSchema();
   if (stxAddress) {

@@ -7,6 +7,8 @@ import {
   getAllContacts,
   getContactById,
   getContactByAddress,
+  getContactByAgentId,
+  getContactByNameAndType,
   searchContacts,
   insertContact,
   updateContact,
@@ -382,7 +384,8 @@ function cmdExport(params: Record<string, string>): void {
   // Default to active; pass undefined to getAllContacts to get all statuses when "all" requested
   const contacts = statusParam === "all" ? getAllContacts() : getAllContacts(statusParam || "active");
   const filtered = typeFilter ? contacts.filter((c) => c.type === typeFilter) : contacts;
-  log(`exporting ${filtered.length} contact(s)`);
+  // Status to stderr so stdout is clean JSON (fleet-sync parses stdout)
+  console.error(`[contacts] exporting ${filtered.length} contact(s)`);
   console.log(JSON.stringify(filtered, null, 2));
 }
 
@@ -418,7 +421,14 @@ async function cmdImport(params: Record<string, string>): Promise<void> {
   let reactivated = 0;
 
   for (const c of contacts) {
-    const existing = getContactByAddress(c.stx_address, c.btc_address);
+    // Match by address first, then fallback to agent_id, then display_name+type
+    let existing = getContactByAddress(c.stx_address, c.btc_address);
+    if (!existing && c.agent_id) {
+      existing = getContactByAgentId(c.agent_id);
+    }
+    if (!existing && c.display_name && c.type) {
+      existing = getContactByNameAndType(c.display_name, c.type);
+    }
 
     if (existing) {
       const updates: Partial<InsertContact> = {};
@@ -426,12 +436,17 @@ async function cmdImport(params: Record<string, string>): Promise<void> {
       if (c.display_name && !existing.display_name) updates.display_name = c.display_name;
       if (c.aibtc_name && !existing.aibtc_name) updates.aibtc_name = c.aibtc_name;
       if (c.bns_name && !existing.bns_name) updates.bns_name = c.bns_name;
+      if (c.stx_address && !existing.stx_address) updates.stx_address = c.stx_address;
+      if (c.btc_address && !existing.btc_address) updates.btc_address = c.btc_address;
       if (c.taproot_address && !existing.taproot_address) updates.taproot_address = c.taproot_address;
       if (c.x_handle && !existing.x_handle) updates.x_handle = c.x_handle;
       if (c.github_handle && !existing.github_handle) updates.github_handle = c.github_handle;
       if (c.x402_endpoint && !existing.x402_endpoint) updates.x402_endpoint = c.x402_endpoint;
       if (c.aibtc_beat && !existing.aibtc_beat) updates.aibtc_beat = c.aibtc_beat;
       if (c.aibtc_level && existing.aibtc_level !== c.aibtc_level) updates.aibtc_level = c.aibtc_level;
+      if (c.agent_id && !existing.agent_id) updates.agent_id = c.agent_id;
+      if (c.email && !existing.email) updates.email = c.email;
+      if (c.website && !existing.website) updates.website = c.website;
       // Always re-activate if archived or inactive
       if (existing.status !== "active") {
         updates.status = "active";
@@ -468,6 +483,98 @@ async function cmdImport(params: Record<string, string>): Promise<void> {
   log(`import complete: ${created} created, ${updated} updated (${reactivated} reactivated)`);
 }
 
+function cmdDedup(_params: Record<string, string>): void {
+  initContactsSchema();
+  const allContacts = getAllContacts();
+
+  // Group contacts by btc_address, agent_id, and display_name+type
+  const groups = new Map<string, Contact[]>();
+
+  for (const c of allContacts) {
+    const keys: string[] = [];
+    if (c.btc_address) keys.push(`btc:${c.btc_address}`);
+    if (c.agent_id) keys.push(`agent:${c.agent_id}`);
+    if (c.display_name && c.type) keys.push(`name:${c.display_name}:${c.type}`);
+
+    for (const key of keys) {
+      const group = groups.get(key) ?? [];
+      group.push(c);
+      groups.set(key, group);
+    }
+  }
+
+  // Find groups with duplicates
+  const seen = new Set<number>(); // track contacts already merged
+  let mergeCount = 0;
+  let deleteCount = 0;
+
+  for (const [key, group] of groups) {
+    if (group.length <= 1) continue;
+    // Skip if all already processed
+    const unprocessed = group.filter((c) => !seen.has(c.id));
+    if (unprocessed.length <= 1) continue;
+
+    // Keep the contact with the most filled fields
+    const scored = unprocessed.map((c) => {
+      let filled = 0;
+      if (c.display_name) filled++;
+      if (c.aibtc_name) filled++;
+      if (c.bns_name) filled++;
+      if (c.stx_address) filled++;
+      if (c.btc_address) filled++;
+      if (c.taproot_address) filled++;
+      if (c.x_handle) filled++;
+      if (c.github_handle) filled++;
+      if (c.email) filled++;
+      if (c.agent_id) filled++;
+      if (c.x402_endpoint) filled++;
+      if (c.notes) filled++;
+      return { contact: c, filled };
+    });
+    scored.sort((a, b) => b.filled - a.filled || a.contact.id - b.contact.id);
+
+    const keeper = scored[0].contact;
+    const dupes = scored.slice(1).map((s) => s.contact);
+
+    // Merge missing fields from dupes into keeper
+    const mergeFields: Partial<InsertContact> = {};
+    for (const dupe of dupes) {
+      if (dupe.display_name && !keeper.display_name) mergeFields.display_name = dupe.display_name;
+      if (dupe.aibtc_name && !keeper.aibtc_name) mergeFields.aibtc_name = dupe.aibtc_name;
+      if (dupe.bns_name && !keeper.bns_name) mergeFields.bns_name = dupe.bns_name;
+      if (dupe.stx_address && !keeper.stx_address) mergeFields.stx_address = dupe.stx_address;
+      if (dupe.btc_address && !keeper.btc_address) mergeFields.btc_address = dupe.btc_address;
+      if (dupe.taproot_address && !keeper.taproot_address) mergeFields.taproot_address = dupe.taproot_address;
+      if (dupe.x_handle && !keeper.x_handle) mergeFields.x_handle = dupe.x_handle;
+      if (dupe.github_handle && !keeper.github_handle) mergeFields.github_handle = dupe.github_handle;
+      if (dupe.email && !keeper.email) mergeFields.email = dupe.email;
+      if (dupe.agent_id && !keeper.agent_id) mergeFields.agent_id = dupe.agent_id;
+      if (dupe.x402_endpoint && !keeper.x402_endpoint) mergeFields.x402_endpoint = dupe.x402_endpoint;
+    }
+
+    if (Object.keys(mergeFields).length > 0) {
+      updateContact(keeper.id, mergeFields);
+      mergeCount++;
+    }
+
+    // Archive duplicates
+    for (const dupe of dupes) {
+      updateContact(dupe.id, { status: "archived" });
+      seen.add(dupe.id);
+      deleteCount++;
+    }
+    seen.add(keeper.id);
+
+    log(`dedup [${key}]: kept #${keeper.id} (${resolveDisplayName(keeper)}), archived ${dupes.map((d) => `#${d.id}`).join(", ")}`);
+  }
+
+  if (deleteCount === 0) {
+    log("no duplicates found");
+  } else {
+    log(`dedup complete: ${mergeCount} merged, ${deleteCount} archived`);
+  }
+}
+
 function printHelp(): void {
   console.log(`
 Contacts CLI — Manage agents, humans, addresses, and relationships
@@ -483,7 +590,8 @@ Commands:
   search                            Search contacts by name/address/handle
   context                           Get relevant contacts for a task (dispatch context injection)
   export                            Export contacts as JSON (for fleet-sync seeding)
-  import                            Import contacts from JSON file (upsert by address)
+  import                            Import contacts from JSON file (upsert by address/agent_id/name)
+  dedup                             Find and archive duplicate contacts (keeps most complete record)
 
 list flags:
   --status <active|inactive|archived>   Filter by status
@@ -595,6 +703,9 @@ async function main(): Promise<void> {
       break;
     case "import":
       await cmdImport(params);
+      break;
+    case "dedup":
+      cmdDedup(params);
       break;
     default:
       logError(`Unknown command: ${command}`);

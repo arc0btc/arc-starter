@@ -105,6 +105,7 @@ const SHARED_SKILLS: string[] = [
   "arc-skill-manager",
   "arc-service-health",
   "arc-alive-check",
+  "contacts",
 ];
 
 // ---- Flag parsing ----
