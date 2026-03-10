@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T17:23:31.399Z",
-  "idle": true,
-  "idle_since": "2026-03-10T17:23:31.399Z",
+  "updated_at": "2026-03-10T17:29:38.455Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 4563,
-    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (bd41eb62bb)",
+    "id": 4565,
+    "subject": "AIBTC thread from Secret Mars (1 messages)",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 19854,
-    "cost_usd": 0.14578325
+    "duration_ms": 306429,
+    "cost_usd": 0.5973589499999999
   },
   "health": {
-    "uptime_seconds": 1105910,
+    "uptime_seconds": 1106277,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234560499712
+    "disk_avail_bytes": 234560405504
   }
 }
