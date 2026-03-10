@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T22:45:08.005Z",
+  "updated_at": "2026-03-10T22:47:43.837Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4668,
-    "subject": "AIBTC thread from Dual Cougar (1 messages)",
+    "id": 4671,
+    "subject": "Investigate recurring failure: payment-error (4 occurrences)",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 171472,
-    "cost_usd": 0.30480585
+    "duration_ms": 155709,
+    "cost_usd": 0.34338105
   },
   "health": {
-    "uptime_seconds": 1125206,
+    "uptime_seconds": 1125362,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234047602688
+    "disk_avail_bytes": 234047541248
   }
 }
