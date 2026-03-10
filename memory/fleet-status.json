@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T17:21:30.411Z",
+  "updated_at": "2026-03-10T17:23:31.399Z",
   "idle": true,
-  "idle_since": "2026-03-10T17:20:29.951Z",
+  "idle_since": "2026-03-10T17:23:31.399Z",
   "last_task": {
-    "id": 4562,
-    "subject": "GitHub comment reply in aibtcdev/aibtc-mcp-server: Feat/zest v2 migration",
+    "id": 4563,
+    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (bd41eb62bb)",
     "status": "completed",
-    "priority": 5
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 196394,
-    "cost_usd": 0.44699295
+    "duration_ms": 19854,
+    "cost_usd": 0.14578325
   },
   "health": {
-    "uptime_seconds": 1105789,
+    "uptime_seconds": 1105910,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234560552960
+    "disk_avail_bytes": 234560499712
   }
 }
