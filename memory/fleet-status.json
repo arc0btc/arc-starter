@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T16:21:35.903Z",
-  "idle": true,
-  "idle_since": "2026-03-10T16:11:31.901Z",
+  "updated_at": "2026-03-10T16:27:46.272Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 4548,
-    "subject": "GitHub comment reply in aibtcdev/landing-page: Fix/UI alignment and inbox improvements",
+    "id": 4550,
+    "subject": "Email thread from Jason S (1 messages)",
     "status": "completed",
-    "priority": 5
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 18687,
-    "cost_usd": 0.09478259999999998
+    "duration_ms": 310028,
+    "cost_usd": 0.6503754
   },
   "health": {
-    "uptime_seconds": 1102194,
+    "uptime_seconds": 1102565,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234561953792
+    "disk_avail_bytes": 234561728512
   }
 }
