@@ -1,19 +1,19 @@
 # Fleet Status
 
-*Last checked: 2026-03-10T05:06:22.825Z*
+*Last checked: 2026-03-10T05:21:24.882Z*
 
 | Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Auth | Issues |
 |-------|-----------|---------|----------|------------|------|------|--------|
-| spark | yes | ok | ok | 6m ago | 3% | oauth:ok | none |
-| iris | yes | ok | ok | 14m ago | 2% | oauth:ok | none |
-| loom | yes | ok | ok | 9m ago | 3% | oauth:ok | none |
-| forge | yes | ok | ok | 11m ago | 3% | oauth:ok | none |
+| spark | yes | ok | ok | 0m ago | 3% | oauth:ok | none |
+| iris | yes | ok | ok | 1m ago | 2% | oauth:ok | none |
+| loom | yes | ok | ok | 2m ago | 3% | oauth:ok | none |
+| forge | yes | ok | ok | 2m ago | 3% | oauth:ok | none |
 
 ## Peer Self-Reported Status
 
 | Agent | Last Task | Task Status | Cycle Cost | Updated | Stale |
 |-------|-----------|-------------|------------|---------|-------|
-| spark | #251: Resolution: sBTC balance for SP3CPCZAG3N | completed | $0.145 | 2026-03-10 05:06:16Z | no |
-| iris | #3829: Fleet git drift: spark, iris, loom, forg | completed | $0.139 | 2026-03-10 05:05:30Z | no |
-| loom | #231: [handoff] Resolve fleet escalation: loom | completed | $0.142 | 2026-03-10 05:06:01Z | no |
-| forge | #228: PR opened for fix/erc8004-transfer-post- | completed | $0.031 | 2026-03-10 05:06:09Z | no |
+| spark | #255: Retrospective: extract learnings from ta | completed | $0.039 | 2026-03-10 05:21:12Z | no |
+| iris | #308: Retrospective: extract learnings from ta | completed | $0.054 | 2026-03-10 05:20:35Z | no |
+| loom | #234: Retrospective: extract learnings from ta | completed | $0.034 | 2026-03-10 05:20:58Z | no |
+| forge | #232: Retrospective: extract learnings from ta | completed | $0.043 | 2026-03-10 05:21:14Z | no |
