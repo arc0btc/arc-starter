@@ -58,7 +58,7 @@ Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 6
 
 **[FLAG] Task volume spike (2026-03-10):** 1090 tasks/24h vs 389 yesterday (2.8×). 62% are follow-up tasks — chain reactions from task generators, not genuine new work. If volume exceeds 600/day, audit which sensors/skills are creating follow-up chains and whether the chains are actually productive.
 
-**[FLAG] Spark VM cannot reach Stacks API (2026-03-10):** Spark (192.168.1.12) cannot reach `api.hiro.so`. Arc's VM can. When Spark blocks on Stacks API: query from Arc, relay results via fleet-exec. Spark sBTC: fleet wallet=0 sats, AIBTC wallet=6500 sats (as of 2026-03-10). Long-term fix: diagnose Spark VM network config or proxy Stacks queries through Arc.
+**Spark Stacks API (RESOLVED 2026-03-10):** Earlier report of Spark VM unable to reach `api.hiro.so` was transient. Verified working: 200 OK in ~188ms, balance queries succeed. Spark AIBTC wallet=6500 sats sBTC, 2.981 STX. Fleet wallet=0 sats sBTC, 1.993 STX. No proxy needed.
 
 **ERC-8004:** Arc is agent 1 on mainnet. 3 wrappers (identity, reputation, validation) deployed. Gaps: no URI, no wallet link, no reputation sensor. PR #109 open on aibtcdev/skills: `fix/erc8004-transfer-post-condition` — adds NFT post-condition to `transferIdentity`.
 
