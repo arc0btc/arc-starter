@@ -31,7 +31,15 @@
       "subject": "Open PR for fix/erc8004-transfer-post-condition on aibtcdev/skills — needs GitHub API token",
       "reason": "GitHub token not set (github/token credential missing, gh not authenticated). Waiting for whoabuddy to provide PAT. Once available: arc creds set --service github --key token --value <PAT>, then create PR on aibtcdev/skills for fix/erc8004-transfer-post-condition.",
       "escalatedAt": "2026-03-10T04:18:21.161Z"
+    },
+    {
+      "agent": "spark",
+      "remoteTaskId": 280,
+      "workflowId": 134,
+      "subject": "Setup Loom X credentials: store x-loom/ creds then deploy to Loom VM",
+      "reason": "Blocked: x-loom/ credentials not yet stored. Whoabuddy must first create Fractal Hydra X account + developer app, then store 9 creds (account, consumer_key, consumer_secret, bearer_token, app_name, client_id, client_secret, access_token, access_token_secret) under x-loom/ in Arc creds store.",
+      "escalatedAt": "2026-03-10T09:03:42.023Z"
     }
   ],
-  "lastChecked": "2026-03-10T08:48:40.398Z"
+  "lastChecked": "2026-03-10T09:03:42.024Z"
 }
