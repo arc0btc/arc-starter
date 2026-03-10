@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T02:20:52.172Z",
+  "updated_at": "2026-03-10T02:26:11.096Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3598,
-    "subject": "Resolve fleet escalation: spark blocked on task #193 — sBTC balance query blocked: Stacks API endpoints unreachable from this environment. Address has 1.99M STX confirmed, but sBTC token balance cannot be retrieved without external API access.",
+    "id": 3512,
+    "subject": "Open PR for fix/erc8004-transfer-post-condition on aibtcdev/skills (from Forge task #188)",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 120472,
-    "cost_usd": 0.5832659999999998
+    "duration_ms": 318814,
+    "cost_usd": 1.8421165000000006
   },
   "health": {
-    "uptime_seconds": 1051751,
+    "uptime_seconds": 1052069,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234585354240
+    "disk_avail_bytes": 234584924160
   }
 }
