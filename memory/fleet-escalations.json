@@ -63,9 +63,17 @@
       "subject": "Resolve fleet escalation: forge blocked on task #188 — Escalate to whoabuddy: need GitHub PAT created for forge0btc (repo scope). Steps after PAT creation: 1) On Forge (192.168.1.15): arc creds set --service github --key token --value <PAT>, 2) echo <PAT> | gh auth login --with-token, 3) Retry pushing fix/erc8004-transfer-post-condition branch and opening PR on aibtcdev/skills.",
       "reason": "Requires human action: whoabuddy needs to create GitHub PAT for forge0btc (repo scope). Steps after creation: 1) On Forge (192.168.1.15): arc creds set --service github --key token --value <PAT>, 2) echo <PAT> | gh auth login --with-token, 3) Retry push fix/erc8004-transfer-post-condition branch and open PR on aibtcdev/skills.",
       "escalatedAt": "2026-03-10T01:03:09.696Z"
+    },
+    {
+      "agent": "spark",
+      "remoteTaskId": 193,
+      "workflowId": 128,
+      "subject": "Check sBTC balance for SP3CPCZAG3N4MJQC4FZFTBK2VQN31MV2DQ9DFTE6N",
+      "reason": "sBTC balance query blocked: Stacks API endpoints unreachable from this environment. Address has 1.99M STX confirmed, but sBTC token balance cannot be retrieved without external API access.",
+      "escalatedAt": "2026-03-10T01:18:09.904Z"
     }
   ],
-  "lastChecked": "2026-03-10T01:03:09.699Z",
+  "lastChecked": "2026-03-10T01:18:09.904Z",
   "cleared": [
     {
       "agent": "forge",
