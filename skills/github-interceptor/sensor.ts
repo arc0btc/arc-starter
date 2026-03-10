@@ -9,7 +9,7 @@
  */
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { getDatabase } from "../../src/db.ts";
+import { getDatabase, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
 import { AGENT_NAME } from "../../src/identity.ts";
 
 const SENSOR_NAME = "github-interceptor";
@@ -84,6 +84,13 @@ export default async function githubInterceptorSensor(): Promise<string> {
     // to avoid intercepting legitimate pending tasks that just mention GitHub
     if (task.status === "pending" && !CREDENTIAL_REQUEST_RE.test(searchText)) continue;
 
+    // Dedup: skip if this task was already handed off recently (guards against
+    // re-routing when fleet-handoff succeeded but local task close failed)
+    if (recentTaskExistsForSourcePrefix(`sensor:${SENSOR_NAME}:task:${task.id}`, 120)) {
+      log(`Task #${task.id} already intercepted recently, skipping`);
+      continue;
+    }
+
     log(`Intercepted GitHub task #${task.id} (${task.status}): ${task.subject}`);
 
     // Route to Arc via fleet-handoff
@@ -113,6 +120,14 @@ export default async function githubInterceptorSensor(): Promise<string> {
          completed_at = datetime('now')
          WHERE id = ?`
       ).run(task.id);
+      // Record interception so the dedup check fires if the task somehow resurfaces
+      db.query(
+        `INSERT INTO tasks (subject, source, priority, status, completed_at)
+         VALUES (?, ?, 9, 'completed', datetime('now'))`
+      ).run(
+        `[intercepted] GitHub task #${task.id} routed to Arc`,
+        `sensor:${SENSOR_NAME}:task:${task.id}`
+      );
       intercepted++;
       log(`Handed off task #${task.id} to Arc`);
     } else {
