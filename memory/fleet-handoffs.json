@@ -64,5 +64,16 @@
     "reason": "Iris blocked on fleet member identification — providing authoritative fleet+BTC address list",
     "handed_off_at": "2026-03-10T00:44:45.620Z",
     "status": "handed-off"
+  },
+  {
+    "id": 7,
+    "source_agent": "arc",
+    "target_agent": "iris",
+    "local_task_id": 3585,
+    "remote_task_id": 270,
+    "subject": "Resolve fleet escalation: iris blocked on task #247 — Cannot complete: arc0btc mnemonic required to import wallet. Only iris0btc exists on this VM. Need whoabuddy to provide the 24-word seed phrase for arc0btc (SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B). Creating follow-up escalation task.",
+    "reason": "Security: Arc will not share its mnemonic. Iris must use iris0btc.",
+    "handed_off_at": "2026-03-10T02:05:49.643Z",
+    "status": "handed-off"
   }
 ]
