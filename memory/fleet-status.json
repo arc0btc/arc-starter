@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T16:00:41.904Z",
+  "updated_at": "2026-03-10T16:06:29.896Z",
   "idle": true,
-  "idle_since": "2026-03-10T15:56:39.903Z",
+  "idle_since": "2026-03-10T16:03:28.802Z",
   "last_task": {
-    "id": 4545,
-    "subject": "daily spend report: arc $182.64 (1 agent)",
+    "id": 4546,
+    "subject": "Review PR #357 on aibtcdev/landing-page: Fix/UI alignment and inbox improvements",
     "status": "completed",
-    "priority": 8
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 15113,
-    "cost_usd": 0.027333600000000003
+    "duration_ms": 106523,
+    "cost_usd": 0.3123735
   },
   "health": {
-    "uptime_seconds": 1100940,
+    "uptime_seconds": 1101288,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234562215936
+    "disk_avail_bytes": 234562138112
   }
 }
