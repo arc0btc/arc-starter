@@ -199,6 +199,34 @@ This applies to all Arc-controlled repos. For `arc-starter` itself, run only tar
 
 ---
 
+## ⛔ GitHub is Arc-Only — MANDATORY PRE-TASK CHECK
+
+**STOP. Before doing ANY work, answer this: does this task require `git push`, a PR, `gh` CLI, GitHub Actions, or cloning a private repo?**
+
+If YES → **immediately** run fleet-handoff and close your task. Do not attempt the GitHub operation. Do not create a subtask. Do not request credentials. Do not set status=blocked. Just hand off:
+
+```
+arc skills run --name fleet-handoff -- initiate --agent arc --task-id <your-task-id> \
+  --progress "what you completed so far" \
+  --remaining "the GitHub operation needed" \
+  --reason "GitHub is Arc-only"
+arc tasks close --id <your-task-id> --status completed --summary "Handed off to Arc (GitHub-only policy)"
+```
+
+**You have no GitHub credentials and never will.** This is permanent and architectural — not a gap to escalate about.
+
+**Every one of these actions is a policy violation:**
+- ❌ Creating a task that requests GitHub credentials, PAT, SSH key, or GITHUB_TOKEN
+- ❌ Setting `status=blocked` with a GitHub-related reason
+- ❌ Creating any follow-up task about GitHub access
+- ❌ Asking a human for GitHub credentials
+- ❌ Mentioning "escalation" in the context of GitHub
+- ❌ Any task subject containing "GitHub credentials", "GitHub access", "request PAT"
+
+**The ONLY correct response to GitHub work is `fleet-handoff --agent arc`.** No exceptions. No alternatives. If you find yourself typing "credential" or "PAT" or "token" in a task subject — stop and fleet-handoff instead.
+
+---
+
 ## Escalation
 
 - `blocked` status — Task cannot proceed. Set it and explain in `result_summary`.
@@ -211,37 +239,19 @@ This applies to all Arc-controlled repos. For `arc-starter` itself, run only tar
 
 Before setting `status=blocked` or escalating to a human:
 
-1. **Check your own skills.** Run `arc skills` — the answer is usually already installed.
-2. **Check your contacts.** The `contacts` skill has every fleet member, their addresses, and capabilities.
-3. **Can another agent help?** Use `fleet-handoff --agent <name>` or `POST /api/tasks` to route work. "Cannot target specific VMs" is false — fleet-handoff, fleet-broadcast, and POST /api/tasks all work.
-4. **Is this a funding request?** Route STX/funding requests to Arc via fleet-handoff, not to a human.
-5. **Does it need sBTC, or just BIP-137?** Free inbox operations (read/reply) use BIP-137 signatures — no sBTC required.
-6. **Is this truly irreversible or >100 STX?** If yes → escalate to human. If no → proceed autonomously.
+1. **Is this GitHub?** → `fleet-handoff --agent arc`. See "GitHub is Arc-Only" above. NEVER escalate to human.
+2. **Check your own skills.** Run `arc skills` — the answer is usually already installed.
+3. **Check your contacts.** The `contacts` skill has every fleet member, their addresses, and capabilities.
+4. **Can another agent help?** Use `fleet-handoff --agent <name>` or `POST /api/tasks` to route work.
+5. **Is this a funding request?** Route STX/funding requests to Arc via fleet-handoff, not to a human.
+6. **Does it need sBTC, or just BIP-137?** Free inbox operations (read/reply) use BIP-137 signatures — no sBTC required.
+7. **Is this truly irreversible or >100 STX?** If yes → escalate to human. If no → proceed autonomously.
 
 ### Self-Sufficiency Principle
 
 **Ask HOW, not TO DO.** When stuck, ask Arc (or another agent) for guidance on how to solve it yourself — not to do the work for you. Use `fleet-handoff` or `fleet-task-sync` to request instructions, then execute independently.
 
 Each agent owns their domain. Learn your tools, build your memory, solve your problems. Escalate to humans only when fleet tools are genuinely insufficient.
-
-### GitHub is Arc-Only
-
-Only Arc pushes to GitHub. Workers have no GitHub credentials and never will.
-
-**If you are a worker agent (Spark, Iris, Loom, Forge) and your task requires GitHub access (push, PR, clone private repo):**
-1. Do NOT set the task to `blocked`
-2. Do NOT create an escalation asking for GitHub credentials
-3. Do NOT ask a human for a PAT or SSH key
-4. Instead, use `fleet-handoff` to route the work to Arc:
-   ```
-   arc skills run --name fleet-handoff -- initiate --agent arc --task-id <your-task-id> \
-     --progress "what you completed so far" \
-     --remaining "the GitHub operation needed" \
-     --reason "GitHub is Arc-only"
-   ```
-5. Then close your task as completed with summary "Handed off to Arc (GitHub-only policy)"
-
-This is a hard rule. Any task that touches GitHub goes to Arc via fleet-handoff. No exceptions, no escalations.
 
 ---
 

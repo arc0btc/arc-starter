@@ -31,6 +31,9 @@ const GITHUB_PATTERNS = [
 
 const PATTERN_RE = new RegExp(GITHUB_PATTERNS.join("|"), "i");
 
+/** Stricter patterns for pending tasks — must explicitly request credentials or escalate */
+const CREDENTIAL_REQUEST_RE = /credential|request.*(?:PAT|token|access)|escalat.*github|need.*github.*(?:access|token|credential)|obtain.*(?:PAT|token)/i;
+
 interface BlockedTask {
   id: number;
   subject: string;
@@ -38,6 +41,7 @@ interface BlockedTask {
   result_summary: string | null;
   skills: string | null;
   priority: number;
+  status: string;
 }
 
 export default async function githubInterceptorSensor(): Promise<string> {
@@ -50,22 +54,24 @@ export default async function githubInterceptorSensor(): Promise<string> {
   const log = createSensorLogger(SENSOR_NAME);
   const db = getDatabase();
 
-  // Find blocked tasks that mention GitHub/credentials
-  const blockedTasks = db
+  // Find blocked OR pending tasks that mention GitHub/credentials.
+  // Forge dispatch creates pending escalation tasks requesting creds
+  // instead of setting blocked — we must catch both statuses.
+  const githubTasks = db
     .query(
-      `SELECT id, subject, description, result_summary, skills, priority
+      `SELECT id, subject, description, result_summary, skills, priority, status
        FROM tasks
-       WHERE status = 'blocked'
+       WHERE status IN ('blocked', 'pending')
        ORDER BY id DESC
        LIMIT 50`
     )
     .all() as BlockedTask[];
 
-  if (blockedTasks.length === 0) return "ok";
+  if (githubTasks.length === 0) return "ok";
 
   let intercepted = 0;
 
-  for (const task of blockedTasks) {
+  for (const task of githubTasks) {
     const searchText = [
       task.subject,
       task.description ?? "",
@@ -74,7 +80,11 @@ export default async function githubInterceptorSensor(): Promise<string> {
 
     if (!PATTERN_RE.test(searchText)) continue;
 
-    log(`Intercepted blocked GitHub task #${task.id}: ${task.subject}`);
+    // For pending tasks, require a stricter credential-request pattern
+    // to avoid intercepting legitimate pending tasks that just mention GitHub
+    if (task.status === "pending" && !CREDENTIAL_REQUEST_RE.test(searchText)) continue;
+
+    log(`Intercepted GitHub task #${task.id} (${task.status}): ${task.subject}`);
 
     // Route to Arc via fleet-handoff
     const progress = task.result_summary ?? "Task blocked on GitHub credentials";
