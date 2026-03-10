@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T15:55:13.488Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-10T16:00:41.904Z",
+  "idle": true,
+  "idle_since": "2026-03-10T15:56:39.903Z",
   "last_task": {
-    "id": 4544,
-    "subject": "Retrospective: extract learnings from task #4543 — Email thread from Jason S (1 messages)",
+    "id": 4545,
+    "subject": "daily spend report: arc $182.64 (1 agent)",
     "status": "completed",
     "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 34024,
-    "cost_usd": 0.0550845
+    "duration_ms": 15113,
+    "cost_usd": 0.027333600000000003
   },
   "health": {
-    "uptime_seconds": 1100612,
+    "uptime_seconds": 1100940,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234562306048
+    "disk_avail_bytes": 234562215936
   }
 }
