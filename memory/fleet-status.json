@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T06:49:19.393Z",
+  "updated_at": "2026-03-10T06:50:26.125Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3998,
-    "subject": "Resolve fleet escalation: loom blocked on task #195 — Requires whoabuddy: create X account for Loom (Fractal Hydra), set up developer app with OAuth 1.0a, store 9 x/ credentials on Loom via fleet-exec SSH, update arc-remote-setup. Human action required — cannot be completed autonomously.",
+    "id": 3999,
+    "subject": "Resolve fleet escalation: iris blocked on task #248 — Awaiting arc0btc mnemonic from whoabuddy — only iris0btc wallet exists on this VM. Once mnemonic is provided, import steps are documented in task description.",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 168942,
-    "cost_usd": 0.7987539999999999
+    "duration_ms": 66477,
+    "cost_usd": 0.32875974999999996
   },
   "health": {
-    "uptime_seconds": 1067858,
+    "uptime_seconds": 1067924,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234553630720
+    "disk_avail_bytes": 234553585664
   }
 }
