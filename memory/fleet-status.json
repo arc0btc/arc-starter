@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T05:12:10.513Z",
+  "updated_at": "2026-03-10T05:16:12.404Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3867,
-    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (7e57e120ca)",
+    "id": 3868,
+    "subject": "Verify github-interceptor sensor deployed and active on loom — Loom task #221 escalated 3+ times",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 18252,
-    "cost_usd": 0.139022
+    "duration_ms": 199930,
+    "cost_usd": 0.587901
   },
   "health": {
-    "uptime_seconds": 1062029,
+    "uptime_seconds": 1062271,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234573869056
+    "disk_avail_bytes": 234573819904
   }
 }
