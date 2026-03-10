@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T03:09:04.523Z",
+  "updated_at": "2026-03-10T03:10:16.573Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3697,
-    "subject": "Fleet alert: iris service issues — OAuth expires in 4h — migrate to API key",
-    "status": "blocked",
-    "priority": 3
+    "id": 3700,
+    "subject": "Escalation: Fleet OAuth expires ~4h — need API key from whoabuddy",
+    "status": "completed",
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 92309,
-    "cost_usd": 0.44615974999999997
+    "duration_ms": 71945,
+    "cost_usd": 0.32131675
   },
   "health": {
-    "uptime_seconds": 1054643,
+    "uptime_seconds": 1054715,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234578411520
+    "disk_avail_bytes": 234578370560
   }
 }
