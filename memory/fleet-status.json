@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T03:20:32.676Z",
+  "updated_at": "2026-03-10T03:22:30.287Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3688,
-    "subject": "Resolve fleet escalation: spark blocked on task #193 — sBTC balance query blocked: Stacks API endpoints unreachable from this environment. Address has 1.99M STX confirmed, but sBTC token balance cannot be retrieved without external API access.",
+    "id": 3523,
+    "subject": "Structural fix: push authoritative fleet list to all worker MEMORY.md files",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 152491,
-    "cost_usd": 0.63279975
+    "duration_ms": 117489,
+    "cost_usd": 0.49607075000000006
   },
   "health": {
-    "uptime_seconds": 1055331,
+    "uptime_seconds": 1055449,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234577985536
+    "disk_avail_bytes": 234577940480
   }
 }
