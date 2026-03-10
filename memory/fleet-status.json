@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T00:17:55.058Z",
+  "updated_at": "2026-03-10T00:19:15.507Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3433,
-    "subject": "HUMAN ACTION: Import Arc wallet mnemonic — machine uses Spark wallet instead of Arc's",
-    "status": "blocked",
-    "priority": 2
+    "id": 3430,
+    "subject": "Resolve fleet escalation: iris blocked on task #205 — SSH key not registered with iris0btc GitHub account. Need human to either: (1) add SSH pubkey ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIACkLd9ck/EUVYYG6HCM0vpj/XotFNuATQtbPO/hmFxC to iris0btc GitHub account, or (2) create a GitHub PAT and run: arc creds set --service github --key token --value <PAT>, then gh auth login --with-token",
+    "status": "completed",
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 11602,
-    "cost_usd": 0.1157835
+    "duration_ms": 31813,
+    "cost_usd": 0.18557674999999998
   },
   "health": {
-    "uptime_seconds": 1044373,
+    "uptime_seconds": 1044454,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234591105024
+    "disk_avail_bytes": 234591031296
   }
 }
