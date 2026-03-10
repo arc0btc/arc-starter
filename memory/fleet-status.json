@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T02:41:49.963Z",
+  "updated_at": "2026-03-10T02:43:13.220Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3653,
-    "subject": "Escalation: all fleet agents OAuth expiring — need Anthropic API key from whoabuddy",
+    "id": 3629,
+    "subject": "Resolve fleet escalation: loom blocked on task #194 — Blocked: Loom has no X account (twitter field empty in arc-remote-setup). Need whoabuddy to create @loom0btc X account + developer app credentials. Follow-up: task #195",
     "status": "completed",
-    "priority": 2
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 29743,
-    "cost_usd": 0.19142550000000003
+    "duration_ms": 52524,
+    "cost_usd": 0.23780575
   },
   "health": {
-    "uptime_seconds": 1053008,
+    "uptime_seconds": 1053092,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234579476480
+    "disk_avail_bytes": 234579435520
   }
 }
