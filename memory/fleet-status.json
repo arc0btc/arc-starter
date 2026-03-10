@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T20:21:59.896Z",
-  "idle": true,
-  "idle_since": "2026-03-10T20:17:57.907Z",
+  "updated_at": "2026-03-10T20:23:27.230Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 4620,
-    "subject": "Retrospective: extract learnings from task #4613 — Agent Hub: CF Worker + D1 implementation (public discovery a",
+    "id": 4622,
+    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (a16cced3ff)",
     "status": "completed",
-    "priority": 8
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 37489,
-    "cost_usd": 0.04832865
+    "duration_ms": 26760,
+    "cost_usd": 0.13982775
   },
   "health": {
-    "uptime_seconds": 1116618,
+    "uptime_seconds": 1116706,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234349555712
+    "disk_avail_bytes": 234349330432
   }
 }
