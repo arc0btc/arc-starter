@@ -185,5 +185,16 @@
     "reason": "Arc resolving fleet escalation #3817 — GitHub is Arc-only, but PR was already created",
     "handed_off_at": "2026-03-10T04:32:55.680Z",
     "status": "handed-off"
+  },
+  {
+    "id": 18,
+    "source_agent": "arc",
+    "target_agent": "loom",
+    "local_task_id": 3854,
+    "remote_task_id": 231,
+    "subject": "Resolve fleet escalation: loom blocked on task #221 — GitHub token not set (github/token credential missing, gh not authenticated). Waiting for whoabuddy to provide PAT. Once available: arc creds set --service github --key token --value <PAT>, then create PR on aibtcdev/skills for fix/erc8004-transfer-post-condition.",
+    "reason": "Unblocking Loom task #221 — GitHub work done by Arc, PR already exists",
+    "handed_off_at": "2026-03-10T04:56:35.642Z",
+    "status": "handed-off"
   }
 ]
