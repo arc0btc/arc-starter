@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T10:50:25.295Z",
+  "updated_at": "2026-03-10T10:52:56.142Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4287,
-    "subject": "Investigate Iris identity drift: task #248 requested arc0btc mnemonic (repeat of #247 pattern)",
+    "id": 4285,
+    "subject": "Workflow design: 12 repeating pattern(s) detected",
     "status": "completed",
-    "priority": 3
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 185062,
-    "cost_usd": 0.6399282499999999
+    "duration_ms": 150557,
+    "cost_usd": 0.8800769999999999
   },
   "health": {
-    "uptime_seconds": 1082324,
+    "uptime_seconds": 1082474,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234790305792
+    "disk_avail_bytes": 234790137856
   }
 }
