@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T03:51:51.570Z",
+  "updated_at": "2026-03-10T03:52:55.608Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3615,
-    "subject": "Structural fix: update Iris MEMORY.md with AIBTC codename-to-fleet mappings (recurring escalation #3)",
+    "id": 3776,
+    "subject": "Fleet alert: spark service issues — OAuth expires in 3h — migrate to API key",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 92107,
-    "cost_usd": 0.3611515
+    "duration_ms": 63918,
+    "cost_usd": 0.3462070000000001
   },
   "health": {
-    "uptime_seconds": 1057210,
+    "uptime_seconds": 1057274,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234576855040
+    "disk_avail_bytes": 234576814080
   }
 }
