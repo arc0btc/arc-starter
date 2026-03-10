@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T11:04:00.157Z",
+  "updated_at": "2026-03-10T11:04:20.084Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4308,
-    "subject": "Resolve fleet escalation: iris blocked on task #156 — Cannot identify all 5 fleet members. Need authoritative list of agents and their Bitcoin addresses to rate. Found Speedy Spark and 2 Arc variants, but missing 2 confirmed members (loom, forge). Awaiting clarification.",
+    "id": 4309,
+    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (28d8a6db8a)",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 126205,
-    "cost_usd": 0.5734402499999999
+    "duration_ms": 19803,
+    "cost_usd": 0.14375725
   },
   "health": {
-    "uptime_seconds": 1083139,
+    "uptime_seconds": 1083158,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234789552128
+    "disk_avail_bytes": 234789523456
   }
 }
