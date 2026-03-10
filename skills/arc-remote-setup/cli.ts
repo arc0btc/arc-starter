@@ -457,11 +457,11 @@ async function cmdSetupXCredentials(args: string[]): Promise<void> {
   const creds: Record<string, string> = {};
   const missing: string[] = [];
   for (const key of X_CRED_KEYS) {
-    const val = await getCredential(`x-${agent}`, key);
-    if (!val) {
+    const credentialValue = await getCredential(`x-${agent}`, key);
+    if (!credentialValue) {
       missing.push(`x-${agent}/${key}`);
     } else {
-      creds[key] = val;
+      creds[key] = credentialValue;
     }
   }
 

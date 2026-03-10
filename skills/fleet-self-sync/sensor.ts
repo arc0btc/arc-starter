@@ -46,7 +46,7 @@ function hasArcIdentityClaims(content: string): boolean {
  */
 async function resolveCleanSoul(
   soulPath: string,
-  logger: (msg: string) => void,
+  logger: (message: string) => void,
 ): Promise<string | null> {
   // 1. Persistent copy — most reliable, set by configure-identity
   const persistentFile = Bun.file(SOUL_PERSISTENT);
@@ -114,7 +114,7 @@ async function writeIdentityFiles(
   soulContent: string | null,
   memoryContent: string | null,
   host: string,
-  logger: (msg: string) => void,
+  logger: (message: string) => void,
 ): Promise<boolean> {
   let soulRestored = false;
 

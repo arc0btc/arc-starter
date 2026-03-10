@@ -202,10 +202,10 @@ async function handleArenaRun(request: Request, config: FleetConfig): Promise<Re
   }
 
   // Fire request to Forge's arena endpoint (non-blocking)
-  runArenaOnForge(forge, run).catch((err) => {
+  runArenaOnForge(forge, run).catch((error) => {
     run.status = "failed";
     run.completed_at = new Date().toISOString();
-    const errMsg = err instanceof Error ? err.message : String(err);
+    const errMsg = error instanceof Error ? error.message : String(error);
     if (!run.claude) run.claude = { model: "claude", output: "", tokens_in: 0, tokens_out: 0, duration_ms: 0, cost_usd: 0, error: errMsg };
     if (!run.codex) run.codex = { model: "codex", output: "", tokens_in: 0, tokens_out: 0, duration_ms: 0, cost_usd: 0, error: errMsg };
   });
@@ -437,7 +437,7 @@ async function pollAgentChat(agent: AgentConfig): Promise<void> {
     clearTimeout(timeout);
 
     if (!response.ok) return;
-    const data = (await res.json()) as { messages: Array<{ id: number; from_agent: string; from_bns: string | null; message_type: string; content: string; created_at: string }> };
+    const data = (await fetchResponse.json()) as { messages: Array<{ id: number; from_agent: string; from_bns: string | null; message_type: string; content: string; created_at: string }> };
 
     const messages: FleetMessage[] = data.messages.map((m) => ({
       agent: agent.name,
@@ -1008,8 +1008,8 @@ function switchTab(tab) {
 
 async function refresh() {
   try {
-    const res = await fetch('/api/fleet/status');
-    const data = await res.json();
+    const fetchResponse = await fetch('/api/fleet/status');
+    const data = await fetchResponse.json();
     // Fleet bar
     const bar = document.getElementById('fleet-bar');
     bar.innerHTML = [
@@ -1033,8 +1033,8 @@ async function refresh() {
 
 async function refreshFeed() {
   try {
-    const res = await fetch('/api/fleet/feed');
-    const data = await res.json();
+    const fetchResponse = await fetch('/api/fleet/feed');
+    const data = await fetchResponse.json();
     const feed = document.getElementById('feed');
     if (!data.feed || data.feed.length === 0) {
       feed.innerHTML = '<div class="feed-empty">no tasks yet</div>';
@@ -1159,8 +1159,8 @@ document.addEventListener('keydown', function(e) {
 
 async function refreshChat() {
   try {
-    var res = await fetch('/api/fleet/chat');
-    var data = await res.json();
+    var fetchResponse = await fetch('/api/fleet/chat');
+    var data = await fetchResponse.json();
     var container = document.getElementById('chat-messages');
     if (!data.messages || data.messages.length === 0) {
       container.innerHTML = '<div class="chat-empty">no messages yet</div>';
@@ -1252,8 +1252,8 @@ var DIRECTIVE_ORDER = ['D1','D2','D3','D4','D5','unassigned'];
 
 async function refreshTaskBoard() {
   try {
-    var res = await fetch('/api/fleet/tasks');
-    var data = await res.json();
+    var fetchResponse = await fetch('/api/fleet/tasks');
+    var data = await fetchResponse.json();
     var container = document.getElementById('task-board');
     if (!data.grouped) { container.innerHTML = '<div class="board-empty">no data</div>'; return; }
     var html = '';
@@ -1308,8 +1308,8 @@ async function refreshTaskBoard() {
 // ---- Goals ----
 async function refreshGoals() {
   try {
-    var res = await fetch('/api/fleet/goals');
-    var data = await res.json();
+    var fetchResponse = await fetch('/api/fleet/goals');
+    var data = await fetchResponse.json();
     var container = document.getElementById('goals-panel');
     var directives = data.directives || [];
     var html = '<div class="goals-header">' +
@@ -1563,8 +1563,8 @@ function esc(s) { if (!s) return ''; return s.replace(/&/g,'&amp;').replace(/</g
 async function checkForge() {
   var el = document.getElementById('forge-status');
   try {
-    var res = await fetch('/api/fleet/status');
-    var data = await res.json();
+    var fetchResponse = await fetch('/api/fleet/status');
+    var data = await fetchResponse.json();
     var forge = (data.agents || []).find(function(a) { return a.name.toLowerCase() === 'forge'; });
     if (forge && forge.online) {
       el.className = 'forge-status online';
@@ -1599,12 +1599,12 @@ async function runArena() {
   resetStats();
 
   try {
-    var res = await fetch('/api/arena/run', {
+    var fetchResponse = await fetch('/api/arena/run', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt: prompt })
     });
-    var data = await res.json();
+    var data = await fetchResponse.json();
 
     if (data.error) {
       document.getElementById('output-claude').innerHTML = '<span class="error">' + esc(data.error) + '</span>';
@@ -1647,8 +1647,8 @@ function resetStats() {
 
 async function pollRun(runId) {
   try {
-    var res = await fetch('/api/arena/runs/' + runId);
-    var run = await res.json();
+    var fetchResponse = await fetch('/api/arena/runs/' + runId);
+    var run = await fetchResponse.json();
 
     if (run.error) {
       finishRun();
@@ -1756,8 +1756,8 @@ function copyOutput(model) {
 
 async function refreshHistory() {
   try {
-    var res = await fetch('/api/arena/history');
-    var data = await res.json();
+    var fetchResponse = await fetch('/api/arena/history');
+    var data = await fetchResponse.json();
     var list = document.getElementById('history-list');
     if (!data.runs || data.runs.length === 0) {
       list.innerHTML = '<div class="history-empty">no arena runs yet</div>';
@@ -1785,8 +1785,8 @@ async function refreshHistory() {
 
 async function loadRun(runId) {
   try {
-    var res = await fetch('/api/arena/runs/' + runId);
-    var run = await res.json();
+    var fetchResponse = await fetch('/api/arena/runs/' + runId);
+    var run = await fetchResponse.json();
     if (run.error) return;
 
     document.getElementById('prompt-input').value = run.prompt || '';
