@@ -91,6 +91,14 @@ const GITHUB_PATTERNS = [
   "github", "pr-review", "arc-starter-publish",
 ];
 
+// X/Twitter-related subject keywords — Loom and Forge have no X credentials
+const X_SUBJECT_PATTERNS = [
+  "x account", "twitter", "oauth 1.0a", "@loom0btc", "@forge0btc",
+];
+
+// Agents that must never receive X/Twitter tasks
+const X_RESTRICTED_AGENTS = new Set(["loom", "forge"]);
+
 // Overflow paths when primary agent exceeds SOFT_CAP
 const OVERFLOW_TARGETS: Record<string, string[]> = {
   spark: ["arc"],           // on-chain needs Opus-tier fallback
@@ -121,6 +129,11 @@ function parseSkills(task: Task): string[] {
   } catch {
     return [];
   }
+}
+
+function subjectMatchesAny(subject: string, patterns: string[]): boolean {
+  const lower = subject.toLowerCase();
+  return patterns.some((p) => lower.includes(p.toLowerCase()));
 }
 
 function skillMatchesAny(skills: string[], patterns: string[]): boolean {
@@ -171,6 +184,14 @@ export function routeTask(
       continue;
     }
 
+    // X/Twitter check for Loom and Forge
+    if (
+      X_RESTRICTED_AGENTS.has(rule.agent) &&
+      subjectMatchesAny(task.subject, X_SUBJECT_PATTERNS)
+    ) {
+      return { task, target: "arc", reason: "X-related task blocked from " + rule.agent };
+    }
+
     // Primary agent available and under soft cap → route directly
     if (isAvailable(rule.agent) && loadOf(rule.agent) < SOFT_CAP) {
       return { task, target: rule.agent, reason: `skill match → ${rule.agent}` };
@@ -196,10 +217,13 @@ export function routeTask(
 
   // Rule 4: Unmatched P3+ tasks go to least-busy healthy agent
   if (task.priority >= 3) {
+    const isXTask = subjectMatchesAny(task.subject, X_SUBJECT_PATTERNS);
     let bestAgent = "";
     let bestLoad = Infinity;
     for (const agent of Object.keys(AGENTS)) {
       if (!isAvailable(agent)) continue;
+      // Don't route X tasks to agents without X credentials
+      if (isXTask && X_RESTRICTED_AGENTS.has(agent)) continue;
       const load = loadOf(agent);
       if (load < bestLoad) {
         bestAgent = agent;
