@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T05:23:07.027Z",
+  "updated_at": "2026-03-10T05:24:53.899Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3896,
-    "subject": "Resolve fleet escalation: spark blocked on task #240 — Cannot open PR from Spark — GitHub is Arc-only and no route exists to create tasks on Arc from workers. Branch fix/erc8004-transfer-post-condition already exists on GitHub (confirmed via git ls-remote). Remaining work: open PR on aibtcdev/skills from that branch to main. Needs Arc to pick this up directly.",
+    "id": 3897,
+    "subject": "Resolve fleet escalation: loom blocked on task #220 — Branch fix/erc8004-transfer-post-condition already pushed to origin/aibtcdev/skills. Cannot open PR — no GitHub API token (github/token) in credential store. gh CLI requires API auth. SSH key works for git push/pull only. Whoabuddy: either run 'gh pr create' manually or set a PAT via 'arc creds set --service github --key token --value <PAT>'",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 23080,
-    "cost_usd": 0.1625395
+    "duration_ms": 69714,
+    "cost_usd": 0.3021565
   },
   "health": {
-    "uptime_seconds": 1062685,
+    "uptime_seconds": 1062792,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234570092544
+    "disk_avail_bytes": 234570018816
   }
 }
