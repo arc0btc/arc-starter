@@ -433,6 +433,79 @@ async function cmdSetupApiKey(args: string[]): Promise<void> {
   process.stdout.write(`API key configured on ${agent}. Services reloaded.\n`);
 }
 
+const X_CRED_KEYS = [
+  "account",
+  "consumer_key",
+  "consumer_secret",
+  "bearer_token",
+  "app_name",
+  "client_id",
+  "client_secret",
+  "access_token",
+  "access_token_secret",
+] as const;
+
+async function cmdSetupXCredentials(args: string[]): Promise<void> {
+  const { agent } = requireAgent(args);
+  const ip = await getAgentIp(agent);
+  const password = await getSshPassword();
+
+  const { getCredential } = await import("../../src/credentials.ts");
+
+  // Read each X credential from Arc's store under x-{agent}/ service
+  const creds: Record<string, string> = {};
+  const missing: string[] = [];
+  for (const key of X_CRED_KEYS) {
+    const val = await getCredential(`x-${agent}`, key);
+    if (!val) {
+      missing.push(`x-${agent}/${key}`);
+    } else {
+      creds[key] = val;
+    }
+  }
+
+  if (missing.length > 0) {
+    process.stderr.write(`Error: Missing X credentials in Arc's creds store:\n`);
+    for (const m of missing) {
+      process.stderr.write(`  arc creds set --service ${m.split("/")[0]} --key ${m.split("/")[1]} --value <value>\n`);
+    }
+    process.stderr.write(`\nCreate an X account and developer app for ${agent} (${agent === "loom" ? "Fractal Hydra" : agent}), then store credentials above.\n`);
+    process.exit(1);
+  }
+
+  process.stdout.write(`Deploying X credentials to ${agent} (${ip})...\n`);
+
+  // Build a shell script to set each credential on the remote VM
+  // Source .env to get ARC_CREDS_PASSWORD, then run arc creds set for each key
+  const remoteScript = [
+    `set -e`,
+    `cd ${REMOTE_ARC_DIR}`,
+    `source .env`,
+    ...X_CRED_KEYS.map(
+      (key) => `ARC_CREDS_PASSWORD="$ARC_CREDS_PASSWORD" bash bin/arc creds set --service x --key ${key} --value '${creds[key].replace(/'/g, "'\\''")}'`
+    ),
+    `echo "X credentials set successfully"`,
+  ].join("\n");
+
+  // Write script to temp file on remote and execute
+  const tmpPath = `/tmp/arc-setup-x-${Date.now()}.sh`;
+  const writeResult = await ssh(ip, password, `cat > ${tmpPath} << 'SCRIPTEOF'\n${remoteScript}\nSCRIPTEOF`);
+  if (!writeResult.ok) {
+    process.stderr.write(`Failed to write setup script: ${writeResult.stderr}\n`);
+    process.exit(1);
+  }
+
+  const execResult = await ssh(ip, password, `bash ${tmpPath}; rm -f ${tmpPath}`);
+  if (!execResult.ok) {
+    await ssh(ip, password, `rm -f ${tmpPath}`);
+    process.stderr.write(`Failed to set X credentials: ${execResult.stderr}\n`);
+    process.exit(1);
+  }
+
+  process.stdout.write(execResult.stdout);
+  process.stdout.write(`\nX credentials deployed to ${agent}. Run 'arc skills run --name social-x-posting -- status' on ${agent} to verify.\n`);
+}
+
 async function cmdSetupMeshSsh(_args: string[]): Promise<void> {
   const password = await getSshPassword();
   const agentNames = Object.keys(AGENTS);
@@ -590,6 +663,7 @@ Commands:
   health-check           Verify services running
   full-setup             Run all steps in sequence
   setup-api-key          Inject ANTHROPIC_API_KEY from creds store into VM .env
+  setup-x-credentials   Deploy X OAuth credentials from Arc's x-{agent}/ creds store to agent VM
   setup-mesh-ssh         Generate keypairs, distribute, test peer-to-peer SSH
 
 Agents: ${Object.keys(AGENTS).join(", ")}
@@ -629,6 +703,9 @@ async function main(): Promise<void> {
       break;
     case "setup-api-key":
       await cmdSetupApiKey(args.slice(1));
+      break;
+    case "setup-x-credentials":
+      await cmdSetupXCredentials(args.slice(1));
       break;
     case "setup-mesh-ssh":
       await cmdSetupMeshSsh(args.slice(1));
