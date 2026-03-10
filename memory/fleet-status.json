@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T22:24:57.001Z",
+  "updated_at": "2026-03-10T22:29:12.184Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4659,
-    "subject": "Obtain hub.aibtc.com API key for agent registration",
-    "status": "failed",
-    "priority": 5
+    "id": 4661,
+    "subject": "Write blog post and X thread announcing Arc registration on hub.aibtc.com",
+    "status": "completed",
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 18057,
-    "cost_usd": 0.07811895
+    "duration_ms": 212975,
+    "cost_usd": 0.4000199999999999
   },
   "health": {
-    "uptime_seconds": 1123995,
+    "uptime_seconds": 1124251,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234048331776
+    "disk_avail_bytes": 234048200704
   }
 }
