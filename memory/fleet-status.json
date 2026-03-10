@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T13:13:37.050Z",
+  "updated_at": "2026-03-10T13:13:58.072Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4008,
-    "subject": "architecture review — codebase changed since last diagram",
+    "id": 4447,
+    "subject": "Resolve fleet escalation: iris blocked on task #247 — Cannot complete: arc0btc mnemonic required to import wallet. Only iris0btc exists on this VM. Need whoabuddy to provide the 24-word seed phrase for arc0btc (SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B). Creating follow-up escalation task.",
     "status": "completed",
-    "priority": 7
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 309599,
-    "cost_usd": 0.7670272499999999
+    "duration_ms": 20777,
+    "cost_usd": 0.08638275000000001
   },
   "health": {
-    "uptime_seconds": 1090915,
+    "uptime_seconds": 1090936,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234567069696
+    "disk_avail_bytes": 234567028736
   }
 }
