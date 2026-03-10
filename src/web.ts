@@ -9,11 +9,25 @@ import { initDatabase, getDatabase, insertTask, markTaskFailed, markTaskComplete
 import { discoverSkills } from "./skills.ts";
 import { IDENTITY } from "./identity.ts";
 import { dispatchCodex } from "./codex.ts";
+import {
+  initHubSchema,
+  getAllHubAgents,
+  getHubAgent,
+  upsertHubAgent,
+  getHubCapabilities,
+  replaceAgentCapabilities,
+  findAgentForSkill,
+  getFleetHealth,
+  getRoutingStats,
+  insertTaskRoute,
+} from "../skills/agent-hub/schema.ts";
+import type { InsertHubCapability } from "../skills/agent-hub/schema.ts";
 
 // ---- Database ----
 
 // Initialize singleton database on startup
 initDatabase();
+initHubSchema();
 const db = getDatabase();
 const dbWrite = getDatabase();
 
@@ -1567,6 +1581,167 @@ async function handleFleetCompleteTask(req: Request, id: string): Promise<Respon
   return json(updated);
 }
 
+// ---- Agent Hub API ----
+
+function handleHubListAgents(): Response {
+  const agents = getAllHubAgents();
+  return json({ agents, count: agents.length });
+}
+
+function handleHubGetAgent(name: string): Response {
+  const agent = getHubAgent(name);
+  if (!agent) return errorResponse("Agent not found", 404);
+  const capabilities = getHubCapabilities(name);
+  return json({ agent, capabilities });
+}
+
+async function handleHubRegisterAgent(req: Request): Promise<Response> {
+  const authErr = authenticateFleet(req);
+  if (authErr) return fleetAuthError(authErr);
+
+  let body: {
+    agent_name?: string;
+    ip_address?: string;
+    display_name?: string;
+    stx_address?: string;
+    btc_address?: string;
+    bns_name?: string;
+    status?: string;
+    version?: string;
+    skill_count?: number;
+    sensor_count?: number;
+    pending_tasks?: number;
+    active_tasks?: number;
+    cost_today_usd?: number;
+    capabilities?: Array<{
+      skill_name: string;
+      has_sensor?: boolean;
+      has_cli?: boolean;
+      has_agent_md?: boolean;
+      tags?: string[];
+    }>;
+  };
+
+  try {
+    body = await req.json() as typeof body;
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  if (!body.agent_name || !body.ip_address) {
+    return errorResponse("'agent_name' and 'ip_address' are required", 400);
+  }
+
+  upsertHubAgent({
+    agent_name: body.agent_name,
+    ip_address: body.ip_address,
+    display_name: body.display_name,
+    stx_address: body.stx_address,
+    btc_address: body.btc_address,
+    bns_name: body.bns_name,
+    status: body.status,
+    version: body.version,
+    skill_count: body.skill_count,
+    sensor_count: body.sensor_count,
+    pending_tasks: body.pending_tasks,
+    active_tasks: body.active_tasks,
+    cost_today_usd: body.cost_today_usd,
+  });
+
+  // Update capabilities if provided
+  if (body.capabilities && Array.isArray(body.capabilities)) {
+    const caps: InsertHubCapability[] = body.capabilities.map((c) => ({
+      agent_name: body.agent_name!,
+      skill_name: c.skill_name,
+      has_sensor: c.has_sensor ? 1 : 0,
+      has_cli: c.has_cli ? 1 : 0,
+      has_agent_md: c.has_agent_md ? 1 : 0,
+      tags: c.tags && c.tags.length > 0 ? JSON.stringify(c.tags) : null,
+    }));
+    replaceAgentCapabilities(body.agent_name, caps);
+  }
+
+  const agent = getHubAgent(body.agent_name);
+  return json(agent, 201);
+}
+
+function handleHubCapabilities(url: URL): Response {
+  const skill = url.searchParams.get("skill")?.trim();
+  if (skill) {
+    const matches = findAgentForSkill(skill);
+    return json({ skill, agents: matches });
+  }
+  // No filter: return all agents with their capability counts
+  const agents = getAllHubAgents();
+  const summary = agents.map((a) => ({
+    agent_name: a.agent_name,
+    skill_count: a.skill_count,
+    sensor_count: a.sensor_count,
+    status: a.status,
+  }));
+  return json({ capabilities: summary });
+}
+
+function handleHubHealth(): Response {
+  const health = getFleetHealth();
+  const agents = getAllHubAgents();
+  const agentDetails = agents.map((a) => ({
+    agent_name: a.agent_name,
+    status: a.status,
+    ip_address: a.ip_address,
+    pending_tasks: a.pending_tasks,
+    active_tasks: a.active_tasks,
+    cost_today_usd: a.cost_today_usd,
+    last_heartbeat: a.last_heartbeat,
+  }));
+  return json({ ...health, agents: agentDetails });
+}
+
+async function handleHubRoute(req: Request): Promise<Response> {
+  const authErr = authenticateFleet(req);
+  if (authErr) return fleetAuthError(authErr);
+
+  let body: {
+    task_id?: number;
+    skill?: string;
+    from_agent?: string;
+  };
+
+  try {
+    body = await req.json() as typeof body;
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  if (!body.skill) return errorResponse("'skill' is required", 400);
+
+  const matches = findAgentForSkill(body.skill);
+  if (matches.length === 0) {
+    return json({ routed: false, reason: `No online agent has skill '${body.skill}'` });
+  }
+
+  const bestAgent = matches[0].agent_name;
+  let routeId: number | null = null;
+
+  if (body.task_id) {
+    routeId = insertTaskRoute(
+      body.task_id,
+      body.from_agent || "arc",
+      bestAgent,
+      body.skill,
+      "capability-match",
+    );
+  }
+
+  return json({
+    routed: true,
+    to_agent: bestAgent,
+    skill_match: body.skill,
+    route_id: routeId,
+    alternatives: matches.slice(1).map((m) => m.agent_name),
+  });
+}
+
 // ---- Router ----
 
 function route(req: Request): Response | Promise<Response> {
@@ -1591,6 +1766,15 @@ function route(req: Request): Response | Promise<Response> {
   if (method === "GET" && path === "/api/fleet/tasks") return handleFleetGetTasks(url, req);
   const fleetCompleteMatch = path.match(/^\/api\/fleet\/tasks\/(\d+)\/complete$/);
   if (method === "POST" && fleetCompleteMatch) return handleFleetCompleteTask(req, fleetCompleteMatch[1]);
+
+  // Agent Hub API
+  if (method === "GET" && path === "/api/hub/agents") return handleHubListAgents();
+  if (method === "POST" && path === "/api/hub/agents") return handleHubRegisterAgent(req);
+  if (method === "GET" && path === "/api/hub/capabilities") return handleHubCapabilities(url);
+  if (method === "GET" && path === "/api/hub/health") return handleHubHealth();
+  if (method === "POST" && path === "/api/hub/route") return handleHubRoute(req);
+  const hubAgentMatch = path.match(/^\/api\/hub\/agents\/([a-z0-9-]+)$/);
+  if (method === "GET" && hubAgentMatch) return handleHubGetAgent(hubAgentMatch[1]);
 
   // POST routes
   if (method === "POST" && path === "/api/tasks") return handlePostTask(req);
