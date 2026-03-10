@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T10:43:54.018Z",
+  "updated_at": "2026-03-10T10:44:52.279Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4278,
-    "subject": "Resolve fleet escalation: iris blocked on task #277 — Genuine human escalation: whoabuddy must create a GitHub PAT (repo scope) for forge0btc. No agent can perform this. Steps after PAT creation: 1) On Forge (192.168.1.15): arc creds set --service github --key token --value <PAT>, 2) echo <PAT> | gh auth login --with-token, 3) Retry push fix/erc8004-transfer-post-condition branch and open PR on aibtcdev/skills.",
+    "id": 4279,
+    "subject": "Resolve fleet escalation: spark blocked on task #199 — Requires human action: whoabuddy needs to create GitHub PAT for forge0btc (repo scope). Steps after creation: 1) On Forge (192.168.1.15): arc creds set --service github --key token --value <PAT>, 2) echo <PAT> | gh auth login --with-token, 3) Retry push fix/erc8004-transfer-post-condition branch and open PR on aibtcdev/skills.",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 35070,
-    "cost_usd": 0.17369800000000002
+    "duration_ms": 33075,
+    "cost_usd": 0.1670865
   },
   "health": {
-    "uptime_seconds": 1081932,
+    "uptime_seconds": 1081991,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234790559744
+    "disk_avail_bytes": 234790522880
   }
 }
