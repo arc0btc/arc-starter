@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T15:45:22.902Z",
+  "updated_at": "2026-03-10T15:48:36.897Z",
   "idle": true,
-  "idle_since": "2026-03-10T15:44:22.412Z",
+  "idle_since": "2026-03-10T15:47:36.756Z",
   "last_task": {
-    "id": 4538,
-    "subject": "Publish arc-starter: merge v2 into main (12 commits ahead)",
+    "id": 4539,
+    "subject": "Review PR #287 on aibtcdev/aibtc-mcp-server: chore(main): release mcp-server 1.33.3",
     "status": "completed",
-    "priority": 7
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 20982,
-    "cost_usd": 0.04098444999999999
+    "duration_ms": 73479,
+    "cost_usd": 0.2456016
   },
   "health": {
-    "uptime_seconds": 1100021,
+    "uptime_seconds": 1100215,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234562580480
+    "disk_avail_bytes": 234562531328
   }
 }
