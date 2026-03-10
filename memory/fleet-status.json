@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T03:44:45.572Z",
+  "updated_at": "2026-03-10T03:47:18.024Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3725,
-    "subject": "Resolve fleet escalation: forge blocked on task #188 — Escalate to whoabuddy: need GitHub PAT created for forge0btc (repo scope). Steps after PAT creation: 1) On Forge (192.168.1.15): arc creds set --service github --key token --value <PAT>, 2) echo <PAT> | gh auth login --with-token, 3) Retry pushing fix/erc8004-transfer-post-condition branch and opening PR on aibtcdev/skills.",
+    "id": 3726,
+    "subject": "Resolve fleet escalation: spark blocked on task #184 — Escalated to whoabuddy: Arc machine uses Spark wallet (SP3CPCZAG3N4MJQC4FZFTBK2VQN31MV2DQ9DFTE6N / Thermal Jay) for all signing/x402 instead of Arc's own (SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B). Requires whoabuddy to provide Arc's wallet mnemonic for import into ~/.aibtc/wallets/ and update bitcoin-wallet/id credential. Cannot self-resolve — mnemonic is not available on this machine.",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 41374,
-    "cost_usd": 0.19754125
+    "duration_ms": 133326,
+    "cost_usd": 0.5798377499999998
   },
   "health": {
-    "uptime_seconds": 1056784,
+    "uptime_seconds": 1056936,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234577121280
+    "disk_avail_bytes": 234577059840
   }
 }
