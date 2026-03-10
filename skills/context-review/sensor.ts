@@ -63,7 +63,7 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   "bitcoin-wallet": ["utxo", "send btc", "bitcoin transaction", "wallet unlock btc", "spend bitcoin"],
   "bitcoin-taproot-multisig": ["taproot multisig", "musig", "multisig psbt", "sign multisig", "m-of-n"],
   "aibtc-news-classifieds": ["post-classified", "classified ad", "aibtc.news/api/classifieds"],
-  "arc-housekeeping": ["housekeeping", "wal file", "stale lock", "uncommitted change"],
+  "arc-housekeeping": ["wal file", "stale lock", "uncommitted change", "arc-housekeeping run"],
   "arc-cost-alerting": ["cost alert", "budget overrun", "spending limit", "overspend"],
   "arc-skill-manager": ["memory consolidat", "skill manager", "manage-skills"],
   "blog-publishing": ["blog draft", "publish blog", "new blog post", "write blog"],
@@ -212,6 +212,13 @@ function checkEmptySkillsFailed(
   task: RecentTask,
 ): ContextFinding[] {
   if (task.status !== "failed") return [];
+
+  // Retrospective tasks embed parent subject — they fail for domain reasons, not missing context.
+  if (task.subject.startsWith("Retrospective:")) return [];
+  // Human-action tasks require a human to act — they fail because the human didn't, not due to missing context.
+  if (task.subject.startsWith("HUMAN ACTION:")) return [];
+  if (task.subject.startsWith("whoabuddy action needed:")) return [];
+
   const loaded_skills = parseSkillsArray(task.skills);
   if (loaded_skills.length === 0) {
     return [{
