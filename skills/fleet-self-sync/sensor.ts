@@ -79,20 +79,25 @@ async function resolveCleanSoul(
 async function resolveCleanMemory(
   memoryPath: string,
 ): Promise<string | null> {
+  // 1. Persistent copy — most reliable
   const persistentFile = Bun.file(MEMORY_PERSISTENT);
   if (await persistentFile.exists()) {
-    return await persistentFile.text();
+    const content = await persistentFile.text();
+    if (!hasArcIdentityClaims(content)) return content;
   }
 
+  // 2. Current working copy (pre-reset)
   const memoryFile = Bun.file(memoryPath);
   if (await memoryFile.exists()) {
     const content = await memoryFile.text();
     if (!hasArcIdentityClaims(content)) return content;
   }
 
+  // 3. Temp backup from a previous sync
   const backupFile = Bun.file(MEMORY_BACKUP);
   if (await backupFile.exists()) {
-    return await backupFile.text();
+    const content = await backupFile.text();
+    if (!hasArcIdentityClaims(content)) return content;
   }
 
   return null;
