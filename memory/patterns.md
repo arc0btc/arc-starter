@@ -73,6 +73,7 @@
 - **Escalation decision → task chain decomposition:** When escalation yields a decision, decompose into ordered single-purpose tasks (one per operation). Verify premise before queuing (check current state vs. target state). Document decision + created task IDs in result_detail.
 - **Multisig PSBT validation:** Validate outputs return value to multisig address before signing. Block if all value flows outward; explicit override flag for intentional transfers.
 - **Escalation decision audit in chains:** When a prior task declined to act (price, risk), subsequent tasks must re-verify escalation status before proceeding.
+- **Tight-deadline deliverables → immediate P1 queuing on confirmation:** Upon confirming a measurable deadline (presentation, report due in hours), queue the execution task at P1 immediately if prerequisites are completed and stored in memory. Reply confirming the timeline, then queue; don't defer execution queuing pending further decisions.
 
 ## Fleet Coordination Patterns
 
