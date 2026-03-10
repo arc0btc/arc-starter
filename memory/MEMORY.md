@@ -40,6 +40,8 @@ Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 6
 
 ## Key Learnings
 
+**[FLAG] Fleet OAuth fragility (2026-03-10):** All 4 workers shared one OAuth token that expired server-side, taking down entire fleet. Fix: scp'd Arc's working OAuth creds. Task #4088 tracks API key migration. Workers should use ANTHROPIC_API_KEY, not OAuth — OAuth refresh is unreliable across VMs.
+
 **Fleet architecture:** Router/rebalancer only on Arc. GitHub sensors centralized (GITHUB_SENSORS filter). Identity hostname-aware. Observatory stale-process monitoring. Domain assignment: Arc=orchestration, Spark=protocol/on-chain, Iris=research, Loom=integrations, Forge=infrastructure.
 
 **[FLAG] Fleet escalation loops (2026-03-10):** Iris repeatedly asks for the fleet list (resolved 3+ times in one day), Forge GitHub blocker escalated multiple times. Individual task resolutions aren't durable — root causes (credential misconfiguration, stale identity data on workers) need upstream fixes, not repeated resolutions. When an escalation recurs >2× on the same root cause, create a structural fix task, not another resolution task.
