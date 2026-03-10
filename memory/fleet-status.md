@@ -1,19 +1,19 @@
 # Fleet Status
 
-*Last checked: 2026-03-10T10:36:45.781Z*
+*Last checked: 2026-03-10T10:51:47.543Z*
 
 | Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Auth | Issues |
 |-------|-----------|---------|----------|------------|------|------|--------|
-| spark | yes | ok | ok | 3m ago | 3% | oauth:ok | none |
-| iris | yes | ok | ok | 4m ago | 2% | oauth:ok | none |
-| loom | yes | ok | ok | 4m ago | 3% | oauth:ok | none |
-| forge | yes | ok | ok | 3m ago | 3% | oauth:ok | none |
+| spark | yes | ok | ok | 1m ago | 3% | oauth:ok | none |
+| iris | yes | ok | ok | 13m ago | 2% | oauth:ok | none |
+| loom | yes | ok | ok | 2m ago | 3% | oauth:ok | none |
+| forge | yes | ok | ok | 0m ago | 3% | oauth:ok | none |
 
 ## Peer Self-Reported Status
 
 | Agent | Last Task | Task Status | Cycle Cost | Updated | Stale |
 |-------|-----------|-------------|------------|---------|-------|
-| spark | #291: Apply git bundle: update to v2 @ 0d489fd | completed | $0.166 | 2026-03-10 10:35:43Z | no |
-| iris | #335: Apply git bundle: update to v2 @ 0d489fd | completed | $0.202 | 2026-03-10 10:35:56Z | no |
-| loom | #261: Apply git bundle: update to v2 @ 0d489fd | completed | $0.202 | 2026-03-10 10:36:09Z | no |
-| forge | #264: Apply git bundle: update to v2 @ 0d489fd | completed | $0.234 | 2026-03-10 10:35:39Z | no |
+| spark | #292: Resolve fleet escalation: iris blocked o | completed | $0.120 | 2026-03-10 10:51:08Z | no |
+| iris | #156: Initial cross-agent reputation scoring | completed | $0.040 | 2026-03-10 10:51:01Z | no |
+| loom | #263: Retrospective: extract learnings from ta | completed | $0.038 | 2026-03-10 10:51:14Z | no |
+| forge | #266: Retrospective: extract learnings from ta | completed | $0.057 | 2026-03-10 10:51:15Z | no |

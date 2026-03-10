@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T10:46:55.847Z",
+  "updated_at": "2026-03-10T10:50:25.295Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4288,
-    "subject": "health alert: stale dispatch lock detected",
+    "id": 4287,
+    "subject": "Investigate Iris identity drift: task #248 requested arc0btc mnemonic (repeat of #247 pattern)",
     "status": "completed",
-    "priority": 2
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 35899,
-    "cost_usd": 0.0479207
+    "duration_ms": 185062,
+    "cost_usd": 0.6399282499999999
   },
   "health": {
-    "uptime_seconds": 1082114,
+    "uptime_seconds": 1082324,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234790440960
+    "disk_avail_bytes": 234790305792
   }
 }
