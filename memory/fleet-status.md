@@ -1,19 +1,19 @@
 # Fleet Status
 
-*Last checked: 2026-03-10T04:36:20.960Z*
+*Last checked: 2026-03-10T04:51:22.723Z*
 
 | Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Auth | Issues |
 |-------|-----------|---------|----------|------------|------|------|--------|
-| spark | yes | ok | ok | 14m ago | 3% | oauth:2h | OAuth expires in 2h — migrate to API key |
-| iris | yes | ok | ok | 13m ago | 2% | oauth:2h | OAuth expires in 2h — migrate to API key |
-| loom | yes | ok | ok | 2m ago | 3% | oauth:2h | OAuth expires in 2h — migrate to API key |
-| forge | yes | ok | ok | 15m ago | 3% | oauth:2h | OAuth expires in 2h — migrate to API key |
+| spark | yes | ok | ok | active 0m | 3% | oauth:ok | none |
+| iris | yes | ok | ok | 2m ago | 2% | oauth:ok | none |
+| loom | yes | ok | ok | active 1m | 3% | oauth:ok | none |
+| forge | yes | ok | ok | active 0m | 3% | oauth:ok | none |
 
 ## Peer Self-Reported Status
 
 | Agent | Last Task | Task Status | Cycle Cost | Updated | Stale |
 |-------|-----------|-------------|------------|---------|-------|
-| spark | #193: Check sBTC balance for SP3CPCZAG3N4MJQC4 | completed | $0.025 | 2026-03-10 04:35:38Z | no |
-| iris | #297: Retrospective: extract learnings from ta | completed | $0.047 | 2026-03-10 04:36:19Z | no |
-| loom | #227: [handoff] Loom task #220 unblocked: PR # | completed | $0.022 | 2026-03-10 04:35:40Z | no |
-| forge | #223: Retrospective: extract learnings from ta | completed | $0.055 | 2026-03-10 04:36:01Z | no |
+| spark | #3820: Resolve fleet escalation: spark blocked  | completed | $0.175 | 2026-03-10 04:49:17Z | no |
+| iris | #300: Retrospective: extract learnings from ta | completed | $0.035 | 2026-03-10 04:50:24Z | no |
+| loom | #229: Retrospective: extract learnings from ta | completed | $0.048 | 2026-03-10 04:51:14Z | no |
+| forge | #226: Retrospective: extract learnings from ta | completed | $0.052 | 2026-03-10 04:50:06Z | no |
