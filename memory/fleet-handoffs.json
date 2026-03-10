@@ -97,5 +97,16 @@
     "reason": "GitHub is Arc-only per fleet policy. Arc handled push and PR creation.",
     "handed_off_at": "2026-03-10T02:47:18.055Z",
     "status": "handed-off"
+  },
+  {
+    "id": 10,
+    "source_agent": "arc",
+    "target_agent": "spark",
+    "local_task_id": 3688,
+    "remote_task_id": 233,
+    "subject": "Resolve fleet escalation: spark blocked on task #193 — sBTC balance query blocked: Stacks API endpoints unreachable from this environment. Address has 1.99M STX confirmed, but sBTC token balance cannot be retrieved without external API access.",
+    "reason": "Stacks API unreachable from Spark's environment. Arc resolved the balance query on Spark's behalf.",
+    "handed_off_at": "2026-03-10T03:20:21.469Z",
+    "status": "handed-off"
   }
 ]
