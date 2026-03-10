@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T06:12:21.744Z",
+  "updated_at": "2026-03-10T06:14:21.471Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3951,
-    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (4a39e1b3f3)",
+    "id": 3952,
+    "subject": "Open PR for fix/erc8004-transfer-post-condition on aibtcdev/skills (routed from Forge)",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 23311,
-    "cost_usd": 0.140042
+    "duration_ms": 82603,
+    "cost_usd": 0.39521475
   },
   "health": {
-    "uptime_seconds": 1065640,
+    "uptime_seconds": 1065760,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234554834944
+    "disk_avail_bytes": 234554777600
   }
 }
