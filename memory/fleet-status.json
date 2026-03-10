@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T01:52:07.579Z",
+  "updated_at": "2026-03-10T01:53:17.287Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3591,
-    "subject": "Fleet alert: spark service issues — OAuth expires in 5h — migrate to API key",
+    "id": 3592,
+    "subject": "Fleet alert: iris service issues — OAuth expires in 5h — migrate to API key",
     "status": "blocked",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 50807,
-    "cost_usd": 0.2643075
+    "duration_ms": 60321,
+    "cost_usd": 0.323453
   },
   "health": {
-    "uptime_seconds": 1050026,
+    "uptime_seconds": 1050096,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234586284032
+    "disk_avail_bytes": 234586238976
   }
 }
