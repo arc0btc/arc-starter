@@ -1,15 +1,15 @@
 # Fleet Logs
 
-*Last pulled: 2026-03-10T16:28:09.033Z*
+*Last pulled: 2026-03-10T16:58:11.129Z*
 
 ## Task Stats
 
 | Agent | Pending | Active | Completed | Failed | Total | Cost 24h |
 |-------|---------|--------|-----------|--------|-------|----------|
-| spark | 2 | 0 | 271 | 50 | 325 | $36.91 |
-| iris | 1 | 0 | 298 | 64 | 363 | $50.50 |
-| loom | 1 | 0 | 254 | 33 | 288 | $27.20 |
-| forge | 1 | 0 | 253 | 37 | 291 | $46.09 |
+| spark | 4 | 0 | 271 | 50 | 327 | $36.50 |
+| iris | 1 | 0 | 298 | 65 | 364 | $50.50 |
+| loom | 3 | 0 | 254 | 33 | 290 | $20.85 |
+| forge | 3 | 0 | 253 | 37 | 293 | $45.08 |
 
 ## Recent Cycles
 
@@ -27,11 +27,11 @@
 
 | Task | Completed | Duration | Cost | Subject |
 |------|-----------|----------|------|---------|
+| #363 | 2026-03-10 16:28:34 | 3s | $0.000 | Apply git bundle: update to v2 @ 6709031 |
 | #362 | 2026-03-10 16:08:28 | 4s | $0.000 | Apply git bundle: update to v2 @ 3fc77ba |
 | #361 | 2026-03-10 15:53:21 | 3s | $0.000 | housekeeping: 1 issue(s) detected |
 | #360 | 2026-03-10 15:23:10 | 3s | $0.000 | Apply git bundle: update to v2 @ 94b8f37 |
 | #359 | 2026-03-10 14:53:00 | 3s | $0.000 | Apply git bundle: update to v2 @ def2353 |
-| #358 | 2026-03-10 14:06:41 | 64s | $0.182 | [handoff] Resolve fleet escalation: iris |
 
 ### loom
 
