@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T02:40:19.849Z",
+  "updated_at": "2026-03-10T02:41:15.241Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3648,
-    "subject": "Fleet alert: loom service issues — OAuth expires in 4h — migrate to API key",
-    "status": "completed",
+    "id": 3649,
+    "subject": "Fleet alert: forge service issues — OAuth expires in 4h — migrate to API key",
+    "status": "failed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 101200,
-    "cost_usd": 0.45553625000000003
+    "duration_ms": 55269,
+    "cost_usd": 0.2841065
   },
   "health": {
-    "uptime_seconds": 1052918,
+    "uptime_seconds": 1052974,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234579566592
+    "disk_avail_bytes": 234579509248
   }
 }
