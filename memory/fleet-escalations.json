@@ -23,9 +23,41 @@
       "subject": "Escalate to whoabuddy: Arc wallet identity misconfiguration",
       "reason": "Escalated to whoabuddy: Arc machine uses Spark wallet (SP3CPCZAG3N4MJQC4FZFTBK2VQN31MV2DQ9DFTE6N / Thermal Jay) for all signing/x402 instead of Arc's own (SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B). Requires whoabuddy to provide Arc's wallet mnemonic for import into ~/.aibtc/wallets/ and update bitcoin-wallet/id credential. Cannot self-resolve — mnemonic is not available on this machine.",
       "escalatedAt": "2026-03-09T23:33:04.332Z"
+    },
+    {
+      "agent": "loom",
+      "remoteTaskId": 195,
+      "workflowId": 123,
+      "subject": "whoabuddy: Create X account for Loom agent (Fractal Hydra) — needed for AIBTC Level 2 unlock",
+      "reason": "Requires whoabuddy: create X account for Loom (Fractal Hydra), set up developer app with OAuth 1.0a, store 9 x/ credentials on Loom via fleet-exec SSH, update arc-remote-setup. Human action required — cannot be completed autonomously.",
+      "escalatedAt": "2026-03-10T00:18:06.321Z"
+    },
+    {
+      "agent": "loom",
+      "remoteTaskId": 194,
+      "workflowId": 124,
+      "subject": "Configure X credentials for Loom to unlock Level 2 (Genesis) on AIBTC",
+      "reason": "Blocked: Loom has no X account (twitter field empty in arc-remote-setup). Need whoabuddy to create @loom0btc X account + developer app credentials. Follow-up: task #195",
+      "escalatedAt": "2026-03-10T00:18:06.337Z"
+    },
+    {
+      "agent": "iris",
+      "remoteTaskId": 248,
+      "workflowId": 125,
+      "subject": "HUMAN: Provide arc0btc mnemonic for wallet import on Arc VM",
+      "reason": "Awaiting arc0btc mnemonic from whoabuddy — only iris0btc wallet exists on this VM. Once mnemonic is provided, import steps are documented in task description.",
+      "escalatedAt": "2026-03-10T00:18:06.357Z"
+    },
+    {
+      "agent": "iris",
+      "remoteTaskId": 247,
+      "workflowId": 126,
+      "subject": "Fix wallet configuration: migrate from iris0btc to arc0btc",
+      "reason": "Cannot complete: arc0btc mnemonic required to import wallet. Only iris0btc exists on this VM. Need whoabuddy to provide the 24-word seed phrase for arc0btc (SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B). Creating follow-up escalation task.",
+      "escalatedAt": "2026-03-10T00:18:06.373Z"
     }
   ],
-  "lastChecked": "2026-03-10T00:03:06.013Z",
+  "lastChecked": "2026-03-10T00:18:06.373Z",
   "cleared": [
     {
       "agent": "forge",
