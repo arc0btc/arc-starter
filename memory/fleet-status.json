@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T03:28:29.363Z",
+  "updated_at": "2026-03-10T03:29:33.273Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3734,
-    "subject": "Migrate all fleet agents from OAuth to API key auth (spark, iris, loom, forge)",
-    "status": "blocked",
-    "priority": 2
+    "id": 3735,
+    "subject": "ESCALATION: Store Anthropic API key and migrate fleet auth before OAuth expires ~06:30 UTC",
+    "status": "completed",
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 63677,
-    "cost_usd": 0.36921750000000003
+    "duration_ms": 63787,
+    "cost_usd": 0.31700375000000003
   },
   "health": {
-    "uptime_seconds": 1055808,
+    "uptime_seconds": 1055872,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234577764352
+    "disk_avail_bytes": 234577723392
   }
 }
