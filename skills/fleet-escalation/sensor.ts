@@ -35,6 +35,8 @@ const INTERVAL_MINUTES = 15;
 
 const log = createSensorLogger(SENSOR_NAME);
 
+const MAINTENANCE_FILE = new URL("../../db/fleet-maintenance.json", import.meta.url).pathname;
+
 const MEMORY_DIR = new URL("../../memory", import.meta.url).pathname;
 const ESCALATIONS_FILE = join(MEMORY_DIR, "fleet-escalations.json");
 
@@ -183,6 +185,18 @@ async function emailWhoabuddy(
 export default async function fleetEscalationSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
+
+  // Skip entirely if fleet is in maintenance mode
+  try {
+    const mFile = Bun.file(MAINTENANCE_FILE);
+    if (await mFile.exists()) {
+      const config = await mFile.json() as { enabled?: boolean };
+      if (config.enabled) {
+        log("fleet in maintenance mode — skipping escalation scan");
+        return "skip";
+      }
+    }
+  } catch { /* proceed if file unreadable */ }
 
   let password: string;
   try {

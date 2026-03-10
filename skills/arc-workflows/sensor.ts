@@ -20,6 +20,19 @@ const SENSOR_NAME = "arc-workflows";
 const INTERVAL_MINUTES = 5;
 const log = createSensorLogger(SENSOR_NAME);
 
+const MAINTENANCE_FILE = new URL("../../db/fleet-maintenance.json", import.meta.url).pathname;
+
+async function isFleetMaintenance(): Promise<boolean> {
+  try {
+    const file = Bun.file(MAINTENANCE_FILE);
+    if (!await file.exists()) return false;
+    const config = await file.json() as { enabled?: boolean };
+    return config.enabled === true;
+  } catch {
+    return false;
+  }
+}
+
 interface GithubPR {
   owner: string;
   repo: string;
@@ -292,8 +305,14 @@ export default async function workflowsSensor(): Promise<string> {
     totalActions += prActionsCount;
 
     // Evaluate all active workflows and process their actions
+    const maintenanceMode = await isFleetMaintenance();
     const workflows = getAllActiveWorkflows();
     for (const workflow of workflows) {
+      // Skip fleet-escalation workflows during maintenance mode
+      if (maintenanceMode && workflow.template === "fleet-escalation") {
+        continue;
+      }
+
       // Get the template for this workflow
       const template = getTemplateByName(workflow.template);
       if (!template) {
