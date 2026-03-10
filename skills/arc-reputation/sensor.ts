@@ -29,6 +29,29 @@ const SENSOR_NAME = "reputation-tracker";
 const INTERVAL_MINUTES = 30;
 const TASK_SOURCE_PREFIX = "sensor:reputation-tracker";
 const LOOKBACK_HOURS = 2; // scan window — overlaps slightly with interval for safety
+const MAX_REVIEWS_PER_DAY = 10;
+
+// Fleet-internal sources that should never trigger reputation reviews
+const INTERNAL_SOURCE_PREFIXES = [
+  "sensor:fleet-health",
+  "sensor:fleet-task-sync",
+  "sensor:fleet-memory",
+  "sensor:fleet-self-sync",
+  "sensor:arc-alive-check",
+  "sensor:arc-service-health",
+  "workflow:",
+];
+
+// Fleet-internal subject patterns that are operational noise, not real interactions
+const INTERNAL_SUBJECT_PATTERNS = [
+  /^fleet alert:/i,
+  /^fleet circuit breaker:/i,
+  /^fleet memory collection/i,
+  /^resolve fleet escalation/i,
+  /^close (iris|loom|forge|spark|arc) task/i,
+  /^notify (iris|loom|forge|spark|arc):/i,
+  /^enforce worker sensor/i,
+];
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -154,10 +177,19 @@ export default async function reputationTrackerSensor(): Promise<string> {
     return "ok";
   }
 
-  // Skip tasks created by this sensor (avoid self-referential loops)
-  const candidateTasks = tasks.filter(
-    (t) => !t.source?.startsWith(TASK_SOURCE_PREFIX)
-  );
+  // Skip tasks created by this sensor and fleet-internal operational tasks
+  const candidateTasks = tasks.filter((t) => {
+    // Self-referential loop prevention
+    if (t.source?.startsWith(TASK_SOURCE_PREFIX)) return false;
+
+    // Fleet-internal sources — operational noise, not real interactions
+    if (t.source && INTERNAL_SOURCE_PREFIXES.some((p) => t.source!.startsWith(p))) return false;
+
+    // Fleet-internal subjects
+    if (INTERNAL_SUBJECT_PATTERNS.some((p) => p.test(t.subject))) return false;
+
+    return true;
+  });
 
   const eligible: EligibleInteraction[] = [];
 
@@ -215,9 +247,30 @@ export default async function reputationTrackerSensor(): Promise<string> {
     return "ok";
   }
 
-  // Queue one review task per eligible interaction
+  // Check daily cap: count reviews already created today
+  const db2 = getDatabase();
+  const todayReviewCount = (db2.query(
+    `SELECT COUNT(*) as c FROM tasks
+     WHERE source LIKE '${TASK_SOURCE_PREFIX}:%'
+       AND created_at >= date('now')`,
+  ).get() as { c: number })?.c ?? 0;
+
+  if (todayReviewCount >= MAX_REVIEWS_PER_DAY) {
+    log(`daily review cap reached (${todayReviewCount}/${MAX_REVIEWS_PER_DAY}) — skipping ${eligible.length} eligible`);
+    await writeHookState(SENSOR_NAME, {
+      last_ran: new Date().toISOString(),
+      last_result: "capped",
+      version: hookState?.version ?? 1,
+      reviewed_keys: [...reviewedKeys].slice(-500),
+    });
+    return "ok";
+  }
+
+  const remainingBudget = MAX_REVIEWS_PER_DAY - todayReviewCount;
+
+  // Queue one review task per eligible interaction (up to daily cap)
   let queued = 0;
-  for (const interaction of eligible) {
+  for (const interaction of eligible.slice(0, remainingBudget)) {
     const source = `${TASK_SOURCE_PREFIX}:task:${interaction.task_id}:contact:${interaction.contact_id}`;
 
     const description = [

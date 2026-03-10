@@ -29,12 +29,83 @@ import {
 const SENSOR_NAME = "fleet-health";
 const INTERVAL_MINUTES = 15;
 const ALERT_SOURCE_PREFIX = "sensor:fleet-health";
+const MAX_ALERTS_PER_AGENT_PER_DAY = 3;
 
 const log = createSensorLogger(SENSOR_NAME);
 
 const CONSECUTIVE_FAILURE_THRESHOLD = 5;
 
 const MEMORY_DIR = new URL("../../memory", import.meta.url).pathname;
+const MAINTENANCE_FILE = new URL("../../db/fleet-maintenance.json", import.meta.url).pathname;
+
+// ---- Maintenance mode ----
+
+interface MaintenanceConfig {
+  enabled: boolean;
+  reason?: string;
+  since?: string;
+  suppress_agents?: string[]; // empty = all agents suppressed
+}
+
+async function isMaintenanceMode(): Promise<{ active: boolean; config: MaintenanceConfig | null }> {
+  try {
+    const file = Bun.file(MAINTENANCE_FILE);
+    if (!await file.exists()) return { active: false, config: null };
+    const config = await file.json() as MaintenanceConfig;
+    if (config.enabled) {
+      return { active: true, config };
+    }
+    return { active: false, config };
+  } catch {
+    return { active: false, config: null };
+  }
+}
+
+function isAgentSuppressed(agent: string, config: MaintenanceConfig | null): boolean {
+  if (!config?.enabled) return false;
+  // If suppress_agents is empty or missing, all agents are suppressed
+  if (!config.suppress_agents || config.suppress_agents.length === 0) return true;
+  return config.suppress_agents.includes(agent);
+}
+
+// ---- Daily alert cap ----
+
+interface AlertState {
+  [agentDate: string]: number; // "spark:2026-03-10" → count
+}
+
+async function getAlertCount(agent: string): Promise<number> {
+  const today = new Date().toISOString().slice(0, 10);
+  const key = `${agent}:${today}`;
+  try {
+    const file = Bun.file(new URL("../../db/hook-state/fleet-health-alerts.json", import.meta.url).pathname);
+    if (!await file.exists()) return 0;
+    const state = await file.json() as AlertState;
+    return state[key] ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
+async function incrementAlertCount(agent: string): Promise<void> {
+  const today = new Date().toISOString().slice(0, 10);
+  const key = `${agent}:${today}`;
+  const filePath = new URL("../../db/hook-state/fleet-health-alerts.json", import.meta.url).pathname;
+  let state: AlertState = {};
+  try {
+    const file = Bun.file(filePath);
+    if (await file.exists()) {
+      state = await file.json() as AlertState;
+    }
+  } catch { /* start fresh */ }
+
+  // Prune old entries (keep only today)
+  for (const k of Object.keys(state)) {
+    if (!k.endsWith(today)) delete state[k];
+  }
+  state[key] = (state[key] ?? 0) + 1;
+  await Bun.write(filePath, JSON.stringify(state, null, 2));
+}
 
 // ---- Health check logic ----
 
@@ -454,10 +525,29 @@ export default async function fleetHealthSensor(): Promise<string> {
     await ssh(await getAgentIp(h.agent), password, "systemctl --user stop arc-dispatch.timer 2>/dev/null");
   }
 
+  // Check maintenance mode
+  const { active: maintenanceActive, config: maintenanceConfig } = await isMaintenanceMode();
+  if (maintenanceActive) {
+    log(`maintenance mode active: ${maintenanceConfig?.reason ?? "no reason"} — suppressing alerts`);
+  }
+
   // Create alert tasks for agents with issues
   let alertCount = 0;
   for (const h of healths) {
     if (h.issues.length === 0) continue;
+
+    // Skip alert creation if agent is in maintenance mode
+    if (maintenanceActive && isAgentSuppressed(h.agent, maintenanceConfig)) {
+      log(`suppressed alert for ${h.agent} (maintenance mode): ${h.issues.join(", ")}`);
+      continue;
+    }
+
+    // Skip if daily alert cap reached for this agent
+    const todayCount = await getAlertCount(h.agent);
+    if (todayCount >= MAX_ALERTS_PER_AGENT_PER_DAY) {
+      log(`suppressed alert for ${h.agent} (daily cap ${MAX_ALERTS_PER_AGENT_PER_DAY} reached): ${h.issues.join(", ")}`);
+      continue;
+    }
 
     const source = `${ALERT_SOURCE_PREFIX}:${h.agent}`;
 
@@ -477,6 +567,7 @@ export default async function fleetHealthSensor(): Promise<string> {
     });
 
     if (created !== null) {
+      await incrementAlertCount(h.agent);
       log(`alert created for ${h.agent}: ${h.issues.join(", ")}`);
       alertCount++;
     }
