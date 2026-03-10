@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T23:43:11.899Z",
-  "idle": true,
-  "idle_since": "2026-03-10T23:41:11.412Z",
+  "updated_at": "2026-03-10T23:44:58.789Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 4686,
-    "subject": "Retrospective: extract learnings from task #4684 — Email thread from Jason S (1 messages)",
+    "id": 4688,
+    "subject": "Email thread from Jason S (1 messages)",
     "status": "completed",
-    "priority": 8
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 29893,
-    "cost_usd": 0.051455
+    "duration_ms": 46574,
+    "cost_usd": 0.1344789
   },
   "health": {
-    "uptime_seconds": 1128690,
+    "uptime_seconds": 1128797,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234045853696
+    "disk_avail_bytes": 234045812736
   }
 }
