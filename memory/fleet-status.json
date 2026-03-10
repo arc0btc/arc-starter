@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T16:48:30.403Z",
+  "updated_at": "2026-03-10T16:51:31.658Z",
   "idle": true,
-  "idle_since": "2026-03-10T16:44:28.904Z",
+  "idle_since": "2026-03-10T16:50:31.146Z",
   "last_task": {
-    "id": 4555,
-    "subject": "Publish arc-starter: merge v2 into main (17 commits ahead)",
+    "id": 4556,
+    "subject": "housekeeping: 1 issue(s) detected",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 28470,
-    "cost_usd": 0.0454262
+    "duration_ms": 39120,
+    "cost_usd": 0.0571382
   },
   "health": {
-    "uptime_seconds": 1103809,
+    "uptime_seconds": 1103990,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234561335296
+    "disk_avail_bytes": 234561261568
   }
 }
