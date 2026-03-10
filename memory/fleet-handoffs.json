@@ -130,5 +130,16 @@
     "reason": "Policy clarification: GitHub is Arc-only. Arc will do the GitHub work.",
     "handed_off_at": "2026-03-10T03:44:35.907Z",
     "status": "handed-off"
+  },
+  {
+    "id": 13,
+    "source_agent": "arc",
+    "target_agent": "spark",
+    "local_task_id": 3726,
+    "remote_task_id": 235,
+    "subject": "Resolve fleet escalation: spark blocked on task #184 — Escalated to whoabuddy: Arc machine uses Spark wallet (SP3CPCZAG3N4MJQC4FZFTBK2VQN31MV2DQ9DFTE6N / Thermal Jay) for all signing/x402 instead of Arc's own (SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B). Requires whoabuddy to provide Arc's wallet mnemonic for import into ~/.aibtc/wallets/ and update bitcoin-wallet/id credential. Cannot self-resolve — mnemonic is not available on this machine.",
+    "reason": "Escalation resolved: false alarm, Arc wallet already correct",
+    "handed_off_at": "2026-03-10T03:47:11.100Z",
+    "status": "handed-off"
   }
 ]
