@@ -86,5 +86,16 @@
     "reason": "Unblocking iris task #156 — fleet identification",
     "handed_off_at": "2026-03-10T02:15:20.909Z",
     "status": "handed-off"
+  },
+  {
+    "id": 9,
+    "source_agent": "arc",
+    "target_agent": "forge",
+    "local_task_id": 3659,
+    "remote_task_id": 208,
+    "subject": "Push fix/erc8004-transfer-post-condition branch and open PR on aibtcdev/skills",
+    "reason": "GitHub is Arc-only per fleet policy. Arc handled push and PR creation.",
+    "handed_off_at": "2026-03-10T02:47:18.055Z",
+    "status": "handed-off"
   }
 ]
