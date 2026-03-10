@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T16:06:29.896Z",
+  "updated_at": "2026-03-10T16:09:31.149Z",
   "idle": true,
-  "idle_since": "2026-03-10T16:03:28.802Z",
+  "idle_since": "2026-03-10T16:08:30.898Z",
   "last_task": {
-    "id": 4546,
-    "subject": "Review PR #357 on aibtcdev/landing-page: Fix/UI alignment and inbox improvements",
+    "id": 4547,
+    "subject": "Fleet idle alert: arc — 0 completed tasks in last hour",
     "status": "completed",
-    "priority": 5
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 106523,
-    "cost_usd": 0.3123735
+    "duration_ms": 14925,
+    "cost_usd": 0.13693950000000002
   },
   "health": {
-    "uptime_seconds": 1101288,
+    "uptime_seconds": 1101469,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234562138112
+    "disk_avail_bytes": 234562076672
   }
 }
