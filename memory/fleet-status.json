@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T10:10:35.036Z",
+  "updated_at": "2026-03-10T10:15:48.328Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4238,
-    "subject": "Email thread from Jason S (1 messages)",
+    "id": 4244,
+    "subject": "Stop worker GitHub escalations permanently: audit all paths and harden enforcement",
     "status": "completed",
-    "priority": 1
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 55760,
-    "cost_usd": 0.24917474999999997
+    "duration_ms": 308617,
+    "cost_usd": 1.2081387999999995
   },
   "health": {
-    "uptime_seconds": 1079933,
+    "uptime_seconds": 1080247,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234792046592
+    "disk_avail_bytes": 234791804928
   }
 }
