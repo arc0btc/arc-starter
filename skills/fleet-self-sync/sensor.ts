@@ -9,6 +9,7 @@
 import {
   claimSensorRun,
   createSensorLogger,
+  pendingTaskExistsForSource,
 } from "../../src/sensors.ts";
 import { join } from "node:path";
 import { hostname } from "node:os";
@@ -335,7 +336,7 @@ export default async function sensor(): Promise<string> {
     );
 
     // Post-restore verification
-    if (!soulRestored) {
+    if (!soulRestored && !pendingTaskExistsForSource("sensor:fleet-self-sync")) {
       log(`CRITICAL: no clean SOUL.md for ${host} — creating fix task`);
       await run([
         BUN, "run", "bin/arc", "tasks", "add",

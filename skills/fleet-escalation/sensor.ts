@@ -15,6 +15,7 @@ import { join } from "node:path";
 import {
   claimSensorRun,
   createSensorLogger,
+  pendingTaskExistsForSource,
 } from "../../src/sensors.ts";
 import {
   AGENTS,
@@ -214,7 +215,8 @@ export default async function fleetEscalationSensor(): Promise<string> {
         // Dedup: if a workflow already exists for this agent+task, skip
         const existing = getWorkflowByInstanceKey(instanceKey);
         if (existing) {
-          log(`${agent} task #${task.id} already has workflow id=${existing.id}, skipping`);
+          const hasPendingResolution = pendingTaskExistsForSource(`workflow:${existing.id}`);
+          log(`${agent} task #${task.id} already has workflow id=${existing.id}${hasPendingResolution ? ", resolution task pending" : ""}, skipping`);
           continue;
         }
 
