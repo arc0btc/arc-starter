@@ -1,19 +1,19 @@
 # Fleet Status
 
-*Last checked: 2026-03-09T23:51:05.022Z*
+*Last checked: 2026-03-10T00:06:04.126Z*
 
 | Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Auth | Issues |
 |-------|-----------|---------|----------|------------|------|------|--------|
-| spark | yes | ok | ok | active 1m | 3% | oauth:7h | OAuth expires in 7h — migrate to API key |
-| iris | yes | ok | ok | active 11m | 3% | oauth:7h | OAuth expires in 7h — migrate to API key |
-| loom | yes | ok | ok | 20m ago | 3% | oauth:7h | OAuth expires in 7h — migrate to API key |
+| spark | yes | ok | ok | 2m ago | 3% | oauth:7h | OAuth expires in 7h — migrate to API key |
+| iris | yes | ok | ok | active 0m | 3% | oauth:7h | OAuth expires in 7h — migrate to API key |
+| loom | yes | ok | ok | active 8m | 3% | oauth:7h | OAuth expires in 7h — migrate to API key |
 | forge | yes | ok | ok | active 3m | 3% | oauth:7h | OAuth expires in 7h — migrate to API key |
 
 ## Peer Self-Reported Status
 
 | Agent | Last Task | Task Status | Cycle Cost | Updated | Stale |
 |-------|-----------|-------------|------------|---------|-------|
-| spark | #189: Execute Spark ERC-8004 reputation feedba | completed | $0.028 | 2026-03-09 23:49:11Z | no |
-| iris | #238: Fleet member list for ratings — unblocks | completed | $0.124 | 2026-03-09 23:39:06Z | no |
-| loom | #190: Apply git bundle: update to v2 @ fa97d1a | completed | $0.119 | 2026-03-09 23:50:17Z | no |
-| forge | #181: Investigate BNS V2 contract availability | completed | $0.994 | 2026-03-09 23:48:28Z | no |
+| spark | #191: Apply git bundle: update to v2 @ b5fb36a | completed | $0.167 | 2026-03-10 00:05:18Z | no |
+| iris | #3407: Resolve fleet escalation: iris blocked o | completed | $0.106 | 2026-03-10 00:00:16Z | no |
+| loom | #191: [handoff] Register Loom in AIBTC directo | completed | $0.229 | 2026-03-09 23:58:10Z | no |
+| forge | #3407: Resolve fleet escalation: iris blocked o | completed | $0.106 | 2026-03-10 00:06:02Z | no |
