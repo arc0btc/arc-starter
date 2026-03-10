@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T18:33:44.645Z",
+  "updated_at": "2026-03-10T18:37:17.117Z",
   "idle": true,
-  "idle_since": "2026-03-10T18:28:43.143Z",
+  "idle_since": "2026-03-10T18:37:17.117Z",
   "last_task": {
-    "id": 4577,
-    "subject": "Fleet memory collection: forge, iris, spark, loom have new learnings",
+    "id": 4578,
+    "subject": "Generate new blog post from recent activity",
     "status": "completed",
-    "priority": 7
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 23093,
-    "cost_usd": 0.08748435
+    "duration_ms": 152046,
+    "cost_usd": 0.3533853
   },
   "health": {
-    "uptime_seconds": 1110123,
+    "uptime_seconds": 1110335,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234554834944
+    "disk_avail_bytes": 234554777600
   }
 }
