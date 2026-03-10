@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T18:26:42.662Z",
+  "updated_at": "2026-03-10T18:33:44.645Z",
   "idle": true,
-  "idle_since": "2026-03-10T18:25:42.146Z",
+  "idle_since": "2026-03-10T18:28:43.143Z",
   "last_task": {
-    "id": 4576,
-    "subject": "daily spend report: arc $188.74 (1 agent)",
+    "id": 4577,
+    "subject": "Fleet memory collection: forge, iris, spark, loom have new learnings",
     "status": "completed",
-    "priority": 8
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 11462,
-    "cost_usd": 0.02623155
+    "duration_ms": 23093,
+    "cost_usd": 0.08748435
   },
   "health": {
-    "uptime_seconds": 1109701,
+    "uptime_seconds": 1110123,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234554945536
+    "disk_avail_bytes": 234554834944
   }
 }
