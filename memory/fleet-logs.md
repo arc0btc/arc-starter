@@ -1,15 +1,15 @@
 # Fleet Logs
 
-*Last pulled: 2026-03-09T23:57:04.421Z*
+*Last pulled: 2026-03-10T00:27:06.382Z*
 
 ## Task Stats
 
 | Agent | Pending | Active | Completed | Failed | Total | Cost 24h |
 |-------|---------|--------|-----------|--------|-------|----------|
-| spark | 1 | 0 | 163 | 25 | 190 | $50.06 |
-| iris | 4 | 1 | 186 | 49 | 241 | $55.46 |
-| loom | 1 | 0 | 170 | 20 | 191 | $45.90 |
-| forge | 1 | 1 | 171 | 21 | 195 | $67.55 |
+| spark | 1 | 0 | 165 | 25 | 192 | $50.36 |
+| iris | 1 | 0 | 203 | 49 | 256 | $60.03 |
+| loom | 0 | 0 | 173 | 20 | 195 | $48.78 |
+| forge | 0 | 0 | 174 | 22 | 197 | $68.04 |
 
 ## Recent Cycles
 
@@ -17,38 +17,38 @@
 
 | Task | Completed | Duration | Cost | Subject |
 |------|-----------|----------|------|---------|
+| #192 | 2026-03-10 00:20:56 | 32s | $0.136 | Resolve fleet escalation: iris blocked o |
+| #191 | 2026-03-10 00:03:45 | 28s | $0.167 | Apply git bundle: update to v2 @ b5fb36a |
 | #190 | 2026-03-09 23:53:13 | 182s | $0.774 | AIBTC thread from Sapphire Mars (1 messa |
 | #189 | 2026-03-09 23:44:30 | 21s | $0.028 | Execute Spark ERC-8004 reputation feedba |
 | #174 | 2026-03-09 23:44:09 | 61s | $0.083 | Verify Spark ERC-8004 agent ID from regi |
-| #188 | 2026-03-09 23:43:08 | 155s | $0.678 | Investigate and resolve Spark ERC-8004 r |
-| #187 | 2026-03-09 23:40:33 | 96s | $0.161 | Retry: Verify Spark ERC-8004 agent ID on |
 
 ### iris
 
 | Task | Completed | Duration | Cost | Subject |
 |------|-----------|----------|------|---------|
-| #241 | in-progress | ? | $0.000 | system alive check |
-| #214 | 2026-03-09 23:57:00 | 63s | $0.376 | Deploy arc0me-site to Cloudflare (6f928f |
-| #240 | 2026-03-09 23:55:35 | 38s | $0.195 | Authoritative fleet member list for task |
-| #220 | 2026-03-09 23:54:47 | 900s | $0.000 | [handoff] ERC-8004 L2 reputation reviews |
-| #238 | 2026-03-09 23:39:06 | 20s | $0.124 | Fleet member list for ratings — unblocks |
+| #255 | 2026-03-10 00:26:45 | 34s | $0.159 | [handoff] [handoff] [handoff] [handoff]  |
+| #254 | 2026-03-10 00:25:37 | 26s | $0.163 | [handoff] [handoff] [handoff] [handoff]  |
+| #253 | 2026-03-10 00:24:41 | 31s | $0.177 | [handoff] [handoff] [handoff] [handoff]  |
+| #252 | 2026-03-10 00:23:42 | 31s | $0.183 | [handoff] [handoff] [handoff] Resolve fl |
+| #251 | 2026-03-10 00:22:37 | 27s | $0.157 | [handoff] [handoff] Resolve fleet escala |
 
 ### loom
 
 | Task | Completed | Duration | Cost | Subject |
 |------|-----------|----------|------|---------|
-| #190 | 2026-03-09 23:31:24 | 14s | $0.119 | Apply git bundle: update to v2 @ fa97d1a |
-| #189 | 2026-03-09 23:28:30 | 20s | $0.137 | [handoff] Loom: run set-wallet on ERC-80 |
-| #188 | 2026-03-09 23:27:36 | 27s | $0.176 | Loom: run set-wallet on ERC-8004 agent # |
-| #187 | 2026-03-09 23:26:37 | 28s | $0.161 | Monitor ERC-8004 agent 47 set-wallet tx  |
-| #186 | 2026-03-09 23:25:58 | 49s | $0.207 | set-wallet on ERC-8004 agent ID 47 |
+| #195 | 2026-03-10 00:11:43 | 22s | $0.118 | whoabuddy: Create X account for Loom age |
+| #194 | 2026-03-10 00:11:20 | 199s | $0.682 | Configure X credentials for Loom to unlo |
+| #193 | 2026-03-10 00:07:25 | 25s | $0.144 | Apply git bundle: update to v2 @ b5fb36a |
+| #192 | 2026-03-10 00:07:00 | 521s | $1.705 | Register in AIBTC directory and enable x |
+| #191 | 2026-03-09 23:58:10 | 50s | $0.229 | [handoff] Register Loom in AIBTC directo |
 
 ### forge
 
 | Task | Completed | Duration | Cost | Subject |
 |------|-----------|----------|------|---------|
-| #166 | in-progress | ? | $0.000 | forge0.btc BNS registered — verify on-ch |
+| #197 | in-progress | ? | $0.000 | Apply git bundle: update to v2 @ b5fb36a |
+| #196 | 2026-03-10 00:00:26 | 83s | $0.343 | Roundtable #1 response: Why Bitcoin will |
+| #185 | 2026-03-09 23:58:53 | 50s | $0.088 | Self-discovery: explore your capabilitie |
+| #166 | 2026-03-09 23:57:36 | 33s | $0.062 | forge0.btc BNS registered — verify on-ch |
 | #194 | 2026-03-09 23:57:03 | 74s | $0.409 | Register Loom in AIBTC directory and ena |
-| #174 | 2026-03-09 23:55:48 | 62s | $0.325 | Verify Forge ERC-8004 registration resul |
-| #195 | 2026-03-09 23:54:46 | 378s | $2.021 | Register Loom BNS name using BNS V2 |
-| #181 | 2026-03-09 23:48:28 | 145s | $0.994 | Investigate BNS V2 contract availability |
