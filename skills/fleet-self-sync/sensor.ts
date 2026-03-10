@@ -67,9 +67,14 @@ async function restoreIdentityFile(
     const backupContent = await backupFile.text();
     if (!hasArcIdentityClaims(backupContent)) {
       await Bun.write(soulPath, backupContent);
-      // Update persistent copy with known-good content
-      await Bun.write(SOUL_PERSISTENT, backupContent);
-      logger(`restored SOUL.md for ${host} from temp backup (updated persistent copy)`);
+      // Update persistent copy if it doesn't exist or is contaminated
+      const persistentExists = await persistentFile.exists();
+      if (!persistentExists) {
+        await Bun.write(SOUL_PERSISTENT, backupContent);
+        logger(`restored SOUL.md for ${host} from temp backup (created persistent copy)`);
+      } else {
+        logger(`restored SOUL.md for ${host} from temp backup`);
+      }
       return true;
     }
     logger(`WARNING: temp SOUL.md backup also contains Arc identity on ${host}`);
@@ -102,9 +107,13 @@ async function restoreMemoryFile(
   if (await backupFile.exists()) {
     const content = await backupFile.text();
     await Bun.write(memoryPath, content);
-    // Update persistent copy
-    await Bun.write(MEMORY_PERSISTENT, content);
-    logger(`restored MEMORY.md from temp backup for ${host} (updated persistent copy)`);
+    // Update persistent copy only if it doesn't exist
+    if (!(await persistentFile.exists())) {
+      await Bun.write(MEMORY_PERSISTENT, content);
+      logger(`restored MEMORY.md from temp backup for ${host} (created persistent copy)`);
+    } else {
+      logger(`restored MEMORY.md from temp backup for ${host}`);
+    }
     return true;
   }
 
@@ -285,19 +294,21 @@ export default async function sensor(): Promise<string> {
   if (hasSoul) {
     const currentSoulContent = await soulFile.text();
     if (!hasArcIdentityClaims(currentSoulContent)) {
-      // Current SOUL.md is clean — safe to backup
+      // Current SOUL.md is clean — safe to backup (temp only, persistent is set by configure-identity)
       await Bun.write(SOUL_BACKUP, currentSoulContent);
-      // Also keep persistent copy fresh with known-good content
-      await Bun.write(SOUL_PERSISTENT, currentSoulContent);
     } else {
       log(`WARNING: SOUL.md already has Arc identity before sync — skipping temp backup, will restore from persistent`);
     }
   }
   if (hasMemory) {
     const currentMemoryContent = await memoryFile.text();
-    await Bun.write(MEMORY_BACKUP, currentMemoryContent);
-    // Keep persistent MEMORY.md fresh
-    await Bun.write(MEMORY_PERSISTENT, currentMemoryContent);
+    // Only backup if not contaminated with Arc's identity (prevents death spiral
+    // where corrupted memory overwrites the persistent backup)
+    if (!hasArcIdentityClaims(currentMemoryContent)) {
+      await Bun.write(MEMORY_BACKUP, currentMemoryContent);
+    } else {
+      log(`WARNING: MEMORY.md has Arc identity markers before sync — skipping temp backup`);
+    }
   }
 
   // Apply
@@ -312,12 +323,11 @@ export default async function sensor(): Promise<string> {
   // Only restore if this is a worker agent (not Arc itself)
   const host = hostname().toLowerCase();
   if (host !== "arc" && host !== "arc0btc") {
-    // Always attempt restore — even if hasSoul was false (file might not have existed
-    // but persistent backup should), the persistent backup is the authoritative source
+    // Always attempt restore — persistent backup is the authoritative source.
+    // Restore is unconditional: even if files didn't exist before reset,
+    // the persistent backup from configure-identity should be used.
     const soulRestored = await restoreIdentityFile(soulPath, host, log);
-    if (hasMemory) {
-      await restoreMemoryFile(memoryPath, host, log);
-    }
+    await restoreMemoryFile(memoryPath, host, log);
 
     // Post-restore verification: confirm SOUL.md doesn't contain Arc identity
     const finalSoul = Bun.file(soulPath);
@@ -368,7 +378,7 @@ export default async function sensor(): Promise<string> {
       // Restore identity files after rollback too
       if (host !== "arc" && host !== "arc0btc") {
         await restoreIdentityFile(soulPath, host, log);
-        if (hasMemory) await restoreMemoryFile(memoryPath, host, log);
+        await restoreMemoryFile(memoryPath, host, log);
       }
 
       if (installDeps) await run([BUN, "install"]);
