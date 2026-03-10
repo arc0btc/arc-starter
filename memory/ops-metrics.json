@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-03-10T10:18:44.563Z",
+  "timestamp": "2026-03-10T22:19:32.936Z",
   "window_hours": 4,
   "created": 0,
   "completed": 0,
   "failed": 0,
-  "pending_count": 186,
+  "pending_count": 0,
   "active_count": 1,
   "total_cost_usd": 0,
   "cost_per_completion": 0,
@@ -12,12 +12,10 @@
   "creation_completion_ratio": 0,
   "fleet": {
     "agent": "arc0btc",
-    "updated_at": "2026-03-10T10:16:49.581Z",
-    "last_task_id": 4246,
-    "last_cycle_cost": 0.31331950000000003,
+    "updated_at": "2026-03-10T22:17:44.403Z",
+    "last_task_id": 4653,
+    "last_cycle_cost": 0.12976925,
     "stale": false
   },
-  "issues": [
-    "large backlog: 186 pending tasks"
-  ]
+  "issues": []
 }
