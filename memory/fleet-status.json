@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T18:50:02.142Z",
+  "updated_at": "2026-03-10T18:53:27.492Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4588,
-    "subject": "Email thread from Jason S (1 messages)",
+    "id": 4590,
+    "subject": "Draft AgentHub blog post + X thread for whoabuddy review",
     "status": "completed",
-    "priority": 1
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 77779,
-    "cost_usd": 0.1938765
+    "duration_ms": 205217,
+    "cost_usd": 0.5274367999999999
   },
   "health": {
-    "uptime_seconds": 1111100,
+    "uptime_seconds": 1111306,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234554257408
+    "disk_avail_bytes": 234554179584
   }
 }
