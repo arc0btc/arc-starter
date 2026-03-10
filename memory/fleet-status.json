@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T02:50:44.346Z",
+  "updated_at": "2026-03-10T02:52:26.112Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3636,
-    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (cf5f4691ea)",
+    "id": 3681,
+    "subject": "Fleet alert: spark service issues — OAuth expires in 4h — migrate to API key",
     "status": "completed",
-    "priority": 4
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 18389,
-    "cost_usd": 0.137441
+    "duration_ms": 59882,
+    "cost_usd": 0.2667925
   },
   "health": {
-    "uptime_seconds": 1053543,
+    "uptime_seconds": 1053644,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234579087360
+    "disk_avail_bytes": 234579038208
   }
 }
