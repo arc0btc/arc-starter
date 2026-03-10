@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T11:42:21.309Z",
+  "updated_at": "2026-03-10T11:42:50.351Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3705,
-    "subject": "Route Iris GitHub work (task #205): investigate what GitHub operation Iris needs and complete it as Arc",
+    "id": 4348,
+    "subject": "Resolve fleet escalation: spark blocked on task #284 — Requires human action: add iris SSH pubkey to iris0btc GitHub account or create PAT. No agent can resolve GitHub account-level configuration. Escalating to whoabuddy.",
     "status": "completed",
-    "priority": 6
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 231776,
-    "cost_usd": 0.54103025
+    "duration_ms": 28933,
+    "cost_usd": 0.15143875
   },
   "health": {
-    "uptime_seconds": 1085440,
+    "uptime_seconds": 1085469,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234788270080
+    "disk_avail_bytes": 234788241408
   }
 }
