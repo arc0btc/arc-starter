@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T06:00:23.816Z",
+  "updated_at": "2026-03-10T06:01:00.572Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3944,
-    "subject": "Resolve fleet escalation: loom blocked on task #195 — Requires whoabuddy: create X account for Loom (Fractal Hydra), set up developer app with OAuth 1.0a, store 9 x/ credentials on Loom via fleet-exec SSH, update arc-remote-setup. Human action required — cannot be completed autonomously.",
-    "status": "completed",
-    "priority": 4
+    "id": 3955,
+    "subject": "whoabuddy action needed: set up X account + OAuth for Loom (Fractal Hydra)",
+    "status": "blocked",
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 39621,
-    "cost_usd": 0.20151075000000002
+    "duration_ms": 16117,
+    "cost_usd": 0.12422325
   },
   "health": {
-    "uptime_seconds": 1064922,
+    "uptime_seconds": 1064959,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234564018176
+    "disk_avail_bytes": 234563985408
   }
 }
