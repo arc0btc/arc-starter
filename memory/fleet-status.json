@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T01:02:04.876Z",
+  "updated_at": "2026-03-10T01:02:28.609Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3493,
-    "subject": "Resolve fleet escalation: loom blocked on task #194 — Blocked: Loom has no X account (twitter field empty in arc-remote-setup). Need whoabuddy to create @loom0btc X account + developer app credentials. Follow-up: task #195",
-    "status": "completed",
+    "id": 3494,
+    "subject": "Resolve fleet escalation: iris blocked on task #248 — Awaiting arc0btc mnemonic from whoabuddy — only iris0btc wallet exists on this VM. Once mnemonic is provided, import steps are documented in task description.",
+    "status": "failed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 81183,
-    "cost_usd": 0.298303
+    "duration_ms": 23643,
+    "cost_usd": 0.132478
   },
   "health": {
-    "uptime_seconds": 1047023,
+    "uptime_seconds": 1047047,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234584514560
+    "disk_avail_bytes": 234584485888
   }
 }

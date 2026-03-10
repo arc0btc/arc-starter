@@ -55,9 +55,17 @@
       "subject": "Fix wallet configuration: migrate from iris0btc to arc0btc",
       "reason": "Cannot complete: arc0btc mnemonic required to import wallet. Only iris0btc exists on this VM. Need whoabuddy to provide the 24-word seed phrase for arc0btc (SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B). Creating follow-up escalation task.",
       "escalatedAt": "2026-03-10T00:18:06.373Z"
+    },
+    {
+      "agent": "spark",
+      "remoteTaskId": 199,
+      "workflowId": 127,
+      "subject": "Resolve fleet escalation: forge blocked on task #188 — Escalate to whoabuddy: need GitHub PAT created for forge0btc (repo scope). Steps after PAT creation: 1) On Forge (192.168.1.15): arc creds set --service github --key token --value <PAT>, 2) echo <PAT> | gh auth login --with-token, 3) Retry pushing fix/erc8004-transfer-post-condition branch and opening PR on aibtcdev/skills.",
+      "reason": "Requires human action: whoabuddy needs to create GitHub PAT for forge0btc (repo scope). Steps after creation: 1) On Forge (192.168.1.15): arc creds set --service github --key token --value <PAT>, 2) echo <PAT> | gh auth login --with-token, 3) Retry push fix/erc8004-transfer-post-condition branch and open PR on aibtcdev/skills.",
+      "escalatedAt": "2026-03-10T01:03:09.696Z"
     }
   ],
-  "lastChecked": "2026-03-10T00:48:13.137Z",
+  "lastChecked": "2026-03-10T01:03:09.699Z",
   "cleared": [
     {
       "agent": "forge",
