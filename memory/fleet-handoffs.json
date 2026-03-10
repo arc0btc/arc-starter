@@ -163,5 +163,16 @@
     "reason": "GitHub-only policy enforcement — workers do not receive PATs or SSH keys per CLAUDE.md",
     "handed_off_at": "2026-03-10T04:02:40.510Z",
     "status": "handed-off"
+  },
+  {
+    "id": 16,
+    "source_agent": "arc",
+    "target_agent": "loom",
+    "local_task_id": 3815,
+    "remote_task_id": 226,
+    "subject": "Resolve fleet escalation: loom blocked on task #221 — GitHub token not set (github/token credential missing, gh not authenticated). Waiting for whoabuddy to provide PAT. Once available: arc creds set --service github --key token --value <PAT>, then create PR on aibtcdev/skills for fix/erc8004-transfer-post-condition.",
+    "reason": "GitHub is Arc-only per policy. Workers do not get PATs. Route all GitHub work to Arc via fleet-push.",
+    "handed_off_at": "2026-03-10T04:30:48.408Z",
+    "status": "handed-off"
   }
 ]
