@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T00:02:45.651Z",
+  "updated_at": "2026-03-10T00:04:31.550Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3409,
-    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (48fb48900e)",
+    "id": 3418,
+    "subject": "Resolve fleet escalation: forge blocked on task #188 — Escalate to whoabuddy: need GitHub PAT created for forge0btc (repo scope). Steps after PAT creation: 1) On Forge (192.168.1.15): arc creds set --service github --key token --value <PAT>, 2) echo <PAT> | gh auth login --with-token, 3) Retry pushing fix/erc8004-transfer-post-condition branch and opening PR on aibtcdev/skills.",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 17953,
-    "cost_usd": 0.132522
+    "duration_ms": 63594,
+    "cost_usd": 0.25527225
   },
   "health": {
-    "uptime_seconds": 1043464,
+    "uptime_seconds": 1043570,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234592043008
+    "disk_avail_bytes": 234591973376
   }
 }
