@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T18:06:29.158Z",
+  "updated_at": "2026-03-10T18:18:33.650Z",
   "idle": true,
-  "idle_since": "2026-03-10T17:55:25.650Z",
+  "idle_since": "2026-03-10T18:08:29.900Z",
   "last_task": {
-    "id": 4571,
-    "subject": "daily spend report: arc $188.07 (1 agent)",
+    "id": 4572,
+    "subject": "Fleet idle alert: arc — 0 completed tasks in last hour",
     "status": "completed",
-    "priority": 8
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 12380,
-    "cost_usd": 0.025757750000000003
+    "duration_ms": 15802,
+    "cost_usd": 0.13535225
   },
   "health": {
-    "uptime_seconds": 1108488,
+    "uptime_seconds": 1109212,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234563670016
+    "disk_avail_bytes": 234555158528
   }
 }
