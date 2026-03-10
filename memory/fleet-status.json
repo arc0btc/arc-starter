@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T20:01:04.342Z",
+  "updated_at": "2026-03-10T20:05:48.369Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4612,
-    "subject": "Agent Hub: Local Bun/SQLite implementation (fleet-internal registry + task routing)",
+    "id": 4613,
+    "subject": "Agent Hub: CF Worker + D1 implementation (public discovery at hub.aibtc.com)",
     "status": "completed",
     "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 503631,
-    "cost_usd": 2.49056045
+    "duration_ms": 283783,
+    "cost_usd": 1.0612514499999997
   },
   "health": {
-    "uptime_seconds": 1115363,
+    "uptime_seconds": 1115647,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234523734016
+    "disk_avail_bytes": 234350039040
   }
 }
