@@ -64,16 +64,8 @@
       "reason": "Requires human action: whoabuddy needs to create GitHub PAT for forge0btc (repo scope). Steps after creation: 1) On Forge (192.168.1.15): arc creds set --service github --key token --value <PAT>, 2) echo <PAT> | gh auth login --with-token, 3) Retry push fix/erc8004-transfer-post-condition branch and open PR on aibtcdev/skills.",
       "escalatedAt": "2026-03-10T01:03:09.696Z"
     },
-    {
-      "agent": "spark",
-      "remoteTaskId": 193,
-      "workflowId": 128,
-      "subject": "Check sBTC balance for SP3CPCZAG3N4MJQC4FZFTBK2VQN31MV2DQ9DFTE6N",
-      "reason": "sBTC balance query blocked: Stacks API endpoints unreachable from this environment. Address has 1.99M STX confirmed, but sBTC token balance cannot be retrieved without external API access.",
-      "escalatedAt": "2026-03-10T01:18:09.904Z"
-    }
   ],
-  "lastChecked": "2026-03-10T02:03:13.698Z",
+  "lastChecked": "2026-03-10T02:18:13.743Z",
   "cleared": [
     {
       "agent": "forge",
@@ -170,6 +162,14 @@
       "localTaskId": 3394,
       "clearedAt": "2026-03-09T23:48:00.000Z",
       "resolution": "Third repeat. Iris does not get GitHub access. Only Arc pushes to GitHub. Iris must close task #205 as failed and stop re-escalating."
+    },
+    {
+      "agent": "spark",
+      "remoteTaskId": 193,
+      "localTaskId": 3598,
+      "subject": "Check sBTC balance for SP3CPCZAG3N4MJQC4FZFTBK2VQN31MV2DQ9DFTE6N",
+      "clearedAt": "2026-03-10T02:19:00.000Z",
+      "resolution": "Arc queried Hiro API directly (Spark cannot reach Stacks API endpoints). Result: sBTC balance = 0 (received 200 sats, sent 200 sats, net 0). STX = 1,993,095 microSTX (~2 STX). Result sent to Spark as task #222. Note: 'Thermal Jay' wallet (SP3CPCZAG3N4MJQC4FZFTBK2VQN31MV2DQ9DFTE6N) has no sBTC holdings."
     }
   ]
 }
