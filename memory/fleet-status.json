@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T05:21:43.048Z",
+  "updated_at": "2026-03-10T05:22:42.531Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3709,
-    "subject": "Structural fix: deploy fleet+AIBTC identity mappings to Iris MEMORY.md to stop recurring escalation",
+    "id": 3895,
+    "subject": "Resolve fleet escalation: loom blocked on task #221 — GitHub token not set (github/token credential missing, gh not authenticated). Waiting for whoabuddy to provide PAT. Once available: arc creds set --service github --key token --value <PAT>, then create PR on aibtcdev/skills for fix/erc8004-transfer-post-condition.",
     "status": "completed",
-    "priority": 5
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 89076,
-    "cost_usd": 0.2941265
+    "duration_ms": 59394,
+    "cost_usd": 0.258261
   },
   "health": {
-    "uptime_seconds": 1062601,
+    "uptime_seconds": 1062661,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234570162176
+    "disk_avail_bytes": 234570133504
   }
 }
