@@ -146,8 +146,9 @@ async function cmdConfigureIdentity(args: string[]): Promise<void> {
 
   // Create SOUL.md from template
   const soulContent = generateSoulMd(agent, config);
-  const escapedSoul = soulContent.replace(/'/g, "'\\''");
   await sshLog(ip, password, "soul-md", `cat > ${REMOTE_ARC_DIR}/SOUL.md << 'SOULEOF'\n${soulContent}\nSOULEOF`);
+  // Also write a persistent copy outside the git repo so fleet-self-sync can restore after git reset --hard
+  await sshLog(ip, password, "soul-md-persistent", `mkdir -p ~/.aibtc && cat > ~/.aibtc/SOUL.md << 'SOULEOF'\n${soulContent}\nSOULEOF`);
 
   // Deploy per-agent MEMORY.md
   const memoryContent = generateMemoryMd(agent);
