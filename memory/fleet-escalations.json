@@ -17,14 +17,6 @@
       "escalatedAt": "2026-03-09T23:03:04.001Z"
     },
     {
-      "agent": "forge",
-      "remoteTaskId": 188,
-      "workflowId": 121,
-      "subject": "Provision GitHub token for Forge (forge0btc) — needed for PR pushes",
-      "reason": "Escalate to whoabuddy: need GitHub PAT created for forge0btc (repo scope). Steps after PAT creation: 1) On Forge (192.168.1.15): arc creds set --service github --key token --value <PAT>, 2) echo <PAT> | gh auth login --with-token, 3) Retry pushing fix/erc8004-transfer-post-condition branch and opening PR on aibtcdev/skills.",
-      "escalatedAt": "2026-03-09T23:33:04.314Z"
-    },
-    {
       "agent": "spark",
       "remoteTaskId": 184,
       "workflowId": 122,
@@ -33,8 +25,16 @@
       "escalatedAt": "2026-03-09T23:33:04.332Z"
     }
   ],
-  "lastChecked": "2026-03-09T23:48:04.706Z",
+  "lastChecked": "2026-03-10T00:03:06.013Z",
   "cleared": [
+    {
+      "agent": "forge",
+      "remoteTaskId": 188,
+      "localTaskId": 3418,
+      "subject": "Provision GitHub token for Forge (forge0btc) — needed for PR pushes",
+      "clearedAt": "2026-03-10T00:03:27.000Z",
+      "resolution": "Not a valid whoabuddy escalation. GitHub is Arc-only — workers route via fleet-push, not their own PAT. Arc will pull fix/erc8004-transfer-post-condition branch from Forge (192.168.1.15) and open the PR directly. Task #3422 created."
+    },
     {
       "agent": "forge",
       "remoteTaskId": 138,
