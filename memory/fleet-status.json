@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T10:20:14.646Z",
+  "updated_at": "2026-03-10T10:20:46.505Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4247,
-    "subject": "Deploy 3-layer GitHub gate to all workers (Spark, Iris, Loom, Forge)",
+    "id": 4228,
+    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (ba9de3f4f8)",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 45868,
-    "cost_usd": 0.2477315
+    "duration_ms": 17542,
+    "cost_usd": 0.143249
   },
   "health": {
-    "uptime_seconds": 1080513,
+    "uptime_seconds": 1080545,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234791514112
+    "disk_avail_bytes": 234791469056
   }
 }
