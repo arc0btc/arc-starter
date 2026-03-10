@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T11:21:04.281Z",
+  "updated_at": "2026-03-10T11:22:27.464Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4326,
-    "subject": "Re-run configure-identity on Iris (VM 192.168.1.13) — recurring mnemonic escalation",
+    "id": 3601,
+    "subject": "Fleet-router: filter X/Twitter tasks away from agents without X credentials (Loom, Forge)",
     "status": "completed",
-    "priority": 3
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 170286,
-    "cost_usd": 0.4818467500000001
+    "duration_ms": 83077,
+    "cost_usd": 0.45829975
   },
   "health": {
-    "uptime_seconds": 1084163,
+    "uptime_seconds": 1084246,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234788958208
+    "disk_avail_bytes": 234788900864
   }
 }
