@@ -36,6 +36,48 @@ function hasArcIdentityClaims(content: string): boolean {
   return ARC_IDENTITY_MARKERS.some((marker) => content.includes(marker));
 }
 
+/**
+ * Restore a worker's SOUL.md after git reset --hard overwrites it with Arc's version.
+ * Priority order: (1) /tmp backup if clean, (2) ~/.aibtc/SOUL.md persistent copy, (3) fail loudly.
+ * If restore succeeds from backup, also updates the persistent copy so it stays fresh.
+ */
+async function restoreIdentityFile(
+  soulPath: string,
+  host: string,
+  logger: (msg: string) => void,
+): Promise<boolean> {
+  const backupFile = Bun.file(SOUL_BACKUP);
+  const persistentFile = Bun.file(SOUL_PERSISTENT);
+
+  // Try /tmp backup first — it was captured just before this sync
+  if (await backupFile.exists()) {
+    const backupContent = await backupFile.text();
+    if (!hasArcIdentityClaims(backupContent)) {
+      await Bun.write(soulPath, backupContent);
+      // Keep persistent copy in sync with known-good backup
+      await Bun.write(SOUL_PERSISTENT, backupContent);
+      logger(`restored SOUL.md for ${host} (updated persistent backup)`);
+      return true;
+    }
+    logger(`WARNING: SOUL.md backup contains Arc identity on ${host} — trying persistent fallback`);
+  }
+
+  // Backup was contaminated or missing — try persistent fallback
+  if (await persistentFile.exists()) {
+    const persistentContent = await persistentFile.text();
+    if (!hasArcIdentityClaims(persistentContent)) {
+      await Bun.write(soulPath, persistentContent);
+      logger(`restored SOUL.md from persistent fallback (~/.aibtc/SOUL.md) for ${host}`);
+      return true;
+    }
+    logger(`ERROR: persistent SOUL.md also has Arc identity on ${host} — identity fix required`);
+  } else {
+    logger(`WARNING: no persistent SOUL.md fallback at ${SOUL_PERSISTENT} — run configure-identity to fix`);
+  }
+
+  return false;
+}
+
 const ALL_SERVICES = [
   "arc-sensors.timer",
   "arc-dispatch.timer",
@@ -222,32 +264,27 @@ export default async function sensor(): Promise<string> {
   const host = hostname().toLowerCase();
   if (host !== "arc" && host !== "arc0btc") {
     if (hasSoul) {
-      // Validate backup contains correct identity before restoring
-      const backupContent = await Bun.file(SOUL_BACKUP).text();
-      if (hasArcIdentityClaims(backupContent)) {
-        log(`WARNING: SOUL.md backup contains Arc identity on ${host} — trying persistent fallback`);
-        // Runtime backup is Arc's version (death spiral). Try ~/.aibtc/SOUL.md written by configure-identity.
-        const persistentFile = Bun.file(SOUL_PERSISTENT);
-        if (await persistentFile.exists()) {
-          const persistentContent = await persistentFile.text();
-          const persistentHasArc = hasArcIdentityClaims(persistentContent);
-          if (!persistentHasArc) {
-            await Bun.write(soulPath, persistentContent);
-            log(`restored SOUL.md from persistent fallback (~/.aibtc/SOUL.md) for ${host}`);
-          } else {
-            log(`ERROR: persistent SOUL.md also has Arc identity on ${host} — identity fix required`);
-          }
-        } else {
-          log(`WARNING: no persistent SOUL.md fallback at ${SOUL_PERSISTENT} — run configure-identity to fix`);
-        }
-      } else {
-        await Bun.write(soulPath, backupContent);
-        log(`restored SOUL.md for ${host}`);
-      }
+      await restoreIdentityFile(soulPath, host, log);
     }
     if (hasMemory) {
       await Bun.write(memoryPath, Bun.file(MEMORY_BACKUP));
       log(`restored MEMORY.md for ${host}`);
+    }
+
+    // Post-restore verification: confirm SOUL.md doesn't contain Arc identity
+    const finalSoul = Bun.file(soulPath);
+    if (await finalSoul.exists()) {
+      const finalContent = await finalSoul.text();
+      if (hasArcIdentityClaims(finalContent)) {
+        log(`CRITICAL: SOUL.md still contains Arc identity after restore on ${host} — creating fix task`);
+        await run([
+          BUN, "run", "bin/arc", "tasks", "add",
+          "--subject", `Identity drift on ${host}: SOUL.md has Arc identity — run configure-identity`,
+          "--priority", "2",
+          "--skills", "arc-remote-setup",
+          "--source", "sensor:fleet-self-sync",
+        ]);
+      }
     }
   }
 
@@ -270,25 +307,9 @@ export default async function sensor(): Promise<string> {
 
       await run(["git", "reset", "--hard", preSha]);
 
-      // Restore identity files after rollback too (with same identity validation)
+      // Restore identity files after rollback too
       if (host !== "arc" && host !== "arc0btc") {
-        if (hasSoul) {
-          const rollbackBackup = await Bun.file(SOUL_BACKUP).text();
-          if (!hasArcIdentityClaims(rollbackBackup)) {
-            await Bun.write(soulPath, rollbackBackup);
-            log(`restored SOUL.md after rollback for ${host}`);
-          } else {
-            // Backup is Arc's identity — try persistent fallback
-            const persistentFile = Bun.file(SOUL_PERSISTENT);
-            if (await persistentFile.exists()) {
-              const persistentContent = await persistentFile.text();
-              if (!hasArcIdentityClaims(persistentContent)) {
-                await Bun.write(soulPath, persistentContent);
-                log(`restored SOUL.md from persistent fallback after rollback for ${host}`);
-              }
-            }
-          }
-        }
+        if (hasSoul) await restoreIdentityFile(soulPath, host, log);
         if (hasMemory) {
           await Bun.write(memoryPath, Bun.file(MEMORY_BACKUP));
           log(`restored MEMORY.md after rollback for ${host}`);

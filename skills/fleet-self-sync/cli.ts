@@ -8,11 +8,28 @@
  */
 
 import { parseFlags } from "../../src/utils.ts";
+import { join } from "node:path";
+import { hostname } from "node:os";
 
 const ROOT = new URL("../..", import.meta.url).pathname;
 const BUN = `${process.env.HOME}/.bun/bin/bun`;
 const BUNDLE_GLOB = "/tmp/arc-fleet-sync*.bundle";
 const BUNDLE_PUSH_GLOB = "/tmp/arc-fleet-push*.bundle";
+const SOUL_BACKUP = "/tmp/arc-soul-backup.md";
+const MEMORY_BACKUP = "/tmp/arc-memory-backup.md";
+const SOUL_PERSISTENT = `${process.env.HOME}/.aibtc/SOUL.md`;
+
+// Definitive Arc identity markers — same as sensor.ts
+const ARC_IDENTITY_MARKERS = [
+  "# Arc\n",
+  "I'm Arc.",
+  "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B",
+  "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933",
+] as const;
+
+function hasArcIdentityClaims(content: string): boolean {
+  return ARC_IDENTITY_MARKERS.some((marker) => content.includes(marker));
+}
 
 // ---- File → service mapping (reused from fleet-push) ----
 
@@ -84,6 +101,41 @@ async function changedFilesBetween(
 ): Promise<string[]> {
   const r = await run(["git", "diff", "--name-only", `${fromSha}..${toSha}`]);
   return r.stdout.split("\n").filter(Boolean);
+}
+
+/**
+ * Restore worker SOUL.md from backup or persistent fallback.
+ * Updates persistent copy when backup is clean.
+ */
+async function restoreWorkerIdentity(
+  soulPath: string,
+  host: string,
+): Promise<boolean> {
+  const backupFile = Bun.file(SOUL_BACKUP);
+  const persistentFile = Bun.file(SOUL_PERSISTENT);
+
+  if (await backupFile.exists()) {
+    const content = await backupFile.text();
+    if (!hasArcIdentityClaims(content)) {
+      await Bun.write(soulPath, content);
+      await Bun.write(SOUL_PERSISTENT, content);
+      process.stdout.write(`Restored SOUL.md for ${host} (updated persistent backup)\n`);
+      return true;
+    }
+    process.stderr.write(`WARNING: backup SOUL.md contains Arc identity on ${host}\n`);
+  }
+
+  if (await persistentFile.exists()) {
+    const content = await persistentFile.text();
+    if (!hasArcIdentityClaims(content)) {
+      await Bun.write(soulPath, content);
+      process.stdout.write(`Restored SOUL.md from persistent fallback for ${host}\n`);
+      return true;
+    }
+    process.stderr.write(`ERROR: persistent SOUL.md also has Arc identity on ${host}\n`);
+  }
+
+  return false;
 }
 
 // ---- Bundle discovery ----
@@ -203,6 +255,22 @@ async function applyBundle(bundlePath: string): Promise<{
   );
   if (installDeps) process.stdout.write("+ bun install required\n");
 
+  // Backup agent-specific identity files before reset
+  const host = hostname().toLowerCase();
+  const isWorker = host !== "arc" && host !== "arc0btc";
+  const soulPath = join(ROOT, "SOUL.md");
+  const memoryPath = join(ROOT, "memory", "MEMORY.md");
+  const soulFile = Bun.file(soulPath);
+  const memoryFile = Bun.file(memoryPath);
+  const hasSoul = await soulFile.exists();
+  const hasMemory = await memoryFile.exists();
+
+  if (isWorker) {
+    if (hasSoul) await Bun.write(SOUL_BACKUP, soulFile);
+    if (hasMemory) await Bun.write(MEMORY_BACKUP, memoryFile);
+    process.stdout.write("Backed up identity files\n");
+  }
+
   // Apply: reset to target
   const resetResult = await run(["git", "reset", "--hard", targetSha]);
   if (!resetResult.ok) {
@@ -214,6 +282,20 @@ async function applyBundle(bundlePath: string): Promise<{
       services,
       error: `git reset failed: ${resetResult.stderr.slice(0, 200)}`,
     };
+  }
+
+  // Restore agent-specific identity files after reset
+  if (isWorker) {
+    if (hasSoul) {
+      const restored = await restoreWorkerIdentity(soulPath, host);
+      if (!restored) {
+        process.stderr.write(`WARNING: Could not restore clean SOUL.md for ${host}\n`);
+      }
+    }
+    if (hasMemory) {
+      await Bun.write(memoryPath, Bun.file(MEMORY_BACKUP));
+      process.stdout.write(`Restored MEMORY.md for ${host}\n`);
+    }
   }
 
   // bun install if needed
@@ -246,6 +328,11 @@ async function applyBundle(bundlePath: string): Promise<{
 
       // Rollback
       await run(["git", "reset", "--hard", preSha]);
+      // Restore identity after rollback too
+      if (isWorker) {
+        if (hasSoul) await restoreWorkerIdentity(soulPath, host);
+        if (hasMemory) await Bun.write(memoryPath, Bun.file(MEMORY_BACKUP));
+      }
       if (installDeps) {
         await run([BUN, "install"]);
       }
