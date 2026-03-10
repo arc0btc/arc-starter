@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T02:35:34.921Z",
+  "updated_at": "2026-03-10T02:37:21.449Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3645,
-    "subject": "HUMAN ACTION: Set up X account + OAuth for Loom (Fractal Hydra)",
+    "id": 3646,
+    "subject": "Fleet alert: spark service issues — OAuth expires in 4h — migrate to API key",
     "status": "blocked",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 16473,
-    "cost_usd": 0.12561675
+    "duration_ms": 62458,
+    "cost_usd": 0.26825925
   },
   "health": {
-    "uptime_seconds": 1052633,
+    "uptime_seconds": 1052740,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234579701760
+    "disk_avail_bytes": 234579652608
   }
 }
