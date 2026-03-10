@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T06:38:55.573Z",
+  "updated_at": "2026-03-10T06:39:21.451Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4003,
-    "subject": "Investigate why Iris fleet identification keeps recurring after identity fix",
+    "id": 3989,
+    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (dd971ea8a1)",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 226119,
-    "cost_usd": 0.9474974999999999
+    "duration_ms": 25602,
+    "cost_usd": 0.140411
   },
   "health": {
-    "uptime_seconds": 1067234,
+    "uptime_seconds": 1067260,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234553942016
+    "disk_avail_bytes": 234553913344
   }
 }
