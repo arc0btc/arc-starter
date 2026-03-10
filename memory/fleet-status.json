@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T03:17:27.156Z",
+  "updated_at": "2026-03-10T03:20:32.676Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3687,
-    "subject": "Resolve fleet escalation: iris blocked on task #277 — Genuine human escalation: whoabuddy must create a GitHub PAT (repo scope) for forge0btc. No agent can perform this. Steps after PAT creation: 1) On Forge (192.168.1.15): arc creds set --service github --key token --value <PAT>, 2) echo <PAT> | gh auth login --with-token, 3) Retry push fix/erc8004-transfer-post-condition branch and open PR on aibtcdev/skills.",
+    "id": 3688,
+    "subject": "Resolve fleet escalation: spark blocked on task #193 — sBTC balance query blocked: Stacks API endpoints unreachable from this environment. Address has 1.99M STX confirmed, but sBTC token balance cannot be retrieved without external API access.",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 27207,
-    "cost_usd": 0.15335925
+    "duration_ms": 152491,
+    "cost_usd": 0.63279975
   },
   "health": {
-    "uptime_seconds": 1055146,
+    "uptime_seconds": 1055331,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234578092032
+    "disk_avail_bytes": 234577985536
   }
 }
