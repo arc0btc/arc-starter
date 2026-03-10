@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T10:05:06.617Z",
+  "updated_at": "2026-03-10T10:09:39.169Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4226,
-    "subject": "Resolve fleet escalation: iris blocked on task #205 — SSH key not registered with iris0btc GitHub account. Need human to either: (1) add SSH pubkey ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIACkLd9ck/EUVYYG6HCM0vpj/XotFNuATQtbPO/hmFxC to iris0btc GitHub account, or (2) create a GitHub PAT and run: arc creds set --service github --key token --value <PAT>, then gh auth login --with-token",
+    "id": 4227,
+    "subject": "Resolve fleet escalation: iris blocked on task #156 — Cannot identify all 5 fleet members. Need authoritative list of agents and their Bitcoin addresses to rate. Found Speedy Spark and 2 Arc variants, but missing 2 confirmed members (loom, forge). Awaiting clarification.",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 29649,
-    "cost_usd": 0.15479900000000002
+    "duration_ms": 241981,
+    "cost_usd": 0.9272087499999999
   },
   "health": {
-    "uptime_seconds": 1079605,
+    "uptime_seconds": 1079878,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234792198144
+    "disk_avail_bytes": 234792099840
   }
 }
