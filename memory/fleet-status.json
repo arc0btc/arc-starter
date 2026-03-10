@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T04:21:12.714Z",
+  "updated_at": "2026-03-10T04:22:25.614Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3814,
-    "subject": "Deploy GitHub policy to worker MEMORY.md files — stop 5× escalation loop",
+    "id": 3695,
+    "subject": "Iris task #247: investigate what wallet operation was needed and route correctly",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 71249,
-    "cost_usd": 0.35071125
+    "duration_ms": 72782,
+    "cost_usd": 0.36589425
   },
   "health": {
-    "uptime_seconds": 1058971,
+    "uptime_seconds": 1059044,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234575822848
+    "disk_avail_bytes": 234575749120
   }
 }
