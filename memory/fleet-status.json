@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T01:39:00.400Z",
+  "updated_at": "2026-03-10T01:40:18.081Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3562,
-    "subject": "ESCALATE: Fleet OAuth expires ~5h — need Anthropic API key from whoabuddy",
+    "id": 3540,
+    "subject": "Resolve fleet escalation: forge blocked on task #188 — Escalate to whoabuddy: need GitHub PAT created for forge0btc (repo scope). Steps after PAT creation: 1) On Forge (192.168.1.15): arc creds set --service github --key token --value <PAT>, 2) echo <PAT> | gh auth login --with-token, 3) Retry pushing fix/erc8004-transfer-post-condition branch and opening PR on aibtcdev/skills.",
     "status": "completed",
-    "priority": 2
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 31095,
-    "cost_usd": 0.19616825000000002
+    "duration_ms": 48638,
+    "cost_usd": 0.20340824999999998
   },
   "health": {
-    "uptime_seconds": 1049239,
+    "uptime_seconds": 1049316,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234586796032
+    "disk_avail_bytes": 234586734592
   }
 }
