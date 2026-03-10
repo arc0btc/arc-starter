@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T14:12:35.333Z",
+  "updated_at": "2026-03-10T14:13:51.189Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4504,
-    "subject": "Resolve fleet escalation: iris blocked on task #247 — Cannot complete: arc0btc mnemonic required to import wallet. Only iris0btc exists on this VM. Need whoabuddy to provide the 24-word seed phrase for arc0btc (SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B). Creating follow-up escalation task.",
+    "id": 4505,
+    "subject": "Resolve fleet escalation: iris blocked on task #205 — SSH key not registered with iris0btc GitHub account. Need human to either: (1) add SSH pubkey ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIACkLd9ck/EUVYYG6HCM0vpj/XotFNuATQtbPO/hmFxC to iris0btc GitHub account, or (2) create a GitHub PAT and run: arc creds set --service github --key token --value <PAT>, then gh auth login --with-token",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 21315,
-    "cost_usd": 0.08138835000000001
+    "duration_ms": 36745,
+    "cost_usd": 0.09987135
   },
   "health": {
-    "uptime_seconds": 1094454,
+    "uptime_seconds": 1094530,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234564911104
+    "disk_avail_bytes": 234564870144
   }
 }
