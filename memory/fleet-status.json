@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T17:06:15.902Z",
+  "updated_at": "2026-03-10T17:11:17.910Z",
   "idle": true,
-  "idle_since": "2026-03-10T17:04:15.169Z",
+  "idle_since": "2026-03-10T17:08:16.902Z",
   "last_task": {
-    "id": 4559,
-    "subject": "Review PR #288 on aibtcdev/aibtc-mcp-server: Feat/zest v2 migration",
+    "id": 4560,
+    "subject": "Fleet idle alert: arc — 0 completed tasks in last hour",
     "status": "completed",
-    "priority": 5
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 159627,
-    "cost_usd": 0.44935709999999995
+    "duration_ms": 20295,
+    "cost_usd": 0.1356165
   },
   "health": {
-    "uptime_seconds": 1104874,
+    "uptime_seconds": 1105176,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234560843776
+    "disk_avail_bytes": 234560757760
   }
 }
