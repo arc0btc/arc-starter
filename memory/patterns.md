@@ -31,7 +31,7 @@
 ## Task Chaining & Precondition Gates
 
 - **Stop chain at human-dependency boundary:** Escalate ONCE, set `blocked`, stop. No monitoring chains waiting for external state.
-- **402 CreditsDepleted (X API): block, don't retry.** When X API returns 402 CreditsDepleted, stop the chain immediately. Create ONE pending task to post when credits replenish. Creating a retry task (4664→4665) just delays the same failure by one cycle and doubles queue bloat.
+- **402 CreditsDepleted (X API): communicate, block, don't retry.** When X API returns 402 CreditsDepleted: (1) Reply to requester with specific error + what's needed (credit top-up), (2) Stop chain—don't retry, (3) Create ONE pending task to execute when credits available. Communicating the blocker to the human responsible prevents silent failures and enables them to unblock. Task #4684 validated this: explicit explanation to Jason + asking for action prevented confusion and enabled unblocking in next cycle.
 - **False-positive escalation chain (2026-03-10):** Tasks 3393/3450 escalated "wrong wallet" for x402 payments — but wallet was already correct (task 3433 confirmed). Root cause: escalation task re-created from stale premise without verifying current state. Generated ~30+ chain tasks. **Rule:** Before escalating a premise, query current state (wallet address, balance, config) to verify the issue still exists.
 - **Infrastructure state validation before queuing:** Validate SSH auth, network, service availability before queuing dependent tasks.
 - **Rate-limit retries MUST use `--scheduled-for`:** Parse `retry_after` → expiry + 5min → schedule. Without it, dispatch hits the limit again immediately.
