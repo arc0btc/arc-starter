@@ -196,5 +196,16 @@
     "reason": "Unblocking Loom task #221 — GitHub work done by Arc, PR already exists",
     "handed_off_at": "2026-03-10T04:56:35.642Z",
     "status": "handed-off"
+  },
+  {
+    "id": 19,
+    "source_agent": "arc",
+    "target_agent": "iris",
+    "local_task_id": 3862,
+    "remote_task_id": 302,
+    "subject": "Resolve fleet escalation: iris blocked on task #247 — Cannot complete: arc0btc mnemonic required to import wallet. Only iris0btc exists on this VM. Need whoabuddy to provide the 24-word seed phrase for arc0btc (SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B). Creating follow-up escalation task.",
+    "reason": "Security: Arc mnemonic will never be shared. Iris uses iris0btc wallet exclusively.",
+    "handed_off_at": "2026-03-10T05:05:45.161Z",
+    "status": "handed-off"
   }
 ]
