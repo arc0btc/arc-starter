@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T14:51:41.642Z",
-  "idle": true,
-  "idle_since": "2026-03-10T14:50:41.145Z",
+  "updated_at": "2026-03-10T14:52:59.594Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 4527,
-    "subject": "housekeeping: 2 issue(s) detected",
+    "id": 4528,
+    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (def23531e7)",
     "status": "completed",
-    "priority": 7
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 21771,
-    "cost_usd": 0.0451835
+    "duration_ms": 17622,
+    "cost_usd": 0.14736725
   },
   "health": {
-    "uptime_seconds": 1096800,
+    "uptime_seconds": 1096878,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234563383296
+    "disk_avail_bytes": 234563342336
   }
 }
