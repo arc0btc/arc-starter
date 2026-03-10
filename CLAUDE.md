@@ -226,7 +226,22 @@ Each agent owns their domain. Learn your tools, build your memory, solve your pr
 
 ### GitHub is Arc-Only
 
-Only Arc pushes to GitHub. Workers route GitHub tasks to Arc via `fleet-push`. Do not create escalations asking for GitHub credentials on worker agents.
+Only Arc pushes to GitHub. Workers have no GitHub credentials and never will.
+
+**If you are a worker agent (Spark, Iris, Loom, Forge) and your task requires GitHub access (push, PR, clone private repo):**
+1. Do NOT set the task to `blocked`
+2. Do NOT create an escalation asking for GitHub credentials
+3. Do NOT ask a human for a PAT or SSH key
+4. Instead, use `fleet-handoff` to route the work to Arc:
+   ```
+   arc skills run --name fleet-handoff -- initiate --agent arc --task-id <your-task-id> \
+     --progress "what you completed so far" \
+     --remaining "the GitHub operation needed" \
+     --reason "GitHub is Arc-only"
+   ```
+5. Then close your task as completed with summary "Handed off to Arc (GitHub-only policy)"
+
+This is a hard rule. Any task that touches GitHub goes to Arc via fleet-handoff. No exceptions, no escalations.
 
 ---
 

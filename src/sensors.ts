@@ -187,6 +187,8 @@ const WORKER_SENSORS: ReadonlySet<string> = new Set([
   // Reputation — all agents should review peers and monitor feedback
   "reputation-tracker",          // detect review opportunities from completed tasks (30min)
   "erc8004-reputation-monitor",  // watch for incoming on-chain feedback (60min)
+  // GitHub policy enforcement — intercept blocked GitHub tasks and route to Arc
+  "github-interceptor",          // auto-handoff GitHub work to Arc (10min)
 ]);
 
 /** Per-sensor timeout in milliseconds. Liberal limit to catch hangs, not rush normal work. */
