@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T03:42:03.517Z",
+  "updated_at": "2026-03-10T03:42:36.446Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3746,
-    "subject": "Fleet alert: forge service issues — OAuth expires in 3h — migrate to API key",
+    "id": 3723,
+    "subject": "Resolve fleet escalation: iris blocked on task #248 — Awaiting arc0btc mnemonic from whoabuddy — only iris0btc wallet exists on this VM. Once mnemonic is provided, import steps are documented in task description.",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 84543,
-    "cost_usd": 0.4350814999999999
+    "duration_ms": 32838,
+    "cost_usd": 0.1615335
   },
   "health": {
-    "uptime_seconds": 1056622,
+    "uptime_seconds": 1056655,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234577248256
+    "disk_avail_bytes": 234577203200
   }
 }
