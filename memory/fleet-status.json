@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T07:41:14.732Z",
+  "updated_at": "2026-03-10T07:44:31.135Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4084,
-    "subject": "Fleet circuit breaker: spark — 5 consecutive task failures, dispatch paused",
+    "id": 4085,
+    "subject": "Fleet circuit breaker: iris — 5 consecutive task failures, dispatch paused",
     "status": "completed",
     "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 231990,
-    "cost_usd": 0.8266780000000002
+    "duration_ms": 196270,
+    "cost_usd": 0.7433352499999999
   },
   "health": {
-    "uptime_seconds": 1070973,
+    "uptime_seconds": 1071169,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234566610944
+    "disk_avail_bytes": 234566549504
   }
 }
