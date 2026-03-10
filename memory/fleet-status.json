@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T08:42:22.359Z",
+  "updated_at": "2026-03-10T08:43:24.345Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4140,
-    "subject": "Resolve fleet escalation: spark blocked on task #199 — Requires human action: whoabuddy needs to create GitHub PAT for forge0btc (repo scope). Steps after creation: 1) On Forge (192.168.1.15): arc creds set --service github --key token --value <PAT>, 2) echo <PAT> | gh auth login --with-token, 3) Retry push fix/erc8004-transfer-post-condition branch and open PR on aibtcdev/skills.",
+    "id": 4141,
+    "subject": "Resolve fleet escalation: loom blocked on task #195 — Requires whoabuddy: create X account for Loom (Fractal Hydra), set up developer app with OAuth 1.0a, store 9 x/ credentials on Loom via fleet-exec SSH, update arc-remote-setup. Human action required — cannot be completed autonomously.",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 71301,
-    "cost_usd": 0.35364650000000003
+    "duration_ms": 61891,
+    "cost_usd": 0.34626475
   },
   "health": {
-    "uptime_seconds": 1074641,
+    "uptime_seconds": 1074703,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234800099328
+    "disk_avail_bytes": 234800058368
   }
 }
