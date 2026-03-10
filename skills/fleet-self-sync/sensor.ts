@@ -206,8 +206,15 @@ export default async function sensor(): Promise<string> {
   const host = hostname().toLowerCase();
   if (host !== "arc" && host !== "arc0btc") {
     if (hasSoul) {
-      await Bun.write(soulPath, Bun.file(SOUL_BACKUP));
-      log(`restored SOUL.md for ${host}`);
+      // Validate backup contains correct identity before restoring
+      const backupContent = await Bun.file(SOUL_BACKUP).text();
+      const hasArcIdentity = backupContent.includes("I'm Arc") || backupContent.includes("arc0btc");
+      if (hasArcIdentity) {
+        log(`WARNING: SOUL.md backup contains Arc identity on ${host} — skipping restore to avoid propagating wrong identity`);
+      } else {
+        await Bun.write(soulPath, backupContent);
+        log(`restored SOUL.md for ${host}`);
+      }
     }
     if (hasMemory) {
       await Bun.write(memoryPath, Bun.file(MEMORY_BACKUP));
@@ -233,6 +240,19 @@ export default async function sensor(): Promise<string> {
       log(`health check failed: ${health.failed.join(", ")} — rolling back`);
 
       await run(["git", "reset", "--hard", preSha]);
+
+      // Restore identity files after rollback too
+      if (host !== "arc" && host !== "arc0btc") {
+        if (hasSoul) {
+          await Bun.write(soulPath, Bun.file(SOUL_BACKUP));
+          log(`restored SOUL.md after rollback for ${host}`);
+        }
+        if (hasMemory) {
+          await Bun.write(memoryPath, Bun.file(MEMORY_BACKUP));
+          log(`restored MEMORY.md after rollback for ${host}`);
+        }
+      }
+
       if (installDeps) await run([BUN, "install"]);
       await restartAndValidate(ALL_SERVICES as unknown as Service[]);
 

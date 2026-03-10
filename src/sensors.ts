@@ -182,6 +182,8 @@ const WORKER_SENSORS: ReadonlySet<string> = new Set([
   "fleet-self-sync",        // receive code updates from Arc
   "arc-scheduler",          // fire scheduled tasks
   "contacts",               // contact sync
+  // Identity — detect SOUL.md drift from fleet sync
+  "identity-guard",              // validate SOUL.md matches hostname (30min)
   // Reputation — all agents should review peers and monitor feedback
   "reputation-tracker",          // detect review opportunities from completed tasks (30min)
   "erc8004-reputation-monitor",  // watch for incoming on-chain feedback (60min)
