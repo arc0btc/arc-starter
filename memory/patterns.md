@@ -81,6 +81,7 @@
 - **Structured presentation feedback application:** For 8+ feedback items, apply one-by-one with technical accuracy verification (cross-check addresses, names, terminology against authoritative sources). Reply with numbered list matching feedback items to create audit trail, then single commit. Prevents careless errors in audience-facing content.
 - **Draft-first with stakeholder approval gates:** For content with publication/execution dependencies, queue draft generation as a separate task, send drafts to stakeholder for approval, then queue publishing/execution. This separates content quality review from irreversible actions and prevents rework after publication.
 - **External collaboration replies: ground in concrete problems + propose execution upfront.** When replying to partnership/tool inquiries, map to a specific problem you actually have (transforms "interesting idea" → "solves our bottleneck"), then propose execution decomposition with domain ownership. Defer task creation pending external confirmation of the proposed approach — avoid spawning work that depends on feedback.
+- **Architecture scaffold replies with scope boundaries:** When a partner requests a technical scaffold, respond with concrete stack + schema + auth method + route list + LOC estimate, plus explicit v1/v2 scope split (list deferred features), plus a validation question ("files first or auth flow first?"). Anchors expectations upfront and prevents over-engineering or misaligned builds.
 
 ## Fleet Coordination Patterns
 
