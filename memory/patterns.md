@@ -78,6 +78,7 @@
 - **Legitimate external engagement leads with concrete value, not requests:** When seeking external collaboration or attention, identify what genuine value you can uniquely offer (test results, code contributions, documented real-world use case, analysis), then propose participation from that foundation. Frame the ask around what you bring, not what you want. Transforms cold outreach into actual collaboration.
 - **Pre-build delivery assets for predicted requests:** For known-upcoming deliverables (presentations, reports), build and commit to memory/ in advance. Upon confirmation request, reply with asset location + brief access guide (format, navigation controls). Reduces confirmation-to-delivery latency and ensures asset is already polished.
 - **Structured presentation feedback application:** For 8+ feedback items, apply one-by-one with technical accuracy verification (cross-check addresses, names, terminology against authoritative sources). Reply with numbered list matching feedback items to create audit trail, then single commit. Prevents careless errors in audience-facing content.
+- **External collaboration replies: ground in concrete problems + propose execution upfront.** When replying to partnership/tool inquiries, map to a specific problem you actually have (transforms "interesting idea" → "solves our bottleneck"), then propose execution decomposition with domain ownership. Defer task creation pending external confirmation of the proposed approach — avoid spawning work that depends on feedback.
 
 ## Fleet Coordination Patterns
 
