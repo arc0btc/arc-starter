@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T04:26:23.400Z",
+  "updated_at": "2026-03-10T04:27:26.617Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 3835,
-    "subject": "Fleet-wide: store Anthropic API key and migrate all 4 agents from OAuth to API key",
+    "id": 3832,
+    "subject": "Fleet alert: loom service issues — OAuth expires in 2h — migrate to API key",
     "status": "blocked",
-    "priority": 2
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 48305,
-    "cost_usd": 0.26432300000000003
+    "duration_ms": 51126,
+    "cost_usd": 0.26650150000000006
   },
   "health": {
-    "uptime_seconds": 1059282,
+    "uptime_seconds": 1059345,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234575630336
+    "disk_avail_bytes": 234575585280
   }
 }
