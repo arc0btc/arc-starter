@@ -8,6 +8,45 @@ import { join } from "path";
 const API_BASE = "https://api.x.com/2";
 const CACHE_PATH = join(import.meta.dir, "../../db/x-cache.json");
 const BUDGET_PATH = join(import.meta.dir, "../../db/x-budget.json");
+const CREDITS_DEPLETED_PATH = join(import.meta.dir, "../../db/x-credits-depleted.json");
+
+const CREDITS_DEPLETED_TTL_DAYS = 30;
+
+// ---- Credits Depleted Gate ----
+
+interface CreditsDepleted {
+  depleted_at: string;
+  reason: string;
+}
+
+async function checkCreditsDepleted(): Promise<void> {
+  try {
+    const file = Bun.file(CREDITS_DEPLETED_PATH);
+    if (!(await file.exists())) return;
+    const data = (await file.json()) as CreditsDepleted;
+    const depletedAt = new Date(data.depleted_at);
+    const expiresAt = new Date(depletedAt.getTime() + CREDITS_DEPLETED_TTL_DAYS * 24 * 60 * 60 * 1000);
+    if (new Date() < expiresAt) {
+      throw new Error(
+        `X API credits depleted (since ${data.depleted_at}). ` +
+          `Auto-clears ${expiresAt.toISOString()}. ` +
+          `To clear manually: rm db/x-credits-depleted.json`
+      );
+    }
+    // Expired — auto-clear
+    await Bun.write(CREDITS_DEPLETED_PATH, "");
+    log("Credits depleted flag expired and cleared (30 days passed)");
+  } catch (e) {
+    // Re-throw our own error; swallow JSON parse issues
+    if (e instanceof Error && e.message.includes("credits depleted")) throw e;
+  }
+}
+
+async function setCreditsDepleted(reason: string): Promise<void> {
+  const data: CreditsDepleted = { depleted_at: new Date().toISOString(), reason };
+  await Bun.write(CREDITS_DEPLETED_PATH, JSON.stringify(data, null, 2));
+  log(`Credits depleted flag written: ${reason}`);
+}
 
 // ---- Cache ----
 
@@ -258,6 +297,13 @@ async function apiRequest(
   const data = await response.json();
 
   if (!response.ok) {
+    if (response.status === 402) {
+      await setCreditsDepleted(`402 CreditsDepleted from ${endpoint}`);
+      throw new Error(
+        `X API 402 CreditsDepleted: posting credits exhausted. ` +
+          `Flag written to db/x-credits-depleted.json — future post/reply calls will skip for 30 days.`
+      );
+    }
     throw new Error(`X API error ${response.status}: ${JSON.stringify(data)}`);
   }
 
@@ -277,6 +323,7 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     process.exit(1);
   }
 
+  await checkCreditsDepleted();
   await checkBudget("posts");
   const creds = await loadCreds();
   const body: Record<string, unknown> = { text };
@@ -310,6 +357,7 @@ async function cmdReply(flags: Record<string, string>): Promise<void> {
     process.exit(1);
   }
 
+  await checkCreditsDepleted();
   await checkBudget("replies");
   const creds = await loadCreds();
   const body = { text, reply: { in_reply_to_tweet_id: tweetId } };

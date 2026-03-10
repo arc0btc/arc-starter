@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T23:44:58.789Z",
+  "updated_at": "2026-03-10T23:48:32.463Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4688,
-    "subject": "Email thread from Jason S (1 messages)",
+    "id": 4690,
+    "subject": "Investigate recurring failure: payment-error (6 occurrences)",
     "status": "completed",
-    "priority": 1
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 46574,
-    "cost_usd": 0.1344789
+    "duration_ms": 199728,
+    "cost_usd": 0.46932915000000003
   },
   "health": {
-    "uptime_seconds": 1128797,
+    "uptime_seconds": 1129011,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234045812736
+    "disk_avail_bytes": 234045730816
   }
 }

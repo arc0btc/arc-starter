@@ -10,6 +10,26 @@ import {
   insertTaskIfNew,
 } from "../../src/sensors.ts";
 import { getCredential } from "../../src/credentials.ts";
+import { join } from "path";
+
+const CREDITS_DEPLETED_PATH = join(import.meta.dir, "../../db/x-credits-depleted.json");
+const CREDITS_DEPLETED_TTL_DAYS = 30;
+
+async function isCreditsDepleted(): Promise<boolean> {
+  try {
+    const file = Bun.file(CREDITS_DEPLETED_PATH);
+    if (!(await file.exists())) return false;
+    const data = (await file.json()) as { depleted_at: string };
+    const depletedAt = new Date(data.depleted_at);
+    const expiresAt = new Date(depletedAt.getTime() + CREDITS_DEPLETED_TTL_DAYS * 24 * 60 * 60 * 1000);
+    if (new Date() < expiresAt) return true;
+    // Expired — auto-clear
+    await Bun.write(CREDITS_DEPLETED_PATH, "");
+    return false;
+  } catch {
+    return false;
+  }
+}
 
 const SENSOR_NAME = "social-x-mentions";
 const INTERVAL_MINUTES = 15;
@@ -266,6 +286,21 @@ export default async function xMentionsSensor(): Promise<string> {
     }
 
     log(`found ${mentions.length} new mentions`);
+
+    // Skip task creation if posting credits are depleted
+    if (await isCreditsDepleted()) {
+      log("skip task creation: X credits depleted (db/x-credits-depleted.json)");
+      if (newestId) {
+        await writeHookState(SENSOR_NAME, {
+          ...(state || { version: 0 }),
+          last_ran: new Date().toISOString(),
+          last_result: "credits_depleted",
+          version: (state?.version || 0) + 1,
+          last_seen_id: newestId,
+        });
+      }
+      return "ok";
+    }
 
     // Filter to actionable mentions
     let tasksCreated = 0;
