@@ -8,6 +8,7 @@
  *   bun skills/fleet-sync/cli.ts full [--agent <name|all>]
  *   bun skills/fleet-sync/cli.ts git-status [--agent <name|all>]
  *   bun skills/fleet-sync/cli.ts git-sync [--agent <name|all>] [--force-push]
+ *   bun skills/fleet-sync/cli.ts contacts [--agent <name|all>]
  */
 
 import { readFileSync, existsSync, unlinkSync } from "node:fs";
@@ -307,6 +308,89 @@ async function showStatus(agents: string[]): Promise<void> {
       console.log(`  Missing: ${missing.join(", ")}`);
     }
     console.log("");
+  }
+}
+
+// ---- Contacts sync ----
+
+async function syncContacts(agents: string[]): Promise<void> {
+  const password = await getSshPassword();
+
+  // Export all active agent contacts from Arc's contacts DB
+  const exportProc = Bun.spawn(
+    ["bash", "bin/arc", "skills", "run", "--name", "contacts", "--", "export", "--type", "agent"],
+    { cwd: ROOT, stdout: "pipe", stderr: "pipe" }
+  );
+  const exportOut = await new Response(exportProc.stdout).text();
+  const exportExit = await exportProc.exited;
+
+  if (exportExit !== 0) {
+    process.stderr.write("contacts export failed — skipping contacts sync\n");
+    return;
+  }
+
+  let contactCount = 0;
+  try {
+    const parsed = JSON.parse(exportOut) as unknown[];
+    contactCount = parsed.length;
+  } catch {
+    process.stderr.write("contacts export produced invalid JSON — skipping\n");
+    return;
+  }
+
+  if (contactCount === 0) {
+    console.log("No agent contacts to sync.");
+    return;
+  }
+
+  console.log(`\nSyncing ${contactCount} agent contact(s) to fleet...`);
+
+  const exportPath = join(tmpdir(), `arc-fleet-contacts-${Date.now()}.json`);
+  await Bun.write(exportPath, exportOut);
+
+  for (const agent of agents) {
+    const ip = await getAgentIp(agent);
+    const remotePath = `/tmp/arc-fleet-contacts.json`;
+
+    // SCP contacts JSON to agent
+    const scpProc = Bun.spawn(
+      [
+        "sshpass", "-e", "scp",
+        "-o", "StrictHostKeyChecking=no",
+        "-o", "ConnectTimeout=10",
+        exportPath,
+        `dev@${ip}:${remotePath}`,
+      ],
+      { env: { ...process.env, SSHPASS: password }, stdout: "pipe", stderr: "pipe" }
+    );
+    const scpExit = await scpProc.exited;
+
+    if (scpExit !== 0) {
+      const scpErr = (await new Response(scpProc.stderr).text()).trim();
+      process.stderr.write(`  [${agent}] SCP failed: ${scpErr}\n`);
+      continue;
+    }
+
+    // Import on agent (also re-activates archived fleet-peer contacts)
+    const importCmd = `cd ${REMOTE_ARC_DIR} && bash bin/arc skills run --name contacts -- import --file ${remotePath} && rm -f ${remotePath}`;
+    const result = await ssh(ip, password, importCmd);
+
+    if (result.ok) {
+      const summary = result.stdout
+        .split("\n")
+        .filter((l) => l.includes("[contacts]"))
+        .join(" ")
+        .trim();
+      console.log(`  [${agent}] ${summary || "contacts synced"}`);
+    } else {
+      process.stderr.write(`  [${agent}] import FAILED: ${result.stderr.trim()}\n`);
+    }
+  }
+
+  try {
+    unlinkSync(exportPath);
+  } catch {
+    // ignore cleanup errors
   }
 }
 
@@ -629,8 +713,9 @@ async function main(): Promise<void> {
 
   if (!command) {
     console.log("Usage: fleet-sync <command> [--agent <name|all>] [--skill <name>] [--force-push]");
-    console.log("Commands: claude-md, skills, status, full, git-status, git-sync");
+    console.log("Commands: claude-md, skills, status, full, git-status, git-sync, contacts");
     console.log("  git-sync: notify-only (bundle + task). Add --force-push for direct reset.");
+    console.log("  contacts: export Arc's agent contacts and seed/re-activate them on each worker");
     process.exit(0);
   }
 
@@ -652,6 +737,11 @@ async function main(): Promise<void> {
     case "full":
       await syncClaudeMd(agents);
       await syncSkills(agents);
+      await syncContacts(agents);
+      break;
+
+    case "contacts":
+      await syncContacts(agents);
       break;
 
     case "git-status":

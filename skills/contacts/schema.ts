@@ -349,6 +349,18 @@ export function getContextContacts(taskSubject: string, limit: number = 10): Con
   return scored.slice(0, limit);
 }
 
+export function getContactByAddress(stxAddress: string | null, btcAddress: string | null): Contact | null {
+  const db = initContactsSchema();
+  if (stxAddress) {
+    const found = db.query("SELECT * FROM contacts WHERE stx_address = ?").get(stxAddress) as Contact | null;
+    if (found) return found;
+  }
+  if (btcAddress) {
+    return db.query("SELECT * FROM contacts WHERE btc_address = ?").get(btcAddress) as Contact | null;
+  }
+  return null;
+}
+
 export function insertContactInteraction(fields: InsertContactInteraction): number {
   const db = initContactsSchema();
   const occurredAt = fields.occurred_at ?? new Date().toISOString().replace("T", " ").replace(/\.\d{3}Z$/, "");

@@ -6,6 +6,7 @@ import {
   resolveDisplayName,
   getAllContacts,
   getContactById,
+  getContactByAddress,
   searchContacts,
   insertContact,
   updateContact,
@@ -374,6 +375,99 @@ function cmdSearch(params: Record<string, string>): void {
   }
 }
 
+function cmdExport(params: Record<string, string>): void {
+  initContactsSchema();
+  const typeFilter = params.type || undefined;
+  const statusParam = params.status;
+  // Default to active; pass undefined to getAllContacts to get all statuses when "all" requested
+  const contacts = statusParam === "all" ? getAllContacts() : getAllContacts(statusParam || "active");
+  const filtered = typeFilter ? contacts.filter((c) => c.type === typeFilter) : contacts;
+  log(`exporting ${filtered.length} contact(s)`);
+  console.log(JSON.stringify(filtered, null, 2));
+}
+
+async function cmdImport(params: Record<string, string>): Promise<void> {
+  const filePath = params.file;
+  if (!filePath) {
+    logError("Missing --file flag");
+    process.exit(1);
+  }
+
+  let content: string;
+  try {
+    content = await Bun.file(filePath).text();
+  } catch {
+    logError(`Cannot read file: ${filePath}`);
+    process.exit(1);
+  }
+
+  let contacts: Contact[];
+  try {
+    const parsed = JSON.parse(content) as unknown;
+    if (!Array.isArray(parsed)) throw new Error("Expected JSON array");
+    contacts = parsed as Contact[];
+  } catch (e) {
+    logError(`Invalid JSON: ${(e as Error).message}`);
+    process.exit(1);
+  }
+
+  initContactsSchema();
+
+  let created = 0;
+  let updated = 0;
+  let reactivated = 0;
+
+  for (const c of contacts) {
+    const existing = getContactByAddress(c.stx_address, c.btc_address);
+
+    if (existing) {
+      const updates: Partial<InsertContact> = {};
+      // Fill in fields missing on the worker but present in the export
+      if (c.display_name && !existing.display_name) updates.display_name = c.display_name;
+      if (c.aibtc_name && !existing.aibtc_name) updates.aibtc_name = c.aibtc_name;
+      if (c.bns_name && !existing.bns_name) updates.bns_name = c.bns_name;
+      if (c.taproot_address && !existing.taproot_address) updates.taproot_address = c.taproot_address;
+      if (c.x_handle && !existing.x_handle) updates.x_handle = c.x_handle;
+      if (c.github_handle && !existing.github_handle) updates.github_handle = c.github_handle;
+      if (c.x402_endpoint && !existing.x402_endpoint) updates.x402_endpoint = c.x402_endpoint;
+      if (c.aibtc_beat && !existing.aibtc_beat) updates.aibtc_beat = c.aibtc_beat;
+      if (c.aibtc_level && existing.aibtc_level !== c.aibtc_level) updates.aibtc_level = c.aibtc_level;
+      // Always re-activate if archived or inactive
+      if (existing.status !== "active") {
+        updates.status = "active";
+        reactivated++;
+      }
+      if (Object.keys(updates).length > 0) {
+        updateContact(existing.id, updates);
+        updated++;
+      }
+    } else {
+      insertContact({
+        display_name: c.display_name,
+        aibtc_name: c.aibtc_name,
+        bns_name: c.bns_name,
+        type: c.type || "agent",
+        status: "active",
+        stx_address: c.stx_address,
+        btc_address: c.btc_address,
+        taproot_address: c.taproot_address,
+        github_handle: c.github_handle,
+        x_handle: c.x_handle,
+        email: c.email,
+        website: c.website,
+        agent_id: c.agent_id,
+        x402_endpoint: c.x402_endpoint,
+        aibtc_beat: c.aibtc_beat,
+        aibtc_level: c.aibtc_level,
+        notes: c.notes,
+      });
+      created++;
+    }
+  }
+
+  log(`import complete: ${created} created, ${updated} updated (${reactivated} reactivated)`);
+}
+
 function printHelp(): void {
   console.log(`
 Contacts CLI — Manage agents, humans, addresses, and relationships
@@ -388,6 +482,8 @@ Commands:
   log                               Log a new interaction
   search                            Search contacts by name/address/handle
   context                           Get relevant contacts for a task (dispatch context injection)
+  export                            Export contacts as JSON (for fleet-sync seeding)
+  import                            Import contacts from JSON file (upsert by address)
 
 list flags:
   --status <active|inactive|archived>   Filter by status
@@ -453,6 +549,8 @@ Examples:
   arc skills run --name contacts -- log --id 1 --type collaboration --summary "Reviewed PR #42"
   arc skills run --name contacts -- search --term "arc0"
   arc skills run --name contacts -- context --task-subject "collaborate with Topaz Centaur on ordinals"
+  arc skills run --name contacts -- export --type agent
+  arc skills run --name contacts -- import --file /tmp/arc-fleet-contacts.json
   `);
 }
 
@@ -491,6 +589,12 @@ async function main(): Promise<void> {
       break;
     case "context":
       cmdContext(params);
+      break;
+    case "export":
+      cmdExport(params);
+      break;
+    case "import":
+      await cmdImport(params);
       break;
     default:
       logError(`Unknown command: ${command}`);
