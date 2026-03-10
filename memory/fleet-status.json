@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T23:53:15.853Z",
+  "updated_at": "2026-03-10T23:54:32.129Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4693,
-    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (968e814576)",
+    "id": 4694,
+    "subject": "Retrospective: extract learnings from task #4692 — Email thread from Jason S (1 messages)",
     "status": "completed",
-    "priority": 4
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 17333,
-    "cost_usd": 0.13955275
+    "duration_ms": 33167,
+    "cost_usd": 0.04901584999999999
   },
   "health": {
-    "uptime_seconds": 1129294,
+    "uptime_seconds": 1129370,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234045489152
+    "disk_avail_bytes": 234045435904
   }
 }
