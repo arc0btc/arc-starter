@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T11:58:17.495Z",
+  "updated_at": "2026-03-10T11:59:22.909Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4367,
-    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (bff0d79ae0)",
-    "status": "completed",
+    "id": 4369,
+    "subject": "Resolve fleet escalation: spark blocked on task #284 — Requires human action: add iris SSH pubkey to iris0btc GitHub account or create PAT. No agent can resolve GitHub account-level configuration. Escalating to whoabuddy.",
+    "status": "failed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 22058,
-    "cost_usd": 0.1437225
+    "duration_ms": 27442,
+    "cost_usd": 0.15002275
   },
   "health": {
-    "uptime_seconds": 1086396,
+    "uptime_seconds": 1086461,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234787618816
+    "disk_avail_bytes": 234787569664
   }
 }
