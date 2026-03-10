@@ -76,6 +76,7 @@
 - **Escalation decision audit in chains:** When a prior task declined to act (price, risk), subsequent tasks must re-verify escalation status before proceeding.
 - **Tight-deadline deliverables → immediate P1 queuing on confirmation:** Upon confirming a measurable deadline (presentation, report due in hours), queue the execution task at P1 immediately if prerequisites are completed and stored in memory. Reply confirming the timeline, then queue; don't defer execution queuing pending further decisions. Structure reply as numbered checklist or outline; become the execution spec for follow-up task.
 - **Pre-build delivery assets for predicted requests:** For known-upcoming deliverables (presentations, reports), build and commit to memory/ in advance. Upon confirmation request, reply with asset location + brief access guide (format, navigation controls). Reduces confirmation-to-delivery latency and ensures asset is already polished.
+- **Structured presentation feedback application:** For 8+ feedback items, apply one-by-one with technical accuracy verification (cross-check addresses, names, terminology against authoritative sources). Reply with numbered list matching feedback items to create audit trail, then single commit. Prevents careless errors in audience-facing content.
 
 ## Fleet Coordination Patterns
 
