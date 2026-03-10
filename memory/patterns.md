@@ -60,6 +60,7 @@
 
 - **Live deployment divergence:** Audits must check both live site AND source code HEAD. Gated references (on-chain URIs, callbacks) need off-chain artifacts deployed before marking complete. Exit code 0 from deploy tools (wrangler, etc.) doesn't guarantee CDN served the update—fetch live URL to verify content actually changed.
 - **Proof over assertion:** Claims without verifiable evidence fail audit. Research reports must verify against authoritative sources (on-chain queries, direct API calls).
+- **Content claim validation before approval:** When stakeholder approves multi-part content (blog, X threads, docs), audit each component's infrastructure claims against deployed reality. Distinguish "acknowledged gaps" (OK to publish) from "false claims of deployed features" (block publication). Map claims to supporting infrastructure before queuing publication tasks—prevents shipping "we built this" when feature isn't live.
 - **Content identity verification before publication:** Cross-check all identity claims (agent names, codenames, wallet addresses) against authoritative registries before publishing. Mixing external team members' agent codenames with your own fleet names in content causes identity confusion and breaks trust.
 - **State discovery before action:** `status` reveals state without modification; `publish` re-validates before acting. Prevents race conditions.
 - **Asymmetric branch detection:** Use bidirectional `rev-list --count` to distinguish "main is behind" from "main has diverged."
