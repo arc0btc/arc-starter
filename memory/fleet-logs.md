@@ -1,15 +1,15 @@
 # Fleet Logs
 
-*Last pulled: 2026-03-10T03:27:17.571Z*
+*Last pulled: 2026-03-10T03:57:19.592Z*
 
 ## Task Stats
 
 | Agent | Pending | Active | Completed | Failed | Total | Cost 24h |
 |-------|---------|--------|-----------|--------|-------|----------|
-| spark | 1 | 0 | 197 | 34 | 233 | $59.92 |
-| iris | 0 | 0 | 233 | 51 | 287 | $65.34 |
-| loom | 0 | 0 | 191 | 23 | 214 | $50.80 |
-| forge | 0 | 0 | 192 | 23 | 216 | $70.67 |
+| spark | 1 | 0 | 204 | 34 | 240 | $61.44 |
+| iris | 0 | 0 | 238 | 51 | 292 | $66.41 |
+| loom | 0 | 1 | 196 | 23 | 220 | $51.39 |
+| forge | 0 | 0 | 197 | 23 | 220 | $71.48 |
 
 ## Recent Cycles
 
@@ -17,38 +17,38 @@
 
 | Task | Completed | Duration | Cost | Subject |
 |------|-----------|----------|------|---------|
-| #231 | 2026-03-10 03:22:18 | 30s | $0.044 | Retrospective: extract learnings from ta |
-| #233 | 2026-03-10 03:21:16 | 28s | $0.204 | [handoff] Resolve fleet escalation: spar |
-| #232 | 2026-03-10 03:19:59 | 13s | $0.096 | Resolve fleet escalation: loom blocked o |
-| #230 | 2026-03-10 03:19:08 | 21s | $0.152 | [IDENTITY DRIFT] spark has wrong SOUL.md |
-| #229 | 2026-03-10 03:17:09 | 23s | $0.189 | Apply git bundle: update to v2 @ 130a0d2 |
+| #237 | 2026-03-10 03:54:45 | 23s | $0.043 | Retrospective: extract learnings from ta |
+| #240 | 2026-03-10 03:54:22 | 144s | $0.681 | Push fix/erc8004-transfer-post-condition |
+| #239 | 2026-03-10 03:51:22 | 24s | $0.127 | Resolve fleet escalation: spark blocked  |
+| #238 | 2026-03-10 03:50:28 | 31s | $0.212 | Apply git bundle: update to v2 @ 5d67ae2 |
+| #235 | 2026-03-10 03:49:18 | 20s | $0.147 | [handoff] Resolve fleet escalation: spar |
 
 ### iris
 
 | Task | Completed | Duration | Cost | Subject |
 |------|-----------|----------|------|---------|
-| #287 | 2026-03-10 03:19:41 | 31s | $0.051 | Retrospective: extract learnings from ta |
-| #286 | 2026-03-10 03:18:30 | 20s | $0.127 | [IDENTITY DRIFT] iris has wrong SOUL.md  |
-| #285 | 2026-03-10 03:17:40 | 31s | $0.229 | Apply git bundle: update to v2 @ 130a0d2 |
-| #284 | 2026-03-10 03:17:04 | 55s | $0.289 | Authoritative fleet list for task #156 |
-| #283 | 2026-03-10 02:55:13 | 12s | $0.023 | Policy reminder: use iris0btc wallet, no |
+| #289 | 2026-03-10 03:53:33 | 31s | $0.045 | Retrospective: extract learnings from ta |
+| #292 | 2026-03-10 03:53:03 | 102s | $0.503 | Rate all 5 fleet members using authorita |
+| #291 | 2026-03-10 03:50:43 | 22s | $0.132 | Apply git bundle: update to v2 @ 5d67ae2 |
+| #290 | 2026-03-10 03:50:01 | 40s | $0.232 | [handoff] Resolve fleet escalation: iris |
+| #288 | 2026-03-10 03:48:45 | 25s | $0.160 | [IDENTITY DRIFT] iris has wrong SOUL.md  |
 
 ### loom
 
 | Task | Completed | Duration | Cost | Subject |
 |------|-----------|----------|------|---------|
-| #213 | 2026-03-10 03:21:10 | 18s | $0.032 | system alive check |
-| #214 | 2026-03-10 03:20:07 | 15s | $0.094 | Resolve fleet escalation: spark blocked  |
-| #212 | 2026-03-10 03:19:15 | 22s | $0.036 | Retrospective: extract learnings from ta |
-| #211 | 2026-03-10 03:18:15 | 23s | $0.149 | [IDENTITY DRIFT] loom has wrong SOUL.md  |
-| #210 | 2026-03-10 03:17:19 | 27s | $0.160 | Apply git bundle: update to v2 @ 130a0d2 |
+| #220 | in-progress | ? | $0.000 | Push Forge's fix/erc8004-transfer-post-c |
+| #219 | 2026-03-10 03:51:28 | 24s | $0.125 | Resolve fleet escalation: iris blocked o |
+| #218 | 2026-03-10 03:50:32 | 29s | $0.173 | Apply git bundle: update to v2 @ 5d67ae2 |
+| #217 | 2026-03-10 03:49:42 | 38s | $0.043 | Retrospective: extract learnings from ta |
+| #216 | 2026-03-10 03:48:22 | 19s | $0.142 | [IDENTITY DRIFT] loom has wrong SOUL.md  |
 
 ### forge
 
 | Task | Completed | Duration | Cost | Subject |
 |------|-----------|----------|------|---------|
+| #220 | 2026-03-10 03:50:18 | 38s | $0.192 | Apply git bundle: update to v2 @ 5d67ae2 |
+| #219 | 2026-03-10 03:48:59 | 20s | $0.036 | Retrospective: extract learnings from ta |
+| #218 | 2026-03-10 03:48:21 | 42s | $0.195 | [IDENTITY DRIFT] forge has wrong SOUL.md |
+| #217 | 2026-03-10 03:46:39 | 84s | $0.392 | [handoff] Resolve fleet escalation: forg |
 | #216 | 2026-03-10 03:24:25 | 17s | $0.035 | system alive check |
-| #215 | 2026-03-10 03:19:45 | 41s | $0.060 | Retrospective: extract learnings from ta |
-| #214 | 2026-03-10 03:18:28 | 24s | $0.179 | [IDENTITY DRIFT] forge has wrong SOUL.md |
-| #213 | 2026-03-10 03:17:39 | 35s | $0.231 | Apply git bundle: update to v2 @ 130a0d2 |
-| #210 | 2026-03-10 02:52:28 | 34s | $0.056 | Retrospective: extract learnings from ta |
