@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-10T09:47:53.148Z",
+  "updated_at": "2026-03-10T09:51:07.527Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4206,
-    "subject": "Resolve fleet escalation: forge blocked on task #188 — Escalate to whoabuddy: need GitHub PAT created for forge0btc (repo scope). Steps after PAT creation: 1) On Forge (192.168.1.15): arc creds set --service github --key token --value <PAT>, 2) echo <PAT> | gh auth login --with-token, 3) Retry pushing fix/erc8004-transfer-post-condition branch and opening PR on aibtcdev/skills.",
+    "id": 4216,
+    "subject": "Forge dispatch creating credential-request tasks instead of fleet-handoff for GitHub — fix behavioral pattern",
     "status": "completed",
-    "priority": 4
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 53878,
-    "cost_usd": 0.1859635
+    "duration_ms": 187814,
+    "cost_usd": 0.91250415
   },
   "health": {
-    "uptime_seconds": 1078571,
+    "uptime_seconds": 1078766,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234792890368
+    "disk_avail_bytes": 234792734720
   }
 }
