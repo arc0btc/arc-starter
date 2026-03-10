@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-10T13:10:00.000Z*
+*Generated: 2026-03-10T18:45:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -141,17 +141,23 @@ stateDiagram-v2
         state fleetHealthSensor {
             [*] --> fleetHealthGate: claimSensorRun(fleet-health, 15min)
             fleetHealthGate --> fleetHealthSkip: interval not elapsed
-            fleetHealthGate --> fleetHealthSSH: interval elapsed
+            fleetHealthGate --> fleetHealthMaintCheck: interval elapsed
+            fleetHealthMaintCheck --> fleetHealthSkip: maintenance mode active (db/fleet-maintenance.json)
+            fleetHealthMaintCheck --> fleetHealthSSH: no maintenance mode
             fleetHealthSSH --> fleetHealthWrite: SSH all VMs (spark/iris/loom/forge)
             fleetHealthWrite --> fleetHealthSkip: all VMs healthy — write fleet-status.json
-            fleetHealthWrite --> fleetHealthAlert: issues detected
+            fleetHealthWrite --> fleetHealthCapCheck: issues detected
+            fleetHealthCapCheck --> fleetHealthSkip: alert cap reached (MAX 3/agent/day)
+            fleetHealthCapCheck --> fleetHealthAlert: under cap
             fleetHealthAlert --> [*]: insertTask() P3 fleet alert
             fleetHealthSkip --> [*]: return ok/skip
             note right of fleetHealthSSH
                 Checks per VM: sensor timer active,
                 dispatch timer active, last dispatch age,
                 disk usage. Writes memory/fleet-status.json.
-                Suppresses alerts when queue empty + dispatch timer active.
+                Suppresses: queue empty + dispatch active,
+                maintenance mode, alert cap (3/agent/day).
+                Alert state: db/hook-state/fleet-health-alerts.json
             end note
         }
 
@@ -540,8 +546,8 @@ stateDiagram-v2
 | fleet-push | - | yes | - | Change-aware code deployment to fleet agents |
 | fleet-rebalance | yes | - | - | Fleet work-stealing rebalancer sensor (Phase 1+2) |
 | fleet-router | yes | - | - | Fleet task routing sensor (Arc-only) |
-| fleet-self-sync | yes | - | - | Worker-local bundle apply sensor — fleet agents self-sync from Arc |
-| fleet-sync | yes | - | - | Fleet git sync sensor |
+| fleet-self-sync | yes | yes | - | Worker-local bundle apply sensor — fleet agents self-sync from Arc |
+| fleet-sync | yes | yes | - | Fleet git sync sensor + contacts sync (`contacts` subcommand added 2026-03-10) |
 | fleet-task-sync | - | - | - | Fleet task sync coordination — context only |
 | github-ci-status | yes | - | - | Monitors GitHub Actions CI runs |
 | github-interceptor | yes | - | - | Worker sensor (10min) — detects GitHub-blocked tasks, auto-routes to Arc |

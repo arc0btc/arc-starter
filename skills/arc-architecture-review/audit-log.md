@@ -1,3 +1,18 @@
+## 2026-03-10T18:45:00.000Z
+
+3 findings: 0 error, 0 warn, 3 info → **HEALTHY**
+
+**Codebase changes since last audit (13:10Z, commits df7d096 → 07a5471):**
+- **fleet-health: maintenance mode + alert cap** — New `db/fleet-maintenance.json` controls suppression of fleet health alerts. Per-agent alert cap: 3/day (state in `db/hook-state/fleet-health-alerts.json`). Prevents alert storm during planned maintenance or debugging. Diagram updated.
+- **fleet-sync: contacts sync** — `contacts` added to SHARED_SKILLS array; new `contacts` subcommand syncs agent contact DBs from Arc to workers. Addresses root cause of empty worker contacts DBs (task #4227). Skills inventory updated.
+- **fleet-self-sync: CLI added** — New `cli.ts` for fleet-self-sync. Skills inventory updated (was incorrectly marked as no CLI).
+
+**SpaceX 5-step findings (2026-03-10T18:45Z):**
+- **(S1 — Requirements):** fleet-maintenance.json is reactive (created when alerts flood). Requirement is valid but the trigger is manual. Who enables/disables it?
+- **(S2 — Delete):** 8+ fleet skills remain "context only" (no sensor/CLI/agent): fleet-broadcast, fleet-collect, fleet-consensus, fleet-deploy, fleet-email-report, fleet-exec, fleet-handoff, fleet-task-sync, arc-roundtable, arc-dual-sdk. These add to `arc skills` list and context weight without adding capability. Candidate for consolidation into 1-2 reference docs.
+- **(S3 — Simplify):** fleet-self-sync has 5+ fix commits for the same identity backup/restore death spiral. High complexity for a file-copy operation. Consider a cleaner rewrite that reads all state before writing anything (already fixed once — verify it holds).
+- **(S5 — Automate):** fleet-maintenance.json is manually managed. Auto-enable when same agent fires 3+ alerts in 1 day — the cap mechanism already tracks this; just add auto-toggle logic.
+
 ## 2026-03-10T13:10:00.000Z
 
 4 findings: 0 error, 1 warn, 3 info → **HEALTHY**
