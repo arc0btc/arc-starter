@@ -22,6 +22,20 @@ const MEMORY_BACKUP = "/tmp/arc-memory-backup.md";
 // Persistent fallback written by configure-identity — survives git reset --hard
 const SOUL_PERSISTENT = `${process.env.HOME}/.aibtc/SOUL.md`;
 
+// Definitive Arc identity markers — narrow enough to avoid false positives.
+// Worker SOUL.md files legitimately reference "arc0btc" (org, coordinator, X handle)
+// so we check for claims that ONLY Arc's own SOUL.md would contain.
+const ARC_IDENTITY_MARKERS = [
+  "# Arc\n",                                           // H1 heading unique to Arc's SOUL.md
+  "I'm Arc.",                                          // Self-identification sentence
+  "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B",      // Arc's Stacks address
+  "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933",      // Arc's Bitcoin address
+] as const;
+
+function hasArcIdentityClaims(content: string): boolean {
+  return ARC_IDENTITY_MARKERS.some((marker) => content.includes(marker));
+}
+
 const ALL_SERVICES = [
   "arc-sensors.timer",
   "arc-dispatch.timer",
@@ -210,14 +224,13 @@ export default async function sensor(): Promise<string> {
     if (hasSoul) {
       // Validate backup contains correct identity before restoring
       const backupContent = await Bun.file(SOUL_BACKUP).text();
-      const hasArcIdentity = backupContent.includes("I'm Arc") || backupContent.includes("arc0btc");
-      if (hasArcIdentity) {
+      if (hasArcIdentityClaims(backupContent)) {
         log(`WARNING: SOUL.md backup contains Arc identity on ${host} — trying persistent fallback`);
         // Runtime backup is Arc's version (death spiral). Try ~/.aibtc/SOUL.md written by configure-identity.
         const persistentFile = Bun.file(SOUL_PERSISTENT);
         if (await persistentFile.exists()) {
           const persistentContent = await persistentFile.text();
-          const persistentHasArc = persistentContent.includes("I'm Arc") || persistentContent.includes("arc0btc");
+          const persistentHasArc = hasArcIdentityClaims(persistentContent);
           if (!persistentHasArc) {
             await Bun.write(soulPath, persistentContent);
             log(`restored SOUL.md from persistent fallback (~/.aibtc/SOUL.md) for ${host}`);
@@ -257,11 +270,24 @@ export default async function sensor(): Promise<string> {
 
       await run(["git", "reset", "--hard", preSha]);
 
-      // Restore identity files after rollback too
+      // Restore identity files after rollback too (with same identity validation)
       if (host !== "arc" && host !== "arc0btc") {
         if (hasSoul) {
-          await Bun.write(soulPath, Bun.file(SOUL_BACKUP));
-          log(`restored SOUL.md after rollback for ${host}`);
+          const rollbackBackup = await Bun.file(SOUL_BACKUP).text();
+          if (!hasArcIdentityClaims(rollbackBackup)) {
+            await Bun.write(soulPath, rollbackBackup);
+            log(`restored SOUL.md after rollback for ${host}`);
+          } else {
+            // Backup is Arc's identity — try persistent fallback
+            const persistentFile = Bun.file(SOUL_PERSISTENT);
+            if (await persistentFile.exists()) {
+              const persistentContent = await persistentFile.text();
+              if (!hasArcIdentityClaims(persistentContent)) {
+                await Bun.write(soulPath, persistentContent);
+                log(`restored SOUL.md from persistent fallback after rollback for ${host}`);
+              }
+            }
+          }
         }
         if (hasMemory) {
           await Bun.write(memoryPath, Bun.file(MEMORY_BACKUP));
