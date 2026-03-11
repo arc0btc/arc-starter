@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T11:16:10.803Z",
+  "updated_at": "2026-03-11T11:24:26.382Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4964,
-    "subject": "Ops review: backlog trending up: 0 → 59 pending",
+    "id": 4996,
+    "subject": "Fix x402 NONCE_CONFLICT: sponsor relay nonce state inconsistent",
     "status": "completed",
-    "priority": 7
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 114263,
-    "cost_usd": 0.25973775
+    "duration_ms": 495469,
+    "cost_usd": 2.6804808999999996
   },
   "health": {
-    "uptime_seconds": 1170269,
+    "uptime_seconds": 1170765,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233986629632
+    "disk_avail_bytes": 233986400256
   }
 }
