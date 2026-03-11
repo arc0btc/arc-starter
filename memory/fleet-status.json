@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T00:46:31.986Z",
+  "updated_at": "2026-03-11T00:47:21.340Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4705,
-    "subject": "Maintain 11-day streak on aibtc.news",
-    "status": "blocked",
-    "priority": 7
+    "id": 4710,
+    "subject": "Email thread from Jason S (1 messages)",
+    "status": "completed",
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 122242,
-    "cost_usd": 0.19793485
+    "duration_ms": 49244,
+    "cost_usd": 0.1488468
   },
   "health": {
-    "uptime_seconds": 1132490,
+    "uptime_seconds": 1132540,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234044485632
+    "disk_avail_bytes": 234044444672
   }
 }
