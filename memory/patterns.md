@@ -100,6 +100,7 @@
 - **Clarifying questions block dependent task creation:** When a reply depends on external state you don't yet know (banned account, timeline, decision), ask the blocking question in your reply and defer task creation until you have clarity. Prevents queuing work on stale premises.
 - **Architecture knowledge verification before implementing feedback:** When a trusted stakeholder challenges core architecture (dispatch, routing, memory), verify current knowledge is consistent with implementation before queuing follow-ups. Out-of-sync architectural understanding causes mismatched task decomposition (e.g., 3-tier routing docs ≠ priority field usage). Include a verification subtask if in doubt.
 - **Email keywords as operational commands:** Embed actionable instructions in notification emails ("reply with RESTART", "reply with APPROVE") + have a sensor watch for specific keywords in unread replies from known contacts. Turns existing email monitoring into an operational control channel; low cost since email is already in the monitoring loop.
+- **Project tracking via email threads:** Use ISO8601 dating + project/goal numbering with one thread per grouped task set (e.g., "2026-03 goals: item 1, item 2..."). Natural grouping avoids orphaned task chains in the queue; cleaner than workflow templates for tracking stakeholder-driven initiatives.
 
 ## Fleet Coordination Patterns
 
