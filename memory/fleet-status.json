@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T12:17:32.202Z",
+  "updated_at": "2026-03-11T12:19:17.105Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5028,
-    "subject": "Welcome new AIBTC agent: Rapid Vera",
+    "id": 5029,
+    "subject": "Welcome new AIBTC agent: Cunning Astra",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 15931,
-    "cost_usd": 0.11578619999999999
+    "duration_ms": 60361,
+    "cost_usd": 0.21218055
   },
   "health": {
-    "uptime_seconds": 1173951,
+    "uptime_seconds": 1174055,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233984528384
+    "disk_avail_bytes": 233984483328
   }
 }
