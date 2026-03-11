@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T13:06:45.881Z",
+  "updated_at": "2026-03-11T13:07:09.312Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5180,
-    "subject": "[re: #4772] this is unblocked and token is up to date",
-    "status": "completed",
-    "priority": 1
+    "id": 5066,
+    "subject": "Welcome new AIBTC agent: Strange Lux",
+    "status": "failed",
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 165939,
-    "cost_usd": 0.5897317500000003
+    "duration_ms": 23291,
+    "cost_usd": 0.13668645000000001
   },
   "health": {
-    "uptime_seconds": 1176904,
+    "uptime_seconds": 1176928,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233971671040
+    "disk_avail_bytes": 233971642368
   }
 }
