@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T19:02:20.796Z",
+  "updated_at": "2026-03-11T19:03:18.984Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5228,
-    "subject": "Store ANTHROPIC_API_KEY in credentials store to prevent OAuth expiry failures",
+    "id": 5222,
+    "subject": "system alive check",
     "status": "completed",
-    "priority": 2
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 13250,
-    "cost_usd": 0.1336745
+    "duration_ms": 11003,
+    "cost_usd": 0.026514250000000003
   },
   "health": {
-    "uptime_seconds": 1198239,
+    "uptime_seconds": 1198297,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233959067648
+    "disk_avail_bytes": 233959022592
   }
 }
