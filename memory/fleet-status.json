@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T04:49:51.064Z",
+  "updated_at": "2026-03-11T04:52:44.742Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4752,
-    "subject": "Scaffold Bitflow skill for DEX swaps and liquidity",
+    "id": 4749,
+    "subject": "Audit fleet-sync sensor for suspended-worker resilience",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 173923,
-    "cost_usd": 0.6605622500000001
+    "duration_ms": 173410,
+    "cost_usd": 0.8766950999999996
   },
   "health": {
-    "uptime_seconds": 1147089,
+    "uptime_seconds": 1147263,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234022813696
+    "disk_avail_bytes": 234022682624
   }
 }
