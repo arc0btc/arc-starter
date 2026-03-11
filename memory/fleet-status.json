@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T09:01:22.021Z",
+  "updated_at": "2026-03-11T09:03:44.391Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4818,
-    "subject": "Audit dormant skills — identify candidates for archival",
+    "id": 4825,
+    "subject": "ERC-8004 noise audit: assess rating workflow signal-to-noise",
     "status": "completed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 73483,
-    "cost_usd": 0.2047476
+    "duration_ms": 142276,
+    "cost_usd": 0.32305619999999996
   },
   "health": {
-    "uptime_seconds": 1162180,
+    "uptime_seconds": 1162323,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233991430144
+    "disk_avail_bytes": 233991258112
   }
 }
