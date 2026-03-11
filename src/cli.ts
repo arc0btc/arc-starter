@@ -770,9 +770,9 @@ EXAMPLES
   arc tasks update --id 7 --priority 3 --subject "revised subject"
   arc tasks close --id 7 --status completed --summary "finished successfully"
   arc creds list
-  arc creds set --service openrouter --key api_key --value sk-xxxx
-  arc creds get --service openrouter --key api_key
-  arc creds delete --service openrouter --key api_key
+  arc creds set --service openrouter --key api-key --value sk-xxxx
+  arc creds get --service openrouter --key api-key
+  arc creds delete --service openrouter --key api-key
   arc run
   arc skills
   arc skills show --name arc-skill-manager
