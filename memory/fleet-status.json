@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T05:21:20.272Z",
+  "updated_at": "2026-03-11T05:23:26.453Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4772,
-    "subject": "Update Cloudflare API token and deploy arc0btc.com services storefront",
-    "status": "blocked",
+    "id": 4775,
+    "subject": "arc0btc.com health alert: 1 issue(s)",
+    "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 29927,
-    "cost_usd": 0.17369949999999998
+    "duration_ms": 95978,
+    "cost_usd": 0.1438872
   },
   "health": {
-    "uptime_seconds": 1148979,
+    "uptime_seconds": 1149105,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234014597120
+    "disk_avail_bytes": 234014298112
   }
 }
