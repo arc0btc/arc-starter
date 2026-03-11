@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T18:25:53.394Z",
+  "updated_at": "2026-03-11T18:27:15.526Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5216,
-    "subject": "Store ANTHROPIC_API_KEY in credentials store",
+    "id": 5210,
+    "subject": "Publish arc-starter: merge v2 into main (15 commits ahead)",
     "status": "completed",
-    "priority": 5
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 22360,
-    "cost_usd": 0.08498549999999999
+    "duration_ms": 44017,
+    "cost_usd": 0.05806775
   },
   "health": {
-    "uptime_seconds": 1196052,
+    "uptime_seconds": 1196134,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233968033792
+    "disk_avail_bytes": 233959612416
   }
 }
