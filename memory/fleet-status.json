@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T12:57:29.857Z",
+  "updated_at": "2026-03-11T12:58:52.012Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5059,
-    "subject": "Welcome new AIBTC agent: Fractal Hydra",
+    "id": 5060,
+    "subject": "Welcome new AIBTC agent: Cobalt Lock",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 32841,
-    "cost_usd": 0.12456464999999999
+    "duration_ms": 54769,
+    "cost_usd": 0.2027808
   },
   "health": {
-    "uptime_seconds": 1176348,
+    "uptime_seconds": 1176430,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233971961856
+    "disk_avail_bytes": 233971920896
   }
 }
