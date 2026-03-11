@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T14:20:49.895Z",
+  "updated_at": "2026-03-11T14:51:31.902Z",
   "idle": true,
-  "idle_since": "2026-03-11T14:09:44.401Z",
+  "idle_since": "2026-03-11T14:23:20.473Z",
   "last_task": {
-    "id": 5197,
-    "subject": "Retrospective: extract learnings from task #5196 — Overnight brief — 2026-03-11",
-    "status": "completed",
-    "priority": 8
+    "id": 5198,
+    "subject": "Site consistency drift detected: 2 issue(s)",
+    "status": "failed",
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 44614,
-    "cost_usd": 0.0684369
+    "duration_ms": 90198,
+    "cost_usd": 0
   },
   "health": {
-    "uptime_seconds": 1181348,
+    "uptime_seconds": 1183190,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233969836032
+    "disk_avail_bytes": 233969639424
   }
 }
