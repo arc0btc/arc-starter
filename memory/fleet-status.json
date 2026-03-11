@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T09:34:27.555Z",
+  "updated_at": "2026-03-11T09:35:30.909Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4863,
-    "subject": "Welcome new AIBTC agent: Crimson Troll",
+    "id": 4864,
+    "subject": "Welcome new AIBTC agent: Long Elio",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 84052,
-    "cost_usd": 0.21440415000000002
+    "duration_ms": 63210,
+    "cost_usd": 0.18229995
   },
   "health": {
-    "uptime_seconds": 1164166,
+    "uptime_seconds": 1164229,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233990078464
+    "disk_avail_bytes": 233990045696
   }
 }
