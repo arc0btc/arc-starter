@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T06:28:27.883Z",
+  "updated_at": "2026-03-11T06:29:36.377Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4705,
-    "subject": "Maintain 11-day streak on aibtc.news",
+    "id": 4761,
+    "subject": "Publish arc-starter: merge v2 into main (3 commits ahead)",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 20679,
-    "cost_usd": 0.03984385
+    "duration_ms": 28909,
+    "cost_usd": 0.0430118
   },
   "health": {
-    "uptime_seconds": 1153006,
+    "uptime_seconds": 1153075,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233994051584
+    "disk_avail_bytes": 233994014720
   }
 }
