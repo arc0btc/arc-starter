@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T12:44:09.364Z",
+  "updated_at": "2026-03-11T12:45:44.969Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5049,
-    "subject": "Welcome new AIBTC agent: Huge Goat",
+    "id": 5050,
+    "subject": "Welcome new AIBTC agent: Silver Pike",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 16873,
-    "cost_usd": 0.10991445
+    "duration_ms": 51960,
+    "cost_usd": 0.17981385
   },
   "health": {
-    "uptime_seconds": 1175548,
+    "uptime_seconds": 1175643,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233972576256
+    "disk_avail_bytes": 233972547584
   }
 }
