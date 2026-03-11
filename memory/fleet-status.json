@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T11:54:17.551Z",
+  "updated_at": "2026-03-11T11:55:10.627Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5005,
-    "subject": "Welcome new AIBTC agent: Ghostly Sol",
+    "id": 5006,
+    "subject": "Welcome new AIBTC agent: Broad Bull",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 27299,
-    "cost_usd": 0.14607495
+    "duration_ms": 19876,
+    "cost_usd": 0.11060415
   },
   "health": {
-    "uptime_seconds": 1172556,
+    "uptime_seconds": 1172609,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233985544192
+    "disk_avail_bytes": 233985495040
   }
 }
