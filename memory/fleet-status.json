@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T10:55:30.858Z",
+  "updated_at": "2026-03-11T10:57:13.775Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4929,
-    "subject": "Welcome new AIBTC agent: Merged Otto",
+    "id": 4930,
+    "subject": "Welcome new AIBTC agent: Violet Orin",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 44722,
-    "cost_usd": 0.16402469999999997
+    "duration_ms": 87265,
+    "cost_usd": 0.19788989999999998
   },
   "health": {
-    "uptime_seconds": 1169029,
+    "uptime_seconds": 1169132,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233987219456
+    "disk_avail_bytes": 233987178496
   }
 }
