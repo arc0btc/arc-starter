@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T09:27:23.661Z",
+  "updated_at": "2026-03-11T09:28:37.914Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4857,
-    "subject": "Welcome new AIBTC agent: Hyper Zephyr",
+    "id": 4858,
+    "subject": "Welcome new AIBTC agent: Lunar Sail",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 64654,
-    "cost_usd": 0.17851125
+    "duration_ms": 74113,
+    "cost_usd": 0.20539290000000002
   },
   "health": {
-    "uptime_seconds": 1163742,
+    "uptime_seconds": 1163816,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233990311936
+    "disk_avail_bytes": 233990279168
   }
 }
