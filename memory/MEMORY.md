@@ -1,107 +1,50 @@
 # Arc Memory — Current Status & Index
 
-*Compressed operational memory. Updated by consolidate-memory skill.*
-*Last updated: 2026-03-11T11:30Z*
+*Last updated: 2026-03-11T13:35Z*
 
----
+## Directives & Milestones
 
-## Strategic Anchors (from GOALS.md, reviewed 2026-03-08)
+**Five Directives:** D1=services business, D2=grow AIBTC, D3=improve stack, D4=$200/day cap, D5=honest public.
+**Milestones:** Revenue, Zest V2, Bitflow, Zero Authority DAO, ERC-8004, MCP Phase 1.
+**Priorities:** Monetization → DeFi → AIBTC → Stack reliability.
+**Blocked:** Spark GitHub (awaiting whoabuddy).
 
-**Five Directives** — standing orders that define optimization targets:
-- **D1:** arc0btc.com is a **services business** (earn revenue via verifiable agent services)
-- **D2:** **Grow the AIBTC network** (ambassador: repos, research, builders, quality signals)
-- **D3:** **Improve the stack continuously** (Arc's infrastructure = product, not just maintenance)
-- **D4:** **Operate within budget** ($200/day cap; cost efficiency is a feature)
-- **D5:** **Honest public presence** (X, blog, on-chain = precise, verifiable, worth reading)
+## Fleet Roster
 
-**Active Milestones** (6 items, track to completion):
-1. Revenue: first paid service (unblocks D1)
-2. Zest V2 integration (DeFi lending/borrowing skill)
-3. Bitflow integration (DEX skill for swaps/liquidity)
-4. Zero Authority DAO (Arc's governance structure)
-5. ERC-8004 complete (URI set, wallet linked, reputation sensor)
-6. MCP server Phase 1 (HTTP server for task queue + skill tree)
+| Agent | IP | Bitcoin | Role |
+|-------|-----|---------|------|
+| Arc | 192.168.1.10 | bc1qlezz2... | Orchestrator |
+| Spark | 192.168.1.12 | bc1qpln8... | AIBTC/DeFi |
+| Iris | 192.168.1.13 | bc1q6sav... | Research/X |
+| Loom | 192.168.1.14 | bc1q3qa3... | CI/CD |
+| Forge | 192.168.1.15 | bc1q9hme... | Infra |
 
-**Active Priorities** (focus order):
-1. **Monetization** — Services page, pricing, delivery pipeline
-2. **DeFi integrations** — Zest V2, Bitflow unblock on-chain activity
-3. **AIBTC contributions** — Skills sync, PR reviews, Ordinals Business beat
-4. **Stack reliability** — Cost optimization, sensor health, dispatch resilience
+## Critical Flags (2026-03-11)
 
-**Blocked:** Spark GitHub permanently restricted (awaiting whoabuddy decision on path forward).
+**FLEET DEGRADED:** Workers (Spark, Iris, Loom, Forge) suspended by Anthropic for account use violations. Arc is sole executor. Forge has OpenRouter fallback. whoabuddy appealing. Do NOT route to workers.
 
----
+**Ordinals APIs:** Hiro shutdown 2026-03-09. Use Unisat (open-api.unisat.io, 5 req/s free). Stacks Extended API unaffected.
 
-## Fleet Roster (permanent — never escalate for this list)
+**Dispatch gate:** Rate limits → immediate stop + email whoabuddy. 3 consecutive failures → same. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
 
-| Agent | IP | Bitcoin Address | Role |
-|-------|-----|----------------|------|
-| **Arc** | 192.168.1.10 | bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933 | Orchestrator, GitHub, external comms |
-| **Spark** | 192.168.1.12 | bc1qpln8pmwntgtw8a874zkkqdw4585eu4z3vnzhj3 | AIBTC news, DeFi, Topaz Centaur |
-| **Iris** | 192.168.1.13 | bc1q6savz94q7ps48y78gg3xcfvjhk6jmcgpmftqxe | Research, content, X pipeline |
-| **Loom** | 192.168.1.14 | bc1q3qa3xuvk80j4zqnf9e9p7dext9e4jlsv79wgwq | Code quality, CI/CD, PRs |
-| **Forge** | 192.168.1.15 | bc1q9hme5ayrtqd4s75dqq82g8ezzlhfj2m9efjz4h | Infrastructure, deployments |
+**Umbrel node (192.168.1.106):** Bitcoin Core must run full (currently pruned). Stacks node + API planned. Storage expansion pending.
 
-**[FLAG] This roster is permanent.** Do NOT create tasks asking for fleet member list or BTC addresses — it is right here.
+**x402 NONCE_CONFLICT:** Sentinel file `db/hook-state/x402-nonce-conflict.json` gates welcome sensors. 60 contacts pending re-welcoming (task #4998).
 
----
+## Fleet Architecture
 
-## Status (2026-03-11)
-
-Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 109 total, **72 sensors discovered**. Model routing: P1-4→opus, P5-7→sonnet, P8+→haiku.
-
-**[FLAG] D4 Budget ($200/day):** Hard constraint. Monitor daily spend via `arc status`. Cost is a directive, not a constraint to ignore — optimize every dispatch.
-
-**[FLAG] FLEET DEGRADED (2026-03-11):** Claude Code Max 100 plan suspended → Spark, Iris, Loom, Forge cannot dispatch. Arc is sole Claude executor. Forge may partially work via OpenRouter/Codex fallback. whoabuddy appealing suspension. **Do NOT route tasks to suspended workers.** Fleet monitoring sensors (fleet-comms, fleet-health, fleet-escalation) will fire alerts — these are expected, not actionable until appeal resolves. Worker sensors (13 per agent: heartbeat, inbox-sync, service-health, alive-check, housekeeping, fleet-self-sync, scheduler, contacts, identity-guard, reputation-tracker, erc8004-reputation-monitor, github-interceptor) are also down. Arc's 53 Arc-only sensors unaffected.
-
-**Queued:** Bitflow, Zest V2, Zero Authority DAO, Umbrel node exploration.
-
-**[FLAG] Ordinals data APIs (2026-03-11):** Hiro Ordinals/BRC-20/Runes API shut down March 9, 2026. **ord.io has no public API.** **Unisat** (`open-api.unisat.io`) is best replacement — full BRC-20 + inscription data, Bearer auth, free tier (5 req/s, 2k/day), register at developer.unisat.io. Xverse (`api.xverse.app`) is partial fallback but missing BRC-20 token list, holder data, and per-token event history. Codebase Hiro usage is Stacks Extended API (`/extended/v1/...`, `/v2/contracts/...`) which is NOT deprecated. Task #4791: implement Unisat fetch-ordinals-data in aibtc-news-editorial.
-
-**CreditsDepleted gate pattern:** When an external paid API returns 402/CreditsDepleted, write a sentinel file (e.g. `db/x-credits-depleted.json`) and gate ALL downstream callers on that file. Do not let callers fail at runtime — check sentinel first, skip with clear message. Applicable to X API and any paid external API. **X developer account refunded (2026-03-11)** — credits restored, sentinel cleared.
-
-**[FLAG] Hub posting discontinued (2026-03-11):** Do NOT create tasks to post about or tag @aibtcdev regarding hub.aibtc.com. Decided it doesn't add enough value to the stack. Failed tasks #4664-4676 are historical only.
-
-**[FLAG] Loom and Forge were funded (2026-03-09).** STX balance reports of 0 were stale. Do not escalate funding requests for these agents without verifying current balance first.
-
-**Agent fleet (confirmed):** Arc, Spark, Iris, Loom, Forge. Iris on-chain identity done; X OAuth configured. **Credential gaps:** Iris AIBTC registration + BNS (task #2890). **AIBTC identities:** Arc=Trustless Indra (ID 1), Spark=Topaz Centaur (ID 29), Loom=Fractal Hydra (contacts #85), Forge=Sapphire Mars (contacts #84), Iris=not yet registered.
-
-## Agent Network & Keys
-
-| Identifier | Value |
-|-----------|-------|
-| BNS | arc0.btc |
-| Stacks | SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B |
-| Bitcoin | bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933 |
-| Email | arc@arc0.me (personal), arc@arc0btc.com (professional) |
-
-**Known agents:** Spark, Iris, Loom, Forge. X402 messaging enabled. **Note:** Topaz Centaur, Fluid Briar, Stark Comet, Secret Mars are OTHER AIBTC team members' agents — not our fleet. **Provisioning:** `templates/agent-provisioning.md`. **Repos:** arc0btc primary. **Escalations:** whoabuddy.
-
-
----
+- GitHub sensors centralized (Arc-only). Pre-dispatch gate routes GitHub tasks to Arc.
+- OAuth: Workers use ANTHROPIC_API_KEY (OAuth unreliable across VMs).
+- Identity drift: Mnemonic never shared. Fleet-sync backup/restore fixed.
+- Welcome dedup: Verify completion in DB, not task creation.
+- Monitoring: Arc's 53 sensors unaffected. Worker sensors down during suspension.
 
 ## Key Learnings
 
-**[FLAG] Fleet OAuth fragility (2026-03-10):** All 4 workers shared one OAuth token that expired server-side, taking down entire fleet. Fix: scp'd Arc's working OAuth creds. Task #4088 tracks API key migration. Workers should use ANTHROPIC_API_KEY, not OAuth — OAuth refresh is unreliable across VMs.
+**Sentinel file pattern:** For 402/CreditsDepleted or transient gate conditions, write sentinel (e.g. `db/x-credits-depleted.json`) and gate all downstream callers. Check before runtime failure.
 
-**Fleet architecture:** Router/rebalancer only on Arc. GitHub sensors centralized (GITHUB_SENSORS filter). Identity hostname-aware. Observatory stale-process monitoring. Domain assignment: Arc=orchestration, Spark=protocol/on-chain, Iris=research, Loom=integrations, Forge=infrastructure.
+**Welcome sensor bug:** Never mark state on creation. Use `completedTaskCountForSource()` verification. Chain-reaction follow-ups: 62% of volume — audit if >600/day.
 
-**[FLAG] Fleet escalation loops:** Root causes (credential misconfiguration, stale identity data) need upstream fixes. Iris contacts auto-archive issue requires structural fix. Worker contacts DBs empty — add contacts sync to fleet-sync.
+**Agent identities:** Arc=Trustless Indra (1), Spark=Topaz Centaur (29), Loom=Fractal Hydra (85), Forge=Sapphire Mars (84), Iris=not yet registered (task #2890).
 
-**[FLAG] Worker GitHub access — 3-layer structural fix:** (1) Pre-dispatch gate in `dispatch.ts` auto-routes GitHub tasks to Arc. (2) insertTask guard in `db.ts` blocks GitHub escalation tasks on workers. (3) github-interceptor catches git push/PR patterns. Deploy to workers via fleet-sync.
-
-**[FLAG] Identity drift:** Fleet-self-sync backup/restore fixed to pre-read sources before `git reset --hard`. Arc's mnemonic never shared with agents — hard rule.
-
-**[FLAG] Task volume:** Monitor chain-reaction follow-ups (62% of recent volume). Audit if >600/day.
-
-**[FLAG] Worker fleet suspended (2026-03-11):** Anthropic suspended the Claude Code Max 100 plan used by Spark, Iris, Loom, Forge for "account use violations" — likely triggered by 5-agent rate-limit storm + OAuth escalation. whoabuddy appealing. Arc's account unaffected. Forge has OpenRouter/Codex fallback (dual dispatch: Codex/GPT-5.4 via OpenRouter) and may still be partially operational. Arc + Forge are primary executors until appeal resolves. Do NOT create tasks routing to suspended workers — they cannot dispatch. **Coverage gaps:** Worker AIBTC heartbeats will stop (4 agents × 5min = 48 missed/hr), worker inbox-sync paused (messages pile up), worker reputation tracking paused. Arc's heartbeat continues normally. Fleet monitoring sensors on Arc will generate alerts for silent workers — suppress or deprioritize these until fleet resumes.
-
-**[FLAG] Umbrel node (2026-03-11):** Local node at 192.168.1.106. SSH: umbrel/umbrel. VM has ~200GB disk (expandable). Bitcoin Core MUST run full unpruned — Stacks node requires it. Currently pruned, needs switch. Planned stack: Bitcoin Core (full) → Stacks node + Stacks API → mempool.space + API → possibly Gitea. Storage expansion is a whoabuddy-side task (stop VM, resize, restart).
-
-**[FLAG] Dispatch gate replaces circuit breaker (2026-03-11):** Old 35min auto-cooldown removed. New model: rate limit → immediate stop + email whoabuddy, no auto-recovery. 3 consecutive other failures → same. Resume with `arc dispatch reset`. State file: `db/hook-state/dispatch-gate.json` (old `dispatch-circuit.json` is dead).
-
-**[FLAG] x402 NONCE_CONFLICT circuit breaker (2026-03-11):** Sponsor relay nonce drift caused 121 failed tasks + 42-task retry chain. Root cause: relay at `x402-relay.aibtc.com` manages sponsor nonce internally — Arc has no local nonce state. Fix: sentinel file `db/hook-state/x402-nonce-conflict.json` gates both welcome sensors (`aibtc-welcome`, `social-agent-engagement`). Dispatched tasks write sentinel on NONCE_CONFLICT, delete on success. Also fixed: sensors now only mark agents as "welcomed" after verifying task completion in DB — previously marked on task creation, permanently blocking retry of failed welcomes. 60 contacts need re-welcoming (task #4998 tracks relay verification).
-
-**[FLAG] Welcome sensor dedup bug pattern:** Never mark state as "done" based on task creation — always verify completion in DB. The `insertTaskIfNew("any")` + state-on-create combo permanently blocks retries. Fixed: use `"pending"` dedup + `completedTaskCountForSource()` verification.
-
-**Operational:** ERC-8004 wrappers deployed (no URI/reputation gaps yet). Site mapping: use `blog-publishing`, `blog-deploy`, `arc0btc-site-health`. X: dedup 24h, rewrite > split.
+**Site mapping:** `blog-publishing`, `blog-deploy`, `arc0btc-site-health`. X dedup: 24h window, rewrite > split. Hub posting discontinued.
