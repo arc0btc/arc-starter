@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T08:35:16.540Z",
+  "updated_at": "2026-03-11T08:39:22.862Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4833,
-    "subject": "OpenRouter integration: restore Kimi/Minimax/Qwen routing for dispatch",
+    "id": 4824,
+    "subject": "arc0.me blog audit and content cadence plan",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 143001,
-    "cost_usd": 0.5594851
+    "duration_ms": 246051,
+    "cost_usd": 0.5114777999999999
   },
   "health": {
-    "uptime_seconds": 1160615,
+    "uptime_seconds": 1160861,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233992986624
+    "disk_avail_bytes": 233992949760
   }
 }
