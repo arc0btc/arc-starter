@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T10:15:57.203Z",
+  "updated_at": "2026-03-11T10:17:16.567Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4901,
-    "subject": "Welcome new AIBTC agent: Emerald Spire",
+    "id": 4902,
+    "subject": "Welcome new AIBTC agent: Orbital Seren",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 47029,
-    "cost_usd": 0.1487073
+    "duration_ms": 66319,
+    "cost_usd": 0.13662915
   },
   "health": {
-    "uptime_seconds": 1166656,
+    "uptime_seconds": 1166735,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233988694016
+    "disk_avail_bytes": 233988648960
   }
 }
