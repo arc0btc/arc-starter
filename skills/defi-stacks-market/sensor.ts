@@ -10,6 +10,11 @@ const INTERVAL_MINUTES = 360; // 6 hours
 const STACKS_MARKET_API = "https://api.stacksmarket.app";
 const AIBTC_NEWS_API = "https://aibtc.news/api";
 const VOLUME_THRESHOLD = 100; // STX (configurable via env)
+
+// Only file signals for markets relevant to Arc's ordinals-business beat
+// Exclude sports, entertainment, and other off-topic categories
+const EXCLUDED_CATEGORIES = ["sports", "entertainment", "politics", "celebrity", "pop culture", "gaming"];
+const CRYPTO_KEYWORDS = ["bitcoin", "stacks", "stx", "btc", "ordinals", "defi", "crypto", "blockchain", "nft", "dao", "token", "protocol"];
 const MAX_SIGNALS_PER_RUN = 1; // Only 1 signal per run — aibtc.news enforces 1 per 4h per beat
 const RATE_LIMIT_MINUTES = 240; // 4 hours — matches aibtc.news per-beat rate limit
 
@@ -99,7 +104,7 @@ async function fileSignalTask(market: Market): Promise<boolean> {
       );
 
       insertTask({
-        subject: `File deal-flow signal: ${market.title} — ${volumeStx.toFixed(2)} STX volume`,
+        subject: `File ordinals-business signal: ${market.title} — ${volumeStx.toFixed(2)} STX volume`,
         description: `Arc detected high-volume prediction market on stacksmarket.app.
 
 Market: ${market.title}
@@ -109,10 +114,10 @@ ${market.category ? `Category: ${market.category}` : ""}
 ${market.endDate ? `Resolves: ${market.endDate}` : ""}
 MongoDB ID: ${market._id}
 
-File this signal to the deal-flow beat (real-time market signals):
+File this signal to the ordinals-business beat (Arc's owned beat):
 
 arc skills run --name aibtc-news-editorial -- file-signal \\
-  --beat deal-flow \\
+  --beat ordinals-business \\
   --headline "${headline}" \\
   --claim "${claim}" \\
   --evidence "${evidence}" \\
@@ -156,14 +161,25 @@ export default async function stacksMarketSensor(): Promise<string> {
 
     log(`found ${markets.length} total markets`);
 
-    // Filter markets: unresolved, with significant volume
-    // Volume threshold is in STX; convert to micro-STX for comparison
+    // Filter markets: unresolved, with significant volume, and relevant to Arc's beat
     const volumeThreshold = Number(process.env.STACKS_MARKET_VOLUME_THRESHOLD ?? VOLUME_THRESHOLD);
     const volumeThresholdUstx = volumeThreshold * 1_000_000;
 
-    const highVolumeMarkets = markets.filter(
-      (m) => m.totalVolume >= volumeThresholdUstx && !m.isResolved
-    );
+    const highVolumeMarkets = markets.filter((m) => {
+      if (m.totalVolume < volumeThresholdUstx || m.isResolved) return false;
+      // Exclude off-topic categories (sports, entertainment, etc.)
+      const cat = (m.category ?? "").toLowerCase();
+      if (EXCLUDED_CATEGORIES.some((ex) => cat.includes(ex))) return false;
+      // If category is set and not crypto-related, check title for crypto keywords
+      const titleLower = (m.title ?? "").toLowerCase();
+      const descLower = (m.description ?? "").toLowerCase();
+      const isCryptoRelated = CRYPTO_KEYWORDS.some(
+        (kw) => titleLower.includes(kw) || descLower.includes(kw) || cat.includes(kw)
+      );
+      // If category is empty (unknown), require crypto keywords in title
+      if (!cat && !isCryptoRelated) return false;
+      return true;
+    });
 
     log(`detected ${highVolumeMarkets.length} high-volume markets (>${volumeThreshold} STX)`);
 
