@@ -35,8 +35,34 @@ const BATCH_LIMIT = 10;
 const BACKLOG_CAP = 20;
 const SOFT_CAP = 12; // triggers overflow routing to alternate agent
 const ACTIVE_WEIGHT = 5; // active task adds this to load score
+const OFFLINE_THRESHOLD_MS = 60 * 60 * 1000; // 1 hour — treat as offline if no dispatch
+
+const MAINTENANCE_FILE = new URL("../../db/fleet-maintenance.json", import.meta.url).pathname;
 
 const log = createSensorLogger(SENSOR_NAME);
+
+// ---- Maintenance mode gate ----
+
+interface MaintenanceConfig {
+  enabled: boolean;
+  reason?: string;
+  since?: string;
+  suppress_agents?: string[]; // empty/missing = all agents suppressed
+}
+
+async function isAgentInMaintenance(agent: string): Promise<boolean> {
+  try {
+    const file = Bun.file(MAINTENANCE_FILE);
+    if (!(await file.exists())) return false;
+    const config = await file.json() as MaintenanceConfig;
+    if (!config.enabled) return false;
+    // Empty or missing suppress_agents means all workers suppressed
+    if (!config.suppress_agents || config.suppress_agents.length === 0) return true;
+    return config.suppress_agents.includes(agent);
+  } catch {
+    return false;
+  }
+}
 
 // ---- Domain routing table ----
 
@@ -285,14 +311,35 @@ async function getRemoteLoad(
       const db = new Database('db/arc.sqlite', { readonly: true });
       const p = db.query('SELECT COUNT(*) as c FROM tasks WHERE status = \\\\'pending\\\\'').get();
       const a = db.query('SELECT COUNT(*) as c FROM tasks WHERE status = \\\\'active\\\\'').get();
-      console.log((p?.c ?? 0) + ':' + (a?.c ?? 0));
       db.close();
-    " 2>/dev/null || echo "999:0"`
+      const fs = require('fs');
+      let updatedAt = '';
+      try {
+        const s = JSON.parse(fs.readFileSync('memory/fleet-status.json', 'utf8'));
+        updatedAt = s.updated_at ?? '';
+      } catch {}
+      console.log((p?.c ?? 0) + ':' + (a?.c ?? 0) + ':' + updatedAt);
+    " 2>/dev/null || echo "999:0:"`
   );
 
-  const parts = result.stdout.trim().split(":");
-  const pending = parseInt(parts[0]) || 999;
-  const active = parseInt(parts[1]) || 0;
+  const raw = result.stdout.trim();
+  // Format: "pending:active:ISO-timestamp" — split on first two colons only
+  const firstColon = raw.indexOf(":");
+  const secondColon = raw.indexOf(":", firstColon + 1);
+  const pending = parseInt(raw.slice(0, firstColon)) || 999;
+  const active = parseInt(raw.slice(firstColon + 1, secondColon < 0 ? undefined : secondColon)) || 0;
+  const updatedAt = secondColon >= 0 ? raw.slice(secondColon + 1) : "";
+
+  // Offline gate: if fleet-status.json hasn't been updated in >1h, treat as offline
+  if (updatedAt) {
+    const ageMs = Date.now() - new Date(updatedAt).getTime();
+    if (ageMs > OFFLINE_THRESHOLD_MS) {
+      const staleMins = Math.round(ageMs / 60000);
+      log(`${agent} offline: fleet-status.json stale (${staleMins}m) — skipping`);
+      return { pending: 999, active: 0, score: 999 };
+    }
+  }
+
   return { pending, active, score: computeLoadScore(pending, active) };
 }
 
@@ -351,6 +398,21 @@ export default async function fleetRouterSensor(): Promise<string> {
   const { healthy } = readFleetHealth();
   if (healthy.size === 0) {
     log("no healthy fleet agents — skipping routing");
+    return "skip";
+  }
+
+  // Remove maintenance-suppressed agents from healthy set
+  const maintenanceChecks = await Promise.all(
+    [...healthy].map(async (agent) => ({ agent, suppressed: await isAgentInMaintenance(agent) }))
+  );
+  for (const { agent, suppressed } of maintenanceChecks) {
+    if (suppressed) {
+      healthy.delete(agent);
+      log(`${agent} suppressed by fleet-maintenance.json — skipping`);
+    }
+  }
+  if (healthy.size === 0) {
+    log("all agents in maintenance mode — skipping routing");
     return "skip";
   }
 
