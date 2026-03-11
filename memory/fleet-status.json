@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T12:52:50.424Z",
+  "updated_at": "2026-03-11T12:53:52.978Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5177,
-    "subject": "File ordinals-business signal: Will WTI Crude Oil (USOIL) close above $87.00 on March 11, 2026 at 14:30 UTC? — 1554.32 STX volume",
+    "id": 5178,
+    "subject": "Fix defi-stacks-market sensor: filter market categories before routing signals to ordinals-business",
     "status": "completed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 54927,
-    "cost_usd": 0.07445285000000001
+    "duration_ms": 57488,
+    "cost_usd": 0.22117604999999999
   },
   "health": {
-    "uptime_seconds": 1176069,
+    "uptime_seconds": 1176131,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233972228096
+    "disk_avail_bytes": 233972174848
   }
 }
