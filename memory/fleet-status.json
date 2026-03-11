@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T06:50:05.879Z",
+  "updated_at": "2026-03-11T06:50:51.109Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4789,
-    "subject": "Add cloudflare token verification helper using account-scoped endpoint",
+    "id": 4793,
+    "subject": "Deploy arc0btc-worker to Cloudflare (b74d0a1f54c0)",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 152930,
-    "cost_usd": 0.4765106000000001
+    "duration_ms": 44933,
+    "cost_usd": 0.09763170000000002
   },
   "health": {
-    "uptime_seconds": 1154304,
+    "uptime_seconds": 1154349,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233996087296
+    "disk_avail_bytes": 233995993088
   }
 }
