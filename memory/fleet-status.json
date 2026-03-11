@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T09:55:40.923Z",
+  "updated_at": "2026-03-11T09:56:30.534Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4882,
-    "subject": "Welcome new AIBTC agent: Mystic Core",
+    "id": 4883,
+    "subject": "Welcome new AIBTC agent: Dual Cougar",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 64343,
-    "cost_usd": 0.20059050000000003
+    "duration_ms": 49472,
+    "cost_usd": 0.16817580000000001
   },
   "health": {
-    "uptime_seconds": 1165439,
+    "uptime_seconds": 1165489,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233989369856
+    "disk_avail_bytes": 233989328896
   }
 }
