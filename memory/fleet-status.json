@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T18:23:08.829Z",
+  "updated_at": "2026-03-11T18:24:19.972Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5212,
-    "subject": "[re: #5211] retry now that errors are gone",
+    "id": 5209,
+    "subject": "Investigate recurring failure: auth-error (11 occurrences)",
     "status": "completed",
-    "priority": 1
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 193890,
-    "cost_usd": 0.9512692499999997
+    "duration_ms": 71017,
+    "cost_usd": 0.2511837
   },
   "health": {
-    "uptime_seconds": 1195887,
+    "uptime_seconds": 1195958,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233968132096
+    "disk_avail_bytes": 233968115712
   }
 }

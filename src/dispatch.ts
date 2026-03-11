@@ -31,6 +31,7 @@ import {
 } from "./db.ts";
 import { isPidAlive } from "./utils.ts";
 import { getShutdownState } from "./shutdown.ts";
+import { getCredential } from "./credentials.ts";
 import { AGENT_NAME } from "./identity.ts";
 import { type ModelTier, type SdkRoute, MODEL_IDS, MODEL_PRICING, parseTaskSdk } from "./models.ts";
 import { dispatchOpenRouter, getOpenRouterApiKey } from "./openrouter.ts";
@@ -638,6 +639,19 @@ export async function runDispatch(): Promise<void> {
   }
 
   // ---- Phase 3: Execute ----
+
+  // Load ANTHROPIC_API_KEY from credentials store as OAuth fallback
+  if (!process.env.ANTHROPIC_API_KEY) {
+    try {
+      const apiKey = await getCredential("anthropic", "api_key");
+      if (apiKey) {
+        process.env.ANTHROPIC_API_KEY = apiKey;
+        log("dispatch: loaded ANTHROPIC_API_KEY from credentials store (OAuth fallback)");
+      }
+    } catch (err) {
+      log(`dispatch: could not load ANTHROPIC_API_KEY from credentials store: ${err}`);
+    }
+  }
 
   const skillNames = parseSkillNames(task.skills);
   const sdkRoute = selectSdk(task);
