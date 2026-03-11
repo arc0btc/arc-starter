@@ -24,6 +24,7 @@ import type { TaskDepType } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
 import { parseFlags, pad, truncate } from "./utils.ts";
 import { handleCredsCli } from "../skills/arc-credentials/cli.ts";
+import { enterShutdown, exitShutdown, getShutdownState } from "./shutdown.ts";
 
 // CLI is hand-rolled — intentionally zero-dep. If the surface grows significantly,
 // consider citty (https://github.com/unjs/citty) as a lightweight alternative to Commander.
@@ -85,6 +86,12 @@ function cmdStatus(): void {
   const { failed_today: failedToday } = db
     .query("SELECT COUNT(*) as failed_today FROM tasks WHERE status = 'failed' AND date(completed_at) = date('now')")
     .get() as { failed_today: number };
+
+  // Shutdown state indicator
+  const shutdown = getShutdownState();
+  if (shutdown) {
+    process.stdout.write(`** SHUTDOWN ** ${shutdown.reason} (since ${shutdown.since})\n\n`);
+  }
 
   process.stdout.write(`pending: ${pendingCount}  active: ${activeCount}\n`);
 
@@ -619,6 +626,38 @@ async function cmdServices(args: string[]): Promise<void> {
   }
 }
 
+function cmdShutdown(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const reason = flags["reason"] ?? "Manual shutdown via CLI";
+
+  // Check current state
+  const current = getShutdownState();
+  if (current) {
+    process.stdout.write(`Already in shutdown state since ${current.since}: ${current.reason}\n`);
+    return;
+  }
+
+  const state = enterShutdown(reason, "cli");
+  process.stdout.write(`Shutdown state enabled.\n  Reason: ${state.reason}\n  Since: ${state.since}\n`);
+  process.stdout.write(`\nSensors and dispatch will skip on next cycle.\n`);
+  process.stdout.write(`To stop services immediately: arc services uninstall\n`);
+  process.stdout.write(`To resume: arc resume\n`);
+}
+
+function cmdResume(args: string[]): void {
+  const current = getShutdownState();
+  if (!current) {
+    process.stdout.write("Agent is not in shutdown state. Nothing to do.\n");
+    return;
+  }
+
+  const downSince = current.since;
+  exitShutdown();
+  process.stdout.write(`Shutdown state cleared. Agent was down since ${downSince}.\n`);
+  process.stdout.write(`Sensors and dispatch will resume on next timer cycle.\n`);
+  process.stdout.write(`To restart services if stopped: arc services install\n`);
+}
+
 function cmdHelp(): void {
   process.stdout.write(`arc - Bitcoin agent (arc0.btc) | native to L1 + Stacks
 
@@ -696,6 +735,13 @@ COMMANDS
   services status
     Show service status.
 
+  shutdown [--reason TEXT]
+    Enter shutdown state. Sensors and dispatch skip while shutdown is active.
+    Idempotent — safe to call multiple times.
+
+  resume
+    Exit shutdown state. Sensors and dispatch resume on next timer cycle.
+
   help
     Show this help message.
 
@@ -747,6 +793,12 @@ async function main(): Promise<void> {
       break;
     case "services":
       await cmdServices(argv.slice(1));
+      break;
+    case "shutdown":
+      cmdShutdown(argv.slice(1));
+      break;
+    case "resume":
+      cmdResume(argv.slice(1));
       break;
     case "help":
     case "--help":

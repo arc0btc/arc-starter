@@ -31,6 +31,7 @@ import {
   toSqliteDatetime,
 } from "./db.ts";
 import { isPidAlive } from "./utils.ts";
+import { getShutdownState } from "./shutdown.ts";
 import { AGENT_NAME } from "./identity.ts";
 import { type ModelTier, type SdkRoute, MODEL_IDS, MODEL_PRICING, parseTaskSdk } from "./models.ts";
 import { dispatchOpenRouter, getOpenRouterApiKey } from "./openrouter.ts";
@@ -1177,7 +1178,15 @@ export async function runDispatch(): Promise<void> {
     clearDispatchLock();
   }
 
-  // 1b. Acquire lock immediately to close the TOCTOU window.
+  // 1b. Shutdown gate — exit before acquiring lock if agent is down
+  const shutdownState = getShutdownState();
+  if (shutdownState) {
+    log(`dispatch: SHUTDOWN — skipping dispatch (${shutdownState.reason}, since ${shutdownState.since})`);
+    writeFleetStatusIdle();
+    return;
+  }
+
+  // 1c. Acquire lock immediately to close the TOCTOU window.
   // task_id is null until we select a task — but the PID claim prevents races.
   writeDispatchLock(null);
 

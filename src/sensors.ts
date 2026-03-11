@@ -13,6 +13,7 @@ import { join } from "node:path";
 import { discoverSkills } from "./skills.ts";
 import { initDatabase } from "./db.ts";
 import { AGENT_NAME } from "./identity.ts";
+import { isShutdown, getShutdownState } from "./shutdown.ts";
 import { insertTask, pendingTaskExistsForSource, pendingTaskExistsForSubject, taskExistsForSource } from "./db.ts";
 export { insertTask, pendingTaskExistsForSource, taskExistsForSource };
 import type { InsertTask } from "./db.ts";
@@ -212,6 +213,13 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
 }
 
 export async function runSensors(): Promise<void> {
+  // Shutdown gate — no sensors fire while agent is down
+  const shutdownState = getShutdownState();
+  if (shutdownState) {
+    process.stdout.write(`sensors: SHUTDOWN — skipping all sensors (${shutdownState.reason}, since ${shutdownState.since})\n`);
+    return;
+  }
+
   const skills = discoverSkills();
   let sensorsToRun = skills.filter((s) => s.hasSensor);
 
