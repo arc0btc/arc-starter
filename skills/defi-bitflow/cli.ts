@@ -6,7 +6,7 @@
  * Swap commands enforce a per-trade cap and use swap-runner.ts for wallet-aware execution.
  *
  * Usage:
- *   arc skills run --name bitflow -- <subcommand> [flags]
+ *   arc skills run --name defi-bitflow -- <subcommand> [flags]
  */
 
 import { spawn } from "bun";
@@ -298,10 +298,10 @@ async function cmdSpreads(args: string[]): Promise<void> {
 }
 
 function printUsage(): void {
-  process.stdout.write(`bitflow CLI — DEX quotes, swaps, spread analysis
+  process.stdout.write(`defi-bitflow CLI — market intelligence, spread analysis, DCA automation
 
 USAGE
-  arc skills run --name bitflow -- <subcommand> [flags]
+  arc skills run --name defi-bitflow -- <subcommand> [flags]
 
 SWAP COMMANDS (wallet required)
   swap --token-x <id> --token-y <id> --amount-in <decimal> [--slippage <decimal>] [--confirm-high-impact]
@@ -325,9 +325,9 @@ KEEPER COMMANDS (pass-through to upstream, wallet required)
   get-keeper-user [--address <addr>]
 
 EXAMPLES
-  arc skills run --name bitflow -- spreads --threshold 3
-  arc skills run --name bitflow -- quote --token-x token-stx --token-y token-sbtc --amount-in 5.0
-  arc skills run --name bitflow -- swap --token-x token-stx --token-y token-sbtc --amount-in 1.0
+  arc skills run --name defi-bitflow -- spreads --threshold 3
+  arc skills run --name defi-bitflow -- quote --token-x token-stx --token-y token-sbtc --amount-in 5.0
+  arc skills run --name defi-bitflow -- swap --token-x token-stx --token-y token-sbtc --amount-in 1.0
 `);
 }
 

@@ -10,7 +10,9 @@ tags:
 
 # Bitflow
 
-DEX integration for Bitflow on Stacks. Supports token swaps, liquidity provision, pool stats, and price quotes. Bitflow is the primary DEX on Stacks — routes through multiple liquidity sources for best execution.
+Portfolio management for Bitflow DEX on Stacks. Supports token swaps, liquidity provision, pool stats, and price quotes for Arc's own positions. Bitflow is the primary DEX on Stacks — routes through multiple liquidity sources for best execution.
+
+**Distinction from `defi-bitflow` skill:** This skill manages Arc's own LP positions and executes trades from Arc's wallet. Use `defi-bitflow` for market intelligence (spread analysis, Ordinals Business signal filing, DCA automation via Keeper contracts).
 
 ## Sensor: Pool Monitor
 
@@ -67,7 +69,7 @@ Primary pairs: STX, sBTC, USDA, xBTC, WELSH, ALEX. Bitflow aggregates liquidity 
 
 ## When to Load
 
-Load when: executing DEX swaps, managing liquidity positions, checking pool stats, getting price quotes, or responding to pool monitor alerts. Not needed for lending/borrowing (use `zest-v2` instead).
+Load when: executing DEX swaps from Arc's wallet, managing Arc's liquidity positions, checking Arc's pool stats, getting price quotes, or responding to pool monitor alerts. Not needed for lending/borrowing (use `zest-v2`). Not needed for market spread analysis or signal filing (use `defi-bitflow`).
 
 ## Checklist
 

@@ -8,9 +8,11 @@ tags:
   - mainnet-only
 ---
 
-# Bitflow
+# defi-bitflow
 
-Wraps upstream `bitflow/bitflow.ts` from aibtcdev/skills. Adds DCA automation and a sensor that detects high bid-ask spreads on Bitflow trading pairs.
+Market intelligence layer for Bitflow DEX. Wraps upstream `bitflow/bitflow.ts` from aibtcdev/skills and adds: (1) a high-spread detection sensor that files Ordinals Business signals, (2) spread analysis CLI, and (3) DCA automation via Bitflow Keeper contracts.
+
+**Distinction from `bitflow` skill:** The `bitflow` skill manages Arc's own LP positions (monitor, add/remove liquidity, execute swaps by symbol). This skill is for market intelligence and DCA — it reads public Bitflow market data, files signals to the news beat, and automates recurring purchases. Load `bitflow` when managing Arc's portfolio. Load `defi-bitflow` when analyzing markets or filing signals.
 
 ## Sensor: High-Spread Detection
 
@@ -23,12 +25,12 @@ Spread signals indicate potential arbitrage or liquidity imbalance — useful in
 All commands output single JSON objects. Read-only commands pass through to upstream.
 
 ```
-arc skills run --name bitflow -- quote --token-x <id> --token-y <id> --amount-in <decimal>
-arc skills run --name bitflow -- swap --token-x <id> --token-y <id> --amount-in <decimal> [--slippage <decimal>]
-arc skills run --name bitflow -- ticker [--base <id>] [--target <id>]
-arc skills run --name bitflow -- tokens
-arc skills run --name bitflow -- routes --token-x <id> --token-y <id>
-arc skills run --name bitflow -- spreads [--threshold <pct>]
+arc skills run --name defi-bitflow -- quote --token-x <id> --token-y <id> --amount-in <decimal>
+arc skills run --name defi-bitflow -- swap --token-x <id> --token-y <id> --amount-in <decimal> [--slippage <decimal>]
+arc skills run --name defi-bitflow -- ticker [--base <id>] [--target <id>]
+arc skills run --name defi-bitflow -- tokens
+arc skills run --name defi-bitflow -- routes --token-x <id> --token-y <id>
+arc skills run --name defi-bitflow -- spreads [--threshold <pct>]
 ```
 
 ### DCA (planned)
@@ -36,9 +38,9 @@ arc skills run --name bitflow -- spreads [--threshold <pct>]
 DCA uses Bitflow Keeper contracts for scheduled recurring swaps. Future commands:
 
 ```
-arc skills run --name bitflow -- dca-create --token-x <id> --token-y <id> --amount <decimal> --interval <hours>
-arc skills run --name bitflow -- dca-status
-arc skills run --name bitflow -- dca-cancel --order-id <id>
+arc skills run --name defi-bitflow -- dca-create --token-x <id> --token-y <id> --amount <decimal> --interval <hours>
+arc skills run --name defi-bitflow -- dca-status
+arc skills run --name defi-bitflow -- dca-cancel --order-id <id>
 ```
 
 ## Budget & Safety
@@ -50,7 +52,7 @@ arc skills run --name bitflow -- dca-cancel --order-id <id>
 
 ## When to Load
 
-Load when: executing a swap on Bitflow DEX, checking quotes, setting up DCA orders, or reviewing high-spread alerts. Sensor creates signal tasks automatically — only load this skill when active trading or DCA management is required.
+Load when: analyzing Bitflow market spreads, filing Ordinals Business DeFi signals, setting up DCA orders, or reviewing high-spread alerts. Do NOT load for managing Arc's own LP positions — use `bitflow` skill instead. Sensor creates spread signal tasks automatically.
 
 ## Checklist
 
