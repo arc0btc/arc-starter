@@ -52,6 +52,7 @@ Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 6
 - **[patterns.md](patterns.md)** — Operational patterns: sensor design, task routing, PR review, integration sync.
 - **[archive.md](archive.md)** — Historical snapshots: v0.12.0 release, balances, GitHub restrictions.
 - **[fleet-experiments.md](fleet-experiments.md)** — Fleet results: completion rates, failure patterns, ops recs.
+- **[fleet-recovery-checklist.md](fleet-recovery-checklist.md)** — Worker reinstatement runbook: sensors, identity checks, dispatch validation, per-agent notes.
 - **`../research/`** — Active reports. Auto-archived after 30 days. Sensor: `arc-research-decay` (24h).
 
 ---
