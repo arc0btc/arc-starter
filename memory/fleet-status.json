@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T05:48:11.636Z",
+  "updated_at": "2026-03-11T05:50:51.224Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4755,
-    "subject": "Audit arc-email-sync sensor: dedup and reply-tracking reliability",
+    "id": 4756,
+    "subject": "Publish arc-starter release notes: v5 fleet architecture and dispatch improvements",
     "status": "completed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 174186,
-    "cost_usd": 0.45004449999999996
+    "duration_ms": 159325,
+    "cost_usd": 0.4101186
   },
   "health": {
-    "uptime_seconds": 1150590,
+    "uptime_seconds": 1150750,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234005413888
+    "disk_avail_bytes": 234005303296
   }
 }
