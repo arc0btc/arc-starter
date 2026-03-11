@@ -101,101 +101,144 @@ function classifyError(errMsg: string): ErrorClass {
   return "unknown";
 }
 
-// ---- Circuit breaker ----
+// ---- Dispatch gate (on/off, no auto-recovery) ----
 
-const CIRCUIT_STATE_FILE = join(ROOT, "db", "hook-state", "dispatch-circuit.json");
-const CIRCUIT_FAILURE_THRESHOLD = 3;
-const CIRCUIT_OPEN_DURATION_MS = 15 * 60 * 1000;
-const CIRCUIT_RATE_LIMIT_DURATION_MS = 35 * 60 * 1000; // longer cooldown for plan/usage limits
+const DISPATCH_GATE_FILE = join(ROOT, "db", "hook-state", "dispatch-gate.json");
+const GATE_FAILURE_THRESHOLD = 3;
 
-interface CircuitState {
+interface DispatchGateState {
+  status: "running" | "stopped";
   consecutive_failures: number;
-  circuit_state: "closed" | "open" | "half_open";
-  opened_at: string | null;
-  last_error: string | null;
+  stopped_at: string | null;
+  stop_reason: string | null;
   last_error_class: ErrorClass | null;
   last_updated: string;
 }
 
-function readCircuitState(): CircuitState {
+function readGateState(): DispatchGateState {
   try {
-    const data = readFileSync(CIRCUIT_STATE_FILE, "utf-8");
-    return JSON.parse(data) as CircuitState;
+    const data = readFileSync(DISPATCH_GATE_FILE, "utf-8");
+    return JSON.parse(data) as DispatchGateState;
   } catch {
     return {
+      status: "running",
       consecutive_failures: 0,
-      circuit_state: "closed",
-      opened_at: null,
-      last_error: null,
+      stopped_at: null,
+      stop_reason: null,
       last_error_class: null,
       last_updated: new Date().toISOString(),
     };
   }
 }
 
-function writeCircuitState(state: CircuitState): void {
+function writeGateState(state: DispatchGateState): void {
   state.last_updated = new Date().toISOString();
   mkdirSync(join(ROOT, "db", "hook-state"), { recursive: true });
-  writeFileSync(CIRCUIT_STATE_FILE, JSON.stringify(state, null, 2));
+  writeFileSync(DISPATCH_GATE_FILE, JSON.stringify(state, null, 2));
 }
 
 /**
- * Check circuit breaker. Returns true if dispatch should proceed.
- * closed → always proceed. open → skip unless 15min elapsed (→ half_open).
- * half_open → allow one probe.
+ * Send email notification to whoabuddy that dispatch has stopped.
+ * Uses arc CLI (fire-and-forget, non-blocking).
+ */
+function notifyDispatchStopped(reason: string, errorClass: ErrorClass | null): void {
+  const subject = errorClass === "rate_limited"
+    ? `[Arc] Dispatch stopped — rate/plan limit hit`
+    : `[Arc] Dispatch stopped — ${GATE_FAILURE_THRESHOLD} consecutive failures`;
+  const body = [
+    `Arc dispatch has stopped and will not auto-recover.`,
+    ``,
+    `Reason: ${reason}`,
+    `Error class: ${errorClass ?? "unknown"}`,
+    `Time: ${new Date().toISOString()}`,
+    `Host: ${hostname()}`,
+    ``,
+    `To resume, SSH in and run:`,
+    `  bash bin/arc dispatch reset`,
+    ``,
+    `Or clear the gate file:`,
+    `  rm db/hook-state/dispatch-gate.json`,
+  ].join("\n");
+
+  try {
+    Bun.spawn(["bash", join(ROOT, "bin/arc"), "skills", "run", "--name", "email", "--",
+      "send", "--to", "whoabuddy@gmail.com", "--subject", subject, "--body", body,
+      "--from", "arc@arc0btc.com"], { cwd: ROOT, stdout: "ignore", stderr: "ignore" });
+    log(`dispatch: notification email queued to whoabuddy`);
+  } catch (e) {
+    log(`dispatch: failed to send notification email: ${e}`);
+  }
+}
+
+/**
+ * Check dispatch gate. Returns true if dispatch should proceed.
+ * "running" → proceed. "stopped" → skip (requires manual reset).
  */
 function checkCircuitBreaker(): boolean {
-  const state = readCircuitState();
+  const state = readGateState();
 
-  if (state.circuit_state === "closed") return true;
+  if (state.status === "running") return true;
 
-  if (state.circuit_state === "open") {
-    const elapsed = Date.now() - new Date(state.opened_at!).getTime();
-    const cooldown = state.last_error_class === "rate_limited"
-      ? CIRCUIT_RATE_LIMIT_DURATION_MS
-      : CIRCUIT_OPEN_DURATION_MS;
-    if (elapsed >= cooldown) {
-      state.circuit_state = "half_open";
-      writeCircuitState(state);
-      log("dispatch: circuit breaker half-open — allowing probe request");
-      return true;
-    }
-    const remainingMin = Math.ceil((cooldown - elapsed) / 60_000);
-    log(`dispatch: circuit breaker OPEN — skipping (${remainingMin}min remaining, last: ${state.last_error?.slice(0, 100)})`);
-    return false;
-  }
-
-  // half_open — allow probe
-  return true;
+  log(`dispatch: STOPPED — not dispatching (since ${state.stopped_at}, reason: ${state.stop_reason?.slice(0, 100)}). Run 'arc dispatch reset' to resume.`);
+  return false;
 }
 
 function recordCircuitSuccess(): void {
-  const state = readCircuitState();
-  if (state.circuit_state === "closed" && state.consecutive_failures === 0) return;
+  const state = readGateState();
+  if (state.status === "running" && state.consecutive_failures === 0) return;
   state.consecutive_failures = 0;
-  state.circuit_state = "closed";
-  state.opened_at = null;
-  state.last_error = null;
+  state.status = "running";
+  state.stopped_at = null;
+  state.stop_reason = null;
   state.last_error_class = null;
-  writeCircuitState(state);
+  writeGateState(state);
 }
 
 function recordCircuitFailure(errMsg: string): void {
-  const state = readCircuitState();
+  const state = readGateState();
+  const errClass = classifyError(errMsg);
   state.consecutive_failures += 1;
-  state.last_error = errMsg.slice(0, 500);
-  state.last_error_class = classifyError(errMsg);
+  state.last_error_class = errClass;
 
-  if (state.consecutive_failures >= CIRCUIT_FAILURE_THRESHOLD) {
-    state.circuit_state = "open";
-    state.opened_at = new Date().toISOString();
-    const cooldownMin = state.last_error_class === "rate_limited"
-      ? CIRCUIT_RATE_LIMIT_DURATION_MS / 60_000
-      : CIRCUIT_OPEN_DURATION_MS / 60_000;
-    log(`dispatch: circuit breaker OPENED after ${state.consecutive_failures} consecutive failures (${state.last_error_class}, ${cooldownMin}min cooldown)`);
+  // Rate limit or plan suspension → immediate stop (no threshold)
+  if (errClass === "rate_limited") {
+    state.status = "stopped";
+    state.stopped_at = new Date().toISOString();
+    state.stop_reason = errMsg.slice(0, 500);
+    writeGateState(state);
+    log(`dispatch: STOPPED — rate/plan limit hit. Manual restart required.`);
+    notifyDispatchStopped(errMsg.slice(0, 300), errClass);
+    return;
   }
 
-  writeCircuitState(state);
+  // Other errors: stop after consecutive threshold
+  if (state.consecutive_failures >= GATE_FAILURE_THRESHOLD) {
+    state.status = "stopped";
+    state.stopped_at = new Date().toISOString();
+    state.stop_reason = errMsg.slice(0, 500);
+    writeGateState(state);
+    log(`dispatch: STOPPED after ${state.consecutive_failures} consecutive failures (${errClass}). Manual restart required.`);
+    notifyDispatchStopped(errMsg.slice(0, 300), errClass);
+    return;
+  }
+
+  writeGateState(state);
+}
+
+/**
+ * Reset the dispatch gate to "running". Called by `arc dispatch reset`.
+ */
+export function resetDispatchGate(): void {
+  const state = readGateState();
+  log(`dispatch: gate reset (was ${state.status}, ${state.consecutive_failures} failures, reason: ${state.stop_reason?.slice(0, 100)})`);
+  writeGateState({
+    status: "running",
+    consecutive_failures: 0,
+    stopped_at: null,
+    stop_reason: null,
+    last_error_class: null,
+    last_updated: new Date().toISOString(),
+  });
 }
 
 // ---- Logging ----
@@ -1199,7 +1242,7 @@ export async function runDispatch(): Promise<void> {
     markTaskFailed(task.id, "Task was left active from a previous cycle (crash recovery)");
   }
 
-  // 2b. Circuit breaker — skip dispatch if API has been failing repeatedly
+  // 2b. Dispatch gate — skip if stopped (rate limit or consecutive failures)
   if (!checkCircuitBreaker()) {
     clearDispatchLock();
     return;
@@ -1439,7 +1482,7 @@ export async function runDispatch(): Promise<void> {
     } else if (errClass === "rate_limited") {
       // Rate/plan limit: requeue without burning retry count — the task isn't at fault
       requeueTask(task.id, { rollbackAttempt: true });
-      log(`dispatch: task #${task.id} rate-limited — requeued (attempt count preserved, circuit breaker will gate retries)`);
+      log(`dispatch: task #${task.id} rate-limited — requeued (attempt count preserved, dispatch gate will block until manual reset)`);
     } else {
       // Transient/unknown: requeue if under max_retries
       const attemptNumber = task.attempt_count + 1;

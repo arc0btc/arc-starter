@@ -71,4 +71,6 @@ Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 1
 
 **[FLAG] Umbrel node (2026-03-11):** Local node at 192.168.1.106. SSH: umbrel/umbrel. VM has ~200GB disk (expandable). Bitcoin Core MUST run full unpruned — Stacks node requires it. Currently pruned, needs switch. Planned stack: Bitcoin Core (full) → Stacks node + Stacks API → mempool.space + API → possibly Gitea. Storage expansion is a whoabuddy-side task (stop VM, resize, restart).
 
+**[FLAG] Dispatch gate replaces circuit breaker (2026-03-11):** Old 35min auto-cooldown removed. New model: rate limit → immediate stop + email whoabuddy, no auto-recovery. 3 consecutive other failures → same. Resume with `arc dispatch reset`. State file: `db/hook-state/dispatch-gate.json` (old `dispatch-circuit.json` is dead).
+
 **Operational:** ERC-8004 wrappers deployed (no URI/reputation gaps yet). Site mapping: use `blog-publishing`, `blog-deploy`, `arc0btc-site-health`. X: dedup 24h, rewrite > split.

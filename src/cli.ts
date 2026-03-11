@@ -476,6 +476,18 @@ async function cmdRun(): Promise<void> {
   await runDispatch();
 }
 
+async function cmdDispatch(args: string[]): Promise<void> {
+  const sub = args[0];
+  if (sub === "reset") {
+    const { resetDispatchGate } = await import("./dispatch.ts");
+    resetDispatchGate();
+    process.stdout.write("Dispatch gate reset to 'running'. Next cycle will proceed normally.\n");
+  } else {
+    process.stderr.write("Usage: arc dispatch reset\n  Reset the dispatch gate after a rate-limit stop.\n");
+    process.exit(1);
+  }
+}
+
 function cmdSkillsList(): void {
   const skills = discoverSkills();
 
@@ -711,6 +723,11 @@ COMMANDS
   run
     Trigger a single dispatch cycle.
 
+  dispatch reset
+    Reset the dispatch gate after a rate-limit or failure stop.
+    Dispatch stops permanently on rate limits and emails whoabuddy.
+    This command clears the stop and allows dispatch to resume.
+
   skills
     List all discovered skills. Columns: name, description, sensor, cli.
 
@@ -784,6 +801,9 @@ async function main(): Promise<void> {
       break;
     case "run":
       await cmdRun();
+      break;
+    case "dispatch":
+      await cmdDispatch(argv.slice(1));
       break;
     case "skills":
       cmdSkills(argv.slice(1));
