@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T10:53:14.934Z",
+  "updated_at": "2026-03-11T10:54:45.996Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4927,
-    "subject": "Welcome new AIBTC agent: Thermal Jay",
-    "status": "completed",
+    "id": 4928,
+    "subject": "Welcome new AIBTC agent: Cobalt Lock",
+    "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 54433,
-    "cost_usd": 0.13696845000000002
+    "duration_ms": 85258,
+    "cost_usd": 0.18865215000000002
   },
   "health": {
-    "uptime_seconds": 1168893,
+    "uptime_seconds": 1168984,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233987293184
+    "disk_avail_bytes": 233987248128
   }
 }
