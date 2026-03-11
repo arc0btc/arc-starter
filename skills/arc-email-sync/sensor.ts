@@ -4,7 +4,7 @@
 // Runs every 1 minute via sensor cadence gating.
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource, getUnreadEmailMessages, markEmailRead, insertWorkflow, getWorkflowByInstanceKey, type EmailMessage } from "../../src/db.ts";
+import { insertTask, pendingTaskExistsForSource, getUnreadEmailMessages, markEmailRead, hasSentEmailTo, insertWorkflow, getWorkflowByInstanceKey, updateWorkflowState, type EmailMessage } from "../../src/db.ts";
 import { syncEmail, getEmailCredentials } from "./sync.ts";
 
 const SENSOR_NAME = "arc-email-sync";
@@ -110,6 +110,24 @@ export default async function emailSensor(): Promise<string> {
 
     if (pendingTaskExistsForSource(source)) {
       log(`task already exists for source "${source}" — skipping`);
+      continue;
+    }
+
+    // Check if Arc already replied to this sender after the oldest unread message.
+    // The remote is_read flag stays 0 until the sender opens it, so we must not
+    // re-queue just because the message appears unread on the remote side.
+    const oldestReceivedAt = senderMessages[0].received_at; // sorted ASC by getUnreadEmailMessages
+    if (hasSentEmailTo(senderAddr, oldestReceivedAt)) {
+      log(`already replied to ${senderAddr} since ${oldestReceivedAt} — skipping task creation`);
+      // Advance any open workflow for this thread to reply_sent
+      const senderSlug = senderAddr.replace(/[^a-zA-Z0-9]/g, "-").slice(0, 40);
+      const firstRemoteId = senderMessages[0].remote_id;
+      const workflowKey = `email-thread-${senderSlug}-${firstRemoteId}`;
+      const workflow = getWorkflowByInstanceKey(workflowKey);
+      if (workflow && workflow.current_state !== "reply_sent" && workflow.current_state !== "completed") {
+        updateWorkflowState(workflow.id, "reply_sent", workflow.context);
+        log(`advanced workflow ${workflowKey} → reply_sent`);
+      }
       continue;
     }
 

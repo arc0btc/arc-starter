@@ -775,6 +775,16 @@ export function markEmailRead(remoteId: string): void {
   db.query("UPDATE email_messages SET is_read = 1 WHERE remote_id = ?").run(remoteId);
 }
 
+export function hasSentEmailTo(toAddress: string, sinceIso: string): boolean {
+  const db = getDatabase();
+  const row = db
+    .query(
+      "SELECT 1 FROM email_messages WHERE folder = 'sent' AND to_address = ? AND received_at >= ? LIMIT 1"
+    )
+    .get(toAddress, sinceIso);
+  return row !== null;
+}
+
 // ---- AIBTC inbox queries ----
 
 export function upsertAibtcInboxMessage(msg: Omit<AibtcInboxMessage, "id">): void {
