@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T10:38:11.164Z",
+  "updated_at": "2026-03-11T10:39:22.077Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4919,
-    "subject": "Welcome new AIBTC agent: Rough Haven",
+    "id": 4920,
+    "subject": "Welcome new AIBTC agent: Ionic Anvil",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 80056,
-    "cost_usd": 0.20046705
+    "duration_ms": 70774,
+    "cost_usd": 0.20864985000000003
   },
   "health": {
-    "uptime_seconds": 1167990,
+    "uptime_seconds": 1168060,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233987985408
+    "disk_avail_bytes": 233987952640
   }
 }
