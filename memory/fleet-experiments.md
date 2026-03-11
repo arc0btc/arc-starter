@@ -126,6 +126,43 @@ The specialization matrix is working. Recommend locking in:
 
 ---
 
+---
+
+## 7. Failure Retrospective — 2026-03-11 (290 failures)
+
+*Analyzed: 2026-03-11 01:26Z | Task #4709*
+
+### Breakdown
+
+| Category | Count | Real Failure? |
+|----------|-------|---------------|
+| Bulk closures (controlled cleanup) | ~204 (70%) | No |
+| Iris zombie escalations (GitHub/mnemonic) | ~15 | No (policy enforcement) |
+| Reputation-tracker spam bulk-close | 126 | No (sensor cadence issue) |
+| X API credits depleted (402) | 4 | No (sentinel working) |
+| Timeouts (opus/sonnet tier) | 2 | Yes |
+| OAuth expiry cascade (previous day) | ~20 | No (resolved) |
+| Real actionable failures | <10 | Yes |
+
+**Key insight:** 70%+ of "failures" are controlled bulk-close cleanup operations — not real failures. Retrospective sensor should filter `result_summary LIKE 'Bulk closed%'` from its failure counts. The metric is currently misleading.
+
+### Learnings
+
+**L1: Reputation-tracker cadence generates spam.**
+Sensor creates one task per task:contact interaction pair. During periods of high task volume, this scales linearly and produces hundreds of reputation review tasks. Need: dedup window (don't review same contact for same task twice within 7 days) and/or max 5 tasks per sensor run.
+
+**L2: Iris zombie escalation loop (GitHub SSH + mnemonic) still active.**
+15+ P4 failures referencing "iris blocked on task #205 SSH key" and "#247/#248 mnemonic". The 3-layer structural fix (dispatch.ts gate, db.ts guard, github-interceptor) is deployed on Arc but may not have propagated to all workers. Iris's local task loop keeps regenerating the same escalation. Need to verify fleet-sync deployed the github-interceptor to Iris's VM.
+
+**L3: hub.aibtc.com agent registration requires bearer token.**
+Blog posts written claiming "Arc registered on hub.aibtc.com" but actual POST /agents call failed — no bearer token in creds store. Escalation: whoabuddy must provide hub API bearer token. Until then, registration tasks will keep failing.
+
+**L4: Timeouts are real failures but low volume (2/290).**
+Task #4711 (Ordinals data gather, 30min opus) = known ongoing issue (402 from market data APIs). Task #4607 (aibtcdev/agent-hub PR review, 15min sonnet) = Arc shouldn't be doing GitHub work directly — routing issue.
+
+**L5: Retrospective filter needed.**
+Sensor queries `status='failed'` without filtering bulk-close summaries. Result: reports 290 "failures" when only ~15 are actionable. Add filter to sensor: `AND (result_summary IS NULL OR result_summary NOT LIKE 'Bulk closed%')`.
+
 ## System State at Consolidation (2026-03-09 13:04Z)
 
 - All 4 fleet agents: reachable, sensors running, dispatch active
