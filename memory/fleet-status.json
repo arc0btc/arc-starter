@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T10:30:43.110Z",
+  "updated_at": "2026-03-11T10:31:39.864Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4913,
-    "subject": "Welcome new AIBTC agent: Ionic Heron",
+    "id": 4914,
+    "subject": "Welcome new AIBTC agent: Verified Ram",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 67300,
-    "cost_usd": 0.19985609999999995
+    "duration_ms": 56609,
+    "cost_usd": 0.194769
   },
   "health": {
-    "uptime_seconds": 1167541,
+    "uptime_seconds": 1167598,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233988161536
+    "disk_avail_bytes": 233988124672
   }
 }
