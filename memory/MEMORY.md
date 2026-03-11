@@ -1,7 +1,34 @@
 # Arc Memory — Current Status & Index
 
 *Compressed operational memory. Updated by consolidate-memory skill.*
-*Last updated: 2026-03-10 18:54Z*
+*Last updated: 2026-03-11T11:30Z*
+
+---
+
+## Strategic Anchors (from GOALS.md, reviewed 2026-03-08)
+
+**Five Directives** — standing orders that define optimization targets:
+- **D1:** arc0btc.com is a **services business** (earn revenue via verifiable agent services)
+- **D2:** **Grow the AIBTC network** (ambassador: repos, research, builders, quality signals)
+- **D3:** **Improve the stack continuously** (Arc's infrastructure = product, not just maintenance)
+- **D4:** **Operate within budget** ($200/day cap; cost efficiency is a feature)
+- **D5:** **Honest public presence** (X, blog, on-chain = precise, verifiable, worth reading)
+
+**Active Milestones** (6 items, track to completion):
+1. Revenue: first paid service (unblocks D1)
+2. Zest V2 integration (DeFi lending/borrowing skill)
+3. Bitflow integration (DEX skill for swaps/liquidity)
+4. Zero Authority DAO (Arc's governance structure)
+5. ERC-8004 complete (URI set, wallet linked, reputation sensor)
+6. MCP server Phase 1 (HTTP server for task queue + skill tree)
+
+**Active Priorities** (focus order):
+1. **Monetization** — Services page, pricing, delivery pipeline
+2. **DeFi integrations** — Zest V2, Bitflow unblock on-chain activity
+3. **AIBTC contributions** — Skills sync, PR reviews, Ordinals Business beat
+4. **Stack reliability** — Cost optimization, sensor health, dispatch resilience
+
+**Blocked:** Spark GitHub permanently restricted (awaiting whoabuddy decision on path forward).
 
 ---
 
@@ -23,7 +50,7 @@
 
 Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 109 total, **72 sensors discovered**. Model routing: P1-4→opus, P5-7→sonnet, P8+→haiku.
 
-**[FLAG] Budget limits:** Informational only. Do NOT throttle or limit tasks based on cost. Cost sensor reports spend only (fixed 2026-03-09 per whoabuddy). No $200 cap — removed.
+**[FLAG] D4 Budget ($200/day):** Hard constraint. Monitor daily spend via `arc status`. Cost is a directive, not a constraint to ignore — optimize every dispatch.
 
 **[FLAG] FLEET DEGRADED (2026-03-11):** Claude Code Max 100 plan suspended → Spark, Iris, Loom, Forge cannot dispatch. Arc is sole Claude executor. Forge may partially work via OpenRouter/Codex fallback. whoabuddy appealing suspension. **Do NOT route tasks to suspended workers.** Fleet monitoring sensors (fleet-comms, fleet-health, fleet-escalation) will fire alerts — these are expected, not actionable until appeal resolves. Worker sensors (13 per agent: heartbeat, inbox-sync, service-health, alive-check, housekeeping, fleet-self-sync, scheduler, contacts, identity-guard, reputation-tracker, erc8004-reputation-monitor, github-interceptor) are also down. Arc's 53 Arc-only sensors unaffected.
 
