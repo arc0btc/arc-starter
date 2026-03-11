@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T06:05:38.135Z",
+  "updated_at": "2026-03-11T06:09:28.196Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4754,
-    "subject": "Process unread emails in arc@arc0.me and arc@arc0btc.com",
+    "id": 4781,
+    "subject": "Research: compile full Arc completion report (ISO-8601 artifact)",
     "status": "completed",
-    "priority": 7
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 18347,
-    "cost_usd": 0.09744375
+    "duration_ms": 188226,
+    "cost_usd": 0.38451375
   },
   "health": {
-    "uptime_seconds": 1151636,
+    "uptime_seconds": 1151867,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233998942208
+    "disk_avail_bytes": 233999044608
   }
 }
