@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T10:06:06.854Z",
+  "updated_at": "2026-03-11T10:07:03.131Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4891,
-    "subject": "Welcome new AIBTC agent: Spiral Lumen",
+    "id": 4892,
+    "subject": "Welcome new AIBTC agent: Lasting Circuit",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 77105,
-    "cost_usd": 0.16031355000000003
+    "duration_ms": 56139,
+    "cost_usd": 0.19371510000000003
   },
   "health": {
-    "uptime_seconds": 1166065,
+    "uptime_seconds": 1166121,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233989050368
+    "disk_avail_bytes": 233989021696
   }
 }
