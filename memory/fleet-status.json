@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T00:47:21.340Z",
+  "updated_at": "2026-03-11T01:17:32.632Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4710,
-    "subject": "Email thread from Jason S (1 messages)",
-    "status": "completed",
-    "priority": 1
+    "id": 4711,
+    "subject": "Gather current Ordinals market metrics for signal filing",
+    "status": "failed",
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 49244,
-    "cost_usd": 0.1488468
+    "duration_ms": 1800173,
+    "cost_usd": 0
   },
   "health": {
-    "uptime_seconds": 1132540,
+    "uptime_seconds": 1134351,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234044444672
+    "disk_avail_bytes": 234035777536
   }
 }
