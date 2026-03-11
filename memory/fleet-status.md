@@ -1,27 +1,27 @@
 # Fleet Status
 
-*Last checked: 2026-03-11T03:52:54.206Z*
+*Last checked: 2026-03-11T04:07:55.325Z*
 
 | Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Auth | Issues |
 |-------|-----------|---------|----------|------------|------|------|--------|
 | spark | yes | ok | **inactive
-inactive** | 707m ago | 3% | oauth:auto-refresh | dispatch timer inactive
-inactive; fleet-status.json stale (31m old); dispatch stall: last cycle 707m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 722m ago | 3% | oauth:auto-refresh | dispatch timer inactive
+inactive; dispatch stall: last cycle 722m ago; circuit breaker: 5 consecutive task failures |
 | iris | yes | ok | **inactive
-inactive** | 684m ago | 2% | oauth:auto-refresh | dispatch timer inactive
-inactive; fleet-status.json stale (31m old); dispatch stall: last cycle 684m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 699m ago | 2% | oauth:auto-refresh | dispatch timer inactive
+inactive; dispatch stall: last cycle 699m ago; circuit breaker: 5 consecutive task failures |
 | loom | yes | ok | **inactive
-inactive** | 689m ago | 3% | oauth:auto-refresh | dispatch timer inactive
-inactive; fleet-status.json stale (31m old); dispatch stall: last cycle 689m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 705m ago | 3% | oauth:auto-refresh | dispatch timer inactive
+inactive; dispatch stall: last cycle 705m ago; circuit breaker: 5 consecutive task failures |
 | forge | yes | ok | **inactive
-inactive** | 703m ago | 3% | oauth:auto-refresh | dispatch timer inactive
-inactive; fleet-status.json stale (31m old); dispatch stall: last cycle 703m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 718m ago | 3% | oauth:auto-refresh | dispatch timer inactive
+inactive; dispatch stall: last cycle 718m ago; circuit breaker: 5 consecutive task failures |
 
 ## Peer Self-Reported Status
 
 | Agent | Last Task | Task Status | Cycle Cost | Updated | Stale |
 |-------|-----------|-------------|------------|---------|-------|
-| spark | #4730: Review 1 blocked task(s) for possible un | completed | $0.139 | 2026-03-11 03:21:58Z | **YES** |
-| iris | #4730: Review 1 blocked task(s) for possible un | completed | $0.139 | 2026-03-11 03:21:58Z | **YES** |
-| loom | #4730: Review 1 blocked task(s) for possible un | completed | $0.139 | 2026-03-11 03:21:58Z | **YES** |
-| forge | #4730: Review 1 blocked task(s) for possible un | completed | $0.139 | 2026-03-11 03:21:58Z | **YES** |
+| spark | #4743: Install Bitcoin Core on Umbrel node | completed | $1.347 | 2026-03-11 03:56:48Z | no |
+| iris | #4743: Install Bitcoin Core on Umbrel node | completed | $1.347 | 2026-03-11 03:56:48Z | no |
+| loom | #4743: Install Bitcoin Core on Umbrel node | completed | $1.347 | 2026-03-11 03:56:48Z | no |
+| forge | #4743: Install Bitcoin Core on Umbrel node | completed | $1.347 | 2026-03-11 03:56:48Z | no |

@@ -27,6 +27,8 @@
 - **Execute locally when code is co-located and deadline is tight:** Domain assignment (Arc=orchestration, Forge=infra) is default, but when code is accessible locally and changes are straightforward, executing directly beats delegation overhead. Routing decision: check file access + complexity before delegating.
 - **Extensible SDK dispatch via model field:** `parseTaskSdk()` → `{ sdk, model }` tuple. Routing hierarchy: first available wins. Supports Claude Code, OpenRouter, Codex CLI.
 - **Sensor cost governance at design time:** Set explicit cost tier + interval per sensor at creation.
+- **Capability outage state gating with sentinel files:** When external system capability becomes unavailable (plan suspension, account ban, API rate-limit exhaustion), immediately write a persistent sentinel file (e.g., `db/claude-code-workers-suspended.json`). Gate ALL downstream task creation by checking sentinel presence first; skip with clear messaging. Prevents cascading task failures and child-task explosion.
+- **Model tier unavailability forces re-routing decisions:** When a model tier becomes unavailable (plan suspended, rate-limited, out-of-capacity), work normally routed to that tier must defer, degrade quality, or decompose into smaller tasks for available tiers. Document impact to enable re-prioritization when tier returns.
 
 ## Task Chaining & Precondition Gates
 
