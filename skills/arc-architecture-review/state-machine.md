@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-10T18:45:00.000Z*
+*Generated: 2026-03-11T07:00:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -22,14 +22,17 @@ stateDiagram-v2
     }
 
     state SensorsService {
-        [*] --> FilterSensors: AGENT_NAME check
-        FilterSensors --> RunAllSensors: arc0 (Arc host) — all 68 sensors
-        FilterSensors --> RunFilteredSensors: worker agent — allowlist only (10 sensors)
+        [*] --> ShutdownGate: db/shutdown-state.json
+        ShutdownGate --> [*]: SHUTDOWN — skip all sensors (reason + since logged)
+        ShutdownGate --> FilterSensors: not shutdown
+        FilterSensors --> RunAllSensors: arc0 (Arc host) — all 72 sensors
+        FilterSensors --> RunFilteredSensors: worker agent — allowlist only (13 sensors)
         note right of FilterSensors
-            Worker allowlist (10): aibtc-heartbeat, aibtc-inbox-sync,
+            Worker allowlist (13): aibtc-heartbeat, aibtc-inbox-sync,
               arc-service-health, arc-alive-check, arc-housekeeping,
               fleet-self-sync, arc-scheduler, contacts,
-              identity-guard, github-interceptor
+              identity-guard, reputation-tracker,
+              erc8004-reputation-monitor, github-interceptor
             (Everything else is Arc-only)
             ---
             Arc 3-tier filter (still applies for context):
@@ -109,11 +112,18 @@ stateDiagram-v2
         RunAllSensors --> autoQueueSensor: auto-queue
         RunAllSensors --> arcOpsReviewSensor: arc-ops-review
         RunAllSensors --> arcDispatchEvalSensor: arc-dispatch-eval
+        RunAllSensors --> agentHubSensor: agent-hub
+        RunAllSensors --> bitflowSensor: bitflow
+        RunAllSensors --> zestV2Sensor: zest-v2
+        RunAllSensors --> arcUmbrelSensor: arc-umbrel
 
         note right of RunAllSensors
-            68 sensors total (+2 since 2026-03-09T18:55Z)
-            NEW: identity-guard (all agents, 30min) — SOUL.md drift detection
-            NEW: github-interceptor (workers only, 10min) — GitHub escalation interception
+            72 sensors total (+4 since 2026-03-10T18:45Z)
+            NEW: agent-hub (15min) — fleet registry sync via SSH
+            NEW: bitflow (60min) — DEX pool APY + price deviation monitor
+            NEW: zest-v2 (120min) — Zest V2 liquidation health monitor
+            NEW: arc-umbrel (periodic) — Umbrel node status monitor
+            Fleet sensors filter suspended agents since 2026-03-11
         end note
 
         state "Generic Sensor Pattern" as genericSensor {
@@ -309,6 +319,9 @@ stateDiagram-v2
         [*] --> CheckLock: db/dispatch-lock.json
         CheckLock --> Exit: lock held by live PID
         CheckLock --> CrashRecovery: lock held by dead PID
+        [*] --> DispatchShutdownGate: db/shutdown-state.json
+        DispatchShutdownGate --> [*]: SHUTDOWN — skip dispatch (reason + since logged)
+        DispatchShutdownGate --> CheckLock: not shutdown
         CheckLock --> CircuitCheck: no lock
         CrashRecovery --> CircuitCheck: mark stale active tasks failed
         CircuitCheck --> Exit: circuit open (>=3 failures, <15min elapsed)
@@ -419,8 +432,9 @@ stateDiagram-v2
 
 | # | Point | Context Available | Gate |
 |---|-------|-------------------|------|
+| 0 | Shutdown gate | `db/shutdown-state.json` | Both sensors and dispatch exit immediately if shutdown enabled |
 | 1 | Sensor fires | Hook state (interval check) | `claimSensorRun()` |
-| 1a | Sensor filter | `AGENT_NAME` from `src/identity.ts` | GITHUB_SENSORS + ARC_ONLY_SENSORS + CREDENTIAL_SENSORS blocked on workers |
+| 1a | Sensor filter | `AGENT_NAME` from `src/identity.ts` | Worker: 13-sensor allowlist; Arc: all 72 |
 | 1b | Architect SHA check | SHA of src/ + skills/ excl. skills/arc-architecture-review/ | Skip if unchanged + diagram fresh + no active reports |
 | 2 | Sensor creates task | External data + dedup check | `pendingTaskExistsForSource()` |
 | 3 | Dispatch lock check | Lock file (PID + task_id) | `isPidAlive()` |
@@ -459,10 +473,11 @@ stateDiagram-v2
 | recurring-failure | detected→investigating→fix_pending→fixing→retrospective_pending→completed | arc-failure-triage | Recurring failure investigation chain; fix task P5/sonnet; retro P8/haiku; instance_key: recurring-failure-{type}-{YYYY-MM-DD} |
 | overnight-brief | scheduled→generating→retrospective_pending→completed | arc-reporting | OvernightBriefMachine — overnight brief → retrospective cycle; instance_key: overnight-brief-{YYYY-MM-DD} |
 
-## Skills Inventory (105 total)
+## Skills Inventory (109 total)
 
 | Skill | Sensor | CLI | Agent | Description |
 |-------|--------|-----|-------|-------------|
+| agent-hub | yes | yes | - | Local Bun/SQLite fleet registry, capability index, and task routing hub |
 | aibtc-dev-ops | yes | yes | yes | Monitor service health via worker-logs and enforce production-grade standards |
 | aibtc-heartbeat | yes | - | - | Signed AIBTC platform check-in via BIP-137 Bitcoin message signing (iterates all agent wallets) |
 | aibtc-inbox-sync | yes | - | yes | Poll AIBTC platform inbox, sync messages locally, queue tasks |
@@ -472,6 +487,7 @@ stateDiagram-v2
 | aibtc-repo-maintenance | yes | yes | yes | Triage, review, test, and support aibtcdev repos (GraphQL batched) |
 | arc-alive-check | yes | - | - | Periodic system-alive task creator |
 | arc-architecture-review | yes | yes | yes | Architecture review, state machine diagrams, SpaceX 5-step process |
+| arc-umbrel | yes | yes | - | Bitcoin Core RPC integration and Umbrel node management (192.168.1.106) |
 | arc-blocked-review | yes | - | yes | Sensor (120min) — reviews blocked tasks for sibling/child/mention completion + 48h stale signals |
 | arc-brand-voice | - | yes | yes | Brand identity consultant — voice rules, visual design system |
 | arc-catalog | yes | yes | - | Generate and publish skills/sensors catalog to arc0me-site (120min) |
@@ -512,6 +528,7 @@ stateDiagram-v2
 | arc0btc-site-health | yes | yes | - | Monitor arc0btc.com uptime, content freshness, API endpoints (30min) |
 | arxiv-research | yes | yes | yes | Fetch and compile arXiv papers on LLMs/agents into research digests (720min) |
 | auto-queue | yes | - | - | Analyzes completion patterns; creates batch tasks when a skill domain queue runs low (2h) |
+| bitflow | yes | yes | yes | Bitflow DEX swaps, liquidity provision, and pool analytics on Stacks |
 | bitcoin-quorumclaw | yes | yes | yes | Bitcoin Taproot M-of-N multisig via QuorumClaw API |
 | bitcoin-taproot-multisig | - | yes | - | BIP-340 Schnorr primitives — get-pubkey, verify-cosig |
 | bitcoin-wallet | - | yes | yes | Wallet management and cryptographic signing |
@@ -568,3 +585,4 @@ stateDiagram-v2
 | styx | - | yes | yes | BTC→sBTC conversion via Styx protocol (btc2sbtc.com) — pool status, deposit, tracking |
 | worker-deploy | yes | yes | - | Auto-deploy arc0btc-worker to Cloudflare Workers on SHA change (5min) |
 | worker-logs-monitor | yes | yes | yes | Query worker-logs deployments for errors, cross-reference GitHub issues, file new issues (60min) |
+| zest-v2 | yes | yes | yes | Zest Protocol V2 lending/borrowing, health factor monitoring, liquidation alerts |

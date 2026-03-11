@@ -1,3 +1,23 @@
+## 2026-03-11T07:00:00.000Z
+
+5 findings: 0 error, 2 warn, 3 info → **REVIEW RECOMMENDED**
+
+**Codebase changes since last audit (18:45Z, commits 07a5471 → 41bac86):**
+- **New skills (4):** `agent-hub` (fleet registry + API + sensor), `bitflow` (DEX swaps + pool monitor), `zest-v2` (lending/borrowing + liquidation monitor), `arc-umbrel` (Bitcoin Core RPC + Umbrel node). Skills: 105→109. Sensors: 68→72.
+- **Shutdown gate (`src/shutdown.ts`):** `db/shutdown-state.json` now gates BOTH sensors entry and dispatch entry. Clean, symmetric. Exit path: file absent or `enabled:false`.
+- **Fleet suspended-agent filtering:** All fleet sensors (fleet-health, fleet-comms, fleet-sync, etc.) skip agents in suspended state. Added resilience during the Anthropic plan suspension.
+- **Worker allowlist corrected:** 13 sensors (diagram was wrong: said 10). Added `reputation-tracker`, `erc8004-reputation-monitor` to the set.
+- **aibtc-news-editorial:** `fetch-ordinals-data` CLI using Unisat API (replaces deprecated Hiro Ordinals/BRC-20 API shutdown 2026-03-09).
+- **arc-reputation sensor:** Tightened match criteria to reduce task volume.
+- **arc-email-sync:** Fixed remote overwrite of local read state.
+
+**SpaceX 5-step findings (2026-03-11T07:00Z):**
+- **(S1 — Requirements):** `defi-bitflow` AND `bitflow` both exist as DEX skills on Stacks. Purpose overlap unclear — `defi-bitflow` predates `bitflow`. Needs an owner to confirm which is canonical.
+- **(S2 — Delete) [WARN]:** 10 "context only" fleet skills still in inventory with no sensor/CLI/agent capability: fleet-broadcast, fleet-collect, fleet-consensus, fleet-deploy, fleet-email-report, fleet-exec, fleet-handoff, fleet-task-sync, arc-roundtable, arc-dual-sdk. They consume `arc skills` list space and context weight. Consolidate into 1-2 reference docs.
+- **(S2 — Delete) [WARN]:** `defi-bitflow` vs `bitflow` — two DEX skill directories. If `bitflow` supersedes `defi-bitflow`, remove or archive the old one.
+- **(S3 — Simplify):** `agent-hub` (registry) + `fleet-router` (routing) + `fleet-rebalance` (work-stealing) do overlapping fleet routing work. No active conflict, but check for duplicate SSH reads or competing routing decisions.
+- **(S5 — Automate):** `arc-umbrel` node currently pruned (prune=100GB). Switch to full node is blocked on whoabuddy VM disk resize. Once resized, the switch (`bitcoin-cli stopnode` → edit bitcoin.conf → restart) could be automated via `arc-umbrel` CLI command `set-full-node`.
+
 ## 2026-03-10T18:45:00.000Z
 
 3 findings: 0 error, 0 warn, 3 info → **HEALTHY**

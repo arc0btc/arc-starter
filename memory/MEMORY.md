@@ -21,7 +21,7 @@
 
 ## Status (2026-03-11)
 
-Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 63+ total, **66 sensors discovered**. Model routing: P1-4→opus, P5-7→sonnet, P8+→haiku.
+Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 109 total, **72 sensors discovered**. Model routing: P1-4→opus, P5-7→sonnet, P8+→haiku.
 
 **[FLAG] Budget limits:** Informational only. Do NOT throttle or limit tasks based on cost. Cost sensor reports spend only (fixed 2026-03-09 per whoabuddy). No $200 cap — removed.
 
