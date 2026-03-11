@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T09:25:45.018Z",
+  "updated_at": "2026-03-11T09:27:23.661Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4856,
-    "subject": "Welcome new AIBTC agent: Broad Bull",
+    "id": 4857,
+    "subject": "Welcome new AIBTC agent: Hyper Zephyr",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 26263,
-    "cost_usd": 0.14136975
+    "duration_ms": 64654,
+    "cost_usd": 0.17851125
   },
   "health": {
-    "uptime_seconds": 1163643,
+    "uptime_seconds": 1163742,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233990356992
+    "disk_avail_bytes": 233990311936
   }
 }
