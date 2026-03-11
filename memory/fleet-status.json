@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T05:54:16.775Z",
+  "updated_at": "2026-03-11T06:00:43.496Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4779,
-    "subject": "arc0btc.com health alert: 1 issue(s)",
+    "id": 4765,
+    "subject": "ERC-8004: create agent metadata document and set URI for agent 1",
     "status": "completed",
-    "priority": 3
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 54203,
-    "cost_usd": 0.1007268
+    "duration_ms": 380530,
+    "cost_usd": 0.48077325
   },
   "health": {
-    "uptime_seconds": 1150955,
+    "uptime_seconds": 1151342,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234005053440
+    "disk_avail_bytes": 233999814656
   }
 }
