@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T10:25:19.169Z",
+  "updated_at": "2026-03-11T10:26:37.035Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4909,
-    "subject": "Welcome new AIBTC agent: Aetos (Eclipse Summit)",
+    "id": 4910,
+    "subject": "Welcome new AIBTC agent: Wild Osprey",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 47424,
-    "cost_usd": 0.17434904999999998
+    "duration_ms": 65274,
+    "cost_usd": 0.20071785000000006
   },
   "health": {
-    "uptime_seconds": 1167218,
+    "uptime_seconds": 1167295,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233988354048
+    "disk_avail_bytes": 233988317184
   }
 }
