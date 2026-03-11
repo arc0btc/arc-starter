@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T10:26:37.035Z",
+  "updated_at": "2026-03-11T10:28:12.373Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4910,
-    "subject": "Welcome new AIBTC agent: Wild Osprey",
+    "id": 4911,
+    "subject": "Welcome new AIBTC agent: Sly Harp",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 65274,
-    "cost_usd": 0.20071785000000006
+    "duration_ms": 95189,
+    "cost_usd": 0.2101989
   },
   "health": {
-    "uptime_seconds": 1167295,
+    "uptime_seconds": 1167391,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233988317184
+    "disk_avail_bytes": 233988259840
   }
 }
