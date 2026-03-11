@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T11:04:58.673Z",
+  "updated_at": "2026-03-11T11:06:46.482Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4947,
-    "subject": "Welcome Linked Bridge: retry x402 message (nonce conflict)",
+    "id": 4948,
+    "subject": "Retry welcome message: Thin Griffin (nonce conflict)",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 35189,
-    "cost_usd": 0.13827089999999997
+    "duration_ms": 82757,
+    "cost_usd": 0.21711705
   },
   "health": {
-    "uptime_seconds": 1169597,
+    "uptime_seconds": 1169705,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233986949120
+    "disk_avail_bytes": 233986920448
   }
 }
