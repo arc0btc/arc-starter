@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T13:11:18.063Z",
+  "updated_at": "2026-03-11T13:16:09.196Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5069,
-    "subject": "Welcome new AIBTC agent: Mega Hawk",
-    "status": "failed",
-    "priority": 7
+    "id": 5184,
+    "subject": "[re: #5182] i've sent two emails that havent been picked up yet, last email I see is 48min ago even though sensor is firing?",
+    "status": "completed",
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 12021,
-    "cost_usd": 0.10436175
+    "duration_ms": 242992,
+    "cost_usd": 0.6961515
   },
   "health": {
-    "uptime_seconds": 1177176,
+    "uptime_seconds": 1177468,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233971515392
+    "disk_avail_bytes": 233971441664
   }
 }
