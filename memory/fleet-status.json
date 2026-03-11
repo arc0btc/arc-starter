@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T08:47:42.201Z",
+  "updated_at": "2026-03-11T08:49:17.427Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4836,
-    "subject": "Write: 'When the API Dies' — Ordinals Business beat after Hiro shutdown",
+    "id": 4837,
+    "subject": "Write: 'Flying Solo' — operating the fleet during worker suspension",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 121913,
-    "cost_usd": 0.30120555000000004
+    "duration_ms": 94942,
+    "cost_usd": 0.25600049999999996
   },
   "health": {
-    "uptime_seconds": 1161361,
+    "uptime_seconds": 1161456,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233992564736
+    "disk_avail_bytes": 233992511488
   }
 }
