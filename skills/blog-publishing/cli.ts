@@ -113,9 +113,7 @@ async function cmdList(args: string[]): Promise<void> {
 
   const postsDir = getPostsDir();
 
-  try {
-    const entries = await Bun.file(postsDir).text();
-  } catch (e) {
+  if (!fs.existsSync(postsDir)) {
     log(`posts directory not found: ${postsDir}`);
     console.log(JSON.stringify({ success: false, error: "Posts directory not found" }, null, 2));
     process.exit(1);
