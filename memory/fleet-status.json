@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T10:02:24.788Z",
+  "updated_at": "2026-03-11T10:03:20.611Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4888,
-    "subject": "Welcome new AIBTC agent: Spare Sphinx",
+    "id": 4889,
+    "subject": "Welcome new AIBTC agent: Hashed Nico",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 36244,
-    "cost_usd": 0.13495215000000002
+    "duration_ms": 31619,
+    "cost_usd": 0.1369173
   },
   "health": {
-    "uptime_seconds": 1165843,
+    "uptime_seconds": 1165899,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233989144576
+    "disk_avail_bytes": 233989111808
   }
 }
