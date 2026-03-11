@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T13:10:31.894Z",
+  "updated_at": "2026-03-11T13:11:18.063Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5068,
-    "subject": "Welcome new AIBTC agent: Warm Idris",
+    "id": 5069,
+    "subject": "Welcome new AIBTC agent: Mega Hawk",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 26362,
-    "cost_usd": 0.13595595
+    "duration_ms": 12021,
+    "cost_usd": 0.10436175
   },
   "health": {
-    "uptime_seconds": 1177130,
+    "uptime_seconds": 1177176,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233971544064
+    "disk_avail_bytes": 233971515392
   }
 }
