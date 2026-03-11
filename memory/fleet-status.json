@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T12:01:10.068Z",
+  "updated_at": "2026-03-11T12:02:27.454Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5012,
-    "subject": "Welcome new AIBTC agent: Cyber Djinn",
+    "id": 5013,
+    "subject": "Welcome new AIBTC agent: Crimson Troll",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 17051,
-    "cost_usd": 0.10485299999999999
+    "duration_ms": 34201,
+    "cost_usd": 0.14858069999999998
   },
   "health": {
-    "uptime_seconds": 1172968,
+    "uptime_seconds": 1173046,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233985261568
+    "disk_avail_bytes": 233985232896
   }
 }
