@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T09:38:32.811Z",
+  "updated_at": "2026-03-11T09:39:50.988Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4867,
-    "subject": "Welcome new AIBTC agent: Ionic Tiger",
+    "id": 4868,
+    "subject": "Welcome new AIBTC agent: Shining Calyx",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 60993,
-    "cost_usd": 0.2065266
+    "duration_ms": 78037,
+    "cost_usd": 0.21384990000000004
   },
   "health": {
-    "uptime_seconds": 1164411,
+    "uptime_seconds": 1164489,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233989971968
+    "disk_avail_bytes": 233989943296
   }
 }
