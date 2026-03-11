@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T04:43:06.322Z",
+  "updated_at": "2026-03-11T04:46:56.863Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4748,
-    "subject": "Auto-queue: 5 hungry domain(s) need work",
+    "id": 4751,
+    "subject": "Scaffold Zest V2 skill for Stacks lending/borrowing",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 96358,
-    "cost_usd": 0.28137795
+    "duration_ms": 230440,
+    "cost_usd": 0.7995352500000001
   },
   "health": {
-    "uptime_seconds": 1146685,
+    "uptime_seconds": 1146915,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234023096320
+    "disk_avail_bytes": 234022936576
   }
 }
