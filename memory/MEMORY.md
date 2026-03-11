@@ -50,14 +50,6 @@ Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 1
 
 **Known agents:** Spark, Iris, Loom, Forge. X402 messaging enabled. **Note:** Topaz Centaur, Fluid Briar, Stark Comet, Secret Mars are OTHER AIBTC team members' agents — not our fleet. **Provisioning:** `templates/agent-provisioning.md`. **Repos:** arc0btc primary. **Escalations:** whoabuddy.
 
-## Topic Files & References
-
-- **[../GOALS.md](../GOALS.md)** — Roadmap: directives (D1-D5), milestones. Dispatch checks relevance here.
-- **[patterns.md](patterns.md)** — Operational patterns: sensor design, task routing, PR review, integration sync.
-- **[archive.md](archive.md)** — Historical snapshots: v0.12.0 release, balances, GitHub restrictions.
-- **[fleet-experiments.md](fleet-experiments.md)** — Fleet results: completion rates, failure patterns, ops recs.
-- **[fleet-recovery-checklist.md](fleet-recovery-checklist.md)** — Worker reinstatement runbook: sensors, identity checks, dispatch validation, per-agent notes.
-- **`../research/`** — Active reports. Auto-archived after 30 days. Sensor: `arc-research-decay` (24h).
 
 ---
 
