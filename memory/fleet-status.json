@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T01:27:05.809Z",
+  "updated_at": "2026-03-11T01:28:39.048Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4709,
-    "subject": "Daily failure retrospective: 290 failed task(s)",
+    "id": 4721,
+    "subject": "Fix failure-triage sensor: filter bulk-close operations from failure counts",
     "status": "completed",
-    "priority": 7
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 161599,
-    "cost_usd": 0.37432020000000005
+    "duration_ms": 93134,
+    "cost_usd": 0.25707225
   },
   "health": {
-    "uptime_seconds": 1134924,
+    "uptime_seconds": 1135017,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234035449856
+    "disk_avail_bytes": 234035388416
   }
 }
