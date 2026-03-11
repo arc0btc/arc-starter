@@ -93,8 +93,12 @@ function buildContactTokens(contact: Contact): string[] {
   return tokens.filter((t) => t.length >= 3); // skip very short tokens
 }
 
-/** Classify the interaction type based on task signals. */
-function classifyInteraction(task: CompletedTask): string {
+/**
+ * Classify the interaction type based on task signals.
+ * Returns null if the task doesn't represent a meaningful interaction worthy of review.
+ * Pure "mention" (contact name appeared somewhere but no recognized signal) is not sufficient.
+ */
+function classifyInteraction(task: CompletedTask): string | null {
   const text = `${task.subject} ${task.source ?? ""}`.toLowerCase();
   if (text.includes("pr review") || text.includes("pull request") || text.includes("code review")) {
     return "pr-review";
@@ -109,7 +113,12 @@ function classifyInteraction(task: CompletedTask): string {
   ) {
     return "collaboration";
   }
-  return "mention";
+  // AIBTC inbox messages are meaningful peer interactions
+  if (task.source?.startsWith("sensor:aibtc-inbox-sync")) {
+    return "aibtc-inbox";
+  }
+  // No recognized signal — not worth a dedicated review task
+  return null;
 }
 
 /** Load active agent contacts with at least one address. */
@@ -195,12 +204,25 @@ export default async function reputationTrackerSensor(): Promise<string> {
   const eligible: EligibleInteraction[] = [];
 
   for (const task of candidateTasks) {
-    // Build searchable text from task (subject + source + result_summary)
-    // Exclude description to avoid false positives from lengthy text
+    // Skip tasks where reputation feedback was already submitted during execution
+    const resultLower = (task.result_summary ?? "").toLowerCase();
+    if (
+      resultLower.includes("erc-8004") ||
+      resultLower.includes("reputation feedback submitted") ||
+      resultLower.includes("reputation review submitted")
+    ) {
+      continue;
+    }
+
+    // Classify first — only process tasks with a recognized interaction type
+    const interactionType = classifyInteraction(task);
+    if (interactionType === null) continue;
+
+    // Build searchable text from task subject and source only.
+    // Excluding result_summary prevents false positives from lengthy operational output.
     const searchText = [
       task.subject,
       task.source ?? "",
-      task.result_summary ?? "",
     ]
       .join(" ")
       .toLowerCase();
@@ -226,7 +248,7 @@ export default async function reputationTrackerSensor(): Promise<string> {
         contact_id: contact.id,
         contact_name: contact.display_name ?? contact.aibtc_name ?? contact.bns_name ?? "unknown",
         contact_btc_address: contact.btc_address,
-        interaction_type: classifyInteraction(task),
+        interaction_type: interactionType,
       });
 
       // Only one match per task+contact pair
