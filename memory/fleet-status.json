@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T06:38:40.937Z",
+  "updated_at": "2026-03-11T06:40:44.719Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4772,
-    "subject": "Update Cloudflare API token and deploy arc0btc.com services storefront",
-    "status": "blocked",
-    "priority": 3
+    "id": 4791,
+    "subject": "Add Unisat market-data fetcher to aibtc-news-editorial for Ordinals Business signals",
+    "status": "completed",
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 23771,
-    "cost_usd": 0.14504499999999998
+    "duration_ms": 87260,
+    "cost_usd": 0.5523615
   },
   "health": {
-    "uptime_seconds": 1153619,
+    "uptime_seconds": 1153743,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233996754944
+    "disk_avail_bytes": 233996644352
   }
 }
