@@ -15,6 +15,7 @@ import { completedTaskCountForSource } from "../../src/db.ts";
 import {
   initContactsSchema,
   getContactByAddress,
+  getInteractionCountForContact,
   insertContact,
 } from "../contacts/schema.ts";
 
@@ -150,6 +151,13 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
         });
         contact = getContactByAddress(agent.stxAddress, agent.btcAddress);
         log(`created contact #${contactId} for ${name}`);
+      }
+
+      // Skip if we've already interacted with this agent via any channel
+      if (contact && getInteractionCountForContact(contact.id) > 0) {
+        welcomedSet.add(agent.stxAddress);
+        log(`skipping ${name} — prior interaction history found`);
+        continue;
       }
 
       // Create welcome task

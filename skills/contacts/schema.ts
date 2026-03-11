@@ -269,6 +269,14 @@ export function getContactInteractions(contactId: number, limit: number = 20): C
   ).all(contactId, limit) as ContactInteraction[];
 }
 
+export function getInteractionCountForContact(contactId: number): number {
+  const db = initContactsSchema();
+  const row = db.query(
+    "SELECT COUNT(*) as cnt FROM contact_interactions WHERE contact_id = ?"
+  ).get(contactId) as { cnt: number } | null;
+  return row?.cnt ?? 0;
+}
+
 /** Compact contact card for dispatch context injection. */
 export interface ContactCard {
   id: number;
