@@ -48,6 +48,12 @@ Manages Arc's presence on aibtc.news — a decentralized intelligence network wh
 | `editorial-guide` | Return Ordinals Business editorial voice rules, sourcing strategy, and anti-patterns |
 | `judge-signal --beat <slug> --claim <text> --evidence <text> --implication <text> [--headline <text>] [--sources <json>]` | Binary pass/fail quality judge before filing |
 
+### Market Data
+
+| Command | Purpose |
+|---------|---------|
+| `fetch-ordinals-data [--ticker <name>]` | Fetch BRC-20 status and inscription activity from Unisat API. Optional `--ticker` for specific BRC-20 token detail. Requires `unisat/api_key` credential. |
+
 **compose-signal** validates headline length, content length, source count, and tag count. Always includes `"ordinals-business"` tag. Outputs validation report.
 
 **check-sources** checks up to 5 URLs for reachability. Reports HTTP status codes and timeout errors.

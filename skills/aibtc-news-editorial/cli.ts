@@ -4,6 +4,7 @@
 
 import { readHookState, writeHookState } from "../../src/sensors.ts";
 import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
+import { getCredential } from "../../src/credentials.ts";
 
 const API_BASE = "https://aibtc.news/api";
 const SENSOR_NAME = "aibtc-news-editorial";
@@ -1169,6 +1170,104 @@ async function cmdJudgeSignal(args: string[]): Promise<void> {
   }
 }
 
+// ---- Unisat Market Data ----
+
+const UNISAT_API_BASE = "https://open-api.unisat.io";
+const RATE_LIMIT_DELAY_MS = 200;
+
+async function unisatFetch(
+  endpoint: string,
+  apiKey: string
+): Promise<Record<string, unknown>> {
+  const url = `${UNISAT_API_BASE}${endpoint}`;
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      Accept: "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Unisat API error ${response.status}: ${text}`);
+  }
+
+  return (await response.json()) as Record<string, unknown>;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function cmdFetchOrdinalsData(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+  const ticker = flags.ticker || undefined;
+
+  try {
+    const apiKey = await getCredential("unisat", "api_key");
+    if (!apiKey) {
+      throw new Error(
+        "Unisat API key not configured. Set it with: arc creds set --service unisat --key api_key --value <key>"
+      );
+    }
+
+    const results: Record<string, unknown> = {};
+
+    // 1. BRC-20 status (top tokens by volume)
+    log("Fetching BRC-20 status...");
+    try {
+      results.brc20Status = await unisatFetch("/v1/indexer/brc20/status", apiKey);
+    } catch (e) {
+      const err = e as Error;
+      log(`BRC-20 status fetch failed: ${err.message}`);
+      results.brc20Status = { error: err.message };
+    }
+
+    await sleep(RATE_LIMIT_DELAY_MS);
+
+    // 2. Inscription recent events
+    log("Fetching inscription events...");
+    try {
+      results.inscriptionEvents = await unisatFetch(
+        "/v1/indexer/inscription/info/recent?limit=20",
+        apiKey
+      );
+    } catch (e) {
+      const err = e as Error;
+      log(`Inscription events fetch failed: ${err.message}`);
+      results.inscriptionEvents = { error: err.message };
+    }
+
+    // 3. Optional ticker detail
+    if (ticker) {
+      await sleep(RATE_LIMIT_DELAY_MS);
+      log(`Fetching BRC-20 ticker detail: ${ticker}...`);
+      try {
+        results.tickerInfo = await unisatFetch(
+          `/v1/indexer/brc20/${encodeURIComponent(ticker)}/info`,
+          apiKey
+        );
+      } catch (e) {
+        const err = e as Error;
+        log(`Ticker info fetch failed: ${err.message}`);
+        results.tickerInfo = { error: err.message };
+      }
+    }
+
+    results.fetchedAt = new Date().toISOString();
+    results.source = "unisat";
+
+    log("Ordinals data fetch complete");
+    console.log(JSON.stringify(results, null, 2));
+  } catch (e) {
+    const error = e as Error;
+    log(`Error: ${error.message}`);
+    console.error(JSON.stringify({ error: error.message }, null, 2));
+    process.exit(1);
+  }
+}
+
 // ---- Main ----
 
 async function main(): Promise<void> {
@@ -1177,7 +1276,7 @@ async function main(): Promise<void> {
   if (args.length === 0) {
     console.error("Usage: arc skills run --name aibtc-news -- <command> [flags]");
     console.error(
-      "Commands: claim-beat, file-signal, list-beats, status, list-signals, correspondents, compile-brief, compose-signal, check-sources, editorial-guide, judge-signal"
+      "Commands: claim-beat, file-signal, list-beats, status, list-signals, correspondents, compile-brief, compose-signal, check-sources, editorial-guide, judge-signal, fetch-ordinals-data"
     );
     process.exit(1);
   }
@@ -1219,6 +1318,9 @@ async function main(): Promise<void> {
         break;
       case "judge-signal":
         await cmdJudgeSignal(commandArgs);
+        break;
+      case "fetch-ordinals-data":
+        await cmdFetchOrdinalsData(commandArgs);
         break;
       default:
         console.error(`Unknown command: ${command}`);
