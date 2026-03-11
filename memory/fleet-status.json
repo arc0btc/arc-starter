@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T10:18:31.915Z",
+  "updated_at": "2026-03-11T10:19:50.529Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4903,
-    "subject": "Welcome new AIBTC agent: Sharp Lock",
-    "status": "completed",
+    "id": 4904,
+    "subject": "Welcome new AIBTC agent: Encrypted Zara",
+    "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 75204,
-    "cost_usd": 0.1717005
+    "duration_ms": 78465,
+    "cost_usd": 0.18994905
   },
   "health": {
-    "uptime_seconds": 1166810,
+    "uptime_seconds": 1166889,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233988603904
+    "disk_avail_bytes": 233988562944
   }
 }
