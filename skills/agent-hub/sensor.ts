@@ -185,24 +185,24 @@ export default async function sensor(): Promise<string> {
   // Always register local first
   try {
     registerLocal();
-  } catch (err) {
-    log(`Local registration failed: ${(err as Error).message}`);
+  } catch (error) {
+    log(`Local registration failed: ${(error as Error).message}`);
   }
 
   // Collect remote agents
   let password: string;
   try {
     password = await getSshPassword();
-  } catch (err) {
-    log(`SSH password unavailable: ${(err as Error).message}`);
+  } catch (error) {
+    log(`SSH password unavailable: ${(error as Error).message}`);
     return "error";
   }
 
   const remoteAgents = getActiveAgentNames(); // spark, iris, loom, forge (suspended excluded)
   const results = await Promise.allSettled(
     remoteAgents.map((agent) =>
-      collectRemoteAgent(agent, password).catch((err: Error) => {
-        log(`${agent}: collection failed — ${err.message}`);
+      collectRemoteAgent(agent, password).catch((error: Error) => {
+        log(`${agent}: collection failed — ${error.message}`);
         updateAgentStatus(agent, "offline");
       })
     )

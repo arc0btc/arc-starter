@@ -198,7 +198,7 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((err: Error) => {
-  logError(err.message);
+main().catch((error: Error) => {
+  logError(error.message);
   process.exit(1);
 });

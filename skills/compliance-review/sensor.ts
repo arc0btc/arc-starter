@@ -31,10 +31,12 @@ interface ComplianceFinding {
 // Short names that violate Arc's verbose naming convention.
 // Only flagged when they appear as standalone declarations (const/let/var/param),
 // not as parts of longer identifiers.
+// Note: "env" is excluded — it is the required Bun.spawn/spawnSync option key and
+// cannot be renamed. Similarly "args" is excluded as it is a standard CLI convention.
 const ABBREVIATED_NAMES = [
   "desc", "ts", "msg", "err", "res", "req", "cb", "fn",
   "val", "idx", "len", "cnt", "tmp", "buf", "str", "num",
-  "obj", "arr", "cfg", "env", "cmd",
+  "obj", "arr", "cfg", "cmd",
 ];
 
 // Match: const desc, let ts, var msg, or as function params (name: type)
@@ -189,6 +191,10 @@ async function checkCrossSkillPaths(skill: SkillInfo): Promise<ComplianceFinding
 
         // Only validate paths that reference other skill directories (contain '..')
         if (!relative_path.includes("..")) continue;
+
+        // Skip runtime state files under db/ — these are created at runtime and
+        // may not exist on disk between uses (e.g. sentinel files, cache files).
+        if (relative_path.includes("/db/")) continue;
 
         const resolved_path = resolve(skill.path, relative_path);
         if (!existsSync(resolved_path)) {

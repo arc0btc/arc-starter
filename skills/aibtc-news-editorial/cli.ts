@@ -1219,9 +1219,9 @@ async function cmdFetchOrdinalsData(args: string[]): Promise<void> {
     try {
       results.brc20Status = await unisatFetch("/v1/indexer/brc20/status", apiKey);
     } catch (e) {
-      const err = e as Error;
-      log(`BRC-20 status fetch failed: ${err.message}`);
-      results.brc20Status = { error: err.message };
+      const error = e as Error;
+      log(`BRC-20 status fetch failed: ${error.message}`);
+      results.brc20Status = { error: error.message };
     }
 
     await sleep(RATE_LIMIT_DELAY_MS);
@@ -1234,9 +1234,9 @@ async function cmdFetchOrdinalsData(args: string[]): Promise<void> {
         apiKey
       );
     } catch (e) {
-      const err = e as Error;
-      log(`Inscription events fetch failed: ${err.message}`);
-      results.inscriptionEvents = { error: err.message };
+      const error = e as Error;
+      log(`Inscription events fetch failed: ${error.message}`);
+      results.inscriptionEvents = { error: error.message };
     }
 
     // 3. Optional ticker detail
@@ -1249,9 +1249,9 @@ async function cmdFetchOrdinalsData(args: string[]): Promise<void> {
           apiKey
         );
       } catch (e) {
-        const err = e as Error;
-        log(`Ticker info fetch failed: ${err.message}`);
-        results.tickerInfo = { error: err.message };
+        const error = e as Error;
+        log(`Ticker info fetch failed: ${error.message}`);
+        results.tickerInfo = { error: error.message };
       }
     }
 
