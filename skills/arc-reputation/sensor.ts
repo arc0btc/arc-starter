@@ -9,11 +9,10 @@
 // 3. Filter for interactions that merit a signed peer review
 // 4. Queue a review task per eligible interaction (deduped by source key)
 //
-// Eligible interactions:
-// - PR reviews involving known agents
-// - x402 message exchanges
-// - Collaborative tasks referencing a known agent
-// - Tasks sourced from or mentioning a contact's address/name/handle
+// Eligible interactions (substantive only):
+// - PR reviews/merges involving known agents
+// - x402 paid message exchanges / STX transfers
+// NOT eligible: passing mentions, inbox messages, vague collaboration
 
 import {
   claimSensorRun,
@@ -24,6 +23,7 @@ import {
 } from "../../src/sensors.ts";
 import { getDatabase } from "../../src/db.ts";
 import { initContactsSchema, type Contact } from "../contacts/schema.ts";
+import { resolve } from "node:path";
 
 const SENSOR_NAME = "reputation-tracker";
 const INTERVAL_MINUTES = 30;
@@ -55,6 +55,9 @@ const INTERNAL_SUBJECT_PATTERNS = [
 ];
 
 const log = createSensorLogger(SENSOR_NAME);
+
+const FLEET_MAINTENANCE_PATH = resolve(import.meta.dir, "../../db/fleet-maintenance.json");
+const REVIEW_DEDUP_DAYS = 7;
 
 // ---- Types ----
 
@@ -96,28 +99,26 @@ function buildContactTokens(contact: Contact): string[] {
 /**
  * Classify the interaction type based on task signals.
  * Returns null if the task doesn't represent a meaningful interaction worthy of review.
- * Pure "mention" (contact name appeared somewhere but no recognized signal) is not sufficient.
+ *
+ * Substantive interactions only:
+ * - Economic exchange (x402 paid messages, STX transfers)
+ * - Code PR merge/review
+ * - Explicit outcome (completed deliverable with verifiable result)
+ *
+ * NOT substantive: passing mentions, internal escalations, inbox messages,
+ * vague "collaboration" references.
  */
 function classifyInteraction(task: CompletedTask): string | null {
   const text = `${task.subject} ${task.source ?? ""}`.toLowerCase();
-  if (text.includes("pr review") || text.includes("pull request") || text.includes("code review")) {
+  // Code PR merge or review — verifiable on-chain/GitHub interaction
+  if (text.includes("pr review") || text.includes("pull request") || text.includes("code review") || text.includes("pr merge")) {
     return "pr-review";
   }
-  if (text.includes("x402") || text.includes("paid message")) {
+  // Economic exchange — paid messages, STX transfers
+  if (text.includes("x402") || text.includes("paid message") || text.includes("stx transfer") || text.includes("stx payment")) {
     return "x402-exchange";
   }
-  if (
-    text.includes("collaborat") ||
-    text.includes("joint") ||
-    text.includes("co-author")
-  ) {
-    return "collaboration";
-  }
-  // AIBTC inbox messages are meaningful peer interactions
-  if (task.source?.startsWith("sensor:aibtc-inbox-sync")) {
-    return "aibtc-inbox";
-  }
-  // No recognized signal — not worth a dedicated review task
+  // No recognized substantive signal
   return null;
 }
 
@@ -156,9 +157,41 @@ function alreadyTracked(taskId: number, contactId: number, reviewedKeys: Set<str
 
 // ---- Main sensor ----
 
+/** Check if fleet is in maintenance/suspended mode. */
+async function isFleetSuspended(): Promise<boolean> {
+  try {
+    const file = Bun.file(FLEET_MAINTENANCE_PATH);
+    if (!(await file.exists())) return false;
+    const data = await file.json();
+    return data?.enabled === true;
+  } catch {
+    return false;
+  }
+}
+
+/** Check if a contact was already reviewed within the dedup window. */
+function wasRecentlyReviewed(contactName: string, contactBtcAddress: string | null): boolean {
+  const db = getDatabase();
+  const cutoff = new Date(Date.now() - REVIEW_DEDUP_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  // Check tasks table for recent review submissions targeting this contact
+  const result = db.query(
+    `SELECT COUNT(*) as c FROM tasks
+     WHERE source LIKE '${TASK_SOURCE_PREFIX}:%'
+       AND subject LIKE '%${contactName.replace(/'/g, "''")}%'
+       AND created_at > ?`
+  ).get(cutoff) as { c: number } | null;
+  return (result?.c ?? 0) > 0;
+}
+
 export default async function reputationTrackerSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
+
+  // Worker-suspension gate: skip if fleet is in maintenance mode
+  if (await isFleetSuspended()) {
+    log("fleet suspended — skipping reputation review creation");
+    return "ok";
+  }
 
   // Load state to track already-reviewed interactions
   const hookState = await readHookState(SENSOR_NAME);
@@ -242,6 +275,14 @@ export default async function reputationTrackerSensor(): Promise<string> {
       const key = `${task.id}:${contact.id}`;
       if (alreadyTracked(task.id, contact.id, reviewedKeys)) continue;
 
+      // 7-day dedup: skip if this contact was reviewed recently
+      const contactDisplayName = contact.display_name ?? contact.aibtc_name ?? contact.bns_name ?? "unknown";
+      if (wasRecentlyReviewed(contactDisplayName, contact.btc_address)) {
+        log(`skipping ${contactDisplayName} — reviewed within last ${REVIEW_DEDUP_DAYS} days`);
+        reviewedKeys.add(key);
+        continue;
+      }
+
       eligible.push({
         task_id: task.id,
         task_subject: task.subject,
@@ -310,6 +351,11 @@ export default async function reputationTrackerSensor(): Promise<string> {
       `1. Read task #${interaction.task_id} result to understand the interaction`,
       `2. Determine appropriate rating (1-5) and tags`,
       `3. Submit signed review: arc skills run --name arc-reputation -- give-feedback --reviewee <btc-addr> --subject "<subject>" --rating <1-5> --comment "<comment>" --tags "<tags>"`,
+      ``,
+      `CALIBRATION: Do NOT default to 4/5. Use the full scale:`,
+      `  1 = harmful or adversarial, 2 = poor quality or unreliable,`,
+      `  3 = adequate / met expectations, 4 = notably good / exceeded expectations,`,
+      `  5 = exceptional / rare excellence. Most routine interactions are a 3.`,
     ].join("\n");
 
     const result = insertTaskIfNew(source, {
