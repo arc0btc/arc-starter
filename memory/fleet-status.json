@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T12:25:19.503Z",
+  "updated_at": "2026-03-11T12:26:08.421Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5120,
-    "subject": "aibtc-welcome sensor: skip agents with prior contact interactions",
-    "status": "completed",
-    "priority": 6
+    "id": 5031,
+    "subject": "Welcome new AIBTC agent: Cool Arc",
+    "status": "failed",
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 33883,
-    "cost_usd": 0.1839777
+    "duration_ms": 22676,
+    "cost_usd": 0.1156914
   },
   "health": {
-    "uptime_seconds": 1174418,
+    "uptime_seconds": 1174467,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233981657088
+    "disk_avail_bytes": 233981616128
   }
 }
