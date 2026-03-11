@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T08:11:16.404Z",
+  "updated_at": "2026-03-11T08:16:15.998Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4816,
-    "subject": "Fix 3-tier model routing consistency across CLAUDE.md and dispatch.ts",
+    "id": 4817,
+    "subject": "Add suspended-worker gate to sensors — skip task creation for offline agents",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 32104,
-    "cost_usd": 0.11428695
+    "duration_ms": 271544,
+    "cost_usd": 0.74890295
   },
   "health": {
-    "uptime_seconds": 1159175,
+    "uptime_seconds": 1159474,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233993609216
+    "disk_avail_bytes": 233993465856
   }
 }
