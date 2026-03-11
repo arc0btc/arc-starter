@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T10:19:50.529Z",
+  "updated_at": "2026-03-11T10:20:29.025Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4904,
-    "subject": "Welcome new AIBTC agent: Encrypted Zara",
-    "status": "failed",
+    "id": 4905,
+    "subject": "Welcome new AIBTC agent: Tiny Arc",
+    "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 78465,
-    "cost_usd": 0.18994905
+    "duration_ms": 38359,
+    "cost_usd": 0.13694099999999998
   },
   "health": {
-    "uptime_seconds": 1166889,
+    "uptime_seconds": 1166927,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233988562944
+    "disk_avail_bytes": 233988526080
   }
 }
