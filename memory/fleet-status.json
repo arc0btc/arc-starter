@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T10:21:32.148Z",
+  "updated_at": "2026-03-11T10:23:06.569Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4906,
-    "subject": "Welcome new AIBTC agent: Lone Crest",
-    "status": "completed",
+    "id": 4907,
+    "subject": "Welcome new AIBTC agent: Fluid Briar",
+    "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 41111,
-    "cost_usd": 0.1367262
+    "duration_ms": 75311,
+    "cost_usd": 0.15020895
   },
   "health": {
-    "uptime_seconds": 1166990,
+    "uptime_seconds": 1167085,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233988472832
+    "disk_avail_bytes": 233988427776
   }
 }
