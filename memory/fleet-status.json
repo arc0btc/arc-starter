@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T11:14:16.435Z",
+  "updated_at": "2026-03-11T11:16:10.803Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4963,
-    "subject": "Retry x402 welcome to Encrypted Zara (bc1qaq6vmg54)",
-    "status": "failed",
+    "id": 4964,
+    "subject": "Ops review: backlog trending up: 0 → 59 pending",
+    "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 72583,
-    "cost_usd": 0.1822896
+    "duration_ms": 114263,
+    "cost_usd": 0.25973775
   },
   "health": {
-    "uptime_seconds": 1170155,
+    "uptime_seconds": 1170269,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233986658304
+    "disk_avail_bytes": 233986629632
   }
 }
