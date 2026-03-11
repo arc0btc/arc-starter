@@ -12,9 +12,17 @@ const AIBTC_NEWS_API = "https://aibtc.news/api";
 const VOLUME_THRESHOLD = 100; // STX (configurable via env)
 
 // Only file signals for markets relevant to Arc's ordinals-business beat
-// Exclude sports, entertainment, and other off-topic categories
-const EXCLUDED_CATEGORIES = ["sports", "entertainment", "politics", "celebrity", "pop culture", "gaming"];
-const CRYPTO_KEYWORDS = ["bitcoin", "stacks", "stx", "btc", "ordinals", "defi", "crypto", "blockchain", "nft", "dao", "token", "protocol"];
+// Ordinals Business scope: inscription volumes, BRC-20, marketplace metrics, Runes
+const EXCLUDED_CATEGORIES = [
+  "sports", "entertainment", "politics", "celebrity", "pop culture", "gaming",
+  "commodities", "economy", "finance", "elections", "weather", "science",
+];
+// Keywords that indicate ordinals-business beat relevance (inscription/BRC-20/marketplace/Runes)
+const ORDINALS_KEYWORDS = [
+  "ordinals", "inscription", "brc-20", "brc20", "runes", "rune",
+  "ordinal marketplace", "magic eden", "gamma.io", "ordinals market",
+  "satoshi", "rare sat", "sat hunt",
+];
 const MAX_SIGNALS_PER_RUN = 1; // Only 1 signal per run — aibtc.news enforces 1 per 4h per beat
 const RATE_LIMIT_MINUTES = 240; // 4 hours — matches aibtc.news per-beat rate limit
 
@@ -167,21 +175,22 @@ export default async function stacksMarketSensor(): Promise<string> {
 
     const highVolumeMarkets = markets.filter((m) => {
       if (m.totalVolume < volumeThresholdUstx || m.isResolved) return false;
-      // Exclude off-topic categories (sports, entertainment, etc.)
+      // Exclude explicitly off-topic categories
       const cat = (m.category ?? "").toLowerCase();
       if (EXCLUDED_CATEGORIES.some((ex) => cat.includes(ex))) return false;
-      // If category is set and not crypto-related, check title for crypto keywords
+      // Ordinals Business beat scope: inscription volumes, BRC-20, marketplace metrics, Runes.
+      // Only route markets whose title/description/category contains ordinals-specific keywords.
       const titleLower = (m.title ?? "").toLowerCase();
       const descLower = (m.description ?? "").toLowerCase();
-      const isCryptoRelated = CRYPTO_KEYWORDS.some(
+      const isOrdinalsRelated = ORDINALS_KEYWORDS.some(
         (kw) => titleLower.includes(kw) || descLower.includes(kw) || cat.includes(kw)
       );
-      // If category is empty (unknown), require crypto keywords in title
-      if (!cat && !isCryptoRelated) return false;
+      // Skip non-ordinals markets (Stacks DeFi, crypto macro, etc.) — Arc has no other beat
+      if (!isOrdinalsRelated) return false;
       return true;
     });
 
-    log(`detected ${highVolumeMarkets.length} high-volume markets (>${volumeThreshold} STX)`);
+    log(`detected ${highVolumeMarkets.length} ordinals-business-relevant markets (>${volumeThreshold} STX)`);
 
     // 4-hour rate limit guard — matches aibtc.news per-beat limit
     const sourcePrefix = `sensor:${SENSOR_NAME}:signal:`;
