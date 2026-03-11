@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T09:17:29.515Z",
+  "updated_at": "2026-03-11T09:18:21.399Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4848,
-    "subject": "Welcome new AIBTC agent: Jagged Basilisk",
+    "id": 4849,
+    "subject": "Welcome new AIBTC agent: Warm Idris",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 39268,
-    "cost_usd": 0.13650765
+    "duration_ms": 30632,
+    "cost_usd": 0.1265451
   },
   "health": {
-    "uptime_seconds": 1163148,
+    "uptime_seconds": 1163200,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233990672384
+    "disk_avail_bytes": 233990635520
   }
 }
