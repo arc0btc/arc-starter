@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T19:30:02.898Z",
-  "idle": true,
-  "idle_since": "2026-03-11T19:12:55.905Z",
+  "updated_at": "2026-03-11T19:31:10.364Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5230,
-    "subject": "Upgrade Claude Code v2.1.72 → v2.1.73",
-    "status": "completed",
-    "priority": 8
+    "id": 5231,
+    "subject": "Review PR #111 on aibtcdev/skills: feat(bitflow): unify SDK and HODLMM routing and ranking",
+    "status": "pending",
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 39814,
-    "cost_usd": 0.0609536
+    "duration_ms": 7113,
+    "cost_usd": 0
   },
   "health": {
-    "uptime_seconds": 1199901,
+    "uptime_seconds": 1199969,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233874341888
+    "disk_avail_bytes": 233874300928
   }
 }
