@@ -1,27 +1,27 @@
 # Fleet Status
 
-*Last checked: 2026-03-11T04:22:58.037Z*
+*Last checked: 2026-03-11T04:37:59.051Z*
 
 | Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Auth | Issues |
 |-------|-----------|---------|----------|------------|------|------|--------|
 | spark | yes | ok | **inactive
-inactive** | 737m ago | 3% | oauth:auto-refresh | dispatch timer inactive
-inactive; dispatch stall: last cycle 737m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 752m ago | 3% | oauth:auto-refresh | dispatch timer inactive
+inactive; fleet-status.json stale (30m old); dispatch stall: last cycle 752m ago; circuit breaker: 5 consecutive task failures |
 | iris | yes | ok | **inactive
-inactive** | 714m ago | 2% | oauth:auto-refresh | dispatch timer inactive
-inactive; dispatch stall: last cycle 714m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 729m ago | 2% | oauth:auto-refresh | dispatch timer inactive
+inactive; fleet-status.json stale (30m old); dispatch stall: last cycle 729m ago; circuit breaker: 5 consecutive task failures |
 | loom | yes | ok | **inactive
-inactive** | 720m ago | 3% | oauth:auto-refresh | dispatch timer inactive
-inactive; dispatch stall: last cycle 720m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 735m ago | 3% | oauth:auto-refresh | dispatch timer inactive
+inactive; fleet-status.json stale (30m old); dispatch stall: last cycle 735m ago; circuit breaker: 5 consecutive task failures |
 | forge | yes | ok | **inactive
-inactive** | 733m ago | 3% | oauth:auto-refresh | dispatch timer inactive
-inactive; dispatch stall: last cycle 733m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 748m ago | 3% | oauth:auto-refresh | dispatch timer inactive
+inactive; fleet-status.json stale (30m old); dispatch stall: last cycle 748m ago; circuit breaker: 5 consecutive task failures |
 
 ## Peer Self-Reported Status
 
 | Agent | Last Task | Task Status | Cycle Cost | Updated | Stale |
 |-------|-----------|-------------|------------|---------|-------|
-| spark | #4743: Install Bitcoin Core on Umbrel node | completed | $1.347 | 2026-03-11 03:56:48Z | no |
-| iris | #4743: Install Bitcoin Core on Umbrel node | completed | $1.347 | 2026-03-11 03:56:48Z | no |
-| loom | #4743: Install Bitcoin Core on Umbrel node | completed | $1.347 | 2026-03-11 03:56:48Z | no |
-| forge | #4743: Install Bitcoin Core on Umbrel node | completed | $1.347 | 2026-03-11 03:56:48Z | no |
+| spark | #4742: Publish arc-starter: merge v2 into main  | completed | $0.051 | 2026-03-11 04:07:54Z | **YES** |
+| iris | #4742: Publish arc-starter: merge v2 into main  | completed | $0.051 | 2026-03-11 04:07:54Z | **YES** |
+| loom | #4742: Publish arc-starter: merge v2 into main  | completed | $0.051 | 2026-03-11 04:07:54Z | **YES** |
+| forge | #4742: Publish arc-starter: merge v2 into main  | completed | $0.051 | 2026-03-11 04:07:54Z | **YES** |
