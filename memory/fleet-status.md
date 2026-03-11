@@ -1,21 +1,21 @@
 # Fleet Status
 
-*Last checked: 2026-03-11T02:37:49.480Z*
+*Last checked: 2026-03-11T02:52:50.368Z*
 
 | Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Auth | Issues |
 |-------|-----------|---------|----------|------------|------|------|--------|
 | spark | yes | ok | **inactive
-inactive** | 631m ago | 3% | oauth:auto-refresh | dispatch timer inactive
-inactive; fleet-status.json stale (37m old); dispatch stall: last cycle 631m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 646m ago | 3% | oauth:auto-refresh | dispatch timer inactive
+inactive; fleet-status.json stale (52m old); dispatch stall: last cycle 646m ago; circuit breaker: 5 consecutive task failures |
 | iris | yes | ok | **inactive
-inactive** | 609m ago | 2% | oauth:auto-refresh | dispatch timer inactive
-inactive; fleet-status.json stale (37m old); dispatch stall: last cycle 609m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 624m ago | 2% | oauth:auto-refresh | dispatch timer inactive
+inactive; fleet-status.json stale (52m old); dispatch stall: last cycle 624m ago; circuit breaker: 5 consecutive task failures |
 | loom | yes | ok | **inactive
-inactive** | 614m ago | 3% | oauth:auto-refresh | dispatch timer inactive
-inactive; fleet-status.json stale (37m old); dispatch stall: last cycle 614m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 629m ago | 3% | oauth:auto-refresh | dispatch timer inactive
+inactive; fleet-status.json stale (52m old); dispatch stall: last cycle 629m ago; circuit breaker: 5 consecutive task failures |
 | forge | yes | ok | **inactive
-inactive** | 628m ago | 3% | oauth:auto-refresh | dispatch timer inactive
-inactive; fleet-status.json stale (37m old); dispatch stall: last cycle 628m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 643m ago | 3% | oauth:auto-refresh | dispatch timer inactive
+inactive; fleet-status.json stale (52m old); dispatch stall: last cycle 643m ago; circuit breaker: 5 consecutive task failures |
 
 ## Peer Self-Reported Status
 
