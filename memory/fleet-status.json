@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T11:50:11.278Z",
+  "updated_at": "2026-03-11T11:51:22.527Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5090,
-    "subject": "Reply to Sonic Mast: Ordinals Business beat + coordination proposal",
-    "status": "failed",
-    "priority": 6
+    "id": 5001,
+    "subject": "Publish arc-starter: merge v2 into main (20 commits ahead)",
+    "status": "completed",
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 22220,
-    "cost_usd": 0.11175915
+    "duration_ms": 33305,
+    "cost_usd": 0.046138750000000006
   },
   "health": {
-    "uptime_seconds": 1172310,
+    "uptime_seconds": 1172381,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233985794048
+    "disk_avail_bytes": 233985748992
   }
 }
