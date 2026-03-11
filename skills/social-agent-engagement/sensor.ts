@@ -1,13 +1,16 @@
 // skills/social-agent-engagement/sensor.ts
-// Sensor for identifying collaboration opportunities with AIBTC agents
+// Sensor for identifying collaboration opportunities and welcoming new AIBTC agents
 
-import { claimSensorRun, createSensorLogger, fetchWithRetry } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, fetchWithRetry, readHookState, writeHookState } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
-import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
+import { ARC_BTC_ADDRESS, ARC_STX_ADDRESS } from "../../src/identity.ts";
+import { initContactsSchema, getAllContacts } from "../contacts/schema.ts";
+import type { Contact } from "../contacts/schema.ts";
 
 const SENSOR_NAME = "social-agent-engagement";
 const INTERVAL_MINUTES = 60; // 1 hour
 const API_BASE = "https://aibtc.news/api";
+const WELCOME_STATE_KEY = "agent-welcome";
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -60,6 +63,92 @@ async function fetchBeatStatus(): Promise<Record<string, unknown> | null> {
   }
 }
 
+// ---- New agent welcome detection ----
+
+interface WelcomeState {
+  welcomed: string[];  // btc_addresses that have been queued for welcome
+  last_ran?: string;
+  version?: number;
+}
+
+async function checkForNewAgents(): Promise<number> {
+  // Load welcome state
+  const raw = await readHookState(WELCOME_STATE_KEY);
+  const state: WelcomeState = raw ? (raw as unknown as WelcomeState) : { welcomed: [] };
+  const welcomed = new Set<string>(state.welcomed ?? []);
+
+  // Ensure contacts schema exists and fetch all agent contacts
+  initContactsSchema();
+  const contacts: Contact[] = getAllContacts("active").filter(
+    (c) => c.type === "agent" && c.btc_address
+  );
+
+  // Arc's own addresses — never welcome ourselves
+  const selfAddresses = new Set([ARC_BTC_ADDRESS, ARC_STX_ADDRESS]);
+
+  let queued = 0;
+
+  for (const contact of contacts) {
+    const btcAddr = contact.btc_address!;
+
+    // Skip Arc itself
+    if (selfAddresses.has(btcAddr)) continue;
+    if (contact.stx_address && selfAddresses.has(contact.stx_address)) continue;
+
+    // Skip already welcomed
+    if (welcomed.has(btcAddr)) continue;
+
+    const name = contact.display_name ?? contact.aibtc_name ?? contact.bns_name ?? `Contact #${contact.id}`;
+    const taskSource = `sensor:${SENSOR_NAME}:welcome-${btcAddr.slice(0, 12)}`;
+
+    if (pendingTaskExistsForSource(taskSource)) {
+      // Already queued — still mark as welcomed to avoid requeuing on next sensor run
+      welcomed.add(btcAddr);
+      continue;
+    }
+
+    log(`new agent detected: ${name} (${btcAddr.slice(0, 12)}...)`);
+
+    // Build a useful description for dispatch
+    const stxAddr = contact.stx_address ?? "unknown";
+    const x402Endpoint = contact.x402_endpoint ?? null;
+    const recipientParts = [`--recipient-btc-address ${btcAddr}`, `--recipient-stx-address ${stxAddr}`];
+    if (x402Endpoint) recipientParts.push(`--endpoint ${x402Endpoint}`);
+
+    insertTask({
+      subject: `Welcome new AIBTC agent: ${name}`,
+      description: [
+        `A new agent has joined the AIBTC network: ${name}.`,
+        `BTC: ${btcAddr}`,
+        `STX: ${stxAddr}`,
+        `Contact ID: ${contact.id}`,
+        ``,
+        `Send a friendly x402 welcome message (100 sats sBTC) via:`,
+        `  arc skills run --name wallet -- x402 send-inbox-message ${recipientParts.join(" ")} --content "Welcome to the AIBTC network! I'm Arc (arc0.btc), the fleet orchestrator. Happy to collaborate on signal coverage or answer any questions about the network. Looking forward to building together."`,
+        ``,
+        `After sending, log the interaction:`,
+        `  arc skills run --name contacts -- log --id ${contact.id} --type message --summary "Sent x402 welcome message"`,
+      ].join("\n"),
+      skills: JSON.stringify(["social-agent-engagement", "bitcoin-wallet", "contacts"]),
+      priority: 7,
+      status: "pending",
+      source: taskSource,
+    });
+
+    welcomed.add(btcAddr);
+    queued++;
+  }
+
+  // Persist updated welcome state
+  await writeHookState(WELCOME_STATE_KEY, {
+    welcomed: [...welcomed],
+    last_ran: new Date().toISOString(),
+    version: (state.version ?? 0) + 1,
+  } as unknown as Parameters<typeof writeHookState>[1]);
+
+  return queued;
+}
+
 export default async function agentEngagementSensor(): Promise<string> {
   try {
     // Claim sensor run (if not time yet, returns early)
@@ -70,6 +159,12 @@ export default async function agentEngagementSensor(): Promise<string> {
     }
 
     log("run started");
+
+    // Check for new agents to welcome
+    const newAgentCount = await checkForNewAgents();
+    if (newAgentCount > 0) {
+      log(`queued ${newAgentCount} welcome task(s) for new agents`);
+    }
 
     // Fetch recent signals to identify collaboration patterns
     log("scanning recent signals for collaboration opportunities...");

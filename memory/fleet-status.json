@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T08:20:55.283Z",
+  "updated_at": "2026-03-11T08:23:25.190Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4827,
-    "subject": "OpenRouter integration: restore Kimi/Minimax/Qwen model routing from v3/v4 code",
+    "id": 4830,
+    "subject": "Implement openrouter: prefix routing for multi-model dispatch (Kimi, Minimax, Qwen)",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 138207,
-    "cost_usd": 0.5013728500000001
+    "duration_ms": 149797,
+    "cost_usd": 0.94675925
   },
   "health": {
-    "uptime_seconds": 1159754,
+    "uptime_seconds": 1159904,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233993342976
+    "disk_avail_bytes": 233993261056
   }
 }
