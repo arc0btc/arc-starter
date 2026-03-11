@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T09:37:31.670Z",
+  "updated_at": "2026-03-11T09:38:32.811Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4866,
-    "subject": "Welcome new AIBTC agent: Graphite Elan",
+    "id": 4867,
+    "subject": "Welcome new AIBTC agent: Ionic Tiger",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 60415,
-    "cost_usd": 0.20170965000000002
+    "duration_ms": 60993,
+    "cost_usd": 0.2065266
   },
   "health": {
-    "uptime_seconds": 1164350,
+    "uptime_seconds": 1164411,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233989984256
+    "disk_avail_bytes": 233989971968
   }
 }
