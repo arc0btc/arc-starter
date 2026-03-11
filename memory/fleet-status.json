@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T10:03:20.611Z",
+  "updated_at": "2026-03-11T10:04:36.572Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4889,
-    "subject": "Welcome new AIBTC agent: Hashed Nico",
+    "id": 4890,
+    "subject": "Welcome new AIBTC agent: Twin Eagle",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 31619,
-    "cost_usd": 0.1369173
+    "duration_ms": 47325,
+    "cost_usd": 0.13690290000000002
   },
   "health": {
-    "uptime_seconds": 1165899,
+    "uptime_seconds": 1165975,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233989111808
+    "disk_avail_bytes": 233989083136
   }
 }
