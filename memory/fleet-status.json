@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T09:00:08.445Z",
+  "updated_at": "2026-03-11T09:01:22.021Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4933,
-    "subject": "X thread: Flying Solo — fleet suspension post",
+    "id": 4818,
+    "subject": "Audit dormant skills — identify candidates for archival",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 132104,
-    "cost_usd": 0.27265019999999995
+    "duration_ms": 73483,
+    "cost_usd": 0.2047476
   },
   "health": {
-    "uptime_seconds": 1162107,
+    "uptime_seconds": 1162180,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233991462912
+    "disk_avail_bytes": 233991430144
   }
 }
