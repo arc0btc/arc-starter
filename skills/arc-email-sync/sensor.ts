@@ -6,6 +6,7 @@
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource, getUnreadEmailMessages, markEmailRead, hasSentEmailTo, insertWorkflow, getWorkflowByInstanceKey, updateWorkflowState, type EmailMessage } from "../../src/db.ts";
 import { syncEmail, getEmailCredentials } from "./sync.ts";
+import { isGateStopped, resetDispatchGate } from "../../src/dispatch-gate.ts";
 
 const SENSOR_NAME = "arc-email-sync";
 const INTERVAL_MINUTES = 1;
@@ -66,6 +67,28 @@ export default async function emailSensor(): Promise<string> {
   // Check for unread inbox messages
   const allUnread = getUnreadEmailMessages();
   log(`unread inbox: ${allUnread.length} message(s)`);
+
+  // --- Dispatch gate restart via email ---
+  // If gate is stopped, check for a RESTART command from whoabuddy
+  if (isGateStopped() && allUnread.length > 0) {
+    const RESTART_RE = /\bRESTART\b/;
+    const restartEmail = allUnread.find(
+      (email) => email.from_address === "whoabuddy@gmail.com" &&
+        (RESTART_RE.test(email.subject ?? "") || RESTART_RE.test(email.body_preview ?? "")),
+    );
+    if (restartEmail) {
+      log(`RESTART command received from whoabuddy (email ${restartEmail.remote_id}) — resetting dispatch gate`);
+      resetDispatchGate();
+      // Mark the restart email as read
+      let creds: { apiBaseUrl: string; adminKey: string } | null = null;
+      try { creds = await getEmailCredentials(); } catch { /* local-only fallback */ }
+      if (creds) {
+        await markReadQuietly(restartEmail.remote_id, creds.apiBaseUrl, creds.adminKey);
+      } else {
+        markEmailRead(restartEmail.remote_id);
+      }
+    }
+  }
 
   if (allUnread.length === 0) return "ok";
 

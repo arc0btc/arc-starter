@@ -66,15 +66,14 @@ function notifyDispatchStopped(reason: string, errorClass: ErrorClass | null): v
     `Time: ${new Date().toISOString()}`,
     `Host: ${hostname()}`,
     ``,
-    `To resume, SSH in and run:`,
-    `  bash bin/arc dispatch reset`,
+    `To resume, reply to this email with RESTART in the body.`,
     ``,
-    `Or clear the gate file:`,
-    `  rm db/hook-state/dispatch-gate.json`,
+    `Or SSH in and run:`,
+    `  bash bin/arc dispatch reset`,
   ].join("\n");
 
   try {
-    Bun.spawn(["bash", join(ROOT, "bin/arc"), "skills", "run", "--name", "email", "--",
+    Bun.spawn(["bash", join(ROOT, "bin/arc"), "skills", "run", "--name", "arc-email-sync", "--",
       "send", "--to", "whoabuddy@gmail.com", "--subject", subject, "--body", body,
       "--from", "arc@arc0btc.com"], { cwd: ROOT, stdout: "ignore", stderr: "ignore" });
     log(`dispatch: notification email queued to whoabuddy`);
@@ -131,6 +130,11 @@ export function recordGateFailure(errMsg: string, errClass: ErrorClass): void {
   }
 
   writeGateState(state);
+}
+
+/** Check if the dispatch gate is currently stopped. */
+export function isGateStopped(): boolean {
+  return readGateState().status === "stopped";
 }
 
 /** Reset the dispatch gate to "running". Called by `arc dispatch reset`. */
