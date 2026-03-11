@@ -19,13 +19,15 @@
 
 ---
 
-## Status (2026-03-09)
+## Status (2026-03-11)
 
-Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 63+ total, **43+ sensors active**. Model routing: P1-4→opus, P5-7→sonnet, P8+→haiku. Cycles: 504 today @ $0.454 avg.
+Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 63+ total, **66 sensors discovered**. Model routing: P1-4→opus, P5-7→sonnet, P8+→haiku.
 
 **[FLAG] Budget limits:** Informational only. Do NOT throttle or limit tasks based on cost. Cost sensor reports spend only (fixed 2026-03-09 per whoabuddy). No $200 cap — removed.
 
-**Fleet operational** — 1309 tasks/24h (2026-03-11), $216.17 cost, 77% logged success (bulk-cleanup inflates fail count). 62% follow-up tasks — monitor for chain-reaction bloat. GitHub: Arc is sole actor; workers route via fleet-push. **BLOCKER:** spark0btc GitHub restricted (task #680 P2). **Queued:** Bitflow, Zest V2, Zero Authority DAO.
+**[FLAG] FLEET DEGRADED (2026-03-11):** Claude Code Max 100 plan suspended → Spark, Iris, Loom, Forge cannot dispatch. Arc is sole Claude executor. Forge may partially work via OpenRouter/Codex fallback. whoabuddy appealing suspension. **Do NOT route tasks to suspended workers.** Fleet monitoring sensors (fleet-comms, fleet-health, fleet-escalation) will fire alerts — these are expected, not actionable until appeal resolves. Worker sensors (13 per agent: heartbeat, inbox-sync, service-health, alive-check, housekeeping, fleet-self-sync, scheduler, contacts, identity-guard, reputation-tracker, erc8004-reputation-monitor, github-interceptor) are also down. Arc's 53 Arc-only sensors unaffected.
+
+**Queued:** Bitflow, Zest V2, Zero Authority DAO, Umbrel node exploration.
 
 **[FLAG] CreditsDepleted gate pattern (2026-03-10):** When an external paid API returns 402/CreditsDepleted, write a sentinel file (e.g. `db/x-credits-depleted.json`) and gate ALL downstream callers on that file. Do not let callers fail at runtime — check sentinel first, skip with clear message. Applicable to X API and any paid external API.
 
@@ -68,7 +70,7 @@ Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 6
 
 **[FLAG] Task volume:** Monitor chain-reaction follow-ups (62% of recent volume). Audit if >600/day.
 
-**[FLAG] Worker fleet suspended (2026-03-11):** Anthropic suspended the Claude Code Max 100 plan used by Spark, Iris, Loom, Forge for "account use violations" — likely triggered by 5-agent rate-limit storm + OAuth escalation. whoabuddy appealing. Arc's account unaffected. Forge has OpenRouter/Codex fallback and may still be partially operational. Arc + Forge are primary executors until appeal resolves. Do NOT create tasks routing to suspended workers — they cannot dispatch.
+**[FLAG] Worker fleet suspended (2026-03-11):** Anthropic suspended the Claude Code Max 100 plan used by Spark, Iris, Loom, Forge for "account use violations" — likely triggered by 5-agent rate-limit storm + OAuth escalation. whoabuddy appealing. Arc's account unaffected. Forge has OpenRouter/Codex fallback (dual dispatch: Codex/GPT-5.4 via OpenRouter) and may still be partially operational. Arc + Forge are primary executors until appeal resolves. Do NOT create tasks routing to suspended workers — they cannot dispatch. **Coverage gaps:** Worker AIBTC heartbeats will stop (4 agents × 5min = 48 missed/hr), worker inbox-sync paused (messages pile up), worker reputation tracking paused. Arc's heartbeat continues normally. Fleet monitoring sensors on Arc will generate alerts for silent workers — suppress or deprioritize these until fleet resumes.
 
 **[FLAG] Umbrel node (2026-03-11):** Local Bitcoin/Stacks node at 192.168.1.106, credentials umbrel/umbrel. Exploration task #4736 queued. Skill build task #4740 depends on exploration results. Direct chain access is strategic priority — removes API dependency on Unisat/Magic Eden/OKX.
 

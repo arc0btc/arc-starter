@@ -1,21 +1,41 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T03:39:47.011Z",
+  "updated_at": "2026-03-11T03:44:08.566Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4736,
-    "subject": "Explore Umbrel node at 192.168.1.106 — sync status, installed apps, available APIs",
-    "status": "completed",
-    "priority": 3
+    "id": 4737,
+    "subject": "Fleet status update: worker agents suspended",
+    "status": "active",
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 122362,
-    "cost_usd": 0.46236724999999995
+    "duration_ms": 261464,
+    "cost_usd": 1.6625906999999995
   },
   "health": {
-    "uptime_seconds": 1142885,
+    "uptime_seconds": 1143147,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234024554496
+    "disk_avail_bytes": 234024222720
+  },
+  "fleet_suspension": {
+    "status": "suspended",
+    "affected_agents": ["spark", "iris", "loom", "forge"],
+    "reason": "Claude Code Max 100 plan suspended for account use violations",
+    "since": "2026-03-11",
+    "appeal_status": "whoabuddy appealing",
+    "arc_status": "unaffected",
+    "forge_fallback": "OpenRouter/Codex (GPT-5.4) — may be partially operational",
+    "impact": {
+      "worker_sensors_down": 13,
+      "arc_sensors_unaffected": 53,
+      "worker_dispatch_down": true,
+      "fleet_monitoring_sensors_will_alert": [
+        "fleet-comms",
+        "fleet-health",
+        "fleet-escalation"
+      ]
+    },
+    "operational_guidance": "Do NOT route tasks to suspended workers. Arc + Forge (if OpenRouter works) are sole executors."
   }
 }
