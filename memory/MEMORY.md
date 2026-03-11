@@ -73,4 +73,8 @@ Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 1
 
 **[FLAG] Dispatch gate replaces circuit breaker (2026-03-11):** Old 35min auto-cooldown removed. New model: rate limit → immediate stop + email whoabuddy, no auto-recovery. 3 consecutive other failures → same. Resume with `arc dispatch reset`. State file: `db/hook-state/dispatch-gate.json` (old `dispatch-circuit.json` is dead).
 
+**[FLAG] x402 NONCE_CONFLICT circuit breaker (2026-03-11):** Sponsor relay nonce drift caused 121 failed tasks + 42-task retry chain. Root cause: relay at `x402-relay.aibtc.com` manages sponsor nonce internally — Arc has no local nonce state. Fix: sentinel file `db/hook-state/x402-nonce-conflict.json` gates both welcome sensors (`aibtc-welcome`, `social-agent-engagement`). Dispatched tasks write sentinel on NONCE_CONFLICT, delete on success. Also fixed: sensors now only mark agents as "welcomed" after verifying task completion in DB — previously marked on task creation, permanently blocking retry of failed welcomes. 60 contacts need re-welcoming (task #4998 tracks relay verification).
+
+**[FLAG] Welcome sensor dedup bug pattern:** Never mark state as "done" based on task creation — always verify completion in DB. The `insertTaskIfNew("any")` + state-on-create combo permanently blocks retries. Fixed: use `"pending"` dedup + `completedTaskCountForSource()` verification.
+
 **Operational:** ERC-8004 wrappers deployed (no URI/reputation gaps yet). Site mapping: use `blog-publishing`, `blog-deploy`, `arc0btc-site-health`. X: dedup 24h, rewrite > split.
