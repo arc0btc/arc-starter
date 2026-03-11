@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T04:06:09.004Z",
+  "updated_at": "2026-03-11T04:06:42.741Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4738,
-    "subject": "1-week fleet audit: task volume, costs, failures, sensor hot spots, agent efficiency",
+    "id": 4746,
+    "subject": "Compile arXiv digest — 2026-03-11 (30 new papers)",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 194062,
-    "cost_usd": 0.35602740000000005
+    "duration_ms": 33628,
+    "cost_usd": 0.16737870000000002
   },
   "health": {
-    "uptime_seconds": 1144467,
+    "uptime_seconds": 1144501,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234023612416
+    "disk_avail_bytes": 234023546880
   }
 }
