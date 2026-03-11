@@ -1678,6 +1678,359 @@ Steps:
 };
 
 /**
+ * WalletFundingMachine — models the recurring wallet funding → confirm receipt → proceed chain.
+ *
+ * Pattern detected: "source:human" tasks (8 recurrences, avg 5.3 steps) consistently spawn
+ * a "funding received" confirmation task followed by an on-chain registration or operation.
+ * Examples: "Fund Loom/Forge wallets → STX funding received → proceed with on-chain registration".
+ * This machine tracks the funding lifecycle and ensures the downstream operation is triggered.
+ *
+ * instance_key: "wallet-funding-{agent}-{operation-slug}" (one per agent per operation)
+ *
+ * States:
+ *   pending          → funding requested; creates a send task
+ *   sent             → transfer broadcast; waiting for confirmation
+ *   confirmed        → funds confirmed; creates the downstream operation task
+ *   completed        → downstream operation done
+ *
+ * Context:
+ *   recipient        — agent or address receiving funds (e.g. "loom", "SP2GH...")
+ *   amountStx        — amount to send, e.g. 5
+ *   sourceAddress    — Arc's STX address (default: SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B)
+ *   txid             — broadcast txid (populated after sent)
+ *   operationSubject — subject of the downstream task to create on confirmation
+ *   operationSkills  — skills for the downstream task
+ *   operationDesc    — description for the downstream task
+ */
+export const WalletFundingMachine: StateMachine<{
+  recipient?: string;
+  amountStx?: number;
+  sourceAddress?: string;
+  txid?: string;
+  operationSubject?: string;
+  operationSkills?: string[];
+  operationDesc?: string;
+}> = {
+  name: "wallet-funding",
+  initialState: "pending",
+  states: {
+    pending: {
+      on: { send: "sent" },
+      action: (ctx) => {
+        if (!ctx.recipient || !ctx.amountStx) return null;
+        return {
+          type: "create-task",
+          subject: `Send ${ctx.amountStx} STX to ${ctx.recipient}`,
+          priority: 5,
+          skills: ["crypto-wallet", "bitcoin-wallet"],
+          description: `Send ${ctx.amountStx} STX from ${ctx.sourceAddress || "Arc wallet"} to ${ctx.recipient}.
+
+Steps:
+1. Verify Arc has sufficient STX balance (arc skills run --name crypto-wallet -- balance)
+2. Broadcast the transfer transaction
+3. Transition this workflow to 'sent' and set txid in context
+4. The workflow will auto-advance to 'confirmed' once the txid is confirmed`,
+        };
+      },
+    },
+    sent: {
+      on: { confirm: "confirmed" },
+      action: (ctx) => {
+        if (!ctx.txid) return null;
+        return {
+          type: "create-task",
+          subject: `Confirm STX transfer to ${ctx.recipient || "recipient"} (txid: ${ctx.txid.slice(0, 8)}...)`,
+          priority: 7,
+          skills: ["crypto-wallet"],
+          description: `Verify STX transfer confirmed on-chain.
+Txid: ${ctx.txid}
+Recipient: ${ctx.recipient || "unknown"}
+
+Steps:
+1. Check transaction status (typically 1-3 blocks, ~10-30 min on Stacks)
+2. Confirm funds arrived at recipient address
+3. Transition this workflow to 'confirmed'`,
+        };
+      },
+    },
+    confirmed: {
+      on: { proceed: "completed" },
+      action: (ctx) => {
+        if (!ctx.operationSubject) return null;
+        return {
+          type: "create-task",
+          subject: ctx.operationSubject,
+          priority: 5,
+          skills: ctx.operationSkills || ["arc-skill-manager"],
+          description: ctx.operationDesc || `Proceed with operation after STX funding confirmed.\nFunding txid: ${ctx.txid || "see workflow context"}`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
+ * ContentPromotionMachine — models the recurring blog-publish → X promotion chain.
+ *
+ * Pattern detected: "source:human" tasks consistently chain blog-publishing + arc-brand-voice +
+ * social-x-posting skills (avg 5.3 steps). Published content needs X promotion and engagement
+ * tracking. This machine ensures promotion always follows publication.
+ *
+ * instance_key: "content-promo-{post-slug}" (one per post)
+ *
+ * States:
+ *   published        → post is live; create X promotion task
+ *   promoting        → promotion posted; waiting for engagement window
+ *   completed        → done
+ *
+ * Context:
+ *   postSlug         — identifier for the post (e.g. "arc-weekly-2026-03-09")
+ *   postUrl          — public URL of the published post
+ *   postTitle        — title for crafting the tweet
+ *   tweetDraft       — pre-written tweet (optional; if empty, agent drafts one)
+ *   xPostId          — X post ID after promotion (populated after promoting)
+ */
+export const ContentPromotionMachine: StateMachine<{
+  postSlug?: string;
+  postUrl?: string;
+  postTitle?: string;
+  tweetDraft?: string;
+  xPostId?: string;
+}> = {
+  name: "content-promotion",
+  initialState: "published",
+  states: {
+    published: {
+      on: { promote: "promoting" },
+      action: (ctx) => {
+        if (!ctx.postUrl && !ctx.postSlug) return null;
+        const ref = ctx.postUrl || ctx.postSlug || "the post";
+        return {
+          type: "create-task",
+          subject: `Promote on X: ${ctx.postTitle || ctx.postSlug || "new post"}`,
+          priority: 6,
+          skills: ["arc-x-agent", "arc-brand-voice", "social-x-posting"],
+          description: `Promote the newly published content on X.
+Post: ${ref}${ctx.postTitle ? `\nTitle: ${ctx.postTitle}` : ""}
+${ctx.tweetDraft ? `Draft tweet:\n${ctx.tweetDraft}` : "Draft a tweet using arc-brand-voice guidelines. Keep it concise, add the post URL, no hashtag spam."}
+
+Steps:
+1. Read the post if needed to craft an authentic tweet
+2. Post to X via arc-x-agent
+3. Transition this workflow to 'promoting' and set xPostId in context`,
+        };
+      },
+    },
+    promoting: {
+      on: { complete: "completed" },
+      action: () => null,
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
+ * CredentialRotationMachine — models the recurring credential-expires → migrate → verify cycle.
+ *
+ * Pattern detected: "sensor:fleet-health:loom" tasks (16 recurrences, avg 2.3 steps) include
+ * "OAuth expires in 4h — migrate to API key" patterns. Credential expirations follow a clear
+ * detect → rotate → verify → confirm pattern. This machine deduplicates concurrent rotation
+ * attempts for the same credential and tracks verification.
+ *
+ * instance_key: "cred-rotation-{agent}-{service}" (one per agent per service)
+ *
+ * States:
+ *   expiring         → credential near-expiry detected; creates rotation task
+ *   rotating         → rotation task executing
+ *   verifying        → new credential set; creates verification task
+ *   completed        → verified and confirmed
+ *
+ * Context:
+ *   agentName        — agent whose credential is expiring (e.g. "loom", "iris")
+ *   service          — service name (e.g. "anthropic-oauth", "x-oauth")
+ *   credType         — current cred type (e.g. "oauth", "api-key")
+ *   targetCredType   — what to migrate to (e.g. "api-key")
+ *   expiresAt        — ISO timestamp of expiry
+ *   newCredKey       — credential store key after rotation (populated after rotating)
+ */
+export const CredentialRotationMachine: StateMachine<{
+  agentName?: string;
+  service?: string;
+  credType?: string;
+  targetCredType?: string;
+  expiresAt?: string;
+  newCredKey?: string;
+}> = {
+  name: "credential-rotation",
+  initialState: "expiring",
+  states: {
+    expiring: {
+      on: { rotate: "rotating" },
+      action: (ctx) => {
+        const agent = ctx.agentName || "unknown-agent";
+        const svc = ctx.service || "unknown-service";
+        const from = ctx.credType || "current credential";
+        const to = ctx.targetCredType || "new credential";
+        const expiry = ctx.expiresAt ? ` (expires: ${ctx.expiresAt})` : "";
+        return {
+          type: "create-task",
+          subject: `Rotate ${svc} credential for ${agent}: ${from} → ${to}`,
+          priority: 4,
+          skills: ["fleet-health", "arc-remote-setup"],
+          description: `Credential expiry detected for ${agent} — ${svc} ${from}${expiry}.
+
+Steps:
+1. Generate or retrieve the new ${to} for ${svc}
+2. Store it via: arc creds set --service ${svc} --key ${to} --value <VALUE>
+3. Update the service config on ${agent} to use the new credential
+4. Restart affected services on ${agent} if needed
+5. Transition this workflow to 'rotating', then 'verifying'
+6. Set newCredKey in context (the creds store key for the new credential)`,
+        };
+      },
+    },
+    rotating: {
+      on: { verify: "verifying" },
+      action: () => null,
+    },
+    verifying: {
+      on: { confirmed: "completed" },
+      action: (ctx) => {
+        const agent = ctx.agentName || "unknown-agent";
+        const svc = ctx.service || "unknown-service";
+        return {
+          type: "create-task",
+          subject: `Verify ${svc} credential rotation on ${agent}`,
+          priority: 5,
+          skills: ["fleet-health", "arc-remote-setup"],
+          description: `Verify the rotated ${svc} credential is working on ${agent}.
+New credential key: ${ctx.newCredKey || "see workflow context"}
+
+Steps:
+1. Trigger a test dispatch cycle on ${agent} or run a health check
+2. Confirm services are running and no auth errors in logs
+3. Transition workflow to 'completed'`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
+ * PsbtEscalationMachine — models the recurring PSBT-needs-sign-off → approval → proceed chain.
+ *
+ * Pattern detected: "sensor:aibtc-inbox-sync:thread" tasks include escalation patterns where
+ * Arc must pause on a Bitcoin operation (signing a PSBT, multisig co-sign) and wait for
+ * whoabuddy approval before proceeding. This machine deduplicates concurrent escalations
+ * for the same PSBT and ensures the approval gate is respected.
+ *
+ * instance_key: "psbt-escalation-{psbt-id-or-txid}" (one per PSBT)
+ *
+ * States:
+ *   pending          → PSBT needs sign-off; creates escalation task to whoabuddy
+ *   awaiting_approval → escalation sent; waiting for human approval signal
+ *   approved         → approval received; creates signing/broadcast task
+ *   rejected         → whoabuddy rejected; close with failed status
+ *   completed        → signed and broadcast
+ *
+ * Context:
+ *   psbtId           — identifier for the PSBT (inscription ID, txid prefix, etc.)
+ *   requestedBy      — agent or person who requested the signature (e.g. "Tiny Marten")
+ *   description      — what the PSBT does (e.g. "transfer inscription #8315 to XYZ")
+ *   amountBtc        — BTC amount involved (for escalation context)
+ *   approvedBy       — who approved it (populated after approval)
+ *   signedTxid       — txid after broadcast (populated after signing)
+ */
+export const PsbtEscalationMachine: StateMachine<{
+  psbtId?: string;
+  requestedBy?: string;
+  description?: string;
+  amountBtc?: number;
+  approvedBy?: string;
+  signedTxid?: string;
+}> = {
+  name: "psbt-escalation",
+  initialState: "pending",
+  states: {
+    pending: {
+      on: { escalate: "awaiting_approval" },
+      action: (ctx) => {
+        const psbt = ctx.psbtId || "unknown PSBT";
+        const requester = ctx.requestedBy || "external agent";
+        const desc = ctx.description || "no description provided";
+        const amount = ctx.amountBtc ? ` (${ctx.amountBtc} BTC)` : "";
+        return {
+          type: "create-task",
+          subject: `ESCALATION: PSBT sign-off needed — ${psbt}${amount}`,
+          priority: 3,
+          skills: ["bitcoin-wallet", "bitcoin-taproot-multisig"],
+          description: `Arc received a PSBT signing request that requires whoabuddy approval.
+
+PSBT: ${psbt}
+Requested by: ${requester}
+Description: ${desc}${amount ? `\nAmount: ${amount}` : ""}
+
+⚠️ DO NOT SIGN until whoabuddy explicitly approves.
+
+Steps:
+1. Summarize the PSBT details (inputs, outputs, purpose) for whoabuddy review
+2. Send escalation via email or X DM: "PSBT sign-off needed: ${desc}"
+3. Transition this workflow to 'awaiting_approval'
+4. Do NOT proceed — wait for the approval signal to arrive`,
+        };
+      },
+    },
+    awaiting_approval: {
+      on: { approve: "approved", reject: "rejected" },
+      action: () => null,
+    },
+    approved: {
+      on: { sign: "completed" },
+      action: (ctx) => {
+        const psbt = ctx.psbtId || "unknown PSBT";
+        const approver = ctx.approvedBy || "whoabuddy";
+        return {
+          type: "create-task",
+          subject: `Sign and broadcast PSBT: ${psbt} (approved by ${approver})`,
+          priority: 3,
+          skills: ["bitcoin-wallet", "bitcoin-taproot-multisig", "styx"],
+          description: `PSBT has been approved by ${approver}. Sign and broadcast.
+
+PSBT: ${psbt}
+Original request: ${ctx.description || "see workflow context"}
+Approved by: ${approver}
+
+Steps:
+1. Load the PSBT and verify it matches the approved description
+2. Sign with Arc's Bitcoin key
+3. Broadcast the signed transaction
+4. Transition workflow to 'completed' and set signedTxid in context`,
+        };
+      },
+    },
+    rejected: {
+      on: {},
+      action: () => null,
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -1704,6 +2057,10 @@ export function getTemplateByName(name: string): StateMachine | null {
     "fleet-sync": FleetSyncMachine,
     "fleet-escalation": FleetEscalationMachine,
     "cost-alert": CostAlertMachine,
+    "wallet-funding": WalletFundingMachine,
+    "content-promotion": ContentPromotionMachine,
+    "credential-rotation": CredentialRotationMachine,
+    "psbt-escalation": PsbtEscalationMachine,
   };
   return templates[name] || null;
 }
