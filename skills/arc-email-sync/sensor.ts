@@ -136,12 +136,12 @@ export default async function emailSensor(): Promise<string> {
       continue;
     }
 
-    // Check if Arc already replied to this sender after the oldest unread message.
-    // The remote is_read flag stays 0 until the sender opens it, so we must not
-    // re-queue just because the message appears unread on the remote side.
-    const oldestReceivedAt = senderMessages[0].received_at; // sorted ASC by getUnreadEmailMessages
-    if (hasSentEmailTo(senderAddr, oldestReceivedAt)) {
-      log(`already replied to ${senderAddr} since ${oldestReceivedAt} — skipping task creation`);
+    // Check if Arc already replied to this sender after the NEWEST unread message.
+    // Using oldest was too aggressive — a reply to an early message suppressed
+    // all later unread messages from the same sender (even on different topics).
+    const newestReceivedAt = senderMessages[senderMessages.length - 1].received_at; // sorted ASC
+    if (hasSentEmailTo(senderAddr, newestReceivedAt)) {
+      log(`already replied to ${senderAddr} since ${newestReceivedAt} — skipping task creation`);
       // Advance any open workflow for this thread to reply_sent
       const senderSlug = senderAddr.replace(/[^a-zA-Z0-9]/g, "-").slice(0, 40);
       const firstRemoteId = senderMessages[0].remote_id;
