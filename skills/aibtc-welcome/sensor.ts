@@ -11,6 +11,7 @@ import {
   readHookState,
   writeHookState,
 } from "../../src/sensors.ts";
+import { completedTaskCountForSource } from "../../src/db.ts";
 import {
   initContactsSchema,
   getContactByAddress,
@@ -21,6 +22,9 @@ const SENSOR_NAME = "aibtc-welcome";
 const INTERVAL_MINUTES = 30;
 const API_BASE = "https://aibtc.com/api";
 const PAGE_LIMIT = 50;
+
+/** Sentinel file: if present, x402 relay has a nonce conflict — skip creating welcome tasks */
+const NONCE_SENTINEL = "x402-nonce-conflict";
 
 // Arc's own STX address — never welcome ourselves
 const SELF_STX = "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B";
@@ -84,6 +88,13 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
     const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (!claimed) return "skip";
 
+    // Circuit breaker: skip if x402 relay has nonce conflict
+    const nonceSentinel = await readHookState(NONCE_SENTINEL);
+    if (nonceSentinel && nonceSentinel.last_result === "error") {
+      log("x402 nonce conflict sentinel active — skipping welcome task creation");
+      return "skip";
+    }
+
     log("checking for new AIBTC agents to welcome");
 
     const agents = await fetchAllAgents();
@@ -95,7 +106,6 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
     // Load welcomed set from state
     const state = (await readHookState(SENSOR_NAME)) as WelcomeState | null;
     const welcomedSet = new Set<string>(state?.welcomed_agents ?? []);
-    const newlyWelcomed: string[] = [];
 
     initContactsSchema();
 
@@ -112,8 +122,14 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
       const lowerName = (agent.displayName ?? "").toLowerCase();
       if ([...FLEET_NAMES].some((n) => lowerName.includes(n))) continue;
 
-      // Skip already welcomed
-      if (welcomedSet.has(agent.stxAddress)) continue;
+      // Skip if already welcomed (verified completed in DB, not just task-created)
+      if (welcomedSet.has(agent.stxAddress)) {
+        // Verify the welcome actually completed — if not, remove from set so we retry
+        const source = `sensor:aibtc-welcome:${agent.stxAddress}`;
+        if (completedTaskCountForSource(source) > 0) continue;
+        // Welcome task was created but never completed — allow re-creation
+        welcomedSet.delete(agent.stxAddress);
+      }
 
       const name = agent.displayName ?? agent.bnsName ?? agent.stxAddress.slice(0, 12);
 
@@ -177,31 +193,35 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
             `  --summary "Sent x402 welcome message + 0.1 STX transfer"`,
             "```",
             "",
-            "If x402 or STX send fails, log the failure and close the task as completed",
-            "with a note about what worked and what didn't. Do not retry — a follow-up",
-            "can be created if needed.",
+            "## IMPORTANT — failure handling",
+            "",
+            "If x402 send fails with NONCE_CONFLICT or ConflictingNonceInMempool:",
+            "- Write sentinel: `echo '{\"last_ran\":\"'$(date -u +%FT%TZ)'\",\"last_result\":\"error\",\"version\":1}' > db/hook-state/x402-nonce-conflict.json`",
+            "- Close this task as **failed** with summary mentioning NONCE_CONFLICT",
+            "- Do **NOT** create any retry or follow-up task — the sensor will re-create this task once the sentinel is cleared",
+            "",
+            "For any other x402/STX failure, close as completed with a note about what failed.",
+            "Do NOT create retry tasks for transient errors — the sensor handles re-creation.",
           ]
             .filter((line) => line !== undefined)
             .join("\n"),
           skills: '["bitcoin-wallet", "contacts", "aibtc-welcome"]',
           priority: 7, // Sonnet-tier — straightforward execution
         },
-        "any", // Never re-welcome the same agent
+        "pending", // Allow re-creation if previous task failed
       );
 
       if (taskId !== null) {
         tasksCreated++;
-        newlyWelcomed.push(agent.stxAddress);
         log(`created welcome task #${taskId} for ${name}`);
       } else {
-        // Task already exists (from prior run) — still mark as welcomed
-        newlyWelcomed.push(agent.stxAddress);
-        log(`welcome task already exists for ${name}, marking welcomed`);
+        log(`welcome task already pending for ${name}`);
       }
     }
 
-    // Update state with newly welcomed agents
-    const updatedWelcomed = [...welcomedSet, ...newlyWelcomed];
+    // State only tracks agents whose welcome task actually completed.
+    // welcomedSet was already pruned above (failed tasks removed).
+    const updatedWelcomed = [...welcomedSet];
     await writeHookState(SENSOR_NAME, {
       last_ran: new Date().toISOString(),
       last_result: "ok",
@@ -211,7 +231,7 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
     } satisfies WelcomeState);
 
     log(
-      `done: ${agents.length} agents checked, ${tasksCreated} welcome tasks created, ${updatedWelcomed.length} total welcomed`,
+      `done: ${agents.length} agents checked, ${tasksCreated} welcome tasks created, ${updatedWelcomed.length} confirmed welcomed`,
     );
 
     return "ok";

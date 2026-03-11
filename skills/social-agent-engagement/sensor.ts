@@ -2,7 +2,7 @@
 // Sensor for identifying collaboration opportunities and welcoming new AIBTC agents
 
 import { claimSensorRun, createSensorLogger, fetchWithRetry, readHookState, writeHookState } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { insertTask, pendingTaskExistsForSource, completedTaskCountForSource } from "../../src/db.ts";
 import { ARC_BTC_ADDRESS, ARC_STX_ADDRESS } from "../../src/identity.ts";
 import { initContactsSchema, getAllContacts } from "../contacts/schema.ts";
 import type { Contact } from "../contacts/schema.ts";
@@ -72,6 +72,13 @@ interface WelcomeState {
 }
 
 async function checkForNewAgents(): Promise<number> {
+  // Circuit breaker: skip if x402 relay has nonce conflict
+  const nonceSentinel = await readHookState("x402-nonce-conflict");
+  if (nonceSentinel && nonceSentinel.last_result === "error") {
+    log("x402 nonce conflict sentinel active — skipping welcome checks");
+    return 0;
+  }
+
   // Load welcome state
   const raw = await readHookState(WELCOME_STATE_KEY);
   const state: WelcomeState = raw ? (raw as unknown as WelcomeState) : { welcomed: [] };
@@ -95,15 +102,18 @@ async function checkForNewAgents(): Promise<number> {
     if (selfAddresses.has(btcAddr)) continue;
     if (contact.stx_address && selfAddresses.has(contact.stx_address)) continue;
 
-    // Skip already welcomed
-    if (welcomed.has(btcAddr)) continue;
+    // Skip if already successfully welcomed (verified via completed task)
+    if (welcomed.has(btcAddr)) {
+      const taskSource = `sensor:${SENSOR_NAME}:welcome-${btcAddr.slice(0, 12)}`;
+      if (completedTaskCountForSource(taskSource) > 0) continue;
+      // Welcome task was created but never completed — allow re-creation
+      welcomed.delete(btcAddr);
+    }
 
     const name = contact.display_name ?? contact.aibtc_name ?? contact.bns_name ?? `Contact #${contact.id}`;
     const taskSource = `sensor:${SENSOR_NAME}:welcome-${btcAddr.slice(0, 12)}`;
 
     if (pendingTaskExistsForSource(taskSource)) {
-      // Already queued — still mark as welcomed to avoid requeuing on next sensor run
-      welcomed.add(btcAddr);
       continue;
     }
 
@@ -135,7 +145,7 @@ async function checkForNewAgents(): Promise<number> {
       source: taskSource,
     });
 
-    welcomed.add(btcAddr);
+    // Don't add to welcomed set yet — only mark as welcomed after task completes
     queued++;
   }
 
