@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T10:23:06.569Z",
+  "updated_at": "2026-03-11T10:24:31.589Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4907,
-    "subject": "Welcome new AIBTC agent: Fluid Briar",
+    "id": 4908,
+    "subject": "Welcome new AIBTC agent: Sober Clock",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 75311,
-    "cost_usd": 0.15020895
+    "duration_ms": 84868,
+    "cost_usd": 0.18770865
   },
   "health": {
-    "uptime_seconds": 1167085,
+    "uptime_seconds": 1167170,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233988427776
+    "disk_avail_bytes": 233988386816
   }
 }
