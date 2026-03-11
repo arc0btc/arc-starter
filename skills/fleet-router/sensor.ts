@@ -26,6 +26,7 @@ import {
   getAgentIp,
   getSshPassword,
   ssh,
+  getActiveAgentNames,
 } from "../../src/ssh.ts";
 
 const SENSOR_NAME = "fleet-router";
@@ -253,8 +254,8 @@ function readFleetHealth(): FleetStatusMd {
     const content = require("fs").readFileSync(
       join(MEMORY_DIR, "fleet-status.md"), "utf-8"
     );
-    // Parse the markdown table: look for "| <agent> | yes |"
-    for (const agent of Object.keys(AGENTS)) {
+    // Parse the markdown table: look for "| <agent> | yes |" (active agents only)
+    for (const agent of getActiveAgentNames()) {
       const re = new RegExp(`\\|\\s*${agent}\\s*\\|\\s*yes\\s*\\|`);
       if (re.test(content)) {
         healthy.add(agent);

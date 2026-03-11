@@ -14,11 +14,11 @@ import {
   insertTaskIfNew,
 } from "../../src/sensors.ts";
 import {
-  AGENTS,
   REMOTE_ARC_DIR,
   getAgentIp,
   getSshPassword,
   ssh,
+  getActiveAgentNames,
 } from "../../src/ssh.ts";
 
 const SENSOR_NAME = "fleet-comms";
@@ -136,8 +136,9 @@ export default async function fleetCommsSensor(): Promise<string> {
 
   log("checking fleet communication silence...");
 
+  const agentNames = getActiveAgentNames();
   const results = await Promise.allSettled(
-    Object.keys(AGENTS).map((agent) => checkAgentSilence(agent, password)),
+    agentNames.map((agent) => checkAgentSilence(agent, password)),
   );
 
   let silentCount = 0;
@@ -145,7 +146,7 @@ export default async function fleetCommsSensor(): Promise<string> {
 
   for (let i = 0; i < results.length; i++) {
     const r = results[i];
-    const agent = Object.keys(AGENTS)[i];
+    const agent = agentNames[i];
 
     if (r.status !== "fulfilled") {
       log(`${agent}: check failed — ${r.reason instanceof Error ? r.reason.message : String(r.reason)}`);

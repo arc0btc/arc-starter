@@ -19,11 +19,11 @@ import {
   insertTaskIfNew,
 } from "../../src/sensors.ts";
 import {
-  AGENTS,
   REMOTE_ARC_DIR,
   getAgentIp,
   getSshPassword,
   ssh,
+  getActiveAgentNames,
 } from "../../src/ssh.ts";
 
 const SENSOR_NAME = "fleet-health";
@@ -489,13 +489,14 @@ export default async function fleetHealthSensor(): Promise<string> {
   const timestamp = new Date().toISOString();
   log("checking fleet health...");
 
-  // Check all agents in parallel
+  // Check all agents in parallel (suspended agents excluded)
+  const agentNames = getActiveAgentNames();
   const results = await Promise.allSettled(
-    Object.keys(AGENTS).map((agent) => checkAgent(agent, password))
+    agentNames.map((agent) => checkAgent(agent, password))
   );
 
   const healths: AgentHealth[] = results.map((r, i) => {
-    const agent = Object.keys(AGENTS)[i];
+    const agent = agentNames[i];
     if (r.status === "fulfilled") return r.value;
     return {
       agent,

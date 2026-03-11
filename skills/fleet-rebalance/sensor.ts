@@ -13,11 +13,11 @@ import {
   createSensorLogger,
 } from "../../src/sensors.ts";
 import {
-  AGENTS,
   REMOTE_ARC_DIR,
   getAgentIp,
   getSshPassword,
   ssh,
+  getActiveAgentNames,
 } from "../../src/ssh.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
@@ -227,8 +227,8 @@ export default async function fleetRebalanceSensor(): Promise<string> {
 
   log("checking fleet for rebalance opportunities...");
 
-  // 1. Read fleet-status.json from all agents in parallel
-  const agentNames = Object.keys(AGENTS);
+  // 1. Read fleet-status.json from all agents in parallel (suspended excluded)
+  const agentNames = getActiveAgentNames();
   const statusResults = await Promise.allSettled(
     agentNames.map(async (agent) => {
       const ip = await getAgentIp(agent);

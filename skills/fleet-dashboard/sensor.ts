@@ -18,11 +18,11 @@ import {
   insertTaskIfNew,
 } from "../../src/sensors.ts";
 import {
-  AGENTS,
   REMOTE_ARC_DIR,
   getAgentIp,
   getSshPassword,
   ssh,
+  getActiveAgentNames,
 } from "../../src/ssh.ts";
 
 const SENSOR_NAME = "fleet-dashboard";
@@ -310,11 +310,12 @@ export default async function fleetDashboardSensor(): Promise<string> {
   let peerMetrics: AgentMetrics[] = [];
   try {
     const password = await getSshPassword();
+    const agentNames = getActiveAgentNames();
     const results = await Promise.allSettled(
-      Object.keys(AGENTS).map((agent) => collectMetrics(agent, password)),
+      agentNames.map((agent) => collectMetrics(agent, password)),
     );
     peerMetrics = results.map((r, i) => {
-      const agent = Object.keys(AGENTS)[i];
+      const agent = agentNames[i];
       if (r.status === "fulfilled") return r.value;
       return {
         agent,

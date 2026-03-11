@@ -23,6 +23,7 @@ import {
   getAgentIp,
   getSshPassword,
   ssh,
+  getActiveAgentNames,
 } from "../../src/ssh.ts";
 import {
   initHubSchema,
@@ -197,7 +198,7 @@ export default async function sensor(): Promise<string> {
     return "error";
   }
 
-  const remoteAgents = Object.keys(AGENTS); // spark, iris, loom, forge
+  const remoteAgents = getActiveAgentNames(); // spark, iris, loom, forge (suspended excluded)
   const results = await Promise.allSettled(
     remoteAgents.map((agent) =>
       collectRemoteAgent(agent, password).catch((err: Error) => {

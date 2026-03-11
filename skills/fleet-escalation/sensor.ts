@@ -18,11 +18,11 @@ import {
   pendingTaskExistsForSource,
 } from "../../src/sensors.ts";
 import {
-  AGENTS,
   REMOTE_ARC_DIR,
   getAgentIp,
   getSshPassword,
   ssh,
+  getActiveAgentNames,
 } from "../../src/ssh.ts";
 import { getCredential } from "../../src/credentials.ts";
 import {
@@ -209,8 +209,8 @@ export default async function fleetEscalationSensor(): Promise<string> {
   const state = await loadState();
   const newEscalations: EscalationRecord[] = [];
 
-  // Check all agents in parallel
-  const agentNames = Object.keys(AGENTS);
+  // Check all agents in parallel (suspended agents excluded)
+  const agentNames = getActiveAgentNames();
   const results = await Promise.allSettled(
     agentNames.map(async (agent) => {
       let ip: string;

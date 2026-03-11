@@ -16,11 +16,11 @@ import {
   insertTaskIfNew,
 } from "../../src/sensors.ts";
 import {
-  AGENTS,
   REMOTE_ARC_DIR,
   getAgentIp,
   getSshPassword,
   ssh,
+  getActiveAgentNames,
 } from "../../src/ssh.ts";
 import { existsSync } from "node:fs";
 
@@ -71,7 +71,7 @@ export default async function run(): Promise<string> {
     return "skip";
   }
 
-  const agentNames = Object.keys(AGENTS);
+  const agentNames = getActiveAgentNames();
 
   // --- Fast check: trigger on significant new entry accumulation ---
   const fastClaimed = await claimSensorRun(FAST_SENSOR_NAME, FAST_INTERVAL_MINUTES);

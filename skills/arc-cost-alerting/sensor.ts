@@ -9,24 +9,13 @@
 import { claimSensorRun, createSensorLogger, pendingTaskExistsForSource, insertTask } from "../../src/sensors.ts";
 import { getDatabase } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
+import { AGENTS, SSH_USER, REMOTE_ARC_DIR, getActiveAgentNames } from "../../src/ssh.ts";
 
 const SENSOR_NAME = "arc-cost-alerting";
 const INTERVAL_MINUTES = 30; // 30 min — still catches spikes
 const REPORT_THRESHOLD_USD = 150.0; // create a spend report when daily total exceeds this
 
 const log = createSensorLogger(SENSOR_NAME);
-
-// ---- Fleet config (mirrors fleet-health sensor) ----
-
-const FLEET_AGENTS: Record<string, string> = {
-  spark: "192.168.1.12",
-  iris: "192.168.1.13",
-  loom: "192.168.1.14",
-  forge: "192.168.1.15",
-};
-
-const SSH_USER = "dev";
-const REMOTE_ARC_DIR = "/home/dev/arc-starter";
 
 // ---- Helpers ----
 
@@ -143,8 +132,8 @@ export default async function costAlertingSensor(): Promise<string> {
 
   if (sshPassword) {
     const results = await Promise.allSettled(
-      Object.entries(FLEET_AGENTS).map(([agent, ip]) =>
-        getRemoteAgentSpend(agent, ip, sshPassword)
+      getActiveAgentNames().map((agent) =>
+        getRemoteAgentSpend(agent, AGENTS[agent].ip, sshPassword)
       )
     );
     for (const r of results) {

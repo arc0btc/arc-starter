@@ -14,11 +14,11 @@ import {
   createSensorLogger,
 } from "../../src/sensors.ts";
 import {
-  AGENTS,
   REMOTE_ARC_DIR,
   getAgentIp,
   getSshPassword,
   ssh,
+  getActiveAgentNames,
 } from "../../src/ssh.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
@@ -219,12 +219,13 @@ export default async function fleetLogPullSensor(): Promise<string> {
   const timestamp = new Date().toISOString();
   log("pulling fleet logs...");
 
+  const agentNames = getActiveAgentNames();
   const results = await Promise.allSettled(
-    Object.keys(AGENTS).map((agent) => pullAgentData(agent, password)),
+    agentNames.map((agent) => pullAgentData(agent, password)),
   );
 
   const logs: AgentLogs[] = results.map((r, i) => {
-    const agent = Object.keys(AGENTS)[i];
+    const agent = agentNames[i];
     if (r.status === "fulfilled") return r.value;
     return { agent, reachable: false, cycles: [], stats: null };
   });
