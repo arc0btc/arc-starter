@@ -5,7 +5,7 @@
 import { join } from "node:path";
 import { existsSync } from "node:fs";
 import { readHookState, writeHookState } from "../../src/sensors.ts";
-import { getCredential } from "../../src/credentials.ts";
+import { verifyCloudflareToken, getCloudflareCredentials } from "../../src/cloudflare.ts";
 
 const SENSOR_NAME = "worker-deploy";
 const WORKER_DIR = join(process.env.HOME ?? "/home/dev", "arc0btc-worker");
@@ -89,18 +89,18 @@ async function cmdDeploy(args: string[]): Promise<void> {
   const currentSha = getCurrentSha();
   log(`deploying arc0btc-worker @ ${currentSha}`);
 
-  // Retrieve Cloudflare API token
-  let cfToken: string;
-  try {
-    const token = await getCredential("cloudflare", "api_token");
-    if (!token) throw new Error("credential not found or empty");
-    cfToken = token;
-  } catch (e) {
-    process.stderr.write(
-      `Failed to retrieve cloudflare/api_token: ${e instanceof Error ? e.message : String(e)}\n`,
-    );
+  // Pre-flight: verify Cloudflare token (account-scoped endpoint)
+  const verify = await verifyCloudflareToken();
+  if (!verify.ok) {
+    process.stderr.write(`Cloudflare pre-flight failed: ${verify.error}\n`);
     process.exit(1);
   }
+  log(`cloudflare token verified (status: ${verify.status})`);
+
+  // Retrieve Cloudflare API token for wrangler
+  const { creds: cfCreds } = await getCloudflareCredentials();
+  if (!cfCreds) { process.stderr.write("cloudflare credentials missing after verify — unreachable\n"); process.exit(1); }
+  const cfToken = cfCreds.apiToken;
 
   const fnmBinDir = resolveFnmBinDir();
   const nodeEnv = fnmBinDir ? { PATH: `${fnmBinDir}:${process.env.PATH ?? ""}` } : {};

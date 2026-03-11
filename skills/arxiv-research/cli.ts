@@ -435,13 +435,16 @@ async function cmdPublish(args: string[]): Promise<void> {
   const flags = parseFlags(args);
   ensureDir();
 
-  // Get CF API token from arc credentials
-  const { getCredential } = await import("../../src/credentials.ts");
-  const apiToken = await getCredential("cloudflare", "api_token");
-  if (!apiToken) {
-    process.stderr.write("Error: cloudflare/api_token credential not found.\n");
+  // Pre-flight: verify Cloudflare token (account-scoped endpoint)
+  const { verifyCloudflareToken, getCloudflareCredentials } = await import("../../src/cloudflare.ts");
+  const verify = await verifyCloudflareToken();
+  if (!verify.ok) {
+    process.stderr.write(`Error: Cloudflare pre-flight failed: ${verify.error}\n`);
     process.exit(1);
   }
+  const { creds: cfCreds } = await getCloudflareCredentials();
+  if (!cfCreds) { process.stderr.write("cloudflare credentials missing after verify — unreachable\n"); process.exit(1); }
+  const apiToken = cfCreds.apiToken;
 
   // Find digest to publish
   let digestFile: string;
