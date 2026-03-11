@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T05:43:35.435Z",
+  "updated_at": "2026-03-11T05:45:17.346Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4773,
-    "subject": "Switch Umbrel Bitcoin Core from pruned to full node (txindex=1) for Stacks compatibility",
+    "id": 4750,
+    "subject": "Prepare fleet-sync recovery plan for worker reinstatement",
     "status": "completed",
-    "priority": 4
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 1208873,
-    "cost_usd": 0.9339472500000001
+    "duration_ms": 101797,
+    "cost_usd": 0.26387055000000004
   },
   "health": {
-    "uptime_seconds": 1150314,
+    "uptime_seconds": 1150416,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234005684224
+    "disk_avail_bytes": 234005581824
   }
 }
