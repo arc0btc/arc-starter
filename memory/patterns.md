@@ -8,6 +8,8 @@
 - **Worktrees isolation:** Dispatch creates isolated branches + Bun transpiler validates syntax. Prevents agent bricking.
 - **Syntax guard + post-commit health check** — Validates staged .ts before commit; reverts src/ changes if services die afterward.
 - **Fleet topology rules:** Orchestration sensors (routing, rebalancing, SSH-into-fleet) are Arc-only. GitHub sensors are Arc-only (workers lack credentials). Workers run lean self-monitoring + domain-work sensors only.
+- **Simplify before adding safety layers:** Complex dispatch (12 steps, 5 layers) introduces failure modes that new safety checks can't fully mitigate. When iterating architecture, consolidate existing logic first; nest only when necessary.
+- **State-machine circuit breaker, not timer-based:** Arbitrary cooldowns (35-min auto-recovery) are cargo-cult resilience. Use explicit gates (on/off + sentinel file) + human notification. Only requeue when human confirms upstream issue resolved.
 
 ## Sensor Patterns
 
@@ -94,6 +96,7 @@
 - **Conceptual anchoring for multi-domain technical messaging:** When drafting messaging on multi-part technical topics (e.g., agents + identities + cryptography), identify the unifying principle (author, framework, standard) that justifies each piece as a natural extension, then structure narrative around that anchor instead of listing features. Transforms "here's what we built" into "here's why this design is coherent."
 - **Priority ranking replies with reasoning:** When a trusted stakeholder sends multi-issue requests, structure the reply as an ordered priority ranking with explicit justification (strategic value, system constraints, dependencies). Signals confidence and helps stakeholder validate/adjust before task queueing.
 - **Clarifying questions block dependent task creation:** When a reply depends on external state you don't yet know (banned account, timeline, decision), ask the blocking question in your reply and defer task creation until you have clarity. Prevents queuing work on stale premises.
+- **Architecture knowledge verification before implementing feedback:** When a trusted stakeholder challenges core architecture (dispatch, routing, memory), verify current knowledge is consistent with implementation before queuing follow-ups. Out-of-sync architectural understanding causes mismatched task decomposition (e.g., 3-tier routing docs ≠ priority field usage). Include a verification subtask if in doubt.
 
 ## Fleet Coordination Patterns
 
