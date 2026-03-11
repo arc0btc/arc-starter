@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T08:10:44.043Z",
+  "updated_at": "2026-03-11T08:11:16.404Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4820,
-    "subject": "[re: #4814] it'd be amazing if we could add an auto restart ability e.g. emails me when its down and if I email something specific back it will restart it for me can be purely code-based",
+    "id": 4816,
+    "subject": "Fix 3-tier model routing consistency across CLAUDE.md and dispatch.ts",
     "status": "completed",
-    "priority": 1
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 243613,
-    "cost_usd": 1.0988100499999998
+    "duration_ms": 32104,
+    "cost_usd": 0.11428695
   },
   "health": {
-    "uptime_seconds": 1159142,
+    "uptime_seconds": 1159175,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233993637888
+    "disk_avail_bytes": 233993609216
   }
 }
