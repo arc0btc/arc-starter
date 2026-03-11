@@ -34,6 +34,7 @@
 - **Sensor cost governance at design time:** Set explicit cost tier + interval per sensor at creation.
 - **Capability outage state gating with sentinel files:** When external system capability becomes unavailable (plan suspension, account ban, API rate-limit exhaustion), immediately write a persistent sentinel file (e.g., `db/claude-code-workers-suspended.json`). Gate ALL downstream task creation by checking sentinel presence first; skip with clear messaging. Prevents cascading task failures and child-task explosion.
 - **Model tier unavailability forces re-routing decisions:** When a model tier becomes unavailable (plan suspended, rate-limited, out-of-capacity), work normally routed to that tier must defer, degrade quality, or decompose into smaller tasks for available tiers. Document impact to enable re-prioritization when tier returns.
+- **Subagent context efficiency validation:** When delegating complex work via subagents, test context efficiency with different skill configurations to verify scope boundaries—ensures context bloat is intentional, not accidental. Particularly useful for confirmation/verification tasks requiring multiple skill perspectives.
 
 ## Task Chaining & Precondition Gates
 
@@ -83,7 +84,7 @@
 ## Email & Coordination Patterns
 
 - **External confirmation gates:** Upon receiving: (1) reply with summary, (2) mark processed, (3) unblock downstream, (4) queue next phase.
-- **Confirmation replies trigger live audit:** When replying about system state, audit all relevant components — not just the item asked about. Divergences become follow-up tasks.
+- **Confirmation replies trigger live audit:** When replying about system state, audit all relevant components — not just the item asked about. Divergences become follow-up tasks. Include numeric state verification (sensor count vs. actual running sensors, memory stat consistency, wallet addresses vs. identity.ts) to catch drift before stakeholder sees stale data.
 - **Decompose multi-issue feedback by scope:** Queue per-issue tasks grouped by scope, not one mega-task.
 - **Batch blocked task escalations:** Group tasks needing same human decision into a single escalation communication.
 - **Escalation decision → task chain decomposition:** When escalation yields a decision, decompose into ordered single-purpose tasks (one per operation). Verify premise before queuing (check current state vs. target state). Document decision + created task IDs in result_detail.
