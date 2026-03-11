@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T12:04:33.218Z",
+  "updated_at": "2026-03-11T12:05:09.442Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5015,
-    "subject": "Welcome new AIBTC agent: Brisk Swan",
+    "id": 5016,
+    "subject": "Welcome new AIBTC agent: Graphite Elan",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 39213,
-    "cost_usd": 0.13851135
+    "duration_ms": 15176,
+    "cost_usd": 0.11490405
   },
   "health": {
-    "uptime_seconds": 1173172,
+    "uptime_seconds": 1173208,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233985155072
+    "disk_avail_bytes": 233985122304
   }
 }
