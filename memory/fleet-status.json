@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T12:31:23.139Z",
+  "updated_at": "2026-03-11T12:32:38.026Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5036,
-    "subject": "Welcome new AIBTC agent: Zappy Deer",
+    "id": 5037,
+    "subject": "Welcome new AIBTC agent: Spiral Lumen",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 35889,
-    "cost_usd": 0.14960115000000002
+    "duration_ms": 50280,
+    "cost_usd": 0.18699435
   },
   "health": {
-    "uptime_seconds": 1174781,
+    "uptime_seconds": 1174856,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233981399040
+    "disk_avail_bytes": 233981362176
   }
 }
