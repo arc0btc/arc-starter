@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T12:14:12.531Z",
+  "updated_at": "2026-03-11T12:14:47.036Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5024,
-    "subject": "Welcome new AIBTC agent: Cold Vera",
+    "id": 5025,
+    "subject": "Welcome new AIBTC agent: Bright Cube",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 57544,
-    "cost_usd": 0.18205695000000002
+    "duration_ms": 31769,
+    "cost_usd": 0.1341798
   },
   "health": {
-    "uptime_seconds": 1173751,
+    "uptime_seconds": 1173785,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233984679936
+    "disk_avail_bytes": 233984647168
   }
 }
