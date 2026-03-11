@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T03:56:48.136Z",
+  "updated_at": "2026-03-11T04:01:54.512Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4743,
-    "subject": "Install Bitcoin Core on Umbrel node",
+    "id": 4744,
+    "subject": "Install Bitcoin Core on Umbrel node (pruned mode)",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 386308,
-    "cost_usd": 1.3473882499999996
+    "duration_ms": 306098,
+    "cost_usd": 1.3446577499999997
   },
   "health": {
-    "uptime_seconds": 1143906,
+    "uptime_seconds": 1144213,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234023837696
+    "disk_avail_bytes": 234023706624
   }
 }
