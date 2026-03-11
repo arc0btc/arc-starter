@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T11:08:48.477Z",
+  "updated_at": "2026-03-11T11:09:36.998Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4953,
-    "subject": "Welcome Speedy Spark: retry x402 message (nonce conflict)",
+    "id": 4954,
+    "subject": "Retry: Welcome x402 to Mighty Scorpion (contact #33)",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 61732,
-    "cost_usd": 0.15341174999999999
+    "duration_ms": 48398,
+    "cost_usd": 0.16528545000000003
   },
   "health": {
-    "uptime_seconds": 1169827,
+    "uptime_seconds": 1169875,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233986859008
+    "disk_avail_bytes": 233986818048
   }
 }
