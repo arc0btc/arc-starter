@@ -18,12 +18,16 @@ const BITCOIN_RPC_PORT = 8332;
 // ---- SSH helpers ----
 
 async function sshExec(command: string): Promise<{ stdout: string; stderr: string; exitCode: number }> {
+  // Replace bare `sudo` with `sudo -S` and pipe password via echo, so it works non-interactively
+  const wrappedCommand = command.includes("sudo ")
+    ? command.replace(/\bsudo\b/g, `echo '${UMBREL_PASS}' | sudo -S`)
+    : command;
   const proc = Bun.spawn(
     [
       "sshpass", "-p", UMBREL_PASS,
       "ssh", "-o", "StrictHostKeyChecking=no", "-o", "ConnectTimeout=10",
       `${UMBREL_USER}@${UMBREL_HOST}`,
-      command,
+      wrappedCommand,
     ],
     { stdout: "pipe", stderr: "pipe" },
   );
@@ -32,7 +36,9 @@ async function sshExec(command: string): Promise<{ stdout: string; stderr: strin
     new Response(proc.stderr).text(),
   ]);
   const exitCode = await proc.exited;
-  return { stdout: stdout.trim(), stderr: stderr.trim(), exitCode };
+  // Filter out sudo password prompt from stderr
+  const cleanStderr = stderr.replace(/\[sudo\] password for \w+:\s*/g, "").trim();
+  return { stdout: stdout.trim(), stderr: cleanStderr, exitCode };
 }
 
 // ---- Bitcoin Core RPC ----
@@ -43,39 +49,44 @@ interface RpcCredentials {
 }
 
 async function getBitcoinRpcCredentials(): Promise<RpcCredentials | null> {
-  // Read rpcauth from the running Bitcoin Core container's config
-  const result = await sshExec(
-    "sudo docker exec bitcoin_bitcoind_1 cat /data/.bitcoin/bitcoin.conf 2>/dev/null || " +
-    "sudo docker exec bitcoin-bitcoind-1 cat /data/.bitcoin/bitcoin.conf 2>/dev/null || " +
-    "echo '__NOT_FOUND__'"
-  );
-  if (result.exitCode !== 0 || result.stdout.includes("__NOT_FOUND__")) {
-    // Try cookie auth
-    const cookie = await sshExec(
-      "sudo docker exec bitcoin_bitcoind_1 cat /data/.bitcoin/.cookie 2>/dev/null || " +
-      "sudo docker exec bitcoin-bitcoind-1 cat /data/.bitcoin/.cookie 2>/dev/null || " +
-      "echo '__NOT_FOUND__'"
-    );
-    if (cookie.exitCode === 0 && !cookie.stdout.includes("__NOT_FOUND__")) {
-      const [user, password] = cookie.stdout.split(":");
-      if (user && password) return { user, password };
+  // Container name: bitcoin_app_1 (Umbrel v1.5+)
+  // Data path: /data/bitcoin/ (not /data/.bitcoin/)
+  const containers = ["bitcoin_app_1", "bitcoin_bitcoind_1", "bitcoin-bitcoind-1"];
+  const dataPaths = ["/data/bitcoin", "/data/.bitcoin"];
+
+  // Try cookie auth first (most reliable)
+  for (const container of containers) {
+    for (const dataPath of dataPaths) {
+      const cookie = await sshExec(
+        `sudo docker exec ${container} cat ${dataPath}/.cookie 2>/dev/null || echo '__NOT_FOUND__'`
+      );
+      if (cookie.exitCode === 0 && !cookie.stdout.includes("__NOT_FOUND__")) {
+        const [user, password] = cookie.stdout.split(":");
+        if (user && password) return { user, password };
+      }
     }
-    return null;
   }
 
-  // Parse rpcuser/rpcpassword from config
-  const lines = result.stdout.split("\n");
-  let user = "";
-  let password = "";
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (trimmed.startsWith("rpcuser=")) user = trimmed.slice(8);
-    if (trimmed.startsWith("rpcpassword=")) password = trimmed.slice(12);
+  // Fallback: parse rpcuser/rpcpassword from config
+  for (const container of containers) {
+    for (const dataPath of dataPaths) {
+      const result = await sshExec(
+        `sudo docker exec ${container} cat ${dataPath}/bitcoin.conf 2>/dev/null || echo '__NOT_FOUND__'`
+      );
+      if (result.exitCode === 0 && !result.stdout.includes("__NOT_FOUND__")) {
+        const lines = result.stdout.split("\n");
+        let user = "";
+        let password = "";
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (trimmed.startsWith("rpcuser=")) user = trimmed.slice(8);
+          if (trimmed.startsWith("rpcpassword=")) password = trimmed.slice(12);
+        }
+        if (user && password) return { user, password };
+      }
+    }
   }
 
-  if (user && password) return { user, password };
-
-  // Fallback: cookie auth from config directory
   return null;
 }
 
@@ -128,8 +139,8 @@ async function cmdStatus(): Promise<void> {
   const apps = await sshExec("ls ~/umbrel/app-data/ 2>/dev/null || echo '(none)'");
   process.stdout.write("Installed apps: " + (apps.stdout || "(none)") + "\n\n");
 
-  // Check if Bitcoin Core is running
-  const btcRunning = await sshExec("sudo docker ps --filter name=bitcoin --format '{{.Names}} {{.Status}}' 2>/dev/null");
+  // Check if Bitcoin Core is running (filter for the app container, not proxy/tor/i2pd)
+  const btcRunning = await sshExec("sudo docker ps --filter name=bitcoin_app --format '{{.Names}} {{.Status}}' 2>/dev/null");
   if (btcRunning.stdout) {
     process.stdout.write("Bitcoin Core: RUNNING\n" + btcRunning.stdout + "\n\n");
     // Try to get sync status
@@ -167,22 +178,35 @@ async function cmdInstallBitcoin(): Promise<void> {
   process.stdout.write("Note: This starts IBD (Initial Block Download). Full sync takes days.\n");
   process.stdout.write("Using pruned mode to fit in available storage.\n\n");
 
-  // Install via umbreld
-  const result = await sshExec("sudo ~/umbrel/bin/umbreld client apps install bitcoin 2>&1");
-  if (result.exitCode !== 0) {
-    // Fallback: try the umbreld API
-    const apiResult = await sshExec(
-      `curl -s -X POST http://127.0.0.1:2000/api/install -H 'Content-Type: application/json' -d '{"appId":"bitcoin"}' 2>&1`
-    );
-    if (apiResult.exitCode !== 0) {
-      process.stderr.write(`Installation failed. Install manually via Umbrel UI at http://${UMBREL_HOST}\n`);
-      process.stderr.write(`CLI output: ${result.stdout}\n${result.stderr}\n`);
-      process.stderr.write(`API output: ${apiResult.stdout}\n`);
-      process.exit(1);
-    }
+  // Install via authenticated tRPC API (umbreld CLI is unreliable)
+  const jwtResult = await sshExec(
+    `echo "umbrel" | sudo -S node -e "` +
+    `const crypto = require('crypto');` +
+    `const fs = require('fs');` +
+    `const secret = fs.readFileSync('/home/umbrel/umbrel/secrets/jwt', 'utf8').trim();` +
+    `const header = Buffer.from(JSON.stringify({alg:'HS256',typ:'JWT'})).toString('base64url');` +
+    `const now = Math.floor(Date.now()/1000);` +
+    `const payload = Buffer.from(JSON.stringify({loggedIn:true,iat:now,exp:now+3600})).toString('base64url');` +
+    `const sig = crypto.createHmac('sha256', secret).update(header+'.'+payload).digest('base64url');` +
+    `console.log(header+'.'+payload+'.'+sig);` +
+    `" 2>/dev/null`
+  );
+  const token = jwtResult.stdout.trim();
+  if (!token || jwtResult.exitCode !== 0) {
+    process.stderr.write("Failed to generate Umbrel auth token.\n");
+    process.exit(1);
+  }
+
+  const result = await sshExec(
+    `curl -s -X POST -H 'Authorization: Bearer ${token}' -H 'Content-Type: application/json' ` +
+    `-d '{"appId":"bitcoin"}' 'http://localhost/trpc/apps.install' 2>&1`
+  );
+  if (result.stdout.includes('"data":true') || result.stdout.includes('"data":"true"')) {
     process.stdout.write("Installed via Umbrel API.\n");
   } else {
-    process.stdout.write(result.stdout + "\n");
+    process.stderr.write(`Installation failed. Install manually via Umbrel UI at http://${UMBREL_HOST}\n`);
+    process.stderr.write(`API output: ${result.stdout}\n`);
+    process.exit(1);
   }
 
   process.stdout.write("\nBitcoin Core installation initiated.\n");
