@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T13:03:43.312Z",
+  "updated_at": "2026-03-11T13:06:45.881Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5065,
-    "subject": "Welcome new AIBTC agent: Vivid Halo",
-    "status": "failed",
-    "priority": 7
+    "id": 5180,
+    "subject": "[re: #4772] this is unblocked and token is up to date",
+    "status": "completed",
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 43818,
-    "cost_usd": 0.1499823
+    "duration_ms": 165939,
+    "cost_usd": 0.5897317500000003
   },
   "health": {
-    "uptime_seconds": 1176722,
+    "uptime_seconds": 1176904,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233971728384
+    "disk_avail_bytes": 233971671040
   }
 }
