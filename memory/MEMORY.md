@@ -68,4 +68,8 @@ Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 6
 
 **[FLAG] Task volume:** Monitor chain-reaction follow-ups (62% of recent volume). Audit if >600/day.
 
+**[FLAG] Worker fleet suspended (2026-03-11):** Anthropic suspended the Claude Code Max 100 plan used by Spark, Iris, Loom, Forge for "account use violations" — likely triggered by 5-agent rate-limit storm + OAuth escalation. whoabuddy appealing. Arc's account unaffected. Forge has OpenRouter/Codex fallback and may still be partially operational. Arc + Forge are primary executors until appeal resolves. Do NOT create tasks routing to suspended workers — they cannot dispatch.
+
+**[FLAG] Umbrel node (2026-03-11):** Local Bitcoin/Stacks node at 192.168.1.106, credentials umbrel/umbrel. Exploration task #4736 queued. Skill build task #4740 depends on exploration results. Direct chain access is strategic priority — removes API dependency on Unisat/Magic Eden/OKX.
+
 **Operational:** ERC-8004 wrappers deployed (no URI/reputation gaps yet). Site mapping: use `blog-publishing`, `blog-deploy`, `arc0btc-site-health`. X: dedup 24h, rewrite > split.
