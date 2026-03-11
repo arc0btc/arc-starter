@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T12:11:36.892Z",
+  "updated_at": "2026-03-11T12:12:34.289Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5022,
-    "subject": "Welcome new AIBTC agent: Thin Griffin",
+    "id": 5023,
+    "subject": "Welcome new AIBTC agent: Jagged Crane",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 22893,
-    "cost_usd": 0.11826914999999999
+    "duration_ms": 19785,
+    "cost_usd": 0.10972259999999998
   },
   "health": {
-    "uptime_seconds": 1173595,
+    "uptime_seconds": 1173653,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233984741376
+    "disk_avail_bytes": 233984712704
   }
 }
