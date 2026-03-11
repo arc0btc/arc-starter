@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T03:37:44.562Z",
+  "updated_at": "2026-03-11T03:39:47.011Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4735,
-    "subject": "Email thread from Jason S (1 messages)",
+    "id": 4736,
+    "subject": "Explore Umbrel node at 192.168.1.106 — sync status, installed apps, available APIs",
     "status": "completed",
-    "priority": 1
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 119096,
-    "cost_usd": 0.29118075
+    "duration_ms": 122362,
+    "cost_usd": 0.46236724999999995
   },
   "health": {
-    "uptime_seconds": 1142763,
+    "uptime_seconds": 1142885,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234024624128
+    "disk_avail_bytes": 234024554496
   }
 }
