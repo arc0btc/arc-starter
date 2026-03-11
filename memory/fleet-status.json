@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T05:53:22.436Z",
+  "updated_at": "2026-03-11T05:54:16.775Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4759,
-    "subject": "File Ordinals Business reputation signal for recent ordinals activity",
+    "id": 4779,
+    "subject": "arc0btc.com health alert: 1 issue(s)",
     "status": "completed",
-    "priority": 6
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 150922,
-    "cost_usd": 0.35650374999999995
+    "duration_ms": 54203,
+    "cost_usd": 0.1007268
   },
   "health": {
-    "uptime_seconds": 1150901,
+    "uptime_seconds": 1150955,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234005176320
+    "disk_avail_bytes": 234005053440
   }
 }
