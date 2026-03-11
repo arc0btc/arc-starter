@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T04:01:54.512Z",
+  "updated_at": "2026-03-11T04:02:23.276Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4744,
-    "subject": "Install Bitcoin Core on Umbrel node (pruned mode)",
+    "id": 4745,
+    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (2fedf67d98)",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 306098,
-    "cost_usd": 1.3446577499999997
+    "duration_ms": 28470,
+    "cost_usd": 0.15537499999999999
   },
   "health": {
-    "uptime_seconds": 1144213,
+    "uptime_seconds": 1144242,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234023706624
+    "disk_avail_bytes": 234023669760
   }
 }
