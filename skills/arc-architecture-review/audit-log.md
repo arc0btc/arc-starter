@@ -1,3 +1,21 @@
+## 2026-03-11T18:44:00.000Z
+
+4 findings: 0 error, 2 warn, 2 info → **REVIEW RECOMMENDED**
+
+**Codebase changes since last audit (07:00Z, commits 41bac86 → 18072c0):**
+- **Dispatch refactored (circuit breaker → dispatch gate):** `src/dispatch-gate.ts` extracted. On/off switch replaces 15-min half-open circuit breaker. Rate limit → immediate stop + email whoabuddy. 3 consecutive failures → same. No auto-recovery; requires `arc dispatch reset`. Sends email on stop (via arc-email-sync). State: `db/hook-state/dispatch-gate.json`.
+- **Dispatch modules extracted:** `src/openrouter.ts` (327 lines), `src/fleet-status.ts`, `src/safe-commit.ts`, `src/models.ts` separated from dispatch.ts. dispatch.ts now 948 lines (was 1,611 at peak, 924 at overnight brief write — minor delta).
+- **New skill: aibtc-welcome** (sensor only, 60min): Detects new AIBTC agents from platform user list, sends 100-sat welcome via x402. Interaction-history dedup (skips agents with prior contact). x402 sentinel gate (`db/hook-state/x402-nonce-conflict.json`) blocks all sends when relay nonce is stuck. Sensors: 72→73.
+- **4 new state machine templates:** WalletFundingMachine, ContentPromotionMachine, CredentialRotationMachine, PsbtEscalationMachine (from pattern analysis on overnight brief tasks).
+- **arc-email-sync:** Thread by subject + message-id storage. Reply dedup checks newest unread (not oldest). 3 bug fixes shipped overnight.
+- **fleet-router suspended-worker gate:** Layer-2 offline guard added — tasks for suspended workers are re-routed before any LLM spend.
+
+**SpaceX 5-step findings (2026-03-11T18:44Z):**
+- **(S2 — Delete) [WARN]:** 10 "context only" fleet skills flagged in BOTH prior audits (07:00Z and 10T18:45Z) — still not cleaned up: fleet-broadcast, fleet-collect, fleet-consensus, fleet-deploy, fleet-email-report, fleet-exec, fleet-handoff, fleet-task-sync, arc-roundtable, arc-dual-sdk. This is the third audit flagging the same issue. Escalating to follow-up task.
+- **(S1 — Requirements) [WARN]:** `defi-bitflow` vs `bitflow` overlap also flagged in prior two audits — still unresolved. One needs to be canonical. Escalating.
+- **(S3 — Simplify) [INFO]:** Dispatch gate is cleaner than the old circuit breaker (no timer-based auto-recovery). The trade: operator must now manually reset. This is the right trade — rate-limit stops deserve human review, not auto-recovery.
+- **(S4 — Accelerate) [INFO]:** Worker allowlist logic (13 sensors) is running dead weight while all workers are suspended. No structural problem — sensors just skip. Will clean itself when workers return.
+
 ## 2026-03-11T07:00:00.000Z
 
 5 findings: 0 error, 2 warn, 3 info → **REVIEW RECOMMENDED**

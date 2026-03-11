@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-11T07:00:00.000Z*
+*Generated: 2026-03-11T18:44:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -116,13 +116,13 @@ stateDiagram-v2
         RunAllSensors --> bitflowSensor: bitflow
         RunAllSensors --> zestV2Sensor: zest-v2
         RunAllSensors --> arcUmbrelSensor: arc-umbrel
+        RunAllSensors --> aibtcWelcomeSensor: aibtc-welcome
 
         note right of RunAllSensors
-            72 sensors total (+4 since 2026-03-10T18:45Z)
-            NEW: agent-hub (15min) — fleet registry sync via SSH
-            NEW: bitflow (60min) — DEX pool APY + price deviation monitor
-            NEW: zest-v2 (120min) — Zest V2 liquidation health monitor
-            NEW: arc-umbrel (periodic) — Umbrel node status monitor
+            73 sensors total (+1 since 2026-03-11T07:00Z)
+            NEW: aibtc-welcome (60min) — detect+welcome new AIBTC agents via x402 (100 sats)
+              x402 sentinel: db/hook-state/x402-nonce-conflict.json gates all sends
+              Interaction-history dedup: skips already-welcomed agents
             Fleet sensors filter suspended agents since 2026-03-11
         end note
 
@@ -322,10 +322,17 @@ stateDiagram-v2
         [*] --> DispatchShutdownGate: db/shutdown-state.json
         DispatchShutdownGate --> [*]: SHUTDOWN — skip dispatch (reason + since logged)
         DispatchShutdownGate --> CheckLock: not shutdown
-        CheckLock --> CircuitCheck: no lock
-        CrashRecovery --> CircuitCheck: mark stale active tasks failed
-        CircuitCheck --> Exit: circuit open (>=3 failures, <15min elapsed)
-        CircuitCheck --> PickTask: circuit closed or half-open probe
+        CheckLock --> DispatchGateCheck: no lock
+        CrashRecovery --> DispatchGateCheck: mark stale active tasks failed
+        DispatchGateCheck --> Exit: gate stopped (rate limit OR 3 consecutive failures)
+        DispatchGateCheck --> PickTask: gate running
+        note right of DispatchGateCheck
+            On/off gate (no auto-recovery). src/dispatch-gate.ts.
+            Rate limit → immediate stop + email whoabuddy.
+            3 consecutive other failures → same.
+            Resume: arc dispatch reset
+            State: db/hook-state/dispatch-gate.json
+        end note
         PickTask --> Idle: no pending tasks
         PickTask --> BudgetGate: highest priority task
         BudgetGate --> Exit: today_cost >= $500 AND priority > 2
@@ -434,12 +441,12 @@ stateDiagram-v2
 |---|-------|-------------------|------|
 | 0 | Shutdown gate | `db/shutdown-state.json` | Both sensors and dispatch exit immediately if shutdown enabled |
 | 1 | Sensor fires | Hook state (interval check) | `claimSensorRun()` |
-| 1a | Sensor filter | `AGENT_NAME` from `src/identity.ts` | Worker: 13-sensor allowlist; Arc: all 72 |
+| 1a | Sensor filter | `AGENT_NAME` from `src/identity.ts` | Worker: 13-sensor allowlist; Arc: all 73 |
 | 1b | Architect SHA check | SHA of src/ + skills/ excl. skills/arc-architecture-review/ | Skip if unchanged + diagram fresh + no active reports |
 | 2 | Sensor creates task | External data + dedup check | `pendingTaskExistsForSource()` |
 | 3 | Dispatch lock check | Lock file (PID + task_id) | `isPidAlive()` |
 | 3a | TOCTOU guard | Lock acquired BEFORE task selection | Atomic: lock->pick (commit 05de76d) |
-| 3b | Circuit breaker | hook-state/dispatch-circuit.json | Opens after 3 consecutive failures; skips 15min; half-open probe |
+| 3b | Dispatch gate | hook-state/dispatch-gate.json | On/off switch; rate limit → immediate stop; 3 other failures → stop; manual reset required (`arc dispatch reset`); notifies whoabuddy by email |
 | 3c | Budget gate | `getTodayCostUsd()` vs `DAILY_BUDGET_USD=$500` | Priority > 2 tasks halted if over ceiling |
 | 3d | GitHub pre-dispatch gate (worker) | `GITHUB_TASK_RE` regex on subject+description | Auto-routes to Arc via fleet-handoff at zero LLM cost |
 | 4 | Task selection | All pending tasks sorted | Priority ASC, ID ASC |
@@ -472,8 +479,12 @@ stateDiagram-v2
 | agent-collaboration | received→triaged→ops_pending→retrospective_pending→completed | aibtc-inbox-sync | AIBTC inbox thread → triage → ops → learning capture; instance_key: agent-collab-{sender}-{date} |
 | recurring-failure | detected→investigating→fix_pending→fixing→retrospective_pending→completed | arc-failure-triage | Recurring failure investigation chain; fix task P5/sonnet; retro P8/haiku; instance_key: recurring-failure-{type}-{YYYY-MM-DD} |
 | overnight-brief | scheduled→generating→retrospective_pending→completed | arc-reporting | OvernightBriefMachine — overnight brief → retrospective cycle; instance_key: overnight-brief-{YYYY-MM-DD} |
+| wallet-funding | pending→sending→confirming→completed | manual | WalletFundingMachine — STX funding → confirm receipt → downstream operation |
+| content-promotion | pending→scheduling→posting→completed | blog-publishing | ContentPromotionMachine — published post → X promotion → done |
+| credential-rotation | pending→rotating→verifying→confirmed→completed | arc-credentials | CredentialRotationMachine — credential expiry → rotate → verify → confirmed |
+| psbt-escalation | pending→escalated→approved→signing→broadcast→completed | bitcoin-wallet | PsbtEscalationMachine — PSBT sign request → whoabuddy approval gate → sign/broadcast |
 
-## Skills Inventory (109 total)
+## Skills Inventory (110 total)
 
 | Skill | Sensor | CLI | Agent | Description |
 |-------|--------|-----|-------|-------------|
@@ -481,6 +492,7 @@ stateDiagram-v2
 | aibtc-dev-ops | yes | yes | yes | Monitor service health via worker-logs and enforce production-grade standards |
 | aibtc-heartbeat | yes | - | - | Signed AIBTC platform check-in via BIP-137 Bitcoin message signing (iterates all agent wallets) |
 | aibtc-inbox-sync | yes | - | yes | Poll AIBTC platform inbox, sync messages locally, queue tasks |
+| aibtc-welcome | yes | - | - | Detect and welcome new AIBTC agents via x402 (100 sats); interaction-history dedup; x402 sentinel gate |
 | aibtc-news-deal-flow | - | - | yes | Editorial voice for Deal Flow beat on aibtc.news |
 | aibtc-news-editorial | yes | yes | yes | File intelligence signals, claim editorial beats, track activity on aibtc.news |
 | aibtc-news-classifieds | - | yes | - | Classified ads, brief reading, signal corrections, beat updates, streaks |
