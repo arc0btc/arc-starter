@@ -115,3 +115,24 @@ export function resolveAgents(agentsArg: string | undefined): string[] {
   }
   return names;
 }
+
+// ---- Suspended agent sentinel ----
+
+const SUSPENDED_SENTINEL = new URL("../db/fleet-suspended.json", import.meta.url).pathname;
+
+/** Read suspended agent names from db/fleet-suspended.json. Returns empty set if missing. */
+export function getSuspendedAgents(): Set<string> {
+  try {
+    const text = require("node:fs").readFileSync(SUSPENDED_SENTINEL, "utf-8");
+    const data = JSON.parse(text) as { suspended?: string[] };
+    return new Set(data.suspended ?? []);
+  } catch {
+    return new Set();
+  }
+}
+
+/** Get agent names excluding suspended ones. Use in sensors to avoid noisy tasks for down agents. */
+export function getActiveAgentNames(): string[] {
+  const suspended = getSuspendedAgents();
+  return Object.keys(AGENTS).filter((a) => !suspended.has(a));
+}

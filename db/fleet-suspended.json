@@ -1,0 +1,6 @@
+{
+  "suspended": ["spark", "iris", "loom", "forge"],
+  "reason": "Claude Code Max 100 plan suspended by Anthropic — appeal pending",
+  "since": "2026-03-11",
+  "updated_by": "task:4749"
+}

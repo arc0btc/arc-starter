@@ -3,6 +3,7 @@
  *
  * Every 30 minutes, checks each agent's current commit against Arc's HEAD.
  * Creates a P4 task if any agent is behind by more than 1 commit.
+ * Reads db/fleet-suspended.json to skip suspended agents (no noisy tasks).
  */
 
 import {
@@ -15,6 +16,7 @@ import {
   REMOTE_ARC_DIR,
   getAgentIp,
   getSshPassword,
+  getSuspendedAgents,
   ssh,
 } from "../../src/ssh.ts";
 
@@ -94,7 +96,18 @@ export default async function run(): Promise<string> {
   const local = await getLocalCommit();
   log(`arc: ${local.branch} @ ${local.commit.slice(0, 10)}`);
 
-  const agentNames = Object.keys(AGENTS);
+  const suspended = getSuspendedAgents();
+  const agentNames = Object.keys(AGENTS).filter((a) => !suspended.has(a));
+
+  if (agentNames.length === 0) {
+    log(`all agents suspended (${[...suspended].join(", ")}), nothing to check`);
+    return "skip — all agents suspended";
+  }
+
+  if (suspended.size > 0) {
+    log(`skipping suspended agents: ${[...suspended].join(", ")}`);
+  }
+
   const results = await Promise.allSettled(
     agentNames.map((agent) => checkAgent(agent, password))
   );
@@ -125,13 +138,16 @@ export default async function run(): Promise<string> {
     return `ok — all agents synced at ${local.commit.slice(0, 10)}`;
   }
 
-  // Create a sync task
-  const subject = `Fleet git drift: ${drifted.join(", ")} behind Arc (${local.commit.slice(0, 10)})`;
+  // Use stable subject (no commit hash) so dedup works across Arc commits
+  const subject = `Fleet git drift: ${drifted.join(", ")} behind Arc`;
   const description = [
     `Arc is on ${local.branch} @ ${local.commit}`,
     `Drifted agents: ${drifted.join(", ")}`,
     unreachable.length > 0
       ? `Unreachable: ${unreachable.join(", ")}`
+      : null,
+    suspended.size > 0
+      ? `Suspended (skipped): ${[...suspended].join(", ")}`
       : null,
     "",
     "Run: arc skills run --name fleet-sync -- git-sync (notify-only: sends bundle + creates task on worker)",
