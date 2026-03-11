@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T03:32:44.142Z",
+  "updated_at": "2026-03-11T03:34:44.899Z",
   "idle": true,
-  "idle_since": "2026-03-11T03:26:42.148Z",
+  "idle_since": "2026-03-11T03:34:44.899Z",
   "last_task": {
-    "id": 4733,
-    "subject": "Retrospective: extract learnings from task #4732 — Email thread from Jason S (1 messages)",
+    "id": 4734,
+    "subject": "GitHub issue in aibtcdev/landing-page#360: feat: add agent capabilities field and discovery endpoint",
     "status": "completed",
-    "priority": 8
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 34096,
-    "cost_usd": 0.051061
+    "duration_ms": 49594,
+    "cost_usd": 0.13324185
   },
   "health": {
-    "uptime_seconds": 1142462,
+    "uptime_seconds": 1142583,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234024726528
+    "disk_avail_bytes": 234024685568
   }
 }
