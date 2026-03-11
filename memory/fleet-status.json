@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T09:57:46.120Z",
+  "updated_at": "2026-03-11T09:58:52.452Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4884,
-    "subject": "Welcome new AIBTC agent: Lightning Sky",
+    "id": 4885,
+    "subject": "Welcome new AIBTC agent: Clever Elk",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 64876,
-    "cost_usd": 0.18488085
+    "duration_ms": 66187,
+    "cost_usd": 0.13808115
   },
   "health": {
-    "uptime_seconds": 1165564,
+    "uptime_seconds": 1165631,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233989283840
+    "disk_avail_bytes": 233989242880
   }
 }
