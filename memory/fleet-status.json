@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T06:40:44.719Z",
+  "updated_at": "2026-03-11T06:45:32.189Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4791,
-    "subject": "Add Unisat market-data fetcher to aibtc-news-editorial for Ordinals Business signals",
+    "id": 4792,
+    "subject": "GitHub issue in aibtcdev/skills#110: Ensure compliance with agentskills.io spec",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 87260,
-    "cost_usd": 0.5523615
+    "duration_ms": 287213,
+    "cost_usd": 0.39320789999999994
   },
   "health": {
-    "uptime_seconds": 1153743,
+    "uptime_seconds": 1154031,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233996644352
+    "disk_avail_bytes": 233996386304
   }
 }
