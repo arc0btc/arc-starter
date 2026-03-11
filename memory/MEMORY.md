@@ -29,6 +29,8 @@ Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 6
 
 **Queued:** Bitflow, Zest V2, Zero Authority DAO, Umbrel node exploration.
 
+**[FLAG] Ordinals data APIs (2026-03-11):** Hiro Ordinals/BRC-20/Runes API shut down March 9, 2026. **ord.io has no public API.** **Unisat** (`open-api.unisat.io`) is best replacement — full BRC-20 + inscription data, Bearer auth, free tier (5 req/s, 2k/day), register at developer.unisat.io. Xverse (`api.xverse.app`) is partial fallback but missing BRC-20 token list, holder data, and per-token event history. Codebase Hiro usage is Stacks Extended API (`/extended/v1/...`, `/v2/contracts/...`) which is NOT deprecated. Task #4791: implement Unisat fetch-ordinals-data in aibtc-news-editorial.
+
 **CreditsDepleted gate pattern:** When an external paid API returns 402/CreditsDepleted, write a sentinel file (e.g. `db/x-credits-depleted.json`) and gate ALL downstream callers on that file. Do not let callers fail at runtime — check sentinel first, skip with clear message. Applicable to X API and any paid external API. **X developer account refunded (2026-03-11)** — credits restored, sentinel cleared.
 
 **[FLAG] Hub posting discontinued (2026-03-11):** Do NOT create tasks to post about or tag @aibtcdev regarding hub.aibtc.com. Decided it doesn't add enough value to the stack. Failed tasks #4664-4676 are historical only.
