@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T12:14:47.036Z",
+  "updated_at": "2026-03-11T12:16:02.656Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5025,
-    "subject": "Welcome new AIBTC agent: Bright Cube",
+    "id": 5026,
+    "subject": "Welcome new AIBTC agent: Speedy Spark",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 31769,
-    "cost_usd": 0.1341798
+    "duration_ms": 46906,
+    "cost_usd": 0.1778292
   },
   "health": {
-    "uptime_seconds": 1173785,
+    "uptime_seconds": 1173861,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233984647168
+    "disk_avail_bytes": 233984602112
   }
 }
