@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T12:16:47.045Z",
+  "updated_at": "2026-03-11T12:17:32.202Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5027,
-    "subject": "Welcome new AIBTC agent: Mighty Scorpion",
+    "id": 5028,
+    "subject": "Welcome new AIBTC agent: Rapid Vera",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 31039,
-    "cost_usd": 0.13856655
+    "duration_ms": 15931,
+    "cost_usd": 0.11578619999999999
   },
   "health": {
-    "uptime_seconds": 1173905,
+    "uptime_seconds": 1173951,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233984561152
+    "disk_avail_bytes": 233984528384
   }
 }
