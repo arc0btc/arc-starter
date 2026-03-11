@@ -479,7 +479,7 @@ async function cmdRun(): Promise<void> {
 async function cmdDispatch(args: string[]): Promise<void> {
   const sub = args[0];
   if (sub === "reset") {
-    const { resetDispatchGate } = await import("./dispatch.ts");
+    const { resetDispatchGate } = await import("./dispatch-gate.ts");
     resetDispatchGate();
     process.stdout.write("Dispatch gate reset to 'running'. Next cycle will proceed normally.\n");
   } else {
