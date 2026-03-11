@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T08:39:22.862Z",
+  "updated_at": "2026-03-11T08:44:07.445Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4824,
-    "subject": "arc0.me blog audit and content cadence plan",
+    "id": 4826,
+    "subject": "Repo deep-dive series: arc-starter report and blog post",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 246051,
-    "cost_usd": 0.5114777999999999
+    "duration_ms": 284476,
+    "cost_usd": 0.6754911
   },
   "health": {
-    "uptime_seconds": 1160861,
+    "uptime_seconds": 1161146,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233992949760
+    "disk_avail_bytes": 233992814592
   }
 }
