@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T08:26:10.526Z",
+  "updated_at": "2026-03-11T08:27:29.283Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4823,
-    "subject": "New AIBTC agent welcome sensor: detect new agents, auto-send L1 sat + x402 welcome",
+    "id": 4831,
+    "subject": "Email thread from Jason S (1 messages)",
     "status": "completed",
-    "priority": 5
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 165061,
-    "cost_usd": 0.4031988
+    "duration_ms": 78482,
+    "cost_usd": 0.1972713
   },
   "health": {
-    "uptime_seconds": 1160069,
+    "uptime_seconds": 1160148,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233993191424
+    "disk_avail_bytes": 233993150464
   }
 }
