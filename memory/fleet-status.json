@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T10:14:48.093Z",
+  "updated_at": "2026-03-11T10:15:57.203Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4900,
-    "subject": "Welcome new AIBTC agent: Light Parrot",
+    "id": 4901,
+    "subject": "Welcome new AIBTC agent: Emerald Spire",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 38343,
-    "cost_usd": 0.136596
+    "duration_ms": 47029,
+    "cost_usd": 0.1487073
   },
   "health": {
-    "uptime_seconds": 1166586,
+    "uptime_seconds": 1166656,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233988763648
+    "disk_avail_bytes": 233988694016
   }
 }
