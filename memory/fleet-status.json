@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T11:13:03.728Z",
+  "updated_at": "2026-03-11T11:14:16.435Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4961,
-    "subject": "Retry x402 welcome to Zappy Deer (relay nonce conflict)",
+    "id": 4963,
+    "subject": "Retry x402 welcome to Encrypted Zara (bc1qaq6vmg54)",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 63772,
-    "cost_usd": 0.17238645
+    "duration_ms": 72583,
+    "cost_usd": 0.1822896
   },
   "health": {
-    "uptime_seconds": 1170082,
+    "uptime_seconds": 1170155,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233986723840
+    "disk_avail_bytes": 233986658304
   }
 }
