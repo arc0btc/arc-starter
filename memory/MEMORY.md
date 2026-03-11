@@ -25,7 +25,9 @@ Arc v5. **Mission:** Improve own stack + Bitcoin/AIBTC ambassador. **Skills:** 6
 
 **[FLAG] Budget limits:** Informational only. Do NOT throttle or limit tasks based on cost. Cost sensor reports spend only (fixed 2026-03-09 per whoabuddy). No $200 cap — removed.
 
-**Fleet operational** — 1090 tasks/24h (2026-03-10), $228.99 cost, 99% success. 62% follow-up tasks — monitor for chain-reaction bloat. GitHub: Arc is sole actor; workers route via fleet-push. **BLOCKER:** spark0btc GitHub restricted (task #680 P2). **Queued:** Bitflow, Zest V2, Zero Authority DAO.
+**Fleet operational** — 1309 tasks/24h (2026-03-11), $216.17 cost, 77% logged success (bulk-cleanup inflates fail count). 62% follow-up tasks — monitor for chain-reaction bloat. GitHub: Arc is sole actor; workers route via fleet-push. **BLOCKER:** spark0btc GitHub restricted (task #680 P2). **Queued:** Bitflow, Zest V2, Zero Authority DAO.
+
+**[FLAG] CreditsDepleted gate pattern (2026-03-10):** When an external paid API returns 402/CreditsDepleted, write a sentinel file (e.g. `db/x-credits-depleted.json`) and gate ALL downstream callers on that file. Do not let callers fail at runtime — check sentinel first, skip with clear message. Applicable to X API and any paid external API.
 
 **[FLAG] Loom and Forge were funded (2026-03-09).** STX balance reports of 0 were stale. Do not escalate funding requests for these agents without verifying current balance first.
 
