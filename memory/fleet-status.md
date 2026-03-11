@@ -1,27 +1,27 @@
 # Fleet Status
 
-*Last checked: 2026-03-11T02:22:48.428Z*
+*Last checked: 2026-03-11T02:37:49.480Z*
 
 | Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Auth | Issues |
 |-------|-----------|---------|----------|------------|------|------|--------|
 | spark | yes | ok | **inactive
-inactive** | 616m ago | 3% | oauth:auto-refresh | dispatch timer inactive
-inactive; fleet-status.json stale (34m old); dispatch stall: last cycle 616m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 631m ago | 3% | oauth:auto-refresh | dispatch timer inactive
+inactive; fleet-status.json stale (37m old); dispatch stall: last cycle 631m ago; circuit breaker: 5 consecutive task failures |
 | iris | yes | ok | **inactive
-inactive** | 594m ago | 2% | oauth:auto-refresh | dispatch timer inactive
-inactive; fleet-status.json stale (34m old); dispatch stall: last cycle 594m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 609m ago | 2% | oauth:auto-refresh | dispatch timer inactive
+inactive; fleet-status.json stale (37m old); dispatch stall: last cycle 609m ago; circuit breaker: 5 consecutive task failures |
 | loom | yes | ok | **inactive
-inactive** | 599m ago | 3% | oauth:auto-refresh | dispatch timer inactive
-inactive; fleet-status.json stale (34m old); dispatch stall: last cycle 599m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 614m ago | 3% | oauth:auto-refresh | dispatch timer inactive
+inactive; fleet-status.json stale (37m old); dispatch stall: last cycle 614m ago; circuit breaker: 5 consecutive task failures |
 | forge | yes | ok | **inactive
-inactive** | 613m ago | 3% | oauth:auto-refresh | dispatch timer inactive
-inactive; fleet-status.json stale (34m old); dispatch stall: last cycle 613m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 628m ago | 3% | oauth:auto-refresh | dispatch timer inactive
+inactive; fleet-status.json stale (37m old); dispatch stall: last cycle 628m ago; circuit breaker: 5 consecutive task failures |
 
 ## Peer Self-Reported Status
 
 | Agent | Last Task | Task Status | Cycle Cost | Updated | Stale |
 |-------|-----------|-------------|------------|---------|-------|
-| spark | #4722: Publish arc-starter: merge v2 into main  | completed | $0.044 | 2026-03-11 01:48:46Z | **YES** |
-| iris | #4722: Publish arc-starter: merge v2 into main  | completed | $0.044 | 2026-03-11 01:48:46Z | **YES** |
-| loom | #4722: Publish arc-starter: merge v2 into main  | completed | $0.044 | 2026-03-11 01:48:46Z | **YES** |
-| forge | #4722: Publish arc-starter: merge v2 into main  | completed | $0.044 | 2026-03-11 01:48:46Z | **YES** |
+| spark | #4724: Fleet git drift: spark, iris, loom, forg | completed | $0.141 | 2026-03-11 02:00:50Z | **YES** |
+| iris | #4724: Fleet git drift: spark, iris, loom, forg | completed | $0.141 | 2026-03-11 02:00:50Z | **YES** |
+| loom | #4724: Fleet git drift: spark, iris, loom, forg | completed | $0.141 | 2026-03-11 02:00:50Z | **YES** |
+| forge | #4724: Fleet git drift: spark, iris, loom, forg | completed | $0.141 | 2026-03-11 02:00:50Z | **YES** |

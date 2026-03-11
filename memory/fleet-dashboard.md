@@ -1,19 +1,19 @@
 # Fleet Dashboard
 
-*Last updated: 2026-03-11T02:07:47.419Z*
+*Last updated: 2026-03-11T02:37:49.349Z*
 
 ## Fleet Summary
 
 | | Pending | Active | Done Today | Failed Today | Spend Today |
 |---|---------|--------|------------|--------------|-------------|
-| **TOTAL** | 94 | 0 | 0 | 0 | **$0.00** |
+| **TOTAL** | 98 | 0 | 0 | 0 | **$0.00** |
 
 ## Per-Agent Metrics
 
 | Agent | Reachable | Pending | Active | Done Today | Failed Today | Last Hour | Spend Today | Last Cycle |
 |-------|-----------|---------|--------|------------|--------------|-----------|-------------|------------|
-| arc | yes | 0 | 0 | 0 | 0 | **0** | $0.00 | -357m ago |
-| spark | yes | 24 | 0 | 0 | 0 | **0** | $0.00 | 601m ago |
-| iris | yes | 23 | 0 | 0 | 0 | **0** | $0.00 | 579m ago |
-| loom | yes | 24 | 0 | 0 | 0 | **0** | $0.00 | 584m ago |
-| forge | yes | 23 | 0 | 0 | 0 | **0** | $0.00 | 598m ago |
+| arc | yes | 0 | 0 | 0 | 0 | **0** | $0.00 | -346m ago |
+| spark | yes | 25 | 0 | 0 | 0 | **0** | $0.00 | 631m ago |
+| iris | yes | 24 | 0 | 0 | 0 | **0** | $0.00 | 609m ago |
+| loom | yes | 25 | 0 | 0 | 0 | **0** | $0.00 | 614m ago |
+| forge | yes | 24 | 0 | 0 | 0 | **0** | $0.00 | 628m ago |
