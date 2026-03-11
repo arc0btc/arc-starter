@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T09:23:46.218Z",
+  "updated_at": "2026-03-11T09:24:49.512Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4854,
-    "subject": "Welcome new AIBTC agent: Coral Penguin",
+    "id": 4855,
+    "subject": "Welcome new AIBTC agent: Ghostly Sol",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 28190,
-    "cost_usd": 0.1567719
+    "duration_ms": 31251,
+    "cost_usd": 0.15728535
   },
   "health": {
-    "uptime_seconds": 1163525,
+    "uptime_seconds": 1163588,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233990434816
+    "disk_avail_bytes": 233990393856
   }
 }
