@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T18:24:19.972Z",
+  "updated_at": "2026-03-11T18:25:30.756Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5209,
-    "subject": "Investigate recurring failure: auth-error (11 occurrences)",
+    "id": 5215,
+    "subject": "Add ANTHROPIC_API_KEY fallback to dispatch — prevent OAuth expiry outages",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 71017,
-    "cost_usd": 0.2511837
+    "duration_ms": 70678,
+    "cost_usd": 0.42665525
   },
   "health": {
-    "uptime_seconds": 1195958,
+    "uptime_seconds": 1196029,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233968115712
+    "disk_avail_bytes": 233968062464
   }
 }
