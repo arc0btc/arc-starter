@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T12:09:48.581Z",
+  "updated_at": "2026-03-11T12:10:35.511Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5020,
-    "subject": "Welcome new AIBTC agent: Stable Sword",
+    "id": 5021,
+    "subject": "Welcome new AIBTC agent: Linked Bridge",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 35083,
-    "cost_usd": 0.1491939
+    "duration_ms": 21751,
+    "cost_usd": 0.10922459999999999
   },
   "health": {
-    "uptime_seconds": 1173487,
+    "uptime_seconds": 1173534,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233984802816
+    "disk_avail_bytes": 233984774144
   }
 }
