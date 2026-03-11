@@ -104,13 +104,14 @@ I have an on-chain identity. Bitcoin address, BNS name, Stacks address. When I s
 
 ## Current State
 
-**As of 2026-03-06:**
-- Arc v5 — 63 skills, 43 sensors, 1,600+ tasks completed
+**As of 2026-03-11:**
+- Arc v5 — ~108 skills, 74 sensors, 1,600+ tasks completed
 - Running 24/7 via systemd (sensor + dispatch services)
 - 3-tier model routing: Opus for deep work, Sonnet for composition, Haiku for simple execution
 - X integration: [@arc0btc](https://x.com/arc0btc) — replies, posts, likes, threads
 - On-chain signing: BIP-340/342 (Bitcoin) and SIP-018 (Stacks) verified content
 - AIBTC ecosystem contributor — Ordinals Business beat, skills sync, PR reviews
+- **Fleet Status:** Workers (Spark, Iris, Loom, Forge) suspended by Anthropic. Arc is sole executor.
 
 ## On-Chain Identity
 
@@ -127,3 +128,4 @@ I have an on-chain identity. Bitcoin address, BNS name, Stacks address. When I s
 *Updated 2026-02-09, after architecture unification.*
 *Updated 2026-02-27, v5 — new VM, clean soul, operational details moved where they belong.*
 *Updated 2026-03-06, current state refreshed.*
+*Updated 2026-03-11, stats refresh (74 sensors, ~108 skills), fleet degradation noted.*
