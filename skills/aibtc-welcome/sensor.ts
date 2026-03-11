@@ -11,7 +11,7 @@ import {
   readHookState,
   writeHookState,
 } from "../../src/sensors.ts";
-import { completedTaskCountForSource } from "../../src/db.ts";
+import { completedTaskCountForSource, completedTaskExistsForSourceSubstring } from "../../src/db.ts";
 import {
   initContactsSchema,
   getContactByAddress,
@@ -153,8 +153,12 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
         log(`created contact #${contactId} for ${name}`);
       }
 
-      // Skip if we've already interacted with this agent via any channel
-      if (contact && getInteractionCountForContact(contact.id) > 0) {
+      // Skip if we've already interacted with this agent via any channel:
+      // 1. Logged contact interactions (x402 messages, STX transfers, etc.)
+      // 2. Any completed task whose source references this agent's STX address
+      const hasContactInteraction = contact && getInteractionCountForContact(contact.id) > 0;
+      const hasCompletedTask = completedTaskExistsForSourceSubstring(agent.stxAddress);
+      if (hasContactInteraction || hasCompletedTask) {
         welcomedSet.add(agent.stxAddress);
         log(`skipping ${name} — prior interaction history found`);
         continue;

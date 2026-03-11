@@ -517,6 +517,18 @@ export function completedTaskCountForSource(source: string): number {
   return row?.count ?? 0;
 }
 
+/**
+ * Check if any completed task exists whose source contains the given substring.
+ * Useful for detecting prior interactions with an agent across all task types.
+ */
+export function completedTaskExistsForSourceSubstring(substring: string): boolean {
+  const db = getDatabase();
+  const row = db
+    .query("SELECT 1 FROM tasks WHERE source LIKE ? AND status = 'completed' LIMIT 1")
+    .get(`%${substring}%`);
+  return row !== null;
+}
+
 export function recentTaskExistsForSourcePrefix(prefix: string, withinMinutes: number): boolean {
   const db = getDatabase();
   const row = db
