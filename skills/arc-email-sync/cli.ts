@@ -94,7 +94,7 @@ async function cmdMarkRead(args: string[]): Promise<void> {
   if (!response.ok) {
     const body = await response.text();
     log(`remote mark-read failed: HTTP ${response.status} — ${body}`);
-    console.log(JSON.stringify({ success: true, local: true, remote: false, error: `HTTP ${res.status}` }));
+    console.log(JSON.stringify({ success: true, local: true, remote: false, error: `HTTP ${response.status}` }));
   } else {
     log(`marked ${remoteId} as read on remote worker`);
     console.log(JSON.stringify({ success: true, local: true, remote: true }));

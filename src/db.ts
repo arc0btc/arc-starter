@@ -749,7 +749,7 @@ export function upsertEmailMessage(msg: Omit<EmailMessage, "id">): void {
     INSERT INTO email_messages (remote_id, message_id, folder, from_address, from_name, to_address, subject, body_preview, is_read, received_at, synced_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(remote_id) DO UPDATE SET
-      is_read = excluded.is_read,
+      is_read = MAX(is_read, excluded.is_read),
       synced_at = excluded.synced_at
   `).run(
     msg.remote_id, msg.message_id, msg.folder, msg.from_address, msg.from_name,
