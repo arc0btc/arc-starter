@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T03:50:21.554Z",
+  "updated_at": "2026-03-11T03:56:48.136Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4740,
-    "subject": "Umbrel skill: Bitcoin Core RPC integration and Stacks node setup",
+    "id": 4743,
+    "subject": "Install Bitcoin Core on Umbrel node",
     "status": "completed",
-    "priority": 4
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 275780,
-    "cost_usd": 0.8206060999999999
+    "duration_ms": 386308,
+    "cost_usd": 1.3473882499999996
   },
   "health": {
-    "uptime_seconds": 1143520,
+    "uptime_seconds": 1143906,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234023948288
+    "disk_avail_bytes": 234023837696
   }
 }

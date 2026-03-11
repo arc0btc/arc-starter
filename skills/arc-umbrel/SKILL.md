@@ -17,7 +17,7 @@ Local Umbrel node integration at 192.168.1.106. Provides Bitcoin Core JSON-RPC a
 - **Host:** 192.168.1.106
 - **SSH:** umbrel@192.168.1.106 (password: umbrel)
 - **Umbrel OS:** v1.5.0
-- **Storage:** 180GB data partition (full node with txindex=1, not pruned)
+- **Storage:** 180GB data partition (pruned node, prune=100GB, no txindex)
 - **Stacks node:** Not available in Umbrel app store. Manual Docker install required.
 
 ## CLI
@@ -60,5 +60,5 @@ No Umbrel app exists for Stacks. Options documented in `stacks-info` command:
 - [x] Frontmatter `name` matches directory name
 - [x] SKILL.md is under 2000 tokens
 - [x] `cli.ts` implements RPC wrapper and node management
-- [x] Bitcoin Core installed on Umbrel (full node, txindex=1, IBD started 2026-03-11)
+- [x] Bitcoin Core installed on Umbrel (pruned mode, prune=100GB, IBD started 2026-03-11)
 - [ ] Stacks node setup (future — no Umbrel app available)
