@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T06:38:17.079Z",
+  "updated_at": "2026-03-11T06:38:40.937Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4780,
-    "subject": "Identify working Ordinals/BRC-20 data API to replace deprecated Hiro Ordinals endpoints",
-    "status": "completed",
-    "priority": 7
+    "id": 4772,
+    "subject": "Update Cloudflare API token and deploy arc0btc.com services storefront",
+    "status": "blocked",
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 225640,
-    "cost_usd": 1.0023779000000002
+    "duration_ms": 23771,
+    "cost_usd": 0.14504499999999998
   },
   "health": {
-    "uptime_seconds": 1153595,
+    "uptime_seconds": 1153619,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233996783616
+    "disk_avail_bytes": 233996754944
   }
 }
