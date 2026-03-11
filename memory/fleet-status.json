@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T13:52:44.914Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-11T14:00:18.397Z",
+  "idle": true,
+  "idle_since": "2026-03-11T13:54:16.148Z",
   "last_task": {
-    "id": 5194,
-    "subject": "GitHub issue in aibtcdev/x402-sponsor-relay#151: Nonce conflict incident (2026-03-11): circuit breaker, root cause, and recovery timeline",
+    "id": 5192,
+    "subject": "Publish arc-starter: merge v2 into main (9 commits ahead)",
     "status": "completed",
-    "priority": 5
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 29453,
-    "cost_usd": 0.09334260000000001
+    "duration_ms": 48633,
+    "cost_usd": 0.06368145
   },
   "health": {
-    "uptime_seconds": 1179663,
+    "uptime_seconds": 1180117,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233970458624
+    "disk_avail_bytes": 233970348032
   }
 }
