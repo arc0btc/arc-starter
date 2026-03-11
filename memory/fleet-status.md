@@ -1,21 +1,21 @@
 # Fleet Status
 
-*Last checked: 2026-03-11T04:07:55.325Z*
+*Last checked: 2026-03-11T04:22:58.037Z*
 
 | Agent | Reachable | Sensors | Dispatch | Last Cycle | Disk | Auth | Issues |
 |-------|-----------|---------|----------|------------|------|------|--------|
 | spark | yes | ok | **inactive
-inactive** | 722m ago | 3% | oauth:auto-refresh | dispatch timer inactive
-inactive; dispatch stall: last cycle 722m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 737m ago | 3% | oauth:auto-refresh | dispatch timer inactive
+inactive; dispatch stall: last cycle 737m ago; circuit breaker: 5 consecutive task failures |
 | iris | yes | ok | **inactive
-inactive** | 699m ago | 2% | oauth:auto-refresh | dispatch timer inactive
-inactive; dispatch stall: last cycle 699m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 714m ago | 2% | oauth:auto-refresh | dispatch timer inactive
+inactive; dispatch stall: last cycle 714m ago; circuit breaker: 5 consecutive task failures |
 | loom | yes | ok | **inactive
-inactive** | 705m ago | 3% | oauth:auto-refresh | dispatch timer inactive
-inactive; dispatch stall: last cycle 705m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 720m ago | 3% | oauth:auto-refresh | dispatch timer inactive
+inactive; dispatch stall: last cycle 720m ago; circuit breaker: 5 consecutive task failures |
 | forge | yes | ok | **inactive
-inactive** | 718m ago | 3% | oauth:auto-refresh | dispatch timer inactive
-inactive; dispatch stall: last cycle 718m ago; circuit breaker: 5 consecutive task failures |
+inactive** | 733m ago | 3% | oauth:auto-refresh | dispatch timer inactive
+inactive; dispatch stall: last cycle 733m ago; circuit breaker: 5 consecutive task failures |
 
 ## Peer Self-Reported Status
 
