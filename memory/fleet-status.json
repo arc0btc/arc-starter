@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T08:32:53.281Z",
+  "updated_at": "2026-03-11T08:35:16.540Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4832,
-    "subject": "New AIBTC agent welcome sensor: detect new agents, send L1 sat + x402 welcome",
+    "id": 4833,
+    "subject": "OpenRouter integration: restore Kimi/Minimax/Qwen routing for dispatch",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 323899,
-    "cost_usd": 1.3009033000000003
+    "duration_ms": 143001,
+    "cost_usd": 0.5594851
   },
   "health": {
-    "uptime_seconds": 1160472,
+    "uptime_seconds": 1160615,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233993027584
+    "disk_avail_bytes": 233992986624
   }
 }
