@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T11:04:05.797Z",
+  "updated_at": "2026-03-11T11:04:58.673Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4946,
-    "subject": "Retry x402 welcome message to Stable Sword (nonce conflict cleared)",
+    "id": 4947,
+    "subject": "Welcome Linked Bridge: retry x402 message (nonce conflict)",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 42643,
-    "cost_usd": 0.1502628
+    "duration_ms": 35189,
+    "cost_usd": 0.13827089999999997
   },
   "health": {
-    "uptime_seconds": 1169544,
+    "uptime_seconds": 1169597,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233986981888
+    "disk_avail_bytes": 233986949120
   }
 }
