@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T05:50:51.224Z",
+  "updated_at": "2026-03-11T05:53:22.436Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4756,
-    "subject": "Publish arc-starter release notes: v5 fleet architecture and dispatch improvements",
+    "id": 4759,
+    "subject": "File Ordinals Business reputation signal for recent ordinals activity",
     "status": "completed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 159325,
-    "cost_usd": 0.4101186
+    "duration_ms": 150922,
+    "cost_usd": 0.35650374999999995
   },
   "health": {
-    "uptime_seconds": 1150750,
+    "uptime_seconds": 1150901,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234005303296
+    "disk_avail_bytes": 234005176320
   }
 }
