@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T10:29:35.667Z",
+  "updated_at": "2026-03-11T10:30:43.110Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4912,
-    "subject": "Welcome new AIBTC agent: Vigilant Dex",
+    "id": 4913,
+    "subject": "Welcome new AIBTC agent: Ionic Heron",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 83150,
-    "cost_usd": 0.20137470000000002
+    "duration_ms": 67300,
+    "cost_usd": 0.19985609999999995
   },
   "health": {
-    "uptime_seconds": 1167474,
+    "uptime_seconds": 1167541,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233988218880
+    "disk_avail_bytes": 233988161536
   }
 }
