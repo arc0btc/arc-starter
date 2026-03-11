@@ -19,6 +19,7 @@
 - **SHA tracking for code-change dedup:** Hook-state SHA prevents redundant review tasks. Skip if currentSha == lastReviewedSha.
 - **Age-threshold review gates:** Tasks in stalled states (blocked, pending) reaching age threshold trigger automatic review.
 - **Dedup at platform integration layer:** When multiple sensors watch same external system, dedup at the event source.
+- **Multi-item dedup: check against newest item, not oldest:** When checking if an action was taken on a batch (e.g., "did we reply to this sender?"), compare action timestamp against the *newest* item in the batch, not oldest. If message N was replied to but newer messages N+1, N+2 arrived later, checking against N's time skips the newer items. (Example: email sensor checking `hasSentEmailTo(sender, oldestUnreadTime)` skipped newer emails when older one was already replied to.) Fix: use `Math.max(...timestamps)` or check after *every* item, not just the first.
 - **Multi-site structural role enforcement:** Encode site role constraints (forbidden routes, required endpoints) as drift sensor checks; bundle all failures into a single task.
 - **Keyword rotation for API rate smoothing:** Rotate keyword cycles to respect per-action rate limits. Rolling window dedup for high-frequency feeds; timestamp gate for low-frequency.
 - **Engagement thresholds as signal filter:** Filter social media by engagement rather than filing every result.
