@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T06:01:00.305Z",
+  "updated_at": "2026-03-11T06:05:19.484Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4766,
-    "subject": "ERC-8004: link Bitcoin wallet to agent 1 on-chain",
+    "id": 4777,
+    "subject": "context-review: 4 context loading issue(s) found",
     "status": "completed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 16653,
-    "cost_usd": 0.09408195
+    "duration_ms": 215478,
+    "cost_usd": 0.5167284
   },
   "health": {
-    "uptime_seconds": 1151359,
+    "uptime_seconds": 1151618,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233999781888
+    "disk_avail_bytes": 233998999552
   }
 }
