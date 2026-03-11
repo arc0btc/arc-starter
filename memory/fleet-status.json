@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T13:09:04.983Z",
+  "updated_at": "2026-03-11T13:09:35.960Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5182,
-    "subject": "re: sensor:arc-email-sync — is our email sync down?",
-    "status": "completed",
-    "priority": 1
+    "id": 5067,
+    "subject": "Welcome new AIBTC agent: Jagged Basilisk",
+    "status": "failed",
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 78521,
-    "cost_usd": 0.40243
+    "duration_ms": 30836,
+    "cost_usd": 0.13492545
   },
   "health": {
-    "uptime_seconds": 1177043,
+    "uptime_seconds": 1177074,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233971609600
+    "disk_avail_bytes": 233971580928
   }
 }
