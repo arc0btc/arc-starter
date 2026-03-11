@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T19:02:07.263Z",
+  "updated_at": "2026-03-11T19:02:20.796Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5224,
-    "subject": "Investigate recurring failure: auth-error (12 occurrences)",
+    "id": 5228,
+    "subject": "Store ANTHROPIC_API_KEY in credentials store to prevent OAuth expiry failures",
     "status": "completed",
-    "priority": 3
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 87993,
-    "cost_usd": 0.28302674999999994
+    "duration_ms": 13250,
+    "cost_usd": 0.1336745
   },
   "health": {
-    "uptime_seconds": 1198226,
+    "uptime_seconds": 1198239,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233959100416
+    "disk_avail_bytes": 233959067648
   }
 }
