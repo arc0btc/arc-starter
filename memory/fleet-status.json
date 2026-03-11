@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T13:18:53.171Z",
+  "updated_at": "2026-03-11T13:21:12.107Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5185,
-    "subject": "Email thread from Jason S (4 messages)",
+    "id": 5188,
+    "subject": "Fix aibtc-welcome sensor: only target new agents with no prior interaction history",
     "status": "completed",
-    "priority": 1
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 163665,
-    "cost_usd": 0.32685914999999993
+    "duration_ms": 138828,
+    "cost_usd": 0.6583627499999999
   },
   "health": {
-    "uptime_seconds": 1177632,
+    "uptime_seconds": 1177770,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233971412992
+    "disk_avail_bytes": 233971269632
   }
 }
