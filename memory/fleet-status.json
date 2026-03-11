@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T01:51:47.907Z",
+  "updated_at": "2026-03-11T02:00:50.416Z",
   "idle": true,
-  "idle_since": "2026-03-11T01:50:47.397Z",
+  "idle_since": "2026-03-11T01:53:48.649Z",
   "last_task": {
-    "id": 4723,
-    "subject": "Submit reputation review: Dual Cougar (task #4716, mention)",
+    "id": 4724,
+    "subject": "Fleet git drift: spark, iris, loom, forge behind Arc (d931d74a05)",
     "status": "completed",
-    "priority": 8
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 24450,
-    "cost_usd": 0.0492534
+    "duration_ms": 19712,
+    "cost_usd": 0.14117949999999999
   },
   "health": {
-    "uptime_seconds": 1136406,
+    "uptime_seconds": 1136949,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234034937856
+    "disk_avail_bytes": 234034835456
   }
 }
