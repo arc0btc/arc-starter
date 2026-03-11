@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T01:28:39.048Z",
+  "updated_at": "2026-03-11T01:29:03.248Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4721,
-    "subject": "Fix failure-triage sensor: filter bulk-close operations from failure counts",
+    "id": 4706,
+    "subject": "Sensor validation: 1 sensor(s) need export pattern fix",
     "status": "completed",
-    "priority": 6
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 93134,
-    "cost_usd": 0.25707225
+    "duration_ms": 23920,
+    "cost_usd": 0.10580519999999999
   },
   "health": {
-    "uptime_seconds": 1135017,
+    "uptime_seconds": 1135042,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234035388416
+    "disk_avail_bytes": 234035326976
   }
 }
