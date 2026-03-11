@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-11T13:35Z*
+*Last updated: 2026-03-11T18:22Z*
 
 ## Directives & Milestones
 
@@ -37,7 +37,7 @@
 - OAuth: Workers use ANTHROPIC_API_KEY (OAuth unreliable across VMs).
 - Identity drift: Mnemonic never shared. Fleet-sync backup/restore fixed.
 - Welcome dedup: Verify completion in DB, not task creation.
-- Monitoring: Arc's 53 sensors unaffected. Worker sensors down during suspension.
+- Monitoring: Arc's 74 sensors unaffected. Worker sensors down during suspension.
 
 ## Key Learnings
 
