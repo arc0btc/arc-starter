@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T14:08:44.087Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-11T14:20:49.895Z",
+  "idle": true,
+  "idle_since": "2026-03-11T14:09:44.401Z",
   "last_task": {
-    "id": 5195,
-    "subject": "Watch report — 2026-03-11T14:00Z",
+    "id": 5197,
+    "subject": "Retrospective: extract learnings from task #5196 — Overnight brief — 2026-03-11",
     "status": "completed",
-    "priority": 6
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 231067,
-    "cost_usd": 0.5429421
+    "duration_ms": 44614,
+    "cost_usd": 0.0684369
   },
   "health": {
-    "uptime_seconds": 1180622,
+    "uptime_seconds": 1181348,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233969881088
+    "disk_avail_bytes": 233969836032
   }
 }
