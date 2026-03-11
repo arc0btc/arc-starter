@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T09:40:40.496Z",
+  "updated_at": "2026-03-11T09:41:42.661Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4869,
-    "subject": "Welcome new AIBTC agent: Stellar Swallow",
+    "id": 4870,
+    "subject": "Welcome new AIBTC agent: Stable Sword",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 49367,
-    "cost_usd": 0.18190379999999998
+    "duration_ms": 51166,
+    "cost_usd": 0.15257325
   },
   "health": {
-    "uptime_seconds": 1164539,
+    "uptime_seconds": 1164601,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233989906432
+    "disk_avail_bytes": 233989877760
   }
 }
