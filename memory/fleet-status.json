@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T08:23:25.190Z",
+  "updated_at": "2026-03-11T08:26:10.526Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4830,
-    "subject": "Implement openrouter: prefix routing for multi-model dispatch (Kimi, Minimax, Qwen)",
+    "id": 4823,
+    "subject": "New AIBTC agent welcome sensor: detect new agents, auto-send L1 sat + x402 welcome",
     "status": "completed",
-    "priority": 3
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 149797,
-    "cost_usd": 0.94675925
+    "duration_ms": 165061,
+    "cost_usd": 0.4031988
   },
   "health": {
-    "uptime_seconds": 1159904,
+    "uptime_seconds": 1160069,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233993261056
+    "disk_avail_bytes": 233993191424
   }
 }
