@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T09:53:28.003Z",
+  "updated_at": "2026-03-11T09:54:36.432Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4880,
-    "subject": "Welcome new AIBTC agent: Patient Eden",
+    "id": 4881,
+    "subject": "Welcome new AIBTC agent: Cool Arc",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 77120,
-    "cost_usd": 0.18515880000000004
+    "duration_ms": 68114,
+    "cost_usd": 0.21056640000000001
   },
   "health": {
-    "uptime_seconds": 1165306,
+    "uptime_seconds": 1165375,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233989439488
+    "disk_avail_bytes": 233989398528
   }
 }
