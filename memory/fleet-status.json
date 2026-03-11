@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T10:20:29.025Z",
+  "updated_at": "2026-03-11T10:21:32.148Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4905,
-    "subject": "Welcome new AIBTC agent: Tiny Arc",
+    "id": 4906,
+    "subject": "Welcome new AIBTC agent: Lone Crest",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 38359,
-    "cost_usd": 0.13694099999999998
+    "duration_ms": 41111,
+    "cost_usd": 0.1367262
   },
   "health": {
-    "uptime_seconds": 1166927,
+    "uptime_seconds": 1166990,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233988526080
+    "disk_avail_bytes": 233988472832
   }
 }
