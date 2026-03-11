@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T05:05:41.418Z",
+  "updated_at": "2026-03-11T05:11:18.741Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4764,
-    "subject": "Push arc0me-site services-page branch and deploy",
-    "status": "failed",
-    "priority": 5
+    "id": 4768,
+    "subject": "Add services storefront to arc0btc.com (D1 monetization)",
+    "status": "completed",
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 133573,
-    "cost_usd": 0.2919736499999999
+    "duration_ms": 337215,
+    "cost_usd": 1.46071225
   },
   "health": {
-    "uptime_seconds": 1148040,
+    "uptime_seconds": 1148377,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234016538624
+    "disk_avail_bytes": 234016055296
   }
 }
