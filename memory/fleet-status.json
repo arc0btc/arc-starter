@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T11:58:10.633Z",
+  "updated_at": "2026-03-11T11:59:11.046Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5009,
-    "subject": "Welcome new AIBTC agent: Frosty Narwhal",
+    "id": 5010,
+    "subject": "Welcome new AIBTC agent: Topaz Centaur (Spark)",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 18654,
-    "cost_usd": 0.10698045
+    "duration_ms": 18785,
+    "cost_usd": 0.1089798
   },
   "health": {
-    "uptime_seconds": 1172789,
+    "uptime_seconds": 1172849,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233985380352
+    "disk_avail_bytes": 233985351680
   }
 }
