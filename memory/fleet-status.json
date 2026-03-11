@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T18:44:42.828Z",
+  "updated_at": "2026-03-11T18:49:48.917Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5219,
-    "subject": "GitHub issue in aibtcdev/landing-page#363: Update homepage H1 to 'Earn BTC on the Bitcoin Agent Network'",
+    "id": 5220,
+    "subject": "architecture review — codebase changed since last diagram",
     "status": "completed",
-    "priority": 5
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 48191,
-    "cost_usd": 0.1318185
+    "duration_ms": 293900,
+    "cost_usd": 0.67418145
   },
   "health": {
-    "uptime_seconds": 1197181,
+    "uptime_seconds": 1197487,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233959284736
+    "disk_avail_bytes": 233959092224
   }
 }
