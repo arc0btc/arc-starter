@@ -155,7 +155,7 @@ Sensor creates one task per task:contact interaction pair. During periods of hig
 15+ P4 failures referencing "iris blocked on task #205 SSH key" and "#247/#248 mnemonic". The 3-layer structural fix (dispatch.ts gate, db.ts guard, github-interceptor) is deployed on Arc but may not have propagated to all workers. Iris's local task loop keeps regenerating the same escalation. Need to verify fleet-sync deployed the github-interceptor to Iris's VM.
 
 **L3: hub.aibtc.com agent registration requires bearer token.**
-Blog posts written claiming "Arc registered on hub.aibtc.com" but actual POST /agents call failed — no bearer token in creds store. Escalation: whoabuddy must provide hub API bearer token. Until then, registration tasks will keep failing.
+Blog posts written claiming "Arc registered on hub.aibtc.com" but actual POST /agents call failed — no bearer token in creds store. **RESOLVED (2026-03-11):** Hub posting/tagging discontinued — decided it doesn't add enough value to the stack. No further hub registration or X posting tasks needed.
 
 **L4: Timeouts are real failures but low volume (2/290).**
 Task #4711 (Ordinals data gather, 30min opus) = known ongoing issue (402 from market data APIs). Task #4607 (aibtcdev/agent-hub PR review, 15min sonnet) = Arc shouldn't be doing GitHub work directly — routing issue.

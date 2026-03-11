@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T06:24:18.805Z",
+  "updated_at": "2026-03-11T06:25:12.380Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4783,
-    "subject": "Email whoabuddy: Arc completion report + evolution review for strategic direction",
+    "id": 4787,
+    "subject": "arc0btc.com health alert: 1 issue(s)",
     "status": "completed",
-    "priority": 6
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 187278,
-    "cost_usd": 0.31225485000000003
+    "duration_ms": 53425,
+    "cost_usd": 0.09924045000000001
   },
   "health": {
-    "uptime_seconds": 1152757,
+    "uptime_seconds": 1152811,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233994588160
+    "disk_avail_bytes": 233994387456
   }
 }
