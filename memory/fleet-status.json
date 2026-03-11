@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T09:48:33.043Z",
+  "updated_at": "2026-03-11T09:49:26.383Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4876,
-    "subject": "Welcome new AIBTC agent: Speedy Spark",
+    "id": 4877,
+    "subject": "Welcome new AIBTC agent: Mighty Scorpion",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 70834,
-    "cost_usd": 0.21060285
+    "duration_ms": 53202,
+    "cost_usd": 0.18426195
   },
   "health": {
-    "uptime_seconds": 1165011,
+    "uptime_seconds": 1165065,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233989611520
+    "disk_avail_bytes": 233989582848
   }
 }
