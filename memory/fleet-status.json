@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T06:00:43.496Z",
+  "updated_at": "2026-03-11T06:01:00.305Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4765,
-    "subject": "ERC-8004: create agent metadata document and set URI for agent 1",
+    "id": 4766,
+    "subject": "ERC-8004: link Bitcoin wallet to agent 1 on-chain",
     "status": "completed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 380530,
-    "cost_usd": 0.48077325
+    "duration_ms": 16653,
+    "cost_usd": 0.09408195
   },
   "health": {
-    "uptime_seconds": 1151342,
+    "uptime_seconds": 1151359,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233999814656
+    "disk_avail_bytes": 233999781888
   }
 }

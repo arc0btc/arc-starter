@@ -18,6 +18,7 @@ import {
   writeHookState,
 } from "../../src/sensors.ts";
 import { getDatabase } from "../../src/db.ts";
+import { discoverSkills } from "../../src/skills.ts";
 
 const SENSOR_NAME = "auto-queue";
 const INTERVAL_MINUTES = 360; // 6 hours — don't generate work faster than consumed
@@ -256,11 +257,19 @@ export default async function autoQueueSensor(): Promise<string> {
     "6. If a domain has high failure rate, investigate before queuing more work",
   ].join("\n");
 
+  // Build skills array: auto-queue + hungry domain names (valid skills only, max 5 domains)
+  const validSkillNames = new Set(discoverSkills().map((s) => s.name));
+  const domainSkills = hungryDomains
+    .map((d) => d.domain)
+    .filter((d) => d !== "_general" && validSkillNames.has(d))
+    .slice(0, 5);
+  const taskSkills = JSON.stringify(["auto-queue", ...domainSkills]);
+
   const created = insertTaskIfNew(TASK_SOURCE, {
     subject: `Auto-queue: ${hungryDomains.length} hungry domain(s) need work`,
     description,
     priority: 5,
-    skills: '["auto-queue"]',
+    skills: taskSkills,
   });
 
   if (created !== null) {

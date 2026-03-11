@@ -152,6 +152,10 @@ function checkMissingSkillCoverage(
   // because the embedded parent subject may mention any domain. Skip keyword checks entirely.
   if (task.subject.startsWith("Retrospective:")) return findings;
 
+  // Scaffold tasks create a new skill and load arc-skill-manager to do so.
+  // Flagging them for not loading the skill they're creating is always a false positive.
+  if (/^Scaffold \S+ skill /i.test(task.subject)) return findings;
+
   // Research tasks fetch and analyze external content (e.g., X articles, GitHub issues).
   // Their descriptions contain domain terminology from the *content* they analyze, not from
   // skills they need. "tweet" in "Research X article: @user" means fetching, not posting.
