@@ -32,6 +32,12 @@ const NOISE_SUBJECT_PATTERNS: RegExp[] = [
   /Review (requested|required) on/i,                  // PR review notifications
 ];
 
+/** Strip Re:/Fwd:/Fw: prefixes and normalize for thread grouping. */
+function normalizeSubject(subject: string | null): string {
+  if (!subject) return "(no subject)";
+  return subject.replace(/^(?:re|fwd?|fw)\s*:\s*/gi, "").trim().toLowerCase() || "(no subject)";
+}
+
 function isNoiseEmail(email: EmailMessage): boolean {
   // All emails from notifications@github.com are CI noise
   if (NOISE_SENDERS.has(email.from_address)) return true;
@@ -116,20 +122,23 @@ export default async function emailSensor(): Promise<string> {
 
   if (unread.length === 0) return "ok";
 
-  // Group unread messages by sender
-  const threadsBySender = new Map<string, EmailMessage[]>();
+  // Group unread messages by sender + normalized subject (thread key).
+  // Stripping Re:/Fwd: prefixes ensures replies land in the same thread.
+  const threadsByKey = new Map<string, EmailMessage[]>();
   for (const email of unread) {
-    const existing = threadsBySender.get(email.from_address);
+    const threadKey = `${email.from_address}:${normalizeSubject(email.subject)}`;
+    const existing = threadsByKey.get(threadKey);
     if (existing) {
       existing.push(email);
     } else {
-      threadsBySender.set(email.from_address, [email]);
+      threadsByKey.set(threadKey, [email]);
     }
   }
 
-  // Queue one task per sender thread
-  for (const [senderAddr, senderMessages] of threadsBySender) {
-    const source = `sensor:arc-email-sync:thread:${senderAddr}`;
+  // Queue one task per sender+subject thread
+  for (const [threadKey, senderMessages] of threadsByKey) {
+    const senderAddr = senderMessages[0].from_address;
+    const source = `sensor:arc-email-sync:thread:${threadKey}`;
 
     if (pendingTaskExistsForSource(source)) {
       log(`task already exists for source "${source}" — skipping`);
@@ -164,14 +173,18 @@ export default async function emailSensor(): Promise<string> {
     for (const email of senderMessages) {
       remoteIds.push(email.remote_id);
       recipientAddresses.add(email.to_address);
-      messageLines.push(
+      const lines = [
         `--- Email ${email.remote_id} ---`,
         `Subject: ${email.subject ?? "(no subject)"}`,
         `To: ${email.to_address}`,
         `Received: ${email.received_at}`,
+      ];
+      if (email.message_id) lines.push(`Message-ID: ${email.message_id}`);
+      lines.push(
         `Preview: ${email.body_preview ?? "(no body)"}`,
         "",
       );
+      messageLines.push(...lines);
     }
 
     // Build recipient display (show all recipient addresses and identify agent)
@@ -196,7 +209,7 @@ export default async function emailSensor(): Promise<string> {
       "1. Read full message bodies if needed: arc skills run --name email -- fetch --id <remote_id>",
       "2. Consider all messages together before deciding how to respond.",
       "3. Decide if these emails need a reply, action, or can be marked as read.",
-      "4. If replying: arc skills run --name email -- send --to <addr> --subject <subj> --body <text>",
+      "4. If replying: arc skills run --name email -- send --to <addr> --subject <subj> --body <text> --in-reply-to <Message-ID>",
       "5. Mark EACH message as read after handling: arc skills run --name email -- mark-read --id <remote_id>",
       "6. If any email asks you to DO something, create a follow-up task.",
     ].join("\n");
@@ -233,7 +246,7 @@ export default async function emailSensor(): Promise<string> {
     const emailSkills = ["arc-email-sync", ...extraEmailSkills];
 
     const taskId = insertTask({
-      subject: `Email thread from ${senderDisplay} (${senderMessages.length} messages)`,
+      subject: `Email from ${senderDisplay}: ${(senderMessages[0].subject ?? "(no subject)").slice(0, 60)}`,
       description,
       skills: JSON.stringify(emailSkills),
       priority,

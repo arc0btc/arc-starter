@@ -123,6 +123,8 @@ export interface EmailMessage {
   id: number;
   remote_id: string;
   message_id: string | null;
+  in_reply_to: string | null;
+  references_header: string | null;
   folder: string;
   from_address: string;
   from_name: string | null;
@@ -282,6 +284,8 @@ export function initDatabase(): Database {
       id INTEGER PRIMARY KEY,
       remote_id TEXT UNIQUE NOT NULL,
       message_id TEXT,
+      in_reply_to TEXT,
+      references_header TEXT,
       folder TEXT NOT NULL,
       from_address TEXT NOT NULL,
       from_name TEXT,
@@ -294,6 +298,10 @@ export function initDatabase(): Database {
     )
   `);
   db.run("CREATE INDEX IF NOT EXISTS idx_email_unread ON email_messages(folder, is_read)");
+
+  // Migrate existing email_messages tables to add threading columns
+  addColumn("email_messages", "in_reply_to", "TEXT");
+  addColumn("email_messages", "references_header", "TEXT");
 
   db.run(`
     CREATE TABLE IF NOT EXISTS aibtc_inbox_messages (
@@ -758,13 +766,16 @@ export function getTodayCostUsd(): number {
 export function upsertEmailMessage(msg: Omit<EmailMessage, "id">): void {
   const db = getDatabase();
   db.query(`
-    INSERT INTO email_messages (remote_id, message_id, folder, from_address, from_name, to_address, subject, body_preview, is_read, received_at, synced_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO email_messages (remote_id, message_id, in_reply_to, references_header, folder, from_address, from_name, to_address, subject, body_preview, is_read, received_at, synced_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(remote_id) DO UPDATE SET
       is_read = MAX(is_read, excluded.is_read),
-      synced_at = excluded.synced_at
+      synced_at = excluded.synced_at,
+      in_reply_to = COALESCE(excluded.in_reply_to, in_reply_to),
+      references_header = COALESCE(excluded.references_header, references_header)
   `).run(
-    msg.remote_id, msg.message_id, msg.folder, msg.from_address, msg.from_name,
+    msg.remote_id, msg.message_id, msg.in_reply_to, msg.references_header,
+    msg.folder, msg.from_address, msg.from_name,
     msg.to_address, msg.subject, msg.body_preview, msg.is_read, msg.received_at, msg.synced_at
   );
 }

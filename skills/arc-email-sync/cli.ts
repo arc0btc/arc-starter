@@ -30,7 +30,7 @@ async function cmdSend(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
   if (!flags.to || !flags.subject || !flags.body) {
-    process.stderr.write("Usage: arc skills run --name email -- send --to <addr> --subject <subj> --body <text> [--from <addr>]\n");
+    process.stderr.write("Usage: arc skills run --name email -- send --to <addr> --subject <subj> --body <text> [--from <addr>] [--in-reply-to <message-id>]\n");
     process.exit(1);
   }
 
@@ -43,6 +43,9 @@ async function cmdSend(args: string[]): Promise<void> {
   };
   if (flags.from) {
     payload.from = flags.from;
+  }
+  if (flags["in-reply-to"]) {
+    payload.in_reply_to = flags["in-reply-to"];
   }
 
   log(`sending to ${flags.to}: "${flags.subject}"`);
@@ -154,8 +157,8 @@ USAGE
   arc skills run --name email -- <subcommand> [flags]
 
 SUBCOMMANDS
-  send --to <addr> --subject <subj> --body <text> [--from <addr>]
-    Send an email via the email worker API.
+  send --to <addr> --subject <subj> --body <text> [--from <addr>] [--in-reply-to <message-id>]
+    Send an email via the email worker API. Use --in-reply-to to thread replies.
 
   mark-read --id <remote_id>
     Mark an email as read (local DB + remote worker).

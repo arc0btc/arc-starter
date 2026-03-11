@@ -15,6 +15,8 @@ import { getCredential } from "../../src/credentials.ts";
 interface ApiEmailRecord {
   id: string;
   message_id: string | null;
+  in_reply_to: string | null;
+  references: string | null;
   folder: string;
   from_address: string;
   from_name: string | null;
@@ -70,6 +72,8 @@ function toLocalMessage(record: ApiEmailRecord): Omit<EmailMessage, "id"> {
   return {
     remote_id: record.id,
     message_id: record.message_id,
+    in_reply_to: record.in_reply_to ?? null,
+    references_header: record.references ?? null,
     folder: record.folder,
     from_address: record.from_address,
     from_name: record.from_name,
