@@ -1,7 +1,7 @@
 ---
 name: arc-dual-sdk
-description: Routes dispatch to Claude Code or OpenAI Codex CLI based on task sdk field
-updated: 2026-03-08
+description: Routes dispatch to Claude Code, Codex CLI, or OpenRouter models based on task sdk field
+updated: 2026-03-11
 tags:
   - infrastructure
   - dispatch
@@ -25,26 +25,31 @@ The `model` field on tasks now supports an optional `sdk:` prefix:
 | `codex:o3` | Codex CLI | o3 |
 | `codex:o4-mini` | Codex CLI | o4-mini |
 | `codex:gpt-4.1` | Codex CLI | gpt-4.1 |
+| `openrouter:kimi` | OpenRouter API | moonshotai/kimi-k2.5 |
+| `openrouter:minimax` | OpenRouter API | minimax/minimax-m2-5 |
+| `openrouter:qwen` | OpenRouter API | qwen/qwen3-coder |
+| `openrouter:<model-id>` | OpenRouter API | Any model ID (passed through) |
 | (none) | Priority routing | P1-4→opus, P5-7→sonnet, P8+→haiku |
 
-OpenRouter mode is orthogonal — it replaces the Claude Code backend when `OPENROUTER_API_KEY` is set, but only for Claude-tier tasks (not codex tasks).
+**OpenRouter modes:** The `openrouter:` prefix explicitly routes to a specific OpenRouter model. Separately, when `OPENROUTER_API_KEY` is set (and no prefix is used), Claude-tier tasks fall back to OpenRouter's Claude models automatically.
 
 ## Architecture
 
 ```
-task.model ──▶ parseSDK() ──▶ { sdk: "claude" | "codex", model: string }
+task.model ──▶ parseSDK() ──▶ { sdk: "claude" | "codex" | "openrouter", model: string }
                                     │
-                    ┌───────────────┤
-                    ▼               ▼
-              Claude Code      Codex CLI
-              (or OpenRouter)  (Bun.spawn)
+                    ┌───────────────┼───────────────┐
+                    ▼               ▼               ▼
+              Claude Code      Codex CLI      OpenRouter API
+              (or OR fallback) (Bun.spawn)   (explicit model)
 ```
 
 ### Files
 
 - `src/codex.ts` — Codex CLI adapter. Spawns `codex` subprocess, captures output.
+- `src/openrouter.ts` — OpenRouter API adapter. Tool-calling loop with bash execution.
 - `src/dispatch.ts` — Extended with SDK routing in the dispatch loop.
-- `src/models.ts` — Extended `SdkType` and `parseTaskSdk()` helper.
+- `src/models.ts` — `SdkType`, `parseTaskSdk()`, alias maps, and pricing registries.
 
 ## Codex CLI Differences
 
@@ -57,11 +62,17 @@ task.model ──▶ parseSDK() ──▶ { sdk: "claude" | "codex", model: stri
 | Working dir | cwd argument | `--cwd` flag |
 | Approval | permission modes | `--full-auto` / `--suggest` |
 
-## Creating Codex Tasks
+## Creating Tasks
 
 ```bash
+# Codex
 arc tasks add --subject "Simple refactor" --model codex --priority 7
 arc tasks add --subject "Use o3 for analysis" --model codex:o3 --priority 5
+
+# OpenRouter (explicit model)
+arc tasks add --subject "Kimi analysis" --model openrouter:kimi --priority 5
+arc tasks add --subject "Qwen code task" --model openrouter:qwen --priority 6
+arc tasks add --subject "Custom model" --model "openrouter:meta-llama/llama-4-maverick" --priority 7
 ```
 
 ## Checklist

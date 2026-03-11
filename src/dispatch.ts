@@ -107,7 +107,7 @@ function selectModel(task: Task): ModelTier {
   if (task.model) {
     const m = task.model;
     if (m === "opus" || m === "sonnet" || m === "haiku") return m;
-    if (!m.startsWith("codex")) {
+    if (!m.startsWith("codex") && !m.startsWith("openrouter:")) {
       log(`dispatch: unrecognized task.model="${m}" for task #${task.id}, falling back to priority routing`);
     }
   }
@@ -682,7 +682,11 @@ export async function runDispatch(): Promise<void> {
   }
 
   // Record cycle start
-  const cycleModelLabel = sdkRoute.sdk === "codex" ? `codex:${sdkRoute.model ?? "default"}` : model;
+  const cycleModelLabel = sdkRoute.sdk === "codex"
+    ? `codex:${sdkRoute.model ?? "default"}`
+    : sdkRoute.sdk === "openrouter"
+      ? `openrouter:${sdkRoute.model ?? "default"}`
+      : model;
   const cycleStartedAt = toSqliteDatetime(new Date());
   const skillHashes = computeSkillHashes(skillNames);
   const cycleId = insertCycleLog({
@@ -699,12 +703,15 @@ export async function runDispatch(): Promise<void> {
 
   // Detect dispatch backend
   const useCodex = sdkRoute.sdk === "codex";
-  const openRouterKey = useCodex ? null : await getOpenRouterApiKey();
-  const useOpenRouter = !useCodex && (!!openRouterKey || process.env.DISPATCH_MODE === "openrouter");
+  const explicitOpenRouter = sdkRoute.sdk === "openrouter";
+  const openRouterKey = (useCodex && !explicitOpenRouter) ? null : await getOpenRouterApiKey();
+  const useOpenRouter = explicitOpenRouter || (!useCodex && (!!openRouterKey || process.env.DISPATCH_MODE === "openrouter"));
   if (useCodex) {
     log(`dispatch: using Codex CLI dispatch mode (model=${sdkRoute.model ?? "default"})`);
+  } else if (explicitOpenRouter) {
+    log(`dispatch: using OpenRouter API dispatch mode (explicit model=${sdkRoute.model ?? "default"})`);
   } else if (useOpenRouter) {
-    log("dispatch: using OpenRouter API dispatch mode");
+    log("dispatch: using OpenRouter API dispatch mode (Claude fallback)");
   }
 
   try {
@@ -718,7 +725,10 @@ export async function runDispatch(): Promise<void> {
         if (useCodex) {
           dispatchResult = await dispatchCodex(prompt, sdkRoute.model, worktreePath ?? undefined);
         } else if (useOpenRouter) {
-          dispatchResult = await dispatchOpenRouter(prompt, model, worktreePath ?? undefined, openRouterKey ?? undefined);
+          dispatchResult = await dispatchOpenRouter(
+            prompt, model, worktreePath ?? undefined, openRouterKey ?? undefined,
+            explicitOpenRouter ? sdkRoute.model : undefined,
+          );
         } else {
           dispatchResult = await dispatch(prompt, model, worktreePath);
         }

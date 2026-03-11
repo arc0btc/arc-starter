@@ -10,7 +10,7 @@
  * Model mapping: tier → OpenRouter model ID (Claude models via OpenRouter).
  */
 
-import { type ModelTier, MODEL_PRICING } from "./models.ts";
+import { type ModelTier, MODEL_PRICING, OPENROUTER_PRICING } from "./models.ts";
 import { getCredential } from "./credentials.ts";
 
 // ---- Constants ----
@@ -159,13 +159,15 @@ async function executeBash(command: string, cwd: string): Promise<string> {
 
 /**
  * Calculate API cost from token counts using model pricing.
+ * Accepts a Claude tier name OR an OpenRouter model ID string.
+ * Falls back to sonnet-tier pricing for unknown models.
  */
 function calculateApiCostUsd(
-  model: ModelTier,
+  model: string,
   inputTokens: number,
   outputTokens: number,
 ): number {
-  const p = MODEL_PRICING[model];
+  const p = MODEL_PRICING[model as ModelTier] ?? OPENROUTER_PRICING[model] ?? MODEL_PRICING.sonnet;
   return (
     (inputTokens / 1_000_000) * p.input_per_million +
     (outputTokens / 1_000_000) * p.output_per_million
@@ -180,12 +182,16 @@ function calculateApiCostUsd(
  * The prompt is sent as a user message. The model can call the `bash` tool
  * to execute arc CLI commands, read/write files, etc. The loop continues
  * until the model produces a final text response (no more tool calls).
+ *
+ * @param explicitModelId — Full OpenRouter model ID (e.g. "moonshotai/kimi-k2.5").
+ *   When set, overrides the Claude tier→model mapping. Used for `openrouter:` prefix routing.
  */
 export async function dispatchOpenRouter(
   prompt: string,
   model: ModelTier = "sonnet",
   cwd?: string,
   apiKey?: string,
+  explicitModelId?: string,
 ): Promise<OpenRouterDispatchResult> {
   const key = apiKey ?? await getOpenRouterApiKey();
   if (!key) {
@@ -193,7 +199,8 @@ export async function dispatchOpenRouter(
   }
 
   const workDir = cwd ?? new URL("..", import.meta.url).pathname;
-  const modelId = OPENROUTER_MODEL_IDS[model];
+  const modelId = explicitModelId ?? OPENROUTER_MODEL_IDS[model];
+  const costModel = explicitModelId ?? model;
 
   log(`dispatching to ${modelId}`);
 
@@ -306,7 +313,7 @@ export async function dispatchOpenRouter(
     finalResult = "[max tool iterations reached]";
   }
 
-  const apiCost = calculateApiCostUsd(model, totalInputTokens, totalOutputTokens);
+  const apiCost = calculateApiCostUsd(costModel, totalInputTokens, totalOutputTokens);
 
   log(`complete — ${iterations} iterations, ${totalInputTokens}in/${totalOutputTokens}out, cost=$${apiCost.toFixed(4)}`);
 

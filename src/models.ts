@@ -28,6 +28,41 @@ export interface SdkRoute {
 const CLAUDE_TIERS: Set<string> = new Set(["opus", "sonnet", "haiku"]);
 
 /**
+ * OpenRouter model alias map — short names → full OpenRouter model IDs.
+ * Used when tasks specify `openrouter:<alias>` in the model field.
+ */
+export const OPENROUTER_ALIASES: Record<string, string> = {
+  kimi: "moonshotai/kimi-k2.5",
+  minimax: "minimax/minimax-m2-5",
+  qwen: "qwen/qwen3-coder",
+};
+
+/**
+ * Pricing per million tokens for OpenRouter models.
+ * Used for api_cost_usd estimation. Models not listed default to sonnet-tier pricing.
+ */
+export const OPENROUTER_PRICING: Record<string, ModelPricing> = {
+  "moonshotai/kimi-k2.5": {
+    input_per_million: 2.0,
+    output_per_million: 8.0,
+    cache_read_per_million: 0.5,
+    cache_write_per_million: 2.0,
+  },
+  "minimax/minimax-m2-5": {
+    input_per_million: 1.0,
+    output_per_million: 5.0,
+    cache_read_per_million: 0.25,
+    cache_write_per_million: 1.0,
+  },
+  "qwen/qwen3-coder": {
+    input_per_million: 0.8,
+    output_per_million: 3.2,
+    cache_read_per_million: 0.2,
+    cache_write_per_million: 0.8,
+  },
+};
+
+/**
  * Parse a task's model field into SDK type + model identifier.
  * Returns sdk="claude" with model=undefined when no model is set (use priority routing).
  */
@@ -38,6 +73,13 @@ export function parseTaskSdk(taskModel: string | null): SdkRoute {
   if (taskModel === "codex") return { sdk: "codex", model: undefined };
   if (taskModel.startsWith("codex:")) {
     return { sdk: "codex", model: taskModel.slice(6) || undefined };
+  }
+
+  // openrouter:<alias-or-model-id>
+  if (taskModel.startsWith("openrouter:")) {
+    const raw = taskModel.slice(11);
+    const resolved = OPENROUTER_ALIASES[raw] ?? raw;
+    return { sdk: "openrouter", model: resolved || undefined };
   }
 
   // Claude tiers
