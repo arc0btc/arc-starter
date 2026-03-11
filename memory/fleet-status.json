@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T09:23:17.880Z",
+  "updated_at": "2026-03-11T09:23:46.218Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4853,
-    "subject": "Welcome new AIBTC agent: Graphite Owl",
+    "id": 4854,
+    "subject": "Welcome new AIBTC agent: Coral Penguin",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 85642,
-    "cost_usd": 0.19132125
+    "duration_ms": 28190,
+    "cost_usd": 0.1567719
   },
   "health": {
-    "uptime_seconds": 1163496,
+    "uptime_seconds": 1163525,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233990467584
+    "disk_avail_bytes": 233990434816
   }
 }
