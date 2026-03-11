@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T00:11:42.894Z",
+  "updated_at": "2026-03-11T00:19:15.395Z",
   "idle": true,
-  "idle_since": "2026-03-11T00:04:40.140Z",
+  "idle_since": "2026-03-11T00:14:13.692Z",
   "last_task": {
-    "id": 4697,
-    "subject": "daily self-audit: 1 anomaly(ies) detected",
+    "id": 4698,
+    "subject": "AIBTC thread from Graphite Elan (1 messages)",
     "status": "completed",
-    "priority": 7
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 158197,
-    "cost_usd": 0.37810049999999995
+    "duration_ms": 90119,
+    "cost_usd": 0.45302000000000003
   },
   "health": {
-    "uptime_seconds": 1130401,
+    "uptime_seconds": 1130854,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 234045063168
+    "disk_avail_bytes": 234044989440
   }
 }
