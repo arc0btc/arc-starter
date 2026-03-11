@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T12:33:16.527Z",
+  "updated_at": "2026-03-11T12:34:30.508Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5038,
-    "subject": "Welcome new AIBTC agent: Lasting Circuit",
+    "id": 5039,
+    "subject": "Welcome new AIBTC agent: Encrypted Zara",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 28525,
-    "cost_usd": 0.14982405
+    "duration_ms": 42018,
+    "cost_usd": 0.16763039999999998
   },
   "health": {
-    "uptime_seconds": 1174895,
+    "uptime_seconds": 1174969,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233981329408
+    "disk_avail_bytes": 233981292544
   }
 }
