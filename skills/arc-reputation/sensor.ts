@@ -30,6 +30,7 @@ const INTERVAL_MINUTES = 30;
 const TASK_SOURCE_PREFIX = "sensor:reputation-tracker";
 const LOOKBACK_HOURS = 2; // scan window — overlaps slightly with interval for safety
 const MAX_REVIEWS_PER_DAY = 10;
+const MAX_REVIEWS_PER_RUN = 3; // per-run cap to prevent burst spam
 
 // Fleet-internal sources that should never trigger reputation reviews
 const INTERNAL_SOURCE_PREFIXES = [
@@ -266,9 +267,12 @@ export default async function reputationTrackerSensor(): Promise<string> {
     return "ok";
   }
 
-  const remainingBudget = MAX_REVIEWS_PER_DAY - todayReviewCount;
+  const remainingBudget = Math.min(
+    MAX_REVIEWS_PER_DAY - todayReviewCount,
+    MAX_REVIEWS_PER_RUN,
+  );
 
-  // Queue one review task per eligible interaction (up to daily cap)
+  // Queue one review task per eligible interaction (up to daily cap and per-run cap)
   let queued = 0;
   for (const interaction of eligible.slice(0, remainingBudget)) {
     const source = `${TASK_SOURCE_PREFIX}:task:${interaction.task_id}:contact:${interaction.contact_id}`;

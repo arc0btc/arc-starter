@@ -84,13 +84,15 @@ export default async function failureTriageSensor(): Promise<string> {
 
   const db = getDatabase();
 
-  // Query failed tasks in the lookback window
+  // Query failed tasks in the lookback window, excluding bulk-close operations
+  // which inflate the failure count artificially (these are intentional closures).
   const failedTasks = db
     .query(
       `SELECT * FROM tasks
        WHERE status = 'failed'
          AND completed_at IS NOT NULL
          AND datetime(completed_at) >= datetime('now', ?)
+         AND (result_summary IS NULL OR result_summary NOT LIKE 'Bulk closed%')
        ORDER BY completed_at DESC`,
     )
     .all(`-${LOOKBACK_HOURS} hours`) as Task[];
