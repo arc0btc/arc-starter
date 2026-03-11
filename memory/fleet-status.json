@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-11T06:15:59.533Z",
+  "updated_at": "2026-03-11T06:21:11.410Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 4782,
-    "subject": "Research: Arc evolution review — SpaceX principles, external comparisons, growth proposal",
+    "id": 4786,
+    "subject": "Research: NousResearch/hermes-agent — architecture review, migration candidate, simplification lessons",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 330816,
-    "cost_usd": 0.7262876
+    "duration_ms": 311748,
+    "cost_usd": 0.77813075
   },
   "health": {
-    "uptime_seconds": 1152258,
+    "uptime_seconds": 1152570,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233998630912
+    "disk_avail_bytes": 233998516224
   }
 }
