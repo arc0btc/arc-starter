@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T10:17:45.979Z",
+  "updated_at": "2026-03-12T10:18:14.296Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5294,
-    "subject": "arc missed a review on this one: https://github.com/aibtcdev/skills/pull/111",
+    "id": 5292,
+    "subject": "GitHub comment reply in aibtcdev/landing-page: fix: unify agent count across home, health, and network pages",
     "status": "completed",
-    "priority": 1
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 113718,
-    "cost_usd": 0.74021375
+    "duration_ms": 28122,
+    "cost_usd": 0.12329549999999997
   },
   "health": {
-    "uptime_seconds": 1253164,
+    "uptime_seconds": 1253193,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233593606144
+    "disk_avail_bytes": 233593565184
   }
 }
