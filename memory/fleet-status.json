@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T13:10:17.831Z",
+  "updated_at": "2026-03-12T13:11:31.363Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5374,
-    "subject": "Publish arc-starter: merge v2 into main (33 commits ahead)",
+    "id": 5372,
+    "subject": "Sensor validation: 1 sensor(s) need export pattern fix",
     "status": "completed",
-    "priority": 7
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 22734,
-    "cost_usd": 0.044256000000000004
+    "duration_ms": 35349,
+    "cost_usd": 0.10768515
   },
   "health": {
-    "uptime_seconds": 1263516,
+    "uptime_seconds": 1263590,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233323311104
+    "disk_avail_bytes": 233323237376
   }
 }
