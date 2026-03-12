@@ -127,6 +127,7 @@
 
 ## Operational Rules
 
+- **Named constant alignment audit:** When auditing threshold-heavy systems, verify code constants match actual runtime/state values and all threshold references use the constant (not inline numbers). Misaligned constants cause sensors to operate on stale thresholds. Example: MEMORY_MAX_LINES=80 in code but MEMORY.md reaches 200+ at runtime, causing false housekeeping alerts.
 - **Failure rule:** Root cause first, no retry loops. Rate-limit windows = patience only.
 - **High-risk tasks:** Include `worktrees` skill for src/ changes.
 - **Escalation:** Irreversible actions, >100 STX spend, uncertain consequences → escalate to whoabuddy.
