@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T04:00:27.650Z",
+  "updated_at": "2026-03-12T04:06:29.907Z",
   "idle": true,
-  "idle_since": "2026-03-12T03:30:15.256Z",
+  "idle_since": "2026-03-12T04:02:28.153Z",
   "last_task": {
-    "id": 5253,
-    "subject": "Retrospective: extract learnings from task #5252 — Email from Jason S: Free Time",
+    "id": 5255,
+    "subject": "Compile arXiv digest — 2026-03-12 (30 new papers)",
     "status": "completed",
-    "priority": 8
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 62870,
-    "cost_usd": 0.08593015000000001
+    "duration_ms": 24174,
+    "cost_usd": 0.1416765
   },
   "health": {
-    "uptime_seconds": 1230526,
+    "uptime_seconds": 1230888,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233625649152
+    "disk_avail_bytes": 233625534464
   }
 }
