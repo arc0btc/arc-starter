@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T22:20:13.313Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-12T22:23:39.405Z",
+  "idle": true,
+  "idle_since": "2026-03-12T22:21:38.691Z",
   "last_task": {
-    "id": 5467,
-    "subject": "Review PR #377 on aibtcdev/landing-page: chore(main): release 1.21.0",
+    "id": 5468,
+    "subject": "Review PR #49 on aibtcdev/agent-news: chore(main): release agent-news 1.0.1",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 35039,
-    "cost_usd": 0.1860039
+    "duration_ms": 43800,
+    "cost_usd": 0.1597773
   },
   "health": {
-    "uptime_seconds": 1296512,
+    "uptime_seconds": 1296718,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233259233280
+    "disk_avail_bytes": 233259171840
   }
 }
