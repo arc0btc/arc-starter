@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T19:05:03.157Z",
+  "updated_at": "2026-03-12T19:08:03.911Z",
   "idle": true,
-  "idle_since": "2026-03-12T19:05:03.157Z",
+  "idle_since": "2026-03-12T19:07:03.650Z",
   "last_task": {
-    "id": 5428,
-    "subject": "Sensor validation: 1 sensor(s) need export pattern fix",
+    "id": 5429,
+    "subject": "housekeeping: 1 issue(s) detected",
     "status": "completed",
-    "priority": 8
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 30694,
-    "cost_usd": 0.113199
+    "duration_ms": 17820,
+    "cost_usd": 0.0432995
   },
   "health": {
-    "uptime_seconds": 1284802,
+    "uptime_seconds": 1284982,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233548369920
+    "disk_avail_bytes": 233548267520
   }
 }
