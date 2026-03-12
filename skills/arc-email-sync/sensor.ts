@@ -4,7 +4,7 @@
 // Runs every 1 minute via sensor cadence gating.
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource, getUnreadEmailMessages, markEmailRead, hasSentEmailTo, insertWorkflow, getWorkflowByInstanceKey, updateWorkflowState, getEmailMessageCountFromSender, type EmailMessage } from "../../src/db.ts";
+import { insertTask, pendingTaskExistsForSource, getUnreadEmailMessages, markEmailRead, hasSentEmailTo, insertWorkflow, getWorkflowByInstanceKey, updateWorkflowState, getEmailThreadCountBySenderAndSubject, type EmailMessage } from "../../src/db.ts";
 import { syncEmail, getEmailCredentials } from "./sync.ts";
 import { isGateStopped, resetDispatchGate } from "../../src/dispatch-gate.ts";
 
@@ -245,8 +245,9 @@ export default async function emailSensor(): Promise<string> {
     }
     const emailSkills = ["arc-email-sync", ...extraEmailSkills];
 
-    // Compute total thread depth (all messages from this sender, read + unread)
-    const totalThreadCount = getEmailMessageCountFromSender(senderAddr);
+    // Compute total thread depth (inbox messages matching this sender + normalized subject)
+    const normalizedSubj = normalizeSubject(senderMessages[0].subject);
+    const totalThreadCount = getEmailThreadCountBySenderAndSubject(senderAddr, normalizedSubj);
     const depthLabel = `(${senderMessages.length} unread${totalThreadCount > senderMessages.length ? `, ${totalThreadCount} total` : ""})`;
 
     const senderLabel =

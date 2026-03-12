@@ -811,22 +811,33 @@ export function hasSentEmailTo(toAddress: string, sinceIso: string): boolean {
 export function getEmailMessageCountFromSender(fromAddress: string): number {
   const db = getDatabase();
   const row = db
-    .query("SELECT COUNT(*) as count FROM email_messages WHERE from_address = ?")
+    .query("SELECT COUNT(*) as count FROM email_messages WHERE from_address = ? AND folder = 'inbox'")
     .get(fromAddress) as { count: number } | null;
   return row?.count ?? 0;
+}
+
+export function getEmailThreadCountBySenderAndSubject(fromAddress: string, normalizedSubject: string): number {
+  const db = getDatabase();
+  const rows = db
+    .query("SELECT subject FROM email_messages WHERE from_address = ? AND folder = 'inbox'")
+    .all(fromAddress) as Array<{ subject: string | null }>;
+  return rows.filter((r) => {
+    const norm = (r.subject ?? "").replace(/^(?:re|fwd?|fw)\s*:\s*/gi, "").trim().toLowerCase() || "(no subject)";
+    return norm === normalizedSubject;
+  }).length;
 }
 
 export function getEmailThreads(limit = 200): EmailMessage[] {
   const db = getDatabase();
   return db
-    .query("SELECT * FROM email_messages ORDER BY received_at DESC LIMIT ?")
+    .query("SELECT * FROM email_messages WHERE folder = 'inbox' ORDER BY received_at DESC LIMIT ?")
     .all(limit) as EmailMessage[];
 }
 
 export function getEmailMessagesByFromAddress(fromAddress: string): EmailMessage[] {
   const db = getDatabase();
   return db
-    .query("SELECT * FROM email_messages WHERE from_address = ? ORDER BY received_at ASC")
+    .query("SELECT * FROM email_messages WHERE from_address = ? AND folder = 'inbox' ORDER BY received_at ASC")
     .all(fromAddress) as EmailMessage[];
 }
 
