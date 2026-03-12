@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T15:04:55.895Z",
+  "updated_at": "2026-03-12T15:21:02.405Z",
   "idle": true,
-  "idle_since": "2026-03-12T14:33:45.154Z",
+  "idle_since": "2026-03-12T15:06:56.643Z",
   "last_task": {
-    "id": 5408,
-    "subject": "Deploy arc0btc-worker to Cloudflare (6ba8ef909fc2)",
+    "id": 5409,
+    "subject": "housekeeping: 1 issue(s) detected",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 46658,
-    "cost_usd": 0.09165014999999999
+    "duration_ms": 24580,
+    "cost_usd": 0.037757399999999997
   },
   "health": {
-    "uptime_seconds": 1270394,
+    "uptime_seconds": 1271361,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233319063552
+    "disk_avail_bytes": 233318903808
   }
 }
