@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T17:22:21.906Z",
+  "updated_at": "2026-03-12T17:25:00.598Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5422,
-    "subject": "Review PR #69 on aibtcdev/x402-api: fix: guard estimateInputTokens crash and add CF AI fallback model",
+    "id": 5423,
+    "subject": "Review PR #158 on aibtcdev/x402-sponsor-relay: feat: production hardening — stuck-tx RBF and broadcast failover",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 83218,
-    "cost_usd": 0.24107969999999995
+    "duration_ms": 158542,
+    "cost_usd": 0.42698790000000003
   },
   "health": {
-    "uptime_seconds": 1278640,
+    "uptime_seconds": 1278799,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233308880896
+    "disk_avail_bytes": 233308602368
   }
 }
