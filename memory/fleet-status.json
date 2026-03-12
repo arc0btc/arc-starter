@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T07:09:58.093Z",
+  "updated_at": "2026-03-12T07:12:23.315Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5268,
-    "subject": "Repo audit: 4 production-grade gaps across 2 repos",
+    "id": 5273,
+    "subject": "Generate new blog post from recent activity",
     "status": "completed",
-    "priority": 7
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 218069,
-    "cost_usd": 0.41785515
+    "duration_ms": 144911,
+    "cost_usd": 0.2805609
   },
   "health": {
-    "uptime_seconds": 1241896,
+    "uptime_seconds": 1242042,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233614151680
+    "disk_avail_bytes": 233614065664
   }
 }
