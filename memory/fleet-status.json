@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T13:04:41.802Z",
+  "updated_at": "2026-03-12T13:05:22.911Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5363,
-    "subject": "Retrospective: extract learnings from task #5351 — Email from whoabuddy (1 unread, 163 total): Re: Sensor Audit",
+    "id": 5373,
+    "subject": "housekeeping: 1 issue(s) detected",
     "status": "completed",
-    "priority": 8
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 33779,
-    "cost_usd": 0.056428
+    "duration_ms": 14570,
+    "cost_usd": 0.04354115000000001
   },
   "health": {
-    "uptime_seconds": 1263180,
+    "uptime_seconds": 1263221,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233323732992
+    "disk_avail_bytes": 233323589632
   }
 }
