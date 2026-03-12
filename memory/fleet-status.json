@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T21:05:21.402Z",
+  "updated_at": "2026-03-12T21:12:24.404Z",
   "idle": true,
-  "idle_since": "2026-03-12T20:39:12.403Z",
+  "idle_since": "2026-03-12T21:07:22.399Z",
   "last_task": {
-    "id": 5451,
-    "subject": "Retrospective: extract learnings from task #5450 — why did arc review this twice? can we fix? https://github.co",
+    "id": 5452,
+    "subject": "housekeeping: 1 issue(s) detected",
     "status": "completed",
-    "priority": 8
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 33305,
-    "cost_usd": 0.059340550000000006
+    "duration_ms": 12871,
+    "cost_usd": 0.03774295
   },
   "health": {
-    "uptime_seconds": 1292020,
+    "uptime_seconds": 1292443,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233265553408
+    "disk_avail_bytes": 233265451008
   }
 }
