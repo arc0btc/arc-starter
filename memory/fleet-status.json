@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T16:14:07.047Z",
+  "updated_at": "2026-03-12T16:15:53.104Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5413,
-    "subject": "Review aibtcdev/landing-page for skills-v0.20.0 content gaps",
+    "id": 5414,
+    "subject": "Add SHORT_DESC entries for agent-lookup, aibtc-agents, mempool-watch in landing-page SkillsDirectory",
     "status": "completed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 347574,
-    "cost_usd": 0.8027928499999999
+    "duration_ms": 105704,
+    "cost_usd": 0.32584995
   },
   "health": {
-    "uptime_seconds": 1274545,
+    "uptime_seconds": 1274651,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233318359040
+    "disk_avail_bytes": 233318240256
   }
 }
