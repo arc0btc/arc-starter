@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T22:10:59.809Z",
+  "updated_at": "2026-03-12T22:11:55.330Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5463,
-    "subject": "GitHub update on your PR in aibtcdev/agent-news: fix(x402): distinguish relay errors from invalid payments",
+    "id": 5464,
+    "subject": "GitHub update on your PR in aibtcdev/agent-news: fix(schema): add index on classifieds.btc_address",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 25019,
-    "cost_usd": 0.11879595
+    "duration_ms": 20277,
+    "cost_usd": 0.1156377
   },
   "health": {
-    "uptime_seconds": 1295958,
+    "uptime_seconds": 1296014,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233259474944
+    "disk_avail_bytes": 233259417600
   }
 }
