@@ -206,11 +206,11 @@ export default async function emailSensor(): Promise<string> {
       "",
       ...messageLines,
       "Instructions:",
-      "1. Read full message bodies if needed: arc skills run --name email -- fetch --id <remote_id>",
+      "1. Read full message bodies if needed: arc skills run --name arc-email-sync -- fetch --id <remote_id>",
       "2. Consider all messages together before deciding how to respond.",
       "3. Decide if these emails need a reply, action, or can be marked as read.",
-      "4. If replying: arc skills run --name email -- send --to <addr> --subject <subj> --body <text> --in-reply-to <Message-ID>",
-      "5. Mark EACH message as read after handling: arc skills run --name email -- mark-read --id <remote_id>",
+      "4. If replying: arc skills run --name arc-email-sync -- send --to <addr> --subject <subj> --body <text> --in-reply-to <Message-ID>",
+      "5. Mark EACH message as read after handling: arc skills run --name arc-email-sync -- mark-read --id <remote_id>",
       "6. If any email asks you to DO something, create a follow-up task.",
     ].join("\n");
 
@@ -249,15 +249,19 @@ export default async function emailSensor(): Promise<string> {
     const totalThreadCount = getEmailMessageCountFromSender(senderAddr);
     const depthLabel = `(${senderMessages.length} unread${totalThreadCount > senderMessages.length ? `, ${totalThreadCount} total` : ""})`;
 
+    const senderLabel =
+      senderAddr === "whoabuddy@gmail.com" ? "Email from whoabuddy" :
+      `External email from ${senderDisplay}`;
+
     const taskId = insertTask({
-      subject: `Email from ${senderDisplay} ${depthLabel}: ${(senderMessages[0].subject ?? "(no subject)").slice(0, 55)}`,
+      subject: `${senderLabel} ${depthLabel}: ${(senderMessages[0].subject ?? "(no subject)").slice(0, 55)}`,
       description,
       skills: JSON.stringify(emailSkills),
       priority,
       model,
       source,
     });
-    log(`created task ${taskId} for thread from ${senderDisplay} (${senderMessages.length} unread, ${totalThreadCount} total)`);
+    log(`created task ${taskId} for thread from ${senderLabel} (${senderMessages.length} unread, ${totalThreadCount} total)`);
 
     // Auto-suggest starting a new conversation thread when depth is >= 15
     if (totalThreadCount >= 15) {
