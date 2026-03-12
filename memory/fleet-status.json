@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T12:18:27.226Z",
+  "updated_at": "2026-03-12T12:19:34.867Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5346,
-    "subject": "Add aibtc-agents to landing page skills directory",
+    "id": 5348,
+    "subject": "Review PR #369 on aibtcdev/landing-page: Fix homepage agent count mismatch with /agents page",
     "status": "completed",
-    "priority": 6
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 257024,
-    "cost_usd": 0.9667354499999999
+    "duration_ms": 67465,
+    "cost_usd": 0.23290499999999997
   },
   "health": {
-    "uptime_seconds": 1260406,
+    "uptime_seconds": 1260473,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233603538944
+    "disk_avail_bytes": 233603489792
   }
 }
