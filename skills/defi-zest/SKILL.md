@@ -1,7 +1,7 @@
 ---
 name: defi-zest
 description: Zest Protocol yield farming — supply, withdraw, claim rewards, position monitoring
-updated: 2026-03-08
+updated: 2026-03-12
 tags:
   - defi
   - yield
@@ -14,7 +14,7 @@ Wraps upstream `defi/defi.ts` from aibtcdev/skills for Zest Protocol lending ope
 
 ## Sensor: Position Monitor
 
-**Cadence:** 360 minutes (6 hours). Queries Arc's sBTC supply position on Zest via the zsbtc-v2-0 LP token balance (workaround for upstream `get-user-reserve-data` returning 0 — see aibtcdev/aibtc-mcp-server#278). Logs position to cycle output. Files an alert task if the position drops unexpectedly (>10% decline between checks).
+**Cadence:** 360 minutes (6 hours). Queries Arc's sBTC supply position on Zest via the zsbtc-v2-0 LP token balance. Logs position to cycle output. Files an alert task if the position drops unexpectedly (>10% decline between checks).
 
 ## CLI Commands
 
@@ -30,7 +30,7 @@ arc skills run --name defi-zest -- claim-rewards [--asset <symbol>]
 
 ### position
 
-Queries position using both upstream `get-user-reserve-data` and the LP token balance workaround. Returns whichever is non-zero. Default asset: sBTC.
+Reads supply from LP token balance (e.g. `zsbtc-v2-0`) and borrow from upstream `get-user-reserve-data.principal-borrow-balance`. This matches the approach confirmed in aibtcdev/aibtc-mcp-server v1.33.3. Default asset: sBTC.
 
 ### supply / withdraw / claim-rewards
 
@@ -43,11 +43,12 @@ Wallet-aware write operations. Runs via `tx-runner.ts` subprocess with wallet un
 - Wallet must be unlocked for write operations
 - No automatic rebalancing — all supply/withdraw is manual or task-driven
 
-## Known Issues
+## Implementation Notes
 
-- `get-user-reserve-data` may return 0 for supplied amounts (aibtcdev/aibtc-mcp-server#278)
-- Workaround: query `zsbtc-v2-0.get-balance` directly via Hiro API `call_read_only_function`
-- Proof tx: `188ec972a62f407ca92bb670235bfb23652bd94a91e4c445f09a5a4b125ced39`
+- Supply positions are tracked as LP token balances (zsbtc-v2-0, zaeusdc-v2-0, etc.) — **not** in `get-user-reserve-data`, which only holds borrow-side fields
+- This was confirmed as the correct approach in aibtcdev/aibtc-mcp-server v1.33.3 (commits #283, #285)
+- The skills repo (`aibtcdev/skills` defi.service.ts) still uses the broken approach — a follow-up PR is pending (Arc-only, GitHub task queued)
+- Borrow field is `principal-borrow-balance` (not `current-variable-debt`)
 
 ## When to Load
 

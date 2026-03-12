@@ -20,8 +20,21 @@ const UPSTREAM_SCRIPT = resolve(SKILLS_ROOT, "defi/defi.ts");
 const TX_RUNNER = resolve(import.meta.dir, "tx-runner.ts");
 const HIRO_API = "https://api.hiro.so";
 const ARC_ADDRESS = "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B";
-const ZSBTC_CONTRACT = "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N";
-const ZSBTC_NAME = "zsbtc-v2-0";
+
+// LP token contracts for each Zest asset (supply positions tracked here, not in reserve data)
+// Fixed in aibtcdev/aibtc-mcp-server v1.33.3: get-user-reserve-data only returns borrow fields.
+const ZEST_LP_TOKENS: Record<string, string> = {
+  sbtc: "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.zsbtc-v2-0",
+  stststx: "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.zststx-v2-0",
+  aeusdc: "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.zaeusdc-v2-0",
+  usdh: "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.zusdh-v2-0",
+  wstx: "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.zwstx-v2-0",
+  susdt: "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.zsusdt-v2-0",
+  usda: "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.zusda-v2-0",
+  diko: "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.zdiko-v2-0",
+};
+// Pool borrow contract (for reading borrow positions)
+const POOL_BORROW = "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.pool-borrow-v2-4";
 
 // ---- Helpers ----
 
@@ -136,6 +149,28 @@ async function runTx(txArgs: string[]): Promise<{ stdout: string; stderr: string
 
 // ---- Subcommands ----
 
+/** Read LP token balance for a Zest supply position via Hiro balances API. */
+async function callLpBalance(lpContract: string, address: string): Promise<string> {
+  // Use the /extended/v1/address/{address}/balances endpoint to find LP token balance.
+  // This avoids the need to manually encode Clarity principals.
+  // More reliable than callReadOnly for principal args without @stacks/transactions.
+  const [lpAddr, lpName] = lpContract.split(".");
+  const response = await fetch(`${HIRO_API}/extended/v1/address/${address}/balances`);
+  if (!response.ok) return "0";
+
+  const data = await response.json() as {
+    fungible_tokens: Record<string, { balance: string }>;
+  };
+
+  // Look for the LP token in the fungible_tokens map
+  for (const [key, val] of Object.entries(data.fungible_tokens || {})) {
+    if (key.startsWith(`${lpAddr}.${lpName}`) || key === lpContract) {
+      return val.balance || "0";
+    }
+  }
+  return "0";
+}
+
 async function cmdPosition(args: string[]): Promise<void> {
   const flags = parseFlags(args);
   const asset = flags.asset ?? "sBTC";
@@ -143,35 +178,25 @@ async function cmdPosition(args: string[]): Promise<void> {
 
   log(`checking Zest position for ${asset} (${address})`);
 
-  // Method 1: LP token balance via Hiro balances API (workaround)
-  let lpBalance: string | null = null;
-  try {
-    const response = await fetch(`${HIRO_API}/extended/v1/address/${address}/balances`);
-    if (response.ok) {
-      const data = await response.json() as {
-        fungible_tokens: Record<string, { balance: string }>;
-      };
+  const assetKey = asset.toLowerCase();
+  const lpContract = ZEST_LP_TOKENS[assetKey];
 
-      // Find LP token balance
-      for (const [key, val] of Object.entries(data.fungible_tokens || {})) {
-        if (key.includes(ZSBTC_NAME) && asset.toLowerCase() === "sbtc") {
-          lpBalance = val.balance;
-          break;
-        }
-        // Generic match for other assets
-        const assetLower = asset.toLowerCase();
-        if (key.toLowerCase().includes(`z${assetLower}`)) {
-          lpBalance = val.balance;
-          break;
-        }
-      }
+  // Read supply position from LP token balance (confirmed correct approach per mcp-server v1.33.3 fix)
+  // get-user-reserve-data only tracks borrow-side data — supply lives in the LP token contract
+  let supplied = "0";
+  if (lpContract) {
+    try {
+      supplied = await callLpBalance(lpContract, address);
+    } catch (e) {
+      log(`LP balance lookup failed: ${(e as Error).message}`);
     }
-  } catch (e) {
-    log(`LP balance lookup failed: ${(e as Error).message}`);
+  } else {
+    log(`No LP token contract known for asset '${asset}', supply will be 0`);
   }
 
-  // Method 2: upstream get-user-reserve-data (may return 0 — known bug)
-  let upstreamPosition: { supplied?: string; borrowed?: string } | null = null;
+  // Read borrow position from get-user-reserve-data (borrow side is correct here)
+  // Note: principal-borrow-balance is the correct field; current-a-token-balance does not exist
+  let borrowed = "0";
   try {
     const proc = spawn(["bun", "run", UPSTREAM_SCRIPT, "zest-get-position", "--asset", asset, "--address", address], {
       cwd: SKILLS_ROOT,
@@ -180,22 +205,17 @@ async function cmdPosition(args: string[]): Promise<void> {
       stderr: "pipe",
       env: { ...process.env, NETWORK: "mainnet" },
     });
-
     const stdout = await new Response(proc.stdout).text();
     await proc.exited;
-
     const parsed = JSON.parse(stdout.trim());
-    if (parsed.position) {
-      upstreamPosition = parsed.position;
-    }
+    if (parsed.position?.borrowed) borrowed = parsed.position.borrowed;
   } catch {
-    // Upstream failed, we have the LP balance fallback
+    // Upstream failed — borrow defaults to 0
   }
 
-  // Combine results
-  const supplied = lpBalance && lpBalance !== "0" ? lpBalance : upstreamPosition?.supplied ?? "0";
-  const decimals = asset.toLowerCase() === "sbtc" ? 8 : 6;
+  const decimals = assetKey === "sbtc" ? 8 : 6;
   const suppliedHuman = (Number(supplied) / Math.pow(10, decimals)).toFixed(decimals);
+  const borrowedHuman = (Number(borrowed) / Math.pow(10, decimals)).toFixed(decimals);
 
   console.log(JSON.stringify({
     address,
@@ -203,13 +223,10 @@ async function cmdPosition(args: string[]): Promise<void> {
     position: {
       supplied,
       suppliedHuman,
-      borrowed: upstreamPosition?.borrowed ?? "0",
-      lpTokenBalance: lpBalance ?? "unknown",
-      source: lpBalance && lpBalance !== "0" ? "lp-token-balance" : "upstream",
+      borrowed,
+      borrowedHuman,
+      lpContract: lpContract ?? null,
     },
-    note: lpBalance && lpBalance !== "0"
-      ? "Position from LP token balance (workaround for aibtcdev/aibtc-mcp-server#278)"
-      : "Position from upstream get-user-reserve-data",
   }));
 }
 
