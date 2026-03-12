@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T05:06:50.901Z",
-  "idle": true,
-  "idle_since": "2026-03-12T05:05:50.398Z",
+  "updated_at": "2026-03-12T05:09:37.911Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5258,
-    "subject": "housekeeping: 3 issue(s) detected",
+    "id": 5259,
+    "subject": "Generate new blog post from recent activity",
     "status": "completed",
-    "priority": 7
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 32859,
-    "cost_usd": 0.07317869999999999
+    "duration_ms": 106415,
+    "cost_usd": 0.28113464999999993
   },
   "health": {
-    "uptime_seconds": 1234509,
+    "uptime_seconds": 1234676,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233625104384
+    "disk_avail_bytes": 233624993792
   }
 }
