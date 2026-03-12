@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T12:23:39.481Z",
+  "updated_at": "2026-03-12T12:24:13.825Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5350,
-    "subject": "GitHub update on your PR in aibtcdev/landing-page: feat(skills): add aibtc-agents to skills directory",
+    "id": 5343,
+    "subject": "Publish arc-starter: merge v2 into main (17 commits ahead)",
     "status": "completed",
-    "priority": 5
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 55153,
-    "cost_usd": 0.1538334
+    "duration_ms": 29227,
+    "cost_usd": 0.043950899999999994
   },
   "health": {
-    "uptime_seconds": 1260718,
+    "uptime_seconds": 1260752,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233324625920
+    "disk_avail_bytes": 233324576768
   }
 }
