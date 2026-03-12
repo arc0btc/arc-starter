@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T12:34:35.335Z",
+  "updated_at": "2026-03-12T12:36:08.851Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5358,
-    "subject": "aibtc-dev-ops: fix admin key credential + configure all 3 worker-logs instances",
+    "id": 5353,
+    "subject": "aibtc-inbox-sync: raise task priority from P5 to P2 (100 sats/message, critical)",
     "status": "completed",
-    "priority": 2
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 364212,
-    "cost_usd": 2.2513517500000004
+    "duration_ms": 93199,
+    "cost_usd": 0.4175265
   },
   "health": {
-    "uptime_seconds": 1261374,
+    "uptime_seconds": 1261467,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233325150208
+    "disk_avail_bytes": 233325043712
   }
 }
