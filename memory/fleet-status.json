@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T12:19:34.867Z",
+  "updated_at": "2026-03-12T12:22:44.164Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5348,
-    "subject": "Review PR #369 on aibtcdev/landing-page: Fix homepage agent count mismatch with /agents page",
+    "id": 5347,
+    "subject": "Update llms.txt to document agent gallery (aibtc-agents)",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 67465,
-    "cost_usd": 0.23290499999999997
+    "duration_ms": 189103,
+    "cost_usd": 0.47778495
   },
   "health": {
-    "uptime_seconds": 1260473,
+    "uptime_seconds": 1260663,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233603489792
+    "disk_avail_bytes": 233324675072
   }
 }
