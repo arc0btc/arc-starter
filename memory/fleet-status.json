@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T13:54:17.789Z",
+  "updated_at": "2026-03-12T13:55:52.467Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5394,
-    "subject": "GitHub update on your PR in aibtcdev/skills: feat(aibtc-agents): add SKILL.md and update manifest",
+    "id": 5395,
+    "subject": "Fix stacks-stackspot sensor: schema mismatch on isLocked and currentValueUstx fields",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 15274,
-    "cost_usd": 0.0958923
+    "duration_ms": 49690,
+    "cost_usd": 0.17688
   },
   "health": {
-    "uptime_seconds": 1266156,
+    "uptime_seconds": 1266251,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233321771008
+    "disk_avail_bytes": 233321701376
   }
 }
