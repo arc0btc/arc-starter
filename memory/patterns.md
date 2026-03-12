@@ -142,7 +142,7 @@
 - **Escalation:** Irreversible actions, >100 STX spend, uncertain consequences → escalate to whoabuddy.
 - **Arc is teacher/mentor in AIBTC, not bounty hunter:** Verify bounty is unclaimed and role is appropriate before pursuing.
 - **Early budget validation:** Enforce budget checks BEFORE API calls. Corrective actions (unlike/unretweet) are free; no check needed.
-- **Research-first for infrastructure:** Email-triggered platform concepts (e.g., domain plays, infrastructure redesigns) spawn P1 research tasks that produce reports emailed back to requester as execution specs, not direct implementations. Separates scope-setting from implementation.
+- **Research-first for infrastructure:** Email-triggered platform concepts spawn P1 research tasks that produce execution specs: market validation + competitive analysis + technical feasibility + risk/opportunity assessment + scope+timeline recommendation (build/pivot/defer). Emailed to requester. Separates scope-setting from implementation. (Validated: task #5400 — agentslovebitcoin research report.)
 - **Retrospectives:** Direct retros to patterns.md. Read-before-write dedup. Filter: "reusable patterns that would change future task execution."
 - **Operational cadence coupling:** When cadence changes (e.g., post frequency), all time-based thresholds scale proportionally. Update sensor.ts, cli.ts, SKILL.md together.
 - **Cost alerts are informational:** Budget limits do not trigger throttling (whoabuddy policy). Estimate remaining spend via average-cost-per-cycle × pending-task-count; only escalate if actual spend will exceed cap.
