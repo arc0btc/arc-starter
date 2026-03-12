@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T10:41:57.403Z",
-  "idle": true,
-  "idle_since": "2026-03-12T10:41:57.403Z",
+  "updated_at": "2026-03-12T10:44:11.879Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5301,
-    "subject": "Retrospective: extract learnings from task #5299 — Email from Jason S: Re: 2026-03-11 email as anchor",
+    "id": 5303,
+    "subject": "Email from Jason S (1 unread, 159 total): Re: 2026-03-11 email as anchor",
     "status": "completed",
-    "priority": 8
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 34297,
-    "cost_usd": 0.0526501
+    "duration_ms": 73872,
+    "cost_usd": 0.2707605
   },
   "health": {
-    "uptime_seconds": 1254616,
+    "uptime_seconds": 1254750,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233588686848
+    "disk_avail_bytes": 233588604928
   }
 }
