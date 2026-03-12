@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T12:28:30.956Z",
+  "updated_at": "2026-03-12T12:34:35.335Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5351,
-    "subject": "Email from whoabuddy (1 unread, 163 total): Re: Sensor Audit: Group 2 — AIBTC Platform",
+    "id": 5358,
+    "subject": "aibtc-dev-ops: fix admin key credential + configure all 3 worker-logs instances",
     "status": "completed",
-    "priority": 1
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 105711,
-    "cost_usd": 0.29318835
+    "duration_ms": 364212,
+    "cost_usd": 2.2513517500000004
   },
   "health": {
-    "uptime_seconds": 1261009,
+    "uptime_seconds": 1261374,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233324412928
+    "disk_avail_bytes": 233325150208
   }
 }
