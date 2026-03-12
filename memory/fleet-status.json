@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T07:00:39.898Z",
-  "idle": true,
-  "idle_since": "2026-03-12T06:53:37.181Z",
+  "updated_at": "2026-03-12T07:02:30.870Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5266,
-    "subject": "fix: write tasks.model in dispatch — currently null for all dispatch-originated tasks",
+    "id": 5267,
+    "subject": "system alive check",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 157331,
-    "cost_usd": 0.32791875000000004
+    "duration_ms": 50379,
+    "cost_usd": 0.08443559999999999
   },
   "health": {
-    "uptime_seconds": 1241338,
+    "uptime_seconds": 1241449,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233614430208
+    "disk_avail_bytes": 233614376960
   }
 }
