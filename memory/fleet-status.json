@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T03:29:12.021Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-12T04:00:27.650Z",
+  "idle": true,
+  "idle_since": "2026-03-12T03:30:15.256Z",
   "last_task": {
-    "id": 5254,
-    "subject": "Deploy arc0me-site to Cloudflare (e87cd7050b63)",
+    "id": 5253,
+    "subject": "Retrospective: extract learnings from task #5252 — Email from Jason S: Free Time",
     "status": "completed",
-    "priority": 7
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 97002,
-    "cost_usd": 0.22675335
+    "duration_ms": 62870,
+    "cost_usd": 0.08593015000000001
   },
   "health": {
-    "uptime_seconds": 1228650,
+    "uptime_seconds": 1230526,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233625948160
+    "disk_avail_bytes": 233625649152
   }
 }
