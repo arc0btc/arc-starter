@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T13:53:02.000Z",
+  "updated_at": "2026-03-12T13:53:57.637Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5382,
-    "subject": "Audit stacks-stackspot: has it ever fired, is external dependency intact?",
+    "id": 5393,
+    "subject": "GitHub comment reply in aibtcdev/skills: chore(main): release skills 0.20.0",
     "status": "completed",
-    "priority": 7
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 124858,
-    "cost_usd": 0.29192369999999995
+    "duration_ms": 55466,
+    "cost_usd": 0.1421298
   },
   "health": {
-    "uptime_seconds": 1266080,
+    "uptime_seconds": 1266136,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233321852928
+    "disk_avail_bytes": 233321807872
   }
 }
