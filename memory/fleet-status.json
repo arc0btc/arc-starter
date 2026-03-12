@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T10:53:00.549Z",
+  "updated_at": "2026-03-12T10:54:19.745Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5307,
-    "subject": "Review PR #155 on aibtcdev/x402-sponsor-relay: fix(nonce): increase NONCE_CONFLICT retry backoff from 1s to 30s",
+    "id": 5308,
+    "subject": "Review PR #154 on aibtcdev/x402-sponsor-relay: feat(health): surface nonce pool state in /health endpoint",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 121606,
-    "cost_usd": 0.37467659999999997
+    "duration_ms": 79056,
+    "cost_usd": 0.19053285
   },
   "health": {
-    "uptime_seconds": 1255279,
+    "uptime_seconds": 1255358,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233588355072
+    "disk_avail_bytes": 233588297728
   }
 }
