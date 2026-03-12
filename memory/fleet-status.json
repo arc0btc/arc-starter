@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T07:20:26.162Z",
-  "idle": true,
-  "idle_since": "2026-03-12T07:14:23.651Z",
+  "updated_at": "2026-03-12T07:21:59.026Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5270,
-    "subject": "Sensor validation: 1 sensor(s) need export pattern fix",
+    "id": 5274,
+    "subject": "GitHub issue in aibtcdev/landing-page#366: [prod-grade] Missing: release-please automated release management",
     "status": "completed",
-    "priority": 8
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 27729,
-    "cost_usd": 0.1101327
+    "duration_ms": 32229,
+    "cost_usd": 0.10302030000000001
   },
   "health": {
-    "uptime_seconds": 1242525,
+    "uptime_seconds": 1242617,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233613901824
+    "disk_avail_bytes": 233613844480
   }
 }
