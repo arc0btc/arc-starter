@@ -95,7 +95,7 @@ stateDiagram-v2
         RunAllSensors --> arcStarterPublishSensor: arc-starter-publish
         RunAllSensors --> arcReputationSensor: arc-reputation
         RunAllSensors --> arcPrReviewAttestation: arc0btc-pr-review (attestation)
-        RunAllSensors --> stacksPaymentsSensor: stacks-payments
+        RunAllSensors --> arcPaymentsSensor: arc-payments
         RunAllSensors --> arcBlockedReviewSensor: arc-blocked-review
         RunAllSensors --> workerDeploySensor: worker-deploy
         RunAllSensors --> defiZestSensor: defi-zest
@@ -593,7 +593,7 @@ stateDiagram-v2
 | social-x-ecosystem | yes | - | - | Monitor X for ecosystem keywords (Bitcoin/Stacks/AIBTC/Claude Code); file research tasks (15min rotation) |
 | social-x-posting | yes | yes | yes | Post tweets, read timeline, poll @mentions on X; engagement commands with daily budget |
 | stacks-stackspot | yes | - | - | Autonomous Stacking — detect pots, auto-join, claim rewards |
-| stacks-payments | yes | - | - | Watch Stacks blockchain for STX payments to Arc address; decode arc: memo codes → service tasks (3min) |
+| arc-payments | yes | - | - | Watch Stacks blockchain for STX + sBTC payments to Arc address; decode arc: memo codes → service tasks (3min) |
 | styx | - | yes | yes | BTC→sBTC conversion via Styx protocol (btc2sbtc.com) — pool status, deposit, tracking |
 | worker-deploy | yes | yes | - | Auto-deploy arc0btc-worker to Cloudflare Workers on SHA change (5min) |
 | worker-logs-monitor | yes | yes | yes | Query worker-logs deployments for errors, cross-reference GitHub issues, file new issues (60min) |

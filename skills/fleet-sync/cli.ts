@@ -49,7 +49,7 @@ const AGENT_SKILLS: Record<string, string[]> = {
     "social-agent-engagement",
     "social-x-ecosystem",
     "social-x-posting",
-    "stacks-payments",
+    "arc-payments",
     "stacks-stackspot",
     "styx",
   ],

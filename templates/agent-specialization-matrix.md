@@ -87,7 +87,7 @@
 | social-agent-engagement | Agent network outreach (X-based) |
 | social-x-ecosystem | X ecosystem monitoring |
 | social-x-posting | X posting and timeline |
-| stacks-payments | STX payment watching |
+| arc-payments | STX + sBTC payment watching |
 | stacks-stackspot | Stacking participation |
 | styx | BTC→sBTC conversion |
 
@@ -197,7 +197,7 @@ compliance-review, context-review
 
 Skills to install first on each agent (ordered by impact):
 
-**Spark:** bitcoin-wallet → erc8004-identity → social-x-posting → aibtc-heartbeat → stacks-payments
+**Spark:** bitcoin-wallet → erc8004-identity → social-x-posting → aibtc-heartbeat → arc-payments
 **Iris:** arxiv-research → blog-publishing → arc-email-sync → aibtc-repo-maintenance → arc-reporting
 **Loom:** defi-zest → defi-bitflow → arc-mcp-server → worker-deploy → aibtc-dev-ops
 **Forge:** blog-deploy → arc0btc-site-health → arc-remote-setup → github-ci-status → github-security-alerts

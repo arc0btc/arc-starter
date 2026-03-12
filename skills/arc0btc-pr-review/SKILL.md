@@ -86,7 +86,7 @@ Reviews follow the aibtc-repo-maintenance format:
 
 After every completed paid PR review, the `pr-review-attestation` sensor (runs every 10 min) automatically queues an ERC-8004 on-chain attestation task:
 
-1. Sensor detects completed tasks with `sensor:stacks-payments:` source (subject contains "PR Review") or `paid:pr-review:` source
+1. Sensor detects completed tasks with `sensor:arc-payments:` source (subject contains "PR Review") or `paid:pr-review:` source
 2. Queues a P8/Haiku task: look up requester's ERC-8004 agent ID via contacts, then call:
    ```
    arc skills run --name reputation -- give-feedback \

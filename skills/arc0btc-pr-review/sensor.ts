@@ -5,7 +5,7 @@
 //
 // Detection strategy:
 // 1. Query tasks completed in the last 2 hours
-// 2. Filter for paid PR review tasks (source matches stacks-payments or paid:pr-review)
+// 2. Filter for paid PR review tasks (source matches arc-payments/stacks-payments or paid:pr-review)
 // 3. Skip any already attested (tracked in hook state)
 // 4. Queue a P8/Haiku task per review to submit ERC-8004 give-feedback
 
@@ -38,8 +38,8 @@ interface CompletedTask {
 /** Return true if this task is a completed paid PR review. */
 function isPaidPrReview(task: CompletedTask): boolean {
   const src = task.source ?? "";
-  // Stacks payment path: sensor:stacks-payments:<txid> where subject contains PR Review
-  if (src.startsWith("sensor:stacks-payments:")) {
+  // Stacks payment path: sensor:arc-payments:<txid> (or legacy sensor:stacks-payments:<txid>) where subject contains PR Review
+  if (src.startsWith("sensor:arc-payments:") || src.startsWith("sensor:stacks-payments:")) {
     const subj = task.subject.toLowerCase();
     return subj.includes("pr review") || subj.includes("pr-review") || subj.includes("pull request");
   }
