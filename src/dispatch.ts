@@ -64,7 +64,8 @@ const GITHUB_TASK_RE = /github|git\s*push|git\s*clone|\bPAT\b|personal access to
 
 /** Maximum time (ms) a Claude subprocess can run before being killed.
  *  Model-aware: Haiku tasks get 5min (simple execution), Sonnet 15min,
- *  Opus 30min (90min overnight). Prevents simple tasks from blocking the queue. */
+ *  Opus 30min (90min overnight). Prevents simple tasks from blocking the queue.
+ *  Note: DISPATCH_STALE_THRESHOLD_MS in constants.ts must exceed the max value here. */
 function getDispatchTimeoutMs(model: ModelTier = "opus"): number {
   if (model === "haiku") return 5 * 60 * 1000;
   if (model === "sonnet") return 15 * 60 * 1000;

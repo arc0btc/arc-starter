@@ -8,6 +8,7 @@ import { join } from "node:path";
 import { claimSensorRun, createSensorLogger, pendingTaskExistsForSource, insertTask } from "../../src/sensors.ts";
 import { getRecentCycles, getPendingTasks } from "../../src/db.ts";
 import { isPidAlive } from "../../src/utils.ts";
+import { DISPATCH_STALE_THRESHOLD_MS } from "../../src/constants.ts";
 
 const SENSOR_NAME = "arc-service-health";
 const INTERVAL_MINUTES = 5;
@@ -21,16 +22,16 @@ const log = createSensorLogger(SENSOR_NAME);
 const ROOT = new URL("../../", import.meta.url).pathname;
 const DISPATCH_LOCK_FILE = join(ROOT, "db", "dispatch-lock.json");
 
-/** Returns true if the last dispatch cycle was more than 30 minutes ago and pending tasks exist. */
+/** Returns true if the last dispatch cycle started longer ago than the stale threshold and pending tasks exist. */
 function checkStaleCycle(): boolean {
   const cycles = getRecentCycles(1);
   if (cycles.length === 0) return false;
 
   const last = cycles[0];
   const lastStartedAt = new Date(last.started_at.replace(" ", "T") + "Z");
-  const ageMinutes = (Date.now() - lastStartedAt.getTime()) / 60_000;
+  const ageMs = Date.now() - lastStartedAt.getTime();
 
-  if (ageMinutes <= 30) return false;
+  if (ageMs <= DISPATCH_STALE_THRESHOLD_MS) return false;
 
   // Only alert if there are pending tasks waiting to be processed
   const pending = getPendingTasks();
@@ -58,7 +59,7 @@ export default async function healthSensor(): Promise<string> {
     insertTask({
       subject: "health alert: dispatch stale or stuck",
       description:
-        "The last dispatch cycle completed more than 30 minutes ago and there are pending tasks. " +
+        `The last dispatch cycle started more than ${DISPATCH_STALE_THRESHOLD_MS / 60_000} minutes ago and there are pending tasks. ` +
         "Check arc status, systemd timers, and dispatch logs.",
       priority: PRIORITY,
       model: "haiku",
