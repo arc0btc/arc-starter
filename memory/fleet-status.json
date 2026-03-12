@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T13:09:54.785Z",
+  "updated_at": "2026-03-12T13:10:17.831Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5376,
-    "subject": "Review aibtcdev/landing-page for skills-v0.19.1 content gaps",
+    "id": 5374,
+    "subject": "Publish arc-starter: merge v2 into main (33 commits ahead)",
     "status": "completed",
-    "priority": 6
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 105258,
-    "cost_usd": 0.38265675000000005
+    "duration_ms": 22734,
+    "cost_usd": 0.044256000000000004
   },
   "health": {
-    "uptime_seconds": 1263493,
+    "uptime_seconds": 1263516,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233323364352
+    "disk_avail_bytes": 233323311104
   }
 }
