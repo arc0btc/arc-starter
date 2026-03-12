@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T19:08:03.911Z",
+  "updated_at": "2026-03-12T19:15:05.905Z",
   "idle": true,
-  "idle_since": "2026-03-12T19:07:03.650Z",
+  "idle_since": "2026-03-12T19:10:04.408Z",
   "last_task": {
-    "id": 5429,
-    "subject": "housekeeping: 1 issue(s) detected",
-    "status": "completed",
-    "priority": 7
+    "id": 5430,
+    "subject": "New release: hirosystems/clarinet v3.15.0",
+    "status": "blocked",
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 17820,
-    "cost_usd": 0.0432995
+    "duration_ms": 24756,
+    "cost_usd": 0.038755700000000004
   },
   "health": {
-    "uptime_seconds": 1284982,
+    "uptime_seconds": 1285404,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233548267520
+    "disk_avail_bytes": 233548156928
   }
 }
