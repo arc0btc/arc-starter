@@ -49,8 +49,10 @@ const META_TASK_SOURCES = new Set([
   "sensor:context-review",
   "sensor:arc-self-audit",
   "sensor:compliance-review",
-  "sensor:arc-failure-triage", // failure retrospectives list failed task subjects verbatim
-  "sensor:arc-introspection",  // introspection reports summarize recent task subjects verbatim
+  "sensor:arc-failure-triage",      // failure retrospectives list failed task subjects verbatim
+  "sensor:arc-introspection",        // introspection reports summarize recent task subjects verbatim
+  "sensor:arc-cost-reporting",       // cost reports embed top task subjects/descriptions — external data, not skill requirements
+  "sensor:github-release-watcher",   // descriptions contain external release notes content — keywords don't indicate skill requirements
 ]);
 
 // Maps skill names to domain keywords that indicate a task likely needs that skill.
