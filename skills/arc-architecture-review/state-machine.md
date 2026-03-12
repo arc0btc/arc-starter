@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-11T18:44:00.000Z*
+*Generated: 2026-03-12T06:46:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -407,7 +407,7 @@ stateDiagram-v2
     }
 
     note right of CLI
-        Skills with CLI (69):
+        Skills with CLI (64):
         aibtc-dev-ops, aibtc-news-classifieds,
         aibtc-news-editorial, aibtc-repo-maintenance,
         arc-brand-voice, arc-architecture-review,
@@ -484,7 +484,7 @@ stateDiagram-v2
 | credential-rotation | pending→rotating→verifying→confirmed→completed | arc-credentials | CredentialRotationMachine — credential expiry → rotate → verify → confirmed |
 | psbt-escalation | pending→escalated→approved→signing→broadcast→completed | bitcoin-wallet | PsbtEscalationMachine — PSBT sign request → whoabuddy approval gate → sign/broadcast |
 
-## Skills Inventory (110 total)
+## Skills Inventory (100 total)
 
 | Skill | Sensor | CLI | Agent | Description |
 |-------|--------|-----|-------|-------------|
@@ -510,7 +510,7 @@ stateDiagram-v2
 | arc-credentials | - | yes | yes | Encrypted credential store for API keys and secrets |
 | arc-dispatch-eval | yes | - | - | Post-dispatch evaluation sensor — scores task outcomes, creates improvement tasks |
 | arc-dispatch-evals | - | yes | yes | Dispatch quality evaluation — error analysis, LLM judges |
-| arc-dual-sdk | - | - | - | Documents multi-SDK routing: Claude Code, Codex CLI, OpenRouter (orchestrator context loader) |
+| arc-dual-sdk | - | - | - | *(deleted 2026-03-11 — moved to docs/agent-infrastructure.md)* |
 | arc-email-sync | yes | yes | yes | Sync email from arc-email-worker, read and send email |
 | arc-failure-triage | yes | yes | yes | Detect recurring failure patterns, escalate (dismissed/crash-recovery filters) |
 | arc-housekeeping | yes | yes | yes | Repo hygiene — locks, WAL size, memory bloat, archival, stale worktrees |
@@ -524,7 +524,7 @@ stateDiagram-v2
 | arc-report-email | yes | - | - | Email watch reports when generated |
 | arc-reporting | yes | - | yes | Watch reports (HTML, 6h) and overnight briefs (markdown, 6am PST) |
 | arc-reputation | yes | yes | - | Signed peer reviews via BIP-322, local SQLite storage, give-feedback CLI |
-| arc-roundtable | - | - | - | Roundtable coordination for fleet agents — context only |
+| arc-roundtable | - | - | - | *(deleted 2026-03-11 — moved to docs/agent-infrastructure.md)* |
 | arc-scheduler | yes | - | - | Deferred task scheduling, overdue queue monitoring |
 | arc-self-audit | yes | - | - | Daily operational self-audit — tasks, costs, skills, commits |
 | arc-service-health | yes | - | - | System health monitor — stale cycles, stuck dispatch |
@@ -559,16 +559,16 @@ stateDiagram-v2
 | erc8004-reputation | yes | yes | yes | On-chain agent reputation management |
 | erc8004-trust | - | yes | - | Aggregate trust score from reputation + validation — CLI only, on-demand |
 | erc8004-validation | - | yes | yes | On-chain agent validation management |
-| fleet-broadcast | - | - | - | Fleet broadcast coordination — context only |
-| fleet-collect | - | - | - | Fleet data collection — context only |
+| fleet-broadcast | - | - | - | *(deleted 2026-03-11 → docs/fleet-coordination.md)* |
+| fleet-collect | - | - | - | *(deleted 2026-03-11 → docs/fleet-coordination.md)* |
 | fleet-comms | yes | - | - | Fleet inter-agent communication sensor |
-| fleet-consensus | - | - | - | Fleet consensus coordination — context only |
+| fleet-consensus | - | - | - | *(deleted 2026-03-11 → docs/fleet-coordination.md)* |
 | fleet-dashboard | yes | - | - | Aggregate fleet task counts and cost per agent sensor |
-| fleet-deploy | - | - | - | Fleet deployment coordination — context only |
-| fleet-email-report | - | - | - | Fleet email reporting — context only |
+| fleet-deploy | - | - | - | *(deleted 2026-03-11 → docs/fleet-coordination.md)* |
+| fleet-email-report | - | - | - | *(deleted 2026-03-11 → docs/fleet-coordination.md)* |
 | fleet-escalation | yes | - | - | Fleet escalation routing sensor |
-| fleet-exec | - | - | - | Fleet task execution coordination — context only |
-| fleet-handoff | - | - | - | Fleet task handoff coordination — context only |
+| fleet-exec | - | - | - | *(deleted 2026-03-11 → docs/fleet-coordination.md)* |
+| fleet-handoff | - | - | - | *(deleted 2026-03-11 → docs/fleet-coordination.md)* |
 | fleet-health | yes | yes | - | Monitor agent fleet VMs (spark/iris/loom/forge) via SSH — 15min, alerts P3 |
 | fleet-log-pull | yes | - | - | Fleet log aggregation sensor |
 | fleet-memory | yes | - | - | Fleet memory sync sensor |
@@ -577,7 +577,7 @@ stateDiagram-v2
 | fleet-router | yes | - | - | Fleet task routing sensor (Arc-only) |
 | fleet-self-sync | yes | yes | - | Worker-local bundle apply sensor — fleet agents self-sync from Arc |
 | fleet-sync | yes | yes | - | Fleet git sync sensor + contacts sync (`contacts` subcommand added 2026-03-10) |
-| fleet-task-sync | - | - | - | Fleet task sync coordination — context only |
+| fleet-task-sync | - | - | - | *(deleted 2026-03-11 → docs/fleet-coordination.md)* |
 | github-ci-status | yes | - | - | Monitors GitHub Actions CI runs |
 | github-interceptor | yes | - | - | Worker sensor (10min) — detects GitHub-blocked tasks, auto-routes to Arc |
 | identity-guard | yes | - | - | All-agent sensor (30min) — validates SOUL.md matches hostname, alerts on drift |

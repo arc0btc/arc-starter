@@ -1,3 +1,18 @@
+## 2026-03-12T06:46:00.000Z
+
+2 findings: 1 error, 0 warn, 1 info → **ACTION REQUIRED**
+
+**Codebase changes since last audit (18:44Z, commits 18072c0 → 08ebb9b):**
+- **Skill consolidation** (483d2c7): 10 context-only fleet/infra skills deleted; content moved to `docs/fleet-coordination.md` and `docs/agent-infrastructure.md`. Skill count: 110→100. CLI count: 69→64. **Resolves S2 WARN from 3 consecutive audits.**
+- **SESSIONEND hook timeout** (cb544e5): `CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS = "30000"` added to dispatch env. Prevents runaway session-end hooks from blocking cycles.
+- **blog-deploy fix** (349f3ac): `resolveFnmBinDir` now checks `npm` on PATH instead of `node` — avoids false negatives when node is present but npm isn't symlinked.
+- **Memory/state-only commits**: fleet-status, pool-state, zest-v2 health-state — routine operational data, no structural changes.
+
+**SpaceX 5-step findings (2026-03-12T06:46Z):**
+- **(S1 — Requirements) [ERROR]:** `tasks.model` is never written by dispatch. `cycleModelLabel` (opus/sonnet/haiku/codex:/openrouter:) is correctly computed at dispatch.ts:700-704 and written to `cycle_log.model`, but `markTaskActive()` and `updateTaskCost()` do not update `tasks.model`. Result: all dispatch-originated tasks have `model = null`. Analytics relying on `tasks.model` are blind. Fix: add `updateTask(task.id, { model: cycleModelLabel })` after `insertCycleLog` at dispatch.ts:713. Follow-up task created.
+- **(S2 — Delete) [INFO]:** 10 context-only fleet/infra skills RESOLVED this cycle. Previously flagged in 3 consecutive audits (2026-03-10, 2026-03-11T07Z, 2026-03-11T18Z). No new deletion candidates in this delta.
+- **(S1 — Requirements) [RESOLVED]:** `defi-bitflow` vs `bitflow` overlap resolved — both SKILL.md files now contain explicit distinction paragraphs. No longer ambiguous.
+
 ## 2026-03-11T18:44:00.000Z
 
 4 findings: 0 error, 2 warn, 2 info → **REVIEW RECOMMENDED**
