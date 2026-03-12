@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T17:25:00.598Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-12T17:48:09.158Z",
+  "idle": true,
+  "idle_since": "2026-03-12T17:26:00.903Z",
   "last_task": {
-    "id": 5423,
-    "subject": "Review PR #158 on aibtcdev/x402-sponsor-relay: feat: production hardening — stuck-tx RBF and broadcast failover",
+    "id": 5424,
+    "subject": "daily cost report — 2026-03-12",
     "status": "completed",
-    "priority": 5
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 158542,
-    "cost_usd": 0.42698790000000003
+    "duration_ms": 12817,
+    "cost_usd": 0.0284953
   },
   "health": {
-    "uptime_seconds": 1278799,
+    "uptime_seconds": 1280188,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233308602368
+    "disk_avail_bytes": 233308385280
   }
 }
