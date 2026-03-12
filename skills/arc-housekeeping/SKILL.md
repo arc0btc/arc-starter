@@ -13,7 +13,7 @@ Periodic tidiness checks for the repo. Detects drift, stale state, and accumulat
 
 ## Sensor
 
-Runs every 30 minutes via `claimSensorRun("arc-housekeeping", 30)`. Creates a task if any issues are found.
+Runs every 120 minutes via `claimSensorRun("arc-housekeeping", 120)`. Creates a task if any issues are found.
 
 ### Checks
 
@@ -21,7 +21,7 @@ Runs every 30 minutes via `claimSensorRun("arc-housekeeping", 30)`. Creates a ta
 2. **Untracked files** — new files in `src/`, `skills/`, `templates/`, `memory/` that should be committed
 3. **Stale dispatch lock** — `db/dispatch-lock.json` older than 60 minutes (likely orphaned)
 4. **WAL size** — `db/arc.sqlite-wal` over 10 MB (needs checkpoint)
-5. **Memory bloat** — `memory/MEMORY.md` over 80 lines (~2k tokens)
+5. **Memory bloat** — `memory/MEMORY.md` over 200 lines (~4k tokens)
 6. **ISO 8601 file accumulation** — directories with more than 5 timestamped files need archival
 
 ## CLI
@@ -66,7 +66,7 @@ Load when: the sensor creates a housekeeping task (subject contains "repo hygien
 ## Checklist
 
 - [ ] `skills/arc-housekeeping/SKILL.md` exists with valid frontmatter
-- [ ] Sensor runs every 30 min, creates task only when issues found
+- [ ] Sensor runs every 120 min, creates task only when issues found
 - [ ] `check` outputs valid JSON report
 - [ ] `fix` commits with conventional commit format
 - [ ] `fix` never force-pushes or deletes unrecognized files
