@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T10:40:56.984Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-12T10:41:57.403Z",
+  "idle": true,
+  "idle_since": "2026-03-12T10:41:57.403Z",
   "last_task": {
-    "id": 5302,
-    "subject": "GitHub comment reply in aibtcdev/skills: feat(bitflow): unify SDK and HODLMM routing and ranking",
+    "id": 5301,
+    "subject": "Retrospective: extract learnings from task #5299 — Email from Jason S: Re: 2026-03-11 email as anchor",
     "status": "completed",
-    "priority": 5
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 115279,
-    "cost_usd": 0.44879759999999996
+    "duration_ms": 34297,
+    "cost_usd": 0.0526501
   },
   "health": {
-    "uptime_seconds": 1254555,
+    "uptime_seconds": 1254616,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233588727808
+    "disk_avail_bytes": 233588686848
   }
 }
