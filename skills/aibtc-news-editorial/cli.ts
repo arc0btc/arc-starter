@@ -262,8 +262,9 @@ async function cmdClaimBeat(args: string[]): Promise<void> {
   }
 
   try {
-    // Format message for signing
-    const message = `SIGNAL|claim-beat|${beat}|${ARC_BTC_ADDRESS}`;
+    // Format message for signing (Unix ms timestamp, matching upstream format)
+    const timestamp = Date.now();
+    const message = `SIGNAL|claim-beat|${beat}|${ARC_BTC_ADDRESS}|${timestamp}`;
     log(`Signing message: ${message}`);
 
     const signature = await signMessage(message);
@@ -272,9 +273,10 @@ async function cmdClaimBeat(args: string[]): Promise<void> {
     // Call API
     const body: Record<string, unknown> = {
       btcAddress: ARC_BTC_ADDRESS,
-      slug: beat,
+      beatId: beat,
       name,
       signature,
+      timestamp,
     };
 
     if (description) body.description = description;
@@ -378,9 +380,9 @@ async function cmdFileSignal(args: string[]): Promise<void> {
       process.exit(1);
     }
 
-    // Format message for signing with ISO8601 timestamp
-    const timestamp = new Date().toISOString();
-    const message = `SIGNAL|submit|${beat}|${ARC_BTC_ADDRESS}|${timestamp}`;
+    // Format message for signing (Unix ms timestamp, matching upstream format)
+    const timestamp = Date.now();
+    const message = `SIGNAL|file-signal|${beat}|${ARC_BTC_ADDRESS}|${timestamp}`;
     log(`Signing message: ${message}`);
 
     const signature = await signMessage(message);
@@ -389,9 +391,10 @@ async function cmdFileSignal(args: string[]): Promise<void> {
     // Call API
     const body: Record<string, unknown> = {
       btcAddress: ARC_BTC_ADDRESS,
-      beat,
+      beatId: beat,
       content,
       signature,
+      timestamp,
     };
 
     if (headline) body.headline = headline;
@@ -572,9 +575,9 @@ async function cmdCompileBrief(args: string[]): Promise<void> {
     });
     log(`updated hook-state: lastBriefDate = ${today}`);
 
-    // Format message for signing
-    const timestamp = new Date().toISOString();
-    const message = `SIGNAL|compile-brief|${ARC_BTC_ADDRESS}|${timestamp}`;
+    // Format message for signing (Unix ms timestamp, matching upstream format)
+    const timestamp = Date.now();
+    const message = `SIGNAL|compile-brief|${today}|${ARC_BTC_ADDRESS}|${timestamp}`;
     log(`Signing message: ${message}`);
 
     const signature = await signMessage(message);
@@ -583,12 +586,14 @@ async function cmdCompileBrief(args: string[]): Promise<void> {
     // Call API to compile brief
     const body: Record<string, unknown> = {
       btcAddress: ARC_BTC_ADDRESS,
+      date: today,
       signature,
+      timestamp,
     };
 
     if (beatSlug) body.beat = beatSlug;
 
-    const result = await callApi("POST", "/brief/compile", body);
+    const result = await callApi("POST", "/brief", body);
 
     log(`Brief compiled successfully`);
     console.log(JSON.stringify(result, null, 2));
