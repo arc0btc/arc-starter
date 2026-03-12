@@ -11,7 +11,7 @@ const SENSOR_NAME = "worker-deploy";
 const WORKER_DIR = join(process.env.HOME ?? "/home/dev", "arc0btc-worker");
 
 function resolveFnmBinDir(): string {
-  const which = Bun.spawnSync(["which", "node"]);
+  const which = Bun.spawnSync(["which", "npm"]);
   if (which.exitCode === 0) return "";
   const fnmDir = join(process.env.HOME ?? "/root", ".local/share/fnm/node-versions");
   const ls = Bun.spawnSync(["ls", fnmDir]);
