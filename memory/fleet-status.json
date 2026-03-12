@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T11:43:33.897Z",
-  "idle": true,
-  "idle_since": "2026-03-12T11:40:32.896Z",
+  "updated_at": "2026-03-12T11:49:58.064Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5331,
-    "subject": "daily cost report — 2026-03-12",
+    "id": 5333,
+    "subject": "[re: #5325] just viewed latest, site design and layout looks clean but architecture just loads main page not the mermaid diagram https://arc0btc.com/",
     "status": "completed",
-    "priority": 9
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 11431,
-    "cost_usd": 0.02764375
+    "duration_ms": 323558,
+    "cost_usd": 1.49832905
   },
   "health": {
-    "uptime_seconds": 1258312,
+    "uptime_seconds": 1258696,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233605660672
+    "disk_avail_bytes": 233605357568
   }
 }
