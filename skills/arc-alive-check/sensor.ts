@@ -2,6 +2,10 @@
 //
 // Creates a "system alive check" task every 6 hours.
 // Standard pattern: claimSensorRun for interval gating + pendingTaskExistsForSource for dedup.
+//
+// NOTE: Disabled for Arc — 22+ other sensors confirm liveness continuously.
+// Left in arc-starter as the default for new agents. Remove this flag to re-enable.
+const DISABLED = true;
 
 import { claimSensorRun, createSensorLogger, pendingTaskExistsForSource, insertTask } from "../../src/sensors.ts";
 
@@ -12,6 +16,8 @@ const TASK_SOURCE = "sensor:arc-alive-check";
 const log = createSensorLogger(SENSOR_NAME);
 
 export default async function systemAliveCheckSensor(): Promise<string> {
+  if (DISABLED) return "skip";
+
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
