@@ -23,20 +23,40 @@ All repos in `AIBTC_WATCHED_REPOS` — currently 7 repos.
 **Log monitoring** (worker-logs API):
 `aibtcdev/worker-logs` is queried for error detection via its REST API, but excluded from the production-grade audit (it's infrastructure, not a product repo).
 
-## Production-Grade Checklist
+## Production Repo Standard
 
-| # | Item | What to check |
-|---|------|---------------|
-| 1 | TypeScript strict | `tsconfig.json` has `strict: true` |
-| 2 | Tests exist | `*.test.ts` or `*.spec.ts` files present |
-| 3 | CI runs tests | `.github/workflows/` runs test command |
-| 4 | Worker-logs binding | `wrangler.jsonc` has service binding to worker-logs |
-| 5 | Staging/prod split | Separate `[env.staging]` and `[env.production]` in wrangler config |
-| 6 | Release-please | `.release-please-manifest.json` or `release-please-config.json` exists; release CI triggered by release-please (not raw merge-to-main) |
-| 7 | wrangler.jsonc | Uses `.jsonc` (not `.toml`) for comments |
-| 8 | Modern Workers | Uses `export default { fetch }` pattern (not `addEventListener`) |
-| 9 | Hono framework | Uses Hono for routing (preferred for CF Workers) |
-| 10 | RPC bindings | Uses Cloudflare RPC (Service Bindings with RPC) for inter-worker communication on key read/write paths instead of HTTP fetch — drastically faster |
+Not every repo needs every check. Each watched repo has a profile defining what's expected based on its tech stack (TypeScript vs JavaScript, Workers vs non-Workers, etc.). This prevents false positives from applying a one-size-fits-all checklist.
+
+### Automated checks (sensor-enforced)
+
+| Check | Applies when | What to check |
+|-------|-------------|---------------|
+| TypeScript strict | `typescript: true` | `tsconfig.json` has `strict: true` |
+| Tests exist | `tests: true` | `*.test.ts`, `*.spec.ts`, `*.test.js`, or `*.spec.js` files present |
+| Release-please | `releasePlease: true` | `.release-please-manifest.json`, `release-please-config.json`, or `.github/workflows/release-please.yml` exists |
+
+### Repo profiles
+
+| Repo | TypeScript | Tests | Workers | Release-please |
+|------|-----------|-------|---------|---------------|
+| `aibtcdev/landing-page` | yes | yes | yes | no |
+| `aibtcdev/skills` | yes | yes | no | yes |
+| `aibtcdev/x402-api` | yes | yes | yes | yes |
+| `aibtcdev/aibtc-mcp-server` | yes | yes | no | yes |
+| `aibtcdev/agent-news` | no | no | yes | no |
+
+Profiles are defined in `sensor.ts` as `REPO_PROFILES`. Update them when repos change tech stack.
+
+### Aspirational (manual review only, not sensor-enforced)
+
+These are good practices to look for during PR review but not worth automated flagging:
+
+- CI runs tests (`.github/workflows/` runs test command)
+- Worker-logs binding in wrangler config
+- Staging/prod split in wrangler config
+- Modern Workers pattern (`export default { fetch }`)
+- Hono framework for CF Workers routing
+- RPC bindings for inter-worker communication
 
 ## Sensor
 

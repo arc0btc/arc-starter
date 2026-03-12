@@ -19,8 +19,35 @@ const AUDIT_SOURCE = "sensor:aibtc-dev-ops-audit";
 
 const WORKER_LOGS_HOST = "https://logs.aibtc.com";
 
-/** Repos to audit — shared list, excludes worker-logs (infrastructure, not product). */
-const AUDIT_REPOS = AIBTC_WATCHED_REPOS;
+/**
+ * Per-repo production expectations.
+ *
+ * Each repo gets a profile describing what checks apply. Repos that don't use
+ * TypeScript shouldn't be flagged for missing tsconfig. Repos without a test
+ * runner shouldn't be flagged for missing tests. This prevents the audit from
+ * generating false positives on repos with different tech stacks.
+ */
+interface RepoProfile {
+  /** Expect tsconfig.json with strict:true */
+  typescript: boolean;
+  /** Expect *.test.ts or *.spec.ts files */
+  tests: boolean;
+  /** Expect wrangler config (Workers project) */
+  workers: boolean;
+  /** Expect release-please config (only checked if workers=true) */
+  releasePlease: boolean;
+}
+
+const REPO_PROFILES: Record<string, RepoProfile> = {
+  "aibtcdev/landing-page":     { typescript: true,  tests: true,  workers: true,  releasePlease: false },
+  "aibtcdev/skills":           { typescript: true,  tests: true,  workers: false, releasePlease: true  },
+  "aibtcdev/x402-api":         { typescript: true,  tests: true,  workers: true,  releasePlease: true  },
+  "aibtcdev/aibtc-mcp-server": { typescript: true,  tests: true,  workers: false, releasePlease: true  },
+  "aibtcdev/agent-news":       { typescript: false, tests: false, workers: true,  releasePlease: false },
+};
+
+/** Repos to audit — only repos with defined profiles. */
+const AUDIT_REPOS = AIBTC_WATCHED_REPOS.filter((r) => r in REPO_PROFILES);
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -71,52 +98,46 @@ interface AuditResult {
 
 function auditRepo(repo: string): AuditResult {
   const gaps: string[] = [];
+  const profile = REPO_PROFILES[repo];
+  if (!profile) return { repo, gaps }; // unknown repo — skip
 
-  // Check tsconfig.json for strict mode
-  const tsconfig = gh(["api", `repos/${repo}/contents/tsconfig.json`, "--jq", ".content"]);
-  if (tsconfig.ok && tsconfig.stdout) {
-    try {
-      const content = Buffer.from(tsconfig.stdout, "base64").toString("utf-8");
-      if (!content.includes('"strict"') || !content.includes("true")) {
-        gaps.push("TypeScript strict mode not enabled");
+  // TypeScript strict mode (only for TS repos)
+  if (profile.typescript) {
+    const tsconfig = gh(["api", `repos/${repo}/contents/tsconfig.json`, "--jq", ".content"]);
+    if (tsconfig.ok && tsconfig.stdout) {
+      try {
+        const content = Buffer.from(tsconfig.stdout, "base64").toString("utf-8");
+        if (!content.includes('"strict"') || !content.includes("true")) {
+          gaps.push("TypeScript strict mode not enabled");
+        }
+      } catch {
+        gaps.push("Could not parse tsconfig.json");
       }
-    } catch {
-      gaps.push("Could not parse tsconfig.json");
-    }
-  } else {
-    gaps.push("No tsconfig.json found");
-  }
-
-  // Check for test files
-  const tests = gh(["api", `repos/${repo}/git/trees/main?recursive=1`, "--jq",
-    '[.tree[].path | select(test("\\.(test|spec)\\.ts$"))] | length']);
-  if (tests.ok) {
-    const count = parseInt(tests.stdout, 10);
-    if (isNaN(count) || count === 0) {
-      gaps.push("No test files found");
+    } else {
+      gaps.push("No tsconfig.json found");
     }
   }
 
-  // CI workflows are the repo maintainers' responsibility, not the fleet's.
-  // Removed: checking for .github/workflows presence — agents don't have write
-  // access to aibtcdev repos and shouldn't be opening PRs to add CI.
-
-  // Check for wrangler config (jsonc preferred)
-  const wranglerJsonc = gh(["api", `repos/${repo}/contents/wrangler.jsonc`, "--jq", ".name"]);
-  const wranglerToml = gh(["api", `repos/${repo}/contents/wrangler.toml`, "--jq", ".name"]);
-  if (!wranglerJsonc.ok && wranglerToml.ok) {
-    gaps.push("Using wrangler.toml instead of wrangler.jsonc");
-  } else if (!wranglerJsonc.ok && !wranglerToml.ok) {
-    // Not a Workers project, skip remaining Workers-specific checks
-    return { repo, gaps };
+  // Test files (only for repos expected to have tests)
+  if (profile.tests) {
+    const tests = gh(["api", `repos/${repo}/git/trees/main?recursive=1`, "--jq",
+      '[.tree[].path | select(test("\\.(test|spec)\\.(ts|js)$"))] | length']);
+    if (tests.ok) {
+      const count = parseInt(tests.stdout, 10);
+      if (isNaN(count) || count === 0) {
+        gaps.push("No test files found");
+      }
+    }
   }
 
-  // Check for release-please config — manifest files OR an existing workflow counts
-  const releasePlease = gh(["api", `repos/${repo}/contents/.release-please-manifest.json`, "--jq", ".name"]);
-  const releasePleaseConfig = gh(["api", `repos/${repo}/contents/release-please-config.json`, "--jq", ".name"]);
-  const releasePleaseWorkflow = gh(["api", `repos/${repo}/contents/.github/workflows/release-please.yml`, "--jq", ".name"]);
-  if (!releasePlease.ok && !releasePleaseConfig.ok && !releasePleaseWorkflow.ok) {
-    gaps.push("No release-please configuration");
+  // Release-please (only for repos that should have it)
+  if (profile.releasePlease) {
+    const releasePlease = gh(["api", `repos/${repo}/contents/.release-please-manifest.json`, "--jq", ".name"]);
+    const releasePleaseConfig = gh(["api", `repos/${repo}/contents/release-please-config.json`, "--jq", ".name"]);
+    const releasePleaseWorkflow = gh(["api", `repos/${repo}/contents/.github/workflows/release-please.yml`, "--jq", ".name"]);
+    if (!releasePlease.ok && !releasePleaseConfig.ok && !releasePleaseWorkflow.ok) {
+      gaps.push("No release-please configuration");
+    }
   }
 
   return { repo, gaps };
