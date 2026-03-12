@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent - Sensor Schedule</title>
+  <link rel="stylesheet" href="/shared.css">
+  <style>
+    .schedule-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+    @media (max-width: 640px) {
+      .schedule-stats { grid-template-columns: repeat(2, 1fr); }
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: var(--space-md);
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--accent);
+    }
+    .stat-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Heatmap */
+    .heatmap-section {
+      margin-bottom: var(--space-xl);
+    }
+    .heatmap-wrap {
+      overflow-x: auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: var(--space-md);
+    }
+    .heatmap-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+    }
+    .heatmap-table th {
+      font-weight: 400;
+      color: var(--text-muted);
+      padding: 2px 4px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      background: var(--bg-card);
+    }
+    .heatmap-table th.heatmap-name {
+      text-align: left;
+      min-width: 160px;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .heatmap-cell {
+      width: 24px;
+      height: 18px;
+      text-align: center;
+      padding: 1px;
+    }
+    .heatmap-cell span {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: 2px;
+      font-size: 0.55rem;
+      line-height: 18px;
+      color: transparent;
+    }
+    .heatmap-cell span:hover {
+      color: var(--text);
+      outline: 1px solid var(--accent);
+    }
+    .heat-0 { background: #111; }
+    .heat-1 { background: #1a3a1a; }
+    .heat-2 { background: #245a24; }
+    .heat-3 { background: #2d7a2d; }
+    .heat-4 { background: #36993a; }
+    .heat-5 { background: #22c55e; }
+    .heatmap-name-cell {
+      text-align: left;
+      padding: 2px 8px 2px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+      color: var(--text);
+    }
+    .heatmap-legend {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      margin-top: var(--space-sm);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+    .heatmap-legend span {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+    }
+
+    /* Schedule table */
+    .schedule-table-wrap {
+      overflow-x: auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
+    .schedule-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+    }
+    .schedule-table th {
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      color: var(--text-muted);
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .schedule-table th:hover { color: var(--accent); }
+    .schedule-table th.sorted-asc::after { content: ' \u25b2'; }
+    .schedule-table th.sorted-desc::after { content: ' \u25bc'; }
+    .schedule-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #111;
+      vertical-align: middle;
+    }
+    .schedule-table tr:hover { background: #0a0a0a; }
+
+    .status-ok { color: var(--success); }
+    .status-error { color: var(--error); }
+    .status-stale { color: #555; }
+    .status-skip { color: var(--text-muted); }
+    .status-never { color: #333; }
+
+    .interval-bar {
+      display: inline-block;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--accent);
+      opacity: 0.7;
+      vertical-align: middle;
+      margin-left: 6px;
+    }
+
+    .task-types {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .next-overdue { color: var(--error); font-weight: 600; }
+    .next-soon { color: var(--blocked); }
+    .next-ok { color: var(--text-muted); }
+
+    .count-badge {
+      display: inline-block;
+      background: #1a1a2e;
+      border: 1px solid #222;
+      border-radius: 10px;
+      padding: 1px 8px;
+      font-size: 0.65rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .count-badge.active { background: #1a2e1a; border-color: #2a4a2a; color: var(--success); }
+
+    .sensor-name-link {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .sensor-name-link:hover { color: var(--accent); }
+
+    .filter-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="sse-announcer" role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-identity">
+        <img class="avatar avatar-img" src="/api/face" alt="this is my dashboard" title="this is my dashboard" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+        <div class="avatar avatar-fallback" style="display:none" title="this is my dashboard">A</div>
+        <div>
+          <h1 class="header-name">Agent <span class="status-dot live" id="status-dot" title="Live" aria-label="Status: live"></span><span class="sse-status disconnected" id="sse-dot" title="SSE disconnected" aria-label="SSE: disconnected"></span></h1>
+          <div class="header-bns"></div>
+        </div>
+      </div>
+
+      <div class="header-stats">
+        <div class="cost-ticker">
+          <div class="label">Cost Today</div>
+          <span id="cost-today">$0.00</span>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <a href="/">Activity</a>
+        <a href="/sensors">Sensors</a>
+        <a href="/sensors/schedule" class="active">Schedule</a>
+        <a href="/skills">Skills</a>
+        <a href="/email">Email</a>
+        <a href="/identity">Identity</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="container">
+
+    <!-- Summary Stats -->
+    <section class="section">
+      <div class="schedule-stats">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-total">--</div>
+          <div class="stat-label">Total Sensors</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-active">--</div>
+          <div class="stat-label">Active (OK)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-tasks-24h">--</div>
+          <div class="stat-label">Tasks (24h)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-tasks-total">--</div>
+          <div class="stat-label">Tasks (All Time)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 24h Activity Heatmap -->
+    <section class="section heatmap-section">
+      <div class="section-header">
+        <h2 class="section-title">24h Activity Heatmap</h2>
+        <span class="section-count" id="heatmap-info">Tasks created per hour (UTC)</span>
+      </div>
+      <div class="heatmap-wrap" id="heatmap-wrap">
+        <div style="color: var(--text-muted); padding: var(--space-md);">Loading...</div>
+      </div>
+      <div class="heatmap-legend">
+        <span>Less</span>
+        <span class="heat-0"></span>
+        <span class="heat-1"></span>
+        <span class="heat-2"></span>
+        <span class="heat-3"></span>
+        <span class="heat-4"></span>
+        <span class="heat-5"></span>
+        <span>More</span>
+      </div>
+    </section>
+
+    <!-- Schedule Table -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Sensor Schedule</h2>
+        <span class="section-count" id="table-count"></span>
+      </div>
+      <div class="filter-row">
+        <input class="feed-search" type="search" id="table-search" placeholder="Search sensors..." autocomplete="off" aria-label="Search sensors" style="max-width: 280px;">
+        <div class="filter-tabs" id="table-filter-tabs" role="group" aria-label="Filter by status">
+          <button class="filter-tab active" data-filter="all" aria-pressed="true">All</button>
+          <button class="filter-tab" data-filter="ok" aria-pressed="false">Active</button>
+          <button class="filter-tab" data-filter="stale" aria-pressed="false">Stale</button>
+          <button class="filter-tab" data-filter="error" aria-pressed="false">Error</button>
+          <button class="filter-tab" data-filter="never" aria-pressed="false">Never Run</button>
+        </div>
+      </div>
+      <div class="schedule-table-wrap">
+        <table class="schedule-table" id="schedule-table">
+          <thead>
+            <tr>
+              <th data-sort="name">Sensor</th>
+              <th data-sort="interval">Interval</th>
+              <th data-sort="last_ran">Last Run</th>
+              <th data-sort="next">Next Expected</th>
+              <th data-sort="result">Result</th>
+              <th data-sort="version">Runs</th>
+              <th data-sort="tasks_24h">Tasks 24h</th>
+              <th data-sort="tasks_total">Tasks Total</th>
+              <th>Task Types</th>
+            </tr>
+          </thead>
+          <tbody id="schedule-body">
+            <tr><td colspan="9" style="color: var(--text-muted); text-align: center; padding: var(--space-lg);">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Floating Message Box -->
+  <div class="message-float">
+    <div class="message-box">
+      <form class="message-form" id="message-form">
+        <textarea class="message-input" id="message-input" placeholder="Send a task..." rows="1" maxlength="1000" aria-label="Send a task"></textarea>
+        <button type="submit" class="message-send" id="message-send">Send</button>
+      </form>
+      <div class="message-status" id="message-status" aria-live="polite" aria-atomic="true"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <span id="footer-links"></span>
+      <span>Agent v5</span>
+      <span class="footer-dot"></span>
+      <span id="uptime">--</span>
+    </div>
+  </footer>
+
+  <script src="/shared.js"></script>
+  <script>
+    var allSensors = [];
+    var tableFilter = 'all';
+    var tableSearch = '';
+    var sortKey = 'name';
+    var sortDir = 'asc';
+
+    function getSensorStatus(s) {
+      if (!s.last_ran) return 'never';
+      if (s.last_result === 'error' || (s.consecutive_failures && s.consecutive_failures > 0)) return 'error';
+      if (s.last_ran) {
+        var age = Date.now() - new Date(s.last_ran.endsWith('Z') ? s.last_ran : s.last_ran + 'Z').getTime();
+        var threshold = (s.interval_minutes || 5) * 2 * 60000;
+        if (age < threshold) return 'ok';
+      }
+      return 'stale';
+    }
+
+    function nextStatus(s) {
+      if (!s.next_expected) return { cls: 'next-ok', label: '--' };
+      var nextTime = new Date(s.next_expected).getTime();
+      var diff = nextTime - Date.now();
+      if (diff < 0) return { cls: 'next-overdue', label: 'overdue ' + relativeTime(s.next_expected).replace(' ago', '') };
+      if (diff < 5 * 60000) return { cls: 'next-soon', label: 'in ' + Math.ceil(diff / 60000) + 'm' };
+      return { cls: 'next-ok', label: 'in ' + relativeTime(new Date(Date.now() - diff).toISOString()).replace(' ago', '') };
+    }
+
+    function filterSensors(sensors) {
+      return sensors.filter(function(s) {
+        if (tableSearch) {
+          var q = tableSearch.toLowerCase();
+          if (s.name.toLowerCase().indexOf(q) === -1 && (!s.description || s.description.toLowerCase().indexOf(q) === -1)) return false;
+        }
+        if (tableFilter !== 'all' && getSensorStatus(s) !== tableFilter) return false;
+        return true;
+      });
+    }
+
+    function sortSensors(sensors) {
+      var dir = sortDir === 'asc' ? 1 : -1;
+      return sensors.slice().sort(function(a, b) {
+        var va, vb;
+        switch (sortKey) {
+          case 'interval': va = a.interval_minutes || 9999; vb = b.interval_minutes || 9999; break;
+          case 'last_ran': va = a.last_ran || ''; vb = b.last_ran || ''; break;
+          case 'next': va = a.next_expected || 'z'; vb = b.next_expected || 'z'; break;
+          case 'result': va = a.last_result || ''; vb = b.last_result || ''; break;
+          case 'version': va = a.version || 0; vb = b.version || 0; break;
+          case 'tasks_24h': va = a.task_count_24h; vb = b.task_count_24h; break;
+          case 'tasks_total': va = a.task_count_total; vb = b.task_count_total; break;
+          default: va = a.name; vb = b.name;
+        }
+        if (va < vb) return -1 * dir;
+        if (va > vb) return 1 * dir;
+        return 0;
+      });
+    }
+
+    function formatInterval(mins) {
+      if (!mins) return '--';
+      if (mins < 60) return mins + 'm';
+      if (mins < 1440) return (mins / 60).toFixed(mins % 60 === 0 ? 0 : 1) + 'h';
+      return (mins / 1440).toFixed(1) + 'd';
+    }
+
+    function intervalBarWidth(mins) {
+      if (!mins) return 0;
+      // Logarithmic scale: 1min=2px, 360min=100px
+      return Math.min(100, Math.max(2, Math.round(Math.log2(mins + 1) * 12)));
+    }
+
+    function renderStats(sensors) {
+      var active = 0, tasks24h = 0, tasksTotal = 0;
+      sensors.forEach(function(s) {
+        if (getSensorStatus(s) === 'ok') active++;
+        tasks24h += s.task_count_24h;
+        tasksTotal += s.task_count_total;
+      });
+      document.getElementById('stat-total').textContent = sensors.length;
+      document.getElementById('stat-active').textContent = active;
+      document.getElementById('stat-tasks-24h').textContent = formatNumber(tasks24h);
+      document.getElementById('stat-tasks-total').textContent = formatNumber(tasksTotal);
+    }
+
+    function heatLevel(count, maxCount) {
+      if (count === 0) return 0;
+      if (maxCount <= 0) return 1;
+      var ratio = count / maxCount;
+      if (ratio <= 0.1) return 1;
+      if (ratio <= 0.25) return 2;
+      if (ratio <= 0.5) return 3;
+      if (ratio <= 0.75) return 4;
+      return 5;
+    }
+
+    function renderHeatmap(sensors) {
+      // Only show sensors with at least 1 task in 24h
+      var activeSensors = sensors.filter(function(s) { return s.task_count_24h > 0; });
+      activeSensors.sort(function(a, b) { return b.task_count_24h - a.task_count_24h; });
+
+      if (activeSensors.length === 0) {
+        document.getElementById('heatmap-wrap').innerHTML = '<div style="color: var(--text-muted); padding: var(--space-md); text-align: center;">No sensor-created tasks in the last 24 hours</div>';
+        return;
+      }
+
+      // Find global max for heat scaling
+      var maxCount = 0;
+      activeSensors.forEach(function(s) {
+        s.hourly_activity.forEach(function(c) { if (c > maxCount) maxCount = c; });
+      });
+
+      var hours = [];
+      for (var h = 0; h < 24; h++) hours.push(h);
+
+      var html = '<table class="heatmap-table"><thead><tr><th class="heatmap-name">Sensor</th>';
+      hours.forEach(function(h) {
+        html += '<th>' + String(h).padStart(2, '0') + '</th>';
+      });
+      html += '<th style="text-align:right; padding-left:8px;">Total</th></tr></thead><tbody>';
+
+      activeSensors.forEach(function(s) {
+        html += '<tr><td class="heatmap-name-cell" title="' + escAttr(s.name) + '">' + esc(s.name) + '</td>';
+        hours.forEach(function(h) {
+          var count = s.hourly_activity[h] || 0;
+          var level = heatLevel(count, maxCount);
+          html += '<td class="heatmap-cell"><span class="heat-' + level + '" title="' + escAttr(s.name) + ' @ ' + String(h).padStart(2, '0') + ':00 UTC: ' + count + ' tasks">' + count + '</span></td>';
+        });
+        html += '<td style="text-align:right; padding-left:8px; font-weight:600;">' + s.task_count_24h + '</td>';
+        html += '</tr>';
+      });
+
+      // Bottom row: totals per hour
+      html += '<tr style="border-top:1px solid var(--border)"><td class="heatmap-name-cell" style="font-weight:600;">Total</td>';
+      var grandTotal = 0;
+      hours.forEach(function(h) {
+        var total = 0;
+        activeSensors.forEach(function(s) { total += s.hourly_activity[h] || 0; });
+        grandTotal += total;
+        var level = heatLevel(total, maxCount * 2);
+        html += '<td class="heatmap-cell"><span class="heat-' + level + '" title="All sensors @ ' + String(h).padStart(2, '0') + ':00 UTC: ' + total + ' tasks">' + total + '</span></td>';
+      });
+      html += '<td style="text-align:right; padding-left:8px; font-weight:600;">' + grandTotal + '</td>';
+      html += '</tr></tbody></table>';
+
+      document.getElementById('heatmap-wrap').innerHTML = html;
+    }
+
+    function renderTable(sensors) {
+      allSensors = sensors;
+      var filtered = sortSensors(filterSensors(sensors));
+
+      // Update counts
+      var counts = { all: sensors.length, ok: 0, stale: 0, error: 0, never: 0 };
+      sensors.forEach(function(s) { counts[getSensorStatus(s)]++; });
+      var tabs = document.querySelectorAll('#table-filter-tabs .filter-tab');
+      tabs.forEach(function(tab) {
+        var f = tab.getAttribute('data-filter');
+        var c = counts[f] != null ? counts[f] : 0;
+        var label = tab.textContent.replace(/\s*\(\d+\)/, '');
+        tab.textContent = label + ' (' + c + ')';
+      });
+      document.getElementById('table-count').textContent = filtered.length + ' of ' + sensors.length;
+
+      // Update sort indicators
+      document.querySelectorAll('.schedule-table th').forEach(function(th) {
+        th.classList.remove('sorted-asc', 'sorted-desc');
+        if (th.getAttribute('data-sort') === sortKey) {
+          th.classList.add(sortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+        }
+      });
+
+      if (filtered.length === 0) {
+        document.getElementById('schedule-body').innerHTML = '<tr><td colspan="9" style="color: var(--text-muted); text-align: center; padding: var(--space-lg);">No sensors match filter</td></tr>';
+        return;
+      }
+
+      var body = document.getElementById('schedule-body');
+      body.innerHTML = filtered.map(function(s) {
+        var status = getSensorStatus(s);
+        var ns = nextStatus(s);
+        var resultCls = 'status-' + (s.last_result || 'never');
+        if (s.last_result === 'ok') resultCls = 'status-ok';
+        else if (s.last_result === 'error') resultCls = 'status-error';
+        else if (s.last_result === 'skip') resultCls = 'status-skip';
+
+        var taskTypesStr = s.task_types.length > 0 ? s.task_types.map(function(t) { return esc(t); }).join(', ') : '<span style="color:#333">--</span>';
+
+        return '<tr>'
+          + '<td><span class="sensor-name-link" title="' + escAttr(s.description || '') + '">' + esc(s.name) + '</span></td>'
+          + '<td>' + formatInterval(s.interval_minutes)
+            + (s.interval_minutes ? '<span class="interval-bar" style="width:' + intervalBarWidth(s.interval_minutes) + 'px"></span>' : '')
+          + '</td>'
+          + '<td>' + relativeTime(s.last_ran) + '</td>'
+          + '<td><span class="' + ns.cls + '">' + ns.label + '</span></td>'
+          + '<td><span class="' + resultCls + '">' + esc(s.last_result || '--') + '</span></td>'
+          + '<td>' + (s.version != null ? s.version : '--') + '</td>'
+          + '<td>' + (s.task_count_24h > 0 ? '<span class="count-badge active">' + s.task_count_24h + '</span>' : '<span class="count-badge">0</span>') + '</td>'
+          + '<td><span class="count-badge">' + formatNumber(s.task_count_total) + '</span></td>'
+          + '<td><div class="task-types">' + taskTypesStr + '</div></td>'
+          + '</tr>';
+      }).join('');
+    }
+
+    sseCallbacks.onSensorRan = function(data) {
+      // Refresh data on sensor activity
+      fetchJSON('/api/sensors/schedule').then(function(d) {
+        renderTable(d.sensors || []);
+        renderHeatmap(d.sensors || []);
+        renderStats(d.sensors || []);
+      }).catch(function() {});
+    };
+
+    sseCallbacks.onRefreshAll = function() {
+      fetchJSON('/api/status').then(function(s) { updateHeader(s); }).catch(function() {});
+      fetchJSON('/api/sensors/schedule').then(function(d) {
+        renderTable(d.sensors || []);
+        renderHeatmap(d.sensors || []);
+        renderStats(d.sensors || []);
+      }).catch(function() {});
+    };
+
+    async function init() {
+      loadIdentity('Sensor Schedule');
+      try {
+        var results = await Promise.allSettled([
+          fetchJSON('/api/status'),
+          fetchJSON('/api/sensors/schedule'),
+        ]);
+        var status = results[0].status === 'fulfilled' ? results[0].value : null;
+        var data = results[1].status === 'fulfilled' ? results[1].value : null;
+        if (status) updateHeader(status);
+        if (data) {
+          renderStats(data.sensors || []);
+          renderHeatmap(data.sensors || []);
+          renderTable(data.sensors || []);
+        }
+      } catch (e) {
+        console.error('Schedule init error:', e);
+      }
+
+      // Sort headers
+      document.querySelector('.schedule-table thead').addEventListener('click', function(e) {
+        var th = e.target.closest('th[data-sort]');
+        if (!th) return;
+        var key = th.getAttribute('data-sort');
+        if (sortKey === key) {
+          sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+        } else {
+          sortKey = key;
+          sortDir = key === 'name' ? 'asc' : 'desc';
+        }
+        renderTable(allSensors);
+      });
+
+      // Filter tabs
+      var filterTabsEl = document.getElementById('table-filter-tabs');
+      filterTabsEl.addEventListener('click', function(e) {
+        var btn = e.target.closest('.filter-tab');
+        if (!btn) return;
+        tableFilter = btn.getAttribute('data-filter');
+        filterTabsEl.querySelectorAll('.filter-tab').forEach(function(t) {
+          t.classList.toggle('active', t === btn);
+          t.setAttribute('aria-pressed', t === btn ? 'true' : 'false');
+        });
+        renderTable(allSensors);
+      });
+
+      // Search
+      var searchInput = document.getElementById('table-search');
+      var debouncedSearch = debounce(function() {
+        tableSearch = searchInput.value.trim();
+        renderTable(allSensors);
+      }, 300);
+      searchInput.addEventListener('input', debouncedSearch);
+
+      initMessageBox();
+      connectSSE();
+      setInterval(sseCallbacks.onRefreshAll, 60000);
+    }
+
+    init();
+  </script>
+</body>
+</html>

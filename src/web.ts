@@ -969,6 +969,178 @@ function handleSensors(): Response {
   return json({ sensors });
 }
 
+function handleSensorSchedule(): Response {
+  // Get base sensor data (reuse handleSensors logic)
+  const sensors: Array<{
+    name: string;
+    description: string;
+    interval_minutes: number | null;
+    last_ran: string | null;
+    last_result: string | null;
+    version: number | null;
+    consecutive_failures: number | null;
+    next_expected: string | null;
+    task_count_24h: number;
+    task_count_total: number;
+    task_types: string[];
+    hourly_activity: number[];
+  }> = [];
+
+  const skills = discoverSkills();
+  const skillMap = new Map(skills.filter(s => s.hasSensor).map(s => [s.name, s]));
+
+  // Query task counts per sensor source (last 24h and total)
+  const now = new Date();
+  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+
+  const taskCounts24h = db.query(
+    "SELECT source, COUNT(*) as cnt FROM tasks WHERE source LIKE 'sensor:%' AND created_at >= ? GROUP BY source"
+  ).all(yesterday) as Array<{ source: string; cnt: number }>;
+
+  const taskCountsTotal = db.query(
+    "SELECT source, COUNT(*) as cnt FROM tasks WHERE source LIKE 'sensor:%' GROUP BY source"
+  ).all() as Array<{ source: string; cnt: number }>;
+
+  // Query hourly activity for last 24h (tasks created per hour per sensor)
+  const hourlyRows = db.query(
+    "SELECT source, strftime('%H', created_at) as hour, COUNT(*) as cnt FROM tasks WHERE source LIKE 'sensor:%' AND created_at >= ? GROUP BY source, hour"
+  ).all(yesterday) as Array<{ source: string; hour: string; cnt: number }>;
+
+  // Query distinct task subjects per sensor source (for task types)
+  const taskTypeRows = db.query(
+    "SELECT source, subject FROM tasks WHERE source LIKE 'sensor:%' GROUP BY source, subject"
+  ).all() as Array<{ source: string; subject: string }>;
+
+  // Build lookup maps: sensor name -> aggregated data
+  // Sources can be "sensor:name" or "sensor:name:subsource"
+  function sensorNameFromSource(source: string): string {
+    const parts = source.replace("sensor:", "").split(":");
+    return parts[0];
+  }
+
+  const count24hMap = new Map<string, number>();
+  for (const row of taskCounts24h) {
+    const name = sensorNameFromSource(row.source);
+    count24hMap.set(name, (count24hMap.get(name) || 0) + row.cnt);
+  }
+
+  const countTotalMap = new Map<string, number>();
+  for (const row of taskCountsTotal) {
+    const name = sensorNameFromSource(row.source);
+    countTotalMap.set(name, (countTotalMap.get(name) || 0) + row.cnt);
+  }
+
+  const hourlyMap = new Map<string, number[]>();
+  for (const row of hourlyRows) {
+    const name = sensorNameFromSource(row.source);
+    if (!hourlyMap.has(name)) hourlyMap.set(name, new Array(24).fill(0));
+    const hours = hourlyMap.get(name)!;
+    hours[parseInt(row.hour, 10)] += row.cnt;
+  }
+
+  const typeMap = new Map<string, Set<string>>();
+  for (const row of taskTypeRows) {
+    const name = sensorNameFromSource(row.source);
+    if (!typeMap.has(name)) typeMap.set(name, new Set());
+    typeMap.get(name)!.add(row.subject);
+  }
+
+  // Build sensor entries from hook-state files
+  if (existsSync(HOOK_STATE_DIR)) {
+    const files = readdirSync(HOOK_STATE_DIR).filter(f => f.endsWith(".json"));
+    for (const file of files) {
+      const name = file.replace(".json", "");
+      const skill = skillMap.get(name);
+      if (!skill) continue;
+
+      try {
+        const content = readFileSync(join(HOOK_STATE_DIR, file), "utf-8");
+        const state = JSON.parse(content) as {
+          last_ran: string;
+          last_result: string;
+          version: number;
+          consecutive_failures: number;
+        };
+
+        let interval: number | null = null;
+        const sensorPath = join(skill.path, "sensor.ts");
+        if (existsSync(sensorPath)) {
+          const sensorContent = readFileSync(sensorPath, "utf-8");
+          const match = sensorContent.match(/INTERVAL_MINUTES\s*=\s*(\d+)/);
+          if (match) interval = parseInt(match[1], 10);
+        }
+
+        let nextExpected: string | null = null;
+        if (state.last_ran && interval) {
+          const lastRan = new Date(state.last_ran.endsWith("Z") ? state.last_ran : state.last_ran + "Z");
+          nextExpected = new Date(lastRan.getTime() + interval * 60000).toISOString();
+        }
+
+        const types = typeMap.get(name);
+        sensors.push({
+          name,
+          description: skill.description,
+          interval_minutes: interval,
+          last_ran: state.last_ran,
+          last_result: state.last_result,
+          version: state.version,
+          consecutive_failures: state.consecutive_failures,
+          next_expected: nextExpected,
+          task_count_24h: count24hMap.get(name) || 0,
+          task_count_total: countTotalMap.get(name) || 0,
+          task_types: types ? Array.from(types).slice(0, 5) : [],
+          hourly_activity: hourlyMap.get(name) || new Array(24).fill(0),
+        });
+      } catch {
+        sensors.push({
+          name,
+          description: skill.description,
+          interval_minutes: null,
+          last_ran: null,
+          last_result: "error",
+          version: null,
+          consecutive_failures: null,
+          next_expected: null,
+          task_count_24h: count24hMap.get(name) || 0,
+          task_count_total: countTotalMap.get(name) || 0,
+          task_types: [],
+          hourly_activity: new Array(24).fill(0),
+        });
+      }
+    }
+  }
+
+  // Include sensors with no hook-state yet
+  for (const [name, skill] of skillMap) {
+    if (!sensors.some(s => s.name === name)) {
+      let interval: number | null = null;
+      const sensorPath = join(skill.path, "sensor.ts");
+      if (existsSync(sensorPath)) {
+        const sensorContent = readFileSync(sensorPath, "utf-8");
+        const match = sensorContent.match(/INTERVAL_MINUTES\s*=\s*(\d+)/);
+        if (match) interval = parseInt(match[1], 10);
+      }
+      sensors.push({
+        name,
+        description: skill.description,
+        interval_minutes: interval,
+        last_ran: null,
+        last_result: null,
+        version: null,
+        consecutive_failures: null,
+        next_expected: null,
+        task_count_24h: 0,
+        task_count_total: 0,
+        task_types: [],
+        hourly_activity: new Array(24).fill(0),
+      });
+    }
+  }
+
+  sensors.sort((a, b) => a.name.localeCompare(b.name));
+  return json({ sensors, generated_at: now.toISOString() });
+}
+
 function handleSkills(): Response {
   const skills = discoverSkills();
 
@@ -1905,6 +2077,7 @@ function route(req: Request): Response | Promise<Response> {
   if (path === "/api/tasks") return handleTasks(url);
   if (path === "/api/cycles") return handleCycles(url);
   if (path === "/api/sensors") return handleSensors();
+  if (path === "/api/sensors/schedule") return handleSensorSchedule();
   if (path === "/api/skills") return handleSkills();
   if (path === "/api/costs") return handleCosts(url);
   if (path === "/api/identity") return handleIdentity();
@@ -1926,7 +2099,7 @@ function route(req: Request): Response | Promise<Response> {
   if (taskMatch) return handleTaskById(taskMatch[1]);
 
   // Clean URL routing for multi-page app
-  if (path === "/sensors" || path === "/skills" || path === "/identity" || path === "/email") {
+  if (path === "/sensors" || path === "/sensors/schedule" || path === "/skills" || path === "/identity" || path === "/email") {
     const htmlPath = join(STATIC_DIR, path + ".html");
     if (existsSync(htmlPath)) {
       return new Response(Bun.file(htmlPath), {
