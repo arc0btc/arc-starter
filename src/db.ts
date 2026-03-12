@@ -808,6 +808,28 @@ export function hasSentEmailTo(toAddress: string, sinceIso: string): boolean {
   return row !== null;
 }
 
+export function getEmailMessageCountFromSender(fromAddress: string): number {
+  const db = getDatabase();
+  const row = db
+    .query("SELECT COUNT(*) as count FROM email_messages WHERE from_address = ?")
+    .get(fromAddress) as { count: number } | null;
+  return row?.count ?? 0;
+}
+
+export function getEmailThreads(limit = 200): EmailMessage[] {
+  const db = getDatabase();
+  return db
+    .query("SELECT * FROM email_messages ORDER BY received_at DESC LIMIT ?")
+    .all(limit) as EmailMessage[];
+}
+
+export function getEmailMessagesByFromAddress(fromAddress: string): EmailMessage[] {
+  const db = getDatabase();
+  return db
+    .query("SELECT * FROM email_messages WHERE from_address = ? ORDER BY received_at ASC")
+    .all(fromAddress) as EmailMessage[];
+}
+
 // ---- AIBTC inbox queries ----
 
 export function upsertAibtcInboxMessage(msg: Omit<AibtcInboxMessage, "id">): void {

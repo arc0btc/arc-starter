@@ -5,7 +5,7 @@
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, extname } from "node:path";
-import { initDatabase, getDatabase, insertTask, markTaskFailed, markTaskCompleted } from "./db.ts";
+import { initDatabase, getDatabase, insertTask, markTaskFailed, markTaskCompleted, getEmailThreads, getEmailMessagesByFromAddress, type EmailMessage } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
 import { IDENTITY } from "./identity.ts";
 import { dispatchCodex } from "./codex.ts";
@@ -688,6 +688,77 @@ function handleArenaHistory(): Response {
       completed_at: r.completed_at,
     }));
   return json({ runs });
+}
+
+// ---- Email thread helpers ----
+
+function normalizeSubjectForThreading(subject: string | null): string {
+  if (!subject) return "(no subject)";
+  return subject.replace(/^(?:re|fwd?|fw)\s*:\s*/gi, "").trim().toLowerCase() || "(no subject)";
+}
+
+interface EmailThread {
+  thread_key: string;
+  from_address: string;
+  from_name: string | null;
+  normalized_subject: string;
+  latest_subject: string | null;
+  message_count: number;
+  unread_count: number;
+  last_received: string;
+  over_threshold: boolean;
+}
+
+function buildThreads(rows: EmailMessage[]): EmailThread[] {
+  const threadMap = new Map<string, EmailThread & { messages: EmailMessage[] }>();
+  for (const msg of rows) {
+    const normSubj = normalizeSubjectForThreading(msg.subject);
+    const key = `${msg.from_address}:${normSubj}`;
+    if (!threadMap.has(key)) {
+      threadMap.set(key, {
+        thread_key: key,
+        from_address: msg.from_address,
+        from_name: msg.from_name,
+        normalized_subject: normSubj,
+        latest_subject: msg.subject,
+        message_count: 0,
+        unread_count: 0,
+        last_received: msg.received_at,
+        over_threshold: false,
+        messages: [],
+      });
+    }
+    const thread = threadMap.get(key)!;
+    thread.message_count++;
+    if (msg.is_read === 0 && msg.folder === "inbox") thread.unread_count++;
+    if (msg.received_at > thread.last_received) {
+      thread.last_received = msg.received_at;
+      thread.latest_subject = msg.subject;
+      thread.from_name = msg.from_name ?? thread.from_name;
+    }
+    thread.messages.push(msg);
+  }
+  return [...threadMap.values()]
+    .map(({ messages: _m, ...t }) => ({ ...t, over_threshold: t.message_count >= 15 }))
+    .sort((a, b) => b.last_received.localeCompare(a.last_received));
+}
+
+function handleEmailThreads(url: URL): Response {
+  const limit = Math.min(parseInt(url.searchParams.get("limit") || "500", 10), 2000);
+  const rows = getEmailThreads(limit);
+  const threads = buildThreads(rows);
+  return json({ threads, total: threads.length });
+}
+
+function handleEmailThread(encodedKey: string): Response {
+  const key = decodeURIComponent(encodedKey);
+  const colonIdx = key.indexOf(":");
+  if (colonIdx === -1) return errorResponse("Invalid thread key", 400);
+  const fromAddress = key.slice(0, colonIdx);
+  const normalizedSubject = key.slice(colonIdx + 1);
+  const rows = getEmailMessagesByFromAddress(fromAddress);
+  const messages = rows.filter(m => normalizeSubjectForThreading(m.subject) === normalizedSubject);
+  return json({ thread_key: key, from_address: fromAddress, normalized_subject: normalizedSubject, message_count: messages.length, over_threshold: messages.length >= 15, messages });
 }
 
 // ---- API Handlers ----
@@ -1824,6 +1895,11 @@ function route(req: Request): Response | Promise<Response> {
     if (method === "GET") return handleGetFleetMessages(url);
   }
 
+  // Email thread API
+  if (path === "/api/email/threads") return handleEmailThreads(url);
+  const emailThreadMatch = path.match(/^\/api\/email\/threads\/(.+)$/);
+  if (emailThreadMatch) return handleEmailThread(emailThreadMatch[1]);
+
   // API routes
   if (path === "/api/status") return handleStatus();
   if (path === "/api/tasks") return handleTasks(url);
@@ -1850,7 +1926,7 @@ function route(req: Request): Response | Promise<Response> {
   if (taskMatch) return handleTaskById(taskMatch[1]);
 
   // Clean URL routing for multi-page app
-  if (path === "/sensors" || path === "/skills" || path === "/identity") {
+  if (path === "/sensors" || path === "/skills" || path === "/identity" || path === "/email") {
     const htmlPath = join(STATIC_DIR, path + ".html");
     if (existsSync(htmlPath)) {
       return new Response(Bun.file(htmlPath), {

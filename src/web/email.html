@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent - Email</title>
+  <link rel="stylesheet" href="/shared.css">
+  <style>
+    .email-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-lg);
+    }
+    @media (min-width: 900px) {
+      .email-layout {
+        grid-template-columns: 340px 1fr;
+        align-items: start;
+      }
+    }
+
+    /* Thread list */
+    .thread-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .thread-item {
+      background: var(--bg-card);
+      border-left: 3px solid var(--border);
+      padding: var(--space-sm) var(--space-md);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      border-radius: 2px;
+    }
+    .thread-item:hover { background: #111; border-left-color: var(--accent); }
+    .thread-item.active { border-left-color: var(--accent); background: #111; }
+    .thread-item.has-unread { border-left-color: var(--blocked); }
+    .thread-item.over-threshold { border-left-color: var(--error); }
+
+    .thread-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: 2px;
+    }
+
+    .thread-from {
+      font-size: 0.85rem;
+      font-weight: 600;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .thread-count {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .thread-count.has-unread { color: var(--blocked); font-weight: 700; }
+    .thread-count.over-threshold { color: var(--error); }
+
+    .thread-subject {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .thread-date {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      margin-top: 2px;
+    }
+
+    /* Thread view */
+    .thread-view {
+      min-height: 400px;
+    }
+
+    .thread-view-empty {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      padding: var(--space-xl);
+      text-align: center;
+    }
+
+    .thread-view-header {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+      padding-left: var(--space-sm);
+      border-left: 3px solid var(--accent);
+    }
+
+    .thread-view-title {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .thread-view-subject {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .thread-view-meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .threshold-banner {
+      background: #1a0a0a;
+      border: 1px solid var(--error);
+      border-radius: 4px;
+      padding: var(--space-sm) var(--space-md);
+      font-size: 0.8rem;
+      color: var(--error);
+      margin-bottom: var(--space-md);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    /* Message cards */
+    .message-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .message-card {
+      background: var(--bg-card);
+      border-left: 3px solid var(--border);
+      border-radius: 2px;
+      padding: var(--space-md);
+      transition: border-color 0.15s;
+    }
+    .message-card.unread { border-left-color: var(--blocked); }
+    .message-card.sent-by-arc { border-left-color: var(--accent); }
+
+    .message-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-sm);
+      flex-wrap: wrap;
+    }
+
+    .message-folder {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 6px;
+      border-radius: 2px;
+      background: var(--border);
+      color: var(--text-muted);
+    }
+    .message-folder.sent { background: rgba(254,194,51,0.15); color: var(--accent); }
+    .message-folder.unread { background: rgba(245,158,11,0.15); color: var(--blocked); }
+
+    .message-from {
+      font-size: 0.8rem;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .message-date {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      flex-shrink: 0;
+    }
+
+    .message-subject {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: var(--space-sm);
+    }
+
+    .message-body {
+      font-size: 0.82rem;
+      line-height: 1.6;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-word;
+      border-top: 1px solid var(--border);
+      padding-top: var(--space-sm);
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .message-id {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      margin-top: var(--space-sm);
+      opacity: 0.6;
+    }
+
+    .badge-unread {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--blocked);
+      flex-shrink: 0;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 2px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .filter-btn:hover, .filter-btn.active { border-color: var(--accent); color: var(--accent); }
+
+    .loading { color: var(--text-muted); font-size: 0.85rem; padding: var(--space-md); }
+    .error-msg { color: var(--error); font-size: 0.85rem; padding: var(--space-sm); }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-identity">
+        <img class="avatar avatar-img" id="header-avatar" src="/api/face" alt="dashboard" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+        <div class="avatar avatar-fallback" id="header-avatar-fallback" style="display:none">A</div>
+        <div>
+          <h1 class="header-name" id="header-name">Agent</h1>
+          <div class="header-bns" id="header-bns"></div>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="/">Activity</a>
+        <a href="/sensors">Sensors</a>
+        <a href="/skills">Skills</a>
+        <a href="/email" class="active">Email</a>
+        <a href="/identity">Identity</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="container">
+    <section class="section span-full">
+      <div class="section-header">
+        <h2 class="section-title">Email Threads</h2>
+        <span class="section-count" id="thread-count">loading...</span>
+      </div>
+
+      <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">All</button>
+        <button class="filter-btn" data-filter="unread" onclick="setFilter('unread',this)">Unread</button>
+        <button class="filter-btn" data-filter="over-threshold" onclick="setFilter('over-threshold',this)">Long (&ge;15 msgs)</button>
+      </div>
+
+      <div class="email-layout">
+        <!-- Thread list -->
+        <div>
+          <div id="thread-list" class="thread-list">
+            <div class="loading">Loading threads...</div>
+          </div>
+        </div>
+
+        <!-- Thread view -->
+        <div class="thread-view" id="thread-view">
+          <div class="thread-view-empty">Select a thread to view the conversation.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // ---- State ----
+    let allThreads = [];
+    let selectedThreadKey = null;
+    let currentFilter = 'all';
+
+    // ---- Identity ----
+    fetch('/api/identity').then(r => r.json()).then(d => {
+      document.getElementById('header-name').textContent = d.name || 'Agent';
+      if (d.bns) document.getElementById('header-bns').textContent = d.bns;
+    }).catch(() => {});
+
+    // ---- Helpers ----
+    function relativeTime(iso) {
+      const ms = Date.now() - new Date(iso + (iso.endsWith('Z') ? '' : 'Z')).getTime();
+      const s = Math.floor(ms / 1000);
+      if (s < 60) return `${s}s ago`;
+      const m = Math.floor(s / 60);
+      if (m < 60) return `${m}m ago`;
+      const h = Math.floor(m / 60);
+      if (h < 24) return `${h}h ago`;
+      const day = Math.floor(h / 24);
+      return `${day}d ago`;
+    }
+
+    function esc(s) {
+      return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ---- Filter ----
+    function setFilter(f, btn) {
+      currentFilter = f;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderThreadList();
+    }
+
+    function filteredThreads() {
+      if (currentFilter === 'unread') return allThreads.filter(t => t.unread_count > 0);
+      if (currentFilter === 'over-threshold') return allThreads.filter(t => t.over_threshold);
+      return allThreads;
+    }
+
+    // ---- Thread list rendering ----
+    function renderThreadList() {
+      const threads = filteredThreads();
+      const el = document.getElementById('thread-list');
+      document.getElementById('thread-count').textContent = `${threads.length} thread${threads.length !== 1 ? 's' : ''}`;
+
+      if (threads.length === 0) {
+        el.innerHTML = '<div class="loading">No threads.</div>';
+        return;
+      }
+
+      el.innerHTML = threads.map(t => {
+        const isActive = t.thread_key === selectedThreadKey;
+        const cls = [
+          'thread-item',
+          isActive ? 'active' : '',
+          t.unread_count > 0 ? 'has-unread' : '',
+          t.over_threshold ? 'over-threshold' : '',
+        ].filter(Boolean).join(' ');
+
+        const countCls = ['thread-count', t.unread_count > 0 ? 'has-unread' : '', t.over_threshold ? 'over-threshold' : ''].filter(Boolean).join(' ');
+        const countLabel = t.unread_count > 0
+          ? `${t.unread_count} unread / ${t.message_count} total`
+          : `${t.message_count} msg${t.message_count !== 1 ? 's' : ''}`;
+
+        const displayFrom = esc(t.from_name || t.from_address);
+        const displaySubj = esc(t.latest_subject || t.normalized_subject || '(no subject)');
+
+        return `<div class="${cls}" onclick="selectThread(${JSON.stringify(t.thread_key)})">
+          <div class="thread-header">
+            <span class="thread-from">${displayFrom}</span>
+            <span class="${countCls}">${esc(countLabel)}</span>
+          </div>
+          <div class="thread-subject">${displaySubj}</div>
+          <div class="thread-date">${relativeTime(t.last_received)}</div>
+        </div>`;
+      }).join('');
+    }
+
+    // ---- Thread view rendering ----
+    function renderThreadView(data) {
+      const view = document.getElementById('thread-view');
+      const { thread_key, messages, message_count, over_threshold, normalized_subject } = data;
+
+      const displayFrom = messages[0]?.from_name || messages[0]?.from_address || thread_key.split(':')[0];
+      const displaySubj = messages[0]?.subject || normalized_subject || '(no subject)';
+
+      const thresholdBanner = over_threshold
+        ? `<div class="threshold-banner">
+            &#9888; This thread has ${message_count} messages (&ge;15). Consider starting a fresh conversation thread.
+           </div>`
+        : '';
+
+      const msgCards = messages.map((m, i) => {
+        const isArcSent = m.folder === 'sent';
+        const isUnread = m.is_read === 0 && m.folder === 'inbox';
+        const cardCls = ['message-card', isArcSent ? 'sent-by-arc' : '', isUnread ? 'unread' : ''].filter(Boolean).join(' ');
+        const folderCls = ['message-folder', isArcSent ? 'sent' : '', isUnread ? 'unread' : ''].filter(Boolean).join(' ');
+        const folderLabel = isArcSent ? 'Sent' : (isUnread ? 'Unread' : 'Read');
+        const from = isArcSent ? (m.from_address || 'Arc') : esc(m.from_name || m.from_address);
+        const body = esc(m.body_preview || '(no body preview)');
+
+        return `<div class="${cardCls}">
+          <div class="message-meta">
+            <span class="${folderCls}">${folderLabel}</span>
+            <span class="message-from">${from}</span>
+            <span class="message-date">${relativeTime(m.received_at)} &middot; ${esc(m.received_at.slice(0,16).replace('T',' '))}</span>
+          </div>
+          <div class="message-subject">${esc(m.subject || '(no subject)')}</div>
+          <div class="message-body">${body}</div>
+          ${m.remote_id ? `<div class="message-id">remote_id: ${esc(m.remote_id)}</div>` : ''}
+        </div>`;
+      }).join('');
+
+      view.innerHTML = `
+        <div class="thread-view-header">
+          <div class="thread-view-title">
+            <div class="thread-view-subject">${esc(displaySubj)}</div>
+            <div class="thread-view-meta">${esc(displayFrom)} &middot; ${message_count} message${message_count !== 1 ? 's' : ''}</div>
+          </div>
+        </div>
+        ${thresholdBanner}
+        <div class="message-list">${msgCards || '<div class="loading">No messages in thread.</div>'}</div>
+      `;
+    }
+
+    // ---- Select thread ----
+    async function selectThread(key) {
+      selectedThreadKey = key;
+      renderThreadList(); // update active state
+      const view = document.getElementById('thread-view');
+      view.innerHTML = '<div class="loading">Loading messages...</div>';
+      try {
+        const r = await fetch('/api/email/threads/' + encodeURIComponent(key));
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const data = await r.json();
+        renderThreadView(data);
+      } catch (e) {
+        view.innerHTML = `<div class="error-msg">Failed to load thread: ${esc(e.message)}</div>`;
+      }
+    }
+
+    // ---- Initial load ----
+    async function loadThreads() {
+      try {
+        const r = await fetch('/api/email/threads');
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const data = await r.json();
+        allThreads = data.threads || [];
+        renderThreadList();
+      } catch (e) {
+        document.getElementById('thread-list').innerHTML = `<div class="error-msg">Failed to load threads: ${esc(e.message)}</div>`;
+        document.getElementById('thread-count').textContent = 'error';
+      }
+    }
+
+    loadThreads();
+  </script>
+</body>
+</html>

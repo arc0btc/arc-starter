@@ -4,7 +4,7 @@
 // Runs every 1 minute via sensor cadence gating.
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource, getUnreadEmailMessages, markEmailRead, hasSentEmailTo, insertWorkflow, getWorkflowByInstanceKey, updateWorkflowState, type EmailMessage } from "../../src/db.ts";
+import { insertTask, pendingTaskExistsForSource, getUnreadEmailMessages, markEmailRead, hasSentEmailTo, insertWorkflow, getWorkflowByInstanceKey, updateWorkflowState, getEmailMessageCountFromSender, type EmailMessage } from "../../src/db.ts";
 import { syncEmail, getEmailCredentials } from "./sync.ts";
 import { isGateStopped, resetDispatchGate } from "../../src/dispatch-gate.ts";
 
@@ -245,15 +245,44 @@ export default async function emailSensor(): Promise<string> {
     }
     const emailSkills = ["arc-email-sync", ...extraEmailSkills];
 
+    // Compute total thread depth (all messages from this sender, read + unread)
+    const totalThreadCount = getEmailMessageCountFromSender(senderAddr);
+    const depthLabel = `(${senderMessages.length} unread${totalThreadCount > senderMessages.length ? `, ${totalThreadCount} total` : ""})`;
+
     const taskId = insertTask({
-      subject: `Email from ${senderDisplay}: ${(senderMessages[0].subject ?? "(no subject)").slice(0, 60)}`,
+      subject: `Email from ${senderDisplay} ${depthLabel}: ${(senderMessages[0].subject ?? "(no subject)").slice(0, 55)}`,
       description,
       skills: JSON.stringify(emailSkills),
       priority,
       model,
       source,
     });
-    log(`created task ${taskId} for thread from ${senderDisplay} (${senderMessages.length} messages)`);
+    log(`created task ${taskId} for thread from ${senderDisplay} (${senderMessages.length} unread, ${totalThreadCount} total)`);
+
+    // Auto-suggest starting a new conversation thread when depth is >= 15
+    if (totalThreadCount >= 15) {
+      const suggestSource = `sensor:arc-email-sync:suggest-new-thread:${senderAddr}`;
+      if (!pendingTaskExistsForSource(suggestSource)) {
+        const suggestId = insertTask({
+          subject: `[Email] Consider new thread with ${senderDisplay} (${totalThreadCount} messages deep)`,
+          description: [
+            `The email conversation with ${senderDisplay} (${senderAddr}) has grown to ${totalThreadCount} total messages.`,
+            "",
+            "Long threads can become unwieldy for email clients and harder to follow.",
+            `Consider proactively starting a fresh subject line in the next reply to ${senderDisplay}`,
+            "to create a new thread anchor. You don't need to do anything now — this is an advisory note.",
+            "",
+            `View the thread in the dashboard: /email`,
+          ].join("\n"),
+          skills: JSON.stringify(["arc-email-sync"]),
+          priority: 8,
+          model: "haiku",
+          source: suggestSource,
+          parent_id: taskId,
+        });
+        log(`created new-thread suggestion task ${suggestId} for ${senderAddr} (${totalThreadCount} messages)`);
+      }
+    }
 
     // Create an email-thread workflow instance so the lifecycle can be tracked
     // beyond task completion (reply_pending → completed flow).
