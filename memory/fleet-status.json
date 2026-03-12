@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T16:15:53.104Z",
+  "updated_at": "2026-03-12T16:17:18.296Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5414,
-    "subject": "Add SHORT_DESC entries for agent-lookup, aibtc-agents, mempool-watch in landing-page SkillsDirectory",
+    "id": 5411,
+    "subject": "Consolidate patterns.md (153 lines, threshold 150)",
     "status": "completed",
-    "priority": 6
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 105704,
-    "cost_usd": 0.32584995
+    "duration_ms": 85041,
+    "cost_usd": 0.2471127
   },
   "health": {
-    "uptime_seconds": 1274651,
+    "uptime_seconds": 1274737,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233318240256
+    "disk_avail_bytes": 233318154240
   }
 }
