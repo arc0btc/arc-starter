@@ -1,7 +1,7 @@
 ---
 name: aibtc-inbox-sync
 description: Poll AIBTC platform inbox, sync messages locally, queue tasks for unread messages
-updated: 2026-03-05
+updated: 2026-03-12
 tags:
   - comms
   - aibtc
@@ -26,6 +26,7 @@ Syncs Arc's AIBTC platform inbox to a local DB table and queues tasks for new un
 - Upserts all messages into `aibtc_inbox_messages` table
 - For each new unread received message, creates a task (dedup by `source: "sensor:aibtc-inbox-sync:{messageId}"`)
 - Tasks get `skills: ["bitcoin-wallet"]` since replies require BIP-137 signing
+- **Priority: P2 (Opus)** — each message carries 100 sats payment, making these high-value signals. Co-sign messages get P1.
 
 ## Local State
 

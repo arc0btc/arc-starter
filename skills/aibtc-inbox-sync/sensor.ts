@@ -50,29 +50,12 @@ const ZEST_KEYWORDS = [
   "zest", "zest protocol", "zest yield", "zest supply", "zest withdraw",
 ];
 
-function detectsX402Activity(messages: Array<{ content: string | null }>): boolean {
+function matchesKeywords(
+  messages: Array<{ content: string | null }>,
+  keywords: string[],
+): boolean {
   const combined = messages.map((m) => m.content ?? "").join(" ").toLowerCase();
-  return X402_KEYWORDS.some((k) => combined.includes(k));
-}
-
-function detectsBitflowActivity(messages: Array<{ content: string | null }>): boolean {
-  const combined = messages.map((m) => m.content ?? "").join(" ").toLowerCase();
-  return BITFLOW_KEYWORDS.some((k) => combined.includes(k));
-}
-
-function detectsPoXActivity(messages: Array<{ content: string | null }>): boolean {
-  const combined = messages.map((m) => m.content ?? "").join(" ").toLowerCase();
-  return POX_KEYWORDS.some((k) => combined.includes(k));
-}
-
-function detectsZestActivity(messages: Array<{ content: string | null }>): boolean {
-  const combined = messages.map((m) => m.content ?? "").join(" ").toLowerCase();
-  return ZEST_KEYWORDS.some((k) => combined.includes(k));
-}
-
-function detectsCoSignActivity(messages: Array<{ content: string | null }>): boolean {
-  const combined = messages.map((m) => m.content ?? "").join(" ").toLowerCase();
-  return CO_SIGN_KEYWORDS.some((k) => combined.includes(k));
+  return keywords.some((k) => combined.includes(k));
 }
 
 // ---- Types ----
@@ -252,11 +235,11 @@ export default async function aibtcInboxSensor(): Promise<string> {
       "5. Mark EACH message as read after handling (use each message ID above).",
     ].join("\n");
 
-    const isCoSign = detectsCoSignActivity(peerMessages);
-    const isX402 = detectsX402Activity(peerMessages);
-    const isBitflow = detectsBitflowActivity(peerMessages);
-    const isPoX = detectsPoXActivity(peerMessages);
-    const isZest = detectsZestActivity(peerMessages);
+    const isCoSign = matchesKeywords(peerMessages, CO_SIGN_KEYWORDS);
+    const isX402 = matchesKeywords(peerMessages, X402_KEYWORDS);
+    const isBitflow = matchesKeywords(peerMessages, BITFLOW_KEYWORDS);
+    const isPoX = matchesKeywords(peerMessages, POX_KEYWORDS);
+    const isZest = matchesKeywords(peerMessages, ZEST_KEYWORDS);
     const inboxSkills = ["bitcoin-wallet"];
     if (isCoSign) {
       inboxSkills.push("bitcoin-quorumclaw", "bitcoin-taproot-multisig");
@@ -280,8 +263,8 @@ export default async function aibtcInboxSensor(): Promise<string> {
       subject: `AIBTC thread from ${senderName} (${peerMessages.length} messages)`,
       description,
       skills: JSON.stringify(inboxSkills),
-      priority: isCoSign ? 4 : 5,
-      model: isCoSign ? "opus" : "sonnet",
+      priority: isCoSign ? 1 : 2,
+      model: "opus",
       source,
     });
     log(`created task ${taskId} for thread from ${senderName} (${peerMessages.length} messages)`);
