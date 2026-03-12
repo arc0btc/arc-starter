@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T21:21:57.707Z",
+  "updated_at": "2026-03-12T21:25:35.678Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5456,
-    "subject": "GitHub @mention in aibtcdev/agent-news: Add index on classifieds.btc_address",
+    "id": 5457,
+    "subject": "GitHub @mention in aibtcdev/agent-news: Distinguish relay errors from invalid payments in classifieds",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 77569,
-    "cost_usd": 0.23064479999999998
+    "duration_ms": 217787,
+    "cost_usd": 0.7134972
   },
   "health": {
-    "uptime_seconds": 1293016,
+    "uptime_seconds": 1293234,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233261076480
+    "disk_avail_bytes": 233260072960
   }
 }
