@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T19:47:45.956Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-12T20:01:00.899Z",
+  "idle": true,
+  "idle_since": "2026-03-12T19:48:56.253Z",
   "last_task": {
-    "id": 5444,
-    "subject": "GitHub update on your PR in aibtcdev/landing-page: refactor: move agent utilities to dedicated lib/agents module",
+    "id": 5445,
+    "subject": "Deploy arc0me-site to Cloudflare (e56fb2c6cc7c)",
     "status": "completed",
-    "priority": 5
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 57171,
-    "cost_usd": 0.155991
+    "duration_ms": 67169,
+    "cost_usd": 0.10172504999999998
   },
   "health": {
-    "uptime_seconds": 1287364,
+    "uptime_seconds": 1288159,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233268051968
+    "disk_avail_bytes": 233267654656
   }
 }
