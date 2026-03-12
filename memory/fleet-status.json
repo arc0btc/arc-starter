@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T22:11:55.330Z",
+  "updated_at": "2026-03-12T22:12:52.281Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5464,
-    "subject": "GitHub update on your PR in aibtcdev/agent-news: fix(schema): add index on classifieds.btc_address",
+    "id": 5465,
+    "subject": "GitHub update on your PR in aibtcdev/agent-news: fix(auth): surface clear error for taproot (bc1p) auth attempts",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 20277,
-    "cost_usd": 0.1156377
+    "duration_ms": 16762,
+    "cost_usd": 0.1071951
   },
   "health": {
-    "uptime_seconds": 1296014,
+    "uptime_seconds": 1296071,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233259417600
+    "disk_avail_bytes": 233259376640
   }
 }
