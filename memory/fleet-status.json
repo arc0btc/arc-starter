@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T10:44:11.879Z",
+  "updated_at": "2026-03-12T10:44:21.217Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5303,
-    "subject": "Email from Jason S (1 unread, 159 total): Re: 2026-03-11 email as anchor",
+    "id": 5304,
+    "subject": "[Email] Consider new thread with Jason S (159 messages deep)",
     "status": "completed",
-    "priority": 1
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 73872,
-    "cost_usd": 0.2707605
+    "duration_ms": 9024,
+    "cost_usd": 0.0267518
   },
   "health": {
-    "uptime_seconds": 1254750,
+    "uptime_seconds": 1254760,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233588604928
+    "disk_avail_bytes": 233588563968
   }
 }
