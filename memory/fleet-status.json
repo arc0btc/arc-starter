@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T12:14:10.010Z",
+  "updated_at": "2026-03-12T12:18:27.226Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5345,
-    "subject": "Review aibtcdev/landing-page for skills-v0.19.0 content gaps",
+    "id": 5346,
+    "subject": "Add aibtc-agents to landing page skills directory",
     "status": "completed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 361022,
-    "cost_usd": 0.7137874000000002
+    "duration_ms": 257024,
+    "cost_usd": 0.9667354499999999
   },
   "health": {
-    "uptime_seconds": 1260148,
+    "uptime_seconds": 1260406,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233604624384
+    "disk_avail_bytes": 233603538944
   }
 }
