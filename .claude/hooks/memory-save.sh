@@ -24,4 +24,13 @@ fi
 git add "$MEMORY_FILE"
 git commit -m "chore(memory): auto-persist on ${EVENT}" 2>/dev/null
 
+# Sync to Claude Code's auto-memory directory so interactive sessions see current state.
+# Path formula: ~/.claude/projects/<project-path-with-slashes-as-dashes>/memory/
+AUTO_MEMORY_DIR="$HOME/.claude/projects/$(echo "$CLAUDE_PROJECT_DIR" | sed 's|/|-|g')/memory"
+if [ -d "$AUTO_MEMORY_DIR" ]; then
+  for f in MEMORY.md archive.md patterns.md; do
+    [ -f "memory/$f" ] && cp "memory/$f" "$AUTO_MEMORY_DIR/$f"
+  done
+fi
+
 exit 0
