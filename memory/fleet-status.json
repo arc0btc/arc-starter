@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T13:22:07.469Z",
+  "updated_at": "2026-03-12T13:27:06.444Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5385,
-    "subject": "arc-payments: rename stacks-payments and add sBTC SIP-010 monitoring",
+    "id": 5383,
+    "subject": "Check zest-v2/defi-zest vs aibtcdev/aibtc-mcp-server recent changes",
     "status": "completed",
-    "priority": 4
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 249258,
-    "cost_usd": 1.3107127500000002
+    "duration_ms": 298625,
+    "cost_usd": 0.68363665
   },
   "health": {
-    "uptime_seconds": 1264226,
+    "uptime_seconds": 1264525,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233322807296
+    "disk_avail_bytes": 233322663936
   }
 }
