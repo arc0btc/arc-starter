@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T17:17:57.403Z",
-  "idle": true,
-  "idle_since": "2026-03-12T16:38:43.509Z",
+  "updated_at": "2026-03-12T17:20:58.375Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5420,
-    "subject": "GitHub issue in aibtcdev/x402-sponsor-relay#128: Support non-sponsored (self-pay) transaction settlement",
+    "id": 5421,
+    "subject": "Review PR #373 on aibtcdev/landing-page: fix: harden inbox/outbox validation and agent response shape",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 96941,
-    "cost_usd": 0.2434227
+    "duration_ms": 120610,
+    "cost_usd": 0.27762375
   },
   "health": {
-    "uptime_seconds": 1278376,
+    "uptime_seconds": 1278557,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233308999680
+    "disk_avail_bytes": 233308930048
   }
 }
