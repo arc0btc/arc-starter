@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T21:48:39.167Z",
+  "updated_at": "2026-03-12T22:08:33.898Z",
   "idle": true,
-  "idle_since": "2026-03-12T21:36:34.726Z",
+  "idle_since": "2026-03-12T21:51:28.363Z",
   "last_task": {
-    "id": 5460,
-    "subject": "GitHub @mention in aibtcdev/skills: Add Tenero skills",
+    "id": 5461,
+    "subject": "Review PR #162 on aibtcdev/x402-sponsor-relay: feat: support self-pay (non-sponsored) transaction settlement via X-Settlement header",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 116133,
-    "cost_usd": 0.3360679000000001
+    "duration_ms": 108534,
+    "cost_usd": 0.23099565
   },
   "health": {
-    "uptime_seconds": 1294618,
+    "uptime_seconds": 1295812,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233259769856
+    "disk_avail_bytes": 233259593728
   }
 }
