@@ -21,10 +21,7 @@ Autonomous DAO governance participation on Stacks. Detects proposals, evaluates 
 
 ## Sensor
 
-- **Cadence:** 30 minutes
-- **Detection:** Queries each tracked DAO contract for active proposals
-- **Dedup:** Source-based (`sensor:dao-zero-authority:proposal:{dao}:{id}`)
-- **Task creation:** P3 for new proposals needing review/vote
+**Removed** (2026-03-12). No on-chain references exist yet. Revisit once Zero Authority has deployed contracts with on-chain activity.
 
 ## CLI Commands
 
@@ -69,6 +66,6 @@ Load when: a DAO proposal needs review or voting, or when adding/removing tracke
 ## Checklist
 
 - [x] `skills/dao-zero-authority/SKILL.md` exists with valid frontmatter
-- [x] `skills/dao-zero-authority/sensor.ts` exports async default function
+- [ ] `skills/dao-zero-authority/sensor.ts` — removed, revisit when on-chain contracts exist
 - [x] `skills/dao-zero-authority/cli.ts` runs without error
 - [x] `skills/dao-zero-authority/daos.json` provides configurable DAO tracking
