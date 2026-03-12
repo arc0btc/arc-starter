@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T22:36:13.608Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-12T22:49:18.649Z",
+  "idle": true,
+  "idle_since": "2026-03-12T22:37:13.914Z",
   "last_task": {
-    "id": 5470,
-    "subject": "Email from whoabuddy (1 unread, 3 total): Re: Agents Love Bitcoin",
+    "id": 5471,
+    "subject": "Retrospective: extract learnings from task #5470 — Email from whoabuddy (1 unread, 3 total): Re: Agents Love Bi",
     "status": "completed",
-    "priority": 1
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 90065,
-    "cost_usd": 0.17569125000000002
+    "duration_ms": 47870,
+    "cost_usd": 0.06965975
   },
   "health": {
-    "uptime_seconds": 1297472,
+    "uptime_seconds": 1298257,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233258987520
+    "disk_avail_bytes": 233258835968
   }
 }
