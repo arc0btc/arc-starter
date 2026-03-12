@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T11:16:11.516Z",
+  "updated_at": "2026-03-12T11:16:53.303Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5318,
-    "subject": "GitHub update on your PR in aibtcdev/skills: fix(defi): read Zest supply from LP token balance, not reserve data",
+    "id": 5321,
+    "subject": "Disable arc-alive-check sensor for Arc (keep in arc-starter template)",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 45485,
-    "cost_usd": 0.1390008
+    "duration_ms": 27058,
+    "cost_usd": 0.1396368
   },
   "health": {
-    "uptime_seconds": 1256670,
+    "uptime_seconds": 1256712,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233607114752
+    "disk_avail_bytes": 233607024640
   }
 }
