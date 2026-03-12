@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T13:27:06.444Z",
+  "updated_at": "2026-03-12T13:34:02.704Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5383,
-    "subject": "Check zest-v2/defi-zest vs aibtcdev/aibtc-mcp-server recent changes",
+    "id": 5387,
+    "subject": "email threading is incorrectly detecting 160+ messages based on me sending as whoabuddy",
     "status": "completed",
-    "priority": 6
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 298625,
-    "cost_usd": 0.68363665
+    "duration_ms": 415951,
+    "cost_usd": 1.0574989000000001
   },
   "health": {
-    "uptime_seconds": 1264525,
+    "uptime_seconds": 1264941,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233322663936
+    "disk_avail_bytes": 233322389504
   }
 }
