@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T21:12:24.404Z",
+  "updated_at": "2026-03-12T21:15:25.397Z",
   "idle": true,
-  "idle_since": "2026-03-12T21:07:22.399Z",
+  "idle_since": "2026-03-12T21:14:24.906Z",
   "last_task": {
-    "id": 5452,
-    "subject": "housekeeping: 1 issue(s) detected",
+    "id": 5453,
+    "subject": "Reply to X mention from user 26021389",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 12871,
-    "cost_usd": 0.03774295
+    "duration_ms": 20725,
+    "cost_usd": 0.0984336
   },
   "health": {
-    "uptime_seconds": 1292443,
+    "uptime_seconds": 1292624,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233265451008
+    "disk_avail_bytes": 233265352704
   }
 }
