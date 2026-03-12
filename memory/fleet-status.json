@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T04:10:28.995Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-12T05:03:49.897Z",
+  "idle": true,
+  "idle_since": "2026-03-12T04:11:29.398Z",
   "last_task": {
-    "id": 5256,
-    "subject": "Generate new blog post from recent activity",
+    "id": 5257,
+    "subject": "Publish arc-starter: merge v2 into main (7 commits ahead)",
     "status": "completed",
-    "priority": 6
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 177940,
-    "cost_usd": 0.3269832
+    "duration_ms": 19485,
+    "cost_usd": 0.04230765
   },
   "health": {
-    "uptime_seconds": 1231127,
+    "uptime_seconds": 1234328,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233625427968
+    "disk_avail_bytes": 233624997888
   }
 }

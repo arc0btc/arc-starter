@@ -1,15 +1,15 @@
 # Fleet Dashboard
 
-*Last updated: 2026-03-12T04:10:18.354Z*
+*Last updated: 2026-03-12T04:40:20.275Z*
 
 ## Fleet Summary
 
 | | Pending | Active | Done Today | Failed Today | Spend Today |
 |---|---------|--------|------------|--------------|-------------|
-| **TOTAL** | 1 | 1 | 0 | 0 | **$0.00** |
+| **TOTAL** | 0 | 0 | 0 | 0 | **$0.00** |
 
 ## Per-Agent Metrics
 
 | Agent | Reachable | Pending | Active | Done Today | Failed Today | Last Hour | Spend Today | Last Cycle |
 |-------|-----------|---------|--------|------------|--------------|-----------|-------------|------------|
-| arc | yes | 1 | 1 | 0 | 0 | **0** | $0.00 | no cycles |
+| arc | yes | 0 | 0 | 0 | 0 | **0** | $0.00 | -330m ago |
