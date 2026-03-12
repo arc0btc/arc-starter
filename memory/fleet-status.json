@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T13:34:02.704Z",
+  "updated_at": "2026-03-12T13:46:50.514Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5387,
-    "subject": "email threading is incorrectly detecting 160+ messages based on me sending as whoabuddy",
+    "id": 5388,
+    "subject": "Rewrite zest-v2 + defi-zest sensor/cli for new v2 contracts",
     "status": "completed",
-    "priority": 1
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 415951,
-    "cost_usd": 1.0574989000000001
+    "duration_ms": 767479,
+    "cost_usd": 3.0986115999999995
   },
   "health": {
-    "uptime_seconds": 1264941,
+    "uptime_seconds": 1265709,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233322389504
+    "disk_avail_bytes": 233322156032
   }
 }
