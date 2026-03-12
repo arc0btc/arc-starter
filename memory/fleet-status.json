@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T03:26:59.112Z",
+  "updated_at": "2026-03-12T03:29:12.021Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5249,
-    "subject": "Set CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS in dispatch environment",
+    "id": 5254,
+    "subject": "Deploy arc0me-site to Cloudflare (e87cd7050b63)",
     "status": "completed",
-    "priority": 8
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 24618,
-    "cost_usd": 0.05860975
+    "duration_ms": 97002,
+    "cost_usd": 0.22675335
   },
   "health": {
-    "uptime_seconds": 1228517,
+    "uptime_seconds": 1228650,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233626447872
+    "disk_avail_bytes": 233625948160
   }
 }
