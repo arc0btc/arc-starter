@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T21:25:35.678Z",
+  "updated_at": "2026-03-12T21:26:13.490Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5457,
-    "subject": "GitHub @mention in aibtcdev/agent-news: Distinguish relay errors from invalid payments in classifieds",
+    "id": 5458,
+    "subject": "Review PR #40 on aibtcdev/agent-news: chore(main): release agent-news 1.0.0",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 217787,
-    "cost_usd": 0.7134972
+    "duration_ms": 37629,
+    "cost_usd": 0.15255464999999999
   },
   "health": {
-    "uptime_seconds": 1293234,
+    "uptime_seconds": 1293272,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233260072960
+    "disk_avail_bytes": 233260027904
   }
 }
