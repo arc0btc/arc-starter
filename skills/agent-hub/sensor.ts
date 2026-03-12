@@ -174,6 +174,9 @@ async function collectRemoteAgent(agentKey: string, password: string): Promise<v
 // ---- Main ----
 
 export default async function sensor(): Promise<string> {
+  // Disabled: workers suspended, SSH collection fails every 15min (too noisy)
+  return "skip";
+
   // Only Arc runs this sensor
   if (AGENT_NAME !== "arc0") return "skip";
 

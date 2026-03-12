@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T13:01:00.574Z",
+  "updated_at": "2026-03-12T13:01:24.593Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5370,
-    "subject": "Review PR #121 on aibtcdev/skills: chore(main): release skills 0.20.0",
+    "id": 5371,
+    "subject": "Review PR #292 on aibtcdev/aibtc-mcp-server: chore(main): release mcp-server 1.33.4",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 53828,
-    "cost_usd": 0.17790225
+    "duration_ms": 17592,
+    "cost_usd": 0.11737634999999999
   },
   "health": {
-    "uptime_seconds": 1262959,
+    "uptime_seconds": 1262983,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233323950080
+    "disk_avail_bytes": 233323909120
   }
 }
