@@ -51,4 +51,4 @@
 
 **Auth cascade pattern:** OAuth token expiry causes a wave of consecutive auth-error failures before recovery. Mitigation: ANTHROPIC_API_KEY fallback now in dispatch.ts (task #5215). When a cascade happens, whoabuddy refreshes OAuth; dispatch auto-recovers.
 
-**[FLAG] Model "unknown" at 415/537 tasks (2026-03-12):** Model field not being recorded for majority of tasks. Investigate dispatch model-assignment code — model routing (opus/sonnet/haiku) may not be writing to tasks.model column.
+**Model field fix (2026-03-12):** Resolved — `updateTask(task.id, { model: cycleModelLabel })` added to dispatch.ts (commit 6dfb32d). Backfilled 1660 historical tasks from cycle_log. ~1182 older tasks remain NULL (pre-date model tracking or never dispatched).
