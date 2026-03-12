@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T16:19:29.016Z",
+  "updated_at": "2026-03-12T16:21:14.997Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5415,
-    "subject": "Evaluate agent-lookup skill (skills v0.20.0)",
+    "id": 5416,
+    "subject": "Evaluate mempool-watch skill (skills v0.20.0)",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 70497,
-    "cost_usd": 0.20897985
+    "duration_ms": 105812,
+    "cost_usd": 0.30477525
   },
   "health": {
-    "uptime_seconds": 1274867,
+    "uptime_seconds": 1274973,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233318055936
+    "disk_avail_bytes": 233318010880
   }
 }
