@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T10:18:14.296Z",
+  "updated_at": "2026-03-12T10:19:09.224Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5292,
-    "subject": "GitHub comment reply in aibtcdev/landing-page: fix: unify agent count across home, health, and network pages",
+    "id": 5293,
+    "subject": "GitHub comment reply in aibtcdev/aibtc-mcp-server: chore(main): release mcp-server 1.33.3",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 28122,
-    "cost_usd": 0.12329549999999997
+    "duration_ms": 22717,
+    "cost_usd": 0.108663
   },
   "health": {
-    "uptime_seconds": 1253193,
+    "uptime_seconds": 1253248,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233593565184
+    "disk_avail_bytes": 233593516032
   }
 }
