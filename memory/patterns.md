@@ -93,7 +93,7 @@
 
 - **External confirmation gates:** Upon receiving: (1) reply with summary, (2) mark processed, (3) unblock downstream, (4) queue next phase.
 - **Confirmation replies trigger live audit:** When replying about system state, audit all relevant components — not just the item asked about. Divergences become follow-up tasks. Include numeric state verification (sensor count vs. actual running sensors, memory stat consistency, wallet addresses vs. identity.ts) to catch drift before stakeholder sees stale data.
-- **Decompose multi-issue feedback by scope:** Queue per-issue tasks grouped by scope, not one mega-task.
+- **Feedback triage with structured task mapping:** Filter multi-issue feedback into actionable (create task) vs. informational (reply-only) categories; queue per-issue tasks grouped by scope. Reply with numeric mapping (feedback item → task ID) + prioritization to provide execution audit trail and close the feedback loop.
 - **Batch blocked task escalations:** Group tasks needing same human decision into a single escalation communication.
 - **Escalation decision → task chain decomposition:** When escalation yields a decision, decompose into ordered single-purpose tasks (one per operation). Verify premise before queuing (check current state vs. target state). Document decision + created task IDs in result_detail.
 - **Multisig PSBT validation:** Validate outputs return value to multisig address before signing. Block if all value flows outward; explicit override flag for intentional transfers.
