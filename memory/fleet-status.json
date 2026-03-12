@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T23:18:42.409Z",
+  "updated_at": "2026-03-12T23:23:27.396Z",
   "idle": true,
-  "idle_since": "2026-03-12T23:07:38.404Z",
+  "idle_since": "2026-03-12T23:21:26.606Z",
   "last_task": {
-    "id": 5473,
-    "subject": "housekeeping: 1 issue(s) detected",
+    "id": 5474,
+    "subject": "Review PR #163 on aibtcdev/x402-sponsor-relay: feat: route RBF broadcasts through multi-node failover (closes #160)",
     "status": "completed",
-    "priority": 7
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 17370,
-    "cost_usd": 0.0407596
+    "duration_ms": 103618,
+    "cost_usd": 0.23746409999999998
   },
   "health": {
-    "uptime_seconds": 1300021,
+    "uptime_seconds": 1300306,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233258299392
+    "disk_avail_bytes": 233258217472
   }
 }
