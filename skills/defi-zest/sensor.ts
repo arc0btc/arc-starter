@@ -1,18 +1,28 @@
 // skills/defi-zest/sensor.ts
-// Monitor Zest Protocol sBTC yield farming position
-// Uses zsbtc-v2-0 LP token balance as workaround for get-user-reserve-data returning 0
+// Monitor Zest Protocol supply positions via v0-1-data get-user-position (v2 contracts)
 
 import { claimSensorRun, createSensorLogger, fetchWithRetry } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import {
+  principalCV,
+  uintCV,
+  cvToJSON,
+  hexToCV,
+  serializeCV,
+} from "../../github/aibtcdev/skills/node_modules/@stacks/transactions/dist/index.js";
 
 const SENSOR_NAME = "defi-zest";
 const INTERVAL_MINUTES = 360; // 6 hours
 const ARC_ADDRESS = "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B";
-const HIRO_API = "https://api.hiro.so";
+const STACKS_API = "https://api.hiro.so";
 
-// zsbtc-v2-0 LP token contract (sBTC position on Zest)
-const ZSBTC_CONTRACT = "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N";
-const ZSBTC_NAME = "zsbtc-v2-0";
+// V2 data contract for position queries
+const V2_DATA = "SP1A27KFY4XERQCCRCARCYD1CC5N7M6688BSYADJ7";
+const V2_DATA_NAME = "v0-1-data";
+
+// Primary monitoring target: sBTC supply position (assetId=2)
+const SBTC_ASSET_ID = 2;
+const SBTC_DECIMALS = 8;
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -20,7 +30,8 @@ const log = createSensorLogger(SENSOR_NAME);
 const STATE_FILE = `${import.meta.dir}/position-state.json`;
 
 interface PositionState {
-  lastBalance: string;
+  lastSuppliedShares: string;
+  lastBorrowed: string;
   lastChecked: string;
 }
 
@@ -40,56 +51,55 @@ async function writeState(state: PositionState): Promise<void> {
   await Bun.write(STATE_FILE, JSON.stringify(state, null, 2));
 }
 
-async function getZsbtcBalance(): Promise<string | null> {
+function serializeCVToHex(cv: unknown): string {
+  const serialized = serializeCV(cv);
+  if (typeof serialized === "string") {
+    return serialized.startsWith("0x") ? serialized : `0x${serialized}`;
+  }
+  return `0x${Buffer.from(serialized as Uint8Array).toString("hex")}`;
+}
+
+/** Query get-user-position on v0-1-data for sBTC (assetId=2) */
+async function getSbtcPosition(): Promise<{ suppliedShares: string; borrowed: string } | null> {
   try {
-    // Call read-only function: zsbtc-v2-0.get-balance(who)
-    const url = `${HIRO_API}/v2/contracts/call-read/${ZSBTC_CONTRACT}/${ZSBTC_NAME}/get-balance`;
-    const body = JSON.stringify({
-      sender: ARC_ADDRESS,
-      arguments: [
-        // principal CV for Arc's address
-        `0x0516${Buffer.from(
-          (() => {
-            // Decode c32 address to bytes
-            // SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B
-            // Use the Hiro API's own encoding — pass as hex-encoded Clarity principal
-            return ARC_ADDRESS;
-          })()
-        ).toString("hex")}`,
-      ],
+    const url = `${STACKS_API}/v2/contracts/call-read/${V2_DATA}/${V2_DATA_NAME}/get-user-position`;
+    const response = await fetchWithRetry(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sender: ARC_ADDRESS,
+        arguments: [
+          serializeCVToHex(principalCV(ARC_ADDRESS)),
+          serializeCVToHex(uintCV(SBTC_ASSET_ID)),
+        ],
+      }),
     });
 
-    // Simpler approach: use the token holdings endpoint
-    const holdingsUrl = `${HIRO_API}/extended/v1/address/${ARC_ADDRESS}/balances`;
-    const response = await fetchWithRetry(holdingsUrl);
     if (!response.ok) {
-      log(`warn: Hiro API returned ${response.status}`);
+      log(`warn: v0-1-data call returned ${response.status}`);
       return null;
     }
 
-    const data = await response.json() as {
-      fungible_tokens: Record<string, { balance: string }>;
-    };
-
-    // Look for zsbtc-v2-0 LP token in fungible_tokens
-    const lpTokenKey = `${ZSBTC_CONTRACT}.${ZSBTC_NAME}::zsbtc`;
-    const lpBalance = data.fungible_tokens?.[lpTokenKey];
-
-    if (lpBalance) {
-      return lpBalance.balance;
+    const data = await response.json() as { okay: boolean; result?: string; cause?: string };
+    if (!data.okay || !data.result) {
+      log(`warn: get-user-position returned not-okay: ${data.cause ?? "unknown"}`);
+      return null;
     }
 
-    // Try alternate key formats
-    for (const [key, val] of Object.entries(data.fungible_tokens || {})) {
-      if (key.includes(ZSBTC_NAME)) {
-        return val.balance;
-      }
+    const decoded = cvToJSON(hexToCV(data.result));
+
+    if (decoded && typeof decoded === "object" && "value" in decoded) {
+      const val = decoded.value as Record<string, { value: string }>;
+      return {
+        suppliedShares: val["suppliedShares"]?.value ?? val["supplied-shares"]?.value ?? "0",
+        borrowed: val["borrowed"]?.value ?? "0",
+      };
     }
 
-    return "0";
+    return { suppliedShares: "0", borrowed: "0" };
   } catch (e) {
     const error = e as Error;
-    log(`warn: balance check failed: ${error.message}`);
+    log(`warn: position check failed: ${error.message}`);
     return null;
   }
 }
@@ -102,47 +112,48 @@ export default async function zestSensor(): Promise<string> {
       return "skip";
     }
 
-    log("run started — checking Zest sBTC position");
+    log("run started — checking Zest sBTC position via v0-1-data");
 
-    const balance = await getZsbtcBalance();
-    if (balance === null) {
+    const position = await getSbtcPosition();
+    if (position === null) {
       log("could not fetch position; skipping");
       return "skip";
     }
 
-    const balanceNum = BigInt(balance);
-    const balanceSbtc = Number(balanceNum) / 1e8; // sBTC has 8 decimals
-    log(`zsbtc-v2-0 balance: ${balance} (${balanceSbtc.toFixed(8)} sBTC equivalent)`);
+    const suppliedShares = BigInt(position.suppliedShares);
+    const suppliedSbtc = Number(suppliedShares) / Math.pow(10, SBTC_DECIMALS);
+    log(`sBTC position: suppliedShares=${position.suppliedShares} (${suppliedSbtc.toFixed(8)} sBTC), borrowed=${position.borrowed}`);
 
     // Read previous state
     const prevState = await readState();
 
     // Write current state
     await writeState({
-      lastBalance: balance,
+      lastSuppliedShares: position.suppliedShares,
+      lastBorrowed: position.borrowed,
       lastChecked: new Date().toISOString(),
     });
 
-    // Check for unexpected position drop
-    if (prevState && prevState.lastBalance !== "0") {
-      const prevBalance = BigInt(prevState.lastBalance);
-      if (prevBalance > 0n && balanceNum > 0n) {
-        const dropPct = Number((prevBalance - balanceNum) * 100n / prevBalance);
+    // Check for unexpected position drop (>10% decline in suppliedShares)
+    if (prevState && prevState.lastSuppliedShares !== "0") {
+      const prevShares = BigInt(prevState.lastSuppliedShares);
+      if (prevShares > 0n && suppliedShares > 0n) {
+        const dropPct = Number((prevShares - suppliedShares) * 100n / prevShares);
         if (dropPct > 10) {
           const alertSource = `sensor:${SENSOR_NAME}:position-drop`;
           if (!pendingTaskExistsForSource(alertSource)) {
-            log(`ALERT: position dropped ${dropPct}% (${prevState.lastBalance} → ${balance})`);
+            log(`ALERT: sBTC position dropped ${dropPct}% (${prevState.lastSuppliedShares} → ${position.suppliedShares})`);
             insertTask({
               subject: `Zest sBTC position dropped ${dropPct}% — investigate`,
               description: `Arc's Zest sBTC supply position decreased significantly.
 
-Previous balance: ${prevState.lastBalance} (${Number(prevBalance) / 1e8} sBTC)
-Current balance: ${balance} (${balanceSbtc} sBTC)
+Previous suppliedShares: ${prevState.lastSuppliedShares} (${Number(prevShares) / Math.pow(10, SBTC_DECIMALS)} sBTC)
+Current suppliedShares: ${position.suppliedShares} (${suppliedSbtc} sBTC)
 Drop: ${dropPct}%
 Last checked: ${prevState.lastChecked}
 
 Investigate: was this a withdrawal, liquidation, or protocol issue?
-Check explorer and Zest dashboard for details.`,
+Position data from: ${V2_DATA}.${V2_DATA_NAME} get-user-position`,
               skills: JSON.stringify(["defi-zest"]),
               priority: 3,
               status: "pending",
@@ -153,11 +164,11 @@ Check explorer and Zest dashboard for details.`,
       }
     }
 
-    // Log position to sensor output (visible in cycle_log)
-    if (balanceNum === 0n) {
+    // Log position to sensor output
+    if (suppliedShares === 0n) {
       log("no active Zest sBTC position");
     } else {
-      log(`position healthy: ${balanceSbtc.toFixed(8)} sBTC supplied`);
+      log(`position healthy: ${suppliedSbtc.toFixed(8)} sBTC supplied`);
     }
 
     return "ok";

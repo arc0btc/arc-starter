@@ -1,9 +1,7 @@
 #!/usr/bin/env bun
 /**
- * Zest Protocol skill CLI — supply, withdraw, claim rewards, position monitoring.
- *
- * Read-only commands delegate to upstream defi/defi.ts.
- * Write commands use tx-runner.ts for wallet-aware execution.
+ * Zest Protocol skill CLI — supply, withdraw, position monitoring.
+ * Uses v2 contracts (deployer SP1A27KFY4XERQCCRCARCYD1CC5N7M6688BSYADJ7).
  *
  * Usage:
  *   arc skills run --name defi-zest -- <subcommand> [flags]
@@ -12,29 +10,42 @@
 import { spawn } from "bun";
 import { resolve } from "node:path";
 import { getCredential } from "../../src/credentials.ts";
+import {
+  principalCV,
+  uintCV,
+  cvToJSON,
+  hexToCV,
+  serializeCV,
+} from "../../github/aibtcdev/skills/node_modules/@stacks/transactions/dist/index.js";
 
 // ---- Constants ----
 
 const SKILLS_ROOT = resolve(import.meta.dir, "../../github/aibtcdev/skills");
-const UPSTREAM_SCRIPT = resolve(SKILLS_ROOT, "defi/defi.ts");
 const TX_RUNNER = resolve(import.meta.dir, "tx-runner.ts");
-const HIRO_API = "https://api.hiro.so";
+const STACKS_API = "https://api.hiro.so";
 const ARC_ADDRESS = "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B";
 
-// LP token contracts for each Zest asset (supply positions tracked here, not in reserve data)
-// Fixed in aibtcdev/aibtc-mcp-server v1.33.3: get-user-reserve-data only returns borrow fields.
-const ZEST_LP_TOKENS: Record<string, string> = {
-  sbtc: "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.zsbtc-v2-0",
-  stststx: "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.zststx-v2-0",
-  aeusdc: "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.zaeusdc-v2-0",
-  usdh: "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.zusdh-v2-0",
-  wstx: "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.zwstx-v2-0",
-  susdt: "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.zsusdt-v2-0",
-  usda: "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.zusda-v2-0",
-  diko: "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.zdiko-v2-0",
+// V2 contracts
+const V2_DEPLOYER = "SP1A27KFY4XERQCCRCARCYD1CC5N7M6688BSYADJ7";
+const V2_DATA = `${V2_DEPLOYER}.v0-1-data`;
+
+// V2 asset registry
+interface V2Asset {
+  id: number;
+  symbol: string;
+  decimals: number;
+  tokenContract: string;
+  vault: string;
+}
+
+const V2_ASSETS: Record<string, V2Asset> = {
+  wstx: { id: 0, symbol: "wSTX", decimals: 6, tokenContract: `${V2_DEPLOYER}.wstx`, vault: `${V2_DEPLOYER}.v0-vault-stx` },
+  sbtc: { id: 2, symbol: "sBTC", decimals: 8, tokenContract: "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token", vault: `${V2_DEPLOYER}.v0-vault-sbtc` },
+  ststx: { id: 4, symbol: "stSTX", decimals: 6, tokenContract: "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.ststx-token", vault: `${V2_DEPLOYER}.v0-vault-ststx` },
+  usdc: { id: 6, symbol: "USDC", decimals: 6, tokenContract: "SP120SBRBQJ00MCWS7TM5R8WJNTTKD5K0HFRC2CNE.usdcx", vault: `${V2_DEPLOYER}.v0-vault-usdc` },
+  usdh: { id: 8, symbol: "USDH", decimals: 8, tokenContract: "SPN5AKG35QZSK2M8GAMR4AFX45659RJHDW353HSG.usdh-token-v1", vault: `${V2_DEPLOYER}.v0-vault-usdh` },
+  ststxbtc: { id: 10, symbol: "stSTXbtc", decimals: 6, tokenContract: "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.ststxbtc-token-v2", vault: `${V2_DEPLOYER}.v0-vault-ststxbtc` },
 };
-// Pool borrow contract (for reading borrow positions)
-const POOL_BORROW = "SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.pool-borrow-v2-4";
 
 // ---- Helpers ----
 
@@ -58,20 +69,45 @@ function parseFlags(args: string[]): Record<string, string> {
   return flags;
 }
 
-/** Run upstream defi.ts directly to stdout (pass-through). */
-async function runUpstreamPassthrough(args: string[]): Promise<void> {
-  const proc = spawn(["bun", "run", UPSTREAM_SCRIPT, ...args], {
-    cwd: SKILLS_ROOT,
-    stdin: "inherit",
-    stdout: "inherit",
-    stderr: "inherit",
-    env: {
-      ...process.env,
-      NETWORK: process.env.NETWORK ?? "mainnet",
-    },
-  });
-  const exitCode = await proc.exited;
-  process.exit(exitCode);
+function resolveAsset(symbol: string): V2Asset | null {
+  const key = symbol.toLowerCase();
+  return V2_ASSETS[key] ?? null;
+}
+
+function serializeCVToHex(cv: unknown): string {
+  const serialized = serializeCV(cv);
+  if (typeof serialized === "string") {
+    return serialized.startsWith("0x") ? serialized : `0x${serialized}`;
+  }
+  return `0x${Buffer.from(serialized as Uint8Array).toString("hex")}`;
+}
+
+/** Call read-only function on a v2 contract */
+async function callReadOnly(
+  contractId: string,
+  functionName: string,
+  args: string[],
+): Promise<Record<string, unknown> | null> {
+  const [address, name] = contractId.split(".");
+  const url = `${STACKS_API}/v2/contracts/call-read/${address}/${name}/${functionName}`;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30_000);
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sender: ARC_ADDRESS, arguments: args }),
+      signal: controller.signal,
+    });
+    if (!response.ok) {
+      log(`read-only call failed: ${functionName} on ${contractId} → HTTP ${response.status}`);
+      return null;
+    }
+    return (await response.json()) as Record<string, unknown>;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 /** Run a write command via tx-runner.ts (wallet unlock + execute + lock). */
@@ -105,7 +141,6 @@ async function runTx(txArgs: string[]): Promise<{ stdout: string; stderr: string
 
   const stderrPromise = new Response(proc.stderr).text().then((t) => { stderr = t; });
 
-  // Read stdout with timeout (120s for on-chain tx)
   const reader = proc.stdout.getReader();
   const decoder = new TextDecoder();
 
@@ -149,85 +184,68 @@ async function runTx(txArgs: string[]): Promise<{ stdout: string; stderr: string
 
 // ---- Subcommands ----
 
-/** Read LP token balance for a Zest supply position via Hiro balances API. */
-async function callLpBalance(lpContract: string, address: string): Promise<string> {
-  // Use the /extended/v1/address/{address}/balances endpoint to find LP token balance.
-  // This avoids the need to manually encode Clarity principals.
-  // More reliable than callReadOnly for principal args without @stacks/transactions.
-  const [lpAddr, lpName] = lpContract.split(".");
-  const response = await fetch(`${HIRO_API}/extended/v1/address/${address}/balances`);
-  if (!response.ok) return "0";
-
-  const data = await response.json() as {
-    fungible_tokens: Record<string, { balance: string }>;
-  };
-
-  // Look for the LP token in the fungible_tokens map
-  for (const [key, val] of Object.entries(data.fungible_tokens || {})) {
-    if (key.startsWith(`${lpAddr}.${lpName}`) || key === lpContract) {
-      return val.balance || "0";
-    }
-  }
-  return "0";
+async function cmdListAssets(): Promise<void> {
+  const assets = Object.values(V2_ASSETS).map(a => ({
+    symbol: a.symbol,
+    assetId: a.id,
+    tokenContract: a.tokenContract,
+    vault: a.vault,
+    decimals: a.decimals,
+  }));
+  console.log(JSON.stringify({ assets, dataContract: V2_DATA }));
 }
 
 async function cmdPosition(args: string[]): Promise<void> {
   const flags = parseFlags(args);
-  const asset = flags.asset ?? "sBTC";
+  const assetSymbol = flags.asset ?? "sBTC";
   const address = flags.address ?? ARC_ADDRESS;
 
-  log(`checking Zest position for ${asset} (${address})`);
-
-  const assetKey = asset.toLowerCase();
-  const lpContract = ZEST_LP_TOKENS[assetKey];
-
-  // Read supply position from LP token balance (confirmed correct approach per mcp-server v1.33.3 fix)
-  // get-user-reserve-data only tracks borrow-side data — supply lives in the LP token contract
-  let supplied = "0";
-  if (lpContract) {
-    try {
-      supplied = await callLpBalance(lpContract, address);
-    } catch (e) {
-      log(`LP balance lookup failed: ${(e as Error).message}`);
-    }
-  } else {
-    log(`No LP token contract known for asset '${asset}', supply will be 0`);
+  const asset = resolveAsset(assetSymbol);
+  if (!asset) {
+    console.log(JSON.stringify({ success: false, error: `Unknown asset '${assetSymbol}'. Supported: ${Object.values(V2_ASSETS).map(a => a.symbol).join(", ")}` }));
+    process.exit(1);
   }
 
-  // Read borrow position from get-user-reserve-data (borrow side is correct here)
-  // Note: principal-borrow-balance is the correct field; current-a-token-balance does not exist
-  let borrowed = "0";
+  log(`checking Zest v2 position for ${asset.symbol} (${address}) via v0-1-data`);
+
   try {
-    const proc = spawn(["bun", "run", UPSTREAM_SCRIPT, "zest-get-position", "--asset", asset, "--address", address], {
-      cwd: SKILLS_ROOT,
-      stdin: "ignore",
-      stdout: "pipe",
-      stderr: "pipe",
-      env: { ...process.env, NETWORK: "mainnet" },
-    });
-    const stdout = await new Response(proc.stdout).text();
-    await proc.exited;
-    const parsed = JSON.parse(stdout.trim());
-    if (parsed.position?.borrowed) borrowed = parsed.position.borrowed;
-  } catch {
-    // Upstream failed — borrow defaults to 0
+    const result = await callReadOnly(V2_DATA, "get-user-position", [
+      serializeCVToHex(principalCV(address)),
+      serializeCVToHex(uintCV(asset.id)),
+    ]);
+
+    let supplied = "0";
+    let borrowed = "0";
+
+    if (result && result.okay && result.result) {
+      const decoded = cvToJSON(hexToCV(result.result as string));
+      if (decoded && typeof decoded === "object" && "value" in decoded) {
+        const val = decoded.value as Record<string, { value: string }>;
+        supplied = val["suppliedShares"]?.value ?? val["supplied-shares"]?.value ?? "0";
+        borrowed = val["borrowed"]?.value ?? "0";
+      }
+    }
+
+    const suppliedHuman = (Number(supplied) / Math.pow(10, asset.decimals)).toFixed(asset.decimals);
+    const borrowedHuman = (Number(borrowed) / Math.pow(10, asset.decimals)).toFixed(asset.decimals);
+
+    console.log(JSON.stringify({
+      address,
+      asset: asset.symbol,
+      position: {
+        suppliedShares: supplied,
+        suppliedHuman,
+        borrowed,
+        borrowedHuman,
+        assetId: asset.id,
+        vault: asset.vault,
+      },
+      dataContract: V2_DATA,
+    }));
+  } catch (e) {
+    console.log(JSON.stringify({ success: false, error: (e as Error).message }));
+    process.exit(1);
   }
-
-  const decimals = assetKey === "sbtc" ? 8 : 6;
-  const suppliedHuman = (Number(supplied) / Math.pow(10, decimals)).toFixed(decimals);
-  const borrowedHuman = (Number(borrowed) / Math.pow(10, decimals)).toFixed(decimals);
-
-  console.log(JSON.stringify({
-    address,
-    asset,
-    position: {
-      supplied,
-      suppliedHuman,
-      borrowed,
-      borrowedHuman,
-      lpContract: lpContract ?? null,
-    },
-  }));
 }
 
 async function cmdSupply(args: string[]): Promise<void> {
@@ -242,15 +260,26 @@ async function cmdSupply(args: string[]): Promise<void> {
     process.exit(1);
   }
 
-  log(`supplying ${flags.amount} ${flags.asset} to Zest`);
+  const asset = resolveAsset(flags.asset);
+  if (!asset) {
+    console.log(JSON.stringify({ success: false, error: `Unknown asset '${flags.asset}'. Supported: ${Object.values(V2_ASSETS).map(a => a.symbol).join(", ")}` }));
+    process.exit(1);
+  }
+
+  log(`supplying ${flags.amount} ${asset.symbol} to Zest v2 (supply-collateral-add)`);
+
+  // Delegates to upstream tx-runner → defi.ts zest-supply
+  // Note: upstream still uses v1 contracts — will need migration
   const result = await runTx([
     "zest-supply",
     "--asset", flags.asset,
     "--amount", flags.amount,
-    ...(flags["on-behalf-of"] ? ["--on-behalf-of", flags["on-behalf-of"]] : []),
   ]);
 
-  console.log(result.stdout || JSON.stringify({ success: false, error: "No output from tx runner" }));
+  console.log(result.stdout || JSON.stringify({
+    success: false,
+    error: "No output from tx runner. Note: upstream may need v2 contract migration.",
+  }));
   if (result.exitCode !== 0) process.exit(1);
 }
 
@@ -266,60 +295,57 @@ async function cmdWithdraw(args: string[]): Promise<void> {
     process.exit(1);
   }
 
-  log(`withdrawing ${flags.amount} ${flags.asset} from Zest`);
+  const asset = resolveAsset(flags.asset);
+  if (!asset) {
+    console.log(JSON.stringify({ success: false, error: `Unknown asset '${flags.asset}'. Supported: ${Object.values(V2_ASSETS).map(a => a.symbol).join(", ")}` }));
+    process.exit(1);
+  }
+
+  log(`withdrawing ${flags.amount} ${asset.symbol} from Zest v2 (collateral-remove-redeem)`);
+
   const result = await runTx([
     "zest-withdraw",
     "--asset", flags.asset,
     "--amount", flags.amount,
   ]);
 
-  console.log(result.stdout || JSON.stringify({ success: false, error: "No output from tx runner" }));
-  if (result.exitCode !== 0) process.exit(1);
-}
-
-async function cmdClaimRewards(args: string[]): Promise<void> {
-  const flags = parseFlags(args);
-  const asset = flags.asset ?? "sBTC";
-
-  log(`claiming Zest rewards for ${asset}`);
-  const result = await runTx([
-    "zest-claim-rewards",
-    "--asset", asset,
-  ]);
-
-  console.log(result.stdout || JSON.stringify({ success: false, error: "No output from tx runner" }));
+  console.log(result.stdout || JSON.stringify({
+    success: false,
+    error: "No output from tx runner. Note: upstream may need v2 contract migration.",
+  }));
   if (result.exitCode !== 0) process.exit(1);
 }
 
 function printUsage(): void {
-  process.stdout.write(`defi-zest CLI — Zest Protocol yield farming
+  process.stdout.write(`defi-zest CLI — Zest Protocol yield farming (v2 contracts)
+Contracts: ${V2_DEPLOYER} (v0-4-market, v0-1-data)
 
 USAGE
   arc skills run --name defi-zest -- <subcommand> [flags]
 
 READ-ONLY COMMANDS
   list-assets
-    List all supported Zest Protocol assets.
+    List all supported Zest V2 assets with contract IDs and vaults.
 
   position [--asset <symbol>] [--address <addr>]
-    Check yield farming position. Default: sBTC, Arc's address.
-    Uses LP token balance workaround for accurate position data.
+    Check supply position via v0-1-data get-user-position. Default: sBTC, Arc's address.
 
 WRITE COMMANDS (wallet required, ~50k uSTX gas per op)
   supply --asset <symbol> --amount <units>
-    Supply assets to Zest lending pool.
+    Supply assets to Zest lending pool via supply-collateral-add.
 
   withdraw --asset <symbol> --amount <units>
-    Withdraw assets from Zest lending pool.
+    Withdraw assets from Zest lending pool via collateral-remove-redeem.
 
-  claim-rewards [--asset <symbol>]
-    Claim accumulated wSTX rewards. Default asset: sBTC.
+SUPPORTED ASSETS
+  wSTX (id=0), sBTC (id=2), stSTX (id=4), USDC (id=6), USDH (id=8), stSTXbtc (id=10)
 
 EXAMPLES
+  arc skills run --name defi-zest -- list-assets
   arc skills run --name defi-zest -- position
   arc skills run --name defi-zest -- position --asset sBTC
   arc skills run --name defi-zest -- supply --asset sBTC --amount 8200
-  arc skills run --name defi-zest -- claim-rewards
+  arc skills run --name defi-zest -- withdraw --asset sBTC --amount 4000
 `);
 }
 
@@ -336,7 +362,7 @@ async function main(): Promise<void> {
 
   switch (sub) {
     case "list-assets":
-      await runUpstreamPassthrough(["zest-list-assets"]);
+      await cmdListAssets();
       break;
     case "position":
       await cmdPosition(args.slice(1));
@@ -346,9 +372,6 @@ async function main(): Promise<void> {
       break;
     case "withdraw":
       await cmdWithdraw(args.slice(1));
-      break;
-    case "claim-rewards":
-      await cmdClaimRewards(args.slice(1));
       break;
     default:
       process.stderr.write(`Error: unknown subcommand '${sub}'\n\n`);

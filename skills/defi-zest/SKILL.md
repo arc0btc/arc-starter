@@ -1,6 +1,6 @@
 ---
 name: defi-zest
-description: Zest Protocol yield farming — supply, withdraw, claim rewards, position monitoring
+description: Zest Protocol yield farming — supply, withdraw, position monitoring
 updated: 2026-03-12
 tags:
   - defi
@@ -10,51 +10,49 @@ tags:
 
 # Zest Protocol
 
-Wraps upstream `defi/defi.ts` from aibtcdev/skills for Zest Protocol lending operations. Adds a position-monitoring sensor that tracks sBTC yield farming positions.
+Supply-side yield farming on Zest Protocol V2 (Stacks). Position monitoring sensor tracks sBTC supply position via `v0-1-data get-user-position`.
+
+## V2 Contracts
+
+**Deployer:** `SP1A27KFY4XERQCCRCARCYD1CC5N7M6688BSYADJ7`
+- Data: `.v0-1-data` (position queries)
+- Market: `.v0-4-market` (supply/withdraw operations)
+- 6 assets: wSTX(0), sBTC(2), stSTX(4), USDC(6), USDH(8), stSTXbtc(10)
 
 ## Sensor: Position Monitor
 
-**Cadence:** 360 minutes (6 hours). Queries Arc's sBTC supply position on Zest. **Currently stale** — uses old `zsbtc-v2-0` LP token approach; will use `get-user-position` on `v0-1-data` after task #5386 rewrite. Logs position to cycle output. Files an alert task if the position drops unexpectedly (>10% decline between checks).
+**Cadence:** 360 minutes (6 hours). Queries Arc's sBTC supply position via `v0-1-data get-user-position(principal, assetId=2)`. Returns `suppliedShares` + `borrowed`. Logs position to cycle output. Files alert task if position drops >10% between checks.
 
 ## CLI Commands
 
-All commands output single JSON objects. Read-only commands pass through to upstream.
+All commands output single JSON objects.
 
 ```
 arc skills run --name defi-zest -- list-assets
 arc skills run --name defi-zest -- position [--asset <symbol>] [--address <addr>]
 arc skills run --name defi-zest -- supply --asset <symbol> --amount <units>
 arc skills run --name defi-zest -- withdraw --asset <symbol> --amount <units>
-arc skills run --name defi-zest -- claim-rewards [--asset <symbol>]
 ```
 
+### list-assets
+List all 6 supported V2 assets with contract IDs, vaults, and decimals.
+
 ### position
+Read supply position via `v0-1-data get-user-position`. Returns `suppliedShares` + `borrowed`. Default: sBTC, Arc's address.
 
-Reads supply from LP token balance (e.g. `zsbtc-v2-0`) and borrow from upstream `get-user-reserve-data.principal-borrow-balance`. This matches the approach confirmed in aibtcdev/aibtc-mcp-server v1.33.3. Default asset: sBTC.
-
-### supply / withdraw / claim-rewards
-
-Wallet-aware write operations. Runs via `tx-runner.ts` subprocess with wallet unlock/lock lifecycle. Gas cost ~50k uSTX per operation.
+### supply / withdraw
+Wallet-aware write operations via `tx-runner.ts`. Gas ~50k uSTX per operation. Note: upstream `aibtcdev/skills` defi.service.ts still uses v1 contracts — write commands may fail until upstream is updated.
 
 ## Budget & Safety
 
-- Supply/withdraw amounts should be validated before execution (check wallet balance first)
+- Supply/withdraw amounts should be validated before execution
 - All operations mainnet-only
 - Wallet must be unlocked for write operations
-- No automatic rebalancing — all supply/withdraw is manual or task-driven
-
-## Implementation Notes
-
-**⚠️ Contract migration required (2026-03-12):** Upstream aibtcdev/aibtc-mcp-server migrated to new v2 contracts (deployer `SP1A27KFY4XERQCCRCARCYD1CC5N7M6688BSYADJ7`). Current sensor.ts uses old `SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.zsbtc-v2-0` LP token balance approach. Task #5386 queued to rewrite sensor.ts + cli.ts.
-
-- **Old approach (stale):** Supply positions via LP token balances (`zsbtc-v2-0` etc.) from Hiro balances API
-- **New approach (correct):** Positions via `get-user-position` on `v0-1-data` contract — returns `suppliedShares` + `borrowed`
-- **`claim-rewards` is obsolete** — v2 has no rewards mechanism; command will be removed in rewrite
-- The skills repo (`aibtcdev/skills` defi.service.ts) also uses the broken approach — remains stale
+- No automatic rebalancing — manual or task-driven only
 
 ## When to Load
 
-Load when: executing Zest Protocol operations (supply, withdraw, claim rewards), checking yield positions, or responding to position alerts from the sensor. Not needed for general DeFi monitoring — use defi-bitflow for DEX operations.
+Load when: executing Zest supply/withdraw operations, checking yield positions, or responding to position alerts. Use `zest-v2` for borrow positions and liquidation monitoring.
 
 ## Checklist
 
