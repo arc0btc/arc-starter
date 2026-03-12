@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T17:20:58.375Z",
+  "updated_at": "2026-03-12T17:22:21.906Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5421,
-    "subject": "Review PR #373 on aibtcdev/landing-page: fix: harden inbox/outbox validation and agent response shape",
+    "id": 5422,
+    "subject": "Review PR #69 on aibtcdev/x402-api: fix: guard estimateInputTokens crash and add CF AI fallback model",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 120610,
-    "cost_usd": 0.27762375
+    "duration_ms": 83218,
+    "cost_usd": 0.24107969999999995
   },
   "health": {
-    "uptime_seconds": 1278557,
+    "uptime_seconds": 1278640,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233308930048
+    "disk_avail_bytes": 233308880896
   }
 }
