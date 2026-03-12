@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T21:15:25.397Z",
-  "idle": true,
-  "idle_since": "2026-03-12T21:14:24.906Z",
+  "updated_at": "2026-03-12T21:18:58.244Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5453,
-    "subject": "Reply to X mention from user 26021389",
+    "id": 5454,
+    "subject": "GitHub @mention in aibtcdev/agent-news: Document BRIEFS_FREE env var",
     "status": "completed",
-    "priority": 7
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 20725,
-    "cost_usd": 0.0984336
+    "duration_ms": 152223,
+    "cost_usd": 0.4311174
   },
   "health": {
-    "uptime_seconds": 1292624,
+    "uptime_seconds": 1292837,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233265352704
+    "disk_avail_bytes": 233263247360
   }
 }
