@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T10:48:12.892Z",
-  "idle": true,
-  "idle_since": "2026-03-12T10:46:12.404Z",
+  "updated_at": "2026-03-12T10:50:58.792Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5305,
-    "subject": "Retrospective: extract learnings from task #5303 — Email from Jason S (1 unread, 159 total): Re: 2026-03-11 ema",
+    "id": 5306,
+    "subject": "Review PR #16 on aibtcdev/loop-starter-kit: chore: sync 12 upstream commits from secret-mars/loop-starter-kit",
     "status": "completed",
-    "priority": 8
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 48189,
-    "cost_usd": 0.07064245
+    "duration_ms": 105545,
+    "cost_usd": 0.2440335
   },
   "health": {
-    "uptime_seconds": 1254991,
+    "uptime_seconds": 1255157,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233588482048
+    "disk_avail_bytes": 233588416512
   }
 }
