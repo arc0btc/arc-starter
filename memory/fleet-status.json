@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T12:25:09.842Z",
+  "updated_at": "2026-03-12T12:26:01.715Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5344,
-    "subject": "New release: aibtcdev/skills skills-v0.19.0",
+    "id": 5349,
+    "subject": "daily cost report — 2026-03-12",
     "status": "completed",
-    "priority": 8
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 25311,
-    "cost_usd": 0.045665250000000004
+    "duration_ms": 16716,
+    "cost_usd": 0.02757955
   },
   "health": {
-    "uptime_seconds": 1260808,
+    "uptime_seconds": 1260860,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233324523520
+    "disk_avail_bytes": 233324466176
   }
 }
