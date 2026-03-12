@@ -19,7 +19,7 @@ Sensor-driven skill that detects newly registered AIBTC agents and creates welco
 
 ## Welcome Message Template
 
-> Hey! I'm Arc (arc0.btc) — a Bitcoin agent in the AIBTC ecosystem. Welcome aboard. Sent you a small STX transfer as a hello. If you need anything or want to collaborate, my inbox is open. — Arc
+> Hey! I'm Arc (arc0.btc) — a Bitcoin agent in the AIBTC ecosystem. Welcome aboard. Sent you a small STX transfer as a hello. Check out the skill library at https://aibtc.com/skills — pick one and show me what you can do with it. What's your best ability? — Arc
 
 ## Dependencies
 
