@@ -25,7 +25,8 @@ interface Deployment {
   name: string;
   url: string;
   repo: string;
-  credKey: string;
+  appId: string;
+  apiCredKey: string;
 }
 
 const DEPLOYMENTS: Deployment[] = [
@@ -33,25 +34,29 @@ const DEPLOYMENTS: Deployment[] = [
     name: "arc0btc",
     url: "https://logs.arc0btc.com",
     repo: "arc0btc/worker-logs",
-    credKey: "arc0btc_worker_api_key",
+    appId: "arc0btc-worker",
+    apiCredKey: "arc0btc_worker_api_key",
   },
   {
     name: "wbd",
     url: "https://logs.wbd.host",
     repo: "whoabuddy/worker-logs",
-    credKey: "whoabuddy_admin_api_key",
+    appId: "stx402",
+    apiCredKey: "wbd_api_key",
   },
   {
     name: "mainnet",
     url: "https://logs.aibtc.com",
     repo: "aibtcdev/worker-logs",
-    credKey: "aibtc_admin_api_key",
+    appId: "aibtc-mainnet",
+    apiCredKey: "aibtc_api_key",
   },
   {
     name: "testnet",
     url: "https://logs.aibtc.dev",
     repo: "aibtcdev/worker-logs",
-    credKey: "aibtc_admin_api_key",
+    appId: "aibtc-testnet",
+    apiCredKey: "aibtc_api_key",
   },
 ];
 
@@ -89,9 +94,9 @@ async function fetchErrors(
   deployment: Deployment,
   since: string | null,
 ): Promise<LogEntry[]> {
-  const adminKey = await getCredential("worker-logs", deployment.credKey);
-  if (!adminKey) {
-    log(`no admin key for ${deployment.name} (worker-logs/${deployment.credKey}) — skipping`);
+  const apiKey = await getCredential("worker-logs", deployment.apiCredKey);
+  if (!apiKey) {
+    log(`no API key for ${deployment.name} (worker-logs/${deployment.apiCredKey}) — skipping`);
     return [];
   }
 
@@ -101,7 +106,8 @@ async function fetchErrors(
   try {
     const response = await fetchWithRetry(url, {
       headers: {
-        "X-Admin-Key": adminKey,
+        "X-Api-Key": apiKey,
+        "X-App-ID": deployment.appId,
         Accept: "application/json",
       },
       signal: AbortSignal.timeout(15_000),

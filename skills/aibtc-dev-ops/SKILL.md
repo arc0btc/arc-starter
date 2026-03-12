@@ -42,7 +42,7 @@ All repos in `AIBTC_WATCHED_REPOS` — currently 7 repos.
 
 Dual-cadence sensor (`claimSensorRun("aibtc-dev-ops", 240)`):
 
-- **Log review (every 4h):** Queries `logs.aibtc.com` REST API for errors. Creates P6 task if errors found. Requires `worker-logs/admin_api_key` credential (gracefully skips if missing).
+- **Log review (every 4h):** Queries `logs.aibtc.com` REST API for errors. Creates P6 task if errors found. Requires `worker-logs/aibtc_api_key` credential (gracefully skips if missing).
 - **Repo audit (every 24h):** Runs production-grade checklist against `AIBTC_WATCHED_REPOS` via GitHub API. Creates P7 task if gaps found. Gated by hook-state `lastAuditTimestamp`.
 
 Source keys: `sensor:aibtc-dev-ops-logs`, `sensor:aibtc-dev-ops-audit`.
@@ -79,7 +79,8 @@ Load when: reviewing worker-logs errors flagged by the sensor, running a product
 ## Credentials
 
 ```
-arc creds set --service worker-logs --key admin_api_key --value <KEY>
+arc creds set --service worker-logs --key aibtc_api_key --value <KEY>
+arc creds set --service worker-logs --key aibtc_admin_api_key --value <KEY>
 ```
 
-Required for `logs`, `apps`, `stats` commands. Audit and status work without it (GitHub API only).
+API key required for `logs` command (data queries use `X-Api-Key` + `X-App-ID`). Admin key required for `apps`, `stats` commands (management queries use `X-Admin-Key`). Audit and status work without either (GitHub API only).

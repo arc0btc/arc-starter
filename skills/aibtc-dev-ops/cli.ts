@@ -30,6 +30,23 @@ function gh(args: string[]): { ok: boolean; stdout: string; stderr: string } {
   };
 }
 
+async function requireApiKey(): Promise<string> {
+  let key: string | null = null;
+  try {
+    key = await getCredential("worker-logs", "aibtc_api_key");
+  } catch {
+    // credential store unavailable
+  }
+  if (!key) {
+    process.stderr.write(
+      "Error: worker-logs/aibtc_api_key credential not set.\n" +
+      "Run: arc creds set --service worker-logs --key aibtc_api_key --value <KEY>\n"
+    );
+    process.exit(1);
+  }
+  return key;
+}
+
 async function requireAdminKey(): Promise<string> {
   let key: string | null = null;
   try {
@@ -39,15 +56,30 @@ async function requireAdminKey(): Promise<string> {
   }
   if (!key) {
     process.stderr.write(
-      "Error: worker-logs/admin_api_key credential not set.\n" +
-      "Run: arc creds set --service worker-logs --key admin_api_key --value <KEY>\n"
+      "Error: worker-logs/aibtc_admin_api_key credential not set.\n" +
+      "Run: arc creds set --service worker-logs --key aibtc_admin_api_key --value <KEY>\n"
     );
     process.exit(1);
   }
   return key;
 }
 
-async function workerLogsFetch(path: string, adminKey: string): Promise<unknown> {
+/** Fetch with API key auth (for /logs data queries). */
+async function workerLogsFetchData(path: string, apiKey: string): Promise<unknown> {
+  const url = `${WORKER_LOGS_HOST}${path}`;
+  const resp = await fetch(url, {
+    headers: { "X-Api-Key": apiKey, "X-App-ID": "aibtc-mainnet" },
+    signal: AbortSignal.timeout(15_000),
+  });
+  if (!resp.ok) {
+    process.stderr.write(`Error: worker-logs API returned ${resp.status} ${resp.statusText}\n`);
+    process.exit(1);
+  }
+  return resp.json();
+}
+
+/** Fetch with admin key auth (for /apps management queries). */
+async function workerLogsFetchAdmin(path: string, adminKey: string): Promise<unknown> {
   const url = `${WORKER_LOGS_HOST}${path}`;
   const resp = await fetch(url, {
     headers: { "X-Admin-Key": adminKey },
@@ -64,7 +96,7 @@ async function workerLogsFetch(path: string, adminKey: string): Promise<unknown>
 
 async function cmdLogs(args: string[]): Promise<void> {
   const flags = parseFlags(args);
-  const adminKey = await requireAdminKey();
+  const apiKey = await requireApiKey();
 
   const params = new URLSearchParams();
   if (flags.app) params.set("app", flags.app);
@@ -73,13 +105,13 @@ async function cmdLogs(args: string[]): Promise<void> {
   if (flags.since) params.set("since", flags.since);
 
   const query = params.toString();
-  const data = await workerLogsFetch(`/logs?${query}`, adminKey);
+  const data = await workerLogsFetchData(`/logs?${query}`, apiKey);
   console.log(JSON.stringify(data, null, 2));
 }
 
 async function cmdApps(): Promise<void> {
   const adminKey = await requireAdminKey();
-  const data = await workerLogsFetch("/apps", adminKey);
+  const data = await workerLogsFetchAdmin("/apps", adminKey);
   console.log(JSON.stringify(data, null, 2));
 }
 
@@ -92,7 +124,7 @@ async function cmdStats(args: string[]): Promise<void> {
   params.set("days", flags.days ?? "7");
 
   const query = params.toString();
-  const data = await workerLogsFetch(`/stats?${query}`, adminKey);
+  const data = await workerLogsFetchAdmin(`/stats?${query}`, adminKey);
   console.log(JSON.stringify(data, null, 2));
 }
 

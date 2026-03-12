@@ -14,20 +14,20 @@ Queries log data from all worker-logs deployments on a sensor cadence, detects e
 
 ## Deployments
 
-| Name | URL | Repo | Cred Key |
-|------|-----|------|----------|
-| arc0btc | https://logs.arc0btc.com | arc0btc/worker-logs | `worker-logs/arc0btc_worker_api_key` |
-| wbd | https://logs.wbd.host | whoabuddy/worker-logs | `worker-logs/whoabuddy_admin_api_key` |
-| mainnet | https://logs.aibtc.com | aibtcdev/worker-logs | `worker-logs/aibtc_admin_api_key` |
-| testnet | https://logs.aibtc.dev | aibtcdev/worker-logs | `worker-logs/aibtc_admin_api_key` |
+| Name | URL | Repo | App ID | API Key Cred | Admin Key Cred |
+|------|-----|------|--------|--------------|----------------|
+| arc0btc | https://logs.arc0btc.com | arc0btc/worker-logs | arc0btc-worker | `worker-logs/arc0btc_worker_api_key` | `worker-logs/arc0btc_admin_api_key` |
+| wbd | https://logs.wbd.host | whoabuddy/worker-logs | stx402 | `worker-logs/wbd_api_key` | `worker-logs/whoabuddy_admin_api_key` |
+| mainnet | https://logs.aibtc.com | aibtcdev/worker-logs | aibtc-mainnet | `worker-logs/aibtc_api_key` | `worker-logs/aibtc_admin_api_key` |
+| testnet | https://logs.aibtc.dev | aibtcdev/worker-logs | aibtc-testnet | `worker-logs/aibtc_api_key` | `worker-logs/aibtc_admin_api_key` |
 
-Auth: `X-Admin-Key` header per deployment. Keys stored in credential store under `worker-logs/` service.
+Auth is dual-mode: `X-Api-Key` + `X-App-ID` headers for data queries (`/logs`), `X-Admin-Key` header for management queries (`/apps`, `/stats`). Keys stored in credential store under `worker-logs/` service.
 
 ## API Endpoints Used
 
-- `GET /logs?level=ERROR&limit=50` — fetch error logs (admin auth)
-- `GET /apps` — list registered apps (admin auth)
-- `GET /stats/:app_id?days=1` — daily stats per app (admin auth)
+- `GET /logs?level=ERROR&limit=50` — fetch error logs (API key + App ID auth)
+- `GET /apps` — list registered apps (admin key auth)
+- `GET /stats/:app_id?days=1` — daily stats per app (admin key auth)
 
 ## Sensor
 

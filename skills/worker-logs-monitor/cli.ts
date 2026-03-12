@@ -12,14 +12,16 @@ interface Deployment {
   name: string;
   url: string;
   repo: string;
-  credKey: string;
+  appId: string;
+  apiCredKey: string;
+  adminCredKey: string;
 }
 
 const DEPLOYMENTS: Deployment[] = [
-  { name: "arc0btc", url: "https://logs.arc0btc.com", repo: "arc0btc/worker-logs", credKey: "arc0btc_worker_api_key" },
-  { name: "wbd", url: "https://logs.wbd.host", repo: "whoabuddy/worker-logs", credKey: "whoabuddy_admin_api_key" },
-  { name: "mainnet", url: "https://logs.aibtc.com", repo: "aibtcdev/worker-logs", credKey: "aibtc_admin_api_key" },
-  { name: "testnet", url: "https://logs.aibtc.dev", repo: "aibtcdev/worker-logs", credKey: "aibtc_admin_api_key" },
+  { name: "arc0btc", url: "https://logs.arc0btc.com", repo: "arc0btc/worker-logs", appId: "arc0btc-worker", apiCredKey: "arc0btc_worker_api_key", adminCredKey: "arc0btc_admin_api_key" },
+  { name: "wbd", url: "https://logs.wbd.host", repo: "whoabuddy/worker-logs", appId: "stx402", apiCredKey: "wbd_api_key", adminCredKey: "whoabuddy_admin_api_key" },
+  { name: "mainnet", url: "https://logs.aibtc.com", repo: "aibtcdev/worker-logs", appId: "aibtc-mainnet", apiCredKey: "aibtc_api_key", adminCredKey: "aibtc_admin_api_key" },
+  { name: "testnet", url: "https://logs.aibtc.dev", repo: "aibtcdev/worker-logs", appId: "aibtc-testnet", apiCredKey: "aibtc_api_key", adminCredKey: "aibtc_admin_api_key" },
 ];
 
 function log(message: string): void {
@@ -36,10 +38,36 @@ function getDeployments(name?: string): Deployment[] {
   return found;
 }
 
-async function fetchWithAuth(deployment: Deployment, path: string): Promise<Response | null> {
-  const adminKey = await getCredential("worker-logs", deployment.credKey);
+/** Fetch with API key auth (for /logs data queries). */
+async function fetchWithApiKey(deployment: Deployment, path: string): Promise<Response | null> {
+  const apiKey = await getCredential("worker-logs", deployment.apiCredKey);
+  if (!apiKey) {
+    log(`no API key for ${deployment.name} (worker-logs/${deployment.apiCredKey})`);
+    return null;
+  }
+
+  const url = `${deployment.url}${path}`;
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "X-Api-Key": apiKey,
+        "X-App-ID": deployment.appId,
+        Accept: "application/json",
+      },
+      signal: AbortSignal.timeout(15_000),
+    });
+    return response;
+  } catch (error) {
+    log(`${deployment.name}: ${error instanceof Error ? error.message : String(error)}`);
+    return null;
+  }
+}
+
+/** Fetch with admin key auth (for /apps management queries). */
+async function fetchWithAdminKey(deployment: Deployment, path: string): Promise<Response | null> {
+  const adminKey = await getCredential("worker-logs", deployment.adminCredKey);
   if (!adminKey) {
-    log(`no admin key for ${deployment.name} (worker-logs/${deployment.credKey})`);
+    log(`no admin key for ${deployment.name} (worker-logs/${deployment.adminCredKey})`);
     return null;
   }
 
@@ -68,7 +96,7 @@ async function cmdErrors(args: string[]): Promise<void> {
   const targets = getDeployments(deploymentName);
 
   for (const dep of targets) {
-    const response = await fetchWithAuth(dep, `/logs?level=ERROR&limit=${limit}`);
+    const response = await fetchWithApiKey(dep, `/logs?level=ERROR&limit=${limit}`);
     if (!response) continue;
 
     if (!response.ok) {
@@ -110,7 +138,7 @@ async function cmdStats(args: string[]): Promise<void> {
 
   for (const dep of targets) {
     // First get the list of apps
-    const appsRes = await fetchWithAuth(dep, "/apps");
+    const appsRes = await fetchWithAdminKey(dep, "/apps");
     if (!appsRes) continue;
 
     if (!appsRes.ok) {
@@ -130,7 +158,7 @@ async function cmdStats(args: string[]): Promise<void> {
 
     for (const app of apps) {
       const appId = typeof app === "string" ? app : app.app_id ?? app.id ?? "unknown";
-      const statsRes = await fetchWithAuth(dep, `/stats/${appId}?days=${days}`);
+      const statsRes = await fetchWithAdminKey(dep, `/stats/${appId}?days=${days}`);
       if (!statsRes || !statsRes.ok) {
         console.log(`  ${appId}: failed to fetch stats`);
         continue;

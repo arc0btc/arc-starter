@@ -47,7 +47,7 @@ async function checkWorkerLogs(adminKey: string, since: string): Promise<LogEntr
   try {
     const url = `${WORKER_LOGS_HOST}/logs?level=ERROR&limit=50&since=${encodeURIComponent(since)}`;
     const resp = await fetch(url, {
-      headers: { "X-Admin-Key": adminKey },
+      headers: { "X-Api-Key": adminKey, "X-App-ID": "aibtc-mainnet" },
       signal: AbortSignal.timeout(15_000),
     });
     if (!resp.ok) {
@@ -139,17 +139,17 @@ export default async function aibtcDevSensor(): Promise<string> {
   let tasksCreated = 0;
 
   // ---- Log Review (every 4h) ----
-  let adminKey: string | null = null;
+  let apiKey: string | null = null;
   try {
-    adminKey = await getCredential("github-worker-logs", "admin_api_key");
+    apiKey = await getCredential("worker-logs", "aibtc_api_key");
   } catch {
     // credential store not available
   }
 
-  if (adminKey) {
+  if (apiKey) {
     if (!pendingTaskExistsForSource(LOG_SOURCE)) {
       const since = lastLogCheck ?? new Date(Date.now() - 4 * 3600_000).toISOString();
-      const errors = await checkWorkerLogs(adminKey, since);
+      const errors = await checkWorkerLogs(apiKey, since);
 
       if (errors.length > 0) {
         const apps = [...new Set(errors.map((e) => e.app))];
@@ -187,7 +187,7 @@ export default async function aibtcDevSensor(): Promise<string> {
       });
     }
   } else {
-    log("worker-logs/admin_api_key not set — skipping log review");
+    log("worker-logs/aibtc_api_key not set — skipping log review");
   }
 
   // ---- Repo Audit (every 24h) ----
