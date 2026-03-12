@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T13:46:50.514Z",
+  "updated_at": "2026-03-12T13:48:06.289Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5388,
-    "subject": "Rewrite zest-v2 + defi-zest sensor/cli for new v2 contracts",
+    "id": 5390,
+    "subject": "GitHub issue in aibtcdev/skills#122: normalize local json files for state",
     "status": "completed",
-    "priority": 3
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 767479,
-    "cost_usd": 3.0986115999999995
+    "duration_ms": 75471,
+    "cost_usd": 0.18547755000000002
   },
   "health": {
-    "uptime_seconds": 1265709,
+    "uptime_seconds": 1265785,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233322156032
+    "disk_avail_bytes": 233322106880
   }
 }
