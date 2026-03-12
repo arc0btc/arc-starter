@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T03:22:16.694Z",
+  "updated_at": "2026-03-12T03:22:49.954Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5251,
-    "subject": "Audit dispatch tool permissions after managed policy ask-bypass fix (v2.1.74)",
+    "id": 5232,
+    "subject": "Regenerate and deploy skills/sensors catalog",
     "status": "completed",
-    "priority": 6
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 145126,
-    "cost_usd": 0.3693696
+    "duration_ms": 32861,
+    "cost_usd": 0.13828469999999998
   },
   "health": {
-    "uptime_seconds": 1228235,
+    "uptime_seconds": 1228268,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233626783744
+    "disk_avail_bytes": 233626669056
   }
 }
