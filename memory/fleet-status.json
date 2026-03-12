@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T13:07:45.582Z",
+  "updated_at": "2026-03-12T13:09:54.785Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5369,
-    "subject": "dao-zero-authority: reactivate sensor when Zero Authority has on-chain contracts",
+    "id": 5376,
+    "subject": "Review aibtcdev/landing-page for skills-v0.19.1 content gaps",
     "status": "completed",
-    "priority": 8
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 36549,
-    "cost_usd": 0.0725336
+    "duration_ms": 105258,
+    "cost_usd": 0.38265675000000005
   },
   "health": {
-    "uptime_seconds": 1263364,
+    "uptime_seconds": 1263493,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233323462656
+    "disk_avail_bytes": 233323364352
   }
 }
