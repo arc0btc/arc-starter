@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T20:18:35.652Z",
-  "idle": true,
-  "idle_since": "2026-03-12T20:05:30.151Z",
+  "updated_at": "2026-03-12T20:22:48.228Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5446,
-    "subject": "Watch report — 2026-03-12T20:01Z",
+    "id": 5447,
+    "subject": "Review PR #39 on aibtcdev/agent-news: v2: Hono + Durable Object rewrite — production cutover",
     "status": "completed",
-    "priority": 6
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 208835,
-    "cost_usd": 0.51573675
+    "duration_ms": 192223,
+    "cost_usd": 0.46807319999999997
   },
   "health": {
-    "uptime_seconds": 1289214,
+    "uptime_seconds": 1289467,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233267437568
+    "disk_avail_bytes": 233267290112
   }
 }
