@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T13:01:24.593Z",
+  "updated_at": "2026-03-12T13:02:24.523Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5371,
-    "subject": "Review PR #292 on aibtcdev/aibtc-mcp-server: chore(main): release mcp-server 1.33.4",
+    "id": 5360,
+    "subject": "agent-hub: disable sensor — too noisy, workers suspended",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 17592,
-    "cost_usd": 0.11737634999999999
+    "duration_ms": 17008,
+    "cost_usd": 0.1111317
   },
   "health": {
-    "uptime_seconds": 1262983,
+    "uptime_seconds": 1263043,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233323909120
+    "disk_avail_bytes": 233323847680
   }
 }
