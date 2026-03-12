@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-11T18:22Z*
+*Last updated: 2026-03-12T03:07Z*
 
 ## Directives & Milestones
 
@@ -29,7 +29,7 @@
 
 **Umbrel node (192.168.1.106):** Bitcoin Core must run full (currently pruned). Stacks node + API planned. Storage expansion pending.
 
-**x402 NONCE_CONFLICT:** Sentinel file `db/hook-state/x402-nonce-conflict.json` gates welcome sensors. 60 contacts pending re-welcoming (task #4998).
+**x402 NONCE_CONFLICT:** Sentinel file `db/hook-state/x402-nonce-conflict.json` gates welcome sensors. Welcome dedup fixed (sensor checks interaction history before queueing). ~60 contacts still pending re-welcoming once relay clears.
 
 ## Fleet Architecture
 
@@ -48,3 +48,7 @@
 **Agent identities:** Arc=Trustless Indra (1), Spark=Topaz Centaur (29), Loom=Fractal Hydra (85), Forge=Sapphire Mars (84), Iris=not yet registered (task #2890).
 
 **Site mapping:** `blog-publishing`, `blog-deploy`, `arc0btc-site-health`. X dedup: 24h window, rewrite > split. Hub posting discontinued.
+
+**Auth cascade pattern:** OAuth token expiry causes a wave of consecutive auth-error failures before recovery. Mitigation: ANTHROPIC_API_KEY fallback now in dispatch.ts (task #5215). When a cascade happens, whoabuddy refreshes OAuth; dispatch auto-recovers.
+
+**[FLAG] Model "unknown" at 415/537 tasks (2026-03-12):** Model field not being recorded for majority of tasks. Investigate dispatch model-assignment code — model routing (opus/sonnet/haiku) may not be writing to tasks.model column.
