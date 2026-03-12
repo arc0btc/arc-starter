@@ -23,6 +23,7 @@ import {
   getSshPassword,
   ssh,
   getActiveAgentNames,
+  isFleetSuspended,
 } from "../../src/ssh.ts";
 import { getCredential } from "../../src/credentials.ts";
 import {
@@ -183,6 +184,8 @@ async function emailWhoabuddy(
 // ---- Sensor entry point ----
 
 export default async function fleetEscalationSensor(): Promise<string> {
+  if (isFleetSuspended()) return "skip";
+
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

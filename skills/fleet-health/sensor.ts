@@ -24,6 +24,7 @@ import {
   getSshPassword,
   ssh,
   getActiveAgentNames,
+  isFleetSuspended,
 } from "../../src/ssh.ts";
 
 const SENSOR_NAME = "fleet-health";
@@ -474,6 +475,8 @@ function formatSummary(results: AgentHealth[], timestamp: string): string {
 // ---- Sensor entry point ----
 
 export default async function fleetHealthSensor(): Promise<string> {
+  if (isFleetSuspended()) return "skip";
+
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

@@ -11,6 +11,7 @@ import {
   createSensorLogger,
   pendingTaskExistsForSource,
 } from "../../src/sensors.ts";
+import { isFleetSuspended } from "../../src/ssh.ts";
 import { join } from "node:path";
 import { hostname } from "node:os";
 
@@ -245,6 +246,8 @@ async function restartAndValidate(
 // ---- Main sensor ----
 
 export default async function sensor(): Promise<string> {
+  if (isFleetSuspended()) return "skip";
+
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

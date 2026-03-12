@@ -21,6 +21,7 @@ import {
   getSshPassword,
   ssh,
   getActiveAgentNames,
+  isFleetSuspended,
 } from "../../src/ssh.ts";
 import { existsSync } from "node:fs";
 
@@ -63,6 +64,8 @@ function loadHookState(): HookState {
 }
 
 export default async function run(): Promise<string> {
+  if (isFleetSuspended()) return "skip";
+
   let password: string;
   try {
     password = await getSshPassword();

@@ -19,6 +19,7 @@ import {
   getSshPassword,
   ssh,
   getActiveAgentNames,
+  isFleetSuspended,
 } from "../../src/ssh.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
@@ -201,6 +202,8 @@ function formatSummary(results: AgentLogs[], timestamp: string): string {
 // ---- Sensor entry point ----
 
 export default async function fleetLogPullSensor(): Promise<string> {
+  if (isFleetSuspended()) return "skip";
+
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

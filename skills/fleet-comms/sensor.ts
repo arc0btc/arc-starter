@@ -19,6 +19,7 @@ import {
   getSshPassword,
   ssh,
   getActiveAgentNames,
+  isFleetSuspended,
 } from "../../src/ssh.ts";
 
 const SENSOR_NAME = "fleet-comms";
@@ -123,6 +124,8 @@ function formatAge(ms: number | null): string {
 }
 
 export default async function fleetCommsSensor(): Promise<string> {
+  if (isFleetSuspended()) return "skip";
+
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

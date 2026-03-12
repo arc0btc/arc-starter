@@ -131,6 +131,12 @@ export function getSuspendedAgents(): Set<string> {
   }
 }
 
+/** Returns true if db/fleet-suspended.json exists with a non-empty suspended array. Use as a hard gate in fleet sensors. */
+export function isFleetSuspended(): boolean {
+  const suspended = getSuspendedAgents();
+  return suspended.size > 0;
+}
+
 /** Get agent names excluding suspended ones. Use in sensors to avoid noisy tasks for down agents. */
 export function getActiveAgentNames(): string[] {
   const suspended = getSuspendedAgents();

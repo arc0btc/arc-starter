@@ -18,6 +18,7 @@ import {
   getSshPassword,
   ssh,
   getActiveAgentNames,
+  isFleetSuspended,
 } from "../../src/ssh.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
@@ -210,6 +211,8 @@ function isStealable(task: RemoteTask): boolean {
 // ---- Sensor entry point ----
 
 export default async function fleetRebalanceSensor(): Promise<string> {
+  if (isFleetSuspended()) return "skip";
+
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

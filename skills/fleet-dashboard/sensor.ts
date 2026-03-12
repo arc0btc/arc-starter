@@ -23,6 +23,7 @@ import {
   getSshPassword,
   ssh,
   getActiveAgentNames,
+  isFleetSuspended,
 } from "../../src/ssh.ts";
 
 const SENSOR_NAME = "fleet-dashboard";
@@ -296,6 +297,8 @@ function formatDashboard(
 // ---- Sensor entry point ----
 
 export default async function fleetDashboardSensor(): Promise<string> {
+  if (isFleetSuspended()) return "skip";
+
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 

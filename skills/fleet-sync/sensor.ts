@@ -18,6 +18,7 @@ import {
   getSshPassword,
   getSuspendedAgents,
   ssh,
+  isFleetSuspended,
 } from "../../src/ssh.ts";
 
 const SENSOR_NAME = "fleet-sync";
@@ -80,6 +81,8 @@ async function checkAgent(
 }
 
 export default async function run(): Promise<string> {
+  if (isFleetSuspended()) return "skip";
+
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
