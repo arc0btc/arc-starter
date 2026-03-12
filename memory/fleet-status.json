@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T18:23:21.897Z",
+  "updated_at": "2026-03-12T18:45:30.400Z",
   "idle": true,
-  "idle_since": "2026-03-12T17:50:10.688Z",
+  "idle_since": "2026-03-12T18:25:22.648Z",
   "last_task": {
-    "id": 5425,
-    "subject": "Review PR #124 on aibtcdev/skills: fix: migrate wrangler.jsonc template to use JSONC comments (closes #115)",
+    "id": 5426,
+    "subject": "daily cost report — 2026-03-12",
     "status": "completed",
-    "priority": 5
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 61136,
-    "cost_usd": 0.18654015
+    "duration_ms": 13685,
+    "cost_usd": 0.029140250000000003
   },
   "health": {
-    "uptime_seconds": 1282300,
+    "uptime_seconds": 1283629,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233308090368
+    "disk_avail_bytes": 233307873280
   }
 }
