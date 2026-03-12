@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T11:21:29.015Z",
+  "updated_at": "2026-03-12T11:23:36.135Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5327,
-    "subject": "Replace arc-cost-alerting with arc-cost-reporting",
+    "id": 5330,
+    "subject": "Review PR #156 on aibtcdev/x402-sponsor-relay: test: add initial unit tests for payment validation (#153)",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 160584,
-    "cost_usd": 0.38959904999999995
+    "duration_ms": 126820,
+    "cost_usd": 0.32949915
   },
   "health": {
-    "uptime_seconds": 1256987,
+    "uptime_seconds": 1257114,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233606811648
+    "disk_avail_bytes": 233606582272
   }
 }
