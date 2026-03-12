@@ -9,13 +9,25 @@ const INTERVAL_MINUTES = 7; // ~5-10 min range: sensor runs every 7 minutes
 const JOIN_AMOUNT_USTX = 20000000; // 20 STX in micro-STX (1 STX = 1,000,000 micro-STX)
 const SKILLS_ROOT = "../../github/aibtcdev/skills";
 
+interface ClarityValue<T> {
+  value: T;
+  [key: string]: unknown;
+}
+
 interface PotInfo {
   name: string;
   contract: string;
-  maxParticipants: number;
-  minAmountStx: number;
-  currentValueUstx: string;
-  isLocked: boolean;
+  maxParticipants: number | ClarityValue<number>;
+  minAmountStx: number | ClarityValue<number>;
+  currentValueUstx: string | ClarityValue<string>;
+  isLocked: boolean | ClarityValue<boolean>;
+}
+
+function clarityUnwrap<T>(v: T | ClarityValue<T>): T {
+  if (v !== null && typeof v === "object" && "value" in (v as object)) {
+    return (v as ClarityValue<T>).value;
+  }
+  return v as T;
 }
 
 interface PotListResponse {
@@ -122,17 +134,20 @@ export default async function stackspotSensor(): Promise<string> {
     for (const pot of potList.pots) {
       log(`analyzing pot: ${pot.name} (${pot.contract})`);
 
-      // Skip locked pots
-      if (pot.isLocked) {
+      // Skip locked pots (unwrap Clarity value object if present)
+      const isLocked = clarityUnwrap(pot.isLocked);
+      if (isLocked) {
         log(`  skip: pot is locked`);
         continue;
       }
 
-      const currentValue = BigInt(pot.currentValueUstx);
-      const minRequired = BigInt(pot.minAmountStx * 1000000); // Convert to micro-STX
+      const currentValueUstx = clarityUnwrap(pot.currentValueUstx);
+      const minAmountStx = clarityUnwrap(pot.minAmountStx);
+      const currentValue = BigInt(currentValueUstx);
+      const minRequired = BigInt(Number(minAmountStx) * 1000000); // Convert to micro-STX
 
       log(
-        `  pot status: value=${Number(currentValue) / 1000000} STX, min=${pot.minAmountStx} STX, locked=${pot.isLocked}`
+        `  pot status: value=${Number(currentValue) / 1000000} STX, min=${minAmountStx} STX, locked=${isLocked}`
       );
 
       // Check if Arc should join this pot
