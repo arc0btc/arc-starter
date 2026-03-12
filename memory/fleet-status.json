@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T12:42:29.718Z",
+  "updated_at": "2026-03-12T12:43:23.104Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5356,
-    "subject": "aibtc-repo-maintenance: recalibrate production repo standards — too aggressive",
+    "id": 5357,
+    "subject": "aibtc-welcome: improve message content — link to skills, add ability proof prompt",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 320212,
-    "cost_usd": 1.1973443
+    "duration_ms": 53047,
+    "cost_usd": 0.32005395
   },
   "health": {
-    "uptime_seconds": 1261848,
+    "uptime_seconds": 1261901,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233324847104
+    "disk_avail_bytes": 233324756992
   }
 }
