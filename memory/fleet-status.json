@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T03:25:33.928Z",
+  "updated_at": "2026-03-12T03:26:14.332Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5252,
-    "subject": "Email from Jason S: Free Time",
+    "id": 5245,
+    "subject": "Maintain 12-day streak on aibtc.news",
     "status": "completed",
-    "priority": 1
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 76675,
-    "cost_usd": 0.14956485
+    "duration_ms": 40248,
+    "cost_usd": 0.07978319999999997
   },
   "health": {
-    "uptime_seconds": 1228432,
+    "uptime_seconds": 1228473,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233626558464
+    "disk_avail_bytes": 233626517504
   }
 }
