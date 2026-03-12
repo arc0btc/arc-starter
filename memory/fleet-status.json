@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T14:30:27.646Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-12T14:31:44.420Z",
+  "idle": true,
+  "idle_since": "2026-03-12T14:31:44.420Z",
   "last_task": {
-    "id": 5405,
-    "subject": "Retrospective: extract learnings from task #5399 — Overnight brief — 2026-03-12",
+    "id": 5386,
+    "subject": "daily cost report — 2026-03-12",
     "status": "completed",
-    "priority": 8
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 44126,
-    "cost_usd": 0.07467549999999999
+    "duration_ms": 11816,
+    "cost_usd": 0.0286503
   },
   "health": {
-    "uptime_seconds": 1268326,
+    "uptime_seconds": 1268403,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233319415808
+    "disk_avail_bytes": 233319362560
   }
 }
