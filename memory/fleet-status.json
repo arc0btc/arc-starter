@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T16:17:45.484Z",
+  "updated_at": "2026-03-12T16:19:29.016Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5412,
-    "subject": "New release: aibtcdev/skills skills-v0.20.0",
+    "id": 5415,
+    "subject": "Evaluate agent-lookup skill (skills v0.20.0)",
     "status": "completed",
-    "priority": 8
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 27029,
-    "cost_usd": 0.049138100000000004
+    "duration_ms": 70497,
+    "cost_usd": 0.20897985
   },
   "health": {
-    "uptime_seconds": 1274764,
+    "uptime_seconds": 1274867,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233318105088
+    "disk_avail_bytes": 233318055936
   }
 }
