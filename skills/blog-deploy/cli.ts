@@ -12,8 +12,9 @@ const SITE_DIR = join(process.cwd(), "github/arc0btc/arc0me-site");
 
 // Resolve the fnm node bin directory (or empty string if not found / already on PATH)
 function resolveFnmBinDir(): string {
-  const which = Bun.spawnSync(["which", "node"]);
-  if (which.exitCode === 0) return ""; // already on PATH
+  // Check if npm specifically is on PATH (node may be symlinked without npm)
+  const whichNpm = Bun.spawnSync(["which", "npm"]);
+  if (whichNpm.exitCode === 0) return ""; // npm already on PATH
   const fnmDir = join(process.env.HOME ?? "/root", ".local/share/fnm/node-versions");
   const ls = Bun.spawnSync(["ls", fnmDir]);
   if (ls.exitCode === 0) {
