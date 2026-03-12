@@ -100,8 +100,8 @@ function buildReport(today: string): string {
       let label = "(none)";
       if (s.skills) {
         try {
-          const arr = JSON.parse(s.skills) as string[];
-          label = arr.join(", ");
+          const skillNames = JSON.parse(s.skills) as string[];
+          label = skillNames.join(", ");
         } catch {
           label = s.skills;
         }
