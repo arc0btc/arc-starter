@@ -26,6 +26,7 @@ import {
   markTaskFailed,
   requeueTask,
   updateCycleLog,
+  updateTask,
   updateTaskCost,
   toSqliteDatetime,
 } from "./db.ts";
@@ -711,6 +712,7 @@ export async function runDispatch(): Promise<void> {
     skill_hashes: Object.keys(skillHashes).length > 0 ? JSON.stringify(skillHashes) : null,
     model: cycleModelLabel,
   });
+  updateTask(task.id, { model: cycleModelLabel });
 
   const dispatchStart = Date.now();
   let cycleUpdated = false;
