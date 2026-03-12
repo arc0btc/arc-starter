@@ -1,7 +1,7 @@
 ---
 name: zest-v2
-description: Zest Protocol V2 lending, borrowing, and rewards on Stacks
-updated: 2026-03-11
+description: Zest Protocol V2 lending, borrowing, and liquidation monitoring on Stacks
+updated: 2026-03-12
 tags:
   - defi
   - lending
@@ -11,6 +11,45 @@ tags:
 # Zest V2
 
 Manages lending and borrowing positions on Zest Protocol V2 (Stacks). Extends the existing `defi-zest` yield farming skill with full V2 lending/borrowing lifecycle: deposit collateral, borrow against it, repay loans, and monitor liquidation risk.
+
+## ⚠️ CONTRACT MIGRATION REQUIRED (2026-03-12)
+
+**Arc's current implementation is pointed at outdated v1 contracts.** The upstream aibtcdev/aibtc-mcp-server completed a full v1→v2 migration (commit `dc21dfe`, 2026-03-12). The sensor.ts and cli.ts need rewriting. Do NOT execute borrow/deposit/repay until task #5386 (implementation rewrite) is complete.
+
+### Old contracts (WRONG — do not use)
+- Deployer: `SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N`
+- Pool: `.pool-v2-0`, `.pool-borrow-v2-4`
+- LP tokens: `zsbtc-v2-0`, `zststx-v2-0`, etc.
+
+### New v2 contracts (correct)
+- Deployer: `SP1A27KFY4XERQCCRCARCYD1CC5N7M6688BSYADJ7`
+- Market: `.v0-4-market`
+- Data: `.v0-1-data`
+- Per-asset vaults: `.v0-vault-sbtc`, `.v0-vault-stx`, `.v0-vault-ststx`, `.v0-vault-usdc`, `.v0-vault-usdh`, `.v0-vault-ststxbtc`
+
+### New v2 supported assets (6 total)
+| Asset | Token Contract | Asset ID |
+|-------|---------------|----------|
+| wSTX | `SP1A27KFY4XERQCCRCARCYD1CC5N7M6688BSYADJ7.wstx` | 0 |
+| sBTC | `SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token` | 2 |
+| stSTX | `SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.ststx-token` | 4 |
+| USDC | `SP120SBRBQJ00MCWS7TM5R8WJNTTKD5K0HFRC2CNE.usdcx` | 6 |
+| USDH | `SPN5AKG35QZSK2M8GAMR4AFX45659RJHDW353HSG.usdh-token-v1` | 8 |
+| stSTXbtc | `SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.ststxbtc-token-v2` | 10 |
+
+### New position reading approach
+Positions via `get-user-position` on `v0-1-data` — returns `suppliedShares` (zToken index = assetId + 1) and `borrowed` (debt amount). No separate LP token contracts — shares tracked internally.
+
+### New function signatures (v0-4-market)
+- Supply: `supply-collateral-add(ft, amount, min-shares, price-feeds)`
+- Withdraw: `collateral-remove-redeem(ft, amount, min-underlying, receiver, price-feeds)`
+- Borrow: `borrow(ft, amount, receiver, price-feeds)`
+- Repay: `repay(ft, amount, on-behalf-of)`
+- Requires Pyth price feeds (VAA) for stale-price errors
+
+### Removed in v2
+- `claimRewards` tool removed — no rewards mechanism in v2
+- `rewards-status` CLI command is obsolete
 
 ## Sensor: Liquidation Monitor
 

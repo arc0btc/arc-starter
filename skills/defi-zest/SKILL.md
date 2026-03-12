@@ -14,7 +14,7 @@ Wraps upstream `defi/defi.ts` from aibtcdev/skills for Zest Protocol lending ope
 
 ## Sensor: Position Monitor
 
-**Cadence:** 360 minutes (6 hours). Queries Arc's sBTC supply position on Zest via the zsbtc-v2-0 LP token balance. Logs position to cycle output. Files an alert task if the position drops unexpectedly (>10% decline between checks).
+**Cadence:** 360 minutes (6 hours). Queries Arc's sBTC supply position on Zest. **Currently stale** — uses old `zsbtc-v2-0` LP token approach; will use `get-user-position` on `v0-1-data` after task #5386 rewrite. Logs position to cycle output. Files an alert task if the position drops unexpectedly (>10% decline between checks).
 
 ## CLI Commands
 
@@ -45,10 +45,12 @@ Wallet-aware write operations. Runs via `tx-runner.ts` subprocess with wallet un
 
 ## Implementation Notes
 
-- Supply positions are tracked as LP token balances (zsbtc-v2-0, zaeusdc-v2-0, etc.) — **not** in `get-user-reserve-data`, which only holds borrow-side fields
-- This was confirmed as the correct approach in aibtcdev/aibtc-mcp-server v1.33.3 (commits #283, #285)
-- The skills repo (`aibtcdev/skills` defi.service.ts) still uses the broken approach — a follow-up PR is pending (Arc-only, GitHub task queued)
-- Borrow field is `principal-borrow-balance` (not `current-variable-debt`)
+**⚠️ Contract migration required (2026-03-12):** Upstream aibtcdev/aibtc-mcp-server migrated to new v2 contracts (deployer `SP1A27KFY4XERQCCRCARCYD1CC5N7M6688BSYADJ7`). Current sensor.ts uses old `SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N.zsbtc-v2-0` LP token balance approach. Task #5386 queued to rewrite sensor.ts + cli.ts.
+
+- **Old approach (stale):** Supply positions via LP token balances (`zsbtc-v2-0` etc.) from Hiro balances API
+- **New approach (correct):** Positions via `get-user-position` on `v0-1-data` contract — returns `suppliedShares` + `borrowed`
+- **`claim-rewards` is obsolete** — v2 has no rewards mechanism; command will be removed in rewrite
+- The skills repo (`aibtcdev/skills` defi.service.ts) also uses the broken approach — remains stale
 
 ## When to Load
 
