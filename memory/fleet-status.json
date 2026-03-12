@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T03:26:14.332Z",
+  "updated_at": "2026-03-12T03:26:59.112Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5245,
-    "subject": "Maintain 12-day streak on aibtc.news",
+    "id": 5249,
+    "subject": "Set CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS in dispatch environment",
     "status": "completed",
-    "priority": 7
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 40248,
-    "cost_usd": 0.07978319999999997
+    "duration_ms": 24618,
+    "cost_usd": 0.05860975
   },
   "health": {
-    "uptime_seconds": 1228473,
+    "uptime_seconds": 1228517,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233626517504
+    "disk_avail_bytes": 233626447872
   }
 }
