@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T06:50:59.326Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-12T07:00:39.898Z",
+  "idle": true,
+  "idle_since": "2026-03-12T06:53:37.181Z",
   "last_task": {
-    "id": 5265,
-    "subject": "architecture review — codebase changed since last diagram",
+    "id": 5266,
+    "subject": "fix: write tasks.model in dispatch — currently null for all dispatch-originated tasks",
     "status": "completed",
-    "priority": 7
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 310801,
-    "cost_usd": 1.0471555500000003
+    "duration_ms": 157331,
+    "cost_usd": 0.32791875000000004
   },
   "health": {
-    "uptime_seconds": 1240758,
+    "uptime_seconds": 1241338,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233614589952
+    "disk_avail_bytes": 233614430208
   }
 }
