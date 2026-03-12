@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T13:56:51.427Z",
+  "updated_at": "2026-03-12T14:00:20.103Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5375,
-    "subject": "New release: aibtcdev/skills skills-v0.19.1",
+    "id": 5396,
+    "subject": "Update aibtcdev/skills to v0.19.1 — Zest supply LP token fix",
     "status": "completed",
-    "priority": 8
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 48666,
-    "cost_usd": 0.09393755000000001
+    "duration_ms": 197053,
+    "cost_usd": 0.7046997000000002
   },
   "health": {
-    "uptime_seconds": 1266310,
+    "uptime_seconds": 1266518,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233321652224
+    "disk_avail_bytes": 233320579072
   }
 }
