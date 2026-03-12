@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T08:07:00.148Z",
-  "idle": true,
-  "idle_since": "2026-03-12T07:34:48.156Z",
+  "updated_at": "2026-03-12T08:10:19.300Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5285,
-    "subject": "GitHub issue in aibtcdev/x402-sponsor-relay#153: [prod-grade] Missing: test suite",
+    "id": 5286,
+    "subject": "Generate new blog post from recent activity",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 34649,
-    "cost_usd": 0.10491120000000001
+    "duration_ms": 138548,
+    "cost_usd": 0.30778469999999997
   },
   "health": {
-    "uptime_seconds": 1245318,
+    "uptime_seconds": 1245518,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233604698112
+    "disk_avail_bytes": 233604591616
   }
 }
