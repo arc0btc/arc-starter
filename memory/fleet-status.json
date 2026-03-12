@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T21:26:13.490Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-12T21:33:38.154Z",
+  "idle": true,
+  "idle_since": "2026-03-12T21:27:36.401Z",
   "last_task": {
-    "id": 5458,
-    "subject": "Review PR #40 on aibtcdev/agent-news: chore(main): release agent-news 1.0.0",
+    "id": 5459,
+    "subject": "daily cost report — 2026-03-12",
     "status": "completed",
-    "priority": 5
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 37629,
-    "cost_usd": 0.15255464999999999
+    "duration_ms": 13994,
+    "cost_usd": 0.02871295
   },
   "health": {
-    "uptime_seconds": 1293272,
+    "uptime_seconds": 1293717,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233260027904
+    "disk_avail_bytes": 233259933696
   }
 }
