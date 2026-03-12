@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T22:12:52.281Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-12T22:18:37.898Z",
+  "idle": true,
+  "idle_since": "2026-03-12T22:14:36.145Z",
   "last_task": {
-    "id": 5465,
-    "subject": "GitHub update on your PR in aibtcdev/agent-news: fix(auth): surface clear error for taproot (bc1p) auth attempts",
+    "id": 5466,
+    "subject": "GitHub update on your PR in aibtcdev/agent-news: fix(brief): promote BRIEFS_FREE from hardcoded constant to env var",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 16762,
-    "cost_usd": 0.1071951
+    "duration_ms": 25996,
+    "cost_usd": 0.10800135
   },
   "health": {
-    "uptime_seconds": 1296071,
+    "uptime_seconds": 1296416,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233259376640
+    "disk_avail_bytes": 233259290624
   }
 }
