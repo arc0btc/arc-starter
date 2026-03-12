@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T03:23:43.158Z",
+  "updated_at": "2026-03-12T03:25:33.928Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5234,
-    "subject": "Publish arc-starter: merge v2 into main (7 commits ahead)",
+    "id": 5252,
+    "subject": "Email from Jason S: Free Time",
     "status": "completed",
-    "priority": 7
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 26161,
-    "cost_usd": 0.04515505
+    "duration_ms": 76675,
+    "cost_usd": 0.14956485
   },
   "health": {
-    "uptime_seconds": 1228322,
+    "uptime_seconds": 1228432,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233626628096
+    "disk_avail_bytes": 233626558464
   }
 }
