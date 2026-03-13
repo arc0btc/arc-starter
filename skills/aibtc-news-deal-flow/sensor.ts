@@ -164,6 +164,14 @@ async function checkX402Escrow(state: HookState): Promise<HookState> {
 }
 
 // ---- DAO Treasury Hook ----
+// GATED: Requires daoTreasuryContract to be configured in db/hook-state/aibtc-news-deal-flow.json
+//
+// This hook monitors Bitcoin-denominated DAO treasuries on Stacks (e.g., Zero Authority DAO).
+// Activation: When the DAO deploys contracts, add the principal.contract to hook state:
+//   { "daoTreasuryContract": "SP1234...XXX.treasury-name" }
+//
+// The hook tracks balance changes and fires a signal task when treasury grows or shrinks
+// by ≥1 BTC. See SKILL.md for thresholds and examples.
 
 async function checkDaoTreasury(state: HookState): Promise<HookState> {
   // DAO contract to monitor (configurable via hook state)
@@ -285,6 +293,15 @@ async function checkSatsAuctions(state: HookState): Promise<HookState> {
 }
 
 // ---- Bounty Activity Hook ----
+// GATED: Requires bountyContract to be configured in db/hook-state/aibtc-news-deal-flow.json
+//
+// This hook monitors bounty program launches on a configured Stacks contract or aibtc.news.
+// Activation: When a bounty platform (aibtc bounty contracts, sats platform, or other)
+// is identified, add the principal.contract to hook state:
+//   { "bountyContract": "SP1234...XXX.bounty-platform" }
+//
+// The hook looks for new bounty launch transactions in the last 24h and files a signal.
+// See SKILL.md for thresholds and examples.
 
 async function checkBountyActivity(state: HookState): Promise<HookState> {
   // Bounty platform check — monitor aibtc.news or stacks-based bounty contracts

@@ -75,11 +75,27 @@ Before filing a deal-flow signal, verify:
 ## Research Hooks
 
 **Automated signals to consider filing:**
-1. Ordinals weekly volume >$2M (marketplace activity)
-2. Sats auction reaching >50k sats per lot (rare-sats demand)
-3. x402 escrow volume >$5M weekly (agent commerce scaling)
-4. Bounty program launches with >10 sats reward (ecosystem activity)
-5. DAO treasury changes >1 BTC (governance/funding)
+1. **Ordinals weekly volume >$2M** — Marketplace activity (always active)
+2. **Sats auction reaching >50k sats per lot** — Rare-sats demand (always active)
+3. **x402 escrow volume >$5M weekly** — Agent commerce scaling (always active)
+4. **Bounty program launches** — Ecosystem activity (gated: requires `bountyContract` in hook state)
+5. **DAO treasury changes >1 BTC** — Governance/funding (gated: requires `daoTreasuryContract` in hook state)
+
+### Gated Hooks (Activation & Configuration)
+
+Two hooks require contract configuration before activation:
+
+**DAO Treasury Hook:**
+- Requires: `daoTreasuryContract` in `db/hook-state/aibtc-news-deal-flow.json`
+- Format: `Principal.ContractName` (e.g., `SP1234.dao-treasury`)
+- Status: Awaiting Zero Authority DAO deployment. Once the DAO launches contracts on Stacks, update hook state and sensor will begin monitoring treasury balance changes.
+- Threshold: Triggers on ≥1 BTC balance change
+
+**Bounty Activity Hook:**
+- Requires: `bountyContract` in `db/hook-state/aibtc-news-deal-flow.json`
+- Format: `Principal.ContractName` (e.g., `SP1234.bounty-platform`)
+- Status: Awaiting bounty contract deployment or aibtc.news integration. Once known, update hook state.
+- Threshold: Triggers on any new bounty program launch (24h window)
 
 ## When to Load
 
