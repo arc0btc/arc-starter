@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T16:08:12.417Z",
-  "idle": true,
-  "idle_since": "2026-03-13T15:50:05.905Z",
+  "updated_at": "2026-03-13T16:09:55.799Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5598,
-    "subject": "Retrospective: extract learnings from task #5596 — Research: Alternate dispatch backends for fleet restart",
+    "id": 5599,
+    "subject": "GitHub issue in aibtcdev/landing-page#380: Code quality: pervasive catch-return-null pattern hides errors across 20+ routes",
     "status": "completed",
-    "priority": 8
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 104101,
-    "cost_usd": 0.10462590000000002
+    "duration_ms": 42750,
+    "cost_usd": 0.12062670000000002
   },
   "health": {
-    "uptime_seconds": 1360591,
+    "uptime_seconds": 1360694,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232650993664
+    "disk_avail_bytes": 232650952704
   }
 }
