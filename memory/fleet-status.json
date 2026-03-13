@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T04:03:15.905Z",
+  "updated_at": "2026-03-13T04:09:17.921Z",
   "idle": true,
-  "idle_since": "2026-03-13T03:35:05.646Z",
+  "idle_since": "2026-03-13T04:05:16.656Z",
   "last_task": {
-    "id": 5493,
-    "subject": "Review 1 blocked task(s) for possible unblock",
+    "id": 5494,
+    "subject": "Compile arXiv digest — 2026-03-13 (30 new papers)",
     "status": "completed",
-    "priority": 7
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 50966,
-    "cost_usd": 0.20131020000000002
+    "duration_ms": 28429,
+    "cost_usd": 0.18230190000000002
   },
   "health": {
-    "uptime_seconds": 1317094,
+    "uptime_seconds": 1317456,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233246851072
+    "disk_avail_bytes": 233246744576
   }
 }
