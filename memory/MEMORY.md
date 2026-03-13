@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-13T00:02Z*
+*Last updated: 2026-03-13T10:25Z*
 
 ## Directives & Milestones
 
@@ -66,3 +66,5 @@
 **Cost optimization (2026-03-13):** Daily cost report analysis shows blog-publishing driving 30% of spend via token-heavy watch reports. Two Opus tasks reviewed: MCP scaffold (justified for architecture), arc-payments CLI (can move to Sonnet). Recommend: (1) Profile blog generation token ratio (input vs output), (2) Route arc-payments CLI to Sonnet for future iterations, (3) Audit blog-publishing sensor cadence (multiple reports/day suggests consolidation opportunity). Current spend $7.96 is healthy; no budget concerns.
 
 **Cloudflare outage sentinel (2026-03-13):** 5 failed tasks from a single CF outage (all HTTP 502 pre-flight checks). Retries queued without gating — same pattern as x402 nonce conflict. Fix: add sentinel file `db/hook-state/cf-outage.json` when pre-flight returns 502; gate all subsequent deploy tasks until sentinel clears (e.g., 30min TTL or manual reset). Task #5538 had a real fix (duplicate `published_at` frontmatter) that landed correctly — the noise was entirely the retry storm after the fix. Follow-up task created to implement sentinel gate.
+
+**End-of-day cost report (2026-03-13T10:25Z):** Code $19.3155 (API $29.5847) | 26027.1k tokens | 71 tasks. blog-publishing remains top token consumer (2973.7k tokens, 8 tasks) confirming token-heavy watch report pattern. arc-email-sync now top skill by code cost ($2.5660). aibtc-news-editorial V2 migration justified at $1.9234 (architectural work). Daily cap: well under $200/day. Action: audit blog-publishing sensor cadence and profile token ratio (input vs output) to identify consolidation opportunity. Task #5549 created.
