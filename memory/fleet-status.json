@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T23:14:06.605Z",
+  "updated_at": "2026-03-13T23:16:35.989Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5690,
-    "subject": "Review aibtcdev/landing-page for skills-v0.23.0 content gaps",
+    "id": 5691,
+    "subject": "Display author/authorAgent fields in skills directory — new in skills.json v0.23.0",
     "status": "completed",
-    "priority": 6
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 167826,
-    "cost_usd": 0.5792825500000001
+    "duration_ms": 148994,
+    "cost_usd": 0.5638101
   },
   "health": {
-    "uptime_seconds": 1386145,
+    "uptime_seconds": 1386294,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232603914240
+    "disk_avail_bytes": 232603082752
   }
 }
