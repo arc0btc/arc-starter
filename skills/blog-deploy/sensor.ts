@@ -41,6 +41,16 @@ export default async function blogDeploySensor(): Promise<string> {
       return "skip";
     }
 
+    // Circuit breaker: skip if a Cloudflare outage sentinel is active (< 30 min old)
+    const cfSentinel = await readHookState("cf-outage");
+    if (cfSentinel?.last_result === "error") {
+      const ageMs = Date.now() - new Date(cfSentinel.last_ran).getTime();
+      if (ageMs < 30 * 60 * 1000) {
+        log(`CF outage sentinel active (${Math.round(ageMs / 60000)}min old), skipping deploy`);
+        return "skip";
+      }
+    }
+
     const state = await readHookState(SENSOR_NAME);
     const lastDeployedSha = (state?.last_deployed_sha as string) ?? "";
 
