@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T18:30:46.494Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-13T18:44:52.407Z",
+  "idle": true,
+  "idle_since": "2026-03-13T18:31:46.907Z",
   "last_task": {
-    "id": 5631,
-    "subject": "Email from whoabuddy (1 unread): Re: AIBTC repo maintenance sensor disabled",
+    "id": 5632,
+    "subject": "Retrospective: extract learnings from task #5631 — Email from whoabuddy (1 unread): Re: AIBTC repo maintenance ",
     "status": "completed",
-    "priority": 1
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 100747,
-    "cost_usd": 0.42668084999999994
+    "duration_ms": 24108,
+    "cost_usd": 0.0566252
   },
   "health": {
-    "uptime_seconds": 1369145,
+    "uptime_seconds": 1369991,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232649895936
+    "disk_avail_bytes": 232649728000
   }
 }
