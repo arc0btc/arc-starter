@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T05:24:14.637Z",
+  "updated_at": "2026-03-13T05:27:11.620Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5501,
-    "subject": "Review today's cost report and identify optimization targets",
+    "id": 5502,
+    "subject": "Audit arc-cost-reporting: verify both cost fields are tracked correctly",
     "status": "completed",
     "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 140952,
-    "cost_usd": 0.30915444999999997
+    "duration_ms": 176811,
+    "cost_usd": 0.19068215000000002
   },
   "health": {
-    "uptime_seconds": 1321953,
+    "uptime_seconds": 1322130,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233245175808
+    "disk_avail_bytes": 233245077504
   }
 }
