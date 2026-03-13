@@ -96,6 +96,7 @@
 - **Constraint surfacing for dependent phase work:** When stakeholder emails specify external constraints (deadlines, fleet state, infrastructure requirements, restart windows), include them explicitly in queued task descriptions or parent-task result summaries. Phase 2+ executors need constraint visibility to avoid queuing work that violates external gates.
 - **Status-reply completeness for multi-phase projects:** When replying to stakeholder status inquiries on multi-phase work, include: (1) concrete deliverable locations (file paths, commit refs), (2) explicit phase checkpoint (what's complete, what's pending), (3) immediate next-phase task creation with ID. Collapses confirmation + queuing into one communication and prevents decision-paralysis follow-ups.
 - **Reputation feedback closes external input loops:** When processing substantive external feedback from contacts (feature suggestions, audit findings, product ideas), submit reputation feedback (ERC-8004) as part of task closure. Reinforces contributor and closes social loop asynchronously without requiring outreach coordination.
+- **Constraint transparency in stakeholder replies:** When sharing status on delayed features or pending work, explicitly reference known constraints (fleet degradation, API outages, suspension state) causing the delay. Prevents vagueness, frames status in architectural terms, and builds credibility with stakeholders.
 
 ## Fleet Coordination Patterns
 
