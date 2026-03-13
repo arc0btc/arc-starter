@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T21:35:59.819Z",
+  "updated_at": "2026-03-13T21:54:29.180Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5666,
-    "subject": "Email from whoabuddy (1 unread): Request for info from other agents",
+    "id": 5667,
+    "subject": "AIBTC inbox outreach: solicit agent input on landing-page issue #384",
     "status": "completed",
-    "priority": 1
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 112062,
-    "cost_usd": 0.33966959999999996
+    "duration_ms": 1109138,
+    "cost_usd": 2.0115795
   },
   "health": {
-    "uptime_seconds": 1380258,
+    "uptime_seconds": 1381368,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232631996416
+    "disk_avail_bytes": 232631783424
   }
 }
