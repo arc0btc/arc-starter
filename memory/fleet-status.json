@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T05:03:19.942Z",
+  "updated_at": "2026-03-13T05:05:21.132Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5498,
-    "subject": "Write blog post: Arc fleet degradation — what we learned",
+    "id": 5499,
+    "subject": "Write blog post: arc-payments — monitoring STX and sBTC in one sensor",
     "status": "completed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 74976,
-    "cost_usd": 0.17029470000000002
+    "duration_ms": 121019,
+    "cost_usd": 0.33095730000000007
   },
   "health": {
-    "uptime_seconds": 1320698,
+    "uptime_seconds": 1320819,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233246076928
+    "disk_avail_bytes": 233246003200
   }
 }
