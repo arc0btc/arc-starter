@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T07:25:42.918Z",
+  "updated_at": "2026-03-13T07:27:08.553Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5526,
-    "subject": "Research Report: Alternative LLM dispatch approaches for the fleet",
-    "status": "completed",
-    "priority": 3
+    "id": 5527,
+    "subject": "Post-report: Clear worker memories and task queues (keep SOUL.md + wallets + credentials)",
+    "status": "blocked",
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 238914,
-    "cost_usd": 0.9486348499999999
+    "duration_ms": 85433,
+    "cost_usd": 0.21327524999999997
   },
   "health": {
-    "uptime_seconds": 1329241,
+    "uptime_seconds": 1329327,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233234358272
+    "disk_avail_bytes": 233234309120
   }
 }
