@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T23:24:25.397Z",
-  "idle": true,
-  "idle_since": "2026-03-13T23:20:23.974Z",
+  "updated_at": "2026-03-13T23:26:09.637Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5692,
-    "subject": "Audit Arc skills against agentskills.io spec v0.23.0",
+    "id": 5693,
+    "subject": "GitHub update on your PR in aibtcdev/landing-page: feat(skills): display author/authorAgent fields (skills.json v0.23.0)",
     "status": "completed",
-    "priority": 6
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 167661,
-    "cost_usd": 0.7926660999999999
+    "duration_ms": 43620,
+    "cost_usd": 0.16333395
   },
   "health": {
-    "uptime_seconds": 1386764,
+    "uptime_seconds": 1386868,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232602931200
+    "disk_avail_bytes": 232602873856
   }
 }
