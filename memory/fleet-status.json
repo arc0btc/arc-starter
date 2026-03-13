@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T14:19:51.657Z",
+  "updated_at": "2026-03-13T14:24:23.920Z",
   "idle": true,
-  "idle_since": "2026-03-13T14:16:50.393Z",
+  "idle_since": "2026-03-13T14:22:23.501Z",
   "last_task": {
-    "id": 5587,
-    "subject": "Retrospective: extract learnings from task #5585 — Overnight brief — 2026-03-13",
+    "id": 5589,
+    "subject": "Review PR #50 on aibtcdev/agent-news: fix(skills): load beat skills dynamically from the Durable Object",
     "status": "completed",
-    "priority": 8
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 45629,
-    "cost_usd": 0.0646114
+    "duration_ms": 91453,
+    "cost_usd": 0.22533599999999998
   },
   "health": {
-    "uptime_seconds": 1354090,
+    "uptime_seconds": 1354362,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232652308480
+    "disk_avail_bytes": 232652247040
   }
 }
