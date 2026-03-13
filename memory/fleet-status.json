@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T05:19:59.297Z",
+  "updated_at": "2026-03-13T05:21:53.509Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5510,
-    "subject": "Add cli.ts to stacks-stackspot: check stacking status, rewards, manual trigger",
+    "id": 5511,
+    "subject": "skill-effectiveness: 6 underperforming skill(s) — weekly report",
     "status": "completed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 59401,
-    "cost_usd": 0.22251015000000002
+    "duration_ms": 112505,
+    "cost_usd": 0.35605139999999996
   },
   "health": {
-    "uptime_seconds": 1321698,
+    "uptime_seconds": 1321812,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233245306880
+    "disk_avail_bytes": 233245253632
   }
 }
