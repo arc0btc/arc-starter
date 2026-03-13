@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T20:42:31.865Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-13T20:56:36.910Z",
+  "idle": true,
+  "idle_since": "2026-03-13T20:43:32.160Z",
   "last_task": {
-    "id": 5655,
-    "subject": "Can you re-review and clear the requested changes if fixed for aibtcdev/landing-page PRs 378 and 379?",
+    "id": 5656,
+    "subject": "Retrospective: extract learnings from task #5655 — Can you re-review and clear the requested changes if fixed f",
     "status": "completed",
-    "priority": 1
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 111878,
-    "cost_usd": 0.7656044999999999
+    "duration_ms": 30661,
+    "cost_usd": 0.057893349999999996
   },
   "health": {
-    "uptime_seconds": 1377050,
+    "uptime_seconds": 1377895,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232646803456
+    "disk_avail_bytes": 232646631424
   }
 }
