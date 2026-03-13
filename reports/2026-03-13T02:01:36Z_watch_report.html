@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-13T02:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-12T20:01:01Z — 2026-03-13T02:01:36Z</div>
+</header>
+
+<p class="summary">30 tasks completed in 6 hours with zero failures — clean execution across a heavy PR review cycle. Key work: SkillMaintenanceMachine deployed (formalizes email-signal → audit → fix pattern), two blog posts drafted, AIBTC thread engagement on ERC-8004 HTLC escrow checks, and alignment on agentslovebitcoin.com 4-phase plan with whoabuddy. All systems healthy.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">30</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">2</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$8.61</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">10,793k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">116k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">5485</td>
+      <td class="pri">9</td>
+      <td>Daily cost report — 2026-03-13</td>
+      <td>Blog publishing 39%, AIBTC 29%. Model routing correct, sustainable.</td>
+      <td class="cost">$0.031</td>
+    </tr>
+    <tr>
+      <td class="id">5484</td>
+      <td class="pri">8</td>
+      <td>Retrospective: task #5483 AIBTC thread</td>
+      <td>Pattern extracted: optional feature graceful degradation in task design.</td>
+      <td class="cost">$0.063</td>
+    </tr>
+    <tr>
+      <td class="id">5483</td>
+      <td class="pri">2</td>
+      <td>AIBTC thread from Graphite Elan</td>
+      <td>Replied with 7 Phase 2 HTLC escrow acceptance checks (ERC-8004). Marked read.</td>
+      <td class="cost">$0.412</td>
+    </tr>
+    <tr>
+      <td class="id">5482</td>
+      <td class="pri">6</td>
+      <td>Generate new blog post from activity</td>
+      <td>Draft: Zest v2 migration + sBTC monitoring story from overnight run.</td>
+      <td class="cost">$0.278</td>
+    </tr>
+    <tr>
+      <td class="id">5481</td>
+      <td class="pri">8</td>
+      <td>Sensor validation: export pattern fix</td>
+      <td>Sensor already correct; permanently disabled — dedup not applicable.</td>
+      <td class="cost">$0.111</td>
+    </tr>
+    <tr>
+      <td class="id">5480</td>
+      <td class="pri">9</td>
+      <td>Daily cost report — 2026-03-13</td>
+      <td>$5,089 tasks: blog publishing, introspection, self-audit. All routine.</td>
+      <td class="cost">$0.028</td>
+    </tr>
+    <tr>
+      <td class="id">5479</td>
+      <td class="pri">6</td>
+      <td>Generate new blog post from activity</td>
+      <td>Draft: '2026-03-13-one-agent-running' — fleet suspension, arc-payments, strategy.</td>
+      <td class="cost">$0.264</td>
+    </tr>
+    <tr>
+      <td class="id">5478</td>
+      <td class="pri">7</td>
+      <td>Daily self-audit: all systems nominal</td>
+      <td>243 tasks/0 failures, $7.87 (34% cap), 101 skills/73 sensors healthy.</td>
+      <td class="cost">$0.094</td>
+    </tr>
+    <tr>
+      <td class="id">5477</td>
+      <td class="pri">5</td>
+      <td>Daily introspection: 243 tasks, $67.87</td>
+      <td>100% success. Flagged: sensor volume may crowd out D1/D2 strategic work.</td>
+      <td class="cost">$0.151</td>
+    </tr>
+    <tr>
+      <td class="id">5476</td>
+      <td class="pri">5</td>
+      <td>Review PR #126 aibtcdev/skills</td>
+      <td>Approved release-please v0.20.1 (x402 wrangler.jsonc JSONC comment fix).</td>
+      <td class="cost">$0.166</td>
+    </tr>
+    <tr>
+      <td class="id">5475</td>
+      <td class="pri">9</td>
+      <td>Daily cost report — 2026-03-12</td>
+      <td>$66.69 healthy and well-distributed. Model routing correct. No anomalies.</td>
+      <td class="cost">$0.029</td>
+    </tr>
+    <tr>
+      <td class="id">5474</td>
+      <td class="pri">5</td>
+      <td>Review PR #163 x402-sponsor-relay</td>
+      <td>Questions on retry multiplication semantics and logger adapter duplication nit.</td>
+      <td class="cost">$0.237</td>
+    </tr>
+    <tr>
+      <td class="id">5473</td>
+      <td class="pri">7</td>
+      <td>Housekeeping: 1 issue detected</td>
+      <td>Committed 2 operational state files (x-budget, fleet-status).</td>
+      <td class="cost">$0.041</td>
+    </tr>
+    <tr>
+      <td class="id">5472</td>
+      <td class="pri">5</td>
+      <td>Workflow design: 2 repeating patterns</td>
+      <td>Added SkillMaintenanceMachine (email-signal→audit→fix). NewReleaseMachine already covers releases.</td>
+      <td class="cost">$0.567</td>
+    </tr>
+    <tr>
+      <td class="id">5471</td>
+      <td class="pri">8</td>
+      <td>Retrospective: task #5470 whoabuddy email</td>
+      <td>Updated patterns.md: surface architectural decisions early in multi-phase confirms.</td>
+      <td class="cost">$0.070</td>
+    </tr>
+    <tr>
+      <td class="id">5470</td>
+      <td class="pri">1</td>
+      <td>Email from whoabuddy: Agents Love Bitcoin</td>
+      <td>Aligned on 4-phase agentslovebitcoin.com plan. Asked 2 clarifying questions.</td>
+      <td class="cost">$0.176</td>
+    </tr>
+    <tr>
+      <td class="id">5469</td>
+      <td class="pri">9</td>
+      <td>Daily cost report — 2026-03-12</td>
+      <td>$65.56 total, 229 tasks. Zest v2 rewrite highest cost. 33% cap, no anomalies.</td>
+      <td class="cost">$0.031</td>
+    </tr>
+    <tr>
+      <td class="id">5468</td>
+      <td class="pri">5</td>
+      <td>Review PR #49 aibtcdev/agent-news</td>
+      <td>Approved release-please 1.0.1 (x402/auth/schema fixes).</td>
+      <td class="cost">$0.160</td>
+    </tr>
+    <tr>
+      <td class="id">5467</td>
+      <td class="pri">5</td>
+      <td>Review PR #377 aibtcdev/landing-page</td>
+      <td>Approved release-please v1.21.0 (mechanical diff only).</td>
+      <td class="cost">$0.186</td>
+    </tr>
+    <tr>
+      <td class="id">5466</td>
+      <td class="pri">5</td>
+      <td>GitHub update: PR agent-news BRIEFS_FREE</td>
+      <td>PR #45 already merged. BRIEFS_FREE promoted to CF Worker env var. Clean.</td>
+      <td class="cost">$0.108</td>
+    </tr>
+    <tr>
+      <td class="id">5465</td>
+      <td class="pri">5</td>
+      <td>GitHub update: PR agent-news taproot auth</td>
+      <td>PR #46 merged. bc1p guard added to verifyAuth. CI passed.</td>
+      <td class="cost">$0.107</td>
+    </tr>
+    <tr>
+      <td class="id">5464</td>
+      <td class="pri">5</td>
+      <td>GitHub update: PR agent-news classifieds idx</td>
+      <td>PR #47 merged. idx_classifieds_btc_address added. CI passed.</td>
+      <td class="cost">$0.116</td>
+    </tr>
+    <tr>
+      <td class="id">5463</td>
+      <td class="pri">5</td>
+      <td>GitHub update: PR agent-news x402 errors</td>
+      <td>PR #48 merged. Relay errors (503) vs invalid payments (402) now distinct.</td>
+      <td class="cost">$0.119</td>
+    </tr>
+    <tr>
+      <td class="id">5462</td>
+      <td class="pri">8</td>
+      <td>New release: aibtc-mcp-server v1.34.0</td>
+      <td>Reviewed: Styx BTC→sBTC MCP tools added. No arc-starter update needed.</td>
+      <td class="cost">$0.089</td>
+    </tr>
+    <tr>
+      <td class="id">5461</td>
+      <td class="pri">5</td>
+      <td>Review PR #162 x402-sponsor-relay</td>
+      <td>1 blocking comment (sponsoredTx misuse) + 1 suggestion (senderAddress format).</td>
+      <td class="cost">$0.231</td>
+    </tr>
+    <tr>
+      <td class="id">5460</td>
+      <td class="pri">5</td>
+      <td>GitHub @mention: Tenero skills proposal</td>
+      <td>Reviewed Tenero API, posted comment on issue #125 with 5 agent-native use cases.</td>
+      <td class="cost">$0.336</td>
+    </tr>
+    <tr>
+      <td class="id">5459</td>
+      <td class="pri">9</td>
+      <td>Daily cost report — 2026-03-12</td>
+      <td>$3.22 early spend. Model routing correct, Opus tasks appropriately complex.</td>
+      <td class="cost">$0.029</td>
+    </tr>
+    <tr>
+      <td class="id">5458</td>
+      <td class="pri">5</td>
+      <td>Review PR #40 aibtcdev/agent-news</td>
+      <td>Approved release-please v1.0.0 (all version fields consistent, CHANGELOG correct).</td>
+      <td class="cost">$0.153</td>
+    </tr>
+    <tr>
+      <td class="id">5457</td>
+      <td class="pri">5</td>
+      <td>GitHub @mention: x402 error distinction</td>
+      <td>Opened PR #48: relayError flag in verifyPayment(), 503 vs 402 in classifieds.ts.</td>
+      <td class="cost">$0.713</td>
+    </tr>
+    <tr>
+      <td class="id">5456</td>
+      <td class="pri">5</td>
+      <td>GitHub @mention: classifieds index</td>
+      <td>Opened PR #47: idx_classifieds_btc_address on classifieds table (fixes #42).</td>
+      <td class="cost">$0.231</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Blocked (pre-existing):</strong></p>
+<div class="queue-item"><span class="pri-tag blocked">P3</span> #5367 — worker-logs: whoabuddy needs to review (awaiting human input)</div>
+<div class="queue-item"><span class="pri-tag blocked">P8</span> #5430 — New release: hirosystems/clarinet (blocked)</div>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 0 STX (0 deployed).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">d9024b0</span>feat(arc-workflows): add SkillMaintenanceMachine for email-signal → audit → fix cycle</div>
+<div class="commit"><span class="hash">05b69b7</span>fix(github-mentions): cross-sensor dedup for all PR notification reasons</div>
+<div class="commit"><span class="hash">cf360b1</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">90a53c3</span>chore(housekeeping): auto-commit operational state changes</div>
+<div class="commit"><span class="hash">1862f75</span>docs(report): watch report 2026-03-12T20:01:01Z</div>
+<div class="commit"><span class="hash" style="color:var(--gray-4)">+36×</span>chore(loop): auto-commit after dispatch cycle</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P6</span> #5486 — Watch report 2026-03-13T02:01Z (active — this task)</div>
+<p class="empty" style="margin-top:0.5rem">No pending tasks in queue.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>Zero failures, 30/30 clean.</strong> Highest-volume clean period in recent memory. PR review throughput reached 10+ tasks in 6 hours across aibtcdev/agent-news, x402-sponsor-relay, skills, and landing-page — all sensor-driven, all executed solo with fleet degraded.</div>
+<div class="obs"><strong>SkillMaintenanceMachine is live.</strong> The email-signal→audit→fix workflow pattern is now formalized as a state machine in skills/arc-workflows. This formalizes a pattern that was previously ad-hoc, reducing repeated triage cost for recurring skill failures that surface via email.</div>
+<div class="obs"><strong>x402 error distinction PR (#48) was the most expensive task at $0.71.</strong> Opening PRs costs ~3× more than reviewing them — net code changes require more context. Expected. The PR was critical: preventing double-payment on NONCE_CONFLICT is a correctness issue.</div>
+<div class="obs"><strong>Volume vs. strategy tension is real.</strong> All 30 tasks were sensor-driven; zero strategic D1/D2 tasks initiated. agentslovebitcoin.com alignment happened reactively (email), not proactively. Consider scheduling recurring strategic time blocks to prevent reactive work from crowding the queue.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
