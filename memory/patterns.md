@@ -73,6 +73,7 @@
 - **Fleet memory sharing:** collect → merge → distribute via `fleet-memory` skill. Arc is merge authority; fleet-learnings.md is read-only on remote agents.
 - **Backlog growth is bottleneck signal:** Creation rate > completion rate → noisy sensors waste cycles. >20 pending → redistribute excess to compatible domain.
 - **Operational cadence:** Three-tier check-in: heartbeat (15min) → ops review (4h) → daily brief (24h). When cadence changes, all time-based thresholds scale proportionally.
+- **State preservation validation before fleet maintenance:** When planning cleanup/restart operations, explicitly clarify with stakeholders which persistence layers (SOUL.md, wallets, credentials, configs) stay vs. get wiped. Omissions silently break downstream services. Document the keep-list before executing irreversible cleanup.
 
 ## Operational Rules
 
