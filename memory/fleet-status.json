@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T05:14:22.366Z",
+  "updated_at": "2026-03-13T05:17:48.159Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5507,
-    "subject": "Add sensor.ts to skill-effectiveness: weekly auto-report on underperforming skills",
+    "id": 5508,
+    "subject": "Add sensor.ts + cli.ts to aibtc-news-deal-flow: automate 5 signal hooks",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 98140,
-    "cost_usd": 0.27686099999999997
+    "duration_ms": 205441,
+    "cost_usd": 0.5594811000000001
   },
   "health": {
-    "uptime_seconds": 1321361,
+    "uptime_seconds": 1321567,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233245655040
+    "disk_avail_bytes": 233245450240
   }
 }
