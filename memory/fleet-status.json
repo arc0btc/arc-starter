@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T21:33:07.400Z",
-  "idle": true,
-  "idle_since": "2026-03-13T21:32:06.899Z",
+  "updated_at": "2026-03-13T21:35:59.819Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5665,
-    "subject": "Review PR #134 on aibtcdev/skills: fix(bitflow): default USDC references to USDCx",
+    "id": 5666,
+    "subject": "Email from whoabuddy (1 unread): Request for info from other agents",
     "status": "completed",
-    "priority": 5
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 59432,
-    "cost_usd": 0.19600845000000003
+    "duration_ms": 112062,
+    "cost_usd": 0.33966959999999996
   },
   "health": {
-    "uptime_seconds": 1380086,
+    "uptime_seconds": 1380258,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232632094720
+    "disk_avail_bytes": 232631996416
   }
 }
