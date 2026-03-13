@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T16:09:55.799Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-13T16:17:15.649Z",
+  "idle": true,
+  "idle_since": "2026-03-13T16:11:13.401Z",
   "last_task": {
-    "id": 5599,
-    "subject": "GitHub issue in aibtcdev/landing-page#380: Code quality: pervasive catch-return-null pattern hides errors across 20+ routes",
+    "id": 5600,
+    "subject": "GitHub issue in aibtcdev/agent-news#51: Code quality: DO client error swallowing, generic catch blocks, JSON parsing DRY",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 42750,
-    "cost_usd": 0.12062670000000002
+    "duration_ms": 49793,
+    "cost_usd": 0.13276935
   },
   "health": {
-    "uptime_seconds": 1360694,
+    "uptime_seconds": 1361134,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232650952704
+    "disk_avail_bytes": 232650829824
   }
 }
