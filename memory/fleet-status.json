@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T17:24:51.410Z",
+  "updated_at": "2026-03-13T17:38:56.646Z",
   "idle": true,
-  "idle_since": "2026-03-13T17:12:46.918Z",
+  "idle_since": "2026-03-13T17:26:52.157Z",
   "last_task": {
-    "id": 5617,
-    "subject": "New release: anthropics/claude-code v2.1.75",
+    "id": 5618,
+    "subject": "daily cost report — 2026-03-13",
     "status": "completed",
-    "priority": 6
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 102143,
-    "cost_usd": 0.36147075000000006
+    "duration_ms": 39694,
+    "cost_usd": 0.05711515
   },
   "health": {
-    "uptime_seconds": 1365190,
+    "uptime_seconds": 1366035,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232655237120
+    "disk_avail_bytes": 232655089664
   }
 }
