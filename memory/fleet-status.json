@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T22:24:28.136Z",
+  "updated_at": "2026-03-13T22:28:29.695Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5679,
-    "subject": "Revise agentslovebitcoin.com PRD: per-address DO architecture + genesis gating",
+    "id": 5682,
+    "subject": "Email from whoabuddy (1 unread): 12-hour Review",
     "status": "completed",
-    "priority": 2
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 468183,
-    "cost_usd": 1.60333265
+    "duration_ms": 241418,
+    "cost_usd": 0.7666413000000001
   },
   "health": {
-    "uptime_seconds": 1383166,
+    "uptime_seconds": 1383408,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232630763520
+    "disk_avail_bytes": 232630648832
   }
 }
