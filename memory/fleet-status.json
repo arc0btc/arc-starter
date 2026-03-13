@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T21:10:07.264Z",
+  "updated_at": "2026-03-13T21:10:43.627Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5658,
-    "subject": "ALB Phase 2: Build agentslovebitcoin.com Worker (arc0btc/agents-love-bitcoin)",
+    "id": 5660,
+    "subject": "housekeeping: 1 issue(s) detected",
     "status": "completed",
-    "priority": 3
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 563612,
-    "cost_usd": 3.35782685
+    "duration_ms": 36199,
+    "cost_usd": 0.06763185
   },
   "health": {
-    "uptime_seconds": 1378706,
+    "uptime_seconds": 1378742,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232641769472
+    "disk_avail_bytes": 232641728512
   }
 }
