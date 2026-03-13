@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T07:11:47.158Z",
-  "idle": true,
-  "idle_since": "2026-03-13T07:06:44.917Z",
+  "updated_at": "2026-03-13T07:14:46.782Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5523,
-    "subject": "Sensor validation: 1 sensor(s) need export pattern fix",
+    "id": 5524,
+    "subject": "Email from whoabuddy (1 unread): Preparing to Restart the Fleet",
     "status": "completed",
-    "priority": 8
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 44117,
-    "cost_usd": 0.14079075
+    "duration_ms": 119272,
+    "cost_usd": 0.25003230000000004
   },
   "health": {
-    "uptime_seconds": 1328406,
+    "uptime_seconds": 1328585,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233234907136
+    "disk_avail_bytes": 233234825216
   }
 }
