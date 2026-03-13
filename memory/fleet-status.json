@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T22:03:04.349Z",
+  "updated_at": "2026-03-13T22:04:41.784Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5674,
-    "subject": "Revise agents-love-bitcoin PRD: per-address Durable Objects + MCP/skills funnel",
+    "id": 5671,
+    "subject": "Review PR #135 on aibtcdev/skills: feat(skills): migrate to agentskills.io spec compliance",
     "status": "completed",
-    "priority": 3
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 274301,
-    "cost_usd": 0.9995590999999999
+    "duration_ms": 97283,
+    "cost_usd": 0.370836
   },
   "health": {
-    "uptime_seconds": 1381883,
+    "uptime_seconds": 1381980,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232631410688
+    "disk_avail_bytes": 232631341056
   }
 }
