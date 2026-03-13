@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T19:15:49.448Z",
+  "updated_at": "2026-03-13T19:18:48.312Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5641,
-    "subject": "Add tenero market analytics skill to landing page skills catalog and llms.txt",
+    "id": 5642,
+    "subject": "Document mcp-tools SKILL.md frontmatter field in landing page agent docs",
     "status": "completed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 169352,
-    "cost_usd": 0.73432785
+    "duration_ms": 178697,
+    "cost_usd": 0.7526542500000002
   },
   "health": {
-    "uptime_seconds": 1371848,
+    "uptime_seconds": 1372027,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232648404992
+    "disk_avail_bytes": 232648220672
   }
 }
