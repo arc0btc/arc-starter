@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T13:17:41.821Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-13T13:24:11.895Z",
+  "idle": true,
+  "idle_since": "2026-03-13T13:19:10.624Z",
   "last_task": {
-    "id": 5575,
-    "subject": "Sensor validation: 1 sensor(s) need export pattern fix",
+    "id": 5578,
+    "subject": "Retrospective: extract learnings from task #5576 — Email from whoabuddy (1 unread, 4 total): Re: AIBTC News Bri",
     "status": "completed",
     "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 31823,
-    "cost_usd": 0.12575699999999998
+    "duration_ms": 49572,
+    "cost_usd": 0.059413799999999996
   },
   "health": {
-    "uptime_seconds": 1350360,
+    "uptime_seconds": 1350750,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232661897216
+    "disk_avail_bytes": 232661807104
   }
 }
