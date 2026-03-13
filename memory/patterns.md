@@ -8,6 +8,7 @@
 - **Worktrees isolation:** Dispatch creates isolated branches + Bun transpiler validates syntax before commit; reverts src/ changes if services die post-commit.
 - **Fleet topology rules:** Orchestration + GitHub sensors are Arc-only. Workers run lean self-monitoring + domain-work sensors only.
 - **Simplify before adding safety layers; use explicit gates over timers:** When iterating architecture, consolidate first. Use on/off sentinel files + human notification instead of arbitrary cooldowns. Export gate state to sensors for async recovery patterns.
+- **Service health stratification:** 3-layer checks (TCP ping → /api/health endpoint → capability probe) distinguish infrastructure down vs. service crashed vs. degraded performance. Single-layer checks miss failure modes; combines with WorkerConfig abstraction + unified DispatchResult for multi-backend dispatch.
 
 ## Sensor Patterns
 
@@ -25,6 +26,7 @@
 - **Model tier unavailability forces re-routing:** Document impact; work must defer, degrade quality, or decompose for available tiers.
 - **Optional feature graceful degradation:** Design tasks so missing optional capability (API key, external service) skips the feature without blocking core work. Document skip in result_summary.
 - **Subagent context validation:** When tasks involve identity verification or dispatch context integrity, run a parallel subagent (Sonnet minimum) with identical file access + prompt. Convergent answers validate context loading; divergence flags context wiring bugs.
+- **Earned trust model routes work to agents:** Trust earned through demonstrated competence (6-signal eval: uptime, error rate, completion, output quality, safety, specialization). 4 tiers map to priority: untested→junior→mid→senior→autonomous. New workers route through validation phase before P1 assignment.
 
 ## Task Chaining & Precondition Gates
 
