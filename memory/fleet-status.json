@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T18:46:19.225Z",
+  "updated_at": "2026-03-13T18:48:31.202Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5633,
-    "subject": "Review PR #131 on aibtcdev/skills: chore(main): release skills 0.21.0",
+    "id": 5634,
+    "subject": "Review PR #296 on aibtcdev/aibtc-mcp-server: feat: add skill references and relay recovery tools",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 26480,
-    "cost_usd": 0.18130530000000003
+    "duration_ms": 98186,
+    "cost_usd": 0.2603799
   },
   "health": {
-    "uptime_seconds": 1370078,
+    "uptime_seconds": 1370210,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232649682944
+    "disk_avail_bytes": 232649613312
   }
 }
