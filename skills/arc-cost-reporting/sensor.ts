@@ -21,43 +21,46 @@ function buildReport(today: string): string {
 
   const summary = db.query(`
     SELECT COALESCE(SUM(cost_usd), 0) as total_cost,
+           COALESCE(SUM(api_cost_usd), 0) as total_api_cost,
            COALESCE(SUM(tokens_in + tokens_out), 0) as total_tokens,
            COUNT(*) as task_count
     FROM tasks WHERE date(created_at) = date('now')
-  `).get() as { total_cost: number; total_tokens: number; task_count: number };
+  `).get() as { total_cost: number; total_api_cost: number; total_tokens: number; task_count: number };
 
   const topByCost = db.query(`
-    SELECT id, subject, cost_usd, (tokens_in + tokens_out) as tokens, model
+    SELECT id, subject, cost_usd, api_cost_usd, (tokens_in + tokens_out) as tokens, model
     FROM tasks WHERE date(created_at) = date('now') AND cost_usd > 0
     ORDER BY cost_usd DESC LIMIT 5
-  `).all() as Array<{ id: number; subject: string; cost_usd: number; tokens: number; model: string | null }>;
+  `).all() as Array<{ id: number; subject: string; cost_usd: number; api_cost_usd: number; tokens: number; model: string | null }>;
 
   const topByTokens = db.query(`
-    SELECT id, subject, cost_usd, (tokens_in + tokens_out) as tokens, model
+    SELECT id, subject, cost_usd, api_cost_usd, (tokens_in + tokens_out) as tokens, model
     FROM tasks WHERE date(created_at) = date('now') AND (tokens_in + tokens_out) > 0
     ORDER BY (tokens_in + tokens_out) DESC LIMIT 5
-  `).all() as Array<{ id: number; subject: string; cost_usd: number; tokens: number; model: string | null }>;
+  `).all() as Array<{ id: number; subject: string; cost_usd: number; api_cost_usd: number; tokens: number; model: string | null }>;
 
   const topSkills = db.query(`
     SELECT skills,
            COALESCE(SUM(cost_usd), 0) as total_cost,
+           COALESCE(SUM(api_cost_usd), 0) as total_api_cost,
            COALESCE(SUM(tokens_in + tokens_out), 0) as total_tokens,
            COUNT(*) as task_count
     FROM tasks WHERE date(created_at) = date('now') AND cost_usd > 0
     GROUP BY skills ORDER BY total_cost DESC LIMIT 5
-  `).all() as Array<{ skills: string | null; total_cost: number; total_tokens: number; task_count: number }>;
+  `).all() as Array<{ skills: string | null; total_cost: number; total_api_cost: number; total_tokens: number; task_count: number }>;
 
   // Fetch sensor-sourced tasks and aggregate by sensor name in TypeScript
   const sensorRows = db.query(`
-    SELECT source, cost_usd, (tokens_in + tokens_out) as tokens
+    SELECT source, cost_usd, api_cost_usd, (tokens_in + tokens_out) as tokens
     FROM tasks WHERE date(created_at) = date('now') AND source LIKE 'sensor:%' AND cost_usd > 0
-  `).all() as Array<{ source: string; cost_usd: number; tokens: number }>;
+  `).all() as Array<{ source: string; cost_usd: number; api_cost_usd: number; tokens: number }>;
 
-  const sensorMap = new Map<string, { total_cost: number; total_tokens: number; task_count: number }>();
+  const sensorMap = new Map<string, { total_cost: number; total_api_cost: number; total_tokens: number; task_count: number }>();
   for (const row of sensorRows) {
     const name = row.source.slice(7).split(":")[0];
-    const s = sensorMap.get(name) ?? { total_cost: 0, total_tokens: 0, task_count: 0 };
+    const s = sensorMap.get(name) ?? { total_cost: 0, total_api_cost: 0, total_tokens: 0, task_count: 0 };
     s.total_cost += row.cost_usd;
+    s.total_api_cost += row.api_cost_usd;
     s.total_tokens += row.tokens;
     s.task_count += 1;
     sensorMap.set(name, s);
@@ -70,7 +73,8 @@ function buildReport(today: string): string {
   lines.push(`## Daily Cost Report — ${today}`);
   lines.push("");
   lines.push(
-    `**Total:** $${summary.total_cost.toFixed(4)} | ` +
+    `**Total:** Code $${summary.total_cost.toFixed(4)} | ` +
+    `API est. $${summary.total_api_cost.toFixed(4)} | ` +
     `${(summary.total_tokens / 1000).toFixed(1)}k tokens | ` +
     `${summary.task_count} tasks`
   );
@@ -80,7 +84,9 @@ function buildReport(today: string): string {
     lines.push("### Top Tasks by Cost");
     for (const t of topByCost) {
       const sub = t.subject.length > 55 ? t.subject.slice(0, 52) + "..." : t.subject;
-      lines.push(`- #${t.id} $${t.cost_usd.toFixed(4)} [${t.model ?? "unknown"}] — ${sub}`);
+      lines.push(
+        `- #${t.id} Code $${t.cost_usd.toFixed(4)} (API $${t.api_cost_usd.toFixed(4)}) [${t.model ?? "unknown"}] — ${sub}`
+      );
     }
     lines.push("");
   }
@@ -89,7 +95,9 @@ function buildReport(today: string): string {
     lines.push("### Top Tasks by Tokens");
     for (const t of topByTokens) {
       const sub = t.subject.length > 55 ? t.subject.slice(0, 52) + "..." : t.subject;
-      lines.push(`- #${t.id} ${(t.tokens / 1000).toFixed(1)}k tokens ($${t.cost_usd.toFixed(4)}) — ${sub}`);
+      lines.push(
+        `- #${t.id} ${(t.tokens / 1000).toFixed(1)}k tokens — Code $${t.cost_usd.toFixed(4)} (API $${t.api_cost_usd.toFixed(4)}) — ${sub}`
+      );
     }
     lines.push("");
   }
@@ -107,7 +115,7 @@ function buildReport(today: string): string {
         }
       }
       lines.push(
-        `- ${label}: $${s.total_cost.toFixed(4)} | ` +
+        `- ${label}: Code $${s.total_cost.toFixed(4)} (API $${s.total_api_cost.toFixed(4)}) | ` +
         `${(s.total_tokens / 1000).toFixed(1)}k tokens | ` +
         `${s.task_count} tasks`
       );
@@ -119,7 +127,7 @@ function buildReport(today: string): string {
     lines.push("### Top Sensors by Cost");
     for (const [name, stats] of topSensors) {
       lines.push(
-        `- ${name}: $${stats.total_cost.toFixed(4)} | ` +
+        `- ${name}: Code $${stats.total_cost.toFixed(4)} (API $${stats.total_api_cost.toFixed(4)}) | ` +
         `${(stats.total_tokens / 1000).toFixed(1)}k tokens | ` +
         `${stats.task_count} tasks`
       );
