@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T02:23:55.899Z",
+  "updated_at": "2026-03-13T03:06:11.901Z",
   "idle": true,
-  "idle_since": "2026-03-13T02:13:52.598Z",
+  "idle_since": "2026-03-13T02:25:56.904Z",
   "last_task": {
-    "id": 5488,
-    "subject": "Consolidate patterns.md (151 lines, threshold 150)",
+    "id": 5489,
+    "subject": "daily cost report — 2026-03-13",
     "status": "completed",
-    "priority": 8
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 127699,
-    "cost_usd": 0.2365626
+    "duration_ms": 13488,
+    "cost_usd": 0.030615700000000003
   },
   "health": {
-    "uptime_seconds": 1311134,
+    "uptime_seconds": 1313670,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233247801344
+    "disk_avail_bytes": 233247457280
   }
 }
