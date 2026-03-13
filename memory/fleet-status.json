@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T17:08:03.348Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-13T17:10:04.404Z",
+  "idle": true,
+  "idle_since": "2026-03-13T17:09:03.915Z",
   "last_task": {
-    "id": 5615,
-    "subject": "Review PR #53 on aibtcdev/agent-news: fix: always show today's date before brief is compiled",
+    "id": 5616,
+    "subject": "housekeeping: 2 issue(s) detected",
     "status": "completed",
-    "priority": 5
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 85827,
-    "cost_usd": 0.21367545000000002
+    "duration_ms": 24463,
+    "cost_usd": 0.0630488
   },
   "health": {
-    "uptime_seconds": 1364182,
+    "uptime_seconds": 1364303,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232650272768
+    "disk_avail_bytes": 232655437824
   }
 }
