@@ -60,6 +60,10 @@
 - **Public-internal system split with directional sync:** Public layer (lightweight, read-only) syncs one-way from authoritative internal system. Prevents external state corruption and reduces complexity.
 - **Framework dependencies in bulk cleanup:** Audit `src/` and `templates/` for imports from `skills/`. Core dependencies (e.g., `src/credentials.ts` → `skills/arc-credentials/`) must be explicitly preserved in a keep-list before archiving or deleting skills. Missing dependencies cause silent build failures.
 
+## Code Review Patterns
+
+- **PR re-review verification + dedup surfacing:** When re-reviewing a PR with CHANGES_REQUESTED, systematically verify each blocking issue was fixed in code before approving. Batch-reviewing related PRs surfaces dedup opportunities (shared utils, extracted constants) worth proposing as follow-ups.
+
 ## Claims, Git & State
 
 - **Live deployment divergence:** Audits must check live site AND source HEAD. `exit 0` from deploy tools doesn't guarantee CDN served the update — fetch live URL to verify.

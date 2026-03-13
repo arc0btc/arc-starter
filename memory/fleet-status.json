@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T20:39:39.647Z",
-  "idle": true,
-  "idle_since": "2026-03-13T20:27:35.148Z",
+  "updated_at": "2026-03-13T20:42:31.865Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5654,
-    "subject": "daily cost report — 2026-03-13",
+    "id": 5655,
+    "subject": "Can you re-review and clear the requested changes if fixed for aibtcdev/landing-page PRs 378 and 379?",
     "status": "completed",
-    "priority": 9
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 19396,
-    "cost_usd": 0.0354611
+    "duration_ms": 111878,
+    "cost_usd": 0.7656044999999999
   },
   "health": {
-    "uptime_seconds": 1376878,
+    "uptime_seconds": 1377050,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232646877184
+    "disk_avail_bytes": 232646803456
   }
 }
