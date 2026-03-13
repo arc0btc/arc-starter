@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T19:38:45.400Z",
+  "updated_at": "2026-03-13T19:59:52.893Z",
   "idle": true,
-  "idle_since": "2026-03-13T19:27:41.901Z",
+  "idle_since": "2026-03-13T19:40:45.767Z",
   "last_task": {
-    "id": 5645,
-    "subject": "daily cost report — 2026-03-13",
+    "id": 5646,
+    "subject": "Regenerate and deploy skills/sensors catalog",
     "status": "completed",
-    "priority": 9
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 38766,
-    "cost_usd": 0.07698295
+    "duration_ms": 59945,
+    "cost_usd": 0.1848135
   },
   "health": {
-    "uptime_seconds": 1373224,
+    "uptime_seconds": 1374491,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232647884800
+    "disk_avail_bytes": 232647684096
   }
 }
