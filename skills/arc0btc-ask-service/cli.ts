@@ -270,7 +270,7 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((err) => {
-  process.stderr.write(`Error: ${err}\n`);
+main().catch((error) => {
+  process.stderr.write(`Error: ${error}\n`);
   process.exit(1);
 });

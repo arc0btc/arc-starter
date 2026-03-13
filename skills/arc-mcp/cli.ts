@@ -52,8 +52,8 @@ function taskSummary(t: Task): Record<string, unknown> {
 
 const server = Bun.serve({
   port,
-  fetch(req: Request): Response {
-    const url = new URL(req.url);
+  fetch(request: Request): Response {
+    const url = new URL(request.url);
     const path = url.pathname;
 
     // Health check

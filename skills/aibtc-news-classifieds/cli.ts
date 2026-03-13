@@ -175,13 +175,13 @@ async function buildAuthHeaders(
   method: string,
   path: string
 ): Promise<Record<string, string>> {
-  const ts = Math.floor(Date.now() / 1000);
-  const message = `${method} /api${path}:${ts}`;
+  const timestamp = Math.floor(Date.now() / 1000);
+  const message = `${method} /api${path}:${timestamp}`;
   const sig = await signMessage(message);
   return {
     "X-BTC-Address": ARC_BTC_ADDRESS,
     "X-BTC-Signature": sig,
-    "X-BTC-Timestamp": String(ts),
+    "X-BTC-Timestamp": String(timestamp),
     "Content-Type": "application/json",
   };
 }

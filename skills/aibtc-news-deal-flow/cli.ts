@@ -15,8 +15,8 @@ const SATS_AUCTION_MIN_SATS = 50_000;
 const X402_WEEKLY_VOLUME_USD = 5_000_000;
 const DAO_TREASURY_CHANGE_BTC = 1.0;
 
-function log(msg: string): void {
-  console.error(`[${new Date().toISOString()}] [deal-flow/cli] ${msg}`);
+function log(message: string): void {
+  console.error(`[${new Date().toISOString()}] [deal-flow/cli] ${message}`);
 }
 
 function parseFlags(args: string[]): Record<string, string> {
@@ -67,8 +67,8 @@ async function cmdCheck(): Promise<void> {
       process.stdout.write(`   signal: ${fired ? "YES — would queue filing task" : "no"}\n`);
       results.push({ hook: "ordinals-volume", status: "ok", value: `$${Math.round(volumeUsd).toLocaleString()}`, threshold: `>=$${ORDINALS_WEEKLY_VOLUME_USD.toLocaleString()}`, fired });
     } catch (e) {
-      const err = e as Error;
-      process.stdout.write(`   status: ERROR — ${err.message}\n`);
+      const error = e as Error;
+      process.stdout.write(`   status: ERROR — ${error.message}\n`);
       results.push({ hook: "ordinals-volume", status: "error", threshold: `>=$${ORDINALS_WEEKLY_VOLUME_USD.toLocaleString()}`, fired: false });
     }
   }
@@ -94,8 +94,8 @@ async function cmdCheck(): Promise<void> {
       process.stdout.write(`   signal: ${fired ? "YES — would queue filing task" : "no"}\n`);
       results.push({ hook: "sats-auctions", status: "ok", value: `${topSats.toLocaleString()} sats`, threshold: `>=${SATS_AUCTION_MIN_SATS.toLocaleString()} sats`, fired });
     } catch (e) {
-      const err = e as Error;
-      process.stdout.write(`   status: ERROR — ${err.message}\n`);
+      const error = e as Error;
+      process.stdout.write(`   status: ERROR — ${error.message}\n`);
       results.push({ hook: "sats-auctions", status: "error", threshold: `>=${SATS_AUCTION_MIN_SATS.toLocaleString()} sats`, fired: false });
     }
   }
@@ -117,8 +117,8 @@ async function cmdCheck(): Promise<void> {
       const txs = (data?.results as Array<Record<string, unknown>>) || [];
       const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
       const weeklyTxs = txs.filter((tx) => {
-        const ts = (tx.burn_block_time_iso as string) || "";
-        return ts && new Date(ts).getTime() > cutoff;
+        const timestamp = (tx.burn_block_time_iso as string) || "";
+        return timestamp && new Date(timestamp).getTime() > cutoff;
       });
       const totalMicroStx = weeklyTxs.reduce((sum, tx) => {
         const events = (tx.events as Array<Record<string, unknown>>) || [];
@@ -133,8 +133,8 @@ async function cmdCheck(): Promise<void> {
       process.stdout.write(`   signal: ${fired ? "YES — would queue filing task" : "no"}\n`);
       results.push({ hook: "x402-escrow", status: "ok", value: `$${Math.round(volumeUsd).toLocaleString()}`, threshold: `>=$${X402_WEEKLY_VOLUME_USD.toLocaleString()}`, fired });
     } catch (e) {
-      const err = e as Error;
-      process.stdout.write(`   status: ERROR — ${err.message}\n`);
+      const error = e as Error;
+      process.stdout.write(`   status: ERROR — ${error.message}\n`);
       results.push({ hook: "x402-escrow", status: "error", threshold: `>=$${X402_WEEKLY_VOLUME_USD.toLocaleString()}`, fired: false });
     }
   }
@@ -175,8 +175,8 @@ async function cmdCheck(): Promise<void> {
       process.stdout.write(`   signal: ${fired ? "YES — would queue filing task" : "no"}\n`);
       results.push({ hook: "dao-treasury", status: "ok", value: `${btcBalance.toFixed(4)} BTC`, threshold: `>=${DAO_TREASURY_CHANGE_BTC} BTC change`, fired });
     } catch (e) {
-      const err = e as Error;
-      process.stdout.write(`   status: ERROR — ${err.message}\n`);
+      const error = e as Error;
+      process.stdout.write(`   status: ERROR — ${error.message}\n`);
       results.push({ hook: "dao-treasury", status: "error", threshold: `>=${DAO_TREASURY_CHANGE_BTC} BTC change`, fired: false });
     }
   }
@@ -209,10 +209,10 @@ async function cmdStatus(): Promise<void> {
     process.stdout.write(`${check.label}:\n`);
     process.stdout.write(`  last run: ${lastRun}\n`);
     if (check.valueKey && hookState[check.valueKey] !== undefined) {
-      const val = hookState[check.valueKey] as number;
+      const value = hookState[check.valueKey] as number;
       const formatted = check.unit === "USD"
-        ? `$${Math.round(val).toLocaleString()}`
-        : `${val.toFixed(4)} ${check.unit}`;
+        ? `$${Math.round(value).toLocaleString()}`
+        : `${value.toFixed(4)} ${check.unit}`;
       process.stdout.write(`  last value: ${formatted}\n`);
     }
   }

@@ -98,8 +98,8 @@ async function cmdStatus(): Promise<void> {
         process.stdout.write(`  (error: ${result.stderr || "unknown"})\n`);
       }
     } catch (e) {
-      const err = e as Error;
-      process.stdout.write(`  (error: ${err.message})\n`);
+      const error = e as Error;
+      process.stdout.write(`  (error: ${error.message})\n`);
     }
     process.stdout.write("\n");
   }
@@ -210,7 +210,7 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((err) => {
-  process.stderr.write(`Error: ${err}\n`);
+main().catch((error) => {
+  process.stderr.write(`Error: ${error}\n`);
   process.exit(1);
 });
