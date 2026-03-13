@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T17:41:06.711Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-13T17:46:24.919Z",
+  "idle": true,
+  "idle_since": "2026-03-13T17:42:23.244Z",
   "last_task": {
-    "id": 5619,
-    "subject": "GitHub issue in aibtcdev/skills#128: feat: add mcp-tools field to SKILL.md frontmatter",
+    "id": 5620,
+    "subject": "GitHub issue in aibtcdev/aibtc-mcp-server#295: feat: add skill references to MCP tool definitions",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 69688,
-    "cost_usd": 0.22325505
+    "duration_ms": 76310,
+    "cost_usd": 0.232197
   },
   "health": {
-    "uptime_seconds": 1366165,
+    "uptime_seconds": 1366483,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232650911744
+    "disk_avail_bytes": 232650833920
   }
 }
