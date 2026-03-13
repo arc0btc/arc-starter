@@ -37,7 +37,7 @@ const USAGE = {
     '              [--skills SKILL1,SKILL2] [--parent ID] [--model opus|sonnet|haiku|codex|codex:<model>]\n' +
     '              [--defer DURATION | --scheduled-for ISO_DATETIME]',
   tasksUpdate:
-    'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--model opus|sonnet|haiku|codex|codex:<model>] [--status pending]',
+    'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--skills S1,S2] [--model opus|sonnet|haiku|codex|codex:<model>] [--status pending]',
   tasksClose:
     'arc tasks close --id N --status completed|failed|blocked --summary TEXT',
   tasksDeps: 'arc tasks deps --id N',
@@ -320,6 +320,14 @@ function cmdTasksUpdate(args: string[]): void {
   const priority = flags["priority"] ? parseInt(flags["priority"], 10) : undefined;
   const model = flags["model"] ?? undefined;
   const status = flags["status"] ?? undefined;
+  const skillsRaw = flags["skills"];
+  // Normalize --skills: comma-separated string → JSON array, or null to clear
+  const skills =
+    skillsRaw === undefined
+      ? undefined
+      : skillsRaw === ""
+        ? null
+        : JSON.stringify(skillsRaw.split(",").map((s) => s.trim()).filter(Boolean));
 
   if (priority !== undefined && isNaN(priority)) {
     process.stderr.write("Error: --priority must be a number\n" + usage);
@@ -331,9 +339,9 @@ function cmdTasksUpdate(args: string[]): void {
     process.exit(1);
   }
 
-  if (subject === undefined && description === undefined && priority === undefined && model === undefined && status === undefined) {
+  if (subject === undefined && description === undefined && priority === undefined && model === undefined && skills === undefined && status === undefined) {
     process.stderr.write(
-      "Error: at least one of --subject, --description, --priority, --model, or --status is required\n" + usage
+      "Error: at least one of --subject, --description, --priority, --skills, --model, or --status is required\n" + usage
     );
     process.exit(1);
   }
@@ -346,8 +354,8 @@ function cmdTasksUpdate(args: string[]): void {
     process.exit(1);
   }
 
-  if (subject !== undefined || description !== undefined || priority !== undefined || model !== undefined) {
-    updateTask(id, { subject, description, priority, model });
+  if (subject !== undefined || description !== undefined || priority !== undefined || model !== undefined || skills !== undefined) {
+    updateTask(id, { subject, description, priority, model, skills });
   }
   if (status === "pending") {
     requeueTask(id);
@@ -357,6 +365,7 @@ function cmdTasksUpdate(args: string[]): void {
   if (subject !== undefined) updated.push("subject");
   if (description !== undefined) updated.push("description");
   if (priority !== undefined) updated.push("priority");
+  if (skills !== undefined) updated.push("skills");
   if (model !== undefined) updated.push("model");
   if (status !== undefined) updated.push("status → pending");
   process.stdout.write(`Updated task #${id}: ${updated.join(", ")}\n`);

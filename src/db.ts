@@ -666,6 +666,7 @@ export interface UpdateTaskFields {
   description?: string | null;
   priority?: number;
   model?: string | null;
+  skills?: string | null;
 }
 
 export function updateTask(id: number, fields: UpdateTaskFields): void {
