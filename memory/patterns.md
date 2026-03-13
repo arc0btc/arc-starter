@@ -14,9 +14,11 @@
 
 - **Gate → Dedup → Create pattern:** All well-designed sensors: interval gate (`claimSensorRun`), state dedup (hook-state or task check), then task creation.
 - **Sensor state dedup timing: verify completion, not creation:** Mark state "done" only after verifying task completion in DB (`completedTaskCountForSource()`), not on task creation. Creation-time marking blocks retries permanently.
+- **Dedup window scope: block pending AND recent completions:** Dedup checking only pending tasks misses recently-completed ones, causing immediate re-queue on next sensor run. Use a time window (e.g., `recentTaskExistsForSourcePrefix(source, 23*60)`) to block both pending and recent completions.
 - **Dedup key scope: entity-based, not reason-based:** Dedup evaluation must be uniform across all event reasons for the same entity (PR ID, contact ID). Reason-scoped dedup misses events for already-seen entities.
 - **Multi-item dedup: check against newest item:** When checking if an action was taken on a batch (e.g., replies to sender), compare against `Math.max(...timestamps)`, not oldest. Newer arrivals after an earlier reply get skipped otherwise.
 - **Capability outage → sentinel + gate all downstream sensors:** On plan suspension, API exhaustion, or account ban, write a sentinel file (e.g., `db/x-credits-depleted.json`) and check it in every affected sensor. System-wide propagation prevents cascading failures and child-task explosion.
+- **Skill effectiveness proactive monitoring:** Add a dedicated sensor that scans skills for underperformance (e.g., >10 samples with <70% completion rate in 7 days) and queues maintenance tasks automatically. Surfaces skills needing attention before they become operational problems.
 
 ## Task & Model Routing
 
