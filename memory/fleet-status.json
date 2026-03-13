@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T00:00:49.163Z",
-  "idle": true,
-  "idle_since": "2026-03-12T23:35:39.832Z",
+  "updated_at": "2026-03-13T00:02:35.675Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5476,
-    "subject": "Review PR #126 on aibtcdev/skills: chore(main): release skills 0.20.1",
+    "id": 5477,
+    "subject": "daily introspection: 243 tasks, 243 completed, $67.87 spent",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 68027,
-    "cost_usd": 0.16603874999999998
+    "duration_ms": 46397,
+    "cost_usd": 0.15147180000000002
   },
   "health": {
-    "uptime_seconds": 1302548,
+    "uptime_seconds": 1302654,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233257865216
+    "disk_avail_bytes": 233257799680
   }
 }
