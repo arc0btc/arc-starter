@@ -10,6 +10,7 @@
 - **Simplify before adding safety layers; use explicit gates over timers:** When iterating architecture, consolidate first. Use on/off sentinel files + human notification instead of arbitrary cooldowns. Export gate state to sensors for async recovery patterns.
 - **Service health stratification:** 3-layer checks (TCP ping → /api/health endpoint → capability probe) distinguish infrastructure down vs. service crashed vs. degraded performance. Single-layer checks miss failure modes; combines with WorkerConfig abstraction + unified DispatchResult for multi-backend dispatch.
 - **Interface + registry pattern for multi-impl systems:** When multiple implementations of a service exist with conditional if/else chains in core code, extract a clean interface + registry to decouple routing from implementation. Enables adding new backends/drivers/adapters without modifying dispatch logic. Each implementation owns its own timeout, retry, and output parsing.
+- **Architectural refactoring as pre-staging for multi-agent work:** When planning multi-agent or multi-instance deployment, propose interface/registry refactoring as a separate, explicitly-sequenced phase that isn't blocking immediate single-agent work but prepares clean architecture for later expansion. Communicate concrete scope (LOC, file count, time estimate) and dependency graph (Phase 1 prerequisite, Phase 2 pre-staging) to enable stakeholders to sequence around operational events (e.g., suspension/resume cycles). Separates "helpful to have" from "blocking to proceed."
 
 ## Sensor Patterns
 
