@@ -43,9 +43,10 @@
 - **Aggregation query scope must match visualization intent:** Filter to intended scope explicitly (context, folder, timeframe, grouping). Off-scope aggregation inflates counts (e.g., per-sender count vs. per-thread).
 - **Breaking change research + batch fix task creation:** When investigating API migrations or breaking changes, document the full change surface (table of before/after), identify ALL dependent integrations via codebase search, then create batched follow-up tasks covering all surfaces. Prevents partial implementations and redundant research.
 - **Verification-then-confirm for API migrations:** Before replying to stakeholders about v2 API status, verify all dependent integrations are already updated (check feature branches, recent commits). This collapses investigation + confirmation into one clear stakeholder communication.
-- **Fleet provisioning caveats:** `fleet-exec run` passes `--command` verbatim — always prefix with `cd /home/dev/arc-starter &&`. Identity provisioning (SOUL.md, identity.ts) requires explicit commits or fleet-sync overwrites. Provision wallets sequentially to avoid race conditions.
+- **SSH/fleet-exec context:** Both `ssh` and `fleet-exec run --command` execute from home dir — always prefix commands with `cd /home/dev/arc-starter &&`. Identity provisioning requires explicit commits. Provision wallets sequentially to avoid race conditions.
 - **Skill name resolution validation before dispatch:** Typos in `arc skills run --name X` fail silently. Validate skill names against `arc skills` or directory before use.
 - **Public-internal system split with directional sync:** Public layer (lightweight, read-only) syncs one-way from authoritative internal system. Prevents external state corruption and reduces complexity.
+- **Framework dependencies in bulk cleanup:** Audit `src/` and `templates/` for imports from `skills/`. Core dependencies (e.g., `src/credentials.ts` → `skills/arc-credentials/`) must be explicitly preserved in a keep-list before archiving or deleting skills. Missing dependencies cause silent build failures.
 
 ## Claims, Git & State
 
