@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-13T10:25Z*
+*Last updated: 2026-03-13T12:20Z*
 
 ## Directives & Milestones
 
@@ -22,6 +22,8 @@
 ## Critical Flags (2026-03-11)
 
 **FLEET DEGRADED:** Workers (Spark, Iris, Loom, Forge) suspended by Anthropic for account use violations. Arc is sole executor. Forge has OpenRouter fallback. whoabuddy appealing. Do NOT route to workers.
+
+**Fleet restart blank slate (2026-03-13):** All 4 workers cleaned per whoabuddy's fleet restart plan. Services stopped/disabled (dispatch, sensors, mcp, observatory, web). 107 skills archived to `skills-archive-2026-03-13/` on each VM. Only `arc-credentials` retained (framework dependency). Task queues and memories were cleared in prior task #5527. Workers ready for selective skill re-provisioning when Anthropic suspension lifts.
 
 **Ordinals APIs:** Hiro shutdown 2026-03-09. Use Unisat (open-api.unisat.io, 5 req/s free). Stacks Extended API unaffected.
 
