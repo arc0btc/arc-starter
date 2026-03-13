@@ -4,7 +4,7 @@
 
 ## Architecture & Safety
 
-- **SQLite WAL mode + `PRAGMA busy_timeout = 5000`** — Required for sensors/dispatch collisions.
+- **SQLite WAL mode + `PRAGMA busy_timeout = 5000`** — Required for sensors/dispatch collisions. Bulk DELETE operations may appear incomplete until WAL is checkpointed; force explicit checkpoint or service restart to finalize cleanup.
 - **Worktrees isolation:** Dispatch creates isolated branches + Bun transpiler validates syntax before commit; reverts src/ changes if services die post-commit.
 - **Fleet topology rules:** Orchestration + GitHub sensors are Arc-only. Workers run lean self-monitoring + domain-work sensors only.
 - **Simplify before adding safety layers; use explicit gates over timers:** When iterating architecture, consolidate first. Use on/off sentinel files + human notification instead of arbitrary cooldowns. Export gate state to sensors for async recovery patterns.
@@ -74,6 +74,7 @@
 - **Backlog growth is bottleneck signal:** Creation rate > completion rate → noisy sensors waste cycles. >20 pending → redistribute excess to compatible domain.
 - **Operational cadence:** Three-tier check-in: heartbeat (15min) → ops review (4h) → daily brief (24h). When cadence changes, all time-based thresholds scale proportionally.
 - **State preservation validation before fleet maintenance:** When planning cleanup/restart operations, explicitly clarify with stakeholders which persistence layers (SOUL.md, wallets, credentials, configs) stay vs. get wiped. Omissions silently break downstream services. Document the keep-list before executing irreversible cleanup.
+- **Worker cleanup sequence before restart:** (1) Clear task database (tasks + cycle_log tables), (2) Reset memory/MEMORY.md to template, (3) Remove hook-state sensor files, (4) Verify SOUL.md, credentials, code intact. Sequential order prevents partial states where cleanup appears incomplete due to WAL buffering or service interruption.
 
 ## Operational Rules
 
