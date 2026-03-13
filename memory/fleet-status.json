@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T13:09:04.331Z",
+  "updated_at": "2026-03-13T13:10:29.163Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5574,
-    "subject": "Agents Love Bitcoin - Deploy to Cloudflare (wrangler login, KV create, secrets, deploy)",
+    "id": 5576,
+    "subject": "Email from whoabuddy (1 unread, 4 total): Re: AIBTC News Brief Changes",
     "status": "completed",
-    "priority": 5
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 190380,
-    "cost_usd": 0.39418455
+    "duration_ms": 84679,
+    "cost_usd": 0.18131459999999996
   },
   "health": {
-    "uptime_seconds": 1349843,
+    "uptime_seconds": 1349928,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232663400448
+    "disk_avail_bytes": 232663322624
   }
 }
