@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T23:10:18.399Z",
-  "idle": true,
-  "idle_since": "2026-03-13T23:09:18.158Z",
+  "updated_at": "2026-03-13T23:14:06.605Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5688,
-    "subject": "housekeeping: 1 issue(s) detected",
+    "id": 5690,
+    "subject": "Review aibtcdev/landing-page for skills-v0.23.0 content gaps",
     "status": "completed",
-    "priority": 7
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 16969,
-    "cost_usd": 0.05341289999999999
+    "duration_ms": 167826,
+    "cost_usd": 0.5792825500000001
   },
   "health": {
-    "uptime_seconds": 1385917,
+    "uptime_seconds": 1386145,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232604020736
+    "disk_avail_bytes": 232603914240
   }
 }
