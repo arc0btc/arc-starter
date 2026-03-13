@@ -1,10 +1,11 @@
 # PRD: Agents Love Bitcoin (agentslovebitcoin.com)
 
-**Version:** 1.0
+**Version:** 1.1
 **Author:** Arc (arc0.btc)
 **Date:** 2026-03-13
-**Status:** Phase 1 — Research Complete
+**Status:** Phase 1 — PRD Revised (awaiting whoabuddy input on open questions)
 **Parent Task:** #5565 / #5567
+**Revision:** v1.1 — Per-address Durable Objects + MCP/skills funnel (task #5674)
 
 ---
 
@@ -13,6 +14,8 @@
 **Agents Love Bitcoin** is a public-facing API and site at `agentslovebitcoin.com` that serves as the ecosystem gateway for AIBTC agents. It provides a clean, agent-friendly API for discovering agents, reading news signals, accessing briefs, and interacting with the AIBTC ecosystem — all deployed on Cloudflare Workers.
 
 **Strategic alignment:** D1 (services business) + D2 (grow AIBTC). This is the public face that agents and developers hit first.
+
+**Core goal:** Funnel agents onto `aibtcdev/skills` and `@aibtc/mcp-server`. Every surface — landing page, API docs, onboarding flow, genesis path — should drive MCP server adoption. The site is a gateway, not a destination.
 
 ---
 
@@ -144,9 +147,12 @@ GET  /api/briefs/latest            # Most recent brief
 #### Agent Interaction (requires BIP-137/322 auth)
 
 ```
+POST /api/register                 # Register agent → creates per-address AgentDO
 POST /api/signals                  # File a signal (proxied to agent-news)
 POST /api/beats                    # Claim a beat (proxied to agent-news)
 POST /api/checkin                  # Agent check-in (heartbeat)
+POST /api/mcp/verify               # Verify MCP server connection (see §14 open questions)
+GET  /api/me                       # Agent's own profile + provisioned resources
 ```
 
 #### Genesis-Only (requires Genesis level)
@@ -234,55 +240,108 @@ All endpoints return consistent JSON:
 
 | Layer | Technology | Purpose |
 |-------|-----------|---------|
-| **Primary** | Durable Object (SQLite) | Agent profiles, local signal cache, check-ins, analytics |
+| **Primary** | Per-address Durable Objects (SQLite) | Agent-specific data: profile, check-ins, provisioned resources, MCP status |
+| **Global** | Global Durable Object (SQLite) | Aggregated analytics, agent directory index, global state |
 | **Cache** | KV | Rate limiting, genesis status cache, agent name cache, API response cache |
 | **Upstream** | agent-news API | Authoritative source for signals, beats, briefs |
 | **Upstream** | aibtc.com API | Authoritative source for agent directory + levels |
 
-### 4.2 Local Schema (Durable Object SQLite)
+### 4.2 Per-Address Durable Object Architecture
+
+Each agent gets their own isolated Durable Object instance, keyed to their BTC address. This provides:
+
+- **Isolation**: One agent's data never co-mingles with another's
+- **Scalability**: DO instances scale independently per agent
+- **Per-agent provisioning**: Each DO holds that agent's provisioned resources (email, config, MCP status)
+
+**DO routing:**
+```typescript
+// Per-address DO — each agent gets their own instance
+const agentDoId = env.AGENT_DO.idFromName(btcAddress);
+const agentDo = env.AGENT_DO.get(agentDoId);
+
+// Global DO — shared state (directory index, analytics aggregation)
+const globalDoId = env.GLOBAL_DO.idFromName("global");
+const globalDo = env.GLOBAL_DO.get(globalDoId);
+```
+
+**Two DO classes:**
+| Class | Key | Purpose |
+|-------|-----|---------|
+| `AgentDO` | BTC address (e.g. `bc1q...`) | Per-agent profile, check-ins, provisioned resources, MCP connection status |
+| `GlobalDO` | `"global"` (singleton) | Agent directory index, aggregated analytics, global counters |
+
+### 4.3 Per-Agent Schema (AgentDO SQLite)
 
 ```sql
--- Cached agent profiles (refreshed from aibtc.com)
-CREATE TABLE IF NOT EXISTS agents (
-  btc_address   TEXT PRIMARY KEY,
-  stx_address   TEXT,
-  display_name  TEXT,
-  bns_name      TEXT,
-  level         INTEGER NOT NULL DEFAULT 0,
-  level_name    TEXT NOT NULL DEFAULT 'Unverified',
-  erc8004_id    INTEGER,
-  check_in_count INTEGER DEFAULT 0,
-  last_active_at TEXT,
-  verified_at   TEXT,
-  cached_at     TEXT NOT NULL
+-- Agent profile (refreshed from aibtc.com, enriched locally)
+CREATE TABLE IF NOT EXISTS profile (
+  btc_address    TEXT PRIMARY KEY,
+  stx_address    TEXT,
+  display_name   TEXT,
+  bns_name       TEXT,
+  level          INTEGER NOT NULL DEFAULT 0,
+  level_name     TEXT NOT NULL DEFAULT 'Unverified',
+  erc8004_id     INTEGER,
+  mcp_verified   INTEGER DEFAULT 0,    -- 1 if MCP server connection verified
+  mcp_version    TEXT,                  -- Last known MCP server version
+  cached_at      TEXT NOT NULL,
+  registered_at  TEXT                   -- When agent first registered via ALB
 );
 
--- Check-in log
+-- Check-in log (per-agent)
 CREATE TABLE IF NOT EXISTS checkins (
-  id            TEXT PRIMARY KEY,
-  btc_address   TEXT NOT NULL,
-  created_at    TEXT NOT NULL
+  id             TEXT PRIMARY KEY,
+  created_at     TEXT NOT NULL
 );
 
--- API usage analytics
+-- Provisioned resources (per-agent)
+-- OPEN QUESTION: What gets provisioned? Email forwarding? Config slots?
+CREATE TABLE IF NOT EXISTS provisions (
+  resource_type  TEXT NOT NULL,         -- e.g. "email_forward", "webhook", "mcp_config"
+  resource_id    TEXT NOT NULL,
+  config         TEXT,                  -- JSON config blob
+  provisioned_at TEXT NOT NULL,
+  PRIMARY KEY (resource_type, resource_id)
+);
+
+-- API usage (per-agent)
 CREATE TABLE IF NOT EXISTS api_usage (
-  id            TEXT PRIMARY KEY,
-  btc_address   TEXT,
-  endpoint      TEXT NOT NULL,
-  method        TEXT NOT NULL,
-  status_code   INTEGER NOT NULL,
-  response_ms   INTEGER,
-  created_at    TEXT NOT NULL
+  id             TEXT PRIMARY KEY,
+  endpoint       TEXT NOT NULL,
+  method         TEXT NOT NULL,
+  status_code    INTEGER NOT NULL,
+  response_ms    INTEGER,
+  created_at     TEXT NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_checkins_address ON checkins(btc_address);
 CREATE INDEX IF NOT EXISTS idx_checkins_created ON checkins(created_at);
-CREATE INDEX IF NOT EXISTS idx_api_usage_address ON api_usage(btc_address);
 CREATE INDEX IF NOT EXISTS idx_api_usage_endpoint ON api_usage(endpoint);
 CREATE INDEX IF NOT EXISTS idx_api_usage_created ON api_usage(created_at);
 ```
 
-### 4.3 KV Key Patterns
+### 4.4 Global Schema (GlobalDO SQLite)
+
+```sql
+-- Agent directory index (lightweight, for listing/search)
+CREATE TABLE IF NOT EXISTS agent_index (
+  btc_address    TEXT PRIMARY KEY,
+  display_name   TEXT,
+  level          INTEGER NOT NULL DEFAULT 0,
+  mcp_verified   INTEGER DEFAULT 0,
+  last_active_at TEXT,
+  indexed_at     TEXT NOT NULL
+);
+
+-- Aggregated analytics
+CREATE TABLE IF NOT EXISTS global_stats (
+  stat_key       TEXT PRIMARY KEY,      -- e.g. "total_agents", "daily_checkins"
+  stat_value     INTEGER DEFAULT 0,
+  updated_at     TEXT NOT NULL
+);
+```
+
+### 4.5 KV Key Patterns
 
 ```
 ratelimit:{scope}:{ip}         → { count, resetAt }     TTL: windowSeconds
@@ -339,12 +398,13 @@ interface RateLimitConfig {
 
   "durable_objects": {
     "bindings": [
-      { "name": "ALB_DO", "class_name": "AlbDO" }
+      { "name": "AGENT_DO", "class_name": "AgentDO" },
+      { "name": "GLOBAL_DO", "class_name": "GlobalDO" }
     ]
   },
 
   "migrations": [
-    { "tag": "v1", "new_sqlite_classes": ["AlbDO"] }
+    { "tag": "v1", "new_sqlite_classes": ["AgentDO", "GlobalDO"] }
   ],
 
   "services": [
@@ -365,7 +425,8 @@ interface RateLimitConfig {
                     ┌──────────────────────────┐
                     │   agentslovebitcoin.com   │
                     │   (Cloudflare Worker)     │
-                    │   Hono.js + AlbDO         │
+                    │   Hono.js + AgentDO/      │
+                    │   GlobalDO (per-address)  │
                     └──────┬───────┬───────┬────┘
                            │       │       │
               ┌────────────┘       │       └────────────┐
@@ -386,12 +447,33 @@ interface RateLimitConfig {
 
 ---
 
-## 7. Frontend
+## 7. Frontend & Onboarding Funnel
 
-Phase 1 scope: **API-first, minimal frontend.** A static landing page served from `./public`:
+**Primary goal:** Every page funnels agents toward installing `@aibtc/mcp-server` and exploring `aibtcdev/skills`. The site is a gateway to the AIBTC skills ecosystem, not a standalone product.
 
-- `/` — Hero page: "Agents Love Bitcoin" branding, API docs link, agent count
-- `/docs` — Interactive API documentation (auto-generated from manifest endpoint)
+### 7.1 Landing Page (`/`)
+
+Static page served from `./public`:
+
+- **Hero**: "Agents Love Bitcoin" branding + agent count + tagline emphasizing autonomy
+- **CTA #1**: "Get Started — Install MCP Server" → links to `@aibtc/mcp-server` install guide
+- **CTA #2**: "Browse Skills" → links to `aibtcdev/skills` catalog
+- **How it works**: 3-step visual: (1) Install MCP server → (2) Register your agent → (3) Start earning Genesis status
+- **Agent leaderboard**: Top active agents (pulled from GlobalDO stats)
+
+### 7.2 Onboarding Flow
+
+The registration/onboarding path drives MCP adoption:
+
+1. **Discovery**: Agent hits `agentslovebitcoin.com` or API
+2. **Register**: `POST /api/register` with BIP-137/322 auth → creates per-address AgentDO
+3. **Connect MCP**: Guided step to install and configure `@aibtc/mcp-server`
+4. **Verify MCP** _(open question — see §14)_: Optional or required MCP server verification before Genesis path
+5. **Genesis path**: Complete Genesis flow on `aibtc.com` → unlocks premium tier
+
+### 7.3 API Documentation (`/docs`)
+
+Interactive API docs (auto-generated from manifest endpoint). Every endpoint example should show MCP server integration patterns where applicable.
 
 Full frontend (dashboard, agent profiles, signal feed) deferred to Phase 3+.
 
@@ -415,11 +497,14 @@ agents-love-bitcoin/
 │   │   └── auth.ts           # BIP-137/322 verification + genesis check
 │   ├── routes/
 │   │   ├── manifest.ts       # GET /api (self-documenting)
+│   │   ├── register.ts       # POST /api/register (creates per-address AgentDO)
+│   │   ├── me.ts             # GET /api/me (agent's own profile + provisions)
 │   │   ├── agents.ts         # Agent directory
 │   │   ├── signals.ts        # Signal feed
 │   │   ├── beats.ts          # Editorial beats
 │   │   ├── briefs.ts         # Compiled briefs
 │   │   ├── checkin.ts        # Agent check-in
+│   │   ├── mcp.ts            # POST /api/mcp/verify
 │   │   └── analytics.ts      # Genesis-only analytics
 │   ├── services/
 │   │   ├── auth.ts           # BIP-137/322 verification (from agent-news)
@@ -427,8 +512,9 @@ agents-love-bitcoin/
 │   │   ├── agent-resolver.ts # aibtc.com agent lookup + caching
 │   │   └── news-client.ts    # agent-news API client
 │   └── objects/
-│       ├── alb-do.ts         # Durable Object class
-│       └── schema.ts         # SQLite schema
+│       ├── agent-do.ts       # Per-address Durable Object (keyed to BTC address)
+│       ├── global-do.ts      # Singleton Durable Object (directory, analytics)
+│       └── schema.ts         # SQLite schemas for both DO classes
 ├── public/
 │   ├── index.html            # Landing page
 │   └── docs/                 # API docs
@@ -464,11 +550,33 @@ Past briefs and weekly reports behind x402 paywall:
 - Uses existing x402-sponsor-relay infrastructure
 - Free tier gets summaries; paid gets full inscribed content
 
-### 9.5 Durable Object + KV Hybrid
+### 9.5 Per-Address Durable Objects (Not Single Global DO)
 
-Matches the agent-news architecture exactly:
-- DO SQLite for relational data (check-ins, analytics, cached profiles)
-- KV for ephemeral data (rate limits, response caches, genesis checks)
+Each agent gets their own DO instance keyed to their BTC address. Rationale:
+- **Isolation**: Agent data is physically separated — no cross-contamination, no shared-table contention
+- **Per-agent provisioning**: Email forwarding, MCP config, webhooks — each agent's provisioned resources live in their own DO
+- **Scalability**: Cloudflare auto-distributes DOs globally; per-agent DOs scale naturally with agent count
+- **Privacy**: Agent's usage data, check-in history, and config are isolated by design
+
+A separate `GlobalDO` singleton handles directory indexing and aggregated analytics. This is the only shared state.
+
+**Trade-off**: More DO instances = more billing events, but Cloudflare's DO pricing is request-based, not instance-based. The isolation benefit outweighs the marginal cost.
+
+### 9.6 MCP/Skills Funnel as Core Site Purpose
+
+agentslovebitcoin.com exists to drive agents onto `aibtcdev/skills` and `@aibtc/mcp-server`. Every design choice should be evaluated against: "Does this bring agents closer to installing MCP server and using skills?"
+
+- Landing page CTAs → MCP install guide
+- Registration flow → MCP connection step
+- Genesis path → rewards agents who are MCP-connected
+- API docs → show MCP integration patterns
+- x402 payment features → accessible via MCP server
+
+This is not an API for API's sake. It's an acquisition funnel for the AIBTC skills ecosystem.
+
+### 9.7 KV for Ephemeral Data
+
+KV for ephemeral data (rate limits, response caches, genesis checks). Matches agent-news pattern.
 
 ---
 
@@ -486,35 +594,80 @@ Matches the agent-news architecture exactly:
 
 ## 11. Phase Plan
 
-| Phase | Scope | Model Tier | Deliverable |
-|-------|-------|-----------|-------------|
-| **1** (this) | PRD research | Opus | This document |
-| **2** | Build — scaffold Worker, auth, rate limiting, core routes | Opus | Working API on `agentslovebitcoin.com` |
-| **3** | Polish — landing page, API docs, x402 payment gating | Sonnet | Public launch-ready |
-| **4** | Grow — analytics, email integration, agent onboarding | Sonnet | Ecosystem integration |
+| Phase | Scope | Model Tier | Deliverable | Status |
+|-------|-------|-----------|-------------|--------|
+| **1** | PRD research + revision | Opus | This document (v1.1) | ✅ Complete — awaiting whoabuddy on open Qs |
+| **2** | Build — per-address DOs, auth, rate limiting, core routes, MCP verify | Opus | Working API on `agentslovebitcoin.com` | ⏸ HOLD until §13 resolved |
+| **3** | Polish — landing page with MCP funnel CTAs, API docs, x402 | Sonnet | Public launch-ready | Pending |
+| **4** | Grow — analytics, email provisioning, agent onboarding | Sonnet | Ecosystem integration | Pending |
 
 ---
 
 ## 12. Phase 2 Build Specification
 
-Phase 2 should implement in this order:
+Phase 2 should implement in this order (pending §13 open question resolution):
 
-1. **Scaffold**: `wrangler init`, Hono.js app, Durable Object, KV binding, wrangler.jsonc
-2. **Auth middleware**: Port BIP-137/322 verification from agent-news `src/services/auth.ts`
-3. **Rate limiting**: Port `createRateLimitMiddleware` from agent-news
-4. **Agent resolver**: Port agent-resolver from agent-news, add genesis level check
-5. **Core routes**: `/api`, `/api/health`, `/api/agents`, `/api/agents/:address`
-6. **Signal routes**: Proxy to agent-news API (`/api/signals`, `/api/beats`, `/api/briefs`)
-7. **Auth'd routes**: `/api/checkin`, `POST /api/signals` (proxy with auth)
-8. **Genesis routes**: `/api/briefs/compile`, `/api/analytics/*`
-9. **Static landing page**: Minimal `public/index.html`
-10. **Deploy**: `wrangler deploy` to `agentslovebitcoin.com`
+1. **Scaffold**: `wrangler init`, Hono.js app, two DO classes (`AgentDO`, `GlobalDO`), KV binding, wrangler.jsonc
+2. **Per-address DO**: Implement `AgentDO` with per-agent schema (profile, check-ins, provisions, usage). Implement `GlobalDO` with directory index and stats.
+3. **Auth middleware**: Port BIP-137/322 verification from agent-news `src/services/auth.ts`
+4. **Rate limiting**: Port `createRateLimitMiddleware` from agent-news
+5. **Agent resolver**: Port agent-resolver from agent-news, add genesis level check
+6. **Registration**: `POST /api/register` → creates per-address AgentDO, indexes in GlobalDO
+7. **Core routes**: `/api`, `/api/health`, `/api/agents`, `/api/agents/:address`, `/api/me`
+8. **Signal routes**: Proxy to agent-news API (`/api/signals`, `/api/beats`, `/api/briefs`)
+9. **Auth'd routes**: `/api/checkin`, `POST /api/signals` (proxy with auth)
+10. **MCP verification**: `POST /api/mcp/verify` (implementation depends on §13 Q2 resolution)
+11. **Genesis routes**: `/api/briefs/compile`, `/api/analytics/*`
+12. **Landing page**: Static `public/index.html` with MCP install CTA + skills catalog CTA
+13. **Deploy**: `wrangler deploy` to `agentslovebitcoin.com`
 
 **Repo:** `arc0btc/agents-love-bitcoin` (to be created in arc0btc org)
 
 ---
 
-## 13. Verification Checklist
+## 13. Open Questions (Awaiting whoabuddy)
+
+These must be resolved before Phase 2 build proceeds:
+
+### Q1: What gets provisioned per-address?
+
+The per-address AgentDO can hold provisioned resources, but what exactly?
+
+Candidates:
+- **Email forwarding**: `<agent-name>@agentslovebitcoin.com` → agent's inbox? Requires CF Email Routing config per address.
+- **Webhook endpoints**: Per-agent callback URLs for event notifications?
+- **MCP config storage**: Agent's MCP server connection details, skill preferences?
+- **Custom API keys**: Per-agent API keys for downstream services?
+
+_Waiting for whoabuddy to specify which resources should be provisioned on registration._
+
+### Q2: Should registration require MCP server verification?
+
+Two options:
+
+**Option A — MCP required for registration:**
+- `POST /api/register` requires a valid MCP server connection proof
+- Higher barrier to entry, but ensures every registered agent is MCP-connected
+- Strongest funnel alignment
+
+**Option B — MCP optional, incentivized:**
+- Registration only requires BIP-137/322 auth
+- MCP verification is a separate step (`POST /api/mcp/verify`) that unlocks benefits
+- Lower barrier, broader top of funnel
+- MCP-verified agents get visual badge, priority in directory, faster Genesis path
+
+_Waiting for whoabuddy's decision. Recommendation: Option B (lower barrier, MCP as progressive enhancement)._
+
+### Q3: Email provisioning scope
+
+If email forwarding is per-agent:
+- What domain? `@agentslovebitcoin.com`? `@aibtc.email`?
+- Auto-provisioned on registration, or manual request?
+- Any limits on forwarding destinations?
+
+---
+
+## 14. Verification Checklist
 
 - [x] Surveyed all active aibtcdev repos (agent-news, landing-page, x402-api, agent-contracts, etc.)
 - [x] Examined API patterns: Hono.js routes, BIP-137/322 auth, x402 payment, rate limiting
@@ -528,3 +681,11 @@ Phase 2 should implement in this order:
 - [x] Documented genesis agent detection flow (aibtc.com API + KV cache)
 - [x] Documented deployment architecture (CF Workers + DO + KV)
 - [x] Created Phase 2 build specification
+- [x] v1.1: Revised to per-address Durable Objects (AgentDO + GlobalDO)
+- [x] v1.1: Added MCP/skills funnel as core site purpose
+- [x] v1.1: Added onboarding flow with MCP verification step
+- [x] v1.1: Added registration endpoint (`POST /api/register`) and `/api/me`
+- [x] v1.1: Documented open questions for whoabuddy (§13)
+- [ ] Resolve Q1: What gets provisioned per-address?
+- [ ] Resolve Q2: MCP verification required or optional for registration?
+- [ ] Resolve Q3: Email provisioning scope and domain
