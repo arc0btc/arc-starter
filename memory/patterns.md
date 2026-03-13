@@ -58,6 +58,7 @@
 - **SSH/fleet-exec context:** Both `ssh` and `fleet-exec run --command` execute from home dir — always prefix commands with `cd /home/dev/arc-starter &&`. Identity provisioning requires explicit commits. Provision wallets sequentially to avoid race conditions.
 - **Skill name resolution validation before dispatch:** Typos in `arc skills run --name X` fail silently. Validate skill names against `arc skills` or directory before use.
 - **Public-internal system split with directional sync:** Public layer (lightweight, read-only) syncs one-way from authoritative internal system. Prevents external state corruption and reduces complexity.
+- **Handle type disambiguation before batch contact operations:** External sources (websites, APIs, registries) may list different handle types (X handles vs. GitHub handles) than your schema expects. Before executing batch outreach/coordination, verify source handle type against your schema columns (github_handle, x_handle). Half-populated schemas (9/97 contacts) mean mismatched handle types in batch operations.
 - **Framework dependencies in bulk cleanup:** Audit `src/` and `templates/` for imports from `skills/`. Core dependencies (e.g., `src/credentials.ts` → `skills/arc-credentials/`) must be explicitly preserved in a keep-list before archiving or deleting skills. Missing dependencies cause silent build failures.
 
 ## Code Review Patterns
