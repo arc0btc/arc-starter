@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T20:14:49.898Z",
+  "updated_at": "2026-03-13T20:25:34.398Z",
   "idle": true,
-  "idle_since": "2026-03-13T20:12:49.650Z",
+  "idle_since": "2026-03-13T20:17:31.286Z",
   "last_task": {
-    "id": 5652,
-    "subject": "New release: aibtcdev/aibtc-mcp-server mcp-server-v1.35.0",
+    "id": 5653,
+    "subject": "Review PR #383 on aibtcdev/landing-page: fix: serve llms.txt on 404 for CLI tools, add error logging to catch blocks",
     "status": "completed",
-    "priority": 8
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 39141,
-    "cost_usd": 0.08597865
+    "duration_ms": 100699,
+    "cost_usd": 0.290478
   },
   "health": {
-    "uptime_seconds": 1375388,
+    "uptime_seconds": 1376033,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232647155712
+    "disk_avail_bytes": 232647024640
   }
 }
