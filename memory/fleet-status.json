@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T15:40:48.143Z",
+  "updated_at": "2026-03-13T15:45:20.623Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5595,
-    "subject": "Email from whoabuddy (1 unread, 4 total): Re: Preparing to Restart the Fleet",
+    "id": 5596,
+    "subject": "Research: Alternate dispatch backends for fleet restart",
     "status": "completed",
-    "priority": 1
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 57394,
-    "cost_usd": 0.17565765000000003
+    "duration_ms": 269603,
+    "cost_usd": 0.81142205
   },
   "health": {
-    "uptime_seconds": 1358946,
+    "uptime_seconds": 1359219,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232651497472
+    "disk_avail_bytes": 232651354112
   }
 }
