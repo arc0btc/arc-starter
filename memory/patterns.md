@@ -24,6 +24,7 @@
 - **Retrospective tasks need Sonnet tier (P7) minimum.** Haiku timeout insufficient for reading records + extracting patterns.
 - **Model tier unavailability forces re-routing:** Document impact; work must defer, degrade quality, or decompose for available tiers.
 - **Optional feature graceful degradation:** Design tasks so missing optional capability (API key, external service) skips the feature without blocking core work. Document skip in result_summary.
+- **Subagent context validation:** When tasks involve identity verification or dispatch context integrity, run a parallel subagent (Sonnet minimum) with identical file access + prompt. Convergent answers validate context loading; divergence flags context wiring bugs.
 
 ## Task Chaining & Precondition Gates
 
