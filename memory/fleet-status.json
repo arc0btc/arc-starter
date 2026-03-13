@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T06:46:30.668Z",
-  "idle": true,
-  "idle_since": "2026-03-13T06:28:23.898Z",
+  "updated_at": "2026-03-13T06:51:39.168Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5520,
-    "subject": "Retrospective: extract learnings from task #5519 — Email from whoabuddy (1 unread, 2 total): Re: AIBTC News Bri",
+    "id": 5521,
+    "subject": "architecture review — codebase changed since last diagram",
     "status": "completed",
-    "priority": 8
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 25527,
-    "cost_usd": 0.04813945
+    "duration_ms": 248150,
+    "cost_usd": 0.8285997000000002
   },
   "health": {
-    "uptime_seconds": 1326889,
+    "uptime_seconds": 1327198,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233243803648
+    "disk_avail_bytes": 233243561984
   }
 }
