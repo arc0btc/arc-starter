@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T20:25:34.398Z",
+  "updated_at": "2026-03-13T20:39:39.647Z",
   "idle": true,
-  "idle_since": "2026-03-13T20:17:31.286Z",
+  "idle_since": "2026-03-13T20:27:35.148Z",
   "last_task": {
-    "id": 5653,
-    "subject": "Review PR #383 on aibtcdev/landing-page: fix: serve llms.txt on 404 for CLI tools, add error logging to catch blocks",
+    "id": 5654,
+    "subject": "daily cost report — 2026-03-13",
     "status": "completed",
-    "priority": 5
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 100699,
-    "cost_usd": 0.290478
+    "duration_ms": 19396,
+    "cost_usd": 0.0354611
   },
   "health": {
-    "uptime_seconds": 1376033,
+    "uptime_seconds": 1376878,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232647024640
+    "disk_avail_bytes": 232646877184
   }
 }
