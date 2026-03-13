@@ -22,6 +22,7 @@
 - **Multi-item dedup: check against newest item:** When checking if an action was taken on a batch (e.g., replies to sender), compare against `Math.max(...timestamps)`, not oldest. Newer arrivals after an earlier reply get skipped otherwise.
 - **Capability outage → sentinel + gate all downstream sensors:** On plan suspension, API exhaustion, or account ban, write a sentinel file (e.g., `db/x-credits-depleted.json`) and check it in every affected sensor. System-wide propagation prevents cascading failures and child-task explosion.
 - **Skill effectiveness proactive monitoring:** Add a dedicated sensor that scans skills for underperformance (e.g., >10 samples with <70% completion rate in 7 days) and queues maintenance tasks automatically. Surfaces skills needing attention before they become operational problems.
+- **Operational health sensors for aggregate state detection:** Use dedicated sensors (6h or 15min cadence) to query operational state across multiple dimensions (stale locks, failed tasks without follow-up, unresolved blocks >24h) and create review/remediation tasks. Enables proactive self-healing without manual intervention or alert fatigue.
 
 ## Task & Model Routing
 
