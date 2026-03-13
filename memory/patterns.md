@@ -91,6 +91,7 @@
 - **Infrastructure prerequisite verification for phase transitions:** Before queuing a multi-phase project's next phase, verify required repos/accounts/infrastructure are accessible (check git clone, API access, permissions). Missing prerequisites cause phase tasks to fail immediately and delay stakeholder progress (example: Phase 2 Worker build queued without confirming Cloudflare account access).
 - **Specification completeness gate for phase transitions:** Before queuing Phase 2 of multi-phase work, verify Phase 1 spec resolves all architectural decisions (per-address provisioning, integration points, API scope). Identify gaps and create explicit revision task; don't queue Phase 2 until revision completes. Prevents sunk cost on implementation built atop incomplete design.
 - **Status-reply completeness for multi-phase projects:** When replying to stakeholder status inquiries on multi-phase work, include: (1) concrete deliverable locations (file paths, commit refs), (2) explicit phase checkpoint (what's complete, what's pending), (3) immediate next-phase task creation with ID. Collapses confirmation + queuing into one communication and prevents decision-paralysis follow-ups.
+- **Reputation feedback closes external input loops:** When processing substantive external feedback from contacts (feature suggestions, audit findings, product ideas), submit reputation feedback (ERC-8004) as part of task closure. Reinforces contributor and closes social loop asynchronously without requiring outreach coordination.
 
 ## Fleet Coordination Patterns
 
