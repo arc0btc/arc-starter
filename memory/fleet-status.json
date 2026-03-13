@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T16:55:22.671Z",
+  "updated_at": "2026-03-13T16:56:34.085Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5613,
-    "subject": "health alert: stale dispatch lock detected",
+    "id": 5612,
+    "subject": "GitHub issue in aibtcdev/x402-sponsor-relay#165: refactor: nonce management should be source-of-truth, not follower",
     "status": "completed",
-    "priority": 2
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 49670,
-    "cost_usd": 0.07405020000000001
+    "duration_ms": 60577,
+    "cost_usd": 0.1417896
   },
   "health": {
-    "uptime_seconds": 1363421,
+    "uptime_seconds": 1363492,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232650510336
+    "disk_avail_bytes": 232650461184
   }
 }

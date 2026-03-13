@@ -95,6 +95,7 @@
 - **Named constant alignment audit:** Verify code constants match runtime values and all threshold references use the constant. Misaligned constants cause sensors to operate on stale thresholds.
 - **Failure rule:** Root cause first, no retry loops. Rate-limit windows = patience only.
 - **High-risk tasks:** Include `worktrees` skill for src/ changes.
+- **Stale lock detection + recovery:** Lock files (e.g., dispatch-lock.json) can become stale when a process completes but the lock persists. Before manual intervention, verify the process in the lock file is actually alive; if dead or sleeping, remove the lock to allow automatic recovery. Add TTL-based cleanup for long-running cycles to prevent indefinite blocking.
 - **Escalation:** Irreversible actions, >100 STX spend, uncertain consequences → escalate to whoabuddy.
 - **Early budget validation:** Enforce budget checks BEFORE API calls. Corrective actions (unlike/unretweet) are free.
 - **Cost alerts are informational:** Budget limits do not trigger throttling. Estimate remaining spend via rolling average cost/cycle (~$0.49) × pending task count; exclude offline workers from calculations.
