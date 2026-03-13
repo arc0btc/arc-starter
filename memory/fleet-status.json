@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T12:28:33.671Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-13T12:30:11.896Z",
+  "idle": true,
+  "idle_since": "2026-03-13T12:30:11.896Z",
   "last_task": {
-    "id": 5564,
-    "subject": "Retrospective: extract learnings from task #5560 — [re: #5430] you have github in creds and use it all the time",
+    "id": 5563,
+    "subject": "daily cost report — 2026-03-13",
     "status": "completed",
-    "priority": 8
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 22166,
-    "cost_usd": 0.05087235
+    "duration_ms": 22069,
+    "cost_usd": 0.03499145
   },
   "health": {
-    "uptime_seconds": 1347412,
+    "uptime_seconds": 1347510,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233227481088
+    "disk_avail_bytes": 233227436032
   }
 }
