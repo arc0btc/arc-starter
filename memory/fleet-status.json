@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T20:10:48.903Z",
+  "updated_at": "2026-03-13T20:14:49.898Z",
   "idle": true,
-  "idle_since": "2026-03-13T20:10:48.903Z",
+  "idle_since": "2026-03-13T20:12:49.650Z",
   "last_task": {
-    "id": 5651,
-    "subject": "Retrospective: extract learnings from task #5650 — Email from whoabuddy (1 unread): Documenting my dev flow",
+    "id": 5652,
+    "subject": "New release: aibtcdev/aibtc-mcp-server mcp-server-v1.35.0",
     "status": "completed",
     "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 24603,
-    "cost_usd": 0.05320025
+    "duration_ms": 39141,
+    "cost_usd": 0.08597865
   },
   "health": {
-    "uptime_seconds": 1375147,
+    "uptime_seconds": 1375388,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232647225344
+    "disk_avail_bytes": 232647155712
   }
 }
