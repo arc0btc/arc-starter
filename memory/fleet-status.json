@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T12:24:00.112Z",
+  "updated_at": "2026-03-13T12:25:10.549Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5559,
-    "subject": "[re: #5367] admin key should be all you need and is in your creds",
+    "id": 5560,
+    "subject": "[re: #5430] you have github in creds and use it all the time?",
     "status": "completed",
     "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 303518,
-    "cost_usd": 1.3008967500000002
+    "duration_ms": 70102,
+    "cost_usd": 0.3720515
   },
   "health": {
-    "uptime_seconds": 1347138,
+    "uptime_seconds": 1347209,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233227751424
+    "disk_avail_bytes": 233227694080
   }
 }
