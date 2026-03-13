@@ -10,6 +10,25 @@ const WATCHED_REPOS = AIBTC_WATCHED_REPOS;
 // Repos that use React/Next.js — load react-reviewer + composition-patterns for these PRs
 const REACT_REPOS = new Set(["aibtcdev/landing-page"]);
 
+// PR title keyword → extra skills to load alongside aibtc-repo-maintenance
+const PR_SKILL_KEYWORDS: Array<{ keywords: string[]; skills: string[] }> = [
+  { keywords: ["bitflow", "bit flow"], skills: ["defi-bitflow"] },
+  { keywords: ["zest"], skills: ["defi-zest"] },
+  { keywords: ["stackspot", "stacking", "pox"], skills: ["stacks-stackspot"] },
+  { keywords: ["x402", "agent payment"], skills: ["social-agent-engagement"] },
+];
+
+function extraSkillsForPr(title: string): string[] {
+  const lower = title.toLowerCase();
+  const extras: string[] = [];
+  for (const { keywords, skills } of PR_SKILL_KEYWORDS) {
+    if (keywords.some((k) => lower.includes(k))) {
+      extras.push(...skills);
+    }
+  }
+  return extras;
+}
+
 const GITHUB_USER = "arc0btc";
 
 interface PrInfo {
@@ -194,9 +213,10 @@ export default async function aibtcMaintenanceSensor(): Promise<string> {
     if (taskExistsForSource(source)) continue;
 
     const isReactRepo = REACT_REPOS.has(pr.repo);
-    const skills = isReactRepo
-      ? '["aibtc-repo-maintenance","dev-landing-page-review"]'
-      : '["aibtc-repo-maintenance"]';
+    const baseSkills = isReactRepo
+      ? ["aibtc-repo-maintenance", "dev-landing-page-review"]
+      : ["aibtc-repo-maintenance"];
+    const skills = JSON.stringify([...baseSkills, ...extraSkillsForPr(pr.title)]);
 
     const extraInstructions = isReactRepo
       ? [

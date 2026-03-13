@@ -40,9 +40,14 @@ const BITFLOW_KEYWORDS = [
 
 // Keywords that indicate PoX / stacking / liquid stacking activity.
 const POX_KEYWORDS = [
-  "pox", "stackspot", "stacking reward", "stacking pool",
+  "pox", "stackspot", "stacking", "stacking reward", "stacking pool",
   "liquid stacking", "stacking yield", "cycle stacking",
   "alex", "defi yield", "yield endpoint",
+];
+
+// Keywords that indicate AIBTC news editorial / ordinals business activity.
+const AIBTC_NEWS_KEYWORDS = [
+  "ordinals business", "aibtc news", "news editorial",
 ];
 
 // Keywords that indicate Zest Protocol activity specifically.
@@ -240,6 +245,7 @@ export default async function aibtcInboxSensor(): Promise<string> {
     const isBitflow = matchesKeywords(peerMessages, BITFLOW_KEYWORDS);
     const isPoX = matchesKeywords(peerMessages, POX_KEYWORDS);
     const isZest = matchesKeywords(peerMessages, ZEST_KEYWORDS);
+    const isAibtcNews = matchesKeywords(peerMessages, AIBTC_NEWS_KEYWORDS);
     const inboxSkills = ["bitcoin-wallet"];
     if (isCoSign) {
       inboxSkills.push("bitcoin-quorumclaw", "bitcoin-taproot-multisig");
@@ -255,6 +261,9 @@ export default async function aibtcInboxSensor(): Promise<string> {
     }
     if (isZest) {
       inboxSkills.push("defi-zest");
+    }
+    if (isAibtcNews) {
+      inboxSkills.push("aibtc-news-editorial");
     }
     if (isResponseToOutreach) {
       inboxSkills.push("erc8004-reputation", "contacts");
