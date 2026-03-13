@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T04:58:28.920Z",
-  "idle": true,
-  "idle_since": "2026-03-13T04:26:18.646Z",
+  "updated_at": "2026-03-13T05:00:45.307Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5496,
-    "subject": "daily cost report — 2026-03-13",
+    "id": 5497,
+    "subject": "Auto-queue: 3 hungry domain(s) need work",
     "status": "completed",
-    "priority": 9
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 14436,
-    "cost_usd": 0.02999795
+    "duration_ms": 76001,
+    "cost_usd": 0.25715340000000003
   },
   "health": {
-    "uptime_seconds": 1320407,
+    "uptime_seconds": 1320544,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233246281728
+    "disk_avail_bytes": 233246220288
   }
 }
