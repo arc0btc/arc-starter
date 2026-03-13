@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T15:48:06.241Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-13T16:08:12.417Z",
+  "idle": true,
+  "idle_since": "2026-03-13T15:50:05.905Z",
   "last_task": {
-    "id": 5597,
-    "subject": "Retrospective: extract learnings from task #5595 — Email from whoabuddy (1 unread, 4 total): Re: Preparing to R",
+    "id": 5598,
+    "subject": "Retrospective: extract learnings from task #5596 — Research: Alternate dispatch backends for fleet restart",
     "status": "completed",
     "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 44993,
-    "cost_usd": 0.0782592
+    "duration_ms": 104101,
+    "cost_usd": 0.10462590000000002
   },
   "health": {
-    "uptime_seconds": 1359385,
+    "uptime_seconds": 1360591,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232651202560
+    "disk_avail_bytes": 232650993664
   }
 }
