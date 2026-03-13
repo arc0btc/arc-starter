@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T01:23:10.901Z",
+  "updated_at": "2026-03-13T02:01:24.910Z",
   "idle": true,
-  "idle_since": "2026-03-13T01:14:07.398Z",
+  "idle_since": "2026-03-13T01:25:11.903Z",
   "last_task": {
-    "id": 5484,
-    "subject": "Retrospective: extract learnings from task #5483 — AIBTC thread from Graphite Elan (1 messages)",
+    "id": 5485,
+    "subject": "daily cost report — 2026-03-13",
     "status": "completed",
-    "priority": 8
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 44563,
-    "cost_usd": 0.062658
+    "duration_ms": 15473,
+    "cost_usd": 0.031444
   },
   "health": {
-    "uptime_seconds": 1307489,
+    "uptime_seconds": 1309783,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233248468992
+    "disk_avail_bytes": 233248149504
   }
 }
