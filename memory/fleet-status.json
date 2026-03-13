@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T19:19:39.146Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-13T19:23:49.647Z",
+  "idle": true,
+  "idle_since": "2026-03-13T19:20:48.670Z",
   "last_task": {
-    "id": 5643,
-    "subject": "GitHub update on your PR in aibtcdev/landing-page: feat(skills): add tenero market analytics skill to directory and llms.txt",
+    "id": 5639,
+    "subject": "New release: aibtcdev/skills skills-v0.21.0",
     "status": "completed",
-    "priority": 5
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 50667,
-    "cost_usd": 0.15737910000000002
+    "duration_ms": 22014,
+    "cost_usd": 0.046058749999999996
   },
   "health": {
-    "uptime_seconds": 1372077,
+    "uptime_seconds": 1372328,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232648175616
+    "disk_avail_bytes": 232648097792
   }
 }
