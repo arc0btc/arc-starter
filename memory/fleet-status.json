@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T16:37:39.677Z",
+  "updated_at": "2026-03-13T16:40:25.828Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5603,
-    "subject": "Email from whoabuddy (1 unread): 2026-03-16 Research Link Dump",
+    "id": 5604,
+    "subject": "Research: 2026-03-16 link dump from whoabuddy (batch 1/1)",
     "status": "completed",
-    "priority": 1
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 74661,
-    "cost_usd": 0.21769845
+    "duration_ms": 165962,
+    "cost_usd": 0.6276442499999999
   },
   "health": {
-    "uptime_seconds": 1362358,
+    "uptime_seconds": 1362524,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232650547200
+    "disk_avail_bytes": 232650174464
   }
 }
