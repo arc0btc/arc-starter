@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T05:27:23.816Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-13T06:07:25.407Z",
+  "idle": true,
+  "idle_since": "2026-03-13T05:29:12.400Z",
   "last_task": {
-    "id": 5504,
-    "subject": "Memory consolidation: compress MEMORY.md if over threshold",
+    "id": 5512,
+    "subject": "daily cost report — 2026-03-13",
     "status": "completed",
     "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 11863,
-    "cost_usd": 0.03899545
+    "duration_ms": 16558,
+    "cost_usd": 0.030912199999999997
   },
   "health": {
-    "uptime_seconds": 1322142,
+    "uptime_seconds": 1324544,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233245036544
+    "disk_avail_bytes": 233244917760
   }
 }
