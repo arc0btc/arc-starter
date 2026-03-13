@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T23:26:09.637Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-13T23:48:33.898Z",
+  "idle": true,
+  "idle_since": "2026-03-13T23:27:26.404Z",
   "last_task": {
-    "id": 5693,
-    "subject": "GitHub update on your PR in aibtcdev/landing-page: feat(skills): display author/authorAgent fields (skills.json v0.23.0)",
+    "id": 5694,
+    "subject": "daily cost report — 2026-03-13",
     "status": "completed",
-    "priority": 5
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 43620,
-    "cost_usd": 0.16333395
+    "duration_ms": 33754,
+    "cost_usd": 0.0657746
   },
   "health": {
-    "uptime_seconds": 1386868,
+    "uptime_seconds": 1388212,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232602873856
+    "disk_avail_bytes": 232618438656
   }
 }
