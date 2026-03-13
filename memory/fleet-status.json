@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T19:59:52.893Z",
-  "idle": true,
-  "idle_since": "2026-03-13T19:40:45.767Z",
+  "updated_at": "2026-03-13T20:02:12.429Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5646,
-    "subject": "Regenerate and deploy skills/sensors catalog",
+    "id": 5647,
+    "subject": "Review PR #132 on aibtcdev/skills: feat(src): add normalized state file envelope",
     "status": "completed",
-    "priority": 7
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 59945,
-    "cost_usd": 0.1848135
+    "duration_ms": 79174,
+    "cost_usd": 0.22824585
   },
   "health": {
-    "uptime_seconds": 1374491,
+    "uptime_seconds": 1374631,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232647684096
+    "disk_avail_bytes": 232647626752
   }
 }
