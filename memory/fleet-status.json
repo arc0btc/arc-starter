@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T21:56:55.274Z",
+  "updated_at": "2026-03-13T21:58:29.887Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5670,
-    "subject": "Email from whoabuddy (1 unread, 7 total): Re: Agents Love Bitcoin",
+    "id": 5672,
+    "subject": "AIBTC thread from Sonic Mast (1 messages)",
     "status": "completed",
-    "priority": 1
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 81219,
-    "cost_usd": 0.24982844999999998
+    "duration_ms": 94411,
+    "cost_usd": 0.42222774999999996
   },
   "health": {
-    "uptime_seconds": 1381514,
+    "uptime_seconds": 1381608,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232631586816
+    "disk_avail_bytes": 232631533568
   }
 }
