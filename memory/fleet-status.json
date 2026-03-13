@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T11:20:07.396Z",
-  "idle": true,
-  "idle_since": "2026-03-13T11:08:02.657Z",
+  "updated_at": "2026-03-13T11:23:17.735Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5551,
-    "subject": "housekeeping: 1 issue(s) detected",
+    "id": 5552,
+    "subject": "Review PR #379 on aibtcdev/landing-page: feat(status): add /status page showing x402 sponsor relay health",
     "status": "completed",
-    "priority": 7
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 42621,
-    "cost_usd": 0.0951337
+    "duration_ms": 129970,
+    "cost_usd": 0.31533524999999996
   },
   "health": {
-    "uptime_seconds": 1343306,
+    "uptime_seconds": 1343496,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233224540160
+    "disk_avail_bytes": 233224474624
   }
 }
