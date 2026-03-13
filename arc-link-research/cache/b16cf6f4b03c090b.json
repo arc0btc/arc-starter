@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2031640727571382771",
+  "fetchedAt": "2026-03-13T16:38:16.445Z",
+  "contentType": "tweet",
+  "title": "@michael_chomsky: If you’re building AI agent infrastructure, this is required reading.\n\nWe’ve dep...",
+  "rawContent": "Tweet by @michael_chomsky (Michael)\nAuthor bio: https://t.co/wP5OsA9afm • https://t.co/U1VfQ4K0Bq • https://t.co/UPVdiCl5mL • https://t.co/fqOT3A6IgP. Most startup problems can be solved w/ 100M views.\nText: If you’re building AI agent infrastructure, this is required reading.\n\nWe’ve deployed OpenClaw in the cloud for dozens of enterprises through StartClaw.\n\nBut once you do that, you start seeing serious issues. We have to patch OpenClaw to solve gaps around reliability, user error, observability, authentication, security, and capability.\n\nBut these are just monkey-patches. The right solution is giving agents a computer as a tool, not putting an agent on an always-on computer.\n\nWe’re solving this problem not because we want to, but because we have to. Our customers simply deserve better.\n\nNow OpenClaw still has a place on personal computers. But putting it in the cloud as-is will not be the solution for most businesses long-term.\n\nIf you find this problem interesting, we’re hiring a founding eng and offering up to 5% equity.\n\nLooking for someone who genuinely nerds out about this kind of stuff, and can identify critical issues around how agents are built and used today.\n\nDm me if this is you!\nCreated: 2026-03-11T07:57:50.000Z\nMetrics: {\"retweet_count\":9,\"reply_count\":17,\"like_count\":145,\"quote_count\":1,\"bookmark_count\":243,\"impression_count\":29603}",
+  "embeddedUrls": [
+    "https://t.co/uX053Gv0sF"
+  ]
+}

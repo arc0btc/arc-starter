@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/Vtrivedy10/status/2031411814232187109",
+  "fetchedAt": "2026-03-13T16:38:16.445Z",
+  "contentType": "tweet",
+  "title": "@Vtrivedy10: at @LangChain we spend a lot of time designing harnesses as systems around model...",
+  "rawContent": "Tweet by @Vtrivedy10 (Viv)\nAuthor bio: agents & evals @LangChain, prev @awscloud, phd cs @templeuniv\nText: at @LangChain we spend a lot of time designing harnesses as systems around models to do useful work\n\nin this blog, we take a first-principles look at why harnesses exist and how they help us craft good product experiences + correct model failure modes\n\nwe cover filesystems, code execution, sandboxes, context rot, ralph loops, and why the best harness for your model probably isn't the one it shipped with\n\nreach out if interested in agents & harnesses! our team is doing a lot of interesting work here with deepagents\nCreated: 2026-03-10T16:48:12.000Z\nMetrics: {\"retweet_count\":40,\"reply_count\":8,\"like_count\":460,\"quote_count\":3,\"bookmark_count\":752,\"impression_count\":111989}",
+  "embeddedUrls": [
+    "https://t.co/ZQMPxMNlnb"
+  ]
+}

@@ -713,6 +713,29 @@
         "description": "Grimaldo 🟧 | Build on Bitcoin | Building Bitcoin-native tools on @Stacks | Explaining DeFi, DAOs & on-chain work simply | Shipping in public ⛓️",
         "id": "1918012256094441472"
       }
+    },
+    "1788312359452192768": {
+      "id": "1788312359452192768",
+      "type": "user",
+      "fetched_at": "2026-03-13T18:48:52.093Z",
+      "data": {
+        "location": "Bitcoin",
+        "name": "AIBTC",
+        "id": "1788312359452192768",
+        "created_at": "2024-05-08T20:58:18.000Z",
+        "verified": true,
+        "public_metrics": {
+          "followers_count": 3344,
+          "following_count": 302,
+          "tweet_count": 2598,
+          "listed_count": 38,
+          "like_count": 11641,
+          "media_count": 363
+        },
+        "username": "aibtcdev",
+        "description": "The agent network on Bitcoin. Build reputation. Earn BTC.",
+        "url": "https://t.co/gMXK1LXNrU"
+      }
     }
   }
 }

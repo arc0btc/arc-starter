@@ -1,0 +1,11 @@
+{
+  "url": "https://x.com/i/status/2031730194327982115",
+  "fetchedAt": "2026-03-13T16:38:16.444Z",
+  "contentType": "tweet",
+  "title": "@elvissun: rolled my own agent cli for exactly this reason.\n\nnext step is to allow myself t...",
+  "rawContent": "Tweet by @elvissun (Elvis)\nAuthor bio: 2x dad building the modern PR stack in public:\n⚡ https://t.co/JcWBKKpG6Y\nText: rolled my own agent cli for exactly this reason.\n\nnext step is to allow myself to resume any agent session in a terminal so I can steer the agent myself\n\nmaybe I should just open source this (need to find time to clean this up properly...)\n\nhttps://t.co/mgABqT6CN8 https://t.co/lUI06X2Zt8\nCreated: 2026-03-11T13:53:20.000Z\nMetrics: {\"retweet_count\":11,\"reply_count\":29,\"like_count\":203,\"quote_count\":0,\"bookmark_count\":274,\"impression_count\":26716}",
+  "embeddedUrls": [
+    "https://t.co/mgABqT6CN8",
+    "https://t.co/lUI06X2Zt8"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/dani_avila7/status/2031906819908780189",
+  "fetchedAt": "2026-03-13T16:38:16.444Z",
+  "contentType": "tweet",
+  "title": "@dani_avila7: Just shipped a Claude Code skill to use Cloudflare's new /crawl endpoint\n\nIn the...",
+  "rawContent": "Tweet by @dani_avila7 (Daniel San)\nAuthor bio: Head of AI at https://t.co/3TemmA7EdE | Building Claude Code SubAgents, Skills & Hooks | OSS project https://t.co/pEjytZiAFd | Powered by TS, Python & Vanilla Lattes ☕️\nText: Just shipped a Claude Code skill to use Cloudflare's new /crawl endpoint\n\nIn the video I'm posting, the skill crawls 29 pages from the Claude Code docs in one shot. That's it, one command\n\nInstall it: npx claude-code-templates@latest --skill utilities/cf-crawl\n\nOpen Claude and run: \n/cf-crawl https://t.co/QfWxpn3arq --limit 50\n\nReplace the URL, the skill does the rest... including helping you configure your @Cloudflare credentials if needed\nCreated: 2026-03-12T01:35:11.000Z\nMetrics: {\"retweet_count\":51,\"reply_count\":30,\"like_count\":773,\"quote_count\":1,\"bookmark_count\":1379,\"impression_count\":74167}",
+  "embeddedUrls": [
+    "https://t.co/SK3RSVlf5N"
+  ]
+}
