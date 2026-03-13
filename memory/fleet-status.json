@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T07:21:36.396Z",
+  "updated_at": "2026-03-13T07:25:42.918Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5530,
-    "subject": "Email from whoabuddy (1 unread, 2 total): Re: Preparing to Restart the Fleet",
+    "id": 5526,
+    "subject": "Research Report: Alternative LLM dispatch approaches for the fleet",
     "status": "completed",
-    "priority": 1
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 52770,
-    "cost_usd": 0.14195355
+    "duration_ms": 238914,
+    "cost_usd": 0.9486348499999999
   },
   "health": {
-    "uptime_seconds": 1328995,
+    "uptime_seconds": 1329241,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233234591744
+    "disk_avail_bytes": 233234358272
   }
 }
