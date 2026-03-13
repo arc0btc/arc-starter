@@ -1,3 +1,22 @@
+## 2026-03-13T18:49:00.000Z
+
+4 findings: 0 error, 1 warn, 3 info → **WARN**
+
+**Codebase changes since last audit (06:47Z 2026-03-13, commits e626519 → 44af48e):**
+- **`aibtc-repo-maintenance` toggled off/on** (9c8bf7f → 44af48e): Disabled for creating noise (too broad a scope across aibtcdev repos), then re-enabled per whoabuddy with scope clarified. Net: sensor active, same behavior.
+- **`aibtc-dev-ops` simplified** (44af48e): Prod-grade audit checks (tsconfig, tests, release-please) removed. Created false positives on repos where they don't apply. Log review (4h cadence) preserved.
+- **`--skills` flag added to `arc tasks update`** (73eb83a): Retroactive skill tagging on any task, including completed ones. Accepts comma-separated skill names, stored as JSON array. Fills the analytics gap where untagged tasks couldn't be categorized.
+- **`EmailThreadMachine` retrospective_pending state** (e90a1eb): Pattern analysis found 104 recurrences of arc-email-sync threads without a retrospective step. Retrospective_pending now explicit state — previously ad-hoc follow-up tasks.
+- **`blog-publishing` 23h cooldown** (0f51aed): Sensor dedup now blocks re-queue for 23h after completion (not just while pending). Expected 80% token reduction. Already in audit context from memory.
+
+**SpaceX 5-step findings (2026-03-13T18:49Z):**
+- **(S1 — Requirements) [WARN]:** `aibtc-repo-maintenance` requires human override to fix scope — the sensor's trigger conditions were broad enough to create noise across repos Arc doesn't own. Pattern: when a sensor needs human intervention to clarify scope, the sensor's selectivity criteria are wrong. Pre-flight check on sensor activation should gate on explicit repo allowlist rather than "all aibtcdev repos". Watch for recurrence.
+- **(S2 — Delete) [INFO]:** `aibtc-dev-ops` prod-grade audit removal is correct S2 application. False-positive checks are worse than no checks — they train the system to ignore signals. Removing tsconfig/tests/release-please assertions from a general log-review sensor was the right call. Precedent: prefer narrow sensors that are always correct over broad sensors that are sometimes wrong.
+- **(S3 — Simplify) [INFO]:** `EmailThreadMachine` retrospective_pending makes implicit workflow explicit. 104 recurrences of ad-hoc retrospective follow-ups → first-class state. Simplification via formalization. The missing state was generating observable but invisible volume in email-sync costs.
+- **(S5 — Automate) [INFO]:** `--skills` retroactive tagging enables analytics automation. Previously, any task created before skill tags were standard was analytically dark. Now correctable post-hoc. Retroactive correction capability is a force multiplier for future audit tooling.
+
+---
+
 ## 2026-03-13T06:47:00.000Z
 
 4 findings: 0 error, 1 warn, 3 info → **WARN**

@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-13T06:47:00.000Z*
+*Generated: 2026-03-13T18:49:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -121,11 +121,15 @@ stateDiagram-v2
         RunAllSensors --> dealFlowSensor: aibtc-news-deal-flow
 
         note right of RunAllSensors
-            75 sensors total (+1 since 2026-03-13: aibtc-news-deal-flow)
-            NEW: aibtc-news-deal-flow (60min) — 5 hooks: Ordinals volume, sats auctions,
+            75 sensors total (stable since 2026-03-13T06Z)
+            aibtc-news-deal-flow (60min) — 5 hooks: Ordinals volume, sats auctions,
               x402 escrow, bounty activity (gated on config), DAO treasury (gated on config)
               APIs: Unisat (api_key cred) + Stacks Extended API
-            PREV: mempool-watch (10min) — BTC fee spike detection + Arc address unconfirmed tx watch
+            aibtc-repo-maintenance: toggled off (9c8bf7f) then re-enabled (44af48e)
+              per whoabuddy — scope clarified, sensor still active
+            aibtc-dev-ops: prod-grade audit checks removed (44af48e) — tsconfig/tests/
+              release-please checks created noise; log review (4h) preserved
+            mempool-watch (10min) — BTC fee spike + Arc address unconfirmed tx watch
             arc-cost-alerting replaced by arc-cost-reporting (daily report, no thresholds)
             Fleet sensors filter suspended agents since 2026-03-11
         end note
@@ -428,8 +432,9 @@ stateDiagram-v2
         ArcCommand --> StatusView: status
         note right of TasksCRUD
             tasks update: --id --subject --description
-            --priority --model --status pending
+            --priority --model --status pending --skills s1,s2
             (--status pending = requeue failed/blocked tasks)
+            (--skills = retroactive skill tagging, JSON array stored)
         end note
     }
 
@@ -503,6 +508,7 @@ stateDiagram-v2
 | new-release | detected→assessing→integration_pending→integrating→completed | github-release-watcher | Dynamic skill list from ctx |
 | architecture-review | triggered→reviewing→cleanup_pending→cleaning→completed | arc-workflow-review | RESOLVED: now creates P7/sonnet tasks (was P4/Opus) |
 | streak-maintenance | pending→attempting→rate_limited→completed | aibtc-news-editorial | Rate-limit aware; windowOpenAt schedules retry; MAX_RETRIES=3 cap; instance_key: streak-{beat}-{date} |
+| email-thread | received→triaged→ops_pending→retrospective_pending→completed | arc-email-sync | Email thread → triage → ops → retrospective (retrospective_pending state added 2026-03-13 to capture learnings; was ad-hoc follow-up); instance_key: email-thread-{source}-{date} |
 | agent-collaboration | received→triaged→ops_pending→retrospective_pending→completed | aibtc-inbox-sync | AIBTC inbox thread → triage → ops → learning capture; instance_key: agent-collab-{sender}-{date} |
 | recurring-failure | detected→investigating→fix_pending→fixing→retrospective_pending→completed | arc-failure-triage | Recurring failure investigation chain; fix task P5/sonnet; retro P8/haiku; instance_key: recurring-failure-{type}-{YYYY-MM-DD} |
 | overnight-brief | scheduled→generating→retrospective_pending→completed | arc-reporting | OvernightBriefMachine — overnight brief → retrospective cycle; instance_key: overnight-brief-{YYYY-MM-DD} |
