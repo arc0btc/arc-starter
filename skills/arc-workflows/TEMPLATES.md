@@ -173,12 +173,13 @@ Track architecture review cycles with followup cleanup tasks.
 
 ## Email Thread (`email-thread`)
 
-Triage and respond to incoming email threads.
+Triage, respond to, and extract learnings from incoming email threads.
 
 **States:**
-- `received` — Email thread received
-- `triaged` — Thread reviewed, action items identified
-- `reply_pending` — Reply needed, draft prepared
+- `received` — Email thread received; creates triage task
+- `triaged` — Thread reviewed, action items identified; auto-transitions to `reply_pending` or `retrospective_pending`
+- `reply_pending` — Reply needed; creates reply task; advances to `retrospective_pending`
+- `retrospective_pending` — All actions done; creates retrospective task (skipped if no action items)
 - `completed` — Workflow finished (terminal)
 
 **Context schema:**
@@ -189,14 +190,17 @@ Triage and respond to incoming email threads.
   messageCount?: number; // Messages in thread
   source?: string;       // Detecting skill (arc-email-sync, etc.)
   needsReply?: boolean;  // Whether a reply is needed
-  actionItems?: string;  // Identified action items
-  replyDraft?: string;   // Draft reply text
+  actionItems?: string;  // Comma-separated summary of action items spawned
+  replyDraft?: string;   // Draft reply text (set before transitioning to reply_pending)
+  taskRef?: string;      // "task:{id}" of root dispatch task (for retrospective reference)
 }
 ```
 
-**Pattern:** Automatically triage emails, spawn followup tasks, send replies.
+**Pattern:** Automatically triage emails, spawn followup tasks, send replies, then capture learnings. The retrospective step is skipped for purely informational threads (no actionItems).
 
 **Requires:** `arc-email-sync`, `arc-skill-manager` skills
+
+**instance_key:** `email-thread-{sender-slug}-{message-id-or-date}` (one per thread)
 
 ## Quest (`quest`)
 

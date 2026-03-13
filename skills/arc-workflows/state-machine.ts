@@ -581,17 +581,19 @@ export const ArchitectureReviewMachine: StateMachine<{
 /**
  * EmailThreadMachine — models the recurring "email thread from X" → follow-up chain cycle.
  *
- * Pattern detected: 24 recurrences, avg 5.4 steps per chain. Email threads consistently
- * spawn diverse follow-up tasks across many skills, then optionally require a reply.
- * This machine ensures every email thread is triaged, acted upon, and closed out.
+ * Pattern detected: 104 recurrences, avg 5.4 steps per chain. Email threads consistently
+ * spawn diverse follow-up tasks across many skills, then optionally require a reply,
+ * then consistently spawn a retrospective to extract learnings.
+ * This machine ensures every email thread is triaged, acted upon, and closed with learnings captured.
  *
  * instance_key: "email-thread-{sender-slug}-{message-id-or-date}" (one per thread)
  *
  * States:
- *   received       → triage the email, identify action items and whether a reply is needed
- *   triaged        → follow-up tasks have been created (or none needed); decide next step
- *   reply_pending  → a reply is required; draft and send it
- *   completed      → done (all tasks spawned, reply sent or not needed)
+ *   received              → triage the email, identify action items and whether a reply is needed
+ *   triaged               → follow-up tasks have been created (or none needed); decide next step
+ *   reply_pending         → a reply is required; draft and send it
+ *   retrospective_pending → all actions done; extract learnings before closing
+ *   completed             → done
  *
  * Context:
  *   sender         — display name or email of sender
@@ -601,6 +603,7 @@ export const ArchitectureReviewMachine: StateMachine<{
  *   needsReply     — whether a reply should be sent
  *   actionItems    — comma-separated list of action items identified during triage
  *   replyDraft     — draft reply text (populated before transitioning to reply_pending)
+ *   taskRef        — "task:{id}" of the root dispatch task (for retrospective reference)
  */
 export const EmailThreadMachine: StateMachine<{
   sender?: string;
@@ -610,6 +613,7 @@ export const EmailThreadMachine: StateMachine<{
   needsReply?: boolean;
   actionItems?: string;
   replyDraft?: string;
+  taskRef?: string;
 }> = {
   name: "email-thread",
   initialState: "received",
@@ -636,16 +640,17 @@ Steps:
 4. Transition this workflow to 'triaged' with updated context:
    - needsReply: true/false
    - actionItems: comma-separated summary of tasks created
-   - replyDraft: draft reply text (if needsReply is true)`,
+   - replyDraft: draft reply text (if needsReply is true)
+   - taskRef: "task:{this-task-id}"`,
         };
       },
     },
     triaged: {
-      on: { needs_reply: "reply_pending", close: "completed" },
+      on: { needs_reply: "reply_pending", close: "retrospective_pending" },
       action: (ctx) => {
         if (!ctx.needsReply) {
-          // No reply needed — auto-complete
-          return { type: "transition", nextState: "completed" };
+          // No reply needed — go straight to retrospective
+          return { type: "transition", nextState: "retrospective_pending" };
         }
         // Auto-transition to reply_pending if a reply is needed
         return {
@@ -655,7 +660,7 @@ Steps:
       },
     },
     reply_pending: {
-      on: { send: "completed" },
+      on: { send: "retrospective_pending" },
       action: (ctx) => {
         if (!ctx.sender || !ctx.replyDraft) return null;
         return {
@@ -668,7 +673,34 @@ Steps:
 Draft reply:
 ${ctx.replyDraft}
 
-After sending, transition this workflow to 'completed'.`,
+After sending, transition this workflow to 'retrospective_pending'.`,
+        };
+      },
+    },
+    retrospective_pending: {
+      on: { learnings_extracted: "completed" },
+      action: (ctx) => {
+        // Skip retrospective if no action items were identified (purely informational threads)
+        if (!ctx.actionItems) {
+          return { type: "transition", nextState: "completed" };
+        }
+        const threadDesc = ctx.subject
+          ? `"${ctx.subject}" from ${ctx.sender || "unknown"}`
+          : `from ${ctx.sender || "unknown"}`;
+        return {
+          type: "create-task",
+          subject: `Retrospective: extract learnings from email thread ${threadDesc}`,
+          priority: 9,
+          skills: ["arc-skill-manager"],
+          description: `Extract and record learnings from email thread ${threadDesc}.
+${ctx.taskRef ? `Root task: ${ctx.taskRef}` : ""}
+Action items spawned: ${ctx.actionItems}
+
+Steps:
+1. Review what the email thread revealed (patterns, requests, issues, opportunities)
+2. Identify if any follow-up chains are recurring for this sender or topic
+3. Update memory/MEMORY.md if a systemic pattern was identified
+4. Transition workflow to 'completed'`,
         };
       },
     },
