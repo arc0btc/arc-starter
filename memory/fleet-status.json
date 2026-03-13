@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T22:28:29.695Z",
+  "updated_at": "2026-03-13T22:32:40.293Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5682,
-    "subject": "Email from whoabuddy (1 unread): 12-hour Review",
+    "id": 5680,
+    "subject": "Design agentslovebitcoin.com genesis agent onboarding flow",
     "status": "completed",
-    "priority": 1
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 241418,
-    "cost_usd": 0.7666413000000001
+    "duration_ms": 250443,
+    "cost_usd": 0.7837035
   },
   "health": {
-    "uptime_seconds": 1383408,
+    "uptime_seconds": 1383659,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232630648832
+    "disk_avail_bytes": 232630493184
   }
 }
