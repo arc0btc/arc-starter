@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T06:25:39.597Z",
+  "updated_at": "2026-03-13T06:27:21.611Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5518,
-    "subject": "daily cost report — 2026-03-13",
+    "id": 5519,
+    "subject": "Email from whoabuddy (1 unread, 2 total): Re: AIBTC News Brief Changes",
     "status": "completed",
-    "priority": 9
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 16599,
-    "cost_usd": 0.032223100000000005
+    "duration_ms": 58110,
+    "cost_usd": 0.20204655000000002
   },
   "health": {
-    "uptime_seconds": 1325638,
+    "uptime_seconds": 1325740,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233244073984
+    "disk_avail_bytes": 233244024832
   }
 }
