@@ -366,30 +366,79 @@ async function fetchRawContent(url: string): Promise<CachedContent> {
     return { url, fetchedAt: timestamp, contentType: "tweet", title, rawContent: content, embeddedUrls: embedded };
   }
 
-  // Generic web fetch
-  const response = await fetch(url, {
-    headers: { "User-Agent": "Arc-Research/1.0" },
-    redirect: "follow",
-    signal: AbortSignal.timeout(15000),
-  });
-
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
+  // Generic web fetch — with Jina AI Reader fallback for JS-gated pages
+  async function fetchViaJina(): Promise<{ title: string; text: string }> {
+    const jinaUrl = `https://r.jina.ai/${url}`;
+    const jinaResp = await fetch(jinaUrl, {
+      headers: { "User-Agent": "Arc-Research/1.0", "Accept": "text/plain" },
+      redirect: "follow",
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!jinaResp.ok) throw new Error(`Jina fallback HTTP ${jinaResp.status}`);
+    const text = (await jinaResp.text()).slice(0, 10000);
+    // Jina returns markdown — first line is often "Title: <title>"
+    const titleLine = text.match(/^Title:\s*(.+)/m);
+    const jinaTitle = titleLine ? titleLine[1].trim() : new URL(url).hostname;
+    return { title: jinaTitle, text };
   }
 
-  const html = await response.text();
-  const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-  const title = titleMatch ? titleMatch[1].trim() : new URL(url).hostname;
+  let directOk = false;
+  let directHtml = "";
+  let directStatus = 0;
+  try {
+    const response = await fetch(url, {
+      headers: { "User-Agent": "Arc-Research/1.0" },
+      redirect: "follow",
+      signal: AbortSignal.timeout(15000),
+    });
+    directStatus = response.status;
+    if (response.ok) {
+      directHtml = await response.text();
+      directOk = true;
+    }
+  } catch {
+    // Network error — fall through to Jina
+  }
 
-  const stripped = html
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 10000);
+  if (directOk) {
+    const titleMatch = directHtml.match(/<title[^>]*>([^<]+)<\/title>/i);
+    const title = titleMatch ? titleMatch[1].trim() : new URL(url).hostname;
 
-  return { url, fetchedAt: timestamp, contentType: "html", title, rawContent: stripped, embeddedUrls: extractEmbeddedUrls(stripped) };
+    const stripped = directHtml
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 10000);
+
+    // Detect JS-gated: very little text after stripping means the page requires JS to render
+    if (stripped.length >= 200) {
+      return { url, fetchedAt: timestamp, contentType: "html", title, rawContent: stripped, embeddedUrls: extractEmbeddedUrls(stripped) };
+    }
+
+    // JS-gated — try Jina
+    process.stdout.write(`  [jina fallback: JS-gated] ${url}\n`);
+    try {
+      const jina = await fetchViaJina();
+      return { url, fetchedAt: timestamp, contentType: "html", title: jina.title, rawContent: jina.text, embeddedUrls: extractEmbeddedUrls(jina.text) };
+    } catch (jinaErr) {
+      // Jina failed too — return whatever stripped content we have
+      const jinaErrMsg = jinaErr instanceof Error ? jinaErr.message : String(jinaErr);
+      process.stdout.write(`  [jina failed: ${jinaErrMsg}] returning minimal content\n`);
+      return { url, fetchedAt: timestamp, contentType: "html", title, rawContent: stripped || title, embeddedUrls: [] };
+    }
+  }
+
+  // Direct fetch failed — try Jina
+  process.stdout.write(`  [jina fallback: HTTP ${directStatus || "error"}] ${url}\n`);
+  try {
+    const jina = await fetchViaJina();
+    return { url, fetchedAt: timestamp, contentType: "html", title: jina.title, rawContent: jina.text, embeddedUrls: extractEmbeddedUrls(jina.text) };
+  } catch (jinaErr) {
+    const jinaErrMsg = jinaErr instanceof Error ? jinaErr.message : String(jinaErr);
+    throw new Error(`HTTP ${directStatus || "error"} (Jina fallback also failed: ${jinaErrMsg})`);
+  }
 }
 
 async function fetchWithCache(url: string): Promise<CachedContent> {
