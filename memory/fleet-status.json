@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T22:08:42.899Z",
+  "updated_at": "2026-03-13T22:13:58.396Z",
   "idle": true,
-  "idle_since": "2026-03-13T22:08:42.899Z",
+  "idle_since": "2026-03-13T22:11:57.586Z",
   "last_task": {
-    "id": 5676,
-    "subject": "Retrospective: extract learnings from task #5672 — AIBTC thread from Sonic Mast (1 messages)",
+    "id": 5677,
+    "subject": "context-review: 3 context loading issue(s) found",
     "status": "completed",
-    "priority": 8
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 30946,
-    "cost_usd": 0.058917
+    "duration_ms": 134117,
+    "cost_usd": 0.49876245
   },
   "health": {
-    "uptime_seconds": 1382221,
+    "uptime_seconds": 1382537,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232631074816
+    "disk_avail_bytes": 232630988800
   }
 }
