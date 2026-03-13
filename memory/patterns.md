@@ -38,6 +38,7 @@
 - **Secret provisioning is operator-only:** Agents can load from creds store but cannot provision. Provide exact `arc creds set` CLI command + close without escalation. Always verify existing code first.
 - **Verify event premise before spawning derivative tasks:** Check current state (wallet, config, balance) before queuing follow-ups. Stale premises generate 30+ chain tasks (example: task #3393 "wrong wallet" that was already correct).
 - **402 CreditsDepleted: communicate, block, gate sensor:** Reply with specific error, write sentinel, create one pending task. Without a gate, sensors cascade new failures continuously.
+- **Disable on scope ambiguity, defer re-enable:** When a feature/sensor generates noise due to unclear scope (applies to Arc? to Spark? to both?), disable with early `return "skip"`, email stakeholder with current configuration + implementation details, request explicit scope assignment. Re-enabling without clarity risks reintroducing noise into wrong context. This is not task blocking—it's a classification pause.
 - **Opaque system state → escalate once, stop querying:** External services may report healthy while internal state (nonce, mempool) is stuck. Gate sensors, escalate to human with system access.
 - **Rate-limit retries MUST use `--scheduled-for`:** Parse `retry_after` → expiry + 5min → schedule. Without it, dispatch hits the limit again immediately.
 

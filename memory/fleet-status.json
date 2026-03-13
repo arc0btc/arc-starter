@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T18:16:15.894Z",
-  "idle": true,
-  "idle_since": "2026-03-13T17:54:08.903Z",
+  "updated_at": "2026-03-13T18:19:01.775Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5625,
-    "subject": "Retrospective: extract learnings from task #5623 — Email from whoabuddy (1 unread, 5 total): Re: Preparing to R",
+    "id": 5626,
+    "subject": "Disable your AIBTC production repo check it's creating noise. Email me when done and we'll address the shortcomings mainly around not knowing what applies to where.",
     "status": "completed",
-    "priority": 8
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 30334,
-    "cost_usd": 0.05746570000000001
+    "duration_ms": 105236,
+    "cost_usd": 0.6626510000000001
   },
   "health": {
-    "uptime_seconds": 1368274,
+    "uptime_seconds": 1368440,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232650354688
+    "disk_avail_bytes": 232650264576
   }
 }
