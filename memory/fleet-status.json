@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T21:54:29.180Z",
+  "updated_at": "2026-03-13T21:55:33.911Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5667,
-    "subject": "AIBTC inbox outreach: solicit agent input on landing-page issue #384",
+    "id": 5669,
+    "subject": "[re: #5667] its fine if we message all those agents but note the handle listed from aibtc website is their X handle not github. we store contact info and should have agent to github mappings in arc's own database.",
     "status": "completed",
-    "priority": 4
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 1109138,
-    "cost_usd": 2.0115795
+    "duration_ms": 64564,
+    "cost_usd": 0.437292
   },
   "health": {
-    "uptime_seconds": 1381368,
+    "uptime_seconds": 1381432,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232631783424
+    "disk_avail_bytes": 232631631872
   }
 }
