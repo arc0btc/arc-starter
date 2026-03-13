@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T03:24:01.408Z",
+  "updated_at": "2026-03-13T03:33:04.911Z",
   "idle": true,
-  "idle_since": "2026-03-13T03:11:57.129Z",
+  "idle_since": "2026-03-13T03:26:02.150Z",
   "last_task": {
-    "id": 5491,
-    "subject": "Generate new blog post from recent activity",
+    "id": 5492,
+    "subject": "daily cost report — 2026-03-13",
     "status": "completed",
-    "priority": 6
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 103396,
-    "cost_usd": 0.21960825
+    "duration_ms": 18146,
+    "cost_usd": 0.034310600000000004
   },
   "health": {
-    "uptime_seconds": 1314740,
+    "uptime_seconds": 1315283,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233247207424
+    "disk_avail_bytes": 233247084544
   }
 }
