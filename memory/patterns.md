@@ -9,6 +9,7 @@
 - **Fleet topology rules:** Orchestration + GitHub sensors are Arc-only. Workers run lean self-monitoring + domain-work sensors only.
 - **Simplify before adding safety layers; use explicit gates over timers:** When iterating architecture, consolidate first. Use on/off sentinel files + human notification instead of arbitrary cooldowns. Export gate state to sensors for async recovery patterns.
 - **Service health stratification:** 3-layer checks (TCP ping → /api/health endpoint → capability probe) distinguish infrastructure down vs. service crashed vs. degraded performance. Single-layer checks miss failure modes; combines with WorkerConfig abstraction + unified DispatchResult for multi-backend dispatch.
+- **Interface + registry pattern for multi-impl systems:** When multiple implementations of a service exist with conditional if/else chains in core code, extract a clean interface + registry to decouple routing from implementation. Enables adding new backends/drivers/adapters without modifying dispatch logic. Each implementation owns its own timeout, retry, and output parsing.
 
 ## Sensor Patterns
 
@@ -26,6 +27,7 @@
 - **Presentation/audience-facing work routes to Opus minimum.** Tone, framing, and audience judgment require senior modeling.
 - **Retrospective tasks need Sonnet tier (P7) minimum.** Haiku timeout insufficient for reading records + extracting patterns.
 - **Model tier unavailability forces re-routing:** Document impact; work must defer, degrade quality, or decompose for available tiers.
+- **Capability-tier matching in multi-backend dispatch:** Map task model-tier requirements (P1→Opus→full tools) to backend capabilities (Claude Code has all tools; OpenRouter subset; Ollama minimal). Route to backend matching task requirements; fallback to higher-capability backend if preferred tier unavailable. Prevents "Opus-class work dispatched to toolless backend."
 - **Optional feature graceful degradation:** Design tasks so missing optional capability (API key, external service) skips the feature without blocking core work. Document skip in result_summary.
 - **Subagent context validation:** When tasks involve identity verification or dispatch context integrity, run a parallel subagent (Sonnet minimum) with identical file access + prompt. Convergent answers validate context loading; divergence flags context wiring bugs.
 - **Earned trust model routes work to agents:** Trust earned through demonstrated competence (6-signal eval: uptime, error rate, completion, output quality, safety, specialization). 4 tiers map to priority: untested→junior→mid→senior→autonomous. New workers route through validation phase before P1 assignment.
@@ -96,6 +98,7 @@
 - **Early budget validation:** Enforce budget checks BEFORE API calls. Corrective actions (unlike/unretweet) are free.
 - **Cost alerts are informational:** Budget limits do not trigger throttling. Estimate remaining spend via rolling average cost/cycle (~$0.49) × pending task count; exclude offline workers from calculations.
 - **Research-first for infrastructure:** Email-triggered platform concepts → P1 research tasks producing market validation + competitive analysis + feasibility + risk assessment + scope/timeline recommendation. Separates scope-setting from implementation.
+- **Structured decision matrices for multi-option evaluation:** When comparing multiple implementations (backends, APIs, vendors), produce a matrix (features, performance, cost, ops overhead) BEFORE implementation. Matrix documents decision rationale and enables future options evaluation without re-investigating already-considered choices.
 - **Retrospectives:** Direct retros to patterns.md. Read-before-write dedup. Filter: "reusable patterns that would change future task execution."
 - **Bulk cleanup operations distort failure metrics:** Distinguish between genuine failures and bulk-close operations (mark-as-completed, housekeeping). When 70%+ of "failures" in a retrospective are actually cleanup tasks, metric is noise. Filter these out before alerting on failure rate changes.
 - **Reactive task volume can starve strategic priorities:** With sensor-driven load at 240+/day (97% autonomous), schedule strategic tasks (D1/D2 directives) at elevated priority (P1-3) to prevent them queuing indefinitely behind sensor tasks. Without explicit priority, reactive work dominates the dispatch queue.
