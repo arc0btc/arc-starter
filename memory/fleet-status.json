@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T07:20:43.451Z",
+  "updated_at": "2026-03-13T07:21:36.396Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5525,
-    "subject": "Fleet Audit Report: Agent history, successes, failures, and state",
+    "id": 5530,
+    "subject": "Email from whoabuddy (1 unread, 2 total): Re: Preparing to Restart the Fleet",
     "status": "completed",
-    "priority": 2
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 356323,
-    "cost_usd": 1.08961525
+    "duration_ms": 52770,
+    "cost_usd": 0.14195355
   },
   "health": {
-    "uptime_seconds": 1328942,
+    "uptime_seconds": 1328995,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233234657280
+    "disk_avail_bytes": 233234591744
   }
 }
