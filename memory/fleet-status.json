@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T21:55:33.911Z",
+  "updated_at": "2026-03-13T21:56:55.274Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5669,
-    "subject": "[re: #5667] its fine if we message all those agents but note the handle listed from aibtc website is their X handle not github. we store contact info and should have agent to github mappings in arc's own database.",
+    "id": 5670,
+    "subject": "Email from whoabuddy (1 unread, 7 total): Re: Agents Love Bitcoin",
     "status": "completed",
     "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 64564,
-    "cost_usd": 0.437292
+    "duration_ms": 81219,
+    "cost_usd": 0.24982844999999998
   },
   "health": {
-    "uptime_seconds": 1381432,
+    "uptime_seconds": 1381514,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232631631872
+    "disk_avail_bytes": 232631586816
   }
 }
