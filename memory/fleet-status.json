@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T21:58:29.887Z",
+  "updated_at": "2026-03-13T22:03:04.349Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5672,
-    "subject": "AIBTC thread from Sonic Mast (1 messages)",
+    "id": 5674,
+    "subject": "Revise agents-love-bitcoin PRD: per-address Durable Objects + MCP/skills funnel",
     "status": "completed",
-    "priority": 2
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 94411,
-    "cost_usd": 0.42222774999999996
+    "duration_ms": 274301,
+    "cost_usd": 0.9995590999999999
   },
   "health": {
-    "uptime_seconds": 1381608,
+    "uptime_seconds": 1381883,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232631533568
+    "disk_avail_bytes": 232631410688
   }
 }
