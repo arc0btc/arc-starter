@@ -178,6 +178,10 @@ function trackIssueWorkflows(issues: IssueInfo[]): number {
 }
 
 export default async function aibtcMaintenanceSensor(): Promise<string> {
+  // DISABLED 2026-03-13: Creating noise — repos watched don't map to what Arc can act on.
+  // Will re-enable after aligning with whoabuddy on which repos apply where.
+  return "skip";
+
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
