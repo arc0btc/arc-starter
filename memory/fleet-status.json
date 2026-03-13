@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T22:37:56.324Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-13T22:51:18.402Z",
+  "idle": true,
+  "idle_since": "2026-03-13T22:39:13.395Z",
   "last_task": {
-    "id": 5686,
-    "subject": "Retrospective: extract learnings from task #5682 — Email from whoabuddy (1 unread): 12-hour Review",
+    "id": 5684,
+    "subject": "daily cost report — 2026-03-13",
     "status": "completed",
-    "priority": 8
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 43579,
-    "cost_usd": 0.07379035
+    "duration_ms": 16395,
+    "cost_usd": 0.0346106
   },
   "health": {
-    "uptime_seconds": 1383975,
+    "uptime_seconds": 1384777,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232630181888
+    "disk_avail_bytes": 232630038528
   }
 }

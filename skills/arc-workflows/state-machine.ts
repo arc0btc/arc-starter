@@ -2169,6 +2169,196 @@ Steps:
 };
 
 /**
+ * LandingPageReviewMachine — models the release-watcher → landing page review → gap-fix cycle.
+ *
+ * Pattern detected: "sensor:github-release-watcher:landing-page-review" tasks
+ * (3 recurrences, avg 2.7 steps/chain) consistently spawn doc-update follow-ups
+ * after reviewing the landing page for a new release.
+ * This machine deduplicates concurrent reviews for the same release version and
+ * ensures identified gaps always get fix tasks created.
+ *
+ * instance_key: "landing-page-review-{repo-slug}-{version}" (one per release)
+ *
+ * States:
+ *   triggered     → review task created; checks landing page against new release
+ *   reviewing     → review task executing; identifies documentation/content gaps
+ *   gaps_found    → fix tasks created for each gap (SKILL.md updates, SHORT_DESC entries, etc.)
+ *   fixing        → fix tasks executing
+ *   no_gaps       → review found nothing to fix; terminal
+ *   completed     → all gaps fixed; terminal
+ *
+ * Context:
+ *   repo             — e.g. "aibtcdev/landing-page"
+ *   releaseVersion   — e.g. "skills-v0.21.0"
+ *   releaseDate      — ISO date string
+ *   reviewTaskRef    — "task:{id}" of the review task
+ *   gapSummary       — brief description of gaps found (populated before gaps_found)
+ *   fixTaskRefs      — space-separated "task:{id}" refs of fix tasks created
+ */
+export const LandingPageReviewMachine: StateMachine<{
+  repo?: string;
+  releaseVersion?: string;
+  releaseDate?: string;
+  reviewTaskRef?: string;
+  gapSummary?: string;
+  fixTaskRefs?: string;
+}> = {
+  name: "landing-page-review",
+  initialState: "triggered",
+  states: {
+    triggered: {
+      on: { start_review: "reviewing" },
+      action: (ctx) => {
+        const repo = ctx.repo || "aibtcdev/landing-page";
+        const version = ctx.releaseVersion || "unknown version";
+        return {
+          type: "create-task",
+          subject: `Review ${repo} for ${version} content gaps`,
+          priority: 6,
+          skills: ["aibtc-repo-maintenance", "dev-landing-page-review"],
+          description: `A new release (${version}) has been detected. Review the landing page repo for content gaps.${ctx.releaseDate ? `\nRelease date: ${ctx.releaseDate}` : ""}
+
+Steps:
+1. Check what changed in ${version} (new skills, APIs, agent capabilities)
+2. Review landing page docs, SKILL.md frontmatter, SHORT_DESC entries, and llms.txt
+3. Identify missing or outdated entries for the new/changed skills
+4. Transition workflow to 'reviewing', then 'gaps_found' (set gapSummary) or 'no_gaps'`,
+        };
+      },
+    },
+    reviewing: {
+      on: { gaps_found: "gaps_found", no_gaps: "no_gaps" },
+      action: () => null,
+    },
+    gaps_found: {
+      on: { fixes_created: "fixing" },
+      action: (ctx) => {
+        const version = ctx.releaseVersion || "unknown version";
+        const gapSummary = ctx.gapSummary || "see review task";
+        return {
+          type: "create-task",
+          subject: `Fix landing page gaps for ${version}`,
+          priority: 6,
+          skills: ["aibtc-repo-maintenance", "dev-landing-page-review"],
+          description: `Apply landing page fixes identified in the review for ${version}.
+Gaps found: ${gapSummary}
+${ctx.reviewTaskRef ? `Review task: ${ctx.reviewTaskRef}` : ""}
+
+Steps:
+1. For each gap, apply the fix (update SKILL.md frontmatter, add SHORT_DESC, update llms.txt, etc.)
+2. Commit changes with conventional commits format
+3. Transition workflow to 'fixing', then 'completed' when all fixes are applied`,
+        };
+      },
+    },
+    fixing: {
+      on: { done: "completed" },
+      action: () => null,
+    },
+    no_gaps: {
+      on: {},
+      action: () => null,
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
+ * CostReviewMachine — models the daily cost report → analysis → targeted audit cycle.
+ *
+ * Pattern detected: "sensor:arc-cost-reporting" tasks (3 recurrences, avg 2.0 steps/chain)
+ * consistently spawn audit follow-ups after the daily cost report is generated.
+ * Distinct from CostAlertMachine (which fires on threshold breach) — this is the
+ * daily structured review that identifies anomalous skills/sensors and creates
+ * targeted follow-up audit tasks.
+ *
+ * instance_key: "cost-review-{YYYY-MM-DD}" (one per day — deduplicates multiple report runs)
+ *
+ * States:
+ *   generated   → cost report task created; daily snapshot captured
+ *   analyzing   → analysis task executing; identifies top spenders and anomalies
+ *   auditing    → targeted audit tasks created for flagged skills/sensors
+ *   completed   → audits done, learnings recorded in memory
+ *
+ * Context:
+ *   reportDate     — e.g. "2026-03-13"
+ *   reportTaskRef  — "task:{id}" of the original cost report task
+ *   totalCodeCost  — total code cost for the day, e.g. 55.46
+ *   topSpenders    — comma-separated skill names with anomalous cost
+ *   anomalies      — free-text description of what to audit (populated during analyzing)
+ *   auditTaskRefs  — space-separated "task:{id}" refs of audit tasks created
+ */
+export const CostReviewMachine: StateMachine<{
+  reportDate?: string;
+  reportTaskRef?: string;
+  totalCodeCost?: number;
+  topSpenders?: string;
+  anomalies?: string;
+  auditTaskRefs?: string;
+}> = {
+  name: "cost-review",
+  initialState: "generated",
+  states: {
+    generated: {
+      on: { analyze: "analyzing" },
+      action: (ctx) => {
+        const date = ctx.reportDate || "today";
+        const spend = ctx.totalCodeCost ? `$${ctx.totalCodeCost.toFixed(2)}` : "unknown";
+        return {
+          type: "create-task",
+          subject: `Analyze daily cost report — ${date}`,
+          priority: 7,
+          skills: ["arc-cost-reporting", "arc-skill-manager"],
+          description: `The daily cost report for ${date} has been generated (spend: ${spend}).${ctx.reportTaskRef ? `\nReport task: ${ctx.reportTaskRef}` : ""}
+
+Steps:
+1. Review the cost report: identify the top 3 skills/sensors by code cost and token volume
+2. Flag any skill with >20% day-over-day growth or >10k tokens/task average as an anomaly
+3. Check blog-publishing cadence, email-sync volume, and any new Opus-tier tasks for justification
+4. Set anomalies in context describing what needs targeted auditing
+5. Transition workflow to 'analyzing', then 'auditing' (with topSpenders set) or 'completed' if nothing actionable`,
+        };
+      },
+    },
+    analyzing: {
+      on: { audits_created: "auditing", no_action: "completed" },
+      action: () => null,
+    },
+    auditing: {
+      on: { done: "completed" },
+      action: (ctx) => {
+        const date = ctx.reportDate || "today";
+        const spenders = ctx.topSpenders || "see analysis";
+        return {
+          type: "create-task",
+          subject: `Cost audit: ${spenders} — ${date}`,
+          priority: 7,
+          skills: ["arc-cost-reporting", "arc-skill-manager"],
+          description: `Perform targeted cost audit for flagged skills/sensors from the ${date} cost review.
+Top spenders: ${spenders}
+Anomalies: ${ctx.anomalies || "see analysis task"}
+${ctx.reportTaskRef ? `Report task: ${ctx.reportTaskRef}` : ""}
+
+Steps:
+1. For each flagged skill: review sensor cadence, task volume, and per-task token cost
+2. Identify if the cost is justified (strategic work, fleet degradation) or a bug (sensor over-firing, dedup failure)
+3. If a bug: create a targeted fix task (sensor cadence, dedup logic, model tier downgrade)
+4. Record findings in memory/MEMORY.md under cost optimization
+5. Transition workflow to 'completed'`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -2200,6 +2390,8 @@ export function getTemplateByName(name: string): StateMachine | null {
     "credential-rotation": CredentialRotationMachine,
     "psbt-escalation": PsbtEscalationMachine,
     "skill-maintenance": SkillMaintenanceMachine,
+    "landing-page-review": LandingPageReviewMachine,
+    "cost-review": CostReviewMachine,
   };
   return templates[name] || null;
 }
