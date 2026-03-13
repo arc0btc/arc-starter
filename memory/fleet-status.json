@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T15:45:59.082Z",
+  "updated_at": "2026-03-13T15:47:03.589Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5593,
-    "subject": "GitHub issue in aibtcdev/aibtc-mcp-server#294: MCP client lacks RBF and nonce-gap recovery for sponsored transactions",
+    "id": 5594,
+    "subject": "GitHub issue in aibtcdev/x402-sponsor-relay#164: Relay needs RBF and nonce-gap filling to recover stuck sponsored transactions",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 38312,
-    "cost_usd": 0.1297488
+    "duration_ms": 42585,
+    "cost_usd": 0.13507575
   },
   "health": {
-    "uptime_seconds": 1359257,
+    "uptime_seconds": 1359322,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232651300864
+    "disk_avail_bytes": 232651251712
   }
 }

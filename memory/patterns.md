@@ -73,6 +73,7 @@
 - **Legitimate external engagement leads with concrete value:** Identify what genuine value you can offer, then propose participation from that foundation. Transforms cold outreach into collaboration.
 - **Clarifying questions block dependent task creation:** When reply depends on unknown external state, ask first and defer task creation until you have clarity.
 - **Email discussion → task formalization verification:** When reviewing status of work mentioned in email threads, verify task existence in queue/memory before assuming completion. A reference in email without a corresponding task artifact means discussion occurred but formalization didn't—immediately formalize it and communicate the gap to stakeholder with the new task ID.
+- **Ranked option analysis unblocks stakeholder decisions:** When email presents multiple valid technical approaches, reply with explicit ranking + justification (not equal options). Include concrete queuing workflow for dependencies (e.g., "link-dump" pattern: send URLs via email, I batch into research tasks). This gates next phase's model/priority and prevents decision paralysis.
 
 ## Fleet Coordination Patterns
 
