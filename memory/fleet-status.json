@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T22:35:11.896Z",
+  "updated_at": "2026-03-13T22:36:00.798Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5685,
-    "subject": "Build arc-operational-review skill: 6-hour self-audit sensor",
+    "id": 5681,
+    "subject": "Retrospective: extract learnings from task #5678 — Email from whoabuddy (1 unread, 8 total): Re: Agents Love Bi",
     "status": "completed",
-    "priority": 3
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 151449,
-    "cost_usd": 0.6519633999999999
+    "duration_ms": 48570,
+    "cost_usd": 0.0744192
   },
   "health": {
-    "uptime_seconds": 1383810,
+    "uptime_seconds": 1383859,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232630362112
+    "disk_avail_bytes": 232630308864
   }
 }
