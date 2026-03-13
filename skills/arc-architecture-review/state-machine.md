@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-12T18:46:00.000Z*
+*Generated: 2026-03-13T06:47:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -25,7 +25,7 @@ stateDiagram-v2
         [*] --> ShutdownGate: db/shutdown-state.json
         ShutdownGate --> [*]: SHUTDOWN — skip all sensors (reason + since logged)
         ShutdownGate --> FilterSensors: not shutdown
-        FilterSensors --> RunAllSensors: arc0 (Arc host) — all 72 sensors
+        FilterSensors --> RunAllSensors: arc0 (Arc host) — all 75 sensors
         FilterSensors --> RunFilteredSensors: worker agent — allowlist only (13 sensors)
         note right of FilterSensors
             Worker allowlist (13): aibtc-heartbeat, aibtc-inbox-sync,
@@ -118,13 +118,14 @@ stateDiagram-v2
         RunAllSensors --> arcUmbrelSensor: arc-umbrel
         RunAllSensors --> aibtcWelcomeSensor: aibtc-welcome
         RunAllSensors --> mempoolWatchSensor: mempool-watch
+        RunAllSensors --> dealFlowSensor: aibtc-news-deal-flow
 
         note right of RunAllSensors
-            74 sensors total (+1 since 2026-03-12: mempool-watch)
-            NEW: mempool-watch (10min) — BTC fee spike detection + Arc address unconfirmed tx watch
-              fee spike: task when fastestFee >= 50 sat/vB (60min cooldown)
-              BTC incoming: task per new unconfirmed tx to bc1qlezz2... (seen_txids dedup, cap 500)
-              API: mempool.space (no key, ~10 req/s public)
+            75 sensors total (+1 since 2026-03-13: aibtc-news-deal-flow)
+            NEW: aibtc-news-deal-flow (60min) — 5 hooks: Ordinals volume, sats auctions,
+              x402 escrow, bounty activity (gated on config), DAO treasury (gated on config)
+              APIs: Unisat (api_key cred) + Stacks Extended API
+            PREV: mempool-watch (10min) — BTC fee spike detection + Arc address unconfirmed tx watch
             arc-cost-alerting replaced by arc-cost-reporting (daily report, no thresholds)
             Fleet sensors filter suspended agents since 2026-03-11
         end note
@@ -301,6 +302,29 @@ stateDiagram-v2
             end note
         }
 
+        state dealFlowSensor {
+            [*] --> dealFlowGate: claimSensorRun(aibtc-news-deal-flow, 60min)
+            dealFlowGate --> dealFlowSkip: interval not elapsed
+            dealFlowGate --> dealFlowRun: interval elapsed
+            dealFlowRun --> dealFlowOrdinals: checkOrdinalsVolume
+            dealFlowOrdinals --> dealFlowSats: checkSatsAuctions (Unisat)
+            dealFlowSats --> dealFlowX402: checkX402Escrow (Stacks API)
+            dealFlowX402 --> dealFlowBounty: checkBountyActivity (gated: bountyContract in hook state)
+            dealFlowBounty --> dealFlowDao: checkDaoTreasury (gated: daoTreasuryContract in hook state)
+            dealFlowDao --> dealFlowWriteState: writeHookState
+            dealFlowWriteState --> [*]: return ok
+            dealFlowSkip --> [*]: return skip
+            note right of dealFlowGate
+                Tasks: P6 sonnet, skills: aibtc-news-editorial + aibtc-news-deal-flow
+                Ordinals: $2M weekly threshold (Unisat api_key required)
+                Sats auctions: 50k sat top auction (Unisat api_key required)
+                x402: $5M weekly escrow volume (no key; rough STX proxy)
+                DAO treasury: 1 BTC change (needs daoTreasuryContract configured)
+                Bounty: any launch in 24h (needs bountyContract configured)
+                ⚠ DAO + bounty hooks always skip unless hook state configured
+            end note
+        }
+
         state githubInterceptorSensor {
             [*] --> githubInterceptorGate: claimSensorRun(github-interceptor, 10min)
             githubInterceptorGate --> githubInterceptorSkip: Arc host (no-op)
@@ -444,7 +468,7 @@ stateDiagram-v2
 |---|-------|-------------------|------|
 | 0 | Shutdown gate | `db/shutdown-state.json` | Both sensors and dispatch exit immediately if shutdown enabled |
 | 1 | Sensor fires | Hook state (interval check) | `claimSensorRun()` |
-| 1a | Sensor filter | `AGENT_NAME` from `src/identity.ts` | Worker: 13-sensor allowlist; Arc: all 73 |
+| 1a | Sensor filter | `AGENT_NAME` from `src/identity.ts` | Worker: 13-sensor allowlist; Arc: all 75 |
 | 1b | Architect SHA check | SHA of src/ + skills/ excl. skills/arc-architecture-review/ | Skip if unchanged + diagram fresh + no active reports |
 | 2 | Sensor creates task | External data + dedup check | `pendingTaskExistsForSource()` |
 | 3 | Dispatch lock check | Lock file (PID + task_id) | `isPidAlive()` |
@@ -486,6 +510,7 @@ stateDiagram-v2
 | content-promotion | pending→scheduling→posting→completed | blog-publishing | ContentPromotionMachine — published post → X promotion → done |
 | credential-rotation | pending→rotating→verifying→confirmed→completed | arc-credentials | CredentialRotationMachine — credential expiry → rotate → verify → confirmed |
 | psbt-escalation | pending→escalated→approved→signing→broadcast→completed | bitcoin-wallet | PsbtEscalationMachine — PSBT sign request → whoabuddy approval gate → sign/broadcast |
+| skill-maintenance | triggered→auditing→fix_pending→fixing→no_action/completed | arc-email-sync | SkillMaintenanceMachine — email signal → audit → targeted fix; instance_key: skill-maintenance-{skill}-{YYYY-MM-DD} |
 
 ## Skills Inventory (101 total)
 
@@ -496,7 +521,7 @@ stateDiagram-v2
 | aibtc-heartbeat | yes | - | - | Signed AIBTC platform check-in via BIP-137 Bitcoin message signing (iterates all agent wallets) |
 | aibtc-inbox-sync | yes | - | yes | Poll AIBTC platform inbox, sync messages locally, queue tasks |
 | aibtc-welcome | yes | - | - | Detect and welcome new AIBTC agents via x402 (100 sats); interaction-history dedup; x402 sentinel gate |
-| aibtc-news-deal-flow | - | - | yes | Editorial voice for Deal Flow beat on aibtc.news |
+| aibtc-news-deal-flow | yes | - | yes | Deal Flow beat sensor (60min, 5 hooks: Ordinals, sats, x402, bounty, DAO treasury) + editorial voice |
 | aibtc-news-editorial | yes | yes | yes | File intelligence signals, claim editorial beats, track activity on aibtc.news |
 | aibtc-news-classifieds | - | yes | - | Classified ads, brief reading, signal corrections, beat updates, streaks |
 | aibtc-repo-maintenance | yes | yes | yes | Triage, review, test, and support aibtcdev repos (GraphQL batched) |

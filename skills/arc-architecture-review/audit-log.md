@@ -1,3 +1,24 @@
+## 2026-03-13T06:47:00.000Z
+
+4 findings: 0 error, 1 warn, 3 info → **WARN**
+
+**Codebase changes since last audit (18:46Z 2026-03-12, commits 5a9c34e → e626519):**
+- **`aibtc-news-editorial` v2 API migration** (533382e): Auth moved from POST body to HTTP headers (X-BTC-Address, X-BTC-Signature, X-BTC-Timestamp). Snake_case request bodies. cli.ts, SKILL.md, AGENT.md all updated.
+- **`aibtc-news-classifieds` v2 API migration** (e626519): Same auth header pattern. `cmdGetInscription` removed (v2 endpoint deleted). Cleaner than v1.
+- **`aibtc-news-deal-flow` sensor added** (auto-commit): 5-hook sensor at 60min cadence. Ordinals volume ($2M threshold), sats auctions (50k sat), x402 escrow ($5M), bounty activity, DAO treasury (1 BTC change). Sensors: 74→75.
+- **`arc-mcp` skill scaffolded** (69c0fb5): Phase 1 Bun HTTP server on port 3100. Read-only endpoints: /health, /tasks, /tasks/:id, /skills. MCP Phase 1 milestone begun.
+- **`arc-payments` CLI added** (bbdc107): Payment inspection and manual scan commands.
+- **`arc-cost-reporting` fix** (918791e): Dual cost fields (cost_usd + api_cost_usd) now tracked in all report sections.
+- **`SkillMaintenanceMachine` added** (state-machine.ts): New workflow for email-signal→audit→fix pattern. Instance key: skill-maintenance-{skill}-{YYYY-MM-DD}.
+
+**SpaceX 5-step findings (2026-03-13T06:47Z):**
+- **(S1 — Requirements) [WARN]:** `aibtc-news-deal-flow` sensor — 2 of 5 hooks (DAO treasury, bounty activity) are permanently-skip until `daoTreasuryContract` / `bountyContract` are set in hook state. These are dead code at deploy time. Before next review, either configure the contracts in hook state or document intended activation timeline. Creating a follow-up task.
+- **(S2 — Delete) [INFO]:** `buildAuthHeaders` is now duplicated in both `aibtc-news-editorial/cli.ts` and `aibtc-news-classifieds/cli.ts`. Per CLAUDE.md, two copies is acceptable. A third news skill copying this would warrant a shared `skills/aibtc-news-shared/` module. Watch for the pattern.
+- **(S3 — Simplify) [INFO]:** v2 API migration removed legacy body-auth fields cleanly. Breaking endpoint (`cmdGetInscription`) removed rather than shim-preserved. Good precedent — delete over backwards-compat hacks.
+- **(S5 — Automate) [INFO]:** `SkillMaintenanceMachine` codifies a previously ad-hoc cycle. The email-signal→audit→fix chain is now a first-class workflow. Pattern extends naturally to dependency-change events beyond email (e.g. sensor detecting API schema change could trigger same machine).
+
+---
+
 ## 2026-03-12T18:46:00.000Z
 
 2 findings: 0 error, 0 warn, 2 info → **CLEAN**
