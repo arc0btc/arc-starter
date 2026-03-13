@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T22:13:58.396Z",
-  "idle": true,
-  "idle_since": "2026-03-13T22:11:57.586Z",
+  "updated_at": "2026-03-13T22:16:39.801Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5677,
-    "subject": "context-review: 3 context loading issue(s) found",
+    "id": 5678,
+    "subject": "Email from whoabuddy (1 unread, 8 total): Re: Agents Love Bitcoin",
     "status": "completed",
-    "priority": 6
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 134117,
-    "cost_usd": 0.49876245
+    "duration_ms": 100784,
+    "cost_usd": 0.25802339999999996
   },
   "health": {
-    "uptime_seconds": 1382537,
+    "uptime_seconds": 1382698,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232630988800
+    "disk_avail_bytes": 232630935552
   }
 }
