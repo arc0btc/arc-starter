@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T12:14:06.400Z",
-  "idle": true,
-  "idle_since": "2026-03-13T12:14:06.400Z",
+  "updated_at": "2026-03-13T12:18:56.448Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5557,
-    "subject": "Retrospective: extract learnings from task #5556 — [re: #5527] ready lets do this",
+    "id": 5558,
+    "subject": "[re: #5528] unblocked",
     "status": "completed",
-    "priority": 8
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 33312,
-    "cost_usd": 0.0690354
+    "duration_ms": 229457,
+    "cost_usd": 1.1358689999999998
   },
   "health": {
-    "uptime_seconds": 1346545,
+    "uptime_seconds": 1346835,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233223815168
+    "disk_avail_bytes": 233227857920
   }
 }
