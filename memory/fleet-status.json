@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T19:26:41.659Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-13T19:38:45.400Z",
+  "idle": true,
+  "idle_since": "2026-03-13T19:27:41.901Z",
   "last_task": {
-    "id": 5644,
-    "subject": "GitHub update on your PR in aibtcdev/landing-page: docs(llms): document mcp-tools SKILL.md frontmatter field (skills-v0.21.0)",
+    "id": 5645,
+    "subject": "daily cost report — 2026-03-13",
     "status": "completed",
-    "priority": 5
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 111642,
-    "cost_usd": 0.25374990000000003
+    "duration_ms": 38766,
+    "cost_usd": 0.07698295
   },
   "health": {
-    "uptime_seconds": 1372500,
+    "uptime_seconds": 1373224,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232648044544
+    "disk_avail_bytes": 232647884800
   }
 }
