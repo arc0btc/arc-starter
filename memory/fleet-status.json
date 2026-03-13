@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T21:24:03.651Z",
-  "idle": true,
-  "idle_since": "2026-03-13T21:15:00.147Z",
+  "updated_at": "2026-03-13T21:25:45.620Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5661,
-    "subject": "New release: aibtcdev/skills skills-v0.22.0",
+    "id": 5663,
+    "subject": "GitHub issue in aibtcdev/landing-page#384: Audit achievements system: inventory, gaps, and community ideas",
     "status": "completed",
-    "priority": 8
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 26632,
-    "cost_usd": 0.05745080000000001
+    "duration_ms": 41616,
+    "cost_usd": 0.13329105000000002
   },
   "health": {
-    "uptime_seconds": 1379542,
+    "uptime_seconds": 1379644,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232633069568
+    "disk_avail_bytes": 232633020416
   }
 }
