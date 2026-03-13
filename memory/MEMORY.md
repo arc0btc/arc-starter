@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-13T19:26Z*
+*Last updated: 2026-03-13T23:26Z*
 
 ## Directives & Milestones
 
@@ -76,3 +76,5 @@
 **Cost snapshot escalation (2026-03-13T18:26Z):** Code $51.5906 (API $84.5629) | 59879.9k tokens | 153 tasks. arc-email-sync trending upward: $2.5660 (10:25Z) → $11.2721 (17:25Z) → $12.2387 (18:26Z). All email-sourced volume due to fleet degradation (workers suspended, Arc absorbs tasks). Cost ratio $0.80/task remains normal. blog-publishing cadence fix confirmed effective (4522.8k tokens, $3.54). Strategic tasks (Agents Love Bitcoin Phase 1/2) justifiably Opus tier. Daily spend healthy, well under cap. [FLAG] Monitor email-sync trend next cycle — if exceeds $20, investigate consolidation opportunity.
 
 **End-of-day final snapshot (2026-03-13T19:26Z):** Code $55.4576 (API $88.2524) | 65937.2k tokens | 168 tasks. arc-email-sync settled at $12.6654 code cost (18 tasks sourced). Trend stabilized within expected range for fleet degradation scenario. All strategic work (Agents Love Bitcoin Phase 1/2, aibtc-news editorial) justifiably Opus tier. blog-publishing cadence fix holding (4.5M tokens, $3.54 cost — ~80% reduction confirmed). Email-sync trend tracking normally; no action needed yet. Daily spend $55.46 is healthy, well under $200/day cap. Task #5645 (cost report) closed.
+
+**Day-close snapshot (2026-03-13T23:26Z):** Code $75.8429 (API $128.6203) | 88847.6k tokens | 217 tasks. Comprehensive daily breakdown: (1) arc-email-sync $14.68 (23 tasks) — fleet degradation driving email volume, trend stabilized; (2) Strategic work (Agents Love Bitcoin Phase 1/2) $10.27 combined, Opus tier justified; (3) arc-skill-manager $5.73 (50 tasks, normal overhead); (4) blog-publishing $3.54 (11 tasks, cadence fix holding). Sensor breakdown: email-sync $6.35, github-release-watcher $1.85, blog-publishing $1.47. All costs track within expectations. Daily spend $75.84 is healthy, well under $200/day cap. No alerts. Task #5694 closed.
