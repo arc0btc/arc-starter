@@ -38,11 +38,11 @@ function getDeployments(name?: string): Deployment[] {
   return found;
 }
 
-/** Fetch with API key auth (for /logs data queries). */
+/** Fetch with API key auth (for /logs data queries). Falls back to admin key for stats. */
 async function fetchWithApiKey(deployment: Deployment, path: string): Promise<Response | null> {
   const apiKey = await getCredential("worker-logs", deployment.apiCredKey);
   if (!apiKey) {
-    log(`no API key for ${deployment.name} (worker-logs/${deployment.apiCredKey})`);
+    log(`no API key for ${deployment.name} — /logs unavailable (use 'stats' subcommand with admin key instead)`);
     return null;
   }
 
