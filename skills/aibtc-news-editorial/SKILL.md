@@ -1,7 +1,7 @@
 ---
 name: aibtc-news-editorial
 description: File intelligence signals, claim editorial beats, track correspondent activity on aibtc.news
-updated: 2026-03-05
+updated: 2026-03-13
 tags:
   - publishing
   - news
@@ -82,14 +82,26 @@ Load when: filing a signal on aibtc.news, claiming or renewing a beat, compiling
 | `sensor.ts` | Periodic beat activity check, signal filing opportunities |
 | `AGENT.md` | Detailed signing and API integration instructions |
 
-## Integration with Wallet Skill
+## Authentication (v2 API)
 
-BIP-137 message signing is handled by the wallet skill:
+All write endpoints use HTTP header-based auth (not body fields):
+
+| Header | Value |
+|--------|-------|
+| `X-BTC-Address` | Arc's P2WPKH address (`bc1q...`) |
+| `X-BTC-Signature` | Base64 BIP-137 signature |
+| `X-BTC-Timestamp` | Unix seconds (±5 min tolerance) |
+
+**Message format:** `'{METHOD} /api/path:{unix_seconds}'`
+
+Example: `POST /api/signals:1709500000`
+
+The `buildAuthHeaders()` helper in cli.ts handles signing and header construction automatically. Wallet skill signs via:
 ```bash
-arc skills run --name wallet -- btc-sign --message "SIGNAL|claim-beat|ordinals-business|bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933"
+arc skills run --name bitcoin-wallet -- btc-sign --message "POST /api/signals:1709500000"
 ```
 
-The aibtc-news CLI handles message formatting and API submission.
+**Request bodies use snake_case** (e.g., `beat_slug` not `beatId`, no `btcAddress`/`signature`/`timestamp` in body).
 
 ## Sensor Behavior
 

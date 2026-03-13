@@ -2031,6 +2031,112 @@ Steps:
 };
 
 /**
+ * SkillMaintenanceMachine — models the email-signal → skill audit → fix cycle.
+ *
+ * Pattern detected: "sensor:arc-email-sync:task" tasks (3 recurrences, avg 2.0 steps)
+ * consistently spawn skill audit tasks that find issues and spawn targeted fix/rewrite tasks.
+ * Email signals (API changes, contract upgrades, dependency shifts) trigger proactive skill checks.
+ * Distinct from RecurringFailureMachine (reactive failures) — this is proactive maintenance
+ * triggered by external signals about upstream changes.
+ *
+ * instance_key: "skill-maintenance-{skill-name}-{YYYY-MM-DD}" (one per skill per day)
+ *
+ * States:
+ *   triggered    → signal received; creates an audit/investigation task
+ *   auditing     → audit executing; auto-transitions based on auditFindings + fixDescription
+ *   fix_pending  → issue confirmed; creates targeted fix/rewrite task
+ *   fixing       → fix executing
+ *   no_action    → audit found no issues; terminal
+ *   completed    → fix applied; terminal
+ *
+ * Context:
+ *   skillName       — e.g. "stacks-stackspot", "zest-v2", "stacks-payments"
+ *   signalSource    — what triggered the audit: "arc-email-sync", "sensor", "api-change", etc.
+ *   signalSummary   — brief description of what changed (e.g. "v2 contracts deployed on mainnet")
+ *   auditFindings   — findings from audit (populated before fix_pending or no_action transition)
+ *   fixDescription  — what to fix (populated when fix is needed)
+ */
+export const SkillMaintenanceMachine: StateMachine<{
+  skillName?: string;
+  signalSource?: string;
+  signalSummary?: string;
+  auditFindings?: string;
+  fixDescription?: string;
+}> = {
+  name: "skill-maintenance",
+  initialState: "triggered",
+  states: {
+    triggered: {
+      on: { audit: "auditing" },
+      action: (ctx) => {
+        const skill = ctx.skillName || "unknown-skill";
+        const signal = ctx.signalSummary ? `: ${ctx.signalSummary}` : "";
+        return {
+          type: "create-task",
+          subject: `Audit ${skill}${signal}`,
+          priority: 5,
+          skills: [skill, "arc-skill-manager"],
+          description: `Skill health audit triggered by ${ctx.signalSource || "external signal"}${signal}.
+
+Steps:
+1. Check ${skill} sensor.ts, cli.ts, and any external APIs/contracts it depends on
+2. Verify the skill still functions correctly against current external state
+3. Identify any schema mismatches, deprecated endpoints, or broken dependencies
+4. Transition this workflow to 'auditing', then:
+   - If issues found: set auditFindings and fixDescription in context, transition to 'fix_pending'
+   - If no issues: set auditFindings, transition to 'no_action'`,
+        };
+      },
+    },
+    auditing: {
+      on: { needs_fix: "fix_pending", no_fix: "no_action" },
+      action: (ctx) => {
+        if (ctx.auditFindings === undefined) return null;
+        if (ctx.fixDescription) {
+          return { type: "transition", nextState: "fix_pending" };
+        }
+        return { type: "transition", nextState: "no_action" };
+      },
+    },
+    fix_pending: {
+      on: { apply: "fixing" },
+      action: (ctx) => {
+        const skill = ctx.skillName || "unknown-skill";
+        if (!ctx.fixDescription) return null;
+        return {
+          type: "create-task",
+          subject: `Fix ${skill}: ${ctx.fixDescription}`,
+          priority: 4,
+          skills: [skill, "arc-skill-manager"],
+          description: `Apply fix to ${skill} as identified during audit.
+
+Audit findings: ${ctx.auditFindings || "see audit task"}
+Fix to apply: ${ctx.fixDescription}
+
+Steps:
+1. Implement the required changes (sensor schema, CLI, contract addresses, etc.)
+2. Run a quick syntax check: bun build --no-bundle skills/${skill}/sensor.ts (if applicable)
+3. Commit changes with conventional commit format
+4. Transition this workflow to 'fixing', then 'completed'`,
+        };
+      },
+    },
+    fixing: {
+      on: { complete: "completed" },
+      action: () => null,
+    },
+    no_action: {
+      on: {},
+      action: () => null,
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -2061,6 +2167,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "content-promotion": ContentPromotionMachine,
     "credential-rotation": CredentialRotationMachine,
     "psbt-escalation": PsbtEscalationMachine,
+    "skill-maintenance": SkillMaintenanceMachine,
   };
   return templates[name] || null;
 }

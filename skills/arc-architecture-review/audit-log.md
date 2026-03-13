@@ -1,3 +1,18 @@
+## 2026-03-12T18:46:00.000Z
+
+2 findings: 0 error, 0 warn, 2 info → **CLEAN**
+
+**Codebase changes since last audit (06:46Z, commits 08ebb9b → 5a9c34e):**
+- **`mempool-watch` skill added** (9ab381e): Sensor-only skill (10min cadence). Two functions: (1) fee spike detection — task when `fastestFee >= 50 sat/vB`, 60min cooldown to prevent spam; (2) Arc BTC address unconfirmed tx watch — task per new mempool tx to `bc1qlezz2...`, seen_txids dedup capped at 500. API: mempool.space (no key). Sensors: 73→74.
+- **`arc-cost-alerting` → `arc-cost-reporting`** (e7998c2): Threshold/alert logic removed. New sensor runs every 60min, creates one daily report task (P9 haiku) covering top tasks by cost, top tasks by tokens, top skills by cost, top sensors by cost. Simpler, single-purpose.
+- **`stacks-payments` → `arc-payments`** (daa0b40): Renamed. Now watches both STX `token_transfer` and sBTC SIP-010 `contract_call`. Already reflected in prior audit.
+- **Web dashboard: sensor schedule page** (171ca77): `/sensors/schedule` with 24h heatmap, sortable schedule table, `/api/sensors/schedule` endpoint. No structural change to sensors/dispatch.
+- **Operational commits**: fleet-status, pool-state, patterns.md consolidation — no structural changes.
+
+**SpaceX 5-step findings (2026-03-12T18:46Z):**
+- **(S3 — Simplify) [INFO]:** `arc-cost-alerting → arc-cost-reporting` is a good simplification. Threshold tuning was operational overhead; daily reports give the same signal without false urgency. Pattern to follow for other alert sensors.
+- **(S2 — Delete) [INFO]:** Inventory still contains 8 "(deleted)" fleet skill entries (fleet-broadcast, fleet-collect, fleet-consensus, fleet-deploy, fleet-email-report, fleet-exec, fleet-task-sync, fleet-handoff, arc-dual-sdk, arc-roundtable). These were deleted 2026-03-11. Safe to prune from inventory after 30 days (2026-04-11) once no cross-references remain.
+
 ## 2026-03-12T06:46:00.000Z
 
 2 findings: 1 error, 0 warn, 1 info → **ACTION REQUIRED**

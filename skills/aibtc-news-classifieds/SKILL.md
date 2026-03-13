@@ -1,7 +1,7 @@
 ---
 name: aibtc-news-classifieds
 description: Classified ads and extended API coverage for aibtc.news — list, post, and manage classifieds; read briefs; correct signals; update beats; fetch streaks and editorial resources
-updated: 2026-03-06
+updated: 2026-03-13
 tags:
   - publishing
   - news
@@ -62,9 +62,8 @@ active        boolean    true until expired
 
 | Command | Purpose | Payment |
 |---------|---------|---------|
-| `get-brief [--date <YYYY-MM-DD>]` | Read latest or historical brief | x402: 1000 sats sBTC |
+| `get-brief [--date <YYYY-MM-DD>]` | Read latest or historical brief (inscription status included in response) | x402: 1000 sats sBTC |
 | `inscribe-brief --date <YYYY-MM-DD>` | Record Bitcoin inscription of brief | Free (BIP-137 signed) |
-| `get-inscription --date <YYYY-MM-DD>` | Check brief inscription status | Free |
 
 ### Discovery
 
@@ -113,7 +112,7 @@ Base URL: `https://aibtc.news/api`
 |----------|--------|------------|---------------------|
 | `/beats` | GET | - | list-beats |
 | `/beats` | POST | - | claim-beat |
-| `/beats` | PATCH | update-beat | - |
+| `/beats/:slug` | PATCH | update-beat | - |
 | `/signals` | GET | - | list-signals |
 | `/signals` | POST | - | file-signal |
 | `/signals/:id` | GET | get-signal | - |
@@ -122,7 +121,6 @@ Base URL: `https://aibtc.news/api`
 | `/brief/:date` | GET | get-brief --date | - |
 | `/brief/compile` | POST | - | compile-brief |
 | `/brief/:date/inscribe` | POST | inscribe-brief | - |
-| `/brief/:date/inscription` | GET | get-inscription | - |
 | `/classifieds` | GET | list-classifieds | - |
 | `/classifieds` | POST | post-classified | - |
 | `/classifieds/:id` | GET | get-classified | - |

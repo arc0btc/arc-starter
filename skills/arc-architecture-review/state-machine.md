@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-12T06:46:00.000Z*
+*Generated: 2026-03-12T18:46:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -59,7 +59,7 @@ stateDiagram-v2
         RunAllSensors --> ciStatusSensor: github-ci-status
         RunAllSensors --> complianceReviewSensor: compliance-review
         RunAllSensors --> contextReviewSensor: context-review
-        RunAllSensors --> costAlertingSensor: arc-cost-alerting
+        RunAllSensors --> costReportingSensor: arc-cost-reporting
         RunAllSensors --> daoZeroSensor: dao-zero-authority
         RunAllSensors --> defiBitflowSensor: defi-bitflow
         RunAllSensors --> emailSensor: arc-email-sync
@@ -117,12 +117,15 @@ stateDiagram-v2
         RunAllSensors --> zestV2Sensor: zest-v2
         RunAllSensors --> arcUmbrelSensor: arc-umbrel
         RunAllSensors --> aibtcWelcomeSensor: aibtc-welcome
+        RunAllSensors --> mempoolWatchSensor: mempool-watch
 
         note right of RunAllSensors
-            73 sensors total (+1 since 2026-03-11T07:00Z)
-            NEW: aibtc-welcome (60min) — detect+welcome new AIBTC agents via x402 (100 sats)
-              x402 sentinel: db/hook-state/x402-nonce-conflict.json gates all sends
-              Interaction-history dedup: skips already-welcomed agents
+            74 sensors total (+1 since 2026-03-12: mempool-watch)
+            NEW: mempool-watch (10min) — BTC fee spike detection + Arc address unconfirmed tx watch
+              fee spike: task when fastestFee >= 50 sat/vB (60min cooldown)
+              BTC incoming: task per new unconfirmed tx to bc1qlezz2... (seen_txids dedup, cap 500)
+              API: mempool.space (no key, ~10 req/s public)
+            arc-cost-alerting replaced by arc-cost-reporting (daily report, no thresholds)
             Fleet sensors filter suspended agents since 2026-03-11
         end note
 
@@ -484,7 +487,7 @@ stateDiagram-v2
 | credential-rotation | pending→rotating→verifying→confirmed→completed | arc-credentials | CredentialRotationMachine — credential expiry → rotate → verify → confirmed |
 | psbt-escalation | pending→escalated→approved→signing→broadcast→completed | bitcoin-wallet | PsbtEscalationMachine — PSBT sign request → whoabuddy approval gate → sign/broadcast |
 
-## Skills Inventory (100 total)
+## Skills Inventory (101 total)
 
 | Skill | Sensor | CLI | Agent | Description |
 |-------|--------|-----|-------|-------------|
@@ -506,7 +509,7 @@ stateDiagram-v2
 | arc-ceo-review | yes | - | yes | CEO reviews watch reports and manages task queue |
 | arc-ceo-strategy | - | - | yes | Strategic operating manual — treat yourself as CEO |
 | arc-content-quality | - | yes | - | Pre-publish quality gate — detects AI writing patterns |
-| arc-cost-alerting | yes | - | - | Monitor daily spend and alert on thresholds |
+| arc-cost-reporting | yes | - | - | Daily cost/token usage report — top tasks, skills, sensors by spend (60min, one/day, P9 haiku) |
 | arc-credentials | - | yes | yes | Encrypted credential store for API keys and secrets |
 | arc-dispatch-eval | yes | - | - | Post-dispatch evaluation sensor — scores task outcomes, creates improvement tasks |
 | arc-dispatch-evals | - | yes | yes | Dispatch quality evaluation — error analysis, LLM judges |
@@ -594,6 +597,7 @@ stateDiagram-v2
 | social-x-posting | yes | yes | yes | Post tweets, read timeline, poll @mentions on X; engagement commands with daily budget |
 | stacks-stackspot | yes | - | - | Autonomous Stacking — detect pots, auto-join, claim rewards |
 | arc-payments | yes | - | - | Watch Stacks blockchain for STX + sBTC payments to Arc address; decode arc: memo codes → service tasks (3min) |
+| mempool-watch | yes | - | - | Bitcoin mempool fee spike detection + Arc BTC address unconfirmed tx watch via mempool.space (10min) |
 | styx | - | yes | yes | BTC→sBTC conversion via Styx protocol (btc2sbtc.com) — pool status, deposit, tracking |
 | worker-deploy | yes | yes | - | Auto-deploy arc0btc-worker to Cloudflare Workers on SHA change (5min) |
 | worker-logs-monitor | yes | yes | yes | Query worker-logs deployments for errors, cross-reference GitHub issues, file new issues (60min) |

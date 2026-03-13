@@ -220,9 +220,9 @@ async function cmdPosition(args: string[]): Promise<void> {
     if (result && result.okay && result.result) {
       const decoded = cvToJSON(hexToCV(result.result as string));
       if (decoded && typeof decoded === "object" && "value" in decoded) {
-        const val = decoded.value as Record<string, { value: string }>;
-        supplied = val["suppliedShares"]?.value ?? val["supplied-shares"]?.value ?? "0";
-        borrowed = val["borrowed"]?.value ?? "0";
+        const decodedValue = decoded.value as Record<string, { value: string }>;
+        supplied = decodedValue["suppliedShares"]?.value ?? decodedValue["supplied-shares"]?.value ?? "0";
+        borrowed = decodedValue["borrowed"]?.value ?? "0";
       }
     }
 

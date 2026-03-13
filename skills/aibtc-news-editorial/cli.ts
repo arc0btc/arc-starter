@@ -31,15 +31,31 @@ function parseFlags(args: string[]): Record<string, string> {
   return flags;
 }
 
+async function buildAuthHeaders(
+  method: string,
+  path: string
+): Promise<Record<string, string>> {
+  const ts = Math.floor(Date.now() / 1000);
+  const message = `${method} /api${path}:${ts}`;
+  const sig = await signMessage(message);
+  return {
+    "X-BTC-Address": ARC_BTC_ADDRESS,
+    "X-BTC-Signature": sig,
+    "X-BTC-Timestamp": String(ts),
+    "Content-Type": "application/json",
+  };
+}
+
 async function callApi(
   method: string,
   endpoint: string,
-  body?: Record<string, unknown>
+  body?: Record<string, unknown>,
+  authHeaders?: Record<string, string>
 ): Promise<Record<string, unknown>> {
   const url = `${API_BASE}${endpoint}`;
   const options: RequestInit = {
     method,
-    headers: {
+    headers: authHeaders ?? {
       "Content-Type": "application/json",
     },
   };
@@ -262,27 +278,19 @@ async function cmdClaimBeat(args: string[]): Promise<void> {
   }
 
   try {
-    // Format message for signing (Unix ms timestamp, matching upstream format)
-    const timestamp = Date.now();
-    const message = `SIGNAL|claim-beat|${beat}|${ARC_BTC_ADDRESS}|${timestamp}`;
-    log(`Signing message: ${message}`);
+    // v2: auth via headers, snake_case body
+    const headers = await buildAuthHeaders("POST", "/beats");
+    log(`Signing message for POST /api/beats`);
 
-    const signature = await signMessage(message);
-    log(`Got signature: ${signature.slice(0, 20)}...`);
-
-    // Call API
     const body: Record<string, unknown> = {
-      btcAddress: ARC_BTC_ADDRESS,
-      beatId: beat,
+      beat_slug: beat,
       name,
-      signature,
-      timestamp,
     };
 
     if (description) body.description = description;
     if (color) body.color = color;
 
-    const result = await callApi("POST", "/beats", body);
+    const result = await callApi("POST", "/beats", body, headers);
 
     log(`Beat claimed successfully`);
     console.log(JSON.stringify(result, null, 2));
@@ -380,28 +388,20 @@ async function cmdFileSignal(args: string[]): Promise<void> {
       process.exit(1);
     }
 
-    // Format message for signing (Unix ms timestamp, matching upstream format)
-    const timestamp = Date.now();
-    const message = `SIGNAL|file-signal|${beat}|${ARC_BTC_ADDRESS}|${timestamp}`;
-    log(`Signing message: ${message}`);
+    // v2: auth via headers, snake_case body
+    const headers = await buildAuthHeaders("POST", "/signals");
+    log(`Signing message for POST /api/signals`);
 
-    const signature = await signMessage(message);
-    log(`Got signature: ${signature.slice(0, 20)}...`);
-
-    // Call API
     const body: Record<string, unknown> = {
-      btcAddress: ARC_BTC_ADDRESS,
-      beatId: beat,
+      beat_slug: beat,
       content,
-      signature,
-      timestamp,
     };
 
     if (headline) body.headline = headline;
     if (sourcesJson) body.sources = sourcesJson;
     if (tags.length > 0) body.tags = tags;
 
-    const result = await callApi("POST", "/signals", body);
+    const result = await callApi("POST", "/signals", body, headers);
 
     log(`Signal filed successfully`);
     console.log(JSON.stringify(result, null, 2));
@@ -575,25 +575,17 @@ async function cmdCompileBrief(args: string[]): Promise<void> {
     });
     log(`updated hook-state: lastBriefDate = ${today}`);
 
-    // Format message for signing (Unix ms timestamp, matching upstream format)
-    const timestamp = Date.now();
-    const message = `SIGNAL|compile-brief|${today}|${ARC_BTC_ADDRESS}|${timestamp}`;
-    log(`Signing message: ${message}`);
+    // v2: auth via headers, snake_case body
+    const headers = await buildAuthHeaders("POST", "/brief");
+    log(`Signing message for POST /api/brief`);
 
-    const signature = await signMessage(message);
-    log(`Got signature: ${signature.slice(0, 20)}...`);
-
-    // Call API to compile brief
     const body: Record<string, unknown> = {
-      btcAddress: ARC_BTC_ADDRESS,
       date: today,
-      signature,
-      timestamp,
     };
 
-    if (beatSlug) body.beat = beatSlug;
+    if (beatSlug) body.beat_slug = beatSlug;
 
-    const result = await callApi("POST", "/brief", body);
+    const result = await callApi("POST", "/brief", body, headers);
 
     log(`Brief compiled successfully`);
     console.log(JSON.stringify(result, null, 2));

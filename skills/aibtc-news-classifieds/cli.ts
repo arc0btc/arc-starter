@@ -51,32 +51,6 @@ async function apiGet(endpoint: string): Promise<unknown> {
   return data;
 }
 
-async function apiPatch(
-  endpoint: string,
-  body: Record<string, unknown>
-): Promise<unknown> {
-  const url = `${API_BASE}${endpoint}`;
-  const response = await fetch(url, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-
-  const text = await response.text();
-  let data: unknown;
-  try {
-    data = JSON.parse(text);
-  } catch {
-    data = { raw: text };
-  }
-
-  if (!response.ok) {
-    throw new Error(`API error ${response.status}: ${text}`);
-  }
-
-  return data;
-}
-
 async function signMessage(message: string): Promise<string> {
   const proc = Bun.spawn(
     ["bash", "bin/arc", "skills", "run", "--name", "bitcoin-wallet", "--", "btc-sign", "--message", message],
@@ -195,6 +169,21 @@ async function x402Request(
   }
 
   return JSON.parse(trimmed.substring(jsonStart, jsonEnd));
+}
+
+async function buildAuthHeaders(
+  method: string,
+  path: string
+): Promise<Record<string, string>> {
+  const ts = Math.floor(Date.now() / 1000);
+  const message = `${method} /api${path}:${ts}`;
+  const sig = await signMessage(message);
+  return {
+    "X-BTC-Address": ARC_BTC_ADDRESS,
+    "X-BTC-Signature": sig,
+    "X-BTC-Timestamp": String(ts),
+    "Content-Type": "application/json",
+  };
 }
 
 function validateBtcAddress(address: string): boolean {
@@ -353,21 +342,31 @@ async function cmdCorrectSignal(args: string[]): Promise<void> {
   }
 
   try {
-    const timestamp = new Date().toISOString();
-    const message = `SIGNAL|correct|${flags.id}|${ARC_BTC_ADDRESS}|${timestamp}`;
-    log(`Signing message: ${message}`);
+    const path = `/signals/${flags.id}`;
+    const headers = await buildAuthHeaders("PATCH", path);
+    log(`Signing message for PATCH /api${path}`);
 
-    const signature = await signMessage(message);
-    log(`Got signature: ${signature.slice(0, 20)}...`);
-
-    const result = await apiPatch(`/signals/${flags.id}`, {
-      btcAddress: ARC_BTC_ADDRESS,
-      content: flags.content,
-      signature,
+    const url = `${API_BASE}${path}`;
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify({ content: flags.content }),
     });
 
+    const text = await response.text();
+    let data: unknown;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { raw: text };
+    }
+
+    if (!response.ok) {
+      throw new Error(`API error ${response.status}: ${text}`);
+    }
+
     log("Signal corrected");
-    console.log(JSON.stringify(result, null, 2));
+    console.log(JSON.stringify(data, null, 2));
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     log(`Error: ${message}`);
@@ -404,24 +403,35 @@ async function cmdUpdateBeat(args: string[]): Promise<void> {
   }
 
   try {
-    const timestamp = new Date().toISOString();
-    const message = `SIGNAL|update-beat|${flags.beat}|${ARC_BTC_ADDRESS}|${timestamp}`;
-    log(`Signing message: ${message}`);
+    const path = `/beats/${flags.beat}`;
+    const headers = await buildAuthHeaders("PATCH", path);
+    log(`Signing message for PATCH /api${path}`);
 
-    const signature = await signMessage(message);
-
-    const body: Record<string, unknown> = {
-      slug: flags.beat,
-      btcAddress: ARC_BTC_ADDRESS,
-      signature,
-    };
+    const body: Record<string, unknown> = {};
     if (flags.description) body.description = flags.description;
     if (flags.color) body.color = flags.color;
 
-    const result = await apiPatch("/beats", body);
+    const url = `${API_BASE}${path}`;
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify(body),
+    });
+
+    const text = await response.text();
+    let data: unknown;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { raw: text };
+    }
+
+    if (!response.ok) {
+      throw new Error(`API error ${response.status}: ${text}`);
+    }
 
     log("Beat updated");
-    console.log(JSON.stringify(result, null, 2));
+    console.log(JSON.stringify(data, null, 2));
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     log(`Error: ${errorMessage}`);
@@ -469,21 +479,15 @@ async function cmdInscribeBrief(args: string[]): Promise<void> {
   }
 
   try {
-    const timestamp = new Date().toISOString();
-    const message = `SIGNAL|inscribe-brief|${flags.date}|${ARC_BTC_ADDRESS}|${timestamp}`;
-    log(`Signing message: ${message}`);
+    const path = `/brief/${flags.date}/inscribe`;
+    const headers = await buildAuthHeaders("POST", path);
+    log(`Signing message for POST /api${path}`);
 
-    const signature = await signMessage(message);
-
-    // POST to inscribe endpoint
-    const url = `${API_BASE}/brief/${flags.date}/inscribe`;
+    const url = `${API_BASE}${path}`;
     const response = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        btcAddress: ARC_BTC_ADDRESS,
-        signature,
-      }),
+      headers,
+      body: JSON.stringify({}),
     });
 
     const text = await response.text();
@@ -504,28 +508,6 @@ async function cmdInscribeBrief(args: string[]): Promise<void> {
     const errorMessage = error instanceof Error ? error.message : String(error);
     log(`Error: ${errorMessage}`);
     console.error(JSON.stringify({ error: errorMessage }, null, 2));
-    process.exit(1);
-  }
-}
-
-async function cmdGetInscription(args: string[]): Promise<void> {
-  const flags = parseFlags(args);
-
-  if (!flags.date) {
-    console.error(
-      "Usage: arc skills run --name aibtc-news-classifieds -- get-inscription --date <YYYY-MM-DD>"
-    );
-    process.exit(1);
-  }
-
-  try {
-    const data = await apiGet(`/brief/${flags.date}/inscription`);
-    log("Got inscription status");
-    console.log(JSON.stringify(data, null, 2));
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    log(`Error: ${message}`);
-    console.error(JSON.stringify({ error: message }, null, 2));
     process.exit(1);
   }
 }
@@ -584,7 +566,7 @@ async function main(): Promise<void> {
     console.error("Usage: arc skills run --name aibtc-news-classifieds -- <command> [flags]");
     console.error(
       "Commands: list-classifieds, get-classified, post-classified, get-signal, correct-signal, " +
-        "update-beat, get-brief, inscribe-brief, get-inscription, streaks, list-skills"
+        "update-beat, get-brief, inscribe-brief, streaks, list-skills"
     );
     process.exit(1);
   }
@@ -617,9 +599,6 @@ async function main(): Promise<void> {
         break;
       case "inscribe-brief":
         await cmdInscribeBrief(commandArgs);
-        break;
-      case "get-inscription":
-        await cmdGetInscription(commandArgs);
         break;
       case "streaks":
         await cmdStreaks(commandArgs);
