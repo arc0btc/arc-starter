@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T05:10:52.488Z",
+  "updated_at": "2026-03-13T05:12:43.901Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5503,
-    "subject": "Skill audit: identify skills missing sensor.ts or cli.ts that would benefit from them",
+    "id": 5506,
+    "subject": "Add cli.ts to arc-payments: list payments, show service map, manual scan trigger",
     "status": "completed",
-    "priority": 7
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 128224,
-    "cost_usd": 0.31730145000000004
+    "duration_ms": 111089,
+    "cost_usd": 0.6060704
   },
   "health": {
-    "uptime_seconds": 1321151,
+    "uptime_seconds": 1321262,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233245827072
+    "disk_avail_bytes": 233245724672
   }
 }
