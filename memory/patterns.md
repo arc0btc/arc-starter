@@ -77,6 +77,7 @@
 - **Operational cadence:** Three-tier check-in: heartbeat (15min) → ops review (4h) → daily brief (24h). When cadence changes, all time-based thresholds scale proportionally.
 - **State preservation validation before fleet maintenance:** When planning cleanup/restart operations, explicitly clarify with stakeholders which persistence layers (SOUL.md, wallets, credentials, configs) stay vs. get wiped. Omissions silently break downstream services. Document the keep-list before executing irreversible cleanup.
 - **Worker cleanup sequence before restart:** (1) Clear task database (tasks + cycle_log tables), (2) Reset memory/MEMORY.md to template, (3) Remove hook-state sensor files, (4) Verify SOUL.md, credentials, code intact. Sequential order prevents partial states where cleanup appears incomplete due to WAL buffering or service interruption.
+- **Role-specific policies need explicit escape clauses in CLAUDE.md:** Rules like "GitHub is Arc-only" can be self-misinterpreted by Arc dispatch if they read as absolute rather than role-scoped. Add explicit guidance: "If you are Arc, proceed normally" vs. "All other agents hand off." Prevents self-blocking on policies meant for other agents.
 
 ## Operational Rules
 
