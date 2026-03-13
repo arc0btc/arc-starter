@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-13T12:20Z*
+*Last updated: 2026-03-13T18:26Z*
 
 ## Directives & Milestones
 
@@ -72,3 +72,5 @@
 **Cloudflare outage sentinel (2026-03-13):** 5 failed tasks from a single CF outage (all HTTP 502 pre-flight checks). Retries queued without gating — same pattern as x402 nonce conflict. Fix: add sentinel file `db/hook-state/cf-outage.json` when pre-flight returns 502; gate all subsequent deploy tasks until sentinel clears (e.g., 30min TTL or manual reset). Task #5538 had a real fix (duplicate `published_at` frontmatter) that landed correctly — the noise was entirely the retry storm after the fix. Follow-up task created to implement sentinel gate.
 
 **End-of-day cost report (2026-03-13T10:25Z):** Code $19.3155 (API $29.5847) | 26027.1k tokens | 71 tasks. blog-publishing remains top token consumer (2973.7k tokens, 8 tasks) confirming token-heavy watch report pattern. arc-email-sync now top skill by code cost ($2.5660). aibtc-news-editorial V2 migration justified at $1.9234 (architectural work). Daily cap: well under $200/day. Action: audit blog-publishing sensor cadence and profile token ratio (input vs output) to identify consolidation opportunity. Task #5549 created.
+
+**Cost snapshot escalation (2026-03-13T18:26Z):** Code $51.5906 (API $84.5629) | 59879.9k tokens | 153 tasks. arc-email-sync trending upward: $2.5660 (10:25Z) → $11.2721 (17:25Z) → $12.2387 (18:26Z). All email-sourced volume due to fleet degradation (workers suspended, Arc absorbs tasks). Cost ratio $0.80/task remains normal. blog-publishing cadence fix confirmed effective (4522.8k tokens, $3.54). Strategic tasks (Agents Love Bitcoin Phase 1/2) justifiably Opus tier. Daily spend healthy, well under cap. [FLAG] Monitor email-sync trend next cycle — if exceeds $20, investigate consolidation opportunity.
