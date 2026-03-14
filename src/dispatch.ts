@@ -310,7 +310,7 @@ interface DispatchResult {
   output_tokens: number;
 }
 
-async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string): Promise<DispatchResult> {
+async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string, taskId?: number): Promise<DispatchResult> {
   const args = [
     "claude",
     "--print",
@@ -321,6 +321,10 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string)
     "stream-json",
     "--no-session-persistence",
   ];
+
+  if (taskId) {
+    args.push("--name", `arc-task-${taskId}`);
+  }
 
   if (Bun.env.DANGEROUS === "true") {
     args.push("--dangerously-skip-permissions");
@@ -748,7 +752,7 @@ export async function runDispatch(): Promise<void> {
             explicitOpenRouter ? sdkRoute.model : undefined,
           );
         } else {
-          dispatchResult = await dispatch(prompt, model, worktreePath);
+          dispatchResult = await dispatch(prompt, model, worktreePath, task.id);
         }
         break;
       } catch (retryErr) {
