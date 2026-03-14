@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-14T02:25:46.678Z",
-  "idle": true,
-  "idle_since": "2026-03-14T02:19:44.403Z",
+  "updated_at": "2026-03-14T02:26:56.836Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5708,
-    "subject": "Add --name flag to dispatch subprocess for session observability",
-    "status": "completed",
-    "priority": 8
+    "id": 5712,
+    "subject": "daily cost report — 2026-03-14",
+    "status": "pending",
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 27831,
-    "cost_usd": 0.10078345
+    "duration_ms": 9845,
+    "cost_usd": 0
   },
   "health": {
-    "uptime_seconds": 1397645,
+    "uptime_seconds": 1397715,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232605945856
+    "disk_avail_bytes": 232605921280
   }
 }
