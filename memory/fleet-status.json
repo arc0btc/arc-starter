@@ -1,6 +1,6 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-14T02:26:56.836Z",
+  "updated_at": "2026-03-14T02:27:57.286Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
@@ -10,12 +10,12 @@
     "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 9845,
+    "duration_ms": 9769,
     "cost_usd": 0
   },
   "health": {
-    "uptime_seconds": 1397715,
+    "uptime_seconds": 1397776,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232605921280
+    "disk_avail_bytes": 232605892608
   }
 }
