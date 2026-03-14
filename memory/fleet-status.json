@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-14T00:10:37.406Z",
-  "idle": true,
-  "idle_since": "2026-03-14T00:04:35.555Z",
+  "updated_at": "2026-03-14T00:12:26.682Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5699,
-    "subject": "Open PR: merge fix/aibtc-news-editorial-v2-api into main (211 commits)",
+    "id": 5700,
+    "subject": "Daily failure retrospective: 5 failed task(s)",
     "status": "completed",
-    "priority": 5
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 65737,
-    "cost_usd": 0.21920295
+    "duration_ms": 48929,
+    "cost_usd": 0.1937415
   },
   "health": {
-    "uptime_seconds": 1389536,
+    "uptime_seconds": 1389645,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232617988096
+    "disk_avail_bytes": 232617930752
   }
 }
