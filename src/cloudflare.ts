@@ -25,6 +25,7 @@ export interface TokenVerifyResult {
   ok: boolean;
   error?: string;
   status?: string;
+  httpStatus?: number;
 }
 
 /**
@@ -70,13 +71,13 @@ export async function verifyCloudflareToken(): Promise<TokenVerifyResult> {
   try {
     body = await resp.json() as typeof body;
   } catch {
-    return { ok: false, error: `Unexpected response (HTTP ${resp.status}) — could not parse JSON` };
+    return { ok: false, httpStatus: resp.status, error: `Unexpected response (HTTP ${resp.status}) — could not parse JSON` };
   }
 
   if (!resp.ok || !body.success) {
     const msg = body.errors?.map((e) => e.message).join("; ") ?? `HTTP ${resp.status}`;
-    return { ok: false, error: `Token verification failed: ${msg}` };
+    return { ok: false, httpStatus: resp.status, error: `Token verification failed: ${msg}` };
   }
 
-  return { ok: true, status: body.result?.status };
+  return { ok: true, httpStatus: resp.status, status: body.result?.status };
 }

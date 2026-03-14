@@ -95,15 +95,15 @@ async function cmdDeploy(args: string[]): Promise<void> {
   // Pre-flight: verify Cloudflare token (account-scoped endpoint)
   const verify = await verifyCloudflareToken();
   if (!verify.ok) {
-    // 502 Bad Gateway = CF infrastructure outage — write sentinel to suppress retries for 30min
-    if (verify.error?.includes("502")) {
+    // 5xx = CF infrastructure outage — write sentinel to suppress retries for 30min
+    if (verify.httpStatus !== undefined && verify.httpStatus >= 500) {
       const existing = (await readHookState("cf-outage")) ?? { last_ran: "", last_result: "ok" as const, version: 0 };
       await writeHookState("cf-outage", {
         last_ran: new Date().toISOString(),
         last_result: "error",
         version: (existing.version ?? 0) + 1,
       });
-      process.stderr.write(`Cloudflare outage detected (502) — sentinel written, deploy suppressed for 30min\n`);
+      process.stderr.write(`Cloudflare outage detected (HTTP ${verify.httpStatus}) — sentinel written, deploy suppressed for 30min\n`);
     } else {
       process.stderr.write(`Cloudflare pre-flight failed: ${verify.error}\n`);
     }
