@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-14T00:25:25.392Z",
+  "updated_at": "2026-03-14T01:04:38.902Z",
   "idle": true,
-  "idle_since": "2026-03-14T00:14:21.217Z",
+  "idle_since": "2026-03-14T00:27:26.164Z",
   "last_task": {
-    "id": 5701,
-    "subject": "Implement Cloudflare outage sentinel gate in blog-deploy skill",
+    "id": 5702,
+    "subject": "daily cost report — 2026-03-14",
     "status": "completed",
-    "priority": 5
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 102951,
-    "cost_usd": 0.38108369999999997
+    "duration_ms": 29078,
+    "cost_usd": 0.07491555000000001
   },
   "health": {
-    "uptime_seconds": 1390424,
+    "uptime_seconds": 1392777,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232617766912
+    "disk_avail_bytes": 232617385984
   }
 }
