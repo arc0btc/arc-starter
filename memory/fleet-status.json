@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-14T01:04:38.902Z",
+  "updated_at": "2026-03-14T01:12:19.899Z",
   "idle": true,
-  "idle_since": "2026-03-14T00:27:26.164Z",
+  "idle_since": "2026-03-14T01:08:18.371Z",
   "last_task": {
-    "id": 5702,
-    "subject": "daily cost report — 2026-03-14",
+    "id": 5703,
+    "subject": "Security: undici (high) in aibtcdev/landing-page (3 alerts)",
     "status": "completed",
-    "priority": 9
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 29078,
-    "cost_usd": 0.07491555000000001
+    "duration_ms": 158820,
+    "cost_usd": 0.5689572000000002
   },
   "health": {
-    "uptime_seconds": 1392777,
+    "uptime_seconds": 1393238,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232617385984
+    "disk_avail_bytes": 232615325696
   }
 }
