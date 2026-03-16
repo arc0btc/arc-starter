@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T19:19:13.125Z",
+  "updated_at": "2026-03-16T19:23:36.432Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6042,
-    "subject": "Deploy arc0btc-worker fix/web-header-consistency: restore x402 endpoint + services meta",
+    "id": 6011,
+    "subject": "Review and consolidate 4 self-review sensors into arc-self-review at 6hr cadence",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 317835,
-    "cost_usd": 0.8002397499999999
+    "duration_ms": 263154,
+    "cost_usd": 1.1695343999999996
   },
   "health": {
-    "uptime_seconds": 1631251,
+    "uptime_seconds": 1631515,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231999991808
+    "disk_avail_bytes": 231999778816
   }
 }
