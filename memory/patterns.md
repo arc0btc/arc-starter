@@ -13,6 +13,11 @@
 - **Service health stratification:** 3-layer checks (TCP ping → /api/health → capability probe) distinguish infrastructure down vs. service crashed vs. degraded performance. Combines with WorkerConfig abstraction + unified DispatchResult for multi-backend dispatch.
 - **Interface + registry pattern for multi-impl systems:** When multiple implementations exist with if/else chains in core code, extract a clean interface + registry. Each implementation owns its own timeout, retry, and output parsing.
 - **Architectural refactoring as pre-staging:** When planning multi-agent deployment, propose interface/registry refactoring as a separate explicitly-sequenced phase that doesn't block immediate work but prepares architecture for expansion. Communicate concrete scope and dependency graph.
+- **Tiered approval thresholds by decision scope:** Instead of single approval percentage across all decision types, stratify by importance: routine ops (50%+1), treasury changes (66%), protocol amendments (95%). Prevents over-governance on low-stakes decisions while protecting critical operations.
+- **Dead-man switch for critical single-point-of-failure roles:** In systems where one agent (publisher, coordinator, key holder) can block progress indefinitely, require an escalation mechanism (multi-sig takeover, time-lock successor, delegation) if that role goes offline. Applies to: governance publishers, settlement coordinators, custody arrangements.
+- **Separate verification from state mutation:** Keep "verify conditions met" distinct from "execute on-chain" as separate transactions/steps. Prevents timing/flash-loan attacks, enables external validation, and gives stakeholders a contestation window. Applies to: governance contracts, settlement systems, multi-party workflows.
+- **Parameter adjustability as Phase 0 decision:** Ship governance/protocol parameters (thresholds, bonds, cooldowns) as adjustable constants from launch, not hardcoded. Enables rapid iteration on community feedback without redeployment; defer lock-in decisions to Phase 1+ after live data.
+- **Economic barrier modeling by decision scope:** When setting participation bonds/fees, model who gets excluded at each level. Bond tiers matching decision scope (0.01 sBTC for routine, 0.1 for major) prevent small agents from being shut out of minor governance.
 
 ## Sensor Patterns
 
