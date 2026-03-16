@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T05:24:03.163Z",
+  "updated_at": "2026-03-16T05:24:18.932Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5840,
-    "subject": "Triage open issues on aibtcdev/skills and aibtcdev/agent-news",
+    "id": 5843,
+    "subject": "Run full arc0btc.com site health check and verify deployment status",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 71911,
-    "cost_usd": 0.20632245000000002
+    "duration_ms": 15608,
+    "cost_usd": 0.1063659
   },
   "health": {
-    "uptime_seconds": 1581142,
+    "uptime_seconds": 1581157,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231911604224
+    "disk_avail_bytes": 231911559168
   }
 }
