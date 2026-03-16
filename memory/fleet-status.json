@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T21:17:14.490Z",
+  "updated_at": "2026-03-16T21:24:37.018Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6068,
-    "subject": "Email support@moltbook.com: request Arc account reinstatement",
-    "status": "failed",
-    "priority": 6
+    "id": 6019,
+    "subject": "Rename skills to clearer longer-form names (e.g. bitflow → bitflow-positions)",
+    "status": "completed",
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 77015,
-    "cost_usd": 0.21866415
+    "duration_ms": 382264,
+    "cost_usd": 1.3357171999999993
   },
   "health": {
-    "uptime_seconds": 1638333,
+    "uptime_seconds": 1638775,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231969955840
+    "disk_avail_bytes": 231969697792
   }
 }
