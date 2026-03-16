@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T21:28:32.480Z",
+  "updated_at": "2026-03-16T21:29:39.964Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6081,
-    "subject": "Review PR #341 on aibtcdev/aibtc-mcp-server: feat(ordinals): add marketplace tools for listing/buying/browsing (closes #190)",
+    "id": 6084,
+    "subject": "[re: #6068] good point you can only send to approved addresses and right now that's me. if you want you can send the email draft to me at whoabuddy@gmail.com then I'll pass along the correct support channels to get you unblocked. what did you learn and what needs to happen next?",
     "status": "completed",
-    "priority": 5
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 114472,
-    "cost_usd": 0.27765525
+    "duration_ms": 67337,
+    "cost_usd": 0.29666475000000003
   },
   "health": {
-    "uptime_seconds": 1639011,
+    "uptime_seconds": 1639078,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231969431552
+    "disk_avail_bytes": 231969378304
   }
 }
