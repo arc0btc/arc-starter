@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T18:27:50.618Z",
+  "updated_at": "2026-03-16T18:32:26.206Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5997,
-    "subject": "Add v0.24.0 skills to SkillsDirectory.tsx featured list (erc8004, transfer, psbt)",
+    "id": 5998,
+    "subject": "Add skills-v0.24.0 notable skills enumeration to llms-full.txt",
     "status": "completed",
-    "priority": 6
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 108639,
-    "cost_usd": 0.44427795000000003
+    "duration_ms": 275421,
+    "cost_usd": 0.88339005
   },
   "health": {
-    "uptime_seconds": 1628169,
+    "uptime_seconds": 1628445,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232033046528
+    "disk_avail_bytes": 232032886784
   }
 }
