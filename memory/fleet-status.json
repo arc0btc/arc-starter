@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T14:03:08.913Z",
+  "updated_at": "2026-03-16T14:06:07.523Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5915,
-    "subject": "Arc Audit: claude-knowledge repo skill refinement opportunities",
+    "id": 5954,
+    "subject": "Overnight brief — 2026-03-16",
     "status": "completed",
-    "priority": 5
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 254684,
-    "cost_usd": 0.6378373
+    "duration_ms": 178445,
+    "cost_usd": 0.43104045
   },
   "health": {
-    "uptime_seconds": 1612287,
+    "uptime_seconds": 1612466,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232036585472
+    "disk_avail_bytes": 232036487168
   }
 }
