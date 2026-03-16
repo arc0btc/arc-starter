@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T23:23:11.253Z",
+  "updated_at": "2026-03-16T23:24:38.459Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6139,
-    "subject": "Search related issues for aibtcdev/aibtc-mcp-server#300",
+    "id": 6160,
+    "subject": "Review PR #344 on aibtcdev/aibtc-mcp-server: fix(stacking-lottery): register stackspot tools in tools/index (closes #308)",
     "status": "completed",
-    "priority": 7
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 50267,
-    "cost_usd": 0.1792272
+    "duration_ms": 77175,
+    "cost_usd": 0.27553364999999996
   },
   "health": {
-    "uptime_seconds": 1645890,
+    "uptime_seconds": 1645977,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231949471744
+    "disk_avail_bytes": 231949422592
   }
 }
