@@ -13,3 +13,34 @@
 **Day-close snapshot (2026-03-13T23:26Z):** Code $75.8429 (API $128.6203) | 88847.6k tokens | 217 tasks. Comprehensive daily breakdown: (1) arc-email-sync $14.68 (23 tasks) — fleet degradation driving email volume, trend stabilized; (2) Strategic work (Agents Love Bitcoin Phase 1/2) $10.27 combined, Opus tier justified; (3) arc-skill-manager $5.73 (50 tasks, normal overhead); (4) blog-publishing $3.54 (11 tasks, cadence fix holding). Sensor breakdown: email-sync $6.35, github-release-watcher $1.85, blog-publishing $1.47. All costs track within expectations. Daily spend $75.84 is healthy, well under $200/day cap. No alerts. Task #5694 closed.
 
 **Day-open snapshot (2026-03-14T00:26Z):** Code $1.1917 (API $1.1917) | 1705.9k tokens | 5 tasks. Light operational load — all Sonnet tier: blog-deploy sentinel implementation ($0.38), aibtc-news-editorial-v2 PR ($0.22), self-audit ($0.21), failure triage ($0.19), introspection ($0.19). No cost anomalies. Fleet degradation absorption (email-sync, GitHub tasks) continues within normal parameters. Daily spend well under $200/day cap. All systems nominal.
+
+## Cost Trend Analysis (2026-03-16, task #5856)
+
+**7-day spend:** $680.37 actual / $1213.18 API est across 2176 cycles. Dominated by earlier fleet provisioning week (2026-03-09/10 saw $195-$222/day — at cap). Current post-stall recovery: $18.32 today (healthy).
+
+**Weekly skill breakdown (top cost domains):**
+- `fleet-escalation,fleet-task-sync,arc-skill-manager` — $95.95 (379 tasks, P4 Sonnet) — old fleet provisioning era, no longer active
+- null-skills (human strategic tasks) — $94.54 (148 tasks) — ad-hoc one-offs, no optimization path
+- `arc-email-sync` — $39.21 (97 tasks) — fleet-degradation-driven volume; normalizes when workers return
+- `arc-skill-manager` — $37.13 (199 tasks, $0.19 avg) — infrastructure overhead, normal
+- `fleet-health`/`arc-remote-setup` combos — $30-31 each — fleet provisioning (now dormant)
+- `aibtc-repo-maintenance` — $23.77 (91 tasks) — normal PR/CI work
+
+**Today's skill breakdown (2026-03-16):**
+- `arc-skill-manager` — $7.24 (12 tasks, $0.60 avg) — memory architecture burst (FTS5, topical split). Opus P3-4, justified
+- `aibtc-repo-maintenance` — $2.93 (6 tasks, $0.49 avg) — integration test work. Sonnet P5, appropriate
+- `arc-failure-triage` — $2.27 (4 tasks, $0.57 avg) — dispatch stall investigation. Justified
+- `blog-publishing` — $2.03 (7 tasks, $0.29 avg) — cadence fix holding, normal
+- `arc-email-sync` — $1.38 (5 tasks, $0.28 avg) — routine, normal
+
+**Model tier (3-day):** Opus 37 tasks $44.52 ($1.20 avg), Sonnet 157 tasks $48.97 ($0.31 avg), Haiku 89 tasks $5.50 ($0.06 avg). Haiku highly efficient. Opus/Sonnet split near-even in cost despite 4x fewer Opus tasks.
+
+**Optimization findings:**
+1. **P1 email tasks routing to Sonnet** — arc-email-sync tasks are P1 (urgent queue position) but dispatched as Sonnet via model override. This is intentional and correct — saves ~$0.40-0.80/task vs Opus for routine email triage. Keep this pattern.
+2. **compliance-review** — one historical outlier ($6.71 task #3238). Current runs $0.15-$1.00 normal. No action needed.
+3. **arc-email-sync volume** — fleet-degradation artifact. Will drop ~80% when workers return. Not worth optimizing now.
+4. **arc-cost-alerting** — exemplary efficiency: 48 tasks this week at $0.085 avg. Model: correct Haiku routing.
+5. **arc-skill-manager today burst** — $7.24 from memory architecture sprint. One-time investment, expect to normalize.
+6. **null-skills high-cost tasks** — human web UI / strategic tasks ($1.50-$3.67 each). These are Opus-justified architecture work. No misrouting.
+
+**No immediate action items.** Daily spend tracking well under $200/day cap. Post-stall recovery is clean.
