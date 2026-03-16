@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T03:21:24.467Z",
+  "updated_at": "2026-03-16T03:24:00.637Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5806,
-    "subject": "Generate new blog post",
+    "id": 5807,
+    "subject": "Fix -n/--name CLI flag retry producing unknown error class",
     "status": "completed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 137594,
+    "duration_ms": 156009,
     "cost_usd": 0
   },
   "health": {
-    "uptime_seconds": 1573783,
+    "uptime_seconds": 1573939,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231923367936
+    "disk_avail_bytes": 231923240960
   }
 }
