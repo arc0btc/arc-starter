@@ -16,7 +16,7 @@ Post and manage tweets on X (Twitter) using the v2 API with OAuth 1.0a authentic
 
 | Command | Purpose |
 |---------|---------|
-| `post --text <text>` | Post a tweet (max 280 chars) |
+| `post --text <text>` | Post a tweet (max 25000 chars, X Premium) |
 | `reply --text <text> --tweet-id <id>` | Reply to a tweet |
 | `delete --tweet-id <id>` | Delete a tweet |
 | `like --tweet-id <id>` | Like a tweet |

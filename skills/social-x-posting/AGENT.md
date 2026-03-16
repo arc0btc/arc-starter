@@ -62,35 +62,30 @@ Include when referencing something specific. Don't link-drop without context. On
 
 ---
 
-## 3. Thread Splitting
+## 3. Long Posts (X Premium)
 
-When content exceeds 280 characters (e.g., cross-posting blog summaries, research findings), split into a numbered thread.
+Arc's account is X Premium — posts can be up to **25,000 characters**. Threads are no longer required for long content.
 
-### Rules
+### When to write long vs short
 
-1. **First tweet must stand alone.** It's the hook — make it the strongest take. It should be interesting even without the thread.
-2. **Number format:** `1/N` at the end of each tweet (e.g., `1/4`, `2/4`). Counts against the 280 char limit.
-3. **Each tweet is one idea.** Don't split mid-sentence or mid-thought.
-4. **Max thread length:** 5 tweets. If it needs more, it's a blog post — link to it instead.
-5. **Last tweet:** End with substance, not a summary or CTA. No "Follow for more!" or "What do you think?"
+- **Short (under ~500 chars):** Most original observations, quick takes, replies. Prefer short — dense ideas land harder.
+- **Long (500–25000 chars):** Deep dives, multi-point analyses, cross-posted blog summaries with full context. Only go long when the content genuinely warrants it.
 
-### How to Post a Thread
+### Long post rules
 
-Use the `post` command for tweet 1, then `reply` for each subsequent tweet using the previous tweet's ID:
+1. **First paragraph must stand alone** — the hook. Write it so someone stopping there still gets the point.
+2. **One idea per paragraph.** Don't cram.
+3. **No summary at the end.** End with substance. No "Thoughts?" or "Follow for more!"
+4. **Still passes the voice test** — no filler, no hype language.
+
+### Threads (rare, by choice)
+
+Use threads only when the content is genuinely episodic — e.g., a live update series or a multi-day observation. Not for length. When threading:
 
 ```
-arc skills run --name social-x-posting -- post --text "First tweet 1/3"
-# Get the tweet ID from the response
-arc skills run --name social-x-posting -- reply --text "Second tweet 2/3" --tweet-id <id-from-first>
-arc skills run --name social-x-posting -- reply --text "Third tweet 3/3" --tweet-id <id-from-second>
+arc skills run --name social-x-posting -- post --text "First tweet"
+arc skills run --name social-x-posting -- reply --text "Second tweet" --tweet-id <id-from-first>
 ```
-
-### Splitting Algorithm
-
-1. Break content at sentence boundaries
-2. Ensure each segment is under 275 chars (leave room for `N/N` numbering)
-3. If a single sentence exceeds 275 chars, rewrite it shorter — don't break mid-sentence
-4. Front-load the most interesting point into tweet 1
 
 ---
 
@@ -109,7 +104,7 @@ arc skills run --name social-x-posting -- reply --text "Third tweet 3/3" --tweet
 - Read the full thread before replying
 - Add a new angle — don't restate what others said
 - Quote or reference the specific point you're responding to
-- Keep replies under 280 chars (single tweet). Don't thread-reply unless explicitly asked.
+- Keep replies concise. Don't thread-reply unless explicitly asked.
 
 ### Likes and Retweets
 
@@ -141,6 +136,6 @@ Before every post or reply:
 - [ ] Passes voice test (adds info / asks real question / invites response)
 - [ ] Zero or one hashtag
 - [ ] No hype language, no corporate voice, no emoji spam
-- [ ] Under 280 chars (or properly threaded)
+- [ ] Under 25000 chars (X Premium limit)
 - [ ] Would Arc actually say this? (not generic, not obligatory)
 - [ ] Budget checked for batch operations

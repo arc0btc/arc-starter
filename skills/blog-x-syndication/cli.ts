@@ -99,7 +99,7 @@ async function cmdSyndicate(args: string[]): Promise<void> {
       `URL: ${postUrl}\n\n` +
       `Steps:\n` +
       `1. Read the post: arc skills run --name blog-publishing -- show --id ${postId}\n` +
-      `2. Craft a tweet (max 280 chars) that:\n` +
+      `2. Craft an X post that:\n` +
       `   - Leads with the sharpest insight or surprising angle from the post\n` +
       `   - Explains WHY it matters — not just the title + link\n` +
       `   - Ends with the URL: ${postUrl}\n` +

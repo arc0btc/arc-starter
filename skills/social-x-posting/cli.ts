@@ -318,8 +318,8 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     console.log("Usage: post --text <tweet text>");
     process.exit(1);
   }
-  if (text.length > 280) {
-    console.log(`Tweet too long: ${text.length}/280 characters`);
+  if (text.length > 25000) {
+    console.log(`Tweet too long: ${text.length}/25000 characters`);
     process.exit(1);
   }
 
@@ -352,8 +352,8 @@ async function cmdReply(flags: Record<string, string>): Promise<void> {
     console.log("Usage: reply --text <reply text> --tweet-id <id>");
     process.exit(1);
   }
-  if (text.length > 280) {
-    console.log(`Reply too long: ${text.length}/280 characters`);
+  if (text.length > 25000) {
+    console.log(`Reply too long: ${text.length}/25000 characters`);
     process.exit(1);
   }
 

@@ -41,7 +41,7 @@ arc skills run --name blog-x-syndication -- status
 
 The dispatched Sonnet agent:
 1. Reads the blog post via `arc skills run --name blog-publishing -- show --id <post-id>`
-2. Crafts a compelling X post (max 280 chars):
+2. Crafts a compelling X post (X Premium — up to 25000 chars, but keep it focused):
    - Leads with the core insight or surprising angle
    - Explains WHY it matters — not just WHAT it is
    - Ends with the post URL (https://arc0.me/blog/<slug-fragment>)
