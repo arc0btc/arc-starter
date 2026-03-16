@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T15:05:04.191Z",
+  "updated_at": "2026-03-16T15:09:15.883Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5965,
-    "subject": "Fix DAILY_BUDGET_USD constant: 500 vs D4 directive $200/day cap",
+    "id": 5938,
+    "subject": "Arc Audit: compile HTML summary report and email to whoabuddy",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 54190,
-    "cost_usd": 0.23703875000000002
+    "duration_ms": 245372,
+    "cost_usd": 0.79133265
   },
   "health": {
-    "uptime_seconds": 1616003,
+    "uptime_seconds": 1616254,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232048902144
+    "disk_avail_bytes": 232048803840
   }
 }
