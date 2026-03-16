@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T18:06:03.147Z",
+  "updated_at": "2026-03-16T18:12:10.658Z",
   "idle": true,
-  "idle_since": "2026-03-16T17:47:56.809Z",
+  "idle_since": "2026-03-16T18:10:10.091Z",
   "last_task": {
-    "id": 5988,
-    "subject": "GitHub issue in aibtcdev/aibtc-mcp-server#321: bug: duplicate tool registrations crash MCP server on startup",
+    "id": 5989,
+    "subject": "Review PR #324 on aibtcdev/aibtc-mcp-server: feat(ordinals-p2p): add P2P trade ledger MCP tools (closes #307)",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 92517,
-    "cost_usd": 0.30656625000000004
+    "duration_ms": 186278,
+    "cost_usd": 0.42748349999999996
   },
   "health": {
-    "uptime_seconds": 1626861,
+    "uptime_seconds": 1627229,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232034365440
+    "disk_avail_bytes": 232034283520
   }
 }
