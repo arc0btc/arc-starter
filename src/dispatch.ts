@@ -255,7 +255,7 @@ const MST_OFFSET_MS = 7 * 3600_000;
 
 function buildPrompt(task: Task, skillNames: string[], recentCycles: string): string {
   const now = new Date();
-  const utc = toSqliteDatetime(now) + " UTC";
+  const utcIso = now.toISOString().replace(/\.\d{3}Z$/, "Z");
   const mst = toSqliteDatetime(new Date(now.getTime() - MST_OFFSET_MS)) + " MST";
 
   const soul = readFile(join(ROOT, "SOUL.md"));
@@ -265,8 +265,8 @@ function buildPrompt(task: Task, skillNames: string[], recentCycles: string): st
   const parentChain = buildParentChain(task);
 
   const parts: string[] = [
-    "# Current Time",
-    `${utc} / ${mst}`,
+    "# currentDate",
+    `Current time: ${utcIso} (UTC) / ${mst}`,
     "",
   ];
 
