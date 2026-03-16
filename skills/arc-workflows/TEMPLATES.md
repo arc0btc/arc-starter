@@ -2,7 +2,9 @@
 
 Detailed specifications for all built-in workflow templates.
 
-## PR Lifecycle (`pr-lifecycle`)
+## PR Lifecycle (`pr-lifecycle`) — DEPRECATED
+
+> **Deprecated as of 2026-03-16.** Use `github-pr-review` for active PR review and merge workflows. Use `github-issue-triage` for issue tracking. Existing instances run to completion; sensors no longer create new pr-lifecycle instances (tracked in task #6107).
 
 Track GitHub pull requests through their full lifecycle.
 

@@ -22,7 +22,9 @@ The workflow system includes a minimal, dependency-free state machine runner. Ea
 - `getAllowedTransitions(state, template)` — Get available transitions from a state
 - `isTransitionAllowed(from, to, template)` — Check if transition is valid
 
-**Built-in templates:** `BlogPostingMachine`, `SignalFilingMachine`, `BeatClaimingMachine`, `PrLifecycleMachine`, `ReputationFeedbackMachine`, `ValidationRequestMachine`, `InscriptionMachine`, `NewReleaseMachine`, `ArchitectureReviewMachine`, `EmailThreadMachine`, `QuestMachine`, `StreakMaintenanceMachine`, `GithubIssueTriageMachine`, `GithubPrReviewMachine`
+**Built-in templates:** `BlogPostingMachine`, `SignalFilingMachine`, `BeatClaimingMachine`, `ReputationFeedbackMachine`, `ValidationRequestMachine`, `InscriptionMachine`, `NewReleaseMachine`, `ArchitectureReviewMachine`, `EmailThreadMachine`, `QuestMachine`, `StreakMaintenanceMachine`, `GithubIssueTriageMachine`, `GithubPrReviewMachine`
+
+> **Deprecated:** `PrLifecycleMachine` (`pr-lifecycle`) is superseded by `github-pr-review` (active PR driver) and `github-issue-triage` (issue tracking). Existing instances run to completion; no new instances should be created.
 
 See `state-machine.ts` for full API (100 lines, no external deps).
 
@@ -108,11 +110,13 @@ The sensor source for created tasks is `workflow:{workflow_id}`, allowing you to
 
 ## When to Load
 
-Load when: creating a new workflow instance for multi-step work (blog post, signal filing, PR lifecycle), transitioning an existing workflow state, or diagnosing a stuck workflow. Do NOT load for tasks that simply consume workflow output — only load when managing workflow state directly.
+Load when: creating a new workflow instance for multi-step work (blog post, signal filing, PR review, issue triage), transitioning an existing workflow state, or diagnosing a stuck workflow. Do NOT load for tasks that simply consume workflow output — only load when managing workflow state directly.
 
 ## Built-in Templates
 
-**Available templates:** `blog-posting`, `signal-filing`, `beat-claiming`, `pr-lifecycle`, `reputation-feedback`, `validation-request`, `inscription`, `new-release`, `architecture-review`, `email-thread`, `quest`, `streak-maintenance`, `github-issue-triage`, `github-pr-review`
+**Active templates:** `blog-posting`, `signal-filing`, `beat-claiming`, `reputation-feedback`, `validation-request`, `inscription`, `new-release`, `architecture-review`, `email-thread`, `quest`, `streak-maintenance`, `github-issue-triage`, `github-pr-review`
+
+**Deprecated templates:** `pr-lifecycle` (use `github-issue-triage` for issues, `github-pr-review` for PRs)
 
 See `TEMPLATES.md` for detailed state diagrams, context schemas, and usage examples.
 
