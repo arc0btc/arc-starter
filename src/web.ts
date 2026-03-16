@@ -1275,61 +1275,93 @@ async function handleFace(): Promise<Response> {
   }
 }
 
-function handleReputation(): Response {
+function handleReputation(url: URL): Response {
   try {
     // Check if reviews table exists (created by arc-reputation skill on first use)
     const tableExists = db.query(
       "SELECT name FROM sqlite_master WHERE type='table' AND name='reviews'"
     ).get() as { name: string } | null;
 
-    if (!tableExists) {
-      return json({
-        submitted: { count: 0, recent: [] },
-        received: { count: 0, avg_rating: null, recent: [] },
-        btc_address: IDENTITY.btc,
-        stx_address: IDENTITY.stx,
-      });
-    }
+    const emptyResponse = {
+      submitted: { count: 0, total: 0, reviews: [] },
+      received: { count: 0, total: 0, avg_rating: null, reviews: [] },
+      btc_address: IDENTITY.btc,
+      stx_address: IDENTITY.stx,
+    };
+
+    if (!tableExists) return json(emptyResponse);
+
+    // Query params: type=submitted|received|all, limit=N, offset=N, agent=address
+    const typeFilter = url.searchParams.get("type") || "all";
+    const limit = Math.min(Math.max(parseInt(url.searchParams.get("limit") || "10") || 10, 1), 50);
+    const offset = Math.max(parseInt(url.searchParams.get("offset") || "0") || 0, 0);
+    const agentFilter = url.searchParams.get("agent") || "";
 
     const arc_btc = IDENTITY.btc;
 
-    const submittedCount = db.query(
-      "SELECT COUNT(*) as count FROM reviews WHERE reviewer_address = ?"
-    ).get(arc_btc) as { count: number };
+    type ReviewRow = { id: number; subject: string; reviewer_address: string; reviewee_address: string; rating: number; comment: string; tags: string; created_at: string };
 
-    const submittedRecent = db.query(
-      "SELECT id, subject, reviewee_address, rating, comment, tags, created_at FROM reviews WHERE reviewer_address = ? ORDER BY created_at DESC LIMIT 5"
-    ).all(arc_btc) as Array<{ id: number; subject: string; reviewee_address: string; rating: number; comment: string; tags: string; created_at: string }>;
+    // Submitted reviews
+    let submittedTotal = 0;
+    let submittedReviews: ReviewRow[] = [];
+    if (typeFilter === "all" || typeFilter === "submitted") {
+      const whereClause = agentFilter
+        ? "WHERE reviewer_address = ? AND reviewee_address = ?"
+        : "WHERE reviewer_address = ?";
+      const params = agentFilter ? [arc_btc, agentFilter] : [arc_btc];
 
-    const receivedCount = db.query(
-      "SELECT COUNT(*) as count FROM reviews WHERE reviewee_address = ?"
-    ).get(arc_btc) as { count: number };
+      submittedTotal = (db.query(
+        `SELECT COUNT(*) as count FROM reviews ${whereClause}`
+      ).get(...params) as { count: number }).count;
 
-    const receivedRecent = db.query(
-      "SELECT id, subject, reviewer_address, rating, comment, tags, created_at FROM reviews WHERE reviewee_address = ? ORDER BY created_at DESC LIMIT 5"
-    ).all(arc_btc) as Array<{ id: number; subject: string; reviewer_address: string; rating: number; comment: string; tags: string; created_at: string }>;
+      submittedReviews = db.query(
+        `SELECT id, subject, reviewer_address, reviewee_address, rating, comment, tags, created_at FROM reviews ${whereClause} ORDER BY created_at DESC LIMIT ? OFFSET ?`
+      ).all(...params, limit, offset) as ReviewRow[];
+    }
 
-    const receivedAvg = db.query(
-      "SELECT AVG(rating) as avg FROM reviews WHERE reviewee_address = ?"
-    ).get(arc_btc) as { avg: number | null };
+    // Received reviews
+    let receivedTotal = 0;
+    let receivedReviews: ReviewRow[] = [];
+    let receivedAvg: number | null = null;
+    if (typeFilter === "all" || typeFilter === "received") {
+      const whereClause = agentFilter
+        ? "WHERE reviewee_address = ? AND reviewer_address = ?"
+        : "WHERE reviewee_address = ?";
+      const params = agentFilter ? [arc_btc, agentFilter] : [arc_btc];
+
+      receivedTotal = (db.query(
+        `SELECT COUNT(*) as count FROM reviews ${whereClause}`
+      ).get(...params) as { count: number }).count;
+
+      receivedReviews = db.query(
+        `SELECT id, subject, reviewer_address, reviewee_address, rating, comment, tags, created_at FROM reviews ${whereClause} ORDER BY created_at DESC LIMIT ? OFFSET ?`
+      ).all(...params, limit, offset) as ReviewRow[];
+
+      const avgResult = db.query(
+        `SELECT AVG(rating) as avg FROM reviews ${whereClause}`
+      ).get(...params) as { avg: number | null };
+      receivedAvg = avgResult.avg !== null ? Math.round(avgResult.avg * 100) / 100 : null;
+    }
 
     return json({
       submitted: {
-        count: submittedCount.count,
-        recent: submittedRecent.map(r => ({ ...r, tags: JSON.parse(r.tags) as string[] })),
+        count: submittedReviews.length,
+        total: submittedTotal,
+        reviews: submittedReviews.map(r => ({ ...r, tags: JSON.parse(r.tags) as string[] })),
       },
       received: {
-        count: receivedCount.count,
-        avg_rating: receivedAvg.avg !== null ? Math.round(receivedAvg.avg * 100) / 100 : null,
-        recent: receivedRecent.map(r => ({ ...r, tags: JSON.parse(r.tags) as string[] })),
+        count: receivedReviews.length,
+        total: receivedTotal,
+        avg_rating: receivedAvg,
+        reviews: receivedReviews.map(r => ({ ...r, tags: JSON.parse(r.tags) as string[] })),
       },
       btc_address: IDENTITY.btc,
       stx_address: IDENTITY.stx,
     });
   } catch {
     return json({
-      submitted: { count: 0, recent: [] },
-      received: { count: 0, avg_rating: null, recent: [] },
+      submitted: { count: 0, total: 0, reviews: [] },
+      received: { count: 0, total: 0, avg_rating: null, reviews: [] },
       btc_address: IDENTITY.btc,
       stx_address: IDENTITY.stx,
     });
@@ -2082,7 +2114,7 @@ function route(req: Request): Response | Promise<Response> {
   if (path === "/api/costs") return handleCosts(url);
   if (path === "/api/identity") return handleIdentity();
   if (path === "/api/face") return handleFace();
-  if (path === "/api/reputation") return handleReputation();
+  if (path === "/api/reputation") return handleReputation(url);
   if (path === "/api/events") return handleEvents();
   if (path === "/api/arena/history") return handleArenaHistory();
 

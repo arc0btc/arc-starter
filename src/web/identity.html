@@ -57,8 +57,28 @@
       <div class="section-header">
         <h2 class="section-title">Reputation</h2>
       </div>
-      <div id="reputation-content">
+
+      <div id="reputation-metrics">
         <p class="placeholder">Loading reputation data...</p>
+      </div>
+
+      <div class="rep-filters">
+        <div class="rep-filter-group">
+          <label for="rep-filter-type" class="rep-filter-label">Type</label>
+          <select id="rep-filter-type" class="rep-filter-select">
+            <option value="all">All Reviews</option>
+            <option value="received">Received</option>
+            <option value="submitted">Submitted</option>
+          </select>
+        </div>
+        <div class="rep-filter-group">
+          <label for="rep-filter-agent" class="rep-filter-label">Agent Address</label>
+          <input id="rep-filter-agent" class="rep-filter-input" type="text" placeholder="Filter by address..." />
+        </div>
+      </div>
+
+      <div id="reputation-table">
+        <p class="placeholder">Loading reviews...</p>
       </div>
     </section>
 
@@ -123,55 +143,143 @@
 
     // ---- Reputation ----
 
-    function renderReputation(data) {
-      var el = document.getElementById('reputation-content');
-      if (!el) return;
+    var repState = { type: 'all', agent: '', limit: 10, offset: 0 };
 
-      var submitted = data.submitted || { count: 0, recent: [] };
-      var received = data.received || { count: 0, avg_rating: null, recent: [] };
+    function renderReputationMetrics(data) {
+      var submitted = data.submitted || { total: 0 };
+      var received = data.received || { total: 0, avg_rating: null };
 
       var stxExplorer = 'https://explorer.hiro.so/address/' + encodeURIComponent(data.stx_address) + '?chain=mainnet';
       var btcExplorer = 'https://mempool.space/address/' + encodeURIComponent(data.btc_address);
 
-      var html = '<div class="metrics-grid" style="margin-bottom:var(--space-sm)">'
-        + '<div class="metric-card"><div class="metric-value">' + submitted.count + '</div><div class="metric-label">Reviews Submitted</div></div>'
-        + '<div class="metric-card"><div class="metric-value">' + received.count + '</div><div class="metric-label">Reviews Received</div></div>'
+      var metricsEl = document.getElementById('reputation-metrics');
+      if (!metricsEl) return;
+
+      metricsEl.innerHTML = '<div class="metrics-grid">'
+        + '<div class="metric-card"><div class="metric-value">' + submitted.total + '</div><div class="metric-label">Reviews Submitted</div></div>'
+        + '<div class="metric-card"><div class="metric-value">' + received.total + '</div><div class="metric-label">Reviews Received</div></div>'
         + (received.avg_rating !== null ? '<div class="metric-card"><div class="metric-value">' + received.avg_rating.toFixed(1) + '/5</div><div class="metric-label">Avg Rating</div></div>' : '')
-        + '</div>';
-
-      html += '<div class="reputation-links">'
+        + '</div>'
+        + '<div class="reputation-links">'
         + '<span style="color:var(--text-muted);font-size:0.85rem">Verify on-chain:</span>'
-        + ' <a href="' + escAttr(stxExplorer) + '" target="_blank" rel="noopener" class="explorer-btn">ERC-8004 (Stacks)</a>'
-        + ' <a href="' + escAttr(btcExplorer) + '" target="_blank" rel="noopener" class="explorer-btn">BIP-322 (Bitcoin)</a>'
+        + ' <a href="' + escAttr(stxExplorer) + '" target="_blank" rel="noopener" class="explorer-btn">ERC-8004 on L2 (Stacks)</a>'
+        + ' <a href="' + escAttr(btcExplorer) + '" target="_blank" rel="noopener" class="explorer-btn">BIP-322 on L1 (Bitcoin)</a>'
         + '</div>';
+    }
 
-      function reviewRows(reviews, addrField, addrLabel) {
-        return reviews.map(function(r) {
-          var stars = String.fromCharCode(9733).repeat(r.rating) + String.fromCharCode(9734).repeat(5 - r.rating);
-          var tags = Array.isArray(r.tags) ? r.tags.map(function(t) { return '<span class="pill pill-muted">' + esc(t) + '</span>'; }).join(' ') : '';
-          var addr = r[addrField] || '';
-          return '<li class="reputation-item">'
-            + '<span class="reputation-stars">' + stars + '</span>'
-            + '<span class="reputation-subject">' + esc(r.subject) + '</span>'
-            + (tags ? ' ' + tags : '')
-            + '<span class="reputation-meta">' + addrLabel + ' ' + esc(addr.slice(0, 14)) + (addr.length > 14 ? '...' : '') + ' · ' + relativeTime(r.created_at) + '</span>'
-            + '</li>';
-        }).join('');
+    function renderReputationTable(data) {
+      var tableEl = document.getElementById('reputation-table');
+      if (!tableEl) return;
+
+      var allReviews = [];
+
+      // Combine received and submitted with a direction label
+      if (data.received && data.received.reviews) {
+        data.received.reviews.forEach(function(r) {
+          allReviews.push(Object.assign({}, r, { direction: 'received', counterparty: r.reviewer_address, counterpartyLabel: 'From' }));
+        });
+      }
+      if (data.submitted && data.submitted.reviews) {
+        data.submitted.reviews.forEach(function(r) {
+          allReviews.push(Object.assign({}, r, { direction: 'submitted', counterpartyLabel: 'To', counterparty: r.reviewee_address }));
+        });
       }
 
-      if (received.recent && received.recent.length > 0) {
-        html += '<div class="reputation-section-label">Received</div><ul class="reputation-list">' + reviewRows(received.recent, 'reviewer_address', 'from') + '</ul>';
+      // Sort combined by date desc
+      allReviews.sort(function(a, b) { return b.created_at.localeCompare(a.created_at); });
+
+      if (allReviews.length === 0) {
+        tableEl.innerHTML = '<p class="placeholder" style="margin-top:var(--space-sm)">No reviews match current filters</p>';
+        return;
       }
 
-      if (submitted.recent && submitted.recent.length > 0) {
-        html += '<div class="reputation-section-label">Submitted</div><ul class="reputation-list">' + reviewRows(submitted.recent, 'reviewee_address', 'for') + '</ul>';
+      var html = '<table class="rep-table">'
+        + '<thead><tr>'
+        + '<th class="rep-th-type">Type</th>'
+        + '<th class="rep-th-rating">Rating</th>'
+        + '<th class="rep-th-subject">Subject</th>'
+        + '<th class="rep-th-agent">Agent</th>'
+        + '<th class="rep-th-tags">Tags</th>'
+        + '<th class="rep-th-date">Date</th>'
+        + '</tr></thead><tbody>';
+
+      allReviews.forEach(function(r) {
+        var stars = String.fromCharCode(9733).repeat(r.rating) + String.fromCharCode(9734).repeat(5 - r.rating);
+        var tags = Array.isArray(r.tags) ? r.tags.map(function(t) { return '<span class="pill pill-muted">' + esc(t) + '</span>'; }).join(' ') : '';
+        var addr = r.counterparty || '';
+        var shortAddr = addr.slice(0, 10) + (addr.length > 10 ? '...' : '');
+        var addrNetwork = addr.startsWith('SP') || addr.startsWith('ST') ? 'L2' : 'L1';
+        var dirClass = r.direction === 'received' ? 'rep-dir-received' : 'rep-dir-submitted';
+
+        html += '<tr>'
+          + '<td><span class="rep-direction ' + dirClass + '">' + (r.direction === 'received' ? 'Received' : 'Submitted') + '</span></td>'
+          + '<td class="reputation-stars">' + stars + '</td>'
+          + '<td class="rep-subject-cell">' + esc(r.subject) + '</td>'
+          + '<td class="rep-agent-cell" title="' + escAttr(addr) + '"><span class="rep-agent-network">' + addrNetwork + '</span> ' + esc(shortAddr) + '</td>'
+          + '<td class="rep-tags-cell">' + (tags || '<span class="text-muted">--</span>') + '</td>'
+          + '<td class="rep-date-cell">' + relativeTime(r.created_at) + '</td>'
+          + '</tr>';
+      });
+
+      html += '</tbody></table>';
+
+      // Pagination
+      var totalItems = Math.max(data.submitted.total, data.received.total);
+      if (totalItems > repState.limit) {
+        var currentPage = Math.floor(repState.offset / repState.limit) + 1;
+        var totalPages = Math.ceil(totalItems / repState.limit);
+        html += '<div class="rep-pagination">'
+          + '<button class="rep-page-btn" id="rep-prev" ' + (currentPage <= 1 ? 'disabled' : '') + '>Prev</button>'
+          + '<span class="rep-page-info">Page ' + currentPage + ' of ' + totalPages + '</span>'
+          + '<button class="rep-page-btn" id="rep-next" ' + (currentPage >= totalPages ? 'disabled' : '') + '>Next</button>'
+          + '</div>';
       }
 
-      if (submitted.count === 0 && received.count === 0) {
-        html += '<p class="placeholder" style="margin-top:var(--space-sm)">No reviews yet</p>';
+      tableEl.innerHTML = html;
+
+      // Bind pagination
+      var prevBtn = document.getElementById('rep-prev');
+      var nextBtn = document.getElementById('rep-next');
+      if (prevBtn) prevBtn.onclick = function() { repState.offset = Math.max(0, repState.offset - repState.limit); loadReputation(); };
+      if (nextBtn) nextBtn.onclick = function() { repState.offset += repState.limit; loadReputation(); };
+    }
+
+    function loadReputation() {
+      var params = '?limit=' + repState.limit + '&offset=' + repState.offset;
+      if (repState.type !== 'all') params += '&type=' + repState.type;
+      if (repState.agent) params += '&agent=' + encodeURIComponent(repState.agent);
+
+      fetchJSON('/api/reputation' + params).then(function(data) {
+        renderReputationMetrics(data);
+        renderReputationTable(data);
+      }).catch(function(e) {
+        console.error('Failed to load reputation:', e);
+      });
+    }
+
+    function initReputationFilters() {
+      var typeSelect = document.getElementById('rep-filter-type');
+      var agentInput = document.getElementById('rep-filter-agent');
+
+      if (typeSelect) {
+        typeSelect.onchange = function() {
+          repState.type = typeSelect.value;
+          repState.offset = 0;
+          loadReputation();
+        };
       }
 
-      el.innerHTML = html;
+      if (agentInput) {
+        var debounceTimer;
+        agentInput.oninput = function() {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(function() {
+            repState.agent = agentInput.value.trim();
+            repState.offset = 0;
+            loadReputation();
+          }, 400);
+        };
+      }
     }
 
     // ---- Init ----
@@ -182,7 +290,7 @@
         var results = await Promise.allSettled([
           fetchJSON('/api/status'),
           fetchJSON('/api/identity'),
-          fetchJSON('/api/reputation'),
+          fetchJSON('/api/reputation?limit=10'),
         ]);
 
         var status     = results[0].status === 'fulfilled' ? results[0].value : null;
@@ -191,11 +299,15 @@
 
         if (status) updateHeader(status);
         if (identity) renderIdentity(identity);
-        if (reputation) renderReputation(reputation);
+        if (reputation) {
+          renderReputationMetrics(reputation);
+          renderReputationTable(reputation);
+        }
       } catch (e) {
         console.error('Identity page init error:', e);
       }
 
+      initReputationFilters();
       initMessageBox();
       connectSSE();
     }
