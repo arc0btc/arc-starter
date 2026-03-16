@@ -25,15 +25,18 @@ const MIN_RECURRENCES = 3;
 
 const log = createSensorLogger(SENSOR_NAME);
 
-/** Known process patterns that already have workflow templates or dedicated sensors. */
+/**
+ * Known source keys (after normalization) that already have workflow templates
+ * or are too heterogeneous to model as a single state machine.
+ * These are suppressed from the pattern detector output.
+ */
 const KNOWN_PATTERNS = new Set([
-  "blog-posting",
-  "signal-filing",
-  "beat-claiming",
-  "pr-lifecycle",
-  "reputation-feedback",
-  "validation-request",
-  "inscription",
+  // Workflow templates in state-machine.ts
+  "sensor:fleet-sync",           // → FleetSyncMachine
+  "sensor:arc0btc-site-health",  // → SiteHealthAlertMachine
+  "sensor:arc-cost-alerting",    // → CostAlertMachine (date suffix stripped by normalizeSource)
+  // Orchestrators: too heterogeneous for a single state machine
+  "sensor:auto-queue",
   // Sensor sources with established handling (no workflow needed — they're atomic)
   "sensor:aibtc-heartbeat",
   "sensor:arc-service-health",
@@ -41,6 +44,14 @@ const KNOWN_PATTERNS = new Set([
   // Generic sources that aren't meaningful patterns
   "unknown",
   "task:*",
+]);
+
+/**
+ * Known root-subject patterns that already have workflow templates.
+ * Checked during subject-based detection.
+ */
+const KNOWN_SUBJECT_PATTERNS = new Set([
+  "new release",  // → NewReleaseMachine
 ]);
 
 /** Source prefixes to skip — human-initiated tasks are inherently varied. */
@@ -62,6 +73,13 @@ function normalizeSource(source: string | null): string {
   // sensor:aibtc-repo-maintenance:pr:aibtcdev/skills#65 → sensor:aibtc-repo-maintenance:pr
   const parts = source.split(":");
   if (parts.length > 3) return parts.slice(0, 3).join(":");
+
+  // Strip date-like final segments (YYYY-MM-DD) from 3-part sources
+  // sensor:arc-cost-alerting:2026-03-09 → sensor:arc-cost-alerting
+  if (parts.length === 3 && /^\d{4}-\d{2}-\d{2}$/.test(parts[2])) {
+    return parts.slice(0, 2).join(":");
+  }
+
   return source;
 }
 
@@ -243,6 +261,8 @@ function detectPatterns(chains: ChainInfo[]): DetectedPattern[] {
     // Skip if already detected by source-prefix strategy
     const src = normalizeSource(group[0].rootSource);
     if (patterns.some((p) => p.key === `source:${src}`)) continue;
+    // Skip if this subject pattern already has a known workflow template
+    if (KNOWN_SUBJECT_PATTERNS.has(subj)) continue;
 
     const avgSteps =
       group.reduce((sum, c) => sum + 1 + c.childCount, 0) / group.length;
