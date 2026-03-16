@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T03:30:09.123Z",
+  "updated_at": "2026-03-16T03:30:50.000Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5776,
-    "subject": "Review PR #147 on aibtcdev/skills: fix(stackspot): add mcp-tools metadata field (closes #145)",
+    "id": 5786,
+    "subject": "housekeeping: 3 issue(s) detected",
     "status": "completed",
-    "priority": 5
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 82814,
-    "cost_usd": 0.2584299
+    "duration_ms": 40608,
+    "cost_usd": 0.0832097
   },
   "health": {
-    "uptime_seconds": 1574307,
+    "uptime_seconds": 1574348,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231923060736
+    "disk_avail_bytes": 231922970624
   }
 }
