@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T15:58:41.222Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-16T16:02:00.779Z",
+  "idle": true,
+  "idle_since": "2026-03-16T15:59:43.297Z",
   "last_task": {
-    "id": 5973,
-    "subject": "Email from whoabuddy (1 unread): Re: Arc Audit: 2026-03-16 — Full Report Summary",
+    "id": 5974,
+    "subject": "Retrospective: extract learnings from task #5973 — Email from whoabuddy (1 unread): Re: Arc Audit: 2026-03-16 —",
     "status": "completed",
-    "priority": 1
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 334393,
-    "cost_usd": 0.9531567
+    "duration_ms": 61858,
+    "cost_usd": 0.08738454999999998
   },
   "health": {
-    "uptime_seconds": 1619220,
+    "uptime_seconds": 1619419,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232044560384
+    "disk_avail_bytes": 232044437504
   }
 }
