@@ -29,7 +29,6 @@ import type { InsertHubCapability } from "../skills/agent-hub/schema.ts";
 initDatabase();
 initHubSchema();
 const db = getDatabase();
-const dbWrite = getDatabase();
 
 // ---- Constants ----
 
@@ -476,7 +475,7 @@ async function handlePostFleetMessage(req: Request): Promise<Response> {
   const messageType = typeof body.message_type === "string" && validTypes.has(body.message_type) ? body.message_type : "status";
   const fromBns = typeof body.from_bns === "string" ? body.from_bns.trim() : null;
 
-  const result = dbWrite.query(
+  const result = db.query(
     "INSERT INTO fleet_messages (from_agent, from_bns, message_type, content) VALUES (?, ?, ?, ?)"
   ).run(fromAgent, fromBns, messageType, content);
 
@@ -1860,7 +1859,7 @@ async function handleFleetCompleteTask(req: Request, id: string): Promise<Respon
 
   // Update cost if provided
   if (typeof body.cost_usd === "number" && body.cost_usd >= 0) {
-    dbWrite.query("UPDATE tasks SET cost_usd = ? WHERE id = ?").run(body.cost_usd, taskId);
+    db.query("UPDATE tasks SET cost_usd = ? WHERE id = ?").run(body.cost_usd, taskId);
   }
 
   const updated = db.query("SELECT * FROM tasks WHERE id = ?").get(taskId);

@@ -14,9 +14,9 @@ function log(msg: string): void {
   console.log(`[${new Date().toISOString()}] ${msg}`);
 }
 
-/** Spawn a git command in the repo root, capturing output. */
-export async function git(...args: string[]): Promise<{ exitCode: number; stdout: string; stderr: string }> {
-  const proc = Bun.spawn(["git", ...args], { cwd: ROOT, stdout: "pipe", stderr: "pipe" });
+/** Spawn a command in the repo root, capturing output. */
+async function spawnCapture(cmd: string, args: string[]): Promise<{ exitCode: number; stdout: string; stderr: string }> {
+  const proc = Bun.spawn([cmd, ...args], { cwd: ROOT, stdout: "pipe", stderr: "pipe" });
   const [exitCode, stdout, stderr] = await Promise.all([
     proc.exited,
     new Response(proc.stdout).text(),
@@ -25,15 +25,9 @@ export async function git(...args: string[]): Promise<{ exitCode: number; stdout
   return { exitCode, stdout, stderr };
 }
 
-/** Generic command runner — spawn a process and capture output. */
-async function runCommand(cmd: string, args: string[]): Promise<{ exitCode: number; stdout: string; stderr: string }> {
-  const proc = Bun.spawn([cmd, ...args], { cwd: ROOT, stdout: "pipe", stderr: "pipe" });
-  const [exitCode, stdout, stderr] = await Promise.all([
-    proc.exited,
-    new Response(proc.stdout).text(),
-    new Response(proc.stderr).text(),
-  ]);
-  return { exitCode, stdout, stderr };
+/** Spawn a git command in the repo root, capturing output. */
+export async function git(...args: string[]): Promise<{ exitCode: number; stdout: string; stderr: string }> {
+  return spawnCapture("git", args);
 }
 
 /** Return the current HEAD commit SHA, or null if git fails. */
@@ -72,7 +66,7 @@ function validateSyntax(files: string[]): string[] {
 async function snapshotServiceState(): Promise<Map<string, boolean>> {
   const state = new Map<string, boolean>();
   for (const svc of ARC_SERVICES) {
-    const { exitCode } = await runCommand("systemctl", ["--user", "is-active", svc]);
+    const { exitCode } = await spawnCapture("systemctl", ["--user", "is-active", svc]);
     state.set(svc, exitCode === 0);
   }
   return state;
@@ -83,7 +77,7 @@ async function checkServiceHealth(before: Map<string, boolean>): Promise<string[
   const died: string[] = [];
   for (const [svc, wasActive] of before) {
     if (!wasActive) continue;
-    const { exitCode } = await runCommand("systemctl", ["--user", "is-active", svc]);
+    const { exitCode } = await spawnCapture("systemctl", ["--user", "is-active", svc]);
     if (exitCode !== 0) died.push(svc);
   }
   return died;
@@ -152,7 +146,7 @@ async function revertOnServiceDeath(
   }
 
   for (const svc of diedServices) {
-    await runCommand("systemctl", ["--user", "restart", svc]);
+    await spawnCapture("systemctl", ["--user", "restart", svc]);
     log(`dispatch: restarted ${svc}`);
   }
 
