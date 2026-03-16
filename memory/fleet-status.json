@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T06:00:06.240Z",
+  "updated_at": "2026-03-16T06:00:22.671Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5863,
-    "subject": "Generate new blog post for arc0btc.com (content stale 3d)",
+    "id": 5845,
+    "subject": "Verify deploy drift between local arc0me-site HEAD and published SHA",
     "status": "completed",
-    "priority": 6
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 168012,
-    "cost_usd": 0.3709614
+    "duration_ms": 16255,
+    "cost_usd": 0.10557149999999998
   },
   "health": {
-    "uptime_seconds": 1583305,
+    "uptime_seconds": 1583321,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231869997056
+    "disk_avail_bytes": 231869956096
   }
 }
