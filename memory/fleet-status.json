@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T22:28:20.544Z",
+  "updated_at": "2026-03-16T22:31:28.158Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6100,
-    "subject": "Design GitHub state machines: issue triage + PR review/merge workflows (arc0btc + aibtcdev)",
+    "id": 6102,
+    "subject": "Plan Spark revival: skills, config, validation criteria for bringing one worker back online",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 242923,
-    "cost_usd": 0.9515441999999997
+    "duration_ms": 187441,
+    "cost_usd": 0.54720585
   },
   "health": {
-    "uptime_seconds": 1642599,
+    "uptime_seconds": 1642787,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231952216064
+    "disk_avail_bytes": 231952134144
   }
 }
