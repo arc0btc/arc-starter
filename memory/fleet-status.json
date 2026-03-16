@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T14:56:05.119Z",
+  "updated_at": "2026-03-16T14:56:51.698Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5934,
-    "subject": "Arc Audit: arc0btc.com monitoring, confidence, and uptime strategy",
+    "id": 5935,
+    "subject": "Review PR #317 on aibtcdev/aibtc-mcp-server: docs: add SECURITY.md for responsible vulnerability disclosure (closes #316)",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 184101,
-    "cost_usd": 0.6406029
+    "duration_ms": 46430,
+    "cost_usd": 0.17919015
   },
   "health": {
-    "uptime_seconds": 1615463,
+    "uptime_seconds": 1615510,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232049262592
+    "disk_avail_bytes": 232049221632
   }
 }
