@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T15:33:07.840Z",
+  "updated_at": "2026-03-16T15:34:22.286Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5946,
-    "subject": "Deploy arc0me-site — deploy-drift detected",
+    "id": 5972,
+    "subject": "arc0btc.com health alert: 1 issue(s)",
     "status": "completed",
-    "priority": 7
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 79302,
-    "cost_usd": 0.1108146
+    "duration_ms": 74258,
+    "cost_usd": 0.11588624999999998
   },
   "health": {
-    "uptime_seconds": 1617686,
+    "uptime_seconds": 1617761,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232045998080
+    "disk_avail_bytes": 232045805568
   }
 }
