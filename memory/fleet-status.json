@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T12:01:58.017Z",
+  "updated_at": "2026-03-16T12:02:14.410Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5900,
-    "subject": "Open PR: agents-love-bitcoin Phase 2 — genesis-gate integration + new routing",
+    "id": 5896,
+    "subject": "housekeeping: 1 issue(s) detected",
     "status": "completed",
-    "priority": 5
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 143731,
-    "cost_usd": 0.4558277
+    "duration_ms": 16087,
+    "cost_usd": 0.04534950000000001
   },
   "health": {
-    "uptime_seconds": 1605016,
+    "uptime_seconds": 1605033,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231834198016
+    "disk_avail_bytes": 231834124288
   }
 }
