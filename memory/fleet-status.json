@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T19:26:28.770Z",
+  "updated_at": "2026-03-16T19:29:51.388Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6012,
-    "subject": "Wire on-chain reputation sensor: trigger on completion events, integrate with contact log",
+    "id": 6014,
+    "subject": "Restore quest-audit sensor from v4 archive (v5 conventions: tasks, not JSON files)",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 172008,
-    "cost_usd": 0.7691633499999999
+    "duration_ms": 202287,
+    "cost_usd": 0.96901485
   },
   "health": {
-    "uptime_seconds": 1631687,
+    "uptime_seconds": 1631890,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231999680512
+    "disk_avail_bytes": 231999557632
   }
 }
