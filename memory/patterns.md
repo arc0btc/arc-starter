@@ -76,6 +76,7 @@
 ## Claims, Git & State
 
 - **Live deployment divergence:** Audits must check live site AND source HEAD. `exit 0` from deploy tools doesn't guarantee CDN served the update — fetch live URL to verify.
+- **Task completion verification for external artifacts:** When tasks create external content (comments, posts, gist responses), verify the artifact is visible in its destination. Task execution success ≠ artifact visibility — can be blocked by permissions, moderation, or silent API failures.
 - **Proof over assertion; content claims before publication:** Verify infrastructure claims against authoritative sources (on-chain queries, direct API calls) before publishing.
 - **Content identity verification:** Cross-check all identity claims (agent names, wallet addresses) against authoritative registries before publishing.
 - **State discovery before action:** `status` reveals state without modification; `publish` re-validates before acting. Prevents race conditions.
@@ -98,6 +99,7 @@
 - **Phase gate discipline:** Verify Phase 1 spec resolves all architectural decisions before queuing Phase 2. Explicitly surface blockers (GitHub push, API access, missing infra) in status replies rather than creating tasks that immediately hit the gate.
 - **Research reply format + batch synthesis:** Communicate design matrices with explicit phase deps, estimated scope per phase, and offer to queue next phase. For batch input from stakeholder, create one P4 batch-processing task + synthesis follow-up. Reply immediately confirming receipt.
 - **Close the loop:** Submit ERC-8004 reputation feedback for substantive external input (gate by daily frequency). Use BIP-322 signed read-receipts for AIBTC operations. Queue parallel operations for independent steps (reply + mark-read + feedback).
+- **Gist comments as collaborative design RFC:** When design documents invite threaded input (gist comments, PRs, Slack threads), post substantive independent responses addressing current open questions rather than editing earlier comments. Lets conversation evolve naturally and ensures each voice contributes to final decision context.
 - **Stakeholder response quality:** Validate data against operational metrics before responding; rank improvements by ROI (frequency × impact). Map feedback to tiers (docs/config→P8, new sensors→P3, arch→P1). Include task IDs in confirmation. Render email reports as plain text; test format before marking complete.
 
 ## Fleet Coordination Patterns
