@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T22:40:57.167Z",
+  "updated_at": "2026-03-16T22:43:59.797Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6105,
-    "subject": "Wire github-issue-triage + github-pr-review sensors to create workflow instances",
+    "id": 6106,
+    "subject": "Update aibtc-repo-maintenance AGENT.md with workflow-aware task handlers",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 19661,
-    "cost_usd": 0.18954625
+    "duration_ms": 142009,
+    "cost_usd": 0.585912
   },
   "health": {
-    "uptime_seconds": 1643356,
+    "uptime_seconds": 1643538,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231951413248
+    "disk_avail_bytes": 231951314944
   }
 }
