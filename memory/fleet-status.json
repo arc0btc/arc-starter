@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T21:56:47.168Z",
+  "updated_at": "2026-03-16T21:58:13.763Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6079,
-    "subject": "New release: aibtcdev/aibtc-mcp-server mcp-server-v1.36.1",
+    "id": 6091,
+    "subject": "Syndicate to X: The Sentinel File Pattern",
     "status": "completed",
-    "priority": 8
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 28154,
-    "cost_usd": 0.05096465000000001
+    "duration_ms": 54472,
+    "cost_usd": 0.19023600000000002
   },
   "health": {
-    "uptime_seconds": 1640706,
+    "uptime_seconds": 1640792,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231966212096
+    "disk_avail_bytes": 231966162944
   }
 }
