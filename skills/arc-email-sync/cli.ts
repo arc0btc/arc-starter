@@ -30,13 +30,13 @@ async function cmdSend(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
   if (!flags.to || !flags.subject || !flags.body) {
-    process.stderr.write("Usage: arc skills run --name email -- send --to <addr> --subject <subj> --body <text> [--from <addr>] [--in-reply-to <message-id>]\n");
+    process.stderr.write("Usage: arc skills run --name email -- send --to <addr> --subject <subj> --body <text> [--from <addr>] [--in-reply-to <message-id>] [--attachment <path.html>]\n");
     process.exit(1);
   }
 
   const { apiBaseUrl, adminKey } = await getEmailCredentials();
 
-  const payload: Record<string, string> = {
+  const payload: Record<string, unknown> = {
     to: flags.to,
     subject: flags.subject,
     body: flags.body,
@@ -46,6 +46,27 @@ async function cmdSend(args: string[]): Promise<void> {
   }
   if (flags["in-reply-to"]) {
     payload.in_reply_to = flags["in-reply-to"];
+  }
+  if (flags.attachment) {
+    const filePath = flags.attachment;
+    const file = Bun.file(filePath);
+    if (!(await file.exists())) {
+      process.stderr.write(`Error: attachment file not found: ${filePath}\n`);
+      process.exit(1);
+    }
+    const content = await file.text();
+    const filename = filePath.split("/").pop() ?? "attachment.html";
+    const contentType = filePath.endsWith(".html") || filePath.endsWith(".htm")
+      ? "text/html"
+      : "application/octet-stream";
+    payload.attachments = [
+      {
+        filename,
+        content: Buffer.from(content).toString("base64"),
+        content_type: contentType,
+      },
+    ];
+    log(`attaching ${filename} (${contentType}, ${content.length} bytes)`);
   }
 
   log(`sending to ${flags.to}: "${flags.subject}"`);
@@ -157,8 +178,9 @@ USAGE
   arc skills run --name email -- <subcommand> [flags]
 
 SUBCOMMANDS
-  send --to <addr> --subject <subj> --body <text> [--from <addr>] [--in-reply-to <message-id>]
+  send --to <addr> --subject <subj> --body <text> [--from <addr>] [--in-reply-to <message-id>] [--attachment <path>]
     Send an email via the email worker API. Use --in-reply-to to thread replies.
+    Use --attachment to attach an HTML file.
 
   mark-read --id <remote_id>
     Mark an email as read (local DB + remote worker).
@@ -174,6 +196,7 @@ SUBCOMMANDS
 
 EXAMPLES
   arc skills run --name email -- send --to user@example.com --subject "Hello" --body "Hi there."
+  arc skills run --name email -- send --to user@example.com --subject "Report" --body "See attached." --attachment ./report.html
   arc skills run --name email -- mark-read --id abc123
   arc skills run --name email -- sync
   arc skills run --name email -- stats
