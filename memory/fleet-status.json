@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T22:43:59.797Z",
+  "updated_at": "2026-03-16T22:44:45.982Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6106,
-    "subject": "Update aibtc-repo-maintenance AGENT.md with workflow-aware task handlers",
+    "id": 6112,
+    "subject": "Review PR #163 on aibtcdev/skills: chore(main): release skills 0.25.0",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 142009,
-    "cost_usd": 0.585912
+    "duration_ms": 45869,
+    "cost_usd": 0.17489625
   },
   "health": {
-    "uptime_seconds": 1643538,
+    "uptime_seconds": 1643584,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231951314944
+    "disk_avail_bytes": 231951253504
   }
 }
