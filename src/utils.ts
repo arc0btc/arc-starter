@@ -1,3 +1,16 @@
+import { readFileSync } from "node:fs";
+
+// ---- File helpers ----
+
+/** Read a file, returning empty string on any error. */
+export function readFile(filePath: string): string {
+  try {
+    return readFileSync(filePath, "utf-8");
+  } catch {
+    return "";
+  }
+}
+
 // ---- Process utilities ----
 
 /** Check if a process with the given PID is still alive. */

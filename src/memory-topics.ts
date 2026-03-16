@@ -9,9 +9,10 @@
  * relevant to the task's skill domains.
  */
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { getHighImportanceMemories, type ArcMemoryFull } from "./db.ts";
+import { readFile } from "./utils.ts";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const TOPICS_DIR = join(ROOT, "memory", "topics");
@@ -41,14 +42,6 @@ const SKILL_TOPIC_MAP: Record<string, string[]> = {
 
 /** Default topics loaded when no skill-specific mapping exists. */
 const DEFAULT_TOPICS = ["fleet", "incidents"];
-
-function readFile(filePath: string): string {
-  try {
-    return readFileSync(filePath, "utf-8");
-  } catch {
-    return "";
-  }
-}
 
 /**
  * Resolve memory context for a dispatch prompt.

@@ -30,7 +30,7 @@ import {
   updateTaskCost,
   toSqliteDatetime,
 } from "./db.ts";
-import { isPidAlive } from "./utils.ts";
+import { isPidAlive, readFile } from "./utils.ts";
 import { getShutdownState } from "./shutdown.ts";
 import { getCredential } from "./credentials.ts";
 import { AGENT_NAME } from "./identity.ts";
@@ -185,16 +185,6 @@ function clearDispatchLock(): void {
   }
 }
 
-// ---- File helpers ----
-
-function readFile(filePath: string): string {
-  try {
-    return readFileSync(filePath, "utf-8");
-  } catch {
-    return "";
-  }
-}
-
 // ---- Skill context resolver ----
 
 function parseSkillNames(skillsJson: string | null): string[] {
@@ -206,32 +196,33 @@ function parseSkillNames(skillsJson: string | null): string[] {
   }
 }
 
-function resolveSkillContext(skillNames: string[]): string {
-  return skillNames
-    .map((name) => {
-      const content = readFile(join(SKILLS_DIR, name, "SKILL.md"));
-      return content ? `# Skill: ${name}\n${content}` : "";
-    })
-    .filter(Boolean)
-    .join("\n\n");
+interface SkillResolution {
+  context: string;
+  hashes: Record<string, string>;
 }
 
-function computeSkillHashes(skillNames: string[]): Record<string, string> {
+/** Read each SKILL.md once; return both the prompt context string and content hashes. */
+function resolveSkillContextAndHashes(skillNames: string[]): SkillResolution {
+  const contextParts: string[] = [];
   const hashes: Record<string, string> = {};
+
   for (const name of skillNames) {
     const content = readFile(join(SKILLS_DIR, name, "SKILL.md"));
     if (!content) continue;
+
+    contextParts.push(`# Skill: ${name}\n${content}`);
+
     const hasher = new Bun.CryptoHasher("sha256");
     hasher.update(content);
-    const hash = hasher.digest("hex").slice(0, 12);
-    hashes[name] = hash;
+    hashes[name] = hasher.digest("hex").slice(0, 12);
     try {
-      upsertSkillVersion(hash, name, content);
+      upsertSkillVersion(hashes[name], name, content);
     } catch {
       // non-fatal: tracking is best-effort
     }
   }
-  return hashes;
+
+  return { context: contextParts.join("\n\n"), hashes };
 }
 
 // ---- Parent chain builder ----
@@ -253,7 +244,7 @@ function buildParentChain(task: Task): string {
 
 const MST_OFFSET_MS = 7 * 3600_000;
 
-function buildPrompt(task: Task, skillNames: string[], recentCycles: string): string {
+function buildPrompt(task: Task, skillNames: string[], skillContext: string, recentCycles: string): string {
   const now = new Date();
   const utcIso = now.toISOString().replace(/\.\d{3}Z$/, "Z");
   const mst = toSqliteDatetime(new Date(now.getTime() - MST_OFFSET_MS)) + " MST";
@@ -261,7 +252,6 @@ function buildPrompt(task: Task, skillNames: string[], recentCycles: string): st
   const soul = readFile(join(ROOT, "SOUL.md"));
   const memory = resolveMemoryContext(skillNames);
   const ftsMemory = resolveFtsMemoryContext(skillNames);
-  const skillContext = resolveSkillContext(skillNames);
   const parentChain = buildParentChain(task);
 
   const parts: string[] = [
@@ -704,7 +694,8 @@ export async function runDispatch(): Promise<void> {
     )
     .join("\n");
 
-  const prompt = buildPrompt(task, skillNames, recentCycles);
+  const { context: skillContext, hashes: skillHashes } = resolveSkillContextAndHashes(skillNames);
+  const prompt = buildPrompt(task, skillNames, skillContext, recentCycles);
 
   markTaskActive(task.id);
   writeDispatchLock(task.id);
@@ -738,7 +729,6 @@ export async function runDispatch(): Promise<void> {
       ? `openrouter:${sdkRoute.model ?? "default"}`
       : model;
   const cycleStartedAt = toSqliteDatetime(new Date());
-  const skillHashes = computeSkillHashes(skillNames);
   const cycleId = insertCycleLog({
     started_at: cycleStartedAt,
     task_id: task.id,
