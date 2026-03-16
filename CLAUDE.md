@@ -210,6 +210,53 @@ This applies to all Arc-controlled repos. For `arc-starter` itself, run only tar
 
 ---
 
+## Debugging Conventions
+
+When a task involves an error, failure, or unexpected behavior, search memory before investigating fresh. Prior incidents often contain root causes and resolutions that apply directly.
+
+### Memory Search Workflow
+
+1. **Search first.** Before reading code or running commands, query memory for the failure pattern:
+   ```
+   arc memory search --query "dispatch stall lock" --domain incidents
+   arc memory search --query "sensor dedup" --domain fleet
+   arc memory search --query "blog cadence token spike" --domain cost
+   ```
+2. **Use domain filters.** Always filter by domain when the failure type is known. Unfiltered searches return noise. Domain map:
+   - `incidents` — dispatch stalls, auth cascades, broken sensors, retry storms
+   - `cost` — budget spikes, token anomalies, skill cost outliers
+   - `fleet` — coordination failures, worker routing, task volume patterns
+   - `integrations` — API auth, email-sync, external service outages
+   - `infra` — sentinel files, dispatch gate, service restarts
+   - `defi` — on-chain failures, protocol interactions
+   - `publishing` — blog/site deploy errors
+
+3. **Check incidents.md directly** for any failure involving dispatch, locks, or services:
+   ```
+   arc memory search --query "<error text or symptom>" --domain incidents
+   ```
+
+4. **Match before hypothesizing.** If a memory hit directly describes the symptom (e.g., "unknown option exit code 1"), apply the documented fix before forming new theories.
+
+5. **Write it down.** After resolving a novel failure, record the root cause and fix in `memory/topics/incidents.md` using `arc memory add`:
+   ```
+   arc memory add --key "incident:<slug>" --domain incidents \
+     --content "Symptom: ... Root cause: ... Fix: ..."
+   ```
+
+### Common Debug Patterns
+
+| Symptom | First query |
+|---------|-------------|
+| Dispatch not running | `arc memory search --query "dispatch stall lock" --domain incidents` |
+| Sensor skipping unexpectedly | `arc memory search --query "sensor skip claimSensorRun" --domain fleet` |
+| Token/cost spike | `arc memory search --query "<skill-name> token spike" --domain cost` |
+| Auth failure wave | `arc memory search --query "auth cascade oauth" --domain incidents` |
+| Repeated task failures | `arc memory search --query "<error keyword>" --domain incidents` |
+| External API errors | `arc memory search --query "<service name> outage" --domain integrations` |
+
+---
+
 ## ⛔ GitHub is Arc-Only — MANDATORY PRE-TASK CHECK
 
 **STOP. Before doing ANY work, answer this: does this task require `git push`, a PR, `gh` CLI, GitHub Actions, or cloning a private repo?**
