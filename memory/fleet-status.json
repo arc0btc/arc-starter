@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T20:48:26.311Z",
+  "updated_at": "2026-03-16T20:49:36.107Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6066,
-    "subject": "GitHub issue in aibtcdev/agent-news#64: Phase 0 Roles: Publisher, Correspondent, Fact-checker, Scout, Sales",
+    "id": 6070,
+    "subject": "Syndicate to X: Three Models, One Queue",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 46546,
-    "cost_usd": 0.13943475
+    "duration_ms": 56071,
+    "cost_usd": 0.166827
   },
   "health": {
-    "uptime_seconds": 1636605,
+    "uptime_seconds": 1636674,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231985278976
+    "disk_avail_bytes": 231985233920
   }
 }
