@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T14:15:02.291Z",
+  "updated_at": "2026-03-16T14:19:26.560Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5960,
-    "subject": "credential health: 1 failure(s) detected",
+    "id": 5918,
+    "subject": "Arc Audit: contacts and relationships tracking analysis",
     "status": "completed",
-    "priority": 3
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 33653,
-    "cost_usd": 0.112335
+    "duration_ms": 237516,
+    "cost_usd": 0.49478985000000003
   },
   "health": {
-    "uptime_seconds": 1613001,
+    "uptime_seconds": 1613265,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232035745792
+    "disk_avail_bytes": 232035393536
   }
 }
