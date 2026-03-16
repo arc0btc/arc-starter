@@ -19,6 +19,12 @@ import {
   insertTaskDep,
   getTaskDeps,
   deleteTaskDep,
+  insertArcMemory,
+  searchArcMemory,
+  listArcMemory,
+  deleteArcMemory,
+  expireArcMemories,
+  countArcMemories,
 } from "./db.ts";
 import type { TaskDepType } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
@@ -45,6 +51,11 @@ const USAGE = {
   tasksUnlink: 'arc tasks unlink --from N --to M --type blocks|related|discovered-from',
   skillsShow: 'arc skills show --name NAME',
   skillsRun:  'arc skills run --name NAME [-- extra-args]',
+  memorySearch: 'arc memory search --query TEXT [--domain DOMAIN] [--limit N]',
+  memoryAdd: 'arc memory add --key KEY --domain DOMAIN --content TEXT [--tags "t1 t2"] [--ttl DAYS] [--importance N]',
+  memoryList: 'arc memory list [--domain DOMAIN] [--limit N]',
+  memoryDelete: 'arc memory delete --key KEY',
+  memoryExpire: 'arc memory expire',
 } as const;
 
 // ---- Commands ----
@@ -679,6 +690,126 @@ function cmdResume(args: string[]): void {
   process.stdout.write(`To restart services if stopped: arc services install\n`);
 }
 
+// ---- Memory commands ----
+
+function cmdMemorySearch(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const query = flags["query"];
+  if (!query) {
+    process.stderr.write(`Error: --query is required\nUsage: ${USAGE.memorySearch}\n`);
+    process.exit(1);
+  }
+
+  initDatabase();
+  const domain = flags["domain"];
+  const limit = flags["limit"] ? parseInt(flags["limit"], 10) : 20;
+  const results = searchArcMemory(query, domain, limit);
+
+  if (results.length === 0) {
+    process.stdout.write("No memories found.\n");
+    return;
+  }
+
+  for (const mem of results) {
+    process.stdout.write(`--- ${mem.key} [${mem.domain}] (importance: ${mem.importance}) ---\n`);
+    process.stdout.write(`${mem.content}\n`);
+    if (mem.tags) process.stdout.write(`tags: ${mem.tags}\n`);
+    process.stdout.write(`created: ${mem.created_at} | updated: ${mem.updated_at}`);
+    if (mem.ttl_days !== null) process.stdout.write(` | ttl: ${mem.ttl_days}d`);
+    process.stdout.write("\n\n");
+  }
+}
+
+function cmdMemoryAdd(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const key = flags["key"];
+  const domain = flags["domain"];
+  const content = flags["content"];
+
+  if (!key || !domain || !content) {
+    process.stderr.write(`Error: --key, --domain, and --content are required\nUsage: ${USAGE.memoryAdd}\n`);
+    process.exit(1);
+  }
+
+  initDatabase();
+
+  const ttl = flags["ttl"] ? parseInt(flags["ttl"], 10) : undefined;
+  const importance = flags["importance"] ? parseInt(flags["importance"], 10) : undefined;
+  const tags = flags["tags"] ?? "";
+  const sourceTaskId = flags["source-task"] ? parseInt(flags["source-task"], 10) : undefined;
+
+  insertArcMemory({ key, domain, content, tags, ttl_days: ttl, source_task_id: sourceTaskId, importance });
+  process.stdout.write(`Added memory: ${key} [${domain}]\n`);
+}
+
+function cmdMemoryList(args: string[]): void {
+  const { flags } = parseFlags(args);
+  initDatabase();
+
+  const domain = flags["domain"];
+  const limit = flags["limit"] ? parseInt(flags["limit"], 10) : 20;
+  const results = listArcMemory(domain, limit);
+
+  if (results.length === 0) {
+    process.stdout.write("No memories found.\n");
+    return;
+  }
+
+  const total = countArcMemories(domain);
+  process.stdout.write(`Showing ${results.length} of ${total} memories${domain ? ` in domain '${domain}'` : ""}:\n\n`);
+
+  const header = pad("key", 40) + pad("domain", 16) + pad("imp", 5) + pad("ttl", 6) + "updated_at";
+  process.stdout.write(header + "\n");
+  process.stdout.write("-".repeat(header.length) + "\n");
+
+  for (const mem of results) {
+    const line =
+      pad(truncate(mem.key, 38), 40) +
+      pad(mem.domain, 16) +
+      pad(String(mem.importance), 5) +
+      pad(mem.ttl_days !== null ? `${mem.ttl_days}d` : "-", 6) +
+      truncate(mem.updated_at, 16);
+    process.stdout.write(line + "\n");
+  }
+}
+
+function cmdMemoryDelete(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const key = flags["key"];
+  if (!key) {
+    process.stderr.write(`Error: --key is required\nUsage: ${USAGE.memoryDelete}\n`);
+    process.exit(1);
+  }
+
+  initDatabase();
+  deleteArcMemory(key);
+  process.stdout.write(`Deleted memory: ${key}\n`);
+}
+
+function cmdMemoryExpire(): void {
+  initDatabase();
+  const count = expireArcMemories();
+  process.stdout.write(`Expired ${count} memories.\n`);
+}
+
+function cmdMemory(args: string[]): void {
+  const sub = args[0];
+  if (sub === "search") {
+    cmdMemorySearch(args.slice(1));
+  } else if (sub === "add") {
+    cmdMemoryAdd(args.slice(1));
+  } else if (sub === "list") {
+    cmdMemoryList(args.slice(1));
+  } else if (sub === "delete") {
+    cmdMemoryDelete(args.slice(1));
+  } else if (sub === "expire") {
+    cmdMemoryExpire();
+  } else {
+    process.stderr.write(`Usage: arc memory <search|add|list|delete|expire>\n`);
+    process.exit(sub ? 1 : 0);
+  }
+}
+
 function cmdHelp(): void {
   process.stdout.write(`arc - Bitcoin agent (arc0.btc) | native to L1 + Stacks
 
@@ -761,6 +892,21 @@ COMMANDS
   services status
     Show service status.
 
+  ${USAGE.memorySearch}
+    Full-text search across arc_memory (FTS5 with Porter stemming).
+
+  ${USAGE.memoryAdd}
+    Add a memory entry. --ttl sets auto-expiry in days. --importance 1-10 (1=critical).
+
+  ${USAGE.memoryList}
+    List memories, optionally filtered by domain.
+
+  ${USAGE.memoryDelete}
+    Delete a memory by key.
+
+  ${USAGE.memoryExpire}
+    Run TTL cleanup — removes memories past their expiry.
+
   shutdown [--reason TEXT]
     Enter shutdown state. Sensors and dispatch skip while shutdown is active.
     Idempotent — safe to call multiple times.
@@ -813,6 +959,9 @@ async function main(): Promise<void> {
       break;
     case "dispatch":
       await cmdDispatch(argv.slice(1));
+      break;
+    case "memory":
+      cmdMemory(argv.slice(1));
       break;
     case "skills":
       cmdSkills(argv.slice(1));

@@ -304,6 +304,8 @@ function buildPrompt(task: Task, skillNames: string[], recentCycles: string): st
     `- Create follow-up: arc tasks add --subject "subject" --skills s1,s2 --parent ${task.id}`,
     `- Create a skill: arc skills run --name arc-skill-manager -- create my-skill --description "Does X"`,
     "- Update memory: edit the relevant topic file in memory/topics/ (fleet.md, incidents.md, cost.md, integrations.md, defi.md, publishing.md, identity.md, infrastructure.md). Edit memory/MEMORY.md only for directives, fleet roster, or critical flags.",
+    '- Search historical memory: arc memory search --query "keyword" [--domain incidents|cost|fleet|integrations|defi|publishing|identity|infra]',
+    '- Add structured memory: arc memory add --key "type:slug" --domain DOMAIN --content "text" [--ttl 90] [--importance 3]',
     "Do NOT use raw SQL, direct DB writes, or ad-hoc scripts.",
   );
 

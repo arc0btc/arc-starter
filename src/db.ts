@@ -440,6 +440,31 @@ export function initDatabase(): Database {
   `);
   db.run("CREATE INDEX IF NOT EXISTS idx_consensus_votes_proposal ON consensus_votes(proposal_id)");
 
+  // ---- FTS5 memory table (Phase 2 of memory architecture v2) ----
+  db.run(`
+    CREATE VIRTUAL TABLE IF NOT EXISTS arc_memory USING fts5(
+      key,
+      domain,
+      content,
+      tags,
+      tokenize='porter'
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS arc_memory_meta (
+      key TEXT PRIMARY KEY,
+      domain TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      ttl_days INTEGER,
+      source_task_id INTEGER,
+      importance INTEGER DEFAULT 5
+    )
+  `);
+  db.run("CREATE INDEX IF NOT EXISTS idx_arc_memory_meta_domain ON arc_memory_meta(domain)");
+  db.run("CREATE INDEX IF NOT EXISTS idx_arc_memory_meta_ttl ON arc_memory_meta(ttl_days) WHERE ttl_days IS NOT NULL");
+
   _db = db;
   return db;
 }
@@ -1031,5 +1056,168 @@ export function getTotalProceedsUstx(): number {
     .query("SELECT COALESCE(SUM(cost_ustx), 0) as total FROM market_positions WHERE action IN ('sell', 'redeem') AND status != 'failed'")
     .get() as { total: number };
   return row.total;
+}
+
+// ---- Arc memory (FTS5) queries ----
+
+export interface ArcMemory {
+  key: string;
+  domain: string;
+  content: string;
+  tags: string;
+}
+
+export interface ArcMemoryMeta {
+  key: string;
+  domain: string;
+  created_at: string;
+  updated_at: string;
+  ttl_days: number | null;
+  source_task_id: number | null;
+  importance: number;
+}
+
+export interface ArcMemoryFull extends ArcMemory {
+  created_at: string;
+  updated_at: string;
+  ttl_days: number | null;
+  source_task_id: number | null;
+  importance: number;
+}
+
+export interface InsertArcMemory {
+  key: string;
+  domain: string;
+  content: string;
+  tags?: string;
+  ttl_days?: number | null;
+  source_task_id?: number | null;
+  importance?: number;
+}
+
+export function insertArcMemory(fields: InsertArcMemory): void {
+  const db = getDatabase();
+  const now = toSqliteDatetime(new Date());
+  const tags = fields.tags ?? "";
+  const importance = fields.importance ?? 5;
+
+  db.run(
+    "INSERT INTO arc_memory (key, domain, content, tags) VALUES (?, ?, ?, ?)",
+    [fields.key, fields.domain, fields.content, tags],
+  );
+
+  db.run(
+    `INSERT INTO arc_memory_meta (key, domain, created_at, updated_at, ttl_days, source_task_id, importance)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [fields.key, fields.domain, now, now, fields.ttl_days ?? null, fields.source_task_id ?? null, importance],
+  );
+}
+
+export function updateArcMemory(key: string, content: string, tags?: string): void {
+  const db = getDatabase();
+  const now = toSqliteDatetime(new Date());
+
+  // FTS5 requires delete + re-insert for updates
+  const existing = db.query("SELECT * FROM arc_memory WHERE key = ?").get(key) as ArcMemory | null;
+  if (!existing) throw new Error(`Memory key not found: ${key}`);
+
+  db.run("DELETE FROM arc_memory WHERE key = ?", [key]);
+  db.run(
+    "INSERT INTO arc_memory (key, domain, content, tags) VALUES (?, ?, ?, ?)",
+    [key, existing.domain, content, tags ?? existing.tags],
+  );
+  db.run("UPDATE arc_memory_meta SET updated_at = ? WHERE key = ?", [now, key]);
+}
+
+export function deleteArcMemory(key: string): void {
+  const db = getDatabase();
+  db.run("DELETE FROM arc_memory WHERE key = ?", [key]);
+  db.run("DELETE FROM arc_memory_meta WHERE key = ?", [key]);
+}
+
+export function getArcMemory(key: string): ArcMemoryFull | null {
+  const db = getDatabase();
+  const row = db.query(
+    `SELECT m.key, m.domain, m.content, m.tags,
+            meta.created_at, meta.updated_at, meta.ttl_days, meta.source_task_id, meta.importance
+     FROM arc_memory m
+     JOIN arc_memory_meta meta ON m.key = meta.key
+     WHERE m.key = ?`
+  ).get(key) as ArcMemoryFull | null;
+  return row;
+}
+
+export function searchArcMemory(query: string, domain?: string, limit: number = 20): ArcMemoryFull[] {
+  const db = getDatabase();
+  if (domain) {
+    return db.query(
+      `SELECT m.key, m.domain, m.content, m.tags,
+              meta.created_at, meta.updated_at, meta.ttl_days, meta.source_task_id, meta.importance
+       FROM arc_memory m
+       JOIN arc_memory_meta meta ON m.key = meta.key
+       WHERE arc_memory MATCH ? AND m.domain = ?
+       ORDER BY rank
+       LIMIT ?`
+    ).all(query, domain, limit) as ArcMemoryFull[];
+  }
+  return db.query(
+    `SELECT m.key, m.domain, m.content, m.tags,
+            meta.created_at, meta.updated_at, meta.ttl_days, meta.source_task_id, meta.importance
+     FROM arc_memory m
+     JOIN arc_memory_meta meta ON m.key = meta.key
+     WHERE arc_memory MATCH ?
+     ORDER BY rank
+     LIMIT ?`
+  ).all(query, limit) as ArcMemoryFull[];
+}
+
+export function listArcMemory(domain?: string, limit: number = 20): ArcMemoryFull[] {
+  const db = getDatabase();
+  if (domain) {
+    return db.query(
+      `SELECT m.key, m.domain, m.content, m.tags,
+              meta.created_at, meta.updated_at, meta.ttl_days, meta.source_task_id, meta.importance
+       FROM arc_memory m
+       JOIN arc_memory_meta meta ON m.key = meta.key
+       WHERE m.domain = ?
+       ORDER BY meta.updated_at DESC
+       LIMIT ?`
+    ).all(domain, limit) as ArcMemoryFull[];
+  }
+  return db.query(
+    `SELECT m.key, m.domain, m.content, m.tags,
+            meta.created_at, meta.updated_at, meta.ttl_days, meta.source_task_id, meta.importance
+     FROM arc_memory m
+     JOIN arc_memory_meta meta ON m.key = meta.key
+     ORDER BY meta.updated_at DESC
+     LIMIT ?`
+  ).all(limit) as ArcMemoryFull[];
+}
+
+export function expireArcMemories(): number {
+  const db = getDatabase();
+  // Find keys that have expired
+  const expired = db.query(
+    `SELECT key FROM arc_memory_meta
+     WHERE ttl_days IS NOT NULL
+     AND julianday('now') - julianday(created_at) > ttl_days`
+  ).all() as Array<{ key: string }>;
+
+  for (const { key } of expired) {
+    db.run("DELETE FROM arc_memory WHERE key = ?", [key]);
+    db.run("DELETE FROM arc_memory_meta WHERE key = ?", [key]);
+  }
+
+  return expired.length;
+}
+
+export function countArcMemories(domain?: string): number {
+  const db = getDatabase();
+  if (domain) {
+    const row = db.query("SELECT COUNT(*) as count FROM arc_memory_meta WHERE domain = ?").get(domain) as { count: number };
+    return row.count;
+  }
+  const row = db.query("SELECT COUNT(*) as count FROM arc_memory_meta").get() as { count: number };
+  return row.count;
 }
 
