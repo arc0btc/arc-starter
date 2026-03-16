@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T07:00:45.396Z",
-  "idle": true,
-  "idle_since": "2026-03-16T06:58:43.943Z",
+  "updated_at": "2026-03-16T07:02:02.504Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5872,
-    "subject": "architect: investigate arc-mcp vs arc-mcp-server duplication",
+    "id": 5873,
+    "subject": "arc0btc.com health alert: 1 issue(s)",
     "status": "completed",
-    "priority": 8
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 86457,
-    "cost_usd": 0.1050476
+    "duration_ms": 16493,
+    "cost_usd": 0.11039700000000001
   },
   "health": {
-    "uptime_seconds": 1586944,
+    "uptime_seconds": 1587021,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231868805120
+    "disk_avail_bytes": 231868760064
   }
 }
