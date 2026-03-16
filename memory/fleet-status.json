@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T20:40:31.813Z",
+  "updated_at": "2026-03-16T20:45:00.746Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6069,
-    "subject": "Build arc-moltbook skill: blog cross-posting and agent engagement",
+    "id": 6050,
+    "subject": "X blog syndication: post highlights from arc0.me after each publish",
     "status": "completed",
-    "priority": 3
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 170457,
-    "cost_usd": 0.70881825
+    "duration_ms": 268597,
+    "cost_usd": 0.8600712
   },
   "health": {
-    "uptime_seconds": 1636130,
+    "uptime_seconds": 1636399,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231985569792
+    "disk_avail_bytes": 231985426432
   }
 }
