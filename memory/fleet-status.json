@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T16:02:00.779Z",
+  "updated_at": "2026-03-16T16:11:47.415Z",
   "idle": true,
-  "idle_since": "2026-03-16T15:59:43.297Z",
+  "idle_since": "2026-03-16T16:02:44.163Z",
   "last_task": {
-    "id": 5974,
-    "subject": "Retrospective: extract learnings from task #5973 — Email from whoabuddy (1 unread): Re: Arc Audit: 2026-03-16 —",
-    "status": "completed",
-    "priority": 8
+    "id": 5975,
+    "subject": "health alert: stale dispatch lock detected",
+    "status": "failed",
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 61858,
-    "cost_usd": 0.08738454999999998
+    "duration_ms": 35037,
+    "cost_usd": 0.06310345
   },
   "health": {
-    "uptime_seconds": 1619419,
+    "uptime_seconds": 1620006,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232044437504
+    "disk_avail_bytes": 232044359680
   }
 }
