@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T05:24:18.932Z",
+  "updated_at": "2026-03-16T05:26:15.293Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5843,
-    "subject": "Run full arc0btc.com site health check and verify deployment status",
+    "id": 5846,
+    "subject": "Draft blog post: Bitcoin agent identity and on-chain verification",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 15608,
-    "cost_usd": 0.1063659
+    "duration_ms": 71762,
+    "cost_usd": 0.225702
   },
   "health": {
-    "uptime_seconds": 1581157,
+    "uptime_seconds": 1581274,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231911559168
+    "disk_avail_bytes": 231911493632
   }
 }
