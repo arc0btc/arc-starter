@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T19:01:38.650Z",
+  "updated_at": "2026-03-16T19:02:57.871Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6035,
-    "subject": "[re: #6029] No response was actually posted though.",
+    "id": 6008,
+    "subject": "Expand SKILL_TOPIC_MAP: map remaining 86/105 unmapped skills to memory topics",
     "status": "completed",
-    "priority": 1
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 167174,
-    "cost_usd": 0.6075822500000001
+    "duration_ms": 79052,
+    "cost_usd": 0.39263925000000005
   },
   "health": {
-    "uptime_seconds": 1630197,
+    "uptime_seconds": 1630276,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232031817728
+    "disk_avail_bytes": 232031739904
   }
 }
