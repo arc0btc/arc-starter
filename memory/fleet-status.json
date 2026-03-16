@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T06:20:39.096Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-16T06:30:43.661Z",
+  "idle": true,
+  "idle_since": "2026-03-16T06:21:39.659Z",
   "last_task": {
-    "id": 5867,
-    "subject": "Document FTS query syntax and cross-domain memory search",
+    "id": 5859,
+    "subject": "daily cost report — 2026-03-16",
     "status": "completed",
-    "priority": 8
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 249825,
-    "cost_usd": 0.3850147
+    "duration_ms": 23101,
+    "cost_usd": 0.037679550000000006
   },
   "health": {
-    "uptime_seconds": 1584537,
+    "uptime_seconds": 1585142,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231869534208
+    "disk_avail_bytes": 231869415424
   }
 }
