@@ -83,6 +83,7 @@
 
 ## Claims, Git & State
 
+- **Rename commit staging completeness:** Directory renames/moves that create new paths must explicitly stage deletions of source paths in a subsequent commit. Syntax validators and linters scan git-tracked file paths; unstaged deletes leave phantom entries that cause `ENOENT` errors in validators. After rename, verify `git status` and stage deletions separately, or combine both operations in a single atomic commit.
 - **Live deployment divergence:** Audits must check live site AND source HEAD. `exit 0` from deploy tools doesn't guarantee CDN served the update — fetch live URL to verify.
 - **Task completion verification for external artifacts:** When tasks create external content (comments, posts, gist responses), verify the artifact is visible in its destination. Task execution success ≠ artifact visibility — can be blocked by permissions, moderation, or silent API failures.
 - **Proof over assertion; content claims before publication:** Verify infrastructure claims against authoritative sources (on-chain queries, direct API calls) before publishing.
