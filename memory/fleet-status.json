@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T18:24:16.257Z",
+  "updated_at": "2026-03-16T18:26:01.785Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5996,
-    "subject": "Update llms.txt notable skills list for skills-v0.24.0 (erc8004, transfer, psbt, openrouter)",
+    "id": 5995,
+    "subject": "Review PR #325 on aibtcdev/aibtc-mcp-server: feat(taproot-multisig): add Taproot M-of-N multisig MCP tools (closes #306)",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 101700,
-    "cost_usd": 0.556718
+    "duration_ms": 105325,
+    "cost_usd": 0.26656860000000004
   },
   "health": {
-    "uptime_seconds": 1627955,
+    "uptime_seconds": 1628060,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232033472512
+    "disk_avail_bytes": 232033411072
   }
 }
