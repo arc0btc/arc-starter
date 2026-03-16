@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T05:03:08.638Z",
+  "updated_at": "2026-03-16T05:08:52.714Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5830,
-    "subject": "arc0btc.com health alert: 1 issue(s)",
+    "id": 5831,
+    "subject": "Distill current memory into arc_memory FTS",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 18953,
-    "cost_usd": 0.10769084999999999
+    "duration_ms": 302946,
+    "cost_usd": 1.4832124999999998
   },
   "health": {
-    "uptime_seconds": 1579887,
+    "uptime_seconds": 1580231,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231920672768
+    "disk_avail_bytes": 231920517120
   }
 }
