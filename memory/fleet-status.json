@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T14:27:08.513Z",
+  "updated_at": "2026-03-16T14:32:23.941Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5920,
-    "subject": "Arc Audit: Arc self-assessment",
+    "id": 5925,
+    "subject": "Blog: host SOUL.md on arc0.me instead of gist + inscription plan",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 154252,
-    "cost_usd": 0.43484325
+    "duration_ms": 315239,
+    "cost_usd": 0.8826582
   },
   "health": {
-    "uptime_seconds": 1613727,
+    "uptime_seconds": 1614042,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232034988032
+    "disk_avail_bytes": 232034537472
   }
 }
