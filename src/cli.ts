@@ -26,6 +26,13 @@ import {
   expireArcMemories,
   countArcMemories,
 } from "./db.ts";
+import {
+  readScratchpad,
+  writeScratchpad,
+  appendScratchpad,
+  clearScratchpad,
+  resolveRootTaskId,
+} from "./scratchpad.ts";
 import type { TaskDepType } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
 import { parseFlags, pad, truncate } from "./utils.ts";
@@ -56,6 +63,10 @@ const USAGE = {
   memoryList: 'arc memory list [--domain DOMAIN] [--limit N]',
   memoryDelete: 'arc memory delete --key KEY',
   memoryExpire: 'arc memory expire',
+  scratchpadRead: 'arc scratchpad read --task N',
+  scratchpadWrite: 'arc scratchpad write --task N --content TEXT',
+  scratchpadAppend: 'arc scratchpad append --task N --content TEXT',
+  scratchpadClear: 'arc scratchpad clear --task N',
 } as const;
 
 // ---- Commands ----
@@ -311,6 +322,11 @@ function cmdTasksClose(args: string[]): void {
     markTaskBlocked(id, summary);
   } else {
     markTaskFailed(id, summary);
+  }
+
+  // Auto-clear scratchpad when a root parent task closes
+  if (!task.parent_id && (status === "completed" || status === "failed")) {
+    clearScratchpad(id);
   }
 
   process.stdout.write(`Closed task #${id} as ${status}\n`);
@@ -898,6 +914,107 @@ function cmdMemory(args: string[]): void {
   }
 }
 
+// ---- Scratchpad commands ----
+
+function cmdScratchpadRead(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const taskId = parseInt(flags["task"] ?? "", 10);
+  if (isNaN(taskId)) {
+    process.stderr.write(`Error: --task is required\nUsage: ${USAGE.scratchpadRead}\n`);
+    process.exit(1);
+  }
+
+  initDatabase();
+
+  const task = getTaskById(taskId);
+  if (!task) {
+    process.stderr.write(`Error: task #${taskId} not found\n`);
+    process.exit(1);
+  }
+
+  const rootId = resolveRootTaskId(taskId);
+  const content = readScratchpad(taskId);
+  if (!content) {
+    process.stdout.write(`No scratchpad for task family #${rootId}\n`);
+    return;
+  }
+
+  process.stdout.write(`--- Scratchpad for task family #${rootId} ---\n`);
+  process.stdout.write(content);
+  process.stdout.write("\n");
+}
+
+function cmdScratchpadWrite(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const taskId = parseInt(flags["task"] ?? "", 10);
+  const content = flags["content"];
+
+  if (isNaN(taskId)) {
+    process.stderr.write(`Error: --task is required\nUsage: ${USAGE.scratchpadWrite}\n`);
+    process.exit(1);
+  }
+  if (!content) {
+    process.stderr.write(`Error: --content is required\nUsage: ${USAGE.scratchpadWrite}\n`);
+    process.exit(1);
+  }
+
+  initDatabase();
+  const rootId = resolveRootTaskId(taskId);
+  writeScratchpad(taskId, content);
+  process.stdout.write(`Wrote scratchpad for task family #${rootId}\n`);
+}
+
+function cmdScratchpadAppend(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const taskId = parseInt(flags["task"] ?? "", 10);
+  const content = flags["content"];
+
+  if (isNaN(taskId)) {
+    process.stderr.write(`Error: --task is required\nUsage: ${USAGE.scratchpadAppend}\n`);
+    process.exit(1);
+  }
+  if (!content) {
+    process.stderr.write(`Error: --content is required\nUsage: ${USAGE.scratchpadAppend}\n`);
+    process.exit(1);
+  }
+
+  initDatabase();
+  const rootId = resolveRootTaskId(taskId);
+  appendScratchpad(taskId, content);
+  process.stdout.write(`Appended to scratchpad for task family #${rootId}\n`);
+}
+
+function cmdScratchpadClear(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const taskId = parseInt(flags["task"] ?? "", 10);
+
+  if (isNaN(taskId)) {
+    process.stderr.write(`Error: --task is required\nUsage: ${USAGE.scratchpadClear}\n`);
+    process.exit(1);
+  }
+
+  initDatabase();
+  const rootId = resolveRootTaskId(taskId);
+  clearScratchpad(taskId);
+  process.stdout.write(`Cleared scratchpad for task family #${rootId}\n`);
+}
+
+function cmdScratchpad(args: string[]): void {
+  const sub = args[0];
+  if (sub === "read") {
+    cmdScratchpadRead(args.slice(1));
+  } else if (sub === "write") {
+    cmdScratchpadWrite(args.slice(1));
+  } else if (sub === "append") {
+    cmdScratchpadAppend(args.slice(1));
+  } else if (sub === "clear") {
+    cmdScratchpadClear(args.slice(1));
+  } else {
+    process.stderr.write("Usage: arc scratchpad <read|write|append|clear>\n");
+    process.exit(sub ? 1 : 0);
+  }
+}
+
 function cmdHelp(): void {
   process.stdout.write(`arc - Bitcoin agent (arc0.btc) | native to L1 + Stacks
 
@@ -998,6 +1115,18 @@ COMMANDS
   ${USAGE.memoryExpire}
     Run TTL cleanup — removes memories past their expiry.
 
+  ${USAGE.scratchpadRead}
+    Read the project scratchpad for a task family.
+
+  ${USAGE.scratchpadWrite}
+    Overwrite the project scratchpad for a task family.
+
+  ${USAGE.scratchpadAppend}
+    Append to the project scratchpad for a task family.
+
+  ${USAGE.scratchpadClear}
+    Clear the project scratchpad for a task family.
+
   shutdown [--reason TEXT]
     Enter shutdown state. Sensors and dispatch skip while shutdown is active.
     Idempotent — safe to call multiple times.
@@ -1066,6 +1195,9 @@ async function main(): Promise<void> {
       break;
     case "services":
       await cmdServices(argv.slice(1));
+      break;
+    case "scratchpad":
+      cmdScratchpad(argv.slice(1));
       break;
     case "shutdown":
       cmdShutdown(argv.slice(1));

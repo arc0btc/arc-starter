@@ -43,6 +43,7 @@ import { writeFleetStatus, writeFleetStatusIdle } from "./fleet-status.ts";
 import { safeCommitCycleChanges, getHeadSha, codeChangedSince } from "./safe-commit.ts";
 import { createWorktree, validateWorktree, getWorktreeChangedFiles, mergeWorktree, discardWorktree } from "./worktree.ts";
 import { resolveMemoryContext, resolveFtsMemoryContext } from "./memory-topics.ts";
+import { resolveScratchpadContext, clearScratchpad } from "./scratchpad.ts";
 
 // Re-export for cli.ts
 export { resetDispatchGate } from "./dispatch-gate.ts";
@@ -280,6 +281,12 @@ function buildPrompt(task: Task, skillNames: string[], skillContext: string, rec
     parts.push(skillContext, "");
   }
 
+  // Project scratchpad — shared context buffer for multi-subtask work
+  const scratchpadContext = resolveScratchpadContext(task.id);
+  if (scratchpadContext) {
+    parts.push(scratchpadContext, "");
+  }
+
   const taskLines = [
     "# Task to Execute",
     `Subject: ${task.subject}`,
@@ -302,6 +309,8 @@ function buildPrompt(task: Task, skillNames: string[], skillContext: string, rec
     "- Update memory: edit the relevant topic file in memory/topics/ (fleet.md, incidents.md, cost.md, integrations.md, defi.md, publishing.md, identity.md, infrastructure.md). Edit memory/MEMORY.md only for directives, fleet roster, or critical flags.",
     '- Search historical memory: arc memory search --query "keyword" [--domain incidents|cost|fleet|integrations|defi|publishing|identity|infra]',
     '- Add structured memory: arc memory add --key "type:slug" --domain DOMAIN --content "text" [--ttl 90] [--importance 3]',
+    `- Project scratchpad (shared across subtasks): arc scratchpad append --task ${task.id} --content "findings..."`,
+    `- Read scratchpad: arc scratchpad read --task ${task.id}`,
     "Do NOT use raw SQL, direct DB writes, or ad-hoc scripts.",
   );
 
