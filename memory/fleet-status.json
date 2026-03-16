@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T03:43:24.538Z",
+  "updated_at": "2026-03-16T03:44:00.698Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5809,
-    "subject": "Retrospective: extract learnings from task #5808 — Email from whoabuddy (1 unread): Re: Claude Code Insights Re",
-    "status": "completed",
-    "priority": 8
+    "id": 5778,
+    "subject": "daily cost report — 2026-03-15",
+    "status": "failed",
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 52539,
-    "cost_usd": 0.08392025
+    "duration_ms": 28442,
+    "cost_usd": 0.0483999
   },
   "health": {
-    "uptime_seconds": 1575103,
+    "uptime_seconds": 1575139,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231922401280
+    "disk_avail_bytes": 231922364416
   }
 }
