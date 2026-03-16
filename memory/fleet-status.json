@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T22:57:49.531Z",
+  "updated_at": "2026-03-16T22:58:16.447Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6119,
-    "subject": "Update social-x-posting char limit from 280 to 25000 for Premium account",
+    "id": 6113,
+    "subject": "Reply to X mention from user 26021389",
     "status": "completed",
-    "priority": 6
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 102506,
-    "cost_usd": 0.3586903
+    "duration_ms": 26594,
+    "cost_usd": 0.11076765
   },
   "health": {
-    "uptime_seconds": 1644368,
+    "uptime_seconds": 1644395,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231950708736
+    "disk_avail_bytes": 231950671872
   }
 }
