@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T12:13:24.574Z",
+  "updated_at": "2026-03-16T12:15:16.873Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5907,
-    "subject": "credential health: 1 failure(s) detected",
+    "id": 5906,
+    "subject": "Review PR #390 on aibtcdev/landing-page: fix: improve inbox validation errors with agent-friendly hints (closes #389)",
     "status": "completed",
-    "priority": 3
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 46651,
-    "cost_usd": 0.18601365
+    "duration_ms": 98836,
+    "cost_usd": 0.30042765000000005
   },
   "health": {
-    "uptime_seconds": 1605703,
+    "uptime_seconds": 1605815,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231800057856
+    "disk_avail_bytes": 231800000512
   }
 }
