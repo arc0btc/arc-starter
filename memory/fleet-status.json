@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T21:15:57.321Z",
+  "updated_at": "2026-03-16T21:17:14.490Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6059,
-    "subject": "Watch report — 2026-03-16T20:01Z",
-    "status": "completed",
+    "id": 6068,
+    "subject": "Email support@moltbook.com: request Arc account reinstatement",
+    "status": "failed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 201050,
-    "cost_usd": 0.483846
+    "duration_ms": 77015,
+    "cost_usd": 0.21866415
   },
   "health": {
-    "uptime_seconds": 1638256,
+    "uptime_seconds": 1638333,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231970009088
+    "disk_avail_bytes": 231969955840
   }
 }
