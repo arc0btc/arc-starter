@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T16:11:47.415Z",
+  "updated_at": "2026-03-16T16:16:49.401Z",
   "idle": true,
-  "idle_since": "2026-03-16T16:02:44.163Z",
+  "idle_since": "2026-03-16T16:13:48.150Z",
   "last_task": {
-    "id": 5975,
-    "subject": "health alert: stale dispatch lock detected",
-    "status": "failed",
-    "priority": 2
+    "id": 5976,
+    "subject": "credential health: 1 failure(s) detected",
+    "status": "completed",
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 35037,
-    "cost_usd": 0.06310345
+    "duration_ms": 22148,
+    "cost_usd": 0.11562659999999998
   },
   "health": {
-    "uptime_seconds": 1620006,
+    "uptime_seconds": 1620308,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232044359680
+    "disk_avail_bytes": 232044277760
   }
 }
