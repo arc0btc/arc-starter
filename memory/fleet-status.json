@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T23:29:03.280Z",
+  "updated_at": "2026-03-16T23:30:27.056Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6143,
-    "subject": "Search related issues for aibtcdev/aibtc-mcp-server#304",
+    "id": 6144,
+    "subject": "Search related issues for aibtcdev/aibtc-mcp-server#190",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 58148,
-    "cost_usd": 0.1823709
+    "duration_ms": 81576,
+    "cost_usd": 0.2409909
   },
   "health": {
-    "uptime_seconds": 1646242,
+    "uptime_seconds": 1646325,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231949230080
+    "disk_avail_bytes": 231949156352
   }
 }
