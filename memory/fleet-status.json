@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T20:55:37.366Z",
+  "updated_at": "2026-03-16T20:56:30.492Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6016,
-    "subject": "Dispatch gap alert banner + restart button in arc-web dashboard",
+    "id": 6017,
+    "subject": "Fix task list API: add completed_at field, fix completed tab sort (by completed_at DESC)",
     "status": "completed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 154725,
-    "cost_usd": 0.4910853
+    "duration_ms": 52803,
+    "cost_usd": 0.18454905000000002
   },
   "health": {
-    "uptime_seconds": 1637036,
+    "uptime_seconds": 1637089,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231984865280
+    "disk_avail_bytes": 231984787456
   }
 }
