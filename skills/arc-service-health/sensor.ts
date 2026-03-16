@@ -9,6 +9,7 @@ import { claimSensorRun, createSensorLogger, pendingTaskExistsForSource, insertT
 import { getRecentCycles, getPendingTasks } from "../../src/db.ts";
 import { isPidAlive } from "../../src/utils.ts";
 import { DISPATCH_STALE_THRESHOLD_MS } from "../../src/constants.ts";
+import { isGateStopped, resetDispatchGate } from "../../src/dispatch-gate.ts";
 
 const SENSOR_NAME = "arc-service-health";
 const INTERVAL_MINUTES = 5;
@@ -55,16 +56,25 @@ export default async function healthSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
-  if (checkStaleCycle() && !pendingTaskExistsForSource(TASK_SOURCE)) {
-    insertTask({
-      subject: "health alert: dispatch stale or stuck",
-      description:
-        `The last dispatch cycle started more than ${DISPATCH_STALE_THRESHOLD_MS / 60_000} minutes ago and there are pending tasks. ` +
-        "Check arc status, systemd timers, and dispatch logs.",
-      priority: PRIORITY,
-      model: "haiku",
-      source: TASK_SOURCE,
-    });
+  if (checkStaleCycle()) {
+    // If the gate is stopped, reset it directly — breaks the circular dependency
+    // where the alert task can't dispatch because the gate is closed
+    if (isGateStopped()) {
+      log("stale cycle detected with gate stopped — resetting gate");
+      resetDispatchGate();
+    }
+
+    if (!pendingTaskExistsForSource(TASK_SOURCE)) {
+      insertTask({
+        subject: "health alert: dispatch stale or stuck",
+        description:
+          `The last dispatch cycle started more than ${DISPATCH_STALE_THRESHOLD_MS / 60_000} minutes ago and there are pending tasks. ` +
+          "Check arc status, systemd timers, and dispatch logs.",
+        priority: PRIORITY,
+        model: "haiku",
+        source: TASK_SOURCE,
+      });
+    }
   }
 
   const staleLock = await checkStaleLock();

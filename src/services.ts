@@ -153,7 +153,7 @@ WantedBy=timers.target
 const SYSTEMD_UNITS: Array<{ name: string; content: () => string }> = [
   { name: "arc-sensors.service", content: () => generateServiceUnit("sensors", "arc-agent sensors runner") },
   { name: "arc-sensors.timer", content: () => generateTimerUnit("arc-agent sensors timer — fires every 1 minute", "1min", "1min") },
-  { name: "arc-dispatch.service", content: () => generateServiceUnit("run", "arc-agent dispatch runner", 3600) },
+  { name: "arc-dispatch.service", content: () => generateServiceUnit("run", "arc-agent dispatch runner", 6000) },
   { name: "arc-dispatch.timer", content: () => generateTimerUnit("arc-agent dispatch timer — fires every 1 minute", "2min", "1min") },
   { name: "arc-web.service", content: () => generateWebServiceUnit() },
   { name: "arc-mcp.service", content: () => generateMcpServiceUnit() },
