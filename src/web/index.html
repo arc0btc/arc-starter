@@ -171,10 +171,13 @@
     var knownTaskIds = new Set();
     var currentFilter = '';
     var currentSearch = '';
+    var currentOffset = 0;
+    var PAGE_SIZE = 30;
 
-    function buildTasksUrl() {
+    function buildTasksUrl(offset) {
       var params = new URLSearchParams();
-      params.set('limit', '30');
+      params.set('limit', String(PAGE_SIZE));
+      params.set('offset', String(offset || 0));
       if (currentFilter) params.set('status', currentFilter);
       if (currentSearch) params.set('q', currentSearch);
       return '/api/tasks?' + params.toString();
@@ -201,7 +204,11 @@
         if (arr && arr.length) skills = arr.map(function(s) { return '<span class="pill pill-muted">' + esc(s) + '</span>'; }).join(' ');
       } catch(e) {}
 
-      return '<li class="feed-item ' + cls + '" tabindex="0" role="button" aria-expanded="false" onclick="toggleDetail(this)" onkeydown="handleFeedItemKey(event, this)">'
+      var parentPill = t.parent_id
+        ? ' <span class="pill pill-muted pill-thread" title="Child of #' + t.parent_id + '" onclick="jumpToTask(event,' + t.parent_id + ')">↳ #' + t.parent_id + '</span>'
+        : '';
+
+      return '<li class="feed-item ' + cls + (t.parent_id ? ' feed-item-child' : '') + '" tabindex="0" role="button" aria-expanded="false" onclick="toggleDetail(this)" onkeydown="handleFeedItemKey(event, this)" data-task-id-root="' + t.id + '">'
         + '<span class="status-dot ' + (t.status === 'active' ? 'live' : '') + '" style="margin-top:6px;'
         + (t.status === 'completed' ? 'background:var(--success)' : t.status === 'failed' ? 'background:var(--error)' : t.status === 'blocked' ? 'background:var(--blocked)' : '') + '" aria-hidden="true"></span>'
         + '<div class="feed-body">'
@@ -209,6 +216,7 @@
         + '<div class="feed-meta">'
         + '<span class="' + statusBadgeClass(t.status) + '">' + esc(t.status) + '</span>'
         + ' ' + modelPill(t.model, t.priority)
+        + parentPill
         + (t.source ? ' <span class="pill pill-muted">' + esc(t.source) + '</span>' : '')
         + ' ' + skills
         + ' <span>' + relativeTime(t.created_at) + '</span>'
@@ -219,19 +227,53 @@
         + '</li>';
     }
 
-    function renderFeed(tasks) {
+    function renderFeed(tasks, total, offset, append) {
       var list = document.getElementById('feed-list');
       var count = document.getElementById('feed-count');
-      count.textContent = tasks.length + ' tasks';
 
-      if (tasks.length === 0) {
-        list.innerHTML = '<li class="placeholder">No tasks found</li>';
-        return;
+      if (!append) {
+        if (tasks.length === 0) {
+          list.innerHTML = '<li class="placeholder">No tasks found</li>';
+          renderPagination(0, 0, 0);
+          return;
+        }
+        list.innerHTML = tasks.map(buildFeedItemHTML).join('');
+      } else {
+        var placeholder = list.querySelector('.placeholder');
+        if (placeholder) list.innerHTML = '';
+        tasks.forEach(function(t) {
+          var temp = document.createElement('div');
+          temp.innerHTML = buildFeedItemHTML(t);
+          list.appendChild(temp.firstElementChild);
+        });
       }
 
-      list.innerHTML = tasks.map(function(t) {
-        return buildFeedItemHTML(t);
-      }).join('');
+      var shown = list.querySelectorAll('.feed-item').length;
+      count.textContent = shown + (total > shown ? ' of ' + total : '') + ' tasks';
+      renderPagination(shown, total, offset);
+    }
+
+    function renderPagination(shown, total, offset) {
+      var existing = document.getElementById('feed-pagination');
+      if (existing) existing.remove();
+
+      if (total <= shown + offset) return; // nothing more to load
+
+      var nav = document.createElement('div');
+      nav.id = 'feed-pagination';
+      nav.className = 'feed-pagination';
+      var remaining = total - (offset + shown);
+      nav.innerHTML = '<button class="load-more-btn" onclick="loadMoreTasks()">Load ' + Math.min(PAGE_SIZE, remaining) + ' more <span class="pill pill-muted">' + remaining + ' remaining</span></button>';
+      document.getElementById('feed-list').after(nav);
+    }
+
+    function loadMoreTasks() {
+      currentOffset += PAGE_SIZE;
+      fetchJSON(buildTasksUrl(currentOffset)).then(function(d) {
+        var tasks = d.tasks || [];
+        tasks.forEach(function(t) { knownTaskIds.add(t.id); });
+        renderFeed(tasks, d.total || 0, currentOffset, true);
+      }).catch(function() { currentOffset -= PAGE_SIZE; });
     }
 
     function toggleDetail(el) {
@@ -247,8 +289,19 @@
 
       if (detail.querySelector('.placeholder')) {
         var taskId = detail.getAttribute('data-task-id');
-        fetchJSON('/api/tasks/' + taskId).then(function(task) {
+        Promise.all([
+          fetchJSON('/api/tasks/' + taskId),
+          fetchJSON('/api/tasks?parent_id=' + taskId + '&limit=20'),
+        ]).then(function(results) {
+          var task = results[0];
+          var childrenData = results[1];
           var html = '';
+
+          // Parent thread link
+          if (task.parent_id) {
+            html += '<div class="feed-detail-row feed-detail-thread"><span class="feed-detail-label">Parent</span><span class="feed-detail-value"><button class="thread-link" onclick="jumpToTask(event,' + task.parent_id + ')">↑ #' + task.parent_id + '</button></span></div>';
+          }
+
           if (task.description) {
             html += '<div class="feed-detail-row"><span class="feed-detail-label">Desc</span><span class="feed-detail-value">' + esc(task.description) + '</span></div>';
           }
@@ -269,6 +322,22 @@
           var modelNote = task.model ? '' : ' (default)';
           html += '<div class="feed-detail-row"><span class="feed-detail-label">Model</span><span class="feed-detail-value">' + esc(detailModel) + modelNote + '</span></div>';
           html += '<div class="feed-detail-row"><span class="feed-detail-label">ID</span><span class="feed-detail-value">#' + task.id + ' &middot; P' + task.priority + '</span></div>';
+
+          // Children list
+          var children = (childrenData && childrenData.tasks) || [];
+          if (children.length > 0) {
+            html += '<div class="feed-detail-row feed-detail-children"><span class="feed-detail-label">Children</span><span class="feed-detail-value">';
+            html += children.map(function(c) {
+              return '<div class="child-task-row"><button class="thread-link" onclick="jumpToTask(event,' + c.id + ')">↳ #' + c.id + '</button>'
+                + ' <span class="' + statusBadgeClass(c.status) + '">' + esc(c.status) + '</span>'
+                + ' <span>' + esc(c.subject.slice(0, 60)) + '</span></div>';
+            }).join('');
+            if (childrenData.total > children.length) {
+              html += '<div class="child-task-row" style="color:var(--muted)">… and ' + (childrenData.total - children.length) + ' more</div>';
+            }
+            html += '</span></div>';
+          }
+
           var killBtn = (task.status === 'pending' || task.status === 'active')
             ? '<button class="kill-btn" data-kill-id="' + task.id + '">Kill</button>'
             : '';
@@ -360,10 +429,6 @@
       var count = document.getElementById('feed-count');
       var n = list.querySelectorAll('.feed-item').length;
       count.textContent = n + ' tasks';
-
-      while (list.children.length > 40) {
-        list.removeChild(list.lastChild);
-      }
     }
 
     function flashFeedItem(taskId, status) {
@@ -401,11 +466,28 @@
     }
 
     function refreshFeed() {
-      fetchJSON(buildTasksUrl()).then(function(d) {
+      currentOffset = 0;
+      fetchJSON(buildTasksUrl(0)).then(function(d) {
         var tasks = d.tasks || [];
-        renderFeed(tasks);
+        renderFeed(tasks, d.total || tasks.length, 0, false);
         tasks.forEach(function(t) { knownTaskIds.add(t.id); });
       }).catch(function() {});
+    }
+
+    function jumpToTask(event, taskId) {
+      event.stopPropagation();
+      var item = document.querySelector('[data-task-id-root="' + taskId + '"]');
+      if (item) {
+        item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        item.classList.add('flash-highlight');
+        setTimeout(function() { item.classList.remove('flash-highlight'); }, 1200);
+      } else {
+        // Task not in current view — navigate with filter
+        currentFilter = '';
+        currentSearch = '#' + taskId;
+        document.getElementById('feed-search').value = currentSearch;
+        refreshFeed();
+      }
     }
 
     // ---- Dispatch Metrics ----
@@ -486,7 +568,8 @@
           renderMetrics(s, c.costs || []);
         });
       }).catch(function() {});
-      refreshFeed();
+      // Only refresh if we're on page 1 (no load-more in progress)
+      if (currentOffset === 0) refreshFeed();
     };
 
     // ---- Init ----
@@ -496,7 +579,7 @@
       try {
         var results = await Promise.allSettled([
           fetchJSON('/api/status'),
-          fetchJSON(buildTasksUrl()),
+          fetchJSON(buildTasksUrl(0)),
           fetchJSON('/api/costs?range=day'),
         ]);
 
@@ -506,7 +589,7 @@
 
         if (status) { updateHeader(status); renderMetrics(status, costs ? costs.costs : []); }
         if (tasks) {
-          renderFeed(tasks.tasks || []);
+          renderFeed(tasks.tasks || [], tasks.total || 0, 0, false);
           (tasks.tasks || []).forEach(function(t) { knownTaskIds.add(t.id); });
         }
       } catch (e) {

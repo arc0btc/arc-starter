@@ -810,28 +810,44 @@ function handleStatus(): Response {
 function handleTasks(url: URL): Response {
   const status = url.searchParams.get("status");
   const q = url.searchParams.get("q");
+  const parentId = url.searchParams.get("parent_id");
   const limit = Math.min(parseInt(url.searchParams.get("limit") || "20", 10), 100);
+  const offset = Math.max(parseInt(url.searchParams.get("offset") || "0", 10), 0);
+
+  const COLS = "id, subject, priority, status, source, skills, model, parent_id, created_at, cost_usd";
 
   let rows;
-  if (status && q) {
+  let total: number;
+
+  if (parentId) {
+    const pid = parseInt(parentId, 10);
+    total = (db.query("SELECT COUNT(*) as n FROM tasks WHERE parent_id = ?").get(pid) as { n: number }).n;
     rows = db.query(
-      "SELECT id, subject, priority, status, source, skills, model, created_at, cost_usd FROM tasks WHERE status = ? AND subject LIKE ? ORDER BY priority ASC, id DESC LIMIT ?"
-    ).all(status, `%${q}%`, limit);
+      `SELECT ${COLS} FROM tasks WHERE parent_id = ? ORDER BY id ASC LIMIT ? OFFSET ?`
+    ).all(pid, limit, offset);
+  } else if (status && q) {
+    total = (db.query("SELECT COUNT(*) as n FROM tasks WHERE status = ? AND subject LIKE ?").get(status, `%${q}%`) as { n: number }).n;
+    rows = db.query(
+      `SELECT ${COLS} FROM tasks WHERE status = ? AND subject LIKE ? ORDER BY priority ASC, id DESC LIMIT ? OFFSET ?`
+    ).all(status, `%${q}%`, limit, offset);
   } else if (status) {
+    total = (db.query("SELECT COUNT(*) as n FROM tasks WHERE status = ?").get(status) as { n: number }).n;
     rows = db.query(
-      "SELECT id, subject, priority, status, source, skills, model, created_at, cost_usd FROM tasks WHERE status = ? ORDER BY priority ASC, id DESC LIMIT ?"
-    ).all(status, limit);
+      `SELECT ${COLS} FROM tasks WHERE status = ? ORDER BY priority ASC, id DESC LIMIT ? OFFSET ?`
+    ).all(status, limit, offset);
   } else if (q) {
+    total = (db.query("SELECT COUNT(*) as n FROM tasks WHERE subject LIKE ?").get(`%${q}%`) as { n: number }).n;
     rows = db.query(
-      "SELECT id, subject, priority, status, source, skills, model, created_at, cost_usd FROM tasks WHERE subject LIKE ? ORDER BY id DESC LIMIT ?"
-    ).all(`%${q}%`, limit);
+      `SELECT ${COLS} FROM tasks WHERE subject LIKE ? ORDER BY id DESC LIMIT ? OFFSET ?`
+    ).all(`%${q}%`, limit, offset);
   } else {
+    total = (db.query("SELECT COUNT(*) as n FROM tasks").get() as { n: number }).n;
     rows = db.query(
-      "SELECT id, subject, priority, status, source, skills, model, created_at, cost_usd FROM tasks ORDER BY id DESC LIMIT ?"
-    ).all(limit);
+      `SELECT ${COLS} FROM tasks ORDER BY id DESC LIMIT ? OFFSET ?`
+    ).all(limit, offset);
   }
 
-  return json({ tasks: rows });
+  return json({ tasks: rows, total, limit, offset });
 }
 
 function handleTaskById(id: string): Response {
