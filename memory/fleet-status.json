@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T02:58:50.134Z",
+  "updated_at": "2026-03-16T02:59:48.496Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5790,
-    "subject": "Review PR #314 on aibtcdev/aibtc-mcp-server: feat(signing): add btc_sign_message and stacks_sign_message MCP tools (closes #298)",
+    "id": 5792,
+    "subject": "daily introspection: 64 tasks, 0 completed, $0.00 spent",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 78580,
+    "duration_ms": 58194,
     "cost_usd": 0
   },
   "health": {
-    "uptime_seconds": 1572428,
+    "uptime_seconds": 1572487,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231925313536
+    "disk_avail_bytes": 231925248000
   }
 }
