@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T18:48:21.771Z",
+  "updated_at": "2026-03-16T18:51:55.589Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6005,
-    "subject": "Wire contact interaction log: reputation reviews, x402 sensor, agent-hub write-back",
+    "id": 6006,
+    "subject": "External dispatch watchdog: cron/external probe alerts on gap >2hrs (no auto-restart)",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 182402,
-    "cost_usd": 1.4340670000000004
+    "duration_ms": 213511,
+    "cost_usd": 0.9970567499999997
   },
   "health": {
-    "uptime_seconds": 1629400,
+    "uptime_seconds": 1629614,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232032321536
+    "disk_avail_bytes": 232032157696
   }
 }
