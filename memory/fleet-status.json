@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T13:11:35.547Z",
+  "updated_at": "2026-03-16T13:31:54.015Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5942,
-    "subject": "credential health: 1 failure(s) detected",
+    "id": 5932,
+    "subject": "Fix: arc0btc.com broken architecture + footer health links",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 29997,
-    "cost_usd": 0.12222494999999998
+    "duration_ms": 1188211,
+    "cost_usd": 2.16553235
   },
   "health": {
-    "uptime_seconds": 1609194,
+    "uptime_seconds": 1610412,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231800823808
+    "disk_avail_bytes": 232037548032
   }
 }
