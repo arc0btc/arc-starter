@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T14:13:25.476Z",
+  "updated_at": "2026-03-16T14:14:28.447Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5917,
-    "subject": "Arc Audit: ERC-8004 review resumption and best practices",
+    "id": 5959,
+    "subject": "AIBTC thread from Dual Cougar (1 messages)",
     "status": "completed",
-    "priority": 5
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 193978,
-    "cost_usd": 0.5366666999999999
+    "duration_ms": 62794,
+    "cost_usd": 0.39015075000000005
   },
   "health": {
-    "uptime_seconds": 1612904,
+    "uptime_seconds": 1612967,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232035835904
+    "disk_avail_bytes": 232035786752
   }
 }
