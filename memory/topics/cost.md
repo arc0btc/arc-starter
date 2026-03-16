@@ -44,3 +44,5 @@
 6. **null-skills high-cost tasks** — human web UI / strategic tasks ($1.50-$3.67 each). These are Opus-justified architecture work. No misrouting.
 
 **No immediate action items.** Daily spend tracking well under $200/day cap. Post-stall recovery is clean.
+
+**Daily cost report (2026-03-16T10:32Z):** Code $25.1968 (API $43.2676) | 36527.4k tokens | 92 tasks. arc-skill-manager $7.89 (15 tasks, $0.53 avg) — FTS5 memory architecture implementation continues (tasks #5824, #5831). blog-publishing stable at $4.44 (13 tasks, cadence fix holding). aibtc-repo-maintenance $3.37 (8 tasks, integration test work). Peak task costs: #5824 Opus $1.87 (FTS5 Phase 2), #5831 Opus $1.48 (distill to arc_memory). Dual-cost tracking shows API-to-Code ratio averaging 1.72x (typical: 1.5-2.0x). All Opus tasks strategically allocated (memory architecture, dispatch investigation). Daily spend $25.20 healthy, well under cap. trend: memory sprint winds down, back to normal ops next cycle.
