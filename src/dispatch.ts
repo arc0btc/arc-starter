@@ -42,6 +42,7 @@ import { type ErrorClass, checkDispatchGate, recordGateSuccess, recordGateFailur
 import { writeFleetStatus, writeFleetStatusIdle } from "./fleet-status.ts";
 import { safeCommitCycleChanges, getHeadSha, codeChangedSince } from "./safe-commit.ts";
 import { createWorktree, validateWorktree, getWorktreeChangedFiles, mergeWorktree, discardWorktree } from "./worktree.ts";
+import { resolveMemoryContext } from "./memory-topics.ts";
 
 // Re-export for cli.ts
 export { resetDispatchGate } from "./dispatch-gate.ts";
@@ -258,7 +259,7 @@ function buildPrompt(task: Task, skillNames: string[], recentCycles: string): st
   const mst = toSqliteDatetime(new Date(now.getTime() - MST_OFFSET_MS)) + " MST";
 
   const soul = readFile(join(ROOT, "SOUL.md"));
-  const memory = readFile(join(ROOT, "memory", "MEMORY.md"));
+  const memory = resolveMemoryContext(skillNames);
   const skillContext = resolveSkillContext(skillNames);
   const parentChain = buildParentChain(task);
 
@@ -302,7 +303,7 @@ function buildPrompt(task: Task, skillNames: string[], recentCycles: string): st
     `- Close this task: arc tasks close --id ${task.id} --status completed|failed --summary "summary"`,
     `- Create follow-up: arc tasks add --subject "subject" --skills s1,s2 --parent ${task.id}`,
     `- Create a skill: arc skills run --name arc-skill-manager -- create my-skill --description "Does X"`,
-    "- Update memory: edit memory/MEMORY.md directly",
+    "- Update memory: edit the relevant topic file in memory/topics/ (fleet.md, incidents.md, cost.md, integrations.md, defi.md, publishing.md, identity.md, infrastructure.md). Edit memory/MEMORY.md only for directives, fleet roster, or critical flags.",
     "Do NOT use raw SQL, direct DB writes, or ad-hoc scripts.",
   );
 

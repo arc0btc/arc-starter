@@ -167,15 +167,18 @@ Both fields exist on both `tasks` and `cycle_log` tables. Use `arc status` to se
 
 ## Memory
 
-Memory lives in `memory/MEMORY.md`, versioned by git. This is **your** long-term memory — compressed learnings, patterns, and operational state that persists across dispatch cycles. Each agent has their own MEMORY.md. It is never overwritten by fleet-sync.
+Memory uses a topical file split. `memory/MEMORY.md` is a slim index (directives, fleet roster, critical flags) loaded every cycle. Domain-specific memory lives in `memory/topics/` — dispatch loads only the topics relevant to the task's skills.
 
-Do not put shared rules or fleet-wide instructions in MEMORY.md — those belong in CLAUDE.md. MEMORY.md is for your personal operational learnings: what worked, what failed, domain-specific patterns, your identity details, your wallet state.
+Do not put shared rules or fleet-wide instructions in memory — those belong in CLAUDE.md. Memory is for operational learnings: what worked, what failed, domain-specific patterns, identity details, wallet state.
+
+**Topic files:** `fleet.md`, `incidents.md`, `cost.md`, `integrations.md`, `defi.md`, `publishing.md`, `identity.md`, `infrastructure.md`.
 
 **Memory update protocol:**
-1. During dispatch, append new learnings to `memory/MEMORY.md`
-2. Prefix important items with `[FLAG]`
-3. Commit MEMORY.md changes after significant updates
-4. Periodically consolidate to keep the file under 2k tokens
+1. During dispatch, append new learnings to the relevant `memory/topics/<topic>.md` file
+2. Edit `memory/MEMORY.md` only for directives, fleet roster, or critical flags
+3. Prefix important items with `[FLAG]`
+4. Commit memory changes after significant updates
+5. Periodically consolidate topic files to keep each under ~1k tokens
 
 ---
 
