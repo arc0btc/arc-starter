@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T05:12:12.264Z",
+  "updated_at": "2026-03-16T05:13:55.755Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5832,
-    "subject": "Wire arc_memory FTS into dispatch prompt assembly",
+    "id": 5833,
+    "subject": "Improve temporal awareness in dispatch context",
     "status": "completed",
-    "priority": 3
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 199394,
-    "cost_usd": 1.0714696
+    "duration_ms": 103189,
+    "cost_usd": 0.3289833
   },
   "health": {
-    "uptime_seconds": 1580431,
+    "uptime_seconds": 1580534,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231920394240
+    "disk_avail_bytes": 231920316416
   }
 }
