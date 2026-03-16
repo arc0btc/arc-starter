@@ -51,7 +51,7 @@ const USAGE = {
   tasksUnlink: 'arc tasks unlink --from N --to M --type blocks|related|discovered-from',
   skillsShow: 'arc skills show --name NAME',
   skillsRun:  'arc skills run --name NAME [-- extra-args]',
-  memorySearch: 'arc memory search --query TEXT [--domain DOMAIN] [--limit N]',
+  memorySearch: 'arc memory search --query TEXT [--domain DOMAIN] [--limit N] [--syntax]',
   memoryAdd: 'arc memory add --key KEY --domain DOMAIN --content TEXT [--tags "t1 t2"] [--ttl DAYS] [--importance N]',
   memoryList: 'arc memory list [--domain DOMAIN] [--limit N]',
   memoryDelete: 'arc memory delete --key KEY',
@@ -692,18 +692,106 @@ function cmdResume(args: string[]): void {
 
 // ---- Memory commands ----
 
+function displayFTS5Syntax(): void {
+  process.stdout.write(`FTS5 Query Syntax Guide
+================================
+
+Memory search uses SQLite FTS5 (Full-Text Search 5) with Porter stemming.
+This guide shows valid query formats and common mistakes.
+
+VALID QUERIES (working examples):
+  Single word:
+    arc memory search --query "dispatch"
+    arc memory search --query "bitcoin"
+
+  Exact phrase (use double quotes):
+    arc memory search --query '"dispatch gate"'
+    arc memory search --query '"fleet degradation"'
+
+  OR operator (either word):
+    arc memory search --query "dispatch OR gate"
+    arc memory search --query "bitcoin OR ethereum"
+
+  AND operator (both words):
+    arc memory search --query "dispatch AND lock"
+    arc memory search --query "cost AND tracking"
+
+  NOT operator (exclude word):
+    arc memory search --query "dispatch NOT gate"
+    arc memory search --query "memory -stale"
+
+INVALID QUERIES (will fail):
+  Regex patterns:
+    ✗ arc memory search --query "blog.*cadence"
+    ✗ arc memory search --query "dispatch[0-9]+"
+  Note: Regex is not supported in FTS5
+
+  Unquoted phrases:
+    ✗ arc memory search --query "dispatch gate"
+    (should be: arc memory search --query '"dispatch gate"')
+
+QUERY OPERATORS REFERENCE:
+  "phrase"        Exact phrase match
+  word1 word2     All words (implicit AND)
+  word1 OR word2  Either word
+  word1 NOT word2 Exclude word2
+  word1 AND word2 Both words (explicit)
+
+DOMAIN FILTERING:
+  Combine with --domain to search within a specific domain:
+    arc memory search --query "dispatch" --domain incidents
+    arc memory search --query '"cost report"' --domain cost
+
+TIPS:
+  • Single words always work
+  • Use quotes for multi-word exact phrases
+  • No regex or wildcards — use word-based boolean operators instead
+  • Stemming is automatic (e.g., "dispatch" matches "dispatcher", "dispatching")
+  • Case insensitive
+
+EXAMPLES THAT WORK:
+  arc memory search --query "incident"
+  arc memory search --query '"root cause"' --domain incidents
+  arc memory search --query "cost OR expense" --domain cost
+  arc memory search --query "dispatch AND gate" --limit 10
+`);
+}
+
 function cmdMemorySearch(args: string[]): void {
   const { flags } = parseFlags(args);
+
+  // Check for --syntax flag
+  if (flags["syntax"] === "" || flags["syntax"] === "true") {
+    displayFTS5Syntax();
+    return;
+  }
+
   const query = flags["query"];
   if (!query) {
     process.stderr.write(`Error: --query is required\nUsage: ${USAGE.memorySearch}\n`);
+    process.stderr.write(`\nUse --syntax flag to see FTS5 query syntax examples:\n  arc memory search --syntax\n`);
     process.exit(1);
   }
 
   initDatabase();
   const domain = flags["domain"];
   const limit = flags["limit"] ? parseInt(flags["limit"], 10) : 20;
-  const results = searchArcMemory(query, domain, limit);
+
+  let results: ReturnType<typeof searchArcMemory>;
+  try {
+    results = searchArcMemory(query, domain, limit);
+  } catch (err) {
+    if (err instanceof Error && (err.message.includes("fts5") && err.message.includes("syntax error"))) {
+      process.stderr.write(`Error: Invalid FTS5 query syntax: ${query}\n\n`);
+      process.stderr.write(`Common issues:\n`);
+      process.stderr.write(`  • Regex patterns are not supported (e.g., 'blog.*cadence')\n`);
+      process.stderr.write(`  • Multi-word phrases need quotes: "dispatch gate" not dispatch gate\n`);
+      process.stderr.write(`  • Use boolean operators: OR, AND, NOT\n\n`);
+      process.stderr.write(`Run 'arc memory search --syntax' to see full syntax guide.\n`);
+      process.exit(1);
+    }
+    throw err;
+  }
 
   if (results.length === 0) {
     process.stdout.write("No memories found.\n");
@@ -894,6 +982,9 @@ COMMANDS
 
   ${USAGE.memorySearch}
     Full-text search across arc_memory (FTS5 with Porter stemming).
+    Query syntax: single words work directly; multi-word phrases need quotes: "dispatch gate"
+    Boolean operators supported: OR, AND, NOT. Regex not supported.
+    Use --syntax flag to display full FTS5 syntax guide with examples.
 
   ${USAGE.memoryAdd}
     Add a memory entry. --ttl sets auto-expiry in days. --importance 1-10 (1=critical).
@@ -928,6 +1019,10 @@ EXAMPLES
   arc creds set --service openrouter --key api-key --value sk-xxxx
   arc creds get --service openrouter --key api-key
   arc creds delete --service openrouter --key api-key
+  arc memory search --query "dispatch"
+  arc memory search --query '"dispatch gate"' --domain incidents
+  arc memory search --query "cost OR expense" --limit 10
+  arc memory search --syntax
   arc run
   arc skills
   arc skills show --name arc-skill-manager
