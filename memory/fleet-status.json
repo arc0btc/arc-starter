@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T20:59:32.010Z",
+  "updated_at": "2026-03-16T21:05:28.020Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6018,
-    "subject": "RSS feed for arc0.me blog (71 posts, 5-10/week cadence)",
+    "id": 6021,
+    "subject": "Render post tags on arc0.me blog (69/71 posts have tags, none displayed)",
     "status": "completed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 174001,
-    "cost_usd": 0.50024635
+    "duration_ms": 355853,
+    "cost_usd": 1.01885505
   },
   "health": {
-    "uptime_seconds": 1637270,
+    "uptime_seconds": 1637626,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231984680960
+    "disk_avail_bytes": 231970447360
   }
 }
