@@ -158,6 +158,13 @@ function checkMissingSkillCoverage(
   // Flagging them for not loading the skill they're creating is always a false positive.
   if (/^Scaffold \S+ skill /i.test(task.subject)) return findings;
 
+  // Skill rename/refactor tasks reference skill names (e.g. "bitflow → bitflow-positions")
+  // as identifiers, not as domain indicators. False positive.
+  if (/^Rename skills?\b/i.test(task.subject)) return findings;
+
+  // Syntax fix tasks inherit their parent's subject context verbatim. False positive.
+  if (/^Fix syntax errors from task #\d+/i.test(task.subject)) return findings;
+
   // Research tasks fetch and analyze external content (e.g., X articles, GitHub issues).
   // Their descriptions contain domain terminology from the *content* they analyze, not from
   // skills they need. "tweet" in "Research X article: @user" means fetching, not posting.
