@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T02:42:55.399Z",
+  "updated_at": "2026-03-16T02:49:10.019Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5779,
-    "subject": "arc0btc.com health alert: 1 issue(s)",
+    "id": 5803,
+    "subject": "Investigate dispatch stale period — root cause analysis",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 21022,
+    "duration_ms": 335518,
     "cost_usd": 0
   },
   "health": {
-    "uptime_seconds": 1571474,
+    "uptime_seconds": 1571848,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231925805056
+    "disk_avail_bytes": 231925657600
   }
 }
