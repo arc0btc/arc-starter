@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T04:05:20.209Z",
+  "updated_at": "2026-03-16T04:08:24.111Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5820,
-    "subject": "Email from whoabuddy (1 unread): Enhanced Memory",
+    "id": 5821,
+    "subject": "Research: Arc memory architecture — topical file split + SQLite FTS",
     "status": "completed",
-    "priority": 1
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 76171,
-    "cost_usd": 0.19154309999999997
+    "duration_ms": 183723,
+    "cost_usd": 1.0969759999999997
   },
   "health": {
-    "uptime_seconds": 1576419,
+    "uptime_seconds": 1576602,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231921885184
+    "disk_avail_bytes": 231921778688
   }
 }
