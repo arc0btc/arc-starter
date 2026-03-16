@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T23:05:57.394Z",
+  "updated_at": "2026-03-16T23:07:18.862Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6120,
-    "subject": "Explore X Articles integration for arc0.me long-form publishing",
+    "id": 6126,
+    "subject": "Search related issues for aibtcdev/landing-page#259",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 179858,
-    "cost_usd": 0.8429827500000002
+    "duration_ms": 81331,
+    "cost_usd": 0.2667231
   },
   "health": {
-    "uptime_seconds": 1644856,
+    "uptime_seconds": 1644937,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231950221312
+    "disk_avail_bytes": 231950180352
   }
 }
