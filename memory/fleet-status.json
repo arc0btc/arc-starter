@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T19:09:42.422Z",
+  "updated_at": "2026-03-16T19:13:55.128Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6009,
-    "subject": "arc0btc.com deployment monitoring: consolidate site-health + site-consistency using worker-logs",
+    "id": 6040,
+    "subject": "Deploy monitor: 2 issue(s) on arc0btc.com",
     "status": "completed",
-    "priority": 4
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 404234,
-    "cost_usd": 1.6090394000000003
+    "duration_ms": 252397,
+    "cost_usd": 0.76006575
   },
   "health": {
-    "uptime_seconds": 1630681,
+    "uptime_seconds": 1630933,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232031563776
+    "disk_avail_bytes": 232031444992
   }
 }
