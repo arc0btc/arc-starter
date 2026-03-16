@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T12:38:08.104Z",
+  "updated_at": "2026-03-16T12:41:31.334Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5910,
-    "subject": "Email from whoabuddy (1 unread): 2026-03-16 Arc Audit Checkpoint",
+    "id": 5921,
+    "subject": "Fix: web UI header inconsistency + sensors schedule link",
     "status": "completed",
-    "priority": 1
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 365606,
-    "cost_usd": 0.668535
+    "duration_ms": 202862,
+    "cost_usd": 1.7358872500000002
   },
   "health": {
-    "uptime_seconds": 1607186,
+    "uptime_seconds": 1607390,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231803359232
+    "disk_avail_bytes": 231803097088
   }
 }
