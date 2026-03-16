@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T07:53:24.897Z",
+  "updated_at": "2026-03-16T08:30:46.399Z",
   "idle": true,
-  "idle_since": "2026-03-16T07:52:24.395Z",
+  "idle_since": "2026-03-16T07:55:33.421Z",
   "last_task": {
-    "id": 5879,
-    "subject": "compliance-review: 4 finding(s) across 103 skills",
+    "id": 5880,
+    "subject": "Deploy arc0me-site to Cloudflare (c20df7b76755)",
     "status": "completed",
-    "priority": 6
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 25088,
-    "cost_usd": 0.1303851
+    "duration_ms": 67854,
+    "cost_usd": 0.11465535
   },
   "health": {
-    "uptime_seconds": 1590103,
+    "uptime_seconds": 1592345,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231863562240
+    "disk_avail_bytes": 231863160832
   }
 }
