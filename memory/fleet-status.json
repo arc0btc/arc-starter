@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T19:29:51.388Z",
+  "updated_at": "2026-03-16T19:33:30.467Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6014,
-    "subject": "Restore quest-audit sensor from v4 archive (v5 conventions: tasks, not JSON files)",
+    "id": 6022,
+    "subject": "Strategic planner: trigger after X empty dispatches, email plan to whoabuddy for approval",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 202287,
-    "cost_usd": 0.96901485
+    "duration_ms": 218762,
+    "cost_usd": 1.0158264
   },
   "health": {
-    "uptime_seconds": 1631890,
+    "uptime_seconds": 1632109,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231999557632
+    "disk_avail_bytes": 231999410176
   }
 }
