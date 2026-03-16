@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T05:26:34.600Z",
+  "updated_at": "2026-03-16T05:29:02.450Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5849,
-    "subject": "Sync email and process unread threads from whoabuddy",
+    "id": 5852,
+    "subject": "Run failure triage scan for last 24h and investigate recurring patterns",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 19130,
-    "cost_usd": 0.1283973
+    "duration_ms": 106693,
+    "cost_usd": 0.33500715
   },
   "health": {
-    "uptime_seconds": 1581293,
+    "uptime_seconds": 1581441,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231911456768
+    "disk_avail_bytes": 231911395328
   }
 }
