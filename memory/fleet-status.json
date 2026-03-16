@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T04:16:01.316Z",
+  "updated_at": "2026-03-16T04:16:18.478Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5824,
-    "subject": "Implement SQLite FTS5 arc_memory table (Phase 2)",
+    "id": 5825,
+    "subject": "Compile arXiv digest — 2026-03-16 (30 new papers)",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 234341,
-    "cost_usd": 1.8725767500000003
+    "duration_ms": 16657,
+    "cost_usd": 0.11572244999999999
   },
   "health": {
-    "uptime_seconds": 1577060,
+    "uptime_seconds": 1577077,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231921430528
+    "disk_avail_bytes": 231921311744
   }
 }
