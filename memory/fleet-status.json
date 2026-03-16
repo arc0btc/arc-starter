@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T18:26:01.785Z",
+  "updated_at": "2026-03-16T18:27:50.618Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5995,
-    "subject": "Review PR #325 on aibtcdev/aibtc-mcp-server: feat(taproot-multisig): add Taproot M-of-N multisig MCP tools (closes #306)",
+    "id": 5997,
+    "subject": "Add v0.24.0 skills to SkillsDirectory.tsx featured list (erc8004, transfer, psbt)",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 105325,
-    "cost_usd": 0.26656860000000004
+    "duration_ms": 108639,
+    "cost_usd": 0.44427795000000003
   },
   "health": {
-    "uptime_seconds": 1628060,
+    "uptime_seconds": 1628169,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232033411072
+    "disk_avail_bytes": 232033046528
   }
 }
