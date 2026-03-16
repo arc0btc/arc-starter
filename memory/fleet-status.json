@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T15:15:57.355Z",
+  "updated_at": "2026-03-16T15:20:43.009Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5970,
-    "subject": "credential health: 1 failure(s) detected",
+    "id": 5953,
+    "subject": "Watch report — 2026-03-16T14:00Z",
     "status": "completed",
-    "priority": 3
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 25418,
-    "cost_usd": 0.12419609999999999
+    "duration_ms": 250983,
+    "cost_usd": 0.5667502499999999
   },
   "health": {
-    "uptime_seconds": 1616656,
+    "uptime_seconds": 1616941,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232046977024
+    "disk_avail_bytes": 232046653440
   }
 }
