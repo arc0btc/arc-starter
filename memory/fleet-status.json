@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T13:46:15.790Z",
+  "updated_at": "2026-03-16T13:49:46.035Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5911,
-    "subject": "Arc Audit: dispatch metrics analysis",
+    "id": 5912,
+    "subject": "Arc Audit: task flow and activity feed analysis",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 230654,
-    "cost_usd": 0.49156334999999995
+    "duration_ms": 210071,
+    "cost_usd": 0.50903205
   },
   "health": {
-    "uptime_seconds": 1611274,
+    "uptime_seconds": 1611484,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232037027840
+    "disk_avail_bytes": 232036933632
   }
 }
