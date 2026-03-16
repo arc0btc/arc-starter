@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T02:57:31.398Z",
+  "updated_at": "2026-03-16T02:58:50.134Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5789,
-    "subject": "Review PR #149 on aibtcdev/skills: feat(inbox): add x402-gated inbox skill (closes #146)",
+    "id": 5790,
+    "subject": "Review PR #314 on aibtcdev/aibtc-mcp-server: feat(signing): add btc_sign_message and stacks_sign_message MCP tools (closes #298)",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 108563,
+    "duration_ms": 78580,
     "cost_usd": 0
   },
   "health": {
-    "uptime_seconds": 1572350,
+    "uptime_seconds": 1572428,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231925362688
+    "disk_avail_bytes": 231925313536
   }
 }
