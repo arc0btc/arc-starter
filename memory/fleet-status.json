@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T05:33:06.961Z",
+  "updated_at": "2026-03-16T05:34:29.261Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5858,
-    "subject": "GitHub issue in aibtcdev/skills#154: Silent error suppression in Hiro API + DeFi services (catch-all returns null)",
+    "id": 5841,
+    "subject": "Generate changelog for recently merged PRs across aibtcdev repos",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 26464,
-    "cost_usd": 0.1228176
+    "duration_ms": 48236,
+    "cost_usd": 0.16477064999999996
   },
   "health": {
-    "uptime_seconds": 1581685,
+    "uptime_seconds": 1581768,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231911219200
+    "disk_avail_bytes": 231911170048
   }
 }
