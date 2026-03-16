@@ -1276,18 +1276,23 @@ async function handleFace(): Promise<Response> {
 }
 
 function handleReputation(url: URL): Response {
+  type ReviewRow = { id: number; subject: string; reviewer_address: string; reviewee_address: string; rating: number; comment: string; tags: string; created_at: string; direction: string };
+
+  const emptyResponse = {
+    reviews: [] as Array<ReviewRow & { tags: string[] }>,
+    total: 0,
+    submitted_total: 0,
+    received_total: 0,
+    avg_rating: null as number | null,
+    btc_address: IDENTITY.btc,
+    stx_address: IDENTITY.stx,
+  };
+
   try {
     // Check if reviews table exists (created by arc-reputation skill on first use)
     const tableExists = db.query(
       "SELECT name FROM sqlite_master WHERE type='table' AND name='reviews'"
     ).get() as { name: string } | null;
-
-    const emptyResponse = {
-      submitted: { count: 0, total: 0, reviews: [] },
-      received: { count: 0, total: 0, avg_rating: null, reviews: [] },
-      btc_address: IDENTITY.btc,
-      stx_address: IDENTITY.stx,
-    };
 
     if (!tableExists) return json(emptyResponse);
 
@@ -1299,72 +1304,78 @@ function handleReputation(url: URL): Response {
 
     const arc_btc = IDENTITY.btc;
 
-    type ReviewRow = { id: number; subject: string; reviewer_address: string; reviewee_address: string; rating: number; comment: string; tags: string; created_at: string };
+    // Build unified query with direction labels
+    const parts: string[] = [];
+    const countParts: string[] = [];
+    const queryParams: (string | number)[] = [];
+    const countParams: string[] = [];
 
-    // Submitted reviews
-    let submittedTotal = 0;
-    let submittedReviews: ReviewRow[] = [];
     if (typeFilter === "all" || typeFilter === "submitted") {
-      const whereClause = agentFilter
-        ? "WHERE reviewer_address = ? AND reviewee_address = ?"
-        : "WHERE reviewer_address = ?";
-      const params = agentFilter ? [arc_btc, agentFilter] : [arc_btc];
-
-      submittedTotal = (db.query(
-        `SELECT COUNT(*) as count FROM reviews ${whereClause}`
-      ).get(...params) as { count: number }).count;
-
-      submittedReviews = db.query(
-        `SELECT id, subject, reviewer_address, reviewee_address, rating, comment, tags, created_at FROM reviews ${whereClause} ORDER BY created_at DESC LIMIT ? OFFSET ?`
-      ).all(...params, limit, offset) as ReviewRow[];
+      const agentCond = agentFilter ? " AND reviewee_address = ?" : "";
+      parts.push(`SELECT id, subject, reviewer_address, reviewee_address, rating, comment, tags, created_at, 'submitted' as direction FROM reviews WHERE reviewer_address = ?${agentCond}`);
+      countParts.push(`SELECT COUNT(*) as c FROM reviews WHERE reviewer_address = ?${agentCond}`);
+      queryParams.push(arc_btc);
+      countParams.push(arc_btc);
+      if (agentFilter) { queryParams.push(agentFilter); countParams.push(agentFilter); }
     }
 
-    // Received reviews
+    if (typeFilter === "all" || typeFilter === "received") {
+      const agentCond = agentFilter ? " AND reviewer_address = ?" : "";
+      parts.push(`SELECT id, subject, reviewer_address, reviewee_address, rating, comment, tags, created_at, 'received' as direction FROM reviews WHERE reviewee_address = ?${agentCond}`);
+      countParts.push(`SELECT COUNT(*) as c FROM reviews WHERE reviewee_address = ?${agentCond}`);
+      queryParams.push(arc_btc);
+      countParams.push(arc_btc);
+      if (agentFilter) { queryParams.push(agentFilter); countParams.push(agentFilter); }
+    }
+
+    if (parts.length === 0) return json(emptyResponse);
+
+    // Paginated unified query
+    const unionSql = parts.join(" UNION ALL ") + " ORDER BY created_at DESC LIMIT ? OFFSET ?";
+    const reviews = db.query(unionSql).all(...queryParams, limit, offset) as ReviewRow[];
+
+    // Totals per direction (for metrics + pagination)
+    let total = 0;
+    let submittedTotal = 0;
     let receivedTotal = 0;
-    let receivedReviews: ReviewRow[] = [];
+    for (let i = 0; i < countParts.length; i++) {
+      // Each countPart corresponds to either submitted or received
+      const paramSlice = agentFilter
+        ? countParams.slice(i * 2, i * 2 + 2)
+        : [countParams[i]];
+      const c = (db.query(countParts[i]).get(...paramSlice) as { c: number }).c;
+      total += c;
+      if (countParts[i].includes("reviewer_address = ?") && !countParts[i].includes("reviewee_address = ?")) {
+        submittedTotal = c;
+      } else {
+        receivedTotal = c;
+      }
+    }
+
+    // Avg rating for received reviews
     let receivedAvg: number | null = null;
     if (typeFilter === "all" || typeFilter === "received") {
-      const whereClause = agentFilter
+      const avgWhere = agentFilter
         ? "WHERE reviewee_address = ? AND reviewer_address = ?"
         : "WHERE reviewee_address = ?";
-      const params = agentFilter ? [arc_btc, agentFilter] : [arc_btc];
-
-      receivedTotal = (db.query(
-        `SELECT COUNT(*) as count FROM reviews ${whereClause}`
-      ).get(...params) as { count: number }).count;
-
-      receivedReviews = db.query(
-        `SELECT id, subject, reviewer_address, reviewee_address, rating, comment, tags, created_at FROM reviews ${whereClause} ORDER BY created_at DESC LIMIT ? OFFSET ?`
-      ).all(...params, limit, offset) as ReviewRow[];
-
+      const avgParams = agentFilter ? [arc_btc, agentFilter] : [arc_btc];
       const avgResult = db.query(
-        `SELECT AVG(rating) as avg FROM reviews ${whereClause}`
-      ).get(...params) as { avg: number | null };
+        `SELECT AVG(rating) as avg FROM reviews ${avgWhere}`
+      ).get(...avgParams) as { avg: number | null };
       receivedAvg = avgResult.avg !== null ? Math.round(avgResult.avg * 100) / 100 : null;
     }
 
     return json({
-      submitted: {
-        count: submittedReviews.length,
-        total: submittedTotal,
-        reviews: submittedReviews.map(r => ({ ...r, tags: JSON.parse(r.tags) as string[] })),
-      },
-      received: {
-        count: receivedReviews.length,
-        total: receivedTotal,
-        avg_rating: receivedAvg,
-        reviews: receivedReviews.map(r => ({ ...r, tags: JSON.parse(r.tags) as string[] })),
-      },
+      reviews: reviews.map(r => ({ ...r, tags: JSON.parse(r.tags) as string[] })),
+      total,
+      submitted_total: submittedTotal,
+      received_total: receivedTotal,
+      avg_rating: receivedAvg,
       btc_address: IDENTITY.btc,
       stx_address: IDENTITY.stx,
     });
   } catch {
-    return json({
-      submitted: { count: 0, total: 0, reviews: [] },
-      received: { count: 0, total: 0, avg_rating: null, reviews: [] },
-      btc_address: IDENTITY.btc,
-      stx_address: IDENTITY.stx,
-    });
+    return json(emptyResponse);
   }
 }
 

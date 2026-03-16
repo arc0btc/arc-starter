@@ -146,9 +146,6 @@
     var repState = { type: 'all', agent: '', limit: 10, offset: 0 };
 
     function renderReputationMetrics(data) {
-      var submitted = data.submitted || { total: 0 };
-      var received = data.received || { total: 0, avg_rating: null };
-
       var stxExplorer = 'https://explorer.hiro.so/address/' + encodeURIComponent(data.stx_address) + '?chain=mainnet';
       var btcExplorer = 'https://mempool.space/address/' + encodeURIComponent(data.btc_address);
 
@@ -156,9 +153,9 @@
       if (!metricsEl) return;
 
       metricsEl.innerHTML = '<div class="metrics-grid">'
-        + '<div class="metric-card"><div class="metric-value">' + submitted.total + '</div><div class="metric-label">Reviews Submitted</div></div>'
-        + '<div class="metric-card"><div class="metric-value">' + received.total + '</div><div class="metric-label">Reviews Received</div></div>'
-        + (received.avg_rating !== null ? '<div class="metric-card"><div class="metric-value">' + received.avg_rating.toFixed(1) + '/5</div><div class="metric-label">Avg Rating</div></div>' : '')
+        + '<div class="metric-card"><div class="metric-value">' + (data.submitted_total || 0) + '</div><div class="metric-label">Reviews Submitted</div></div>'
+        + '<div class="metric-card"><div class="metric-value">' + (data.received_total || 0) + '</div><div class="metric-label">Reviews Received</div></div>'
+        + (data.avg_rating !== null ? '<div class="metric-card"><div class="metric-value">' + data.avg_rating.toFixed(1) + '/5</div><div class="metric-label">Avg Rating</div></div>' : '')
         + '</div>'
         + '<div class="reputation-links">'
         + '<span style="color:var(--text-muted);font-size:0.85rem">Verify on-chain:</span>'
@@ -171,24 +168,9 @@
       var tableEl = document.getElementById('reputation-table');
       if (!tableEl) return;
 
-      var allReviews = [];
+      var reviews = data.reviews || [];
 
-      // Combine received and submitted with a direction label
-      if (data.received && data.received.reviews) {
-        data.received.reviews.forEach(function(r) {
-          allReviews.push(Object.assign({}, r, { direction: 'received', counterparty: r.reviewer_address, counterpartyLabel: 'From' }));
-        });
-      }
-      if (data.submitted && data.submitted.reviews) {
-        data.submitted.reviews.forEach(function(r) {
-          allReviews.push(Object.assign({}, r, { direction: 'submitted', counterpartyLabel: 'To', counterparty: r.reviewee_address }));
-        });
-      }
-
-      // Sort combined by date desc
-      allReviews.sort(function(a, b) { return b.created_at.localeCompare(a.created_at); });
-
-      if (allReviews.length === 0) {
+      if (reviews.length === 0) {
         tableEl.innerHTML = '<p class="placeholder" style="margin-top:var(--space-sm)">No reviews match current filters</p>';
         return;
       }
@@ -203,19 +185,19 @@
         + '<th class="rep-th-date">Date</th>'
         + '</tr></thead><tbody>';
 
-      allReviews.forEach(function(r) {
+      reviews.forEach(function(r) {
         var stars = String.fromCharCode(9733).repeat(r.rating) + String.fromCharCode(9734).repeat(5 - r.rating);
         var tags = Array.isArray(r.tags) ? r.tags.map(function(t) { return '<span class="pill pill-muted">' + esc(t) + '</span>'; }).join(' ') : '';
-        var addr = r.counterparty || '';
-        var shortAddr = addr.slice(0, 10) + (addr.length > 10 ? '...' : '');
-        var addrNetwork = addr.startsWith('SP') || addr.startsWith('ST') ? 'L2' : 'L1';
+        var counterparty = r.direction === 'received' ? r.reviewer_address : r.reviewee_address;
+        var shortAddr = counterparty.slice(0, 10) + (counterparty.length > 10 ? '...' : '');
+        var addrNetwork = counterparty.startsWith('SP') || counterparty.startsWith('ST') ? 'L2' : 'L1';
         var dirClass = r.direction === 'received' ? 'rep-dir-received' : 'rep-dir-submitted';
 
         html += '<tr>'
           + '<td><span class="rep-direction ' + dirClass + '">' + (r.direction === 'received' ? 'Received' : 'Submitted') + '</span></td>'
           + '<td class="reputation-stars">' + stars + '</td>'
           + '<td class="rep-subject-cell">' + esc(r.subject) + '</td>'
-          + '<td class="rep-agent-cell" title="' + escAttr(addr) + '"><span class="rep-agent-network">' + addrNetwork + '</span> ' + esc(shortAddr) + '</td>'
+          + '<td class="rep-agent-cell" title="' + escAttr(counterparty) + '"><span class="rep-agent-network">' + addrNetwork + '</span> ' + esc(shortAddr) + '</td>'
           + '<td class="rep-tags-cell">' + (tags || '<span class="text-muted">--</span>') + '</td>'
           + '<td class="rep-date-cell">' + relativeTime(r.created_at) + '</td>'
           + '</tr>';
@@ -224,7 +206,7 @@
       html += '</tbody></table>';
 
       // Pagination
-      var totalItems = Math.max(data.submitted.total, data.received.total);
+      var totalItems = data.total || 0;
       if (totalItems > repState.limit) {
         var currentPage = Math.floor(repState.offset / repState.limit) + 1;
         var totalPages = Math.ceil(totalItems / repState.limit);
@@ -270,15 +252,11 @@
       }
 
       if (agentInput) {
-        var debounceTimer;
-        agentInput.oninput = function() {
-          clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(function() {
-            repState.agent = agentInput.value.trim();
-            repState.offset = 0;
-            loadReputation();
-          }, 400);
-        };
+        agentInput.oninput = debounce(function() {
+          repState.agent = agentInput.value.trim();
+          repState.offset = 0;
+          loadReputation();
+        }, 400);
       }
     }
 
