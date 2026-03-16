@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T18:45:19.046Z",
+  "updated_at": "2026-03-16T18:48:21.771Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6004,
-    "subject": "[re: #5984] This is incorrect token manually verified with all worker privileges and used for deployment of all Arc services already (arc0btc.com, arc0.me). Must be a different issue.",
+    "id": 6005,
+    "subject": "Wire contact interaction log: reputation reviews, x402 sensor, agent-hub write-back",
     "status": "completed",
-    "priority": 1
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 169998,
-    "cost_usd": 0.83786595
+    "duration_ms": 182402,
+    "cost_usd": 1.4340670000000004
   },
   "health": {
-    "uptime_seconds": 1629217,
+    "uptime_seconds": 1629400,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232032468992
+    "disk_avail_bytes": 232032321536
   }
 }
