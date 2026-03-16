@@ -3,6 +3,10 @@
 // Importable by other skills for agent lookup and routing.
 
 import { initDatabase, getDatabase, toSqliteDatetime } from "../../src/db";
+import {
+  getContactByNameAndType,
+  insertContactInteraction,
+} from "../contacts/schema.ts";
 
 // ---- Types ----
 
@@ -292,7 +296,25 @@ export function insertTaskRoute(taskId: number, fromAgent: string, toAgent: stri
   const result = db.query(
     "INSERT INTO hub_task_routes (task_id, from_agent, to_agent, skill_match, reason, routed_at) VALUES (?, ?, ?, ?, ?, ?)"
   ).run(taskId, fromAgent, toAgent, skillMatch, reason, now);
-  return Number(result.lastInsertRowid);
+  const routeId = Number(result.lastInsertRowid);
+
+  // Log interaction to contact system for the target agent
+  try {
+    const contact = getContactByNameAndType(toAgent, "agent");
+    if (contact) {
+      const skillInfo = skillMatch ? ` (skill: ${skillMatch})` : "";
+      insertContactInteraction({
+        contact_id: contact.id,
+        task_id: taskId,
+        type: "collaboration",
+        summary: `Task routed from ${fromAgent}${skillInfo}: ${reason ?? "capability-match"}`,
+      });
+    }
+  } catch {
+    // Non-critical — don't break routing if contact logging fails
+  }
+
+  return routeId;
 }
 
 export function getRoutingStats(): { to_agent: string; route_count: number }[] {

@@ -13,6 +13,10 @@ import {
   pendingTaskExistsForSource,
 } from "../../src/sensors.ts";
 import { ARC_STX_ADDRESS } from "../../src/identity.ts";
+import {
+  getContactByAddress,
+  insertContactInteraction,
+} from "../contacts/schema.ts";
 
 const SENSOR_NAME = "arc-payments";
 const INTERVAL_MINUTES = 3;
@@ -333,6 +337,22 @@ export default async function arcPaymentsSensor(): Promise<string> {
     });
     log(`  created task ${taskId}: ${subject}`);
     tasksCreated++;
+
+    // Log payment interaction to contact system
+    try {
+      const contact = getContactByAddress(sender, null);
+      if (contact) {
+        insertContactInteraction({
+          contact_id: contact.id,
+          task_id: taskId,
+          type: "message",
+          summary: `Payment received: ${formatAmount(payment.amount, payment.currency)} for ${serviceKey}`,
+        });
+        log(`  logged interaction for contact #${contact.id}`);
+      }
+    } catch (e) {
+      log(`  warn: failed to log contact interaction: ${e}`);
+    }
   }
 
   // Persist the highest block we've seen

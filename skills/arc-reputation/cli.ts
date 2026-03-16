@@ -15,6 +15,10 @@ import {
   getAllReviews,
   getReputationSummary,
 } from "./schema.ts";
+import {
+  getContactByAddress,
+  insertContactInteraction,
+} from "../contacts/schema.ts";
 
 const SIGN_RUNNER = resolve(import.meta.dir, "../bitcoin-wallet/sign-runner.ts");
 const SIGNING_SCRIPT_DIR = resolve(import.meta.dir, "../../github/aibtcdev/skills");
@@ -216,6 +220,21 @@ async function cmdGiveFeedback(args: string[]): Promise<void> {
     signature: finalSignResult.signatureBase64,
     message_hash: messageHash,
   });
+
+  // Log interaction to contact system
+  try {
+    const contact = getContactByAddress(null, payload.reviewee_address);
+    if (contact) {
+      insertContactInteraction({
+        contact_id: contact.id,
+        type: "collaboration",
+        summary: `Reputation review submitted: ${payload.rating}/5 — ${payload.subject}`,
+      });
+      log(`logged interaction for contact #${contact.id}`);
+    }
+  } catch (e) {
+    log(`warn: failed to log contact interaction: ${e}`);
+  }
 
   console.log(JSON.stringify({
     success: true,
