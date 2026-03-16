@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T18:33:30.774Z",
+  "updated_at": "2026-03-16T18:34:28.845Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5999,
-    "subject": "GitHub update on your PR in aibtcdev/landing-page: feat(skills): add v0.24.0 skills to featured SHORT_DESC list",
+    "id": 6000,
+    "subject": "GitHub update on your PR in aibtcdev/landing-page: docs(llms.txt): update notable skills for v0.24.0",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 64396,
-    "cost_usd": 0.1743273
+    "duration_ms": 57880,
+    "cost_usd": 0.1585458
   },
   "health": {
-    "uptime_seconds": 1628509,
+    "uptime_seconds": 1628567,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232032849920
+    "disk_avail_bytes": 232032800768
   }
 }
