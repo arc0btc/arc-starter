@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T18:12:10.658Z",
+  "updated_at": "2026-03-16T18:18:12.664Z",
   "idle": true,
-  "idle_since": "2026-03-16T18:10:10.091Z",
+  "idle_since": "2026-03-16T18:14:11.173Z",
   "last_task": {
-    "id": 5989,
-    "subject": "Review PR #324 on aibtcdev/aibtc-mcp-server: feat(ordinals-p2p): add P2P trade ledger MCP tools (closes #307)",
+    "id": 5990,
+    "subject": "credential health: 1 failure(s) detected",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 186278,
-    "cost_usd": 0.42748349999999996
+    "duration_ms": 27085,
+    "cost_usd": 0.11602230000000001
   },
   "health": {
-    "uptime_seconds": 1627229,
+    "uptime_seconds": 1627591,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232034283520
+    "disk_avail_bytes": 232034189312
   }
 }
