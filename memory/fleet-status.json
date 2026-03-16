@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T13:58:28.494Z",
+  "updated_at": "2026-03-16T13:58:41.712Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5915,
-    "subject": "Arc Audit: claude-knowledge repo skill refinement opportunities",
-    "status": "pending",
-    "priority": 5
+    "id": 5951,
+    "subject": "health alert: stale dispatch lock detected",
+    "status": "completed",
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 8595,
-    "cost_usd": 0
+    "duration_ms": 48513,
+    "cost_usd": 0.06440195000000001
   },
   "health": {
-    "uptime_seconds": 1612007,
+    "uptime_seconds": 1612020,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232036696064
+    "disk_avail_bytes": 232036687872
   }
 }
