@@ -117,7 +117,11 @@ Use `--approve` when the PR looks good. Use `--request-changes` only for actual 
 
 ### 6. After Our Review
 
-whoabuddy runs Copilot review and either asks for fixes or merges. We never merge — that's not our role. If changes are requested after our approval, we review again when updated.
+**Managed repos** (arc0btc): If approved and CI passes, the `github-pr-review` workflow auto-advances to `merging` and creates a merge task. We handle the full lifecycle.
+
+**Collaborative repos** (aibtcdev): whoabuddy runs Copilot review and either asks for fixes or merges. We never merge collaborative repos. The workflow transitions to `merge-blocked` and waits for whoabuddy's approval signal.
+
+If changes are requested after our approval, the workflow returns to `reviewing` with an incremented `reviewRound` — we re-review only the new commits (delta review).
 
 ---
 
@@ -183,7 +187,7 @@ arc skills run --name wallet -- send-inbox-message --to "Topaz Centaur" --messag
 
 ## Safety Rules
 
-- **Never merge PRs.** We review only. whoabuddy handles merges.
+- **Never merge collaborative (aibtcdev) PRs.** whoabuddy handles those merges. Managed (arc0btc) repos can be merged via the `github-pr-review` workflow when CI passes.
 - **Never push to aibtcdev repos.** We create PRs from forks if contributing code.
 - **Never dismiss other reviewers.** Our review adds signal, doesn't override.
 - **Don't review our own PRs.** If we authored a PR, skip the review task.
@@ -197,7 +201,105 @@ arc skills run --name wallet -- send-inbox-message --to "Topaz Centaur" --messag
 - PR already merged/closed: mark task completed with note, no review needed
 - Repo not accessible: report failed, don't retry
 
-## Task Completion
+## Workflow-Aware Task Completion
+
+Tasks created by the `github-issue-triage` or `github-pr-review` state machines **must** transition the workflow after completing their work. The meta-sensor creates the next task only after the transition lands.
+
+### Step 1: Find the Workflow ID
+
+The task source field contains the workflow ID. Extract it:
+- Source format: `workflow:<id>` (e.g., `workflow:42`)
+- If no `workflow:` source, skip workflow transition — this is a manually created task.
+
+Look up the workflow to confirm its current state:
+```bash
+arc skills run --name arc-workflows -- show <workflow_id>
+```
+
+### Step 2: Do the Work
+
+Complete the task's actual work (review, triage, merge, etc.) using the instructions above.
+
+### Step 3: Transition the Workflow
+
+After the work is done, transition the workflow to its next state with updated context.
+
+#### Issue Triage Transitions
+
+| Current State | Next State | Context to Add |
+|---------------|------------|----------------|
+| `searching` | `assessed` | `relatedIssues`, `relatedPRs` (arrays of `"owner/repo#N"` strings) |
+| `assessed` | `tagged` | `ciStatus` ("passing"/"failing"/"none"), `severity` ("critical"/"moderate"/"low") |
+| `tagged` | `advised` | `labels` (array of applied label names) |
+| `advised` | `closed` | `triageNote` (summary of advice posted) |
+| Any state | `escalated` | Reason for escalation in `triageNote` |
+
+```bash
+# Example: searching → assessed
+arc skills run --name arc-workflows -- transition <workflow_id> assessed \
+  --context '{"relatedIssues":["aibtcdev/skills#45"],"relatedPRs":["aibtcdev/skills#47"],"ciStatus":"passing"}'
+```
+
+#### PR Review Transitions
+
+| Current State | Next State | Context to Add |
+|---------------|------------|----------------|
+| `reviewing` | `simplifying` | `filesChanged` (array of changed file paths) |
+| `reviewing` | `changes-requested` | `reviewDecision`: "request-changes", `reviewRound` (increment) |
+| `simplifying` | `advising` | `simplifyRan`: true |
+| `simplifying` | `changes-requested` | `reviewDecision`: "request-changes" |
+| `advising` | `ready` | `reviewPosted`: true, `reviewDecision`: "approve" |
+| `advising` | `changes-requested` | `reviewPosted`: true, `reviewDecision`: "request-changes" |
+| `merging` | `merged` | `mergeMethod` ("squash"/"merge"/"rebase") |
+| `merging` | `closed` | Reason merge failed |
+| Any state | `closed` | PR was closed externally |
+
+```bash
+# Example: reviewing → simplifying (review done, ready for simplify pass)
+arc skills run --name arc-workflows -- transition <workflow_id> simplifying \
+  --context '{"filesChanged":["src/payments.ts","src/queue.ts"]}'
+
+# Example: advising → ready (review posted, approved)
+arc skills run --name arc-workflows -- transition <workflow_id> ready \
+  --context '{"reviewPosted":true,"reviewDecision":"approve"}'
+
+# Example: merging → merged
+arc skills run --name arc-workflows -- transition <workflow_id> merged \
+  --context '{"mergeMethod":"squash"}'
+```
+
+#### orgTier-Aware Decisions
+
+Check the workflow context for `orgTier` before deciding review actions:
+
+- **managed** (arc0btc repos): Use `--approve` or `--request-changes`. Auto-merge when CI passes.
+- **collaborative** (aibtcdev repos): Use `--comment` only. Never approve/reject. Transition to `merge-blocked` (not `merging`) from `ready` state.
+
+```bash
+# Collaborative repo: advising → ready, then ready auto-transitions to merge-blocked
+arc skills run --name arc-workflows -- transition <workflow_id> ready \
+  --context '{"reviewPosted":true,"reviewDecision":"approve","requireApproval":true}'
+```
+
+### Step 4: Close the Task
+
+```bash
+arc tasks close --id <id> --status completed --summary "reviewed PR #N on repo — approved. Workflow <id> → simplifying"
+arc tasks close --id <id> --status completed --summary "triaged issue #N on repo, assessed severity=moderate. Workflow <id> → tagged"
+arc tasks close --id <id> --status completed --summary "merged PR #N on repo via squash. Workflow <id> → merged"
+```
+
+Always include the workflow transition in the summary so the audit trail is clear.
+
+### If the Workflow Transition Fails
+
+- If the transition is invalid (wrong source state), check `arc skills run --name arc-workflows -- allowed-transitions <workflow_id>` and use an allowed target.
+- If the workflow doesn't exist (deleted or completed), just close the task normally — the work is still done.
+- Never create a new workflow to replace a missing one. The sensor handles workflow creation.
+
+### Non-Workflow Tasks
+
+If the task source does NOT contain `workflow:`, skip Steps 1 and 3. Just do the work and close the task:
 
 ```bash
 arc tasks close --id <id> --status completed --summary "reviewed PR #N on repo — approved/requested changes"
