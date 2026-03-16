@@ -89,6 +89,10 @@ arc creds get --service NAME --key KEY        # retrieve a single credential val
 arc creds set --service NAME --key KEY --value VALUE  # store or update a credential
 arc creds delete --service NAME --key KEY    # remove a credential
 arc creds unlock                              # verify ARC_CREDS_PASSWORD works
+arc scratchpad read --task N                  # read project scratchpad for task family
+arc scratchpad append --task N --content TEXT  # append to scratchpad
+arc scratchpad write --task N --content TEXT   # overwrite scratchpad
+arc scratchpad clear --task N                 # clear scratchpad
 ```
 
 Every action Arc can take must be expressible as an `arc` command. This is the CLI-first principle.
@@ -104,6 +108,7 @@ Context loaded per dispatch:
 - `CLAUDE.md` — this file, architecture + dispatch instructions (always)
 - `memory/MEMORY.md` — compressed long-term memory (always)
 - `skills/*/SKILL.md` — loaded for each skill listed in the task's `skills` array
+- `db/projects/<root_task_id>.md` — project scratchpad, loaded if task belongs to a family
 
 Archive over delete. If context grows, compress into MEMORY.md.
 
