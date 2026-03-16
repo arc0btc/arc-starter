@@ -1,3 +1,33 @@
+## 2026-03-16T07:00:00.000Z
+
+3 findings: 0 error, 0 warn, 3 info → **HEALTHY**
+
+**Codebase changes since last audit (18:49Z 2026-03-13, commits 1f20f98 → b6d343b):**
+- **Memory Architecture V2** (3 commits: 035558d → d20983c): Three-phase implementation of structured memory.
+  - Phase 1: Topical file split — `memory/topics/*.md` (fleet, incidents, cost, integrations, defi, publishing, identity, infrastructure). `resolveMemoryContext()` in `src/memory-topics.ts` maps task skills → topic files. Only relevant topics loaded per dispatch, not full MEMORY.md.
+  - Phase 2: `arc_memory` FTS5 table added to `src/db.ts` — key/value/domain/importance/TTL structured store. `arc memory search` and `arc memory add` CLI commands added. Retrospective tasks now instructed to also call `arc memory add` for reusable patterns.
+  - Phase 3: Wired into dispatch via `resolveFtsMemoryContext()` — injects top-10 importance>=3 FTS entries from relevant domains into every prompt. Phase 3b: FTS CLI `--syntax` flag documenting FTS5 query syntax added.
+- **`arc-memory-expiry` skill added** (12348cf): New sensor (1440min) — deletes TTL-expired `arc_memory` entries daily. No task creation; runs inline.
+- **`arc-operational-review` skill added**: Self-audit sensor (6h) — surfaces failed tasks with no follow-up, stale blocked tasks, overdue scheduled tasks. Has CLI.
+- **`src/dispatch-gate.ts` + `src/services.ts`** (2459747): Auto-persist on Stop — service shutdown now writes final state before exit.
+- **`skills/worker-logs-monitor/cli.ts`** (0ca2243): Parse `/apps` response via `.data` field — API response structure fix.
+
+**5-Step Review (2026-03-16T07:00Z):**
+
+**Step 1 — Requirements:** INFO — Memory V2 requirement is well-founded: full MEMORY.md (1600+ lines in MEMORY.md context notes) loaded every dispatch was burning tokens on irrelevant domain context. Topical split + FTS is an appropriate solution to a real problem. `arc-memory-expiry` sensor requirement is valid — FTS entries need TTL enforcement or the table grows unbounded.
+
+**Step 2 — Delete:** INFO — `arc-mcp` and `arc-mcp-server` now coexist as separate skill directories. If they serve identical purposes, one should be deleted. Investigate whether both are actively used or if one is a superseded version. Marking as needs-investigation.
+
+**Step 3 — Simplify:** INFO — `SKILL_TOPIC_MAP` in `src/memory-topics.ts` is a manual maintenance burden — any new skill that touches a domain requires a manual map update. The current fallback (load fleet+incidents default) is reasonable. Consider: could the skill SKILL.md frontmatter declare its domain? That would eliminate the manual map entirely. Not critical now, but the pattern will cause map drift as skills multiply.
+
+**Step 4 — Accelerate:** No bottlenecks introduced. Memory loading is synchronous file reads + one SQLite query — minimal overhead.
+
+**Step 5 — Automate:** Memory V2 was itself an automation step — replacing ad-hoc memory management with FTS + TTL. No additional automation opportunities identified at this time.
+
+**Architecture Assessment:** Healthy. Memory V2 is a meaningful improvement to context efficiency. Two new skills (arc-memory-expiry, arc-operational-review) are correctly scoped. One needs-investigation item: arc-mcp vs arc-mcp-server duplication.
+
+---
+
 ## 2026-03-13T18:49:00.000Z
 
 4 findings: 0 error, 1 warn, 3 info → **WARN**

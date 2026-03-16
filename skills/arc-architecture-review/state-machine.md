@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-13T18:49:00.000Z*
+*Generated: 2026-03-16T07:00:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -119,9 +119,11 @@ stateDiagram-v2
         RunAllSensors --> aibtcWelcomeSensor: aibtc-welcome
         RunAllSensors --> mempoolWatchSensor: mempool-watch
         RunAllSensors --> dealFlowSensor: aibtc-news-deal-flow
+        RunAllSensors --> arcMemoryExpirySensor: arc-memory-expiry
+        RunAllSensors --> arcOperationalReviewSensor: arc-operational-review
 
         note right of RunAllSensors
-            75 sensors total (stable since 2026-03-13T06Z)
+            77 sensors total (2026-03-16)
             aibtc-news-deal-flow (60min) — 5 hooks: Ordinals volume, sats auctions,
               x402 escrow, bounty activity (gated on config), DAO treasury (gated on config)
               APIs: Unisat (api_key cred) + Stacks Extended API
@@ -376,9 +378,17 @@ stateDiagram-v2
             [*] --> SelectSDK: task.model prefix (codex:* = Codex, else = Claude/OpenRouter)
             SelectSDK --> SelectModel: sdk resolved
             SelectModel --> LoadCore: explicit model wins; else P1-4→opus, P5-7→sonnet, P8+→haiku
-            LoadCore --> LoadSkills: SOUL.md + CLAUDE.md + MEMORY.md
+            LoadCore --> LoadMemory: SOUL.md + CLAUDE.md
+            LoadMemory --> LoadSkills: MEMORY.md (slim index) + topics/*.md + FTS arc_memory entries
             LoadSkills --> LoadSkillMd: task.skills JSON array
             LoadSkillMd --> AssemblePrompt: SKILL.md content
+            note right of LoadMemory
+                Memory V2 (2026-03-15): resolveMemoryContext() + resolveFtsMemoryContext()
+                MEMORY.md = slim index (always)
+                memory/topics/*.md = skill-mapped topic files (fleet, incidents, cost, etc.)
+                arc_memory FTS5 = high-importance structured entries (importance>=3)
+                Default topics: [fleet, incidents] when no skill mapping exists
+            end note
             note right of LoadSkillMd: Only SKILL.md loaded\nAGENT.md stays for subagents
             note right of SelectModel: Priority = urgency\nModel = work complexity\nOrthogonal since 2026-03-04
             note right of SelectSDK
@@ -486,7 +496,7 @@ stateDiagram-v2
 | 4b | Model routing | task.model (explicit) or task.priority | Explicit wins; else P1-4->opus, P5-7->sonnet, P8+->haiku |
 | 4c | Backend selection | OPENROUTER_API_KEY env var | codex > openrouter > claude-code |
 | 5 | Skill loading | `task.skills` JSON array | SKILL.md existence |
-| 6 | Prompt assembly | SOUL + CLAUDE + MEMORY + skills | Token budget ~40-50k |
+| 6 | Prompt assembly | SOUL + CLAUDE + Memory V2 + skills | MEMORY.md (index) + topics/*.md (skill-mapped) + FTS arc_memory (importance>=3, top 10); token budget ~40-50k |
 | 7 | LLM execution | Full prompt + CLI access | `arc` commands only |
 | 7a | Timeout watchdog | Haiku: 5min, Sonnet: 15min, Opus: 30min (Opus overnight 00-08: 90min) | SIGTERM -> SIGKILL (+10s); subprocess_timeout = no retry |
 | 8 | Result handling | Task status check post-run | Self-close vs fallback |
@@ -518,7 +528,7 @@ stateDiagram-v2
 | psbt-escalation | pending→escalated→approved→signing→broadcast→completed | bitcoin-wallet | PsbtEscalationMachine — PSBT sign request → whoabuddy approval gate → sign/broadcast |
 | skill-maintenance | triggered→auditing→fix_pending→fixing→no_action/completed | arc-email-sync | SkillMaintenanceMachine — email signal → audit → targeted fix; instance_key: skill-maintenance-{skill}-{YYYY-MM-DD} |
 
-## Skills Inventory (101 total)
+## Skills Inventory (103 total)
 
 | Skill | Sensor | CLI | Agent | Description |
 |-------|--------|-----|-------|-------------|
@@ -550,8 +560,11 @@ stateDiagram-v2
 | arc-housekeeping | yes | yes | yes | Repo hygiene — locks, WAL size, memory bloat, archival, stale worktrees |
 | arc-introspection | yes | - | - | Daily qualitative self-assessment — synthesizes 24h into reflection task (P5, 1440min) |
 | arc-link-research | - | yes | yes | Process batches of links into research reports |
+| arc-mcp | - | yes | - | Local MCP HTTP server exposing task queue and skill tree |
 | arc-mcp-server | - | yes | - | MCP server exposing task queue, skills, memory |
+| arc-memory-expiry | yes | - | - | Daily cleanup of TTL-expired arc_memory FTS5 entries (1440min) |
 | arc-observatory | - | - | - | Observatory UI service (systemd) — Bitcoin Faces, live agent visualization |
+| arc-operational-review | yes | yes | - | Self-audit sensor (6h) — surfaces failed tasks with no follow-up, stale blocked tasks, overdue scheduled tasks |
 | arc-ops-review | yes | - | - | Ops review sensor (4h) — creation vs completion rate, backlog trend, fleet utilization, cost efficiency |
 | arc-performance-analytics | - | yes | - | Cost/token analytics by model tier, skill, and time period |
 | arc-remote-setup | - | yes | - | SSH-based VM provisioning for agent fleet (spark/iris/loom/forge) — 8 idempotent steps |
