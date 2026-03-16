@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T20:20:30.294Z",
+  "updated_at": "2026-03-16T20:22:42.231Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6030,
-    "subject": "Review PR #327 on aibtcdev/aibtc-mcp-server: feat(jingswap): add blind batch auction tools for STX/sBTC",
+    "id": 6065,
+    "subject": "GitHub review request in aibtcdev/aibtc-mcp-server: fix(fees): lower contract_call ceiling to 50k uSTX and apply clamping on all write paths",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 163730,
-    "cost_usd": 0.3192939
+    "duration_ms": 131756,
+    "cost_usd": 0.3044619
   },
   "health": {
-    "uptime_seconds": 1634929,
+    "uptime_seconds": 1635061,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231986597888
+    "disk_avail_bytes": 231986229248
   }
 }
