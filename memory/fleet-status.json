@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T03:35:59.486Z",
+  "updated_at": "2026-03-16T03:37:30.223Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5787,
-    "subject": "Daily failure retrospective: 64 failed task(s)",
+    "id": 5814,
+    "subject": "Fix CLI flag construction bug in PR review dispatch invocations",
     "status": "completed",
-    "priority": 7
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 69221,
-    "cost_usd": 0.21471989999999996
+    "duration_ms": 90589,
+    "cost_usd": 0.38874739999999997
   },
   "health": {
-    "uptime_seconds": 1574658,
+    "uptime_seconds": 1574749,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231922798592
+    "disk_avail_bytes": 231922724864
   }
 }
