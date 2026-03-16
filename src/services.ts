@@ -150,6 +150,25 @@ WantedBy=timers.target
 `;
 }
 
+function generateWatchdogServiceUnit(): string {
+  const bun = bunPath();
+  const envFile = join(ROOT, ".env");
+  const envLine = existsSync(envFile) ? `EnvironmentFile=${envFile}\n` : "";
+  return `[Unit]
+Description=Arc External Dispatch Watchdog
+After=network.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=${ROOT}
+ExecStart=${bun} src/external-watchdog.ts
+Environment="HOME=${HOME}"
+Environment="PATH=/usr/local/bin:/usr/bin:/bin:${HOME}/.bun/bin:${HOME}/.local/bin"
+${envLine}StandardOutput=journal
+StandardError=journal
+`;
+}
+
 const SYSTEMD_UNITS: Array<{ name: string; content: () => string }> = [
   { name: "arc-sensors.service", content: () => generateServiceUnit("sensors", "arc-agent sensors runner") },
   { name: "arc-sensors.timer", content: () => generateTimerUnit("arc-agent sensors timer — fires every 1 minute", "1min", "1min") },
@@ -158,6 +177,8 @@ const SYSTEMD_UNITS: Array<{ name: string; content: () => string }> = [
   { name: "arc-web.service", content: () => generateWebServiceUnit() },
   { name: "arc-mcp.service", content: () => generateMcpServiceUnit() },
   { name: "arc-observatory.service", content: () => generateObservatoryServiceUnit() },
+  { name: "arc-watchdog.service", content: () => generateWatchdogServiceUnit() },
+  { name: "arc-watchdog.timer", content: () => generateTimerUnit("Arc external dispatch watchdog — fires every 15 minutes", "5min", "15min") },
 ];
 
 function systemdInstall(): void {
@@ -180,7 +201,8 @@ function systemdInstall(): void {
   run("systemctl", ["--user", "enable", "--now", "arc-web.service"]);
   run("systemctl", ["--user", "enable", "--now", "arc-mcp.service"]);
   run("systemctl", ["--user", "enable", "--now", "arc-observatory.service"]);
-  process.stdout.write("Enabled and started timers + web + MCP + observatory services\n");
+  run("systemctl", ["--user", "enable", "--now", "arc-watchdog.timer"]);
+  process.stdout.write("Enabled and started timers + web + MCP + observatory + watchdog services\n");
 }
 
 function systemdUninstall(): void {
@@ -189,11 +211,13 @@ function systemdUninstall(): void {
   run("systemctl", ["--user", "stop", "arc-web.service"], { quiet: true });
   run("systemctl", ["--user", "stop", "arc-mcp.service"], { quiet: true });
   run("systemctl", ["--user", "stop", "arc-observatory.service"], { quiet: true });
+  run("systemctl", ["--user", "stop", "arc-watchdog.timer"], { quiet: true });
   run("systemctl", ["--user", "disable", "arc-sensors.timer"], { quiet: true });
   run("systemctl", ["--user", "disable", "arc-dispatch.timer"], { quiet: true });
   run("systemctl", ["--user", "disable", "arc-web.service"], { quiet: true });
   run("systemctl", ["--user", "disable", "arc-mcp.service"], { quiet: true });
   run("systemctl", ["--user", "disable", "arc-observatory.service"], { quiet: true });
+  run("systemctl", ["--user", "disable", "arc-watchdog.timer"], { quiet: true });
 
   const dir = systemdDir();
   for (const unit of SYSTEMD_UNITS) {
@@ -242,6 +266,15 @@ function systemdStatus(): void {
     "--no-pager",
   ], { quiet: true });
   process.stdout.write(observatoryStatus || "Observatory service not found. Run: arc services install\n");
+
+  process.stdout.write("\n");
+
+  const { stdout: watchdogStatus } = run("systemctl", [
+    "--user", "status",
+    "arc-watchdog.timer",
+    "--no-pager",
+  ], { quiet: true });
+  process.stdout.write(watchdogStatus || "Watchdog timer not found. Run: arc services install\n");
 }
 
 // ---- macOS (launchd) ----
