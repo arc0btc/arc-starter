@@ -579,7 +579,7 @@ a:hover { color: var(--accent-deep); }
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  width: 48px;
+  width: 80px;
   flex-shrink: 0;
 }
 

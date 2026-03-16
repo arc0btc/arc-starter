@@ -112,6 +112,7 @@
       if (identity.website || identity.github || identity.twitter) {
         linksHtml = '<div class="identity-links">';
         if (identity.website) linksHtml += '<a href="https://' + escAttr(identity.website) + '" target="_blank" rel="noopener">' + esc(identity.website) + '</a>';
+        linksHtml += '<a href="https://arc0btc.com" target="_blank" rel="noopener">arc0btc.com</a>';
         if (identity.github) linksHtml += '<a href="https://github.com/' + escAttr(identity.github) + '" target="_blank" rel="noopener">GitHub</a>';
         if (identity.twitter) linksHtml += '<a href="https://x.com/' + escAttr(identity.twitter) + '" target="_blank" rel="noopener">@' + esc(identity.twitter) + '</a>';
         linksHtml += '</div>';
