@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T05:37:10.450Z",
+  "updated_at": "2026-03-16T05:44:20.882Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5842,
-    "subject": "Check aibtcdev/aibtc-mcp-server for integration test opportunities",
+    "id": 5862,
+    "subject": "Add integration tests to aibtcdev/aibtc-mcp-server: contracts validation + tool schema smoke test",
     "status": "completed",
-    "priority": 6
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 148932,
-    "cost_usd": 0.41640389999999994
+    "duration_ms": 430266,
+    "cost_usd": 1.3576203
   },
   "health": {
-    "uptime_seconds": 1581929,
+    "uptime_seconds": 1582359,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231911112704
+    "disk_avail_bytes": 231870664704
   }
 }
