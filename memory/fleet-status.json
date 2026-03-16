@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T20:13:43.258Z",
+  "updated_at": "2026-03-16T20:17:46.420Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6027,
-    "subject": "GitHub issue in aibtcdev/landing-page#393: idea: move x402 messages to sBTC memo field",
+    "id": 6028,
+    "subject": "GitHub issue in aibtcdev/aibtc-mcp-server#326: bug: back-to-back transactions use same nonce, second tx gets dropped",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 48882,
-    "cost_usd": 0.13165530000000003
+    "duration_ms": 231665,
+    "cost_usd": 0.30088125000000004
   },
   "health": {
-    "uptime_seconds": 1634522,
+    "uptime_seconds": 1634765,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231986745344
+    "disk_avail_bytes": 231986663424
   }
 }
