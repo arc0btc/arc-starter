@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T03:48:39.152Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-16T03:52:40.907Z",
+  "idle": true,
+  "idle_since": "2026-03-16T03:49:39.647Z",
   "last_task": {
-    "id": 5815,
-    "subject": "investigate zero cost in 2026-03-15 cost report",
+    "id": 5797,
+    "subject": "daily cost report — 2026-03-16",
     "status": "completed",
-    "priority": 6
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 246383,
-    "cost_usd": 0.6017414999999999
+    "duration_ms": 17426,
+    "cost_usd": 0.036441
   },
   "health": {
-    "uptime_seconds": 1575418,
+    "uptime_seconds": 1575659,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231922282496
+    "disk_avail_bytes": 231922196480
   }
 }
