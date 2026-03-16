@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T16:43:44.777Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-16T17:12:04.398Z",
+  "idle": true,
+  "idle_since": "2026-03-16T16:45:54.938Z",
   "last_task": {
-    "id": 5984,
-    "subject": "HUMAN: Regenerate Cloudflare API token and update credential store",
-    "status": "blocked",
-    "priority": 2
+    "id": 5983,
+    "subject": "Add HTML file attachment support to arc-email-sync send command",
+    "status": "completed",
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 16827,
-    "cost_usd": 0.1676895
+    "duration_ms": 86699,
+    "cost_usd": 0.42248699999999995
   },
   "health": {
-    "uptime_seconds": 1621923,
+    "uptime_seconds": 1623623,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232043700224
+    "disk_avail_bytes": 232034992128
   }
 }
