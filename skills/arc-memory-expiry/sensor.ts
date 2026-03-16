@@ -27,8 +27,8 @@ export default async function memoryExpirySensor(): Promise<string> {
     }
 
     return "ok";
-  } catch (err) {
-    log(`Error: ${err instanceof Error ? err.message : String(err)}`);
+  } catch (error) {
+    log(`Error: ${error instanceof Error ? error.message : String(error)}`);
     return "ok"; // Don't block other sensors on memory cleanup failure
   }
 }

@@ -1,3 +1,12 @@
+---
+name: arc-operational-review
+description: Self-audit sensor that surfaces unresolved operational issues every 6 hours
+tags:
+  - operations
+  - housekeeping
+  - monitoring
+---
+
 # arc-operational-review
 
 Self-audit sensor that runs every 6 hours to surface unresolved operational issues.
