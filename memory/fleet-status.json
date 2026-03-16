@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T02:39:08.015Z",
+  "updated_at": "2026-03-16T02:40:59.899Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5785,
-    "subject": "AIBTC thread from Graphite Elan (1 messages)",
+    "id": 5791,
+    "subject": "health alert: dispatch stale or stuck",
     "status": "completed",
     "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 114972,
+    "duration_ms": 111583,
     "cost_usd": 0
   },
   "health": {
-    "uptime_seconds": 1571246,
+    "uptime_seconds": 1571358,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231925981184
+    "disk_avail_bytes": 231925907456
   }
 }
