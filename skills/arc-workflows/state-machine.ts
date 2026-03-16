@@ -2359,6 +2359,289 @@ Steps:
 };
 
 /**
+ * GithubIssueTriageMachine — linear triage flow for GitHub issues.
+ *
+ * Replaces ad-hoc sensor→task pattern for issue handling. Supports both
+ * managed (arc0btc) and collaborative (aibtcdev) orgs via orgTier context.
+ *
+ * instance_key: "issue-triage:{owner}/{repo}#{number}"
+ */
+export const GithubIssueTriageMachine: StateMachine<{
+  owner?: string;
+  repo?: string;
+  number?: number;
+  title?: string;
+  url?: string;
+  author?: string;
+  orgTier?: "managed" | "collaborative";
+  labels?: string[];
+  relatedIssues?: string[];
+  relatedPRs?: string[];
+  ciStatus?: "passing" | "failing" | "none";
+  severity?: "critical" | "moderate" | "low";
+  triageNote?: string;
+  lastChecked?: string;
+}> = {
+  name: "github-issue-triage",
+  initialState: "detected",
+  states: {
+    detected: {
+      on: { search: "searching", escalate: "escalated" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        return { type: "transition", nextState: "searching" };
+      },
+    },
+    searching: {
+      on: { assess: "assessed", escalate: "escalated" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        return {
+          type: "create-task",
+          subject: `Search related issues for ${ctx.owner}/${ctx.repo}#${ctx.number}`,
+          priority: 7,
+          skills: ["aibtc-repo-maintenance"],
+          description: `Search for related issues and PRs across ${ctx.owner}/${ctx.repo} for issue #${ctx.number}: "${ctx.title || "(untitled)"}".
+
+Steps:
+1. Search for related issues (similar keywords, linked references)
+2. Check for existing PRs that address this issue
+3. Store findings in workflow context: relatedIssues, relatedPRs
+4. Transition workflow to 'assessed'
+5. If issue needs immediate human attention, transition to 'escalated' instead`,
+        };
+      },
+    },
+    assessed: {
+      on: { tag: "tagged", escalate: "escalated" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        return {
+          type: "create-task",
+          subject: `Assess code state for ${ctx.owner}/${ctx.repo}#${ctx.number}`,
+          priority: 7,
+          skills: ["aibtc-repo-maintenance"],
+          description: `Check code state for issue #${ctx.number} in ${ctx.owner}/${ctx.repo}: "${ctx.title || "(untitled)"}".
+
+Steps:
+1. Check recent commits on main/default branch for related changes
+2. Check CI status (passing/failing/none)
+3. Determine severity: critical (blocks users), moderate (degraded), low (enhancement)
+4. Store ciStatus and severity in workflow context
+5. Transition workflow to 'tagged'`,
+        };
+      },
+    },
+    tagged: {
+      on: { advise: "advised", escalate: "escalated" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        return {
+          type: "create-task",
+          subject: `Tag and classify ${ctx.owner}/${ctx.repo}#${ctx.number}`,
+          priority: 9,
+          skills: ["aibtc-repo-maintenance"],
+          description: `Apply labels to issue #${ctx.number} in ${ctx.owner}/${ctx.repo} based on assessment.
+
+Severity: ${ctx.severity || "unknown"}. CI: ${ctx.ciStatus || "unknown"}.
+Related issues: ${ctx.relatedIssues?.join(", ") || "none found"}.
+Related PRs: ${ctx.relatedPRs?.join(", ") || "none found"}.
+
+Apply appropriate labels via gh issue edit. Transition workflow to 'advised'.`,
+        };
+      },
+    },
+    advised: {
+      on: { close: "closed" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        const tierNote = ctx.orgTier === "collaborative"
+          ? "Post advice as a comment. Do NOT close the issue — flag for whoabuddy if stale."
+          : "Post advice as a comment. Close if stale and no activity.";
+        return {
+          type: "create-task",
+          subject: `Post triage advice on ${ctx.owner}/${ctx.repo}#${ctx.number}`,
+          priority: 6,
+          skills: ["aibtc-repo-maintenance"],
+          description: `Post repo-specific triage advice on issue #${ctx.number} in ${ctx.owner}/${ctx.repo}: "${ctx.title || "(untitled)"}".
+
+Severity: ${ctx.severity || "unknown"}. CI: ${ctx.ciStatus || "unknown"}.
+Related issues: ${ctx.relatedIssues?.join(", ") || "none"}.
+Related PRs: ${ctx.relatedPRs?.join(", ") || "none"}.
+Labels: ${ctx.labels?.join(", ") || "none applied yet"}.
+
+${tierNote}
+
+After posting, transition workflow to 'closed'.`,
+        };
+      },
+    },
+    escalated: {
+      on: {},
+      action: () => null,
+    },
+    closed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
+ * GithubPrReviewMachine — active PR review/merge driver.
+ *
+ * Creates tasks for review, /simplify, advise, and merge. Supports re-review
+ * loops via changes-requested → reviewing cycle with reviewRound tracking.
+ * The merge gate uses requireApproval to control autonomy per repo.
+ *
+ * instance_key: "pr-review:{owner}/{repo}#{number}"
+ */
+export const GithubPrReviewMachine: StateMachine<{
+  owner?: string;
+  repo?: string;
+  number?: number;
+  title?: string;
+  url?: string;
+  author?: string;
+  orgTier?: "managed" | "collaborative";
+  requireApproval?: boolean;
+  approver?: string;
+  reviewers?: string[];
+  reviewRound?: number;
+  filesChanged?: string[];
+  simplifyRan?: boolean;
+  reviewPosted?: boolean;
+  ciStatus?: "passing" | "failing" | "pending" | "none";
+  reviewDecision?: "approve" | "request-changes";
+  approvalDetected?: boolean;
+  mergeMethod?: "squash" | "merge" | "rebase";
+  lastChecked?: string;
+  closingIssues?: number[];
+}> = {
+  name: "github-pr-review",
+  initialState: "opened",
+  states: {
+    opened: {
+      on: { review: "reviewing", close: "closed" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        return { type: "transition", nextState: "reviewing" };
+      },
+    },
+    reviewing: {
+      on: { simplify: "simplifying", request_changes: "changes-requested", close: "closed" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        const round = ctx.reviewRound || 1;
+        const priority = ctx.orgTier === "managed" ? 4 : 5;
+        const deltaNote = round > 1
+          ? `This is re-review round ${round}. Focus on NEW commits only (delta review), not the full diff.`
+          : "Full diff review.";
+        return {
+          type: "create-task",
+          subject: `Review PR ${ctx.owner}/${ctx.repo}#${ctx.number}: ${ctx.title || "(untitled)"}`,
+          priority,
+          skills: ["aibtc-repo-maintenance"],
+          description: `Review PR #${ctx.number} in ${ctx.owner}/${ctx.repo} by ${ctx.author || "unknown"}.
+${deltaNote}
+
+Steps:
+1. Read the diff (gh pr diff ${ctx.number})
+2. Check for correctness, security issues, and style
+3. Store filesChanged in workflow context
+4. If changes needed: set reviewDecision="request-changes", transition to 'changes-requested'
+5. If acceptable: set reviewDecision="approve", transition to 'simplifying'
+6. If PR is abandoned/stale: transition to 'closed'`,
+        };
+      },
+    },
+    simplifying: {
+      on: { advise: "advising", request_changes: "changes-requested" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        return {
+          type: "create-task",
+          subject: `Simplify pass on ${ctx.owner}/${ctx.repo}#${ctx.number}`,
+          priority: 5,
+          skills: ["aibtc-repo-maintenance"],
+          description: `Run /simplify pass on changed files in PR #${ctx.number} (${ctx.owner}/${ctx.repo}).
+
+Files changed: ${ctx.filesChanged?.join(", ") || "check diff"}.
+
+Review changed code for reuse, quality, and efficiency. If issues found that need author action, set reviewDecision="request-changes" and transition to 'changes-requested'. Otherwise set simplifyRan=true and transition to 'advising'.`,
+        };
+      },
+    },
+    advising: {
+      on: { ready: "ready", request_changes: "changes-requested" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        const reviewAction = ctx.orgTier === "managed"
+          ? `Use gh pr review --approve or --request-changes based on reviewDecision.`
+          : `Use gh pr review --comment only. Never approve or reject for collaborative repos.`;
+        return {
+          type: "create-task",
+          subject: `Post review on ${ctx.owner}/${ctx.repo}#${ctx.number}`,
+          priority: 5,
+          skills: ["aibtc-repo-maintenance"],
+          description: `Post the review comment on PR #${ctx.number} (${ctx.owner}/${ctx.repo}).
+
+${reviewAction}
+
+After posting, set reviewPosted=true and transition to 'ready'.`,
+        };
+      },
+    },
+    "changes-requested": {
+      on: { re_review: "reviewing" },
+      action: () => null, // Sensor watches for new commits, then transitions to reviewing with reviewRound++
+    },
+    ready: {
+      on: { merge: "merging", block: "merge-blocked" },
+      action: (ctx) => {
+        if (ctx.ciStatus === "failing" || ctx.ciStatus === "pending") return null; // wait for CI
+        if (ctx.requireApproval && !ctx.approvalDetected) {
+          return { type: "transition", nextState: "merge-blocked" };
+        }
+        return { type: "transition", nextState: "merging" };
+      },
+    },
+    "merge-blocked": {
+      on: { approve: "merging" },
+      action: () => null, // Sensor watches for approver approval, then transitions to merging
+    },
+    merging: {
+      on: { merged: "merged", close: "closed" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        const method = ctx.mergeMethod || "squash";
+        return {
+          type: "create-task",
+          subject: `Merge PR ${ctx.owner}/${ctx.repo}#${ctx.number}`,
+          priority: 8,
+          skills: ["aibtc-repo-maintenance"],
+          description: `Merge PR #${ctx.number} in ${ctx.owner}/${ctx.repo} using ${method} merge.
+
+Run: gh pr merge ${ctx.number} --${method} --repo ${ctx.owner}/${ctx.repo}
+
+After merge, wait 30s, then check for release-please PR and merge if present.
+Transition workflow to 'merged'.
+If merge fails (conflicts, CI), transition to 'closed' with explanation.`,
+        };
+      },
+    },
+    merged: {
+      on: {},
+      action: () => null,
+    },
+    closed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -2392,6 +2675,8 @@ export function getTemplateByName(name: string): StateMachine | null {
     "skill-maintenance": SkillMaintenanceMachine,
     "landing-page-review": LandingPageReviewMachine,
     "cost-review": CostReviewMachine,
+    "github-issue-triage": GithubIssueTriageMachine,
+    "github-pr-review": GithubPrReviewMachine,
   };
   return templates[name] || null;
 }
