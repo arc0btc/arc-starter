@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T23:16:06.543Z",
+  "updated_at": "2026-03-16T23:17:04.799Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6133,
-    "subject": "Search related issues for aibtcdev/landing-page#266",
+    "id": 6134,
+    "subject": "Search related issues for aibtcdev/landing-page#260",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 78582,
-    "cost_usd": 0.28308705
+    "duration_ms": 58120,
+    "cost_usd": 0.20556824999999998
   },
   "health": {
-    "uptime_seconds": 1645465,
+    "uptime_seconds": 1645523,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231949832192
+    "disk_avail_bytes": 231949783040
   }
 }
