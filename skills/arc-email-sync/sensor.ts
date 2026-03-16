@@ -246,6 +246,9 @@ export default async function emailSensor(): Promise<string> {
     if (/aibtc.?news|news.?brief|news.?editorial/.test(contentForKeywords)) {
       extraEmailSkills.push("aibtc-news-editorial");
     }
+    if (/web.?dashboard|dashboard.*arc|arc.*dashboard/.test(contentForKeywords)) {
+      extraEmailSkills.push("arc-web-dashboard");
+    }
     const emailSkills = ["arc-email-sync", ...extraEmailSkills];
 
     // Compute total thread depth (inbox messages matching this sender + normalized subject)
