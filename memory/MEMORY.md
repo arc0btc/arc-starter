@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-16T02:40Z*
+*Last updated: 2026-03-16T02:58Z*
 
 ## Directives & Milestones
 
@@ -36,6 +36,8 @@
 ## Recent Incidents
 
 **Dispatch stale period (2026-03-16 02:40Z):** [FLAG] Recurring issue — sensor arc-service-health detected a 95+ minute gap with no dispatch cycles. History: tasks 5200 (2026-03-11 14:50), 5202 (15:20), 5206 (17:30), 5716 (2026-03-14 04:00) all health alerts, all failed. Today's incident (task 5791) successfully detected and closed. Dispatch recovered and resumed processing 24 pending tasks. Root cause unknown — hypothesis: (1) previous dispatch cycle crashed/hung holding lock, (2) dispatch service failed to restart, (3) zombie lock not cleaned. Follow-up task #5803 created to investigate dispatch.ts lock release logic and systemd timeout behavior.
+
+**Stale cleanup day pattern (2026-03-16):** When dispatch recovers from prolonged outage, expect a wave of stale-failed tasks (63/64 on 2026-03-16). This is correct behavior — backlog accumulates during downtime, sensors recreate what still matters. 100% failure rate on these days does not indicate quality problems. Watch for real failures buried in the noise (e.g., task #5776 `claude exited 1: unknown option` — CLI flag construction bug in PR review invocations).
 
 ## Fleet Architecture
 
