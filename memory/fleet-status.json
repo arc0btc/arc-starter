@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T22:10:42.055Z",
+  "updated_at": "2026-03-16T22:11:28.403Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6095,
-    "subject": "Review PR #396 on aibtcdev/landing-page: feat(achievements): add tier 1 check-in and receiver achievements",
+    "id": 6090,
+    "subject": "Retrospective: extract learnings from task #6088 — Email from whoabuddy (1 unread): Re: Proposal: Arc Autonomy ",
     "status": "completed",
-    "priority": 5
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 147922,
-    "cost_usd": 0.33269295000000004
+    "duration_ms": 46199,
+    "cost_usd": 0.07718155000000002
   },
   "health": {
-    "uptime_seconds": 1641540,
+    "uptime_seconds": 1641587,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231952674816
+    "disk_avail_bytes": 231952617472
   }
 }
