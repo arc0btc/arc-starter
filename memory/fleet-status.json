@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T20:37:41.180Z",
+  "updated_at": "2026-03-16T20:40:31.813Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6049,
-    "subject": "Moltbook research report: suspension status, new procedures, recovery path for Arc",
+    "id": 6069,
+    "subject": "Build arc-moltbook skill: blog cross-posting and agent engagement",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 264643,
-    "cost_usd": 0.9231376499999998
+    "duration_ms": 170457,
+    "cost_usd": 0.70881825
   },
   "health": {
-    "uptime_seconds": 1635960,
+    "uptime_seconds": 1636130,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231985700864
+    "disk_avail_bytes": 231985569792
   }
 }
