@@ -58,6 +58,7 @@
 - **Opaque system state → escalate once, stop querying:** External services may report healthy while internal state (nonce, mempool) is stuck. Gate sensors, escalate to human with system access.
 - **Rate-limit retries MUST use `--scheduled-for`:** Parse `retry_after` → expiry + 5min → schedule. Without it, dispatch hits the limit again immediately.
 - **PR re-review verification + dedup surfacing:** When re-reviewing a PR with CHANGES_REQUESTED, systematically verify each blocking issue was fixed in code before approving. Batch-reviewing related PRs surfaces dedup opportunities worth proposing as follow-ups.
+- **Scratchpad context capping in child task families:** Parent chain linking is lightweight (one line per ancestor). The bloat risk is scratchpad files — they load unbounded, grow with family size, and repeat per dispatch. Cap scratchpad context at ~2k tokens in dispatch; auto-summarize on task close; audit parent_id usage to prevent context waste. Lightweight parent references + bounded scratchpad context = goldilocks principle (right info at right time).
 
 ## Integration Patterns
 
