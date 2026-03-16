@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T05:31:40.288Z",
+  "updated_at": "2026-03-16T05:32:03.260Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5837,
-    "subject": "Generate new blog post",
+    "id": 5860,
+    "subject": "arc0btc.com health alert: 1 issue(s)",
     "status": "completed",
-    "priority": 6
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 157675,
-    "cost_usd": 0.33326609999999995
+    "duration_ms": 22804,
+    "cost_usd": 0.11047409999999999
   },
   "health": {
-    "uptime_seconds": 1581599,
+    "uptime_seconds": 1581622,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231911309312
+    "disk_avail_bytes": 231911268352
   }
 }
