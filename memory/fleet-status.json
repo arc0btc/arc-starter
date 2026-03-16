@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T15:03:09.545Z",
+  "updated_at": "2026-03-16T15:03:30.505Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5936,
-    "subject": "Arc Audit: SpaceX 5 principles + code simplifier + React perf pass",
+    "id": 5964,
+    "subject": "arc0btc.com health alert: 1 issue(s)",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 363759,
-    "cost_usd": 1.217769
+    "duration_ms": 20785,
+    "cost_usd": 0.1150287
   },
   "health": {
-    "uptime_seconds": 1615888,
+    "uptime_seconds": 1615909,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232049012736
+    "disk_avail_bytes": 232048971776
   }
 }
