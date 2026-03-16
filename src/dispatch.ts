@@ -95,6 +95,11 @@ function classifyError(errMsg: string): ErrorClass {
       || /timed out/i.test(errMsg)) {
     return "transient";
   }
+  // CLI flag changes (e.g. --name removed in a Claude Code update) are transient —
+  // dispatch should retry, not permanently stop.
+  if (/unknown option/i.test(errMsg)) {
+    return "transient";
+  }
   return "unknown";
 }
 
@@ -323,7 +328,10 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
   ];
 
   if (taskId) {
-    args.push("--name", `arc-task-${taskId}`);
+    // Use short flag -n for session naming — more resilient to CLI flag changes.
+    // This is non-essential; if the flag is removed in a future CLI version,
+    // dispatch should not break. The error handler below will retry without it.
+    args.push("-n", `arc-task-${taskId}`);
   }
 
   if (Bun.env.DANGEROUS === "true") {
@@ -444,7 +452,41 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
   if (exitCode !== 0) {
     const errText = (await stderrPromise).trim();
     const errContext = errText || (result ? result.slice(0, 300) : "");
-    throw new Error(`claude exited ${exitCode}: ${errContext}`);
+    // If a non-essential CLI flag was rejected, retry without it rather than failing
+    if (/unknown option/i.test(errContext) && args.some(a => a === "-n")) {
+      const stripped = args.filter((a, i) => a !== "-n" && !(i > 0 && args[i - 1] === "-n"));
+      log(`dispatch: stripping unsupported CLI flag and retrying (${errContext})`);
+      const retryProc = Bun.spawn(stripped, {
+        stdin: new Blob([prompt]),
+        stdout: "pipe",
+        stderr: "pipe",
+        env,
+        ...(cwd ? { cwd } : {}),
+      });
+      const retryStderr = await new Response(retryProc.stderr).text();
+      const retryStdout = await new Response(retryProc.stdout).text();
+      const retryCode = await retryProc.exited;
+      if (retryCode !== 0) {
+        throw new Error(`claude exited ${retryCode}: ${retryStderr.trim() || retryStdout.slice(0, 300)}`);
+      }
+      // Parse retry output for result text (simplified — grab text from stream-json)
+      for (const line of retryStdout.split("\n")) {
+        if (!line.trim()) continue;
+        try {
+          const parsed = JSON.parse(line);
+          if (parsed["type"] === "assistant") {
+            const content = (parsed["message"] as Record<string, unknown>)?.["content"] as Array<Record<string, unknown>> | undefined;
+            if (content) {
+              for (const block of content) {
+                if (block["type"] === "text" && typeof block["text"] === "string") result += block["text"];
+              }
+            }
+          }
+        } catch { /* skip non-JSON lines */ }
+      }
+    } else {
+      throw new Error(`claude exited ${exitCode}: ${errContext}`);
+    }
   }
 
   const api_cost_usd = calculateApiCostUsd(model, input_tokens, output_tokens, cache_read_tokens, cache_creation_tokens);
