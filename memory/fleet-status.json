@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T21:47:24.999Z",
+  "updated_at": "2026-03-16T21:50:00.635Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6088,
-    "subject": "Email from whoabuddy (1 unread): Re: Proposal: Arc Autonomy Milestones — For Your Approv",
+    "id": 6089,
+    "subject": "Draft Arc Autonomy Milestones v2.0 — agent manager scope + cycle-based timeline",
     "status": "completed",
-    "priority": 1
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 66492,
-    "cost_usd": 0.19682145
+    "duration_ms": 155489,
+    "cost_usd": 0.5752545
   },
   "health": {
-    "uptime_seconds": 1640143,
+    "uptime_seconds": 1640299,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231966695424
+    "disk_avail_bytes": 231966629888
   }
 }
