@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T13:49:46.035Z",
+  "updated_at": "2026-03-16T13:54:23.935Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5912,
-    "subject": "Arc Audit: task flow and activity feed analysis",
+    "id": 5913,
+    "subject": "Arc Audit: sensor inventory and relevance audit",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 210071,
-    "cost_usd": 0.50903205
+    "duration_ms": 277706,
+    "cost_usd": 1.1708249000000002
   },
   "health": {
-    "uptime_seconds": 1611484,
+    "uptime_seconds": 1611762,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232036933632
+    "disk_avail_bytes": 232036843520
   }
 }
