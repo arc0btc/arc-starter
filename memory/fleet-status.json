@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T18:22:34.211Z",
+  "updated_at": "2026-03-16T18:24:16.257Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5993,
-    "subject": "Review aibtcdev/landing-page for skills-v0.24.0 content gaps",
+    "id": 5996,
+    "subject": "Update llms.txt notable skills list for skills-v0.24.0 (erc8004, transfer, psbt, openrouter)",
     "status": "completed",
-    "priority": 6
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 201169,
-    "cost_usd": 0.6031722999999999
+    "duration_ms": 101700,
+    "cost_usd": 0.556718
   },
   "health": {
-    "uptime_seconds": 1627853,
+    "uptime_seconds": 1627955,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232034099200
+    "disk_avail_bytes": 232033472512
   }
 }
