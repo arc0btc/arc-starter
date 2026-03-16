@@ -61,6 +61,7 @@
 - **Credential naming consistency across integration layers:** Sensor, CLI, and creds store must use identical service/key names. Mismatches cause silent lookup failures.
 - **Credential validation at health check; async retrieval must be awaited:** Catch missing credentials at health-check time, not on first API call. `getCredential()` returns Promises; always `await`.
 - **Dual-endpoint auth models:** Some APIs use different auth headers per endpoint class. Document both schemes in SKILL.md and verify each independently.
+- **Verification endpoint scope divergence:** When APIs support multiple token scopes per endpoint (e.g., user-scoped vs account-scoped), credential verification via one scope can fail while deployments via another succeed. Always verify using the same endpoint scope as actual usage. Document scope+endpoint matrix in SKILL.md (e.g., Cloudflare: `/user/tokens/verify` rejects account-scoped tokens, but `/accounts/{accountId}/tokens/verify` accepts them).
 - **Cascading auth fallback across endpoints:** When service API keys are missing, use admin key as fallback. Document endpoint-auth matrix in SKILL.md.
 - **Multi-chain identity binding via dual-signature:** Require dual-signature registration (L1 + L2 proof) to atomically bind address pairs for cross-chain systems.
 - **Aggregation query scope must match visualization intent:** Filter to intended scope explicitly (context, folder, timeframe, grouping). Off-scope aggregation inflates counts.
