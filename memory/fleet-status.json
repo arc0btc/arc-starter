@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T22:55:27.080Z",
+  "updated_at": "2026-03-16T22:57:49.531Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6122,
-    "subject": "Review X Article cadence plan + answer 4 questions",
+    "id": 6119,
+    "subject": "Update social-x-posting char limit from 280 to 25000 for Premium account",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 20221,
-    "cost_usd": 0.09150929999999999
+    "duration_ms": 102506,
+    "cost_usd": 0.3586903
   },
   "health": {
-    "uptime_seconds": 1644225,
+    "uptime_seconds": 1644368,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231950848000
+    "disk_avail_bytes": 231950708736
   }
 }
