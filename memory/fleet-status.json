@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T21:36:29.108Z",
+  "updated_at": "2026-03-16T21:37:10.299Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6034,
-    "subject": "architecture review — codebase changed since last diagram",
+    "id": 6043,
+    "subject": "housekeeping: 1 issue(s) detected",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 181305,
-    "cost_usd": 0.78893535
+    "duration_ms": 40767,
+    "cost_usd": 0.08744135
   },
   "health": {
-    "uptime_seconds": 1639487,
+    "uptime_seconds": 1639529,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231968432128
+    "disk_avail_bytes": 231967895552
   }
 }
