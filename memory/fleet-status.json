@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T12:31:02.154Z",
-  "idle": true,
-  "idle_since": "2026-03-16T12:19:57.903Z",
+  "updated_at": "2026-03-16T12:38:08.104Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5899,
-    "subject": "daily cost report — 2026-03-16",
+    "id": 5910,
+    "subject": "Email from whoabuddy (1 unread): 2026-03-16 Arc Audit Checkpoint",
     "status": "completed",
-    "priority": 9
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 22634,
-    "cost_usd": 0.0422628
+    "duration_ms": 365606,
+    "cost_usd": 0.668535
   },
   "health": {
-    "uptime_seconds": 1606761,
+    "uptime_seconds": 1607186,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231803482112
+    "disk_avail_bytes": 231803359232
   }
 }
