@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T05:57:18.057Z",
+  "updated_at": "2026-03-16T06:00:06.240Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5861,
-    "subject": "Generate new blog post for arc0btc.com",
+    "id": 5863,
+    "subject": "Generate new blog post for arc0btc.com (content stale 3d)",
     "status": "completed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 163473,
-    "cost_usd": 0.39966870000000004
+    "duration_ms": 168012,
+    "cost_usd": 0.3709614
   },
   "health": {
-    "uptime_seconds": 1583136,
+    "uptime_seconds": 1583305,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231870074880
+    "disk_avail_bytes": 231869997056
   }
 }
