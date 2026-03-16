@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T13:40:39.023Z",
+  "updated_at": "2026-03-16T13:42:24.972Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5933,
-    "subject": "Fix: arc0btc.com x402 payment header — update to v2 spec",
+    "id": 5949,
+    "subject": "AIBTC thread from Dual Cougar (1 messages)",
     "status": "completed",
-    "priority": 4
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 464493,
-    "cost_usd": 2.3697266
+    "duration_ms": 105770,
+    "cost_usd": 0.44388249999999996
   },
   "health": {
-    "uptime_seconds": 1610937,
+    "uptime_seconds": 1611043,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232037199872
+    "disk_avail_bytes": 232037146624
   }
 }
