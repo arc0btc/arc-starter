@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T11:40:00.391Z",
+  "updated_at": "2026-03-16T11:51:20.042Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5892,
-    "subject": "ALB: /api/onboarding + /api/me/* endpoints with metering middleware",
+    "id": 5893,
+    "subject": "ALB: x402 payment-gated endpoints aligned with x402-sponsor-relay",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 418063,
-    "cost_usd": 2.03643755
+    "duration_ms": 679500,
+    "cost_usd": 4.9055805500000025
   },
   "health": {
-    "uptime_seconds": 1603699,
+    "uptime_seconds": 1604378,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231824105472
+    "disk_avail_bytes": 231823785984
   }
 }
