@@ -1,6 +1,6 @@
 import { claimSensorRun } from "../../src/sensors.ts";
 import { insertTask, taskExistsForSource, getWorkflowByInstanceKey, insertWorkflow } from "../../src/db.ts";
-import { AIBTC_WATCHED_REPOS } from "../../src/constants.ts";
+import { AIBTC_WATCHED_REPOS, getRepoConfig } from "../../src/constants.ts";
 
 const SENSOR_NAME = "aibtc-repo-maintenance";
 const INTERVAL_MINUTES = 15;
@@ -173,14 +173,16 @@ function trackIssueWorkflows(issues: IssueInfo[]): number {
   let created = 0;
   for (const issue of issues) {
     const [owner, repo] = issue.repo.split("/");
-    const instanceKey = `${owner}/${repo}/issue/${issue.number}`;
+    const instanceKey = `issue-triage:${owner}/${repo}#${issue.number}`;
     const existing = getWorkflowByInstanceKey(instanceKey);
     if (existing) continue;
 
+    const repoConfig = getRepoConfig(owner, repo);
+    const orgTier = repoConfig?.orgTier ?? "collaborative";
     insertWorkflow({
-      template: "pr-lifecycle",
+      template: "github-issue-triage",
       instance_key: instanceKey,
-      current_state: "issue-opened",
+      current_state: "detected",
       context: JSON.stringify({
         owner,
         repo,
@@ -188,6 +190,7 @@ function trackIssueWorkflows(issues: IssueInfo[]): number {
         title: issue.title,
         url: issue.url,
         author: issue.author,
+        orgTier,
         lastChecked: new Date().toISOString(),
       }),
     });

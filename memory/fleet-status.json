@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T22:48:09.106Z",
+  "updated_at": "2026-03-16T22:49:01.900Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6107,
-    "subject": "Evaluate deprecating pr-lifecycle in favor of github-pr-review workflow",
+    "id": 6114,
+    "subject": "Email from whoabuddy (1 unread): X account upgrade: premium now",
     "status": "completed",
-    "priority": 7
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 188586,
-    "cost_usd": 0.5709036500000002
+    "duration_ms": 52494,
+    "cost_usd": 0.22924814999999998
   },
   "health": {
-    "uptime_seconds": 1643787,
+    "uptime_seconds": 1643840,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231951142912
+    "disk_avail_bytes": 231951101952
   }
 }
