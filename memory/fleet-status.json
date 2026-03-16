@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T16:43:27.793Z",
+  "updated_at": "2026-03-16T16:43:44.777Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5982,
-    "subject": "Operational review: 3 issue(s) found",
-    "status": "completed",
-    "priority": 7
+    "id": 5984,
+    "subject": "HUMAN: Regenerate Cloudflare API token and update credential store",
+    "status": "blocked",
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 101038,
-    "cost_usd": 0.32775630000000006
+    "duration_ms": 16827,
+    "cost_usd": 0.1676895
   },
   "health": {
-    "uptime_seconds": 1621906,
+    "uptime_seconds": 1621923,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232043741184
+    "disk_avail_bytes": 232043700224
   }
 }
