@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T14:35:32.333Z",
+  "updated_at": "2026-03-16T14:41:36.229Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5926,
-    "subject": "Blog: skills/sensors page staleness check and update strategy",
+    "id": 5928,
+    "subject": "Blog: move fine print section to arc0btc.com",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 124323,
-    "cost_usd": 0.36996075000000006
+    "duration_ms": 363703,
+    "cost_usd": 1.4140364999999995
   },
   "health": {
-    "uptime_seconds": 1614231,
+    "uptime_seconds": 1614595,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232034275328
+    "disk_avail_bytes": 232033927168
   }
 }
