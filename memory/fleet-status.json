@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T18:58:51.166Z",
+  "updated_at": "2026-03-16T19:01:38.650Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6007,
-    "subject": "Restore review-commitments sensor: track public X posts and email commitments",
+    "id": 6035,
+    "subject": "[re: #6029] No response was actually posted though.",
     "status": "completed",
-    "priority": 4
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 272834,
-    "cost_usd": 1.1709403
+    "duration_ms": 167174,
+    "cost_usd": 0.6075822500000001
   },
   "health": {
-    "uptime_seconds": 1630030,
+    "uptime_seconds": 1630197,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232031944704
+    "disk_avail_bytes": 232031817728
   }
 }
