@@ -7,6 +7,7 @@
 import { join } from "node:path";
 import { claimSensorRun, createSensorLogger, insertTaskIfNew } from "../../src/sensors.ts";
 import { credentials } from "../../src/credentials.ts";
+import { verifyCloudflareToken } from "../../src/cloudflare.ts";
 
 const SENSOR_NAME = "credential-health";
 const INTERVAL_MINUTES = 60;
@@ -53,20 +54,11 @@ const API_CHECKS: Record<string, (creds: Map<string, string>) => Promise<string 
     }
   },
 
-  /** Cloudflare — verify token with /user/tokens/verify */
-  cloudflare: async (creds) => {
-    const token = creds.get("api_token");
-    if (!token) return "missing api_token";
-    try {
-      const res = await fetch("https://api.cloudflare.com/client/v4/user/tokens/verify", {
-        headers: { Authorization: `Bearer ${token}` },
-        signal: AbortSignal.timeout(10_000),
-      });
-      if (!res.ok) return `HTTP ${res.status}`;
-      return null;
-    } catch (e) {
-      return e instanceof Error ? e.message : String(e);
-    }
+  /** Cloudflare — verify token with account-scoped endpoint (user-scoped returns 401 for account-scoped tokens) */
+  cloudflare: async (_creds) => {
+    const result = await verifyCloudflareToken();
+    if (!result.ok) return result.error ?? "verification failed";
+    return null;
   },
 };
 
