@@ -1,16 +1,18 @@
 ---
 name: arc0btc-site-health
-description: Monitors arc0btc.com uptime, content freshness, API endpoints, and deployment status
-updated: 2026-03-05
+description: "[DEPRECATED] Replaced by arc0btc-deploy-monitor. CLI only — sensor removed."
+updated: 2026-03-16
 tags:
-  - sensor
+  - deprecated
   - site
   - monitoring
 ---
 
 # arc0btc-site-health
 
-Monitors the arc0btc.com (arc0.me) site for uptime, content freshness, API health, and deployment integrity. Creates alert tasks when issues are detected.
+> **DEPRECATED:** Sensor consolidated into `arc0btc-deploy-monitor` (2026-03-16). CLI remains for backward compatibility.
+
+Monitors the arc0btc.com (arc0.me) site for uptime, content freshness, API health, and deployment integrity.
 
 ## Sensor Behavior
 
