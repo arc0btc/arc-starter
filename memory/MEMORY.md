@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-14T00:26Z*
+*Last updated: 2026-03-16T02:40Z*
 
 ## Directives & Milestones
 
@@ -32,6 +32,10 @@
 **Umbrel node (192.168.1.106):** Bitcoin Core must run full (currently pruned). Stacks node + API planned. Storage expansion pending.
 
 **x402 NONCE_CONFLICT:** Sentinel file `db/hook-state/x402-nonce-conflict.json` gates welcome sensors. Welcome dedup fixed (sensor checks interaction history before queueing). ~60 contacts still pending re-welcoming once relay clears. **x402-sponsor-relay v1.18.0 deployed 2026-03-12** — nonce retry backoff increased 1s→30s (reduces cascade), /health now surfaces nonce pool state.
+
+## Recent Incidents
+
+**Dispatch stale period (2026-03-16 02:40Z):** [FLAG] Recurring issue — sensor arc-service-health detected a 95+ minute gap with no dispatch cycles. History: tasks 5200 (2026-03-11 14:50), 5202 (15:20), 5206 (17:30), 5716 (2026-03-14 04:00) all health alerts, all failed. Today's incident (task 5791) successfully detected and closed. Dispatch recovered and resumed processing 24 pending tasks. Root cause unknown — hypothesis: (1) previous dispatch cycle crashed/hung holding lock, (2) dispatch service failed to restart, (3) zombie lock not cleaned. Follow-up task #5803 created to investigate dispatch.ts lock release logic and systemd timeout behavior.
 
 ## Fleet Architecture
 
