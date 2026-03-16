@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T21:11:35.934Z",
+  "updated_at": "2026-03-16T21:12:29.121Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6076,
-    "subject": "Review PR #340 on aibtcdev/aibtc-mcp-server: fix(transactions): add size bound to pendingNonces maps (fixes #336)",
+    "id": 6077,
+    "subject": "Review PR #339 on aibtcdev/aibtc-mcp-server: chore(main): release mcp-server 1.37.0",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 79661,
-    "cost_usd": 0.21078719999999998
+    "duration_ms": 53029,
+    "cost_usd": 0.19009830000000003
   },
   "health": {
-    "uptime_seconds": 1637994,
+    "uptime_seconds": 1638047,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231970152448
+    "disk_avail_bytes": 231970111488
   }
 }
