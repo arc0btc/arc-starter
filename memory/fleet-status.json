@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T06:30:43.661Z",
-  "idle": true,
-  "idle_since": "2026-03-16T06:21:39.659Z",
+  "updated_at": "2026-03-16T06:32:01.291Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5859,
-    "subject": "daily cost report — 2026-03-16",
+    "id": 5869,
+    "subject": "arc0btc.com health alert: 1 issue(s)",
     "status": "completed",
-    "priority": 9
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 23101,
-    "cost_usd": 0.037679550000000006
+    "duration_ms": 17269,
+    "cost_usd": 0.1104333
   },
   "health": {
-    "uptime_seconds": 1585142,
+    "uptime_seconds": 1585220,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231869415424
+    "disk_avail_bytes": 231869370368
   }
 }
