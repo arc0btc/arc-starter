@@ -30,6 +30,7 @@ const SKILL_TOPIC_MAP: Record<string, string[]> = {
   "x402-sponsor-relay":    ["integrations", "identity"],
   "arc-skill-manager":     ["fleet"],
   "arc-cost-report":       ["cost"],
+  "arc-cost-reporting":    ["cost"],
   "arc-failure-triage":    ["incidents"],
   "arc-workflows":         ["integrations", "infrastructure"],
   "contacts":              ["fleet", "identity"],
