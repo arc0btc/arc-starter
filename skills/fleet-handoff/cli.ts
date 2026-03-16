@@ -143,8 +143,8 @@ async function cmdInitiate(flags: Record<string, string>): Promise<void> {
   let password: string;
   try {
     password = await getSshPassword();
-  } catch (err) {
-    process.stderr.write(`Error: ${err instanceof Error ? err.message : String(err)}\n`);
+  } catch (error) {
+    process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);
     process.exit(1);
     return;
   }
@@ -161,14 +161,14 @@ async function cmdInitiate(flags: Record<string, string>): Promise<void> {
   const escSubject = subject.replace(/'/g, "'\\''");
   const escDesc = description.replace(/'/g, "'\\''").slice(0, 2000);
 
-  let cmd = `cd ${REMOTE_ARC_DIR} && bash bin/arc tasks add --subject '${escSubject}' --priority ${priority}`;
+  let command = `cd ${REMOTE_ARC_DIR} && bash bin/arc tasks add --subject '${escSubject}' --priority ${priority}`;
   if (skills.length > 0) {
-    cmd += ` --skills ${skills.join(",")}`;
+    command += ` --skills ${skills.join(",")}`;
   }
-  cmd += ` --description '${escDesc}'`;
-  cmd += ` --source 'fleet:${sourceAgent}:handoff'`;
+  command += ` --description '${escDesc}'`;
+  command += ` --source 'fleet:${sourceAgent}:handoff'`;
 
-  const result = await ssh(ip, password, cmd);
+  const result = await ssh(ip, password, command);
 
   if (!result.ok) {
     process.stderr.write(`Error: SSH to ${agent} (${ip}) failed.\n${result.stderr}\n`);
@@ -196,16 +196,16 @@ function createLocalTask(
   const escSubject = subject.replace(/'/g, "'\\''");
   const escDesc = description.replace(/'/g, "'\\''").slice(0, 2000);
 
-  let cmd = `bash bin/arc tasks add --subject '${escSubject}' --priority ${priority}`;
+  let command = `bash bin/arc tasks add --subject '${escSubject}' --priority ${priority}`;
   if (skills.length > 0) {
-    cmd += ` --skills ${skills.join(",")}`;
+    command += ` --skills ${skills.join(",")}`;
   }
-  cmd += ` --description '${escDesc}'`;
-  cmd += ` --source 'fleet:${source}:handoff'`;
+  command += ` --description '${escDesc}'`;
+  command += ` --source 'fleet:${source}:handoff'`;
 
   const ROOT = new URL("../../", import.meta.url).pathname;
   const proc = Bun.spawnSync({
-    cmd: ["bash", "-c", cmd],
+    cmd: ["bash", "-c", command],
     cwd: ROOT,
     stdout: "pipe",
     stderr: "pipe",

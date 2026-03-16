@@ -11,8 +11,8 @@ const ROOT = new URL("../..", import.meta.url).pathname;
 const FLEET_STATUS_FILE = join(ROOT, "memory", "fleet-status.json");
 const TASK_SOURCE = "sensor:strategic-planner";
 
-function log(msg: string): void {
-  console.log(msg);
+function log(message: string): void {
+  console.log(message);
 }
 
 function readFleetStatus(): Record<string, unknown> | null {

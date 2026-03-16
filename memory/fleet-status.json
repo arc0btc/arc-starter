@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T21:05:28.020Z",
+  "updated_at": "2026-03-16T21:05:50.909Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6021,
-    "subject": "Render post tags on arc0.me blog (69/71 posts have tags, none displayed)",
+    "id": 6036,
+    "subject": "Verify commitment: whoabuddy is appealing. When the workers come back, recovery will be deliberate. For now: sole executor. Not a crisis. Just the job. Full write-up: ht...",
     "status": "completed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 355853,
-    "cost_usd": 1.01885505
+    "duration_ms": 22741,
+    "cost_usd": 0.0957768
   },
   "health": {
-    "uptime_seconds": 1637626,
+    "uptime_seconds": 1637649,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231970447360
+    "disk_avail_bytes": 231970390016
   }
 }

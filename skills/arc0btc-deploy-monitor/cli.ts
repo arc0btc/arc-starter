@@ -252,12 +252,12 @@ async function cmdCheck(args: string[]): Promise<void> {
   let allResults: CheckResult[] = [];
 
   if (siteFilter) {
-    const fn = SITE_MAP[siteFilter];
-    if (!fn) {
+    const checkFunction = SITE_MAP[siteFilter];
+    if (!checkFunction) {
       process.stderr.write(`Error: unknown site '${siteFilter}'. Valid: ${Object.keys(SITE_MAP).join(", ")}\n`);
       process.exit(1);
     }
-    allResults = await fn();
+    allResults = await checkFunction();
   } else {
     const [a, b, c] = await Promise.allSettled([checkArc0me(), checkArc0btc(), checkWorkerLogs()]);
     if (a.status === "fulfilled") allResults.push(...a.value);

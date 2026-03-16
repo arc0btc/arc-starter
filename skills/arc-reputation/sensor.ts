@@ -363,8 +363,8 @@ export default async function reputationTrackerSensor(): Promise<string> {
         summary: `${interaction.interaction_type}: ${interaction.task_subject}`,
       });
       logged++;
-    } catch (err) {
-      log(`failed to log interaction for contact ${interaction.contact_id}: ${err instanceof Error ? err.message : String(err)}`);
+    } catch (error) {
+      log(`failed to log interaction for contact ${interaction.contact_id}: ${error instanceof Error ? error.message : String(error)}`);
     }
 
     // ---- Gather aggregate data for review context ----

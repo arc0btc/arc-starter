@@ -26,11 +26,11 @@ const API_CHECKS: Record<string, (creds: Map<string, string>) => Promise<string 
     const apiKey = creds.get("admin_api_key");
     if (!baseUrl || !apiKey) return "missing api_base_url or admin_api_key";
     try {
-      const res = await fetch(`${baseUrl}/api/stats`, {
+      const response = await fetch(`${baseUrl}/api/stats`, {
         headers: { "X-Admin-Key": apiKey, Accept: "application/json" },
         signal: AbortSignal.timeout(10_000),
       });
-      if (!res.ok) return `HTTP ${res.status}`;
+      if (!response.ok) return `HTTP ${response.status}`;
       return null; // healthy
     } catch (e) {
       return e instanceof Error ? e.message : String(e);
@@ -43,11 +43,11 @@ const API_CHECKS: Record<string, (creds: Map<string, string>) => Promise<string 
     const apiKey = creds.get("admin_api_key");
     if (!baseUrl || !apiKey) return "missing api_base_url or admin_api_key";
     try {
-      const res = await fetch(`${baseUrl}/api/stats`, {
+      const response = await fetch(`${baseUrl}/api/stats`, {
         headers: { "X-Admin-Key": apiKey, Accept: "application/json" },
         signal: AbortSignal.timeout(10_000),
       });
-      if (!res.ok) return `HTTP ${res.status}`;
+      if (!response.ok) return `HTTP ${response.status}`;
       return null;
     } catch (e) {
       return e instanceof Error ? e.message : String(e);

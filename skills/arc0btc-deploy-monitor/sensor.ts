@@ -36,11 +36,11 @@ async function checkArc0me(): Promise<CheckResult[]> {
 
   // Uptime
   try {
-    const res = await fetch("https://arc0.me", { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
-    results.push({ site, check: "uptime", ok: res.ok, detail: `HTTP ${res.status}` });
+    const response = await fetch("https://arc0.me", { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+    results.push({ site, check: "uptime", ok: response.ok, detail: `HTTP ${response.status}` });
 
-    if (res.ok) {
-      const body = await res.text();
+    if (response.ok) {
+      const body = await response.text();
 
       // Structural: should NOT have /services/ content on blog
       // (checking body for services link is cheaper than a separate fetch)
@@ -59,15 +59,15 @@ async function checkArc0me(): Promise<CheckResult[]> {
 
   // Structural: no /services/ route
   try {
-    const res = await fetch("https://arc0.me/services", {
+    const response = await fetch("https://arc0.me/services", {
       signal: AbortSignal.timeout(FETCH_TIMEOUT),
       redirect: "follow",
     });
     results.push({
       site,
       check: "no-services",
-      ok: res.status !== 200,
-      detail: res.status === 200 ? "DRIFT: /services/ exists on blog" : `HTTP ${res.status} (expected)`,
+      ok: response.status !== 200,
+      detail: response.status === 200 ? "DRIFT: /services/ exists on blog" : `HTTP ${response.status} (expected)`,
     });
   } catch {
     results.push({ site, check: "no-services", ok: true, detail: "unreachable (expected)" });
@@ -75,12 +75,12 @@ async function checkArc0me(): Promise<CheckResult[]> {
 
   // Structural: no x402 endpoint
   try {
-    const res = await fetch("https://arc0.me/.well-known/x402", { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+    const response = await fetch("https://arc0.me/.well-known/x402", { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
     results.push({
       site,
       check: "no-x402",
-      ok: res.status !== 200,
-      detail: res.status === 200 ? "DRIFT: x402 exists on blog" : `HTTP ${res.status} (expected)`,
+      ok: response.status !== 200,
+      detail: response.status === 200 ? "DRIFT: x402 exists on blog" : `HTTP ${response.status} (expected)`,
     });
   } catch {
     results.push({ site, check: "no-x402", ok: true, detail: "unreachable (expected)" });
@@ -88,11 +88,11 @@ async function checkArc0me(): Promise<CheckResult[]> {
 
   // API health
   try {
-    const res = await fetch("https://arc0.me/api/posts.json", { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
-    if (!res.ok) {
-      results.push({ site, check: "api", ok: false, detail: `HTTP ${res.status}` });
+    const response = await fetch("https://arc0.me/api/posts.json", { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+    if (!response.ok) {
+      results.push({ site, check: "api", ok: false, detail: `HTTP ${response.status}` });
     } else {
-      const data = await res.json();
+      const data = await response.json();
       if (!Array.isArray(data)) {
         results.push({ site, check: "api", ok: false, detail: "response is not an array" });
       } else {
@@ -132,11 +132,11 @@ async function checkArc0btc(): Promise<CheckResult[]> {
 
   // Uptime + structural checks from main page
   try {
-    const res = await fetch("https://arc0btc.com", { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
-    results.push({ site, check: "uptime", ok: res.ok, detail: `HTTP ${res.status}` });
+    const response = await fetch("https://arc0btc.com", { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+    results.push({ site, check: "uptime", ok: response.ok, detail: `HTTP ${response.status}` });
 
-    if (res.ok) {
-      const body = await res.text();
+    if (response.ok) {
+      const body = await response.text();
       const bodyLower = body.toLowerCase();
 
       results.push({
@@ -160,12 +160,12 @@ async function checkArc0btc(): Promise<CheckResult[]> {
 
   // x402 endpoint should exist
   try {
-    const res = await fetch("https://arc0btc.com/.well-known/x402", { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+    const response = await fetch("https://arc0btc.com/.well-known/x402", { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
     results.push({
       site,
       check: "has-x402",
-      ok: res.status === 200,
-      detail: res.status === 200 ? "x402 present" : `DRIFT: x402 missing (HTTP ${res.status})`,
+      ok: response.status === 200,
+      detail: response.status === 200 ? "x402 present" : `DRIFT: x402 missing (HTTP ${response.status})`,
     });
   } catch (e) {
     results.push({ site, check: "has-x402", ok: false, detail: e instanceof Error ? e.message : String(e) });
@@ -182,8 +182,8 @@ async function checkWorkerLogs(): Promise<CheckResult[]> {
 
   // Uptime
   try {
-    const res = await fetch("https://logs.arc0btc.com", { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
-    results.push({ site, check: "uptime", ok: res.ok, detail: `HTTP ${res.status}` });
+    const response = await fetch("https://logs.arc0btc.com", { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+    results.push({ site, check: "uptime", ok: response.ok, detail: `HTTP ${response.status}` });
   } catch (e) {
     results.push({ site, check: "uptime", ok: false, detail: e instanceof Error ? e.message : String(e) });
     return results;
