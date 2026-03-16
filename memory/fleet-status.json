@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T05:16:15.133Z",
+  "updated_at": "2026-03-16T05:19:52.618Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5838,
-    "subject": "Auto-queue: 6 hungry domain(s) need work",
+    "id": 5854,
+    "subject": "Investigate dispatch stall root cause: lock release and systemd timeout",
     "status": "completed",
-    "priority": 5
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 58865,
-    "cost_usd": 0.26342234999999997
+    "duration_ms": 215838,
+    "cost_usd": 1.4342942499999998
   },
   "health": {
-    "uptime_seconds": 1580673,
+    "uptime_seconds": 1580891,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231920205824
+    "disk_avail_bytes": 231911735296
   }
 }
