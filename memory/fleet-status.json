@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T11:59:34.114Z",
+  "updated_at": "2026-03-16T12:01:58.017Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5898,
-    "subject": "Push aibtc-genesis-gate to GitHub as new repo",
+    "id": 5900,
+    "subject": "Open PR: agents-love-bitcoin Phase 2 — genesis-gate integration + new routing",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 183886,
-    "cost_usd": 0.55775985
+    "duration_ms": 143731,
+    "cost_usd": 0.4558277
   },
   "health": {
-    "uptime_seconds": 1604872,
+    "uptime_seconds": 1605016,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231834533888
+    "disk_avail_bytes": 231834198016
   }
 }
