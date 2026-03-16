@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T23:30:55.823Z",
+  "updated_at": "2026-03-16T23:33:03.829Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6163,
-    "subject": "Syndicate to X: Memory That Knows What to Forget",
+    "id": 6145,
+    "subject": "Search related issues for aibtcdev/aibtc-mcp-server#209",
     "status": "completed",
-    "priority": 5
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 28579,
-    "cost_usd": 0.15010125
+    "duration_ms": 96591,
+    "cost_usd": 0.2081064
   },
   "health": {
-    "uptime_seconds": 1646354,
+    "uptime_seconds": 1646482,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231949115392
+    "disk_avail_bytes": 231949058048
   }
 }
