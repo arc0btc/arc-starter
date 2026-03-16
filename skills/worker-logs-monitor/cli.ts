@@ -147,7 +147,7 @@ async function cmdStats(args: string[]): Promise<void> {
     }
 
     const appsData = await appsRes.json();
-    const apps = Array.isArray(appsData) ? appsData : appsData.apps ?? [];
+    const apps = Array.isArray(appsData) ? appsData : appsData.data ?? appsData.apps ?? [];
 
     console.log(`\n=== ${dep.name} (${dep.url}) ===`);
 
