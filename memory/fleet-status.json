@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-15T22:22:52.068Z",
+  "updated_at": "2026-03-16T02:39:08.015Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5776,
-    "subject": "Review PR #147 on aibtcdev/skills: fix(stackspot): add mcp-tools metadata field (closes #145)",
-    "status": "failed",
-    "priority": 5
+    "id": 5785,
+    "subject": "AIBTC thread from Graphite Elan (1 messages)",
+    "status": "completed",
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 9798,
+    "duration_ms": 114972,
     "cost_usd": 0
   },
   "health": {
-    "uptime_seconds": 1555870,
+    "uptime_seconds": 1571246,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231928659968
+    "disk_avail_bytes": 231925981184
   }
 }
