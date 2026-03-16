@@ -78,6 +78,10 @@ function getDispatchTimeoutMs(model: ModelTier = "opus"): number {
 /** Pre-compiled rate-limit detection pattern — single regex, tested once per error. */
 const RATE_LIMIT_RE = /(?:status|HTTP|error|code)[:\s]*429|\brate[_\s-]?limit|\btoo many requests|\b(?:max\s*usage|plan\s*limit|usage\s*limit|token\s*limit)\b|\bplan.*cap|\b(?:limit|quota)\s*(?:reached|exceeded|hit)\b|\bexceeded.*(?:limit|quota)/i;
 
+// Track whether the Claude CLI supports the -n flag. Once detected unsupported,
+// all subsequent dispatch calls in this process skip the flag rather than retrying.
+let claudeCliSupportsNameFlag = true;
+
 function classifyError(errMsg: string): ErrorClass {
   if (/(?:status|HTTP|error|code)[:\s]*(?:401|403)/i.test(errMsg)
       || /\b(?:unauthorized|forbidden)\b/i.test(errMsg)) {
@@ -327,10 +331,10 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
     "--no-session-persistence",
   ];
 
-  if (taskId) {
-    // Use short flag -n for session naming — more resilient to CLI flag changes.
-    // This is non-essential; if the flag is removed in a future CLI version,
-    // dispatch should not break. The error handler below will retry without it.
+  if (taskId && claudeCliSupportsNameFlag) {
+    // Use short flag -n for session naming — non-essential; if the CLI version drops
+    // this flag, claudeCliSupportsNameFlag is set false on first detection and
+    // subsequent dispatches skip it without retrying.
     args.push("-n", `arc-task-${taskId}`);
   }
 
@@ -452,41 +456,15 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
   if (exitCode !== 0) {
     const errText = (await stderrPromise).trim();
     const errContext = errText || (result ? result.slice(0, 300) : "");
-    // If a non-essential CLI flag was rejected, retry without it rather than failing
+    // If a non-essential CLI flag was rejected, mark it unsupported and let the
+    // outer retry loop retry cleanly without it. Preserving "unknown option" in the
+    // thrown message keeps classifyError returning "transient" so retries proceed.
     if (/unknown option/i.test(errContext) && args.some(a => a === "-n")) {
-      const stripped = args.filter((a, i) => a !== "-n" && !(i > 0 && args[i - 1] === "-n"));
-      log(`dispatch: stripping unsupported CLI flag and retrying (${errContext})`);
-      const retryProc = Bun.spawn(stripped, {
-        stdin: new Blob([prompt]),
-        stdout: "pipe",
-        stderr: "pipe",
-        env,
-        ...(cwd ? { cwd } : {}),
-      });
-      const retryStderr = await new Response(retryProc.stderr).text();
-      const retryStdout = await new Response(retryProc.stdout).text();
-      const retryCode = await retryProc.exited;
-      if (retryCode !== 0) {
-        throw new Error(`claude exited ${retryCode}: ${retryStderr.trim() || retryStdout.slice(0, 300)}`);
-      }
-      // Parse retry output for result text (simplified — grab text from stream-json)
-      for (const line of retryStdout.split("\n")) {
-        if (!line.trim()) continue;
-        try {
-          const parsed = JSON.parse(line);
-          if (parsed["type"] === "assistant") {
-            const content = (parsed["message"] as Record<string, unknown>)?.["content"] as Array<Record<string, unknown>> | undefined;
-            if (content) {
-              for (const block of content) {
-                if (block["type"] === "text" && typeof block["text"] === "string") result += block["text"];
-              }
-            }
-          }
-        } catch { /* skip non-JSON lines */ }
-      }
-    } else {
-      throw new Error(`claude exited ${exitCode}: ${errContext}`);
+      claudeCliSupportsNameFlag = false;
+      log(`dispatch: -n flag unsupported — disabling for future calls, retrying via outer loop`);
+      throw new Error(`unknown option: -n (flag disabled, retrying): ${errContext}`);
     }
+    throw new Error(`claude exited ${exitCode}: ${errContext}`);
   }
 
   const api_cost_usd = calculateApiCostUsd(model, input_tokens, output_tokens, cache_read_tokens, cache_creation_tokens);
