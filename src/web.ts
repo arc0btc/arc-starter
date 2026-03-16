@@ -2045,6 +2045,23 @@ async function handleHubRoute(req: Request): Promise<Response> {
 
 // ---- Router ----
 
+async function handleRestart(): Promise<Response> {
+  try {
+    const proc = Bun.spawn(
+      ["systemctl", "restart", "arc-dispatch.service", "arc-sensors.service"],
+      { stdout: "pipe", stderr: "pipe" }
+    );
+    await proc.exited;
+    if (proc.exitCode === 0) {
+      return json({ ok: true, message: "Services restarted" });
+    }
+    const stderr = await new Response(proc.stderr).text();
+    return json({ ok: false, error: stderr.trim() || `systemctl exited ${proc.exitCode}` }, 500);
+  } catch (e) {
+    return json({ ok: false, error: String(e) }, 500);
+  }
+}
+
 function route(req: Request): Response | Promise<Response> {
   const url = new URL(req.url);
   const path = url.pathname;
@@ -2147,6 +2164,9 @@ function route(req: Request): Response | Promise<Response> {
   // Arena run by ID: /api/arena/runs/:id
   const arenaMatch = path.match(/^\/api\/arena\/runs\/(.+)$/);
   if (arenaMatch) return handleArenaRunById(arenaMatch[1]);
+
+  // Restart dispatch + sensors services
+  if (method === "POST" && path === "/api/restart") return handleRestart();
 
   // Task kill: POST /api/tasks/:id/kill
   const killMatch = path.match(/^\/api\/tasks\/(\d+)\/kill$/);

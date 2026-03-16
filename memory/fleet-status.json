@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T20:51:14.764Z",
+  "updated_at": "2026-03-16T20:53:02.484Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6072,
-    "subject": "GitHub issue in aibtcdev/aibtc-mcp-server#336: Add size bound to pendingNonces/pendingNonceTimestamps Maps",
+    "id": 6073,
+    "subject": "GitHub issue in aibtcdev/aibtc-mcp-server#335: Add unit tests for nonce tracking in builder.ts",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 34259,
-    "cost_usd": 0.13629375
+    "duration_ms": 81473,
+    "cost_usd": 0.20696264999999997
   },
   "health": {
-    "uptime_seconds": 1636773,
+    "uptime_seconds": 1636881,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231985135616
+    "disk_avail_bytes": 231985070080
   }
 }

@@ -24,6 +24,12 @@
 
   <div id="sse-announcer" role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
 
+  <!-- Dispatch Gap Alert Banner -->
+  <div id="dispatch-gap-banner" style="display:none; background:rgba(239,68,68,0.12); border-bottom:1px solid var(--error); padding:0.6rem 1.5rem; color:var(--error); font-size:0.875rem; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+    <span id="dispatch-gap-text" style="flex:1 1 auto;"></span>
+    <button id="restart-btn" style="background:var(--error); color:#fff; border:none; border-radius:4px; padding:0.3rem 0.9rem; font-size:0.8rem; cursor:pointer; white-space:nowrap;" onclick="attemptRestart()">Attempt Restart</button>
+  </div>
+
   <!-- Header -->
   <header class="header">
     <div class="header-inner">
@@ -166,6 +172,50 @@
 
   <script src="/shared.js"></script>
   <script>
+    // ---- Dispatch Gap Banner ----
+
+    var DISPATCH_GAP_MS = 2 * 60 * 60 * 1000; // 2 hours
+
+    function updateDispatchGapBanner(lastCycle) {
+      var banner = document.getElementById('dispatch-gap-banner');
+      var text = document.getElementById('dispatch-gap-text');
+      var now = Date.now();
+      var gapMs = lastCycle
+        ? now - new Date(lastCycle.started_at + 'Z').getTime()
+        : null;
+      var showBanner = !lastCycle || gapMs > DISPATCH_GAP_MS;
+      banner.style.display = showBanner ? 'flex' : 'none';
+      if (showBanner) {
+        var gapStr = !lastCycle ? 'no dispatch cycles recorded'
+          : 'last cycle ' + relativeTime(lastCycle.started_at);
+        text.textContent = 'Dispatch gap detected — ' + gapStr + '. Services may be stalled.';
+      }
+    }
+
+    function attemptRestart() {
+      var btn = document.getElementById('restart-btn');
+      var text = document.getElementById('dispatch-gap-text');
+      btn.disabled = true;
+      btn.textContent = 'Restarting…';
+      fetch('/api/restart', { method: 'POST' })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data.ok) {
+            text.textContent = 'Restart command sent. Services should resume shortly.';
+            btn.textContent = 'Sent';
+          } else {
+            text.textContent = 'Restart failed: ' + (data.error || 'unknown error');
+            btn.disabled = false;
+            btn.textContent = 'Retry';
+          }
+        })
+        .catch(function(e) {
+          text.textContent = 'Restart request failed: ' + e.message;
+          btn.disabled = false;
+          btn.textContent = 'Retry';
+        });
+    }
+
     // ---- Feed Rendering ----
 
     var knownTaskIds = new Set();
@@ -503,6 +553,7 @@
       if (status.last_cycle) {
         document.getElementById('metric-last-cycle').textContent = relativeTime(status.last_cycle.started_at);
       }
+      updateDispatchGapBanner(status.last_cycle || null);
 
       // Avg duration from recent cycles
       fetchJSON('/api/cycles?limit=50').then(function(data) {
