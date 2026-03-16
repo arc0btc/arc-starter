@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T20:53:02.484Z",
+  "updated_at": "2026-03-16T20:55:37.366Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6073,
-    "subject": "GitHub issue in aibtcdev/aibtc-mcp-server#335: Add unit tests for nonce tracking in builder.ts",
+    "id": 6016,
+    "subject": "Dispatch gap alert banner + restart button in arc-web dashboard",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 81473,
-    "cost_usd": 0.20696264999999997
+    "duration_ms": 154725,
+    "cost_usd": 0.4910853
   },
   "health": {
-    "uptime_seconds": 1636881,
+    "uptime_seconds": 1637036,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231985070080
+    "disk_avail_bytes": 231984865280
   }
 }
