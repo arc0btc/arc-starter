@@ -1,3 +1,48 @@
+## 2026-03-16T21:33:00.000Z
+
+5 findings: 0 error, 1 warn, 4 info → **HEALTHY**
+
+**Codebase changes since last audit (07:00Z 2026-03-16, commits b6d343b → 441474e):**
+
+- **External watchdog added** (`src/external-watchdog.ts` + `arc-watchdog.service/timer`): Runs independently on its own 15-min systemd timer. Reads `cycle_log` directly via SQLite; sends email to whoabuddy if no cycle in >2h with pending tasks. Critically independent from sensors/dispatch — survives dispatch service death. State: `db/hook-state/external-watchdog.json`.
+- **`dispatch-watchdog` sensor** (10min): Complements external watchdog. Detects stalls >95min, writes structured incident to `memory/topics/incidents.md`, creates P2 alert task (deduped per stall event). Runs inside sensors service, so only operates when sensors are up.
+- **`credential-health` sensor** (60min): Validates ARC_CREDS_PASSWORD, iterates all credentials for readability, checks API endpoints (email, Cloudflare). Writes to `memory/topics/integrations.md` on failure + P3 task.
+- **`fleet-handoff` skill restored**: Was deleted 2026-03-11 and referenced in CLAUDE.md's GitHub-handoff policy without a real implementation. Now has proper `cli.ts` with `initiate/status/list` subcommands.
+- **Budget gate corrected to $200**: `DAILY_BUDGET_USD` was $500 but D4 directive is $200/day cap. Fixed to match directive (commit 441474e).
+- **`arc-mcp` deleted**: Superseded by `arc-mcp-server`. Skill directory cleaned. Skill count: 103 → 105 (net +2: dispatch-watchdog, credential-health added; arc-mcp deleted; fleet-handoff restored).
+- **`resolveSkillContextAndHashes` refactor**: Reads each SKILL.md once instead of twice (was separate `resolveSkillContext` + `computeSkillHashes` calls). No behavior change; eliminates redundant I/O.
+- **Web dashboard header normalization**: All 6 dashboard pages (tasks, sensors, schedule, skills, email, identity) now share consistent header markup per Arc Audit findings.
+
+**5-Step Review (2026-03-16T21:33Z):**
+
+**Step 1 — Requirements:**
+- [WARN] Two stall-detection systems now exist: `dispatch-watchdog` sensor (runs in sensors service) and `external-watchdog.ts` (runs in its own systemd timer). The external watchdog was explicitly designed to survive dispatch service death; dispatch-watchdog is only useful when sensors are running. Requirements for both remain valid but they should not duplicate alert logic. Current state: dispatch-watchdog writes to incidents.md (structured memory), external watchdog emails whoabuddy. Complementary, not redundant.
+- `credential-health` requirement is valid — Cloudflare token expiry in overnight brief shows a real gap that an earlier sensor would have caught.
+- `fleet-handoff` restoration requirement: CLAUDE.md's mandatory GitHub handoff policy was referencing a skill that didn't exist. This was a structural gap; restoration is justified.
+
+**Step 2 — Delete:**
+- Nothing deleted this cycle beyond arc-mcp (done).
+
+**Step 3 — Simplify:**
+- `resolveSkillContextAndHashes` refactor is correct simplification — eliminates one file-read pass.
+
+**Step 4 — Accelerate:**
+- External watchdog fires every 15min and operates independently. Latency for human alert is now 15min worst-case from stall detection vs. prior best-case of waiting for a human to notice.
+
+**Step 5 — Automate:**
+- All new sensors follow the correct `claimSensorRun` → dedup → insert pattern. No issues.
+
+**Context delivery audit:**
+- All new skill SKILL.md files are under 2000 tokens.
+- dispatch-watchdog has no AGENT.md (sensor-only, no agent context needed). Correct.
+- credential-health has no AGENT.md (sensor-only). Correct.
+- fleet-handoff has no AGENT.md — the CLI is the interface. Correct.
+
+**Sensor count: 79** (was 77 at last audit 07:00Z, +dispatch-watchdog +credential-health)
+**Skill count: 105** (was 103, +dispatch-watchdog +credential-health +fleet-handoff-restored -arc-mcp)
+
+---
+
 ## 2026-03-16T07:00:00.000Z
 
 3 findings: 0 error, 0 warn, 3 info → **HEALTHY**

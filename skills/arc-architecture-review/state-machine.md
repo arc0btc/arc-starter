@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-16T07:00:00.000Z*
+*Generated: 2026-03-16T21:33:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -17,6 +17,10 @@ stateDiagram-v2
             arc-mcp.service — MCP server port 3100
             arc-observatory.service — observatory UI
               • cross-agent task board + goal tracking (2026-03-09)
+            arc-watchdog.service/timer (every 15min, independent)
+              • reads cycle_log directly via SQLite (no sensors/dispatch dependency)
+              • alerts whoabuddy by email if no cycle in >2h with pending tasks
+              • cooldown: 2h between alerts; state: db/hook-state/external-watchdog.json
             fleet-web (port 4000, Arc host only) — aggregate fleet dashboard
         end note
     }
@@ -121,9 +125,11 @@ stateDiagram-v2
         RunAllSensors --> dealFlowSensor: aibtc-news-deal-flow
         RunAllSensors --> arcMemoryExpirySensor: arc-memory-expiry
         RunAllSensors --> arcOperationalReviewSensor: arc-operational-review
+        RunAllSensors --> dispatchWatchdogSensor: dispatch-watchdog
+        RunAllSensors --> credentialHealthSensor: credential-health
 
         note right of RunAllSensors
-            77 sensors total (2026-03-16)
+            79 sensors total (2026-03-16)
             aibtc-news-deal-flow (60min) — 5 hooks: Ordinals volume, sats auctions,
               x402 escrow, bounty activity (gated on config), DAO treasury (gated on config)
               APIs: Unisat (api_key cred) + Stacks Extended API
@@ -134,6 +140,12 @@ stateDiagram-v2
             mempool-watch (10min) — BTC fee spike + Arc address unconfirmed tx watch
             arc-cost-alerting replaced by arc-cost-reporting (daily report, no thresholds)
             Fleet sensors filter suspended agents since 2026-03-11
+            dispatch-watchdog (10min) — stall detection >95min + pending tasks
+              writes incidents.md entry + P2 alert task (deduped per stall event)
+            credential-health (60min) — validates credential store unlock + API endpoints
+              writes integrations.md on failures + P3 alert task (model: sonnet)
+            fleet-handoff CLI skill restored 2026-03-16 (was deleted 2026-03-11)
+              SSH-based task handoff to another fleet agent; logs to memory/fleet-handoffs.json
         end note
 
         state "Generic Sensor Pattern" as genericSensor {
@@ -368,7 +380,7 @@ stateDiagram-v2
         end note
         PickTask --> Idle: no pending tasks
         PickTask --> BudgetGate: highest priority task
-        BudgetGate --> Exit: today_cost >= $500 AND priority > 2
+        BudgetGate --> Exit: today_cost >= $200 AND priority > 2
         BudgetGate --> GitHubGate: budget ok OR priority <= 2
         GitHubGate --> AutoHandoff: worker + task matches GitHub pattern
         AutoHandoff --> ClearLock: fleet-handoff arc; close task
@@ -489,7 +501,7 @@ stateDiagram-v2
 | 3 | Dispatch lock check | Lock file (PID + task_id) | `isPidAlive()` |
 | 3a | TOCTOU guard | Lock acquired BEFORE task selection | Atomic: lock->pick (commit 05de76d) |
 | 3b | Dispatch gate | hook-state/dispatch-gate.json | On/off switch; rate limit → immediate stop; 3 other failures → stop; manual reset required (`arc dispatch reset`); notifies whoabuddy by email |
-| 3c | Budget gate | `getTodayCostUsd()` vs `DAILY_BUDGET_USD=$500` | Priority > 2 tasks halted if over ceiling |
+| 3c | Budget gate | `getTodayCostUsd()` vs `DAILY_BUDGET_USD=$200` | Priority > 2 tasks halted if over ceiling (D4 directive) |
 | 3d | GitHub pre-dispatch gate (worker) | `GITHUB_TASK_RE` regex on subject+description | Auto-routes to Arc via fleet-handoff at zero LLM cost |
 | 4 | Task selection | All pending tasks sorted | Priority ASC, ID ASC |
 | 4a | SDK routing | task.model prefix | codex:* → Codex CLI; else → Claude/OpenRouter |
@@ -528,7 +540,7 @@ stateDiagram-v2
 | psbt-escalation | pending→escalated→approved→signing→broadcast→completed | bitcoin-wallet | PsbtEscalationMachine — PSBT sign request → whoabuddy approval gate → sign/broadcast |
 | skill-maintenance | triggered→auditing→fix_pending→fixing→no_action/completed | arc-email-sync | SkillMaintenanceMachine — email signal → audit → targeted fix; instance_key: skill-maintenance-{skill}-{YYYY-MM-DD} |
 
-## Skills Inventory (103 total)
+## Skills Inventory (105 total)
 
 | Skill | Sensor | CLI | Agent | Description |
 |-------|--------|-----|-------|-------------|
@@ -555,12 +567,14 @@ stateDiagram-v2
 | arc-dispatch-eval | yes | - | - | Post-dispatch evaluation sensor — scores task outcomes, creates improvement tasks |
 | arc-dispatch-evals | - | yes | yes | Dispatch quality evaluation — error analysis, LLM judges |
 | arc-dual-sdk | - | - | - | *(deleted 2026-03-11 — moved to docs/agent-infrastructure.md)* |
+| dispatch-watchdog | yes | - | - | Dispatch stall detection >95min — writes incidents.md + P2 alert task (10min, deduped per stall) |
+| credential-health | yes | - | - | Periodic credential store health check — validates store unlock + API endpoints (60min, P3 sonnet) |
 | arc-email-sync | yes | yes | yes | Sync email from arc-email-worker, read and send email |
 | arc-failure-triage | yes | yes | yes | Detect recurring failure patterns, escalate (dismissed/crash-recovery filters) |
 | arc-housekeeping | yes | yes | yes | Repo hygiene — locks, WAL size, memory bloat, archival, stale worktrees |
 | arc-introspection | yes | - | - | Daily qualitative self-assessment — synthesizes 24h into reflection task (P5, 1440min) |
 | arc-link-research | - | yes | yes | Process batches of links into research reports |
-| arc-mcp | - | yes | - | Local MCP HTTP server exposing task queue and skill tree |
+| arc-mcp | - | - | - | *(deleted 2026-03-16 — superseded by arc-mcp-server)* |
 | arc-mcp-server | - | yes | - | MCP server exposing task queue, skills, memory |
 | arc-memory-expiry | yes | - | - | Daily cleanup of TTL-expired arc_memory FTS5 entries (1440min) |
 | arc-observatory | - | - | - | Observatory UI service (systemd) — Bitcoin Faces, live agent visualization |
@@ -615,7 +629,7 @@ stateDiagram-v2
 | fleet-email-report | - | - | - | *(deleted 2026-03-11 → docs/fleet-coordination.md)* |
 | fleet-escalation | yes | - | - | Fleet escalation routing sensor |
 | fleet-exec | - | - | - | *(deleted 2026-03-11 → docs/fleet-coordination.md)* |
-| fleet-handoff | - | - | - | *(deleted 2026-03-11 → docs/fleet-coordination.md)* |
+| fleet-handoff | - | yes | - | SSH-based task handoff to another fleet agent (restored 2026-03-16); logs to memory/fleet-handoffs.json |
 | fleet-health | yes | yes | - | Monitor agent fleet VMs (spark/iris/loom/forge) via SSH — 15min, alerts P3 |
 | fleet-log-pull | yes | - | - | Fleet log aggregation sensor |
 | fleet-memory | yes | - | - | Fleet memory sync sensor |
