@@ -2642,6 +2642,92 @@ If merge fails (conflicts, CI), transition to 'closed' with explanation.`,
 };
 
 /**
+ * AutoQueueCycleMachine — models a single auto-queue orchestration cycle.
+ *
+ * Pattern detected: "auto-queue" tasks (3 recurrences, avg 19.0 steps/chain)
+ * consistently spawn multi-domain work batches (avg 18 skills) with no dedup
+ * or lifecycle tracking. This machine provides a daily dedup gate and a
+ * lightweight review step to capture what each batch accomplished.
+ *
+ * instance_key: "auto-queue-{YYYY-MM-DD}" (one per day — duplicate scans same day are no-ops)
+ *
+ * States:
+ *   scanning     → hungry domains detected; creates per-domain work tasks
+ *   dispatching  → work tasks created and executing across domains
+ *   reviewing    → all domain tasks completed; creates a review/summary task
+ *   complete     → cycle done
+ *
+ * Context:
+ *   scanDate        — ISO date of the scan (YYYY-MM-DD)
+ *   hungryDomains   — JSON array of skill domain names that needed work
+ *   taskCount       — number of work tasks created
+ *   reviewSummary   — brief summary of what the batch accomplished (populated before complete)
+ */
+export const AutoQueueCycleMachine: StateMachine<{
+  scanDate?: string;
+  hungryDomains?: string[];
+  taskCount?: number;
+  reviewSummary?: string;
+}> = {
+  name: "auto-queue-cycle",
+  initialState: "scanning",
+  states: {
+    scanning: {
+      on: { dispatched: "dispatching" },
+      action: (ctx) => {
+        const date = ctx.scanDate || "today";
+        const domains = ctx.hungryDomains || [];
+        const domainList = domains.length > 0 ? domains.join(", ") : "unknown domains";
+        return {
+          type: "create-task",
+          subject: `Auto-queue: dispatch work for ${domains.length || "?"} hungry domain(s)`,
+          priority: 5,
+          skills: ["auto-queue"],
+          description: `Auto-queue cycle for ${date}: ${domains.length || "?"} domain(s) need work.
+
+Domains: ${domainList}
+
+Steps:
+1. Run: arc skills run --name auto-queue -- scan
+2. Create work tasks for each hungry domain (use arc tasks add with appropriate --skills)
+3. Transition this workflow to 'dispatching'
+   - Set taskCount in context with the number of tasks created`,
+        };
+      },
+    },
+    dispatching: {
+      on: { completed: "reviewing" },
+      action: () => null,
+    },
+    reviewing: {
+      on: { summarized: "complete" },
+      action: (ctx) => {
+        const date = ctx.scanDate || "today";
+        const count = ctx.taskCount || 0;
+        return {
+          type: "create-task",
+          subject: `Auto-queue cycle review: ${date}`,
+          priority: 8,
+          skills: ["arc-skill-manager", "arc-cost-reporting"],
+          description: `Review the auto-queue cycle for ${date}: ${count} tasks were dispatched.
+
+Steps:
+1. Check task completion rates for the dispatched batch
+2. Note any domains that failed or produced unexpected results
+3. Update memory/topics/cost.md if batch cost was unusually high
+4. Set reviewSummary in workflow context
+5. Transition workflow to 'complete'`,
+        };
+      },
+    },
+    complete: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -2677,6 +2763,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "cost-review": CostReviewMachine,
     "github-issue-triage": GithubIssueTriageMachine,
     "github-pr-review": GithubPrReviewMachine,
+    "auto-queue-cycle": AutoQueueCycleMachine,
   };
   return templates[name] || null;
 }
