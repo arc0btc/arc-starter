@@ -4,10 +4,14 @@
  *
  * Instead of loading the entire MEMORY.md into every dispatch prompt,
  * this resolves only the topic files relevant to the task's skills.
+ *
+ * Phase 3b: Also queries arc_memory FTS for high-importance entries
+ * relevant to the task's skill domains.
  */
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { getHighImportanceMemories, type ArcMemoryFull } from "./db.ts";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const TOPICS_DIR = join(ROOT, "memory", "topics");
@@ -93,4 +97,54 @@ export function resolveTopics(skillNames: string[]): string[] {
     }
   }
   return [...topics];
+}
+
+/** Maps topic file names to FTS domain names (most are 1:1 except infrastructure→infra). */
+const TOPIC_TO_DOMAIN: Record<string, string> = {
+  fleet: "fleet",
+  incidents: "incidents",
+  cost: "cost",
+  integrations: "integrations",
+  defi: "defi",
+  publishing: "publishing",
+  identity: "identity",
+  infrastructure: "infra",
+};
+
+/**
+ * Resolve high-importance FTS memory entries for the given skills.
+ * Returns a formatted string suitable for injection into the dispatch prompt,
+ * or empty string if no entries found.
+ */
+export function resolveFtsMemoryContext(skillNames: string[]): string {
+  const topics = resolveTopics(skillNames);
+  const domains = topics
+    .map((t) => TOPIC_TO_DOMAIN[t] ?? t)
+    .filter(Boolean);
+
+  if (domains.length === 0) return "";
+
+  let entries: ArcMemoryFull[];
+  try {
+    entries = getHighImportanceMemories(domains, 10);
+  } catch {
+    // FTS table may not exist yet or DB not initialized — graceful fallback
+    return "";
+  }
+
+  if (entries.length === 0) return "";
+
+  // Dedup by key (getHighImportanceMemories already returns unique rows, but guard against edge cases)
+  const seen = new Set<string>();
+  const deduped = entries.filter((e) => {
+    if (seen.has(e.key)) return false;
+    seen.add(e.key);
+    return true;
+  });
+
+  const bullets = deduped.map(
+    (e) => `- **[${e.domain}]** \`${e.key}\`: ${e.content.slice(0, 200)}${e.content.length > 200 ? "…" : ""}`
+  );
+
+  return `## Memory: Key Entries\n${bullets.join("\n")}`;
 }

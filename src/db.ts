@@ -1211,6 +1211,35 @@ export function expireArcMemories(): number {
   return expired.length;
 }
 
+export function upsertMemory(fields: InsertArcMemory): void {
+  const existing = getArcMemory(fields.key);
+  if (existing) {
+    updateArcMemory(fields.key, fields.content, fields.tags);
+    // Also update importance if provided
+    if (fields.importance !== undefined) {
+      const db = getDatabase();
+      db.run("UPDATE arc_memory_meta SET importance = ? WHERE key = ?", [fields.importance, fields.key]);
+    }
+  } else {
+    insertArcMemory(fields);
+  }
+}
+
+export function getHighImportanceMemories(domains: string[], limit: number = 10): ArcMemoryFull[] {
+  const db = getDatabase();
+  if (domains.length === 0) return [];
+  const placeholders = domains.map(() => "?").join(", ");
+  return db.query(
+    `SELECT m.key, m.domain, m.content, m.tags,
+            meta.created_at, meta.updated_at, meta.ttl_days, meta.source_task_id, meta.importance
+     FROM arc_memory m
+     JOIN arc_memory_meta meta ON m.key = meta.key
+     WHERE meta.importance >= 2 AND m.domain IN (${placeholders})
+     ORDER BY meta.importance ASC, meta.updated_at DESC
+     LIMIT ?`
+  ).all(...domains, limit) as ArcMemoryFull[];
+}
+
 export function countArcMemories(domain?: string): number {
   const db = getDatabase();
   if (domain) {

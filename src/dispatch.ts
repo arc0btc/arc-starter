@@ -42,7 +42,7 @@ import { type ErrorClass, checkDispatchGate, recordGateSuccess, recordGateFailur
 import { writeFleetStatus, writeFleetStatusIdle } from "./fleet-status.ts";
 import { safeCommitCycleChanges, getHeadSha, codeChangedSince } from "./safe-commit.ts";
 import { createWorktree, validateWorktree, getWorktreeChangedFiles, mergeWorktree, discardWorktree } from "./worktree.ts";
-import { resolveMemoryContext } from "./memory-topics.ts";
+import { resolveMemoryContext, resolveFtsMemoryContext } from "./memory-topics.ts";
 
 // Re-export for cli.ts
 export { resetDispatchGate } from "./dispatch-gate.ts";
@@ -260,6 +260,7 @@ function buildPrompt(task: Task, skillNames: string[], recentCycles: string): st
 
   const soul = readFile(join(ROOT, "SOUL.md"));
   const memory = resolveMemoryContext(skillNames);
+  const ftsMemory = resolveFtsMemoryContext(skillNames);
   const skillContext = resolveSkillContext(skillNames);
   const parentChain = buildParentChain(task);
 
@@ -278,6 +279,11 @@ function buildPrompt(task: Task, skillNames: string[], recentCycles: string): st
     if (content) {
       parts.push(heading, content, "");
     }
+  }
+
+  // Inject high-importance FTS memory entries (Phase 3b)
+  if (ftsMemory) {
+    parts.push(ftsMemory, "");
   }
 
   if (skillContext) {
@@ -563,7 +569,7 @@ function scheduleRetrospective(task: Task, resultSummary: string, resultDetail: 
   const excerpt = (summaryBlock + resultDetail.slice(0, detailBudget)).trim();
   insertTask({
     subject: `Retrospective: extract learnings from task #${task.id} — ${task.subject.slice(0, 60)}`,
-    description: `A complex P${task.priority} task just completed. Review the work and extract reusable patterns.\n\n**Completed task:** #${task.id} — ${task.subject}\n**Result summary:** ${resultSummary.slice(0, 300)}\n**Result excerpt:**\n${excerpt}\n\n**Your job:**\n1. Read memory/patterns.md first. Check if a similar pattern already exists.\n2. Identify 1–3 reusable patterns that would change how a future task is executed. This means: operational heuristics, architectural decisions, integration gotchas, debugging techniques. NOT bug reports, celebratory notes, or task-specific details.\n3. If a similar pattern exists in patterns.md, UPDATE that entry in-place (edit the existing bullet). If it is genuinely new, append it under the most relevant existing section heading.\n4. Keep each pattern to 1–2 sentences. Never write to MEMORY.md — only patterns.md.\n5. patterns.md must stay under ~150 lines. If your additions would exceed that, remove or merge the oldest/most-specific entries to make room.\n\nIf there is nothing worth capturing, close this task as completed with summary "No learnings to capture".`,
+    description: `A complex P${task.priority} task just completed. Review the work and extract reusable patterns.\n\n**Completed task:** #${task.id} — ${task.subject}\n**Result summary:** ${resultSummary.slice(0, 300)}\n**Result excerpt:**\n${excerpt}\n\n**Your job:**\n1. Read memory/patterns.md first. Check if a similar pattern already exists.\n2. Identify 1–3 reusable patterns that would change how a future task is executed. This means: operational heuristics, architectural decisions, integration gotchas, debugging techniques. NOT bug reports, celebratory notes, or task-specific details.\n3. If a similar pattern exists in patterns.md, UPDATE that entry in-place (edit the existing bullet). If it is genuinely new, append it under the most relevant existing section heading.\n4. Keep each pattern to 1–2 sentences. Never write to MEMORY.md — only patterns.md.\n5. patterns.md must stay under ~150 lines. If your additions would exceed that, remove or merge the oldest/most-specific entries to make room.\n6. For each pattern worth capturing, ALSO store it in FTS memory for future dispatch lookup:\n   arc memory add --key "pattern:<short-slug>" --domain <domain> --content "<the pattern text>" --importance 3\n   Use the most relevant domain (incidents, cost, fleet, integrations, defi, publishing, identity, infra). This ensures high-importance learnings are surfaced in future dispatch prompts.\n\nIf there is nothing worth capturing, close this task as completed with summary "No learnings to capture".`,
     priority: 8,
     model: "haiku",
     skills: '["arc-skill-manager"]',
