@@ -11,3 +11,6 @@
   - Token was revoked or expired on Cloudflare dashboard — requires whoabuddy to regenerate
   - Affects: blog-deploy, site-health, and any other skill using Cloudflare API
   - Action: regenerate token at dash.cloudflare.com → My Profile → API Tokens, then `arc creds set --service cloudflare --key api_token --value <new>`
+
+**[FLAG] Credential health check failures (2026-03-16T13:10:57Z):**
+  - `cloudflare`: API check failed: HTTP 401
