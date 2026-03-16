@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T16:24:32.993Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-16T16:31:42.904Z",
+  "idle": true,
+  "idle_since": "2026-03-16T16:25:40.652Z",
   "last_task": {
-    "id": 5979,
-    "subject": "Retrospective: extract learnings from task #5978 — Email from whoabuddy (1 unread, 2 total): Re: Arc Audit: 202",
+    "id": 5980,
+    "subject": "GitHub update on your PR in aibtcdev/aibtc-mcp-server: test: contracts validation + tool registration smoke tests",
     "status": "completed",
-    "priority": 8
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 52894,
-    "cost_usd": 0.10345035
+    "duration_ms": 21890,
+    "cost_usd": 0.11567324999999999
   },
   "health": {
-    "uptime_seconds": 1620771,
+    "uptime_seconds": 1621201,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232043999232
+    "disk_avail_bytes": 232043896832
   }
 }
