@@ -948,8 +948,8 @@ Steps:
         if (!ctx.opsDescription) return null;
         const skills =
           ctx.actionType === "bitcoin-op"
-            ? ["bitcoin-wallet", "styx", "bitcoin-taproot-multisig"]
-            : ["stacks-js", "styx"];
+            ? ["bitcoin-wallet", "styx-btc-bridge", "bitcoin-taproot-multisig"]
+            : ["stacks-js", "styx-btc-bridge"];
         return {
           type: "create-task",
           subject: ctx.opsDescription,
@@ -2036,7 +2036,7 @@ Steps:
           type: "create-task",
           subject: `Sign and broadcast PSBT: ${psbt} (approved by ${approver})`,
           priority: 3,
-          skills: ["bitcoin-wallet", "bitcoin-taproot-multisig", "styx"],
+          skills: ["bitcoin-wallet", "bitcoin-taproot-multisig", "styx-btc-bridge"],
           description: `PSBT has been approved by ${approver}. Sign and broadcast.
 
 PSBT: ${psbt}

@@ -51,7 +51,7 @@ const SKILL_TOPIC_MAP: Record<string, string[]> = {
   // --- DeFi ---
   "arc-payments":             ["integrations", "defi"],
   "dao-zero-authority":       ["defi"],
-  "bitflow":                  ["defi"],
+  "bitflow-positions":        ["defi"],
   "defi-bitflow":             ["defi"],
   "defi-stacks-market":       ["defi"],
   "defi-zest":                ["defi"],
@@ -143,7 +143,7 @@ const SKILL_TOPIC_MAP: Record<string, string[]> = {
   "arc-worktrees":            ["infrastructure"],
   "auto-queue":               ["infrastructure"],
   "context-review":           ["infrastructure"],
-  "styx":                     ["infrastructure"],
+  "styx-btc-bridge":          ["infrastructure"],
 
   // --- Cross-domain ---
   "aibtc-dev-ops":            ["integrations", "infrastructure"],
