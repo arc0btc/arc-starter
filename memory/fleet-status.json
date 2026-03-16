@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T14:24:33.937Z",
+  "updated_at": "2026-03-16T14:27:08.513Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5919,
-    "subject": "Arc Audit: context budget analysis (too little / too much)",
+    "id": 5920,
+    "subject": "Arc Audit: Arc self-assessment",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 307220,
-    "cost_usd": 0.66307005
+    "duration_ms": 154252,
+    "cost_usd": 0.43484325
   },
   "health": {
-    "uptime_seconds": 1613572,
+    "uptime_seconds": 1613727,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232035176448
+    "disk_avail_bytes": 232034988032
   }
 }
