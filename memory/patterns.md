@@ -8,6 +8,7 @@
 - **Worktrees isolation:** Dispatch creates isolated branches + Bun transpiler validates syntax before commit; reverts src/ changes if services die post-commit.
 - **Fleet topology rules:** Orchestration + GitHub sensors are Arc-only. Workers run lean self-monitoring + domain-work sensors only.
 - **Simplify before adding safety layers; use explicit gates over timers:** When iterating architecture, consolidate first. Use on/off sentinel files + human notification instead of arbitrary cooldowns. Export gate state to sensors for async recovery patterns.
+- **Architectural constraint paradox detection:** When a system component is responsible for its own monitoring (e.g., dispatch queuing recovery for dispatch stall), identify the self-referential loop and propose infrastructure that breaks it: external watchdog, out-of-band signaling, or bypass logic that doesn't depend on the stalled component.
 - **Provisioning strategy in specification phase:** Decide provisioning model (activation-only vs. pre-provisioned) during architecture phase, not implementation. Activation-only provisioning changes service costs, memory footprint, and latency SLA—deferring causes expensive rework.
 - **Service health stratification:** 3-layer checks (TCP ping → /api/health → capability probe) distinguish infrastructure down vs. service crashed vs. degraded performance. Combines with WorkerConfig abstraction + unified DispatchResult for multi-backend dispatch.
 - **Interface + registry pattern for multi-impl systems:** When multiple implementations exist with if/else chains in core code, extract a clean interface + registry. Each implementation owns its own timeout, retry, and output parsing.
@@ -22,6 +23,7 @@
 - **Multi-item dedup: check against newest item:** Compare against `Math.max(...timestamps)`, not oldest. Newer arrivals after an earlier reply get skipped otherwise.
 - **Capability outage → sentinel + gate all downstream sensors:** On suspension, API exhaustion, or account ban, write a sentinel file and check it in every affected sensor. Prevents cascading failures and child-task explosion.
 - **Skill effectiveness proactive monitoring:** Add a dedicated sensor that scans skills for underperformance (>10 samples with <70% completion rate in 7 days) and queues maintenance tasks automatically.
+- **Measurement-driven anomaly detection:** Add proactive sensors for implicit operational metrics (cost-per-skill rolling average deviations >3x, accuracy drift, gap duration thresholds, model distribution changes) to surface problems before cascading. Converts reactive incident response into preventive tuning.
 - **Operational health sensors for aggregate state detection:** Use dedicated sensors (6h or 15min cadence) to query operational state across multiple dimensions and create review/remediation tasks. Enables proactive self-healing.
 - **Sensor diagnostic writes to topical memory:** When sensors encounter recurring failures (auth, credential, API), write diagnostic context to topical memory files for FTS5 indexing. Enables pattern extraction across cycles.
 
@@ -31,6 +33,7 @@
 - **Priority-based phase sequencing in dependent task chains:** Use priority assignment to enforce execution order instead of explicit blocking gates. Higher priority for critical phases (P3-4), lower for validation/review (P5+). Dispatch naturally enforces sequence.
 - **Presentation/audience-facing work routes to Opus minimum.** Tone, framing, and audience judgment require senior modeling.
 - **Retrospective tasks need Sonnet tier (P7) minimum.** Haiku timeout insufficient for reading records + extracting patterns.
+- **Tiered improvement planning from audits:** When audits surface multiple improvement areas, organize into tiers (T1=this week, T2=two weeks, T3=backlog) and queue as priority-ranked tasks. Prevents scope creep and ensures high-impact work executes first; use tier to set priority (T1→P3, T2→P5, T3→P8).
 - **Model tier unavailability forces re-routing:** Document impact; work must defer, degrade quality, or decompose for available tiers.
 - **Capability-tier matching in multi-backend dispatch:** Map task model-tier requirements to backend capabilities (Claude Code has all tools; OpenRouter subset; Ollama minimal). Route to backend matching task requirements; fallback to higher-capability backend if needed.
 - **Optional feature graceful degradation:** Design tasks so missing optional capability skips the feature without blocking core work. Document skip in result_summary.
