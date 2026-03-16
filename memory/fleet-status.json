@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-16T19:13:55.128Z",
+  "updated_at": "2026-03-16T19:19:13.125Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6040,
-    "subject": "Deploy monitor: 2 issue(s) on arc0btc.com",
+    "id": 6042,
+    "subject": "Deploy arc0btc-worker fix/web-header-consistency: restore x402 endpoint + services meta",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 252397,
-    "cost_usd": 0.76006575
+    "duration_ms": 317835,
+    "cost_usd": 0.8002397499999999
   },
   "health": {
-    "uptime_seconds": 1630933,
+    "uptime_seconds": 1631251,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 232031444992
+    "disk_avail_bytes": 231999991808
   }
 }
