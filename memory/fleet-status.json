@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T21:24:27.973Z",
+  "updated_at": "2026-03-17T21:26:22.446Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6478,
-    "subject": "Review aibtcdev/landing-page for skills-v0.25.0 content gaps",
+    "id": 6490,
+    "subject": "Add jingswap to skills.json in aibtcdev/skills repo",
     "status": "completed",
-    "priority": 6
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 172197,
-    "cost_usd": 0.49095135000000006
+    "duration_ms": 114147,
+    "cost_usd": 0.32306805000000005
   },
   "health": {
-    "uptime_seconds": 1725166,
+    "uptime_seconds": 1725281,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231670808576
+    "disk_avail_bytes": 231670652928
   }
 }
