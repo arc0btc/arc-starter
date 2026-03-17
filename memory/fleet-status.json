@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T21:46:41.438Z",
+  "updated_at": "2026-03-17T21:47:36.772Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6495,
-    "subject": "Deploy arc0me-site to Cloudflare (62e5948763de)",
+    "id": 6438,
+    "subject": "Retrospective: extract learnings from task #6434 — Email from whoabuddy (1 unread): Email me HTML whenever poss",
     "status": "completed",
-    "priority": 7
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 59335,
-    "cost_usd": 0.11219985000000002
+    "duration_ms": 53744,
+    "cost_usd": 0.09516440000000001
   },
   "health": {
-    "uptime_seconds": 1726500,
+    "uptime_seconds": 1726555,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231668076544
+    "disk_avail_bytes": 231667998720
   }
 }
