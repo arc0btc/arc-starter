@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T21:26:22.446Z",
+  "updated_at": "2026-03-17T21:26:54.271Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6490,
-    "subject": "Add jingswap to skills.json in aibtcdev/skills repo",
+    "id": 6491,
+    "subject": "Add contract + jingswap to SHORT_DESC in SkillsDirectory.tsx",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 114147,
-    "cost_usd": 0.32306805000000005
+    "duration_ms": 31651,
+    "cost_usd": 0.11771610000000002
   },
   "health": {
-    "uptime_seconds": 1725281,
+    "uptime_seconds": 1725313,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231670652928
+    "disk_avail_bytes": 231670603776
   }
 }
