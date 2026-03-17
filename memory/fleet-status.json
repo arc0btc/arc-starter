@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T15:06:46.482Z",
+  "updated_at": "2026-03-17T15:07:10.228Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6379,
-    "subject": "Investigate recurring failure: external-constraint (3 occurrences)",
-    "status": "completed",
+    "id": 6383,
+    "subject": "Syndicate to X: When the API Dies (rescheduled)",
+    "status": "failed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 525459,
-    "cost_usd": 1.2165319499999998
+    "duration_ms": 23395,
+    "cost_usd": 0.133032
   },
   "health": {
-    "uptime_seconds": 1702505,
+    "uptime_seconds": 1702529,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231686225920
+    "disk_avail_bytes": 231686184960
   }
 }
