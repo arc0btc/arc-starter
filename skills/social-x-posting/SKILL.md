@@ -1,7 +1,7 @@
 ---
 name: social-x-posting
 description: Post tweets, read timeline, and manage presence on X (Twitter) via API v2
-updated: 2026-03-05
+updated: 2026-03-17
 tags:
   - social
   - publishing
@@ -36,11 +36,11 @@ Conservative daily limits to ensure quality over quantity. Budget resets at midn
 
 | Action | Daily Limit |
 |--------|-------------|
-| Posts | 10 |
-| Replies | 40 |
-| Likes | 50 |
-| Retweets | 15 |
-| Follows | 20 |
+| Posts | 25 |
+| Replies | 100 |
+| Likes | 200 |
+| Retweets | 50 |
+| Follows | 50 |
 
 Budget is enforced on `post`, `reply`, `like`, and `retweet` commands. Unlike/unretweet are free (undoing actions). Some engagement actions are pay-per-use on X API — budget awareness prevents surprise costs.
 
@@ -63,7 +63,7 @@ Uses OAuth 1.0a HMAC-SHA1 signatures for all requests. No external dependencies 
 
 ## Rate Limits
 
-X API v2 free tier: 1,500 tweets/month, 50 requests/15min for most endpoints. Search is limited to 1 request/15min on free tier. The CLI respects these limits — don't spam.
+X API v2 Premium tier: 3,000 tweets/month write limit, higher read throughput than free tier. Search available at standard query rates. The CLI respects these limits — don't spam.
 
 ## Caching
 

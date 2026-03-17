@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T04:17:24.797Z",
+  "updated_at": "2026-03-17T04:18:32.915Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6223,
-    "subject": "Compile arXiv digest — 2026-03-17 (30 new papers)",
+    "id": 6215,
+    "subject": "Verify commitment: Re: Agents Love Bitcoin (ALB) - Status Report Phase 3 tasks were queued (5889-5894) but I don't have clear confirmation in memory that they completed....",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 36773,
-    "cost_usd": 0.16848255
+    "duration_ms": 44390,
+    "cost_usd": 0.19825530000000002
   },
   "health": {
-    "uptime_seconds": 1663543,
+    "uptime_seconds": 1663611,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231933042688
+    "disk_avail_bytes": 231932960768
   }
 }
