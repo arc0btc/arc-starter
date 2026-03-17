@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T16:18:45.225Z",
+  "updated_at": "2026-03-17T16:19:57.243Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6327,
-    "subject": "Retrospective: extract learnings from task #6321 — Email from whoabuddy (1 unread, 4 total): Re: 2026-03-16 Tue",
+    "id": 6330,
+    "subject": "Retrospective: extract learnings from task #6322 — Email from whoabuddy (1 unread, 7 total): Re: Agents Love Bi",
     "status": "completed",
     "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 46223,
-    "cost_usd": 0.07077270000000001
+    "duration_ms": 57993,
+    "cost_usd": 0.0861728
   },
   "health": {
-    "uptime_seconds": 1706824,
+    "uptime_seconds": 1706896,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231690276864
+    "disk_avail_bytes": 231690211328
   }
 }
