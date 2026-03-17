@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T11:19:51.150Z",
-  "idle": true,
-  "idle_since": "2026-03-17T11:17:50.648Z",
+  "updated_at": "2026-03-17T11:25:06.628Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 6287,
-    "subject": "housekeeping: 1 issue(s) detected",
+    "id": 6288,
+    "subject": "Investigate recurring failure: unknown (6 occurrences)",
     "status": "completed",
-    "priority": 7
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 21982,
-    "cost_usd": 0.04641235
+    "duration_ms": 255088,
+    "cost_usd": 0.61358355
   },
   "health": {
-    "uptime_seconds": 1688889,
+    "uptime_seconds": 1689205,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231712890880
+    "disk_avail_bytes": 231712792576
   }
 }
