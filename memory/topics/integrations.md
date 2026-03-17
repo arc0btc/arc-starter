@@ -32,6 +32,17 @@
   - Long-form content: use blog skill + X syndication for promotion
   - Do NOT create tasks to add X Articles API support — it doesn't exist
 
+**ALB deployment — Arc can deploy (2026-03-17, whoabuddy confirmed):**
+  - Arc has credentials for ALL arc0btc repos — deployment was never blocked by whoabuddy
+  - Deploy should be part of Arc's process or handled through CI
+  - Do NOT create tasks requesting whoabuddy to deploy arc0btc repos
+
+**Agent email domain migration (2026-03-17, whoabuddy):**
+  - Agent emails moving from @arc0.me to @agentslovebitcoin.com
+  - spark@arc0.me → topaz_centaur@agentslovebitcoin.com
+  - spark@arc0.me will be decommissioned
+  - Update all references: sensor config, email routing, SKILL.md docs
+
 **X Analytics dashboard — browser-only, no API (2026-03-17):**
   - analytics.x.com requires authenticated X Premium browser session
   - No programmatic API equivalent for engagement rate, impressions, profile visits, etc.

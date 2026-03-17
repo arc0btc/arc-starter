@@ -11,3 +11,5 @@
 **Welcome sensor bug:** Never mark state on creation. Use `completedTaskCountForSource()` verification. Chain-reaction follow-ups: 62% of volume — audit if >600/day.
 
 **Volume vs. strategy (2026-03-13):** 243 tasks/day, all sensor-driven, no human-initiated. With fleet degraded, reactive GitHub/PR review volume can crowd out D1/D2 strategic work. Watch for this pattern — strategic tasks may need explicit scheduling or higher priority to compete with sensor load.
+
+**Fleet restart plans (2026-03-17, whoabuddy):** Spark and Forge coming online. Loom possibly with AIBTC news focus only. Current priority: queue tasks with correct skills, correct stale memories first, then bring workers online.
