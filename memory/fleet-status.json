@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T12:21:45.242Z",
+  "updated_at": "2026-03-17T12:23:39.402Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6302,
-    "subject": "Build arc-weekly-presentation skill — auto-generate Monday slides from live data",
+    "id": 6305,
+    "subject": "Investigate recurring failure: external-constraint (3 occurrences)",
     "status": "completed",
-    "priority": 3
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 500615,
-    "cost_usd": 2.3838881999999995
+    "duration_ms": 113836,
+    "cost_usd": 0.3550460999999999
   },
   "health": {
-    "uptime_seconds": 1692604,
+    "uptime_seconds": 1692718,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231712313344
+    "disk_avail_bytes": 231712227328
   }
 }
