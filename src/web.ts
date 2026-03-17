@@ -5,7 +5,7 @@
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, extname } from "node:path";
-import { initDatabase, getDatabase, insertTask, markTaskFailed, markTaskCompleted, getEmailThreads, getEmailMessagesByFromAddress, type EmailMessage } from "./db.ts";
+import { initDatabase, getDatabase, insertTask, markTaskFailed, markTaskCompleted, getEmailThreads, getEmailMessagesByFromAddress, type EmailMessage, insertConversation, getConversationsByThread, getConversationThreads, getRecentConversations, type ConversationSource, type ConversationRole } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
 import { IDENTITY } from "./identity.ts";
 import { dispatchCodex } from "./codex.ts";
@@ -929,6 +929,40 @@ function handleEmailThread(encodedKey: string): Response {
   const rows = getEmailMessagesByFromAddress(fromAddress);
   const messages = rows.filter(m => normalizeSubjectForThreading(m.subject) === normalizedSubject);
   return json({ thread_key: key, from_address: fromAddress, normalized_subject: normalizedSubject, message_count: messages.length, over_threshold: messages.length >= 15, messages });
+}
+
+// ---- Conversation API Handlers ----
+
+function handleConversationThreads(url: URL): Response {
+  const source = url.searchParams.get("source") as ConversationSource | null;
+  const limit = Math.min(parseInt(url.searchParams.get("limit") || "50", 10), 200);
+  const threads = getConversationThreads(source || undefined, limit);
+  return json({ threads, total: threads.length });
+}
+
+function handleConversationThread(threadId: string): Response {
+  const messages = getConversationsByThread(decodeURIComponent(threadId));
+  return json({ thread_id: threadId, messages, message_count: messages.length });
+}
+
+async function handlePostConversation(req: Request): Promise<Response> {
+  const body = await req.json() as Record<string, unknown>;
+  const { thread_id, source, role, message, metadata } = body;
+
+  if (!thread_id || typeof thread_id !== "string") return errorResponse("thread_id is required");
+  if (!source || !["web:text", "web:voice", "email"].includes(source as string)) return errorResponse("source must be web:text, web:voice, or email");
+  if (!role || !["user", "arc"].includes(role as string)) return errorResponse("role must be user or arc");
+  if (!message || typeof message !== "string") return errorResponse("message is required");
+
+  const id = insertConversation({
+    thread_id: thread_id as string,
+    source: source as ConversationSource,
+    role: role as ConversationRole,
+    message: message as string,
+    metadata: metadata ? (typeof metadata === "string" ? metadata : JSON.stringify(metadata)) : null,
+  });
+
+  return json({ id, thread_id }, 201);
 }
 
 // ---- API Handlers ----
@@ -2328,6 +2362,12 @@ function route(req: Request): Response | Promise<Response> {
   if (path === "/api/email/threads") return handleEmailThreads(url);
   const emailThreadMatch = path.match(/^\/api\/email\/threads\/(.+)$/);
   if (emailThreadMatch) return handleEmailThread(emailThreadMatch[1]);
+
+  // Conversation API
+  if (method === "POST" && path === "/api/conversations") return handlePostConversation(req);
+  if (method === "GET" && path === "/api/conversations") return handleConversationThreads(url);
+  const convThreadMatch = path.match(/^\/api\/conversations\/(.+)$/);
+  if (method === "GET" && convThreadMatch) return handleConversationThread(convThreadMatch[1]);
 
   // API routes
   if (path === "/api/status") return handleStatus();
