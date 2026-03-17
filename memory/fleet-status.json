@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T12:47:43.595Z",
+  "updated_at": "2026-03-17T12:54:46.570Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6313,
-    "subject": "ALB: Fix registration to use BIP-322 instead of BIP-137 for segwit signing",
+    "id": 6314,
+    "subject": "ALB: Update email addresses to use AIBTC agent names (from landing-page address-to-name API)",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 459635,
-    "cost_usd": 1.8396762499999995
+    "duration_ms": 422815,
+    "cost_usd": 1.6707957999999998
   },
   "health": {
-    "uptime_seconds": 1694162,
+    "uptime_seconds": 1694585,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231710306304
+    "disk_avail_bytes": 231710175232
   }
 }
