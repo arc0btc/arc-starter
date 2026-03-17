@@ -72,7 +72,7 @@ Each detected pattern adds to the issue count. The LLM check evaluates overall v
 
 ## When to Load
 
-Load as a pre-publish gate before any content goes live. Run `gate` command before `blog-publishing publish` or `aibtc-news file-signal`. Typically loaded alongside the publishing skill so the check and publish happen in one dispatch cycle.
+Load as a pre-publish gate before any content goes live. Run `gate` command before `blog-publishing publish` or `aibtc-news file-signal`. Typically loaded alongside the publishing skill and `stop-slop` (sentence-level AI pattern rules) so the check and publish happen in one dispatch cycle.
 
 ## Dependencies
 

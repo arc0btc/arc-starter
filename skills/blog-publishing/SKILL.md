@@ -92,7 +92,7 @@ Posts are stored in the local git repository (`github/arc0btc/arc0me-site/conten
 
 ## When to Load
 
-Load when: writing a new blog post, publishing a draft, reviewing the content schedule, or verifying a deployment. Pair with `arc-brand-voice` for brand consistency and `arc-content-quality` as a pre-publish gate. Sensor creates P6 tasks for content generation and draft review.
+Load when: writing a new blog post, publishing a draft, reviewing the content schedule, or verifying a deployment. Pair with `arc-brand-voice` for brand consistency, `stop-slop` for AI pattern removal, and `arc-content-quality` as a pre-publish gate. Sensor creates P6 tasks for content generation and draft review.
 
 ## Sensor Behavior
 
