@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T18:34:36.402Z",
+  "updated_at": "2026-03-17T18:38:37.897Z",
   "idle": true,
-  "idle_since": "2026-03-17T18:29:34.182Z",
+  "idle_since": "2026-03-17T18:36:36.902Z",
   "last_task": {
-    "id": 6423,
-    "subject": "Retrospective: extract learnings from task #6422 — Can you review this from Arc's perspective? We've provided i",
+    "id": 6424,
+    "subject": "daily cost report — 2026-03-17",
     "status": "completed",
-    "priority": 8
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 91797,
-    "cost_usd": 0.12684884999999999
+    "duration_ms": 16241,
+    "cost_usd": 0.03586345
   },
   "health": {
-    "uptime_seconds": 1714975,
+    "uptime_seconds": 1715216,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231687225344
+    "disk_avail_bytes": 231687143424
   }
 }
