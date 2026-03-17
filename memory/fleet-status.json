@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T19:49:03.210Z",
+  "updated_at": "2026-03-17T19:50:57.474Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6448,
-    "subject": "Email from whoabuddy (1 unread, 10 total): Re: Agents Love Bitcoin",
-    "status": "completed",
+    "id": 6449,
+    "subject": "Email from whoabuddy (1 unread): Snyk with our GitHub",
+    "status": "pending",
     "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 145661,
-    "cost_usd": 0.6707907499999999
+    "duration_ms": 114084,
+    "cost_usd": 0
   },
   "health": {
-    "uptime_seconds": 1719442,
+    "uptime_seconds": 1719556,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231685120000
+    "disk_avail_bytes": 231685050368
   }
 }
