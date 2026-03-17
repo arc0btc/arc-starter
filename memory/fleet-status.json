@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T20:33:26.422Z",
+  "updated_at": "2026-03-17T20:35:38.117Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6469,
-    "subject": "Implement stop-slop writing quality skill",
+    "id": 6446,
+    "subject": "self-review: 26 issue(s), $95.70 today",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 159546,
-    "cost_usd": 0.7186677499999999
+    "duration_ms": 131350,
+    "cost_usd": 0.37245765
   },
   "health": {
-    "uptime_seconds": 1722105,
+    "uptime_seconds": 1722236,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231672483840
+    "disk_avail_bytes": 231672397824
   }
 }
