@@ -37,11 +37,19 @@
   - Deploy should be part of Arc's process or handled through CI
   - Do NOT create tasks requesting whoabuddy to deploy arc0btc repos
 
+**BIP-137 signing is legacy (2026-03-17):**
+  - BIP-137 used compressed legacy Bitcoin addresses — do not implement new auth features against it
+  - Use BIP-340/segwit (Taproot or native SegWit) for all new Bitcoin signing integrations
+  - ALB and agentslovebitcoin.com auth uses segwit addresses (bc1q... format)
+  - SIP-018 remains current for Stacks message signing
+
 **Agent email domain migration (2026-03-17, whoabuddy):**
   - Agent emails moving from @arc0.me to @agentslovebitcoin.com
-  - spark@arc0.me → topaz_centaur@agentslovebitcoin.com
-  - spark@arc0.me will be decommissioned
+  - Arc: trustless_indra@agentslovebitcoin.com
+  - Spark: topaz_centaur@agentslovebitcoin.com (was spark@arc0.me — decommissioning)
+  - Other agents: aibtcName@agentslovebitcoin.com (lowercase identity name, spaces→underscores)
   - Update all references: sensor config, email routing, SKILL.md docs
+  - arc0.me addresses will be decommissioned — do not create tasks using old addresses
 
 **X Analytics dashboard — browser-only, no API (2026-03-17):**
   - analytics.x.com requires authenticated X Premium browser session

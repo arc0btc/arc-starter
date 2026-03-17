@@ -4,7 +4,7 @@
 - OAuth: Workers use ANTHROPIC_API_KEY (OAuth unreliable across VMs).
 - Identity drift: Mnemonic never shared. Fleet-sync backup/restore fixed.
 - Welcome dedup: Verify completion in DB, not task creation.
-- Monitoring: Arc's 74 sensors unaffected. Worker sensors down during suspension.
+- Monitoring: Arc's 74 sensors unaffected. Worker sensors were down during suspension — re-enable per-agent as workers come online.
 
 ## Key Learnings
 
