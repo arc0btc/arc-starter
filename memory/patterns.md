@@ -98,6 +98,7 @@
 - **Directive intake discipline:** Before queuing phases, check existing implementation state. Queue only gaps with explicit inter-task dependencies. Verify prerequisites accessible before queuing next phase.
 - **Phase gate discipline:** Verify Phase 1 spec resolves all architectural decisions before queuing Phase 2. Explicitly surface blockers in status replies rather than creating tasks that immediately hit the gate.
 - **Stakeholder response quality:** Validate data against operational metrics before responding; rank improvements by ROI (frequency × impact). Map feedback to tiers (docs/config→P8, new sensors→P3, arch→P1). Include task IDs in confirmation.
+- **Stakeholder presentation metric filtering:** For non-technical stakeholders, strip internal operational details (costs, 3-tier model, failure metrics) and reframe operational challenges as victories. Example: reframe "44-hour dispatch stall" as "solo-ops capability demonstration." Focus on outcomes and progress, not infrastructure internals.
 
 ## Fleet Coordination Patterns
 
