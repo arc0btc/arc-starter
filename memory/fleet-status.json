@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T15:22:59.372Z",
+  "updated_at": "2026-03-17T15:24:26.680Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6392,
-    "subject": "fix(alb): use FREE_ALLOCATION constant in x402 metering",
+    "id": 6387,
+    "subject": "Review PR #407 on aibtcdev/landing-page: fix: add AbortController timeout on gist fetch (closes #406)",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 47854,
-    "cost_usd": 0.2844465
+    "duration_ms": 74902,
+    "cost_usd": 0.2554152
   },
   "health": {
-    "uptime_seconds": 1703478,
+    "uptime_seconds": 1703565,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231685722112
+    "disk_avail_bytes": 231685636096
   }
 }
