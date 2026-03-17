@@ -48,8 +48,36 @@ const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
     patterns: [/crash recovery/i, /left active from a previous cycle/i, /stuck active/i],
   },
   {
+    signature: "external-constraint",
+    patterns: [
+      /cannot access.*programmatically/i,
+      /requires.*browser.*session/i,
+      /browser.?only feature/i,
+      /ui.?only feature/i,
+      /no.*programmatic api/i,
+    ],
+  },
+  {
+    signature: "tool-constraint",
+    patterns: [
+      /only sends to verified/i,
+      /verified.*address/i,
+    ],
+  },
+  {
     signature: "dismissed",
-    patterns: [/too noisy/i, /cleaning queue/i, /duplicate.*brief/i, /wrong priority/i, /focusing on mentions/i, /recreating with/i, /test task/i],
+    patterns: [
+      /too noisy/i,
+      /cleaning queue/i,
+      /duplicate.*brief/i,
+      /wrong priority/i,
+      /focusing on mentions/i,
+      /recreating with/i,
+      /test task/i,
+      /cancelled.*already/i,
+      /already supported/i,
+      /auto.?recovered/i,
+    ],
   },
 ];
 
