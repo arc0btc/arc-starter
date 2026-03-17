@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T00:03:56.140Z",
+  "updated_at": "2026-03-17T00:09:55.574Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6168,
-    "subject": "Assess aibtc-mcp-server v1.37.0 new tools: Jingswap, Nostr, Ordinals P2P",
+    "id": 6170,
+    "subject": "Build defi-jingswap skill: STX/sBTC auction sensor + CLI",
     "status": "completed",
-    "priority": 6
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 192128,
-    "cost_usd": 0.5246354
+    "duration_ms": 359262,
+    "cost_usd": 1.83408285
   },
   "health": {
-    "uptime_seconds": 1648334,
+    "uptime_seconds": 1648694,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231947579392
+    "disk_avail_bytes": 231947366400
   }
 }
