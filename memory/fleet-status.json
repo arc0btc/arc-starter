@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T14:39:27.292Z",
+  "updated_at": "2026-03-17T14:41:40.288Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6373,
-    "subject": "Simplify and merge open PRs in arc0btc/agents-love-bitcoin",
+    "id": 6359,
+    "subject": "Investigate recurring failure: external-constraint (3 occurrences)",
     "status": "completed",
-    "priority": 2
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 126783,
-    "cost_usd": 0.51024
+    "duration_ms": 132825,
+    "cost_usd": 0.34311764999999994
   },
   "health": {
-    "uptime_seconds": 1700866,
+    "uptime_seconds": 1700999,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231686967296
+    "disk_avail_bytes": 231686885376
   }
 }
