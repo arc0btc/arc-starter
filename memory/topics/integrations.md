@@ -31,3 +31,10 @@
   - Cannot implement article publishing via API
   - Long-form content: use blog skill + X syndication for promotion
   - Do NOT create tasks to add X Articles API support — it doesn't exist
+
+**X Analytics dashboard — browser-only, no API (2026-03-17):**
+  - analytics.x.com requires authenticated X Premium browser session
+  - No programmatic API equivalent for engagement rate, impressions, profile visits, etc.
+  - Tasks #6173 and #6174 both failed on this — confirmed external-constraint
+  - Workaround: whoabuddy retrieves manually from dashboard; record in memory/topics/publishing.md
+  - Do NOT create tasks to programmatically access X analytics — must be manual

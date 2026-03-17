@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T13:47:55.744Z",
+  "updated_at": "2026-03-17T13:50:12.785Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6341,
-    "subject": "Review PR #403 on aibtcdev/landing-page: chore(main): release 1.24.0",
+    "id": 6342,
+    "subject": "self-review: 4 issue(s), $53.27 today",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 64524,
-    "cost_usd": 0.2219316
+    "duration_ms": 136839,
+    "cost_usd": 0.27308985
   },
   "health": {
-    "uptime_seconds": 1697774,
+    "uptime_seconds": 1697911,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231688355840
+    "disk_avail_bytes": 231688286208
   }
 }
