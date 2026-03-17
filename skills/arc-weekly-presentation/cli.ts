@@ -62,7 +62,7 @@ interface WeekData {
   totalSensors: number;
   costSummary: { totalCost: number; totalTasks: number; avgPerTask: number };
   newsSignals: number;
-  newAgents: Array<{ name: string; btcAddress: string }>;
+  newAgents: Array<{ name: string; btcAddress: string; bnsName?: string }>;
 }
 
 /** Supplementary research data from Sonnet subagents */
@@ -310,23 +310,43 @@ function getNewsSignalsCount(startDate: string, endDate: string): number {
   return row?.cnt ?? 0;
 }
 
-function getServicesUpdatesFromDb(startDate: string, endDate: string): ServicesUpdate {
-  const db = getDatabase();
+function getServicesUpdatesFromDb(startDate: string, _endDate: string): ServicesUpdate {
+  const items: Array<{ title: string; detail?: string }> = [];
 
-  // Tasks related to arc0btc.com / arc-web-dashboard
-  const rows = db.query(`
-    SELECT subject FROM tasks
-    WHERE date(created_at) BETWEEN ? AND ?
-      AND status = 'completed'
-      AND (skills LIKE '%arc-web-dashboard%' OR skills LIKE '%arc0btc%'
-           OR subject LIKE '%arc0btc.com%' OR subject LIKE '%web dashboard%'
-           OR subject LIKE '%arc-web%')
-    ORDER BY created_at DESC
-    LIMIT 10
-  `).all(startDate, endDate) as Array<{ subject: string }>;
+  // 1. Service status from systemctl
+  const serviceNames = ["arc-web", "arc-dispatch", "arc-sensors", "arc-mcp", "arc-observatory"];
+  for (const svc of serviceNames) {
+    const result = Bun.spawnSync({
+      cmd: ["systemctl", "--user", "is-active", `${svc}.service`],
+    });
+    const status = result.stdout.toString().trim();
+    const label = svc.replace("arc-", "");
+    items.push({
+      title: `${label}: ${status === "active" ? "running" : status}`,
+      detail: status === "active" ? "healthy" : undefined,
+    });
+  }
+
+  // 2. Recent web deployments from git
+  const gitResult = Bun.spawnSync({
+    cmd: ["git", "log", `--since=${startDate}`, "--oneline", "--no-merges",
+      "--grep=feat\\|fix\\|refactor", "--", "src/web.ts", "src/web/"],
+    cwd: ROOT,
+  });
+  const gitLines = gitResult.stdout.toString().trim().split("\n").filter(Boolean);
+  for (const line of gitLines.slice(0, 5)) {
+    // Strip commit hash prefix
+    const msg = line.replace(/^[a-f0-9]+\s+/, "");
+    items.push({ title: msg, detail: "deployment" });
+  }
+
+  // 3. If no deployments found, note it
+  if (gitLines.length === 0) {
+    items.push({ title: "No web deployments this week" });
+  }
 
   return {
-    items: rows.map(r => ({ title: r.subject })),
+    items,
     siteUrl: "arc0btc.com",
   };
 }
@@ -373,6 +393,7 @@ function getNewAgents(startDate: string): WeekData["newAgents"] {
       .map(c => ({
         name: resolveDisplayName(c),
         btcAddress: c.btc_address ?? "",
+        bnsName: c.bns_name ?? undefined,
       }));
   } catch {
     return [];
@@ -449,7 +470,14 @@ function truncate(s: string, max: number): string {
   return s.length > max ? s.slice(0, max - 3) + "..." : s;
 }
 
-function renderPresentation(data: WeekData): string {
+async function fetchBitcoinFaceUrl(name: string, btcAddress: string): Promise<string> {
+  // Prefer BNS name, fall back to BTC address for bitcoinfaces.xyz API
+  const query = name.endsWith(".btc") ? name.replace(/\.btc$/, "") : btcAddress;
+  if (!query) return "";
+  return `https://bitcoinfaces.xyz/api/get-image?name=${encodeURIComponent(query)}`;
+}
+
+async function renderPresentation(data: WeekData): Promise<string> {
   const dateRange = formatDateRange(data.weekStart, data.weekEnd);
   const slides: string[] = [];
 
@@ -599,54 +627,43 @@ function renderPresentation(data: WeekData): string {
   // Slide 4: Services — arc0btc.com (always shown)
   // Issue #5: split into clean sections — site health, dashboard, blog
   // ──────────────────────────────────────────────
-  // Categorize service updates into sections
-  const siteHealthItems: string[] = [];
-  const dashboardItems: string[] = [];
-  const blogServiceItems: string[] = [];
+  // Categorize service updates: service status vs deployments
+  const serviceStatusItems: string[] = [];
+  const deploymentItems: string[] = [];
 
-  for (const item of servicesUpdates.items.slice(0, 12)) {
-    const lower = item.title.toLowerCase();
+  for (const item of servicesUpdates.items) {
     const detail = item.detail ? ` <span class="text-muted">&mdash; ${escapeHtml(item.detail)}</span>` : "";
     const html = `<li>${escapeHtml(truncate(item.title, 70))}${detail}</li>`;
 
-    if (lower.includes("blog") || lower.includes("publish") || lower.includes("post")) {
-      blogServiceItems.push(html);
-    } else if (lower.includes("dashboard") || lower.includes("web dashboard") || lower.includes("api")) {
-      dashboardItems.push(html);
+    if (item.detail === "deployment") {
+      deploymentItems.push(html);
     } else {
-      siteHealthItems.push(html);
+      serviceStatusItems.push(html);
     }
   }
 
-  const siteHealthHtml = siteHealthItems.length > 0
-    ? siteHealthItems.join("\n        ")
-    : `<li class="empty-state">No site health updates</li>`;
-  const dashboardHtml = dashboardItems.length > 0
-    ? dashboardItems.join("\n        ")
-    : `<li class="empty-state">No dashboard updates</li>`;
-  const blogSvcHtml = blogServiceItems.length > 0
-    ? blogServiceItems.join("\n        ")
-    : `<li class="empty-state">No blog updates</li>`;
+  const siteHealthHtml = serviceStatusItems.length > 0
+    ? serviceStatusItems.join("\n        ")
+    : `<li class="empty-state">All services nominal</li>`;
+  const deploymentsHtml = deploymentItems.length > 0
+    ? deploymentItems.join("\n        ")
+    : `<li class="empty-state">No deployments this week</li>`;
 
   addSlide(`
   <div class="arc-logo">ARC</div>
   <h2><span class="highlight">Services</span> &mdash; ${escapeHtml(servicesUpdates.siteUrl)}</h2>
-  <p class="subtitle">Site health, dashboard, blog</p>
+  <p class="subtitle">Service health &amp; recent deployments</p>
   <div class="content-cols">
     <div class="col">
-      <h3 class="green">Site Health</h3>
+      <h3 class="green">Service Status</h3>
       <ul>
         ${siteHealthHtml}
       </ul>
-      <h3 class="blue" style="margin-top: 18px;">Dashboard</h3>
-      <ul>
-        ${dashboardHtml}
-      </ul>
     </div>
     <div class="col">
-      <h3 class="highlight">Blog</h3>
+      <h3 class="blue">Recent Deployments</h3>
       <ul>
-        ${blogSvcHtml}
+        ${deploymentsHtml}
       </ul>
       <p style="margin-top: 20px; font-size: 1rem; color: var(--text-muted);">
         Visit <span class="highlight">${escapeHtml(servicesUpdates.siteUrl)}</span> for live agent profiles, blog, and services
@@ -725,16 +742,23 @@ function renderPresentation(data: WeekData): string {
   // Issue #7: restore bitcoin faces, fix BTC address lookup
   // ──────────────────────────────────────────────
   if (data.newAgents.length > 0) {
-    // Bitcoin-themed faces for agents (deterministic by index)
-    const btcFaces = ["&#x20BF;", "&#x26A1;", "&#x1F52E;", "&#x2728;", "&#x1F98E;", "&#x1F30A;", "&#x1F985;", "&#x1F525;", "&#x1F680;"];
+    // Fetch real Bitcoin Face image URLs for each agent
+    const agentFaceUrls = await Promise.all(
+      data.newAgents.slice(0, 6).map(a =>
+        fetchBitcoinFaceUrl(a.bnsName ?? "", a.btcAddress)
+      )
+    );
     const agentCards = data.newAgents.slice(0, 6).map((a, i) => {
-      // Show meaningful BTC address prefix (12 chars) or fallback
       const btcDisplay = a.btcAddress
         ? a.btcAddress.slice(0, 12) + "&hellip;"
         : "Bitcoin agent";
+      const faceUrl = agentFaceUrls[i];
+      const faceHtml = faceUrl
+        ? `<img src="${faceUrl}" alt="${escapeHtml(a.name)}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" onerror="this.outerHTML='&#x20BF;'">`
+        : "&#x20BF;";
       return `
     <div class="agent-card">
-      <div class="agent-face">${btcFaces[i % btcFaces.length]}</div>
+      <div class="agent-face">${faceHtml}</div>
       <div class="agent-name">${escapeHtml(a.name)}</div>
       <div class="agent-btc">${btcDisplay}</div>
     </div>`;
@@ -1256,7 +1280,7 @@ Options:
     // Archive previous before overwriting
     archiveCurrentPresentation(weekEnd);
 
-    const html = renderPresentation(data);
+    const html = await renderPresentation(data);
     writeFileSync(PRESENTATION_PATH, html);
     process.stdout.write(`\nPresentation written to src/web/presentation.html\n`);
     process.stdout.write(`${slides_count(html)} slides generated.\n`);
