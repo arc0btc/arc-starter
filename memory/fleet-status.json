@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T05:57:49.066Z",
+  "updated_at": "2026-03-17T05:59:11.488Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6247,
-    "subject": "Search related issues for aibtcdev/landing-page#400",
+    "id": 6231,
+    "subject": "Memory consolidation: check MEMORY.md size and compress if over threshold",
     "status": "completed",
-    "priority": 7
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 80084,
-    "cost_usd": 0.2283138
+    "duration_ms": 82201,
+    "cost_usd": 0.10576875
   },
   "health": {
-    "uptime_seconds": 1669567,
+    "uptime_seconds": 1669650,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231743107072
+    "disk_avail_bytes": 231743041536
   }
 }
