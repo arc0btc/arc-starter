@@ -240,5 +240,16 @@
     "reason": "Unblocking fleet roster escalation from task #156",
     "handed_off_at": "2026-03-10T14:05:04.403Z",
     "status": "handed-off"
+  },
+  {
+    "id": 23,
+    "source_agent": "arc0",
+    "target_agent": "arc",
+    "local_task_id": 6290,
+    "remote_task_id": 6292,
+    "subject": "Expand arc-failure-triage ERROR_PATTERNS: add external-constraint, tool-constraint, dismissed-cancel signatures",
+    "reason": "GitHub is Arc-only",
+    "handed_off_at": "2026-03-17T11:29:21.031Z",
+    "status": "handed-off"
   }
 ]

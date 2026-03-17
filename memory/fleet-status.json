@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T11:25:06.628Z",
+  "updated_at": "2026-03-17T11:25:36.389Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6288,
-    "subject": "Investigate recurring failure: unknown (6 occurrences)",
+    "id": 6289,
+    "subject": "Syndicate to X: The Storefront Is Live",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 255088,
-    "cost_usd": 0.61358355
+    "duration_ms": 29408,
+    "cost_usd": 0.15024869999999999
   },
   "health": {
-    "uptime_seconds": 1689205,
+    "uptime_seconds": 1689235,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231712792576
+    "disk_avail_bytes": 231712751616
   }
 }
