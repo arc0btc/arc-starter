@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T22:30:54.635Z",
+  "updated_at": "2026-03-17T22:32:20.514Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6513,
-    "subject": "Email from whoabuddy (1 unread, 4 total): Re: Voice Mode",
+    "id": 6515,
+    "subject": "Email from whoabuddy (1 unread, 3 total): Re: Enhanced Memory",
     "status": "completed",
     "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 143023,
-    "cost_usd": 0.5479854000000001
+    "duration_ms": 85711,
+    "cost_usd": 0.47774075
   },
   "health": {
-    "uptime_seconds": 1729153,
+    "uptime_seconds": 1729239,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231666176000
+    "disk_avail_bytes": 231666126848
   }
 }
