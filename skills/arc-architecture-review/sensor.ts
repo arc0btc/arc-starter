@@ -8,11 +8,10 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { getWorkflowByInstanceKey, insertWorkflow } from "../../src/db.ts";
 
 const SENSOR_NAME = "arc-architecture-review";
 const INTERVAL_MINUTES = 720; // 12 hours — daily architecture check
-const TASK_SOURCE = "sensor:arc-architecture-review";
 const STALE_HOURS = 24;
 
 const ROOT = join(import.meta.dir, "../..");
@@ -87,7 +86,9 @@ export default async function architectSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
-  if (pendingTaskExistsForSource(TASK_SOURCE)) return "skip";
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const instanceKey = `architecture-review-${today}`;
+  if (getWorkflowByInstanceKey(instanceKey)) return "skip";
 
   const currentSha = getCurrentCodebaseSha();
 
@@ -122,20 +123,13 @@ export default async function architectSensor(): Promise<string> {
     return "ok";
   }
 
-  log(`creating review task: ${reasons.join(", ")}`);
+  log(`creating workflow instance: ${instanceKey} (${reasons.join(", ")})`);
 
-  insertTask({
-    subject: "architecture review — " + reasons[0],
-    description:
-      `Triggers: ${reasons.join(", ")}\n\n` +
-      `Run the architect skill to update the state machine diagram, ` +
-      `audit context delivery at decision points, and apply the SpaceX ` +
-      `5-step engineering process.\n\n` +
-      `Follow instructions in skills/arc-architecture-review/AGENT.md.`,
-    skills: '["arc-architecture-review", "arc-skill-manager"]',
-    source: TASK_SOURCE,
-    priority: 7,
-    model: "sonnet",
+  insertWorkflow({
+    template: "architecture-review",
+    instance_key: instanceKey,
+    current_state: "triggered",
+    context: JSON.stringify({ reasons, triggeredAt: new Date().toISOString() }),
   });
 
   // Record current SHA as reviewed (for next cycle's dedup)
