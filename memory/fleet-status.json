@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T19:14:35.425Z",
+  "updated_at": "2026-03-17T19:16:16.645Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6434,
-    "subject": "Email from whoabuddy (1 unread): Email me HTML whenever possible",
+    "id": 6431,
+    "subject": "Review PR #69 on aibtcdev/agent-news: Add signal detail pages with shareable URLs",
     "status": "completed",
-    "priority": 1
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 817448,
-    "cost_usd": 2.6532489
+    "duration_ms": 100882,
+    "cost_usd": 0.2900226
   },
   "health": {
-    "uptime_seconds": 1717374,
+    "uptime_seconds": 1717475,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231686430720
+    "disk_avail_bytes": 231686385664
   }
 }
