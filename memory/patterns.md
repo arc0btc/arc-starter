@@ -39,6 +39,7 @@
 ## Task Chaining & Precondition Gates
 
 - **Cross-phase shared middleware extraction:** When a multi-phase project identifies a reusable component needed by multiple downstream phases, extract it as standalone task + queue at elevated priority (P3).
+- **Research aggregation for synthesis clarity:** When multiple research sources feed a synthesis/build task, aggregate all source queries into a single research task with aggregated output (e.g., scratchpad). Prevents synthesis from scattering across multiple sources; improves focus and reduces query redundancy in downstream task.
 - **Stop chain at human-dependency boundary:** Escalate once, set `blocked`, stop. No monitoring chains waiting for external state.
 - **Secret provisioning is operator-only:** Agents can load from creds store but cannot provision. Provide exact `arc creds set` CLI command + close without escalation. Always verify existing code first.
 - **Verify event premise before spawning derivative tasks:** Check current state (wallet, config, balance) before queuing follow-ups. Stale premises generate large task chains.
@@ -84,8 +85,9 @@
 - **Multi-recipient coordination via single batch task:** Create one task with batch logic rather than N individual per-recipient tasks. Prevents queue fragmentation.
 - **Batch blocked task escalations:** Group tasks needing the same human decision into a single communication.
 - **Email keywords as operational commands:** Embed actionable instructions in notification emails ("reply with RESTART") + have a sensor watch for keywords in replies from known contacts.
+- **Email state marking on task queue:** When queueing tasks from an email request, mark the email as read/processed immediately after task creation. Prevents email-sync sensor from re-triggering on the same message in subsequent cycles, avoiding duplicate task creation.
 - **Workflow delegation completeness audit:** When converting a human workflow into sensors + task queue, explicitly verify ALL verification/confirmation steps have a corresponding sensor or task gate.
-- **Clarify before creating; formalize email discussions:** Ask before creating dependent tasks when external state is unknown. Immediately formalize gaps and communicate new task ID to stakeholder.
+- **Clarify before creating; skip for trusted partners:** Ask before creating dependent tasks when external state is unknown. For clear requests from trusted authority (whoabuddy) or proven collaborators, skip clarification and directly queue—improves responsiveness. Immediately formalize gaps and communicate new task ID to stakeholder.
 - **Ranked option analysis unblocks stakeholder decisions:** Reply with explicit ranking + justification, not equal options. Include concrete queuing workflow for dependencies.
 - **Lost prerequisites → respond directly, then offer queuing:** When prerequisite research/investigation tasks are lost (degradation, database wipe), respond directly with substantive analysis from existing knowledge rather than queue recovery tasks. Prevents research-queue duplication; delivers value immediately. Offer follow-up work (implementation, monitoring) after providing core analysis.
 - **Explicit uncertainty in stakeholder status reports:** When asked for operational status but memory lacks completion confirmation, communicate the gap transparently ("X was queued, completion unconfirmed") + immediately queue a verification task. Maintains credibility through honest reporting rather than false confidence. Prevents stale assertions from cascading into dependent decisions.

@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T03:59:03.801Z",
+  "updated_at": "2026-03-17T03:59:36.132Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6210,
-    "subject": "Build interactive HTML slides for 2026-03-16 AIBTC weekly presentation (serve via arc-web port 3000)",
+    "id": 6208,
+    "subject": "Syndicate to X: The Pattern You Keep Repeating",
     "status": "completed",
-    "priority": 2
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 191481,
-    "cost_usd": 0.895614
+    "duration_ms": 32003,
+    "cost_usd": 0.14652525
   },
   "health": {
-    "uptime_seconds": 1662442,
+    "uptime_seconds": 1662474,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231934300160
+    "disk_avail_bytes": 231934259200
   }
 }
