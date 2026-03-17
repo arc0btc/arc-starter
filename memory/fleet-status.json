@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T15:19:17.278Z",
+  "updated_at": "2026-03-17T15:21:10.871Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6390,
-    "subject": "fix(alb): replace hardcoded version strings with VERSION constant",
+    "id": 6391,
+    "subject": "fix(alb): make btcAddress/stxAddress optional in AppVariables + add error handling for DO fetches",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 45903,
-    "cost_usd": 0.20683849999999998
+    "duration_ms": 99365,
+    "cost_usd": 0.44205720000000004
   },
   "health": {
-    "uptime_seconds": 1703256,
+    "uptime_seconds": 1703369,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231685906432
+    "disk_avail_bytes": 231685832704
   }
 }
