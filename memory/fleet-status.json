@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T22:33:34.923Z",
+  "updated_at": "2026-03-17T22:38:51.844Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6514,
-    "subject": "feat(voice): add conversation tracking table with threading (web:text, web:voice, email sources)",
+    "id": 6516,
+    "subject": "feat(voice): unify voice into main chat UI with PTT button next to send",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 74236,
-    "cost_usd": 0.5539782500000001
+    "duration_ms": 316592,
+    "cost_usd": 1.9617161500000002
   },
   "health": {
-    "uptime_seconds": 1729313,
+    "uptime_seconds": 1729630,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231666053120
+    "disk_avail_bytes": 231665848320
   }
 }
