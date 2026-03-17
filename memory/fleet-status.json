@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T19:46:37.382Z",
+  "updated_at": "2026-03-17T19:49:03.210Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
     "id": 6448,
     "subject": "Email from whoabuddy (1 unread, 10 total): Re: Agents Love Bitcoin",
-    "status": "pending",
+    "status": "completed",
     "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 142740,
-    "cost_usd": 0
+    "duration_ms": 145661,
+    "cost_usd": 0.6707907499999999
   },
   "health": {
-    "uptime_seconds": 1719296,
+    "uptime_seconds": 1719442,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231685234688
+    "disk_avail_bytes": 231685120000
   }
 }
