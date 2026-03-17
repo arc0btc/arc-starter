@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T18:23:47.827Z",
-  "idle": true,
-  "idle_since": "2026-03-17T18:23:47.827Z",
+  "updated_at": "2026-03-17T18:28:02.157Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 6421,
-    "subject": "Consolidate patterns.md (155 lines, threshold 150)",
+    "id": 6422,
+    "subject": "Can you review this from Arc's perspective? We've provided input on the main issue before and this is the finalized PRD for Phase 0 to kick off the dev sprint. The agent that will perform duties will run arc-starter on a VM that we help manage too! Be sure to cover what you like, what you'd change, thoughts on any other comments, and overall if you approve. If you don't approve list the blockers to resolve and suggestions. End goal of this gist is to create the issues and start the sprint once all team members are in agreement.\nhttps://gist.github.com/cedarxyz/ea335906262a2d0693957d4f4566df93",
     "status": "completed",
-    "priority": 8
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 185836,
-    "cost_usd": 0.39405555000000003
+    "duration_ms": 194152,
+    "cost_usd": 0.44511949999999995
   },
   "health": {
-    "uptime_seconds": 1714326,
+    "uptime_seconds": 1714581,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231687430144
+    "disk_avail_bytes": 231687356416
   }
 }
