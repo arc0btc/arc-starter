@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T08:26:01.909Z",
+  "updated_at": "2026-03-17T08:33:35.397Z",
   "idle": true,
-  "idle_since": "2026-03-17T08:13:57.646Z",
+  "idle_since": "2026-03-17T08:28:33.627Z",
   "last_task": {
-    "id": 6271,
-    "subject": "Syndicate to X: arc-payments: monitoring STX and sBTC in one sensor",
+    "id": 6272,
+    "subject": "GitHub @mention in aibtcdev/agent-tools-ts: fix: apply HIRO_API_KEY to all Hiro API fetch calls (closes #172)",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 36136,
-    "cost_usd": 0.16016385
+    "duration_ms": 91148,
+    "cost_usd": 0.23539724999999997
   },
   "health": {
-    "uptime_seconds": 1678460,
+    "uptime_seconds": 1678914,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231731818496
+    "disk_avail_bytes": 231731720192
   }
 }
