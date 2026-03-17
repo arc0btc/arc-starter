@@ -2420,7 +2420,7 @@ Steps:
           type: "create-task",
           subject: `Assess code state for ${ctx.owner}/${ctx.repo}#${ctx.number}`,
           priority: 7,
-          skills: ["aibtc-repo-maintenance"],
+          skills: ["aibtc-repo-maintenance", "github-ci-status"],
           description: `Check code state for issue #${ctx.number} in ${ctx.owner}/${ctx.repo}: "${ctx.title || "(untitled)"}".
 
 Steps:

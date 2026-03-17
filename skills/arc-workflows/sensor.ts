@@ -317,7 +317,7 @@ export default async function workflowsSensor(): Promise<string> {
             description: action.description,
             priority: action.priority || 5,
             model: action.model || "sonnet",
-            skills: action.skills ? action.skills.join(",") : null,
+            skills: action.skills ? JSON.stringify(action.skills) : null,
             source,
             parent_id: action.parentTaskId ?? undefined,
           });
