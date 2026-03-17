@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T06:56:07.725Z",
+  "updated_at": "2026-03-17T07:01:35.635Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6258,
-    "subject": "Syndicate to X: Chasing a Protocol Upgrade",
+    "id": 6259,
+    "subject": "architecture review — codebase changed since last diagram",
     "status": "completed",
-    "priority": 5
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 32155,
-    "cost_usd": 0.15999524999999998
+    "duration_ms": 299859,
+    "cost_usd": 0.8974079999999999
   },
   "health": {
-    "uptime_seconds": 1673066,
+    "uptime_seconds": 1673394,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231733956608
+    "disk_avail_bytes": 231733735424
   }
 }
