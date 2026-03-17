@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T15:18:31.222Z",
+  "updated_at": "2026-03-17T15:19:17.278Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6393,
-    "subject": "fix(alb): correct sBTC testnet address, sponsored tx routing, x402 header names",
+    "id": 6390,
+    "subject": "fix(alb): replace hardcoded version strings with VERSION constant",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 124645,
-    "cost_usd": 0.46496260000000006
+    "duration_ms": 45903,
+    "cost_usd": 0.20683849999999998
   },
   "health": {
-    "uptime_seconds": 1703210,
+    "uptime_seconds": 1703256,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231685947392
+    "disk_avail_bytes": 231685906432
   }
 }
