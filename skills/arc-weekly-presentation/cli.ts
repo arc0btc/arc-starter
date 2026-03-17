@@ -302,12 +302,12 @@ function getSocialActivityFromDb(startDate: string, endDate: string): SocialActi
 function getNewsSignalsCount(startDate: string, endDate: string): number {
   const db = getDatabase();
   const row = db.query(`
-    SELECT COUNT(*) as cnt FROM tasks
+    SELECT COUNT(*) as taskCount FROM tasks
     WHERE date(created_at) BETWEEN ? AND ?
       AND (skills LIKE '%aibtc-news%' OR skills LIKE '%news%')
       AND status = 'completed'
-  `).get(startDate, endDate) as { cnt: number } | null;
-  return row?.cnt ?? 0;
+  `).get(startDate, endDate) as { taskCount: number } | null;
+  return row?.taskCount ?? 0;
 }
 
 function getServicesUpdatesFromDb(startDate: string, _endDate: string): ServicesUpdate {
@@ -336,8 +336,8 @@ function getServicesUpdatesFromDb(startDate: string, _endDate: string): Services
   const gitLines = gitResult.stdout.toString().trim().split("\n").filter(Boolean);
   for (const line of gitLines.slice(0, 5)) {
     // Strip commit hash prefix
-    const msg = line.replace(/^[a-f0-9]+\s+/, "");
-    items.push({ title: msg, detail: "deployment" });
+    const commitMessage = line.replace(/^[a-f0-9]+\s+/, "");
+    items.push({ title: commitMessage, detail: "deployment" });
   }
 
   // 3. If no deployments found, note it
@@ -804,12 +804,12 @@ async function renderPresentation(data: WeekData): Promise<string> {
   // ──────────────────────────────────────────────
   const totalSlides = slides.length;
   const slideHtml = slides.map((content, i) => {
-    const num = i + 1;
+    const slideNumber = i + 1;
     const active = i === 0 ? ' class="slide active"' : ' class="slide"';
-    return `<!-- Slide ${num} -->
-<div${active} id="slide-${num}">
+    return `<!-- Slide ${slideNumber} -->
+<div${active} id="slide-${slideNumber}">
   ${content.trim()}
-  <div class="slide-number">${num} / ${totalSlides}</div>
+  <div class="slide-number">${slideNumber} / ${totalSlides}</div>
 </div>`;
   }).join("\n\n");
 
@@ -1222,8 +1222,8 @@ function loadResearchFile(path: string): ResearchData {
   try {
     const content = readFileSync(path, "utf-8");
     return JSON.parse(content) as ResearchData;
-  } catch (err) {
-    process.stderr.write(`Warning: failed to parse research file: ${(err as Error).message}\n`);
+  } catch (error) {
+    process.stderr.write(`Warning: failed to parse research file: ${(error as Error).message}\n`);
     return {};
   }
 }

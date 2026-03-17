@@ -58,9 +58,9 @@ async function cmdSend(args: string[]): Promise<void> {
     log("send successful");
     console.log(JSON.stringify({ success: true }, null, 2));
   } catch (error) {
-    const msg = error instanceof Error ? error.message : String(error);
-    log(`send failed: ${msg}`);
-    console.log(JSON.stringify({ success: false, error: msg }, null, 2));
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    log(`send failed: ${errorMessage}`);
+    console.log(JSON.stringify({ success: false, error: errorMessage }, null, 2));
     process.exit(1);
   }
 }
