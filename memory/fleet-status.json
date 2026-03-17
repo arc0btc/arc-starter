@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T04:34:02.599Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-17T04:39:04.907Z",
+  "idle": true,
+  "idle_since": "2026-03-17T04:35:02.900Z",
   "last_task": {
-    "id": 6225,
-    "subject": "GitHub issue in aibtcdev/landing-page#399: btcPublicKey stored as empty string for BIP-322 wallets; add update-pubkey challenge",
+    "id": 6226,
+    "subject": "daily cost report — 2026-03-17",
     "status": "completed",
-    "priority": 5
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 116103,
-    "cost_usd": 0.23681894999999994
+    "duration_ms": 19008,
+    "cost_usd": 0.03965055
   },
   "health": {
-    "uptime_seconds": 1664541,
+    "uptime_seconds": 1664843,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231932534784
+    "disk_avail_bytes": 231932444672
   }
 }
