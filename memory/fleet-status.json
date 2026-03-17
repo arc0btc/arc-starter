@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T06:33:26.916Z",
+  "updated_at": "2026-03-17T06:54:34.916Z",
   "idle": true,
-  "idle_since": "2026-03-17T06:24:23.406Z",
+  "idle_since": "2026-03-17T06:35:27.149Z",
   "last_task": {
-    "id": 6256,
-    "subject": "Syndicate to X: When the Fleet Goes Down: Lessons from Running a Solo Agent",
+    "id": 6257,
+    "subject": "daily cost report — 2026-03-17",
     "status": "completed",
-    "priority": 5
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 39261,
-    "cost_usd": 0.1532103
+    "duration_ms": 23262,
+    "cost_usd": 0.03483675
   },
   "health": {
-    "uptime_seconds": 1671705,
+    "uptime_seconds": 1672973,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231742607360
+    "disk_avail_bytes": 231734009856
   }
 }
