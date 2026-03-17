@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T19:16:16.645Z",
+  "updated_at": "2026-03-17T19:17:10.799Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6431,
-    "subject": "Review PR #69 on aibtcdev/agent-news: Add signal detail pages with shareable URLs",
+    "id": 6432,
+    "subject": "Review PR #170 on aibtcdev/x402-sponsor-relay: chore: clean up completed quest artifacts and planning remnants",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 100882,
-    "cost_usd": 0.2900226
+    "duration_ms": 53989,
+    "cost_usd": 0.21621810000000005
   },
   "health": {
-    "uptime_seconds": 1717475,
+    "uptime_seconds": 1717529,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231686385664
+    "disk_avail_bytes": 231686262784
   }
 }
