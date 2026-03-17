@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T17:34:24.902Z",
+  "updated_at": "2026-03-17T17:43:27.899Z",
   "idle": true,
-  "idle_since": "2026-03-17T17:33:24.422Z",
+  "idle_since": "2026-03-17T17:36:25.684Z",
   "last_task": {
-    "id": 6413,
-    "subject": "Retrospective: extract learnings from task #6411 — are we still keeping up with aibtc.news or did something bre",
+    "id": 6414,
+    "subject": "daily cost report — 2026-03-17",
     "status": "completed",
-    "priority": 8
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 80664,
-    "cost_usd": 0.09859024999999999
+    "duration_ms": 33215,
+    "cost_usd": 0.05328415000000001
   },
   "health": {
-    "uptime_seconds": 1711363,
+    "uptime_seconds": 1711906,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231688179712
+    "disk_avail_bytes": 231688052736
   }
 }
