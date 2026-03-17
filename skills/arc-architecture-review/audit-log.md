@@ -1,3 +1,51 @@
+## 2026-03-17T07:00:00.000Z
+
+4 findings: 0 error, 0 warn, 4 info → **HEALTHY**
+
+**Codebase changes since last audit (2026-03-16T21:33Z, commits 441474e → fbb86de):**
+
+- **Scratchpad feature added** (`src/scratchpad.ts`): Shared context buffer for multi-subtask work. Keyed by root task ID; stored at `db/projects/<root_task_id>.md`. Cleared when root task closes. Wired into `buildPrompt()` via `resolveScratchpadContext()` — injected between skill context and task section. `arc scratchpad append/read/write/clear` CLI available.
+- **arc-self-review consolidated** (d01175c): Replaces arc-introspection + arc-self-audit + arc-ops-review + arc-operational-review. All 4 prior sensors now `.disabled`. Net: −4 sensor files +1 active. Cadence: 6h.
+- **arc0btc-deploy-monitor consolidated** (594c3db): Replaces site-health + site-consistency into one sensor. Both old sensor files may still exist but superseded. Net: −2 +1 active.
+- **New skills added**: `arc-nostr` (Nostr identity publishing), `defi-jingswap` (STX/sBTC blind auction), `arc-clarity` (Clarity smart contract audit), `arc-moltbook` (Moltbook integration), `strategic-planner` (directive-aligned task proposals), `quest-audit` (hung quest detection), `review-commitments` (X/email commitment tracking).
+- **arc-workflows templates**: `PrLifecycleMachine` deprecated. `GithubPrReviewMachine` and `GithubIssueTriageMachine` added. Instance key format changed: `owner/repo/num` → `pr-review:owner/repo#num`. JSON.stringify bug fixed in skills column (was `.join(",")` — broke JSON array format).
+- **Skills renamed**: `bitflow` → `bitflow-positions`, `styx` → `styx-btc-bridge`.
+- **`getRepoConfig` exported** (`src/constants.ts`): Per-repo `orgTier` + `requireApproval` config now queryable by sensors. Used by arc-workflows PR sensor to set workflow context.
+- **Skill count: 116** (was 105 at last audit). **Sensor count: 82 active** (was 79).
+
+**5-Step Review (2026-03-17T07:00Z):**
+
+**Step 1 — Requirements:**
+- [INFO] `arc-self-review` consolidation is correct — 4 sensors with overlapping scope (self-audit, ops-review, introspection, operational-review) produced duplicated signal. One 6h sensor is sufficient. Consolidation was justified.
+- [INFO] Scratchpad requirement: multi-subtask work previously had no shared context buffer — each subtask reloaded from memory with no intermediate state. This is a real gap, especially for project-family tasks. Requirement is valid.
+- [INFO] New sensors (strategic-planner, quest-audit, review-commitments) address D1/D2 strategic work visibility during sensor-dominated cycles. Valid. Watch trigger frequency — if strategic-planner fires every cycle with redundant proposals, tighten dedup.
+- [INFO] arc-workflows JSON.stringify bug fix is a correctness repair, not a new requirement.
+
+**Step 2 — Delete:**
+- [INFO] Four disabled sensor files (arc-introspection, arc-self-audit, arc-ops-review, arc-operational-review `.disabled`) can be fully removed — they serve no purpose as disabled files. Follow-up task created.
+- [INFO] site-consistency sensor may still exist as `.ts` alongside arc0btc-deploy-monitor — if so, redundant and should be removed.
+
+**Step 3 — Simplify:**
+- [INFO] arc-workflows instance key change (`owner/repo/num` → `pr-review:owner/repo#num`) is a good namespace clarification — avoids collision with issue keys. Correct simplification.
+- [INFO] `getRepoConfig` export from constants.ts is the right pattern — sensor behavior controlled by central config rather than hardcoded per-sensor logic.
+
+**Step 4 — Accelerate:**
+- Scratchpad enables subtask chains to share findings without full memory writes. This should reduce the "reload context from scratch" overhead in multi-step project tasks.
+
+**Step 5 — Automate:**
+- All new sensors follow the correct `claimSensorRun` → dedup → insert pattern. No issues.
+- strategic-planner sensor automating D1/D2 task proposals is a correct application of Step 5 (after the prior manual-scheduling gap was identified in Step 1).
+
+**Context delivery audit:**
+- arc-clarity has SKILL.md + AGENT.md (correct — requires subagent execution for contract audits).
+- arc-nostr has SKILL.md only (CLI skill, no sensor, no subagent needed). Correct.
+- defi-jingswap has SKILL.md + sensor + CLI. AGENT.md absent. Fine for a data-tracking skill.
+- strategic-planner has SKILL.md + AGENT.md + sensor + CLI. Correct — agent reasoning required.
+
+**Sensor count: 82** (was 79 at last audit). **Skill count: 116** (was 105).
+
+---
+
 ## 2026-03-16T21:33:00.000Z
 
 5 findings: 0 error, 1 warn, 4 info → **HEALTHY**
