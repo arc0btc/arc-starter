@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T13:39:27.958Z",
+  "updated_at": "2026-03-17T13:41:36.642Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6326,
-    "subject": "Presentation skill: consistent week-over-week sections + Sonnet research subagents",
+    "id": 6312,
+    "subject": "Investigate recurring failure: external-constraint (3 occurrences)",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 378770,
-    "cost_usd": 1.3478385999999998
+    "duration_ms": 128356,
+    "cost_usd": 0.41109599999999996
   },
   "health": {
-    "uptime_seconds": 1697266,
+    "uptime_seconds": 1697395,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231697436672
+    "disk_avail_bytes": 231697350656
   }
 }
