@@ -31,6 +31,7 @@ import {
   getWorkflowByInstanceKey,
 } from "../../src/db.ts";
 import { toHtmlEmail } from "../arc-report-email/html.ts";
+import { sendEmail } from "../arc-email-sync/sync.ts";
 
 const SENSOR_NAME = "fleet-escalation";
 const INTERVAL_MINUTES = 15;
@@ -128,12 +129,10 @@ async function getBlockedTasks(
 async function emailWhoabuddy(
   newEscalations: EscalationRecord[],
 ): Promise<void> {
-  const apiBaseUrl = await getCredential("arc-email-sync", "api_base_url");
-  const adminKey = await getCredential("arc-email-sync", "admin_api_key");
   const recipient = await getCredential("arc-email-sync", "report_recipient");
 
-  if (!apiBaseUrl || !adminKey || !recipient) {
-    log("email credentials missing — skipping notification");
+  if (!recipient) {
+    log("email recipient missing — skipping notification");
     return;
   }
 
@@ -153,34 +152,18 @@ async function emailWhoabuddy(
   ].join("\n");
 
   const subject = `Fleet escalation: ${newEscalations.length} blocked task(s) need attention`;
-  const htmlBody = toHtmlEmail(body, subject, "Fleet Escalation");
 
   try {
-    const response = await fetch(`${apiBaseUrl}/api/send`, {
-      method: "POST",
-      headers: {
-        "X-Admin-Key": adminKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        to: recipient,
-        subject,
-        body,
-        html: htmlBody,
-        from: "arc@arc0.me",
-      }),
+    await sendEmail({
+      to: recipient,
+      subject,
+      body,
+      html: toHtmlEmail(body, subject, "Fleet Escalation"),
+      from: "arc@arc0.me",
     });
-
-    if (response.ok) {
-      log(`email sent to whoabuddy: ${newEscalations.length} escalation(s)`);
-    } else {
-      const text = await response.text();
-      log(`email send failed: HTTP ${response.status} — ${text}`);
-    }
+    log(`email sent to whoabuddy: ${newEscalations.length} escalation(s)`);
   } catch (error) {
-    log(
-      `email send error: ${error instanceof Error ? error.message : String(error)}`,
-    );
+    log(`email send failed: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 

@@ -6,6 +6,7 @@
 import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
 import { pendingTaskExistsForSource } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
+import { sendEmail } from "../arc-email-sync/sync.ts";
 import { markdownToHtml, wrapInArcTheme } from "./html.ts";
 
 const SENSOR_NAME = "arc-report-email";
@@ -83,15 +84,8 @@ export default async function reportEmailSensor(): Promise<string> {
 
   log(`CEO-reviewed report ready: ${newestFile}`);
 
-  // Get email credentials and recipient
-  const apiBaseUrl = await getCredential("arc-email-sync", "api_base_url");
-  const adminKey = await getCredential("arc-email-sync", "admin_api_key");
+  // Get email recipient (API credentials handled by sendEmail())
   const recipient = await getCredential("arc-email-sync", "report_recipient");
-
-  if (!apiBaseUrl || !adminKey) {
-    log("email credentials not configured — skipping");
-    return "skip";
-  }
 
   if (!recipient) {
     log("no report_recipient in credential store (email/report_recipient) — skipping");
@@ -116,34 +110,20 @@ export default async function reportEmailSensor(): Promise<string> {
   });
 
   // Send via email worker API (html field for themed email, body as plain text fallback)
-  const response = await fetch(`${apiBaseUrl}/api/send`, {
-    method: "POST",
-    headers: {
-      "X-Admin-Key": adminKey,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      to: recipient,
-      subject,
-      body: plainText,
-      html: htmlBody,
-    }),
-  });
-
-  if (!response.ok) {
+  try {
+    await sendEmail({ to: recipient, subject, body: plainText, html: htmlBody });
+  } catch (error) {
     // Clear state on failure so we retry next cycle
     await writeHookState(SENSOR_NAME, {
       last_ran: new Date().toISOString(),
       last_result: "error",
       version: state ? state.version + 1 : 1,
-        last_emailed_report: state?.last_emailed_report as string ?? "",
+      last_emailed_report: state?.last_emailed_report as string ?? "",
     });
-    const body = await response.text();
-    log(`email send failed: HTTP ${response.status} — ${body}`);
+    log(`email send failed: ${error instanceof Error ? error.message : String(error)}`);
     return "error";
   }
 
   log(`emailed report to ${recipient}: "${subject}"`);
-
   return "ok";
 }

@@ -62,6 +62,30 @@ export async function getEmailCredentials(): Promise<{ apiBaseUrl: string; admin
   return { apiBaseUrl, adminKey };
 }
 
+export interface SendEmailPayload {
+  to: string;
+  subject: string;
+  body: string;
+  html: string;
+  from?: string;
+  in_reply_to?: string;
+  attachments?: Array<{ filename: string; content: string; content_type: string }>;
+}
+
+/** Send an email via the arc-email-worker API. Throws on HTTP error. */
+export async function sendEmail(payload: SendEmailPayload): Promise<void> {
+  const { apiBaseUrl, adminKey } = await getEmailCredentials();
+  const response = await fetch(`${apiBaseUrl}/api/send`, {
+    method: "POST",
+    headers: { "X-Admin-Key": adminKey, "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`HTTP ${response.status} — ${text}`);
+  }
+}
+
 function toLocalMessage(record: ApiEmailRecord): Omit<EmailMessage, "id"> {
   const bodyPreview = record.body_text
     ? record.body_text.slice(0, 500)
@@ -134,27 +158,32 @@ export async function syncEmail(): Promise<EmailSyncStats> {
 
   const existingIds = getAllEmailRemoteIds();
 
-  const folders: Array<{ name: string; limit: number }> = [
+  const folderDefs: Array<{ name: string; limit: number }> = [
     { name: "inbox", limit: 50 },
     { name: "sent", limit: 20 },
   ];
 
-  for (const { name, limit } of folders) {
-    try {
-      const records = await fetchFolder(apiBaseUrl, adminKey, name, limit);
-      for (const record of records) {
-        upsertEmailMessage(toLocalMessage(record));
-        stats.total_fetched++;
-        if (existingIds.has(record.id)) {
-          stats.updated++;
-        } else {
-          stats.new_count++;
-        }
-      }
-    } catch (err) {
-      const msg = `${name} fetch failed: ${err}`;
+  const folderResults = await Promise.allSettled(
+    folderDefs.map(({ name, limit }) => fetchFolder(apiBaseUrl, adminKey, name, limit))
+  );
+
+  for (let i = 0; i < folderDefs.length; i++) {
+    const folderResult = folderResults[i];
+    const { name } = folderDefs[i];
+    if (folderResult.status === "rejected") {
+      const msg = `${name} fetch failed: ${folderResult.reason}`;
       stats.errors.push(msg);
       log(msg);
+      continue;
+    }
+    for (const record of folderResult.value) {
+      upsertEmailMessage(toLocalMessage(record));
+      stats.total_fetched++;
+      if (existingIds.has(record.id)) {
+        stats.updated++;
+      } else {
+        stats.new_count++;
+      }
     }
   }
 

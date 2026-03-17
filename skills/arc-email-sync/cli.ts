@@ -4,7 +4,7 @@
 // Usage: arc skills run --name email -- <subcommand> [flags]
 
 import { initDatabase, markEmailRead } from "../../src/db.ts";
-import { syncEmail, getEmailCredentials } from "./sync.ts";
+import { syncEmail, getEmailCredentials, sendEmail, type SendEmailPayload } from "./sync.ts";
 import { toHtmlEmail } from "../arc-report-email/html.ts";
 import { parseFlags } from "../../src/utils.ts";
 
@@ -24,23 +24,17 @@ async function cmdSend(args: string[]): Promise<void> {
     process.exit(1);
   }
 
-  const { apiBaseUrl, adminKey } = await getEmailCredentials();
-
   // Auto-generate HTML from body text unless explicit --html provided
   const htmlBody = flags.html ?? toHtmlEmail(flags.body, flags.subject, "Arc");
 
-  const payload: Record<string, unknown> = {
+  const payload: SendEmailPayload = {
     to: flags.to,
     subject: flags.subject,
     body: flags.body,
     html: htmlBody,
   };
-  if (flags.from) {
-    payload.from = flags.from;
-  }
-  if (flags["in-reply-to"]) {
-    payload.in_reply_to = flags["in-reply-to"];
-  }
+  if (flags.from) payload.from = flags.from;
+  if (flags["in-reply-to"]) payload.in_reply_to = flags["in-reply-to"];
   if (flags.attachment) {
     const filePath = flags.attachment;
     const file = Bun.file(filePath);
@@ -53,37 +47,22 @@ async function cmdSend(args: string[]): Promise<void> {
     const contentType = filePath.endsWith(".html") || filePath.endsWith(".htm")
       ? "text/html"
       : "application/octet-stream";
-    payload.attachments = [
-      {
-        filename,
-        content: Buffer.from(content).toString("base64"),
-        content_type: contentType,
-      },
-    ];
+    payload.attachments = [{ filename, content: Buffer.from(content).toString("base64"), content_type: contentType }];
     log(`attaching ${filename} (${contentType}, ${content.length} bytes)`);
   }
 
   log(`sending to ${flags.to}: "${flags.subject}"`);
 
-  const response = await fetch(`${apiBaseUrl}/api/send`, {
-    method: "POST",
-    headers: {
-      "X-Admin-Key": adminKey,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
-
-  const result = await response.json();
-
-  if (!response.ok) {
-    log(`send failed: HTTP ${response.status}`);
-    console.log(JSON.stringify({ success: false, status: response.status, error: result }, null, 2));
+  try {
+    await sendEmail(payload);
+    log("send successful");
+    console.log(JSON.stringify({ success: true }, null, 2));
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    log(`send failed: ${msg}`);
+    console.log(JSON.stringify({ success: false, error: msg }, null, 2));
     process.exit(1);
   }
-
-  log("send successful");
-  console.log(JSON.stringify({ success: true, ...result }, null, 2));
 }
 
 async function cmdMarkRead(args: string[]): Promise<void> {

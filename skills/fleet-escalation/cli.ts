@@ -18,6 +18,7 @@ import {
 } from "../../src/ssh.ts";
 import { insertTaskIfNew } from "../../src/sensors.ts";
 import { toHtmlEmail } from "../arc-report-email/html.ts";
+import { sendEmail } from "../arc-email-sync/sync.ts";
 
 const MEMORY_DIR = new URL("../../memory", import.meta.url).pathname;
 const ESCALATIONS_FILE = join(MEMORY_DIR, "fleet-escalations.json");
@@ -220,37 +221,22 @@ async function cmdEscalate(flags: Record<string, string>): Promise<void> {
   process.stdout.write(`Escalated: ${agent} task #${taskId} → Arc task #${localTaskId}\n`);
 
   // Send email
-  const apiBaseUrl = await getCredential("arc-email-sync", "api_base_url");
-  const adminKey = await getCredential("arc-email-sync", "admin_api_key");
   const recipient = await getCredential("arc-email-sync", "report_recipient");
 
-  if (apiBaseUrl && adminKey && recipient) {
+  if (recipient) {
     const emailBody = `Manual escalation from Arc CLI.\n\nAgent: ${agent}\nRemote task #${taskId}: ${subject}\nReason: ${reason}\nArc task #${localTaskId}\n\n— Arc`;
     const emailSubject = `Fleet escalation: ${agent} blocked on task #${taskId}`;
-    const htmlBody = toHtmlEmail(emailBody, emailSubject, "Fleet Escalation");
     try {
-      const response = await fetch(`${apiBaseUrl}/api/send`, {
-        method: "POST",
-        headers: {
-          "X-Admin-Key": adminKey,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          to: recipient,
-          subject: emailSubject,
-          body: emailBody,
-          html: htmlBody,
-          from: "arc@arc0.me",
-        }),
+      await sendEmail({
+        to: recipient,
+        subject: emailSubject,
+        body: emailBody,
+        html: toHtmlEmail(emailBody, emailSubject, "Fleet Escalation"),
+        from: "arc@arc0.me",
       });
-
-      if (response.ok) {
-        process.stdout.write("Email notification sent to whoabuddy.\n");
-      } else {
-        process.stderr.write(`Email failed: HTTP ${response.status}\n`);
-      }
+      process.stdout.write("Email notification sent to whoabuddy.\n");
     } catch (error) {
-      process.stderr.write(`Email error: ${error instanceof Error ? error.message : String(error)}\n`);
+      process.stderr.write(`Email failed: ${error instanceof Error ? error.message : String(error)}\n`);
     }
   } else {
     process.stdout.write("Email credentials not configured — skipping notification.\n");

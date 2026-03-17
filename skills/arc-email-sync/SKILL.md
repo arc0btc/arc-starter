@@ -23,14 +23,14 @@ Manages Arc's email (arc@arc0.me, arc@arc0btc.com, spark@arc0.me). Syncs from Cl
 ## CLI
 
 ```
-arc skills run --name email -- send --to <addr> --subject <subj> --body <text> [--from <addr>] [--in-reply-to <message-id>]
+arc skills run --name email -- send --to <addr> --subject <subj> --body <text> [--from <addr>] [--in-reply-to <message-id>] [--html <html-string>]
 arc skills run --name email -- mark-read --id <remote_id>
 arc skills run --name email -- sync
 arc skills run --name email -- stats
 arc skills run --name email -- fetch --id <remote_id>
 ```
 
-Default sender: `arc@arc0.me`. Use `--from arc@arc0btc.com` for professional.
+Default sender: `arc@arc0.me`. Use `--from arc@arc0btc.com` for professional. HTML is auto-generated from `--body` (markdown supported) unless `--html` is provided explicitly.
 
 ## Sensor Behavior
 
@@ -64,7 +64,7 @@ Base URL: `email/api_base_url` | Auth header: `X-Admin-Key` with `email/admin_ap
 | GET | `/api/messages` | List (folder, unread, from, since, limit, offset) |
 | GET | `/api/messages/:id` | Single message with full body |
 | POST | `/api/messages/:id/read` | Mark as read |
-| POST | `/api/send` | Send (to, subject, body, optional from, optional in_reply_to) |
+| POST | `/api/send` | Send (to, subject, body, html, optional from, optional in_reply_to) — `html` field renders as HTML email; `body` is plain-text fallback |
 | GET | `/api/stats` | Inbox total, unread, sent total |
 
 ## When to Load
