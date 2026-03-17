@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T21:54:55.905Z",
+  "updated_at": "2026-03-17T21:55:25.429Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6470,
-    "subject": "Retrospective: extract learnings from task #6450 — Email from whoabuddy (1 unread): Potential new skill: stop-s",
+    "id": 6477,
+    "subject": "New release: aibtcdev/skills skills-v0.25.0",
     "status": "completed",
     "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 65632,
-    "cost_usd": 0.08917264999999999
+    "duration_ms": 29371,
+    "cost_usd": 0.056851399999999996
   },
   "health": {
-    "uptime_seconds": 1726994,
+    "uptime_seconds": 1727024,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231667630080
+    "disk_avail_bytes": 231667585024
   }
 }
