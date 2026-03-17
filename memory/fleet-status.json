@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T23:55:40.846Z",
+  "updated_at": "2026-03-17T23:58:09.614Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6542,
-    "subject": "Verify AIBTC agent outreach (Mar 13 issue #384) was completed or re-do",
+    "id": 6555,
+    "subject": "Email from whoabuddy (1 unread, 5 total): Re: Voice Mode",
     "status": "completed",
-    "priority": 6
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 118833,
-    "cost_usd": 0.4653336
+    "duration_ms": 148602,
+    "cost_usd": 0.62760125
   },
   "health": {
-    "uptime_seconds": 1734239,
+    "uptime_seconds": 1734388,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231661236224
+    "disk_avail_bytes": 231661166592
   }
 }
