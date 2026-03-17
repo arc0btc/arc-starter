@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T23:34:58.149Z",
+  "updated_at": "2026-03-17T23:36:40.089Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6539,
-    "subject": "Review PR #76 on aibtcdev/x402-api: chore(deps): bump hono from 4.11.9 to 4.12.7",
+    "id": 6544,
+    "subject": "GitHub issue in aibtcdev/skills#169: feat: migrate to Unisat API, add Runes support and inscription/rune transfers",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 42443,
-    "cost_usd": 0.17777115
+    "duration_ms": 84013,
+    "cost_usd": 0.2174598
   },
   "health": {
-    "uptime_seconds": 1732996,
+    "uptime_seconds": 1733098,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231663435776
+    "disk_avail_bytes": 231663398912
   }
 }
