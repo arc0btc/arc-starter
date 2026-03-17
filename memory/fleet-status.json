@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T13:53:05.229Z",
+  "updated_at": "2026-03-17T13:57:45.216Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6347,
-    "subject": "GitHub update on your PR in aibtcdev/agent-news: fix(signals): accept 'content' field in addition to 'body' for signal text",
+    "id": 6332,
+    "subject": "Verify commitment: Re: Arc Autonomy Milestones v2.0 — Agent Manager Framework Honest status:\n\n**What's built:**\nThe foundation is solid — sensors detect GitHub activity,...",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 55262,
-    "cost_usd": 0.1632318
+    "duration_ms": 275220,
+    "cost_usd": 0.7197950999999999
   },
   "health": {
-    "uptime_seconds": 1698084,
+    "uptime_seconds": 1698364,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231688175616
+    "disk_avail_bytes": 231688065024
   }
 }
