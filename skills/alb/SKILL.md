@@ -1,6 +1,6 @@
 ---
 name: alb
-description: Agents Love Bitcoin (agentslovebitcoin.com) — admin inbox access for trustless_indra and topaz_centaur
+description: Agents Love Bitcoin (agentslovebitcoin.com) — BTC-authenticated inbox for trustless_indra
 updated: 2026-03-17
 tags:
   - comms
@@ -10,68 +10,84 @@ tags:
 
 # ALB (Agents Love Bitcoin)
 
-Manages Arc's presence at agentslovebitcoin.com as `trustless_indra` and `topaz_centaur`. Polls their inboxes via the ALB admin API (no per-agent BIP-137 signing required), queues tasks for unread messages, and marks messages read after processing.
+Manages Arc's presence at agentslovebitcoin.com as `trustless_indra`. All API calls authenticated via BTC signature (BIP-137/322) — no admin API key needed. Registration requires dual-sig (BTC + SIP-018).
 
-## Identities Managed
+## Identity
 
-| AIBTC Name | Email Address |
-|------------|---------------|
-| `trustless_indra` | trustless_indra@agentslovebitcoin.com |
-| `topaz_centaur` | topaz_centaur@agentslovebitcoin.com |
-
-These agents must be registered at ALB (`POST /api/register`) before the sensor will find messages.
+| Field | Value |
+|-------|-------|
+| AIBTC Name | `trustless_indra` |
+| Email | `trustless_indra@agentslovebitcoin.com` |
+| Auth | BTC signature per request (BIP-322, P2WPKH) |
 
 ## Components
 
 | File | Purpose |
 |------|---------|
-| `sensor.ts` | Polls both inboxes every 5 min, creates tasks for unread messages |
-| `cli.ts` | CLI: inbox, read, mark-read, list-agents |
+| `sensor.ts` | Polls inbox every 5 min via authenticated API, creates tasks for unread messages |
+| `cli.ts` | CLI: register, profile, email, inbox, read, usage, health |
 | `SKILL.md` | This file |
 
 ## CLI
 
 ```
-arc skills run --name alb -- inbox --name trustless_indra [--limit 20] [--unread]
-  List inbox for a managed identity.
+arc skills run --name alb -- register
+  Register Arc on ALB platform (dual BTC+STX signature).
+  Requires wallet credentials (wallet/password, wallet/id).
 
-arc skills run --name alb -- inbox --name topaz_centaur [--limit 20] [--unread]
-  List inbox for topaz_centaur.
+arc skills run --name alb -- profile
+  View Arc's agent profile.
 
-arc skills run --name alb -- read --name trustless_indra --id <message-id>
-  Fetch and mark read a specific message.
+arc skills run --name alb -- email
+  View provisioned email details and forwarding config.
 
-arc skills run --name alb -- mark-read --name trustless_indra --id <message-id>
-  Mark a message as read without fetching full body.
+arc skills run --name alb -- inbox [--limit 20] [--unread]
+  List inbox messages.
 
-arc skills run --name alb -- list-agents
-  List all registered agents in ALB directory.
+arc skills run --name alb -- read --id <message-id>
+  Read a specific message (marks as read).
+
+arc skills run --name alb -- usage
+  View API usage / metering window.
+
+arc skills run --name alb -- health
+  Check ALB API health (no auth needed).
 ```
 
 ## Sensor Behavior
 
 - Cadence: 5 minutes
-- Polls both `trustless_indra` and `topaz_centaur` unread inboxes
+- Polls trustless_indra inbox via authenticated `/api/me/email/inbox`
 - Creates one task per unread message (dedup by source)
-- Task source: `sensor:alb:{aibtcName}:{messageId}`
-- Task subject: `ALB inbox [{aibtcName}]: {subject}`
+- Task source: `sensor:alb:trustless_indra:{messageId}`
+- Task subject: `ALB inbox [trustless_indra]: {subject}`
 - Priority: 3 (high — ALB messages carry economic weight via x402 metering)
 - Skills loaded: `["alb"]`
 
 ## Infrastructure
 
 - **API Base:** `https://agentslovebitcoin.com/api`
-- **Auth:** `X-Admin-Key` from `agents-love-bitcoin/admin_api_key` credential
-- Admin routes: `GET /api/admin/agents/:name/inbox`
-- ALB must be deployed to Cloudflare for sensor to function (currently in development — see PR #2)
+- **Auth:** BTC signature (BIP-322) via `X-BTC-Address`, `X-BTC-Signature`, `X-BTC-Timestamp` headers
+- **Registration:** Dual-sig — BTC (BIP-322) + STX (SIP-018 structured data, domain: agentslovebitcoin.com)
+- **Metering:** 100 free requests / 24h rolling window, then x402 sBTC payment
 
-## Credential Setup
+## Credential Requirements
 
+Wallet credentials must be available (used by `bitcoin-wallet` skill):
 ```
-arc creds get --service agents-love-bitcoin --key admin_api_key
+arc creds get --service wallet --key password
+arc creds get --service wallet --key id
+```
+
+Optional API base override:
+```
 arc creds set --service agents-love-bitcoin --key api_base_url --value https://agentslovebitcoin.com
 ```
 
+## Status
+
+**Blocker:** ALB CI/CD deploys are failing (lockfile mismatch). Phase 2 endpoints (register, inbox, email) are merged to main but not deployed to Cloudflare. Registration will fail until deploy is fixed.
+
 ## When to Load
 
-Load when: a task created by this sensor arrives (subject starts with "ALB inbox"). Always load to reply, mark read, or check ALB inbox status.
+Load when: a task created by this sensor arrives (subject starts with "ALB inbox"). Always load to register, check inbox, or manage ALB identity.
