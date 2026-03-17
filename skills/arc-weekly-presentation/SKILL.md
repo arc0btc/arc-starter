@@ -1,6 +1,6 @@
 ---
 name: arc-weekly-presentation
-description: Auto-generate Monday weekly presentation slides from live Arc data
+description: Auto-generate Monday weekly presentation slides from live Arc data with consistent sections
 updated: 2026-03-17
 tags:
   - publishing
@@ -10,29 +10,33 @@ tags:
 
 # arc-weekly-presentation
 
-Generates a week-over-week HTML slide deck for the AIBTC Monday meeting. Queries live data (tasks, skills, sensors, contacts, blog posts) and renders a branded presentation using the V2 template from `src/web/presentation.html`.
+Generates a week-over-week HTML slide deck for the AIBTC Monday meeting. Four consistent sections every week, supplemented by Sonnet subagent research for real data.
 
-## What This Skill Does
+## Consistent Sections (every week)
 
-Every Monday morning (or on demand via CLI), collects the past 7 days of activity:
-- New skills added (git log on `skills/`)
-- New sensors deployed
-- Task counts and completion stats
-- New agents welcomed (from contacts)
-- Published blog posts (from task subjects)
-- Cost summary
+1. **Dev Activity** — PRs merged, commits, contributors (whoabuddy + arc0btc GitHub history)
+2. **Social & Publishing** — blog posts (arc0btc.com/blog), X posts/threads (@arc0btc), news beats (aibtc.news)
+3. **Services** — arc0btc.com stats, dashboard updates, new features
+4. **Self Improvements** — new/updated skills, new sensors, memory changes
 
-Renders into a self-contained HTML slide deck, archives previous presentations as `presentation-YYYY-MM-DD.html`.
+These sections always appear, even when empty ("No X posts this week"). This makes presentations predictable week-over-week.
 
 ## CLI
 
 ```
-arc skills run --name arc-weekly-presentation -- generate [--week YYYY-MM-DD]
+arc skills run --name arc-weekly-presentation -- generate [--week YYYY-MM-DD] [--research-file PATH]
 arc skills run --name arc-weekly-presentation -- list
 ```
 
-- `generate` — Build presentation for the week ending on the given date (default: today). Archives previous presentation and writes `src/web/presentation.html`.
+- `generate` — Build presentation. Collects local data (git, task DB), merges with optional research file from Sonnet subagents, renders HTML.
+- `--research-file` — JSON file with supplementary data from subagent research. Overrides local data where provided.
 - `list` — Show archived presentations.
+
+## Sonnet Subagent Research
+
+When data is thin (no PR titles in local git, no blog posts in DB), dispatch should spawn Sonnet subagents to research real data before calling `generate`. See AGENT.md for the full research workflow.
+
+Research areas: actual PR titles (via `gh`), actual blog post titles, X post history, arc0btc.com updates.
 
 ## Sensor
 
@@ -40,7 +44,11 @@ Runs Monday mornings. Creates a P5 task to generate the weekly presentation if o
 
 ## Design
 
-Follows `arc-brand-voice` visual brand: Arc Gold (#FEC233), black backgrounds, Inter + JetBrains Mono fonts. Reuses the V2 slide template structure.
+Arc brand voice: Arc Gold (#FEC233), black backgrounds, Inter + JetBrains Mono fonts. Self-contained HTML with keyboard/touch navigation.
+
+## Links
+
+Always includes: arc0btc.com, arc0btc.com/blog, @arc0btc, aibtc.news, github.com/aibtcdev/arc-starter
 
 ## Checklist
 
@@ -49,3 +57,4 @@ Follows `arc-brand-voice` visual brand: Arc Gold (#FEC233), black backgrounds, I
 - [x] SKILL.md is under 2000 tokens
 - [x] `cli.ts` present with generate, list commands
 - [x] `sensor.ts` present with Monday scheduling
+- [x] `AGENT.md` present with subagent research workflow

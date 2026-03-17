@@ -2,8 +2,14 @@
 // arc-weekly-presentation/cli.ts
 //
 // Generates a week-over-week HTML slide deck from live Arc data.
+// Four consistent sections every week:
+//   1. Dev Activity — PRs merged, commits
+//   2. Social — blog posts, X posts, news beats
+//   3. Services — arc0btc.com stats + updates
+//   4. Self Improvements — new/updated skills, sensors, memory changes
+//
 // Usage:
-//   arc skills run --name arc-weekly-presentation -- generate [--week YYYY-MM-DD]
+//   arc skills run --name arc-weekly-presentation -- generate [--week YYYY-MM-DD] [--research-file PATH]
 //   arc skills run --name arc-weekly-presentation -- list
 
 import { existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync, copyFileSync } from "fs";
@@ -18,21 +24,55 @@ const WEB_DIR = join(ROOT, "src/web");
 const PRESENTATION_PATH = join(WEB_DIR, "presentation.html");
 const ARCHIVE_DIR = join(WEB_DIR, "presentations");
 
-// ---- Data collection ----
+// ---- Types ----
+
+interface DevActivity {
+  prs: Array<{ title: string; repo: string; url?: string }>;
+  commits: number;
+  contributors: string[];
+}
+
+interface SocialActivity {
+  blogPosts: Array<{ title: string; url?: string }>;
+  xPosts: Array<{ text: string; url?: string }>;
+  newsBeats: string[];
+}
+
+interface ServicesUpdate {
+  items: Array<{ title: string; detail?: string }>;
+  siteUrl: string;
+}
+
+interface SelfImprovements {
+  newSkills: Array<{ name: string; description: string }>;
+  updatedSkills: Array<{ name: string; description: string }>;
+  newSensors: Array<{ name: string; description: string }>;
+  memoryChanges: string[];
+}
 
 interface WeekData {
   weekEnd: string;       // YYYY-MM-DD
   weekStart: string;     // YYYY-MM-DD
-  newSkills: Array<{ name: string; description: string }>;
-  newSensors: Array<{ name: string; description: string }>;
+  devActivity: DevActivity;
+  socialActivity: SocialActivity;
+  servicesUpdates: ServicesUpdate;
+  selfImprovements: SelfImprovements;
   taskStats: { completed: number; failed: number; total: number };
   totalSkills: number;
   totalSensors: number;
   costSummary: { totalCost: number; totalTasks: number; avgPerTask: number };
   newAgents: Array<{ name: string; btcPrefix: string }>;
-  blogPosts: string[];
-  highlights: string[];
 }
+
+/** Supplementary research data from Sonnet subagents */
+interface ResearchData {
+  devActivity?: Partial<DevActivity>;
+  socialActivity?: Partial<SocialActivity>;
+  servicesUpdates?: Partial<ServicesUpdate>;
+  selfImprovements?: Partial<SelfImprovements>;
+}
+
+// ---- Data collection ----
 
 function getWeekRange(weekEnd: string): { start: string; end: string } {
   const end = new Date(weekEnd + "T23:59:59Z");
@@ -76,6 +116,36 @@ function getNewSkillsFromGit(since: string): Array<{ name: string; description: 
   return results;
 }
 
+function getUpdatedSkillsFromGit(since: string, newSkillNames: Set<string>): Array<{ name: string; description: string }> {
+  const result = Bun.spawnSync({
+    cmd: ["git", "log", `--since=${since}`, "--oneline", "--diff-filter=M", "--name-only", "--", "skills/*/SKILL.md", "skills/*/cli.ts", "skills/*/sensor.ts"],
+    cwd: ROOT,
+  });
+  const output = result.stdout.toString().trim();
+  if (!output) return [];
+
+  const paths = output.split("\n").filter(l => l.startsWith("skills/"));
+  const seen = new Set<string>();
+  const results: Array<{ name: string; description: string }> = [];
+
+  for (const p of paths) {
+    const name = p.split("/")[1];
+    if (seen.has(name) || newSkillNames.has(name)) continue;
+    seen.add(name);
+
+    const skillMd = join(ROOT, "skills", name, "SKILL.md");
+    let description = "";
+    if (existsSync(skillMd)) {
+      const content = readFileSync(skillMd, "utf-8");
+      const descMatch = content.match(/^description:\s*(.+)$/m);
+      if (descMatch) description = descMatch[1].trim();
+    }
+    results.push({ name, description });
+  }
+
+  return results;
+}
+
 function getNewSensorsFromGit(since: string): Array<{ name: string; description: string }> {
   const result = Bun.spawnSync({
     cmd: ["git", "log", `--since=${since}`, "--oneline", "--diff-filter=A", "--name-only", "--", "skills/*/sensor.ts"],
@@ -104,6 +174,122 @@ function getNewSensorsFromGit(since: string): Array<{ name: string; description:
   }
 
   return results;
+}
+
+function getMemoryChangesFromGit(since: string): string[] {
+  const result = Bun.spawnSync({
+    cmd: ["git", "log", `--since=${since}`, "--oneline", "--", "memory/"],
+    cwd: ROOT,
+  });
+  const output = result.stdout.toString().trim();
+  if (!output) return [];
+
+  // Extract commit subjects (skip hash)
+  return output.split("\n")
+    .map(line => line.replace(/^[a-f0-9]+ /, "").trim())
+    .filter(Boolean)
+    .slice(0, 10);
+}
+
+function getDevActivityFromGit(since: string): DevActivity {
+  // Count commits in the date range
+  const commitResult = Bun.spawnSync({
+    cmd: ["git", "log", `--since=${since}`, "--oneline"],
+    cwd: ROOT,
+  });
+  const commitLines = commitResult.stdout.toString().trim().split("\n").filter(Boolean);
+  const commits = commitLines.length;
+
+  // Get unique authors
+  const authorResult = Bun.spawnSync({
+    cmd: ["git", "log", `--since=${since}`, "--format=%aN"],
+    cwd: ROOT,
+  });
+  const authors = [...new Set(authorResult.stdout.toString().trim().split("\n").filter(Boolean))];
+
+  // Get merged PRs from git log (merge commits or PR-related commits)
+  const prResult = Bun.spawnSync({
+    cmd: ["git", "log", `--since=${since}`, "--oneline", "--grep=Merge pull request", "--grep=feat(", "--grep=fix(", "--grep=refactor("],
+    cwd: ROOT,
+  });
+  const prLines = prResult.stdout.toString().trim().split("\n").filter(Boolean);
+  const prs = prLines.slice(0, 12).map(line => ({
+    title: line.replace(/^[a-f0-9]+ /, "").trim(),
+    repo: "arc-starter",
+  }));
+
+  return { prs, commits, contributors: authors };
+}
+
+function getSocialActivityFromDb(startDate: string, endDate: string): SocialActivity {
+  const db = getDatabase();
+
+  // Blog posts — tasks with blog-publishing skill
+  const blogRows = db.query(`
+    SELECT subject FROM tasks
+    WHERE date(created_at) BETWEEN ? AND ?
+      AND skills LIKE '%blog-publishing%'
+      AND status = 'completed'
+    ORDER BY created_at DESC
+    LIMIT 10
+  `).all(startDate, endDate) as Array<{ subject: string }>;
+
+  const blogPosts = blogRows.map(r => ({
+    title: r.subject.replace(/^(publish|write|create)\s+(blog\s+post:?\s*)/i, "").trim(),
+    url: undefined as string | undefined,
+  }));
+
+  // X posts — tasks with x-engagement or x-thread skill
+  const xRows = db.query(`
+    SELECT subject FROM tasks
+    WHERE date(created_at) BETWEEN ? AND ?
+      AND (skills LIKE '%x-engagement%' OR skills LIKE '%x-thread%' OR skills LIKE '%x-posting%')
+      AND status = 'completed'
+      AND (subject LIKE '%post%' OR subject LIKE '%thread%' OR subject LIKE '%tweet%')
+    ORDER BY created_at DESC
+    LIMIT 10
+  `).all(startDate, endDate) as Array<{ subject: string }>;
+
+  const xPosts = xRows.map(r => ({
+    text: r.subject,
+    url: undefined as string | undefined,
+  }));
+
+  // News beats — tasks with aibtc-news skill
+  const newsRows = db.query(`
+    SELECT subject FROM tasks
+    WHERE date(created_at) BETWEEN ? AND ?
+      AND (skills LIKE '%aibtc-news%' OR skills LIKE '%news%')
+      AND status = 'completed'
+      AND subject LIKE '%beat%'
+    ORDER BY created_at DESC
+    LIMIT 5
+  `).all(startDate, endDate) as Array<{ subject: string }>;
+
+  const newsBeats = newsRows.map(r => r.subject);
+
+  return { blogPosts, xPosts, newsBeats };
+}
+
+function getServicesUpdatesFromDb(startDate: string, endDate: string): ServicesUpdate {
+  const db = getDatabase();
+
+  // Tasks related to arc0btc.com / arc-web-dashboard
+  const rows = db.query(`
+    SELECT subject FROM tasks
+    WHERE date(created_at) BETWEEN ? AND ?
+      AND status = 'completed'
+      AND (skills LIKE '%arc-web-dashboard%' OR skills LIKE '%arc0btc%'
+           OR subject LIKE '%arc0btc.com%' OR subject LIKE '%web dashboard%'
+           OR subject LIKE '%arc-web%')
+    ORDER BY created_at DESC
+    LIMIT 10
+  `).all(startDate, endDate) as Array<{ subject: string }>;
+
+  return {
+    items: rows.map(r => ({ title: r.subject })),
+    siteUrl: "arc0btc.com",
+  };
 }
 
 function getTaskStats(startDate: string, endDate: string): WeekData["taskStats"] {
@@ -154,53 +340,53 @@ function getNewAgents(startDate: string): WeekData["newAgents"] {
   }
 }
 
-function getBlogPosts(startDate: string, endDate: string): string[] {
-  const db = getDatabase();
-  const rows = db.query(`
-    SELECT subject FROM tasks
-    WHERE date(created_at) BETWEEN ? AND ?
-      AND skills LIKE '%blog-publishing%'
-      AND status = 'completed'
-      AND subject LIKE '%blog post%'
-    ORDER BY created_at DESC
-    LIMIT 10
-  `).all(startDate, endDate) as Array<{ subject: string }>;
-
-  return rows.map(r => r.subject);
-}
-
-function getHighlights(startDate: string, endDate: string): string[] {
-  const db = getDatabase();
-  const rows = db.query(`
-    SELECT subject FROM tasks
-    WHERE date(created_at) BETWEEN ? AND ?
-      AND status = 'completed'
-      AND priority <= 4
-    ORDER BY priority ASC, created_at DESC
-    LIMIT 8
-  `).all(startDate, endDate) as Array<{ subject: string }>;
-
-  return rows.map(r => r.subject);
-}
-
-function collectWeekData(weekEndDate: string): WeekData {
+function collectWeekData(weekEndDate: string, research?: ResearchData): WeekData {
   const { start, end } = getWeekRange(weekEndDate);
   const allSkills = discoverSkills();
   const totalSensors = allSkills.filter(s => s.hasSensor).length;
 
-  return {
+  // Local data collection
+  const newSkills = getNewSkillsFromGit(start);
+  const newSkillNames = new Set(newSkills.map(s => s.name));
+  const updatedSkills = getUpdatedSkillsFromGit(start, newSkillNames);
+  const newSensors = getNewSensorsFromGit(start);
+  const memoryChanges = getMemoryChangesFromGit(start);
+  const devActivity = getDevActivityFromGit(start);
+  const socialActivity = getSocialActivityFromDb(start, end);
+  const servicesUpdates = getServicesUpdatesFromDb(start, end);
+
+  // Merge research data (subagent findings override/supplement local data)
+  const data: WeekData = {
     weekEnd: end,
     weekStart: start,
-    newSkills: getNewSkillsFromGit(start),
-    newSensors: getNewSensorsFromGit(start),
+    devActivity: {
+      prs: research?.devActivity?.prs ?? devActivity.prs,
+      commits: research?.devActivity?.commits ?? devActivity.commits,
+      contributors: research?.devActivity?.contributors ?? devActivity.contributors,
+    },
+    socialActivity: {
+      blogPosts: research?.socialActivity?.blogPosts ?? socialActivity.blogPosts,
+      xPosts: research?.socialActivity?.xPosts ?? socialActivity.xPosts,
+      newsBeats: research?.socialActivity?.newsBeats ?? socialActivity.newsBeats,
+    },
+    servicesUpdates: {
+      items: research?.servicesUpdates?.items ?? servicesUpdates.items,
+      siteUrl: research?.servicesUpdates?.siteUrl ?? servicesUpdates.siteUrl,
+    },
+    selfImprovements: {
+      newSkills: research?.selfImprovements?.newSkills ?? newSkills,
+      updatedSkills: research?.selfImprovements?.updatedSkills ?? updatedSkills,
+      newSensors: research?.selfImprovements?.newSensors ?? newSensors,
+      memoryChanges: research?.selfImprovements?.memoryChanges ?? memoryChanges,
+    },
     taskStats: getTaskStats(start, end),
     totalSkills: allSkills.length,
     totalSensors,
     costSummary: getCostSummary(start, end),
     newAgents: getNewAgents(start),
-    blogPosts: getBlogPosts(start, end),
-    highlights: getHighlights(start, end),
   };
+
+  return data;
 }
 
 // ---- HTML rendering ----
@@ -219,48 +405,23 @@ function formatDateRange(start: string, end: string): string {
   return `${months[s.getUTCMonth()]} ${s.getUTCDate()} &ndash; ${months[e.getUTCMonth()]} ${e.getUTCDate()}, ${e.getUTCFullYear()}`;
 }
 
-function renderSkillCards(skills: Array<{ name: string; description: string }>, label: string): string {
-  if (skills.length === 0) return "";
-  const displayed = skills.slice(0, 4);
-  const remaining = skills.length - displayed.length;
-
-  let html = displayed.map(s => `
-    <div class="skill-card">
-      <span class="skill-new">${escapeHtml(label)}</span>
-      <span class="skill-name">${escapeHtml(s.name)}</span>
-      <span class="skill-desc">${escapeHtml(s.description)}</span>
-    </div>`).join("\n");
-
-  if (remaining > 0) {
-    html += `\n  <p style="color: var(--text-muted); margin-top: 24px; font-size: 1.05rem; grid-column: 1 / -1;">
-    +${remaining} more &mdash; total: <span class="highlight">${skills.length}</span> new this week
-  </p>`;
-  }
-  return html;
-}
-
-function renderAgentCards(agents: WeekData["newAgents"]): string {
-  if (agents.length === 0) return "";
-  const icons = ["&#x26A1;", "&#x1F52E;", "&#x2728;", "&#x1F98E;", "&#x1F30A;", "&#x1F985;", "&#x1F525;", "&#x1F680;", "&#x2B50;"];
-  return agents.slice(0, 6).map((a, i) => `
-    <div class="agent-card">
-      <div class="agent-face">${icons[i % icons.length]}</div>
-      <div class="agent-name">${escapeHtml(a.name)}</div>
-      <div class="agent-btc">${escapeHtml(a.btcPrefix)} &bull; Bitcoin agent</div>
-    </div>`).join("\n");
+function truncate(s: string, max: number): string {
+  return s.length > max ? s.slice(0, max - 3) + "..." : s;
 }
 
 function renderPresentation(data: WeekData): string {
   const dateRange = formatDateRange(data.weekStart, data.weekEnd);
   const slides: string[] = [];
-  let slideNum = 0;
 
   function addSlide(content: string): void {
-    slideNum++;
     slides.push(content);
   }
 
-  // Slide 1: Title + Stats
+  const { devActivity, socialActivity, servicesUpdates, selfImprovements } = data;
+
+  // ──────────────────────────────────────────────
+  // Slide 1: Title + Stats Overview
+  // ──────────────────────────────────────────────
   addSlide(`
   <div class="arc-logo">ARC</div>
   <h1>Arc <span class="highlight">Weekly</span></h1>
@@ -279,12 +440,12 @@ function renderPresentation(data: WeekData): string {
       <div class="stat-label">Sensors Running</div>
     </div>
     <div class="stat-card">
-      <div class="stat-number blue">${data.newSkills.length}</div>
-      <div class="stat-label">New Skills This Week</div>
+      <div class="stat-number blue">${devActivity.commits}</div>
+      <div class="stat-label">Commits This Week</div>
     </div>
     <div class="stat-card">
-      <div class="stat-number purple">${data.newAgents.length}</div>
-      <div class="stat-label">New Agents Welcomed</div>
+      <div class="stat-number purple">${socialActivity.blogPosts.length + socialActivity.xPosts.length}</div>
+      <div class="stat-label">Posts Published</div>
     </div>
     <div class="stat-card">
       <div class="stat-number highlight">$${data.costSummary.totalCost.toFixed(0)}</div>
@@ -292,91 +453,204 @@ function renderPresentation(data: WeekData): string {
     </div>
   </div>`);
 
-  // Slide 2: Week Highlights
-  if (data.highlights.length > 0) {
-    const items = data.highlights.slice(0, 8).map(h =>
-      `<li>${escapeHtml(h.length > 80 ? h.slice(0, 77) + "..." : h)}</li>`
-    ).join("\n        ");
-    addSlide(`
-  <div class="arc-logo">ARC</div>
-  <h2>This Week&rsquo;s <span class="highlight">Highlights</span></h2>
-  <div class="col" style="max-width: 900px; width: 100%;">
-    <h3 class="green">Top Priority Work Completed</h3>
-    <ul>
-        ${items}
-    </ul>
-  </div>`);
-  }
+  // ──────────────────────────────────────────────
+  // Slide 2: Dev Activity (always shown)
+  // ──────────────────────────────────────────────
+  const prItems = devActivity.prs.length > 0
+    ? devActivity.prs.slice(0, 8).map(pr => {
+        const repoTag = pr.repo !== "arc-starter" ? ` <span class="text-muted">(${escapeHtml(pr.repo)})</span>` : "";
+        return `<li>${escapeHtml(truncate(pr.title, 75))}${repoTag}</li>`;
+      }).join("\n        ")
+    : `<li class="empty-state">No PRs merged this week</li>`;
 
-  // Slide 3: New Skills
-  if (data.newSkills.length > 0) {
-    const cards = renderSkillCards(data.newSkills, "New this week");
-    addSlide(`
-  <div class="arc-logo">ARC</div>
-  <h2>New <span class="highlight">Skills</span> Learned This Week</h2>
-  <div class="skills-grid">
-    ${cards}
-  </div>`);
-  }
+  const contribList = devActivity.contributors.length > 0
+    ? devActivity.contributors.map(c => escapeHtml(c)).join(", ")
+    : "No contributors";
 
-  // Slide 4: New Sensors/Automation
-  if (data.newSensors.length > 0) {
-    const cards = renderSkillCards(data.newSensors, "New sensor");
-    addSlide(`
+  addSlide(`
   <div class="arc-logo">ARC</div>
-  <h2>New <span class="highlight">Automation</span> This Week</h2>
-  <div class="skills-grid">
-    ${cards}
-  </div>
-  <p style="color: var(--text-muted); margin-top: 24px; font-size: 1.05rem;">
-    Sensors total: <span class="highlight">${data.totalSensors}</span> &mdash; all autonomous, all parallel, all running 24/7
-  </p>`);
-  }
-
-  // Slide 5: New Agents
-  if (data.newAgents.length > 0) {
-    const cards = renderAgentCards(data.newAgents);
-    addSlide(`
-  <div class="arc-logo">ARC</div>
-  <h2>New Agents <span class="highlight">Welcomed</span></h2>
-  <p class="subtitle" style="margin-bottom: 24px;">${data.newAgents.length} new Bitcoin agent${data.newAgents.length !== 1 ? "s" : ""} joined the ecosystem</p>
-  <div class="agent-grid">
-    ${cards}
-  </div>
-  <p style="color: var(--text-muted); margin-top: 20px; font-size: 1rem;">
-    Sensor detects new members &rarr; files welcome &rarr; logs to memory &mdash; no human needed
-  </p>`);
-  }
-
-  // Slide 6: Published This Week
-  if (data.blogPosts.length > 0) {
-    const blogItems = data.blogPosts.slice(0, 5).map(p =>
-      `<li>${escapeHtml(p.length > 70 ? p.slice(0, 67) + "..." : p)}</li>`
-    ).join("\n        ");
-    addSlide(`
-  <div class="arc-logo">ARC</div>
-  <h2>Published <span class="highlight">This Week</span></h2>
+  <h2><span class="highlight">Dev</span> Activity</h2>
+  <p class="subtitle">${devActivity.commits} commits &bull; ${devActivity.prs.length} PRs &bull; ${contribList}</p>
   <div class="content-cols">
     <div class="col">
-      <h3 class="highlight">Blog &mdash; arc0btc.com</h3>
+      <h3 class="green">PRs &amp; Key Commits</h3>
       <ul>
-        ${blogItems}
+        ${prItems}
       </ul>
-      <p style="margin-top: 16px; font-size: 1rem; color: var(--text-muted);">All posts signed by Arc &mdash; verifiable on-chain</p>
     </div>
     <div class="col">
       <h3 class="blue">Operational Stats</h3>
       <ul>
         <li><span class="highlight">${data.taskStats.completed}</span> tasks completed</li>
         <li><span class="red">${data.taskStats.failed}</span> tasks failed</li>
+        <li>${data.taskStats.total} total tasks created</li>
         <li>$${data.costSummary.avgPerTask.toFixed(2)} avg cost per task</li>
-        <li>$${data.costSummary.totalCost.toFixed(2)} total weekly spend</li>
       </ul>
     </div>
   </div>`);
+
+  // ──────────────────────────────────────────────
+  // Slide 3: Social Activity (always shown)
+  // ──────────────────────────────────────────────
+  const blogItems = socialActivity.blogPosts.length > 0
+    ? socialActivity.blogPosts.slice(0, 5).map(p => {
+        const link = p.url ? ` <a href="${escapeHtml(p.url)}" class="highlight" style="text-decoration:none;">&rarr;</a>` : "";
+        return `<li>${escapeHtml(truncate(p.title, 65))}${link}</li>`;
+      }).join("\n        ")
+    : `<li class="empty-state">No blog posts this week</li>`;
+
+  const xItems = socialActivity.xPosts.length > 0
+    ? socialActivity.xPosts.slice(0, 5).map(p => {
+        const link = p.url ? ` <a href="${escapeHtml(p.url)}" class="highlight" style="text-decoration:none;">&rarr;</a>` : "";
+        return `<li>${escapeHtml(truncate(p.text, 65))}${link}</li>`;
+      }).join("\n        ")
+    : `<li class="empty-state">No X posts this week</li>`;
+
+  const newsItems = socialActivity.newsBeats.length > 0
+    ? socialActivity.newsBeats.slice(0, 3).map(n =>
+        `<li>${escapeHtml(truncate(n, 65))}</li>`
+      ).join("\n        ")
+    : "";
+
+  const newsSection = newsItems
+    ? `<h3 class="stacks" style="margin-top: 20px;">News Beats</h3>
+      <ul>${newsItems}</ul>`
+    : "";
+
+  addSlide(`
+  <div class="arc-logo">ARC</div>
+  <h2><span class="highlight">Social</span> &amp; Publishing</h2>
+  <p class="subtitle">aibtc.news &bull; arc0btc.com/blog &bull; @arc0btc</p>
+  <div class="content-cols">
+    <div class="col">
+      <h3 class="highlight">Blog Posts</h3>
+      <ul>
+        ${blogItems}
+      </ul>
+      ${newsSection}
+    </div>
+    <div class="col">
+      <h3 class="blue">X Posts &amp; Threads</h3>
+      <ul>
+        ${xItems}
+      </ul>
+      <p style="margin-top: 16px; font-size: 1rem; color: var(--text-muted);">All posts signed by Arc &mdash; verifiable on-chain</p>
+    </div>
+  </div>`);
+
+  // ──────────────────────────────────────────────
+  // Slide 4: Services — arc0btc.com (always shown)
+  // ──────────────────────────────────────────────
+  const serviceItems = servicesUpdates.items.length > 0
+    ? servicesUpdates.items.slice(0, 8).map(item => {
+        const detail = item.detail ? ` <span class="text-muted">&mdash; ${escapeHtml(item.detail)}</span>` : "";
+        return `<li>${escapeHtml(truncate(item.title, 70))}${detail}</li>`;
+      }).join("\n        ")
+    : `<li class="empty-state">No service updates this week</li>`;
+
+  addSlide(`
+  <div class="arc-logo">ARC</div>
+  <h2><span class="highlight">Services</span> &mdash; ${escapeHtml(servicesUpdates.siteUrl)}</h2>
+  <p class="subtitle">Web dashboard, API, agent profiles</p>
+  <div class="col" style="max-width: 900px; width: 100%;">
+    <h3 class="green">Updates This Week</h3>
+    <ul>
+      ${serviceItems}
+    </ul>
+    <p style="margin-top: 20px; font-size: 1rem; color: var(--text-muted);">
+      Visit <span class="highlight">${escapeHtml(servicesUpdates.siteUrl)}</span> for live agent profiles, blog, and services
+    </p>
+  </div>`);
+
+  // ──────────────────────────────────────────────
+  // Slide 5: Self Improvements (always shown)
+  // ──────────────────────────────────────────────
+  const newSkillItems = selfImprovements.newSkills.length > 0
+    ? selfImprovements.newSkills.slice(0, 4).map(s =>
+        `<li><span class="highlight">${escapeHtml(s.name)}</span> &mdash; ${escapeHtml(truncate(s.description || "new skill", 50))}</li>`
+      ).join("\n        ")
+    : "";
+
+  const updatedSkillItems = selfImprovements.updatedSkills.length > 0
+    ? selfImprovements.updatedSkills.slice(0, 4).map(s =>
+        `<li><span class="blue">${escapeHtml(s.name)}</span> &mdash; ${escapeHtml(truncate(s.description || "updated", 50))}</li>`
+      ).join("\n        ")
+    : "";
+
+  const sensorItems = selfImprovements.newSensors.length > 0
+    ? selfImprovements.newSensors.slice(0, 4).map(s =>
+        `<li><span class="green">${escapeHtml(s.name)}</span> &mdash; ${escapeHtml(truncate(s.description || "new sensor", 50))}</li>`
+      ).join("\n        ")
+    : "";
+
+  const memItems = selfImprovements.memoryChanges.length > 0
+    ? selfImprovements.memoryChanges.slice(0, 4).map(m =>
+        `<li>${escapeHtml(truncate(m, 65))}</li>`
+      ).join("\n        ")
+    : "";
+
+  // Build improvement sections — always show the heading, items may be empty
+  const improvementSections: string[] = [];
+
+  const skillsContent = newSkillItems || updatedSkillItems
+    ? `<h3 class="highlight">Skills</h3>
+      <ul>
+        ${newSkillItems}${newSkillItems && updatedSkillItems ? "\n        " : ""}${updatedSkillItems}
+      </ul>`
+    : `<h3 class="highlight">Skills</h3>
+      <ul><li class="empty-state">No skill changes this week</li></ul>`;
+  improvementSections.push(skillsContent);
+
+  const sensorsContent = sensorItems
+    ? `<h3 class="green" style="margin-top: 18px;">Sensors</h3>
+      <ul>${sensorItems}</ul>`
+    : `<h3 class="green" style="margin-top: 18px;">Sensors</h3>
+      <ul><li class="empty-state">No new sensors this week</li></ul>`;
+  improvementSections.push(sensorsContent);
+
+  if (memItems) {
+    improvementSections.push(
+      `<h3 class="stacks" style="margin-top: 18px;">Memory Updates</h3>
+      <ul>${memItems}</ul>`
+    );
   }
 
-  // Slide N: Closing
+  const totalImprovements = selfImprovements.newSkills.length
+    + selfImprovements.updatedSkills.length
+    + selfImprovements.newSensors.length;
+
+  addSlide(`
+  <div class="arc-logo">ARC</div>
+  <h2>Self <span class="highlight">Improvements</span></h2>
+  <p class="subtitle">${totalImprovements} skill/sensor changes &bull; ${selfImprovements.memoryChanges.length} memory updates</p>
+  <div class="col" style="max-width: 900px; width: 100%;">
+    ${improvementSections.join("\n    ")}
+  </div>`);
+
+  // ──────────────────────────────────────────────
+  // Slide 6: New Agents (conditional — only if agents joined)
+  // ──────────────────────────────────────────────
+  if (data.newAgents.length > 0) {
+    const icons = ["&#x26A1;", "&#x1F52E;", "&#x2728;", "&#x1F98E;", "&#x1F30A;", "&#x1F985;", "&#x1F525;", "&#x1F680;", "&#x2B50;"];
+    const agentCards = data.newAgents.slice(0, 6).map((a, i) => `
+    <div class="agent-card">
+      <div class="agent-face">${icons[i % icons.length]}</div>
+      <div class="agent-name">${escapeHtml(a.name)}</div>
+      <div class="agent-btc">${escapeHtml(a.btcPrefix)} &bull; Bitcoin agent</div>
+    </div>`).join("\n");
+
+    addSlide(`
+  <div class="arc-logo">ARC</div>
+  <h2>New Agents <span class="highlight">Welcomed</span></h2>
+  <p class="subtitle">${data.newAgents.length} new Bitcoin agent${data.newAgents.length !== 1 ? "s" : ""} joined the ecosystem</p>
+  <div class="agent-grid">
+    ${agentCards}
+  </div>`);
+  }
+
+  // ──────────────────────────────────────────────
+  // Slide N: Closing / What's Next
+  // ──────────────────────────────────────────────
   addSlide(`
   <div class="arc-logo">ARC</div>
   <h2>What&rsquo;s <span class="highlight">Next</span></h2>
@@ -385,20 +659,22 @@ function renderPresentation(data: WeekData): string {
       Week of ${dateRange}
     </p>
     <ul style="text-align: left; max-width: 700px; margin: 0 auto 32px;">
-      <li><span class="highlight">${data.totalSkills} skills</span> active, <span class="green">${data.newSkills.length} new</span> this week</li>
+      <li><span class="highlight">${data.totalSkills} skills</span> active, <span class="green">${selfImprovements.newSkills.length} new</span> this week</li>
       <li><span class="stacks">${data.totalSensors} sensors</span> running 24/7</li>
       <li><span class="blue">${data.taskStats.completed} tasks</span> completed</li>
-      <li><span class="purple">${data.newAgents.length}</span> new agents welcomed</li>
+      <li><span class="highlight">${socialActivity.blogPosts.length}</span> blog posts, <span class="blue">${socialActivity.xPosts.length}</span> X posts</li>
     </ul>
     <p style="font-size: 1.3rem; margin-top: 8px;">
       <span class="highlight">arc-starter</span> is open source
     </p>
     <p style="color: var(--text-muted); margin-top: 10px; font-size: 1rem;">
-      github.com/aibtcdev/arc-starter &bull; @arc0btc &bull; arc0btc.com/blog
+      github.com/aibtcdev/arc-starter &bull; @arc0btc &bull; arc0btc.com &bull; aibtc.news
     </p>
   </div>`);
 
+  // ──────────────────────────────────────────────
   // Assemble full HTML
+  // ──────────────────────────────────────────────
   const totalSlides = slides.length;
   const slideHtml = slides.map((content, i) => {
     const num = i + 1;
@@ -528,6 +804,7 @@ function renderPresentation(data: WeekData): string {
   .red { color: var(--red); }
   .blue { color: var(--blue); }
   .purple { color: var(--purple); }
+  .text-muted { color: var(--text-muted); font-size: 0.9em; }
 
   .stats-grid {
     display: grid;
@@ -596,43 +873,14 @@ function renderPresentation(data: WeekData): string {
     font-weight: 700;
   }
 
-  .skills-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    width: 100%;
-    max-width: 1000px;
-  }
-
-  .skill-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-  }
-
-  .skill-new {
-    font-size: 0.8rem;
-    color: var(--green);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    font-weight: 700;
-  }
-
-  .skill-name {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--arc-gold);
-  }
-
-  .skill-desc {
-    font-size: 1.05rem;
+  ul li.empty-state {
     color: var(--text-muted);
-    line-height: 1.5;
+    font-style: italic;
+  }
+
+  ul li.empty-state::before {
+    content: '\\2014';
+    color: var(--text-muted);
   }
 
   .agent-grid {
@@ -790,6 +1038,22 @@ function listArchives(): void {
   }
 }
 
+// ---- Research file loader ----
+
+function loadResearchFile(path: string): ResearchData {
+  if (!existsSync(path)) {
+    process.stderr.write(`Warning: research file not found: ${path}\n`);
+    return {};
+  }
+  try {
+    const content = readFileSync(path, "utf-8");
+    return JSON.parse(content) as ResearchData;
+  } catch (err) {
+    process.stderr.write(`Warning: failed to parse research file: ${(err as Error).message}\n`);
+    return {};
+  }
+}
+
 // ---- Main ----
 
 async function main(): Promise<void> {
@@ -800,8 +1064,12 @@ async function main(): Promise<void> {
     process.stdout.write(`arc-weekly-presentation
 
 Commands:
-  generate [--week YYYY-MM-DD]  Generate weekly presentation (default: today)
-  list                          List archived presentations
+  generate [--week YYYY-MM-DD] [--research-file PATH]  Generate weekly presentation (default: today)
+  list                                                   List archived presentations
+
+Options:
+  --week           Week ending date (default: today)
+  --research-file  JSON file with supplementary research data from subagents
 `);
     return;
   }
@@ -815,14 +1083,23 @@ Commands:
     initDatabase();
     const weekEnd = flags["week"] ?? new Date().toISOString().slice(0, 10);
 
-    process.stdout.write(`Collecting data for week ending ${weekEnd}...\n`);
-    const data = collectWeekData(weekEnd);
+    // Load research data if provided
+    let research: ResearchData | undefined;
+    const researchPath = flags["research-file"];
+    if (researchPath) {
+      process.stdout.write(`Loading research data from ${researchPath}...\n`);
+      research = loadResearchFile(researchPath);
+    }
 
-    process.stdout.write(`  New skills: ${data.newSkills.length}\n`);
-    process.stdout.write(`  New sensors: ${data.newSensors.length}\n`);
+    process.stdout.write(`Collecting data for week ending ${weekEnd}...\n`);
+    const data = collectWeekData(weekEnd, research);
+
+    process.stdout.write(`  Dev: ${data.devActivity.commits} commits, ${data.devActivity.prs.length} PRs\n`);
+    process.stdout.write(`  Social: ${data.socialActivity.blogPosts.length} blog posts, ${data.socialActivity.xPosts.length} X posts\n`);
+    process.stdout.write(`  Services: ${data.servicesUpdates.items.length} updates\n`);
+    process.stdout.write(`  Self: ${data.selfImprovements.newSkills.length} new skills, ${data.selfImprovements.updatedSkills.length} updated, ${data.selfImprovements.newSensors.length} new sensors\n`);
     process.stdout.write(`  Tasks completed: ${data.taskStats.completed}\n`);
     process.stdout.write(`  New agents: ${data.newAgents.length}\n`);
-    process.stdout.write(`  Blog posts: ${data.blogPosts.length}\n`);
     process.stdout.write(`  Weekly cost: $${data.costSummary.totalCost.toFixed(2)}\n`);
 
     // Archive previous before overwriting
