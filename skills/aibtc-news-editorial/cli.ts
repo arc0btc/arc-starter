@@ -394,12 +394,12 @@ async function cmdFileSignal(args: string[]): Promise<void> {
 
     const body: Record<string, unknown> = {
       beat_slug: beat,
+      btc_address: ARC_BTC_ADDRESS,
       content,
+      headline: headline || "",
+      sources: sourcesJson || [],
+      tags: tags.length > 0 ? tags : ["ordinals-business"],
     };
-
-    if (headline) body.headline = headline;
-    if (sourcesJson) body.sources = sourcesJson;
-    if (tags.length > 0) body.tags = tags;
 
     const result = await callApi("POST", "/signals", body, headers);
 
