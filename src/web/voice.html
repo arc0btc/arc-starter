@@ -109,6 +109,12 @@
       cursor: wait;
     }
 
+    .ptt-btn.vad-active {
+      border-color: #22c55e;
+      background: rgba(34, 197, 94, 0.08);
+      color: #22c55e;
+    }
+
     .ptt-btn:disabled {
       opacity: 0.4;
       cursor: not-allowed;
@@ -120,11 +126,70 @@
       100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
 
+    @keyframes pulse-green {
+      0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+      70% { box-shadow: 0 0 0 15px rgba(34, 197, 94, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+
+    .ptt-btn.vad-speaking {
+      animation: pulse-green 1s ease-in-out infinite;
+    }
+
     .voice-status {
       font-size: 0.85rem;
       color: var(--text-muted);
       text-align: center;
       min-height: 1.4em;
+    }
+
+    /* VAD level bar */
+    .vad-bar-wrap {
+      width: 200px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .vad-bar-wrap.visible {
+      display: block;
+    }
+
+    .vad-bar {
+      height: 100%;
+      width: 0%;
+      background: #22c55e;
+      transition: width 0.05s ease;
+      border-radius: 2px;
+    }
+
+    .vad-bar.loud {
+      background: var(--error);
+    }
+
+    /* VAD toggle button */
+    .vad-toggle {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .vad-toggle:hover {
+      border-color: #22c55e;
+      color: #22c55e;
+    }
+
+    .vad-toggle.on {
+      background: rgba(34, 197, 94, 0.1);
+      border-color: #22c55e;
+      color: #22c55e;
     }
 
     /* Backend selector */
@@ -205,11 +270,125 @@
       background: currentColor;
       border-radius: 4px;
     }
+
+    /* Clear history button */
+    .clear-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      cursor: pointer;
+      padding: 2px 8px;
+      border-radius: 4px;
+      opacity: 0.6;
+      transition: opacity 0.15s;
+    }
+
+    .clear-btn:hover { opacity: 1; color: var(--error); }
+
+    /* Keyboard help overlay */
+    .help-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .help-overlay.visible {
+      display: flex;
+    }
+
+    .help-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: var(--space-lg) calc(var(--space-lg) * 1.5);
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .help-box h2 {
+      font-size: 1rem;
+      margin: 0 0 var(--space-md);
+      color: var(--accent);
+    }
+
+    .help-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+
+    .help-row:last-child { border-bottom: none; }
+
+    .help-key {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: var(--text);
+    }
+
+    .help-desc {
+      color: var(--text-muted);
+    }
+
+    .help-close {
+      display: block;
+      width: 100%;
+      margin-top: var(--space-md);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    .help-close:hover { border-color: var(--accent); color: var(--accent); }
   </style>
 </head>
 <body>
 
   <div id="sse-announcer" role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
+  <!-- Keyboard Help Overlay -->
+  <div class="help-overlay" id="help-overlay" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+    <div class="help-box">
+      <h2>Keyboard Shortcuts</h2>
+      <div class="help-row">
+        <span class="help-key">Space</span>
+        <span class="help-desc">Hold to talk (push-to-talk)</span>
+      </div>
+      <div class="help-row">
+        <span class="help-key">V</span>
+        <span class="help-desc">Toggle voice activity detection</span>
+      </div>
+      <div class="help-row">
+        <span class="help-key">Enter</span>
+        <span class="help-desc">Send text message</span>
+      </div>
+      <div class="help-row">
+        <span class="help-key">Esc</span>
+        <span class="help-desc">Close overlay / stop recording</span>
+      </div>
+      <div class="help-row">
+        <span class="help-key">?</span>
+        <span class="help-desc">Show / hide this help</span>
+      </div>
+      <button class="help-close" id="help-close">Close</button>
+    </div>
+  </div>
 
   <!-- Header -->
   <header class="header">
@@ -244,9 +423,16 @@
   <!-- Voice Mode -->
   <div class="voice-container">
 
-    <div class="transcript" id="transcript">
-      <div class="msg system">Push the mic button or type below to talk to Arc.</div>
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:calc(var(--space-md) * -0.5);">
+      <span style="font-size:0.75rem; color:var(--text-muted);">Conversation</span>
+      <div style="display:flex; gap:var(--space-sm); align-items:center;">
+        <span style="font-size:0.7rem; color:var(--text-muted);" id="history-count"></span>
+        <button class="clear-btn" id="clear-btn" title="Clear conversation history">Clear</button>
+        <button class="clear-btn" id="help-btn" title="Keyboard shortcuts (?)">?</button>
+      </div>
     </div>
+
+    <div class="transcript" id="transcript"></div>
 
     <div class="voice-controls">
       <div class="voice-status" id="voice-status">Ready</div>
@@ -259,6 +445,12 @@
           <line x1="8" y1="23" x2="16" y2="23"></line>
         </svg>
       </button>
+
+      <div class="vad-bar-wrap" id="vad-bar-wrap">
+        <div class="vad-bar" id="vad-bar"></div>
+      </div>
+
+      <button class="vad-toggle" id="vad-toggle" title="Toggle voice activity detection (V)">VAD: Off</button>
 
       <div class="text-input-row">
         <input type="text" id="text-input" placeholder="Or type a message..." autocomplete="off" />
@@ -291,13 +483,16 @@
 
   <!-- Footer -->
   <footer style="border-top:1px solid var(--border); padding:var(--space-md) var(--space-lg); text-align:center; font-size:0.75rem; color:var(--text-muted);">
-    Voice Mode — Phase 1 Prototype
+    Voice Mode — press <kbd style="background:rgba(255,255,255,0.08);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:0.7rem;">?</kbd> for shortcuts
   </footer>
 
   <script src="/shared.js"></script>
   <script>
   (function() {
     'use strict';
+
+    var HISTORY_KEY = 'arc-voice-history';
+    var MAX_HISTORY = 100; // messages to keep in sessionStorage
 
     // ---- State ----
     var state = {
@@ -306,7 +501,18 @@
       mediaRecorder: null,
       audioChunks: [],
       recognition: null,
-      pollTimer: null,
+      // VAD
+      vadEnabled: false,
+      vadAnalyser: null,
+      vadAudioCtx: null,
+      vadStream: null,
+      vadAnimFrame: null,
+      vadSilenceStart: null,
+      vadSpeaking: false,
+      // SSE task waiting
+      pendingTaskId: null,
+      pendingResolve: null,
+      sseSource: null,
     };
 
     var $ = function(id) { return document.getElementById(id); };
@@ -318,9 +524,63 @@
     var sttSelect = $('stt-backend');
     var ttsSelect = $('tts-backend');
     var tierSelect = $('ask-tier');
+    var vadToggle = $('vad-toggle');
+    var vadBarWrap = $('vad-bar-wrap');
+    var vadBar = $('vad-bar');
+    var clearBtn = $('clear-btn');
+    var helpBtn = $('help-btn');
+    var helpOverlay = $('help-overlay');
+    var helpClose = $('help-close');
+    var historyCount = $('history-count');
 
-    // ---- Transcript ----
-    function addMessage(role, text) {
+    // ---- Conversation history (sessionStorage) ----
+    function loadHistory() {
+      try {
+        var raw = sessionStorage.getItem(HISTORY_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) { return []; }
+    }
+
+    function saveHistory(history) {
+      try {
+        // Trim to max
+        if (history.length > MAX_HISTORY) history = history.slice(-MAX_HISTORY);
+        sessionStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+      } catch (e) { /* quota exceeded — skip */ }
+    }
+
+    function appendHistory(role, text) {
+      var history = loadHistory();
+      history.push({ role: role, text: text, ts: Date.now() });
+      saveHistory(history);
+      updateHistoryCount(history.length);
+    }
+
+    function clearHistory() {
+      sessionStorage.removeItem(HISTORY_KEY);
+      updateHistoryCount(0);
+    }
+
+    function updateHistoryCount(n) {
+      historyCount.textContent = n > 0 ? n + ' messages' : '';
+    }
+
+    function renderHistory() {
+      var history = loadHistory();
+      if (history.length === 0) {
+        addSystemMessage('Push the mic button or type below to talk to Arc.');
+        return;
+      }
+      for (var i = 0; i < history.length; i++) {
+        var entry = history[i];
+        addMessageDOM(entry.role, entry.text, false);
+      }
+      updateHistoryCount(history.length);
+      transcript.scrollTop = transcript.scrollHeight;
+    }
+
+    // ---- Transcript DOM ----
+    function addMessageDOM(role, text, scroll) {
       var div = document.createElement('div');
       div.className = 'msg ' + role;
       var meta = document.createElement('div');
@@ -330,6 +590,20 @@
       body.textContent = text;
       if (meta.textContent) div.appendChild(meta);
       div.appendChild(body);
+      transcript.appendChild(div);
+      if (scroll !== false) transcript.scrollTop = transcript.scrollHeight;
+      return div;
+    }
+
+    function addMessage(role, text) {
+      appendHistory(role, text);
+      return addMessageDOM(role, text, true);
+    }
+
+    function addSystemMessage(text) {
+      var div = document.createElement('div');
+      div.className = 'msg system';
+      div.textContent = text;
       transcript.appendChild(div);
       transcript.scrollTop = transcript.scrollHeight;
       return div;
@@ -341,14 +615,88 @@
 
     function setProcessing(on) {
       state.processing = on;
-      pttBtn.disabled = on;
+      pttBtn.disabled = on || state.vadEnabled;
       sendBtn.disabled = on;
       textInput.disabled = on;
       if (on) {
         pttBtn.classList.add('processing');
       } else {
         pttBtn.classList.remove('processing');
+        if (state.vadEnabled) pttBtn.classList.add('vad-active');
       }
+    }
+
+    // ---- SSE task waiting ----
+    function connectSSE() {
+      if (state.sseSource) return;
+      try {
+        var src = new EventSource('/api/events');
+        state.sseSource = src;
+
+        src.addEventListener('task:completed', function(e) {
+          try {
+            var task = JSON.parse(e.data);
+            if (state.pendingTaskId && task.id === state.pendingTaskId && state.pendingResolve) {
+              var resolve = state.pendingResolve;
+              state.pendingTaskId = null;
+              state.pendingResolve = null;
+              resolve(task.result_summary || task.result_detail || 'Task completed.');
+            }
+          } catch (err) { /* ignore parse errors */ }
+        });
+
+        src.addEventListener('task:failed', function(e) {
+          try {
+            var task = JSON.parse(e.data);
+            if (state.pendingTaskId && task.id === state.pendingTaskId && state.pendingResolve) {
+              var resolve = state.pendingResolve;
+              state.pendingTaskId = null;
+              state.pendingResolve = null;
+              resolve('Sorry, I could not process that. ' + (task.result_summary || ''));
+            }
+          } catch (err) { /* ignore parse errors */ }
+        });
+
+        src.onerror = function() {
+          // SSE error — fall back to polling if we have a pending task
+          if (state.pendingTaskId && state.pendingResolve) {
+            var resolve = state.pendingResolve;
+            var taskId = state.pendingTaskId;
+            state.pendingTaskId = null;
+            state.pendingResolve = null;
+            pollForResult(taskId).then(resolve);
+          }
+        };
+      } catch (e) { /* EventSource not supported */ }
+    }
+
+    function waitForTask(taskId) {
+      return new Promise(function(resolve) {
+        // Check if SSE is connected and open
+        var sseReady = state.sseSource && state.sseSource.readyState === 1; // OPEN
+        if (!sseReady) {
+          pollForResult(taskId).then(resolve);
+          return;
+        }
+        state.pendingTaskId = taskId;
+        state.pendingResolve = resolve;
+
+        // 120s timeout fallback to polling
+        var timeout = setTimeout(function() {
+          if (state.pendingTaskId === taskId) {
+            state.pendingTaskId = null;
+            state.pendingResolve = null;
+            pollForResult(taskId).then(resolve);
+          }
+        }, 120000);
+
+        // Wrap resolve to clear the timeout
+        var origResolve = resolve;
+        state.pendingResolve = function(val) {
+          clearTimeout(timeout);
+          origResolve(val);
+        };
+      });
     }
 
     // ---- Check backend availability ----
@@ -357,16 +705,10 @@
         var res = await fetch('/api/voice/status');
         if (res.ok) {
           var data = await res.json();
-          if (data.whisper_available) {
-            sttSelect.value = 'whisper';
-          }
-          if (data.kokoro_available) {
-            ttsSelect.value = 'kokoro';
-          }
+          if (data.whisper_available) sttSelect.value = 'whisper';
+          if (data.kokoro_available) ttsSelect.value = 'kokoro';
         }
-      } catch (e) {
-        // Server-side voice not available, browser fallbacks active
-      }
+      } catch (e) { /* browser fallbacks active */ }
     }
 
     // ---- Browser STT (Web Speech API) ----
@@ -411,10 +753,7 @@
     // ---- Browser TTS (Speech Synthesis) ----
     function browserTTS(text) {
       return new Promise(function(resolve) {
-        if (!window.speechSynthesis) {
-          resolve();
-          return;
-        }
+        if (!window.speechSynthesis) { resolve(); return; }
         var utterance = new SpeechSynthesisUtterance(text);
         utterance.rate = 1.0;
         utterance.pitch = 1.0;
@@ -451,22 +790,14 @@
         body: JSON.stringify({ text: text }),
       });
 
-      if (!res.ok) {
-        throw new Error('Synthesis failed');
-      }
+      if (!res.ok) throw new Error('Synthesis failed');
 
       var audioBlob = await res.blob();
       var audioUrl = URL.createObjectURL(audioBlob);
       var audio = new Audio(audioUrl);
       return new Promise(function(resolve) {
-        audio.onended = function() {
-          URL.revokeObjectURL(audioUrl);
-          resolve();
-        };
-        audio.onerror = function() {
-          URL.revokeObjectURL(audioUrl);
-          resolve();
-        };
+        audio.onended = function() { URL.revokeObjectURL(audioUrl); resolve(); };
+        audio.onerror = function() { URL.revokeObjectURL(audioUrl); resolve(); };
         audio.play();
       });
     }
@@ -476,7 +807,9 @@
       try {
         var stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         state.audioChunks = [];
-        var recorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
+        var mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+          ? 'audio/webm;codecs=opus' : 'audio/webm';
+        var recorder = new MediaRecorder(stream, { mimeType: mimeType });
 
         recorder.ondataavailable = function(e) {
           if (e.data.size > 0) state.audioChunks.push(e.data);
@@ -502,7 +835,7 @@
           return;
         }
         state.mediaRecorder.onstop = function() {
-          state.mediaRecorder.stream.getTracks().forEach(function(t) { t.stop(); });
+          state.mediaRecorder.stream && state.mediaRecorder.stream.getTracks().forEach(function(t) { t.stop(); });
           var blob = new Blob(state.audioChunks, { type: 'audio/webm' });
           state.mediaRecorder = null;
           resolve(blob);
@@ -511,7 +844,7 @@
       });
     }
 
-    // ---- Ask Arc + poll for result ----
+    // ---- Ask Arc + wait via SSE (or polling fallback) ----
     async function askArc(question) {
       var tier = tierSelect.value;
       var res = await fetch('/api/voice/ask', {
@@ -525,8 +858,7 @@
         throw new Error(err.error || 'Ask failed');
       }
 
-      var data = await res.json();
-      return data;
+      return res.json();
     }
 
     async function pollForResult(taskId, maxWait) {
@@ -546,13 +878,149 @@
           if (task.status === 'failed') {
             return 'Sorry, I could not process that. ' + (task.result_summary || '');
           }
-          // Still pending or active — keep polling
           if (interval < 5000) interval += 500;
-        } catch (e) {
-          // Network error, keep trying
-        }
+        } catch (e) { /* keep trying */ }
       }
       return 'Still processing... check task #' + taskId + ' for the result.';
+    }
+
+    // ---- VAD (Voice Activity Detection) ----
+    var VAD_THRESHOLD = 0.015;       // RMS level to trigger speech start
+    var VAD_SILENCE_MS = 1500;       // ms of silence before auto-stop
+    var VAD_MIN_SPEECH_MS = 300;     // min speech length to submit
+
+    async function startVAD() {
+      try {
+        var stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        state.vadStream = stream;
+
+        var AudioContext = window.AudioContext || window.webkitAudioContext;
+        var audioCtx = new AudioContext();
+        state.vadAudioCtx = audioCtx;
+
+        var source = audioCtx.createMediaStreamSource(stream);
+        var analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 512;
+        analyser.smoothingTimeConstant = 0.3;
+        source.connect(analyser);
+        state.vadAnalyser = analyser;
+
+        var buf = new Float32Array(analyser.fftSize);
+
+        function rms() {
+          analyser.getFloatTimeDomainData(buf);
+          var sum = 0;
+          for (var i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+          return Math.sqrt(sum / buf.length);
+        }
+
+        var speechStartTime = null;
+
+        function tick() {
+          if (!state.vadEnabled) return;
+          state.vadAnimFrame = requestAnimationFrame(tick);
+
+          var level = rms();
+          var pct = Math.min(level / 0.1 * 100, 100);
+          vadBar.style.width = pct + '%';
+          vadBar.className = 'vad-bar' + (pct > 80 ? ' loud' : '');
+
+          if (state.processing) {
+            state.vadSpeaking = false;
+            state.vadSilenceStart = null;
+            speechStartTime = null;
+            return;
+          }
+
+          if (level > VAD_THRESHOLD) {
+            if (!state.vadSpeaking && !state.recording) {
+              // Speech detected — start recording
+              state.vadSpeaking = true;
+              speechStartTime = Date.now();
+              state.vadSilenceStart = null;
+              pttBtn.classList.add('vad-speaking');
+              handleRecordingFlow();
+            }
+            state.vadSilenceStart = null;
+          } else {
+            // Below threshold
+            if (state.vadSpeaking && state.recording) {
+              if (!state.vadSilenceStart) {
+                state.vadSilenceStart = Date.now();
+              } else if (Date.now() - state.vadSilenceStart >= VAD_SILENCE_MS) {
+                // Silence long enough — stop
+                var speechDuration = speechStartTime ? Date.now() - speechStartTime : 0;
+                state.vadSpeaking = false;
+                state.vadSilenceStart = null;
+                speechStartTime = null;
+                pttBtn.classList.remove('vad-speaking');
+                if (speechDuration >= VAD_MIN_SPEECH_MS) {
+                  handleRecordingStop();
+                } else {
+                  // Too short — discard
+                  state.recording = false;
+                  pttBtn.classList.remove('recording');
+                  resetPttIcon();
+                  stopRecording();
+                  setStatus('Too short — try again');
+                  setTimeout(function() { setStatus('VAD: Listening...'); }, 1500);
+                }
+              }
+            }
+          }
+        }
+
+        state.vadAnimFrame = requestAnimationFrame(tick);
+        setStatus('VAD: Listening...');
+        pttBtn.classList.add('vad-active');
+        pttBtn.disabled = true;
+        vadBarWrap.classList.add('visible');
+      } catch (e) {
+        setStatus('Mic access denied: ' + e.message);
+        toggleVAD(false);
+      }
+    }
+
+    function stopVAD() {
+      if (state.vadAnimFrame) {
+        cancelAnimationFrame(state.vadAnimFrame);
+        state.vadAnimFrame = null;
+      }
+      if (state.vadAudioCtx) {
+        try { state.vadAudioCtx.close(); } catch (e) {}
+        state.vadAudioCtx = null;
+        state.vadAnalyser = null;
+      }
+      if (state.vadStream) {
+        state.vadStream.getTracks().forEach(function(t) { t.stop(); });
+        state.vadStream = null;
+      }
+      if (state.recording) {
+        state.recording = false;
+        stopRecording();
+        resetPttIcon();
+        pttBtn.classList.remove('recording');
+      }
+      state.vadSpeaking = false;
+      state.vadSilenceStart = null;
+      pttBtn.classList.remove('vad-active', 'vad-speaking');
+      pttBtn.disabled = false;
+      vadBar.style.width = '0%';
+      vadBarWrap.classList.remove('visible');
+    }
+
+    function toggleVAD(force) {
+      var enable = (force !== undefined) ? force : !state.vadEnabled;
+      state.vadEnabled = enable;
+      vadToggle.textContent = 'VAD: ' + (enable ? 'On' : 'Off');
+      vadToggle.className = 'vad-toggle' + (enable ? ' on' : '');
+
+      if (enable) {
+        startVAD();
+      } else {
+        stopVAD();
+        setStatus('Ready');
+      }
     }
 
     // ---- Main flow ----
@@ -561,7 +1029,6 @@
       var text = '';
 
       if (sttBackend === 'browser') {
-        // Browser STT was running during recording, text captured via recognition
         setStatus('Listening...');
         try {
           text = await browserSTT();
@@ -579,11 +1046,14 @@
       await processQuestion(text);
     }
 
+    function resetPttIcon() {
+      pttBtn.innerHTML = '<svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="1" width="6" height="12" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>';
+    }
+
     async function handleRecordingFlow() {
       var sttBackend = sttSelect.value;
 
       if (sttBackend === 'whisper') {
-        // Record audio, send to Whisper
         setStatus('Recording... release to send');
         var started = await startRecording();
         if (!started) return;
@@ -592,7 +1062,6 @@
         pttBtn.classList.add('recording');
         pttBtn.innerHTML = '<div class="stop-icon"></div>';
       } else {
-        // Browser STT — start recognition
         state.recording = true;
         pttBtn.classList.add('recording');
         pttBtn.innerHTML = '<div class="stop-icon"></div>';
@@ -604,7 +1073,7 @@
       var sttBackend = sttSelect.value;
       state.recording = false;
       pttBtn.classList.remove('recording');
-      pttBtn.innerHTML = '<svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="1" width="6" height="12" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>';
+      resetPttIcon();
 
       if (sttBackend === 'whisper') {
         setStatus('Transcribing...');
@@ -612,13 +1081,13 @@
         try {
           var audioBlob = await stopRecording();
           if (!audioBlob || audioBlob.size < 1000) {
-            setStatus('Recording too short');
+            setStatus(state.vadEnabled ? 'VAD: Listening...' : 'Recording too short');
             setProcessing(false);
             return;
           }
           var text = await whisperSTT(audioBlob);
           if (!text || !text.trim()) {
-            setStatus('No speech detected');
+            setStatus(state.vadEnabled ? 'VAD: Listening...' : 'No speech detected');
             setProcessing(false);
             return;
           }
@@ -628,9 +1097,7 @@
           setProcessing(false);
         }
       } else {
-        // Browser STT — handled via recognition callback
         stopBrowserSTT();
-        // The browser STT flow uses handleVoiceInput
         await handleVoiceInput();
       }
     }
@@ -644,22 +1111,20 @@
         var result = await askArc(text);
 
         if (result.answer) {
-          // Immediate answer (from cache or inline)
           addMessage('arc', result.answer);
           await speak(result.answer);
-          setStatus('Ready');
+          setStatus(state.vadEnabled ? 'VAD: Listening...' : 'Ready');
         } else if (result.task_id) {
-          // Queued — poll for result
           setStatus('Processing (task #' + result.task_id + ')...');
-          var answer = await pollForResult(result.task_id);
+          var answer = await waitForTask(result.task_id);
           addMessage('arc', answer);
           await speak(answer);
-          setStatus('Ready');
+          setStatus(state.vadEnabled ? 'VAD: Listening...' : 'Ready');
         } else {
           setStatus('Unexpected response');
         }
       } catch (e) {
-        addMessage('system', 'Error: ' + e.message);
+        addSystemMessage('Error: ' + e.message);
         setStatus('Error — try again');
       }
 
@@ -677,67 +1142,105 @@
         } else {
           await browserTTS(text);
         }
-      } catch (e) {
-        // TTS failed silently — text is still visible
-      }
+      } catch (e) { /* TTS failed silently */ }
     }
 
     // ---- Event handlers ----
 
-    // Push-to-talk button
+    // Push-to-talk button (disabled in VAD mode)
     pttBtn.addEventListener('mousedown', function(e) {
       e.preventDefault();
-      if (state.processing) return;
-      if (!state.recording) {
-        handleRecordingFlow();
-      }
+      if (state.processing || state.vadEnabled) return;
+      if (!state.recording) handleRecordingFlow();
     });
 
     pttBtn.addEventListener('mouseup', function(e) {
       e.preventDefault();
-      if (state.recording) {
-        handleRecordingStop();
-      }
+      if (state.vadEnabled) return;
+      if (state.recording) handleRecordingStop();
     });
 
     pttBtn.addEventListener('mouseleave', function(e) {
-      if (state.recording) {
-        handleRecordingStop();
-      }
+      if (state.vadEnabled) return;
+      if (state.recording) handleRecordingStop();
     });
 
     // Touch events for mobile
     pttBtn.addEventListener('touchstart', function(e) {
       e.preventDefault();
-      if (state.processing) return;
-      if (!state.recording) {
-        handleRecordingFlow();
-      }
+      if (state.processing || state.vadEnabled) return;
+      if (!state.recording) handleRecordingFlow();
     });
 
     pttBtn.addEventListener('touchend', function(e) {
       e.preventDefault();
-      if (state.recording) {
-        handleRecordingStop();
-      }
+      if (state.vadEnabled) return;
+      if (state.recording) handleRecordingStop();
     });
 
-    // Click toggle for browser STT (tap once to start, tap again to stop)
-    pttBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      // Handled by mousedown/mouseup for push-to-talk
+    // VAD toggle
+    vadToggle.addEventListener('click', function() { toggleVAD(); });
+
+    // Clear history
+    clearBtn.addEventListener('click', function() {
+      if (!confirm('Clear conversation history?')) return;
+      clearHistory();
+      transcript.innerHTML = '';
+      addSystemMessage('Conversation cleared.');
     });
 
-    // Keyboard: hold Space to talk
+    // Help overlay
+    helpBtn.addEventListener('click', function() { helpOverlay.classList.add('visible'); });
+    helpClose.addEventListener('click', function() { helpOverlay.classList.remove('visible'); });
+    helpOverlay.addEventListener('click', function(e) {
+      if (e.target === helpOverlay) helpOverlay.classList.remove('visible');
+    });
+
+    // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
-      if (e.code === 'Space' && e.target === document.body && !state.processing && !state.recording) {
+      var target = e.target;
+      var isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+
+      // Esc — close overlay or cancel recording
+      if (e.key === 'Escape') {
+        if (helpOverlay.classList.contains('visible')) {
+          helpOverlay.classList.remove('visible');
+        } else if (state.recording && !state.vadEnabled) {
+          state.recording = false;
+          pttBtn.classList.remove('recording');
+          resetPttIcon();
+          stopRecording();
+          stopBrowserSTT();
+          setStatus('Cancelled');
+        }
+        return;
+      }
+
+      if (isInput) return; // don't intercept typing
+
+      // Space — push to talk
+      if (e.code === 'Space' && !state.processing && !state.recording && !state.vadEnabled) {
         e.preventDefault();
         handleRecordingFlow();
+        return;
+      }
+
+      // V — toggle VAD
+      if (e.key === 'v' || e.key === 'V') {
+        toggleVAD();
+        return;
+      }
+
+      // ? — toggle help
+      if (e.key === '?') {
+        helpOverlay.classList.toggle('visible');
+        return;
       }
     });
 
     document.addEventListener('keyup', function(e) {
-      if (e.code === 'Space' && e.target === document.body && state.recording) {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.code === 'Space' && state.recording && !state.vadEnabled) {
         e.preventDefault();
         handleRecordingStop();
       }
@@ -763,7 +1266,9 @@
     }
 
     // ---- Init ----
+    renderHistory();
     checkVoiceBackends();
+    connectSSE();
 
     // Load identity into header (reuse shared.js pattern)
     if (typeof initHeader === 'function') {
