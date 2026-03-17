@@ -177,15 +177,12 @@ export default async function fleetEscalationSensor(): Promise<string> {
 
   // Skip entirely if fleet is in maintenance mode
   try {
-    const mFile = Bun.file(MAINTENANCE_FILE);
-    if (await mFile.exists()) {
-      const config = await mFile.json() as { enabled?: boolean };
-      if (config.enabled) {
-        log("fleet in maintenance mode — skipping escalation scan");
-        return "skip";
-      }
+    const config = await Bun.file(MAINTENANCE_FILE).json() as { enabled?: boolean };
+    if (config.enabled) {
+      log("fleet in maintenance mode — skipping escalation scan");
+      return "skip";
     }
-  } catch { /* proceed if file unreadable */ }
+  } catch { /* file absent or unreadable — proceed */ }
 
   let password: string;
   try {

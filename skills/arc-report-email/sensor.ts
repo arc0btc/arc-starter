@@ -3,6 +3,7 @@
 // Detects new watch reports in reports/ and emails them as themed HTML.
 // Pure TypeScript — no LLM. Runs every 1 minute, sends on first new report found.
 
+import { Glob } from "bun";
 import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
 import { pendingTaskExistsForSource } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
@@ -58,7 +59,6 @@ export default async function reportEmailSensor(): Promise<string> {
   if (pendingTaskExistsForSource(TASK_SOURCE)) return "skip";
 
   // Find all report files
-  const { Glob } = await import("bun");
   const glob = new Glob("*_watch_report.{md,html}");
   const files: string[] = [];
   for await (const file of glob.scan({ cwd: REPORTS_DIR, absolute: false })) {
@@ -99,7 +99,7 @@ export default async function reportEmailSensor(): Promise<string> {
   // If report is already HTML (.html extension), use it directly; otherwise convert markdown
   const isHtml = newestFile.endsWith(".html");
   const htmlBody = isHtml ? content : wrapInArcTheme(markdownToHtml(content), subject);
-  const plainText = isHtml ? subject : content;
+  const plainText = isHtml ? `${subject}\n\nSee the HTML version of this report.` : content;
 
   // Write state BEFORE sending to prevent duplicate sends on crash-after-send
   await writeHookState(SENSOR_NAME, {
@@ -118,7 +118,7 @@ export default async function reportEmailSensor(): Promise<string> {
       last_ran: new Date().toISOString(),
       last_result: "error",
       version: state ? state.version + 1 : 1,
-      last_emailed_report: state?.last_emailed_report as string ?? "",
+      last_emailed_report: state?.last_emailed_report ?? "",
     });
     log(`email send failed: ${error instanceof Error ? error.message : String(error)}`);
     return "error";

@@ -4,6 +4,9 @@
 // No external dependencies. Handles the subset of markdown used in watch reports:
 // headers, tables, bold, lists, code blocks, inline code, horizontal rules, links.
 
+const HEADER_SIZES: Record<number, string> = { 1: "24px", 2: "20px", 3: "16px", 4: "14px" };
+const HEADER_MARGINS: Record<number, string> = { 1: "28px 0 16px", 2: "24px 0 12px", 3: "20px 0 8px", 4: "16px 0 6px" };
+
 const COLORS = {
   bg: "#0a0a0a",
   surface: "#141414",
@@ -123,11 +126,9 @@ export function markdownToHtml(md: string): string {
     if (headerMatch) {
       const level = headerMatch[1].length;
       const text = headerMatch[2];
-      const sizes: Record<number, string> = { 1: "24px", 2: "20px", 3: "16px", 4: "14px" };
-      const margins: Record<number, string> = { 1: "28px 0 16px", 2: "24px 0 12px", 3: "20px 0 8px", 4: "16px 0 6px" };
       const color = level <= 2 ? COLORS.gold : COLORS.text;
       parts.push(
-        `<h${level} style="color:${color};font-size:${sizes[level]};margin:${margins[level]};font-weight:600;line-height:1.3">${inlineMarkdown(text)}</h${level}>`
+        `<h${level} style="color:${color};font-size:${HEADER_SIZES[level]};margin:${HEADER_MARGINS[level]};font-weight:600;line-height:1.3">${inlineMarkdown(text)}</h${level}>`
       );
       i++;
       continue;

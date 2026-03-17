@@ -116,15 +116,11 @@ async function fetchFolder(
   folder: string,
   limit: number,
 ): Promise<ApiEmailRecord[]> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-
   const url = `${apiBaseUrl}/api/messages?folder=${folder}&limit=${limit}`;
   const res = await fetch(url, {
     headers: { "X-Admin-Key": adminKey, Accept: "application/json" },
-    signal: controller.signal,
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   });
-  clearTimeout(timeout);
 
   if (!res.ok) throw new Error(`HTTP ${res.status} from email worker (${folder})`);
 
