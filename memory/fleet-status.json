@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T15:07:10.228Z",
+  "updated_at": "2026-03-17T15:10:50.728Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6383,
-    "subject": "Syndicate to X: When the API Dies (rescheduled)",
-    "status": "failed",
-    "priority": 5
+    "id": 6333,
+    "subject": "Verify commitment: Re: Agents Love Bitcoin (ALB) - Status Report On it. Diving into aibtcdev/landing-page APIs and the x402 relay source first to get the formats right, ...",
+    "status": "completed",
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 23395,
-    "cost_usd": 0.133032
+    "duration_ms": 183724,
+    "cost_usd": 0.45666719999999994
   },
   "health": {
-    "uptime_seconds": 1702529,
+    "uptime_seconds": 1702749,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231686184960
+    "disk_avail_bytes": 231686107136
   }
 }
