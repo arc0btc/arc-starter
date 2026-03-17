@@ -8,7 +8,7 @@
 // Pure TypeScript — no LLM.
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { insertTask, pendingTaskExistsForSource, getWorkflowByInstanceKey, insertWorkflow } from "../../src/db.ts";
 
 // ---- Shared helpers ----
 
@@ -67,7 +67,6 @@ async function watchReportSensor(): Promise<string> {
 const OVERNIGHT_SENSOR = "arc-reporting-overnight";
 const OVERNIGHT_INTERVAL = 60; // check every hour, but only fire at 6am PST
 const OVERNIGHT_SOURCE = "sensor:arc-reporting-overnight";
-const OVERNIGHT_PRIORITY = 2;
 
 async function overnightBriefSensor(): Promise<string> {
   const pstHour = getPstHour();
@@ -79,19 +78,15 @@ async function overnightBriefSensor(): Promise<string> {
   if (pendingTaskExistsForSource(OVERNIGHT_SOURCE)) return "skip";
 
   const now = new Date().toISOString();
+  const dateKey = now.slice(0, 10); // YYYY-MM-DD
+  const instanceKey = `overnight-brief-${dateKey}`;
 
-  insertTask({
-    subject: `Overnight brief — ${now.slice(0, 10)}`,
-    description:
-      "Generate a consolidated overnight brief covering all activity from 8pm–6am PST.\n\n" +
-      "Follow the instructions in skills/arc-reporting/AGENT.md (Overnight Brief section).\n" +
-      "Use the template at templates/overnight-brief.md.\n" +
-      "Write output to reports/ directory.\n\n" +
-      `Brief generated at: ${now}`,
-    skills: '["arc-reporting"]',
-    source: OVERNIGHT_SOURCE,
-    priority: OVERNIGHT_PRIORITY,
-    model: "sonnet",
+  if (getWorkflowByInstanceKey(instanceKey)) return "skip";
+
+  insertWorkflow({
+    template: "overnight-brief",
+    instance_key: instanceKey,
+    current_state: "pending",
   });
 
   return "ok";
