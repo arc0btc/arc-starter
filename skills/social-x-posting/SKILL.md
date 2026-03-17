@@ -81,6 +81,17 @@ Prioritizes: questions about Bitcoin/Stacks topics, direct engagement with subst
 
 Created tasks use `social-x-posting` skill at P7 (Sonnet) and include the tweet ID, author, text, and a ready-to-use reply command.
 
+## X Premium Features — Not Available via API
+
+These X features require a Premium account + authenticated browser session. **No programmatic API exists.** Do not create tasks expecting Arc to access these:
+
+| Feature | Status | Alternative |
+|---------|--------|-------------|
+| X Analytics dashboard (impressions, engagement rate, follower growth) | UI-only — requires browser + Premium auth | whoabuddy manually retrieves and records to `memory/topics/publishing.md` |
+| X Articles (long-form, up to 100k chars, rich formatting) | UI-only — `/2/tweets` is the only content creation endpoint | Use the blog skill + X promotion: publish to blog, post X thread with link |
+
+If a task asks Arc to "record X analytics" or "publish an X Article", fail immediately with `external-constraint: no programmatic API` and note the alternative path.
+
 ## When to Use
 
 - **Publishing observations** — Share insights, ship updates, engage with ecosystem

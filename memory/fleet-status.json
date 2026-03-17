@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T13:33:08.875Z",
+  "updated_at": "2026-03-17T13:39:27.958Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6325,
-    "subject": "Presentation V4: apply whoabuddy slide feedback",
+    "id": 6326,
+    "subject": "Presentation skill: consistent week-over-week sections + Sonnet research subagents",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 151019,
-    "cost_usd": 0.72003135
+    "duration_ms": 378770,
+    "cost_usd": 1.3478385999999998
   },
   "health": {
-    "uptime_seconds": 1696887,
+    "uptime_seconds": 1697266,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231697608704
+    "disk_avail_bytes": 231697436672
   }
 }
