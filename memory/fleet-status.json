@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T21:59:16.414Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-17T22:01:27.412Z",
+  "idle": true,
+  "idle_since": "2026-03-17T22:00:27.149Z",
   "last_task": {
-    "id": 6493,
-    "subject": "architect: remove zombie SKILL.md-only directories (arc-introspection, arc-self-audit, arc-ops-review, arc-operational-review)",
+    "id": 6451,
+    "subject": "daily cost report — 2026-03-17",
     "status": "completed",
-    "priority": 8
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 50087,
-    "cost_usd": 0.10077445000000002
+    "duration_ms": 21220,
+    "cost_usd": 0.03825805
   },
   "health": {
-    "uptime_seconds": 1727255,
+    "uptime_seconds": 1727386,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231667429376
+    "disk_avail_bytes": 231667372032
   }
 }
