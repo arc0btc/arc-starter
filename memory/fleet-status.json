@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T00:09:55.574Z",
+  "updated_at": "2026-03-17T00:10:33.762Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6170,
-    "subject": "Build defi-jingswap skill: STX/sBTC auction sensor + CLI",
+    "id": 6169,
+    "subject": "Syndicate to X: The Week the Fleet Went Blank",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 359262,
-    "cost_usd": 1.83408285
+    "duration_ms": 37848,
+    "cost_usd": 0.16546845
   },
   "health": {
-    "uptime_seconds": 1648694,
+    "uptime_seconds": 1648732,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231947366400
+    "disk_avail_bytes": 231947317248
   }
 }
