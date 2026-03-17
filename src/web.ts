@@ -50,7 +50,19 @@ const MIME_TYPES: Record<string, string> = {
   ".png": "image/png",
   ".svg": "image/svg+xml",
   ".ico": "image/x-icon",
+  ".wav": "audio/wav",
+  ".mp3": "audio/mpeg",
+  ".webm": "audio/webm",
+  ".ogg": "audio/ogg",
 };
+
+// ---- Voice Mode Config ----
+
+const VOICE_WHISPER_ENDPOINT = process.env.ARC_WHISPER_ENDPOINT || ""; // e.g. http://gpu-host:11434
+const VOICE_KOKORO_ENDPOINT = process.env.ARC_KOKORO_ENDPOINT || "";  // e.g. http://gpu-host:8880
+const VOICE_DAILY_LIMIT = 50;
+let voiceDayKey = "";
+let voiceDayCount = 0;
 
 // ---- Helpers ----
 
@@ -169,6 +181,165 @@ async function handleAsk(req: Request): Promise<Response> {
     status: "pending",
     poll_url: `/api/tasks/${taskId}`,
     daily_remaining: ASK_DAILY_LIMIT - askDayCount,
+  }, 201);
+}
+
+// ---- Voice Mode Handlers ----
+
+function checkVoiceRateLimit(): boolean {
+  const today = getAskDayKey();
+  if (today !== voiceDayKey) {
+    voiceDayKey = today;
+    voiceDayCount = 0;
+  }
+  return voiceDayCount < VOICE_DAILY_LIMIT;
+}
+
+function handleVoiceStatus(): Response {
+  return json({
+    whisper_available: !!VOICE_WHISPER_ENDPOINT,
+    kokoro_available: !!VOICE_KOKORO_ENDPOINT,
+    whisper_endpoint: VOICE_WHISPER_ENDPOINT ? "(configured)" : null,
+    kokoro_endpoint: VOICE_KOKORO_ENDPOINT ? "(configured)" : null,
+    daily_limit: VOICE_DAILY_LIMIT,
+    daily_remaining: VOICE_DAILY_LIMIT - voiceDayCount,
+  });
+}
+
+async function handleVoiceTranscribe(req: Request): Promise<Response> {
+  if (!VOICE_WHISPER_ENDPOINT) {
+    return errorResponse("Whisper endpoint not configured. Use browser STT or set ARC_WHISPER_ENDPOINT.", 503);
+  }
+
+  if (!checkVoiceRateLimit()) {
+    return json({ error: "Daily voice limit reached", code: "RATE_LIMITED" }, 429);
+  }
+
+  try {
+    const formData = await req.formData();
+    const audioFile = formData.get("audio");
+    if (!audioFile || !(audioFile instanceof File)) {
+      return errorResponse("'audio' file is required", 400);
+    }
+
+    // Forward to Whisper endpoint (OpenAI-compatible API format)
+    const whisperForm = new FormData();
+    whisperForm.append("file", audioFile, audioFile.name || "audio.webm");
+    whisperForm.append("model", "whisper-medium");
+    whisperForm.append("response_format", "json");
+
+    const whisperRes = await fetch(`${VOICE_WHISPER_ENDPOINT}/v1/audio/transcriptions`, {
+      method: "POST",
+      body: whisperForm,
+    });
+
+    if (!whisperRes.ok) {
+      const errText = await whisperRes.text().catch(() => "unknown error");
+      return errorResponse(`Whisper error: ${errText}`, 502);
+    }
+
+    const result = await whisperRes.json() as { text?: string };
+    voiceDayCount++;
+    return json({ text: result.text || "" });
+  } catch (e) {
+    return errorResponse(`Transcription failed: ${(e as Error).message}`, 500);
+  }
+}
+
+async function handleVoiceSynthesize(req: Request): Promise<Response> {
+  if (!VOICE_KOKORO_ENDPOINT) {
+    return errorResponse("Kokoro endpoint not configured. Use browser TTS or set ARC_KOKORO_ENDPOINT.", 503);
+  }
+
+  let body: { text?: string; voice?: string };
+  try {
+    body = await req.json() as { text?: string; voice?: string };
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  const text = typeof body.text === "string" ? body.text.trim() : "";
+  if (!text) return errorResponse("'text' is required", 400);
+  if (text.length > 2000) return errorResponse("Text too long (max 2000 chars)", 400);
+
+  try {
+    // OpenAI-compatible TTS API format
+    const ttsRes = await fetch(`${VOICE_KOKORO_ENDPOINT}/v1/audio/speech`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "kokoro",
+        input: text,
+        voice: body.voice || "af_default",
+        response_format: "wav",
+      }),
+    });
+
+    if (!ttsRes.ok) {
+      const errText = await ttsRes.text().catch(() => "unknown error");
+      return errorResponse(`Kokoro error: ${errText}`, 502);
+    }
+
+    const audioBuffer = await ttsRes.arrayBuffer();
+    return new Response(audioBuffer, {
+      status: 200,
+      headers: {
+        "Content-Type": "audio/wav",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+  } catch (e) {
+    return errorResponse(`Synthesis failed: ${(e as Error).message}`, 500);
+  }
+}
+
+async function handleVoiceAsk(req: Request): Promise<Response> {
+  if (!checkVoiceRateLimit()) {
+    return json({ error: "Daily voice limit reached", code: "RATE_LIMITED" }, 429);
+  }
+
+  let body: { question?: string; tier?: string };
+  try {
+    body = await req.json() as { question?: string; tier?: string };
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  const question = typeof body.question === "string" ? body.question.trim() : "";
+  if (!question) return errorResponse("'question' is required", 400);
+  if (question.length > 1000) return errorResponse("Question too long (max 1000 chars)", 400);
+
+  const tierName = (typeof body.tier === "string" ? body.tier.toLowerCase() : "haiku");
+  const tier = ASK_TIERS[tierName];
+  if (!tier) {
+    return errorResponse(`Invalid tier '${tierName}'. Valid: haiku, sonnet, opus`, 400);
+  }
+
+  const description = [
+    `**Voice mode query (${tierName} tier)**`,
+    "",
+    `**Question:** ${question}`,
+    "",
+    "Respond directly and concisely. This is a voice conversation — keep answers short (2-3 sentences max) and conversational.",
+    "Output plain text only. No markdown, no links, no code blocks.",
+  ].join("\n");
+
+  const taskId = insertTask({
+    subject: `[voice] ${question.slice(0, 80)}${question.length > 80 ? "..." : ""}`,
+    description,
+    skills: JSON.stringify(["arc0btc-ask-service"]),
+    priority: tier.priority,
+    model: tier.model,
+    source: "api:voice-mode",
+  });
+
+  voiceDayCount++;
+
+  return json({
+    task_id: taskId,
+    tier: tierName,
+    status: "pending",
+    poll_url: `/api/tasks/${taskId}`,
   }, 201);
 }
 
@@ -2110,6 +2281,12 @@ function route(req: Request): Response | Promise<Response> {
   if (method === "POST" && path === "/api/consensus/vote") return handleConsensusVote(req);
   if (method === "POST" && path === "/api/arena/run") return handleArenaRun(req);
 
+  // Voice mode API
+  if (method === "GET" && path === "/api/voice/status") return handleVoiceStatus();
+  if (method === "POST" && path === "/api/voice/transcribe") return handleVoiceTranscribe(req);
+  if (method === "POST" && path === "/api/voice/synthesize") return handleVoiceSynthesize(req);
+  if (method === "POST" && path === "/api/voice/ask") return handleVoiceAsk(req);
+
   // GET: Ask Arc pricing and rate limit info
   if (method === "GET" && path === "/api/ask") {
     const today = getAskDayKey();
@@ -2182,7 +2359,7 @@ function route(req: Request): Response | Promise<Response> {
   if (taskMatch) return handleTaskById(taskMatch[1]);
 
   // Clean URL routing for multi-page app
-  if (path === "/sensors" || path === "/sensors/schedule" || path === "/skills" || path === "/identity" || path === "/email" || path === "/presentation") {
+  if (path === "/sensors" || path === "/sensors/schedule" || path === "/skills" || path === "/identity" || path === "/email" || path === "/presentation" || path === "/voice") {
     const htmlPath = join(STATIC_DIR, path + ".html");
     if (existsSync(htmlPath)) {
       return new Response(Bun.file(htmlPath), {

@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent - Voice</title>
+  <link rel="stylesheet" href="/shared.css">
+  <style>
+    .voice-container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-lg);
+      min-height: calc(100vh - 200px);
+    }
+
+    /* Transcript area */
+    .transcript {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      padding: var(--space-md) 0;
+      max-height: 60vh;
+    }
+
+    .msg {
+      padding: var(--space-sm) var(--space-md);
+      border-radius: 8px;
+      max-width: 85%;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .msg.user {
+      background: rgba(254, 194, 51, 0.12);
+      border: 1px solid rgba(254, 194, 51, 0.25);
+      align-self: flex-end;
+      color: var(--accent);
+    }
+
+    .msg.arc {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      align-self: flex-start;
+    }
+
+    .msg .meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .msg.system {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      align-self: center;
+      text-align: center;
+    }
+
+    /* Controls area */
+    .voice-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-lg) 0;
+    }
+
+    .ptt-btn {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 3px solid var(--accent);
+      background: var(--bg-card);
+      color: var(--accent);
+      font-size: 2rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .ptt-btn:hover {
+      background: rgba(254, 194, 51, 0.08);
+    }
+
+    .ptt-btn.recording {
+      border-color: var(--error);
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--error);
+      animation: pulse-ring 1.5s ease-in-out infinite;
+    }
+
+    .ptt-btn.processing {
+      border-color: var(--text-muted);
+      color: var(--text-muted);
+      cursor: wait;
+    }
+
+    .ptt-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    @keyframes pulse-ring {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+      70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    .voice-status {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+      min-height: 1.4em;
+    }
+
+    /* Backend selector */
+    .backend-bar {
+      display: flex;
+      gap: var(--space-sm);
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+
+    .backend-bar label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .backend-bar select {
+      background: var(--bg-card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 0.8rem;
+    }
+
+    /* Text input fallback */
+    .text-input-row {
+      display: flex;
+      gap: var(--space-sm);
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .text-input-row input {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      padding: var(--space-sm) var(--space-md);
+      font-size: 0.9rem;
+      font-family: var(--font);
+    }
+
+    .text-input-row input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .text-input-row button {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      padding: var(--space-sm) var(--space-md);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .text-input-row button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Mic icon SVG inline */
+    .mic-icon {
+      width: 36px;
+      height: 36px;
+    }
+
+    .stop-icon {
+      width: 24px;
+      height: 24px;
+      background: currentColor;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="sse-announcer" role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-identity">
+        <img class="avatar avatar-img" id="header-avatar" src="/api/face" alt="Arc" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+        <div class="avatar avatar-fallback" id="header-avatar-fallback" style="display:none">A</div>
+        <div>
+          <h1 class="header-name" id="header-name">Agent <span class="status-dot live" id="status-dot" title="Live"></span><span class="sse-status disconnected" id="sse-dot" title="SSE disconnected"></span></h1>
+          <div class="header-bns" id="header-bns"></div>
+        </div>
+      </div>
+
+      <div class="header-stats">
+        <div class="cost-ticker">
+          <div class="label">Cost Today</div>
+          <span id="cost-today">$0.00</span>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <a href="/">Activity</a>
+        <a href="/sensors">Sensors</a>
+        <a href="/skills">Skills</a>
+        <a href="/email">Email</a>
+        <a href="/identity">Identity</a>
+        <a href="/voice" class="active">Voice</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Voice Mode -->
+  <div class="voice-container">
+
+    <div class="transcript" id="transcript">
+      <div class="msg system">Push the mic button or type below to talk to Arc.</div>
+    </div>
+
+    <div class="voice-controls">
+      <div class="voice-status" id="voice-status">Ready</div>
+
+      <button class="ptt-btn" id="ptt-btn" title="Push to talk (hold Space)">
+        <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="1" width="6" height="12" rx="3"></rect>
+          <path d="M5 10a7 7 0 0 0 14 0"></path>
+          <line x1="12" y1="19" x2="12" y2="23"></line>
+          <line x1="8" y1="23" x2="16" y2="23"></line>
+        </svg>
+      </button>
+
+      <div class="text-input-row">
+        <input type="text" id="text-input" placeholder="Or type a message..." autocomplete="off" />
+        <button id="send-btn">Send</button>
+      </div>
+
+      <div class="backend-bar">
+        <label>STT:
+          <select id="stt-backend">
+            <option value="browser">Browser</option>
+            <option value="whisper">Whisper</option>
+          </select>
+        </label>
+        <label>TTS:
+          <select id="tts-backend">
+            <option value="browser">Browser</option>
+            <option value="kokoro">Kokoro</option>
+          </select>
+        </label>
+        <label>Tier:
+          <select id="ask-tier">
+            <option value="haiku">Haiku (fast)</option>
+            <option value="sonnet">Sonnet</option>
+            <option value="opus">Opus (deep)</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer style="border-top:1px solid var(--border); padding:var(--space-md) var(--space-lg); text-align:center; font-size:0.75rem; color:var(--text-muted);">
+    Voice Mode — Phase 1 Prototype
+  </footer>
+
+  <script src="/shared.js"></script>
+  <script>
+  (function() {
+    'use strict';
+
+    // ---- State ----
+    var state = {
+      recording: false,
+      processing: false,
+      mediaRecorder: null,
+      audioChunks: [],
+      recognition: null,
+      pollTimer: null,
+    };
+
+    var $ = function(id) { return document.getElementById(id); };
+    var pttBtn = $('ptt-btn');
+    var transcript = $('transcript');
+    var statusEl = $('voice-status');
+    var textInput = $('text-input');
+    var sendBtn = $('send-btn');
+    var sttSelect = $('stt-backend');
+    var ttsSelect = $('tts-backend');
+    var tierSelect = $('ask-tier');
+
+    // ---- Transcript ----
+    function addMessage(role, text) {
+      var div = document.createElement('div');
+      div.className = 'msg ' + role;
+      var meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.textContent = role === 'user' ? 'You' : role === 'arc' ? 'Arc' : '';
+      var body = document.createElement('div');
+      body.textContent = text;
+      if (meta.textContent) div.appendChild(meta);
+      div.appendChild(body);
+      transcript.appendChild(div);
+      transcript.scrollTop = transcript.scrollHeight;
+      return div;
+    }
+
+    function setStatus(text) {
+      statusEl.textContent = text;
+    }
+
+    function setProcessing(on) {
+      state.processing = on;
+      pttBtn.disabled = on;
+      sendBtn.disabled = on;
+      textInput.disabled = on;
+      if (on) {
+        pttBtn.classList.add('processing');
+      } else {
+        pttBtn.classList.remove('processing');
+      }
+    }
+
+    // ---- Check backend availability ----
+    async function checkVoiceBackends() {
+      try {
+        var res = await fetch('/api/voice/status');
+        if (res.ok) {
+          var data = await res.json();
+          if (data.whisper_available) {
+            sttSelect.value = 'whisper';
+          }
+          if (data.kokoro_available) {
+            ttsSelect.value = 'kokoro';
+          }
+        }
+      } catch (e) {
+        // Server-side voice not available, browser fallbacks active
+      }
+    }
+
+    // ---- Browser STT (Web Speech API) ----
+    function browserSTT() {
+      return new Promise(function(resolve, reject) {
+        var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+          reject(new Error('Web Speech API not supported in this browser'));
+          return;
+        }
+
+        var recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+        state.recognition = recognition;
+
+        recognition.onresult = function(event) {
+          var text = event.results[0][0].transcript;
+          resolve(text);
+        };
+
+        recognition.onerror = function(event) {
+          reject(new Error('Speech recognition error: ' + event.error));
+        };
+
+        recognition.onend = function() {
+          state.recognition = null;
+        };
+
+        recognition.start();
+      });
+    }
+
+    function stopBrowserSTT() {
+      if (state.recognition) {
+        state.recognition.stop();
+        state.recognition = null;
+      }
+    }
+
+    // ---- Browser TTS (Speech Synthesis) ----
+    function browserTTS(text) {
+      return new Promise(function(resolve) {
+        if (!window.speechSynthesis) {
+          resolve();
+          return;
+        }
+        var utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        utterance.onend = resolve;
+        utterance.onerror = resolve;
+        window.speechSynthesis.speak(utterance);
+      });
+    }
+
+    // ---- Whisper STT (server-side) ----
+    async function whisperSTT(audioBlob) {
+      var formData = new FormData();
+      formData.append('audio', audioBlob, 'recording.webm');
+
+      var res = await fetch('/api/voice/transcribe', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        var err = await res.json().catch(function() { return { error: 'Transcription failed' }; });
+        throw new Error(err.error || 'Transcription failed');
+      }
+
+      var data = await res.json();
+      return data.text;
+    }
+
+    // ---- Kokoro TTS (server-side) ----
+    async function kokoroTTS(text) {
+      var res = await fetch('/api/voice/synthesize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Synthesis failed');
+      }
+
+      var audioBlob = await res.blob();
+      var audioUrl = URL.createObjectURL(audioBlob);
+      var audio = new Audio(audioUrl);
+      return new Promise(function(resolve) {
+        audio.onended = function() {
+          URL.revokeObjectURL(audioUrl);
+          resolve();
+        };
+        audio.onerror = function() {
+          URL.revokeObjectURL(audioUrl);
+          resolve();
+        };
+        audio.play();
+      });
+    }
+
+    // ---- Audio recording ----
+    async function startRecording() {
+      try {
+        var stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        state.audioChunks = [];
+        var recorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
+
+        recorder.ondataavailable = function(e) {
+          if (e.data.size > 0) state.audioChunks.push(e.data);
+        };
+
+        recorder.onstop = function() {
+          stream.getTracks().forEach(function(t) { t.stop(); });
+        };
+
+        state.mediaRecorder = recorder;
+        recorder.start();
+        return true;
+      } catch (e) {
+        setStatus('Mic access denied: ' + e.message);
+        return false;
+      }
+    }
+
+    function stopRecording() {
+      return new Promise(function(resolve) {
+        if (!state.mediaRecorder || state.mediaRecorder.state !== 'recording') {
+          resolve(null);
+          return;
+        }
+        state.mediaRecorder.onstop = function() {
+          state.mediaRecorder.stream.getTracks().forEach(function(t) { t.stop(); });
+          var blob = new Blob(state.audioChunks, { type: 'audio/webm' });
+          state.mediaRecorder = null;
+          resolve(blob);
+        };
+        state.mediaRecorder.stop();
+      });
+    }
+
+    // ---- Ask Arc + poll for result ----
+    async function askArc(question) {
+      var tier = tierSelect.value;
+      var res = await fetch('/api/voice/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: question, tier: tier }),
+      });
+
+      if (!res.ok) {
+        var err = await res.json().catch(function() { return {}; });
+        throw new Error(err.error || 'Ask failed');
+      }
+
+      var data = await res.json();
+      return data;
+    }
+
+    async function pollForResult(taskId, maxWait) {
+      maxWait = maxWait || 120000;
+      var start = Date.now();
+      var interval = 2000;
+
+      while (Date.now() - start < maxWait) {
+        await new Promise(function(r) { setTimeout(r, interval); });
+        try {
+          var res = await fetch('/api/tasks/' + taskId);
+          if (!res.ok) continue;
+          var task = await res.json();
+          if (task.status === 'completed') {
+            return task.result_summary || task.result_detail || 'Task completed.';
+          }
+          if (task.status === 'failed') {
+            return 'Sorry, I could not process that. ' + (task.result_summary || '');
+          }
+          // Still pending or active — keep polling
+          if (interval < 5000) interval += 500;
+        } catch (e) {
+          // Network error, keep trying
+        }
+      }
+      return 'Still processing... check task #' + taskId + ' for the result.';
+    }
+
+    // ---- Main flow ----
+    async function handleVoiceInput() {
+      var sttBackend = sttSelect.value;
+      var text = '';
+
+      if (sttBackend === 'browser') {
+        // Browser STT was running during recording, text captured via recognition
+        setStatus('Listening...');
+        try {
+          text = await browserSTT();
+        } catch (e) {
+          setStatus('STT failed: ' + e.message);
+          return;
+        }
+      }
+
+      if (!text.trim()) {
+        setStatus('No speech detected');
+        return;
+      }
+
+      await processQuestion(text);
+    }
+
+    async function handleRecordingFlow() {
+      var sttBackend = sttSelect.value;
+
+      if (sttBackend === 'whisper') {
+        // Record audio, send to Whisper
+        setStatus('Recording... release to send');
+        var started = await startRecording();
+        if (!started) return;
+
+        state.recording = true;
+        pttBtn.classList.add('recording');
+        pttBtn.innerHTML = '<div class="stop-icon"></div>';
+      } else {
+        // Browser STT — start recognition
+        state.recording = true;
+        pttBtn.classList.add('recording');
+        pttBtn.innerHTML = '<div class="stop-icon"></div>';
+        setStatus('Listening...');
+      }
+    }
+
+    async function handleRecordingStop() {
+      var sttBackend = sttSelect.value;
+      state.recording = false;
+      pttBtn.classList.remove('recording');
+      pttBtn.innerHTML = '<svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="1" width="6" height="12" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>';
+
+      if (sttBackend === 'whisper') {
+        setStatus('Transcribing...');
+        setProcessing(true);
+        try {
+          var audioBlob = await stopRecording();
+          if (!audioBlob || audioBlob.size < 1000) {
+            setStatus('Recording too short');
+            setProcessing(false);
+            return;
+          }
+          var text = await whisperSTT(audioBlob);
+          if (!text || !text.trim()) {
+            setStatus('No speech detected');
+            setProcessing(false);
+            return;
+          }
+          await processQuestion(text);
+        } catch (e) {
+          setStatus('Transcription error: ' + e.message);
+          setProcessing(false);
+        }
+      } else {
+        // Browser STT — handled via recognition callback
+        stopBrowserSTT();
+        // The browser STT flow uses handleVoiceInput
+        await handleVoiceInput();
+      }
+    }
+
+    async function processQuestion(text) {
+      setProcessing(true);
+      addMessage('user', text);
+      setStatus('Asking Arc...');
+
+      try {
+        var result = await askArc(text);
+
+        if (result.answer) {
+          // Immediate answer (from cache or inline)
+          addMessage('arc', result.answer);
+          await speak(result.answer);
+          setStatus('Ready');
+        } else if (result.task_id) {
+          // Queued — poll for result
+          setStatus('Processing (task #' + result.task_id + ')...');
+          var answer = await pollForResult(result.task_id);
+          addMessage('arc', answer);
+          await speak(answer);
+          setStatus('Ready');
+        } else {
+          setStatus('Unexpected response');
+        }
+      } catch (e) {
+        addMessage('system', 'Error: ' + e.message);
+        setStatus('Error — try again');
+      }
+
+      setProcessing(false);
+    }
+
+    async function speak(text) {
+      var ttsBackend = ttsSelect.value;
+      if (!text) return;
+
+      setStatus('Speaking...');
+      try {
+        if (ttsBackend === 'kokoro') {
+          await kokoroTTS(text);
+        } else {
+          await browserTTS(text);
+        }
+      } catch (e) {
+        // TTS failed silently — text is still visible
+      }
+    }
+
+    // ---- Event handlers ----
+
+    // Push-to-talk button
+    pttBtn.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      if (state.processing) return;
+      if (!state.recording) {
+        handleRecordingFlow();
+      }
+    });
+
+    pttBtn.addEventListener('mouseup', function(e) {
+      e.preventDefault();
+      if (state.recording) {
+        handleRecordingStop();
+      }
+    });
+
+    pttBtn.addEventListener('mouseleave', function(e) {
+      if (state.recording) {
+        handleRecordingStop();
+      }
+    });
+
+    // Touch events for mobile
+    pttBtn.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      if (state.processing) return;
+      if (!state.recording) {
+        handleRecordingFlow();
+      }
+    });
+
+    pttBtn.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      if (state.recording) {
+        handleRecordingStop();
+      }
+    });
+
+    // Click toggle for browser STT (tap once to start, tap again to stop)
+    pttBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      // Handled by mousedown/mouseup for push-to-talk
+    });
+
+    // Keyboard: hold Space to talk
+    document.addEventListener('keydown', function(e) {
+      if (e.code === 'Space' && e.target === document.body && !state.processing && !state.recording) {
+        e.preventDefault();
+        handleRecordingFlow();
+      }
+    });
+
+    document.addEventListener('keyup', function(e) {
+      if (e.code === 'Space' && e.target === document.body && state.recording) {
+        e.preventDefault();
+        handleRecordingStop();
+      }
+    });
+
+    // Text input
+    textInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey && !state.processing) {
+        e.preventDefault();
+        submitText();
+      }
+    });
+
+    sendBtn.addEventListener('click', function() {
+      if (!state.processing) submitText();
+    });
+
+    function submitText() {
+      var text = textInput.value.trim();
+      if (!text) return;
+      textInput.value = '';
+      processQuestion(text);
+    }
+
+    // ---- Init ----
+    checkVoiceBackends();
+
+    // Load identity into header (reuse shared.js pattern)
+    if (typeof initHeader === 'function') {
+      initHeader();
+    } else {
+      fetchJSON('/api/identity').then(function(data) {
+        var nameEl = document.getElementById('header-name');
+        if (data.name && nameEl) {
+          nameEl.childNodes[0].textContent = data.name + ' ';
+        }
+        var bnsEl = document.getElementById('header-bns');
+        if (data.bns && bnsEl) bnsEl.textContent = data.bns;
+      }).catch(function() {});
+
+      fetchJSON('/api/status').then(function(data) {
+        var costEl = document.getElementById('cost-today');
+        if (data.cost_today != null && costEl) costEl.textContent = formatCost(data.cost_today);
+      }).catch(function() {});
+    }
+  })();
+  </script>
+</body>
+</html>
