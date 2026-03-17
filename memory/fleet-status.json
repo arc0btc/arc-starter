@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T13:46:51.055Z",
+  "updated_at": "2026-03-17T13:47:55.744Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6340,
-    "subject": "GitHub issue in aibtcdev/agent-news#67: fix: signal POST handler expects `body` but clients send `content` — content stored as null",
+    "id": 6341,
+    "subject": "Review PR #403 on aibtcdev/landing-page: chore(main): release 1.24.0",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 193808,
-    "cost_usd": 0.4544075999999999
+    "duration_ms": 64524,
+    "cost_usd": 0.2219316
   },
   "health": {
-    "uptime_seconds": 1697709,
+    "uptime_seconds": 1697774,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231688396800
+    "disk_avail_bytes": 231688355840
   }
 }
