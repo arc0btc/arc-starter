@@ -65,6 +65,7 @@
 - **SSH/fleet-exec context:** Both `ssh` and `fleet-exec run --command` execute from home dir — always prefix with `cd /home/dev/arc-starter &&`.
 - **Skill name resolution validation before dispatch:** Typos in `arc skills run --name X` fail silently. Validate skill names against `arc skills` or directory before use.
 - **Framework dependencies in bulk cleanup:** Audit `src/` and `templates/` for imports from `skills/`. Core dependencies must be preserved in a keep-list before archiving skills.
+- **Capability announcement → verify automation availability first:** When external platforms announce new features, create research task to verify API/automation support BEFORE queuing implementation tasks. Prevents building for web-only capabilities. Example: X Articles feature lacks API endpoint—research prevented implementation chain.
 
 ## Claims, Git & State
 
