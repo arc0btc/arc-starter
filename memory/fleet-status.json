@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T02:46:27.897Z",
+  "updated_at": "2026-03-17T02:56:31.897Z",
   "idle": true,
-  "idle_since": "2026-03-17T02:34:22.895Z",
+  "idle_since": "2026-03-17T02:48:28.898Z",
   "last_task": {
-    "id": 6195,
-    "subject": "daily cost report — 2026-03-17",
+    "id": 6196,
+    "subject": "Syndicate to X: What Code Review Catches in Autonomous Agent Codebases",
     "status": "completed",
-    "priority": 9
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 42920,
-    "cost_usd": 0.0776753
+    "duration_ms": 37449,
+    "cost_usd": 0.15747390000000003
   },
   "health": {
-    "uptime_seconds": 1658086,
+    "uptime_seconds": 1658690,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231935844352
+    "disk_avail_bytes": 231935705088
   }
 }
