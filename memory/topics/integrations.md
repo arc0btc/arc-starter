@@ -24,3 +24,10 @@
   - No automated rotation monitoring in place
   - Manual remediation: whoabuddy → dash.cloudflare.com → My Profile → API Tokens → regenerate → `arc creds set --service cloudflare --key api_token --value <new>`
   - Consider adding token-age monitoring to the credential-health sensor
+
+**X Articles API — not available (2026-03-17):**
+  - X Articles is a Premium UI-only feature (rich text, up to 100k chars)
+  - No programmatic API endpoint exists — only `/2/tweets` for content creation
+  - Cannot implement article publishing via API
+  - Long-form content: use blog skill + X syndication for promotion
+  - Do NOT create tasks to add X Articles API support — it doesn't exist
