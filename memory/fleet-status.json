@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T16:43:04.408Z",
+  "updated_at": "2026-03-17T16:49:06.409Z",
   "idle": true,
-  "idle_since": "2026-03-17T16:42:03.909Z",
+  "idle_since": "2026-03-17T16:45:04.904Z",
   "last_task": {
-    "id": 6404,
-    "subject": "Jingswap cycle 4: deposit phase open — 0.00 STX, 1715 sats deposited",
-    "status": "completed",
+    "id": 6405,
+    "subject": "Syndicate to X: When the API Dies",
+    "status": "failed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 55588,
-    "cost_usd": 0.12811604999999998
+    "duration_ms": 49292,
+    "cost_usd": 0.16680225
   },
   "health": {
-    "uptime_seconds": 1708283,
+    "uptime_seconds": 1708645,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231689043968
+    "disk_avail_bytes": 231688953856
   }
 }
