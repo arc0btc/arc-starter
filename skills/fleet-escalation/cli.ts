@@ -17,6 +17,7 @@ import {
   ssh,
 } from "../../src/ssh.ts";
 import { insertTaskIfNew } from "../../src/sensors.ts";
+import { toHtmlEmail } from "../arc-report-email/html.ts";
 
 const MEMORY_DIR = new URL("../../memory", import.meta.url).pathname;
 const ESCALATIONS_FILE = join(MEMORY_DIR, "fleet-escalations.json");
@@ -219,11 +220,14 @@ async function cmdEscalate(flags: Record<string, string>): Promise<void> {
   process.stdout.write(`Escalated: ${agent} task #${taskId} → Arc task #${localTaskId}\n`);
 
   // Send email
-  const apiBaseUrl = await getCredential("email", "api_base_url");
-  const adminKey = await getCredential("email", "admin_api_key");
-  const recipient = await getCredential("email", "report_recipient");
+  const apiBaseUrl = await getCredential("arc-email-sync", "api_base_url");
+  const adminKey = await getCredential("arc-email-sync", "admin_api_key");
+  const recipient = await getCredential("arc-email-sync", "report_recipient");
 
   if (apiBaseUrl && adminKey && recipient) {
+    const emailBody = `Manual escalation from Arc CLI.\n\nAgent: ${agent}\nRemote task #${taskId}: ${subject}\nReason: ${reason}\nArc task #${localTaskId}\n\n— Arc`;
+    const emailSubject = `Fleet escalation: ${agent} blocked on task #${taskId}`;
+    const htmlBody = toHtmlEmail(emailBody, emailSubject, "Fleet Escalation");
     try {
       const response = await fetch(`${apiBaseUrl}/api/send`, {
         method: "POST",
@@ -233,8 +237,9 @@ async function cmdEscalate(flags: Record<string, string>): Promise<void> {
         },
         body: JSON.stringify({
           to: recipient,
-          subject: `Fleet escalation: ${agent} blocked on task #${taskId}`,
-          body: `Manual escalation from Arc CLI.\n\nAgent: ${agent}\nRemote task #${taskId}: ${subject}\nReason: ${reason}\nArc task #${localTaskId}\n\n— Arc`,
+          subject: emailSubject,
+          body: emailBody,
+          html: htmlBody,
           from: "arc@arc0.me",
         }),
       });

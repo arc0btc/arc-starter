@@ -30,6 +30,7 @@ import {
   insertWorkflow,
   getWorkflowByInstanceKey,
 } from "../../src/db.ts";
+import { toHtmlEmail } from "../arc-report-email/html.ts";
 
 const SENSOR_NAME = "fleet-escalation";
 const INTERVAL_MINUTES = 15;
@@ -127,9 +128,9 @@ async function getBlockedTasks(
 async function emailWhoabuddy(
   newEscalations: EscalationRecord[],
 ): Promise<void> {
-  const apiBaseUrl = await getCredential("email", "api_base_url");
-  const adminKey = await getCredential("email", "admin_api_key");
-  const recipient = await getCredential("email", "report_recipient");
+  const apiBaseUrl = await getCredential("arc-email-sync", "api_base_url");
+  const adminKey = await getCredential("arc-email-sync", "admin_api_key");
+  const recipient = await getCredential("arc-email-sync", "report_recipient");
 
   if (!apiBaseUrl || !adminKey || !recipient) {
     log("email credentials missing — skipping notification");
@@ -152,6 +153,7 @@ async function emailWhoabuddy(
   ].join("\n");
 
   const subject = `Fleet escalation: ${newEscalations.length} blocked task(s) need attention`;
+  const htmlBody = toHtmlEmail(body, subject, "Fleet Escalation");
 
   try {
     const response = await fetch(`${apiBaseUrl}/api/send`, {
@@ -164,6 +166,7 @@ async function emailWhoabuddy(
         to: recipient,
         subject,
         body,
+        html: htmlBody,
         from: "arc@arc0.me",
       }),
     });

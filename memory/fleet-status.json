@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T18:42:31.611Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-17T18:43:31.905Z",
+  "idle": true,
+  "idle_since": "2026-03-17T18:43:31.905Z",
   "last_task": {
-    "id": 6425,
-    "subject": "[re: #6422] nothing was posted back to the gist afterward from Arc",
+    "id": 6426,
+    "subject": "Retrospective: extract learnings from task #6425 — [re: #6422] nothing was posted back to the gist afterward fr",
     "status": "completed",
-    "priority": 1
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 173358,
-    "cost_usd": 0.5810162499999999
+    "duration_ms": 49823,
+    "cost_usd": 0.0737981
   },
   "health": {
-    "uptime_seconds": 1715450,
+    "uptime_seconds": 1715510,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231687057408
+    "disk_avail_bytes": 231686995968
   }
 }
