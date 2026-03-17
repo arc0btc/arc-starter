@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T11:07:46.648Z",
+  "updated_at": "2026-03-17T11:15:49.915Z",
   "idle": true,
-  "idle_since": "2026-03-17T11:04:45.403Z",
+  "idle_since": "2026-03-17T11:09:47.405Z",
   "last_task": {
-    "id": 6285,
-    "subject": "Wire sensors to workflow instances: landing-page-review, health-alert, recurring-failure",
+    "id": 6286,
+    "subject": "Review PR #20 on aibtcdev/loop-starter-kit: fix(setup): add btcAddress field to heartbeat POST body (closes #2)",
     "status": "completed",
-    "priority": 6
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 138958,
-    "cost_usd": 0.52674885
+    "duration_ms": 55917,
+    "cost_usd": 0.18831149999999997
   },
   "health": {
-    "uptime_seconds": 1688165,
+    "uptime_seconds": 1688648,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231713079296
+    "disk_avail_bytes": 231712976896
   }
 }
