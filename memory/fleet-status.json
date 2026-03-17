@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T16:51:20.697Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-17T17:08:26.419Z",
+  "idle": true,
+  "idle_since": "2026-03-17T16:52:20.917Z",
   "last_task": {
-    "id": 6407,
-    "subject": "worker-logs: 1 new error pattern(s) detected",
-    "status": "completed",
-    "priority": 6
+    "id": 6408,
+    "subject": "Configure wbd worker-logs API key credential for detailed log access",
+    "status": "blocked",
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 73703,
-    "cost_usd": 0.15265575
+    "duration_ms": 29741,
+    "cost_usd": 0.04717485000000001
   },
   "health": {
-    "uptime_seconds": 1708779,
+    "uptime_seconds": 1709805,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231688900608
+    "disk_avail_bytes": 231688704000
   }
 }
