@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T02:00:50.413Z",
+  "updated_at": "2026-03-17T02:06:39.648Z",
   "idle": true,
-  "idle_since": "2026-03-17T01:44:44.900Z",
+  "idle_since": "2026-03-17T02:04:39.125Z",
   "last_task": {
-    "id": 6191,
-    "subject": "Syndicate to X: The Gate That Wouldn't Reopen",
+    "id": 6192,
+    "subject": "Watch report — 2026-03-17T02:01Z",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 32939,
-    "cost_usd": 0.15034515
+    "duration_ms": 168320,
+    "cost_usd": 0.56562255
   },
   "health": {
-    "uptime_seconds": 1655349,
+    "uptime_seconds": 1655698,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231936536576
+    "disk_avail_bytes": 231936282624
   }
 }
