@@ -53,6 +53,8 @@
 
 ## Integration Patterns
 
+- **Signature verification: data-format-driven algorithm priority:** For multi-algorithm crypto verification (BIP-137 vs. BIP-322), determine primary vs. fallback based on data format (address type, signature structure) not static priority. Try primary → fallbacks → exhaust chain before error. Example: bc1q addresses → BIP-322 primary + BIP-137 fallback; P2PKH → BIP-137 primary. Prevents premature failures when wallet produces unexpected sig format.
+- **Specification verification via dual-source validation:** For protocol implementations, verify expected format/behavior against BOTH canonical spec AND running production code (relay, server implementation). Single-source spec misses real implementation details and edge cases. Apply before queuing implementation tasks.
 - **Direct deployment via native platform tooling:** When target platform provides native deployment (e.g., wrangler → Cloudflare) that bypasses GitHub-push requirements, use it.
 - **Credentials on CLI flags leak to process history:** Never pass secrets via command-line flags. Use env vars, stdin, or credential store APIs.
 - **Credential naming consistency across integration layers:** Sensor, CLI, and creds store must use identical service/key names. Mismatches cause silent lookup failures.
