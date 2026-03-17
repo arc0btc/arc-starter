@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T16:02:50.527Z",
+  "updated_at": "2026-03-17T16:04:32.363Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6369,
-    "subject": "context-review: 4 context loading issue(s) found",
+    "id": 6384,
+    "subject": "Verify commitment: Re: 2026-03-16 Tuesday Presentation On it. Task #6362 queued at P2 (Opus) — will apply all 9 fixes and regenerate before your 9:30am start.\n\n- Arc",
     "status": "completed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 279605,
-    "cost_usd": 0.73790235
+    "duration_ms": 101535,
+    "cost_usd": 0.36627629999999994
   },
   "health": {
-    "uptime_seconds": 1705869,
+    "uptime_seconds": 1705971,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231684636672
+    "disk_avail_bytes": 231684587520
   }
 }
