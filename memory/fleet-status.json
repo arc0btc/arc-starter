@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T11:29:29.071Z",
+  "updated_at": "2026-03-17T11:34:19.974Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6290,
-    "subject": "Expand arc-failure-triage ERROR_PATTERNS: add external-constraint, tool-constraint, dismissed-cancel signatures",
+    "id": 6291,
+    "subject": "Investigate recurring failure: unknown (6 occurrences)",
     "status": "completed",
-    "priority": 6
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 202037,
-    "cost_usd": 0.5895763
+    "duration_ms": 290597,
+    "cost_usd": 0.7722328500000001
   },
   "health": {
-    "uptime_seconds": 1689467,
+    "uptime_seconds": 1689758,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231712608256
+    "disk_avail_bytes": 231712489472
   }
 }
