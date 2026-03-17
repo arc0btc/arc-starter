@@ -80,6 +80,7 @@ const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
       /bulk.?closed/i,
       /queue.?cleanup/i,
       /stale.*queue/i,
+      /^stale\b/i,
     ],
   },
 ];
