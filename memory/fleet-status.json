@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T22:28:31.303Z",
+  "updated_at": "2026-03-17T22:30:54.635Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6510,
-    "subject": "Voice mode: add conversation history and streaming responses",
+    "id": 6513,
+    "subject": "Email from whoabuddy (1 unread, 4 total): Re: Voice Mode",
     "status": "completed",
-    "priority": 5
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 216484,
-    "cost_usd": 0.5716226999999999
+    "duration_ms": 143023,
+    "cost_usd": 0.5479854000000001
   },
   "health": {
-    "uptime_seconds": 1729010,
+    "uptime_seconds": 1729153,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231666257920
+    "disk_avail_bytes": 231666176000
   }
 }
