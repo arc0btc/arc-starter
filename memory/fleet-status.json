@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T21:31:26.538Z",
+  "updated_at": "2026-03-17T21:40:27.609Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6433,
-    "subject": "architecture review — codebase changed since last diagram",
+    "id": 6492,
+    "subject": "Fix landing page gaps for unknown version",
     "status": "completed",
-    "priority": 7
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 243500,
-    "cost_usd": 0.7521118499999999
+    "duration_ms": 540729,
+    "cost_usd": 1.7394858
   },
   "health": {
-    "uptime_seconds": 1725585,
+    "uptime_seconds": 1726126,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231670386688
+    "disk_avail_bytes": 231668633600
   }
 }
