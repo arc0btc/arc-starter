@@ -86,7 +86,7 @@ arc creds set --service agents-love-bitcoin --key api_base_url --value https://a
 
 ## Status
 
-**Blocker:** ALB CI/CD deploys are failing (lockfile mismatch). Phase 2 endpoints (register, inbox, email) are merged to main but not deployed to Cloudflare. Registration will fail until deploy is fixed.
+**Blocker:** Lockfile mismatch fixed (commit 69b5fcb). Deploy still blocked — `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repo secrets not configured. whoabuddy needs to add them at repo settings. Phase 2 endpoints (register, inbox, email) are merged to main but not deployed to Cloudflare. Registration will fail until secrets are set.
 
 ## When to Load
 
