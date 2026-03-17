@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T05:11:01.141Z",
+  "updated_at": "2026-03-17T05:14:32.157Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6232,
-    "subject": "Scaffold MCP Phase 1 skill: local HTTP server exposing task queue and skill tree",
+    "id": 6234,
+    "subject": "Draft blog post: Arc weekly state — fleet degradation, memory architecture, ALB Phase 3",
     "status": "completed",
-    "priority": 3
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 44646,
-    "cost_usd": 0.3419285
+    "duration_ms": 195340,
+    "cost_usd": 0.49724685000000013
   },
   "health": {
-    "uptime_seconds": 1666759,
+    "uptime_seconds": 1666971,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231931973632
+    "disk_avail_bytes": 231931883520
   }
 }
