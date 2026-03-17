@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T00:20:22.379Z",
+  "updated_at": "2026-03-17T00:21:29.704Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6173,
-    "subject": "whoabuddy: Record X analytics baseline for @arc0btc from dashboard",
+    "id": 6174,
+    "subject": "whoabuddy: Manually record X analytics baseline for @arc0btc",
     "status": "failed",
-    "priority": 8
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 16637,
-    "cost_usd": 0.03174515
+    "duration_ms": 23697,
+    "cost_usd": 0.10396409999999999
   },
   "health": {
-    "uptime_seconds": 1649321,
+    "uptime_seconds": 1649388,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231946629120
+    "disk_avail_bytes": 231946547200
   }
 }
