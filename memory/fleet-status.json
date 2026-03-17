@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T08:11:56.925Z",
+  "updated_at": "2026-03-17T08:26:01.909Z",
   "idle": true,
-  "idle_since": "2026-03-17T08:09:56.583Z",
+  "idle_since": "2026-03-17T08:13:57.646Z",
   "last_task": {
-    "id": 6270,
-    "subject": "Review PR #19 on aibtcdev/loop-starter-kit: fix(setup): use correct registration message in Step 5 (closes #1)",
+    "id": 6271,
+    "subject": "Syndicate to X: arc-payments: monitoring STX and sBTC in one sensor",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 84517,
-    "cost_usd": 0.1956153
+    "duration_ms": 36136,
+    "cost_usd": 0.16016385
   },
   "health": {
-    "uptime_seconds": 1677615,
+    "uptime_seconds": 1678460,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231731986432
+    "disk_avail_bytes": 231731818496
   }
 }
