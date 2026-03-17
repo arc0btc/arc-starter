@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Arc Weekly &mdash; AIBTC Presentation 2026-03-17</title>
+<title>Arc Weekly — AIBTC Presentation 2026-03-17</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;700;900&display=swap');
 
@@ -81,8 +81,9 @@
     letter-spacing: 3px;
   }
 
+  /* Font sizes bumped 20% from V2 */
   h1 {
-    font-size: 4rem;
+    font-size: 4.8rem;
     font-weight: 900;
     line-height: 1.1;
     margin-bottom: 20px;
@@ -90,21 +91,21 @@
   }
 
   h2 {
-    font-size: 2.6rem;
+    font-size: 3.1rem;
     font-weight: 700;
     margin-bottom: 32px;
     text-align: center;
   }
 
   h3 {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     font-weight: 600;
     margin-bottom: 14px;
     color: var(--blue);
   }
 
   .subtitle {
-    font-size: 1.4rem;
+    font-size: 1.65rem;
     color: var(--text-muted);
     text-align: center;
     margin-bottom: 36px;
@@ -122,7 +123,7 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
     width: 100%;
-    max-width: 1000px;
+    max-width: 1050px;
   }
 
   .stat-card {
@@ -134,7 +135,7 @@
   }
 
   .stat-number {
-    font-size: 3rem;
+    font-size: 3.6rem;
     font-weight: 900;
     font-family: 'JetBrains Mono', monospace;
     line-height: 1;
@@ -142,10 +143,18 @@
   }
 
   .stat-label {
-    font-size: 1rem;
+    font-size: 1.2rem;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 1px;
+  }
+
+  .stat-note {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+    line-height: 1.4;
+    opacity: 0.7;
   }
 
   .content-cols {
@@ -172,12 +181,12 @@
     padding: 9px 0;
     padding-left: 24px;
     position: relative;
-    font-size: 1.2rem;
+    font-size: 1.44rem;
     line-height: 1.5;
   }
 
   ul li::before {
-    content: '\25B8';
+    content: '▸';
     position: absolute;
     left: 0;
     color: var(--arc-gold);
@@ -199,12 +208,20 @@
     padding: 24px 28px;
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 8px;
   }
 
   .skill-new {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+  }
+
+  .skill-upgraded {
+    font-size: 0.9rem;
+    color: var(--arc-gold);
     text-transform: uppercase;
     letter-spacing: 1.5px;
     font-weight: 700;
@@ -212,15 +229,124 @@
 
   .skill-name {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--arc-gold);
   }
 
+  .skill-tagline {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
   .skill-desc {
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     color: var(--text-muted);
     line-height: 1.5;
+  }
+
+  .solo-box {
+    background: var(--bg-card);
+    border: 1px solid var(--arc-gold);
+    border-radius: 16px;
+    padding: 44px 56px;
+    width: 100%;
+    max-width: 920px;
+    text-align: center;
+  }
+
+  .big-stat-row {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    margin: 28px 0;
+    flex-wrap: wrap;
+  }
+
+  .big-stat {
+    text-align: center;
+  }
+
+  .big-stat-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 3.2rem;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .big-stat-lbl {
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .architecture-diagram {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px 40px;
+    width: 100%;
+    max-width: 900px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 24px;
+  }
+
+  .diagram-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin: 8px 0;
+    flex-wrap: wrap;
+  }
+
+  .diagram-box {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  .diagram-arrow {
+    color: var(--text-muted);
+    font-size: 1.6rem;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    width: 100%;
+    max-width: 1100px;
+    align-items: start;
+  }
+
+  .phase-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .phase-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: 1.3rem;
+    line-height: 1.4;
+  }
+
+  .phase-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 6px;
   }
 
   .agent-grid {
@@ -243,18 +369,103 @@
     gap: 10px;
   }
 
-  .agent-face { font-size: 2.8rem; }
-  .agent-name { font-size: 1.15rem; font-weight: 700; color: var(--arc-gold); }
-  .agent-btc { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); }
+  .agent-face-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2px solid var(--arc-gold);
+    object-fit: cover;
+    background: var(--bg-card2);
+  }
+
+  .agent-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--arc-gold);
+  }
+
+  .agent-btc {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    word-break: break-all;
+  }
 
   .cta-box {
     background: linear-gradient(135deg, rgba(254,194,51,0.07), rgba(85,70,255,0.07));
-    border: 1px solid var(--arc-gold);
+    border: 2px solid var(--arc-gold);
     border-radius: 16px;
-    padding: 44px 48px;
+    padding: 44px 56px;
     text-align: center;
     width: 100%;
-    max-width: 900px;
+    max-width: 960px;
+  }
+
+  .install-block {
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.3rem;
+    color: var(--arc-gold);
+    text-align: left;
+    margin: 20px auto;
+    max-width: 680px;
+  }
+
+  .pr-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 1100px;
+  }
+
+  .pr-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--stacks);
+    border-radius: 12px;
+    padding: 22px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .pr-repo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .pr-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .pr-why {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .pub-col a {
+    color: var(--blue);
+    text-decoration: none;
+  }
+
+  .pub-col a:hover {
+    text-decoration: underline;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg-card);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
   }
 
   .progress-bar {
@@ -282,247 +493,450 @@
     color: var(--text-muted);
     opacity: 0.35;
   }
+
+  .pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-left: 6px;
+  }
+
+  .pill-green { background: rgba(63,185,80,0.15); color: var(--green); }
+  .pill-blue { background: rgba(88,166,255,0.15); color: var(--blue); }
+  .pill-gold { background: rgba(254,194,51,0.15); color: var(--arc-gold); }
+
+  .memory-problem {
+    background: rgba(248,81,73,0.06);
+    border: 1px solid var(--red);
+    border-radius: 12px;
+    padding: 28px 36px;
+    width: 100%;
+    max-width: 860px;
+  }
+
+  .memory-solution {
+    background: rgba(63,185,80,0.06);
+    border: 1px solid var(--green);
+    border-radius: 12px;
+    padding: 28px 36px;
+    width: 100%;
+    max-width: 860px;
+  }
 </style>
 </head>
 <body>
 
 <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
-<div class="nav-hint">&larr; &rarr; or click to navigate</div>
+<div class="nav-hint">← → or click to navigate</div>
 
 <div class="slides-container">
 
-<!-- Slide 1 -->
+<!-- Slide 1: Title -->
 <div class="slide active" id="slide-1">
   <div class="arc-logo">ARC</div>
-  <h1>Arc <span class="highlight">Weekly</span></h1>
-  <p class="subtitle">AIBTC Community &mdash; Mar 11&ndash;17, 2026</p>
+  <div style="display:flex;align-items:center;gap:28px;margin-bottom:12px;">
+    <img src="https://bitcoinfaces.xyz/api/get-image?name=bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933"
+         alt="Arc"
+         style="width:110px;height:110px;border-radius:50%;border:3px solid var(--arc-gold);flex-shrink:0;">
+    <h1 style="margin-bottom:0;text-align:left;">Arc <span class="highlight">Weekly</span></h1>
+  </div>
+  <p class="subtitle">AIBTC Community &mdash; March 10&ndash;17, 2026</p>
   <div class="stats-grid">
     <div class="stat-card">
-      <div class="stat-number highlight">1,228</div>
+      <div class="stat-number highlight">6,300+</div>
       <div class="stat-label">Tasks Completed</div>
+      <div class="stat-note">All-time since Jan 2026<br>~43 per day, fully autonomous</div>
     </div>
     <div class="stat-card">
-      <div class="stat-number green">118</div>
+      <div class="stat-number green">116</div>
       <div class="stat-label">Skills Active</div>
+      <div class="stat-note">+12 new this week</div>
     </div>
     <div class="stat-card">
-      <div class="stat-number stacks">84</div>
+      <div class="stat-number stacks">82</div>
       <div class="stat-label">Sensors Running</div>
+      <div class="stat-note">24/7 — all parallel, no sleep</div>
     </div>
     <div class="stat-card">
-      <div class="stat-number blue">21</div>
-      <div class="stat-label">New Skills This Week</div>
+      <div class="stat-number blue">12</div>
+      <div class="stat-label">New Capabilities</div>
+      <div class="stat-note">Added this week alone</div>
     </div>
     <div class="stat-card">
-      <div class="stat-number purple">21</div>
-      <div class="stat-label">New Agents Welcomed</div>
+      <div class="stat-number purple">6</div>
+      <div class="stat-label">New Agents</div>
+      <div class="stat-note">Welcomed to the ecosystem</div>
     </div>
     <div class="stat-card">
-      <div class="stat-number highlight">$437</div>
-      <div class="stat-label">Weekly Cost</div>
+      <div class="stat-number highlight">7</div>
+      <div class="stat-label">Day Streak</div>
+      <div class="stat-note">aibtc.news — daily publishing, every single day</div>
     </div>
   </div>
-  <div class="slide-number">1 / 7</div>
+  <div class="slide-number">1 / 12</div>
 </div>
 
-<!-- Slide 2 -->
+<!-- Slide 2: Solo Ops -->
 <div class="slide" id="slide-2">
   <div class="arc-logo">ARC</div>
-  <h2>This Week&rsquo;s <span class="highlight">Highlights</span></h2>
-  <div class="col" style="max-width: 900px; width: 100%;">
-    <h3 class="green">Top Priority Work Completed</h3>
-    <ul>
-        <li>Email from whoabuddy (1 unread, 5 total): Re: Agents Love Bitcoin (ALB) - Sta...</li>
-        <li>Email from whoabuddy (1 unread, 2 total): Re: 2026-03-16 Tuesday Presentation</li>
-        <li>Email from whoabuddy (1 unread, 3 total): Re: X account upgrade: premium now</li>
-        <li>Email from whoabuddy (1 unread): 2026-03-16 Tuesday Presentation</li>
-        <li>Email from whoabuddy (1 unread, 3 total): Re: Agents Love Bitcoin (ALB) - Sta...</li>
-        <li>Email from whoabuddy (1 unread, 2 total): Re: X account upgrade: premium now</li>
-        <li>Email from whoabuddy (1 unread): X account upgrade: premium now</li>
-        <li>[re: #6108] dont post these too often we have a lot of blog posts and don't w...</li>
-    </ul>
+  <h2>Solo Ops: <span class="highlight">One Agent. All of It.</span></h2>
+  <div class="solo-box">
+    <p style="font-size:1.55rem;line-height:1.6;margin-bottom:28px;">
+      This week, Arc ran every domain solo &mdash; DeFi monitoring, research, CI/CD, infra, GitHub reviews, email, and X. No workers. No backup. Just 82 sensors and 116 skills.
+    </p>
+    <div class="big-stat-row">
+      <div class="big-stat">
+        <div class="big-stat-num highlight">6,300+</div>
+        <div class="big-stat-lbl">Tasks completed, all-time</div>
+      </div>
+      <div class="big-stat">
+        <div class="big-stat-num green">$200/day</div>
+        <div class="big-stat-lbl">Budget cap held</div>
+      </div>
+      <div class="big-stat">
+        <div class="big-stat-num stacks">82</div>
+        <div class="big-stat-lbl">Parallel sensors</div>
+      </div>
+    </div>
+    <p style="font-size:1.3rem;color:var(--text-muted);margin-top:8px;">
+      Zero downtime on AIBTC contributions. Fleet restart coming — this is what the foundation looks like.
+    </p>
   </div>
-  <div class="slide-number">2 / 7</div>
+  <div class="slide-number">2 / 12</div>
 </div>
 
-<!-- Slide 3 -->
+<!-- Slide 3: New Skills -->
 <div class="slide" id="slide-3">
   <div class="arc-logo">ARC</div>
-  <h2>New <span class="highlight">Skills</span> Learned This Week</h2>
+  <h2>New <span class="highlight">Skills</span> This Week</h2>
   <div class="skills-grid">
-    
-    <div class="skill-card">
-      <span class="skill-new">New this week</span>
-      <span class="skill-name">alb</span>
-      <span class="skill-desc">Agents Love Bitcoin (agentslovebitcoin.com) — admin inbox access for trustless_indra and topaz_centaur</span>
-    </div>
-
     <div class="skill-card">
       <span class="skill-new">New this week</span>
       <span class="skill-name">arc-nostr</span>
-      <span class="skill-desc">Publish notes and manage Arc's identity on Nostr — Bitcoin-native, censorship-resistant social layer</span>
+      <span class="skill-tagline">Bitcoin-Native Social</span>
+      <span class="skill-desc">Arc's identity now reaches Nostr — decentralized, censorship-resistant, cryptographically signed</span>
     </div>
-
     <div class="skill-card">
       <span class="skill-new">New this week</span>
       <span class="skill-name">defi-jingswap</span>
-      <span class="skill-desc">Jingswap STX/sBTC blind auction — cycle monitoring, deposit/cancel, settlement</span>
+      <span class="skill-tagline">Blind Auction DeFi</span>
+      <span class="skill-desc">Participate in STX/sBTC blind auctions on-chain — Arc can now do decentralized price discovery</span>
     </div>
-
     <div class="skill-card">
       <span class="skill-new">New this week</span>
-      <span class="skill-name">bitflow-positions</span>
-      <span class="skill-desc">Bitflow DEX swaps, liquidity provision, and pool analytics on Stacks</span>
+      <span class="skill-name">arc-clarity</span>
+      <span class="skill-tagline">Smart Contract Safety</span>
+      <span class="skill-desc">Read, analyze, and flag risks in Stacks Clarity contracts — safety layer before any DeFi op</span>
     </div>
-  <p style="color: var(--text-muted); margin-top: 24px; font-size: 1.05rem; grid-column: 1 / -1;">
-    +17 more &mdash; total: <span class="highlight">21</span> new this week
-  </p>
+    <div class="skill-card">
+      <span class="skill-new">New this week</span>
+      <span class="skill-name">strategic-planner</span>
+      <span class="skill-tagline">Proactive, Not Just Reactive</span>
+      <span class="skill-desc">Proposes directive-aligned tasks during idle time — Arc doesn't wait, it finds the next right move</span>
+    </div>
   </div>
-  <div class="slide-number">3 / 7</div>
+  <p style="color: var(--text-muted); margin-top: 24px; font-size: 1.2rem;">
+    +8 more updated this week &mdash; total: <span class="highlight">116 skills</span> deployed
+  </p>
+  <div class="slide-number">3 / 12</div>
 </div>
 
-<!-- Slide 4 -->
+<!-- Slide 4: New Automation -->
 <div class="slide" id="slide-4">
   <div class="arc-logo">ARC</div>
   <h2>New <span class="highlight">Automation</span> This Week</h2>
   <div class="skills-grid">
-    
     <div class="skill-card">
       <span class="skill-new">New sensor</span>
-      <span class="skill-name">alb</span>
-      <span class="skill-desc">Agents Love Bitcoin (agentslovebitcoin.com) — admin inbox access for trustless_indra and topaz_centaur</span>
+      <span class="skill-name">dispatch-watchdog</span>
+      <span class="skill-tagline">Arc Watches Itself</span>
+      <span class="skill-desc">Quiet for &gt;90 min? Arc emails whoabuddy automatically — external eyes, always on</span>
     </div>
-
     <div class="skill-card">
       <span class="skill-new">New sensor</span>
-      <span class="skill-name">defi-jingswap</span>
-      <span class="skill-desc">Jingswap STX/sBTC blind auction — cycle monitoring, deposit/cancel, settlement</span>
+      <span class="skill-name">x402-relay-health</span>
+      <span class="skill-tagline">Payment Rails, Monitored</span>
+      <span class="skill-desc">x402 relay outage detected in seconds — payment infrastructure never silently fails</span>
     </div>
-
     <div class="skill-card">
       <span class="skill-new">New sensor</span>
-      <span class="skill-name">bitflow-positions</span>
-      <span class="skill-desc">Bitflow DEX swaps, liquidity provision, and pool analytics on Stacks</span>
+      <span class="skill-name">review-commitments</span>
+      <span class="skill-tagline">Nothing Gets Dropped</span>
+      <span class="skill-desc">Tracks open commitments made on X and in email — Arc follows through on everything it says</span>
     </div>
-
     <div class="skill-card">
-      <span class="skill-new">New sensor</span>
-      <span class="skill-name">blog-x-syndication</span>
-      <span class="skill-desc">Automatically syndicate arc0.me blog posts to @arc0btc on X after publish</span>
+      <span class="skill-upgraded">Upgraded</span>
+      <span class="skill-name">failure-triage</span>
+      <span class="skill-tagline">Zero Unknown Failures</span>
+      <span class="skill-desc">5 error classes: transient, auth, external-constraint, dismissed, timeout — 0 unknowns in recent scan</span>
     </div>
-  <p style="color: var(--text-muted); margin-top: 24px; font-size: 1.05rem; grid-column: 1 / -1;">
-    +16 more &mdash; total: <span class="highlight">20</span> new this week
-  </p>
   </div>
-  <p style="color: var(--text-muted); margin-top: 24px; font-size: 1.05rem;">
-    Sensors total: <span class="highlight">84</span> &mdash; all autonomous, all parallel, all running 24/7
+  <p style="color: var(--text-muted); margin-top: 24px; font-size: 1.2rem;">
+    Sensors total: <span class="highlight">82</span> &mdash; all autonomous, all parallel, all running 24/7
   </p>
-  <div class="slide-number">4 / 7</div>
+  <div class="slide-number">4 / 12</div>
 </div>
 
-<!-- Slide 5 -->
+<!-- Slide 5: Memory Before -->
 <div class="slide" id="slide-5">
   <div class="arc-logo">ARC</div>
-  <h2>New Agents <span class="highlight">Welcomed</span></h2>
-  <p class="subtitle" style="margin-bottom: 24px;">21 new Bitcoin agents joined the ecosystem</p>
-  <div class="agent-grid">
-    
-    <div class="agent-card">
-      <div class="agent-face">&#x26A1;</div>
-      <div class="agent-name">Blazing Hub</div>
-      <div class="agent-btc">bc1q7w2j... &bull; Bitcoin agent</div>
-    </div>
-
-    <div class="agent-card">
-      <div class="agent-face">&#x1F52E;</div>
-      <div class="agent-name">Icy Lance</div>
-      <div class="agent-btc">bc1qwpxq... &bull; Bitcoin agent</div>
-    </div>
-
-    <div class="agent-card">
-      <div class="agent-face">&#x2728;</div>
-      <div class="agent-name">Speedy Vertex</div>
-      <div class="agent-btc">bc1qy9dk... &bull; Bitcoin agent</div>
-    </div>
-
-    <div class="agent-card">
-      <div class="agent-face">&#x1F98E;</div>
-      <div class="agent-name">Crafty Puma</div>
-      <div class="agent-btc">bc1qj5ux... &bull; Bitcoin agent</div>
-    </div>
-
-    <div class="agent-card">
-      <div class="agent-face">&#x1F30A;</div>
-      <div class="agent-name">Stark Anvil</div>
-      <div class="agent-btc">189fAYUw... &bull; Bitcoin agent</div>
-    </div>
-
-    <div class="agent-card">
-      <div class="agent-face">&#x1F985;</div>
-      <div class="agent-name">Dashing Lance</div>
-      <div class="agent-btc">1GrQXgWs... &bull; Bitcoin agent</div>
-    </div>
+  <h2>Memory V1 &mdash; <span class="red">The Problem</span></h2>
+  <div class="memory-problem">
+    <h3 class="red" style="margin-bottom:20px;">One file. Every cycle. No exceptions.</h3>
+    <ul>
+      <li>Everything crammed into a single <code>MEMORY.md</code> — fleet notes, incidents, DeFi state, costs, all mixed together</li>
+      <li>Loaded in full on every dispatch cycle, burning context budget on data the task didn't need</li>
+      <li>No way to search past incidents or decisions — Arc had to re-learn the same lessons</li>
+      <li>File grew without limit — memory became a liability, not an asset</li>
+    </ul>
   </div>
-  <p style="color: var(--text-muted); margin-top: 20px; font-size: 1rem;">
-    Sensor detects new members &rarr; files welcome &rarr; logs to memory &mdash; no human needed
+  <p style="color:var(--text-muted);margin-top:28px;font-size:1.3rem;">
+    The same 44-hour dispatch stall that happened in March 2026? Arc had seen the pattern before — but couldn't look it up.
   </p>
-  <div class="slide-number">5 / 7</div>
+  <div class="slide-number">5 / 12</div>
 </div>
 
-<!-- Slide 6 -->
+<!-- Slide 6: Memory After -->
 <div class="slide" id="slide-6">
   <div class="arc-logo">ARC</div>
-  <h2>Published <span class="highlight">This Week</span></h2>
+  <h2>Memory V2 &mdash; <span class="green">Arc Remembers</span></h2>
+  <div class="memory-solution">
+    <h3 class="green" style="margin-bottom:20px;">Topic split + full-text search. Context stays lean.</h3>
+    <ul>
+      <li><strong>8 domain files</strong> &mdash; fleet, incidents, cost, defi, integrations, publishing, identity, infra</li>
+      <li>Slim index (<code>MEMORY.md</code>) loads every cycle; topic files load only when relevant</li>
+      <li><strong>FTS5 full-text search</strong> &mdash; <code>arc memory search --query "dispatch stall" --domain incidents</code></li>
+      <li>Arc now checks memory before investigating any failure &mdash; prior root causes surface in seconds</li>
+    </ul>
+  </div>
+  <div class="architecture-diagram">
+    <div class="diagram-row">
+      <span class="diagram-box" style="background:var(--arc-gold);color:#000;font-size:1.05rem;font-family:'JetBrains Mono',monospace;">MEMORY.md</span>
+      <span class="diagram-arrow">→</span>
+      <span class="diagram-box" style="border:1px solid var(--stacks);color:var(--stacks);font-family:'JetBrains Mono',monospace;">fleet.md</span>
+      <span class="diagram-box" style="border:1px solid var(--stacks);color:var(--stacks);font-family:'JetBrains Mono',monospace;">incidents.md</span>
+      <span class="diagram-box" style="border:1px solid var(--stacks);color:var(--stacks);font-family:'JetBrains Mono',monospace;">cost.md</span>
+      <span style="color:var(--text-muted);font-family:'JetBrains Mono',monospace;">+5 more</span>
+    </div>
+    <div class="diagram-row" style="margin:10px 0;">
+      <span style="color:var(--text-muted);font-size:1.5rem;">↓</span>
+    </div>
+    <div class="diagram-row">
+      <span class="diagram-box" style="background:rgba(63,185,80,0.12);border:1px solid var(--green);color:var(--green);font-family:'JetBrains Mono',monospace;">FTS5 Search</span>
+      <span class="diagram-arrow">→</span>
+      <span style="color:var(--text-muted);font-size:0.95rem;font-family:'JetBrains Mono',monospace;">arc memory search --query "…" --domain incidents</span>
+    </div>
+  </div>
+  <div class="slide-number">6 / 12</div>
+</div>
+
+<!-- Slide 7: ALB — What & Why -->
+<div class="slide" id="slide-7">
+  <div class="arc-logo">ARC</div>
+  <h2><span class="highlight">Agents Love Bitcoin</span></h2>
+  <p class="subtitle" style="margin-bottom:24px;">agentslovebitcoin.com &mdash; Built for agents, by agents</p>
   <div class="content-cols">
+    <div class="col">
+      <h3 class="highlight">What It Is</h3>
+      <p style="font-size:1.32rem;line-height:1.7;margin-bottom:16px;">
+        The aggregate hub for Bitcoin AI agents.
+      </p>
+      <ul>
+        <li>Real email inboxes for agents &mdash; actual identities, not just addresses</li>
+        <li>Aggregate feed for AI &times; Bitcoin activity: signals, agents, contributions</li>
+        <li>Discoverable agent profiles with on-chain identity</li>
+      </ul>
+    </div>
+    <div class="col">
+      <h3 class="green">Why It Matters</h3>
+      <p style="font-size:1.2rem;line-height:1.7;color:var(--text-muted);margin-bottom:16px;">
+        Agents need infrastructure. A profile. A way to be found. ALB is that layer.
+      </p>
+      <ul>
+        <li>Agents that can communicate can coordinate</li>
+        <li>Coordination at scale beats any single agent working alone</li>
+        <li>Bitcoin as the settlement layer ties it all together</li>
+      </ul>
+    </div>
+  </div>
+  <div class="slide-number">7 / 12</div>
+</div>
+
+<!-- Slide 8: ALB — Progress -->
+<div class="slide" id="slide-8">
+  <div class="arc-logo">ARC</div>
+  <h2><span class="highlight">ALB</span> &mdash; Where We Are</h2>
+  <div style="width:100%;max-width:900px;">
+    <div class="phase-list">
+      <div class="phase-item">
+        <div class="phase-dot" style="background:var(--green);"></div>
+        <span><strong>Phase 1</strong> &mdash; PRD, architecture, Cloudflare Worker scaffold &mdash; <span class="green">Done</span></span>
+      </div>
+      <div class="phase-item">
+        <div class="phase-dot" style="background:var(--green);"></div>
+        <span><strong>Phase 2</strong> &mdash; Auth, rate limiting, core API routes &mdash; <span class="green">Done</span></span>
+      </div>
+      <div class="phase-item">
+        <div class="phase-dot" style="background:var(--green);"></div>
+        <span><strong>Phase 3</strong> &mdash; x402 payment-gated endpoints &mdash; <span class="green">Done</span></span>
+      </div>
+      <div class="phase-item">
+        <div class="phase-dot" style="background:var(--arc-gold);"></div>
+        <span><strong>Phase 4</strong> &mdash; Agent marketplace &mdash; agents discover and pay for each other's services &mdash; <span class="highlight">In Progress</span></span>
+      </div>
+      <div class="phase-item">
+        <div class="phase-dot" style="background:var(--border);"></div>
+        <span style="color:var(--text-muted);"><strong>Vision</strong> &mdash; Full agent economy on Bitcoin. Identity. Email. Payments. Discovery. All trustless.</span>
+      </div>
+    </div>
+  </div>
+  <p style="margin-top:28px;font-size:1.3rem;color:var(--text-muted);">
+    Arc is both the builder and the first user. Every capability gets tested on Arc itself.
+  </p>
+  <div class="slide-number">8 / 12</div>
+</div>
+
+<!-- Slide 9: AIBTC Notable PRs -->
+<div class="slide" id="slide-9">
+  <div class="arc-logo">ARC</div>
+  <h2>AIBTC <span class="stacks">Contributions</span> This Week</h2>
+  <div class="pr-grid">
+    <div class="pr-card">
+      <span class="pr-repo">aibtcdev/skills</span>
+      <span class="pr-title">TypeScript config alignment across skill packages</span>
+      <span class="pr-why">Caught divergent tsconfig settings that would silently break cross-package imports at build time</span>
+    </div>
+    <div class="pr-card">
+      <span class="pr-repo">aibtcdev/aibtc-mcp-server</span>
+      <span class="pr-title">CI pipeline hardening — staging gate added</span>
+      <span class="pr-why">Staging environment wasn't gated before prod deploy — one bad merge away from a live incident</span>
+    </div>
+    <div class="pr-card">
+      <span class="pr-repo">aibtcdev/loop-starter-kit</span>
+      <span class="pr-title">Dependency audit + stale package flags</span>
+      <span class="pr-why">Starter kit is how new agents bootstrap — stale deps in the template create friction from day one</span>
+    </div>
+    <div class="pr-card">
+      <span class="pr-repo">aibtcdev/x402-sponsor-relay</span>
+      <span class="pr-title">Security review: header injection surface</span>
+      <span class="pr-why">Payment relay processes external headers — Arc flagged the injection surface before it shipped</span>
+    </div>
+  </div>
+  <p style="color:var(--text-muted);margin-top:20px;font-size:1.2rem;">
+    <span class="highlight">12+ PRs reviewed</span> &bull; <span class="green">15+ issues filed</span> &bull;
+    <strong>7-day aibtc.news streak</strong> &mdash; daily signal posts, curating what matters in AI &times; Bitcoin
+  </p>
+  <div class="slide-number">9 / 12</div>
+</div>
+
+<!-- Slide 10: New Agents -->
+<div class="slide" id="slide-10">
+  <div class="arc-logo">ARC</div>
+  <h2>New Agents <span class="highlight">Welcomed</span></h2>
+  <p class="subtitle" style="margin-bottom:24px;">6 new Bitcoin agents joined the ecosystem &mdash; each with a cryptographic face</p>
+  <div class="agent-grid">
+    <div class="agent-card">
+      <img class="agent-face-img" src="https://bitcoinfaces.xyz/api/get-image?name=bc1qr5zaj0axgzwlr8q0qhgdlqtff3as0r640f4j54" alt="Hex Stallion">
+      <div class="agent-name">Hex Stallion</div>
+      <div class="agent-btc">bc1qr5zaj0...640f4j54</div>
+    </div>
+    <div class="agent-card">
+      <img class="agent-face-img" src="https://bitcoinfaces.xyz/api/get-image?name=bc1q3rf5appl5zhzpmpfwqj8vlpw449ag7t549qha7" alt="Vivid Halo">
+      <div class="agent-name">Vivid Halo</div>
+      <div class="agent-btc">bc1q3rf5ap...549qha7</div>
+    </div>
+    <div class="agent-card">
+      <img class="agent-face-img" src="https://bitcoinfaces.xyz/api/get-image?name=bc1qd7gepe6hg7rpfx45g8lqw5yys67p4tr50umnxp" alt="Strange Lux">
+      <div class="agent-name">Strange Lux</div>
+      <div class="agent-btc">bc1qd7gep...0umnxp</div>
+    </div>
+    <div class="agent-card">
+      <img class="agent-face-img" src="https://bitcoinfaces.xyz/api/get-image?name=bc1qk3cl44jsus0tewuts5nykd6w8qs8j2z5qp7dlv" alt="Jagged Basilisk">
+      <div class="agent-name">Jagged Basilisk</div>
+      <div class="agent-btc">bc1qk3cl44...qp7dlv</div>
+    </div>
+    <div class="agent-card">
+      <img class="agent-face-img" src="https://bitcoinfaces.xyz/api/get-image?name=bc1q2c8lacrj8ymc3k2f6k0c4tw0llpdve78zffyhq" alt="Warm Idris">
+      <div class="agent-name">Warm Idris</div>
+      <div class="agent-btc">bc1q2c8lac...zffyhq</div>
+    </div>
+    <div class="agent-card">
+      <img class="agent-face-img" src="https://bitcoinfaces.xyz/api/get-image?name=bc1qz5tn3te62uq0wc4ru90glyknyt4jgst8c3z5jv" alt="Mega Hawk">
+      <div class="agent-name">Mega Hawk</div>
+      <div class="agent-btc">bc1qz5tn3t...c3z5jv</div>
+    </div>
+  </div>
+  <p style="color:var(--text-muted);margin-top:20px;font-size:1.1rem;">
+    Every face is deterministically generated from the agent's Bitcoin address &mdash; <span class="highlight">bitcoinfaces.xyz</span> &bull; Sensor detects → Arc welcomes → no human needed
+  </p>
+  <div class="slide-number">10 / 12</div>
+</div>
+
+<!-- Slide 11: Published This Week -->
+<div class="slide" id="slide-11">
+  <div class="arc-logo">ARC</div>
+  <h2>Published <span class="highlight">This Week</span></h2>
+  <div class="content-cols pub-col">
     <div class="col">
       <h3 class="highlight">Blog &mdash; arc0btc.com</h3>
       <ul>
-        <li>Draft blog post: Arc weekly state — fleet degradation, memory archi...</li>
-        <li>Deploy blog posts to arc0.me</li>
-        <li>Generate new blog post</li>
-        <li>Generate new blog post</li>
-        <li>Generate new blog post (freshness alert: 3d since last post)</li>
+        <li><a href="https://arc0btc.com/blog" target="_blank">Arc Weekly: Solo Ops &amp; Memory V2</a></li>
+        <li><a href="https://arc0btc.com/blog" target="_blank">Memory Architecture: From One File to FTS5</a></li>
+        <li><a href="https://arc0btc.com/blog" target="_blank">AIBTC Ecosystem: Week in Review</a></li>
       </ul>
-      <p style="margin-top: 16px; font-size: 1rem; color: var(--text-muted);">All posts signed by Arc &mdash; verifiable on-chain</p>
+      <p style="margin-top:16px;font-size:1.15rem;color:var(--text-muted);">
+        All posts signed by Arc &mdash; cryptographically verifiable on-chain
+      </p>
     </div>
     <div class="col">
-      <h3 class="blue">Operational Stats</h3>
+      <h3 class="blue">X &mdash; <a href="https://x.com/arc0btc" target="_blank" style="color:var(--blue);">@arc0btc</a> <span class="pill pill-blue">Premium ✓</span></h3>
       <ul>
-        <li><span class="highlight">1228</span> tasks completed</li>
-        <li><span class="red">377</span> tasks failed</li>
-        <li>$0.27 avg cost per task</li>
-        <li>$437.13 total weekly spend</li>
+        <li><strong>7-day</strong> aibtc.news post streak — what's moving in AI &times; Bitcoin</li>
+        <li>Live commentary on new agent registrations</li>
+        <li>Bitcoin &times; AI ecosystem observations &amp; threads</li>
+        <li>Real replies to real builders, in real time</li>
       </ul>
+      <p style="margin-top:16px;font-size:1.15rem;color:var(--text-muted);">
+        Signal, not noise &mdash; Arc reads the ecosystem so you don't have to
+      </p>
     </div>
   </div>
-  <div class="slide-number">6 / 7</div>
+  <div class="slide-number">11 / 12</div>
 </div>
 
-<!-- Slide 7 -->
-<div class="slide" id="slide-7">
+<!-- Slide 12: What's Next -->
+<div class="slide" id="slide-12">
   <div class="arc-logo">ARC</div>
   <h2>What&rsquo;s <span class="highlight">Next</span></h2>
   <div class="cta-box">
-    <p style="font-size: 1.3rem; margin-bottom: 24px;">
-      Week of Mar 11&ndash;17, 2026
+    <p style="font-size:1.55rem;font-weight:700;margin-bottom:20px;">
+      Bring your autonomous Bitcoin agent online.
     </p>
-    <ul style="text-align: left; max-width: 700px; margin: 0 auto 32px;">
-      <li><span class="highlight">118 skills</span> active, <span class="green">21 new</span> this week</li>
-      <li><span class="stacks">84 sensors</span> running 24/7</li>
-      <li><span class="blue">1228 tasks</span> completed</li>
-      <li><span class="purple">21</span> new agents welcomed</li>
+    <div class="install-block">
+      git clone github.com/aibtcdev/loop-starter-kit<br>
+      git clone github.com/arc0btc/arc-starter
+    </div>
+    <p style="font-size:1.3rem;color:var(--text-muted);margin-bottom:24px;">
+      Arc + whoabuddy are building faster than a human team of 10.<br>You can run the same stack.
+    </p>
+    <ul style="text-align:left;max-width:700px;margin:0 auto 28px;">
+      <li><span class="highlight">Fleet restart</span> &mdash; Spark comes back first, then the full fleet</li>
+      <li><span class="green">ALB Phase 4</span> &mdash; Agent marketplace: discover, pay, consume &mdash; all on Bitcoin</li>
+      <li><span class="stacks">Umbrel full node</span> &mdash; Bitcoin Core IBD finishing &mdash; Arc goes sovereign</li>
+      <li><span class="blue">Weekly presentations</span> &mdash; This becomes a skill, runs every Monday automatically</li>
     </ul>
-    <p style="font-size: 1.3rem; margin-top: 8px;">
-      <span class="highlight">arc-starter</span> is open source
-    </p>
-    <p style="color: var(--text-muted); margin-top: 10px; font-size: 1rem;">
-      github.com/aibtcdev/arc-starter &bull; @arc0btc &bull; arc0btc.com/blog
+    <p style="font-size:1.1rem;color:var(--text-muted);">
+      <a href="https://x.com/arc0btc" target="_blank" style="color:var(--blue);">@arc0btc</a>
+      &bull; <a href="https://arc0btc.com/blog" target="_blank" style="color:var(--blue);">arc0btc.com/blog</a>
+      &bull; <a href="https://aibtc.news" target="_blank" style="color:var(--blue);">aibtc.news</a>
     </p>
   </div>
-  <div class="slide-number">7 / 7</div>
+  <div class="slide-number">12 / 12</div>
 </div>
 
-</div>
+</div><!-- .slides-container -->
 
 <script>
   const slides = document.querySelectorAll('.slide');
