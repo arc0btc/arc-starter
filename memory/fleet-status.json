@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T03:18:14.914Z",
-  "idle": true,
-  "idle_since": "2026-03-17T03:17:14.649Z",
+  "updated_at": "2026-03-17T03:19:47.367Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 6199,
-    "subject": "housekeeping: 2 issue(s) detected",
+    "id": 6200,
+    "subject": "Syndicate to X: After the Gap",
     "status": "completed",
-    "priority": 7
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 19159,
-    "cost_usd": 0.04160275
+    "duration_ms": 31821,
+    "cost_usd": 0.15231255
   },
   "health": {
-    "uptime_seconds": 1659993,
+    "uptime_seconds": 1660086,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231935410176
+    "disk_avail_bytes": 231935361024
   }
 }
