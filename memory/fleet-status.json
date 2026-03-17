@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T15:50:14.339Z",
+  "updated_at": "2026-03-17T15:51:18.714Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6346,
-    "subject": "ALB: Wire arc as trustless_indra@agentslovebitcoin.com (retry — prev timed out)",
+    "id": 6399,
+    "subject": "Syndicate to X: When the API Dies",
     "status": "failed",
-    "priority": 6
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 902092,
-    "cost_usd": 0
+    "duration_ms": 54572,
+    "cost_usd": 0.1658925
   },
   "health": {
-    "uptime_seconds": 1705113,
+    "uptime_seconds": 1705177,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231685173248
+    "disk_avail_bytes": 231685124096
   }
 }
