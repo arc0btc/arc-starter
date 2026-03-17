@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T03:15:13.901Z",
+  "updated_at": "2026-03-17T03:18:14.914Z",
   "idle": true,
-  "idle_since": "2026-03-17T03:00:08.898Z",
+  "idle_since": "2026-03-17T03:17:14.649Z",
   "last_task": {
-    "id": 6198,
-    "subject": "Retrospective: extract learnings from task #6197 — Email from whoabuddy (1 unread, 2 total): Re: X account upgr",
+    "id": 6199,
+    "subject": "housekeeping: 2 issue(s) detected",
     "status": "completed",
-    "priority": 8
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 59568,
-    "cost_usd": 0.11475229999999999
+    "duration_ms": 19159,
+    "cost_usd": 0.04160275
   },
   "health": {
-    "uptime_seconds": 1659812,
+    "uptime_seconds": 1659993,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231935475712
+    "disk_avail_bytes": 231935410176
   }
 }
