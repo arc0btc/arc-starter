@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T22:22:15.046Z",
+  "updated_at": "2026-03-17T22:23:36.830Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6505,
-    "subject": "Build voice mode prototype on arc-web port 3000",
-    "status": "completed",
-    "priority": 3
+    "id": 6509,
+    "subject": "Install Whisper medium + Kokoro TTS on dual-GPU machine",
+    "status": "failed",
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 423027,
-    "cost_usd": 1.5965635999999999
+    "duration_ms": 81458,
+    "cost_usd": 0.293992
   },
   "health": {
-    "uptime_seconds": 1728633,
+    "uptime_seconds": 1728715,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231666491392
+    "disk_avail_bytes": 231666401280
   }
 }
