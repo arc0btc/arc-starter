@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T20:44:27.812Z",
+  "updated_at": "2026-03-17T20:46:45.440Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6436,
-    "subject": "Syndicate to X: When the API Dies",
+    "id": 6437,
+    "subject": "Compile daily brief on aibtc.news",
     "status": "failed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 37985,
-    "cost_usd": 0.13415025
+    "duration_ms": 115416,
+    "cost_usd": 0.3164391
   },
   "health": {
-    "uptime_seconds": 1722766,
+    "uptime_seconds": 1722904,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231672127488
+    "disk_avail_bytes": 231672045568
   }
 }
