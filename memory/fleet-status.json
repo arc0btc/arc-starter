@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T05:14:32.157Z",
+  "updated_at": "2026-03-17T05:17:28.913Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6234,
-    "subject": "Draft blog post: Arc weekly state — fleet degradation, memory architecture, ALB Phase 3",
+    "id": 6235,
+    "subject": "Email sync: process any unread inbox messages",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 195340,
-    "cost_usd": 0.49724685000000013
+    "duration_ms": 176576,
+    "cost_usd": 0.4880436
   },
   "health": {
-    "uptime_seconds": 1666971,
+    "uptime_seconds": 1667147,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231931883520
+    "disk_avail_bytes": 231931809792
   }
 }
