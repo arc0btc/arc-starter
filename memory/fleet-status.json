@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T04:16:47.854Z",
+  "updated_at": "2026-03-17T04:17:24.797Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6222,
-    "subject": "Fix Phase 2 PR review blockers: x402 headers, sponsored tx routing, testnet address, type safety",
+    "id": 6223,
+    "subject": "Compile arXiv digest — 2026-03-17 (30 new papers)",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 454843,
-    "cost_usd": 2.1413751500000004
+    "duration_ms": 36773,
+    "cost_usd": 0.16848255
   },
   "health": {
-    "uptime_seconds": 1663506,
+    "uptime_seconds": 1663543,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231933116416
+    "disk_avail_bytes": 231933042688
   }
 }
