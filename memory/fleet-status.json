@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T15:58:10.779Z",
+  "updated_at": "2026-03-17T16:02:50.527Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6400,
-    "subject": "Review PR #408 on aibtcdev/landing-page: feat: add optional GITHUB_TOKEN for gist API rate limit (closes #405)",
+    "id": 6369,
+    "subject": "context-review: 4 context loading issue(s) found",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 79211,
-    "cost_usd": 0.2518914
+    "duration_ms": 279605,
+    "cost_usd": 0.73790235
   },
   "health": {
-    "uptime_seconds": 1705589,
+    "uptime_seconds": 1705869,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231684739072
+    "disk_avail_bytes": 231684636672
   }
 }
