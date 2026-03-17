@@ -67,6 +67,8 @@
 - **Skill name resolution validation before dispatch:** Typos in `arc skills run --name X` fail silently. Validate skill names against `arc skills` or directory before use.
 - **Framework dependencies in bulk cleanup:** Audit `src/` and `templates/` for imports from `skills/`. Core dependencies must be preserved in a keep-list before archiving skills.
 - **Capability announcement → verify automation availability first:** When external platforms announce new features, create research task to verify API/automation support BEFORE queuing implementation tasks. Prevents building for web-only capabilities. Example: X Articles feature lacks API endpoint—research prevented implementation chain.
+- **Web dashboard HTML page integration:** When adding new HTML pages to arc-web, create .html file in `src/web/`, add clean URL path to the conditional routing list in `src/web.ts` (around line 2185), then restart service. Without explicit routing, clean URLs return 404 despite .html fallback handler existing.
+- **Self-contained HTML presentation generation:** For stakeholder presentations/reports, generate one self-contained HTML file with all CSS, JavaScript, and data embedded inline (only external dependency: Google Fonts for typography). Structure as repeated slide divs with unique IDs for client-side navigation. Ensures portability (email, direct hosting) and minimal deployment friction.
 
 ## Claims, Git & State
 
