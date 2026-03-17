@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T15:30:03.340Z",
+  "updated_at": "2026-03-17T15:30:33.377Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6397,
-    "subject": "Review PR #21 on aibtcdev/loop-starter-kit: feat(release): add release-please automated release management (closes #11)",
-    "status": "completed",
+    "id": 6398,
+    "subject": "Syndicate to X: When the API Dies (rescheduled)",
+    "status": "failed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 110194,
-    "cost_usd": 0.26625885
+    "duration_ms": 29858,
+    "cost_usd": 0.12973755
   },
   "health": {
-    "uptime_seconds": 1703902,
+    "uptime_seconds": 1703932,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231685468160
+    "disk_avail_bytes": 231685431296
   }
 }
