@@ -1,14 +1,14 @@
 {
-  "timestamp": "2026-03-17T07:24:39.119Z",
+  "timestamp": "2026-03-17T13:25:14.352Z",
   "window_hours": 6,
-  "completed": 76,
+  "completed": 56,
   "failed": 2,
-  "pending_count": 0,
-  "active_count": 0,
-  "today_cost_usd": 27.742,
-  "window_cost_usd": 21.729,
-  "cost_per_completion": 0.286,
-  "budget_pct": 13.9,
+  "pending_count": 21,
+  "active_count": 1,
+  "today_cost_usd": 53.265,
+  "window_cost_usd": 25.252,
+  "cost_per_completion": 0.451,
+  "budget_pct": 26.6,
   "triage_issues": 2,
-  "anomalies": 1
+  "anomalies": 2
 }
