@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T21:26:54.271Z",
+  "updated_at": "2026-03-17T21:31:26.538Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6491,
-    "subject": "Add contract + jingswap to SHORT_DESC in SkillsDirectory.tsx",
+    "id": 6433,
+    "subject": "architecture review — codebase changed since last diagram",
     "status": "completed",
-    "priority": 6
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 31651,
-    "cost_usd": 0.11771610000000002
+    "duration_ms": 243500,
+    "cost_usd": 0.7521118499999999
   },
   "health": {
-    "uptime_seconds": 1725313,
+    "uptime_seconds": 1725585,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231670603776
+    "disk_avail_bytes": 231670386688
   }
 }
