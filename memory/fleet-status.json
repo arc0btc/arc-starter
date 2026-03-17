@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T21:02:26.498Z",
+  "updated_at": "2026-03-17T21:03:54.417Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6480,
-    "subject": "Review PR #346 on aibtcdev/aibtc-mcp-server: feat(jingswap): multi-market support (sbtc-stx + sbtc-usdcx)",
+    "id": 6483,
+    "subject": "Review PR #411 on aibtcdev/landing-page: fix(register): reject legacy Bitcoin addresses, require SegWit",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 124250,
-    "cost_usd": 0.3041799
+    "duration_ms": 87708,
+    "cost_usd": 0.2706396
   },
   "health": {
-    "uptime_seconds": 1723845,
+    "uptime_seconds": 1723933,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231671447552
+    "disk_avail_bytes": 231671402496
   }
 }
