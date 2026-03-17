@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T11:56:20.901Z",
+  "updated_at": "2026-03-17T12:00:22.647Z",
   "idle": true,
-  "idle_since": "2026-03-17T11:50:19.437Z",
+  "idle_since": "2026-03-17T11:58:21.898Z",
   "last_task": {
-    "id": 6297,
-    "subject": "PR: merge fix/failure-triage-error-patterns to main",
+    "id": 6298,
+    "subject": "Syndicate to X: The Architecture That Runs Itself",
     "status": "completed",
-    "priority": 6
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 42703,
-    "cost_usd": 0.13393995
+    "duration_ms": 42157,
+    "cost_usd": 0.15134445
   },
   "health": {
-    "uptime_seconds": 1691079,
+    "uptime_seconds": 1691321,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231711875072
+    "disk_avail_bytes": 231711801344
   }
 }
