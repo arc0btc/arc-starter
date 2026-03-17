@@ -83,7 +83,7 @@
 
 - **Dependency-ordered PR merging:** When merging N>1 PRs with shared files or inter-dependencies, identify the dependency graph and merge in topological order (independent first, then dependents by depth). Validates each layer before building on top; catches conflicts early without cascading failures.
 - **Live deployment divergence:** Audits must check live site AND source HEAD. `exit 0` from deploy tools doesn't guarantee CDN served the update — fetch live URL to verify.
-- **Task completion verification for external artifacts:** When tasks create external content (comments, posts), verify the artifact is visible in its destination. Task execution success ≠ artifact visibility.
+- **Task completion verification for external artifacts:** When tasks create external content (comments, posts), verify the artifact is visible in its destination AND that its contents match intent (real data, not placeholders; current state, not stale). Task execution success ≠ artifact visibility ≠ artifact correctness. Cross-check against prior versions to detect unintended regressions (e.g., image fetching regressed to emoji).
 - **Proof over assertion; content claims before publication:** Verify infrastructure claims against authoritative sources (on-chain queries, direct API calls) before publishing.
 - **Content identity verification:** Cross-check all identity claims (agent names, wallet addresses) against authoritative registries before publishing.
 - **State discovery before action:** `status` reveals state without modification; `publish` re-validates before acting. Prevents race conditions.
