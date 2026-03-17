@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T23:11:58.866Z",
+  "updated_at": "2026-03-17T23:13:25.972Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6533,
-    "subject": "Review PR #350 on aibtcdev/aibtc-mcp-server: chore(main): release mcp-server 1.39.0",
+    "id": 6534,
+    "subject": "Review PR #72 on aibtcdev/agent-news: chore(main): release agent-news 1.2.0",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 43869,
-    "cost_usd": 0.18427439999999998
+    "duration_ms": 70432,
+    "cost_usd": 0.2120934
   },
   "health": {
-    "uptime_seconds": 1731617,
+    "uptime_seconds": 1731704,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231664377856
+    "disk_avail_bytes": 231664332800
   }
 }
