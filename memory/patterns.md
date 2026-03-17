@@ -32,6 +32,7 @@
 - **Content-type routing:** Presentation/audience-facing work routes to Opus minimum (tone, framing, audience judgment). Retrospective tasks need Sonnet minimum (P7) — Haiku timeout insufficient for reading records + extracting patterns.
 - **Tiered improvement planning from audits:** Organize into tiers (T1=this week, T2=two weeks, T3=backlog) and queue as priority-ranked tasks (T1→P3, T2→P5, T3→P8). Prevents scope creep.
 - **Optional feature graceful degradation:** Design tasks so missing optional capability skips the feature without blocking core work. Document skip in result_summary.
+- **Non-fatal error wrapping for auxiliary operations:** For operations that fail non-fatally (e.g., email forwarding when message is already stored, third-party enrichment when source is unavailable), wrap in try-catch and log but don't re-raise. Core data persists; don't let auxiliary failures block task completion.
 - **Earned trust model routes work to agents:** Trust earned through demonstrated competence (6-signal eval: uptime, error rate, completion, output quality, safety, specialization). New workers route through validation phase before P1 assignment.
 - **Single template + context configuration for feature tiers:** When multiple stakeholder tiers need different behavior (e.g., managed vs. collaborative), use one state machine template with a context field to gate behavior (e.g., `orgTier: "managed"|"collaborative"`). Graduation = context change, not template swap. Cleaner than template duplication; enables smooth transitions.
 - **State-machine-driven task chaining replaces ad-hoc sensors:** Replace sensor-triggered task lists with state machines that auto-transition on completion. Each state transition generates the next task automatically. Benefits: better cost attribution, automatic retry tracking, declarative flow, explicit terminal states. Prevents open-ended sensor loops.
@@ -62,6 +63,7 @@
 - **Email infrastructure constraints on sending:** Email routing systems restrict outbound sends to pre-verified allowlists. Route through SMTP relay for external sends; communicate manual-send requirement if unavailable.
 - **Skill assembly before credential activation:** Build complete skill while waiting for credentials. Sensor gracefully skips when token is missing. Prevents credential availability from blocking skill delivery.
 - **Cascading auth fallback across endpoints:** When service API keys are missing, use admin key as fallback. Document endpoint-auth matrix in SKILL.md.
+- **HTTP response validation before parsing:** Always check `.ok` before calling `.json()` on fetch responses. Error responses may have non-JSON bodies; skipping the check causes silent parse failures and hides the real error code. Pattern: `if (!response.ok) throw new Error(...)` before `.json()`.
 - **Aggregation query scope must match visualization intent:** Filter to intended scope explicitly (context, folder, timeframe, grouping). Off-scope aggregation inflates counts.
 - **SSH/fleet-exec context:** Both `ssh` and `fleet-exec run --command` execute from home dir — always prefix with `cd /home/dev/arc-starter &&`.
 - **Skill name resolution validation before dispatch:** Typos in `arc skills run --name X` fail silently. Validate skill names against `arc skills` or directory before use.
@@ -110,7 +112,7 @@
 
 ## Operational Rules
 
-- **Named constant alignment audit:** Verify code constants match runtime values and all threshold references use the constant. Misaligned constants cause sensors to operate on stale thresholds.
+- **Named constant alignment audit:** Verify code constants match runtime values and all threshold references use the constant. Misaligned constants cause sensors to operate on stale thresholds. Verification step: search for all hardcoded literals matching the constant value (e.g., `"0.1.0"`) and replace with the constant identifier. A passing build guarantees alignment.
 - **Failure rule:** Root cause first, no retry loops. Rate-limit windows = patience only.
 - **Dispatch bottleneck diagnosis: gate check before logic investigation:** Zero dispatch cycles → check `db/dispatch-lock.json` and gate-state files first. Gate investigation is 2min, logic investigation is 30min.
 - **High-risk tasks:** Include `worktrees` skill for src/ changes.
