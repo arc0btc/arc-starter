@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T20:56:37.282Z",
+  "updated_at": "2026-03-17T20:58:26.298Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6461,
-    "subject": "Update stale memories: Arc deploy capability, email migration, BIP-137 legacy",
+    "id": 6474,
+    "subject": "GitHub issue in aibtcdev/landing-page#410: bug: agent able to register with legacy address",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 122273,
-    "cost_usd": 0.31241205000000005
+    "duration_ms": 108867,
+    "cost_usd": 0.29539335
   },
   "health": {
-    "uptime_seconds": 1723496,
+    "uptime_seconds": 1723605,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231671672832
+    "disk_avail_bytes": 231671582720
   }
 }
