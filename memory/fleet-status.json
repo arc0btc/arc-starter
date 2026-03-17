@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T13:05:06.299Z",
+  "updated_at": "2026-03-17T13:12:12.764Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6328,
-    "subject": "Research aibtcdev/landing-page APIs and x402 payment formats for ALB PR review",
+    "id": 6329,
+    "subject": "Review and merge open ALB (agentslovebitcoin.com) PRs",
     "status": "completed",
     "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 316232,
-    "cost_usd": 1.8121680500000001
+    "duration_ms": 426311,
+    "cost_usd": 2.0996532500000007
   },
   "health": {
-    "uptime_seconds": 1695205,
+    "uptime_seconds": 1695631,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231699337216
+    "disk_avail_bytes": 231699107840
   }
 }
