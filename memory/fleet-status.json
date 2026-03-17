@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T00:17:36.608Z",
+  "updated_at": "2026-03-17T00:19:05.465Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6118,
-    "subject": "Retrospective: extract learnings from task #6114 — Email from whoabuddy (1 unread): X account upgrade: premium ",
+    "id": 6172,
+    "subject": "Daily failure retrospective: 5 failed task(s)",
     "status": "completed",
-    "priority": 8
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 38601,
-    "cost_usd": 0.06546265
+    "duration_ms": 67208,
+    "cost_usd": 0.16349850000000002
   },
   "health": {
-    "uptime_seconds": 1649155,
+    "uptime_seconds": 1649244,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231946780672
+    "disk_avail_bytes": 231946719232
   }
 }
