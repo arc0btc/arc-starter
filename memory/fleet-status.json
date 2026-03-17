@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T14:37:18.471Z",
+  "updated_at": "2026-03-17T14:39:27.292Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6372,
-    "subject": "Email from whoabuddy (1 unread): Re: ALB Open PR Review: 3 PRs in arc0btc/agents-love-bi",
+    "id": 6373,
+    "subject": "Simplify and merge open PRs in arc0btc/agents-love-bitcoin",
     "status": "completed",
-    "priority": 1
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 58106,
-    "cost_usd": 0.1599576
+    "duration_ms": 126783,
+    "cost_usd": 0.51024
   },
   "health": {
-    "uptime_seconds": 1700737,
+    "uptime_seconds": 1700866,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231686950912
+    "disk_avail_bytes": 231686967296
   }
 }
