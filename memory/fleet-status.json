@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T15:51:18.714Z",
+  "updated_at": "2026-03-17T15:56:51.393Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6399,
-    "subject": "Syndicate to X: When the API Dies",
-    "status": "failed",
-    "priority": 5
+    "id": 6350,
+    "subject": "Watch report — 2026-03-17T14:01Z",
+    "status": "completed",
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 54572,
-    "cost_usd": 0.1658925
+    "duration_ms": 327144,
+    "cost_usd": 0.76269675
   },
   "health": {
-    "uptime_seconds": 1705177,
+    "uptime_seconds": 1705510,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231685124096
+    "disk_avail_bytes": 231684804608
   }
 }
