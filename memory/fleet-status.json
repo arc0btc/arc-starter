@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T13:21:25.002Z",
+  "updated_at": "2026-03-17T13:25:45.209Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6324,
-    "subject": "ALB: PR for deterministic agent name email addresses",
+    "id": 6316,
+    "subject": "ALB: Add worker-logs RPC binding and set observability: false in wrangler config",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 245674,
-    "cost_usd": 1.4802382499999998
+    "duration_ms": 260034,
+    "cost_usd": 0.8540649000000002
   },
   "health": {
-    "uptime_seconds": 1696183,
+    "uptime_seconds": 1696444,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231698661376
+    "disk_avail_bytes": 231698436096
   }
 }
