@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T08:39:38.398Z",
+  "updated_at": "2026-03-17T08:44:11.900Z",
   "idle": true,
-  "idle_since": "2026-03-17T08:35:36.407Z",
+  "idle_since": "2026-03-17T08:42:11.468Z",
   "last_task": {
-    "id": 6273,
-    "subject": "daily cost report — 2026-03-17",
+    "id": 6274,
+    "subject": "Jingswap cycle 3: deposit phase open — 0.00 STX, 3487 sats deposited",
     "status": "completed",
-    "priority": 9
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 14301,
-    "cost_usd": 0.03324925
+    "duration_ms": 92408,
+    "cost_usd": 0.17131049999999998
   },
   "health": {
-    "uptime_seconds": 1679277,
+    "uptime_seconds": 1679550,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231731634176
+    "disk_avail_bytes": 231731552256
   }
 }
