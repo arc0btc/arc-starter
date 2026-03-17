@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T12:54:46.570Z",
+  "updated_at": "2026-03-17T12:56:16.785Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6314,
-    "subject": "ALB: Update email addresses to use AIBTC agent names (from landing-page address-to-name API)",
+    "id": 6321,
+    "subject": "Email from whoabuddy (1 unread, 4 total): Re: 2026-03-16 Tuesday Presentation",
     "status": "completed",
-    "priority": 3
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 422815,
-    "cost_usd": 1.6707957999999998
+    "duration_ms": 90024,
+    "cost_usd": 0.23094569999999998
   },
   "health": {
-    "uptime_seconds": 1694585,
+    "uptime_seconds": 1694675,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231710175232
+    "disk_avail_bytes": 231710113792
   }
 }
