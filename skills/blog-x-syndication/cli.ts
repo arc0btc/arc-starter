@@ -13,6 +13,7 @@ import { readHookState, writeHookState } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "blog-x-syndication";
+const MAX_FAILURES_BEFORE_INVESTIGATION = 3;
 
 function log(message: string): void {
   console.log(`[${new Date().toISOString()}] [blog-x-syndication/cli] ${message}`);
@@ -99,14 +100,17 @@ async function cmdSyndicate(args: string[]): Promise<void> {
       `URL: ${postUrl}\n\n` +
       `Steps:\n` +
       `1. Read the post: arc skills run --name blog-publishing -- show --id ${postId}\n` +
-      `2. Craft an X post that:\n` +
+      `2. Check budget: arc skills run --name social-x-posting -- budget\n` +
+      `   - If posts remaining == 0, stop here. Run: arc skills run --name blog-x-syndication -- mark-failed --post-id ${postId}\n` +
+      `3. Craft an X post that:\n` +
       `   - Leads with the sharpest insight or surprising angle from the post\n` +
       `   - Explains WHY it matters — not just the title + link\n` +
       `   - Ends with the URL: ${postUrl}\n` +
       `   - Uses Arc's voice: direct, precise, genuine\n` +
       `   - No "check out my post" openers. No filler. Max 1 hashtag.\n` +
-      `3. Post: arc skills run --name social-x-posting -- post --text "<your tweet>"\n` +
-      `4. Mark syndicated: arc skills run --name blog-x-syndication -- mark-syndicated --post-id ${postId} --tweet-id <tweet-id>`,
+      `4. Post: arc skills run --name social-x-posting -- post --text "<your tweet>"\n` +
+      `5a. On success: arc skills run --name blog-x-syndication -- mark-syndicated --post-id ${postId} --tweet-id <tweet-id>\n` +
+      `5b. On failure: arc skills run --name blog-x-syndication -- mark-failed --post-id ${postId}`,
     source: taskSource,
     priority: 5,
     model: "sonnet",
@@ -115,6 +119,47 @@ async function cmdSyndicate(args: string[]): Promise<void> {
 
   log(`queued syndication task for ${postId}`);
   console.log(JSON.stringify({ status: "queued", post_id: postId, url: postUrl }));
+}
+
+async function cmdMarkFailed(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+  if (!flags["post-id"]) {
+    process.stderr.write(
+      "Usage: arc skills run --name blog-x-syndication -- mark-failed --post-id <id>\n"
+    );
+    process.exit(1);
+  }
+
+  const postId = flags["post-id"];
+  const state = await readHookState(SENSOR_NAME);
+  const failureCounts: Record<string, number> =
+    (state as Record<string, unknown> | null)?.failure_counts as Record<string, number> ?? {};
+  const needsInvestigation: string[] =
+    (state as Record<string, unknown> | null)?.needs_investigation as string[] ?? [];
+
+  const prevCount = failureCounts[postId] ?? 0;
+  const newCount = prevCount + 1;
+  failureCounts[postId] = newCount;
+
+  if (newCount >= MAX_FAILURES_BEFORE_INVESTIGATION && !needsInvestigation.includes(postId)) {
+    needsInvestigation.push(postId);
+    log(`${postId} reached ${newCount} failures — moved to needs_investigation`);
+  } else {
+    log(`${postId} failure count: ${newCount}`);
+  }
+
+  await writeHookState(SENSOR_NAME, {
+    ...(state as Record<string, unknown> ?? {}),
+    failure_counts: failureCounts,
+    needs_investigation: needsInvestigation,
+  } as Record<string, unknown>);
+
+  console.log(JSON.stringify({
+    status: newCount >= MAX_FAILURES_BEFORE_INVESTIGATION ? "needs_investigation" : "failure_recorded",
+    post_id: postId,
+    failure_count: newCount,
+    needs_investigation: needsInvestigation.includes(postId),
+  }));
 }
 
 async function cmdMarkSyndicated(args: string[]): Promise<void> {
@@ -157,6 +202,8 @@ async function cmdStatus(): Promise<void> {
   const state = await readHookState(SENSOR_NAME);
   const syndicatedIds = (state as Record<string, unknown> | null)?.syndicated_post_ids as string[] ?? [];
   const syndicationLog = (state as Record<string, unknown> | null)?.syndication_log as Record<string, string>[] ?? [];
+  const failureCounts = (state as Record<string, unknown> | null)?.failure_counts as Record<string, number> ?? {};
+  const needsInvestigation = (state as Record<string, unknown> | null)?.needs_investigation as string[] ?? [];
 
   let publishedCount = 0;
   let unsyndicatedPosts: string[] = [];
@@ -188,6 +235,8 @@ async function cmdStatus(): Promise<void> {
     syndicated_count: syndicatedIds.length,
     unsyndicated_count: unsyndicatedPosts.length,
     unsyndicated_posts: unsyndicatedPosts,
+    needs_investigation: needsInvestigation,
+    failure_counts: failureCounts,
     last_ran: (state as Record<string, unknown> | null)?.last_ran ?? null,
     recent_syndications: syndicationLog.slice(-5),
   }, null, 2));
@@ -204,6 +253,9 @@ switch (command) {
   case "mark-syndicated":
     await cmdMarkSyndicated(rest);
     break;
+  case "mark-failed":
+    await cmdMarkFailed(rest);
+    break;
   case "status":
     await cmdStatus();
     break;
@@ -213,6 +265,7 @@ switch (command) {
       `Commands:\n` +
       `  syndicate --post-id <id>                       Queue syndication task for a post\n` +
       `  mark-syndicated --post-id <id> --tweet-id <id> Record that a post has been syndicated\n` +
+      `  mark-failed --post-id <id>                     Record syndication failure (auto-escalates at 3 failures)\n` +
       `  status                                         Show syndication state\n`
     );
     process.exit(1);
