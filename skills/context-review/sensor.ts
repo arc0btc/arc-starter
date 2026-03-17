@@ -48,6 +48,7 @@ const META_TASK_SOURCES = new Set([
   "sensor:arc-workflow-review",
   "sensor:context-review",
   "sensor:arc-self-audit",
+  "sensor:arc-self-review",          // system-wide status reports mention all skill names and task domains as data
   "sensor:compliance-review",
   "sensor:arc-failure-triage",      // failure retrospectives list failed task subjects verbatim
   "sensor:arc-introspection",        // introspection reports summarize recent task subjects verbatim
@@ -76,7 +77,9 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   "social-agent-engagement": ["agent engagement", "agent-engagement skill", "x post reply", "engage on x"],
   "github-ci-status": ["ci status", "github actions", "workflow run"],
   "github-security-alerts": ["security alert", "dependabot", "vulnerability"],
-  "arc-email-sync": ["email sync", "inbox sync", "arc-email"],
+  // "arc-email" removed — too broad; matches any description that mentions the skill by name
+  // (e.g. failure-triage tasks listing arc-email-sync failures). Use operational phrases only.
+  "arc-email-sync": ["email sync", "inbox sync"],
   "defi-bitflow": ["bitflow", "dex swap", "liquidity pool"],
   "defi-zest": ["zest", "zest protocol", "zest yield", "zest supply"],
   "defi-stacks-market": ["stacks market", "stx price", "market data"],
