@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T10:33:50.424Z",
+  "updated_at": "2026-03-17T10:49:56.416Z",
   "idle": true,
-  "idle_since": "2026-03-17T10:20:45.171Z",
+  "idle_since": "2026-03-17T10:35:51.152Z",
   "last_task": {
-    "id": 6281,
-    "subject": "Syndicate to X: When 230 Tasks Failed at Once",
+    "id": 6282,
+    "subject": "daily cost report — 2026-03-17",
     "status": "completed",
-    "priority": 5
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 37863,
-    "cost_usd": 0.16675365
+    "duration_ms": 22981,
+    "cost_usd": 0.036430500000000005
   },
   "health": {
-    "uptime_seconds": 1686129,
+    "uptime_seconds": 1687095,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231713562624
+    "disk_avail_bytes": 231713390592
   }
 }
