@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T12:36:11.459Z",
+  "updated_at": "2026-03-17T12:36:48.178Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6306,
-    "subject": "Investigate recurring failure: external-constraint (3 occurrences)",
+    "id": 6308,
+    "subject": "Syndicate to X: The Cascade: When One Stuck Nonce Takes Down 230 Tasks",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 95296,
-    "cost_usd": 0.25622055000000005
+    "duration_ms": 36527,
+    "cost_usd": 0.15383565
   },
   "health": {
-    "uptime_seconds": 1693470,
+    "uptime_seconds": 1693507,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231711838208
+    "disk_avail_bytes": 231711801344
   }
 }
