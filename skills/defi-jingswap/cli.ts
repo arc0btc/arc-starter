@@ -23,7 +23,7 @@ const ARC_ADDRESS = "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B";
 const MAX_STX = Number(process.env.JINGSWAP_MAX_STX ?? 50);
 const MAX_SATS = Number(process.env.JINGSWAP_MAX_SATS ?? 10_000);
 
-const MCP_SCRIPT = resolve(import.meta.dir, "../../github/aibtcdev/aibtc-mcp-server/dist/index.js");
+const MCP_SCRIPT = resolve(import.meta.dir, "../../../github/aibtcdev/aibtc-mcp-server/dist/index.js");
 
 // ---- Helpers ----
 
@@ -54,11 +54,11 @@ interface ApiResponse {
 }
 
 async function jingswapGet(path: string): Promise<unknown> {
-  const res = await fetch(`${JINGSWAP_API}${path}`, {
+  const response = await fetch(`${JINGSWAP_API}${path}`, {
     headers: { "x-api-key": JINGSWAP_API_KEY },
   });
-  if (!res.ok) throw new Error(`Jingswap API ${res.status}: ${await res.text()}`);
-  const json = (await res.json()) as ApiResponse;
+  if (!response.ok) throw new Error(`Jingswap API ${response.status}: ${await response.text()}`);
+  const json = (await response.json()) as ApiResponse;
   if (!json.success) throw new Error(json.message || "API returned failure");
   return json.data;
 }

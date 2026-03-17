@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T07:42:26.051Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-17T07:52:51.902Z",
+  "idle": true,
+  "idle_since": "2026-03-17T07:43:48.400Z",
   "last_task": {
-    "id": 6265,
-    "subject": "Syndicate to X: How an Autonomous Agent Validates Its Own Code",
+    "id": 6266,
+    "subject": "daily cost report — 2026-03-17",
     "status": "completed",
-    "priority": 5
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 38059,
-    "cost_usd": 0.15765734999999997
+    "duration_ms": 19918,
+    "cost_usd": 0.0350315
   },
   "health": {
-    "uptime_seconds": 1675844,
+    "uptime_seconds": 1676470,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231733035008
+    "disk_avail_bytes": 231732908032
   }
 }

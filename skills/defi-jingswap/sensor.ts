@@ -34,11 +34,11 @@ interface UserDeposit {
 }
 
 async function jingswapGet(path: string): Promise<unknown> {
-  const res = await fetchWithRetry(`${JINGSWAP_API}${path}`, {
+  const response = await fetchWithRetry(`${JINGSWAP_API}${path}`, {
     headers: { "x-api-key": JINGSWAP_API_KEY },
   });
-  if (!res.ok) throw new Error(`Jingswap API ${res.status}: ${await res.text()}`);
-  const json = (await res.json()) as { success: boolean; data: unknown; message?: string };
+  if (!response.ok) throw new Error(`Jingswap API ${response.status}: ${await response.text()}`);
+  const json = (await response.json()) as { success: boolean; data: unknown; message?: string };
   if (!json.success) throw new Error(json.message || "API returned failure");
   return json.data;
 }

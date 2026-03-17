@@ -89,22 +89,22 @@ export default async function albSensor(): Promise<string> {
       const messages = await fetchUnreadInbox(name, base, adminKey);
       log(`${name}: ${messages.length} unread message(s)`);
 
-      for (const msg of messages) {
-        const source = `sensor:alb:${name}:${msg.id}`;
+      for (const message of messages) {
+        const source = `sensor:alb:${name}:${message.id}`;
         if (pendingTaskExistsForSource(source)) continue;
 
-        const subject = msg.subject
-          ? `ALB inbox [${name}]: ${msg.subject}`
-          : `ALB inbox [${name}]: (no subject) from ${msg.from_address}`;
+        const subject = message.subject
+          ? `ALB inbox [${name}]: ${message.subject}`
+          : `ALB inbox [${name}]: (no subject) from ${message.from_address}`;
 
         insertTask({
           subject,
           description: [
-            `From: ${msg.from_address}`,
-            `Received: ${msg.received_at}`,
-            `Message ID: ${msg.id}`,
+            `From: ${message.from_address}`,
+            `Received: ${message.received_at}`,
+            `Message ID: ${message.id}`,
             "",
-            msg.body_text ? msg.body_text.slice(0, 500) : "(no body)",
+            message.body_text ? message.body_text.slice(0, 500) : "(no body)",
           ].join("\n"),
           priority: 3,
           skills: JSON.stringify(["alb"]),
@@ -112,7 +112,7 @@ export default async function albSensor(): Promise<string> {
         });
 
         totalQueued++;
-        log(`Queued task for ${name} message ${msg.id}`);
+        log(`Queued task for ${name} message ${message.id}`);
       }
     } catch (e) {
       log(`Error polling ${name}: ${e}`);

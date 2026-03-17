@@ -44,25 +44,25 @@ async function checkRelayHealth(): Promise<{ healthy: boolean; issues: string[] 
 
   // 1. Relay /health endpoint
   try {
-    const res = await fetchWithRetry(`${RELAY_URL}/health`, { signal: AbortSignal.timeout(10_000) });
-    if (res.ok) {
+    const response = await fetchWithRetry(`${RELAY_URL}/health`, { signal: AbortSignal.timeout(10_000) });
+    if (response.ok) {
       relayReachable = true;
     } else {
-      issues.push(`Relay returned HTTP ${res.status}`);
+      issues.push(`Relay returned HTTP ${response.status}`);
     }
   } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : "unknown error";
-    issues.push(`Relay unreachable: ${msg}`);
+    const errorMessage = e instanceof Error ? e.message : "unknown error";
+    issues.push(`Relay unreachable: ${errorMessage}`);
   }
 
   // 2. Sponsor nonce status
   try {
-    const res = await fetchWithRetry(
+    const response = await fetchWithRetry(
       `https://api.hiro.so/extended/v1/address/${SPONSOR_ADDRESS}/nonces`,
       { signal: AbortSignal.timeout(10_000) },
     );
-    if (res.ok) {
-      const nonce = (await res.json()) as NonceResponse;
+    if (response.ok) {
+      const nonce = (await response.json()) as NonceResponse;
       if (nonce.detected_missing_nonces.length > 0) {
         issues.push(`Nonce gaps: [${nonce.detected_missing_nonces.join(", ")}]`);
       }
@@ -70,11 +70,11 @@ async function checkRelayHealth(): Promise<{ healthy: boolean; issues: string[] 
         issues.push(`Mempool congestion: ${nonce.detected_mempool_nonces.length} pending`);
       }
     } else {
-      issues.push(`Nonce API returned HTTP ${res.status}`);
+      issues.push(`Nonce API returned HTTP ${response.status}`);
     }
   } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : "unknown error";
-    issues.push(`Nonce API unreachable: ${msg}`);
+    const errorMessage = e instanceof Error ? e.message : "unknown error";
+    issues.push(`Nonce API unreachable: ${errorMessage}`);
   }
 
   return { healthy: relayReachable && issues.length === 0, issues };
