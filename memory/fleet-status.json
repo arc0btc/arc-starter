@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T22:46:47.113Z",
+  "updated_at": "2026-03-17T22:47:29.527Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6512,
-    "subject": "Fix blog-x-syndication: check post budget before queuing, delay on exhaustion",
-    "status": "completed",
-    "priority": 6
+    "id": 6521,
+    "subject": "Syndicate to X: When the API Dies",
+    "status": "failed",
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 209657,
-    "cost_usd": 0.6625530000000001
+    "duration_ms": 42073,
+    "cost_usd": 0.19889729999999997
   },
   "health": {
-    "uptime_seconds": 1730105,
+    "uptime_seconds": 1730148,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231665569792
+    "disk_avail_bytes": 231665373184
   }
 }
