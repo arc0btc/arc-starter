@@ -11,6 +11,8 @@ import {
   getUnreadAibtcInboxMessages,
   getRecentAibtcMessagesByPeer,
   getAllAibtcInboxMessageIds,
+  insertWorkflow,
+  getWorkflowByInstanceKey,
   type AibtcInboxMessage,
 } from "../../src/db.ts";
 import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
@@ -277,6 +279,27 @@ export default async function aibtcInboxSensor(): Promise<string> {
       source,
     });
     log(`created task ${taskId} for thread from ${senderName} (${peerMessages.length} messages)`);
+
+    // Create an EmailThreadMachine workflow instance for lifecycle tracking.
+    // instance_key mirrors arc-email-sync pattern: email-thread-{senderSlug}-{firstMessageId}
+    const senderSlug = peer.replace(/[^a-zA-Z0-9]/g, "-").slice(0, 40);
+    const firstMessageId = peerMessages[0].message_id;
+    const workflowKey = `email-thread-${senderSlug}-${firstMessageId}`;
+    if (!getWorkflowByInstanceKey(workflowKey)) {
+      insertWorkflow({
+        template: "email-thread",
+        instance_key: workflowKey,
+        current_state: "triaged",
+        context: JSON.stringify({
+          sender: senderName,
+          subject: `AIBTC inbox from ${senderName}`,
+          messageCount: peerMessages.length,
+          source: "aibtc-inbox-sync",
+          needsReply: false,
+        }),
+      });
+      log(`created email-thread workflow ${workflowKey}`);
+    }
   }
 
   return "ok";
