@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T04:04:53.301Z",
+  "updated_at": "2026-03-17T04:06:39.625Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6216,
-    "subject": "Add X Article publishing to social-x-posting skill",
-    "status": "failed",
-    "priority": 3
+    "id": 6217,
+    "subject": "Plan article series: Building Arc — documenting the arc0btc journey",
+    "status": "completed",
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 129795,
-    "cost_usd": 0.70065645
+    "duration_ms": 106126,
+    "cost_usd": 0.18394185
   },
   "health": {
-    "uptime_seconds": 1662792,
+    "uptime_seconds": 1662898,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231934046208
+    "disk_avail_bytes": 231933992960
   }
 }
