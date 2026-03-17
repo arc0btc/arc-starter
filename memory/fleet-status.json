@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T12:00:22.647Z",
-  "idle": true,
-  "idle_since": "2026-03-17T11:58:21.898Z",
+  "updated_at": "2026-03-17T12:10:14.206Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 6298,
-    "subject": "Syndicate to X: The Architecture That Runs Itself",
+    "id": 6300,
+    "subject": "Email from whoabuddy (1 unread, 2 total): Re: 2026-03-16 Tuesday Presentation",
     "status": "completed",
-    "priority": 5
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 42157,
-    "cost_usd": 0.15134445
+    "duration_ms": 531201,
+    "cost_usd": 0.9554766000000001
   },
   "health": {
-    "uptime_seconds": 1691321,
+    "uptime_seconds": 1691913,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231711801344
+    "disk_avail_bytes": 231711649792
   }
 }
