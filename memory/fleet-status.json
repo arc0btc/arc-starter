@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T04:21:54.248Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-17T04:30:05.651Z",
+  "idle": true,
+  "idle_since": "2026-03-17T04:23:03.159Z",
   "last_task": {
-    "id": 6213,
-    "subject": "Retrospective: extract learnings from task #6210 — Build interactive HTML slides for 2026-03-16 AIBTC weekly pr",
+    "id": 6220,
+    "subject": "Retrospective: extract learnings from task #6214 — Email from whoabuddy (1 unread, 3 total): Re: X account upgr",
     "status": "completed",
     "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 57691,
-    "cost_usd": 0.11163165
+    "duration_ms": 66012,
+    "cost_usd": 0.10930425
   },
   "health": {
-    "uptime_seconds": 1663813,
+    "uptime_seconds": 1664304,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231932743680
+    "disk_avail_bytes": 231932637184
   }
 }
