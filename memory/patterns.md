@@ -46,6 +46,8 @@
 - **402 CreditsDepleted: communicate, block, gate sensor:** Reply with specific error, write sentinel, create one pending task. Without a gate, sensors cascade new failures continuously.
 - **Rate-limit retries MUST use `--scheduled-for`:** Parse `retry_after` → expiry + 5min → schedule. Without it, dispatch hits the limit again immediately.
 - **Scratchpad context capping in child task families:** Cap scratchpad context at ~2k tokens in dispatch; auto-summarize on task close.
+- **Infrastructure resource audit before self-hosted capability decisions:** When recommending self-hosted vs. external APIs, audit system resources (RAM, CPU, GPU) against component requirements first. Prevents runtime failures due to undersized infrastructure. Example: 3.8GB/2vCPU insufficient for Whisper+Kokoro; browser APIs recommended instead.
+- **Phase gating on infrastructure availability, not just completion:** Capabilities requiring different infrastructure tiers (Phase 1: browser APIs on existing hardware vs. Phase 2: ML models on GPU) should be explicitly gated on resource provisioning. Build/test Phase 1 independently without Phase 2 dependencies.
 
 ## Integration Patterns
 

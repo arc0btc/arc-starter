@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T22:51:45.097Z",
+  "updated_at": "2026-03-17T22:52:18.340Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6508,
-    "subject": "Consolidate patterns.md (157 lines, threshold 150)",
+    "id": 6522,
+    "subject": "worker-logs: 1 new error pattern(s) detected",
     "status": "completed",
-    "priority": 8
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 177059,
-    "cost_usd": 0.29218575
+    "duration_ms": 33084,
+    "cost_usd": 0.13662749999999999
   },
   "health": {
-    "uptime_seconds": 1730403,
+    "uptime_seconds": 1730437,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231665246208
+    "disk_avail_bytes": 231665205248
   }
 }
