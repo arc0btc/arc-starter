@@ -54,3 +54,12 @@
 3. **Null-skills high-cost** — Human strategic tasks ($1.50-$3.67) are Opus-justified. No misrouting.
 4. **No immediate action items** — All costs track within cap and allocation is sound.
 5. **Morning efficiency trend** — Early cycles (06:00-06:08Z) running at $0.29/task vs $0.50 daily average. Strategic work consolidation or lighter sensor load. Watch trend.
+
+**2026-03-17 full-day report (task #6414):**
+- Total: Code $86.13 (43% cap) | API $160.74 | 246 tasks, 118.6M tokens
+- vs 2026-03-16: $134.51 (64% of yesterday) — lighter spend despite new infrastructure work
+- **New: arc-weekly-presentation** ($7.17, 3 tasks) — skill infrastructure work, Opus-justified
+- **Declining: arc-email-sync** ($8.28 today vs $9.72 yesterday) — continuing positive trend toward baseline
+- **Untagged strategic** ($18.32, 25 tasks) — human-initiated work without skill context. Scope unclear — track for pattern.
+- API-to-Code ratio: 1.87x (healthy)
+- **Verdict:** No anomalies. Cap headroom comfortable. Efficiency improving (lower spend, same volume).
