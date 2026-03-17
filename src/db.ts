@@ -136,6 +136,29 @@ export interface EmailMessage {
   synced_at: string;
 }
 
+// ---- Conversation types ----
+
+export type ConversationSource = "web:text" | "web:voice" | "email";
+export type ConversationRole = "user" | "arc";
+
+export interface Conversation {
+  id: number;
+  thread_id: string;
+  source: ConversationSource;
+  role: ConversationRole;
+  message: string;
+  metadata: string | null;         // JSON: extra context (email_id, voice duration, etc.)
+  created_at: string;
+}
+
+export interface InsertConversation {
+  thread_id: string;
+  source: ConversationSource;
+  role: ConversationRole;
+  message: string;
+  metadata?: string | null;
+}
+
 // ---- Task dependency types ----
 
 export type TaskDepType = "blocks" | "related" | "discovered-from";
@@ -357,6 +380,21 @@ export function initDatabase(): Database {
   `);
   db.run("CREATE INDEX IF NOT EXISTS idx_market_positions_market ON market_positions(market_id)");
   db.run("CREATE INDEX IF NOT EXISTS idx_market_positions_status ON market_positions(status)");
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS conversations (
+      id INTEGER PRIMARY KEY,
+      thread_id TEXT NOT NULL,
+      source TEXT NOT NULL,
+      role TEXT NOT NULL,
+      message TEXT NOT NULL,
+      metadata TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+  db.run("CREATE INDEX IF NOT EXISTS idx_conversations_thread ON conversations(thread_id, created_at ASC)");
+  db.run("CREATE INDEX IF NOT EXISTS idx_conversations_source ON conversations(source)");
+  db.run("CREATE INDEX IF NOT EXISTS idx_conversations_created ON conversations(created_at DESC)");
 
   db.run(`
     CREATE TABLE IF NOT EXISTS task_deps (
@@ -1056,6 +1094,62 @@ export function getTotalProceedsUstx(): number {
     .query("SELECT COALESCE(SUM(cost_ustx), 0) as total FROM market_positions WHERE action IN ('sell', 'redeem') AND status != 'failed'")
     .get() as { total: number };
   return row.total;
+}
+
+// ---- Conversation queries ----
+
+export function insertConversation(fields: InsertConversation): number {
+  const db = getDatabase();
+  const result = db
+    .query(
+      "INSERT INTO conversations (thread_id, source, role, message, metadata) VALUES (?, ?, ?, ?, ?)"
+    )
+    .run(fields.thread_id, fields.source, fields.role, fields.message, fields.metadata ?? null);
+  return Number(result.lastInsertRowid);
+}
+
+export function getConversationsByThread(threadId: string): Conversation[] {
+  const db = getDatabase();
+  return db
+    .query("SELECT * FROM conversations WHERE thread_id = ? ORDER BY created_at ASC")
+    .all(threadId) as Conversation[];
+}
+
+export function getConversationThreads(source?: ConversationSource, limit: number = 50): Array<{ thread_id: string; source: string; message_count: number; last_message_at: string; first_message: string }> {
+  const db = getDatabase();
+  if (source) {
+    return db.query(
+      `SELECT thread_id, source, COUNT(*) as message_count,
+              MAX(created_at) as last_message_at,
+              (SELECT message FROM conversations c2 WHERE c2.thread_id = c.thread_id ORDER BY created_at ASC LIMIT 1) as first_message
+       FROM conversations c
+       WHERE source = ?
+       GROUP BY thread_id
+       ORDER BY last_message_at DESC
+       LIMIT ?`
+    ).all(source, limit) as Array<{ thread_id: string; source: string; message_count: number; last_message_at: string; first_message: string }>;
+  }
+  return db.query(
+    `SELECT thread_id, source, COUNT(*) as message_count,
+            MAX(created_at) as last_message_at,
+            (SELECT message FROM conversations c2 WHERE c2.thread_id = c.thread_id ORDER BY created_at ASC LIMIT 1) as first_message
+     FROM conversations c
+     GROUP BY thread_id
+     ORDER BY last_message_at DESC
+     LIMIT ?`
+  ).all(limit) as Array<{ thread_id: string; source: string; message_count: number; last_message_at: string; first_message: string }>;
+}
+
+export function getRecentConversations(limit: number = 50): Conversation[] {
+  const db = getDatabase();
+  return db
+    .query("SELECT * FROM conversations ORDER BY created_at DESC LIMIT ?")
+    .all(limit) as Conversation[];
+}
+
+export function getConversationById(id: number): Conversation | null {
+  const db = getDatabase();
+  return db.query("SELECT * FROM conversations WHERE id = ?").get(id) as Conversation | null;
 }
 
 // ---- Arc memory (FTS5) queries ----
