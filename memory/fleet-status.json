@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T12:59:49.906Z",
+  "updated_at": "2026-03-17T13:05:06.299Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6323,
-    "subject": "Email from whoabuddy (1 unread, 2 total): Re: Arc Autonomy Milestones v2.0 — Agent Manager Framew",
+    "id": 6328,
+    "subject": "Research aibtcdev/landing-page APIs and x402 payment formats for ALB PR review",
     "status": "completed",
-    "priority": 1
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 100555,
-    "cost_usd": 0.21987855
+    "duration_ms": 316232,
+    "cost_usd": 1.8121680500000001
   },
   "health": {
-    "uptime_seconds": 1694888,
+    "uptime_seconds": 1695205,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231709999104
+    "disk_avail_bytes": 231699337216
   }
 }
