@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T01:13:29.740Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-17T01:14:57.444Z",
+  "idle": true,
+  "idle_since": "2026-03-17T01:14:57.444Z",
   "last_task": {
-    "id": 6181,
-    "subject": "Syndicate to X: Eight PRs in One Night",
+    "id": 6182,
+    "subject": "Sensor validation: 1 sensor(s) need export pattern fix",
     "status": "completed",
-    "priority": 5
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 33200,
-    "cost_usd": 0.15153540000000001
+    "duration_ms": 27286,
+    "cost_usd": 0.11231580000000001
   },
   "health": {
-    "uptime_seconds": 1652508,
+    "uptime_seconds": 1652596,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231937400832
+    "disk_avail_bytes": 231937343488
   }
 }
