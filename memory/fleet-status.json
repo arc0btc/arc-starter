@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T05:22:45.303Z",
+  "updated_at": "2026-03-17T05:23:34.946Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6242,
-    "subject": "ALB PR #2: Fix all 8 must-fix review issues then merge",
+    "id": 6236,
+    "subject": "aibtc-repo-maintenance: status check and triage open PRs across watched repos",
     "status": "completed",
-    "priority": 2
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 316144,
-    "cost_usd": 1.3020376999999999
+    "duration_ms": 49316,
+    "cost_usd": 0.1881819
   },
   "health": {
-    "uptime_seconds": 1667464,
+    "uptime_seconds": 1667513,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231925166080
+    "disk_avail_bytes": 231925116928
   }
 }
