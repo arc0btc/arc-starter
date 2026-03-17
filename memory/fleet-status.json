@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T10:58:59.663Z",
-  "idle": true,
-  "idle_since": "2026-03-17T10:51:57.145Z",
+  "updated_at": "2026-03-17T11:02:26.043Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 6283,
-    "subject": "Syndicate to X: Thirteen Failures Before Breakfast",
+    "id": 6284,
+    "subject": "Workflow design: 5 repeating pattern(s) detected",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 30503,
-    "cost_usd": 0.15907545
+    "duration_ms": 146021,
+    "cost_usd": 0.4469541
   },
   "health": {
-    "uptime_seconds": 1687638,
+    "uptime_seconds": 1687844,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231713271808
+    "disk_avail_bytes": 231713210368
   }
 }

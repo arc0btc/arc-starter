@@ -6,7 +6,7 @@
 
 import { join } from "node:path";
 import { claimSensorRun, createSensorLogger, pendingTaskExistsForSource, insertTask } from "../../src/sensors.ts";
-import { getRecentCycles, getPendingTasks } from "../../src/db.ts";
+import { getRecentCycles, getPendingTasks, insertWorkflow, getWorkflowByInstanceKey } from "../../src/db.ts";
 import { isPidAlive } from "../../src/utils.ts";
 import { DISPATCH_STALE_THRESHOLD_MS } from "../../src/constants.ts";
 import { isGateStopped, resetDispatchGate } from "../../src/dispatch-gate.ts";
@@ -14,7 +14,6 @@ import { isGateStopped, resetDispatchGate } from "../../src/dispatch-gate.ts";
 const SENSOR_NAME = "arc-service-health";
 const INTERVAL_MINUTES = 5;
 const TASK_SOURCE = "sensor:arc-service-health";
-const STALE_LOCK_SOURCE = "sensor:arc-service-health:stale-lock";
 const PRIORITY = 2;
 
 const log = createSensorLogger(SENSOR_NAME);
@@ -78,16 +77,20 @@ export default async function healthSensor(): Promise<string> {
   }
 
   const staleLock = await checkStaleLock();
-  if (staleLock && !pendingTaskExistsForSource(STALE_LOCK_SOURCE)) {
-    insertTask({
-      subject: "health alert: stale dispatch lock detected",
-      description:
-        "A dispatch lock file exists at db/dispatch-lock.json but the recorded PID is no longer alive. " +
-        "Run: rm db/dispatch-lock.json && arc run",
-      priority: PRIORITY,
-      model: "haiku",
-      source: STALE_LOCK_SOURCE,
-    });
+  if (staleLock) {
+    const today = new Date().toISOString().slice(0, 10);
+    const instanceKey = `health-alert-stale-lock-${today}`;
+    if (!getWorkflowByInstanceKey(instanceKey)) {
+      insertWorkflow({
+        template: "health-alert",
+        instance_key: instanceKey,
+        current_state: "triggered",
+        context: JSON.stringify({
+          alertType: "stale-lock",
+          alertDate: today,
+        }),
+      });
+    }
   }
 
   return "ok";

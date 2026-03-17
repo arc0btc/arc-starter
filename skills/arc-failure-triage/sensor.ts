@@ -4,6 +4,8 @@ import {
   insertTask,
   pendingTaskExistsForSource,
   completedTaskCountForSource,
+  insertWorkflow,
+  getWorkflowByInstanceKey,
 } from "../../src/db.ts";
 import type { Task } from "../../src/db.ts";
 
@@ -69,14 +71,6 @@ function classifyError(text: string): string {
   return "unknown";
 }
 
-/** Simple hash for dedup source keys. */
-function shortHash(s: string): string {
-  let hash = 0;
-  for (let i = 0; i < s.length; i++) {
-    hash = ((hash << 5) - hash + s.charCodeAt(i)) | 0;
-  }
-  return Math.abs(hash).toString(36);
-}
 
 export default async function failureTriageSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
@@ -115,37 +109,19 @@ export default async function failureTriageSensor(): Promise<string> {
     if (tasks.length < OCCURRENCE_THRESHOLD) continue;
     if (SKIP_SIGNATURES.has(signature)) continue;
 
-    const source = `sensor:arc-failure-triage:pattern:${shortHash(signature)}`;
-    if (pendingTaskExistsForSource(source)) continue;
-    if (completedTaskCountForSource(source) >= 2) continue;
+    const today = new Date().toISOString().slice(0, 10);
+    const instanceKey = `recurring-failure-${signature}-${today}`;
+    if (getWorkflowByInstanceKey(instanceKey)) continue;
 
-    const taskIds = tasks.map((t) => t.id).join(", ");
-    const samples = tasks
-      .slice(0, 3)
-      .map((t) => `  - task #${t.id}: ${t.result_summary ?? t.subject}`)
-      .join("\n");
-
-    insertTask({
-      subject: `Investigate recurring failure: ${signature} (${tasks.length} occurrences)`,
-      description: [
-        `## Recurring Failure Pattern: ${signature}`,
-        "",
-        `**Occurrences:** ${tasks.length} in the last ${LOOKBACK_HOURS} hours`,
-        `**Task IDs:** ${taskIds}`,
-        "",
-        "### Samples",
-        samples,
-        "",
-        "### Instructions",
-        "1. Read AGENT.md for this skill before starting",
-        "2. Check our own code first before blaming external services",
-        "3. Find the root cause, not just the symptom",
-        "4. Fix if it's our bug, file ONE issue if external, document if transient",
-      ].join("\n"),
-      skills: '["arc-failure-triage", "arc-skill-manager"]',
-      priority: 3,
-      model: "sonnet",
-      source,
+    insertWorkflow({
+      template: "recurring-failure",
+      instance_key: instanceKey,
+      current_state: "detected",
+      context: JSON.stringify({
+        failureType: signature,
+        occurrences: tasks.length,
+        sourceSkill: "arc-failure-triage",
+      }),
     });
 
     created++;
