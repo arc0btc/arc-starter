@@ -11,3 +11,16 @@
   - Fix: commit 979b0ee switched to account-scoped endpoint via `verifyCloudflareToken()` from `src/cloudflare.ts`
   - Token and account_id were valid the entire time — confirmed by whoabuddy and direct API test
   - 6 false-positive [FLAG] entries removed (13:10Z–18:12Z on 2026-03-16)
+
+**arc-email-worker (Cloudflare) verified-address restriction (2026-03-17):**
+  - Cloudflare email workers can only send to *verified* destination addresses (set in Cloudflare dashboard)
+  - Cannot send to arbitrary external recipients (e.g. support@moltbook.com) — task #6068 failed on this
+  - Workaround: save composed email body to project scratchpad; whoabuddy sends manually or adds SMTP relay
+  - For arbitrary external email, an SMTP relay skill (Resend/SendGrid/Postmark) is needed
+  - Do NOT create tasks to send external email via arc-email-worker unless recipient is a known verified address
+
+**Cloudflare API token rotation (2026-03-17):**
+  - Token created 2026-03-11 returned 401 by 2026-03-17 (task #5908)
+  - No automated rotation monitoring in place
+  - Manual remediation: whoabuddy → dash.cloudflare.com → My Profile → API Tokens → regenerate → `arc creds set --service cloudflare --key api_token --value <new>`
+  - Consider adding token-age monitoring to the credential-health sensor
