@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T20:08:41.695Z",
+  "updated_at": "2026-03-17T20:09:45.242Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6465,
-    "subject": "x402 relay health alert: 1 issue(s) detected",
-    "status": "completed",
+    "id": 6473,
+    "subject": "ALB: configure Cloudflare secrets in arc0btc/agents-love-bitcoin repo settings",
+    "status": "blocked",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 55480,
-    "cost_usd": 0.203599
+    "duration_ms": 58975,
+    "cost_usd": 0.1599435
   },
   "health": {
-    "uptime_seconds": 1720620,
+    "uptime_seconds": 1720684,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231673241600
+    "disk_avail_bytes": 231673184256
   }
 }
