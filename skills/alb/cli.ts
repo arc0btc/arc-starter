@@ -93,7 +93,9 @@ async function sip018Sign(message: Record<string, unknown>): Promise<string> {
 /** Build BTC auth headers for standard API requests (GET/POST to /api/me/*) */
 async function getBtcAuthHeaders(method: string, path: string): Promise<Record<string, string>> {
   const timestamp = Math.floor(Date.now() / 1000).toString();
-  const message = `${method} ${path}:${timestamp}`;
+  // Server verifies against pathname only (no query params) — strip query string
+  const pathname = path.split("?")[0];
+  const message = `${method} ${pathname}:${timestamp}`;
   log(`Signing: ${message}`);
   const signature = await btcSign(message);
   return {
