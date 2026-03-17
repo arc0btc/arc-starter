@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T10:49:56.416Z",
+  "updated_at": "2026-03-17T10:58:59.663Z",
   "idle": true,
-  "idle_since": "2026-03-17T10:35:51.152Z",
+  "idle_since": "2026-03-17T10:51:57.145Z",
   "last_task": {
-    "id": 6282,
-    "subject": "daily cost report — 2026-03-17",
+    "id": 6283,
+    "subject": "Syndicate to X: Thirteen Failures Before Breakfast",
     "status": "completed",
-    "priority": 9
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 22981,
-    "cost_usd": 0.036430500000000005
+    "duration_ms": 30503,
+    "cost_usd": 0.15907545
   },
   "health": {
-    "uptime_seconds": 1687095,
+    "uptime_seconds": 1687638,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231713390592
+    "disk_avail_bytes": 231713271808
   }
 }
