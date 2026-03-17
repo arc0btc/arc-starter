@@ -17,8 +17,8 @@ Launch these subagents **in parallel** to collect real data. Each writes finding
 **Subagent B — Social Activity:**
 - Check recent completed tasks with `blog-publishing` skill for actual blog post titles
 - Check arc0btc.com/blog for published post titles (if accessible)
-- Check tasks with `x-engagement`/`x-thread` skills for X post subjects
-- Check tasks with `aibtc-news` skill for news beat titles
+- Check tasks with `x-engagement`/`x-thread`/`social-x-posting`/`social-x-ecosystem` skills for X post subjects
+- Check tasks with `aibtc-news` skill for news beat titles and signal counts
 - Output: `{ "blogPosts": [{"title": "...", "url": "..."}], "xPosts": [{"text": "...", "url": "..."}], "newsBeats": ["..."] }`
 
 **Subagent C — Services Updates:**

@@ -61,7 +61,8 @@ interface WeekData {
   totalSkills: number;
   totalSensors: number;
   costSummary: { totalCost: number; totalTasks: number; avgPerTask: number };
-  newAgents: Array<{ name: string; btcPrefix: string }>;
+  newsSignals: number;
+  newAgents: Array<{ name: string; btcAddress: string }>;
 }
 
 /** Supplementary research data from Sonnet subagents */
@@ -184,10 +185,10 @@ function getMemoryChangesFromGit(since: string): string[] {
   const output = result.stdout.toString().trim();
   if (!output) return [];
 
-  // Extract commit subjects (skip hash)
+  // Extract commit subjects (skip hash), filter out chore(loop) auto-commit noise
   return output.split("\n")
     .map(line => line.replace(/^[a-f0-9]+ /, "").trim())
-    .filter(Boolean)
+    .filter(line => Boolean(line) && !line.startsWith("chore(loop)"))
     .slice(0, 10);
 }
 
@@ -224,34 +225,38 @@ function getDevActivityFromGit(since: string): DevActivity {
 function getSocialActivityFromDb(startDate: string, endDate: string): SocialActivity {
   const db = getDatabase();
 
-  // Blog posts — tasks with blog-publishing skill
+  // Blog posts — tasks with blog-publishing skill; prefer result_summary for actual titles
   const blogRows = db.query(`
-    SELECT subject FROM tasks
+    SELECT subject, result_summary FROM tasks
     WHERE date(created_at) BETWEEN ? AND ?
       AND skills LIKE '%blog-publishing%'
       AND status = 'completed'
     ORDER BY created_at DESC
     LIMIT 10
-  `).all(startDate, endDate) as Array<{ subject: string }>;
+  `).all(startDate, endDate) as Array<{ subject: string; result_summary: string | null }>;
 
-  const blogPosts = blogRows.map(r => ({
-    title: r.subject.replace(/^(publish|write|create)\s+(blog\s+post:?\s*)/i, "").trim(),
-    url: undefined as string | undefined,
-  }));
+  const blogPosts = blogRows.map(r => {
+    // Prefer result_summary (actual title) over task subject (which is often "Publish blog post: ...")
+    const raw = r.result_summary || r.subject;
+    const title = raw.replace(/^(published|publish|write|create|wrote)\s+(blog\s+post:?\s*)?/i, "").trim();
+    return { title, url: undefined as string | undefined };
+  });
 
-  // X posts — tasks with x-engagement or x-thread skill
+  // X posts — tasks with x-engagement, x-thread, social-x-posting, or social-x-ecosystem skill
   const xRows = db.query(`
-    SELECT subject FROM tasks
+    SELECT subject, result_summary FROM tasks
     WHERE date(created_at) BETWEEN ? AND ?
-      AND (skills LIKE '%x-engagement%' OR skills LIKE '%x-thread%' OR skills LIKE '%x-posting%')
+      AND (skills LIKE '%x-engagement%' OR skills LIKE '%x-thread%' OR skills LIKE '%x-posting%'
+           OR skills LIKE '%social-x-posting%' OR skills LIKE '%social-x-ecosystem%')
       AND status = 'completed'
-      AND (subject LIKE '%post%' OR subject LIKE '%thread%' OR subject LIKE '%tweet%')
+      AND (subject LIKE '%post%' OR subject LIKE '%thread%' OR subject LIKE '%tweet%'
+           OR subject LIKE '%reply%' OR subject LIKE '%mention%' OR subject LIKE '%X:%')
     ORDER BY created_at DESC
     LIMIT 10
-  `).all(startDate, endDate) as Array<{ subject: string }>;
+  `).all(startDate, endDate) as Array<{ subject: string; result_summary: string | null }>;
 
   const xPosts = xRows.map(r => ({
-    text: r.subject,
+    text: r.result_summary || r.subject,
     url: undefined as string | undefined,
   }));
 
@@ -269,6 +274,17 @@ function getSocialActivityFromDb(startDate: string, endDate: string): SocialActi
   const newsBeats = newsRows.map(r => r.subject);
 
   return { blogPosts, xPosts, newsBeats };
+}
+
+function getNewsSignalsCount(startDate: string, endDate: string): number {
+  const db = getDatabase();
+  const row = db.query(`
+    SELECT COUNT(*) as cnt FROM tasks
+    WHERE date(created_at) BETWEEN ? AND ?
+      AND (skills LIKE '%aibtc-news%' OR skills LIKE '%news%')
+      AND status = 'completed'
+  `).get(startDate, endDate) as { cnt: number } | null;
+  return row?.cnt ?? 0;
 }
 
 function getServicesUpdatesFromDb(startDate: string, endDate: string): ServicesUpdate {
@@ -333,7 +349,7 @@ function getNewAgents(startDate: string): WeekData["newAgents"] {
       .filter(c => c.type === "agent" && c.created_at >= startDate)
       .map(c => ({
         name: resolveDisplayName(c),
-        btcPrefix: c.btc_address ? c.btc_address.slice(0, 8) + "..." : "",
+        btcAddress: c.btc_address ?? "",
       }));
   } catch {
     return [];
@@ -383,6 +399,7 @@ function collectWeekData(weekEndDate: string, research?: ResearchData): WeekData
     totalSkills: allSkills.length,
     totalSensors,
     costSummary: getCostSummary(start, end),
+    newsSignals: getNewsSignalsCount(start, end),
     newAgents: getNewAgents(start),
   };
 
@@ -417,10 +434,20 @@ function renderPresentation(data: WeekData): string {
     slides.push(content);
   }
 
+  /** Consistent number formatting — all stats use locale string for readability */
+  function fmtNum(n: number): string {
+    return n.toLocaleString();
+  }
+
   const { devActivity, socialActivity, servicesUpdates, selfImprovements } = data;
+
+  // Shared stats used by both Slide 1 and closing slide (Issue #8: must match exactly)
+  const totalPosts = socialActivity.blogPosts.length + socialActivity.xPosts.length;
 
   // ──────────────────────────────────────────────
   // Slide 1: Title + Stats Overview
+  // Issue #1: consistent formatting (all use fmtNum)
+  // Issue #2: replace weekly cost with news signals, next to blog posts
   // ──────────────────────────────────────────────
   addSlide(`
   <div class="arc-logo">ARC</div>
@@ -428,33 +455,34 @@ function renderPresentation(data: WeekData): string {
   <p class="subtitle">AIBTC Community &mdash; ${dateRange}</p>
   <div class="stats-grid">
     <div class="stat-card">
-      <div class="stat-number highlight">${data.taskStats.completed.toLocaleString()}</div>
+      <div class="stat-number highlight">${fmtNum(data.taskStats.completed)}</div>
       <div class="stat-label">Tasks Completed</div>
     </div>
     <div class="stat-card">
-      <div class="stat-number green">${data.totalSkills}</div>
+      <div class="stat-number green">${fmtNum(data.totalSkills)}</div>
       <div class="stat-label">Skills Active</div>
     </div>
     <div class="stat-card">
-      <div class="stat-number stacks">${data.totalSensors}</div>
+      <div class="stat-number stacks">${fmtNum(data.totalSensors)}</div>
       <div class="stat-label">Sensors Running</div>
     </div>
     <div class="stat-card">
-      <div class="stat-number blue">${devActivity.commits}</div>
+      <div class="stat-number blue">${fmtNum(devActivity.commits)}</div>
       <div class="stat-label">Commits This Week</div>
     </div>
     <div class="stat-card">
-      <div class="stat-number purple">${socialActivity.blogPosts.length + socialActivity.xPosts.length}</div>
+      <div class="stat-number purple">${fmtNum(totalPosts)}</div>
       <div class="stat-label">Posts Published</div>
     </div>
     <div class="stat-card">
-      <div class="stat-number highlight">$${data.costSummary.totalCost.toFixed(0)}</div>
-      <div class="stat-label">Weekly Cost</div>
+      <div class="stat-number highlight">${fmtNum(data.newsSignals)}</div>
+      <div class="stat-label">News Signals</div>
     </div>
   </div>`);
 
   // ──────────────────────────────────────────────
   // Slide 2: Dev Activity (always shown)
+  // Issue #3: include whoabuddy's commits, frame as 100% AI
   // ──────────────────────────────────────────────
   const prItems = devActivity.prs.length > 0
     ? devActivity.prs.slice(0, 8).map(pr => {
@@ -463,14 +491,18 @@ function renderPresentation(data: WeekData): string {
       }).join("\n        ")
     : `<li class="empty-state">No PRs merged this week</li>`;
 
-  const contribList = devActivity.contributors.length > 0
-    ? devActivity.contributors.map(c => escapeHtml(c)).join(", ")
-    : "No contributors";
+  // Format contributors with AI framing
+  const contribLabels = devActivity.contributors.map(c => {
+    const name = escapeHtml(c);
+    if (c.toLowerCase().includes("arc") || c.toLowerCase() === "arc0btc") return `${name} <span class="text-muted">(autonomous)</span>`;
+    return `${name} <span class="text-muted">(interactive)</span>`;
+  });
+  const contribList = contribLabels.length > 0 ? contribLabels.join(", ") : "No contributors";
 
   addSlide(`
   <div class="arc-logo">ARC</div>
   <h2><span class="highlight">Dev</span> Activity</h2>
-  <p class="subtitle">${devActivity.commits} commits &bull; ${devActivity.prs.length} PRs &bull; ${contribList}</p>
+  <p class="subtitle">${fmtNum(devActivity.commits)} commits &bull; ${fmtNum(devActivity.prs.length)} PRs &bull; 100% AI-generated code</p>
   <div class="content-cols">
     <div class="col">
       <h3 class="green">PRs &amp; Key Commits</h3>
@@ -479,11 +511,12 @@ function renderPresentation(data: WeekData): string {
       </ul>
     </div>
     <div class="col">
-      <h3 class="blue">Operational Stats</h3>
+      <h3 class="blue">Contributors &amp; Stats</h3>
       <ul>
-        <li><span class="highlight">${data.taskStats.completed}</span> tasks completed</li>
-        <li><span class="red">${data.taskStats.failed}</span> tasks failed</li>
-        <li>${data.taskStats.total} total tasks created</li>
+        <li>Contributors: ${contribList}</li>
+        <li><span class="highlight">${fmtNum(data.taskStats.completed)}</span> tasks completed</li>
+        <li><span class="red">${fmtNum(data.taskStats.failed)}</span> tasks failed</li>
+        <li>${fmtNum(data.taskStats.total)} total tasks created</li>
         <li>$${data.costSummary.avgPerTask.toFixed(2)} avg cost per task</li>
       </ul>
     </div>
@@ -491,6 +524,7 @@ function renderPresentation(data: WeekData): string {
 
   // ──────────────────────────────────────────────
   // Slide 3: Social Activity (always shown)
+  // Issue #4: actual blog titles (improved query), actual X posts from skill data
   // ──────────────────────────────────────────────
   const blogItems = socialActivity.blogPosts.length > 0
     ? socialActivity.blogPosts.slice(0, 5).map(p => {
@@ -540,80 +574,112 @@ function renderPresentation(data: WeekData): string {
 
   // ──────────────────────────────────────────────
   // Slide 4: Services — arc0btc.com (always shown)
+  // Issue #5: split into clean sections — site health, dashboard, blog
   // ──────────────────────────────────────────────
-  const serviceItems = servicesUpdates.items.length > 0
-    ? servicesUpdates.items.slice(0, 8).map(item => {
-        const detail = item.detail ? ` <span class="text-muted">&mdash; ${escapeHtml(item.detail)}</span>` : "";
-        return `<li>${escapeHtml(truncate(item.title, 70))}${detail}</li>`;
-      }).join("\n        ")
-    : `<li class="empty-state">No service updates this week</li>`;
+  // Categorize service updates into sections
+  const siteHealthItems: string[] = [];
+  const dashboardItems: string[] = [];
+  const blogServiceItems: string[] = [];
+
+  for (const item of servicesUpdates.items.slice(0, 12)) {
+    const lower = item.title.toLowerCase();
+    const detail = item.detail ? ` <span class="text-muted">&mdash; ${escapeHtml(item.detail)}</span>` : "";
+    const html = `<li>${escapeHtml(truncate(item.title, 70))}${detail}</li>`;
+
+    if (lower.includes("blog") || lower.includes("publish") || lower.includes("post")) {
+      blogServiceItems.push(html);
+    } else if (lower.includes("dashboard") || lower.includes("web dashboard") || lower.includes("api")) {
+      dashboardItems.push(html);
+    } else {
+      siteHealthItems.push(html);
+    }
+  }
+
+  const siteHealthHtml = siteHealthItems.length > 0
+    ? siteHealthItems.join("\n        ")
+    : `<li class="empty-state">No site health updates</li>`;
+  const dashboardHtml = dashboardItems.length > 0
+    ? dashboardItems.join("\n        ")
+    : `<li class="empty-state">No dashboard updates</li>`;
+  const blogSvcHtml = blogServiceItems.length > 0
+    ? blogServiceItems.join("\n        ")
+    : `<li class="empty-state">No blog updates</li>`;
 
   addSlide(`
   <div class="arc-logo">ARC</div>
   <h2><span class="highlight">Services</span> &mdash; ${escapeHtml(servicesUpdates.siteUrl)}</h2>
-  <p class="subtitle">Web dashboard, API, agent profiles</p>
-  <div class="col" style="max-width: 900px; width: 100%;">
-    <h3 class="green">Updates This Week</h3>
-    <ul>
-      ${serviceItems}
-    </ul>
-    <p style="margin-top: 20px; font-size: 1rem; color: var(--text-muted);">
-      Visit <span class="highlight">${escapeHtml(servicesUpdates.siteUrl)}</span> for live agent profiles, blog, and services
-    </p>
+  <p class="subtitle">Site health, dashboard, blog</p>
+  <div class="content-cols">
+    <div class="col">
+      <h3 class="green">Site Health</h3>
+      <ul>
+        ${siteHealthHtml}
+      </ul>
+      <h3 class="blue" style="margin-top: 18px;">Dashboard</h3>
+      <ul>
+        ${dashboardHtml}
+      </ul>
+    </div>
+    <div class="col">
+      <h3 class="highlight">Blog</h3>
+      <ul>
+        ${blogSvcHtml}
+      </ul>
+      <p style="margin-top: 20px; font-size: 1rem; color: var(--text-muted);">
+        Visit <span class="highlight">${escapeHtml(servicesUpdates.siteUrl)}</span> for live agent profiles, blog, and services
+      </p>
+    </div>
   </div>`);
 
   // ──────────────────────────────────────────────
   // Slide 5: Self Improvements (always shown)
+  // Issue #6: restore v3 format — skills-grid cards for skills/sensors,
+  //           meaningful memory commits (chore(loop) already filtered)
   // ──────────────────────────────────────────────
-  const newSkillItems = selfImprovements.newSkills.length > 0
-    ? selfImprovements.newSkills.slice(0, 4).map(s =>
-        `<li><span class="highlight">${escapeHtml(s.name)}</span> &mdash; ${escapeHtml(truncate(s.description || "new skill", 50))}</li>`
-      ).join("\n        ")
+  const allSkillChanges = [
+    ...selfImprovements.newSkills.slice(0, 4).map(s => ({ ...s, tag: "NEW" as const })),
+    ...selfImprovements.updatedSkills.slice(0, 4).map(s => ({ ...s, tag: "UPDATED" as const })),
+  ];
+  const allSensorChanges = selfImprovements.newSensors.slice(0, 4);
+
+  // Skills/sensors as card grid (v3 format)
+  const skillCards = allSkillChanges.length > 0
+    ? allSkillChanges.slice(0, 4).map(s => {
+        const tagClass = s.tag === "NEW" ? "skill-new" : "skill-upgraded";
+        const tagLabel = s.tag === "NEW" ? "New this week" : "Updated";
+        return `<div class="skill-card">
+      <span class="${tagClass}">${tagLabel}</span>
+      <span class="skill-name">${escapeHtml(s.name)}</span>
+      <span class="skill-desc">${escapeHtml(truncate(s.description || "skill", 60))}</span>
+    </div>`;
+      }).join("\n    ")
     : "";
 
-  const updatedSkillItems = selfImprovements.updatedSkills.length > 0
-    ? selfImprovements.updatedSkills.slice(0, 4).map(s =>
-        `<li><span class="blue">${escapeHtml(s.name)}</span> &mdash; ${escapeHtml(truncate(s.description || "updated", 50))}</li>`
-      ).join("\n        ")
+  const sensorCards = allSensorChanges.length > 0
+    ? allSensorChanges.slice(0, 2).map(s =>
+        `<div class="skill-card">
+      <span class="skill-new">New sensor</span>
+      <span class="skill-name">${escapeHtml(s.name)}</span>
+      <span class="skill-desc">${escapeHtml(truncate(s.description || "sensor", 60))}</span>
+    </div>`
+      ).join("\n    ")
     : "";
 
-  const sensorItems = selfImprovements.newSensors.length > 0
-    ? selfImprovements.newSensors.slice(0, 4).map(s =>
-        `<li><span class="green">${escapeHtml(s.name)}</span> &mdash; ${escapeHtml(truncate(s.description || "new sensor", 50))}</li>`
-      ).join("\n        ")
-    : "";
+  const hasCards = skillCards || sensorCards;
+  const cardsHtml = hasCards
+    ? `<div class="skills-grid">
+    ${skillCards}${skillCards && sensorCards ? "\n    " : ""}${sensorCards}
+  </div>`
+    : `<div class="col" style="max-width: 900px; width: 100%;">
+    <p class="empty-state" style="color: var(--text-muted); font-style: italic;">No skill or sensor changes this week</p>
+  </div>`;
 
+  // Memory section — filtered commits (no chore(loop))
   const memItems = selfImprovements.memoryChanges.length > 0
-    ? selfImprovements.memoryChanges.slice(0, 4).map(m =>
+    ? selfImprovements.memoryChanges.slice(0, 5).map(m =>
         `<li>${escapeHtml(truncate(m, 65))}</li>`
-      ).join("\n        ")
-    : "";
-
-  // Build improvement sections — always show the heading, items may be empty
-  const improvementSections: string[] = [];
-
-  const skillsContent = newSkillItems || updatedSkillItems
-    ? `<h3 class="highlight">Skills</h3>
-      <ul>
-        ${newSkillItems}${newSkillItems && updatedSkillItems ? "\n        " : ""}${updatedSkillItems}
-      </ul>`
-    : `<h3 class="highlight">Skills</h3>
-      <ul><li class="empty-state">No skill changes this week</li></ul>`;
-  improvementSections.push(skillsContent);
-
-  const sensorsContent = sensorItems
-    ? `<h3 class="green" style="margin-top: 18px;">Sensors</h3>
-      <ul>${sensorItems}</ul>`
-    : `<h3 class="green" style="margin-top: 18px;">Sensors</h3>
-      <ul><li class="empty-state">No new sensors this week</li></ul>`;
-  improvementSections.push(sensorsContent);
-
-  if (memItems) {
-    improvementSections.push(
-      `<h3 class="stacks" style="margin-top: 18px;">Memory Updates</h3>
-      <ul>${memItems}</ul>`
-    );
-  }
+      ).join("\n      ")
+    : `<li class="empty-state">No memory updates this week</li>`;
 
   const totalImprovements = selfImprovements.newSkills.length
     + selfImprovements.updatedSkills.length
@@ -622,27 +688,39 @@ function renderPresentation(data: WeekData): string {
   addSlide(`
   <div class="arc-logo">ARC</div>
   <h2>Self <span class="highlight">Improvements</span></h2>
-  <p class="subtitle">${totalImprovements} skill/sensor changes &bull; ${selfImprovements.memoryChanges.length} memory updates</p>
-  <div class="col" style="max-width: 900px; width: 100%;">
-    ${improvementSections.join("\n    ")}
+  <p class="subtitle">${fmtNum(totalImprovements)} skill/sensor changes &bull; ${fmtNum(selfImprovements.memoryChanges.length)} memory updates</p>
+  ${cardsHtml}
+  <div class="col" style="max-width: 900px; width: 100%; margin-top: 20px;">
+    <h3 class="stacks">Memory Updates</h3>
+    <ul>
+      ${memItems}
+    </ul>
   </div>`);
 
   // ──────────────────────────────────────────────
   // Slide 6: New Agents (conditional — only if agents joined)
+  // Issue #7: restore bitcoin faces, fix BTC address lookup
   // ──────────────────────────────────────────────
   if (data.newAgents.length > 0) {
-    const icons = ["&#x26A1;", "&#x1F52E;", "&#x2728;", "&#x1F98E;", "&#x1F30A;", "&#x1F985;", "&#x1F525;", "&#x1F680;", "&#x2B50;"];
-    const agentCards = data.newAgents.slice(0, 6).map((a, i) => `
+    // Bitcoin-themed faces for agents (deterministic by index)
+    const btcFaces = ["&#x20BF;", "&#x26A1;", "&#x1F52E;", "&#x2728;", "&#x1F98E;", "&#x1F30A;", "&#x1F985;", "&#x1F525;", "&#x1F680;"];
+    const agentCards = data.newAgents.slice(0, 6).map((a, i) => {
+      // Show meaningful BTC address prefix (12 chars) or fallback
+      const btcDisplay = a.btcAddress
+        ? a.btcAddress.slice(0, 12) + "&hellip;"
+        : "Bitcoin agent";
+      return `
     <div class="agent-card">
-      <div class="agent-face">${icons[i % icons.length]}</div>
+      <div class="agent-face">${btcFaces[i % btcFaces.length]}</div>
       <div class="agent-name">${escapeHtml(a.name)}</div>
-      <div class="agent-btc">${escapeHtml(a.btcPrefix)} &bull; Bitcoin agent</div>
-    </div>`).join("\n");
+      <div class="agent-btc">${btcDisplay}</div>
+    </div>`;
+    }).join("\n");
 
     addSlide(`
   <div class="arc-logo">ARC</div>
   <h2>New Agents <span class="highlight">Welcomed</span></h2>
-  <p class="subtitle">${data.newAgents.length} new Bitcoin agent${data.newAgents.length !== 1 ? "s" : ""} joined the ecosystem</p>
+  <p class="subtitle">${fmtNum(data.newAgents.length)} new Bitcoin agent${data.newAgents.length !== 1 ? "s" : ""} joined the ecosystem</p>
   <div class="agent-grid">
     ${agentCards}
   </div>`);
@@ -650,6 +728,7 @@ function renderPresentation(data: WeekData): string {
 
   // ──────────────────────────────────────────────
   // Slide N: Closing / What's Next
+  // Issue #8: stats must match slide 1 exactly — reuse same variables
   // ──────────────────────────────────────────────
   addSlide(`
   <div class="arc-logo">ARC</div>
@@ -659,10 +738,11 @@ function renderPresentation(data: WeekData): string {
       Week of ${dateRange}
     </p>
     <ul style="text-align: left; max-width: 700px; margin: 0 auto 32px;">
-      <li><span class="highlight">${data.totalSkills} skills</span> active, <span class="green">${selfImprovements.newSkills.length} new</span> this week</li>
-      <li><span class="stacks">${data.totalSensors} sensors</span> running 24/7</li>
-      <li><span class="blue">${data.taskStats.completed} tasks</span> completed</li>
-      <li><span class="highlight">${socialActivity.blogPosts.length}</span> blog posts, <span class="blue">${socialActivity.xPosts.length}</span> X posts</li>
+      <li><span class="highlight">${fmtNum(data.taskStats.completed)}</span> tasks completed</li>
+      <li><span class="green">${fmtNum(data.totalSkills)} skills</span> active, <span class="green">${fmtNum(selfImprovements.newSkills.length)} new</span> this week</li>
+      <li><span class="stacks">${fmtNum(data.totalSensors)} sensors</span> running 24/7</li>
+      <li><span class="blue">${fmtNum(devActivity.commits)}</span> commits, <span class="purple">${fmtNum(totalPosts)}</span> posts published</li>
+      <li><span class="highlight">${fmtNum(data.newsSignals)}</span> news signals filed</li>
     </ul>
     <p style="font-size: 1.3rem; margin-top: 8px;">
       <span class="highlight">arc-starter</span> is open source
@@ -883,6 +963,53 @@ function renderPresentation(data: WeekData): string {
     color: var(--text-muted);
   }
 
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    width: 100%;
+    max-width: 1000px;
+  }
+
+  .skill-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .skill-new {
+    font-size: 0.8rem;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+  }
+
+  .skill-upgraded {
+    font-size: 0.8rem;
+    color: var(--arc-gold);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+  }
+
+  .skill-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--arc-gold);
+  }
+
+  .skill-desc {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
   .agent-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -1100,6 +1227,7 @@ Options:
     process.stdout.write(`  Self: ${data.selfImprovements.newSkills.length} new skills, ${data.selfImprovements.updatedSkills.length} updated, ${data.selfImprovements.newSensors.length} new sensors\n`);
     process.stdout.write(`  Tasks completed: ${data.taskStats.completed}\n`);
     process.stdout.write(`  New agents: ${data.newAgents.length}\n`);
+    process.stdout.write(`  News signals: ${data.newsSignals}\n`);
     process.stdout.write(`  Weekly cost: $${data.costSummary.totalCost.toFixed(2)}\n`);
 
     // Archive previous before overwriting
