@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T15:35:12.094Z",
+  "updated_at": "2026-03-17T15:50:14.339Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6334,
-    "subject": "Verify commitment: Re: Agents Love Bitcoin (ALB) - Status Report Good catches — working through each one:\n\n**1. BIP-137 → segwit signing**\nYou're right. BIP-137 covers l...",
-    "status": "completed",
+    "id": 6346,
+    "subject": "ALB: Wire arc as trustless_indra@agentslovebitcoin.com (retry — prev timed out)",
+    "status": "failed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 248071,
-    "cost_usd": 0.5491930499999998
+    "duration_ms": 902092,
+    "cost_usd": 0
   },
   "health": {
-    "uptime_seconds": 1704210,
+    "uptime_seconds": 1705113,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231685353472
+    "disk_avail_bytes": 231685173248
   }
 }
