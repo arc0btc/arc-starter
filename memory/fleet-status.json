@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T20:05:50.753Z",
+  "updated_at": "2026-03-17T20:07:46.027Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6457,
-    "subject": "Verify BIP-137 to segwit address migration in ALB registration",
+    "id": 6458,
+    "subject": "Deploy ALB worker to Cloudflare from arc0btc/agents-love-bitcoin",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 131530,
-    "cost_usd": 0.5192312500000001
+    "duration_ms": 115099,
+    "cost_usd": 0.5096930000000001
   },
   "health": {
-    "uptime_seconds": 1720449,
+    "uptime_seconds": 1720564,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231673397248
+    "disk_avail_bytes": 231673307136
   }
 }
