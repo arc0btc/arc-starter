@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T14:12:29.908Z",
+  "updated_at": "2026-03-17T14:21:04.696Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6360,
-    "subject": "Email from whoabuddy (1 unread, 6 total): Re: 2026-03-16 Tuesday Presentation",
+    "id": 6354,
+    "subject": "Fix arc-weekly-presentation skill: 9 issues from whoabuddy feedback",
     "status": "completed",
-    "priority": 1
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 70803,
-    "cost_usd": 0.2348583
+    "duration_ms": 514621,
+    "cost_usd": 2.2344828499999996
   },
   "health": {
-    "uptime_seconds": 1699248,
+    "uptime_seconds": 1699763,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231687651328
+    "disk_avail_bytes": 231687475200
   }
 }
