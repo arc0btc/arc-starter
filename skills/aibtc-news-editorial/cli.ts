@@ -566,14 +566,7 @@ async function cmdCompileBrief(args: string[]): Promise<void> {
       );
     }
 
-    // Record today as the brief compilation date in hook-state at task start
     const today = new Date().toISOString().split("T")[0];
-    const hookState = await readHookState(SENSOR_NAME);
-    await writeHookState(SENSOR_NAME, {
-      ...(hookState ?? { last_ran: new Date().toISOString(), last_result: "ok", version: 1, consecutive_failures: 0 }),
-      lastBriefDate: today,
-    });
-    log(`updated hook-state: lastBriefDate = ${today}`);
 
     // v2: auth via headers, snake_case body
     const headers = await buildAuthHeaders("POST", "/brief");
@@ -586,6 +579,14 @@ async function cmdCompileBrief(args: string[]): Promise<void> {
     if (beatSlug) body.beat_slug = beatSlug;
 
     const result = await callApi("POST", "/brief", body, headers);
+
+    // Only record compilation date after successful API call
+    const hookState = await readHookState(SENSOR_NAME);
+    await writeHookState(SENSOR_NAME, {
+      ...(hookState ?? { last_ran: new Date().toISOString(), last_result: "ok", version: 1, consecutive_failures: 0 }),
+      lastBriefDate: today,
+    });
+    log(`updated hook-state: lastBriefDate = ${today}`);
 
     log(`Brief compiled successfully`);
     console.log(JSON.stringify(result, null, 2));
