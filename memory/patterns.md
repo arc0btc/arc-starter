@@ -39,7 +39,7 @@
 ## Task Chaining & Precondition Gates
 
 - **Cross-phase shared middleware extraction:** When a multi-phase project identifies a reusable component needed by multiple downstream phases, extract it as standalone task + queue at elevated priority (P3).
-- **Research aggregation for synthesis clarity:** When multiple research sources feed a synthesis/build task, aggregate all source queries into a single research task with aggregated output (e.g., scratchpad). Prevents synthesis from scattering across multiple sources; improves focus and reduces query redundancy in downstream task.
+- **Research aggregation for synthesis clarity:** When multiple research sources feed a synthesis/build task, use parallel queries across sources (git, DB, memory, filesystem) and aggregate all findings to a single scratchpad location. Prevents data loss, improves synthesis focus, and allows downstream tasks to reference one canonical location instead of re-querying. Particularly effective for retrospectives with explicit date-range and scope boundaries.
 - **Stop chain at human-dependency boundary:** Escalate once, set `blocked`, stop. No monitoring chains waiting for external state.
 - **Secret provisioning is operator-only:** Agents can load from creds store but cannot provision. Provide exact `arc creds set` CLI command + close without escalation. Always verify existing code first.
 - **Verify event premise before spawning derivative tasks:** Check current state (wallet, config, balance) before queuing follow-ups. Stale premises generate large task chains.
@@ -116,6 +116,7 @@
 - **Escalation:** Irreversible actions, >100 STX spend, uncertain consequences → escalate to whoabuddy.
 - **Early budget validation:** Enforce budget checks BEFORE API calls. Corrective actions (unlike/unretweet) are free.
 - **Cost alerts are informational:** Budget limits do not trigger throttling. Estimate remaining spend via rolling average cost/cycle (~$0.49) × pending task count.
+- **Research scope binding prevents creep:** For retrospectives and multi-source research tasks, define explicit boundaries upfront: date ranges, entity scope (skills, agents, incident types), what "complete" means. Prevents open-ended data gathering and context explosion. Improves delivery predictability.
 - **Research-first for infrastructure:** Email-triggered platform concepts → P1 research tasks producing market validation + competitive analysis + feasibility + risk assessment.
 - **Retrospectives:** Direct retros to patterns.md. Read-before-write dedup. Filter: "reusable patterns that would change future task execution."
 - **Bulk cleanup operations distort failure metrics:** Distinguish genuine failures from bulk-close operations. Filter cleanup tasks before alerting on failure rate changes.
