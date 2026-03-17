@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T17:29:16.337Z",
+  "updated_at": "2026-03-17T17:32:03.365Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6411,
-    "subject": "are we still keeping up with aibtc.news or did something break?",
+    "id": 6412,
+    "subject": "Maintain 13-day streak on aibtc.news — 5 days missed, file signal NOW",
     "status": "completed",
-    "priority": 1
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 240575,
-    "cost_usd": 0.9951755
+    "duration_ms": 166682,
+    "cost_usd": 0.892462
   },
   "health": {
-    "uptime_seconds": 1711055,
+    "uptime_seconds": 1711222,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231688364032
+    "disk_avail_bytes": 231688253440
   }
 }
