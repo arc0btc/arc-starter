@@ -190,7 +190,7 @@ export default async function emailSensor(): Promise<string> {
     // Build recipient display (show all recipient addresses and identify agent)
     const recipientsList = Array.from(recipientAddresses).sort();
     const recipientDisplay = recipientsList.join(" / ");
-    const isSparkEmail = recipientsList.some((addr) => addr.includes("spark@"));
+    const isSparkEmail = recipientsList.some((addr) => addr.includes("spark@") || addr.includes("topaz_centaur@"));
     const agentLabel = isSparkEmail ? "Spark's" : "Arc's";
     const inboxLabel = recipientsList.length === 1 ? `${agentLabel} inbox (${recipientsList[0]})` : `${agentLabel} inbox (${recipientDisplay})`;
 
@@ -215,7 +215,7 @@ export default async function emailSensor(): Promise<string> {
     ].join("\n");
 
     // whoabuddy's time is the scarcest resource — highest priority
-    // spark@arc0.me (agent helper) — high priority for coordination
+    // topaz_centaur@agentslovebitcoin.com (Spark agent) — high priority for coordination
     const priority =
       senderAddr === "whoabuddy@gmail.com" ? 1 :
       senderAddr === "spark@arc0me.typeform.com" ? 3 : 5;

@@ -9,7 +9,7 @@ tags:
 
 # Email
 
-Manages Arc's email (arc@arc0.me, arc@arc0btc.com, spark@arc0.me). Syncs from Cloudflare Email Worker API to local DB, detects unread messages, provides send/read/mark-read CLI.
+Manages Arc's email (arc@arc0.me, arc@arc0btc.com, topaz_centaur@agentslovebitcoin.com). Syncs from Cloudflare Email Worker API to local DB, detects unread messages, provides send/read/mark-read CLI.
 
 ## Components
 
@@ -53,7 +53,7 @@ All monitored email addresses must be configured in **Cloudflare Email Routing**
 **Currently configured:**
 - arc@arc0.me → arc-email-worker
 - arc@arc0btc.com → arc-email-worker
-- spark@arc0.me → arc-email-worker (verify in Cloudflare dashboard)
+- topaz_centaur@agentslovebitcoin.com → arc-email-worker (requires Cloudflare Email Routing config for agentslovebitcoin.com domain)
 
 ## Email Worker API
 
@@ -69,7 +69,7 @@ Base URL: `email/api_base_url` | Auth header: `X-Admin-Key` with `email/admin_ap
 
 ## When to Load
 
-Load when: a task involves reading, replying to, or acting on email at arc@arc0.me or arc@arc0btc.com. Tasks created by the email sensor (subject: "Email from {sender}") include this skill. Also load when sending proactive emails or checking email stats.
+Load when: a task involves reading, replying to, or acting on email at arc@arc0.me, arc@arc0btc.com, or topaz_centaur@agentslovebitcoin.com. Tasks created by the email sensor (subject: "Email from {sender}") include this skill. Also load when sending proactive emails or checking email stats.
 
 ## Security
 
