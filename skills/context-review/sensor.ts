@@ -173,6 +173,16 @@ function checkMissingSkillCoverage(
   // skills they need. "tweet" in "Research X article: @user" means fetching, not posting.
   if (task.subject.startsWith("Research X article:")) return findings;
 
+  // Commitment verification tasks (from review-commitments sensor) use the email/post text as
+  // their subject. Domain keywords in that text reflect the email's content, not the task's
+  // skill requirements — the task only needs "review-commitments".
+  if (task.subject.startsWith("Verify commitment:")) return findings;
+
+  // Memory update tasks embed the names of memory topics being updated in their descriptions.
+  // Those topic names may mention any domain (e.g. "aibtc news", "bitflow") but the task's
+  // work is updating memory entries, not executing domain-specific operations.
+  if (task.subject.startsWith("Update stale memories:") || task.subject.startsWith("Update memory:")) return findings;
+
   // Reputation review tasks embed the subject of the interaction being reviewed (e.g., a PR
   // title containing "classified ad"). The domain keywords belong to the reviewed interaction,
   // not to what the reputation review task itself needs.

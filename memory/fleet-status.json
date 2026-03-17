@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T22:39:37.972Z",
+  "updated_at": "2026-03-17T22:40:13.127Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6511,
-    "subject": "Provision GPU machine for Whisper/Kokoro inference",
-    "status": "failed",
+    "id": 6520,
+    "subject": "GPU provisioning: whoabuddy to create RunPod/vast.ai account for voice Phase 2",
+    "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 45802,
-    "cost_usd": 0.15555345
+    "duration_ms": 20841,
+    "cost_usd": 0.091458
   },
   "health": {
-    "uptime_seconds": 1729676,
+    "uptime_seconds": 1729711,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231665811456
+    "disk_avail_bytes": 231665762304
   }
 }
