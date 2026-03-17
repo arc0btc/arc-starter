@@ -220,7 +220,9 @@ export default async function emailSensor(): Promise<string> {
       senderAddr === "whoabuddy@gmail.com" ? 1 :
       senderAddr === "spark@arc0me.typeform.com" ? 3 : 5;
 
-    const model = senderAddr === "whoabuddy@gmail.com" ? "sonnet" : "haiku";
+    // whoabuddy emails are P1 — let priority-based model routing apply (Opus, 30min timeout)
+    // rather than capping at sonnet's 15min, which is too short for complex implementation tasks
+    const model = senderAddr === "whoabuddy@gmail.com" ? "opus" : "haiku";
 
     // Enrich skills based on content keywords (subject + body previews)
     const contentForKeywords = senderMessages
