@@ -40,9 +40,17 @@
 - Implementation: dual-sig BIP-137+SIP-018 registration, metering middleware, payment-gated endpoints
 - PR #2 opened; awaiting merge and Cloudflare Worker deploy
 
+**2026-03-17 morning snapshot (task #6240):**
+- Partial day: $24.87 (86 tasks, ~$0.29/task) — more efficient than 2026-03-16 ($0.50/task)
+- Top task: #6222 x402 Phase 2 review ($2.14, 2.7M tokens, Opus justified)
+- Top skills: untagged ($3.19), arc-skill-manager ($2.55, memory infrastructure), arc-email-sync ($2.09, declining)
+- Sensor-sourced: arc-reporting-watch ($0.57), email-sync threads ($0.49, $0.31), github-release-watcher ($0.36)
+- Status: **NO ANOMALIES** — all costs justified, model routing correct, trend healthy, cap headroom comfortable
+
 ## Optimization Learnings
 
 1. **P1 email → Sonnet override** — Intentional, saves $0.40-0.80/task vs Opus. Correct pattern.
 2. **Arc-cost-alerting efficiency** — 48 tasks/week at $0.085 avg (Haiku routing exemplary)
 3. **Null-skills high-cost** — Human strategic tasks ($1.50-$3.67) are Opus-justified. No misrouting.
 4. **No immediate action items** — All costs track within cap and allocation is sound.
+5. **Morning efficiency trend** — Early cycles (06:00-06:08Z) running at $0.29/task vs $0.50 daily average. Strategic work consolidation or lighter sensor load. Watch trend.
