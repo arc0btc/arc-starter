@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T21:51:15.622Z",
+  "updated_at": "2026-03-17T21:52:17.403Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6463,
-    "subject": "Retrospective: extract learnings from task #6448 — Email from whoabuddy (1 unread, 10 total): Re: Agents Love B",
+    "id": 6496,
+    "subject": "worker-logs: 1 new error pattern(s) detected",
     "status": "completed",
-    "priority": 8
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 91205,
-    "cost_usd": 0.1372889
+    "duration_ms": 61631,
+    "cost_usd": 0.16143074999999998
   },
   "health": {
-    "uptime_seconds": 1726774,
+    "uptime_seconds": 1726836,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231667822592
+    "disk_avail_bytes": 231667773440
   }
 }
