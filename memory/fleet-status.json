@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T23:16:46.913Z",
-  "idle": true,
-  "idle_since": "2026-03-17T23:14:46.573Z",
+  "updated_at": "2026-03-17T23:18:18.100Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 6535,
-    "subject": "GitHub update on your PR in aibtcdev/skills: feat(skills): add jingswap to skills.json manifest",
+    "id": 6536,
+    "subject": "housekeeping: 2 issue(s) detected",
     "status": "completed",
-    "priority": 5
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 80373,
-    "cost_usd": 0.30865725
+    "duration_ms": 30468,
+    "cost_usd": 0.06575230000000001
   },
   "health": {
-    "uptime_seconds": 1731905,
+    "uptime_seconds": 1731996,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231664254976
+    "disk_avail_bytes": 231664136192
   }
 }
