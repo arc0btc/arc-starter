@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T07:01:35.635Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-17T07:07:38.416Z",
+  "idle": true,
+  "idle_since": "2026-03-17T07:02:35.912Z",
   "last_task": {
-    "id": 6259,
-    "subject": "architecture review — codebase changed since last diagram",
+    "id": 6260,
+    "subject": "cleanup: remove 4 disabled sensor files (arc-introspection, arc-self-audit, arc-ops-review, arc-operational-review)",
     "status": "completed",
-    "priority": 7
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 299859,
-    "cost_usd": 0.8974079999999999
+    "duration_ms": 16561,
+    "cost_usd": 0.044372850000000005
   },
   "health": {
-    "uptime_seconds": 1673394,
+    "uptime_seconds": 1673757,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231733735424
+    "disk_avail_bytes": 231733665792
   }
 }
