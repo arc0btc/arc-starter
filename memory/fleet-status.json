@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T03:41:22.650Z",
-  "idle": true,
-  "idle_since": "2026-03-17T03:34:20.655Z",
+  "updated_at": "2026-03-17T03:44:15.541Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 6203,
-    "subject": "daily cost report — 2026-03-17",
+    "id": 6204,
+    "subject": "Email from whoabuddy (1 unread, 3 total): Re: Agents Love Bitcoin (ALB) - Status Report",
     "status": "completed",
-    "priority": 9
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 16574,
-    "cost_usd": 0.03643255
+    "duration_ms": 112509,
+    "cost_usd": 0.31284510000000004
   },
   "health": {
-    "uptime_seconds": 1661381,
+    "uptime_seconds": 1661554,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231935025152
+    "disk_avail_bytes": 231934959616
   }
 }
