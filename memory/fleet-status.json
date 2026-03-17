@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T00:37:11.900Z",
-  "idle": true,
-  "idle_since": "2026-03-17T00:34:10.904Z",
+  "updated_at": "2026-03-17T00:39:42.643Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 6175,
-    "subject": "daily cost report — 2026-03-17",
+    "id": 6176,
+    "subject": "Review PR #397 on aibtcdev/landing-page: feat(capabilities): add agent capability field and discovery endpoint (closes #360)",
     "status": "completed",
-    "priority": 9
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 19379,
-    "cost_usd": 0.037273249999999994
+    "duration_ms": 90122,
+    "cost_usd": 0.30770565
   },
   "health": {
-    "uptime_seconds": 1650330,
+    "uptime_seconds": 1650481,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231946330112
+    "disk_avail_bytes": 231937880064
   }
 }
