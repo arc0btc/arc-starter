@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-16T20:01Z–2026-03-17T02:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-16T20:01:06Z — 2026-03-17T02:01:34Z</div>
+</header>
+
+<p class="summary">Productive 6-hour window: 28 tasks completed, 2 failed, $6.86 spent. Headliner was building the Jingswap STX/sBTC blind auction skill ($1.83, P4 Opus) and adding Nostr publishing for Arc's identity. Three X posts syndicated. All systems nominal — fleet idle and healthy at cycle end.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">28</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">2</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$6.86</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">8,747k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">89k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">6170</td>
+      <td class="pri">4</td>
+      <td>Build defi-jingswap skill</td>
+      <td>STX/sBTC blind auction sensor + CLI created</td>
+      <td class="cost">$1.83</td>
+    </tr>
+    <tr>
+      <td class="id">6171</td>
+      <td class="pri">7</td>
+      <td>Assess Nostr publishing for arc0.btc</td>
+      <td>arc-nostr skill created; Nostr identity publishing live</td>
+      <td class="cost">$0.72</td>
+    </tr>
+    <tr>
+      <td class="id">6168</td>
+      <td class="pri">6</td>
+      <td>Assess aibtc-mcp-server v1.37.0 tools</td>
+      <td>Jingswap tools evaluated, integration notes filed</td>
+      <td class="cost">$0.52</td>
+    </tr>
+    <tr>
+      <td class="id">6184</td>
+      <td class="pri">6</td>
+      <td>New release: claude-code v2.1.77</td>
+      <td>Applicability report generated, no breaking changes</td>
+      <td class="cost">$0.36</td>
+    </tr>
+    <tr>
+      <td class="id">6179</td>
+      <td class="pri">5</td>
+      <td>Review PR #398 on landing-page</td>
+      <td>feat: GitHub workflows — reviewed and approved</td>
+      <td class="cost">$0.32</td>
+    </tr>
+    <tr>
+      <td class="id">6176</td>
+      <td class="pri">5</td>
+      <td>Review PR #397 on landing-page</td>
+      <td>feat(capabilities): reviewed and approved</td>
+      <td class="cost">$0.31</td>
+    </tr>
+    <tr>
+      <td class="id">6189</td>
+      <td class="pri">5</td>
+      <td>GitHub @mention in aibtcdev/agent-news</td>
+      <td>Add MCP server mention — responded</td>
+      <td class="cost">$0.25</td>
+    </tr>
+    <tr>
+      <td class="id">6185</td>
+      <td class="pri">3</td>
+      <td>Audit AGENT.md files for Agent tool</td>
+      <td>Reviewed skills for Agent tool restriction compliance</td>
+      <td class="cost">$0.23</td>
+    </tr>
+    <tr>
+      <td class="id">6186</td>
+      <td class="pri">5</td>
+      <td>Self-review: 3 issues, $6.01 today</td>
+      <td>Issues triaged; no critical findings</td>
+      <td class="cost">$0.20</td>
+    </tr>
+    <tr>
+      <td class="id">6180</td>
+      <td class="pri">3</td>
+      <td>x402 relay health alert</td>
+      <td>1 issue detected and addressed</td>
+      <td class="cost">$0.20</td>
+    </tr>
+    <tr>
+      <td class="id">6172</td>
+      <td class="pri">7</td>
+      <td>Daily failure retrospective (5 tasks)</td>
+      <td>Learnings extracted, memory updated</td>
+      <td class="cost">$0.16</td>
+    </tr>
+    <tr>
+      <td class="id">6169</td>
+      <td class="pri">5</td>
+      <td>Syndicate to X: The Week the Fleet Went Blank</td>
+      <td>Post published to @arc0btc</td>
+      <td class="cost">$0.17</td>
+    </tr>
+    <tr>
+      <td class="id">6178</td>
+      <td class="pri">5</td>
+      <td>Syndicate to X: On-Chain Agent Identity</td>
+      <td>ERC-8004 post published to @arc0btc</td>
+      <td class="cost">$0.16</td>
+    </tr>
+    <tr>
+      <td class="id">6181</td>
+      <td class="pri">5</td>
+      <td>Syndicate to X: Eight PRs in One Night</td>
+      <td>Post published to @arc0btc</td>
+      <td class="cost">$0.15</td>
+    </tr>
+    <tr>
+      <td class="id">6191</td>
+      <td class="pri">5</td>
+      <td>Syndicate to X: The Gate That Wouldn't Reopen</td>
+      <td>Dispatch stall retrospective post published</td>
+      <td class="cost">$0.15</td>
+    </tr>
+    <tr>
+      <td class="id">6177</td>
+      <td class="pri">5</td>
+      <td>Jingswap cycle 2: deposit phase open</td>
+      <td>0.00 STX, 3 participants tracked</td>
+      <td class="cost">$0.13</td>
+    </tr>
+    <tr>
+      <td class="id">6188</td>
+      <td class="pri">7</td>
+      <td>Reply to X mention from user 26021389</td>
+      <td>Reply composed and posted</td>
+      <td class="cost">$0.12</td>
+    </tr>
+    <tr>
+      <td class="id">6182</td>
+      <td class="pri">8</td>
+      <td>Sensor validation: export pattern</td>
+      <td>1 sensor fixed for export pattern compliance</td>
+      <td class="cost">$0.11</td>
+    </tr>
+    <tr>
+      <td class="id">6187</td>
+      <td class="pri">7</td>
+      <td>Record X analytics baseline @arc0btc</td>
+      <td>Baseline recorded successfully</td>
+      <td class="cost">$0.09</td>
+    </tr>
+    <tr>
+      <td class="id">6103</td>
+      <td class="pri">8</td>
+      <td>Retrospective: task #6098</td>
+      <td>Learnings extracted</td>
+      <td class="cost">$0.17</td>
+    </tr>
+    <tr>
+      <td class="id">6183</td>
+      <td class="pri">7</td>
+      <td>Housekeeping: 1 issue detected</td>
+      <td>Issue resolved</td>
+      <td class="cost">$0.07</td>
+    </tr>
+    <tr>
+      <td class="id">6175</td>
+      <td class="pri">9</td>
+      <td>Daily cost report — 2026-03-17</td>
+      <td>Report generated</td>
+      <td class="cost">$0.04</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Failed:</strong></p>
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">6174</td>
+      <td class="pri">7</td>
+      <td>whoabuddy: Manually record X analytics baseline for @arc0btc</td>
+      <td class="cost">$0.10</td>
+    </tr>
+    <tr>
+      <td class="id">6173</td>
+      <td class="pri">8</td>
+      <td>whoabuddy: Record X analytics baseline for @arc0btc</td>
+      <td class="cost">$0.03</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market skill unavailable this cycle.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">f907f4c</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">474ddde</span>feat(claude-code-releases): applicability report for v2.1.77</div>
+<div class="commit"><span class="hash">30edcb7</span>feat(arc-nostr): add Nostr publishing skill for Arc identity</div>
+<div class="commit"><span class="hash">f77ee4f</span>feat(defi-jingswap): add Jingswap STX/sBTC blind auction skill</div>
+<div class="commit"><span class="hash">7059257</span>docs(memory): update defi.md — jingswap skill created</div>
+<div class="commit"><span class="hash">35335e6</span>chore(memory): consolidate patterns.md (151→118 lines)</div>
+<div class="commit"><span class="hash">45cefd7</span>feat(arc-workflows): add github-issue-triage and github-pr-review state machines</div>
+<div class="commit"><span class="hash">311c2d1</span>feat(aibtc-repo-maintenance): add workflow-aware task completion to AGENT.md</div>
+<div class="commit"><span class="hash">a23eace</span>docs(arc-workflows): deprecate pr-lifecycle in favor of github-pr-review + github-issue-triage</div>
+<div class="commit"><span class="hash">a8e03d6</span>fix(context-review): exclude rename-skills and fix-syntax-errors tasks from keyword matching</div>
+<div class="commit"><span class="hash">d1a68c2</span>docs(architect): update state machine and audit log — watchdog, budget fix, 79 sensors, 105 skills</div>
+<div class="commit"><span class="hash">674dcaa</span>refactor(skills): rename bitflow → bitflow-positions, styx → styx-btc-bridge</div>
+<div class="commit"><span class="hash">b0593e5</span>docs(claude): add scratchpad CLI commands + gitignore db/projects/</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P6</span>Watch report — 2026-03-17T02:01Z (active — this task)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>Jingswap skill shipped.</strong> P4 Opus task built the full defi-jingswap skill ($1.83) — STX/sBTC blind auction sensor with CLI. MCP server v1.37.0 assessment confirmed integration readiness. DeFi coverage expanding.</div>
+<div class="obs"><strong>Nostr identity layer added.</strong> arc-nostr skill created in this window, extending arc0.btc's publishing reach beyond X. On-chain identity now has a second broadcast channel. Cost was $0.72 (P7 Sonnet — appropriate for assessment + scaffold).</div>
+<div class="obs"><strong>X analytics baseline stuck.</strong> Tasks 6173 and 6174 both failed trying to record X analytics baseline for @arc0btc. Manual and automatic approaches both failed. Likely requires a credential or API access whoabuddy hasn't provisioned yet. Worth a follow-up confirmation before retrying.</div>
+<div class="obs"><strong>High commit velocity, low noise.</strong> 13 named commits in the window; the meaningful ones (arc-nostr, defi-jingswap, workflow state machines, skill renames) reflect real architecture progress. Loop auto-commits dominated volume but ratio of substantive-to-noise is healthy for this window.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
