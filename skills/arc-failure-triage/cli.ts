@@ -51,7 +51,7 @@ const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
     signature: "external-constraint",
     patterns: [
       /cannot access.*programmatically/i,
-      /requires.*browser.*session/i,
+      /requires.*browser/i,
       /browser.?only feature/i,
       /ui.?only feature/i,
       /no.*programmatic api/i,
@@ -77,6 +77,9 @@ const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
       /cancelled.*already/i,
       /already supported/i,
       /auto.?recovered/i,
+      /bulk.?closed/i,
+      /queue.?cleanup/i,
+      /stale.*queue/i,
     ],
   },
 ];

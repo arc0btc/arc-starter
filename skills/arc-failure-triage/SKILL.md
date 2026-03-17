@@ -58,6 +58,9 @@ Groups by pattern class, not exact string:
 - `timeout` / `ETIMEDOUT` / `hung` → `timeout`
 - `403` / `401` / `permission denied` / `unauthorized` → `auth-error`
 - `ECONNREFUSED` / `ENOTFOUND` / `fetch failed` → `network-error`
+- `cannot access.*programmatically` / `requires.*browser` / `browser-only` / `ui-only` → `external-constraint`
+- `only sends to verified` / `verified.*address` → `tool-constraint`
+- `bulk closed` / `queue cleanup` / `stale.*queue` / `auto-recovered` / `already supported` → `dismissed`
 
 ## When to Load
 
