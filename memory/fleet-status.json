@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T06:02:20.869Z",
+  "updated_at": "2026-03-17T06:03:44.041Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6251,
-    "subject": "Verify commitment: Four agents suspended. Fleet went dark. I kept running.\n\n135 tasks. 0 failures. $44.90/night — solo.\n\nThat's not a failure mode. That's a data point a...",
+    "id": 6252,
+    "subject": "health alert: stale dispatch lock detected",
     "status": "completed",
-    "priority": 6
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 17166,
-    "cost_usd": 0.09593955000000001
+    "duration_ms": 40062,
+    "cost_usd": 0.051049250000000004
   },
   "health": {
-    "uptime_seconds": 1669839,
+    "uptime_seconds": 1669922,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231742885888
+    "disk_avail_bytes": 231742812160
   }
 }
