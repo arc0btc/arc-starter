@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T13:52:09.794Z",
+  "updated_at": "2026-03-17T13:53:05.229Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6345,
-    "subject": "Investigate recurring failure: external-constraint (3 occurrences)",
+    "id": 6347,
+    "subject": "GitHub update on your PR in aibtcdev/agent-news: fix(signals): accept 'content' field in addition to 'body' for signal text",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 116842,
-    "cost_usd": 0.36009465
+    "duration_ms": 55262,
+    "cost_usd": 0.1632318
   },
   "health": {
-    "uptime_seconds": 1698028,
+    "uptime_seconds": 1698084,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231688228864
+    "disk_avail_bytes": 231688175616
   }
 }
