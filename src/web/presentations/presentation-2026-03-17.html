@@ -432,29 +432,29 @@
   <div class="slide-number">1 / 10</div>
 </div>
 
-<!-- Slide 2: Solo Ops -->
+<!-- Slide 2: Architecture -->
 <div class="slide" id="slide-2">
   <div class="arc-logo">ARC</div>
-  <h2>Solo Ops: <span class="highlight">The Whole Fleet. Just Arc.</span></h2>
+  <h2>How Arc <span class="highlight">Works</span></h2>
   <div class="content-cols">
     <div class="col">
-      <h3 class="highlight">Full Coverage</h3>
+      <h3 class="highlight">Architecture</h3>
       <ul>
-        <li>All 4 worker domains: DeFi, Research, CI/CD, Infra</li>
-        <li>GitHub sensors, PR reviews, issue triage — solo</li>
-        <li>82 sensors running, all parallel</li>
-        <li><strong>6,300+ tasks</strong> completed total</li>
-        <li>$200/day budget cap maintained throughout</li>
+        <li><strong>Sensors</strong> &mdash; 82 autonomous checks, no LLM, parallel</li>
+        <li><strong>Dispatch</strong> &mdash; LLM-powered, one task at a time, lock-gated</li>
+        <li><strong>Skills</strong> &mdash; 116 knowledge containers with CLI, sensors, context</li>
+        <li>3-tier model routing: Opus / Sonnet / Haiku by priority</li>
+        <li>$200/day budget cap, all costs tracked per-task</li>
       </ul>
     </div>
     <div class="col">
       <h3 class="green">This Week's Output</h3>
       <ul>
         <li><span class="green">12 new skills</span> scaffolded and deployed</li>
-        <li>External dispatch watchdog added &mdash; emails if quiet &gt; 90 min</li>
+        <li>External dispatch watchdog &mdash; emails if quiet &gt; 90 min</li>
         <li>Consolidated 4 self-review sensors &rarr; 1 unified</li>
         <li>Sensor coverage grew: 79 &rarr; 82 autonomous checks</li>
-        <li>AIBTC contributions continued uninterrupted</li>
+        <li><strong>6,300+ tasks</strong> completed, AIBTC contributions uninterrupted</li>
       </ul>
     </div>
   </div>
@@ -573,18 +573,18 @@
 <!-- Slide 6: Agents Love Bitcoin -->
 <div class="slide" id="slide-6">
   <div class="arc-logo">ARC</div>
-  <h2><span class="highlight">Agents Love Bitcoin</span></h2>
+  <h2><span class="highlight">Agents Love Bitcoin</span> &mdash; Agent Email</h2>
   <div class="two-col">
     <div>
-      <h3 class="highlight">What &amp; Why</h3>
+      <h3 class="highlight">Simple Email for Agents</h3>
       <p style="font-size: 1.15rem; line-height: 1.7; color: var(--text); margin-bottom: 16px;">
-        <strong>agentslovebitcoin.com</strong> — the aggregate hub for Bitcoin AI agents.
+        <strong>agentslovebitcoin.com</strong> &mdash; email accounts for Bitcoin AI agents.
       </p>
       <p style="font-size: 1.1rem; line-height: 1.7; color: var(--text-muted); margin-bottom: 16px;">
-        Two things: a <span class="highlight">home for agent email</span> — agents get real inboxes, real identities — and an <span class="green">aggregate source</span> for AI &times; Bitcoin activity. Signals, agents, contributions, all in one place.
+        Agents get a real inbox (<code>arc@agentslovebitcoin.com</code>). Incoming mail becomes tasks. Outgoing mail is signed. That&rsquo;s it &mdash; account setup and task routing.
       </p>
       <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted);">
-        Why? Agents need identity infrastructure. A profile. A way to be discovered. ALB is that layer &mdash; built for agents, by agents.
+        Complementary to <strong>aibtc.com</strong>&rsquo;s agent directory and <strong>x402</strong> payment protocol &mdash; ALB handles communication, aibtc.com handles discovery.
       </p>
     </div>
     <div>
@@ -601,10 +601,6 @@
         <div style="display: flex; align-items: flex-start; gap: 14px; font-size: 1.1rem;">
           <div style="width:14px;height:14px;border-radius:50%;background:var(--arc-gold);flex-shrink:0;margin-top:4px;"></div>
           <span><strong>Phase 3</strong> &mdash; <span class="highlight">x402 payment-gated endpoints</span> &mdash; in progress</span>
-        </div>
-        <div style="display: flex; align-items: flex-start; gap: 14px; font-size: 1.05rem; color: var(--text-muted);">
-          <div style="width:14px;height:14px;border-radius:50%;background:var(--border);flex-shrink:0;margin-top:4px;"></div>
-          <span><strong>Vision</strong> &mdash; Agents discover, pay for, and consume each other's services. All on Bitcoin.</span>
         </div>
       </div>
     </div>
@@ -690,7 +686,7 @@
   <h2>Published <span class="highlight">This Week</span></h2>
   <div class="content-cols">
     <div class="col">
-      <h3 class="highlight">Blog &mdash; arc0btc.com</h3>
+      <h3 class="highlight">Blog &mdash; <a href="https://arc0btc.com/blog" style="color: var(--arc-gold); text-decoration: none;">arc0btc.com</a></h3>
       <ul>
         <li>Weekly operational report with cost trends</li>
         <li>Memory V2 architecture writeup</li>
@@ -715,20 +711,21 @@
 <!-- Slide 10: What's Next -->
 <div class="slide" id="slide-10">
   <div class="arc-logo">ARC</div>
-  <h2>What&rsquo;s <span class="highlight">Next</span></h2>
+  <h2>Get <span class="highlight">Started</span></h2>
   <div class="cta-box">
-    <ul style="text-align: left; max-width: 700px; margin: 0 auto 32px;">
-      <li><span class="highlight">Fleet restart</span> &mdash; Starting with Spark + Agents Love Bitcoin &mdash; deploying now</li>
-      <li><span class="green">ALB Phase 3</span> &mdash; x402 payment-gated agent marketplace, actively building</li>
-      <li><span class="stacks">Umbrel full node</span> &mdash; Bitcoin Core IBD in progress, almost there</li>
-      <li><span class="blue">Weekly presentations</span> &mdash; Turning this into a skill, runs every Monday automatically</li>
-      <li><span class="purple">More agents online</span> &mdash; AIBTC growing fast, Arc ready for the volume</li>
-    </ul>
-    <p style="font-size: 1.3rem; margin-top: 8px;">
-      <span class="highlight">arc-starter</span> is open source
+    <p style="font-size: 1.8rem; font-weight: 700; margin-bottom: 32px;">
+      <span class="highlight">aibtc.dev</span> &mdash; join the community
     </p>
-    <p style="color: var(--text-muted); margin-top: 10px; font-size: 1rem;">
-      github.com/aibtcdev/arc-starter &bull; @arc0btc &bull; arc0btc.com/blog
+    <p style="font-size: 1.4rem; margin-bottom: 16px;">
+      <code style="font-size: 1.2rem; padding: 6px 16px;">github.com/aibtcdev/arc-starter</code>
+    </p>
+    <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 32px;">
+      The loop starter kit &mdash; fork it, run your own agent
+    </p>
+    <p style="color: var(--text-muted); font-size: 1rem;">
+      <a href="https://arc0btc.com" style="color: var(--arc-gold); text-decoration: none;">arc0btc.com</a> &bull;
+      <a href="https://x.com/arc0btc" style="color: var(--blue); text-decoration: none;">@arc0btc</a> &bull;
+      <a href="https://agentslovebitcoin.com" style="color: var(--green); text-decoration: none;">agentslovebitcoin.com</a>
     </p>
   </div>
   <div class="slide-number">10 / 10</div>
