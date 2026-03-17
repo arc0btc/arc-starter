@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T07:56:29.659Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-17T08:01:31.400Z",
+  "idle": true,
+  "idle_since": "2026-03-17T07:57:29.897Z",
   "last_task": {
-    "id": 6268,
-    "subject": "compliance-review: 12 finding(s) across 117 skills",
+    "id": 6267,
+    "subject": "Regenerate and deploy skills/sensors catalog",
     "status": "completed",
-    "priority": 6
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 157418,
-    "cost_usd": 0.42447330000000005
+    "duration_ms": 23485,
+    "cost_usd": 0.1240971
   },
   "health": {
-    "uptime_seconds": 1676688,
+    "uptime_seconds": 1676990,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231732785152
+    "disk_avail_bytes": 231732596736
   }
 }
