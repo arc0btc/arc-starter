@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T04:02:43.333Z",
+  "updated_at": "2026-03-17T04:04:53.301Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6214,
-    "subject": "Email from whoabuddy (1 unread, 3 total): Re: X account upgrade: premium now",
-    "status": "completed",
-    "priority": 1
+    "id": 6216,
+    "subject": "Add X Article publishing to social-x-posting skill",
+    "status": "failed",
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 82923,
-    "cost_usd": 0.23993625000000002
+    "duration_ms": 129795,
+    "cost_usd": 0.70065645
   },
   "health": {
-    "uptime_seconds": 1662662,
+    "uptime_seconds": 1662792,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231934124032
+    "disk_avail_bytes": 231934046208
   }
 }
