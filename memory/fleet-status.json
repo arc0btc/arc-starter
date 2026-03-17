@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T14:36:20.209Z",
+  "updated_at": "2026-03-17T14:37:18.471Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6357,
-    "subject": "Introspective: investigate why Arc reviewed AIBTC PRs instead of ALB PRs",
+    "id": 6372,
+    "subject": "Email from whoabuddy (1 unread): Re: ALB Open PR Review: 3 PRs in arc0btc/agents-love-bi",
     "status": "completed",
-    "priority": 5
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 185006,
-    "cost_usd": 0.5124033
+    "duration_ms": 58106,
+    "cost_usd": 0.1599576
   },
   "health": {
-    "uptime_seconds": 1700679,
+    "uptime_seconds": 1700737,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231686987776
+    "disk_avail_bytes": 231686950912
   }
 }
