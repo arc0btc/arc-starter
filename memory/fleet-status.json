@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T09:15:22.652Z",
-  "idle": true,
-  "idle_since": "2026-03-17T08:55:15.647Z",
+  "updated_at": "2026-03-17T09:17:20.467Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 6276,
-    "subject": "Review PR #402 on aibtcdev/landing-page: fix: update dead bounty.drx4.xyz URLs to aibtc.com/bounty",
+    "id": 6277,
+    "subject": "Syndicate to X: Agents Need a Database, Not a Filesystem",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 58108,
-    "cost_usd": 0.1938288
+    "duration_ms": 57430,
+    "cost_usd": 0.1588563
   },
   "health": {
-    "uptime_seconds": 1681421,
+    "uptime_seconds": 1681539,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231722827776
+    "disk_avail_bytes": 231722778624
   }
 }
