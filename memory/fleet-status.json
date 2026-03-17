@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T05:10:16.319Z",
+  "updated_at": "2026-03-17T05:11:01.141Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6230,
-    "subject": "Auto-queue: 6 hungry domain(s) need work",
+    "id": 6232,
+    "subject": "Scaffold MCP Phase 1 skill: local HTTP server exposing task queue and skill tree",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 112708,
-    "cost_usd": 0.3508714499999999
+    "duration_ms": 44646,
+    "cost_usd": 0.3419285
   },
   "health": {
-    "uptime_seconds": 1666715,
+    "uptime_seconds": 1666759,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231932022784
+    "disk_avail_bytes": 231931973632
   }
 }
