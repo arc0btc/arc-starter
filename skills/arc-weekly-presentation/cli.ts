@@ -185,10 +185,10 @@ function getMemoryChangesFromGit(since: string): string[] {
   const output = result.stdout.toString().trim();
   if (!output) return [];
 
-  // Extract commit subjects (skip hash), filter out chore(loop) auto-commit noise
+  // Extract commit subjects (skip hash), filter out auto-commit noise
   return output.split("\n")
     .map(line => line.replace(/^[a-f0-9]+ /, "").trim())
-    .filter(line => Boolean(line) && !line.startsWith("chore(loop)"))
+    .filter(line => Boolean(line) && !line.startsWith("chore(loop)") && !line.startsWith("chore(housekeeping)"))
     .slice(0, 10);
 }
 
@@ -225,40 +225,63 @@ function getDevActivityFromGit(since: string): DevActivity {
 function getSocialActivityFromDb(startDate: string, endDate: string): SocialActivity {
   const db = getDatabase();
 
-  // Blog posts — tasks with blog-publishing skill; prefer result_summary for actual titles
+  // Blog posts — actual published posts (Generate/Draft/Publish tasks, NOT "Syndicate to X")
+  // Must have result_summary starting with "Published" or "Created and published" (actual publication)
   const blogRows = db.query(`
     SELECT subject, result_summary FROM tasks
     WHERE date(created_at) BETWEEN ? AND ?
-      AND skills LIKE '%blog-publishing%'
       AND status = 'completed'
+      AND (subject LIKE '%blog post%' OR subject LIKE '%Generate new blog%' OR subject LIKE '%Draft blog%' OR subject LIKE '%Publish%blog%')
+      AND subject NOT LIKE '%Syndicate to X%'
+      AND result_summary IS NOT NULL
+      AND (result_summary LIKE 'Published%' OR result_summary LIKE 'Created and published%')
     ORDER BY created_at DESC
     LIMIT 10
   `).all(startDate, endDate) as Array<{ subject: string; result_summary: string | null }>;
 
-  const blogPosts = blogRows.map(r => {
-    // Prefer result_summary (actual title) over task subject (which is often "Publish blog post: ...")
+  const blogPosts: Array<{ title: string; url?: string }> = [];
+  for (const r of blogRows) {
     const raw = r.result_summary || r.subject;
-    const title = raw.replace(/^(published|publish|write|create|wrote)\s+(blog\s+post:?\s*)?/i, "").trim();
-    return { title, url: undefined as string | undefined };
-  });
+    // Extract quoted title: "Published 'Title Here'" or "Published new post: 'slug': description"
+    const quotedMatch = raw.match(/'([^']+)'/);
+    if (quotedMatch) {
+      const title = quotedMatch[1];
+      if (/^\d{4}-\d{2}-\d{2}/.test(title)) {
+        // Slug-style: "2026-03-16-three-models-one-queue" → "Three Models One Queue"
+        const slug = title.replace(/^\d{4}-\d{2}-\d{2}-/, "");
+        blogPosts.push({ title: slug.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ") });
+      } else {
+        blogPosts.push({ title });
+      }
+    }
+    // If no quoted title found, skip — it's not a clean blog title
+  }
 
-  // X posts — tasks with x-engagement, x-thread, social-x-posting, or social-x-ecosystem skill
+  // X posts — syndication tasks have actual post content; also include direct X engagement
   const xRows = db.query(`
     SELECT subject, result_summary FROM tasks
     WHERE date(created_at) BETWEEN ? AND ?
-      AND (skills LIKE '%x-engagement%' OR skills LIKE '%x-thread%' OR skills LIKE '%x-posting%'
-           OR skills LIKE '%social-x-posting%' OR skills LIKE '%social-x-ecosystem%')
       AND status = 'completed'
-      AND (subject LIKE '%post%' OR subject LIKE '%thread%' OR subject LIKE '%tweet%'
-           OR subject LIKE '%reply%' OR subject LIKE '%mention%' OR subject LIKE '%X:%')
+      AND (
+        (subject LIKE 'Syndicate to X:%')
+        OR (
+          (skills LIKE '%x-engagement%' OR skills LIKE '%x-thread%' OR skills LIKE '%x-posting%'
+           OR skills LIKE '%social-x-posting%' OR skills LIKE '%social-x-ecosystem%')
+          AND (subject LIKE '%post%' OR subject LIKE '%thread%' OR subject LIKE '%tweet%'
+               OR subject LIKE '%reply%' OR subject LIKE '%mention%' OR subject LIKE '%X:%')
+          AND subject NOT LIKE 'Syndicate to X:%'
+        )
+      )
     ORDER BY created_at DESC
     LIMIT 10
   `).all(startDate, endDate) as Array<{ subject: string; result_summary: string | null }>;
 
-  const xPosts = xRows.map(r => ({
-    text: r.result_summary || r.subject,
-    url: undefined as string | undefined,
-  }));
+  const xPosts = xRows.map(r => {
+    // For syndication tasks, extract the blog title from subject "Syndicate to X: <title>"
+    const synMatch = r.subject.match(/^Syndicate to X:\s*(.+)/);
+    if (synMatch) return { text: `Syndicated: ${synMatch[1]}`, url: undefined as string | undefined };
+    return { text: r.result_summary || r.subject, url: undefined as string | undefined };
+  });
 
   // News beats — tasks with aibtc-news skill
   const newsRows = db.query(`
