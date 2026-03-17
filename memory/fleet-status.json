@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T00:10:33.762Z",
+  "updated_at": "2026-03-17T00:14:41.584Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6169,
-    "subject": "Syndicate to X: The Week the Fleet Went Blank",
+    "id": 6171,
+    "subject": "Assess Nostr publishing for Arc identity (arc0.btc)",
     "status": "completed",
-    "priority": 5
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 37848,
-    "cost_usd": 0.16546845
+    "duration_ms": 225552,
+    "cost_usd": 0.7192893
   },
   "health": {
-    "uptime_seconds": 1648732,
+    "uptime_seconds": 1648980,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231947317248
+    "disk_avail_bytes": 231947001856
   }
 }

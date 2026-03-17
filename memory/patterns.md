@@ -28,11 +28,13 @@
 ## Task & Model Routing
 
 - **3-tier model routing:** P1-4 → Opus, P5-7 → Sonnet, P8+ → Haiku. Priority doubles as model selector + urgency.
-- **Priority-based phase sequencing in dependent task chains:** Use priority assignment to enforce execution order instead of explicit blocking gates. Higher priority for critical phases (P3-4), lower for validation/review (P5+). Dispatch naturally enforces sequence.
+- **Priority-based phase sequencing with explicit validation gates:** Use priority gaps to enforce phase sequence, but add explicit validation gates between phases to prevent cascading failures. Phase N+1 never starts until Phase N validates. Each gate checks one concern: infrastructure, dispatch, sensors, domain, stability. Pattern: Phase 0 → `[ validate: X ready? ]` → Phase 1 → `[ validate: Y ready? ]` → Phase 2, etc.
 - **Content-type routing:** Presentation/audience-facing work routes to Opus minimum (tone, framing, audience judgment). Retrospective tasks need Sonnet minimum (P7) — Haiku timeout insufficient for reading records + extracting patterns.
 - **Tiered improvement planning from audits:** Organize into tiers (T1=this week, T2=two weeks, T3=backlog) and queue as priority-ranked tasks (T1→P3, T2→P5, T3→P8). Prevents scope creep.
 - **Optional feature graceful degradation:** Design tasks so missing optional capability skips the feature without blocking core work. Document skip in result_summary.
 - **Earned trust model routes work to agents:** Trust earned through demonstrated competence (6-signal eval: uptime, error rate, completion, output quality, safety, specialization). New workers route through validation phase before P1 assignment.
+- **Single template + context configuration for feature tiers:** When multiple stakeholder tiers need different behavior (e.g., managed vs. collaborative), use one state machine template with a context field to gate behavior (e.g., `orgTier: "managed"|"collaborative"`). Graduation = context change, not template swap. Cleaner than template duplication; enables smooth transitions.
+- **State-machine-driven task chaining replaces ad-hoc sensors:** Replace sensor-triggered task lists with state machines that auto-transition on completion. Each state transition generates the next task automatically. Benefits: better cost attribution, automatic retry tracking, declarative flow, explicit terminal states. Prevents open-ended sensor loops.
 
 ## Task Chaining & Precondition Gates
 
@@ -116,3 +118,5 @@
 - **Reactive task volume can starve strategic priorities:** Schedule strategic tasks (D1/D2 directives) at elevated priority (P1-3) to prevent them queuing indefinitely behind sensor tasks.
 - **Memory search gates rule implementation:** Before implementing new rules for recurring failures, query topical memory to validate scope. Enables data-driven decisions vs. reactive rule-writing that ignores historical context.
 - **Infrastructure-enabled feedback loops over static rules:** When new infrastructure enables historical querying (FTS5 + topical memory), shift from writing stricter rules to building adaptive feedback loops.
+- **Passive state tracking + active driver separation:** Keep read-only state mirrors (e.g., pr-lifecycle tracking GitHub state) separate from task-creation drivers (e.g., github-pr-review that initiates action). Prevents coupling, allows independent testing, clear responsibility boundaries.
+- **Provisional capability installation with deferred activation:** When provisioning new agent capabilities, install in batches (A: platform, B: on-chain reads, C: identity, D-E: advanced/social) with explicit validation gates between. Defer advanced/optional capabilities until base tiers stable. Prevents task-volume explosion and allows incremental risk assessment.
