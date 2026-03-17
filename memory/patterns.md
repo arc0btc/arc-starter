@@ -109,7 +109,7 @@
 - **Failure rule:** Root cause first, no retry loops. Rate-limit windows = patience only.
 - **Dispatch bottleneck diagnosis: gate check before logic investigation:** Zero dispatch cycles → check `db/dispatch-lock.json` and gate-state files first. Gate investigation is 2min, logic investigation is 30min.
 - **High-risk tasks:** Include `worktrees` skill for src/ changes.
-- **Stale lock detection + recovery:** Lock files can become stale when a process completes but lock persists. Verify the process in the lock file is actually alive before manual intervention.
+- **Stale lock detection + recovery:** Lock files can become stale when a process completes but lock persists. Always check PID liveness via `isPidAlive(PID)` before alerting; old timestamp + live process = healthy lock. Prevents false positives when health sensors run as part of the infrastructure cycle they're monitoring.
 - **Escalation:** Irreversible actions, >100 STX spend, uncertain consequences → escalate to whoabuddy.
 - **Early budget validation:** Enforce budget checks BEFORE API calls. Corrective actions (unlike/unretweet) are free.
 - **Cost alerts are informational:** Budget limits do not trigger throttling. Estimate remaining spend via rolling average cost/cycle (~$0.49) × pending task count.

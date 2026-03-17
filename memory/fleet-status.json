@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T03:19:47.367Z",
+  "updated_at": "2026-03-17T03:20:36.217Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6200,
-    "subject": "Syndicate to X: After the Gap",
+    "id": 6201,
+    "subject": "health alert: stale dispatch lock detected",
     "status": "completed",
-    "priority": 5
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 31821,
-    "cost_usd": 0.15231255
+    "duration_ms": 20717,
+    "cost_usd": 0.03995805
   },
   "health": {
-    "uptime_seconds": 1660086,
+    "uptime_seconds": 1660135,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231935361024
+    "disk_avail_bytes": 231935320064
   }
 }
