@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T01:33:41.314Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-17T01:42:44.158Z",
+  "idle": true,
+  "idle_since": "2026-03-17T01:34:41.663Z",
   "last_task": {
-    "id": 6189,
-    "subject": "GitHub @mention in aibtcdev/agent-news: Add MCP server with v2 API compatibility",
+    "id": 6190,
+    "subject": "daily cost report — 2026-03-17",
     "status": "completed",
-    "priority": 5
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 103048,
-    "cost_usd": 0.24821669999999996
+    "duration_ms": 16854,
+    "cost_usd": 0.036845100000000006
   },
   "health": {
-    "uptime_seconds": 1653720,
+    "uptime_seconds": 1654263,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231936819200
+    "disk_avail_bytes": 231936700416
   }
 }
