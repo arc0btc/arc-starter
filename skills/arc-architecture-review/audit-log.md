@@ -1,3 +1,48 @@
+## 2026-03-17T21:27:00.000Z
+
+3 findings: 0 error, 2 warn, 1 info → **HEALTHY (2 items pending)**
+
+**Codebase changes since last audit (2026-03-17T07:00Z, commits fbb86de → d172545):**
+
+- **arc-failure-triage hardened** (3 commits: 569c151, b153cdc, 8b86eaf): Added `external-constraint`, `tool-constraint`, `dismissed` categories and `SKIP_SIGNATURES` set. `budget-exhausted` added to dismissed. Zero unknown classifications remaining. Branch `fix/failure-triage-error-patterns` open.
+- **arc-weekly-presentation skill added** (cb905af + 4 fixup commits): SKILL.md + AGENT.md + sensor.ts + cli.ts. Monday AIBTC meeting slide deck; 5 revision cycles in one day (V2→V4 + feedback). Sonnet subagent research workflow.
+- **aibtc-news-editorial fixed** (b601145, ec00ec1): streak field names + required POST body fields corrected.
+- **alb skill updated** (CLI, sensor, SKILL.md): Agents Love Bitcoin project skill now active.
+- **context-review false positives reduced** (6b1eed9): keyword matching tightened.
+- **Disabled sensor files removed** (fb74d8a): arc-introspection, arc-operational-review, arc-ops-review, arc-self-audit `.disabled` files deleted. Zombie directories remain (SKILL.md-only).
+- **arc-dispatch-eval vs arc-dispatch-evals**: Two directories confirmed distinct — singular has sensor+SKILL.md (post-dispatch outcome scoring); plural has AGENT.md+CLI+SKILL.md (LLM judge evaluation). Related but different purposes. Name collision is confusing.
+- **Sensor count: 84** (+arc-weekly-presentation, +alb, +skill-effectiveness; -arc-operational-review). **Skill count: 119** (was 116).
+
+**5-Step Review (2026-03-17T21:27Z):**
+
+**Step 1 — Requirements:**
+- [INFO] failure-triage pattern expansions correct. Zero unknowns is the success criterion; achieved.
+- arc-weekly-presentation 5-revision cycle suggests requirement was underspecified upfront. Watch if it stabilizes or continues shifting — if whoabuddy feedback triggers another V5 revision, pin a specification first.
+- alb skill: Agents Love Bitcoin is a current P2-P4 priority. Valid.
+
+**Step 2 — Delete:**
+- [WARN] Four zombie directories remain post-consolidation: `arc-introspection/`, `arc-self-audit/`, `arc-ops-review/`, `arc-operational-review/`. All contain only `SKILL.md` (sensors removed, no CLI). These create false impressions of active capability. Recommend deletion. Follow-up task created.
+- [WARN] `arc-dispatch-eval` vs `arc-dispatch-evals`: confusingly named parallel directories. The singular has a sensor but no AGENT.md or CLI; the plural has AGENT.md + CLI but no sensor. Investigate whether these should be merged or renamed before the tree grows. Follow-up task created.
+- `site-consistency/` still exists alongside `arc0btc-deploy-monitor` (the consolidation). Has cli.ts — may have independent value. Needs investigation (from prior audit, still open).
+
+**Step 3 — Simplify:**
+- failure-triage 3-commit pattern-fix sprint suggests test coverage would help. A simple `bun skills/arc-failure-triage/cli.ts scan` against historical tasks could catch gaps before deployment. Not structural — development practice observation.
+
+**Step 4 — Accelerate:**
+- 84 sensors, all gated by `claimSensorRun`. Dispatch → execution pipeline unchanged. No bottlenecks identified.
+
+**Step 5 — Automate:**
+- arc-weekly-presentation sensor correctly automates Monday slide generation. Proper Step 5 application.
+
+**Context delivery audit:**
+- arc-weekly-presentation: SKILL.md + AGENT.md + sensor + CLI — fully formed. ✓
+- alb: SKILL.md + sensor + CLI — no AGENT.md. Fine for a data-tracking skill. ✓
+- skill-effectiveness: sensor only, no CLI or AGENT.md. Correct for passive measurement. ✓
+
+**Sensor count: 84** (was 82). **Skill count: 119** (was 116).
+
+---
+
 ## 2026-03-17T07:00:00.000Z
 
 4 findings: 0 error, 0 warn, 4 info → **HEALTHY**

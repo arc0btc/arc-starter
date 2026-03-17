@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-17T07:00:00.000Z*
+*Generated: 2026-03-17T21:27:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -29,7 +29,7 @@ stateDiagram-v2
         [*] --> ShutdownGate: db/shutdown-state.json
         ShutdownGate --> [*]: SHUTDOWN — skip all sensors (reason + since logged)
         ShutdownGate --> FilterSensors: not shutdown
-        FilterSensors --> RunAllSensors: arc0 (Arc host) — all 82 sensors
+        FilterSensors --> RunAllSensors: arc0 (Arc host) — all 84 sensors
         FilterSensors --> RunFilteredSensors: worker agent — allowlist only (13 sensors)
         note right of FilterSensors
             Worker allowlist (13): aibtc-heartbeat, aibtc-inbox-sync,
@@ -124,7 +124,6 @@ stateDiagram-v2
         RunAllSensors --> mempoolWatchSensor: mempool-watch
         RunAllSensors --> dealFlowSensor: aibtc-news-deal-flow
         RunAllSensors --> arcMemoryExpirySensor: arc-memory-expiry
-        RunAllSensors --> arcOperationalReviewSensor: arc-operational-review
         RunAllSensors --> dispatchWatchdogSensor: dispatch-watchdog
         RunAllSensors --> credentialHealthSensor: credential-health
         RunAllSensors --> questAuditSensor: quest-audit
@@ -133,9 +132,12 @@ stateDiagram-v2
         RunAllSensors --> arcMoltbookSensor: arc-moltbook
         RunAllSensors --> bitcoinWalletSensor: bitcoin-wallet
         RunAllSensors --> blogXSyndicationSensor: blog-x-syndication
+        RunAllSensors --> arcWeeklyPresentationSensor: arc-weekly-presentation
+        RunAllSensors --> albSensor: alb
+        RunAllSensors --> skillEffectivenessSensor: skill-effectiveness
 
         note right of RunAllSensors
-            82 sensors total (2026-03-17)
+            84 sensors total (2026-03-17)
             aibtc-news-deal-flow (60min) — 5 hooks: Ordinals volume, sats auctions,
               x402 escrow, bounty activity (gated on config), DAO treasury (gated on config)
               APIs: Unisat (api_key cred) + Stacks Extended API
@@ -153,7 +155,11 @@ stateDiagram-v2
             fleet-handoff CLI skill restored 2026-03-16 (was deleted 2026-03-11)
               SSH-based task handoff to another fleet agent; logs to memory/fleet-handoffs.json
             arc-self-review: consolidated arc-introspection + arc-self-audit +
-              arc-ops-review + arc-operational-review (all 4 disabled)
+              arc-ops-review + arc-operational-review (all 4 sensors removed 2026-03-17)
+              NOTE: zombie SKILL.md-only directories still exist — pending cleanup
+            arc-weekly-presentation: Monday AIBTC meeting slides, Sonnet subagent research
+            alb: Agents Love Bitcoin skill with sensor + CLI
+            skill-effectiveness: skill outcome tracking sensor
             arc0btc-deploy-monitor: merged site-health + site-consistency into one sensor
             strategic-planner: proposes directive-aligned tasks during idle periods
             quest-audit: detects hung quest-phase tasks
