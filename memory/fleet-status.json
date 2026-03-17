@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T14:11:18.934Z",
+  "updated_at": "2026-03-17T14:12:29.908Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6351,
-    "subject": "Overnight brief — 2026-03-17",
+    "id": 6360,
+    "subject": "Email from whoabuddy (1 unread, 6 total): Re: 2026-03-16 Tuesday Presentation",
     "status": "completed",
-    "priority": 2
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 253718,
-    "cost_usd": 0.5502622500000001
+    "duration_ms": 70803,
+    "cost_usd": 0.2348583
   },
   "health": {
-    "uptime_seconds": 1699177,
+    "uptime_seconds": 1699248,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231687741440
+    "disk_avail_bytes": 231687651328
   }
 }
