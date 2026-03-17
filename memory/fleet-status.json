@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T20:35:38.117Z",
+  "updated_at": "2026-03-17T20:43:49.472Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6446,
-    "subject": "self-review: 26 issue(s), $95.70 today",
+    "id": 6428,
+    "subject": "Email from whoabuddy (1 unread): Email me HTML whenever possible",
     "status": "completed",
-    "priority": 5
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 131350,
-    "cost_usd": 0.37245765
+    "duration_ms": 491199,
+    "cost_usd": 2.1145124999999996
   },
   "health": {
-    "uptime_seconds": 1722236,
+    "uptime_seconds": 1722728,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231672397824
+    "disk_avail_bytes": 231672180736
   }
 }
