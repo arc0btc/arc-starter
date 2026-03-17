@@ -81,6 +81,8 @@ const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
       /queue.?cleanup/i,
       /stale.*queue/i,
       /^stale\b/i,
+      /budget.*exhausted/i,
+      /daily.*post.*budget/i,
     ],
   },
 ];

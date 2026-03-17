@@ -86,12 +86,14 @@ const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
       /queue.?cleanup/i,
       /stale.*queue/i,
       /^stale\b/i,
+      /budget.*exhausted/i,
+      /daily.*post.*budget/i,
     ],
   },
 ];
 
 /** Signatures that should never trigger an investigation task — handled elsewhere or intentional. */
-const SKIP_SIGNATURES = new Set(["dismissed", "crash-recovery", "tool-constraint"]);
+const SKIP_SIGNATURES = new Set(["dismissed", "crash-recovery", "tool-constraint", "external-constraint"]);
 
 /** Extract a normalized error signature from a task's result_summary. */
 function classifyError(text: string): string {
