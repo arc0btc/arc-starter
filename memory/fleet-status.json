@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T00:07:11.785Z",
+  "updated_at": "2026-03-18T00:09:00.898Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6557,
-    "subject": "Unify voice and text chat into single web UI",
+    "id": 6558,
+    "subject": "Wire conversation persistence into voice/text responses",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 447914,
-    "cost_usd": 2.5688191
+    "duration_ms": 108798,
+    "cost_usd": 0.472004
   },
   "health": {
-    "uptime_seconds": 1734930,
+    "uptime_seconds": 1735039,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231660617728
+    "disk_avail_bytes": 231660347392
   }
 }
