@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T19:26:51.733Z",
+  "updated_at": "2026-03-18T19:31:28.789Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7114,
-    "subject": "Email from whoabuddy (1 unread): costs calcuations are off",
+    "id": 7115,
+    "subject": "Research: Cost tracking overhaul for Claude Max plan (PRD)",
     "status": "completed",
-    "priority": 1
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 58674,
-    "cost_usd": 0.1601529
+    "duration_ms": 274825,
+    "cost_usd": 1.28749065
   },
   "health": {
-    "uptime_seconds": 1804510,
+    "uptime_seconds": 1804787,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229483515904
+    "disk_avail_bytes": 229483360256
   }
 }
