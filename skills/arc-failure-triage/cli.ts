@@ -55,6 +55,12 @@ const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
       /browser.?only feature/i,
       /ui.?only feature/i,
       /no.*programmatic api/i,
+      /external constraint/i,
+      /hardware provisioning/i,
+      /cpu.?only/i,
+      /human approval/i,
+      /cannot proceed until/i,
+      /secrets.*not configured/i,
     ],
   },
   {
@@ -69,7 +75,7 @@ const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
     patterns: [
       /too noisy/i,
       /cleaning queue/i,
-      /duplicate.*brief/i,
+      /\bduplicate\b/i,
       /wrong priority/i,
       /focusing on mentions/i,
       /recreating with/i,
@@ -83,6 +89,7 @@ const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
       /^stale\b/i,
       /budget.*exhausted/i,
       /daily.*post.*budget/i,
+      /too many attempts/i,
     ],
   },
 ];
