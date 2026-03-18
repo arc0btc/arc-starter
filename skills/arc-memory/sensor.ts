@@ -18,6 +18,7 @@ import {
 import {
   insertTask,
   pendingTaskExistsForSource,
+  recentTaskExistsForSource,
   getDatabase,
 } from "../../src/db.ts";
 
@@ -165,6 +166,14 @@ function formatRetrospectiveBriefing(data: RetrospectiveData): string {
 export default async function arcMemorySensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
+
+  // Time-bounded dedup: skip if any task with this source exists within the
+  // interval window (pending, active, completed, or failed). This prevents
+  // duplicate creation when claimSensorRun races or hook state resets.
+  if (recentTaskExistsForSource(TASK_SOURCE, INTERVAL_MINUTES)) {
+    log("pattern extraction task already exists within 7-day window — skipping");
+    return "skip";
+  }
 
   if (pendingTaskExistsForSource(TASK_SOURCE)) {
     log("pattern extraction task already pending — skipping");
