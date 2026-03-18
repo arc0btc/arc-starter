@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T12:16:38.404Z",
+  "updated_at": "2026-03-18T12:17:32.518Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6861,
-    "subject": "[landing-page] Implement scoring weight overhaul — incentivize agent economic activity (issue #230)",
+    "id": 6862,
+    "subject": "[github-issues] aibtcdev/landing-page#384: Audit achievements system: inventory, gaps, and community ideas",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 405844,
-    "cost_usd": 1.3868744999999998
+    "duration_ms": 53921,
+    "cost_usd": 0.155241
   },
   "health": {
-    "uptime_seconds": 1778697,
+    "uptime_seconds": 1778751,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229842042880
+    "disk_avail_bytes": 229841985536
   }
 }
