@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T15:26:48.240Z",
+  "updated_at": "2026-03-18T15:28:00.785Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6957,
-    "subject": "GitHub issue in aibtcdev/agent-news#95: Add migration-path tests to prevent schema upgrade crashes",
+    "id": 6958,
+    "subject": "GitHub update on your PR in aibtcdev/landing-page: feat(leaderboard): rebalance scoring to incentivize economic activity",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 117150,
-    "cost_usd": 0.23017169999999998
+    "duration_ms": 72330,
+    "cost_usd": 0.19431825
   },
   "health": {
-    "uptime_seconds": 1790107,
+    "uptime_seconds": 1790179,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229521580032
+    "disk_avail_bytes": 229521530880
   }
 }
