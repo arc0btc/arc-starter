@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-18T20:47Z*
+*Last updated: 2026-03-18T23:43Z*
 
 ## Directives & Milestones
 
@@ -19,60 +19,52 @@
 | Loom | 192.168.1.14 | bc1q3qa3... | CI/CD |
 | Forge | 192.168.1.15 | bc1q9hme... | Infra |
 
-## Critical Flags (2026-03-11)
+## Critical Flags
 
-**FLEET DEGRADED:** Workers (Spark, Iris, Loom, Forge) suspended by Anthropic for account use violations. Arc is sole executor. Forge has OpenRouter fallback. whoabuddy appealing. Do NOT route to workers.
+**FLEET DEGRADED (2026-03-11):** Workers (Spark, Iris, Loom, Forge) suspended by Anthropic. Arc is sole executor. Forge has OpenRouter fallback. whoabuddy appealing. Do NOT route to workers.
 
 **Ordinals APIs:** Hiro shutdown 2026-03-09. Use Unisat (open-api.unisat.io, 5 req/s free). Stacks Extended API unaffected.
 
 **Dispatch gate:** Rate limits → immediate stop + email whoabuddy. 3 consecutive failures → same. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
 
-**Umbrel node (192.168.1.106):** Bitcoin Core must run full (currently pruned). Stacks node + API planned. Storage expansion pending.
+**Umbrel node (192.168.1.106):** Bitcoin Core must run full (currently pruned). Stacks node + API planned.
 
-**x402 NONCE_CONFLICT:** Sentinel file `db/hook-state/x402-nonce-conflict.json` gates welcome sensors. Welcome dedup fixed (sensor checks interaction history before queueing). ~60 contacts still pending re-welcoming once relay clears. **x402-sponsor-relay v1.18.0 deployed 2026-03-12** — nonce retry backoff increased 1s→30s (reduces cascade), /health now surfaces nonce pool state.
+**x402 NONCE_CONFLICT:** Sentinel file `db/hook-state/x402-nonce-conflict.json` gates welcome sensors. ~60 contacts pending re-welcoming. x402-sponsor-relay v1.18.0 deployed 2026-03-12 — nonce retry backoff 1s→30s, /health surfaces nonce pool state.
 
 ## Fleet Architecture
 
 - GitHub sensors centralized (Arc-only). Pre-dispatch gate routes GitHub tasks to Arc.
 - OAuth: Workers use ANTHROPIC_API_KEY (OAuth unreliable across VMs).
-- Identity drift: Mnemonic never shared. Fleet-sync backup/restore fixed.
-- Welcome dedup: Verify completion in DB, not task creation.
+- Welcome dedup: Verify completion in DB via `completedTaskCountForSource()`, not task creation.
 - Monitoring: Arc's 74 sensors unaffected. Worker sensors down during suspension.
+- **Agent identities:** Arc=Trustless Indra (1), Spark=Topaz Centaur (29), Loom=Fractal Hydra (85), Forge=Sapphire Mars (84), Iris=not yet registered (task #2890).
 
 ## Key Learnings
 
-**Sentinel file pattern:** For 402/CreditsDepleted or transient gate conditions, write sentinel (e.g. `db/x-credits-depleted.json`) and gate all downstream callers. Check before runtime failure.
+**Sentinel file pattern:** For 402/CreditsDepleted or transient gate conditions, write sentinel and gate all downstream callers. Check before runtime failure.
 
-**Welcome sensor bug:** Never mark state on creation. Use `completedTaskCountForSource()` verification. Chain-reaction follow-ups: 62% of volume — audit if >600/day.
+**Auth cascade pattern:** OAuth token expiry causes wave of consecutive auth failures. Mitigation: ANTHROPIC_API_KEY fallback in dispatch.ts (task #5215). whoabuddy refreshes OAuth; dispatch auto-recovers.
 
-**Agent identities:** Arc=Trustless Indra (1), Spark=Topaz Centaur (29), Loom=Fractal Hydra (85), Forge=Sapphire Mars (84), Iris=not yet registered (task #2890).
+**arc-payments (2026-03-12):** `stacks-payments` → `arc-payments`. Monitors STX token_transfer + sBTC SIP-010 (SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token). Hook state key: `arc-payments`.
 
-**Site mapping:** `blog-publishing`, `blog-deploy`, `arc0btc-site-health`. X dedup: 24h window, rewrite > split. Hub posting discontinued.
+**Zero Authority DAO (2026-03-12):** Sensor removed (no on-chain contracts). CLI + daos.json ready. Rebuild sensor when contracts deploy on Stacks.
 
-**Auth cascade pattern:** OAuth token expiry causes a wave of consecutive auth-error failures before recovery. Mitigation: ANTHROPIC_API_KEY fallback now in dispatch.ts (task #5215). When a cascade happens, whoabuddy refreshes OAuth; dispatch auto-recovers.
+**ERC-8004 status (2026-03-18):** 5 skills built, 2 sensors active. Zero task activity = no external on-chain events. Infrastructure ready, monitoring active, waiting for ecosystem adoption.
 
-**Model field fix (2026-03-12):** Resolved — `updateTask(task.id, { model: cycleModelLabel })` added to dispatch.ts (commit 6dfb32d). Backfilled 1660 historical tasks from cycle_log. ~1182 older tasks remain NULL (pre-date model tracking or never dispatched).
+**Temporal awareness (2026-03-18):** Dispatch prompt shows day-of-week, last cycle elapsed, DST-correct MT via `Intl.DateTimeFormat("America/Denver")`, memory staleness warning if 3+ days old. Task #6703.
 
-**Zero Authority DAO monitoring (2026-03-12):** Sensor removed (no on-chain contracts exist yet). CLI + daos.json config ready at `skills/dao-zero-authority/`. Standing instruction: rebuild sensor.ts and re-enable polling when Zero Authority deploys contracts on Stacks. Task #5369 completed as infrastructure-ready.
+**Memory as training (2026-03-18):** `memory/frameworks.md` has 6 decision trees. `skills/arc-memory/` provides `add-pattern`, `list-sections`, `retrospective`, `framework` commands. Load `arc-memory` skill on retrospective/strategy/triage tasks.
 
-**arc-payments rename (2026-03-12):** `stacks-payments` → `arc-payments`. Now monitors both STX token_transfer and sBTC SIP-010 contract_call (SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token). PR review sensor accepts both old and new source prefixes for backwards compat. Hook state key is now `arc-payments` (cold-start safe, dedup handles reprocessing).
+**Spark DeFi pre-positioning (2026-03-18):** DeFi tasks #6807/#6808 at P9 (won't dispatch). #6809 Jingswap skill build at P3 (Opus). Activate when: (1) clear fleet-suspended.json for Spark, (2) migrate to ANTHROPIC_API_KEY, (3) run fleet-router.
 
-**SkillMaintenanceMachine (2026-03-12):** Added `skill-maintenance` state machine for email-signal→audit→fix pattern. Reduces ad-hoc handling when recurring skill failures surface via email. Lives in `skills/arc-workflows/` state machine registry.
+**Group Decisions directive (2026-03-18):** whoabuddy committed to consensus-seeking pattern — seek input via AIBTC inbox, message agents directly for testing, pay 100 sats for 2nd opinions. Multi-agent input before fleet/contacts feature decisions.
 
-**agentslovebitcoin.com (2026-03-12):** Aligned with whoabuddy on 4-phase long-horizon plan. Phase details in email thread. This is a D1/D2 strategic initiative — monitor for follow-up tasks.
+**Weekly review (2026-03-18):** D2/D3/D4/D5 on track. D1 stalled — x402 KB (#6734) and ALB registration (#6804) in queue. DeFi blocked by fleet suspension. MCP Phase 1 v6 progressing.
 
-**Volume vs. strategy (2026-03-13):** 243 tasks/day, all sensor-driven, no human-initiated. With fleet degraded, reactive GitHub/PR review volume can crowd out D1/D2 strategic work. Watch for this pattern — strategic tasks may need explicit scheduling or higher priority to compete with sensor load.
+**Volume vs. strategy (2026-03-13):** 243 tasks/day, all sensor-driven. Reactive GitHub/PR volume can crowd D1/D2 work. Strategic tasks may need explicit scheduling or higher priority.
 
-**Cost optimization (2026-03-13):** Daily cost report analysis shows blog-publishing driving 30% of spend via token-heavy watch reports. Two Opus tasks reviewed: MCP scaffold (justified for architecture), arc-payments CLI (can move to Sonnet). Recommend: (1) Profile blog generation token ratio (input vs output), (2) Route arc-payments CLI to Sonnet for future iterations, (3) Audit blog-publishing sensor cadence (multiple reports/day suggests consolidation opportunity). Current spend $7.96 is healthy; no budget concerns.
+**Cost pattern (2026-03-13):** blog-publishing drives ~30% of spend. arc-payments CLI → Sonnet for future iterations. Current spend $7.96/day healthy.
 
-**Temporal awareness fix (2026-03-18):** Dispatch prompt now shows: (1) day-of-week prefix on current time line, (2) "last cycle: Xm ago" — time elapsed since previous dispatch, (3) DST-correct Mountain Time via `Intl.DateTimeFormat("America/Denver")` replacing hardcoded UTC-7 offset (was wrong in MDT season), (4) memory staleness warning if MEMORY.md `*Last updated*` is 3+ days old. Changes in `buildPrompt()` / `formatMountainTime()` / `humanAgo()` in `src/dispatch.ts`. Task #6703.
+**Site mapping:** `blog-publishing`, `blog-deploy`, `arc0btc-site-health`. X dedup: 24h window, rewrite > split.
 
-**Spark DeFi pre-positioning (2026-03-18):** Attempted to route DeFi tasks to Spark per v6 roadmap (task #6774). Blocked: `db/fleet-suspended.json` still lists Spark as suspended; Spark OAuth expired (dispatch cycles fail at $0.000/4s); `isFleetSuspended()` gates fleet-router. Pre-positioned 3 tasks: #6807 Bitflow LP (P9, defi-bitflow skill), #6808 Zest V2 sBTC supply (P9, zest-v2 skill), #6809 build Jingswap skill (P3, Opus — no Jingswap skill exists yet). DeFi tasks tagged "ROUTE TO SPARK" in description; set P9 so Arc won't dispatch them. Activate by: (1) clear fleet-suspended.json for spark, (2) migrate Spark to ANTHROPIC_API_KEY, (3) run fleet-router route or SSH tasks directly.
-
-**Memory as training (2026-03-18):** Built pattern library + decision framework system. `memory/frameworks.md` has 6 structured decision trees (priority assignment, fleet routing, failure triage, task decomposition, pattern extraction criteria, cost/model optimization). `skills/arc-memory/` skill: SKILL.md loads context for meta-tasks, sensor.ts creates weekly P7 pattern extraction tasks from 7-day retrospective data, cli.ts provides `add-pattern`, `list-sections`, `retrospective`, `framework` commands. Load `arc-memory` skill on retrospective/strategy/triage tasks to get decision framework context. Task #6716.
-
-**Weekly review (2026-03-18):** D2/D3/D4/D5 on track. D1 (revenue) stalled — x402 KB (#6734) and ALB registration (#6804) in queue but no revenue shipped. DeFi milestones (Zest V2, Bitflow) blocked by fleet suspension. ERC-8004 has zero task activity — status check queued (#6821). MCP Phase 1 v6 roadmap progressing.
-
-**Group Decisions design directive (2026-03-18, email cac1d8cd):** whoabuddy committed to saving "Group Decisions Good framework" as a design directive for contacts and fleet features. Principle: seek input via AIBTC inbox, message agents directly for testing, pay 100 sats for 2nd opinions. Aligns with Spark as sounding board for fleet v2 coordination. Fleet-dependent actions blocked until Spark restored. Directive intent: multi-agent input before fleet/contacts feature decisions — use consensus-seeking pattern over unilateral decisions.
-
-**ERC-8004 status (2026-03-18, task #6821):** Infrastructure complete — 5 skills built (erc8004-identity, erc8004-reputation, erc8004-validation, erc8004-trust, erc8004-indexer), 2 active sensors (indexer 6h cadence, reputation 60min cadence). Zero task activity = no external on-chain events triggering tasks, not a code gap. Milestone is "infrastructure ready, monitoring active, waiting for ecosystem adoption." No action needed until on-chain activity or a specific use case materializes.
+**agentslovebitcoin.com (2026-03-12):** D1/D2 strategic initiative. 4-phase plan. Monitor for follow-up tasks.
