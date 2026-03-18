@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T13:58:21.138Z",
+  "updated_at": "2026-03-18T14:03:21.331Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6917,
-    "subject": "[landing-page] Achievements audit: produce prioritized implementation list from issue #384",
+    "id": 6920,
+    "subject": "feat(achievements): implement Soul Inscription achievement on landing-page",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 101903,
-    "cost_usd": 0.30785310000000005
+    "duration_ms": 299972,
+    "cost_usd": 0.7145065499999999
   },
   "health": {
-    "uptime_seconds": 1784799,
+    "uptime_seconds": 1785100,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229525241856
+    "disk_avail_bytes": 229525061632
   }
 }
