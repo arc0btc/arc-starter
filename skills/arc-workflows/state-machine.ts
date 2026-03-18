@@ -2253,6 +2253,239 @@ Steps:
 };
 
 /**
+ * SelfReviewCycleMachine — models the periodic self-review → triage → fix lifecycle.
+ *
+ * Pattern detected: "sensor:arc-self-review" tasks (3 recurrences, avg 2.0 steps/chain)
+ * consistently spawn follow-up chains covering disparate issues (sensor bugs, alert
+ * investigations, analytics baselines). Without a machine, cycles overlap and duplicate.
+ *
+ * instance_key: "self-review-{YYYY-MM-DD}" (one per day)
+ *
+ * States:
+ *   triggered         → review task created for the current cycle
+ *   reviewing         → review executing; auto-transitions based on issueCount
+ *   issues_found      → creates triage task to prioritize and dispatch targeted fixes
+ *   triaging          → triage task executing; fix tasks being dispatched
+ *   dispatched        → fix tasks running; monitoring resolution
+ *   clean             → review found no issues (terminal)
+ *   resolved          → all fixes dispatched and cycle complete (terminal)
+ *
+ * Context:
+ *   cycleDate         — YYYY-MM-DD of this review cycle
+ *   issueCount        — number of issues found
+ *   issueSummary      — brief description of issues found
+ *   costToday         — USD cost at time of review (e.g. "23.33")
+ *   fixTaskIds        — JSON array of dispatched fix task IDs (populated during triaging)
+ *   learningsSummary  — what was learned this cycle (populated before resolved)
+ */
+export const SelfReviewCycleMachine: StateMachine<{
+  cycleDate?: string;
+  issueCount?: number;
+  issueSummary?: string;
+  costToday?: string;
+  fixTaskIds?: number[];
+  learningsSummary?: string;
+}> = {
+  name: "self-review-cycle",
+  initialState: "triggered",
+  states: {
+    triggered: {
+      on: { start_review: "reviewing" },
+      action: (ctx) => {
+        const date = ctx.cycleDate || new Date().toISOString().slice(0, 10);
+        return {
+          type: "create-task",
+          subject: `self-review: run health check for ${date}`,
+          priority: 5,
+          skills: ["arc-self-review"],
+          description: `Periodic self-review cycle for ${date}.
+
+Steps:
+1. Run the full self-review checklist (sensors, dispatch health, cost, skill drift)
+2. Record issueCount and issueSummary in workflow context
+3. Transition workflow to 'reviewing'
+4. If issues found: set issueCount > 0 and transition to 'issues_found'
+5. If clean: transition to 'clean'`,
+        };
+      },
+    },
+    reviewing: {
+      on: { found_issues: "issues_found", no_issues: "clean" },
+      action: (ctx) => {
+        if (ctx.issueCount === undefined) return null;
+        if (ctx.issueCount > 0) {
+          return { type: "transition", nextState: "issues_found" };
+        }
+        return { type: "transition", nextState: "clean" };
+      },
+    },
+    issues_found: {
+      on: { triage: "triaging" },
+      action: (ctx) => {
+        const count = ctx.issueCount || 1;
+        const cost = ctx.costToday ? `, $${ctx.costToday} today` : "";
+        return {
+          type: "create-task",
+          subject: `self-review triage: ${count} issue(s) found${cost}`,
+          priority: 5,
+          skills: ["arc-self-review", "arc-skill-manager"],
+          description: `Triage and dispatch fixes for ${count} issue(s) identified in today's self-review.
+
+Issues: ${ctx.issueSummary || "see review task"}
+
+Steps:
+1. Review each issue and determine the correct fix task
+2. Create targeted fix tasks (use arc tasks add) for each actionable issue
+3. Record dispatched task IDs in workflow context as fixTaskIds array
+4. Transition workflow to 'triaging', then 'dispatched'
+5. Capture learningsSummary before transitioning to 'resolved'`,
+        };
+      },
+    },
+    triaging: {
+      on: { dispatch: "dispatched" },
+      action: () => null,
+    },
+    dispatched: {
+      on: { resolve: "resolved" },
+      action: () => null,
+    },
+    clean: {
+      on: {},
+      action: () => null,
+    },
+    resolved: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
+ * CostReportAuditMachine — models the daily cost report → anomaly investigation lifecycle.
+ *
+ * Pattern detected: "sensor:arc-cost-reporting" tasks (3 recurrences, avg 2.0 steps/chain)
+ * consistently spawn investigation tasks for anomalies across different skills
+ * (untagged tasks, blog-publishing cadence, aibtc-news-editorial API costs).
+ * Without a machine, each report cycle creates ad-hoc audits with no unified tracking.
+ *
+ * Distinct from SkillMaintenanceMachine (which audits one skill) — this audits
+ * the cost distribution across all skills and routes targeted audits per anomaly.
+ *
+ * instance_key: "cost-report-{YYYY-MM-DD}" (one per day)
+ *
+ * States:
+ *   reported          → daily cost report generated; creates analysis task
+ *   analyzing         → analysis executing; auto-transitions based on anomalyCount
+ *   anomalies_found   → creates audit dispatch task per anomaly skill
+ *   auditing          → individual skill audits running
+ *   clean             → no anomalies detected (terminal)
+ *   resolved          → audits complete, learnings captured (terminal)
+ *
+ * Context:
+ *   reportDate        — YYYY-MM-DD of this report
+ *   costTotal         — total daily cost in USD
+ *   topDrivers        — JSON stringified array of {skill, costUsd} sorted descending
+ *   anomalyCount      — number of anomalies needing investigation
+ *   anomalies         — JSON stringified array of anomaly descriptions
+ *   auditSkills       — JSON stringified array of skill names to audit
+ *   auditTaskIds      — JSON stringified array of dispatched audit task IDs
+ *   findingsSummary   — consolidated findings from all audits
+ */
+export const CostReportAuditMachine: StateMachine<{
+  reportDate?: string;
+  costTotal?: string;
+  topDrivers?: string;
+  anomalyCount?: number;
+  anomalies?: string;
+  auditSkills?: string;
+  auditTaskIds?: string;
+  findingsSummary?: string;
+}> = {
+  name: "cost-report-audit",
+  initialState: "reported",
+  states: {
+    reported: {
+      on: { analyze: "analyzing" },
+      action: (ctx) => {
+        const date = ctx.reportDate || new Date().toISOString().slice(0, 10);
+        const cost = ctx.costTotal ? ` — $${ctx.costTotal}` : "";
+        return {
+          type: "create-task",
+          subject: `analyze cost report ${date}${cost}`,
+          priority: 6,
+          skills: ["arc-cost-reporting"],
+          description: `Analyze daily cost breakdown for ${date} and identify anomalies.
+
+${ctx.topDrivers ? `Top drivers: ${ctx.topDrivers}` : ""}
+
+Steps:
+1. Review cost distribution by skill using arc status / cycle_log
+2. Flag skills exceeding 20% of daily spend or showing >2x day-over-day increase
+3. Record anomalyCount and anomalies (JSON array) in workflow context
+4. Transition workflow to 'analyzing'
+5. If anomalies: set auditSkills (JSON array of skill names) and transition to 'anomalies_found'
+6. If clean: transition to 'clean'`,
+        };
+      },
+    },
+    analyzing: {
+      on: { found_anomalies: "anomalies_found", no_anomalies: "clean" },
+      action: (ctx) => {
+        if (ctx.anomalyCount === undefined) return null;
+        if (ctx.anomalyCount > 0) {
+          return { type: "transition", nextState: "anomalies_found" };
+        }
+        return { type: "transition", nextState: "clean" };
+      },
+    },
+    anomalies_found: {
+      on: { dispatch_audits: "auditing" },
+      action: (ctx) => {
+        const count = ctx.anomalyCount || 1;
+        const anomalyList = ctx.anomalies || "see analysis task";
+        const skills: string[] = ["arc-cost-reporting"];
+        try {
+          const parsed = JSON.parse(ctx.auditSkills || "[]") as string[];
+          skills.push(...parsed);
+        } catch {
+          // use default skills
+        }
+        return {
+          type: "create-task",
+          subject: `cost audit: dispatch ${count} anomaly investigation(s)`,
+          priority: 6,
+          skills,
+          description: `Dispatch targeted audit tasks for ${count} cost anomaly(ies) found in today's report.
+
+Anomalies: ${anomalyList}
+Skills to audit: ${ctx.auditSkills || "see analysis task"}
+
+Steps:
+1. For each anomalous skill, create a targeted investigation task using arc-skill-manager
+2. Link each fix task back to this workflow via --parent
+3. Record dispatched task IDs in auditTaskIds (JSON array) in workflow context
+4. Transition workflow to 'auditing', then 'resolved' once learnings are captured
+5. Summarize findings in findingsSummary before transitioning to 'resolved'`,
+        };
+      },
+    },
+    auditing: {
+      on: { resolve: "resolved" },
+      action: () => null,
+    },
+    clean: {
+      on: {},
+      action: () => null,
+    },
+    resolved: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -2285,6 +2518,8 @@ export function getTemplateByName(name: string): StateMachine | null {
     "psbt-escalation": PsbtEscalationMachine,
     "skill-maintenance": SkillMaintenanceMachine,
     "compounding": CompoundingMachine,
+    "self-review-cycle": SelfReviewCycleMachine,
+    "cost-report-audit": CostReportAuditMachine,
   };
   return templates[name] || null;
 }
