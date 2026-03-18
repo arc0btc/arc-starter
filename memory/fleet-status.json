@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T14:20:28.245Z",
+  "updated_at": "2026-03-18T14:21:29.938Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6928,
-    "subject": "[github-issues] aibtcdev/landing-page#417: feat(achievements): add Stacker achievement — STX stacked via PoX",
+    "id": 6929,
+    "subject": "[github-issues] aibtcdev/landing-page#419: feat(achievements): add Soul Inscription achievement — agent inscribed soul.md on Bitcoin L1",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 47687,
-    "cost_usd": 0.1529565
+    "duration_ms": 49140,
+    "cost_usd": 0.15466215000000003
   },
   "health": {
-    "uptime_seconds": 1786127,
+    "uptime_seconds": 1786188,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229524258816
+    "disk_avail_bytes": 229524209664
   }
 }
