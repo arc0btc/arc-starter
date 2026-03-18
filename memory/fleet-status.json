@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T01:39:55.146Z",
+  "updated_at": "2026-03-18T01:41:28.931Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6629,
-    "subject": "Implement Phase 0 skill updates for aibtc-news and aibtc-news-classifieds",
+    "id": 6561,
+    "subject": "GitHub issue in aibtcdev/aibtc-mcp-server#354: feat: expose aibtc-news tools as MCP server endpoints",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 462021,
-    "cost_usd": 2.76420565
+    "duration_ms": 93455,
+    "cost_usd": 0.27428834999999996
   },
   "health": {
-    "uptime_seconds": 1740493,
+    "uptime_seconds": 1740587,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231687053312
+    "disk_avail_bytes": 231686963200
   }
 }
