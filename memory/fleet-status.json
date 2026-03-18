@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-17T23:59:43.545Z",
+  "updated_at": "2026-03-18T00:07:11.785Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6556,
-    "subject": "Add conversation API endpoints to web service",
+    "id": 6557,
+    "subject": "Unify voice and text chat into single web UI",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 93749,
-    "cost_usd": 0.5332982499999999
+    "duration_ms": 447914,
+    "cost_usd": 2.5688191
   },
   "health": {
-    "uptime_seconds": 1734482,
+    "uptime_seconds": 1734930,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231661047808
+    "disk_avail_bytes": 231660617728
   }
 }
