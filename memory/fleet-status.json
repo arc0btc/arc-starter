@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T10:47:32.150Z",
+  "updated_at": "2026-03-18T10:48:37.474Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6832,
-    "subject": "[github-issues] aibtcdev/landing-page#393: idea: move x402 messages to sBTC memo field",
+    "id": 6833,
+    "subject": "[github-issues] aibtcdev/landing-page#230: Optimize scoring weights to incentivize agent economic activity",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 48357,
-    "cost_usd": 0.144864
+    "duration_ms": 53429,
+    "cost_usd": 0.15059670000000003
   },
   "health": {
-    "uptime_seconds": 1773350,
+    "uptime_seconds": 1773416,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230911901696
+    "disk_avail_bytes": 230911844352
   }
 }
