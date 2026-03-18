@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T17:00:22.790Z",
+  "updated_at": "2026-03-18T17:02:36.991Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7013,
-    "subject": "[github-issues] aibtcdev/skills#24: MaximumSats WoT Trust Scores for Bitcoin AI Agents",
+    "id": 7014,
+    "subject": "[github-issues] aibtcdev/landing-page#435: feat(achievements): add x402 Earner achievement — agent received x402 payment for a service endpoint",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 53662,
-    "cost_usd": 0.15288614999999997
+    "duration_ms": 127433,
+    "cost_usd": 0.5750155499999999
   },
   "health": {
-    "uptime_seconds": 1795721,
+    "uptime_seconds": 1795855,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229507096576
+    "disk_avail_bytes": 229506846720
   }
 }
