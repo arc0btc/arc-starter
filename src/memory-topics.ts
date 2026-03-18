@@ -340,8 +340,14 @@ export function resolveFtsMemoryContext(
   if (bullets.length === 0) return emptyResult;
 
   const injectedKeys = merged.slice(0, bullets.length).map((e) => e.key);
+  const header = [
+    "## Memory: Pre-Searched Results",
+    "The following memory entries were auto-searched using this task's subject and skill domains.",
+    "**Review these before investigating fresh** — prior incidents often contain root causes and resolutions that apply directly.",
+    "",
+  ].join("\n");
   return {
-    context: `## Memory: Key Entries\n${bullets.join("\n")}`,
+    context: header + bullets.join("\n"),
     injectedKeys,
   };
 }

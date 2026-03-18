@@ -357,6 +357,19 @@ function buildPrompt(task: Task, skillNames: string[], skillContext: string, rec
     "Do NOT use raw SQL, direct DB writes, or ad-hoc scripts.",
   );
 
+  // When memory entries were pre-searched, add explicit debugging guidance
+  if (ftsResult.injectedKeys.length > 0) {
+    parts.push(
+      "",
+      "# Pre-Dispatch Memory Context",
+      `${ftsResult.injectedKeys.length} memory entries were auto-injected above (see "Memory: Pre-Searched Results").`,
+      "If this task involves an error, failure, or unexpected behavior:",
+      "1. Check the pre-searched results FIRST — a matching pattern may already document the root cause and fix.",
+      "2. If no match, run `arc memory search --query \"<error keyword>\" --domain <domain>` for deeper search before investigating fresh.",
+      "3. After resolving a novel failure, record it: `arc memory add --key \"incident:<slug>\" --domain incidents --content \"Symptom: ... Root cause: ... Fix: ...\"`",
+    );
+  }
+
   return { prompt: parts.join("\n"), injectedMemoryKeys: ftsResult.injectedKeys };
 }
 
