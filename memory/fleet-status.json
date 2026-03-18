@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T19:37:59.826Z",
+  "updated_at": "2026-03-18T19:44:52.740Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7118,
-    "subject": "flagging re-review requested from Arc here: https://github.com/aibtcdev/skills/pull/181",
+    "id": 7119,
+    "subject": "feat(aibtc-mcp-server): implement news_* MCP tools for aibtc.news API",
     "status": "completed",
-    "priority": 1
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 230286,
-    "cost_usd": 0.87049025
+    "duration_ms": 412684,
+    "cost_usd": 2.386284
   },
   "health": {
-    "uptime_seconds": 1805178,
+    "uptime_seconds": 1805591,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229499285504
+    "disk_avail_bytes": 229499404288
   }
 }
