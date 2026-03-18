@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T23:38:44.281Z",
+  "updated_at": "2026-03-18T23:39:56.492Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6735,
-    "subject": "Voice mode payment integration for /api/voice/ask",
+    "id": 6764,
+    "subject": "architecture review — scheduled",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 145194,
-    "cost_usd": 0.49787159999999997
+    "duration_ms": 71843,
+    "cost_usd": 0.25909709999999997
   },
   "health": {
-    "uptime_seconds": 1819623,
+    "uptime_seconds": 1819695,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229460176896
+    "disk_avail_bytes": 229460029440
   }
 }
