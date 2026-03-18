@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T15:32:05.417Z",
+  "updated_at": "2026-03-18T15:32:42.002Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6962,
-    "subject": "[github-issues] aibtcdev/skills#24: MaximumSats WoT Trust Scores for Bitcoin AI Agents",
+    "id": 6963,
+    "subject": "[github-issues] aibtcdev/landing-page#260: Blitzscale Score: 1.5 (Family → Tribe transition)",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 55557,
-    "cost_usd": 0.16087455
+    "duration_ms": 31939,
+    "cost_usd": 0.10207604999999999
   },
   "health": {
-    "uptime_seconds": 1790424,
+    "uptime_seconds": 1790460,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229521358848
+    "disk_avail_bytes": 229521305600
   }
 }
