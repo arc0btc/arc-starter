@@ -23,6 +23,7 @@ import {
   searchArcMemory,
   listArcMemory,
   deleteArcMemory,
+  getArcMemory,
   expireArcMemories,
   countArcMemories,
   checkRecentFailures,
@@ -1102,6 +1103,39 @@ function cmdMemoryCostBySkill(): void {
   }
 }
 
+function cmdMemoryFleetStatus(): void {
+  initDatabase();
+
+  const AGENT_NAMES = ["spark", "iris", "loom", "forge"];
+  const entries = AGENT_NAMES.map((name) => ({
+    name,
+    entry: getArcMemory(`fleet-state:${name}`),
+  }));
+
+  const hasAny = entries.some((e) => e.entry !== null);
+  if (!hasAny) {
+    process.stdout.write("No fleet-state memory entries found.\nFleet-health sensor populates these every 15 minutes.\n");
+    return;
+  }
+
+  process.stdout.write("=== Fleet State (from memory) ===\n\n");
+
+  for (const { name, entry } of entries) {
+    if (!entry) {
+      process.stdout.write(`--- ${name} ---\n  No state recorded\n\n`);
+      continue;
+    }
+    process.stdout.write(`--- ${name} ---\n`);
+    // Parse key fields from content for a compact view
+    const lines = entry.content.split("\n");
+    for (const line of lines) {
+      process.stdout.write(`  ${line}\n`);
+    }
+    const age = Math.floor((Date.now() - new Date(entry.updated_at).getTime()) / 60000);
+    process.stdout.write(`  Memory updated: ${age}m ago (importance=${entry.importance})\n\n`);
+  }
+}
+
 function cmdMemory(args: string[]): void {
   const sub = args[0];
   if (sub === "search") {
@@ -1126,8 +1160,10 @@ function cmdMemory(args: string[]): void {
     cmdMemoryCostByDomain();
   } else if (sub === "cost-by-skill") {
     cmdMemoryCostBySkill();
+  } else if (sub === "fleet-status") {
+    cmdMemoryFleetStatus();
   } else {
-    process.stderr.write(`Usage: arc memory <search|search-skills|add|list|delete|expire|consolidate|check-dedup|expensive|cost-by-domain|cost-by-skill>\n`);
+    process.stderr.write(`Usage: arc memory <search|search-skills|add|list|delete|expire|consolidate|check-dedup|expensive|cost-by-domain|cost-by-skill|fleet-status>\n`);
     process.exit(sub ? 1 : 0);
   }
 }

@@ -8,6 +8,7 @@ import {
   expireArcMemories,
   consolidateMemories,
   findDuplicateGroups,
+  getArcMemory,
 } from "../../src/db.ts";
 import type { ArcMemoryFull } from "../../src/db.ts";
 
@@ -298,6 +299,36 @@ function cmdConsolidate(params: Record<string, string>): void {
   console.log(`\nTotal remaining: ${remaining} entries`);
 }
 
+function cmdFleetStatus(): void {
+  const AGENT_NAMES = ["spark", "iris", "loom", "forge"];
+  const entries = AGENT_NAMES.map((name) => ({
+    name,
+    entry: getArcMemory(`fleet-state:${name}`),
+  }));
+
+  const hasAny = entries.some((e) => e.entry !== null);
+  if (!hasAny) {
+    console.log("No fleet-state memory entries found.");
+    console.log("Fleet-health sensor populates these every 15 minutes.");
+    return;
+  }
+
+  console.log("=== Fleet State (from memory) ===\n");
+
+  for (const { name, entry } of entries) {
+    if (!entry) {
+      console.log(`--- ${name} ---\n  No state recorded\n`);
+      continue;
+    }
+    console.log(`--- ${name} ---`);
+    for (const line of entry.content.split("\n")) {
+      console.log(`  ${line}`);
+    }
+    const age = Math.floor((Date.now() - new Date(entry.updated_at).getTime()) / 60000);
+    console.log(`  Memory updated: ${age}m ago (importance=${entry.importance})\n`);
+  }
+}
+
 function printUsage(): void {
   console.log(`Usage: bun skills/arc-memory-manager/cli.ts <command> [options]
 
@@ -308,7 +339,8 @@ Commands:
   dedup [--domain DOMAIN]         Detect potential duplicates
   expire                          Run TTL expiry pass
   consolidate [--domain DOMAIN]   Run full pruning pass (TTL, decay, expire, budget)
-  top [--limit N]                 Highest importance entries (default: 10)`);
+  top [--limit N]                 Highest importance entries (default: 10)
+  fleet-status                    Per-agent fleet state dashboard`);
 }
 
 async function main(): Promise<void> {
@@ -336,6 +368,9 @@ async function main(): Promise<void> {
       break;
     case "top":
       cmdTop(params);
+      break;
+    case "fleet-status":
+      cmdFleetStatus();
       break;
     default:
       printUsage();

@@ -18,6 +18,7 @@ import {
   createSensorLogger,
   insertTaskIfNew,
 } from "../../src/sensors.ts";
+import { upsertMemory } from "../../src/db.ts";
 import {
   REMOTE_ARC_DIR,
   getAgentIp,
@@ -472,6 +473,59 @@ function formatSummary(results: AgentHealth[], timestamp: string): string {
   return lines.join("\n");
 }
 
+// ---- Fleet state memory upsert ----
+
+function buildFleetStateContent(h: AgentHealth, timestamp: string): string {
+  const lines: string[] = [];
+  lines.push(`Last checked: ${timestamp}`);
+  lines.push(`Reachable: ${h.reachable ? "yes" : "no"}`);
+  lines.push(`Sensor timer: ${h.sensorTimer}`);
+  lines.push(`Dispatch timer: ${h.dispatchTimer}`);
+  lines.push(`Last dispatch: ${h.lastDispatchAge}`);
+  lines.push(`Pending tasks: ${h.pendingCount}`);
+  lines.push(`Disk usage: ${h.diskUsage}`);
+  lines.push(`Auth method: ${h.authMethod}`);
+  lines.push(`Circuit breaker: ${h.consecutiveFailureStreak ? "ACTIVE" : "no"}`);
+  if (h.peerStatus) {
+    const ps = h.peerStatus;
+    lines.push(`Self-reported idle: ${ps.idle}`);
+    if (ps.last_task) {
+      lines.push(`Last task: #${ps.last_task.id} (${ps.last_task.status})`);
+    }
+    if (ps.last_cycle) {
+      lines.push(`Last cycle cost: $${ps.last_cycle.cost_usd.toFixed(3)}`);
+    }
+    lines.push(`Self-report stale: ${h.peerStatusStale ? "yes" : "no"}`);
+  }
+  if (h.issues.length > 0) {
+    lines.push(`Issues: ${h.issues.join("; ")}`);
+  } else {
+    lines.push("Issues: none");
+  }
+  return lines.join("\n");
+}
+
+function upsertFleetStateMemory(healths: AgentHealth[], timestamp: string): void {
+  for (const h of healths) {
+    const content = buildFleetStateContent(h, timestamp);
+    const tags = [
+      h.reachable ? "reachable" : "unreachable",
+      h.authMethod.split(":")[0],
+      h.issues.length > 0 ? "has-issues" : "healthy",
+      h.consecutiveFailureStreak ? "circuit-breaker" : "",
+    ].filter(Boolean).join(" ");
+
+    upsertMemory({
+      key: `fleet-state:${h.agent}`,
+      domain: "fleet",
+      content,
+      tags,
+      importance: h.issues.length > 0 ? 3 : 5,
+      ttl_days: 30,
+    });
+  }
+}
+
 // ---- Sensor entry point ----
 
 export default async function fleetHealthSensor(): Promise<string> {
@@ -520,6 +574,13 @@ export default async function fleetHealthSensor(): Promise<string> {
   // Write summary to memory/fleet-status.md
   const summary = formatSummary(healths, timestamp);
   await Bun.write(join(MEMORY_DIR, "fleet-status.md"), summary);
+
+  // Upsert per-agent fleet-state memory entries for provisioning lookups
+  try {
+    upsertFleetStateMemory(healths, timestamp);
+  } catch (err) {
+    log(`fleet-state memory upsert failed: ${err instanceof Error ? err.message : String(err)}`);
+  }
 
   // Circuit breaker: pause agents with consecutive failure streaks
   for (const h of healths) {
