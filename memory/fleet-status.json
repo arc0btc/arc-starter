@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T18:28:32.048Z",
+  "updated_at": "2026-03-18T18:29:49.638Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7034,
-    "subject": "Implement scoring weight rebalance for agent economic activity (landing-page#230)",
+    "id": 7035,
+    "subject": "GitHub update on your PR in aibtcdev/landing-page: feat(achievements): add streak badges (7d/30d)",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 230571,
-    "cost_usd": 0.5022517999999999
+    "duration_ms": 77375,
+    "cost_usd": 0.20170545
   },
   "health": {
-    "uptime_seconds": 1801010,
+    "uptime_seconds": 1801088,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229508890624
+    "disk_avail_bytes": 229508837376
   }
 }
