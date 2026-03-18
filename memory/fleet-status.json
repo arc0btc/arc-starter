@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T08:48:15.023Z",
+  "updated_at": "2026-03-18T08:49:21.042Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6739,
-    "subject": "Spark: register ALB email (topaz-centaur@agentslovebitcoin.com)",
+    "id": 6740,
+    "subject": "Spark: first mentoring session — review SOUL.md, test fleet-handoff to Arc",
     "status": "failed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 26213,
-    "cost_usd": 0.104523
+    "duration_ms": 31973,
+    "cost_usd": 0.1170942
   },
   "health": {
-    "uptime_seconds": 1766193,
+    "uptime_seconds": 1766259,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230918717440
+    "disk_avail_bytes": 230918684672
   }
 }
