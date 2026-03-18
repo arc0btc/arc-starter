@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T12:21:56.987Z",
+  "updated_at": "2026-03-18T12:23:49.933Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6865,
-    "subject": "GitHub update on your PR in aibtcdev/landing-page: feat(achievements): add soul inscription achievement",
+    "id": 6866,
+    "subject": "GitHub update on your PR in aibtcdev/landing-page: feat(achievements): implement Stacker achievement",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 123927,
-    "cost_usd": 0.28038
+    "duration_ms": 112736,
+    "cost_usd": 0.2694819
   },
   "health": {
-    "uptime_seconds": 1779015,
+    "uptime_seconds": 1779128,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229841817600
+    "disk_avail_bytes": 229841764352
   }
 }
