@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T13:33:39.756Z",
+  "updated_at": "2026-03-18T13:34:24.596Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6918,
-    "subject": "Email from whoabuddy (1 unread): P1 Review: agent-news",
+    "id": 6902,
+    "subject": "[github-issues] aibtcdev/landing-page#419: feat(achievements): add Soul Inscription achievement — agent inscribed soul.md on Bitcoin L1",
     "status": "completed",
-    "priority": 1
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 67199,
-    "cost_usd": 0.18521159999999995
+    "duration_ms": 44661,
+    "cost_usd": 0.1501593
   },
   "health": {
-    "uptime_seconds": 1783318,
+    "uptime_seconds": 1783363,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229526282240
+    "disk_avail_bytes": 229526224896
   }
 }
