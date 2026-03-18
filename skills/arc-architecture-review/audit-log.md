@@ -1,3 +1,42 @@
+## 2026-03-18T23:38:51.564Z
+
+33 finding(s): 2 error, 27 warn, 4 info
+
+- **WARN** [sensor:agent-hub] agent-hub/sensor.ts has no dedup check
+- **WARN** [sensor:aibtc-welcome] aibtc-welcome/sensor.ts has no dedup check
+- **WARN** [sensor:arc-blocked-review] arc-blocked-review/sensor.ts has no dedup check
+- **ERROR** [skill:arc-opensource] arc-opensource/SKILL.md missing frontmatter
+- **INFO** [cli:arc-opensource] arc-opensource/cli.ts has no help/usage text
+- **WARN** [sensor:arc-ops-review] arc-ops-review/sensor.ts has no dedup check
+- **WARN** [sensor:arc-reporting] arc-reporting/sensor.ts has no dedup check
+- **WARN** [sensor:arc-reputation] arc-reputation/sensor.ts has no dedup check
+- **ERROR** [skill:arc-strategy-review] arc-strategy-review/SKILL.md missing frontmatter
+- **WARN** [sensor:arc0btc-pr-review] arc0btc-pr-review/sensor.ts has no dedup check
+- **WARN** [sensor:arc0btc-security-audit] arc0btc-security-audit/sensor.ts has no dedup check
+- **WARN** [sensor:auto-queue] auto-queue/sensor.ts has no dedup check
+- **WARN** [sensor:blog-publishing] blog-publishing/sensor.ts has no dedup check
+- **INFO** [skill:claude-code-releases] claude-code-releases has AGENT.md but no sensor/cli — verify it's referenced by other skills
+- **WARN** [sensor:compliance-review] compliance-review/sensor.ts has no dedup check
+- **WARN** [sensor:context-review] context-review/sensor.ts has no dedup check
+- **WARN** [sensor:defi-compounding] defi-compounding/sensor.ts has no dedup check
+- **INFO** [skill:dev-landing-page-review] dev-landing-page-review has AGENT.md but no sensor/cli — verify it's referenced by other skills
+- **WARN** [sensor:erc8004-reputation] erc8004-reputation/sensor.ts has no dedup check
+- **WARN** [sensor:fleet-comms] fleet-comms/sensor.ts has no dedup check
+- **WARN** [sensor:fleet-dashboard] fleet-dashboard/sensor.ts has no dedup check
+- **INFO** [cli:fleet-handoff] fleet-handoff/cli.ts has no help/usage text
+- **WARN** [sensor:fleet-health] fleet-health/sensor.ts has no dedup check
+- **WARN** [sensor:fleet-memory] fleet-memory/sensor.ts has no dedup check
+- **WARN** [sensor:fleet-sync] fleet-sync/sensor.ts has no dedup check
+- **WARN** [sensor:github-ci-status] github-ci-status/sensor.ts has no dedup check
+- **WARN** [sensor:github-interceptor] github-interceptor/sensor.ts has no dedup check
+- **WARN** [sensor:identity-guard] identity-guard/sensor.ts has no dedup check
+- **WARN** [sensor:social-agent-engagement] social-agent-engagement/sensor.ts has no dedup check
+- **WARN** [sensor:social-x-ecosystem] social-x-ecosystem/sensor.ts has no dedup check
+- **WARN** [sensor:social-x-posting] social-x-posting/sensor.ts has no dedup check
+- **WARN** [sensor:worker-logs-monitor] worker-logs-monitor/sensor.ts has no dedup check
+- **WARN** [memory] MEMORY.md is ~2181 tokens (78 lines) — consider consolidation
+
+---
 ## 2026-03-12T18:46:00.000Z
 
 2 findings: 0 error, 0 warn, 2 info → **CLEAN**
