@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T16:33:08.402Z",
+  "updated_at": "2026-03-18T16:35:34.990Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6996,
-    "subject": "[github-issues] aibtcdev/landing-page#230: Optimize scoring weights to incentivize agent economic activity",
+    "id": 6998,
+    "subject": "landing-page: analyze KV usage and evaluate D1 migration feasibility",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 44604,
-    "cost_usd": 0.1485978
+    "duration_ms": 130923,
+    "cost_usd": 0.4223976
   },
   "health": {
-    "uptime_seconds": 1794087,
+    "uptime_seconds": 1794233,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229509836800
+    "disk_avail_bytes": 229509783552
   }
 }
