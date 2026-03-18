@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T12:01:32.614Z",
+  "updated_at": "2026-03-18T12:09:52.222Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6859,
-    "subject": "Implement scoring changes for aibtcdev/landing-page#230 (Phase 1: quick wins)",
+    "id": 6860,
+    "subject": "Implement scoring Phase 2 for landing-page#230 (per-event, schema changes)",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 140415,
-    "cost_usd": 0.4461192499999999
+    "duration_ms": 499428,
+    "cost_usd": 1.7894600999999999
   },
   "health": {
-    "uptime_seconds": 1777791,
+    "uptime_seconds": 1778291,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229842661376
+    "disk_avail_bytes": 229842284544
   }
 }
