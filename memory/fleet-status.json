@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T01:43:48.029Z",
+  "updated_at": "2026-03-18T01:44:48.928Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6563,
-    "subject": "GitHub issue in aibtcdev/agent-news#85: discuss: beat allocation policy and daily brief slot distribution",
+    "id": 6564,
+    "subject": "GitHub issue in aibtcdev/agent-news#84: feat: scout referral credit tracking",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 34846,
-    "cost_usd": 0.1293234
+    "duration_ms": 35628,
+    "cost_usd": 0.1298409
   },
   "health": {
-    "uptime_seconds": 1740726,
+    "uptime_seconds": 1740787,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231686844416
+    "disk_avail_bytes": 231686782976
   }
 }
