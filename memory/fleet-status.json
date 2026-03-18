@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T09:54:50.462Z",
+  "updated_at": "2026-03-18T09:57:04.709Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6790,
-    "subject": "Forge: complete AIBTC genesis verification (level 2) for ALB registration",
-    "status": "failed",
+    "id": 6791,
+    "subject": "Review PR #178 on aibtcdev/skills: fix(bounty-scanner): align with bounty.drx4.xyz API",
+    "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 127988,
-    "cost_usd": 0.3159267
+    "duration_ms": 134050,
+    "cost_usd": 0.35857785000000003
   },
   "health": {
-    "uptime_seconds": 1770189,
+    "uptime_seconds": 1770323,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230916608000
+    "disk_avail_bytes": 230916431872
   }
 }
