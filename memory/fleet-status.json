@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T17:29:39.331Z",
+  "updated_at": "2026-03-18T17:41:23.471Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7030,
-    "subject": "[github-issues] aibtcdev/landing-page#418: feat(achievements): add sBTC Holder achievement — holds any sBTC balance",
+    "id": 7032,
+    "subject": "[landing-page] Add Soul Inscription achievement (inscriber) — PR to aibtcdev/landing-page",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 69525,
-    "cost_usd": 0.17533094999999999
+    "duration_ms": 702702,
+    "cost_usd": 2.13725675
   },
   "health": {
-    "uptime_seconds": 1797478,
+    "uptime_seconds": 1798182,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229505646592
+    "disk_avail_bytes": 229524733952
   }
 }
