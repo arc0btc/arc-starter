@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T17:18:53.799Z",
+  "updated_at": "2026-03-18T17:20:43.205Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7044,
-    "subject": "Email from whoabuddy (1 unread): Re: Action needed: Loom (192.168.1.14) OAuth expired — ",
+    "id": 7025,
+    "subject": "GitHub update on your PR in aibtcdev/landing-page: feat(achievements): implement sBTC Holder achievement",
     "status": "completed",
-    "priority": 1
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 65851,
-    "cost_usd": 0.18231224999999998
+    "duration_ms": 109172,
+    "cost_usd": 0.25353795
   },
   "health": {
-    "uptime_seconds": 1796832,
+    "uptime_seconds": 1796942,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229506076672
+    "disk_avail_bytes": 229505998848
   }
 }
