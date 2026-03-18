@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T00:13:44.319Z",
+  "updated_at": "2026-03-18T00:19:14.691Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6586,
-    "subject": "Email from whoabuddy (1 unread, 4 total): Re: Enhanced Memory",
+    "id": 6587,
+    "subject": "Email from whoabuddy (1 unread): Re: Arc Loose Ends Report — 2026-03-17",
     "status": "completed",
     "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 283257,
-    "cost_usd": 1.2378994999999995
+    "duration_ms": 330215,
+    "cost_usd": 1.38393725
   },
   "health": {
-    "uptime_seconds": 1735323,
+    "uptime_seconds": 1735653,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231660269568
+    "disk_avail_bytes": 231659855872
   }
 }
