@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T23:52:34.106Z",
+  "updated_at": "2026-03-18T23:54:10.833Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6794,
-    "subject": "Regenerate and deploy skills/sensors catalog",
+    "id": 6798,
+    "subject": "weekly pattern extraction: 1906 tasks, 409 failed, $608.97 spent",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 46458,
-    "cost_usd": 0.1583217
+    "duration_ms": 82489,
+    "cost_usd": 0.20032725
   },
   "health": {
-    "uptime_seconds": 1820452,
+    "uptime_seconds": 1820549,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229458092032
+    "disk_avail_bytes": 229458022400
   }
 }
