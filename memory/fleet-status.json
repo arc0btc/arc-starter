@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T09:24:22.262Z",
+  "updated_at": "2026-03-18T09:33:04.991Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6777,
-    "subject": "Set up forge@agentslovebitcoin.com email",
+    "id": 6778,
+    "subject": "Install dev-focused skills on Forge — github-issues, code-audit, systems-monitor",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 257747,
-    "cost_usd": 0.7288564499999999
+    "duration_ms": 522346,
+    "cost_usd": 0.9981862499999998
   },
   "health": {
-    "uptime_seconds": 1768361,
+    "uptime_seconds": 1768883,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230917476352
+    "disk_avail_bytes": 230917210112
   }
 }
