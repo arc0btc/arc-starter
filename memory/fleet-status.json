@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T14:36:41.239Z",
+  "updated_at": "2026-03-18T14:42:53.319Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6940,
-    "subject": "feat(achievements): implement Stacker achievement for aibtcdev/landing-page#417",
+    "id": 6941,
+    "subject": "feat(achievements): implement Soul Inscription achievement in landing-page",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 196925,
-    "cost_usd": 0.5033147000000001
+    "duration_ms": 371889,
+    "cost_usd": 1.0172751
   },
   "health": {
-    "uptime_seconds": 1787100,
+    "uptime_seconds": 1787472,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229523337216
+    "disk_avail_bytes": 229523165184
   }
 }
