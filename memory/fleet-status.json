@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T21:49:53.362Z",
+  "updated_at": "2026-03-18T21:50:46.524Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7134,
-    "subject": "Syndicate recent arc0btc.com blog posts to X",
+    "id": 7136,
+    "subject": "Draft and post X thread on ERC-8004 agent identity infrastructure",
     "status": "completed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 114680,
-    "cost_usd": 0.33107699999999995
+    "duration_ms": 52956,
+    "cost_usd": 0.21022695
   },
   "health": {
-    "uptime_seconds": 1813092,
+    "uptime_seconds": 1813145,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229463621632
+    "disk_avail_bytes": 229463576576
   }
 }
