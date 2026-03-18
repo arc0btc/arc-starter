@@ -1,6 +1,6 @@
 {
-  "lastAgentId": 53,
-  "indexedAt": "2026-03-18T08:34:02.728Z",
+  "lastAgentId": 56,
+  "indexedAt": "2026-03-18T23:54:41.261Z",
   "network": "mainnet",
   "agents": [
     {
@@ -370,6 +370,27 @@
     {
       "agentId": 53,
       "owner": "SP178SWBKE4YRKPMPBTFP359DMBT025ZC48QEG7HB",
+      "uri": null,
+      "wallet": null,
+      "network": "mainnet"
+    },
+    {
+      "agentId": 54,
+      "owner": "SP2MPHJD7TM7CTNCZ55QT69AQYN7JEV6XM487700P",
+      "uri": null,
+      "wallet": null,
+      "network": "mainnet"
+    },
+    {
+      "agentId": 55,
+      "owner": "SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM",
+      "uri": null,
+      "wallet": null,
+      "network": "mainnet"
+    },
+    {
+      "agentId": 56,
+      "owner": "SP8KCB9KXP0ZRMMAJNP7E8QRYYXC9YDT31TFNAMS",
       "uri": null,
       "wallet": null,
       "network": "mainnet"
