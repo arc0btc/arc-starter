@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T08:35:20.939Z",
+  "updated_at": "2026-03-18T08:39:31.984Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6719,
-    "subject": "v6 P5: ERC-8004 indexer + website integration",
+    "id": 6720,
+    "subject": "v6 P5: arc-starter open source maintenance cadence",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 499453,
-    "cost_usd": 1.6778184499999997
+    "duration_ms": 250676,
+    "cost_usd": 0.6844457500000001
   },
   "health": {
-    "uptime_seconds": 1765419,
+    "uptime_seconds": 1765670,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230919282688
+    "disk_avail_bytes": 230919122944
   }
 }

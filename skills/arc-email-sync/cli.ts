@@ -26,12 +26,28 @@ function parseFlags(args: string[]): Record<string, string> {
 
 // ---- Subcommands ----
 
+const APPROVED_SENDERS = new Set([
+  "arc@arc0.me",
+  "arc@arc0btc.com",
+  "topaz_centaur@agentslovebitcoin.com",
+]);
+const DEFAULT_SENDER = "arc@arc0.me";
+
 async function cmdSend(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
   if (!flags.to || !flags.subject || !flags.body) {
     process.stderr.write("Usage: arc skills run --name email -- send --to <addr> --subject <subj> --body <text> [--from <addr>] [--in-reply-to <message-id>]\n");
     process.exit(1);
+  }
+
+  if (flags.from && !APPROVED_SENDERS.has(flags.from)) {
+    process.stderr.write(`Error: --from '${flags.from}' is not an approved sender. Approved: ${[...APPROVED_SENDERS].join(", ")}\n`);
+    process.exit(1);
+  }
+
+  if (flags.from && flags.from !== DEFAULT_SENDER) {
+    log(`WARNING: using non-default sender '${flags.from}' (default is '${DEFAULT_SENDER}')`);
   }
 
   const { apiBaseUrl, adminKey } = await getEmailCredentials();
