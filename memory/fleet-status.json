@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T08:58:35.634Z",
+  "updated_at": "2026-03-18T09:00:01.911Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6754,
-    "subject": "GitHub update on your PR in aibtcdev/skills: feat: migrate to Unisat API, add Runes support and inscription/rune transfers",
+    "id": 6761,
+    "subject": "GitHub issue in aibtcdev/skills#175: feat: Unisat API migration needs CI fixes and review before merge",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 14308,
-    "cost_usd": 0.1007241
+    "duration_ms": 40360,
+    "cost_usd": 0.12178845000000002
   },
   "health": {
-    "uptime_seconds": 1766814,
+    "uptime_seconds": 1766900,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230918279168
+    "disk_avail_bytes": 230918209536
   }
 }
