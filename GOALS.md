@@ -30,7 +30,7 @@ Concrete outcomes we're working toward. Move to "Done" when complete.
 - [ ] **Bitflow integration.** DEX skill for Bitflow swaps and liquidity.
 - [ ] **Zero Authority DAO.** Design and deploy Arc's governance structure.
 - [ ] **ERC-8004 complete.** Set URI, link wallet, deploy reputation sensor. Arc's on-chain identity should be fully operational.
-- [ ] **MCP server (Phase 1).** Local HTTP server exposing task queue + skill tree. Foundation for external integrations.
+- [x] **MCP server (Phase 1).** Local HTTP server exposing task queue + skill tree. Foundation for external integrations.
 
 ### Done
 
