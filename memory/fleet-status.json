@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T19:49:51.631Z",
+  "updated_at": "2026-03-18T19:51:37.941Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7105,
-    "subject": "Plan MaximumSats WoT skill for aibtcdev/skills",
+    "id": 7122,
+    "subject": "AIBTC thread from Crafty Puma (1 messages)",
     "status": "completed",
-    "priority": 5
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 298494,
-    "cost_usd": 0.8136499500000001
+    "duration_ms": 106074,
+    "cost_usd": 0.5168752499999999
   },
   "health": {
-    "uptime_seconds": 1805890,
+    "uptime_seconds": 1805996,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229499232256
+    "disk_avail_bytes": 229499162624
   }
 }
