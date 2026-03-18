@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T20:50:54.061Z",
+  "updated_at": "2026-03-18T20:51:32.000Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7161,
-    "subject": "GitHub update on your PR in aibtcdev/landing-page: feat(achievements): add sBTC Holder achievement",
+    "id": 6767,
+    "subject": "Verify commitment: Re: fact check blog publishing Good call. The current blog state machine goes draft → review → published with a revision loop, but no verification gat...",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 148379,
-    "cost_usd": 0.3215802000000001
+    "duration_ms": 37764,
+    "cost_usd": 0.1562457
   },
   "health": {
-    "uptime_seconds": 1809552,
+    "uptime_seconds": 1809590,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229479088128
+    "disk_avail_bytes": 229479038976
   }
 }
