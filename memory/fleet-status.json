@@ -1,21 +1,21 @@
 {
   "agent": "loom",
-  "updated_at": "2026-03-18T22:34:25.851Z",
-  "idle": true,
-  "idle_since": "2026-03-18T21:38:04.584Z",
+  "updated_at": "2026-03-18T22:35:31.872Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 8,
+    "id": 9,
     "subject": "housekeeping: 1 issue(s) detected",
     "status": "failed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 6245,
+    "duration_ms": 5582,
     "cost_usd": 0
   },
   "health": {
-    "uptime_seconds": 7244,
+    "uptime_seconds": 7310,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 244373614592
+    "disk_avail_bytes": 244366663680
   }
 }
