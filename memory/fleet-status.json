@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T00:50:37.479Z",
+  "updated_at": "2026-03-18T00:54:09.306Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6598,
-    "subject": "Feat: Skill capability indexing in arc_memory for smart skill discovery",
+    "id": 6601,
+    "subject": "Feat: Memory-aware context injection — auto-load relevant memories per task",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 421234,
-    "cost_usd": 2.791681099999999
+    "duration_ms": 211514,
+    "cost_usd": 1.31264875
   },
   "health": {
-    "uptime_seconds": 1737536,
+    "uptime_seconds": 1737748,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231655772160
+    "disk_avail_bytes": 231655653376
   }
 }
