@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T12:31:20.973Z",
+  "updated_at": "2026-03-18T12:33:37.013Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6871,
-    "subject": "PR maximumsats-wot skill to aibtcdev/skills (issue #24)",
+    "id": 6872,
+    "subject": "feat(achievements): implement Stacker achievement in landing-page (issue #417)",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 308858,
-    "cost_usd": 1.1123640000000001
+    "duration_ms": 135824,
+    "cost_usd": 0.44523155
   },
   "health": {
-    "uptime_seconds": 1779579,
+    "uptime_seconds": 1779715,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229851877376
+    "disk_avail_bytes": 229851811840
   }
 }
