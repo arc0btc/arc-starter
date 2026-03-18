@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T14:27:33.213Z",
+  "updated_at": "2026-03-18T14:33:24.108Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6936,
-    "subject": "[github-issues] aibtcdev/landing-page#418: feat(achievements): add sBTC Holder achievement — holds any sBTC balance",
+    "id": 6939,
+    "subject": "[landing-page] Achievements audit: inventory, gaps, and prioritized implementation plan",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 56960,
-    "cost_usd": 0.1646409
+    "duration_ms": 347779,
+    "cost_usd": 0.65332475
   },
   "health": {
-    "uptime_seconds": 1786552,
+    "uptime_seconds": 1786902,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229523922944
+    "disk_avail_bytes": 229523431424
   }
 }
