@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T21:37:16.552Z",
+  "updated_at": "2026-03-18T21:39:09.653Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7175,
-    "subject": "CEO review — 2026-03-18T14:00",
+    "id": 7176,
+    "subject": "AIBTC thread from Crafty Puma (1 messages)",
     "status": "completed",
-    "priority": 1
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 131542,
-    "cost_usd": 0.39667965000000005
+    "duration_ms": 112876,
+    "cost_usd": 0.48377374999999995
   },
   "health": {
-    "uptime_seconds": 1812335,
+    "uptime_seconds": 1812448,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229464076288
+    "disk_avail_bytes": 229464010752
   }
 }
