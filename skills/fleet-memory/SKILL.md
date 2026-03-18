@@ -39,6 +39,7 @@ arc skills run --name fleet-memory -- collect [--agents spark,iris] [--dry-run]
 arc skills run --name fleet-memory -- distribute [--agents spark,iris]
 arc skills run --name fleet-memory -- status [--agents spark,iris]
 arc skills run --name fleet-memory -- full [--agents spark,iris]
+arc skills run --name fleet-memory -- search [--keyword TEXT] [--topic TAG] [--source AGENT] [--fresh-only]
 ```
 
 ## Commands
@@ -47,6 +48,7 @@ arc skills run --name fleet-memory -- full [--agents spark,iris]
 - **distribute**: Push `memory/fleet-learnings.md` to all agents via SCP.
 - **status**: Show last collection time, entry counts per agent, and file hashes.
 - **full**: Run collect + distribute in sequence.
+- **search**: Search `memory/fleet-learnings/index.json` entries. Filters: `--keyword` (content match), `--topic` (topic tag), `--source` (agent name), `--fresh-only` (exclude expired). Returns matching entries with snippets, sorted newest first. Pure local file operation — no LLM cost.
 
 ## Sensor
 

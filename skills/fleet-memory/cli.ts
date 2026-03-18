@@ -21,6 +21,7 @@ import { existsSync, mkdirSync } from "node:fs";
 // ---- Constants ----
 
 const FLEET_LEARNINGS_PATH = "memory/fleet-learnings.md";
+const FLEET_INDEX_PATH = "memory/fleet-learnings/index.json";
 const HOOK_STATE_DIR = "db/hook-state";
 const HOOK_STATE_PATH = `${HOOK_STATE_DIR}/fleet-memory.json`;
 
@@ -442,6 +443,79 @@ async function cmdStatus(
   }
 }
 
+// ---- Index types ----
+
+interface IndexEntry {
+  id: string;
+  topics: string[];
+  content: string;
+  source: string;
+  created: string;
+  expires?: string;
+}
+
+interface FleetIndex {
+  topicMap: Record<string, string[]>;
+  entries: IndexEntry[];
+}
+
+// ---- Search command ----
+
+async function cmdSearch(flags: Record<string, string>): Promise<void> {
+  const keyword = flags["keyword"]?.toLowerCase();
+  const topic = flags["topic"]?.toLowerCase();
+  const source = flags["source"]?.toLowerCase();
+  const freshOnly = flags["fresh-only"] !== undefined;
+
+  let index: FleetIndex;
+  try {
+    const text = require("node:fs").readFileSync(FLEET_INDEX_PATH, "utf-8");
+    index = JSON.parse(text) as FleetIndex;
+  } catch {
+    process.stderr.write(`Error: could not read ${FLEET_INDEX_PATH}\n`);
+    process.exit(1);
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  const matches = index.entries.filter((entry) => {
+    // Fresh-only: skip expired entries
+    if (freshOnly && entry.expires && entry.expires < today) return false;
+
+    // Source filter
+    if (source && entry.source.toLowerCase() !== source) return false;
+
+    // Topic filter
+    if (topic && !entry.topics.some((t) => t.toLowerCase() === topic)) return false;
+
+    // Keyword filter (searches content)
+    if (keyword && !entry.content.toLowerCase().includes(keyword)) return false;
+
+    return true;
+  });
+
+  // Sort newest first
+  matches.sort((a, b) => b.created.localeCompare(a.created));
+
+  if (matches.length === 0) {
+    process.stdout.write("No matching entries found.\n");
+    return;
+  }
+
+  process.stdout.write(`Found ${matches.length} matching entr${matches.length === 1 ? "y" : "ies"}:\n\n`);
+
+  for (const entry of matches) {
+    const expired = entry.expires && entry.expires < today ? " [EXPIRED]" : "";
+    const expireStr = entry.expires ? ` · expires ${entry.expires}` : "";
+    process.stdout.write(
+      `[${entry.id}] ${entry.created} · source: ${entry.source} · topics: ${entry.topics.join(", ")}${expireStr}${expired}\n`
+    );
+    // Snippet: truncate content to 200 chars
+    const snippet = entry.content.length > 200 ? entry.content.slice(0, 197) + "..." : entry.content;
+    process.stdout.write(`  ${snippet}\n\n`);
+  }
+}
+
 async function cmdFull(
   agents: string[],
   flags: Record<string, string>
@@ -470,8 +544,14 @@ Commands:
 
   full         Run collect + distribute in sequence
 
+  search       Search fleet-learnings index (memory/fleet-learnings/index.json)
+               --keyword TEXT        Filter by keyword in entry content
+               --topic TEXT          Filter by topic tag
+               --source AGENT        Filter by source agent name
+               --fresh-only          Exclude expired entries
+
 Options:
-  --agents spark,iris   Comma-separated agent list (default: all)
+  --agents spark,iris   Comma-separated agent list (default: all; not used by search)
 
 Agents: ${Object.keys(AGENTS).join(", ")}
 `);
@@ -506,6 +586,9 @@ async function main(): Promise<void> {
       break;
     case "full":
       await cmdFull(agents, flags);
+      break;
+    case "search":
+      await cmdSearch(flags);
       break;
     case "help":
     case "--help":
