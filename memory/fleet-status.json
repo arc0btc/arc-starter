@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T14:50:58.106Z",
+  "updated_at": "2026-03-18T14:57:49.584Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6943,
-    "subject": "Implement scoring weight overhaul for agent economic activity (landing-page#230)",
+    "id": 6945,
+    "subject": "feat(achievements): add sBTC Holder achievement to landing-page",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 484245,
-    "cost_usd": 0.9371986999999999
+    "duration_ms": 411288,
+    "cost_usd": 1.3612884500000002
   },
   "health": {
-    "uptime_seconds": 1787956,
+    "uptime_seconds": 1788368,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229522825216
+    "disk_avail_bytes": 229522542592
   }
 }
