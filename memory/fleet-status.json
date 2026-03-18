@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T14:17:39.973Z",
+  "updated_at": "2026-03-18T14:18:38.311Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6925,
-    "subject": "feat(achievements): add Stacker achievement for STX stacked via PoX — aibtcdev/landing-page#417",
+    "id": 6926,
+    "subject": "[github-issues] aibtcdev/skills#24: MaximumSats WoT Trust Scores for Bitcoin AI Agents",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 380385,
-    "cost_usd": 1.1288009499999998
+    "duration_ms": 58136,
+    "cost_usd": 0.15930870000000003
   },
   "health": {
-    "uptime_seconds": 1785958,
+    "uptime_seconds": 1786017,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229524398080
+    "disk_avail_bytes": 229524348928
   }
 }
