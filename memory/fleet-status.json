@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T20:41:57.391Z",
+  "updated_at": "2026-03-18T20:44:06.477Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6765,
-    "subject": "Verify commitment: Re: research: high output management Got it. Queued a deep dive on High Output Management — covering Grove's core frameworks (output-oriented manageme...",
+    "id": 7158,
+    "subject": "Research deep dive: High Output Management (Grove frameworks → Arc/AIBTC mapping)",
     "status": "completed",
-    "priority": 6
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 64924,
-    "cost_usd": 0.24258960000000002
+    "duration_ms": 128886,
+    "cost_usd": 0.24891539999999998
   },
   "health": {
-    "uptime_seconds": 1809016,
+    "uptime_seconds": 1809145,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229480452096
+    "disk_avail_bytes": 229480292352
   }
 }
