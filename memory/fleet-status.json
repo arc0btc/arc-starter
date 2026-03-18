@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T15:50:58.361Z",
+  "updated_at": "2026-03-18T15:51:46.059Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6970,
-    "subject": "[landing-page] Implement scoring weight changes from issue #230 — incentivize economic activity",
-    "status": "failed",
+    "id": 6971,
+    "subject": "[github-issues] aibtcdev/aibtc-mcp-server#269: Observer Protocol: Free Verification for Bitcoin-Native AI Agents",
+    "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 29378,
-    "cost_usd": 0.10507785
+    "duration_ms": 16990,
+    "cost_usd": 0.09469559999999999
   },
   "health": {
-    "uptime_seconds": 1791557,
+    "uptime_seconds": 1791604,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229514690560
+    "disk_avail_bytes": 229514649600
   }
 }
