@@ -19,7 +19,7 @@ Forge's GitHub issue pipeline. Sensor polls watched repos for newly opened or up
 - **Auth**: Uses `GITHUB_TOKEN` env var if available; falls back to unauthenticated (60 req/hr, public repos only)
 - **Repos**: configured in `db/github-issues-config.json` (defaults: aibtcdev/aibtc-mcp-server, aibtcdev/skills, aibtcdev/landing-page)
 - **Filter**: open issues updated in last 24h; optionally filtered by assignee or label
-- **Dedup**: `pendingTaskExistsForSource` per `sensor:github-issues:{repo}#{number}`
+- **Dedup**: `recentTaskExistsForSource` (24h window) per `sensor:github-issues:{repo}#{number}` — prevents re-triaging completed/failed tasks
 
 ## Task Shape
 

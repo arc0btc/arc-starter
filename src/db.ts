@@ -611,6 +611,16 @@ export function completedTaskExistsForSourceSubstring(substring: string): boolea
   return row !== null;
 }
 
+export function recentTaskExistsForSource(source: string, withinMinutes: number): boolean {
+  const db = getDatabase();
+  const row = db
+    .query(
+      "SELECT 1 FROM tasks WHERE source = ? AND created_at > datetime('now', '-' || ? || ' minutes') LIMIT 1"
+    )
+    .get(source, withinMinutes);
+  return row !== null;
+}
+
 export function recentTaskExistsForSourcePrefix(prefix: string, withinMinutes: number): boolean {
   const db = getDatabase();
   const row = db
