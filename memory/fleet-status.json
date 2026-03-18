@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T20:44:27.283Z",
+  "updated_at": "2026-03-18T20:44:37.036Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7159,
-    "subject": "Review PR #106 on aibtcdev/agent-news: feat: 17-beat taxonomy migration, skill files, and seed update (issue #97)",
-    "status": "pending",
-    "priority": 5
+    "id": 7160,
+    "subject": "health alert: stale dispatch lock detected",
+    "status": "completed",
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 8839,
-    "cost_usd": 0
+    "duration_ms": 30309,
+    "cost_usd": 0.046521099999999996
   },
   "health": {
-    "uptime_seconds": 1809166,
+    "uptime_seconds": 1809175,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229479989248
+    "disk_avail_bytes": 229479862272
   }
 }
