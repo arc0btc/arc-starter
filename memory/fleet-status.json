@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T01:54:37.925Z",
+  "updated_at": "2026-03-18T01:57:11.020Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6572,
-    "subject": "GitHub issue in aibtcdev/agent-news#76: feat: signal curation state machine",
+    "id": 6573,
+    "subject": "GitHub issue in aibtcdev/agent-news#75: feat: publisher designation system",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 40766,
-    "cost_usd": 0.15481875
+    "duration_ms": 133488,
+    "cost_usd": 0.39960779999999996
   },
   "health": {
-    "uptime_seconds": 1741376,
+    "uptime_seconds": 1741529,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231686213632
+    "disk_avail_bytes": 231686139904
   }
 }
