@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T08:20:11.765Z",
+  "updated_at": "2026-03-18T08:22:20.019Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6703,
-    "subject": "v6 P1: Address temporal awareness pain points",
+    "id": 6715,
+    "subject": "v6 P4: Proactive strategic task generation (start small)",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 192658,
-    "cost_usd": 0.5661358499999999
+    "duration_ms": 127908,
+    "cost_usd": 0.3192737
   },
   "health": {
-    "uptime_seconds": 1764510,
+    "uptime_seconds": 1764638,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230919979008
+    "disk_avail_bytes": 230919884800
   }
 }
