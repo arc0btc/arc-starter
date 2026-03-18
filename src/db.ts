@@ -1291,8 +1291,19 @@ export function getArcMemory(key: string): ArcMemoryFull | null {
   return row;
 }
 
+/**
+ * Sanitize a user query for FTS5: quote hyphenated terms so hyphens
+ * aren't interpreted as the NOT operator.
+ * e.g. "failure-triage error" → '"failure-triage" error'
+ */
+function sanitizeFts5Query(query: string): string {
+  // Match words containing hyphens that aren't already quoted
+  return query.replace(/(?<!")(\b[\w]+-[\w]+(?:-[\w]+)*\b)(?!")/g, '"$1"');
+}
+
 export function searchArcMemory(query: string, domain?: string, limit: number = 20): ArcMemoryFull[] {
   const db = getDatabase();
+  query = sanitizeFts5Query(query);
   if (domain) {
     return db.query(
       `SELECT m.key, m.domain, m.content, m.tags,

@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T00:57:50.896Z",
+  "updated_at": "2026-03-18T01:01:15.367Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6602,
-    "subject": "Feat: Create arc-memory-manager skill — unified memory operations CLI",
+    "id": 6603,
+    "subject": "Feat: Research-to-PRD state machine for arc-workflows",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 221260,
-    "cost_usd": 0.9064882999999998
+    "duration_ms": 204140,
+    "cost_usd": 0.5924525000000002
   },
   "health": {
-    "uptime_seconds": 1737969,
+    "uptime_seconds": 1738174,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231655383040
+    "disk_avail_bytes": 231655137280
   }
 }
