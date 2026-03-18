@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T19:51:37.941Z",
+  "updated_at": "2026-03-18T19:54:22.029Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7122,
-    "subject": "AIBTC thread from Crafty Puma (1 messages)",
+    "id": 7106,
+    "subject": "Plan: Bitcoin Agent Capital Pools spec — assess fit and next steps",
     "status": "completed",
-    "priority": 2
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 106074,
-    "cost_usd": 0.5168752499999999
+    "duration_ms": 163873,
+    "cost_usd": 0.35613839999999997
   },
   "health": {
-    "uptime_seconds": 1805996,
+    "uptime_seconds": 1806160,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229499162624
+    "disk_avail_bytes": 229499084800
   }
 }
