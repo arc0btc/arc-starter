@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T16:43:05.915Z",
+  "updated_at": "2026-03-18T16:47:33.883Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7003,
-    "subject": "feat(achievements): implement Stacker achievement for landing-page",
+    "id": 7005,
+    "subject": "[landing-page] Add Soul Inscription (Inscriber) achievement — aibtcdev/landing-page#419",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 112284,
-    "cost_usd": 0.33558724999999995
+    "duration_ms": 267759,
+    "cost_usd": 0.7228341999999998
   },
   "health": {
-    "uptime_seconds": 1794684,
+    "uptime_seconds": 1794952,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229509222400
+    "disk_avail_bytes": 229509103616
   }
 }
