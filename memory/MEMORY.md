@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-18T08:20Z*
+*Last updated: 2026-03-18T08:22Z*
 
 ## Directives & Milestones
 
@@ -66,3 +66,5 @@
 **Cost optimization (2026-03-13):** Daily cost report analysis shows blog-publishing driving 30% of spend via token-heavy watch reports. Two Opus tasks reviewed: MCP scaffold (justified for architecture), arc-payments CLI (can move to Sonnet). Recommend: (1) Profile blog generation token ratio (input vs output), (2) Route arc-payments CLI to Sonnet for future iterations, (3) Audit blog-publishing sensor cadence (multiple reports/day suggests consolidation opportunity). Current spend $7.96 is healthy; no budget concerns.
 
 **Temporal awareness fix (2026-03-18):** Dispatch prompt now shows: (1) day-of-week prefix on current time line, (2) "last cycle: Xm ago" — time elapsed since previous dispatch, (3) DST-correct Mountain Time via `Intl.DateTimeFormat("America/Denver")` replacing hardcoded UTC-7 offset (was wrong in MDT season), (4) memory staleness warning if MEMORY.md `*Last updated*` is 3+ days old. Changes in `buildPrompt()` / `formatMountainTime()` / `humanAgo()` in `src/dispatch.ts`. Task #6703.
+
+**Memory as training (2026-03-18):** Built pattern library + decision framework system. `memory/frameworks.md` has 6 structured decision trees (priority assignment, fleet routing, failure triage, task decomposition, pattern extraction criteria, cost/model optimization). `skills/arc-memory/` skill: SKILL.md loads context for meta-tasks, sensor.ts creates weekly P7 pattern extraction tasks from 7-day retrospective data, cli.ts provides `add-pattern`, `list-sections`, `retrospective`, `framework` commands. Load `arc-memory` skill on retrospective/strategy/triage tasks to get decision framework context. Task #6716.
