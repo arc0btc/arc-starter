@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T08:54:20.030Z",
+  "updated_at": "2026-03-18T08:54:57.959Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6805,
-    "subject": "Escalate to whoabuddy: Loom OAuth refresh needed (claude login on 192.168.1.14)",
+    "id": 6746,
+    "subject": "Review PR #416 on aibtcdev/landing-page: chore(main): release 1.26.1",
     "status": "completed",
-    "priority": 3
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 64648,
-    "cost_usd": 0.381682
+    "duration_ms": 37721,
+    "cost_usd": 0.19644959999999997
   },
   "health": {
-    "uptime_seconds": 1766558,
+    "uptime_seconds": 1766596,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230918504448
+    "disk_avail_bytes": 230918455296
   }
 }
