@@ -5,7 +5,7 @@
 // Cadence: every 15 minutes.
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { insertTask, recentTaskExistsForSource } from "../../src/db.ts";
+import { insertTask, recentTaskExistsForSource, taskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "github-issues";
 const INTERVAL_MINUTES = 15;
@@ -128,10 +128,10 @@ export default async function githubIssuesSensor(): Promise<string> {
             continue;
           }
 
+          // Cross-sensor dedup: check canonical source used by github-issue-monitor
+          const canonicalSource = `issue:${repo}#${issue.number}`;
           const source = `sensor:github-issues:${repo}#${issue.number}`;
-          // Skip if any task (pending, active, completed, or failed) was created
-          // for this issue in the last 24h — prevents re-triaging completed work
-          if (recentTaskExistsForSource(source, 24 * 60)) {
+          if (taskExistsForSource(canonicalSource) || recentTaskExistsForSource(source, 24 * 60)) {
             skipped++;
             continue;
           }
