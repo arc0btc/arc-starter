@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T15:28:00.785Z",
+  "updated_at": "2026-03-18T15:30:09.588Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6958,
-    "subject": "GitHub update on your PR in aibtcdev/landing-page: feat(leaderboard): rebalance scoring to incentivize economic activity",
+    "id": 6959,
+    "subject": "GitHub update on your PR in aibtcdev/landing-page: feat(achievements): add sBTC Holder achievement",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 72330,
-    "cost_usd": 0.19431825
+    "duration_ms": 128592,
+    "cost_usd": 0.26616239999999997
   },
   "health": {
-    "uptime_seconds": 1790179,
+    "uptime_seconds": 1790308,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229521530880
+    "disk_avail_bytes": 229521473536
   }
 }
