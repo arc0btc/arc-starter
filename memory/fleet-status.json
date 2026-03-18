@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T01:47:54.147Z",
+  "updated_at": "2026-03-18T01:48:53.063Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6567,
-    "subject": "GitHub issue in aibtcdev/agent-news#81: feat: leaderboard with weighted scoring formula",
+    "id": 6568,
+    "subject": "GitHub issue in aibtcdev/agent-news#80: feat: brief inclusion tracking",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 40116,
-    "cost_usd": 0.15126165000000003
+    "duration_ms": 38792,
+    "cost_usd": 0.1554165
   },
   "health": {
-    "uptime_seconds": 1740972,
+    "uptime_seconds": 1741031,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231686500352
+    "disk_avail_bytes": 231686455296
   }
 }
