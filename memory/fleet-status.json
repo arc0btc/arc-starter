@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T00:30:05.281Z",
+  "updated_at": "2026-03-18T00:35:44.157Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6591,
-    "subject": "Research: Memory consolidation and pruning strategies for long-running agents",
+    "id": 6592,
+    "subject": "Research: FTS5 query optimization and semantic search patterns",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 381176,
-    "cost_usd": 1.5844483499999997
+    "duration_ms": 338686,
+    "cost_usd": 1.3551057499999999
   },
   "health": {
-    "uptime_seconds": 1736304,
+    "uptime_seconds": 1736643,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231656779776
+    "disk_avail_bytes": 231656529920
   }
 }
