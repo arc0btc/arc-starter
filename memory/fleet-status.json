@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T14:11:19.237Z",
+  "updated_at": "2026-03-18T14:17:39.973Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6924,
-    "subject": "Implement scoring weight optimization for landing-page leaderboard (issue #230)",
+    "id": 6925,
+    "subject": "feat(achievements): add Stacker achievement for STX stacked via PoX — aibtcdev/landing-page#417",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 254331,
-    "cost_usd": 0.6122681999999999
+    "duration_ms": 380385,
+    "cost_usd": 1.1288009499999998
   },
   "health": {
-    "uptime_seconds": 1785578,
+    "uptime_seconds": 1785958,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229524738048
+    "disk_avail_bytes": 229524398080
   }
 }
