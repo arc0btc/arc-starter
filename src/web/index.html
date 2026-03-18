@@ -343,6 +343,86 @@
     }
 
     .help-close:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Memory Analytics */
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+    .memory-stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: var(--space-sm) var(--space-md);
+    }
+    .memory-stat-label {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+    .memory-stat-value {
+      font-size: 1.4rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .memory-stat-sub {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .memory-importance-tiers {
+      display: flex;
+      gap: var(--space-xs);
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+    .memory-tier-pill {
+      font-size: 0.6rem;
+      font-family: var(--font-mono);
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: var(--border);
+      color: var(--text-muted);
+    }
+    .memory-tier-pill.critical { background: rgba(255,80,80,0.15); color: #ff5050; }
+    .memory-tier-pill.normal { background: rgba(0,191,255,0.12); color: var(--accent); }
+    .memory-tier-pill.low { background: var(--border); color: var(--text-muted); }
+    .memory-subsection { margin-bottom: var(--space-md); }
+    .memory-subsection-title {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: var(--space-xs);
+    }
+    .memory-entry-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .memory-entry-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      padding: 4px 8px;
+      background: var(--bg-card);
+      border-radius: 3px;
+      border-left: 3px solid var(--border);
+    }
+    .memory-entry-row.imp-critical { border-left-color: #ff5050; }
+    .memory-entry-row.imp-normal { border-left-color: var(--accent); }
+    .memory-entry-row.imp-low { border-left-color: var(--border); }
+    .memory-entry-key { flex: 1; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .memory-entry-domain { color: var(--text-muted); width: 80px; flex-shrink: 0; }
+    .memory-entry-imp { color: var(--accent); width: 24px; text-align: right; flex-shrink: 0; }
+    .memory-entry-ttl { color: var(--text-muted); width: 48px; text-align: right; flex-shrink: 0; }
   </style>
 </head>
 <body>
@@ -453,6 +533,59 @@
       <div class="cost-bar-chart" id="cost-chart">
         <div id="cost-bars">
           <p class="placeholder">Loading cost data...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Memory Analytics -->
+    <section id="memory-section" class="section span-full">
+      <div class="section-header">
+        <h2 class="section-title">Memory Analytics</h2>
+        <span class="section-count" id="memory-total-count"></span>
+      </div>
+      <div class="memory-grid">
+        <!-- TTL Coverage -->
+        <div class="memory-stat-card">
+          <div class="memory-stat-label">TTL Coverage</div>
+          <div class="memory-stat-value" id="memory-ttl-pct">--</div>
+          <div class="memory-stat-sub" id="memory-ttl-sub"></div>
+        </div>
+        <!-- Total Cost -->
+        <div class="memory-stat-card">
+          <div class="memory-stat-label">Total Cost Attributed</div>
+          <div class="memory-stat-value" id="memory-cost-total">--</div>
+          <div class="memory-stat-sub">across all domains</div>
+        </div>
+        <!-- Importance Tiers -->
+        <div class="memory-stat-card">
+          <div class="memory-stat-label">Importance Tiers</div>
+          <div class="memory-importance-tiers" id="memory-importance-tiers">
+            <span class="placeholder">Loading...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Domain Breakdown -->
+      <div class="memory-subsection">
+        <div class="memory-subsection-title">Entry Count by Domain</div>
+        <div id="memory-domain-bars" class="cost-bar-chart">
+          <p class="placeholder">Loading...</p>
+        </div>
+      </div>
+
+      <!-- Growth Chart (last 7 days) -->
+      <div class="memory-subsection">
+        <div class="memory-subsection-title">Growth — Last 7 Days</div>
+        <div id="memory-growth-bars" class="cost-bar-chart">
+          <p class="placeholder">Loading...</p>
+        </div>
+      </div>
+
+      <!-- Top Entries -->
+      <div class="memory-subsection">
+        <div class="memory-subsection-title">Top Entries by Importance</div>
+        <div id="memory-top-entries" class="memory-entry-list">
+          <p class="placeholder">Loading...</p>
         </div>
       </div>
     </section>
@@ -964,6 +1097,88 @@
       }).join('');
     }
 
+    // ---- Memory Analytics ----
+
+    function renderMemoryStats(data) {
+      if (!data) return;
+      var totals = data.totals || {};
+      var total = totals.total || 0;
+      var withTtl = totals.with_ttl || 0;
+      var ttlPct = total > 0 ? Math.round((withTtl / total) * 100) : 0;
+
+      document.getElementById('memory-total-count').textContent = total + ' entries';
+      document.getElementById('memory-ttl-pct').textContent = ttlPct + '%';
+      document.getElementById('memory-ttl-sub').textContent = withTtl + ' of ' + total + ' have TTL';
+      document.getElementById('memory-cost-total').textContent = formatCost(totals.cost_usd || 0);
+
+      // Importance tiers
+      var tiersEl = document.getElementById('memory-importance-tiers');
+      var tiers = data.importance_distribution || [];
+      if (tiers.length === 0) {
+        tiersEl.innerHTML = '<span class="placeholder">No data</span>';
+      } else {
+        tiersEl.innerHTML = tiers.map(function(t) {
+          return '<span class="memory-tier-pill ' + t.tier + '">' + t.tier + ': ' + t.count + '</span>';
+        }).join('');
+      }
+
+      // Domain bars
+      var domainBars = document.getElementById('memory-domain-bars');
+      var domains = data.by_domain || [];
+      if (domains.length === 0) {
+        domainBars.innerHTML = '<p class="placeholder">No data</p>';
+      } else {
+        var maxCount = Math.max.apply(null, domains.map(function(d) { return d.count; }));
+        if (maxCount === 0) maxCount = 1;
+        domainBars.innerHTML = domains.map(function(d) {
+          var pct = Math.round((d.count / maxCount) * 100);
+          var ttlRate = d.count > 0 ? Math.round((d.with_ttl / d.count) * 100) : 0;
+          return '<div class="bar-row">'
+            + '<span class="bar-label" style="width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + d.domain + '">' + d.domain + '</span>'
+            + '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%"></div></div>'
+            + '<span class="bar-value" style="width:80px">' + d.count + ' · ' + ttlRate + '% ttl</span>'
+            + '</div>';
+        }).join('');
+      }
+
+      // Growth chart
+      var growthBars = document.getElementById('memory-growth-bars');
+      var growth = data.growth_last_7d || [];
+      if (growth.length === 0) {
+        growthBars.innerHTML = '<p class="placeholder">No new entries in last 7 days</p>';
+      } else {
+        var maxGrowth = Math.max.apply(null, growth.map(function(g) { return g.count; }));
+        if (maxGrowth === 0) maxGrowth = 1;
+        growthBars.innerHTML = growth.map(function(g) {
+          var pct = Math.round((g.count / maxGrowth) * 100);
+          var dayLabel = g.day.slice(5); // MM-DD
+          return '<div class="bar-row">'
+            + '<span class="bar-label">' + dayLabel + '</span>'
+            + '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%"></div></div>'
+            + '<span class="bar-value">' + g.count + '</span>'
+            + '</div>';
+        }).join('');
+      }
+
+      // Top entries
+      var entriesEl = document.getElementById('memory-top-entries');
+      var entries = data.top_entries || [];
+      if (entries.length === 0) {
+        entriesEl.innerHTML = '<p class="placeholder">No entries</p>';
+      } else {
+        entriesEl.innerHTML = entries.map(function(e) {
+          var impClass = e.importance <= 3 ? 'imp-critical' : (e.importance <= 6 ? 'imp-normal' : 'imp-low');
+          var ttlLabel = e.ttl_days ? e.ttl_days + 'd' : '∞';
+          return '<div class="memory-entry-row ' + impClass + '">'
+            + '<span class="memory-entry-domain">' + e.domain + '</span>'
+            + '<span class="memory-entry-key" title="' + e.key + '">' + e.key + '</span>'
+            + '<span class="memory-entry-imp" title="importance">' + e.importance + '</span>'
+            + '<span class="memory-entry-ttl" title="TTL">' + ttlLabel + '</span>'
+            + '</div>';
+        }).join('');
+      }
+    }
+
     // ---- SSE Callbacks ----
 
     sseCallbacks.onTaskCreated = function(task) {
@@ -1009,13 +1224,16 @@
           fetchJSON('/api/status'),
           fetchJSON(buildTasksUrl(0)),
           fetchJSON('/api/costs?range=day'),
+          fetchJSON('/api/memory/stats'),
         ]);
 
         var status     = results[0].status === 'fulfilled' ? results[0].value : null;
         var tasks      = results[1].status === 'fulfilled' ? results[1].value : null;
         var costs      = results[2].status === 'fulfilled' ? results[2].value : null;
+        var memStats   = results[3].status === 'fulfilled' ? results[3].value : null;
 
         if (status) { updateHeader(status); renderMetrics(status, costs ? costs.costs : []); }
+        if (memStats) renderMemoryStats(memStats);
         if (tasks) {
           renderFeed(tasks.tasks || [], tasks.total || 0, 0, false);
           (tasks.tasks || []).forEach(function(t) { knownTaskIds.add(t.id); });

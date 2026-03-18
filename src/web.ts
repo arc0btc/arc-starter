@@ -1442,6 +1442,73 @@ function handleCosts(url: URL): Response {
   return json({ range, costs: rows });
 }
 
+function handleMemoryStats(): Response {
+  // Entry count + cost attribution by domain
+  const byDomain = db.query(`
+    SELECT
+      domain,
+      COUNT(*) as count,
+      SUM(CASE WHEN ttl_days IS NOT NULL THEN 1 ELSE 0 END) as with_ttl,
+      COALESCE(SUM(cost_usd), 0) as cost_usd,
+      COALESCE(SUM(api_cost_usd), 0) as api_cost_usd,
+      AVG(importance) as avg_importance
+    FROM arc_memory_meta
+    GROUP BY domain
+    ORDER BY count DESC
+  `).all() as { domain: string; count: number; with_ttl: number; cost_usd: number; api_cost_usd: number; avg_importance: number }[];
+
+  // Totals
+  const totals = db.query(`
+    SELECT
+      COUNT(*) as total,
+      SUM(CASE WHEN ttl_days IS NOT NULL THEN 1 ELSE 0 END) as with_ttl,
+      COALESCE(SUM(cost_usd), 0) as cost_usd
+    FROM arc_memory_meta
+  `).get() as { total: number; with_ttl: number; cost_usd: number };
+
+  // Importance distribution
+  const importanceDist = db.query(`
+    SELECT
+      CASE
+        WHEN importance <= 3 THEN 'critical'
+        WHEN importance <= 6 THEN 'normal'
+        ELSE 'low'
+      END as tier,
+      COUNT(*) as count
+    FROM arc_memory_meta
+    GROUP BY tier
+    ORDER BY MIN(importance) ASC
+  `).all() as { tier: string; count: number }[];
+
+  // Growth rate: entries created in last 7 days
+  const growth = db.query(`
+    SELECT
+      date(created_at) as day,
+      COUNT(*) as count
+    FROM arc_memory_meta
+    WHERE created_at >= datetime('now', '-7 days')
+    GROUP BY day
+    ORDER BY day ASC
+  `).all() as { day: string; count: number }[];
+
+  // Top entries by importance (lowest number = most critical)
+  const topEntries = db.query(`
+    SELECT m.key, m.domain, m.tags, meta.importance, meta.created_at, meta.updated_at, meta.ttl_days
+    FROM arc_memory m
+    JOIN arc_memory_meta meta ON m.key = meta.key
+    ORDER BY meta.importance ASC, meta.updated_at DESC
+    LIMIT 10
+  `).all() as { key: string; domain: string; tags: string; importance: number; created_at: string; updated_at: string; ttl_days: number | null }[];
+
+  return json({
+    totals,
+    by_domain: byDomain,
+    importance_distribution: importanceDist,
+    growth_last_7d: growth,
+    top_entries: topEntries,
+  });
+}
+
 function handleIdentity(): Response {
   return json(IDENTITY);
 }
@@ -2386,6 +2453,7 @@ function route(req: Request): Response | Promise<Response> {
   if (path === "/api/sensors/schedule") return handleSensorSchedule();
   if (path === "/api/skills") return handleSkills();
   if (path === "/api/costs") return handleCosts(url);
+  if (path === "/api/memory/stats") return handleMemoryStats();
   if (path === "/api/identity") return handleIdentity();
   if (path === "/api/face") return handleFace();
   if (path === "/api/reputation") return handleReputation(url);
