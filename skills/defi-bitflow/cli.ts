@@ -285,7 +285,7 @@ async function cmdSpreads(args: string[]): Promise<void> {
     }
 
     // Sort by spread descending
-    spreads.sort((a, b) => parseFloat(b.spreadPct) - parseFloat(a.spreadPct));
+    spreads.sort((a, b) => parseFloat(b.rangePct) - parseFloat(a.rangePct));
 
     console.log(JSON.stringify({
       threshold: `${threshold}%`,
