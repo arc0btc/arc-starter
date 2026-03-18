@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T20:56:15.695Z",
+  "updated_at": "2026-03-18T21:09:07.805Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6787,
-    "subject": "fleet-memory v2: add learning extraction prompt to dispatch",
+    "id": 6793,
+    "subject": "compliance-review: 25 finding(s) across 104 skills",
     "status": "completed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 87968,
-    "cost_usd": 0.38218815
+    "duration_ms": 771754,
+    "cost_usd": 0.7028377499999999
   },
   "health": {
-    "uptime_seconds": 1809874,
+    "uptime_seconds": 1810646,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229474746368
+    "disk_avail_bytes": 229473800192
   }
 }
