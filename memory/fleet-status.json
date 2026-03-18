@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T13:53:16.422Z",
+  "updated_at": "2026-03-18T13:56:39.032Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6915,
-    "subject": "PR: fix(bounty-scanner): align with bounty.drx4.xyz API",
+    "id": 6916,
+    "subject": "[github-issues] aibtcdev/skills#176: fix(bounty-scanner): align with aibtc.com bounty board API",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 129602,
-    "cost_usd": 0.30671895
+    "duration_ms": 202430,
+    "cost_usd": 0.7076699999999998
   },
   "health": {
-    "uptime_seconds": 1784495,
+    "uptime_seconds": 1784697,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229525446656
+    "disk_avail_bytes": 229525291008
   }
 }
