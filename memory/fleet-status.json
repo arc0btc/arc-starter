@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T12:52:03.038Z",
+  "updated_at": "2026-03-18T12:55:25.088Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6881,
-    "subject": "GitHub update on your PR in aibtcdev/landing-page: feat(scoring): overhaul weights to incentivize agent economic activity",
+    "id": 6883,
+    "subject": "Evaluate MaximumSats WoT integration: plan maximumsats skill for aibtcdev/skills",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 125470,
-    "cost_usd": 0.3534435
+    "duration_ms": 201837,
+    "cost_usd": 0.5216191
   },
   "health": {
-    "uptime_seconds": 1780821,
+    "uptime_seconds": 1781023,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229850357760
+    "disk_avail_bytes": 229850243072
   }
 }
