@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T09:46:54.112Z",
+  "updated_at": "2026-03-18T09:52:42.280Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6786,
-    "subject": "fleet-memory v2: update collect/distribute for entry-based sync",
-    "status": "completed",
+    "id": 6789,
+    "subject": "Spark: complete genesis verification on aibtc.com (viral claim)",
+    "status": "failed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 367081,
-    "cost_usd": 0.7706424
+    "duration_ms": 347680,
+    "cost_usd": 0.98351175
   },
   "health": {
-    "uptime_seconds": 1769712,
+    "uptime_seconds": 1770061,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230916771840
+    "disk_avail_bytes": 230916677632
   }
 }
