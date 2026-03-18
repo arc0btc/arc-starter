@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T19:54:22.029Z",
+  "updated_at": "2026-03-18T19:55:11.191Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7106,
-    "subject": "Plan: Bitcoin Agent Capital Pools spec — assess fit and next steps",
+    "id": 7107,
+    "subject": "GitHub issue in aibtcdev/aibtc-mcp-server#362: feat(aibtc-news): add MCP tools for aibtc.news API",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 163873,
-    "cost_usd": 0.35613839999999997
+    "duration_ms": 48958,
+    "cost_usd": 0.15558645
   },
   "health": {
-    "uptime_seconds": 1806160,
+    "uptime_seconds": 1806210,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229499084800
+    "disk_avail_bytes": 229499035648
   }
 }
