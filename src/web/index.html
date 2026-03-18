@@ -112,6 +112,19 @@
       </div>
     </section>
 
+    <!-- Cost by Skill -->
+    <section id="skill-cost-section" class="section">
+      <div class="section-header">
+        <h2 class="section-title">Cost by Skill</h2>
+        <span class="section-count" id="skill-cost-range">today</span>
+      </div>
+      <div class="cost-bar-chart" id="skill-cost-chart">
+        <div id="skill-cost-bars">
+          <p class="placeholder">Loading...</p>
+        </div>
+      </div>
+    </section>
+
     <!-- Activity Feed -->
     <section id="feed" class="section span-full">
       <div class="section-header">
@@ -454,6 +467,36 @@
       }).join('');
     }
 
+    // ---- Skill Cost Chart ----
+
+    function renderSkillCosts(skills) {
+      var bars = document.getElementById('skill-cost-bars');
+      if (!skills || skills.length === 0) {
+        bars.innerHTML = '<p class="placeholder">No cost data yet</p>';
+        return;
+      }
+
+      var maxCost = Math.max.apply(null, skills.map(function(s) { return s.cost_usd; }));
+      if (maxCost === 0) maxCost = 1;
+
+      bars.innerHTML = skills.map(function(s) {
+        var pct = Math.round((s.cost_usd / maxCost) * 100);
+        var label = s.skill.length > 22 ? s.skill.slice(0, 21) + '…' : s.skill;
+        return '<div class="bar-row">'
+          + '<span class="bar-label" style="width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + esc(s.skill) + '">' + esc(label) + '</span>'
+          + '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%"></div></div>'
+          + '<span class="bar-value" style="width:60px" title="' + s.task_count + ' tasks">' + formatCost(s.cost_usd) + '</span>'
+          + '</div>';
+      }).join('');
+    }
+
+    function loadSkillCosts(range) {
+      fetchJSON('/api/costs/by-skill?range=' + (range || 'day')).then(function(d) {
+        renderSkillCosts(d.skills || []);
+        document.getElementById('skill-cost-range').textContent = d.range === 'week' ? 'this week' : 'today';
+      }).catch(function() {});
+    }
+
     // ---- SSE Callbacks ----
 
     sseCallbacks.onTaskCreated = function(task) {
@@ -476,6 +519,7 @@
           renderMetrics(s, c.costs || []);
         });
       }).catch(function() {});
+      loadSkillCosts('day');
     };
 
     sseCallbacks.onRefreshAll = function() {
@@ -498,13 +542,16 @@
           fetchJSON('/api/status'),
           fetchJSON(buildTasksUrl()),
           fetchJSON('/api/costs?range=day'),
+          fetchJSON('/api/costs/by-skill?range=day'),
         ]);
 
         var status     = results[0].status === 'fulfilled' ? results[0].value : null;
         var tasks      = results[1].status === 'fulfilled' ? results[1].value : null;
         var costs      = results[2].status === 'fulfilled' ? results[2].value : null;
+        var skillCosts = results[3].status === 'fulfilled' ? results[3].value : null;
 
         if (status) { updateHeader(status); renderMetrics(status, costs ? costs.costs : []); }
+        if (skillCosts) renderSkillCosts(skillCosts.skills || []);
         if (tasks) {
           renderFeed(tasks.tasks || []);
           (tasks.tasks || []).forEach(function(t) { knownTaskIds.add(t.id); });

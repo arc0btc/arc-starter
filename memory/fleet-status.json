@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T20:36:44.007Z",
+  "updated_at": "2026-03-18T20:37:34.364Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7154,
-    "subject": "Audit web interface (port 3000) — conversation input and task queue integration",
+    "id": 7145,
+    "subject": "Sync email threads — check for whoabuddy messages or fleet updates",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 273553,
-    "cost_usd": 1.3159325000000002
+    "duration_ms": 50150,
+    "cost_usd": 0.2098092
   },
   "health": {
-    "uptime_seconds": 1808702,
+    "uptime_seconds": 1808753,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229480660992
+    "disk_avail_bytes": 229480603648
   }
 }

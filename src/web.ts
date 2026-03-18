@@ -2034,6 +2034,47 @@ function handleCosts(url: URL): Response {
   return json({ range, costs: rows });
 }
 
+function handleCostsBySkill(url: URL): Response {
+  const range = url.searchParams.get("range") || "day";
+
+  let dateFilter = "";
+  if (range === "week") {
+    dateFilter = "AND datetime(completed_at) >= datetime('now', '-7 days')";
+  } else if (range === "day") {
+    dateFilter = "AND date(completed_at, '-7 hours') = date('now', '-7 hours')";
+  }
+
+  const rows = db.query(`
+    SELECT skills, cost_usd, api_cost_usd
+    FROM tasks
+    WHERE status = 'completed' AND cost_usd > 0 ${dateFilter}
+  `).all() as { skills: string | null; cost_usd: number; api_cost_usd: number }[];
+
+  const skillMap = new Map<string, { cost_usd: number; api_cost_usd: number; task_count: number }>();
+
+  for (const row of rows) {
+    let skills: string[] = [];
+    try {
+      if (row.skills) skills = JSON.parse(row.skills);
+    } catch { /* ignore parse errors */ }
+
+    // Attribute to primary (first) skill; untagged tasks go to "(none)"
+    const domain = skills.length > 0 ? skills[0] : "(none)";
+    const entry = skillMap.get(domain) ?? { cost_usd: 0, api_cost_usd: 0, task_count: 0 };
+    entry.cost_usd += row.cost_usd;
+    entry.api_cost_usd += (row.api_cost_usd ?? 0);
+    entry.task_count += 1;
+    skillMap.set(domain, entry);
+  }
+
+  const result = Array.from(skillMap.entries())
+    .map(([skill, data]) => ({ skill, ...data }))
+    .sort((a, b) => b.cost_usd - a.cost_usd)
+    .slice(0, 20);
+
+  return json({ range, skills: result });
+}
+
 function handleIdentity(): Response {
   return json(IDENTITY);
 }
@@ -2985,6 +3026,7 @@ function route(req: Request): Response | Promise<Response> {
   if (path === "/api/sensors/schedule") return handleSensorSchedule();
   if (path === "/api/skills") return handleSkills();
   if (path === "/api/costs") return handleCosts(url);
+  if (path === "/api/costs/by-skill") return handleCostsBySkill(url);
   if (path === "/api/identity") return handleIdentity();
   if (path === "/api/face") return handleFace();
   if (path === "/api/reputation") return handleReputation();
