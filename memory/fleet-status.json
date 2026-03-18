@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T02:15:40.288Z",
+  "updated_at": "2026-03-18T02:17:34.925Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6619,
-    "subject": "Review PR #358 on aibtcdev/aibtc-mcp-server: chore(deps): bump @hono/node-server from 1.19.9 to 1.19.11",
+    "id": 6621,
+    "subject": "Review PR #87 on aibtcdev/agent-news: feat: publisher designation, signal curation states, disclosure field",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 58125,
-    "cost_usd": 0.18414075
+    "duration_ms": 112395,
+    "cost_usd": 0.32614875
   },
   "health": {
-    "uptime_seconds": 1742639,
+    "uptime_seconds": 1742753,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231676936192
+    "disk_avail_bytes": 231676829696
   }
 }
