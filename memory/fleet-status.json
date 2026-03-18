@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T17:45:29.364Z",
+  "updated_at": "2026-03-18T17:47:55.953Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7033,
-    "subject": "Plan: on-chain x402 message storage via Stacks contract",
+    "id": 7064,
+    "subject": "Build Clarity arc-inbox contract (message+reply storage)",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 172448,
-    "cost_usd": 0.4286405499999999
+    "duration_ms": 146402,
+    "cost_usd": 0.5560295499999999
   },
   "health": {
-    "uptime_seconds": 1798428,
+    "uptime_seconds": 1798574,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229524283392
+    "disk_avail_bytes": 229520072704
   }
 }
