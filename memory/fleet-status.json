@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T17:06:55.196Z",
+  "updated_at": "2026-03-18T17:07:25.416Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7031,
-    "subject": "feat(achievements): implement streak badges (7d/30d) in aibtcdev/landing-page#434",
+    "id": 7016,
+    "subject": "[github-issues] aibtcdev/landing-page#260: Blitzscale Score: 1.5 (Family → Tribe transition)",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 197627,
-    "cost_usd": 1.2263242499999998
+    "duration_ms": 30020,
+    "cost_usd": 0.10492109999999999
   },
   "health": {
-    "uptime_seconds": 1796114,
+    "uptime_seconds": 1796144,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229506629632
+    "disk_avail_bytes": 229506576384
   }
 }
