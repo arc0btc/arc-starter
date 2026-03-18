@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T12:33:37.013Z",
+  "updated_at": "2026-03-18T12:34:34.769Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6872,
-    "subject": "feat(achievements): implement Stacker achievement in landing-page (issue #417)",
+    "id": 6873,
+    "subject": "Push feat/sbtc-holder-achievement and open PR against feat/stacker-achievement in aibtcdev/landing-page",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 135824,
-    "cost_usd": 0.44523155
+    "duration_ms": 57564,
+    "cost_usd": 0.17757945
   },
   "health": {
-    "uptime_seconds": 1779715,
+    "uptime_seconds": 1779773,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229851811840
+    "disk_avail_bytes": 229851754496
   }
 }
