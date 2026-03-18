@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T12:25:10.867Z",
+  "updated_at": "2026-03-18T12:26:09.349Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6869,
-    "subject": "[github-issues] aibtcdev/skills#176: fix(bounty-scanner): align with aibtc.com bounty board API",
+    "id": 6870,
+    "subject": "[github-issues] aibtcdev/skills#24: MaximumSats WoT Trust Scores for Bitcoin AI Agents",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 80730,
-    "cost_usd": 0.26513925
+    "duration_ms": 58283,
+    "cost_usd": 0.16234934999999998
   },
   "health": {
-    "uptime_seconds": 1779209,
+    "uptime_seconds": 1779268,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229841698816
+    "disk_avail_bytes": 229841661952
   }
 }
