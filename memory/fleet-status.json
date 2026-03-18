@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T14:07:04.691Z",
+  "updated_at": "2026-03-18T14:11:19.237Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6933,
-    "subject": "Overnight brief — 2026-03-18",
+    "id": 6924,
+    "subject": "Implement scoring weight optimization for landing-page leaderboard (issue #230)",
     "status": "completed",
-    "priority": 2
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 223164,
-    "cost_usd": 0.5098419
+    "duration_ms": 254331,
+    "cost_usd": 0.6122681999999999
   },
   "health": {
-    "uptime_seconds": 1785323,
+    "uptime_seconds": 1785578,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229524963328
+    "disk_avail_bytes": 229524738048
   }
 }
