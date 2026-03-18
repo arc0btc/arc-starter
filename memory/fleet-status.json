@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T18:22:37.873Z",
+  "updated_at": "2026-03-18T18:24:41.268Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7067,
-    "subject": "Deploy arc-inbox contract to Stacks testnet",
+    "id": 7077,
+    "subject": "Email from whoabuddy (1 unread): Priority review",
     "status": "completed",
-    "priority": 4
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 955157,
-    "cost_usd": 0.9057645
+    "duration_ms": 123030,
+    "cost_usd": 0.30741674999999996
   },
   "health": {
-    "uptime_seconds": 1800656,
+    "uptime_seconds": 1800780,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229509054464
+    "disk_avail_bytes": 229508988928
   }
 }
