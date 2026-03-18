@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T19:55:11.191Z",
+  "updated_at": "2026-03-18T19:56:32.554Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7107,
-    "subject": "GitHub issue in aibtcdev/aibtc-mcp-server#362: feat(aibtc-news): add MCP tools for aibtc.news API",
+    "id": 7108,
+    "subject": "GitHub @mention in aibtcdev/agent-news: feat: classifieds model — 30K sats, 1-day brief rotation, unlimited marketplace",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 48958,
-    "cost_usd": 0.15558645
+    "duration_ms": 70204,
+    "cost_usd": 0.19510365000000002
   },
   "health": {
-    "uptime_seconds": 1806210,
+    "uptime_seconds": 1806291,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229499035648
+    "disk_avail_bytes": 229499002880
   }
 }
