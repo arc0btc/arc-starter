@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T18:06:42.354Z",
+  "updated_at": "2026-03-18T18:22:37.873Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7071,
-    "subject": "Fix HTML email sending: add body_html support to arc-email-sync send command",
+    "id": 7067,
+    "subject": "Deploy arc-inbox contract to Stacks testnet",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 152156,
-    "cost_usd": 0.90535825
+    "duration_ms": 955157,
+    "cost_usd": 0.9057645
   },
   "health": {
-    "uptime_seconds": 1799701,
+    "uptime_seconds": 1800656,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229517746176
+    "disk_avail_bytes": 229509054464
   }
 }
