@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T21:29:46.862Z",
+  "updated_at": "2026-03-18T21:33:35.190Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7172,
-    "subject": "Review PR #108 on aibtcdev/agent-news: feat(payments): correspondent payout system — brief inclusion and weekly prizes",
+    "id": 7131,
+    "subject": "Audit skill tree for broken or stale sensors",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 143301,
-    "cost_usd": 0.2894214
+    "duration_ms": 228123,
+    "cost_usd": 0.8915513500000003
   },
   "health": {
-    "uptime_seconds": 1811885,
+    "uptime_seconds": 1812114,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229464399872
+    "disk_avail_bytes": 229464207360
   }
 }
