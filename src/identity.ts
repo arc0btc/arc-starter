@@ -73,13 +73,21 @@ const IDENTITIES: Record<string, AgentIdentity> = {
   loom: {
     name: "loom0",
     bns: "loom0.btc",
-    btc_segwit: "bc1q3qa3xuvk80j4zqnf9e9p7dext9e4jlsv79wgwq",
-    btc_taproot: "bc1pym3e83p654kfnkrftpha2xnls0palyjup28pu06vf502h774lmysud3mz0",
-    stx: "SP3X279HDPCHMB4YN6AHBYX2Y76Q4E20987BN3GHR",
+    btc_segwit: "bc1qktaz6rg5k4smre0wfde2tjs2eupvggpmdz39ku",
+    btc_taproot: "bc1ptqmds7ghh5lqexzd34xnf5sryxzjvlvuj2eetmhgjkp998545tequsd9we",
+    stx: "SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM",
     github: "",
     twitter: "",
     website: "",
-    btc: "bc1q3qa3xuvk80j4zqnf9e9p7dext9e4jlsv79wgwq",
+    btc: "bc1qktaz6rg5k4smre0wfde2tjs2eupvggpmdz39ku",
+    legacy_wallets: [
+      {
+        label: "loom-v0",
+        stx: "SP3X279HDPCHMB4YN6AHBYX2Y76Q4E20987BN3GHR",
+        btc_segwit: "bc1q3qa3xuvk80j4zqnf9e9p7dext9e4jlsv79wgwq",
+        btc_taproot: "bc1pym3e83p654kfnkrftpha2xnls0palyjup28pu06vf502h774lmysud3mz0",
+      },
+    ],
   },
   forge: {
     name: "forge0",
