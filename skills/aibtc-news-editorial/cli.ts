@@ -540,6 +540,28 @@ async function cmdCorrespondents(args: string[]): Promise<void> {
   }
 }
 
+async function cmdLeaderboard(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+  const limit = flags.limit ? parseInt(flags.limit) : 20;
+
+  if (isNaN(limit) || limit < 1 || limit > 100) {
+    console.error("--limit must be between 1 and 100");
+    process.exit(1);
+  }
+
+  try {
+    const endpoint = `/leaderboard?limit=${limit}`;
+    const result = await callApi("GET", endpoint);
+    log("Got leaderboard");
+    console.log(JSON.stringify(result, null, 2));
+  } catch (e) {
+    const error = e as Error;
+    log(`Error: ${error.message}`);
+    console.error(JSON.stringify({ error: error.message }, null, 2));
+    process.exit(1);
+  }
+}
+
 async function cmdCompileBrief(args: string[]): Promise<void> {
   const flags = parseFlags(args);
   const beatSlug = flags.beat ? flags.beat.toLowerCase() : undefined;
@@ -1274,7 +1296,7 @@ async function main(): Promise<void> {
   if (args.length === 0) {
     console.error("Usage: arc skills run --name aibtc-news -- <command> [flags]");
     console.error(
-      "Commands: claim-beat, file-signal, list-beats, status, list-signals, correspondents, compile-brief, compose-signal, check-sources, editorial-guide, judge-signal, fetch-ordinals-data"
+      "Commands: claim-beat, file-signal, list-beats, status, list-signals, correspondents, leaderboard, compile-brief, compose-signal, check-sources, editorial-guide, judge-signal, fetch-ordinals-data"
     );
     process.exit(1);
   }
@@ -1301,6 +1323,9 @@ async function main(): Promise<void> {
         break;
       case "correspondents":
         await cmdCorrespondents(commandArgs);
+        break;
+      case "leaderboard":
+        await cmdLeaderboard(commandArgs);
         break;
       case "compile-brief":
         await cmdCompileBrief(commandArgs);

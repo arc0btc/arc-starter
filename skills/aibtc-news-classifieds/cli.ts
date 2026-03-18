@@ -446,14 +446,35 @@ async function cmdGetBrief(args: string[]): Promise<void> {
   const flags = parseFlags(args);
   const date = flags.date;
 
+  if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    console.error("--date must be YYYY-MM-DD format");
+    process.exit(1);
+  }
+
   try {
     const endpoint = date ? `/brief/${date}` : "/brief";
     const url = `${API_BASE}${endpoint}`;
 
     log(`Fetching brief via x402 (1000 sats sBTC): ${url}`);
-    const result = await x402Request("GET", url);
+    const raw = await x402Request("GET", url);
+    const result = raw as Record<string, unknown>;
 
-    log("Brief retrieved");
+    // Surface included signals with positions for clarity
+    const includedSignals = result.included_signals ?? result.includedSignals;
+    const signalCount = Array.isArray(includedSignals) ? includedSignals.length : 0;
+
+    log(`Brief retrieved — ${signalCount} included signal(s)`);
+
+    if (signalCount > 0 && Array.isArray(includedSignals)) {
+      const summary = (includedSignals as Array<Record<string, unknown>>).map((s) => ({
+        position: s.position,
+        signalId: s.signalId ?? s.signal_id,
+        beatSlug: s.beatSlug ?? s.beat_slug,
+        headline: s.headline,
+      }));
+      log(`Included signals: ${JSON.stringify(summary)}`);
+    }
+
     console.log(JSON.stringify(result, null, 2));
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -557,6 +578,87 @@ async function cmdListSkills(args: string[]): Promise<void> {
   }
 }
 
+// ---- Subcommands: Earnings ----
+
+async function cmdEarnings(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+  const address = flags.address || ARC_BTC_ADDRESS;
+  const status = flags.status || undefined;
+  const from = flags.from || undefined;
+  const to = flags.to || undefined;
+
+  if (!validateBtcAddress(address)) {
+    console.error(
+      `Invalid BTC address: ${address}. Provide a valid bc1... address via --address or omit to use Arc's default.`
+    );
+    process.exit(1);
+  }
+
+  const validStatuses = ["pending", "paid", "cancelled"];
+  if (status && !validStatuses.includes(status)) {
+    console.error(
+      `Invalid --status value "${status}". Valid values: ${validStatuses.join(", ")}`
+    );
+    process.exit(1);
+  }
+
+  if (from && !/^\d{4}-\d{2}-\d{2}$/.test(from)) {
+    console.error("--from must be YYYY-MM-DD format");
+    process.exit(1);
+  }
+
+  if (to && !/^\d{4}-\d{2}-\d{2}$/.test(to)) {
+    console.error("--to must be YYYY-MM-DD format");
+    process.exit(1);
+  }
+
+  try {
+    const params = new URLSearchParams();
+    if (status) params.append("status", status);
+    if (from) params.append("from", from);
+    if (to) params.append("to", to);
+    const query = params.toString();
+    const endpoint = `/earnings/${encodeURIComponent(address)}${query ? `?${query}` : ""}`;
+    const data = await apiGet(endpoint);
+    log("Got earnings");
+    console.log(JSON.stringify(data, null, 2));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`Error: ${message}`);
+    console.error(JSON.stringify({ error: message }, null, 2));
+    process.exit(1);
+  }
+}
+
+// ---- Subcommands: Corrections ----
+
+async function cmdCorrections(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+  const signal = flags.signal || undefined;
+  const agent = flags.agent || undefined;
+
+  if (agent && !validateBtcAddress(agent)) {
+    console.error(`Invalid BTC address: ${agent}`);
+    process.exit(1);
+  }
+
+  try {
+    const params = new URLSearchParams();
+    if (signal) params.append("signal", signal);
+    if (agent) params.append("agent", agent);
+    const query = params.toString();
+    const endpoint = `/corrections${query ? `?${query}` : ""}`;
+    const data = await apiGet(endpoint);
+    log("Got corrections");
+    console.log(JSON.stringify(data, null, 2));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`Error: ${message}`);
+    console.error(JSON.stringify({ error: message }, null, 2));
+    process.exit(1);
+  }
+}
+
 // ---- Main ----
 
 async function main(): Promise<void> {
@@ -566,7 +668,7 @@ async function main(): Promise<void> {
     console.error("Usage: arc skills run --name aibtc-news-classifieds -- <command> [flags]");
     console.error(
       "Commands: list-classifieds, get-classified, post-classified, get-signal, correct-signal, " +
-        "update-beat, get-brief, inscribe-brief, streaks, list-skills"
+        "update-beat, get-brief, inscribe-brief, streaks, list-skills, earnings, corrections"
     );
     process.exit(1);
   }
@@ -605,6 +707,12 @@ async function main(): Promise<void> {
         break;
       case "list-skills":
         await cmdListSkills(commandArgs);
+        break;
+      case "earnings":
+        await cmdEarnings(commandArgs);
+        break;
+      case "corrections":
+        await cmdCorrections(commandArgs);
         break;
       default:
         console.error(`Unknown command: ${command}`);
