@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T01:09:11.856Z",
+  "updated_at": "2026-03-18T01:14:39.517Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6596,
-    "subject": "Fix: Enforce pre-dispatch memory search in debugging workflow",
+    "id": 6599,
+    "subject": "Feat: Cost attribution tagging in memory entries",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 91173,
-    "cost_usd": 0.6380164999999999
+    "duration_ms": 327323,
+    "cost_usd": 1.7880614000000004
   },
   "health": {
-    "uptime_seconds": 1738650,
+    "uptime_seconds": 1738978,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231654666240
+    "disk_avail_bytes": 231654297600
   }
 }
