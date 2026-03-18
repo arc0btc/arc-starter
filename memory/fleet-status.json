@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T10:00:08.455Z",
+  "updated_at": "2026-03-18T10:01:09.203Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6795,
-    "subject": "Weekly strategic review: directive + milestone check",
+    "id": 6800,
+    "subject": "arc-opensource: sync 149 commit(s) to GitHub",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 105939,
-    "cost_usd": 0.3058303500000001
+    "duration_ms": 60536,
+    "cost_usd": 0.19792485
   },
   "health": {
-    "uptime_seconds": 1770507,
+    "uptime_seconds": 1770568,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230916280320
+    "disk_avail_bytes": 230916206592
   }
 }
