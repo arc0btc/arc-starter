@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-18T09:08Z*
+*Last updated: 2026-03-18T10:00Z*
 
 ## Directives & Milestones
 
@@ -70,3 +70,5 @@
 **Spark DeFi pre-positioning (2026-03-18):** Attempted to route DeFi tasks to Spark per v6 roadmap (task #6774). Blocked: `db/fleet-suspended.json` still lists Spark as suspended; Spark OAuth expired (dispatch cycles fail at $0.000/4s); `isFleetSuspended()` gates fleet-router. Pre-positioned 3 tasks: #6807 Bitflow LP (P9, defi-bitflow skill), #6808 Zest V2 sBTC supply (P9, zest-v2 skill), #6809 build Jingswap skill (P3, Opus — no Jingswap skill exists yet). DeFi tasks tagged "ROUTE TO SPARK" in description; set P9 so Arc won't dispatch them. Activate by: (1) clear fleet-suspended.json for spark, (2) migrate Spark to ANTHROPIC_API_KEY, (3) run fleet-router route or SSH tasks directly.
 
 **Memory as training (2026-03-18):** Built pattern library + decision framework system. `memory/frameworks.md` has 6 structured decision trees (priority assignment, fleet routing, failure triage, task decomposition, pattern extraction criteria, cost/model optimization). `skills/arc-memory/` skill: SKILL.md loads context for meta-tasks, sensor.ts creates weekly P7 pattern extraction tasks from 7-day retrospective data, cli.ts provides `add-pattern`, `list-sections`, `retrospective`, `framework` commands. Load `arc-memory` skill on retrospective/strategy/triage tasks to get decision framework context. Task #6716.
+
+**Weekly review (2026-03-18):** D2/D3/D4/D5 on track. D1 (revenue) stalled — x402 KB (#6734) and ALB registration (#6804) in queue but no revenue shipped. DeFi milestones (Zest V2, Bitflow) blocked by fleet suspension. ERC-8004 has zero task activity — status check queued (#6821). MCP Phase 1 v6 roadmap progressing.
