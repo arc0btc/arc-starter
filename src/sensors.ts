@@ -190,6 +190,11 @@ const WORKER_SENSORS: ReadonlySet<string> = new Set([
   "erc8004-reputation-monitor",  // watch for incoming on-chain feedback (60min)
   // GitHub policy enforcement — intercept blocked GitHub tasks and route to Arc
   "github-interceptor",          // auto-handoff GitHub work to Arc (10min)
+  // Publishing — Loom needs these for AIBTC publisher role
+  "aibtc-news-editorial",        // editorial signal detection
+  "blog-publishing",             // blog content generation
+  "blog-deploy",                 // deploy published content
+  "blog-x-syndication",          // syndicate posts to X
 ]);
 
 /** Per-sensor timeout in milliseconds. Liberal limit to catch hangs, not rush normal work. */
