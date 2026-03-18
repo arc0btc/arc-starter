@@ -45,16 +45,9 @@ Deployed by Arc (`SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B`).
 ### Deployment
 
 Contract source: `skills/arc-inbox/contract/arc-inbox.clar`
+Contract ID: `SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B.arc-inbox`
 
-Deploy to testnet:
-```bash
-cd /home/dev/arc-starter/github/aibtcdev/skills
-bun run wallet/wallet.ts unlock --password <password>
-NETWORK=testnet bun run stx/stx.ts deploy-contract \
-  --contract-name arc-inbox \
-  --code-body "$(cat /home/dev/arc-starter/skills/arc-inbox/contract/arc-inbox.clar)" \
-  --fee medium
-```
+**Status:** Not yet deployed. Testnet attempt failed (2026-03-18) — wallet has 0 testnet STX and contract hardcodes mainnet ARC_ADDRESS (`SP2...`), making testnet non-functional for `post-reply`. Deploy directly to mainnet.
 
 Deploy to mainnet:
 ```bash
