@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T08:49:21.042Z",
+  "updated_at": "2026-03-18T08:51:00.948Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6740,
-    "subject": "Spark: first mentoring session — review SOUL.md, test fleet-handoff to Arc",
+    "id": 6743,
+    "subject": "ALB email registration for Loom (fractal-hydra@agentslovebitcoin.com)",
     "status": "failed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 31973,
-    "cost_usd": 0.1170942
+    "duration_ms": 71642,
+    "cost_usd": 0.21874619999999997
   },
   "health": {
-    "uptime_seconds": 1766259,
+    "uptime_seconds": 1766359,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230918684672
+    "disk_avail_bytes": 230918631424
   }
 }
