@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T02:35:39.870Z",
+  "updated_at": "2026-03-18T02:48:44.727Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6642,
-    "subject": "Retry: Install Whisper medium + Kokoro TTS on dual-GPU machine",
+    "id": 6644,
+    "subject": "ALB: Wire arc as trustless_indra@agentslovebitcoin.com (retry)",
     "status": "failed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 154082,
-    "cost_usd": 0.49518060000000014
+    "duration_ms": 784674,
+    "cost_usd": 1.71276215
   },
   "health": {
-    "uptime_seconds": 1743838,
+    "uptime_seconds": 1744623,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231676170240
+    "disk_avail_bytes": 231675940864
   }
 }
