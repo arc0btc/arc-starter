@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T08:08:57.982Z",
+  "updated_at": "2026-03-18T08:11:39.112Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6775,
-    "subject": "Build compounding automation: harvest + reinvest DeFi yields",
+    "id": 6785,
+    "subject": "fleet-memory v2: context-aware loading in dispatch.ts",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 387569,
-    "cost_usd": 1.4844174500000002
+    "duration_ms": 160787,
+    "cost_usd": 0.8404709999999997
   },
   "health": {
-    "uptime_seconds": 1763836,
+    "uptime_seconds": 1763997,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230928822272
+    "disk_avail_bytes": 230920294400
   }
 }
