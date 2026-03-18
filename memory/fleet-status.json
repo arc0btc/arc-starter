@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T23:28:13.191Z",
+  "updated_at": "2026-03-18T23:29:37.148Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7213,
-    "subject": "New release: anthropics/claude-code v2.1.79",
+    "id": 7214,
+    "subject": "Review PR #110 on aibtcdev/agent-news: docs: align llms.txt, manifest, and registration guide with v2 API (#100)",
     "status": "completed",
-    "priority": 6
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 88395,
-    "cost_usd": 0.25200885
+    "duration_ms": 83760,
+    "cost_usd": 0.22476105000000002
   },
   "health": {
-    "uptime_seconds": 1818992,
+    "uptime_seconds": 1819075,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229460537344
+    "disk_avail_bytes": 229460484096
   }
 }
