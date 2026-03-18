@@ -14,16 +14,53 @@ arc skills run --name aibtc-maintenance -- review-pr --repo OWNER/REPO --pr NUMB
 
 This outputs JSON with the PR details, full diff, and existing reviews.
 
-### 2. Analyze the Diff
+### 2. Analyze the Diff — Hardened Checklist
 
-Check for:
-- **Correctness:** Does the code do what the PR title claims?
-- **Known operational issues:** Have we hit bugs related to this code? Check MEMORY.md for relevant learnings (x402 headers, BIP-322 signing, SQLite concurrency, etc.)
-- **Breaking changes:** Does this change APIs or data formats we consume?
-- **Security:** Credential exposure, injection, unsafe operations
-- **Style:** Consistent with the repo's existing patterns
+Run the diff through all five dimensions before writing anything. Missing one means the review is incomplete — do not approve without covering all five.
 
-### 3. Review Framing & Tone
+**① Functionality**
+- Does the code do exactly what the PR title/description claims?
+- Are edge cases handled (null, empty, concurrent, error paths)?
+- Are any existing behaviors unintentionally changed?
+- Check MEMORY.md for known operational issues with this code path (x402 headers, BIP-322 signing, SQLite concurrency, etc.)
+
+**② Security**
+- Credential or secret exposure (hardcoded values, logged secrets, env vars leaked to client)
+- Injection risks: SQL, command, shell, template, prompt
+- Auth/authz bypass — does the change affect who can access what?
+- Unsafe operations: `eval`, `exec`, `fs.rm`, unbounded input
+- Input validation at system boundaries (user input, external APIs)
+
+**③ Performance**
+- N+1 queries or unbounded loops over large datasets?
+- Blocking operations on the main thread / hot path?
+- Missing indexes for queried columns?
+- Memory allocation patterns (large allocations, leaks, unnecessary copies)?
+- Caching opportunities missed or cache invalidation broken?
+
+**④ Clean Code**
+- Is the logic clear without needing a comment to explain it?
+- Dead code, unused imports, or redundant logic introduced?
+- Function/variable names that reveal intent?
+- Is complexity justified? Would a simpler approach work?
+
+**⑤ Big-Picture Fit**
+- Does this change fit the repo's architecture and patterns?
+- Could it conflict with or break other parts of the system?
+- Is it consistent with how we use this library/API operationally?
+- Does it address the underlying issue or just patch the symptom?
+
+### 3. Run Simplifier Analysis
+
+After reviewing the diff manually, apply the simplifier lens to all changed files:
+
+1. **Identify reuse opportunities**: Is there existing code in the repo that does the same thing? Could this logic be shared?
+2. **Check for over-engineering**: Is the abstraction level appropriate? Is there a simpler way to achieve the same result?
+3. **Flag efficiency issues**: Unnecessarily complex logic, redundant computation, or poor data structure choices.
+
+Include simplifier findings in the review body under a `**Code quality notes:**` section. Use `[suggestion]` severity for these — they improve the code but aren't blocking unless they reveal a real bug.
+
+### 4. Review Framing & Tone
 
 Write reviews as a **knowledgeable collaborator**, not a gatekeeper. Frame feedback as expert guidance from someone who runs this code in production.
 
@@ -59,8 +96,9 @@ Rules for suggestions:
 **Review structure:**
 1. One-line summary of the PR's purpose (confirms you understood it)
 2. What looks good (be specific — name the files/patterns you liked)
-3. Issues and suggestions (grouped by severity, most important first)
-4. Operational context (anything from our production experience that's relevant)
+3. Issues and suggestions (grouped by severity, most important first — blocking before suggestions)
+4. Code quality notes (simplifier findings — reuse, efficiency, complexity)
+5. Operational context (anything from our production experience that's relevant)
 
 **Example review body:**
 ```
@@ -84,7 +122,7 @@ const isRetryable = (status: number) => status >= 500 && status < 600;
 *Operational note:* We process ~80 x402 messages/day through this endpoint. The 502 rate is about 2% — retry with backoff has eliminated all payment failures on our end.
 ```
 
-### 4. Check for Existing Review
+### 5. Check for Existing Review
 
 Before posting, check if arc0btc already reviewed this PR:
 
@@ -105,7 +143,7 @@ gh pr view NUMBER --repo OWNER/REPO --json commits,reviews --jq '{latestCommit: 
 
 Re-review only if `latestCommit` is newer than `submittedAt`.
 
-### 5. Post the Review
+### 6. Post the Review
 
 ```bash
 gh pr review NUMBER --repo OWNER/REPO --approve --body "review text"
@@ -113,9 +151,9 @@ gh pr review NUMBER --repo OWNER/REPO --request-changes --body "review text"
 gh pr review NUMBER --repo OWNER/REPO --comment --body "review text"
 ```
 
-Use `--approve` when the PR looks good. Use `--request-changes` only for actual bugs or breaking changes. Use `--comment` for suggestions that aren't blocking.
+Use `--approve` only after passing all five checklist dimensions (functionality, security, performance, clean code, big-picture fit) and running simplifier analysis. Use `--request-changes` for bugs, security issues, or breaking changes. Use `--comment` for suggestions that aren't blocking.
 
-### 6. After Our Review
+### 7. After Our Review
 
 whoabuddy runs Copilot review and either asks for fixes or merges. We never merge — that's not our role. If changes are requested after our approval, we review again when updated.
 

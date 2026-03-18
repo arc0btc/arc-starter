@@ -2,6 +2,38 @@
 
 Detailed specifications for all built-in workflow templates.
 
+## PR Review (`pr-review`)
+
+Track Arc's internal hardened review workflow for a GitHub PR — from detection through posting the review.
+
+**States:**
+- `detected` — PR found by sensor, needs review (auto-creates review task with hardened checklist)
+- `reviewing` — Review task is running (functionality, security, performance, clean code, big-picture + simplifier)
+- `posted` — Review has been posted to GitHub
+- `approved` — Terminal: PR approved after passing all five dimensions
+- `changes_requested` — Terminal (resettable): Changes requested; transitions back to `posted` when re-reviewed
+- `commented` — Terminal: Comment-only review posted (no approve/request-changes)
+
+**Context schema:**
+```typescript
+{
+  owner: string;          // GitHub org or user
+  repo: string;           // Repository name
+  number: number;         // PR number
+  title?: string;         // PR title (for task subject)
+  url?: string;           // Full PR URL
+  author?: string;        // PR author login
+  reviewOutcome?: "approved" | "changes_requested" | "commented";
+  simplifierNotes?: string;  // Key findings from simplifier pass
+}
+```
+
+**Pattern:** Sensor detects unreviewed PR → creates `pr-review` workflow instance → `detected` state auto-creates P3 review task → agent runs five-dimension checklist + simplifier → posts review → transitions to outcome state.
+
+**Instance key:** `owner/repo/number` (e.g., `aibtcdev/skills/42`)
+
+**Requires:** `aibtc-repo-maintenance` skill
+
 ## PR Lifecycle (`pr-lifecycle`)
 
 Track GitHub pull requests through their full lifecycle.

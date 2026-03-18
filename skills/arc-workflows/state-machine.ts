@@ -2485,6 +2485,56 @@ Steps:
   },
 };
 
+export const PrReviewMachine: StateMachine<{
+  owner?: string;
+  repo?: string;
+  number?: number;
+  title?: string;
+  url?: string;
+  author?: string;
+  reviewOutcome?: "approved" | "changes_requested" | "commented";
+  simplifierNotes?: string;
+}> = {
+  name: "pr-review",
+  initialState: "detected",
+  states: {
+    detected: {
+      on: { start_review: "reviewing" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        return {
+          type: "create-task",
+          subject: `Review PR: ${ctx.owner}/${ctx.repo}#${ctx.number}${ctx.title ? ` — ${ctx.title}` : ""}`,
+          description: `Hardened PR review for ${ctx.url || `${ctx.owner}/${ctx.repo}#${ctx.number}`}.\n\nRun all five checklist dimensions: functionality, security, performance, clean code, big-picture fit. Run simplifier analysis. Do NOT approve without passing all five.`,
+          priority: 3,
+          skills: ["aibtc-repo-maintenance"],
+          nextState: "reviewing",
+        };
+      },
+    },
+    reviewing: {
+      on: { post_review: "posted" },
+      action: () => null,
+    },
+    posted: {
+      on: { approved: "approved", request_changes: "changes_requested", comment_only: "commented" },
+      action: () => null,
+    },
+    approved: {
+      on: {},
+      action: () => null,
+    },
+    changes_requested: {
+      on: { rereviewed: "posted" },
+      action: () => null,
+    },
+    commented: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
 /**
  * Get a template by name.
  * Registry maps template names to their state machines.
@@ -2495,6 +2545,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "signal-filing": SignalFilingMachine,
     "beat-claiming": BeatClaimingMachine,
     "pr-lifecycle": PrLifecycleMachine,
+    "pr-review": PrReviewMachine,
     "reputation-feedback": ReputationFeedbackMachine,
     "validation-request": ValidationRequestMachine,
     "inscription": InscriptionMachine,

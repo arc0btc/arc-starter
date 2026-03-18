@@ -22,7 +22,7 @@ The workflow system includes a minimal, dependency-free state machine runner. Ea
 - `getAllowedTransitions(state, template)` — Get available transitions from a state
 - `isTransitionAllowed(from, to, template)` — Check if transition is valid
 
-**Built-in templates:** `BlogPostingMachine`, `SignalFilingMachine`, `BeatClaimingMachine`, `PrLifecycleMachine`, `ReputationFeedbackMachine`, `ValidationRequestMachine`, `InscriptionMachine`, `NewReleaseMachine`, `ArchitectureReviewMachine`, `EmailThreadMachine`, `QuestMachine`, `StreakMaintenanceMachine`
+**Built-in templates:** `BlogPostingMachine`, `SignalFilingMachine`, `BeatClaimingMachine`, `PrLifecycleMachine`, `PrReviewMachine`, `ReputationFeedbackMachine`, `ValidationRequestMachine`, `InscriptionMachine`, `NewReleaseMachine`, `ArchitectureReviewMachine`, `EmailThreadMachine`, `QuestMachine`, `StreakMaintenanceMachine`
 
 See `state-machine.ts` for full API (100 lines, no external deps).
 
@@ -112,7 +112,7 @@ Load when: creating a new workflow instance for multi-step work (blog post, sign
 
 ## Built-in Templates
 
-**Available templates:** `blog-posting`, `signal-filing`, `beat-claiming`, `pr-lifecycle`, `reputation-feedback`, `validation-request`, `inscription`, `new-release`, `architecture-review`, `email-thread`, `quest`, `streak-maintenance`
+**Available templates:** `blog-posting`, `signal-filing`, `beat-claiming`, `pr-lifecycle`, `pr-review`, `reputation-feedback`, `validation-request`, `inscription`, `new-release`, `architecture-review`, `email-thread`, `quest`, `streak-maintenance`
 
 See `TEMPLATES.md` for detailed state diagrams, context schemas, and usage examples.
 
