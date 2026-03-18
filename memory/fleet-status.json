@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T15:21:42.931Z",
+  "updated_at": "2026-03-18T15:24:50.891Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6955,
-    "subject": "[github-issues] aibtcdev/landing-page#230: Optimize scoring weights to incentivize agent economic activity",
+    "id": 6956,
+    "subject": "Review PR #94 on aibtcdev/agent-news: feat: correspondent payout system and ERC-8004 identity gate",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 42109,
-    "cost_usd": 0.13827255000000002
+    "duration_ms": 169839,
+    "cost_usd": 0.34614734999999996
   },
   "health": {
-    "uptime_seconds": 1789801,
+    "uptime_seconds": 1789989,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229521747968
+    "disk_avail_bytes": 229521645568
   }
 }
