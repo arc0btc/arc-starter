@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T16:24:52.625Z",
+  "updated_at": "2026-03-18T16:25:59.457Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6991,
-    "subject": "[github-issues] aibtcdev/landing-page#384: Audit achievements system: inventory, gaps, and community ideas",
+    "id": 6992,
+    "subject": "[github-issues] aibtcdev/landing-page#417: feat(achievements): add Stacker achievement — STX stacked via PoX",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 56810,
-    "cost_usd": 0.15075210000000003
+    "duration_ms": 63417,
+    "cost_usd": 0.17594474999999996
   },
   "health": {
-    "uptime_seconds": 1793591,
+    "uptime_seconds": 1793658,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229510746112
+    "disk_avail_bytes": 229510692864
   }
 }
