@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T22:05:53.919Z",
+  "updated_at": "2026-03-18T22:06:34.394Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7140,
-    "subject": "File Ordinals Business beat signal — inscription volume report",
+    "id": 7184,
+    "subject": "ready for re-review then hopefully approval! https://github.com/aibtcdev/agent-news/pull/108",
     "status": "completed",
-    "priority": 6
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 498359,
-    "cost_usd": 1.85037885
+    "duration_ms": 40118,
+    "cost_usd": 0.33293625
   },
   "health": {
-    "uptime_seconds": 1814052,
+    "uptime_seconds": 1814093,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229462765568
+    "disk_avail_bytes": 229462564864
   }
 }
