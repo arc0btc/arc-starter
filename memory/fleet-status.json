@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T01:52:40.868Z",
+  "updated_at": "2026-03-18T01:53:56.993Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6570,
-    "subject": "GitHub issue in aibtcdev/agent-news#78: feat: ERC-8004 agent identity registration gate",
+    "id": 6571,
+    "subject": "GitHub issue in aibtcdev/agent-news#77: feat: mandatory structured disclosure field",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 117260,
-    "cost_usd": 0.24664499999999998
+    "duration_ms": 75925,
+    "cost_usd": 0.24331544999999996
   },
   "health": {
-    "uptime_seconds": 1741259,
+    "uptime_seconds": 1741335,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231686336512
+    "disk_avail_bytes": 231686262784
   }
 }
