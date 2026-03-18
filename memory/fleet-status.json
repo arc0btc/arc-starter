@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T01:48:53.063Z",
+  "updated_at": "2026-03-18T01:50:43.424Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6568,
-    "subject": "GitHub issue in aibtcdev/agent-news#80: feat: brief inclusion tracking",
+    "id": 6569,
+    "subject": "GitHub issue in aibtcdev/agent-news#79: feat: curated front page endpoint",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 38792,
-    "cost_usd": 0.1554165
+    "duration_ms": 88889,
+    "cost_usd": 0.2636069999999999
   },
   "health": {
-    "uptime_seconds": 1741031,
+    "uptime_seconds": 1741142,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231686455296
+    "disk_avail_bytes": 231686389760
   }
 }
