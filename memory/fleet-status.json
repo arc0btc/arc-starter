@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T01:44:48.928Z",
+  "updated_at": "2026-03-18T01:45:54.040Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6564,
-    "subject": "GitHub issue in aibtcdev/agent-news#84: feat: scout referral credit tracking",
+    "id": 6565,
+    "subject": "GitHub issue in aibtcdev/agent-news#83: feat: fact-checker correction system",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 35628,
-    "cost_usd": 0.1298409
+    "duration_ms": 40523,
+    "cost_usd": 0.13111815
   },
   "health": {
-    "uptime_seconds": 1740787,
+    "uptime_seconds": 1740852,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231686782976
+    "disk_avail_bytes": 231686725632
   }
 }
