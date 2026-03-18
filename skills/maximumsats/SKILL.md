@@ -1,121 +1,86 @@
 ---
 name: maximumsats
-description: Nostr Web of Trust scoring via MaximumSats API — lookup trust rank, score pubkeys, and verify NIP-05 identities before Lightning payments or agent contracts
+description: Nostr Web of Trust (WoT) scoring via MaximumSats API — trust scores, sybil detection, and trust paths for Nostr pubkeys.
 updated: 2026-03-18
 tags:
   - nostr
   - trust
   - wot
-  - lightning
-  - identity
+  - reputation
+  - read-only
 ---
 
 # MaximumSats — Nostr Web of Trust
 
-Provides Nostr Web of Trust (WoT) scoring for counterparty trust decisions. Uses MaximumSats' PageRank-based trust graph (51K+ pubkeys, 621K+ trust edges, zap-weighted) to score Nostr pubkeys before Lightning payments, trade execution, or agent contracts.
+Wraps the MaximumSats WoT API (`wot.klabo.world`) to query trust scores, detect sybil accounts, and trace trust paths between Nostr pubkeys. Covers 52K+ pubkeys and 2.4M+ trust edges weighted by zap receipts.
 
-## How It Works
-
-MaximumSats runs PageRank over the Nostr social/zap graph. Higher rank = more trusted by the network. The basic score lookup (rank + position) is **free**. Full AI-generated trust report costs 100 sats via L402 Lightning payment.
-
-**API endpoint:** `POST https://maximumsats.com/api/wot-report`
-**Pricing:** Free basic lookup | 100 sats for full report (L402)
-**Auth:** L402 (Lightning invoice in WWW-Authenticate header on 402 response)
-
-## ERC-8004 vs MaximumSats
-
-These are complementary, not duplicates:
-
-| Dimension | ERC-8004 | MaximumSats |
-|-----------|----------|-------------|
-| Network | Stacks L2 (on-chain) | Nostr social graph |
-| Identity | Numeric agent ID / Stacks address | Nostr pubkey (hex/npub) |
-| Trust model | Explicit feedback submissions | Derived PageRank from zaps/follows |
-| Cost | STX gas (write) | Free lookup, 100 sats for report |
-| Use case | Agent registry reputation | Counterparty pre-screening |
-
-**Composite trust check:** Use MaximumSats (Nostr WoT) + ERC-8004 (on-chain feedback) together for strong counterparty validation. Neither alone is sufficient.
+Complements `erc8004-trust` (on-chain Stacks identity) with off-chain Nostr WoT signals. Useful before payment flows or agent-to-agent trade execution.
 
 ## CLI Commands
 
 ```
-# Free: basic rank and position lookup
-arc skills run --name maximumsats -- lookup --pubkey <hex64>
-
-# Free: normalized 0-100 score
-arc skills run --name maximumsats -- score --pubkey <hex64>
-
-# Paid (100 sats, L402): full AI-generated trust report
-arc skills run --name maximumsats -- report --pubkey <hex64>
-
-# Paid (20 sats, L402): NIP-05 identity verification
-arc skills run --name maximumsats -- verify-nip05 --address <user@domain>
+arc skills run --name maximumsats -- wot-score --pubkey <hex>
+arc skills run --name maximumsats -- sybil-check --pubkey <hex>
+arc skills run --name maximumsats -- trust-path --source <hex> --target <hex>
+arc skills run --name maximumsats -- predict --source <hex> --target <hex>
+arc skills run --name maximumsats -- network-health
 ```
 
 ## Subcommands
 
-### lookup
-
-Free. Returns rank, position, in_top_100, and graph metadata.
-
-Options:
-- `--pubkey` (required) — Nostr public key as 64-character hex string
-
-Output fields:
-- `rank` — PageRank score (higher = more trusted)
-- `position` — Position in global ranking (1 = most trusted)
-- `in_top_100` — Boolean
-- `graph` — `{ nodes, edges }` counts for the trust graph
-
-### score
-
-Free. Returns a normalized 0-100 trust score derived from rank.
+### wot-score
+Returns a normalized WoT trust score (0-100), global rank, and percentile for a Nostr pubkey.
 
 Options:
-- `--pubkey` (required) — Nostr public key as 64-character hex string
+- `--pubkey` (required) — Nostr pubkey in **hex** format (not npub)
 
-Output fields:
-- `score` — 0-100 normalized score (clamped)
-- `rank`, `position`, `in_top_100`, `graph`
+Output: `normalized_score` (0-100), `rank`, `percentile`
 
-### report
-
-Paid (100 sats, L402). Returns full AI-generated trust analysis text.
+### sybil-check
+Classifies a pubkey as `likely_sybil`, `suspicious`, or `normal` using follower quality, mutual trust ratio, follow diversity, temporal patterns, and community integration.
 
 Options:
-- `--pubkey` (required) — Nostr public key as 64-character hex string
+- `--pubkey` (required) — Nostr pubkey in hex format
 
-Output fields:
-- `report` — Full text trust analysis
-- `rank`, `position`, `in_top_100`, `graph`
+Output: `classification`
 
-### verify-nip05
-
-Paid (20 sats, L402). Verifies a NIP-05 identifier resolves to a valid Nostr pubkey.
+### trust-path
+Finds the hop-by-hop trust path between two pubkeys and returns combined trust score.
 
 Options:
-- `--address` (required) — NIP-05 address in `user@domain` format
+- `--source` (required) — Source pubkey (hex)
+- `--target` (required) — Target pubkey (hex)
+
+Output: `connected`, `paths`, `combined_trust`
+
+### predict
+Predicts link probability between two pubkeys using graph signals (common neighbors, Adamic-Adar, Jaccard, WoT proximity).
+
+Options:
+- `--source` (required) — Source pubkey (hex)
+- `--target` (required) — Target pubkey (hex)
+
+Output: `probability`, `signals`
+
+### network-health
+Returns graph-wide stats — total nodes, edges, Gini coefficient, power law alpha. No pubkey required. Always free.
+
+## Authentication
+
+- **Free tier:** 50 requests/day per IP — no API key required
+- **Paid tier (L402):** After free tier, API returns HTTP 402 with a BOLT11 Lightning invoice. ~21 sats per call.
+- Set `MAXIMUMSATS_NWC_URL` credential to enable automatic L402 payment.
 
 ## Pubkey Format
 
-MaximumSats accepts **hex format only** (64 lowercase hex characters). To convert from npub (bech32), use a Nostr library or `bech32` CLI tool before calling this skill.
+All pubkeys **must be hex-encoded** (64 hex chars), not npub bech32.
 
-Example hex: `82341f882b6eabcd2ba7f1ef90aad961cf074af15b9ef44a09f9d2a8fbfbe6a2`
+## Integration
+
+- Pair with `erc8004-trust` for composite on-chain + off-chain agent trust scoring
+- Sybil check before accepting payment from new counterparties
+- Trust path useful for discovering indirect trust relationships in fleet routing
 
 ## When to Load
 
-Load when:
-- Screening a counterparty before a Lightning payment or trade
-- Validating agent identity in an x402 or LNURL flow
-- Running pre-contract trust checks on an unknown Nostr pubkey
-- Combining with `erc8004-trust` for composite trust scoring
-
-Do NOT load for tasks that don't involve Nostr identity or counterparty screening.
-
-## Notes
-
-- Basic lookup is free — no L402/payment setup needed
-- L402-gated endpoints return HTTP 402 with a BOLT11 invoice in `WWW-Authenticate`
-- The trust graph refreshes periodically; scores reflect the last crawl
-- No API key or account required — fully sovereign, pay-per-call
-- Contact: max@klabo.world (has offered API access for aibtcdev integrations — see aibtcdev/skills#24)
+Load when verifying Nostr identity trust, checking for sybil risk, or tracing trust paths. Read-only — no wallet required for free tier queries. Contact: max@klabo.world (aibtcdev/skills#24).

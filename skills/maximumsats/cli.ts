@@ -2,18 +2,22 @@
 /**
  * maximumsats CLI
  * Nostr Web of Trust scoring via MaximumSats API
- * https://maximumsats.com
+ * API base: https://wot.klabo.world
+ *
+ * Usage: arc skills run --name maximumsats -- <command> [options]
  */
 
-const API_BASE = "https://maximumsats.com/api";
+const API_BASE = "https://wot.klabo.world";
 
-function normalizePubkey(pubkey: string): string {
+// ---- Pubkey validation ----
+
+function validatePubkey(pubkey: string): string {
   if (pubkey.startsWith("npub")) {
     console.error(
       JSON.stringify({
         success: false,
         error: "npub bech32 format not supported — provide 64-char hex pubkey",
-        hint: "Convert npub to hex with: npx nostr-tools or bech32 decode",
+        hint: "Convert npub to hex with a Nostr library (e.g. nip19.decode from nostr-tools)",
       })
     );
     process.exit(1);
@@ -31,22 +35,47 @@ function normalizePubkey(pubkey: string): string {
   return pubkey.toLowerCase();
 }
 
-async function callWotReport(pubkey: string): Promise<Record<string, unknown>> {
-  const res = await fetch(`${API_BASE}/wot-report`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ pubkey }),
-  });
+// ---- HTTP fetch with L402 awareness ----
+
+async function get(path: string, params: Record<string, string>): Promise<Record<string, unknown>> {
+  const url = new URL(API_BASE + path);
+  for (const [k, v] of Object.entries(params)) {
+    url.searchParams.set(k, v);
+  }
+
+  const res = await fetch(url.toString());
 
   if (res.status === 402) {
     const wwwAuth = res.headers.get("WWW-Authenticate") ?? "";
+    const invoiceMatch = wwwAuth.match(/invoice="([^"]+)"/);
     console.error(
       JSON.stringify({
         success: false,
-        error: "Payment required",
-        sats: 100,
+        error: "Free tier exhausted — payment required",
+        sats: 21,
         protocol: "L402",
-        invoice: wwwAuth,
+        invoice: invoiceMatch ? invoiceMatch[1] : wwwAuth,
+        hint: "Set MAXIMUMSATS_NWC_URL credential to enable automatic payment",
+      })
+    );
+    process.exit(1);
+  }
+
+  if (res.status === 404) {
+    console.error(
+      JSON.stringify({
+        success: false,
+        error: "Pubkey not found in WoT graph — pubkey may not be indexed yet (52K+ pubkeys covered)",
+      })
+    );
+    process.exit(1);
+  }
+
+  if (res.status === 530) {
+    console.error(
+      JSON.stringify({
+        success: false,
+        error: "MaximumSats API temporarily unavailable (Cloudflare 530) — retry in 60s",
       })
     );
     process.exit(1);
@@ -54,118 +83,89 @@ async function callWotReport(pubkey: string): Promise<Record<string, unknown>> {
 
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`API error ${res.status}: ${text}`);
+    throw new Error(`API error ${res.status}: ${text.slice(0, 200)}`);
   }
 
   return (await res.json()) as Record<string, unknown>;
 }
 
-async function cmdLookup(pubkey: string): Promise<void> {
-  const hex = normalizePubkey(pubkey);
-  const data = await callWotReport(hex);
+// ---- Commands ----
+
+async function cmdWotScore(pubkey: string): Promise<void> {
+  const hex = validatePubkey(pubkey);
+  const data = await get("/score", { pubkey: hex });
   console.log(
     JSON.stringify({
       success: true,
-      pubkey: data.pubkey,
+      pubkey: hex,
+      normalized_score: data.normalized_score,
       rank: data.rank,
-      position: data.position,
-      in_top_100: data.in_top_100,
-      graph: data.graph,
-    })
+      percentile: data.percentile,
+    }, null, 2)
   );
 }
 
-async function cmdScore(pubkey: string): Promise<void> {
-  const hex = normalizePubkey(pubkey);
-  const data = await callWotReport(hex);
-
-  // Normalize rank to 0-100: rank is a PageRank float, higher = better trust
-  // Clamp at 100 to avoid outliers blowing the scale
-  const rank = typeof data.rank === "number" ? data.rank : 0;
-  const score = Math.min(100, Math.max(0, Math.round(rank)));
-
+async function cmdSybilCheck(pubkey: string): Promise<void> {
+  const hex = validatePubkey(pubkey);
+  const data = await get("/sybil", { pubkey: hex });
+  const classification = data.classification as string;
   console.log(
     JSON.stringify({
       success: true,
-      pubkey: data.pubkey,
-      score,
-      rank: data.rank,
-      position: data.position,
-      in_top_100: data.in_top_100,
-      graph: data.graph,
-    })
+      pubkey: hex,
+      classification,
+      is_sybil: classification === "likely_sybil",
+      is_suspicious: classification === "suspicious" || classification === "likely_sybil",
+    }, null, 2)
   );
 }
 
-async function cmdReport(pubkey: string): Promise<void> {
-  const hex = normalizePubkey(pubkey);
-  // Full report endpoint — same URL, 100-sat L402 gate
-  const data = await callWotReport(hex);
+async function cmdTrustPath(source: string, target: string): Promise<void> {
+  const srcHex = validatePubkey(source);
+  const tgtHex = validatePubkey(target);
+  const data = await get("/trust-path", { source: srcHex, target: tgtHex });
   console.log(
     JSON.stringify({
       success: true,
-      pubkey: data.pubkey,
-      report: data.report,
-      rank: data.rank,
-      position: data.position,
-      in_top_100: data.in_top_100,
-      graph: data.graph,
-    })
+      source: srcHex,
+      target: tgtHex,
+      connected: data.connected,
+      combined_trust: data.combined_trust,
+      paths: data.paths,
+    }, null, 2)
   );
 }
 
-async function cmdVerifyNip05(address: string): Promise<void> {
-  if (!address.includes("@")) {
-    console.error(
-      JSON.stringify({ success: false, error: "Invalid NIP-05 address — expected user@domain format" })
-    );
-    process.exit(1);
-  }
-
-  const res = await fetch(`${API_BASE}/nip05-verify`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ address }),
-  });
-
-  if (res.status === 402) {
-    const wwwAuth = res.headers.get("WWW-Authenticate") ?? "";
-    console.error(
-      JSON.stringify({
-        success: false,
-        error: "Payment required",
-        sats: 20,
-        protocol: "L402",
-        invoice: wwwAuth,
-      })
-    );
-    process.exit(1);
-  }
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`API error ${res.status}: ${text}`);
-  }
-
-  const data = (await res.json()) as Record<string, unknown>;
-  console.log(JSON.stringify({ success: true, ...data }));
+async function cmdPredict(source: string, target: string): Promise<void> {
+  const srcHex = validatePubkey(source);
+  const tgtHex = validatePubkey(target);
+  const data = await get("/predict", { source: srcHex, target: tgtHex });
+  console.log(
+    JSON.stringify({
+      success: true,
+      source: srcHex,
+      target: tgtHex,
+      probability: data.probability,
+      signals: data.signals,
+    }, null, 2)
+  );
 }
 
-function printUsage(): void {
-  console.error(`Usage: bun skills/maximumsats/cli.ts <command> [options]
-
-Commands:
-  lookup --pubkey <hex64>         Free: rank + position from WoT graph
-  score --pubkey <hex64>          Free: normalized 0-100 trust score
-  report --pubkey <hex64>         Paid (100 sats, L402): full AI trust report
-  verify-nip05 --address <u@d>    Paid (20 sats, L402): NIP-05 identity check
-
-Pubkey format: 64-character hex (not npub)
-`);
-  process.exit(1);
+async function cmdNetworkHealth(): Promise<void> {
+  const data = await get("/network-health", {});
+  console.log(
+    JSON.stringify({
+      success: true,
+      graph_nodes: data.graph_nodes,
+      graph_edges: data.graph_edges,
+      gini_coefficient: data.gini_coefficient,
+      power_law_alpha: data.power_law_alpha,
+    }, null, 2)
+  );
 }
 
-// Minimal arg parser — named flags only
+// ---- Arg parser ----
+
 function parseFlags(args: string[]): Record<string, string> {
   const flags: Record<string, string> = {};
   for (let i = 0; i < args.length; i++) {
@@ -177,33 +177,55 @@ function parseFlags(args: string[]): Record<string, string> {
   return flags;
 }
 
-const args = process.argv.slice(2);
+function printUsage(): void {
+  console.error(`Usage: arc skills run --name maximumsats -- <command> [options]
+
+Commands:
+  wot-score   --pubkey <hex64>                 WoT trust score (0-100), rank, percentile
+  sybil-check --pubkey <hex64>                 Sybil classification (normal/suspicious/likely_sybil)
+  trust-path  --source <hex64> --target <hex64>  Hop-by-hop trust path between two pubkeys
+  predict     --source <hex64> --target <hex64>  Link prediction probability and graph signals
+  network-health                               Graph-wide stats (nodes, edges, Gini, power law)
+
+Pubkey format: 64-character hex (not npub bech32)
+API: https://wot.klabo.world  |  Free tier: 50 req/day per IP
+`);
+  process.exit(1);
+}
+
+// ---- Main ----
+
+const args = Bun.argv.slice(2);
 const command = args[0];
 
-if (!command) printUsage();
+if (!command || command === "--help" || command === "-h") printUsage();
 
 const flags = parseFlags(args.slice(1));
 
 try {
   switch (command) {
-    case "lookup":
+    case "wot-score":
       if (!flags.pubkey) { console.error("--pubkey required"); process.exit(1); }
-      await cmdLookup(flags.pubkey);
+      await cmdWotScore(flags.pubkey);
       break;
 
-    case "score":
+    case "sybil-check":
       if (!flags.pubkey) { console.error("--pubkey required"); process.exit(1); }
-      await cmdScore(flags.pubkey);
+      await cmdSybilCheck(flags.pubkey);
       break;
 
-    case "report":
-      if (!flags.pubkey) { console.error("--pubkey required"); process.exit(1); }
-      await cmdReport(flags.pubkey);
+    case "trust-path":
+      if (!flags.source || !flags.target) { console.error("--source and --target required"); process.exit(1); }
+      await cmdTrustPath(flags.source, flags.target);
       break;
 
-    case "verify-nip05":
-      if (!flags.address) { console.error("--address required"); process.exit(1); }
-      await cmdVerifyNip05(flags.address);
+    case "predict":
+      if (!flags.source || !flags.target) { console.error("--source and --target required"); process.exit(1); }
+      await cmdPredict(flags.source, flags.target);
+      break;
+
+    case "network-health":
+      await cmdNetworkHealth();
       break;
 
     default:
