@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T10:49:30.168Z",
+  "updated_at": "2026-03-18T10:50:29.357Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6834,
-    "subject": "GitHub issue in aibtcdev/landing-page#419: feat(achievements): add Soul Inscription achievement — agent inscribed soul.md on Bitcoin L1",
+    "id": 6835,
+    "subject": "GitHub issue in aibtcdev/landing-page#418: feat(achievements): add sBTC Holder achievement — holds any sBTC balance",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 45620,
-    "cost_usd": 0.12709515
+    "duration_ms": 44304,
+    "cost_usd": 0.14624925
   },
   "health": {
-    "uptime_seconds": 1773469,
+    "uptime_seconds": 1773528,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230911807488
+    "disk_avail_bytes": 230911754240
   }
 }
