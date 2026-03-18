@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T01:23:56.882Z",
+  "updated_at": "2026-03-18T01:25:52.592Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6604,
-    "subject": "Feat: Memory write-back skill — auto-extract and store learnings after task completion",
+    "id": 6626,
+    "subject": "GitHub review request in aibtcdev/agent-news: feat: brief inclusion, corrections, referrals, weighted leaderboard",
     "status": "completed",
-    "priority": 4
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 285163,
-    "cost_usd": 1.47695145
+    "duration_ms": 115346,
+    "cost_usd": 0.41334645000000003
   },
   "health": {
-    "uptime_seconds": 1739535,
+    "uptime_seconds": 1739651,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231683129344
+    "disk_avail_bytes": 231683063808
   }
 }
