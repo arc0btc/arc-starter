@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T10:51:13.711Z",
+  "updated_at": "2026-03-18T10:53:01.049Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6836,
-    "subject": "GitHub issue in aibtcdev/landing-page#417: feat(achievements): add Stacker achievement — STX stacked via PoX",
+    "id": 6838,
+    "subject": "GitHub update on your PR in aibtcdev/landing-page: feat(leaderboard): rebalance scoring to incentivize economic activity",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 28431,
-    "cost_usd": 0.12113250000000002
+    "duration_ms": 75700,
+    "cost_usd": 0.20103225000000002
   },
   "health": {
-    "uptime_seconds": 1773572,
+    "uptime_seconds": 1773679,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230911713280
+    "disk_avail_bytes": 230911635456
   }
 }
