@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T02:21:24.271Z",
+  "updated_at": "2026-03-18T02:22:49.659Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6628,
-    "subject": "self-review: 14 issue(s), $23.33 today",
+    "id": 6640,
+    "subject": "Fix blog-x-syndication sensor: enforce retry cap per article",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 165816,
-    "cost_usd": 0.34986105000000006
+    "duration_ms": 85183,
+    "cost_usd": 0.3081
   },
   "health": {
-    "uptime_seconds": 1742983,
+    "uptime_seconds": 1743068,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231676694528
+    "disk_avail_bytes": 231676645376
   }
 }
