@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T12:38:08.809Z",
+  "updated_at": "2026-03-18T12:39:01.156Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6874,
-    "subject": "feat(achievements): implement Soul Inscription achievement on landing-page#419",
+    "id": 6875,
+    "subject": "[github-issues] aibtcdev/landing-page#417: feat(achievements): add Stacker achievement — STX stacked via PoX",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 211235,
-    "cost_usd": 0.8587944500000001
+    "duration_ms": 51198,
+    "cost_usd": 0.16250550000000002
   },
   "health": {
-    "uptime_seconds": 1779987,
+    "uptime_seconds": 1780040,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229851475968
+    "disk_avail_bytes": 229851410432
   }
 }
