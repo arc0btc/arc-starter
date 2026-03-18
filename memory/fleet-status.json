@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T19:32:02.777Z",
+  "updated_at": "2026-03-18T19:34:09.345Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7079,
-    "subject": "Review PR #103 on aibtcdev/agent-news: fix: brief compile approved filter, Publisher gate, brief_signals wiring + migration tests",
+    "id": 7103,
+    "subject": "[github-issues] aibtcdev/aibtc-mcp-server#362: feat(aibtc-news): add MCP tools for aibtc.news API",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 33778,
-    "cost_usd": 0.1306917
+    "duration_ms": 100286,
+    "cost_usd": 0.2536521
   },
   "health": {
-    "uptime_seconds": 1804821,
+    "uptime_seconds": 1804948,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229483323392
+    "disk_avail_bytes": 229483270144
   }
 }
