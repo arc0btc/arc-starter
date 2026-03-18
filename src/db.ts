@@ -205,6 +205,17 @@ export interface InsertMarketPosition {
   status?: string;
 }
 
+// ---- Service log types ----
+
+export interface ServiceLog {
+  id: number;
+  created_at: string;
+  level: string;   // 'info' | 'warn' | 'error'
+  service: string; // 'dispatch' | 'sensor:<name>'
+  message: string;
+  task_id: number | null;
+}
+
 // ---- Singleton ----
 
 let _db: Database | null = null;
@@ -422,6 +433,19 @@ export function initDatabase(): Database {
   `);
   db.run("CREATE INDEX IF NOT EXISTS idx_task_deps_from ON task_deps(from_id)");
   db.run("CREATE INDEX IF NOT EXISTS idx_task_deps_to ON task_deps(to_id)");
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS service_logs (
+      id INTEGER PRIMARY KEY,
+      created_at TEXT DEFAULT (datetime('now')),
+      level TEXT NOT NULL,
+      service TEXT NOT NULL,
+      message TEXT NOT NULL,
+      task_id INTEGER
+    )
+  `);
+  db.run("CREATE INDEX IF NOT EXISTS idx_service_logs_created ON service_logs(created_at DESC)");
+  db.run("CREATE INDEX IF NOT EXISTS idx_service_logs_level ON service_logs(level, created_at DESC)");
 
   db.run(`
     CREATE TABLE IF NOT EXISTS roundtable_discussions (
@@ -1158,5 +1182,45 @@ export function updateMonitoredEndpointStatus(id: number, status: string): void 
 export function deleteMonitoredEndpoint(id: number): void {
   const db = getDatabase();
   db.query("DELETE FROM monitored_endpoints WHERE id = ?").run(id);
+}
+
+// ---- Service log queries ----
+
+/** Write a structured log event to the DB. Best-effort — failures are silently swallowed. */
+export function insertServiceLog(
+  level: "info" | "warn" | "error",
+  service: string,
+  message: string,
+  taskId?: number | null,
+): void {
+  try {
+    const db = getDatabase();
+    db.query("INSERT INTO service_logs (level, service, message, task_id) VALUES (?, ?, ?, ?)")
+      .run(level, service, message, taskId ?? null);
+  } catch {
+    // best-effort — never let log writes break callers
+  }
+}
+
+export function getServiceLogs(opts?: {
+  limit?: number;
+  level?: string;
+  service?: string;
+  task_id?: number;
+}): ServiceLog[] {
+  const db = getDatabase();
+  const conditions: string[] = [];
+  const params: unknown[] = [];
+
+  if (opts?.level) { conditions.push("level = ?"); params.push(opts.level); }
+  if (opts?.service) { conditions.push("service LIKE ?"); params.push(`${opts.service}%`); }
+  if (opts?.task_id != null) { conditions.push("task_id = ?"); params.push(opts.task_id); }
+
+  const where = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+  params.push(opts?.limit ?? 50);
+
+  return db
+    .query(`SELECT * FROM service_logs ${where} ORDER BY created_at DESC LIMIT ?`)
+    .all(...params) as ServiceLog[];
 }
 

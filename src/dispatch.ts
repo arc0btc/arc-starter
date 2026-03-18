@@ -19,6 +19,7 @@ import {
   getTodayCostUsd,
   initDatabase,
   insertCycleLog,
+  insertServiceLog,
   insertTask,
   upsertSkillVersion,
   markTaskActive,
@@ -674,6 +675,7 @@ export async function runDispatch(): Promise<void> {
   }
   const task = pendingTasks[0];
   log(`dispatch: selected task #${task.id} "${task.subject}" (priority ${task.priority})`);
+  insertServiceLog("info", "dispatch", `selected task #${task.id} "${task.subject}" (priority ${task.priority})`, task.id);
 
   const todayCost = getTodayCostUsd();
   if (todayCost >= DAILY_BUDGET_USD && task.priority > 2) {
@@ -681,6 +683,7 @@ export async function runDispatch(): Promise<void> {
       `dispatch: BUDGET GATE — today's cost $${todayCost.toFixed(2)} >= $${DAILY_BUDGET_USD} ceiling. ` +
       `Skipping P${task.priority} task #${task.id}. Only P1-2 tasks will dispatch.`
     );
+    insertServiceLog("warn", "dispatch", `budget gate: $${todayCost.toFixed(2)} >= $${DAILY_BUDGET_USD} ceiling, skipping P${task.priority} task #${task.id}`, task.id);
     clearDispatchLock();
     return;
   }
@@ -831,19 +834,23 @@ export async function runDispatch(): Promise<void> {
 
         if (errClass === "auth") {
           log(`dispatch: auth error — failing immediately: ${String(retryErr).slice(0, 200)}`);
+          insertServiceLog("error", "dispatch", `auth error: ${String(retryErr).slice(0, 200)}`, task.id);
           break;
         }
         if (errClass === "subprocess_timeout") {
           log(`dispatch: subprocess timeout — failing immediately (no inner retry): ${String(retryErr).slice(0, 200)}`);
+          insertServiceLog("error", "dispatch", `subprocess timeout (no retry)`, task.id);
           break;
         }
         if (attempt < BACKOFF_MS.length) {
           const delay = BACKOFF_MS[attempt];
           log(`dispatch: ${errClass} error (attempt ${attempt + 1}/${BACKOFF_MS.length + 1}), retrying in ${delay}ms`);
+          insertServiceLog("warn", "dispatch", `${errClass} error, retry ${attempt + 1}/${BACKOFF_MS.length + 1} in ${delay}ms`, task.id);
           await new Promise(r => setTimeout(r, delay));
           continue;
         }
         log(`dispatch: retries exhausted after ${BACKOFF_MS.length + 1} attempts`);
+        insertServiceLog("error", "dispatch", `retries exhausted (${errClass}) after ${BACKOFF_MS.length + 1} attempts`, task.id);
       }
     }
 
@@ -863,10 +870,12 @@ export async function runDispatch(): Promise<void> {
     const postStatus = getTaskById(task.id);
     if (postStatus && postStatus.status !== "active") {
       log(`dispatch: task #${task.id} was closed by LLM (status=${postStatus.status})`);
+      insertServiceLog("info", "dispatch", `task #${task.id} closed by LLM (${postStatus.status})`, task.id);
     } else {
       log(`dispatch: task #${task.id} still active after dispatch — fallback close as completed`);
       const summary = result.slice(0, 500) || "Completed — no output";
       markTaskCompleted(task.id, summary, result || undefined);
+      insertServiceLog("info", "dispatch", `task #${task.id} fallback-closed as completed`, task.id);
     }
     updateTaskCost(task.id, cost_usd, api_cost_usd, input_tokens, output_tokens);
 
@@ -898,12 +907,15 @@ export async function runDispatch(): Promise<void> {
     if (errClass === "auth") {
       markTaskFailed(task.id, `Auth error (not retried): ${errMsg.slice(0, 400)}`);
       log(`dispatch: task #${task.id} failed — auth error, not retrying`);
+      insertServiceLog("error", "dispatch", `task #${task.id} failed: auth error`, task.id);
     } else if (errClass === "subprocess_timeout") {
       markTaskFailed(task.id, `Task timed out after ${getDispatchTimeoutMs(model) / 60_000}min (${model} tier). Consider breaking it into smaller subtasks or raising the dispatch timeout.`);
       log(`dispatch: task #${task.id} failed — subprocess timeout, not retrying`);
+      insertServiceLog("error", "dispatch", `task #${task.id} failed: subprocess timeout (${model}, ${getDispatchTimeoutMs(model) / 60_000}min)`, task.id);
     } else if (errClass === "rate_limited") {
       requeueTask(task.id, { rollbackAttempt: true });
       log(`dispatch: task #${task.id} rate-limited — requeued (attempt count preserved, dispatch gate will block until manual reset)`);
+      insertServiceLog("warn", "dispatch", `task #${task.id} rate-limited, requeued`, task.id);
     } else {
       const attemptNumber = task.attempt_count + 1;
       if (attemptNumber < task.max_retries) {
@@ -911,11 +923,13 @@ export async function runDispatch(): Promise<void> {
         log(
           `dispatch: task #${task.id} failed (attempt ${attemptNumber}/${task.max_retries}, ${errClass}) — requeuing: ${errMsg.slice(0, 200)}`
         );
+        insertServiceLog("warn", "dispatch", `task #${task.id} failed attempt ${attemptNumber}/${task.max_retries} (${errClass}), requeued`, task.id);
       } else {
         markTaskFailed(task.id, `Max retries exhausted (${errClass}): ${errMsg.slice(0, 400)}`);
         log(
           `dispatch: task #${task.id} failed (attempt ${attemptNumber}/${task.max_retries}) — max retries exhausted`
         );
+        insertServiceLog("error", "dispatch", `task #${task.id} max retries exhausted (${errClass})`, task.id);
       }
     }
 

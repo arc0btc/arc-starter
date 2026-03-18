@@ -19,6 +19,7 @@ import {
   insertTaskDep,
   getTaskDeps,
   deleteTaskDep,
+  getServiceLogs,
 } from "./db.ts";
 import type { TaskDepType } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
@@ -670,6 +671,28 @@ function cmdResume(args: string[]): void {
   process.stdout.write(`To restart services if stopped: arc services install\n`);
 }
 
+function cmdLogs(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const limit = flags["limit"] ? parseInt(flags["limit"], 10) : 50;
+  const level = flags["level"];
+  const service = flags["service"];
+  const taskId = flags["task"] ? parseInt(flags["task"], 10) : undefined;
+
+  initDatabase();
+
+  const rows = getServiceLogs({ limit, level, service, task_id: taskId });
+
+  if (rows.length === 0) {
+    process.stdout.write("No log entries found.\n");
+    return;
+  }
+
+  for (const row of rows) {
+    const task = row.task_id != null ? ` task=#${row.task_id}` : "";
+    process.stdout.write(`${row.created_at} [${row.level.toUpperCase()}] ${row.service}${task}: ${row.message}\n`);
+  }
+}
+
 function cmdHelp(): void {
   process.stdout.write(`arc - Bitcoin agent (arc0.btc) | native to L1 + Stacks
 
@@ -759,6 +782,9 @@ COMMANDS
   resume
     Exit shutdown state. Sensors and dispatch resume on next timer cycle.
 
+  logs [--limit N] [--level info|warn|error] [--service NAME] [--task ID]
+    Show structured service log events (dispatch task lifecycle, errors, retries).
+
   help
     Show this help message.
 
@@ -813,6 +839,9 @@ async function main(): Promise<void> {
       break;
     case "services":
       await cmdServices(argv.slice(1));
+      break;
+    case "logs":
+      cmdLogs(argv.slice(1));
       break;
     case "shutdown":
       cmdShutdown(argv.slice(1));
