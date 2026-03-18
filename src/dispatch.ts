@@ -224,6 +224,73 @@ function computeSkillHashes(skillNames: string[]): Record<string, string> {
   return hashes;
 }
 
+// ---- Fleet knowledge loader ----
+
+const FLEET_LEARNINGS_DIR = join(ROOT, "memory", "fleet-learnings");
+const MAX_FLEET_ENTRIES = 20;
+
+interface FleetEntry {
+  id: string;
+  topics: string[];
+  content: string;
+  source: string;
+  created: string;
+  expires?: string;
+}
+
+interface FleetIndex {
+  topicMap: Record<string, string[]>;
+  entries: FleetEntry[];
+}
+
+function loadFleetIndex(): FleetIndex | null {
+  const raw = readFile(join(FLEET_LEARNINGS_DIR, "index.json"));
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as FleetIndex;
+  } catch {
+    return null;
+  }
+}
+
+function resolveFleetKnowledge(skillNames: string[]): string {
+  if (skillNames.length === 0) return "";
+
+  const index = loadFleetIndex();
+  if (!index || index.entries.length === 0) return "";
+
+  // Collect all topics relevant to this task's skills
+  const relevantTopics = new Set<string>();
+  for (const skill of skillNames) {
+    const topics = index.topicMap[skill];
+    if (topics) {
+      for (const t of topics) relevantTopics.add(t);
+    }
+  }
+  if (relevantTopics.size === 0) return "";
+
+  const now = new Date().toISOString().slice(0, 10);
+
+  // Filter: matching topics, not expired
+  const matched = index.entries.filter((entry) => {
+    if (entry.expires && entry.expires < now) return false;
+    return entry.topics.some((t) => relevantTopics.has(t));
+  });
+
+  if (matched.length === 0) return "";
+
+  // Cap at MAX_FLEET_ENTRIES, prefer newest
+  const sorted = matched
+    .sort((a, b) => (b.created > a.created ? 1 : -1))
+    .slice(0, MAX_FLEET_ENTRIES);
+
+  const lines = sorted.map(
+    (e) => `- [${e.source}] ${e.content}`
+  );
+
+  return `# Fleet Knowledge\n*${sorted.length} entries matching skills: ${skillNames.join(", ")}*\n\n${lines.join("\n")}`;
+}
+
 // ---- Parent chain builder ----
 
 function buildParentChain(task: Task): string {
@@ -259,14 +326,21 @@ function buildPrompt(task: Task, skillNames: string[], recentCycles: string): st
     "",
   ];
 
+  const fleetKnowledge = resolveFleetKnowledge(skillNames);
+
   const optionalSections: Array<[string, string]> = [
     ["# Identity", soul],
     ["# Memory", memory],
+    ["", fleetKnowledge],
     ["# Recent Cycles", recentCycles],
   ];
   for (const [heading, content] of optionalSections) {
     if (content) {
-      parts.push(heading, content, "");
+      if (heading) {
+        parts.push(heading, content, "");
+      } else {
+        parts.push(content, "");
+      }
     }
   }
 
