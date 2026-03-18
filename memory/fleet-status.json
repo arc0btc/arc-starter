@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T09:20:04.138Z",
+  "updated_at": "2026-03-18T09:24:22.262Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6809,
-    "subject": "Build Jingswap skill for Stacks DEX deposits",
+    "id": 6777,
+    "subject": "Set up forge@agentslovebitcoin.com email",
     "status": "completed",
-    "priority": 3
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 403747,
-    "cost_usd": 1.9932102
+    "duration_ms": 257747,
+    "cost_usd": 0.7288564499999999
   },
   "health": {
-    "uptime_seconds": 1768102,
+    "uptime_seconds": 1768361,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230917578752
+    "disk_avail_bytes": 230917476352
   }
 }
