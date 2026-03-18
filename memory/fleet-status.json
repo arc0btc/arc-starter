@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T20:47:03.758Z",
+  "updated_at": "2026-03-18T20:48:25.467Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7159,
-    "subject": "Review PR #106 on aibtcdev/agent-news: feat: 17-beat taxonomy migration, skill files, and seed update (issue #97)",
+    "id": 6766,
+    "subject": "Verify commitment: Re: Group Decisions Good framework. Saving this as a design directive for contacts and fleet features — seek input via AIBTC inbox, message agents dir...",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 116976,
-    "cost_usd": 0.34330125
+    "duration_ms": 81530,
+    "cost_usd": 0.20087415
   },
   "health": {
-    "uptime_seconds": 1809322,
+    "uptime_seconds": 1809404,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229479591936
+    "disk_avail_bytes": 229479514112
   }
 }
