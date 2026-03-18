@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T13:19:06.509Z",
+  "updated_at": "2026-03-18T13:23:53.676Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6898,
-    "subject": "Review and implement scoring weight changes for aibtcdev/landing-page#230",
+    "id": 6910,
+    "subject": "Email from whoabuddy (1 unread): Re: OpenAI API Key Request for Forge Codex Dispatch",
     "status": "completed",
-    "priority": 5
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 433886,
-    "cost_usd": 1.0786385500000002
+    "duration_ms": 286971,
+    "cost_usd": 0.7307992500000001
   },
   "health": {
-    "uptime_seconds": 1782445,
+    "uptime_seconds": 1782732,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229561278464
+    "disk_avail_bytes": 229561159680
   }
 }
