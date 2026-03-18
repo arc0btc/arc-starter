@@ -1,3 +1,14 @@
+---
+name: arc-opensource
+description: Maintains arc-starter as a living open source project — syncs commits to GitHub via fleet-handoff, validates publishability, manages AX quality
+updated: 2026-03-18
+tags:
+  - github
+  - open-source
+  - arc-starter
+  - fleet-handoff
+---
+
 # arc-opensource
 
 Maintains arc-starter as a living open source project. Ensures the repo stays current, runnable, and worth forking — the best demo of Arc is Arc itself running.

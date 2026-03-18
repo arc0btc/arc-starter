@@ -1,3 +1,14 @@
+---
+name: arc-strategy-review
+description: Weekly strategic check-in against Five Directives and milestones — lightweight assessment, no queue manipulation, at most 1 follow-up task
+updated: 2026-03-18
+tags:
+  - strategy
+  - weekly
+  - directives
+  - milestones
+---
+
 # arc-strategy-review
 
 Lightweight weekly strategic review. Checks goal and milestone progress without touching the task queue aggressively.
