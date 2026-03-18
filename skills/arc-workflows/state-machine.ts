@@ -2137,6 +2137,122 @@ Steps:
 };
 
 /**
+ * DeFi compounding: harvest LP fees → reinvest into same pool or rebalance.
+ * Sensor creates instances when accrued fees exceed threshold.
+ * Each cycle: detected → harvesting → reinvesting → completed.
+ */
+export const CompoundingMachine: StateMachine<{
+  pool?: string;
+  poolName?: string;
+  feeToken?: string;
+  feeAmount?: string;
+  feeAmountUsd?: number;
+  threshold?: number;
+  strategy?: "same-pool" | "rebalance";
+  harvestTxId?: string;
+  reinvestTxId?: string;
+  treasuryLog?: string;
+}> = {
+  name: "compounding",
+  initialState: "detected",
+  states: {
+    detected: {
+      on: { harvest: "harvesting", skip: "completed" },
+      action: (ctx) => {
+        if (!ctx.pool) return null;
+        const poolLabel = ctx.poolName || ctx.pool;
+        return {
+          type: "create-task",
+          subject: `Harvest Bitflow LP fees: ${poolLabel}`,
+          priority: 5,
+          skills: ["bitflow", "defi-compounding"],
+          description: `Harvest accrued fees from Bitflow LP position.
+
+Pool: ${ctx.pool}
+Fee token: ${ctx.feeToken || "unknown"}
+Estimated fees: ${ctx.feeAmount || "unknown"}
+Strategy: ${ctx.strategy || "same-pool"}
+
+Steps:
+1. Quote current LP position value via \`arc skills run --name bitflow -- pools\`
+2. Remove liquidity to harvest fees: \`arc skills run --name bitflow -- remove-liquidity --pool ${ctx.pool} --lp-amount <fee-portion>\`
+3. Record harvest tx ID in workflow context
+4. Transition workflow to 'harvesting' state`,
+        };
+      },
+    },
+    harvesting: {
+      on: { reinvest: "reinvesting", fail: "failed" },
+      action: (ctx) => {
+        if (!ctx.harvestTxId) return null;
+        const poolLabel = ctx.poolName || ctx.pool || "unknown";
+        const strategy = ctx.strategy || "same-pool";
+        return {
+          type: "create-task",
+          subject: `Reinvest ${strategy === "rebalance" ? "via rebalance" : "into"} ${poolLabel}`,
+          priority: 5,
+          skills: ["bitflow", "defi-compounding"],
+          description: `Reinvest harvested fees back into liquidity.
+
+Pool: ${ctx.pool}
+Harvest tx: ${ctx.harvestTxId}
+Strategy: ${strategy}
+
+Steps:
+1. Check harvested token balances
+2. ${strategy === "rebalance" ? "Swap to rebalance token ratio via Bitflow or Jingswap auction" : "Use harvested tokens directly"}
+3. Add liquidity: \`arc skills run --name bitflow -- add-liquidity --pool ${ctx.pool} --token-a-amount <amount> --token-b-amount <amount>\`
+4. Record reinvest tx ID in workflow context
+5. Transition workflow to 'reinvesting' state`,
+        };
+      },
+    },
+    reinvesting: {
+      on: { log: "logging", fail: "failed" },
+      action: (ctx) => {
+        if (!ctx.reinvestTxId) return null;
+        return {
+          type: "transition",
+          nextState: "logging",
+        };
+      },
+    },
+    logging: {
+      on: { complete: "completed" },
+      action: (ctx) => {
+        const poolLabel = ctx.poolName || ctx.pool || "unknown";
+        return {
+          type: "create-task",
+          subject: `Log compounding cycle: ${poolLabel}`,
+          priority: 8,
+          skills: ["defi-compounding"],
+          description: `Record compounding cycle for treasury reporting.
+
+Pool: ${ctx.pool}
+Fee amount: ${ctx.feeAmount || "unknown"}
+Harvest tx: ${ctx.harvestTxId || "unknown"}
+Reinvest tx: ${ctx.reinvestTxId || "unknown"}
+Strategy: ${ctx.strategy || "same-pool"}
+
+Steps:
+1. Append entry to memory/defi-compounding-log.json
+2. Update MEMORY.md with compounding stats if significant
+3. Transition workflow to 'completed'`,
+        };
+      },
+    },
+    failed: {
+      on: { retry: "detected" },
+      action: () => null,
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -2168,6 +2284,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "credential-rotation": CredentialRotationMachine,
     "psbt-escalation": PsbtEscalationMachine,
     "skill-maintenance": SkillMaintenanceMachine,
+    "compounding": CompoundingMachine,
   };
   return templates[name] || null;
 }
