@@ -34,14 +34,23 @@ function parseFlags(args: string[]): Record<string, string> {
 async function callApi(
   method: string,
   endpoint: string,
-  body?: Record<string, unknown>
+  body?: Record<string, unknown>,
+  authHeaders?: { address: string; signature: string; timestamp: number }
 ): Promise<Record<string, unknown>> {
   const url = `${API_BASE}${endpoint}`;
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (authHeaders) {
+    headers["X-BTC-Address"] = authHeaders.address;
+    headers["X-BTC-Signature"] = authHeaders.signature;
+    // API expects Unix seconds; timestamp may be ms if > 1e12
+    const ts = authHeaders.timestamp > 1e12 ? Math.floor(authHeaders.timestamp / 1000) : authHeaders.timestamp;
+    headers["X-BTC-Timestamp"] = String(ts);
+  }
   const options: RequestInit = {
     method,
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
   };
 
   if (body) {
@@ -262,9 +271,9 @@ async function cmdClaimBeat(args: string[]): Promise<void> {
   }
 
   try {
-    // Format message for signing (Unix ms timestamp, matching upstream format)
-    const timestamp = Date.now();
-    const message = `SIGNAL|claim-beat|${beat}|${ARC_BTC_ADDRESS}|${timestamp}`;
+    // Format message for signing: "METHOD /path:unix_seconds" (API v2 format)
+    const timestamp = Math.floor(Date.now() / 1000);
+    const message = `POST /api/beats:${timestamp}`;
     log(`Signing message: ${message}`);
 
     const signature = await signMessage(message);
@@ -272,17 +281,19 @@ async function cmdClaimBeat(args: string[]): Promise<void> {
 
     // Call API
     const body: Record<string, unknown> = {
-      btcAddress: ARC_BTC_ADDRESS,
-      beatId: beat,
+      slug: beat,
       name,
-      signature,
-      timestamp,
+      created_by: ARC_BTC_ADDRESS,
     };
 
     if (description) body.description = description;
     if (color) body.color = color;
 
-    const result = await callApi("POST", "/beats", body);
+    const result = await callApi("POST", "/beats", body, {
+      address: ARC_BTC_ADDRESS,
+      signature,
+      timestamp,
+    });
 
     log(`Beat claimed successfully`);
     console.log(JSON.stringify(result, null, 2));
@@ -380,28 +391,30 @@ async function cmdFileSignal(args: string[]): Promise<void> {
       process.exit(1);
     }
 
-    // Format message for signing (Unix ms timestamp, matching upstream format)
-    const timestamp = Date.now();
-    const message = `SIGNAL|file-signal|${beat}|${ARC_BTC_ADDRESS}|${timestamp}`;
+    // Format message for signing: "METHOD /path:unix_seconds" (API v2 format)
+    const timestamp = Math.floor(Date.now() / 1000);
+    const message = `POST /api/signals:${timestamp}`;
     log(`Signing message: ${message}`);
 
     const signature = await signMessage(message);
     log(`Got signature: ${signature.slice(0, 20)}...`);
 
-    // Call API
+    // Call API — auth via headers; body fields required by API
     const body: Record<string, unknown> = {
-      btcAddress: ARC_BTC_ADDRESS,
-      beatId: beat,
+      btc_address: ARC_BTC_ADDRESS,
+      beat_slug: beat,
       content,
-      signature,
-      timestamp,
     };
 
     if (headline) body.headline = headline;
     if (sourcesJson) body.sources = sourcesJson;
     if (tags.length > 0) body.tags = tags;
 
-    const result = await callApi("POST", "/signals", body);
+    const result = await callApi("POST", "/signals", body, {
+      address: ARC_BTC_ADDRESS,
+      signature,
+      timestamp,
+    });
 
     log(`Signal filed successfully`);
     console.log(JSON.stringify(result, null, 2));
@@ -575,9 +588,9 @@ async function cmdCompileBrief(args: string[]): Promise<void> {
     });
     log(`updated hook-state: lastBriefDate = ${today}`);
 
-    // Format message for signing (Unix ms timestamp, matching upstream format)
-    const timestamp = Date.now();
-    const message = `SIGNAL|compile-brief|${today}|${ARC_BTC_ADDRESS}|${timestamp}`;
+    // Format message for signing: "METHOD /path:unix_seconds" (API v2 format)
+    const timestamp = Math.floor(Date.now() / 1000);
+    const message = `POST /brief:${timestamp}`;
     log(`Signing message: ${message}`);
 
     const signature = await signMessage(message);
@@ -585,15 +598,17 @@ async function cmdCompileBrief(args: string[]): Promise<void> {
 
     // Call API to compile brief
     const body: Record<string, unknown> = {
-      btcAddress: ARC_BTC_ADDRESS,
+      btc_address: ARC_BTC_ADDRESS,
       date: today,
-      signature,
-      timestamp,
     };
 
     if (beatSlug) body.beat = beatSlug;
 
-    const result = await callApi("POST", "/brief", body);
+    const result = await callApi("POST", "/brief", body, {
+      address: ARC_BTC_ADDRESS,
+      signature,
+      timestamp,
+    });
 
     log(`Brief compiled successfully`);
     console.log(JSON.stringify(result, null, 2));
