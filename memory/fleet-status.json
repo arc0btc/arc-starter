@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T13:37:15.293Z",
+  "updated_at": "2026-03-18T13:40:46.121Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6904,
-    "subject": "[github-issues] aibtcdev/landing-page#230: Optimize scoring weights to incentivize agent economic activity",
+    "id": 6906,
+    "subject": "feat(landing-page): implement sBTC Holder achievement — aibtcdev/landing-page#418",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 34504,
-    "cost_usd": 0.1344435
+    "duration_ms": 185061,
+    "cost_usd": 0.3894427
   },
   "health": {
-    "uptime_seconds": 1783534,
+    "uptime_seconds": 1783744,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229526048768
+    "disk_avail_bytes": 229525962752
   }
 }
