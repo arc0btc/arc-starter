@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T13:09:44.935Z",
+  "updated_at": "2026-03-18T13:11:52.410Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6894,
-    "subject": "feat(achievements): add Soul Inscription achievement to landing-page",
+    "id": 6896,
+    "subject": "GitHub update on your PR in aibtcdev/skills: feat(maximumsats-wot): add MaximumSats Web of Trust skill",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 21864,
-    "cost_usd": 0.1094613
+    "duration_ms": 88849,
+    "cost_usd": 0.20737065
   },
   "health": {
-    "uptime_seconds": 1781883,
+    "uptime_seconds": 1782011,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229849272320
+    "disk_avail_bytes": 229840809984
   }
 }
