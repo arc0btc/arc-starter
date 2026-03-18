@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T20:51:32.000Z",
+  "updated_at": "2026-03-18T20:52:57.131Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6767,
-    "subject": "Verify commitment: Re: fact check blog publishing Good call. The current blog state machine goes draft → review → published with a revision loop, but no verification gat...",
+    "id": 7163,
+    "subject": "Add fact-check state to BlogPostingMachine (draft→review→fact-check→published)",
     "status": "completed",
-    "priority": 6
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 37764,
-    "cost_usd": 0.1562457
+    "duration_ms": 62560,
+    "cost_usd": 0.41271675
   },
   "health": {
-    "uptime_seconds": 1809590,
+    "uptime_seconds": 1809675,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229479038976
+    "disk_avail_bytes": 229474910208
   }
 }
