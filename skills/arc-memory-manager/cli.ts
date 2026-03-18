@@ -6,6 +6,8 @@ import {
   listArcMemory,
   searchArcMemory,
   expireArcMemories,
+  consolidateMemories,
+  findDuplicateGroups,
 } from "../../src/db.ts";
 import type { ArcMemoryFull } from "../../src/db.ts";
 
@@ -263,6 +265,39 @@ function cmdTop(params: Record<string, string>): void {
   }
 }
 
+function cmdConsolidate(params: Record<string, string>): void {
+  const domain = params.domain;
+  const result = consolidateMemories(domain);
+
+  console.log("=== Memory Consolidation Report ===\n");
+  console.log(`TTL assigned:        ${result.ttlAssigned} entries`);
+  console.log(`Importance decayed:  ${result.importanceDecayed} entries`);
+  console.log(`Expired (removed):   ${result.expired} entries`);
+
+  if (result.domainAlerts.length > 0) {
+    console.log("\n--- Domain Budget Alerts ---");
+    for (const alert of result.domainAlerts) {
+      console.log(`  ${alert.domain.padEnd(16)} ${alert.count} entries (over budget)`);
+    }
+  } else {
+    console.log("\nAll domains within budget.");
+  }
+
+  // Also show duplicate groups if any
+  const dupes = findDuplicateGroups(domain);
+  const largeDupes = [...dupes.entries()].filter(([, g]) => g.length > 3);
+  if (largeDupes.length > 0) {
+    console.log("\n--- Large Duplicate Groups (>3 entries) ---");
+    for (const [prefix, group] of largeDupes) {
+      console.log(`  "${prefix}" — ${group.length} entries`);
+    }
+    console.log("\nRun 'dedup' for detailed duplicate analysis.");
+  }
+
+  const remaining = countArcMemories(domain);
+  console.log(`\nTotal remaining: ${remaining} entries`);
+}
+
 function printUsage(): void {
   console.log(`Usage: bun skills/arc-memory-manager/cli.ts <command> [options]
 
@@ -272,6 +307,7 @@ Commands:
   stale [--days N]                Find stale entries (default: 60 days)
   dedup [--domain DOMAIN]         Detect potential duplicates
   expire                          Run TTL expiry pass
+  consolidate [--domain DOMAIN]   Run full pruning pass (TTL, decay, expire, budget)
   top [--limit N]                 Highest importance entries (default: 10)`);
 }
 
@@ -294,6 +330,9 @@ async function main(): Promise<void> {
       break;
     case "expire":
       cmdExpire();
+      break;
+    case "consolidate":
+      cmdConsolidate(params);
       break;
     case "top":
       cmdTop(params);

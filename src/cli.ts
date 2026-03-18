@@ -26,6 +26,7 @@ import {
   expireArcMemories,
   countArcMemories,
   checkRecentFailures,
+  consolidateMemories,
 } from "./db.ts";
 import {
   readScratchpad,
@@ -64,6 +65,7 @@ const USAGE = {
   memoryList: 'arc memory list [--domain DOMAIN] [--limit N]',
   memoryDelete: 'arc memory delete --key KEY',
   memoryExpire: 'arc memory expire',
+  memoryConsolidate: 'arc memory consolidate [--domain DOMAIN]',
   memoryCheckDedup: 'arc memory check-dedup --subject TEXT [--hours N] [--threshold N]',
   memorySearchSkills: 'arc memory search-skills --query TEXT [--limit N]',
   scratchpadRead: 'arc scratchpad read --task N',
@@ -899,6 +901,27 @@ function cmdMemoryExpire(): void {
   process.stdout.write(`Expired ${count} memories.\n`);
 }
 
+function cmdMemoryConsolidate(args: string[]): void {
+  const { flags } = parseFlags(args);
+  initDatabase();
+  const domain = flags["domain"];
+  const result = consolidateMemories(domain);
+
+  process.stdout.write(`TTL assigned:        ${result.ttlAssigned}\n`);
+  process.stdout.write(`Importance decayed:  ${result.importanceDecayed}\n`);
+  process.stdout.write(`Expired (removed):   ${result.expired}\n`);
+
+  if (result.domainAlerts.length > 0) {
+    process.stdout.write("\nDomain budget alerts:\n");
+    for (const alert of result.domainAlerts) {
+      process.stdout.write(`  ${alert.domain}: ${alert.count} entries (over budget)\n`);
+    }
+  }
+
+  const remaining = countArcMemories(domain);
+  process.stdout.write(`Total remaining:     ${remaining}\n`);
+}
+
 function cmdMemoryCheckDedup(args: string[]): void {
   const { flags } = parseFlags(args);
   const subject = flags["subject"];
@@ -972,10 +995,12 @@ function cmdMemory(args: string[]): void {
     cmdMemoryDelete(args.slice(1));
   } else if (sub === "expire") {
     cmdMemoryExpire();
+  } else if (sub === "consolidate") {
+    cmdMemoryConsolidate(args.slice(1));
   } else if (sub === "check-dedup") {
     cmdMemoryCheckDedup(args.slice(1));
   } else {
-    process.stderr.write(`Usage: arc memory <search|search-skills|add|list|delete|expire|check-dedup>\n`);
+    process.stderr.write(`Usage: arc memory <search|search-skills|add|list|delete|expire|consolidate|check-dedup>\n`);
     process.exit(sub ? 1 : 0);
   }
 }
@@ -1183,6 +1208,9 @@ COMMANDS
 
   ${USAGE.memoryExpire}
     Run TTL cleanup — removes memories past their expiry.
+
+  ${USAGE.memoryConsolidate}
+    Run full pruning pass — assign default TTLs, decay importance, expire, check domain budgets.
 
   ${USAGE.scratchpadRead}
     Read the project scratchpad for a task family.

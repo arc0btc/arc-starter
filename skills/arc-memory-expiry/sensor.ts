@@ -1,10 +1,10 @@
 // arc-memory-expiry/sensor.ts
 //
-// Daily cleanup of TTL-expired arc_memory entries.
+// Daily cleanup of TTL-expired arc_memory entries + full consolidation pass.
 // Pure TypeScript — no LLM.
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { initDatabase, expireArcMemories, countArcMemories } from "../../src/db.ts";
+import { initDatabase, consolidateMemories, countArcMemories } from "../../src/db.ts";
 
 const SENSOR_NAME = "arc-memory-expiry";
 const INTERVAL_MINUTES = 1440; // 24 hours
@@ -17,13 +17,21 @@ export default async function memoryExpirySensor(): Promise<string> {
 
   try {
     initDatabase();
-    const expired = expireArcMemories();
+    const result = consolidateMemories();
     const remaining = countArcMemories();
 
-    if (expired > 0) {
-      log(`Expired ${expired} memories. ${remaining} remaining.`);
+    const parts: string[] = [];
+    if (result.ttlAssigned > 0) parts.push(`ttl=${result.ttlAssigned}`);
+    if (result.importanceDecayed > 0) parts.push(`decayed=${result.importanceDecayed}`);
+    if (result.expired > 0) parts.push(`expired=${result.expired}`);
+    if (result.domainAlerts.length > 0) {
+      parts.push(`budget-alerts=${result.domainAlerts.map((a) => `${a.domain}:${a.count}`).join(",")}`);
+    }
+
+    if (parts.length > 0) {
+      log(`Consolidation: ${parts.join(", ")}. ${remaining} remaining.`);
     } else {
-      log(`No expired memories. ${remaining} total.`);
+      log(`No consolidation needed. ${remaining} total.`);
     }
 
     return "ok";

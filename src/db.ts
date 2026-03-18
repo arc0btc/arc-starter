@@ -1405,3 +1405,153 @@ export function countArcMemories(domain?: string): number {
   return row.count;
 }
 
+/**
+ * Assign default TTL to entries that lack one, based on importance and key prefix patterns.
+ * - importance >= 8 (low/ephemeral): 30 days
+ * - importance 4-7 (default range): 60 days
+ * - key prefix "incident:": 90 days
+ * - key prefix "experiment:": 30 days
+ * - key prefix "skill-failure:": 14 days
+ * High-importance entries (1-3) are left without TTL (persist indefinitely).
+ */
+export function assignDefaultTtls(): number {
+  const db = getDatabase();
+  let assigned = 0;
+
+  // Low importance → 30 days
+  const r1 = db.run(
+    `UPDATE arc_memory_meta SET ttl_days = 30
+     WHERE ttl_days IS NULL AND importance >= 8`
+  );
+  assigned += r1.changes;
+
+  // Default importance → 60 days
+  const r2 = db.run(
+    `UPDATE arc_memory_meta SET ttl_days = 60
+     WHERE ttl_days IS NULL AND importance BETWEEN 4 AND 7`
+  );
+  assigned += r2.changes;
+
+  // Key-prefix overrides (applied after general rules)
+  const r3 = db.run(
+    `UPDATE arc_memory_meta SET ttl_days = 90
+     WHERE ttl_days IS NULL AND key LIKE 'incident:%'`
+  );
+  assigned += r3.changes;
+
+  const r4 = db.run(
+    `UPDATE arc_memory_meta SET ttl_days = 30
+     WHERE key LIKE 'experiment:%' AND (ttl_days IS NULL OR ttl_days > 30)`
+  );
+  assigned += r4.changes;
+
+  const r5 = db.run(
+    `UPDATE arc_memory_meta SET ttl_days = 14
+     WHERE key LIKE 'skill-failure:%' AND (ttl_days IS NULL OR ttl_days > 14)`
+  );
+  assigned += r5.changes;
+
+  return assigned;
+}
+
+/**
+ * Decay importance for entries not updated in a long time.
+ * Entries with importance 1-3 (critical) are never decayed.
+ * Entries not updated in 30+ days: importance += 1 (max 10).
+ * Entries not updated in 60+ days: importance += 2 (max 10).
+ * Returns the number of entries whose importance was decayed.
+ */
+export function decayImportance(): number {
+  const db = getDatabase();
+
+  // 60+ days stale: bump by 2 (capped at 10), only for non-critical entries
+  const r1 = db.run(
+    `UPDATE arc_memory_meta
+     SET importance = MIN(importance + 2, 10)
+     WHERE importance > 3
+     AND julianday('now') - julianday(updated_at) > 60
+     AND importance < 10`
+  );
+
+  // 30-60 days stale: bump by 1 (capped at 10)
+  const r2 = db.run(
+    `UPDATE arc_memory_meta
+     SET importance = MIN(importance + 1, 10)
+     WHERE importance > 3
+     AND julianday('now') - julianday(updated_at) BETWEEN 30 AND 60
+     AND importance < 10`
+  );
+
+  return r1.changes + r2.changes;
+}
+
+/**
+ * Find potential duplicate entries within a domain by grouping on key prefix.
+ * Returns groups of entries that share the same prefix (before first : or -).
+ */
+export function findDuplicateGroups(domain?: string): Map<string, ArcMemoryFull[]> {
+  const entries = listArcMemory(domain, 1000);
+  const prefixGroups = new Map<string, ArcMemoryFull[]>();
+
+  for (const e of entries) {
+    const prefix = e.key.split(/[:\-]/)[0] || e.key;
+    const group = prefixGroups.get(prefix) || [];
+    group.push(e);
+    prefixGroups.set(prefix, group);
+  }
+
+  // Only return groups with >1 entry
+  const dupes = new Map<string, ArcMemoryFull[]>();
+  for (const [prefix, group] of prefixGroups) {
+    if (group.length > 1) {
+      dupes.set(prefix, group);
+    }
+  }
+  return dupes;
+}
+
+export interface ConsolidationResult {
+  ttlAssigned: number;
+  importanceDecayed: number;
+  expired: number;
+  domainAlerts: Array<{ domain: string; count: number }>;
+}
+
+/**
+ * Run full consolidation pass: assign TTLs, decay importance, expire, check budgets.
+ * This is the main entry point for the sensor and CLI.
+ */
+export function consolidateMemories(domain?: string): ConsolidationResult {
+  const ttlAssigned = assignDefaultTtls();
+  const importanceDecayed = decayImportance();
+  const expired = expireArcMemories();
+  const domainAlerts = getDomainBudgetAlerts(domain);
+  return { ttlAssigned, importanceDecayed, expired, domainAlerts };
+}
+
+/**
+ * Check domain entry counts against a threshold.
+ * Default threshold: 75 entries per domain.
+ * Returns domains that exceed the threshold.
+ */
+export function getDomainBudgetAlerts(domain?: string, threshold: number = 75): Array<{ domain: string; count: number }> {
+  const db = getDatabase();
+  const alerts: Array<{ domain: string; count: number }> = [];
+
+  if (domain) {
+    const count = countArcMemories(domain);
+    if (count > threshold) {
+      alerts.push({ domain, count });
+    }
+    return alerts;
+  }
+
+  const rows = db.query(
+    `SELECT domain, COUNT(*) as count FROM arc_memory_meta
+     GROUP BY domain HAVING count > ?
+     ORDER BY count DESC`
+  ).all(threshold) as Array<{ domain: string; count: number }>;
+
+  return rows;
+}
+
