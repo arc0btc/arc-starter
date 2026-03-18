@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T01:43:12.993Z",
+  "updated_at": "2026-03-18T01:43:48.029Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6562,
-    "subject": "GitHub issue in aibtcdev/agent-news#86: ops: child inscription handoff to new Publisher agent",
+    "id": 6563,
+    "subject": "GitHub issue in aibtcdev/agent-news#85: discuss: beat allocation policy and daily brief slot distribution",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 103879,
-    "cost_usd": 0.28358714999999995
+    "duration_ms": 34846,
+    "cost_usd": 0.1293234
   },
   "health": {
-    "uptime_seconds": 1740691,
+    "uptime_seconds": 1740726,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231686889472
+    "disk_avail_bytes": 231686844416
   }
 }
