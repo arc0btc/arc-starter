@@ -148,6 +148,35 @@ export interface TaskDep {
   created_at: string;
 }
 
+// ---- Monitored endpoint types ----
+
+export interface MonitoredEndpoint {
+  id: number;
+  endpoint_url: string;
+  label: string | null;
+  tier: string;                          // basic|pro
+  check_interval_minutes: number;
+  alert_webhook: string | null;
+  owner_address: string | null;          // STX address of the payer
+  status: string;                        // active|paused|expired
+  created_at: string;
+  expires_at: string | null;
+  last_checked_at: string | null;
+  last_status: string | null;            // healthy|degraded|down
+  last_response_ms: number | null;
+  consecutive_failures: number;
+}
+
+export interface InsertMonitoredEndpoint {
+  endpoint_url: string;
+  label?: string | null;
+  tier?: string;
+  check_interval_minutes?: number;
+  alert_webhook?: string | null;
+  owner_address?: string | null;
+  expires_at?: string | null;
+}
+
 // ---- Market position types ----
 
 export interface MarketPosition {
@@ -357,6 +386,27 @@ export function initDatabase(): Database {
   `);
   db.run("CREATE INDEX IF NOT EXISTS idx_market_positions_market ON market_positions(market_id)");
   db.run("CREATE INDEX IF NOT EXISTS idx_market_positions_status ON market_positions(status)");
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS monitored_endpoints (
+      id INTEGER PRIMARY KEY,
+      endpoint_url TEXT NOT NULL,
+      label TEXT,
+      tier TEXT NOT NULL DEFAULT 'basic',
+      check_interval_minutes INTEGER NOT NULL DEFAULT 60,
+      alert_webhook TEXT,
+      owner_address TEXT,
+      status TEXT DEFAULT 'active',
+      created_at TEXT DEFAULT (datetime('now')),
+      expires_at TEXT,
+      last_checked_at TEXT,
+      last_status TEXT,
+      last_response_ms INTEGER,
+      consecutive_failures INTEGER DEFAULT 0
+    )
+  `);
+  db.run("CREATE INDEX IF NOT EXISTS idx_monitored_endpoints_status ON monitored_endpoints(status)");
+  db.run("CREATE INDEX IF NOT EXISTS idx_monitored_endpoints_owner ON monitored_endpoints(owner_address)");
 
   db.run(`
     CREATE TABLE IF NOT EXISTS task_deps (
@@ -1030,5 +1080,83 @@ export function getTotalProceedsUstx(): number {
     .query("SELECT COALESCE(SUM(cost_ustx), 0) as total FROM market_positions WHERE action IN ('sell', 'redeem') AND status != 'failed'")
     .get() as { total: number };
   return row.total;
+}
+
+// ---- Monitored endpoint queries ----
+
+export function insertMonitoredEndpoint(fields: InsertMonitoredEndpoint): number {
+  const db = getDatabase();
+  const result = db
+    .query(
+      `INSERT INTO monitored_endpoints (endpoint_url, label, tier, check_interval_minutes, alert_webhook, owner_address, expires_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`
+    )
+    .run(
+      fields.endpoint_url,
+      fields.label ?? null,
+      fields.tier ?? "basic",
+      fields.check_interval_minutes ?? 60,
+      fields.alert_webhook ?? null,
+      fields.owner_address ?? null,
+      fields.expires_at ?? null,
+    );
+  return Number(result.lastInsertRowid);
+}
+
+export function getMonitoredEndpoint(id: number): MonitoredEndpoint | null {
+  const db = getDatabase();
+  return db.query("SELECT * FROM monitored_endpoints WHERE id = ?").get(id) as MonitoredEndpoint | null;
+}
+
+export function getActiveMonitoredEndpoints(): MonitoredEndpoint[] {
+  const db = getDatabase();
+  return db
+    .query("SELECT * FROM monitored_endpoints WHERE status = 'active' ORDER BY id ASC")
+    .all() as MonitoredEndpoint[];
+}
+
+export function getMonitoredEndpointsByOwner(ownerAddress: string): MonitoredEndpoint[] {
+  const db = getDatabase();
+  return db
+    .query("SELECT * FROM monitored_endpoints WHERE owner_address = ? ORDER BY id ASC")
+    .all(ownerAddress) as MonitoredEndpoint[];
+}
+
+/** Returns active endpoints that are due for a check based on their interval. */
+export function getDueMonitoredEndpoints(): MonitoredEndpoint[] {
+  const db = getDatabase();
+  return db
+    .query(
+      `SELECT * FROM monitored_endpoints
+       WHERE status = 'active'
+         AND (last_checked_at IS NULL
+              OR datetime(last_checked_at, '+' || check_interval_minutes || ' minutes') <= datetime('now'))
+       ORDER BY last_checked_at ASC NULLS FIRST`
+    )
+    .all() as MonitoredEndpoint[];
+}
+
+export function updateMonitoredEndpointCheck(
+  id: number,
+  status: string,
+  responseMs: number,
+  consecutiveFailures: number,
+): void {
+  const db = getDatabase();
+  db.query(
+    `UPDATE monitored_endpoints
+     SET last_checked_at = datetime('now'), last_status = ?, last_response_ms = ?, consecutive_failures = ?
+     WHERE id = ?`
+  ).run(status, responseMs, consecutiveFailures, id);
+}
+
+export function updateMonitoredEndpointStatus(id: number, status: string): void {
+  const db = getDatabase();
+  db.query("UPDATE monitored_endpoints SET status = ? WHERE id = ?").run(status, id);
+}
+
+export function deleteMonitoredEndpoint(id: number): void {
+  const db = getDatabase();
+  db.query("DELETE FROM monitored_endpoints WHERE id = ?").run(id);
 }
 

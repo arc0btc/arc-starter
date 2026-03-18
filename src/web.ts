@@ -5,7 +5,7 @@
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, extname } from "node:path";
-import { initDatabase, getDatabase, insertTask, markTaskFailed, markTaskCompleted, getEmailThreads, getEmailMessagesByFromAddress, type EmailMessage } from "./db.ts";
+import { initDatabase, getDatabase, insertTask, markTaskFailed, markTaskCompleted, getEmailThreads, getEmailMessagesByFromAddress, insertMonitoredEndpoint, getMonitoredEndpoint, getActiveMonitoredEndpoints, deleteMonitoredEndpoint, type EmailMessage } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
 import { IDENTITY } from "./identity.ts";
 import { dispatchCodex } from "./codex.ts";
@@ -315,6 +315,139 @@ async function handlePrReview(req: Request): Promise<Response> {
     poll_url: `/api/tasks/${taskId}`,
     daily_remaining: PR_REVIEW_DAILY_LIMIT - prReviewDayCount,
   }, 201);
+}
+
+// ---- Monitoring Service ----
+
+const MONITOR_TIERS: Record<string, { interval_minutes: number; cost_sats_monthly: number; label: string }> = {
+  basic: { interval_minutes: 60, cost_sats_monthly: 500, label: "Basic (hourly)" },
+  pro:   { interval_minutes: 5,  cost_sats_monthly: 2500, label: "Pro (5min + alerts)" },
+};
+
+const MONITOR_DAILY_LIMIT = 50; // max new registrations per day
+let monitorDayKey = "";
+let monitorDayCount = 0;
+
+function checkMonitorRateLimit(): boolean {
+  const today = new Date().toISOString().slice(0, 10);
+  if (today !== monitorDayKey) { monitorDayKey = today; monitorDayCount = 0; }
+  return monitorDayCount < MONITOR_DAILY_LIMIT;
+}
+
+async function handleMonitorCreate(req: Request): Promise<Response> {
+  if (!checkMonitorRateLimit()) {
+    return json({
+      error: "Daily registration limit reached",
+      code: "RATE_LIMITED",
+      limit: MONITOR_DAILY_LIMIT,
+    }, 429);
+  }
+
+  let body: { endpoint_url?: string; tier?: string; label?: string; alert_webhook?: string; owner_address?: string };
+  try {
+    body = await req.json() as typeof body;
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  const endpointUrl = typeof body.endpoint_url === "string" ? body.endpoint_url.trim() : "";
+  if (!endpointUrl) return errorResponse("'endpoint_url' is required", 400);
+
+  try {
+    new URL(endpointUrl);
+  } catch {
+    return errorResponse("'endpoint_url' must be a valid URL", 400);
+  }
+
+  const tierName = typeof body.tier === "string" ? body.tier.toLowerCase() : "basic";
+  const tier = MONITOR_TIERS[tierName];
+  if (!tier) return errorResponse(`Invalid tier '${tierName}'. Valid: basic, pro`, 400);
+
+  const label = typeof body.label === "string" ? body.label.trim().slice(0, 200) : null;
+  const alertWebhook = typeof body.alert_webhook === "string" ? body.alert_webhook.trim() : null;
+  const ownerAddress = typeof body.owner_address === "string" ? body.owner_address.trim() : null;
+
+  // Validate webhook URL if provided
+  if (alertWebhook) {
+    try {
+      new URL(alertWebhook);
+    } catch {
+      return errorResponse("'alert_webhook' must be a valid URL", 400);
+    }
+  }
+
+  // Check for duplicate active monitoring of same URL by same owner
+  const activeEndpoints = getActiveMonitoredEndpoints();
+  const duplicate = activeEndpoints.find(
+    (ep) => ep.endpoint_url === endpointUrl && ep.owner_address === ownerAddress && ep.status === "active"
+  );
+  if (duplicate) {
+    return json({
+      error: "This endpoint is already being monitored",
+      code: "DUPLICATE",
+      existing_id: duplicate.id,
+      poll_url: `/api/services/monitor/${duplicate.id}`,
+    }, 409);
+  }
+
+  const id = insertMonitoredEndpoint({
+    endpoint_url: endpointUrl,
+    label,
+    tier: tierName,
+    check_interval_minutes: tier.interval_minutes,
+    alert_webhook: alertWebhook,
+    owner_address: ownerAddress,
+  });
+
+  monitorDayCount++;
+
+  return json({
+    id,
+    endpoint_url: endpointUrl,
+    tier: tierName,
+    check_interval_minutes: tier.interval_minutes,
+    cost_sats_monthly: tier.cost_sats_monthly,
+    label,
+    status: "active",
+    poll_url: `/api/services/monitor/${id}`,
+  }, 201);
+}
+
+function handleMonitorGet(idStr: string): Response {
+  const id = parseInt(idStr, 10);
+  if (isNaN(id)) return errorResponse("Invalid endpoint ID", 400);
+
+  const ep = getMonitoredEndpoint(id);
+  if (!ep) return errorResponse("Endpoint not found", 404);
+
+  return json({
+    id: ep.id,
+    endpoint_url: ep.endpoint_url,
+    label: ep.label,
+    tier: ep.tier,
+    check_interval_minutes: ep.check_interval_minutes,
+    status: ep.status,
+    owner_address: ep.owner_address,
+    created_at: ep.created_at,
+    expires_at: ep.expires_at,
+    health: {
+      current_status: ep.last_status ?? "unknown",
+      last_response_ms: ep.last_response_ms,
+      last_checked_at: ep.last_checked_at,
+      consecutive_failures: ep.consecutive_failures,
+    },
+  });
+}
+
+function handleMonitorDelete(idStr: string): Response {
+  const id = parseInt(idStr, 10);
+  if (isNaN(id)) return errorResponse("Invalid endpoint ID", 400);
+
+  const ep = getMonitoredEndpoint(id);
+  if (!ep) return errorResponse("Endpoint not found", 404);
+
+  deleteMonitoredEndpoint(id);
+  return json({ removed: id, endpoint_url: ep.endpoint_url });
 }
 
 // ---- Roundtable ----
@@ -2025,6 +2158,7 @@ function route(req: Request): Response | Promise<Response> {
   if (method === "POST" && path === "/api/messages") return handlePostMessage(req);
   if (method === "POST" && path === "/api/ask") return handleAsk(req);
   if (method === "POST" && path === "/api/services/pr-review") return handlePrReview(req);
+  if (method === "POST" && path === "/api/services/monitor") return handleMonitorCreate(req);
   if (method === "POST" && path === "/api/roundtable/respond") return handleRoundtableRespond(req);
   if (method === "POST" && path === "/api/roundtable/receive") return handleRoundtableReceive(req);
   if (method === "POST" && path === "/api/consensus/vote") return handleConsensusVote(req);
@@ -2043,6 +2177,35 @@ function route(req: Request): Response | Promise<Response> {
       daily_limit: ASK_DAILY_LIMIT,
       daily_remaining: ASK_DAILY_LIMIT - askDayCount,
       usage: "POST /api/ask with { question, tier?, context? }",
+    });
+  }
+
+  // Monitoring service: GET/DELETE by ID
+  const monitorMatch = path.match(/^\/api\/services\/monitor\/(\d+)$/);
+  if (monitorMatch) {
+    if (method === "GET") return handleMonitorGet(monitorMatch[1]);
+    if (method === "DELETE") return handleMonitorDelete(monitorMatch[1]);
+  }
+
+  // GET: Monitoring service pricing and info
+  if (method === "GET" && path === "/api/services/monitor") {
+    const today = new Date().toISOString().slice(0, 10);
+    if (today !== monitorDayKey) { monitorDayKey = today; monitorDayCount = 0; }
+    const active = getActiveMonitoredEndpoints();
+    return json({
+      service: "monitoring",
+      description: "Paid endpoint monitoring. Arc checks your site/API on a recurring schedule and alerts you on failures.",
+      tiers: Object.fromEntries(
+        Object.entries(MONITOR_TIERS).map(([name, t]) => [name, {
+          interval_minutes: t.interval_minutes,
+          cost_sats_monthly: t.cost_sats_monthly,
+          label: t.label,
+        }])
+      ),
+      active_endpoints: active.length,
+      daily_registration_limit: MONITOR_DAILY_LIMIT,
+      daily_remaining: MONITOR_DAILY_LIMIT - monitorDayCount,
+      usage: "POST /api/services/monitor with { endpoint_url, tier?, label?, alert_webhook? }",
     });
   }
 

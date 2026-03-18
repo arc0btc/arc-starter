@@ -51,6 +51,18 @@ const SERVICE_MAP: Record<
     priority: 5,
     model: "sonnet",
   },
+  "arc:monitor-basic": {
+    subject: (_, sender) => `Monitoring service (Basic) ordered by ${sender} — check X DMs for endpoint URL`,
+    skills: ["arc-monitoring-service"],
+    priority: 7,
+    model: "haiku",
+  },
+  "arc:monitor-pro": {
+    subject: (_, sender) => `Monitoring service (Pro) ordered by ${sender} — check X DMs for endpoint URL`,
+    skills: ["arc-monitoring-service"],
+    priority: 7,
+    model: "haiku",
+  },
 };
 
 // Expected minimum amounts in microSTX to prevent dust attacks
@@ -59,6 +71,8 @@ const MIN_AMOUNTS_STX: Record<string, number> = {
   "arc:ask-quick": 1_000_000,      // 1 STX
   "arc:ask-informed": 5_000_000,   // 5 STX
   "arc:pr-standard": 40_000_000,   // 40 STX
+  "arc:monitor-basic": 2_000_000,  // 2 STX (~500 sats/month equivalent)
+  "arc:monitor-pro": 10_000_000,   // 10 STX (~2500 sats/month equivalent)
 };
 
 // Expected minimum amounts in satoshis for sBTC payments
@@ -69,6 +83,8 @@ const MIN_AMOUNTS_SBTC: Record<string, number> = {
   "arc:ask-quick": 1_000,          // 0.00001 sBTC (~$1)
   "arc:ask-informed": 5_000,       // 0.00005 sBTC (~$5)
   "arc:pr-standard": 40_000,       // 0.0004 sBTC (~$40)
+  "arc:monitor-basic": 500,        // 0.000005 sBTC (~$0.50)
+  "arc:monitor-pro": 2_500,        // 0.000025 sBTC (~$2.50)
 };
 
 interface StacksTx {
