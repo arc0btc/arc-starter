@@ -2550,6 +2550,141 @@ export const PrReviewMachine: StateMachine<{
 };
 
 /**
+ * GithubIssueImplementationMachine — models the recurring GitHub issue detection →
+ * plan → worktree implementation → fleet-handoff for PR cycle.
+ *
+ * Pattern detected: "sensor:github-issues:*" tasks (10-11 recurrences, avg 2.0–2.4 steps/chain)
+ * consistently spawn planning and implementation follow-ups, then a fleet-handoff to Arc
+ * for the actual GitHub PR (Arc-only policy). This machine deduplicates re-triggers:
+ * once a workflow exists for an issue, the sensor skips creating new tasks.
+ *
+ * instance_key: "github-issue-{owner}/{repo}-{issueNumber}"
+ *   e.g. "github-issue-aibtcdev/landing-page-418"
+ *
+ * States:
+ *   detected          → issue found; creates a planning task
+ *   planning          → plan is being drafted (executor transitions → implementing)
+ *   implementing      → implementation task running in worktree
+ *   awaiting-handoff  → implementation complete; fleet-handoff task created for Arc to open PR
+ *   pr-open           → PR exists on GitHub; waiting for CI/review
+ *   completed         → PR merged or issue resolved
+ *   failed            → unrecoverable error
+ *
+ * Context:
+ *   repo         — "owner/repo" e.g. "aibtcdev/landing-page"
+ *   issueNumber  — GitHub issue number
+ *   issueTitle   — issue title (for task subject generation)
+ *   issueUrl     — full GitHub issue URL
+ *   branch       — feature branch name
+ *   worktreePath — local worktree path (populated during implementing)
+ *   prUrl        — GitHub PR URL (populated by fleet-handoff task)
+ *   planSummary  — brief description of approach (populated during planning)
+ *   implSummary  — summary of what was implemented
+ */
+export const GithubIssueImplementationMachine: StateMachine<{
+  repo?: string;
+  issueNumber?: number;
+  issueTitle?: string;
+  issueUrl?: string;
+  branch?: string;
+  worktreePath?: string;
+  prUrl?: string;
+  planSummary?: string;
+  implSummary?: string;
+}> = {
+  name: "github-issue-implementation",
+  initialState: "detected",
+  states: {
+    detected: {
+      on: { start_planning: "planning" },
+      action: (ctx) => {
+        if (!ctx.repo || !ctx.issueNumber) return null;
+        const label = ctx.issueTitle
+          ? ` — ${ctx.issueTitle}`
+          : ` #${ctx.issueNumber}`;
+        return {
+          type: "create-task",
+          subject: `[${ctx.repo}] Analyze and plan #${ctx.issueNumber}${label}`,
+          priority: 5,
+          skills: ["github-issues"],
+          description: `Plan implementation for GitHub issue: ${ctx.issueUrl || `${ctx.repo}#${ctx.issueNumber}`}
+
+Steps:
+1. Read the issue and any linked discussion
+2. Design a minimal, focused solution
+3. Write a brief plan (2-5 bullets) — store in workflow context as planSummary
+4. Transition this workflow: arc skills run --name workflows -- transition <id> planning --context '{"planSummary":"..."}'`,
+        };
+      },
+    },
+    planning: {
+      on: { begin_impl: "implementing" },
+      action: (ctx) => {
+        if (!ctx.repo || !ctx.issueNumber) return null;
+        const label = ctx.issueTitle
+          ? ` — ${ctx.issueTitle}`
+          : ` #${ctx.issueNumber}`;
+        return {
+          type: "create-task",
+          subject: `[${ctx.repo}] Implement #${ctx.issueNumber}${label}`,
+          priority: 4,
+          skills: ["github-issues", "arc-worktrees"],
+          description: `Implement fix for GitHub issue: ${ctx.issueUrl || `${ctx.repo}#${ctx.issueNumber}`}
+${ctx.planSummary ? `\nPlan:\n${ctx.planSummary}` : ""}
+
+Steps:
+1. Create a worktree branch (arc-worktrees skill)
+2. Implement the change per the plan
+3. Run syntax checks; verify no regressions
+4. Store branch name in workflow context as branch
+5. Transition workflow: arc skills run --name workflows -- transition <id> implementing --context '{"branch":"...","implSummary":"..."}'`,
+        };
+      },
+    },
+    implementing: {
+      on: { handoff: "awaiting-handoff" },
+      action: (ctx) => {
+        if (!ctx.repo || !ctx.issueNumber || !ctx.branch) return null;
+        const label = ctx.issueTitle
+          ? ` — ${ctx.issueTitle}`
+          : ` #${ctx.issueNumber}`;
+        return {
+          type: "create-task",
+          subject: `[${ctx.repo}] Fleet-handoff: open PR for #${ctx.issueNumber}${label}`,
+          priority: 5,
+          skills: ["github-issues", "fleet-handoff"],
+          description: `Implementation complete for ${ctx.repo}#${ctx.issueNumber}. Hand off to Arc to open the PR (GitHub is Arc-only).
+
+Branch: ${ctx.branch}
+${ctx.implSummary ? `Implementation summary:\n${ctx.implSummary}` : ""}
+${ctx.issueUrl ? `Issue: ${ctx.issueUrl}` : ""}
+
+Steps:
+1. Run fleet-handoff to Arc with branch and issue context
+2. Transition workflow: arc skills run --name workflows -- transition <id> awaiting-handoff`,
+        };
+      },
+    },
+    "awaiting-handoff": {
+      on: { pr_opened: "pr-open", close: "completed" },
+      action: () => null,
+    },
+    "pr-open": {
+      on: { merged: "completed", closed: "completed" },
+      action: () => null,
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+    failed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -2585,6 +2720,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "compounding": CompoundingMachine,
     "self-review-cycle": SelfReviewCycleMachine,
     "cost-report-audit": CostReportAuditMachine,
+    "github-issue-implementation": GithubIssueImplementationMachine,
   };
   return templates[name] || null;
 }
