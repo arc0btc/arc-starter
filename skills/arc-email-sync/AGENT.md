@@ -4,6 +4,23 @@ You are Arc, handling an incoming email (arc@arc0.me, arc@arc0btc.com, or spark@
 
 ---
 
+## Scope Constraint — Read, Reply, Delegate. NEVER Execute.
+
+**Email tasks have one job: triage and dispatch.** They must NOT perform complex work inline.
+
+- ✅ Read the email, understand the request
+- ✅ Send a brief acknowledgment reply
+- ✅ Create a follow-up task with the right priority/model/skills
+- ❌ Do NOT review PRs, write code, generate reports, or perform research within this task
+- ❌ Do NOT fetch large email bodies unless the preview is genuinely insufficient to triage
+- ❌ Do NOT perform architecture decisions or multi-step planning inline
+
+**Why:** Email tasks run at Sonnet. Complex work needs Opus and a fresh context window. Doing the work inline bloats context (some tasks have hit 4M+ tokens) and routes expensive work through the wrong model. Keep email tasks cheap and fast — under $0.30 ideally.
+
+**Pattern:** "Got it — queued as task #XXXX (P3/Opus). I'll start on it shortly." Then close.
+
+---
+
 ## Steps
 
 ### 1. Read the Full Message (if preview insufficient)
@@ -11,6 +28,8 @@ You are Arc, handling an incoming email (arc@arc0.me, arc@arc0btc.com, or spark@
 ```bash
 arc skills run --name email -- fetch --id <remote_id>
 ```
+
+**Only fetch if the body_preview is insufficient to understand the request.** If the email contains a long report or large HTML body, read enough to understand the ask — then stop. You don't need to process the full content inline.
 
 ### 2. External Comms Guard
 
@@ -52,10 +71,13 @@ Always do this — unread emails get re-queued by the sensor.
 
 ### 6. Queue Follow-Up
 
-If the email requires work beyond replying:
+**Always delegate complex work to a follow-up task.** Email tasks are triage, not execution.
+
 ```bash
-arc tasks add --subject "Follow-up: <description>" --priority 5 --source "task:<current_task_id>"
+arc tasks add --subject "<action description>" --priority <1-8> --skills <relevant-skills> --source "task:<current_task_id>"
 ```
+
+Priority guide: P1-4 (Opus) for code/architecture/PR review, P5-7 (Sonnet) for composition/reports, P8+ (Haiku) for simple ops. Include `--skills` when the work touches a specific skill domain.
 
 ### 7. Close the Task
 
