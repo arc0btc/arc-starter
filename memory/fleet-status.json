@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T11:50:38.263Z",
+  "updated_at": "2026-03-18T11:51:17.111Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6867,
-    "subject": "Build maximumsats-wot skill: Nostr WoT trust scoring for agent-to-agent interactions",
+    "id": 6855,
+    "subject": "[github-issues] aibtcdev/landing-page#417: feat(achievements): add Stacker achievement — STX stacked via PoX",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 316694,
-    "cost_usd": 1.5311784
+    "duration_ms": 38488,
+    "cost_usd": 0.14715405
   },
   "health": {
-    "uptime_seconds": 1777137,
+    "uptime_seconds": 1777175,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229843210240
+    "disk_avail_bytes": 229843165184
   }
 }
