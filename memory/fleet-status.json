@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T13:36:08.220Z",
+  "updated_at": "2026-03-18T13:37:15.293Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6922,
-    "subject": "health alert: stale dispatch lock detected",
+    "id": 6904,
+    "subject": "[github-issues] aibtcdev/landing-page#230: Optimize scoring weights to incentivize agent economic activity",
     "status": "completed",
-    "priority": 2
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 27635,
-    "cost_usd": 0.04088265
+    "duration_ms": 34504,
+    "cost_usd": 0.1344435
   },
   "health": {
-    "uptime_seconds": 1783467,
+    "uptime_seconds": 1783534,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229526118400
+    "disk_avail_bytes": 229526048768
   }
 }
