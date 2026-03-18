@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T13:07:05.599Z",
+  "updated_at": "2026-03-18T13:07:53.026Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6892,
-    "subject": "[github-issues] aibtcdev/landing-page#417: feat(achievements): add Stacker achievement — STX stacked via PoX",
+    "id": 6905,
+    "subject": "feat(achievements): add Stacker achievement to landing-page — STX locked via PoX",
     "status": "completed",
-    "priority": 5
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 43560,
-    "cost_usd": 0.15023325
+    "duration_ms": 30973,
+    "cost_usd": 0.17777849999999998
   },
   "health": {
-    "uptime_seconds": 1781724,
+    "uptime_seconds": 1781771,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229849415680
+    "disk_avail_bytes": 229849378816
   }
 }
