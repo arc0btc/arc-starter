@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T00:23:43.738Z",
+  "updated_at": "2026-03-18T00:30:05.281Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6590,
-    "subject": "Research: Top AI agent memory systems and architectures",
+    "id": 6591,
+    "subject": "Research: Memory consolidation and pruning strategies for long-running agents",
     "status": "completed",
     "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 268863,
-    "cost_usd": 1.0197175
+    "duration_ms": 381176,
+    "cost_usd": 1.5844483499999997
   },
   "health": {
-    "uptime_seconds": 1735922,
+    "uptime_seconds": 1736304,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231659769856
+    "disk_avail_bytes": 231656779776
   }
 }
