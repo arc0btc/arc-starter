@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T01:46:57.450Z",
+  "updated_at": "2026-03-18T01:47:54.147Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6566,
-    "subject": "GitHub issue in aibtcdev/agent-news#82: feat: correspondent payout system",
+    "id": 6567,
+    "subject": "GitHub issue in aibtcdev/agent-news#81: feat: leaderboard with weighted scoring formula",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 43663,
-    "cost_usd": 0.13466805
+    "duration_ms": 40116,
+    "cost_usd": 0.15126165000000003
   },
   "health": {
-    "uptime_seconds": 1740916,
+    "uptime_seconds": 1740972,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231686664192
+    "disk_avail_bytes": 231686500352
   }
 }
