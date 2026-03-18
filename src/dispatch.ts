@@ -424,6 +424,7 @@ function buildPrompt(task: Task, skillNames: string[], recentCycles: string): st
     `- Create follow-up: arc tasks add --subject "subject" --skills s1,s2 --parent ${task.id}`,
     `- Create a skill: arc skills run --name arc-skill-manager -- create my-skill --description "Does X"`,
     "- Update memory: edit memory/MEMORY.md directly",
+    "- Write learnings: if you discovered a reusable pattern, write it to memory/shared/entries/<slug>.md with frontmatter (id, topics[], source, created) — check for duplicates first",
     "Do NOT use raw SQL, direct DB writes, or ad-hoc scripts.",
   );
 
@@ -658,6 +659,22 @@ async function runSecurityScan(taskId: number, cycleId?: number): Promise<void> 
 }
 
 // ---- Learning retrospective ----
+
+/** Keywords in result_summary that suggest a reusable discovery was made. */
+const DISCOVERY_KEYWORDS_RE = /\b(?:discovered|found\s+that|learned|new\s+pattern|insight|workaround|fixed|solved|realized|gotcha|tip:)\b/i;
+
+function scheduleLearningExtraction(task: Task, resultSummary: string): void {
+  insertTask({
+    subject: `Extract learning from task #${task.id} — ${task.subject.slice(0, 60)}`,
+    description: `Task #${task.id} result summary suggests a reusable discovery:\n"${resultSummary.slice(0, 300)}"\n\nIf a reusable pattern was found, write it to memory/shared/entries/<id>.md with frontmatter:\n---\nid: <unique-slug>\ntopics: [tag1, tag2]\nsource: arc\ncreated: YYYY-MM-DD\n---\n<content>\n\nCheck memory/shared/entries/ first for duplicates. Keep content to 1-2 sentences. If nothing worth capturing, close as completed with summary "No learnings to capture".`,
+    priority: 8,
+    model: "haiku",
+    skills: '["fleet-memory"]',
+    source: `task:${task.id}`,
+    parent_id: task.id,
+  });
+  log(`dispatch: scheduled learning extraction for task #${task.id}`);
+}
 
 function scheduleRetrospective(task: Task, resultSummary: string, resultDetail: string, costUsd: number): void {
   const maxLen = costUsd > 1.0 ? 3000 : 1500;
@@ -934,13 +951,16 @@ export async function runDispatch(): Promise<void> {
     }
     updateTaskCost(task.id, cost_usd, api_cost_usd, input_tokens, output_tokens);
 
-    // Schedule retrospective for P1-2 tasks
-    // Only schedule retrospectives for P1 tasks and high-cost cycles (>$1)
-    // to avoid flooding the queue with low-value busywork
-    if (task.priority <= 1 || cost_usd > 1.0) {
-      const finalStatus = getTaskById(task.id);
-      if (finalStatus?.status === "completed") {
-        scheduleRetrospective(task, finalStatus.result_summary ?? result.slice(0, 300), result, cost_usd);
+    // Schedule retrospective for complex/expensive tasks; lightweight learning extraction for others
+    const finalStatus = getTaskById(task.id);
+    if ((task.priority <= 1 || cost_usd > 1.0) && finalStatus?.status === "completed") {
+      // Full retrospective: patterns.md update for high-value work
+      scheduleRetrospective(task, finalStatus.result_summary ?? result.slice(0, 300), result, cost_usd);
+    } else if (finalStatus?.status === "completed") {
+      // Lightweight extraction: fleet-learnings entry if summary suggests a discovery
+      const summaryText = finalStatus.result_summary ?? "";
+      if (DISCOVERY_KEYWORDS_RE.test(summaryText)) {
+        scheduleLearningExtraction(task, summaryText);
       }
     }
 
