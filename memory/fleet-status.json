@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T10:22:26.466Z",
+  "updated_at": "2026-03-18T10:24:28.625Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6820,
-    "subject": "GitHub issue in aibtcdev/agent-news#91: bug: signals API returns 500 after Phase 0 merge (PR #87 + #88)",
+    "id": 6821,
+    "subject": "ERC-8004: milestone status check — zero task activity in 7 days",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 38648,
-    "cost_usd": 0.1499532
+    "duration_ms": 100563,
+    "cost_usd": 0.24976155000000005
   },
   "health": {
-    "uptime_seconds": 1771845,
+    "uptime_seconds": 1771967,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230915108864
+    "disk_avail_bytes": 230914994176
   }
 }
