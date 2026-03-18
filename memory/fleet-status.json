@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T15:58:33.229Z",
+  "updated_at": "2026-03-18T16:01:42.036Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6977,
-    "subject": "[github-issues] aibtcdev/landing-page#230: Optimize scoring weights to incentivize agent economic activity",
+    "id": 6989,
+    "subject": "Implement scoring weight rebalance for aibtcdev/landing-page#230 — incentivize economic activity",
     "status": "completed",
-    "priority": 5
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 61116,
-    "cost_usd": 0.15721799999999997
+    "duration_ms": 188589,
+    "cost_usd": 0.657205
   },
   "health": {
-    "uptime_seconds": 1792012,
+    "uptime_seconds": 1792200,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229514309632
+    "disk_avail_bytes": 229511766016
   }
 }
