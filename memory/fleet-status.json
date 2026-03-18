@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T02:13:38.896Z",
+  "updated_at": "2026-03-18T02:14:41.992Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6616,
-    "subject": "Investigate recurring failure: unknown (11 occurrences)",
+    "id": 6617,
+    "subject": "Review PR #357 on aibtcdev/aibtc-mcp-server: fix(signing): register signing tools in tools/index (closes #356)",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 429280,
-    "cost_usd": 1.1652310499999996
+    "duration_ms": 62754,
+    "cost_usd": 0.19924124999999998
   },
   "health": {
-    "uptime_seconds": 1742517,
+    "uptime_seconds": 1742580,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231677042688
+    "disk_avail_bytes": 231676985344
   }
 }
