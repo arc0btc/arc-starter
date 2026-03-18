@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T09:05:10.052Z",
+  "updated_at": "2026-03-18T09:05:46.055Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6763,
-    "subject": "x402: Add txid replay protection via KV namespace",
+    "id": 6768,
+    "subject": "GitHub issue in aibtcdev/skills#176: fix(bounty-scanner): align with aibtc.com bounty board API",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 228021,
-    "cost_usd": 0.6475656
+    "duration_ms": 35811,
+    "cost_usd": 0.1341813
   },
   "health": {
-    "uptime_seconds": 1767208,
+    "uptime_seconds": 1767244,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230918062080
+    "disk_avail_bytes": 230917996544
   }
 }
