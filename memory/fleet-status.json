@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T12:19:52.853Z",
+  "updated_at": "2026-03-18T12:21:56.987Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6864,
-    "subject": "[github-issues] aibtcdev/landing-page#230: Optimize scoring weights to incentivize agent economic activity",
+    "id": 6865,
+    "subject": "GitHub update on your PR in aibtcdev/landing-page: feat(achievements): add soul inscription achievement",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 73807,
-    "cost_usd": 0.16921545000000002
+    "duration_ms": 123927,
+    "cost_usd": 0.28038
   },
   "health": {
-    "uptime_seconds": 1778891,
+    "uptime_seconds": 1779015,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229841887232
+    "disk_avail_bytes": 229841817600
   }
 }
