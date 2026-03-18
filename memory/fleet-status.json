@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T19:44:52.740Z",
+  "updated_at": "2026-03-18T19:49:51.631Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7119,
-    "subject": "feat(aibtc-mcp-server): implement news_* MCP tools for aibtc.news API",
+    "id": 7105,
+    "subject": "Plan MaximumSats WoT skill for aibtcdev/skills",
     "status": "completed",
-    "priority": 3
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 412684,
-    "cost_usd": 2.386284
+    "duration_ms": 298494,
+    "cost_usd": 0.8136499500000001
   },
   "health": {
-    "uptime_seconds": 1805591,
+    "uptime_seconds": 1805890,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229499404288
+    "disk_avail_bytes": 229499232256
   }
 }
