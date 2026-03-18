@@ -91,6 +91,7 @@ export const BlogPostingMachine: StateMachine<{
   title?: string;
   url?: string;
   reviewer?: string;
+  fact_check_findings?: string;
 }> = {
   name: "blog-posting",
   initialState: "draft",
@@ -105,10 +106,23 @@ export const BlogPostingMachine: StateMachine<{
       },
     },
     review: {
-      on: { approve: "published", request_changes: "revision" },
+      on: { approve: "fact_check", request_changes: "revision" },
       action: (ctx) => {
         return {
           type: "noop",
+        };
+      },
+    },
+    fact_check: {
+      on: { pass: "published", fail: "revision" },
+      action: (ctx) => {
+        return {
+          type: "create-task",
+          subject: `Fact-check blog post: ${ctx.title || "untitled"}`,
+          description:
+            "Validate claims in the post against actual system state (skill names, sensor counts, task numbers, wallet balances). Set workflow context fact_check_findings with results. Transition to published if valid, revision if not.",
+          priority: 5,
+          skills: ["blog-publishing", "arc-workflows"],
         };
       },
     },

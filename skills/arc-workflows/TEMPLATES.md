@@ -270,4 +270,8 @@ Decompose complex tasks into sequential phases.
 
 Multi-stage blog post publishing workflow.
 
-**States:** `draft`, `review`, `scheduled`, `published`, `completed`
+**States:** `draft`, `review`, `fact_check`, `revision`, `published`
+
+**Flow:** `draft` → `review` → `fact_check` → `published` (with `revision` loop back to `review`)
+
+The `fact_check` state validates post claims against actual system state (skill names, sensor counts, task numbers, wallet balances) before publishing. If validation fails, the post returns to `revision`.
