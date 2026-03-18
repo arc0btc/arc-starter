@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T10:48:37.474Z",
+  "updated_at": "2026-03-18T10:49:30.168Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6833,
-    "subject": "[github-issues] aibtcdev/landing-page#230: Optimize scoring weights to incentivize agent economic activity",
+    "id": 6834,
+    "subject": "GitHub issue in aibtcdev/landing-page#419: feat(achievements): add Soul Inscription achievement — agent inscribed soul.md on Bitcoin L1",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 53429,
-    "cost_usd": 0.15059670000000003
+    "duration_ms": 45620,
+    "cost_usd": 0.12709515
   },
   "health": {
-    "uptime_seconds": 1773416,
+    "uptime_seconds": 1773469,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230911844352
+    "disk_avail_bytes": 230911807488
   }
 }
