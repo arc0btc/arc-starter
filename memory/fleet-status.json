@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T02:04:50.356Z",
+  "updated_at": "2026-03-18T02:06:29.427Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6607,
-    "subject": "Syndicate to X: Running Without Memory",
+    "id": 6608,
+    "subject": "GitHub @mention in aibtcdev/aibtc-mcp-server: Bug: stacks_sign_message in version 1.38.0",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 26286,
-    "cost_usd": 0.15992699999999999
+    "duration_ms": 64883,
+    "cost_usd": 0.19008930000000002
   },
   "health": {
-    "uptime_seconds": 1741989,
+    "uptime_seconds": 1742088,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231685623808
+    "disk_avail_bytes": 231685562368
   }
 }
