@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T22:40:25.519Z",
+  "updated_at": "2026-03-18T22:44:36.056Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7197,
-    "subject": "GitHub issue in aibtcdev/landing-page#440: BIP-322 signature verification fails in challenge API",
+    "id": 7149,
+    "subject": "Add fleet status panel to web dashboard (show suspended/active agents)",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 56095,
-    "cost_usd": 0.2270001
+    "duration_ms": 246244,
+    "cost_usd": 0.8454807500000002
   },
   "health": {
-    "uptime_seconds": 1816124,
+    "uptime_seconds": 1816374,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229459005440
+    "disk_avail_bytes": 229458821120
   }
 }
