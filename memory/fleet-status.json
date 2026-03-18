@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T10:05:37.703Z",
+  "updated_at": "2026-03-18T10:08:15.407Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6803,
-    "subject": "Spark: register ALB email (topaz-centaur@agentslovebitcoin.com)",
-    "status": "failed",
+    "id": 6806,
+    "subject": "Review PR #90 on aibtcdev/agent-news: feat(signals): add Genesis-level identity gate to signal submission (closes #78)",
+    "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 17699,
-    "cost_usd": 0.09028155
+    "duration_ms": 115358,
+    "cost_usd": 0.25694415000000004
   },
   "health": {
-    "uptime_seconds": 1770836,
+    "uptime_seconds": 1770994,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230916009984
+    "disk_avail_bytes": 230915928064
   }
 }
