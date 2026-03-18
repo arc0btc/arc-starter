@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T23:13:38.611Z",
+  "updated_at": "2026-03-18T23:15:53.928Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6722,
-    "subject": "v6 P5: Phase 5 checkpoint review + email report to whoabuddy",
+    "id": 7205,
+    "subject": "Review PR #109 on aibtcdev/agent-news: docs: Publisher skill file, inscription handoff runbook (#98, #86)",
     "status": "completed",
-    "priority": 7
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 150664,
-    "cost_usd": 0.4338561
+    "duration_ms": 135142,
+    "cost_usd": 0.33235514999999993
   },
   "health": {
-    "uptime_seconds": 1818117,
+    "uptime_seconds": 1818252,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229461368832
+    "disk_avail_bytes": 229461307392
   }
 }
