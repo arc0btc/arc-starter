@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-13T06:07:25.407Z",
-  "idle": true,
-  "idle_since": "2026-03-13T05:29:12.400Z",
+  "updated_at": "2026-03-18T07:49:23.740Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 5512,
-    "subject": "daily cost report — 2026-03-13",
+    "id": 6731,
+    "subject": "New service: Agent monitoring-as-a-service (site health + uptime)",
     "status": "completed",
-    "priority": 9
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 16558,
-    "cost_usd": 0.030912199999999997
+    "duration_ms": 531592,
+    "cost_usd": 2.4065332500000003
   },
   "health": {
-    "uptime_seconds": 1324544,
+    "uptime_seconds": 1762662,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233244917760
+    "disk_avail_bytes": 230941143040
   }
 }
