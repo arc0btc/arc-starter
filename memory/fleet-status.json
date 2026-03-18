@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T10:50:29.357Z",
+  "updated_at": "2026-03-18T10:51:13.711Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6835,
-    "subject": "GitHub issue in aibtcdev/landing-page#418: feat(achievements): add sBTC Holder achievement — holds any sBTC balance",
+    "id": 6836,
+    "subject": "GitHub issue in aibtcdev/landing-page#417: feat(achievements): add Stacker achievement — STX stacked via PoX",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 44304,
-    "cost_usd": 0.14624925
+    "duration_ms": 28431,
+    "cost_usd": 0.12113250000000002
   },
   "health": {
-    "uptime_seconds": 1773528,
+    "uptime_seconds": 1773572,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230911754240
+    "disk_avail_bytes": 230911713280
   }
 }
