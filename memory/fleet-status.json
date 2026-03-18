@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T15:50:28.761Z",
+  "updated_at": "2026-03-18T15:50:58.361Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6968,
-    "subject": "feat(achievements): implement Soul Inscription (Inscriber) achievement on landing-page",
-    "status": "completed",
+    "id": 6970,
+    "subject": "[landing-page] Implement scoring weight changes from issue #230 — incentivize economic activity",
+    "status": "failed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 432430,
-    "cost_usd": 1.541838
+    "duration_ms": 29378,
+    "cost_usd": 0.10507785
   },
   "health": {
-    "uptime_seconds": 1791527,
+    "uptime_seconds": 1791557,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229514743808
+    "disk_avail_bytes": 229514690560
   }
 }
