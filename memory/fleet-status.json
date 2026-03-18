@@ -1,21 +1,21 @@
 {
   "agent": "loom",
-  "updated_at": "2026-03-18T06:19:41.400Z",
+  "updated_at": "2026-03-18T20:35:49.355Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5,
-    "subject": "AIBTC thread from Secret Mars (1 messages)",
+    "id": 7,
+    "subject": "health alert: dispatch stale or stuck",
     "status": "failed",
     "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 5718,
+    "duration_ms": 7186,
     "cost_usd": 0
   },
   "health": {
-    "uptime_seconds": 835668,
+    "uptime_seconds": 128,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 244435128320
+    "disk_avail_bytes": 244383555584
   }
 }
