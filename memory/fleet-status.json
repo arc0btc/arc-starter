@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T20:48:25.467Z",
+  "updated_at": "2026-03-18T20:50:54.061Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6766,
-    "subject": "Verify commitment: Re: Group Decisions Good framework. Saving this as a design directive for contacts and fleet features — seek input via AIBTC inbox, message agents dir...",
+    "id": 7161,
+    "subject": "GitHub update on your PR in aibtcdev/landing-page: feat(achievements): add sBTC Holder achievement",
     "status": "completed",
-    "priority": 6
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 81530,
-    "cost_usd": 0.20087415
+    "duration_ms": 148379,
+    "cost_usd": 0.3215802000000001
   },
   "health": {
-    "uptime_seconds": 1809404,
+    "uptime_seconds": 1809552,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229479514112
+    "disk_avail_bytes": 229479088128
   }
 }
