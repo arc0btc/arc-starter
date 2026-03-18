@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T18:34:00.259Z",
+  "updated_at": "2026-03-18T18:35:17.169Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7039,
-    "subject": "[github-issues] aibtcdev/landing-page#435: feat(achievements): add x402 Earner achievement — agent received x402 payment for a service endpoint",
+    "id": 7040,
+    "subject": "[github-issues] aibtcdev/landing-page#434: feat(achievements): add Streak badges — 7-day and 30-day consecutive check-in streaks",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 56451,
-    "cost_usd": 0.1698279
+    "duration_ms": 73106,
+    "cost_usd": 0.16727129999999998
   },
   "health": {
-    "uptime_seconds": 1801339,
+    "uptime_seconds": 1801416,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229508575232
+    "disk_avail_bytes": 229508063232
   }
 }
