@@ -173,6 +173,100 @@ async function handleAsk(req: Request): Promise<Response> {
   }, 201);
 }
 
+// ---- Voice Ask: x402 tiered pricing & rate limiting ----
+//
+// POST /api/voice/ask — paid voice-style conversational Q&A
+// GET  /api/voice/ask — pricing and rate limit info
+
+const VOICE_TIERS = ASK_TIERS; // same pricing structure: haiku/sonnet/opus
+const VOICE_DAILY_LIMIT = 50;
+let voiceDayKey = "";
+let voiceDayCount = 0;
+
+function getVoiceDayKey(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function checkVoiceRateLimit(): boolean {
+  const today = getVoiceDayKey();
+  if (today !== voiceDayKey) {
+    voiceDayKey = today;
+    voiceDayCount = 0;
+  }
+  return voiceDayCount < VOICE_DAILY_LIMIT;
+}
+
+function incrementVoiceCount(): void {
+  const today = getVoiceDayKey();
+  if (today !== voiceDayKey) {
+    voiceDayKey = today;
+    voiceDayCount = 0;
+  }
+  voiceDayCount++;
+}
+
+async function handleVoiceAsk(req: Request): Promise<Response> {
+  if (!checkVoiceRateLimit()) {
+    return json({
+      error: "Daily voice limit reached",
+      code: "RATE_LIMITED",
+      limit: VOICE_DAILY_LIMIT,
+      resets: getVoiceDayKey() + "T00:00:00Z (next day)",
+    }, 429);
+  }
+
+  let body: { prompt?: string; tier?: string; context?: string };
+  try {
+    body = await req.json() as { prompt?: string; tier?: string; context?: string };
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
+  if (!prompt) return errorResponse("'prompt' is required", 400);
+  if (prompt.length > 1000) return errorResponse("Prompt too long (max 1000 chars)", 400);
+
+  const tierName = (typeof body.tier === "string" ? body.tier.toLowerCase() : "haiku");
+  const tier = VOICE_TIERS[tierName];
+  if (!tier) {
+    return errorResponse(`Invalid tier '${tierName}'. Valid: haiku, sonnet, opus`, 400);
+  }
+
+  const context = typeof body.context === "string" ? body.context.trim() : "";
+  if (context.length > 500) return errorResponse("Context too long (max 500 chars)", 400);
+
+  const description = [
+    `**Voice Ask query (${tierName} tier)**`,
+    "",
+    `**Prompt:** ${prompt}`,
+    context ? `\n**Context:** ${context}` : "",
+    "",
+    "Respond in a conversational, voice-friendly style. Keep the answer concise — ideally 1-3 sentences for haiku, up to a short paragraph for sonnet/opus.",
+    "No markdown formatting. Write as if speaking directly to the person. Be warm, direct, and precise.",
+  ].filter(Boolean).join("\n");
+
+  const taskId = insertTask({
+    subject: `[voice-ask] ${prompt.slice(0, 80)}${prompt.length > 80 ? "..." : ""}`,
+    description,
+    skills: JSON.stringify(["arc0btc-ask-service"]),
+    priority: tier.priority,
+    model: tier.model,
+    source: "api:voice-ask",
+  });
+
+  incrementVoiceCount();
+
+  return json({
+    task_id: taskId,
+    tier: tierName,
+    model: tier.model,
+    cost_sats: tier.cost_sats,
+    status: "pending",
+    poll_url: `/api/tasks/${taskId}`,
+    daily_remaining: VOICE_DAILY_LIMIT - voiceDayCount,
+  }, 201);
+}
+
 // ---- PR Review Service: x402 paid review with rate limiting ----
 
 interface PrReviewTier {
@@ -829,6 +923,14 @@ function handleX402WellKnown(): Response {
         description: "Pay-per-question: ask Arc anything across tiers",
         tiers: { haiku: 250, sonnet: 2500, opus: 10000 },
         memo_prefix: "arc:ask-",
+      },
+      {
+        path: "/api/voice/ask",
+        method: "POST",
+        description: "Pay-per-prompt voice endpoint: conversational Q&A tuned for voice delivery (concise, no markdown)",
+        tiers: { haiku: 250, sonnet: 2500, opus: 10000 },
+        memo_prefix: "arc:voice-",
+        daily_limit: VOICE_DAILY_LIMIT,
       },
       {
         path: "/api/services/pr-review",
@@ -2967,6 +3069,7 @@ function route(req: Request): Response | Promise<Response> {
   if (method === "POST" && path === "/api/messages/fleet") return handlePostFleetMessage(req);
   if (method === "POST" && path === "/api/messages") return handlePostMessage(req);
   if (method === "POST" && path === "/api/ask") return handleAsk(req);
+  if (method === "POST" && path === "/api/voice/ask") return handleVoiceAsk(req);
   if (method === "POST" && path === "/api/services/pr-review") return handlePrReview(req);
   if (method === "POST" && path === "/api/services/monitor") return handleMonitorCreate(req);
   if (method === "POST" && path === "/api/services/security-audit") return handleSecurityAudit(req);
@@ -2990,6 +3093,22 @@ function route(req: Request): Response | Promise<Response> {
       daily_limit: ASK_DAILY_LIMIT,
       daily_remaining: ASK_DAILY_LIMIT - askDayCount,
       usage: "POST /api/ask with { question, tier?, context? }",
+    });
+  }
+
+  // GET: Voice Ask pricing and rate limit info
+  if (method === "GET" && path === "/api/voice/ask") {
+    const today = getVoiceDayKey();
+    if (today !== voiceDayKey) { voiceDayKey = today; voiceDayCount = 0; }
+    return json({
+      service: "voice-ask",
+      description: "Pay-per-prompt voice endpoint. Ask Arc in a conversational style. Responses are tuned for voice delivery — concise, warm, no markdown.",
+      tiers: Object.fromEntries(
+        Object.entries(VOICE_TIERS).map(([name, t]) => [name, { model: t.model, cost_sats: t.cost_sats }])
+      ),
+      daily_limit: VOICE_DAILY_LIMIT,
+      daily_remaining: VOICE_DAILY_LIMIT - voiceDayCount,
+      usage: "POST /api/voice/ask with { prompt, tier?, context? }",
     });
   }
 
