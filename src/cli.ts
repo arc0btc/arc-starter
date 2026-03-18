@@ -25,6 +25,7 @@ import {
   deleteArcMemory,
   expireArcMemories,
   countArcMemories,
+  checkRecentFailures,
 } from "./db.ts";
 import {
   readScratchpad,
@@ -63,6 +64,7 @@ const USAGE = {
   memoryList: 'arc memory list [--domain DOMAIN] [--limit N]',
   memoryDelete: 'arc memory delete --key KEY',
   memoryExpire: 'arc memory expire',
+  memoryCheckDedup: 'arc memory check-dedup --subject TEXT [--hours N] [--threshold N]',
   scratchpadRead: 'arc scratchpad read --task N',
   scratchpadWrite: 'arc scratchpad write --task N --content TEXT',
   scratchpadAppend: 'arc scratchpad append --task N --content TEXT',
@@ -896,6 +898,34 @@ function cmdMemoryExpire(): void {
   process.stdout.write(`Expired ${count} memories.\n`);
 }
 
+function cmdMemoryCheckDedup(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const subject = flags["subject"];
+  if (!subject) {
+    process.stderr.write(`Error: --subject is required\nUsage: ${USAGE.memoryCheckDedup}\n`);
+    process.exit(1);
+  }
+
+  initDatabase();
+  const hours = flags["hours"] ? parseInt(flags["hours"], 10) : 24;
+  const threshold = flags["threshold"] ? parseInt(flags["threshold"], 10) : 3;
+
+  const result = checkRecentFailures(subject, hours, threshold);
+
+  if (result.exceeded) {
+    process.stdout.write(
+      `SUPPRESSED: ${result.count} recent failures in last ${hours}h (threshold: ${threshold})\n` +
+      `Task "${subject}" would be blocked by failure-aware dedup.\n`,
+    );
+    process.exit(1);
+  } else {
+    process.stdout.write(
+      `OK: ${result.count} recent failures in last ${hours}h (threshold: ${threshold})\n` +
+      `Task "${subject}" would be allowed.\n`,
+    );
+  }
+}
+
 function cmdMemory(args: string[]): void {
   const sub = args[0];
   if (sub === "search") {
@@ -908,8 +938,10 @@ function cmdMemory(args: string[]): void {
     cmdMemoryDelete(args.slice(1));
   } else if (sub === "expire") {
     cmdMemoryExpire();
+  } else if (sub === "check-dedup") {
+    cmdMemoryCheckDedup(args.slice(1));
   } else {
-    process.stderr.write(`Usage: arc memory <search|add|list|delete|expire>\n`);
+    process.stderr.write(`Usage: arc memory <search|add|list|delete|expire|check-dedup>\n`);
     process.exit(sub ? 1 : 0);
   }
 }

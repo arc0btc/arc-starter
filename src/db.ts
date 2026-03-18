@@ -632,6 +632,54 @@ export function insertTaskDeduped(fields: InsertTask): number | null {
   return insertTask(fields);
 }
 
+/**
+ * Count recently failed tasks whose subject matches the given text.
+ * Uses exact match first, then falls back to LIKE '%keyword%' for the
+ * longest word in the subject (catches retry storms on the same topic).
+ *
+ * @param subject  The proposed task subject to check against
+ * @param hoursBack  How far back to look (default 24 hours)
+ * @param threshold  Number of failures that triggers suppression (default 3)
+ * @returns Object with count and whether the threshold is exceeded
+ */
+export function checkRecentFailures(
+  subject: string,
+  hoursBack: number = 24,
+  threshold: number = 3,
+): { count: number; exceeded: boolean } {
+  const db = getDatabase();
+
+  // First: exact subject match
+  const exact = db.query(
+    `SELECT COUNT(*) as cnt FROM tasks
+     WHERE subject = ? AND status = 'failed'
+     AND created_at >= datetime('now', '-' || ? || ' hours')`,
+  ).get(subject, hoursBack) as { cnt: number };
+
+  if (exact.cnt >= threshold) {
+    return { count: exact.cnt, exceeded: true };
+  }
+
+  // Second: fuzzy match — use the longest word (≥4 chars) as keyword
+  const keywords = subject
+    .split(/[\s\-:,]+/)
+    .filter((w) => w.length >= 4)
+    .sort((a, b) => b.length - a.length);
+
+  if (keywords.length === 0) {
+    return { count: exact.cnt, exceeded: false };
+  }
+
+  const keyword = keywords[0];
+  const fuzzy = db.query(
+    `SELECT COUNT(*) as cnt FROM tasks
+     WHERE subject LIKE ? AND status = 'failed'
+     AND created_at >= datetime('now', '-' || ? || ' hours')`,
+  ).get(`%${keyword}%`, hoursBack) as { cnt: number };
+
+  return { count: fuzzy.cnt, exceeded: fuzzy.cnt >= threshold };
+}
+
 // ---- Internal helpers ----
 
 /** Builds and runs a dynamic UPDATE ... WHERE id = ?. Skips undefined values. */
