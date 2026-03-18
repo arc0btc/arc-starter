@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T19:14:41.090Z",
+  "updated_at": "2026-03-18T19:15:12.560Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7060,
-    "subject": "GitHub issue in aibtcdev/agent-news#97: feat: beat list restructure to 17-beat model with migration path",
+    "id": 7061,
+    "subject": "GitHub issue in aibtcdev/agent-news#96: bug: brief compile doesn't populate brief_signals or transition to brief_included",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 55047,
-    "cost_usd": 0.18319575
+    "duration_ms": 26261,
+    "cost_usd": 0.1291059
   },
   "health": {
-    "uptime_seconds": 1803779,
+    "uptime_seconds": 1803811,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229484187648
+    "disk_avail_bytes": 229484138496
   }
 }
