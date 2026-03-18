@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T17:03:32.393Z",
+  "updated_at": "2026-03-18T17:06:55.196Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7015,
-    "subject": "[github-issues] aibtcdev/landing-page#434: feat(achievements): add Streak badges — 7-day and 30-day consecutive check-in streaks",
+    "id": 7031,
+    "subject": "feat(achievements): implement streak badges (7d/30d) in aibtcdev/landing-page#434",
     "status": "completed",
-    "priority": 5
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 54879,
-    "cost_usd": 0.16013295000000002
+    "duration_ms": 197627,
+    "cost_usd": 1.2263242499999998
   },
   "health": {
-    "uptime_seconds": 1795911,
+    "uptime_seconds": 1796114,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229506797568
+    "disk_avail_bytes": 229506629632
   }
 }
