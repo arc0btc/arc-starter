@@ -27,6 +27,10 @@ import {
   countArcMemories,
   checkRecentFailures,
   consolidateMemories,
+  getExpensiveMemories,
+  getMemoryCostByDomain,
+  getMemoryCostBySkill,
+  backfillMemoryCostFromTasks,
 } from "./db.ts";
 import {
   readScratchpad,
@@ -846,8 +850,10 @@ function cmdMemoryAdd(args: string[]): void {
   const importance = flags["importance"] ? parseInt(flags["importance"], 10) : undefined;
   const tags = flags["tags"] ?? "";
   const sourceTaskId = flags["source-task"] ? parseInt(flags["source-task"], 10) : undefined;
+  const costUsd = flags["cost-usd"] ? parseFloat(flags["cost-usd"]) : undefined;
+  const apiCostUsd = flags["api-cost-usd"] ? parseFloat(flags["api-cost-usd"]) : undefined;
 
-  insertArcMemory({ key, domain, content, tags, ttl_days: ttl, source_task_id: sourceTaskId, importance });
+  insertArcMemory({ key, domain, content, tags, ttl_days: ttl, source_task_id: sourceTaskId, importance, cost_usd: costUsd, api_cost_usd: apiCostUsd });
   process.stdout.write(`Added memory: ${key} [${domain}]\n`);
 }
 
@@ -981,6 +987,121 @@ function cmdMemorySearchSkills(args: string[]): void {
   }
 }
 
+function cmdMemoryExpensive(args: string[]): void {
+  const { flags } = parseFlags(args);
+  initDatabase();
+
+  const domain = flags["domain"];
+  const limit = flags["limit"] ? parseInt(flags["limit"], 10) : 10;
+
+  // Backfill cost from tasks table for entries that are missing it
+  const backfilled = backfillMemoryCostFromTasks();
+  if (backfilled > 0) {
+    process.stdout.write(`Backfilled cost data for ${backfilled} entries.\n\n`);
+  }
+
+  const results = getExpensiveMemories(domain, limit);
+
+  if (results.length === 0) {
+    process.stdout.write("No memory entries with cost data found.\n");
+    return;
+  }
+
+  process.stdout.write(`Top ${results.length} most expensive memory entries${domain ? ` in '${domain}'` : ""}:\n\n`);
+
+  const header = pad("key", 40) + pad("domain", 14) + pad("cost_usd", 10) + pad("api_cost", 10) + "task";
+  process.stdout.write(header + "\n");
+  process.stdout.write("-".repeat(header.length) + "\n");
+
+  for (const mem of results) {
+    const line =
+      pad(truncate(mem.key, 38), 40) +
+      pad(mem.domain, 14) +
+      pad(mem.cost_usd !== null ? `$${mem.cost_usd.toFixed(4)}` : "-", 10) +
+      pad(mem.api_cost_usd !== null ? `$${mem.api_cost_usd.toFixed(4)}` : "-", 10) +
+      (mem.source_task_id ? `#${mem.source_task_id}` : "-");
+    process.stdout.write(line + "\n");
+  }
+}
+
+function cmdMemoryCostByDomain(): void {
+  initDatabase();
+
+  // Backfill cost from tasks table for entries that are missing it
+  const backfilled = backfillMemoryCostFromTasks();
+  if (backfilled > 0) {
+    process.stdout.write(`Backfilled cost data for ${backfilled} entries.\n\n`);
+  }
+
+  const results = getMemoryCostByDomain();
+
+  if (results.length === 0) {
+    process.stdout.write("No memory entries found.\n");
+    return;
+  }
+
+  process.stdout.write("Memory cost by domain:\n\n");
+
+  const header = pad("domain", 18) + pad("entries", 10) + pad("total_cost", 12) + pad("api_cost", 12) + "avg_cost";
+  process.stdout.write(header + "\n");
+  process.stdout.write("-".repeat(header.length) + "\n");
+
+  let grandTotal = 0;
+  let grandApiTotal = 0;
+  let grandEntries = 0;
+
+  for (const row of results) {
+    grandTotal += row.total_cost_usd;
+    grandApiTotal += row.total_api_cost_usd;
+    grandEntries += row.entry_count;
+    const line =
+      pad(row.domain, 18) +
+      pad(String(row.entry_count), 10) +
+      pad(`$${row.total_cost_usd.toFixed(4)}`, 12) +
+      pad(`$${row.total_api_cost_usd.toFixed(4)}`, 12) +
+      `$${row.avg_cost_usd.toFixed(4)}`;
+    process.stdout.write(line + "\n");
+  }
+
+  process.stdout.write("-".repeat(header.length) + "\n");
+  process.stdout.write(
+    pad("TOTAL", 18) +
+    pad(String(grandEntries), 10) +
+    pad(`$${grandTotal.toFixed(4)}`, 12) +
+    pad(`$${grandApiTotal.toFixed(4)}`, 12) +
+    "\n"
+  );
+}
+
+function cmdMemoryCostBySkill(): void {
+  initDatabase();
+
+  // Backfill cost from tasks table for entries that are missing it
+  backfillMemoryCostFromTasks();
+
+  const results = getMemoryCostBySkill();
+
+  if (results.length === 0) {
+    process.stdout.write("No skill-correlated cost data found.\n");
+    return;
+  }
+
+  process.stdout.write("Memory cost by skill (via task correlation):\n\n");
+
+  const header = pad("skill", 30) + pad("entries", 10) + pad("total_cost", 12) + "avg_cost";
+  process.stdout.write(header + "\n");
+  process.stdout.write("-".repeat(header.length) + "\n");
+
+  for (const row of results) {
+    const line =
+      pad(truncate(row.skill_name, 28), 30) +
+      pad(String(row.entry_count), 10) +
+      pad(`$${row.total_cost_usd.toFixed(4)}`, 12) +
+      `$${row.avg_cost_usd.toFixed(4)}`;
+    process.stdout.write(line + "\n");
+  }
+}
+
 function cmdMemory(args: string[]): void {
   const sub = args[0];
   if (sub === "search") {
@@ -999,8 +1120,14 @@ function cmdMemory(args: string[]): void {
     cmdMemoryConsolidate(args.slice(1));
   } else if (sub === "check-dedup") {
     cmdMemoryCheckDedup(args.slice(1));
+  } else if (sub === "expensive") {
+    cmdMemoryExpensive(args.slice(1));
+  } else if (sub === "cost-by-domain") {
+    cmdMemoryCostByDomain();
+  } else if (sub === "cost-by-skill") {
+    cmdMemoryCostBySkill();
   } else {
-    process.stderr.write(`Usage: arc memory <search|search-skills|add|list|delete|expire|consolidate|check-dedup>\n`);
+    process.stderr.write(`Usage: arc memory <search|search-skills|add|list|delete|expire|consolidate|check-dedup|expensive|cost-by-domain|cost-by-skill>\n`);
     process.exit(sub ? 1 : 0);
   }
 }

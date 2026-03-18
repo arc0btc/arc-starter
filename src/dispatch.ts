@@ -29,6 +29,7 @@ import {
   updateCycleLog,
   updateTask,
   updateTaskCost,
+  tagMemoryCostByTask,
   toSqliteDatetime,
 } from "./db.ts";
 import { isPidAlive, readFile } from "./utils.ts";
@@ -902,6 +903,9 @@ export async function runDispatch(): Promise<void> {
       markTaskCompleted(task.id, summary, result || undefined);
     }
     updateTaskCost(task.id, cost_usd, api_cost_usd, input_tokens, output_tokens);
+
+    // Tag memory entries created by this task with its cost
+    tagMemoryCostByTask(task.id, cost_usd, api_cost_usd);
 
     // Schedule retrospective for P1-2 tasks
     if (task.priority <= 2) {

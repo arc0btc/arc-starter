@@ -499,11 +499,21 @@ export function initDatabase(): Database {
       updated_at TEXT NOT NULL,
       ttl_days INTEGER,
       source_task_id INTEGER,
-      importance INTEGER DEFAULT 5
+      importance INTEGER DEFAULT 5,
+      cost_usd REAL,
+      api_cost_usd REAL
     )
   `);
   db.run("CREATE INDEX IF NOT EXISTS idx_arc_memory_meta_domain ON arc_memory_meta(domain)");
   db.run("CREATE INDEX IF NOT EXISTS idx_arc_memory_meta_ttl ON arc_memory_meta(ttl_days) WHERE ttl_days IS NOT NULL");
+
+  // Migration: add cost columns if missing
+  try {
+    db.run("ALTER TABLE arc_memory_meta ADD COLUMN cost_usd REAL");
+  } catch (_) { /* column already exists */ }
+  try {
+    db.run("ALTER TABLE arc_memory_meta ADD COLUMN api_cost_usd REAL");
+  } catch (_) { /* column already exists */ }
 
   _db = db;
   return db;
@@ -1219,6 +1229,8 @@ export interface ArcMemoryMeta {
   ttl_days: number | null;
   source_task_id: number | null;
   importance: number;
+  cost_usd: number | null;
+  api_cost_usd: number | null;
 }
 
 export interface ArcMemoryFull extends ArcMemory {
@@ -1227,6 +1239,8 @@ export interface ArcMemoryFull extends ArcMemory {
   ttl_days: number | null;
   source_task_id: number | null;
   importance: number;
+  cost_usd: number | null;
+  api_cost_usd: number | null;
 }
 
 export interface InsertArcMemory {
@@ -1237,6 +1251,8 @@ export interface InsertArcMemory {
   ttl_days?: number | null;
   source_task_id?: number | null;
   importance?: number;
+  cost_usd?: number | null;
+  api_cost_usd?: number | null;
 }
 
 export function insertArcMemory(fields: InsertArcMemory): void {
@@ -1251,9 +1267,9 @@ export function insertArcMemory(fields: InsertArcMemory): void {
   );
 
   db.run(
-    `INSERT INTO arc_memory_meta (key, domain, created_at, updated_at, ttl_days, source_task_id, importance)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [fields.key, fields.domain, now, now, fields.ttl_days ?? null, fields.source_task_id ?? null, importance],
+    `INSERT INTO arc_memory_meta (key, domain, created_at, updated_at, ttl_days, source_task_id, importance, cost_usd, api_cost_usd)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [fields.key, fields.domain, now, now, fields.ttl_days ?? null, fields.source_task_id ?? null, importance, fields.cost_usd ?? null, fields.api_cost_usd ?? null],
   );
 }
 
@@ -1283,7 +1299,7 @@ export function getArcMemory(key: string): ArcMemoryFull | null {
   const db = getDatabase();
   const row = db.query(
     `SELECT m.key, m.domain, m.content, m.tags,
-            meta.created_at, meta.updated_at, meta.ttl_days, meta.source_task_id, meta.importance
+            meta.created_at, meta.updated_at, meta.ttl_days, meta.source_task_id, meta.importance, meta.cost_usd, meta.api_cost_usd
      FROM arc_memory m
      JOIN arc_memory_meta meta ON m.key = meta.key
      WHERE m.key = ?`
@@ -1307,7 +1323,7 @@ export function searchArcMemory(query: string, domain?: string, limit: number = 
   if (domain) {
     return db.query(
       `SELECT m.key, m.domain, m.content, m.tags,
-              meta.created_at, meta.updated_at, meta.ttl_days, meta.source_task_id, meta.importance
+              meta.created_at, meta.updated_at, meta.ttl_days, meta.source_task_id, meta.importance, meta.cost_usd, meta.api_cost_usd
        FROM arc_memory m
        JOIN arc_memory_meta meta ON m.key = meta.key
        WHERE arc_memory MATCH ? AND m.domain = ?
@@ -1317,7 +1333,7 @@ export function searchArcMemory(query: string, domain?: string, limit: number = 
   }
   return db.query(
     `SELECT m.key, m.domain, m.content, m.tags,
-            meta.created_at, meta.updated_at, meta.ttl_days, meta.source_task_id, meta.importance
+            meta.created_at, meta.updated_at, meta.ttl_days, meta.source_task_id, meta.importance, meta.cost_usd, meta.api_cost_usd
      FROM arc_memory m
      JOIN arc_memory_meta meta ON m.key = meta.key
      WHERE arc_memory MATCH ?
@@ -1331,7 +1347,7 @@ export function listArcMemory(domain?: string, limit: number = 20): ArcMemoryFul
   if (domain) {
     return db.query(
       `SELECT m.key, m.domain, m.content, m.tags,
-              meta.created_at, meta.updated_at, meta.ttl_days, meta.source_task_id, meta.importance
+              meta.created_at, meta.updated_at, meta.ttl_days, meta.source_task_id, meta.importance, meta.cost_usd, meta.api_cost_usd
        FROM arc_memory m
        JOIN arc_memory_meta meta ON m.key = meta.key
        WHERE m.domain = ?
@@ -1341,7 +1357,7 @@ export function listArcMemory(domain?: string, limit: number = 20): ArcMemoryFul
   }
   return db.query(
     `SELECT m.key, m.domain, m.content, m.tags,
-            meta.created_at, meta.updated_at, meta.ttl_days, meta.source_task_id, meta.importance
+            meta.created_at, meta.updated_at, meta.ttl_days, meta.source_task_id, meta.importance, meta.cost_usd, meta.api_cost_usd
      FROM arc_memory m
      JOIN arc_memory_meta meta ON m.key = meta.key
      ORDER BY meta.updated_at DESC
@@ -1370,10 +1386,24 @@ export function upsertMemory(fields: InsertArcMemory): void {
   const existing = getArcMemory(fields.key);
   if (existing) {
     updateArcMemory(fields.key, fields.content, fields.tags);
-    // Also update importance if provided
+    const db = getDatabase();
+    const updates: string[] = [];
+    const values: unknown[] = [];
     if (fields.importance !== undefined) {
-      const db = getDatabase();
-      db.run("UPDATE arc_memory_meta SET importance = ? WHERE key = ?", [fields.importance, fields.key]);
+      updates.push("importance = ?");
+      values.push(fields.importance);
+    }
+    if (fields.cost_usd !== undefined) {
+      updates.push("cost_usd = ?");
+      values.push(fields.cost_usd);
+    }
+    if (fields.api_cost_usd !== undefined) {
+      updates.push("api_cost_usd = ?");
+      values.push(fields.api_cost_usd);
+    }
+    if (updates.length > 0) {
+      values.push(fields.key);
+      db.run(`UPDATE arc_memory_meta SET ${updates.join(", ")} WHERE key = ?`, values);
     }
   } else {
     insertArcMemory(fields);
@@ -1386,7 +1416,7 @@ export function getHighImportanceMemories(domains: string[], limit: number = 10)
   const placeholders = domains.map(() => "?").join(", ");
   return db.query(
     `SELECT m.key, m.domain, m.content, m.tags,
-            meta.created_at, meta.updated_at, meta.ttl_days, meta.source_task_id, meta.importance
+            meta.created_at, meta.updated_at, meta.ttl_days, meta.source_task_id, meta.importance, meta.cost_usd, meta.api_cost_usd
      FROM arc_memory m
      JOIN arc_memory_meta meta ON m.key = meta.key
      WHERE meta.importance >= 2 AND m.domain IN (${placeholders})
@@ -1403,6 +1433,122 @@ export function countArcMemories(domain?: string): number {
   }
   const row = db.query("SELECT COUNT(*) as count FROM arc_memory_meta").get() as { count: number };
   return row.count;
+}
+
+/**
+ * Backfill cost from tasks table onto memory entries that have a source_task_id but no cost_usd.
+ */
+export function backfillMemoryCostFromTasks(): number {
+  const db = getDatabase();
+  const result = db.run(
+    `UPDATE arc_memory_meta
+     SET cost_usd = (SELECT t.cost_usd FROM tasks t WHERE t.id = arc_memory_meta.source_task_id),
+         api_cost_usd = (SELECT t.api_cost_usd FROM tasks t WHERE t.id = arc_memory_meta.source_task_id)
+     WHERE source_task_id IS NOT NULL
+       AND cost_usd IS NULL
+       AND EXISTS (SELECT 1 FROM tasks t WHERE t.id = arc_memory_meta.source_task_id AND t.cost_usd > 0)`
+  );
+  return result.changes;
+}
+
+/**
+ * Tag memory entries created by a specific task with the task's cost.
+ */
+export function tagMemoryCostByTask(taskId: number, costUsd: number, apiCostUsd: number): number {
+  const db = getDatabase();
+  const result = db.run(
+    `UPDATE arc_memory_meta SET cost_usd = ?, api_cost_usd = ? WHERE source_task_id = ?`,
+    [costUsd, apiCostUsd, taskId]
+  );
+  return result.changes;
+}
+
+export interface MemoryCostByDomain {
+  domain: string;
+  entry_count: number;
+  total_cost_usd: number;
+  total_api_cost_usd: number;
+  avg_cost_usd: number;
+}
+
+/**
+ * Get cost breakdown by memory domain.
+ */
+export function getMemoryCostByDomain(): MemoryCostByDomain[] {
+  const db = getDatabase();
+  return db.query(
+    `SELECT domain,
+            COUNT(*) as entry_count,
+            COALESCE(SUM(cost_usd), 0) as total_cost_usd,
+            COALESCE(SUM(api_cost_usd), 0) as total_api_cost_usd,
+            COALESCE(AVG(cost_usd), 0) as avg_cost_usd
+     FROM arc_memory_meta
+     GROUP BY domain
+     ORDER BY total_cost_usd DESC`
+  ).all() as MemoryCostByDomain[];
+}
+
+export interface ExpensiveMemory extends ArcMemoryFull {
+  skill_name: string | null;
+}
+
+/**
+ * Find the most expensive memory entries, optionally filtered by domain.
+ */
+export function getExpensiveMemories(domain?: string, limit: number = 10): ArcMemoryFull[] {
+  const db = getDatabase();
+  if (domain) {
+    return db.query(
+      `SELECT m.key, m.domain, m.content, m.tags,
+              meta.created_at, meta.updated_at, meta.ttl_days, meta.source_task_id, meta.importance, meta.cost_usd, meta.api_cost_usd
+       FROM arc_memory m
+       JOIN arc_memory_meta meta ON m.key = meta.key
+       WHERE meta.cost_usd IS NOT NULL AND m.domain = ?
+       ORDER BY meta.cost_usd DESC
+       LIMIT ?`
+    ).all(domain, limit) as ArcMemoryFull[];
+  }
+  return db.query(
+    `SELECT m.key, m.domain, m.content, m.tags,
+            meta.created_at, meta.updated_at, meta.ttl_days, meta.source_task_id, meta.importance, meta.cost_usd, meta.api_cost_usd
+     FROM arc_memory m
+     JOIN arc_memory_meta meta ON m.key = meta.key
+     WHERE meta.cost_usd IS NOT NULL
+     ORDER BY meta.cost_usd DESC
+     LIMIT ?`
+  ).all(limit) as ArcMemoryFull[];
+}
+
+export interface SkillCostSummary {
+  skill_name: string;
+  entry_count: number;
+  total_cost_usd: number;
+  avg_cost_usd: number;
+}
+
+/**
+ * Get cost breakdown by skill — which skills generate the most expensive memory entries.
+ * Correlates memory entries with tasks via source_task_id to extract skill info.
+ */
+export function getMemoryCostBySkill(limit: number = 20): SkillCostSummary[] {
+  const db = getDatabase();
+  return db.query(
+    `SELECT
+       json_each.value as skill_name,
+       COUNT(*) as entry_count,
+       SUM(meta.cost_usd) as total_cost_usd,
+       AVG(meta.cost_usd) as avg_cost_usd
+     FROM arc_memory_meta meta
+     JOIN tasks t ON t.id = meta.source_task_id
+     , json_each(t.skills)
+     WHERE meta.cost_usd IS NOT NULL
+       AND meta.source_task_id IS NOT NULL
+       AND t.skills IS NOT NULL
+       AND t.skills != 'null'
+     GROUP BY json_each.value
+     ORDER BY total_cost_usd DESC
+     LIMIT ?`
+  ).all(limit) as SkillCostSummary[];
 }
 
 /**
