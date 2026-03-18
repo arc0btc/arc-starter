@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T02:23:36.628Z",
+  "updated_at": "2026-03-18T02:24:09.758Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6630,
-    "subject": "daily introspection: 381 tasks, 345 completed, $168.30 spent",
+    "id": 6633,
+    "subject": "Push feat/aibtc-news-phase0 branch and open PR for P0 skill updates (aibtcdev/skills#171)",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 46785,
-    "cost_usd": 0.1403994
+    "duration_ms": 19695,
+    "cost_usd": 0.1286871
   },
   "health": {
-    "uptime_seconds": 1743115,
+    "uptime_seconds": 1743148,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 231676575744
+    "disk_avail_bytes": 231676502016
   }
 }
