@@ -2142,6 +2142,82 @@ async function handleFace(): Promise<Response> {
   }
 }
 
+// ---- Fleet Status API ----
+
+const DB_DIR = join(import.meta.dir, "../db");
+const MEMORY_DIR = join(import.meta.dir, "../memory");
+
+const FLEET_ROSTER = [
+  { name: "arc",   ip: "192.168.1.10", role: "Orchestrator",  bitcoin: "bc1qlezz2..." },
+  { name: "spark", ip: "192.168.1.12", role: "AIBTC/DeFi",    bitcoin: "bc1qpln8..." },
+  { name: "iris",  ip: "192.168.1.13", role: "Research/X",    bitcoin: "bc1q6sav..." },
+  { name: "loom",  ip: "192.168.1.14", role: "CI/CD",         bitcoin: "bc1q3qa3..." },
+  { name: "forge", ip: "192.168.1.15", role: "Infra",         bitcoin: "bc1q9hme..." },
+] as const;
+
+function readJsonFile<T>(path: string): T | null {
+  try {
+    if (!existsSync(path)) return null;
+    return JSON.parse(readFileSync(path, "utf-8")) as T;
+  } catch {
+    return null;
+  }
+}
+
+function handleFleetStatus(): Response {
+  const suspended = readJsonFile<{ suspended: string[]; reason: string; since: string }>(
+    join(DB_DIR, "fleet-suspended.json")
+  );
+  const maintenance = readJsonFile<{ enabled: boolean; reason: string; since: string }>(
+    join(DB_DIR, "fleet-maintenance.json")
+  );
+  const arcStatus = readJsonFile<{
+    agent: string;
+    updated_at: string;
+    idle: boolean;
+    idle_since: string | null;
+    last_task: { id: number; subject: string; status: string; priority: number } | null;
+    last_cycle: { duration_ms: number; cost_usd: number } | null;
+    health: { uptime_seconds: number; disk_total_bytes: number; disk_avail_bytes: number };
+  }>(join(MEMORY_DIR, "fleet-status.json"));
+
+  const suspendedNames = new Set(suspended?.suspended ?? []);
+
+  const agents = FLEET_ROSTER.map((a) => {
+    const isSuspended = suspendedNames.has(a.name);
+    const isArc = a.name === "arc";
+    let status: "active" | "suspended" | "maintenance" | "unknown" = "unknown";
+    if (isSuspended) status = "suspended";
+    else if (maintenance?.enabled && !isArc) status = "maintenance";
+    else if (isArc) status = arcStatus ? (arcStatus.idle ? "idle" : "active") : "unknown";
+    else status = "unknown";
+
+    return {
+      name: a.name,
+      role: a.role,
+      ip: a.ip,
+      status,
+      ...(isArc && arcStatus
+        ? {
+            idle: arcStatus.idle,
+            last_task: arcStatus.last_task,
+            last_cycle: arcStatus.last_cycle,
+            uptime_seconds: arcStatus.health?.uptime_seconds,
+            updated_at: arcStatus.updated_at,
+          }
+        : {}),
+    };
+  });
+
+  return json({
+    agents,
+    maintenance: maintenance ?? null,
+    suspension: suspended
+      ? { suspended: suspended.suspended, reason: suspended.reason, since: suspended.since }
+      : null,
+  });
+}
+
 function handleReputation(): Response {
   try {
     // Check if reviews table exists (created by arc-reputation skill on first use)
@@ -3029,6 +3105,7 @@ function route(req: Request): Response | Promise<Response> {
   if (path === "/api/costs/by-skill") return handleCostsBySkill(url);
   if (path === "/api/identity") return handleIdentity();
   if (path === "/api/face") return handleFace();
+  if (path === "/api/fleet-status") return handleFleetStatus();
   if (path === "/api/reputation") return handleReputation();
   if (path === "/api/events") return handleEvents();
   if (path === "/api/arena/history") return handleArenaHistory();
