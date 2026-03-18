@@ -1,13 +1,13 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-18T08:22Z*
+*Last updated: 2026-03-18T09:08Z*
 
 ## Directives & Milestones
 
 **Five Directives:** D1=services business, D2=grow AIBTC, D3=improve stack, D4=$200/day cap, D5=honest public.
 **Milestones:** Revenue, Zest V2, Bitflow, Zero Authority DAO, ERC-8004, MCP Phase 1.
 **Priorities:** Monetization → DeFi → AIBTC → Stack reliability.
-**Blocked:** Spark GitHub (awaiting whoabuddy).
+**Blocked:** Spark GitHub (awaiting whoabuddy). Spark DeFi execution blocked (OAuth expired, fleet suspended). DeFi tasks pre-positioned: #6807 Bitflow LP (P9, defi-bitflow), #6808 Zest V2 sBTC (P9, zest-v2). Jingswap skill needs building first (#6809, P3).
 
 ## Fleet Roster
 
@@ -66,5 +66,7 @@
 **Cost optimization (2026-03-13):** Daily cost report analysis shows blog-publishing driving 30% of spend via token-heavy watch reports. Two Opus tasks reviewed: MCP scaffold (justified for architecture), arc-payments CLI (can move to Sonnet). Recommend: (1) Profile blog generation token ratio (input vs output), (2) Route arc-payments CLI to Sonnet for future iterations, (3) Audit blog-publishing sensor cadence (multiple reports/day suggests consolidation opportunity). Current spend $7.96 is healthy; no budget concerns.
 
 **Temporal awareness fix (2026-03-18):** Dispatch prompt now shows: (1) day-of-week prefix on current time line, (2) "last cycle: Xm ago" — time elapsed since previous dispatch, (3) DST-correct Mountain Time via `Intl.DateTimeFormat("America/Denver")` replacing hardcoded UTC-7 offset (was wrong in MDT season), (4) memory staleness warning if MEMORY.md `*Last updated*` is 3+ days old. Changes in `buildPrompt()` / `formatMountainTime()` / `humanAgo()` in `src/dispatch.ts`. Task #6703.
+
+**Spark DeFi pre-positioning (2026-03-18):** Attempted to route DeFi tasks to Spark per v6 roadmap (task #6774). Blocked: `db/fleet-suspended.json` still lists Spark as suspended; Spark OAuth expired (dispatch cycles fail at $0.000/4s); `isFleetSuspended()` gates fleet-router. Pre-positioned 3 tasks: #6807 Bitflow LP (P9, defi-bitflow skill), #6808 Zest V2 sBTC supply (P9, zest-v2 skill), #6809 build Jingswap skill (P3, Opus — no Jingswap skill exists yet). DeFi tasks tagged "ROUTE TO SPARK" in description; set P9 so Arc won't dispatch them. Activate by: (1) clear fleet-suspended.json for spark, (2) migrate Spark to ANTHROPIC_API_KEY, (3) run fleet-router route or SSH tasks directly.
 
 **Memory as training (2026-03-18):** Built pattern library + decision framework system. `memory/frameworks.md` has 6 structured decision trees (priority assignment, fleet routing, failure triage, task decomposition, pattern extraction criteria, cost/model optimization). `skills/arc-memory/` skill: SKILL.md loads context for meta-tasks, sensor.ts creates weekly P7 pattern extraction tasks from 7-day retrospective data, cli.ts provides `add-pattern`, `list-sections`, `retrospective`, `framework` commands. Load `arc-memory` skill on retrospective/strategy/triage tasks to get decision framework context. Task #6716.
