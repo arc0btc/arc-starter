@@ -58,7 +58,10 @@ const META_TASK_SOURCES = new Set([
 // Maps skill names to domain keywords that indicate a task likely needs that skill.
 // Only includes skills where keyword detection is meaningful.
 const SKILL_KEYWORD_MAP: Record<string, string[]> = {
-  "stacks-stackspot": ["stacking", "stackspot", "pox", "stx reward"],
+  "stacks-stackspot": ["stackspot", "pox", "stx reward", "stx stacking"],
+  // NOTE: "stacking" excluded — too broad, catches "Stacker achievements" (UI/badge tasks on landing-page).
+  // "stx stacking" and "pox" are unambiguous. "blog-x-syndication" is not a real skill;
+  // use "blog-publishing" + "social-x-posting" for blog-to-X syndication tasks.
   // "bitcoin wallet" / "btc wallet" are intentionally excluded — too generic.
   // Provisioning tasks describe "generate Bitcoin wallets" (setup) without needing this skill.
   // Only match on unambiguous operational keywords: actual transaction/UTXO work.
@@ -167,6 +170,12 @@ function checkMissingSkillCoverage(
   // title containing "classified ad"). The domain keywords belong to the reviewed interaction,
   // not to what the reputation review task itself needs.
   if (task.subject.startsWith("Submit reputation review:")) return findings;
+
+  // PR review tasks: the PR title in the subject (e.g. "Review PR #427 on landing-page: Stacker achievement")
+  // contains domain keywords from the PR content, not from what the review task itself needs.
+  if (/^Review PR #\d+/.test(task.subject)) return findings;
+  // Audit tasks similarly embed issue/PR titles (e.g. "Produce prioritized achievements audit for landing-page#384")
+  if (/audit for [\w/-]+#\d+/.test(task.subject)) return findings;
 
   // Meta-analysis tasks have descriptions that quote other tasks' subjects/content.
   // Scanning those descriptions would produce false positives, so limit to subject only.
