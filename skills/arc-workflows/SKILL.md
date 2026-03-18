@@ -114,7 +114,7 @@ Load when: creating a new workflow instance for multi-step work (blog post, sign
 
 ## Built-in Templates
 
-**Active templates:** `blog-posting`, `signal-filing`, `beat-claiming`, `reputation-feedback`, `validation-request`, `inscription`, `new-release`, `architecture-review`, `email-thread`, `quest`, `streak-maintenance`, `github-issue-triage`, `github-pr-review`
+**Active templates:** `blog-posting`, `signal-filing`, `beat-claiming`, `reputation-feedback`, `validation-request`, `inscription`, `new-release`, `architecture-review`, `email-thread`, `quest`, `streak-maintenance`, `github-issue-triage`, `github-pr-review`, `research-to-prd`
 
 **Deprecated templates:** `pr-lifecycle` (use `github-issue-triage` for issues, `github-pr-review` for PRs)
 

@@ -2728,6 +2728,131 @@ Steps:
 };
 
 /**
+ * ResearchToPrdMachine — drives a research→PRD→implementation→verify workflow.
+ *
+ * Reusable for any improvement initiative. The workflow progresses through:
+ *   research → synthesize → plan → implement → simplify → verify → complete
+ *
+ * Each state creates a task that drives the phase forward. Context carries
+ * the project name and deliverables between phases via the scratchpad.
+ *
+ * instance_key: "research-prd-{project-slug}" (one per initiative)
+ *
+ * Context:
+ *   project        — short name for the initiative (e.g. "memory-v2", "mcp-phase-1")
+ *   description    — one-line goal statement
+ *   skills         — JSON array of skill names relevant to this initiative
+ *   researchNotes  — summary of research findings (populated after RESEARCH)
+ *   prdPath        — path to PRD document (populated after SYNTHESIZE)
+ *   planTaskCount  — number of implementation tasks created (populated after PLAN)
+ *   completedCount — tasks completed so far (updated during IMPLEMENT)
+ *   gaps           — issues found during VERIFY (empty = all clear)
+ *   parentTaskId   — root task ID for the initiative (for source tracking)
+ */
+export const ResearchToPrdMachine: StateMachine<{
+  project?: string;
+  description?: string;
+  skills?: string[];
+  researchNotes?: string;
+  prdPath?: string;
+  planTaskCount?: number;
+  completedCount?: number;
+  gaps?: string;
+  parentTaskId?: number;
+}> = {
+  name: "research-to-prd",
+  initialState: "research",
+  states: {
+    research: {
+      on: { synthesize: "synthesize" },
+      action: (ctx) => {
+        if (!ctx.project) return null;
+        const skills = ctx.skills || [];
+        return {
+          type: "create-task",
+          subject: `[${ctx.project}] Research: gather data from sources`,
+          priority: 3,
+          skills: ["arc-workflows", ...skills],
+          parentTaskId: ctx.parentTaskId,
+          description: `Phase: RESEARCH for "${ctx.project}"\n\nGoal: ${ctx.description || "Gather data from multiple sources"}\n\nInstructions:\n1. Research the topic from multiple angles (code, docs, external sources)\n2. Save findings to the project scratchpad\n3. When research is sufficient, transition workflow to "synthesize" with researchNotes summarizing key findings`,
+        };
+      },
+    },
+    synthesize: {
+      on: { plan: "plan" },
+      action: (ctx) => {
+        if (!ctx.researchNotes) return null;
+        const skills = ctx.skills || [];
+        return {
+          type: "create-task",
+          subject: `[${ctx.project}] Synthesize: create PRD from research`,
+          priority: 3,
+          skills: ["arc-workflows", ...skills],
+          parentTaskId: ctx.parentTaskId,
+          description: `Phase: SYNTHESIZE for "${ctx.project}"\n\nResearch summary:\n${ctx.researchNotes}\n\nInstructions:\n1. Read the full research from the project scratchpad\n2. Synthesize into a PRD with ranked features (must-have, should-have, nice-to-have)\n3. Save PRD to research/ or docs/ directory\n4. Transition workflow to "plan" with prdPath set to the PRD file path`,
+        };
+      },
+    },
+    plan: {
+      on: { implement: "implement" },
+      action: (ctx) => {
+        if (!ctx.prdPath) return null;
+        const skills = ctx.skills || [];
+        return {
+          type: "create-task",
+          subject: `[${ctx.project}] Plan: break PRD into implementation tasks`,
+          priority: 3,
+          skills: ["arc-workflows", ...skills],
+          parentTaskId: ctx.parentTaskId,
+          description: `Phase: PLAN for "${ctx.project}"\n\nPRD: ${ctx.prdPath}\n\nInstructions:\n1. Read the PRD\n2. Break it into discrete implementation tasks with skill assignments and priorities\n3. Create each task via arc tasks add (with --skills and --priority)\n4. Transition workflow to "implement" with planTaskCount set to the number of tasks created`,
+        };
+      },
+    },
+    implement: {
+      on: { simplify: "simplify", verify: "verify" },
+      action: (ctx) => {
+        // Implementation is driven by the individual tasks created in PLAN.
+        // The meta-sensor checks if tasks are done and auto-transitions.
+        return { type: "noop" };
+      },
+    },
+    simplify: {
+      on: { verify: "verify" },
+      action: (ctx) => {
+        const skills = ctx.skills || [];
+        return {
+          type: "create-task",
+          subject: `[${ctx.project}] Simplify: review all changes for quality`,
+          priority: 4,
+          skills: ["arc-workflows", ...skills],
+          parentTaskId: ctx.parentTaskId,
+          description: `Phase: SIMPLIFY for "${ctx.project}"\n\nInstructions:\n1. Identify all files changed as part of this initiative\n2. Run /simplify against changed files to review for reuse, quality, and efficiency\n3. Fix any issues found\n4. Transition workflow to "verify"`,
+        };
+      },
+    },
+    verify: {
+      on: { complete: "complete", rework: "implement" },
+      action: (ctx) => {
+        if (!ctx.prdPath) return null;
+        const skills = ctx.skills || [];
+        return {
+          type: "create-task",
+          subject: `[${ctx.project}] Verify: check work against PRD`,
+          priority: 3,
+          skills: ["arc-workflows", ...skills],
+          parentTaskId: ctx.parentTaskId,
+          description: `Phase: VERIFY for "${ctx.project}"\n\nPRD: ${ctx.prdPath}\n\nInstructions:\n1. Read the PRD and compare against completed work\n2. Check each PRD item — is it implemented and working?\n3. If gaps found: set gaps in workflow context and transition to "implement" (rework)\n4. If all items verified: transition to "complete"`,
+        };
+      },
+    },
+    complete: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -2764,6 +2889,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "github-issue-triage": GithubIssueTriageMachine,
     "github-pr-review": GithubPrReviewMachine,
     "auto-queue-cycle": AutoQueueCycleMachine,
+    "research-to-prd": ResearchToPrdMachine,
   };
   return templates[name] || null;
 }
