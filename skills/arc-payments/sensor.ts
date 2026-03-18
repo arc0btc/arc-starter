@@ -16,7 +16,7 @@ import { ARC_STX_ADDRESS } from "../../src/identity.ts";
 
 const SENSOR_NAME = "arc-payments";
 const INTERVAL_MINUTES = 3;
-const HIRO_API = "https://api.hiro.so";
+const HIRO_API = "https://api.mainnet.hiro.so";
 const FETCH_TIMEOUT_MS = 15_000;
 
 // sBTC SIP-010 contract on mainnet

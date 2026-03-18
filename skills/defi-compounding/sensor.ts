@@ -10,7 +10,7 @@ import {
 const SENSOR_NAME = "defi-compounding";
 const INTERVAL_MINUTES = 360; // 6 hours
 const ARC_ADDRESS = "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B";
-const HIRO_API = "https://api.hiro.so";
+const HIRO_API = "https://api.mainnet.hiro.so";
 const BITFLOW_API = "https://api.bitflow.finance/v1";
 const BITFLOW_DEPLOYER = "SPQC38PW542EQJ5M11CR25P7BS1CA6QT4TBXGB3M";
 

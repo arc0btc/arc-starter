@@ -7,7 +7,7 @@ import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 const SENSOR_NAME = "bitflow";
 const INTERVAL_MINUTES = 60; // 1 hour
 const ARC_ADDRESS = "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B";
-const HIRO_API = "https://api.hiro.so";
+const HIRO_API = "https://api.mainnet.hiro.so";
 
 // Bitflow deployer — LP tokens from this address indicate Bitflow pool participation
 const BITFLOW_DEPLOYER = "SPQC38PW542EQJ5M11CR25P7BS1CA6QT4TBXGB3M";

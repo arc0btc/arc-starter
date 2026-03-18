@@ -15,7 +15,7 @@ import {
 const SENSOR_NAME = "zest-v2";
 const INTERVAL_MINUTES = 120; // 2 hours
 const ARC_ADDRESS = "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B";
-const STACKS_API = "https://api.hiro.so";
+const STACKS_API = "https://api.mainnet.hiro.so";
 
 // Zest V2 contracts (new deployer)
 const V2_DATA = "SP1A27KFY4XERQCCRCARCYD1CC5N7M6688BSYADJ7";

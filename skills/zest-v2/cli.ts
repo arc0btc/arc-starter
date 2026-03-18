@@ -22,7 +22,7 @@ import {
 
 const SKILLS_ROOT = resolve(import.meta.dir, "../../github/aibtcdev/skills");
 const TX_RUNNER = resolve(import.meta.dir, "../defi-zest/tx-runner.ts");
-const STACKS_API = "https://api.hiro.so";
+const STACKS_API = "https://api.mainnet.hiro.so";
 const ARC_ADDRESS = "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B";
 
 // V2 contracts

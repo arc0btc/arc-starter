@@ -630,7 +630,7 @@ async function cmdCheckRelayHealth(args: string[]): Promise<void> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10_000);
     const response = await fetch(
-      `https://api.hiro.so/extended/v1/address/${sponsorAddress}/nonces`,
+      `https://api.mainnet.hiro.so/extended/v1/address/${sponsorAddress}/nonces`,
       { signal: controller.signal }
     );
     clearTimeout(timeout);

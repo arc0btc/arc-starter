@@ -54,9 +54,6 @@ function isQuietHours(): boolean {
 }
 
 export default async function ceoReviewSensor(): Promise<string> {
-  // TEMPORARY: CEO on vacation — skip reviews to free compute for self-improvement deep dives
-  return "skip";
-
   if (isQuietHours()) return "skip";
 
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);

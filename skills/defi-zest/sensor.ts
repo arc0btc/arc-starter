@@ -14,7 +14,7 @@ import {
 const SENSOR_NAME = "defi-zest";
 const INTERVAL_MINUTES = 360; // 6 hours
 const ARC_ADDRESS = "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B";
-const STACKS_API = "https://api.hiro.so";
+const STACKS_API = "https://api.mainnet.hiro.so";
 
 // V2 data contract for position queries
 const V2_DATA = "SP1A27KFY4XERQCCRCARCYD1CC5N7M6688BSYADJ7";

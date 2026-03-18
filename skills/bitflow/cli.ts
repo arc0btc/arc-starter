@@ -11,7 +11,7 @@ import { getCredential } from "../../src/credentials.ts";
 
 // ---- Constants ----
 
-const HIRO_API = "https://api.hiro.so";
+const HIRO_API = "https://api.mainnet.hiro.so";
 const ARC_ADDRESS = "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B";
 const TX_RUNNER = resolve(import.meta.dir, "../defi-zest/tx-runner.ts");
 const DEFAULT_SLIPPAGE_BPS = 100; // 1%
