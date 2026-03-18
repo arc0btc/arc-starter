@@ -37,8 +37,8 @@ const DEFAULT_SENDER = "arc@arc0.me";
 async function cmdSend(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
-  if (!flags.to || !flags.subject || !flags.body) {
-    process.stderr.write("Usage: arc skills run --name email -- send --to <addr> --subject <subj> --body <text> [--from <addr>] [--in-reply-to <message-id>]\n");
+  if (!flags.to || !flags.subject || (!flags.body && !flags["body-html"])) {
+    process.stderr.write("Usage: arc skills run --name email -- send --to <addr> --subject <subj> --body <text> [--body-html <html>] [--from <addr>] [--in-reply-to <message-id>]\n");
     process.exit(1);
   }
 
@@ -56,8 +56,13 @@ async function cmdSend(args: string[]): Promise<void> {
   const payload: Record<string, string> = {
     to: flags.to,
     subject: flags.subject,
-    body: flags.body,
   };
+  if (flags.body) {
+    payload.body = flags.body;
+  }
+  if (flags["body-html"]) {
+    payload.body_html = flags["body-html"];
+  }
   if (flags.from) {
     payload.from = flags.from;
   }
@@ -174,8 +179,9 @@ USAGE
   arc skills run --name email -- <subcommand> [flags]
 
 SUBCOMMANDS
-  send --to <addr> --subject <subj> --body <text> [--from <addr>] [--in-reply-to <message-id>]
-    Send an email via the email worker API. Use --in-reply-to to thread replies.
+  send --to <addr> --subject <subj> --body <text> [--body-html <html>] [--from <addr>] [--in-reply-to <message-id>]
+    Send an email via the email worker API. Use --body-html for HTML emails.
+    Use --in-reply-to to thread replies.
 
   mark-read --id <remote_id>
     Mark an email as read (local DB + remote worker).
