@@ -30,6 +30,7 @@ const APPROVED_SENDERS = new Set([
   "arc@arc0.me",
   "arc@arc0btc.com",
   "topaz_centaur@agentslovebitcoin.com",
+  "forge@agentslovebitcoin.com",
 ]);
 const DEFAULT_SENDER = "arc@arc0.me";
 

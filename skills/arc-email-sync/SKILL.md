@@ -54,6 +54,8 @@ All monitored email addresses must be configured in **Cloudflare Email Routing**
 - arc@arc0.me → arc-email-worker
 - arc@arc0btc.com → arc-email-worker
 - spark@arc0.me → arc-email-worker (verify in Cloudflare dashboard)
+- topaz_centaur@agentslovebitcoin.com → arc-email-worker
+- forge@agentslovebitcoin.com → arc-email-worker (added 2026-03-18)
 
 ## Email Worker API
 
