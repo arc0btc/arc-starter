@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T11:24:16.752Z",
+  "updated_at": "2026-03-18T11:30:07.544Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6849,
-    "subject": "Workflow design: 2 repeating pattern(s) detected",
+    "id": 6851,
+    "subject": "feat(achievements): add Soul Inscription achievement to landing-page (issue #419)",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 154185,
-    "cost_usd": 0.4044086999999999
+    "duration_ms": 350406,
+    "cost_usd": 0.8917835999999999
   },
   "health": {
-    "uptime_seconds": 1775555,
+    "uptime_seconds": 1775906,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230905307136
+    "disk_avail_bytes": 230146506752
   }
 }
