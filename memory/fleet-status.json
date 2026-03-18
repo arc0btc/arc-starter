@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T13:50:36.140Z",
+  "updated_at": "2026-03-18T13:53:16.422Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6914,
-    "subject": "Review PR #93 on aibtcdev/agent-news: fix(schema): remove index crash blocking DO constructor",
+    "id": 6915,
+    "subject": "PR: fix(bounty-scanner): align with bounty.drx4.xyz API",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 29416,
-    "cost_usd": 0.13431645
+    "duration_ms": 129602,
+    "cost_usd": 0.30671895
   },
   "health": {
-    "uptime_seconds": 1784334,
+    "uptime_seconds": 1784495,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229525585920
+    "disk_avail_bytes": 229525446656
   }
 }
