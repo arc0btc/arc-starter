@@ -298,9 +298,9 @@ async function handleVoiceAsk(req: Request): Promise<Response> {
     return json({ error: "Daily voice limit reached", code: "RATE_LIMITED" }, 429);
   }
 
-  let body: { question?: string; tier?: string };
+  let body: { question?: string; tier?: string; source?: string };
   try {
-    body = await req.json() as { question?: string; tier?: string };
+    body = await req.json() as { question?: string; tier?: string; source?: string };
   } catch {
     return errorResponse("Invalid JSON body", 400);
   }
@@ -315,8 +315,17 @@ async function handleVoiceAsk(req: Request): Promise<Response> {
     return errorResponse(`Invalid tier '${tierName}'. Valid: haiku, sonnet, opus`, 400);
   }
 
+  const validSources = ["web:text", "web:voice", "api:voice-mode"];
+  const taskSource = typeof body.source === "string" && validSources.includes(body.source)
+    ? body.source
+    : "api:voice-mode";
+
+  const isVoice = taskSource === "web:voice" || taskSource === "api:voice-mode";
+  const modeLabel = isVoice ? "Voice" : "Chat";
+  const prefix = isVoice ? "[voice]" : "[chat]";
+
   const description = [
-    `**Voice mode query (${tierName} tier)**`,
+    `**${modeLabel} mode query (${tierName} tier)**`,
     "",
     `**Question:** ${question}`,
     "",
@@ -325,12 +334,12 @@ async function handleVoiceAsk(req: Request): Promise<Response> {
   ].join("\n");
 
   const taskId = insertTask({
-    subject: `[voice] ${question.slice(0, 80)}${question.length > 80 ? "..." : ""}`,
+    subject: `${prefix} ${question.slice(0, 80)}${question.length > 80 ? "..." : ""}`,
     description,
     skills: JSON.stringify(["arc0btc-ask-service"]),
     priority: tier.priority,
     model: tier.model,
-    source: "api:voice-mode",
+    source: taskSource,
   });
 
   voiceDayCount++;

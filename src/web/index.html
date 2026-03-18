@@ -196,11 +196,171 @@
 
     .chat-status.listening { color: var(--error); }
     .chat-status.thinking { color: var(--accent); }
+
+    /* ---- VAD Bar ---- */
+    .vad-bar-wrap {
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      display: none;
+      margin-top: 2px;
+    }
+
+    .vad-bar-wrap.visible { display: block; }
+
+    .vad-bar {
+      height: 100%;
+      width: 0%;
+      background: #22c55e;
+      transition: width 0.05s ease;
+      border-radius: 2px;
+    }
+
+    .vad-bar.loud { background: var(--error); }
+
+    /* ---- VAD Toggle ---- */
+    .vad-toggle {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 3px;
+      padding: 4px 8px;
+      font-size: 0.65rem;
+      font-family: var(--font);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .vad-toggle:hover { border-color: #22c55e; color: #22c55e; }
+    .vad-toggle.on { background: rgba(34, 197, 94, 0.1); border-color: #22c55e; color: #22c55e; }
+
+    .mic-btn.vad-active {
+      border-color: #22c55e;
+      background: rgba(34, 197, 94, 0.08);
+      color: #22c55e;
+    }
+
+    .mic-btn.vad-speaking {
+      animation: mic-pulse-green 1s ease-in-out infinite;
+    }
+
+    @keyframes mic-pulse-green {
+      0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+      70% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+
+    /* ---- Tier Select ---- */
+    .tier-select {
+      background: var(--bg-card);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 3px 6px;
+      font-size: 0.65rem;
+      font-family: var(--font);
+      flex-shrink: 0;
+    }
+
+    /* ---- Chat Settings Row ---- */
+    .chat-settings-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      flex-wrap: wrap;
+    }
+
+    /* ---- Source Badge ---- */
+    .chat-source {
+      font-size: 0.55rem;
+      color: var(--text-muted);
+      opacity: 0.6;
+      margin-left: 4px;
+    }
+
+    /* ---- Help Overlay ---- */
+    .help-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .help-overlay.visible { display: flex; }
+
+    .help-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: var(--space-lg) calc(var(--space-lg) * 1.5);
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .help-box h2 { font-size: 1rem; margin: 0 0 var(--space-md); color: var(--accent); }
+
+    .help-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+
+    .help-row:last-child { border-bottom: none; }
+
+    .help-key {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: var(--text);
+    }
+
+    .help-desc { color: var(--text-muted); }
+
+    .help-close {
+      display: block;
+      width: 100%;
+      margin-top: var(--space-md);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    .help-close:hover { border-color: var(--accent); color: var(--accent); }
   </style>
 </head>
 <body>
 
   <div id="sse-announcer" role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
+  <!-- Keyboard Help Overlay -->
+  <div class="help-overlay" id="help-overlay" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+    <div class="help-box">
+      <h2>Keyboard Shortcuts</h2>
+      <div class="help-row"><span class="help-key">Space</span><span class="help-desc">Hold to talk (push-to-talk)</span></div>
+      <div class="help-row"><span class="help-key">V</span><span class="help-desc">Toggle voice activity detection</span></div>
+      <div class="help-row"><span class="help-key">Enter</span><span class="help-desc">Send text message</span></div>
+      <div class="help-row"><span class="help-key">Esc</span><span class="help-desc">Close overlay / stop recording</span></div>
+      <div class="help-row"><span class="help-key">?</span><span class="help-desc">Show / hide this help</span></div>
+      <button class="help-close" id="help-close">Close</button>
+    </div>
+  </div>
 
   <!-- Dispatch Gap Alert Banner -->
   <div id="dispatch-gap-banner" style="display:none; background:rgba(239,68,68,0.12); border-bottom:1px solid var(--error); padding:0.6rem 1.5rem; color:var(--error); font-size:0.875rem; align-items:center; gap:0.75rem; flex-wrap:wrap;">
@@ -352,11 +512,18 @@
           <button class="mode-btn active" data-mode="task" title="Create a task">Task</button>
           <button class="mode-btn" data-mode="chat" title="Chat with Arc">Chat</button>
         </div>
+        <button class="vad-toggle" id="vad-toggle" title="Toggle voice activity detection (V)">VAD</button>
+        <select class="tier-select" id="tier-select" title="Response tier">
+          <option value="haiku">Haiku</option>
+          <option value="sonnet">Sonnet</option>
+          <option value="opus">Opus</option>
+        </select>
         <span class="chat-status" id="chat-status"></span>
+        <button class="chat-clear-btn" id="help-btn" title="Keyboard shortcuts (?)" style="margin-left:auto; opacity:0.8; font-size:0.75rem;">?</button>
       </div>
       <form class="message-form" id="message-form">
         <textarea class="message-input" id="message-input" placeholder="Send a task..." rows="1" maxlength="1000" aria-label="Send a task"></textarea>
-        <button type="button" class="mic-btn" id="mic-btn" title="Push to talk (hold to record)">
+        <button type="button" class="mic-btn" id="mic-btn" title="Push to talk (hold Space)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="9" y="1" width="6" height="12" rx="3"></rect>
             <path d="M5 10a7 7 0 0 0 14 0"></path>
@@ -366,6 +533,7 @@
         </button>
         <button type="submit" class="message-send" id="message-send">Send</button>
       </form>
+      <div class="vad-bar-wrap" id="vad-bar-wrap"><div class="vad-bar" id="vad-bar"></div></div>
       <div class="message-status" id="message-status" aria-live="polite" aria-atomic="true"></div>
     </div>
   </div>
@@ -889,14 +1057,12 @@
 
     init();
 
-    // ---- Unified Chat + Voice ----
+    // ---- Unified Chat + Voice (DB-persistent, VAD, source tagging) ----
 
     (function() {
       'use strict';
 
-      var CHAT_KEY = 'arc-chat-history';
-      var MAX_CHAT = 100;
-
+      // ---- Elements ----
       var chatPanel = document.getElementById('chat-panel');
       var chatTranscript = document.getElementById('chat-transcript');
       var chatCount = document.getElementById('chat-count');
@@ -909,60 +1075,107 @@
       var msgInput = document.getElementById('message-input');
       var msgSend = document.getElementById('message-send');
       var msgStatus = document.getElementById('message-status');
+      var tierSelect = document.getElementById('tier-select');
+      var vadToggleBtn = document.getElementById('vad-toggle');
+      var vadBarWrap = document.getElementById('vad-bar-wrap');
+      var vadBar = document.getElementById('vad-bar');
+      var helpBtn = document.getElementById('help-btn');
+      var helpOverlay = document.getElementById('help-overlay');
+      var helpClose = document.getElementById('help-close');
 
       var chatMode = 'task'; // 'task' or 'chat'
+      var messageCount = 0;
+
       var voiceState = {
         recording: false,
         processing: false,
         recognition: null,
         pendingTaskId: null,
         pendingResolve: null,
+        // VAD
+        vadEnabled: false,
+        vadAnalyser: null,
+        vadAudioCtx: null,
+        vadStream: null,
+        vadAnimFrame: null,
+        vadSilenceStart: null,
+        vadSpeaking: false,
       };
 
-      // ---- Chat history (sessionStorage) ----
-      function loadChat() {
-        try {
-          var raw = sessionStorage.getItem(CHAT_KEY);
-          return raw ? JSON.parse(raw) : [];
-        } catch (e) { return []; }
+      // ---- Thread ID (persisted in localStorage) ----
+      var THREAD_KEY = 'arc-chat-thread-id';
+
+      function getThreadId() {
+        var id = localStorage.getItem(THREAD_KEY);
+        if (!id) {
+          id = 'web-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+          localStorage.setItem(THREAD_KEY, id);
+        }
+        return id;
       }
 
-      function saveChat(history) {
-        try {
-          if (history.length > MAX_CHAT) history = history.slice(-MAX_CHAT);
-          sessionStorage.setItem(CHAT_KEY, JSON.stringify(history));
-        } catch (e) {}
+      var threadId = getThreadId();
+
+      // ---- DB Persistence ----
+      function persistMessage(role, text, source) {
+        var convRole = role === 'user' ? 'user' : 'arc';
+        fetch('/api/conversations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            thread_id: threadId,
+            source: source,
+            role: convRole,
+            message: text,
+            metadata: null,
+          }),
+        }).catch(function() { /* silent — UI already shows the message */ });
       }
 
-      function appendChat(role, text) {
-        var history = loadChat();
-        history.push({ role: role, text: text, ts: Date.now() });
-        saveChat(history);
-        updateChatCount(history.length);
+      function loadFromDB() {
+        return fetch('/api/conversations/' + encodeURIComponent(threadId))
+          .then(function(res) {
+            if (!res.ok) return { messages: [] };
+            return res.json();
+          })
+          .then(function(data) { return data.messages || []; })
+          .catch(function() { return []; });
       }
 
+      // ---- Chat DOM ----
       function updateChatCount(n) {
+        messageCount = n;
         chatCount.textContent = n > 0 ? n + ' msgs' : '';
       }
 
-      function addChatDOM(role, text, scroll) {
+      function addChatDOM(role, text, source, scroll) {
         var div = document.createElement('div');
         div.className = 'chat-msg ' + role;
         var meta = document.createElement('div');
         meta.className = 'chat-meta';
-        meta.textContent = role === 'user' ? 'You' : role === 'arc' ? 'Arc' : '';
+        var label = role === 'user' ? 'You' : role === 'arc' ? 'Arc' : '';
+        meta.textContent = label;
+        if (source) {
+          var badge = document.createElement('span');
+          badge.className = 'chat-source';
+          badge.textContent = source === 'web:voice' ? 'voice' : source === 'web:text' ? 'text' : source;
+          meta.appendChild(badge);
+        }
         var body = document.createElement('div');
         body.textContent = text;
-        if (meta.textContent) div.appendChild(meta);
+        if (label) div.appendChild(meta);
         div.appendChild(body);
         chatTranscript.appendChild(div);
         if (scroll !== false) chatTranscript.scrollTop = chatTranscript.scrollHeight;
         return div;
       }
 
-      function addChatMessage(role, text) {
-        appendChat(role, text);
-        return addChatDOM(role, text, true);
+      function addChatMessage(role, text, source) {
+        source = source || 'web:text';
+        persistMessage(role, text, source);
+        messageCount++;
+        updateChatCount(messageCount);
+        return addChatDOM(role, text, source, true);
       }
 
       function addChatSystem(text) {
@@ -975,16 +1188,18 @@
 
       function renderChatHistory() {
         chatTranscript.innerHTML = '';
-        var history = loadChat();
-        if (history.length === 0) {
-          addChatSystem('Type or hold the mic button to talk to Arc.');
-          return;
-        }
-        for (var i = 0; i < history.length; i++) {
-          addChatDOM(history[i].role, history[i].text, false);
-        }
-        updateChatCount(history.length);
-        chatTranscript.scrollTop = chatTranscript.scrollHeight;
+        loadFromDB().then(function(messages) {
+          if (messages.length === 0) {
+            addChatSystem('Type or hold the mic button to talk to Arc.');
+            return;
+          }
+          for (var i = 0; i < messages.length; i++) {
+            var m = messages[i];
+            addChatDOM(m.role, m.message, m.source, false);
+          }
+          updateChatCount(messages.length);
+          chatTranscript.scrollTop = chatTranscript.scrollHeight;
+        });
       }
 
       // ---- Mode toggle ----
@@ -1020,19 +1235,22 @@
 
       // ---- Chat clear ----
       chatClear.addEventListener('click', function() {
-        if (!confirm('Clear conversation history?')) return;
-        sessionStorage.removeItem(CHAT_KEY);
+        if (!confirm('Clear conversation and start a new thread?')) return;
+        // Generate new thread ID to start fresh
+        threadId = 'web-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+        localStorage.setItem(THREAD_KEY, threadId);
         updateChatCount(0);
         chatTranscript.innerHTML = '';
-        addChatSystem('Conversation cleared.');
+        addChatSystem('New conversation started.');
       });
 
       // ---- Ask Arc API ----
-      function askArc(question) {
+      function askArc(question, source) {
+        var tier = tierSelect.value;
         return fetch('/api/voice/ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ question: question, tier: 'haiku' }),
+          body: JSON.stringify({ question: question, tier: tier, source: source || 'web:text' }),
         }).then(function(res) {
           if (!res.ok) return res.json().then(function(d) { throw new Error(d.error || 'Ask failed'); });
           return res.json();
@@ -1042,10 +1260,8 @@
       // ---- SSE task waiting for chat responses ----
       function waitForChatTask(taskId) {
         return new Promise(function(resolve) {
-          // Try SSE first
           if (sseEventSource && sseEventSource.readyState === 1) {
             voiceState.pendingTaskId = taskId;
-
             var timeout = setTimeout(function() {
               if (voiceState.pendingTaskId === taskId) {
                 voiceState.pendingTaskId = null;
@@ -1053,7 +1269,6 @@
                 pollChatResult(taskId).then(resolve);
               }
             }, 120000);
-
             voiceState.pendingResolve = function(val) {
               clearTimeout(timeout);
               resolve(val);
@@ -1117,22 +1332,23 @@
       };
 
       // ---- Process a chat question ----
-      function processChatQuestion(text) {
+      function processChatQuestion(text, source) {
+        source = source || 'web:text';
         setChatProcessing(true);
-        addChatMessage('user', text);
+        addChatMessage('user', text, source);
         chatStatus.textContent = 'Thinking...';
         chatStatus.className = 'chat-status thinking';
 
-        askArc(text).then(function(result) {
+        askArc(text, source).then(function(result) {
           if (result.answer) {
-            addChatMessage('arc', result.answer);
+            addChatMessage('arc', result.answer, source);
             speakBrowser(result.answer);
             chatStatus.textContent = '';
             chatStatus.className = 'chat-status';
           } else if (result.task_id) {
             chatStatus.textContent = 'Processing (task #' + result.task_id + ')...';
             return waitForChatTask(result.task_id).then(function(answer) {
-              addChatMessage('arc', answer);
+              addChatMessage('arc', answer, source);
               speakBrowser(answer);
               chatStatus.textContent = '';
               chatStatus.className = 'chat-status';
@@ -1149,15 +1365,16 @@
 
       function setChatProcessing(on) {
         voiceState.processing = on;
-        micBtn.disabled = on;
+        micBtn.disabled = on || voiceState.vadEnabled;
         if (on) {
           micBtn.classList.add('processing');
         } else {
           micBtn.classList.remove('processing');
+          if (voiceState.vadEnabled) micBtn.classList.add('vad-active');
         }
       }
 
-      // ---- Browser Speech Synthesis (Phase 1) ----
+      // ---- Browser Speech Synthesis (Phase 1 TTS) ----
       function speakBrowser(text) {
         if (!text || !window.speechSynthesis) return;
         var utterance = new SpeechSynthesisUtterance(text);
@@ -1166,7 +1383,7 @@
         window.speechSynthesis.speak(utterance);
       }
 
-      // ---- Browser Speech Recognition (Web Speech API, Phase 1) ----
+      // ---- Browser Speech Recognition (Phase 1 STT) ----
       function startBrowserSTT() {
         return new Promise(function(resolve, reject) {
           var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1202,7 +1419,7 @@
 
       // ---- Mic button (PTT) ----
       function startMicRecording() {
-        if (voiceState.processing || voiceState.recording) return;
+        if (voiceState.processing || voiceState.recording || voiceState.vadEnabled) return;
 
         // Auto-switch to chat mode when mic is used
         if (chatMode !== 'chat') setMode('chat');
@@ -1216,7 +1433,7 @@
           voiceState.recording = false;
           micBtn.classList.remove('recording');
           if (text && text.trim()) {
-            processChatQuestion(text.trim());
+            processChatQuestion(text.trim(), 'web:voice');
           } else {
             chatStatus.textContent = 'No speech detected';
             chatStatus.className = 'chat-status';
@@ -1238,7 +1455,7 @@
         stopBrowserSTT();
       }
 
-      // Mouse events
+      // Mouse events for PTT
       micBtn.addEventListener('mousedown', function(e) {
         e.preventDefault();
         startMicRecording();
@@ -1251,7 +1468,7 @@
         stopMicRecording();
       });
 
-      // Touch events for mobile
+      // Touch events for mobile PTT
       micBtn.addEventListener('touchstart', function(e) {
         e.preventDefault();
         startMicRecording();
@@ -1259,6 +1476,216 @@
       micBtn.addEventListener('touchend', function(e) {
         e.preventDefault();
         stopMicRecording();
+      });
+
+      // ---- VAD (Voice Activity Detection) ----
+      var VAD_THRESHOLD = 0.015;
+      var VAD_SILENCE_MS = 1500;
+      var VAD_MIN_SPEECH_MS = 300;
+
+      function startVAD() {
+        navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(function(stream) {
+          voiceState.vadStream = stream;
+          var AudioContext = window.AudioContext || window.webkitAudioContext;
+          var audioCtx = new AudioContext();
+          voiceState.vadAudioCtx = audioCtx;
+
+          var source = audioCtx.createMediaStreamSource(stream);
+          var analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 512;
+          analyser.smoothingTimeConstant = 0.3;
+          source.connect(analyser);
+          voiceState.vadAnalyser = analyser;
+
+          var buf = new Float32Array(analyser.fftSize);
+          var speechStartTime = null;
+
+          function rms() {
+            analyser.getFloatTimeDomainData(buf);
+            var sum = 0;
+            for (var i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+            return Math.sqrt(sum / buf.length);
+          }
+
+          function tick() {
+            if (!voiceState.vadEnabled) return;
+            voiceState.vadAnimFrame = requestAnimationFrame(tick);
+
+            var level = rms();
+            var pct = Math.min(level / 0.1 * 100, 100);
+            vadBar.style.width = pct + '%';
+            vadBar.className = 'vad-bar' + (pct > 80 ? ' loud' : '');
+
+            if (voiceState.processing) {
+              voiceState.vadSpeaking = false;
+              voiceState.vadSilenceStart = null;
+              speechStartTime = null;
+              return;
+            }
+
+            if (level > VAD_THRESHOLD) {
+              if (!voiceState.vadSpeaking && !voiceState.recording) {
+                voiceState.vadSpeaking = true;
+                speechStartTime = Date.now();
+                voiceState.vadSilenceStart = null;
+                micBtn.classList.add('vad-speaking');
+                // Auto-switch to chat mode
+                if (chatMode !== 'chat') setMode('chat');
+                // Start STT
+                voiceState.recording = true;
+                chatStatus.textContent = 'Listening (VAD)...';
+                chatStatus.className = 'chat-status listening';
+                startBrowserSTT().then(function(text) {
+                  voiceState.recording = false;
+                  if (text && text.trim()) {
+                    processChatQuestion(text.trim(), 'web:voice');
+                  }
+                }).catch(function() {
+                  voiceState.recording = false;
+                });
+              }
+              voiceState.vadSilenceStart = null;
+            } else {
+              if (voiceState.vadSpeaking && voiceState.recording) {
+                if (!voiceState.vadSilenceStart) {
+                  voiceState.vadSilenceStart = Date.now();
+                } else if (Date.now() - voiceState.vadSilenceStart >= VAD_SILENCE_MS) {
+                  var speechDuration = speechStartTime ? Date.now() - speechStartTime : 0;
+                  voiceState.vadSpeaking = false;
+                  voiceState.vadSilenceStart = null;
+                  speechStartTime = null;
+                  micBtn.classList.remove('vad-speaking');
+                  if (speechDuration < VAD_MIN_SPEECH_MS) {
+                    voiceState.recording = false;
+                    stopBrowserSTT();
+                    chatStatus.textContent = 'Too short';
+                    chatStatus.className = 'chat-status';
+                    setTimeout(function() {
+                      if (voiceState.vadEnabled) {
+                        chatStatus.textContent = 'VAD: Listening...';
+                        chatStatus.className = 'chat-status listening';
+                      }
+                    }, 1500);
+                  } else {
+                    stopBrowserSTT();
+                  }
+                }
+              }
+            }
+          }
+
+          voiceState.vadAnimFrame = requestAnimationFrame(tick);
+          chatStatus.textContent = 'VAD: Listening...';
+          chatStatus.className = 'chat-status listening';
+          micBtn.classList.add('vad-active');
+          micBtn.disabled = true;
+          vadBarWrap.classList.add('visible');
+        }).catch(function(e) {
+          chatStatus.textContent = 'Mic access denied: ' + e.message;
+          chatStatus.className = 'chat-status';
+          toggleVAD(false);
+        });
+      }
+
+      function stopVAD() {
+        if (voiceState.vadAnimFrame) {
+          cancelAnimationFrame(voiceState.vadAnimFrame);
+          voiceState.vadAnimFrame = null;
+        }
+        if (voiceState.vadAudioCtx) {
+          try { voiceState.vadAudioCtx.close(); } catch (e) {}
+          voiceState.vadAudioCtx = null;
+          voiceState.vadAnalyser = null;
+        }
+        if (voiceState.vadStream) {
+          voiceState.vadStream.getTracks().forEach(function(t) { t.stop(); });
+          voiceState.vadStream = null;
+        }
+        if (voiceState.recording) {
+          voiceState.recording = false;
+          stopBrowserSTT();
+          micBtn.classList.remove('recording');
+        }
+        voiceState.vadSpeaking = false;
+        voiceState.vadSilenceStart = null;
+        micBtn.classList.remove('vad-active', 'vad-speaking');
+        micBtn.disabled = false;
+        vadBar.style.width = '0%';
+        vadBarWrap.classList.remove('visible');
+      }
+
+      function toggleVAD(force) {
+        var enable = (force !== undefined) ? force : !voiceState.vadEnabled;
+        voiceState.vadEnabled = enable;
+        vadToggleBtn.textContent = 'VAD' + (enable ? ': On' : '');
+        vadToggleBtn.className = 'vad-toggle' + (enable ? ' on' : '');
+
+        if (enable) {
+          if (chatMode !== 'chat') setMode('chat');
+          startVAD();
+        } else {
+          stopVAD();
+          chatStatus.textContent = '';
+          chatStatus.className = 'chat-status';
+        }
+      }
+
+      vadToggleBtn.addEventListener('click', function() { toggleVAD(); });
+
+      // ---- Help overlay ----
+      helpBtn.addEventListener('click', function() { helpOverlay.classList.add('visible'); });
+      helpClose.addEventListener('click', function() { helpOverlay.classList.remove('visible'); });
+      helpOverlay.addEventListener('click', function(e) {
+        if (e.target === helpOverlay) helpOverlay.classList.remove('visible');
+      });
+
+      // ---- Keyboard shortcuts ----
+      document.addEventListener('keydown', function(e) {
+        var target = e.target;
+        var isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT';
+
+        // Esc — close help or cancel recording
+        if (e.key === 'Escape') {
+          if (helpOverlay.classList.contains('visible')) {
+            helpOverlay.classList.remove('visible');
+          } else if (voiceState.recording && !voiceState.vadEnabled) {
+            voiceState.recording = false;
+            micBtn.classList.remove('recording');
+            stopBrowserSTT();
+            chatStatus.textContent = 'Cancelled';
+            chatStatus.className = 'chat-status';
+          }
+          return;
+        }
+
+        if (isInput) return;
+
+        // Space — push to talk
+        if (e.code === 'Space' && !voiceState.processing && !voiceState.recording && !voiceState.vadEnabled) {
+          e.preventDefault();
+          startMicRecording();
+          return;
+        }
+
+        // V — toggle VAD
+        if (e.key === 'v' || e.key === 'V') {
+          toggleVAD();
+          return;
+        }
+
+        // ? — toggle help
+        if (e.key === '?') {
+          helpOverlay.classList.toggle('visible');
+          return;
+        }
+      });
+
+      document.addEventListener('keyup', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.code === 'Space' && voiceState.recording && !voiceState.vadEnabled) {
+          e.preventDefault();
+          stopMicRecording();
+        }
       });
 
       // ---- Override form submit for chat mode ----
@@ -1270,7 +1697,7 @@
           if (!text || voiceState.processing) return;
           msgInput.value = '';
           msgInput.style.height = 'auto';
-          processChatQuestion(text);
+          processChatQuestion(text, 'web:text');
         }
         // In task mode, let the original initMessageBox handler run
       }, true); // capture phase to run before initMessageBox handler
