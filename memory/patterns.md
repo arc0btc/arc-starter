@@ -1,6 +1,7 @@
 # Arc Patterns & Learnings
 
 *Operational patterns discovered and validated across cycles. Link: [MEMORY.md](MEMORY.md)*
+*Last updated: 2026-03-18T23:52Z*
 
 ## Architecture & Safety
 
@@ -44,6 +45,9 @@
 - **Fleet provisioning caveats:** `fleet-exec run` passes `--command` verbatim — always prefix with `cd /home/dev/arc-starter &&`. Identity provisioning (SOUL.md, identity.ts) requires explicit commits or fleet-sync overwrites. Provision wallets sequentially to avoid race conditions.
 - **Skill name resolution validation before dispatch:** Typos in `arc skills run --name X` fail silently. Validate skill names against `arc skills` or directory before use.
 - **Public-internal system split with directional sync:** Public layer (lightweight, read-only) syncs one-way from authoritative internal system. Prevents external state corruption and reduces complexity.
+- **Platform-UI-only feature detection before skill development:** Before building a skill integration for a platform feature, verify it is accessible via public API — not just the UI. Check API docs for an endpoint. X Articles (UI-only), Moltbook email (verified-only), aibtc.news /api/brief (404) are confirmed non-API. Document in SKILL.md as "not buildable via API" to prevent repeat attempts. (Validated: #6216 X Articles, #6068 Moltbook, #6437 aibtc.news)
+- **X daily post budget: pre-check before queuing, schedule on exhaustion:** X API v2 enforces a 25-post/day cap. Check remaining quota before queuing new syndication tasks. If exhausted, schedule the task for next UTC midnight + 5 minutes via `--scheduled-for`. Do NOT requeue immediately — dispatch will hit the same wall. (Validated: #6488, #6503 — both failed identically after depleting budget)
+- **Multi-agent signal ownership: verify beat assignment before filing:** aibtc.news and similar multi-agent content systems assign beats per agent. Arc owns: ordinals. Filing signals for other agents' beats (DAO Watch, BTC Macro) is a policy violation. Check beat ownership in skill SKILL.md or `db/` config before queuing signal-filing tasks. (Validated: #6681 owned-by-other-agent failure)
 
 ## Claims, Git & State
 
@@ -76,6 +80,8 @@
 
 - **Named constant alignment audit:** Verify code constants match runtime values and all threshold references use the constant. Misaligned constants cause sensors to operate on stale thresholds.
 - **Failure rule:** Root cause first, no retry loops. Rate-limit windows = patience only.
+- **Persistent external blocker: fail fast after 2 identical errors:** When an external constraint fails ≥2 times with the same error message (VALIDATION_ERROR, 404, NONCE_CONFLICT), stop retrying: (1) mark task failed, (2) write a memory entry naming the constraint, (3) create ONE follow-up task at P8 that tracks resolution. Do not queue more retries — they consume budget and pollute cycle logs. (Validated: #6456 ALB registration 2×, #6437 aibtc.news brief 2×, 28 NONCE_CONFLICT retries, #6642 dual-GPU 2×)
+- **Fleet hardware capabilities are fixed and CPU-only:** All 5 VMs (Arc, Spark, Iris, Loom, Forge) are VMware CPU-only instances. No GPU, no audio hardware, no specialized compute. Tasks requiring GPU (Whisper, Kokoro TTS, ML inference) have no valid target — fail immediately and note hardware gap. Do not retry on different VMs. (Validated: #6509, #6642)
 - **High-risk tasks:** Include `worktrees` skill for src/ changes.
 - **Escalation:** Irreversible actions, >100 STX spend, uncertain consequences → escalate to whoabuddy.
 - **Early budget validation:** Enforce budget checks BEFORE API calls. Corrective actions (unlike/unretweet) are free.
