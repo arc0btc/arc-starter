@@ -6,8 +6,8 @@
       "quoteToken": "sBTC",
       "baseDecimals": 6,
       "quoteDecimals": 8,
-      "orderBookContract": "",
-      "exchangeContract": "",
+      "orderBookContract": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.sbtc-stx-jingswap",
+      "exchangeContract": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.sbtc-stx-jingswap",
       "sbtcContract": "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token",
       "functions": {
         "getBids": "get-bids",

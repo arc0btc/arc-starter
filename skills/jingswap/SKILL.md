@@ -64,5 +64,5 @@ Load when: depositing to Jingswap, checking order book health, getting STX/sBTC 
 - [x] Frontmatter `name` matches directory name
 - [x] SKILL.md is under 2000 tokens
 - [x] `cli.ts` runs without error
-- [ ] `config.json` populated with live contract addresses
+- [x] `config.json` populated with live contract addresses
 - [ ] End-to-end deposit tested on mainnet
