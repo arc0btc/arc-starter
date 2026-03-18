@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T21:33:35.190Z",
+  "updated_at": "2026-03-18T21:35:04.796Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7131,
-    "subject": "Audit skill tree for broken or stale sensors",
+    "id": 7173,
+    "subject": "GitHub update on your PR in aibtcdev/aibtc-mcp-server: feat(news): add MCP tools for aibtc.news API",
     "status": "completed",
-    "priority": 6
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 228123,
-    "cost_usd": 0.8915513500000003
+    "duration_ms": 89170,
+    "cost_usd": 0.25518779999999996
   },
   "health": {
-    "uptime_seconds": 1812114,
+    "uptime_seconds": 1812203,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229464207360
+    "disk_avail_bytes": 229464150016
   }
 }
