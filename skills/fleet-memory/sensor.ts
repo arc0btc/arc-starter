@@ -1,13 +1,13 @@
 /**
- * fleet-memory sensor — detect new learnings across fleet agents.
+ * fleet-memory sensor v2 — detect new learnings across fleet agents.
+ *
+ * v2: Replaces patterns.md line-count/hash detection with entry count deltas
+ * from each agent's memory/shared/index.json.
  *
  * Two-tier detection:
- * 1. Fast check (30min): estimate new entry count via line delta. If any agent
- *    has >= SIGNIFICANT_THRESHOLD estimated new entries, queue a P5 urgent task.
- * 2. Routine check (6h): queue a P7 collection task if any hash changed, as fallback.
- *
- * Reduces inter-agent pattern drift by triggering distribution sooner after
- * significant learning accumulation, without running full SSH diffs every 30min.
+ * 1. Fast check (30min): compare remote index.json entry count with last known.
+ *    If any agent has >= SIGNIFICANT_THRESHOLD new entries, queue a P5 urgent task.
+ * 2. Routine check (6h): same check — queue P7 task if any delta detected.
  */
 
 import {
@@ -29,21 +29,16 @@ const SENSOR_NAME = "fleet-memory";
 const FAST_SENSOR_NAME = "fleet-memory-fast";
 const INTERVAL_MINUTES = 360; // 6 hours — routine fallback
 const FAST_INTERVAL_MINUTES = 30; // 30 minutes — significant drift check
+const SIGNIFICANT_THRESHOLD = 3; // new entries to trigger urgent distribution
 
-// Trigger urgent distribution if an agent has this many estimated new entries
-const SIGNIFICANT_THRESHOLD = 3;
-// Approximate lines per learning entry in patterns.md (bold bullet + body lines)
-const LINES_PER_ENTRY_ESTIMATE = 5;
-
+const REMOTE_SHARED_INDEX = "memory/shared/index.json";
 const HOOK_STATE_PATH = "db/hook-state/fleet-memory.json";
 
 const log = createSensorLogger(SENSOR_NAME);
 
 interface HookState {
   lastCollectedAt: string | null;
-  agentHashes: Record<string, string>;
-  // Line counts at last collection, used for fast delta estimation
-  agentLineCounts: Record<string, number>;
+  agentRemoteCounts: Record<string, number>;
 }
 
 function loadHookState(): HookState {
@@ -53,14 +48,31 @@ function loadHookState(): HookState {
       const parsed = JSON.parse(text) as Partial<HookState>;
       return {
         lastCollectedAt: parsed.lastCollectedAt ?? null,
-        agentHashes: parsed.agentHashes ?? {},
-        agentLineCounts: parsed.agentLineCounts ?? {},
+        agentRemoteCounts: parsed.agentRemoteCounts ?? {},
       };
     }
   } catch {
     // Fall through
   }
-  return { lastCollectedAt: null, agentHashes: {}, agentLineCounts: {} };
+  return { lastCollectedAt: null, agentRemoteCounts: {} };
+}
+
+/** Get entry count from a remote agent's shared/index.json */
+async function getRemoteEntryCount(
+  ip: string,
+  password: string
+): Promise<number | null> {
+  // Try python3 for accurate JSON parse; fall back to grep count as estimate
+  const result = await ssh(
+    ip,
+    password,
+    `python3 -c "import json; d=json.load(open('${REMOTE_ARC_DIR}/${REMOTE_SHARED_INDEX}')); print(len(d.get('entries', [])))" 2>/dev/null` +
+      ` || grep -c '"id":' ${REMOTE_ARC_DIR}/${REMOTE_SHARED_INDEX} 2>/dev/null` +
+      ` || echo "0"`
+  );
+  if (!result.ok) return null;
+  const n = parseInt(result.stdout.trim(), 10);
+  return isNaN(n) ? null : n;
 }
 
 export default async function run(): Promise<string> {
@@ -75,37 +87,32 @@ export default async function run(): Promise<string> {
   }
 
   const agentNames = getActiveAgentNames();
+  const state = loadHookState();
 
   // --- Fast check: trigger on significant new entry accumulation ---
   const fastClaimed = await claimSensorRun(FAST_SENSOR_NAME, FAST_INTERVAL_MINUTES);
   if (fastClaimed) {
-    log("fast check: estimating new entry counts via line delta");
-    const state = loadHookState();
-    const significant: Array<{ agent: string; estimated: number }> = [];
+    log("fast check: comparing remote index entry counts");
+    const significant: Array<{ agent: string; delta: number }> = [];
 
     await Promise.allSettled(
       agentNames.map(async (agent) => {
         try {
           const ip = await getAgentIp(agent);
-          const result = await ssh(
-            ip,
-            password,
-            `wc -l < ${REMOTE_ARC_DIR}/memory/patterns.md 2>/dev/null || echo "0"`
-          );
-          if (!result.ok) return;
+          const count = await getRemoteEntryCount(ip, password);
+          if (count === null) {
+            log(`${agent}: unreachable or no index`);
+            return;
+          }
 
-          const currentLines = parseInt(result.stdout.trim(), 10);
-          if (isNaN(currentLines)) return;
+          const lastKnown = state.agentRemoteCounts[agent] ?? 0;
+          const delta = count - lastKnown;
 
-          const lastLines = state.agentLineCounts[agent] ?? currentLines;
-          const delta = currentLines - lastLines;
-          const estimatedNew = Math.floor(delta / LINES_PER_ENTRY_ESTIMATE);
-
-          if (estimatedNew >= SIGNIFICANT_THRESHOLD) {
-            significant.push({ agent, estimated: estimatedNew });
-            log(`${agent}: ~${estimatedNew} new entries estimated (${delta} line delta)`);
+          if (delta >= SIGNIFICANT_THRESHOLD) {
+            significant.push({ agent, delta });
+            log(`${agent}: ${delta} new entries (${lastKnown} → ${count})`);
           } else {
-            log(`${agent}: ${delta >= 0 ? "+" : ""}${delta} lines, below threshold`);
+            log(`${agent}: ${delta >= 0 ? "+" : ""}${delta} entries, below threshold`);
           }
         } catch {
           log(`${agent}: error during fast check`);
@@ -115,13 +122,12 @@ export default async function run(): Promise<string> {
 
     if (significant.length > 0) {
       const agents = significant.map((s) => s.agent).join(", ");
-      const counts = significant.map((s) => `${s.agent}(~${s.estimated})`).join(", ");
+      const counts = significant.map((s) => `${s.agent}(+${s.delta})`).join(", ");
       const subject = `Fleet memory: significant drift detected — distribute now (${agents})`;
       const description = [
-        `Agents with significant new learnings: ${counts}`,
+        `Agents with significant new entries: ${counts}`,
         "",
-        "Triggered by fast drift check (30min interval). Threshold: " +
-          `${SIGNIFICANT_THRESHOLD}+ estimated new entries.`,
+        `Triggered by fast drift check (${FAST_INTERVAL_MINUTES}min interval). Threshold: ${SIGNIFICANT_THRESHOLD}+ new entries.`,
         "",
         "Run: arc skills run --name fleet-memory -- full",
       ].join("\n");
@@ -129,7 +135,7 @@ export default async function run(): Promise<string> {
       insertTaskIfNew(`sensor:${FAST_SENSOR_NAME}`, {
         subject,
         description,
-        priority: 5, // Sonnet — act promptly, distribute to reduce drift
+        priority: 5, // Sonnet — distribute promptly to reduce drift
         skills: JSON.stringify(["fleet-memory"]),
       });
 
@@ -137,39 +143,31 @@ export default async function run(): Promise<string> {
     }
   }
 
-  // --- Routine check: 6h fallback for hash-based detection ---
+  // --- Routine check: 6h fallback ---
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
-  log("routine check: verifying fleet patterns.md hashes");
-  const state = loadHookState();
+  log("routine check: verifying remote entry counts");
   const changed: string[] = [];
 
   await Promise.allSettled(
     agentNames.map(async (agent) => {
       try {
         const ip = await getAgentIp(agent);
-        const result = await ssh(
-          ip,
-          password,
-          `sha256sum ${REMOTE_ARC_DIR}/memory/patterns.md 2>/dev/null | cut -c1-12 || echo "missing"`
-        );
-        if (!result.ok) {
-          log(`${agent}: unreachable`);
+        const count = await getRemoteEntryCount(ip, password);
+        if (count === null) {
+          log(`${agent}: unreachable or no index`);
           return;
         }
 
-        const hash = result.stdout.trim();
-        if (hash === "missing") {
-          log(`${agent}: no patterns.md`);
-          return;
-        }
+        const lastKnown = state.agentRemoteCounts[agent] ?? 0;
+        const delta = count - lastKnown;
 
-        if (state.agentHashes[agent] !== hash) {
+        if (delta > 0) {
           changed.push(agent);
-          log(`${agent}: hash changed (${state.agentHashes[agent]?.slice(0, 8) ?? "none"} → ${hash})`);
+          log(`${agent}: ${delta} new entries (${lastKnown} → ${count})`);
         } else {
-          log(`${agent}: unchanged`);
+          log(`${agent}: no new entries (${count} total)`);
         }
       } catch {
         log(`${agent}: error checking`);
@@ -178,13 +176,13 @@ export default async function run(): Promise<string> {
   );
 
   if (changed.length === 0) {
-    log("no new learnings detected across fleet");
+    log("no new entries detected across fleet");
     return "ok — no changes";
   }
 
-  const subject = `Fleet memory collection: ${changed.join(", ")} have new learnings`;
+  const subject = `Fleet memory collection: ${changed.join(", ")} have new entries`;
   const description = [
-    `Agents with changed patterns.md: ${changed.join(", ")}`,
+    `Agents with new entries: ${changed.join(", ")}`,
     "",
     "Run: arc skills run --name fleet-memory -- full",
   ].join("\n");

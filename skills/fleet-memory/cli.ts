@@ -1,10 +1,13 @@
 #!/usr/bin/env bun
 
 /**
- * fleet-memory CLI
+ * fleet-memory CLI v2
  *
  * Collect, merge, and distribute learnings across all fleet agents.
- * Hub-and-spoke: Arc collects from agents, merges, distributes back.
+ * Hub-and-spoke: Arc collects from agents (entry-based sync), merges, distributes back.
+ *
+ * v2: Replaces hash-based patterns.md diffing with entry ID delta sync.
+ * Each agent maintains memory/shared/index.json + memory/shared/entries/*.md
  */
 
 import { parseFlags } from "../../src/utils.ts";
@@ -20,8 +23,9 @@ import { existsSync, mkdirSync, renameSync, unlinkSync, readdirSync } from "node
 
 // ---- Constants ----
 
-const FLEET_LEARNINGS_PATH = "memory/fleet-learnings.md";
 const FLEET_INDEX_PATH = "memory/fleet-learnings/index.json";
+const REMOTE_SHARED_INDEX = "memory/shared/index.json";
+const REMOTE_SHARED_ENTRIES_DIR = "memory/shared/entries";
 const HOOK_STATE_DIR = "db/hook-state";
 const HOOK_STATE_PATH = `${HOOK_STATE_DIR}/fleet-memory.json`;
 const INBOX_DIR = "memory/inbox";
@@ -30,20 +34,24 @@ const SHARED_ARCHIVE_DIR = "memory/shared/archive";
 
 // ---- Types ----
 
-interface AgentMemory {
-  agent: string;
-  ok: boolean;
-  patternsContent: string;
-  patternsHash: string;
-  patternsLineCount: number;
-  error?: string;
+interface IndexEntry {
+  id: string;
+  topics: string[];
+  content: string;
+  source: string;
+  created: string;
+  expires?: string;
+}
+
+interface FleetIndex {
+  topicMap: Record<string, string[]>;
+  entries: IndexEntry[];
 }
 
 interface HookState {
   lastCollectedAt: string | null;
-  agentHashes: Record<string, string>;
-  // Line counts at last collection — used by sensor fast check for delta estimation
-  agentLineCounts: Record<string, number>;
+  // Remote entry count at last collection — used by sensor for delta detection
+  agentRemoteCounts: Record<string, number>;
 }
 
 interface InboxEntry {
@@ -60,21 +68,18 @@ interface InboxEntry {
 
 function loadHookState(): HookState {
   try {
-    const file = Bun.file(HOOK_STATE_PATH);
     if (existsSync(HOOK_STATE_PATH)) {
-      // Synchronous read for simplicity in CLI
       const text = require("node:fs").readFileSync(HOOK_STATE_PATH, "utf-8");
       const parsed = JSON.parse(text);
       return {
         lastCollectedAt: parsed.lastCollectedAt ?? null,
-        agentHashes: parsed.agentHashes ?? {},
-        agentLineCounts: parsed.agentLineCounts ?? {},
+        agentRemoteCounts: parsed.agentRemoteCounts ?? {},
       };
     }
   } catch {
     // Fall through to default
   }
-  return { lastCollectedAt: null, agentHashes: {}, agentLineCounts: {} };
+  return { lastCollectedAt: null, agentRemoteCounts: {} };
 }
 
 async function saveHookState(state: HookState): Promise<void> {
@@ -84,49 +89,84 @@ async function saveHookState(state: HookState): Promise<void> {
   await Bun.write(HOOK_STATE_PATH, JSON.stringify(state, null, 2));
 }
 
-// ---- Helpers ----
+// ---- Index helpers ----
 
-function simpleHash(content: string): string {
-  const hasher = new Bun.CryptoHasher("sha256");
-  hasher.update(content);
-  return hasher.digest("hex").slice(0, 12);
-}
-
-function extractLearnings(patternsContent: string): string[] {
-  // Split patterns.md by top-level bullet points (lines starting with "- **")
-  // Each learning is a bullet point block (may span multiple lines)
-  const lines = patternsContent.split("\n");
-  const learnings: string[] = [];
-  let current: string[] = [];
-
-  for (const line of lines) {
-    // New top-level learning bullet
-    if (line.match(/^- \*\*/)) {
-      if (current.length > 0) {
-        learnings.push(current.join("\n").trim());
-      }
-      current = [line];
-    } else if (current.length > 0 && (line.startsWith("  ") || line.trim() === "")) {
-      // Continuation of current learning (indented or blank)
-      current.push(line);
-    } else if (current.length > 0) {
-      // Non-continuation line — flush current
-      learnings.push(current.join("\n").trim());
-      current = [];
+function loadLocalIndex(): FleetIndex {
+  try {
+    if (existsSync(FLEET_INDEX_PATH)) {
+      const text = require("node:fs").readFileSync(FLEET_INDEX_PATH, "utf-8");
+      return JSON.parse(text) as FleetIndex;
     }
+  } catch {
+    // Fall through
   }
-  if (current.length > 0) {
-    learnings.push(current.join("\n").trim());
-  }
-
-  return learnings.filter((l) => l.length > 20); // Skip trivially short entries
+  return { topicMap: {}, entries: [] };
 }
 
-function normalizeForDedup(learning: string): string {
-  // Extract the bold key phrase for dedup comparison
-  const match = learning.match(/^\- \*\*(.+?)\*\*/);
-  if (match) return match[1].toLowerCase().trim();
-  return learning.slice(0, 80).toLowerCase().trim();
+async function saveLocalIndex(index: FleetIndex): Promise<void> {
+  const dir = FLEET_INDEX_PATH.split("/").slice(0, -1).join("/");
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  await Bun.write(FLEET_INDEX_PATH, JSON.stringify(index, null, 2) + "\n");
+}
+
+/** Parse a frontmatter entry file */
+function parseEntryFile(text: string, filename: string): InboxEntry | null {
+  const fmMatch = text.match(/^---\n([\s\S]+?)\n---\n([\s\S]*)$/);
+  if (!fmMatch) return null;
+  const fm = fmMatch[1];
+  const content = fmMatch[2].trim();
+  const id = fm.match(/^id:\s*(.+)$/m)?.[1]?.trim() ?? "";
+  const topicsLine = fm.match(/^topics:\s*\[(.+)\]$/m)?.[1];
+  const topics = topicsLine ? topicsLine.split(",").map((t) => t.trim()) : [];
+  const source = fm.match(/^source:\s*(.+)$/m)?.[1]?.trim() ?? "unknown";
+  const created = fm.match(/^created:\s*(.+)$/m)?.[1]?.trim() ?? "";
+  const expires = fm.match(/^expires:\s*(.+)$/m)?.[1]?.trim();
+  if (!id || !created) return null;
+  return { id, topics, source, created, ...(expires ? { expires } : {}), content, filename };
+}
+
+/** Format an IndexEntry as a frontmatter file */
+function formatEntryFile(entry: IndexEntry): string {
+  return [
+    "---",
+    `id: ${entry.id}`,
+    `topics: [${entry.topics.join(", ")}]`,
+    `source: ${entry.source}`,
+    `created: ${entry.created}`,
+    ...(entry.expires ? [`expires: ${entry.expires}`] : []),
+    "---",
+    "",
+    entry.content,
+    "",
+  ].join("\n");
+}
+
+// ---- Remote index fetch ----
+
+async function fetchRemoteIndex(
+  ip: string,
+  password: string
+): Promise<{ ok: boolean; index: FleetIndex; error?: string }> {
+  const result = await ssh(
+    ip,
+    password,
+    `cat ${REMOTE_ARC_DIR}/${REMOTE_SHARED_INDEX} 2>/dev/null || echo "{}"`
+  );
+  if (!result.ok) {
+    return { ok: false, index: { topicMap: {}, entries: [] }, error: result.stderr.trim() };
+  }
+  try {
+    const parsed = JSON.parse(result.stdout.trim() || "{}") as Partial<FleetIndex>;
+    return {
+      ok: true,
+      index: {
+        topicMap: parsed.topicMap ?? {},
+        entries: parsed.entries ?? [],
+      },
+    };
+  } catch {
+    return { ok: false, index: { topicMap: {}, entries: [] }, error: "invalid JSON in remote index" };
+  }
 }
 
 // ---- Inbox helpers ----
@@ -134,17 +174,7 @@ function normalizeForDedup(learning: string): string {
 function parseInboxFile(filename: string): InboxEntry | null {
   try {
     const text = require("node:fs").readFileSync(`${INBOX_DIR}/${filename}`, "utf-8") as string;
-    const fmMatch = text.match(/^---\n([\s\S]+?)\n---\n([\s\S]*)$/);
-    if (!fmMatch) return null;
-    const fm = fmMatch[1];
-    const content = fmMatch[2].trim();
-    const id = fm.match(/^id:\s*(.+)$/m)?.[1]?.trim() ?? "";
-    const topicsLine = fm.match(/^topics:\s*\[(.+)\]$/m)?.[1];
-    const topics = topicsLine ? topicsLine.split(",").map((t) => t.trim()) : [];
-    const source = fm.match(/^source:\s*(.+)$/m)?.[1]?.trim() ?? "unknown";
-    const created = fm.match(/^created:\s*(.+)$/m)?.[1]?.trim() ?? "";
-    const expires = fm.match(/^expires:\s*(.+)$/m)?.[1]?.trim();
-    return { id, topics, source, created, ...(expires ? { expires } : {}), content, filename };
+    return parseEntryFile(text, filename);
   } catch {
     return null;
   }
@@ -160,51 +190,6 @@ function listInboxEntries(): InboxEntry[] {
   }
 }
 
-// ---- Core: fetch memory from one agent ----
-
-async function fetchAgentMemory(
-  agent: string,
-  password: string
-): Promise<AgentMemory> {
-  try {
-    const ip = await getAgentIp(agent);
-
-    // Read patterns.md from remote agent
-    const result = await ssh(
-      ip,
-      password,
-      `cat ${REMOTE_ARC_DIR}/memory/patterns.md 2>/dev/null || echo ""`
-    );
-
-    if (!result.ok) {
-      return {
-        agent,
-        ok: false,
-        patternsContent: "",
-        patternsHash: "",
-        error: result.stderr.trim() || `exit ${result.exitCode}`,
-      };
-    }
-
-    const content = result.stdout;
-    return {
-      agent,
-      ok: true,
-      patternsContent: content,
-      patternsHash: simpleHash(content),
-      patternsLineCount: content.split("\n").length,
-    };
-  } catch (error) {
-    return {
-      agent,
-      ok: false,
-      patternsContent: "",
-      patternsHash: "",
-      error: error instanceof Error ? error.message : String(error),
-    };
-  }
-}
-
 // ---- Subcommands ----
 
 async function cmdCollect(
@@ -215,199 +200,212 @@ async function cmdCollect(
   const password = await getSshPassword();
 
   process.stdout.write(
-    `Collecting learnings from ${agents.length} agent(s): ${agents.join(", ")}${dryRun ? " [DRY RUN]" : ""}\n`
+    `Collecting entries from ${agents.length} agent(s): ${agents.join(", ")}${dryRun ? " [DRY RUN]" : ""}\n`
   );
 
-  // 1. Fetch patterns.md from all agents in parallel
-  const results = await Promise.allSettled(
-    agents.map((agent) => fetchAgentMemory(agent, password))
+  // 1. Load local index — build set of known entry IDs for dedup
+  const localIndex = loadLocalIndex();
+  const knownIds = new Set(localIndex.entries.map((e) => e.id));
+  const state = loadHookState();
+
+  interface AgentResult {
+    agent: string;
+    ok: boolean;
+    newEntries: IndexEntry[];
+    remoteCount: number;
+    error?: string;
+  }
+
+  // 2. Fetch remote indexes and new entry files in parallel per agent
+  const settled = await Promise.allSettled(
+    agents.map(async (agent): Promise<AgentResult> => {
+      const ip = await getAgentIp(agent);
+
+      const { ok, index: remoteIndex, error } = await fetchRemoteIndex(ip, password);
+      if (!ok) {
+        return { agent, ok: false, newEntries: [], remoteCount: 0, error };
+      }
+
+      const remoteCount = remoteIndex.entries.length;
+      const newIds = remoteIndex.entries
+        .map((e) => e.id)
+        .filter((id) => !knownIds.has(id));
+
+      if (newIds.length === 0) {
+        return { agent, ok: true, newEntries: [], remoteCount };
+      }
+
+      // Fetch each new entry file from remote
+      const newEntries: IndexEntry[] = [];
+      for (const id of newIds) {
+        const entryResult = await ssh(
+          ip,
+          password,
+          `cat ${REMOTE_ARC_DIR}/${REMOTE_SHARED_ENTRIES_DIR}/${id}.md 2>/dev/null || echo ""`
+        );
+
+        if (entryResult.ok && entryResult.stdout.trim()) {
+          const parsed = parseEntryFile(entryResult.stdout, `${id}.md`);
+          if (parsed) {
+            const entry: IndexEntry = {
+              id: parsed.id,
+              topics: parsed.topics,
+              content: parsed.content,
+              source: parsed.source,
+              created: parsed.created,
+              ...(parsed.expires ? { expires: parsed.expires } : {}),
+            };
+            newEntries.push(entry);
+            knownIds.add(id); // prevent cross-agent dupes within same collection run
+            continue;
+          }
+        }
+
+        // Entry file missing — fall back to inline data from remote index
+        const remoteEntry = remoteIndex.entries.find((e) => e.id === id);
+        if (remoteEntry) {
+          newEntries.push(remoteEntry);
+          knownIds.add(id);
+        }
+      }
+
+      return { agent, ok: true, newEntries, remoteCount };
+    })
   );
 
-  const memories: AgentMemory[] = results.map((r, i) => {
+  const results: AgentResult[] = settled.map((r, i) => {
     if (r.status === "fulfilled") return r.value;
     return {
       agent: agents[i],
       ok: false,
-      patternsContent: "",
-      patternsHash: "",
+      newEntries: [],
+      remoteCount: 0,
       error: r.reason instanceof Error ? r.reason.message : String(r.reason),
-      patternsLineCount: 0,
     };
   });
 
-  // 2. Load existing fleet-learnings and hook state
-  const state = loadHookState();
-  let existingLearnings = "";
-  try {
-    existingLearnings = require("node:fs").readFileSync(
-      FLEET_LEARNINGS_PATH,
-      "utf-8"
-    );
-  } catch {
-    existingLearnings = "";
-  }
-
-  // Build dedup set from existing fleet-learnings
-  const existingKeys = new Set<string>();
-  for (const learning of extractLearnings(existingLearnings)) {
-    existingKeys.add(normalizeForDedup(learning));
-  }
-
-  // Also dedup against Arc's own patterns.md
-  try {
-    const arcPatterns = require("node:fs").readFileSync(
-      "memory/patterns.md",
-      "utf-8"
-    );
-    for (const learning of extractLearnings(arcPatterns)) {
-      existingKeys.add(normalizeForDedup(learning));
-    }
-  } catch {
-    // Arc patterns.md might not exist in edge cases
-  }
-
-  // 3. Extract new learnings from each agent
-  const newEntries: Array<{ agent: string; learning: string }> = [];
-
-  for (const mem of memories) {
-    if (!mem.ok) {
-      process.stdout.write(`  ${mem.agent}: FAILED — ${mem.error}\n`);
+  // 3. Report per-agent results
+  const allNew: IndexEntry[] = [];
+  for (const res of results) {
+    if (!res.ok) {
+      process.stdout.write(`  ${res.agent}: FAILED — ${res.error}\n`);
       continue;
     }
-
-    // Skip if hash unchanged since last collection
-    if (state.agentHashes[mem.agent] === mem.patternsHash) {
-      process.stdout.write(`  ${mem.agent}: unchanged (hash ${mem.patternsHash})\n`);
-      continue;
-    }
-
-    const agentLearnings = extractLearnings(mem.patternsContent);
-    let newCount = 0;
-
-    for (const learning of agentLearnings) {
-      const key = normalizeForDedup(learning);
-      if (!existingKeys.has(key)) {
-        newEntries.push({ agent: mem.agent, learning });
-        existingKeys.add(key); // Prevent cross-agent dupes within same collection
-        newCount++;
-      }
-    }
-
     process.stdout.write(
-      `  ${mem.agent}: ${agentLearnings.length} total, ${newCount} new (hash ${mem.patternsHash})\n`
+      `  ${res.agent}: ${res.remoteCount} remote entries, ${res.newEntries.length} new\n`
     );
-
-    // Update hash and line count in state (line count used by sensor fast check)
-    state.agentHashes[mem.agent] = mem.patternsHash;
-    state.agentLineCounts[mem.agent] = mem.patternsLineCount;
+    allNew.push(...res.newEntries);
   }
 
-  if (newEntries.length === 0) {
-    process.stdout.write("\nNo new learnings to merge.\n");
+  if (allNew.length === 0) {
+    process.stdout.write("\nNo new entries to collect.\n");
     if (!dryRun) {
       state.lastCollectedAt = new Date().toISOString();
-      await saveHookState(state);
-      // Initialize fleet-learnings.md if it doesn't exist yet
-      if (!existsSync(FLEET_LEARNINGS_PATH)) {
-        const timestamp = new Date().toISOString().slice(0, 10);
-        await Bun.write(
-          FLEET_LEARNINGS_PATH,
-          `# Fleet Learnings\n\n*Cross-agent learnings collected by fleet-memory. Auto-generated — do not edit manually.*\n*Distributed to all agents. Reference during dispatch for cross-domain context.*\n\n*First collected: ${timestamp}. No new unique learnings found (agents share Arc's patterns.md baseline).*\n`
-        );
-        process.stdout.write(`Created ${FLEET_LEARNINGS_PATH} (baseline, no new entries)\n`);
+      for (const res of results) {
+        if (res.ok) state.agentRemoteCounts[res.agent] = res.remoteCount;
       }
+      await saveHookState(state);
     }
     return;
-  }
-
-  // 4. Format new entries
-  const timestamp = new Date().toISOString().slice(0, 10);
-  const sections = new Map<string, string[]>();
-
-  for (const entry of newEntries) {
-    const list = sections.get(entry.agent) ?? [];
-    list.push(entry.learning);
-    sections.set(entry.agent, list);
-  }
-
-  let appendBlock = `\n\n## Collected ${timestamp}\n`;
-  for (const [agent, learnings] of sections) {
-    appendBlock += `\n### From ${agent}\n\n`;
-    for (const l of learnings) {
-      appendBlock += `${l}\n\n`;
-    }
   }
 
   if (dryRun) {
-    process.stdout.write(`\n--- Would append (${newEntries.length} entries) ---\n`);
-    process.stdout.write(appendBlock);
-    process.stdout.write("\n--- End dry run ---\n");
+    process.stdout.write(`\n--- Would add ${allNew.length} entr${allNew.length === 1 ? "y" : "ies"} ---\n`);
+    for (const entry of allNew) {
+      const snippet = entry.content.length > 80 ? entry.content.slice(0, 77) + "..." : entry.content;
+      process.stdout.write(`  [${entry.id}] from ${entry.source}: ${snippet}\n`);
+    }
+    process.stdout.write("--- End dry run ---\n");
     return;
   }
 
-  // 5. Write to fleet-learnings.md
-  let fileContent = existingLearnings;
-  if (!fileContent) {
-    fileContent = `# Fleet Learnings\n\n*Cross-agent learnings collected by fleet-memory. Auto-generated — do not edit manually.*\n*Distributed to all agents. Reference during dispatch for cross-domain context.*\n`;
+  // 4. Write new entry files locally and update index
+  mkdirSync(SHARED_ENTRIES_DIR, { recursive: true });
+  for (const entry of allNew) {
+    await Bun.write(`${SHARED_ENTRIES_DIR}/${entry.id}.md`, formatEntryFile(entry));
+    localIndex.entries.push(entry);
   }
-  fileContent += appendBlock;
 
-  await Bun.write(FLEET_LEARNINGS_PATH, fileContent);
+  await saveLocalIndex(localIndex);
   state.lastCollectedAt = new Date().toISOString();
+  for (const res of results) {
+    if (res.ok) state.agentRemoteCounts[res.agent] = res.remoteCount;
+  }
   await saveHookState(state);
 
   process.stdout.write(
-    `\nAppended ${newEntries.length} new learning(s) to ${FLEET_LEARNINGS_PATH}\n`
+    `\nCollected ${allNew.length} new entr${allNew.length === 1 ? "y" : "ies"} into ${FLEET_INDEX_PATH}\n`
   );
 }
 
 async function cmdDistribute(
   agents: string[],
-  flags: Record<string, string>
+  _flags: Record<string, string>
 ): Promise<void> {
   const password = await getSshPassword();
 
-  if (!existsSync(FLEET_LEARNINGS_PATH)) {
-    process.stderr.write(
-      `Error: ${FLEET_LEARNINGS_PATH} does not exist. Run 'collect' first.\n`
-    );
-    process.exit(1);
+  const localIndex = loadLocalIndex();
+  if (localIndex.entries.length === 0) {
+    process.stdout.write("No entries in local index — nothing to distribute.\n");
+    return;
   }
 
-  const content = require("node:fs").readFileSync(FLEET_LEARNINGS_PATH, "utf-8");
-  const hash = simpleHash(content);
+  const indexJson = JSON.stringify(localIndex, null, 2) + "\n";
   process.stdout.write(
-    `Distributing fleet-learnings.md (${content.length} bytes, hash ${hash}) to ${agents.length} agent(s)\n`
+    `Distributing index (${localIndex.entries.length} entries) to ${agents.length} agent(s)\n`
   );
 
-  // SCP fleet-learnings.md to each agent in parallel
   const results = await Promise.allSettled(
     agents.map(async (agent) => {
       const ip = await getAgentIp(agent);
 
-      // Ensure memory directory exists, then write file
+      // Ensure remote directories exist
       const mkdirResult = await ssh(
         ip,
         password,
-        `mkdir -p ${REMOTE_ARC_DIR}/memory`
+        `mkdir -p ${REMOTE_ARC_DIR}/${REMOTE_SHARED_ENTRIES_DIR}`
       );
       if (!mkdirResult.ok) {
         throw new Error(`mkdir failed: ${mkdirResult.stderr}`);
       }
 
-      // Use SSH + stdin to write file (avoids SCP complications with sshpass)
-      const escaped = content.replace(/'/g, "'\\''");
-      const writeResult = await ssh(
-        ip,
-        password,
-        `cat > ${REMOTE_ARC_DIR}/${FLEET_LEARNINGS_PATH} << 'FLEET_MEMORY_EOF'\n${content}\nFLEET_MEMORY_EOF`
-      );
+      // Read remote index to determine which entries are new for this agent
+      const { ok: remoteOk, index: remoteIndex } = await fetchRemoteIndex(ip, password);
+      const remoteIds = new Set(remoteOk ? remoteIndex.entries.map((e) => e.id) : []);
+      const newForAgent = localIndex.entries.filter((e) => !remoteIds.has(e.id));
 
-      if (!writeResult.ok) {
-        throw new Error(`write failed: ${writeResult.stderr}`);
+      // Write new entry files to remote
+      for (const entry of newForAgent) {
+        // Load from local file if available; reconstruct from index data if not
+        let entryContent: string;
+        const localFilePath = `${SHARED_ENTRIES_DIR}/${entry.id}.md`;
+        if (existsSync(localFilePath)) {
+          entryContent = require("node:fs").readFileSync(localFilePath, "utf-8") as string;
+        } else {
+          entryContent = formatEntryFile(entry);
+        }
+
+        const writeResult = await ssh(
+          ip,
+          password,
+          `cat > ${REMOTE_ARC_DIR}/${REMOTE_SHARED_ENTRIES_DIR}/${entry.id}.md << 'FLEET_ENTRY_EOF'\n${entryContent}\nFLEET_ENTRY_EOF`
+        );
+        if (!writeResult.ok) {
+          throw new Error(`write entry ${entry.id} failed: ${writeResult.stderr}`);
+        }
       }
 
-      return agent;
+      // Write full index.json to remote shared location
+      const writeIndexResult = await ssh(
+        ip,
+        password,
+        `cat > ${REMOTE_ARC_DIR}/${REMOTE_SHARED_INDEX} << 'FLEET_INDEX_EOF'\n${indexJson}\nFLEET_INDEX_EOF`
+      );
+      if (!writeIndexResult.ok) {
+        throw new Error(`write index failed: ${writeIndexResult.stderr}`);
+      }
+
+      return { agent, newCount: newForAgent.length };
     })
   );
 
@@ -415,7 +413,8 @@ async function cmdDistribute(
     const r = results[i];
     const agent = agents[i];
     if (r.status === "fulfilled") {
-      process.stdout.write(`  ${agent}: OK\n`);
+      const { newCount } = r.value as { newCount: number };
+      process.stdout.write(`  ${agent}: OK (+${newCount} new entries)\n`);
     } else {
       process.stdout.write(
         `  ${agent}: FAILED — ${r.reason instanceof Error ? r.reason.message : String(r.reason)}\n`
@@ -434,129 +433,39 @@ async function cmdStatus(
   const state = loadHookState();
   const password = await getSshPassword();
 
+  const localIndex = loadLocalIndex();
   process.stdout.write("Fleet Memory Status\n");
   process.stdout.write(`  Last collected: ${state.lastCollectedAt ?? "never"}\n`);
+  process.stdout.write(
+    `  Local index: ${localIndex.entries.length} entries, ${Object.keys(localIndex.topicMap).length} skill mappings\n`
+  );
 
-  // Check local fleet-learnings
-  if (existsSync(FLEET_LEARNINGS_PATH)) {
-    const content = require("node:fs").readFileSync(FLEET_LEARNINGS_PATH, "utf-8");
-    const entries = extractLearnings(content);
-    process.stdout.write(
-      `  Fleet learnings: ${entries.length} entries (${content.length} bytes)\n`
-    );
-  } else {
-    process.stdout.write("  Fleet learnings: not yet created\n");
-  }
-
-  process.stdout.write("\n  Agent hashes (last collected):\n");
-  for (const agent of agents) {
-    const hash = state.agentHashes[agent] ?? "(not collected)";
-    process.stdout.write(`    ${agent}: ${hash}\n`);
-  }
-
-  // Check remote fleet-learnings presence
-  process.stdout.write("\n  Remote fleet-learnings.md:\n");
+  // Check remote index entry counts
+  process.stdout.write("\n  Remote shared/index.json:\n");
   const checks = await Promise.allSettled(
     agents.map(async (agent) => {
       const ip = await getAgentIp(agent);
-      const result = await ssh(
-        ip,
-        password,
-        `wc -c < ${REMOTE_ARC_DIR}/${FLEET_LEARNINGS_PATH} 2>/dev/null || echo "missing"`
-      );
-      return {
-        agent,
-        result: result.ok ? result.stdout.trim() : "unreachable",
-      };
+      const { ok, index: remoteIndex, error } = await fetchRemoteIndex(ip, password);
+      if (!ok) return { agent, count: null as number | null, error };
+      return { agent, count: remoteIndex.entries.length, error: undefined };
     })
   );
 
   for (const check of checks) {
     if (check.status === "fulfilled") {
-      const { agent, result } = check.value;
-      const display =
-        result === "missing"
-          ? "not distributed"
-          : result === "unreachable"
-            ? "unreachable"
-            : `${result} bytes`;
-      process.stdout.write(`    ${agent}: ${display}\n`);
+      const { agent, count, error } = check.value;
+      if (count === null) {
+        process.stdout.write(`    ${agent}: unreachable (${error ?? "unknown"})\n`);
+      } else {
+        const lastKnown = state.agentRemoteCounts[agent] ?? 0;
+        const delta = count - lastKnown;
+        const deltaStr =
+          delta > 0 ? ` (+${delta} not yet collected)` : delta < 0 ? ` (${Math.abs(delta)} fewer than last)` : " (in sync)";
+        process.stdout.write(`    ${agent}: ${count} entries${deltaStr}\n`);
+      }
     } else {
       process.stdout.write(`    ??: error\n`);
     }
-  }
-}
-
-// ---- Index types ----
-
-interface IndexEntry {
-  id: string;
-  topics: string[];
-  content: string;
-  source: string;
-  created: string;
-  expires?: string;
-}
-
-interface FleetIndex {
-  topicMap: Record<string, string[]>;
-  entries: IndexEntry[];
-}
-
-// ---- Search command ----
-
-async function cmdSearch(flags: Record<string, string>): Promise<void> {
-  const keyword = flags["keyword"]?.toLowerCase();
-  const topic = flags["topic"]?.toLowerCase();
-  const source = flags["source"]?.toLowerCase();
-  const freshOnly = flags["fresh-only"] !== undefined;
-
-  let index: FleetIndex;
-  try {
-    const text = require("node:fs").readFileSync(FLEET_INDEX_PATH, "utf-8");
-    index = JSON.parse(text) as FleetIndex;
-  } catch {
-    process.stderr.write(`Error: could not read ${FLEET_INDEX_PATH}\n`);
-    process.exit(1);
-  }
-
-  const today = new Date().toISOString().slice(0, 10);
-
-  const matches = index.entries.filter((entry) => {
-    // Fresh-only: skip expired entries
-    if (freshOnly && entry.expires && entry.expires < today) return false;
-
-    // Source filter
-    if (source && entry.source.toLowerCase() !== source) return false;
-
-    // Topic filter
-    if (topic && !entry.topics.some((t) => t.toLowerCase() === topic)) return false;
-
-    // Keyword filter (searches content)
-    if (keyword && !entry.content.toLowerCase().includes(keyword)) return false;
-
-    return true;
-  });
-
-  // Sort newest first
-  matches.sort((a, b) => b.created.localeCompare(a.created));
-
-  if (matches.length === 0) {
-    process.stdout.write("No matching entries found.\n");
-    return;
-  }
-
-  process.stdout.write(`Found ${matches.length} matching entr${matches.length === 1 ? "y" : "ies"}:\n\n`);
-
-  for (const entry of matches) {
-    const expired = entry.expires && entry.expires < today ? " [EXPIRED]" : "";
-    const expireStr = entry.expires ? ` · expires ${entry.expires}` : "";
-    process.stdout.write(
-      `[${entry.id}] ${entry.created} · source: ${entry.source} · topics: ${entry.topics.join(", ")}${expireStr}${expired}\n`
-    );
-    // Snippet: truncate content to 200 chars
-    const snippet = entry.content.length > 200 ? entry.content.slice(0, 197) + "..." : entry.content;
-    process.stdout.write(`  ${snippet}\n\n`);
   }
 }
 
@@ -570,7 +479,49 @@ async function cmdFull(
   await cmdDistribute(agents, flags);
 }
 
-// ---- Suggest: write an inbox entry ----
+// ---- Search ----
+
+async function cmdSearch(flags: Record<string, string>): Promise<void> {
+  const keyword = flags["keyword"]?.toLowerCase();
+  const topic = flags["topic"]?.toLowerCase();
+  const source = flags["source"]?.toLowerCase();
+  const freshOnly = flags["fresh-only"] !== undefined;
+
+  const index = loadLocalIndex();
+  if (index.entries.length === 0) {
+    process.stdout.write(`No entries in ${FLEET_INDEX_PATH}\n`);
+    return;
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  const matches = index.entries.filter((entry) => {
+    if (freshOnly && entry.expires && entry.expires < today) return false;
+    if (source && entry.source.toLowerCase() !== source) return false;
+    if (topic && !entry.topics.some((t) => t.toLowerCase() === topic)) return false;
+    if (keyword && !entry.content.toLowerCase().includes(keyword)) return false;
+    return true;
+  });
+
+  matches.sort((a, b) => b.created.localeCompare(a.created));
+
+  if (matches.length === 0) {
+    process.stdout.write("No matching entries found.\n");
+    return;
+  }
+
+  process.stdout.write(`Found ${matches.length} matching entr${matches.length === 1 ? "y" : "ies"}:\n\n`);
+  for (const entry of matches) {
+    const expired = entry.expires && entry.expires < today ? " [EXPIRED]" : "";
+    const expireStr = entry.expires ? ` · expires ${entry.expires}` : "";
+    process.stdout.write(
+      `[${entry.id}] ${entry.created} · source: ${entry.source} · topics: ${entry.topics.join(", ")}${expireStr}${expired}\n`
+    );
+    const snippet = entry.content.length > 200 ? entry.content.slice(0, 197) + "..." : entry.content;
+    process.stdout.write(`  ${snippet}\n\n`);
+  }
+}
+
+// ---- Suggest ----
 
 async function cmdSuggest(flags: Record<string, string>): Promise<void> {
   const content = flags["content"];
@@ -612,7 +563,7 @@ async function cmdSuggest(flags: Record<string, string>): Promise<void> {
   process.stdout.write(`  source: ${source}\n`);
 }
 
-// ---- Review: accept/reject inbox entries ----
+// ---- Review ----
 
 async function cmdReview(flags: Record<string, string>): Promise<void> {
   const listOnly = flags["list"] !== undefined;
@@ -628,7 +579,6 @@ async function cmdReview(flags: Record<string, string>): Promise<void> {
     return;
   }
 
-  // List mode or no action
   if (listOnly || (!acceptId && !rejectId && !acceptAll && !rejectAll)) {
     process.stdout.write(
       `Fleet Memory Inbox — ${entries.length} pending entr${entries.length === 1 ? "y" : "ies"}:\n\n`
@@ -638,8 +588,7 @@ async function cmdReview(flags: Record<string, string>): Promise<void> {
       process.stdout.write(
         `[${entry.id}] source: ${entry.source} · topics: ${entry.topics.join(", ")}${expireStr}\n`
       );
-      const snippet =
-        entry.content.length > 200 ? entry.content.slice(0, 197) + "..." : entry.content;
+      const snippet = entry.content.length > 200 ? entry.content.slice(0, 197) + "..." : entry.content;
       process.stdout.write(`  ${snippet}\n\n`);
     }
     process.stdout.write(
@@ -648,7 +597,6 @@ async function cmdReview(flags: Record<string, string>): Promise<void> {
     return;
   }
 
-  // Resolve which entries to accept / reject
   let toAccept: InboxEntry[] = [];
   let toReject: InboxEntry[] = [];
 
@@ -659,10 +607,7 @@ async function cmdReview(flags: Record<string, string>): Promise<void> {
   } else {
     if (acceptId) {
       const entry = entries.find(
-        (e) =>
-          e.id === acceptId ||
-          e.filename === acceptId ||
-          e.filename === `${acceptId}.md`
+        (e) => e.id === acceptId || e.filename === acceptId || e.filename === `${acceptId}.md`
       );
       if (!entry) {
         process.stderr.write(`Error: entry '${acceptId}' not found in inbox\n`);
@@ -672,10 +617,7 @@ async function cmdReview(flags: Record<string, string>): Promise<void> {
     }
     if (rejectId) {
       const entry = entries.find(
-        (e) =>
-          e.id === rejectId ||
-          e.filename === rejectId ||
-          e.filename === `${rejectId}.md`
+        (e) => e.id === rejectId || e.filename === rejectId || e.filename === `${rejectId}.md`
       );
       if (!entry) {
         process.stderr.write(`Error: entry '${rejectId}' not found in inbox\n`);
@@ -685,20 +627,10 @@ async function cmdReview(flags: Record<string, string>): Promise<void> {
     }
   }
 
-  // Load index
-  let index: FleetIndex;
-  try {
-    const text = require("node:fs").readFileSync(FLEET_INDEX_PATH, "utf-8") as string;
-    index = JSON.parse(text) as FleetIndex;
-  } catch {
-    index = { topicMap: {}, entries: [] };
-  }
-
-  // Ensure target dirs exist
+  const index = loadLocalIndex();
   if (toAccept.length > 0) mkdirSync(SHARED_ENTRIES_DIR, { recursive: true });
   if (toReject.length > 0) mkdirSync(SHARED_ARCHIVE_DIR, { recursive: true });
 
-  // Process accepts
   for (const entry of toAccept) {
     const already = index.entries.find((e) => e.id === entry.id);
     if (already) {
@@ -706,7 +638,6 @@ async function cmdReview(flags: Record<string, string>): Promise<void> {
       unlinkSync(`${INBOX_DIR}/${entry.filename}`);
       continue;
     }
-
     const indexEntry: IndexEntry = {
       id: entry.id,
       topics: entry.topics,
@@ -716,20 +647,17 @@ async function cmdReview(flags: Record<string, string>): Promise<void> {
       ...(entry.expires ? { expires: entry.expires } : {}),
     };
     index.entries.push(indexEntry);
-
     renameSync(`${INBOX_DIR}/${entry.filename}`, `${SHARED_ENTRIES_DIR}/${entry.filename}`);
     process.stdout.write(`  ACCEPTED ${entry.id} → ${SHARED_ENTRIES_DIR}/${entry.filename}\n`);
   }
 
-  // Process rejects
   for (const entry of toReject) {
     renameSync(`${INBOX_DIR}/${entry.filename}`, `${SHARED_ARCHIVE_DIR}/${entry.filename}`);
     process.stdout.write(`  REJECTED ${entry.id} → ${SHARED_ARCHIVE_DIR}/${entry.filename}\n`);
   }
 
-  // Persist updated index
   if (toAccept.length > 0) {
-    await Bun.write(FLEET_INDEX_PATH, JSON.stringify(index, null, 2) + "\n");
+    await saveLocalIndex(index);
     process.stdout.write(`\nIndex updated: ${index.entries.length} total entr${index.entries.length === 1 ? "y" : "ies"}\n`);
   }
 
@@ -748,12 +676,12 @@ Usage:
   arc skills run --name fleet-memory -- <command> [options]
 
 Commands:
-  collect      Fetch patterns.md from agents, extract new learnings, merge into fleet-learnings.md
+  collect      Fetch index.json from agents, merge new entries into local index
                --dry-run             Show what would be added without writing
 
-  distribute   Push fleet-learnings.md to all agents via SSH
+  distribute   Push local index.json + new entries to all agents via SSH
 
-  status       Show collection state, entry counts, and distribution status
+  status       Show collection state, entry counts, and remote sync status
 
   full         Run collect + distribute in sequence
 
