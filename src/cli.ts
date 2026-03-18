@@ -65,6 +65,7 @@ const USAGE = {
   memoryDelete: 'arc memory delete --key KEY',
   memoryExpire: 'arc memory expire',
   memoryCheckDedup: 'arc memory check-dedup --subject TEXT [--hours N] [--threshold N]',
+  memorySearchSkills: 'arc memory search-skills --query TEXT [--limit N]',
   scratchpadRead: 'arc scratchpad read --task N',
   scratchpadWrite: 'arc scratchpad write --task N --content TEXT',
   scratchpadAppend: 'arc scratchpad append --task N --content TEXT',
@@ -926,10 +927,43 @@ function cmdMemoryCheckDedup(args: string[]): void {
   }
 }
 
+function cmdMemorySearchSkills(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const query = flags["query"];
+  if (!query) {
+    process.stderr.write(`Error: --query is required\nUsage: ${USAGE.memorySearchSkills}\n`);
+    process.exit(1);
+  }
+
+  initDatabase();
+  const limit = flags["limit"] ? parseInt(flags["limit"], 10) : 10;
+
+  // Search skill capabilities in arc_memory domain='skills', excluding failure entries
+  let results = searchArcMemory(query, "skills", limit * 2);
+  results = results.filter((r) => r.key.startsWith("skill:") && !r.key.startsWith("skill-failure:"));
+  results = results.slice(0, limit);
+
+  if (results.length === 0) {
+    process.stdout.write("No matching skills found.\n");
+    return;
+  }
+
+  process.stdout.write(`Found ${results.length} matching skill(s):\n\n`);
+  for (const mem of results) {
+    const skillName = mem.key.replace("skill:", "");
+    process.stdout.write(`  ${pad(skillName, 30)} ${mem.content.split(".").slice(1, 3).join(".").trim()}\n`);
+    if (mem.tags) {
+      process.stdout.write(`  ${pad("", 30)} tags: ${mem.tags}\n`);
+    }
+  }
+}
+
 function cmdMemory(args: string[]): void {
   const sub = args[0];
   if (sub === "search") {
     cmdMemorySearch(args.slice(1));
+  } else if (sub === "search-skills") {
+    cmdMemorySearchSkills(args.slice(1));
   } else if (sub === "add") {
     cmdMemoryAdd(args.slice(1));
   } else if (sub === "list") {
@@ -941,7 +975,7 @@ function cmdMemory(args: string[]): void {
   } else if (sub === "check-dedup") {
     cmdMemoryCheckDedup(args.slice(1));
   } else {
-    process.stderr.write(`Usage: arc memory <search|add|list|delete|expire|check-dedup>\n`);
+    process.stderr.write(`Usage: arc memory <search|search-skills|add|list|delete|expire|check-dedup>\n`);
     process.exit(sub ? 1 : 0);
   }
 }
@@ -1143,6 +1177,9 @@ COMMANDS
 
   ${USAGE.memoryDelete}
     Delete a memory by key.
+
+  ${USAGE.memorySearchSkills}
+    Search indexed skill capabilities by keyword. Returns matching skills from arc_memory.
 
   ${USAGE.memoryExpire}
     Run TTL cleanup — removes memories past their expiry.

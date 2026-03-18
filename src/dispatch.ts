@@ -25,6 +25,7 @@ import {
   markTaskCompleted,
   markTaskFailed,
   requeueTask,
+  searchArcMemory,
   updateCycleLog,
   updateTask,
   updateTaskCost,
@@ -226,6 +227,32 @@ function resolveSkillContextAndHashes(skillNames: string[]): SkillResolution {
   return { context: contextParts.join("\n\n"), hashes };
 }
 
+// ---- Skill suggestion (when task has no explicit skills) ----
+
+/** Query arc_memory for skills matching the task subject. Returns up to 3 suggestions. */
+function suggestSkills(taskSubject: string): string[] {
+  try {
+    // Tokenize subject into FTS5-safe words (remove short words and special chars)
+    const words = taskSubject
+      .replace(/[^a-zA-Z0-9\s-]/g, "")
+      .split(/\s+/)
+      .filter((w) => w.length > 2)
+      .slice(0, 5);
+    if (words.length === 0) return [];
+
+    const query = words.join(" OR ");
+    const results = searchArcMemory(query, "skills", 10);
+
+    // Filter to capability entries only
+    return results
+      .filter((r) => r.key.startsWith("skill:") && !r.key.startsWith("skill-failure:"))
+      .slice(0, 3)
+      .map((r) => r.key.replace("skill:", ""));
+  } catch {
+    return [];
+  }
+}
+
 // ---- Parent chain builder ----
 
 function buildParentChain(task: Task): string {
@@ -245,7 +272,7 @@ function buildParentChain(task: Task): string {
 
 const MST_OFFSET_MS = 7 * 3600_000;
 
-function buildPrompt(task: Task, skillNames: string[], skillContext: string, recentCycles: string): string {
+function buildPrompt(task: Task, skillNames: string[], skillContext: string, recentCycles: string, suggestedSkillNames?: string[]): string {
   const now = new Date();
   const utcIso = now.toISOString().replace(/\.\d{3}Z$/, "Z");
   const mst = toSqliteDatetime(new Date(now.getTime() - MST_OFFSET_MS)) + " MST";
@@ -279,6 +306,17 @@ function buildPrompt(task: Task, skillNames: string[], skillContext: string, rec
 
   if (skillContext) {
     parts.push(skillContext, "");
+  }
+
+  // Skill suggestions for tasks without explicit skills
+  if (suggestedSkillNames && suggestedSkillNames.length > 0 && skillNames.length === 0) {
+    parts.push(
+      "# Suggested Skills",
+      `The following skills may be relevant to this task (auto-detected from skill index):`,
+      suggestedSkillNames.map((s) => `- ${s}`).join("\n"),
+      `Use \`arc skills show --name <name>\` to inspect before loading. Include relevant skills in follow-up tasks via --skills.`,
+      "",
+    );
   }
 
   // Project scratchpad — shared context buffer for multi-subtask work
@@ -704,7 +742,17 @@ export async function runDispatch(): Promise<void> {
     .join("\n");
 
   const { context: skillContext, hashes: skillHashes } = resolveSkillContextAndHashes(skillNames);
-  const prompt = buildPrompt(task, skillNames, skillContext, recentCycles);
+
+  // Suggest skills for tasks without explicit skills
+  let suggestedSkillNames: string[] | undefined;
+  if (skillNames.length === 0) {
+    suggestedSkillNames = suggestSkills(task.subject);
+    if (suggestedSkillNames.length > 0) {
+      log(`dispatch: suggested skills for task #${task.id}: ${suggestedSkillNames.join(", ")}`);
+    }
+  }
+
+  const prompt = buildPrompt(task, skillNames, skillContext, recentCycles, suggestedSkillNames);
 
   markTaskActive(task.id);
   writeDispatchLock(task.id);
