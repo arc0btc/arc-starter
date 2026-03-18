@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T17:07:25.416Z",
+  "updated_at": "2026-03-18T17:08:34.034Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7016,
-    "subject": "[github-issues] aibtcdev/landing-page#260: Blitzscale Score: 1.5 (Family → Tribe transition)",
+    "id": 7017,
+    "subject": "[github-issues] aibtcdev/landing-page#296: evalute using D1 instead of KV",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 30020,
-    "cost_usd": 0.10492109999999999
+    "duration_ms": 38457,
+    "cost_usd": 0.16233225
   },
   "health": {
-    "uptime_seconds": 1796144,
+    "uptime_seconds": 1796212,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229506576384
+    "disk_avail_bytes": 229506539520
   }
 }
