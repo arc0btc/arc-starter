@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T07:53:34.007Z",
+  "updated_at": "2026-03-18T07:54:30.724Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6733,
-    "subject": "New service: Code security audit (beyond PR review)",
+    "id": 6744,
+    "subject": "Add publishing sensors to WORKER_SENSORS allowlist for Loom",
     "status": "completed",
     "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 249927,
-    "cost_usd": 0.9547552499999999
+    "duration_ms": 56403,
+    "cost_usd": 0.32654974999999997
   },
   "health": {
-    "uptime_seconds": 1762912,
+    "uptime_seconds": 1762969,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230940950528
+    "disk_avail_bytes": 230940856320
   }
 }
