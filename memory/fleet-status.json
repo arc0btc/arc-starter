@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T23:35:18.666Z",
+  "updated_at": "2026-03-18T23:35:50.328Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6725,
-    "subject": "Investigate missing HTML in claude-knowledge review email (fcb0481)",
+    "id": 6729,
+    "subject": "Reply to X mention from user 2031981733550440448",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 341303,
-    "cost_usd": 1.2311035499999994
+    "duration_ms": 31480,
+    "cost_usd": 0.13011615
   },
   "health": {
-    "uptime_seconds": 1819417,
+    "uptime_seconds": 1819449,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229460357120
+    "disk_avail_bytes": 229460320256
   }
 }
