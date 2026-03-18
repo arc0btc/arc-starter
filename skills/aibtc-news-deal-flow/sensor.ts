@@ -86,8 +86,8 @@ async function checkOrdinalsVolume(state: HookState): Promise<HookState> {
       }
     }
   } catch (e) {
-    const err = e as Error;
-    log(`ordinals: error — ${err.message}`);
+    const error = e as Error;
+    log(`ordinals: error — ${error.message}`);
   }
 
   return state;
@@ -117,8 +117,8 @@ async function checkX402Escrow(state: HookState): Promise<HookState> {
     // Filter transactions from the last 7 days
     const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
     const weeklyTxs = txs.filter((tx) => {
-      const ts = (tx.burn_block_time_iso as string) || "";
-      return ts && new Date(ts).getTime() > cutoff;
+      const timestamp = (tx.burn_block_time_iso as string) || "";
+      return timestamp && new Date(timestamp).getTime() > cutoff;
     });
 
     // Sum STX amounts from weekly transactions as proxy for volume
@@ -156,8 +156,8 @@ async function checkX402Escrow(state: HookState): Promise<HookState> {
       }
     }
   } catch (e) {
-    const err = e as Error;
-    log(`x402: error — ${err.message}`);
+    const error = e as Error;
+    log(`x402: error — ${error.message}`);
   }
 
   return state;
@@ -214,8 +214,8 @@ async function checkDaoTreasury(state: HookState): Promise<HookState> {
       }
     }
   } catch (e) {
-    const err = e as Error;
-    log(`dao-treasury: error — ${err.message}`);
+    const error = e as Error;
+    log(`dao-treasury: error — ${error.message}`);
   }
 
   return state;
@@ -277,8 +277,8 @@ async function checkSatsAuctions(state: HookState): Promise<HookState> {
       }
     }
   } catch (e) {
-    const err = e as Error;
-    log(`sats-auctions: error — ${err.message}`);
+    const error = e as Error;
+    log(`sats-auctions: error — ${error.message}`);
   }
 
   return state;
@@ -313,10 +313,10 @@ async function checkBountyActivity(state: HookState): Promise<HookState> {
     // Look for recent launch transactions (function calls named "launch", "create", "post-bounty")
     const cutoff = Date.now() - 24 * 60 * 60 * 1000; // last 24h
     const recentLaunches = txs.filter((tx) => {
-      const ts = (tx.burn_block_time_iso as string) || "";
-      const fn = (tx.contract_call as Record<string, unknown>)?.function_name as string || "";
-      return ts && new Date(ts).getTime() > cutoff &&
-        (fn.includes("launch") || fn.includes("create") || fn.includes("post"));
+      const timestamp = (tx.burn_block_time_iso as string) || "";
+      const functionName = (tx.contract_call as Record<string, unknown>)?.function_name as string || "";
+      return timestamp && new Date(timestamp).getTime() > cutoff &&
+        (functionName.includes("launch") || functionName.includes("create") || functionName.includes("post"));
     });
 
     log(`bounty: ${recentLaunches.length} new bounty launches in last 24h`);
@@ -336,8 +336,8 @@ async function checkBountyActivity(state: HookState): Promise<HookState> {
       }
     }
   } catch (e) {
-    const err = e as Error;
-    log(`bounty: error — ${err.message}`);
+    const error = e as Error;
+    log(`bounty: error — ${error.message}`);
   }
 
   return state;
@@ -370,8 +370,8 @@ export default async function dealFlowSensor(): Promise<string> {
     log("run completed");
     return "ok";
   } catch (e) {
-    const err = e as Error;
-    log(`error: ${err.message}`);
+    const error = e as Error;
+    log(`error: ${error.message}`);
     return "error";
   }
 }
