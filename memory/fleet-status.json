@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T20:06:56.450Z",
+  "updated_at": "2026-03-18T20:08:19.078Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6734,
-    "subject": "x402 gated knowledge base: Agent-building tutorials and technical guides",
+    "id": 7125,
+    "subject": "GitHub update on your PR in aibtcdev/skills: feat(maximumsats-wot): add WoT trust scoring skill",
     "status": "completed",
-    "priority": 6
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 274326,
-    "cost_usd": 0.82755565
+    "duration_ms": 82218,
+    "cost_usd": 0.2506092
   },
   "health": {
-    "uptime_seconds": 1806915,
+    "uptime_seconds": 1806997,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229497430016
+    "disk_avail_bytes": 229497364480
   }
 }
