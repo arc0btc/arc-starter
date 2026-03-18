@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T09:13:20.172Z",
+  "updated_at": "2026-03-18T09:20:04.138Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6774,
-    "subject": "Route DeFi strategy tasks to Spark queue",
+    "id": 6809,
+    "subject": "Build Jingswap skill for Stacks DEX deposits",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 323497,
-    "cost_usd": 0.6111537
+    "duration_ms": 403747,
+    "cost_usd": 1.9932102
   },
   "health": {
-    "uptime_seconds": 1767699,
+    "uptime_seconds": 1768102,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230917824512
+    "disk_avail_bytes": 230917578752
   }
 }
