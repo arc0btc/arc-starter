@@ -309,21 +309,76 @@ function buildParentChain(task: Task): string {
 
 // ---- Prompt builder ----
 
-const MST_OFFSET_MS = 7 * 3600_000;
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] as const;
+
+/** Format date as Mountain Time with DST-aware abbreviation (MST/MDT). */
+function formatMountainTime(date: Date): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Denver",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+    timeZoneName: "short",
+  }).formatToParts(date);
+  const p: Partial<Record<Intl.DateTimeFormatPartTypes, string>> = {};
+  for (const { type, value } of parts) p[type] = value;
+  // hour12:false may return "24" at midnight; normalize
+  const hour = p.hour === "24" ? "00" : p.hour;
+  return `${p.year}-${p.month}-${p.day} ${hour}:${p.minute}:${p.second} ${p.timeZoneName}`;
+}
+
+/** Human-readable duration: "3m ago", "2h ago", "5d ago". */
+function humanAgo(fromMs: number, toMs: number): string {
+  const diffMs = toMs - fromMs;
+  const mins = Math.round(diffMs / 60_000);
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.round(diffMs / 3_600_000);
+  if (hours < 48) return `${hours}h ago`;
+  return `${Math.round(diffMs / 86_400_000)}d ago`;
+}
 
 function buildPrompt(task: Task, skillNames: string[], recentCycles: string): string {
   const now = new Date();
   const utc = toSqliteDatetime(now) + " UTC";
-  const mst = toSqliteDatetime(new Date(now.getTime() - MST_OFFSET_MS)) + " MST";
+  const mountain = formatMountainTime(now);
+  const dayOfWeek = DAY_NAMES[now.getUTCDay()];
 
   const soul = readFile(join(ROOT, "SOUL.md"));
   const memory = readFile(join(ROOT, "memory", "MEMORY.md"));
   const skillContext = resolveSkillContext(skillNames);
   const parentChain = buildParentChain(task);
 
+  // Time since last dispatch cycle
+  let lastCycleNote = "";
+  if (recentCycles) {
+    const firstLine = recentCycles.split("\n")[0];
+    const tsMatch = firstLine.match(/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/);
+    if (tsMatch) {
+      const lastCycleMs = new Date(tsMatch[1] + "Z").getTime();
+      if (!Number.isNaN(lastCycleMs)) {
+        lastCycleNote = ` (last cycle: ${humanAgo(lastCycleMs, now.getTime())})`;
+      }
+    }
+  }
+
+  // Memory staleness warning
+  let memoryNote = "";
+  const memLastUpdatedMatch = memory.match(/\*Last updated:\s*([^*\n]+)\*/);
+  if (memLastUpdatedMatch) {
+    const memAgeMs = now.getTime() - new Date(memLastUpdatedMatch[1].trim()).getTime();
+    const memAgeDays = Math.floor(memAgeMs / 86_400_000);
+    if (memAgeDays >= 3) {
+      memoryNote = ` [STALE: last updated ${memAgeDays}d ago — consolidate soon]`;
+    }
+  }
+
   const parts: string[] = [
     "# Current Time",
-    `${utc} / ${mst}`,
+    `${dayOfWeek}, ${utc} / ${mountain}${lastCycleNote}`,
     "",
   ];
 
@@ -331,7 +386,7 @@ function buildPrompt(task: Task, skillNames: string[], recentCycles: string): st
 
   const optionalSections: Array<[string, string]> = [
     ["# Identity", soul],
-    ["# Memory", memory],
+    [`# Memory${memoryNote}`, memory],
     ["", fleetKnowledge],
     ["# Recent Cycles", recentCycles],
   ];
