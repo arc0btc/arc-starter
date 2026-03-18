@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T13:07:53.026Z",
+  "updated_at": "2026-03-18T13:09:19.258Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6905,
-    "subject": "feat(achievements): add Stacker achievement to landing-page — STX locked via PoX",
+    "id": 6893,
+    "subject": "[github-issues] aibtcdev/landing-page#418: feat(achievements): add sBTC Holder achievement — holds any sBTC balance",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 30973,
-    "cost_usd": 0.17777849999999998
+    "duration_ms": 56703,
+    "cost_usd": 0.15005685
   },
   "health": {
-    "uptime_seconds": 1781771,
+    "uptime_seconds": 1781858,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229849378816
+    "disk_avail_bytes": 229849313280
   }
 }
