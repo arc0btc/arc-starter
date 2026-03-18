@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T21:09:07.805Z",
+  "updated_at": "2026-03-18T21:10:23.079Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6793,
-    "subject": "compliance-review: 25 finding(s) across 104 skills",
+    "id": 7164,
+    "subject": "Re-review requested: https://github.com/aibtcdev/agent-news/pull/106",
     "status": "completed",
-    "priority": 6
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 771754,
-    "cost_usd": 0.7028377499999999
+    "duration_ms": 74896,
+    "cost_usd": 0.537463
   },
   "health": {
-    "uptime_seconds": 1810646,
+    "uptime_seconds": 1810721,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229473800192
+    "disk_avail_bytes": 229473492992
   }
 }
