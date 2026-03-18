@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T09:58:22.286Z",
+  "updated_at": "2026-03-18T10:00:08.455Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6792,
-    "subject": "Push feat/monitoring-service branch and open PR for monitoring-as-a-service",
+    "id": 6795,
+    "subject": "Weekly strategic review: directive + milestone check",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 77372,
-    "cost_usd": 0.21513225
+    "duration_ms": 105939,
+    "cost_usd": 0.3058303500000001
   },
   "health": {
-    "uptime_seconds": 1770401,
+    "uptime_seconds": 1770507,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230916358144
+    "disk_avail_bytes": 230916280320
   }
 }
