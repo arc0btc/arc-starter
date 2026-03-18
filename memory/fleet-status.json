@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T23:29:37.148Z",
+  "updated_at": "2026-03-18T23:35:18.666Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7214,
-    "subject": "Review PR #110 on aibtcdev/agent-news: docs: align llms.txt, manifest, and registration guide with v2 API (#100)",
+    "id": 6725,
+    "subject": "Investigate missing HTML in claude-knowledge review email (fcb0481)",
     "status": "completed",
-    "priority": 5
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 83760,
-    "cost_usd": 0.22476105000000002
+    "duration_ms": 341303,
+    "cost_usd": 1.2311035499999994
   },
   "health": {
-    "uptime_seconds": 1819075,
+    "uptime_seconds": 1819417,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229460484096
+    "disk_avail_bytes": 229460357120
   }
 }
