@@ -623,6 +623,231 @@ function handleMonitorDelete(idStr: string): Response {
   return json({ removed: id, endpoint_url: ep.endpoint_url });
 }
 
+// ---- Intelligence Feed Service ----
+//
+// GET /api/feed          — free tier: raw recent activity (tasks, cycles, events)
+// POST /api/feed/premium — premium tier: curated, scored, deduplicated digest (1000 sats)
+// GET /.well-known/x402  — machine-readable payment discovery
+
+const FEED_PREMIUM_COST_SATS = 1000;
+const FEED_PREMIUM_DAILY_LIMIT = 50;
+const VALID_FEED_TOPICS = ["bitcoin", "stacks", "defi", "aibtc", "agents", "github", "payments"] as const;
+type FeedTopic = typeof VALID_FEED_TOPICS[number];
+
+let feedPremiumDayKey = "";
+let feedPremiumDayCount = 0;
+
+function checkFeedPremiumRateLimit(): boolean {
+  const today = new Date().toISOString().slice(0, 10);
+  if (today !== feedPremiumDayKey) { feedPremiumDayKey = today; feedPremiumDayCount = 0; }
+  return feedPremiumDayCount < FEED_PREMIUM_DAILY_LIMIT;
+}
+
+function incrementFeedPremiumCount(): void {
+  const today = new Date().toISOString().slice(0, 10);
+  if (today !== feedPremiumDayKey) { feedPremiumDayKey = today; feedPremiumDayCount = 0; }
+  feedPremiumDayCount++;
+}
+
+/** GET /api/feed — free tier, returns raw recent activity */
+function handleFeedFree(url: URL): Response {
+  const limit = Math.min(parseInt(url.searchParams.get("limit") ?? "20", 10), 100);
+  const since = url.searchParams.get("since"); // ISO datetime filter
+
+  const sinceClause = since ? "AND created_at > ?" : "";
+  const params: (string | number)[] = since ? [limit, since] : [limit];
+
+  const recentTasks = db.query<
+    { id: number; subject: string; status: string; priority: number; source: string | null; created_at: string; completed_at: string | null },
+    (string | number)[]
+  >(
+    `SELECT id, subject, status, priority, source, created_at, completed_at
+     FROM tasks
+     WHERE status IN ('completed', 'active', 'pending') ${sinceClause}
+     ORDER BY created_at DESC LIMIT ?`
+  ).all(since ? [since, limit] : [limit]);
+
+  const recentCycles = db.query<
+    { id: number; task_id: number | null; started_at: string; duration_ms: number | null; cost_usd: number },
+    number[]
+  >(
+    `SELECT id, task_id, started_at, duration_ms, cost_usd FROM cycle_log ORDER BY started_at DESC LIMIT 10`
+  ).all([]);
+
+  const stats = db.query<{ pending: number; active: number; completed_today: number }, []>(
+    `SELECT
+       (SELECT COUNT(*) FROM tasks WHERE status = 'pending') as pending,
+       (SELECT COUNT(*) FROM tasks WHERE status = 'active') as active,
+       (SELECT COUNT(*) FROM tasks WHERE status = 'completed' AND date(completed_at) = date('now')) as completed_today`
+  ).get([]);
+
+  return json({
+    feed: "arc-intelligence",
+    tier: "free",
+    generated_at: new Date().toISOString(),
+    stats,
+    recent_tasks: recentTasks,
+    recent_cycles: recentCycles,
+    upgrade: {
+      endpoint: "POST /api/feed/premium",
+      cost_sats: FEED_PREMIUM_COST_SATS,
+      description: "Curated digest with relevance scoring, trend detection, and actionable summaries",
+    },
+  });
+}
+
+/** POST /api/feed/premium — paid tier, dispatches curation task */
+async function handleFeedPremium(req: Request): Promise<Response> {
+  if (!checkFeedPremiumRateLimit()) {
+    return json({
+      error: "Daily digest limit reached",
+      code: "RATE_LIMITED",
+      limit: FEED_PREMIUM_DAILY_LIMIT,
+      resets: new Date().toISOString().slice(0, 10) + "T00:00:00Z (next day)",
+    }, 429);
+  }
+
+  let body: { topics?: string[]; window_hours?: number; requester?: string; notes?: string };
+  try {
+    body = await req.json() as typeof body;
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  // Validate topic filters
+  const rawTopics = Array.isArray(body.topics) ? body.topics : [];
+  const topics: FeedTopic[] = [];
+  for (const t of rawTopics) {
+    if (typeof t !== "string") return errorResponse("'topics' must be an array of strings", 400);
+    const normalized = t.toLowerCase() as FeedTopic;
+    if (!VALID_FEED_TOPICS.includes(normalized)) {
+      return errorResponse(`Unknown topic '${t}'. Valid: ${VALID_FEED_TOPICS.join(", ")}`, 400);
+    }
+    topics.push(normalized);
+  }
+
+  const windowHours = typeof body.window_hours === "number"
+    ? Math.min(Math.max(Math.round(body.window_hours), 1), 72)
+    : 24;
+
+  const requester = typeof body.requester === "string" ? body.requester.trim().slice(0, 200) : "";
+  const notes = typeof body.notes === "string" ? body.notes.trim().slice(0, 500) : "";
+
+  const topicLine = topics.length > 0 ? `**Topic filters:** ${topics.join(", ")}` : "**Topic filters:** all topics";
+
+  const description = [
+    "**Premium Intelligence Digest Request**",
+    "",
+    `**Window:** last ${windowHours} hours`,
+    topicLine,
+    requester ? `**Requester:** ${requester}` : "",
+    notes ? `**Notes:** ${notes}` : "",
+    "",
+    "Generate a curated intelligence digest from the recent task queue, sensor signals, and operational data:",
+    "",
+    "## Step 1 — Collect Raw Signals",
+    `- Query tasks created/completed in the last ${windowHours} hours`,
+    "- Include sensor runs, payments received, GitHub PRs reviewed, X interactions",
+    "- Pull cycle_log for cost and model usage trends",
+    "",
+    "## Step 2 — Score & Deduplicate",
+    "- Score each item by: recency (0-10), novelty (0-10), actionability (0-10)",
+    "- Combine into relevance_score = 0.4*recency + 0.3*novelty + 0.3*actionability",
+    "- Deduplicate: merge items with identical subject stems or same source entity",
+    topics.length > 0 ? `- Filter to topics: ${topics.join(", ")} (include items matching any listed topic)` : "",
+    "",
+    "## Step 3 — Detect Trends",
+    "- Identify recurring patterns (repeated failures, cost spikes, volume changes)",
+    "- Flag anomalies: tasks taking >2x median duration, error rates >10%",
+    "- Surface emerging signals: new payment sources, new interaction patterns",
+    "",
+    "## Step 4 — Generate Summaries",
+    "- For each high-scoring item (relevance_score >= 6), write a 1-2 sentence actionable summary",
+    "- For each trend, write: what changed, why it matters, suggested next action",
+    "",
+    "## Output Format",
+    "Return a JSON structure in result_detail:",
+    "```json",
+    "{",
+    '  "digest": {',
+    '    "generated_at": "<ISO>",',
+    '    "window_hours": <n>,',
+    '    "topics": [...],',
+    '    "item_count_raw": <n>,',
+    '    "item_count_curated": <n>,',
+    '    "items": [{ "subject": "...", "relevance_score": 8.2, "summary": "...", "source": "...", "type": "task|event|payment|sensor" }],',
+    '    "trends": [{ "title": "...", "description": "...", "suggested_action": "..." }],',
+    '    "cost_summary": { "total_usd": <n>, "by_model": {...} }',
+    "  }",
+    "}",
+    "```",
+    "Store the full JSON in result_detail. Write a 1-line result_summary.",
+  ].filter(Boolean).join("\n");
+
+  const taskId = insertTask({
+    subject: `[feed-premium] Intelligence digest (${windowHours}h${topics.length ? ", " + topics.join("+") : ""})`,
+    description,
+    skills: JSON.stringify(["arc-memory"]),
+    priority: 6,
+    model: "sonnet",
+    source: "api:feed-premium",
+  });
+
+  incrementFeedPremiumCount();
+
+  return json({
+    task_id: taskId,
+    cost_sats: FEED_PREMIUM_COST_SATS,
+    model: "sonnet",
+    window_hours: windowHours,
+    topics: topics.length > 0 ? topics : [...VALID_FEED_TOPICS],
+    status: "pending",
+    poll_url: `/api/tasks/${taskId}`,
+    daily_remaining: FEED_PREMIUM_DAILY_LIMIT - feedPremiumDayCount,
+  }, 201);
+}
+
+/** GET /.well-known/x402 — machine-readable payment discovery */
+function handleX402WellKnown(): Response {
+  return json({
+    version: "1",
+    description: "Arc agent paid API endpoints. Pay in sBTC or STX to Arc's Stacks address.",
+    payment_address: IDENTITY.stacks_address,
+    payment_network: "stacks",
+    endpoints: [
+      {
+        path: "/api/feed/premium",
+        method: "POST",
+        description: "Curated intelligence digest with relevance scoring, trend detection, and actionable summaries",
+        amount_sats: FEED_PREMIUM_COST_SATS,
+        memo: "arc:feed-premium",
+        params: { window_hours: "integer (1-72, default 24)", topics: "array of: " + VALID_FEED_TOPICS.join(", ") },
+      },
+      {
+        path: "/api/ask",
+        method: "POST",
+        description: "Pay-per-question: ask Arc anything across tiers",
+        tiers: { haiku: 250, sonnet: 2500, opus: 10000 },
+        memo_prefix: "arc:ask-",
+      },
+      {
+        path: "/api/services/pr-review",
+        method: "POST",
+        description: "Paid PR code review with severity labels and security analysis",
+        tiers: { standard: 15000, express: 30000 },
+        memo_prefix: "arc:pr-",
+      },
+      {
+        path: "/api/services/security-audit",
+        method: "POST",
+        description: "Comprehensive repository security audit (deps, secrets, OWASP, Clarity)",
+        amount_sats: SECURITY_AUDIT_COST_SATS,
+        memo: "arc:security-audit",
+      },
+    ],
+  });
+}
+
 // ---- Roundtable ----
 
 async function handleRoundtableRespond(req: Request): Promise<Response> {
@@ -2333,6 +2558,7 @@ function route(req: Request): Response | Promise<Response> {
   if (method === "POST" && path === "/api/services/pr-review") return handlePrReview(req);
   if (method === "POST" && path === "/api/services/monitor") return handleMonitorCreate(req);
   if (method === "POST" && path === "/api/services/security-audit") return handleSecurityAudit(req);
+  if (method === "POST" && path === "/api/feed/premium") return handleFeedPremium(req);
   if (method === "POST" && path === "/api/roundtable/respond") return handleRoundtableRespond(req);
   if (method === "POST" && path === "/api/roundtable/receive") return handleRoundtableReceive(req);
   if (method === "POST" && path === "/api/consensus/vote") return handleConsensusVote(req);
@@ -2398,6 +2624,30 @@ function route(req: Request): Response | Promise<Response> {
       usage: "POST /api/services/security-audit with { repo_url, focus?, notes? }",
     });
   }
+
+  // GET: Free intelligence feed
+  if (method === "GET" && path === "/api/feed") return handleFeedFree(url);
+
+  // GET: Premium feed pricing info
+  if (method === "GET" && path === "/api/feed/premium") {
+    const today = new Date().toISOString().slice(0, 10);
+    if (today !== feedPremiumDayKey) { feedPremiumDayKey = today; feedPremiumDayCount = 0; }
+    return json({
+      service: "feed-premium",
+      description: "Curated intelligence digest. Relevance scoring, trend detection, actionable summaries, topic filtering.",
+      cost_sats: FEED_PREMIUM_COST_SATS,
+      model: "sonnet",
+      valid_topics: [...VALID_FEED_TOPICS],
+      window_hours_range: "1–72 (default 24)",
+      daily_limit: FEED_PREMIUM_DAILY_LIMIT,
+      daily_remaining: FEED_PREMIUM_DAILY_LIMIT - feedPremiumDayCount,
+      payment_memo: "arc:feed-premium",
+      usage: "POST /api/feed/premium with { topics?, window_hours?, requester?, notes? }",
+    });
+  }
+
+  // GET: x402 machine-readable payment discovery
+  if (method === "GET" && path === "/.well-known/x402") return handleX402WellKnown();
 
   // GET: PR Review service pricing and rate limit info
   if (method === "GET" && path === "/api/services/pr-review") {
