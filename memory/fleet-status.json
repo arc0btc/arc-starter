@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T08:11:39.112Z",
+  "updated_at": "2026-03-18T08:16:58.765Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6785,
-    "subject": "fleet-memory v2: context-aware loading in dispatch.ts",
+    "id": 6702,
+    "subject": "v6 P1: Structured logging via Arc DB",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 160787,
-    "cost_usd": 0.8404709999999997
+    "duration_ms": 319344,
+    "cost_usd": 1.27376645
   },
   "health": {
-    "uptime_seconds": 1763997,
+    "uptime_seconds": 1764317,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230920294400
+    "disk_avail_bytes": 230920105984
   }
 }
