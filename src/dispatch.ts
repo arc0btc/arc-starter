@@ -43,7 +43,7 @@ import { type ErrorClass, checkDispatchGate, recordGateSuccess, recordGateFailur
 import { writeFleetStatus, writeFleetStatusIdle } from "./fleet-status.ts";
 import { safeCommitCycleChanges, getHeadSha, codeChangedSince } from "./safe-commit.ts";
 import { createWorktree, validateWorktree, getWorktreeChangedFiles, mergeWorktree, discardWorktree } from "./worktree.ts";
-import { resolveMemoryContext, resolveFtsMemoryContext } from "./memory-topics.ts";
+import { resolveMemoryContext, resolveFtsMemoryContext, type FtsMemoryResult } from "./memory-topics.ts";
 import { resolveScratchpadContext, clearScratchpad } from "./scratchpad.ts";
 
 // Re-export for cli.ts
@@ -272,14 +272,19 @@ function buildParentChain(task: Task): string {
 
 const MST_OFFSET_MS = 7 * 3600_000;
 
-function buildPrompt(task: Task, skillNames: string[], skillContext: string, recentCycles: string, suggestedSkillNames?: string[]): string {
+interface BuiltPrompt {
+  prompt: string;
+  injectedMemoryKeys: string[];
+}
+
+function buildPrompt(task: Task, skillNames: string[], skillContext: string, recentCycles: string, suggestedSkillNames?: string[]): BuiltPrompt {
   const now = new Date();
   const utcIso = now.toISOString().replace(/\.\d{3}Z$/, "Z");
   const mst = toSqliteDatetime(new Date(now.getTime() - MST_OFFSET_MS)) + " MST";
 
   const soul = readFile(join(ROOT, "SOUL.md"));
   const memory = resolveMemoryContext(skillNames);
-  const ftsMemory = resolveFtsMemoryContext(skillNames);
+  const ftsResult = resolveFtsMemoryContext(skillNames, task.subject, task.description);
   const parentChain = buildParentChain(task);
 
   const parts: string[] = [
@@ -299,9 +304,9 @@ function buildPrompt(task: Task, skillNames: string[], skillContext: string, rec
     }
   }
 
-  // Inject high-importance FTS memory entries (Phase 3b)
-  if (ftsMemory) {
-    parts.push(ftsMemory, "");
+  // Inject FTS memory entries (Phase 3e: skill-domain + task keyword search)
+  if (ftsResult.context) {
+    parts.push(ftsResult.context, "");
   }
 
   if (skillContext) {
@@ -352,7 +357,7 @@ function buildPrompt(task: Task, skillNames: string[], skillContext: string, rec
     "Do NOT use raw SQL, direct DB writes, or ad-hoc scripts.",
   );
 
-  return parts.join("\n");
+  return { prompt: parts.join("\n"), injectedMemoryKeys: ftsResult.injectedKeys };
 }
 
 // ---- Stream-JSON dispatch ----
@@ -752,7 +757,11 @@ export async function runDispatch(): Promise<void> {
     }
   }
 
-  const prompt = buildPrompt(task, skillNames, skillContext, recentCycles, suggestedSkillNames);
+  const { prompt, injectedMemoryKeys } = buildPrompt(task, skillNames, skillContext, recentCycles, suggestedSkillNames);
+
+  if (injectedMemoryKeys.length > 0) {
+    log(`dispatch: injected ${injectedMemoryKeys.length} memory entries for task #${task.id}`);
+  }
 
   markTaskActive(task.id);
   writeDispatchLock(task.id);
@@ -786,6 +795,7 @@ export async function runDispatch(): Promise<void> {
       ? `openrouter:${sdkRoute.model ?? "default"}`
       : model;
   const cycleStartedAt = toSqliteDatetime(new Date());
+  const memoriesLoaded = injectedMemoryKeys.length > 0 ? JSON.stringify(injectedMemoryKeys) : null;
   const cycleId = insertCycleLog({
     started_at: cycleStartedAt,
     task_id: task.id,
@@ -793,6 +803,10 @@ export async function runDispatch(): Promise<void> {
     skill_hashes: Object.keys(skillHashes).length > 0 ? JSON.stringify(skillHashes) : null,
     model: cycleModelLabel,
   });
+  // Log injected memories separately (memories_loaded is a migration column)
+  if (memoriesLoaded) {
+    updateCycleLog(cycleId, { memories_loaded: memoriesLoaded });
+  }
   updateTask(task.id, { model: cycleModelLabel });
 
   const dispatchStart = Date.now();

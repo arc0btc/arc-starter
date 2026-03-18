@@ -58,6 +58,7 @@ export interface CycleLog {
   skill_hashes: string | null;
   security_grade: string | null;
   model: string | null;
+  memories_loaded: string | null;
 }
 
 export interface InsertCycleLog {
@@ -292,6 +293,7 @@ export function initDatabase(): Database {
   addColumn("tasks", "model", "TEXT");
   addColumn("cycle_log", "model", "TEXT");
   addColumn("cycle_log", "skill_hashes", "TEXT");
+  addColumn("cycle_log", "memories_loaded", "TEXT");
   addColumn("tasks", "assigned_to", "TEXT");
 
   // Indexes
@@ -828,7 +830,7 @@ export function insertCycleLog(entry: InsertCycleLog): number {
 export function updateCycleLog(id: number, fields: Partial<CycleLog>): void {
   const allowed: Array<keyof CycleLog> = [
     "completed_at", "duration_ms", "cost_usd", "api_cost_usd",
-    "tokens_in", "tokens_out", "skills_loaded", "skill_hashes", "task_id", "security_grade", "model",
+    "tokens_in", "tokens_out", "skills_loaded", "skill_hashes", "task_id", "security_grade", "model", "memories_loaded",
   ];
   const filtered: Record<string, unknown> = {};
   for (const key of allowed) {
