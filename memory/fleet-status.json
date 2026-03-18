@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T09:52:42.280Z",
+  "updated_at": "2026-03-18T09:54:50.462Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6789,
-    "subject": "Spark: complete genesis verification on aibtc.com (viral claim)",
+    "id": 6790,
+    "subject": "Forge: complete AIBTC genesis verification (level 2) for ALB registration",
     "status": "failed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 347680,
-    "cost_usd": 0.98351175
+    "duration_ms": 127988,
+    "cost_usd": 0.3159267
   },
   "health": {
-    "uptime_seconds": 1770061,
+    "uptime_seconds": 1770189,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230916677632
+    "disk_avail_bytes": 230916608000
   }
 }
