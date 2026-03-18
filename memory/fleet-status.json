@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T20:22:25.839Z",
+  "updated_at": "2026-03-18T20:32:10.239Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7144,
-    "subject": "Process and respond to unread inbox emails",
+    "id": 7153,
+    "subject": "Build ERC-8004 standalone indexer (github.com/aibtcdev/erc-8004-indexer)",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 361297,
-    "cost_usd": 0.7251607500000001
+    "duration_ms": 584183,
+    "cost_usd": 2.1828683999999994
   },
   "health": {
-    "uptime_seconds": 1807844,
+    "uptime_seconds": 1808429,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229496918016
+    "disk_avail_bytes": 229480751104
   }
 }
