@@ -18,7 +18,7 @@ import { getCredential } from "../../src/credentials.ts";
 const SKILLS_ROOT = resolve(import.meta.dir, "../../github/aibtcdev/skills");
 const UPSTREAM_SCRIPT = resolve(SKILLS_ROOT, "bitflow/bitflow.ts");
 const SWAP_RUNNER = resolve(import.meta.dir, "swap-runner.ts");
-const BITFLOW_API = "https://app.bitflow.finance/api";
+const BITFLOW_API = "https://bitflow-sdk-api-gateway-7owjsmt8.uc.gateway.dev";
 const MAX_TRADE_STX = Number(process.env.BITFLOW_MAX_TRADE_STX ?? 10); // 10 STX default cap
 const DEFAULT_SPREAD_THRESHOLD = 5; // 5%
 
@@ -236,7 +236,7 @@ async function cmdSpreads(args: string[]): Promise<void> {
   log(`fetching tickers to compute spreads (threshold: ${threshold}%)`);
 
   try {
-    const response = await fetch(`${BITFLOW_API}/tickers`);
+    const response = await fetch(`${BITFLOW_API}/ticker`);
     if (!response.ok) {
       console.log(JSON.stringify({ success: false, error: `Bitflow API returned ${response.status}` }));
       process.exit(1);
@@ -246,37 +246,40 @@ async function cmdSpreads(args: string[]): Promise<void> {
       ticker_id: string;
       base_currency: string;
       target_currency: string;
-      bid: string;
-      ask: string;
-      liquidity_in_usd: string;
-      base_volume: string;
+      high: number;
+      low: number;
+      last_price: number;
+      liquidity_in_usd: number;
+      base_volume: number;
     }>;
 
     const spreads: Array<{
       pair: string;
       tickerId: string;
-      bid: string;
-      ask: string;
-      spreadPct: string;
+      high: string;
+      low: string;
+      lastPrice: string;
+      rangePct: string;
       liquidityUsd: string;
     }> = [];
 
     for (const t of tickers) {
-      const bid = parseFloat(t.bid);
-      const ask = parseFloat(t.ask);
-      if (bid <= 0 || ask <= 0) continue;
+      const high = Number(t.high);
+      const low = Number(t.low);
+      const lastPrice = Number(t.last_price);
+      if (high <= 0 || low <= 0 || lastPrice <= 0) continue;
 
-      const mid = (bid + ask) / 2;
-      const spreadPct = ((ask - bid) / mid) * 100;
+      const rangePct = ((high - low) / lastPrice) * 100;
 
-      if (spreadPct >= threshold) {
+      if (rangePct >= threshold) {
         spreads.push({
           pair: `${t.base_currency}/${t.target_currency}`,
           tickerId: t.ticker_id,
-          bid: t.bid,
-          ask: t.ask,
-          spreadPct: spreadPct.toFixed(2),
-          liquidityUsd: t.liquidity_in_usd,
+          high: String(high),
+          low: String(low),
+          lastPrice: String(lastPrice),
+          rangePct: rangePct.toFixed(2),
+          liquidityUsd: String(t.liquidity_in_usd),
         });
       }
     }

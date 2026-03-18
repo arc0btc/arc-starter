@@ -7,7 +7,7 @@ import { recentTaskExistsForSourcePrefix } from "../../src/db.ts";
 
 const SENSOR_NAME = "defi-bitflow";
 const INTERVAL_MINUTES = 60;
-const BITFLOW_API = "https://app.bitflow.finance/api";
+const BITFLOW_API = "https://bitflow-sdk-api-gateway-7owjsmt8.uc.gateway.dev";
 const SPREAD_THRESHOLD_PCT = 5; // default 5% spread threshold
 const MIN_LIQUIDITY_USD = 10_000; // ignore illiquid pairs
 const MAX_SIGNALS_PER_RUN = 2;
@@ -17,27 +17,27 @@ interface Ticker {
   ticker_id: string;
   base_currency: string;
   target_currency: string;
-  last_price: string;
-  base_volume: string;
-  target_volume: string;
-  bid: string;
-  ask: string;
-  high: string;
-  low: string;
-  liquidity_in_usd: string;
+  last_price: number;
+  base_volume: number;
+  target_volume: number;
+  high: number;
+  low: number;
+  liquidity_in_usd: number;
+  pool_id: string;
+  last_trade_time?: number;
 }
 
 const log = createSensorLogger(SENSOR_NAME);
 
-function computeSpreadPct(bid: number, ask: number): number {
-  if (bid <= 0 || ask <= 0) return 0;
-  const mid = (bid + ask) / 2;
-  return ((ask - bid) / mid) * 100;
+/** Compute daily high-low range as a spread/volatility proxy (bid/ask no longer in API). */
+function computeRangePct(high: number, low: number, lastPrice: number): number {
+  if (high <= 0 || low <= 0 || lastPrice <= 0) return 0;
+  return ((high - low) / lastPrice) * 100;
 }
 
 async function fetchTickers(): Promise<Ticker[] | null> {
   try {
-    const response = await fetchWithRetry(`${BITFLOW_API}/tickers`);
+    const response = await fetchWithRetry(`${BITFLOW_API}/ticker`);
     if (!response.ok) {
       log(`warn: Bitflow API returned ${response.status}`);
       return null;
@@ -71,18 +71,19 @@ export default async function bitflowSensor(): Promise<string> {
 
     const threshold = Number(process.env.BITFLOW_SPREAD_THRESHOLD ?? SPREAD_THRESHOLD_PCT);
 
-    // Find high-spread pairs with sufficient liquidity
+    // Find high-range pairs with sufficient liquidity (using high/low as spread proxy)
     const highSpreadPairs: Array<{ ticker: Ticker; spreadPct: number }> = [];
 
     for (const t of tickers) {
-      const bid = parseFloat(t.bid);
-      const ask = parseFloat(t.ask);
-      const liquidity = parseFloat(t.liquidity_in_usd);
+      const high = Number(t.high);
+      const low = Number(t.low);
+      const lastPrice = Number(t.last_price);
+      const liquidity = Number(t.liquidity_in_usd);
 
-      if (isNaN(bid) || isNaN(ask) || bid <= 0 || ask <= 0) continue;
+      if (high <= 0 || low <= 0 || lastPrice <= 0) continue;
       if (isNaN(liquidity) || liquidity < MIN_LIQUIDITY_USD) continue;
 
-      const spreadPct = computeSpreadPct(bid, ask);
+      const spreadPct = computeRangePct(high, low, lastPrice);
       if (spreadPct >= threshold) {
         highSpreadPairs.push({ ticker: t, spreadPct });
       }
@@ -114,22 +115,23 @@ export default async function bitflowSensor(): Promise<string> {
       if (pendingTaskExistsForSource(signalSource)) continue;
 
       const pairLabel = `${ticker.base_currency}/${ticker.target_currency}`;
-      const liquidityK = (parseFloat(ticker.liquidity_in_usd) / 1000).toFixed(0);
+      const liquidityK = (Number(ticker.liquidity_in_usd) / 1000).toFixed(0);
 
-      log(`queuing spread signal: ${pairLabel} — ${spreadPct.toFixed(1)}% spread, $${liquidityK}k liquidity`);
+      log(`queuing spread signal: ${pairLabel} — ${spreadPct.toFixed(1)}% range, $${liquidityK}k liquidity`);
 
       insertTask({
-        subject: `File Ordinals Business signal: Bitflow ${pairLabel} — ${spreadPct.toFixed(1)}% spread`,
-        description: `Arc detected high bid-ask spread on Bitflow DEX.
+        subject: `File Ordinals Business signal: Bitflow ${pairLabel} — ${spreadPct.toFixed(1)}% price range`,
+        description: `Arc detected high price range on Bitflow DEX.
 
 Pair: ${pairLabel}
-Spread: ${spreadPct.toFixed(2)}%
-Bid: ${ticker.bid}
-Ask: ${ticker.ask}
+Daily Range: ${spreadPct.toFixed(2)}%
+High: ${ticker.high}
+Low: ${ticker.low}
+Last Price: ${ticker.last_price}
 Liquidity: $${liquidityK}k
 Volume (base): ${ticker.base_volume}
 
-High spreads may indicate liquidity imbalance, low-volume conditions, or arbitrage opportunities.
+High daily price ranges may indicate volatility, liquidity imbalance, or arbitrage opportunities.
 
 File signal to Ordinals Business beat via aibtc-news skill.`,
         skills: JSON.stringify(["defi-bitflow", "aibtc-news-editorial"]),
