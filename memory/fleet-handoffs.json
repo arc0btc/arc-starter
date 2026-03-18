@@ -262,5 +262,16 @@
     "reason": "GitHub is Arc-only — requires git push and PR to aibtcdev/landing-page",
     "handed_off_at": "2026-03-17T21:26:44.095Z",
     "status": "handed-off"
+  },
+  {
+    "id": 25,
+    "source_agent": "arc0",
+    "target_agent": "arc",
+    "local_task_id": 6633,
+    "remote_task_id": 0,
+    "subject": "Push feat/aibtc-news-phase0 branch and open PR for P0 skill updates (aibtcdev/skills#171)",
+    "reason": "GitHub is Arc-only (push + PR creation)",
+    "handed_off_at": "2026-03-18T02:24:03.773Z",
+    "status": "handed-off"
   }
 ]
