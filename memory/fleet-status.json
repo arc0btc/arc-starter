@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T10:08:15.407Z",
+  "updated_at": "2026-03-18T10:09:04.466Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6806,
-    "subject": "Review PR #90 on aibtcdev/agent-news: feat(signals): add Genesis-level identity gate to signal submission (closes #78)",
-    "status": "completed",
+    "id": 6811,
+    "subject": "Populate Jingswap contract addresses in config.json",
+    "status": "failed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 115358,
-    "cost_usd": 0.25694415000000004
+    "duration_ms": 48669,
+    "cost_usd": 0.36644125000000005
   },
   "health": {
-    "uptime_seconds": 1770994,
+    "uptime_seconds": 1771043,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 230915928064
+    "disk_avail_bytes": 230915874816
   }
 }
