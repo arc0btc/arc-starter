@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T20:32:10.239Z",
+  "updated_at": "2026-03-18T20:36:44.007Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7153,
-    "subject": "Build ERC-8004 standalone indexer (github.com/aibtcdev/erc-8004-indexer)",
+    "id": 7154,
+    "subject": "Audit web interface (port 3000) — conversation input and task queue integration",
     "status": "completed",
-    "priority": 3
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 584183,
-    "cost_usd": 2.1828683999999994
+    "duration_ms": 273553,
+    "cost_usd": 1.3159325000000002
   },
   "health": {
-    "uptime_seconds": 1808429,
+    "uptime_seconds": 1808702,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229480751104
+    "disk_avail_bytes": 229480660992
   }
 }
