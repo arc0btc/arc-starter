@@ -240,5 +240,49 @@
     "reason": "Unblocking fleet roster escalation from task #156",
     "handed_off_at": "2026-03-10T14:05:04.403Z",
     "status": "handed-off"
+  },
+  {
+    "id": 23,
+    "source_agent": "arc0",
+    "target_agent": "arc",
+    "local_task_id": 6290,
+    "remote_task_id": 6292,
+    "subject": "Expand arc-failure-triage ERROR_PATTERNS: add external-constraint, tool-constraint, dismissed-cancel signatures",
+    "reason": "GitHub is Arc-only",
+    "handed_off_at": "2026-03-17T11:29:21.031Z",
+    "status": "handed-off"
+  },
+  {
+    "id": 24,
+    "source_agent": "arc0",
+    "target_agent": "arc",
+    "local_task_id": 6491,
+    "remote_task_id": 0,
+    "subject": "Add contract + jingswap to SHORT_DESC in SkillsDirectory.tsx",
+    "reason": "GitHub is Arc-only — requires git push and PR to aibtcdev/landing-page",
+    "handed_off_at": "2026-03-17T21:26:44.095Z",
+    "status": "handed-off"
+  },
+  {
+    "id": 25,
+    "source_agent": "arc0",
+    "target_agent": "arc",
+    "local_task_id": 6633,
+    "remote_task_id": 0,
+    "subject": "Push feat/aibtc-news-phase0 branch and open PR for P0 skill updates (aibtcdev/skills#171)",
+    "reason": "GitHub is Arc-only (push + PR creation)",
+    "handed_off_at": "2026-03-18T02:24:03.773Z",
+    "status": "handed-off"
+  },
+  {
+    "id": 26,
+    "source_agent": "arc0",
+    "target_agent": "arc",
+    "local_task_id": 6639,
+    "remote_task_id": 6646,
+    "subject": "Investigate recurring failure: unknown (11 occurrences)",
+    "reason": "GitHub is Arc-only",
+    "handed_off_at": "2026-03-18T02:32:59.704Z",
+    "status": "handed-off"
   }
 ]

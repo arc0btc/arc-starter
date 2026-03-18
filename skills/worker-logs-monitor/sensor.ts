@@ -27,6 +27,7 @@ interface Deployment {
   repo: string;
   appId: string;
   apiCredKey: string;
+  adminCredKey: string;
 }
 
 const DEPLOYMENTS: Deployment[] = [
@@ -36,6 +37,7 @@ const DEPLOYMENTS: Deployment[] = [
     repo: "arc0btc/worker-logs",
     appId: "arc0btc-worker",
     apiCredKey: "arc0btc_worker_api_key",
+    adminCredKey: "arc0btc_admin_api_key",
   },
   {
     name: "wbd",
@@ -43,6 +45,7 @@ const DEPLOYMENTS: Deployment[] = [
     repo: "whoabuddy/worker-logs",
     appId: "stx402",
     apiCredKey: "wbd_api_key",
+    adminCredKey: "whoabuddy_admin_api_key",
   },
   {
     name: "mainnet",
@@ -50,6 +53,7 @@ const DEPLOYMENTS: Deployment[] = [
     repo: "aibtcdev/worker-logs",
     appId: "aibtc-mainnet",
     apiCredKey: "aibtc_api_key",
+    adminCredKey: "aibtc_admin_api_key",
   },
   {
     name: "testnet",
@@ -57,6 +61,7 @@ const DEPLOYMENTS: Deployment[] = [
     repo: "aibtcdev/worker-logs",
     appId: "aibtc-testnet",
     apiCredKey: "aibtc_api_key",
+    adminCredKey: "aibtc_admin_api_key",
   },
 ];
 
@@ -89,15 +94,77 @@ function normalizeMessage(message: string): string {
     .slice(0, 120);
 }
 
+/** Fallback: use /stats via admin key to detect errors when /logs API key is unavailable. */
+async function fetchErrorsViaStats(
+  deployment: Deployment,
+  _since: string | null,
+): Promise<LogEntry[]> {
+  const adminKey = await getCredential("worker-logs", deployment.adminCredKey);
+  if (!adminKey) {
+    log(`no API or admin key for ${deployment.name} — skipping`);
+    return [];
+  }
+
+  try {
+    // Get app list via admin key
+    const appsRes = await fetchWithRetry(`${deployment.url}/apps`, {
+      headers: { "X-Admin-Key": adminKey, Accept: "application/json" },
+      signal: AbortSignal.timeout(15_000),
+    });
+
+    if (!appsRes.ok) {
+      log(`${deployment.name}: HTTP ${appsRes.status} fetching /apps (admin key may be invalid)`);
+      return [];
+    }
+
+    const appsData = await appsRes.json() as { ok?: boolean; data?: string[] };
+    const apps: string[] = Array.isArray(appsData) ? appsData : appsData.data ?? [];
+
+    // Check stats for each app — look for error counts > 0
+    const entries: LogEntry[] = [];
+    for (const appId of apps) {
+      const statsRes = await fetchWithRetry(`${deployment.url}/stats/${appId}?days=1`, {
+        headers: { "X-Admin-Key": adminKey, Accept: "application/json" },
+        signal: AbortSignal.timeout(15_000),
+      });
+
+      if (!statsRes.ok) continue;
+
+      const statsData = await statsRes.json() as { ok?: boolean; data?: Array<{ date: string; error: number }> };
+      const stats = Array.isArray(statsData) ? statsData : statsData.data ?? [];
+
+      for (const day of stats) {
+        if (day.error > 0) {
+          entries.push({
+            level: "ERROR",
+            message: `[stats-based] ${day.error} error(s) on ${day.date} for app ${appId} (no API key for detailed logs)`,
+            app_id: appId,
+            created_at: day.date,
+          });
+        }
+      }
+    }
+
+    if (entries.length > 0) {
+      log(`${deployment.name}: detected ${entries.length} error signal(s) via /stats (no API key for /logs)`);
+    }
+    return entries;
+  } catch (error) {
+    log(`${deployment.name}: stats fallback failed — ${error instanceof Error ? error.message : String(error)}`);
+    return [];
+  }
+}
+
 /** Fetch ERROR logs from a deployment since a given timestamp. */
 async function fetchErrors(
   deployment: Deployment,
   since: string | null,
 ): Promise<LogEntry[]> {
   const apiKey = await getCredential("worker-logs", deployment.apiCredKey);
+
   if (!apiKey) {
-    log(`no API key for ${deployment.name} (worker-logs/${deployment.apiCredKey}) — skipping`);
-    return [];
+    // No API key — try stats-based error detection via admin key
+    return fetchErrorsViaStats(deployment, since);
   }
 
   const params = new URLSearchParams({ level: "ERROR", limit: "50" });

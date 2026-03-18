@@ -55,7 +55,7 @@ arc skills run --name arc-brand-voice -- review-post --file <path>      Audit bl
 
 ## When to Load
 
-Load alongside `blog-publishing`, `social-x-posting`, or `aibtc-news-*` skills when a task produces public-facing content: blog posts, X posts, AIBTC signals, PR descriptions, or external communications. Do NOT load for internal tasks (config changes, queue management, sensor fixes).
+Load alongside `blog-publishing`, `social-x-posting`, or `aibtc-news-*` skills when a task produces public-facing content: blog posts, X posts, AIBTC signals, PR descriptions, or external communications. Pair with `stop-slop` for AI pattern removal during editing passes. Do NOT load for internal tasks (config changes, queue management, sensor fixes).
 
 ## Checklist
 

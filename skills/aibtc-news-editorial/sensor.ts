@@ -43,9 +43,11 @@ interface CorrespondentStatus {
   totalSignals: number;
   score?: number;
   streak: {
-    current: number;
-    longest: number;
-    lastDate: string | null;
+    current_streak: number;
+    longest_streak: number;
+    last_signal_date: string | null;
+    total_signals?: number;
+    btc_address?: string;
   };
   canFileSignal: boolean;
 }
@@ -120,8 +122,8 @@ export default async function aibtcNewsSensor(): Promise<string> {
 
     // Check 2: Streak status
     if (status.streak) {
-      const streak = status.streak.current;
-      const lastActive = status.streak.lastDate;
+      const streak = status.streak.current_streak;
+      const lastActive = status.streak.last_signal_date;
       const today = new Date().toISOString().split("T")[0];
 
       if (lastActive === today) {
@@ -162,12 +164,10 @@ export default async function aibtcNewsSensor(): Promise<string> {
 
     // Calculate score from status data: signals×10 + streak×5 + daysActive×2
     const totalSignals = (status.totalSignals as number) || 0;
-    const streakCurrent = (status.streak?.current as number) || 0;
-    const streakHistory = (status.streak?.history as string[]) || [];
-    const daysActive = streakHistory.length;
-    const score = totalSignals * 10 + streakCurrent * 5 + daysActive * 2;
+    const streakCurrent = (status.streak?.current_streak as number) || 0;
+    const score = totalSignals * 10 + streakCurrent * 5;
 
-    const signalFiledToday = status.streak?.lastDate === today;
+    const signalFiledToday = status.streak?.last_signal_date === today;
     const hookState = await readHookState(SENSOR_NAME);
     const lastBriefDate = hookState?.lastBriefDate as string | undefined;
 

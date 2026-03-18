@@ -48,6 +48,7 @@ const META_TASK_SOURCES = new Set([
   "sensor:arc-workflow-review",
   "sensor:context-review",
   "sensor:arc-self-audit",
+  "sensor:arc-self-review",          // system-wide status reports mention all skill names and task domains as data
   "sensor:compliance-review",
   "sensor:arc-failure-triage",      // failure retrospectives list failed task subjects verbatim
   "sensor:arc-introspection",        // introspection reports summarize recent task subjects verbatim
@@ -76,7 +77,9 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   "social-agent-engagement": ["agent engagement", "agent-engagement skill", "x post reply", "engage on x"],
   "github-ci-status": ["ci status", "github actions", "workflow run"],
   "github-security-alerts": ["security alert", "dependabot", "vulnerability"],
-  "arc-email-sync": ["email sync", "inbox sync", "arc-email"],
+  // "arc-email" removed — too broad; matches any description that mentions the skill by name
+  // (e.g. failure-triage tasks listing arc-email-sync failures). Use operational phrases only.
+  "arc-email-sync": ["email sync", "inbox sync"],
   "defi-bitflow": ["bitflow", "dex swap", "liquidity pool"],
   "defi-zest": ["zest", "zest protocol", "zest yield", "zest supply"],
   "defi-stacks-market": ["stacks market", "stx price", "market data"],
@@ -158,10 +161,27 @@ function checkMissingSkillCoverage(
   // Flagging them for not loading the skill they're creating is always a false positive.
   if (/^Scaffold \S+ skill /i.test(task.subject)) return findings;
 
+  // Skill rename/refactor tasks reference skill names (e.g. "bitflow → bitflow-positions")
+  // as identifiers, not as domain indicators. False positive.
+  if (/^Rename skills?\b/i.test(task.subject)) return findings;
+
+  // Syntax fix tasks inherit their parent's subject context verbatim. False positive.
+  if (/^Fix syntax errors from task #\d+/i.test(task.subject)) return findings;
+
   // Research tasks fetch and analyze external content (e.g., X articles, GitHub issues).
   // Their descriptions contain domain terminology from the *content* they analyze, not from
   // skills they need. "tweet" in "Research X article: @user" means fetching, not posting.
   if (task.subject.startsWith("Research X article:")) return findings;
+
+  // Commitment verification tasks (from review-commitments sensor) use the email/post text as
+  // their subject. Domain keywords in that text reflect the email's content, not the task's
+  // skill requirements — the task only needs "review-commitments".
+  if (task.subject.startsWith("Verify commitment:")) return findings;
+
+  // Memory update tasks embed the names of memory topics being updated in their descriptions.
+  // Those topic names may mention any domain (e.g. "aibtc news", "bitflow") but the task's
+  // work is updating memory entries, not executing domain-specific operations.
+  if (task.subject.startsWith("Update stale memories:") || task.subject.startsWith("Update memory:")) return findings;
 
   // Reputation review tasks embed the subject of the interaction being reviewed (e.g., a PR
   // title containing "classified ad"). The domain keywords belong to the reviewed interaction,

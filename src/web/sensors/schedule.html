@@ -218,11 +218,11 @@
   <header class="header">
     <div class="header-inner">
       <div class="header-identity">
-        <img class="avatar avatar-img" src="/api/face" alt="this is my dashboard" title="this is my dashboard" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
-        <div class="avatar avatar-fallback" style="display:none" title="this is my dashboard">A</div>
+        <img class="avatar avatar-img" id="header-avatar" src="/api/face" alt="this is my dashboard" title="this is my dashboard" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+        <div class="avatar avatar-fallback" id="header-avatar-fallback" style="display:none" title="this is my dashboard">A</div>
         <div>
-          <h1 class="header-name">Agent <span class="status-dot live" id="status-dot" title="Live" aria-label="Status: live"></span><span class="sse-status disconnected" id="sse-dot" title="SSE disconnected" aria-label="SSE: disconnected"></span></h1>
-          <div class="header-bns"></div>
+          <h1 class="header-name" id="header-name">Agent <span class="status-dot live" id="status-dot" title="Live" aria-label="Status: live"></span><span class="sse-status disconnected" id="sse-dot" title="SSE disconnected" aria-label="SSE: disconnected"></span></h1>
+          <div class="header-bns" id="header-bns"></div>
         </div>
       </div>
 
@@ -235,8 +235,7 @@
 
       <nav class="header-nav">
         <a href="/">Activity</a>
-        <a href="/sensors">Sensors</a>
-        <a href="/sensors/schedule" class="active">Schedule</a>
+        <a href="/sensors" class="active">Sensors</a>
         <a href="/skills">Skills</a>
         <a href="/email">Email</a>
         <a href="/identity">Identity</a>

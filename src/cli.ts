@@ -19,12 +19,33 @@ import {
   insertTaskDep,
   getTaskDeps,
   deleteTaskDep,
+  insertArcMemory,
+  searchArcMemory,
+  listArcMemory,
+  deleteArcMemory,
+  getArcMemory,
+  expireArcMemories,
+  countArcMemories,
+  checkRecentFailures,
+  consolidateMemories,
+  getExpensiveMemories,
+  getMemoryCostByDomain,
+  getMemoryCostBySkill,
+  backfillMemoryCostFromTasks,
 } from "./db.ts";
+import {
+  readScratchpad,
+  writeScratchpad,
+  appendScratchpad,
+  clearScratchpad,
+  resolveRootTaskId,
+} from "./scratchpad.ts";
 import type { TaskDepType } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
 import { parseFlags, pad, truncate } from "./utils.ts";
 import { handleCredsCli } from "../skills/arc-credentials/cli.ts";
 import { enterShutdown, exitShutdown, getShutdownState } from "./shutdown.ts";
+import { writeBackLearnings, extractLearnings } from "./memory-writeback.ts";
 
 // CLI is hand-rolled — intentionally zero-dep. If the surface grows significantly,
 // consider citty (https://github.com/unjs/citty) as a lightweight alternative to Commander.
@@ -37,7 +58,7 @@ const USAGE = {
     '              [--skills SKILL1,SKILL2] [--parent ID] [--model opus|sonnet|haiku|codex|codex:<model>]\n' +
     '              [--defer DURATION | --scheduled-for ISO_DATETIME]',
   tasksUpdate:
-    'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--model opus|sonnet|haiku|codex|codex:<model>] [--status pending]',
+    'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--skills S1,S2] [--model opus|sonnet|haiku|codex|codex:<model>] [--status pending]',
   tasksClose:
     'arc tasks close --id N --status completed|failed|blocked --summary TEXT',
   tasksDeps: 'arc tasks deps --id N',
@@ -45,6 +66,18 @@ const USAGE = {
   tasksUnlink: 'arc tasks unlink --from N --to M --type blocks|related|discovered-from',
   skillsShow: 'arc skills show --name NAME',
   skillsRun:  'arc skills run --name NAME [-- extra-args]',
+  memorySearch: 'arc memory search --query TEXT [--domain DOMAIN] [--limit N] [--syntax]',
+  memoryAdd: 'arc memory add --key KEY --domain DOMAIN --content TEXT [--tags "t1 t2"] [--ttl DAYS] [--importance N]',
+  memoryList: 'arc memory list [--domain DOMAIN] [--limit N]',
+  memoryDelete: 'arc memory delete --key KEY',
+  memoryExpire: 'arc memory expire',
+  memoryConsolidate: 'arc memory consolidate [--domain DOMAIN]',
+  memoryCheckDedup: 'arc memory check-dedup --subject TEXT [--hours N] [--threshold N]',
+  memorySearchSkills: 'arc memory search-skills --query TEXT [--limit N]',
+  scratchpadRead: 'arc scratchpad read --task N',
+  scratchpadWrite: 'arc scratchpad write --task N --content TEXT',
+  scratchpadAppend: 'arc scratchpad append --task N --content TEXT',
+  scratchpadClear: 'arc scratchpad clear --task N',
 } as const;
 
 // ---- Commands ----
@@ -302,6 +335,11 @@ function cmdTasksClose(args: string[]): void {
     markTaskFailed(id, summary);
   }
 
+  // Auto-clear scratchpad when a root parent task closes
+  if (!task.parent_id && (status === "completed" || status === "failed")) {
+    clearScratchpad(id);
+  }
+
   process.stdout.write(`Closed task #${id} as ${status}\n`);
 }
 
@@ -320,6 +358,14 @@ function cmdTasksUpdate(args: string[]): void {
   const priority = flags["priority"] ? parseInt(flags["priority"], 10) : undefined;
   const model = flags["model"] ?? undefined;
   const status = flags["status"] ?? undefined;
+  const skillsRaw = flags["skills"];
+  // Normalize --skills: comma-separated string → JSON array, or null to clear
+  const skills =
+    skillsRaw === undefined
+      ? undefined
+      : skillsRaw === ""
+        ? null
+        : JSON.stringify(skillsRaw.split(",").map((s) => s.trim()).filter(Boolean));
 
   if (priority !== undefined && isNaN(priority)) {
     process.stderr.write("Error: --priority must be a number\n" + usage);
@@ -331,9 +377,9 @@ function cmdTasksUpdate(args: string[]): void {
     process.exit(1);
   }
 
-  if (subject === undefined && description === undefined && priority === undefined && model === undefined && status === undefined) {
+  if (subject === undefined && description === undefined && priority === undefined && model === undefined && skills === undefined && status === undefined) {
     process.stderr.write(
-      "Error: at least one of --subject, --description, --priority, --model, or --status is required\n" + usage
+      "Error: at least one of --subject, --description, --priority, --skills, --model, or --status is required\n" + usage
     );
     process.exit(1);
   }
@@ -346,8 +392,8 @@ function cmdTasksUpdate(args: string[]): void {
     process.exit(1);
   }
 
-  if (subject !== undefined || description !== undefined || priority !== undefined || model !== undefined) {
-    updateTask(id, { subject, description, priority, model });
+  if (subject !== undefined || description !== undefined || priority !== undefined || model !== undefined || skills !== undefined) {
+    updateTask(id, { subject, description, priority, model, skills });
   }
   if (status === "pending") {
     requeueTask(id);
@@ -357,6 +403,7 @@ function cmdTasksUpdate(args: string[]): void {
   if (subject !== undefined) updated.push("subject");
   if (description !== undefined) updated.push("description");
   if (priority !== undefined) updated.push("priority");
+  if (skills !== undefined) updated.push("skills");
   if (model !== undefined) updated.push("model");
   if (status !== undefined) updated.push("status → pending");
   process.stdout.write(`Updated task #${id}: ${updated.join(", ")}\n`);
@@ -670,6 +717,599 @@ function cmdResume(args: string[]): void {
   process.stdout.write(`To restart services if stopped: arc services install\n`);
 }
 
+// ---- Memory commands ----
+
+function displayFTS5Syntax(): void {
+  process.stdout.write(`FTS5 Query Syntax Guide
+================================
+
+Memory search uses SQLite FTS5 (Full-Text Search 5) with Porter stemming.
+This guide shows valid query formats and common mistakes.
+
+VALID QUERIES (working examples):
+  Single word:
+    arc memory search --query "dispatch"
+    arc memory search --query "bitcoin"
+
+  Exact phrase (use double quotes):
+    arc memory search --query '"dispatch gate"'
+    arc memory search --query '"fleet degradation"'
+
+  OR operator (either word):
+    arc memory search --query "dispatch OR gate"
+    arc memory search --query "bitcoin OR ethereum"
+
+  AND operator (both words):
+    arc memory search --query "dispatch AND lock"
+    arc memory search --query "cost AND tracking"
+
+  NOT operator (exclude word):
+    arc memory search --query "dispatch NOT gate"
+    arc memory search --query "memory -stale"
+
+INVALID QUERIES (will fail):
+  Regex patterns:
+    ✗ arc memory search --query "blog.*cadence"
+    ✗ arc memory search --query "dispatch[0-9]+"
+  Note: Regex is not supported in FTS5
+
+  Unquoted phrases:
+    ✗ arc memory search --query "dispatch gate"
+    (should be: arc memory search --query '"dispatch gate"')
+
+QUERY OPERATORS REFERENCE:
+  "phrase"        Exact phrase match
+  word1 word2     All words (implicit AND)
+  word1 OR word2  Either word
+  word1 NOT word2 Exclude word2
+  word1 AND word2 Both words (explicit)
+
+DOMAIN FILTERING:
+  Combine with --domain to search within a specific domain:
+    arc memory search --query "dispatch" --domain incidents
+    arc memory search --query '"cost report"' --domain cost
+
+TIPS:
+  • Single words always work
+  • Use quotes for multi-word exact phrases
+  • No regex or wildcards — use word-based boolean operators instead
+  • Stemming is automatic (e.g., "dispatch" matches "dispatcher", "dispatching")
+  • Case insensitive
+
+EXAMPLES THAT WORK:
+  arc memory search --query "incident"
+  arc memory search --query '"root cause"' --domain incidents
+  arc memory search --query "cost OR expense" --domain cost
+  arc memory search --query "dispatch AND gate" --limit 10
+`);
+}
+
+function cmdMemorySearch(args: string[]): void {
+  const { flags } = parseFlags(args);
+
+  // Check for --syntax flag
+  if (flags["syntax"] === "" || flags["syntax"] === "true") {
+    displayFTS5Syntax();
+    return;
+  }
+
+  const query = flags["query"];
+  if (!query) {
+    process.stderr.write(`Error: --query is required\nUsage: ${USAGE.memorySearch}\n`);
+    process.stderr.write(`\nUse --syntax flag to see FTS5 query syntax examples:\n  arc memory search --syntax\n`);
+    process.exit(1);
+  }
+
+  initDatabase();
+  const domain = flags["domain"];
+  const limit = flags["limit"] ? parseInt(flags["limit"], 10) : 20;
+
+  let results: ReturnType<typeof searchArcMemory>;
+  try {
+    results = searchArcMemory(query, domain, limit);
+  } catch (err) {
+    if (err instanceof Error && (err.message.includes("fts5") && err.message.includes("syntax error"))) {
+      process.stderr.write(`Error: Invalid FTS5 query syntax: ${query}\n\n`);
+      process.stderr.write(`Common issues:\n`);
+      process.stderr.write(`  • Regex patterns are not supported (e.g., 'blog.*cadence')\n`);
+      process.stderr.write(`  • Multi-word phrases need quotes: "dispatch gate" not dispatch gate\n`);
+      process.stderr.write(`  • Use boolean operators: OR, AND, NOT\n\n`);
+      process.stderr.write(`Run 'arc memory search --syntax' to see full syntax guide.\n`);
+      process.exit(1);
+    }
+    throw err;
+  }
+
+  if (results.length === 0) {
+    process.stdout.write("No memories found.\n");
+    return;
+  }
+
+  for (const mem of results) {
+    process.stdout.write(`--- ${mem.key} [${mem.domain}] (importance: ${mem.importance}) ---\n`);
+    process.stdout.write(`${mem.content}\n`);
+    if (mem.tags) process.stdout.write(`tags: ${mem.tags}\n`);
+    process.stdout.write(`created: ${mem.created_at} | updated: ${mem.updated_at}`);
+    if (mem.ttl_days !== null) process.stdout.write(` | ttl: ${mem.ttl_days}d`);
+    process.stdout.write("\n\n");
+  }
+}
+
+function cmdMemoryAdd(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const key = flags["key"];
+  const domain = flags["domain"];
+  const content = flags["content"];
+
+  if (!key || !domain || !content) {
+    process.stderr.write(`Error: --key, --domain, and --content are required\nUsage: ${USAGE.memoryAdd}\n`);
+    process.exit(1);
+  }
+
+  initDatabase();
+
+  const ttl = flags["ttl"] ? parseInt(flags["ttl"], 10) : undefined;
+  const importance = flags["importance"] ? parseInt(flags["importance"], 10) : undefined;
+  const tags = flags["tags"] ?? "";
+  const sourceTaskId = flags["source-task"] ? parseInt(flags["source-task"], 10) : undefined;
+  const costUsd = flags["cost-usd"] ? parseFloat(flags["cost-usd"]) : undefined;
+  const apiCostUsd = flags["api-cost-usd"] ? parseFloat(flags["api-cost-usd"]) : undefined;
+
+  insertArcMemory({ key, domain, content, tags, ttl_days: ttl, source_task_id: sourceTaskId, importance, cost_usd: costUsd, api_cost_usd: apiCostUsd });
+  process.stdout.write(`Added memory: ${key} [${domain}]\n`);
+}
+
+function cmdMemoryList(args: string[]): void {
+  const { flags } = parseFlags(args);
+  initDatabase();
+
+  const domain = flags["domain"];
+  const limit = flags["limit"] ? parseInt(flags["limit"], 10) : 20;
+  const results = listArcMemory(domain, limit);
+
+  if (results.length === 0) {
+    process.stdout.write("No memories found.\n");
+    return;
+  }
+
+  const total = countArcMemories(domain);
+  process.stdout.write(`Showing ${results.length} of ${total} memories${domain ? ` in domain '${domain}'` : ""}:\n\n`);
+
+  const header = pad("key", 40) + pad("domain", 16) + pad("imp", 5) + pad("ttl", 6) + "updated_at";
+  process.stdout.write(header + "\n");
+  process.stdout.write("-".repeat(header.length) + "\n");
+
+  for (const mem of results) {
+    const line =
+      pad(truncate(mem.key, 38), 40) +
+      pad(mem.domain, 16) +
+      pad(String(mem.importance), 5) +
+      pad(mem.ttl_days !== null ? `${mem.ttl_days}d` : "-", 6) +
+      truncate(mem.updated_at, 16);
+    process.stdout.write(line + "\n");
+  }
+}
+
+function cmdMemoryDelete(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const key = flags["key"];
+  if (!key) {
+    process.stderr.write(`Error: --key is required\nUsage: ${USAGE.memoryDelete}\n`);
+    process.exit(1);
+  }
+
+  initDatabase();
+  deleteArcMemory(key);
+  process.stdout.write(`Deleted memory: ${key}\n`);
+}
+
+function cmdMemoryExpire(): void {
+  initDatabase();
+  const count = expireArcMemories();
+  process.stdout.write(`Expired ${count} memories.\n`);
+}
+
+function cmdMemoryConsolidate(args: string[]): void {
+  const { flags } = parseFlags(args);
+  initDatabase();
+  const domain = flags["domain"];
+  const result = consolidateMemories(domain);
+
+  process.stdout.write(`TTL assigned:        ${result.ttlAssigned}\n`);
+  process.stdout.write(`Importance decayed:  ${result.importanceDecayed}\n`);
+  process.stdout.write(`Expired (removed):   ${result.expired}\n`);
+
+  if (result.domainAlerts.length > 0) {
+    process.stdout.write("\nDomain budget alerts:\n");
+    for (const alert of result.domainAlerts) {
+      process.stdout.write(`  ${alert.domain}: ${alert.count} entries (over budget)\n`);
+    }
+  }
+
+  const remaining = countArcMemories(domain);
+  process.stdout.write(`Total remaining:     ${remaining}\n`);
+}
+
+function cmdMemoryCheckDedup(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const subject = flags["subject"];
+  if (!subject) {
+    process.stderr.write(`Error: --subject is required\nUsage: ${USAGE.memoryCheckDedup}\n`);
+    process.exit(1);
+  }
+
+  initDatabase();
+  const hours = flags["hours"] ? parseInt(flags["hours"], 10) : 24;
+  const threshold = flags["threshold"] ? parseInt(flags["threshold"], 10) : 3;
+
+  const result = checkRecentFailures(subject, hours, threshold);
+
+  if (result.exceeded) {
+    process.stdout.write(
+      `SUPPRESSED: ${result.count} recent failures in last ${hours}h (threshold: ${threshold})\n` +
+      `Task "${subject}" would be blocked by failure-aware dedup.\n`,
+    );
+    process.exit(1);
+  } else {
+    process.stdout.write(
+      `OK: ${result.count} recent failures in last ${hours}h (threshold: ${threshold})\n` +
+      `Task "${subject}" would be allowed.\n`,
+    );
+  }
+}
+
+function cmdMemorySearchSkills(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const query = flags["query"];
+  if (!query) {
+    process.stderr.write(`Error: --query is required\nUsage: ${USAGE.memorySearchSkills}\n`);
+    process.exit(1);
+  }
+
+  initDatabase();
+  const limit = flags["limit"] ? parseInt(flags["limit"], 10) : 10;
+
+  // Search skill capabilities in arc_memory domain='skills', excluding failure entries
+  let results = searchArcMemory(query, "skills", limit * 2);
+  results = results.filter((r) => r.key.startsWith("skill:") && !r.key.startsWith("skill-failure:"));
+  results = results.slice(0, limit);
+
+  if (results.length === 0) {
+    process.stdout.write("No matching skills found.\n");
+    return;
+  }
+
+  process.stdout.write(`Found ${results.length} matching skill(s):\n\n`);
+  for (const mem of results) {
+    const skillName = mem.key.replace("skill:", "");
+    process.stdout.write(`  ${pad(skillName, 30)} ${mem.content.split(".").slice(1, 3).join(".").trim()}\n`);
+    if (mem.tags) {
+      process.stdout.write(`  ${pad("", 30)} tags: ${mem.tags}\n`);
+    }
+  }
+}
+
+function cmdMemoryExpensive(args: string[]): void {
+  const { flags } = parseFlags(args);
+  initDatabase();
+
+  const domain = flags["domain"];
+  const limit = flags["limit"] ? parseInt(flags["limit"], 10) : 10;
+
+  // Backfill cost from tasks table for entries that are missing it
+  const backfilled = backfillMemoryCostFromTasks();
+  if (backfilled > 0) {
+    process.stdout.write(`Backfilled cost data for ${backfilled} entries.\n\n`);
+  }
+
+  const results = getExpensiveMemories(domain, limit);
+
+  if (results.length === 0) {
+    process.stdout.write("No memory entries with cost data found.\n");
+    return;
+  }
+
+  process.stdout.write(`Top ${results.length} most expensive memory entries${domain ? ` in '${domain}'` : ""}:\n\n`);
+
+  const header = pad("key", 40) + pad("domain", 14) + pad("cost_usd", 10) + pad("api_cost", 10) + "task";
+  process.stdout.write(header + "\n");
+  process.stdout.write("-".repeat(header.length) + "\n");
+
+  for (const mem of results) {
+    const line =
+      pad(truncate(mem.key, 38), 40) +
+      pad(mem.domain, 14) +
+      pad(mem.cost_usd !== null ? `$${mem.cost_usd.toFixed(4)}` : "-", 10) +
+      pad(mem.api_cost_usd !== null ? `$${mem.api_cost_usd.toFixed(4)}` : "-", 10) +
+      (mem.source_task_id ? `#${mem.source_task_id}` : "-");
+    process.stdout.write(line + "\n");
+  }
+}
+
+function cmdMemoryCostByDomain(): void {
+  initDatabase();
+
+  // Backfill cost from tasks table for entries that are missing it
+  const backfilled = backfillMemoryCostFromTasks();
+  if (backfilled > 0) {
+    process.stdout.write(`Backfilled cost data for ${backfilled} entries.\n\n`);
+  }
+
+  const results = getMemoryCostByDomain();
+
+  if (results.length === 0) {
+    process.stdout.write("No memory entries found.\n");
+    return;
+  }
+
+  process.stdout.write("Memory cost by domain:\n\n");
+
+  const header = pad("domain", 18) + pad("entries", 10) + pad("total_cost", 12) + pad("api_cost", 12) + "avg_cost";
+  process.stdout.write(header + "\n");
+  process.stdout.write("-".repeat(header.length) + "\n");
+
+  let grandTotal = 0;
+  let grandApiTotal = 0;
+  let grandEntries = 0;
+
+  for (const row of results) {
+    grandTotal += row.total_cost_usd;
+    grandApiTotal += row.total_api_cost_usd;
+    grandEntries += row.entry_count;
+    const line =
+      pad(row.domain, 18) +
+      pad(String(row.entry_count), 10) +
+      pad(`$${row.total_cost_usd.toFixed(4)}`, 12) +
+      pad(`$${row.total_api_cost_usd.toFixed(4)}`, 12) +
+      `$${row.avg_cost_usd.toFixed(4)}`;
+    process.stdout.write(line + "\n");
+  }
+
+  process.stdout.write("-".repeat(header.length) + "\n");
+  process.stdout.write(
+    pad("TOTAL", 18) +
+    pad(String(grandEntries), 10) +
+    pad(`$${grandTotal.toFixed(4)}`, 12) +
+    pad(`$${grandApiTotal.toFixed(4)}`, 12) +
+    "\n"
+  );
+}
+
+function cmdMemoryCostBySkill(): void {
+  initDatabase();
+
+  // Backfill cost from tasks table for entries that are missing it
+  backfillMemoryCostFromTasks();
+
+  const results = getMemoryCostBySkill();
+
+  if (results.length === 0) {
+    process.stdout.write("No skill-correlated cost data found.\n");
+    return;
+  }
+
+  process.stdout.write("Memory cost by skill (via task correlation):\n\n");
+
+  const header = pad("skill", 30) + pad("entries", 10) + pad("total_cost", 12) + "avg_cost";
+  process.stdout.write(header + "\n");
+  process.stdout.write("-".repeat(header.length) + "\n");
+
+  for (const row of results) {
+    const line =
+      pad(truncate(row.skill_name, 28), 30) +
+      pad(String(row.entry_count), 10) +
+      pad(`$${row.total_cost_usd.toFixed(4)}`, 12) +
+      `$${row.avg_cost_usd.toFixed(4)}`;
+    process.stdout.write(line + "\n");
+  }
+}
+
+function cmdMemoryFleetStatus(): void {
+  initDatabase();
+
+  const AGENT_NAMES = ["spark", "iris", "loom", "forge"];
+  const entries = AGENT_NAMES.map((name) => ({
+    name,
+    entry: getArcMemory(`fleet-state:${name}`),
+  }));
+
+  const hasAny = entries.some((e) => e.entry !== null);
+  if (!hasAny) {
+    process.stdout.write("No fleet-state memory entries found.\nFleet-health sensor populates these every 15 minutes.\n");
+    return;
+  }
+
+  process.stdout.write("=== Fleet State (from memory) ===\n\n");
+
+  for (const { name, entry } of entries) {
+    if (!entry) {
+      process.stdout.write(`--- ${name} ---\n  No state recorded\n\n`);
+      continue;
+    }
+    process.stdout.write(`--- ${name} ---\n`);
+    // Parse key fields from content for a compact view
+    const lines = entry.content.split("\n");
+    for (const line of lines) {
+      process.stdout.write(`  ${line}\n`);
+    }
+    const age = Math.floor((Date.now() - new Date(entry.updated_at).getTime()) / 60000);
+    process.stdout.write(`  Memory updated: ${age}m ago (importance=${entry.importance})\n\n`);
+  }
+}
+
+function cmdMemoryWriteBack(args: string[]): void {
+  initDatabase();
+  const flags = parseFlags(args);
+  const taskId = Number(flags["task"]);
+  const dryRun = flags["dry-run"] === "true" || flags["dry-run"] === "";
+
+  if (!taskId || isNaN(taskId)) {
+    process.stderr.write("Usage: arc memory write-back --task ID [--dry-run]\n");
+    process.exit(1);
+  }
+
+  const task = getTaskById(taskId);
+  if (!task) {
+    process.stderr.write(`Task #${taskId} not found.\n`);
+    process.exit(1);
+  }
+
+  const learnings = extractLearnings(task);
+
+  if (learnings.length === 0) {
+    process.stdout.write(`No learnings extracted from task #${taskId}.\n`);
+    return;
+  }
+
+  process.stdout.write(`Extracted ${learnings.length} learning(s) from task #${taskId}:\n\n`);
+  for (const l of learnings) {
+    process.stdout.write(`  [${l.domain}] ${l.key}\n    ${l.content.slice(0, 120)}...\n    importance=${l.importance} ttl=${l.ttl_days}d tags=${l.tags}\n\n`);
+  }
+
+  if (dryRun) {
+    process.stdout.write("Dry run — nothing stored.\n");
+    return;
+  }
+
+  const result = writeBackLearnings(task, task.cost_usd ?? 0, task.api_cost_usd ?? 0);
+  process.stdout.write(`Stored: ${result.stored}, Duplicates skipped: ${result.duplicates}, Consolidated: ${result.consolidated}\n`);
+}
+
+function cmdMemory(args: string[]): void {
+  const sub = args[0];
+  if (sub === "search") {
+    cmdMemorySearch(args.slice(1));
+  } else if (sub === "search-skills") {
+    cmdMemorySearchSkills(args.slice(1));
+  } else if (sub === "add") {
+    cmdMemoryAdd(args.slice(1));
+  } else if (sub === "list") {
+    cmdMemoryList(args.slice(1));
+  } else if (sub === "delete") {
+    cmdMemoryDelete(args.slice(1));
+  } else if (sub === "expire") {
+    cmdMemoryExpire();
+  } else if (sub === "consolidate") {
+    cmdMemoryConsolidate(args.slice(1));
+  } else if (sub === "check-dedup") {
+    cmdMemoryCheckDedup(args.slice(1));
+  } else if (sub === "expensive") {
+    cmdMemoryExpensive(args.slice(1));
+  } else if (sub === "cost-by-domain") {
+    cmdMemoryCostByDomain();
+  } else if (sub === "cost-by-skill") {
+    cmdMemoryCostBySkill();
+  } else if (sub === "fleet-status") {
+    cmdMemoryFleetStatus();
+  } else if (sub === "write-back") {
+    cmdMemoryWriteBack(args.slice(1));
+  } else {
+    process.stderr.write(`Usage: arc memory <search|search-skills|add|list|delete|expire|consolidate|check-dedup|expensive|cost-by-domain|cost-by-skill|fleet-status|write-back>\n`);
+    process.exit(sub ? 1 : 0);
+  }
+}
+
+// ---- Scratchpad commands ----
+
+function cmdScratchpadRead(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const taskId = parseInt(flags["task"] ?? "", 10);
+  if (isNaN(taskId)) {
+    process.stderr.write(`Error: --task is required\nUsage: ${USAGE.scratchpadRead}\n`);
+    process.exit(1);
+  }
+
+  initDatabase();
+
+  const task = getTaskById(taskId);
+  if (!task) {
+    process.stderr.write(`Error: task #${taskId} not found\n`);
+    process.exit(1);
+  }
+
+  const rootId = resolveRootTaskId(taskId);
+  const content = readScratchpad(taskId);
+  if (!content) {
+    process.stdout.write(`No scratchpad for task family #${rootId}\n`);
+    return;
+  }
+
+  process.stdout.write(`--- Scratchpad for task family #${rootId} ---\n`);
+  process.stdout.write(content);
+  process.stdout.write("\n");
+}
+
+function cmdScratchpadWrite(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const taskId = parseInt(flags["task"] ?? "", 10);
+  const content = flags["content"];
+
+  if (isNaN(taskId)) {
+    process.stderr.write(`Error: --task is required\nUsage: ${USAGE.scratchpadWrite}\n`);
+    process.exit(1);
+  }
+  if (!content) {
+    process.stderr.write(`Error: --content is required\nUsage: ${USAGE.scratchpadWrite}\n`);
+    process.exit(1);
+  }
+
+  initDatabase();
+  const rootId = resolveRootTaskId(taskId);
+  writeScratchpad(taskId, content);
+  process.stdout.write(`Wrote scratchpad for task family #${rootId}\n`);
+}
+
+function cmdScratchpadAppend(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const taskId = parseInt(flags["task"] ?? "", 10);
+  const content = flags["content"];
+
+  if (isNaN(taskId)) {
+    process.stderr.write(`Error: --task is required\nUsage: ${USAGE.scratchpadAppend}\n`);
+    process.exit(1);
+  }
+  if (!content) {
+    process.stderr.write(`Error: --content is required\nUsage: ${USAGE.scratchpadAppend}\n`);
+    process.exit(1);
+  }
+
+  initDatabase();
+  const rootId = resolveRootTaskId(taskId);
+  appendScratchpad(taskId, content);
+  process.stdout.write(`Appended to scratchpad for task family #${rootId}\n`);
+}
+
+function cmdScratchpadClear(args: string[]): void {
+  const { flags } = parseFlags(args);
+  const taskId = parseInt(flags["task"] ?? "", 10);
+
+  if (isNaN(taskId)) {
+    process.stderr.write(`Error: --task is required\nUsage: ${USAGE.scratchpadClear}\n`);
+    process.exit(1);
+  }
+
+  initDatabase();
+  const rootId = resolveRootTaskId(taskId);
+  clearScratchpad(taskId);
+  process.stdout.write(`Cleared scratchpad for task family #${rootId}\n`);
+}
+
+function cmdScratchpad(args: string[]): void {
+  const sub = args[0];
+  if (sub === "read") {
+    cmdScratchpadRead(args.slice(1));
+  } else if (sub === "write") {
+    cmdScratchpadWrite(args.slice(1));
+  } else if (sub === "append") {
+    cmdScratchpadAppend(args.slice(1));
+  } else if (sub === "clear") {
+    cmdScratchpadClear(args.slice(1));
+  } else {
+    process.stderr.write("Usage: arc scratchpad <read|write|append|clear>\n");
+    process.exit(sub ? 1 : 0);
+  }
+}
+
 function cmdHelp(): void {
   process.stdout.write(`arc - Bitcoin agent (arc0.btc) | native to L1 + Stacks
 
@@ -752,6 +1392,42 @@ COMMANDS
   services status
     Show service status.
 
+  ${USAGE.memorySearch}
+    Full-text search across arc_memory (FTS5 with Porter stemming).
+    Query syntax: single words work directly; multi-word phrases need quotes: "dispatch gate"
+    Boolean operators supported: OR, AND, NOT. Regex not supported.
+    Use --syntax flag to display full FTS5 syntax guide with examples.
+
+  ${USAGE.memoryAdd}
+    Add a memory entry. --ttl sets auto-expiry in days. --importance 1-10 (1=critical).
+
+  ${USAGE.memoryList}
+    List memories, optionally filtered by domain.
+
+  ${USAGE.memoryDelete}
+    Delete a memory by key.
+
+  ${USAGE.memorySearchSkills}
+    Search indexed skill capabilities by keyword. Returns matching skills from arc_memory.
+
+  ${USAGE.memoryExpire}
+    Run TTL cleanup — removes memories past their expiry.
+
+  ${USAGE.memoryConsolidate}
+    Run full pruning pass — assign default TTLs, decay importance, expire, check domain budgets.
+
+  ${USAGE.scratchpadRead}
+    Read the project scratchpad for a task family.
+
+  ${USAGE.scratchpadWrite}
+    Overwrite the project scratchpad for a task family.
+
+  ${USAGE.scratchpadAppend}
+    Append to the project scratchpad for a task family.
+
+  ${USAGE.scratchpadClear}
+    Clear the project scratchpad for a task family.
+
   shutdown [--reason TEXT]
     Enter shutdown state. Sensors and dispatch skip while shutdown is active.
     Idempotent — safe to call multiple times.
@@ -773,6 +1449,10 @@ EXAMPLES
   arc creds set --service openrouter --key api-key --value sk-xxxx
   arc creds get --service openrouter --key api-key
   arc creds delete --service openrouter --key api-key
+  arc memory search --query "dispatch"
+  arc memory search --query '"dispatch gate"' --domain incidents
+  arc memory search --query "cost OR expense" --limit 10
+  arc memory search --syntax
   arc run
   arc skills
   arc skills show --name arc-skill-manager
@@ -805,6 +1485,9 @@ async function main(): Promise<void> {
     case "dispatch":
       await cmdDispatch(argv.slice(1));
       break;
+    case "memory":
+      cmdMemory(argv.slice(1));
+      break;
     case "skills":
       cmdSkills(argv.slice(1));
       break;
@@ -813,6 +1496,9 @@ async function main(): Promise<void> {
       break;
     case "services":
       await cmdServices(argv.slice(1));
+      break;
+    case "scratchpad":
+      cmdScratchpad(argv.slice(1));
       break;
     case "shutdown":
       cmdShutdown(argv.slice(1));

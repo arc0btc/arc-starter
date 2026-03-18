@@ -117,8 +117,11 @@ export default async function githubMentionsSensor(): Promise<string> {
 
       const threadSource = `sensor:github-mentions:thread:${n.id}`;
 
-      // For PR review requests/assignments on watched repos, use the shared canonical
-      // key so aibtc-maintenance sensor cross-deduplicates against the same record.
+      // For PRs on watched repos, use the shared canonical key so
+      // aibtc-maintenance sensor cross-deduplicates against the same record.
+      // This applies to ALL notification reasons (mention, comment, etc.),
+      // not just review_requested/assign — any notification about a PR that
+      // already has a review task should be suppressed.
       const isPROnWatchedRepo =
         n.type === "PullRequest" && WATCHED_REPOS.includes(n.repo);
       const isReviewWork =
@@ -127,7 +130,7 @@ export default async function githubMentionsSensor(): Promise<string> {
 
       // Canonical keys for cross-sensor dedup (shared with github-issue-monitor / aibtc-maintenance)
       const canonicalSource =
-        isPROnWatchedRepo && isReviewWork
+        isPROnWatchedRepo
           ? `pr-review:${n.repo}#${subjectNum}`
           : n.type === "Issue"
             ? `issue:${n.repo}#${subjectNum}`

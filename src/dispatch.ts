@@ -25,12 +25,14 @@ import {
   markTaskCompleted,
   markTaskFailed,
   requeueTask,
+  searchArcMemory,
   updateCycleLog,
   updateTask,
   updateTaskCost,
+  tagMemoryCostByTask,
   toSqliteDatetime,
 } from "./db.ts";
-import { isPidAlive } from "./utils.ts";
+import { isPidAlive, readFile } from "./utils.ts";
 import { getShutdownState } from "./shutdown.ts";
 import { getCredential } from "./credentials.ts";
 import { AGENT_NAME } from "./identity.ts";
@@ -42,6 +44,9 @@ import { type ErrorClass, checkDispatchGate, recordGateSuccess, recordGateFailur
 import { writeFleetStatus, writeFleetStatusIdle } from "./fleet-status.ts";
 import { safeCommitCycleChanges, getHeadSha, codeChangedSince } from "./safe-commit.ts";
 import { createWorktree, validateWorktree, getWorktreeChangedFiles, mergeWorktree, discardWorktree } from "./worktree.ts";
+import { resolveMemoryContext, resolveFtsMemoryContext, type FtsMemoryResult } from "./memory-topics.ts";
+import { resolveScratchpadContext, clearScratchpad } from "./scratchpad.ts";
+import { writeBackLearnings } from "./memory-writeback.ts";
 
 // Re-export for cli.ts
 export { resetDispatchGate } from "./dispatch-gate.ts";
@@ -52,8 +57,8 @@ const ROOT = new URL("..", import.meta.url).pathname;
 const DISPATCH_LOCK_FILE = join(ROOT, "db", "dispatch-lock.json");
 const SKILLS_DIR = join(ROOT, "skills");
 
-/** Daily cost ceiling (USD). Above this, only P1-2 tasks dispatch. */
-const DAILY_BUDGET_USD = 500;
+/** Daily cost ceiling (USD). Above this, only P1-2 tasks dispatch. Matches D4 directive. */
+const DAILY_BUDGET_USD = 200;
 
 /**
  * GitHub gate — on workers, detect GitHub-related tasks before invoking LLM.
@@ -78,6 +83,10 @@ function getDispatchTimeoutMs(model: ModelTier = "opus"): number {
 /** Pre-compiled rate-limit detection pattern — single regex, tested once per error. */
 const RATE_LIMIT_RE = /(?:status|HTTP|error|code)[:\s]*429|\brate[_\s-]?limit|\btoo many requests|\b(?:max\s*usage|plan\s*limit|usage\s*limit|token\s*limit)\b|\bplan.*cap|\b(?:limit|quota)\s*(?:reached|exceeded|hit)\b|\bexceeded.*(?:limit|quota)/i;
 
+// Track whether the Claude CLI supports the -n flag. Once detected unsupported,
+// all subsequent dispatch calls in this process skip the flag rather than retrying.
+let claudeCliSupportsNameFlag = true;
+
 function classifyError(errMsg: string): ErrorClass {
   if (/(?:status|HTTP|error|code)[:\s]*(?:401|403)/i.test(errMsg)
       || /\b(?:unauthorized|forbidden)\b/i.test(errMsg)) {
@@ -93,6 +102,11 @@ function classifyError(errMsg: string): ErrorClass {
       || /\b(?:timeout|ETIMEDOUT|ECONNRESET|ECONNREFUSED|ENOTFOUND)\b/i.test(errMsg)
       || /stream-JSON incomplete/i.test(errMsg)
       || /timed out/i.test(errMsg)) {
+    return "transient";
+  }
+  // CLI flag changes (e.g. --name removed in a Claude Code update) are transient —
+  // dispatch should retry, not permanently stop.
+  if (/unknown option/i.test(errMsg)) {
     return "transient";
   }
   return "unknown";
@@ -175,16 +189,6 @@ function clearDispatchLock(): void {
   }
 }
 
-// ---- File helpers ----
-
-function readFile(filePath: string): string {
-  try {
-    return readFileSync(filePath, "utf-8");
-  } catch {
-    return "";
-  }
-}
-
 // ---- Skill context resolver ----
 
 function parseSkillNames(skillsJson: string | null): string[] {
@@ -196,32 +200,59 @@ function parseSkillNames(skillsJson: string | null): string[] {
   }
 }
 
-function resolveSkillContext(skillNames: string[]): string {
-  return skillNames
-    .map((name) => {
-      const content = readFile(join(SKILLS_DIR, name, "SKILL.md"));
-      return content ? `# Skill: ${name}\n${content}` : "";
-    })
-    .filter(Boolean)
-    .join("\n\n");
+interface SkillResolution {
+  context: string;
+  hashes: Record<string, string>;
 }
 
-function computeSkillHashes(skillNames: string[]): Record<string, string> {
+/** Read each SKILL.md once; return both the prompt context string and content hashes. */
+function resolveSkillContextAndHashes(skillNames: string[]): SkillResolution {
+  const contextParts: string[] = [];
   const hashes: Record<string, string> = {};
+
   for (const name of skillNames) {
     const content = readFile(join(SKILLS_DIR, name, "SKILL.md"));
     if (!content) continue;
+
+    contextParts.push(`# Skill: ${name}\n${content}`);
+
     const hasher = new Bun.CryptoHasher("sha256");
     hasher.update(content);
-    const hash = hasher.digest("hex").slice(0, 12);
-    hashes[name] = hash;
+    hashes[name] = hasher.digest("hex").slice(0, 12);
     try {
-      upsertSkillVersion(hash, name, content);
+      upsertSkillVersion(hashes[name], name, content);
     } catch {
       // non-fatal: tracking is best-effort
     }
   }
-  return hashes;
+
+  return { context: contextParts.join("\n\n"), hashes };
+}
+
+// ---- Skill suggestion (when task has no explicit skills) ----
+
+/** Query arc_memory for skills matching the task subject. Returns up to 3 suggestions. */
+function suggestSkills(taskSubject: string): string[] {
+  try {
+    // Tokenize subject into FTS5-safe words (remove short words and special chars)
+    const words = taskSubject
+      .replace(/[^a-zA-Z0-9\s-]/g, "")
+      .split(/\s+/)
+      .filter((w) => w.length > 2)
+      .slice(0, 5);
+    if (words.length === 0) return [];
+
+    const query = words.join(" OR ");
+    const results = searchArcMemory(query, "skills", 10);
+
+    // Filter to capability entries only
+    return results
+      .filter((r) => r.key.startsWith("skill:") && !r.key.startsWith("skill-failure:"))
+      .slice(0, 3)
+      .map((r) => r.key.replace("skill:", ""));
+  } catch {
+    return [];
+  }
 }
 
 // ---- Parent chain builder ----
@@ -243,19 +274,24 @@ function buildParentChain(task: Task): string {
 
 const MST_OFFSET_MS = 7 * 3600_000;
 
-function buildPrompt(task: Task, skillNames: string[], recentCycles: string): string {
+interface BuiltPrompt {
+  prompt: string;
+  injectedMemoryKeys: string[];
+}
+
+function buildPrompt(task: Task, skillNames: string[], skillContext: string, recentCycles: string, suggestedSkillNames?: string[]): BuiltPrompt {
   const now = new Date();
-  const utc = toSqliteDatetime(now) + " UTC";
+  const utcIso = now.toISOString().replace(/\.\d{3}Z$/, "Z");
   const mst = toSqliteDatetime(new Date(now.getTime() - MST_OFFSET_MS)) + " MST";
 
   const soul = readFile(join(ROOT, "SOUL.md"));
-  const memory = readFile(join(ROOT, "memory", "MEMORY.md"));
-  const skillContext = resolveSkillContext(skillNames);
+  const memory = resolveMemoryContext(skillNames);
+  const ftsResult = resolveFtsMemoryContext(skillNames, task.subject, task.description);
   const parentChain = buildParentChain(task);
 
   const parts: string[] = [
-    "# Current Time",
-    `${utc} / ${mst}`,
+    "# currentDate",
+    `Current time: ${utcIso} (UTC) / ${mst}`,
     "",
   ];
 
@@ -270,8 +306,30 @@ function buildPrompt(task: Task, skillNames: string[], recentCycles: string): st
     }
   }
 
+  // Inject FTS memory entries (Phase 3e: skill-domain + task keyword search)
+  if (ftsResult.context) {
+    parts.push(ftsResult.context, "");
+  }
+
   if (skillContext) {
     parts.push(skillContext, "");
+  }
+
+  // Skill suggestions for tasks without explicit skills
+  if (suggestedSkillNames && suggestedSkillNames.length > 0 && skillNames.length === 0) {
+    parts.push(
+      "# Suggested Skills",
+      `The following skills may be relevant to this task (auto-detected from skill index):`,
+      suggestedSkillNames.map((s) => `- ${s}`).join("\n"),
+      `Use \`arc skills show --name <name>\` to inspect before loading. Include relevant skills in follow-up tasks via --skills.`,
+      "",
+    );
+  }
+
+  // Project scratchpad — shared context buffer for multi-subtask work
+  const scratchpadContext = resolveScratchpadContext(task.id);
+  if (scratchpadContext) {
+    parts.push(scratchpadContext, "");
   }
 
   const taskLines = [
@@ -293,11 +351,28 @@ function buildPrompt(task: Task, skillNames: string[], recentCycles: string): st
     `- Close this task: arc tasks close --id ${task.id} --status completed|failed --summary "summary"`,
     `- Create follow-up: arc tasks add --subject "subject" --skills s1,s2 --parent ${task.id}`,
     `- Create a skill: arc skills run --name arc-skill-manager -- create my-skill --description "Does X"`,
-    "- Update memory: edit memory/MEMORY.md directly",
+    "- Update memory: edit the relevant topic file in memory/topics/ (fleet.md, incidents.md, cost.md, integrations.md, defi.md, publishing.md, identity.md, infrastructure.md). Edit memory/MEMORY.md only for directives, fleet roster, or critical flags.",
+    '- Search historical memory: arc memory search --query "keyword" [--domain incidents|cost|fleet|integrations|defi|publishing|identity|infra]',
+    '- Add structured memory: arc memory add --key "type:slug" --domain DOMAIN --content "text" [--ttl 90] [--importance 3]',
+    `- Project scratchpad (shared across subtasks): arc scratchpad append --task ${task.id} --content "findings..."`,
+    `- Read scratchpad: arc scratchpad read --task ${task.id}`,
     "Do NOT use raw SQL, direct DB writes, or ad-hoc scripts.",
   );
 
-  return parts.join("\n");
+  // When memory entries were pre-searched, add explicit debugging guidance
+  if (ftsResult.injectedKeys.length > 0) {
+    parts.push(
+      "",
+      "# Pre-Dispatch Memory Context",
+      `${ftsResult.injectedKeys.length} memory entries were auto-injected above (see "Memory: Pre-Searched Results").`,
+      "If this task involves an error, failure, or unexpected behavior:",
+      "1. Check the pre-searched results FIRST — a matching pattern may already document the root cause and fix.",
+      "2. If no match, run `arc memory search --query \"<error keyword>\" --domain <domain>` for deeper search before investigating fresh.",
+      "3. After resolving a novel failure, record it: `arc memory add --key \"incident:<slug>\" --domain incidents --content \"Symptom: ... Root cause: ... Fix: ...\"`",
+    );
+  }
+
+  return { prompt: parts.join("\n"), injectedMemoryKeys: ftsResult.injectedKeys };
 }
 
 // ---- Stream-JSON dispatch ----
@@ -310,7 +385,7 @@ interface DispatchResult {
   output_tokens: number;
 }
 
-async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string): Promise<DispatchResult> {
+async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string, taskId?: number): Promise<DispatchResult> {
   const args = [
     "claude",
     "--print",
@@ -321,6 +396,13 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string)
     "stream-json",
     "--no-session-persistence",
   ];
+
+  if (taskId && claudeCliSupportsNameFlag) {
+    // Use short flag -n for session naming — non-essential; if the CLI version drops
+    // this flag, claudeCliSupportsNameFlag is set false on first detection and
+    // subsequent dispatches skip it without retrying.
+    args.push("-n", `arc-task-${taskId}`);
+  }
 
   if (Bun.env.DANGEROUS === "true") {
     args.push("--dangerously-skip-permissions");
@@ -440,6 +522,14 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string)
   if (exitCode !== 0) {
     const errText = (await stderrPromise).trim();
     const errContext = errText || (result ? result.slice(0, 300) : "");
+    // If a non-essential CLI flag was rejected, mark it unsupported and let the
+    // outer retry loop retry cleanly without it. Preserving "unknown option" in the
+    // thrown message keeps classifyError returning "transient" so retries proceed.
+    if (/unknown option/i.test(errContext) && args.some(a => a === "-n")) {
+      claudeCliSupportsNameFlag = false;
+      log(`dispatch: -n flag unsupported — disabling for future calls, retrying via outer loop`);
+      throw new Error(`unknown option: -n (flag disabled, retrying): ${errContext}`);
+    }
     throw new Error(`claude exited ${exitCode}: ${errContext}`);
   }
 
@@ -536,7 +626,7 @@ function scheduleRetrospective(task: Task, resultSummary: string, resultDetail: 
   const excerpt = (summaryBlock + resultDetail.slice(0, detailBudget)).trim();
   insertTask({
     subject: `Retrospective: extract learnings from task #${task.id} — ${task.subject.slice(0, 60)}`,
-    description: `A complex P${task.priority} task just completed. Review the work and extract reusable patterns.\n\n**Completed task:** #${task.id} — ${task.subject}\n**Result summary:** ${resultSummary.slice(0, 300)}\n**Result excerpt:**\n${excerpt}\n\n**Your job:**\n1. Read memory/patterns.md first. Check if a similar pattern already exists.\n2. Identify 1–3 reusable patterns that would change how a future task is executed. This means: operational heuristics, architectural decisions, integration gotchas, debugging techniques. NOT bug reports, celebratory notes, or task-specific details.\n3. If a similar pattern exists in patterns.md, UPDATE that entry in-place (edit the existing bullet). If it is genuinely new, append it under the most relevant existing section heading.\n4. Keep each pattern to 1–2 sentences. Never write to MEMORY.md — only patterns.md.\n5. patterns.md must stay under ~150 lines. If your additions would exceed that, remove or merge the oldest/most-specific entries to make room.\n\nIf there is nothing worth capturing, close this task as completed with summary "No learnings to capture".`,
+    description: `A complex P${task.priority} task just completed. Review the work and extract reusable patterns.\n\n**Completed task:** #${task.id} — ${task.subject}\n**Result summary:** ${resultSummary.slice(0, 300)}\n**Result excerpt:**\n${excerpt}\n\n**Your job:**\n1. Read memory/patterns.md first. Check if a similar pattern already exists.\n2. Identify 1–3 reusable patterns that would change how a future task is executed. This means: operational heuristics, architectural decisions, integration gotchas, debugging techniques. NOT bug reports, celebratory notes, or task-specific details.\n3. If a similar pattern exists in patterns.md, UPDATE that entry in-place (edit the existing bullet). If it is genuinely new, append it under the most relevant existing section heading.\n4. Keep each pattern to 1–2 sentences. Never write to MEMORY.md — only patterns.md.\n5. patterns.md must stay under ~150 lines. If your additions would exceed that, remove or merge the oldest/most-specific entries to make room.\n6. For each pattern worth capturing, ALSO store it in FTS memory for future dispatch lookup:\n   arc memory add --key "pattern:<short-slug>" --domain <domain> --content "<the pattern text>" --importance 3\n   Use the most relevant domain (incidents, cost, fleet, integrations, defi, publishing, identity, infra). This ensures high-importance learnings are surfaced in future dispatch prompts.\n\nIf there is nothing worth capturing, close this task as completed with summary "No learnings to capture".`,
     priority: 8,
     model: "haiku",
     skills: '["arc-skill-manager"]',
@@ -671,7 +761,22 @@ export async function runDispatch(): Promise<void> {
     )
     .join("\n");
 
-  const prompt = buildPrompt(task, skillNames, recentCycles);
+  const { context: skillContext, hashes: skillHashes } = resolveSkillContextAndHashes(skillNames);
+
+  // Suggest skills for tasks without explicit skills
+  let suggestedSkillNames: string[] | undefined;
+  if (skillNames.length === 0) {
+    suggestedSkillNames = suggestSkills(task.subject);
+    if (suggestedSkillNames.length > 0) {
+      log(`dispatch: suggested skills for task #${task.id}: ${suggestedSkillNames.join(", ")}`);
+    }
+  }
+
+  const { prompt, injectedMemoryKeys } = buildPrompt(task, skillNames, skillContext, recentCycles, suggestedSkillNames);
+
+  if (injectedMemoryKeys.length > 0) {
+    log(`dispatch: injected ${injectedMemoryKeys.length} memory entries for task #${task.id}`);
+  }
 
   markTaskActive(task.id);
   writeDispatchLock(task.id);
@@ -705,7 +810,7 @@ export async function runDispatch(): Promise<void> {
       ? `openrouter:${sdkRoute.model ?? "default"}`
       : model;
   const cycleStartedAt = toSqliteDatetime(new Date());
-  const skillHashes = computeSkillHashes(skillNames);
+  const memoriesLoaded = injectedMemoryKeys.length > 0 ? JSON.stringify(injectedMemoryKeys) : null;
   const cycleId = insertCycleLog({
     started_at: cycleStartedAt,
     task_id: task.id,
@@ -713,6 +818,10 @@ export async function runDispatch(): Promise<void> {
     skill_hashes: Object.keys(skillHashes).length > 0 ? JSON.stringify(skillHashes) : null,
     model: cycleModelLabel,
   });
+  // Log injected memories separately (memories_loaded is a migration column)
+  if (memoriesLoaded) {
+    updateCycleLog(cycleId, { memories_loaded: memoriesLoaded });
+  }
   updateTask(task.id, { model: cycleModelLabel });
 
   const dispatchStart = Date.now();
@@ -748,7 +857,7 @@ export async function runDispatch(): Promise<void> {
             explicitOpenRouter ? sdkRoute.model : undefined,
           );
         } else {
-          dispatchResult = await dispatch(prompt, model, worktreePath);
+          dispatchResult = await dispatch(prompt, model, worktreePath, task.id);
         }
         break;
       } catch (retryErr) {
@@ -795,6 +904,19 @@ export async function runDispatch(): Promise<void> {
       markTaskCompleted(task.id, summary, result || undefined);
     }
     updateTaskCost(task.id, cost_usd, api_cost_usd, input_tokens, output_tokens);
+
+    // Tag memory entries created by this task with its cost
+    tagMemoryCostByTask(task.id, cost_usd, api_cost_usd);
+
+    // Auto-extract and store learnings from P1-4 task results
+    try {
+      const wb = writeBackLearnings(task, cost_usd, api_cost_usd);
+      if (wb.stored > 0) {
+        log(`dispatch: write-back stored ${wb.stored} learning(s) from task #${task.id} (${wb.duplicates} deduped, consolidated=${wb.consolidated})`);
+      }
+    } catch (wbErr) {
+      log(`dispatch: write-back failed (non-fatal): ${String(wbErr).slice(0, 200)}`);
+    }
 
     // Schedule retrospective for P1-2 tasks
     if (task.priority <= 2) {

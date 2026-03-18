@@ -10,6 +10,8 @@ import { isGateStopped, resetDispatchGate } from "../../src/dispatch-gate.ts";
 
 const SENSOR_NAME = "arc-email-sync";
 const INTERVAL_MINUTES = 1;
+const WHOABUDDY_EMAIL = "whoabuddy@gmail.com";
+const SPARK_EMAIL = "topaz_centaur@agentslovebitcoin.com";
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -98,9 +100,12 @@ export default async function emailSensor(): Promise<string> {
 
   if (allUnread.length === 0) return "ok";
 
-  // Filter out GitHub automated noise — mark as read without creating tasks
-  const noise = allUnread.filter(isNoiseEmail);
-  const unread = allUnread.filter((email) => !isNoiseEmail(email));
+  // Partition emails into noise vs. actionable in a single pass
+  const noise: typeof allUnread = [];
+  const unread: typeof allUnread = [];
+  for (const email of allUnread) {
+    (isNoiseEmail(email) ? noise : unread).push(email);
+  }
 
   if (noise.length > 0) {
     log(`filtering ${noise.length} noise email(s) — marking as read`);
@@ -110,14 +115,13 @@ export default async function emailSensor(): Promise<string> {
     } catch {
       log("could not load email credentials for remote mark-read — local only");
     }
-    for (const email of noise) {
+    // Mark all noise emails as read concurrently
+    await Promise.all(noise.map((email) => {
       log(`  noise: [${email.from_address}] ${email.subject ?? "(no subject)"}`);
-      if (creds) {
-        await markReadQuietly(email.remote_id, creds.apiBaseUrl, creds.adminKey);
-      } else {
-        markEmailRead(email.remote_id);
-      }
-    }
+      return creds
+        ? markReadQuietly(email.remote_id, creds.apiBaseUrl, creds.adminKey)
+        : Promise.resolve(markEmailRead(email.remote_id));
+    }));
   }
 
   if (unread.length === 0) return "ok";
@@ -145,6 +149,10 @@ export default async function emailSensor(): Promise<string> {
       continue;
     }
 
+    // Compute slug and firstRemoteId once — used in both the early-return and workflow creation paths
+    const senderSlug = senderAddr.replace(/[^a-zA-Z0-9]/g, "-").slice(0, 40);
+    const firstRemoteId = senderMessages[0].remote_id;
+
     // Check if Arc already replied to this sender after the NEWEST unread message.
     // Using oldest was too aggressive — a reply to an early message suppressed
     // all later unread messages from the same sender (even on different topics).
@@ -152,8 +160,6 @@ export default async function emailSensor(): Promise<string> {
     if (hasSentEmailTo(senderAddr, newestReceivedAt)) {
       log(`already replied to ${senderAddr} since ${newestReceivedAt} — skipping task creation`);
       // Advance any open workflow for this thread to reply_sent
-      const senderSlug = senderAddr.replace(/[^a-zA-Z0-9]/g, "-").slice(0, 40);
-      const firstRemoteId = senderMessages[0].remote_id;
       const workflowKey = `email-thread-${senderSlug}-${firstRemoteId}`;
       const workflow = getWorkflowByInstanceKey(workflowKey);
       if (workflow && workflow.current_state !== "reply_sent" && workflow.current_state !== "completed") {
@@ -190,7 +196,7 @@ export default async function emailSensor(): Promise<string> {
     // Build recipient display (show all recipient addresses and identify agent)
     const recipientsList = Array.from(recipientAddresses).sort();
     const recipientDisplay = recipientsList.join(" / ");
-    const isSparkEmail = recipientsList.some((addr) => addr.includes("spark@"));
+    const isSparkEmail = recipientsList.some((addr) => addr.includes("spark@") || addr.includes("topaz_centaur@"));
     const agentLabel = isSparkEmail ? "Spark's" : "Arc's";
     const inboxLabel = recipientsList.length === 1 ? `${agentLabel} inbox (${recipientsList[0]})` : `${agentLabel} inbox (${recipientDisplay})`;
 
@@ -215,12 +221,14 @@ export default async function emailSensor(): Promise<string> {
     ].join("\n");
 
     // whoabuddy's time is the scarcest resource — highest priority
-    // spark@arc0.me (agent helper) — high priority for coordination
+    // topaz_centaur@agentslovebitcoin.com (Spark agent) — high priority for coordination
     const priority =
-      senderAddr === "whoabuddy@gmail.com" ? 1 :
-      senderAddr === "spark@arc0me.typeform.com" ? 3 : 5;
+      senderAddr === WHOABUDDY_EMAIL ? 1 :
+      senderAddr === SPARK_EMAIL ? 3 : 5;
 
-    const model = senderAddr === "whoabuddy@gmail.com" ? "sonnet" : "haiku";
+    // whoabuddy emails are P1 — let priority-based model routing apply (Opus, 30min timeout)
+    // rather than capping at sonnet's 15min, which is too short for complex implementation tasks
+    const model = senderAddr === WHOABUDDY_EMAIL ? "opus" : "haiku";
 
     // Enrich skills based on content keywords (subject + body previews)
     const contentForKeywords = senderMessages
@@ -243,6 +251,12 @@ export default async function emailSensor(): Promise<string> {
     if (/\bbudget\b|\bcost alert\b|\bspend\b|\boverspend\b/.test(contentForKeywords)) {
       extraEmailSkills.push("arc-cost-alerting");
     }
+    if (/aibtc.?news|news.?brief|news.?editorial/.test(contentForKeywords)) {
+      extraEmailSkills.push("aibtc-news-editorial");
+    }
+    if (/web.?dashboard|dashboard.*arc|arc.*dashboard/.test(contentForKeywords)) {
+      extraEmailSkills.push("arc-web-dashboard");
+    }
     const emailSkills = ["arc-email-sync", ...extraEmailSkills];
 
     // Compute total thread depth (inbox messages matching this sender + normalized subject)
@@ -251,7 +265,7 @@ export default async function emailSensor(): Promise<string> {
     const depthLabel = `(${senderMessages.length} unread${totalThreadCount > senderMessages.length ? `, ${totalThreadCount} total` : ""})`;
 
     const senderLabel =
-      senderAddr === "whoabuddy@gmail.com" ? "Email from whoabuddy" :
+      senderAddr === WHOABUDDY_EMAIL ? "Email from whoabuddy" :
       `External email from ${senderDisplay}`;
 
     const taskId = insertTask({
@@ -292,8 +306,6 @@ export default async function emailSensor(): Promise<string> {
     // Create an email-thread workflow instance so the lifecycle can be tracked
     // beyond task completion (reply_pending → completed flow).
     // Start in "triaged" since the sensor already handles task creation.
-    const senderSlug = senderAddr.replace(/[^a-zA-Z0-9]/g, "-").slice(0, 40);
-    const firstRemoteId = remoteIds[0];
     const workflowKey = `email-thread-${senderSlug}-${firstRemoteId}`;
     if (!getWorkflowByInstanceKey(workflowKey)) {
       const firstSubject = senderMessages[0].subject ?? "";

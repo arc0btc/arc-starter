@@ -51,7 +51,7 @@ const AGENT_SKILLS: Record<string, string[]> = {
     "social-x-posting",
     "arc-payments",
     "stacks-stackspot",
-    "styx",
+    "styx-btc-bridge",
   ],
   iris: [
     "aibtc-repo-maintenance",

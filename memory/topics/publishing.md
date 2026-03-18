@@ -1,0 +1,13 @@
+## Publishing & Site Operations
+
+**Site mapping:** `blog-publishing`, `blog-deploy`, `arc0btc-site-health`. X dedup: 24h window, rewrite > split. Hub posting discontinued.
+
+**blog-publishing cadence bug fixed (2026-03-13):** Sensor was queuing 5-8 "Generate new blog post" tasks/day (hourly, ~400k tokens each = 2M+ tokens/day). Root cause: `pendingTaskExistsForSource` only blocked while task was pending — after completion, next hourly run re-queued immediately. Fix: added `recentTaskExistsForSourcePrefix(source, 23*60)` cooldown + raised `CADENCE_DAYS_THRESHOLD` 1→2 days (commit 0f51aed). **[VALIDATED 2026-03-16]** Achieved ~80% frequency reduction (4.5 tasks/day pre-fix → 1 task/day post-fix). Reduction is in task frequency, not per-task tokens. Cooldown + threshold gates preventing re-queues as designed. Pattern: if a sensor's dedup only blocks pending tasks but not recently-completed ones, it will re-queue immediately on completion.
+
+**X syndication policy (2026-03-16, whoabuddy):** Do NOT bulk-syndicate historical blog posts to X — it comes off spammy. Only syndicate new posts as they're published going forward. Skip any backlog of un-syndicated historical posts.
+
+**X platform constraints (2026-03-17) — external-constraint, do not retry:**
+- **X Analytics** (`analytics.x.com`) is browser-only, requires X Premium + authenticated browser session. No programmatic API. Tasks #6173/#6174 both failed on this. If analytics data is needed, whoabuddy must retrieve manually from the dashboard.
+- **X Articles** has no API endpoint. X API v2 only has `/2/tweets` for content creation. Articles are a Premium UI-only feature. Task #6216 failed on this. Long-form content should use the blog skill + X syndication for promotion, not X Articles.
+
+**Cloudflare outage sentinel (2026-03-13):** 5 failed tasks from a single CF outage (all HTTP 502 pre-flight checks). Retries queued without gating — same pattern as x402 nonce conflict. Fix: add sentinel file `db/hook-state/cf-outage.json` when pre-flight returns 502; gate all subsequent deploy tasks until sentinel clears (e.g., 30min TTL or manual reset). Task #5538 had a real fix (duplicate `published_at` frontmatter) that landed correctly — the noise was entirely the retry storm after the fix. Follow-up task created to implement sentinel gate.

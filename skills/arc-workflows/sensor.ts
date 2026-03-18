@@ -14,7 +14,7 @@ import {
   type WorkflowAction,
 } from "./state-machine.ts";
 import { getCredential } from "../../src/credentials.ts";
-import { AIBTC_WATCHED_REPOS } from "../../src/constants.ts";
+import { AIBTC_WATCHED_REPOS, getRepoConfig } from "../../src/constants.ts";
 
 const SENSOR_NAME = "arc-workflows";
 const INTERVAL_MINUTES = 5;
@@ -87,7 +87,7 @@ function mapPRStateToWorkflowState(pr: GithubPR): WorkflowState {
 async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
   const token = await getCredential("github", "token");
   if (!token) {
-    log("pr-lifecycle: github token not found in credentials");
+    log("github-pr-review: github token not found in credentials");
     return [];
   }
 
@@ -96,7 +96,7 @@ async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
   for (const repoPath of repos) {
     const [owner, repo] = repoPath.split("/");
     if (!owner || !repo) {
-      log(`pr-lifecycle: invalid repo path: ${repoPath}`);
+      log(`github-pr-review: invalid repo path: ${repoPath}`);
       continue;
     }
 
@@ -136,7 +136,7 @@ async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
       });
 
       if (!response.ok) {
-        log(`pr-lifecycle: GitHub API error for ${repoPath}: ${response.status}`);
+        log(`github-pr-review: GitHub API error for ${repoPath}: ${response.status}`);
         continue;
       }
 
@@ -163,7 +163,7 @@ async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
       };
 
       if (data.errors) {
-        log(`pr-lifecycle: GraphQL error for ${repoPath}: ${data.errors.map((e) => e.message).join(", ")}`);
+        log(`github-pr-review: GraphQL error for ${repoPath}: ${data.errors.map((e) => e.message).join(", ")}`);
         continue;
       }
 
@@ -193,7 +193,7 @@ async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
         });
       }
     } catch (error) {
-      log(`pr-lifecycle: error fetching ${repoPath}: ${error instanceof Error ? error.message : String(error)}`);
+      log(`github-pr-review: error fetching ${repoPath}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -217,15 +217,18 @@ async function syncGitHubPRs(): Promise<number> {
   let workflowsUpdated = 0;
 
   for (const pr of prs) {
-    const instanceKey = `${pr.owner}/${pr.repo}/${pr.number}`;
+    const instanceKey = `pr-review:${pr.owner}/${pr.repo}#${pr.number}`;
     const newState = mapPRStateToWorkflowState(pr);
 
     let workflow = getWorkflowByInstanceKey(instanceKey);
 
     if (!workflow) {
       // Create new workflow
+      const repoConfig = getRepoConfig(pr.owner, pr.repo);
+      const orgTier = repoConfig?.orgTier ?? "collaborative";
+      const requireApproval = repoConfig?.requireApproval ?? true;
       insertWorkflow({
-        template: "pr-lifecycle",
+        template: "github-pr-review",
         instance_key: instanceKey,
         current_state: newState,
         context: JSON.stringify({
@@ -235,33 +238,14 @@ async function syncGitHubPRs(): Promise<number> {
           title: pr.title,
           url: pr.url,
           author: pr.author,
-          fromIssue: pr.closingIssueNumbers?.[0] ?? undefined,
+          orgTier,
+          requireApproval,
+          reviewRound: 0,
+          closingIssues: pr.closingIssueNumbers ?? [],
           lastChecked: new Date().toISOString(),
         }),
       });
       workflowsCreated++;
-
-      // Issue-to-PR transition: if this PR closes issues, transition their workflows
-      if (pr.closingIssueNumbers) {
-        for (const issueNum of pr.closingIssueNumbers) {
-          const issueKey = `${pr.owner}/${pr.repo}/issue/${issueNum}`;
-          const issueWorkflow = getWorkflowByInstanceKey(issueKey);
-          if (issueWorkflow && issueWorkflow.current_state === "issue-opened") {
-            updateWorkflowState(
-              issueWorkflow.id,
-              "opened",
-              JSON.stringify({
-                ...JSON.parse(issueWorkflow.context),
-                linkedPr: pr.number,
-                linkedPrUrl: pr.url,
-                transitionedAt: new Date().toISOString(),
-              }),
-            );
-            workflowsUpdated++;
-            log(`issue-to-pr: issue #${issueNum} -> PR #${pr.number} on ${pr.owner}/${pr.repo}`);
-          }
-        }
-      }
     } else if (workflow.current_state !== newState) {
       // Update workflow if state changed
       updateWorkflowState(
@@ -287,7 +271,7 @@ async function syncGitHubPRs(): Promise<number> {
   }
 
   if (workflowsCreated > 0 || workflowsUpdated > 0) {
-    log(`pr-lifecycle: created=${workflowsCreated}, updated=${workflowsUpdated}`);
+    log(`github-pr-review: created=${workflowsCreated}, updated=${workflowsUpdated}`);
   }
 
   return workflowsCreated + workflowsUpdated;
@@ -333,7 +317,7 @@ export default async function workflowsSensor(): Promise<string> {
             description: action.description,
             priority: action.priority || 5,
             model: action.model || "sonnet",
-            skills: action.skills ? action.skills.join(",") : null,
+            skills: action.skills ? JSON.stringify(action.skills) : null,
             source,
             parent_id: action.parentTaskId ?? undefined,
           });

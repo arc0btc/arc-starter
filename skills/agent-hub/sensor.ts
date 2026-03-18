@@ -177,6 +177,10 @@ export default async function sensor(): Promise<string> {
   // Disabled: workers suspended, SSH collection fails every 15min (too noisy)
   return "skip";
 
+  // Note: this sensor does not create tasks — it upserts directly into hub DB tables.
+  // Task-level dedup (pendingTaskExistsForSource) is not applicable here.
+  // claimSensorRun below handles interval gating (equivalent function).
+
   // Only Arc runs this sensor
   if (AGENT_NAME !== "arc0") return "skip";
 

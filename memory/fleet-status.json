@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-12T14:17:17.163Z",
+  "updated_at": "2026-03-18T02:48:44.727Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 5402,
-    "subject": "context-review: 6 context loading issue(s) found",
-    "status": "completed",
-    "priority": 6
+    "id": 6644,
+    "subject": "ALB: Wire arc as trustless_indra@agentslovebitcoin.com (retry)",
+    "status": "failed",
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 137248,
-    "cost_usd": 0.46477605000000005
+    "duration_ms": 784674,
+    "cost_usd": 1.71276215
   },
   "health": {
-    "uptime_seconds": 1267536,
+    "uptime_seconds": 1744623,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 233320124416
+    "disk_avail_bytes": 231675940864
   }
 }

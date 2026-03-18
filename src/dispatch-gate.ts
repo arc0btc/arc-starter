@@ -1,8 +1,8 @@
 /**
- * Dispatch gate — on/off switch with no auto-recovery.
- * Rate limit → immediate stop + email notification.
- * 3 consecutive other failures → same.
- * Resume with `arc dispatch reset`.
+ * Dispatch gate — on/off switch with timed auto-recovery.
+ * Rate limit → immediate stop + email notification (no auto-recovery).
+ * 3 consecutive other failures → stop + auto-recover after AUTO_RECOVERY_MS.
+ * Manual resume anytime with `arc dispatch reset`.
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -12,6 +12,10 @@ import { join } from "node:path";
 const ROOT = new URL("..", import.meta.url).pathname;
 const DISPATCH_GATE_FILE = join(ROOT, "db", "hook-state", "dispatch-gate.json");
 const GATE_FAILURE_THRESHOLD = 3;
+
+/** Auto-recover non-rate-limit gate stops after 60 minutes.
+ *  Rate limit stops still require manual reset — they indicate plan/billing issues. */
+const AUTO_RECOVERY_MS = 60 * 60 * 1000;
 
 export type ErrorClass = "auth" | "rate_limited" | "subprocess_timeout" | "transient" | "unknown";
 
@@ -82,10 +86,21 @@ function notifyDispatchStopped(reason: string, errorClass: ErrorClass | null): v
   }
 }
 
-/** Check dispatch gate. Returns true if dispatch should proceed. */
+/** Check dispatch gate. Returns true if dispatch should proceed.
+ *  Auto-recovers non-rate-limit stops after AUTO_RECOVERY_MS. */
 export function checkDispatchGate(): boolean {
   const state = readGateState();
   if (state.status === "running") return true;
+
+  // Auto-recovery: if stopped for a non-rate-limit reason and enough time has passed, reset
+  if (state.stopped_at && state.last_error_class !== "rate_limited") {
+    const stoppedMs = Date.now() - new Date(state.stopped_at).getTime();
+    if (stoppedMs >= AUTO_RECOVERY_MS) {
+      log(`dispatch: gate auto-recovering after ${Math.round(stoppedMs / 60_000)}min (was: ${state.stop_reason?.slice(0, 80)})`);
+      resetDispatchGate();
+      return true;
+    }
+  }
 
   log(`dispatch: STOPPED — not dispatching (since ${state.stopped_at}, reason: ${state.stop_reason?.slice(0, 100)}). Run 'arc dispatch reset' to resume.`);
   return false;

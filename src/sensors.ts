@@ -14,7 +14,7 @@ import { discoverSkills } from "./skills.ts";
 import { initDatabase } from "./db.ts";
 import { AGENT_NAME } from "./identity.ts";
 import { isShutdown, getShutdownState } from "./shutdown.ts";
-import { insertTask, pendingTaskExistsForSource, pendingTaskExistsForSubject, taskExistsForSource } from "./db.ts";
+import { insertTask, pendingTaskExistsForSource, pendingTaskExistsForSubject, taskExistsForSource, checkRecentFailures } from "./db.ts";
 export { insertTask, pendingTaskExistsForSource, taskExistsForSource };
 import type { InsertTask } from "./db.ts";
 
@@ -145,6 +145,15 @@ export function insertTaskIfNew(
   if (exists) return null;
   // Also check subject dedup — catches identical tasks from different sources
   if (pendingTaskExistsForSubject(taskConfig.subject)) return null;
+  // Failure-aware dedup: if >3 recent failures on the same topic, suppress creation.
+  // Prevents retry storms like the X syndication incident (9 retries, same article).
+  const failures = checkRecentFailures(taskConfig.subject);
+  if (failures.exceeded) {
+    console.log(
+      `[failure-dedup] Suppressed task "${taskConfig.subject}" — ${failures.count} recent failures in last 24h (threshold: 3)`,
+    );
+    return null;
+  }
   return insertTask({ ...taskConfig, source });
 }
 

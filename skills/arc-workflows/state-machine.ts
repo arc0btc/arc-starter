@@ -581,17 +581,19 @@ export const ArchitectureReviewMachine: StateMachine<{
 /**
  * EmailThreadMachine — models the recurring "email thread from X" → follow-up chain cycle.
  *
- * Pattern detected: 24 recurrences, avg 5.4 steps per chain. Email threads consistently
- * spawn diverse follow-up tasks across many skills, then optionally require a reply.
- * This machine ensures every email thread is triaged, acted upon, and closed out.
+ * Pattern detected: 104 recurrences, avg 5.4 steps per chain. Email threads consistently
+ * spawn diverse follow-up tasks across many skills, then optionally require a reply,
+ * then consistently spawn a retrospective to extract learnings.
+ * This machine ensures every email thread is triaged, acted upon, and closed with learnings captured.
  *
  * instance_key: "email-thread-{sender-slug}-{message-id-or-date}" (one per thread)
  *
  * States:
- *   received       → triage the email, identify action items and whether a reply is needed
- *   triaged        → follow-up tasks have been created (or none needed); decide next step
- *   reply_pending  → a reply is required; draft and send it
- *   completed      → done (all tasks spawned, reply sent or not needed)
+ *   received              → triage the email, identify action items and whether a reply is needed
+ *   triaged               → follow-up tasks have been created (or none needed); decide next step
+ *   reply_pending         → a reply is required; draft and send it
+ *   retrospective_pending → all actions done; extract learnings before closing
+ *   completed             → done
  *
  * Context:
  *   sender         — display name or email of sender
@@ -601,6 +603,7 @@ export const ArchitectureReviewMachine: StateMachine<{
  *   needsReply     — whether a reply should be sent
  *   actionItems    — comma-separated list of action items identified during triage
  *   replyDraft     — draft reply text (populated before transitioning to reply_pending)
+ *   taskRef        — "task:{id}" of the root dispatch task (for retrospective reference)
  */
 export const EmailThreadMachine: StateMachine<{
   sender?: string;
@@ -610,6 +613,7 @@ export const EmailThreadMachine: StateMachine<{
   needsReply?: boolean;
   actionItems?: string;
   replyDraft?: string;
+  taskRef?: string;
 }> = {
   name: "email-thread",
   initialState: "received",
@@ -636,16 +640,17 @@ Steps:
 4. Transition this workflow to 'triaged' with updated context:
    - needsReply: true/false
    - actionItems: comma-separated summary of tasks created
-   - replyDraft: draft reply text (if needsReply is true)`,
+   - replyDraft: draft reply text (if needsReply is true)
+   - taskRef: "task:{this-task-id}"`,
         };
       },
     },
     triaged: {
-      on: { needs_reply: "reply_pending", close: "completed" },
+      on: { needs_reply: "reply_pending", close: "retrospective_pending" },
       action: (ctx) => {
         if (!ctx.needsReply) {
-          // No reply needed — auto-complete
-          return { type: "transition", nextState: "completed" };
+          // No reply needed — go straight to retrospective
+          return { type: "transition", nextState: "retrospective_pending" };
         }
         // Auto-transition to reply_pending if a reply is needed
         return {
@@ -655,7 +660,7 @@ Steps:
       },
     },
     reply_pending: {
-      on: { send: "completed" },
+      on: { send: "retrospective_pending" },
       action: (ctx) => {
         if (!ctx.sender || !ctx.replyDraft) return null;
         return {
@@ -668,7 +673,34 @@ Steps:
 Draft reply:
 ${ctx.replyDraft}
 
-After sending, transition this workflow to 'completed'.`,
+After sending, transition this workflow to 'retrospective_pending'.`,
+        };
+      },
+    },
+    retrospective_pending: {
+      on: { learnings_extracted: "completed" },
+      action: (ctx) => {
+        // Skip retrospective if no action items were identified (purely informational threads)
+        if (!ctx.actionItems) {
+          return { type: "transition", nextState: "completed" };
+        }
+        const threadDesc = ctx.subject
+          ? `"${ctx.subject}" from ${ctx.sender || "unknown"}`
+          : `from ${ctx.sender || "unknown"}`;
+        return {
+          type: "create-task",
+          subject: `Retrospective: extract learnings from email thread ${threadDesc}`,
+          priority: 9,
+          skills: ["arc-skill-manager"],
+          description: `Extract and record learnings from email thread ${threadDesc}.
+${ctx.taskRef ? `Root task: ${ctx.taskRef}` : ""}
+Action items spawned: ${ctx.actionItems}
+
+Steps:
+1. Review what the email thread revealed (patterns, requests, issues, opportunities)
+2. Identify if any follow-up chains are recurring for this sender or topic
+3. Update memory/MEMORY.md if a systemic pattern was identified
+4. Transition workflow to 'completed'`,
         };
       },
     },
@@ -916,8 +948,8 @@ Steps:
         if (!ctx.opsDescription) return null;
         const skills =
           ctx.actionType === "bitcoin-op"
-            ? ["bitcoin-wallet", "styx", "bitcoin-taproot-multisig"]
-            : ["stacks-js", "styx"];
+            ? ["bitcoin-wallet", "styx-btc-bridge", "bitcoin-taproot-multisig"]
+            : ["stacks-js", "styx-btc-bridge"];
         return {
           type: "create-task",
           subject: ctx.opsDescription,
@@ -2004,7 +2036,7 @@ Steps:
           type: "create-task",
           subject: `Sign and broadcast PSBT: ${psbt} (approved by ${approver})`,
           priority: 3,
-          skills: ["bitcoin-wallet", "bitcoin-taproot-multisig", "styx"],
+          skills: ["bitcoin-wallet", "bitcoin-taproot-multisig", "styx-btc-bridge"],
           description: `PSBT has been approved by ${approver}. Sign and broadcast.
 
 PSBT: ${psbt}
@@ -2024,6 +2056,796 @@ Steps:
       action: () => null,
     },
     completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
+ * SkillMaintenanceMachine — models the email-signal → skill audit → fix cycle.
+ *
+ * Pattern detected: "sensor:arc-email-sync:task" tasks (3 recurrences, avg 2.0 steps)
+ * consistently spawn skill audit tasks that find issues and spawn targeted fix/rewrite tasks.
+ * Email signals (API changes, contract upgrades, dependency shifts) trigger proactive skill checks.
+ * Distinct from RecurringFailureMachine (reactive failures) — this is proactive maintenance
+ * triggered by external signals about upstream changes.
+ *
+ * instance_key: "skill-maintenance-{skill-name}-{YYYY-MM-DD}" (one per skill per day)
+ *
+ * States:
+ *   triggered    → signal received; creates an audit/investigation task
+ *   auditing     → audit executing; auto-transitions based on auditFindings + fixDescription
+ *   fix_pending  → issue confirmed; creates targeted fix/rewrite task
+ *   fixing       → fix executing
+ *   no_action    → audit found no issues; terminal
+ *   completed    → fix applied; terminal
+ *
+ * Context:
+ *   skillName       — e.g. "stacks-stackspot", "zest-v2", "stacks-payments"
+ *   signalSource    — what triggered the audit: "arc-email-sync", "sensor", "api-change", etc.
+ *   signalSummary   — brief description of what changed (e.g. "v2 contracts deployed on mainnet")
+ *   auditFindings   — findings from audit (populated before fix_pending or no_action transition)
+ *   fixDescription  — what to fix (populated when fix is needed)
+ */
+export const SkillMaintenanceMachine: StateMachine<{
+  skillName?: string;
+  signalSource?: string;
+  signalSummary?: string;
+  auditFindings?: string;
+  fixDescription?: string;
+}> = {
+  name: "skill-maintenance",
+  initialState: "triggered",
+  states: {
+    triggered: {
+      on: { audit: "auditing" },
+      action: (ctx) => {
+        const skill = ctx.skillName || "unknown-skill";
+        const signal = ctx.signalSummary ? `: ${ctx.signalSummary}` : "";
+        return {
+          type: "create-task",
+          subject: `Audit ${skill}${signal}`,
+          priority: 5,
+          skills: [skill, "arc-skill-manager"],
+          description: `Skill health audit triggered by ${ctx.signalSource || "external signal"}${signal}.
+
+Steps:
+1. Check ${skill} sensor.ts, cli.ts, and any external APIs/contracts it depends on
+2. Verify the skill still functions correctly against current external state
+3. Identify any schema mismatches, deprecated endpoints, or broken dependencies
+4. Transition this workflow to 'auditing', then:
+   - If issues found: set auditFindings and fixDescription in context, transition to 'fix_pending'
+   - If no issues: set auditFindings, transition to 'no_action'`,
+        };
+      },
+    },
+    auditing: {
+      on: { needs_fix: "fix_pending", no_fix: "no_action" },
+      action: (ctx) => {
+        if (ctx.auditFindings === undefined) return null;
+        if (ctx.fixDescription) {
+          return { type: "transition", nextState: "fix_pending" };
+        }
+        return { type: "transition", nextState: "no_action" };
+      },
+    },
+    fix_pending: {
+      on: { apply: "fixing" },
+      action: (ctx) => {
+        const skill = ctx.skillName || "unknown-skill";
+        if (!ctx.fixDescription) return null;
+        return {
+          type: "create-task",
+          subject: `Fix ${skill}: ${ctx.fixDescription}`,
+          priority: 4,
+          skills: [skill, "arc-skill-manager"],
+          description: `Apply fix to ${skill} as identified during audit.
+
+Audit findings: ${ctx.auditFindings || "see audit task"}
+Fix to apply: ${ctx.fixDescription}
+
+Steps:
+1. Implement the required changes (sensor schema, CLI, contract addresses, etc.)
+2. Run a quick syntax check: bun build --no-bundle skills/${skill}/sensor.ts (if applicable)
+3. Commit changes with conventional commit format
+4. Transition this workflow to 'fixing', then 'completed'`,
+        };
+      },
+    },
+    fixing: {
+      on: { complete: "completed" },
+      action: () => null,
+    },
+    no_action: {
+      on: {},
+      action: () => null,
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
+ * LandingPageReviewMachine — models the release-watcher → landing page review → gap-fix cycle.
+ *
+ * Pattern detected: "sensor:github-release-watcher:landing-page-review" tasks
+ * (3 recurrences, avg 2.7 steps/chain) consistently spawn doc-update follow-ups
+ * after reviewing the landing page for a new release.
+ * This machine deduplicates concurrent reviews for the same release version and
+ * ensures identified gaps always get fix tasks created.
+ *
+ * instance_key: "landing-page-review-{repo-slug}-{version}" (one per release)
+ *
+ * States:
+ *   triggered     → review task created; checks landing page against new release
+ *   reviewing     → review task executing; identifies documentation/content gaps
+ *   gaps_found    → fix tasks created for each gap (SKILL.md updates, SHORT_DESC entries, etc.)
+ *   fixing        → fix tasks executing
+ *   no_gaps       → review found nothing to fix; terminal
+ *   completed     → all gaps fixed; terminal
+ *
+ * Context:
+ *   repo             — e.g. "aibtcdev/landing-page"
+ *   releaseVersion   — e.g. "skills-v0.21.0"
+ *   releaseDate      — ISO date string
+ *   reviewTaskRef    — "task:{id}" of the review task
+ *   gapSummary       — brief description of gaps found (populated before gaps_found)
+ *   fixTaskRefs      — space-separated "task:{id}" refs of fix tasks created
+ */
+export const LandingPageReviewMachine: StateMachine<{
+  repo?: string;
+  releaseVersion?: string;
+  releaseDate?: string;
+  reviewTaskRef?: string;
+  gapSummary?: string;
+  fixTaskRefs?: string;
+}> = {
+  name: "landing-page-review",
+  initialState: "triggered",
+  states: {
+    triggered: {
+      on: { start_review: "reviewing" },
+      action: (ctx) => {
+        const repo = ctx.repo || "aibtcdev/landing-page";
+        const version = ctx.releaseVersion || "unknown version";
+        return {
+          type: "create-task",
+          subject: `Review ${repo} for ${version} content gaps`,
+          priority: 6,
+          skills: ["aibtc-repo-maintenance", "dev-landing-page-review"],
+          description: `A new release (${version}) has been detected. Review the landing page repo for content gaps.${ctx.releaseDate ? `\nRelease date: ${ctx.releaseDate}` : ""}
+
+Steps:
+1. Check what changed in ${version} (new skills, APIs, agent capabilities)
+2. Review landing page docs, SKILL.md frontmatter, SHORT_DESC entries, and llms.txt
+3. Identify missing or outdated entries for the new/changed skills
+4. Transition workflow to 'reviewing', then 'gaps_found' (set gapSummary) or 'no_gaps'`,
+        };
+      },
+    },
+    reviewing: {
+      on: { gaps_found: "gaps_found", no_gaps: "no_gaps" },
+      action: () => null,
+    },
+    gaps_found: {
+      on: { fixes_created: "fixing" },
+      action: (ctx) => {
+        const version = ctx.releaseVersion || "unknown version";
+        const gapSummary = ctx.gapSummary || "see review task";
+        return {
+          type: "create-task",
+          subject: `Fix landing page gaps for ${version}`,
+          priority: 6,
+          skills: ["aibtc-repo-maintenance", "dev-landing-page-review"],
+          description: `Apply landing page fixes identified in the review for ${version}.
+Gaps found: ${gapSummary}
+${ctx.reviewTaskRef ? `Review task: ${ctx.reviewTaskRef}` : ""}
+
+Steps:
+1. For each gap, apply the fix (update SKILL.md frontmatter, add SHORT_DESC, update llms.txt, etc.)
+2. Commit changes with conventional commits format
+3. Transition workflow to 'fixing', then 'completed' when all fixes are applied`,
+        };
+      },
+    },
+    fixing: {
+      on: { done: "completed" },
+      action: () => null,
+    },
+    no_gaps: {
+      on: {},
+      action: () => null,
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
+ * CostReviewMachine — models the daily cost report → analysis → targeted audit cycle.
+ *
+ * Pattern detected: "sensor:arc-cost-reporting" tasks (3 recurrences, avg 2.0 steps/chain)
+ * consistently spawn audit follow-ups after the daily cost report is generated.
+ * Distinct from CostAlertMachine (which fires on threshold breach) — this is the
+ * daily structured review that identifies anomalous skills/sensors and creates
+ * targeted follow-up audit tasks.
+ *
+ * instance_key: "cost-review-{YYYY-MM-DD}" (one per day — deduplicates multiple report runs)
+ *
+ * States:
+ *   generated   → cost report task created; daily snapshot captured
+ *   analyzing   → analysis task executing; identifies top spenders and anomalies
+ *   auditing    → targeted audit tasks created for flagged skills/sensors
+ *   completed   → audits done, learnings recorded in memory
+ *
+ * Context:
+ *   reportDate     — e.g. "2026-03-13"
+ *   reportTaskRef  — "task:{id}" of the original cost report task
+ *   totalCodeCost  — total code cost for the day, e.g. 55.46
+ *   topSpenders    — comma-separated skill names with anomalous cost
+ *   anomalies      — free-text description of what to audit (populated during analyzing)
+ *   auditTaskRefs  — space-separated "task:{id}" refs of audit tasks created
+ */
+export const CostReviewMachine: StateMachine<{
+  reportDate?: string;
+  reportTaskRef?: string;
+  totalCodeCost?: number;
+  topSpenders?: string;
+  anomalies?: string;
+  auditTaskRefs?: string;
+}> = {
+  name: "cost-review",
+  initialState: "generated",
+  states: {
+    generated: {
+      on: { analyze: "analyzing" },
+      action: (ctx) => {
+        const date = ctx.reportDate || "today";
+        const spend = ctx.totalCodeCost ? `$${ctx.totalCodeCost.toFixed(2)}` : "unknown";
+        return {
+          type: "create-task",
+          subject: `Analyze daily cost report — ${date}`,
+          priority: 7,
+          skills: ["arc-cost-reporting", "arc-skill-manager"],
+          description: `The daily cost report for ${date} has been generated (spend: ${spend}).${ctx.reportTaskRef ? `\nReport task: ${ctx.reportTaskRef}` : ""}
+
+Steps:
+1. Review the cost report: identify the top 3 skills/sensors by code cost and token volume
+2. Flag any skill with >20% day-over-day growth or >10k tokens/task average as an anomaly
+3. Check blog-publishing cadence, email-sync volume, and any new Opus-tier tasks for justification
+4. Set anomalies in context describing what needs targeted auditing
+5. Transition workflow to 'analyzing', then 'auditing' (with topSpenders set) or 'completed' if nothing actionable`,
+        };
+      },
+    },
+    analyzing: {
+      on: { audits_created: "auditing", no_action: "completed" },
+      action: () => null,
+    },
+    auditing: {
+      on: { done: "completed" },
+      action: (ctx) => {
+        const date = ctx.reportDate || "today";
+        const spenders = ctx.topSpenders || "see analysis";
+        return {
+          type: "create-task",
+          subject: `Cost audit: ${spenders} — ${date}`,
+          priority: 7,
+          skills: ["arc-cost-reporting", "arc-skill-manager"],
+          description: `Perform targeted cost audit for flagged skills/sensors from the ${date} cost review.
+Top spenders: ${spenders}
+Anomalies: ${ctx.anomalies || "see analysis task"}
+${ctx.reportTaskRef ? `Report task: ${ctx.reportTaskRef}` : ""}
+
+Steps:
+1. For each flagged skill: review sensor cadence, task volume, and per-task token cost
+2. Identify if the cost is justified (strategic work, fleet degradation) or a bug (sensor over-firing, dedup failure)
+3. If a bug: create a targeted fix task (sensor cadence, dedup logic, model tier downgrade)
+4. Record findings in memory/MEMORY.md under cost optimization
+5. Transition workflow to 'completed'`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
+ * GithubIssueTriageMachine — linear triage flow for GitHub issues.
+ *
+ * Replaces ad-hoc sensor→task pattern for issue handling. Supports both
+ * managed (arc0btc) and collaborative (aibtcdev) orgs via orgTier context.
+ *
+ * instance_key: "issue-triage:{owner}/{repo}#{number}"
+ */
+export const GithubIssueTriageMachine: StateMachine<{
+  owner?: string;
+  repo?: string;
+  number?: number;
+  title?: string;
+  url?: string;
+  author?: string;
+  orgTier?: "managed" | "collaborative";
+  labels?: string[];
+  relatedIssues?: string[];
+  relatedPRs?: string[];
+  ciStatus?: "passing" | "failing" | "none";
+  severity?: "critical" | "moderate" | "low";
+  triageNote?: string;
+  lastChecked?: string;
+}> = {
+  name: "github-issue-triage",
+  initialState: "detected",
+  states: {
+    detected: {
+      on: { search: "searching", escalate: "escalated" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        return { type: "transition", nextState: "searching" };
+      },
+    },
+    searching: {
+      on: { assess: "assessed", escalate: "escalated" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        return {
+          type: "create-task",
+          subject: `Search related issues for ${ctx.owner}/${ctx.repo}#${ctx.number}`,
+          priority: 7,
+          skills: ["aibtc-repo-maintenance"],
+          description: `Search for related issues and PRs across ${ctx.owner}/${ctx.repo} for issue #${ctx.number}: "${ctx.title || "(untitled)"}".
+
+Steps:
+1. Search for related issues (similar keywords, linked references)
+2. Check for existing PRs that address this issue
+3. Store findings in workflow context: relatedIssues, relatedPRs
+4. Transition workflow to 'assessed'
+5. If issue needs immediate human attention, transition to 'escalated' instead`,
+        };
+      },
+    },
+    assessed: {
+      on: { tag: "tagged", escalate: "escalated" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        return {
+          type: "create-task",
+          subject: `Assess code state for ${ctx.owner}/${ctx.repo}#${ctx.number}`,
+          priority: 7,
+          skills: ["aibtc-repo-maintenance", "github-ci-status"],
+          description: `Check code state for issue #${ctx.number} in ${ctx.owner}/${ctx.repo}: "${ctx.title || "(untitled)"}".
+
+Steps:
+1. Check recent commits on main/default branch for related changes
+2. Check CI status (passing/failing/none)
+3. Determine severity: critical (blocks users), moderate (degraded), low (enhancement)
+4. Store ciStatus and severity in workflow context
+5. Transition workflow to 'tagged'`,
+        };
+      },
+    },
+    tagged: {
+      on: { advise: "advised", escalate: "escalated" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        return {
+          type: "create-task",
+          subject: `Tag and classify ${ctx.owner}/${ctx.repo}#${ctx.number}`,
+          priority: 9,
+          skills: ["aibtc-repo-maintenance"],
+          description: `Apply labels to issue #${ctx.number} in ${ctx.owner}/${ctx.repo} based on assessment.
+
+Severity: ${ctx.severity || "unknown"}. CI: ${ctx.ciStatus || "unknown"}.
+Related issues: ${ctx.relatedIssues?.join(", ") || "none found"}.
+Related PRs: ${ctx.relatedPRs?.join(", ") || "none found"}.
+
+Apply appropriate labels via gh issue edit. Transition workflow to 'advised'.`,
+        };
+      },
+    },
+    advised: {
+      on: { close: "closed" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        const tierNote = ctx.orgTier === "collaborative"
+          ? "Post advice as a comment. Do NOT close the issue — flag for whoabuddy if stale."
+          : "Post advice as a comment. Close if stale and no activity.";
+        return {
+          type: "create-task",
+          subject: `Post triage advice on ${ctx.owner}/${ctx.repo}#${ctx.number}`,
+          priority: 6,
+          skills: ["aibtc-repo-maintenance"],
+          description: `Post repo-specific triage advice on issue #${ctx.number} in ${ctx.owner}/${ctx.repo}: "${ctx.title || "(untitled)"}".
+
+Severity: ${ctx.severity || "unknown"}. CI: ${ctx.ciStatus || "unknown"}.
+Related issues: ${ctx.relatedIssues?.join(", ") || "none"}.
+Related PRs: ${ctx.relatedPRs?.join(", ") || "none"}.
+Labels: ${ctx.labels?.join(", ") || "none applied yet"}.
+
+${tierNote}
+
+After posting, transition workflow to 'closed'.`,
+        };
+      },
+    },
+    escalated: {
+      on: {},
+      action: () => null,
+    },
+    closed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
+ * GithubPrReviewMachine — active PR review/merge driver.
+ *
+ * Creates tasks for review, /simplify, advise, and merge. Supports re-review
+ * loops via changes-requested → reviewing cycle with reviewRound tracking.
+ * The merge gate uses requireApproval to control autonomy per repo.
+ *
+ * instance_key: "pr-review:{owner}/{repo}#{number}"
+ */
+export const GithubPrReviewMachine: StateMachine<{
+  owner?: string;
+  repo?: string;
+  number?: number;
+  title?: string;
+  url?: string;
+  author?: string;
+  orgTier?: "managed" | "collaborative";
+  requireApproval?: boolean;
+  approver?: string;
+  reviewers?: string[];
+  reviewRound?: number;
+  filesChanged?: string[];
+  simplifyRan?: boolean;
+  reviewPosted?: boolean;
+  ciStatus?: "passing" | "failing" | "pending" | "none";
+  reviewDecision?: "approve" | "request-changes";
+  approvalDetected?: boolean;
+  mergeMethod?: "squash" | "merge" | "rebase";
+  lastChecked?: string;
+  closingIssues?: number[];
+}> = {
+  name: "github-pr-review",
+  initialState: "opened",
+  states: {
+    opened: {
+      on: { review: "reviewing", close: "closed" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        return { type: "transition", nextState: "reviewing" };
+      },
+    },
+    reviewing: {
+      on: { simplify: "simplifying", request_changes: "changes-requested", close: "closed" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        const round = ctx.reviewRound || 1;
+        const priority = ctx.orgTier === "managed" ? 4 : 5;
+        const deltaNote = round > 1
+          ? `This is re-review round ${round}. Focus on NEW commits only (delta review), not the full diff.`
+          : "Full diff review.";
+        return {
+          type: "create-task",
+          subject: `Review PR ${ctx.owner}/${ctx.repo}#${ctx.number}: ${ctx.title || "(untitled)"}`,
+          priority,
+          skills: ["aibtc-repo-maintenance"],
+          description: `Review PR #${ctx.number} in ${ctx.owner}/${ctx.repo} by ${ctx.author || "unknown"}.
+${deltaNote}
+
+Steps:
+1. Read the diff (gh pr diff ${ctx.number})
+2. Check for correctness, security issues, and style
+3. Store filesChanged in workflow context
+4. If changes needed: set reviewDecision="request-changes", transition to 'changes-requested'
+5. If acceptable: set reviewDecision="approve", transition to 'simplifying'
+6. If PR is abandoned/stale: transition to 'closed'`,
+        };
+      },
+    },
+    simplifying: {
+      on: { advise: "advising", request_changes: "changes-requested" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        return {
+          type: "create-task",
+          subject: `Simplify pass on ${ctx.owner}/${ctx.repo}#${ctx.number}`,
+          priority: 5,
+          skills: ["aibtc-repo-maintenance"],
+          description: `Run /simplify pass on changed files in PR #${ctx.number} (${ctx.owner}/${ctx.repo}).
+
+Files changed: ${ctx.filesChanged?.join(", ") || "check diff"}.
+
+Review changed code for reuse, quality, and efficiency. If issues found that need author action, set reviewDecision="request-changes" and transition to 'changes-requested'. Otherwise set simplifyRan=true and transition to 'advising'.`,
+        };
+      },
+    },
+    advising: {
+      on: { ready: "ready", request_changes: "changes-requested" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        const reviewAction = ctx.orgTier === "managed"
+          ? `Use gh pr review --approve or --request-changes based on reviewDecision.`
+          : `Use gh pr review --comment only. Never approve or reject for collaborative repos.`;
+        return {
+          type: "create-task",
+          subject: `Post review on ${ctx.owner}/${ctx.repo}#${ctx.number}`,
+          priority: 5,
+          skills: ["aibtc-repo-maintenance"],
+          description: `Post the review comment on PR #${ctx.number} (${ctx.owner}/${ctx.repo}).
+
+${reviewAction}
+
+After posting, set reviewPosted=true and transition to 'ready'.`,
+        };
+      },
+    },
+    "changes-requested": {
+      on: { re_review: "reviewing" },
+      action: () => null, // Sensor watches for new commits, then transitions to reviewing with reviewRound++
+    },
+    ready: {
+      on: { merge: "merging", block: "merge-blocked" },
+      action: (ctx) => {
+        if (ctx.ciStatus === "failing" || ctx.ciStatus === "pending") return null; // wait for CI
+        if (ctx.requireApproval && !ctx.approvalDetected) {
+          return { type: "transition", nextState: "merge-blocked" };
+        }
+        return { type: "transition", nextState: "merging" };
+      },
+    },
+    "merge-blocked": {
+      on: { approve: "merging" },
+      action: () => null, // Sensor watches for approver approval, then transitions to merging
+    },
+    merging: {
+      on: { merged: "merged", close: "closed" },
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        const method = ctx.mergeMethod || "squash";
+        return {
+          type: "create-task",
+          subject: `Merge PR ${ctx.owner}/${ctx.repo}#${ctx.number}`,
+          priority: 8,
+          skills: ["aibtc-repo-maintenance"],
+          description: `Merge PR #${ctx.number} in ${ctx.owner}/${ctx.repo} using ${method} merge.
+
+Run: gh pr merge ${ctx.number} --${method} --repo ${ctx.owner}/${ctx.repo}
+
+After merge, wait 30s, then check for release-please PR and merge if present.
+Transition workflow to 'merged'.
+If merge fails (conflicts, CI), transition to 'closed' with explanation.`,
+        };
+      },
+    },
+    merged: {
+      on: {},
+      action: () => null,
+    },
+    closed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
+ * AutoQueueCycleMachine — models a single auto-queue orchestration cycle.
+ *
+ * Pattern detected: "auto-queue" tasks (3 recurrences, avg 19.0 steps/chain)
+ * consistently spawn multi-domain work batches (avg 18 skills) with no dedup
+ * or lifecycle tracking. This machine provides a daily dedup gate and a
+ * lightweight review step to capture what each batch accomplished.
+ *
+ * instance_key: "auto-queue-{YYYY-MM-DD}" (one per day — duplicate scans same day are no-ops)
+ *
+ * States:
+ *   scanning     → hungry domains detected; creates per-domain work tasks
+ *   dispatching  → work tasks created and executing across domains
+ *   reviewing    → all domain tasks completed; creates a review/summary task
+ *   complete     → cycle done
+ *
+ * Context:
+ *   scanDate        — ISO date of the scan (YYYY-MM-DD)
+ *   hungryDomains   — JSON array of skill domain names that needed work
+ *   taskCount       — number of work tasks created
+ *   reviewSummary   — brief summary of what the batch accomplished (populated before complete)
+ */
+export const AutoQueueCycleMachine: StateMachine<{
+  scanDate?: string;
+  hungryDomains?: string[];
+  taskCount?: number;
+  reviewSummary?: string;
+}> = {
+  name: "auto-queue-cycle",
+  initialState: "scanning",
+  states: {
+    scanning: {
+      on: { dispatched: "dispatching" },
+      action: (ctx) => {
+        const date = ctx.scanDate || "today";
+        const domains = ctx.hungryDomains || [];
+        const domainList = domains.length > 0 ? domains.join(", ") : "unknown domains";
+        return {
+          type: "create-task",
+          subject: `Auto-queue: dispatch work for ${domains.length || "?"} hungry domain(s)`,
+          priority: 5,
+          skills: ["auto-queue"],
+          description: `Auto-queue cycle for ${date}: ${domains.length || "?"} domain(s) need work.
+
+Domains: ${domainList}
+
+Steps:
+1. Run: arc skills run --name auto-queue -- scan
+2. Create work tasks for each hungry domain (use arc tasks add with appropriate --skills)
+3. Transition this workflow to 'dispatching'
+   - Set taskCount in context with the number of tasks created`,
+        };
+      },
+    },
+    dispatching: {
+      on: { completed: "reviewing" },
+      action: () => null,
+    },
+    reviewing: {
+      on: { summarized: "complete" },
+      action: (ctx) => {
+        const date = ctx.scanDate || "today";
+        const count = ctx.taskCount || 0;
+        return {
+          type: "create-task",
+          subject: `Auto-queue cycle review: ${date}`,
+          priority: 8,
+          skills: ["arc-skill-manager", "arc-cost-reporting"],
+          description: `Review the auto-queue cycle for ${date}: ${count} tasks were dispatched.
+
+Steps:
+1. Check task completion rates for the dispatched batch
+2. Note any domains that failed or produced unexpected results
+3. Update memory/topics/cost.md if batch cost was unusually high
+4. Set reviewSummary in workflow context
+5. Transition workflow to 'complete'`,
+        };
+      },
+    },
+    complete: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
+ * ResearchToPrdMachine — drives a research→PRD→implementation→verify workflow.
+ *
+ * Reusable for any improvement initiative. The workflow progresses through:
+ *   research → synthesize → plan → implement → simplify → verify → complete
+ *
+ * Each state creates a task that drives the phase forward. Context carries
+ * the project name and deliverables between phases via the scratchpad.
+ *
+ * instance_key: "research-prd-{project-slug}" (one per initiative)
+ *
+ * Context:
+ *   project        — short name for the initiative (e.g. "memory-v2", "mcp-phase-1")
+ *   description    — one-line goal statement
+ *   skills         — JSON array of skill names relevant to this initiative
+ *   researchNotes  — summary of research findings (populated after RESEARCH)
+ *   prdPath        — path to PRD document (populated after SYNTHESIZE)
+ *   planTaskCount  — number of implementation tasks created (populated after PLAN)
+ *   completedCount — tasks completed so far (updated during IMPLEMENT)
+ *   gaps           — issues found during VERIFY (empty = all clear)
+ *   parentTaskId   — root task ID for the initiative (for source tracking)
+ */
+export const ResearchToPrdMachine: StateMachine<{
+  project?: string;
+  description?: string;
+  skills?: string[];
+  researchNotes?: string;
+  prdPath?: string;
+  planTaskCount?: number;
+  completedCount?: number;
+  gaps?: string;
+  parentTaskId?: number;
+}> = {
+  name: "research-to-prd",
+  initialState: "research",
+  states: {
+    research: {
+      on: { synthesize: "synthesize" },
+      action: (ctx) => {
+        if (!ctx.project) return null;
+        const skills = ctx.skills || [];
+        return {
+          type: "create-task",
+          subject: `[${ctx.project}] Research: gather data from sources`,
+          priority: 3,
+          skills: ["arc-workflows", ...skills],
+          parentTaskId: ctx.parentTaskId,
+          description: `Phase: RESEARCH for "${ctx.project}"\n\nGoal: ${ctx.description || "Gather data from multiple sources"}\n\nInstructions:\n1. Research the topic from multiple angles (code, docs, external sources)\n2. Save findings to the project scratchpad\n3. When research is sufficient, transition workflow to "synthesize" with researchNotes summarizing key findings`,
+        };
+      },
+    },
+    synthesize: {
+      on: { plan: "plan" },
+      action: (ctx) => {
+        if (!ctx.researchNotes) return null;
+        const skills = ctx.skills || [];
+        return {
+          type: "create-task",
+          subject: `[${ctx.project}] Synthesize: create PRD from research`,
+          priority: 3,
+          skills: ["arc-workflows", ...skills],
+          parentTaskId: ctx.parentTaskId,
+          description: `Phase: SYNTHESIZE for "${ctx.project}"\n\nResearch summary:\n${ctx.researchNotes}\n\nInstructions:\n1. Read the full research from the project scratchpad\n2. Synthesize into a PRD with ranked features (must-have, should-have, nice-to-have)\n3. Save PRD to research/ or docs/ directory\n4. Transition workflow to "plan" with prdPath set to the PRD file path`,
+        };
+      },
+    },
+    plan: {
+      on: { implement: "implement" },
+      action: (ctx) => {
+        if (!ctx.prdPath) return null;
+        const skills = ctx.skills || [];
+        return {
+          type: "create-task",
+          subject: `[${ctx.project}] Plan: break PRD into implementation tasks`,
+          priority: 3,
+          skills: ["arc-workflows", ...skills],
+          parentTaskId: ctx.parentTaskId,
+          description: `Phase: PLAN for "${ctx.project}"\n\nPRD: ${ctx.prdPath}\n\nInstructions:\n1. Read the PRD\n2. Break it into discrete implementation tasks with skill assignments and priorities\n3. Create each task via arc tasks add (with --skills and --priority)\n4. Transition workflow to "implement" with planTaskCount set to the number of tasks created`,
+        };
+      },
+    },
+    implement: {
+      on: { simplify: "simplify", verify: "verify" },
+      action: (ctx) => {
+        // Implementation is driven by the individual tasks created in PLAN.
+        // The meta-sensor checks if tasks are done and auto-transitions.
+        return { type: "noop" };
+      },
+    },
+    simplify: {
+      on: { verify: "verify" },
+      action: (ctx) => {
+        const skills = ctx.skills || [];
+        return {
+          type: "create-task",
+          subject: `[${ctx.project}] Simplify: review all changes for quality`,
+          priority: 4,
+          skills: ["arc-workflows", ...skills],
+          parentTaskId: ctx.parentTaskId,
+          description: `Phase: SIMPLIFY for "${ctx.project}"\n\nInstructions:\n1. Identify all files changed as part of this initiative\n2. Run /simplify against changed files to review for reuse, quality, and efficiency\n3. Fix any issues found\n4. Transition workflow to "verify"`,
+        };
+      },
+    },
+    verify: {
+      on: { complete: "complete", rework: "implement" },
+      action: (ctx) => {
+        if (!ctx.prdPath) return null;
+        const skills = ctx.skills || [];
+        return {
+          type: "create-task",
+          subject: `[${ctx.project}] Verify: check work against PRD`,
+          priority: 3,
+          skills: ["arc-workflows", ...skills],
+          parentTaskId: ctx.parentTaskId,
+          description: `Phase: VERIFY for "${ctx.project}"\n\nPRD: ${ctx.prdPath}\n\nInstructions:\n1. Read the PRD and compare against completed work\n2. Check each PRD item — is it implemented and working?\n3. If gaps found: set gaps in workflow context and transition to "implement" (rework)\n4. If all items verified: transition to "complete"`,
+        };
+      },
+    },
+    complete: {
       on: {},
       action: () => null,
     },
@@ -2061,6 +2883,13 @@ export function getTemplateByName(name: string): StateMachine | null {
     "content-promotion": ContentPromotionMachine,
     "credential-rotation": CredentialRotationMachine,
     "psbt-escalation": PsbtEscalationMachine,
+    "skill-maintenance": SkillMaintenanceMachine,
+    "landing-page-review": LandingPageReviewMachine,
+    "cost-review": CostReviewMachine,
+    "github-issue-triage": GithubIssueTriageMachine,
+    "github-pr-review": GithubPrReviewMachine,
+    "auto-queue-cycle": AutoQueueCycleMachine,
+    "research-to-prd": ResearchToPrdMachine,
   };
   return templates[name] || null;
 }

@@ -31,15 +31,31 @@ function parseFlags(args: string[]): Record<string, string> {
   return flags;
 }
 
+async function buildAuthHeaders(
+  method: string,
+  path: string
+): Promise<Record<string, string>> {
+  const timestamp = Math.floor(Date.now() / 1000);
+  const message = `${method} /api${path}:${timestamp}`;
+  const sig = await signMessage(message);
+  return {
+    "X-BTC-Address": ARC_BTC_ADDRESS,
+    "X-BTC-Signature": sig,
+    "X-BTC-Timestamp": String(timestamp),
+    "Content-Type": "application/json",
+  };
+}
+
 async function callApi(
   method: string,
   endpoint: string,
-  body?: Record<string, unknown>
+  body?: Record<string, unknown>,
+  authHeaders?: Record<string, string>
 ): Promise<Record<string, unknown>> {
   const url = `${API_BASE}${endpoint}`;
   const options: RequestInit = {
     method,
-    headers: {
+    headers: authHeaders ?? {
       "Content-Type": "application/json",
     },
   };
@@ -262,27 +278,19 @@ async function cmdClaimBeat(args: string[]): Promise<void> {
   }
 
   try {
-    // Format message for signing (Unix ms timestamp, matching upstream format)
-    const timestamp = Date.now();
-    const message = `SIGNAL|claim-beat|${beat}|${ARC_BTC_ADDRESS}|${timestamp}`;
-    log(`Signing message: ${message}`);
+    // v2: auth via headers, snake_case body
+    const headers = await buildAuthHeaders("POST", "/beats");
+    log(`Signing message for POST /api/beats`);
 
-    const signature = await signMessage(message);
-    log(`Got signature: ${signature.slice(0, 20)}...`);
-
-    // Call API
     const body: Record<string, unknown> = {
-      btcAddress: ARC_BTC_ADDRESS,
-      beatId: beat,
+      beat_slug: beat,
       name,
-      signature,
-      timestamp,
     };
 
     if (description) body.description = description;
     if (color) body.color = color;
 
-    const result = await callApi("POST", "/beats", body);
+    const result = await callApi("POST", "/beats", body, headers);
 
     log(`Beat claimed successfully`);
     console.log(JSON.stringify(result, null, 2));
@@ -380,28 +388,20 @@ async function cmdFileSignal(args: string[]): Promise<void> {
       process.exit(1);
     }
 
-    // Format message for signing (Unix ms timestamp, matching upstream format)
-    const timestamp = Date.now();
-    const message = `SIGNAL|file-signal|${beat}|${ARC_BTC_ADDRESS}|${timestamp}`;
-    log(`Signing message: ${message}`);
+    // v2: auth via headers, snake_case body
+    const headers = await buildAuthHeaders("POST", "/signals");
+    log(`Signing message for POST /api/signals`);
 
-    const signature = await signMessage(message);
-    log(`Got signature: ${signature.slice(0, 20)}...`);
-
-    // Call API
     const body: Record<string, unknown> = {
-      btcAddress: ARC_BTC_ADDRESS,
-      beatId: beat,
+      beat_slug: beat,
+      btc_address: ARC_BTC_ADDRESS,
       content,
-      signature,
-      timestamp,
+      headline: headline || "",
+      sources: sourcesJson || [],
+      tags: tags.length > 0 ? tags : ["ordinals-business"],
     };
 
-    if (headline) body.headline = headline;
-    if (sourcesJson) body.sources = sourcesJson;
-    if (tags.length > 0) body.tags = tags;
-
-    const result = await callApi("POST", "/signals", body);
+    const result = await callApi("POST", "/signals", body, headers);
 
     log(`Signal filed successfully`);
     console.log(JSON.stringify(result, null, 2));
@@ -540,6 +540,28 @@ async function cmdCorrespondents(args: string[]): Promise<void> {
   }
 }
 
+async function cmdLeaderboard(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+  const limit = flags.limit ? parseInt(flags.limit) : 20;
+
+  if (isNaN(limit) || limit < 1 || limit > 100) {
+    console.error("--limit must be between 1 and 100");
+    process.exit(1);
+  }
+
+  try {
+    const endpoint = `/leaderboard?limit=${limit}`;
+    const result = await callApi("GET", endpoint);
+    log("Got leaderboard");
+    console.log(JSON.stringify(result, null, 2));
+  } catch (e) {
+    const error = e as Error;
+    log(`Error: ${error.message}`);
+    console.error(JSON.stringify({ error: error.message }, null, 2));
+    process.exit(1);
+  }
+}
+
 async function cmdCompileBrief(args: string[]): Promise<void> {
   const flags = parseFlags(args);
   const beatSlug = flags.beat ? flags.beat.toLowerCase() : undefined;
@@ -566,34 +588,27 @@ async function cmdCompileBrief(args: string[]): Promise<void> {
       );
     }
 
-    // Record today as the brief compilation date in hook-state at task start
     const today = new Date().toISOString().split("T")[0];
+
+    // v2: auth via headers, snake_case body
+    const headers = await buildAuthHeaders("POST", "/brief");
+    log(`Signing message for POST /api/brief`);
+
+    const body: Record<string, unknown> = {
+      date: today,
+    };
+
+    if (beatSlug) body.beat_slug = beatSlug;
+
+    const result = await callApi("POST", "/brief", body, headers);
+
+    // Only record compilation date after successful API call
     const hookState = await readHookState(SENSOR_NAME);
     await writeHookState(SENSOR_NAME, {
       ...(hookState ?? { last_ran: new Date().toISOString(), last_result: "ok", version: 1, consecutive_failures: 0 }),
       lastBriefDate: today,
     });
     log(`updated hook-state: lastBriefDate = ${today}`);
-
-    // Format message for signing (Unix ms timestamp, matching upstream format)
-    const timestamp = Date.now();
-    const message = `SIGNAL|compile-brief|${today}|${ARC_BTC_ADDRESS}|${timestamp}`;
-    log(`Signing message: ${message}`);
-
-    const signature = await signMessage(message);
-    log(`Got signature: ${signature.slice(0, 20)}...`);
-
-    // Call API to compile brief
-    const body: Record<string, unknown> = {
-      btcAddress: ARC_BTC_ADDRESS,
-      date: today,
-      signature,
-      timestamp,
-    };
-
-    if (beatSlug) body.beat = beatSlug;
-
-    const result = await callApi("POST", "/brief", body);
 
     log(`Brief compiled successfully`);
     console.log(JSON.stringify(result, null, 2));
@@ -1281,7 +1296,7 @@ async function main(): Promise<void> {
   if (args.length === 0) {
     console.error("Usage: arc skills run --name aibtc-news -- <command> [flags]");
     console.error(
-      "Commands: claim-beat, file-signal, list-beats, status, list-signals, correspondents, compile-brief, compose-signal, check-sources, editorial-guide, judge-signal, fetch-ordinals-data"
+      "Commands: claim-beat, file-signal, list-beats, status, list-signals, correspondents, leaderboard, compile-brief, compose-signal, check-sources, editorial-guide, judge-signal, fetch-ordinals-data"
     );
     process.exit(1);
   }
@@ -1308,6 +1323,9 @@ async function main(): Promise<void> {
         break;
       case "correspondents":
         await cmdCorrespondents(commandArgs);
+        break;
+      case "leaderboard":
+        await cmdLeaderboard(commandArgs);
         break;
       case "compile-brief":
         await cmdCompileBrief(commandArgs);

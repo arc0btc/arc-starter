@@ -21,7 +21,7 @@ Queries log data from all worker-logs deployments on a sensor cadence, detects e
 | mainnet | https://logs.aibtc.com | aibtcdev/worker-logs | aibtc-mainnet | `worker-logs/aibtc_api_key` | `worker-logs/aibtc_admin_api_key` |
 | testnet | https://logs.aibtc.dev | aibtcdev/worker-logs | aibtc-testnet | `worker-logs/aibtc_api_key` | `worker-logs/aibtc_admin_api_key` |
 
-Auth is dual-mode: `X-Api-Key` + `X-App-ID` headers for data queries (`/logs`), `X-Admin-Key` header for management queries (`/apps`, `/stats`). Keys stored in credential store under `worker-logs/` service.
+Auth is dual-mode: `X-Api-Key` + `X-App-ID` headers for data queries (`/logs`), `X-Admin-Key` header for management queries (`/apps`, `/stats`). The admin key also works for data queries — if the per-app API key is missing, the code falls back to the admin key automatically. Keys stored in credential store under `worker-logs/` service.
 
 ## API Endpoints Used
 

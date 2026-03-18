@@ -1,6 +1,6 @@
 import { claimSensorRun } from "../../src/sensors.ts";
 import { insertTask, taskExistsForSource, getWorkflowByInstanceKey, insertWorkflow } from "../../src/db.ts";
-import { AIBTC_WATCHED_REPOS } from "../../src/constants.ts";
+import { AIBTC_WATCHED_REPOS, getRepoConfig } from "../../src/constants.ts";
 
 const SENSOR_NAME = "aibtc-repo-maintenance";
 const INTERVAL_MINUTES = 15;
@@ -9,6 +9,25 @@ const WATCHED_REPOS = AIBTC_WATCHED_REPOS;
 
 // Repos that use React/Next.js — load react-reviewer + composition-patterns for these PRs
 const REACT_REPOS = new Set(["aibtcdev/landing-page"]);
+
+// PR title keyword → extra skills to load alongside aibtc-repo-maintenance
+const PR_SKILL_KEYWORDS: Array<{ keywords: string[]; skills: string[] }> = [
+  { keywords: ["bitflow", "bit flow"], skills: ["defi-bitflow"] },
+  { keywords: ["zest"], skills: ["defi-zest"] },
+  { keywords: ["stackspot", "stacking", "pox"], skills: ["stacks-stackspot"] },
+  { keywords: ["x402", "agent payment"], skills: ["social-agent-engagement"] },
+];
+
+function extraSkillsForPr(title: string): string[] {
+  const lower = title.toLowerCase();
+  const extras: string[] = [];
+  for (const { keywords, skills } of PR_SKILL_KEYWORDS) {
+    if (keywords.some((k) => lower.includes(k))) {
+      extras.push(...skills);
+    }
+  }
+  return extras;
+}
 
 const GITHUB_USER = "arc0btc";
 
@@ -154,14 +173,16 @@ function trackIssueWorkflows(issues: IssueInfo[]): number {
   let created = 0;
   for (const issue of issues) {
     const [owner, repo] = issue.repo.split("/");
-    const instanceKey = `${owner}/${repo}/issue/${issue.number}`;
+    const instanceKey = `issue-triage:${owner}/${repo}#${issue.number}`;
     const existing = getWorkflowByInstanceKey(instanceKey);
     if (existing) continue;
 
+    const repoConfig = getRepoConfig(owner, repo);
+    const orgTier = repoConfig?.orgTier ?? "collaborative";
     insertWorkflow({
-      template: "pr-lifecycle",
+      template: "github-issue-triage",
       instance_key: instanceKey,
-      current_state: "issue-opened",
+      current_state: "detected",
       context: JSON.stringify({
         owner,
         repo,
@@ -169,6 +190,7 @@ function trackIssueWorkflows(issues: IssueInfo[]): number {
         title: issue.title,
         url: issue.url,
         author: issue.author,
+        orgTier,
         lastChecked: new Date().toISOString(),
       }),
     });
@@ -194,9 +216,10 @@ export default async function aibtcMaintenanceSensor(): Promise<string> {
     if (taskExistsForSource(source)) continue;
 
     const isReactRepo = REACT_REPOS.has(pr.repo);
-    const skills = isReactRepo
-      ? '["aibtc-repo-maintenance","dev-landing-page-review"]'
-      : '["aibtc-repo-maintenance"]';
+    const baseSkills = isReactRepo
+      ? ["aibtc-repo-maintenance", "dev-landing-page-review"]
+      : ["aibtc-repo-maintenance"];
+    const skills = JSON.stringify([...baseSkills, ...extraSkillsForPr(pr.title)]);
 
     const extraInstructions = isReactRepo
       ? [

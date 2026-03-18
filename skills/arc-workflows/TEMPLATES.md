@@ -2,7 +2,9 @@
 
 Detailed specifications for all built-in workflow templates.
 
-## PR Lifecycle (`pr-lifecycle`)
+## PR Lifecycle (`pr-lifecycle`) — DEPRECATED
+
+> **Deprecated as of 2026-03-16.** Use `github-pr-review` for active PR review and merge workflows. Use `github-issue-triage` for issue tracking. Existing instances run to completion; sensors no longer create new pr-lifecycle instances (tracked in task #6107).
 
 Track GitHub pull requests through their full lifecycle.
 
@@ -173,12 +175,13 @@ Track architecture review cycles with followup cleanup tasks.
 
 ## Email Thread (`email-thread`)
 
-Triage and respond to incoming email threads.
+Triage, respond to, and extract learnings from incoming email threads.
 
 **States:**
-- `received` — Email thread received
-- `triaged` — Thread reviewed, action items identified
-- `reply_pending` — Reply needed, draft prepared
+- `received` — Email thread received; creates triage task
+- `triaged` — Thread reviewed, action items identified; auto-transitions to `reply_pending` or `retrospective_pending`
+- `reply_pending` — Reply needed; creates reply task; advances to `retrospective_pending`
+- `retrospective_pending` — All actions done; creates retrospective task (skipped if no action items)
 - `completed` — Workflow finished (terminal)
 
 **Context schema:**
@@ -189,14 +192,17 @@ Triage and respond to incoming email threads.
   messageCount?: number; // Messages in thread
   source?: string;       // Detecting skill (arc-email-sync, etc.)
   needsReply?: boolean;  // Whether a reply is needed
-  actionItems?: string;  // Identified action items
-  replyDraft?: string;   // Draft reply text
+  actionItems?: string;  // Comma-separated summary of action items spawned
+  replyDraft?: string;   // Draft reply text (set before transitioning to reply_pending)
+  taskRef?: string;      // "task:{id}" of root dispatch task (for retrospective reference)
 }
 ```
 
-**Pattern:** Automatically triage emails, spawn followup tasks, send replies.
+**Pattern:** Automatically triage emails, spawn followup tasks, send replies, then capture learnings. The retrospective step is skipped for purely informational threads (no actionItems).
 
 **Requires:** `arc-email-sync`, `arc-skill-manager` skills
+
+**instance_key:** `email-thread-{sender-slug}-{message-id-or-date}` (one per thread)
 
 ## Quest (`quest`)
 
@@ -233,6 +239,103 @@ Decompose complex tasks into sequential phases.
 ```
 
 **Pattern:** Break large goals into small (<2min) phases. Execute one phase per task. Checkpoint in workflow context so failures restart from last state, not from scratch.
+
+## GitHub Issue Triage (`github-issue-triage`)
+
+Linear triage flow for GitHub issues. Supports managed (arc0btc) and collaborative (aibtcdev) orgs via `orgTier` context field.
+
+**States:**
+- `detected` — Issue found by sensor (auto-transitions to searching)
+- `searching` — Find related issues across repos (P7 Sonnet task)
+- `assessed` — Check code state: recent commits, CI, severity (P7 Sonnet task)
+- `tagged` — Apply labels based on assessment (P9 Haiku task)
+- `advised` — Post repo-specific advice comment (P6 Sonnet task)
+- `escalated` — Issue needs human attention (terminal)
+- `closed` — Triage complete (terminal)
+
+**Instance key:** `issue-triage:{owner}/{repo}#{number}`
+
+**Context schema:**
+```typescript
+{
+  owner: string;
+  repo: string;
+  number: number;
+  title: string;
+  url: string;
+  author: string;
+  orgTier: "managed" | "collaborative";
+  labels?: string[];
+  relatedIssues?: string[];
+  relatedPRs?: string[];
+  ciStatus?: "passing" | "failing" | "none";
+  severity?: "critical" | "moderate" | "low";
+  triageNote?: string;
+  lastChecked?: string;
+}
+```
+
+**Behavior by orgTier:**
+- **managed** (arc0btc): Apply labels directly, close stale issues, self-assign
+- **collaborative** (aibtcdev): Apply labels, never close — flag stale for whoabuddy
+
+**Requires:** `aibtc-repo-maintenance` skill
+
+## GitHub PR Review (`github-pr-review`)
+
+Active PR review/merge driver. Creates tasks for review, /simplify, advise, and merge. Supports re-review loops via `changes-requested` → `reviewing` cycle with `reviewRound` tracking. The merge gate uses `requireApproval` to control autonomy per repo.
+
+**States:**
+- `opened` — PR detected (auto-transitions to reviewing)
+- `reviewing` — Diff analysis, correctness, security review (P4 managed / P5 collaborative)
+- `simplifying` — Run /simplify pass on changed files (P5 Sonnet)
+- `advising` — Post review comment (P5 Sonnet)
+- `changes-requested` — Waiting for author to push fixes (sensor watches for new commits)
+- `ready` — Review complete; gate check for CI and approval
+- `merge-blocked` — Waiting for approver (sensor watches for approval)
+- `merging` — Merge the PR (P8 Haiku task)
+- `merged` — Terminal
+- `closed` — Terminal (PR closed without merge)
+
+**Instance key:** `pr-review:{owner}/{repo}#{number}`
+
+**Context schema:**
+```typescript
+{
+  owner: string;
+  repo: string;
+  number: number;
+  title: string;
+  url: string;
+  author: string;
+  orgTier: "managed" | "collaborative";
+  requireApproval: boolean;
+  approver?: string;
+  reviewers?: string[];
+  reviewRound: number;
+  filesChanged?: string[];
+  simplifyRan?: boolean;
+  reviewPosted?: boolean;
+  ciStatus?: "passing" | "failing" | "pending" | "none";
+  reviewDecision?: "approve" | "request-changes";
+  approvalDetected?: boolean;
+  mergeMethod?: "squash" | "merge" | "rebase";
+  lastChecked?: string;
+  closingIssues?: number[];
+}
+```
+
+**Behavior by orgTier:**
+- **managed** (arc0btc): Full review + approve/reject + auto-merge when CI passes
+- **collaborative** (aibtcdev): Full review + comment only (never approve/reject) + wait for whoabuddy approval before merge
+
+**Re-review loop:** When `changes-requested` detects new commits, sensor transitions back to `reviewing` with `reviewRound++`. Subsequent reviews are delta-only (new commits, not full diff).
+
+**Merge gate:** The `ready` state checks `ciStatus` and `requireApproval`. If CI failing/pending, waits. If approval required but not detected, transitions to `merge-blocked`. Otherwise proceeds to `merging`.
+
+**Graduating aibtcdev:** Set `requireApproval: false` in workflow context for new PRs. Change review comment to `--approve`/`--request-changes`. No template changes needed.
+
+**Requires:** `aibtc-repo-maintenance` skill. Repo config in `src/constants.ts` (`REPO_CONFIGS`).
 
 ## Blog Posting (`blog-posting`)
 

@@ -5,7 +5,7 @@
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, extname } from "node:path";
-import { initDatabase, getDatabase, insertTask, markTaskFailed, markTaskCompleted, getEmailThreads, getEmailMessagesByFromAddress, type EmailMessage } from "./db.ts";
+import { initDatabase, getDatabase, insertTask, markTaskFailed, markTaskCompleted, getEmailThreads, getEmailMessagesByFromAddress, type EmailMessage, insertConversation, getConversationsByThread, getConversationThreads, getRecentConversations, type ConversationSource, type ConversationRole } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
 import { IDENTITY } from "./identity.ts";
 import { dispatchCodex } from "./codex.ts";
@@ -29,7 +29,6 @@ import type { InsertHubCapability } from "../skills/agent-hub/schema.ts";
 initDatabase();
 initHubSchema();
 const db = getDatabase();
-const dbWrite = getDatabase();
 
 // ---- Constants ----
 
@@ -51,7 +50,19 @@ const MIME_TYPES: Record<string, string> = {
   ".png": "image/png",
   ".svg": "image/svg+xml",
   ".ico": "image/x-icon",
+  ".wav": "audio/wav",
+  ".mp3": "audio/mpeg",
+  ".webm": "audio/webm",
+  ".ogg": "audio/ogg",
 };
+
+// ---- Voice Mode Config ----
+
+const VOICE_WHISPER_ENDPOINT = process.env.ARC_WHISPER_ENDPOINT || ""; // e.g. http://gpu-host:11434
+const VOICE_KOKORO_ENDPOINT = process.env.ARC_KOKORO_ENDPOINT || "";  // e.g. http://gpu-host:8880
+const VOICE_DAILY_LIMIT = 50;
+let voiceDayKey = "";
+let voiceDayCount = 0;
 
 // ---- Helpers ----
 
@@ -170,6 +181,174 @@ async function handleAsk(req: Request): Promise<Response> {
     status: "pending",
     poll_url: `/api/tasks/${taskId}`,
     daily_remaining: ASK_DAILY_LIMIT - askDayCount,
+  }, 201);
+}
+
+// ---- Voice Mode Handlers ----
+
+function checkVoiceRateLimit(): boolean {
+  const today = getAskDayKey();
+  if (today !== voiceDayKey) {
+    voiceDayKey = today;
+    voiceDayCount = 0;
+  }
+  return voiceDayCount < VOICE_DAILY_LIMIT;
+}
+
+function handleVoiceStatus(): Response {
+  return json({
+    whisper_available: !!VOICE_WHISPER_ENDPOINT,
+    kokoro_available: !!VOICE_KOKORO_ENDPOINT,
+    whisper_endpoint: VOICE_WHISPER_ENDPOINT ? "(configured)" : null,
+    kokoro_endpoint: VOICE_KOKORO_ENDPOINT ? "(configured)" : null,
+    daily_limit: VOICE_DAILY_LIMIT,
+    daily_remaining: VOICE_DAILY_LIMIT - voiceDayCount,
+  });
+}
+
+async function handleVoiceTranscribe(req: Request): Promise<Response> {
+  if (!VOICE_WHISPER_ENDPOINT) {
+    return errorResponse("Whisper endpoint not configured. Use browser STT or set ARC_WHISPER_ENDPOINT.", 503);
+  }
+
+  if (!checkVoiceRateLimit()) {
+    return json({ error: "Daily voice limit reached", code: "RATE_LIMITED" }, 429);
+  }
+
+  try {
+    const formData = await req.formData();
+    const audioFile = formData.get("audio");
+    if (!audioFile || !(audioFile instanceof File)) {
+      return errorResponse("'audio' file is required", 400);
+    }
+
+    // Forward to Whisper endpoint (OpenAI-compatible API format)
+    const whisperForm = new FormData();
+    whisperForm.append("file", audioFile, audioFile.name || "audio.webm");
+    whisperForm.append("model", "whisper-medium");
+    whisperForm.append("response_format", "json");
+
+    const whisperRes = await fetch(`${VOICE_WHISPER_ENDPOINT}/v1/audio/transcriptions`, {
+      method: "POST",
+      body: whisperForm,
+    });
+
+    if (!whisperRes.ok) {
+      const errText = await whisperRes.text().catch(() => "unknown error");
+      return errorResponse(`Whisper error: ${errText}`, 502);
+    }
+
+    const result = await whisperRes.json() as { text?: string };
+    voiceDayCount++;
+    return json({ text: result.text || "" });
+  } catch (e) {
+    return errorResponse(`Transcription failed: ${(e as Error).message}`, 500);
+  }
+}
+
+async function handleVoiceSynthesize(req: Request): Promise<Response> {
+  if (!VOICE_KOKORO_ENDPOINT) {
+    return errorResponse("Kokoro endpoint not configured. Use browser TTS or set ARC_KOKORO_ENDPOINT.", 503);
+  }
+
+  let body: { text?: string; voice?: string };
+  try {
+    body = await req.json() as { text?: string; voice?: string };
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  const text = typeof body.text === "string" ? body.text.trim() : "";
+  if (!text) return errorResponse("'text' is required", 400);
+  if (text.length > 2000) return errorResponse("Text too long (max 2000 chars)", 400);
+
+  try {
+    // OpenAI-compatible TTS API format
+    const ttsRes = await fetch(`${VOICE_KOKORO_ENDPOINT}/v1/audio/speech`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "kokoro",
+        input: text,
+        voice: body.voice || "af_default",
+        response_format: "wav",
+      }),
+    });
+
+    if (!ttsRes.ok) {
+      const errText = await ttsRes.text().catch(() => "unknown error");
+      return errorResponse(`Kokoro error: ${errText}`, 502);
+    }
+
+    const audioBuffer = await ttsRes.arrayBuffer();
+    return new Response(audioBuffer, {
+      status: 200,
+      headers: {
+        "Content-Type": "audio/wav",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+  } catch (e) {
+    return errorResponse(`Synthesis failed: ${(e as Error).message}`, 500);
+  }
+}
+
+async function handleVoiceAsk(req: Request): Promise<Response> {
+  if (!checkVoiceRateLimit()) {
+    return json({ error: "Daily voice limit reached", code: "RATE_LIMITED" }, 429);
+  }
+
+  let body: { question?: string; tier?: string; source?: string };
+  try {
+    body = await req.json() as { question?: string; tier?: string; source?: string };
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  const question = typeof body.question === "string" ? body.question.trim() : "";
+  if (!question) return errorResponse("'question' is required", 400);
+  if (question.length > 1000) return errorResponse("Question too long (max 1000 chars)", 400);
+
+  const tierName = (typeof body.tier === "string" ? body.tier.toLowerCase() : "haiku");
+  const tier = ASK_TIERS[tierName];
+  if (!tier) {
+    return errorResponse(`Invalid tier '${tierName}'. Valid: haiku, sonnet, opus`, 400);
+  }
+
+  const validSources = ["web:text", "web:voice", "api:voice-mode"];
+  const taskSource = typeof body.source === "string" && validSources.includes(body.source)
+    ? body.source
+    : "api:voice-mode";
+
+  const isVoice = taskSource === "web:voice" || taskSource === "api:voice-mode";
+  const modeLabel = isVoice ? "Voice" : "Chat";
+  const prefix = isVoice ? "[voice]" : "[chat]";
+
+  const description = [
+    `**${modeLabel} mode query (${tierName} tier)**`,
+    "",
+    `**Question:** ${question}`,
+    "",
+    "Respond directly and concisely. This is a voice conversation — keep answers short (2-3 sentences max) and conversational.",
+    "Output plain text only. No markdown, no links, no code blocks.",
+  ].join("\n");
+
+  const taskId = insertTask({
+    subject: `${prefix} ${question.slice(0, 80)}${question.length > 80 ? "..." : ""}`,
+    description,
+    skills: JSON.stringify(["arc0btc-ask-service"]),
+    priority: tier.priority,
+    model: tier.model,
+    source: taskSource,
+  });
+
+  voiceDayCount++;
+
+  return json({
+    task_id: taskId,
+    tier: tierName,
+    status: "pending",
+    poll_url: `/api/tasks/${taskId}`,
   }, 201);
 }
 
@@ -476,7 +655,7 @@ async function handlePostFleetMessage(req: Request): Promise<Response> {
   const messageType = typeof body.message_type === "string" && validTypes.has(body.message_type) ? body.message_type : "status";
   const fromBns = typeof body.from_bns === "string" ? body.from_bns.trim() : null;
 
-  const result = dbWrite.query(
+  const result = db.query(
     "INSERT INTO fleet_messages (from_agent, from_bns, message_type, content) VALUES (?, ?, ?, ?)"
   ).run(fromAgent, fromBns, messageType, content);
 
@@ -761,6 +940,40 @@ function handleEmailThread(encodedKey: string): Response {
   return json({ thread_key: key, from_address: fromAddress, normalized_subject: normalizedSubject, message_count: messages.length, over_threshold: messages.length >= 15, messages });
 }
 
+// ---- Conversation API Handlers ----
+
+function handleConversationThreads(url: URL): Response {
+  const source = url.searchParams.get("source") as ConversationSource | null;
+  const limit = Math.min(parseInt(url.searchParams.get("limit") || "50", 10), 200);
+  const threads = getConversationThreads(source || undefined, limit);
+  return json({ threads, total: threads.length });
+}
+
+function handleConversationThread(threadId: string): Response {
+  const messages = getConversationsByThread(decodeURIComponent(threadId));
+  return json({ thread_id: threadId, messages, message_count: messages.length });
+}
+
+async function handlePostConversation(req: Request): Promise<Response> {
+  const body = await req.json() as Record<string, unknown>;
+  const { thread_id, source, role, message, metadata } = body;
+
+  if (!thread_id || typeof thread_id !== "string") return errorResponse("thread_id is required");
+  if (!source || !["web:text", "web:voice", "email"].includes(source as string)) return errorResponse("source must be web:text, web:voice, or email");
+  if (!role || !["user", "arc"].includes(role as string)) return errorResponse("role must be user or arc");
+  if (!message || typeof message !== "string") return errorResponse("message is required");
+
+  const id = insertConversation({
+    thread_id: thread_id as string,
+    source: source as ConversationSource,
+    role: role as ConversationRole,
+    message: message as string,
+    metadata: metadata ? (typeof metadata === "string" ? metadata : JSON.stringify(metadata)) : null,
+  });
+
+  return json({ id, thread_id }, 201);
+}
+
 // ---- API Handlers ----
 
 function handleStatus(): Response {
@@ -811,28 +1024,49 @@ function handleStatus(): Response {
 function handleTasks(url: URL): Response {
   const status = url.searchParams.get("status");
   const q = url.searchParams.get("q");
+  const parentId = url.searchParams.get("parent_id");
   const limit = Math.min(parseInt(url.searchParams.get("limit") || "20", 10), 100);
+  const offset = Math.max(parseInt(url.searchParams.get("offset") || "0", 10), 0);
+
+  const COLS = "id, subject, priority, status, source, skills, model, parent_id, created_at, completed_at, cost_usd";
 
   let rows;
-  if (status && q) {
+  let total: number;
+
+  // Completed tasks sort by completed_at DESC (most recent first); all others by priority ASC, id DESC
+  const completedOrder = "ORDER BY completed_at DESC, id DESC";
+  const defaultOrder = "ORDER BY priority ASC, id DESC";
+  const statusOrder = status === "completed" ? completedOrder : defaultOrder;
+
+  if (parentId) {
+    const pid = parseInt(parentId, 10);
+    total = (db.query("SELECT COUNT(*) as n FROM tasks WHERE parent_id = ?").get(pid) as { n: number }).n;
     rows = db.query(
-      "SELECT id, subject, priority, status, source, skills, model, created_at, cost_usd FROM tasks WHERE status = ? AND subject LIKE ? ORDER BY priority ASC, id DESC LIMIT ?"
-    ).all(status, `%${q}%`, limit);
+      `SELECT ${COLS} FROM tasks WHERE parent_id = ? ORDER BY id ASC LIMIT ? OFFSET ?`
+    ).all(pid, limit, offset);
+  } else if (status && q) {
+    total = (db.query("SELECT COUNT(*) as n FROM tasks WHERE status = ? AND subject LIKE ?").get(status, `%${q}%`) as { n: number }).n;
+    rows = db.query(
+      `SELECT ${COLS} FROM tasks WHERE status = ? AND subject LIKE ? ${statusOrder} LIMIT ? OFFSET ?`
+    ).all(status, `%${q}%`, limit, offset);
   } else if (status) {
+    total = (db.query("SELECT COUNT(*) as n FROM tasks WHERE status = ?").get(status) as { n: number }).n;
     rows = db.query(
-      "SELECT id, subject, priority, status, source, skills, model, created_at, cost_usd FROM tasks WHERE status = ? ORDER BY priority ASC, id DESC LIMIT ?"
-    ).all(status, limit);
+      `SELECT ${COLS} FROM tasks WHERE status = ? ${statusOrder} LIMIT ? OFFSET ?`
+    ).all(status, limit, offset);
   } else if (q) {
+    total = (db.query("SELECT COUNT(*) as n FROM tasks WHERE subject LIKE ?").get(`%${q}%`) as { n: number }).n;
     rows = db.query(
-      "SELECT id, subject, priority, status, source, skills, model, created_at, cost_usd FROM tasks WHERE subject LIKE ? ORDER BY id DESC LIMIT ?"
-    ).all(`%${q}%`, limit);
+      `SELECT ${COLS} FROM tasks WHERE subject LIKE ? ORDER BY id DESC LIMIT ? OFFSET ?`
+    ).all(`%${q}%`, limit, offset);
   } else {
+    total = (db.query("SELECT COUNT(*) as n FROM tasks").get() as { n: number }).n;
     rows = db.query(
-      "SELECT id, subject, priority, status, source, skills, model, created_at, cost_usd FROM tasks ORDER BY id DESC LIMIT ?"
-    ).all(limit);
+      `SELECT ${COLS} FROM tasks ORDER BY id DESC LIMIT ? OFFSET ?`
+    ).all(limit, offset);
   }
 
-  return json({ tasks: rows });
+  return json({ tasks: rows, total, limit, offset });
 }
 
 function handleTaskById(id: string): Response {
@@ -1208,6 +1442,73 @@ function handleCosts(url: URL): Response {
   return json({ range, costs: rows });
 }
 
+function handleMemoryStats(): Response {
+  // Entry count + cost attribution by domain
+  const byDomain = db.query(`
+    SELECT
+      domain,
+      COUNT(*) as count,
+      SUM(CASE WHEN ttl_days IS NOT NULL THEN 1 ELSE 0 END) as with_ttl,
+      COALESCE(SUM(cost_usd), 0) as cost_usd,
+      COALESCE(SUM(api_cost_usd), 0) as api_cost_usd,
+      AVG(importance) as avg_importance
+    FROM arc_memory_meta
+    GROUP BY domain
+    ORDER BY count DESC
+  `).all() as { domain: string; count: number; with_ttl: number; cost_usd: number; api_cost_usd: number; avg_importance: number }[];
+
+  // Totals
+  const totals = db.query(`
+    SELECT
+      COUNT(*) as total,
+      SUM(CASE WHEN ttl_days IS NOT NULL THEN 1 ELSE 0 END) as with_ttl,
+      COALESCE(SUM(cost_usd), 0) as cost_usd
+    FROM arc_memory_meta
+  `).get() as { total: number; with_ttl: number; cost_usd: number };
+
+  // Importance distribution
+  const importanceDist = db.query(`
+    SELECT
+      CASE
+        WHEN importance <= 3 THEN 'critical'
+        WHEN importance <= 6 THEN 'normal'
+        ELSE 'low'
+      END as tier,
+      COUNT(*) as count
+    FROM arc_memory_meta
+    GROUP BY tier
+    ORDER BY MIN(importance) ASC
+  `).all() as { tier: string; count: number }[];
+
+  // Growth rate: entries created in last 7 days
+  const growth = db.query(`
+    SELECT
+      date(created_at) as day,
+      COUNT(*) as count
+    FROM arc_memory_meta
+    WHERE created_at >= datetime('now', '-7 days')
+    GROUP BY day
+    ORDER BY day ASC
+  `).all() as { day: string; count: number }[];
+
+  // Top entries by importance (lowest number = most critical)
+  const topEntries = db.query(`
+    SELECT m.key, m.domain, m.tags, meta.importance, meta.created_at, meta.updated_at, meta.ttl_days
+    FROM arc_memory m
+    JOIN arc_memory_meta meta ON m.key = meta.key
+    ORDER BY meta.importance ASC, meta.updated_at DESC
+    LIMIT 10
+  `).all() as { key: string; domain: string; tags: string; importance: number; created_at: string; updated_at: string; ttl_days: number | null }[];
+
+  return json({
+    totals,
+    by_domain: byDomain,
+    importance_distribution: importanceDist,
+    growth_last_7d: growth,
+    top_entries: topEntries,
+  });
+}
+
 function handleIdentity(): Response {
   return json(IDENTITY);
 }
@@ -1275,64 +1576,107 @@ async function handleFace(): Promise<Response> {
   }
 }
 
-function handleReputation(): Response {
+function handleReputation(url: URL): Response {
+  type ReviewRow = { id: number; subject: string; reviewer_address: string; reviewee_address: string; rating: number; comment: string; tags: string; created_at: string; direction: string };
+
+  const emptyResponse = {
+    reviews: [] as Array<ReviewRow & { tags: string[] }>,
+    total: 0,
+    submitted_total: 0,
+    received_total: 0,
+    avg_rating: null as number | null,
+    btc_address: IDENTITY.btc,
+    stx_address: IDENTITY.stx,
+  };
+
   try {
     // Check if reviews table exists (created by arc-reputation skill on first use)
     const tableExists = db.query(
       "SELECT name FROM sqlite_master WHERE type='table' AND name='reviews'"
     ).get() as { name: string } | null;
 
-    if (!tableExists) {
-      return json({
-        submitted: { count: 0, recent: [] },
-        received: { count: 0, avg_rating: null, recent: [] },
-        btc_address: IDENTITY.btc,
-        stx_address: IDENTITY.stx,
-      });
-    }
+    if (!tableExists) return json(emptyResponse);
+
+    // Query params: type=submitted|received|all, limit=N, offset=N, agent=address
+    const typeFilter = url.searchParams.get("type") || "all";
+    const limit = Math.min(Math.max(parseInt(url.searchParams.get("limit") || "10") || 10, 1), 50);
+    const offset = Math.max(parseInt(url.searchParams.get("offset") || "0") || 0, 0);
+    const agentFilter = url.searchParams.get("agent") || "";
 
     const arc_btc = IDENTITY.btc;
 
-    const submittedCount = db.query(
-      "SELECT COUNT(*) as count FROM reviews WHERE reviewer_address = ?"
-    ).get(arc_btc) as { count: number };
+    // Build unified query with direction labels
+    const parts: string[] = [];
+    const countParts: string[] = [];
+    const queryParams: (string | number)[] = [];
+    const countParams: string[] = [];
 
-    const submittedRecent = db.query(
-      "SELECT id, subject, reviewee_address, rating, comment, tags, created_at FROM reviews WHERE reviewer_address = ? ORDER BY created_at DESC LIMIT 5"
-    ).all(arc_btc) as Array<{ id: number; subject: string; reviewee_address: string; rating: number; comment: string; tags: string; created_at: string }>;
+    if (typeFilter === "all" || typeFilter === "submitted") {
+      const agentCond = agentFilter ? " AND reviewee_address = ?" : "";
+      parts.push(`SELECT id, subject, reviewer_address, reviewee_address, rating, comment, tags, created_at, 'submitted' as direction FROM reviews WHERE reviewer_address = ?${agentCond}`);
+      countParts.push(`SELECT COUNT(*) as c FROM reviews WHERE reviewer_address = ?${agentCond}`);
+      queryParams.push(arc_btc);
+      countParams.push(arc_btc);
+      if (agentFilter) { queryParams.push(agentFilter); countParams.push(agentFilter); }
+    }
 
-    const receivedCount = db.query(
-      "SELECT COUNT(*) as count FROM reviews WHERE reviewee_address = ?"
-    ).get(arc_btc) as { count: number };
+    if (typeFilter === "all" || typeFilter === "received") {
+      const agentCond = agentFilter ? " AND reviewer_address = ?" : "";
+      parts.push(`SELECT id, subject, reviewer_address, reviewee_address, rating, comment, tags, created_at, 'received' as direction FROM reviews WHERE reviewee_address = ?${agentCond}`);
+      countParts.push(`SELECT COUNT(*) as c FROM reviews WHERE reviewee_address = ?${agentCond}`);
+      queryParams.push(arc_btc);
+      countParams.push(arc_btc);
+      if (agentFilter) { queryParams.push(agentFilter); countParams.push(agentFilter); }
+    }
 
-    const receivedRecent = db.query(
-      "SELECT id, subject, reviewer_address, rating, comment, tags, created_at FROM reviews WHERE reviewee_address = ? ORDER BY created_at DESC LIMIT 5"
-    ).all(arc_btc) as Array<{ id: number; subject: string; reviewer_address: string; rating: number; comment: string; tags: string; created_at: string }>;
+    if (parts.length === 0) return json(emptyResponse);
 
-    const receivedAvg = db.query(
-      "SELECT AVG(rating) as avg FROM reviews WHERE reviewee_address = ?"
-    ).get(arc_btc) as { avg: number | null };
+    // Paginated unified query
+    const unionSql = parts.join(" UNION ALL ") + " ORDER BY created_at DESC LIMIT ? OFFSET ?";
+    const reviews = db.query(unionSql).all(...queryParams, limit, offset) as ReviewRow[];
+
+    // Totals per direction (for metrics + pagination)
+    let total = 0;
+    let submittedTotal = 0;
+    let receivedTotal = 0;
+    for (let i = 0; i < countParts.length; i++) {
+      // Each countPart corresponds to either submitted or received
+      const paramSlice = agentFilter
+        ? countParams.slice(i * 2, i * 2 + 2)
+        : [countParams[i]];
+      const c = (db.query(countParts[i]).get(...paramSlice) as { c: number }).c;
+      total += c;
+      if (countParts[i].includes("reviewer_address = ?") && !countParts[i].includes("reviewee_address = ?")) {
+        submittedTotal = c;
+      } else {
+        receivedTotal = c;
+      }
+    }
+
+    // Avg rating for received reviews
+    let receivedAvg: number | null = null;
+    if (typeFilter === "all" || typeFilter === "received") {
+      const avgWhere = agentFilter
+        ? "WHERE reviewee_address = ? AND reviewer_address = ?"
+        : "WHERE reviewee_address = ?";
+      const avgParams = agentFilter ? [arc_btc, agentFilter] : [arc_btc];
+      const avgResult = db.query(
+        `SELECT AVG(rating) as avg FROM reviews ${avgWhere}`
+      ).get(...avgParams) as { avg: number | null };
+      receivedAvg = avgResult.avg !== null ? Math.round(avgResult.avg * 100) / 100 : null;
+    }
 
     return json({
-      submitted: {
-        count: submittedCount.count,
-        recent: submittedRecent.map(r => ({ ...r, tags: JSON.parse(r.tags) as string[] })),
-      },
-      received: {
-        count: receivedCount.count,
-        avg_rating: receivedAvg.avg !== null ? Math.round(receivedAvg.avg * 100) / 100 : null,
-        recent: receivedRecent.map(r => ({ ...r, tags: JSON.parse(r.tags) as string[] })),
-      },
+      reviews: reviews.map(r => ({ ...r, tags: JSON.parse(r.tags) as string[] })),
+      total,
+      submitted_total: submittedTotal,
+      received_total: receivedTotal,
+      avg_rating: receivedAvg,
       btc_address: IDENTITY.btc,
       stx_address: IDENTITY.stx,
     });
   } catch {
-    return json({
-      submitted: { count: 0, recent: [] },
-      received: { count: 0, avg_rating: null, recent: [] },
-      btc_address: IDENTITY.btc,
-      stx_address: IDENTITY.stx,
-    });
+    return json(emptyResponse);
   }
 }
 
@@ -1817,7 +2161,7 @@ async function handleFleetCompleteTask(req: Request, id: string): Promise<Respon
 
   // Update cost if provided
   if (typeof body.cost_usd === "number" && body.cost_usd >= 0) {
-    dbWrite.query("UPDATE tasks SET cost_usd = ? WHERE id = ?").run(body.cost_usd, taskId);
+    db.query("UPDATE tasks SET cost_usd = ? WHERE id = ?").run(body.cost_usd, taskId);
   }
 
   const updated = db.query("SELECT * FROM tasks WHERE id = ?").get(taskId);
@@ -1987,6 +2331,23 @@ async function handleHubRoute(req: Request): Promise<Response> {
 
 // ---- Router ----
 
+async function handleRestart(): Promise<Response> {
+  try {
+    const proc = Bun.spawn(
+      ["systemctl", "restart", "arc-dispatch.service", "arc-sensors.service"],
+      { stdout: "pipe", stderr: "pipe" }
+    );
+    await proc.exited;
+    if (proc.exitCode === 0) {
+      return json({ ok: true, message: "Services restarted" });
+    }
+    const stderr = await new Response(proc.stderr).text();
+    return json({ ok: false, error: stderr.trim() || `systemctl exited ${proc.exitCode}` }, 500);
+  } catch (e) {
+    return json({ ok: false, error: String(e) }, 500);
+  }
+}
+
 function route(req: Request): Response | Promise<Response> {
   const url = new URL(req.url);
   const path = url.pathname;
@@ -2030,6 +2391,12 @@ function route(req: Request): Response | Promise<Response> {
   if (method === "POST" && path === "/api/consensus/vote") return handleConsensusVote(req);
   if (method === "POST" && path === "/api/arena/run") return handleArenaRun(req);
 
+  // Voice mode API
+  if (method === "GET" && path === "/api/voice/status") return handleVoiceStatus();
+  if (method === "POST" && path === "/api/voice/transcribe") return handleVoiceTranscribe(req);
+  if (method === "POST" && path === "/api/voice/synthesize") return handleVoiceSynthesize(req);
+  if (method === "POST" && path === "/api/voice/ask") return handleVoiceAsk(req);
+
   // GET: Ask Arc pricing and rate limit info
   if (method === "GET" && path === "/api/ask") {
     const today = getAskDayKey();
@@ -2072,6 +2439,12 @@ function route(req: Request): Response | Promise<Response> {
   const emailThreadMatch = path.match(/^\/api\/email\/threads\/(.+)$/);
   if (emailThreadMatch) return handleEmailThread(emailThreadMatch[1]);
 
+  // Conversation API
+  if (method === "POST" && path === "/api/conversations") return handlePostConversation(req);
+  if (method === "GET" && path === "/api/conversations") return handleConversationThreads(url);
+  const convThreadMatch = path.match(/^\/api\/conversations\/(.+)$/);
+  if (method === "GET" && convThreadMatch) return handleConversationThread(convThreadMatch[1]);
+
   // API routes
   if (path === "/api/status") return handleStatus();
   if (path === "/api/tasks") return handleTasks(url);
@@ -2080,15 +2453,19 @@ function route(req: Request): Response | Promise<Response> {
   if (path === "/api/sensors/schedule") return handleSensorSchedule();
   if (path === "/api/skills") return handleSkills();
   if (path === "/api/costs") return handleCosts(url);
+  if (path === "/api/memory/stats") return handleMemoryStats();
   if (path === "/api/identity") return handleIdentity();
   if (path === "/api/face") return handleFace();
-  if (path === "/api/reputation") return handleReputation();
+  if (path === "/api/reputation") return handleReputation(url);
   if (path === "/api/events") return handleEvents();
   if (path === "/api/arena/history") return handleArenaHistory();
 
   // Arena run by ID: /api/arena/runs/:id
   const arenaMatch = path.match(/^\/api\/arena\/runs\/(.+)$/);
   if (arenaMatch) return handleArenaRunById(arenaMatch[1]);
+
+  // Restart dispatch + sensors services
+  if (method === "POST" && path === "/api/restart") return handleRestart();
 
   // Task kill: POST /api/tasks/:id/kill
   const killMatch = path.match(/^\/api\/tasks\/(\d+)\/kill$/);
@@ -2099,7 +2476,7 @@ function route(req: Request): Response | Promise<Response> {
   if (taskMatch) return handleTaskById(taskMatch[1]);
 
   // Clean URL routing for multi-page app
-  if (path === "/sensors" || path === "/sensors/schedule" || path === "/skills" || path === "/identity" || path === "/email") {
+  if (path === "/sensors" || path === "/sensors/schedule" || path === "/skills" || path === "/identity" || path === "/email" || path === "/presentation" || path === "/voice") {
     const htmlPath = join(STATIC_DIR, path + ".html");
     if (existsSync(htmlPath)) {
       return new Response(Bun.file(htmlPath), {

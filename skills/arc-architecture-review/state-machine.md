@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-12T06:46:00.000Z*
+*Generated: 2026-03-17T21:27:00.000Z*
 
 ```mermaid
 stateDiagram-v2
@@ -17,6 +17,10 @@ stateDiagram-v2
             arc-mcp.service — MCP server port 3100
             arc-observatory.service — observatory UI
               • cross-agent task board + goal tracking (2026-03-09)
+            arc-watchdog.service/timer (every 15min, independent)
+              • reads cycle_log directly via SQLite (no sensors/dispatch dependency)
+              • alerts whoabuddy by email if no cycle in >2h with pending tasks
+              • cooldown: 2h between alerts; state: db/hook-state/external-watchdog.json
             fleet-web (port 4000, Arc host only) — aggregate fleet dashboard
         end note
     }
@@ -25,7 +29,7 @@ stateDiagram-v2
         [*] --> ShutdownGate: db/shutdown-state.json
         ShutdownGate --> [*]: SHUTDOWN — skip all sensors (reason + since logged)
         ShutdownGate --> FilterSensors: not shutdown
-        FilterSensors --> RunAllSensors: arc0 (Arc host) — all 72 sensors
+        FilterSensors --> RunAllSensors: arc0 (Arc host) — all 84 sensors
         FilterSensors --> RunFilteredSensors: worker agent — allowlist only (13 sensors)
         note right of FilterSensors
             Worker allowlist (13): aibtc-heartbeat, aibtc-inbox-sync,
@@ -59,7 +63,7 @@ stateDiagram-v2
         RunAllSensors --> ciStatusSensor: github-ci-status
         RunAllSensors --> complianceReviewSensor: compliance-review
         RunAllSensors --> contextReviewSensor: context-review
-        RunAllSensors --> costAlertingSensor: arc-cost-alerting
+        RunAllSensors --> costReportingSensor: arc-cost-reporting
         RunAllSensors --> daoZeroSensor: dao-zero-authority
         RunAllSensors --> defiBitflowSensor: defi-bitflow
         RunAllSensors --> emailSensor: arc-email-sync
@@ -69,7 +73,7 @@ stateDiagram-v2
         RunAllSensors --> healthSensor: arc-service-health
         RunAllSensors --> heartbeatSensor: arc-alive-check
         RunAllSensors --> housekeepingSensor: arc-housekeeping
-        RunAllSensors --> introspectionSensor: arc-introspection
+        RunAllSensors --> arcSelfReviewSensor: arc-self-review
         RunAllSensors --> manageSkillsSensor: arc-skill-manager
         RunAllSensors --> quorumclawSensor: bitcoin-quorumclaw
         RunAllSensors --> releaseWatcherSensor: github-release-watcher
@@ -77,7 +81,7 @@ stateDiagram-v2
         RunAllSensors --> reportingSensor: arc-reporting
         RunAllSensors --> schedulerSensor: arc-scheduler
         RunAllSensors --> securityAlertsSensor: github-security-alerts
-        RunAllSensors --> selfAuditSensor: arc-self-audit
+        RunAllSensors --> arc0btcDeployMonitorSensor: arc0btc-deploy-monitor
         RunAllSensors --> siteConsistencySensor: site-consistency
         RunAllSensors --> stacksMarketSensor: defi-stacks-market
         RunAllSensors --> stackspotSensor: stacks-stackspot
@@ -110,20 +114,60 @@ stateDiagram-v2
         RunAllSensors --> fleetSelfSyncSensor: fleet-self-sync
         RunAllSensors --> fleetSyncSensor: fleet-sync
         RunAllSensors --> autoQueueSensor: auto-queue
-        RunAllSensors --> arcOpsReviewSensor: arc-ops-review
+        RunAllSensors --> strategicPlannerSensor: strategic-planner
         RunAllSensors --> arcDispatchEvalSensor: arc-dispatch-eval
         RunAllSensors --> agentHubSensor: agent-hub
-        RunAllSensors --> bitflowSensor: bitflow
+        RunAllSensors --> bitflowSensor: bitflow-positions
         RunAllSensors --> zestV2Sensor: zest-v2
         RunAllSensors --> arcUmbrelSensor: arc-umbrel
         RunAllSensors --> aibtcWelcomeSensor: aibtc-welcome
+        RunAllSensors --> mempoolWatchSensor: mempool-watch
+        RunAllSensors --> dealFlowSensor: aibtc-news-deal-flow
+        RunAllSensors --> arcMemoryExpirySensor: arc-memory-expiry
+        RunAllSensors --> dispatchWatchdogSensor: dispatch-watchdog
+        RunAllSensors --> credentialHealthSensor: credential-health
+        RunAllSensors --> questAuditSensor: quest-audit
+        RunAllSensors --> reviewCommitmentsSensor: review-commitments
+        RunAllSensors --> defiJingswapSensor: defi-jingswap
+        RunAllSensors --> arcMoltbookSensor: arc-moltbook
+        RunAllSensors --> bitcoinWalletSensor: bitcoin-wallet
+        RunAllSensors --> blogXSyndicationSensor: blog-x-syndication
+        RunAllSensors --> arcWeeklyPresentationSensor: arc-weekly-presentation
+        RunAllSensors --> albSensor: alb
+        RunAllSensors --> skillEffectivenessSensor: skill-effectiveness
 
         note right of RunAllSensors
-            73 sensors total (+1 since 2026-03-11T07:00Z)
-            NEW: aibtc-welcome (60min) — detect+welcome new AIBTC agents via x402 (100 sats)
-              x402 sentinel: db/hook-state/x402-nonce-conflict.json gates all sends
-              Interaction-history dedup: skips already-welcomed agents
+            84 sensors total (2026-03-17)
+            aibtc-news-deal-flow (60min) — 5 hooks: Ordinals volume, sats auctions,
+              x402 escrow, bounty activity (gated on config), DAO treasury (gated on config)
+              APIs: Unisat (api_key cred) + Stacks Extended API
+            aibtc-repo-maintenance: toggled off (9c8bf7f) then re-enabled (44af48e)
+              per whoabuddy — scope clarified, sensor still active
+            aibtc-dev-ops: prod-grade audit checks removed (44af48e) — tsconfig/tests/
+              release-please checks created noise; log review (4h) preserved
+            mempool-watch (10min) — BTC fee spike + Arc address unconfirmed tx watch
+            arc-cost-alerting replaced by arc-cost-reporting (daily report, no thresholds)
             Fleet sensors filter suspended agents since 2026-03-11
+            dispatch-watchdog (10min) — stall detection >95min + pending tasks
+              writes incidents.md entry + P2 alert task (deduped per stall event)
+            credential-health (60min) — validates credential store unlock + API endpoints
+              writes integrations.md on failures + P3 alert task (model: sonnet)
+            fleet-handoff CLI skill restored 2026-03-16 (was deleted 2026-03-11)
+              SSH-based task handoff to another fleet agent; logs to memory/fleet-handoffs.json
+            arc-self-review: consolidated arc-introspection + arc-self-audit +
+              arc-ops-review + arc-operational-review (all 4 sensors removed 2026-03-17)
+              NOTE: zombie SKILL.md-only directories still exist — pending cleanup
+            arc-weekly-presentation: Monday AIBTC meeting slides, Sonnet subagent research
+            alb: Agents Love Bitcoin skill with sensor + CLI
+            skill-effectiveness: skill outcome tracking sensor
+            arc0btc-deploy-monitor: merged site-health + site-consistency into one sensor
+            strategic-planner: proposes directive-aligned tasks during idle periods
+            quest-audit: detects hung quest-phase tasks
+            review-commitments: tracks X and email commitments
+            defi-jingswap: STX/sBTC blind auction cycle tracking
+            arc-moltbook: Moltbook integration sensor
+            bitcoin-wallet: x402 relay health check
+            blog-x-syndication: blog post X syndication sensor
         end note
 
         state "Generic Sensor Pattern" as genericSensor {
@@ -298,6 +342,29 @@ stateDiagram-v2
             end note
         }
 
+        state dealFlowSensor {
+            [*] --> dealFlowGate: claimSensorRun(aibtc-news-deal-flow, 60min)
+            dealFlowGate --> dealFlowSkip: interval not elapsed
+            dealFlowGate --> dealFlowRun: interval elapsed
+            dealFlowRun --> dealFlowOrdinals: checkOrdinalsVolume
+            dealFlowOrdinals --> dealFlowSats: checkSatsAuctions (Unisat)
+            dealFlowSats --> dealFlowX402: checkX402Escrow (Stacks API)
+            dealFlowX402 --> dealFlowBounty: checkBountyActivity (gated: bountyContract in hook state)
+            dealFlowBounty --> dealFlowDao: checkDaoTreasury (gated: daoTreasuryContract in hook state)
+            dealFlowDao --> dealFlowWriteState: writeHookState
+            dealFlowWriteState --> [*]: return ok
+            dealFlowSkip --> [*]: return skip
+            note right of dealFlowGate
+                Tasks: P6 sonnet, skills: aibtc-news-editorial + aibtc-news-deal-flow
+                Ordinals: $2M weekly threshold (Unisat api_key required)
+                Sats auctions: 50k sat top auction (Unisat api_key required)
+                x402: $5M weekly escrow volume (no key; rough STX proxy)
+                DAO treasury: 1 BTC change (needs daoTreasuryContract configured)
+                Bounty: any launch in 24h (needs bountyContract configured)
+                ⚠ DAO + bounty hooks always skip unless hook state configured
+            end note
+        }
+
         state githubInterceptorSensor {
             [*] --> githubInterceptorGate: claimSensorRun(github-interceptor, 10min)
             githubInterceptorGate --> githubInterceptorSkip: Arc host (no-op)
@@ -335,7 +402,7 @@ stateDiagram-v2
         end note
         PickTask --> Idle: no pending tasks
         PickTask --> BudgetGate: highest priority task
-        BudgetGate --> Exit: today_cost >= $500 AND priority > 2
+        BudgetGate --> Exit: today_cost >= $200 AND priority > 2
         BudgetGate --> GitHubGate: budget ok OR priority <= 2
         GitHubGate --> AutoHandoff: worker + task matches GitHub pattern
         AutoHandoff --> ClearLock: fleet-handoff arc; close task
@@ -345,10 +412,25 @@ stateDiagram-v2
             [*] --> SelectSDK: task.model prefix (codex:* = Codex, else = Claude/OpenRouter)
             SelectSDK --> SelectModel: sdk resolved
             SelectModel --> LoadCore: explicit model wins; else P1-4→opus, P5-7→sonnet, P8+→haiku
-            LoadCore --> LoadSkills: SOUL.md + CLAUDE.md + MEMORY.md
+            LoadCore --> LoadMemory: SOUL.md + CLAUDE.md
+            LoadMemory --> LoadSkills: MEMORY.md (slim index) + topics/*.md + FTS arc_memory entries
             LoadSkills --> LoadSkillMd: task.skills JSON array
-            LoadSkillMd --> AssemblePrompt: SKILL.md content
+            LoadSkillMd --> LoadScratchpad: SKILL.md content
+            LoadScratchpad --> AssemblePrompt: db/projects/<root_task_id>.md (if exists)
+            note right of LoadMemory
+                Memory V2 (2026-03-15): resolveMemoryContext() + resolveFtsMemoryContext()
+                MEMORY.md = slim index (always)
+                memory/topics/*.md = skill-mapped topic files (fleet, incidents, cost, etc.)
+                arc_memory FTS5 = high-importance structured entries (importance>=3)
+                Default topics: [fleet, incidents] when no skill mapping exists
+            end note
             note right of LoadSkillMd: Only SKILL.md loaded\nAGENT.md stays for subagents
+            note right of LoadScratchpad
+                Scratchpad (2026-03-17): resolveScratchpadContext()
+                db/projects/<root_task_id>.md — shared buffer across subtask family
+                Cleared when root parent task closes
+                arc scratchpad append/read/write/clear CLI
+            end note
             note right of SelectModel: Priority = urgency\nModel = work complexity\nOrthogonal since 2026-03-04
             note right of SelectSDK
                 SDK routing (2026-03-08):
@@ -401,8 +483,9 @@ stateDiagram-v2
         ArcCommand --> StatusView: status
         note right of TasksCRUD
             tasks update: --id --subject --description
-            --priority --model --status pending
+            --priority --model --status pending --skills s1,s2
             (--status pending = requeue failed/blocked tasks)
+            (--skills = retroactive skill tagging, JSON array stored)
         end note
     }
 
@@ -441,20 +524,20 @@ stateDiagram-v2
 |---|-------|-------------------|------|
 | 0 | Shutdown gate | `db/shutdown-state.json` | Both sensors and dispatch exit immediately if shutdown enabled |
 | 1 | Sensor fires | Hook state (interval check) | `claimSensorRun()` |
-| 1a | Sensor filter | `AGENT_NAME` from `src/identity.ts` | Worker: 13-sensor allowlist; Arc: all 73 |
+| 1a | Sensor filter | `AGENT_NAME` from `src/identity.ts` | Worker: 13-sensor allowlist; Arc: all 75 |
 | 1b | Architect SHA check | SHA of src/ + skills/ excl. skills/arc-architecture-review/ | Skip if unchanged + diagram fresh + no active reports |
 | 2 | Sensor creates task | External data + dedup check | `pendingTaskExistsForSource()` |
 | 3 | Dispatch lock check | Lock file (PID + task_id) | `isPidAlive()` |
 | 3a | TOCTOU guard | Lock acquired BEFORE task selection | Atomic: lock->pick (commit 05de76d) |
 | 3b | Dispatch gate | hook-state/dispatch-gate.json | On/off switch; rate limit → immediate stop; 3 other failures → stop; manual reset required (`arc dispatch reset`); notifies whoabuddy by email |
-| 3c | Budget gate | `getTodayCostUsd()` vs `DAILY_BUDGET_USD=$500` | Priority > 2 tasks halted if over ceiling |
+| 3c | Budget gate | `getTodayCostUsd()` vs `DAILY_BUDGET_USD=$200` | Priority > 2 tasks halted if over ceiling (D4 directive) |
 | 3d | GitHub pre-dispatch gate (worker) | `GITHUB_TASK_RE` regex on subject+description | Auto-routes to Arc via fleet-handoff at zero LLM cost |
 | 4 | Task selection | All pending tasks sorted | Priority ASC, ID ASC |
 | 4a | SDK routing | task.model prefix | codex:* → Codex CLI; else → Claude/OpenRouter |
 | 4b | Model routing | task.model (explicit) or task.priority | Explicit wins; else P1-4->opus, P5-7->sonnet, P8+->haiku |
 | 4c | Backend selection | OPENROUTER_API_KEY env var | codex > openrouter > claude-code |
 | 5 | Skill loading | `task.skills` JSON array | SKILL.md existence |
-| 6 | Prompt assembly | SOUL + CLAUDE + MEMORY + skills | Token budget ~40-50k |
+| 6 | Prompt assembly | SOUL + CLAUDE + Memory V2 + skills + scratchpad | MEMORY.md (index) + topics/*.md (skill-mapped) + FTS arc_memory (importance>=3, top 10) + db/projects/<root>.md (if exists); token budget ~40-50k |
 | 7 | LLM execution | Full prompt + CLI access | `arc` commands only |
 | 7a | Timeout watchdog | Haiku: 5min, Sonnet: 15min, Opus: 30min (Opus overnight 00-08: 90min) | SIGTERM -> SIGKILL (+10s); subprocess_timeout = no retry |
 | 8 | Result handling | Task status check post-run | Self-close vs fallback |
@@ -469,13 +552,16 @@ stateDiagram-v2
 | blog-posting | draft→review→revision→published | manual | No action functions |
 | signal-filing | detected→formatted→filed | manual | AIBTC editorial workflow |
 | beat-claiming | pending→claimed→active | manual | BeatClaimingMachine only active machine |
-| pr-lifecycle | issue-opened→opened→review-requested→... | github-mentions | Includes aibtcdev repos |
+| pr-lifecycle | **DEPRECATED** — superseded by github-pr-review + github-issue-triage | - | Existing instances run to completion; no new instances |
+| github-pr-review | opened→in-review→approved→merged/closed | arc-workflows | New PR driver; instance key: `pr-review:owner/repo#num`; orgTier+requireApproval per repo config |
+| github-issue-triage | issue-opened→triaged→in-progress→... | arc-workflows | New issue tracker |
 | reputation-feedback | pending→checking→submitted→confirmed→completed | manual | ERC-8004 reputation |
 | validation-request | pending→sent→confirmed→submitted→verified→completed | manual | ERC-8004 validation |
 | inscription | pending→commit_preparing→...→confirmed→completed | manual | RESOLVED: now uses skill "bitcoin-wallet" correctly |
 | new-release | detected→assessing→integration_pending→integrating→completed | github-release-watcher | Dynamic skill list from ctx |
 | architecture-review | triggered→reviewing→cleanup_pending→cleaning→completed | arc-workflow-review | RESOLVED: now creates P7/sonnet tasks (was P4/Opus) |
 | streak-maintenance | pending→attempting→rate_limited→completed | aibtc-news-editorial | Rate-limit aware; windowOpenAt schedules retry; MAX_RETRIES=3 cap; instance_key: streak-{beat}-{date} |
+| email-thread | received→triaged→ops_pending→retrospective_pending→completed | arc-email-sync | Email thread → triage → ops → retrospective (retrospective_pending state added 2026-03-13 to capture learnings; was ad-hoc follow-up); instance_key: email-thread-{source}-{date} |
 | agent-collaboration | received→triaged→ops_pending→retrospective_pending→completed | aibtc-inbox-sync | AIBTC inbox thread → triage → ops → learning capture; instance_key: agent-collab-{sender}-{date} |
 | recurring-failure | detected→investigating→fix_pending→fixing→retrospective_pending→completed | arc-failure-triage | Recurring failure investigation chain; fix task P5/sonnet; retro P8/haiku; instance_key: recurring-failure-{type}-{YYYY-MM-DD} |
 | overnight-brief | scheduled→generating→retrospective_pending→completed | arc-reporting | OvernightBriefMachine — overnight brief → retrospective cycle; instance_key: overnight-brief-{YYYY-MM-DD} |
@@ -483,8 +569,9 @@ stateDiagram-v2
 | content-promotion | pending→scheduling→posting→completed | blog-publishing | ContentPromotionMachine — published post → X promotion → done |
 | credential-rotation | pending→rotating→verifying→confirmed→completed | arc-credentials | CredentialRotationMachine — credential expiry → rotate → verify → confirmed |
 | psbt-escalation | pending→escalated→approved→signing→broadcast→completed | bitcoin-wallet | PsbtEscalationMachine — PSBT sign request → whoabuddy approval gate → sign/broadcast |
+| skill-maintenance | triggered→auditing→fix_pending→fixing→no_action/completed | arc-email-sync | SkillMaintenanceMachine — email signal → audit → targeted fix; instance_key: skill-maintenance-{skill}-{YYYY-MM-DD} |
 
-## Skills Inventory (100 total)
+## Skills Inventory (105 total)
 
 | Skill | Sensor | CLI | Agent | Description |
 |-------|--------|-----|-------|-------------|
@@ -493,7 +580,7 @@ stateDiagram-v2
 | aibtc-heartbeat | yes | - | - | Signed AIBTC platform check-in via BIP-137 Bitcoin message signing (iterates all agent wallets) |
 | aibtc-inbox-sync | yes | - | yes | Poll AIBTC platform inbox, sync messages locally, queue tasks |
 | aibtc-welcome | yes | - | - | Detect and welcome new AIBTC agents via x402 (100 sats); interaction-history dedup; x402 sentinel gate |
-| aibtc-news-deal-flow | - | - | yes | Editorial voice for Deal Flow beat on aibtc.news |
+| aibtc-news-deal-flow | yes | - | yes | Deal Flow beat sensor (60min, 5 hooks: Ordinals, sats, x402, bounty, DAO treasury) + editorial voice |
 | aibtc-news-editorial | yes | yes | yes | File intelligence signals, claim editorial beats, track activity on aibtc.news |
 | aibtc-news-classifieds | - | yes | - | Classified ads, brief reading, signal corrections, beat updates, streaks |
 | aibtc-repo-maintenance | yes | yes | yes | Triage, review, test, and support aibtcdev repos (GraphQL batched) |
@@ -506,18 +593,23 @@ stateDiagram-v2
 | arc-ceo-review | yes | - | yes | CEO reviews watch reports and manages task queue |
 | arc-ceo-strategy | - | - | yes | Strategic operating manual — treat yourself as CEO |
 | arc-content-quality | - | yes | - | Pre-publish quality gate — detects AI writing patterns |
-| arc-cost-alerting | yes | - | - | Monitor daily spend and alert on thresholds |
+| arc-cost-reporting | yes | - | - | Daily cost/token usage report — top tasks, skills, sensors by spend (60min, one/day, P9 haiku) |
 | arc-credentials | - | yes | yes | Encrypted credential store for API keys and secrets |
 | arc-dispatch-eval | yes | - | - | Post-dispatch evaluation sensor — scores task outcomes, creates improvement tasks |
 | arc-dispatch-evals | - | yes | yes | Dispatch quality evaluation — error analysis, LLM judges |
 | arc-dual-sdk | - | - | - | *(deleted 2026-03-11 — moved to docs/agent-infrastructure.md)* |
+| dispatch-watchdog | yes | - | - | Dispatch stall detection >95min — writes incidents.md + P2 alert task (10min, deduped per stall) |
+| credential-health | yes | - | - | Periodic credential store health check — validates store unlock + API endpoints (60min, P3 sonnet) |
 | arc-email-sync | yes | yes | yes | Sync email from arc-email-worker, read and send email |
 | arc-failure-triage | yes | yes | yes | Detect recurring failure patterns, escalate (dismissed/crash-recovery filters) |
 | arc-housekeeping | yes | yes | yes | Repo hygiene — locks, WAL size, memory bloat, archival, stale worktrees |
 | arc-introspection | yes | - | - | Daily qualitative self-assessment — synthesizes 24h into reflection task (P5, 1440min) |
 | arc-link-research | - | yes | yes | Process batches of links into research reports |
+| arc-mcp | - | - | - | *(deleted 2026-03-16 — superseded by arc-mcp-server)* |
 | arc-mcp-server | - | yes | - | MCP server exposing task queue, skills, memory |
+| arc-memory-expiry | yes | - | - | Daily cleanup of TTL-expired arc_memory FTS5 entries (1440min) |
 | arc-observatory | - | - | - | Observatory UI service (systemd) — Bitcoin Faces, live agent visualization |
+| arc-operational-review | yes | yes | - | Self-audit sensor (6h) — surfaces failed tasks with no follow-up, stale blocked tasks, overdue scheduled tasks |
 | arc-ops-review | yes | - | - | Ops review sensor (4h) — creation vs completion rate, backlog trend, fleet utilization, cost efficiency |
 | arc-performance-analytics | - | yes | - | Cost/token analytics by model tier, skill, and time period |
 | arc-remote-setup | - | yes | - | SSH-based VM provisioning for agent fleet (spark/iris/loom/forge) — 8 idempotent steps |
@@ -568,7 +660,7 @@ stateDiagram-v2
 | fleet-email-report | - | - | - | *(deleted 2026-03-11 → docs/fleet-coordination.md)* |
 | fleet-escalation | yes | - | - | Fleet escalation routing sensor |
 | fleet-exec | - | - | - | *(deleted 2026-03-11 → docs/fleet-coordination.md)* |
-| fleet-handoff | - | - | - | *(deleted 2026-03-11 → docs/fleet-coordination.md)* |
+| fleet-handoff | - | yes | - | SSH-based task handoff to another fleet agent (restored 2026-03-16); logs to memory/fleet-handoffs.json |
 | fleet-health | yes | yes | - | Monitor agent fleet VMs (spark/iris/loom/forge) via SSH — 15min, alerts P3 |
 | fleet-log-pull | yes | - | - | Fleet log aggregation sensor |
 | fleet-memory | yes | - | - | Fleet memory sync sensor |
@@ -594,6 +686,7 @@ stateDiagram-v2
 | social-x-posting | yes | yes | yes | Post tweets, read timeline, poll @mentions on X; engagement commands with daily budget |
 | stacks-stackspot | yes | - | - | Autonomous Stacking — detect pots, auto-join, claim rewards |
 | arc-payments | yes | - | - | Watch Stacks blockchain for STX + sBTC payments to Arc address; decode arc: memo codes → service tasks (3min) |
+| mempool-watch | yes | - | - | Bitcoin mempool fee spike detection + Arc BTC address unconfirmed tx watch via mempool.space (10min) |
 | styx | - | yes | yes | BTC→sBTC conversion via Styx protocol (btc2sbtc.com) — pool status, deposit, tracking |
 | worker-deploy | yes | yes | - | Auto-deploy arc0btc-worker to Cloudflare Workers on SHA change (5min) |
 | worker-logs-monitor | yes | yes | yes | Query worker-logs deployments for errors, cross-reference GitHub issues, file new issues (60min) |

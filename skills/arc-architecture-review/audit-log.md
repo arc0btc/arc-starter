@@ -1,3 +1,226 @@
+## 2026-03-17T21:27:00.000Z
+
+3 findings: 0 error, 2 warn, 1 info → **HEALTHY (2 items pending)**
+
+**Codebase changes since last audit (2026-03-17T07:00Z, commits fbb86de → d172545):**
+
+- **arc-failure-triage hardened** (3 commits: 569c151, b153cdc, 8b86eaf): Added `external-constraint`, `tool-constraint`, `dismissed` categories and `SKIP_SIGNATURES` set. `budget-exhausted` added to dismissed. Zero unknown classifications remaining. Branch `fix/failure-triage-error-patterns` open.
+- **arc-weekly-presentation skill added** (cb905af + 4 fixup commits): SKILL.md + AGENT.md + sensor.ts + cli.ts. Monday AIBTC meeting slide deck; 5 revision cycles in one day (V2→V4 + feedback). Sonnet subagent research workflow.
+- **aibtc-news-editorial fixed** (b601145, ec00ec1): streak field names + required POST body fields corrected.
+- **alb skill updated** (CLI, sensor, SKILL.md): Agents Love Bitcoin project skill now active.
+- **context-review false positives reduced** (6b1eed9): keyword matching tightened.
+- **Disabled sensor files removed** (fb74d8a): arc-introspection, arc-operational-review, arc-ops-review, arc-self-audit `.disabled` files deleted. Zombie directories remain (SKILL.md-only).
+- **arc-dispatch-eval vs arc-dispatch-evals**: Two directories confirmed distinct — singular has sensor+SKILL.md (post-dispatch outcome scoring); plural has AGENT.md+CLI+SKILL.md (LLM judge evaluation). Related but different purposes. Name collision is confusing.
+- **Sensor count: 84** (+arc-weekly-presentation, +alb, +skill-effectiveness; -arc-operational-review). **Skill count: 119** (was 116).
+
+**5-Step Review (2026-03-17T21:27Z):**
+
+**Step 1 — Requirements:**
+- [INFO] failure-triage pattern expansions correct. Zero unknowns is the success criterion; achieved.
+- arc-weekly-presentation 5-revision cycle suggests requirement was underspecified upfront. Watch if it stabilizes or continues shifting — if whoabuddy feedback triggers another V5 revision, pin a specification first.
+- alb skill: Agents Love Bitcoin is a current P2-P4 priority. Valid.
+
+**Step 2 — Delete:**
+- [WARN] Four zombie directories remain post-consolidation: `arc-introspection/`, `arc-self-audit/`, `arc-ops-review/`, `arc-operational-review/`. All contain only `SKILL.md` (sensors removed, no CLI). These create false impressions of active capability. Recommend deletion. Follow-up task created.
+- [WARN] `arc-dispatch-eval` vs `arc-dispatch-evals`: confusingly named parallel directories. The singular has a sensor but no AGENT.md or CLI; the plural has AGENT.md + CLI but no sensor. Investigate whether these should be merged or renamed before the tree grows. Follow-up task created.
+- `site-consistency/` still exists alongside `arc0btc-deploy-monitor` (the consolidation). Has cli.ts — may have independent value. Needs investigation (from prior audit, still open).
+
+**Step 3 — Simplify:**
+- failure-triage 3-commit pattern-fix sprint suggests test coverage would help. A simple `bun skills/arc-failure-triage/cli.ts scan` against historical tasks could catch gaps before deployment. Not structural — development practice observation.
+
+**Step 4 — Accelerate:**
+- 84 sensors, all gated by `claimSensorRun`. Dispatch → execution pipeline unchanged. No bottlenecks identified.
+
+**Step 5 — Automate:**
+- arc-weekly-presentation sensor correctly automates Monday slide generation. Proper Step 5 application.
+
+**Context delivery audit:**
+- arc-weekly-presentation: SKILL.md + AGENT.md + sensor + CLI — fully formed. ✓
+- alb: SKILL.md + sensor + CLI — no AGENT.md. Fine for a data-tracking skill. ✓
+- skill-effectiveness: sensor only, no CLI or AGENT.md. Correct for passive measurement. ✓
+
+**Sensor count: 84** (was 82). **Skill count: 119** (was 116).
+
+---
+
+## 2026-03-17T07:00:00.000Z
+
+4 findings: 0 error, 0 warn, 4 info → **HEALTHY**
+
+**Codebase changes since last audit (2026-03-16T21:33Z, commits 441474e → fbb86de):**
+
+- **Scratchpad feature added** (`src/scratchpad.ts`): Shared context buffer for multi-subtask work. Keyed by root task ID; stored at `db/projects/<root_task_id>.md`. Cleared when root task closes. Wired into `buildPrompt()` via `resolveScratchpadContext()` — injected between skill context and task section. `arc scratchpad append/read/write/clear` CLI available.
+- **arc-self-review consolidated** (d01175c): Replaces arc-introspection + arc-self-audit + arc-ops-review + arc-operational-review. All 4 prior sensors now `.disabled`. Net: −4 sensor files +1 active. Cadence: 6h.
+- **arc0btc-deploy-monitor consolidated** (594c3db): Replaces site-health + site-consistency into one sensor. Both old sensor files may still exist but superseded. Net: −2 +1 active.
+- **New skills added**: `arc-nostr` (Nostr identity publishing), `defi-jingswap` (STX/sBTC blind auction), `arc-clarity` (Clarity smart contract audit), `arc-moltbook` (Moltbook integration), `strategic-planner` (directive-aligned task proposals), `quest-audit` (hung quest detection), `review-commitments` (X/email commitment tracking).
+- **arc-workflows templates**: `PrLifecycleMachine` deprecated. `GithubPrReviewMachine` and `GithubIssueTriageMachine` added. Instance key format changed: `owner/repo/num` → `pr-review:owner/repo#num`. JSON.stringify bug fixed in skills column (was `.join(",")` — broke JSON array format).
+- **Skills renamed**: `bitflow` → `bitflow-positions`, `styx` → `styx-btc-bridge`.
+- **`getRepoConfig` exported** (`src/constants.ts`): Per-repo `orgTier` + `requireApproval` config now queryable by sensors. Used by arc-workflows PR sensor to set workflow context.
+- **Skill count: 116** (was 105 at last audit). **Sensor count: 82 active** (was 79).
+
+**5-Step Review (2026-03-17T07:00Z):**
+
+**Step 1 — Requirements:**
+- [INFO] `arc-self-review` consolidation is correct — 4 sensors with overlapping scope (self-audit, ops-review, introspection, operational-review) produced duplicated signal. One 6h sensor is sufficient. Consolidation was justified.
+- [INFO] Scratchpad requirement: multi-subtask work previously had no shared context buffer — each subtask reloaded from memory with no intermediate state. This is a real gap, especially for project-family tasks. Requirement is valid.
+- [INFO] New sensors (strategic-planner, quest-audit, review-commitments) address D1/D2 strategic work visibility during sensor-dominated cycles. Valid. Watch trigger frequency — if strategic-planner fires every cycle with redundant proposals, tighten dedup.
+- [INFO] arc-workflows JSON.stringify bug fix is a correctness repair, not a new requirement.
+
+**Step 2 — Delete:**
+- [INFO] Four disabled sensor files (arc-introspection, arc-self-audit, arc-ops-review, arc-operational-review `.disabled`) can be fully removed — they serve no purpose as disabled files. Follow-up task created.
+- [INFO] site-consistency sensor may still exist as `.ts` alongside arc0btc-deploy-monitor — if so, redundant and should be removed.
+
+**Step 3 — Simplify:**
+- [INFO] arc-workflows instance key change (`owner/repo/num` → `pr-review:owner/repo#num`) is a good namespace clarification — avoids collision with issue keys. Correct simplification.
+- [INFO] `getRepoConfig` export from constants.ts is the right pattern — sensor behavior controlled by central config rather than hardcoded per-sensor logic.
+
+**Step 4 — Accelerate:**
+- Scratchpad enables subtask chains to share findings without full memory writes. This should reduce the "reload context from scratch" overhead in multi-step project tasks.
+
+**Step 5 — Automate:**
+- All new sensors follow the correct `claimSensorRun` → dedup → insert pattern. No issues.
+- strategic-planner sensor automating D1/D2 task proposals is a correct application of Step 5 (after the prior manual-scheduling gap was identified in Step 1).
+
+**Context delivery audit:**
+- arc-clarity has SKILL.md + AGENT.md (correct — requires subagent execution for contract audits).
+- arc-nostr has SKILL.md only (CLI skill, no sensor, no subagent needed). Correct.
+- defi-jingswap has SKILL.md + sensor + CLI. AGENT.md absent. Fine for a data-tracking skill.
+- strategic-planner has SKILL.md + AGENT.md + sensor + CLI. Correct — agent reasoning required.
+
+**Sensor count: 82** (was 79 at last audit). **Skill count: 116** (was 105).
+
+---
+
+## 2026-03-16T21:33:00.000Z
+
+5 findings: 0 error, 1 warn, 4 info → **HEALTHY**
+
+**Codebase changes since last audit (07:00Z 2026-03-16, commits b6d343b → 441474e):**
+
+- **External watchdog added** (`src/external-watchdog.ts` + `arc-watchdog.service/timer`): Runs independently on its own 15-min systemd timer. Reads `cycle_log` directly via SQLite; sends email to whoabuddy if no cycle in >2h with pending tasks. Critically independent from sensors/dispatch — survives dispatch service death. State: `db/hook-state/external-watchdog.json`.
+- **`dispatch-watchdog` sensor** (10min): Complements external watchdog. Detects stalls >95min, writes structured incident to `memory/topics/incidents.md`, creates P2 alert task (deduped per stall event). Runs inside sensors service, so only operates when sensors are up.
+- **`credential-health` sensor** (60min): Validates ARC_CREDS_PASSWORD, iterates all credentials for readability, checks API endpoints (email, Cloudflare). Writes to `memory/topics/integrations.md` on failure + P3 task.
+- **`fleet-handoff` skill restored**: Was deleted 2026-03-11 and referenced in CLAUDE.md's GitHub-handoff policy without a real implementation. Now has proper `cli.ts` with `initiate/status/list` subcommands.
+- **Budget gate corrected to $200**: `DAILY_BUDGET_USD` was $500 but D4 directive is $200/day cap. Fixed to match directive (commit 441474e).
+- **`arc-mcp` deleted**: Superseded by `arc-mcp-server`. Skill directory cleaned. Skill count: 103 → 105 (net +2: dispatch-watchdog, credential-health added; arc-mcp deleted; fleet-handoff restored).
+- **`resolveSkillContextAndHashes` refactor**: Reads each SKILL.md once instead of twice (was separate `resolveSkillContext` + `computeSkillHashes` calls). No behavior change; eliminates redundant I/O.
+- **Web dashboard header normalization**: All 6 dashboard pages (tasks, sensors, schedule, skills, email, identity) now share consistent header markup per Arc Audit findings.
+
+**5-Step Review (2026-03-16T21:33Z):**
+
+**Step 1 — Requirements:**
+- [WARN] Two stall-detection systems now exist: `dispatch-watchdog` sensor (runs in sensors service) and `external-watchdog.ts` (runs in its own systemd timer). The external watchdog was explicitly designed to survive dispatch service death; dispatch-watchdog is only useful when sensors are running. Requirements for both remain valid but they should not duplicate alert logic. Current state: dispatch-watchdog writes to incidents.md (structured memory), external watchdog emails whoabuddy. Complementary, not redundant.
+- `credential-health` requirement is valid — Cloudflare token expiry in overnight brief shows a real gap that an earlier sensor would have caught.
+- `fleet-handoff` restoration requirement: CLAUDE.md's mandatory GitHub handoff policy was referencing a skill that didn't exist. This was a structural gap; restoration is justified.
+
+**Step 2 — Delete:**
+- Nothing deleted this cycle beyond arc-mcp (done).
+
+**Step 3 — Simplify:**
+- `resolveSkillContextAndHashes` refactor is correct simplification — eliminates one file-read pass.
+
+**Step 4 — Accelerate:**
+- External watchdog fires every 15min and operates independently. Latency for human alert is now 15min worst-case from stall detection vs. prior best-case of waiting for a human to notice.
+
+**Step 5 — Automate:**
+- All new sensors follow the correct `claimSensorRun` → dedup → insert pattern. No issues.
+
+**Context delivery audit:**
+- All new skill SKILL.md files are under 2000 tokens.
+- dispatch-watchdog has no AGENT.md (sensor-only, no agent context needed). Correct.
+- credential-health has no AGENT.md (sensor-only). Correct.
+- fleet-handoff has no AGENT.md — the CLI is the interface. Correct.
+
+**Sensor count: 79** (was 77 at last audit 07:00Z, +dispatch-watchdog +credential-health)
+**Skill count: 105** (was 103, +dispatch-watchdog +credential-health +fleet-handoff-restored -arc-mcp)
+
+---
+
+## 2026-03-16T07:00:00.000Z
+
+3 findings: 0 error, 0 warn, 3 info → **HEALTHY**
+
+**Codebase changes since last audit (18:49Z 2026-03-13, commits 1f20f98 → b6d343b):**
+- **Memory Architecture V2** (3 commits: 035558d → d20983c): Three-phase implementation of structured memory.
+  - Phase 1: Topical file split — `memory/topics/*.md` (fleet, incidents, cost, integrations, defi, publishing, identity, infrastructure). `resolveMemoryContext()` in `src/memory-topics.ts` maps task skills → topic files. Only relevant topics loaded per dispatch, not full MEMORY.md.
+  - Phase 2: `arc_memory` FTS5 table added to `src/db.ts` — key/value/domain/importance/TTL structured store. `arc memory search` and `arc memory add` CLI commands added. Retrospective tasks now instructed to also call `arc memory add` for reusable patterns.
+  - Phase 3: Wired into dispatch via `resolveFtsMemoryContext()` — injects top-10 importance>=3 FTS entries from relevant domains into every prompt. Phase 3b: FTS CLI `--syntax` flag documenting FTS5 query syntax added.
+- **`arc-memory-expiry` skill added** (12348cf): New sensor (1440min) — deletes TTL-expired `arc_memory` entries daily. No task creation; runs inline.
+- **`arc-operational-review` skill added**: Self-audit sensor (6h) — surfaces failed tasks with no follow-up, stale blocked tasks, overdue scheduled tasks. Has CLI.
+- **`src/dispatch-gate.ts` + `src/services.ts`** (2459747): Auto-persist on Stop — service shutdown now writes final state before exit.
+- **`skills/worker-logs-monitor/cli.ts`** (0ca2243): Parse `/apps` response via `.data` field — API response structure fix.
+
+**5-Step Review (2026-03-16T07:00Z):**
+
+**Step 1 — Requirements:** INFO — Memory V2 requirement is well-founded: full MEMORY.md (1600+ lines in MEMORY.md context notes) loaded every dispatch was burning tokens on irrelevant domain context. Topical split + FTS is an appropriate solution to a real problem. `arc-memory-expiry` sensor requirement is valid — FTS entries need TTL enforcement or the table grows unbounded.
+
+**Step 2 — Delete:** INFO — `arc-mcp` and `arc-mcp-server` now coexist as separate skill directories. If they serve identical purposes, one should be deleted. Investigate whether both are actively used or if one is a superseded version. Marking as needs-investigation.
+
+**Step 3 — Simplify:** INFO — `SKILL_TOPIC_MAP` in `src/memory-topics.ts` is a manual maintenance burden — any new skill that touches a domain requires a manual map update. The current fallback (load fleet+incidents default) is reasonable. Consider: could the skill SKILL.md frontmatter declare its domain? That would eliminate the manual map entirely. Not critical now, but the pattern will cause map drift as skills multiply.
+
+**Step 4 — Accelerate:** No bottlenecks introduced. Memory loading is synchronous file reads + one SQLite query — minimal overhead.
+
+**Step 5 — Automate:** Memory V2 was itself an automation step — replacing ad-hoc memory management with FTS + TTL. No additional automation opportunities identified at this time.
+
+**Architecture Assessment:** Healthy. Memory V2 is a meaningful improvement to context efficiency. Two new skills (arc-memory-expiry, arc-operational-review) are correctly scoped. One needs-investigation item: arc-mcp vs arc-mcp-server duplication.
+
+---
+
+## 2026-03-13T18:49:00.000Z
+
+4 findings: 0 error, 1 warn, 3 info → **WARN**
+
+**Codebase changes since last audit (06:47Z 2026-03-13, commits e626519 → 44af48e):**
+- **`aibtc-repo-maintenance` toggled off/on** (9c8bf7f → 44af48e): Disabled for creating noise (too broad a scope across aibtcdev repos), then re-enabled per whoabuddy with scope clarified. Net: sensor active, same behavior.
+- **`aibtc-dev-ops` simplified** (44af48e): Prod-grade audit checks (tsconfig, tests, release-please) removed. Created false positives on repos where they don't apply. Log review (4h cadence) preserved.
+- **`--skills` flag added to `arc tasks update`** (73eb83a): Retroactive skill tagging on any task, including completed ones. Accepts comma-separated skill names, stored as JSON array. Fills the analytics gap where untagged tasks couldn't be categorized.
+- **`EmailThreadMachine` retrospective_pending state** (e90a1eb): Pattern analysis found 104 recurrences of arc-email-sync threads without a retrospective step. Retrospective_pending now explicit state — previously ad-hoc follow-up tasks.
+- **`blog-publishing` 23h cooldown** (0f51aed): Sensor dedup now blocks re-queue for 23h after completion (not just while pending). Expected 80% token reduction. Already in audit context from memory.
+
+**SpaceX 5-step findings (2026-03-13T18:49Z):**
+- **(S1 — Requirements) [WARN]:** `aibtc-repo-maintenance` requires human override to fix scope — the sensor's trigger conditions were broad enough to create noise across repos Arc doesn't own. Pattern: when a sensor needs human intervention to clarify scope, the sensor's selectivity criteria are wrong. Pre-flight check on sensor activation should gate on explicit repo allowlist rather than "all aibtcdev repos". Watch for recurrence.
+- **(S2 — Delete) [INFO]:** `aibtc-dev-ops` prod-grade audit removal is correct S2 application. False-positive checks are worse than no checks — they train the system to ignore signals. Removing tsconfig/tests/release-please assertions from a general log-review sensor was the right call. Precedent: prefer narrow sensors that are always correct over broad sensors that are sometimes wrong.
+- **(S3 — Simplify) [INFO]:** `EmailThreadMachine` retrospective_pending makes implicit workflow explicit. 104 recurrences of ad-hoc retrospective follow-ups → first-class state. Simplification via formalization. The missing state was generating observable but invisible volume in email-sync costs.
+- **(S5 — Automate) [INFO]:** `--skills` retroactive tagging enables analytics automation. Previously, any task created before skill tags were standard was analytically dark. Now correctable post-hoc. Retroactive correction capability is a force multiplier for future audit tooling.
+
+---
+
+## 2026-03-13T06:47:00.000Z
+
+4 findings: 0 error, 1 warn, 3 info → **WARN**
+
+**Codebase changes since last audit (18:46Z 2026-03-12, commits 5a9c34e → e626519):**
+- **`aibtc-news-editorial` v2 API migration** (533382e): Auth moved from POST body to HTTP headers (X-BTC-Address, X-BTC-Signature, X-BTC-Timestamp). Snake_case request bodies. cli.ts, SKILL.md, AGENT.md all updated.
+- **`aibtc-news-classifieds` v2 API migration** (e626519): Same auth header pattern. `cmdGetInscription` removed (v2 endpoint deleted). Cleaner than v1.
+- **`aibtc-news-deal-flow` sensor added** (auto-commit): 5-hook sensor at 60min cadence. Ordinals volume ($2M threshold), sats auctions (50k sat), x402 escrow ($5M), bounty activity, DAO treasury (1 BTC change). Sensors: 74→75.
+- **`arc-mcp` skill scaffolded** (69c0fb5): Phase 1 Bun HTTP server on port 3100. Read-only endpoints: /health, /tasks, /tasks/:id, /skills. MCP Phase 1 milestone begun.
+- **`arc-payments` CLI added** (bbdc107): Payment inspection and manual scan commands.
+- **`arc-cost-reporting` fix** (918791e): Dual cost fields (cost_usd + api_cost_usd) now tracked in all report sections.
+- **`SkillMaintenanceMachine` added** (state-machine.ts): New workflow for email-signal→audit→fix pattern. Instance key: skill-maintenance-{skill}-{YYYY-MM-DD}.
+
+**SpaceX 5-step findings (2026-03-13T06:47Z):**
+- **(S1 — Requirements) [WARN]:** `aibtc-news-deal-flow` sensor — 2 of 5 hooks (DAO treasury, bounty activity) are permanently-skip until `daoTreasuryContract` / `bountyContract` are set in hook state. These are dead code at deploy time. Before next review, either configure the contracts in hook state or document intended activation timeline. Creating a follow-up task.
+- **(S2 — Delete) [INFO]:** `buildAuthHeaders` is now duplicated in both `aibtc-news-editorial/cli.ts` and `aibtc-news-classifieds/cli.ts`. Per CLAUDE.md, two copies is acceptable. A third news skill copying this would warrant a shared `skills/aibtc-news-shared/` module. Watch for the pattern.
+- **(S3 — Simplify) [INFO]:** v2 API migration removed legacy body-auth fields cleanly. Breaking endpoint (`cmdGetInscription`) removed rather than shim-preserved. Good precedent — delete over backwards-compat hacks.
+- **(S5 — Automate) [INFO]:** `SkillMaintenanceMachine` codifies a previously ad-hoc cycle. The email-signal→audit→fix chain is now a first-class workflow. Pattern extends naturally to dependency-change events beyond email (e.g. sensor detecting API schema change could trigger same machine).
+
+---
+
+## 2026-03-12T18:46:00.000Z
+
+2 findings: 0 error, 0 warn, 2 info → **CLEAN**
+
+**Codebase changes since last audit (06:46Z, commits 08ebb9b → 5a9c34e):**
+- **`mempool-watch` skill added** (9ab381e): Sensor-only skill (10min cadence). Two functions: (1) fee spike detection — task when `fastestFee >= 50 sat/vB`, 60min cooldown to prevent spam; (2) Arc BTC address unconfirmed tx watch — task per new mempool tx to `bc1qlezz2...`, seen_txids dedup capped at 500. API: mempool.space (no key). Sensors: 73→74.
+- **`arc-cost-alerting` → `arc-cost-reporting`** (e7998c2): Threshold/alert logic removed. New sensor runs every 60min, creates one daily report task (P9 haiku) covering top tasks by cost, top tasks by tokens, top skills by cost, top sensors by cost. Simpler, single-purpose.
+- **`stacks-payments` → `arc-payments`** (daa0b40): Renamed. Now watches both STX `token_transfer` and sBTC SIP-010 `contract_call`. Already reflected in prior audit.
+- **Web dashboard: sensor schedule page** (171ca77): `/sensors/schedule` with 24h heatmap, sortable schedule table, `/api/sensors/schedule` endpoint. No structural change to sensors/dispatch.
+- **Operational commits**: fleet-status, pool-state, patterns.md consolidation — no structural changes.
+
+**SpaceX 5-step findings (2026-03-12T18:46Z):**
+- **(S3 — Simplify) [INFO]:** `arc-cost-alerting → arc-cost-reporting` is a good simplification. Threshold tuning was operational overhead; daily reports give the same signal without false urgency. Pattern to follow for other alert sensors.
+- **(S2 — Delete) [INFO]:** Inventory still contains 8 "(deleted)" fleet skill entries (fleet-broadcast, fleet-collect, fleet-consensus, fleet-deploy, fleet-email-report, fleet-exec, fleet-task-sync, fleet-handoff, arc-dual-sdk, arc-roundtable). These were deleted 2026-03-11. Safe to prune from inventory after 30 days (2026-04-11) once no cross-references remain.
+
 ## 2026-03-12T06:46:00.000Z
 
 2 findings: 1 error, 0 warn, 1 info → **ACTION REQUIRED**

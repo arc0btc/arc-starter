@@ -376,6 +376,31 @@ async function cmdBtcVerify(args: string[]): Promise<void> {
   console.log(result.stdout);
 }
 
+async function cmdSip018Sign(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+
+  if (!flags.message) {
+    process.stderr.write("Usage: arc skills run --name wallet -- sip018-sign --message '<json>' [--domain-name <name>] [--domain-version <version>]\n");
+    process.exit(1);
+  }
+
+  const signingArgs = ["sip018-sign", "--message", flags.message];
+  if (flags["domain-name"]) signingArgs.push("--domain-name", flags["domain-name"]);
+  if (flags["domain-version"]) signingArgs.push("--domain-version", flags["domain-version"]);
+  if (flags["domain"]) signingArgs.push("--domain", flags["domain"]);
+
+  log("signing SIP-018 structured data (auto unlock/lock)");
+  const result = await runSigning(signingArgs);
+
+  if (result.exitCode !== 0) {
+    log(`sip018-sign failed: ${result.stderr}`);
+    console.log(JSON.stringify({ success: false, error: "SIP-018 sign failed", detail: result.stderr || result.stdout }));
+    process.exit(1);
+  }
+
+  console.log(result.stdout);
+}
+
 async function cmdSchnorrSignDigest(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
@@ -721,6 +746,11 @@ SUBCOMMANDS
   stacks-sign --message "text" [--auto-lock]
     Sign a Stacks message. Auto-unlocks and locks.
 
+  sip018-sign --message '<json>' [--domain-name <name>] [--domain-version <version>]
+    Sign structured Clarity data using SIP-018. Auto-unlocks and locks.
+    Message is a JSON object with typed Clarity values.
+    Example: --message '{"amount":{"type":"uint","value":100}}'
+
   btc-verify --message "text" --signature "sig" [--expected-signer "addr"]
     Verify a Bitcoin signature (no unlock needed).
 
@@ -783,6 +813,9 @@ async function main(): Promise<void> {
       break;
     case "stacks-sign":
       await cmdStacksSign(args.slice(1));
+      break;
+    case "sip018-sign":
+      await cmdSip018Sign(args.slice(1));
       break;
     case "btc-verify":
       await cmdBtcVerify(args.slice(1));

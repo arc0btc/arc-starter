@@ -89,10 +89,10 @@ async function getSbtcPosition(): Promise<{ suppliedShares: string; borrowed: st
     const decoded = cvToJSON(hexToCV(data.result));
 
     if (decoded && typeof decoded === "object" && "value" in decoded) {
-      const val = decoded.value as Record<string, { value: string }>;
+      const decodedValue = decoded.value as Record<string, { value: string }>;
       return {
-        suppliedShares: val["suppliedShares"]?.value ?? val["supplied-shares"]?.value ?? "0",
-        borrowed: val["borrowed"]?.value ?? "0",
+        suppliedShares: decodedValue["suppliedShares"]?.value ?? decodedValue["supplied-shares"]?.value ?? "0",
+        borrowed: decodedValue["borrowed"]?.value ?? "0",
       };
     }
 

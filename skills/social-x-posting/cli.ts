@@ -90,11 +90,11 @@ interface DailyBudget {
 }
 
 const BUDGET_LIMITS: Record<string, number> = {
-  posts: 10,
-  replies: 40,
-  likes: 50,
-  retweets: 15,
-  follows: 20,
+  posts: 25,
+  replies: 100,
+  likes: 200,
+  retweets: 50,
+  follows: 50,
 };
 
 function todayDateStr(): string {
@@ -318,8 +318,8 @@ async function cmdPost(flags: Record<string, string>): Promise<void> {
     console.log("Usage: post --text <tweet text>");
     process.exit(1);
   }
-  if (text.length > 280) {
-    console.log(`Tweet too long: ${text.length}/280 characters`);
+  if (text.length > 25000) {
+    console.log(`Tweet too long: ${text.length}/25000 characters`);
     process.exit(1);
   }
 
@@ -352,8 +352,8 @@ async function cmdReply(flags: Record<string, string>): Promise<void> {
     console.log("Usage: reply --text <reply text> --tweet-id <id>");
     process.exit(1);
   }
-  if (text.length > 280) {
-    console.log(`Reply too long: ${text.length}/280 characters`);
+  if (text.length > 25000) {
+    console.log(`Reply too long: ${text.length}/25000 characters`);
     process.exit(1);
   }
 
@@ -760,7 +760,7 @@ Commands:
   status                                       Check API access and account info
 
 Daily budget limits (resets at midnight UTC):
-  10 posts, 40 replies, 50 likes, 15 retweets, 20 follows
+  25 posts, 100 replies, 200 likes, 50 retweets, 50 follows
 
 Credentials required (set via arc creds set --service x --key <key> --value <value>):
   x/consumer_key         OAuth 1.0a Consumer Key

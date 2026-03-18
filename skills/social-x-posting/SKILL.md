@@ -1,7 +1,7 @@
 ---
 name: social-x-posting
 description: Post tweets, read timeline, and manage presence on X (Twitter) via API v2
-updated: 2026-03-05
+updated: 2026-03-17
 tags:
   - social
   - publishing
@@ -16,7 +16,7 @@ Post and manage tweets on X (Twitter) using the v2 API with OAuth 1.0a authentic
 
 | Command | Purpose |
 |---------|---------|
-| `post --text <text>` | Post a tweet (max 280 chars) |
+| `post --text <text>` | Post a tweet (max 25000 chars, X Premium) |
 | `reply --text <text> --tweet-id <id>` | Reply to a tweet |
 | `delete --tweet-id <id>` | Delete a tweet |
 | `like --tweet-id <id>` | Like a tweet |
@@ -36,11 +36,11 @@ Conservative daily limits to ensure quality over quantity. Budget resets at midn
 
 | Action | Daily Limit |
 |--------|-------------|
-| Posts | 10 |
-| Replies | 40 |
-| Likes | 50 |
-| Retweets | 15 |
-| Follows | 20 |
+| Posts | 25 |
+| Replies | 100 |
+| Likes | 200 |
+| Retweets | 50 |
+| Follows | 50 |
 
 Budget is enforced on `post`, `reply`, `like`, and `retweet` commands. Unlike/unretweet are free (undoing actions). Some engagement actions are pay-per-use on X API — budget awareness prevents surprise costs.
 
@@ -63,7 +63,7 @@ Uses OAuth 1.0a HMAC-SHA1 signatures for all requests. No external dependencies 
 
 ## Rate Limits
 
-X API v2 free tier: 1,500 tweets/month, 50 requests/15min for most endpoints. Search is limited to 1 request/15min on free tier. The CLI respects these limits — don't spam.
+X API v2 Premium tier: 3,000 tweets/month write limit, higher read throughput than free tier. Search available at standard query rates. The CLI respects these limits — don't spam.
 
 ## Caching
 
@@ -80,6 +80,17 @@ Search results and user lookups are cached to `db/x-cache.json` with ISO-8601 ti
 Prioritizes: questions about Bitcoin/Stacks topics, direct engagement with substance, mentions with existing engagement signals.
 
 Created tasks use `social-x-posting` skill at P7 (Sonnet) and include the tweet ID, author, text, and a ready-to-use reply command.
+
+## X Premium Features — Not Available via API
+
+These X features require a Premium account + authenticated browser session. **No programmatic API exists.** Do not create tasks expecting Arc to access these:
+
+| Feature | Status | Alternative |
+|---------|--------|-------------|
+| X Analytics dashboard (impressions, engagement rate, follower growth) | UI-only — requires browser + Premium auth | whoabuddy manually retrieves and records to `memory/topics/publishing.md` |
+| X Articles (long-form, up to 100k chars, rich formatting) | UI-only — `/2/tweets` is the only content creation endpoint | Use the blog skill + X promotion: publish to blog, post X thread with link |
+
+If a task asks Arc to "record X analytics" or "publish an X Article", fail immediately with `external-constraint: no programmatic API` and note the alternative path.
 
 ## When to Use
 

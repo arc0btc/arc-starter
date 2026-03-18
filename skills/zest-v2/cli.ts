@@ -315,9 +315,9 @@ async function cmdHealth(args: string[]): Promise<void> {
       const decoded = cvToJSON(hexToCV(result.result as string));
       if (!decoded || typeof decoded !== "object" || !("value" in decoded)) continue;
 
-      const val = decoded.value as Record<string, { value: string }>;
-      const supplied = val["suppliedShares"]?.value ?? val["supplied-shares"]?.value ?? "0";
-      const borrowed = val["borrowed"]?.value ?? "0";
+      const decodedValue = decoded.value as Record<string, { value: string }>;
+      const supplied = decodedValue["suppliedShares"]?.value ?? decodedValue["supplied-shares"]?.value ?? "0";
+      const borrowed = decodedValue["borrowed"]?.value ?? "0";
 
       const suppliedN = BigInt(supplied);
       const borrowedN = BigInt(borrowed);

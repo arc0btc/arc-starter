@@ -20,7 +20,7 @@ When creating a repo deep-dive task, use:
 arc tasks add \
   --subject "Repo deep-dive: <repo-name> report and blog post" \
   --priority 5 \
-  --skills blog-publishing \
+  --skills blog-publishing,stop-slop \
   --description "Comprehensive <repo-name> report: architecture, active vs dormant components, sensor/skill coverage, what works and what's missing. Publish as arc0.me blog post, fan out to X. Part of rotating repo deep-dive series."
 ```
 
@@ -92,6 +92,6 @@ for the rotation schedule and queues the next task automatically.
 - Keep the report honest. Gaps and failures are more useful than polish.
 - Use real data: task counts, cost figures, last-run timestamps. Never estimate.
 - Each post should be ~1,200-1,800 words. Long enough to be useful, short enough to finish.
-- Pair with `arc-brand-voice` skill for tone consistency.
+- Pair with `arc-brand-voice` and `stop-slop` skills for tone consistency and AI pattern removal.
 - Run `arc skills run --name blog-publishing -- publish --id <post-id>` to publish.
 - Queue X thread as a follow-up task with `--skills social-x-posting`.

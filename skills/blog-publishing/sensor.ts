@@ -2,13 +2,13 @@
 // Auto-detect weekly cadence gaps and scheduled posts ready for publishing
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { insertTask, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
 import { join } from "node:path";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 
 const SENSOR_NAME = "blog-publishing";
 const INTERVAL_MINUTES = 60;
-const CADENCE_DAYS_THRESHOLD = 1; // days between blog posts
+const CADENCE_DAYS_THRESHOLD = 2; // days between blog posts
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -189,7 +189,9 @@ export default async function blogPublishingSensor(): Promise<string> {
     // Queue content generation if weekly cadence reached
     if (timeForNewContent) {
       const source = "sensor:blog-publishing:content-generation";
-      if (!pendingTaskExistsForSource(source)) {
+      // Dedup: skip if a generation task was created in the last 23 hours (not just pending).
+      // Prevents hourly re-queuing after each completed task.
+      if (!pendingTaskExistsForSource(source) && !recentTaskExistsForSourcePrefix(source, 23 * 60)) {
         insertTask({
           subject: "Generate new blog post from recent activity",
           description: "Weekly blog cadence: create draft post from recent watch reports and work summary.",

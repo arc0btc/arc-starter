@@ -22,7 +22,16 @@ import {
   insertTaskIfNew,
 } from "../../src/sensors.ts";
 import { getDatabase } from "../../src/db.ts";
-import { initContactsSchema, type Contact } from "../contacts/schema.ts";
+import {
+  initContactsSchema,
+  insertContactInteraction,
+  getInteractionCountForContact,
+  type Contact,
+} from "../contacts/schema.ts";
+import {
+  initReputationSchema,
+  getReputationSummary,
+} from "./schema.ts";
 import { resolve } from "node:path";
 
 const SENSOR_NAME = "reputation-tracker";
@@ -335,10 +344,44 @@ export default async function reputationTrackerSensor(): Promise<string> {
     MAX_REVIEWS_PER_RUN,
   );
 
-  // Queue one review task per eligible interaction (up to daily cap and per-run cap)
+  // Log interactions to contact_interactions and queue review tasks
   let queued = 0;
+  let logged = 0;
+
+  // Initialize reputation schema for aggregate queries
+  initReputationSchema();
+
   for (const interaction of eligible.slice(0, remainingBudget)) {
     const source = `${TASK_SOURCE_PREFIX}:task:${interaction.task_id}:contact:${interaction.contact_id}`;
+
+    // ---- Write to contact interaction log ----
+    try {
+      insertContactInteraction({
+        contact_id: interaction.contact_id,
+        task_id: interaction.task_id,
+        type: interaction.interaction_type === "pr-review" ? "collaboration" : "other",
+        summary: `${interaction.interaction_type}: ${interaction.task_subject}`,
+      });
+      logged++;
+    } catch (error) {
+      log(`failed to log interaction for contact ${interaction.contact_id}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+
+    // ---- Gather aggregate data for review context ----
+    const interactionCount = getInteractionCountForContact(interaction.contact_id);
+    const repSummary = interaction.contact_btc_address
+      ? getReputationSummary(interaction.contact_btc_address)
+      : null;
+
+    const aggregateLines: string[] = [];
+    aggregateLines.push(`Total logged interactions: ${interactionCount}`);
+    if (repSummary) {
+      aggregateLines.push(
+        `Prior reviews: ${repSummary.total_reviews} (avg ${repSummary.average_rating}/5, range ${repSummary.min_rating}-${repSummary.max_rating})`
+      );
+    } else {
+      aggregateLines.push(`Prior reviews: none — this will be the first signed review`);
+    }
 
     const description = [
       `Review interaction from task #${interaction.task_id}: "${interaction.task_subject}"`,
@@ -346,6 +389,9 @@ export default async function reputationTrackerSensor(): Promise<string> {
       `Contact: ${interaction.contact_name} (ID: ${interaction.contact_id})`,
       `BTC address: ${interaction.contact_btc_address ?? "unknown — look up via contacts skill"}`,
       `Interaction type: ${interaction.interaction_type}`,
+      ``,
+      `Aggregate reputation data:`,
+      ...aggregateLines.map((l) => `  ${l}`),
       ``,
       `Steps:`,
       `1. Read task #${interaction.task_id} result to understand the interaction`,
@@ -377,6 +423,6 @@ export default async function reputationTrackerSensor(): Promise<string> {
     reviewed_keys: [...reviewedKeys].slice(-500),
   });
 
-  log(`queued ${queued} review task(s)`);
+  log(`logged ${logged} interaction(s), queued ${queued} review task(s)`);
   return "ok";
 }

@@ -1,13 +1,12 @@
-# Arc Memory — Current Status & Index
+# Arc Memory — Index
 
-*Last updated: 2026-03-12T03:07Z*
+*Last updated: 2026-03-17T20:54Z*
 
 ## Directives & Milestones
 
 **Five Directives:** D1=services business, D2=grow AIBTC, D3=improve stack, D4=$200/day cap, D5=honest public.
 **Milestones:** Revenue, Zest V2, Bitflow, Zero Authority DAO, ERC-8004, MCP Phase 1.
 **Priorities:** Monetization → DeFi → AIBTC → Stack reliability.
-**Blocked:** Spark GitHub (awaiting whoabuddy).
 
 ## Fleet Roster
 
@@ -21,38 +20,25 @@
 
 ## Critical Flags (2026-03-11)
 
-**FLEET DEGRADED:** Workers (Spark, Iris, Loom, Forge) suspended by Anthropic for account use violations. Arc is sole executor. Forge has OpenRouter fallback. whoabuddy appealing. Do NOT route to workers.
+**FLEET RECOVERING (2026-03-17):** Anthropic suspension lifting. Spark and Forge coming online. Loom possibly with AIBTC news focus only. Iris status unknown. Priority: provision skills with correct config, correct stale memories, then bring workers online. Do NOT assume workers are operational — verify per-agent before routing tasks.
+
+**Fleet restart blank slate (2026-03-13):** All 4 workers cleaned. Services stopped/disabled. 107 skills archived to `skills-archive-2026-03-13/` on each VM. Only `arc-credentials` retained. Task queues and memories cleared. Workers being selectively re-provisioned.
 
 **Ordinals APIs:** Hiro shutdown 2026-03-09. Use Unisat (open-api.unisat.io, 5 req/s free). Stacks Extended API unaffected.
 
-**Dispatch gate:** Rate limits → immediate stop + email whoabuddy. 3 consecutive failures → same. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
+**[RESOLVED] arc-web-dashboard cost spike:** $8.59 on 2026-03-16 was ALB Phase 3 payment-gated endpoint work. Not recurring — trend normalized.
 
-**Umbrel node (192.168.1.106):** Bitcoin Core must run full (currently pruned). Stacks node + API planned. Storage expansion pending.
+## Topic Files
 
-**x402 NONCE_CONFLICT:** Sentinel file `db/hook-state/x402-nonce-conflict.json` gates welcome sensors. Welcome dedup fixed (sensor checks interaction history before queueing). ~60 contacts still pending re-welcoming once relay clears. **x402-sponsor-relay v1.18.0 deployed 2026-03-12** — nonce retry backoff increased 1s→30s (reduces cascade), /health now surfaces nonce pool state.
+Domain-specific memory lives in `memory/topics/`. Dispatch loads only relevant topics per skill.
 
-## Fleet Architecture
-
-- GitHub sensors centralized (Arc-only). Pre-dispatch gate routes GitHub tasks to Arc.
-- OAuth: Workers use ANTHROPIC_API_KEY (OAuth unreliable across VMs).
-- Identity drift: Mnemonic never shared. Fleet-sync backup/restore fixed.
-- Welcome dedup: Verify completion in DB, not task creation.
-- Monitoring: Arc's 74 sensors unaffected. Worker sensors down during suspension.
-
-## Key Learnings
-
-**Sentinel file pattern:** For 402/CreditsDepleted or transient gate conditions, write sentinel (e.g. `db/x-credits-depleted.json`) and gate all downstream callers. Check before runtime failure.
-
-**Welcome sensor bug:** Never mark state on creation. Use `completedTaskCountForSource()` verification. Chain-reaction follow-ups: 62% of volume — audit if >600/day.
-
-**Agent identities:** Arc=Trustless Indra (1), Spark=Topaz Centaur (29), Loom=Fractal Hydra (85), Forge=Sapphire Mars (84), Iris=not yet registered (task #2890).
-
-**Site mapping:** `blog-publishing`, `blog-deploy`, `arc0btc-site-health`. X dedup: 24h window, rewrite > split. Hub posting discontinued.
-
-**Auth cascade pattern:** OAuth token expiry causes a wave of consecutive auth-error failures before recovery. Mitigation: ANTHROPIC_API_KEY fallback now in dispatch.ts (task #5215). When a cascade happens, whoabuddy refreshes OAuth; dispatch auto-recovers.
-
-**Model field fix (2026-03-12):** Resolved — `updateTask(task.id, { model: cycleModelLabel })` added to dispatch.ts (commit 6dfb32d). Backfilled 1660 historical tasks from cycle_log. ~1182 older tasks remain NULL (pre-date model tracking or never dispatched).
-
-**Zero Authority DAO monitoring (2026-03-12):** Sensor removed (no on-chain contracts exist yet). CLI + daos.json config ready at `skills/dao-zero-authority/`. Standing instruction: rebuild sensor.ts and re-enable polling when Zero Authority deploys contracts on Stacks. Task #5369 completed as infrastructure-ready.
-
-**arc-payments rename (2026-03-12):** `stacks-payments` → `arc-payments`. Now monitors both STX token_transfer and sBTC SIP-010 contract_call (SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token). PR review sensor accepts both old and new source prefixes for backwards compat. Hook state key is now `arc-payments` (cold-start safe, dedup handles reprocessing).
+| Topic | Contents |
+|-------|----------|
+| fleet.md | Fleet architecture, coordination patterns |
+| incidents.md | Recent incidents, dispatch stalls, recovery |
+| cost.md | Cost tracking, budget analysis, optimization |
+| integrations.md | API migrations, auth patterns, email-sync |
+| defi.md | Zest, Bitflow, Zero Authority, agentslovebitcoin.com |
+| publishing.md | Blog, site health, deploy patterns |
+| identity.md | Agent identities, on-chain, BNS |
+| infrastructure.md | Umbrel node, sentinel patterns, dispatch gate |

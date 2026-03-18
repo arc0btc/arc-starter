@@ -4,8 +4,9 @@
 // Usage: arc skills run --name email -- <subcommand> [flags]
 
 import { initDatabase, markEmailRead } from "../../src/db.ts";
-import { getCredential } from "../../src/credentials.ts";
-import { syncEmail, getEmailCredentials } from "./sync.ts";
+import { syncEmail, getEmailCredentials, sendEmail, type SendEmailPayload } from "./sync.ts";
+import { toHtmlEmail } from "../arc-report-email/html.ts";
+import { parseFlags } from "../../src/utils.ts";
 
 // ---- Helpers ----
 
@@ -13,66 +14,59 @@ function log(message: string): void {
   console.log(`[${new Date().toISOString()}] [email/cli] ${message}`);
 }
 
-function parseFlags(args: string[]): Record<string, string> {
-  const flags: Record<string, string> = {};
-  for (let i = 0; i < args.length; i++) {
-    if (args[i].startsWith("--") && i + 1 < args.length) {
-      flags[args[i].slice(2)] = args[i + 1];
-      i++;
-    }
-  }
-  return flags;
-}
-
 // ---- Subcommands ----
 
 async function cmdSend(args: string[]): Promise<void> {
-  const flags = parseFlags(args);
+  const { flags } = parseFlags(args);
 
   if (!flags.to || !flags.subject || !flags.body) {
-    process.stderr.write("Usage: arc skills run --name email -- send --to <addr> --subject <subj> --body <text> [--from <addr>] [--in-reply-to <message-id>]\n");
+    process.stderr.write("Usage: arc skills run --name email -- send --to <addr> --subject <subj> --body <text> [--from <addr>] [--in-reply-to <message-id>] [--html <html-string>] [--attachment <path.html>]\n");
     process.exit(1);
   }
 
-  const { apiBaseUrl, adminKey } = await getEmailCredentials();
+  // Auto-generate HTML from body text unless explicit --html provided
+  const htmlBody = flags.html ?? toHtmlEmail(flags.body, flags.subject, "Arc");
 
-  const payload: Record<string, string> = {
+  const payload: SendEmailPayload = {
     to: flags.to,
     subject: flags.subject,
     body: flags.body,
+    html: htmlBody,
   };
-  if (flags.from) {
-    payload.from = flags.from;
-  }
-  if (flags["in-reply-to"]) {
-    payload.in_reply_to = flags["in-reply-to"];
+  if (flags.from) payload.from = flags.from;
+  if (flags["in-reply-to"]) payload.in_reply_to = flags["in-reply-to"];
+  if (flags.attachment) {
+    const filePath = flags.attachment;
+    const file = Bun.file(filePath);
+    if (!(await file.exists())) {
+      process.stderr.write(`Error: attachment file not found: ${filePath}\n`);
+      process.exit(1);
+    }
+    const content = await file.text();
+    const filename = filePath.split("/").pop() ?? "attachment.html";
+    const contentType = filePath.endsWith(".html") || filePath.endsWith(".htm")
+      ? "text/html"
+      : "application/octet-stream";
+    payload.attachments = [{ filename, content: Buffer.from(content).toString("base64"), content_type: contentType }];
+    log(`attaching ${filename} (${contentType}, ${content.length} bytes)`);
   }
 
   log(`sending to ${flags.to}: "${flags.subject}"`);
 
-  const response = await fetch(`${apiBaseUrl}/api/send`, {
-    method: "POST",
-    headers: {
-      "X-Admin-Key": adminKey,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
-
-  const result = await response.json();
-
-  if (!response.ok) {
-    log(`send failed: HTTP ${response.status}`);
-    console.log(JSON.stringify({ success: false, status: response.status, error: result }, null, 2));
+  try {
+    await sendEmail(payload);
+    log("send successful");
+    console.log(JSON.stringify({ success: true }, null, 2));
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    log(`send failed: ${errorMessage}`);
+    console.log(JSON.stringify({ success: false, error: errorMessage }, null, 2));
     process.exit(1);
   }
-
-  log("send successful");
-  console.log(JSON.stringify({ success: true, ...result }, null, 2));
 }
 
 async function cmdMarkRead(args: string[]): Promise<void> {
-  const flags = parseFlags(args);
+  const { flags } = parseFlags(args);
   const remoteId = flags.id;
 
   if (!remoteId) {
@@ -127,7 +121,7 @@ async function cmdStats(): Promise<void> {
 }
 
 async function cmdFetch(args: string[]): Promise<void> {
-  const flags = parseFlags(args);
+  const { flags } = parseFlags(args);
   const remoteId = flags.id;
 
   if (!remoteId) {
@@ -157,8 +151,10 @@ USAGE
   arc skills run --name email -- <subcommand> [flags]
 
 SUBCOMMANDS
-  send --to <addr> --subject <subj> --body <text> [--from <addr>] [--in-reply-to <message-id>]
-    Send an email via the email worker API. Use --in-reply-to to thread replies.
+  send --to <addr> --subject <subj> --body <text> [--from <addr>] [--in-reply-to <message-id>] [--html <html-string>] [--attachment <path>]
+    Send an email via the email worker API. HTML is auto-generated from --body (markdown supported).
+    Use --html to supply explicit HTML body. Use --in-reply-to to thread replies.
+    Use --attachment to attach an HTML file.
 
   mark-read --id <remote_id>
     Mark an email as read (local DB + remote worker).
@@ -174,6 +170,7 @@ SUBCOMMANDS
 
 EXAMPLES
   arc skills run --name email -- send --to user@example.com --subject "Hello" --body "Hi there."
+  arc skills run --name email -- send --to user@example.com --subject "Report" --body "See attached." --attachment ./report.html
   arc skills run --name email -- mark-read --id abc123
   arc skills run --name email -- sync
   arc skills run --name email -- stats

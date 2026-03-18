@@ -1,16 +1,18 @@
 ---
 name: site-consistency
-description: Cross-site consistency sensor detecting structural drift between arc0.me and arc0btc.com
-updated: 2026-03-08
+description: "[DEPRECATED] Replaced by arc0btc-deploy-monitor. CLI only — sensor removed."
+updated: 2026-03-16
 tags:
-  - sensor
+  - deprecated
   - site
   - monitoring
 ---
 
 # site-consistency
 
-Periodically fetches live pages from arc0.me and arc0btc.com, validates each site matches its expected structural role, and checks cross-link integrity. Creates P3 fix tasks when drift is detected.
+> **DEPRECATED:** Sensor consolidated into `arc0btc-deploy-monitor` (2026-03-16). CLI remains for backward compatibility.
+
+Cross-site consistency checks between arc0.me and arc0btc.com.
 
 ## Expected Structure
 

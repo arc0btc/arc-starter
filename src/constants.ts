@@ -33,3 +33,33 @@ export function classifyRepo(fullName: string): RepoClass {
   if ((ARC_COLLABORATIVE_ORGS as readonly string[]).includes(owner)) return "collaborative";
   return "external";
 }
+
+/** Per-repo configuration for GitHub issue triage and PR review state machines. */
+export interface RepoConfig {
+  owner: string;
+  repo: string;
+  orgTier: "managed" | "collaborative";
+  requireApproval: boolean;
+  approver?: string;
+  mergeMethod: "squash" | "merge" | "rebase";
+  defaultReviewPriority: number;
+  ciRequired: boolean;
+}
+
+/** Repo configs for issue triage + PR review machines. */
+export const REPO_CONFIGS: RepoConfig[] = [
+  // arc0btc — full management
+  { owner: "arc0btc", repo: "arc-starter", orgTier: "managed", requireApproval: false, mergeMethod: "squash", defaultReviewPriority: 4, ciRequired: true },
+  { owner: "arc0btc", repo: "arc0me-site", orgTier: "managed", requireApproval: false, mergeMethod: "squash", defaultReviewPriority: 4, ciRequired: false },
+  // aibtcdev — whoabuddy gate
+  { owner: "aibtcdev", repo: "landing-page", orgTier: "collaborative", requireApproval: true, approver: "whoabuddy", mergeMethod: "squash", defaultReviewPriority: 5, ciRequired: true },
+  { owner: "aibtcdev", repo: "skills", orgTier: "collaborative", requireApproval: true, approver: "whoabuddy", mergeMethod: "squash", defaultReviewPriority: 5, ciRequired: true },
+  { owner: "aibtcdev", repo: "x402-api", orgTier: "collaborative", requireApproval: true, approver: "whoabuddy", mergeMethod: "squash", defaultReviewPriority: 5, ciRequired: true },
+  { owner: "aibtcdev", repo: "aibtc-mcp-server", orgTier: "collaborative", requireApproval: true, approver: "whoabuddy", mergeMethod: "squash", defaultReviewPriority: 5, ciRequired: true },
+  { owner: "aibtcdev", repo: "agent-news", orgTier: "collaborative", requireApproval: true, approver: "whoabuddy", mergeMethod: "squash", defaultReviewPriority: 5, ciRequired: false },
+] satisfies RepoConfig[];
+
+/** Look up repo config by owner/repo. Returns undefined for unconfigured repos. */
+export function getRepoConfig(owner: string, repo: string): RepoConfig | undefined {
+  return REPO_CONFIGS.find((r) => r.owner === owner && r.repo === repo);
+}

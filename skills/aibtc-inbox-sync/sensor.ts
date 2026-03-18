@@ -11,6 +11,8 @@ import {
   getUnreadAibtcInboxMessages,
   getRecentAibtcMessagesByPeer,
   getAllAibtcInboxMessageIds,
+  insertWorkflow,
+  getWorkflowByInstanceKey,
   type AibtcInboxMessage,
 } from "../../src/db.ts";
 import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
@@ -40,9 +42,14 @@ const BITFLOW_KEYWORDS = [
 
 // Keywords that indicate PoX / stacking / liquid stacking activity.
 const POX_KEYWORDS = [
-  "pox", "stackspot", "stacking reward", "stacking pool",
+  "pox", "stackspot", "stacking", "stacking reward", "stacking pool",
   "liquid stacking", "stacking yield", "cycle stacking",
   "alex", "defi yield", "yield endpoint",
+];
+
+// Keywords that indicate AIBTC news editorial / ordinals business activity.
+const AIBTC_NEWS_KEYWORDS = [
+  "ordinals business", "aibtc news", "news editorial",
 ];
 
 // Keywords that indicate Zest Protocol activity specifically.
@@ -240,6 +247,7 @@ export default async function aibtcInboxSensor(): Promise<string> {
     const isBitflow = matchesKeywords(peerMessages, BITFLOW_KEYWORDS);
     const isPoX = matchesKeywords(peerMessages, POX_KEYWORDS);
     const isZest = matchesKeywords(peerMessages, ZEST_KEYWORDS);
+    const isAibtcNews = matchesKeywords(peerMessages, AIBTC_NEWS_KEYWORDS);
     const inboxSkills = ["bitcoin-wallet"];
     if (isCoSign) {
       inboxSkills.push("bitcoin-quorumclaw", "bitcoin-taproot-multisig");
@@ -256,6 +264,9 @@ export default async function aibtcInboxSensor(): Promise<string> {
     if (isZest) {
       inboxSkills.push("defi-zest");
     }
+    if (isAibtcNews) {
+      inboxSkills.push("aibtc-news-editorial");
+    }
     if (isResponseToOutreach) {
       inboxSkills.push("erc8004-reputation", "contacts");
     }
@@ -268,6 +279,27 @@ export default async function aibtcInboxSensor(): Promise<string> {
       source,
     });
     log(`created task ${taskId} for thread from ${senderName} (${peerMessages.length} messages)`);
+
+    // Create an EmailThreadMachine workflow instance for lifecycle tracking.
+    // instance_key mirrors arc-email-sync pattern: email-thread-{senderSlug}-{firstMessageId}
+    const senderSlug = peer.replace(/[^a-zA-Z0-9]/g, "-").slice(0, 40);
+    const firstMessageId = peerMessages[0].message_id;
+    const workflowKey = `email-thread-${senderSlug}-${firstMessageId}`;
+    if (!getWorkflowByInstanceKey(workflowKey)) {
+      insertWorkflow({
+        template: "email-thread",
+        instance_key: workflowKey,
+        current_state: "triaged",
+        context: JSON.stringify({
+          sender: senderName,
+          subject: `AIBTC inbox from ${senderName}`,
+          messageCount: peerMessages.length,
+          source: "aibtc-inbox-sync",
+          needsReply: false,
+        }),
+      });
+      log(`created email-thread workflow ${workflowKey}`);
+    }
   }
 
   return "ok";

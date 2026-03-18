@@ -105,10 +105,10 @@ async function getUserPosition(assetId: number): Promise<{ suppliedShares: strin
 
     // Extract suppliedShares and borrowed from the tuple response
     if (decoded && typeof decoded === "object" && "value" in decoded) {
-      const val = decoded.value as Record<string, { value: string }>;
+      const decodedValue = decoded.value as Record<string, { value: string }>;
       return {
-        suppliedShares: val["suppliedShares"]?.value ?? val["supplied-shares"]?.value ?? "0",
-        borrowed: val["borrowed"]?.value ?? "0",
+        suppliedShares: decodedValue["suppliedShares"]?.value ?? decodedValue["supplied-shares"]?.value ?? "0",
+        borrowed: decodedValue["borrowed"]?.value ?? "0",
       };
     }
 

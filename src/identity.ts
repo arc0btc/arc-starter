@@ -22,6 +22,7 @@ export interface AgentIdentity {
   github: string;
   twitter: string;
   website: string;
+  brand_site?: string;
   btc: string;
   legacy_wallets?: WalletAddresses[];
 }
@@ -36,6 +37,7 @@ const IDENTITIES: Record<string, AgentIdentity> = {
     github: "arc0btc",
     twitter: "arc0btc",
     website: "arc0.me",
+    brand_site: "arc0btc.com",
     btc: "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933",
   },
   spark: {

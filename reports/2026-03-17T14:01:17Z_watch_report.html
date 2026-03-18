@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-17T02:01Z–14:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-17T02:01:34Z — 2026-03-17T14:01:17Z</div>
+</header>
+
+<p class="summary">Heavy 12-hour window completed 140 tasks across 145 cycles for $54.17, dominated by ALB infrastructure work (BIP-322 signature fix, deterministic agent names, x402 header verification) and the new arc-weekly-presentation skill (built and iterated 4x). Failure-triage sensor patterns were tightened to near-zero unknowns through three targeted fixes. System healthy, no anomalies.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">140</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">2</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$54.17</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">69,468k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">617k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">6302</td><td class="pri">3</td><td>Build arc-weekly-presentation skill</td><td>Built skill: cli.ts generates branded HTML slides from live data</td><td class="cost">$2.38</td></tr>
+    <tr><td class="id">6222</td><td class="pri">4</td><td>Fix Phase 2 PR review blockers: x402</td><td>Fixed all 8 blockers: VERSION imports, optional chaining, x402 headers</td><td class="cost">$2.14</td></tr>
+    <tr><td class="id">6313</td><td class="pri">3</td><td>ALB: Fix registration to use BIP-322</td><td>Fixed verifyBtcSignature() to try BIP-322 first for bc1q addresses</td><td class="cost">$1.84</td></tr>
+    <tr><td class="id">6328</td><td class="pri">2</td><td>Research aibtcdev/landing-page APIs</td><td>Documented landing-page API (25+ endpoints incl address-to-name)</td><td class="cost">$1.81</td></tr>
+    <tr><td class="id">6314</td><td class="pri">3</td><td>ALB: Update email addresses (agent names)</td><td>Implemented deterministic AIBTC agent name for email addresses</td><td class="cost">$1.67</td></tr>
+    <tr><td class="id">6315</td><td class="pri">3</td><td>ALB: Verify x402 payment-required header</td><td>Verified x402 header format against coinbase spec; all compliant</td><td class="cost">$1.53</td></tr>
+    <tr><td class="id">6324</td><td class="pri">3</td><td>ALB: PR for deterministic agent name email</td><td>PR #3 opened: feat/deterministic-agent-names</td><td class="cost">$1.48</td></tr>
+    <tr><td class="id">6326</td><td class="pri">4</td><td>Presentation skill: consistent sections</td><td>Restructured: 4 consistent sections + Sonnet subagent for research</td><td class="cost">$1.35</td></tr>
+    <tr><td class="id">6242</td><td class="pri">2</td><td>ALB PR #2: Fix all 8 must-fix issues</td><td>Fixed remaining 3 items: hardcoded version in router, headers</td><td class="cost">$1.30</td></tr>
+    <tr><td class="id">6209</td><td class="pri">2</td><td>Research: AIBTC weekly context</td><td>Gathered full week context: 2,152 tasks/$580/109 skills</td><td class="cost">$1.19</td></tr>
+    <tr><td class="id">6243</td><td class="pri">5</td><td>ALB: Deploy Worker to Cloudflare</td><td>Deployed agents-love-bitcoin phase2 to agentslovebitcoin.com</td><td class="cost">$1.05</td></tr>
+    <tr><td class="id">6205</td><td class="pri">3</td><td>Check ALB Phase 3 status and report</td><td>ALB Phase 3 confirmed DONE: all 6 tasks (5889–5894) complete</td><td class="cost">$0.96</td></tr>
+    <tr><td class="id">6300</td><td class="pri">1</td><td>Email from whoabuddy: Re: 2026-03-16 pres</td><td>Replied with presentation V2: 10 slides, fixed contrast + layout</td><td class="cost">$0.96</td></tr>
+    <tr><td class="id">6307</td><td class="pri">1</td><td>Email from whoabuddy: Re: 2026-03-16 pres (V3)</td><td>Built V3: 12 slides, font +20%, Bitcoin faces, bigger CTA</td><td class="cost">$0.92</td></tr>
+    <tr><td class="id">6259</td><td class="pri">7</td><td>Architecture review — codebase changed</td><td>State machine updated: 82 sensors, 116 skills, scratchpad, web</td><td class="cost">$0.90</td></tr>
+    <tr><td class="id">6210</td><td class="pri">2</td><td>Build interactive HTML slides for AIBTC</td><td>Built 8-slide interactive HTML presentation at /presentations/</td><td class="cost">$0.90</td></tr>
+    <tr><td class="id">6316</td><td class="pri">4</td><td>ALB: Add worker-logs RPC binding</td><td>Added worker-logs RPC service binding (LOGS → LogsRPC)</td><td class="cost">$0.85</td></tr>
+    <tr><td class="id">6291</td><td class="pri">5</td><td>Investigate recurring failure: unknown (6x)</td><td>Root cause: 2 pattern gaps in ERROR_PATTERNS + /required/ check</td><td class="cost">$0.77</td></tr>
+    <tr><td class="id">6325</td><td class="pri">4</td><td>Presentation V4: apply whoabuddy feedback</td><td>Applied all 4 feedback items: slide 2, sort order, callouts, CTA</td><td class="cost">$0.72</td></tr>
+    <tr><td class="id">6332</td><td class="pri">6</td><td>Verify commitment: Re: Arc Autonomy Milestones</td><td>Email was honest status report; no false commitments found</td><td class="cost">$0.72</td></tr>
+    <tr><td class="id">6320</td><td class="pri">4</td><td>ALB: PR for BIP-322 signature fix</td><td>PR #5 opened: fix/bip322-segwit-verification</td><td class="cost">$0.71</td></tr>
+    <tr><td class="id">6296</td><td class="pri">5</td><td>Investigate recurring failure: unknown (6x)</td><td>Root cause: 3 missing sensor patterns + timed-out coverage</td><td class="cost">$0.63</td></tr>
+    <tr><td class="id">6288</td><td class="pri">5</td><td>Investigate recurring failure: unknown (6x)</td><td>Root cause: 6 unknowns = 3 missing patterns (initial triage)</td><td class="cost">$0.61</td></tr>
+    <tr><td class="id">6295</td><td class="pri">5</td><td>Investigate recurring failure: unknown (6x)</td><td>Fixed: 'Stale - &lt;topic&gt;' summaries classified as unknown</td><td class="cost">$0.59</td></tr>
+    <tr><td class="id">6290</td><td class="pri">6</td><td>Expand failure-triage ERROR_PATTERNS</td><td>Added external-constraint, tool-constraint, dismissed patterns</td><td class="cost">$0.59</td></tr>
+    <tr><td class="id">6192</td><td class="pri">6</td><td>Watch report — 2026-03-17T02:01Z</td><td>Watch report: 28 tasks, 2 failed, $6.86 spent</td><td class="cost">$0.57</td></tr>
+    <tr><td class="id">6255</td><td class="pri">6</td><td>context-review: 5 issues found</td><td>Fixed 2 bugs: arc-workflows/sensor.ts skill lookup, github-ci-status</td><td class="cost">$0.56</td></tr>
+    <tr><td class="id">6285</td><td class="pri">6</td><td>Wire sensors to workflow instances</td><td>Wired 3 sensors: landing-page-release, agent-news, arc-reporting-watch</td><td class="cost">$0.53</td></tr>
+    <tr><td class="id">6234</td><td class="pri">5</td><td>Draft blog post: Arc weekly state</td><td>Published weekly state post: 2026-03-17-week-of-march-10</td><td class="cost">$0.50</td></tr>
+    <tr><td class="id">6235</td><td class="pri">5</td><td>Email sync: process unread inbox</td><td>Processed 1 unread email from whoabuddy (ALB PR #2 instructions)</td><td class="cost">$0.49</td></tr>
+  </tbody>
+</table>
+<p style="font-size:0.8rem; color:var(--gray-4);">Top 30 of 140 completed tasks by cost. Remaining 110 tasks at lower cost not shown.</p>
+
+<h3 style="font-size:0.9rem; color:var(--vermillion); margin-top:1rem; margin-bottom:0.5rem;">Failed (2)</h3>
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">6216</td><td class="pri">3</td>
+      <td>Add X Article publishing to social-x-posting</td>
+      <td>X Articles is a Premium UI-only feature — no programmatic API exists. Classified external-constraint.</td>
+    </tr>
+    <tr>
+      <td class="id">6244</td><td class="pri">3</td>
+      <td>ALB: Wire arc as trustless_indra@agentslovebitcoin.com</td>
+      <td>Timed out after 15min on Sonnet tier. Follow-up needed to break into subtasks.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market skill not installed — budget: unknown.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">5dc7b1c</span>feat(arc-weekly-presentation): consistent sections + Sonnet subagent research</div>
+<div class="commit"><span class="hash">c1958fa</span>fix(presentation): apply V4 slide feedback from whoabuddy</div>
+<div class="commit"><span class="hash">f2b9bac</span>feat(presentation): V3 — 12 slides, font +20%, Bitcoin faces, bigger CTA</div>
+<div class="commit"><span class="hash">cb905af</span>feat(arc-weekly-presentation): add skill to auto-generate Monday slides from live data</div>
+<div class="commit"><span class="hash">8b86eaf</span>fix(failure-triage): add /^\bstale\b/i to dismissed patterns</div>
+<div class="commit"><span class="hash">b153cdc</span>fix(failure-triage): patch external-constraint and dismissed pattern gaps</div>
+<div class="commit"><span class="hash">569c151</span>fix(failure-triage): add external-constraint, tool-constraint, dismissed patterns</div>
+<div class="commit"><span class="hash">fb74d8a</span>chore: remove disabled sensor files from 4 skills</div>
+<div class="commit"><span class="hash">d0b294d</span>docs(architect): update state machine and audit log — 82 sensors, 116 skills</div>
+<div class="commit"><span class="hash">0329443</span>fix(arc-workflows): use JSON.stringify for skills array; add github-ci-status</div>
+<div class="commit"><span class="hash">55768c1</span>chore(memory): consolidate cost.md — remove dated snapshots, keep findings</div>
+<div class="commit"><span class="hash">26921e3</span>feat(web): add AIBTC weekly presentation slides for 2026-03-16</div>
+<div class="commit"><span class="hash">704d481</span>docs(report): watch report 2026-03-17T02:01:34Z</div>
+<div class="commit" style="color:var(--gray-4)"><span class="hash" style="color:var(--gray-5)">+144</span>chore(loop): auto-commit after dispatch cycle [various]</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P5</span>#6377 — Syndicate to X: When the API Dies (budget retry)</div>
+<div class="queue-item"><span class="pri-tag">P5</span>#6386 — Syndicate to X: When the API Dies (rescheduled 2026-03-18)</div>
+<div class="queue-item"><span class="pri-tag">P6</span>#6369 — context-review: 4 context loading issue(s) found</div>
+<div class="queue-item"><span class="pri-tag">P6</span>#6384 — Verify commitment: Re: 2026-03-16 Tuesday Presentation</div>
+<div class="queue-item"><span class="pri-tag">P6</span>#6385 — Verify commitment: Re: Agents Love Bitcoin status report</div>
+<div class="queue-item"><span class="pri-tag">P7</span>#6339 — housekeeping: 2 issue(s) detected</div>
+<div class="queue-item"><span class="pri-tag">P7</span>#6343 — Search related issues for aibtcdev/landing-page#82</div>
+<div class="queue-item"><span class="pri-tag">P7</span>#6344 — Search related issues for aibtcdev/agent-news#67</div>
+<div class="queue-item"><span class="pri-tag">P7</span>#6365 — Search related issues for aibtcdev/landing-page#406</div>
+<div class="queue-item"><span class="pri-tag">P7</span>#6366 — Search related issues for aibtcdev/landing-page#405</div>
+<div class="queue-item"><span class="pri-tag">P8</span>#6173 — whoabuddy: Record X analytics baseline for @arc0btc</div>
+<div class="queue-item"><span class="pri-tag">P8</span>#6318 — Retrospective: extract learnings from task #6311</div>
+<div class="queue-item"><span class="pri-tag">P8</span>#6327 — Retrospective: extract learnings from task #6321</div>
+<div class="queue-item"><span class="pri-tag">P8</span>#6330 — Retrospective: extract learnings from task #6322</div>
+<div class="queue-item"><span class="pri-tag">P8</span>#6331 — Retrospective: extract learnings from task #6323</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">ALB infrastructure sprint dominated the period: BIP-322 segwit fix, deterministic AIBTC agent email names, x402 header verification, and PRs #3 and #5 all landed. Four separate code+PR tasks at P2–P3 = correct Opus routing. ALB worker now live on Cloudflare via PR #2.</div>
+<div class="obs">Failure-triage sensor matured through 4 iterations (tasks #6288, #6291, #6295, #6296 + code fixes #6290 in prior period). External-constraint, dismissed, and stale patterns now recognized. Unknown classification rate effectively 0.</div>
+<div class="obs">arc-weekly-presentation skill shipped in 4 feedback cycles (initial build → V2 email reply → V3 rebuild → V4 fixes). Total skill investment ~$6.28. Presentation now auto-generates from live DB data — first Monday use will prove value.</div>
+<div class="obs">Two failures were both non-recoverable: X Articles confirmed UI-only (no API), ALB email wiring timed out at Sonnet tier. Follow-up for #6244 should break the task into smaller subtasks or bump to Opus (P3) for the timeout headroom.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>

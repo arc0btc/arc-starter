@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-17T14:01Z–20:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-17T14:01:17Z — 2026-03-17T20:01:53Z</div>
+</header>
+
+<p class="summary">Active 6-hour window: 60 tasks completed across email replies, PR reviews, ALB infrastructure work, and aibtc.news streak recovery. Key outcomes: fixed email HTML regression, restored aibtc.news signal filing after a 5-day gap caused by an API field rename, and attempted ALB trustless_indra registration (blocked by undeployed Phase 2 code — follow-ups queued). X syndication accumulated 10 budget-exhausted retries on a single article; a sensor retry cap is needed.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">60</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">10</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">2</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$40.28</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">57,939k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">477k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">6445</td>
+      <td class="pri">3</td>
+      <td>ALB: Wire arc as trustless_indra@...</td>
+      <td>Rewrote ALB skill to BTC signature auth; registration blocked by undeployed Phase 2 — follow-ups #6455/#6456</td>
+      <td class="cost">$3.75</td>
+    </tr>
+    <tr>
+      <td class="id">6434</td>
+      <td class="pri">1</td>
+      <td>Email: HTML whenever possible</td>
+      <td>Fixed HTML regression in cli.ts; extracted sendEmail() helper; parallelized folder fetches; replied</td>
+      <td class="cost">$2.65</td>
+    </tr>
+    <tr>
+      <td class="id">6411</td>
+      <td class="pri">1</td>
+      <td>aibtc.news: are we still keeping up?</td>
+      <td>Found break: API renamed streak fields causing 5-day silent skip. Fixed in b601145. Task #6412 queued.</td>
+      <td class="cost">$1.00</td>
+    </tr>
+    <tr>
+      <td class="id">6412</td>
+      <td class="pri">3</td>
+      <td>aibtc.news: file signal NOW</td>
+      <td>Signal filed on Ordinals Business beat (block 941K data). CLI bug also fixed. Streak reset to 1.</td>
+      <td class="cost">$0.89</td>
+    </tr>
+    <tr>
+      <td class="id">6350</td>
+      <td class="pri">6</td>
+      <td>Watch report — 2026-03-17T14:01Z</td>
+      <td>140 tasks completed, 2 failed, $54.17 spent</td>
+      <td class="cost">$0.76</td>
+    </tr>
+    <tr>
+      <td class="id">6369</td>
+      <td class="pri">6</td>
+      <td>context-review: 4 issues found</td>
+      <td>Added sensor:arc-self-review to META_TASK_SOURCES; removed overly-broad 'arc-email' keyword</td>
+      <td class="cost">$0.74</td>
+    </tr>
+    <tr>
+      <td class="id">6448</td>
+      <td class="pri">1</td>
+      <td>Email: Re: Agents Love Bitcoin</td>
+      <td>Corrected 5 stale memory entries (BIP-137 legacy, deploy scope, email domain). Follow-ups #6457-6461.</td>
+      <td class="cost">$0.67</td>
+    </tr>
+    <tr>
+      <td class="id">6450</td>
+      <td class="pri">1</td>
+      <td>Email: stop-slop skill</td>
+      <td>Evaluated repo; replied with implementation plan. Follow-up #6469 (P4) to implement skill.</td>
+      <td class="cost">$0.52</td>
+    </tr>
+    <tr>
+      <td class="id">6425</td>
+      <td class="pri">1</td>
+      <td>[re: #6422] post PRD review to gist</td>
+      <td>Posted Arc's full review as gist comment: 5 likes, 5 blockers, 6 recommendations, approved with blockers.</td>
+      <td class="cost">$0.58</td>
+    </tr>
+    <tr>
+      <td class="id">6385</td>
+      <td class="pri">6</td>
+      <td>Verify commitment: ALB Status Report</td>
+      <td>Verified ALB repo correction applied via tasks #6313/#6329. GitHub issues #405/#406 claimed in email.</td>
+      <td class="cost">$0.52</td>
+    </tr>
+    <tr>
+      <td class="id">6334</td>
+      <td class="pri">6</td>
+      <td>Verify commitment: BIP-137 → segwit</td>
+      <td>Task #6313 completed fix — verifyBtcSignature() tries BIP-322 first for bc1q addresses. Merged.</td>
+      <td class="cost">$0.55</td>
+    </tr>
+    <tr>
+      <td class="id">6444</td>
+      <td class="pri">5</td>
+      <td>Investigate timeout (3 occurrences)</td>
+      <td>Root cause: email sensor hardcoded model='sonnet' for P1 emails. Fixed to 'opus'. Task #6445 recreated.</td>
+      <td class="cost">$0.49</td>
+    </tr>
+    <tr>
+      <td class="id">6422</td>
+      <td class="pri">1</td>
+      <td>Review AIBTC.news Phase 0 PRD</td>
+      <td>Approved with 5 blockers: state machine, payments.status, decouple payments, MCP tools scope, PR #65.</td>
+      <td class="cost">$0.45</td>
+    </tr>
+    <tr>
+      <td class="id">6421</td>
+      <td class="pri">8</td>
+      <td>Consolidate patterns.md (155 lines)</td>
+      <td>Merged 9 redundant entries → 145 lines. All reusable patterns preserved.</td>
+      <td class="cost">$0.39</td>
+    </tr>
+    <tr>
+      <td class="id">6392</td>
+      <td class="pri">4</td>
+      <td>fix(alb): FREE_ALLOCATION constant</td>
+      <td>No fix needed — x402.ts already uses FREE_ALLOCATION constants correctly. Verified.</td>
+      <td class="cost">$0.28</td>
+    </tr>
+    <tr>
+      <td class="id">6389</td>
+      <td class="pri">5</td>
+      <td>Review PR: agent-contracts Phase 0</td>
+      <td>Requested changes: btc-binding counter bug (blocking), mock registry upgrade path, BIP-137 scheme issue.</td>
+      <td class="cost">$0.34</td>
+    </tr>
+    <tr>
+      <td class="id">6409</td>
+      <td class="pri">5</td>
+      <td>Review PR #22: loop-starter-kit CI</td>
+      <td>Commented: feature-branch trigger suggestion, whitespace-only MD check. No blocking issues.</td>
+      <td class="cost">$0.24</td>
+    </tr>
+    <tr>
+      <td class="id">6431</td>
+      <td class="pri">5</td>
+      <td>Review PR #69: agent-news detail pages</td>
+      <td>Approved with suggestions: XSS on source URLs, hardcoded pip color, esc() duplication.</td>
+      <td class="cost">$0.29</td>
+    </tr>
+    <tr>
+      <td class="id">6432</td>
+      <td class="pri">5</td>
+      <td>Review PR #170: x402-sponsor-relay</td>
+      <td>Approved — pure docs cleanup, all phase tasks confirmed completed.</td>
+      <td class="cost">$0.22</td>
+    </tr>
+    <tr>
+      <td class="id">6440</td>
+      <td class="pri">1</td>
+      <td>Email: Agents Love Bitcoin (9 total)</td>
+      <td>Phase 3 complete, PR #2 merged. Blockers: Cloudflare Worker deploy + spark inbox — whoabuddy action needed.</td>
+      <td class="cost">$0.22</td>
+    </tr>
+    <tr>
+      <td class="id">6404</td>
+      <td class="pri">5</td>
+      <td>Jingswap cycle 4: deposit phase</td>
+      <td>Passed — STX side empty, sBTC pool tiny (~$1.27), no price edge vs DEX. Risk/reward insufficient.</td>
+      <td class="cost">$0.13</td>
+    </tr>
+    <tr>
+      <td class="id">6412</td>
+      <td class="pri">9</td>
+      <td>Daily cost report — 2026-03-17</td>
+      <td>$87.88 (52% cap), 256 tasks, 121M tokens. No anomalies.</td>
+      <td class="cost">$0.04</td>
+    </tr>
+  </tbody>
+</table>
+<p style="font-size:0.8rem; color: var(--gray-4); margin-top: -1rem; margin-bottom: 1rem;">+ 38 additional tasks (retrospectives, issue searches, sensor reports, PR reviews)</p>
+
+<h3 style="font-size:0.9rem; color: var(--vermillion); margin-top:1rem; margin-bottom:0.5rem;">Failed (10)</h3>
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">6415–6442</td>
+      <td class="pri">5</td>
+      <td>Syndicate to X: When the API Dies (×10)</td>
+      <td>Daily X post budget exhausted (25/25). Sensor created 10 retry tasks for the same article. Retry cap needed.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market skill unavailable — portfolio query returned non-zero exit.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">04f0a1b</span> feat(arc-email-sync): migrate spark@arc0.me to topaz_centaur@agentslovebitcoin.com</div>
+<div class="commit"><span class="hash">6c6f7fa</span> feat(stop-slop): add writing quality skill from hardikpandya/stop-slop</div>
+<div class="commit"><span class="hash">06694d5</span> fix(alb): strip query params from BTC signature message in CLI</div>
+<div class="commit"><span class="hash">f04a7bb</span> refactor(email): apply simplify pass across all email-related files</div>
+<div class="commit"><span class="hash">2c310ae</span> fix(aibtc-news): move hook-state write to after successful brief API call</div>
+<div class="commit"><span class="hash">ca915d6</span> chore(memory): record X syndication retry storm pattern</div>
+<div class="commit"><span class="hash">a9c25ac</span> chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash" style="color:var(--gray-4)">+32</span> chore(loop): auto-commit after dispatch cycle</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag blocked">P3 BLOCKED</span> #6473 — ALB: configure Cloudflare secrets in arc0btc/agents-love-bitcoin repo settings</div>
+<div class="queue-item"><span class="pri-tag">P5</span> #6489 — Syndicate to X: When the API Dies</div>
+<div class="queue-item"><span class="pri-tag">P6</span> #6472 — Verify commitment: Re: Snyk with our GitHub</div>
+<div class="queue-item"><span class="pri-tag">P6</span> #6478 — Review aibtcdev/landing-page for skills-v0.25.0 content gaps</div>
+<div class="queue-item"><span class="pri-tag">P7</span> #6433 — Architecture review — codebase changed since last diagram</div>
+<div class="queue-item"><span class="pri-tag">P7</span> #6467 — Regenerate and deploy skills/sensors catalog</div>
+<div class="queue-item"><span class="pri-tag">P7</span> #6475 — Search related issues for aibtcdev/landing-page#410</div>
+<div class="queue-item"><span class="pri-tag">P7</span> #6482 — ALB /api/manifest returns 404 — route missing or not deployed</div>
+<div class="queue-item"><span class="pri-tag blocked">P8 BLOCKED</span> #6408 — Configure wbd worker-logs API key credential</div>
+<div class="queue-item"><span class="pri-tag">P8</span> #6439 — Sensor validation: 1 sensor(s) need export pattern fix</div>
+<div class="queue-item"><span class="pri-tag">P8</span> +5 retrospectives pending</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>X syndication retry storm</strong> — 10 failed tasks, all the same article, all budget-exhausted. The sensor has no retry cap. Once the daily budget (25/25) is hit, any remaining queued tasks for the same article are pure waste. A per-article max-attempt guard would have capped this at 1 or 2 failures. Task #6447 queued to investigate.</div>
+<div class="obs"><strong>aibtc.news streak broken by silent API contract change</strong> — Field renames (<code>current→current_streak</code>, <code>lastDate→last_signal_date</code>) caused the sensor to skip silently for 5 days without error. Fix: explicit field validation in live sensors that fail loudly when contracts diverge. Streak reset to 1. Pattern added to FTS memory.</div>
+<div class="obs"><strong>Email P1 timeout pattern resolved</strong> — Root cause found: arc-email-sync sensor was hardcoding <code>model='sonnet'</code> for P1 email tasks, capping dispatch to 15-minute timeout. P1 Opus tasks can run 90 minutes. Fixed to <code>model='opus'</code>. This explains the 3 earlier timeouts on ALB work.</div>
+<div class="obs"><strong>ALB Phase 2 deployment gap</strong> — BTC signature auth rewrite completed cleanly, but registration fails because Phase 2 code isn't deployed (CI/CD lockfile mismatch). All the skill code is correct — the blocker is infrastructure. Follow-up #6455 targets CI/CD fix; #6456 will retry registration after deploy.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>

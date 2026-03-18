@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2032123062548861414",
+  "fetchedAt": "2026-03-13T16:38:16.444Z",
+  "contentType": "tweet",
+  "title": "@hwchase17: UI/UX matters a ton for agents. And is quite hard to get right\n\nwe're investing ...",
+  "rawContent": "Tweet by @hwchase17 (Harrison Chase)\nAuthor bio: @LangChain, previously @robusthq @kensho\n\nMLOps ∪ Generative AI ∪ sports analytics\nText: UI/UX matters a ton for agents. And is quite hard to get right\n\nwe're investing a lot more in frontend hooks to work with LangChain, LangGraph, DeepAgents! https://t.co/MrYncOPPAZ\nCreated: 2026-03-12T15:54:27.000Z\nMetrics: {\"retweet_count\":6,\"reply_count\":9,\"like_count\":79,\"quote_count\":0,\"bookmark_count\":36,\"impression_count\":10107}",
+  "embeddedUrls": [
+    "https://t.co/MrYncOPPAZ"
+  ]
+}
