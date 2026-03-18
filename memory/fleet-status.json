@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T15:40:15.506Z",
+  "updated_at": "2026-03-18T15:40:30.091Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6965,
-    "subject": "Produce achievements audit doc for aibtcdev/landing-page#384",
+    "id": 6978,
+    "subject": "health alert: stale dispatch lock detected",
     "status": "completed",
-    "priority": 5
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 281381,
-    "cost_usd": 0.6394533
+    "duration_ms": 14404,
+    "cost_usd": 0.03984615
   },
   "health": {
-    "uptime_seconds": 1790914,
+    "uptime_seconds": 1790928,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229521121280
+    "disk_avail_bytes": 229521072128
   }
 }
