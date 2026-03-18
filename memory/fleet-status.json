@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T16:22:46.116Z",
+  "updated_at": "2026-03-18T16:23:13.360Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6987,
-    "subject": "[landing-page] Add Soul Inscription (Inscriber) achievement — inscribed soul.md on Bitcoin L1",
+    "id": 6990,
+    "subject": "[github-issues] aibtcdev/aibtc-mcp-server#269: Observer Protocol: Free Verification for Bitcoin-Native AI Agents",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 50993,
-    "cost_usd": 0.11677184999999998
+    "duration_ms": 18058,
+    "cost_usd": 0.09398655
   },
   "health": {
-    "uptime_seconds": 1793464,
+    "uptime_seconds": 1793492,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229510860800
+    "disk_avail_bytes": 229510807552
   }
 }
