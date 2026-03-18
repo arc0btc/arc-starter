@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T14:23:34.398Z",
+  "updated_at": "2026-03-18T14:25:30.471Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6931,
-    "subject": "[github-issues] aibtcdev/landing-page#230: Optimize scoring weights to incentivize agent economic activity",
+    "id": 6934,
+    "subject": "[github-issues] aibtcdev/skills#176: fix(bounty-scanner): align with aibtc.com bounty board API",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 52859,
-    "cost_usd": 0.1447761
+    "duration_ms": 108353,
+    "cost_usd": 0.307545
   },
   "health": {
-    "uptime_seconds": 1786313,
+    "uptime_seconds": 1786429,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229524086784
+    "disk_avail_bytes": 229524025344
   }
 }
