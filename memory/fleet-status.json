@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T19:07:45.115Z",
+  "updated_at": "2026-03-18T19:09:30.927Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7054,
-    "subject": "[github-issues] aibtcdev/landing-page#418: feat(achievements): add sBTC Holder achievement — holds any sBTC balance",
+    "id": 7056,
+    "subject": "GitHub issue in aibtcdev/agent-news#101: fix: curated front page — safe fallback when no approved signals exist",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 61155,
-    "cost_usd": 0.1702692
+    "duration_ms": 105618,
+    "cost_usd": 0.33789119999999995
   },
   "health": {
-    "uptime_seconds": 1803363,
+    "uptime_seconds": 1803469,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229484576768
+    "disk_avail_bytes": 229484515328
   }
 }
