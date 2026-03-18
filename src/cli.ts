@@ -45,6 +45,7 @@ import { discoverSkills } from "./skills.ts";
 import { parseFlags, pad, truncate } from "./utils.ts";
 import { handleCredsCli } from "../skills/arc-credentials/cli.ts";
 import { enterShutdown, exitShutdown, getShutdownState } from "./shutdown.ts";
+import { writeBackLearnings, extractLearnings } from "./memory-writeback.ts";
 
 // CLI is hand-rolled — intentionally zero-dep. If the surface grows significantly,
 // consider citty (https://github.com/unjs/citty) as a lightweight alternative to Commander.
@@ -1136,6 +1137,44 @@ function cmdMemoryFleetStatus(): void {
   }
 }
 
+function cmdMemoryWriteBack(args: string[]): void {
+  initDatabase();
+  const flags = parseFlags(args);
+  const taskId = Number(flags["task"]);
+  const dryRun = flags["dry-run"] === "true" || flags["dry-run"] === "";
+
+  if (!taskId || isNaN(taskId)) {
+    process.stderr.write("Usage: arc memory write-back --task ID [--dry-run]\n");
+    process.exit(1);
+  }
+
+  const task = getTaskById(taskId);
+  if (!task) {
+    process.stderr.write(`Task #${taskId} not found.\n`);
+    process.exit(1);
+  }
+
+  const learnings = extractLearnings(task);
+
+  if (learnings.length === 0) {
+    process.stdout.write(`No learnings extracted from task #${taskId}.\n`);
+    return;
+  }
+
+  process.stdout.write(`Extracted ${learnings.length} learning(s) from task #${taskId}:\n\n`);
+  for (const l of learnings) {
+    process.stdout.write(`  [${l.domain}] ${l.key}\n    ${l.content.slice(0, 120)}...\n    importance=${l.importance} ttl=${l.ttl_days}d tags=${l.tags}\n\n`);
+  }
+
+  if (dryRun) {
+    process.stdout.write("Dry run — nothing stored.\n");
+    return;
+  }
+
+  const result = writeBackLearnings(task, task.cost_usd ?? 0, task.api_cost_usd ?? 0);
+  process.stdout.write(`Stored: ${result.stored}, Duplicates skipped: ${result.duplicates}, Consolidated: ${result.consolidated}\n`);
+}
+
 function cmdMemory(args: string[]): void {
   const sub = args[0];
   if (sub === "search") {
@@ -1162,8 +1201,10 @@ function cmdMemory(args: string[]): void {
     cmdMemoryCostBySkill();
   } else if (sub === "fleet-status") {
     cmdMemoryFleetStatus();
+  } else if (sub === "write-back") {
+    cmdMemoryWriteBack(args.slice(1));
   } else {
-    process.stderr.write(`Usage: arc memory <search|search-skills|add|list|delete|expire|consolidate|check-dedup|expensive|cost-by-domain|cost-by-skill|fleet-status>\n`);
+    process.stderr.write(`Usage: arc memory <search|search-skills|add|list|delete|expire|consolidate|check-dedup|expensive|cost-by-domain|cost-by-skill|fleet-status|write-back>\n`);
     process.exit(sub ? 1 : 0);
   }
 }

@@ -46,6 +46,7 @@ import { safeCommitCycleChanges, getHeadSha, codeChangedSince } from "./safe-com
 import { createWorktree, validateWorktree, getWorktreeChangedFiles, mergeWorktree, discardWorktree } from "./worktree.ts";
 import { resolveMemoryContext, resolveFtsMemoryContext, type FtsMemoryResult } from "./memory-topics.ts";
 import { resolveScratchpadContext, clearScratchpad } from "./scratchpad.ts";
+import { writeBackLearnings } from "./memory-writeback.ts";
 
 // Re-export for cli.ts
 export { resetDispatchGate } from "./dispatch-gate.ts";
@@ -906,6 +907,16 @@ export async function runDispatch(): Promise<void> {
 
     // Tag memory entries created by this task with its cost
     tagMemoryCostByTask(task.id, cost_usd, api_cost_usd);
+
+    // Auto-extract and store learnings from P1-4 task results
+    try {
+      const wb = writeBackLearnings(task, cost_usd, api_cost_usd);
+      if (wb.stored > 0) {
+        log(`dispatch: write-back stored ${wb.stored} learning(s) from task #${task.id} (${wb.duplicates} deduped, consolidated=${wb.consolidated})`);
+      }
+    } catch (wbErr) {
+      log(`dispatch: write-back failed (non-fatal): ${String(wbErr).slice(0, 200)}`);
+    }
 
     // Schedule retrospective for P1-2 tasks
     if (task.priority <= 2) {
