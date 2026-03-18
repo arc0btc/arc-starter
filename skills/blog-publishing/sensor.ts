@@ -2,7 +2,7 @@
 // Auto-detect weekly cadence gaps and scheduled posts ready for publishing
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { insertTask, recentTaskExistsForSource } from "../../src/db.ts";
 import { join } from "node:path";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 
@@ -155,7 +155,7 @@ export default async function blogPublishingSensor(): Promise<string> {
     // Queue task for oldest draft
     if (oldestDraft) {
       const source = `sensor:blog-publishing:draft:${oldestDraft.postId}`;
-      if (!pendingTaskExistsForSource(source)) {
+      if (!recentTaskExistsForSource(source, 24 * 60)) {
         insertTask({
           subject: `Review draft: ${oldestDraft.postId}`,
           description: `Oldest unpublished draft post. Review and publish if ready.`,
@@ -172,7 +172,7 @@ export default async function blogPublishingSensor(): Promise<string> {
     // Queue task for scheduled post ready to publish
     if (scheduledReady) {
       const source = `sensor:blog-publishing:scheduled:${scheduledReady.postId}`;
-      if (!pendingTaskExistsForSource(source)) {
+      if (!recentTaskExistsForSource(source, 24 * 60)) {
         insertTask({
           subject: `Publish scheduled post: ${scheduledReady.postId}`,
           description: `Scheduled post is ready (was scheduled for ${scheduledReady.scheduledFor}).`,
@@ -189,7 +189,7 @@ export default async function blogPublishingSensor(): Promise<string> {
     // Queue content generation if weekly cadence reached
     if (timeForNewContent) {
       const source = "sensor:blog-publishing:content-generation";
-      if (!pendingTaskExistsForSource(source)) {
+      if (!recentTaskExistsForSource(source, 24 * 60)) {
         insertTask({
           subject: "Generate new blog post from recent activity",
           description: "Weekly blog cadence: create draft post from recent watch reports and work summary.",

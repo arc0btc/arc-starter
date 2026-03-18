@@ -1,4 +1,5 @@
-import { claimSensorRun, createSensorLogger, readHookState, pendingTaskExistsForSource, insertTask } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, readHookState, insertTask } from "../../src/sensors.ts";
+import { recentTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "github-ci-status";
 const INTERVAL_MINUTES = 15;
@@ -94,7 +95,7 @@ export default async function ciStatusSensor(): Promise<string> {
 
     for (const run of failedRuns) {
       const source = `sensor:github-ci-status:run:${run.id}`;
-      if (pendingTaskExistsForSource(source)) continue;
+      if (recentTaskExistsForSource(source, 24 * 60)) continue;
 
       insertTask({
         subject: `CI failure in ${repo}: ${run.name} (${run.head_branch})`,

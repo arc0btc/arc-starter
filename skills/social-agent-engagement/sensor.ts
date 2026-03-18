@@ -4,7 +4,7 @@
 // collaboration detection only.
 
 import { claimSensorRun, createSensorLogger, fetchWithRetry } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { insertTask, recentTaskExistsForSource } from "../../src/db.ts";
 import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
 
 const SENSOR_NAME = "social-agent-engagement";
@@ -110,7 +110,7 @@ export default async function agentEngagementSensor(): Promise<string> {
         // Queue collaboration opportunities (dedup by agent + beat combo)
         for (const agentAddress of otherAgentsOnBeat) {
           const taskSource = `sensor:${SENSOR_NAME}:collab-${arcBeatSlug}-${agentAddress.slice(0, 8)}`;
-          const taskExists = pendingTaskExistsForSource(taskSource);
+          const taskExists = recentTaskExistsForSource(taskSource, 24 * 60);
 
           if (!taskExists) {
             log(`queuing collaboration opportunity with ${agentAddress.slice(0, 8)}... on ${arcBeatSlug}`);
@@ -134,7 +134,7 @@ export default async function agentEngagementSensor(): Promise<string> {
       const agentsOnBeat = signalsByBeat.get(beat) || new Set();
       if (agentsOnBeat.size > 2) {
         const taskSource = `sensor:${SENSOR_NAME}:defi-collab-${beat}`;
-        const taskExists = pendingTaskExistsForSource(taskSource);
+        const taskExists = recentTaskExistsForSource(taskSource, 24 * 60);
 
         if (!taskExists) {
           log(`detected active ${beat} beat with ${agentsOnBeat.size} agents`);
