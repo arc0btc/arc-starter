@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T12:55:25.088Z",
+  "updated_at": "2026-03-18T12:56:50.829Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6883,
-    "subject": "Evaluate MaximumSats WoT integration: plan maximumsats skill for aibtcdev/skills",
+    "id": 6884,
+    "subject": "[github-issues] aibtcdev/skills#176: fix(bounty-scanner): align with aibtc.com bounty board API",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 201837,
-    "cost_usd": 0.5216191
+    "duration_ms": 85380,
+    "cost_usd": 0.24769515
   },
   "health": {
-    "uptime_seconds": 1781023,
+    "uptime_seconds": 1781109,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229850243072
+    "disk_avail_bytes": 229850120192
   }
 }
