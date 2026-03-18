@@ -40,6 +40,8 @@ arc skills run --name fleet-memory -- distribute [--agents spark,iris]
 arc skills run --name fleet-memory -- status [--agents spark,iris]
 arc skills run --name fleet-memory -- full [--agents spark,iris]
 arc skills run --name fleet-memory -- search [--keyword TEXT] [--topic TAG] [--source AGENT] [--fresh-only]
+arc skills run --name fleet-memory -- suggest --content TEXT --topics tag1,tag2 [--source AGENT] [--expires DATE]
+arc skills run --name fleet-memory -- review [--list] [--accept ID] [--reject ID] [--accept-all] [--reject-all]
 ```
 
 ## Commands
@@ -49,6 +51,8 @@ arc skills run --name fleet-memory -- search [--keyword TEXT] [--topic TAG] [--s
 - **status**: Show last collection time, entry counts per agent, and file hashes.
 - **full**: Run collect + distribute in sequence.
 - **search**: Search `memory/fleet-learnings/index.json` entries. Filters: `--keyword` (content match), `--topic` (topic tag), `--source` (agent name), `--fresh-only` (exclude expired). Returns matching entries with snippets, sorted newest first. Pure local file operation — no LLM cost.
+- **suggest**: Write a new learning to `memory/inbox/` as a frontmatter `.md` file. Any agent can suggest; Arc reviews. Requires `--content` and `--topics`.
+- **review**: Accept or reject inbox entries. `--list` shows pending entries. `--accept ID` / `--reject ID` process individually; `--accept-all` / `--reject-all` bulk-process. Accepted entries are added to `memory/fleet-learnings/index.json` and moved to `memory/shared/entries/`. Rejected entries go to `memory/shared/archive/`.
 
 ## Sensor
 
@@ -57,6 +61,10 @@ Runs every 6 hours. Checks if any agent's patterns.md has changed since last col
 ## Files
 
 - `memory/fleet-learnings.md` — Consolidated cross-agent learnings (shared file, distributed to all agents)
+- `memory/fleet-learnings/index.json` — Structured index of accepted entries (topicMap + entries array)
+- `memory/inbox/` — Pending suggested entries awaiting Arc review
+- `memory/shared/entries/` — Accepted entries (source of truth for `index.json`)
+- `memory/shared/archive/` — Rejected inbox entries
 - `db/hook-state/fleet-memory.json` — Collection state: per-agent hashes, last collection timestamp
 
 ## Checklist

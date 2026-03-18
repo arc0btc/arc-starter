@@ -16,7 +16,7 @@ import {
   ssh,
   resolveAgents,
 } from "../../src/ssh.ts";
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, renameSync, unlinkSync, readdirSync } from "node:fs";
 
 // ---- Constants ----
 
@@ -24,6 +24,9 @@ const FLEET_LEARNINGS_PATH = "memory/fleet-learnings.md";
 const FLEET_INDEX_PATH = "memory/fleet-learnings/index.json";
 const HOOK_STATE_DIR = "db/hook-state";
 const HOOK_STATE_PATH = `${HOOK_STATE_DIR}/fleet-memory.json`;
+const INBOX_DIR = "memory/inbox";
+const SHARED_ENTRIES_DIR = "memory/shared/entries";
+const SHARED_ARCHIVE_DIR = "memory/shared/archive";
 
 // ---- Types ----
 
@@ -41,6 +44,16 @@ interface HookState {
   agentHashes: Record<string, string>;
   // Line counts at last collection — used by sensor fast check for delta estimation
   agentLineCounts: Record<string, number>;
+}
+
+interface InboxEntry {
+  id: string;
+  topics: string[];
+  source: string;
+  created: string;
+  expires?: string;
+  content: string;
+  filename: string;
 }
 
 // ---- Hook state ----
@@ -114,6 +127,37 @@ function normalizeForDedup(learning: string): string {
   const match = learning.match(/^\- \*\*(.+?)\*\*/);
   if (match) return match[1].toLowerCase().trim();
   return learning.slice(0, 80).toLowerCase().trim();
+}
+
+// ---- Inbox helpers ----
+
+function parseInboxFile(filename: string): InboxEntry | null {
+  try {
+    const text = require("node:fs").readFileSync(`${INBOX_DIR}/${filename}`, "utf-8") as string;
+    const fmMatch = text.match(/^---\n([\s\S]+?)\n---\n([\s\S]*)$/);
+    if (!fmMatch) return null;
+    const fm = fmMatch[1];
+    const content = fmMatch[2].trim();
+    const id = fm.match(/^id:\s*(.+)$/m)?.[1]?.trim() ?? "";
+    const topicsLine = fm.match(/^topics:\s*\[(.+)\]$/m)?.[1];
+    const topics = topicsLine ? topicsLine.split(",").map((t) => t.trim()) : [];
+    const source = fm.match(/^source:\s*(.+)$/m)?.[1]?.trim() ?? "unknown";
+    const created = fm.match(/^created:\s*(.+)$/m)?.[1]?.trim() ?? "";
+    const expires = fm.match(/^expires:\s*(.+)$/m)?.[1]?.trim();
+    return { id, topics, source, created, ...(expires ? { expires } : {}), content, filename };
+  } catch {
+    return null;
+  }
+}
+
+function listInboxEntries(): InboxEntry[] {
+  try {
+    if (!existsSync(INBOX_DIR)) return [];
+    const files = readdirSync(INBOX_DIR).filter((f) => f.endsWith(".md"));
+    return files.map(parseInboxFile).filter(Boolean) as InboxEntry[];
+  } catch {
+    return [];
+  }
 }
 
 // ---- Core: fetch memory from one agent ----
@@ -526,6 +570,175 @@ async function cmdFull(
   await cmdDistribute(agents, flags);
 }
 
+// ---- Suggest: write an inbox entry ----
+
+async function cmdSuggest(flags: Record<string, string>): Promise<void> {
+  const content = flags["content"];
+  const topicsRaw = flags["topics"];
+  const source = flags["source"] ?? "arc";
+  const expires = flags["expires"];
+
+  if (!content) {
+    process.stderr.write("Error: --content is required\n");
+    process.exit(1);
+  }
+  if (!topicsRaw) {
+    process.stderr.write("Error: --topics is required (comma-separated)\n");
+    process.exit(1);
+  }
+
+  const topics = topicsRaw.split(",").map((t) => t.trim());
+  const today = new Date().toISOString().slice(0, 10);
+  const id = `${today}-${Date.now().toString(36)}`;
+
+  mkdirSync(INBOX_DIR, { recursive: true });
+
+  const fmLines = [
+    "---",
+    `id: ${id}`,
+    `topics: [${topics.join(", ")}]`,
+    `source: ${source}`,
+    `created: ${today}`,
+    ...(expires ? [`expires: ${expires}`] : []),
+    "---",
+  ];
+
+  const filename = `${id}.md`;
+  await Bun.write(`${INBOX_DIR}/${filename}`, `${fmLines.join("\n")}\n\n${content}\n`);
+
+  process.stdout.write(`Suggested entry written to ${INBOX_DIR}/${filename}\n`);
+  process.stdout.write(`  id: ${id}\n`);
+  process.stdout.write(`  topics: ${topics.join(", ")}\n`);
+  process.stdout.write(`  source: ${source}\n`);
+}
+
+// ---- Review: accept/reject inbox entries ----
+
+async function cmdReview(flags: Record<string, string>): Promise<void> {
+  const listOnly = flags["list"] !== undefined;
+  const acceptId = flags["accept"];
+  const rejectId = flags["reject"];
+  const acceptAll = flags["accept-all"] !== undefined;
+  const rejectAll = flags["reject-all"] !== undefined;
+
+  const entries = listInboxEntries();
+
+  if (entries.length === 0) {
+    process.stdout.write("Inbox is empty — nothing to review.\n");
+    return;
+  }
+
+  // List mode or no action
+  if (listOnly || (!acceptId && !rejectId && !acceptAll && !rejectAll)) {
+    process.stdout.write(
+      `Fleet Memory Inbox — ${entries.length} pending entr${entries.length === 1 ? "y" : "ies"}:\n\n`
+    );
+    for (const entry of entries) {
+      const expireStr = entry.expires ? ` · expires ${entry.expires}` : "";
+      process.stdout.write(
+        `[${entry.id}] source: ${entry.source} · topics: ${entry.topics.join(", ")}${expireStr}\n`
+      );
+      const snippet =
+        entry.content.length > 200 ? entry.content.slice(0, 197) + "..." : entry.content;
+      process.stdout.write(`  ${snippet}\n\n`);
+    }
+    process.stdout.write(
+      "Use --accept <id> / --reject <id> / --accept-all / --reject-all to process\n"
+    );
+    return;
+  }
+
+  // Resolve which entries to accept / reject
+  let toAccept: InboxEntry[] = [];
+  let toReject: InboxEntry[] = [];
+
+  if (acceptAll) {
+    toAccept = [...entries];
+  } else if (rejectAll) {
+    toReject = [...entries];
+  } else {
+    if (acceptId) {
+      const entry = entries.find(
+        (e) =>
+          e.id === acceptId ||
+          e.filename === acceptId ||
+          e.filename === `${acceptId}.md`
+      );
+      if (!entry) {
+        process.stderr.write(`Error: entry '${acceptId}' not found in inbox\n`);
+        process.exit(1);
+      }
+      toAccept = [entry];
+    }
+    if (rejectId) {
+      const entry = entries.find(
+        (e) =>
+          e.id === rejectId ||
+          e.filename === rejectId ||
+          e.filename === `${rejectId}.md`
+      );
+      if (!entry) {
+        process.stderr.write(`Error: entry '${rejectId}' not found in inbox\n`);
+        process.exit(1);
+      }
+      toReject = [entry];
+    }
+  }
+
+  // Load index
+  let index: FleetIndex;
+  try {
+    const text = require("node:fs").readFileSync(FLEET_INDEX_PATH, "utf-8") as string;
+    index = JSON.parse(text) as FleetIndex;
+  } catch {
+    index = { topicMap: {}, entries: [] };
+  }
+
+  // Ensure target dirs exist
+  if (toAccept.length > 0) mkdirSync(SHARED_ENTRIES_DIR, { recursive: true });
+  if (toReject.length > 0) mkdirSync(SHARED_ARCHIVE_DIR, { recursive: true });
+
+  // Process accepts
+  for (const entry of toAccept) {
+    const already = index.entries.find((e) => e.id === entry.id);
+    if (already) {
+      process.stdout.write(`  SKIP ${entry.id} — already in index\n`);
+      unlinkSync(`${INBOX_DIR}/${entry.filename}`);
+      continue;
+    }
+
+    const indexEntry: IndexEntry = {
+      id: entry.id,
+      topics: entry.topics,
+      content: entry.content,
+      source: entry.source,
+      created: entry.created,
+      ...(entry.expires ? { expires: entry.expires } : {}),
+    };
+    index.entries.push(indexEntry);
+
+    renameSync(`${INBOX_DIR}/${entry.filename}`, `${SHARED_ENTRIES_DIR}/${entry.filename}`);
+    process.stdout.write(`  ACCEPTED ${entry.id} → ${SHARED_ENTRIES_DIR}/${entry.filename}\n`);
+  }
+
+  // Process rejects
+  for (const entry of toReject) {
+    renameSync(`${INBOX_DIR}/${entry.filename}`, `${SHARED_ARCHIVE_DIR}/${entry.filename}`);
+    process.stdout.write(`  REJECTED ${entry.id} → ${SHARED_ARCHIVE_DIR}/${entry.filename}\n`);
+  }
+
+  // Persist updated index
+  if (toAccept.length > 0) {
+    await Bun.write(FLEET_INDEX_PATH, JSON.stringify(index, null, 2) + "\n");
+    process.stdout.write(`\nIndex updated: ${index.entries.length} total entr${index.entries.length === 1 ? "y" : "ies"}\n`);
+  }
+
+  const total = toAccept.length + toReject.length;
+  process.stdout.write(
+    `Reviewed ${total} entr${total === 1 ? "y" : "ies"}: ${toAccept.length} accepted, ${toReject.length} rejected\n`
+  );
+}
+
 // ---- Usage ----
 
 function printUsage(): void {
@@ -550,8 +763,21 @@ Commands:
                --source AGENT        Filter by source agent name
                --fresh-only          Exclude expired entries
 
+  suggest      Write a new entry to memory/inbox/ for review
+               --content TEXT        The learning (required)
+               --topics tag1,tag2    Topic tags (required)
+               --source AGENT        Source agent (default: arc)
+               --expires DATE        Optional expiry date (YYYY-MM-DD)
+
+  review       Accept or reject inbox entries; accepted entries go to index.json
+               --list                Show all pending inbox entries (default when no action given)
+               --accept ID           Accept a specific entry by id
+               --reject ID           Reject a specific entry by id
+               --accept-all          Accept all pending inbox entries
+               --reject-all          Reject all pending inbox entries
+
 Options:
-  --agents spark,iris   Comma-separated agent list (default: all; not used by search)
+  --agents spark,iris   Comma-separated agent list (default: all; not used by search/suggest/review)
 
 Agents: ${Object.keys(AGENTS).join(", ")}
 `);
@@ -589,6 +815,12 @@ async function main(): Promise<void> {
       break;
     case "search":
       await cmdSearch(flags);
+      break;
+    case "suggest":
+      await cmdSuggest(flags);
+      break;
+    case "review":
+      await cmdReview(flags);
       break;
     case "help":
     case "--help":
