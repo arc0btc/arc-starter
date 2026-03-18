@@ -51,13 +51,72 @@ const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
     patterns: [/crash recovery/i, /left active from a previous cycle/i, /stuck active/i],
   },
   {
+    signature: "fleet-suspended",
+    patterns: [
+      /suspended/i,
+      /fleet.*degraded/i,
+      /OAuth.*expired/i,
+      /cannot.*execute.*spark|loom|forge|iris/i,
+      /cannot.*complete.*spark|loom|forge|iris/i,
+      /requires.*spark|loom|forge|iris/i,
+    ],
+  },
+  {
+    signature: "github-blocked",
+    patterns: [
+      /github.*operations.*required/i,
+      /no github credentials/i,
+      /fleet-handoff.*not installed/i,
+      /human must implement/i,
+    ],
+  },
+  {
+    signature: "x-budget-exhausted",
+    patterns: [/budget exhausted/i, /post budget/i, /daily.*budget/i],
+  },
+  {
+    signature: "missing-hardware",
+    patterns: [/no.*gpu/i, /no dual-gpu/i, /hardware provisioning/i, /gpu.*required/i],
+  },
+  {
+    signature: "external-not-ready",
+    patterns: [
+      /not publicly deployed/i,
+      /endpoint does not exist/i,
+      /bindings unavailable/i,
+      /contracts not.*deployed/i,
+      /waiting.*mainnet/i,
+    ],
+  },
+  {
+    signature: "blocked-on-human",
+    patterns: [
+      /whoabuddy.*needs to/i,
+      /whoabuddy.*must/i,
+      /wallet creds not in/i,
+      /manual step needed/i,
+      /requires.*browser interaction/i,
+      /no X credentials/i,
+      /X account.*registered/i,
+    ],
+  },
+  {
     signature: "dismissed",
     patterns: [/too noisy/i, /cleaning queue/i, /duplicate.*brief/i, /wrong priority/i, /focusing on mentions/i, /recreating with/i, /test task/i],
   },
 ];
 
 /** Signatures that should never trigger an investigation task — handled elsewhere or intentional. */
-const SKIP_SIGNATURES = new Set(["dismissed", "crash-recovery"]);
+const SKIP_SIGNATURES = new Set([
+  "dismissed",
+  "crash-recovery",
+  "fleet-suspended",
+  "github-blocked",
+  "x-budget-exhausted",
+  "missing-hardware",
+  "external-not-ready",
+  "blocked-on-human",
+]);
 
 /** Extract a normalized error signature from a task's result_summary. */
 function classifyError(text: string): string {

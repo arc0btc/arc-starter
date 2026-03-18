@@ -58,6 +58,14 @@ Groups by pattern class, not exact string:
 - `timeout` / `ETIMEDOUT` / `hung` → `timeout`
 - `403` / `401` / `permission denied` / `unauthorized` → `auth-error`
 - `ECONNREFUSED` / `ENOTFOUND` / `fetch failed` → `network-error`
+- `suspended` / `fleet degraded` / `OAuth expired` → `fleet-suspended` (skipped)
+- `GitHub operations required` / `no GitHub credentials` → `github-blocked` (skipped)
+- `budget exhausted` / `daily budget` → `x-budget-exhausted` (skipped)
+- `no GPU` / `hardware provisioning` → `missing-hardware` (skipped)
+- `not publicly deployed` / `endpoint does not exist` → `external-not-ready` (skipped)
+- `whoabuddy needs to` / `manual step needed` → `blocked-on-human` (skipped)
+
+Signatures marked "(skipped)" are excluded from investigation task creation — these represent known structural blockers, not bugs to investigate.
 
 ## When to Load
 
