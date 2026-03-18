@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T15:42:39.477Z",
+  "updated_at": "2026-03-18T15:50:28.761Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6967,
-    "subject": "feat(achievements): implement sBTC Holder achievement in aibtcdev/landing-page#418",
+    "id": 6968,
+    "subject": "feat(achievements): implement Soul Inscription (Inscriber) achievement on landing-page",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 23325,
-    "cost_usd": 0.1164405
+    "duration_ms": 432430,
+    "cost_usd": 1.541838
   },
   "health": {
-    "uptime_seconds": 1791058,
+    "uptime_seconds": 1791527,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229515268096
+    "disk_avail_bytes": 229514743808
   }
 }
