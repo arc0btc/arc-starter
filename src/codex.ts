@@ -34,10 +34,36 @@ const DEFAULT_CODEX_MODEL = "o4-mini";
 /** Maximum time (ms) for Codex subprocess. */
 const CODEX_TIMEOUT_MS = 15 * 60 * 1000;
 
+import { join } from "path";
+import { Glob } from "bun";
+
 // ---- Helpers ----
 
 function log(msg: string): void {
   console.log(`[${new Date().toISOString()}] codex: ${msg}`);
+}
+
+/**
+ * Resolve the codex binary path.
+ * Tries $PATH first, then falls back to common nvm install locations.
+ * Systemd services run with a minimal PATH that excludes nvm directories.
+ */
+async function resolveCodexBin(): Promise<{ bin: string; extraPath: string }> {
+  const inPath = Bun.which("codex");
+  if (inPath) return { bin: inPath, extraPath: "" };
+
+  const home = process.env.HOME ?? "/home/dev";
+  const nvmBase = join(home, ".nvm", "versions", "node");
+
+  // Find all codex binaries under nvm, pick the first one found
+  const glob = new Glob("*/bin/codex");
+  for await (const match of glob.scan({ cwd: nvmBase, absolute: false })) {
+    const fullPath = join(nvmBase, match);
+    const binDir = join(nvmBase, match.replace(/\/codex$/, ""));
+    return { bin: fullPath, extraPath: binDir };
+  }
+
+  throw new Error(`Executable not found in $PATH: "codex". Install via: npm install -g @openai/codex`);
 }
 
 /**
@@ -66,8 +92,11 @@ export async function dispatchCodex(
 
   log(`dispatching to codex model=${codexModel}`);
 
+  const { bin: codexBin, extraPath } = await resolveCodexBin();
+  log(`resolved codex binary: ${codexBin}`);
+
   const args = [
-    "codex",
+    codexBin,
     "--model", codexModel,
     "--full-auto",
     "--quiet",
@@ -75,6 +104,9 @@ export async function dispatchCodex(
   ];
 
   const env = { ...process.env };
+  if (extraPath) {
+    env.PATH = `${extraPath}:${env.PATH ?? ""}`;
+  }
 
   const proc = Bun.spawn(args, {
     stdout: "pipe",
