@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-18T20:09:35.222Z",
+  "updated_at": "2026-03-18T20:10:58.174Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6741,
-    "subject": "context-review: 3 context loading issue(s) found",
+    "id": 6677,
+    "subject": "Auto-queue: 8 hungry domain(s) need work",
     "status": "completed",
-    "priority": 6
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 75946,
-    "cost_usd": 0.2592729
+    "duration_ms": 82535,
+    "cost_usd": 0.2870442
   },
   "health": {
-    "uptime_seconds": 1807074,
+    "uptime_seconds": 1807157,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229497286656
+    "disk_avail_bytes": 229497229312
   }
 }
