@@ -317,6 +317,179 @@ async function handlePrReview(req: Request): Promise<Response> {
   }, 201);
 }
 
+// ---- Security Audit Service: x402 paid repo-level security audit ----
+
+const SECURITY_AUDIT_COST_SATS = 50000;
+const SECURITY_AUDIT_DAILY_LIMIT = 3;
+let securityAuditDayKey = "";
+let securityAuditDayCount = 0;
+
+const VALID_FOCUS_AREAS = ["dependencies", "secrets", "owasp", "clarity"] as const;
+type FocusArea = typeof VALID_FOCUS_AREAS[number];
+
+function getSecurityAuditDayKey(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function checkSecurityAuditRateLimit(): boolean {
+  const today = getSecurityAuditDayKey();
+  if (today !== securityAuditDayKey) {
+    securityAuditDayKey = today;
+    securityAuditDayCount = 0;
+  }
+  return securityAuditDayCount < SECURITY_AUDIT_DAILY_LIMIT;
+}
+
+function incrementSecurityAuditCount(): void {
+  const today = getSecurityAuditDayKey();
+  if (today !== securityAuditDayKey) {
+    securityAuditDayKey = today;
+    securityAuditDayCount = 0;
+  }
+  securityAuditDayCount++;
+}
+
+/** Validate GitHub repo URL and extract owner/repo */
+function parseRepoUrl(url: string): { owner: string; repo: string } | null {
+  const match = url.match(/^https:\/\/github\.com\/([a-zA-Z0-9_.-]+)\/([a-zA-Z0-9_.-]+)\/?$/);
+  if (!match) return null;
+  return { owner: match[1], repo: match[2] };
+}
+
+async function handleSecurityAudit(req: Request): Promise<Response> {
+  // Rate limit check
+  if (!checkSecurityAuditRateLimit()) {
+    return json({
+      error: "Daily security audit limit reached",
+      code: "RATE_LIMITED",
+      limit: SECURITY_AUDIT_DAILY_LIMIT,
+      resets: getSecurityAuditDayKey() + "T00:00:00Z (next day)",
+    }, 429);
+  }
+
+  let body: { repo_url?: string; focus?: string[]; notes?: string };
+  try {
+    body = await req.json() as { repo_url?: string; focus?: string[]; notes?: string };
+  } catch {
+    return errorResponse("Invalid JSON body", 400);
+  }
+
+  const repoUrl = typeof body.repo_url === "string" ? body.repo_url.trim() : "";
+  if (!repoUrl) return errorResponse("'repo_url' is required", 400);
+
+  const parsed = parseRepoUrl(repoUrl);
+  if (!parsed) {
+    return errorResponse("Invalid repo URL. Expected: https://github.com/owner/repo", 400);
+  }
+
+  // Validate focus areas
+  let focusAreas: FocusArea[] = [...VALID_FOCUS_AREAS];
+  if (Array.isArray(body.focus) && body.focus.length > 0) {
+    const invalid = body.focus.filter((f): f is string => typeof f === "string" && !VALID_FOCUS_AREAS.includes(f as FocusArea));
+    if (invalid.length > 0) {
+      return errorResponse(`Invalid focus area(s): ${invalid.join(", ")}. Valid: ${VALID_FOCUS_AREAS.join(", ")}`, 400);
+    }
+    focusAreas = body.focus.filter((f): f is FocusArea => typeof f === "string" && VALID_FOCUS_AREAS.includes(f as FocusArea));
+  }
+
+  const notes = typeof body.notes === "string" ? body.notes.trim() : "";
+  if (notes.length > 2000) return errorResponse("Notes too long (max 2000 chars)", 400);
+
+  // Check for duplicate pending audit of same repo
+  const existingTask = db.query(
+    "SELECT id FROM tasks WHERE source = ? AND status IN ('pending', 'active')"
+  ).get(`paid:security-audit:${parsed.owner}/${parsed.repo}`);
+
+  if (existingTask) {
+    const existing = existingTask as { id: number };
+    return json({
+      error: "A security audit for this repo is already queued or in progress",
+      code: "DUPLICATE",
+      existing_task_id: existing.id,
+      poll_url: `/api/tasks/${existing.id}`,
+    }, 409);
+  }
+
+  // Build task description
+  const description = [
+    `**Paid Security Audit (Opus)**`,
+    "",
+    `**Repo:** ${repoUrl}`,
+    `**Owner:** ${parsed.owner}/${parsed.repo}`,
+    `**Focus areas:** ${focusAreas.join(", ")}`,
+    notes ? `\n**Reviewer notes:** ${notes}` : "",
+    "",
+    "Perform a comprehensive security audit of this repository:",
+    "",
+    ...(focusAreas.includes("dependencies") ? [
+      "## Dependency Analysis",
+      "1. Check package manifests (package.json, Cargo.toml, requirements.txt, etc.) for known CVEs",
+      "2. Identify outdated packages with known vulnerabilities",
+      "3. Flag supply chain risks (typosquatting, unmaintained deps, excessive permissions)",
+      "",
+    ] : []),
+    ...(focusAreas.includes("secrets") ? [
+      "## Secret Exposure Scan",
+      "1. Scan all files for hardcoded API keys, tokens, passwords, and credentials",
+      "2. Check .env files, config files, and CI/CD configs for exposed secrets",
+      "3. Verify .gitignore properly excludes sensitive files",
+      "",
+    ] : []),
+    ...(focusAreas.includes("owasp") ? [
+      "## OWASP Top 10 Analysis",
+      "1. Check for injection vulnerabilities (SQL, command, template)",
+      "2. Identify XSS and CSRF patterns",
+      "3. Review authentication and session management",
+      "4. Check for insecure deserialization, SSRF, and access control issues",
+      "",
+    ] : []),
+    ...(focusAreas.includes("clarity") ? [
+      "## Clarity Smart Contract Analysis",
+      "1. Check for reentrancy vulnerabilities in contract calls",
+      "2. Review access control (tx-sender checks, contract-caller validation)",
+      "3. Analyze arithmetic overflow/underflow risks",
+      "4. Check for unchecked inputs and missing error handling",
+      "5. Review trait implementations and inter-contract call safety",
+      "",
+    ] : []),
+    "## Output Format",
+    "Structure the report with:",
+    "- Executive summary with finding counts by severity",
+    "- Individual findings with [critical]/[high]/[medium]/[low]/[info] severity labels",
+    "- Affected files and line numbers for each finding",
+    "- Concrete fix suggestions",
+    "- Prioritized remediation recommendations",
+    "",
+    "Store the full report in result_detail for API delivery.",
+  ].filter(Boolean).join("\n");
+
+  const taskId = insertTask({
+    subject: `[security-audit] ${parsed.owner}/${parsed.repo}`,
+    description,
+    skills: JSON.stringify(["aibtc-repo-maintenance"]),
+    priority: 3,
+    model: "opus",
+    source: `paid:security-audit:${parsed.owner}/${parsed.repo}`,
+  });
+
+  incrementSecurityAuditCount();
+
+  return json({
+    task_id: taskId,
+    cost_sats: SECURITY_AUDIT_COST_SATS,
+    model: "opus",
+    repo: {
+      owner: parsed.owner,
+      repo: parsed.repo,
+      url: repoUrl,
+    },
+    focus: focusAreas,
+    status: "pending",
+    poll_url: `/api/tasks/${taskId}`,
+    daily_remaining: SECURITY_AUDIT_DAILY_LIMIT - securityAuditDayCount,
+  }, 201);
+}
+
 // ---- Monitoring Service ----
 
 const MONITOR_TIERS: Record<string, { interval_minutes: number; cost_sats_monthly: number; label: string }> = {
@@ -2159,6 +2332,7 @@ function route(req: Request): Response | Promise<Response> {
   if (method === "POST" && path === "/api/ask") return handleAsk(req);
   if (method === "POST" && path === "/api/services/pr-review") return handlePrReview(req);
   if (method === "POST" && path === "/api/services/monitor") return handleMonitorCreate(req);
+  if (method === "POST" && path === "/api/services/security-audit") return handleSecurityAudit(req);
   if (method === "POST" && path === "/api/roundtable/respond") return handleRoundtableRespond(req);
   if (method === "POST" && path === "/api/roundtable/receive") return handleRoundtableReceive(req);
   if (method === "POST" && path === "/api/consensus/vote") return handleConsensusVote(req);
@@ -2206,6 +2380,22 @@ function route(req: Request): Response | Promise<Response> {
       daily_registration_limit: MONITOR_DAILY_LIMIT,
       daily_remaining: MONITOR_DAILY_LIMIT - monitorDayCount,
       usage: "POST /api/services/monitor with { endpoint_url, tier?, label?, alert_webhook? }",
+    });
+  }
+
+  // GET: Security Audit service pricing and rate limit info
+  if (method === "GET" && path === "/api/services/security-audit") {
+    const today = getSecurityAuditDayKey();
+    if (today !== securityAuditDayKey) { securityAuditDayKey = today; securityAuditDayCount = 0; }
+    return json({
+      service: "security-audit",
+      description: "Paid code security audit. Submit a GitHub repo URL and receive a comprehensive security report covering dependencies, secrets, OWASP patterns, and Clarity smart contract risks.",
+      cost_sats: SECURITY_AUDIT_COST_SATS,
+      model: "opus",
+      focus_areas: [...VALID_FOCUS_AREAS],
+      daily_limit: SECURITY_AUDIT_DAILY_LIMIT,
+      daily_remaining: SECURITY_AUDIT_DAILY_LIMIT - securityAuditDayCount,
+      usage: "POST /api/services/security-audit with { repo_url, focus?, notes? }",
     });
   }
 
