@@ -1,0 +1,27 @@
+{
+  "pairs": {
+    "STX-sBTC": {
+      "label": "STX / sBTC",
+      "baseToken": "STX",
+      "quoteToken": "sBTC",
+      "baseDecimals": 6,
+      "quoteDecimals": 8,
+      "orderBookContract": "",
+      "exchangeContract": "",
+      "sbtcContract": "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token",
+      "functions": {
+        "getBids": "get-bids",
+        "getAsks": "get-asks",
+        "getOrderBook": "get-order-book",
+        "placeBid": "place-bid",
+        "placeAsk": "place-ask",
+        "cancelOrder": "cancel-order"
+      }
+    }
+  },
+  "budget": {
+    "maxStxPerCycle": 50000000,
+    "maxSatsPerCycle": 10000
+  },
+  "sparkAddress": "SP12Q1FS2DX4N8C2QYBM0Z2N2DY1EH9EEPMPH9N9X"
+}
