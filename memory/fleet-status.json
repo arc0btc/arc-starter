@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T13:38:56.406Z",
+  "updated_at": "2026-03-19T13:42:57.897Z",
   "idle": true,
-  "idle_since": "2026-03-19T13:32:54.151Z",
+  "idle_since": "2026-03-19T13:40:56.898Z",
   "last_task": {
-    "id": 7308,
-    "subject": "Retry: File Bitflow sBTC/STX volatility signal (07:31Z)",
+    "id": 7346,
+    "subject": "daily cost report — 2026-03-19",
     "status": "completed",
-    "priority": 6
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 16683,
-    "cost_usd": 0.11387955000000001
+    "duration_ms": 29363,
+    "cost_usd": 0.05955629999999999
   },
   "health": {
-    "uptime_seconds": 1870035,
+    "uptime_seconds": 1870276,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229335330816
+    "disk_avail_bytes": 229335216128
   }
 }
