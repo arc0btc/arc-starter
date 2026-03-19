@@ -310,7 +310,7 @@ async function cmdFileSignal(args: string[]): Promise<void> {
 
   if (!flags.beat || !flags.claim || !flags.evidence || !flags.implication) {
     console.error(
-      "Usage: arc skills run --name aibtc-news -- file-signal --beat <slug> --claim <text> --evidence <text> --implication <text> [--headline <text>] [--sources <json>] [--tags <comma-sep>] [--force]"
+      "Usage: arc skills run --name aibtc-news -- file-signal --beat <slug> --claim <text> --evidence <text> --implication <text> [--headline <text>] [--sources <json>] [--tags <comma-sep>] [--disclosure <text>] [--force]"
     );
     process.exit(1);
   }
@@ -320,6 +320,7 @@ async function cmdFileSignal(args: string[]): Promise<void> {
   const evidence = flags.evidence;
   const implication = flags.implication;
   const headline = flags.headline || undefined;
+  const disclosure = flags.disclosure || undefined;
   const force = flags.force !== undefined;
   const sourcesJson = flags.sources ? JSON.parse(flags.sources) : undefined;
   const tagsStr = flags.tags || "";
@@ -407,6 +408,7 @@ async function cmdFileSignal(args: string[]): Promise<void> {
     };
 
     if (headline) body.headline = headline;
+    if (disclosure) body.disclosure = disclosure;
     if (sourcesJson) body.sources = sourcesJson;
     if (tags.length > 0) body.tags = tags;
 
