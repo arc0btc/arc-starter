@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T01:44:28.896Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-19T02:01:22.401Z",
+  "idle": true,
+  "idle_since": "2026-03-19T01:46:16.646Z",
   "last_task": {
-    "id": 6808,
-    "subject": "Spark: First Zest V2 sBTC supply position (pending write ops)",
+    "id": 7234,
+    "subject": "daily cost report — 2026-03-19",
     "status": "completed",
     "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 12816,
-    "cost_usd": 0.02908355
+    "duration_ms": 18136,
+    "cost_usd": 0.034334949999999996
   },
   "health": {
-    "uptime_seconds": 1827167,
+    "uptime_seconds": 1828181,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229348921344
+    "disk_avail_bytes": 229348708352
   }
 }
