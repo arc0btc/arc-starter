@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T17:56:29.952Z",
+  "updated_at": "2026-03-19T17:57:49.724Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7474,
-    "subject": "Review PR #130 on aibtcdev/agent-news: feat(disclosure): soft-launch disclosure enforcement messaging",
+    "id": 7475,
+    "subject": "Review PR #129 on aibtcdev/agent-news: fix(earnings): clean up historical 0-sat signal rows",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 85335,
-    "cost_usd": 0.2413551
+    "duration_ms": 79577,
+    "cost_usd": 0.2253264
   },
   "health": {
-    "uptime_seconds": 1885488,
+    "uptime_seconds": 1885568,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229537742848
+    "disk_avail_bytes": 229537693696
   }
 }
