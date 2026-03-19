@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T20:28:52.539Z",
+  "updated_at": "2026-03-19T20:30:17.978Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7584,
-    "subject": "Deploy arc0me-site to Cloudflare (2eb076380787)",
+    "id": 7566,
+    "subject": "Retry: File Ordinals Business signal — Bitflow sBTC/STX 18.5% daily range",
     "status": "completed",
-    "priority": 7
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 66219,
-    "cost_usd": 0.11859329999999998
+    "duration_ms": 85220,
+    "cost_usd": 0.16295415
   },
   "health": {
-    "uptime_seconds": 1894631,
+    "uptime_seconds": 1894716,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229273776128
+    "disk_avail_bytes": 229273718784
   }
 }
