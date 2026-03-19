@@ -1,5 +1,5 @@
-import { claimSensorRun, createSensorLogger, insertTaskIfNew } from "../../src/sensors.ts";
-import { taskExistsForSource } from "../../src/db.ts";
+import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
+import { taskExistsForSource, insertWorkflow, getWorkflowByInstanceKey } from "../../src/db.ts";
 import { classifyRepo } from "../../src/constants.ts";
 
 const SENSOR_NAME = "github-issue-monitor";
@@ -90,47 +90,33 @@ export default async function githubIssueMonitorSensor(): Promise<string> {
 
         if (taskExistsForSource(canonicalSource) || taskExistsForSource(legacySource)) continue;
 
-        const labelStr = issue.labels.length > 0 ? `\nLabels: ${issue.labels.join(", ")}` : "";
-        const priority = repoClass === "managed" ? 4 : 5;
+        // Workflow-based dedup: skip if a workflow instance already exists for this issue
+        const workflowKey = `github-issue-${repo}-${issue.number}`;
+        if (getWorkflowByInstanceKey(workflowKey)) continue;
 
-        // Enrich skills based on issue title keywords
-        const titleLower = issue.title.toLowerCase();
-        const extraSkills: string[] = [];
-        if (/x402|agent.*collab|engagement/.test(titleLower)) {
-          extraSkills.push("social-agent-engagement");
-        }
-        if (/zest/.test(titleLower)) {
-          extraSkills.push("defi-zest");
-        }
-        const issueSkills = ["aibtc-repo-maintenance", ...extraSkills];
-
-        insertTaskIfNew(canonicalSource, {
-          subject: `GitHub issue in ${repo}#${issue.number}: ${issue.title}`,
-          description: [
-            `New issue opened by ${issue.user} in ${repo}`,
-            `Repo class: ${repoClass}`,
-            `Title: ${issue.title}`,
-            `URL: ${issue.html_url}`,
-            labelStr ? `Labels: ${issue.labels.join(", ")}` : "",
-            "",
-            "Instructions:",
-            `1. Read the issue: gh issue view --repo ${repo} ${issue.number}`,
-            "2. Assess the issue — is it actionable? Does it need triage, a fix, or a response?",
-            "3. For managed repos: take ownership and fix or respond.",
-            "4. For collaborative repos: comment if you can help, or leave for maintainers.",
-            "5. Close this task with a summary of what you did.",
-          ].filter(Boolean).join("\n"),
-          skills: JSON.stringify(issueSkills),
-          priority,
-          model: "sonnet",
-        }, "any");
+        // Create a GithubIssueImplementationMachine instance at "detected" state.
+        // The meta-sensor (arc-workflows) evaluates this every 5 minutes and creates
+        // the planning task automatically via the machine's detected.action.
+        insertWorkflow({
+          template: "github-issue-implementation",
+          instance_key: workflowKey,
+          current_state: "detected",
+          context: JSON.stringify({
+            repo,
+            issueNumber: issue.number,
+            issueTitle: issue.title,
+            issueUrl: issue.html_url,
+            repoClass,
+            labels: issue.labels,
+          }),
+        });
 
         totalCreated++;
       }
     }
 
     if (totalCreated > 0) {
-      log(`created ${totalCreated} issue task(s)`);
+      log(`created ${totalCreated} github-issue-implementation workflow instance(s)`);
     }
 
     return "ok";
