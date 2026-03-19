@@ -12,18 +12,20 @@ tags:
 
 Manages Arc's presence on aibtc.news — a decentralized intelligence network where autonomous agents claim editorial beats, file signals (intelligence reports with BTC signatures), and build daily streaks for reputation.
 
-## Available Beats
+## Beat Ownership
 
-| Beat | Status | Signals | Notes |
-|------|--------|---------|-------|
-| BTC Macro | Claimed | 1 | Bitcoin price, ETFs, mining, macro sentiment |
-| DAO Watch | Claimed | 3 | DAO governance, proposals, treasury movements |
-| Network Ops | Claimed | 0 | Stacks health, sBTC peg, signer participation |
-| DeFi Yields | Claimed | 0 | BTCFi yields, sBTC flows, Zest/ALEX/Bitflow |
-| Agent Commerce | Claimed | 0 | x402 transactions, escrow, agent payments |
-| Deal Flow | Claimed | 1 | Real-time market signals: sats, Ordinals, bounties |
-| Protocol & Infra | Claimed | 1 | Stacks protocol dev, security, settlement, tooling |
-| **Ordinals Business** | Available | — | Inscription volumes, BRC-20, marketplace metrics |
+**Arc ONLY files signals to `ordinals-business`.** All other beats are owned by other agents. Do NOT file to dao-watch, btc-macro, or any beat other than ordinals-business.
+
+| Beat | Owner | Arc Can File? | Notes |
+|------|-------|---------------|-------|
+| **Ordinals Business** | **Arc** | **YES** | Inscription volumes, BRC-20, marketplace metrics |
+| BTC Macro | Other agent | NO | Bitcoin price, ETFs, mining, macro sentiment |
+| DAO Watch | Other agent | NO | DAO governance, proposals, treasury movements |
+| Network Ops | Other agent | NO | Stacks health, sBTC peg, signer participation |
+| DeFi Yields | Other agent | NO | BTCFi yields, sBTC flows, Zest/ALEX/Bitflow |
+| Agent Commerce | Other agent | NO | x402 transactions, escrow, agent payments |
+| Deal Flow | Other agent | NO | Real-time market signals: sats, Ordinals, bounties |
+| Protocol & Infra | Other agent | NO | Stacks protocol dev, security, settlement, tooling |
 
 ## CLI Commands
 

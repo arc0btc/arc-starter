@@ -76,8 +76,8 @@ async function checkOrdinalsVolume(state: HookState): Promise<HookState> {
       if (!recentTaskExistsForSource(source, 24 * 60)) {
         log(`ordinals: threshold met — queuing signal task`);
         insertTask({
-          subject: `File Deal Flow signal: Ordinals weekly volume ~$${Math.round(volumeUsd / 1_000_000 * 10) / 10}M`,
-          description: `Ordinals 7-day marketplace volume reached ~$${Math.round(volumeUsd).toLocaleString()} (threshold $${ORDINALS_WEEKLY_VOLUME_USD.toLocaleString()}). File a Deal Flow signal.\n\nResearch: arc skills run --name aibtc-news-editorial -- fetch-ordinals-data\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat deal-flow --claim "..." --evidence "..." --implication "..."`,
+          subject: `File ordinals-business signal: Ordinals weekly volume ~$${Math.round(volumeUsd / 1_000_000 * 10) / 10}M`,
+          description: `Ordinals 7-day marketplace volume reached ~$${Math.round(volumeUsd).toLocaleString()} (threshold $${ORDINALS_WEEKLY_VOLUME_USD.toLocaleString()}). File an ordinals-business signal (Arc's only beat — do NOT file to deal-flow, dao-watch, or btc-macro).\n\nResearch: arc skills run --name aibtc-news-editorial -- fetch-ordinals-data\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals-business --claim "..." --evidence "..." --implication "..."`,
           skills: JSON.stringify(["aibtc-news-editorial", "aibtc-news-deal-flow"]),
           priority: 6,
           status: "pending",
@@ -146,8 +146,8 @@ async function checkX402Escrow(state: HookState): Promise<HookState> {
       if (!recentTaskExistsForSource(source, 24 * 60)) {
         log(`x402: threshold met — queuing signal task`);
         insertTask({
-          subject: `File Deal Flow signal: x402 weekly escrow volume ~$${Math.round(volumeUsd / 1_000_000 * 10) / 10}M`,
-          description: `x402 agent escrow 7-day volume reached ~$${Math.round(volumeUsd).toLocaleString()} (threshold $${X402_WEEKLY_VOLUME_USD.toLocaleString()}). File a Deal Flow signal.\n\nContract: ${contractAddress}\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat deal-flow --claim "..." --evidence "..." --implication "..."`,
+          subject: `File ordinals-business signal: x402 weekly escrow volume ~$${Math.round(volumeUsd / 1_000_000 * 10) / 10}M`,
+          description: `x402 agent escrow 7-day volume reached ~$${Math.round(volumeUsd).toLocaleString()} (threshold $${X402_WEEKLY_VOLUME_USD.toLocaleString()}). File an ordinals-business signal (Arc's only beat — do NOT file to deal-flow, dao-watch, or btc-macro).\n\nContract: ${contractAddress}\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals-business --claim "..." --evidence "..." --implication "..."`,
           skills: JSON.stringify(["aibtc-news-editorial", "aibtc-news-deal-flow"]),
           priority: 6,
           status: "pending",
@@ -204,8 +204,8 @@ async function checkDaoTreasury(state: HookState): Promise<HookState> {
       if (!recentTaskExistsForSource(source, 24 * 60)) {
         log(`dao-treasury: threshold met (${change.toFixed(2)} BTC change) — queuing signal task`);
         insertTask({
-          subject: `File Deal Flow signal: DAO treasury ${direction} by ${change.toFixed(2)} BTC`,
-          description: `${daoContract} treasury ${direction} by ${change.toFixed(2)} BTC (now ${btcBalance.toFixed(4)} BTC, was ${prev.toFixed(4)} BTC). Threshold: ${DAO_TREASURY_CHANGE_BTC} BTC.\n\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat deal-flow --claim "..." --evidence "..." --implication "..."`,
+          subject: `File ordinals-business signal: DAO treasury ${direction} by ${change.toFixed(2)} BTC`,
+          description: `${daoContract} treasury ${direction} by ${change.toFixed(2)} BTC (now ${btcBalance.toFixed(4)} BTC, was ${prev.toFixed(4)} BTC). Threshold: ${DAO_TREASURY_CHANGE_BTC} BTC.\n\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals-business --claim "..." --evidence "..." --implication "..."`,
           skills: JSON.stringify(["aibtc-news-editorial", "aibtc-news-deal-flow"]),
           priority: 6,
           status: "pending",
@@ -267,8 +267,8 @@ async function checkSatsAuctions(state: HookState): Promise<HookState> {
       if (!recentTaskExistsForSource(source, 24 * 60)) {
         log(`sats-auctions: threshold met — queuing signal task`);
         insertTask({
-          subject: `File Deal Flow signal: Rare sat auction at ${priceSats.toLocaleString()} sats`,
-          description: `Rare sat auction detected at ${priceSats.toLocaleString()} sats (threshold ${SATS_AUCTION_MIN_SATS.toLocaleString()} sats). File a Deal Flow signal.\n\nDetails: ${JSON.stringify(topAuction, null, 2).slice(0, 500)}\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat deal-flow --claim "..." --evidence "..." --implication "..."`,
+          subject: `File ordinals-business signal: Rare sat auction at ${priceSats.toLocaleString()} sats`,
+          description: `Rare sat auction detected at ${priceSats.toLocaleString()} sats (threshold ${SATS_AUCTION_MIN_SATS.toLocaleString()} sats). File an ordinals-business signal (Arc's only beat — do NOT file to deal-flow, dao-watch, or btc-macro).\n\nDetails: ${JSON.stringify(topAuction, null, 2).slice(0, 500)}\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals-business --claim "..." --evidence "..." --implication "..."`,
           skills: JSON.stringify(["aibtc-news-editorial", "aibtc-news-deal-flow"]),
           priority: 6,
           status: "pending",
@@ -326,8 +326,8 @@ async function checkBountyActivity(state: HookState): Promise<HookState> {
       if (!recentTaskExistsForSource(source, 24 * 60)) {
         log(`bounty: new launches detected — queuing signal task`);
         insertTask({
-          subject: `File Deal Flow signal: ${recentLaunches.length} new bounty program(s) launched`,
-          description: `${recentLaunches.length} new bounty program(s) detected on ${bountyContract} in the last 24 hours. Verify reward amounts and file a Deal Flow signal.\n\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat deal-flow --claim "..." --evidence "..." --implication "..."`,
+          subject: `File ordinals-business signal: ${recentLaunches.length} new bounty program(s) launched`,
+          description: `${recentLaunches.length} new bounty program(s) detected on ${bountyContract} in the last 24 hours. Verify reward amounts and file a Deal Flow signal.\n\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals-business --claim "..." --evidence "..." --implication "..."`,
           skills: JSON.stringify(["aibtc-news-editorial", "aibtc-news-deal-flow"]),
           priority: 6,
           status: "pending",
