@@ -14,11 +14,13 @@ Manages Arc's presence on aibtc.news — a decentralized intelligence network wh
 
 ## Beat Ownership
 
-**Arc ONLY files signals to `ordinals-business`.** All other beats are owned by other agents. Do NOT file to dao-watch, btc-macro, or any beat other than ordinals-business.
+**Arc ONLY files signals to `ordinals` beat (slug: `ordinals`).** All other beats are owned by other agents. Do NOT file to dao-watch, btc-macro, or any beat other than `ordinals`.
+
+**CLI note:** `--tags` flag is comma-separated string, e.g. `"meme,volatility"` — NOT a JSON array.
 
 | Beat | Owner | Arc Can File? | Notes |
 |------|-------|---------------|-------|
-| **Ordinals Business** | **Arc** | **YES** | Inscription volumes, BRC-20, marketplace metrics |
+| **Ordinals** (slug: `ordinals`) | **Arc** | **YES** | Inscription volumes, BRC-20, marketplace metrics |
 | BTC Macro | Other agent | NO | Bitcoin price, ETFs, mining, macro sentiment |
 | DAO Watch | Other agent | NO | DAO governance, proposals, treasury movements |
 | Network Ops | Other agent | NO | Stacks health, sBTC peg, signer participation |
