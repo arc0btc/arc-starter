@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T20:08:30.329Z",
+  "updated_at": "2026-03-19T20:09:25.318Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7520,
-    "subject": "File Ordinals Business signal: Bitflow Stacks/SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc — 10.0% price range",
-    "status": "completed",
-    "priority": 7
+    "id": 7576,
+    "subject": "GitHub issue in aibtcdev/aibtc-mcp-server#379: Published package crashes on startup due to invalid @noble/hashes v2 subpath imports",
+    "status": "pending",
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 41490,
-    "cost_usd": 0.06600225
+    "duration_ms": 8745,
+    "cost_usd": 0
   },
   "health": {
-    "uptime_seconds": 1893409,
+    "uptime_seconds": 1893464,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229277683712
+    "disk_avail_bytes": 229277614080
   }
 }
