@@ -29,7 +29,7 @@ All commands output single JSON objects. Read-only commands pass through to upst
 ```
 arc skills run --name defi-bitflow -- quote --token-x <id> --token-y <id> --amount-in <decimal>
 arc skills run --name defi-bitflow -- swap --token-x <id> --token-y <id> --amount-in <decimal> [--slippage <decimal>]
-arc skills run --name defi-bitflow -- ticker [--base <id>] [--target <id>]
+arc skills run --name defi-bitflow -- ticker [--base-currency <id>] [--target-currency <id>]
 arc skills run --name defi-bitflow -- tokens
 arc skills run --name defi-bitflow -- routes --token-x <id> --token-y <id>
 arc skills run --name defi-bitflow -- spreads [--threshold <pct>]
