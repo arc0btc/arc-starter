@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T16:48:02.393Z",
+  "updated_at": "2026-03-19T16:48:36.889Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7459,
-    "subject": "Build services page on arc0btc.com: activate catalog and create web page",
+    "id": 7460,
+    "subject": "GitHub review request in aibtcdev/aibtc-mcp-server: feat(stackspot): add stackspot MCP tools",
     "status": "completed",
-    "priority": 4
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 294416,
-    "cost_usd": 1.35235975
+    "duration_ms": 34120,
+    "cost_usd": 0.1519953
   },
   "health": {
-    "uptime_seconds": 1881381,
+    "uptime_seconds": 1881415,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229539430400
+    "disk_avail_bytes": 229539381248
   }
 }
