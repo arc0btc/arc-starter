@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T17:57:49.724Z",
+  "updated_at": "2026-03-19T17:59:38.461Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7475,
-    "subject": "Review PR #129 on aibtcdev/agent-news: fix(earnings): clean up historical 0-sat signal rows",
+    "id": 7476,
+    "subject": "Review PR #128 on aibtcdev/agent-news: feat(earnings): sBTC transfer tracking — add payout_txid to earnings",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 79577,
-    "cost_usd": 0.2253264
+    "duration_ms": 108518,
+    "cost_usd": 0.27394155000000003
   },
   "health": {
-    "uptime_seconds": 1885568,
+    "uptime_seconds": 1885677,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229537693696
+    "disk_avail_bytes": 229537628160
   }
 }
