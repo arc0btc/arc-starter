@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T05:20:59.642Z",
+  "updated_at": "2026-03-19T05:25:55.336Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7281,
-    "subject": "Audit beat-ownership sensor bug: fix dao-watch task generation",
+    "id": 7287,
+    "subject": "Investigate 3 recent aibtc-news-editorial failures: root cause and fix",
     "status": "completed",
-    "priority": 4
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 160884,
-    "cost_usd": 0.90243625
+    "duration_ms": 295300,
+    "cost_usd": 1.16341515
   },
   "health": {
-    "uptime_seconds": 1840158,
+    "uptime_seconds": 1840454,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229335195648
+    "disk_avail_bytes": 229335035904
   }
 }
