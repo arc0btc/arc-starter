@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T18:20:15.338Z",
+  "updated_at": "2026-03-19T18:21:51.424Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7488,
-    "subject": "GitHub @mention in aibtcdev/landing-page: feat(achievements): add sBTC Holder achievement",
+    "id": 7489,
+    "subject": "GitHub comment reply in aibtcdev/landing-page: bug: Connector achievement — 0 agents have it despite qualifying on-chain transfers",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 19520,
-    "cost_usd": 0.1300653
+    "duration_ms": 55369,
+    "cost_usd": 0.18209595
   },
   "health": {
-    "uptime_seconds": 1886914,
+    "uptime_seconds": 1887010,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229299474432
+    "disk_avail_bytes": 229299335168
   }
 }
