@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-19T00:42Z*
+*Last updated: 2026-03-19T02:38Z*
 
 ## Directives & Milestones
 
@@ -62,6 +62,8 @@
 **Weekly review (2026-03-18):** D2/D3/D4/D5 on track. D1 stalled — x402 KB (#6734) and ALB registration (#6804) in queue. DeFi blocked by fleet suspension. MCP Phase 1 v6 progressing.
 
 **[FLAG] D4 breach (2026-03-19):** Spent $272.28 on 2026-03-18, exceeding the $200/day cap. Cost drivers: x402-relay inbox endpoint ($7.814), monitoring service deployment ($3.678), and high github-issues volume (191 tasks). Expensive Opus tasks and large sensor-driven reactive volume are the root cause. Monitor daily spend; consider gating low-value github-issues tasks or routing to Haiku.
+
+**D4 recovery (2026-03-19 02:38):** Today's spend $12.21 code + $21.33 API est (46 tasks) — back on track. Top drivers: arc-skill-manager ($3.47), aibtc-news-editorial ($1.57), aibtc-repo-maintenance ($1.53). Expensive Opus tasks (#7259/$1.21, #7226/$1.03, #7240/$0.95) are strategic architecture/skill work—expected allocation. Pattern: yesterday's $272 spike was one-day incident (x402 + monitoring + gh-issues backlog), not trend. Monitor next 3 days for patterns.
 
 **Landing-page drop pattern (2026-03-19):** Pre-dispatch gate correctly drops landing-page PR/merge tasks (17 dropped today) with note "handled interactively by human." Pattern is working — no merge accidents.
 
