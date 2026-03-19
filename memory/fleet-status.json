@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T01:42:29.982Z",
+  "updated_at": "2026-03-19T01:44:14.417Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6694,
-    "subject": "daily cost report — 2026-03-18",
+    "id": 6807,
+    "subject": "Spark: First Bitflow LP position (pending API fix)",
     "status": "completed",
     "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 14928,
-    "cost_usd": 0.03307345
+    "duration_ms": 59103,
+    "cost_usd": 0.04541385
   },
   "health": {
-    "uptime_seconds": 1827048,
+    "uptime_seconds": 1827153,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229349023744
+    "disk_avail_bytes": 229348954112
   }
 }
