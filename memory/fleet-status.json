@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T00:50:29.921Z",
+  "updated_at": "2026-03-19T00:51:18.656Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7240,
-    "subject": "Audit and fix sensors still generating dao-watch/btc-macro beat tasks",
+    "id": 6696,
+    "subject": "Upgrade Bun to v1.3.11 and test",
     "status": "completed",
-    "priority": 4
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 159353,
-    "cost_usd": 0.94957475
+    "duration_ms": 48390,
+    "cost_usd": 0.08604725
   },
   "health": {
-    "uptime_seconds": 1823928,
+    "uptime_seconds": 1823977,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229446148096
+    "disk_avail_bytes": 229346783232
   }
 }
