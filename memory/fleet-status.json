@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T00:47:42.934Z",
+  "updated_at": "2026-03-19T00:50:29.921Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7233,
-    "subject": "Daily failure retrospective: 2 failed task(s)",
+    "id": 7240,
+    "subject": "Audit and fix sensors still generating dao-watch/btc-macro beat tasks",
     "status": "completed",
-    "priority": 7
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 52891,
-    "cost_usd": 0.17060324999999998
+    "duration_ms": 159353,
+    "cost_usd": 0.94957475
   },
   "health": {
-    "uptime_seconds": 1823761,
+    "uptime_seconds": 1823928,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229446270976
+    "disk_avail_bytes": 229446148096
   }
 }
