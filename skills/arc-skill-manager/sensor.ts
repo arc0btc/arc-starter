@@ -49,11 +49,18 @@ function validateSensorPattern(filePath: string, content: string): { valid: bool
     issues.push("Missing claimSensorRun() call");
   }
 
-  // Check for dedup pattern (pendingTaskExistsForSource, recentTaskExistsForSourcePrefix,
-  // taskExists, or insertTaskIfNew which wraps pendingTaskExistsForSource internally)
-  const hasDedup = /pendingTaskExistsForSource|recentTaskExistsForSourcePrefix|taskExists|insertTaskIfNew/.test(content);
-  if (!hasDedup) {
-    issues.push("Missing dedup pattern (pendingTaskExistsForSource or recentTaskExistsForSourcePrefix)");
+  // Check for dedup pattern. Only required when the sensor creates tasks (insertTask present).
+  // Valid patterns: pendingTaskExistsForSource, recentTaskExistsForSource (and Prefix variant),
+  // taskExistsForSource, taskExists, insertTaskIfNew, or getWorkflowByInstanceKey (workflow dedup).
+  const createsTasks = /insertTask\b/.test(content);
+  if (createsTasks) {
+    const hasDedup =
+      /pendingTaskExistsForSource|recentTaskExistsForSource|taskExists|insertTaskIfNew|getWorkflowByInstanceKey/.test(
+        content
+      );
+    if (!hasDedup) {
+      issues.push("Missing dedup pattern (pendingTaskExistsForSource or recentTaskExistsForSource)");
+    }
   }
 
   // Check for side-effect pattern (await main() at end)
