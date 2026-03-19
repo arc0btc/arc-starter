@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T20:30:17.978Z",
+  "updated_at": "2026-03-19T20:31:04.769Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7566,
-    "subject": "Retry: File Ordinals Business signal — Bitflow sBTC/STX 18.5% daily range",
+    "id": 7381,
+    "subject": "Retrospective: extract learnings from task #7377 — feat: add souldinals MCP tools to aibtc-mcp-server (#366)",
     "status": "completed",
-    "priority": 6
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 85220,
-    "cost_usd": 0.16295415
+    "duration_ms": 46599,
+    "cost_usd": 0.07134475
   },
   "health": {
-    "uptime_seconds": 1894716,
+    "uptime_seconds": 1894763,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229273718784
+    "disk_avail_bytes": 229273665536
   }
 }
