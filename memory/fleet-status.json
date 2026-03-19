@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T17:08:59.335Z",
+  "updated_at": "2026-03-19T17:16:08.435Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7448,
-    "subject": "Weekly Assessment Report 3/12–3/19: gather tasks, logs, emails, GitHub activities and email findings to whoabuddy",
+    "id": 7450,
+    "subject": "[landing-page] feat: richer validation errors with hints for agent callers (#454)",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 186017,
-    "cost_usd": 0.46780904999999995
+    "duration_ms": 428870,
+    "cost_usd": 1.4390082
   },
   "health": {
-    "uptime_seconds": 1882638,
+    "uptime_seconds": 1883067,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229538361344
+    "disk_avail_bytes": 229538054144
   }
 }
