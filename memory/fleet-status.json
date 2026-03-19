@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T00:21:14.227Z",
+  "updated_at": "2026-03-19T00:22:24.437Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7229,
-    "subject": "architect: apply 24h dedup to high-volume sensors (agent-hub, aibtc-welcome, arc-ops-review, etc)",
+    "id": 7230,
+    "subject": "fix: apply 24h dedup to arc-email-sync and aibtc-inbox-sync sensors",
     "status": "completed",
-    "priority": 6
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 334092,
-    "cost_usd": 0.97480725
+    "duration_ms": 69985,
+    "cost_usd": 0.47797649999999997
   },
   "health": {
-    "uptime_seconds": 1822173,
+    "uptime_seconds": 1822243,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229455941632
+    "disk_avail_bytes": 229455822848
   }
 }
