@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T01:08:24.589Z",
+  "updated_at": "2026-03-19T01:09:05.705Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7243,
-    "subject": "GitHub issue in aibtcdev/agent-news#113: Phase B: ERC-8004 identity gate for signal submission",
+    "id": 7181,
+    "subject": "Extract learning from task #7177 — Fix arc-reporting sensor — 5-day dark period",
     "status": "completed",
-    "priority": 5
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 50725,
-    "cost_usd": 0.13180185
+    "duration_ms": 31667,
+    "cost_usd": 0.07162035
   },
   "health": {
-    "uptime_seconds": 1825003,
+    "uptime_seconds": 1825044,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229345796096
+    "disk_avail_bytes": 229345738752
   }
 }
