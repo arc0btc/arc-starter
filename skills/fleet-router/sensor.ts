@@ -110,7 +110,7 @@ const DOMAIN_RULES: DomainRule[] = [
 
 // Tasks with these skill patterns always stay on Arc
 const ARC_KEEP_PATTERNS = [
-  "fleet-", "arc-ops-", "credentials", "arc-skill-",
+  "fleet-", "arc-ops-", "arc-credentials", "arc-skill-",
   "arc-architecture", "arc-roundtable",
 ];
 

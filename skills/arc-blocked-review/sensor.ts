@@ -5,6 +5,7 @@ import {
 } from "../../src/sensors.ts";
 import { getDatabase } from "../../src/db.ts";
 import type { Task } from "../../src/db.ts";
+import { discoverSkills } from "../../src/skills.ts";
 
 const SENSOR_NAME = "arc-blocked-review";
 const INTERVAL_MINUTES = 480; // 8 hours — keep responsive for blocked tasks
@@ -128,11 +129,16 @@ export default async function blockedReviewSensor(): Promise<string> {
     )
     .join("\n\n");
 
+  // Build valid skill set to filter out renamed/removed skills
+  const validSkillNames = new Set(discoverSkills().map((s) => s.name));
+
   // Collect skills from candidate blocked tasks so reviewer has relevant context
   const skillSet = new Set<string>(["arc-blocked-review"]);
   for (const { task } of candidates) {
     if (task.skills) {
-      for (const s of JSON.parse(task.skills) as string[]) skillSet.add(s);
+      for (const s of JSON.parse(task.skills) as string[]) {
+        if (validSkillNames.has(s)) skillSet.add(s);
+      }
     }
   }
   // Cap at 6 skills to stay within context budget

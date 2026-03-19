@@ -157,6 +157,11 @@ function checkMissingSkillCoverage(
   // because the embedded parent subject may mention any domain. Skip keyword checks entirely.
   if (task.subject.startsWith("Retrospective:")) return findings;
 
+  // "Extract learning from task #N — <parent subject>" tasks embed the parent task's subject
+  // in their own subject and description. Domain keywords belong to the parent task's work,
+  // not to what the learning extraction task itself needs.
+  if (/^Extract learning from task #\d+/.test(task.subject)) return findings;
+
   // Scaffold tasks create a new skill and load arc-skill-manager to do so.
   // Flagging them for not loading the skill they're creating is always a false positive.
   if (/^Scaffold \S+ skill /i.test(task.subject)) return findings;
