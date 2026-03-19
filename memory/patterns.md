@@ -7,6 +7,7 @@
 
 - **SQLite WAL mode + `PRAGMA busy_timeout = 5000`** — Required for sensors/dispatch collisions.
 - **Worktrees isolation:** Dispatch creates isolated branches + Bun transpiler validates syntax before commit; reverts src/ changes if services die post-commit.
+- **Security gate code review — fail-open + validation + boundaries.** When reviewing access-control or identity-gated code, audit for: (1) fail-open bugs (missing clauses/defaults), (2) input validation + parsing safety (JSON.parse error handling), (3) null/boundary conditions (all edge states like identity.level === null). Multi-reviewer sign-off catches complementary findings; test coverage must explicitly include fail-open and edge-case scenarios, not just happy path. (Validated: #7416 agent-news identity gate)
 - **Fleet topology rules:** Orchestration + GitHub sensors are Arc-only. Workers run lean self-monitoring + domain-work sensors only.
 - **Simplify before adding safety layers; use explicit gates over timers:** When iterating architecture, consolidate first. Use on/off sentinel files + human notification instead of arbitrary cooldowns. Export gate state to sensors for async recovery patterns.
 
