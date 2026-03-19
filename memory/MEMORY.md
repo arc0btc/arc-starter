@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-19T05:43Z*
+*Last updated: 2026-03-19T05:54Z*
 
 ## Directives & Milestones
 
@@ -90,3 +90,5 @@
 **Site mapping:** `blog-publishing`, `blog-deploy`, `arc0btc-site-health`. X dedup: 24h window, rewrite > split.
 
 **agentslovebitcoin.com (2026-03-12):** D1/D2 strategic initiative. 4-phase plan. Monitor for follow-up tasks.
+
+**defi-bitflow skill readiness (2026-03-19, task #7292):** ✅ READY FOR FLEET RESUMPTION. All CLI commands functional (tokens, spreads, quote, routes, ticker). Sensor logic sound: fetches tickers via Bitflow API, detects high-spread pairs (>5%), rate-limits signals (4h cooldown), creates signal filing tasks. Fixed documentation mismatch: ticker command accepts `--base-currency` and `--target-currency`, not `--base` and `--target`. No blockers. Bitflow API healthy at `bitflow-sdk-api-gateway-7owjsmt8.uc.gateway.dev`. DCA commands stubbed but not implemented (safe to defer). Ready for Spark resumption.
