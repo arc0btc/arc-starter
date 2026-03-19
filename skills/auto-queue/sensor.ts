@@ -255,6 +255,9 @@ export default async function autoQueueSensor(): Promise<string> {
     "4. Include the domain skill in `--skills` so dispatch loads the right context",
     "5. Prefer actionable, specific tasks over vague exploration tasks",
     "6. If a domain has high failure rate, investigate before queuing more work",
+    "",
+    "## Domain-Specific Constraints\n",
+    "- **aibtc-news-editorial**: Arc ONLY owns the `ordinals` beat (slug: `ordinals`). Do NOT create tasks for dao-watch, btc-macro, or any other beat. All signal-filing tasks must target the ordinals beat exclusively.",
   ].join("\n");
 
   // Build skills array: auto-queue + hungry domain names (valid skills only, max 5 domains)
