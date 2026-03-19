@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T20:25:22.187Z",
+  "updated_at": "2026-03-19T20:26:21.411Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7374,
-    "subject": "Retrospective: extract learnings from task #7371 — feat(aibtc-mcp-server): add credentials MCP tool group (list",
+    "id": 7376,
+    "subject": "New release: aibtcdev/aibtc-mcp-server mcp-server-v1.40.0",
     "status": "completed",
     "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 36644,
-    "cost_usd": 0.0693336
+    "duration_ms": 35604,
+    "cost_usd": 0.07869235000000001
   },
   "health": {
-    "uptime_seconds": 1894421,
+    "uptime_seconds": 1894480,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229274120192
+    "disk_avail_bytes": 229274083328
   }
 }
