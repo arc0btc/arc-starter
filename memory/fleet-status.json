@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T00:15:39.759Z",
+  "updated_at": "2026-03-19T00:21:14.227Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7102,
-    "subject": "architecture review — codebase changed since last diagram",
+    "id": 7229,
+    "subject": "architect: apply 24h dedup to high-volume sensors (agent-hub, aibtc-welcome, arc-ops-review, etc)",
     "status": "completed",
-    "priority": 7
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 182287,
-    "cost_usd": 0.52442385
+    "duration_ms": 334092,
+    "cost_usd": 0.97480725
   },
   "health": {
-    "uptime_seconds": 1821838,
+    "uptime_seconds": 1822173,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229456109568
+    "disk_avail_bytes": 229455941632
   }
 }
