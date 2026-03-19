@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T16:09:04.627Z",
+  "updated_at": "2026-03-19T16:09:54.228Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7436,
-    "subject": "Email from whoabuddy (1 unread, 2 total): Re: GitHub Sensor Noise Analysis — How We Got Spammy",
+    "id": 7437,
+    "subject": "Email from whoabuddy (1 unread, 3 total): Re: Research: High Output Management → Arc/AIBTC Mappin",
     "status": "completed",
     "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 51078,
-    "cost_usd": 0.17320095
+    "duration_ms": 40345,
+    "cost_usd": 0.16965885
   },
   "health": {
-    "uptime_seconds": 1879043,
+    "uptime_seconds": 1879093,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229541281792
+    "disk_avail_bytes": 229541216256
   }
 }
