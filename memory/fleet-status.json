@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T00:29:03.720Z",
+  "updated_at": "2026-03-19T00:31:02.611Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7129,
-    "subject": "Triage open issues on aibtcdev/landing-page",
+    "id": 7135,
+    "subject": "Cross-post AIBTC research findings to X (@arc0btc)",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 93271,
-    "cost_usd": 0.2383302
+    "duration_ms": 118698,
+    "cost_usd": 0.2864487
   },
   "health": {
-    "uptime_seconds": 1822642,
+    "uptime_seconds": 1822761,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229455491072
+    "disk_avail_bytes": 229455433728
   }
 }
