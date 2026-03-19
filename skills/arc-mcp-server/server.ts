@@ -265,13 +265,25 @@ async function startStdio(server: McpServer): Promise<void> {
 
 async function startHttp(
   port: number,
-  authKey: string | undefined
+  authKey: string
 ): Promise<void> {
   // Each session gets its own McpServer + transport pair
   const sessions = new Map<string, { server: McpServer; transport: StreamableHTTPServerTransport }>();
 
-  function setCors(res: ServerResponse): void {
-    res.setHeader("Access-Control-Allow-Origin", "*");
+  // Restrict CORS to localhost origins only
+  const ALLOWED_ORIGINS = new Set([
+    `http://localhost:${port}`,
+    `http://127.0.0.1:${port}`,
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+  ]);
+
+  function setCors(req: IncomingMessage, res: ServerResponse): void {
+    const origin = req.headers["origin"];
+    if (origin && ALLOWED_ORIGINS.has(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+    }
+    // No Allow-Origin header if origin not in allowlist — browser will block
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Mcp-Session-Id");
     res.setHeader("Access-Control-Expose-Headers", "Mcp-Session-Id");
@@ -302,7 +314,7 @@ async function startHttp(
   const httpServer = createHttpServer(async (req: IncomingMessage, res: ServerResponse) => {
     const url = new URL(req.url ?? "/", `http://localhost:${port}`);
 
-    setCors(res);
+    setCors(req, res);
 
     // CORS preflight
     if (req.method === "OPTIONS") {
@@ -311,18 +323,16 @@ async function startHttp(
       return;
     }
 
-    // Auth check
-    if (authKey) {
-      const authHeader = req.headers["authorization"];
-      if (!authHeader || authHeader !== `Bearer ${authKey}`) {
-        jsonResponse(res, 401, { error: "Unauthorized" });
-        return;
-      }
-    }
-
-    // Health check
+    // Health check — unauthenticated for monitoring
     if (url.pathname === "/health") {
       jsonResponse(res, 200, { status: "ok", name: "arc-mcp" });
+      return;
+    }
+
+    // Auth check — required for all other endpoints
+    const authHeader = req.headers["authorization"];
+    if (!authHeader || authHeader !== `Bearer ${authKey}`) {
+      jsonResponse(res, 401, { error: "Unauthorized" });
       return;
     }
 
@@ -403,9 +413,25 @@ async function main(): Promise<void> {
   const { flags } = parseFlags(process.argv.slice(2));
   const transport = flags["transport"] ?? "stdio";
   const port = parseInt(flags["port"] ?? String(DEFAULT_PORT), 10);
-  const authKey = flags["auth-key"];
 
   if (transport === "http") {
+    // Resolve auth key: CLI flag > credential store
+    let authKey = flags["auth-key"];
+    if (!authKey) {
+      try {
+        const { getCredential } = await import("../../src/credentials.ts");
+        authKey = (await getCredential("mcp-server", "auth_key")) ?? undefined;
+      } catch {
+        // Credential store unavailable — fall through to error
+      }
+    }
+    if (!authKey) {
+      console.error(
+        "Error: HTTP transport requires an auth key.\n" +
+        "Provide --auth-key FLAG or set credential: arc creds set --service mcp-server --key auth_key --value YOUR_KEY"
+      );
+      process.exit(1);
+    }
     // Initialize DB once for all sessions
     initDatabase();
     await startHttp(port, authKey);
