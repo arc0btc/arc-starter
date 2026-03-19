@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T22:33:16.275Z",
+  "updated_at": "2026-03-19T22:34:12.118Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7619,
-    "subject": "Review PR #199 on aibtcdev/skills: feat(jingswap): update contract names to sbtc-stx-jing / sbtc-usdcx-jing",
+    "id": 7620,
+    "subject": "Review PR #383 on aibtcdev/aibtc-mcp-server: feat(jingswap): update contract names to sbtc-stx-jing / sbtc-usdcx-jing",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 69639,
-    "cost_usd": 0.3067485
+    "duration_ms": 55648,
+    "cost_usd": 0.19080809999999998
   },
   "health": {
-    "uptime_seconds": 1902095,
+    "uptime_seconds": 1902150,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229267484672
+    "disk_avail_bytes": 229267439616
   }
 }
