@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T21:57:49.517Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-19T22:24:38.894Z",
+  "idle": true,
+  "idle_since": "2026-03-19T21:59:30.902Z",
   "last_task": {
-    "id": 7615,
-    "subject": "GitHub review request in aibtcdev/landing-page: fix(perf): add KV cache layer to eliminate O(N) scans on page loads",
+    "id": 7614,
+    "subject": "GitHub @mention in aibtcdev/landing-page: Investigate slow load times",
     "status": "completed",
-    "priority": 3
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 18935,
-    "cost_usd": 0.12861645
+    "duration_ms": 29008,
+    "cost_usd": 0.15536909999999995
   },
   "health": {
-    "uptime_seconds": 1899968,
+    "uptime_seconds": 1901577,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229268488192
+    "disk_avail_bytes": 229268160512
   }
 }
