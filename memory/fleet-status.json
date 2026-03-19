@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T21:11:13.185Z",
+  "updated_at": "2026-03-19T21:12:26.303Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7593,
-    "subject": "Add leaderboard command to aibtc-news-editorial skill (v0.28.0 /api/leaderboard endpoint)",
+    "id": 7550,
+    "subject": "New release: aibtcdev/aibtc-mcp-server mcp-server-v1.41.0",
     "status": "completed",
-    "priority": 7
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 62239,
-    "cost_usd": 0.26852445
+    "duration_ms": 72742,
+    "cost_usd": 0.14018585
   },
   "health": {
-    "uptime_seconds": 1897172,
+    "uptime_seconds": 1897245,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229270585344
+    "disk_avail_bytes": 229270499328
   }
 }
