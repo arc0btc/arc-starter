@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T03:37:22.907Z",
+  "updated_at": "2026-03-19T03:46:25.918Z",
   "idle": true,
-  "idle_since": "2026-03-19T03:33:21.195Z",
+  "idle_since": "2026-03-19T03:39:23.402Z",
   "last_task": {
-    "id": 7274,
-    "subject": "AIBTC thread from Dual Cougar (1 messages)",
+    "id": 7275,
+    "subject": "daily cost report — 2026-03-19",
     "status": "completed",
-    "priority": 2
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 106276,
-    "cost_usd": 0.52596275
+    "duration_ms": 22574,
+    "cost_usd": 0.03561985
   },
   "health": {
-    "uptime_seconds": 1833941,
+    "uptime_seconds": 1834484,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229336563712
+    "disk_avail_bytes": 229336424448
   }
 }
