@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T04:16:23.647Z",
+  "updated_at": "2026-03-19T04:37:31.165Z",
   "idle": true,
-  "idle_since": "2026-03-19T04:15:23.420Z",
+  "idle_since": "2026-03-19T04:18:24.395Z",
   "last_task": {
-    "id": 7277,
-    "subject": "Review PR #120 on aibtcdev/agent-news: fix: Phase 0 issues — earnings route, signal page, referral credit, manifest",
+    "id": 7278,
+    "subject": "Compile arXiv digest — 2026-03-19 (30 new papers)",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 107157,
-    "cost_usd": 0.2609121
+    "duration_ms": 26874,
+    "cost_usd": 0.1831833
   },
   "health": {
-    "uptime_seconds": 1836282,
+    "uptime_seconds": 1837550,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229336027136
+    "disk_avail_bytes": 229335732224
   }
 }
