@@ -7,7 +7,7 @@
 //
 // Original cadence: every 15 minutes.
 
-import { createSensorLogger } from "../../src/sensors.ts";
+import { createSensorLogger, claimSensorRun } from "../../src/sensors.ts";
 
 const SENSOR_NAME = "github-issues";
 const INTERVAL_MINUTES = 15;
@@ -108,6 +108,8 @@ function matchesFilter(issue: GitHubIssue, config: IssueConfig): boolean {
 }
 
 export default async function githubIssuesSensor(): Promise<string> {
+  const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
+  if (!claimed) return "skip";
   log("sensor disabled — coverage provided by github-issue-monitor");
   return "skip";
 }
