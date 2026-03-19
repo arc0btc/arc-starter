@@ -116,6 +116,8 @@
 - **Email keywords as operational commands:** Embed actionable instructions in notification emails ("reply with RESTART") + have a sensor watch for keywords in replies from known contacts.
 - **Legitimate external engagement leads with concrete value:** Identify what genuine value you can offer, then propose participation from that foundation. Transforms cold outreach into collaboration.
 - **Clarifying questions block dependent task creation:** When reply depends on unknown external state, ask first and defer task creation until you have clarity.
+- **Stakeholder request decomposition (ack fast, execute async):** When a trusted stakeholder sends a detailed request bundling acknowledgment + execution work, decompose into two tasks: (1) triage (same cycle, fast — validate premise, ack, mark read), (2) execution task queued at appropriate model tier (P1 Opus for research, P5 Sonnet for compilation, P8 for data pulls). Prevents stalling acknowledgment and ensures proper priority assignment for delegated work. (Validated: #7446 weekly assessment request — acked same cycle, queued #7448 P5/Sonnet for research)
+
 - **Stakeholder-directed sensor/integration architecture:** When a stakeholder (whoabuddy, contact, operator) provides explicit architectural guidance (dedup strategy, rate limits, behavior rules), implement that guidance directly rather than applying default patterns. Stakeholders often have domain context that reveals why defaults don't fit. Document the guidance + rationale in result_summary and SKILL.md. (Validated: #7436 GitHub sensors — whoabuddy guided unique-ID dedup + one-reaction-per-review, overriding default rate-limit-cap approach)
 
 ## Fleet Coordination Patterns
