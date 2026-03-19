@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T20:06:32.325Z",
+  "updated_at": "2026-03-19T20:07:33.500Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7572,
-    "subject": "GitHub update on your PR in aibtcdev/agent-news: fix(brief): share links now work on compiled brief cards",
+    "id": 7458,
+    "subject": "Write AGENT.md for blog-deploy skill",
     "status": "completed",
-    "priority": 5
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 44212,
-    "cost_usd": 0.16820115000000002
+    "duration_ms": 44938,
+    "cost_usd": 0.15852885
   },
   "health": {
-    "uptime_seconds": 1893291,
+    "uptime_seconds": 1893352,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229277790208
+    "disk_avail_bytes": 229277724672
   }
 }
