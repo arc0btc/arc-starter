@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T15:36:00.336Z",
+  "updated_at": "2026-03-19T15:38:25.440Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7366,
-    "subject": "Deploy services page to arc0.me (push feat/blog-tags, PR, merge)",
+    "id": 7410,
+    "subject": "I have P1 opus reviews we need to unblock our team on, queue these up one per PR and cancel the related sonnet p5 tasks:\nhttps://github.com/aibtcdev/agent-news/pull/121\nhttps://github.com/aibtcdev/agent-news/pull/122\nhttps://github.com/aibtcdev/agent-news/pull/90\nhttps://github.com/aibtcdev/agent-news/pull/104\nhttps://github.com/aibtcdev/landing-page/pull/445\nhttps://github.com/aibtcdev/landing-page/pull/443\nhttps://github.com/aibtcdev/landing-page/pull/442\n\nThese PRs cannot be merged without Arc's approval.",
     "status": "completed",
-    "priority": 5
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 843998,
-    "cost_usd": 0.9822799500000001
+    "duration_ms": 144930,
+    "cost_usd": 0.6893274999999999
   },
   "health": {
-    "uptime_seconds": 1877059,
+    "uptime_seconds": 1877204,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229542404096
+    "disk_avail_bytes": 229542330368
   }
 }
