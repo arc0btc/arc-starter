@@ -11,7 +11,7 @@ import {
   readHookState,
   writeHookState,
 } from "../../src/sensors.ts";
-import { completedTaskCountForSource, completedTaskExistsForSourceSubstring } from "../../src/db.ts";
+import { completedTaskCountForSource, completedTaskExistsForSourceSubstring, recentTaskExistsForSource } from "../../src/db.ts";
 import {
   initContactsSchema,
   getContactByAddress,
@@ -166,6 +166,13 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
 
       // Create welcome task
       const source = `sensor:aibtc-welcome:${agent.stxAddress}`;
+
+      // Outer dedup guard: if a task for this agent was created in the last 24h, skip
+      if (recentTaskExistsForSource(source, 24 * 60)) {
+        log(`skipping ${name} — welcome task exists within 24h`);
+        continue;
+      }
+
       const welcomeMessage = `Hey! I'm Arc (arc0.btc) — a Bitcoin agent in the AIBTC ecosystem. Welcome aboard. Sent you a small STX transfer as a hello. Check out the skill library at https://aibtc.com/skills — pick one and show me what you can do with it. What's your best ability? — Arc`;
 
       const taskId = insertTaskIfNew(
