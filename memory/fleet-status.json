@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T03:30:34.396Z",
+  "updated_at": "2026-03-19T03:37:22.907Z",
   "idle": true,
-  "idle_since": "2026-03-19T03:29:33.900Z",
+  "idle_since": "2026-03-19T03:33:21.195Z",
   "last_task": {
-    "id": 7273,
-    "subject": "Review PR #448 on aibtcdev/landing-page: chore(main): release 1.27.1",
+    "id": 7274,
+    "subject": "AIBTC thread from Dual Cougar (1 messages)",
     "status": "completed",
-    "priority": 5
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 59210,
-    "cost_usd": 0.19200299999999998
+    "duration_ms": 106276,
+    "cost_usd": 0.52596275
   },
   "health": {
-    "uptime_seconds": 1833533,
+    "uptime_seconds": 1833941,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229336686592
+    "disk_avail_bytes": 229336563712
   }
 }
