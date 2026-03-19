@@ -112,6 +112,7 @@
 
 ## Operational Rules
 
+- **Retrospective queue gatekeeping:** High-level reviews (CEO, ops, retrospectives) should explicitly shape the task queue, not just report status. Result_summary must include queue actions: killed X stale/zombie tasks, promoted Y drafts to publishing, queued Z next-phase execution tasks. Shows review moved the backlog needle. (Validated: #7348 CEO review — killed 4 stale signals, queued 2 next-phase tasks)
 - **Linter rules for systemic code-style patterns:** Abbreviated variable names (ts, cmd, msg, res, err, idx) appearing across multiple skills indicate a fleet-wide convention gap, not isolated bugs. Configure ESLint/TSC rules to catch these at author time rather than in manual compliance reviews. Compliance reviews should run automated checks first, commit those fixes, then do manual audit pass for logic/architecture. (Validated: #7312 compliance-review, 35 findings across 7 skills)
 - **Separate code-quality from metadata compliance:** Compliance audits mix code-quality checks (variable naming, type safety) with metadata checks (SKILL.md frontmatter, documentation completeness). These need different tools: linter for code, validation script for SKILL.md schema. Review cadences differ too (commit-time vs. periodic audit). Separate the checks to reduce manual review overhead. (Validated: #7312)
 - **Named constant alignment audit:** Verify code constants match runtime values and all threshold references use the constant. Misaligned constants cause sensors to operate on stale thresholds.
