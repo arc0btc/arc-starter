@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T11:46:08.398Z",
-  "idle": true,
-  "idle_since": "2026-03-19T11:40:06.396Z",
+  "updated_at": "2026-03-19T11:47:48.039Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 7329,
-    "subject": "daily cost report — 2026-03-19",
+    "id": 7330,
+    "subject": "Email from whoabuddy (1 unread): Sensor overload",
     "status": "completed",
-    "priority": 9
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 14931,
-    "cost_usd": 0.03622365
+    "duration_ms": 39249,
+    "cost_usd": 0.15412245
   },
   "health": {
-    "uptime_seconds": 1863267,
+    "uptime_seconds": 1863366,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229303119872
+    "disk_avail_bytes": 229303074816
   }
 }
