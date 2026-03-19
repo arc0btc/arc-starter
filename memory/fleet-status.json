@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T19:11:17.580Z",
+  "updated_at": "2026-03-19T19:12:09.767Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7536,
-    "subject": "Review PR #134 on aibtcdev/agent-news: fix(ui): improve mobile layout — full-width pending banner, fix text overflow",
+    "id": 7538,
+    "subject": "GitHub @mention in aibtcdev/aibtc-mcp-server: Observer Protocol: Free Verification for Bitcoin-Native AI Agents",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 69527,
-    "cost_usd": 0.21930075
+    "duration_ms": 52000,
+    "cost_usd": 0.17237759999999996
   },
   "health": {
-    "uptime_seconds": 1889976,
+    "uptime_seconds": 1890028,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229287596032
+    "disk_avail_bytes": 229287534592
   }
 }
