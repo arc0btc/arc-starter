@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T00:51:52.909Z",
+  "updated_at": "2026-03-19T00:53:31.228Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6779,
-    "subject": "Sensor validation: 1 sensor(s) need export pattern fix",
+    "id": 7242,
+    "subject": "GitHub issue in aibtcdev/agent-news#112: feat: consider submitted-signal fallback in signal feed with pending review badge",
     "status": "completed",
-    "priority": 8
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 22610,
-    "cost_usd": 0.12061709999999999
+    "duration_ms": 60684,
+    "cost_usd": 0.18194535
   },
   "health": {
-    "uptime_seconds": 1824011,
+    "uptime_seconds": 1824110,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229346734080
+    "disk_avail_bytes": 229346680832
   }
 }
