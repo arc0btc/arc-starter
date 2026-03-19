@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T20:09:33.039Z",
+  "updated_at": "2026-03-19T20:10:49.566Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7577,
-    "subject": "health alert: stale dispatch lock detected",
+    "id": 7576,
+    "subject": "GitHub issue in aibtcdev/aibtc-mcp-server#379: Published package crashes on startup due to invalid @noble/hashes v2 subpath imports",
     "status": "completed",
-    "priority": 2
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 43989,
-    "cost_usd": 0.06620525000000001
+    "duration_ms": 60275,
+    "cost_usd": 0.22483169999999997
   },
   "health": {
-    "uptime_seconds": 1893471,
+    "uptime_seconds": 1893548,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229277605888
+    "disk_avail_bytes": 229277528064
   }
 }
