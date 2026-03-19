@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T07:05:13.848Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-19T07:10:15.406Z",
+  "idle": true,
+  "idle_since": "2026-03-19T07:06:14.161Z",
   "last_task": {
-    "id": 7305,
-    "subject": "architecture review — codebase changed since last diagram",
+    "id": 7306,
+    "subject": "Extract learning from task #7305 — architecture review — codebase changed since last diagram",
     "status": "completed",
-    "priority": 7
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 223276,
-    "cost_usd": 0.7319706
+    "duration_ms": 23966,
+    "cost_usd": 0.057889499999999997
   },
   "health": {
-    "uptime_seconds": 1846412,
+    "uptime_seconds": 1846714,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229332783104
+    "disk_avail_bytes": 229332656128
   }
 }
