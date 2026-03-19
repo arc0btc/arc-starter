@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T17:49:26.722Z",
+  "updated_at": "2026-03-19T17:51:57.922Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7468,
-    "subject": "Review PR #126 on aibtcdev/agent-news: fix(earnings): add Phase 5 migration to delete historical 0-sat signal rows",
+    "id": 7469,
+    "subject": "GitHub @mention in aibtcdev/agent-contracts: feat: Phase 0 core contracts for News DAO",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 93464,
-    "cost_usd": 0.22547715
+    "duration_ms": 150979,
+    "cost_usd": 0.3476337
   },
   "health": {
-    "uptime_seconds": 1885065,
+    "uptime_seconds": 1885216,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229537980416
+    "disk_avail_bytes": 229537906688
   }
 }
