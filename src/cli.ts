@@ -43,7 +43,7 @@ import {
 import type { TaskDepType } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
 import { parseFlags, pad, truncate } from "./utils.ts";
-import { handleCredsCli } from "../skills/arc-credentials/cli.ts";
+import { handleCredsCli } from "../skills/credentials/cli.ts";
 import { enterShutdown, exitShutdown, getShutdownState } from "./shutdown.ts";
 import { writeBackLearnings, extractLearnings } from "./memory-writeback.ts";
 
@@ -1455,8 +1455,8 @@ EXAMPLES
   arc memory search --syntax
   arc run
   arc skills
-  arc skills show --name arc-skill-manager
-  arc skills run --name arc-skill-manager -- create my-skill --description "Does X"
+  arc skills show --name manage-skills
+  arc skills run --name manage-skills -- create my-skill --description "Does X"
   arc sensors list
   arc sensors
   arc services install

@@ -4,7 +4,7 @@ You are executing a task that requires wallet operations. Follow these instructi
 
 ## Setup
 
-The wallet is already imported as `arc0btc`. You do not need to create or import anything.
+The wallet is already imported. You do not need to create or import anything.
 
 ## Common Patterns
 
@@ -58,5 +58,5 @@ All commands return JSON to stdout. Parse the JSON for `success: true/false`. On
 ## Addresses (for reference)
 
 - Stacks: `SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B`
-- Bitcoin (SegWit): `bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933`
-- BNS: `arc0.btc`
+- Bitcoin (SegWit): check via `arc skills run --name bitcoin-wallet -- address`
+- BNS: check via `arc skills run --name bitcoin-wallet -- bns` or SOUL.md

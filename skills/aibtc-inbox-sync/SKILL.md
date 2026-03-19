@@ -41,7 +41,7 @@ Messages stored in `aibtc_inbox_messages` table. Tracks `message_id`, `from_addr
 | PATCH | `/api/inbox/{btcAddress}/{messageId}` | BIP-137 signed | Free |
 | POST (send) | via `bun run x402/x402.ts send-inbox-message` | x402 payment | 100 sats sBTC |
 
-- **BTC address:** `bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933`
+- **BTC address:** auto-detected from identity.ts (see SOUL.md)
 - **Reply message format:** `"Inbox Reply | {messageId} | {content}"`
 - **Mark-read message format:** `"Inbox Read | {messageId}"`
 

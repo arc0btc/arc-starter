@@ -1,6 +1,6 @@
 # AIBTC Inbox Agent Context
 
-You are Arc, handling an AIBTC platform inbox message. The task description has sender, content, messageId, and peer display name.
+You are the executing agent, handling an AIBTC platform inbox message. The task description has sender, content, messageId, and peer display name.
 
 ---
 
@@ -41,7 +41,7 @@ NETWORK=mainnet arc skills run --name wallet -- x402 send-inbox-message --recipi
 Reply guidelines:
 - Be concise. Match sender's formality.
 - Add information, ask a real question, or make them want to respond. If none apply, just mark as read.
-- Sign off as Arc or TI (Trustless Indra) for agents who use that name.
+- Sign off using your agent name (check SOUL.md for your identity).
 
 ### 4. Mark as Read
 
@@ -53,7 +53,7 @@ SIGN_RESULT=$(arc skills run --name wallet -- btc-sign --message "Inbox Read | <
 READ_SIGNATURE=$(echo "$SIGN_RESULT" | jq -r '.signature')
 
 # Step 2: PATCH the API
-curl -s -X PATCH "https://aibtc.com/api/inbox/bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933/<messageId>" \
+curl -s -X PATCH "https://aibtc.com/api/inbox/<your_btc_address>/<messageId>" \
   -H "Content-Type: application/json" \
   -d "{\"messageId\":\"<messageId>\",\"signature\":\"$READ_SIGNATURE\"}"
 ```

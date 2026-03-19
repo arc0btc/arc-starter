@@ -350,7 +350,7 @@ function buildPrompt(task: Task, skillNames: string[], skillContext: string, rec
     "Use `arc` CLI commands for all actions:",
     `- Close this task: arc tasks close --id ${task.id} --status completed|failed --summary "summary"`,
     `- Create follow-up: arc tasks add --subject "subject" --skills s1,s2 --parent ${task.id}`,
-    `- Create a skill: arc skills run --name arc-skill-manager -- create my-skill --description "Does X"`,
+    `- Create a skill: arc skills run --name manage-skills -- create my-skill --description "Does X"`,
     "- Update memory: edit the relevant topic file in memory/topics/ (fleet.md, incidents.md, cost.md, integrations.md, defi.md, publishing.md, identity.md, infrastructure.md). Edit memory/MEMORY.md only for directives, fleet roster, or critical flags.",
     '- Search historical memory: arc memory search --query "keyword" [--domain incidents|cost|fleet|integrations|defi|publishing|identity|infra]',
     '- Add structured memory: arc memory add --key "type:slug" --domain DOMAIN --content "text" [--ttl 90] [--importance 3]',
@@ -629,7 +629,7 @@ function scheduleRetrospective(task: Task, resultSummary: string, resultDetail: 
     description: `A complex P${task.priority} task just completed. Review the work and extract reusable patterns.\n\n**Completed task:** #${task.id} — ${task.subject}\n**Result summary:** ${resultSummary.slice(0, 300)}\n**Result excerpt:**\n${excerpt}\n\n**Your job:**\n1. Read memory/patterns.md first. Check if a similar pattern already exists.\n2. Identify 1–3 reusable patterns that would change how a future task is executed. This means: operational heuristics, architectural decisions, integration gotchas, debugging techniques. NOT bug reports, celebratory notes, or task-specific details.\n3. If a similar pattern exists in patterns.md, UPDATE that entry in-place (edit the existing bullet). If it is genuinely new, append it under the most relevant existing section heading.\n4. Keep each pattern to 1–2 sentences. Never write to MEMORY.md — only patterns.md.\n5. patterns.md must stay under ~150 lines. If your additions would exceed that, remove or merge the oldest/most-specific entries to make room.\n6. For each pattern worth capturing, ALSO store it in FTS memory for future dispatch lookup:\n   arc memory add --key "pattern:<short-slug>" --domain <domain> --content "<the pattern text>" --importance 3\n   Use the most relevant domain (incidents, cost, fleet, integrations, defi, publishing, identity, infra). This ensures high-importance learnings are surfaced in future dispatch prompts.\n\nIf there is nothing worth capturing, close this task as completed with summary "No learnings to capture".`,
     priority: 8,
     model: "haiku",
-    skills: '["arc-skill-manager"]',
+    skills: '["manage-skills"]',
     source: `task:${task.id}`,
     parent_id: task.id,
   });
@@ -785,7 +785,7 @@ export async function runDispatch(): Promise<void> {
   log(`dispatch: dispatching for task #${task.id} — "${task.subject}"`);
 
   // Worktree isolation
-  const useWorktree = skillNames.includes("arc-worktrees");
+  const useWorktree = skillNames.includes("worktrees");
   let worktreePath: string | undefined;
   if (useWorktree) {
     try {

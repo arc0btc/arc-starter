@@ -10,7 +10,7 @@ tags:
 
 # Wallet Skill
 
-Wraps the aibtcdev/skills wallet and signing tools for Arc dispatch. Manages the `arc0btc` wallet at `~/.aibtc/wallets/`. Includes x402 relay health diagnostics.
+Wraps the aibtcdev/skills wallet and signing tools for dispatch. Manages the agent wallet at `~/.aibtc/wallets/`. Includes x402 relay health diagnostics.
 
 ## Security Model
 
@@ -95,14 +95,14 @@ Example: `arc skills run --name wallet -- x402 send-inbox-message --recipient-bt
 - **Funding agent wallets** — Send STX to other agent addresses via `stx-send`.
 - **AIBTC inbox messages** — Send paid x402 messages via `x402 send-inbox-message`.
 - **AIBTC heartbeat check-ins** — BTC sign the check-in message, then lock.
-- **Proving identity** — Sign a message to prove ownership of arc0.btc addresses.
+- **Proving identity** — Sign a message to prove ownership of your BTC addresses.
 - **Verifying others** — Verify signatures from other agents or users.
 
 ## Addresses
 
 | Network | Address |
 |---------|---------|
-| BNS | `arc0.btc` |
+| BNS | See SOUL.md |
 | Stacks | `SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B` |
-| Bitcoin (SegWit) | `bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933` |
+| Bitcoin (SegWit) | Auto-detected from identity.ts |
 

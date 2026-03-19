@@ -58,7 +58,7 @@ export async function writeHookState(name: string, state: HookState): Promise<vo
 
 // ---- Logging ----
 
-/** Create a prefixed logger for a sensor. Usage: `const log = createSensorLogger("arc-service-health");` */
+/** Create a prefixed logger for a sensor. Usage: `const log = createSensorLogger("service-health");` */
 export function createSensorLogger(name: string): (msg: string) => void {
   return (msg: string) => {
     console.log(`[${new Date().toISOString()}] [${name}/sensor] ${msg}`);
@@ -186,12 +186,12 @@ const WORKER_SENSORS: ReadonlySet<string> = new Set([
   // Core — every agent needs these
   "aibtc-heartbeat",        // signed platform check-in (5min)
   "aibtc-inbox-sync",       // poll AIBTC inbox for messages
-  "arc-service-health",     // self-monitor: detect own stale cycles/dead services
+  "service-health",     // self-monitor: detect own stale cycles/dead services
   "arc-alive-check",        // periodic alive signal
-  "arc-housekeeping",       // basic repo hygiene
+  "housekeeping",       // basic repo hygiene
   "fleet-self-sync",        // receive code updates from Arc
-  "arc-scheduler",          // fire scheduled tasks
-  "contacts",               // contact sync
+  "task-scheduler",          // fire scheduled tasks
+  "contact-registry",       // contact sync
   // Identity — detect SOUL.md drift from fleet sync
   "identity-guard",              // validate SOUL.md matches hostname (30min)
   // Reputation — all agents should review peers and monitor feedback

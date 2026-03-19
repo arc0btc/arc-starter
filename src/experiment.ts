@@ -329,6 +329,6 @@ export function scheduleVerification(
     source: `task:${taskId}`,
     // Schedule 2 hours out to allow enough cycles to accumulate
     scheduled_for: new Date(Date.now() + 2 * 3600_000).toISOString(),
-    skills: "arc-worktrees",
+    skills: "worktrees",
   });
 }
