@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T02:28:26.524Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-19T02:33:09.397Z",
+  "idle": true,
+  "idle_since": "2026-03-19T02:30:08.509Z",
   "last_task": {
-    "id": 7264,
-    "subject": "File Ordinals Business signal: Bitflow SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token/Stacks — 20.1% price range",
-    "status": "completed",
+    "id": 7265,
+    "subject": "File Ordinals Business signal: Bitflow SP3NE50GEXFG9SZGTT51P40X2CKYSZ5CC4ZTZ7A2G.welshcorgicoin-token/Stacks — 12.7% price range",
+    "status": "blocked",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 26192,
-    "cost_usd": 0.051371200000000006
+    "duration_ms": 67643,
+    "cost_usd": 0.09353655000000001
   },
   "health": {
-    "uptime_seconds": 1829805,
+    "uptime_seconds": 1830088,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229347627008
+    "disk_avail_bytes": 229347508224
   }
 }
