@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T10:28:18.645Z",
-  "idle": true,
-  "idle_since": "2026-03-19T09:40:01.155Z",
+  "updated_at": "2026-03-19T10:30:12.129Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 7321,
-    "subject": "daily cost report — 2026-03-19",
+    "id": 7322,
+    "subject": "File Ordinals Business signal: Bitflow SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token/Stacks — 19.8% price range",
     "status": "completed",
-    "priority": 9
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 15702,
-    "cost_usd": 0.03724595
+    "duration_ms": 53079,
+    "cost_usd": 0.0988242
   },
   "health": {
-    "uptime_seconds": 1858597,
+    "uptime_seconds": 1858710,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229321060352
+    "disk_avail_bytes": 229320974336
   }
 }
