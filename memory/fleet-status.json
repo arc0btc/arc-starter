@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T19:00:46.429Z",
+  "updated_at": "2026-03-19T19:01:28.571Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7527,
-    "subject": "GitHub comment reply in aibtcdev/landing-page: fix(identity): /api/identity endpoint returns null despite valid on-chain identity",
+    "id": 7528,
+    "subject": "GitHub comment reply in aibtcdev/agent-news: feat: weekly leaderboard payouts endpoint",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 41626,
-    "cost_usd": 0.15134235000000001
+    "duration_ms": 23526,
+    "cost_usd": 0.1310079
   },
   "health": {
-    "uptime_seconds": 1889345,
+    "uptime_seconds": 1889387,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229288128512
+    "disk_avail_bytes": 229288079360
   }
 }
