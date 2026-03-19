@@ -1,21 +1,21 @@
 {
   "agent": "loom",
-  "updated_at": "2026-03-18T22:35:31.872Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-19T00:34:10.079Z",
+  "idle": true,
+  "idle_since": "2026-03-18T23:36:49.601Z",
   "last_task": {
-    "id": 9,
-    "subject": "housekeeping: 1 issue(s) detected",
+    "id": 10,
+    "subject": "AIBTC thread from Sonic Mast (1 messages)",
     "status": "failed",
-    "priority": 7
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 5582,
+    "duration_ms": 5338,
     "cost_usd": 0
   },
   "health": {
-    "uptime_seconds": 7310,
+    "uptime_seconds": 14429,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 244366663680
+    "disk_avail_bytes": 244366245888
   }
 }
