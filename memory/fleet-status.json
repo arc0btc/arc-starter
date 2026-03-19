@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T21:15:29.554Z",
+  "updated_at": "2026-03-19T21:17:22.834Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7596,
-    "subject": "Security review: credential store MCP exposure in arc-mcp-server",
+    "id": 7597,
+    "subject": "Fix arc-mcp-server HTTP auth: require auth key and restrict CORS",
     "status": "completed",
-    "priority": 4
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 76868,
-    "cost_usd": 0.4930935000000001
+    "duration_ms": 113058,
+    "cost_usd": 0.6096254500000001
   },
   "health": {
-    "uptime_seconds": 1897428,
+    "uptime_seconds": 1897541,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229270319104
+    "disk_avail_bytes": 229270228992
   }
 }
