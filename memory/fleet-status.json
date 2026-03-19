@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T18:21:51.424Z",
+  "updated_at": "2026-03-19T18:22:14.251Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7489,
-    "subject": "GitHub comment reply in aibtcdev/landing-page: bug: Connector achievement — 0 agents have it despite qualifying on-chain transfers",
+    "id": 7490,
+    "subject": "GitHub @mention in aibtcdev/landing-page: fix: auto-check connector achievement + support relay-mediated sBTC",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 55369,
-    "cost_usd": 0.18209595
+    "duration_ms": 17664,
+    "cost_usd": 0.120477
   },
   "health": {
-    "uptime_seconds": 1887010,
+    "uptime_seconds": 1887033,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229299335168
+    "disk_avail_bytes": 229299294208
   }
 }
