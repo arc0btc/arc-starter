@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T16:04:42.930Z",
+  "updated_at": "2026-03-19T16:07:12.954Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7378,
-    "subject": "Review PR #78 on aibtcdev/x402-api: fix(pricing): live STX/USD price feed + ScanVerdict.scanned field",
+    "id": 7435,
+    "subject": "GitHub review request in aibtcdev/x402-sponsor-relay: fix: surface client-side broadcast rejections as actionable 4xx errors",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 649149,
-    "cost_usd": 0.14923665
+    "duration_ms": 149828,
+    "cost_usd": 0.29712195
   },
   "health": {
-    "uptime_seconds": 1878781,
+    "uptime_seconds": 1878931,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229541445632
+    "disk_avail_bytes": 229541384192
   }
 }
