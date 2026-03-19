@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T02:06:59.581Z",
+  "updated_at": "2026-03-19T02:10:56.927Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7257,
-    "subject": "[github-issues] aibtcdev/landing-page#444: bug: Connector achievement — 0 agents have it despite qualifying on-chain transfers",
+    "id": 7259,
+    "subject": "Fix Connector achievement: add auto-check to heartbeat + allow relay-mediated sBTC payments",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 47577,
-    "cost_usd": 0.15093960000000003
+    "duration_ms": 224838,
+    "cost_usd": 1.2128985000000003
   },
   "health": {
-    "uptime_seconds": 1828518,
+    "uptime_seconds": 1828755,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229348556800
+    "disk_avail_bytes": 229348114432
   }
 }
