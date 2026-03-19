@@ -1,21 +1,21 @@
 {
   "agent": "loom",
-  "updated_at": "2026-03-19T06:34:28.355Z",
+  "updated_at": "2026-03-19T08:35:14.090Z",
   "idle": true,
-  "idle_since": "2026-03-19T05:00:51.083Z",
+  "idle_since": "2026-03-19T07:35:51.333Z",
   "last_task": {
-    "id": 14,
-    "subject": "AIBTC thread from Amber Otter (1 messages)",
+    "id": 16,
+    "subject": "housekeeping: 3 issue(s) detected",
     "status": "failed",
-    "priority": 2
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 5797,
+    "duration_ms": 5323,
     "cost_usd": 0
   },
   "health": {
-    "uptime_seconds": 36047,
+    "uptime_seconds": 43293,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 244343463936
+    "disk_avail_bytes": 244328861696
   }
 }
