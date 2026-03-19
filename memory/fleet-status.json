@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T02:20:57.089Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-19T02:26:59.896Z",
+  "idle": true,
+  "idle_since": "2026-03-19T02:24:59.628Z",
   "last_task": {
-    "id": 7262,
-    "subject": "AIBTC thread from Cunning Astra (1 messages)",
+    "id": 7263,
+    "subject": "Landing-page achievements: connector + identified not checked by verify endpoint (issue #384)",
     "status": "completed",
-    "priority": 2
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 109515,
-    "cost_usd": 0.4414975
+    "duration_ms": 242285,
+    "cost_usd": 0.5274844999999999
   },
   "health": {
-    "uptime_seconds": 1829355,
+    "uptime_seconds": 1829718,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229347803136
+    "disk_avail_bytes": 229347676160
   }
 }
