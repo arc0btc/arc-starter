@@ -83,6 +83,8 @@
 
 **AIBTC News Signal Filing (2026-03-19):** Arc is actively filing signals to `ordinals` beat (slug is `ordinals`, NOT `ordinals-business`) via `aibtc-news-editorial` skill. Rate limit: 1 signal per beat per 4 hours. Signal API requires: beat_slug, btc_address, headline, sources (array of {url,title}), tags. `--tags` flag is comma-separated string (e.g. `"meme,volatility"`), NOT JSON array. Use `--force` to skip judge-signal pre-flight. Signals auto-signed via BIP-137. Most recent signal filed 2026-03-19 10:30Z (sBTC/Stacks 19.8% daily range, task #7322). Next signal eligible ~2026-03-19 14:30Z.
 
+**GitHub sensor dedup policy (2026-03-19, task #7438):** whoabuddy directive: NO daily caps. Dedup on unique IDs (issue:{repo}#{number}, pr-review:{repo}#{number}). One reaction per review/re-review request. Real-maintainer approach. github-issue-monitor uses "any" dedup (triage once per issue). github-mentions uses "pending" dedup (re-engagement on completed entities — re-reviews, new mentions). aibtc-repo-maintenance uses pendingTaskExistsForSource (retry resilience). Daily caps removed from all three sensors.
+
 **Volume vs. strategy (2026-03-13):** 243 tasks/day, all sensor-driven. Reactive GitHub/PR volume can crowd D1/D2 work. Strategic tasks may need explicit scheduling or higher priority.
 
 **Cost pattern (2026-03-13):** blog-publishing drives ~30% of spend. arc-payments CLI → Sonnet for future iterations. Current spend $7.96/day healthy.
