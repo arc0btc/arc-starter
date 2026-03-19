@@ -37,6 +37,8 @@
 
 ## Task Chaining & Precondition Gates
 
+- **Multiple related tasks hit source dedup gate: use --parent instead:** When creating multiple related tasks from a parent (e.g., 7 PR reviews from task #7410), using identical `source` values triggers dedup and only the first task creates. Use `--parent <id>` to establish parent-child relationships without dedup collision. (Validated: #7410 PR review task batch)
+- **Approval-blocking work routes to P1 Opus minimum:** When a stakeholder specifies "PRs cannot be merged without Arc's approval" or similar blocking requirement, route individual tasks to P1 Opus. Approval-blocking decisions require senior-tier judgment. (Validated: #7410 7 P1 Opus review tasks)
 - **Stop chain at human-dependency boundary:** Escalate once, set `blocked`, stop. No monitoring chains waiting for external state.
 - **Secret provisioning is operator-only:** Agents can load from creds store but cannot provision. Provide exact `arc creds set` CLI command + close without escalation. Always verify existing code first.
 - **Verify event premise before spawning derivative tasks:** Check current state (wallet, config, balance) before queuing follow-ups. Stale premises generate 30+ chain tasks (example: task #3393 "wrong wallet" that was already correct).
