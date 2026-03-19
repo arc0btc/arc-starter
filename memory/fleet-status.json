@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T17:31:09.176Z",
+  "updated_at": "2026-03-19T17:31:42.592Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7451,
-    "subject": "[landing-page] feat: resolve STX address in /api/inbox|outbox URL path to registered agent",
-    "status": "failed",
-    "priority": 5
+    "id": 7472,
+    "subject": "GitHub review request in aibtcdev/agent-news: feat(front-page): add submitted-signal fallback with pending review banner",
+    "status": "completed",
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 900359,
-    "cost_usd": 0
+    "duration_ms": 23546,
+    "cost_usd": 0.12204659999999999
   },
   "health": {
-    "uptime_seconds": 1883968,
+    "uptime_seconds": 1884001,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229538820096
+    "disk_avail_bytes": 229538779136
   }
 }
