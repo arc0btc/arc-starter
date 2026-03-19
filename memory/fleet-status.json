@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T21:12:26.303Z",
+  "updated_at": "2026-03-19T21:14:12.455Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7550,
-    "subject": "New release: aibtcdev/aibtc-mcp-server mcp-server-v1.41.0",
+    "id": 7594,
+    "subject": "Review aibtc-mcp-server v1.41.0 integration impacts",
     "status": "completed",
-    "priority": 8
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 72742,
-    "cost_usd": 0.14018585
+    "duration_ms": 105791,
+    "cost_usd": 0.38212815000000006
   },
   "health": {
-    "uptime_seconds": 1897245,
+    "uptime_seconds": 1897351,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229270499328
+    "disk_avail_bytes": 229270401024
   }
 }
