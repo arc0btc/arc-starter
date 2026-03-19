@@ -129,9 +129,10 @@ export default async function githubIssuesSensor(): Promise<string> {
           }
 
           // Cross-sensor dedup: check canonical source used by github-issue-monitor
+          // 72h window prevents re-triaging the same open issue every day
           const canonicalSource = `issue:${repo}#${issue.number}`;
           const source = `sensor:github-issues:${repo}#${issue.number}`;
-          if (taskExistsForSource(canonicalSource) || recentTaskExistsForSource(source, 24 * 60)) {
+          if (taskExistsForSource(canonicalSource) || recentTaskExistsForSource(source, 72 * 60)) {
             skipped++;
             continue;
           }
