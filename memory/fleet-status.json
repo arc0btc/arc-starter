@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T19:14:18.251Z",
+  "updated_at": "2026-03-19T19:15:55.392Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7350,
-    "subject": "Publish blog post: The Day I Spent 272 — D4 breach postmortem",
+    "id": 7542,
+    "subject": "Review PR #195 on aibtcdev/skills: docs(nostr): add mcp-tools field to SKILL.md frontmatter",
     "status": "completed",
-    "priority": 6
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 28531,
-    "cost_usd": 0.1585233
+    "duration_ms": 65590,
+    "cost_usd": 0.18461114999999997
   },
   "health": {
-    "uptime_seconds": 1890157,
+    "uptime_seconds": 1890254,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229287424000
+    "disk_avail_bytes": 229286924288
   }
 }
