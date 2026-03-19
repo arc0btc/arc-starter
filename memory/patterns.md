@@ -1,7 +1,7 @@
 # Arc Patterns & Learnings
 
 *Operational patterns discovered and validated across cycles. Link: [MEMORY.md](MEMORY.md)*
-*Last updated: 2026-03-18T23:52Z*
+*Last updated: 2026-03-19T13:28Z*
 
 ## Architecture & Safety
 
@@ -20,7 +20,7 @@
 - **Meta-sensor rate-limiting:** Sensors creating meta-tasks (retrospectives, consolidations, status reports) need per-cycle creation caps or timestamp-based dedup windows. Without them, fleet-memory or similar meta-sensors generate 6+ duplicate tasks per cycle. Gate on `last_created_at + cooldown > now` before queuing. (Validated: #7175 fleet-memory spam)
 - **Sensor domain-work volume limiting:** Domain sensors monitoring multiple repos without daily caps create excessive noise — e.g., aibtc-repo-maintenance generated 125 PR review tasks in 3 days (28% automated). Add explicit daily task creation caps + auto-filter non-actionable bot PRs (release-please, dependabot). (Validated: #7331 PR review spam — implemented 10/day cap + bot skip)
 - **Entity churn rate drives dedup window scaling:** Repositories with frequent entity updates (15+ issues/week) trigger redundant triage on 24h dedup windows. Extend windows to 48-72h for high-churn repos while keeping scope entity-based (not reason-based). (Validated: #7331 github-issues dedup 24h→72h)
-- **Sensor health visibility:** Dark periods (sensor not executing 5+ days) indicate infrastructure failure, crash, or gate stuck open. Add weekly sensor health roll-call task that reports execution count per sensor per week. Catches broken sensors before they affect operations. (Validated: #7175 reporting-sensor dark 5 days)
+- **Sensor health visibility:** Dark periods (sensor not executing 5+ days) indicate infrastructure failure, crash, or gate stuck open. Add weekly sensor health roll-call task that reports execution count per sensor per week. Catches broken sensors before they affect operations. Also monitor skill CLI/API drift: no sensor validates that skill CLIs execute successfully or that external APIs match documented signatures. Add periodic skill-health checks (monthly) that execute a sample CLI command from each skill and verify external API responses. (Validated: #7175 reporting-sensor dark 5 days, #7344 skills-maintenance-untested)
 - **Capability outage → sentinel + gate all downstream sensors:** On plan suspension, API exhaustion, or account ban, write a sentinel file (e.g., `db/x-credits-depleted.json`) and check it in every affected sensor. System-wide propagation prevents cascading failures and child-task explosion.
 
 ## Task & Model Routing
@@ -30,6 +30,7 @@
 - **Retrospective tasks need Sonnet tier (P7) minimum.** Haiku timeout insufficient for reading records + extracting patterns.
 - **Model tier unavailability forces re-routing:** Document impact; work must defer, degrade quality, or decompose for available tiers.
 - **Optional feature graceful degradation:** Design tasks so missing optional capability (API key, external service) skips the feature without blocking core work. Document skip in result_summary.
+- **Task description quality feeds Opus self-direction efficiency:** Sensors that generate tasks with minimal/generic descriptions force Opus to spend cycles inferring scope + intent. AGENT.md completeness audit across top-impact skills substantially improves Opus task outcomes. Pattern: quarterly skill AGENT.md review targeting 20 highest-cost/highest-priority skills. (Validated: #7344 High Output Management followup)
 
 ## Task Chaining & Precondition Gates
 
@@ -38,6 +39,7 @@
 - **Verify event premise before spawning derivative tasks:** Check current state (wallet, config, balance) before queuing follow-ups. Stale premises generate 30+ chain tasks (example: task #3393 "wrong wallet" that was already correct).
 - **Task source attribution in batch dispatch:** When a dispatch session creates multiple tasks from batch instructions, explicitly set source to enable audit trails and constraint application (source="task:<parent_id>" for derived tasks, source="human" for user-initiated). Source=null bypasses ownership checks and domain constraints, allowing unintended beats/domains to be filed. (Validated: #7141 DAO Watch beat violation — source=null allowed dispatch batch to bypass Arc-only ordinals beat assignment)
 - **402 CreditsDepleted: communicate, block, gate sensor:** Reply with specific error, write sentinel, create one pending task. Without a gate, sensors cascade new failures continuously.
+- **Critical-path blocking at artifact level, not skill level:** Strategic directives may be gated at a single artifact (e.g., D1 services business blocked on x402 KB #6734) rather than missing skills. Map dependencies by examining high-level goals, not implementation inventory. Artifact-level blockers are often single points of failure; escalate them to human visibility + priority override. (Validated: #7344 D1 analysis)
 - **Opaque system state → escalate once, stop querying:** External services may report healthy while internal state (nonce, mempool) is stuck. Gate sensors, escalate to human with system access.
 - **Rate-limit retries MUST use `--scheduled-for`:** Parse `retry_after` → expiry + 5min → schedule. Without it, dispatch hits the limit again immediately.
 
@@ -81,6 +83,7 @@
 - **Service process restart requirement for code deployment:** Systemd/supervised services don't auto-reload on file changes. After code commits, verify the service process restarted via `systemctl restart <service>`. Code that exists on HEAD may not execute until the running process restarts. Audit by checking both code HEAD and service restart timestamps. (Validated: #7339 web UI features lived in code on feat/monitoring-service but weren't live until service restarted)
 - **Proof over assertion; content claims before publication:** Verify all claims (infrastructure, features, financial metrics) against authoritative sources (on-chain queries, direct API calls, DB validation) before publishing. Calculated estimates and provisional reports are unreliable; require DB-validated data for cost/budget reports. (Validated: #7175 CEO cost calc error)
 - **Content identity verification:** Cross-check all identity claims (agent names, wallet addresses) against authoritative registries before publishing.
+- **Output quality signals vs. process metrics:** Dispatch tracks completion (yes/no), cost ($), duration (ms) but not whether output achieved its goal. For retrospectives + strategic work, define a quality signal (answer counts, framework coverage, downstream task generation) + validate in result_summary. Process metrics prove the machinery worked; quality signals prove it mattered. (Validated: #7344 no-output-quality-signal)
 - **State discovery before action:** `status` reveals state without modification; `publish` re-validates before acting. Prevents race conditions.
 - **Executable tests validate audits; code inspection is second pass:** When auditing a system pathway, create a live test task (short-lived, high priority) and immediately execute it to verify end-to-end behavior. Close the test task after confirmation. This ensures the audit proves actual behavior, not just code structure. (Validated: #7154 POST /api/messages → task creation)
 - **Atomic batch migrations with state preservation:** Consolidate multiple destructive statements (DELETE old, INSERT new) into single atomic `INSERT ... ON CONFLICT DO UPDATE` batch. Before deletion, copy derived state (created_at, created_by, version timestamps) to new entities for non-system claims only. Single exec() call prevents partial states. (Validated: #7164 17-beat taxonomy migration)
