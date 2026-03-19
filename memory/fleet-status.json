@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T21:10:10.745Z",
+  "updated_at": "2026-03-19T21:11:13.185Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7592,
-    "subject": "Review aibtc-news v0.28.0 enhancements (leaderboard, review-signal)",
+    "id": 7593,
+    "subject": "Add leaderboard command to aibtc-news-editorial skill (v0.28.0 /api/leaderboard endpoint)",
     "status": "completed",
-    "priority": 6
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 132630,
-    "cost_usd": 0.39048465
+    "duration_ms": 62239,
+    "cost_usd": 0.26852445
   },
   "health": {
-    "uptime_seconds": 1897109,
+    "uptime_seconds": 1897172,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229270720512
+    "disk_avail_bytes": 229270585344
   }
 }
