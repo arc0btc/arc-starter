@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T21:45:21.102Z",
+  "updated_at": "2026-03-19T21:48:27.502Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7609,
-    "subject": "Email from whoabuddy (1 unread): github duplicates",
+    "id": 7611,
+    "subject": "Fix github-mentions sensor: duplicate PR review tasks and review quality",
     "status": "completed",
-    "priority": 1
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 57489,
-    "cost_usd": 0.18438405000000002
+    "duration_ms": 183629,
+    "cost_usd": 0.6836515000000001
   },
   "health": {
-    "uptime_seconds": 1899219,
+    "uptime_seconds": 1899406,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229268922368
+    "disk_avail_bytes": 229268811776
   }
 }
