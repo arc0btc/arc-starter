@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T15:50:33.727Z",
+  "updated_at": "2026-03-19T15:52:04.209Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7372,
-    "subject": "GitHub issue in aibtcdev/landing-page#452: fix(identity): /api/identity endpoint returns null despite valid on-chain identity",
+    "id": 7433,
+    "subject": "GitHub review request in aibtcdev/aibtc-mcp-server: feat(runes): add runes MCP tools",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 78183,
-    "cost_usd": 0.23048459999999998
+    "duration_ms": 90275,
+    "cost_usd": 0.22228079999999997
   },
   "health": {
-    "uptime_seconds": 1877932,
+    "uptime_seconds": 1878023,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229541736448
+    "disk_avail_bytes": 229541675008
   }
 }
