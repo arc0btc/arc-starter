@@ -1,11 +1,13 @@
 // skills/github-issues/sensor.ts
 //
-// Polls configured GitHub repos for newly opened or updated issues.
-// Creates triage tasks with priority based on issue labels.
-// Cadence: every 15 minutes.
+// DISABLED: Redundant with github-issue-monitor. Uses different source key
+// (sensor:github-issues:{repo}#{number}) causing race-condition duplication.
+// Disabled per task #7399 (Option B consolidation, approved by whoabuddy).
+// Coverage provided by github-issue-monitor + github-mentions sensors.
+//
+// Original cadence: every 15 minutes.
 
-import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { insertTask, recentTaskExistsForSource, taskExistsForSource } from "../../src/db.ts";
+import { createSensorLogger } from "../../src/sensors.ts";
 
 const SENSOR_NAME = "github-issues";
 const INTERVAL_MINUTES = 15;
@@ -106,73 +108,6 @@ function matchesFilter(issue: GitHubIssue, config: IssueConfig): boolean {
 }
 
 export default async function githubIssuesSensor(): Promise<string> {
-  try {
-    const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
-    if (!claimed) return "skip";
-
-    const config = await loadConfig();
-    const token = process.env.GITHUB_TOKEN;
-    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-
-    let created = 0;
-    let skipped = 0;
-
-    for (const repo of config.repos) {
-      try {
-        const issues = await fetchIssues(repo, since, token);
-        log(`${repo}: ${issues.length} issue(s) updated in last 24h`);
-
-        for (const issue of issues) {
-          if (!matchesFilter(issue, config)) {
-            skipped++;
-            continue;
-          }
-
-          // Cross-sensor dedup: check canonical source used by github-issue-monitor
-          // 72h window prevents re-triaging the same open issue every day
-          const canonicalSource = `issue:${repo}#${issue.number}`;
-          const source = `sensor:github-issues:${repo}#${issue.number}`;
-          if (taskExistsForSource(canonicalSource) || recentTaskExistsForSource(source, 72 * 60)) {
-            skipped++;
-            continue;
-          }
-
-          const { priority, model } = classifyIssue(issue);
-          const labelList = issue.labels.map((l) => l.name).join(", ");
-          const assigneeList = issue.assignees.map((a) => a.login).join(", ");
-
-          insertTask({
-            subject: `[github-issues] ${repo}#${issue.number}: ${issue.title}`,
-            description: [
-              `GitHub issue in ${repo}`,
-              ``,
-              `URL: ${issue.html_url}`,
-              `Labels: ${labelList || "(none)"}`,
-              `Assignees: ${assigneeList || "(none)"}`,
-              ``,
-              issue.body?.slice(0, 600) ?? "(no body)",
-              ``,
-              `Triage: arc skills run --name github-issues -- triage --repo ${repo} --issue ${issue.number}`,
-              `Analyze: arc skills run --name github-issues -- analyze --repo ${repo} --issue ${issue.number} --path .`,
-            ].join("\n"),
-            skills: JSON.stringify(["github-issues"]),
-            source,
-            priority,
-            model,
-          });
-
-          created++;
-          log(`created task for ${repo}#${issue.number} p${priority} (${model})`);
-        }
-      } catch (e) {
-        log(`error fetching ${repo}: ${e instanceof Error ? e.message : String(e)}`);
-      }
-    }
-
-    log(`run complete: ${created} created, ${skipped} skipped`);
-    return "ok";
-  } catch (e) {
-    log(`sensor error: ${e instanceof Error ? e.message : String(e)}`);
-    return "skip";
-  }
+  log("sensor disabled — coverage provided by github-issue-monitor");
+  return "skip";
 }
