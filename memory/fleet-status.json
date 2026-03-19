@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T01:36:39.469Z",
+  "updated_at": "2026-03-19T01:37:48.214Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7250,
-    "subject": "Extract learning from task #7246 — Sensor validation: 11 sensor(s) need export pattern fix",
+    "id": 7251,
+    "subject": "GitHub issue in aibtcdev/agent-news#119: bug: referral credit never fires — creditReferral helper defined but not called on signal submission",
     "status": "completed",
-    "priority": 8
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 26126,
-    "cost_usd": 0.0644819
+    "duration_ms": 34658,
+    "cost_usd": 0.1251561
   },
   "health": {
-    "uptime_seconds": 1826698,
+    "uptime_seconds": 1826767,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229349310464
+    "disk_avail_bytes": 229349265408
   }
 }
