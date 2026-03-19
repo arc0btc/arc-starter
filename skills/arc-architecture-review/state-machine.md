@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-03-19T00:12:00.000Z*
-*Sensor count: 85 | Skill count: 119*
+*Generated: 2026-03-19T07:10:00.000Z*
+*Sensor count: 86 | Skill count: 119*
 
 ```mermaid
 stateDiagram-v2
@@ -27,7 +27,6 @@ stateDiagram-v2
         state HealthSensors {
             arc_alive_check
             arc_service_health
-            arc_monitoring_service
             systems_monitor
         }
 
@@ -113,7 +112,7 @@ stateDiagram-v2
             arc_monitoring_service
             arc_opensource
             arc0btc_site_health
-            alb_health
+            arc0btc_services
         }
 
         HealthSensors --> TaskQueue: queue if signal detected
@@ -223,12 +222,16 @@ stateDiagram-v2
             RecordGateSuccess --> [*]
         }
 
-        PostDispatch --> RetrospectiveCheck
+        PostDispatch --> LearningCheck
 
-        state RetrospectiveCheck {
+        state LearningCheck {
             [*] --> CheckCriteria
             CheckCriteria --> SpawnRetrospective: P1 task OR cost >$1
-            CheckCriteria --> [*]: below threshold
+            CheckCriteria --> KeywordScan: completed, below threshold
+            KeywordScan --> SpawnLearningExtraction: discovery keywords matched (P8/Haiku)
+            KeywordScan --> [*]: no keywords matched
+            SpawnRetrospective --> [*]
+            SpawnLearningExtraction --> [*]
         }
 
         RetrospectiveCheck --> [*]
@@ -247,7 +250,7 @@ stateDiagram-v2
     SensorsService --> TaskQueue
 ```
 
-## Sensor Count by Category (2026-03-19)
+## Sensor Count by Category (2026-03-19, updated)
 
 | Category | Count |
 |----------|-------|
@@ -258,18 +261,22 @@ stateDiagram-v2
 | Fleet | 6 |
 | Infrastructure | 8 |
 | DeFi | 4 |
-| Health/Monitoring | 4 |
+| Health/Monitoring | 5 |
 | Other | 24 |
-| **Total** | **85** |
+| **Total** | **86** |
 
-## Key Architectural Changes (88f0fe3 → ed8eae3)
+## Key Architectural Changes (ed8eae3 → e930cf6)
 
 | Change | Impact |
 |--------|--------|
-| Retrospective gate: P1 or cost>$1 | Reduced ~17 low-value tasks/day |
-| github-issues sensor: 24h dedup window | Reduces task flood from reactive GitHub volume |
-| fleet-memory sensor: added | Fleet knowledge synced as a background sensor |
-| arc-monitoring-service: new | Uptime/site-health monitoring skill added |
-| nostr-wot: consolidated WoT skills | RESOLVED (2026-03-19): Deleted redundant maximumsats-wot; kept maximumsats + nostr-wot |
-| arc-inbox: Clarity contract added | On-chain message storage on Stacks |
-| DAILY_BUDGET_USD raised to $500 | Old value was $200; actual hard cap is D4=$200/day |
+| `scheduleLearningExtraction` added to dispatch | Keyword-based P8/Haiku extraction for completed tasks; broad regex may over-trigger |
+| `arc0btc-services` skill + sensor | D1 monetization: services catalog, delivery pipeline (sensor count 85→86) |
+| Email `is_archived` column + archive command | Reduces inbox noise; getUnreadEmailMessages filters archived |
+| 24h dedup windows broadened | arc-workflows, social-x-ecosystem, arc-reputation, fleet-comms, alb, email sensors |
+| `nostr-wot` added, `maximumsats-wot` deleted | WoT consolidated: nostr-wot wraps MaximumSats; maximumsats kept for predict/trust-path |
+| `alb` sensor: ALB inbox polling (not health) | Renamed alb_health→arc0btc_services in diagram (no standalone alb-health sensor) |
+| `arc-monitoring-service` deduped in diagram | Removed from HealthSensors; belongs only in MonitoringSensors |
+| `fleet-learnings/index.json` topic map | Static 617-line JSON routing fleet entries to skill contexts |
+| `BlogPostingMachine` fact-check state | Blog workflow now requires fact-check before publish |
+| `PrReviewMachine` added | PR review formalized as a state machine |
+| MCP Phase 1 milestone marked done | GOALS.md updated |

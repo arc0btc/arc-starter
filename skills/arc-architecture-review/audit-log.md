@@ -784,3 +784,42 @@
 
 ---
 
+## 2026-03-19T07:10:00.000Z
+
+**Diff range:** ed8eae3 → e930cf6 | Sensors: 85 → 86 | Skills: 119 (unchanged)
+
+### Step 1 — Requirements
+
+- `scheduleLearningExtraction` in dispatch.ts: D3 knowledge-capture requirement. Valid. However, `DISCOVERY_KEYWORDS_RE` includes "fixed" and "solved" which match nearly every completed task summary. Expected: ~40-70 extraction tasks/day at P8/Haiku. Over-triggering risk — requirement was "capture reusable patterns", not "capture all completions."
+- `arc0btc-services` skill + sensor: D1 services business. Valid. Sensor polls for new orders and catalog health.
+- Email `is_archived` column: Valid operational improvement. Reduces inbox noise for sensors.
+- `BlogPostingMachine` fact-check state: Valid quality gate for D5 (honest public).
+
+### Step 2 — Delete Candidates
+
+- **[DIAGRAM FIX ✓]** `arc_monitoring_service` was listed in both HealthSensors and MonitoringSensors — removed from HealthSensors. It belongs only in MonitoringSensors.
+- **[DIAGRAM FIX ✓]** `alb_health` was listed in MonitoringSensors but no such separate sensor exists. The `alb` sensor polls the ALB inbox (not a health monitor). Replaced with `arc0btc_services` in MonitoringSensors.
+- **[OVERLAP — open]** `arc-dispatch-eval` vs `arc-dispatch-evals`: still undocumented boundary. From previous audit.
+
+### Step 3 — Simplify
+
+- **Learning extraction keyword regex too broad.** `DISCOVERY_KEYWORDS_RE` includes `fixed`, `solved`, `realized` — these appear in most task summaries. Consider narrowing to explicit learning signals: "new pattern", "learned that", "gotcha", "tip:" — or adding a cost floor (e.g., skip extraction if cost < $0.02). Without this, ~40-70 P8 tasks/day will spawn, mostly closing with "No learnings to capture."
+- **fleet-learnings/index.json at 617 lines** is a static topic-map JSON. Acceptable now; monitor for unbounded growth as skill count increases.
+
+### Step 4 — Accelerate
+
+- Email archive filter applied to three DB queries — correct. Stale email threads no longer surface in sensor runs.
+- 24h dedup windows now cover: arc-workflows, social-x-ecosystem, arc-reputation, fleet-comms, alb, email, arc-reporting, arc-failure-triage, arc-memory. Previous WARN about remaining sensors from 2026-03-18 audit mostly resolved.
+
+### Step 5 — Automate
+
+- Learning extraction is now automated (keyword gate → P8/Haiku spawn). The automation is working but the trigger is too permissive. See Step 3 above.
+- No new manual processes identified.
+
+### Follow-up Tasks Created
+
+- Consider tightening `DISCOVERY_KEYWORDS_RE` in dispatch.ts to reduce spurious extraction tasks (WARN — cost risk)
+- Audit log housekeeping: file is >786 lines, max 5 active entries target — schedule archive (INFO)
+
+---
+
