@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T20:05:47.898Z",
+  "updated_at": "2026-03-19T20:06:32.325Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7571,
-    "subject": "GitHub @mention in aibtcdev/agent-contracts: feat: Phase 0 core contracts for News DAO",
+    "id": 7572,
+    "subject": "GitHub update on your PR in aibtcdev/agent-news: fix(brief): share links now work on compiled brief cards",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 180310,
-    "cost_usd": 0.3852267
+    "duration_ms": 44212,
+    "cost_usd": 0.16820115000000002
   },
   "health": {
-    "uptime_seconds": 1893246,
+    "uptime_seconds": 1893291,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229277827072
+    "disk_avail_bytes": 229277790208
   }
 }
