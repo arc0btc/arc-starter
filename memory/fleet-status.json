@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T21:21:51.832Z",
+  "updated_at": "2026-03-19T21:22:25.909Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7595,
-    "subject": "Integrate bounty-scanner from aibtc-mcp-server v1.41.0 into Arc workflow",
+    "id": 7552,
+    "subject": "Extract learning from task #7373 — context-review: 5 context loading issue(s) found",
     "status": "completed",
-    "priority": 6
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 268625,
-    "cost_usd": 0.72267625
+    "duration_ms": 33656,
+    "cost_usd": 0.08752665
   },
   "health": {
-    "uptime_seconds": 1897810,
+    "uptime_seconds": 1897844,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229270093824
+    "disk_avail_bytes": 229269995520
   }
 }
