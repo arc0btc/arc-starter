@@ -1,6 +1,7 @@
 ---
 name: arc-failure-triage
 description: Detect recurring failure patterns, escalate to investigation instead of retry
+effort: high
 updated: 2026-03-05
 tags:
   - meta

@@ -1,6 +1,7 @@
 ---
 name: arc-reporting
 description: Generate watch reports (HTML, 6-hour) and overnight briefs (markdown, daily 6am PST)
+effort: medium
 updated: 2026-03-05
 tags: [reporting, operations, recurring]
 ---

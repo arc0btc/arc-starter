@@ -1,6 +1,7 @@
 ---
 name: github-issues
 description: GitHub issue intake for Forge — sensor detects assigned/labeled issues, CLI provides triage and code analysis workflow
+effort: medium
 updated: 2026-03-18
 tags:
   - github

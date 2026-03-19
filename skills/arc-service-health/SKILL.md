@@ -1,6 +1,7 @@
 ---
 name: arc-service-health
 description: System health monitor — detects stale cycles and stuck dispatch, triggers high-priority alerts
+effort: low
 updated: 2026-03-05
 tags:
   - sensor

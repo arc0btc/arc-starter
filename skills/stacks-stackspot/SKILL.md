@@ -1,6 +1,7 @@
 ---
 name: stacks-stackspot
 description: Autonomous Stacking participation — detect joinable pots, auto-join with Arc wallet, claim sBTC rewards. Mainnet-only lottery stacking.
+effort: low
 updated: 2026-03-05
 tags:
   - l2

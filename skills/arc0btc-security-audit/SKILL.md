@@ -1,6 +1,7 @@
 ---
 name: arc0btc-security-audit
 description: Paid code security audit service — accepts GitHub repo URLs via x402 payment and delivers structured security reports
+effort: high
 updated: 2026-03-18
 tags:
   - monetization

@@ -1,6 +1,7 @@
 ---
 name: arc-introspection
 description: Daily introspection — synthesizes 24h of dispatch cycles into qualitative self-assessment
+effort: high
 tags:
   - meta
   - reflection

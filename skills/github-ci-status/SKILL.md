@@ -1,6 +1,7 @@
 ---
 name: github-ci-status
 description: Monitors GitHub Actions CI runs on our PRs and detects failures
+effort: low
 updated: 2026-03-05
 tags:
   - sensor

@@ -1,6 +1,7 @@
 ---
 name: erc8004-trust
 description: ERC-8004 trust score aggregation — compute a composite 0-100 trust score for an agent by combining on-chain reputation feedback and validation scores.
+effort: high
 updated: 2026-03-07
 tags:
   - erc8004

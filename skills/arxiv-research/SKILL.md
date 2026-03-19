@@ -1,6 +1,7 @@
 ---
 name: arxiv-research
 description: Fetches and compiles arXiv papers on LLMs, agents, and AI into ISO-8601 research digests
+effort: high
 updated: 2026-03-06
 tags:
   - research

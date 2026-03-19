@@ -1,6 +1,7 @@
 ---
 name: github-mentions
 description: Detects GitHub notifications and engages as org maintainer across managed and collaborative repos
+effort: medium
 updated: 2026-03-05
 tags:
   - sensor

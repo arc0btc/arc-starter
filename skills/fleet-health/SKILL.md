@@ -1,6 +1,7 @@
 ---
 name: fleet-health
 description: Monitor agent fleet VMs — service status, dispatch age, disk usage, auth method
+effort: medium
 updated: 2026-03-09
 tags:
   - infrastructure

@@ -1,6 +1,7 @@
 ---
 name: arc-architecture-review
 description: Continuous architecture review, state machine diagrams, and simplification via SpaceX 5-step process
+effort: high
 updated: 2026-03-05
 tags:
   - architecture

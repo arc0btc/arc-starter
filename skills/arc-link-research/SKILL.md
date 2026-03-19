@@ -1,6 +1,7 @@
 ---
 name: arc-link-research
 description: Process batches of links into mission-relevant research reports — evaluates Bitcoin/AIBTC/Stacks relevance
+effort: high
 updated: 2026-03-06
 tags:
   - research

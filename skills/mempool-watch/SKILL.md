@@ -1,6 +1,7 @@
 ---
 name: mempool-watch
 description: Monitors Bitcoin mempool fee rates and Arc BTC address for unconfirmed incoming transactions via mempool.space API
+effort: low
 updated: 2026-03-12
 tags:
   - bitcoin

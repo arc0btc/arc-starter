@@ -1,6 +1,7 @@
 ---
 name: social-x-posting
 description: Post tweets, read timeline, and manage presence on X (Twitter) via API v2
+effort: medium
 updated: 2026-03-05
 tags:
   - social

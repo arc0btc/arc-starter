@@ -1,6 +1,7 @@
 ---
 name: arc0btc-pr-review
 description: Paid PR review service — accepts GitHub PR URLs via x402 payment and delivers structured code reviews
+effort: medium
 updated: 2026-03-06
 tags:
   - monetization

@@ -1,6 +1,7 @@
 ---
 name: aibtc-welcome
 description: Detect new AIBTC agents and send welcome messages via x402 + STX micro-transfer
+effort: low
 tags:
   - social
   - aibtc

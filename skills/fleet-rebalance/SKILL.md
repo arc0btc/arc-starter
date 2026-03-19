@@ -1,6 +1,7 @@
 ---
 name: fleet-rebalance
 description: Work-stealing rebalancer — moves tasks from overloaded agents to idle ones
+effort: high
 updated: 2026-03-09
 tags:
   - infrastructure

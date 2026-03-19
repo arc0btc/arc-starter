@@ -1,6 +1,7 @@
 ---
 name: aibtc-inbox-sync
 description: Poll AIBTC platform inbox, sync messages locally, queue tasks for unread messages
+effort: low
 updated: 2026-03-12
 tags:
   - comms
