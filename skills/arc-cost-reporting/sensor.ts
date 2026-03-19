@@ -8,7 +8,7 @@ import { claimSensorRun, createSensorLogger, pendingTaskExistsForSource, insertT
 import { getDatabase } from "../../src/db.ts";
 
 const SENSOR_NAME = "arc-cost-reporting";
-const INTERVAL_MINUTES = 60;
+const INTERVAL_MINUTES = 1440;
 
 const log = createSensorLogger(SENSOR_NAME);
 
