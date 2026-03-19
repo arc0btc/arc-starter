@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T19:01:28.571Z",
+  "updated_at": "2026-03-19T19:02:32.110Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7528,
-    "subject": "GitHub comment reply in aibtcdev/agent-news: feat: weekly leaderboard payouts endpoint",
+    "id": 7529,
+    "subject": "GitHub comment reply in aibtcdev/agent-news: feat: correspondent payout system",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 23526,
-    "cost_usd": 0.1310079
+    "duration_ms": 26807,
+    "cost_usd": 0.13069635000000002
   },
   "health": {
-    "uptime_seconds": 1889387,
+    "uptime_seconds": 1889450,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229288079360
+    "disk_avail_bytes": 229288022016
   }
 }
