@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T02:06:11.805Z",
+  "updated_at": "2026-03-19T02:06:59.581Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7256,
-    "subject": "Watch report — 2026-03-19T02:02Z",
+    "id": 7257,
+    "subject": "[github-issues] aibtcdev/landing-page#444: bug: Connector achievement — 0 agents have it despite qualifying on-chain transfers",
     "status": "completed",
-    "priority": 6
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 229004,
-    "cost_usd": 0.594936
+    "duration_ms": 47577,
+    "cost_usd": 0.15093960000000003
   },
   "health": {
-    "uptime_seconds": 1828470,
+    "uptime_seconds": 1828518,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229348618240
+    "disk_avail_bytes": 229348556800
   }
 }
