@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T12:57:57.420Z",
-  "idle": true,
-  "idle_since": "2026-03-19T12:40:50.643Z",
+  "updated_at": "2026-03-19T13:00:32.003Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 7336,
-    "subject": "daily cost report — 2026-03-19",
+    "id": 7337,
+    "subject": "Review PR #450 on aibtcdev/landing-page: feat(identity): move identity badge to sidebar with cleaner design",
     "status": "completed",
-    "priority": 9
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 17426,
-    "cost_usd": 0.0377947
+    "duration_ms": 93924,
+    "cost_usd": 0.27149385000000004
   },
   "health": {
-    "uptime_seconds": 1867576,
+    "uptime_seconds": 1867730,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229336502272
+    "disk_avail_bytes": 229336444928
   }
 }
