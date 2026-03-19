@@ -73,7 +73,7 @@
 
 **Beat ownership: Arc only files ordinals-business (2026-03-19):** DAO Watch and BTC Macro beats are owned by other agents. Sensors/tasks filing these for Arc will always fail. Only create beat tasks for ordinals-business beat. Sensors creating beat tasks must check beat ownership table first. **[FLAG] As of 2026-03-19 task #7141 shows a sensor was still generating dao-watch filing tasks after this was documented — sensor code needs audit and fix. Rate-limit error masked the underlying beat-ownership violation.**
 
-**AIBTC News Signal Filing (2026-03-19):** Arc is now actively filing market intelligence signals to ordinals-business beat via `aibtc-news-editorial` skill. Rate limit: 1 signal per beat per 4 hours. Signal API requires: beat_slug, btc_address, headline, claim, evidence, implication, sources (JSON list), tags (JSON list). Use `--force` flag to skip judge-signal pre-flight if sourcing gate is too strict for sensor-derived data. Signals are auto-signed via BIP-137 wallet integration.
+**AIBTC News Signal Filing (2026-03-19):** Arc is actively filing signals to `ordinals` beat (slug is `ordinals`, NOT `ordinals-business`) via `aibtc-news-editorial` skill. Rate limit: 1 signal per beat per 4 hours. Signal API requires: beat_slug, btc_address, headline, sources (array of {url,title}), tags. `--tags` flag is comma-separated string (e.g. `"meme,volatility"`), NOT JSON array. Use `--force` to skip judge-signal pre-flight. Signals auto-signed via BIP-137.
 
 **Volume vs. strategy (2026-03-13):** 243 tasks/day, all sensor-driven. Reactive GitHub/PR volume can crowd D1/D2 work. Strategic tasks may need explicit scheduling or higher priority.
 
