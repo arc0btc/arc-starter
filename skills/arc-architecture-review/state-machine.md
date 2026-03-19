@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-03-19T07:10:00.000Z*
-*Sensor count: 86 | Skill count: 119*
+*Generated: 2026-03-19T20:15:00.000Z*
+*Sensor count: 86 (1 disabled) | Skill count: 119*
 
 ```mermaid
 stateDiagram-v2
@@ -209,7 +209,8 @@ stateDiagram-v2
 
         state PostDispatch {
             [*] --> RecordCycleLog
-            RecordCycleLog --> SafeCommit
+            RecordCycleLog --> RecordQuality
+            RecordQuality --> SafeCommit
             SafeCommit --> SyntaxGuard: staged .ts files
             SyntaxGuard --> PostCommitHealth: syntax OK
             SyntaxGuard --> BlockCommit: syntax error → follow-up task
@@ -265,18 +266,14 @@ stateDiagram-v2
 | Other | 24 |
 | **Total** | **86** |
 
-## Key Architectural Changes (ed8eae3 → e930cf6)
+## Key Architectural Changes (e930cf6 → ea9d04c)
 
 | Change | Impact |
 |--------|--------|
-| `scheduleLearningExtraction` added to dispatch | Keyword-based P8/Haiku extraction for completed tasks; broad regex may over-trigger |
-| `arc0btc-services` skill + sensor | D1 monetization: services catalog, delivery pipeline (sensor count 85→86) |
-| Email `is_archived` column + archive command | Reduces inbox noise; getUnreadEmailMessages filters archived |
-| 24h dedup windows broadened | arc-workflows, social-x-ecosystem, arc-reputation, fleet-comms, alb, email sensors |
-| `nostr-wot` added, `maximumsats-wot` deleted | WoT consolidated: nostr-wot wraps MaximumSats; maximumsats kept for predict/trust-path |
-| `alb` sensor: ALB inbox polling (not health) | Renamed alb_health→arc0btc_services in diagram (no standalone alb-health sensor) |
-| `arc-monitoring-service` deduped in diagram | Removed from HealthSensors; belongs only in MonitoringSensors |
-| `fleet-learnings/index.json` topic map | Static 617-line JSON routing fleet entries to skill contexts |
-| `BlogPostingMachine` fact-check state | Blog workflow now requires fact-check before publish |
-| `PrReviewMachine` added | PR review formalized as a state machine |
-| MCP Phase 1 milestone marked done | GOALS.md updated |
+| `result_quality` column + `getQualityStats()` | Quality feedback loop: 1-5 rating on task close; surfaced in `arc status` 7d rolling avg |
+| `arc tasks close --quality N` flag | Dispatch can now rate own task quality; creates quality signal dataset over time |
+| `github-issues` sensor disabled | Redundant with `github-issue-monitor` (task #7399, Option B consolidation); 85 active sensors effective |
+| `github-issue-monitor` lookback 24h → 4h | More targeted polling, reduces cold-start burst on repo joins |
+| `github-issue-monitor` source key canonical | Now `issue:{repo}#{number}` shared with `github-mentions` — true cross-sensor dedup |
+| `github-mentions` dedup: `pendingTaskExistsForSource` | Allows re-engagement when prior task completed (re-review requests, new mentions) |
+| `arc0btc-pr-review` automated PR skip | Skips release-please/dependabot/bump PRs; 10/day cap + 72h dedup window |

@@ -1,3 +1,43 @@
+## 2026-03-19T20:15:00.000Z
+
+**Diff range:** e930cf6 → ea9d04c | Sensors: 86 (1 disabled) | Skills: 119
+
+### Step 1 — Requirements
+
+- **Quality tracking** (result_quality, getQualityStats): Traces to D3 (stack reliability) + dispatch-evals work. Valid — creates a data signal for self-improvement. Currently no automated action on low scores; that's a gap but acceptable for V1.
+- **github-issues disable**: Correct. Two sensors doing the same job with different source keys caused race-condition duplication. Option B consolidation (whoabuddy approved). Requirement satisfied by github-issue-monitor.
+- **Automated PR skip**: Traces to whoabuddy feedback (PR spam). Valid. 28% of reviewed PRs were automated. Fix is proportionate.
+
+### Step 2 — Delete Candidates
+
+- **`github-issues/sensor.ts`**: File exists but returns "skip" immediately. It's dead code. Should be deleted or the directory marked DISABLED. Leaving a disabled sensor file in the sensor tree causes confusion (sensor count shows 86 but 85 actually run). **Recommendation: delete `github-issues/sensor.ts` or add `// @disabled` guard that makes it skip at top-level with a comment.**
+- **`arc-dispatch-eval` vs `arc-dispatch-evals`** (carryover): Still overlapping. Both still exist. Not urgent but worth documenting clearly.
+- **Signal backlog (4 stale "Ordinals Business" tasks)**: CEO review killed them. Good.
+
+### Step 3 — Simplify
+
+- **Quality signal has no downstream consumer yet.** `getQualityStats()` surfaces in `arc status` but no sensor reads it and no automated task is spawned for low-quality patterns. V1 acceptable. V2 candidate: sensor that detects quality drop (7d avg < 3) and creates strategy review task.
+- **GitHub source key canonicalization is good.** `issue:{repo}#{number}` shared across github-issue-monitor and github-mentions eliminates the race condition cleanly. No further simplification needed.
+- **4h lookback on github-issue-monitor**: Tighter window reduces volume. Risk: issues updated exactly on the 4h boundary could be missed if sensor fires late. Low probability but worth noting.
+
+### Step 4 — Accelerate
+
+- **No bottlenecks introduced.** Quality write is a single SQLite update. PR skip is a regex check before any network call.
+- **github-issues disable saves ~15 duplicate tasks/day** (estimated). Reduces dispatch queue pressure.
+
+### Step 5 — Automate
+
+- **Quality-driven model routing**: If historical quality for a task category is low, auto-escalate priority to get a higher model tier. Future automation candidate (needs 30+ quality data points first).
+- **Nothing premature recommended.**
+
+### Flags
+
+- **[ACTION]** Delete or clearly disable `skills/github-issues/sensor.ts` — dead sensor file inflating count. Low urgency (P8).
+- **[WATCH]** Quality tracking has no feedback loop yet. Create follow-up when 30+ quality ratings exist.
+- **[OK]** GitHub consolidation complete. PR spam fixed. Diagram updated.
+
+---
+
 ## 2026-03-19T00:12:00.000Z
 
 **Diff range:** 88f0fe3 → ed8eae3 | Sensors: 74 → 85 | Skills: 108 → 119
