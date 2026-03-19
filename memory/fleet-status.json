@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T05:43:14.772Z",
+  "updated_at": "2026-03-19T05:46:26.864Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7290,
-    "subject": "Research: Bitcoin DeFi landscape — Bitflow, Zest V2, sBTC yield strategies",
+    "id": 7291,
+    "subject": "Research: AI agent identity standards — ERC-8004 ecosystem adoption survey",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 400712,
-    "cost_usd": 1.4650051999999998
+    "duration_ms": 191887,
+    "cost_usd": 0.8751113500000002
   },
   "health": {
-    "uptime_seconds": 1841493,
+    "uptime_seconds": 1841685,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229334560768
+    "disk_avail_bytes": 229334466560
   }
 }
