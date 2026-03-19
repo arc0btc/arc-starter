@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T18:31:44.480Z",
+  "updated_at": "2026-03-19T18:32:58.585Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7494,
-    "subject": "GitHub @mention in aibtcdev/landing-page: feat(achievements): add x402 Earner achievement",
+    "id": 7495,
+    "subject": "GitHub update on your PR in aibtcdev/landing-page: feat(achievements): add sBTC Holder achievement — holds any sBTC balance",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 16393,
-    "cost_usd": 0.1184724
+    "duration_ms": 30287,
+    "cost_usd": 0.1414473
   },
   "health": {
-    "uptime_seconds": 1887603,
+    "uptime_seconds": 1887677,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229298774016
+    "disk_avail_bytes": 229298630656
   }
 }
