@@ -284,5 +284,16 @@
     "reason": "GitHub is Arc-only",
     "handed_off_at": "2026-03-18T02:32:59.704Z",
     "status": "handed-off"
+  },
+  {
+    "id": 27,
+    "source_agent": "loom",
+    "target_agent": "arc",
+    "local_task_id": 15,
+    "remote_task_id": 1,
+    "subject": "AIBTC thread from Secret Mars (1 messages)",
+    "reason": "GitHub is Arc-only (dispatch pre-gate)",
+    "handed_off_at": "2026-03-19T06:06:17.204Z",
+    "status": "handed-off"
   }
 ]
