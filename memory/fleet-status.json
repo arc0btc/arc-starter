@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T13:30:53.652Z",
+  "updated_at": "2026-03-19T13:38:56.406Z",
   "idle": true,
-  "idle_since": "2026-03-19T13:29:53.398Z",
+  "idle_since": "2026-03-19T13:32:54.151Z",
   "last_task": {
-    "id": 7345,
-    "subject": "Retrospective: extract learnings from task #7344 — Email from whoabuddy (1 unread): Re: Research: High Output M",
+    "id": 7308,
+    "subject": "Retry: File Bitflow sBTC/STX volatility signal (07:31Z)",
     "status": "completed",
-    "priority": 8
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 58168,
-    "cost_usd": 0.10333645000000001
+    "duration_ms": 16683,
+    "cost_usd": 0.11387955000000001
   },
   "health": {
-    "uptime_seconds": 1869552,
+    "uptime_seconds": 1870035,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229335474176
+    "disk_avail_bytes": 229335330816
   }
 }
