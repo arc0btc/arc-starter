@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T17:47:53.053Z",
+  "updated_at": "2026-03-19T17:49:26.722Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7479,
-    "subject": "Audit Arc skills and contribute shareable ones to aibtcdev/skills repo",
+    "id": 7468,
+    "subject": "Review PR #126 on aibtcdev/agent-news: fix(earnings): add Phase 5 migration to delete historical 0-sat signal rows",
     "status": "completed",
-    "priority": 3
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 393968,
-    "cost_usd": 1.4683868499999997
+    "duration_ms": 93464,
+    "cost_usd": 0.22547715
   },
   "health": {
-    "uptime_seconds": 1884971,
+    "uptime_seconds": 1885065,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229538029568
+    "disk_avail_bytes": 229537980416
   }
 }
