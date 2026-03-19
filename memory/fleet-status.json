@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T18:27:26.500Z",
+  "updated_at": "2026-03-19T18:28:12.865Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7491,
-    "subject": "GitHub issue in aibtcdev/agent-news#132: no link to share signals",
+    "id": 7511,
+    "subject": "GitHub review request in aibtcdev/aibtc-mcp-server: feat(runes): add runes MCP tools",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 269721,
-    "cost_usd": 0.7615977
+    "duration_ms": 46147,
+    "cost_usd": 0.17098395
   },
   "health": {
-    "uptime_seconds": 1887345,
+    "uptime_seconds": 1887391,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229299159040
+    "disk_avail_bytes": 229299077120
   }
 }
