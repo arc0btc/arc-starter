@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T21:17:22.834Z",
+  "updated_at": "2026-03-19T21:21:51.832Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7597,
-    "subject": "Fix arc-mcp-server HTTP auth: require auth key and restrict CORS",
+    "id": 7595,
+    "subject": "Integrate bounty-scanner from aibtc-mcp-server v1.41.0 into Arc workflow",
     "status": "completed",
-    "priority": 3
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 113058,
-    "cost_usd": 0.6096254500000001
+    "duration_ms": 268625,
+    "cost_usd": 0.72267625
   },
   "health": {
-    "uptime_seconds": 1897541,
+    "uptime_seconds": 1897810,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229270228992
+    "disk_avail_bytes": 229270093824
   }
 }
