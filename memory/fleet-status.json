@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T14:20:22.593Z",
+  "updated_at": "2026-03-19T14:24:28.601Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7353,
-    "subject": "[github-issues] aibtcdev/aibtc-mcp-server#368: feat: add credentials MCP tools",
+    "id": 7371,
+    "subject": "feat(aibtc-mcp-server): add credentials MCP tool group (list/get/set/delete/unlock)",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 135289,
-    "cost_usd": 0.1982841
+    "duration_ms": 245777,
+    "cost_usd": 1.3836159999999997
   },
   "health": {
-    "uptime_seconds": 1872521,
+    "uptime_seconds": 1872767,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229311582208
+    "disk_avail_bytes": 229311049728
   }
 }
