@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T22:50:01.405Z",
+  "updated_at": "2026-03-19T23:05:05.895Z",
   "idle": true,
-  "idle_since": "2026-03-19T22:37:57.911Z",
+  "idle_since": "2026-03-19T22:52:01.655Z",
   "last_task": {
-    "id": 7623,
-    "subject": "Retry: File aeUSDC/Stacks volatility signal (cooldown expires ~23:35Z)",
-    "status": "failed",
-    "priority": 6
+    "id": 7624,
+    "subject": "GitHub @mention in aibtcdev/aibtc-mcp-server: Observer Protocol: Free Verification for Bitcoin-Native AI Agents",
+    "status": "completed",
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 48292,
-    "cost_usd": 0.21470265
+    "duration_ms": 59800,
+    "cost_usd": 0.20955375000000004
   },
   "health": {
-    "uptime_seconds": 1903100,
+    "uptime_seconds": 1904004,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229267124224
+    "disk_avail_bytes": 229266907136
   }
 }

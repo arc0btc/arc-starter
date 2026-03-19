@@ -2685,6 +2685,111 @@ Steps:
 };
 
 /**
+ * LandingPageReviewMachine — models the recurring "new release → review landing page content
+ * → update llms.txt/llms-full.txt" cycle triggered by github-release-watcher.
+ *
+ * Pattern detected: "sensor:github-release-watcher:landing-page-review" tasks (5 recurrences,
+ * avg 2.8 steps/chain) consistently spawn a follow-up to update llms.txt notable skills.
+ * This machine deduplicates re-triggers per release and ensures the llms.txt update always
+ * follows the content review.
+ *
+ * instance_key: "landing-page-review-{version}" (one per release)
+ *   e.g. "landing-page-review-skills-v0.28.0"
+ *
+ * States:
+ *   release_detected → new release found; creates a landing page review task
+ *   reviewing        → review task executing; executor transitions to content_updating when done
+ *   content_updating → content gaps identified; create llms.txt update task
+ *   completed        → done (llms.txt updated)
+ *   no_gaps          → review found nothing to update; done
+ *
+ * Context:
+ *   repo            — "owner/repo" e.g. "aibtcdev/landing-page"
+ *   version         — release version string e.g. "skills-v0.28.0"
+ *   releaseUrl      — GitHub release URL (optional)
+ *   contentGaps     — comma-separated summary of gaps found during review
+ *   notableSkills   — comma-separated list of new skills to add to llms.txt
+ */
+export const LandingPageReviewMachine: StateMachine<{
+  repo?: string;
+  version?: string;
+  releaseUrl?: string;
+  contentGaps?: string;
+  notableSkills?: string;
+}> = {
+  name: "landing-page-review",
+  initialState: "release_detected",
+  states: {
+    release_detected: {
+      on: { start_review: "reviewing" },
+      action: (ctx) => {
+        if (!ctx.repo || !ctx.version) return null;
+        return {
+          type: "create-task",
+          subject: `Review ${ctx.repo} for ${ctx.version} content gaps`,
+          priority: 6,
+          skills: ["aibtc-repo-maintenance", "dev-landing-page-review"],
+          description: `Review the landing page repo ${ctx.repo} for content gaps introduced by release ${ctx.version}.${ctx.releaseUrl ? `\nRelease: ${ctx.releaseUrl}` : ""}
+
+Steps:
+1. Compare the release changelog against landing page content
+2. Identify missing notable skills, updated descriptions, or stale copy
+3. Record findings in workflow context as contentGaps (comma-separated)
+4. Record new skills to highlight as notableSkills (comma-separated)
+5. Transition workflow:
+   - If gaps found: arc skills run --name workflows -- transition <id> reviewing --context '{"contentGaps":"...","notableSkills":"..."}'
+   - If nothing needed: arc skills run --name workflows -- transition <id> no_gaps`,
+        };
+      },
+    },
+    reviewing: {
+      on: { update_content: "content_updating", no_gaps: "no_gaps" },
+      action: (ctx) => {
+        if (ctx.contentGaps === undefined) return null;
+        if (!ctx.contentGaps || ctx.contentGaps.trim() === "") {
+          return { type: "transition", nextState: "no_gaps" };
+        }
+        return { type: "transition", nextState: "content_updating" };
+      },
+    },
+    content_updating: {
+      on: { done: "completed" },
+      action: (ctx) => {
+        if (!ctx.version) return null;
+        const skillsNote = ctx.notableSkills
+          ? `\nNotable skills to add: ${ctx.notableSkills}`
+          : "";
+        const gapsNote = ctx.contentGaps
+          ? `\nContent gaps identified: ${ctx.contentGaps}`
+          : "";
+        return {
+          type: "create-task",
+          subject: `Update llms.txt notable skills for ${ctx.version}`,
+          priority: 7,
+          skills: ["aibtc-repo-maintenance"],
+          description: `Update llms.txt and llms-full.txt in the landing page repo to reflect ${ctx.version} additions.${gapsNote}${skillsNote}
+
+Steps:
+1. Open llms.txt and llms-full.txt in the landing page repo
+2. Add the notable skills enumeration under the appropriate section
+3. Ensure descriptions are accurate and concise
+4. Hand off to Arc via fleet-handoff for the PR (GitHub is Arc-only)
+5. Transition workflow to completed: arc skills run --name workflows -- transition <id> done`,
+        };
+      },
+    },
+    no_gaps: {
+      on: {},
+      action: () => null,
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -2721,6 +2826,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "self-review-cycle": SelfReviewCycleMachine,
     "cost-report-audit": CostReportAuditMachine,
     "github-issue-implementation": GithubIssueImplementationMachine,
+    "landing-page-review": LandingPageReviewMachine,
   };
   return templates[name] || null;
 }
