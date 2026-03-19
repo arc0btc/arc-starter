@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T11:19:59.162Z",
-  "idle": true,
-  "idle_since": "2026-03-19T11:05:54.925Z",
+  "updated_at": "2026-03-19T11:21:21.330Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 7326,
-    "subject": "Workflow design: 4 repeating pattern(s) detected",
+    "id": 7327,
+    "subject": "housekeeping: 1 issue(s) detected",
     "status": "completed",
-    "priority": 5
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 65318,
-    "cost_usd": 0.23519925000000003
+    "duration_ms": 21373,
+    "cost_usd": 0.0579599
   },
   "health": {
-    "uptime_seconds": 1861698,
+    "uptime_seconds": 1861780,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229311913984
+    "disk_avail_bytes": 229311844352
   }
 }
