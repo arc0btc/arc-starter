@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T23:16:42.368Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-19T23:21:44.408Z",
+  "idle": true,
+  "idle_since": "2026-03-19T23:17:42.934Z",
   "last_task": {
-    "id": 7629,
-    "subject": "Review PR #200 on aibtcdev/skills: refactor(stackspot): extract shared logic to eliminate stacking-lottery duplication",
+    "id": 7575,
+    "subject": "Retry: File Ordinals signal — Bitflow aeUSDC/Stacks 10% range",
     "status": "completed",
-    "priority": 5
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 77071,
-    "cost_usd": 0.2442372
+    "duration_ms": 39280,
+    "cost_usd": 0.1427346
   },
   "health": {
-    "uptime_seconds": 1904701,
+    "uptime_seconds": 1905003,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229266411520
+    "disk_avail_bytes": 229266317312
   }
 }
