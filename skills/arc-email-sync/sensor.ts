@@ -4,7 +4,7 @@
 // Runs every 1 minute via sensor cadence gating.
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource, getUnreadEmailMessages, markEmailRead, hasSentEmailTo, insertWorkflow, getWorkflowByInstanceKey, updateWorkflowState, getEmailThreadCountBySenderAndSubject, type EmailMessage } from "../../src/db.ts";
+import { insertTask, pendingTaskExistsForSource, recentTaskExistsForSource, getUnreadEmailMessages, markEmailRead, hasSentEmailTo, insertWorkflow, getWorkflowByInstanceKey, updateWorkflowState, getEmailThreadCountBySenderAndSubject, type EmailMessage } from "../../src/db.ts";
 import { syncEmail, getEmailCredentials } from "./sync.ts";
 import { isGateStopped, resetDispatchGate } from "../../src/dispatch-gate.ts";
 
@@ -140,8 +140,8 @@ export default async function emailSensor(): Promise<string> {
     const senderAddr = senderMessages[0].from_address;
     const source = `sensor:arc-email-sync:thread:${threadKey}`;
 
-    if (pendingTaskExistsForSource(source)) {
-      log(`task already exists for source "${source}" — skipping`);
+    if (recentTaskExistsForSource(source, 24 * 60)) {
+      log(`task exists within 24h for source "${source}" — skipping`);
       continue;
     }
 

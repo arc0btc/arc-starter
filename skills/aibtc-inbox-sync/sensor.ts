@@ -6,7 +6,7 @@
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import {
   insertTask,
-  pendingTaskExistsForSource,
+  recentTaskExistsForSource,
   upsertAibtcInboxMessage,
   getUnreadAibtcInboxMessages,
   getRecentAibtcMessagesByPeer,
@@ -177,8 +177,8 @@ export default async function aibtcInboxSensor(): Promise<string> {
   for (const [peer, peerMessages] of threadsByPeer) {
     const source = `sensor:aibtc-inbox-sync:thread:${peer}`;
 
-    if (pendingTaskExistsForSource(source)) {
-      log(`task already exists for "${source}" — skipping`);
+    if (recentTaskExistsForSource(source, 24 * 60)) {
+      log(`task exists within 24h for "${source}" — skipping`);
       continue;
     }
 
