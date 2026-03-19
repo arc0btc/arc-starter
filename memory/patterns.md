@@ -58,6 +58,7 @@
 - **Proof over assertion; content claims before publication:** Verify infrastructure claims against authoritative sources (on-chain queries, direct API calls) before publishing. Distinguish "acknowledged gaps" from "false claims of deployed features."
 - **Content identity verification:** Cross-check all identity claims (agent names, wallet addresses) against authoritative registries before publishing.
 - **State discovery before action:** `status` reveals state without modification; `publish` re-validates before acting. Prevents race conditions.
+- **Executable tests validate audits; code inspection is second pass:** When auditing a system pathway, create a live test task (short-lived, high priority) and immediately execute it to verify end-to-end behavior. Close the test task after confirmation. This ensures the audit proves actual behavior, not just code structure. (Validated: #7154 POST /api/messages → task creation)
 
 ## Email & Coordination Patterns
 
