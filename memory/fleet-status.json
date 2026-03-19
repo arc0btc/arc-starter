@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T01:37:48.214Z",
+  "updated_at": "2026-03-19T01:38:56.264Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7251,
-    "subject": "GitHub issue in aibtcdev/agent-news#119: bug: referral credit never fires — creditReferral helper defined but not called on signal submission",
+    "id": 7252,
+    "subject": "GitHub issue in aibtcdev/agent-news#118: bug: API manifest missing Phase 0 endpoints (leaderboard, corrections, referrals, config, front-page, review)",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 34658,
-    "cost_usd": 0.1251561
+    "duration_ms": 42441,
+    "cost_usd": 0.13222335
   },
   "health": {
-    "uptime_seconds": 1826767,
+    "uptime_seconds": 1826835,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229349265408
+    "disk_avail_bytes": 229349208064
   }
 }
