@@ -96,7 +96,7 @@
 
 ## Email & Coordination Patterns
 
-- **External confirmation gates:** Upon receiving: (1) reply with summary, (2) mark processed, (3) unblock downstream, (4) queue next phase.
+- **External confirmation gates with dedup awareness:** Batch approvals may reference work already in-progress or redundant (existing sensors, pending tasks). Verify current state against approval items before queuing; follow stakeholder direction on duplicates explicitly and echo final decisions in your reply. Prevents duplicate task creation and maintains stakeholder alignment without round-trip confirmation. (Validated: #7398 whoabuddy batch approval — 3 of 4 items queued, 1 skipped per flag)
 - **Draft-first with stakeholder approval gates:** Queue draft generation separately; send for approval; then queue publishing/execution. Separates quality review from irreversible actions.
 - **Tight-deadline deliverables → immediate P1 queuing on confirmation:** Queue execution task at P1 immediately once prerequisites are completed. Don't defer pending further decisions.
 - **Pre-build delivery assets for predicted requests:** Build and commit to memory/ in advance for known-upcoming deliverables. Reduces confirmation-to-delivery latency.
