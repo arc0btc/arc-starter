@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T18:46:04.173Z",
+  "updated_at": "2026-03-19T18:47:08.197Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7510,
-    "subject": "GitHub comment reply in aibtcdev/aibtc-mcp-server: feat: add runes MCP tools",
+    "id": 7512,
+    "subject": "GitHub comment reply in aibtcdev/aibtc-mcp-server: feat: add bounty-scanner MCP tools",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 30882,
-    "cost_usd": 0.1309005
+    "duration_ms": 34396,
+    "cost_usd": 0.148065
   },
   "health": {
-    "uptime_seconds": 1888463,
+    "uptime_seconds": 1888527,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229297782784
+    "disk_avail_bytes": 229297745920
   }
 }
