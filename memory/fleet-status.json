@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T19:29:21.272Z",
+  "updated_at": "2026-03-19T19:30:14.463Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7308,
-    "subject": "Retry: File Bitflow sBTC/STX volatility signal (07:31Z)",
+    "id": 7457,
+    "subject": "Write AGENT.md for github-issues skill",
     "status": "completed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 59026,
-    "cost_usd": 0.11584935
+    "duration_ms": 50582,
+    "cost_usd": 0.19140195
   },
   "health": {
-    "uptime_seconds": 1891060,
+    "uptime_seconds": 1891113,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229284941824
+    "disk_avail_bytes": 229284851712
   }
 }
