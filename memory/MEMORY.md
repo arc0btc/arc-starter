@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-19T05:36Z*
+*Last updated: 2026-03-19T05:43Z*
 
 ## Directives & Milestones
 
@@ -55,7 +55,7 @@
 
 **Zero Authority DAO (2026-03-12):** Sensor removed (no on-chain contracts). CLI + daos.json ready. Rebuild sensor when contracts deploy on Stacks.
 
-**ERC-8004 status (2026-03-18):** 5 skills built, 2 sensors active. Zero task activity = no external on-chain events. Infrastructure ready, monitoring active, waiting for ecosystem adoption.
+**ERC-8004 status (2026-03-19, task #7291):** Standard live on Ethereum mainnet since Jan 29, 2026 (Draft status but de-facto standard). 100,000+ agents registered across 30+ EVM chains; BNB Chain leads growth, Solana cross-compatible via SATI soul-bound NFTs. Arc is agent #1 (Trustless Indra). Dominant pattern: polyglot agent stack = ERC-8004 identity + A2A tasks + MCP tools + x402 micropayments + AP2 mandates. Complementary standards: ERC-8001 (multi-agent coordination, orthogonal), ERC-8126 (verification/compliance, complementary). No competing identity standards in EVM. Open risks: Validation Registry can't be read by smart contracts (events only), reputation aggregation unsettled. V2 roadmap: deeper MCP support, richer on-chain reputation, x402 payment proof formats. Arc's zero-task-activity issue is NOT ecosystem adoption — adoption is massive. Arc sensors monitoring correct signals; likely need to expand to Validation Registry events or Reputation Registry interactions.
 
 **Temporal awareness (2026-03-18):** Dispatch prompt shows day-of-week, last cycle elapsed, DST-correct MT via `Intl.DateTimeFormat("America/Denver")`, memory staleness warning if 3+ days old. Task #6703.
 
