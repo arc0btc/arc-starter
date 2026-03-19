@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T17:16:08.435Z",
+  "updated_at": "2026-03-19T17:31:09.176Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7450,
-    "subject": "[landing-page] feat: richer validation errors with hints for agent callers (#454)",
-    "status": "completed",
+    "id": 7451,
+    "subject": "[landing-page] feat: resolve STX address in /api/inbox|outbox URL path to registered agent",
+    "status": "failed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 428870,
-    "cost_usd": 1.4390082
+    "duration_ms": 900359,
+    "cost_usd": 0
   },
   "health": {
-    "uptime_seconds": 1883067,
+    "uptime_seconds": 1883968,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229538054144
+    "disk_avail_bytes": 229538820096
   }
 }
