@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T16:55:58.767Z",
+  "updated_at": "2026-03-19T16:58:01.790Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7414,
-    "subject": "GitHub update on your PR in aibtcdev/aibtc-mcp-server: feat(credentials): add encrypted credential store MCP tools",
+    "id": 7429,
+    "subject": "GitHub @mention in aibtcdev/skills: feat(nostr): NIP-06 derivation as default, add --key-source flag",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 16949,
-    "cost_usd": 0.11880420000000001
+    "duration_ms": 79704,
+    "cost_usd": 0.31729095
   },
   "health": {
-    "uptime_seconds": 1881857,
+    "uptime_seconds": 1881980,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229538877440
+    "disk_avail_bytes": 229538795520
   }
 }
