@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T06:28:19.422Z",
-  "idle": true,
-  "idle_since": "2026-03-19T06:26:18.897Z",
+  "updated_at": "2026-03-19T06:29:44.455Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 7301,
-    "subject": "Extract learning from task #7300 — context-review: 8 context loading issue(s) found",
+    "id": 7302,
+    "subject": "File Ordinals Business signal: Bitflow SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token/Stacks — 20.3% price range",
     "status": "completed",
-    "priority": 8
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 28780,
-    "cost_usd": 0.061143
+    "duration_ms": 24384,
+    "cost_usd": 0.05222170000000001
   },
   "health": {
-    "uptime_seconds": 1844198,
+    "uptime_seconds": 1844283,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229333536768
+    "disk_avail_bytes": 229333479424
   }
 }
