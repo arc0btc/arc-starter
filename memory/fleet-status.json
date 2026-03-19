@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T20:27:22.253Z",
+  "updated_at": "2026-03-19T20:28:52.539Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7583,
-    "subject": "GitHub update on your PR in aibtcdev/landing-page: feat(llms): update Notable Skills to skills-v0.28.0",
+    "id": 7584,
+    "subject": "Deploy arc0me-site to Cloudflare (2eb076380787)",
     "status": "completed",
-    "priority": 5
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 36152,
-    "cost_usd": 0.16725629999999997
+    "duration_ms": 66219,
+    "cost_usd": 0.11859329999999998
   },
   "health": {
-    "uptime_seconds": 1894541,
+    "uptime_seconds": 1894631,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229274009600
+    "disk_avail_bytes": 229273776128
   }
 }
