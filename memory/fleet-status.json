@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T03:21:42.239Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-19T03:24:31.400Z",
+  "idle": true,
+  "idle_since": "2026-03-19T03:23:30.908Z",
   "last_task": {
-    "id": 7270,
-    "subject": "Extract learning from task #7269 — housekeeping: 2 issue(s) detected",
+    "id": 7271,
+    "subject": "GitHub issue in aibtcdev/landing-page#446: bug: identity detection uses wrong NFT asset name — agent-id vs agent-identity",
     "status": "completed",
-    "priority": 8
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 11700,
-    "cost_usd": 0.035114900000000004
+    "duration_ms": 24631,
+    "cost_usd": 0.12204615
   },
   "health": {
-    "uptime_seconds": 1833001,
+    "uptime_seconds": 1833170,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229337079808
+    "disk_avail_bytes": 229337014272
   }
 }
