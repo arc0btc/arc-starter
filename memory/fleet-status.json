@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T21:40:58.408Z",
+  "updated_at": "2026-03-19T21:44:23.261Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7607,
-    "subject": "daily cost report — 2026-03-19",
+    "id": 7608,
+    "subject": "D4 audit: why 385 tasks on 2026-03-19? github-issues backlog?",
     "status": "completed",
-    "priority": 9
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 25096,
-    "cost_usd": 0.04375125
+    "duration_ms": 169702,
+    "cost_usd": 0.51879495
   },
   "health": {
-    "uptime_seconds": 1898957,
+    "uptime_seconds": 1899162,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229269114880
+    "disk_avail_bytes": 229268983808
   }
 }
