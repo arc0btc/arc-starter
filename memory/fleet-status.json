@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T17:04:52.936Z",
+  "updated_at": "2026-03-19T17:05:21.238Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7443,
-    "subject": "Review PR #124 on aibtcdev/agent-news: feat(front-page): add submitted-signal fallback with pending review banner",
+    "id": 7445,
+    "subject": "GitHub issue in aibtcdev/agent-news#125: chore: clean up historical 0-sat signal earnings",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 99135,
-    "cost_usd": 0.24726825
+    "duration_ms": 28096,
+    "cost_usd": 0.1303314
   },
   "health": {
-    "uptime_seconds": 1882391,
+    "uptime_seconds": 1882420,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229538484224
+    "disk_avail_bytes": 229538435072
   }
 }
