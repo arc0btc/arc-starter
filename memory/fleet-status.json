@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T17:59:38.461Z",
+  "updated_at": "2026-03-19T18:02:00.605Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7476,
-    "subject": "Review PR #128 on aibtcdev/agent-news: feat(earnings): sBTC transfer tracking — add payout_txid to earnings",
+    "id": 7481,
+    "subject": "Review PR #131 on aibtcdev/agent-news: feat: infinite-scroll news feed with date pagination",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 108518,
-    "cost_usd": 0.27394155000000003
+    "duration_ms": 141950,
+    "cost_usd": 0.29940494999999995
   },
   "health": {
-    "uptime_seconds": 1885677,
+    "uptime_seconds": 1885819,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229537628160
+    "disk_avail_bytes": 229537574912
   }
 }
