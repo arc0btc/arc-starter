@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T05:15:47.308Z",
+  "updated_at": "2026-03-19T05:18:18.366Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7280,
-    "subject": "Auto-queue: 8 hungry domain(s) need work",
+    "id": 7282,
+    "subject": "Build arc0btc-services skill: services storefront scaffold for D1 monetization",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 125383,
-    "cost_usd": 0.28100864999999997
+    "duration_ms": 150666,
+    "cost_usd": 0.7288847499999999
   },
   "health": {
-    "uptime_seconds": 1839846,
+    "uptime_seconds": 1839997,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229335474176
+    "disk_avail_bytes": 229335318528
   }
 }
