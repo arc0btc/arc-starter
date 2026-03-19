@@ -3,7 +3,7 @@
 // Unified CLI for the email skill.
 // Usage: arc skills run --name email -- <subcommand> [flags]
 
-import { initDatabase, markEmailRead } from "../../src/db.ts";
+import { initDatabase, markEmailRead, archiveOldEmails } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
 import { syncEmail, getEmailCredentials } from "./sync.ts";
 
@@ -172,6 +172,22 @@ async function cmdFetch(args: string[]): Promise<void> {
   console.log(JSON.stringify(result, null, 2));
 }
 
+async function cmdArchive(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+  const daysStr = flags.days || "7";
+  const days = parseInt(daysStr, 10);
+
+  if (isNaN(days) || days < 1) {
+    process.stderr.write("Usage: arc skills run --name email -- archive [--days <N>]\nDefault: 7 days\n");
+    process.exit(1);
+  }
+
+  initDatabase();
+  const result = archiveOldEmails(days);
+  log(`archived ${result.archived} email(s) older than ${days} day(s)`);
+  console.log(JSON.stringify({ success: true, archived: result.archived, days }, null, 2));
+}
+
 function printUsage(): void {
   process.stdout.write(`email CLI
 
@@ -195,12 +211,16 @@ SUBCOMMANDS
   fetch --id <remote_id>
     Fetch full message body from the email worker API.
 
+  archive [--days <N>]
+    Archive stale email threads older than N days (default: 7).
+
 EXAMPLES
   arc skills run --name email -- send --to user@example.com --subject "Hello" --body "Hi there."
   arc skills run --name email -- mark-read --id abc123
   arc skills run --name email -- sync
   arc skills run --name email -- stats
   arc skills run --name email -- fetch --id abc123
+  arc skills run --name email -- archive --days 7
 `);
 }
 
@@ -225,6 +245,9 @@ async function main(): Promise<void> {
       break;
     case "fetch":
       await cmdFetch(args.slice(1));
+      break;
+    case "archive":
+      await cmdArchive(args.slice(1));
       break;
     case "help":
     case "--help":

@@ -342,6 +342,7 @@ export function initDatabase(): Database {
   // Migrate existing email_messages tables to add threading columns
   addColumn("email_messages", "in_reply_to", "TEXT");
   addColumn("email_messages", "references_header", "TEXT");
+  addColumn("email_messages", "is_archived", "INTEGER DEFAULT 0");
 
   db.run(`
     CREATE TABLE IF NOT EXISTS aibtc_inbox_messages (
@@ -867,7 +868,7 @@ export function upsertEmailMessage(msg: Omit<EmailMessage, "id">): void {
 export function getUnreadEmailMessages(): EmailMessage[] {
   const db = getDatabase();
   return db
-    .query("SELECT * FROM email_messages WHERE folder = 'inbox' AND is_read = 0 ORDER BY received_at ASC")
+    .query("SELECT * FROM email_messages WHERE folder = 'inbox' AND is_read = 0 AND is_archived = 0 ORDER BY received_at ASC")
     .all() as EmailMessage[];
 }
 
@@ -914,15 +915,28 @@ export function getEmailThreadCountBySenderAndSubject(fromAddress: string, norma
 export function getEmailThreads(limit = 200): EmailMessage[] {
   const db = getDatabase();
   return db
-    .query("SELECT * FROM email_messages WHERE folder = 'inbox' ORDER BY received_at DESC LIMIT ?")
+    .query("SELECT * FROM email_messages WHERE folder = 'inbox' AND is_archived = 0 ORDER BY received_at DESC LIMIT ?")
     .all(limit) as EmailMessage[];
 }
 
 export function getEmailMessagesByFromAddress(fromAddress: string): EmailMessage[] {
   const db = getDatabase();
   return db
-    .query("SELECT * FROM email_messages WHERE from_address = ? AND folder = 'inbox' ORDER BY received_at ASC")
+    .query("SELECT * FROM email_messages WHERE from_address = ? AND folder = 'inbox' AND is_archived = 0 ORDER BY received_at ASC")
     .all(fromAddress) as EmailMessage[];
+}
+
+export function archiveOldEmails(olderThanDays: number): { archived: number } {
+  const db = getDatabase();
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - olderThanDays);
+  const cutoffIso = cutoffDate.toISOString();
+
+  const stmt = db.query("UPDATE email_messages SET is_archived = 1 WHERE is_archived = 0 AND received_at < ?");
+  stmt.run(cutoffIso);
+
+  const result = db.query("SELECT changes() as count").get() as { count: number };
+  return { archived: result.count };
 }
 
 // ---- AIBTC inbox queries ----
