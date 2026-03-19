@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T22:24:38.894Z",
-  "idle": true,
-  "idle_since": "2026-03-19T21:59:30.902Z",
+  "updated_at": "2026-03-19T22:28:01.982Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 7614,
-    "subject": "GitHub @mention in aibtcdev/landing-page: Investigate slow load times",
+    "id": 7616,
+    "subject": "Consolidate patterns.md (160 lines, threshold 150)",
     "status": "completed",
-    "priority": 5
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 29008,
-    "cost_usd": 0.15536909999999995
+    "duration_ms": 142430,
+    "cost_usd": 0.29087820000000003
   },
   "health": {
-    "uptime_seconds": 1901577,
+    "uptime_seconds": 1901780,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229268160512
+    "disk_avail_bytes": 229268090880
   }
 }
