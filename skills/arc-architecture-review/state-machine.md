@@ -270,6 +270,6 @@ stateDiagram-v2
 | github-issues sensor: 24h dedup window | Reduces task flood from reactive GitHub volume |
 | fleet-memory sensor: added | Fleet knowledge synced as a background sensor |
 | arc-monitoring-service: new | Uptime/site-health monitoring skill added |
-| nostr-wot / maximumsats-wot: two new WoT skills | Potential overlap — see audit log |
+| nostr-wot: consolidated WoT skills | RESOLVED (2026-03-19): Deleted redundant maximumsats-wot; kept maximumsats + nostr-wot |
 | arc-inbox: Clarity contract added | On-chain message storage on Stacks |
 | DAILY_BUDGET_USD raised to $500 | Old value was $200; actual hard cap is D4=$200/day |

@@ -9,9 +9,9 @@
 
 ### Step 2 — Delete Candidates
 
-- **[DUPLICATE]** `nostr-wot` and `maximumsats-wot` both wrap MaximumSats API for Nostr WoT trust scoring. One should be consolidated into the other or a clear distinction documented. Needs investigation before deletion.
+- **[RESOLVED ✓ 2026-03-19]** `nostr-wot` and `maximumsats-wot` both wrap MaximumSats API. **Investigation complete:** Deleted `maximumsats-wot` as redundant (subset of nostr-wot + broken check-agent + no free tier fallback). Kept `maximumsats` (offers predict/trust-path) + `nostr-wot` (best fallback strategy). See memory/wot_consolidation.md for analysis.
 - **[OVERLAP]** `arc-dispatch-eval` (sensor, auto-scores task outcomes) and `arc-dispatch-evals` (CLI, LLM judge quality evaluation) have overlapping domains. The distinction is sensor-driven vs CLI-driven — acceptable, but should be documented clearly in each SKILL.md.
-- **[STALE?]** `maximumsats` (parent skill) vs `maximumsats-wot` — if WoT is the only thing maximumsats does, the parent may be redundant.
+- **[STALE? 2026-03-19]** `maximumsats` (parent skill) vs `maximumsats-wot` — Confirmed: `maximumsats` has unique features (predict, trust-path). Not redundant. Kept both.
 
 ### Step 3 — Simplify
 
@@ -30,7 +30,7 @@
 
 ### Follow-up Tasks Created
 
-- Investigate nostr-wot vs maximumsats-wot consolidation (INFO)
+- ✓ RESOLVED: Investigate nostr-wot vs maximumsats-wot consolidation (2026-03-19, task #7228)
 - Apply 24h dedup pattern to remaining high-volume sensors (WARN - ongoing)
 - Consider automatic model downgrade at $150/day D4 cost gate (INFO)
 
