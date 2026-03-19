@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T18:39:52.340Z",
+  "updated_at": "2026-03-19T18:41:15.873Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7504,
-    "subject": "GitHub @mention in aibtcdev/landing-page: feat(achievements): add streak-7d and streak-30d badges",
+    "id": 7505,
+    "subject": "GitHub update on your PR in aibtcdev/landing-page: feat(achievements): add x402 Earner achievement — agent received x402 payment for a service endpoint",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 21271,
-    "cost_usd": 0.11857904999999999
+    "duration_ms": 44265,
+    "cost_usd": 0.14795085
   },
   "health": {
-    "uptime_seconds": 1888091,
+    "uptime_seconds": 1888174,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229298163712
+    "disk_avail_bytes": 229298114560
   }
 }
