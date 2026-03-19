@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T00:11:29.220Z",
+  "updated_at": "2026-03-19T00:12:37.188Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7226,
-    "subject": "Build nostr-wot skill wrapping MaximumSats WoT API",
+    "id": 6882,
+    "subject": "File Ordinals Business signal: Bitflow Stacks/SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc — 5.1% price range",
     "status": "completed",
-    "priority": 4
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 262624,
-    "cost_usd": 1.0292957500000002
+    "duration_ms": 67599,
+    "cost_usd": 0.11679630000000002
   },
   "health": {
-    "uptime_seconds": 1821588,
+    "uptime_seconds": 1821656,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229456404480
+    "disk_avail_bytes": 229456347136
   }
 }
