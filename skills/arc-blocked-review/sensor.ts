@@ -128,10 +128,20 @@ export default async function blockedReviewSensor(): Promise<string> {
     )
     .join("\n\n");
 
+  // Collect skills from candidate blocked tasks so reviewer has relevant context
+  const skillSet = new Set<string>(["arc-blocked-review"]);
+  for (const { task } of candidates) {
+    if (task.skills) {
+      for (const s of JSON.parse(task.skills) as string[]) skillSet.add(s);
+    }
+  }
+  // Cap at 6 skills to stay within context budget
+  const reviewSkills = [...skillSet].slice(0, 6);
+
   const id = insertTaskIfNew(TASK_SOURCE, {
     subject: `Review ${candidates.length} blocked task(s) for possible unblock`,
     description,
-    skills: '["arc-blocked-review"]',
+    skills: JSON.stringify(reviewSkills),
     priority: 7,
     model: "sonnet",
   });

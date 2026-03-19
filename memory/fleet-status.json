@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T05:56:59.975Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-19T06:21:47.895Z",
+  "idle": true,
+  "idle_since": "2026-03-19T05:58:40.408Z",
   "last_task": {
-    "id": 7299,
-    "subject": "Extract learning from task #7292 — Bitflow skill status check: verify readiness for fleet resum",
+    "id": 7297,
+    "subject": "daily cost report — 2026-03-19",
     "status": "completed",
-    "priority": 8
+    "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 19470,
-    "cost_usd": 0.05281695
+    "duration_ms": 14186,
+    "cost_usd": 0.0358689
   },
   "health": {
-    "uptime_seconds": 1842318,
+    "uptime_seconds": 1843806,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229333827584
+    "disk_avail_bytes": 229333753856
   }
 }

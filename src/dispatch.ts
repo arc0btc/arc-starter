@@ -664,12 +664,14 @@ async function runSecurityScan(taskId: number, cycleId?: number): Promise<void> 
 const DISCOVERY_KEYWORDS_RE = /\b(?:discovered|found\s+that|learned|new\s+pattern|insight|workaround|fixed|solved|realized|gotcha|tip:)\b/i;
 
 function scheduleLearningExtraction(task: Task, resultSummary: string): void {
+  const parentSkills: string[] = task.skills ? JSON.parse(task.skills) : [];
+  const extractionSkills = ["fleet-memory", ...parentSkills.filter((s) => s !== "fleet-memory")];
   insertTask({
     subject: `Extract learning from task #${task.id} — ${task.subject.slice(0, 60)}`,
     description: `Task #${task.id} result summary suggests a reusable discovery:\n"${resultSummary.slice(0, 300)}"\n\nIf a reusable pattern was found, write it to memory/shared/entries/<id>.md with frontmatter:\n---\nid: <unique-slug>\ntopics: [tag1, tag2]\nsource: arc\ncreated: YYYY-MM-DD\n---\n<content>\n\nCheck memory/shared/entries/ first for duplicates. Keep content to 1-2 sentences. If nothing worth capturing, close as completed with summary "No learnings to capture".`,
     priority: 8,
     model: "haiku",
-    skills: '["fleet-memory"]',
+    skills: JSON.stringify(extractionSkills),
     source: `task:${task.id}`,
     parent_id: task.id,
   });
