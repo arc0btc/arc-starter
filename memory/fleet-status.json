@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T14:32:05.011Z",
+  "updated_at": "2026-03-19T14:33:05.009Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7377,
-    "subject": "feat: add souldinals MCP tools to aibtc-mcp-server (#366)",
+    "id": 7356,
+    "subject": "[github-issues] aibtcdev/aibtc-mcp-server#365: feat: add bounty-scanner MCP tools",
     "status": "completed",
-    "priority": 4
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 295294,
-    "cost_usd": 1.50777885
+    "duration_ms": 59804,
+    "cost_usd": 0.1830006
   },
   "health": {
-    "uptime_seconds": 1873223,
+    "uptime_seconds": 1873283,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229310697472
+    "disk_avail_bytes": 229310652416
   }
 }
