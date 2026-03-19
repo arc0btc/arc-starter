@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T16:07:12.954Z",
+  "updated_at": "2026-03-19T16:07:56.041Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7435,
-    "subject": "GitHub review request in aibtcdev/x402-sponsor-relay: fix: surface client-side broadcast rejections as actionable 4xx errors",
+    "id": 7384,
+    "subject": "GitHub issue in aibtcdev/x402-sponsor-relay#176: fix: surface client-side NotEnoughFunds as 4xx with actionable detail instead of generic settlement failure",
     "status": "completed",
-    "priority": 3
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 149828,
-    "cost_usd": 0.29712195
+    "duration_ms": 42894,
+    "cost_usd": 0.13987665000000002
   },
   "health": {
-    "uptime_seconds": 1878931,
+    "uptime_seconds": 1878974,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229541384192
+    "disk_avail_bytes": 229541343232
   }
 }
