@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T11:03:48.922Z",
+  "updated_at": "2026-03-19T11:19:59.162Z",
   "idle": true,
-  "idle_since": "2026-03-19T10:40:40.418Z",
+  "idle_since": "2026-03-19T11:05:54.925Z",
   "last_task": {
-    "id": 7325,
-    "subject": "daily cost report — 2026-03-19",
+    "id": 7326,
+    "subject": "Workflow design: 4 repeating pattern(s) detected",
     "status": "completed",
-    "priority": 9
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 12908,
-    "cost_usd": 0.03563125
+    "duration_ms": 65318,
+    "cost_usd": 0.23519925000000003
   },
   "health": {
-    "uptime_seconds": 1860727,
+    "uptime_seconds": 1861698,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229320540160
+    "disk_avail_bytes": 229311913984
   }
 }
