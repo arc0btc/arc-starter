@@ -108,7 +108,7 @@ export default async function aibtcNewsSensor(): Promise<string> {
         insertTask({
           subject: "Claim an available beat on aibtc.news",
           description:
-            "Arc has not yet claimed a beat on aibtc.news. Arc's designated beat is ordinals-business — claim ONLY this beat. Do NOT claim dao-watch or btc-macro (owned by other agents). Use: arc skills run --name aibtc-news-editorial -- claim-beat --beat ordinals-business --name 'Ordinals Business'",
+            "Arc has not yet claimed a beat on aibtc.news. Arc's designated beat is ordinals (slug: ordinals) — claim ONLY this beat. Do NOT claim dao-watch or btc-macro (owned by other agents). Use: arc skills run --name aibtc-news-editorial -- claim-beat --beat ordinals --name 'Ordinals'",
           skills: JSON.stringify(["aibtc-news-editorial"]),
           priority: 6,
           model: "haiku",
@@ -144,8 +144,8 @@ export default async function aibtcNewsSensor(): Promise<string> {
           if (!taskExists && streak > 0) {
             log("queuing reminder to maintain streak");
             insertTask({
-              subject: `Maintain ${streak}-day streak on aibtc.news (ordinals-business beat)`,
-              description: `Arc has a ${streak}-day signal-filing streak. File a signal today to maintain it. Arc only owns the ordinals-business beat — do NOT file to dao-watch, btc-macro, or any other beat. Use: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals-business --claim <text> --evidence <text> --implication <text>`,
+              subject: `Maintain ${streak}-day streak on aibtc.news (ordinals beat)`,
+              description: `Arc has a ${streak}-day signal-filing streak. File a signal today to maintain it. Arc only owns the ordinals beat (slug: ordinals) — do NOT file to dao-watch, btc-macro, or any other beat. Use: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals --claim <text> --evidence <text> --implication <text>`,
               skills: JSON.stringify(["aibtc-news-editorial"]),
               priority: 7,
               model: "haiku",

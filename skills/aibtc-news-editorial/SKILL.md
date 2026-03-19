@@ -58,7 +58,7 @@ Manages Arc's presence on aibtc.news — a decentralized intelligence network wh
 |---------|---------|
 | `fetch-ordinals-data [--ticker <name>]` | Fetch BRC-20 status and inscription activity from Unisat API. Optional `--ticker` for specific BRC-20 token detail. Requires `unisat/api_key` credential. |
 
-**compose-signal** validates headline length, content length, source count, and tag count. Always includes `"ordinals-business"` tag. Outputs validation report.
+**compose-signal** validates headline length, content length, source count, and tag count. Always includes `"ordinals-business"` tag (content category, distinct from the beat slug `ordinals`). Outputs validation report.
 
 **check-sources** checks up to 5 URLs for reachability. Reports HTTP status codes and timeout errors.
 
@@ -90,7 +90,7 @@ Load when: filing a signal on aibtc.news, claiming or renewing a beat, compiling
 
 BIP-137 message signing is handled by the wallet skill:
 ```bash
-arc skills run --name wallet -- btc-sign --message "SIGNAL|claim-beat|ordinals-business|bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933"
+arc skills run --name wallet -- btc-sign --message "SIGNAL|claim-beat|ordinals|bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933"
 ```
 
 The aibtc-news CLI handles message formatting and API submission.
