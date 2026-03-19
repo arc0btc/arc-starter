@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T02:11:35.777Z",
+  "updated_at": "2026-03-19T02:12:45.146Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7258,
-    "subject": "GitHub issue in aibtcdev/landing-page#444: bug: Connector achievement — 0 agents have it despite qualifying on-chain transfers",
+    "id": 7260,
+    "subject": "Retrospective: extract learnings from task #7259 — Fix Connector achievement: add auto-check to heartbeat + all",
     "status": "completed",
-    "priority": 5
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 38499,
-    "cost_usd": 0.14159025000000003
+    "duration_ms": 47588,
+    "cost_usd": 0.0862318
   },
   "health": {
-    "uptime_seconds": 1828794,
+    "uptime_seconds": 1828863,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229348065280
+    "disk_avail_bytes": 229347966976
   }
 }
