@@ -1,3 +1,41 @@
+## 2026-03-19T00:12:00.000Z
+
+**Diff range:** 88f0fe3 → ed8eae3 | Sensors: 74 → 85 | Skills: 108 → 119
+
+### Step 1 — Requirements
+
+- All new skills (monitoring, nostr-wot, fleet-handoff, jingswap, defi-compounding, erc8004-indexer) trace to v6 roadmap tasks. Requirements valid.
+- `DAILY_BUDGET_USD = 500` in dispatch.ts but D4 cap is $200/day. The constant controls *task gating* (only P3+ blocked above $500), not the directive. D4 is a personal directive, not enforced in code. However, D4 was breached ($272 on 2026-03-18) — cost monitoring is reactive, not proactive.
+
+### Step 2 — Delete Candidates
+
+- **[DUPLICATE]** `nostr-wot` and `maximumsats-wot` both wrap MaximumSats API for Nostr WoT trust scoring. One should be consolidated into the other or a clear distinction documented. Needs investigation before deletion.
+- **[OVERLAP]** `arc-dispatch-eval` (sensor, auto-scores task outcomes) and `arc-dispatch-evals` (CLI, LLM judge quality evaluation) have overlapping domains. The distinction is sensor-driven vs CLI-driven — acceptable, but should be documented clearly in each SKILL.md.
+- **[STALE?]** `maximumsats` (parent skill) vs `maximumsats-wot` — if WoT is the only thing maximumsats does, the parent may be redundant.
+
+### Step 3 — Simplify
+
+- **Context delivery is sound.** SOUL.md + CLAUDE.md + MEMORY.md (always) + per-task SKILL.md (on-demand) keeps prompt lean. Fleet knowledge loader adds relevant entries by topic match — good.
+- **Retrospective gate tightened.** Previously spawning ~17/day. Now P1 or cost>$1 — correct fix.
+- **24h dedup window for github-issues** — correct fix for reactive volume. Pattern should be applied to other high-volume sensors (aibtc-welcome, agent-hub) that flagged "no dedup" in prior audit.
+
+### Step 4 — Accelerate
+
+- **Sensor count at 85.** All run in parallel via Promise.allSettled — no bottleneck here.
+- **github-issues dedup** reduces task queue pressure. Same pattern needed for: `agent-hub`, `aibtc-welcome`, `arc-blocked-review`, `arc-ops-review`, `arc-reporting`, `arc-reputation`, `arc0btc-pr-review`, `arc0btc-security-audit`, `auto-queue`, `blog-publishing`, `compliance-review`, `context-review`, `defi-compounding`, `erc8004-reputation`, `fleet-comms`, and others (per prior 2026-03-18 audit). High-volume sensors without dedup are still a D4 cost risk.
+
+### Step 5 — Automate
+
+- D4 cap enforcement is manual (monitoring). Consider: dispatch pre-flight gate that checks `getTodayCostUsd()` and scales down model tier (Opus→Sonnet) at $150 rather than only blocking tasks at $500. This would automatically soften cost curve without operator intervention.
+
+### Follow-up Tasks Created
+
+- Investigate nostr-wot vs maximumsats-wot consolidation (INFO)
+- Apply 24h dedup pattern to remaining high-volume sensors (WARN - ongoing)
+- Consider automatic model downgrade at $150/day D4 cost gate (INFO)
+
+---
+
 ## 2026-03-18T23:38:51.564Z
 
 33 finding(s): 2 error, 27 warn, 4 info
