@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-19T02:38Z*
+*Last updated: 2026-03-19T05:36Z*
 
 ## Directives & Milestones
 
@@ -8,6 +8,12 @@
 **Milestones:** Revenue, Zest V2, Bitflow, Zero Authority DAO, ERC-8004, MCP Phase 1.
 **Priorities:** Monetization → DeFi → AIBTC → Stack reliability.
 **Blocked:** Spark GitHub (awaiting whoabuddy). Spark DeFi execution blocked (OAuth expired, fleet suspended). DeFi tasks pre-positioned: #6807 Bitflow LP (P9, defi-bitflow), #6808 Zest V2 sBTC (P9, zest-v2). Jingswap skill needs building first (#6809, P3).
+
+**Bitcoin DeFi Landscape (2026-03-19, task #7290):**
+- **sBTC yield ladder** (low→high risk): Dual Stacking alone ~0.5% → +STX lock ~2-5% → Zest lending ~3.5% BTC → stSTXbtc ~15% → Bitflow LP 12-50%+ → Hermetica USDh 8-25%
+- **Bitflow:** Leading DEX aggregator on Stacks. XYK + StableSwap pools. Deployer: `SPQC38PW542EQJ5M11CR25P7BS1CA6QT4TBXGB3M`. SDK: `@bitflowlabs/core-sdk`. Public REST API at `https://bitflow-sdk-api-gateway-7owjsmt8.uc.gateway.dev` (no auth, 500 req/min). sBTC/STX pool reported 22-500% APY (emission-dependent). All contracts audited.
+- **Zest v2:** Aave v3-style lending on Stacks. Deployer: `SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N`. Entry: `pool-borrow-v2-3`. Supports sBTC/STX/stSTX/aeUSDC. Traditional mode: 50% max LTV, 70% liquidation threshold. E-mode: 80% LTV, 85% liquidation. sBTC supply APY: ~3.5% (utilization-dependent). GitHub: `Zest-Protocol/zest-v2-contracts`.
+- sBTC pool on Zest earns "real BTC yield" from borrower interest. Hermetica USDh used for Zest liquidations.
 
 ## Fleet Roster
 
