@@ -8,8 +8,8 @@ import {
   createSensorLogger,
   readHookState,
   writeHookState,
-  insertTaskIfNew,
 } from "../../src/sensors.ts";
+import { recentTaskExistsForSource, insertTask } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
 
 const SENSOR_NAME = "social-x-ecosystem";
@@ -244,27 +244,27 @@ export default async function xEcosystemSensor(): Promise<string> {
         const truncatedText =
           tweet.text.length > 120 ? tweet.text.slice(0, 120) + "..." : tweet.text;
 
-        const taskId = insertTaskIfNew(source, {
-          subject: `Research: ecosystem signal — ${keyword}`,
-          description: [
-            `Source: X search for "${keyword}"`,
-            `Tweet ID: ${tweet.id}`,
-            `Author ID: ${tweet.author_id}`,
-            `Date: ${tweet.created_at}`,
-            `Text: ${truncatedText}`,
-            `Links: ${linkList}`,
-            "",
-            `Engagement: ${tweet.public_metrics?.like_count ?? 0} likes, ${tweet.public_metrics?.retweet_count ?? 0} RTs, ${tweet.public_metrics?.reply_count ?? 0} replies`,
-            "",
-            "Evaluate these links for mission relevance. Use:",
-            `  arc skills run --name arc-link-research -- process --links "${linkList}"`,
-          ].join("\n"),
-          skills: JSON.stringify(["arc-link-research"]),
-          priority: 7,
-          model: "sonnet",
-        });
-
-        if (taskId !== null) {
+        if (!recentTaskExistsForSource(source, 24 * 60)) {
+          insertTask({
+            subject: `Research: ecosystem signal — ${keyword}`,
+            description: [
+              `Source: X search for "${keyword}"`,
+              `Tweet ID: ${tweet.id}`,
+              `Author ID: ${tweet.author_id}`,
+              `Date: ${tweet.created_at}`,
+              `Text: ${truncatedText}`,
+              `Links: ${linkList}`,
+              "",
+              `Engagement: ${tweet.public_metrics?.like_count ?? 0} likes, ${tweet.public_metrics?.retweet_count ?? 0} RTs, ${tweet.public_metrics?.reply_count ?? 0} replies`,
+              "",
+              "Evaluate these links for mission relevance. Use:",
+              `  arc skills run --name arc-link-research -- process --links "${linkList}"`,
+            ].join("\n"),
+            skills: JSON.stringify(["arc-link-research"]),
+            priority: 7,
+            model: "sonnet",
+            source,
+          });
           tasksCreated++;
           log(`task created for tweet ${tweet.id}: "${truncatedText}"`);
         }

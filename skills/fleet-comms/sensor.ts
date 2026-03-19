@@ -11,8 +11,8 @@
 import {
   claimSensorRun,
   createSensorLogger,
-  insertTaskIfNew,
 } from "../../src/sensors.ts";
+import { recentTaskExistsForSource, insertTask } from "../../src/db.ts";
 import {
   REMOTE_ARC_DIR,
   getAgentIp,
@@ -172,23 +172,23 @@ export default async function fleetCommsSensor(): Promise<string> {
     log(`${agent}: SILENT (dispatch: ${formatAge(check.lastDispatchMs)}, report: ${formatAge(check.lastSelfReportMs)})`);
 
     const source = `sensor:fleet-comms:${agent}`;
-    const created = insertTaskIfNew(source, {
-      subject: `Fleet silent: ${agent} has not dispatched or reported in >1h`,
-      description: [
-        `Agent **${agent}** appears silent.`,
-        "",
-        `- Last dispatch: ${formatAge(check.lastDispatchMs)} ago`,
-        `- Last self-report: ${formatAge(check.lastSelfReportMs)} ago`,
-        `- Threshold: 1 hour`,
-        "",
-        "Investigate: SSH into the VM, check services, review logs.",
-        "Run: `arc skills run --name fleet-health -- status` for full health check.",
-      ].join("\n"),
-      priority: 2,
-      skills: '["fleet-health", "arc-remote-setup"]',
-    });
-
-    if (created !== null) {
+    if (!recentTaskExistsForSource(source, 24 * 60)) {
+      insertTask({
+        subject: `Fleet silent: ${agent} has not dispatched or reported in >1h`,
+        description: [
+          `Agent **${agent}** appears silent.`,
+          "",
+          `- Last dispatch: ${formatAge(check.lastDispatchMs)} ago`,
+          `- Last self-report: ${formatAge(check.lastSelfReportMs)} ago`,
+          `- Threshold: 1 hour`,
+          "",
+          "Investigate: SSH into the VM, check services, review logs.",
+          "Run: `arc skills run --name fleet-health -- status` for full health check.",
+        ].join("\n"),
+        priority: 2,
+        skills: '["fleet-health", "arc-remote-setup"]',
+        source,
+      });
       alertCount++;
     }
   }

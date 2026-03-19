@@ -19,9 +19,8 @@ import {
   createSensorLogger,
   readHookState,
   writeHookState,
-  insertTaskIfNew,
 } from "../../src/sensors.ts";
-import { getDatabase } from "../../src/db.ts";
+import { getDatabase, recentTaskExistsForSource, insertTask } from "../../src/db.ts";
 import { initContactsSchema, type Contact } from "../contacts/schema.ts";
 import { resolve } from "node:path";
 
@@ -358,15 +357,17 @@ export default async function reputationTrackerSensor(): Promise<string> {
       `  5 = exceptional / rare excellence. Most routine interactions are a 3.`,
     ].join("\n");
 
-    const result = insertTaskIfNew(source, {
-      subject: `Submit reputation review: ${interaction.contact_name} (task #${interaction.task_id}, ${interaction.interaction_type})`,
-      description,
-      skills: '["arc-reputation", "contacts"]',
-      priority: 8,
-      model: "haiku",
-    });
-
-    if (result !== null) queued++;
+    if (!recentTaskExistsForSource(source, 24 * 60)) {
+      insertTask({
+        subject: `Submit reputation review: ${interaction.contact_name} (task #${interaction.task_id}, ${interaction.interaction_type})`,
+        description,
+        skills: '["arc-reputation", "contacts"]',
+        priority: 8,
+        model: "haiku",
+        source,
+      });
+      queued++;
+    }
   }
 
   // Persist updated state

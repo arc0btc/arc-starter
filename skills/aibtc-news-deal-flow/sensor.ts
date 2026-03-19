@@ -2,7 +2,7 @@
 // Sensor for Deal Flow signal hooks: Ordinals volume, x402 escrow, DAO treasury
 
 import { claimSensorRun, createSensorLogger, fetchWithRetry, readHookState, writeHookState } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { insertTask, recentTaskExistsForSource } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
 
 const SENSOR_NAME = "aibtc-news-deal-flow";
@@ -73,7 +73,7 @@ async function checkOrdinalsVolume(state: HookState): Promise<HookState> {
 
     if (volumeUsd >= ORDINALS_WEEKLY_VOLUME_USD) {
       const source = `sensor:${SENSOR_NAME}:ordinals-volume`;
-      if (!pendingTaskExistsForSource(source)) {
+      if (!recentTaskExistsForSource(source, 24 * 60)) {
         log(`ordinals: threshold met — queuing signal task`);
         insertTask({
           subject: `File Deal Flow signal: Ordinals weekly volume ~$${Math.round(volumeUsd / 1_000_000 * 10) / 10}M`,
@@ -143,7 +143,7 @@ async function checkX402Escrow(state: HookState): Promise<HookState> {
 
     if (volumeUsd >= X402_WEEKLY_VOLUME_USD) {
       const source = `sensor:${SENSOR_NAME}:x402-volume`;
-      if (!pendingTaskExistsForSource(source)) {
+      if (!recentTaskExistsForSource(source, 24 * 60)) {
         log(`x402: threshold met — queuing signal task`);
         insertTask({
           subject: `File Deal Flow signal: x402 weekly escrow volume ~$${Math.round(volumeUsd / 1_000_000 * 10) / 10}M`,
@@ -201,7 +201,7 @@ async function checkDaoTreasury(state: HookState): Promise<HookState> {
     if (prev > 0 && change >= DAO_TREASURY_CHANGE_BTC) {
       const direction = btcBalance > prev ? "increased" : "decreased";
       const source = `sensor:${SENSOR_NAME}:dao-treasury`;
-      if (!pendingTaskExistsForSource(source)) {
+      if (!recentTaskExistsForSource(source, 24 * 60)) {
         log(`dao-treasury: threshold met (${change.toFixed(2)} BTC change) — queuing signal task`);
         insertTask({
           subject: `File Deal Flow signal: DAO treasury ${direction} by ${change.toFixed(2)} BTC`,
@@ -264,7 +264,7 @@ async function checkSatsAuctions(state: HookState): Promise<HookState> {
 
     if (priceSats >= SATS_AUCTION_MIN_SATS) {
       const source = `sensor:${SENSOR_NAME}:sats-auction`;
-      if (!pendingTaskExistsForSource(source)) {
+      if (!recentTaskExistsForSource(source, 24 * 60)) {
         log(`sats-auctions: threshold met — queuing signal task`);
         insertTask({
           subject: `File Deal Flow signal: Rare sat auction at ${priceSats.toLocaleString()} sats`,
@@ -323,7 +323,7 @@ async function checkBountyActivity(state: HookState): Promise<HookState> {
 
     if (recentLaunches.length > 0) {
       const source = `sensor:${SENSOR_NAME}:bounty-launch`;
-      if (!pendingTaskExistsForSource(source)) {
+      if (!recentTaskExistsForSource(source, 24 * 60)) {
         log(`bounty: new launches detected — queuing signal task`);
         insertTask({
           subject: `File Deal Flow signal: ${recentLaunches.length} new bounty program(s) launched`,
