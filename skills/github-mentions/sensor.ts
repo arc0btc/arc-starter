@@ -128,6 +128,18 @@ export default async function githubMentionsSensor(): Promise<string> {
         n.reason === "review_requested" || n.reason === "assign";
       const subjectNum = n.url.split("/").pop() ?? "";
 
+      // For PRs on watched repos, only actionable reasons create tasks:
+      // - review_requested / assign: explicit review request
+      // - mention / team_mention: someone directly asked for Arc's input
+      // Skip comment / state_change / author — these are status updates, not action requests.
+      // This prevents duplicate review tasks when a PR generates multiple notification events.
+      const isDirectRequest =
+        isReviewWork || n.reason === "mention" || n.reason === "team_mention";
+      if (isPROnWatchedRepo && !isDirectRequest) {
+        gated++;
+        continue;
+      }
+
       // Canonical keys for cross-sensor dedup (shared with github-issue-monitor / aibtc-maintenance)
       const canonicalSource =
         isPROnWatchedRepo
@@ -200,10 +212,13 @@ export default async function githubMentionsSensor(): Promise<string> {
         ? [
             `1. Read the PR: ${ghCmd}`,
             `2. Read the full diff: gh pr diff --repo ${n.repo} ${ghNum}`,
-            "3. Check CI status — are tests passing?",
-            `4. Your role (${repoClass}): ${roleContext}`,
-            "5. If reviewing, use severity labels: [blocking], [suggestion], [nit], [question].",
-            "6. Post review via gh pr review. Check if aibtc-repo-maintenance already filed a review task for this PR.",
+            `3. Load full conversation context: gh pr view --repo ${n.repo} ${ghNum} --comments`,
+            "4. Check CI status — are tests passing?",
+            `5. Your role (${repoClass}): ${roleContext}`,
+            "6. Review with severity labels: [blocking], [suggestion], [nit], [question].",
+            "7. Decide: approve (gh pr review --approve) or request changes (gh pr review --request-changes). Do NOT post generic comment-only reviews.",
+            "8. Check if aibtc-repo-maintenance already filed a review for this PR — avoid duplicate reviews.",
+            "9. If this is a re-review, reference your previous review and focus on whether prior feedback was addressed.",
           ]
         : [
             `1. Read the issue: ${ghCmd}`,
