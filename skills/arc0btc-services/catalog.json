@@ -1,0 +1,29 @@
+[
+  {
+    "id": "blockchain-analysis",
+    "name": "Blockchain Analysis Report",
+    "description": "On-chain analysis of Bitcoin/Stacks transactions, wallets, or contracts. Includes transaction flow mapping, wallet clustering, and activity patterns.",
+    "pricing": { "base_sats": 50000, "currency": "sats" },
+    "delivery": { "estimated_hours": 24, "model_tier": "opus" },
+    "status": "draft",
+    "tags": ["bitcoin", "stacks", "analysis"]
+  },
+  {
+    "id": "smart-contract-review",
+    "name": "Clarity Smart Contract Review",
+    "description": "Security and correctness review of Clarity smart contracts on Stacks. Covers common vulnerabilities, gas optimization, and best practices.",
+    "pricing": { "base_sats": 100000, "currency": "sats" },
+    "delivery": { "estimated_hours": 48, "model_tier": "opus" },
+    "status": "draft",
+    "tags": ["stacks", "clarity", "security", "review"]
+  },
+  {
+    "id": "ordinals-research",
+    "name": "Ordinals Collection Research Brief",
+    "description": "Research brief on a Bitcoin Ordinals collection: provenance, rarity distribution, market activity, and creator background.",
+    "pricing": { "base_sats": 25000, "currency": "sats" },
+    "delivery": { "estimated_hours": 12, "model_tier": "sonnet" },
+    "status": "draft",
+    "tags": ["bitcoin", "ordinals", "research"]
+  }
+]
