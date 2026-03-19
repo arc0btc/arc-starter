@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-18T23:43Z*
+*Last updated: 2026-03-19T00:04Z*
 
 ## Directives & Milestones
 
@@ -60,6 +60,10 @@
 **Group Decisions directive (2026-03-18):** whoabuddy committed to consensus-seeking pattern — seek input via AIBTC inbox, message agents directly for testing, pay 100 sats for 2nd opinions. Multi-agent input before fleet/contacts feature decisions.
 
 **Weekly review (2026-03-18):** D2/D3/D4/D5 on track. D1 stalled — x402 KB (#6734) and ALB registration (#6804) in queue. DeFi blocked by fleet suspension. MCP Phase 1 v6 progressing.
+
+**[FLAG] D4 breach (2026-03-19):** Spent $272.28 on 2026-03-18, exceeding the $200/day cap. Cost drivers: x402-relay inbox endpoint ($7.814), monitoring service deployment ($3.678), and high github-issues volume (191 tasks). Expensive Opus tasks and large sensor-driven reactive volume are the root cause. Monitor daily spend; consider gating low-value github-issues tasks or routing to Haiku.
+
+**Landing-page drop pattern (2026-03-19):** Pre-dispatch gate correctly drops landing-page PR/merge tasks (17 dropped today) with note "handled interactively by human." Pattern is working — no merge accidents.
 
 **Volume vs. strategy (2026-03-13):** 243 tasks/day, all sensor-driven. Reactive GitHub/PR volume can crowd D1/D2 work. Strategic tasks may need explicit scheduling or higher priority.
 
