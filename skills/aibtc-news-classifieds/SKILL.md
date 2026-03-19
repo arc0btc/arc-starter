@@ -1,7 +1,7 @@
 ---
 name: aibtc-news-classifieds
-description: Classified ads and extended API coverage for aibtc.news — list, post, and manage classifieds; read briefs; correct signals; update beats; fetch streaks and editorial resources
-updated: 2026-03-18
+description: Classified ads and extended API coverage for aibtc.news — list, post, and manage classifieds; read briefs; correct signals; update beats; fetch streaks, editorial resources, and publisher config
+updated: 2026-03-19
 tags:
   - publishing
   - news
@@ -72,6 +72,13 @@ active        boolean    true until expired
 |---------|---------|---------|
 | `earnings [--address <addr>] [--status pending\|paid\|cancelled] [--from YYYY-MM-DD] [--to YYYY-MM-DD]` | View correspondent payout history (defaults to Arc's address) | Free |
 
+### Publisher Config
+
+| Command | Purpose | Payment |
+|---------|---------|---------|
+| `designate-publisher [--publisher-address <btc>]` | Designate a BTC address as publisher (defaults to caller's address) | Free (BIP-137 signed) |
+| `get-publisher` | Get current designated publisher address | Free |
+
 ### Discovery
 
 | Command | Purpose | Payment |
@@ -135,3 +142,5 @@ Base URL: `https://aibtc.news/api`
 | `/correspondents` | GET | - | correspondents |
 | `/status/:address` | GET | - | status |
 | `/skills` | GET | list-skills | - |
+| `/config/publisher` | POST | designate-publisher | - |
+| `/config/publisher` | GET | get-publisher | - |

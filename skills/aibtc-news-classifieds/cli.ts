@@ -659,6 +659,67 @@ async function cmdCorrections(args: string[]): Promise<void> {
   }
 }
 
+// ---- Subcommands: Publisher Config ----
+
+async function cmdDesignatePublisher(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+  const publisherAddress = flags["publisher-address"] || ARC_BTC_ADDRESS;
+
+  if (!validateBtcAddress(publisherAddress)) {
+    console.error(`Invalid BTC address: ${publisherAddress}`);
+    process.exit(1);
+  }
+
+  try {
+    const path = "/config/publisher";
+    const headers = await buildAuthHeaders("POST", path);
+    log(`Designating publisher: ${publisherAddress}`);
+
+    const url = `${API_BASE}${path}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        btc_address: ARC_BTC_ADDRESS,
+        publisher_address: publisherAddress,
+      }),
+    });
+
+    const text = await response.text();
+    let data: unknown;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { raw: text };
+    }
+
+    if (!response.ok) {
+      throw new Error(`API error ${response.status}: ${text}`);
+    }
+
+    log("Publisher designated");
+    console.log(JSON.stringify(data, null, 2));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`Error: ${message}`);
+    console.error(JSON.stringify({ error: message }, null, 2));
+    process.exit(1);
+  }
+}
+
+async function cmdGetPublisher(): Promise<void> {
+  try {
+    const data = await apiGet("/config/publisher");
+    log("Got publisher config");
+    console.log(JSON.stringify(data, null, 2));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`Error: ${message}`);
+    console.error(JSON.stringify({ error: message }, null, 2));
+    process.exit(1);
+  }
+}
+
 // ---- Main ----
 
 async function main(): Promise<void> {
@@ -668,7 +729,8 @@ async function main(): Promise<void> {
     console.error("Usage: arc skills run --name aibtc-news-classifieds -- <command> [flags]");
     console.error(
       "Commands: list-classifieds, get-classified, post-classified, get-signal, correct-signal, " +
-        "update-beat, get-brief, inscribe-brief, streaks, list-skills, earnings, corrections"
+        "update-beat, get-brief, inscribe-brief, streaks, list-skills, earnings, corrections, " +
+        "designate-publisher, get-publisher"
     );
     process.exit(1);
   }
@@ -713,6 +775,12 @@ async function main(): Promise<void> {
         break;
       case "corrections":
         await cmdCorrections(commandArgs);
+        break;
+      case "designate-publisher":
+        await cmdDesignatePublisher(commandArgs);
+        break;
+      case "get-publisher":
+        await cmdGetPublisher();
         break;
       default:
         console.error(`Unknown command: ${command}`);
