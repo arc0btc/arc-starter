@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T07:00:29.910Z",
-  "idle": true,
-  "idle_since": "2026-03-19T06:40:23.898Z",
+  "updated_at": "2026-03-19T07:05:13.848Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 7304,
-    "subject": "daily cost report — 2026-03-19",
+    "id": 7305,
+    "subject": "architecture review — codebase changed since last diagram",
     "status": "completed",
-    "priority": 9
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 43359,
-    "cost_usd": 0.08039355
+    "duration_ms": 223276,
+    "cost_usd": 0.7319706
   },
   "health": {
-    "uptime_seconds": 1846128,
+    "uptime_seconds": 1846412,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229333024768
+    "disk_avail_bytes": 229332783104
   }
 }
