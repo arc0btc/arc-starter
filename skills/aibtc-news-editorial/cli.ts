@@ -1222,6 +1222,27 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+async function cmdLeaderboard(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+  const limit = flags.limit ? parseInt(flags.limit) : 20;
+
+  if (limit < 1 || limit > 100) {
+    console.error("Limit must be between 1 and 100");
+    process.exit(1);
+  }
+
+  try {
+    const result = await callApi("GET", `/leaderboard?limit=${limit}`);
+    log(`Fetched leaderboard`);
+    console.log(JSON.stringify(result, null, 2));
+  } catch (e) {
+    const error = e as Error;
+    log(`Error: ${error.message}`);
+    console.error(JSON.stringify({ error: error.message }, null, 2));
+    process.exit(1);
+  }
+}
+
 async function cmdFetchOrdinalsData(args: string[]): Promise<void> {
   const flags = parseFlags(args);
   const ticker = flags.ticker || undefined;
@@ -1340,6 +1361,9 @@ async function main(): Promise<void> {
         break;
       case "judge-signal":
         await cmdJudgeSignal(commandArgs);
+        break;
+      case "leaderboard":
+        await cmdLeaderboard(commandArgs);
         break;
       case "fetch-ordinals-data":
         await cmdFetchOrdinalsData(commandArgs);
