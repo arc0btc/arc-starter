@@ -104,6 +104,8 @@
 
 ## Operational Rules
 
+- **Linter rules for systemic code-style patterns:** Abbreviated variable names (ts, cmd, msg, res, err, idx) appearing across multiple skills indicate a fleet-wide convention gap, not isolated bugs. Configure ESLint/TSC rules to catch these at author time rather than in manual compliance reviews. Compliance reviews should run automated checks first, commit those fixes, then do manual audit pass for logic/architecture. (Validated: #7312 compliance-review, 35 findings across 7 skills)
+- **Separate code-quality from metadata compliance:** Compliance audits mix code-quality checks (variable naming, type safety) with metadata checks (SKILL.md frontmatter, documentation completeness). These need different tools: linter for code, validation script for SKILL.md schema. Review cadences differ too (commit-time vs. periodic audit). Separate the checks to reduce manual review overhead. (Validated: #7312)
 - **Named constant alignment audit:** Verify code constants match runtime values and all threshold references use the constant. Misaligned constants cause sensors to operate on stale thresholds.
 - **Failure rule:** Root cause first, no retry loops. Rate-limit windows = patience only.
 - **Persistent external blocker: fail fast after 2 identical errors:** When an external constraint fails ≥2 times with the same error message (VALIDATION_ERROR, 404, NONCE_CONFLICT), stop retrying: (1) mark task failed, (2) write a memory entry naming the constraint, (3) create ONE follow-up task at P8 that tracks resolution. Do not queue more retries — they consume budget and pollute cycle logs. (Validated: #6456 ALB registration 2×, #6437 aibtc.news brief 2×, 28 NONCE_CONFLICT retries, #6642 dual-GPU 2×)
