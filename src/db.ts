@@ -20,6 +20,7 @@ export interface Task {
   completed_at: string | null;
   result_summary: string | null;
   result_detail: string | null;
+  result_quality: number | null;   // 1-5: 1=wrong/incomplete, 3=acceptable, 5=excellent
   cost_usd: number;
   api_cost_usd: number;
   tokens_in: number;
@@ -310,6 +311,7 @@ export function initDatabase(): Database {
   addColumn("cycle_log", "model", "TEXT");
   addColumn("cycle_log", "skill_hashes", "TEXT");
   addColumn("tasks", "assigned_to", "TEXT");
+  addColumn("tasks", "result_quality", "INTEGER");
 
   // Indexes
   db.run("CREATE INDEX IF NOT EXISTS idx_tasks_status_priority ON tasks(status, priority)");
@@ -725,18 +727,18 @@ export function markTaskActive(id: number): void {
   ).run(id);
 }
 
-export function markTaskCompleted(id: number, summary: string, detail?: string): void {
+export function markTaskCompleted(id: number, summary: string, detail?: string, quality?: number): void {
   const db = getDatabase();
   db.query(
-    "UPDATE tasks SET status = 'completed', completed_at = datetime('now'), result_summary = ?, result_detail = ? WHERE id = ?"
-  ).run(summary, detail ?? null, id);
+    "UPDATE tasks SET status = 'completed', completed_at = datetime('now'), result_summary = ?, result_detail = ?, result_quality = ? WHERE id = ?"
+  ).run(summary, detail ?? null, quality ?? null, id);
 }
 
-export function markTaskFailed(id: number, summary: string): void {
+export function markTaskFailed(id: number, summary: string, quality?: number): void {
   const db = getDatabase();
   db.query(
-    "UPDATE tasks SET status = 'failed', completed_at = datetime('now'), result_summary = ? WHERE id = ?"
-  ).run(summary, id);
+    "UPDATE tasks SET status = 'failed', completed_at = datetime('now'), result_summary = ?, result_quality = ? WHERE id = ?"
+  ).run(summary, quality ?? null, id);
 }
 
 export function markTaskBlocked(id: number, reason: string): void {
@@ -778,6 +780,46 @@ export function updateTaskCost(
   db.query(
     "UPDATE tasks SET cost_usd = ?, api_cost_usd = ?, tokens_in = ?, tokens_out = ? WHERE id = ?"
   ).run(cost, apiCost, tokensIn, tokensOut, id);
+}
+
+// ---- Quality stats ----
+
+export interface QualityStats {
+  rated_count: number;
+  avg_quality: number | null;
+  dist: Record<1 | 2 | 3 | 4 | 5, number>;
+}
+
+/** Returns quality rating stats for completed tasks in the given window. */
+export function getQualityStats(windowDays: number = 7): QualityStats {
+  const db = getDatabase();
+  const rows = db
+    .query(
+      `SELECT result_quality, COUNT(*) as cnt
+       FROM tasks
+       WHERE status = 'completed'
+         AND result_quality IS NOT NULL
+         AND completed_at >= datetime('now', '-' || ? || ' days')
+       GROUP BY result_quality`
+    )
+    .all(windowDays) as Array<{ result_quality: number; cnt: number }>;
+
+  const dist: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  let total = 0;
+  let sum = 0;
+  for (const row of rows) {
+    const q = row.result_quality;
+    if (q >= 1 && q <= 5) {
+      dist[q] = row.cnt;
+      total += row.cnt;
+      sum += q * row.cnt;
+    }
+  }
+  return {
+    rated_count: total,
+    avg_quality: total > 0 ? sum / total : null,
+    dist: dist as Record<1 | 2 | 3 | 4 | 5, number>,
+  };
 }
 
 // ---- Cycle log ----

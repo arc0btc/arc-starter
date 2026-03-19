@@ -20,6 +20,7 @@ import {
   getTaskDeps,
   deleteTaskDep,
   getServiceLogs,
+  getQualityStats,
 } from "./db.ts";
 import type { TaskDepType } from "./db.ts";
 import { discoverSkills } from "./skills.ts";
@@ -40,7 +41,7 @@ const USAGE = {
   tasksUpdate:
     'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--model opus|sonnet|haiku|codex|codex:<model>] [--status pending]',
   tasksClose:
-    'arc tasks close --id N --status completed|failed|blocked --summary TEXT',
+    'arc tasks close --id N --status completed|failed|blocked --summary TEXT [--quality 1-5]',
   tasksDeps: 'arc tasks deps --id N',
   tasksLink: 'arc tasks link --from N --to M --type blocks|related|discovered-from',
   tasksUnlink: 'arc tasks unlink --from N --to M --type blocks|related|discovered-from',
@@ -107,6 +108,14 @@ function cmdStatus(): void {
 
   // Work done
   process.stdout.write(`\ncompleted: ${completedToday} today / ${completedWeek} this week${failedToday > 0 ? ` (${failedToday} failed)` : ""}\n`);
+
+  // Quality signal (7-day rolling)
+  const qs = getQualityStats(7);
+  if (qs.rated_count > 0) {
+    const avg = qs.avg_quality!.toFixed(1);
+    const bar = [1, 2, 3, 4, 5].map(n => `${n}:${qs.dist[n as 1|2|3|4|5]}`).join(" ");
+    process.stdout.write(`quality (7d): avg=${avg}/5  rated=${qs.rated_count}  [${bar}]\n`);
+  }
 
   // Usage (informational — API-equivalent cost, not direct Max plan consumption)
   process.stdout.write(`\nusage (7d): $${costWeek.toFixed(2)} actual / $${apiCostWeek.toFixed(2)} api est (${cyclesWeek} cycles)\n`);
@@ -273,6 +282,7 @@ function cmdTasksClose(args: string[]): void {
   const status = flags["status"];
   const summary = flags["summary"];
   const id = parseInt(flags["id"] ?? "", 10);
+  const qualityRaw = flags["quality"];
 
   if (isNaN(id)) {
     process.stderr.write("Error: --id must be a number\n" + usage);
@@ -287,6 +297,15 @@ function cmdTasksClose(args: string[]): void {
     process.exit(1);
   }
 
+  let quality: number | undefined;
+  if (qualityRaw !== undefined) {
+    quality = parseInt(qualityRaw, 10);
+    if (isNaN(quality) || quality < 1 || quality > 5) {
+      process.stderr.write("Error: --quality must be 1-5\n" + usage);
+      process.exit(1);
+    }
+  }
+
   initDatabase();
 
   const task = getTaskById(id);
@@ -296,14 +315,14 @@ function cmdTasksClose(args: string[]): void {
   }
 
   if (status === "completed") {
-    markTaskCompleted(id, summary);
+    markTaskCompleted(id, summary, undefined, quality);
   } else if (status === "blocked") {
     markTaskBlocked(id, summary);
   } else {
-    markTaskFailed(id, summary);
+    markTaskFailed(id, summary, quality);
   }
 
-  process.stdout.write(`Closed task #${id} as ${status}\n`);
+  process.stdout.write(`Closed task #${id} as ${status}${quality !== undefined ? ` (quality=${quality})` : ""}\n`);
 }
 
 function cmdTasksUpdate(args: string[]): void {

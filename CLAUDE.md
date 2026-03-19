@@ -76,7 +76,7 @@ arc status                                    # task counts, last cycle, cost to
 arc tasks [--status STATUS] [--limit N]       # list tasks (default: pending + active)
 arc tasks add --subject TEXT [--priority N]    # create a task
 arc tasks update --id N [--subject TEXT] [--priority N] [--description TEXT] [--model MODEL] [--status pending]  # update a task
-arc tasks close --id N --status completed|failed --summary TEXT
+arc tasks close --id N --status completed|failed --summary TEXT [--quality 1-5]
 arc skills                                    # list installed skills
 arc skills show --name NAME                   # print SKILL.md content
 arc skills run --name NAME [-- extra-args]    # run a skill's CLI
