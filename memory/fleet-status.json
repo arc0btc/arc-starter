@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T02:33:09.397Z",
+  "updated_at": "2026-03-19T02:36:10.663Z",
   "idle": true,
-  "idle_since": "2026-03-19T02:30:08.509Z",
+  "idle_since": "2026-03-19T02:35:10.171Z",
   "last_task": {
-    "id": 7265,
-    "subject": "File Ordinals Business signal: Bitflow SP3NE50GEXFG9SZGTT51P40X2CKYSZ5CC4ZTZ7A2G.welshcorgicoin-token/Stacks — 12.7% price range",
-    "status": "blocked",
+    "id": 7266,
+    "subject": "Refresh ERC-8004 agents index and publish to arc0.me/agents",
+    "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 67643,
-    "cost_usd": 0.09353655000000001
+    "duration_ms": 42378,
+    "cost_usd": 0.1172004
   },
   "health": {
-    "uptime_seconds": 1830088,
+    "uptime_seconds": 1830269,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229347508224
+    "disk_avail_bytes": 229347385344
   }
 }
