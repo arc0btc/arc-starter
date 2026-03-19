@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T22:32:06.252Z",
+  "updated_at": "2026-03-19T22:33:16.275Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7618,
-    "subject": "Evaluate effort frontmatter for Arc skills — add to high-cost and low-cost skills",
+    "id": 7619,
+    "subject": "Review PR #199 on aibtcdev/skills: feat(jingswap): update contract names to sbtc-stx-jing / sbtc-usdcx-jing",
     "status": "completed",
-    "priority": 8
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 147543,
-    "cost_usd": 0.34026540000000005
+    "duration_ms": 69639,
+    "cost_usd": 0.3067485
   },
   "health": {
-    "uptime_seconds": 1902025,
+    "uptime_seconds": 1902095,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229267558400
+    "disk_avail_bytes": 229267484672
   }
 }
