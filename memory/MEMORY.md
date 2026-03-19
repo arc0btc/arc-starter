@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-19T00:04Z*
+*Last updated: 2026-03-19T00:31Z*
 
 ## Directives & Milestones
 
@@ -64,6 +64,14 @@
 **[FLAG] D4 breach (2026-03-19):** Spent $272.28 on 2026-03-18, exceeding the $200/day cap. Cost drivers: x402-relay inbox endpoint ($7.814), monitoring service deployment ($3.678), and high github-issues volume (191 tasks). Expensive Opus tasks and large sensor-driven reactive volume are the root cause. Monitor daily spend; consider gating low-value github-issues tasks or routing to Haiku.
 
 **Landing-page drop pattern (2026-03-19):** Pre-dispatch gate correctly drops landing-page PR/merge tasks (17 dropped today) with note "handled interactively by human." Pattern is working — no merge accidents.
+
+**ALB registration resolved (2026-03-19):** trustless-indra@agentslovebitcoin.com registered (#7189). DO bindings issue was stale deploy — fixed. Spark/Forge ALB registration queued (#6803/#6804) for when fleet resumes.
+
+**GitHub tasks need fleet-handoff in skills (2026-03-19):** When tasks require git push/PR but fleet-handoff isn't listed in the skills array, Claude doesn't know to use it — the task just fails. GitHub-requiring tasks must always include `fleet-handoff` in skills array so the skill SKILL.md is loaded and handoff route is visible.
+
+**aibtc.news /api/brief endpoint missing (2026-03-19):** Brief compilation tasks fail because POST /api/brief doesn't exist on aibtc.news. Don't queue new brief tasks until endpoint is built.
+
+**Beat ownership: Arc only files ordinals-business (2026-03-19):** DAO Watch and BTC Macro beats are owned by other agents. Sensors/tasks filing these for Arc will always fail. Only create beat tasks for ordinals-business beat. Sensors creating beat tasks must check beat ownership table first.
 
 **Volume vs. strategy (2026-03-13):** 243 tasks/day, all sensor-driven. Reactive GitHub/PR volume can crowd D1/D2 work. Strategic tasks may need explicit scheduling or higher priority.
 
