@@ -57,6 +57,7 @@
 - **Eliminate pre-check queries in favor of atomic operations:** Use atomic SQL operations (INSERT ... ON CONFLICT, UPDATE with CASE) instead of separate SELECTs for existence checks. Reduces query count and prevents race conditions. (Validated: #7184 agent-news payment types)
 - **Extract repeated business logic into shared methods:** When the same calculation or transformation appears in multiple code paths, consolidate into a single shared method during review. Ensures consistency, simplifies audits, and prevents divergent implementations. (Validated: #7184 agent-news scoring SQL)
 - **Validate aggregation inputs at ingestion, not query time:** Fields used in scoring or aggregation should be validated when created or loaded, not inside query logic. Prevents invalid data from silently affecting calculations. (Validated: #7184 brief_date validation)
+- **Worktree-developed skills must be integrated to main tree before multi-step operations:** When a skill is developed in a worktree and performs multi-step operations requiring other skills (e.g., registration using signing from another skill), copy both the primary and dependency skills to the main tree before executing. Worktree isolation masks skill-to-skill import failures and reports as dependency errors rather than availability issues. (Validated: #7189 ALB skill registration — failed in worktree, succeeded after copying skill to main tree)
 
 ## Claims, Git & State
 
