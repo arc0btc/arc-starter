@@ -10,7 +10,7 @@ tags:
 
 Detects dispatch stalls by monitoring cycle_log gaps. When a stall exceeds the threshold (95 minutes) with pending tasks waiting, records the incident to `memory/topics/incidents.md` and creates a high-priority alert task.
 
-Complements `arc-service-health` (which detects stalls and resets gates) by providing persistent incident documentation for post-mortem analysis.
+Complements `service-health` (which detects stalls and resets gates) by providing persistent incident documentation for post-mortem analysis.
 
 ## Sensor Behavior
 

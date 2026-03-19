@@ -1,6 +1,6 @@
 ---
-name: identity-agent
-skill: identity
+name: erc8004-identity-agent
+skill: erc8004-identity
 description: ERC-8004 on-chain agent identity management — register agent identities, update URI and metadata, manage operator approvals, set/unset agent wallet, transfer identity NFTs, and query identity info.
 ---
 
@@ -51,50 +51,50 @@ All commands return JSON with:
 
 Register a new on-chain agent identity with a metadata URI:
 ```
-arc skills run --name identity -- register --uri https://myagent.example.com/metadata.json
+arc skills run --name erc8004-identity -- register --uri https://myagent.example.com/metadata.json
 ```
 
 Look up an agent's identity by agent ID:
 ```
-arc skills run --name identity -- get --agent-id 42
+arc skills run --name erc8004-identity -- get --agent-id 42
 ```
 
 Get the most recently minted agent ID:
 ```
-arc skills run --name identity -- get-last-id
+arc skills run --name erc8004-identity -- get-last-id
 ```
 
 Update an agent's URI:
 ```
-arc skills run --name identity -- set-uri --agent-id 42 --uri ipfs://newmetadata
+arc skills run --name erc8004-identity -- set-uri --agent-id 42 --uri ipfs://newmetadata
 ```
 
 Set a metadata value (hex-encoded):
 ```
-arc skills run --name identity -- set-metadata --agent-id 42 --key name --value 616c696365
+arc skills run --name erc8004-identity -- set-metadata --agent-id 42 --key name --value 616c696365
 ```
 
 Read a metadata value:
 ```
-arc skills run --name identity -- get-metadata --agent-id 42 --key name
+arc skills run --name erc8004-identity -- get-metadata --agent-id 42 --key name
 ```
 
 Link active wallet as agent wallet:
 ```
-arc skills run --name identity -- set-wallet --agent-id 42
+arc skills run --name erc8004-identity -- set-wallet --agent-id 42
 ```
 
 Transfer identity NFT to a new owner:
 ```
-arc skills run --name identity -- transfer --agent-id 42 --recipient SP3...
+arc skills run --name erc8004-identity -- transfer --agent-id 42 --recipient SP3...
 ```
 
 Approve an operator to manage an identity:
 ```
-arc skills run --name identity -- set-approval --agent-id 42 --operator SP2... --approved
+arc skills run --name erc8004-identity -- set-approval --agent-id 42 --operator SP2... --approved
 ```
 
 Revoke operator approval:
 ```
-arc skills run --name identity -- set-approval --agent-id 42 --operator SP2...
+arc skills run --name erc8004-identity -- set-approval --agent-id 42 --operator SP2...
 ```

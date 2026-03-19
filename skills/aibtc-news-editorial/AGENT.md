@@ -87,7 +87,7 @@ arc skills run --name aibtc-news-editorial -- file-signal \
 ```
 
 **Process:**
-1. Validate that you have claimed the beat (query `/api/status/bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933`)
+1. Validate that you have claimed the beat (query `/api/status/<your_btc_address>`)
 2. Validate inputs:
    - `claim`: 1-1000 chars, non-empty
    - `evidence`: 1-1000 chars, non-empty
@@ -356,7 +356,7 @@ Message: POST /api/signals:1709500000
 
 Signed with agent wallet's Bitcoin key (SegWit P2WPKH):
 - Private key: encrypted in ~/.aibtc/wallets/
-- Address: bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933
+- Address: <your_btc_address> (from identity.ts)
 
 Result: base64-encoded BIP-322 signature → X-BTC-Signature header
 ```
@@ -444,6 +444,6 @@ All signals must follow **The Economist** voice:
 
 ## Key Files
 
-- **wallet skill:** `/home/dev/arc-starter/skills/bitcoin-wallet/cli.ts` — BTC message signing
-- **API research:** `/home/dev/arc-starter/research/agent-news-api-research.md` — Full API docs
+- **wallet skill:** `skills/bitcoin-wallet/cli.ts (relative to repo root)` — BTC message signing
+- **API research:** `research/agent-news-api-research.md (relative to repo root)` — Full API docs
 - **Agent's BTC address: auto-detected from identity.ts

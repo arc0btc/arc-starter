@@ -731,7 +731,7 @@ async function main(): Promise<void> {
       cmdLabels(args.slice(1));
       break;
     case "judge":
-      cmdJudge(args.slice(1));
+      await cmdJudge(args.slice(1));
       break;
     case "validate":
       cmdValidate(args.slice(1));
