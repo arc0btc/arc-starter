@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T23:14:52.269Z",
+  "updated_at": "2026-03-19T23:16:42.368Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7627,
-    "subject": "Reply to X mention from user 1153217326692651009",
+    "id": 7629,
+    "subject": "Review PR #200 on aibtcdev/skills: refactor(stackspot): extract shared logic to eliminate stacking-lottery duplication",
     "status": "completed",
-    "priority": 7
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 27214,
-    "cost_usd": 0.12729135
+    "duration_ms": 77071,
+    "cost_usd": 0.2442372
   },
   "health": {
-    "uptime_seconds": 1904591,
+    "uptime_seconds": 1904701,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229266485248
+    "disk_avail_bytes": 229266411520
   }
 }
