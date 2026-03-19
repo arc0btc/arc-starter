@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T01:44:14.417Z",
+  "updated_at": "2026-03-19T01:44:28.896Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 6807,
-    "subject": "Spark: First Bitflow LP position (pending API fix)",
+    "id": 6808,
+    "subject": "Spark: First Zest V2 sBTC supply position (pending write ops)",
     "status": "completed",
     "priority": 9
   },
   "last_cycle": {
-    "duration_ms": 59103,
-    "cost_usd": 0.04541385
+    "duration_ms": 12816,
+    "cost_usd": 0.02908355
   },
   "health": {
-    "uptime_seconds": 1827153,
+    "uptime_seconds": 1827167,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229348954112
+    "disk_avail_bytes": 229348921344
   }
 }
