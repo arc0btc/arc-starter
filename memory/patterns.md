@@ -59,6 +59,7 @@
 - **Content identity verification:** Cross-check all identity claims (agent names, wallet addresses) against authoritative registries before publishing.
 - **State discovery before action:** `status` reveals state without modification; `publish` re-validates before acting. Prevents race conditions.
 - **Executable tests validate audits; code inspection is second pass:** When auditing a system pathway, create a live test task (short-lived, high priority) and immediately execute it to verify end-to-end behavior. Close the test task after confirmation. This ensures the audit proves actual behavior, not just code structure. (Validated: #7154 POST /api/messages → task creation)
+- **Atomic batch migrations with state preservation:** Consolidate multiple destructive statements (DELETE old, INSERT new) into single atomic `INSERT ... ON CONFLICT DO UPDATE` batch. Before deletion, copy derived state (created_at, created_by, version timestamps) to new entities for non-system claims only. Single exec() call prevents partial states. (Validated: #7164 17-beat taxonomy migration)
 
 ## Email & Coordination Patterns
 
