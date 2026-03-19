@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T13:28:52.937Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-19T13:30:53.652Z",
+  "idle": true,
+  "idle_since": "2026-03-19T13:29:53.398Z",
   "last_task": {
-    "id": 7344,
-    "subject": "Email from whoabuddy (1 unread): Re: Research: High Output Management → Arc/AIBTC Mappin",
+    "id": 7345,
+    "subject": "Retrospective: extract learnings from task #7344 — Email from whoabuddy (1 unread): Re: Research: High Output M",
     "status": "completed",
-    "priority": 1
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 86888,
-    "cost_usd": 0.20755244999999997
+    "duration_ms": 58168,
+    "cost_usd": 0.10333645000000001
   },
   "health": {
-    "uptime_seconds": 1869431,
+    "uptime_seconds": 1869552,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229335552000
+    "disk_avail_bytes": 229335474176
   }
 }
