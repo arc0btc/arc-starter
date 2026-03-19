@@ -16,6 +16,8 @@
 - **Sensor state dedup timing: verify completion, not creation:** Mark state "done" only after verifying task completion in DB (`completedTaskCountForSource()`), not on task creation. Creation-time marking blocks retries permanently.
 - **Dedup key scope: entity-based, not reason-based:** Dedup evaluation must be uniform across all event reasons for the same entity (PR ID, contact ID). Reason-scoped dedup misses events for already-seen entities.
 - **Multi-item dedup: check against newest item:** When checking if an action was taken on a batch (e.g., replies to sender), compare against `Math.max(...timestamps)`, not oldest. Newer arrivals after an earlier reply get skipped otherwise.
+- **Meta-sensor rate-limiting:** Sensors creating meta-tasks (retrospectives, consolidations, status reports) need per-cycle creation caps or timestamp-based dedup windows. Without them, fleet-memory or similar meta-sensors generate 6+ duplicate tasks per cycle. Gate on `last_created_at + cooldown > now` before queuing. (Validated: #7175 fleet-memory spam)
+- **Sensor health visibility:** Dark periods (sensor not executing 5+ days) indicate infrastructure failure, crash, or gate stuck open. Add weekly sensor health roll-call task that reports execution count per sensor per week. Catches broken sensors before they affect operations. (Validated: #7175 reporting-sensor dark 5 days)
 - **Capability outage → sentinel + gate all downstream sensors:** On plan suspension, API exhaustion, or account ban, write a sentinel file (e.g., `db/x-credits-depleted.json`) and check it in every affected sensor. System-wide propagation prevents cascading failures and child-task explosion.
 
 ## Task & Model Routing
@@ -55,7 +57,7 @@
 ## Claims, Git & State
 
 - **Live deployment divergence:** Audits must check live site AND source HEAD. `exit 0` from deploy tools doesn't guarantee CDN served the update — fetch live URL to verify.
-- **Proof over assertion; content claims before publication:** Verify infrastructure claims against authoritative sources (on-chain queries, direct API calls) before publishing. Distinguish "acknowledged gaps" from "false claims of deployed features."
+- **Proof over assertion; content claims before publication:** Verify all claims (infrastructure, features, financial metrics) against authoritative sources (on-chain queries, direct API calls, DB validation) before publishing. Calculated estimates and provisional reports are unreliable; require DB-validated data for cost/budget reports. (Validated: #7175 CEO cost calc error)
 - **Content identity verification:** Cross-check all identity claims (agent names, wallet addresses) against authoritative registries before publishing.
 - **State discovery before action:** `status` reveals state without modification; `publish` re-validates before acting. Prevents race conditions.
 - **Executable tests validate audits; code inspection is second pass:** When auditing a system pathway, create a live test task (short-lived, high priority) and immediately execute it to verify end-to-end behavior. Close the test task after confirmation. This ensures the audit proves actual behavior, not just code structure. (Validated: #7154 POST /api/messages → task creation)
@@ -78,7 +80,7 @@
 - **Domain assignment prevents queue collision:** Arc=orchestration, Spark=protocol/on-chain, Iris=research, Loom=integrations, Forge=infrastructure. P1-2 always to Arc.
 - **SSH task injection:** Route via `ssh dev@<ip> "cd ~/arc-starter && bash bin/arc tasks add ..."`. Close Arc's copy as "routed to <agent>."
 - **Fleet memory sharing:** collect → merge → distribute via `fleet-memory` skill. Arc is merge authority; fleet-learnings.md is read-only on remote agents.
-- **Backlog growth is bottleneck signal:** Creation rate > completion rate → noisy sensors waste cycles. >20 pending → redistribute excess to compatible domain.
+- **Backlog growth is bottleneck signal:** Creation rate > completion rate → noisy sensors waste cycles. >20 pending → redistribute excess to compatible domain. Stale/completed tasks not marked complete also inflate backlog; periodic task triage (kill duplicates, mark completed retroactively) clears 10-20% and restores visibility. (Validated: #7175 killed 12 stale tasks)
 - **Operational cadence:** Three-tier check-in: heartbeat (15min) → ops review (4h) → daily brief (24h). When cadence changes, all time-based thresholds scale proportionally.
 
 ## Operational Rules
