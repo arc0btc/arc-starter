@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-19T00:06:34.287Z",
+  "updated_at": "2026-03-19T00:11:29.220Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7225,
-    "subject": "Decision: approve MaximumSats Nostr WoT skill build (issue aibtcdev/skills#24)",
+    "id": 7226,
+    "subject": "Build nostr-wot skill wrapping MaximumSats WoT API",
     "status": "completed",
-    "priority": 5
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 27997,
-    "cost_usd": 0.1048164
+    "duration_ms": 262624,
+    "cost_usd": 1.0292957500000002
   },
   "health": {
-    "uptime_seconds": 1821293,
+    "uptime_seconds": 1821588,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229456576512
+    "disk_avail_bytes": 229456404480
   }
 }
