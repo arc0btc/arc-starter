@@ -1,9 +1,9 @@
 // skills/arc-opensource/cli.ts
 // CLI for arc-opensource maintenance operations
 
-const [cmd, ...args] = process.argv.slice(2);
+const [command, ...args] = process.argv.slice(2);
 
-switch (cmd) {
+switch (command) {
   case "status":
     await showStatus();
     break;

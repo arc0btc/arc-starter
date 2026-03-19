@@ -72,8 +72,8 @@ interface WotConfig {
 
 // ---- Helpers ----
 
-function log(msg: string): void {
-  console.error(`[${new Date().toISOString()}] [nostr-wot] ${msg}`);
+function log(message: string): void {
+  console.error(`[${new Date().toISOString()}] [nostr-wot] ${message}`);
 }
 
 function ensureDir(dir: string): void {
@@ -141,9 +141,9 @@ function npubToHex(npub: string): string {
   const data = npub.slice(5);
   const words: number[] = [];
   for (const c of data) {
-    const idx = CHARSET.indexOf(c);
-    if (idx === -1) throw new Error(`Invalid bech32 character: ${c}`);
-    words.push(idx);
+    const charIndex = CHARSET.indexOf(c);
+    if (charIndex === -1) throw new Error(`Invalid bech32 character: ${c}`);
+    words.push(charIndex);
   }
   const payload = words.slice(0, -6);
   let acc = 0;
@@ -181,43 +181,43 @@ async function freeGet(
   for (const [k, v] of Object.entries(params)) {
     url.searchParams.set(k, v);
   }
-  const res = await fetch(url.toString(), {
+  const response = await fetch(url.toString(), {
     signal: AbortSignal.timeout(10000),
   });
-  if (res.status === 402) {
+  if (response.status === 402) {
     throw new Error("FREE_TIER_EXHAUSTED");
   }
-  if (res.status === 530) {
+  if (response.status === 530) {
     throw new Error("API_UNAVAILABLE_530");
   }
-  if (res.status === 404) {
+  if (response.status === 404) {
     throw new Error("PUBKEY_NOT_FOUND");
   }
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`API error ${res.status}: ${text.slice(0, 200)}`);
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new Error(`API error ${response.status}: ${text.slice(0, 200)}`);
   }
-  return (await res.json()) as Record<string, unknown>;
+  return (await response.json()) as Record<string, unknown>;
 }
 
 async function paidWotReport(hexPubkey: string): Promise<PaidWotReport> {
-  const res = await fetch(PAID_API_URL, {
+  const response = await fetch(PAID_API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ pubkey: hexPubkey }),
     signal: AbortSignal.timeout(15000),
   });
-  if (res.status === 402) {
-    const wwwAuth = res.headers.get("www-authenticate") || "";
+  if (response.status === 402) {
+    const wwwAuth = response.headers.get("www-authenticate") || "";
     throw new Error(
       `L402 payment required (100 sats). WWW-Authenticate: ${wwwAuth.slice(0, 200)}`
     );
   }
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`Paid API error ${res.status}: ${text.slice(0, 200)}`);
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new Error(`Paid API error ${response.status}: ${text.slice(0, 200)}`);
   }
-  return (await res.json()) as PaidWotReport;
+  return (await response.json()) as PaidWotReport;
 }
 
 // ---- Commands ----
@@ -259,9 +259,9 @@ async function cmdTrustScore(pubkeyInput: string): Promise<void> {
       )
     );
     return;
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    if (msg === "PUBKEY_NOT_FOUND") {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (errorMessage === "PUBKEY_NOT_FOUND") {
       console.log(
         JSON.stringify({
           success: false,
@@ -271,7 +271,7 @@ async function cmdTrustScore(pubkeyInput: string): Promise<void> {
       );
       process.exit(1);
     }
-    log(`Free API failed (${msg}), trying paid endpoint...`);
+    log(`Free API failed (${errorMessage}), trying paid endpoint...`);
   }
 
   // Fallback to paid API
@@ -295,12 +295,12 @@ async function cmdTrustScore(pubkeyInput: string): Promise<void> {
         2
       )
     );
-  } catch (err) {
+  } catch (error) {
     console.log(
       JSON.stringify({
         success: false,
         pubkey: hex,
-        error: err instanceof Error ? err.message : String(err),
+        error: error instanceof Error ? error.message : String(error),
         hint: "Free tier may be exhausted. L402 payment requires Lightning.",
       }, null, 2)
     );
@@ -333,9 +333,9 @@ async function cmdSybilCheck(pubkeyInput: string): Promise<void> {
     console.log(
       JSON.stringify({ success: true, cached: false, pubkey: hex, ...result }, null, 2)
     );
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    if (msg === "PUBKEY_NOT_FOUND") {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (errorMessage === "PUBKEY_NOT_FOUND") {
       console.log(
         JSON.stringify({
           success: false,
@@ -349,7 +349,7 @@ async function cmdSybilCheck(pubkeyInput: string): Promise<void> {
       JSON.stringify({
         success: false,
         pubkey: hex,
-        error: msg,
+        error: errorMessage,
         hint: "Sybil check only available via free tier (wot.klabo.world)",
       }, null, 2)
     );
@@ -383,9 +383,9 @@ async function cmdNeighbors(pubkeyInput: string): Promise<void> {
     console.log(
       JSON.stringify({ success: true, cached: false, pubkey: hex, ...result }, null, 2)
     );
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    if (msg === "PUBKEY_NOT_FOUND") {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (errorMessage === "PUBKEY_NOT_FOUND") {
       console.log(
         JSON.stringify({
           success: false,
@@ -397,7 +397,7 @@ async function cmdNeighbors(pubkeyInput: string): Promise<void> {
     }
     // Fallback: try paid API for graph data
     try {
-      log(`Free API failed (${msg}), trying paid wot-report for graph data...`);
+      log(`Free API failed (${errorMessage}), trying paid wot-report for graph data...`);
       const report = await paidWotReport(hex);
       const result = {
         graph: report.graph,
@@ -441,11 +441,11 @@ async function cmdNetworkHealth(): Promise<void> {
     };
     setCache(cacheKey, result as unknown as Record<string, unknown>);
     console.log(JSON.stringify({ success: true, cached: false, ...result }, null, 2));
-  } catch (err) {
+  } catch (error) {
     console.log(
       JSON.stringify({
         success: false,
-        error: err instanceof Error ? err.message : String(err),
+        error: error instanceof Error ? error.message : String(error),
       }, null, 2)
     );
     process.exit(1);
@@ -588,7 +588,7 @@ try {
       console.error(`Unknown command: ${command}`);
       printUsage();
   }
-} catch (err) {
-  console.error(JSON.stringify({ success: false, error: String(err) }));
+} catch (error) {
+  console.error(JSON.stringify({ success: false, error: String(error) }));
   process.exit(1);
 }

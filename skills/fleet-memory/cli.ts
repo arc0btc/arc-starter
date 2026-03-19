@@ -286,23 +286,23 @@ async function cmdCollect(
 
   // 3. Report per-agent results
   const allNew: IndexEntry[] = [];
-  for (const res of results) {
-    if (!res.ok) {
-      process.stdout.write(`  ${res.agent}: FAILED — ${res.error}\n`);
+  for (const result of results) {
+    if (!result.ok) {
+      process.stdout.write(`  ${result.agent}: FAILED — ${result.error}\n`);
       continue;
     }
     process.stdout.write(
-      `  ${res.agent}: ${res.remoteCount} remote entries, ${res.newEntries.length} new\n`
+      `  ${result.agent}: ${result.remoteCount} remote entries, ${result.newEntries.length} new\n`
     );
-    allNew.push(...res.newEntries);
+    allNew.push(...result.newEntries);
   }
 
   if (allNew.length === 0) {
     process.stdout.write("\nNo new entries to collect.\n");
     if (!dryRun) {
       state.lastCollectedAt = new Date().toISOString();
-      for (const res of results) {
-        if (res.ok) state.agentRemoteCounts[res.agent] = res.remoteCount;
+      for (const result of results) {
+        if (result.ok) state.agentRemoteCounts[result.agent] = result.remoteCount;
       }
       await saveHookState(state);
     }
@@ -328,8 +328,8 @@ async function cmdCollect(
 
   await saveLocalIndex(localIndex);
   state.lastCollectedAt = new Date().toISOString();
-  for (const res of results) {
-    if (res.ok) state.agentRemoteCounts[res.agent] = res.remoteCount;
+  for (const result of results) {
+    if (result.ok) state.agentRemoteCounts[result.agent] = result.remoteCount;
   }
   await saveHookState(state);
 

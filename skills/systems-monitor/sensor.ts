@@ -41,8 +41,8 @@ interface Metrics {
   failed_units: string[];
 }
 
-async function spawn(cmd: string[]): Promise<{ stdout: string; stderr: string; code: number }> {
-  const proc = Bun.spawn(cmd, { stdout: "pipe", stderr: "pipe" });
+async function spawn(command: string[]): Promise<{ stdout: string; stderr: string; code: number }> {
+  const proc = Bun.spawn(command, { stdout: "pipe", stderr: "pipe" });
   const [stdout, stderr] = await Promise.all([
     new Response(proc.stdout).text(),
     new Response(proc.stderr).text(),

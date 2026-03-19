@@ -26,8 +26,8 @@ const FLEET: Record<string, string> = {
   forge: "192.168.1.15",
 };
 
-async function spawnLocal(cmd: string[]): Promise<{ stdout: string; stderr: string; code: number }> {
-  const proc = Bun.spawn(cmd, { stdout: "pipe", stderr: "pipe" });
+async function spawnLocal(command: string[]): Promise<{ stdout: string; stderr: string; code: number }> {
+  const proc = Bun.spawn(command, { stdout: "pipe", stderr: "pipe" });
   const [stdout, stderr] = await Promise.all([
     new Response(proc.stdout).text(),
     new Response(proc.stderr).text(),
@@ -78,13 +78,13 @@ function resolveHost(hostArg: string | undefined): { host: string | null; label:
   return { host: ip, label };
 }
 
-async function run(cmd: string[], host: string | null): Promise<string> {
+async function run(command: string[], host: string | null): Promise<string> {
   if (host) {
-    const { stdout, stderr, code } = await spawnSsh(host, cmd.join(" "));
+    const { stdout, stderr, code } = await spawnSsh(host, command.join(" "));
     if (code !== 0) throw new Error(stderr.trim() || `SSH command failed (exit ${code})`);
     return stdout;
   }
-  const { stdout, stderr, code } = await spawnLocal(cmd);
+  const { stdout, stderr, code } = await spawnLocal(command);
   if (code !== 0) throw new Error(stderr.trim() || `Command failed (exit ${code})`);
   return stdout;
 }

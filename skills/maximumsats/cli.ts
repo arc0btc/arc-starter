@@ -43,10 +43,10 @@ async function get(path: string, params: Record<string, string>): Promise<Record
     url.searchParams.set(k, v);
   }
 
-  const res = await fetch(url.toString());
+  const response = await fetch(url.toString());
 
-  if (res.status === 402) {
-    const wwwAuth = res.headers.get("WWW-Authenticate") ?? "";
+  if (response.status === 402) {
+    const wwwAuth = response.headers.get("WWW-Authenticate") ?? "";
     const invoiceMatch = wwwAuth.match(/invoice="([^"]+)"/);
     console.error(
       JSON.stringify({
@@ -61,7 +61,7 @@ async function get(path: string, params: Record<string, string>): Promise<Record
     process.exit(1);
   }
 
-  if (res.status === 404) {
+  if (response.status === 404) {
     console.error(
       JSON.stringify({
         success: false,
@@ -71,7 +71,7 @@ async function get(path: string, params: Record<string, string>): Promise<Record
     process.exit(1);
   }
 
-  if (res.status === 530) {
+  if (response.status === 530) {
     console.error(
       JSON.stringify({
         success: false,
@@ -81,12 +81,12 @@ async function get(path: string, params: Record<string, string>): Promise<Record
     process.exit(1);
   }
 
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`API error ${res.status}: ${text.slice(0, 200)}`);
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`API error ${response.status}: ${text.slice(0, 200)}`);
   }
 
-  return (await res.json()) as Record<string, unknown>;
+  return (await response.json()) as Record<string, unknown>;
 }
 
 // ---- Commands ----
@@ -232,7 +232,7 @@ try {
       console.error(`Unknown command: ${command}`);
       printUsage();
   }
-} catch (err) {
-  console.error(JSON.stringify({ success: false, error: String(err) }));
+} catch (error) {
+  console.error(JSON.stringify({ success: false, error: String(error) }));
   process.exit(1);
 }

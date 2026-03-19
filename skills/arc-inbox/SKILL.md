@@ -1,6 +1,10 @@
 ---
 name: arc-inbox
 description: On-chain message inbox for Arc — Clarity contract on Stacks for public message submission and Arc-only replies.
+tags:
+  - inbox
+  - messaging
+  - stacks
 ---
 
 # arc-inbox

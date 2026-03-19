@@ -8,12 +8,12 @@ const ROOT = resolve(import.meta.dir, "../..");
 const HANDOFFS_PATH = resolve(ROOT, "memory/fleet-handoffs.json");
 const SUSPENDED_PATH = resolve(ROOT, "db/fleet-suspended.json");
 
-function log(msg: string): void {
-  console.log(`[fleet-handoff] ${msg}`);
+function log(message: string): void {
+  console.log(`[fleet-handoff] ${message}`);
 }
 
-function logError(msg: string): void {
-  console.error(`[fleet-handoff] error: ${msg}`);
+function logError(message: string): void {
+  console.error(`[fleet-handoff] error: ${message}`);
 }
 
 function parseArgs(

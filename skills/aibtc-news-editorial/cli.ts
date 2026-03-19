@@ -45,8 +45,8 @@ async function callApi(
     headers["X-BTC-Address"] = authHeaders.address;
     headers["X-BTC-Signature"] = authHeaders.signature;
     // API expects Unix seconds; timestamp may be ms if > 1e12
-    const ts = authHeaders.timestamp > 1e12 ? Math.floor(authHeaders.timestamp / 1000) : authHeaders.timestamp;
-    headers["X-BTC-Timestamp"] = String(ts);
+    const timestamp = authHeaders.timestamp > 1e12 ? Math.floor(authHeaders.timestamp / 1000) : authHeaders.timestamp;
+    headers["X-BTC-Timestamp"] = String(timestamp);
   }
   const options: RequestInit = {
     method,
