@@ -1,5 +1,5 @@
 import { claimSensorRun, createSensorLogger, readHookState, insertTaskIfNew } from "../../src/sensors.ts";
-import { taskExistsForSource } from "../../src/db.ts";
+import { pendingTaskExistsForSource } from "../../src/db.ts";
 import { AIBTC_WATCHED_REPOS, classifyRepo, type RepoClass } from "../../src/constants.ts";
 
 const SENSOR_NAME = "github-mentions";
@@ -136,10 +136,11 @@ export default async function githubMentionsSensor(): Promise<string> {
             ? `issue:${n.repo}#${subjectNum}`
             : null;
 
-      // Dual-key dedup: skip if either thread or canonical source already has a task
+      // Dual-key dedup: skip if either thread or canonical source has a pending/active task
+      // Allows re-engagement when previous task completed (e.g., re-review requests)
       if (
-        taskExistsForSource(threadSource) ||
-        (canonicalSource && taskExistsForSource(canonicalSource))
+        pendingTaskExistsForSource(threadSource) ||
+        (canonicalSource && pendingTaskExistsForSource(canonicalSource))
       ) {
         continue;
       }
@@ -212,6 +213,8 @@ export default async function githubMentionsSensor(): Promise<string> {
             "5. Use gh CLI to post comments as appropriate.",
           ];
 
+      // Pending dedup: allows re-engagement when previous task completed/failed
+      // (e.g., re-review requests on PRs already reviewed, new mentions on handled issues)
       insertTaskIfNew(canonicalSource ?? threadSource, {
         subject: `GitHub ${reasonLabel} in ${n.repo}: ${n.title}`,
         description: [
@@ -225,7 +228,7 @@ export default async function githubMentionsSensor(): Promise<string> {
         skills: JSON.stringify(skillsArray),
         priority,
         model: "sonnet",
-      }, "any");
+      }, "pending");
 
       created++;
     }

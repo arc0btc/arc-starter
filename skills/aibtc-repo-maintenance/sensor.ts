@@ -1,10 +1,9 @@
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { insertTask, taskExistsForSource, getWorkflowByInstanceKey, insertWorkflow, getDatabase } from "../../src/db.ts";
+import { insertTask, pendingTaskExistsForSource, getWorkflowByInstanceKey, insertWorkflow } from "../../src/db.ts";
 import { AIBTC_WATCHED_REPOS } from "../../src/constants.ts";
 
 const SENSOR_NAME = "aibtc-repo-maintenance";
 const INTERVAL_MINUTES = 15;
-const MAX_PR_REVIEWS_PER_DAY = 10;
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -18,17 +17,6 @@ const AUTOMATED_PR_PATTERNS = [
 
 function isAutomatedPR(title: string): boolean {
   return AUTOMATED_PR_PATTERNS.some((p) => p.test(title));
-}
-
-/** Count PR review tasks created today. */
-function todayPrReviewCount(): number {
-  const db = getDatabase();
-  const row = db
-    .query(
-      "SELECT COUNT(*) as c FROM tasks WHERE source LIKE 'pr-review:%' AND created_at > datetime('now', 'start of day')"
-    )
-    .get() as { c: number } | null;
-  return row?.c ?? 0;
 }
 
 const WATCHED_REPOS = AIBTC_WATCHED_REPOS;
@@ -213,25 +201,18 @@ export default async function aibtcMaintenanceSensor(): Promise<string> {
 
   // Check for unreviewed PRs
   const unreviewed = getUnreviewedPRs();
-  let reviewsToday = todayPrReviewCount();
   let created = 0;
   let skippedAutomated = 0;
-  let skippedCap = 0;
 
   for (const pr of unreviewed) {
     // Use shared canonical key so github-mentions sensor can cross-dedup
+    // Pending dedup: allows retry if previous review task failed
     const source = `pr-review:${pr.repo}#${pr.number}`;
-    if (taskExistsForSource(source)) continue;
+    if (pendingTaskExistsForSource(source)) continue;
 
     // Skip automated PRs (release-please, dependabot, dependency bumps)
     if (isAutomatedPR(pr.title)) {
       skippedAutomated++;
-      continue;
-    }
-
-    // Enforce daily cap to prevent PR review spam
-    if (reviewsToday + created >= MAX_PR_REVIEWS_PER_DAY) {
-      skippedCap++;
       continue;
     }
 
@@ -267,8 +248,8 @@ export default async function aibtcMaintenanceSensor(): Promise<string> {
     created++;
   }
 
-  if (skippedAutomated > 0 || skippedCap > 0) {
-    log(`created ${created} PR review(s), skipped ${skippedAutomated} automated, ${skippedCap} over daily cap (${MAX_PR_REVIEWS_PER_DAY})`);
+  if (created > 0 || skippedAutomated > 0) {
+    log(`created ${created} PR review(s), skipped ${skippedAutomated} automated`);
   }
 
   return "ok";

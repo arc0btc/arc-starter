@@ -1,23 +1,11 @@
 import { claimSensorRun, createSensorLogger, insertTaskIfNew } from "../../src/sensors.ts";
-import { taskExistsForSource, getDatabase } from "../../src/db.ts";
+import { taskExistsForSource } from "../../src/db.ts";
 import { classifyRepo } from "../../src/constants.ts";
 
 const SENSOR_NAME = "github-issue-monitor";
 const INTERVAL_MINUTES = 15;
 const LOOKBACK_HOURS = 4;
-const MAX_ISSUE_TASKS_PER_DAY = 15;
 const log = createSensorLogger(SENSOR_NAME);
-
-/** Count issue tasks created by this sensor today. */
-function todayIssueTaskCount(): number {
-  const db = getDatabase();
-  const row = db
-    .query(
-      "SELECT COUNT(*) as c FROM tasks WHERE source LIKE 'issue:%' AND created_at > datetime('now', 'start of day')"
-    )
-    .get() as { c: number } | null;
-  return row?.c ?? 0;
-}
 
 /** Repos to monitor for issues. Managed + collaborative orgs. */
 const MONITORED_REPOS = [
@@ -88,8 +76,6 @@ export default async function githubIssueMonitorSensor(): Promise<string> {
     if (!claimed) return "skip";
 
     let totalCreated = 0;
-    let skippedCap = 0;
-    const issuesCreatedToday = todayIssueTaskCount();
 
     for (const repo of MONITORED_REPOS) {
       const issues = fetchOpenIssues(repo);
@@ -98,12 +84,6 @@ export default async function githubIssueMonitorSensor(): Promise<string> {
       const repoClass = classifyRepo(repo);
 
       for (const issue of issues) {
-        // Enforce daily cap to prevent issue task spam
-        if (issuesCreatedToday + totalCreated >= MAX_ISSUE_TASKS_PER_DAY) {
-          skippedCap++;
-          continue;
-        }
-
         // Canonical key shared with github-mentions sensor for cross-sensor dedup
         const canonicalSource = `issue:${repo}#${issue.number}`;
         const legacySource = `sensor:github-issue-monitor:${repo}#${issue.number}`;
@@ -149,8 +129,8 @@ export default async function githubIssueMonitorSensor(): Promise<string> {
       }
     }
 
-    if (totalCreated > 0 || skippedCap > 0) {
-      log(`created ${totalCreated} issue task(s)${skippedCap > 0 ? `, skipped ${skippedCap} over daily cap (${MAX_ISSUE_TASKS_PER_DAY})` : ""}`);
+    if (totalCreated > 0) {
+      log(`created ${totalCreated} issue task(s)`);
     }
 
     return "ok";

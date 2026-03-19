@@ -30,7 +30,8 @@ Arc doesn't just react to issues — Arc triages with full context:
 - **Cadence**: every 15 minutes via `claimSensorRun`
 - **API**: `gh api /repos/{owner}/{repo}/issues?state=open&sort=updated&since=<24h ago>` filtered to exclude PRs
 - **Repos**: `arc0btc/arc-starter`, `aibtcdev/landing-page`, `aibtcdev/skills`, `aibtcdev/x402-api`, `aibtcdev/aibtc-mcp-server`, `aibtcdev/agent-news`
-- **Dedup**: `taskExistsForSource` per `sensor:github-issue-monitor:{repo}#{number}`
+- **Dedup**: unique ID per issue (`issue:{repo}#{number}`), one triage per issue lifetime
+- **No daily cap**: every issue gets triaged — approach like a real maintainer
 - **Recency filter**: only issues updated in the last 24h — prevents cold-start bursts on high-volume repos
 - **Classification**: `classifyRepo()` — managed repos get P4, collaborative get P5
 
@@ -39,7 +40,7 @@ Arc doesn't just react to issues — Arc triages with full context:
 - **Subject**: `GitHub issue in owner/repo#N: title`
 - **Skills**: `["aibtc-repo-maintenance"]`
 - **Priority**: 4 (managed), 5 (collaborative)
-- **Source**: `sensor:github-issue-monitor:{repo}#{number}`
+- **Source**: `issue:{repo}#{number}` (canonical key, shared with github-mentions)
 - **Model**: sonnet
 
 ## When to Receive This Task
