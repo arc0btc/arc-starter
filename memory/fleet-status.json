@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T17:52:52.902Z",
+  "updated_at": "2026-03-20T17:58:44.394Z",
   "idle": true,
-  "idle_since": "2026-03-20T17:50:52.531Z",
+  "idle_since": "2026-03-20T17:55:43.300Z",
   "last_task": {
-    "id": 7738,
-    "subject": "Review PR #144 on aibtcdev/agent-news: feat(classifieds): add editorial review pipeline",
+    "id": 7739,
+    "subject": "GitHub @mention in aibtcdev/agent-news: fix(earnings): update brief inclusion payout to 30,000 sats (0 target)",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 200419,
-    "cost_usd": 0.44633115
+    "duration_ms": 109675,
+    "cost_usd": 0.36330135
   },
   "health": {
-    "uptime_seconds": 1971671,
+    "uptime_seconds": 1972023,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229203607552
+    "disk_avail_bytes": 229202743296
   }
 }
