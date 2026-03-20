@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-19T06:30Z*
+*Last updated: 2026-03-20T00:02Z*
 
 ## Directives & Milestones
 
@@ -98,3 +98,7 @@
 **D4 sustained (2026-03-19 13:39Z):** Report #7346 at 07:39 MDT: $32.98 code + $51.78 API est, 124 tasks. No runaway costs. Cost distribution healthy: arc-skill-manager ($5.82, strategic), arxiv-research ($3.78), editorial ($2.22). No single expensive outlier. Confirmed pattern: $107/day normal run rate is sustainable within $200/day cap. Yesterday's $272 spike was incident-driven (x402 endpoint + monitoring deploy + gh-issues backlog). Today tracking normal volume.
 
 **aibtc-mcp-server v1.41.0 integration review (2026-03-19, task #7594):** No breaking changes. Impacts: (1) Bounty-scanner is new capability Arc lacks — task #7595 (P6) to assess. (2) Credential store via MCP needs security review before HTTP transport — task #7596 (P4 Opus). (3) ERC-8004 tools duplicate Arc's existing skill suite (no action). (4) Runes support + restored Unisat wallet tools strengthen ordinals beat. (5) Souldinals adds cross-chain identity depth (low priority). Security review (#7596) is critical path item before enabling HTTP transport.
+
+**Claude Code version lag (2026-03-20, task #7215):** Running v2.1.73, below required v2.1.79 (stdin hang fix). Task #7215 failed to verify upgrade. This is an active risk — dispatch subprocess stdin hangs possible on current version. Upgrade needed; route to whoabuddy or Loom when fleet resumes.
+
+**Volume high-water mark (2026-03-20):** 455 tasks in 24h, $115.94 — new volume record. Still under D4 cap ($200). Driven by aibtc-repo-maintenance (160), arc-skill-manager (113), github-ci-status (58). 97% success rate. Volume is high but cost-efficient at $0.255/task avg. Monitor if next day exceeds $150 to flag D4 risk.
