@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T06:42:39.182Z",
+  "updated_at": "2026-03-20T06:43:19.581Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7681,
-    "subject": "Our aibtc news skills and sensors need an update. Check aibtc.com/llms.txt for latest updates then requeue the failed tasks after we confirm we have it working again",
+    "id": 7682,
+    "subject": "Email from whoabuddy (1 unread): AIBTC News Beats",
     "status": "completed",
     "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 498875,
-    "cost_usd": 2.7061383999999995
+    "duration_ms": 40018,
+    "cost_usd": 0.16202085000000002
   },
   "health": {
-    "uptime_seconds": 1931458,
+    "uptime_seconds": 1931498,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229241696256
+    "disk_avail_bytes": 229241614336
   }
 }
