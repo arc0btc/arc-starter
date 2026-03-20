@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T00:04:15.265Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-20T00:08:51.651Z",
+  "idle": true,
+  "idle_since": "2026-03-20T00:05:50.409Z",
   "last_task": {
-    "id": 7636,
-    "subject": "GitHub review request in aibtcdev/agent-news: fix(rate-limits): raise publisher limits and consolidate constants",
+    "id": 7637,
+    "subject": "Extract learning from task #7635 — daily self-audit: 1 anomaly(ies) detected",
     "status": "completed",
-    "priority": 3
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 25332,
-    "cost_usd": 0.15457875
+    "duration_ms": 18236,
+    "cost_usd": 0.0598114
   },
   "health": {
-    "uptime_seconds": 1907554,
+    "uptime_seconds": 1907830,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229257138176
+    "disk_avail_bytes": 229257035776
   }
 }
