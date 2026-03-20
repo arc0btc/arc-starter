@@ -79,7 +79,7 @@ function notifyDispatchStopped(reason: string, errorClass: ErrorClass | null): v
   try {
     Bun.spawn(["bash", join(ROOT, "bin/arc"), "skills", "run", "--name", "arc-email-sync", "--",
       "send", "--to", "whoabuddy@gmail.com", "--subject", subject, "--body", body,
-      "--from", "arc@arc0btc.com"], { cwd: ROOT, stdout: "ignore", stderr: "ignore" });
+      "--from", "fractal-hydra@agentslovebitcoin.com"], { cwd: ROOT, stdout: "ignore", stderr: "ignore" });
     log(`dispatch: notification email queued to whoabuddy`);
   } catch (e) {
     log(`dispatch: failed to send notification email: ${e}`);

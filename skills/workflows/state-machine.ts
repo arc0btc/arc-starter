@@ -623,6 +623,254 @@ export const ResearchToPrdMachine: StateMachine<{
 };
 
 /**
+ * DailyBriefInscriptionMachine — inscribes the aibtc.news daily brief on Bitcoin once per day.
+ *
+ * Triggered by: sensor:daily-brief-inscribe at 11 PM PST
+ * instance_key: "brief-inscription-{YYYY-MM-DD}" (one per PST calendar day)
+ *
+ * States:
+ *   pending              → fetch the compiled brief content from aibtc.news
+ *   brief_fetched        → estimate fees and verify BTC balance covers cost
+ *   balance_ok           → broadcast commit transaction (Step 1 of commit/reveal)
+ *   committed            → poll mempool until commit tx has ≥1 confirmation
+ *   confirmed            → broadcast reveal transaction (Step 2 — creates inscription)
+ *   revealed             → record inscription txid on aibtc.news via inscribe-brief API
+ *   completed            → terminal success
+ *   failed               → terminal failure (set from any state on unrecoverable error)
+ *
+ * Context:
+ *   date                 — PST date YYYY-MM-DD (the brief date being inscribed)
+ *   parentId             — Parent inscription ID (Loom's collection root; set once at setup)
+ *   contentType          — MIME type; default "text/plain"
+ *   briefContent         — compiled brief text fetched in brief_fetched step
+ *   estimatedCost        — sats from estimate step
+ *   commitTxid           — txid from the commit (inscribe) step
+ *   revealAmount         — sats locked in commit output; needed for reveal
+ *   feeRate              — sat/vB used for commit; stored for reveal step
+ *   inscriptionId        — final inscription ID after reveal confirms ({revealTxid}i0)
+ *   confirmPollCount     — number of times we have polled for commit confirmation
+ *   failureReason        — human-readable reason if state=failed
+ */
+export interface DailyBriefInscriptionContext {
+  date: string;
+  parentId?: string;
+  contentType?: string;
+  briefContent?: string;
+  estimatedCost?: number;
+  commitTxid?: string;
+  revealAmount?: number;
+  feeRate?: number;
+  inscriptionId?: string;
+  confirmPollCount?: number;
+  failureReason?: string;
+}
+
+export const DailyBriefInscriptionMachine: StateMachine<DailyBriefInscriptionContext> = {
+  name: "daily-brief-inscription",
+  initialState: "pending",
+  states: {
+    /**
+     * pending → fetch the compiled brief for this date.
+     * Task: call GET /api/brief/:date on aibtc.news, store content in context,
+     * then transition to brief_fetched.
+     * Fail if brief is not yet compiled — close as failed with failureReason.
+     */
+    pending: {
+      on: { brief_ready: "brief_fetched", no_brief: "failed" },
+      action: (ctx) => ({
+        type: "create-task",
+        subject: `Fetch compiled brief for ${ctx.date}`,
+        priority: 6,
+        skills: ["aibtc-news-classifieds", "bitcoin-wallet"],
+        description: `Fetch the compiled daily brief for ${ctx.date} from aibtc.news.
+
+Steps:
+1. arc skills run --name aibtc-news-classifieds -- get-brief --date ${ctx.date}
+   (requires x402 payment — 1000 sats sBTC)
+2. If the brief exists: store the full text content in workflow context as briefContent,
+   then transition the workflow to 'brief_fetched'.
+3. If brief not found or not yet compiled: transition to 'failed' with
+   failureReason="Brief not compiled for ${ctx.date}". Close task as completed.
+
+Workflow instance_key: brief-inscription-${ctx.date}`,
+      }),
+    },
+
+    /**
+     * brief_fetched → estimate inscription cost and verify BTC balance.
+     * Task: run child-inscription estimate, check btc balance covers totalCost.
+     * Transition to balance_ok or failed.
+     */
+    brief_fetched: {
+      on: { balance_ok: "balance_ok", insufficient_funds: "failed" },
+      action: (ctx) => ({
+        type: "create-task",
+        subject: `Estimate inscription fee and check BTC balance for ${ctx.date} brief`,
+        priority: 6,
+        skills: ["aibtc-news-classifieds", "bitcoin-wallet"],
+        description: `Estimate the cost of inscribing the ${ctx.date} brief and verify wallet balance.
+
+Steps:
+1. Estimate fee:
+   cd github/aibtcdev/skills && bun run child-inscription/child-inscription.ts estimate \\
+     --parent-id "${ctx.parentId ?? "<LOOM_PARENT_INSCRIPTION_ID>"}" \\
+     --content-type "${ctx.contentType ?? "text/plain"}" \\
+     --content "<briefContent from context>"
+
+2. Check BTC balance:
+   arc skills run --name bitcoin-wallet -- info
+   (then check bc1q address balance via: curl -s https://mempool.space/api/address/<addr>)
+
+3. If balance >= totalCost: store estimatedCost in context, transition to 'balance_ok'.
+4. If balance < totalCost: transition to 'failed' with
+   failureReason="Insufficient BTC: need <totalCost> sats, have <balance> sats".
+
+Workflow instance_key: brief-inscription-${ctx.date}`,
+      }),
+    },
+
+    /**
+     * balance_ok → broadcast commit transaction (Step 1).
+     * Task: run child-inscription inscribe, save commitTxid + revealAmount to context.
+     */
+    balance_ok: {
+      on: { commit_broadcast: "committed", commit_failed: "failed" },
+      action: (ctx) => ({
+        type: "create-task",
+        subject: `Commit inscription for ${ctx.date} brief`,
+        priority: 5,
+        skills: ["aibtc-news-classifieds", "bitcoin-wallet"],
+        description: `Broadcast the commit transaction for the ${ctx.date} brief inscription.
+
+Steps:
+1. cd github/aibtcdev/skills && bun run child-inscription/child-inscription.ts inscribe \\
+     --parent-id "${ctx.parentId ?? "<LOOM_PARENT_INSCRIPTION_ID>"}" \\
+     --content-type "${ctx.contentType ?? "text/plain"}" \\
+     --content "<briefContent from context>" \\
+     --fee-rate medium
+
+2. On success: store commitTxid, revealAmount, and feeRate in workflow context.
+   Transition workflow to 'committed'.
+
+3. On failure: transition to 'failed' with failureReason set to the error message.
+
+Note: child-inscription writes .child-inscription-state.json — keep it until reveal is done.
+
+Workflow instance_key: brief-inscription-${ctx.date}`,
+      }),
+    },
+
+    /**
+     * committed → poll mempool until commit tx has ≥1 confirmation.
+     * Task: check mempool.space. If unconfirmed, schedule a 30-min retry.
+     * Fail after 12 polls (~6 hours).
+     */
+    committed: {
+      on: { commit_confirmed: "confirmed", confirm_timeout: "failed" },
+      action: (ctx) => {
+        const pollCount = ctx.confirmPollCount ?? 0;
+        const MAX_POLLS = 12;
+        if (pollCount >= MAX_POLLS) return null;
+        return {
+          type: "create-task",
+          subject: `Poll commit confirmation for ${ctx.date} brief (attempt ${pollCount + 1}/${MAX_POLLS})`,
+          priority: 7,
+          skills: ["aibtc-news-classifieds", "bitcoin-wallet"],
+          description: `Check whether the commit tx for the ${ctx.date} brief inscription has confirmed.
+
+commitTxid: ${ctx.commitTxid ?? "<commitTxid from context>"}
+
+Steps:
+1. curl -s "https://mempool.space/api/tx/${ctx.commitTxid ?? "<commitTxid>"}" | \\
+   python3 -c "import json,sys; s=json.load(sys.stdin).get('status',{}); print('confirmed' if s.get('confirmed') else 'pending')"
+
+2. If confirmed (≥1 block): transition workflow to 'confirmed'. Close task as completed.
+
+3. If still pending:
+   - Increment confirmPollCount in context (now ${pollCount + 1}).
+   - If pollCount >= ${MAX_POLLS}: transition to 'failed' with failureReason="Commit confirmation timeout".
+   - Otherwise: create a follow-up poll task scheduled 30 minutes from now, close this task as completed.
+
+Workflow instance_key: brief-inscription-${ctx.date}`,
+        };
+      },
+    },
+
+    /**
+     * confirmed → broadcast reveal transaction (Step 2 — creates the inscription).
+     * Task: run child-inscription reveal, capture inscriptionId.
+     */
+    confirmed: {
+      on: { reveal_broadcast: "revealed", reveal_failed: "failed" },
+      action: (ctx) => ({
+        type: "create-task",
+        subject: `Reveal inscription for ${ctx.date} brief`,
+        priority: 5,
+        skills: ["aibtc-news-classifieds", "bitcoin-wallet"],
+        description: `Broadcast the reveal transaction to complete the ${ctx.date} brief inscription.
+
+commitTxid: ${ctx.commitTxid ?? "<commitTxid from context>"}
+
+Steps:
+1. cd github/aibtcdev/skills && bun run child-inscription/child-inscription.ts reveal \\
+     --commit-txid ${ctx.commitTxid ?? "<commitTxid>"} \\
+     --vout 0
+
+   Content, parentId, and revealAmount are read from .child-inscription-state.json —
+   do not delete that file before running this command.
+
+2. On success: store inscriptionId ({revealTxid}i0) in workflow context.
+   Transition workflow to 'revealed'.
+
+3. On failure: transition to 'failed' with failureReason set to the error message.
+
+Workflow instance_key: brief-inscription-${ctx.date}`,
+      }),
+    },
+
+    /**
+     * revealed → record the inscription on aibtc.news.
+     * Task: call inscribe-brief API to register the txid with the platform.
+     * Note: inscription exists on-chain regardless — capture inscriptionId even on API failure.
+     */
+    revealed: {
+      on: { recorded: "completed", record_failed: "failed" },
+      action: (ctx) => ({
+        type: "create-task",
+        subject: `Record ${ctx.date} brief inscription on aibtc.news`,
+        priority: 6,
+        skills: ["aibtc-news-classifieds", "bitcoin-wallet"],
+        description: `Register the completed inscription with aibtc.news for ${ctx.date}.
+
+inscriptionId: ${ctx.inscriptionId ?? "<inscriptionId from context>"}
+
+Steps:
+1. arc skills run --name aibtc-news-classifieds -- inscribe-brief --date ${ctx.date}
+   (requires BIP-137 publisher auth)
+
+2. On success: transition workflow to 'completed'. Close task as completed with
+   summary including the inscriptionId.
+
+3. On API failure: transition to 'failed' with failureReason. The inscription already
+   exists on-chain — record the inscriptionId in the failure reason for manual recovery.
+
+Workflow instance_key: brief-inscription-${ctx.date}`,
+      }),
+    },
+
+    completed: {
+      on: {},
+      action: () => null,
+    },
+
+    failed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -635,6 +883,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "credential-rotation": CredentialRotationMachine,
     "skill-maintenance": SkillMaintenanceMachine,
     "research-to-prd": ResearchToPrdMachine,
+    "daily-brief-inscription": DailyBriefInscriptionMachine,
   };
   return templates[name] || null;
 }

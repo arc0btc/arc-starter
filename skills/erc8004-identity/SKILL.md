@@ -16,16 +16,16 @@ Provides ERC-8004 on-chain agent identity operations using the identity-registry
 ## CLI Commands
 
 ```
-arc skills run --name identity -- register [--uri <uri>] [--metadata <json>] [--fee <fee>] [--sponsored]
-arc skills run --name identity -- get --agent-id <id>
-arc skills run --name identity -- set-uri --agent-id <id> --uri <uri> [--fee <fee>] [--sponsored]
-arc skills run --name identity -- set-metadata --agent-id <id> --key <key> --value <hex> [--fee <fee>] [--sponsored]
-arc skills run --name identity -- set-approval --agent-id <id> --operator <address> [--approved] [--fee <fee>] [--sponsored]
-arc skills run --name identity -- set-wallet --agent-id <id> [--fee <fee>] [--sponsored]
-arc skills run --name identity -- unset-wallet --agent-id <id> [--fee <fee>] [--sponsored]
-arc skills run --name identity -- transfer --agent-id <id> --recipient <address> [--fee <fee>] [--sponsored]
-arc skills run --name identity -- get-metadata --agent-id <id> --key <key>
-arc skills run --name identity -- get-last-id
+arc skills run --name erc8004-identity -- register [--uri <uri>] [--metadata <json>] [--fee <fee>] [--sponsored]
+arc skills run --name erc8004-identity -- get --agent-id <id>
+arc skills run --name erc8004-identity -- set-uri --agent-id <id> --uri <uri> [--fee <fee>] [--sponsored]
+arc skills run --name erc8004-identity -- set-metadata --agent-id <id> --key <key> --value <hex> [--fee <fee>] [--sponsored]
+arc skills run --name erc8004-identity -- set-approval --agent-id <id> --operator <address> [--approved] [--fee <fee>] [--sponsored]
+arc skills run --name erc8004-identity -- set-wallet --agent-id <id> [--fee <fee>] [--sponsored]
+arc skills run --name erc8004-identity -- unset-wallet --agent-id <id> [--fee <fee>] [--sponsored]
+arc skills run --name erc8004-identity -- transfer --agent-id <id> --recipient <address> [--fee <fee>] [--sponsored]
+arc skills run --name erc8004-identity -- get-metadata --agent-id <id> --key <key>
+arc skills run --name erc8004-identity -- get-last-id
 ```
 
 ## Subcommands
@@ -117,7 +117,7 @@ Returns null if no agents have been registered.
 
 ## When to Load
 
-Load when: registering or updating Arc's on-chain agent identity, managing operator approvals, or querying another agent's identity record. Write operations require `bitcoin-wallet` skill. Read-only queries (get, get-metadata) can run without skill context using `arc skills run --name identity`.
+Load when: registering or updating Arc's on-chain agent identity, managing operator approvals, or querying another agent's identity record. Write operations require `bitcoin-wallet` skill. Read-only queries (get, get-metadata) can run without skill context using `arc skills run --name erc8004-identity`.
 
 ## Requires
 

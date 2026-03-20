@@ -49,11 +49,21 @@ Every SKILL.md must include a `## Checklist` section. Items must be concretely t
 - [ ] SKILL.md is under 2000 tokens
 ```
 
-## sensor.ts Pattern
+## sensor.ts Patterns
+
+All sensors share these rules:
+- Export an async default function taking no arguments, returning `Promise<string>`
+- Return `"skip"` when gated out, `"ok"` when work was done
+- Use `source: "sensor:<skill-name>"` when creating tasks
+- Keep sensor logic lightweight — no LLM calls
+
+### Pattern 1: Interval-based (every N minutes)
+
+The simplest pattern. Fires every N minutes unconditionally.
 
 ```typescript
-import { claimSensorRun } from "../../src/sensors.ts";
-import { initDatabase, insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { claimSensorRun, insertTaskIfNew } from "../../src/sensors.ts";
+import { initDatabase } from "../../src/db.ts";
 
 const SENSOR_NAME = "my-skill";
 const INTERVAL_MINUTES = 10;
@@ -65,20 +75,129 @@ export default async function mySkillSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
-  if (pendingTaskExistsForSource(TASK_SOURCE)) return "skip";
+  const id = insertTaskIfNew(TASK_SOURCE, {
+    subject: "detected something",
+    priority: 5,
+  });
 
-  insertTask({ subject: "detected something", source: TASK_SOURCE, priority: 5 });
-  return "ok";
+  return id !== null ? "ok" : "skip";
 }
 ```
 
-Rules:
-- Export an async default function taking no arguments, returning `Promise<string>`
-- Return `"skip"` when gated out, `"ok"` when work was done
-- Use `claimSensorRun(name, intervalMinutes)` for interval gating
-- Use `pendingTaskExistsForSource()` to deduplicate tasks
-- Use `source: "sensor:<skill-name>"` when creating tasks
-- Keep sensor logic lightweight — no LLM calls
+### Pattern 2: Daily at specific time (time-guard)
+
+Polls every 30 minutes but only fires at a target hour. Uses hook state `last_fired_date` to prevent double-firing within the same hour window.
+
+```typescript
+import { claimSensorRun, readHookState, writeHookState, insertTaskIfNew } from "../../src/sensors.ts";
+import { initDatabase } from "../../src/db.ts";
+
+const SENSOR_NAME = "my-daily-skill";
+const POLL_INTERVAL = 30; // check every 30 min
+const TARGET_HOUR = 6;    // fire at 6am local time
+const TASK_SOURCE = "sensor:my-daily-skill";
+
+export default async function myDailySensor(): Promise<string> {
+  initDatabase();
+
+  const claimed = await claimSensorRun(SENSOR_NAME, POLL_INTERVAL);
+  if (!claimed) return "skip";
+
+  // Time-of-day guard
+  const now = new Date();
+  if (now.getHours() !== TARGET_HOUR) return "skip";
+
+  // Dedup: only fire once per calendar day
+  const state = await readHookState(SENSOR_NAME);
+  const today = now.toISOString().slice(0, 10); // "2026-03-19"
+  if (state?.last_fired_date === today) return "skip";
+
+  // Mark as fired for today
+  await writeHookState(SENSOR_NAME, {
+    ...(state ?? { version: 0 }),
+    last_ran: now.toISOString(),
+    last_result: "ok",
+    version: (state?.version ?? 0) + 1,
+    last_fired_date: today,
+  });
+
+  const id = insertTaskIfNew(TASK_SOURCE, {
+    subject: "daily task for my-daily-skill",
+    priority: 5,
+  });
+
+  return id !== null ? "ok" : "skip";
+}
+```
+
+### Pattern 3: Poll-and-dedup (external API check)
+
+Polls an external source and only creates tasks for new items not seen before.
+
+```typescript
+import { claimSensorRun, readHookState, writeHookState, insertTaskIfNew } from "../../src/sensors.ts";
+import { initDatabase } from "../../src/db.ts";
+
+const SENSOR_NAME = "my-poll-skill";
+const INTERVAL_MINUTES = 15;
+const TASK_SOURCE = "sensor:my-poll-skill";
+
+export default async function myPollSensor(): Promise<string> {
+  initDatabase();
+
+  const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
+  if (!claimed) return "skip";
+
+  // Fetch external data
+  const res = await fetch("https://api.example.com/items");
+  if (!res.ok) return "skip";
+  const items = await res.json();
+
+  // Load seen IDs from state
+  const state = await readHookState(SENSOR_NAME);
+  const seenIds: string[] = (state?.seen_ids as string[]) ?? [];
+  const seenSet = new Set(seenIds);
+
+  // Find new items
+  let created = 0;
+  for (const item of items) {
+    if (seenSet.has(item.id)) continue;
+    seenSet.add(item.id);
+    const id = insertTaskIfNew(`${TASK_SOURCE}:${item.id}`, {
+      subject: `process item: ${item.title}`,
+      priority: 5,
+    });
+    if (id !== null) created++;
+  }
+
+  // Persist seen IDs (keep last 200 to prevent unbounded growth)
+  const updatedIds = [...seenSet].slice(-200);
+  await writeHookState(SENSOR_NAME, {
+    ...(state ?? { version: 0 }),
+    last_ran: new Date().toISOString(),
+    last_result: created > 0 ? "ok" : "skip",
+    version: (state?.version ?? 0) + 1,
+    seen_ids: updatedIds,
+  });
+
+  return created > 0 ? "ok" : "skip";
+}
+```
+
+## WORKER_SENSORS Registration (CRITICAL)
+
+After creating a sensor, you MUST add the skill name to the `WORKER_SENSORS` set in `src/sensors.ts`, or the sensor will NOT run on worker agents (only arc0 runs all sensors).
+
+Find this block in `src/sensors.ts`:
+```typescript
+const WORKER_SENSORS: ReadonlySet<string> = new Set([
+  // Core — every agent needs these
+  "aibtc-heartbeat",
+  ...
+]);
+```
+
+Add the new skill name to the appropriate section with a comment explaining its purpose.
 
 ## cli.ts Pattern
 
@@ -104,10 +223,21 @@ Rules:
 - Exit with code 1 on errors, write errors to stderr
 - For flags: scan args for `--key value` pairs manually
 
+## End-to-End Checklist for Creating a Skill with Sensor
+
+1. Create directory: `mkdir -p skills/<name>`
+2. Write `SKILL.md` with frontmatter, description, and checklist
+3. Write `sensor.ts` using the appropriate pattern above
+4. (Optional) Write `AGENT.md` if the skill dispatches tasks to subagents
+5. (Optional) Write `cli.ts` if the skill needs a CLI interface
+6. Add skill name to `WORKER_SENSORS` in `src/sensors.ts`
+7. Test sensor standalone: `bun skills/<name>/sensor.ts`
+8. Verify with: `bun skills/manage-skills/cli.ts show <name>`
+
 ## Output
 
 When creating a skill, produce all required files and run:
 ```
 bun skills/<name>/cli.ts
 ```
-to verify the CLI works without errors.
+to verify the CLI works without errors (if cli.ts was created).

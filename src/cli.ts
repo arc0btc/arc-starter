@@ -1107,34 +1107,19 @@ function cmdMemoryCostBySkill(): void {
 function cmdMemoryFleetStatus(): void {
   initDatabase();
 
-  const AGENT_NAMES = ["spark", "iris", "loom", "forge"];
-  const entries = AGENT_NAMES.map((name) => ({
-    name,
-    entry: getArcMemory(`fleet-state:${name}`),
-  }));
-
-  const hasAny = entries.some((e) => e.entry !== null);
-  if (!hasAny) {
-    process.stdout.write("No fleet-state memory entries found.\nFleet-health sensor populates these every 15 minutes.\n");
+  const entry = getArcMemory("fleet-state:loom");
+  if (!entry) {
+    process.stdout.write("No fleet-state memory entry found for loom.\n");
     return;
   }
 
-  process.stdout.write("=== Fleet State (from memory) ===\n\n");
-
-  for (const { name, entry } of entries) {
-    if (!entry) {
-      process.stdout.write(`--- ${name} ---\n  No state recorded\n\n`);
-      continue;
-    }
-    process.stdout.write(`--- ${name} ---\n`);
-    // Parse key fields from content for a compact view
-    const lines = entry.content.split("\n");
-    for (const line of lines) {
-      process.stdout.write(`  ${line}\n`);
-    }
-    const age = Math.floor((Date.now() - new Date(entry.updated_at).getTime()) / 60000);
-    process.stdout.write(`  Memory updated: ${age}m ago (importance=${entry.importance})\n\n`);
+  process.stdout.write("=== Loom Status (from memory) ===\n\n");
+  const lines = entry.content.split("\n");
+  for (const line of lines) {
+    process.stdout.write(`  ${line}\n`);
   }
+  const age = Math.floor((Date.now() - new Date(entry.updated_at).getTime()) / 60000);
+  process.stdout.write(`\nMemory updated: ${age}m ago (importance=${entry.importance})\n`);
 }
 
 function cmdMemoryWriteBack(args: string[]): void {
@@ -1311,7 +1296,7 @@ function cmdScratchpad(args: string[]): void {
 }
 
 function cmdHelp(): void {
-  process.stdout.write(`arc - Bitcoin agent (arc0.btc) | native to L1 + Stacks
+  process.stdout.write(`arc - Loom (loom0) | Publisher agent | native to L1 + Stacks
 
 USAGE
   arc <command> [options]

@@ -35,7 +35,6 @@ import {
 import { isPidAlive, readFile } from "./utils.ts";
 import { getShutdownState } from "./shutdown.ts";
 import { getCredential } from "./credentials.ts";
-import { AGENT_NAME } from "./identity.ts";
 import { type ModelTier, type SdkRoute, MODEL_IDS, MODEL_PRICING, parseTaskSdk } from "./models.ts";
 import { dispatchOpenRouter, getOpenRouterApiKey } from "./openrouter.ts";
 import { dispatchCodex } from "./codex.ts";
@@ -59,13 +58,6 @@ const SKILLS_DIR = join(ROOT, "skills");
 
 /** Daily cost ceiling (USD). Above this, only P1-2 tasks dispatch. Matches D4 directive. */
 const DAILY_BUDGET_USD = 200;
-
-/**
- * GitHub gate — on workers, detect GitHub-related tasks before invoking LLM.
- * Auto-routes them to Arc via fleet-handoff, saving cost and preventing escalations.
- * Only active on non-Arc agents.
- */
-const GITHUB_TASK_RE = /github|git\s*push|git\s*clone|\bPAT\b|personal access token|ssh key|github credential|github token|gh auth|GITHUB_TOKEN|pull request|create.*PR|open.*PR|merge.*PR/i;
 
 /** Maximum time (ms) a Claude subprocess can run before being killed.
  *  Model-aware: Haiku tasks get 5min (simple execution), Sonnet 15min,
@@ -699,36 +691,6 @@ export async function runDispatch(): Promise<void> {
     );
     clearDispatchLock();
     return;
-  }
-
-  // GitHub gate — on workers, auto-route GitHub tasks to Arc without invoking LLM
-  if (AGENT_NAME !== "arc0") {
-    const taskText = [task.subject, task.description ?? ""].join(" ");
-    if (GITHUB_TASK_RE.test(taskText)) {
-      log(`dispatch: GITHUB GATE — task #${task.id} matches GitHub pattern on worker. Auto-routing to Arc.`);
-      markTaskActive(task.id);
-      const handoff = Bun.spawnSync({
-        cmd: [
-          "bash", "bin/arc", "skills", "run", "--name", "fleet-handoff", "--",
-          "initiate",
-          "--agent", "arc",
-          "--task-id", String(task.id),
-          "--progress", "Pre-dispatch GitHub gate intercepted this task",
-          "--remaining", task.subject,
-          "--reason", "GitHub is Arc-only (dispatch pre-gate)",
-        ],
-        cwd: ROOT,
-        stdout: "pipe",
-        stderr: "pipe",
-      });
-      const summary = handoff.exitCode === 0
-        ? "Auto-routed to Arc via dispatch GitHub gate (GitHub is Arc-only)"
-        : "GitHub gate: fleet-handoff failed, marked completed to prevent escalation loop";
-      markTaskCompleted(task.id, summary);
-      log(`dispatch: ${summary} — task #${task.id}`);
-      clearDispatchLock();
-      return;
-    }
   }
 
   // ---- Phase 3: Execute ----

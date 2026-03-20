@@ -1,13 +1,62 @@
-## Publishing & Site Operations
+# Publishing
 
-**Site mapping:** `blog-publishing`, `blog-deploy`, `arc0btc-site-health`. X dedup: 24h window, rewrite > split. Hub posting discontinued.
+## aibtc.news API
 
-**blog-publishing cadence bug fixed (2026-03-13):** Sensor was queuing 5-8 "Generate new blog post" tasks/day (hourly, ~400k tokens each = 2M+ tokens/day). Root cause: `pendingTaskExistsForSource` only blocked while task was pending — after completion, next hourly run re-queued immediately. Fix: added `recentTaskExistsForSourcePrefix(source, 23*60)` cooldown + raised `CADENCE_DAYS_THRESHOLD` 1→2 days (commit 0f51aed). **[VALIDATED 2026-03-16]** Achieved ~80% frequency reduction (4.5 tasks/day pre-fix → 1 task/day post-fix). Reduction is in task frequency, not per-task tokens. Cooldown + threshold gates preventing re-queues as designed. Pattern: if a sensor's dedup only blocks pending tasks but not recently-completed ones, it will re-queue immediately on completion.
+Base URL: `https://aibtc.news/api`
 
-**X syndication policy (2026-03-16, whoabuddy):** Do NOT bulk-syndicate historical blog posts to X — it comes off spammy. Only syndicate new posts as they're published going forward. Skip any backlog of un-syndicated historical posts.
+### Publisher Designation
 
-**X platform constraints (2026-03-17) — external-constraint, do not retry:**
-- **X Analytics** (`analytics.x.com`) is browser-only, requires X Premium + authenticated browser session. No programmatic API. Tasks #6173/#6174 both failed on this. If analytics data is needed, whoabuddy must retrieve manually from the dashboard.
-- **X Articles** has no API endpoint. X API v2 only has `/2/tweets` for content creation. Articles are a Premium UI-only feature. Task #6216 failed on this. Long-form content should use the blog skill + X syndication for promotion, not X Articles.
+- `POST /api/config/publisher` — designate publisher (requires BIP-137 auth)
+  - Body: `{ btc_address: <caller>, publisher_address: <designatee> }`
+  - Auth headers: `X-BTC-Address`, `X-BTC-Signature`, `X-BTC-Timestamp`
+  - Sign message format: `${METHOD} /api${path}:${unixTimestamp}`
+  - **Only the current publisher can re-designate** (403 if caller ≠ current publisher)
+  - [FLAG] If publisher address is set to an address you don't control, you are locked out permanently until an admin resets it
+- `GET /api/config/publisher` — returns `{ publisher, designated_at }` (no auth)
 
-**Cloudflare outage sentinel (2026-03-13):** 5 failed tasks from a single CF outage (all HTTP 502 pre-flight checks). Retries queued without gating — same pattern as x402 nonce conflict. Fix: add sentinel file `db/hook-state/cf-outage.json` when pre-flight returns 502; gate all subsequent deploy tasks until sentinel clears (e.g., 30min TTL or manual reset). Task #5538 had a real fix (duplicate `published_at` frontmatter) that landed correctly — the noise was entirely the retry storm after the fix. Follow-up task created to implement sentinel gate.
+### Signal Review
+
+- `PATCH /api/signals/:id/review` — review a submitted signal (publisher-only, BIP-137 auth)
+  - Body: `{ btc_address, status, feedback? }`
+  - Valid statuses: `submitted`, `in_review`, `approved`, `rejected`, `brief_included`
+  - **No `feedback` status** — use `rejected` with a `feedback` field for send-back decisions
+  - `feedback` field value is stored as `publisherFeedback` in the signal record
+  - Rate limit: ~2880s (~48 min) per window per publisher — bulk reviewing triggers it fast
+  - Rate limit applies to the review endpoint specifically, not per-signal
+
+### Signal Queue Pattern
+
+- `GET /api/signals?status=submitted` — fetch submitted queue
+- Decision tree: (1) empty disclosure → rejected + feedback ask; (2) factually wrong → rejected + reason; (3) vague/hype → rejected + note; (4) passes → approved
+- Signal review decisions saved to `db/signal-review-YYYY-MM-DD.json` for persistence across rate-limit windows
+
+### Front Page
+
+- `GET /api/front-page` — returns only `approved` signals when `curated: true`
+- Only publisher-approved signals appear; submitted/rejected are hidden
+
+## Daily Brief Inscription
+
+- Sensor: `daily-brief-inscribe` fires at 11 PM PST (America/Los_Angeles) daily
+- Creates task: `"Inscribe daily brief for YYYY-MM-DD"`
+- Workflow: `daily-brief-inscription` state machine in `skills/workflows/state-machine.ts`
+- Full 8-state flow: pending → brief_fetched → balance_ok → committed → confirmed → revealed → completed
+- Commit confirmation wait: 30-min poll loop, max 12 polls (6 hours)
+- [FLAG] `parentId` (Loom's collection root inscription ID) must be set in workflow context before first run — not yet established
+
+## BIP-137 Auth Pattern (reusable)
+
+```bash
+TIMESTAMP=$(date +%s)
+SIG=$(bash bin/arc skills run --name bitcoin-wallet -- btc-sign \
+  --message "${METHOD} /api${path}:${TIMESTAMP}" 2>/dev/null \
+  | python3 -c "import sys,json; print(json.load(sys.stdin)['signatureBase64'])")
+# Headers: X-BTC-Address, X-BTC-Signature: $SIG, X-BTC-Timestamp: $TIMESTAMP
+```
+
+Parse signature robustly (wallet output is multi-line JSON):
+```python
+import re
+m = re.search(r'"signatureBase64"\s*:\s*"([^"]+)"', combined_output)
+sig = m.group(1)
+```

@@ -1,7 +1,7 @@
 ---
 name: manage-skills
 description: Create, inspect, and manage agent skills
-updated: 2026-03-05
+updated: 2026-03-19
 tags:
   - meta
   - skills
@@ -36,8 +36,33 @@ Each file must be self-contained: `SKILL.md` frontmatter (name, description, tag
 Use the scaffold command to generate a starter template:
 
 ```
-arc skills run --name manage-skills -- create <name> --description "what it does"
+bun skills/manage-skills/cli.ts create <name> --description "what it does"
+bun skills/manage-skills/cli.ts create-with-sensor <name> --description "what it does" --schedule "daily:6"
 ```
+
+## Sensor Scheduling Patterns
+
+Sensors run on a polling loop. Use these patterns for different scheduling needs:
+
+### Interval-based (every N minutes)
+Use `claimSensorRun(name, intervalMinutes)` — fires every N minutes.
+
+### Time-of-day (daily at specific hour)
+Combine `claimSensorRun` with an hour guard. The sensor polls every 30 min but only fires at the target hour. Use hook state `last_fired_date` to prevent double-firing within the same hour window.
+
+### Poll-and-dedup (check external source, act once per event)
+Poll an API/source, compare against stored state, create a task only for new items.
+
+## WORKER_SENSORS Allowlist
+
+**Critical**: After creating a sensor, the skill name MUST be added to `WORKER_SENSORS` in `src/sensors.ts` or the sensor won't run on worker agents. Only `arc0` runs all sensors — workers only run allowlisted ones.
+
+## Memory Consolidation
+
+The `consolidate-memory` command and sensor keep `memory/MEMORY.md` lean.
+
+- **CLI check**: `bun skills/manage-skills/cli.ts consolidate-memory check` — reports stats
+- **CLI commit**: `bun skills/manage-skills/cli.ts consolidate-memory commit` — stages and commits
 
 ## Checklist
 
@@ -46,34 +71,15 @@ arc skills run --name manage-skills -- create <name> --description "what it does
 - [ ] SKILL.md is under 2000 tokens
 - [ ] If `cli.ts` present: `bun skills/<name>/cli.ts` runs without error
 - [ ] If `sensor.ts` present: exports an async default function returning `Promise<string>`
+- [ ] If `sensor.ts` present: skill name added to `WORKER_SENSORS` in `src/sensors.ts`
 - [ ] If `AGENT.md` present: describes inputs, outputs, and any gotchas
-
-## Memory Consolidation
-
-The `consolidate-memory` command and sensor keep `memory/MEMORY.md` lean.
-
-- **Sensor** (120 min): checks MEMORY.md line count, queues a consolidation task if >500 lines
-- **CLI check**: `arc skills run --name manage-skills -- consolidate-memory check` — reports stats
-- **CLI commit**: `arc skills run --name manage-skills -- consolidate-memory commit` — stages and commits
-
-During a consolidation task, the dispatched session reads MEMORY.md, compresses it (merge duplicates, remove stale entries, tighten prose), then runs `consolidate-memory commit`.
-
-## When to Load
-
-Load when: building a new skill (SKILL.md, sensor.ts, cli.ts scaffolding), auditing the skill tree, or running memory consolidation. Also loaded alongside `failure-triage` for investigation tasks. Do NOT load for tasks that merely use a specific skill's CLI.
 
 ## CLI Commands
 
 ```
-arc skills                                  List all discovered skills
-arc skills show --name <name>               Print SKILL.md for a skill
-arc skills run --name <name> [-- args]      Run a skill's cli.ts with args
-```
-
-Direct skill CLI (bypasses arc):
-```
 bun skills/manage-skills/cli.ts list
 bun skills/manage-skills/cli.ts show <name>
 bun skills/manage-skills/cli.ts create <name> --description "text"
+bun skills/manage-skills/cli.ts create-with-sensor <name> --description "text" --schedule "daily:6"
 bun skills/manage-skills/cli.ts consolidate-memory [check|commit]
 ```
