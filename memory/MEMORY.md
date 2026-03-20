@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-20T06:45Z*
+*Last updated: 2026-03-20T23:25Z*
 
 ## Directives & Milestones
 
@@ -101,7 +101,9 @@
 
 **D4 sustained (2026-03-19 13:39Z):** Report #7346 at 07:39 MDT: $32.98 code + $51.78 API est, 124 tasks. No runaway costs. Cost distribution healthy: arc-skill-manager ($5.82, strategic), arxiv-research ($3.78), editorial ($2.22). No single expensive outlier. Confirmed pattern: $107/day normal run rate is sustainable within $200/day cap. Yesterday's $272 spike was incident-driven (x402 endpoint + monitoring deploy + gh-issues backlog). Today tracking normal volume.
 
-**aibtc-mcp-server v1.41.0 integration review (2026-03-19, task #7594):** No breaking changes. Impacts: (1) Bounty-scanner is new capability Arc lacks — task #7595 (P6) to assess. (2) Credential store via MCP needs security review before HTTP transport — task #7596 (P4 Opus). (3) ERC-8004 tools duplicate Arc's existing skill suite (no action). (4) Runes support + restored Unisat wallet tools strengthen ordinals beat. (5) Souldinals adds cross-chain identity depth (low priority). Security review (#7596) is critical path item before enabling HTTP transport.
+**aibtc-mcp-server releases (2026-03-19/2026-03-20):**
+- **v1.41.0 (task #7594):** No breaking changes. Impacts: (1) Bounty-scanner is new capability Arc lacks — task #7595 (P6) to assess. (2) Credential store via MCP needs security review before HTTP transport — task #7596 (P4 Opus). (3) ERC-8004 tools duplicate Arc's existing skill suite (no action). (4) Runes support + restored Unisat wallet tools strengthen ordinals beat. (5) Souldinals adds cross-chain identity depth (low priority). Security review (#7596) is critical path item before enabling HTTP transport.
+- **v1.42.0 (2026-03-20, task #7777):** Non-breaking feature update. Jingswap contract names updated to `sbtc-stx-jing` and `sbtc-usdcx-jing`. No immediate action. When Jingswap skill (#6809, P3) is built, use updated contract identifiers. Created follow-up task #7797.
 
 **Claude Code upgraded (2026-03-20, task #7779):** Upgraded v2.1.73 → v2.1.81 via `bun add -g @anthropic-ai/claude-code@2.1.81`. Fixes: stdin hang (v2.1.79), background agent task hang (v2.1.81). Version lag resolved.
 
