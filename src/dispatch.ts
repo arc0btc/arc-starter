@@ -40,7 +40,6 @@ import { dispatchOpenRouter, getOpenRouterApiKey } from "./openrouter.ts";
 import { dispatchCodex } from "./codex.ts";
 import { captureBaseline, classifyFile, evaluateExperiment, scheduleVerification, type BaselineSnapshot } from "./experiment.ts";
 import { type ErrorClass, checkDispatchGate, recordGateSuccess, recordGateFailure } from "./dispatch-gate.ts";
-import { writeFleetStatus, writeFleetStatusIdle } from "./fleet-status.ts";
 import { safeCommitCycleChanges, getHeadSha, codeChangedSince } from "./safe-commit.ts";
 import { createWorktree, validateWorktree, getWorktreeChangedFiles, mergeWorktree, discardWorktree } from "./worktree.ts";
 import { resolveMemoryContext, resolveFtsMemoryContext, type FtsMemoryResult } from "./memory-topics.ts";
@@ -654,7 +653,6 @@ export async function runDispatch(): Promise<void> {
   const shutdownState = getShutdownState();
   if (shutdownState) {
     log(`dispatch: SHUTDOWN — skipping dispatch (${shutdownState.reason}, since ${shutdownState.since})`);
-    writeFleetStatusIdle();
     return;
   }
 
@@ -676,7 +674,6 @@ export async function runDispatch(): Promise<void> {
   const pendingTasks = getPendingTasks();
   if (pendingTasks.length === 0) {
     log("dispatch: No pending tasks. Idle.");
-    writeFleetStatusIdle();
     clearDispatchLock();
     return;
   }
@@ -1002,11 +999,6 @@ export async function runDispatch(): Promise<void> {
   } else {
     await safeCommitCycleChanges(task.id);
   }
-
-  // Fleet status
-  const finalDuration = Date.now() - dispatchStart;
-  const finalTask = getTaskById(task.id) ?? task;
-  writeFleetStatus(finalTask, finalDuration, cycleCostUsd);
 
   // Security scan — only when src/ or skills/ changed
   if (await codeChangedSince(preDispatchSha)) {

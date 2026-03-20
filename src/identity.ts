@@ -25,13 +25,13 @@ export interface AgentIdentity {
 
 export const IDENTITY: AgentIdentity = {
   name: "loom0",
-  bns: "",  // loom0.btc not yet registered to this wallet
+  bns: "",
   btc_segwit: "bc1qktaz6rg5k4smre0wfde2tjs2eupvggpmdz39ku",
   btc_taproot: "bc1ptqmds7ghh5lqexzd34xnf5sryxzjvlvuj2eetmhgjkp998545tequsd9we",
   stx: "SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM",
-  github: "",
-  twitter: "",
-  website: "",
+  github: "https://github.com/rising-leviathan",
+  twitter: "https://x.com/risingleviathan",
+  website: "https://aibtc.news",
   btc: "bc1qktaz6rg5k4smre0wfde2tjs2eupvggpmdz39ku",
   legacy_wallets: [
     {
