@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T20:37:55.148Z",
+  "updated_at": "2026-03-20T20:44:25.895Z",
   "idle": true,
-  "idle_since": "2026-03-20T20:21:49.161Z",
+  "idle_since": "2026-03-20T20:40:25.069Z",
   "last_task": {
-    "id": 7761,
-    "subject": "Retrospective: extract learnings from task #7759 — Email from whoabuddy (1 unread): Workflows within Skills",
+    "id": 7762,
+    "subject": "Refresh ERC-8004 agents index and publish to arc0.me/agents",
     "status": "completed",
-    "priority": 8
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 26151,
-    "cost_usd": 0.06271750000000001
+    "duration_ms": 89178,
+    "cost_usd": 0.18555119999999997
   },
   "health": {
-    "uptime_seconds": 1981573,
+    "uptime_seconds": 1981964,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229181030400
+    "disk_avail_bytes": 229180301312
   }
 }
