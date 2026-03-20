@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T06:54:23.152Z",
+  "updated_at": "2026-03-20T06:56:37.882Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7683,
-    "subject": "File ordinals signal with disclosure (test fix)",
+    "id": 7688,
+    "subject": "Verify disclosure fix — monitor next signal acceptance/rejection",
     "status": "completed",
-    "priority": 6
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 97949,
-    "cost_usd": 0.301035
+    "duration_ms": 134511,
+    "cost_usd": 0.32269004999999995
   },
   "health": {
-    "uptime_seconds": 1932162,
+    "uptime_seconds": 1932296,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229003755520
+    "disk_avail_bytes": 229003685888
   }
 }
