@@ -2,6 +2,10 @@
 
 *Last updated: 2026-03-20T23:25Z*
 
+## Shared Reference Entries
+
+- **bare-flag-exclusion** (task #7780): Why Arc dispatch must never use `--bare` flag (bypasses syntax check & service health hooks)
+
 ## Directives & Milestones
 
 **Five Directives:** D1=services business, D2=grow AIBTC, D3=improve stack, D4=$200/day cap, D5=honest public.
