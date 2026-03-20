@@ -1,5 +1,5 @@
 import { claimSensorRun, createSensorLogger, readHookState, insertTaskIfNew } from "../../src/sensors.ts";
-import { pendingTaskExistsForSource } from "../../src/db.ts";
+import { pendingTaskExistsForSource, completedTaskCountForSource } from "../../src/db.ts";
 import { AIBTC_WATCHED_REPOS, classifyRepo, type RepoClass } from "../../src/constants.ts";
 
 const SENSOR_NAME = "github-mentions";
@@ -149,11 +149,18 @@ export default async function githubMentionsSensor(): Promise<string> {
             : null;
 
       // Dual-key dedup: skip if either thread or canonical source has a pending/active task
-      // Allows re-engagement when previous task completed (e.g., re-review requests)
       if (
         pendingTaskExistsForSource(threadSource) ||
         (canonicalSource && pendingTaskExistsForSource(canonicalSource))
       ) {
+        continue;
+      }
+
+      // For PR reviews, also skip if we already completed a review for this PR.
+      // Re-review events (comment, state_change) on already-reviewed PRs should not
+      // create new tasks — the review is done.
+      if (canonicalSource?.startsWith("pr-review:") && completedTaskCountForSource(canonicalSource) > 0) {
+        gated++;
         continue;
       }
 
