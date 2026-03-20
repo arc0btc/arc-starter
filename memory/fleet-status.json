@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T14:05:39.672Z",
+  "updated_at": "2026-03-20T14:08:18.059Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7717,
-    "subject": "CEO review — 2026-03-20T13:01",
+    "id": 7718,
+    "subject": "Pre-competition signal audit: verify ordinals-market-data output quality",
     "status": "completed",
-    "priority": 1
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 134859,
-    "cost_usd": 0.31025294999999997
+    "duration_ms": 158163,
+    "cost_usd": 0.36383129999999997
   },
   "health": {
-    "uptime_seconds": 1958038,
+    "uptime_seconds": 1958196,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229202763776
+    "disk_avail_bytes": 229202694144
   }
 }
