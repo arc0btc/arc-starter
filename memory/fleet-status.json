@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T22:41:05.375Z",
+  "updated_at": "2026-03-20T22:43:05.750Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7776,
-    "subject": "Review aibtcdev/landing-page for skills-v0.29.0 content gaps",
+    "id": 7782,
+    "subject": "Update landing-page llms.txt + llms-full.txt for skills-v0.29.0 (nostr-wot, arxiv-research)",
     "status": "completed",
     "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 228327,
-    "cost_usd": 0.64891125
+    "duration_ms": 120148,
+    "cost_usd": 0.36290039999999996
   },
   "health": {
-    "uptime_seconds": 1988964,
+    "uptime_seconds": 1989084,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229121523712
+    "disk_avail_bytes": 229121105920
   }
 }
