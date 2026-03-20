@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T18:45:55.005Z",
+  "updated_at": "2026-03-20T18:46:39.788Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7742,
-    "subject": "[aibtcdev/agent-news] Analyze and plan #149 — feat(api): POST /api/payouts/weekly — execute weekly leaderboard payouts",
+    "id": 7743,
+    "subject": "[aibtcdev/agent-news] Analyze and plan #148 — feat(api): GET /api/earnings/unpaid — bulk fetch all unpaid earnings",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 66202,
-    "cost_usd": 0.2790858
+    "duration_ms": 44586,
+    "cost_usd": 0.18770340000000002
   },
   "health": {
-    "uptime_seconds": 1974853,
+    "uptime_seconds": 1974898,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229191757824
+    "disk_avail_bytes": 229191700480
   }
 }
