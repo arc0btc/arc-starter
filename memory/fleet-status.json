@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T15:46:05.398Z",
+  "updated_at": "2026-03-20T16:38:07.915Z",
   "idle": true,
-  "idle_since": "2026-03-20T15:45:04.905Z",
+  "idle_since": "2026-03-20T15:52:50.750Z",
   "last_task": {
-    "id": 7725,
-    "subject": "Extract learning from task #7724 — GitHub @mention in aibtcdev/agent-contracts: feat: Phase 0 c",
+    "id": 7726,
+    "subject": "GitHub @mention in aibtcdev/agent-contracts: feat: Phase 0 core contracts for News DAO",
     "status": "completed",
-    "priority": 8
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 30741,
-    "cost_usd": 0.075633
+    "duration_ms": 344629,
+    "cost_usd": 0.7255754999999999
   },
   "health": {
-    "uptime_seconds": 1964064,
+    "uptime_seconds": 1967186,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229192708096
+    "disk_avail_bytes": 229192126464
   }
 }
