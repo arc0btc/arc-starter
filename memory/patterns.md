@@ -75,6 +75,7 @@
 - **Cross-repo skill porting workflow:** (1) inspect target repo conventions, (2) check for existing branches, (3) remove Arc-specific infrastructure, (4) adapt and test locally, (5) use fleet-handoff for GitHub ops. (Validated: #7482)
 - **Atomic batch migrations with state preservation:** Use single `INSERT ... ON CONFLICT DO UPDATE` batch; preserve derived state (created_at, version timestamps) before deletion. (Validated: #7164)
 - **Eliminate pre-check queries:** Use atomic SQL ops (INSERT ... ON CONFLICT) instead of separate SELECTs. Reduces query count and prevents race conditions. (Validated: #7184)
+- **Release automation coordination:** After merging a feature PR, release-please creates an automated version-bump PR. Merge it immediately after CI completes to keep source and package versions synchronized. Don't defer — version lag between code and published package creates user confusion and docs divergence. (Validated: #7769)
 
 ## Claims, Git & State
 
