@@ -107,7 +107,7 @@ function sendAlert(subject: string, body: string): void {
     Bun.spawnSync([
       "bash", arcBin, "skills", "run", "--name", "arc-email-sync", "--",
       "send", "--to", ALERT_RECIPIENT, "--subject", subject,
-      "--body", body, "--from", "watchdog@arc0btc.com",
+      "--body", body, "--from", "loom@aibtc.com",
     ], { cwd: ROOT, stdout: "ignore", stderr: "pipe" });
     log(`alert email sent to ${ALERT_RECIPIENT}`);
   } catch (e) {

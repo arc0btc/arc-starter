@@ -184,21 +184,6 @@ export default async function myPollSensor(): Promise<string> {
 }
 ```
 
-## WORKER_SENSORS Registration (CRITICAL)
-
-After creating a sensor, you MUST add the skill name to the `WORKER_SENSORS` set in `src/sensors.ts`, or the sensor will NOT run on worker agents (only arc0 runs all sensors).
-
-Find this block in `src/sensors.ts`:
-```typescript
-const WORKER_SENSORS: ReadonlySet<string> = new Set([
-  // Core — every agent needs these
-  "aibtc-heartbeat",
-  ...
-]);
-```
-
-Add the new skill name to the appropriate section with a comment explaining its purpose.
-
 ## cli.ts Pattern
 
 ```typescript
@@ -230,9 +215,8 @@ Rules:
 3. Write `sensor.ts` using the appropriate pattern above
 4. (Optional) Write `AGENT.md` if the skill dispatches tasks to subagents
 5. (Optional) Write `cli.ts` if the skill needs a CLI interface
-6. Add skill name to `WORKER_SENSORS` in `src/sensors.ts`
-7. Test sensor standalone: `bun skills/<name>/sensor.ts`
-8. Verify with: `bun skills/manage-skills/cli.ts show <name>`
+6. Test sensor standalone: `bun skills/<name>/sensor.ts`
+7. Verify with: `bun skills/manage-skills/cli.ts show <name>`
 
 ## Output
 

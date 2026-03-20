@@ -53,10 +53,6 @@ Combine `claimSensorRun` with an hour guard. The sensor polls every 30 min but o
 ### Poll-and-dedup (check external source, act once per event)
 Poll an API/source, compare against stored state, create a task only for new items.
 
-## WORKER_SENSORS Allowlist
-
-**Critical**: After creating a sensor, the skill name MUST be added to `WORKER_SENSORS` in `src/sensors.ts` or the sensor won't run on worker agents. Only `arc0` runs all sensors — workers only run allowlisted ones.
-
 ## Memory Consolidation
 
 The `consolidate-memory` command and sensor keep `memory/MEMORY.md` lean.
@@ -71,7 +67,6 @@ The `consolidate-memory` command and sensor keep `memory/MEMORY.md` lean.
 - [ ] SKILL.md is under 2000 tokens
 - [ ] If `cli.ts` present: `bun skills/<name>/cli.ts` runs without error
 - [ ] If `sensor.ts` present: exports an async default function returning `Promise<string>`
-- [ ] If `sensor.ts` present: skill name added to `WORKER_SENSORS` in `src/sensors.ts`
 - [ ] If `AGENT.md` present: describes inputs, outputs, and any gotchas
 
 ## CLI Commands
