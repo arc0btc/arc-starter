@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T12:28:17.908Z",
+  "updated_at": "2026-03-20T13:01:05.401Z",
   "idle": true,
-  "idle_since": "2026-03-20T11:52:05.993Z",
+  "idle_since": "2026-03-20T12:30:54.454Z",
   "last_task": {
-    "id": 7712,
-    "subject": "Review 3 blocked task(s) for possible unblock",
+    "id": 7713,
+    "subject": "AIBTC thread from Crafty Puma (1 messages)",
     "status": "completed",
-    "priority": 7
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 71120,
-    "cost_usd": 0.22924605
+    "duration_ms": 95908,
+    "cost_usd": 0.5376329999999999
   },
   "health": {
-    "uptime_seconds": 1952196,
+    "uptime_seconds": 1954164,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229204103168
+    "disk_avail_bytes": 229203697664
   }
 }
