@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T00:20:28.411Z",
-  "idle": true,
-  "idle_since": "2026-03-20T00:18:27.654Z",
+  "updated_at": "2026-03-20T00:22:20.175Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 7639,
-    "subject": "GitHub review request in aibtcdev/agent-news: fix(rate-limits): raise publisher limits and consolidate constants",
+    "id": 7641,
+    "subject": "GitHub comment reply in aibtcdev/skills: refactor(wallet-manager): extract hex encode/decode helpers for session key serialization",
     "status": "completed",
-    "priority": 3
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 46492,
-    "cost_usd": 0.1590768
+    "duration_ms": 51387,
+    "cost_usd": 0.1549182
   },
   "health": {
-    "uptime_seconds": 1908527,
+    "uptime_seconds": 1908639,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229256777728
+    "disk_avail_bytes": 229256720384
   }
 }
