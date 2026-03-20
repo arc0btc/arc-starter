@@ -1,7 +1,7 @@
 ---
 name: jingswap
-description: Jingswap order-book DEX on Stacks — STX/sBTC deposits, TVL checks, quotes
-updated: 2026-03-18
+description: Jingswap blind batch auction on Stacks — sBTC/STX and sBTC/USDCx markets, cycle state, deposits, settlements
+updated: 2026-03-20
 tags:
   - defi
   - dex
@@ -10,53 +10,69 @@ tags:
 
 # Jingswap
 
-Order-book DEX on Stacks for STX/sBTC trading. Unlike AMM DEXes (Bitflow, Stackswap), Jingswap uses bid/ask orders. Deposits add liquidity by placing limit orders on the book.
+Blind batch auction DEX on Stacks for swapping sBTC against a quote token. Unlike AMM DEXes (Bitflow), Jingswap batches deposits from both sides of a market and settles at oracle price (Pyth). Two markets available:
 
-## Deposit Flow
+| Market | Contract | Quote Token |
+|--------|----------|-------------|
+| `sbtc-stx` (default) | `SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.sbtc-stx-jing` | STX |
+| `sbtc-usdcx` | `SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.sbtc-usdcx-jing` | USDCx |
 
-1. **Pre-check:** `check-tvl` — verify liquidity exists on both sides of the book (STX and sBTC). Gate: do NOT deposit into an empty or one-sided book.
-2. **Quote:** `quote` — get current best bid/ask spread and expected fill price for a given size.
-3. **Deposit:** `deposit` — place a limit order (bid or ask) on the book. Budget: max 50 STX or 10,000 sats per cycle.
+## Auction Cycle
 
-Target wallet for first deposits: `SP12Q1FS2DX4N8C2QYBM0Z2N2DY1EH9EEPMPH9N9X` (Spark).
+Each cycle has three phases:
 
-## Configuration
+1. **Deposit** (min 150 blocks ~5 min) — anyone deposits quote token or sBTC
+2. **Buffer** (30 blocks ~1 min) — no new deposits, waiting for settlement
+3. **Settle** — anyone triggers settlement using Pyth oracle prices; unswapped remainder rolls to next cycle
 
-Contract addresses and pair config live in `skills/jingswap/config.json`. This file must be populated before write operations work. Read-only commands (check-tvl, quote) also require valid contract addresses.
+Cancel threshold: 530 blocks (~17.5 min) from close — if settle fails, cancel rolls deposits forward.
 
 ## CLI Commands
 
-All commands output single JSON objects. Named flags only.
+All commands output JSON. Named flags only. All accept `--market sbtc-stx` (default) or `--market sbtc-usdcx`.
 
 ```
-arc skills run --name jingswap -- check-tvl [--pair STX-sBTC]
-arc skills run --name jingswap -- quote --side bid --amount 50000000 [--pair STX-sBTC]
-arc skills run --name jingswap -- deposit --side bid --amount 50000000 --price <ustx-per-sat> [--pair STX-sBTC]
+arc skills run --name jingswap -- cycle-state [--market sbtc-stx]
+arc skills run --name jingswap -- depositors --cycle <N> [--market sbtc-stx]
+arc skills run --name jingswap -- settlement --cycle <N> [--market sbtc-stx]
+arc skills run --name jingswap -- prices [--market sbtc-stx]
+arc skills run --name jingswap -- deposit-quote --amount <units> [--market sbtc-stx]
+arc skills run --name jingswap -- deposit-sbtc --amount <sats> [--market sbtc-stx]
 ```
 
-### check-tvl
+### cycle-state
+Read-only. Returns current cycle number, phase (0=deposit, 1=buffer, 2=settle), blocks elapsed, totals, and minimums. Gate all deposits on `phase === 0`.
 
-Read-only. Queries on-chain order book depth for both sides. Returns bid/ask counts, total volume on each side, and a `healthy` boolean (true if both sides have liquidity). Gate all deposits on `healthy === true`.
+### depositors
+Read-only. Returns quote-token and sBTC depositors for a given cycle.
 
-### quote
+### settlement
+Read-only. Returns settlement details (oracle price, fill amounts) for a completed cycle.
 
-Read-only. Returns best bid, best ask, spread, and estimated fill for a given amount and side. Use before deposit to verify pricing.
+### prices
+Read-only. Returns Pyth oracle and DEX prices for the market.
 
-### deposit
+### deposit-quote
+Write. Deposits quote token (STX or USDCx depending on market) into current cycle. Deposit phase only. Budget-gated: max 50 STX (50,000,000 uSTX) per cycle.
 
-Write operation. Places a limit order on the Jingswap book. Requires wallet unlock. Budget-gated: rejects amounts exceeding 50 STX (50,000,000 uSTX) or 10,000 sats.
+### deposit-sbtc
+Write. Deposits sBTC (satoshis) into current cycle. Deposit phase only. Budget-gated: max 10,000 sats per cycle.
 
 ## Budget & Safety
 
 - **Max per cycle:** 50 STX / 10,000 sats
-- **TVL gate:** Both sides must have liquidity before depositing
+- **Phase gate:** Deposits only during deposit phase (phase 0)
 - **Mainnet only** — no testnet contracts configured
-- **No market orders** — limit orders only for price protection
-- **Quote before deposit:** Always run `quote` first to verify spread
+- **Oracle settlement** — Pyth price, not maker-set limit price
+- **Unswapped rolls forward** — remainder goes to next cycle, not refunded
+
+## Configuration
+
+Contract addresses and market config live in `skills/jingswap/config.json`. Jingswap API at `https://faktory-dao-backend.vercel.app` provides read endpoints.
 
 ## When to Load
 
-Load when: depositing to Jingswap, checking order book health, getting STX/sBTC quotes on Jingswap. Not needed for AMM swaps (use `bitflow`). Not needed for lending (use `zest-v2`).
+Load when: depositing to Jingswap, checking auction state, querying settlement history. Not needed for AMM swaps (use `defi-bitflow`). Not needed for lending (use `zest-v2`).
 
 ## Checklist
 
@@ -64,5 +80,5 @@ Load when: depositing to Jingswap, checking order book health, getting STX/sBTC 
 - [x] Frontmatter `name` matches directory name
 - [x] SKILL.md is under 2000 tokens
 - [x] `cli.ts` runs without error
-- [x] `config.json` populated with live contract addresses
+- [x] `config.json` populated with v0.29.0 contract names (sbtc-stx-jing, sbtc-usdcx-jing)
 - [ ] End-to-end deposit tested on mainnet
