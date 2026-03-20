@@ -2790,6 +2790,295 @@ Steps:
 };
 
 /**
+ * CeoReviewMachine — models the recurring CEO review → action items → retrospective cycle.
+ *
+ * Pattern detected: "sensor:arc-ceo-review" tasks (3 recurrences, avg 4.7 steps/chain)
+ * consistently spawn diverse action item tasks (github-mentions, blog-deploy, fleet-handoff,
+ * arc-reporting, fleet-memory) followed by a retrospective to extract learnings.
+ * This machine deduplicates concurrent review tasks for the same timeslot and ensures
+ * the retrospective always follows.
+ *
+ * instance_key: "ceo-review-{YYYY-MM-DDTHH}" (one per scheduled review slot)
+ *
+ * States:
+ *   scheduled             → creates the CEO review task
+ *   reviewing             → review executing; executor identifies action items and transitions
+ *   actions_pending       → action tasks created; waiting for completion
+ *   retrospective_pending → create retrospective to extract learnings
+ *   completed             → done
+ *
+ * Context:
+ *   reviewDate     — ISO date-time of the review, e.g. "2026-03-20T01:01"
+ *   reviewSummary  — brief summary of findings from the review (populated after reviewing)
+ *   actionItems    — comma-separated list of spawned action task subjects
+ *   taskRef        — "task:{id}" of the review task (populated after scheduling)
+ */
+export const CeoReviewMachine: StateMachine<{
+  reviewDate?: string;
+  reviewSummary?: string;
+  actionItems?: string;
+  taskRef?: string;
+}> = {
+  name: "ceo-review",
+  initialState: "scheduled",
+  states: {
+    scheduled: {
+      on: { start: "reviewing" },
+      action: (ctx) => {
+        const date = ctx.reviewDate || new Date().toISOString().slice(0, 16);
+        return {
+          type: "create-task",
+          subject: `CEO review — ${date}`,
+          priority: 4,
+          skills: ["arc-ceo-review", "arc-ceo-strategy", "arc-skill-manager"],
+          description: `Run the CEO review for ${date}.
+
+Steps:
+1. Run arc-ceo-review CLI to gather status across directives, fleet, and metrics
+2. Identify action items (github-mentions, blog drafts, fleet tasks, reporting gaps)
+3. Create follow-up tasks for each action item (arc tasks add)
+4. Set reviewSummary and actionItems (comma-separated) in workflow context
+5. Transition this workflow to 'reviewing', then 'actions_pending'`,
+        };
+      },
+    },
+    reviewing: {
+      on: { actions_created: "actions_pending", no_actions: "retrospective_pending" },
+      action: (ctx) => {
+        if (ctx.reviewSummary === undefined) return null;
+        if (!ctx.actionItems || ctx.actionItems.trim() === "") {
+          return { type: "transition", nextState: "retrospective_pending" };
+        }
+        return { type: "transition", nextState: "actions_pending" };
+      },
+    },
+    actions_pending: {
+      on: { all_done: "retrospective_pending" },
+      action: () => null,
+    },
+    retrospective_pending: {
+      on: { learnings_extracted: "completed" },
+      action: (ctx) => {
+        const date = ctx.reviewDate || "unknown date";
+        return {
+          type: "create-task",
+          subject: `Retrospective: extract learnings from CEO review — ${date}`,
+          priority: 8,
+          skills: ["arc-skill-manager"],
+          description: `Extract learnings from the CEO review for ${date}.
+${ctx.taskRef ? `Review task: ${ctx.taskRef}` : ""}
+${ctx.reviewSummary ? `Review summary: ${ctx.reviewSummary}` : ""}
+${ctx.actionItems ? `Action items spawned: ${ctx.actionItems}` : ""}
+
+Steps:
+1. Review the CEO review output and action items created
+2. Identify patterns in recurring issues, missed directives, or operational gaps
+3. Update memory/MEMORY.md with key strategic learnings
+4. Transition workflow to 'completed'`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
+ * WorkflowReviewMachine — models the recurring workflow pattern detection → design → wire cycle.
+ *
+ * Pattern detected: "sensor:arc-workflow-review" tasks (3 recurrences, avg 2.7 steps/chain)
+ * consistently spawn a follow-up to wire new machines into their sensors after design.
+ * This machine deduplicates concurrent design tasks for the same review cycle and ensures
+ * the sensor-wiring follow-up always happens.
+ *
+ * instance_key: "workflow-review-{YYYY-MM-DD}" (one per day)
+ *
+ * States:
+ *   detected       → patterns found; creates the workflow design task
+ *   designing      → design task executing; executor designs and registers new machines
+ *   wiring_pending → new machines designed; create sensor-wiring audit task
+ *   completed      → machines wired or no wiring needed
+ *   no_patterns    → sensor found no new patterns to model (terminal)
+ *
+ * Context:
+ *   patternCount   — number of repeating patterns detected
+ *   patternSummary — brief description of detected patterns
+ *   reviewDate     — ISO date of the review cycle
+ *   newMachines    — comma-separated names of new state machines designed
+ *   wiringSummary  — what sensors were wired (populated before completing)
+ */
+export const WorkflowReviewMachine: StateMachine<{
+  patternCount?: number;
+  patternSummary?: string;
+  reviewDate?: string;
+  newMachines?: string;
+  wiringSummary?: string;
+}> = {
+  name: "workflow-review",
+  initialState: "detected",
+  states: {
+    detected: {
+      on: { start_design: "designing", no_patterns: "no_patterns" },
+      action: (ctx) => {
+        const count = ctx.patternCount || 0;
+        if (count === 0) return { type: "transition", nextState: "no_patterns" };
+        const date = ctx.reviewDate || new Date().toISOString().slice(0, 10);
+        return {
+          type: "create-task",
+          subject: `Workflow design: ${count} repeating pattern(s) detected`,
+          priority: 5,
+          skills: ["arc-workflows", "arc-skill-manager"],
+          description: `Workflow review detected ${count} repeating multi-step process(es) not yet modeled as workflow state machines.
+${ctx.patternSummary ? `\nPatterns:\n${ctx.patternSummary}` : ""}
+
+Steps:
+1. Evaluate each pattern — does a formal state machine add value?
+2. For each pattern worth modeling: design and register the template in state-machine.ts
+3. Set newMachines in workflow context (comma-separated names of new machines)
+4. Transition this workflow to 'designing', then 'wiring_pending'`,
+        };
+      },
+    },
+    designing: {
+      on: { needs_wiring: "wiring_pending", no_wiring: "completed" },
+      action: (ctx) => {
+        if (ctx.newMachines === undefined) return null;
+        if (!ctx.newMachines || ctx.newMachines.trim() === "") {
+          return { type: "transition", nextState: "completed" };
+        }
+        return { type: "transition", nextState: "wiring_pending" };
+      },
+    },
+    wiring_pending: {
+      on: { wired: "completed" },
+      action: (ctx) => {
+        const machines = ctx.newMachines || "new machines";
+        return {
+          type: "create-task",
+          subject: `Audit: wire ${machines} into their sensors`,
+          priority: 6,
+          skills: ["arc-workflows", "arc-skill-manager"],
+          description: `New state machines have been designed: ${machines}.
+
+For each new machine, audit the corresponding sensor(s) to check if they should create workflow instances instead of bare tasks.
+
+Steps:
+1. For each machine, identify the sensor(s) that trigger the pattern
+2. Check if the sensor already creates workflow instances
+3. If not: update the sensor to call createWorkflow() before creating the root task
+4. Commit changes; run bun build --no-bundle to verify syntax
+5. Transition this workflow to 'completed' and set wiringSummary in context`,
+        };
+      },
+    },
+    no_patterns: {
+      on: {},
+      action: () => null,
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
+ * ComplianceReviewMachine — models the recurring compliance scan → retrospective cycle.
+ *
+ * Pattern detected: "sensor:compliance-review" tasks (3 recurrences, avg 2.0 steps/chain)
+ * consistently spawn a retrospective to extract learnings after each scan.
+ * This machine deduplicates concurrent scans for the same day and ensures
+ * learnings are always captured.
+ *
+ * instance_key: "compliance-review-{YYYY-MM-DD}" (one per day)
+ *
+ * States:
+ *   scan_complete         → compliance scan finished; creates a review task
+ *   reviewing             → review task executing
+ *   retrospective_pending → review done; create retrospective to extract learnings
+ *   clean                 → scan found no findings (terminal)
+ *   completed             → findings reviewed and learnings captured (terminal)
+ *
+ * Context:
+ *   findingCount   — number of compliance findings
+ *   skillCount     — number of skills scanned
+ *   scanDate       — ISO date of the scan (for dedup / reference)
+ *   taskRef        — "task:{id}" of the compliance review task
+ *   learningsSummary — brief summary of what was learned
+ */
+export const ComplianceReviewMachine: StateMachine<{
+  findingCount?: number;
+  skillCount?: number;
+  scanDate?: string;
+  taskRef?: string;
+  learningsSummary?: string;
+}> = {
+  name: "compliance-review",
+  initialState: "scan_complete",
+  states: {
+    scan_complete: {
+      on: { review: "reviewing", no_findings: "clean" },
+      action: (ctx) => {
+        const count = ctx.findingCount ?? 0;
+        if (count === 0) return { type: "transition", nextState: "clean" };
+        const skills = ctx.skillCount ? ` across ${ctx.skillCount} skills` : "";
+        const date = ctx.scanDate || new Date().toISOString().slice(0, 10);
+        return {
+          type: "create-task",
+          subject: `compliance-review: ${count} finding(s)${skills}`,
+          priority: 6,
+          skills: ["compliance-review", "fleet-memory", "arc-skill-manager"],
+          description: `Compliance scan on ${date} found ${count} finding(s)${skills}.
+
+Steps:
+1. Review each finding and determine severity (blocker / warning / info)
+2. Create fix tasks for blocker-level findings (arc tasks add --priority 4)
+3. Note warning-level patterns for memory
+4. Set taskRef to "task:{this-task-id}" and transition this workflow to 'reviewing'
+5. After completing, transition to 'retrospective_pending'`,
+        };
+      },
+    },
+    reviewing: {
+      on: { reviewed: "retrospective_pending" },
+      action: () => null,
+    },
+    retrospective_pending: {
+      on: { learnings_extracted: "completed" },
+      action: (ctx) => {
+        const count = ctx.findingCount ?? 0;
+        const date = ctx.scanDate || "unknown date";
+        return {
+          type: "create-task",
+          subject: `Retrospective: compliance-review ${count} finding(s) — ${date}`,
+          priority: 8,
+          skills: ["arc-skill-manager"],
+          description: `Extract learnings from the compliance review scan on ${date} (${count} finding(s)).
+${ctx.taskRef ? `Review task: ${ctx.taskRef}` : ""}
+${ctx.learningsSummary ? `Learnings: ${ctx.learningsSummary}` : ""}
+
+Steps:
+1. Review findings and fixes applied
+2. Identify if any findings are recurring patterns
+3. If recurring, add prevention notes to memory/MEMORY.md
+4. Transition workflow to 'completed'`,
+        };
+      },
+    },
+    clean: {
+      on: {},
+      action: () => null,
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -2827,6 +3116,9 @@ export function getTemplateByName(name: string): StateMachine | null {
     "cost-report-audit": CostReportAuditMachine,
     "github-issue-implementation": GithubIssueImplementationMachine,
     "landing-page-review": LandingPageReviewMachine,
+    "ceo-review": CeoReviewMachine,
+    "workflow-review": WorkflowReviewMachine,
+    "compliance-review": ComplianceReviewMachine,
   };
   return templates[name] || null;
 }
