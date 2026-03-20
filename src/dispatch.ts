@@ -762,6 +762,19 @@ export async function runDispatch(): Promise<void> {
     return;
   }
 
+  // Landing-page gate — auto-close tasks that are handled interactively by humans.
+  // Matches "[landing-page]" prefix in subject (human-queued) or landing-page PR/merge tasks.
+  // Without this gate, these tasks consume full Sonnet cycles and timeout.
+  const LANDING_PAGE_RE = /^\[landing-page\]|landing-page.*(?:merge|deploy|PR|pull request)/i;
+  if (LANDING_PAGE_RE.test(task.subject)) {
+    const summary = "Auto-closed by landing-page gate — handled interactively by human";
+    log(`dispatch: LANDING-PAGE GATE — task #${task.id} "${task.subject}" matches pattern. Closing without dispatch.`);
+    insertServiceLog("info", "dispatch", `landing-page gate: auto-closed task #${task.id}`, task.id);
+    markTaskCompleted(task.id, summary);
+    clearDispatchLock();
+    return;
+  }
+
   // GitHub gate — on workers, auto-route GitHub tasks to Arc without invoking LLM
   if (AGENT_NAME !== "arc0") {
     const taskText = [task.subject, task.description ?? ""].join(" ");
