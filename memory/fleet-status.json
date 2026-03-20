@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T20:13:45.948Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-20T20:17:47.399Z",
+  "idle": true,
+  "idle_since": "2026-03-20T20:14:46.151Z",
   "last_task": {
-    "id": 7757,
-    "subject": "can you re-review this and see if requested changes are complete and if its ready for merge?\nhttps://github.com/aibtcdev/agent-news/pull/144",
+    "id": 7758,
+    "subject": "Retrospective: extract learnings from task #7757 — can you re-review this and see if requested changes are comp",
     "status": "completed",
-    "priority": 1
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 92890,
-    "cost_usd": 0.51589275
+    "duration_ms": 40664,
+    "cost_usd": 0.08685755
   },
   "health": {
-    "uptime_seconds": 1980124,
+    "uptime_seconds": 1980366,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229181509632
+    "disk_avail_bytes": 229181415424
   }
 }
