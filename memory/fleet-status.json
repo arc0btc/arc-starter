@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T07:07:33.739Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-20T07:24:39.901Z",
+  "idle": true,
+  "idle_since": "2026-03-20T07:08:34.156Z",
   "last_task": {
-    "id": 7692,
-    "subject": "architecture review — codebase changed since last diagram",
+    "id": 7693,
+    "subject": "architect: delete skills/github-issues/sensor.ts (disabled dead sensor)",
     "status": "completed",
-    "priority": 7
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 173431,
-    "cost_usd": 0.4511877
+    "duration_ms": 34169,
+    "cost_usd": 0.05551355000000001
   },
   "health": {
-    "uptime_seconds": 1932952,
+    "uptime_seconds": 1933978,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229238624256
+    "disk_avail_bytes": 229237882880
   }
 }
