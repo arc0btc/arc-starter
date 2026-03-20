@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T00:17:27.307Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-20T00:20:28.411Z",
+  "idle": true,
+  "idle_since": "2026-03-20T00:18:27.654Z",
   "last_task": {
-    "id": 7640,
-    "subject": "AIBTC thread from Graphite Elan (1 messages)",
+    "id": 7639,
+    "subject": "GitHub review request in aibtcdev/agent-news: fix(rate-limits): raise publisher limits and consolidate constants",
     "status": "completed",
-    "priority": 2
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 92711,
-    "cost_usd": 0.5410667499999999
+    "duration_ms": 46492,
+    "cost_usd": 0.1590768
   },
   "health": {
-    "uptime_seconds": 1908346,
+    "uptime_seconds": 1908527,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229256847360
+    "disk_avail_bytes": 229256777728
   }
 }
