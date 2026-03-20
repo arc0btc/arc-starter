@@ -232,12 +232,12 @@ async function fetchNftFloorData(): Promise<SignalData | null> {
 
     for (const id of collections) {
       try {
-        const res = await fetchWithRetry(`${COINGECKO_API}/nfts/${id}`);
-        if (!res.ok) {
-          log(`nft-floors: CoinGecko ${id} returned ${res.status}`);
+        const response = await fetchWithRetry(`${COINGECKO_API}/nfts/${id}`);
+        if (!response.ok) {
+          log(`nft-floors: CoinGecko ${id} returned ${response.status}`);
           continue;
         }
-        const data = (await res.json()) as Record<string, unknown>;
+        const data = (await response.json()) as Record<string, unknown>;
         const floorPrice = data.floor_price as Record<string, number> | undefined;
         const volume24h = data.volume_24h as Record<string, number> | undefined;
         const marketCap = data.market_cap as Record<string, number> | undefined;

@@ -61,8 +61,8 @@ async function apiPatch(
   if (auth) {
     headers["X-BTC-Address"] = auth.address;
     headers["X-BTC-Signature"] = auth.signature;
-    const ts = auth.timestamp > 1e12 ? Math.floor(auth.timestamp / 1000) : auth.timestamp;
-    headers["X-BTC-Timestamp"] = String(ts);
+    const timestamp = auth.timestamp > 1e12 ? Math.floor(auth.timestamp / 1000) : auth.timestamp;
+    headers["X-BTC-Timestamp"] = String(timestamp);
   }
   const response = await fetch(url, {
     method: "PATCH",
