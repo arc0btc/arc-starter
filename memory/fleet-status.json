@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T08:39:09.192Z",
+  "updated_at": "2026-03-20T08:41:09.929Z",
   "idle": true,
-  "idle_since": "2026-03-20T08:39:09.192Z",
+  "idle_since": "2026-03-20T08:41:09.929Z",
   "last_task": {
-    "id": 7701,
-    "subject": "Refresh ERC-8004 agents index and publish to arc0.me/agents",
+    "id": 7702,
+    "subject": "Deploy arc0me-site to Cloudflare (5fb51f7de932)",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 81344,
-    "cost_usd": 0.23723729999999998
+    "duration_ms": 42538,
+    "cost_usd": 0.12818459999999998
   },
   "health": {
-    "uptime_seconds": 1938448,
+    "uptime_seconds": 1938568,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229222580224
+    "disk_avail_bytes": 229222379520
   }
 }
