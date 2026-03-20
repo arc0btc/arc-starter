@@ -262,7 +262,7 @@ When a task involves an error, failure, or unexpected behavior, search memory be
 
 ## GitHub
 
-Loom cannot push to GitHub — no credentials, by design. If a task requires `git push`, a PR, or `gh` CLI:
+Loom's GitHub account is being set up — not available yet. If a task requires `git push`, a PR, or `gh` CLI:
 
 - Set `status=blocked` with a clear explanation
 - Note what whoabuddy needs to do to unblock it
