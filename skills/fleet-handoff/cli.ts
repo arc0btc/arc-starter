@@ -3,6 +3,7 @@
 
 import { existsSync } from "fs";
 import { resolve } from "path";
+import { evaluateCounterparty } from "../nostr-wot/trust-gate.ts";
 
 const ROOT = resolve(import.meta.dir, "../..");
 const HANDOFFS_PATH = resolve(ROOT, "memory/fleet-handoffs.json");
@@ -88,10 +89,30 @@ async function handleInitiate(
   const progress = params.progress || "";
   const remaining = params.remaining || "";
   const reason = params.reason || "";
+  const pubkey = params.pubkey || "";
+  const force = params.force === "true" || params.force === "";
 
   if (!agent) {
     logError("--agent is required");
     process.exit(1);
+  }
+
+  // Nostr WoT verification for non-Arc targets
+  if (pubkey && agent !== "arc") {
+    log(`verifying agent '${agent}' trust via Nostr WoT (pubkey: ${pubkey})`);
+    const gate = await evaluateCounterparty(pubkey);
+    log(`WoT result: ${gate.decision} — ${gate.reason}`);
+    if (gate.decision === "block") {
+      if (!force) {
+        logError(`handoff blocked: agent '${agent}' failed WoT sybil check — ${gate.reason}`);
+        logError("use --force to override (not recommended)");
+        process.exit(1);
+      }
+      log("WARNING: WoT block overridden by --force");
+    }
+    if (gate.decision === "warn") {
+      log(`WARNING: agent '${agent}' has suspicious WoT profile — ${gate.reason}`);
+    }
   }
 
   // Self-handoff on Arc = just log it, work continues here
@@ -125,7 +146,7 @@ async function handleInitiate(
       ? Math.max(...handoffs.map((h) => (h.id as number) || 0)) + 1
       : 1;
 
-  const entry = {
+  const entry: Record<string, unknown> = {
     id: nextId,
     source_agent: isArc() ? "arc" : getHostname(),
     target_agent: agent,
@@ -135,6 +156,7 @@ async function handleInitiate(
     handed_off_at: new Date().toISOString(),
     status: "handed-off" as const,
   };
+  if (pubkey) entry.target_pubkey = pubkey;
 
   handoffs.push(entry);
   saveHandoffs(handoffs);
@@ -269,7 +291,7 @@ switch (command) {
     console.log("");
     console.log("Commands:");
     console.log(
-      "  initiate  Hand off a task (--agent, --task-id, --progress, --remaining, --reason)"
+      "  initiate  Hand off a task (--agent, --task-id, --progress, --remaining, --reason, [--pubkey <nostr-hex>], [--force])"
     );
     console.log("  push      Direct git push (--branch, --remote)");
     console.log("  status    Show fleet suspension state");

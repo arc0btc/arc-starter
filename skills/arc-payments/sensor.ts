@@ -345,6 +345,11 @@ export default async function arcPaymentsSensor(): Promise<string> {
       ``,
       `Deliver result to sender's Stacks address: ${sender}`,
       `Reference txid in all responses so sender can verify.`,
+      ``,
+      `WoT check: Stacks addresses do not map directly to Nostr pubkeys.`,
+      `If the sender's Nostr pubkey is known (e.g. from X DMs or contact lookup), run:`,
+      `  arc skills run --name nostr-wot -- sybil-check --pubkey <hex>`,
+      `before delivering the service. Block if likely_sybil.`,
     ].join("\n");
 
     const taskId = insertTask({

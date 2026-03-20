@@ -12,6 +12,7 @@
 import { spawn } from "bun";
 import { resolve } from "node:path";
 import { getCredential } from "../../src/credentials.ts";
+import { evaluateCounterparty } from "../nostr-wot/trust-gate.ts";
 
 // ---- Constants ----
 
@@ -186,6 +187,25 @@ async function cmdSwap(args: string[]): Promise<void> {
     process.exit(1);
   }
 
+  // Nostr WoT counterparty check (optional — only runs if --counterparty-pubkey is provided)
+  const counterpartyPubkey = flags["counterparty-pubkey"];
+  if (counterpartyPubkey) {
+    log(`running WoT trust check for counterparty ${counterpartyPubkey}`);
+    const gate = await evaluateCounterparty(counterpartyPubkey);
+    log(`WoT result: ${gate.decision} — ${gate.reason}`);
+    if (gate.decision === "block") {
+      console.log(JSON.stringify({
+        success: false,
+        error: "Swap blocked: counterparty failed WoT sybil check",
+        wot: gate,
+      }));
+      process.exit(1);
+    }
+    if (gate.decision === "warn") {
+      log(`WARNING: ${gate.reason} — proceeding anyway (add --skip-wot to suppress)`);
+    }
+  }
+
   // 1. Get quote first
   log(`quoting ${flags["token-x"]} -> ${flags["token-y"]}, amount: ${amountIn}`);
   const quoteResult = await runUpstream([
@@ -307,8 +327,10 @@ USAGE
   arc skills run --name defi-bitflow -- <subcommand> [flags]
 
 SWAP COMMANDS (wallet required)
-  swap --token-x <id> --token-y <id> --amount-in <decimal> [--slippage <decimal>] [--confirm-high-impact]
+  swap --token-x <id> --token-y <id> --amount-in <decimal> [--slippage <decimal>] [--confirm-high-impact] [--counterparty-pubkey <hex|npub>]
     Quote, validate, and execute a token swap. Max ${MAX_TRADE_STX} STX per trade.
+    --counterparty-pubkey  Optional Nostr pubkey of the counterparty. If provided, runs WoT sybil-check
+                           before executing the swap. Blocks on likely_sybil, warns on suspicious.
 
 ANALYSIS COMMANDS
   spreads [--threshold <pct>]
