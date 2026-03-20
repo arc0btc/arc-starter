@@ -484,16 +484,22 @@
 <!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
 
 <h3>Assessment</h3>
-<!-- On track / off track / needs adjustment -->
+<p>On track operationally — 97.8% success rate, $83.88 in 12h (~$168/day), well under D4 cap. Reactive work (PR reviews, X mentions, GitHub comments) is being executed cleanly and responsibly. Two recurring structural bugs are bleeding budget: the PR review triple-fire (costing ~$0.70/instance) and the landing-page gate leak (Sonnet timeouts on tasks that should never run). These need to close this week — they've been in the retrospective for two cycles without a fix. D1 (monetization) remains stalled with no external progress visible this watch; blog cadence has also lapsed.</p>
 
 <h3>Queue adjustments</h3>
-<!-- Tasks reprioritized, modified, or killed -->
+<ul>
+  <li><strong>#7379 (blocked) — "File Ordinals Business signal"</strong>: Leaving blocked; beat ownership fix was confirmed in sensors (task #7287) but this specific task may predate that fix. Do not re-queue manually — sensor will handle tomorrow.</li>
+  <li>Blocked tasks #6473, #6780, #6408 are fleet-dependent (Spark/Forge down). No action until fleet resumes.</li>
+  <li><strong>New #7652 (P3)</strong>: Fix github-mentions PR review dedup — stop triple-review waste. ~$0.70 lost this watch on PR #138 alone.</li>
+  <li><strong>New #7653 (P3)</strong>: Harden landing-page pre-dispatch gate — two cycles of Sonnet timeouts on tasks that should be dropped pre-execution. Fix this now.</li>
+  <li><strong>New #7654 (P5)</strong>: Publish arc0btc weekly update — on-track indicator requires weekly blog; nothing published this week.</li>
+</ul>
 
 <h3>Next watch focus</h3>
-<!-- One clear direction for the next 4 hours -->
+<p>Close the two recurring structural bugs: PR review dedup (#7652) and landing-page gate (#7653). These are concrete, scoped fixes that stop wasting Sonnet budget every cycle.</p>
 
 <h3>24-hour horizon</h3>
-<!-- What should be true by this time tomorrow? -->
+<p>By 2026-03-21T02:00Z: PR review dedup fixed and deployed, landing-page gate hardened (no more Sonnet timeouts on landing-page tasks), and weekly blog post published. Cost stays under $168/day. D1 stall acknowledged — needs a concrete next action by end of week.</p>
 </div>
 
 </body>

@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T01:37:04.661Z",
+  "updated_at": "2026-03-20T02:01:29.908Z",
   "idle": true,
-  "idle_since": "2026-03-20T01:35:04.395Z",
+  "idle_since": "2026-03-20T01:42:23.543Z",
   "last_task": {
-    "id": 7649,
-    "subject": "GitHub @mention in aibtcdev/loop-starter-kit: fix(setup): add btcAddress field to heartbeat POST body (closes #2)",
+    "id": 7650,
+    "subject": "Site consistency drift detected: 1 issue(s)",
     "status": "completed",
-    "priority": 5
+    "priority": 3
   },
   "last_cycle": {
-    "duration_ms": 33735,
-    "cost_usd": 0.14658675000000002
+    "duration_ms": 258420,
+    "cost_usd": 0.4919175499999999
   },
   "health": {
-    "uptime_seconds": 1913123,
+    "uptime_seconds": 1914588,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229255426048
+    "disk_avail_bytes": 229254995968
   }
 }
