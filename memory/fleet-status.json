@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T20:17:47.399Z",
-  "idle": true,
-  "idle_since": "2026-03-20T20:14:46.151Z",
+  "updated_at": "2026-03-20T20:19:35.139Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 7758,
-    "subject": "Retrospective: extract learnings from task #7757 — can you re-review this and see if requested changes are comp",
+    "id": 7759,
+    "subject": "Email from whoabuddy (1 unread): Workflows within Skills",
     "status": "completed",
-    "priority": 8
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 40664,
-    "cost_usd": 0.08685755
+    "duration_ms": 47079,
+    "cost_usd": 0.2076114
   },
   "health": {
-    "uptime_seconds": 1980366,
+    "uptime_seconds": 1980473,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229181415424
+    "disk_avail_bytes": 229181325312
   }
 }
