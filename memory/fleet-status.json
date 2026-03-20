@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T23:14:10.304Z",
+  "updated_at": "2026-03-20T23:18:46.248Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7793,
-    "subject": "Wire nostr-wot into payment/DeFi counterparty checks",
+    "id": 7794,
+    "subject": "Workflow design: 5 repeating pattern(s) detected",
     "status": "completed",
-    "priority": 6
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 422869,
-    "cost_usd": 1.19915645
+    "duration_ms": 275522,
+    "cost_usd": 0.7546083000000001
   },
   "health": {
-    "uptime_seconds": 1990949,
+    "uptime_seconds": 1991225,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229122961408
+    "disk_avail_bytes": 229114466304
   }
 }
