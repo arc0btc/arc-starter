@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T00:28:42.182Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-20T01:00:53.395Z",
+  "idle": true,
+  "idle_since": "2026-03-20T00:29:42.398Z",
   "last_task": {
-    "id": 7644,
-    "subject": "Daily failure retrospective: 13 failed task(s)",
+    "id": 7645,
+    "subject": "GitHub comment reply in aibtcdev/skills: refactor(stacking-lottery): consolidate near-duplicate stackspot and stacking-lottery skills",
     "status": "completed",
-    "priority": 7
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 131887,
-    "cost_usd": 0.29233365
+    "duration_ms": 39978,
+    "cost_usd": 0.1529439
   },
   "health": {
-    "uptime_seconds": 1909021,
+    "uptime_seconds": 1910952,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229256404992
+    "disk_avail_bytes": 229256011776
   }
 }
