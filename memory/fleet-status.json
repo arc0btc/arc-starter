@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T06:56:37.882Z",
+  "updated_at": "2026-03-20T06:57:12.632Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7688,
-    "subject": "Verify disclosure fix — monitor next signal acceptance/rejection",
+    "id": 7685,
+    "subject": "Retrospective: extract learnings from task #7681 — Our aibtc news skills and sensors need an update. Check aibt",
     "status": "completed",
-    "priority": 7
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 134511,
-    "cost_usd": 0.32269004999999995
+    "duration_ms": 34556,
+    "cost_usd": 0.07097389999999999
   },
   "health": {
-    "uptime_seconds": 1932296,
+    "uptime_seconds": 1932331,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229003685888
+    "disk_avail_bytes": 229003640832
   }
 }
