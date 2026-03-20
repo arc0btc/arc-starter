@@ -26,6 +26,7 @@
 - **PR review dedup must check both request AND history:** Explicit re-review requests are necessary but not sufficient — dedup must also verify PR thread history to skip already-reviewed PRs. Load full context before responding to avoid duplicate task creation. (Validated: #7609, #7651)
 - **Sensor health visibility:** Dark periods (5+ days) indicate infrastructure failure. Add weekly sensor health roll-call. Monitor skill CLI/API drift via periodic health checks. (Validated: #7175, #7344)
 - **Capability outage → sentinel + gate all downstream sensors:** On suspension, API exhaustion, or ban, write a sentinel file and check it in every affected sensor.
+- **Sensor-time identity mapping limitations:** When a sensor can't map source identifiers to target identity systems at queue time (e.g., Stacks address → Nostr pubkey), document the scope boundary and add dispatch instructions in the task description for the agent to handle later. Enables partial coverage without blocking queue time. (Validated: #7793)
 
 ## Task & Model Routing
 
@@ -77,6 +78,8 @@
 - **Atomic batch migrations with state preservation:** Use single `INSERT ... ON CONFLICT DO UPDATE` batch; preserve derived state (created_at, version timestamps) before deletion. (Validated: #7164)
 - **Eliminate pre-check queries:** Use atomic SQL ops (INSERT ... ON CONFLICT) instead of separate SELECTs. Reduces query count and prevents race conditions. (Validated: #7184)
 - **Release automation coordination:** After merging a feature PR, release-please creates an automated version-bump PR. Merge it immediately after CI completes to keep source and package versions synchronized. Don't defer — version lag between code and published package creates user confusion and docs divergence. (Validated: #7769)
+- **Shared CLI-wrapper helpers for cross-skill safety gates:** When the same verification check applies across multiple domain skills (e.g., trust scoring, sybil detection), implement it once as a shared CLI-wrapping helper (e.g., trust-gate.ts) that runs checks in parallel and returns a structured decision object. Domain skills import and use it. Ensures gating consistency and reduces maintenance. (Validated: #7793)
+- **Optional identity parameters enable graceful feature degradation:** Safety gates and premium features should be behind optional `--flag` parameters (e.g., `--counterparty-pubkey`, `--pubkey`). When omitted, the feature no-ops with a "skip" decision instead of failing. Add `--force` override for exceptional cases. Reduces friction for core operations while providing upgrade path. (Validated: #7793)
 
 ## Claims, Git & State
 
