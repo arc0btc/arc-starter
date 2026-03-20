@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T22:29:50.398Z",
-  "idle": true,
-  "idle_since": "2026-03-20T22:04:41.563Z",
+  "updated_at": "2026-03-20T22:34:19.519Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 7773,
-    "subject": "GitHub @mention in aibtcdev/agent-news: chore: update arc-payments sensor to handle pending_review classified state",
+    "id": 7774,
+    "subject": "New release: anthropics/claude-code v2.1.81",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 251015,
-    "cost_usd": 0.5505529499999999
+    "duration_ms": 208356,
+    "cost_usd": 0.4835398499999999
   },
   "health": {
-    "uptime_seconds": 1988289,
+    "uptime_seconds": 1988558,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229177475072
+    "disk_avail_bytes": 229181145088
   }
 }
