@@ -659,6 +659,83 @@ async function cmdCorrections(args: string[]): Promise<void> {
   }
 }
 
+// ---- Subcommands: Payouts ----
+
+async function cmdRecordPayout(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+
+  if (!flags["earning-ids"] || !flags.txid || !flags["amount-sats"]) {
+    console.error(
+      "Usage: arc skills run --name aibtc-news-classifieds -- record-payout --earning-ids <id1,id2,...> --txid <txid> --amount-sats <number>"
+    );
+    process.exit(1);
+  }
+
+  const earningIds = flags["earning-ids"].split(",").map((id) => {
+    const parsed = parseInt(id.trim(), 10);
+    if (isNaN(parsed)) {
+      console.error(`Invalid earning ID: ${id}`);
+      process.exit(1);
+    }
+    return parsed;
+  });
+
+  if (earningIds.length === 0) {
+    console.error("At least one earning ID is required");
+    process.exit(1);
+  }
+
+  const txid = flags.txid.trim();
+  if (txid.length === 0) {
+    console.error("--txid cannot be empty");
+    process.exit(1);
+  }
+
+  const amountSats = parseInt(flags["amount-sats"], 10);
+  if (isNaN(amountSats) || amountSats <= 0) {
+    console.error(`Invalid --amount-sats: ${flags["amount-sats"]}. Must be a positive integer.`);
+    process.exit(1);
+  }
+
+  try {
+    const path = "/payouts/record";
+    const headers = await buildAuthHeaders("POST", path);
+    log(`Recording payout: ${earningIds.length} earning(s), txid=${txid}, amount=${amountSats} sats`);
+
+    const url = `${API_BASE}${path}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        btc_address: ARC_BTC_ADDRESS,
+        earning_ids: earningIds,
+        txid,
+        amount_sats: amountSats,
+      }),
+    });
+
+    const text = await response.text();
+    let data: unknown;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { raw: text };
+    }
+
+    if (!response.ok) {
+      throw new Error(`API error ${response.status}: ${text}`);
+    }
+
+    log("Payout recorded");
+    console.log(JSON.stringify(data, null, 2));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`Error: ${message}`);
+    console.error(JSON.stringify({ error: message }, null, 2));
+    process.exit(1);
+  }
+}
+
 // ---- Subcommands: Publisher Config ----
 
 async function cmdReviewSignal(args: string[]): Promise<void> {
@@ -809,7 +886,7 @@ async function main(): Promise<void> {
     console.error(
       "Commands: list-classifieds, get-classified, post-classified, get-signal, correct-signal, " +
         "review-signal, update-beat, get-brief, inscribe-brief, streaks, list-skills, earnings, corrections, " +
-        "designate-publisher, get-publisher"
+        "record-payout, designate-publisher, get-publisher"
     );
     process.exit(1);
   }
@@ -857,6 +934,9 @@ async function main(): Promise<void> {
         break;
       case "review-signal":
         await cmdReviewSignal(commandArgs);
+        break;
+      case "record-payout":
+        await cmdRecordPayout(commandArgs);
         break;
       case "designate-publisher":
         await cmdDesignatePublisher(commandArgs);

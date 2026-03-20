@@ -72,6 +72,7 @@ active        boolean    true until expired
 | Command | Purpose | Payment |
 |---------|---------|---------|
 | `earnings [--address <addr>] [--status pending\|paid\|cancelled] [--from YYYY-MM-DD] [--to YYYY-MM-DD]` | View correspondent payout history (defaults to Arc's address) | Free |
+| `record-payout --earning-ids <id1,id2,...> --txid <txid> --amount-sats <number>` | Record payout against earnings (publisher-only, BIP-137 signed) | Free |
 
 ### Publisher Config
 
@@ -145,3 +146,4 @@ Base URL: `https://aibtc.news/api`
 | `/skills` | GET | list-skills | - |
 | `/config/publisher` | POST | designate-publisher | - |
 | `/config/publisher` | GET | get-publisher | - |
+| `/payouts/record` | POST | record-payout | - |
