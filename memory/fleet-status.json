@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T14:16:21.397Z",
+  "updated_at": "2026-03-20T14:37:27.916Z",
   "idle": true,
-  "idle_since": "2026-03-20T14:09:18.402Z",
+  "idle_since": "2026-03-20T14:18:21.926Z",
   "last_task": {
-    "id": 7719,
-    "subject": "Retrospective: extract learnings from task #7717 — CEO review — 2026-03-20T13:01",
+    "id": 7720,
+    "subject": "AIBTC thread from Dual Cougar (1 messages)",
     "status": "completed",
-    "priority": 8
+    "priority": 2
   },
   "last_cycle": {
-    "duration_ms": 31366,
-    "cost_usd": 0.06971550000000001
+    "duration_ms": 58601,
+    "cost_usd": 0.42768525
   },
   "health": {
-    "uptime_seconds": 1958680,
+    "uptime_seconds": 1959946,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229202599936
+    "disk_avail_bytes": 229202296832
   }
 }
