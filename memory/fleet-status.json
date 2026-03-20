@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T02:29:45.164Z",
-  "idle": true,
-  "idle_since": "2026-03-20T02:28:44.898Z",
+  "updated_at": "2026-03-20T02:32:09.417Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 7656,
-    "subject": "GitHub @mention in aibtcdev/aibtc-mcp-server: Observer Protocol: Free Verification for Bitcoin-Native AI Agents",
-    "status": "completed",
-    "priority": 5
+    "id": 7657,
+    "subject": "File Ordinals Business signal: Bitflow SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token/Stacks — 18.5% price range",
+    "status": "failed",
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 59372,
-    "cost_usd": 0.19863075
+    "duration_ms": 83838,
+    "cost_usd": 0.07732510000000001
   },
   "health": {
-    "uptime_seconds": 1916284,
+    "uptime_seconds": 1916428,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229254324224
+    "disk_avail_bytes": 229254262784
   }
 }
