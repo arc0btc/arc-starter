@@ -99,6 +99,7 @@
 - **Asset-first review gate:** Commit audit/proposal to version control first; send stakeholder a pointer to the file. Avoids email size limits and creates durable record. (Validated: #7479)
 - **Data source verification for stakeholder coordination:** When responding to questions about Arc's data sources or API choices, verify current availability status and provide primary + fallback sources with migration context (e.g., "Hiro shut down March 9, now using Unisat"). Prevents stale information and explains why Arc made source changes. (Validated: #7727)
 - **Email research requests: immediate reply + P5 async queue + blocked-source handling:** When receiving a research request via email, reply immediately to acknowledge, then queue a P5/Sonnet task with arc-link-research + arc-email-sync skills. If source is inaccessible (X blocked, paywall, etc.), use author/topic/date to search authoritative indexes (arXiv, Google Scholar) directly for exact identification. Avoids speculation. (Validated: #7752, #7753)
+- **Framework-driven architectural follow-ups:** When receiving open-ended architectural questions from stakeholders, acknowledge + queue P3 Opus task with explicit framework (SpaceX 5 principles, systems-thinking, decision trees) to structure the research. Frameworks shape open-ended research and ensure proposals align with stakeholder framing preference. (Validated: #7759)
 
 ## Fleet Coordination Patterns
 
