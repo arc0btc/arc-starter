@@ -834,7 +834,7 @@ Workflow instance_key: brief-inscription-${ctx.date}`,
      * Note: inscription exists on-chain regardless — capture inscriptionId even on API failure.
      */
     revealed: {
-      on: { recorded: "completed", record_failed: "failed" },
+      on: { recorded: "payout", record_failed: "failed" },
       action: (ctx) => ({
         type: "create-task",
         subject: `Record ${ctx.date} brief inscription on aibtc.news`,
@@ -848,11 +848,48 @@ Steps:
 1. arc skills run --name aibtc-news-classifieds -- inscribe-brief --date ${ctx.date}
    (requires BIP-137 publisher auth)
 
-2. On success: transition workflow to 'completed'. Close task as completed with
+2. On success: transition workflow to 'payout'. Close task as completed with
    summary including the inscriptionId.
 
 3. On API failure: transition to 'failed' with failureReason. The inscription already
    exists on-chain — record the inscriptionId in the failure reason for manual recovery.
+
+Workflow instance_key: brief-inscription-${ctx.date}`,
+      }),
+    },
+
+    /**
+     * payout → initiate correspondent payouts now that the brief is permanently on-chain.
+     * Task: fetch pending earnings, create payout-distribution workflow for today.
+     * Only runs after inscription is confirmed and recorded — guarantees payout is post-permanence.
+     */
+    payout: {
+      on: { payout_triggered: "completed", no_earnings: "completed" },
+      action: (ctx) => ({
+        type: "create-task",
+        subject: `Trigger correspondent payouts for ${ctx.date} brief`,
+        priority: 6,
+        skills: ["aibtc-news-classifieds", "workflows"],
+        description: `The ${ctx.date} brief is inscribed on Bitcoin (inscription ID: ${ctx.inscriptionId ?? "<inscriptionId>"}). Now initiate correspondent payouts.
+
+Steps:
+1. Check for pending earnings:
+   arc skills run --name aibtc-news-classifieds -- earnings --status pending
+
+2. If no earnings found: transition workflow to 'no_earnings' → 'completed'. Close task.
+
+3. If earnings found:
+   - Check if a payout workflow already exists:
+     arc skills run --name workflows -- list-by-template --template payout-distribution
+   - If it already exists for today (instance_key: payout-${ctx.date}): skip creation.
+   - If not: create it:
+     arc skills run --name workflows -- create \\
+       --template payout-distribution \\
+       --instance-key "payout-${ctx.date}" \\
+       --context '{"date":"${ctx.date}","earnings":[...],"totalSats":N}'
+     (populate earnings array and totalSats from the earnings response in step 1)
+
+4. Transition this workflow (brief-inscription-${ctx.date}) to 'payout_triggered' → 'completed'.
 
 Workflow instance_key: brief-inscription-${ctx.date}`,
       }),
@@ -873,7 +910,7 @@ Workflow instance_key: brief-inscription-${ctx.date}`,
 /**
  * PayoutDistributionMachine — processes correspondent payouts end-to-end.
  *
- * Triggered by: earnings sensor when unpaid balances are detected
+ * Triggered by: DailyBriefInscriptionMachine.payout state after inscription confirmed on-chain
  * instance_key: "payout-{YYYY-MM-DD}" (one per payout run)
  *
  * States:
@@ -970,7 +1007,7 @@ Workflow instance_key: payout-${ctx.date}`,
     },
 
     recorded: {
-      on: { payouts_recorded: "completed", record_failed: "completed" },
+      on: { payouts_recorded: "notify", record_failed: "notify" },
       action: (ctx) => {
         const transfers = ctx.transfers ?? [];
         const earningIds = transfers.map((t) => t.earningId).join(",");
@@ -987,9 +1024,63 @@ Steps:
 1. arc skills run --name aibtc-news-classifieds -- record-payout \\
      --earning-ids ${earningIds} --txid ${txid} --amount-sats ${totalSats}
    (If multiple txids, call record-payout once per unique txid with its earning IDs)
-2. On success: transition workflow to 'completed'.
-3. On failure: set failureReason, transition to 'completed'.
-   The transfers are already on-chain — record the txids in failureReason for manual recovery.
+2. On success or failure: transition workflow to 'notify'.
+   The transfers are already on-chain — record txids in failureReason if the API call fails.
+
+Workflow instance_key: payout-${ctx.date}`,
+        };
+      },
+    },
+
+    /**
+     * notify → send x402 inbox message to each paid correspondent as proof of payment.
+     * Runs after payout is recorded (or attempted). Cost: 100 sats sBTC per message.
+     */
+    notify: {
+      on: { notified: "completed", notify_failed: "completed" },
+      action: (ctx) => {
+        const transfers = ctx.transfers ?? [];
+        const earnings = ctx.earnings ?? [];
+        if (transfers.length === 0) return null;
+
+        // Build a lookup of earningId → BTC address from the earnings array
+        const addrByEarningId = Object.fromEntries(
+          earnings.map((e) => [e.id, e.address])
+        );
+
+        const recipientList = transfers
+          .map((t) => {
+            const btcAddr = addrByEarningId[t.earningId] ?? t.earningId;
+            return `  - BTC: ${btcAddr} | earningId: ${t.earningId} | txid: ${t.txid} | ${t.amount_sats} sats`;
+          })
+          .join("\n");
+
+        return {
+          type: "create-task",
+          subject: `Notify ${transfers.length} correspondent(s) of payout for ${ctx.date}`,
+          priority: 7,
+          skills: ["aibtc-news-classifieds", "contact-registry"],
+          description: `Send x402 inbox messages to each correspondent confirming their payout.
+
+Cost: ~100 sats sBTC per message (${transfers.length} messages).
+
+Recipients and transfers:
+${recipientList}
+
+Steps:
+1. For each recipient, look up their STX address:
+   arc skills run --name contact-registry -- lookup --btc-address <btcAddr>
+   (If not found in registry, check aibtc.news agent directory or skip with a note)
+
+2. For each recipient with a known STX address, send an x402 inbox message:
+   cd github/aibtcdev/skills && bun run x402/x402.ts send-inbox-message \\
+     --recipient-btc-address <btcAddr> \\
+     --recipient-stx-address <stxAddr> \\
+     --content "Payment from aibtc.news — ${ctx.date} brief: <amount_sats> sats sent. Txid: <txid>. Your correspondent earnings from the daily brief are now settled."
+
+3. If a recipient's STX address cannot be found: log the skip, do not block others.
+
+4. After all messages sent (or skipped): transition workflow to 'notified' → 'completed'.
 
 Workflow instance_key: payout-${ctx.date}`,
         };

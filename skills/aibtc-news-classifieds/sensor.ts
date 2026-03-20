@@ -3,11 +3,7 @@ import {
   createSensorLogger,
   fetchWithRetry,
 } from "../../src/sensors.ts";
-import {
-  initDatabase,
-  insertWorkflow,
-  getWorkflowByInstanceKey,
-} from "../../src/db.ts";
+import { initDatabase } from "../../src/db.ts";
 import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
 
 const SENSOR_NAME = "aibtc-earnings";
@@ -26,6 +22,13 @@ interface EarningsResponse {
   earnings: EarningRecord[];
 }
 
+/**
+ * Checks for unpaid correspondent earnings and logs the pending balance.
+ * Payout workflows are NOT created here — they are triggered by
+ * DailyBriefInscriptionMachine after the brief is confirmed on-chain.
+ * This sensor is informational only: it surfaces pending earnings so
+ * the status dashboard and dispatch context stay current.
+ */
 export default async function earningsSensor(): Promise<string> {
   initDatabase();
 
@@ -58,37 +61,6 @@ export default async function earningsSensor(): Promise<string> {
   }
 
   const totalSats = earnings.reduce((sum, e) => sum + e.amount_sats, 0);
-  log(`Found ${earnings.length} unpaid earning(s) totaling ${totalSats} sats`);
-
-  // Use today's date as the payout run key (one payout run per day max)
-  const today = new Date().toISOString().slice(0, 10);
-  const instanceKey = `payout-${today}`;
-
-  // Check if a workflow already exists for today
-  const existing = getWorkflowByInstanceKey(instanceKey);
-  if (existing) {
-    log(`Workflow already exists for ${instanceKey} (id=${existing.id}, state=${existing.current_state})`);
-    return "ok";
-  }
-
-  // Create payout-distribution workflow with initial context
-  const context = JSON.stringify({
-    date: today,
-    earnings: earnings.map((e) => ({
-      id: e.id,
-      address: e.address,
-      amount_sats: e.amount_sats,
-    })),
-    totalSats,
-  });
-
-  const workflowId = insertWorkflow({
-    template: "payout-distribution",
-    instance_key: instanceKey,
-    current_state: "fetch_unpaid",
-    context,
-  });
-
-  log(`Created payout-distribution workflow id=${workflowId} for ${instanceKey} (${earnings.length} earnings, ${totalSats} sats)`);
+  log(`Pending: ${earnings.length} earning(s) totaling ${totalSats} sats — awaiting inscription before payout`);
   return "ok";
 }
