@@ -8,10 +8,10 @@ import { recentTaskExistsForSourcePrefix } from "../../src/db.ts";
 const SENSOR_NAME = "defi-bitflow";
 const INTERVAL_MINUTES = 60;
 const BITFLOW_API = "https://bitflow-sdk-api-gateway-7owjsmt8.uc.gateway.dev";
-const SPREAD_THRESHOLD_PCT = 5; // default 5% spread threshold
+const SPREAD_THRESHOLD_PCT = 15; // raised for competition — only exceptional events
 const MIN_LIQUIDITY_USD = 10_000; // ignore illiquid pairs
-const MAX_SIGNALS_PER_RUN = 2;
-const RATE_LIMIT_MINUTES = 240; // 4 hours between signal batches
+const MAX_SIGNALS_PER_RUN = 1;
+const RATE_LIMIT_MINUTES = 720; // 12 hours between signal batches
 
 interface Ticker {
   ticker_id: string;
