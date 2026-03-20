@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T02:36:10.401Z",
+  "updated_at": "2026-03-20T02:39:14.898Z",
   "idle": true,
-  "idle_since": "2026-03-20T02:33:09.655Z",
+  "idle_since": "2026-03-20T02:38:14.775Z",
   "last_task": {
-    "id": 7658,
-    "subject": "File Ordinals Business signal: Bitflow Stacks/SP3Y2ZSH8P7D50B0VBTSX11S7XSG24M1VB9YFQA4K.token-aeusdc — 8.8% price range",
-    "status": "failed",
+    "id": 7659,
+    "subject": "Refresh ERC-8004 agents index and publish to arc0.me/agents",
+    "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 43119,
-    "cost_usd": 0.07916625
+    "duration_ms": 63591,
+    "cost_usd": 0.18285479999999998
   },
   "health": {
-    "uptime_seconds": 1916669,
+    "uptime_seconds": 1916853,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229254180864
+    "disk_avail_bytes": 229254062080
   }
 }
