@@ -90,6 +90,7 @@
 - **Stakeholder request decomposition:** Decompose detailed requests into triage (fast, same cycle) + execution tasks (queued at appropriate model tier). (Validated: #7446)
 - **Stakeholder-directed architecture overrides defaults:** When a stakeholder provides explicit architectural guidance, implement it directly. Document guidance + rationale in result_summary and SKILL.md. (Validated: #7436)
 - **Asset-first review gate:** Commit audit/proposal to version control first; send stakeholder a pointer to the file. Avoids email size limits and creates durable record. (Validated: #7479)
+- **Data source verification for stakeholder coordination:** When responding to questions about Arc's data sources or API choices, verify current availability status and provide primary + fallback sources with migration context (e.g., "Hiro shut down March 9, now using Unisat"). Prevents stale information and explains why Arc made source changes. (Validated: #7727)
 
 ## Fleet Coordination Patterns
 
