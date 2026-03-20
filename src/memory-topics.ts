@@ -17,140 +17,33 @@ import { readFile } from "./utils.ts";
 const ROOT = new URL("..", import.meta.url).pathname;
 const TOPICS_DIR = join(ROOT, "memory", "topics");
 
-/** Maps skill names to the memory topic files they need. */
+/**
+ * Maps skill names to the memory topic files they need.
+ * Only active skills listed here; only existing topic files referenced (incidents, publishing).
+ * Skills not listed get DEFAULT_TOPICS automatically.
+ */
 const SKILL_TOPIC_MAP: Record<string, string[]> = {
-  // --- Publishing ---
-  "blog-publishing":          ["publishing"],
-  "blog-deploy":              ["publishing", "infrastructure"],
-  "arc-starter-publish":      ["publishing", "infrastructure"],
-  "content-quality-gate":      ["publishing"],
-  "publisher-voice":          ["identity", "publishing"],
-  "arc-link-research":        ["publishing"],
-  "dev-landing-page-review":  ["publishing"],
-  "site-consistency":         ["publishing"],
-  "aibtc-news-editorial":     ["publishing", "integrations"],
-  "aibtc-news-classifieds":   ["publishing"],
-  "review-commitments":       ["integrations", "publishing"],
+  // --- Publishing skills ---
+  "aibtc-news-editorial":   ["publishing"],
+  "aibtc-news-classifieds": ["publishing"],
+  "content-quality-gate":   ["publishing"],
+  "publisher-voice":        ["publishing"],
+  "daily-brief-inscribe":   ["publishing"],
 
-  // --- Identity ---
-  "erc8004-identity":         ["identity"],
-  "erc8004-reputation":       ["identity"],
-  "erc8004-trust":            ["identity"],
-  "erc8004-validation":       ["identity"],
-  "arc-reputation":           ["identity"],
-  "arc-introspection":        ["identity"],
-  "identity-guard":           ["identity", "incidents"],
-  "arc-x":                    ["identity", "publishing"],
+  // --- Incident-heavy skills ---
+  "failure-triage":      ["incidents"],
+  "self-blocked-review": ["incidents"],
+  "service-health":      ["incidents"],
+  "evals":               ["incidents"],
+  "dispatch-watchdog":   ["incidents"],
 
-  // --- Social ---
-  "social-agent-engagement":  ["identity", "publishing"],
-  "social-x-ecosystem":       ["identity", "publishing"],
-  "social-x-posting":         ["identity", "publishing"],
-
-  // --- DeFi ---
-  "arc-payments":             ["integrations", "defi"],
-  "dao-zero-authority":       ["defi"],
-  "bitflow-positions":        ["defi"],
-  "defi-bitflow":             ["defi"],
-  "defi-stacks-market":       ["defi"],
-  "defi-zest":                ["defi"],
-  "zest-v2":                  ["defi"],
-  "mempool-watch":            ["defi"],
-  "stacks-stackspot":         ["defi"],
-  "bitcoin-wallet":           ["defi", "identity"],
-  "bitcoin-quorumclaw":       ["defi", "identity"],
-  "bitcoin-taproot-multisig": ["defi", "identity"],
-
-  // --- Fleet ---
-  "fleet-handoff":            ["fleet"],
-  "fleet-task-sync":          ["fleet"],
-  "fleet-comms":              ["fleet"],
-  "fleet-dashboard":          ["fleet"],
-  "fleet-escalation":         ["fleet", "incidents"],
-  "fleet-health":             ["fleet", "infrastructure"],
-  "fleet-log-pull":           ["fleet"],
-  "fleet-memory":             ["fleet"],
-  "fleet-push":               ["fleet"],
-  "fleet-rebalance":          ["fleet"],
-  "fleet-router":             ["fleet"],
-  "fleet-self-sync":          ["fleet"],
-  "fleet-sync":               ["fleet"],
-  "agent-hub-removed":                ["fleet"],
-  "arc-catalog":              ["fleet"],
-  "manage-skills":        ["fleet"],
-  "contact-registry":                 ["fleet", "identity"],
-  "quest-create":             ["fleet"],
-  "worker-deploy":            ["fleet", "infrastructure"],
-  "worker-logs-monitor":      ["fleet", "infrastructure"],
-  "github-worker-logs":       ["fleet", "integrations"],
-  "skill-effectiveness":      ["cost", "fleet"],
-
-  // --- Integrations ---
-  "arc-email-sync":           ["integrations"],
-  "x402-sponsor-relay":       ["integrations", "identity"],
-  "github-release-watcher":   ["integrations"],
-  "github-ci-status":         ["integrations"],
-  "github-interceptor":       ["integrations"],
-  "github-issue-monitor":     ["integrations"],
-  "github-mentions":          ["integrations"],
-  "github-security-alerts":   ["integrations", "incidents"],
-  "claude-code-releases":     ["integrations"],
-  "arxiv-research":           ["integrations"],
-  "aibtc-inbox-sync":         ["integrations"],
-  "aibtc-welcome":            ["integrations"],
-  "arc0btc-ask-service":      ["integrations", "identity"],
-  "arc0btc-pr-review":        ["integrations"],
-  "arc-mcp-server":           ["infrastructure", "integrations"],
-
-  // --- Cost ---
-  "arc-cost-report":          ["cost"],
-  "arc-reporting":            ["cost"],
-  "arc-report-email":         ["integrations", "cost"],
-  "arc-performance-analytics": ["cost", "infrastructure"],
-  "arc0btc-monetization":     ["cost", "identity"],
-  "arc-ceo-review":           ["cost", "fleet"],
-  "arc-ceo-strategy":         ["cost", "fleet"],
-
-  // --- Incidents ---
-  "failure-triage":       ["incidents"],
-  "self-blocked-review":       ["incidents"],
-  "loom-dispatch-eval":        ["incidents", "infrastructure"],
-  "evals":       ["incidents", "infrastructure"],
-  "dispatch-watchdog":        ["incidents", "infrastructure"],
-  "arc-operational-review":   ["incidents", "cost"],
-  "arc-ops-review":           ["incidents", "cost"],
-  "arc-self-audit":           ["incidents", "identity"],
-  "compliance-review":        ["identity", "incidents"],
-  "credential-health":        ["infrastructure", "incidents"],
-
-  // --- Infrastructure ---
-  "arc0btc-site-health":      ["publishing", "infrastructure"],
-  "service-health":       ["incidents", "infrastructure"],
-  "workflows":            ["integrations", "infrastructure"],
-  "arc-alive-check":          ["infrastructure"],
-  "arc-architecture-review":  ["infrastructure"],
-  "credentials":          ["infrastructure"],
-  "housekeeping":         ["infrastructure"],
-  "arc-memory-expiry":        ["infrastructure"],
-  "arc-observatory":          ["fleet", "infrastructure"],
-  "arc-remote-setup":         ["infrastructure", "fleet"],
-  "task-scheduler":            ["infrastructure"],
-  "arc-umbrel":               ["infrastructure"],
-  "arc-web-dashboard":        ["infrastructure", "cost"],
-  "arc-workflow-review":      ["infrastructure"],
-  "worktrees":            ["infrastructure"],
-  "auto-queue":               ["infrastructure"],
-  "context-review":           ["infrastructure"],
-  "styx-btc-bridge":          ["infrastructure"],
-
-  // --- Cross-domain ---
-  "aibtc-dev-ops":            ["integrations", "infrastructure"],
-  "aibtc-heartbeat":          ["fleet", "infrastructure"],
-  "aibtc-repo-maintenance":   ["infrastructure"],
+  // --- Skills with both ---
+  "memory-hygiene":   ["incidents"],
+  "workflows":        ["incidents"],
 };
 
 /** Default topics loaded when no skill-specific mapping exists. */
-const DEFAULT_TOPICS = ["fleet", "incidents"];
+const DEFAULT_TOPICS = ["incidents"];
 
 /**
  * Resolve memory context for a dispatch prompt.

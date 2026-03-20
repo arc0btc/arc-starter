@@ -1,21 +1,21 @@
 {
   "agent": "loom",
-  "updated_at": "2026-03-19T16:36:16.836Z",
+  "updated_at": "2026-03-20T07:41:40.280Z",
   "idle": true,
-  "idle_since": "2026-03-19T14:37:31.844Z",
+  "idle_since": "2026-03-20T06:20:09.300Z",
   "last_task": {
-    "id": 20,
-    "subject": "housekeeping: 1 issue(s) detected",
+    "id": 3,
+    "subject": "Inscribe daily brief for 2026-03-19",
     "status": "failed",
-    "priority": 7
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 5286,
-    "cost_usd": 0
+    "duration_ms": 48296,
+    "cost_usd": 0.2434365
   },
   "health": {
-    "uptime_seconds": 72155,
+    "uptime_seconds": 51161,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 244299751424
+    "disk_avail_bytes": 243867947008
   }
 }

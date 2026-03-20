@@ -240,28 +240,17 @@
   </style>
 </head>
 <body>
-
-  <div id="sse-announcer" role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
-
   <!-- Header -->
   <header class="header">
     <div class="header-inner">
       <div class="header-identity">
-        <img class="avatar avatar-img" id="header-avatar" src="/api/face" alt="this is my dashboard" title="this is my dashboard" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
-        <div class="avatar avatar-fallback" id="header-avatar-fallback" style="display:none" title="this is my dashboard">A</div>
+        <img class="avatar avatar-img" id="header-avatar" src="/api/face" alt="dashboard" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+        <div class="avatar avatar-fallback" id="header-avatar-fallback" style="display:none">A</div>
         <div>
-          <h1 class="header-name" id="header-name">Agent <span class="status-dot live" id="status-dot" title="Live" aria-label="Status: live"></span><span class="sse-status disconnected" id="sse-dot" title="SSE disconnected" aria-label="SSE: disconnected"></span></h1>
+          <h1 class="header-name" id="header-name">Agent</h1>
           <div class="header-bns" id="header-bns"></div>
         </div>
       </div>
-
-      <div class="header-stats">
-        <div class="cost-ticker">
-          <div class="label">Cost Today</div>
-          <span id="cost-today">$0.00</span>
-        </div>
-      </div>
-
       <nav class="header-nav">
         <a href="/">Activity</a>
         <a href="/sensors">Sensors</a>
@@ -302,16 +291,34 @@
     </section>
   </main>
 
-  <script src="/shared.js"></script>
   <script>
     // ---- State ----
     let allThreads = [];
     let selectedThreadKey = null;
     let currentFilter = 'all';
 
-    // ---- Identity & Header ----
-    loadIdentity('Email');
-    fetchJSON('/api/status').then(function(s) { updateHeader(s); }).catch(function() {});
+    // ---- Identity ----
+    fetch('/api/identity').then(r => r.json()).then(d => {
+      document.getElementById('header-name').textContent = d.name || 'Agent';
+      if (d.bns) document.getElementById('header-bns').textContent = d.bns;
+    }).catch(() => {});
+
+    // ---- Helpers ----
+    function relativeTime(iso) {
+      const ms = Date.now() - new Date(iso + (iso.endsWith('Z') ? '' : 'Z')).getTime();
+      const s = Math.floor(ms / 1000);
+      if (s < 60) return `${s}s ago`;
+      const m = Math.floor(s / 60);
+      if (m < 60) return `${m}m ago`;
+      const h = Math.floor(m / 60);
+      if (h < 24) return `${h}h ago`;
+      const day = Math.floor(h / 24);
+      return `${day}d ago`;
+    }
+
+    function esc(s) {
+      return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
 
     // ---- Filter ----
     function setFilter(f, btn) {

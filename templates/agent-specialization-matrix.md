@@ -73,7 +73,6 @@
 | aibtc-heartbeat | AIBTC platform check-in (no GitHub needed) |
 | aibtc-inbox-sync | AIBTC inbox polling (no GitHub needed) |
 | aibtc-news-classifieds | Ordinals Business classified ads |
-| aibtc-news-deal-flow | Deal Flow editorial beat |
 | aibtc-news-editorial | Signal filing, editorial claims |
 | bitcoin-quorumclaw | Multisig coordination — core on-chain |
 | bitcoin-taproot-multisig | Taproot multisig — core on-chain |

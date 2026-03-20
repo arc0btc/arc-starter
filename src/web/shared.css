@@ -367,82 +367,6 @@ a:hover { color: var(--accent-deep); }
   cursor: not-allowed;
 }
 
-/* ---- Thread / parent-child ---- */
-.feed-item-child {
-  border-left-style: dashed;
-  margin-left: var(--space-lg);
-}
-
-.pill-thread {
-  cursor: pointer;
-  text-decoration: underline dotted;
-}
-
-.pill-thread:hover {
-  background: var(--accent);
-  color: var(--bg);
-}
-
-.thread-link {
-  background: none;
-  border: none;
-  color: var(--accent);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: underline dotted;
-}
-
-.thread-link:hover { text-decoration: underline; }
-
-.child-task-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  margin-bottom: 3px;
-  font-size: 0.75rem;
-}
-
-.feed-detail-children .feed-detail-value {
-  display: flex;
-  flex-direction: column;
-}
-
-/* ---- Pagination ---- */
-.feed-pagination {
-  margin-top: var(--space-sm);
-  display: flex;
-  justify-content: center;
-}
-
-.load-more-btn {
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  font-family: var(--font);
-  font-size: 0.8rem;
-  padding: var(--space-sm) var(--space-lg);
-  border-radius: 3px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  transition: border-color 0.15s, color 0.15s;
-}
-
-.load-more-btn:hover {
-  border-color: var(--accent);
-  color: var(--text);
-}
-
-@keyframes flash-highlight {
-  0%   { background: rgba(254, 194, 51, 0.25); }
-  100% { background: transparent; }
-}
-
-.feed-item.flash-highlight { animation: flash-highlight 1.2s ease-out forwards; }
-
 /* ---- Metrics ---- */
 .metrics-grid {
   display: grid;
@@ -655,7 +579,7 @@ a:hover { color: var(--accent-deep); }
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  width: 80px;
+  width: 48px;
   flex-shrink: 0;
 }
 
@@ -688,137 +612,49 @@ a:hover { color: var(--accent-deep); }
   flex-wrap: wrap;
 }
 
-/* ---- Reputation Filters ---- */
-.rep-filters {
-  display: flex;
-  gap: var(--space-md);
-  margin: var(--space-md) 0;
-  flex-wrap: wrap;
+.reputation-section-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: var(--space-md) 0 var(--space-xs);
 }
 
-.rep-filter-group {
+.reputation-list {
+  list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 4px;
 }
 
-.rep-filter-label {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-muted);
-}
-
-.rep-filter-select, .rep-filter-input {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 6px 10px;
-  border-radius: 2px;
-  font-size: 0.8rem;
-  font-family: var(--font-mono);
-}
-
-.rep-filter-input { min-width: 220px; }
-
-/* ---- Reputation Table ---- */
-.rep-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.8rem;
-}
-
-.rep-table th {
-  text-align: left;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-muted);
-  padding: var(--space-xs) var(--space-sm);
-  border-bottom: 2px solid var(--border);
-  white-space: nowrap;
-}
-
-.rep-table td {
-  padding: var(--space-xs) var(--space-sm);
+.reputation-item {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  padding: var(--space-xs) 0;
   border-bottom: 1px solid var(--border);
-  vertical-align: top;
-}
-
-.rep-table tbody tr:hover { background: var(--bg); }
-
-.rep-th-type { width: 90px; }
-.rep-th-rating { width: 80px; }
-.rep-th-agent { width: 150px; }
-.rep-th-tags { width: 120px; }
-.rep-th-date { width: 90px; }
-
-.rep-direction {
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 2px;
-}
-.rep-dir-received { background: rgba(76, 175, 80, 0.15); color: #66bb6a; }
-.rep-dir-submitted { background: rgba(33, 150, 243, 0.15); color: #42a5f5; }
-
-.rep-subject-cell { word-break: break-word; }
-
-.rep-agent-cell {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  cursor: default;
-}
-
-.rep-agent-network {
-  font-size: 0.65rem;
-  font-weight: 600;
-  padding: 1px 4px;
-  border-radius: 2px;
-  background: var(--border);
-  color: var(--text-muted);
-}
-
-.rep-tags-cell { font-size: 0.75rem; }
-
-.rep-date-cell {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  white-space: nowrap;
 }
 
 .reputation-stars {
   color: var(--accent);
   font-size: 0.8rem;
+  flex-shrink: 0;
   letter-spacing: 1px;
 }
 
-/* ---- Reputation Pagination ---- */
-.rep-pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-md);
-  margin-top: var(--space-md);
-  padding-top: var(--space-sm);
+.reputation-subject {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
 }
 
-.rep-page-btn {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 4px 12px;
-  border-radius: 2px;
-  font-size: 0.8rem;
-  cursor: pointer;
-}
-.rep-page-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
-.rep-page-btn:disabled { opacity: 0.4; cursor: default; }
-
-.rep-page-info {
-  font-size: 0.8rem;
+.reputation-meta {
   color: var(--text-muted);
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  white-space: nowrap;
 }
 
 /* ---- Footer ---- */
