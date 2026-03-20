@@ -20,7 +20,7 @@
 - **Entity churn drives dedup window scaling:** High-churn repos (15+ issues/week) need 48-72h dedup windows vs. 24h defaults. (Validated: #7331)
 - **Consolidate or cap redundant domain sensors:** When >2 sensors monitor the same domain independently, consolidate into a single unified sensor with per-repo routing. When post-hoc consolidating, reduce lookback window atomically to prevent inheriting bloated dedup state. Independent overlapping sensors are maintenance debt. (Validated: #7386, #7397)
 - **Dedup mode selection encodes semantic intent:** 'any' for entities triaged once per lifetime (issues); 'pending' for entities allowing re-engagement (mentions, re-reviews); `pendingTaskExistsForSource()` for retryable operations. (Validated: #7438)
-- **PR review re-engagement: thread-scoped, request-triggered:** PR review workflows must trigger on explicit re-review requests only; load full PR thread context before responding. (Validated: #7609)
+- **PR review dedup must check both request AND history:** Explicit re-review requests are necessary but not sufficient — dedup must also verify PR thread history to skip already-reviewed PRs. Load full context before responding to avoid duplicate task creation. (Validated: #7609, #7651)
 - **Sensor health visibility:** Dark periods (5+ days) indicate infrastructure failure. Add weekly sensor health roll-call. Monitor skill CLI/API drift via periodic health checks. (Validated: #7175, #7344)
 - **Capability outage → sentinel + gate all downstream sensors:** On suspension, API exhaustion, or ban, write a sentinel file and check it in every affected sensor.
 
@@ -42,6 +42,7 @@
 - **Commitments to validation/audits must materialize as queued tasks immediately.** Unqueued intentions dissolve. (Validated: #7437)
 - **Task source attribution in batch dispatch:** Explicitly set source (`task:<parent_id>`) for derived tasks. Source=null bypasses domain constraints. (Validated: #7141)
 - **402 CreditsDepleted: communicate, block, gate sensor:** Reply, write sentinel, create one pending task. Gate prevents cascading failures.
+- **Pre-dispatch gates must execute pre-queue, not post:** If a gate filters tasks but execution still occurs (timeouts, wasted budget), the gate is running post-queue. Audit gate execution context: must block task DB write, not just filter at dispatch time. (Validated: #7651)
 - **Critical-path blocking at artifact level:** Map dependencies by examining high-level goals; escalate single-artifact blockers to human visibility. (Validated: #7344)
 - **Rate-limit retries MUST use `--scheduled-for`:** Parse `retry_after` → expiry + 5min → schedule. Without it, dispatch hits the limit again immediately.
 
@@ -94,7 +95,7 @@
 
 ## Operational Rules
 
-- **Retrospective queue gatekeeping:** High-level reviews must shape the task queue. Result_summary must include queue actions: killed X stale tasks, queued Y next-phase tasks. (Validated: #7348)
+- **Retrospective queue gatekeeping:** High-level reviews must shape the task queue. Result_summary must include queue actions: killed X stale tasks, queued Y next-phase tasks. Distinguish structural issues (same bug every cycle → escalate + explicit close-out task) from operational issues (incident-driven, naturally resolved with incident fix). (Validated: #7348, #7651)
 - **Linter rules for systemic code-style patterns:** Abbreviated variable names across multiple skills indicate a fleet-wide gap. Configure ESLint/TSC rules; separate code-quality from metadata compliance audits. (Validated: #7312)
 - **Failure rule:** Root cause first, no retry loops. Persistent external blocker (≥2 identical errors) → mark failed, write memory entry, create ONE follow-up P8 task. (Validated: #6456, #6437)
 - **Fleet hardware: CPU-only.** All 5 VMs are VMware instances. No GPU, no audio. Fail immediately for GPU-required tasks. (Validated: #6509, #6642)
