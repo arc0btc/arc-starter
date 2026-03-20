@@ -52,6 +52,7 @@ function validateSyntax(files: string[]): string[] {
   const errors: string[] = [];
   for (const file of files) {
     const fullPath = join(ROOT, file);
+    if (!existsSync(fullPath)) continue; // skip deleted files
     try {
       const content = readFileSync(fullPath, "utf-8");
       transpiler.transformSync(content);
