@@ -10,6 +10,7 @@
 - **Security gate code review — fail-open + validation + boundaries.** When reviewing access-control or identity-gated code, audit for: (1) fail-open bugs, (2) input validation + parsing safety, (3) null/boundary conditions. Multi-reviewer sign-off catches complementary findings. (Validated: #7416)
 - **Fleet topology rules:** Orchestration + GitHub sensors are Arc-only. Workers run lean self-monitoring + domain-work sensors only.
 - **Simplify before adding safety layers; use explicit gates over timers:** Consolidate first. Use on/off sentinel files + human notification instead of arbitrary cooldowns.
+- **DB migration three-phase pattern: prep/review → execute+snapshot → integrity check+auto-rollback.** Validate logic + dependencies, execute and preserve pre-state, verify consistency and revert if broken. Protects operational continuity. (Validated: #7745)
 
 ## Sensor Patterns
 
