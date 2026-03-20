@@ -55,10 +55,10 @@ import { writeBackLearnings, extractLearnings } from "./memory-writeback.ts";
 const USAGE = {
   tasksAdd:
     'arc tasks add --subject TEXT [--description TEXT] [--priority N] [--source TEXT]\n' +
-    '              [--skills SKILL1,SKILL2] [--parent ID] [--model opus|sonnet|haiku|codex|codex:<model>]\n' +
+    '              [--skills SKILL1,SKILL2|none] [--parent ID] [--model opus|sonnet|haiku|codex|codex:<model>]\n' +
     '              [--defer DURATION | --scheduled-for ISO_DATETIME]',
   tasksUpdate:
-    'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--skills S1,S2] [--model opus|sonnet|haiku|codex|codex:<model>] [--status pending]',
+    'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--skills S1,S2|none] [--model opus|sonnet|haiku|codex|codex:<model>] [--status pending]',
   tasksClose:
     'arc tasks close --id N --status completed|failed|blocked --summary TEXT',
   tasksDeps: 'arc tasks deps --id N',
@@ -230,6 +230,8 @@ function cmdTasksAdd(args: string[]): void {
   const skillsJson = flags["skills"]
     ? (() => {
         const raw = flags["skills"].trim();
+        // --skills none → explicit null (dispatch with no skill context)
+        if (raw === "none") return null;
         // Accept both JSON array (e.g. '["a","b"]') and comma-separated (e.g. 'a,b')
         if (raw.startsWith("[")) {
           try {
@@ -359,11 +361,11 @@ function cmdTasksUpdate(args: string[]): void {
   const model = flags["model"] ?? undefined;
   const status = flags["status"] ?? undefined;
   const skillsRaw = flags["skills"];
-  // Normalize --skills: comma-separated string → JSON array, or null to clear
+  // Normalize --skills: comma-separated string → JSON array, "none"/""  → null to clear
   const skills =
     skillsRaw === undefined
       ? undefined
-      : skillsRaw === ""
+      : skillsRaw === "" || skillsRaw === "none"
         ? null
         : JSON.stringify(skillsRaw.split(",").map((s) => s.trim()).filter(Boolean));
 
