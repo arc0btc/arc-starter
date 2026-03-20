@@ -253,6 +253,51 @@ async function cmdGetClassified(args: string[]): Promise<void> {
   }
 }
 
+async function cmdCheckClassifiedStatus(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+  const address = flags.address || ARC_BTC_ADDRESS;
+
+  try {
+    log(`Checking classified status for agent: ${address}`);
+    const data = (await apiGet(`/classifieds?agent=${address}`)) as {
+      classifieds: Array<{
+        id: string;
+        title: string;
+        status?: string;
+        active?: boolean;
+        createdAt?: string;
+        expiresAt?: string;
+      }>;
+    };
+
+    const ads = data.classifieds ?? [];
+    if (ads.length === 0) {
+      log("No classifieds found for this agent");
+      console.log(JSON.stringify({ address, classifieds: [] }, null, 2));
+      return;
+    }
+
+    for (const ad of ads) {
+      const status = ad.status ?? (ad.active ? "active" : "unknown");
+      log(`[${ad.id}] "${ad.title}" — status: ${status}`);
+      if (status === "pending_review") {
+        log(`  → Awaiting editorial approval`);
+      } else if (status === "rejected") {
+        log(`  → REJECTED by editorial review`);
+      } else if (status === "approved" || ad.active) {
+        log(`  → Live on marketplace`);
+      }
+    }
+
+    console.log(JSON.stringify(data, null, 2));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`Error: ${message}`);
+    console.error(JSON.stringify({ error: message }, null, 2));
+    process.exit(1);
+  }
+}
+
 async function cmdPostClassified(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
@@ -290,30 +335,46 @@ async function cmdPostClassified(args: string[]): Promise<void> {
   }
 
   try {
-    // Check for duplicate active ads
-    log("Checking for duplicate active classifieds");
-    const existing = (await apiGet("/classifieds")) as {
-      classifieds: Array<{ title: string; contact: string; active: boolean }>;
-    };
-    const duplicate = existing.classifieds.find(
-      (ad) => ad.active && ad.contact === contact && ad.title === title
+    // Check for duplicate ads — check both marketplace (approved) and agent-scoped (pending_review)
+    // After PR #144, pending_review ads don't appear in the marketplace view, so check both endpoints
+    log("Checking for duplicate classifieds (active + pending_review)");
+    const [marketplaceData, agentData] = await Promise.all([
+      apiGet("/classifieds") as Promise<{ classifieds: Array<{ title: string; contact: string; active: boolean; status?: string }> }>,
+      apiGet(`/classifieds?agent=${contact}`) as Promise<{ classifieds: Array<{ title: string; contact: string; status?: string }> }>,
+    ]);
+    const allAds = [
+      ...(marketplaceData.classifieds ?? []),
+      ...(agentData.classifieds ?? []),
+    ];
+    const duplicate = allAds.find(
+      (ad) =>
+        ad.contact === contact &&
+        ad.title === title &&
+        (ad.active || ad.status === "pending_review" || ad.status === "approved")
     );
     if (duplicate) {
       throw new Error(
-        `Duplicate: an active classified with this exact title already exists for ${contact}. Use a different title or wait for expiry.`
+        `Duplicate: a classified with this exact title already exists for ${contact} (status: ${(duplicate as { status?: string }).status ?? "active"}). Use a different title or wait for expiry.`
       );
     }
 
     // Post via x402 payment
     log(`Posting classified: "${title}" [${category}] (5000 sats sBTC)`);
-    const result = await x402Request("POST", `${API_BASE}/classifieds`, {
+    const result = (await x402Request("POST", `${API_BASE}/classifieds`, {
       title,
       body,
       category,
       contact,
-    });
+    })) as { ok?: boolean; status?: string; message?: string; id?: string };
 
-    log("Classified posted successfully");
+    // Treat any ok:true response as success — status field indicates editorial state, not payment success
+    // POST /api/classifieds now returns status:"pending_review" with message:"Classified submitted for editorial review"
+    if (result.status === "pending_review") {
+      log(`Classified submitted for editorial review (id: ${result.id ?? "unknown"})`);
+      log("Ad is NOT yet live — awaiting approval. Check status with: check-classified-status");
+    } else {
+      log("Classified posted successfully and is active");
+    }
     console.log(JSON.stringify(result, null, 2));
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -601,7 +662,7 @@ async function main(): Promise<void> {
   if (args.length === 0) {
     console.error("Usage: arc skills run --name aibtc-news-classifieds -- <command> [flags]");
     console.error(
-      "Commands: list-classifieds, get-classified, post-classified, get-signal, correct-signal, " +
+      "Commands: list-classifieds, get-classified, check-classified-status, post-classified, get-signal, correct-signal, " +
         "update-beat, get-brief, inscribe-brief, get-inscription, streaks, list-skills"
     );
     process.exit(1);
@@ -617,6 +678,9 @@ async function main(): Promise<void> {
         break;
       case "get-classified":
         await cmdGetClassified(commandArgs);
+        break;
+      case "check-classified-status":
+        await cmdCheckClassifiedStatus(commandArgs);
         break;
       case "post-classified":
         await cmdPostClassified(commandArgs);
