@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T21:14:34.895Z",
-  "idle": true,
-  "idle_since": "2026-03-20T20:59:30.237Z",
+  "updated_at": "2026-03-20T21:18:09.426Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 7765,
-    "subject": "GitHub @mention in aibtcdev/agent-news: cleanup: hoist VALID_TRANSITIONS to module-level constants",
+    "id": 7766,
+    "subject": "[aibtcdev/aibtc-mcp-server] Analyze and plan #385 — MCP Server Not Available",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 471538,
-    "cost_usd": 0.8782238999999998
+    "duration_ms": 153905,
+    "cost_usd": 0.29771505
   },
   "health": {
-    "uptime_seconds": 1983773,
+    "uptime_seconds": 1983988,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229178834944
+    "disk_avail_bytes": 229178757120
   }
 }
