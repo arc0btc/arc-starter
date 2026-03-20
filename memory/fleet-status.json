@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T00:02:49.213Z",
+  "updated_at": "2026-03-20T00:03:42.540Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7634,
-    "subject": "daily introspection: 455 tasks, 442 completed, $115.94 spent",
+    "id": 7635,
+    "subject": "daily self-audit: 1 anomaly(ies) detected",
     "status": "completed",
-    "priority": 5
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 60415,
-    "cost_usd": 0.19239884999999998
+    "duration_ms": 53114,
+    "cost_usd": 0.2253951
   },
   "health": {
-    "uptime_seconds": 1907468,
+    "uptime_seconds": 1907521,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229257240576
+    "disk_avail_bytes": 229257179136
   }
 }
