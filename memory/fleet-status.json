@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T22:44:06.719Z",
+  "updated_at": "2026-03-20T22:50:10.021Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7775,
-    "subject": "New release: aibtcdev/skills skills-v0.29.0",
+    "id": 7783,
+    "subject": "Update jingswap skill with v0.29.0 contract names (sbtc-stx-jing)",
     "status": "completed",
-    "priority": 8
+    "priority": 4
   },
   "last_cycle": {
-    "duration_ms": 60769,
-    "cost_usd": 0.07346525
+    "duration_ms": 363084,
+    "cost_usd": 1.4664435
   },
   "health": {
-    "uptime_seconds": 1989145,
+    "uptime_seconds": 1989508,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229121048576
+    "disk_avail_bytes": 229120913408
   }
 }
