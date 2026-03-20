@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T06:30:03.403Z",
-  "idle": true,
-  "idle_since": "2026-03-20T05:46:48.912Z",
+  "updated_at": "2026-03-20T06:32:19.647Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 7678,
-    "subject": "Review PR #142 on aibtcdev/agent-news: fix: correct x402 relay settle endpoint path",
-    "status": "completed",
-    "priority": 5
+    "id": 7679,
+    "subject": "File Ordinals Business signal: Bitflow SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token/Stacks — 18.5% price range",
+    "status": "failed",
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 52012,
-    "cost_usd": 0.18056819999999998
+    "duration_ms": 75804,
+    "cost_usd": 0.05627715
   },
   "health": {
-    "uptime_seconds": 1930702,
+    "uptime_seconds": 1930838,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229242212352
+    "disk_avail_bytes": 229242138624
   }
 }
