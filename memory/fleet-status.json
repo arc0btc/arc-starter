@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T17:05:15.550Z",
+  "updated_at": "2026-03-20T17:05:37.178Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7735,
-    "subject": "Email from whoabuddy (1 unread, 3 total): Re: RFC language for Arc operations",
+    "id": 7734,
+    "subject": "Retrospective: extract learnings from task #7732 — Email from whoabuddy (1 unread, 3 total): Re: AIBTC News Bea",
     "status": "completed",
-    "priority": 1
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 86239,
-    "cost_usd": 0.29823570000000005
+    "duration_ms": 21454,
+    "cost_usd": 0.054679900000000004
   },
   "health": {
-    "uptime_seconds": 1968814,
+    "uptime_seconds": 1968836,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229191385088
+    "disk_avail_bytes": 229191331840
   }
 }

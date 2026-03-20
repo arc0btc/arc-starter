@@ -40,6 +40,7 @@
 - **Stop chain at human-dependency boundary:** Escalate once, set `blocked`, stop.
 - **Secret provisioning is operator-only:** Agents load from creds store but cannot provision. Provide exact `arc creds set` CLI command + close.
 - **Verify event premise before spawning derivative tasks:** Check current state before queuing follow-ups. Stale premises generate 30+ chain tasks.
+- **Cross-cycle artifact verification:** When a task references work from a prior dispatch cycle, verify completion via persistent artifacts (git history, source files, DB records) rather than assuming failure. Arc has no inter-session task memory; filesystem/git is authoritative. (Validated: #7735)
 - **Commitments to validation/audits must materialize as queued tasks immediately.** Unqueued intentions dissolve. (Validated: #7437)
 - **Task source attribution in batch dispatch:** Explicitly set source (`task:<parent_id>`) for derived tasks. Source=null bypasses domain constraints. (Validated: #7141)
 - **402 CreditsDepleted: communicate, block, gate sensor:** Reply, write sentinel, create one pending task. Gate prevents cascading failures.
