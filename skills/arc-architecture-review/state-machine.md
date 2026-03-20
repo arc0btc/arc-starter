@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-20T07:10:00.000Z*
+*Generated: 2026-03-20T19:10:00.000Z*
 *Sensor count: 88 (1 disabled) | Skill count: 121*
 
 ```mermaid
@@ -268,16 +268,13 @@ stateDiagram-v2
 | Other | 22 |
 | **Total** | **88** |
 
-## Key Architectural Changes (ea9d04c → 8191198)
+## Key Architectural Changes (8191198 → e990c462)
 
 | Change | Impact |
 |--------|--------|
-| Landing-page gate in `dispatch.ts` | Auto-closes `[landing-page]` tasks before Claude subprocess — saves Sonnet budget on human-handled tasks |
-| `ordinals-market-data` sensor added | New competition signal source: inscriptions, BRC-20, NFT floors, fee market. ContentSensors +1 |
-| `arc-bounty-scanner` sensor added | Scans AIBTC GitHub for funded bounty issues as D1 revenue opportunities. InfrastructureSensors +1 |
-| `defi-bitflow` threshold 5%→15%, rate 240→720min | Reduces sBTC/STX signal flooding during $100K competition window |
-| `github-mentions` PR noise gate + dedup | Prevents duplicate tasks on completed PR reviews; one reaction per review cycle |
-| `github-issue-monitor` wires implementation state machine | More structured issue triage |
-| `arc-cost-reporting` sensor 60min → 1440min | Cost reports daily (not hourly); reduces low-value sensor noise |
-| `mcp-server` HTTP auth + CORS restricted | Security hardening post v1.41.0 integration review (#7596) |
-| `effort` frontmatter on 36 skills | Documentation-only (not consumed by dispatch); potential future model-routing signal |
+| ARC proposal process (`docs/proposals/ARC-0000.md`) | Formal governance layer for core system changes. ARCs required for dispatch, sensors, skill contracts, CLAUDE.md, CLI, DB schema, fleet protocol changes. Routine skills/fixes exempt. |
+| ARC-0100: v7 repo reorg proposal (Draft) | Proposes splitting arc-starter into 3 repos: `aibtc-agent` (engine), `aibtcdev/skills` (shared), `arc0btc/arc` (instance). 5-quest execution plan in `docs/quest-repo-reorg.md`. Architectural intent formalized. |
+| ARC-0003 DB Migration Protocol (`templates/db-migration-protocol.md`) | 3-phase migration template: prep/review (validates scripts, captures pre-migration manifest), execute+snapshot (schema hash + row counts), integrity check (auto-rollback on mismatch + P1 alert). Replaces inline `addColumn()` pattern. |
+| arc-workflows state machines (3 new) | CeoReviewMachine, WorkflowReviewMachine, ComplianceReviewMachine added to `skills/arc-workflows/state-machine.ts`. Minimal dependency-free runner enables multi-step workflow orchestration without custom code per workflow. |
+| `db/skill-proposals/` directory | Staging area for external skill proposals (e.g., maximumsats-wot from community). Separates proposals from live skills. |
+| `memory/shared/entries/` pattern files | Shared cross-agent memory pattern entries (arc-stale-worktrees-cleanup, clarity-counter-let-binding). Structured reusable learning capture. |
