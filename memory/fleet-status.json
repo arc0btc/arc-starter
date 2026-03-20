@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T05:03:13.900Z",
+  "updated_at": "2026-03-20T05:15:17.409Z",
   "idle": true,
-  "idle_since": "2026-03-20T04:59:12.362Z",
+  "idle_since": "2026-03-20T05:05:14.410Z",
   "last_task": {
-    "id": 7665,
+    "id": 7666,
     "subject": "GitHub @mention in aibtcdev/aibtc-mcp-server: Observer Protocol: Free Verification for Bitcoin-Native AI Agents",
     "status": "completed",
     "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 86754,
-    "cost_usd": 0.2177106
+    "duration_ms": 57055,
+    "cost_usd": 0.17296304999999998
   },
   "health": {
-    "uptime_seconds": 1925492,
+    "uptime_seconds": 1926216,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229251567616
+    "disk_avail_bytes": 229243011072
   }
 }
