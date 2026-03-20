@@ -6,7 +6,8 @@
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import {
   insertTask,
-  recentTaskExistsForSource,
+  insertWorkflow,
+  getWorkflowByInstanceKey,
   upsertAibtcInboxMessage,
   getUnreadAibtcInboxMessages,
   getRecentAibtcMessagesByPeer,
@@ -174,16 +175,20 @@ export default async function aibtcInboxSensor(): Promise<string> {
   }
 
   // Queue one task per peer thread
+  const today = new Date().toISOString().slice(0, 10);
   for (const [peer, peerMessages] of threadsByPeer) {
     const source = `sensor:aibtc-inbox-sync:thread:${peer}`;
 
-    if (recentTaskExistsForSource(source, 24 * 60)) {
-      log(`task exists within 24h for "${source}" — skipping`);
-      continue;
-    }
-
     const rawSenderName = peerMessages[0].peer_display_name ?? peerMessages[0].from_address;
     const senderName = rawSenderName.replace(/[\x00-\x1f\x7f]/g, "").slice(0, 80);
+    const senderSlug = senderName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || peer.slice(0, 20);
+
+    // Dedup via workflow instance: one workflow per sender per day
+    const workflowKey = `agent-collab-${senderSlug}-${today}`;
+    if (getWorkflowByInstanceKey(workflowKey)) {
+      log(`workflow instance exists for "${workflowKey}" — skipping`);
+      continue;
+    }
 
     // Build conversation context from recent sent messages to this peer
     const recentSent = getRecentAibtcMessagesByPeer(peer, 5);
@@ -259,15 +264,29 @@ export default async function aibtcInboxSensor(): Promise<string> {
     if (isResponseToOutreach) {
       inboxSkills.push("erc8004-reputation", "contacts");
     }
+    // Create workflow instance to track the collaboration lifecycle
+    const workflowId = insertWorkflow({
+      template: "agent-collaboration",
+      instance_key: workflowKey,
+      current_state: "received",
+      context: JSON.stringify({
+        sender: senderName,
+        messageCount: peerMessages.length,
+        source,
+        peer,
+      }),
+    });
+
+    // Create the triage task directly (rich content) using workflow source so meta-sensor skips it
     const taskId = insertTask({
       subject: `AIBTC thread from ${senderName} (${peerMessages.length} messages)`,
       description,
       skills: JSON.stringify(inboxSkills),
       priority: isCoSign ? 1 : 2,
       model: "opus",
-      source,
+      source: `workflow:${workflowId}`,
     });
-    log(`created task ${taskId} for thread from ${senderName} (${peerMessages.length} messages)`);
+    log(`created workflow ${workflowId} + task ${taskId} for thread from ${senderName} (${peerMessages.length} messages)`);
   }
 
   return "ok";
