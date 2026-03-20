@@ -80,5 +80,5 @@ Load when: depositing to Jingswap, checking auction state, querying settlement h
 - [x] Frontmatter `name` matches directory name
 - [x] SKILL.md is under 2000 tokens
 - [x] `cli.ts` runs without error
-- [x] `config.json` populated with v0.29.0 contract names (sbtc-stx-jing, sbtc-usdcx-jing)
+- [x] `config.json` populated with v1.42.0 contract names (sbtc-stx-jing, sbtc-usdcx-jing)
 - [ ] End-to-end deposit tested on mainnet

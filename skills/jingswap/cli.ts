@@ -450,7 +450,7 @@ WRITE COMMANDS (wallet required)
     Deposit sBTC (satoshis) into current auction cycle.
     Budget: max 10,000 sats per cycle.
 
-CONTRACTS (v0.29.0)
+CONTRACTS (v1.42.0)
   sbtc-stx:   SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.sbtc-stx-jing
   sbtc-usdcx: SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.sbtc-usdcx-jing
 
