@@ -661,6 +661,85 @@ async function cmdCorrections(args: string[]): Promise<void> {
 
 // ---- Subcommands: Publisher Config ----
 
+async function cmdReviewSignal(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+
+  if (!flags.id || !flags.status) {
+    console.error(
+      "Usage: arc skills run --name aibtc-news-classifieds -- review-signal --id <id> --status <status> [--feedback <text>]"
+    );
+    console.error("Valid statuses: submitted, in_review, approved, rejected, brief_included");
+    process.exit(1);
+  }
+
+  const validStatuses = ["submitted", "in_review", "approved", "rejected", "brief_included"];
+  if (!validStatuses.includes(flags.status)) {
+    console.error(
+      `Invalid status: ${flags.status}. Must be one of: ${validStatuses.join(", ")}`
+    );
+    process.exit(1);
+  }
+
+  if (flags.feedback && flags.feedback.length > 500) {
+    console.error(`Feedback too long: ${flags.feedback.length}/500 chars`);
+    process.exit(1);
+  }
+
+  try {
+    const path = `/signals/${flags.id}/review`;
+    const headers = await buildAuthHeaders("PATCH", path);
+    log(`Signing message for PATCH /api${path}`);
+
+    const body: Record<string, unknown> = {
+      btc_address: ARC_BTC_ADDRESS,
+      status: flags.status,
+    };
+    if (flags.feedback) {
+      body.feedback = flags.feedback;
+    }
+
+    const url = `${API_BASE}${path}`;
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify(body),
+    });
+
+    const text = await response.text();
+    let data: unknown;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { raw: text };
+    }
+
+    if (!response.ok) {
+      // Check for rate limit
+      if (response.status === 429) {
+        const errorObj = typeof data === "object" && data ? (data as Record<string, unknown>) : {};
+        const retryAfter =
+          (errorObj.retryAfterSeconds as number) ||
+          parseInt(response.headers.get("Retry-After") || "0", 10);
+        const retryAtTime = retryAfter
+          ? new Date(Date.now() + retryAfter * 1000).toISOString()
+          : "unknown";
+        throw new Error(
+          `Rate limited (429). Retry after ${retryAfter}s (at ${retryAtTime}). Details: ${text}`
+        );
+      }
+      throw new Error(`API error ${response.status}: ${text}`);
+    }
+
+    log(`Signal ${flags.id} reviewed as ${flags.status}`);
+    console.log(JSON.stringify(data, null, 2));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`Error: ${message}`);
+    console.error(JSON.stringify({ error: message }, null, 2));
+    process.exit(1);
+  }
+}
+
 async function cmdDesignatePublisher(args: string[]): Promise<void> {
   const flags = parseFlags(args);
   const publisherAddress = flags["publisher-address"] || ARC_BTC_ADDRESS;
@@ -729,7 +808,7 @@ async function main(): Promise<void> {
     console.error("Usage: arc skills run --name aibtc-news-classifieds -- <command> [flags]");
     console.error(
       "Commands: list-classifieds, get-classified, post-classified, get-signal, correct-signal, " +
-        "update-beat, get-brief, inscribe-brief, streaks, list-skills, earnings, corrections, " +
+        "review-signal, update-beat, get-brief, inscribe-brief, streaks, list-skills, earnings, corrections, " +
         "designate-publisher, get-publisher"
     );
     process.exit(1);
@@ -775,6 +854,9 @@ async function main(): Promise<void> {
         break;
       case "corrections":
         await cmdCorrections(commandArgs);
+        break;
+      case "review-signal":
+        await cmdReviewSignal(commandArgs);
         break;
       case "designate-publisher":
         await cmdDesignatePublisher(commandArgs);

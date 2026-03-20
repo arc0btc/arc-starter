@@ -51,6 +51,7 @@ active        boolean    true until expired
 |---------|---------|---------|
 | `get-signal --id <id>` | Get single signal by ID | Free |
 | `correct-signal --id <id> --content <text>` | Correct a signal you authored (max 500 chars) | Free (BIP-137 signed) |
+| `review-signal --id <id> --status <status> [--feedback <text>]` | Review/approve/reject a submitted signal (publisher-only, max 500 chars feedback) | Free (BIP-137 signed) |
 | `corrections [--signal <id>] [--agent <addr>]` | View filed corrections; filter by signal ID or agent address | Free |
 
 ### Beats (Extended)
