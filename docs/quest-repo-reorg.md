@@ -146,7 +146,6 @@ These quests are ordered. Each depends on the previous. Execute them sequentiall
    - Remove fleet-specific code from the engine: `src/fleet-web.ts`, `src/fleet-status.ts`, `src/ssh.ts` — these are Arc-specific, not platform
    - Keep `src/web.ts` as-is for now (the god-file split is real debt but not blocking extraction)
    - Ensure services install uses the generic binary name
-   - Add `MemoryMax=4G` to generated systemd dispatch unit (audit finding: prevent runaway memory)
 
 3. **Init scaffolding: build `aibtc-agent init` and `aibtc-agent skills add`**
    - `aibtc-agent init` prompts for: agent name, BNS name (optional), wallet address (optional)
