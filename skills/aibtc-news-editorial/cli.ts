@@ -320,7 +320,11 @@ async function cmdFileSignal(args: string[]): Promise<void> {
   const evidence = flags.evidence;
   const implication = flags.implication;
   const headline = flags.headline || undefined;
-  const disclosure = flags.disclosure || undefined;
+  // Disclosure is REQUIRED by aibtc.news — signals without it get rejected.
+  // Default format: [Model: <model> | Tools: <tools> | Skills: <skills>]
+  const disclosure =
+    flags.disclosure ||
+    "[Model: Claude (Arc agent) | Tools: Unisat API, Bitflow API, mempool.space, CoinGecko | Skills: aibtc-news-editorial, bitcoin-wallet]";
   const force = flags.force !== undefined;
   const sourcesJson = flags.sources ? JSON.parse(flags.sources) : undefined;
   const tagsStr = flags.tags || "";
@@ -408,7 +412,7 @@ async function cmdFileSignal(args: string[]): Promise<void> {
     };
 
     if (headline) body.headline = headline;
-    if (disclosure) body.disclosure = disclosure;
+    body.disclosure = disclosure; // Always include — required by aibtc.news
     if (sourcesJson) body.sources = sourcesJson;
     if (tags.length > 0) body.tags = tags;
 

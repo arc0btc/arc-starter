@@ -53,12 +53,20 @@ async function apiGet(endpoint: string): Promise<unknown> {
 
 async function apiPatch(
   endpoint: string,
-  body: Record<string, unknown>
+  body: Record<string, unknown>,
+  auth?: { address: string; signature: string; timestamp: number }
 ): Promise<unknown> {
   const url = `${API_BASE}${endpoint}`;
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (auth) {
+    headers["X-BTC-Address"] = auth.address;
+    headers["X-BTC-Signature"] = auth.signature;
+    const ts = auth.timestamp > 1e12 ? Math.floor(auth.timestamp / 1000) : auth.timestamp;
+    headers["X-BTC-Timestamp"] = String(ts);
+  }
   const response = await fetch(url, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(body),
   });
 
@@ -340,30 +348,37 @@ async function cmdGetSignal(args: string[]): Promise<void> {
 async function cmdCorrectSignal(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
-  if (!flags.id || !flags.content) {
+  if (!flags.id || (!flags.content && !flags.disclosure)) {
     console.error(
-      "Usage: arc skills run --name aibtc-news-classifieds -- correct-signal --id <id> --content <text>"
+      "Usage: arc skills run --name aibtc-news-classifieds -- correct-signal --id <id> [--content <text>] [--disclosure <text>]"
     );
     process.exit(1);
   }
 
-  if (flags.content.length > 500) {
+  if (flags.content && flags.content.length > 500) {
     console.error(`Correction too long: ${flags.content.length}/500 chars`);
     process.exit(1);
   }
 
   try {
-    const timestamp = new Date().toISOString();
-    const message = `SIGNAL|correct|${flags.id}|${ARC_BTC_ADDRESS}|${timestamp}`;
+    // Use header-based auth: "PATCH /api/signals/{id}:unix_seconds"
+    const timestamp = Math.floor(Date.now() / 1000);
+    const message = `PATCH /api/signals/${flags.id}:${timestamp}`;
     log(`Signing message: ${message}`);
 
     const signature = await signMessage(message);
     log(`Got signature: ${signature.slice(0, 20)}...`);
 
-    const result = await apiPatch(`/signals/${flags.id}`, {
-      btcAddress: ARC_BTC_ADDRESS,
-      content: flags.content,
+    const body: Record<string, unknown> = {
+      btc_address: ARC_BTC_ADDRESS,
+    };
+    if (flags.content) body.content = flags.content;
+    if (flags.disclosure) body.disclosure = flags.disclosure;
+
+    const result = await apiPatch(`/signals/${flags.id}`, body, {
+      address: ARC_BTC_ADDRESS,
       signature,
+      timestamp,
     });
 
     log("Signal corrected");
@@ -404,21 +419,24 @@ async function cmdUpdateBeat(args: string[]): Promise<void> {
   }
 
   try {
-    const timestamp = new Date().toISOString();
-    const message = `SIGNAL|update-beat|${flags.beat}|${ARC_BTC_ADDRESS}|${timestamp}`;
+    const timestamp = Math.floor(Date.now() / 1000);
+    const message = `PATCH /api/beats:${timestamp}`;
     log(`Signing message: ${message}`);
 
     const signature = await signMessage(message);
 
     const body: Record<string, unknown> = {
       slug: flags.beat,
-      btcAddress: ARC_BTC_ADDRESS,
-      signature,
+      btc_address: ARC_BTC_ADDRESS,
     };
     if (flags.description) body.description = flags.description;
     if (flags.color) body.color = flags.color;
 
-    const result = await apiPatch("/beats", body);
+    const result = await apiPatch("/beats", body, {
+      address: ARC_BTC_ADDRESS,
+      signature,
+      timestamp,
+    });
 
     log("Beat updated");
     console.log(JSON.stringify(result, null, 2));
