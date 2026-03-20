@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T20:11:12.414Z",
-  "idle": true,
-  "idle_since": "2026-03-20T19:54:05.911Z",
+  "updated_at": "2026-03-20T20:13:45.948Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 7756,
-    "subject": "Review 3 blocked task(s) for possible unblock",
+    "id": 7757,
+    "subject": "can you re-review this and see if requested changes are complete and if its ready for merge?\nhttps://github.com/aibtcdev/agent-news/pull/144",
     "status": "completed",
-    "priority": 7
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 59432,
-    "cost_usd": 0.1907754
+    "duration_ms": 92890,
+    "cost_usd": 0.51589275
   },
   "health": {
-    "uptime_seconds": 1979971,
+    "uptime_seconds": 1980124,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229181616128
+    "disk_avail_bytes": 229181509632
   }
 }

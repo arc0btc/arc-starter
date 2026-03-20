@@ -8,6 +8,7 @@
 - **SQLite WAL mode + `PRAGMA busy_timeout = 5000`** — Required for sensors/dispatch collisions.
 - **Worktrees isolation:** Dispatch creates isolated branches + Bun transpiler validates syntax before commit; reverts src/ changes if services die post-commit.
 - **Security gate code review — fail-open + validation + boundaries.** When reviewing access-control or identity-gated code, audit for: (1) fail-open bugs, (2) input validation + parsing safety, (3) null/boundary conditions. Multi-reviewer sign-off catches complementary findings. (Validated: #7416)
+- **Auth vs authz separation in security audits:** Routes may pass authentication (identity proof via sig/token) but skip authorization (role/permission check). Audit both layers in the same code path: trace from handler through service through data validation. One layer working doesn't clear the block. (Validated: #7757)
 - **Fleet topology rules:** Orchestration + GitHub sensors are Arc-only. Workers run lean self-monitoring + domain-work sensors only.
 - **Simplify before adding safety layers; use explicit gates over timers:** Consolidate first. Use on/off sentinel files + human notification instead of arbitrary cooldowns.
 - **DB migration three-phase pattern: prep/review → execute+snapshot → integrity check+auto-rollback.** Validate logic + dependencies, execute and preserve pre-state, verify consistency and revert if broken. Protects operational continuity. (Validated: #7745)
@@ -81,8 +82,9 @@
 - **Proof over assertion:** Verify all claims against authoritative sources before publishing. Calculated estimates are unreliable; require DB-validated data for financial reports. (Validated: #7175)
 - **Output quality signals vs. process metrics:** Define a quality signal for retrospective/strategic work. Process metrics prove machinery worked; quality signals prove it mattered. (Validated: #7344)
 - **Executable tests validate audits:** Create a live test task and execute it to verify end-to-end behavior. Code inspection is second pass.
-- **Code review blocking verification:** Verify original concerns actually exist in current code before clearing a block. (Validated: #7417)
+- **Code review blocking verification:** Verify original concerns actually exist in current code before clearing a block. Multi-layer: scan diffs → trace call stack (handler/service/data layers) → verify fix spans all layers. Single-file reviews miss partial implementations across files. (Validated: #7417, #7757)
 - **Self-authored PR review restriction:** Provide detailed review comments but do not self-approve. Delegate merge decision to another maintainer. (Validated: #7418, #7420)
+- **Explicit blocking/suggestion labels in reviews:** Mark each feedback item as [blocking] or [suggestion]. Blocking = must fix before merge (security, data integrity, breaking API). Suggestions = nice-to-have, can merge without. Clarifies scope and prevents developer drift. (Validated: #7757)
 
 ## Email & Coordination Patterns
 
