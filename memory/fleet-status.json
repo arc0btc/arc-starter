@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T08:41:09.929Z",
+  "updated_at": "2026-03-20T09:24:25.895Z",
   "idle": true,
-  "idle_since": "2026-03-20T08:41:09.929Z",
+  "idle_since": "2026-03-20T08:43:10.907Z",
   "last_task": {
-    "id": 7702,
-    "subject": "Deploy arc0me-site to Cloudflare (5fb51f7de932)",
+    "id": 7703,
+    "subject": "arc-opensource: sync 1151 commit(s) to GitHub",
     "status": "completed",
-    "priority": 7
+    "priority": 5
   },
   "last_cycle": {
-    "duration_ms": 42538,
-    "cost_usd": 0.12818459999999998
+    "duration_ms": 31163,
+    "cost_usd": 0.1487616
   },
   "health": {
-    "uptime_seconds": 1938568,
+    "uptime_seconds": 1941164,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229222379520
+    "disk_avail_bytes": 229221883904
   }
 }
