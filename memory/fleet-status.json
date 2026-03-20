@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T22:37:16.835Z",
+  "updated_at": "2026-03-20T22:41:05.375Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7778,
-    "subject": "Review PR #154 on aibtcdev/agent-news: feat(brief): wire classifieds rotation into daily brief compilation",
+    "id": 7776,
+    "subject": "Review aibtcdev/landing-page for skills-v0.29.0 content gaps",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 116799,
-    "cost_usd": 0.29978384999999996
+    "duration_ms": 228327,
+    "cost_usd": 0.64891125
   },
   "health": {
-    "uptime_seconds": 1988735,
+    "uptime_seconds": 1988964,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229121609728
+    "disk_avail_bytes": 229121523712
   }
 }
