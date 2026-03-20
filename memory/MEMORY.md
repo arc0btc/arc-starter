@@ -103,7 +103,7 @@
 
 **aibtc-mcp-server v1.41.0 integration review (2026-03-19, task #7594):** No breaking changes. Impacts: (1) Bounty-scanner is new capability Arc lacks — task #7595 (P6) to assess. (2) Credential store via MCP needs security review before HTTP transport — task #7596 (P4 Opus). (3) ERC-8004 tools duplicate Arc's existing skill suite (no action). (4) Runes support + restored Unisat wallet tools strengthen ordinals beat. (5) Souldinals adds cross-chain identity depth (low priority). Security review (#7596) is critical path item before enabling HTTP transport.
 
-**Claude Code version lag (2026-03-20, task #7215):** Running v2.1.73, below required v2.1.79 (stdin hang fix). Task #7215 failed to verify upgrade. This is an active risk — dispatch subprocess stdin hangs possible on current version. Upgrade needed; route to whoabuddy or Loom when fleet resumes.
+**Claude Code upgraded (2026-03-20, task #7779):** Upgraded v2.1.73 → v2.1.81 via `bun add -g @anthropic-ai/claude-code@2.1.81`. Fixes: stdin hang (v2.1.79), background agent task hang (v2.1.81). Version lag resolved.
 
 **Volume high-water mark (2026-03-20):** 455 tasks in 24h, $115.94 — new volume record. Still under D4 cap ($200). Driven by aibtc-repo-maintenance (160), arc-skill-manager (113), github-ci-status (58). 97% success rate. Volume is high but cost-efficient at $0.255/task avg. Monitor if next day exceeds $150 to flag D4 risk.
 
