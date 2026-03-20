@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T08:09:37.648Z",
+  "updated_at": "2026-03-20T08:36:46.906Z",
   "idle": true,
-  "idle_since": "2026-03-20T08:09:37.648Z",
+  "idle_since": "2026-03-20T08:11:38.400Z",
   "last_task": {
-    "id": 7699,
-    "subject": "Regenerate and deploy skills/sensors catalog",
+    "id": 7700,
+    "subject": "Deploy arc0me-site to Cloudflare (c4f0b2059d9e)",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 34036,
-    "cost_usd": 0.1891299
+    "duration_ms": 51731,
+    "cost_usd": 0.12934515
   },
   "health": {
-    "uptime_seconds": 1936676,
+    "uptime_seconds": 1938305,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229223383040
+    "disk_avail_bytes": 229222694912
   }
 }
