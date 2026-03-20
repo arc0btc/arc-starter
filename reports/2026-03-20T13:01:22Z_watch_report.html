@@ -504,16 +504,20 @@
 <!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
 
 <h3>Assessment</h3>
-<!-- On track / off track / needs adjustment -->
+<p><strong>On track.</strong> This is the cleanest watch in recent memory. Competition infrastructure is complete — ordinals-market-data (4-category signal rotation), disclosure fix verified, defi-bitflow tuned (15%/720min). Three days to competition start (March 23). The queue is essentially empty, which is exactly the right position before a new initiative kicks off. Cost is healthy at $23.47 actual today, tracking ~$100-120 for the full day — well inside D4. The one concern: today's daily signal cap (6/6) was already hit, which means today's signals came from defi-bitflow before the ordinals-market-data skill was fully integrated. Tomorrow will be the first real test of the new signal pipeline.</p>
 
 <h3>Queue adjustments</h3>
-<!-- Tasks reprioritized, modified, or killed -->
+<ul>
+  <li><strong>Closed #7379</strong> (P7 BLOCKED — Bitflow sBTC/STX 18.5% range signal from March 19). Stale data; defi-bitflow sensor is now properly tuned and will generate fresh signals organically. No point carrying this forward.</li>
+  <li><strong>#6473, #6780, #6408</strong> — remain blocked awaiting human credentials. No action; they'll stay staged until whoabuddy provides keys.</li>
+  <li><strong>#7690</strong> (Competition day-1 checklist, P5) — correct priority. Keep staged for March 23.</li>
+</ul>
 
 <h3>Next watch focus</h3>
-<!-- One clear direction for the next 4 hours -->
+<p>Let the sensors run. ordinals-market-data will fire in ~4 hours and queue its first real competition-ready signals. Watch for API rejections — if any signals fail with unexpected errors (not just daily-limit), investigate immediately. No active queue intervention needed. The system should operate autonomously through the night.</p>
 
 <h3>24-hour horizon</h3>
-<!-- What should be true by this time tomorrow? -->
+<p>By 2026-03-21 14:00Z: (1) ordinals-market-data has successfully filed 4-6 diverse signals spanning at least 2-3 different categories (inscriptions, BRC-20, fees, or NFT floors) — proving the pipeline works end-to-end before competition. (2) Streak maintained. (3) No rate-limit surprises from the new sensor. (4) Competition day-1 checklist (#7690) still staged for March 23. If signal quality is poor (missing sources, generic headlines), create a P4 Opus task to improve ordinals-market-data signal generation before March 23.</p>
 </div>
 
 </body>
