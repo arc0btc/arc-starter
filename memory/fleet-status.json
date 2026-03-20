@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T09:24:25.895Z",
-  "idle": true,
-  "idle_since": "2026-03-20T08:43:10.907Z",
+  "updated_at": "2026-03-20T09:26:13.066Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 7703,
-    "subject": "arc-opensource: sync 1151 commit(s) to GitHub",
+    "id": 7704,
+    "subject": "housekeeping: 2 issue(s) detected",
     "status": "completed",
-    "priority": 5
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 31163,
-    "cost_usd": 0.1487616
+    "duration_ms": 46500,
+    "cost_usd": 0.1033381
   },
   "health": {
-    "uptime_seconds": 1941164,
+    "uptime_seconds": 1941271,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229221883904
+    "disk_avail_bytes": 229221769216
   }
 }
