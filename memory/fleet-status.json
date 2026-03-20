@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T20:20:03.249Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-20T20:37:55.148Z",
+  "idle": true,
+  "idle_since": "2026-03-20T20:21:49.161Z",
   "last_task": {
-    "id": 7760,
-    "subject": "Research: workflow/template placement within skills architecture",
+    "id": 7761,
+    "subject": "Retrospective: extract learnings from task #7759 — Email from whoabuddy (1 unread): Workflows within Skills",
     "status": "completed",
-    "priority": 3
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 14658,
-    "cost_usd": 0.18257749999999998
+    "duration_ms": 26151,
+    "cost_usd": 0.06271750000000001
   },
   "health": {
-    "uptime_seconds": 1980502,
+    "uptime_seconds": 1981573,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229181292544
+    "disk_avail_bytes": 229181030400
   }
 }
