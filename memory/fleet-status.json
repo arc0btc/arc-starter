@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T08:00:35.405Z",
-  "idle": true,
-  "idle_since": "2026-03-20T07:36:26.399Z",
+  "updated_at": "2026-03-20T08:02:14.377Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 7696,
-    "subject": "GitHub comment reply in aibtcdev/loop-starter-kit: BIP-322 signatures require btcAddress in request body",
+    "id": 7697,
+    "subject": "compliance-review: 3 finding(s) across 121 skills",
     "status": "completed",
-    "priority": 5
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 34160,
-    "cost_usd": 0.1506417
+    "duration_ms": 38573,
+    "cost_usd": 0.16943385000000002
   },
   "health": {
-    "uptime_seconds": 1936134,
+    "uptime_seconds": 1936233,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229224050688
+    "disk_avail_bytes": 229223948288
   }
 }
