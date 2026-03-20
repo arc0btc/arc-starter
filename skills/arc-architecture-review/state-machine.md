@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-03-19T20:15:00.000Z*
-*Sensor count: 86 (1 disabled) | Skill count: 119*
+*Generated: 2026-03-20T07:10:00.000Z*
+*Sensor count: 88 (1 disabled) | Skill count: 121*
 
 ```mermaid
 stateDiagram-v2
@@ -40,7 +40,7 @@ stateDiagram-v2
         }
 
         state GitHubSensors {
-            github_issues
+            github_issue_monitor
             github_mentions
             github_release_watcher
             github_security_alerts
@@ -56,6 +56,7 @@ stateDiagram-v2
             blog_publishing
             aibtc_news_editorial
             aibtc_news_deal_flow
+            ordinals_market_data
             social_x_posting
             social_agent_engagement
             social_x_ecosystem
@@ -82,6 +83,7 @@ stateDiagram-v2
 
         state InfrastructureSensors {
             alb
+            arc_bounty_scanner
             arc_housekeeping
             arc_email_sync
             arc_ceo_review
@@ -142,8 +144,10 @@ stateDiagram-v2
 
         state PreFlightCheck {
             [*] --> CheckDailyCap
-            CheckDailyCap --> CheckGitHubRoute: cap OK or P1/P2
+            CheckDailyCap --> CheckLandingPageGate: cap OK or P1/P2
             CheckDailyCap --> DeferTask: >$500/day AND P3+
+            CheckLandingPageGate --> AutoClose: subject matches landing-page pattern
+            CheckLandingPageGate --> CheckGitHubRoute: not landing-page
             CheckGitHubRoute --> RouteToArc: GitHub task on worker
             CheckGitHubRoute --> ModelRoute: not GitHub
         }
@@ -234,8 +238,6 @@ stateDiagram-v2
             SpawnRetrospective --> [*]
             SpawnLearningExtraction --> [*]
         }
-
-        RetrospectiveCheck --> [*]
     }
 
     state TaskQueue {
@@ -251,29 +253,31 @@ stateDiagram-v2
     SensorsService --> TaskQueue
 ```
 
-## Sensor Count by Category (2026-03-19, updated)
+## Sensor Count by Category (2026-03-20, updated)
 
 | Category | Count |
 |----------|-------|
 | Memory/Maintenance | 14 |
 | GitHub/PR | 10 |
-| Content/Publishing | 7 |
+| Content/Publishing | 8 |
 | AIBTC/ERC-8004 | 8 |
 | Fleet | 6 |
-| Infrastructure | 8 |
+| Infrastructure | 9 |
 | DeFi | 4 |
-| Health/Monitoring | 5 |
-| Other | 24 |
-| **Total** | **86** |
+| Health/Monitoring | 7 |
+| Other | 22 |
+| **Total** | **88** |
 
-## Key Architectural Changes (e930cf6 → ea9d04c)
+## Key Architectural Changes (ea9d04c → 8191198)
 
 | Change | Impact |
 |--------|--------|
-| `result_quality` column + `getQualityStats()` | Quality feedback loop: 1-5 rating on task close; surfaced in `arc status` 7d rolling avg |
-| `arc tasks close --quality N` flag | Dispatch can now rate own task quality; creates quality signal dataset over time |
-| `github-issues` sensor disabled | Redundant with `github-issue-monitor` (task #7399, Option B consolidation); 85 active sensors effective |
-| `github-issue-monitor` lookback 24h → 4h | More targeted polling, reduces cold-start burst on repo joins |
-| `github-issue-monitor` source key canonical | Now `issue:{repo}#{number}` shared with `github-mentions` — true cross-sensor dedup |
-| `github-mentions` dedup: `pendingTaskExistsForSource` | Allows re-engagement when prior task completed (re-review requests, new mentions) |
-| `arc0btc-pr-review` automated PR skip | Skips release-please/dependabot/bump PRs; 10/day cap + 72h dedup window |
+| Landing-page gate in `dispatch.ts` | Auto-closes `[landing-page]` tasks before Claude subprocess — saves Sonnet budget on human-handled tasks |
+| `ordinals-market-data` sensor added | New competition signal source: inscriptions, BRC-20, NFT floors, fee market. ContentSensors +1 |
+| `arc-bounty-scanner` sensor added | Scans AIBTC GitHub for funded bounty issues as D1 revenue opportunities. InfrastructureSensors +1 |
+| `defi-bitflow` threshold 5%→15%, rate 240→720min | Reduces sBTC/STX signal flooding during $100K competition window |
+| `github-mentions` PR noise gate + dedup | Prevents duplicate tasks on completed PR reviews; one reaction per review cycle |
+| `github-issue-monitor` wires implementation state machine | More structured issue triage |
+| `arc-cost-reporting` sensor 60min → 1440min | Cost reports daily (not hourly); reduces low-value sensor noise |
+| `mcp-server` HTTP auth + CORS restricted | Security hardening post v1.41.0 integration review (#7596) |
+| `effort` frontmatter on 36 skills | Documentation-only (not consumed by dispatch); potential future model-routing signal |

@@ -1,3 +1,48 @@
+## 2026-03-20T07:10:00.000Z
+
+**Diff range:** ea9d04c → 8191198 | Sensors: 88 (1 disabled) | Skills: 121
+
+### Step 1 — Requirements
+
+- **Landing-page gate**: Traces to retrospective (tasks #7432/#7451 leaking past gate, wasting Sonnet budget). Fix is proportionate — regex gate in dispatch.ts auto-closes before subprocess. Requirement satisfied.
+- **ordinals-market-data sensor**: Traces to $100K competition prep (task #7684, task #7689). Competition runs 2026-03-23 to 2026-04-22. Diversifying signal data sources is the right strategy. Requirement valid.
+- **arc-bounty-scanner**: Traces to task #7595 (post-MCP v1.41.0 integration review). D1 revenue opportunity detection. Valid.
+- **defi-bitflow tuning**: Threshold 5%→15%, rate 240→720min. Traces to task #7687 — 8/10 recent signals were identical sBTC/STX volatility. Fix is proportionate; reduces slot-burning duplicate signals.
+- **`effort` frontmatter on 36 skills**: Origin unclear — not consumed by dispatch.ts. Documentation value only. Acceptable V1 but should be noted as unused metadata.
+
+### Step 2 — Delete Candidates
+
+- **[CARRYOVER, P8]** `skills/github-issues/sensor.ts` — disabled sensor still inflating count. Still not deleted. Create task.
+- **`effort` frontmatter not consumed by dispatch.ts** — 36 skills have it, none of them benefit from it yet. Either wire it into model routing or remove it to reduce SKILL.md noise.
+- **audit-log.md is 865+ lines** — exceeds max 5 active entries policy. Housekeeping should archive this file. Lines 80+ should move to archive/.
+
+### Step 3 — Simplify
+
+- **Landing-page gate placement is correct** — fires after lock check, before GitHub gate, before LLM. Cost savings confirmed.
+- **arc-cost-reporting 60min→1440min** is correct. Daily cost reports are sufficient; hourly was generating noise with no actionable delta.
+- **ordinals-market-data categories** (inscriptions, BRC-20, NFT floors, fee market) are distinct signals — no overlap between them. Good decomposition.
+- **github-mentions dedup improvement** — PR review dedup now prevents re-engagement on already-completed reviews. Pattern consistent with github-issue-monitor "any" dedup.
+
+### Step 4 — Accelerate
+
+- **No bottlenecks introduced.** Landing-page gate is a fast regex check. New sensors add parallel paths.
+- **defi-bitflow rate limit increase** reduces queue pressure during competition window.
+
+### Step 5 — Automate
+
+- **`effort` frontmatter → model routing**: If dispatch.ts read `effort: high` and mapped it to Opus tier, it would provide per-skill model guidance beyond just priority. Low priority but clear automation path.
+- **Nothing premature recommended.**
+
+### Flags
+
+- **[ACTION, P8]** Delete `skills/github-issues/sensor.ts` — dead disabled sensor, inflating count. Carryover from prior audit.
+- **[ACTION, P7]** Archive audit-log.md lines 80+ to keep active entries ≤5. File is 865 lines.
+- **[INFO]** `effort` frontmatter on 36 skills is unused. Wire into dispatch or document as human-readable-only. No urgency.
+- **[OK]** Landing-page gate deployed and verified (2026-03-20 retrospec confirms pattern working).
+- **[OK]** ordinals-market-data live ahead of competition start (2026-03-23). Data pipeline established.
+
+---
+
 ## 2026-03-19T20:15:00.000Z
 
 **Diff range:** e930cf6 → ea9d04c | Sensors: 86 (1 disabled) | Skills: 119
