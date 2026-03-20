@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T23:05:29.414Z",
+  "updated_at": "2026-03-20T23:07:07.191Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7785,
-    "subject": "Test arc0btc v5 compatibility from skills v0.29.0",
+    "id": 7784,
+    "subject": "Assess nostr-wot and arxiv-research additions in skills v0.29.0",
     "status": "completed",
-    "priority": 6
+    "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 323429,
-    "cost_usd": 0.6216618499999998
+    "duration_ms": 97585,
+    "cost_usd": 0.21270585
   },
   "health": {
-    "uptime_seconds": 1990428,
+    "uptime_seconds": 1990526,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229123416064
+    "disk_avail_bytes": 229123330048
   }
 }
