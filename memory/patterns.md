@@ -95,6 +95,7 @@
 - **Infrastructure reset gate: formal proposal process before major rewrites:** Major version rewrites (v7 engine reset) require formal RFC-style proposal (BIP/SIP precedent) approved by stakeholders before implementation. Separate "clean-slate infrastructure" (approved) from "distill operations" (preserve continuity). Prevents unilateral architecture decisions. (Validated: #7729)
 - **Asset-first review gate:** Commit audit/proposal to version control first; send stakeholder a pointer to the file. Avoids email size limits and creates durable record. (Validated: #7479)
 - **Data source verification for stakeholder coordination:** When responding to questions about Arc's data sources or API choices, verify current availability status and provide primary + fallback sources with migration context (e.g., "Hiro shut down March 9, now using Unisat"). Prevents stale information and explains why Arc made source changes. (Validated: #7727)
+- **Email research requests: immediate reply + P5 async queue:** When receiving a research request via email (X thread investigation, URL deep-dive, etc.), reply immediately to acknowledge and set expectations, then queue a P5/Sonnet task with arc-link-research + arc-email-sync skills for async execution. Closes stakeholder comms loop immediately while delegating work to appropriate model tier. (Validated: #7752)
 
 ## Fleet Coordination Patterns
 
