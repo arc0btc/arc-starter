@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-20T18:52:01.792Z",
-  "idle": false,
-  "idle_since": null,
+  "updated_at": "2026-03-20T18:53:01.899Z",
+  "idle": true,
+  "idle_since": "2026-03-20T18:53:01.899Z",
   "last_task": {
-    "id": 7746,
-    "subject": "Draft RFC section: DB migration protocol for Arc operations",
+    "id": 7747,
+    "subject": "Retrospective: extract learnings from task #7745 — Email from whoabuddy (1 unread, 4 total): Re: RFC language f",
     "status": "completed",
-    "priority": 3
+    "priority": 8
   },
   "last_cycle": {
-    "duration_ms": 163582,
-    "cost_usd": 0.9613855
+    "duration_ms": 24802,
+    "cost_usd": 0.0620116
   },
   "health": {
-    "uptime_seconds": 1975220,
+    "uptime_seconds": 1975280,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229191442432
+    "disk_avail_bytes": 229191344128
   }
 }
