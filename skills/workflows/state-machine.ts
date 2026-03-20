@@ -871,6 +871,139 @@ Workflow instance_key: brief-inscription-${ctx.date}`,
 };
 
 /**
+ * PayoutDistributionMachine — processes correspondent payouts end-to-end.
+ *
+ * Triggered by: earnings sensor when unpaid balances are detected
+ * instance_key: "payout-{YYYY-MM-DD}" (one per payout run)
+ *
+ * States:
+ *   fetch_unpaid     → query unpaid earnings from aibtc.news API
+ *   balance_check    → verify wallet has sufficient sBTC to cover payouts
+ *   transfers_sent   → send sBTC transfers to each correspondent
+ *   recorded         → record payout txids back to aibtc.news via record-payout
+ *   completed        → terminal success
+ *
+ * Context:
+ *   date             — payout run date YYYY-MM-DD
+ *   earnings         — JSON array of unpaid earning records [{id, address, amount_sats}...]
+ *   totalSats        — sum of all unpaid earnings in sats
+ *   balanceSats      — wallet sBTC balance at time of check
+ *   transfers        — JSON array of completed transfers [{earningId, txid, amount_sats}...]
+ *   failureReason    — human-readable reason if failed
+ */
+export interface PayoutDistributionContext {
+  date: string;
+  earnings?: Array<{ id: string; address: string; amount_sats: number }>;
+  totalSats?: number;
+  balanceSats?: number;
+  transfers?: Array<{ earningId: string; txid: string; amount_sats: number }>;
+  failureReason?: string;
+}
+
+export const PayoutDistributionMachine: StateMachine<PayoutDistributionContext> = {
+  name: "payout-distribution",
+  initialState: "fetch_unpaid",
+  states: {
+    fetch_unpaid: {
+      on: { earnings_found: "balance_check", no_earnings: "completed" },
+      action: (ctx) => ({
+        type: "create-task",
+        subject: `Fetch unpaid earnings for payout run ${ctx.date}`,
+        priority: 6,
+        skills: ["aibtc-news-classifieds", "bitcoin-wallet"],
+        description: `Fetch all unpaid correspondent earnings from aibtc.news.
+
+Steps:
+1. arc skills run --name aibtc-news-classifieds -- earnings --status pending
+2. If no unpaid earnings: transition workflow to 'completed'. Close task.
+3. If earnings found: store the earnings array and totalSats in workflow context,
+   then transition to 'balance_check'.
+
+Workflow instance_key: payout-${ctx.date}`,
+      }),
+    },
+
+    balance_check: {
+      on: { balance_ok: "transfers_sent", insufficient_funds: "completed" },
+      action: (ctx) => ({
+        type: "create-task",
+        subject: `Check sBTC balance for ${ctx.totalSats ?? "?"} sats payout`,
+        priority: 6,
+        skills: ["aibtc-news-classifieds", "bitcoin-wallet"],
+        description: `Verify wallet sBTC balance covers the payout total of ${ctx.totalSats ?? "?"} sats.
+
+Steps:
+1. arc skills run --name bitcoin-wallet -- info
+2. Check sBTC balance against totalSats (${ctx.totalSats ?? "?"}).
+3. If balance >= totalSats: store balanceSats in context, transition to 'transfers_sent'.
+4. If balance < totalSats: set failureReason in context, transition to 'completed'
+   (escalate to whoabuddy for funding). Close task with summary noting shortfall.
+
+Workflow instance_key: payout-${ctx.date}`,
+      }),
+    },
+
+    transfers_sent: {
+      on: { transfers_complete: "recorded", transfer_failed: "completed" },
+      action: (ctx) => {
+        const count = ctx.earnings?.length ?? 0;
+        return {
+          type: "create-task",
+          subject: `Send sBTC payouts to ${count} correspondents`,
+          priority: 5,
+          skills: ["aibtc-news-classifieds", "bitcoin-wallet"],
+          description: `Send sBTC transfers for each unpaid earning.
+
+Earnings to pay: ${count} correspondents, ${ctx.totalSats ?? "?"} sats total.
+
+Steps:
+1. For each earning in context, send sBTC via the wallet skill
+2. Collect txid for each successful transfer
+3. Store transfers array [{earningId, txid, amount_sats}...] in workflow context
+4. If all transfers succeed: transition to 'recorded'
+5. If any transfer fails: store partial transfers + failureReason, transition to 'completed'
+   (create follow-up task for failed transfers)
+
+Workflow instance_key: payout-${ctx.date}`,
+        };
+      },
+    },
+
+    recorded: {
+      on: { payouts_recorded: "completed", record_failed: "completed" },
+      action: (ctx) => {
+        const transfers = ctx.transfers ?? [];
+        const earningIds = transfers.map((t) => t.earningId).join(",");
+        const totalSats = transfers.reduce((sum, t) => sum + t.amount_sats, 0);
+        const txid = transfers[0]?.txid ?? "<txid>";
+        return {
+          type: "create-task",
+          subject: `Record payouts on aibtc.news for ${ctx.date}`,
+          priority: 6,
+          skills: ["aibtc-news-classifieds", "bitcoin-wallet"],
+          description: `Record completed payout transactions on aibtc.news.
+
+Steps:
+1. arc skills run --name aibtc-news-classifieds -- record-payout \\
+     --earning-ids ${earningIds} --txid ${txid} --amount-sats ${totalSats}
+   (If multiple txids, call record-payout once per unique txid with its earning IDs)
+2. On success: transition workflow to 'completed'.
+3. On failure: set failureReason, transition to 'completed'.
+   The transfers are already on-chain — record the txids in failureReason for manual recovery.
+
+Workflow instance_key: payout-${ctx.date}`,
+        };
+      },
+    },
+
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -884,6 +1017,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "skill-maintenance": SkillMaintenanceMachine,
     "research-to-prd": ResearchToPrdMachine,
     "daily-brief-inscription": DailyBriefInscriptionMachine,
+    "payout-distribution": PayoutDistributionMachine,
   };
   return templates[name] || null;
 }
