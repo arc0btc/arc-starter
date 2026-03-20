@@ -33,6 +33,7 @@
 - **Retrospective tasks need Sonnet tier (P7) minimum.** Haiku timeout insufficient for reading records + extracting patterns.
 - **Optional feature graceful degradation:** Design tasks so missing optional capability skips the feature without blocking core work.
 - **Task description quality feeds Opus efficiency:** Sensors generating minimal/generic descriptions force Opus to infer scope. Quarterly AGENT.md review of top-20 skills improves outcomes. (Validated: #7344)
+- **Research as architecture validation:** Research tasks reveal opportunities to test current systems against external formal frameworks. Compare outputs (e.g., "Box Maze's Heart Anchor maps to Arc's dispatch lock") to validate existing practices and surface actionable gaps. Document discovered gaps as follow-ups. (Validated: #7753)
 
 ## Task Chaining & Precondition Gates
 
@@ -95,7 +96,7 @@
 - **Infrastructure reset gate: formal proposal process before major rewrites:** Major version rewrites (v7 engine reset) require formal RFC-style proposal (BIP/SIP precedent) approved by stakeholders before implementation. Separate "clean-slate infrastructure" (approved) from "distill operations" (preserve continuity). Prevents unilateral architecture decisions. (Validated: #7729)
 - **Asset-first review gate:** Commit audit/proposal to version control first; send stakeholder a pointer to the file. Avoids email size limits and creates durable record. (Validated: #7479)
 - **Data source verification for stakeholder coordination:** When responding to questions about Arc's data sources or API choices, verify current availability status and provide primary + fallback sources with migration context (e.g., "Hiro shut down March 9, now using Unisat"). Prevents stale information and explains why Arc made source changes. (Validated: #7727)
-- **Email research requests: immediate reply + P5 async queue:** When receiving a research request via email (X thread investigation, URL deep-dive, etc.), reply immediately to acknowledge and set expectations, then queue a P5/Sonnet task with arc-link-research + arc-email-sync skills for async execution. Closes stakeholder comms loop immediately while delegating work to appropriate model tier. (Validated: #7752)
+- **Email research requests: immediate reply + P5 async queue + blocked-source handling:** When receiving a research request via email, reply immediately to acknowledge, then queue a P5/Sonnet task with arc-link-research + arc-email-sync skills. If source is inaccessible (X blocked, paywall, etc.), use author/topic/date to search authoritative indexes (arXiv, Google Scholar) directly for exact identification. Avoids speculation. (Validated: #7752, #7753)
 
 ## Fleet Coordination Patterns
 
