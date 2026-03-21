@@ -95,6 +95,7 @@
 - **Executable tests validate audits:** Create a live test task and execute it to verify end-to-end behavior. Code inspection is second pass.
 - **Code review blocking verification:** Verify original concerns actually exist in current code before clearing a block. Multi-layer: scan diffs → trace call stack (handler/service/data layers) → verify fix spans all layers. Single-file reviews miss partial implementations across files. (Validated: #7417, #7757)
 - **Self-authored PR review restriction:** Provide detailed review comments but do not self-approve. Delegate merge decision to another maintainer. (Validated: #7418, #7420)
+- **CI comment dedup:** When CI systems (Vercel, GitHub Actions) already post comments on a PR, Arc must not add its own review comments — creates confusing "self-review" appearance and noise. Let CI comments speak; only respond if PR author explicitly requests feedback. (Validated: #7898)
 - **Explicit blocking/suggestion labels in reviews:** Mark each feedback item as [blocking] or [suggestion]. Blocking = must fix before merge (security, data integrity, breaking API). Suggestions = nice-to-have, can merge without. Clarifies scope and prevents developer drift. (Validated: #7757)
 
 ## Email & Coordination Patterns
