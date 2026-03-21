@@ -1,3 +1,67 @@
+## 2026-03-21T19:20:00.000Z — aibtc-welcome flood diagnosis
+
+**Task #8000** | Source: task:7999 | Scope: aibtc-welcome sensor flood root cause + rework plan
+
+### Root Causes (3 distinct failure modes)
+
+**1. Source rename broke dedup (195 tasks, ~$28)**
+- Old sensor `social-agent-engagement` used source: `sensor:social-agent-engagement:welcome-{btcAddress}`
+- New sensor `aibtc-welcome` uses source: `sensor:aibtc-welcome:{stxAddress}`
+- Both prefix AND address key changed
+- `insertTaskIfNew` checks `source = ?` exactly → all 86 agents from old sensor looked new
+- Created 198 tasks (86 old prefix × duplicated + 123 new prefix) for ~156 unique agents
+- **The `welcomed_agents` set in hook state was not cross-referenced with old-source completed tasks**
+
+**2. Dispatch-created retry cascades (62 tasks, ~$14)**
+- Failed welcome tasks spawned retries with different subjects ("Retry x402 welcome to X")
+- Different subjects bypass `pendingTaskExistsForSubject()` dedup
+- Different/missing source bypasses source-level dedup
+- 62 retry tasks: 54 failed, 8 completed — net negative (more cost than value)
+
+**3. No batch cap (flood on sentinel clear)**
+- 10-day nonce sentinel freeze accumulated 500+ unwelcomed agents
+- On clear, sensor created tasks for ALL of them in one 30-min cycle
+- No per-cycle cap → queue flooded with P7 welcome tasks
+
+### Impact
+
+| Metric | Value |
+|--------|-------|
+| Total welcome tasks | 392 |
+| Completed | 41 (10.5%) |
+| Failed | 350 (89.5%) |
+| Code cost | $32.64 |
+| API cost | $37.34 |
+| **Total cost** | **~$70** |
+| Agents successfully welcomed | 76 (per state) |
+| Unique agents targeted | 156 |
+
+### Rework Plan (5 fixes)
+
+**Fix 1 — Stable source key (critical)**
+Use a content-addressed source that survives skill renames: `welcome:{stxAddress}`. The sensor name should not be part of the source key for dedup. Also: on re-enable, run a one-time reconciliation that marks agents with completed tasks under the old `sensor:social-agent-engagement:welcome-*` source as already welcomed.
+
+**Fix 2 — Batch cap per cycle (critical)**
+Max 3 welcome tasks per sensor cycle. At 30-min cadence, this allows 144/day max but prevents queue flooding. New agent registration rate is ~5-10/day, so 3/cycle is more than sufficient for steady state.
+
+**Fix 3 — Ban dispatch retry creation (moderate)**
+Add explicit instruction in task description: "Do NOT create any follow-up or retry task." But more importantly, the sensor's `completedTaskCountForSource` + `recentTaskExistsForSource` already handle retries organically. Failed tasks are re-created on the next sensor cycle if needed.
+
+**Fix 4 — Pre-dispatch cost gate (low)**
+If >10 welcome tasks completed today, skip creating more. Prevents budget impact even if fixes 1-3 fail.
+
+**Fix 5 — State reconciliation on re-enable (one-time)**
+Cross-reference `welcomed_agents` state with BOTH old (`sensor:social-agent-engagement:welcome-*`) and new (`sensor:aibtc-welcome:*`) completed tasks. Merge into welcomed set before re-enabling sensor.
+
+### Preserve on rework
+- `isRelayHealthy()` self-healing logic — correct and validated
+- `getInteractionCountForContact()` check — prevents re-welcoming agents with prior interactions
+- `completedTaskExistsForSourceSubstring()` — catches partial source matches
+- Fleet agent exclusion list
+- Nonce sentinel circuit breaker
+
+---
+
 ## 2026-03-21T19:10:00.000Z
 
 **Diff range:** 8a8c5c9 → 0444a19 | Sensors: 88 (1 disabled: aibtc-welcome) | Skills: 122
