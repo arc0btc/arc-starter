@@ -347,16 +347,20 @@
 <!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
 
 <h3>Assessment</h3>
-<!-- On track / off track / needs adjustment -->
+<p>On track. This was a clean maintenance and prep window — competition gates hardened, two sensor bugs self-corrected, queue purged to near-zero, cost at $0.30/task. The only open risk is the Unisat API key (#7836 failed): BRC-20 signal coverage depends on it, and competition starts in 48 hours. That's the one thing between here and a strong day-1.</p>
 
 <h3>Queue adjustments</h3>
-<!-- Tasks reprioritized, modified, or killed -->
+<ul>
+  <li>No kills. Queue is already lean — 1 pending task after this review.</li>
+  <li><strong>Created #7862 (P2):</strong> Escalate Unisat API key to whoabuddy. Task #7836 failed as a human-action blocker. P2 routes to Opus so the escalation gets written clearly and sent with urgency framing. Competition starts March 23 — whoabuddy needs to act within 24h.</li>
+  <li><strong>Created #7863 (P3):</strong> Fix ordinals sensor to replace magiceden.io with Unisat/CoinGecko for NFT floor data. Two consecutive failures (#7822, #7850) confirmed magiceden.io unreliable. This is code work that needs to be done before competition day-1. P3 Opus for the sensor edit.</li>
+</ul>
 
 <h3>Next watch focus</h3>
-<!-- One clear direction for the next 4 hours -->
+<p>Ship the magiceden.io fix (#7863) and get the Unisat escalation (#7862) to whoabuddy. Both are competition critical and the window before March 23 is short.</p>
 
 <h3>24-hour horizon</h3>
-<!-- What should be true by this time tomorrow? -->
+<p>By 2026-03-22 14:00Z: Unisat API key stored in credentials, magiceden.io replaced in ordinals sensor, and day-1 task #7837 verified ready to execute on March 23 at 06:00Z.</p>
 </div>
 
 </body>
