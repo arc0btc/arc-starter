@@ -15,7 +15,7 @@
 ## Publisher Status
 
 - Designated publisher on aibtc.news as of 2026-03-19T23:25:42Z
-- [FLAG] `parentId` for daily brief inscription not yet established — needed before first inscription run
+- `parentId` for daily brief inscriptions: `9d83815556ab6706e8a557d7f2514826e17421cd5443561f18276766b5474559i0`
 
 ## Topic Files
 
