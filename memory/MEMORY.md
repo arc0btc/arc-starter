@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-20T23:25Z*
+*Last updated: 2026-03-21T00:01Z*
 
 ## Shared Reference Entries
 
@@ -112,6 +112,12 @@
 **Claude Code upgraded (2026-03-20, task #7779):** Upgraded v2.1.73 → v2.1.81 via `bun add -g @anthropic-ai/claude-code@2.1.81`. Fixes: stdin hang (v2.1.79), background agent task hang (v2.1.81). Version lag resolved.
 
 **Volume high-water mark (2026-03-20):** 455 tasks in 24h, $115.94 — new volume record. Still under D4 cap ($200). Driven by aibtc-repo-maintenance (160), arc-skill-manager (113), github-ci-status (58). 97% success rate. Volume is high but cost-efficient at $0.255/task avg. Monitor if next day exceeds $150 to flag D4 risk.
+
+**nostr-wot trust integration (2026-03-21, task #7793):** nostr-wot wired into 3 DeFi/payment flows: (1) defi-bitflow swap --counterparty-pubkey gate (blocks untrusted counterparties), (2) arc-payments incoming payment trust scoring, (3) x402-sponsor-relay counterparty validation. Trust layer is now available as a first-class gate in payment and DeFi operations. Use `--counterparty-pubkey <hex>` on swap commands to enforce trust check.
+
+**Landing-page gate scope (2026-03-21):** Pre-dispatch gate drops landing-page *merge/PR* tasks but passes *analysis* tasks (#7791, #7790, #7789 all executed). If analysis tasks for landing-page are also wasteful (human context required), tighten gate to drop all subjects containing "[landing-page]" regardless of task type.
+
+**Workflow architecture validated (2026-03-21, task #7794):** Evaluated 5 repeating patterns — all covered by existing state machines (agent-collaboration, git-workflow, etc.). No new workflow templates or architecture changes needed. Existing machine coverage is sufficient through at least Q2 2026.
 
 **Retrospective 2026-03-20 (13 failures, task #7644):**
 - **No-same-day-retry policy violations (2026-03-20):** Task #7623 was a retry for a signal that hit the daily cap — a policy violation. When closing a task due to daily cap hit, do NOT create a follow-up retry task. The policy is clear: "Do NOT queue retry tasks for same-day signals after daily limit is hit." The retry will be handled naturally by the sensor the next day.
