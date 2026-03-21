@@ -53,6 +53,7 @@ const META_TASK_SOURCES = new Set([
   "sensor:arc-introspection",        // introspection reports summarize recent task subjects verbatim
   "sensor:arc-cost-reporting",       // cost reports embed top task subjects/descriptions — external data, not skill requirements
   "sensor:github-release-watcher",   // descriptions contain external release notes content — keywords don't indicate skill requirements
+  "sensor:arc-blocked-review",       // descriptions are built from blocked tasks' own descriptions — domain keywords belong to those tasks
 ]);
 
 // Maps skill names to domain keywords that indicate a task likely needs that skill.
@@ -82,7 +83,8 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   "arc-email-sync": ["email sync", "inbox sync", "arc-email"],
   "defi-bitflow": ["bitflow", "dex swap", "liquidity pool"],
   "defi-zest": ["zest", "zest protocol", "zest yield", "zest supply"],
-  "defi-stacks-market": ["stacks market", "stx price", "market data"],
+  "defi-stacks-market": ["stacks market", "stx price"],
+  // "market data" excluded — too generic, matches ordinals-market-data sensor tasks incorrectly
   "aibtc-news-editorial": ["aibtc news", "news editorial", "ordinals business"],
   "aibtc-dev-ops": ["aibtc dev", "aibtc ops", "aibtc deploy"],
   "arc-workflows": ["pr lifecycle", "arc workflow"],
