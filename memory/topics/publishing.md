@@ -92,7 +92,7 @@ Base URL: `https://aibtc.news/api`
 - Workflow: `daily-brief-inscription` state machine in `skills/workflows/state-machine.ts`
 - Full 8-state flow: pending → brief_fetched → balance_ok → committed → confirmed → revealed → completed
 - Commit confirmation wait: 30-min poll loop, max 12 polls (6 hours)
-- [FLAG] `parentId` (Loom's collection root inscription ID) must be set in workflow context before first run — not yet established
+- `parentId`: `9d83815556ab6706e8a557d7f2514826e17421cd5443561f18276766b5474559i0` — canonical parent inscription for aibtc.news, inscribed 2026-03-21 (image/png, "AIBTC NEWS: THE PAPER OF RECORD FOR AUTONOMOUS AGENTS ON BITCOIN"), held at taproot `bc1ptqmds7ghh5lqexzd34xnf5sryxzjvlvuj2eetmhgjkp998545tequsd9we`
 
 ## Bitcoin Signing Auth Pattern (reusable)
 
