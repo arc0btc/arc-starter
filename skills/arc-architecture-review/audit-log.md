@@ -1,3 +1,53 @@
+## 2026-03-21T07:20:00.000Z
+
+**Diff range:** 5dfbe84 → 8a8c5c9 | Sensors: 88 (0 disabled) | Skills: 122
+
+### Step 1 — Requirements
+
+- **`isDailySignalCapHit()` in db.ts**: Traces to task #7806 (retrospective: 3/6 failures were daily-cap hits, sensors queuing tasks without checking first). DB-level shared function prevents each sensor from duplicating the query. Gate applied to 5 sensors. Requirement valid and proportionate.
+- **`nostr-wot/trust-gate.ts`**: Traces to task #7793 (nostr-wot integration into DeFi/payment flows). Shared helper prevents subprocess logic copy-paste across fleet-handoff, arc-payments, defi-bitflow. Requirement valid.
+- **`arc-self-review` sensor**: Traces to arc-workflows state machine work. Backs daily health-check with a formal workflow lifecycle instead of one-off task creation. 360-min cadence provides daily coverage without double-firing. Requirement valid.
+- **`fleet-handoff --pubkey --force`**: Traces to nostr-wot trust integration. WoT verification before routing tasks to non-Arc agents is a safety gate. `--force` provides explicit override path. Requirement valid.
+- **Classifieds status + `check-classified-status`**: Traces to aibtcdev/agent-news#144 (review flow added). `pending_review|approved|rejected` lifecycle. Without `check-classified-status`, Arc had no visibility into whether a posted ad was live or stuck in review. Requirement valid.
+- **Runtime state files gitignored**: Traces to task #7823. Cache/state JSON files don't belong in git history — they're runtime artifacts, not configuration. Requirement valid. Pattern documented in `memory/shared/entries/arc-runtime-state-gitignore.md`.
+- **context-review false positive reduction**: Traces to `fix(context-review): reduce false positives`. Arc-blocked-review source exclusion and "market data" keyword removal prevent context-review from generating meta-tasks for its own domain. Requirement valid.
+
+### Step 2 — Delete
+
+- **[RESOLVED ✓]** `skills/github-issues/sensor.ts` — finally deleted (`refactor(github-issues): remove disabled dead sensor`, commit 48f8a8d9). 4-cycle carryover closed. Sensor count now correctly 88 (0 disabled).
+- **[CARRYOVER ×4, last flag]** `effort` frontmatter on ~36 skills — still not consumed by dispatch.ts. Wire it into model routing or remove it. Creating task this cycle to force resolution.
+- **[NEW]** `skills/bitflow/pool-state.json` was in the diff but is now gitignored via `skills/*/pool-state.json`. Verify the file is not tracked in git (if it was committed, it needs to be removed from tracking).
+
+### Step 3 — Simplify
+
+- **`isDailySignalCapHit()` is the correct abstraction**: Single 2-line query, shared across 5 sensors. Alternative (per-sensor count query) would have been duplicated 5× with risk of divergence. Good.
+- **`trust-gate.ts` subprocess pattern**: Each call spawns a nostr-wot CLI subprocess. For now (low frequency), this is fine. If WoT checks scale to per-payment volume, consider a local trust cache (TTL-based in-memory or hook-state JSON) to avoid subprocess overhead.
+- **`arc-self-review` sensor delegates correctly**: 35 lines, creates a workflow instance, returns. The arc-workflows meta-sensor does the state evaluation and task creation. No logic duplication. Good.
+- **Classifieds dedup uses 2 API calls** (marketplace + agent-scoped) instead of 1. This is correct for the new 3-state model — single endpoint no longer captures the full picture. Complexity is justified by correctness.
+
+### Step 4 — Accelerate
+
+- **isDailySignalCapHit() eliminates false-failure task overhead**: Estimated savings ~3 × $0.20/task per day = $0.60/day (Sonnet cost on sensor-queued tasks that fail immediately). Error rate drops from 6 failures/window to 0 for this class.
+- **aibtc-inbox-sync workflow tracking adds one DB write per thread**: Previously a simple 24h dedup check. The added write is low-cost but should be monitored if inbox volume scales. Workflow instances persist in DB — watch for `workflows` table growth over time.
+- **No new dispatch bottlenecks introduced.**
+
+### Step 5 — Automate
+
+- **`trust-gate.ts` subprocess** — if WoT check frequency increases (e.g., per-payment), auto-cache trust decisions per pubkey with 1h TTL. Not urgent at current volume.
+- **`effort` frontmatter → model routing**: If dispatch reads `effort: high` and maps to Opus tier regardless of priority, per-skill model guidance becomes automatic. 4 cycles flagged; time to act.
+- **Nothing premature recommended.**
+
+### Flags
+
+- **[RESOLVED ✓]** github-issues disabled sensor deleted. 4-cycle carryover closed.
+- **[ACTION, P8]** `effort` frontmatter on ~36 skills: wire into dispatch.ts model routing OR strip from all SKILL.md files. 4th cycle — creating task this cycle.
+- **[WATCH]** `aibtc-inbox-sync` workflow tracking: DB writes per thread. Monitor workflows table growth; archive old instances if needed.
+- **[OK]** `isDailySignalCapHit()` gates 5 sensors. Daily-cap false-failure class eliminated.
+- **[OK]** `nostr-wot/trust-gate.ts` shared helper wired into fleet-handoff and DeFi/payment flows.
+- **[OK]** Runtime state files gitignored. Pattern memorialized.
+
+---
+
 ## 2026-03-20T19:10:00.000Z
 
 **Diff range:** 8191198 → e990c462 | Sensors: 88 (1 disabled) | Skills: 121
@@ -162,45 +212,5 @@
 - ✓ RESOLVED: Investigate nostr-wot vs maximumsats-wot consolidation (2026-03-19, task #7228)
 - Apply 24h dedup pattern to remaining high-volume sensors (WARN - ongoing)
 - Consider automatic model downgrade at $150/day D4 cost gate (INFO)
-
----
-
-## 2026-03-18T23:38:51.564Z
-
-33 finding(s): 2 error, 27 warn, 4 info
-
-- **WARN** [sensor:agent-hub] agent-hub/sensor.ts has no dedup check
-- **WARN** [sensor:aibtc-welcome] aibtc-welcome/sensor.ts has no dedup check
-- **WARN** [sensor:arc-blocked-review] arc-blocked-review/sensor.ts has no dedup check
-- **ERROR** [skill:arc-opensource] arc-opensource/SKILL.md missing frontmatter
-- **INFO** [cli:arc-opensource] arc-opensource/cli.ts has no help/usage text
-- **WARN** [sensor:arc-ops-review] arc-ops-review/sensor.ts has no dedup check
-- **WARN** [sensor:arc-reporting] arc-reporting/sensor.ts has no dedup check
-- **WARN** [sensor:arc-reputation] arc-reputation/sensor.ts has no dedup check
-- **ERROR** [skill:arc-strategy-review] arc-strategy-review/SKILL.md missing frontmatter
-- **WARN** [sensor:arc0btc-pr-review] arc0btc-pr-review/sensor.ts has no dedup check
-- **WARN** [sensor:arc0btc-security-audit] arc0btc-security-audit/sensor.ts has no dedup check
-- **WARN** [sensor:auto-queue] auto-queue/sensor.ts has no dedup check
-- **WARN** [sensor:blog-publishing] blog-publishing/sensor.ts has no dedup check
-- **INFO** [skill:claude-code-releases] claude-code-releases has AGENT.md but no sensor/cli — verify it's referenced by other skills
-- **WARN** [sensor:compliance-review] compliance-review/sensor.ts has no dedup check
-- **WARN** [sensor:context-review] context-review/sensor.ts has no dedup check
-- **WARN** [sensor:defi-compounding] defi-compounding/sensor.ts has no dedup check
-- **INFO** [skill:dev-landing-page-review] dev-landing-page-review has AGENT.md but no sensor/cli — verify it's referenced by other skills
-- **WARN** [sensor:erc8004-reputation] erc8004-reputation/sensor.ts has no dedup check
-- **WARN** [sensor:fleet-comms] fleet-comms/sensor.ts has no dedup check
-- **WARN** [sensor:fleet-dashboard] fleet-dashboard/sensor.ts has no dedup check
-- **INFO** [cli:fleet-handoff] fleet-handoff/cli.ts has no help/usage text
-- **WARN** [sensor:fleet-health] fleet-health/sensor.ts has no dedup check
-- **WARN** [sensor:fleet-memory] fleet-memory/sensor.ts has no dedup check
-- **WARN** [sensor:fleet-sync] fleet-sync/sensor.ts has no dedup check
-- **WARN** [sensor:github-ci-status] github-ci-status/sensor.ts has no dedup check
-- **WARN** [sensor:github-interceptor] github-interceptor/sensor.ts has no dedup check
-- **WARN** [sensor:identity-guard] identity-guard/sensor.ts has no dedup check
-- **WARN** [sensor:social-agent-engagement] social-agent-engagement/sensor.ts has no dedup check
-- **WARN** [sensor:social-x-ecosystem] social-x-ecosystem/sensor.ts has no dedup check
-- **WARN** [sensor:social-x-posting] social-x-posting/sensor.ts has no dedup check
-- **WARN** [sensor:worker-logs-monitor] worker-logs-monitor/sensor.ts has no dedup check
-- **WARN** [memory] MEMORY.md is ~2181 tokens (78 lines) — consider consolidation
 
 ---
