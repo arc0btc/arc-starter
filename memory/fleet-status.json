@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-21T02:03:12.661Z",
-  "idle": true,
-  "idle_since": "2026-03-21T01:29:00.145Z",
+  "updated_at": "2026-03-21T02:06:25.144Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 7814,
-    "subject": "housekeeping: 2 issue(s) detected",
+    "id": 7815,
+    "subject": "CEO review — 2026-03-21T01_03",
     "status": "completed",
-    "priority": 7
+    "priority": 1
   },
   "last_cycle": {
-    "duration_ms": 26145,
-    "cost_usd": 0.08298804999999998
+    "duration_ms": 132330,
+    "cost_usd": 0.3727354500000001
   },
   "health": {
-    "uptime_seconds": 2001091,
+    "uptime_seconds": 2001283,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229095612416
+    "disk_avail_bytes": 229095505920
   }
 }
