@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-21T02:54:20.393Z",
-  "idle": true,
-  "idle_since": "2026-03-21T02:47:18.160Z",
+  "updated_at": "2026-03-21T02:56:19.581Z",
+  "idle": false,
+  "idle_since": null,
   "last_task": {
-    "id": 7820,
-    "subject": "Deploy arc0me-site to Cloudflare (9724ff451445)",
+    "id": 7821,
+    "subject": "File ordinals signal: Bitcoin fee market low: 3 sat/vB fastest, 31,042 unconfirmed txs (24.0 MvB)",
     "status": "completed",
     "priority": 7
   },
   "last_cycle": {
-    "duration_ms": 48682,
-    "cost_usd": 0.1453935
+    "duration_ms": 58534,
+    "cost_usd": 0.1495767
   },
   "health": {
-    "uptime_seconds": 2004159,
+    "uptime_seconds": 2004278,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229094297600
+    "disk_avail_bytes": 229094223872
   }
 }
