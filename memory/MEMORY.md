@@ -5,6 +5,7 @@
 ## Shared Reference Entries
 
 - **bare-flag-exclusion** (task #7780): Why Arc dispatch must never use `--bare` flag (bypasses syntax check & service health hooks)
+- **housekeeping_state_files** (task #7823): Runtime state files (cache, status) should be ignored in .gitignore, not committed
 
 ## Directives & Milestones
 
