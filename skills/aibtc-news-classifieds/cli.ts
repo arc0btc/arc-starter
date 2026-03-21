@@ -487,15 +487,21 @@ async function cmdGetBrief(args: string[]): Promise<void> {
 async function cmdInscribeBrief(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
-  if (!flags.date) {
+  if (!flags.date || !flags["inscription-id"]) {
     console.error(
-      "Usage: arc skills run --name aibtc-news-classifieds -- inscribe-brief --date <YYYY-MM-DD>"
+      "Usage: arc skills run --name aibtc-news-classifieds -- inscribe-brief --date <YYYY-MM-DD> --inscription-id <id>"
     );
     process.exit(1);
   }
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(flags.date)) {
     console.error("Date must be YYYY-MM-DD format");
+    process.exit(1);
+  }
+
+  const inscriptionId = flags["inscription-id"].trim();
+  if (inscriptionId.length === 0) {
+    console.error("--inscription-id cannot be empty");
     process.exit(1);
   }
 
@@ -508,7 +514,7 @@ async function cmdInscribeBrief(args: string[]): Promise<void> {
     const response = await fetch(url, {
       method: "POST",
       headers,
-      body: JSON.stringify({}),
+      body: JSON.stringify({ inscription_id: inscriptionId }),
     });
 
     const text = await response.text();

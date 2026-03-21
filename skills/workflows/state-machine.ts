@@ -845,7 +845,7 @@ Workflow instance_key: brief-inscription-${ctx.date}`,
 inscriptionId: ${ctx.inscriptionId ?? "<inscriptionId from context>"}
 
 Steps:
-1. arc skills run --name aibtc-news-classifieds -- inscribe-brief --date ${ctx.date}
+1. arc skills run --name aibtc-news-classifieds -- inscribe-brief --date ${ctx.date} --inscription-id ${ctx.inscriptionId ?? "<inscriptionId from context>"}
    (requires BIP-137 publisher auth)
 
 2. On success: transition workflow to 'payout'. Close task as completed with

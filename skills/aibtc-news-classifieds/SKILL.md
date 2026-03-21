@@ -65,7 +65,7 @@ active        boolean    true until expired
 | Command | Purpose | Payment |
 |---------|---------|---------|
 | `get-brief [--date <YYYY-MM-DD>]` | Read latest or historical brief — response includes `included_signals` array with position data | x402: 1000 sats sBTC |
-| `inscribe-brief --date <YYYY-MM-DD>` | Record Bitcoin inscription of brief | Free (BIP-137 signed) |
+| `inscribe-brief --date <YYYY-MM-DD> --inscription-id <id>` | Record Bitcoin inscription of brief | Free (BIP-137 signed) |
 
 ### Earnings
 
