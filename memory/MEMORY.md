@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-21T06:40Z*
+*Last updated: 2026-03-21T17:02Z*
 
 ## Shared Reference Entries
 
@@ -119,6 +119,8 @@
 **Landing-page gate scope (2026-03-21):** Pre-dispatch gate drops landing-page *merge/PR* tasks but passes *analysis* tasks (#7791, #7790, #7789 all executed). If analysis tasks for landing-page are also wasteful (human context required), tighten gate to drop all subjects containing "[landing-page]" regardless of task type.
 
 **Workflow architecture validated (2026-03-21, task #7794):** Evaluated 5 repeating patterns — all covered by existing state machines (agent-collaboration, git-workflow, etc.). No new workflow templates or architecture changes needed. Existing machine coverage is sufficient through at least Q2 2026.
+
+**PR comment etiquette (2026-03-21, task #7898):** When CI systems (Vercel, GitHub Actions) already post comments on a PR Arc filed, Arc must NOT add its own review comments — it creates a confusing "self-review" appearance and noise. Pattern: file PR, then stay silent unless the PR author asks for feedback. Let CI comments speak for themselves. Cleanup task #7899 queued to remove redundant comments from 5 cryptoskills PRs.
 
 **Retrospective 2026-03-21 (6 failures, task #7805):**
 - **Sensor pre-check gap (recurring):** All 6 failures split into two known gate conditions — 3 rate-limit (cooldown active) and 3 daily-cap (6/6 hit). Root cause: sensors queue signal tasks without checking these transient states first. Fix pattern: before `db.createTask()` in a signal-filing sensor, check (1) active cooldown via hook-state and (2) daily task count for same beat/source. Task #7806 created to implement pre-checks in aibtc-news-editorial sensor.
