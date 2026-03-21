@@ -90,6 +90,11 @@ async function fetchInscriptionData(apiKey: string): Promise<SignalData | null> 
       return null;
     }
 
+    if (recentCount === 0) {
+      log("inscriptions: no recent inscription data returned; skipping signal");
+      return null;
+    }
+
     const inscriptionCountStr = totalInscriptions > 0
       ? `${(totalInscriptions / 1_000_000).toFixed(1)}M total inscriptions`
       : `${tokenCount} BRC-20 tokens deployed`;
