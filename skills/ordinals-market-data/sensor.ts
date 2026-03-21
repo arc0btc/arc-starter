@@ -4,7 +4,7 @@
 // Rotates through categories to ensure signal diversity for the $100K competition.
 
 import { claimSensorRun, createSensorLogger, fetchWithRetry, readHookState, writeHookState } from "../../src/sensors.ts";
-import { insertTask, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
+import { insertTask, isDailySignalCapHit, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
 
 const SENSOR_NAME = "ordinals-market-data";
@@ -298,6 +298,12 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
     }
 
     log("run started — fetching diverse ordinals market data");
+
+    // Daily cap guard — skip if 6/6 signal slots already claimed today
+    if (isDailySignalCapHit()) {
+      log("daily cap: 6/6 signal slots claimed today; skipping");
+      return "skip";
+    }
 
     // Rate limit: no signal tasks within last RATE_LIMIT_MINUTES
     const sourcePrefix = `sensor:${SENSOR_NAME}:`;

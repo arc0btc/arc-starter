@@ -634,6 +634,35 @@ export function recentTaskExistsForSourcePrefix(prefix: string, withinMinutes: n
   return row !== null;
 }
 
+/** Daily cap for aibtc.news signal filing (6 signals/day enforced by publisher). */
+export const DAILY_SIGNAL_CAP = 6;
+
+/**
+ * Count aibtc.news signal-filing tasks created today (UTC) with status completed, pending, or active.
+ * Each task represents one claimed signal slot. Used by sensors to gate new task creation.
+ */
+export function countSignalTasksToday(): number {
+  const db = getDatabase();
+  const row = db
+    .query(
+      `SELECT COUNT(*) as count FROM tasks
+       WHERE DATE(created_at) = DATE('now')
+       AND status IN ('completed', 'pending', 'active')
+       AND (
+         subject LIKE 'File ordinals signal%'
+         OR subject LIKE 'File Ordinals Business signal%'
+         OR subject LIKE 'Maintain%streak%aibtc.news%'
+       )`
+    )
+    .get() as { count: number } | null;
+  return row?.count ?? 0;
+}
+
+/** Returns true if the daily aibtc.news signal cap (6/day) is already reached or exceeded. */
+export function isDailySignalCapHit(): boolean {
+  return countSignalTasksToday() >= DAILY_SIGNAL_CAP;
+}
+
 /**
  * Dedup gate: returns true if a pending/active task with the exact same subject exists.
  * Catches duplicates that source-based dedup misses (e.g., different sources, same work).

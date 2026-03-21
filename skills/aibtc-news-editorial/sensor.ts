@@ -2,7 +2,7 @@
 // Sensor for beat activity monitoring and signal filing opportunities
 
 import { claimSensorRun, createSensorLogger, fetchWithRetry, readHookState, writeHookState } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
+import { insertTask, isDailySignalCapHit, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
 import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
 
 const SENSOR_NAME = "aibtc-news-editorial";
@@ -129,9 +129,11 @@ export default async function aibtcNewsSensor(): Promise<string> {
       } else {
         log(`streak: no signal filed today (${streak}-day streak)`);
 
+        // Daily cap guard — skip if 6/6 signal slots already claimed today
+        if (isDailySignalCapHit()) {
+          log("daily cap: 6/6 signal slots claimed today; skipping streak task");
         // Local rate-limit guard — check if ANY signal task was created recently (any status)
-        const signalSourcePrefix = `sensor:${SENSOR_NAME}:`;
-        if (recentTaskExistsForSourcePrefix(signalSourcePrefix, RATE_LIMIT_MINUTES)) {
+        } else if (recentTaskExistsForSourcePrefix(`sensor:${SENSOR_NAME}:`, RATE_LIMIT_MINUTES)) {
           log(`rate limit: signal task created within last ${RATE_LIMIT_MINUTES} min; skipping`);
         } else if (!status.canFileSignal) {
           // API-level rate-limit check
