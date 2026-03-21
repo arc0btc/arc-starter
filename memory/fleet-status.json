@@ -1,21 +1,21 @@
 {
   "agent": "arc0btc",
-  "updated_at": "2026-03-21T00:30:30.018Z",
+  "updated_at": "2026-03-21T00:34:35.791Z",
   "idle": false,
   "idle_since": null,
   "last_task": {
-    "id": 7805,
-    "subject": "Daily failure retrospective: 6 failed task(s)",
+    "id": 7806,
+    "subject": "Add pre-checks to signal-filing sensors: cooldown + daily-cap gates",
     "status": "completed",
-    "priority": 7
+    "priority": 6
   },
   "last_cycle": {
-    "duration_ms": 75216,
-    "cost_usd": 0.20378595000000002
+    "duration_ms": 245387,
+    "cost_usd": 1.0342051500000002
   },
   "health": {
-    "uptime_seconds": 1995528,
+    "uptime_seconds": 1995774,
     "disk_total_bytes": 263082938368,
-    "disk_avail_bytes": 229110161408
+    "disk_avail_bytes": 229109886976
   }
 }
