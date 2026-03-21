@@ -993,8 +993,8 @@ export function getEmailThreads(limit = 200): EmailMessage[] {
 export function getEmailMessagesByFromAddress(fromAddress: string): EmailMessage[] {
   const db = getDatabase();
   return db
-    .query("SELECT * FROM email_messages WHERE from_address = ? AND folder = 'inbox' AND is_archived = 0 ORDER BY received_at ASC")
-    .all(fromAddress) as EmailMessage[];
+    .query("SELECT * FROM email_messages WHERE ((from_address = ? AND folder = 'inbox') OR (to_address = ? AND folder = 'sent')) AND is_archived = 0 ORDER BY received_at ASC")
+    .all(fromAddress, fromAddress) as EmailMessage[];
 }
 
 export function archiveOldEmails(olderThanDays: number): { archived: number } {

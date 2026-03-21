@@ -362,7 +362,7 @@
         const displayFrom = esc(t.from_name || t.from_address);
         const displaySubj = esc(t.latest_subject || t.normalized_subject || '(no subject)');
 
-        return `<div class="${cls}" onclick="selectThread(${JSON.stringify(t.thread_key)})">
+        return `<div class="${cls}" onclick="selectThread(${esc(JSON.stringify(t.thread_key))})">
           <div class="thread-header">
             <span class="thread-from">${displayFrom}</span>
             <span class="${countCls}">${esc(countLabel)}</span>
