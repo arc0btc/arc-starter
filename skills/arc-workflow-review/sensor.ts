@@ -16,6 +16,7 @@ import {
   pendingTaskExistsForSource,
 } from "../../src/db.ts";
 import type { Task } from "../../src/db.ts";
+import { getTemplateByName } from "../arc-workflows/state-machine.ts";
 
 const SENSOR_NAME = "arc-workflow-review";
 const INTERVAL_MINUTES = 720; // 12 hours — pattern detection is slow-burn
@@ -270,6 +271,33 @@ function detectPatterns(chains: ChainInfo[]): DetectedPattern[] {
   return patterns;
 }
 
+/**
+ * Check if a detected pattern already has a registered workflow template.
+ * Derives candidate template names from the pattern key and calls getTemplateByName().
+ *
+ * source:sensor:arc-email-sync:thread → tries "arc-email-sync", "email-sync"
+ * subject:site health alert           → tries "site-health-alert"
+ */
+function patternAlreadyModeled(patternKey: string): boolean {
+  const candidates: string[] = [];
+
+  if (patternKey.startsWith("source:")) {
+    const parts = patternKey.slice("source:".length).split(":");
+    for (const part of parts) {
+      if (!part || part === "sensor") continue;
+      candidates.push(part);
+      // Also try without "arc-" prefix
+      if (part.startsWith("arc-")) candidates.push(part.slice(4));
+    }
+  } else if (patternKey.startsWith("subject:")) {
+    const subject = patternKey.slice("subject:".length);
+    // "site health alert" → "site-health-alert"
+    candidates.push(subject.replace(/\s+/g, "-"));
+  }
+
+  return candidates.some((name) => getTemplateByName(name) !== null);
+}
+
 export default async function workflowReviewSensor(): Promise<string> {
   // Read state BEFORE claimSensorRun to preserve custom fields (proposed_keys)
   const statePre = await readHookState(SENSOR_NAME);
@@ -318,8 +346,12 @@ export default async function workflowReviewSensor(): Promise<string> {
   const novel = patterns.filter((p) => !proposedKeys.includes(p.key));
   log(`${novel.length} novel patterns after filtering previously proposed`);
 
-  if (novel.length === 0) {
-    log("no novel patterns — skipping");
+  // Filter patterns that already have a registered template in state-machine.ts
+  const unmodeled = novel.filter((p) => !patternAlreadyModeled(p.key));
+  log(`${unmodeled.length} unmodeled patterns after template existence check`);
+
+  if (unmodeled.length === 0) {
+    log("no unmodeled patterns — skipping");
     // Restore proposed_keys that claimSensorRun wiped
     if (proposedKeys.length > 0 && hookState) {
       await writeHookState(SENSOR_NAME, { ...hookState, proposed_keys: proposedKeys });
@@ -329,12 +361,12 @@ export default async function workflowReviewSensor(): Promise<string> {
 
   // Build task description
   const lines: string[] = [
-    `Workflow review detected ${novel.length} repeating multi-step process(es) not yet modeled as workflow state machines.\n`,
+    `Workflow review detected ${unmodeled.length} repeating multi-step process(es) not yet modeled as workflow state machines.\n`,
     "For each pattern, evaluate whether a formal state machine would add value.",
     "If yes, design the template in skills/arc-workflows/state-machine.ts and register in getTemplateByName().\n",
   ];
 
-  for (const pattern of novel.slice(0, 5)) {
+  for (const pattern of unmodeled.slice(0, 5)) {
     lines.push(`## ${pattern.key}`);
     lines.push(`${pattern.description}`);
     lines.push(`- Recurrences: ${pattern.recurrences}`);
@@ -346,7 +378,7 @@ export default async function workflowReviewSensor(): Promise<string> {
   }
 
   insertTask({
-    subject: `Workflow design: ${novel.length} repeating pattern(s) detected`,
+    subject: `Workflow design: ${unmodeled.length} repeating pattern(s) detected`,
     description: lines.join("\n"),
     skills: '["arc-workflows", "arc-skill-manager"]',
     source: TASK_SOURCE,
@@ -356,7 +388,7 @@ export default async function workflowReviewSensor(): Promise<string> {
 
   // Record proposed keys to avoid re-proposing
   const updatedKeys = [
-    ...novel.map((p) => p.key),
+    ...unmodeled.map((p) => p.key),
     ...proposedKeys.slice(0, 20),
   ];
 
@@ -372,6 +404,6 @@ export default async function workflowReviewSensor(): Promise<string> {
 
   await writeHookState(SENSOR_NAME, stateToWrite);
 
-  log(`created review task for ${novel.length} pattern(s)`);
+  log(`created review task for ${unmodeled.length} pattern(s)`);
   return "ok";
 }
