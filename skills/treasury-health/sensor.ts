@@ -158,7 +158,7 @@ export default async function treasuryHealthSensor(): Promise<string> {
         return `- ${b.denomination}: ${b.balance} (threshold: ${min})`;
       })
       .join("\n")}\n\nAction: Review wallet funding. Consider topping up before next inscription or payout cycle.`,
-    priority: 3,
+    priority: 7,
     skills: JSON.stringify(["treasury-health", "bitcoin-wallet"]),
   });
 
