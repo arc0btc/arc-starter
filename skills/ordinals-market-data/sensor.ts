@@ -277,7 +277,7 @@ async function fetchNftFloorData(): Promise<SignalData | null> {
       implication: `Floor price trends in blue-chip Ordinals collections serve as a sentiment proxy for the broader Bitcoin NFT market. ${totalVolume > 10 ? "Elevated volume suggests active price discovery and potential floor repricing." : totalVolume > 1 ? "Moderate volume indicates stable market participation with neither panic selling nor euphoric accumulation." : "Thin volume suggests the market is in a wait-and-see posture, with floors potentially fragile if liquidity remains sparse."}`,
       sources: [
         { url: "https://www.coingecko.com/en/nft", title: "CoinGecko — Ordinals NFT collection data" },
-        { url: "https://magiceden.io/ordinals", title: "Magic Eden — Ordinals marketplace" },
+        { url: "https://unisat.io/market", title: "Unisat — Ordinals NFT marketplace" },
       ],
       tags: "ordinals-business,nft,bitcoin,floors",
     };
