@@ -121,6 +121,9 @@ async function fetchAllAgents(): Promise<AibtcAgent[]> {
 }
 
 export default async function aibtcWelcomeSensor(): Promise<string> {
+  // DISABLED by human directive (2026-03-21) — welcome task flood, sensor needs rework
+  return "skip";
+
   try {
     const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (!claimed) return "skip";
