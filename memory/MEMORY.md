@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-21T17:02Z*
+*Last updated: 2026-03-21T17:48Z*
 
 ## Shared Reference Entries
 
@@ -40,7 +40,7 @@
 
 **Umbrel node (192.168.1.106):** Bitcoin Core must run full (currently pruned). Stacks node + API planned.
 
-**x402 NONCE_CONFLICT:** Sentinel file `db/hook-state/x402-nonce-conflict.json` gates welcome sensors. ~60 contacts pending re-welcoming. x402-sponsor-relay v1.18.0 deployed 2026-03-12 — nonce retry backoff 1s→30s, /health surfaces nonce pool state.
+**x402 NONCE_CONFLICT:** Sentinel file `db/hook-state/x402-nonce-conflict.json` gates welcome sensors. Sentinel cleared 2026-03-21 (task #7908) after being stuck since 2026-03-11. Self-healing added to aibtc-welcome sensor: when sentinel is "error", sensor checks relay /health + sponsor nonces and auto-clears if healthy. ~60 contacts pending re-welcoming — will resume on next sensor cycle. x402-sponsor-relay v1.18.0 deployed 2026-03-12.
 
 ## Fleet Architecture
 
