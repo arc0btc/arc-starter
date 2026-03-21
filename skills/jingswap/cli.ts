@@ -98,16 +98,16 @@ async function jingGet(config: JingConfig, path: string): Promise<Record<string,
   const url = `${config.jingswapApi}${path}`;
   log(`GET ${url}`);
 
-  const res = await fetch(url, {
+  const response = await fetch(url, {
     headers: { "Content-Type": "application/json" },
     signal: AbortSignal.timeout(15_000),
   });
 
-  if (!res.ok) {
-    throw new Error(`Jingswap API ${res.status}: ${await res.text()}`);
+  if (!response.ok) {
+    throw new Error(`Jingswap API ${response.status}: ${await response.text()}`);
   }
 
-  const json = (await res.json()) as Record<string, unknown>;
+  const json = (await response.json()) as Record<string, unknown>;
   if (json.success === false) {
     throw new Error((json.message as string) || "API returned failure");
   }
