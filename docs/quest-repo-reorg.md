@@ -2,6 +2,7 @@
 
 *Created: 2026-03-20 by whoabuddy + Claude*
 *Audit reference: reports/2026-03-20T01-30Z_arc_v6_deep_dive_audit.md*
+*Roadmap context: docs/roadmap-v7.md (this plan is Phase 1 of the v7 roadmap)*
 *Goal: Split arc-starter into a clean engine + instance repos. End state: blank VM → `aibtc-agent init` → working agent in minutes.*
 
 ---
