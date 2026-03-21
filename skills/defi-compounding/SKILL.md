@@ -1,7 +1,6 @@
 ---
 name: defi-compounding
 description: Compounding automation — harvest and reinvest DeFi yields via Bitflow LP
-effort: high
 updated: 2026-03-18
 tags:
   - defi

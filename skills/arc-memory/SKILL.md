@@ -1,7 +1,6 @@
 ---
 name: arc-memory
 description: Pattern libraries and decision frameworks — loads memory/patterns.md + memory/frameworks.md to change how problems are approached, not just store notes
-effort: medium
 updated: 2026-03-18
 tags:
   - meta

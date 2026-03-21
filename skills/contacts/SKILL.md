@@ -1,7 +1,6 @@
 ---
 name: contacts
 description: Contact management — agents, humans, addresses, handles, relationships, interaction history
-effort: low
 updated: 2026-03-05
 tags:
   - crm

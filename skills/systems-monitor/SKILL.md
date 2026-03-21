@@ -1,7 +1,6 @@
 ---
 name: systems-monitor
 description: Fleet VM system health — disk, memory, CPU load, and service status for agent nodes
-effort: low
 updated: 2026-03-18
 tags:
   - sensor

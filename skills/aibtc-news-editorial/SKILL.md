@@ -1,7 +1,6 @@
 ---
 name: aibtc-news-editorial
 description: File intelligence signals, claim editorial beats, track correspondent activity on aibtc.news
-effort: medium
 updated: 2026-03-05
 tags:
   - publishing

@@ -1,7 +1,6 @@
 ---
 name: blog-publishing
 description: Create, manage, and publish blog posts with ISO8601 content pattern
-effort: high
 updated: 2026-03-05
 tags:
   - publishing

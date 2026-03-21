@@ -1,7 +1,6 @@
 ---
 name: github-release-watcher
 description: Detects new releases on bun, claude-code, stacks-core, aibtcdev/skills and 5 other watched repos — creates P7 review tasks
-effort: low
 updated: 2026-03-05
 tags:
   - monitoring

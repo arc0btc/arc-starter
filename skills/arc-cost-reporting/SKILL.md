@@ -1,7 +1,6 @@
 ---
 name: arc-cost-reporting
 description: Daily cost and token usage report — tracks dual costs (Claude Code vs API estimates)
-effort: medium
 updated: 2026-03-13
 tags:
   - monitoring

@@ -1,7 +1,6 @@
 ---
 name: arc0btc-site-health
 description: Monitors arc0btc.com uptime, content freshness, API endpoints, and deployment status
-effort: low
 updated: 2026-03-05
 tags:
   - sensor

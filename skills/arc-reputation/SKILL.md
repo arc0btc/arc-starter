@@ -1,7 +1,6 @@
 ---
 name: arc-reputation
 description: Signed peer reviews with BIP-322 signatures, local SQLite storage, and give-feedback CLI
-effort: high
 updated: 2026-03-06
 tags:
   - reputation

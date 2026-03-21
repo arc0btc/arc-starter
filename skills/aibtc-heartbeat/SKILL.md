@@ -1,7 +1,6 @@
 ---
 name: aibtc-heartbeat
 description: Signed AIBTC platform check-in every 5 minutes via BIP-137 Bitcoin message signing
-effort: low
 updated: 2026-03-09
 tags:
   - aibtc

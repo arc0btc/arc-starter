@@ -1,7 +1,6 @@
 ---
 name: arc-alive-check
 description: Periodic system-alive task creator — 6-hour canary confirming dispatch loop is healthy
-effort: low
 updated: 2026-03-05
 tags:
   - sensor

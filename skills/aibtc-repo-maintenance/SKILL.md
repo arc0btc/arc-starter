@@ -1,7 +1,6 @@
 ---
 name: aibtc-repo-maintenance
 description: Triage, review, test, and support aibtcdev repos we depend on
-effort: medium
 updated: 2026-03-05
 tags:
   - maintenance

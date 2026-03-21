@@ -1,7 +1,6 @@
 ---
 name: code-audit
 description: On-demand static analysis, dependency review, and security scanning — Forge's dev quality layer
-effort: high
 updated: 2026-03-18
 tags:
   - security

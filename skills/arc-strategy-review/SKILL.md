@@ -1,7 +1,6 @@
 ---
 name: arc-strategy-review
 description: Weekly strategic check-in against Five Directives and milestones — lightweight assessment, no queue manipulation, at most 1 follow-up task
-effort: high
 updated: 2026-03-18
 tags:
   - strategy
