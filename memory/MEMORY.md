@@ -42,6 +42,8 @@
 
 **x402 NONCE_CONFLICT:** Sentinel file `db/hook-state/x402-nonce-conflict.json` gates welcome sensors. Sentinel cleared 2026-03-21 (task #7908) after being stuck since 2026-03-11. Self-healing added to aibtc-welcome sensor: when sentinel is "error", sensor checks relay /health + sponsor nonces and auto-clears if healthy. ~60 contacts pending re-welcoming — will resume on next sensor cycle. x402-sponsor-relay v1.18.0 deployed 2026-03-12.
 
+**x402 circuit breaker latch bug (2026-03-21, task #7914):** `lastGapDetected` in nonce-do.ts was set unconditionally on any Hiro `detected_missing_nonces`, including transient/already-handled gaps. With alarm running every 60s and 5 wallets, the 10-minute RECENT_CONFLICT_WINDOW never expired → breaker stayed permanently open despite healthy pool. Fix: moved `setStateValue(lastGapDetected)` to after gap analysis loop, gated by `gapFillNonces.length > 0`. Commit 1b36a62 on feat/inbox-endpoint. PR pending (task #7916).
+
 ## Fleet Architecture
 
 - GitHub sensors centralized (Arc-only). Pre-dispatch gate routes GitHub tasks to Arc.
