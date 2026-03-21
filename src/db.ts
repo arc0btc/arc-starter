@@ -663,6 +663,20 @@ export function isDailySignalCapHit(): boolean {
   return countSignalTasksToday() >= DAILY_SIGNAL_CAP;
 }
 
+/** Count completed tasks today whose source starts with the given prefix. */
+export function countCompletedTodayForSourcePrefix(prefix: string): number {
+  const db = getDatabase();
+  const row = db
+    .query(
+      `SELECT COUNT(*) as count FROM tasks
+       WHERE source LIKE ? || '%'
+       AND DATE(completed_at) = DATE('now')
+       AND status = 'completed'`
+    )
+    .get(prefix) as { count: number } | null;
+  return row?.count ?? 0;
+}
+
 /**
  * Dedup gate: returns true if a pending/active task with the exact same subject exists.
  * Catches duplicates that source-based dedup misses (e.g., different sources, same work).

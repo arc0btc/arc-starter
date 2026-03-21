@@ -11,7 +11,12 @@ import {
   readHookState,
   writeHookState,
 } from "../../src/sensors.ts";
-import { completedTaskCountForSource, completedTaskExistsForSourceSubstring, recentTaskExistsForSource } from "../../src/db.ts";
+import {
+  completedTaskExistsForSourceSubstring,
+  countCompletedTodayForSourcePrefix,
+  getDatabase,
+  recentTaskExistsForSource,
+} from "../../src/db.ts";
 import {
   initContactsSchema,
   getContactByAddress,
@@ -23,6 +28,15 @@ const SENSOR_NAME = "aibtc-welcome";
 const INTERVAL_MINUTES = 30;
 const API_BASE = "https://aibtc.com/api";
 const PAGE_LIMIT = 50;
+
+/** Max welcome tasks created per sensor cycle — prevents queue flood after long freezes */
+const BATCH_CAP = 3;
+
+/** If more than this many welcome tasks completed today, skip creating more */
+const DAILY_COMPLETED_CAP = 10;
+
+/** Stable source prefix — does NOT include sensor name so it survives renames */
+const SOURCE_PREFIX = "welcome:";
 
 /** Sentinel file: if present, x402 relay has a nonce conflict — skip creating welcome tasks */
 const NONCE_SENTINEL = "x402-nonce-conflict";
@@ -62,6 +76,7 @@ interface WelcomeState {
   version: number;
   welcomed_agents: string[]; // STX addresses already welcomed
   total_welcomed: number;
+  reconciled?: boolean; // true after one-time old-source migration
 }
 
 /**
@@ -120,10 +135,54 @@ async function fetchAllAgents(): Promise<AibtcAgent[]> {
   return all;
 }
 
-export default async function aibtcWelcomeSensor(): Promise<string> {
-  // DISABLED by human directive (2026-03-21) — welcome task flood, sensor needs rework
-  return "skip";
+/**
+ * One-time reconciliation: merge STX addresses from old-source completed tasks
+ * (sensor:social-agent-engagement:welcome-*) into the welcomed_agents set.
+ * Old source used BTC addresses as keys; we extract STX from task descriptions.
+ */
+function reconcileOldSourceTasks(welcomedSet: Set<string>): void {
+  const db = getDatabase();
 
+  // Old completed tasks with BTC-keyed source
+  const oldTasks = db
+    .query(
+      `SELECT description FROM tasks
+       WHERE source LIKE 'sensor:social-agent-engagement:welcome-%'
+       AND status = 'completed'`
+    )
+    .all() as { description: string | null }[];
+
+  let added = 0;
+  for (const task of oldTasks) {
+    if (!task.description) continue;
+    const match = task.description.match(/STX: (SP[A-Z0-9]+)/);
+    if (match && !welcomedSet.has(match[1])) {
+      welcomedSet.add(match[1]);
+      added++;
+    }
+  }
+
+  // Also reconcile new-source completed tasks (sensor:aibtc-welcome:*)
+  const newTasks = db
+    .query(
+      `SELECT source FROM tasks
+       WHERE source LIKE 'sensor:aibtc-welcome:%'
+       AND status = 'completed'`
+    )
+    .all() as { source: string }[];
+
+  for (const task of newTasks) {
+    const stx = task.source.replace("sensor:aibtc-welcome:", "");
+    if (stx.startsWith("SP") && !welcomedSet.has(stx)) {
+      welcomedSet.add(stx);
+      added++;
+    }
+  }
+
+  log(`reconciliation: added ${added} STX addresses from old-source completed tasks`);
+}
+
+export default async function aibtcWelcomeSensor(): Promise<string> {
   try {
     const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (!claimed) return "skip";
@@ -147,6 +206,13 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
       });
     }
 
+    // Daily completed gate: if >10 welcome tasks completed today, skip
+    const completedToday = countCompletedTodayForSourcePrefix(SOURCE_PREFIX);
+    if (completedToday >= DAILY_COMPLETED_CAP) {
+      log(`daily cap reached: ${completedToday} welcome tasks completed today (cap=${DAILY_COMPLETED_CAP}) — skipping`);
+      return "skip";
+    }
+
     log("checking for new AIBTC agents to welcome");
 
     const agents = await fetchAllAgents();
@@ -159,11 +225,22 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
     const state = (await readHookState(SENSOR_NAME)) as WelcomeState | null;
     const welcomedSet = new Set<string>(state?.welcomed_agents ?? []);
 
+    // One-time reconciliation: merge old-source completed tasks into welcomed set
+    if (!state?.reconciled) {
+      reconcileOldSourceTasks(welcomedSet);
+    }
+
     initContactsSchema();
 
     let tasksCreated = 0;
 
     for (const agent of agents) {
+      // Batch cap: stop creating tasks once we hit the per-cycle limit
+      if (tasksCreated >= BATCH_CAP) {
+        log(`batch cap reached (${BATCH_CAP}) — remaining agents deferred to next cycle`);
+        break;
+      }
+
       // Skip if missing addresses
       if (!agent.stxAddress || !agent.btcAddress) continue;
 
@@ -174,14 +251,8 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
       const lowerName = (agent.displayName ?? "").toLowerCase();
       if ([...FLEET_NAMES].some((n) => lowerName.includes(n))) continue;
 
-      // Skip if already welcomed (verified completed in DB, not just task-created)
-      if (welcomedSet.has(agent.stxAddress)) {
-        // Verify the welcome actually completed — if not, remove from set so we retry
-        const source = `sensor:aibtc-welcome:${agent.stxAddress}`;
-        if (completedTaskCountForSource(source) > 0) continue;
-        // Welcome task was created but never completed — allow re-creation
-        welcomedSet.delete(agent.stxAddress);
-      }
+      // Skip if already in welcomed set
+      if (welcomedSet.has(agent.stxAddress)) continue;
 
       const name = agent.displayName ?? agent.bnsName ?? agent.stxAddress.slice(0, 12);
 
@@ -215,10 +286,10 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
         continue;
       }
 
-      // Create welcome task
-      const source = `sensor:aibtc-welcome:${agent.stxAddress}`;
+      // Stable source key: welcome:{stxAddress} — survives sensor renames
+      const source = `${SOURCE_PREFIX}${agent.stxAddress}`;
 
-      // Outer dedup guard: if a task for this agent was created in the last 24h, skip
+      // Dedup: if a task for this agent was created in the last 24h, skip
       if (recentTaskExistsForSource(source, 24 * 60)) {
         log(`skipping ${name} — welcome task exists within 24h`);
         continue;
@@ -268,10 +339,14 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
             "If x402 send fails with NONCE_CONFLICT or ConflictingNonceInMempool:",
             "- Write sentinel: `echo '{\"last_ran\":\"'$(date -u +%FT%TZ)'\",\"last_result\":\"error\",\"version\":1}' > db/hook-state/x402-nonce-conflict.json`",
             "- Close this task as **failed** with summary mentioning NONCE_CONFLICT",
-            "- Do **NOT** create any retry or follow-up task — the sensor will re-create this task once the sentinel is cleared",
             "",
-            "For any other x402/STX failure, close as completed with a note about what failed.",
-            "Do NOT create retry tasks for transient errors — the sensor handles re-creation.",
+            "For any other x402/STX failure, close as **failed** with a note about what failed.",
+            "",
+            "## DO NOT create retry or follow-up tasks",
+            "",
+            "**Under no circumstances should you create a retry, follow-up, or re-queue task.**",
+            "The sensor automatically re-creates welcome tasks for agents that were not",
+            "successfully welcomed. Manual retries cause task floods.",
           ]
             .filter((line) => line !== undefined)
             .join("\n"),
@@ -289,8 +364,7 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
       }
     }
 
-    // State only tracks agents whose welcome task actually completed.
-    // welcomedSet was already pruned above (failed tasks removed).
+    // Persist state with reconciliation flag
     const updatedWelcomed = [...welcomedSet];
     await writeHookState(SENSOR_NAME, {
       last_ran: new Date().toISOString(),
@@ -298,6 +372,7 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
       version: (state?.version ?? 0) + 1,
       welcomed_agents: updatedWelcomed,
       total_welcomed: updatedWelcomed.length,
+      reconciled: true,
     } satisfies WelcomeState);
 
     log(
