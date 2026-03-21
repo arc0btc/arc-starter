@@ -2,7 +2,7 @@
 // Detect high bid-ask spreads on Bitflow trading pairs and file signals
 
 import { claimSensorRun, createSensorLogger, fetchWithRetry } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { insertTask, isDailySignalCapHit, pendingTaskExistsForSource } from "../../src/db.ts";
 import { recentTaskExistsForSourcePrefix } from "../../src/db.ts";
 
 const SENSOR_NAME = "defi-bitflow";
@@ -98,6 +98,12 @@ export default async function bitflowSensor(): Promise<string> {
     highSpreadPairs.sort((a, b) => b.spreadPct - a.spreadPct);
 
     log(`detected ${highSpreadPairs.length} high-spread pairs (>${threshold}%)`);
+
+    // Daily cap guard — skip if 6/6 signal slots already claimed today
+    if (isDailySignalCapHit()) {
+      log("daily cap: 6/6 signal slots claimed today; skipping");
+      return "rate-limited";
+    }
 
     // Rate limit check
     const sourcePrefix = `sensor:${SENSOR_NAME}:spread:`;
