@@ -26,6 +26,8 @@ const PAGE_LIMIT = 50;
 
 /** Sentinel file: if present, x402 relay has a nonce conflict — skip creating welcome tasks */
 const NONCE_SENTINEL = "x402-nonce-conflict";
+const RELAY_URL = "https://x402-relay.aibtc.com";
+const SPONSOR_ADDRESS = "SP1PMPPVCMVW96FSWFV30KJQ4MNBMZ8MRWR3JWQ7";
 
 // Arc's own STX address — never welcome ourselves
 const SELF_STX = "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B";
@@ -62,6 +64,40 @@ interface WelcomeState {
   total_welcomed: number;
 }
 
+/**
+ * Self-healing: check if x402 relay is actually healthy despite a stale sentinel.
+ * Returns true if relay is reachable AND sponsor has no nonce gaps.
+ */
+async function isRelayHealthy(): Promise<boolean> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10_000);
+    const resp = await fetch(`${RELAY_URL}/health`, { signal: controller.signal });
+    clearTimeout(timeout);
+    if (!resp.ok) return false;
+
+    // Check sponsor nonce status for gaps
+    const nc = new AbortController();
+    const nt = setTimeout(() => nc.abort(), 10_000);
+    const nonceResp = await fetch(
+      `https://api.mainnet.hiro.so/extended/v1/address/${SPONSOR_ADDRESS}/nonces`,
+      { signal: nc.signal },
+    );
+    clearTimeout(nt);
+    if (!nonceResp.ok) return false;
+
+    const nonces = (await nonceResp.json()) as {
+      detected_missing_nonces: number[];
+      detected_mempool_nonces: number[];
+    };
+
+    // Healthy = no missing nonces and mempool not congested
+    return nonces.detected_missing_nonces.length === 0 && nonces.detected_mempool_nonces.length <= 5;
+  } catch {
+    return false;
+  }
+}
+
 async function fetchAllAgents(): Promise<AibtcAgent[]> {
   const all: AibtcAgent[] = [];
   let offset = 0;
@@ -89,11 +125,23 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
     const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (!claimed) return "skip";
 
-    // Circuit breaker: skip if x402 relay has nonce conflict
+    // Circuit breaker: skip if x402 relay has nonce conflict — with self-healing
     const nonceSentinel = await readHookState(NONCE_SENTINEL);
     if (nonceSentinel && nonceSentinel.last_result === "error") {
-      log("x402 nonce conflict sentinel active — skipping welcome task creation");
-      return "skip";
+      log("x402 nonce conflict sentinel active — checking relay health for self-healing");
+      const healthy = await isRelayHealthy();
+      if (!healthy) {
+        log("relay still unhealthy — skipping welcome task creation");
+        return "skip";
+      }
+      // Relay recovered — clear sentinel and proceed
+      log("relay healthy — clearing stale nonce sentinel");
+      await writeHookState(NONCE_SENTINEL, {
+        last_ran: new Date().toISOString(),
+        last_result: "ok",
+        version: (nonceSentinel.version ?? 1) + 1,
+        cleared_by: "sensor:aibtc-welcome:self-heal",
+      });
     }
 
     log("checking for new AIBTC agents to welcome");
