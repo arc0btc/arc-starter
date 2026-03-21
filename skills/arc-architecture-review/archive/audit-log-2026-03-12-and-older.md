@@ -786,3 +786,25 @@
 
 ---
 
+
+---
+
+## 2026-03-19T00:12:00.000Z
+
+**Diff range:** 88f0fe3 → ed8eae3 | Sensors: 74 → 85 | Skills: 108 → 119
+
+### Step 1 — Requirements
+
+- All new skills (monitoring, nostr-wot, fleet-handoff, jingswap, defi-compounding, erc8004-indexer) trace to v6 roadmap tasks. Requirements valid.
+- `DAILY_BUDGET_USD = 500` in dispatch.ts but D4 cap is $200/day. The constant controls *task gating* (only P3+ blocked above $500), not the directive. D4 is a personal directive, not enforced in code. However, D4 was breached ($272 on 2026-03-18) — cost monitoring is reactive, not proactive.
+
+### Step 2 — Delete Candidates
+
+- **[RESOLVED ✓ 2026-03-19]** `nostr-wot` and `maximumsats-wot` both wrap MaximumSats API. Investigation complete: Deleted `maximumsats-wot` as redundant. Kept `maximumsats` + `nostr-wot`.
+- **[OVERLAP]** `arc-dispatch-eval` vs `arc-dispatch-evals` — sensor-driven vs CLI-driven distinction acceptable but should be documented.
+
+### Flags
+
+- ✓ RESOLVED: nostr-wot vs maximumsats-wot consolidation
+- Apply 24h dedup pattern to remaining high-volume sensors (ongoing)
+- Consider automatic model downgrade at $150/day D4 cost gate

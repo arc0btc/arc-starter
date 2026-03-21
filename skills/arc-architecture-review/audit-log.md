@@ -1,3 +1,51 @@
+## 2026-03-21T19:10:00.000Z
+
+**Diff range:** 8a8c5c9 → 0444a19 | Sensors: 88 (1 disabled: aibtc-welcome) | Skills: 122
+
+### Step 1 — Requirements
+
+- **`effort` frontmatter removal**: Traces to 4-cycle carryover (36 skills, never consumed by dispatch.ts). Removal clean — no dispatch changes needed. **Requirement satisfied.**
+- **aibtc-welcome self-healing**: Traces to task #7908 (sentinel cleared) and task #7914 (circuit breaker latch bug fix). `isRelayHealthy()` function correctly checks relay /health + nonce pool before honoring sentinel. Requirement valid.
+- **aibtc-welcome full disable (line 121)**: Traces to human directive — "task flood." Root cause of flood not embedded in the commit or sensor comments. Disable is blunt instrument; rework needed before re-enabling.
+- **ordinals-market-data zero-guard**: Traces to Unisat occasionally returning 0 recent inscriptions (confirmed via #7749 magiceden follow-through). Prevents empty signal submission. Requirement valid.
+- **ordinals-market-data source swap (magiceden → unisat)**: Traces to task #7863 (watch report flag: 2 consecutive failures). magiceden.io unreachable confirmed. Requirement satisfied.
+- **arc-workflow-review `patternAlreadyModeled()`**: Traces to task #7794 (validated: all patterns covered by existing state machines). Function prevents re-generating design tasks for already-modeled patterns. Requirement valid.
+- **email thread sent messages**: Traces to task #7998 (web fix). `getEmailThread()` now returns both inbox + sent messages for two-way conversation view. Requirement valid.
+
+### Step 2 — Delete
+
+- **[NEW, P8]** `skills/defi-compounding/compounding-state.json` is tracked in git but is a runtime state file (`lastChecked`, empty pools). Should be gitignored like `skills/*/pool-state.json`. Needs `.gitignore` entry + `git rm --cached`. Creating task.
+- **[OK]** `effort` frontmatter — REMOVED from all 36 skills. 4-cycle carryover **closed**.
+- **[INFO]** `aibtc-welcome/sensor.ts` self-healing code (`isRelayHealthy()`) is dead while sensor is disabled. When rework executes, preserve it — the logic is correct.
+
+### Step 3 — Simplify
+
+- **`patternAlreadyModeled()` is correct abstraction**: Pure TypeScript, no subprocess, ~35 lines. Derives 2-3 name candidates per pattern key and calls `getTemplateByName()`. Clean.
+- **aibtc-welcome disable is the right short-term move**: A broken sensor that floods the queue is worse than no sensor. The disable-and-rework pattern is correct. But the rework task should be created now, not deferred.
+- **Jingswap `res → response` rename**: Cosmetic, correct. No structural change.
+
+### Step 4 — Accelerate
+
+- **ordinals-market-data zero-guard** saves ~1 failed Sonnet task per Unisat zero-count event. Small but zero-cost fix.
+- **arc-workflow-review template check** prevents redundant P5-7 workflow design tasks. Keeps queue cleaner pre-competition.
+- **No new bottlenecks introduced.**
+
+### Step 5 — Automate
+
+- **aibtc-welcome rework**: After identifying flood root cause, the sensor should be re-enabled with a per-run cap (e.g., max 5 welcome tasks per sensor cycle). This would prevent floods while maintaining automation.
+- **`compounding-state.json` gitignore**: Should be automated — extend gitignore pattern from `skills/*/pool-state.json` to `skills/*/compounding-state.json` (or more broadly `skills/*/*-state.json`).
+
+### Flags
+
+- **[RESOLVED ✓]** `effort` frontmatter on 36 skills — removed. 4-cycle carryover closed.
+- **[ACTION, P4]** aibtc-welcome flood root cause — diagnose and rework plan. Self-healing code is good; flood mechanism unknown. Create task.
+- **[ACTION, P8]** `skills/defi-compounding/compounding-state.json` tracked in git. Gitignore + untrack.
+- **[WATCH]** aibtc-welcome `isRelayHealthy()` — dead while disabled. Preserve when re-enabling.
+- **[OK]** ordinals-market-data source fixes deployed ahead of competition (2026-03-23).
+- **[OK]** arc-workflow-review template dedup working.
+
+---
+
 ## 2026-03-21T07:20:00.000Z
 
 **Diff range:** 5dfbe84 → 8a8c5c9 | Sensors: 88 (0 disabled) | Skills: 122
@@ -177,40 +225,4 @@
 
 ---
 
-## 2026-03-19T00:12:00.000Z
-
-**Diff range:** 88f0fe3 → ed8eae3 | Sensors: 74 → 85 | Skills: 108 → 119
-
-### Step 1 — Requirements
-
-- All new skills (monitoring, nostr-wot, fleet-handoff, jingswap, defi-compounding, erc8004-indexer) trace to v6 roadmap tasks. Requirements valid.
-- `DAILY_BUDGET_USD = 500` in dispatch.ts but D4 cap is $200/day. The constant controls *task gating* (only P3+ blocked above $500), not the directive. D4 is a personal directive, not enforced in code. However, D4 was breached ($272 on 2026-03-18) — cost monitoring is reactive, not proactive.
-
-### Step 2 — Delete Candidates
-
-- **[RESOLVED ✓ 2026-03-19]** `nostr-wot` and `maximumsats-wot` both wrap MaximumSats API. **Investigation complete:** Deleted `maximumsats-wot` as redundant (subset of nostr-wot + broken check-agent + no free tier fallback). Kept `maximumsats` (offers predict/trust-path) + `nostr-wot` (best fallback strategy). See memory/wot_consolidation.md for analysis.
-- **[OVERLAP]** `arc-dispatch-eval` (sensor, auto-scores task outcomes) and `arc-dispatch-evals` (CLI, LLM judge quality evaluation) have overlapping domains. The distinction is sensor-driven vs CLI-driven — acceptable, but should be documented clearly in each SKILL.md.
-- **[STALE? 2026-03-19]** `maximumsats` (parent skill) vs `maximumsats-wot` — Confirmed: `maximumsats` has unique features (predict, trust-path). Not redundant. Kept both.
-
-### Step 3 — Simplify
-
-- **Context delivery is sound.** SOUL.md + CLAUDE.md + MEMORY.md (always) + per-task SKILL.md (on-demand) keeps prompt lean. Fleet knowledge loader adds relevant entries by topic match — good.
-- **Retrospective gate tightened.** Previously spawning ~17/day. Now P1 or cost>$1 — correct fix.
-- **24h dedup window for github-issues** — correct fix for reactive volume. Pattern should be applied to other high-volume sensors (aibtc-welcome, agent-hub) that flagged "no dedup" in prior audit.
-
-### Step 4 — Accelerate
-
-- **Sensor count at 85.** All run in parallel via Promise.allSettled — no bottleneck here.
-- **github-issues dedup** reduces task queue pressure. Same pattern needed for: `agent-hub`, `aibtc-welcome`, `arc-blocked-review`, `arc-ops-review`, `arc-reporting`, `arc-reputation`, `arc0btc-pr-review`, `arc0btc-security-audit`, `auto-queue`, `blog-publishing`, `compliance-review`, `context-review`, `defi-compounding`, `erc8004-reputation`, `fleet-comms`, and others (per prior 2026-03-18 audit). High-volume sensors without dedup are still a D4 cost risk.
-
-### Step 5 — Automate
-
-- D4 cap enforcement is manual (monitoring). Consider: dispatch pre-flight gate that checks `getTodayCostUsd()` and scales down model tier (Opus→Sonnet) at $150 rather than only blocking tasks at $500. This would automatically soften cost curve without operator intervention.
-
-### Follow-up Tasks Created
-
-- ✓ RESOLVED: Investigate nostr-wot vs maximumsats-wot consolidation (2026-03-19, task #7228)
-- Apply 24h dedup pattern to remaining high-volume sensors (WARN - ongoing)
-- Consider automatic model downgrade at $150/day D4 cost gate (INFO)
-
----
+*(2026-03-19T00:12Z entry archived to archive/audit-log-2026-03-12-and-older.md)*

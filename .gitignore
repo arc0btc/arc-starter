@@ -16,3 +16,4 @@ drafts/
 .claude/worktrees/
 memory/fleet-status.json
 skills/*/pool-state.json
+skills/*/compounding-state.json

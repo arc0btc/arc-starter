@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-03-21T07:20:00.000Z*
-*Sensor count: 88 (0 disabled) | Skill count: 122*
+*Generated: 2026-03-21T19:10:00.000Z*
+*Sensor count: 88 (1 disabled: aibtc-welcome) | Skill count: 122*
 
 ```mermaid
 stateDiagram-v2
@@ -254,7 +254,7 @@ stateDiagram-v2
     SensorsService --> TaskQueue
 ```
 
-## Sensor Count by Category (2026-03-21, updated)
+## Sensor Count by Category (2026-03-21, cycle 2)
 
 | Category | Count |
 |----------|-------|
@@ -269,17 +269,13 @@ stateDiagram-v2
 | Other | 21 |
 | **Total** | **88** |
 
-## Key Architectural Changes (5dfbe84 → 8a8c5c9)
+## Key Architectural Changes (8a8c5c9 → 0444a19)
 
 | Change | Impact |
 |--------|--------|
-| `isDailySignalCapHit()` in `src/db.ts` | Shared DB gate for the 6-signal/day competition cap. Applied to 5 sensors (aibtc-news-editorial, defi-bitflow, aibtc-news-deal-flow, ordinals-market-data). Eliminates false-failure task class — sensors now abort before queuing rather than failing at dispatch. |
-| `skills/nostr-wot/trust-gate.ts` | Shared trust evaluation helper. Returns `block/warn/allow` decision via nostr-wot CLI subprocess. Imported by fleet-handoff (`--pubkey` flag) and DeFi/payment flows. Prevents subprocess logic duplication across callers. |
-| `skills/arc-self-review/` (new) | New sensor (35 lines, 360-min cadence). Creates `self-review-cycle` workflow instance to back daily health-check with formal lifecycle tracking. Delegates to arc-workflows meta-sensor for state advancement. |
-| `skills/fleet-handoff/cli.ts` `--pubkey --force` | Added WoT verification for non-Arc handoff targets. `--pubkey <nostr-hex>` triggers trust-gate check; `--force` bypasses with explicit intent. Trust layer now gates inter-agent task routing. |
-| `skills/aibtc-news-classifieds/` schema + CLI | Added `status` field (`pending_review|approved|rejected`) to classifieds schema post aibtcdev/agent-news#144. New `check-classified-status` command. Dedup now checks both marketplace (approved) and agent-scoped (pending_review) endpoints. |
-| `skills/aibtc-inbox-sync/sensor.ts` workflow tracking | Thread responses now backed by `agent-collaboration` workflow instance (`insertWorkflow`/`getWorkflowByInstanceKey`). More robust than time-based 24h dedup (handles re-threads after window expires). |
-| `skills/jingswap/` v1.42.0 update | Contract names updated: `sbtc-stx-jing`, `sbtc-usdcx-jing`. Model corrected: blind batch auction (Pyth oracle settlement), not order-book DEX. Two markets: `sbtc-stx` (default) and `sbtc-usdcx`. |
-| `.gitignore` runtime state files | Added `db/erc8004-agents.json`, `memory/fleet-status.json`, `skills/*/pool-state.json`. Runtime cache files no longer pollute git history. |
-| `skills/context-review/sensor.ts` false positive reduction | Excluded `arc-blocked-review` from meta task sources (blocked task descriptions contain domain keywords that misfire context-review). Removed "market data" from `defi-stacks-market` keyword list (too generic, matched ordinals sensor tasks). |
-| github-issues sensor deleted | `refactor(github-issues): remove disabled dead sensor` — 4-audit carryover finally resolved. Sensor count updated to 88 (0 disabled). |
+| `refactor(SKILL): remove effort field` | `effort` frontmatter stripped from all 36 SKILL.md files that had it. Was never consumed by dispatch.ts — 4-cycle carryover finally resolved. Reduces SKILL.md noise; no functional change to dispatch. |
+| `feat/fix(aibtc-welcome): self-healing + disable` | Added `isRelayHealthy()` to check relay health before respecting stale nonce sentinel. Then sensor fully disabled by human directive (task flood). Returns `"skip"` at line 121. Sensor count: 88 (1 disabled). Root cause of flood not yet diagnosed. |
+| `fix(ordinals-market-data): zero-guard + source swap` | (1) Skip inscription signal when Unisat returns 0 recent inscriptions — prevents empty signal submissions. (2) Replace unreachable `magiceden.io/ordinals` with `unisat.io/market` as NFT floor data source. Both fixes deployed ahead of $100K competition (2026-03-23). |
+| `feat(arc-workflow-review): patternAlreadyModeled()` | New filter that checks if detected patterns already have a registered template in `arc-workflows/state-machine.ts`. Prevents generating redundant workflow design tasks for already-modeled patterns. |
+| `fix(web/email): include sent messages in thread` | `getEmailThread()` in `db.ts` now returns both inbox messages from a sender AND sent messages to that sender. Fixes broken thread view for two-way email conversations. |
+| `skills/defi-compounding/compounding-state.json` (tracked) | Runtime state file still tracked in git — `lastChecked` and empty pools. Should be gitignored like `skills/*/pool-state.json`. Gitignore pattern needs to be broadened. |
