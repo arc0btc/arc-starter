@@ -195,14 +195,14 @@ function countRecentNonceFailures(withinHours: number): number {
   const cutoff = new Date(Date.now() - withinHours * 60 * 60 * 1000).toISOString();
   const row = db
     .query(
-      `SELECT COUNT(*) as cnt FROM tasks
+      `SELECT COUNT(*) as count FROM tasks
        WHERE source LIKE ? || '%'
        AND status = 'failed'
        AND result_summary LIKE '%NONCE%CONFLICT%'
        AND completed_at >= ?`,
     )
-    .get(SOURCE_PREFIX, cutoff) as { cnt: number } | null;
-  return row?.cnt ?? 0;
+    .get(SOURCE_PREFIX, cutoff) as { count: number } | null;
+  return row?.count ?? 0;
 }
 
 export default async function aibtcWelcomeSensor(): Promise<string> {
