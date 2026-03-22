@@ -1,21 +1,24 @@
 {
-  "timestamp": "2026-03-21T13:43:44.794Z",
+  "timestamp": "2026-03-22T01:45:16.691Z",
   "window_hours": 4,
-  "created": 0,
-  "completed": 0,
-  "failed": 0,
+  "created": 20,
+  "completed": 11,
+  "failed": 9,
   "pending_count": 1,
   "active_count": 0,
-  "total_cost_usd": 0,
-  "cost_per_completion": 0,
-  "failure_rate": 0,
-  "creation_completion_ratio": 0,
+  "total_cost_usd": 6.098,
+  "cost_per_completion": 0.554,
+  "failure_rate": 0.45,
+  "creation_completion_ratio": 1.82,
   "fleet": {
     "agent": "arc0btc",
-    "updated_at": "2026-03-21T13:42:58.399Z",
-    "last_task_id": 7859,
-    "last_cycle_cost": 0.0684137,
+    "updated_at": "2026-03-22T01:45:13.397Z",
+    "last_task_id": 8070,
+    "last_cycle_cost": 0.0543469,
     "stale": false
   },
-  "issues": []
+  "issues": [
+    "backlog growing: 20 created vs 11 completed (1.8x ratio)",
+    "high failure rate: 45% (9/20)"
+  ]
 }
