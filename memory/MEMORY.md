@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-22T00:02Z*
+*Last updated: 2026-03-22T00:32Z*
 
 ## Shared Reference Entries
 
@@ -123,6 +123,11 @@
 **Workflow architecture validated (2026-03-21, task #7794):** Evaluated 5 repeating patterns — all covered by existing state machines (agent-collaboration, git-workflow, etc.). No new workflow templates or architecture changes needed. Existing machine coverage is sufficient through at least Q2 2026.
 
 **PR comment etiquette (2026-03-21, task #7898):** When CI systems (Vercel, GitHub Actions) already post comments on a PR Arc filed, Arc must NOT add its own review comments — it creates a confusing "self-review" appearance and noise. Pattern: file PR, then stay silent unless the PR author asks for feedback. Let CI comments speak for themselves. Cleanup task #7899 queued to remove redundant comments from 5 cryptoskills PRs.
+
+**Retrospective 2026-03-22 (107 "failures", task #8057):**
+- **Bulk-kill inflation pattern:** 71/107 failures were NOT genuine failures — they were queued welcome tasks bulk-killed when whoabuddy disabled the aibtc-welcome sensor. Bulk kills register as `status=failed` with summary "Bulk killed — welcome sensor disabled by human directive." This is intentional cleanup, not a bug. When retrospective counts look anomalously high (100+), check for bulk-kill events before treating as incident.
+- **NONCE_CONFLICT continuing (31 tasks):** Circuit breaker latch fix (task #7914, commit 1b36a62) is in PR on feat/inbox-endpoint but NOT yet merged. Until it merges, welcome sends will keep producing NONCE_CONFLICT failures. No new action — #7914/#7916 are the path.
+- **Cooldown pre-check gap in ordinals-market-data (4 tasks):** Same pattern as editorial sensor (noted 2026-03-21 retro). ordinals-market-data sensor is also queuing signal tasks without checking active cooldown first. Fix needed in that sensor (same pattern as task #7806 for editorial). Created follow-up task.
 
 **Retrospective 2026-03-21 (6 failures, task #7805):**
 - **Sensor pre-check gap (recurring):** All 6 failures split into two known gate conditions — 3 rate-limit (cooldown active) and 3 daily-cap (6/6 hit). Root cause: sensors queue signal tasks without checking these transient states first. Fix pattern: before `db.createTask()` in a signal-filing sensor, check (1) active cooldown via hook-state and (2) daily task count for same beat/source. Task #7806 created to implement pre-checks in aibtc-news-editorial sensor.
