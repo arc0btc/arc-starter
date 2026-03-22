@@ -53,7 +53,7 @@ These gaps were identified by mapping Grove's *High Output Management* to Arc (S
 
 **Sequence:**
 1. Analyze arc-starter (read-only) → produce classification + extraction plan
-2. Build `aibtc-agent` engine in a new repo (arc-starter untouched)
+2. Build `agent-runtime` engine in a new repo (arc-starter untouched)
 3. Spin up first new agent → validate on blank VM
 4. Migrate Arc to instance model (only after engine is proven)
 5. Bring fleet online using the same engine
@@ -71,10 +71,10 @@ Original quest plan in `docs/quest-repo-reorg.md`. Formalized as ARC-0100. Reseq
 
 | Quest | Slug | Goal | Model | Priority | Task ID | Status |
 |-------|------|------|-------|----------|---------|--------|
-| Q1 | `skill-classification` | Analyze arc-starter (read-only). Classify all 121 skills into shared/arc-specific/runtime-builtin/delete. Cross-reference with `aibtcdev/skills`. Produce migration manifest at `docs/skill-classification.json` | Opus | P3 | workflow #518 | Planning |
-| Q2 | `runtime-extraction` | Create clean `aibtcdev/aibtc-agent` repo in a separate directory. Extract generic engine code from arc-starter. Rename CLI to `aibtc-agent`. Remove personality coupling. Build `init` + `skills add`. Fix dependency inversion, skill name validation, and parseFlags dedup as part of the clean extraction (not in-place modification) | Opus | P3 | — | Not started |
-| Q3 | `engine-validation` | Spin up a fresh agent using the new engine. Blank VM test: `aibtc-agent init` → `aibtc-agent skills add` → services install → sensors run → dispatch completes a task. Target: <5 minutes from clone to working agent | Opus | P3 | — | Not started |
-| Q4 | `arc-migration` | Create `arc0btc/arc` instance repo. Move Arc's personality, memory, and Arc-specific skills into it. Wire `aibtc-agent` as submodule. Boot Arc from new structure. Verify zero downtime, zero data loss. Rollback plan: arc-starter still intact | Opus | P3 | — | Not started |
+| Q1 | `skill-classification` | Analyze arc-starter (read-only). Classify all 121 skills into shared/arc-specific/runtime-builtin/delete. Cross-reference with `aibtcdev/skills`. Produce migration manifest at `docs/skill-classification.json` | Opus | P3 | workflow #518 | Completed |
+| Q2 | `runtime-extraction` | Create clean `aibtcdev/agent-runtime` at `/home/dev/agent-runtime/`. Extract minimal engine from arc-starter. CLI: `art`. Minimal DB schema, short CLAUDE.md, fill-in SOUL.md template. Fix known issues during extraction | Opus | P3 | workflow #547 | Planning |
+| Q3 | `engine-validation` | Spin up a fresh agent using the new engine. Blank VM test: `art init` → `art skills add` → `art services install` → `art sensors` → `art run` completes a task. Target: <5 minutes from clone to working agent | Opus | P3 | — | Not started |
+| Q4 | `arc-migration` | Create `arc0btc/arc` instance repo. Move Arc's personality, memory, and Arc-specific skills into it. Wire `agent-runtime` as submodule. `arc` aliases to `art`. Boot Arc from new structure. Verify zero downtime, zero data loss. Rollback plan: arc-starter still intact | Opus | P3 | — | Not started |
 
 **What changed from the original plan:**
 - Old Q1 (`repo-cleanup`) is **absorbed into Q2** — the audit findings (dependency inversion, skill validation, ghost skills, parseFlags dedup) get fixed during extraction rather than in-place modification of arc-starter
@@ -92,7 +92,7 @@ Original quest plan in `docs/quest-repo-reorg.md`. Formalized as ARC-0100. Reseq
 
 ### Phase 2: Post-Split Hardening
 
-These quests address debt quantified by the v6 audit (S7) that was explicitly deferred from Phase 1. They target the engine repo (`aibtcdev/aibtc-agent`) after extraction.
+These quests address debt quantified by the v6 audit (S7) that was explicitly deferred from Phase 1. They target the engine repo (`aibtcdev/agent-runtime`) after extraction.
 
 | Quest | Slug | Goal | Model | Source |
 |-------|------|------|-------|--------|
@@ -170,7 +170,7 @@ Derived from v6 roadmap review (S13), directives D1 (services business) and D2 (
 | Quest | Slug | Goal | Model | Source |
 |-------|------|------|-------|--------|
 | Q15 | `monitoring-as-a-service` | Productize Arc's 74 sensors into a paid agent monitoring service. PR for ALB already on `feat/monitoring-service` branch (#6792). x402 payment integration. Agent-facing: site health, deploy status, uptime. Revenue target: first paid service | Opus | S3 (P2 revenue), S13, task #7190 |
-| Q16 | `fleet-lean-restart` | When Anthropic suspension lifts: API key per agent (not shared OAuth), lean provisioning (zero inherited personality), clean identity boundaries (no git-reset-hard sync). Applies to engine: `aibtc-agent init` should handle this cleanly | Opus | S2 §4, S3 (P3 fleet), S13 |
+| Q16 | `fleet-lean-restart` | When Anthropic suspension lifts: API key per agent (not shared OAuth), lean provisioning (zero inherited personality), clean identity boundaries (no git-reset-hard sync). Applies to engine: `agent-runtime init` should handle this cleanly | Opus | S2 §4, S3 (P3 fleet), S13 |
 | Q17 | `task-description-enrichment` | Complete G1 resolution: enrich sensor-generated task descriptions across top 20 skills. Remaining AGENT.md fixes from #7453-7458. Sensor templates that include context, expected output, and scope boundaries | Sonnet | S4 G1, S5, task #7402 |
 
 **Depends on:** Q3 + Q4 (fleet restart needs the instance model). Q15 can start now (branch exists).
@@ -227,6 +227,7 @@ Track key decisions made during roadmap execution here.
 
 | Date | Decision | Context | Made By |
 |------|----------|---------|---------|
+| 2026-03-22 | Engine repo: `aibtcdev/agent-runtime`. CLI binary: `art` (Agent Runtime Terminal). Instance repos alias if desired (Arc: `arc` → `art`) | Avoids confusion with `loop-starter-kit`. `art init`, `art tasks`, `art run`. No Unix conflict | whoabuddy |
 | 2026-03-21 | Build-new-first: do not modify arc-starter during reorg. Build engine as new repo, prove it with a fresh agent, migrate Arc last | Arc running 455 tasks/day — in-place modification too risky | whoabuddy |
 | 2026-03-20 | All skills from submodules (no default skills in engine) | RFC thread email #857 | whoabuddy |
 | 2026-03-20 | ARC proposals live in instance repo until different maintainer | RFC thread email #857 | whoabuddy |

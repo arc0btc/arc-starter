@@ -3,7 +3,7 @@
 *Created: 2026-03-20 by whoabuddy + Claude*
 *Audit reference: reports/2026-03-20T01-30Z_arc_v6_deep_dive_audit.md*
 *Roadmap context: docs/roadmap-v7.md (this plan is Phase 1 of the v7 roadmap)*
-*Goal: Split arc-starter into a clean engine + instance repos. End state: blank VM → `aibtc-agent init` → working agent in minutes.*
+*Goal: Split arc-starter into a clean engine + instance repos. End state: blank VM → `ar init` → working agent in minutes.*
 
 ---
 
@@ -16,7 +16,7 @@ The v6 audit also identified structural issues that block clean extraction: `src
 ## Target Architecture
 
 ```
-aibtcdev/aibtc-agent      ← the engine (renamed from arc-starter, platform-branded)
+aibtcdev/agent-runtime      ← the engine (renamed from arc-starter, platform-branded)
 aibtcdev/skills           ← shared skills (already exists, expand it — submodule in agent instances)
 arc0btc/arc               ← Arc's instance (personality + custom skills + memory)
 ```
@@ -28,11 +28,11 @@ Connected via git submodules (Option A — simplest wins).
 
 ## Naming Decision
 
-The CLI binary is currently `arc` — that's a personality name, not a tool name. The runtime binary becomes `aibtc-agent`. Commands: `aibtc-agent init`, `aibtc-agent skills add`, `aibtc-agent services start`. Instance repos can alias it to their agent name (e.g., Arc aliases `arc` → `aibtc-agent`).
+The CLI binary is currently `arc` — that's a personality name, not a tool name. The runtime binary becomes `art` (Agent Runtime Terminal). Commands: `art init`, `art skills add`, `art services start`. Instance repos can alias it to their agent name (e.g., Arc aliases `arc` → `art`).
 
 ## Design Goal
 
-Start with a brand new, blank VM. Install aibtc-agent. Init an agent with specific tasks in mind. Keep it very scoped and simple. No inherited personality, no fleet baggage, no 121 skills. Just an engine and the skills you choose.
+Start with a brand new, blank VM. Install agent-runtime. Init an agent with specific tasks in mind. Keep it very scoped and simple. No inherited personality, no fleet baggage, no 121 skills. Just an engine and the skills you choose.
 
 ---
 
@@ -121,7 +121,7 @@ These quests are ordered. Each depends on the previous. Execute them sequentiall
 
 ### Quest 3: `runtime-extraction`
 
-**Goal:** Create the clean `aibtc-agent` repo. No personality, no instance content. A blank engine that boots clean on a fresh VM.
+**Goal:** Create the clean `agent-runtime` repo. No personality, no instance content. A blank engine that boots clean on a fresh VM.
 
 **Skills:** `arc-skill-manager, quest-create`
 **Model:** opus
@@ -130,7 +130,7 @@ These quests are ordered. Each depends on the previous. Execute them sequentiall
 **Phases:**
 
 1. **Scaffold: create the runtime repo structure**
-   - New repo `aibtcdev/aibtc-agent`
+   - New repo `aibtcdev/agent-runtime`
    - Copy `src/` (all core runtime files — credential store now lives here after Quest 1)
    - Copy `bin/`, `scripts/install-prerequisites.sh`, `package.json`, `tsconfig.json`
    - Copy `SOUL.template.md`, `.env.example`, `LICENSE`
@@ -138,7 +138,7 @@ These quests are ordered. Each depends on the previous. Execute them sequentiall
    - Write generic `CLAUDE.md` — strip Arc identity, fleet roster, GitHub policy. Keep architecture, task queue docs, dispatch instructions, conventions.
    - Write generic `README.md` — framework docs, not Arc's story
    - `memory/.gitkeep`, `templates/.gitkeep`
-   - Rename CLI binary from `arc` to `aibtc-agent` in bin/, package.json, src/cli.ts, services.ts
+   - Rename CLI binary from `arc` to `art` in bin/, package.json, src/cli.ts, services.ts
    - Ensure `parseFlags` is exported from `src/utils.ts` so skills import it instead of copying
 
 2. **Genericize src/: remove personality coupling**
@@ -148,21 +148,21 @@ These quests are ordered. Each depends on the previous. Execute them sequentiall
    - Keep `src/web.ts` as-is for now (the god-file split is real debt but not blocking extraction)
    - Ensure services install uses the generic binary name
 
-3. **Init scaffolding: build `aibtc-agent init` and `aibtc-agent skills add`**
-   - `aibtc-agent init` prompts for: agent name, BNS name (optional), wallet address (optional)
+3. **Init scaffolding: build `ar init` and `ar skills add`**
+   - `ar init` prompts for: agent name, BNS name (optional), wallet address (optional)
    - Generates SOUL.md from SOUL.template.md with provided values
    - Creates empty MEMORY.md, empty GOALS.md
    - Creates `.env` from `.env.example` with `chmod 600`
    - Initializes empty SQLite database
-   - `aibtc-agent skills add <github-org/repo>` clones and copies skill directories into local `skills/`
-   - `aibtc-agent skills add <github-org/repo> --submodule` adds as git submodule instead
+   - `ar skills add <github-org/repo>` clones and copies skill directories into local `skills/`
+   - `ar skills add <github-org/repo> --submodule` adds as git submodule instead
 
 4. **Validate: blank VM test**
-   - Fresh clone of aibtc-agent on a clean environment
-   - Run `aibtc-agent init` with test values
-   - Run `aibtc-agent services install` — verify systemd units generate correctly
-   - Run `aibtc-agent sensors` — verify it discovers only builtin skills, runs cleanly
-   - Run `aibtc-agent run` — verify dispatch starts and exits cleanly with no tasks
+   - Fresh clone of agent-runtime on a clean environment
+   - Run `ar init` with test values
+   - Run `ar services install` — verify systemd units generate correctly
+   - Run `ar sensors` — verify it discovers only builtin skills, runs cleanly
+   - Run `ar run` — verify dispatch starts and exits cleanly with no tasks
    - Add `aibtcdev/skills` as submodule, verify sensor discovery finds submodule skills
    - Total time from clone to running agent: target <5 minutes
 
@@ -170,7 +170,7 @@ These quests are ordered. Each depends on the previous. Execute them sequentiall
 
 ### Quest 4: `instance-separation`
 
-**Goal:** Create Arc's instance repo that uses aibtc-agent as a submodule and contains only Arc-specific content.
+**Goal:** Create Arc's instance repo that uses agent-runtime as a submodule and contains only Arc-specific content.
 
 **Skills:** `arc-skill-manager, quest-create`
 **Model:** opus
@@ -179,7 +179,7 @@ These quests are ordered. Each depends on the previous. Execute them sequentiall
 **Phases:**
 
 1. **Scaffold: create arc0btc/arc repo structure**
-   - `runtime/` ← git submodule pointing to `aibtcdev/aibtc-agent`
+   - `runtime/` ← git submodule pointing to `aibtcdev/agent-runtime`
    - `skills/aibtc/` ← git submodule pointing to `aibtcdev/skills`
    - `skills/arc-*/` ← Arc-specific skills (from Quest 2 manifest), committed directly
    - Copy Arc's `SOUL.md`, `GOALS.md`
@@ -188,9 +188,9 @@ These quests are ordered. Each depends on the previous. Execute them sequentiall
    - `design/`, `templates/` (Arc-specific ones only)
 
 2. **Wire runtime: connect submodules and verify boot**
-   - Add aibtc-agent as git submodule at `runtime/`
+   - Add agent-runtime as git submodule at `runtime/`
    - Add aibtcdev/skills as git submodule at `skills/aibtc/`
-   - Create wrapper script: `bin/arc` → runs `runtime/bin/aibtc-agent` with correct paths
+   - Create wrapper script: `bin/arc` → runs `runtime/bin/ar` with correct paths
    - Update sensor discovery to scan both `skills/` and `skills/aibtc/` for sensor.ts files
    - Verify `arc services install` generates correct systemd units pointing to instance paths
    - Document the fork-on-write pattern: to customize a shared skill, copy it from `skills/aibtc/<name>` to `skills/<name>`
@@ -281,14 +281,14 @@ arc skills run --name quest-create -- init \
 # Quest 3: Runtime extraction (after Quest 2 completes)
 arc skills run --name quest-create -- init \
   --slug runtime-extraction \
-  --goal "Create aibtcdev/aibtc-agent repo — clean engine, no personality. Rename CLI to aibtc-agent. Remove fleet code from engine. Build aibtc-agent init + skills add. Validate on blank environment. Reference: docs/quest-repo-reorg.md Quest 3 phases." \
+  --goal "Create aibtcdev/agent-runtime repo — clean engine, no personality. Rename CLI to art. Remove fleet code from engine. Build art init + skills add. Validate on blank environment. Reference: docs/quest-repo-reorg.md Quest 3 phases." \
   --skills arc-skill-manager,quest-create \
   --model opus
 
 # Quest 4: Instance separation (after Quest 3 completes)
 arc skills run --name quest-create -- init \
   --slug instance-separation \
-  --goal "Create arc0btc/arc instance repo. Submodules: aibtcdev/aibtc-agent at runtime/, aibtcdev/skills at skills/aibtc/. Move Arc-specific skills, memory, identity. Verify Arc boots from new structure. Reference: docs/quest-repo-reorg.md Quest 4 phases." \
+  --goal "Create arc0btc/arc instance repo. Submodules: aibtcdev/agent-runtime at runtime/, aibtcdev/skills at skills/aibtc/. Move Arc-specific skills, memory, identity. Verify Arc boots from new structure. Reference: docs/quest-repo-reorg.md Quest 4 phases." \
   --skills arc-skill-manager,quest-create \
   --model opus
 
@@ -304,10 +304,10 @@ arc skills run --name quest-create -- init \
 
 ## Success Criteria
 
-1. **Blank VM test passes:** `git clone aibtcdev/aibtc-agent && aibtc-agent init && aibtc-agent skills add aibtcdev/skills --submodule` → working agent in <5 minutes with zero inherited personality
+1. **Blank VM test passes:** `git clone aibtcdev/agent-runtime && art init && art skills add aibtcdev/skills --submodule` → working agent in <5 minutes with zero inherited personality
 2. **Arc boots from `arc0btc/arc`** with runtime + skills as submodules, all services working
 3. **Shared skills live in `aibtcdev/skills`**, not duplicated across agent instances
-4. **arc-starter repo is archived** or redirects to aibtc-agent
-5. **No personality in the engine:** the word "arc" doesn't appear in aibtc-agent except as a generic example
+4. **arc-starter repo is archived** or redirects to agent-runtime
+5. **No personality in the engine:** the word "arc" doesn't appear in agent-runtime except as a generic example
 6. **No dependency inversion:** `src/` never imports from `skills/`
 7. **Skill names validated:** dispatch rejects invalid names, logs warnings for ghost references
