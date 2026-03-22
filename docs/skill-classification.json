@@ -1,0 +1,1248 @@
+{
+  "generated": "2026-03-22T02:45Z",
+  "phase": "3-usage-validation",
+  "source_inventory": "docs/skill-inventory.json",
+  "total_skills": 122,
+  "summary": {
+    "shared": 37,
+    "arc_specific": 68,
+    "runtime_builtin": 8,
+    "delete": 9
+  },
+  "skills": [
+    {
+      "name": "agent-hub",
+      "bucket": "arc_specific",
+      "usage_30d": 3,
+      "arc_refs": ["fleet IPs hardcoded", "Arc BTC/STX addresses in sensor.ts"],
+      "upstream": null,
+      "notes": "Fleet-internal registry with hardcoded fleet roster. Arc-specific."
+    },
+    {
+      "name": "aibtc-dev-ops",
+      "bucket": "shared",
+      "usage_30d": 17,
+      "arc_refs": [],
+      "upstream": null,
+      "upstream_candidate": true,
+      "notes": "Generic devops monitoring for aibtcdev repos. No arc-specific refs."
+    },
+    {
+      "name": "aibtc-heartbeat",
+      "bucket": "shared",
+      "usage_30d": 11,
+      "arc_refs": [],
+      "upstream": null,
+      "upstream_candidate": true,
+      "notes": "BIP-137 signed heartbeat — any agent could use this."
+    },
+    {
+      "name": "aibtc-inbox-sync",
+      "bucket": "arc_specific",
+      "usage_30d": 16,
+      "arc_refs": ["Arc BTC address in SKILL.md/AGENT.md", "whoabuddy trusted addresses"],
+      "upstream": "inbox",
+      "notes": "Has hardcoded Arc address and whoabuddy trust rules. Upstream 'inbox' exists."
+    },
+    {
+      "name": "aibtc-news-classifieds",
+      "bucket": "shared",
+      "usage_30d": 17,
+      "arc_refs": [],
+      "upstream": "aibtc-news-classifieds",
+      "notes": "Generic classifieds API wrapper. Exists upstream."
+    },
+    {
+      "name": "aibtc-news-deal-flow",
+      "bucket": "arc_specific",
+      "usage_30d": 5,
+      "arc_refs": ["Arc BTC address in AGENT.md", "Arc STX address in sensor.ts", "whoabuddy refs"],
+      "upstream": "aibtc-news-deal-flow",
+      "notes": "Beat claimed by Arc with hardcoded identity. Upstream version likely cleaner."
+    },
+    {
+      "name": "aibtc-news-editorial",
+      "bucket": "arc_specific",
+      "usage_30d": 251,
+      "arc_refs": ["Arc BTC address in SKILL.md and AGENT.md (40+ refs)"],
+      "upstream": "aibtc-news-correspondent",
+      "notes": "Heavy Arc identity coupling — signal filing uses Arc's BTC address throughout. High usage. Upstream 'aibtc-news-correspondent' is the generic equivalent."
+    },
+    {
+      "name": "aibtc-repo-maintenance",
+      "bucket": "shared",
+      "usage_30d": 1022,
+      "arc_refs": [],
+      "upstream": null,
+      "upstream_candidate": true,
+      "notes": "Highest usage shared skill. Generic repo maintenance — no arc-specific refs."
+    },
+    {
+      "name": "aibtc-welcome",
+      "bucket": "arc_specific",
+      "usage_30d": 177,
+      "arc_refs": ["Arc STX address hardcoded", "fleet agent names in SKILL.md"],
+      "upstream": "onboarding",
+      "notes": "Hardcoded Arc STX sender address and fleet skip list."
+    },
+    {
+      "name": "alb",
+      "bucket": "arc_specific",
+      "usage_30d": 14,
+      "arc_refs": ["Arc BTC/STX addresses hardcoded in sensor.ts/cli.ts", "whoabuddy ref"],
+      "upstream": null,
+      "notes": "ALB inbox is for trustless-indra specifically. Hardcoded addresses."
+    },
+    {
+      "name": "arc-alive-check",
+      "bucket": "runtime_builtin",
+      "usage_30d": 1,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Generic dispatch canary — any agent needs this."
+    },
+    {
+      "name": "arc-architecture-review",
+      "bucket": "arc_specific",
+      "usage_30d": 47,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Arc-prefixed, reviews Arc's own architecture. Instance-specific."
+    },
+    {
+      "name": "arc-blocked-review",
+      "bucket": "arc_specific",
+      "usage_30d": 38,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Reviews Arc's blocked tasks. Instance operational skill."
+    },
+    {
+      "name": "arc-bounty-scanner",
+      "bucket": "delete",
+      "usage_30d": 0,
+      "arc_refs": [],
+      "upstream": "bounty-scanner",
+      "notes": "Zero usage in 30 days. Upstream bounty-scanner exists."
+    },
+    {
+      "name": "arc-brand-voice",
+      "bucket": "arc_specific",
+      "usage_30d": 25,
+      "arc_refs": ["whoabuddy refs", "Trustless Indra identity", "Arc brand voice in cli.ts"],
+      "upstream": null,
+      "notes": "Arc's unique brand identity — inherently instance-specific."
+    },
+    {
+      "name": "arc-catalog",
+      "bucket": "arc_specific",
+      "usage_30d": 55,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Publishes to arc0me-site. Instance deployment coupling."
+    },
+    {
+      "name": "arc-ceo-review",
+      "bucket": "arc_specific",
+      "usage_30d": 28,
+      "arc_refs": ["whoabuddy refs", "Spark status ref"],
+      "upstream": "ceo",
+      "notes": "Arc's CEO review with fleet-specific context. Upstream 'ceo' is generic."
+    },
+    {
+      "name": "arc-ceo-strategy",
+      "bucket": "arc_specific",
+      "usage_30d": 9,
+      "arc_refs": ["whoabuddy escalation refs"],
+      "upstream": "ceo",
+      "notes": "Arc's strategic operating manual. Instance-specific."
+    },
+    {
+      "name": "arc-content-quality",
+      "bucket": "shared",
+      "usage_30d": 0,
+      "arc_refs": [],
+      "upstream": null,
+      "upstream_candidate": true,
+      "notes": "Generic content quality gate. Zero usage but useful pattern. Keep as shared candidate."
+    },
+    {
+      "name": "arc-cost-reporting",
+      "bucket": "arc_specific",
+      "usage_30d": 103,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Instance cost tracking. Arc-prefixed operational skill."
+    },
+    {
+      "name": "arc-credentials",
+      "bucket": "runtime_builtin",
+      "usage_30d": 18,
+      "arc_refs": [],
+      "upstream": "credentials",
+      "notes": "Core credential store — any agent needs this. Upstream 'credentials' exists."
+    },
+    {
+      "name": "arc-dispatch-eval",
+      "bucket": "delete",
+      "usage_30d": 1,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Duplicate of arc-dispatch-evals. Consolidate. 1 use in 30d."
+    },
+    {
+      "name": "arc-dispatch-evals",
+      "bucket": "arc_specific",
+      "usage_30d": 1,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Dispatch quality evaluation. Low usage but instance-specific ops."
+    },
+    {
+      "name": "arc-email-sync",
+      "bucket": "arc_specific",
+      "usage_30d": 319,
+      "arc_refs": ["whoabuddy priority routing (6+ refs in sensor.ts, SKILL.md, AGENT.md)"],
+      "upstream": null,
+      "notes": "Heavy whoabuddy-specific routing logic. High usage, deeply Arc-specific."
+    },
+    {
+      "name": "arc-failure-triage",
+      "bucket": "arc_specific",
+      "usage_30d": 102,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Arc instance failure triage. Operational."
+    },
+    {
+      "name": "arc-housekeeping",
+      "bucket": "arc_specific",
+      "usage_30d": 151,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Arc instance repo hygiene. Could be genericized but currently arc-prefixed."
+    },
+    {
+      "name": "arc-inbox",
+      "bucket": "arc_specific",
+      "usage_30d": 2,
+      "arc_refs": ["Arc STX address in contract and SKILL.md"],
+      "upstream": "inbox",
+      "notes": "Clarity contract deployed by Arc's STX address. Instance-specific on-chain."
+    },
+    {
+      "name": "arc-introspection",
+      "bucket": "arc_specific",
+      "usage_30d": 15,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Arc's self-assessment. Instance-specific."
+    },
+    {
+      "name": "arc-link-research",
+      "bucket": "arc_specific",
+      "usage_30d": 44,
+      "arc_refs": ["whoabuddy ref in SKILL.md"],
+      "upstream": null,
+      "notes": "Processes links dropped by whoabuddy. Arc-specific relationship."
+    },
+    {
+      "name": "arc-mcp",
+      "bucket": "delete",
+      "usage_30d": 0,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Zero usage. Superseded by arc-mcp-server."
+    },
+    {
+      "name": "arc-mcp-server",
+      "bucket": "arc_specific",
+      "usage_30d": 6,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Exposes Arc's task queue via MCP. Instance-specific API surface."
+    },
+    {
+      "name": "arc-memory",
+      "bucket": "arc_specific",
+      "usage_30d": 4,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Arc's pattern libraries and decision frameworks. Instance-specific."
+    },
+    {
+      "name": "arc-monitoring-service",
+      "bucket": "arc_specific",
+      "usage_30d": 1,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Arc's paid monitoring service (D1). Low usage, monetization-specific."
+    },
+    {
+      "name": "arc-observatory",
+      "bucket": "arc_specific",
+      "usage_30d": 38,
+      "arc_refs": ["fleet IPs in fleet.json", "Spark/Iris/Loom/Forge in SKILL.md"],
+      "upstream": null,
+      "notes": "Fleet observability UI with hardcoded fleet roster."
+    },
+    {
+      "name": "arc-opensource",
+      "bucket": "arc_specific",
+      "usage_30d": 6,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Maintains arc-starter as open source project. Instance-specific."
+    },
+    {
+      "name": "arc-ops-review",
+      "bucket": "arc_specific",
+      "usage_30d": 5,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Arc instance operational metrics."
+    },
+    {
+      "name": "arc-payments",
+      "bucket": "arc_specific",
+      "usage_30d": 7,
+      "arc_refs": ["Arc STX address in SKILL.md"],
+      "upstream": null,
+      "notes": "Watches for payments to Arc's address. Instance-specific."
+    },
+    {
+      "name": "arc-performance-analytics",
+      "bucket": "arc_specific",
+      "usage_30d": 13,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Arc instance performance analytics."
+    },
+    {
+      "name": "arc-remote-setup",
+      "bucket": "arc_specific",
+      "usage_30d": 375,
+      "arc_refs": ["all fleet IPs", "whoabuddy SSH keys", "Spark/Iris/Loom/Forge roster"],
+      "upstream": null,
+      "notes": "SSH provisioning with hardcoded fleet topology. Very high usage, deeply Arc-specific."
+    },
+    {
+      "name": "arc-report-email",
+      "bucket": "arc_specific",
+      "usage_30d": 2,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Emails watch reports. Arc instance operational."
+    },
+    {
+      "name": "arc-reporting",
+      "bucket": "arc_specific",
+      "usage_30d": 74,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Arc's watch reports and overnight briefs. Instance-specific."
+    },
+    {
+      "name": "arc-reputation",
+      "bucket": "arc_specific",
+      "usage_30d": 4,
+      "arc_refs": ["Arc BTC address in METHODOLOGY.md"],
+      "upstream": "reputation",
+      "notes": "Signed peer reviews with Arc's BTC address. Upstream 'reputation' exists."
+    },
+    {
+      "name": "arc-scheduler",
+      "bucket": "runtime_builtin",
+      "usage_30d": 1,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Core scheduling capability — any agent needs deferred task creation."
+    },
+    {
+      "name": "arc-self-audit",
+      "bucket": "arc_specific",
+      "usage_30d": 21,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Daily self-audit of Arc's operations."
+    },
+    {
+      "name": "arc-self-review",
+      "bucket": "arc_specific",
+      "usage_30d": 9,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Arc's periodic self-review cycle."
+    },
+    {
+      "name": "arc-service-health",
+      "bucket": "runtime_builtin",
+      "usage_30d": 2,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Generic dispatch health detection — stale cycles, stuck dispatch. Any agent needs this."
+    },
+    {
+      "name": "arc-skill-manager",
+      "bucket": "runtime_builtin",
+      "usage_30d": 1962,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Core skill management. Highest usage skill (1962 tasks). Essential runtime capability."
+    },
+    {
+      "name": "arc-starter-publish",
+      "bucket": "arc_specific",
+      "usage_30d": 117,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Publishes arc-starter v2→main. Instance-specific git workflow."
+    },
+    {
+      "name": "arc-strategy-review",
+      "bucket": "arc_specific",
+      "usage_30d": 2,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Weekly strategy check against Arc's Five Directives."
+    },
+    {
+      "name": "arc-umbrel",
+      "bucket": "arc_specific",
+      "usage_30d": 5,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Bitcoin Core RPC via Arc's local Umbrel node at 192.168.1.106."
+    },
+    {
+      "name": "arc-web-dashboard",
+      "bucket": "arc_specific",
+      "usage_30d": 31,
+      "arc_refs": ["Arc BTC/STX addresses in AGENT.md"],
+      "upstream": null,
+      "notes": "Arc's live web dashboard with fleet roster."
+    },
+    {
+      "name": "arc-workflow-review",
+      "bucket": "arc_specific",
+      "usage_30d": 1,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Detects repeating patterns. Low usage, instance operational."
+    },
+    {
+      "name": "arc-workflows",
+      "bucket": "runtime_builtin",
+      "usage_30d": 87,
+      "arc_refs": ["Arc STX address in state-machine.ts comment", "whoabuddy in PSBT signing workflow"],
+      "upstream": null,
+      "notes": "Persistent state machines — core orchestration capability. Has arc-specific refs in PSBT workflow that need cleanup for genericization."
+    },
+    {
+      "name": "arc-worktrees",
+      "bucket": "runtime_builtin",
+      "usage_30d": 77,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Git worktree isolation for dispatch. Core safety mechanism."
+    },
+    {
+      "name": "arc0btc-ask-service",
+      "bucket": "arc_specific",
+      "usage_30d": 2,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Arc's paid Ask service on arc0btc.com."
+    },
+    {
+      "name": "arc0btc-monetization",
+      "bucket": "arc_specific",
+      "usage_30d": 14,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Arc's monetization strategy for arc0btc.com."
+    },
+    {
+      "name": "arc0btc-pr-review",
+      "bucket": "arc_specific",
+      "usage_30d": 1,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Arc's paid PR review service."
+    },
+    {
+      "name": "arc0btc-security-audit",
+      "bucket": "arc_specific",
+      "usage_30d": 0,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Arc's paid security audit service. Zero usage but actively listed service."
+    },
+    {
+      "name": "arc0btc-services",
+      "bucket": "arc_specific",
+      "usage_30d": 2,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Arc's services storefront for arc0btc.com."
+    },
+    {
+      "name": "arc0btc-site-health",
+      "bucket": "arc_specific",
+      "usage_30d": 58,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Monitors arc0btc.com. Instance-specific site monitoring."
+    },
+    {
+      "name": "arxiv-research",
+      "bucket": "shared",
+      "usage_30d": 25,
+      "arc_refs": [],
+      "upstream": "arxiv-research",
+      "notes": "Generic arXiv paper fetching. Exists upstream."
+    },
+    {
+      "name": "auto-queue",
+      "bucket": "arc_specific",
+      "usage_30d": 10,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Task batch generation based on Arc's completion patterns. Instance operational."
+    },
+    {
+      "name": "bitcoin-quorumclaw",
+      "bucket": "shared",
+      "usage_30d": 107,
+      "arc_refs": [],
+      "upstream": "psbt",
+      "notes": "QuorumClaw multisig API. Generic Bitcoin capability. Upstream 'psbt' is related."
+    },
+    {
+      "name": "bitcoin-taproot-multisig",
+      "bucket": "shared",
+      "usage_30d": 109,
+      "arc_refs": [],
+      "upstream": "taproot-multisig",
+      "notes": "Taproot M-of-N multisig. Generic Bitcoin capability. Upstream equivalent exists."
+    },
+    {
+      "name": "bitcoin-wallet",
+      "bucket": "shared",
+      "usage_30d": 527,
+      "arc_refs": ["Arc BTC/STX addresses in SKILL.md and AGENT.md (documentation only)"],
+      "upstream": "wallet",
+      "notes": "Core wallet management. Addresses in docs are examples, not functional hardcoding. Wallet reads from encrypted store at runtime. Upstream 'wallet' exists.",
+      "arc_refs_severity": "low-doc-only"
+    },
+    {
+      "name": "bitflow",
+      "bucket": "delete",
+      "usage_30d": 1,
+      "arc_refs": ["Arc STX address hardcoded as ARC_ADDRESS"],
+      "upstream": "bitflow",
+      "notes": "Superseded by defi-bitflow. 1 use in 30d. Duplicate. Upstream exists."
+    },
+    {
+      "name": "blog-deploy",
+      "bucket": "arc_specific",
+      "usage_30d": 194,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Deploys arc0me-site to Cloudflare Workers. Instance deployment."
+    },
+    {
+      "name": "blog-publishing",
+      "bucket": "arc_specific",
+      "usage_30d": 241,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Publishes blog posts to Arc's blog. Instance content."
+    },
+    {
+      "name": "claude-code-releases",
+      "bucket": "shared",
+      "usage_30d": 13,
+      "arc_refs": [],
+      "upstream": null,
+      "upstream_candidate": true,
+      "notes": "Generic Claude Code release monitoring. Any agent using Claude Code benefits."
+    },
+    {
+      "name": "code-audit",
+      "bucket": "shared",
+      "usage_30d": 0,
+      "arc_refs": ["Forge ref in SKILL.md description"],
+      "upstream": null,
+      "upstream_candidate": true,
+      "notes": "Generic static analysis/security scanning. Forge ref is trivial (description only). Zero usage — was Forge's skill, fleet is suspended.",
+      "arc_refs_severity": "low-doc-only"
+    },
+    {
+      "name": "compliance-review",
+      "bucket": "arc_specific",
+      "usage_30d": 29,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Audits against Arc's specific conventions. Instance-specific quality check."
+    },
+    {
+      "name": "contacts",
+      "bucket": "shared",
+      "usage_30d": 736,
+      "arc_refs": ["whoabuddy as CLI example in AGENT.md/cli.ts"],
+      "upstream": null,
+      "upstream_candidate": true,
+      "notes": "Generic CRM. whoabuddy refs are just CLI examples, not functional. Very high usage.",
+      "arc_refs_severity": "low-doc-only"
+    },
+    {
+      "name": "context-review",
+      "bucket": "arc_specific",
+      "usage_30d": 51,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Audits task-to-skill context mapping. Instance operational."
+    },
+    {
+      "name": "dao-zero-authority",
+      "bucket": "shared",
+      "usage_30d": 1,
+      "arc_refs": [],
+      "upstream": null,
+      "upstream_candidate": true,
+      "notes": "Generic DAO governance on Stacks. Low usage (sensor removed, CLI ready)."
+    },
+    {
+      "name": "defi-bitflow",
+      "bucket": "shared",
+      "usage_30d": 42,
+      "arc_refs": [],
+      "upstream": "bitflow",
+      "notes": "Bitflow DEX skill. No hardcoded addresses in code (uses wallet at runtime). Upstream 'bitflow' exists."
+    },
+    {
+      "name": "defi-compounding",
+      "bucket": "delete",
+      "usage_30d": 0,
+      "arc_refs": ["Arc STX address hardcoded as ARC_ADDRESS"],
+      "upstream": "yield-hunter",
+      "notes": "Zero usage. Hardcoded Arc address. Upstream 'yield-hunter' covers this."
+    },
+    {
+      "name": "defi-stacks-market",
+      "bucket": "shared",
+      "usage_30d": 26,
+      "arc_refs": [],
+      "upstream": "stacks-market",
+      "notes": "Prediction market trading. Generic. Upstream 'stacks-market' exists."
+    },
+    {
+      "name": "defi-zest",
+      "bucket": "shared",
+      "usage_30d": 13,
+      "arc_refs": ["Arc STX address hardcoded as ARC_ADDRESS in sensor.ts/cli.ts"],
+      "upstream": null,
+      "notes": "Zest lending protocol. Address should be read from wallet at runtime. Upstream has no direct equivalent.",
+      "arc_refs_severity": "medium-needs-cleanup"
+    },
+    {
+      "name": "dev-landing-page-review",
+      "bucket": "shared",
+      "usage_30d": 67,
+      "arc_refs": [],
+      "upstream": null,
+      "upstream_candidate": true,
+      "notes": "React/Next.js PR review rules. Generic frontend review capability."
+    },
+    {
+      "name": "erc8004-identity",
+      "bucket": "shared",
+      "usage_30d": 22,
+      "arc_refs": [],
+      "upstream": "erc8004",
+      "notes": "ERC-8004 identity management. Generic. Upstream 'erc8004' exists."
+    },
+    {
+      "name": "erc8004-indexer",
+      "bucket": "arc_specific",
+      "usage_30d": 15,
+      "arc_refs": ["Spark/Forge/Loom agent IDs hardcoded in cli.ts"],
+      "upstream": null,
+      "notes": "Indexes agents and publishes to arc0.me. Hardcoded fleet agent IDs."
+    },
+    {
+      "name": "erc8004-reputation",
+      "bucket": "shared",
+      "usage_30d": 45,
+      "arc_refs": [],
+      "upstream": "reputation",
+      "notes": "ERC-8004 reputation management. Generic. Upstream 'reputation' exists."
+    },
+    {
+      "name": "erc8004-trust",
+      "bucket": "shared",
+      "usage_30d": 0,
+      "arc_refs": [],
+      "upstream": "reputation",
+      "notes": "Trust score aggregation. Generic, read-only. Zero usage but useful pattern."
+    },
+    {
+      "name": "erc8004-validation",
+      "bucket": "shared",
+      "usage_30d": 2,
+      "arc_refs": [],
+      "upstream": "validation",
+      "notes": "ERC-8004 validation management. Generic. Upstream 'validation' exists."
+    },
+    {
+      "name": "fleet-comms",
+      "bucket": "arc_specific",
+      "usage_30d": 6,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Detects silent fleet agents. Fleet-specific."
+    },
+    {
+      "name": "fleet-dashboard",
+      "bucket": "arc_specific",
+      "usage_30d": 24,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Fleet metrics aggregation. Fleet-specific."
+    },
+    {
+      "name": "fleet-escalation",
+      "bucket": "arc_specific",
+      "usage_30d": 577,
+      "arc_refs": ["whoabuddy email notifications (6+ refs)"],
+      "upstream": null,
+      "notes": "Fleet escalation to Arc/whoabuddy. Very high usage, deeply fleet-specific."
+    },
+    {
+      "name": "fleet-handoff",
+      "bucket": "arc_specific",
+      "usage_30d": 64,
+      "arc_refs": ["Arc IP in cli.ts"],
+      "upstream": null,
+      "notes": "Routes tasks between fleet agents. Fleet-specific."
+    },
+    {
+      "name": "fleet-health",
+      "bucket": "arc_specific",
+      "usage_30d": 267,
+      "arc_refs": ["all fleet IPs hardcoded", "Spark/Iris/Loom/Forge roster"],
+      "upstream": null,
+      "notes": "Fleet VM health monitoring. Hardcoded fleet topology."
+    },
+    {
+      "name": "fleet-log-pull",
+      "bucket": "delete",
+      "usage_30d": 0,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Zero usage. Fleet suspended. Redundant with fleet-health."
+    },
+    {
+      "name": "fleet-memory",
+      "bucket": "arc_specific",
+      "usage_30d": 58,
+      "arc_refs": ["Spark/Iris/Loom/Forge refs"],
+      "upstream": null,
+      "notes": "Cross-fleet memory distribution. Fleet-specific."
+    },
+    {
+      "name": "fleet-push",
+      "bucket": "arc_specific",
+      "usage_30d": 12,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Code deployment to fleet. Fleet-specific."
+    },
+    {
+      "name": "fleet-rebalance",
+      "bucket": "delete",
+      "usage_30d": 1,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Work-stealing rebalancer. 1 use. Fleet suspended, minimal value."
+    },
+    {
+      "name": "fleet-router",
+      "bucket": "arc_specific",
+      "usage_30d": 5,
+      "arc_refs": ["Spark/Iris/Loom/Forge routing matrix hardcoded"],
+      "upstream": null,
+      "notes": "Task routing with hardcoded agent domain mapping."
+    },
+    {
+      "name": "fleet-self-sync",
+      "bucket": "arc_specific",
+      "usage_30d": 8,
+      "arc_refs": ["Arc BTC/STX addresses in fleet roster"],
+      "upstream": null,
+      "notes": "Worker git bundle sync. Hardcoded fleet roster."
+    },
+    {
+      "name": "fleet-sync",
+      "bucket": "arc_specific",
+      "usage_30d": 112,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "CLAUDE.md/skills sync across fleet. Fleet-specific."
+    },
+    {
+      "name": "github-ci-status",
+      "bucket": "shared",
+      "usage_30d": 191,
+      "arc_refs": [],
+      "upstream": null,
+      "upstream_candidate": true,
+      "notes": "Generic GitHub Actions CI monitoring. No arc-specific refs."
+    },
+    {
+      "name": "github-interceptor",
+      "bucket": "arc_specific",
+      "usage_30d": 0,
+      "arc_refs": ["Spark/Forge worker refs"],
+      "upstream": null,
+      "notes": "Routes blocked GitHub tasks from workers to Arc. Fleet-specific. Zero usage (fleet suspended)."
+    },
+    {
+      "name": "github-issue-monitor",
+      "bucket": "shared",
+      "usage_30d": 1,
+      "arc_refs": ["whoabuddy contributor refs"],
+      "upstream": null,
+      "upstream_candidate": true,
+      "notes": "Generic GitHub issue monitoring. whoabuddy refs are contributor context, not functional.",
+      "arc_refs_severity": "low-doc-only"
+    },
+    {
+      "name": "github-issues",
+      "bucket": "shared",
+      "usage_30d": 238,
+      "arc_refs": [],
+      "upstream": null,
+      "upstream_candidate": true,
+      "notes": "Generic GitHub issue triage. High usage, no arc-specific refs."
+    },
+    {
+      "name": "github-mentions",
+      "bucket": "shared",
+      "usage_30d": 7,
+      "arc_refs": ["whoabuddy merge authority ref", "Spark GitHub-restricted ref"],
+      "upstream": null,
+      "upstream_candidate": true,
+      "notes": "GitHub notification engagement. whoabuddy/Spark refs are org context.",
+      "arc_refs_severity": "low-doc-only"
+    },
+    {
+      "name": "github-release-watcher",
+      "bucket": "shared",
+      "usage_30d": 2,
+      "arc_refs": [],
+      "upstream": null,
+      "upstream_candidate": true,
+      "notes": "Generic release monitoring for watched repos."
+    },
+    {
+      "name": "github-security-alerts",
+      "bucket": "shared",
+      "usage_30d": 2,
+      "arc_refs": [],
+      "upstream": null,
+      "upstream_candidate": true,
+      "notes": "Generic Dependabot alert monitoring."
+    },
+    {
+      "name": "github-worker-logs",
+      "bucket": "arc_specific",
+      "usage_30d": 24,
+      "arc_refs": ["whoabuddy/worker-logs repo refs", "Spark PR review refs"],
+      "upstream": null,
+      "notes": "Syncs whoabuddy's worker-logs forks. Arc/fleet-specific."
+    },
+    {
+      "name": "identity-guard",
+      "bucket": "arc_specific",
+      "usage_30d": 0,
+      "arc_refs": ["Arc BTC/STX addresses", "Spark/Iris/Loom/Forge identity markers"],
+      "upstream": "identity",
+      "notes": "Fleet identity validation with hardcoded roster. Zero usage."
+    },
+    {
+      "name": "jingswap",
+      "bucket": "shared",
+      "usage_30d": 1,
+      "arc_refs": [],
+      "upstream": "jingswap",
+      "notes": "Jingswap DEX on Stacks. Generic DeFi. Upstream exists."
+    },
+    {
+      "name": "maximumsats",
+      "bucket": "shared",
+      "usage_30d": 2,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Nostr WoT scoring via MaximumSats API. Generic trust tool."
+    },
+    {
+      "name": "mempool-watch",
+      "bucket": "shared",
+      "usage_30d": 0,
+      "arc_refs": [],
+      "upstream": "mempool-watch",
+      "notes": "Bitcoin mempool monitoring. Generic. Zero usage but useful. Upstream exists."
+    },
+    {
+      "name": "nostr-wot",
+      "bucket": "shared",
+      "usage_30d": 2,
+      "arc_refs": [],
+      "upstream": "nostr-wot",
+      "notes": "Nostr Web of Trust. Generic trust layer. Upstream exists."
+    },
+    {
+      "name": "ordinals-market-data",
+      "bucket": "shared",
+      "usage_30d": 12,
+      "arc_refs": [],
+      "upstream": "ordinals",
+      "notes": "Ordinals market data and signal filing. Generic. Upstream 'ordinals' exists."
+    },
+    {
+      "name": "quest-create",
+      "bucket": "runtime_builtin",
+      "usage_30d": 5,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Quest decomposition and phase management. Core orchestration capability."
+    },
+    {
+      "name": "site-consistency",
+      "bucket": "arc_specific",
+      "usage_30d": 6,
+      "arc_refs": ["arc0.me and arc0btc.com URLs hardcoded throughout"],
+      "upstream": null,
+      "notes": "Cross-site drift detection between Arc's two sites."
+    },
+    {
+      "name": "skill-effectiveness",
+      "bucket": "delete",
+      "usage_30d": 4,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Tracks SKILL.md version→outcome correlation. 4 uses. Experimental, low proven value."
+    },
+    {
+      "name": "social-agent-engagement",
+      "bucket": "shared",
+      "usage_30d": 254,
+      "arc_refs": ["Spark Topaz Centaur ref in AGENT.md/cli.ts"],
+      "upstream": null,
+      "upstream_candidate": true,
+      "notes": "AIBTC agent outreach. Spark ref is agent directory data, not functional.",
+      "arc_refs_severity": "low-doc-only"
+    },
+    {
+      "name": "social-x-ecosystem",
+      "bucket": "shared",
+      "usage_30d": 1,
+      "arc_refs": [],
+      "upstream": null,
+      "upstream_candidate": true,
+      "notes": "X ecosystem keyword monitoring. Generic social listening."
+    },
+    {
+      "name": "social-x-posting",
+      "bucket": "shared",
+      "usage_30d": 129,
+      "arc_refs": [],
+      "upstream": null,
+      "upstream_candidate": true,
+      "notes": "Generic X posting via API v2. High usage, no arc-specific refs."
+    },
+    {
+      "name": "stacks-stackspot",
+      "bucket": "shared",
+      "usage_30d": 12,
+      "arc_refs": ["Arc BTC/STX addresses in SKILL.md documentation"],
+      "upstream": "stackspot",
+      "notes": "Stacking participation. Addresses in docs only. Upstream 'stackspot' exists.",
+      "arc_refs_severity": "low-doc-only"
+    },
+    {
+      "name": "styx",
+      "bucket": "shared",
+      "usage_30d": 0,
+      "arc_refs": [],
+      "upstream": "styx",
+      "notes": "BTC→sBTC conversion. Generic DeFi. Zero usage. Upstream exists."
+    },
+    {
+      "name": "systems-monitor",
+      "bucket": "arc_specific",
+      "usage_30d": 0,
+      "arc_refs": ["all fleet IPs hardcoded", "Spark/Iris/Loom/Forge roster"],
+      "upstream": null,
+      "notes": "Fleet VM system health. Hardcoded fleet topology. Zero usage (fleet suspended)."
+    },
+    {
+      "name": "worker-deploy",
+      "bucket": "arc_specific",
+      "usage_30d": 10,
+      "arc_refs": [],
+      "upstream": null,
+      "notes": "Deploys arc0btc-worker to Cloudflare Workers. Instance deployment."
+    },
+    {
+      "name": "worker-logs-monitor",
+      "bucket": "arc_specific",
+      "usage_30d": 18,
+      "arc_refs": ["whoabuddy/worker-logs refs"],
+      "upstream": null,
+      "notes": "Monitors whoabuddy's worker-logs instances. Arc/fleet-specific."
+    },
+    {
+      "name": "zest-v2",
+      "bucket": "delete",
+      "usage_30d": 4,
+      "arc_refs": ["Arc STX address hardcoded as ARC_ADDRESS"],
+      "upstream": null,
+      "notes": "Duplicate of defi-zest with same functionality. Consolidate into defi-zest."
+    }
+  ],
+  "validation": {
+    "delete_candidates_usage_check": {
+      "arc-bounty-scanner": {"usage_30d": 0, "verdict": "confirmed-unused"},
+      "arc-dispatch-eval": {"usage_30d": 1, "verdict": "near-zero-duplicate-of-arc-dispatch-evals"},
+      "arc-mcp": {"usage_30d": 0, "verdict": "confirmed-unused-superseded"},
+      "bitflow": {"usage_30d": 1, "verdict": "near-zero-duplicate-of-defi-bitflow"},
+      "defi-compounding": {"usage_30d": 0, "verdict": "confirmed-unused"},
+      "fleet-log-pull": {"usage_30d": 0, "verdict": "confirmed-unused"},
+      "fleet-rebalance": {"usage_30d": 1, "verdict": "near-zero-fleet-suspended"},
+      "skill-effectiveness": {"usage_30d": 4, "verdict": "low-usage-experimental"},
+      "zest-v2": {"usage_30d": 4, "verdict": "low-usage-duplicate-of-defi-zest"}
+    },
+    "delete_candidates_with_nonzero_usage": [
+      "arc-dispatch-eval (1)",
+      "bitflow (1)",
+      "fleet-rebalance (1)",
+      "skill-effectiveness (4)",
+      "zest-v2 (4)"
+    ],
+    "shared_candidates_with_arc_refs": {
+      "bitcoin-wallet": {"severity": "low-doc-only", "detail": "BTC/STX addresses in SKILL.md/AGENT.md as documentation examples. Wallet reads from encrypted store at runtime."},
+      "contacts": {"severity": "low-doc-only", "detail": "whoabuddy as CLI example in AGENT.md/cli.ts. Not functional."},
+      "code-audit": {"severity": "low-doc-only", "detail": "Forge mentioned in SKILL.md description line. Trivial."},
+      "defi-zest": {"severity": "medium-needs-cleanup", "detail": "ARC_ADDRESS constant hardcoded in sensor.ts and cli.ts. Should read from wallet/config at runtime."},
+      "github-issue-monitor": {"severity": "low-doc-only", "detail": "whoabuddy contributor pattern context. Not functional."},
+      "github-mentions": {"severity": "low-doc-only", "detail": "whoabuddy merge authority and Spark restriction as org context."},
+      "social-agent-engagement": {"severity": "low-doc-only", "detail": "Spark Topaz Centaur in agent directory data."},
+      "stacks-stackspot": {"severity": "low-doc-only", "detail": "Arc addresses in documentation only."}
+    },
+    "shared_candidates_needing_cleanup_before_extraction": [
+      "defi-zest"
+    ],
+    "runtime_builtin_boot_check": {
+      "arc-alive-check": "no SOUL.md/MEMORY.md dependency — boots clean",
+      "arc-credentials": "no identity dependency — reads from encrypted store",
+      "arc-scheduler": "no identity dependency — pure task scheduling",
+      "arc-service-health": "no identity dependency — monitors dispatch cycle timestamps",
+      "arc-skill-manager": "no identity dependency — manages skill directories",
+      "arc-workflows": "state-machine.ts has whoabuddy ref in PSBT workflow — needs cleanup for blank-agent boot",
+      "arc-worktrees": "no identity dependency — pure git worktree isolation",
+      "quest-create": "no identity dependency — phase decomposition only"
+    },
+    "runtime_builtins_needing_cleanup": [
+      "arc-workflows (whoabuddy ref in PSBT signing workflow)"
+    ]
+  },
+  "upstream_mapping": {
+    "has_upstream_equivalent": [
+      {"local": "aibtc-inbox-sync", "upstream": "inbox"},
+      {"local": "aibtc-news-classifieds", "upstream": "aibtc-news-classifieds"},
+      {"local": "aibtc-news-deal-flow", "upstream": "aibtc-news-deal-flow"},
+      {"local": "aibtc-news-editorial", "upstream": "aibtc-news-correspondent"},
+      {"local": "aibtc-welcome", "upstream": "onboarding"},
+      {"local": "arc-bounty-scanner", "upstream": "bounty-scanner"},
+      {"local": "arc-ceo-review", "upstream": "ceo"},
+      {"local": "arc-ceo-strategy", "upstream": "ceo"},
+      {"local": "arc-credentials", "upstream": "credentials"},
+      {"local": "arc-reputation", "upstream": "reputation"},
+      {"local": "arxiv-research", "upstream": "arxiv-research"},
+      {"local": "bitcoin-quorumclaw", "upstream": "psbt"},
+      {"local": "bitcoin-taproot-multisig", "upstream": "taproot-multisig"},
+      {"local": "bitcoin-wallet", "upstream": "wallet"},
+      {"local": "bitflow", "upstream": "bitflow"},
+      {"local": "defi-bitflow", "upstream": "bitflow"},
+      {"local": "defi-stacks-market", "upstream": "stacks-market"},
+      {"local": "defi-zest", "upstream": null, "note": "no direct upstream equivalent"},
+      {"local": "erc8004-identity", "upstream": "erc8004"},
+      {"local": "erc8004-reputation", "upstream": "reputation"},
+      {"local": "erc8004-trust", "upstream": "reputation"},
+      {"local": "erc8004-validation", "upstream": "validation"},
+      {"local": "identity-guard", "upstream": "identity"},
+      {"local": "jingswap", "upstream": "jingswap"},
+      {"local": "mempool-watch", "upstream": "mempool-watch"},
+      {"local": "nostr-wot", "upstream": "nostr-wot"},
+      {"local": "ordinals-market-data", "upstream": "ordinals"},
+      {"local": "stacks-stackspot", "upstream": "stackspot"},
+      {"local": "styx", "upstream": "styx"}
+    ],
+    "shared_no_upstream": [
+      "aibtc-dev-ops",
+      "aibtc-heartbeat",
+      "aibtc-repo-maintenance",
+      "arc-content-quality",
+      "claude-code-releases",
+      "code-audit",
+      "contacts",
+      "dao-zero-authority",
+      "dev-landing-page-review",
+      "github-ci-status",
+      "github-issue-monitor",
+      "github-issues",
+      "github-mentions",
+      "github-release-watcher",
+      "github-security-alerts",
+      "maximumsats",
+      "social-agent-engagement",
+      "social-x-ecosystem",
+      "social-x-posting"
+    ]
+  },
+  "bucket_lists": {
+    "shared": [
+      "aibtc-dev-ops",
+      "aibtc-heartbeat",
+      "aibtc-news-classifieds",
+      "aibtc-repo-maintenance",
+      "arc-content-quality",
+      "arxiv-research",
+      "bitcoin-quorumclaw",
+      "bitcoin-taproot-multisig",
+      "bitcoin-wallet",
+      "claude-code-releases",
+      "code-audit",
+      "contacts",
+      "dao-zero-authority",
+      "defi-bitflow",
+      "defi-stacks-market",
+      "defi-zest",
+      "dev-landing-page-review",
+      "erc8004-identity",
+      "erc8004-reputation",
+      "erc8004-trust",
+      "erc8004-validation",
+      "github-ci-status",
+      "github-issue-monitor",
+      "github-issues",
+      "github-mentions",
+      "github-release-watcher",
+      "github-security-alerts",
+      "jingswap",
+      "maximumsats",
+      "mempool-watch",
+      "nostr-wot",
+      "ordinals-market-data",
+      "social-agent-engagement",
+      "social-x-ecosystem",
+      "social-x-posting",
+      "stacks-stackspot",
+      "styx"
+    ],
+    "arc_specific": [
+      "agent-hub",
+      "aibtc-inbox-sync",
+      "aibtc-news-deal-flow",
+      "aibtc-news-editorial",
+      "aibtc-welcome",
+      "alb",
+      "arc-architecture-review",
+      "arc-blocked-review",
+      "arc-brand-voice",
+      "arc-catalog",
+      "arc-ceo-review",
+      "arc-ceo-strategy",
+      "arc-cost-reporting",
+      "arc-dispatch-evals",
+      "arc-email-sync",
+      "arc-failure-triage",
+      "arc-housekeeping",
+      "arc-inbox",
+      "arc-introspection",
+      "arc-link-research",
+      "arc-mcp-server",
+      "arc-memory",
+      "arc-monitoring-service",
+      "arc-observatory",
+      "arc-opensource",
+      "arc-ops-review",
+      "arc-payments",
+      "arc-performance-analytics",
+      "arc-remote-setup",
+      "arc-report-email",
+      "arc-reporting",
+      "arc-reputation",
+      "arc-self-audit",
+      "arc-self-review",
+      "arc-starter-publish",
+      "arc-strategy-review",
+      "arc-umbrel",
+      "arc-web-dashboard",
+      "arc-workflow-review",
+      "arc0btc-ask-service",
+      "arc0btc-monetization",
+      "arc0btc-pr-review",
+      "arc0btc-security-audit",
+      "arc0btc-services",
+      "arc0btc-site-health",
+      "auto-queue",
+      "blog-deploy",
+      "blog-publishing",
+      "compliance-review",
+      "context-review",
+      "erc8004-indexer",
+      "fleet-comms",
+      "fleet-dashboard",
+      "fleet-escalation",
+      "fleet-handoff",
+      "fleet-health",
+      "fleet-memory",
+      "fleet-push",
+      "fleet-router",
+      "fleet-self-sync",
+      "fleet-sync",
+      "github-interceptor",
+      "github-worker-logs",
+      "identity-guard",
+      "site-consistency",
+      "systems-monitor",
+      "worker-deploy",
+      "worker-logs-monitor"
+    ],
+    "runtime_builtin": [
+      "arc-alive-check",
+      "arc-credentials",
+      "arc-scheduler",
+      "arc-service-health",
+      "arc-skill-manager",
+      "arc-workflows",
+      "arc-worktrees",
+      "quest-create"
+    ],
+    "delete": [
+      "arc-bounty-scanner",
+      "arc-dispatch-eval",
+      "arc-mcp",
+      "bitflow",
+      "defi-compounding",
+      "fleet-log-pull",
+      "fleet-rebalance",
+      "skill-effectiveness",
+      "zest-v2"
+    ]
+  }
+}
