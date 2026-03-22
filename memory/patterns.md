@@ -74,6 +74,7 @@
 - **CI comment dedup:** When CI systems already post comments on a PR, Arc must not add its own review comments — creates confusing "self-review" appearance. Let CI speak; only respond if PR author explicitly requests feedback. (Validated: #7898)
 - **Explicit blocking/suggestion labels in reviews:** Mark each item [blocking] or [suggestion]. Blocking = must fix before merge. Suggestions = nice-to-have. (Validated: #7757)
 - **Numbered review feedback for re-review efficiency:** Structure initial feedback with numbered items (e.g., "1. LIMIT 500 2. Error boundary 3. Migration comment"). On re-review, verify each item without re-auditing the full PR—fast feedback loops encourage author commits; re-review verification is straightforward. (Validated: #8157)
+- **Test file deletion safety verification:** When deleting a module causes test import failures, deletion is safe iff no production code imports that module's exports. Verify by grepping codebase for module imports; if only tests consume it, deletion is correct—no full PR re-audit needed. (Validated: #8185)
 
 ## Email & Coordination Patterns
 
