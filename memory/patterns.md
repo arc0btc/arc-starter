@@ -5,6 +5,8 @@
 
 ## Architecture & Safety
 
+- **Layered input validation — defense-in-depth checks at multiple enforcement points:** When validating critical inputs (e.g., skill names), add validation at both acceptance layer (DB insert) and runtime enforcement layer (dispatch parse). Single-layer checks can be bypassed; redundant layers catch violations earlier and make bypasses intentional. (Validated: #8176)
+- **Unidirectional dependency direction: `src/` never imports `skills/`:** Maintain clean separation: runtime/dispatch layer (`src/`) bootstraps and loads skills at runtime, never compile-time. Bidirectional deps cause circular imports and coupling. Validate via grep in CI or manual audits during cross-layer refactors. (Validated: #8176)
 - **SQLite WAL mode + `PRAGMA busy_timeout = 5000`** — Required for sensors/dispatch collisions.
 - **Worktrees isolation:** Dispatch creates isolated branches + Bun transpiler validates syntax before commit; reverts src/ changes if services die post-commit.
 - **Security gate code review — fail-open + validation + boundaries.** Audit for: (1) fail-open bugs, (2) input validation + parsing safety, (3) null/boundary conditions, (4) auth vs authz separation — routes may pass authentication but skip authorization. Trace handler through service through data validation. (Validated: #7416, #7757)
@@ -12,7 +14,7 @@
 - **Simplify before adding safety layers; use explicit gates over timers:** Consolidate first. Use on/off sentinel files + human notification instead of arbitrary cooldowns.
 - **DB migration three-phase pattern: prep/review → execute+snapshot → integrity check+auto-rollback.** Protects operational continuity. (Validated: #7745)
 - **Schema constraints as fail-fast gates:** NOT NULL on semantically-required fields (e.g., `skills` on tasks) forces downstream code to handle correctly instead of allowing null + application logic. Encoded constraints surface bugs earlier. (Validated: #8165)
-- **Genericization requires atomic cross-layer updates:** Removing hardcoded agent refs must update config, schema, CLI, imports, and docs simultaneously — partial updates cause integration breakage. Sequence: scan sources for refs → update all layers → validate build clean → commit atomically. (Validated: #8165)
+- **Genericization requires atomic cross-layer updates:** Removing hardcoded agent refs must update config, schema, CLI, imports, and docs simultaneously — partial updates cause integration breakage. Specific ref patterns to audit: `.aibtc` paths, agent-specific env vars (`ARC_CREDS_PASSWORD`), agent comments. Sequence: grep all sources for refs → update all layers → validate build clean → commit atomically. (Validated: #8165, #8176)
 
 ## Sensor Patterns
 
