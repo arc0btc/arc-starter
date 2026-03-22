@@ -163,6 +163,7 @@ export default async function run(): Promise<string> {
     subject,
     description,
     priority: 4,
+    model: "sonnet",
     skills: JSON.stringify(["fleet-sync"]),
   });
 

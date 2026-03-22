@@ -57,6 +57,7 @@ export default async function sensor(): Promise<string> {
         subject: `[IDENTITY] SOUL.md missing on ${AGENT_NAME}`,
         description: `SOUL.md does not exist at ${soulPath}. Run configure-identity to restore.`,
         priority: 1,
+        model: "sonnet",
         skills: JSON.stringify(["arc-remote-setup"]),
       },
     );
@@ -101,6 +102,7 @@ export default async function sensor(): Promise<string> {
         subject: `[IDENTITY DRIFT] ${AGENT_NAME} has wrong SOUL.md — run configure-identity`,
         description: `Identity guard detected drift on ${AGENT_NAME}:\n${violations.map(v => `- ${v}`).join("\n")}\n\nFix: arc skills run --name arc-remote-setup -- configure-identity --agent ${AGENT_NAME === "arc0" ? "arc" : AGENT_NAME}`,
         priority: 1,
+        model: "sonnet",
         skills: JSON.stringify(["arc-remote-setup", "identity-guard"]),
       },
     );

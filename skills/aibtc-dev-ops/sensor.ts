@@ -189,6 +189,7 @@ export default async function aibtcDevSensor(): Promise<string> {
           ].join("\n"),
           skills: '["aibtc-dev-ops"]',
           priority: 6,
+          model: "sonnet",
           source: LOG_SOURCE,
         });
         tasksCreated++;
@@ -252,6 +253,7 @@ export default async function aibtcDevSensor(): Promise<string> {
           ].join("\n"),
           skills: '["aibtc-dev-ops"]',
           priority: 7,
+          model: "sonnet",
           source: AUDIT_SOURCE,
         });
         tasksCreated++;

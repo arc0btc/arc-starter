@@ -127,6 +127,7 @@ export default async function albSensor(): Promise<string> {
           message.body_text ? message.body_text.slice(0, 500) : "(no body)",
         ].join("\n"),
         priority: 3,
+        model: "sonnet",
         skills: JSON.stringify(["alb"]),
         source,
       });

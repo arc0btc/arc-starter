@@ -366,6 +366,7 @@ export default async function fleetDashboardSensor(): Promise<string> {
         subject,
         description: `Agent **${m.agent}** has completed 0 tasks in the last hour despite having completed ${m.taskCounts.completedToday} tasks today. May indicate a stall or stuck dispatch.\n\nCurrent queue: ${m.taskCounts.pending} pending, ${m.taskCounts.active} active.\n\nCheck fleet status: \`arc skills run --name fleet-health -- status\``,
         priority: 4,
+        model: "sonnet",
         skills: '["fleet-health", "fleet-dashboard"]',
       });
       if (created !== null) {
@@ -382,6 +383,7 @@ export default async function fleetDashboardSensor(): Promise<string> {
         subject,
         description: `Agent **${m.agent}** has spent $${m.costToday.toFixed(2)} today, exceeding the $${threshold} alert threshold.\n\nConsider reviewing task priorities and sensor cadences to reduce unnecessary dispatches.`,
         priority: 3,
+        model: "sonnet",
         skills: '["fleet-dashboard"]',
       });
       if (created !== null) {

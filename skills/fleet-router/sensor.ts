@@ -392,7 +392,7 @@ export default async function fleetRouterSensor(): Promise<string> {
     log("no SSH password configured — skipping");
     const alertSource = `sensor:${SENSOR_NAME}:no-creds`;
     if (!pendingTaskExistsForSource(alertSource)) {
-      insertTask({ subject: "fleet-router: SSH password not configured", priority: 8, source: alertSource });
+      insertTask({ subject: "fleet-router: SSH password not configured", priority: 8, model: "haiku", source: alertSource });
     }
     return "skip";
   }

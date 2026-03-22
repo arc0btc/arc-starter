@@ -82,6 +82,7 @@ async function checkOrdinalsVolume(state: HookState): Promise<HookState> {
           description: `Ordinals 7-day marketplace volume reached ~$${Math.round(volumeUsd).toLocaleString()} (threshold $${ORDINALS_WEEKLY_VOLUME_USD.toLocaleString()}). File an ordinals signal (Arc's only beat — do NOT file to deal-flow, dao-watch, or btc-macro).\n\nResearch: arc skills run --name aibtc-news-editorial -- fetch-ordinals-data\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals --claim "..." --evidence "..." --implication "..."`,
           skills: JSON.stringify(["aibtc-news-editorial", "aibtc-news-deal-flow"]),
           priority: 6,
+          model: "sonnet",
           status: "pending",
           source,
         });
@@ -154,6 +155,7 @@ async function checkX402Escrow(state: HookState): Promise<HookState> {
           description: `x402 agent escrow 7-day volume reached ~$${Math.round(volumeUsd).toLocaleString()} (threshold $${X402_WEEKLY_VOLUME_USD.toLocaleString()}). File an ordinals signal (Arc's only beat — do NOT file to deal-flow, dao-watch, or btc-macro).\n\nContract: ${contractAddress}\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals --claim "..." --evidence "..." --implication "..."`,
           skills: JSON.stringify(["aibtc-news-editorial", "aibtc-news-deal-flow"]),
           priority: 6,
+          model: "sonnet",
           status: "pending",
           source,
         });
@@ -214,6 +216,7 @@ async function checkDaoTreasury(state: HookState): Promise<HookState> {
           description: `${daoContract} treasury ${direction} by ${change.toFixed(2)} BTC (now ${btcBalance.toFixed(4)} BTC, was ${prev.toFixed(4)} BTC). Threshold: ${DAO_TREASURY_CHANGE_BTC} BTC.\n\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals --claim "..." --evidence "..." --implication "..."`,
           skills: JSON.stringify(["aibtc-news-editorial", "aibtc-news-deal-flow"]),
           priority: 6,
+          model: "sonnet",
           status: "pending",
           source,
         });
@@ -279,6 +282,7 @@ async function checkSatsAuctions(state: HookState): Promise<HookState> {
           description: `Rare sat auction detected at ${priceSats.toLocaleString()} sats (threshold ${SATS_AUCTION_MIN_SATS.toLocaleString()} sats). File an ordinals signal (Arc's only beat — do NOT file to deal-flow, dao-watch, or btc-macro).\n\nDetails: ${JSON.stringify(topAuction, null, 2).slice(0, 500)}\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals --claim "..." --evidence "..." --implication "..."`,
           skills: JSON.stringify(["aibtc-news-editorial", "aibtc-news-deal-flow"]),
           priority: 6,
+          model: "sonnet",
           status: "pending",
           source,
         });
@@ -340,6 +344,7 @@ async function checkBountyActivity(state: HookState): Promise<HookState> {
           description: `${recentLaunches.length} new bounty program(s) detected on ${bountyContract} in the last 24 hours. Verify reward amounts and file an ordinals signal.\n\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals --claim "..." --evidence "..." --implication "..."`,
           skills: JSON.stringify(["aibtc-news-editorial", "aibtc-news-deal-flow"]),
           priority: 6,
+          model: "sonnet",
           status: "pending",
           source,
         });

@@ -79,6 +79,7 @@ export default async function umbrelSensor(): Promise<string> {
         description: "Umbrel at 192.168.1.106 has no Bitcoin Core installed. Run: arc skills run --name arc-umbrel -- install-bitcoin",
         skills: '["arc-umbrel"]',
         priority: 3,
+        model: "sonnet",
         source: "sensor:arc-umbrel:install",
       });
       state.installPrompted = true;
@@ -128,6 +129,7 @@ export default async function umbrelSensor(): Promise<string> {
           description: `No block progress in 30+ minutes. Headers: ${headers}, Progress: ${progress.toFixed(2)}%. Check peer connections and disk space.`,
           skills: '["arc-umbrel"]',
           priority: 5,
+          model: "sonnet",
           source: "sensor:arc-umbrel:stall",
         });
         log(`Sync stall detected at block ${blocks}`);

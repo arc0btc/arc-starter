@@ -98,6 +98,7 @@ export default async function erc8004ReputationMonitorSensor(): Promise<string> 
         ].join("\n"),
         skills: '["erc8004-reputation", "erc8004-identity"]',
         priority: 5,
+        model: "sonnet",
       });
     }
 

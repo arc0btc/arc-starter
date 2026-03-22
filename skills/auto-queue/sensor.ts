@@ -272,6 +272,7 @@ export default async function autoQueueSensor(): Promise<string> {
     subject: `Auto-queue: ${hungryDomains.length} hungry domain(s) need work`,
     description,
     priority: 5,
+    model: "sonnet",
     skills: taskSkills,
   });
 

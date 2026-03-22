@@ -105,6 +105,7 @@ export default async function arc0btcServicesSensor(): Promise<string> {
       skills: JSON.stringify(["arc0btc-services"]),
       source: TASK_SOURCE,
       priority: 4,
+      model: "sonnet",
     });
 
     log(`created alert task: ${issues.length} issue(s)`);

@@ -156,6 +156,7 @@ Investigate: was this a withdrawal, liquidation, or protocol issue?
 Position data from: ${V2_DATA}.${V2_DATA_NAME} get-user-position`,
               skills: JSON.stringify(["defi-zest"]),
               priority: 3,
+              model: "opus",
               status: "pending",
               source: alertSource,
             });

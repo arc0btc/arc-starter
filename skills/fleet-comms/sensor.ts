@@ -186,6 +186,7 @@ export default async function fleetCommsSensor(): Promise<string> {
           "Run: `arc skills run --name fleet-health -- status` for full health check.",
         ].join("\n"),
         priority: 2,
+        model: "sonnet",
         skills: '["fleet-health", "arc-remote-setup"]',
         source,
       });

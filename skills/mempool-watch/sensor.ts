@@ -120,6 +120,7 @@ export default async function mempoolWatchSensor(): Promise<string> {
             subject,
             description,
             priority: 7,
+            model: "sonnet",
             source,
           });
           log(`created fee-spike task ${taskId}: ${subject}`);
@@ -183,6 +184,7 @@ export default async function mempoolWatchSensor(): Promise<string> {
           subject,
           description,
           priority: 6,
+          model: "sonnet",
           source,
         });
         log(`  created incoming-btc task ${taskId}: ${subject}`);

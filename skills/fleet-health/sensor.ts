@@ -567,6 +567,7 @@ export default async function fleetHealthSensor(): Promise<string> {
       subject,
       description: `Agent ${h.agent} health check failed.\n\nIssues:\n${h.issues.map((i) => `- ${i}`).join("\n")}${isCircuitBreaker ? "\n\n**Dispatch timer has been stopped.** Investigate the failure pattern, fix the root cause, then restart:\n```\narc skills run --name arc-remote-setup -- ssh ${h.agent} systemctl --user start arc-dispatch.timer\n```" : ""}\n\nFull status at memory/fleet-status.md`,
       priority: isCircuitBreaker ? 2 : 3,
+      model: "sonnet",
       skills: '["fleet-health", "arc-remote-setup"]',
     });
 

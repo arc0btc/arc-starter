@@ -30,6 +30,7 @@ export default async function erc8004IndexerSensor(): Promise<string> {
       skills: JSON.stringify(["erc8004-indexer", "blog-deploy"]),
       source: TASK_SOURCE,
       priority: 7,
+      model: "sonnet",
     });
 
     log("queued ERC-8004 index refresh task");

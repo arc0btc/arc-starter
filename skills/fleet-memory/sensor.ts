@@ -135,7 +135,8 @@ export default async function run(): Promise<string> {
       insertTaskIfNew(`sensor:${FAST_SENSOR_NAME}`, {
         subject,
         description,
-        priority: 5, // Sonnet — distribute promptly to reduce drift
+        priority: 5,
+        model: "sonnet",
         skills: JSON.stringify(["fleet-memory"]),
       });
 
@@ -191,6 +192,7 @@ export default async function run(): Promise<string> {
     subject,
     description,
     priority: 7,
+    model: "sonnet",
     skills: JSON.stringify(["fleet-memory"]),
   });
 
