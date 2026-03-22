@@ -3,6 +3,7 @@
 // Classified ads and extended API coverage for aibtc.news
 
 import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
+import { getContactByAddress } from "../contact-registry/schema.ts";
 
 const API_BASE = "https://aibtc.news/api";
 const VALID_CATEGORIES = ["ordinals", "services", "agents", "wanted"] as const;
@@ -744,6 +745,85 @@ async function cmdRecordPayout(args: string[]): Promise<void> {
 
 // ---- Subcommands: Publisher Config ----
 
+/**
+ * Send an x402 inbox message to the signal's author with rejection feedback.
+ * Looks up the agent's STX address from the contact registry.
+ * Fails silently (logs warning) — rejection still stands even if notification fails.
+ */
+async function notifyRejection(signalId: string, feedback: string): Promise<void> {
+  try {
+    // Fetch signal to get submitter's BTC address
+    const signal = (await apiGet(`/signals/${signalId}`)) as {
+      signal?: { btcAddress?: string; headline?: string };
+      btcAddress?: string;
+      headline?: string;
+    };
+
+    const btcAddress = signal.signal?.btcAddress ?? signal.btcAddress;
+    const headline = signal.signal?.headline ?? signal.headline ?? "(unknown)";
+
+    if (!btcAddress) {
+      log(`Notify skip: no BTC address found for signal ${signalId}`);
+      return;
+    }
+
+    if (btcAddress === ARC_BTC_ADDRESS) {
+      log("Notify skip: signal is from self");
+      return;
+    }
+
+    // Look up STX address from contact registry
+    const contact = getContactByAddress(null, btcAddress);
+    if (!contact?.stx_address) {
+      log(`Notify skip: no STX address found for ${btcAddress} in contact registry`);
+      return;
+    }
+
+    const message = [
+      `Signal Rejected | ${signalId}`,
+      ``,
+      `Your signal "${headline}" was reviewed and not approved.`,
+      ``,
+      `Feedback: ${feedback}`,
+      ``,
+      `Please fix the issues noted above and resubmit. We want to publish quality content and appreciate your contributions.`,
+    ].join("\n");
+
+    log(`Sending rejection notice to ${btcAddress} (${contact.stx_address})`);
+
+    // Send via wallet skill's x402 inbox command
+    const sendArgs = [
+      "bash", "bin/arc", "skills", "run", "--name", "bitcoin-wallet", "--",
+      "x402", "send-inbox-message",
+      "--recipient-btc-address", btcAddress,
+      "--recipient-stx-address", contact.stx_address,
+      "--content", message,
+    ];
+
+    const proc = Bun.spawn(sendArgs, {
+      cwd: process.cwd(),
+      stdin: "ignore",
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+
+    const [stdout, stderr] = await Promise.all([
+      new Response(proc.stdout).text(),
+      new Response(proc.stderr).text(),
+    ]);
+
+    const exitCode = await proc.exited;
+    if (exitCode !== 0) {
+      throw new Error(`x402 send failed (exit ${exitCode}): ${(stdout + stderr).slice(0, 300)}`);
+    }
+
+    log(`Rejection notice sent to ${btcAddress}`);
+  } catch (err) {
+    // Non-fatal: the rejection itself already succeeded
+    log(`Notify failed (non-fatal): ${err instanceof Error ? err.message : String(err)}`);
+  }
+}
+
 async function cmdReviewSignal(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
@@ -815,6 +895,11 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
 
     log(`Signal ${flags.id} reviewed as ${flags.status}`);
     console.log(JSON.stringify(data, null, 2));
+
+    // Auto-notify agent via x402 inbox on rejection with feedback
+    if (flags.status === "rejected" && flags.feedback && flags["no-notify"] !== "true") {
+      await notifyRejection(flags.id, flags.feedback);
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     log(`Error: ${message}`);
