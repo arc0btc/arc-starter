@@ -15,6 +15,7 @@
 - **DB migration three-phase pattern: prep/review → execute+snapshot → integrity check+auto-rollback.** Protects operational continuity. (Validated: #7745)
 - **Schema constraints as fail-fast gates:** NOT NULL on semantically-required fields (e.g., `skills` on tasks) forces downstream code to handle correctly instead of allowing null + application logic. Encoded constraints surface bugs earlier. (Validated: #8165)
 - **Genericization requires atomic cross-layer updates:** Removing hardcoded agent refs must update config, schema, CLI, imports, and docs simultaneously — partial updates cause integration breakage. Specific ref patterns to audit: `.aibtc` paths, agent-specific env vars (`ARC_CREDS_PASSWORD`), agent comments. Sequence: grep all sources for refs → update all layers → validate build clean → commit atomically. (Validated: #8165, #8176)
+- **Agent-friendly error message format — standardize to "Error: [what]. Fix: [how]":** Error messages are part of the system's API surface for autonomous agents. Inconsistent or opaque errors force agents to guess remediation. When refactoring error messages, enforce consistent format across all error paths (dispatch, CLI, sensors, service startup). Include what went wrong + how to fix it. Audit across multiple files first (identify patterns), then batch-replace in systematic order, verify syntax before commit. (Validated: #8230)
 
 ## Sensor Patterns
 
