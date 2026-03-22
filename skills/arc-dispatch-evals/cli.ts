@@ -362,9 +362,9 @@ function cmdSummary(): void {
     .query(
       `SELECT
         CASE
-          WHEN priority <= 4 THEN 'P1-4 (Opus)'
-          WHEN priority <= 7 THEN 'P5-7 (Sonnet)'
-          ELSE 'P8+ (Haiku)'
+          WHEN priority <= 4 THEN 'P1-4'
+          WHEN priority <= 7 THEN 'P5-7'
+          ELSE 'P8+'
         END as band,
         COUNT(*) as total,
         SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,

@@ -107,17 +107,16 @@ function log(msg: string): void {
 
 // ---- Model routing ----
 
-function selectModel(task: Task): ModelTier {
+function selectModel(task: Task): ModelTier | null {
   if (task.model) {
     const m = task.model;
     if (m === "opus" || m === "sonnet" || m === "haiku") return m;
     if (!m.startsWith("codex") && !m.startsWith("openrouter:")) {
-      log(`dispatch: unrecognized task.model="${m}" for task #${task.id}, falling back to priority routing`);
+      log(`dispatch: unrecognized task.model="${m}" for task #${task.id}, no model resolved`);
     }
   }
-  if (task.priority <= 4) return "opus";
-  if (task.priority <= 7) return "sonnet";
-  return "haiku";
+  // No implicit priority→model routing — model must be set explicitly
+  return null;
 }
 
 function selectSdk(task: Task): SdkRoute {
@@ -823,10 +822,24 @@ export async function runDispatch(): Promise<void> {
   const skillNames = parseSkillNames(task.skills);
   const sdkRoute = selectSdk(task);
   const model = selectModel(task);
+
+  // Guard: Claude SDK tasks require an explicit model — no implicit defaults
+  if (sdkRoute.sdk === "claude" && model === null) {
+    const msg = `task #${task.id} has no model set — every task must specify an explicit model (opus/sonnet/haiku)`;
+    log(`dispatch: MODEL GATE — ${msg}`);
+    insertServiceLog("warn", "dispatch", msg, task.id);
+    markTaskFailed(task.id, "No model set — task requires explicit model column (opus/sonnet/haiku)");
+    clearDispatchLock();
+    return;
+  }
+
+  // For non-Claude SDKs (codex/openrouter), model is used only for cost/timeout estimation
+  const effectiveModel: ModelTier = model ?? "sonnet";
+
   if (skillNames.length > 0) {
     log(`dispatch: loading skills: ${skillNames.join(", ")}`);
   }
-  log(`dispatch: sdk=${sdkRoute.sdk} model=${sdkRoute.sdk === "codex" ? (sdkRoute.model ?? "default") : model} (${task.model ? "explicit" : `priority ${task.priority}`})`);
+  log(`dispatch: sdk=${sdkRoute.sdk} model=${sdkRoute.sdk === "codex" ? (sdkRoute.model ?? "default") : effectiveModel} (${task.model ? "explicit" : "no model"})`);
 
   const recentCycles = getRecentCycles(10)
     .map(
@@ -867,7 +880,7 @@ export async function runDispatch(): Promise<void> {
     ? `codex:${sdkRoute.model ?? "default"}`
     : sdkRoute.sdk === "openrouter"
       ? `openrouter:${sdkRoute.model ?? "default"}`
-      : model;
+      : effectiveModel;
   const cycleStartedAt = toSqliteDatetime(new Date());
   const skillHashes = computeSkillHashes(skillNames);
   const cycleId = insertCycleLog({
@@ -908,11 +921,11 @@ export async function runDispatch(): Promise<void> {
           dispatchResult = await dispatchCodex(prompt, sdkRoute.model, worktreePath ?? undefined);
         } else if (useOpenRouter) {
           dispatchResult = await dispatchOpenRouter(
-            prompt, model, worktreePath ?? undefined, openRouterKey ?? undefined,
+            prompt, effectiveModel, worktreePath ?? undefined, openRouterKey ?? undefined,
             explicitOpenRouter ? sdkRoute.model : undefined,
           );
         } else {
-          dispatchResult = await dispatch(prompt, model, worktreePath);
+          dispatchResult = await dispatch(prompt, effectiveModel, worktreePath);
         }
         break;
       } catch (retryErr) {
@@ -1001,9 +1014,9 @@ export async function runDispatch(): Promise<void> {
       log(`dispatch: task #${task.id} failed — auth error, not retrying`);
       insertServiceLog("error", "dispatch", `task #${task.id} failed: auth error`, task.id);
     } else if (errClass === "subprocess_timeout") {
-      markTaskFailed(task.id, `Task timed out after ${getDispatchTimeoutMs(model) / 60_000}min (${model} tier). Consider breaking it into smaller subtasks or raising the dispatch timeout.`);
+      markTaskFailed(task.id, `Task timed out after ${getDispatchTimeoutMs(effectiveModel) / 60_000}min (${effectiveModel} tier). Consider breaking it into smaller subtasks or raising the dispatch timeout.`);
       log(`dispatch: task #${task.id} failed — subprocess timeout, not retrying`);
-      insertServiceLog("error", "dispatch", `task #${task.id} failed: subprocess timeout (${model}, ${getDispatchTimeoutMs(model) / 60_000}min)`, task.id);
+      insertServiceLog("error", "dispatch", `task #${task.id} failed: subprocess timeout (${effectiveModel}, ${getDispatchTimeoutMs(effectiveModel) / 60_000}min)`, task.id);
     } else if (errClass === "rate_limited") {
       requeueTask(task.id, { rollbackAttempt: true });
       log(`dispatch: task #${task.id} rate-limited — requeued (attempt count preserved, dispatch gate will block until manual reset)`);

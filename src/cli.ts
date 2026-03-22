@@ -35,8 +35,8 @@ import { enterShutdown, exitShutdown, getShutdownState } from "./shutdown.ts";
 
 const USAGE = {
   tasksAdd:
-    'arc tasks add --subject TEXT [--description TEXT] [--priority N] [--source TEXT]\n' +
-    '              [--skills SKILL1,SKILL2] [--parent ID] [--model opus|sonnet|haiku|codex|codex:<model>]\n' +
+    'arc tasks add --subject TEXT --model MODEL [--description TEXT] [--priority N] [--source TEXT]\n' +
+    '              [--skills SKILL1,SKILL2] [--parent ID]\n' +
     '              [--defer DURATION | --scheduled-for ISO_DATETIME]',
   tasksUpdate:
     'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--model opus|sonnet|haiku|codex|codex:<model>] [--status pending]',
@@ -728,7 +728,7 @@ COMMANDS
     --limit defaults to 20.
 
   ${USAGE.tasksAdd}
-    Create a new task. --model overrides priority-based model routing.
+    Create a new task. --model is required (opus/sonnet/haiku/codex/openrouter:*).
     --defer accepts durations like 30m, 2h, 1d, 1h30m. Past-due scheduled
     tasks automatically receive a +2 priority boost when dispatched.
 

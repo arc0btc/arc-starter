@@ -5,7 +5,7 @@
  * to fleet agents based on skill-tag domain matching.
  *
  * Routing rules:
- * - P1-2: Always stay on Arc (Opus-tier)
+ * - P1-2: Always stay on Arc (high-priority)
  * - Skill tag match → route to domain agent
  * - P8+ unmatched → route to lowest-backlog agent
  * - Health gate: skip unhealthy agents
@@ -129,7 +129,7 @@ const X_RESTRICTED_AGENTS = new Set(["loom", "forge"]);
 
 // Overflow paths when primary agent exceeds SOFT_CAP
 const OVERFLOW_TARGETS: Record<string, string[]> = {
-  spark: ["arc"],           // on-chain needs Opus-tier fallback
+  spark: ["arc"],           // on-chain needs Arc fallback
   iris: ["arc"],            // research falls back to Arc
   loom: ["forge"],          // both do code work
   forge: ["loom"],          // bidirectional overflow

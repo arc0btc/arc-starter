@@ -40,12 +40,7 @@ The `template` column links tasks to `templates/` for recurring or structured wo
 - Timer: up to 30 minutes per cycle
 - Gated by `db/dispatch-lock.json` — if another dispatch is running, new invocation exits immediately
 - Selects highest-priority pending task, marks it `active`, runs Claude Code as a subprocess
-- **Model routing** (3-tier):
-  | Priority | Model  | Role | Use For |
-  |----------|--------|------|---------|
-  | P1-4     | Opus   | Senior | New skills/sensors, architecture decisions, deep reasoning, complex code, security, strategy |
-  | P5-7     | Sonnet | Mid    | Composition, PR reviews, moderate complexity, operational tasks, signal filing, reports |
-  | P8+      | Haiku  | Junior | Simple execution, mark-as-read, config edits, status checks, health alerts |
+- **Model selection:** Every task must have an explicit `model` column set (e.g. `opus`, `sonnet`, `haiku`, `codex`, `openrouter:kimi`). There is no implicit priority→model routing — tasks without a model are rejected at dispatch.
 - Loads SOUL.md, CLAUDE.md, MEMORY.md, and skill SKILL.md files specified in the task's `skills` array
 - Records everything to `cycle_log`
 - **Dispatch resilience** — two safety layers protect the agent from self-inflicted damage:
@@ -74,7 +69,7 @@ The CLI is the tool boundary. If a capability doesn't have a CLI command, create
 ```
 arc status                                    # task counts, last cycle, cost today
 arc tasks [--status STATUS] [--limit N]       # list tasks (default: pending + active)
-arc tasks add --subject TEXT [--priority N]    # create a task
+arc tasks add --subject TEXT --model MODEL [--priority N]  # create a task (model required)
 arc tasks update --id N [--subject TEXT] [--priority N] [--description TEXT] [--model MODEL] [--status pending]  # update a task
 arc tasks close --id N --status completed|failed --summary TEXT [--quality 1-5]
 arc skills                                    # list installed skills
@@ -118,6 +113,7 @@ CREATE TABLE tasks (
   description TEXT,
   skills TEXT,              -- JSON array: ["arc-skill-manager", "stacks-js"]
   priority INTEGER DEFAULT 5,
+  model TEXT,                 -- Required: opus|sonnet|haiku|codex|openrouter:*
   status TEXT DEFAULT 'pending',  -- pending|active|completed|failed|blocked
   source TEXT,              -- "human", "sensor:aibtc-heartbeat", "task:42"
   parent_id INTEGER,
@@ -279,18 +275,15 @@ Output is free-form for tasks. Prose, structured text, code — whatever is most
 
 For creating follow-up tasks during execution, use the CLI:
 ```
-arc tasks add --subject "<subject>" --priority <n> --skills s1,s2 --source "task:<id>"
+arc tasks add --subject "<subject>" --priority <n> --model <model> --skills s1,s2 --source "task:<id>"
 arc tasks close --id <id> --status completed --summary "<summary>"
 ```
 
 **Include `--skills` when the follow-up involves a specific skill domain.** If the follow-up touches a skill's code, config, or CLI (e.g., modifying `skills/arc-workflows/`, posting classifieds, publishing blog), include the relevant skill name. Without it, SKILL.md isn't loaded and context is missing. Example: a task changing code in `skills/arc-workflows/state-machine.ts` should include `--skills arc-workflows`.
 
-**Priority = model selection.** When creating follow-up tasks, choose priority based on what model tier the work needs:
-- **P1-4 (Opus):** Task requires building new code, architecture decisions, complex debugging, security analysis, or strategic reasoning.
-- **P5-7 (Sonnet):** Task involves composition (blog posts, briefs), PR reviews, moderate operational work, signal filing, or report generation.
-- **P8+ (Haiku):** Task is simple execution — mark-as-read, config edits, status checks, memory consolidation, simple API calls.
+**Priority and model are independent.** When creating follow-up tasks, always specify both `--priority` and `--model` explicitly. Priority indicates urgency/importance (1 = highest, 10 = lowest). Model indicates capability needed — choose the right model for the work regardless of priority.
 
-Ask: "Could a junior dev do this?" If yes → P8+. "Does this need careful judgment?" → P5-7. "Does this need senior-level reasoning?" → P1-4.
+Example: `arc tasks add --subject "..." --priority 3 --model opus --skills s1,s2`
 
 **Task supersession:** When a higher-priority task makes lower-priority pending tasks redundant (same subject/scope), the superseding task must explicitly close them before completing its own work:
 ```

@@ -1,10 +1,6 @@
 /**
- * Model routing configuration — tier names, Claude model IDs, and pricing.
- *
- * Dispatch routing:
- * P1-4 (senior):   Opus  — new skills/sensors, architecture, deep reasoning, complex code.
- * P5-7 (mid):      Sonnet — composition, reviews, moderate complexity, operational tasks.
- * P8+  (junior):   Haiku  — simple execution, mark-as-read, config edits, status checks.
+ * Model configuration — tier names, Claude model IDs, SDK routing, and pricing.
+ * Model is set explicitly per task — no implicit priority-based defaults.
  */
 
 export type ModelTier = "opus" | "sonnet" | "haiku";
@@ -18,7 +14,7 @@ export type SdkType = "claude" | "codex" | "openrouter";
  *   "codex"       → { sdk: "codex", model: undefined } (use codex default)
  *   "codex:o3"    → { sdk: "codex", model: "o3" }
  *   "codex:o4-mini"→ { sdk: "codex", model: "o4-mini" }
- *   null          → { sdk: "claude", model: undefined } (priority routing)
+ *   null          → { sdk: "claude", model: undefined } (no model — dispatch will reject)
  */
 export interface SdkRoute {
   sdk: SdkType;
@@ -64,7 +60,7 @@ export const OPENROUTER_PRICING: Record<string, ModelPricing> = {
 
 /**
  * Parse a task's model field into SDK type + model identifier.
- * Returns sdk="claude" with model=undefined when no model is set (use priority routing).
+ * Returns sdk="claude" with model=undefined when no model is set (dispatch will reject).
  */
 export function parseTaskSdk(taskModel: string | null): SdkRoute {
   if (!taskModel) return { sdk: "claude", model: undefined };
