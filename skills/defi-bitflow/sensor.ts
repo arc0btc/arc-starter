@@ -1,17 +1,13 @@
 // skills/defi-bitflow/sensor.ts
-// Detect high bid-ask spreads on Bitflow trading pairs and file signals
+// Detect high-range spreads on Bitflow trading pairs — logs intelligence only, no signal filing
 
 import { claimSensorRun, createSensorLogger, fetchWithRetry } from "../../src/sensors.ts";
-import { insertTask, isDailySignalCapHit, pendingTaskExistsForSource } from "../../src/db.ts";
-import { recentTaskExistsForSourcePrefix } from "../../src/db.ts";
 
 const SENSOR_NAME = "defi-bitflow";
 const INTERVAL_MINUTES = 60;
 const BITFLOW_API = "https://bitflow-sdk-api-gateway-7owjsmt8.uc.gateway.dev";
-const SPREAD_THRESHOLD_PCT = 15; // raised for competition — only exceptional events
+const SPREAD_THRESHOLD_PCT = 15; // only exceptional events worth logging
 const MIN_LIQUIDITY_USD = 10_000; // ignore illiquid pairs
-const MAX_SIGNALS_PER_RUN = 1;
-const RATE_LIMIT_MINUTES = 720; // 12 hours between signal batches
 
 interface Ticker {
   ticker_id: string;
@@ -97,60 +93,17 @@ export default async function bitflowSensor(): Promise<string> {
     // Sort by spread descending — most notable first
     highSpreadPairs.sort((a, b) => b.spreadPct - a.spreadPct);
 
-    log(`detected ${highSpreadPairs.length} high-spread pairs (>${threshold}%)`);
-
-    // Daily cap guard — skip if 6/6 signal slots already claimed today
-    if (isDailySignalCapHit()) {
-      log("daily cap: 6/6 signal slots claimed today; skipping");
-      return "rate-limited";
-    }
-
-    // Rate limit check
-    const sourcePrefix = `sensor:${SENSOR_NAME}:spread:`;
-    if (recentTaskExistsForSourcePrefix(sourcePrefix, RATE_LIMIT_MINUTES)) {
-      log(`rate limit: signal filed within last ${RATE_LIMIT_MINUTES} min; skipping`);
-      return "rate-limited";
-    }
-
-    // File signal tasks
-    let signalCount = 0;
-    for (const { ticker, spreadPct } of highSpreadPairs) {
-      if (signalCount >= MAX_SIGNALS_PER_RUN) break;
-
-      const signalSource = `sensor:${SENSOR_NAME}:spread:${ticker.ticker_id}`;
-      if (pendingTaskExistsForSource(signalSource)) continue;
-
+    // Log intelligence only — do NOT file signals.
+    // Bitflow is a Stacks L2 DEX (sBTC/STX pairs). These are DeFi volatility signals,
+    // not ordinals data. Arc owns the `ordinals` beat only; filing Bitflow spreads there
+    // is a beat-scope violation and gets rejected. When fleet resumes, Spark (DeFi beat)
+    // should own this signal path.
+    for (const { ticker, spreadPct } of highSpreadPairs.slice(0, 3)) {
       const pairLabel = `${ticker.base_currency}/${ticker.target_currency}`;
       const liquidityK = (Number(ticker.liquidity_in_usd) / 1000).toFixed(0);
-
-      log(`queuing spread signal: ${pairLabel} — ${spreadPct.toFixed(1)}% range, $${liquidityK}k liquidity`);
-
-      insertTask({
-        subject: `File Ordinals Business signal: Bitflow ${pairLabel} — ${spreadPct.toFixed(1)}% price range`,
-        description: `Arc detected high price range on Bitflow DEX.
-
-Pair: ${pairLabel}
-Daily Range: ${spreadPct.toFixed(2)}%
-High: ${ticker.high}
-Low: ${ticker.low}
-Last Price: ${ticker.last_price}
-Liquidity: $${liquidityK}k
-Volume (base): ${ticker.base_volume}
-
-High daily price ranges may indicate volatility, liquidity imbalance, or arbitrage opportunities.
-
-File signal to Ordinals Business beat via aibtc-news skill.`,
-        skills: JSON.stringify(["defi-bitflow", "aibtc-news-editorial"]),
-        priority: 7,
-        model: "haiku",
-        status: "pending",
-        source: signalSource,
-      });
-
-      signalCount++;
+      log(`intel: ${pairLabel} ${spreadPct.toFixed(1)}% range, $${liquidityK}k liquidity (no signal filed — DeFi beat not owned by Arc)`);
     }
 
-    log(`queued ${signalCount} spread signal task(s)`);
     return "ok";
   } catch (e) {
     const error = e as Error;

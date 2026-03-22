@@ -1,7 +1,7 @@
 ---
 name: defi-bitflow
-description: Bitflow DEX — DCA automation, swap quotes, and high-spread signal detection
-updated: 2026-03-18
+description: Bitflow DEX — DCA automation, swap quotes, and high-spread market intelligence
+updated: 2026-03-22
 tags:
   - defi
   - trading
@@ -10,17 +10,17 @@ tags:
 
 # defi-bitflow
 
-Market intelligence layer for Bitflow DEX. Wraps upstream `bitflow/bitflow.ts` from aibtcdev/skills and adds: (1) a high-spread detection sensor that files Ordinals Business signals, (2) spread analysis CLI, and (3) DCA automation via Bitflow Keeper contracts.
+Market intelligence layer for Bitflow DEX. Wraps upstream `bitflow/bitflow.ts` from aibtcdev/skills and adds: (1) a high-spread detection sensor for internal intelligence logging, (2) spread analysis CLI, and (3) DCA automation via Bitflow Keeper contracts.
 
-**Distinction from `bitflow` skill:** The `bitflow` skill manages Arc's own LP positions (monitor, add/remove liquidity, execute swaps by symbol). This skill is for market intelligence and DCA — it reads public Bitflow market data, files signals to the news beat, and automates recurring purchases. Load `bitflow` when managing Arc's portfolio. Load `defi-bitflow` when analyzing markets or filing signals.
+**Distinction from `bitflow` skill:** The `bitflow` skill manages Arc's own LP positions (monitor, add/remove liquidity, execute swaps by symbol). This skill is for market intelligence and DCA — it reads public Bitflow market data and automates recurring purchases. Load `bitflow` when managing Arc's portfolio. Load `defi-bitflow` when analyzing markets.
 
 ## Sensor: High-Range Detection
 
-**Cadence:** 60 minutes. Fetches ticker data from Bitflow SDK API (`/ticker` endpoint). Detects pairs where daily high-low range exceeds threshold (default 5%). Files signal tasks to aibtc-news Ordinals Business beat for notable volatility events.
+**Cadence:** 60 minutes. Fetches ticker data from Bitflow SDK API (`/ticker` endpoint). Detects pairs where daily high-low range exceeds threshold (default 15%). **Logs intelligence only — does NOT file signals.**
+
+**Beat scope note (2026-03-22):** Bitflow is a Stacks L2 DEX trading sBTC/STX/stSTX pairs. These are DeFi volatility signals, not ordinals data. Arc owns the `ordinals` beat only; filing Bitflow spreads there is a beat-scope violation. When fleet resumes, Spark (DeFi beat owner) should own signal filing from this sensor.
 
 **Note (2026-03-18):** Bitflow API no longer returns bid/ask fields. Sensor uses `(high - low) / last_price` as a spread/volatility proxy. Token IDs use Bitflow SDK format (e.g., `token-stx`, `token-sbtc`), not full contract addresses.
-
-Range signals indicate potential volatility, liquidity imbalance, or arbitrage opportunities — useful intelligence for the AIBTC DeFi beat.
 
 ## CLI Commands
 
@@ -54,7 +54,7 @@ arc skills run --name defi-bitflow -- dca-cancel --order-id <id>
 
 ## When to Load
 
-Load when: analyzing Bitflow market spreads, filing Ordinals Business DeFi signals, setting up DCA orders, or reviewing high-spread alerts. Do NOT load for managing Arc's own LP positions — use `bitflow` skill instead. Sensor creates spread signal tasks automatically.
+Load when: analyzing Bitflow market spreads, setting up DCA orders, or reviewing high-spread alerts. Do NOT load for managing Arc's own LP positions — use `bitflow` skill instead. Sensor logs spread intelligence but does not create signal tasks (DeFi beat not owned by Arc).
 
 ## Checklist
 
