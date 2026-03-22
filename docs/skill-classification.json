@@ -1,22 +1,46 @@
 {
-  "generated": "2026-03-22T02:55Z",
-  "phase": "4-upstream-cross-reference",
+  "generated": "2026-03-22T03:09:26Z",
+  "phase": "5-final-manifest",
+  "quest": "skill-classification",
   "source_inventory": "docs/skill-inventory.json",
   "total_skills": 122,
   "summary": {
-    "shared": 37,
-    "arc_specific": 68,
-    "runtime_builtin": 8,
-    "delete": 9
+    "by_bucket": {
+      "shared": 37,
+      "arc_specific": 68,
+      "runtime_builtin": 8,
+      "delete": 9
+    },
+    "by_migration_action": {
+      "keep-in-instance": 67,
+      "extract-to-shared": 24,
+      "replace-with-upstream": 9,
+      "ship-with-engine": 8,
+      "delete": 9,
+      "contribute-upstream": 5
+    },
+    "usage_30d_by_bucket": {
+      "shared": 3656,
+      "arc_specific": 3934,
+      "runtime_builtin": 2153,
+      "delete": 11
+    },
+    "total_usage_30d": 9754
   },
   "skills": [
     {
       "name": "agent-hub",
       "bucket": "arc_specific",
       "usage_30d": 3,
-      "arc_refs": ["fleet IPs hardcoded", "Arc BTC/STX addresses in sensor.ts"],
+      "arc_refs": [
+        "fleet IPs hardcoded",
+        "Arc BTC/STX addresses in sensor.ts"
+      ],
       "upstream": null,
-      "notes": "Fleet-internal registry with hardcoded fleet roster. Arc-specific."
+      "notes": "Fleet-internal registry with hardcoded fleet roster. Arc-specific.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: fleet IPs hardcoded; Arc BTC/STX addresses in sensor.ts.",
+      "upstream_status": "none"
     },
     {
       "name": "aibtc-dev-ops",
@@ -25,7 +49,10 @@
       "arc_refs": [],
       "upstream": null,
       "upstream_candidate": true,
-      "notes": "Generic devops monitoring for aibtcdev repos. No arc-specific refs."
+      "notes": "Generic devops monitoring for aibtcdev repos. No arc-specific refs.",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared skill repo. No upstream equivalent — new contribution.",
+      "upstream_status": "none"
     },
     {
       "name": "aibtc-heartbeat",
@@ -34,15 +61,24 @@
       "arc_refs": [],
       "upstream": null,
       "upstream_candidate": true,
-      "notes": "BIP-137 signed heartbeat — any agent could use this."
+      "notes": "BIP-137 signed heartbeat — any agent could use this.",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared skill repo. No upstream equivalent — new contribution.",
+      "upstream_status": "none"
     },
     {
       "name": "aibtc-inbox-sync",
       "bucket": "arc_specific",
       "usage_30d": 16,
-      "arc_refs": ["Arc BTC address in SKILL.md/AGENT.md", "whoabuddy trusted addresses"],
+      "arc_refs": [
+        "Arc BTC address in SKILL.md/AGENT.md",
+        "whoabuddy trusted addresses"
+      ],
       "upstream": "inbox",
-      "notes": "Has hardcoded Arc address and whoabuddy trust rules. Upstream 'inbox' exists."
+      "notes": "Has hardcoded Arc address and whoabuddy trust rules. Upstream 'inbox' exists.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Instance-specific. Upstream 'inbox' is orthogonal (different purpose). No migration needed.",
+      "upstream_status": "orthogonal"
     },
     {
       "name": "aibtc-news-classifieds",
@@ -50,23 +86,38 @@
       "usage_30d": 17,
       "arc_refs": [],
       "upstream": "aibtc-news-classifieds",
-      "notes": "Generic classifieds API wrapper. Exists upstream."
+      "notes": "Generic classifieds API wrapper. Exists upstream.",
+      "migration_action": "replace-with-upstream",
+      "migration_notes": "High refactor potential. Replace with upstream 'aibtc-news-classifieds'. Relationship: equivalent. Upstream has richer corrections subcommand and JSON output. Local is condensed. Upstream is fresher.",
+      "upstream_status": "equivalent"
     },
     {
       "name": "aibtc-news-deal-flow",
       "bucket": "arc_specific",
       "usage_30d": 5,
-      "arc_refs": ["Arc BTC address in AGENT.md", "Arc STX address in sensor.ts", "whoabuddy refs"],
+      "arc_refs": [
+        "Arc BTC address in AGENT.md",
+        "Arc STX address in sensor.ts",
+        "whoabuddy refs"
+      ],
       "upstream": "aibtc-news-deal-flow",
-      "notes": "Beat claimed by Arc with hardcoded identity. Upstream version likely cleaner."
+      "notes": "Beat claimed by Arc with hardcoded identity. Upstream version likely cleaner.",
+      "migration_action": "replace-with-upstream",
+      "migration_notes": "Replace with upstream 'aibtc-news-deal-flow'. Local is narrative SKILL.md only (no CLI). Upstream has compose-signal, check-sources, editorial-guide commands. DELETE local, load upstream.",
+      "upstream_status": "superseded"
     },
     {
       "name": "aibtc-news-editorial",
       "bucket": "arc_specific",
       "usage_30d": 251,
-      "arc_refs": ["Arc BTC address in SKILL.md and AGENT.md (40+ refs)"],
+      "arc_refs": [
+        "Arc BTC address in SKILL.md and AGENT.md (40+ refs)"
+      ],
       "upstream": "aibtc-news-correspondent",
-      "notes": "Heavy Arc identity coupling — signal filing uses Arc's BTC address throughout. High usage. Upstream 'aibtc-news-correspondent' is the generic equivalent."
+      "notes": "Heavy Arc identity coupling — signal filing uses Arc's BTC address throughout. High usage. Upstream 'aibtc-news-correspondent' is the generic equivalent.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Instance-specific extension of upstream 'aibtc-news-correspondent'. Keep local, load upstream for generic framework.",
+      "upstream_status": "extension"
     },
     {
       "name": "aibtc-repo-maintenance",
@@ -75,23 +126,38 @@
       "arc_refs": [],
       "upstream": null,
       "upstream_candidate": true,
-      "notes": "Highest usage shared skill. Generic repo maintenance — no arc-specific refs."
+      "notes": "Highest usage shared skill. Generic repo maintenance — no arc-specific refs.",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared skill repo. No upstream equivalent — new contribution.",
+      "upstream_status": "none"
     },
     {
       "name": "aibtc-welcome",
       "bucket": "arc_specific",
       "usage_30d": 177,
-      "arc_refs": ["Arc STX address hardcoded", "fleet agent names in SKILL.md"],
+      "arc_refs": [
+        "Arc STX address hardcoded",
+        "fleet agent names in SKILL.md"
+      ],
       "upstream": "onboarding",
-      "notes": "Hardcoded Arc STX sender address and fleet skip list."
+      "notes": "Hardcoded Arc STX sender address and fleet skip list.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Instance-specific. Upstream 'onboarding' is orthogonal (different purpose). No migration needed.",
+      "upstream_status": "orthogonal"
     },
     {
       "name": "alb",
       "bucket": "arc_specific",
       "usage_30d": 14,
-      "arc_refs": ["Arc BTC/STX addresses hardcoded in sensor.ts/cli.ts", "whoabuddy ref"],
+      "arc_refs": [
+        "Arc BTC/STX addresses hardcoded in sensor.ts/cli.ts",
+        "whoabuddy ref"
+      ],
       "upstream": null,
-      "notes": "ALB inbox is for trustless-indra specifically. Hardcoded addresses."
+      "notes": "ALB inbox is for trustless-indra specifically. Hardcoded addresses.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: Arc BTC/STX addresses hardcoded in sensor.ts/cli.ts; whoabuddy ref.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-alive-check",
@@ -99,7 +165,10 @@
       "usage_30d": 1,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Generic dispatch canary — any agent needs this."
+      "notes": "Generic dispatch canary — any agent needs this.",
+      "migration_action": "ship-with-engine",
+      "migration_notes": "Core engine skill. Ships with runtime — no extraction needed.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-architecture-review",
@@ -107,7 +176,10 @@
       "usage_30d": 47,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Arc-prefixed, reviews Arc's own architecture. Instance-specific."
+      "notes": "Arc-prefixed, reviews Arc's own architecture. Instance-specific.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-blocked-review",
@@ -115,7 +187,10 @@
       "usage_30d": 38,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Reviews Arc's blocked tasks. Instance operational skill."
+      "notes": "Reviews Arc's blocked tasks. Instance operational skill.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-bounty-scanner",
@@ -123,15 +198,25 @@
       "usage_30d": 0,
       "arc_refs": [],
       "upstream": "bounty-scanner",
-      "notes": "Zero usage in 30 days. Upstream bounty-scanner exists."
+      "notes": "Zero usage in 30 days. Upstream bounty-scanner exists.",
+      "migration_action": "delete",
+      "migration_notes": "Delete candidate. Verdict: confirmed-unused. Upstream 'bounty-scanner' covers this.",
+      "upstream_status": "different_sources"
     },
     {
       "name": "arc-brand-voice",
       "bucket": "arc_specific",
       "usage_30d": 25,
-      "arc_refs": ["whoabuddy refs", "Trustless Indra identity", "Arc brand voice in cli.ts"],
+      "arc_refs": [
+        "whoabuddy refs",
+        "Trustless Indra identity",
+        "Arc brand voice in cli.ts"
+      ],
       "upstream": null,
-      "notes": "Arc's unique brand identity — inherently instance-specific."
+      "notes": "Arc's unique brand identity — inherently instance-specific.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: whoabuddy refs; Trustless Indra identity; Arc brand voice in cli.ts.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-catalog",
@@ -139,23 +224,37 @@
       "usage_30d": 55,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Publishes to arc0me-site. Instance deployment coupling."
+      "notes": "Publishes to arc0me-site. Instance deployment coupling.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-ceo-review",
       "bucket": "arc_specific",
       "usage_30d": 28,
-      "arc_refs": ["whoabuddy refs", "Spark status ref"],
+      "arc_refs": [
+        "whoabuddy refs",
+        "Spark status ref"
+      ],
       "upstream": "ceo",
-      "notes": "Arc's CEO review with fleet-specific context. Upstream 'ceo' is generic."
+      "notes": "Arc's CEO review with fleet-specific context. Upstream 'ceo' is generic.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Instance-specific extension of upstream 'ceo'. Keep local, load upstream for generic framework.",
+      "upstream_status": "extension"
     },
     {
       "name": "arc-ceo-strategy",
       "bucket": "arc_specific",
       "usage_30d": 9,
-      "arc_refs": ["whoabuddy escalation refs"],
+      "arc_refs": [
+        "whoabuddy escalation refs"
+      ],
       "upstream": "ceo",
-      "notes": "Arc's strategic operating manual. Instance-specific."
+      "notes": "Arc's strategic operating manual. Instance-specific.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Instance-specific extension of upstream 'ceo'. Keep local, load upstream for generic framework.",
+      "upstream_status": "extension"
     },
     {
       "name": "arc-content-quality",
@@ -164,7 +263,10 @@
       "arc_refs": [],
       "upstream": null,
       "upstream_candidate": true,
-      "notes": "Generic content quality gate. Zero usage but useful pattern. Keep as shared candidate."
+      "notes": "Generic content quality gate. Zero usage but useful pattern. Keep as shared candidate.",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared skill repo. No upstream equivalent — new contribution.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-cost-reporting",
@@ -172,7 +274,10 @@
       "usage_30d": 103,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Instance cost tracking. Arc-prefixed operational skill."
+      "notes": "Instance cost tracking. Arc-prefixed operational skill.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-credentials",
@@ -180,7 +285,10 @@
       "usage_30d": 18,
       "arc_refs": [],
       "upstream": "credentials",
-      "notes": "Core credential store — any agent needs this. Upstream 'credentials' exists."
+      "notes": "Core credential store — any agent needs this. Upstream 'credentials' exists.",
+      "migration_action": "ship-with-engine",
+      "migration_notes": "Core engine skill. Ships with runtime — no extraction needed.",
+      "upstream_status": "equivalent"
     },
     {
       "name": "arc-dispatch-eval",
@@ -188,7 +296,10 @@
       "usage_30d": 1,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Duplicate of arc-dispatch-evals. Consolidate. 1 use in 30d."
+      "notes": "Duplicate of arc-dispatch-evals. Consolidate. 1 use in 30d.",
+      "migration_action": "delete",
+      "migration_notes": "Delete candidate. Verdict: near-zero-duplicate-of-arc-dispatch-evals. No upstream equivalent needed.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-dispatch-evals",
@@ -196,15 +307,23 @@
       "usage_30d": 1,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Dispatch quality evaluation. Low usage but instance-specific ops."
+      "notes": "Dispatch quality evaluation. Low usage but instance-specific ops.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-email-sync",
       "bucket": "arc_specific",
       "usage_30d": 319,
-      "arc_refs": ["whoabuddy priority routing (6+ refs in sensor.ts, SKILL.md, AGENT.md)"],
+      "arc_refs": [
+        "whoabuddy priority routing (6+ refs in sensor.ts, SKILL.md, AGENT.md)"
+      ],
       "upstream": null,
-      "notes": "Heavy whoabuddy-specific routing logic. High usage, deeply Arc-specific."
+      "notes": "Heavy whoabuddy-specific routing logic. High usage, deeply Arc-specific.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: whoabuddy priority routing (6+ refs in sensor.ts, SKILL.md, AGENT.md).",
+      "upstream_status": "none"
     },
     {
       "name": "arc-failure-triage",
@@ -212,7 +331,10 @@
       "usage_30d": 102,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Arc instance failure triage. Operational."
+      "notes": "Arc instance failure triage. Operational.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-housekeeping",
@@ -220,15 +342,23 @@
       "usage_30d": 151,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Arc instance repo hygiene. Could be genericized but currently arc-prefixed."
+      "notes": "Arc instance repo hygiene. Could be genericized but currently arc-prefixed.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-inbox",
       "bucket": "arc_specific",
       "usage_30d": 2,
-      "arc_refs": ["Arc STX address in contract and SKILL.md"],
+      "arc_refs": [
+        "Arc STX address in contract and SKILL.md"
+      ],
       "upstream": "inbox",
-      "notes": "Clarity contract deployed by Arc's STX address. Instance-specific on-chain."
+      "notes": "Clarity contract deployed by Arc's STX address. Instance-specific on-chain.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: Arc STX address in contract and SKILL.md.",
+      "upstream_status": "mapped"
     },
     {
       "name": "arc-introspection",
@@ -236,15 +366,23 @@
       "usage_30d": 15,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Arc's self-assessment. Instance-specific."
+      "notes": "Arc's self-assessment. Instance-specific.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-link-research",
       "bucket": "arc_specific",
       "usage_30d": 44,
-      "arc_refs": ["whoabuddy ref in SKILL.md"],
+      "arc_refs": [
+        "whoabuddy ref in SKILL.md"
+      ],
       "upstream": null,
-      "notes": "Processes links dropped by whoabuddy. Arc-specific relationship."
+      "notes": "Processes links dropped by whoabuddy. Arc-specific relationship.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: whoabuddy ref in SKILL.md.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-mcp",
@@ -252,7 +390,10 @@
       "usage_30d": 0,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Zero usage. Superseded by arc-mcp-server."
+      "notes": "Zero usage. Superseded by arc-mcp-server.",
+      "migration_action": "delete",
+      "migration_notes": "Delete candidate. Verdict: confirmed-unused-superseded. No upstream equivalent needed.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-mcp-server",
@@ -260,7 +401,10 @@
       "usage_30d": 6,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Exposes Arc's task queue via MCP. Instance-specific API surface."
+      "notes": "Exposes Arc's task queue via MCP. Instance-specific API surface.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-memory",
@@ -268,7 +412,10 @@
       "usage_30d": 4,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Arc's pattern libraries and decision frameworks. Instance-specific."
+      "notes": "Arc's pattern libraries and decision frameworks. Instance-specific.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-monitoring-service",
@@ -276,15 +423,24 @@
       "usage_30d": 1,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Arc's paid monitoring service (D1). Low usage, monetization-specific."
+      "notes": "Arc's paid monitoring service (D1). Low usage, monetization-specific.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-observatory",
       "bucket": "arc_specific",
       "usage_30d": 38,
-      "arc_refs": ["fleet IPs in fleet.json", "Spark/Iris/Loom/Forge in SKILL.md"],
+      "arc_refs": [
+        "fleet IPs in fleet.json",
+        "Spark/Iris/Loom/Forge in SKILL.md"
+      ],
       "upstream": null,
-      "notes": "Fleet observability UI with hardcoded fleet roster."
+      "notes": "Fleet observability UI with hardcoded fleet roster.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: fleet IPs in fleet.json; Spark/Iris/Loom/Forge in SKILL.md.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-opensource",
@@ -292,7 +448,10 @@
       "usage_30d": 6,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Maintains arc-starter as open source project. Instance-specific."
+      "notes": "Maintains arc-starter as open source project. Instance-specific.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-ops-review",
@@ -300,15 +459,23 @@
       "usage_30d": 5,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Arc instance operational metrics."
+      "notes": "Arc instance operational metrics.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-payments",
       "bucket": "arc_specific",
       "usage_30d": 7,
-      "arc_refs": ["Arc STX address in SKILL.md"],
+      "arc_refs": [
+        "Arc STX address in SKILL.md"
+      ],
       "upstream": null,
-      "notes": "Watches for payments to Arc's address. Instance-specific."
+      "notes": "Watches for payments to Arc's address. Instance-specific.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: Arc STX address in SKILL.md.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-performance-analytics",
@@ -316,15 +483,25 @@
       "usage_30d": 13,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Arc instance performance analytics."
+      "notes": "Arc instance performance analytics.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-remote-setup",
       "bucket": "arc_specific",
       "usage_30d": 375,
-      "arc_refs": ["all fleet IPs", "whoabuddy SSH keys", "Spark/Iris/Loom/Forge roster"],
+      "arc_refs": [
+        "all fleet IPs",
+        "whoabuddy SSH keys",
+        "Spark/Iris/Loom/Forge roster"
+      ],
       "upstream": null,
-      "notes": "SSH provisioning with hardcoded fleet topology. Very high usage, deeply Arc-specific."
+      "notes": "SSH provisioning with hardcoded fleet topology. Very high usage, deeply Arc-specific.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: all fleet IPs; whoabuddy SSH keys; Spark/Iris/Loom/Forge roster.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-report-email",
@@ -332,7 +509,10 @@
       "usage_30d": 2,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Emails watch reports. Arc instance operational."
+      "notes": "Emails watch reports. Arc instance operational.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-reporting",
@@ -340,15 +520,23 @@
       "usage_30d": 74,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Arc's watch reports and overnight briefs. Instance-specific."
+      "notes": "Arc's watch reports and overnight briefs. Instance-specific.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-reputation",
       "bucket": "arc_specific",
       "usage_30d": 4,
-      "arc_refs": ["Arc BTC address in METHODOLOGY.md"],
+      "arc_refs": [
+        "Arc BTC address in METHODOLOGY.md"
+      ],
       "upstream": "reputation",
-      "notes": "Signed peer reviews with Arc's BTC address. Upstream 'reputation' exists."
+      "notes": "Signed peer reviews with Arc's BTC address. Upstream 'reputation' exists.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Instance-specific. Upstream 'reputation' is orthogonal (different purpose). No migration needed.",
+      "upstream_status": "orthogonal"
     },
     {
       "name": "arc-scheduler",
@@ -356,7 +544,10 @@
       "usage_30d": 1,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Core scheduling capability — any agent needs deferred task creation."
+      "notes": "Core scheduling capability — any agent needs deferred task creation.",
+      "migration_action": "ship-with-engine",
+      "migration_notes": "Core engine skill. Ships with runtime — no extraction needed.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-self-audit",
@@ -364,7 +555,10 @@
       "usage_30d": 21,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Daily self-audit of Arc's operations."
+      "notes": "Daily self-audit of Arc's operations.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-self-review",
@@ -372,7 +566,10 @@
       "usage_30d": 9,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Arc's periodic self-review cycle."
+      "notes": "Arc's periodic self-review cycle.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-service-health",
@@ -380,7 +577,10 @@
       "usage_30d": 2,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Generic dispatch health detection — stale cycles, stuck dispatch. Any agent needs this."
+      "notes": "Generic dispatch health detection — stale cycles, stuck dispatch. Any agent needs this.",
+      "migration_action": "ship-with-engine",
+      "migration_notes": "Core engine skill. Ships with runtime — no extraction needed.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-skill-manager",
@@ -388,7 +588,10 @@
       "usage_30d": 1962,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Core skill management. Highest usage skill (1962 tasks). Essential runtime capability."
+      "notes": "Core skill management. Highest usage skill (1962 tasks). Essential runtime capability.",
+      "migration_action": "ship-with-engine",
+      "migration_notes": "Core engine skill. Ships with runtime — no extraction needed.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-starter-publish",
@@ -396,7 +599,10 @@
       "usage_30d": 117,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Publishes arc-starter v2→main. Instance-specific git workflow."
+      "notes": "Publishes arc-starter v2→main. Instance-specific git workflow.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-strategy-review",
@@ -404,7 +610,10 @@
       "usage_30d": 2,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Weekly strategy check against Arc's Five Directives."
+      "notes": "Weekly strategy check against Arc's Five Directives.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-umbrel",
@@ -412,15 +621,23 @@
       "usage_30d": 5,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Bitcoin Core RPC via Arc's local Umbrel node at 192.168.1.106."
+      "notes": "Bitcoin Core RPC via Arc's local Umbrel node at 192.168.1.106.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-web-dashboard",
       "bucket": "arc_specific",
       "usage_30d": 31,
-      "arc_refs": ["Arc BTC/STX addresses in AGENT.md"],
+      "arc_refs": [
+        "Arc BTC/STX addresses in AGENT.md"
+      ],
       "upstream": null,
-      "notes": "Arc's live web dashboard with fleet roster."
+      "notes": "Arc's live web dashboard with fleet roster.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: Arc BTC/STX addresses in AGENT.md.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-workflow-review",
@@ -428,15 +645,24 @@
       "usage_30d": 1,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Detects repeating patterns. Low usage, instance operational."
+      "notes": "Detects repeating patterns. Low usage, instance operational.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc-workflows",
       "bucket": "runtime_builtin",
       "usage_30d": 87,
-      "arc_refs": ["Arc STX address in state-machine.ts comment", "whoabuddy in PSBT signing workflow"],
+      "arc_refs": [
+        "Arc STX address in state-machine.ts comment",
+        "whoabuddy in PSBT signing workflow"
+      ],
       "upstream": null,
-      "notes": "Persistent state machines — core orchestration capability. Has arc-specific refs in PSBT workflow that need cleanup for genericization."
+      "notes": "Persistent state machines — core orchestration capability. Has arc-specific refs in PSBT workflow that need cleanup for genericization.",
+      "migration_action": "ship-with-engine",
+      "migration_notes": "Core engine skill. Cleanup needed before extraction: (whoabuddy ref in PSBT signing workflow)",
+      "upstream_status": "none"
     },
     {
       "name": "arc-worktrees",
@@ -444,7 +670,10 @@
       "usage_30d": 77,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Git worktree isolation for dispatch. Core safety mechanism."
+      "notes": "Git worktree isolation for dispatch. Core safety mechanism.",
+      "migration_action": "ship-with-engine",
+      "migration_notes": "Core engine skill. Ships with runtime — no extraction needed.",
+      "upstream_status": "none"
     },
     {
       "name": "arc0btc-ask-service",
@@ -452,7 +681,10 @@
       "usage_30d": 2,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Arc's paid Ask service on arc0btc.com."
+      "notes": "Arc's paid Ask service on arc0btc.com.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc0btc-monetization",
@@ -460,7 +692,10 @@
       "usage_30d": 14,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Arc's monetization strategy for arc0btc.com."
+      "notes": "Arc's monetization strategy for arc0btc.com.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc0btc-pr-review",
@@ -468,7 +703,10 @@
       "usage_30d": 1,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Arc's paid PR review service."
+      "notes": "Arc's paid PR review service.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc0btc-security-audit",
@@ -476,7 +714,10 @@
       "usage_30d": 0,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Arc's paid security audit service. Zero usage but actively listed service."
+      "notes": "Arc's paid security audit service. Zero usage but actively listed service.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc0btc-services",
@@ -484,7 +725,10 @@
       "usage_30d": 2,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Arc's services storefront for arc0btc.com."
+      "notes": "Arc's services storefront for arc0btc.com.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arc0btc-site-health",
@@ -492,7 +736,10 @@
       "usage_30d": 58,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Monitors arc0btc.com. Instance-specific site monitoring."
+      "notes": "Monitors arc0btc.com. Instance-specific site monitoring.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "arxiv-research",
@@ -500,7 +747,10 @@
       "usage_30d": 25,
       "arc_refs": [],
       "upstream": "arxiv-research",
-      "notes": "Generic arXiv paper fetching. Exists upstream."
+      "notes": "Generic arXiv paper fetching. Exists upstream.",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared repo. Upstream 'arxiv-research' exists (relationship: no_upstream). No upstream equivalent found. Local skill is standalone.",
+      "upstream_status": "no_upstream"
     },
     {
       "name": "auto-queue",
@@ -508,7 +758,10 @@
       "usage_30d": 10,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Task batch generation based on Arc's completion patterns. Instance operational."
+      "notes": "Task batch generation based on Arc's completion patterns. Instance operational.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "bitcoin-quorumclaw",
@@ -516,7 +769,10 @@
       "usage_30d": 107,
       "arc_refs": [],
       "upstream": "psbt",
-      "notes": "QuorumClaw multisig API. Generic Bitcoin capability. Upstream 'psbt' is related."
+      "notes": "QuorumClaw multisig API. Generic Bitcoin capability. Upstream 'psbt' is related.",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared repo. Upstream 'psbt' exists (relationship: different_tools). Different tools entirely. QuorumClaw is multisig orchestration via REST API with ERC-8004 reputation hooks. PSBT is lower-level PSBT signing/broadcast primitives.",
+      "upstream_status": "different_tools"
     },
     {
       "name": "bitcoin-taproot-multisig",
@@ -524,24 +780,37 @@
       "usage_30d": 109,
       "arc_refs": [],
       "upstream": "taproot-multisig",
-      "notes": "Taproot M-of-N multisig. Generic Bitcoin capability. Upstream equivalent exists."
+      "notes": "Taproot M-of-N multisig. Generic Bitcoin capability. Upstream equivalent exists.",
+      "migration_action": "replace-with-upstream",
+      "migration_notes": "Replace with upstream 'taproot-multisig'. Same 3 commands (get-pubkey, verify-cosig, guide). Upstream has better output examples and TXIDs. Upstream is more complete.",
+      "upstream_status": "equivalent"
     },
     {
       "name": "bitcoin-wallet",
       "bucket": "shared",
       "usage_30d": 527,
-      "arc_refs": ["Arc BTC/STX addresses in SKILL.md and AGENT.md (documentation only)"],
+      "arc_refs": [
+        "Arc BTC/STX addresses in SKILL.md and AGENT.md (documentation only)"
+      ],
       "upstream": "wallet",
       "notes": "Core wallet management. Addresses in docs are examples, not functional hardcoding. Wallet reads from encrypted store at runtime. Upstream 'wallet' exists.",
-      "arc_refs_severity": "low-doc-only"
+      "arc_refs_severity": "low-doc-only",
+      "migration_action": "replace-with-upstream",
+      "migration_notes": "High refactor potential. Replace with upstream 'wallet'. Relationship: subset. Upstream has full lifecycle (create, import, delete, export, rotate, switch, multi-wallet). Local is single-wallet Arc wrapper. Upstream is the complete reference.",
+      "upstream_status": "subset"
     },
     {
       "name": "bitflow",
       "bucket": "delete",
       "usage_30d": 1,
-      "arc_refs": ["Arc STX address hardcoded as ARC_ADDRESS"],
+      "arc_refs": [
+        "Arc STX address hardcoded as ARC_ADDRESS"
+      ],
       "upstream": "bitflow",
-      "notes": "Superseded by defi-bitflow. 1 use in 30d. Duplicate. Upstream exists."
+      "notes": "Superseded by defi-bitflow. 1 use in 30d. Duplicate. Upstream exists.",
+      "migration_action": "delete",
+      "migration_notes": "Delete candidate. Verdict: near-zero-duplicate-of-defi-bitflow. Upstream 'bitflow' covers this.",
+      "upstream_status": "superseded"
     },
     {
       "name": "blog-deploy",
@@ -549,7 +818,10 @@
       "usage_30d": 194,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Deploys arc0me-site to Cloudflare Workers. Instance deployment."
+      "notes": "Deploys arc0me-site to Cloudflare Workers. Instance deployment.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "blog-publishing",
@@ -557,7 +829,10 @@
       "usage_30d": 241,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Publishes blog posts to Arc's blog. Instance content."
+      "notes": "Publishes blog posts to Arc's blog. Instance content.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "claude-code-releases",
@@ -566,17 +841,25 @@
       "arc_refs": [],
       "upstream": null,
       "upstream_candidate": true,
-      "notes": "Generic Claude Code release monitoring. Any agent using Claude Code benefits."
+      "notes": "Generic Claude Code release monitoring. Any agent using Claude Code benefits.",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared skill repo. No upstream equivalent — new contribution.",
+      "upstream_status": "none"
     },
     {
       "name": "code-audit",
       "bucket": "shared",
       "usage_30d": 0,
-      "arc_refs": ["Forge ref in SKILL.md description"],
+      "arc_refs": [
+        "Forge ref in SKILL.md description"
+      ],
       "upstream": null,
       "upstream_candidate": true,
       "notes": "Generic static analysis/security scanning. Forge ref is trivial (description only). Zero usage — was Forge's skill, fleet is suspended.",
-      "arc_refs_severity": "low-doc-only"
+      "arc_refs_severity": "low-doc-only",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared skill repo. No upstream equivalent — new contribution. Low-severity doc-only arc refs (remove examples before extraction).",
+      "upstream_status": "none"
     },
     {
       "name": "compliance-review",
@@ -584,17 +867,25 @@
       "usage_30d": 29,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Audits against Arc's specific conventions. Instance-specific quality check."
+      "notes": "Audits against Arc's specific conventions. Instance-specific quality check.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "contacts",
       "bucket": "shared",
       "usage_30d": 736,
-      "arc_refs": ["whoabuddy as CLI example in AGENT.md/cli.ts"],
+      "arc_refs": [
+        "whoabuddy as CLI example in AGENT.md/cli.ts"
+      ],
       "upstream": null,
       "upstream_candidate": true,
       "notes": "Generic CRM. whoabuddy refs are just CLI examples, not functional. Very high usage.",
-      "arc_refs_severity": "low-doc-only"
+      "arc_refs_severity": "low-doc-only",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared skill repo. No upstream equivalent — new contribution. Low-severity doc-only arc refs (remove examples before extraction).",
+      "upstream_status": "none"
     },
     {
       "name": "context-review",
@@ -602,7 +893,10 @@
       "usage_30d": 51,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Audits task-to-skill context mapping. Instance operational."
+      "notes": "Audits task-to-skill context mapping. Instance operational.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "dao-zero-authority",
@@ -611,7 +905,10 @@
       "arc_refs": [],
       "upstream": null,
       "upstream_candidate": true,
-      "notes": "Generic DAO governance on Stacks. Low usage (sensor removed, CLI ready)."
+      "notes": "Generic DAO governance on Stacks. Low usage (sensor removed, CLI ready).",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared skill repo. No upstream equivalent — new contribution.",
+      "upstream_status": "none"
     },
     {
       "name": "defi-bitflow",
@@ -619,15 +916,23 @@
       "usage_30d": 42,
       "arc_refs": [],
       "upstream": "bitflow",
-      "notes": "Bitflow DEX skill. No hardcoded addresses in code (uses wallet at runtime). Upstream 'bitflow' exists."
+      "notes": "Bitflow DEX skill. No hardcoded addresses in code (uses wallet at runtime). Upstream 'bitflow' exists.",
+      "migration_action": "contribute-upstream",
+      "migration_notes": "Contribute to upstream 'bitflow': Sensor-driven spread detection and signal filing logic.",
+      "upstream_status": "specialization"
     },
     {
       "name": "defi-compounding",
       "bucket": "delete",
       "usage_30d": 0,
-      "arc_refs": ["Arc STX address hardcoded as ARC_ADDRESS"],
+      "arc_refs": [
+        "Arc STX address hardcoded as ARC_ADDRESS"
+      ],
       "upstream": "yield-hunter",
-      "notes": "Zero usage. Hardcoded Arc address. Upstream 'yield-hunter' covers this."
+      "notes": "Zero usage. Hardcoded Arc address. Upstream 'yield-hunter' covers this.",
+      "migration_action": "delete",
+      "migration_notes": "Delete candidate. Verdict: confirmed-unused. Upstream 'yield-hunter' covers this.",
+      "upstream_status": "mapped"
     },
     {
       "name": "defi-stacks-market",
@@ -635,16 +940,24 @@
       "usage_30d": 26,
       "arc_refs": [],
       "upstream": "stacks-market",
-      "notes": "Prediction market trading. Generic. Upstream 'stacks-market' exists."
+      "notes": "Prediction market trading. Generic. Upstream 'stacks-market' exists.",
+      "migration_action": "contribute-upstream",
+      "migration_notes": "Contribute to upstream 'stacks-market': Budget enforcement layer (50 STX cap, position tracking, P&L reporting).",
+      "upstream_status": "extension"
     },
     {
       "name": "defi-zest",
       "bucket": "shared",
       "usage_30d": 13,
-      "arc_refs": ["Arc STX address hardcoded as ARC_ADDRESS in sensor.ts/cli.ts"],
+      "arc_refs": [
+        "Arc STX address hardcoded as ARC_ADDRESS in sensor.ts/cli.ts"
+      ],
       "upstream": null,
       "notes": "Zest lending protocol. Address should be read from wallet at runtime. Upstream has no direct equivalent.",
-      "arc_refs_severity": "medium-needs-cleanup"
+      "arc_refs_severity": "medium-needs-cleanup",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared skill repo. Cleanup hardcoded refs before extraction.",
+      "upstream_status": "no_upstream"
     },
     {
       "name": "dev-landing-page-review",
@@ -653,7 +966,10 @@
       "arc_refs": [],
       "upstream": null,
       "upstream_candidate": true,
-      "notes": "React/Next.js PR review rules. Generic frontend review capability."
+      "notes": "React/Next.js PR review rules. Generic frontend review capability.",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared skill repo. No upstream equivalent — new contribution.",
+      "upstream_status": "none"
     },
     {
       "name": "erc8004-identity",
@@ -661,15 +977,23 @@
       "usage_30d": 22,
       "arc_refs": [],
       "upstream": "erc8004",
-      "notes": "ERC-8004 identity management. Generic. Upstream 'erc8004' exists."
+      "notes": "ERC-8004 identity management. Generic. Upstream 'erc8004' exists.",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared repo. Upstream 'erc8004' exists (relationship: subset). Upstream unifies identity+reputation+validation. Local is modular (identity only). Trade-off: modularity vs discoverability.",
+      "upstream_status": "subset"
     },
     {
       "name": "erc8004-indexer",
       "bucket": "arc_specific",
       "usage_30d": 15,
-      "arc_refs": ["Spark/Forge/Loom agent IDs hardcoded in cli.ts"],
+      "arc_refs": [
+        "Spark/Forge/Loom agent IDs hardcoded in cli.ts"
+      ],
       "upstream": null,
-      "notes": "Indexes agents and publishes to arc0.me. Hardcoded fleet agent IDs."
+      "notes": "Indexes agents and publishes to arc0.me. Hardcoded fleet agent IDs.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: Spark/Forge/Loom agent IDs hardcoded in cli.ts.",
+      "upstream_status": "none"
     },
     {
       "name": "erc8004-reputation",
@@ -677,7 +1001,10 @@
       "usage_30d": 45,
       "arc_refs": [],
       "upstream": "reputation",
-      "notes": "ERC-8004 reputation management. Generic. Upstream 'reputation' exists."
+      "notes": "ERC-8004 reputation management. Generic. Upstream 'reputation' exists.",
+      "migration_action": "replace-with-upstream",
+      "migration_notes": "Replace with upstream 'reputation'. Identical command set. Upstream has better JSON output examples and pagination docs.",
+      "upstream_status": "equivalent"
     },
     {
       "name": "erc8004-trust",
@@ -685,7 +1012,10 @@
       "usage_30d": 0,
       "arc_refs": [],
       "upstream": "reputation",
-      "notes": "Trust score aggregation. Generic, read-only. Zero usage but useful pattern."
+      "notes": "Trust score aggregation. Generic, read-only. Zero usage but useful pattern.",
+      "migration_action": "replace-with-upstream",
+      "migration_notes": "High refactor potential. Replace with upstream 'reputation'. Relationship: subset. Trust aggregation is a read-only subset of reputation. Could merge into erc8004-reputation.",
+      "upstream_status": "subset"
     },
     {
       "name": "erc8004-validation",
@@ -693,7 +1023,10 @@
       "usage_30d": 2,
       "arc_refs": [],
       "upstream": "validation",
-      "notes": "ERC-8004 validation management. Generic. Upstream 'validation' exists."
+      "notes": "ERC-8004 validation management. Generic. Upstream 'validation' exists.",
+      "migration_action": "replace-with-upstream",
+      "migration_notes": "Replace with upstream 'validation'. Same command set. Upstream has better output examples and progressive update docs.",
+      "upstream_status": "equivalent"
     },
     {
       "name": "fleet-comms",
@@ -701,7 +1034,10 @@
       "usage_30d": 6,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Detects silent fleet agents. Fleet-specific."
+      "notes": "Detects silent fleet agents. Fleet-specific.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "fleet-dashboard",
@@ -709,31 +1045,50 @@
       "usage_30d": 24,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Fleet metrics aggregation. Fleet-specific."
+      "notes": "Fleet metrics aggregation. Fleet-specific.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "fleet-escalation",
       "bucket": "arc_specific",
       "usage_30d": 577,
-      "arc_refs": ["whoabuddy email notifications (6+ refs)"],
+      "arc_refs": [
+        "whoabuddy email notifications (6+ refs)"
+      ],
       "upstream": null,
-      "notes": "Fleet escalation to Arc/whoabuddy. Very high usage, deeply fleet-specific."
+      "notes": "Fleet escalation to Arc/whoabuddy. Very high usage, deeply fleet-specific.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: whoabuddy email notifications (6+ refs).",
+      "upstream_status": "none"
     },
     {
       "name": "fleet-handoff",
       "bucket": "arc_specific",
       "usage_30d": 64,
-      "arc_refs": ["Arc IP in cli.ts"],
+      "arc_refs": [
+        "Arc IP in cli.ts"
+      ],
       "upstream": null,
-      "notes": "Routes tasks between fleet agents. Fleet-specific."
+      "notes": "Routes tasks between fleet agents. Fleet-specific.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: Arc IP in cli.ts.",
+      "upstream_status": "none"
     },
     {
       "name": "fleet-health",
       "bucket": "arc_specific",
       "usage_30d": 267,
-      "arc_refs": ["all fleet IPs hardcoded", "Spark/Iris/Loom/Forge roster"],
+      "arc_refs": [
+        "all fleet IPs hardcoded",
+        "Spark/Iris/Loom/Forge roster"
+      ],
       "upstream": null,
-      "notes": "Fleet VM health monitoring. Hardcoded fleet topology."
+      "notes": "Fleet VM health monitoring. Hardcoded fleet topology.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: all fleet IPs hardcoded; Spark/Iris/Loom/Forge roster.",
+      "upstream_status": "none"
     },
     {
       "name": "fleet-log-pull",
@@ -741,15 +1096,23 @@
       "usage_30d": 0,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Zero usage. Fleet suspended. Redundant with fleet-health."
+      "notes": "Zero usage. Fleet suspended. Redundant with fleet-health.",
+      "migration_action": "delete",
+      "migration_notes": "Delete candidate. Verdict: confirmed-unused. No upstream equivalent needed.",
+      "upstream_status": "none"
     },
     {
       "name": "fleet-memory",
       "bucket": "arc_specific",
       "usage_30d": 58,
-      "arc_refs": ["Spark/Iris/Loom/Forge refs"],
+      "arc_refs": [
+        "Spark/Iris/Loom/Forge refs"
+      ],
       "upstream": null,
-      "notes": "Cross-fleet memory distribution. Fleet-specific."
+      "notes": "Cross-fleet memory distribution. Fleet-specific.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: Spark/Iris/Loom/Forge refs.",
+      "upstream_status": "none"
     },
     {
       "name": "fleet-push",
@@ -757,7 +1120,10 @@
       "usage_30d": 12,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Code deployment to fleet. Fleet-specific."
+      "notes": "Code deployment to fleet. Fleet-specific.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "fleet-rebalance",
@@ -765,23 +1131,36 @@
       "usage_30d": 1,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Work-stealing rebalancer. 1 use. Fleet suspended, minimal value."
+      "notes": "Work-stealing rebalancer. 1 use. Fleet suspended, minimal value.",
+      "migration_action": "delete",
+      "migration_notes": "Delete candidate. Verdict: near-zero-fleet-suspended. No upstream equivalent needed.",
+      "upstream_status": "none"
     },
     {
       "name": "fleet-router",
       "bucket": "arc_specific",
       "usage_30d": 5,
-      "arc_refs": ["Spark/Iris/Loom/Forge routing matrix hardcoded"],
+      "arc_refs": [
+        "Spark/Iris/Loom/Forge routing matrix hardcoded"
+      ],
       "upstream": null,
-      "notes": "Task routing with hardcoded agent domain mapping."
+      "notes": "Task routing with hardcoded agent domain mapping.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: Spark/Iris/Loom/Forge routing matrix hardcoded.",
+      "upstream_status": "none"
     },
     {
       "name": "fleet-self-sync",
       "bucket": "arc_specific",
       "usage_30d": 8,
-      "arc_refs": ["Arc BTC/STX addresses in fleet roster"],
+      "arc_refs": [
+        "Arc BTC/STX addresses in fleet roster"
+      ],
       "upstream": null,
-      "notes": "Worker git bundle sync. Hardcoded fleet roster."
+      "notes": "Worker git bundle sync. Hardcoded fleet roster.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: Arc BTC/STX addresses in fleet roster.",
+      "upstream_status": "none"
     },
     {
       "name": "fleet-sync",
@@ -789,7 +1168,10 @@
       "usage_30d": 112,
       "arc_refs": [],
       "upstream": null,
-      "notes": "CLAUDE.md/skills sync across fleet. Fleet-specific."
+      "notes": "CLAUDE.md/skills sync across fleet. Fleet-specific.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "github-ci-status",
@@ -798,25 +1180,38 @@
       "arc_refs": [],
       "upstream": null,
       "upstream_candidate": true,
-      "notes": "Generic GitHub Actions CI monitoring. No arc-specific refs."
+      "notes": "Generic GitHub Actions CI monitoring. No arc-specific refs.",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared skill repo. No upstream equivalent — new contribution.",
+      "upstream_status": "none"
     },
     {
       "name": "github-interceptor",
       "bucket": "arc_specific",
       "usage_30d": 0,
-      "arc_refs": ["Spark/Forge worker refs"],
+      "arc_refs": [
+        "Spark/Forge worker refs"
+      ],
       "upstream": null,
-      "notes": "Routes blocked GitHub tasks from workers to Arc. Fleet-specific. Zero usage (fleet suspended)."
+      "notes": "Routes blocked GitHub tasks from workers to Arc. Fleet-specific. Zero usage (fleet suspended).",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: Spark/Forge worker refs.",
+      "upstream_status": "none"
     },
     {
       "name": "github-issue-monitor",
       "bucket": "shared",
       "usage_30d": 1,
-      "arc_refs": ["whoabuddy contributor refs"],
+      "arc_refs": [
+        "whoabuddy contributor refs"
+      ],
       "upstream": null,
       "upstream_candidate": true,
       "notes": "Generic GitHub issue monitoring. whoabuddy refs are contributor context, not functional.",
-      "arc_refs_severity": "low-doc-only"
+      "arc_refs_severity": "low-doc-only",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared skill repo. No upstream equivalent — new contribution. Low-severity doc-only arc refs (remove examples before extraction).",
+      "upstream_status": "none"
     },
     {
       "name": "github-issues",
@@ -825,17 +1220,26 @@
       "arc_refs": [],
       "upstream": null,
       "upstream_candidate": true,
-      "notes": "Generic GitHub issue triage. High usage, no arc-specific refs."
+      "notes": "Generic GitHub issue triage. High usage, no arc-specific refs.",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared skill repo. No upstream equivalent — new contribution.",
+      "upstream_status": "none"
     },
     {
       "name": "github-mentions",
       "bucket": "shared",
       "usage_30d": 7,
-      "arc_refs": ["whoabuddy merge authority ref", "Spark GitHub-restricted ref"],
+      "arc_refs": [
+        "whoabuddy merge authority ref",
+        "Spark GitHub-restricted ref"
+      ],
       "upstream": null,
       "upstream_candidate": true,
       "notes": "GitHub notification engagement. whoabuddy/Spark refs are org context.",
-      "arc_refs_severity": "low-doc-only"
+      "arc_refs_severity": "low-doc-only",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared skill repo. No upstream equivalent — new contribution. Low-severity doc-only arc refs (remove examples before extraction).",
+      "upstream_status": "none"
     },
     {
       "name": "github-release-watcher",
@@ -844,7 +1248,10 @@
       "arc_refs": [],
       "upstream": null,
       "upstream_candidate": true,
-      "notes": "Generic release monitoring for watched repos."
+      "notes": "Generic release monitoring for watched repos.",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared skill repo. No upstream equivalent — new contribution.",
+      "upstream_status": "none"
     },
     {
       "name": "github-security-alerts",
@@ -853,23 +1260,38 @@
       "arc_refs": [],
       "upstream": null,
       "upstream_candidate": true,
-      "notes": "Generic Dependabot alert monitoring."
+      "notes": "Generic Dependabot alert monitoring.",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared skill repo. No upstream equivalent — new contribution.",
+      "upstream_status": "none"
     },
     {
       "name": "github-worker-logs",
       "bucket": "arc_specific",
       "usage_30d": 24,
-      "arc_refs": ["whoabuddy/worker-logs repo refs", "Spark PR review refs"],
+      "arc_refs": [
+        "whoabuddy/worker-logs repo refs",
+        "Spark PR review refs"
+      ],
       "upstream": null,
-      "notes": "Syncs whoabuddy's worker-logs forks. Arc/fleet-specific."
+      "notes": "Syncs whoabuddy's worker-logs forks. Arc/fleet-specific.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: whoabuddy/worker-logs repo refs; Spark PR review refs.",
+      "upstream_status": "none"
     },
     {
       "name": "identity-guard",
       "bucket": "arc_specific",
       "usage_30d": 0,
-      "arc_refs": ["Arc BTC/STX addresses", "Spark/Iris/Loom/Forge identity markers"],
+      "arc_refs": [
+        "Arc BTC/STX addresses",
+        "Spark/Iris/Loom/Forge identity markers"
+      ],
       "upstream": "identity",
-      "notes": "Fleet identity validation with hardcoded roster. Zero usage."
+      "notes": "Fleet identity validation with hardcoded roster. Zero usage.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Instance-specific. Upstream 'identity' is orthogonal (different purpose). No migration needed.",
+      "upstream_status": "orthogonal"
     },
     {
       "name": "jingswap",
@@ -877,7 +1299,10 @@
       "usage_30d": 1,
       "arc_refs": [],
       "upstream": "jingswap",
-      "notes": "Jingswap DEX on Stacks. Generic DeFi. Upstream exists."
+      "notes": "Jingswap DEX on Stacks. Generic DeFi. Upstream exists.",
+      "migration_action": "replace-with-upstream",
+      "migration_notes": "Replace with upstream 'jingswap'. Upstream has full lifecycle: deposit, cancel, close, settle, user-activity, cycles-history. Local missing ~50% of functionality. Upstream is significantly more complete.",
+      "upstream_status": "subset"
     },
     {
       "name": "maximumsats",
@@ -885,7 +1310,10 @@
       "usage_30d": 2,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Nostr WoT scoring via MaximumSats API. Generic trust tool."
+      "notes": "Nostr WoT scoring via MaximumSats API. Generic trust tool.",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared skill repo.",
+      "upstream_status": "none"
     },
     {
       "name": "mempool-watch",
@@ -893,7 +1321,10 @@
       "usage_30d": 0,
       "arc_refs": [],
       "upstream": "mempool-watch",
-      "notes": "Bitcoin mempool monitoring. Generic. Zero usage but useful. Upstream exists."
+      "notes": "Bitcoin mempool monitoring. Generic. Zero usage but useful. Upstream exists.",
+      "migration_action": "contribute-upstream",
+      "migration_notes": "Contribute to upstream 'mempool-watch': Fee spike sensor, incoming BTC detection, 10-minute cadence monitoring.",
+      "upstream_status": "complementary"
     },
     {
       "name": "nostr-wot",
@@ -901,7 +1332,10 @@
       "usage_30d": 2,
       "arc_refs": [],
       "upstream": "nostr-wot",
-      "notes": "Nostr Web of Trust. Generic trust layer. Upstream exists."
+      "notes": "Nostr Web of Trust. Generic trust layer. Upstream exists.",
+      "migration_action": "contribute-upstream",
+      "migration_notes": "Contribute to upstream 'nostr-wot': Complete SKILL.md documentation, trust-score, sybil-check, neighbors commands.",
+      "upstream_status": "local_ahead"
     },
     {
       "name": "ordinals-market-data",
@@ -909,7 +1343,10 @@
       "usage_30d": 12,
       "arc_refs": [],
       "upstream": "ordinals",
-      "notes": "Ordinals market data and signal filing. Generic. Upstream 'ordinals' exists."
+      "notes": "Ordinals market data and signal filing. Generic. Upstream 'ordinals' exists.",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared repo. Upstream 'ordinals' exists (relationship: different_tools). Different tools. Local does market data aggregation and signal filing. Upstream does inscription creation (commit/reveal). Not comparable.",
+      "upstream_status": "different_tools"
     },
     {
       "name": "quest-create",
@@ -917,15 +1354,23 @@
       "usage_30d": 5,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Quest decomposition and phase management. Core orchestration capability."
+      "notes": "Quest decomposition and phase management. Core orchestration capability.",
+      "migration_action": "ship-with-engine",
+      "migration_notes": "Core engine skill. Ships with runtime — no extraction needed.",
+      "upstream_status": "none"
     },
     {
       "name": "site-consistency",
       "bucket": "arc_specific",
       "usage_30d": 6,
-      "arc_refs": ["arc0.me and arc0btc.com URLs hardcoded throughout"],
+      "arc_refs": [
+        "arc0.me and arc0btc.com URLs hardcoded throughout"
+      ],
       "upstream": null,
-      "notes": "Cross-site drift detection between Arc's two sites."
+      "notes": "Cross-site drift detection between Arc's two sites.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: arc0.me and arc0btc.com URLs hardcoded throughout.",
+      "upstream_status": "none"
     },
     {
       "name": "skill-effectiveness",
@@ -933,17 +1378,25 @@
       "usage_30d": 4,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Tracks SKILL.md version→outcome correlation. 4 uses. Experimental, low proven value."
+      "notes": "Tracks SKILL.md version→outcome correlation. 4 uses. Experimental, low proven value.",
+      "migration_action": "delete",
+      "migration_notes": "Delete candidate. Verdict: low-usage-experimental. No upstream equivalent needed.",
+      "upstream_status": "none"
     },
     {
       "name": "social-agent-engagement",
       "bucket": "shared",
       "usage_30d": 254,
-      "arc_refs": ["Spark Topaz Centaur ref in AGENT.md/cli.ts"],
+      "arc_refs": [
+        "Spark Topaz Centaur ref in AGENT.md/cli.ts"
+      ],
       "upstream": null,
       "upstream_candidate": true,
       "notes": "AIBTC agent outreach. Spark ref is agent directory data, not functional.",
-      "arc_refs_severity": "low-doc-only"
+      "arc_refs_severity": "low-doc-only",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared skill repo. No upstream equivalent — new contribution. Low-severity doc-only arc refs (remove examples before extraction).",
+      "upstream_status": "none"
     },
     {
       "name": "social-x-ecosystem",
@@ -952,7 +1405,10 @@
       "arc_refs": [],
       "upstream": null,
       "upstream_candidate": true,
-      "notes": "X ecosystem keyword monitoring. Generic social listening."
+      "notes": "X ecosystem keyword monitoring. Generic social listening.",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared skill repo. No upstream equivalent — new contribution.",
+      "upstream_status": "none"
     },
     {
       "name": "social-x-posting",
@@ -961,16 +1417,24 @@
       "arc_refs": [],
       "upstream": null,
       "upstream_candidate": true,
-      "notes": "Generic X posting via API v2. High usage, no arc-specific refs."
+      "notes": "Generic X posting via API v2. High usage, no arc-specific refs.",
+      "migration_action": "extract-to-shared",
+      "migration_notes": "Extract to shared skill repo. No upstream equivalent — new contribution.",
+      "upstream_status": "none"
     },
     {
       "name": "stacks-stackspot",
       "bucket": "shared",
       "usage_30d": 12,
-      "arc_refs": ["Arc BTC/STX addresses in SKILL.md documentation"],
+      "arc_refs": [
+        "Arc BTC/STX addresses in SKILL.md documentation"
+      ],
       "upstream": "stackspot",
       "notes": "Stacking participation. Addresses in docs only. Upstream 'stackspot' exists.",
-      "arc_refs_severity": "low-doc-only"
+      "arc_refs_severity": "low-doc-only",
+      "migration_action": "contribute-upstream",
+      "migration_notes": "Contribute to upstream 'stackspot': Auto-join sensor logic for autonomous pot participation.",
+      "upstream_status": "specialization"
     },
     {
       "name": "styx",
@@ -978,15 +1442,24 @@
       "usage_30d": 0,
       "arc_refs": [],
       "upstream": "styx",
-      "notes": "BTC→sBTC conversion. Generic DeFi. Zero usage. Upstream exists."
+      "notes": "BTC→sBTC conversion. Generic DeFi. Zero usage. Upstream exists.",
+      "migration_action": "replace-with-upstream",
+      "migration_notes": "Replace with upstream 'styx'. Feature parity. Upstream has slightly richer status documentation (refund-requested, canceled states). Minor differences.",
+      "upstream_status": "equivalent"
     },
     {
       "name": "systems-monitor",
       "bucket": "arc_specific",
       "usage_30d": 0,
-      "arc_refs": ["all fleet IPs hardcoded", "Spark/Iris/Loom/Forge roster"],
+      "arc_refs": [
+        "all fleet IPs hardcoded",
+        "Spark/Iris/Loom/Forge roster"
+      ],
       "upstream": null,
-      "notes": "Fleet VM system health. Hardcoded fleet topology. Zero usage (fleet suspended)."
+      "notes": "Fleet VM system health. Hardcoded fleet topology. Zero usage (fleet suspended).",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: all fleet IPs hardcoded; Spark/Iris/Loom/Forge roster.",
+      "upstream_status": "none"
     },
     {
       "name": "worker-deploy",
@@ -994,36 +1467,76 @@
       "usage_30d": 10,
       "arc_refs": [],
       "upstream": null,
-      "notes": "Deploys arc0btc-worker to Cloudflare Workers. Instance deployment."
+      "notes": "Deploys arc0btc-worker to Cloudflare Workers. Instance deployment.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg.",
+      "upstream_status": "none"
     },
     {
       "name": "worker-logs-monitor",
       "bucket": "arc_specific",
       "usage_30d": 18,
-      "arc_refs": ["whoabuddy/worker-logs refs"],
+      "arc_refs": [
+        "whoabuddy/worker-logs refs"
+      ],
       "upstream": null,
-      "notes": "Monitors whoabuddy's worker-logs instances. Arc/fleet-specific."
+      "notes": "Monitors whoabuddy's worker-logs instances. Arc/fleet-specific.",
+      "migration_action": "keep-in-instance",
+      "migration_notes": "Arc-specific skill. Stays in instance repo during reorg. Has hardcoded refs: whoabuddy/worker-logs refs.",
+      "upstream_status": "none"
     },
     {
       "name": "zest-v2",
       "bucket": "delete",
       "usage_30d": 4,
-      "arc_refs": ["Arc STX address hardcoded as ARC_ADDRESS"],
+      "arc_refs": [
+        "Arc STX address hardcoded as ARC_ADDRESS"
+      ],
       "upstream": null,
-      "notes": "Duplicate of defi-zest with same functionality. Consolidate into defi-zest."
+      "notes": "Duplicate of defi-zest with same functionality. Consolidate into defi-zest.",
+      "migration_action": "delete",
+      "migration_notes": "Delete candidate. Verdict: low-usage-duplicate-of-defi-zest. No upstream equivalent needed.",
+      "upstream_status": "none"
     }
   ],
   "validation": {
     "delete_candidates_usage_check": {
-      "arc-bounty-scanner": {"usage_30d": 0, "verdict": "confirmed-unused"},
-      "arc-dispatch-eval": {"usage_30d": 1, "verdict": "near-zero-duplicate-of-arc-dispatch-evals"},
-      "arc-mcp": {"usage_30d": 0, "verdict": "confirmed-unused-superseded"},
-      "bitflow": {"usage_30d": 1, "verdict": "near-zero-duplicate-of-defi-bitflow"},
-      "defi-compounding": {"usage_30d": 0, "verdict": "confirmed-unused"},
-      "fleet-log-pull": {"usage_30d": 0, "verdict": "confirmed-unused"},
-      "fleet-rebalance": {"usage_30d": 1, "verdict": "near-zero-fleet-suspended"},
-      "skill-effectiveness": {"usage_30d": 4, "verdict": "low-usage-experimental"},
-      "zest-v2": {"usage_30d": 4, "verdict": "low-usage-duplicate-of-defi-zest"}
+      "arc-bounty-scanner": {
+        "usage_30d": 0,
+        "verdict": "confirmed-unused"
+      },
+      "arc-dispatch-eval": {
+        "usage_30d": 1,
+        "verdict": "near-zero-duplicate-of-arc-dispatch-evals"
+      },
+      "arc-mcp": {
+        "usage_30d": 0,
+        "verdict": "confirmed-unused-superseded"
+      },
+      "bitflow": {
+        "usage_30d": 1,
+        "verdict": "near-zero-duplicate-of-defi-bitflow"
+      },
+      "defi-compounding": {
+        "usage_30d": 0,
+        "verdict": "confirmed-unused"
+      },
+      "fleet-log-pull": {
+        "usage_30d": 0,
+        "verdict": "confirmed-unused"
+      },
+      "fleet-rebalance": {
+        "usage_30d": 1,
+        "verdict": "near-zero-fleet-suspended"
+      },
+      "skill-effectiveness": {
+        "usage_30d": 4,
+        "verdict": "low-usage-experimental"
+      },
+      "zest-v2": {
+        "usage_30d": 4,
+        "verdict": "low-usage-duplicate-of-defi-zest"
+      }
     },
     "delete_candidates_with_nonzero_usage": [
       "arc-dispatch-eval (1)",
@@ -1033,14 +1546,38 @@
       "zest-v2 (4)"
     ],
     "shared_candidates_with_arc_refs": {
-      "bitcoin-wallet": {"severity": "low-doc-only", "detail": "BTC/STX addresses in SKILL.md/AGENT.md as documentation examples. Wallet reads from encrypted store at runtime."},
-      "contacts": {"severity": "low-doc-only", "detail": "whoabuddy as CLI example in AGENT.md/cli.ts. Not functional."},
-      "code-audit": {"severity": "low-doc-only", "detail": "Forge mentioned in SKILL.md description line. Trivial."},
-      "defi-zest": {"severity": "medium-needs-cleanup", "detail": "ARC_ADDRESS constant hardcoded in sensor.ts and cli.ts. Should read from wallet/config at runtime."},
-      "github-issue-monitor": {"severity": "low-doc-only", "detail": "whoabuddy contributor pattern context. Not functional."},
-      "github-mentions": {"severity": "low-doc-only", "detail": "whoabuddy merge authority and Spark restriction as org context."},
-      "social-agent-engagement": {"severity": "low-doc-only", "detail": "Spark Topaz Centaur in agent directory data."},
-      "stacks-stackspot": {"severity": "low-doc-only", "detail": "Arc addresses in documentation only."}
+      "bitcoin-wallet": {
+        "severity": "low-doc-only",
+        "detail": "BTC/STX addresses in SKILL.md/AGENT.md as documentation examples. Wallet reads from encrypted store at runtime."
+      },
+      "contacts": {
+        "severity": "low-doc-only",
+        "detail": "whoabuddy as CLI example in AGENT.md/cli.ts. Not functional."
+      },
+      "code-audit": {
+        "severity": "low-doc-only",
+        "detail": "Forge mentioned in SKILL.md description line. Trivial."
+      },
+      "defi-zest": {
+        "severity": "medium-needs-cleanup",
+        "detail": "ARC_ADDRESS constant hardcoded in sensor.ts and cli.ts. Should read from wallet/config at runtime."
+      },
+      "github-issue-monitor": {
+        "severity": "low-doc-only",
+        "detail": "whoabuddy contributor pattern context. Not functional."
+      },
+      "github-mentions": {
+        "severity": "low-doc-only",
+        "detail": "whoabuddy merge authority and Spark restriction as org context."
+      },
+      "social-agent-engagement": {
+        "severity": "low-doc-only",
+        "detail": "Spark Topaz Centaur in agent directory data."
+      },
+      "stacks-stackspot": {
+        "severity": "low-doc-only",
+        "detail": "Arc addresses in documentation only."
+      }
     },
     "shared_candidates_needing_cleanup_before_extraction": [
       "defi-zest"
@@ -1061,35 +1598,267 @@
   },
   "upstream_mapping": {
     "has_upstream_equivalent": [
-      {"local": "aibtc-inbox-sync", "upstream": "inbox", "relationship": "orthogonal", "local_maturity": "90%", "upstream_maturity": "85%", "refactor_potential": "low", "notes": "Upstream is messaging CLI (send/read/status). Local adds sensor automation, DB state tracking, welcome dedup. Orthogonal: inbox is a tool, inbox-sync is autonomous behavior."},
-      {"local": "aibtc-news-classifieds", "upstream": "aibtc-news-classifieds", "relationship": "equivalent", "local_maturity": "80%", "upstream_maturity": "95%", "refactor_potential": "high", "notes": "Upstream has richer corrections subcommand and JSON output. Local is condensed. Upstream is fresher."},
-      {"local": "aibtc-news-deal-flow", "upstream": "aibtc-news-deal-flow", "relationship": "superseded", "local_maturity": "40%", "upstream_maturity": "90%", "refactor_potential": "very_high", "notes": "Local is narrative SKILL.md only (no CLI). Upstream has compose-signal, check-sources, editorial-guide commands. DELETE local, load upstream."},
-      {"local": "aibtc-news-editorial", "upstream": "aibtc-news-correspondent", "relationship": "extension", "local_maturity": "85%", "upstream_maturity": "90%", "refactor_potential": "medium", "notes": "Upstream is generic correspondent workflow. Local adds beat ownership, rate limiting, judge-signal pre-flight, fetch-ordinals-data, brief compilation sensor. Deep coupling in cli.ts/sensor.ts."},
-      {"local": "aibtc-welcome", "upstream": "onboarding", "relationship": "orthogonal", "local_maturity": "85%", "upstream_maturity": "90%", "refactor_potential": "none", "notes": "Upstream bootstraps individual agents (wallet, registration). Local sends welcome messages to new ecosystem agents. Completely different purposes."},
-      {"local": "arc-bounty-scanner", "upstream": "bounty-scanner", "relationship": "different_sources", "local_maturity": "70%", "upstream_maturity": "90%", "refactor_potential": "low", "notes": "Upstream targets bounty.drx4.xyz (token rewards). Local targets GitHub (USD rewards). Different data sources and reward mechanisms."},
-      {"local": "arc-ceo-review", "upstream": "ceo", "relationship": "extension", "local_maturity": "85%", "upstream_maturity": "80%", "refactor_potential": "medium", "notes": "Upstream is CEO operating manual (reference doc). Local adds sensor-driven queue review every 4h. Could load upstream for strategic framework."},
-      {"local": "arc-ceo-strategy", "upstream": "ceo", "relationship": "extension", "local_maturity": "80%", "upstream_maturity": "80%", "refactor_potential": "high", "notes": "Local is expanded version of upstream with wartime/peacetime modes. Could replace with upstream + Arc-specific addendum."},
-      {"local": "arc-credentials", "upstream": "credentials", "relationship": "equivalent", "local_maturity": "90%", "upstream_maturity": "90%", "refactor_potential": "medium", "notes": "Both AES-256-GCM encrypted stores. Different schemas: local uses service/key tuples, upstream uses flat IDs. Local shares wallet master password. Migration risk high."},
-      {"local": "arc-reputation", "upstream": "reputation", "relationship": "orthogonal", "local_maturity": "80%", "upstream_maturity": "90%", "refactor_potential": "none", "notes": "Upstream is on-chain ERC-8004 reputation registry. Local is off-chain BIP-322 signed reviews in SQLite. Fundamentally different architectures."},
-      {"local": "arxiv-research", "upstream": null, "relationship": "no_upstream", "local_maturity": "85%", "upstream_maturity": null, "refactor_potential": null, "notes": "No upstream equivalent found. Local skill is standalone."},
-      {"local": "bitcoin-quorumclaw", "upstream": "psbt", "relationship": "different_tools", "local_maturity": "85%", "upstream_maturity": "80%", "refactor_potential": "none", "notes": "Different tools entirely. QuorumClaw is multisig orchestration via REST API with ERC-8004 reputation hooks. PSBT is lower-level PSBT signing/broadcast primitives."},
-      {"local": "bitcoin-taproot-multisig", "upstream": "taproot-multisig", "relationship": "equivalent", "local_maturity": "85%", "upstream_maturity": "95%", "refactor_potential": "high", "notes": "Same 3 commands (get-pubkey, verify-cosig, guide). Upstream has better output examples and TXIDs. Upstream is more complete."},
-      {"local": "bitcoin-wallet", "upstream": "wallet", "relationship": "subset", "local_maturity": "70%", "upstream_maturity": "100%", "refactor_potential": "high", "notes": "Upstream has full lifecycle (create, import, delete, export, rotate, switch, multi-wallet). Local is single-wallet Arc wrapper. Upstream is the complete reference."},
-      {"local": "bitflow", "upstream": "bitflow", "relationship": "superseded", "local_maturity": "20%", "upstream_maturity": "95%", "refactor_potential": "delete", "notes": "Local is deprecated duplicate of defi-bitflow. Delete bucket confirmed."},
-      {"local": "defi-bitflow", "upstream": "bitflow", "relationship": "specialization", "local_maturity": "75%", "upstream_maturity": "95%", "refactor_potential": "medium", "notes": "Upstream has full DEX ops (HODLMM, Keeper automation, liquidity). Local adds sensor-driven signal filing + spread detection. Complementary: local sensor logic could enhance upstream."},
-      {"local": "defi-stacks-market", "upstream": "stacks-market", "relationship": "extension", "local_maturity": "80%", "upstream_maturity": "60%", "refactor_potential": "contribution", "notes": "Local adds budget enforcement (50 STX cap), SQLite position tracking, P&L reporting, 6h sensor. Upstream is bare API wrapper. LOCAL COULD CONTRIBUTE BACK budget enforcement layer."},
-      {"local": "defi-zest", "upstream": null, "relationship": "no_upstream", "local_maturity": "75%", "upstream_maturity": null, "refactor_potential": null, "notes": "No direct upstream equivalent. Upstream 'defi' skill covers Zest but as part of broader DeFi skill. Local is dedicated Zest lending wrapper."},
-      {"local": "erc8004-identity", "upstream": "erc8004", "relationship": "subset", "local_maturity": "85%", "upstream_maturity": "90%", "refactor_potential": "medium", "notes": "Upstream unifies identity+reputation+validation. Local is modular (identity only). Trade-off: modularity vs discoverability."},
-      {"local": "erc8004-reputation", "upstream": "reputation", "relationship": "equivalent", "local_maturity": "85%", "upstream_maturity": "95%", "refactor_potential": "high", "notes": "Identical command set. Upstream has better JSON output examples and pagination docs."},
-      {"local": "erc8004-trust", "upstream": "reputation", "relationship": "subset", "local_maturity": "70%", "upstream_maturity": "95%", "refactor_potential": "high", "notes": "Trust aggregation is a read-only subset of reputation. Could merge into erc8004-reputation."},
-      {"local": "erc8004-validation", "upstream": "validation", "relationship": "equivalent", "local_maturity": "80%", "upstream_maturity": "90%", "refactor_potential": "high", "notes": "Same command set. Upstream has better output examples and progressive update docs."},
-      {"local": "identity-guard", "upstream": "identity", "relationship": "orthogonal", "local_maturity": "75%", "upstream_maturity": "90%", "refactor_potential": "none", "notes": "Upstream manages ERC-8004 identity NFTs on-chain. Local validates local filesystem identity consistency (SOUL.md/MEMORY.md drift detection). Completely different layers."},
-      {"local": "jingswap", "upstream": "jingswap", "relationship": "subset", "local_maturity": "60%", "upstream_maturity": "95%", "refactor_potential": "high", "notes": "Upstream has full lifecycle: deposit, cancel, close, settle, user-activity, cycles-history. Local missing ~50% of functionality. Upstream is significantly more complete."},
-      {"local": "mempool-watch", "upstream": "mempool-watch", "relationship": "complementary", "local_maturity": "60%", "upstream_maturity": "100%", "refactor_potential": "merge", "notes": "Local has sensor (fee spikes, incoming BTC). Upstream has CLI (tx-status, address-history, mempool-stats). Complementary: could merge into one skill with both."},
-      {"local": "nostr-wot", "upstream": null, "relationship": "local_ahead", "local_maturity": "90%", "upstream_maturity": "incomplete", "refactor_potential": "contribution", "notes": "Upstream 'maximumsats-wot' has cli.ts+sensor.ts but no SKILL.md. Local is fully documented with trust-score, sybil-check, neighbors, config. LOCAL IS AHEAD."},
-      {"local": "ordinals-market-data", "upstream": "ordinals", "relationship": "different_tools", "local_maturity": "75%", "upstream_maturity": "90%", "refactor_potential": "none", "notes": "Different tools. Local does market data aggregation and signal filing. Upstream does inscription creation (commit/reveal). Not comparable."},
-      {"local": "stacks-stackspot", "upstream": "stackspot", "relationship": "specialization", "local_maturity": "70%", "upstream_maturity": "95%", "refactor_potential": "medium", "notes": "Upstream has full CLI (list-pots, join-pot, start-pot, claim-rewards, cancel). Local adds sensor-driven auto-join. Could use upstream CLI + local sensor."},
-      {"local": "styx", "upstream": "styx", "relationship": "equivalent", "local_maturity": "90%", "upstream_maturity": "95%", "refactor_potential": "high", "notes": "Feature parity. Upstream has slightly richer status documentation (refund-requested, canceled states). Minor differences."}
+      {
+        "local": "aibtc-inbox-sync",
+        "upstream": "inbox",
+        "relationship": "orthogonal",
+        "local_maturity": "90%",
+        "upstream_maturity": "85%",
+        "refactor_potential": "low",
+        "notes": "Upstream is messaging CLI (send/read/status). Local adds sensor automation, DB state tracking, welcome dedup. Orthogonal: inbox is a tool, inbox-sync is autonomous behavior."
+      },
+      {
+        "local": "aibtc-news-classifieds",
+        "upstream": "aibtc-news-classifieds",
+        "relationship": "equivalent",
+        "local_maturity": "80%",
+        "upstream_maturity": "95%",
+        "refactor_potential": "high",
+        "notes": "Upstream has richer corrections subcommand and JSON output. Local is condensed. Upstream is fresher."
+      },
+      {
+        "local": "aibtc-news-deal-flow",
+        "upstream": "aibtc-news-deal-flow",
+        "relationship": "superseded",
+        "local_maturity": "40%",
+        "upstream_maturity": "90%",
+        "refactor_potential": "very_high",
+        "notes": "Local is narrative SKILL.md only (no CLI). Upstream has compose-signal, check-sources, editorial-guide commands. DELETE local, load upstream."
+      },
+      {
+        "local": "aibtc-news-editorial",
+        "upstream": "aibtc-news-correspondent",
+        "relationship": "extension",
+        "local_maturity": "85%",
+        "upstream_maturity": "90%",
+        "refactor_potential": "medium",
+        "notes": "Upstream is generic correspondent workflow. Local adds beat ownership, rate limiting, judge-signal pre-flight, fetch-ordinals-data, brief compilation sensor. Deep coupling in cli.ts/sensor.ts."
+      },
+      {
+        "local": "aibtc-welcome",
+        "upstream": "onboarding",
+        "relationship": "orthogonal",
+        "local_maturity": "85%",
+        "upstream_maturity": "90%",
+        "refactor_potential": "none",
+        "notes": "Upstream bootstraps individual agents (wallet, registration). Local sends welcome messages to new ecosystem agents. Completely different purposes."
+      },
+      {
+        "local": "arc-bounty-scanner",
+        "upstream": "bounty-scanner",
+        "relationship": "different_sources",
+        "local_maturity": "70%",
+        "upstream_maturity": "90%",
+        "refactor_potential": "low",
+        "notes": "Upstream targets bounty.drx4.xyz (token rewards). Local targets GitHub (USD rewards). Different data sources and reward mechanisms."
+      },
+      {
+        "local": "arc-ceo-review",
+        "upstream": "ceo",
+        "relationship": "extension",
+        "local_maturity": "85%",
+        "upstream_maturity": "80%",
+        "refactor_potential": "medium",
+        "notes": "Upstream is CEO operating manual (reference doc). Local adds sensor-driven queue review every 4h. Could load upstream for strategic framework."
+      },
+      {
+        "local": "arc-ceo-strategy",
+        "upstream": "ceo",
+        "relationship": "extension",
+        "local_maturity": "80%",
+        "upstream_maturity": "80%",
+        "refactor_potential": "high",
+        "notes": "Local is expanded version of upstream with wartime/peacetime modes. Could replace with upstream + Arc-specific addendum."
+      },
+      {
+        "local": "arc-credentials",
+        "upstream": "credentials",
+        "relationship": "equivalent",
+        "local_maturity": "90%",
+        "upstream_maturity": "90%",
+        "refactor_potential": "medium",
+        "notes": "Both AES-256-GCM encrypted stores. Different schemas: local uses service/key tuples, upstream uses flat IDs. Local shares wallet master password. Migration risk high."
+      },
+      {
+        "local": "arc-reputation",
+        "upstream": "reputation",
+        "relationship": "orthogonal",
+        "local_maturity": "80%",
+        "upstream_maturity": "90%",
+        "refactor_potential": "none",
+        "notes": "Upstream is on-chain ERC-8004 reputation registry. Local is off-chain BIP-322 signed reviews in SQLite. Fundamentally different architectures."
+      },
+      {
+        "local": "arxiv-research",
+        "upstream": null,
+        "relationship": "no_upstream",
+        "local_maturity": "85%",
+        "upstream_maturity": null,
+        "refactor_potential": null,
+        "notes": "No upstream equivalent found. Local skill is standalone."
+      },
+      {
+        "local": "bitcoin-quorumclaw",
+        "upstream": "psbt",
+        "relationship": "different_tools",
+        "local_maturity": "85%",
+        "upstream_maturity": "80%",
+        "refactor_potential": "none",
+        "notes": "Different tools entirely. QuorumClaw is multisig orchestration via REST API with ERC-8004 reputation hooks. PSBT is lower-level PSBT signing/broadcast primitives."
+      },
+      {
+        "local": "bitcoin-taproot-multisig",
+        "upstream": "taproot-multisig",
+        "relationship": "equivalent",
+        "local_maturity": "85%",
+        "upstream_maturity": "95%",
+        "refactor_potential": "high",
+        "notes": "Same 3 commands (get-pubkey, verify-cosig, guide). Upstream has better output examples and TXIDs. Upstream is more complete."
+      },
+      {
+        "local": "bitcoin-wallet",
+        "upstream": "wallet",
+        "relationship": "subset",
+        "local_maturity": "70%",
+        "upstream_maturity": "100%",
+        "refactor_potential": "high",
+        "notes": "Upstream has full lifecycle (create, import, delete, export, rotate, switch, multi-wallet). Local is single-wallet Arc wrapper. Upstream is the complete reference."
+      },
+      {
+        "local": "bitflow",
+        "upstream": "bitflow",
+        "relationship": "superseded",
+        "local_maturity": "20%",
+        "upstream_maturity": "95%",
+        "refactor_potential": "delete",
+        "notes": "Local is deprecated duplicate of defi-bitflow. Delete bucket confirmed."
+      },
+      {
+        "local": "defi-bitflow",
+        "upstream": "bitflow",
+        "relationship": "specialization",
+        "local_maturity": "75%",
+        "upstream_maturity": "95%",
+        "refactor_potential": "medium",
+        "notes": "Upstream has full DEX ops (HODLMM, Keeper automation, liquidity). Local adds sensor-driven signal filing + spread detection. Complementary: local sensor logic could enhance upstream."
+      },
+      {
+        "local": "defi-stacks-market",
+        "upstream": "stacks-market",
+        "relationship": "extension",
+        "local_maturity": "80%",
+        "upstream_maturity": "60%",
+        "refactor_potential": "contribution",
+        "notes": "Local adds budget enforcement (50 STX cap), SQLite position tracking, P&L reporting, 6h sensor. Upstream is bare API wrapper. LOCAL COULD CONTRIBUTE BACK budget enforcement layer."
+      },
+      {
+        "local": "defi-zest",
+        "upstream": null,
+        "relationship": "no_upstream",
+        "local_maturity": "75%",
+        "upstream_maturity": null,
+        "refactor_potential": null,
+        "notes": "No direct upstream equivalent. Upstream 'defi' skill covers Zest but as part of broader DeFi skill. Local is dedicated Zest lending wrapper."
+      },
+      {
+        "local": "erc8004-identity",
+        "upstream": "erc8004",
+        "relationship": "subset",
+        "local_maturity": "85%",
+        "upstream_maturity": "90%",
+        "refactor_potential": "medium",
+        "notes": "Upstream unifies identity+reputation+validation. Local is modular (identity only). Trade-off: modularity vs discoverability."
+      },
+      {
+        "local": "erc8004-reputation",
+        "upstream": "reputation",
+        "relationship": "equivalent",
+        "local_maturity": "85%",
+        "upstream_maturity": "95%",
+        "refactor_potential": "high",
+        "notes": "Identical command set. Upstream has better JSON output examples and pagination docs."
+      },
+      {
+        "local": "erc8004-trust",
+        "upstream": "reputation",
+        "relationship": "subset",
+        "local_maturity": "70%",
+        "upstream_maturity": "95%",
+        "refactor_potential": "high",
+        "notes": "Trust aggregation is a read-only subset of reputation. Could merge into erc8004-reputation."
+      },
+      {
+        "local": "erc8004-validation",
+        "upstream": "validation",
+        "relationship": "equivalent",
+        "local_maturity": "80%",
+        "upstream_maturity": "90%",
+        "refactor_potential": "high",
+        "notes": "Same command set. Upstream has better output examples and progressive update docs."
+      },
+      {
+        "local": "identity-guard",
+        "upstream": "identity",
+        "relationship": "orthogonal",
+        "local_maturity": "75%",
+        "upstream_maturity": "90%",
+        "refactor_potential": "none",
+        "notes": "Upstream manages ERC-8004 identity NFTs on-chain. Local validates local filesystem identity consistency (SOUL.md/MEMORY.md drift detection). Completely different layers."
+      },
+      {
+        "local": "jingswap",
+        "upstream": "jingswap",
+        "relationship": "subset",
+        "local_maturity": "60%",
+        "upstream_maturity": "95%",
+        "refactor_potential": "high",
+        "notes": "Upstream has full lifecycle: deposit, cancel, close, settle, user-activity, cycles-history. Local missing ~50% of functionality. Upstream is significantly more complete."
+      },
+      {
+        "local": "mempool-watch",
+        "upstream": "mempool-watch",
+        "relationship": "complementary",
+        "local_maturity": "60%",
+        "upstream_maturity": "100%",
+        "refactor_potential": "merge",
+        "notes": "Local has sensor (fee spikes, incoming BTC). Upstream has CLI (tx-status, address-history, mempool-stats). Complementary: could merge into one skill with both."
+      },
+      {
+        "local": "nostr-wot",
+        "upstream": null,
+        "relationship": "local_ahead",
+        "local_maturity": "90%",
+        "upstream_maturity": "incomplete",
+        "refactor_potential": "contribution",
+        "notes": "Upstream 'maximumsats-wot' has cli.ts+sensor.ts but no SKILL.md. Local is fully documented with trust-score, sybil-check, neighbors, config. LOCAL IS AHEAD."
+      },
+      {
+        "local": "ordinals-market-data",
+        "upstream": "ordinals",
+        "relationship": "different_tools",
+        "local_maturity": "75%",
+        "upstream_maturity": "90%",
+        "refactor_potential": "none",
+        "notes": "Different tools. Local does market data aggregation and signal filing. Upstream does inscription creation (commit/reveal). Not comparable."
+      },
+      {
+        "local": "stacks-stackspot",
+        "upstream": "stackspot",
+        "relationship": "specialization",
+        "local_maturity": "70%",
+        "upstream_maturity": "95%",
+        "refactor_potential": "medium",
+        "notes": "Upstream has full CLI (list-pots, join-pot, start-pot, claim-rewards, cancel). Local adds sensor-driven auto-join. Could use upstream CLI + local sensor."
+      },
+      {
+        "local": "styx",
+        "upstream": "styx",
+        "relationship": "equivalent",
+        "local_maturity": "90%",
+        "upstream_maturity": "95%",
+        "refactor_potential": "high",
+        "notes": "Feature parity. Upstream has slightly richer status documentation (refund-requested, canceled states). Minor differences."
+      }
     ],
     "shared_no_upstream": [
       "aibtc-dev-ops",
@@ -1113,63 +1882,259 @@
       "social-x-posting"
     ],
     "upstream_only": [
-      {"name": "agent-lookup", "description": "Query AIBTC agent registry — lookup by address/name, network stats, rankings", "adoption_priority": "high"},
-      {"name": "aibtc-agents", "description": "Community agent config registry — browse reference configs, bootstrap templates", "adoption_priority": "medium"},
-      {"name": "aibtc-news", "description": "Root aibtc.news skill — beats, signals, leaderboard, brief compilation", "adoption_priority": "medium"},
-      {"name": "aibtc-news-fact-checker", "description": "Signal correction side role — find/correct bad signals, earn leaderboard points", "adoption_priority": "medium"},
-      {"name": "aibtc-news-protocol", "description": "Protocol & Infrastructure Updates beat editorial guidance", "adoption_priority": "low"},
-      {"name": "aibtc-news-publisher", "description": "Publisher role — review signals, curate front page, compile daily brief", "adoption_priority": "low"},
-      {"name": "aibtc-news-sales", "description": "Classified ad solicitation side role (Phase 0.5, deferred)", "adoption_priority": "low"},
-      {"name": "aibtc-news-scout", "description": "Correspondent recruitment — recruit agents to underserved beats", "adoption_priority": "medium"},
-      {"name": "aibtc-services", "description": "AIBTC platform services directory", "adoption_priority": "low"},
-      {"name": "bns", "description": "Bitcoin Name System operations — lookup, register, pricing .btc names", "adoption_priority": "medium"},
-      {"name": "btc", "description": "Bitcoin L1 operations — balances, fees, UTXOs, transfers, UTXO classification", "adoption_priority": "medium"},
-      {"name": "business-dev", "description": "Full-cycle revenue engine — prospecting, CRM, closing, partnerships", "adoption_priority": "high"},
-      {"name": "child-inscription", "description": "Parent-child Ordinals inscriptions for on-chain provenance", "adoption_priority": "low"},
-      {"name": "contract", "description": "Clarity smart contract deployment and interaction on Stacks", "adoption_priority": "medium"},
-      {"name": "defi", "description": "Unified DeFi skill — ALEX DEX swaps + Zest lending in one skill", "adoption_priority": "low"},
-      {"name": "dual-stacking", "description": "Dual Stacking enrollment — earn BTC yield (sBTC) by holding sBTC", "adoption_priority": "high"},
-      {"name": "nft", "description": "SIP-009 NFT operations — list, transfer, metadata, history", "adoption_priority": "low"},
-      {"name": "nostr", "description": "Nostr protocol — post notes, read feeds, search hashtags, manage profiles", "adoption_priority": "medium"},
-      {"name": "openrouter", "description": "OpenRouter AI model integration — list models, send prompts", "adoption_priority": "low"},
-      {"name": "ordinals-p2p", "description": "P2P ordinals trading on trade ledger — offers, counters, PSBT swaps", "adoption_priority": "medium"},
-      {"name": "pillar", "description": "Pillar smart wallet — sBTC send/supply/boost, DCA, stacking, agent-signed direct mode", "adoption_priority": "medium"},
-      {"name": "query", "description": "Stacks blockchain query operations — fees, accounts, txs, blocks, contracts", "adoption_priority": "medium"},
-      {"name": "relay-diagnostic", "description": "Sponsor relay health checks and nonce recovery for stuck transactions", "adoption_priority": "medium"},
-      {"name": "runes", "description": "Bitcoin rune operations — balances, UTXOs, transfers via Runestone encoding", "adoption_priority": "high"},
-      {"name": "sbtc", "description": "sBTC token operations — balances, transfers, BTC deposits, peg stats", "adoption_priority": "medium"},
-      {"name": "settings", "description": "AIBTC skill settings management — Hiro API key, node URL, version, relay health", "adoption_priority": "low"},
-      {"name": "signing", "description": "Multi-format signing — SIP-018, BIP-137, BIP-322, BIP-340, Nostr NIP-06", "adoption_priority": "medium"},
-      {"name": "souldinals", "description": "Souldinals collection — inscribe soul.md as child inscription, load soul traits", "adoption_priority": "low"},
-      {"name": "stacking", "description": "STX stacking operations — PoX cycle info, lock STX, earn BTC rewards", "adoption_priority": "high"},
-      {"name": "stacking-lottery", "description": "Stacking lottery pots on stackspot.app — pool STX, VRF winner selection", "adoption_priority": "low"},
-      {"name": "stx", "description": "STX token operations — balances, transfers, contract calls, deploy", "adoption_priority": "medium"},
-      {"name": "tenero", "description": "Tenero (STXTools) market analytics — token info, whale trades, trending pools", "adoption_priority": "medium"},
-      {"name": "tokens", "description": "SIP-010 fungible token operations — balances, transfers, metadata, holders", "adoption_priority": "medium"},
-      {"name": "transfer", "description": "Unified STX/SIP-010/SIP-009 transfer operations", "adoption_priority": "low"},
-      {"name": "what-to-do", "description": "Task/agenda routing guidance for agents", "adoption_priority": "low"},
-      {"name": "x402", "description": "x402 paid APIs, inbox messaging, project scaffolding, OpenRouter integration", "adoption_priority": "medium"},
-      {"name": "yield-dashboard", "description": "Cross-protocol DeFi yield dashboard — Zest, ALEX, Bitflow positions and APY", "adoption_priority": "medium"},
-      {"name": "yield-hunter", "description": "Autonomous sBTC yield daemon — auto-deposit to Zest above threshold", "adoption_priority": "medium"}
+      {
+        "name": "agent-lookup",
+        "description": "Query AIBTC agent registry — lookup by address/name, network stats, rankings",
+        "adoption_priority": "high"
+      },
+      {
+        "name": "aibtc-agents",
+        "description": "Community agent config registry — browse reference configs, bootstrap templates",
+        "adoption_priority": "medium"
+      },
+      {
+        "name": "aibtc-news",
+        "description": "Root aibtc.news skill — beats, signals, leaderboard, brief compilation",
+        "adoption_priority": "medium"
+      },
+      {
+        "name": "aibtc-news-fact-checker",
+        "description": "Signal correction side role — find/correct bad signals, earn leaderboard points",
+        "adoption_priority": "medium"
+      },
+      {
+        "name": "aibtc-news-protocol",
+        "description": "Protocol & Infrastructure Updates beat editorial guidance",
+        "adoption_priority": "low"
+      },
+      {
+        "name": "aibtc-news-publisher",
+        "description": "Publisher role — review signals, curate front page, compile daily brief",
+        "adoption_priority": "low"
+      },
+      {
+        "name": "aibtc-news-sales",
+        "description": "Classified ad solicitation side role (Phase 0.5, deferred)",
+        "adoption_priority": "low"
+      },
+      {
+        "name": "aibtc-news-scout",
+        "description": "Correspondent recruitment — recruit agents to underserved beats",
+        "adoption_priority": "medium"
+      },
+      {
+        "name": "aibtc-services",
+        "description": "AIBTC platform services directory",
+        "adoption_priority": "low"
+      },
+      {
+        "name": "bns",
+        "description": "Bitcoin Name System operations — lookup, register, pricing .btc names",
+        "adoption_priority": "medium"
+      },
+      {
+        "name": "btc",
+        "description": "Bitcoin L1 operations — balances, fees, UTXOs, transfers, UTXO classification",
+        "adoption_priority": "medium"
+      },
+      {
+        "name": "business-dev",
+        "description": "Full-cycle revenue engine — prospecting, CRM, closing, partnerships",
+        "adoption_priority": "high"
+      },
+      {
+        "name": "child-inscription",
+        "description": "Parent-child Ordinals inscriptions for on-chain provenance",
+        "adoption_priority": "low"
+      },
+      {
+        "name": "contract",
+        "description": "Clarity smart contract deployment and interaction on Stacks",
+        "adoption_priority": "medium"
+      },
+      {
+        "name": "defi",
+        "description": "Unified DeFi skill — ALEX DEX swaps + Zest lending in one skill",
+        "adoption_priority": "low"
+      },
+      {
+        "name": "dual-stacking",
+        "description": "Dual Stacking enrollment — earn BTC yield (sBTC) by holding sBTC",
+        "adoption_priority": "high"
+      },
+      {
+        "name": "nft",
+        "description": "SIP-009 NFT operations — list, transfer, metadata, history",
+        "adoption_priority": "low"
+      },
+      {
+        "name": "nostr",
+        "description": "Nostr protocol — post notes, read feeds, search hashtags, manage profiles",
+        "adoption_priority": "medium"
+      },
+      {
+        "name": "openrouter",
+        "description": "OpenRouter AI model integration — list models, send prompts",
+        "adoption_priority": "low"
+      },
+      {
+        "name": "ordinals-p2p",
+        "description": "P2P ordinals trading on trade ledger — offers, counters, PSBT swaps",
+        "adoption_priority": "medium"
+      },
+      {
+        "name": "pillar",
+        "description": "Pillar smart wallet — sBTC send/supply/boost, DCA, stacking, agent-signed direct mode",
+        "adoption_priority": "medium"
+      },
+      {
+        "name": "query",
+        "description": "Stacks blockchain query operations — fees, accounts, txs, blocks, contracts",
+        "adoption_priority": "medium"
+      },
+      {
+        "name": "relay-diagnostic",
+        "description": "Sponsor relay health checks and nonce recovery for stuck transactions",
+        "adoption_priority": "medium"
+      },
+      {
+        "name": "runes",
+        "description": "Bitcoin rune operations — balances, UTXOs, transfers via Runestone encoding",
+        "adoption_priority": "high"
+      },
+      {
+        "name": "sbtc",
+        "description": "sBTC token operations — balances, transfers, BTC deposits, peg stats",
+        "adoption_priority": "medium"
+      },
+      {
+        "name": "settings",
+        "description": "AIBTC skill settings management — Hiro API key, node URL, version, relay health",
+        "adoption_priority": "low"
+      },
+      {
+        "name": "signing",
+        "description": "Multi-format signing — SIP-018, BIP-137, BIP-322, BIP-340, Nostr NIP-06",
+        "adoption_priority": "medium"
+      },
+      {
+        "name": "souldinals",
+        "description": "Souldinals collection — inscribe soul.md as child inscription, load soul traits",
+        "adoption_priority": "low"
+      },
+      {
+        "name": "stacking",
+        "description": "STX stacking operations — PoX cycle info, lock STX, earn BTC rewards",
+        "adoption_priority": "high"
+      },
+      {
+        "name": "stacking-lottery",
+        "description": "Stacking lottery pots on stackspot.app — pool STX, VRF winner selection",
+        "adoption_priority": "low"
+      },
+      {
+        "name": "stx",
+        "description": "STX token operations — balances, transfers, contract calls, deploy",
+        "adoption_priority": "medium"
+      },
+      {
+        "name": "tenero",
+        "description": "Tenero (STXTools) market analytics — token info, whale trades, trending pools",
+        "adoption_priority": "medium"
+      },
+      {
+        "name": "tokens",
+        "description": "SIP-010 fungible token operations — balances, transfers, metadata, holders",
+        "adoption_priority": "medium"
+      },
+      {
+        "name": "transfer",
+        "description": "Unified STX/SIP-010/SIP-009 transfer operations",
+        "adoption_priority": "low"
+      },
+      {
+        "name": "what-to-do",
+        "description": "Task/agenda routing guidance for agents",
+        "adoption_priority": "low"
+      },
+      {
+        "name": "x402",
+        "description": "x402 paid APIs, inbox messaging, project scaffolding, OpenRouter integration",
+        "adoption_priority": "medium"
+      },
+      {
+        "name": "yield-dashboard",
+        "description": "Cross-protocol DeFi yield dashboard — Zest, ALEX, Bitflow positions and APY",
+        "adoption_priority": "medium"
+      },
+      {
+        "name": "yield-hunter",
+        "description": "Autonomous sBTC yield daemon — auto-deposit to Zest above threshold",
+        "adoption_priority": "medium"
+      }
     ],
     "upstream_total_skills": 51,
     "local_with_upstream_equivalent": 29,
     "local_shared_no_upstream": 19,
     "upstream_only_count": 38,
     "contribution_candidates": [
-      {"local": "defi-stacks-market", "upstream": "stacks-market", "contribution": "Budget enforcement layer (50 STX cap, position tracking, P&L reporting)"},
-      {"local": "nostr-wot", "upstream": "maximumsats-wot", "contribution": "Complete SKILL.md documentation, trust-score, sybil-check, neighbors commands"},
-      {"local": "defi-bitflow", "upstream": "bitflow", "contribution": "Sensor-driven spread detection and signal filing logic"},
-      {"local": "mempool-watch", "upstream": "mempool-watch", "contribution": "Fee spike sensor, incoming BTC detection, 10-minute cadence monitoring"},
-      {"local": "stacks-stackspot", "upstream": "stackspot", "contribution": "Auto-join sensor logic for autonomous pot participation"}
+      {
+        "local": "defi-stacks-market",
+        "upstream": "stacks-market",
+        "contribution": "Budget enforcement layer (50 STX cap, position tracking, P&L reporting)"
+      },
+      {
+        "local": "nostr-wot",
+        "upstream": "maximumsats-wot",
+        "contribution": "Complete SKILL.md documentation, trust-score, sybil-check, neighbors commands"
+      },
+      {
+        "local": "defi-bitflow",
+        "upstream": "bitflow",
+        "contribution": "Sensor-driven spread detection and signal filing logic"
+      },
+      {
+        "local": "mempool-watch",
+        "upstream": "mempool-watch",
+        "contribution": "Fee spike sensor, incoming BTC detection, 10-minute cadence monitoring"
+      },
+      {
+        "local": "stacks-stackspot",
+        "upstream": "stackspot",
+        "contribution": "Auto-join sensor logic for autonomous pot participation"
+      }
     ],
     "replace_with_upstream": [
-      {"local": "aibtc-news-deal-flow", "upstream": "aibtc-news-deal-flow", "reason": "Local is narrative-only SKILL.md. Upstream has compose-signal, check-sources, editorial-guide CLI commands."},
-      {"local": "jingswap", "upstream": "jingswap", "reason": "Local missing ~50% of functionality (cancel, settle, user-activity, cycles-history). Upstream is significantly more complete."},
-      {"local": "bitcoin-taproot-multisig", "upstream": "taproot-multisig", "reason": "Upstream has better output examples and documentation. Same commands."},
-      {"local": "styx", "upstream": "styx", "reason": "Feature parity. Upstream has richer status docs. Minimal effort to swap."},
-      {"local": "erc8004-reputation", "upstream": "reputation", "reason": "Identical command set. Upstream has better JSON examples and pagination."},
-      {"local": "erc8004-validation", "upstream": "validation", "reason": "Same commands. Upstream has better output examples."}
+      {
+        "local": "aibtc-news-deal-flow",
+        "upstream": "aibtc-news-deal-flow",
+        "reason": "Local is narrative-only SKILL.md. Upstream has compose-signal, check-sources, editorial-guide CLI commands."
+      },
+      {
+        "local": "jingswap",
+        "upstream": "jingswap",
+        "reason": "Local missing ~50% of functionality (cancel, settle, user-activity, cycles-history). Upstream is significantly more complete."
+      },
+      {
+        "local": "bitcoin-taproot-multisig",
+        "upstream": "taproot-multisig",
+        "reason": "Upstream has better output examples and documentation. Same commands."
+      },
+      {
+        "local": "styx",
+        "upstream": "styx",
+        "reason": "Feature parity. Upstream has richer status docs. Minimal effort to swap."
+      },
+      {
+        "local": "erc8004-reputation",
+        "upstream": "reputation",
+        "reason": "Identical command set. Upstream has better JSON examples and pagination."
+      },
+      {
+        "local": "erc8004-validation",
+        "upstream": "validation",
+        "reason": "Same commands. Upstream has better output examples."
+      }
     ],
     "relationship_summary": {
       "equivalent": 6,
