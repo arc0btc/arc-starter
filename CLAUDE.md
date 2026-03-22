@@ -292,6 +292,12 @@ arc tasks close --id <id> --status completed --summary "<summary>"
 
 Ask: "Could a junior dev do this?" If yes → P8+. "Does this need careful judgment?" → P5-7. "Does this need senior-level reasoning?" → P1-4.
 
+**Task supersession:** When a higher-priority task makes lower-priority pending tasks redundant (same subject/scope), the superseding task must explicitly close them before completing its own work:
+```
+arc tasks close --id <N> --status failed --summary "superseded by task #<this_id>"
+```
+Do not leave superseded tasks to fail on their own — it inflates failure counts in retrospectives and creates confusing audit trails. If multiple tasks are superseded, close each one.
+
 **Git commits:** The dispatched session is responsible for committing its own work. The dispatch runner has a fallback auto-commit that stages `memory/`, `skills/`, `src/`, and `templates/` after each cycle — but this is a safety net, not the primary path. Commit deliberately during the session. Dispatch never pushes to remote.
 
 ---
