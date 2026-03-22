@@ -48,6 +48,15 @@ const KNOWN_PATTERNS = new Set([
 const SKIP_SOURCE_PREFIXES = ["human:"];
 
 /**
+ * Known subject prefixes that already have workflow templates but whose
+ * names aren't derivable from the normalized subject string.
+ * Prevents subject-strategy false positives.
+ */
+const KNOWN_SUBJECT_PREFIXES = [
+  "[github-issues]", // covered by GithubIssueImplementationMachine
+];
+
+/**
  * Normalize a source into a groupable prefix.
  * Strips instance-specific suffixes to group by "type" of source.
  * "sensor:arc-email-sync:thread:whoabuddy@gmail.com" → "sensor:arc-email-sync:thread"
@@ -244,6 +253,8 @@ function detectPatterns(chains: ChainInfo[]): DetectedPattern[] {
     // Skip if already detected by source-prefix strategy
     const src = normalizeSource(group[0].rootSource);
     if (patterns.some((p) => p.key === `source:${src}`)) continue;
+    // Skip subjects whose templates aren't derivable from the subject string
+    if (KNOWN_SUBJECT_PREFIXES.some((p) => subj.startsWith(p))) continue;
 
     const avgSteps =
       group.reduce((sum, c) => sum + 1 + c.childCount, 0) / group.length;
@@ -275,24 +286,35 @@ function detectPatterns(chains: ChainInfo[]): DetectedPattern[] {
  * Check if a detected pattern already has a registered workflow template.
  * Derives candidate template names from the pattern key and calls getTemplateByName().
  *
- * source:sensor:arc-email-sync:thread → tries "arc-email-sync", "email-sync"
+ * source:sensor:arc-email-sync:thread → tries "arc-email-sync", "email-sync",
+ *                                        "arc-email-sync-thread", "email-thread"
  * subject:site health alert           → tries "site-health-alert"
+ * subject:quest runtime-extraction    → tries "quest-runtime-extraction", "quest"
  */
 function patternAlreadyModeled(patternKey: string): boolean {
   const candidates: string[] = [];
 
   if (patternKey.startsWith("source:")) {
     const parts = patternKey.slice("source:".length).split(":");
-    for (const part of parts) {
-      if (!part || part === "sensor") continue;
+    const meaningful = parts.filter((p) => p && p !== "sensor");
+    for (const part of meaningful) {
       candidates.push(part);
-      // Also try without "arc-" prefix
       if (part.startsWith("arc-")) candidates.push(part.slice(4));
+    }
+    // Try combining adjacent parts: "email-sync" + "thread" → "email-sync-thread", "email-thread"
+    for (let i = 0; i < meaningful.length - 1; i++) {
+      const a = meaningful[i];
+      const b = meaningful[i + 1];
+      candidates.push(`${a}-${b}`);
+      if (a.startsWith("arc-")) candidates.push(`${a.slice(4)}-${b}`);
     }
   } else if (patternKey.startsWith("subject:")) {
     const subject = patternKey.slice("subject:".length);
     // "site health alert" → "site-health-alert"
     candidates.push(subject.replace(/\s+/g, "-"));
+    // Try first word: "quest runtime-extraction" → "quest"
+    const firstWord = subject.split(/[\s-]+/)[0];
+    if (firstWord && firstWord.length > 2) candidates.push(firstWord);
   }
 
   return candidates.some((name) => getTemplateByName(name) !== null);
