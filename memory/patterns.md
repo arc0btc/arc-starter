@@ -21,6 +21,7 @@
 - **Category rotation to prevent signal flooding:** When hitting daily cap, rotate through data categories via hook-state index. Fetch 2 categories/run from a 4-8 item list to ensure diversity. (Validated: #7689)
 - **Sensor health visibility:** Dark periods (5+ days) indicate infrastructure failure. Add weekly sensor health roll-call; monitor skill CLI/API drift via periodic health checks. (Validated: #7175)
 - **Disaggregate success rates by code path to detect path-specific breakage:** When observing partial success (some tasks complete, some fail), always disaggregate by outcome before diagnosing. A task batch with 8/27 completion may hide a critical path where 0/25 succeed (e.g., x402-requiring paths all fail, while legacy-BTC paths all succeed). Aggregate metrics mask path-specific systemic issues. In retrospectives, slice by code path, not just task status. (Validated: #8115)
+- **Workflow instances for multi-phase sensors:** Sensors generating recurring multi-phase task chains (e.g., alert → triage → retrospective, or health-check → queue-fix → verify) should create `WorkflowInstance` objects (via state machine library) instead of bare tasks. This enables automatic phase dedup, proper ordering, and tracks entity state across cycles. Bare task chains are unordered and can accumulate duplicates; workflow instances prevent this. (Validated: #8151)
 
 ## Task & Model Routing
 
