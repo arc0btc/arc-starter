@@ -22,6 +22,7 @@ export interface WorkflowAction {
   description?: string;
   model?: string;
   parentTaskId?: number;
+  source?: string;
 }
 
 export interface StateConfig<C = unknown> {
@@ -746,6 +747,7 @@ export const QuestMachine: StateMachine<QuestContext> = {
           model: ctx.model || "sonnet",
           skills: ["quest-create", ...(ctx.skills || [])],
           parentTaskId: ctx.parentTaskId ?? undefined,
+          source: `quest:${ctx.slug}:planning`,
           description: `Decompose this quest into <2min phases.\n\nGoal: ${ctx.goal}\nSlug: ${ctx.slug}\n\nInstructions:\n1. Read the quest goal and any linked task context\n2. Break the goal into 2-6 sequential phases, each completable in <2min\n3. Run: arc skills run --name quest-create -- plan --slug ${ctx.slug} --phase "Phase Name: goal" --phase "Phase Name: goal" ...\n4. The plan command will create phase tasks and advance the workflow`,
         };
       },
@@ -763,6 +765,7 @@ export const QuestMachine: StateMachine<QuestContext> = {
           model: ctx.model || "sonnet",
           skills: ["quest-create", ...(ctx.skills || [])],
           parentTaskId: ctx.parentTaskId ?? undefined,
+          source: `quest:${ctx.slug}:phase-${current.n}`,
           description: `Quest: ${ctx.slug}\nGoal: ${ctx.goal}\nPhase ${current.n} of ${ctx.phases.length}: ${current.name}\n\nPhase goal: ${current.goal}\n\nInstructions:\n1. Do the work for this phase\n2. When done, run: arc skills run --name quest-create -- advance --slug ${ctx.slug}\n3. The advance command marks this phase complete and queues the next one`,
         };
       },

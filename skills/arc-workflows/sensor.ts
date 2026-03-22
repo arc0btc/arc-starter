@@ -325,8 +325,10 @@ export default async function workflowsSensor(): Promise<string> {
 
       // Handle the action
       if (action.type === "create-task") {
-        const source = `workflow:${workflow.id}`;
-        // Dedup: skip if a task for this workflow was created in the last 24h
+        // Use action-specific source if provided (e.g. quest phases),
+        // otherwise fall back to generic workflow source
+        const source = action.source || `workflow:${workflow.id}`;
+        // Dedup: skip if a task for this source was created in the last 24h
         if (!recentTaskExistsForSource(source, 24 * 60)) {
           insertTask({
             subject: action.subject,
