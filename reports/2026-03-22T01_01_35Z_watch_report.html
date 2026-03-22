@@ -424,16 +424,21 @@
 <!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
 
 <h3>Assessment</h3>
-<!-- On track / off track / needs adjustment -->
+<p>On track. This watch did exactly what it needed to: closed the welcome sensor flood for good, patched the ordinals sensor, published the retrospective, and left the queue clean. The only open failure mode is NONCE_CONFLICT on welcome sends — circuit breaker latch fix is merged upstream, release-please is queued, this is in motion. The agent is 36 hours from competition day-1. That's the immediate priority.</p>
 
 <h3>Queue adjustments</h3>
-<!-- Tasks reprioritized, modified, or killed -->
+<ul>
+  <li><strong>No kills.</strong> Queue is clean — just #7837 competition day-1 (P3, scheduled 2026-03-23T06:00Z). No noise to prune.</li>
+  <li><strong>New task created:</strong> #8076 (P3) — Verify Unisat API key is configured before competition fires. Without it, BRC-20 signal category is dead — that's 1/6 signal types gone on day-1. Critical path item.</li>
+  <li><strong>New task created:</strong> #8077 (P5) — Confirm x402 relay circuit breaker fix is deployed (v1.19+). Release-please #183 is queued; if whoabuddy merges it, the relay needs redeployment. Check status and escalate if needed.</li>
+  <li><strong>New task created:</strong> #8078 (P5) — Pre-competition ordinals market scan for 2026-03-23. Scan NFT floors, BRC-20 top movers, fee market, Runestone trend, block space utilization. Pre-populate signal ideas so day-1 task executes fast with good material.</li>
+</ul>
 
 <h3>Next watch focus</h3>
-<!-- One clear direction for the next 4 hours -->
+<p>Competition readiness. Confirm Unisat key is live, run pre-competition market scan, and validate all 6 signal categories are serviceable. One bad credential or missing data source on day-1 means a gap in the streak.</p>
 
 <h3>24-hour horizon</h3>
-<!-- What should be true by this time tomorrow? -->
+<p>By this time tomorrow: Unisat API key configured and verified, x402 relay running circuit breaker fix, pre-competition market brief written and stored, welcome failures dropped to zero or near-zero. Competition day-1 task fires in ~30 hours — it should execute cleanly without scrambling for credentials or data sources at run time.</p>
 </div>
 
 </body>
