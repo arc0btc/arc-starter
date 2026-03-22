@@ -1,0 +1,2365 @@
+[
+  {
+    "name": "agent-hub",
+    "description": "Fleet-internal agent registry, capability index, and task routing hub",
+    "tags": [
+      "fleet",
+      "registry",
+      "routing"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": [
+      "schema.ts"
+    ]
+  },
+  {
+    "name": "aibtc-dev-ops",
+    "description": "Monitor service health via worker-logs and enforce production-grade standards across all aibtcdev repos",
+    "tags": [
+      "devops",
+      "monitoring",
+      "github",
+      "aibtcdev"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "aibtc-heartbeat",
+    "description": "Signed AIBTC platform check-in every 5 minutes via BIP-137 Bitcoin message signing",
+    "tags": [
+      "aibtc",
+      "heartbeat",
+      "sensor"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "aibtc-inbox-sync",
+    "description": "Poll AIBTC platform inbox, sync messages locally, queue tasks for unread messages",
+    "tags": [
+      "comms",
+      "aibtc",
+      "inbox"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "aibtc-news-classifieds",
+    "description": "Classified ads and extended API coverage for aibtc.news \u2014 list, post, and manage classifieds; read briefs; correct signals; update beats; fetch streaks and editorial resources",
+    "tags": [
+      "publishing",
+      "news",
+      "ai-btc",
+      "commerce"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "aibtc-news-deal-flow",
+    "description": "Editorial voice for Deal Flow beat on aibtc.news \u2014 Real-time market signals, sats, Ordinals, bounties",
+    "tags": [
+      "publishing",
+      "news",
+      "ai-btc",
+      "markets"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "aibtc-news-editorial",
+    "description": "File intelligence signals, claim editorial beats, track correspondent activity on aibtc.news",
+    "tags": [
+      "publishing",
+      "news",
+      "ai-btc"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "aibtc-repo-maintenance",
+    "description": "Triage, review, test, and support aibtcdev repos we depend on",
+    "tags": [
+      "maintenance",
+      "github",
+      "aibtcdev"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "aibtc-welcome",
+    "description": "Detect new AIBTC agents and send welcome messages via x402 + STX micro-transfer",
+    "tags": [
+      "social",
+      "aibtc",
+      "sensor"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "alb",
+    "description": "Agents Love Bitcoin (agentslovebitcoin.com) \u2014 BTC-authenticated inbox for trustless_indra",
+    "tags": [
+      "comms",
+      "email",
+      "alb"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-alive-check",
+    "description": "Periodic system-alive task creator \u2014 6-hour canary confirming dispatch loop is healthy",
+    "tags": [
+      "sensor",
+      "system"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-architecture-review",
+    "description": "Continuous architecture review, state machine diagrams, and simplification via SpaceX 5-step process",
+    "tags": [
+      "architecture",
+      "simplification",
+      "review"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": [
+      "archive",
+      "audit-log.md",
+      "state-machine.md"
+    ]
+  },
+  {
+    "name": "arc-blocked-review",
+    "description": "Sensor that periodically reviews blocked tasks to check if they can be unblocked",
+    "tags": [
+      "operations",
+      "tasks"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-bounty-scanner",
+    "description": "Scan GitHub for funded bounty issues in the AIBTC ecosystem and queue them as revenue opportunities",
+    "tags": [
+      "revenue",
+      "github",
+      "bounties",
+      "d1"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-brand-voice",
+    "description": "Brand identity consultant \u2014 voice rules, visual design system, content review",
+    "tags": [
+      "brand",
+      "content",
+      "publishing"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "arc-catalog",
+    "description": "Generate and publish skills/sensors catalog to arc0me-site",
+    "tags": [
+      "publishing",
+      "meta",
+      "skills"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-ceo-review",
+    "description": "CEO reviews the latest watch report and actively manages the task queue",
+    "tags": [],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "arc-ceo-strategy",
+    "description": "Strategic operating manual \u2014 treat yourself as CEO of a one-entity company",
+    "tags": [],
+    "files": [
+      "SKILL.md",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": false,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "arc-content-quality",
+    "description": "Quality gate that checks content for AI writing patterns before publishing blog posts, X posts, and AIBTC signals",
+    "tags": [
+      "publishing",
+      "quality",
+      "content",
+      "gate"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-cost-reporting",
+    "description": "Daily cost and token usage report \u2014 tracks dual costs (Claude Code vs API estimates)",
+    "tags": [
+      "monitoring",
+      "cost",
+      "reporting"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-credentials",
+    "description": "Encrypted credential store for API keys, tokens, and secrets used by other skills",
+    "tags": [
+      "secrets",
+      "api-keys",
+      "encryption"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": [
+      "store.ts"
+    ]
+  },
+  {
+    "name": "arc-dispatch-eval",
+    "description": "Post-dispatch evaluation sensor \u2014 scores task outcomes and creates improvement tasks",
+    "tags": [
+      "meta",
+      "quality",
+      "feedback-loop"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-dispatch-evals",
+    "description": "Dispatch quality evaluation \u2014 error analysis, LLM judges, calibration",
+    "tags": [],
+    "files": [
+      "SKILL.md",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "arc-email-sync",
+    "description": "Sync email from arc-email-worker, detect unread messages, read and send email",
+    "tags": [
+      "comms",
+      "email"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": [
+      "sync.ts"
+    ]
+  },
+  {
+    "name": "arc-failure-triage",
+    "description": "Detect recurring failure patterns, escalate to investigation instead of retry",
+    "tags": [
+      "meta",
+      "reliability"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "arc-housekeeping",
+    "description": "Periodic repo hygiene checks \u2014 uncommitted changes, stale locks, WAL size, memory bloat, file archival",
+    "tags": [
+      "infrastructure",
+      "maintenance"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "arc-inbox",
+    "description": "On-chain message inbox for Arc \u2014 Clarity contract on Stacks for public message submission and Arc-only replies.",
+    "tags": [
+      "inbox",
+      "messaging",
+      "stacks"
+    ],
+    "files": [
+      "SKILL.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": [
+      "contract"
+    ]
+  },
+  {
+    "name": "arc-introspection",
+    "description": "Daily introspection \u2014 synthesizes 24h of dispatch cycles into qualitative self-assessment",
+    "tags": [
+      "meta",
+      "reflection",
+      "self-assessment"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-link-research",
+    "description": "Process batches of links into mission-relevant research reports \u2014 evaluates Bitcoin/AIBTC/Stacks relevance",
+    "tags": [
+      "research",
+      "analysis"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "arc-mcp-server",
+    "description": "MCP server exposing Arc's task queue, skills, and memory to external Claude instances",
+    "tags": [
+      "mcp",
+      "api",
+      "integration"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": [
+      "server.ts"
+    ]
+  },
+  {
+    "name": "arc-mcp",
+    "description": "Local MCP HTTP server exposing task queue and skill tree",
+    "tags": [
+      "infrastructure",
+      "api",
+      "mcp"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-memory",
+    "description": "Pattern libraries and decision frameworks \u2014 loads memory/patterns.md + memory/frameworks.md to change how problems are approached, not just store notes",
+    "tags": [
+      "meta",
+      "memory",
+      "patterns",
+      "frameworks"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-monitoring-service",
+    "description": "Paid endpoint monitoring service \u2014 checks uptime, response time, and alerts on failures",
+    "tags": [
+      "service",
+      "monetization",
+      "monitoring"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-observatory",
+    "description": "Consolidated web UI for multi-agent fleet observability",
+    "tags": [
+      "infrastructure",
+      "web",
+      "fleet"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": [
+      "cache",
+      "fleet.json"
+    ]
+  },
+  {
+    "name": "arc-opensource",
+    "description": "Maintains arc-starter as a living open source project \u2014 syncs commits to GitHub via fleet-handoff, validates publishability, manages AX quality",
+    "tags": [
+      "github",
+      "open-source",
+      "arc-starter",
+      "fleet-handoff"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-ops-review",
+    "description": "Tracks task creation vs completion rate, backlog trend, fleet utilization, and cost-per-useful-output",
+    "tags": [
+      "ops",
+      "metrics",
+      "sensor"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-payments",
+    "description": "Watch Stacks blockchain for STX and sBTC payments to Arc's address and create service tasks from arc: memo codes",
+    "tags": [
+      "payments",
+      "stacks",
+      "sbtc",
+      "sensor",
+      "monetization"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-performance-analytics",
+    "description": "Cost and token analytics by model tier, skill, and time period",
+    "tags": [
+      "analytics",
+      "ops"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-remote-setup",
+    "description": "SSH-based VM provisioning for agent fleet deployment",
+    "tags": [
+      "infrastructure",
+      "fleet",
+      "provisioning"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "arc-report-email",
+    "description": "Email watch reports when new ones are generated \u2014 sensor-only, fires after CEO review completes",
+    "tags": [],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": [
+      "html.ts"
+    ]
+  },
+  {
+    "name": "arc-reporting",
+    "description": "Generate watch reports (HTML, 6-hour) and overnight briefs (markdown, daily 6am PST)",
+    "tags": [],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "arc-reputation",
+    "description": "Signed peer reviews with BIP-322 signatures, local SQLite storage, and give-feedback CLI",
+    "tags": [
+      "reputation",
+      "signing",
+      "l1"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": [
+      "METHODOLOGY.md",
+      "schema.ts"
+    ]
+  },
+  {
+    "name": "arc-scheduler",
+    "description": "Manages future task scheduling with deferred creation, overdue detection, and priority boost for past-due tasks",
+    "tags": [
+      "scheduling",
+      "tasks",
+      "core"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-self-audit",
+    "description": "Daily operational self-audit \u2014 task queue health, cost trends, skill/sensor health, recent codebase changes",
+    "tags": [
+      "infrastructure",
+      "monitoring",
+      "daily"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-self-review",
+    "description": "Periodic self-review cycle sensor and workflow integration",
+    "tags": [
+      "health",
+      "monitoring",
+      "self-review"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-service-health",
+    "description": "System health monitor \u2014 detects stale cycles and stuck dispatch, triggers high-priority alerts",
+    "tags": [
+      "sensor",
+      "system",
+      "health"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-skill-manager",
+    "description": "Create, inspect, and manage agent skills",
+    "tags": [
+      "meta",
+      "skills",
+      "scaffolding"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "arc-starter-publish",
+    "description": "Detect when v2 is ahead of main and merge/push to publish",
+    "tags": [
+      "meta",
+      "git",
+      "publishing"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-strategy-review",
+    "description": "Weekly strategic check-in against Five Directives and milestones \u2014 lightweight assessment, no queue manipulation, at most 1 follow-up task",
+    "tags": [
+      "strategy",
+      "weekly",
+      "directives",
+      "milestones"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-umbrel",
+    "description": "Bitcoin Core RPC integration and Stacks node management via local Umbrel node at 192.168.1.106",
+    "tags": [
+      "bitcoin",
+      "infrastructure",
+      "rpc"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-web-dashboard",
+    "description": "Arc's live web dashboard \u2014 real-time task feed, sensor status, cost tracking",
+    "tags": [],
+    "files": [
+      "SKILL.md",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "arc-workflow-review",
+    "description": "Detect repeating task patterns and propose workflow state machines \u2014 sensor creates P5 design tasks",
+    "tags": [
+      "orchestration",
+      "workflows",
+      "meta"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc-workflows",
+    "description": "Persistent state machine instances for multi-step workflows",
+    "tags": [
+      "orchestration",
+      "state-management",
+      "utilities"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": [
+      "TEMPLATES.md",
+      "state-machine.ts"
+    ]
+  },
+  {
+    "name": "arc-worktrees",
+    "description": "Opt-in git worktree isolation with experiment evaluation for dispatch tasks",
+    "tags": [
+      "isolation",
+      "safety",
+      "dispatch",
+      "experiment"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc0btc-ask-service",
+    "description": "Handles paid Ask Arc questions submitted via /api/ask endpoint",
+    "tags": [
+      "monetization",
+      "x402",
+      "service"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc0btc-monetization",
+    "description": "Reviews Arc capabilities and surfaces monetizable service/product opportunities for arc0btc.com",
+    "tags": [
+      "strategy",
+      "site"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc0btc-pr-review",
+    "description": "Paid PR review service \u2014 accepts GitHub PR URLs via x402 payment and delivers structured code reviews",
+    "tags": [
+      "monetization",
+      "github",
+      "service"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc0btc-security-audit",
+    "description": "Paid code security audit service \u2014 accepts GitHub repo URLs via x402 payment and delivers structured security reports",
+    "tags": [
+      "monetization",
+      "github",
+      "security",
+      "service"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arc0btc-services",
+    "description": "Services storefront for arc0btc.com \u2014 catalog, pricing, delivery pipeline, monitoring",
+    "tags": [
+      "d1",
+      "monetization",
+      "services"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": [
+      "catalog.json",
+      "orders.json"
+    ]
+  },
+  {
+    "name": "arc0btc-site-health",
+    "description": "Monitors arc0btc.com uptime, content freshness, API endpoints, and deployment status",
+    "tags": [
+      "sensor",
+      "site",
+      "monitoring"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "arxiv-research",
+    "description": "Fetches and compiles arXiv papers on LLMs, agents, and AI into ISO-8601 research digests",
+    "tags": [
+      "research",
+      "arxiv",
+      "llm",
+      "agents"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "auto-queue",
+    "description": "Generates next task batch based on completion patterns and queue depth",
+    "tags": [
+      "orchestration",
+      "scheduling",
+      "automation"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "bitcoin-quorumclaw",
+    "description": "Coordinate Bitcoin Taproot M-of-N multisig transactions via the QuorumClaw agent-multisig API. Handles agent registration, multisig creation, proposal submission, signing coordination, and broadcast.",
+    "tags": [
+      "l1",
+      "mainnet-only",
+      "sensitive"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": [
+      "tracking.json"
+    ]
+  },
+  {
+    "name": "bitcoin-taproot-multisig",
+    "description": "Bitcoin Taproot M-of-N multisig coordination \u2014 share pubkeys, verify co-signer signatures, and navigate the OP_CHECKSIGADD workflow.",
+    "tags": [
+      "l1",
+      "mainnet-only",
+      "sensitive"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": [
+      "taproot-runner.ts"
+    ]
+  },
+  {
+    "name": "bitcoin-wallet",
+    "description": "Wallet management, cryptographic signing, and STX transfers for Stacks and Bitcoin \u2014 unlock, lock, info, status, BTC/Stacks message signing, BTC signature verification, and STX sending.",
+    "tags": [
+      "infrastructure",
+      "sensitive",
+      "signing"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": [
+      "bns-runner.ts",
+      "sign-runner.ts",
+      "stx-send-runner.ts",
+      "x402-runner.ts"
+    ]
+  },
+  {
+    "name": "bitflow",
+    "description": "Bitflow DEX swaps, liquidity provision, and pool analytics on Stacks",
+    "tags": [
+      "defi",
+      "dex",
+      "mainnet-only"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": [
+      "pool-state.json"
+    ]
+  },
+  {
+    "name": "blog-deploy",
+    "description": "Auto-deploy arc0me-site to Cloudflare Workers on content changes",
+    "tags": [
+      "deployment",
+      "cloudflare",
+      "blog"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "blog-publishing",
+    "description": "Create, manage, and publish blog posts with ISO8601 content pattern",
+    "tags": [
+      "publishing",
+      "blogging",
+      "content"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "claude-code-releases",
+    "description": "Applicability research on new Claude Code releases \u2014 how each release affects Arc, AIBTC, and agents in general",
+    "tags": [
+      "research",
+      "monitoring",
+      "claude-code"
+    ],
+    "files": [
+      "SKILL.md",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": false,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "code-audit",
+    "description": "On-demand static analysis, dependency review, and security scanning \u2014 Forge's dev quality layer",
+    "tags": [
+      "security",
+      "audit",
+      "static-analysis",
+      "dev"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "compliance-review",
+    "description": "Audits all skills and sensors for structural, interface, and naming compliance with Arc conventions",
+    "tags": [
+      "housekeeping",
+      "quality"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "contacts",
+    "description": "Contact management \u2014 agents, humans, addresses, handles, relationships, interaction history",
+    "tags": [
+      "crm",
+      "network",
+      "data"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": [
+      "schema.ts"
+    ]
+  },
+  {
+    "name": "context-review",
+    "description": "Audits whether tasks load the right skills context at dispatch time",
+    "tags": [
+      "infrastructure",
+      "monitoring",
+      "context"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "dao-zero-authority",
+    "description": "DAO proposal detection, governance participation, and voting on Stacks",
+    "tags": [
+      "governance",
+      "dao",
+      "stacks",
+      "voting"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": [
+      "daos.json"
+    ]
+  },
+  {
+    "name": "defi-bitflow",
+    "description": "Bitflow DEX \u2014 DCA automation, swap quotes, and high-spread signal detection",
+    "tags": [
+      "defi",
+      "trading",
+      "mainnet-only"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": [
+      "swap-runner.ts"
+    ]
+  },
+  {
+    "name": "defi-compounding",
+    "description": "Compounding automation \u2014 harvest and reinvest DeFi yields via Bitflow LP",
+    "tags": [
+      "defi",
+      "automation",
+      "mainnet-only"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": [
+      "compounding-state.json"
+    ]
+  },
+  {
+    "name": "defi-stacks-market",
+    "description": "Prediction market trading and intelligence on stacksmarket.app \u2014 budget-enforced trading, position tracking, and signal filing. Mainnet-only.",
+    "tags": [
+      "l2",
+      "defi",
+      "prediction-markets",
+      "mainnet-only",
+      "trading"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": [
+      "trade-runner.ts"
+    ]
+  },
+  {
+    "name": "defi-zest",
+    "description": "Zest Protocol yield farming \u2014 supply, withdraw, position monitoring",
+    "tags": [
+      "defi",
+      "yield",
+      "mainnet-only"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": [
+      "position-state.json",
+      "tx-runner.ts"
+    ]
+  },
+  {
+    "name": "dev-landing-page-review",
+    "description": "Full React/Next.js PR review \u2014 77 performance rules + 10 composition rules + ~100 UI/accessibility rules for aibtcdev/landing-page PRs",
+    "tags": [
+      "react",
+      "nextjs",
+      "review",
+      "performance",
+      "composition",
+      "accessibility",
+      "ui"
+    ],
+    "files": [
+      "SKILL.md",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": false,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "erc8004-identity",
+    "description": "ERC-8004 on-chain agent identity management \u2014 register agent identities, update URI and metadata, manage operator approvals, set/unset agent wallet, transfer identity NFTs, and query identity info.",
+    "tags": [
+      "erc8004",
+      "identity",
+      "l2",
+      "write"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "erc8004-indexer",
+    "description": "Index all ERC-8004 registered agents from the on-chain identity registry and publish to arc0.me/agents",
+    "tags": [
+      "erc8004",
+      "identity",
+      "indexer",
+      "publishing"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "erc8004-reputation",
+    "description": "ERC-8004 on-chain agent reputation management \u2014 submit and revoke feedback, append responses, approve clients, and query reputation summaries, feedback entries, and client lists.",
+    "tags": [
+      "erc8004",
+      "reputation",
+      "l2",
+      "write"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": [
+      "tx-runner.ts"
+    ]
+  },
+  {
+    "name": "erc8004-trust",
+    "description": "ERC-8004 trust score aggregation \u2014 compute a composite 0-100 trust score for an agent by combining on-chain reputation feedback and validation scores.",
+    "tags": [
+      "erc8004",
+      "reputation",
+      "validation",
+      "read-only"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "erc8004-validation",
+    "description": "ERC-8004 on-chain agent validation management \u2014 request and respond to validations, and query validation status, summaries, and paginated lists by agent or validator.",
+    "tags": [
+      "erc8004",
+      "validation",
+      "l2",
+      "write"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "fleet-comms",
+    "description": "Detect agents that go silent \u2014 no dispatch or self-report for >1h",
+    "tags": [
+      "infrastructure",
+      "fleet",
+      "monitoring",
+      "sensor"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "fleet-dashboard",
+    "description": "Aggregate fleet metrics \u2014 task counts and cost per agent \u2014 every 30 minutes",
+    "tags": [
+      "infrastructure",
+      "fleet",
+      "monitoring",
+      "sensor"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "fleet-escalation",
+    "description": "Detect blocked tasks on fleet agents, escalate to Arc, notify whoabuddy via email",
+    "tags": [
+      "fleet",
+      "escalation",
+      "monitoring",
+      "sensor"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "fleet-handoff",
+    "description": "Route tasks between fleet agents \u2014 especially GitHub operations to Arc",
+    "tags": [
+      "fleet",
+      "github",
+      "coordination"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "fleet-health",
+    "description": "Monitor agent fleet VMs \u2014 service status, dispatch age, disk usage, auth method",
+    "tags": [
+      "infrastructure",
+      "fleet",
+      "monitoring",
+      "sensor"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "fleet-log-pull",
+    "description": "Pull cycle logs and task stats from fleet agents via SSH",
+    "tags": [
+      "infrastructure",
+      "fleet",
+      "monitoring",
+      "sensor"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "fleet-memory",
+    "description": "Collect, merge, and distribute learnings across all fleet agents",
+    "tags": [
+      "fleet",
+      "memory",
+      "orchestration"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": [
+      "ARCHITECTURE.md"
+    ]
+  },
+  {
+    "name": "fleet-push",
+    "description": "Change-aware code deployment \u2014 sync commits to fleet and restart only affected services",
+    "tags": [
+      "fleet",
+      "infrastructure",
+      "deployment"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "fleet-rebalance",
+    "description": "Work-stealing rebalancer \u2014 moves tasks from overloaded agents to idle ones",
+    "tags": [
+      "infrastructure",
+      "fleet",
+      "scheduling",
+      "sensor"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "fleet-router",
+    "description": "Automated task routing from Arc to fleet agents based on domain matching",
+    "tags": [
+      "fleet",
+      "orchestration",
+      "routing",
+      "sensor"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "fleet-self-sync",
+    "description": "Worker-local git bundle detection, apply, service restart, and health validation",
+    "tags": [
+      "fleet",
+      "infrastructure",
+      "sync"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "fleet-sync",
+    "description": "Sync CLAUDE.md, skills, and git commits across fleet agents via SSH",
+    "tags": [
+      "fleet",
+      "infrastructure",
+      "sync"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "github-ci-status",
+    "description": "Monitors GitHub Actions CI runs on our PRs and detects failures",
+    "tags": [
+      "sensor",
+      "github",
+      "ci"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "github-interceptor",
+    "description": "Detects blocked GitHub credential tasks on workers and auto-routes them to Arc",
+    "tags": [
+      "fleet",
+      "github",
+      "worker"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "github-issue-monitor",
+    "description": "Monitors GitHub issues on managed and collaborative repos, creates triage tasks with org maintainer context",
+    "tags": [
+      "sensor",
+      "github"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "github-issues",
+    "description": "GitHub issue intake for Forge \u2014 sensor detects assigned/labeled issues, CLI provides triage and code analysis workflow",
+    "tags": [
+      "github",
+      "issues",
+      "triage",
+      "sensor"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "github-mentions",
+    "description": "Detects GitHub notifications and engages as org maintainer across managed and collaborative repos",
+    "tags": [
+      "sensor",
+      "github"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "github-release-watcher",
+    "description": "Detects new releases on bun, claude-code, stacks-core, aibtcdev/skills and 5 other watched repos \u2014 creates P7 review tasks",
+    "tags": [
+      "monitoring",
+      "github",
+      "ecosystem"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "github-security-alerts",
+    "description": "Monitor Dependabot security alerts on managed repos \u2014 P3/P4 alerts for critical/high CVEs",
+    "tags": [
+      "security",
+      "github",
+      "monitoring"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "github-worker-logs",
+    "description": "Sync worker-logs forks, monitor production events, report trends",
+    "tags": [
+      "monitoring",
+      "infrastructure",
+      "sync"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "identity-guard",
+    "description": "Validates agent identity files match hostname \u2014 detects and alerts on identity drift",
+    "tags": [
+      "infrastructure",
+      "fleet",
+      "identity"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "jingswap",
+    "description": "Jingswap blind batch auction on Stacks \u2014 sBTC/STX and sBTC/USDCx markets, cycle state, deposits, settlements",
+    "tags": [
+      "defi",
+      "dex",
+      "mainnet-only"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": [
+      "config.json"
+    ]
+  },
+  {
+    "name": "maximumsats",
+    "description": "Nostr Web of Trust (WoT) scoring via MaximumSats API \u2014 trust scores, sybil detection, and trust paths for Nostr pubkeys.",
+    "tags": [
+      "nostr",
+      "trust",
+      "wot",
+      "reputation",
+      "read-only"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "mempool-watch",
+    "description": "Monitors Bitcoin mempool fee rates and Arc BTC address for unconfirmed incoming transactions via mempool.space API",
+    "tags": [
+      "bitcoin",
+      "mempool",
+      "fees",
+      "monitoring"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "nostr-wot",
+    "description": "Nostr Web of Trust trust scoring, sybil detection, and neighbor discovery via MaximumSats API",
+    "tags": [
+      "nostr",
+      "trust",
+      "wot",
+      "reputation",
+      "risk"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": [
+      "trust-gate.ts"
+    ]
+  },
+  {
+    "name": "ordinals-market-data",
+    "description": "Fetches diverse ordinals market data (inscriptions, BRC-20, NFT floors, fee market) and queues signal-filing tasks for the ordinals beat",
+    "tags": [
+      "ordinals",
+      "signals",
+      "publishing"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "quest-create",
+    "description": "Decompose complex tasks into sequential phases with checkpoint-based idempotent execution",
+    "tags": [
+      "orchestration",
+      "decomposition",
+      "planning"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "site-consistency",
+    "description": "Cross-site consistency sensor detecting structural drift between arc0.me and arc0btc.com",
+    "tags": [
+      "sensor",
+      "site",
+      "monitoring"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "skill-effectiveness",
+    "description": "Track which SKILL.md versions correlate with better dispatch outcomes for data-driven prompt evolution",
+    "tags": [
+      "meta",
+      "skills",
+      "analytics"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "social-agent-engagement",
+    "description": "Proactive outreach to AIBTC network agents for collaboration on shared interests",
+    "tags": [
+      "comms",
+      "collaboration",
+      "aibtc"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "social-x-ecosystem",
+    "description": "Monitor X for ecosystem keywords (Bitcoin, Stacks, AIBTC, Claude Code, etc.) and file research tasks for high-signal tweets",
+    "tags": [
+      "social",
+      "research",
+      "x"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": false,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "social-x-posting",
+    "description": "Post tweets, read timeline, and manage presence on X (Twitter) via API v2",
+    "tags": [
+      "social",
+      "publishing",
+      "x"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "stacks-stackspot",
+    "description": "Autonomous Stacking participation \u2014 detect joinable pots, auto-join with Arc wallet, claim sBTC rewards. Mainnet-only lottery stacking.",
+    "tags": [
+      "l2",
+      "stacking",
+      "mainnet-only",
+      "autonomous"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "styx",
+    "description": "BTC\u2192sBTC conversion via Styx protocol (btc2sbtc.com) \u2014 pool status, fees, deposit, and tracking",
+    "tags": [
+      "defi",
+      "bitcoin",
+      "sbtc"
+    ],
+    "files": [
+      "SKILL.md",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": false,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": [
+      "deposit-runner.ts"
+    ]
+  },
+  {
+    "name": "systems-monitor",
+    "description": "Fleet VM system health \u2014 disk, memory, CPU load, and service status for agent nodes",
+    "tags": [
+      "sensor",
+      "infrastructure",
+      "monitoring",
+      "fleet"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "worker-deploy",
+    "description": "Auto-deploy arc0btc-worker to Cloudflare Workers on code changes",
+    "tags": [
+      "deployment",
+      "cloudflare",
+      "worker"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": false,
+    "extra_files": []
+  },
+  {
+    "name": "worker-logs-monitor",
+    "description": "Query worker-logs instances for errors, cross-reference GitHub issues, file new issues",
+    "tags": [
+      "monitoring",
+      "infrastructure",
+      "logs"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": []
+  },
+  {
+    "name": "zest-v2",
+    "description": "Zest Protocol V2 lending, borrowing, and liquidation monitoring on Stacks",
+    "tags": [
+      "defi",
+      "lending",
+      "mainnet-only"
+    ],
+    "files": [
+      "SKILL.md",
+      "sensor.ts",
+      "cli.ts",
+      "AGENT.md"
+    ],
+    "has_skill_md": true,
+    "has_sensor": true,
+    "has_cli": true,
+    "has_agent_md": true,
+    "extra_files": [
+      "health-state.json"
+    ]
+  }
+]
