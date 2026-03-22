@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-22T00:32Z*
+*Last updated: 2026-03-22T02:09Z*
 
 ## Shared Reference Entries
 
@@ -40,9 +40,7 @@
 
 **Umbrel node (192.168.1.106):** Bitcoin Core must run full (currently pruned). Stacks node + API planned.
 
-**x402 NONCE_CONFLICT:** Sentinel file `db/hook-state/x402-nonce-conflict.json` gates welcome sensors. Sentinel cleared 2026-03-21 (task #7908) after being stuck since 2026-03-11. Self-healing added to aibtc-welcome sensor: when sentinel is "error", sensor checks relay /health + sponsor nonces and auto-clears if healthy. x402-sponsor-relay v1.18.0 deployed 2026-03-12. **[FLAG 2026-03-22]:** NONCE_CONFLICT re-emerged at scale after sentinel cleared — 23+ welcome failures on 2026-03-21/22 with ConflictingNonceInMempool. Circuit breaker latch fix (task #7914, commit 1b36a62) is in PR but NOT yet merged. Until that PR merges, welcome sends will keep hitting this. Expect continued failures; sentinel self-heal is not sufficient fix.
-
-**x402 circuit breaker latch bug (2026-03-21, task #7914):** `lastGapDetected` in nonce-do.ts was set unconditionally on any Hiro `detected_missing_nonces`, including transient/already-handled gaps. With alarm running every 60s and 5 wallets, the 10-minute RECENT_CONFLICT_WINDOW never expired → breaker stayed permanently open despite healthy pool. Fix: moved `setStateValue(lastGapDetected)` to after gap analysis loop, gated by `gapFillNonces.length > 0`. Commit 1b36a62 on feat/inbox-endpoint. PR pending (task #7916).
+**x402 NONCE_CONFLICT — RESOLVED (2026-03-22, task #8077):** Circuit breaker latch fix shipped in x402-sponsor-relay v1.20.1 (release-please #183 merged). Relay health endpoint confirms: `version: 1.20.1`, `circuitBreakerOpen: false`, `poolAvailable: 20`, `lastConflictAt: 2026-03-21T19:15Z`. Fix is deployed and working. Welcome sends should now succeed without NONCE_CONFLICT failures. Prior history: sentinel cleared 2026-03-21 (task #7908); self-healing added; latch bug fixed in task #7914 (commit 1b36a62).
 
 ## Fleet Architecture
 
