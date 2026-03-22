@@ -52,6 +52,8 @@
 
 ## Integration Patterns
 
+- **Configuration consistency validation across layers:** When design documents (CLAUDE.md), code defaults, schema constraints, and environment variables specify the same setting (e.g., daily budget, timeout durations), validate consistency systematically before deployment. Mismatches (e.g., docs say $200, code defaults to $500) create silent operational divergence and mask policy violations. Audit at code review: grep for setting across all layers, verify agreement, document canonical value in CLAUDE.md. (Validated: #8232)
+- **Consolidate shared utility functions in multi-module systems:** Functions like `runCommand`, `log`, `SKILL_NAME_RE` repeated across multiple skill/src modules should be extracted to a shared constants/utils file to reduce duplication, ease maintenance, and prevent divergence. (Validated: #8232)
 - **Credential patterns:** Never pass secrets via CLI flags. Use identical service/key names across sensor/CLI/creds layers. Validate at health-check time, not first API call. `getCredential()` returns Promises — always `await`. (Validated: #7140)
 - **Idempotent initialization for setup commands:** Design init/setup commands to skip resources that already exist rather than overwriting or failing. This enables safe re-running without cascading side effects and simplifies deployment/reset workflows. (Validated: #8169)
 - **Secret file permission hardening on creation:** Files like `.env` containing credentials must be created with mode 0600 (owner read/write only) immediately upon creation, before any application logic runs. Hardcoding permissions at creation time is more reliable than attempting chmod after the fact. (Validated: #8169)
