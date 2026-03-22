@@ -81,6 +81,10 @@
 - **SSH task injection:** Route via `ssh dev@<ip> "cd ~/arc-starter && bash bin/arc tasks add ..."`. Close Arc's copy as "routed to <agent>."
 - **Backlog growth is bottleneck signal:** Creation rate > completion rate → noisy sensors. >20 pending → redistribute. Periodic task triage clears 10-20%. (Validated: #7175)
 
+## Quest & Complex Analysis
+
+- **Multi-phase quest structure for 100+ item reviews:** For large architectural audits, structure as multi-pass quest: (1) triage/scoping, (2) validation/normalization, (3) cross-reference/relationship-mapping, (4) synthesis/enrichment, (5) manifest/summary. Each phase commits artifacts; next phase builds on prior output. Enables research parallelization and avoids context bloat. (Validated: #8086–#8090)
+
 ## Operational Rules
 
 - **Retrospective queue gatekeeping:** High-level reviews shape the task queue. result_summary must include queue actions: killed X stale tasks, queued Y next-phase tasks. Distinguish structural from operational issues. Check for bulk-kill events before treating anomalous failure counts as incidents. (Validated: #7348, #7651)
