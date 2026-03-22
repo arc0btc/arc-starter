@@ -47,9 +47,18 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
 
   const id = insertTaskIfNew(TASK_SOURCE, {
     subject: `Inscribe daily brief for ${pstDate}`,
-    description: `Record the Bitcoin inscription for the aibtc.news daily brief.\n\nRun: arc skills run --name aibtc-news-classifieds -- inscribe-brief --date ${pstDate}\n\nRequires BIP-137 auth. Close as failed if brief has not been compiled for this date.`,
-    priority: 6,
-    skills: JSON.stringify(["aibtc-news-classifieds", "bitcoin-wallet"]),
+    description: [
+      `Inscribe the aibtc.news daily brief for ${pstDate} as a child ordinal under the canonical parent.`,
+      ``,
+      `## Workflow`,
+      `1. Create workflow: arc skills run --name workflows -- create daily-brief-inscription brief-inscription-${pstDate} pending --context '{"date":"${pstDate}","parentId":"9d83815556ab6706e8a557d7f2514826e17421cd5443561f18276766b5474559i0","contentType":"text/html"}'`,
+      `2. Evaluate state machine: arc skills run --name workflows -- evaluate <workflow_id>`,
+      `3. Follow the state machine instructions at each state (fetch brief → check balance → commit tx → confirm → reveal → record inscription → payout)`,
+      ``,
+      `Close as failed if no compiled brief exists for this date.`,
+    ].join("\n"),
+    priority: 4,
+    skills: JSON.stringify(["workflows", "aibtc-news-classifieds", "bitcoin-wallet"]),
   });
 
   return id !== null ? "ok" : "skip";
