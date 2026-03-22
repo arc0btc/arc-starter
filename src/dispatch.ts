@@ -763,9 +763,9 @@ export async function runDispatch(): Promise<void> {
   }
 
   // Landing-page gate — auto-close tasks that are handled interactively by humans.
-  // Matches "[landing-page]" prefix in subject (human-queued) or landing-page PR/merge tasks.
-  // Without this gate, these tasks consume full Sonnet cycles and timeout.
-  const LANDING_PAGE_RE = /^\[landing-page\]|landing-page.*(?:merge|deploy|PR|pull request)/i;
+  // Matches "[landing-page]" or "[org/landing-page]" prefixes (any form from sensor or human).
+  // Analysis tasks also dropped — they require human context and consistently fail without it.
+  const LANDING_PAGE_RE = /\[[^\]]*\/landing-page\]|^\[landing-page\]/i;
   if (LANDING_PAGE_RE.test(task.subject)) {
     const summary = "Auto-closed by landing-page gate — handled interactively by human";
     log(`dispatch: LANDING-PAGE GATE — task #${task.id} "${task.subject}" matches pattern. Closing without dispatch.`);
