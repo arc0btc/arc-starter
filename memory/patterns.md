@@ -29,7 +29,8 @@
 
 ## Task & Model Routing
 
-- **3-tier model routing:** P1-4 → Opus, P5-7 → Sonnet, P8+ → Haiku. Priority doubles as model selector + urgency.
+- **Explicit model selection independent of priority.** Every task must specify `model` (opus/sonnet/haiku/codex/openrouter:*); dispatch MODEL GATE rejects SDK tasks without it. Priority (queue position) and model (capability tier) are now decoupled. (Validated: #8211)
+- **Validation gates for implicit-to-explicit transitions:** When removing implicit defaults (e.g., 3-tier priority→model fallback), add dispatch-time gates to reject incomplete specs. Implicit fallbacks silently degrade; explicit gates force completeness at the enforcement boundary, catching issues before dispatch wastes compute. (Validated: #8211)
 - **Presentation/audience-facing work routes to Opus minimum.** Tone, framing, and audience judgment require senior modeling.
 - **Retrospective tasks need Sonnet tier (P7) minimum.** Haiku timeout insufficient for reading records + extracting patterns.
 - **Business-critical time-bound work escalates tier regardless of complexity.** Deadline <48h AND business impact >$1000 → Opus minimum. Business consequence overrides complexity-based routing. (Validated: #7815)
