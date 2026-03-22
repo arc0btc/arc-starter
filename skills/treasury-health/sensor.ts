@@ -145,8 +145,25 @@ export default async function treasuryHealthSensor(): Promise<string> {
     .map((b) => `${b.denomination}: ${b.balance} (below minimum)`)
     .join(", ");
 
+  // Suppress repeated identical alerts — if the last completed task from this
+  // source had the same alert text, don't create another one. Only re-alert
+  // when balances *change* (new asset below threshold, or recovery + re-drop).
+  const lastCompleted = db
+    .query(
+      `SELECT subject FROM tasks
+       WHERE source = ? AND status = 'completed'
+       ORDER BY completed_at DESC LIMIT 1`
+    )
+    .get(TASK_SOURCE) as { subject: string } | null;
+
+  const newSubject = `Low balance alert: ${alerts}`;
+  if (lastCompleted && lastCompleted.subject === newSubject) {
+    log(`Suppressed duplicate alert (unchanged since last): ${alerts}`);
+    return "ok";
+  }
+
   const id = insertTaskIfNew(TASK_SOURCE, {
-    subject: `Low balance alert: ${alerts}`,
+    subject: newSubject,
     description: `Treasury health check detected low balances.\n\n${belowThreshold
       .map((b) => {
         const min =
