@@ -1,3 +1,28 @@
+// ---- Logging ----
+
+const ROOT = new URL("..", import.meta.url).pathname;
+
+/** Timestamp-prefixed console logger. */
+export function log(msg: string): void {
+  console.log(`[${new Date().toISOString()}] ${msg}`);
+}
+
+// ---- Command runner ----
+
+/** Spawn a command in the repo root, capturing stdout/stderr. */
+export async function runCommand(
+  cmd: string,
+  args: string[],
+): Promise<{ exitCode: number; stdout: string; stderr: string }> {
+  const proc = Bun.spawn([cmd, ...args], { cwd: ROOT, stdout: "pipe", stderr: "pipe" });
+  const [exitCode, stdout, stderr] = await Promise.all([
+    proc.exited,
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text(),
+  ]);
+  return { exitCode, stdout, stderr };
+}
+
 // ---- Process utilities ----
 
 /** Check if a process with the given PID is still alive. */

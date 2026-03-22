@@ -7,24 +7,10 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, symlinkSync, unlinkSy
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { git } from "./safe-commit.ts";
+import { log, runCommand } from "./utils.ts";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const WORKTREE_DIR = join(ROOT, ".worktrees");
-
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] ${msg}`);
-}
-
-/** Generic command runner — spawn a process and capture output. */
-async function runCommand(cmd: string, args: string[]): Promise<{ exitCode: number; stdout: string; stderr: string }> {
-  const proc = Bun.spawn([cmd, ...args], { cwd: ROOT, stdout: "pipe", stderr: "pipe" });
-  const [exitCode, stdout, stderr] = await Promise.all([
-    proc.exited,
-    new Response(proc.stdout).text(),
-    new Response(proc.stderr).text(),
-  ]);
-  return { exitCode, stdout, stderr };
-}
 
 /** Create an isolated worktree for a task, symlink shared state into it. */
 export async function createWorktree(taskId: number): Promise<string> {

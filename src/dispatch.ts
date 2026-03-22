@@ -31,7 +31,7 @@ import {
   updateTaskCost,
   toSqliteDatetime,
 } from "./db.ts";
-import { isPidAlive } from "./utils.ts";
+import { isPidAlive, log } from "./utils.ts";
 import { getShutdownState } from "./shutdown.ts";
 import { getCredential } from "./credentials.ts";
 import { AGENT_NAME } from "./identity.ts";
@@ -97,12 +97,6 @@ function classifyError(errMsg: string): ErrorClass {
     return "transient";
   }
   return "unknown";
-}
-
-// ---- Logging ----
-
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] ${msg}`);
 }
 
 // ---- Model routing ----

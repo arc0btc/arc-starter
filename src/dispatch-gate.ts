@@ -8,6 +8,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { hostname } from "node:os";
 import { join } from "node:path";
+import { log } from "./utils.ts";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const DISPATCH_GATE_FILE = join(ROOT, "db", "hook-state", "dispatch-gate.json");
@@ -22,10 +23,6 @@ interface DispatchGateState {
   stop_reason: string | null;
   last_error_class: ErrorClass | null;
   last_updated: string;
-}
-
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] ${msg}`);
 }
 
 function readGateState(): DispatchGateState {

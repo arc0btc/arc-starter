@@ -6,13 +6,10 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { hostname, uptime as osUptime } from "node:os";
 import { join } from "node:path";
 import type { Task } from "./db.ts";
+import { log } from "./utils.ts";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const FLEET_STATUS_FILE = join(ROOT, "memory", "fleet-status.json");
-
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] ${msg}`);
-}
 
 function getDiskStats(): { diskTotalBytes: number; diskAvailBytes: number } {
   const diskResult = Bun.spawnSync(["df", "-B1", "--output=size,avail", ROOT]);

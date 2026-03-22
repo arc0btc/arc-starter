@@ -6,28 +6,14 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { insertTask } from "./db.ts";
+import { log, runCommand } from "./utils.ts";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const ARC_SERVICES = ["arc-web.service", "arc-sensors.timer", "arc-dispatch.timer"] as const;
 
-function log(msg: string): void {
-  console.log(`[${new Date().toISOString()}] ${msg}`);
-}
-
 /** Spawn a git command in the repo root, capturing output. */
 export async function git(...args: string[]): Promise<{ exitCode: number; stdout: string; stderr: string }> {
   const proc = Bun.spawn(["git", ...args], { cwd: ROOT, stdout: "pipe", stderr: "pipe" });
-  const [exitCode, stdout, stderr] = await Promise.all([
-    proc.exited,
-    new Response(proc.stdout).text(),
-    new Response(proc.stderr).text(),
-  ]);
-  return { exitCode, stdout, stderr };
-}
-
-/** Generic command runner — spawn a process and capture output. */
-async function runCommand(cmd: string, args: string[]): Promise<{ exitCode: number; stdout: string; stderr: string }> {
-  const proc = Bun.spawn([cmd, ...args], { cwd: ROOT, stdout: "pipe", stderr: "pipe" });
   const [exitCode, stdout, stderr] = await Promise.all([
     proc.exited,
     new Response(proc.stdout).text(),
