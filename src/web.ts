@@ -69,6 +69,28 @@ function errorResponse(message: string, status = 400): Response {
   return json({ error: message }, status);
 }
 
+function makeDailyLimiter(limit: number) {
+  let dayKey = "";
+  let count = 0;
+  return {
+    check(): boolean {
+      const today = new Date().toISOString().slice(0, 10);
+      if (today !== dayKey) { dayKey = today; count = 0; }
+      return count < limit;
+    },
+    increment(): void {
+      const today = new Date().toISOString().slice(0, 10);
+      if (today !== dayKey) { dayKey = today; count = 0; }
+      count++;
+    },
+    remaining(): number {
+      const today = new Date().toISOString().slice(0, 10);
+      if (today !== dayKey) { dayKey = today; count = 0; }
+      return Math.max(0, limit - count);
+    },
+  };
+}
+
 // ---- Ask Arc: Tiered pricing & rate limiting ----
 
 interface AskTier {
@@ -84,39 +106,15 @@ const ASK_TIERS: Record<string, AskTier> = {
 };
 
 const ASK_DAILY_LIMIT = 20;
-let askDayKey = "";
-let askDayCount = 0;
-
-function getAskDayKey(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function checkAskRateLimit(): boolean {
-  const today = getAskDayKey();
-  if (today !== askDayKey) {
-    askDayKey = today;
-    askDayCount = 0;
-  }
-  return askDayCount < ASK_DAILY_LIMIT;
-}
-
-function incrementAskCount(): void {
-  const today = getAskDayKey();
-  if (today !== askDayKey) {
-    askDayKey = today;
-    askDayCount = 0;
-  }
-  askDayCount++;
-}
+const askLimiter = makeDailyLimiter(ASK_DAILY_LIMIT);
 
 async function handleAsk(req: Request): Promise<Response> {
-  // Rate limit check
-  if (!checkAskRateLimit()) {
+  if (!askLimiter.check()) {
     return json({
       error: "Daily question limit reached",
       code: "RATE_LIMITED",
       limit: ASK_DAILY_LIMIT,
-      resets: getAskDayKey() + "T00:00:00Z (next day)",
+      resets: new Date().toISOString().slice(0, 10) + "T00:00:00Z (next day)",
     }, 429);
   }
 
@@ -160,7 +158,7 @@ async function handleAsk(req: Request): Promise<Response> {
     source: "api:ask-arc",
   });
 
-  incrementAskCount();
+  askLimiter.increment();
 
   return json({
     task_id: taskId,
@@ -169,7 +167,7 @@ async function handleAsk(req: Request): Promise<Response> {
     cost_sats: tier.cost_sats,
     status: "pending",
     poll_url: `/api/tasks/${taskId}`,
-    daily_remaining: ASK_DAILY_LIMIT - askDayCount,
+    daily_remaining: askLimiter.remaining(),
   }, 201);
 }
 
@@ -180,38 +178,15 @@ async function handleAsk(req: Request): Promise<Response> {
 
 const VOICE_TIERS = ASK_TIERS; // same pricing structure: haiku/sonnet/opus
 const VOICE_DAILY_LIMIT = 50;
-let voiceDayKey = "";
-let voiceDayCount = 0;
-
-function getVoiceDayKey(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function checkVoiceRateLimit(): boolean {
-  const today = getVoiceDayKey();
-  if (today !== voiceDayKey) {
-    voiceDayKey = today;
-    voiceDayCount = 0;
-  }
-  return voiceDayCount < VOICE_DAILY_LIMIT;
-}
-
-function incrementVoiceCount(): void {
-  const today = getVoiceDayKey();
-  if (today !== voiceDayKey) {
-    voiceDayKey = today;
-    voiceDayCount = 0;
-  }
-  voiceDayCount++;
-}
+const voiceLimiter = makeDailyLimiter(VOICE_DAILY_LIMIT);
 
 async function handleVoiceAsk(req: Request): Promise<Response> {
-  if (!checkVoiceRateLimit()) {
+  if (!voiceLimiter.check()) {
     return json({
       error: "Daily voice limit reached",
       code: "RATE_LIMITED",
       limit: VOICE_DAILY_LIMIT,
-      resets: getVoiceDayKey() + "T00:00:00Z (next day)",
+      resets: new Date().toISOString().slice(0, 10) + "T00:00:00Z (next day)",
     }, 429);
   }
 
@@ -254,7 +229,7 @@ async function handleVoiceAsk(req: Request): Promise<Response> {
     source: "api:voice-ask",
   });
 
-  incrementVoiceCount();
+  voiceLimiter.increment();
 
   return json({
     task_id: taskId,
@@ -263,7 +238,7 @@ async function handleVoiceAsk(req: Request): Promise<Response> {
     cost_sats: tier.cost_sats,
     status: "pending",
     poll_url: `/api/tasks/${taskId}`,
-    daily_remaining: VOICE_DAILY_LIMIT - voiceDayCount,
+    daily_remaining: voiceLimiter.remaining(),
   }, 201);
 }
 
@@ -281,30 +256,7 @@ const PR_REVIEW_TIERS: Record<string, PrReviewTier> = {
 };
 
 const PR_REVIEW_DAILY_LIMIT = 5;
-let prReviewDayKey = "";
-let prReviewDayCount = 0;
-
-function getPrReviewDayKey(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function checkPrReviewRateLimit(): boolean {
-  const today = getPrReviewDayKey();
-  if (today !== prReviewDayKey) {
-    prReviewDayKey = today;
-    prReviewDayCount = 0;
-  }
-  return prReviewDayCount < PR_REVIEW_DAILY_LIMIT;
-}
-
-function incrementPrReviewCount(): void {
-  const today = getPrReviewDayKey();
-  if (today !== prReviewDayKey) {
-    prReviewDayKey = today;
-    prReviewDayCount = 0;
-  }
-  prReviewDayCount++;
-}
+const prReviewLimiter = makeDailyLimiter(PR_REVIEW_DAILY_LIMIT);
 
 /** Validate GitHub PR URL and extract owner/repo/number */
 function parsePrUrl(url: string): { owner: string; repo: string; number: number } | null {
@@ -315,13 +267,12 @@ function parsePrUrl(url: string): { owner: string; repo: string; number: number 
 }
 
 async function handlePrReview(req: Request): Promise<Response> {
-  // Rate limit check
-  if (!checkPrReviewRateLimit()) {
+  if (!prReviewLimiter.check()) {
     return json({
       error: "Daily PR review limit reached",
       code: "RATE_LIMITED",
       limit: PR_REVIEW_DAILY_LIMIT,
-      resets: getPrReviewDayKey() + "T00:00:00Z (next day)",
+      resets: new Date().toISOString().slice(0, 10) + "T00:00:00Z (next day)",
     }, 429);
   }
 
@@ -392,7 +343,7 @@ async function handlePrReview(req: Request): Promise<Response> {
     source: `paid:pr-review:${parsed.owner}/${parsed.repo}#${parsed.number}`,
   });
 
-  incrementPrReviewCount();
+  prReviewLimiter.increment();
 
   return json({
     task_id: taskId,
@@ -407,7 +358,7 @@ async function handlePrReview(req: Request): Promise<Response> {
     },
     status: "pending",
     poll_url: `/api/tasks/${taskId}`,
-    daily_remaining: PR_REVIEW_DAILY_LIMIT - prReviewDayCount,
+    daily_remaining: prReviewLimiter.remaining(),
   }, 201);
 }
 
@@ -415,33 +366,11 @@ async function handlePrReview(req: Request): Promise<Response> {
 
 const SECURITY_AUDIT_COST_SATS = 50000;
 const SECURITY_AUDIT_DAILY_LIMIT = 3;
-let securityAuditDayKey = "";
-let securityAuditDayCount = 0;
+const securityAuditLimiter = makeDailyLimiter(SECURITY_AUDIT_DAILY_LIMIT);
 
 const VALID_FOCUS_AREAS = ["dependencies", "secrets", "owasp", "clarity"] as const;
 type FocusArea = typeof VALID_FOCUS_AREAS[number];
 
-function getSecurityAuditDayKey(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function checkSecurityAuditRateLimit(): boolean {
-  const today = getSecurityAuditDayKey();
-  if (today !== securityAuditDayKey) {
-    securityAuditDayKey = today;
-    securityAuditDayCount = 0;
-  }
-  return securityAuditDayCount < SECURITY_AUDIT_DAILY_LIMIT;
-}
-
-function incrementSecurityAuditCount(): void {
-  const today = getSecurityAuditDayKey();
-  if (today !== securityAuditDayKey) {
-    securityAuditDayKey = today;
-    securityAuditDayCount = 0;
-  }
-  securityAuditDayCount++;
-}
 
 /** Validate GitHub repo URL and extract owner/repo */
 function parseRepoUrl(url: string): { owner: string; repo: string } | null {
@@ -451,13 +380,12 @@ function parseRepoUrl(url: string): { owner: string; repo: string } | null {
 }
 
 async function handleSecurityAudit(req: Request): Promise<Response> {
-  // Rate limit check
-  if (!checkSecurityAuditRateLimit()) {
+  if (!securityAuditLimiter.check()) {
     return json({
       error: "Daily security audit limit reached",
       code: "RATE_LIMITED",
       limit: SECURITY_AUDIT_DAILY_LIMIT,
-      resets: getSecurityAuditDayKey() + "T00:00:00Z (next day)",
+      resets: new Date().toISOString().slice(0, 10) + "T00:00:00Z (next day)",
     }, 429);
   }
 
@@ -566,7 +494,7 @@ async function handleSecurityAudit(req: Request): Promise<Response> {
     source: `paid:security-audit:${parsed.owner}/${parsed.repo}`,
   });
 
-  incrementSecurityAuditCount();
+  securityAuditLimiter.increment();
 
   return json({
     task_id: taskId,
@@ -580,7 +508,7 @@ async function handleSecurityAudit(req: Request): Promise<Response> {
     focus: focusAreas,
     status: "pending",
     poll_url: `/api/tasks/${taskId}`,
-    daily_remaining: SECURITY_AUDIT_DAILY_LIMIT - securityAuditDayCount,
+    daily_remaining: securityAuditLimiter.remaining(),
   }, 201);
 }
 
@@ -592,17 +520,10 @@ const MONITOR_TIERS: Record<string, { interval_minutes: number; cost_sats_monthl
 };
 
 const MONITOR_DAILY_LIMIT = 50; // max new registrations per day
-let monitorDayKey = "";
-let monitorDayCount = 0;
-
-function checkMonitorRateLimit(): boolean {
-  const today = new Date().toISOString().slice(0, 10);
-  if (today !== monitorDayKey) { monitorDayKey = today; monitorDayCount = 0; }
-  return monitorDayCount < MONITOR_DAILY_LIMIT;
-}
+const monitorLimiter = makeDailyLimiter(MONITOR_DAILY_LIMIT);
 
 async function handleMonitorCreate(req: Request): Promise<Response> {
-  if (!checkMonitorRateLimit()) {
+  if (!monitorLimiter.check()) {
     return json({
       error: "Daily registration limit reached",
       code: "RATE_LIMITED",
@@ -666,7 +587,7 @@ async function handleMonitorCreate(req: Request): Promise<Response> {
     owner_address: ownerAddress,
   });
 
-  monitorDayCount++;
+  monitorLimiter.increment();
 
   return json({
     id,
@@ -728,20 +649,7 @@ const FEED_PREMIUM_DAILY_LIMIT = 50;
 const VALID_FEED_TOPICS = ["bitcoin", "stacks", "defi", "aibtc", "agents", "github", "payments"] as const;
 type FeedTopic = typeof VALID_FEED_TOPICS[number];
 
-let feedPremiumDayKey = "";
-let feedPremiumDayCount = 0;
-
-function checkFeedPremiumRateLimit(): boolean {
-  const today = new Date().toISOString().slice(0, 10);
-  if (today !== feedPremiumDayKey) { feedPremiumDayKey = today; feedPremiumDayCount = 0; }
-  return feedPremiumDayCount < FEED_PREMIUM_DAILY_LIMIT;
-}
-
-function incrementFeedPremiumCount(): void {
-  const today = new Date().toISOString().slice(0, 10);
-  if (today !== feedPremiumDayKey) { feedPremiumDayKey = today; feedPremiumDayCount = 0; }
-  feedPremiumDayCount++;
-}
+const feedPremiumLimiter = makeDailyLimiter(FEED_PREMIUM_DAILY_LIMIT);
 
 /** GET /api/feed — free tier, returns raw recent activity */
 function handleFeedFree(url: URL): Response {
@@ -792,7 +700,7 @@ function handleFeedFree(url: URL): Response {
 
 /** POST /api/feed/premium — paid tier, dispatches curation task */
 async function handleFeedPremium(req: Request): Promise<Response> {
-  if (!checkFeedPremiumRateLimit()) {
+  if (!feedPremiumLimiter.check()) {
     return json({
       error: "Daily digest limit reached",
       code: "RATE_LIMITED",
@@ -887,7 +795,7 @@ async function handleFeedPremium(req: Request): Promise<Response> {
     source: "api:feed-premium",
   });
 
-  incrementFeedPremiumCount();
+  feedPremiumLimiter.increment();
 
   return json({
     task_id: taskId,
@@ -897,7 +805,7 @@ async function handleFeedPremium(req: Request): Promise<Response> {
     topics: topics.length > 0 ? topics : [...VALID_FEED_TOPICS],
     status: "pending",
     poll_url: `/api/tasks/${taskId}`,
-    daily_remaining: FEED_PREMIUM_DAILY_LIMIT - feedPremiumDayCount,
+    daily_remaining: feedPremiumLimiter.remaining(),
   }, 201);
 }
 
@@ -998,26 +906,10 @@ const KNOWLEDGE_TOPICS = {
 
 type KnowledgeTopic = keyof typeof KNOWLEDGE_TOPICS;
 
-let knowledgeDayKey = "";
-let knowledgeDayCount = 0;
-
-function checkKnowledgeRateLimit(): boolean {
-  const today = new Date().toISOString().slice(0, 10);
-  if (today !== knowledgeDayKey) { knowledgeDayKey = today; knowledgeDayCount = 0; }
-  return knowledgeDayCount < KNOWLEDGE_DAILY_LIMIT;
-}
-
-function incrementKnowledgeCount(): void {
-  const today = new Date().toISOString().slice(0, 10);
-  if (today !== knowledgeDayKey) { knowledgeDayKey = today; knowledgeDayCount = 0; }
-  knowledgeDayCount++;
-}
+const knowledgeLimiter = makeDailyLimiter(KNOWLEDGE_DAILY_LIMIT);
 
 /** GET /api/knowledge — free tier: topic index */
 function handleKnowledgeList(): Response {
-  const today = new Date().toISOString().slice(0, 10);
-  if (today !== knowledgeDayKey) { knowledgeDayKey = today; knowledgeDayCount = 0; }
-
   return json({
     service: "knowledge-base",
     description: "Arc's technical knowledge base. Free tier lists available topics. Paid tier (2500 sats) delivers a full guide generated by Arc.",
@@ -1031,14 +923,14 @@ function handleKnowledgeList(): Response {
       preview: meta.preview,
     })),
     daily_limit: KNOWLEDGE_DAILY_LIMIT,
-    daily_remaining: KNOWLEDGE_DAILY_LIMIT - knowledgeDayCount,
+    daily_remaining: knowledgeLimiter.remaining(),
     usage: "POST /api/knowledge with { topic } to generate a full guide",
   });
 }
 
 /** POST /api/knowledge — paid tier: request full guide generation */
 async function handleKnowledgeRequest(req: Request): Promise<Response> {
-  if (!checkKnowledgeRateLimit()) {
+  if (!knowledgeLimiter.check()) {
     return json({
       error: "Daily knowledge generation limit reached",
       code: "RATE_LIMITED",
@@ -1164,7 +1056,7 @@ async function handleKnowledgeRequest(req: Request): Promise<Response> {
     source: `api:knowledge:${topicSlug}`,
   });
 
-  incrementKnowledgeCount();
+  knowledgeLimiter.increment();
 
   return json({
     task_id: taskId,
@@ -1174,7 +1066,7 @@ async function handleKnowledgeRequest(req: Request): Promise<Response> {
     title: topicMeta.title,
     cost_sats: KNOWLEDGE_COST_SATS,
     poll_url: `/api/tasks/${taskId}`,
-    daily_remaining: KNOWLEDGE_DAILY_LIMIT - knowledgeDayCount,
+    daily_remaining: knowledgeLimiter.remaining(),
   }, 201);
 }
 
@@ -3082,8 +2974,6 @@ function route(req: Request): Response | Promise<Response> {
 
   // GET: Ask Arc pricing and rate limit info
   if (method === "GET" && path === "/api/ask") {
-    const today = getAskDayKey();
-    if (today !== askDayKey) { askDayKey = today; askDayCount = 0; }
     return json({
       service: "ask-arc",
       description: "Pay-per-question endpoint. Ask Arc anything.",
@@ -3091,15 +2981,13 @@ function route(req: Request): Response | Promise<Response> {
         Object.entries(ASK_TIERS).map(([name, t]) => [name, { model: t.model, cost_sats: t.cost_sats }])
       ),
       daily_limit: ASK_DAILY_LIMIT,
-      daily_remaining: ASK_DAILY_LIMIT - askDayCount,
+      daily_remaining: askLimiter.remaining(),
       usage: "POST /api/ask with { question, tier?, context? }",
     });
   }
 
   // GET: Voice Ask pricing and rate limit info
   if (method === "GET" && path === "/api/voice/ask") {
-    const today = getVoiceDayKey();
-    if (today !== voiceDayKey) { voiceDayKey = today; voiceDayCount = 0; }
     return json({
       service: "voice-ask",
       description: "Pay-per-prompt voice endpoint. Ask Arc in a conversational style. Responses are tuned for voice delivery — concise, warm, no markdown.",
@@ -3107,7 +2995,7 @@ function route(req: Request): Response | Promise<Response> {
         Object.entries(VOICE_TIERS).map(([name, t]) => [name, { model: t.model, cost_sats: t.cost_sats }])
       ),
       daily_limit: VOICE_DAILY_LIMIT,
-      daily_remaining: VOICE_DAILY_LIMIT - voiceDayCount,
+      daily_remaining: voiceLimiter.remaining(),
       usage: "POST /api/voice/ask with { prompt, tier?, context? }",
     });
   }
@@ -3121,8 +3009,6 @@ function route(req: Request): Response | Promise<Response> {
 
   // GET: Monitoring service pricing and info
   if (method === "GET" && path === "/api/services/monitor") {
-    const today = new Date().toISOString().slice(0, 10);
-    if (today !== monitorDayKey) { monitorDayKey = today; monitorDayCount = 0; }
     const active = getActiveMonitoredEndpoints();
     return json({
       service: "monitoring",
@@ -3136,15 +3022,13 @@ function route(req: Request): Response | Promise<Response> {
       ),
       active_endpoints: active.length,
       daily_registration_limit: MONITOR_DAILY_LIMIT,
-      daily_remaining: MONITOR_DAILY_LIMIT - monitorDayCount,
+      daily_remaining: monitorLimiter.remaining(),
       usage: "POST /api/services/monitor with { endpoint_url, tier?, label?, alert_webhook? }",
     });
   }
 
   // GET: Security Audit service pricing and rate limit info
   if (method === "GET" && path === "/api/services/security-audit") {
-    const today = getSecurityAuditDayKey();
-    if (today !== securityAuditDayKey) { securityAuditDayKey = today; securityAuditDayCount = 0; }
     return json({
       service: "security-audit",
       description: "Paid code security audit. Submit a GitHub repo URL and receive a comprehensive security report covering dependencies, secrets, OWASP patterns, and Clarity smart contract risks.",
@@ -3152,7 +3036,7 @@ function route(req: Request): Response | Promise<Response> {
       model: "opus",
       focus_areas: [...VALID_FOCUS_AREAS],
       daily_limit: SECURITY_AUDIT_DAILY_LIMIT,
-      daily_remaining: SECURITY_AUDIT_DAILY_LIMIT - securityAuditDayCount,
+      daily_remaining: securityAuditLimiter.remaining(),
       usage: "POST /api/services/security-audit with { repo_url, focus?, notes? }",
     });
   }
@@ -3162,8 +3046,6 @@ function route(req: Request): Response | Promise<Response> {
 
   // GET: Premium feed pricing info
   if (method === "GET" && path === "/api/feed/premium") {
-    const today = new Date().toISOString().slice(0, 10);
-    if (today !== feedPremiumDayKey) { feedPremiumDayKey = today; feedPremiumDayCount = 0; }
     return json({
       service: "feed-premium",
       description: "Curated intelligence digest. Relevance scoring, trend detection, actionable summaries, topic filtering.",
@@ -3172,7 +3054,7 @@ function route(req: Request): Response | Promise<Response> {
       valid_topics: [...VALID_FEED_TOPICS],
       window_hours_range: "1–72 (default 24)",
       daily_limit: FEED_PREMIUM_DAILY_LIMIT,
-      daily_remaining: FEED_PREMIUM_DAILY_LIMIT - feedPremiumDayCount,
+      daily_remaining: feedPremiumLimiter.remaining(),
       payment_memo: "arc:feed-premium",
       usage: "POST /api/feed/premium with { topics?, window_hours?, requester?, notes? }",
     });
@@ -3189,8 +3071,6 @@ function route(req: Request): Response | Promise<Response> {
 
   // GET: PR Review service pricing and rate limit info
   if (method === "GET" && path === "/api/services/pr-review") {
-    const today = getPrReviewDayKey();
-    if (today !== prReviewDayKey) { prReviewDayKey = today; prReviewDayCount = 0; }
     return json({
       service: "pr-review",
       description: "Paid PR code review. Submit a GitHub PR URL and receive Arc's informed review with severity labels, inline suggestions, and security analysis.",
@@ -3198,7 +3078,7 @@ function route(req: Request): Response | Promise<Response> {
         Object.entries(PR_REVIEW_TIERS).map(([name, t]) => [name, { cost_sats: t.cost_sats, label: t.label }])
       ),
       daily_limit: PR_REVIEW_DAILY_LIMIT,
-      daily_remaining: PR_REVIEW_DAILY_LIMIT - prReviewDayCount,
+      daily_remaining: prReviewLimiter.remaining(),
       usage: "POST /api/services/pr-review with { pr_url, tier?, notes? }",
     });
   }

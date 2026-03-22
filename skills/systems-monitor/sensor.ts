@@ -53,7 +53,7 @@ async function spawn(command: string[]): Promise<{ stdout: string; stderr: strin
 
 async function getDiskUsage(): Promise<DiskEntry[]> {
   const { stdout } = await spawn(["df", "-h", "--output=target,size,used,avail,pcent"]);
-  const lines = stdout.trim().split("\n").slice(1); // skip header
+  const lines = stdout.trim().split("\n").slice(1);
   const entries: DiskEntry[] = [];
 
   for (const line of lines) {
@@ -126,10 +126,6 @@ function alertPriority(severity: "warning" | "critical"): number {
   return severity === "critical" ? 2 : 4;
 }
 
-function alertModel(severity: "warning" | "critical"): string {
-  return severity === "critical" ? "sonnet" : "sonnet";
-}
-
 export default async function systemsMonitorSensor(): Promise<string> {
   try {
     const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
@@ -178,7 +174,7 @@ export default async function systemsMonitorSensor(): Promise<string> {
             skills: JSON.stringify(["systems-monitor"]),
             source,
             priority: alertPriority(severity),
-            model: alertModel(severity),
+            model: "sonnet",
           });
           await setCooldown(checkType);
           alertsCreated++;
@@ -209,7 +205,7 @@ export default async function systemsMonitorSensor(): Promise<string> {
           skills: JSON.stringify(["systems-monitor"]),
           source,
           priority: alertPriority(loadSeverity),
-          model: alertModel(loadSeverity),
+          model: "sonnet",
         });
         await setCooldown(checkType);
         alertsCreated++;
@@ -239,7 +235,7 @@ export default async function systemsMonitorSensor(): Promise<string> {
           skills: JSON.stringify(["systems-monitor"]),
           source,
           priority: alertPriority(memSeverity),
-          model: alertModel(memSeverity),
+          model: "sonnet",
         });
         await setCooldown(checkType);
         alertsCreated++;

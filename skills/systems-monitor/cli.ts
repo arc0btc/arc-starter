@@ -47,27 +47,8 @@ async function spawnSsh(host: string, remoteCmd: string): Promise<{ stdout: stri
     remoteCmd,
   ];
 
-  if (sshPass) {
-    // sshpass if available
-    const proc = Bun.spawn(["sshpass", "-p", sshPass, ...sshArgs], {
-      stdout: "pipe",
-      stderr: "pipe",
-    });
-    const [stdout, stderr] = await Promise.all([
-      new Response(proc.stdout).text(),
-      new Response(proc.stderr).text(),
-    ]);
-    const code = await proc.exited;
-    return { stdout, stderr, code };
-  }
-
-  const proc = Bun.spawn(sshArgs, { stdout: "pipe", stderr: "pipe" });
-  const [stdout, stderr] = await Promise.all([
-    new Response(proc.stdout).text(),
-    new Response(proc.stderr).text(),
-  ]);
-  const code = await proc.exited;
-  return { stdout, stderr, code };
+  const cmd = sshPass ? ["sshpass", "-p", sshPass, ...sshArgs] : sshArgs;
+  return spawnLocal(cmd);
 }
 
 function resolveHost(hostArg: string | undefined): { host: string | null; label: string } {
@@ -172,19 +153,17 @@ async function cmdStatus(args: string[]): Promise<void> {
   const flags = parseFlags(args);
   const hostArg = typeof flags["host"] === "string" ? flags["host"] : undefined;
 
-  // If no host: check all fleet VMs + local
+  // If no host: check all fleet VMs in parallel
   if (!hostArg) {
-    const results: Array<{ node: string; reachable: boolean; status?: string }> = [];
-
-    for (const [name, ip] of Object.entries(FLEET)) {
-      try {
-        const { code } = await spawnSsh(ip, "echo ok");
-        results.push({ node: name, reachable: code === 0, status: code === 0 ? "ok" : "unreachable" });
-      } catch {
-        results.push({ node: name, reachable: false, status: "unreachable" });
-      }
-    }
-
+    const entries = Object.entries(FLEET);
+    const settled = await Promise.allSettled(
+      entries.map(([, ip]) => spawnSsh(ip, "echo ok")),
+    );
+    const results = entries.map(([name], i) => {
+      const s = settled[i];
+      const ok = s.status === "fulfilled" && s.value.code === 0;
+      return { node: name, reachable: ok, status: ok ? "ok" : "unreachable" };
+    });
     console.log(JSON.stringify({ fleet_status: results }, null, 2));
     return;
   }
