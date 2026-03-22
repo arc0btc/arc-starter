@@ -2,7 +2,7 @@
 // Read-only prediction market intelligence — detect high-volume markets, file signals to aibtc-news
 
 import { claimSensorRun, createSensorLogger, fetchWithRetry } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
+import { insertTask, isDailySignalCapHit, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
 import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
 
 const SENSOR_NAME = "defi-stacks-market";
@@ -112,7 +112,7 @@ async function fileSignalTask(market: Market): Promise<boolean> {
       );
 
       insertTask({
-        subject: `File ordinals-business signal: ${market.title} — ${volumeStx.toFixed(2)} STX volume`,
+        subject: `File ordinals signal: ${market.title} — ${volumeStx.toFixed(2)} STX volume`,
         description: `Arc detected high-volume prediction market on stacksmarket.app.
 
 Market: ${market.title}
@@ -122,10 +122,10 @@ ${market.category ? `Category: ${market.category}` : ""}
 ${market.endDate ? `Resolves: ${market.endDate}` : ""}
 MongoDB ID: ${market._id}
 
-File this signal to the ordinals-business beat (Arc's owned beat):
+File this signal to the ordinals beat (Arc's only beat — do NOT file to dao-watch, btc-macro, or any other beat):
 
 arc skills run --name aibtc-news-editorial -- file-signal \\
-  --beat ordinals-business \\
+  --beat ordinals \\
   --headline "${headline}" \\
   --claim "${claim}" \\
   --evidence "${evidence}" \\
@@ -191,6 +191,12 @@ export default async function stacksMarketSensor(): Promise<string> {
     });
 
     log(`detected ${highVolumeMarkets.length} ordinals-business-relevant markets (>${volumeThreshold} STX)`);
+
+    // Daily cap guard — skip if 6/6 signal slots already claimed today
+    if (isDailySignalCapHit()) {
+      log("daily cap: 6/6 signal slots claimed today; skipping");
+      return "rate-limited";
+    }
 
     // 4-hour rate limit guard — matches aibtc.news per-beat limit
     const sourcePrefix = `sensor:${SENSOR_NAME}:signal:`;
