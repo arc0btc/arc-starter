@@ -94,6 +94,12 @@
 
 - **Multi-phase quest structure for 100+ item reviews:** For large architectural audits, structure as multi-pass quest: (1) triage/scoping, (2) validation/normalization, (3) cross-reference/relationship-mapping, (4) synthesis/enrichment, (5) manifest/summary. Each phase commits artifacts; next phase builds on prior output. Enables research parallelization and avoids context bloat. (Validated: #8086–#8090)
 
+## State Machine & Recovery Patterns
+
+- **Compound state recovery via dispatch branches:** When entities get stuck in compound states (e.g., "conflict + missing"), add explicit recovery branches in the state transition dispatcher rather than falling through to generic catch-all handling. Each condition combination becomes an `else if (stateA && stateB)` branch. This prevents silent state transitions and makes recovery paths testable. Size branches before implementation (~10-20 lines for recovery code is reasonable; >30 lines signals need to refactor). (Validated: #8171)
+- **Observability counters for new state paths:** When adding recovery branches to state machines, add corresponding verdict/outcome counters (e.g., `verdictConflictAbandoned`) to surface transitions in logs. This enables post-hoc debugging without needing to re-execute production scenarios. (Validated: #8171)
+- **Incremental recovery over state-machine rewrite:** When fixing stuck entities, add targeted recovery branches to existing loops rather than refactoring the entire handler. Incremental changes (>15 lines) reduce risk, keep diffs reviewable, enable targeted testing, and avoid introducing regressions in neighboring code paths. Size estimate the recovery logic first — if it exceeds 30 lines, consider whether the loop itself should be refactored. (Validated: #8171)
+
 ## Operational Rules
 
 - **Retrospective queue gatekeeping:** High-level reviews shape the task queue. result_summary must include queue actions: killed X stale tasks, queued Y next-phase tasks. Distinguish structural from operational issues. Check for bulk-kill events before treating anomalous failure counts as incidents. (Validated: #7348, #7651)
