@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-03-21T19:10:00.000Z*
-*Sensor count: 88 (1 disabled: aibtc-welcome) | Skill count: 122*
+*Generated: 2026-03-22T07:20:00.000Z*
+*Sensor count: 88 (0 disabled) | Skill count: 122*
 
 ```mermaid
 stateDiagram-v2
@@ -254,7 +254,7 @@ stateDiagram-v2
     SensorsService --> TaskQueue
 ```
 
-## Sensor Count by Category (2026-03-21, cycle 2)
+## Sensor Count by Category (2026-03-22, cycle 1)
 
 | Category | Count |
 |----------|-------|
@@ -269,13 +269,14 @@ stateDiagram-v2
 | Other | 21 |
 | **Total** | **88** |
 
-## Key Architectural Changes (8a8c5c9 → 0444a19)
+## Key Architectural Changes (0444a19 → 17260cc)
 
 | Change | Impact |
 |--------|--------|
-| `refactor(SKILL): remove effort field` | `effort` frontmatter stripped from all 36 SKILL.md files that had it. Was never consumed by dispatch.ts — 4-cycle carryover finally resolved. Reduces SKILL.md noise; no functional change to dispatch. |
-| `feat/fix(aibtc-welcome): self-healing + disable` | Added `isRelayHealthy()` to check relay health before respecting stale nonce sentinel. Then sensor fully disabled by human directive (task flood). Returns `"skip"` at line 121. Sensor count: 88 (1 disabled). Root cause of flood not yet diagnosed. |
-| `fix(ordinals-market-data): zero-guard + source swap` | (1) Skip inscription signal when Unisat returns 0 recent inscriptions — prevents empty signal submissions. (2) Replace unreachable `magiceden.io/ordinals` with `unisat.io/market` as NFT floor data source. Both fixes deployed ahead of $100K competition (2026-03-23). |
-| `feat(arc-workflow-review): patternAlreadyModeled()` | New filter that checks if detected patterns already have a registered template in `arc-workflows/state-machine.ts`. Prevents generating redundant workflow design tasks for already-modeled patterns. |
-| `fix(web/email): include sent messages in thread` | `getEmailThread()` in `db.ts` now returns both inbox messages from a sender AND sent messages to that sender. Fixes broken thread view for two-way email conversations. |
-| `skills/defi-compounding/compounding-state.json` (tracked) | Runtime state file still tracked in git — `lastChecked` and empty pools. Should be gitignored like `skills/*/pool-state.json`. Gitignore pattern needs to be broadened. |
+| `fix(aibtc-welcome): rework sensor` (6fa8cd9e + 492a4a2b) | Sensor re-enabled after flood. 3-gate rework: BATCH_CAP=3 (prevents queue flood), DAILY_COMPLETED_CAP=10 (cost gate), stable SOURCE_PREFIX="welcome:" (content-addressed, survives renames). One-time reconcileOldSourceTasks() merges old dedup state. 4/5 flood root causes addressed. Sensor count: 88 (0 disabled). |
+| `fix(defi-bitflow): remove beat-scope-violating signal filing` (17260ccd) | defi-bitflow sensor now purely observational — fetches spread data, logs intelligence, but creates NO tasks. Competition rejections confirmed DeFi signals under Ordinals beat are rejected. Removes 50 lines of task-creation logic. |
+| `fix(defi-stacks-market): isDailySignalCapHit guard + beat slug` (122ccd76) | Adds missing pre-check (6/6 daily cap gate) and fixes beat slug ordinals-business → ordinals. Closes gap identified in 2026-03-21 retro. |
+| `fix(ordinals-market-data): 1 signal/run + pending guard` (8167481c) | MAX_SIGNALS_PER_RUN 2→1 (aibtc.news 60-min cooldown makes multi-signal runs redundant). Added pendingTaskExistsForSource guard per category — prevents duplicate submissions during competition. |
+| `docs(dispatch): task supersession closure convention` (e5ce2d87) | CLAUDE.md now documents that superseding tasks must explicitly close redundant pending tasks. Reduces false failure counts in retrospectives. |
+| `docs(quest): skill classification` (Phase 1-5 commits) | 122 skills classified into buckets: 9 delete, 9 replace-with-upstream, 37 shared, 68 arc_specific, 8 runtime_builtin. Stored in docs/skill-classification.json. Primary data source for ARC-0100 repo reorg execution. |
+| `.gitignore` update | compounding-state.json runtime state file untracked. Closes 2026-03-21 action item. |

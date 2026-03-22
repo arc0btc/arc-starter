@@ -1,3 +1,49 @@
+## 2026-03-22T07:20:00.000Z — sensor rework closure + skill classification
+
+**Task #8137** | Diff: 0444a19 → 17260cc | Sensors: 88 (0 disabled) | Skills: 122
+
+### Step 1 — Requirements
+
+- **aibtc-welcome rework (6fa8cd9e + 492a4a2b)**: Addresses 4/5 root causes from 2026-03-21 flood diagnosis. (1) SOURCE_PREFIX="welcome:" is stable across sensor renames. (2) BATCH_CAP=3 prevents queue floods after long freezes. (3) DAILY_COMPLETED_CAP=10 provides cost gate. (4) reconcileOldSourceTasks() merges old-source completed tasks into welcomed set. Fix 5 (ban dispatch retry creation) is advisory-only — acceptable V1. Sensor re-enabled.
+- **defi-bitflow signal removal (17260ccd)**: Beat-scope violation fix. $100K competition rejections confirmed sBTC/STX DeFi signals under Ordinals beat are rejected as wrong-beat. Sensor now purely observational — no insertTask calls. Correct scoping.
+- **defi-stacks-market isDailySignalCapHit + beat slug (122ccd76)**: Adds missing pre-check identified in 2026-03-21 retro. Beat slug ordinals-business → ordinals closes audit finding.
+- **ordinals-market-data 2→1 + pending guard (8167481c)**: Single signal per 4h run matches aibtc.news 60-min per-beat cooldown. pendingTaskExistsForSource guard prevents concurrent duplicates per category.
+- **CLAUDE.md supersession convention (e5ce2d87)**: Formalizes pattern from 2026-03-20 retro. Reduces false failure inflation in retrospectives.
+- **Skill classification quest (docs/skill-classification.json)**: 122 skills classified: 9 delete (0-4 uses each), 9 replace-with-upstream, 37 shared, 68 arc_specific, 8 runtime_builtin. Primary data source for ARC-0100 repo reorg execution.
+
+### Step 2 — Delete
+
+- **[ACTION, P8]** 9 skills confirmed for deletion (from classification): `arc-bounty-scanner` (0 use), `arc-dispatch-eval` (1 use, duplicate of arc-dispatch-evals — 5-cycle carryover closed), `arc-mcp` (0 use, superseded by arc-mcp-server), `bitflow` (1 use, superseded by defi-bitflow), `defi-compounding` (0 use), `fleet-log-pull` (0 use, fleet suspended), `fleet-rebalance` (1 use, fleet suspended), `skill-effectiveness` (4 uses, experimental), `zest-v2` (4 uses, duplicate of defi-zest). Creating deletion task.
+- **[OK]** .gitignore updated — compounding-state.json runtime file untracked. Closes 2026-03-21 action.
+
+### Step 3 — Simplify
+
+- **defi-bitflow -50 lines**: Removing signal-filing logic strips all task creation paths. Sensor reduced to fetch-and-log. Good reduction.
+- **aibtc-welcome SOURCE_PREFIX="welcome:"** is the correct abstraction: content-addressed key survives skill renames. All future welcome sensors should use this stable prefix.
+- **ordinals-market-data 2→1**: Removes ambiguity about signal ordering. aibtc.news 60-min cooldown made multi-signal runs ineffective anyway.
+
+### Step 4 — Accelerate
+
+- **Sensor pre-check pattern now on 6 sensors** (aibtc-news-editorial, defi-stacks-market, ordinals-market-data, defi-bitflow, aibtc-welcome ×2). Estimated savings: 3-6 failed Sonnet tasks/day → ~$0.60-$1.20/day recovered.
+- **BATCH_CAP=3** in aibtc-welcome prevents queue floods after sentinel clears.
+- No new bottlenecks. All changes remove processing paths.
+
+### Step 5 — Automate
+
+- **Skill deletions**: 9 confirmed. Task created (P8/Haiku) to delete directories.
+- **NONCE_CONFLICT watch**: Circuit breaker latch fix (PR #182) merged. Watch reports still show NONCE_CONFLICT failures in aibtc-welcome. Monitor next 2 cycles — if failures persist, investigate new sensor code path.
+
+### Flags
+
+- **[ACTION, P8]** Delete 9 classification-flagged skills (task created this cycle).
+- **[WATCH]** NONCE_CONFLICT: latch fix merged, but failures persist in watch report. Monitor.
+- **[OK]** aibtc-welcome rework deployed — BATCH_CAP=3, stable source key, daily completed cap, state reconciliation.
+- **[OK]** defi-bitflow scoped to observation-only. Beat-scope violation resolved.
+- **[OK]** Sensor pre-check pattern applied across all 4 signal-filing sensors.
+- **[OK]** Skill classification complete — 122 skills bucketed, ARC-0100 execution data ready.
+
+---
+
 ## 2026-03-21T19:20:00.000Z — aibtc-welcome flood diagnosis
 
 **Task #8000** | Source: task:7999 | Scope: aibtc-welcome sensor flood root cause + rework plan
@@ -205,88 +251,4 @@ Cross-reference `welcomed_agents` state with BOTH old (`sensor:social-agent-enga
 
 ---
 
-## 2026-03-20T07:10:00.000Z
-
-**Diff range:** ea9d04c → 8191198 | Sensors: 88 (1 disabled) | Skills: 121
-
-### Step 1 — Requirements
-
-- **Landing-page gate**: Traces to retrospective (tasks #7432/#7451 leaking past gate, wasting Sonnet budget). Fix is proportionate — regex gate in dispatch.ts auto-closes before subprocess. Requirement satisfied.
-- **ordinals-market-data sensor**: Traces to $100K competition prep (task #7684, task #7689). Competition runs 2026-03-23 to 2026-04-22. Diversifying signal data sources is the right strategy. Requirement valid.
-- **arc-bounty-scanner**: Traces to task #7595 (post-MCP v1.41.0 integration review). D1 revenue opportunity detection. Valid.
-- **defi-bitflow tuning**: Threshold 5%→15%, rate 240→720min. Traces to task #7687 — 8/10 recent signals were identical sBTC/STX volatility. Fix is proportionate; reduces slot-burning duplicate signals.
-- **`effort` frontmatter on 36 skills**: Origin unclear — not consumed by dispatch.ts. Documentation value only. Acceptable V1 but should be noted as unused metadata.
-
-### Step 2 — Delete Candidates
-
-- **[CARRYOVER, P8]** `skills/github-issues/sensor.ts` — disabled sensor still inflating count. Still not deleted. Create task.
-- **`effort` frontmatter not consumed by dispatch.ts** — 36 skills have it, none of them benefit from it yet. Either wire it into model routing or remove it to reduce SKILL.md noise.
-- **audit-log.md is 865+ lines** — exceeds max 5 active entries policy. Housekeeping should archive this file. Lines 80+ should move to archive/.
-
-### Step 3 — Simplify
-
-- **Landing-page gate placement is correct** — fires after lock check, before GitHub gate, before LLM. Cost savings confirmed.
-- **arc-cost-reporting 60min→1440min** is correct. Daily cost reports are sufficient; hourly was generating noise with no actionable delta.
-- **ordinals-market-data categories** (inscriptions, BRC-20, NFT floors, fee market) are distinct signals — no overlap between them. Good decomposition.
-- **github-mentions dedup improvement** — PR review dedup now prevents re-engagement on already-completed reviews. Pattern consistent with github-issue-monitor "any" dedup.
-
-### Step 4 — Accelerate
-
-- **No bottlenecks introduced.** Landing-page gate is a fast regex check. New sensors add parallel paths.
-- **defi-bitflow rate limit increase** reduces queue pressure during competition window.
-
-### Step 5 — Automate
-
-- **`effort` frontmatter → model routing**: If dispatch.ts read `effort: high` and mapped it to Opus tier, it would provide per-skill model guidance beyond just priority. Low priority but clear automation path.
-- **Nothing premature recommended.**
-
-### Flags
-
-- **[ACTION, P8]** Delete `skills/github-issues/sensor.ts` — dead disabled sensor, inflating count. Carryover from prior audit.
-- **[INFO]** `effort` frontmatter on 36 skills is unused. Wire into dispatch or document as human-readable-only. No urgency.
-- **[OK]** Landing-page gate deployed and verified (2026-03-20 retrospec confirms pattern working).
-- **[OK]** ordinals-market-data live ahead of competition start (2026-03-23). Data pipeline established.
-
----
-
-## 2026-03-19T20:15:00.000Z
-
-**Diff range:** e930cf6 → ea9d04c | Sensors: 86 (1 disabled) | Skills: 119
-
-### Step 1 — Requirements
-
-- **Quality tracking** (result_quality, getQualityStats): Traces to D3 (stack reliability) + dispatch-evals work. Valid — creates a data signal for self-improvement. Currently no automated action on low scores; that's a gap but acceptable for V1.
-- **github-issues disable**: Correct. Two sensors doing the same job with different source keys caused race-condition duplication. Option B consolidation (whoabuddy approved). Requirement satisfied by github-issue-monitor.
-- **Automated PR skip**: Traces to whoabuddy feedback (PR spam). Valid. 28% of reviewed PRs were automated. Fix is proportionate.
-
-### Step 2 — Delete Candidates
-
-- **`github-issues/sensor.ts`**: File exists but returns "skip" immediately. It's dead code. Should be deleted or the directory marked DISABLED. Leaving a disabled sensor file in the sensor tree causes confusion (sensor count shows 86 but 85 actually run). **Recommendation: delete `github-issues/sensor.ts` or add `// @disabled` guard that makes it skip at top-level with a comment.**
-- **`arc-dispatch-eval` vs `arc-dispatch-evals`** (carryover): Still overlapping. Both still exist. Not urgent but worth documenting clearly.
-- **Signal backlog (4 stale "Ordinals Business" tasks)**: CEO review killed them. Good.
-
-### Step 3 — Simplify
-
-- **Quality signal has no downstream consumer yet.** `getQualityStats()` surfaces in `arc status` but no sensor reads it and no automated task is spawned for low-quality patterns. V1 acceptable. V2 candidate: sensor that detects quality drop (7d avg < 3) and creates strategy review task.
-- **GitHub source key canonicalization is good.** `issue:{repo}#{number}` shared across github-issue-monitor and github-mentions eliminates the race condition cleanly. No further simplification needed.
-- **4h lookback on github-issue-monitor**: Tighter window reduces volume. Risk: issues updated exactly on the 4h boundary could be missed if sensor fires late. Low probability but worth noting.
-
-### Step 4 — Accelerate
-
-- **No bottlenecks introduced.** Quality write is a single SQLite update. PR skip is a regex check before any network call.
-- **github-issues disable saves ~15 duplicate tasks/day** (estimated). Reduces dispatch queue pressure.
-
-### Step 5 — Automate
-
-- **Quality-driven model routing**: If historical quality for a task category is low, auto-escalate priority to get a higher model tier. Future automation candidate (needs 30+ quality data points first).
-- **Nothing premature recommended.**
-
-### Flags
-
-- **[ACTION]** Delete or clearly disable `skills/github-issues/sensor.ts` — dead sensor file inflating count. Low urgency (P8).
-- **[WATCH]** Quality tracking has no feedback loop yet. Create follow-up when 30+ quality ratings exist.
-- **[OK]** GitHub consolidation complete. PR spam fixed. Diagram updated.
-
----
-
-*(2026-03-19T00:12Z entry archived to archive/audit-log-2026-03-12-and-older.md)*
+*(2026-03-19T20:15Z through 2026-03-20T07:10Z entries archived to archive/audit-log-2026-03-12-and-older.md)*
