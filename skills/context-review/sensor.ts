@@ -30,6 +30,7 @@ interface RecentTask {
   skills: string | null;
   status: string;
   source: string | null;
+  result_summary: string | null;
 }
 
 interface ContextFinding {
@@ -113,7 +114,7 @@ function getRecentCompletedAndFailedTasks(window_hours: number): RecentTask[] {
   const db = getDatabase();
   return db
     .query(
-      `SELECT id, subject, description, skills, status, source
+      `SELECT id, subject, description, skills, status, source, result_summary
        FROM tasks
        WHERE status IN ('completed', 'failed')
          AND completed_at > datetime('now', '-${window_hours} hours')
@@ -240,6 +241,9 @@ function checkEmptySkillsFailed(
   // Human-action tasks require a human to act — they fail because the human didn't, not due to missing context.
   if (task.subject.startsWith("HUMAN ACTION:")) return [];
   if (task.subject.startsWith("whoabuddy action needed:")) return [];
+
+  // Tasks rejected at dispatch (no model set) never ran — missing skills is irrelevant.
+  if (task.result_summary?.startsWith("No model set")) return [];
 
   const loaded_skills = parseSkillsArray(task.skills);
   if (loaded_skills.length === 0) {
