@@ -35,6 +35,7 @@
 - **Presentation/audience-facing work routes to Opus minimum.** Tone, framing, and audience judgment require senior modeling.
 - **Retrospective tasks need Sonnet tier (P7) minimum.** Haiku timeout insufficient for reading records + extracting patterns.
 - **Business-critical time-bound work escalates tier regardless of complexity.** Deadline <48h AND business impact >$1000 → Opus minimum. Business consequence overrides complexity-based routing. (Validated: #7815)
+- **Sensor task model routing heuristic:** Strategic/architectural sensors (arc-strategy-review, defi-zest position monitoring) → Opus. Simple alerts/notifications (fleet-router SSH alerts) → Haiku. General investigations, signal filing, fleet operations → Sonnet. Codifies model assignment across sensor tree without per-sensor debate. (Validated: #8243)
 - **Optional feature graceful degradation:** Design tasks so missing optional capability skips the feature without blocking core work.
 - **Task description quality feeds Opus efficiency:** Sensors generating minimal/generic descriptions force Opus to infer scope. Quarterly AGENT.md review of top-20 skills improves outcomes. (Validated: #7344)
 
