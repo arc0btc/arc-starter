@@ -38,6 +38,10 @@ const DAILY_COMPLETED_CAP = 10;
 /** Stable source prefix — does NOT include sensor name so it survives renames */
 const SOURCE_PREFIX = "welcome:";
 
+/** Self-healing gates: prevent clearing sentinel when x402 is still broken */
+const SELF_HEAL_COOLDOWN_HOURS = 4;
+const SELF_HEAL_FAILURE_THRESHOLD = 3;
+
 /** Sentinel file: if present, x402 relay has a nonce conflict — skip creating welcome tasks */
 const NONCE_SENTINEL = "x402-nonce-conflict";
 const RELAY_URL = "https://x402-relay.aibtc.com";
@@ -182,6 +186,25 @@ function reconcileOldSourceTasks(welcomedSet: Set<string>): void {
   log(`reconciliation: added ${added} STX addresses from old-source completed tasks`);
 }
 
+/**
+ * Count recent welcome task failures mentioning NONCE_CONFLICT.
+ * Used to prevent self-healing when x402 is still broken despite relay /health saying OK.
+ */
+function countRecentNonceFailures(withinHours: number): number {
+  const db = getDatabase();
+  const cutoff = new Date(Date.now() - withinHours * 60 * 60 * 1000).toISOString();
+  const row = db
+    .query(
+      `SELECT COUNT(*) as cnt FROM tasks
+       WHERE source LIKE ? || '%'
+       AND status = 'failed'
+       AND result_summary LIKE '%NONCE%CONFLICT%'
+       AND completed_at >= ?`,
+    )
+    .get(SOURCE_PREFIX, cutoff) as { cnt: number } | null;
+  return row?.cnt ?? 0;
+}
+
 export default async function aibtcWelcomeSensor(): Promise<string> {
   try {
     const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
@@ -190,19 +213,47 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
     // Circuit breaker: skip if x402 relay has nonce conflict — with self-healing
     const nonceSentinel = await readHookState(NONCE_SENTINEL);
     if (nonceSentinel && nonceSentinel.last_result === "error") {
+      const sentinelAgeMs = Date.now() - new Date(nonceSentinel.last_ran).getTime();
+      const healAttempts = (nonceSentinel.heal_attempts as number) ?? 0;
+      // Exponential backoff: 4h base, doubles each failed self-heal (max 64h)
+      const effectiveCooldownMs =
+        SELF_HEAL_COOLDOWN_HOURS * 60 * 60 * 1000 * Math.pow(2, Math.min(healAttempts, 4));
+
+      // Gate 1: cooldown — don't attempt self-heal if sentinel is too fresh
+      if (sentinelAgeMs < effectiveCooldownMs) {
+        const hoursLeft = ((effectiveCooldownMs - sentinelAgeMs) / 3_600_000).toFixed(1);
+        log(`nonce sentinel active (${hoursLeft}h cooldown remaining, ${healAttempts} failed heals) — skipping`);
+        return "skip";
+      }
+
+      // Gate 2: recent failure rate — don't clear sentinel if tasks are still failing
+      const recentFailures = countRecentNonceFailures(SELF_HEAL_COOLDOWN_HOURS);
+      if (recentFailures >= SELF_HEAL_FAILURE_THRESHOLD) {
+        log(`${recentFailures} NONCE_CONFLICT failures in last ${SELF_HEAL_COOLDOWN_HOURS}h — keeping sentinel, incrementing backoff`);
+        await writeHookState(NONCE_SENTINEL, {
+          ...nonceSentinel,
+          last_ran: new Date().toISOString(),
+          heal_attempts: healAttempts + 1,
+        });
+        return "skip";
+      }
+
+      // Gate 3: relay health — structural check
       log("x402 nonce conflict sentinel active — checking relay health for self-healing");
       const healthy = await isRelayHealthy();
       if (!healthy) {
         log("relay still unhealthy — skipping welcome task creation");
         return "skip";
       }
-      // Relay recovered — clear sentinel and proceed
-      log("relay healthy — clearing stale nonce sentinel");
+
+      // All gates passed — clear sentinel and proceed
+      log("relay healthy + no recent failures — clearing nonce sentinel");
       await writeHookState(NONCE_SENTINEL, {
         last_ran: new Date().toISOString(),
         last_result: "ok",
         version: (nonceSentinel.version ?? 1) + 1,
         cleared_by: "sensor:aibtc-welcome:self-heal",
+        heal_attempts: 0,
       });
     }
 
