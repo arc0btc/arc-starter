@@ -11,6 +11,8 @@
 - **Fleet topology rules:** Orchestration + GitHub sensors are Arc-only. Workers run lean self-monitoring + domain-work sensors only.
 - **Simplify before adding safety layers; use explicit gates over timers:** Consolidate first. Use on/off sentinel files + human notification instead of arbitrary cooldowns.
 - **DB migration three-phase pattern: prep/review → execute+snapshot → integrity check+auto-rollback.** Protects operational continuity. (Validated: #7745)
+- **Schema constraints as fail-fast gates:** NOT NULL on semantically-required fields (e.g., `skills` on tasks) forces downstream code to handle correctly instead of allowing null + application logic. Encoded constraints surface bugs earlier. (Validated: #8165)
+- **Genericization requires atomic cross-layer updates:** Removing hardcoded agent refs must update config, schema, CLI, imports, and docs simultaneously — partial updates cause integration breakage. Sequence: scan sources for refs → update all layers → validate build clean → commit atomically. (Validated: #8165)
 
 ## Sensor Patterns
 
