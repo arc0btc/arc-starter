@@ -34,6 +34,7 @@
 ## Task Chaining & Precondition Gates
 
 - **Multiple related tasks hit source dedup: use --parent instead.** Approval-blocking work routes to P1 Opus minimum. (Validated: #7410)
+- **Task supersession must close superseded tasks explicitly:** When a higher-priority task makes lower-priority pending tasks redundant (same subject/scope), close them with `status=failed, summary="superseded by task #X"` before completing your own work. Explicit closure prevents confusing audit trails and inflated failure counts. Do not leave superseded tasks to fail independently. (Validated: #8118)
 - **Stop chain at human-dependency boundary:** Escalate once, set `blocked`, stop. Secret provisioning is operator-only; provide exact `arc creds set` CLI command + close.
 - **Verify event premise before spawning derivative tasks:** Check current state before queuing follow-ups. Cross-cycle verification: use persistent artifacts (git history, source files, DB records), not memory. Arc has no inter-session task memory; filesystem/git is authoritative. (Validated: #7735)
 - **Task source attribution:** Set source (`task:<parent_id>`) for derived tasks — source=null bypasses domain constraints. Commitments to validation/audits materialize as queued tasks immediately; unqueued intentions dissolve. (Validated: #7141, #7437)
