@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-03-22T07:20:00.000Z*
-*Sensor count: 88 (0 disabled) | Skill count: 122*
+*Generated: 2026-03-22T19:15:00.000Z*
+*Sensor count: 80 (0 disabled) | Skill count: 113*
 
 ```mermaid
 stateDiagram-v2
@@ -65,7 +65,6 @@ stateDiagram-v2
 
         state DeFiSensors {
             defi_bitflow
-            defi_compounding
             mempool_watch
             arc_payments
         }
@@ -83,7 +82,6 @@ stateDiagram-v2
 
         state InfrastructureSensors {
             alb
-            arc_bounty_scanner
             arc_housekeeping
             arc_email_sync
             arc_ceo_review
@@ -98,7 +96,6 @@ stateDiagram-v2
             arc_blocked_review
             arc_catalog
             arc_cost_reporting
-            arc_dispatch_eval
             arc_failure_triage
             arc_introspection
             arc_memory
@@ -107,7 +104,6 @@ stateDiagram-v2
             arc_strategy_review
             arc_workflow_review
             auto_queue
-            skill_effectiveness
         }
 
         state MonitoringSensors {
@@ -254,29 +250,25 @@ stateDiagram-v2
     SensorsService --> TaskQueue
 ```
 
-## Sensor Count by Category (2026-03-22, cycle 1)
+## Sensor Count by Category (2026-03-22, cycle 2)
 
 | Category | Count |
 |----------|-------|
-| Memory/Maintenance | 14 |
+| Memory/Maintenance | 12 |
 | GitHub/PR | 10 |
 | Content/Publishing | 8 |
 | AIBTC/ERC-8004 | 8 |
 | Fleet | 6 |
-| Infrastructure | 9 |
-| DeFi | 4 |
+| Infrastructure | 8 |
+| DeFi | 3 |
 | Health/Monitoring | 8 |
-| Other | 21 |
-| **Total** | **88** |
+| Other | 17 |
+| **Total** | **80** |
 
-## Key Architectural Changes (0444a19 → 17260cc)
+## Key Architectural Changes (17260cc → 8bc2945)
 
 | Change | Impact |
 |--------|--------|
-| `fix(aibtc-welcome): rework sensor` (6fa8cd9e + 492a4a2b) | Sensor re-enabled after flood. 3-gate rework: BATCH_CAP=3 (prevents queue flood), DAILY_COMPLETED_CAP=10 (cost gate), stable SOURCE_PREFIX="welcome:" (content-addressed, survives renames). One-time reconcileOldSourceTasks() merges old dedup state. 4/5 flood root causes addressed. Sensor count: 88 (0 disabled). |
-| `fix(defi-bitflow): remove beat-scope-violating signal filing` (17260ccd) | defi-bitflow sensor now purely observational — fetches spread data, logs intelligence, but creates NO tasks. Competition rejections confirmed DeFi signals under Ordinals beat are rejected. Removes 50 lines of task-creation logic. |
-| `fix(defi-stacks-market): isDailySignalCapHit guard + beat slug` (122ccd76) | Adds missing pre-check (6/6 daily cap gate) and fixes beat slug ordinals-business → ordinals. Closes gap identified in 2026-03-21 retro. |
-| `fix(ordinals-market-data): 1 signal/run + pending guard` (8167481c) | MAX_SIGNALS_PER_RUN 2→1 (aibtc.news 60-min cooldown makes multi-signal runs redundant). Added pendingTaskExistsForSource guard per category — prevents duplicate submissions during competition. |
-| `docs(dispatch): task supersession closure convention` (e5ce2d87) | CLAUDE.md now documents that superseding tasks must explicitly close redundant pending tasks. Reduces false failure counts in retrospectives. |
-| `docs(quest): skill classification` (Phase 1-5 commits) | 122 skills classified into buckets: 9 delete, 9 replace-with-upstream, 37 shared, 68 arc_specific, 8 runtime_builtin. Stored in docs/skill-classification.json. Primary data source for ARC-0100 repo reorg execution. |
-| `.gitignore` update | compounding-state.json runtime state file untracked. Closes 2026-03-21 action item. |
+| `chore(skills): delete 9 classification-flagged dead skills` (71819079) | Removed arc-bounty-scanner, arc-dispatch-eval, arc-mcp, bitflow, defi-compounding, fleet-log-pull, fleet-rebalance, skill-effectiveness, zest-v2. ~4,564 lines deleted. Skill count: 122→113. Sensor count: 88→80. Executes [ACTION, P8] from previous audit. |
+| `fix(dispatch): broaden landing-page gate regex` (dispatch.ts) | Regex updated from `^\[landing-page\]\|landing-page.*(?:merge\|deploy\|PR)` to `\[[^\]]*\/landing-page\]\|^\[landing-page\]`. Now catches `[org/landing-page]` sensor-sourced forms. Analysis tasks dropped too (require human context, consistently fail). Closes 2026-03-20 retro action. |
+| `chore(housekeeping): archive old ISO 8601 report files` (3165d8b4) | 2 old watch report files moved to reports/archive/. No structural change. |

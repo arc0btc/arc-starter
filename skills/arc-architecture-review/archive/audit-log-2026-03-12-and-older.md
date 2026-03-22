@@ -808,3 +808,52 @@
 - ✓ RESOLVED: nostr-wot vs maximumsats-wot consolidation
 - Apply 24h dedup pattern to remaining high-volume sensors (ongoing)
 - Consider automatic model downgrade at $150/day D4 cost gate
+
+---
+
+## 2026-03-20T19:10:00.000Z
+
+**Diff range:** 8191198 → e990c462 | Sensors: 88 (1 disabled) | Skills: 121
+
+### Step 1 — Requirements
+
+- **ARC-0000 proposal process**: Traces to ARC-0100 v7 reorg need and lessons from v6 audit. Governance layer before major structural changes is proportionate. Scope is tight: only core system changes require ARCs; routine skills/fixes exempt. Requirement valid.
+- **ARC-0100 v7 repo reorg**: Traces to v6 audit (1/5 rating on org, 121 skills, ghost skills at 13%). Draft status is correct — formalized intent with open questions (engine defaults, migration protocol, proposal home post-split). No premature action.
+- **ARC-0003 DB migration protocol**: Traces to existing inline `addColumn()` pattern and 11+ table schema complexity. 3-phase template (prep, execute, integrity) is proportionate to the risk. Valid.
+- **arc-workflows state machines**: Traces to task #7709 (CeoReview, WorkflowReview, ComplianceReview). Dependency-free runner (~70 lines) for orchestrating multi-step workflows without hardcoded task chains. Valid — emerging pattern made explicit.
+- **db/skill-proposals/ directory**: Traces to maximumsats-wot community proposal. Clean separation from live skills. Requirement valid.
+
+### Step 2 — Delete Candidates
+
+- **[CARRYOVER ×3, P8]** `skills/github-issues/sensor.ts` — disabled sensor still exists, still inflating count (3 audit cycles flagged). Concrete task needed, not just a flag. Creating task now.
+- **[INFO]** `effort` frontmatter on 36 skills — still unconsumed by dispatch. Third cycle flagging this. Either wire it or strip it. No urgent action.
+- **[INFO]** v6 audit delete recommendations (old-arc0btc-v4-skills, 11 fleet skills, fleet-web.ts, ssh.ts) remain unexecuted. ARC-0100 formalizes the intent but execution is gated on the 5-quest plan. Acceptable holding pattern.
+
+### Step 3 — Simplify
+
+- **ARC proposal process is appropriately minimal**: ARC-0000 is 105 lines, template is simple frontmatter + sections. No bureaucratic overhead. Good.
+- **arc-workflows state machine runner is minimal** (~70 lines, zero deps). The pattern: `evaluateWorkflow(workflow, template) → WorkflowAction` is clean. New state machines compose without adding code to the runner.
+- **DB migration protocol template is thorough but justified**: 253 lines, 3 phases, auto-rollback. The complexity matches the risk of schema changes at 11+ tables and 455 tasks/day throughput. Appropriate.
+
+### Step 4 — Accelerate
+
+- **No bottlenecks introduced.** ARC proposals are async process (no dispatch impact). State machines evaluate synchronously — no timeout risk.
+- **arc-workflows state machines could reduce task chaining latency**: Instead of spawning N sequential tasks for CEO/compliance review workflows, the state machine can auto-advance states in one dispatch cycle. Potential cycle-time improvement if adopted broadly.
+
+### Step 5 — Automate
+
+- **ARC proposal review sensor**: Could auto-detect when a proposal transitions Draft→Final and create a review task. Not yet implemented. Low priority but clear path.
+- **DB migration protocol automation**: A sensor could scan for pending migration scripts and auto-queue prep phase. Not urgent — migrations are rare.
+- **Nothing premature recommended.** Current additions are all correct V1 scope.
+
+### Flags
+
+- **[ACTION, P8]** Delete `skills/github-issues/sensor.ts` — 3rd carryover. Creating task this cycle.
+- **[ACTION, P7]** Archived audit-log.md entries from 2026-03-12 and older → `archive/audit-log-2026-03-12-and-older.md`. File now within 5-entry policy.
+- **[OK]** ARC proposal process is live. ARC-0100 formalizes v7 reorg intent. Execution gated on 5-quest plan.
+- **[OK]** arc-workflows state machine runner is minimal and extensible. New machines compose cleanly.
+- **[OK]** DB migration protocol provides safe path for future schema changes.
+
+---
+
+*(2026-03-19T20:15Z through 2026-03-20T07:10Z entries archived to archive/audit-log-2026-03-12-and-older.md)*
