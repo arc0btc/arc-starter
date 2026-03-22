@@ -4,13 +4,13 @@
 // Rotates through categories to ensure signal diversity for the $100K competition.
 
 import { claimSensorRun, createSensorLogger, fetchWithRetry, readHookState, writeHookState } from "../../src/sensors.ts";
-import { insertTask, isDailySignalCapHit, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
+import { insertTask, isDailySignalCapHit, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
 
 const SENSOR_NAME = "ordinals-market-data";
 const INTERVAL_MINUTES = 240; // every 4 hours
 const RATE_LIMIT_MINUTES = 240; // 4 hours between signal batches from this sensor
-const MAX_SIGNALS_PER_RUN = 2;
+const MAX_SIGNALS_PER_RUN = 1; // one signal per run — aibtc.news has 60-min cooldown per beat
 
 const UNISAT_API = "https://open-api.unisat.io";
 const MEMPOOL_API = "https://mempool.space/api";
@@ -372,6 +372,13 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
       if (queued >= MAX_SIGNALS_PER_RUN) break;
 
       const signalSource = `sensor:${SENSOR_NAME}:${signal.category}`;
+
+      // Skip if a pending task already exists for this category (avoid duplicates)
+      if (pendingTaskExistsForSource(signalSource)) {
+        log(`pending task exists for ${signal.category}; skipping`);
+        continue;
+      }
+
       const sourcesJson = JSON.stringify(signal.sources);
 
       insertTask({
