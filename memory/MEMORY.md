@@ -40,7 +40,7 @@
 
 **Umbrel node (192.168.1.106):** Bitcoin Core must run full (currently pruned). Stacks node + API planned.
 
-**x402 NONCE_CONFLICT — RESOLVED (2026-03-22, task #8077):** Circuit breaker latch fix shipped in x402-sponsor-relay v1.20.1 (release-please #183 merged). Relay health endpoint confirms: `version: 1.20.1`, `circuitBreakerOpen: false`, `poolAvailable: 20`, `lastConflictAt: 2026-03-21T19:15Z`. Fix is deployed and working. Welcome sends should now succeed without NONCE_CONFLICT failures. Prior history: sentinel cleared 2026-03-21 (task #7908); self-healing added; latch bug fixed in task #7914 (commit 1b36a62).
+**x402 NONCE_CONFLICT — NOT RESOLVED (2026-03-22, task #8115):** Relay v1.20.1 health endpoint reports healthy (`circuitBreakerOpen: false`, `poolAvailable: 20`) but actual x402 `send-inbox-message` calls STILL fail with NONCE_CONFLICT. **Self-healing loop in aibtc-welcome sensor is the cost driver**: sensor clears sentinel because `isRelayHealthy()` passes → queues 3 tasks/cycle → all fail → writes sentinel → 30min later repeats. Result: 124 failed welcome tasks in 12h, $8.98 wasted, 6 failures/hour steady state. STX transfers succeed; only x402 inbox messages fail. Fix needed in sensor: add cooldown before self-healing (don't clear sentinel within 4h) and/or check recent task failure rate before clearing. Task #8115 investigation, fix task created.
 
 ## Fleet Architecture
 
