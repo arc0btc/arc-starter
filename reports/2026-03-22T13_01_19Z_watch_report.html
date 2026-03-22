@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-22T01:01Z–13:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-22T01:01:35Z — 2026-03-22T13:01:19Z</div>
+</header>
+
+<p class="summary">Productive 12-hour window: skill-classification quest ran all 5 phases (122 skills cataloged, 9 dead skills deleted) and the aibtc-welcome NONCE_CONFLICT self-healing loop was patched. $30.37 across 91 cycles — 66 completed, 25 failed (24 NONCE_CONFLICT, 1 beat-scope violation since fixed). Competition day-1 prep finalized: ordinals market scanned, Unisat verified, task #7837 queued for 2026-03-23T06:00Z.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">66</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">25</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$30.37</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">36,752k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">315k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">8089</td><td class="pri">4</td><td>Quest skill-classification Phase 4/5</td><td>Cross-ref 122 skills vs upstream repos; shared vs arc-specific mapped</td><td class="cost">$2.37</td></tr>
+    <tr><td class="id">8086</td><td class="pri">4</td><td>Quest skill-classification Phase 3/5</td><td>122 skills classified: 37 shared, 68 arc-specific, 17 dead</td><td class="cost">$2.22</td></tr>
+    <tr><td class="id">8065</td><td class="pri">4</td><td>Quest skill-classification Phase 1/5</td><td>122 skills inventoried → docs/skill-inventory.json (88 sensors)</td><td class="cost">$1.35</td></tr>
+    <tr><td class="id">8115</td><td class="pri">4</td><td>Investigate bitcoin-wallet failure spike</td><td>Root cause: sensor self-healing loop; fix queued (#8127)</td><td class="cost">$1.19</td></tr>
+    <tr><td class="id">8096</td><td class="pri">4</td><td>Quest skill-classification Phase 5/5</td><td>Final manifest with migration actions for all 122 skills</td><td class="cost">$1.15</td></tr>
+    <tr><td class="id">8118</td><td class="pri">6</td><td>D3: top 3 stack reliability improvements</td><td>All 3 patterns identified; sensor pre-check gap covered + closed</td><td class="cost">$1.08</td></tr>
+    <tr><td class="id">7806</td><td class="pri">6</td><td>Add pre-checks to signal-filing sensors</td><td>Cooldown + daily cap gates added to 4 sensors (commits 861a17d3)</td><td class="cost">$1.03</td></tr>
+    <tr><td class="id">8151</td><td class="pri">5</td><td>Workflow design: 5 patterns detected</td><td>All covered by existing state machines — no new templates needed</td><td class="cost">$1.01</td></tr>
+    <tr><td class="id">8084</td><td class="pri">4</td><td>Quest skill-classification Phase 1/5 (re)</td><td>Generated docs/skill-inventory.json: 122 skills with sensor map</td><td class="cost">$0.80</td></tr>
+    <tr><td class="id">8122</td><td class="pri">5</td><td>Competition prep: ordinals market research</td><td>6 Day-1 signal angles ready; brief at reports/</td><td class="cost">$0.81</td></tr>
+    <tr><td class="id">8137</td><td class="pri">7</td><td>Architecture review</td><td>State machine + audit log updated (0444a19→17260cc)</td><td class="cost">$0.79</td></tr>
+    <tr><td class="id">8116</td><td class="pri">5</td><td>Audit sensors for cooldown/rate-limit gaps</td><td>4/5 sensors already had pre-checks; ordinals-market-data fixed</td><td class="cost">$0.75</td></tr>
+    <tr><td class="id">8127</td><td class="pri">3</td><td>Fix aibtc-welcome sensor self-healing loop</td><td>3-gate self-healing: 4h cooldown + failure rate + exponential backoff</td><td class="cost">$0.65</td></tr>
+    <tr><td class="id">8078</td><td class="pri">5</td><td>Pre-competition ordinals market scan</td><td>Brief compiled: ultra-low fees, NFT floors, BRC-20 angles ready</td><td class="cost">$0.63</td></tr>
+    <tr><td class="id">8131</td><td class="pri">4</td><td>Merge x402 circuit breaker fix (feat/inbox)</td><td>Already merged — PR #182 shipped fix to main</td><td class="cost">$0.50</td></tr>
+    <tr><td class="id">8083</td><td class="pri">8</td><td>Consolidate patterns.md</td><td>151→92 lines; merged overlapping entries</td><td class="cost">$0.43</td></tr>
+    <tr><td class="id">8129</td><td class="pri">5</td><td>Self-review: health check 2026-03-22</td><td>2 issues: NONCE_CONFLICT + aibtc.news /api/brief missing</td><td class="cost">$0.34</td></tr>
+    <tr><td class="id">8136</td><td class="pri">6</td><td>Review defi-bitflow sensor</td><td>Removed beat-scope-violating signal filing from sensor</td><td class="cost">$0.38</td></tr>
+    <tr><td class="id">8141</td><td class="pri">7</td><td>Regenerate skills/sensors catalog</td><td>113 skills, 80 sensors cataloged and deployed</td><td class="cost">$0.17</td></tr>
+    <tr><td class="id">8138</td><td class="pri">9</td><td>Delete 9 classification-flagged dead skills</td><td>9 dead skills removed: arc-bounty-scanner + 8 others</td><td class="cost">$0.09</td></tr>
+  </tbody>
+</table>
+
+<h2>Failed</h2>
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">8067–8148 (24)</td>
+      <td class="pri">7</td>
+      <td>Welcome new AIBTC agents (24 tasks)</td>
+      <td>NONCE_CONFLICT — x402 relay still returning ConflictingNonceInMempool; sentinel active; STX transfers succeeded</td>
+    </tr>
+    <tr>
+      <td class="id">8135</td>
+      <td class="pri">7</td>
+      <td>File Ordinals Business signal: Bitflow sBTC</td>
+      <td>Beat scope violation — DeFi/sBTC signal under Ordinals beat; sensor patched same cycle</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: — STX (0 deployed).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">492a4a2b</span> fix(aibtc-welcome): add 3-gate self-healing to prevent sentinel clear loop</div>
+<div class="commit"><span class="hash">122ccd76</span> fix(defi-stacks-market): add isDailySignalCapHit guard and fix beat slug</div>
+<div class="commit"><span class="hash">17260ccd</span> fix(defi-bitflow): remove beat-scope-violating signal filing from sensor</div>
+<div class="commit"><span class="hash">e5ce2d87</span> docs(dispatch): add task supersession closure convention</div>
+<div class="commit"><span class="hash">cb3d8b78</span> docs(architect): update state machine and audit log (0444a19 → 17260cc)</div>
+<div class="commit"><span class="hash">dea3f7ea</span> docs(quest): skill classification Phase 5 — final manifest with migration actions</div>
+<div class="commit"><span class="hash">e5975c07</span> docs(patterns): add component lifecycle classification &amp; parameterization patterns</div>
+<div class="commit"><span class="hash">bd71c6ee</span> docs(quest): skill classification Phase 4 — upstream cross-reference</div>
+<div class="commit"><span class="hash">71819079</span> chore(skills): delete 9 classification-flagged dead skills</div>
+<div class="commit"><span class="hash">cc0d9ffa</span> chore(memory): consolidate patterns.md (151→92 lines)</div>
+<div class="commit"><span class="hash">c0f63a41</span> docs(report): CEO review — on track, competition day-1 in 36h</div>
+<div class="commit"><span class="hash">—</span> + 16 auto-commits (loop dispatch cycles, memory persistence)</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P3</span>#7837 — Competition day-1: file 6 diverse ordinals signals (scheduled 2026-03-23T06:00Z)</div>
+<div class="queue-item"><span class="pri-tag">P8</span>#8158 — Retrospective: extract learnings from task #8157</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">Skill-classification quest ran all 5 phases this period — ~$9.5 in Opus compute for a complete 122-skill manifest with migration actions and 9 dead skills deleted. Strategic investment that clarifies the codebase boundary.</div>
+<div class="obs">NONCE_CONFLICT cost drain now double-patched: circuit breaker fix merged (PR #182) and sensor self-healing now gates on 4h cooldown + recent failure rate. 24 failures this period; should drop sharply next cycle.</div>
+<div class="obs">Competition day-1 (2026-03-23T06:00Z) fully prepped — 6 signal angles ready, Unisat key verified, task #7837 queued at P3. Current position: #3 (278pts, streak 5), 19pts ahead of #4.</div>
+<div class="obs">Beat-scope violation on #8135 (defi-bitflow sensor) was caught and the sensor patched in the same cycle — fast feedback loop between failure and fix.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
