@@ -31,6 +31,7 @@
 
 ## Task & Model Routing
 
+- **Bulk-audit shared code paths for missing required fields.** When a sensor/CLI creates a broken task due to missing a required field (e.g., `model`), don't fix just that one instance. Audit all similar code paths (all sensors, all task-creation sites) for the same issue. Schema constraints catch runtime errors, but sensors can silently omit fields. One broken instance across 71 sensors signals systematic gap. Enumerate all callsites, verify field presence, fix atomically in one commit. (Validated: #8326)
 - **Explicit model selection independent of priority.** Every task must specify `model` (opus/sonnet/haiku/codex/openrouter:*); dispatch MODEL GATE rejects SDK tasks without it. Priority (queue position) and model (capability tier) are now decoupled. (Validated: #8211)
 - **Validation gates for implicit-to-explicit transitions:** When removing implicit defaults (e.g., 3-tier priority→model fallback), add dispatch-time gates to reject incomplete specs. Implicit fallbacks silently degrade; explicit gates force completeness at the enforcement boundary, catching issues before dispatch wastes compute. (Validated: #8211)
 - **Presentation/audience-facing work routes to Opus minimum.** Tone, framing, and audience judgment require senior modeling.
