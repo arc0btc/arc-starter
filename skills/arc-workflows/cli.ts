@@ -190,8 +190,9 @@ function transition(idStr: string, newState: string, contextJson?: string): Comm
     let newContext: string | null = null;
     if (contextJson) {
       try {
-        JSON.parse(contextJson); // Validate JSON
-        newContext = contextJson;
+        const incoming = JSON.parse(contextJson);
+        const existing = workflow.context ? JSON.parse(workflow.context) : {};
+        newContext = JSON.stringify({ ...existing, ...incoming });
       } catch {
         return { success: false, message: `Invalid JSON in --context` };
       }
