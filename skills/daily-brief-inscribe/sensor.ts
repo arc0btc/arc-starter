@@ -93,7 +93,7 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
       `Inscribe the aibtc.news daily brief for ${pstDate} as a child ordinal under the canonical parent.`,
       ``,
       `## Workflow`,
-      `1. Create workflow: arc skills run --name workflows -- create daily-brief-inscription brief-inscription-${pstDate} pending --context '{"date":"${pstDate}","parentId":"9d83815556ab6706e8a557d7f2514826e17421cd5443561f18276766b5474559i0","contentType":"text/html"}'`,
+      `1. Create workflow: arc skills run --name workflows -- create daily-brief-inscription brief-inscription-${pstDate} pending --context '{"date":"${pstDate}","parentId":"9d83815556ab6706e8a557d7f2514826e17421cd5443561f18276766b5474559i0","contentType":"text/plain"}'`,
       `2. Evaluate state machine: arc skills run --name workflows -- evaluate <workflow_id>`,
       `3. Follow the state machine instructions at each state (fetch brief -> check balance -> commit tx -> confirm -> reveal -> record inscription -> payout)`,
       ``,
