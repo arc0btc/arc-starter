@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-23T00:34Z*
+*Last updated: 2026-03-23T05:18Z*
 
 ## Shared Reference Entries
 
@@ -27,12 +27,12 @@
 | Arc | 192.168.1.10 | bc1qlezz2... | Orchestrator |
 | Spark | 192.168.1.12 | bc1qpln8... | AIBTC/DeFi |
 | Iris | 192.168.1.13 | bc1q6sav... | Research/X |
-| Loom | 192.168.1.14 | bc1q3qa3... | CI/CD |
-| Forge | 192.168.1.15 | bc1q9hme... | Infra |
+| Loom | 192.168.1.14 | bc1q3qa3... | CI/CD, AIBTC Publisher (Rising Leviathan) |
+| Forge | 192.168.1.15 | bc1q9hme... | Infra (codex, early dispatch) |
 
 ## Critical Flags
 
-**FLEET DEGRADED (2026-03-11):** Workers (Spark, Iris, Loom, Forge) suspended by Anthropic. Arc is sole executor. Forge has OpenRouter fallback. whoabuddy appealing. Do NOT route to workers.
+**FLEET PARTIALLY RECOVERED (2026-03-23):** Loom is ONLINE as AIBTC publisher Rising Leviathan. Forge is ONLINE with codex and early dispatch testing. Spark and Iris remain OFFLINE (suspended by Anthropic). Arc can route work to Loom and Forge. Do NOT route to Spark or Iris.
 
 **Ordinals APIs:** Hiro shutdown 2026-03-09. Use Unisat (open-api.unisat.io, 5 req/s free). Stacks Extended API unaffected.
 
@@ -49,8 +49,8 @@
 - GitHub sensors centralized (Arc-only). Pre-dispatch gate routes GitHub tasks to Arc.
 - OAuth: Workers use ANTHROPIC_API_KEY (OAuth unreliable across VMs).
 - Welcome dedup: Verify completion in DB via `completedTaskCountForSource()`, not task creation.
-- Monitoring: Arc's 74 sensors unaffected. Worker sensors down during suspension.
-- **Agent identities:** Arc=Trustless Indra (1), Spark=Topaz Centaur (29), Loom=Fractal Hydra (85), Forge=Sapphire Mars (84), Iris=not yet registered (task #2890).
+- Monitoring: Arc's 74 sensors unaffected. Loom and Forge sensors resuming. Spark and Iris sensors still down.
+- **Agent identities:** Arc=Trustless Indra (1), Spark=Topaz Centaur (29), Loom=Fractal Hydra (85) aka Rising Leviathan (AIBTC publisher), Forge=Sapphire Mars (84), Iris=not yet registered (task #2890).
 
 ## Key Learnings
 
@@ -68,7 +68,7 @@
 
 **Memory as training (2026-03-18):** `memory/frameworks.md` has 6 decision trees. `skills/arc-memory/` provides `add-pattern`, `list-sections`, `retrospective`, `framework` commands. Load `arc-memory` skill on retrospective/strategy/triage tasks.
 
-**Spark DeFi pre-positioning (2026-03-18):** DeFi tasks #6807/#6808 at P9 (won't dispatch). #6809 Jingswap skill build at P3 (Opus). Activate when: (1) clear fleet-suspended.json for Spark, (2) migrate to ANTHROPIC_API_KEY, (3) run fleet-router.
+**Spark DeFi pre-positioning (2026-03-18):** DeFi tasks #6807/#6808 at P9 (won't dispatch). #6809 Jingswap skill build at P3 (Opus). Spark still offline — cannot activate yet. Loom and Forge are back but Spark remains suspended.
 
 **Group Decisions directive (2026-03-18):** whoabuddy committed to consensus-seeking pattern — seek input via AIBTC inbox, message agents directly for testing, pay 100 sats for 2nd opinions. Multi-agent input before fleet/contacts feature decisions.
 
