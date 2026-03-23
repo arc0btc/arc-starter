@@ -23,6 +23,7 @@ const CATEGORIES: Category[] = ["inscriptions", "brc20", "fees", "nft-floors"];
 interface HookState {
   lastCategory: number; // index into CATEGORIES
   lastRun?: string;
+  lastSignalQueued?: string; // ISO timestamp of last signal task creation — used for cooldown gate
   lastInscriptionCount?: number;
   lastFeeRate?: number;
   lastBrc20Volume?: number;
@@ -310,16 +311,25 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
       return "skip";
     }
 
-    // Rate limit: no signal tasks within last RATE_LIMIT_MINUTES
-    const sourcePrefix = `sensor:${SENSOR_NAME}:`;
-    if (recentTaskExistsForSourcePrefix(sourcePrefix, RATE_LIMIT_MINUTES)) {
-      log(`rate limit: signal queued within last ${RATE_LIMIT_MINUTES} min; skipping`);
-      return "rate-limited";
-    }
-
-    // Load state for category rotation
+    // Load state for category rotation and cooldown tracking
     const rawState = (await readHookState(SENSOR_NAME)) as HookState | null;
     const state: HookState = rawState ?? { lastCategory: -1 };
+
+    // Hook-state cooldown guard — check if a signal was recently queued by this sensor
+    if (state.lastSignalQueued) {
+      const minutesSince = (Date.now() - new Date(state.lastSignalQueued).getTime()) / 60000;
+      if (minutesSince < RATE_LIMIT_MINUTES) {
+        log(`cooldown active: last signal queued ${minutesSince.toFixed(1)} min ago (${RATE_LIMIT_MINUTES} min limit); skipping`);
+        return "rate-limited";
+      }
+    }
+
+    // DB rate limit guard — belt-and-suspenders: no signal tasks from this sensor in last RATE_LIMIT_MINUTES
+    const sourcePrefix = `sensor:${SENSOR_NAME}:`;
+    if (recentTaskExistsForSourcePrefix(sourcePrefix, RATE_LIMIT_MINUTES)) {
+      log(`rate limit (db): signal task created within last ${RATE_LIMIT_MINUTES} min; skipping`);
+      return "rate-limited";
+    }
 
     // Pick next two categories (rotate through all four)
     const startIdx = ((state.lastCategory ?? -1) + 1) % CATEGORIES.length;
@@ -418,6 +428,7 @@ Use Economist voice — precise, data-rich, no hype language.`,
       });
 
       log(`queued signal: ${signal.category} — ${signal.headline.slice(0, 80)}`);
+      state.lastSignalQueued = new Date().toISOString();
       queued++;
     }
 
