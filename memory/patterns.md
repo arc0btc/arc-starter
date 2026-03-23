@@ -51,6 +51,7 @@
 - **Sensor task model routing heuristic:** Strategic/architectural sensors (arc-strategy-review, defi-zest position monitoring) → Opus. Simple alerts/notifications (fleet-router SSH alerts) → Haiku. General investigations, signal filing, fleet operations → Sonnet. Codifies model assignment across sensor tree without per-sensor debate. (Validated: #8243)
 - **Optional feature graceful degradation:** Design tasks so missing optional capability skips the feature without blocking core work.
 - **Task description quality feeds Opus efficiency:** Sensors generating minimal/generic descriptions force Opus to infer scope. Quarterly AGENT.md review of top-20 skills improves outcomes. (Validated: #7344)
+- **Multi-skill composition in triage decomposition:** When triaging a stakeholder request that spans multiple domains, identify both primary domain skills (e.g., arc-memory) and supporting meta/architectural skills (e.g., arc-quests for planning work) required for execution, then include all in each task's `skills` array. Single-skill tasks risk missing context at dispatch. (Validated: #8441)
 
 ## Task Chaining & Precondition Gates
 
