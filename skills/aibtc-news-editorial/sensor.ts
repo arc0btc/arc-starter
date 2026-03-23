@@ -74,7 +74,7 @@ export default async function signalReviewSensor(): Promise<string> {
   const batch = signals.slice(0, BATCH_SIZE);
   const signalList = batch
     .map(
-      (s) => `- ${s.id} | ${s.beat} | ${s.headline.slice(0, 80)}`
+      (s) => `- ${s.id} | ${s.beat} | ${(s.headline ?? "").slice(0, 80)}`
     )
     .join("\n");
 
