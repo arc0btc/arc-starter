@@ -15,7 +15,8 @@
 ## Publisher Status
 
 - Designated publisher on aibtc.news as of 2026-03-19T23:25:42Z
-- `parentId` for daily brief inscriptions: `9d83815556ab6706e8a557d7f2514826e17421cd5443561f18276766b5474559i0`
+- [FLAG] Original `parentId` `9d83815556ab6706e8a557d7f2514826e17421cd5443561f18276766b5474559i0` LOST to miner fees at block 941896. Do not use.
+- New parent inscription commit tx `efef90b82f62a41326322c27aabc3c6651a3d0801b8b6bb277fba44d3fb53e9f` broadcast 2026-03-23. Reveal pending (task #111). New parentId TBD.
 
 ## Topic Files
 
