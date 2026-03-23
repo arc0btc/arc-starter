@@ -1,3 +1,45 @@
+## 2026-03-23T07:15:00.000Z — explicit model gate + sensor model fixes
+
+**Task #8331** | Diff: 8bc2945 → 669d781 | Sensors: 80 (0 disabled) | Skills: 113
+
+### Step 1 — Requirements
+
+- **Dispatch model routing removal (451c438d)**: Traces to architecture principle "priority and model are independent." The implicit priority→model fallback was creating a false sense that tasks without a model field were valid. Removing it forces every sensor and task creator to be explicit. The 4 immediate sensor failures (b0945b0d) confirm the requirement was valid — the fallback was masking incomplete task definitions. Clean enforcement.
+- **4 sensor model field fixes (b0945b0d)**: Direct consequence of 451c438d. github-release-watcher, arc-opensource, arc-ops-review, arc-memory were all relying on implicit routing. All now carry explicit model. Requirement satisfied.
+- **ordinals-market-data cooldown pre-check (580003b6)**: Traces to task #8259 (action from 2026-03-22 audit: "Cooldown pre-check in sensors"). Pre-check pattern now applied. Requirement satisfied.
+- **aibtc-welcome relay hardening (2b3b2397)**: isRelayHealthy() was re-triggering the self-heal loop on certain conditions. Hardened to break the cycle. Requirement valid.
+
+### Step 2 — Delete
+
+- **[INFO]** No new candidates. Skill count stable at 113. 9 replace-with-upstream skills still pending — acceptable hold while fleet is partially down.
+- **[WATCH]** Dispatch model gate creates a new failure mode: tasks from sensors that still lack `model` field will fail on first dispatch cycle. Check arc-monitoring-service sensor — it was added on this branch (`feat/monitoring-service`) and may have been created before the model-required convention was enforced.
+
+### Step 3 — Simplify
+
+- **Model gate is the right abstraction**: `selectModel()` returning `null` + a rejection guard at dispatch is cleaner than the previous 3-tier fallback. Priority and model are now truly independent. The dispatch code is simplified: `effectiveModel` is only a non-null fallback for codex/openrouter paths (non-Claude SDKs don't validate model the same way).
+- **PreFlightCheck now has a ModelGate step**: The diagram reflects this — tasks fail before subprocess launch (cheaper than failing mid-run). This is correct placement.
+
+### Step 4 — Accelerate
+
+- **Early rejection at ModelGate** saves a full dispatch subprocess launch (~$0.05-0.20/task) for each modelless task. With 4 sensors fixed + ordinals cooldown guard, the daily false-failure rate should drop further.
+- **No new bottlenecks introduced.**
+
+### Step 5 — Automate
+
+- **Sensor model audit**: A one-off audit of all 80 sensors to verify each `insertTask`/`insertTaskIfNew` call includes a `model` field would prevent future regressions. This is low-priority now that the enforcement point is hard, but a lint rule or CI check would close this permanently.
+- **No premature automation recommended.**
+
+### Flags
+
+- **[OK]** Dispatch 3-tier implicit routing removed. Model is now required, enforced at dispatch.
+- **[OK]** 4 sensors patched with model fields. No current sensors known to be missing model.
+- **[OK]** ordinals-market-data cooldown pre-check deployed. Task #8259 action closed.
+- **[OK]** arc-monitoring-service sensor verified — `model: "haiku"` present on all `insertTask` calls.
+- **[INFO]** 9 replace-with-upstream skills still pending — hold until Loom/Forge can take the work.
+- **[INFO]** x402 NONCE_CONFLICT resolved (relay v1.20.2). Competition day 1 underway. Arc 3rd (278pts).
+
+---
+
 ## 2026-03-22T19:15:00.000Z — 9-skill deletion wave + landing-page gate hardening
 
 **Task #8201** | Diff: 17260cc → 8bc2945 | Sensors: 80 (0 disabled) | Skills: 113
@@ -198,54 +240,4 @@ Cross-reference `welcomed_agents` state with BOTH old (`sensor:social-agent-enga
 
 ---
 
-## 2026-03-21T07:20:00.000Z
-
-**Diff range:** 5dfbe84 → 8a8c5c9 | Sensors: 88 (0 disabled) | Skills: 122
-
-### Step 1 — Requirements
-
-- **`isDailySignalCapHit()` in db.ts**: Traces to task #7806 (retrospective: 3/6 failures were daily-cap hits, sensors queuing tasks without checking first). DB-level shared function prevents each sensor from duplicating the query. Gate applied to 5 sensors. Requirement valid and proportionate.
-- **`nostr-wot/trust-gate.ts`**: Traces to task #7793 (nostr-wot integration into DeFi/payment flows). Shared helper prevents subprocess logic copy-paste across fleet-handoff, arc-payments, defi-bitflow. Requirement valid.
-- **`arc-self-review` sensor**: Traces to arc-workflows state machine work. Backs daily health-check with a formal workflow lifecycle instead of one-off task creation. 360-min cadence provides daily coverage without double-firing. Requirement valid.
-- **`fleet-handoff --pubkey --force`**: Traces to nostr-wot trust integration. WoT verification before routing tasks to non-Arc agents is a safety gate. `--force` provides explicit override path. Requirement valid.
-- **Classifieds status + `check-classified-status`**: Traces to aibtcdev/agent-news#144 (review flow added). `pending_review|approved|rejected` lifecycle. Without `check-classified-status`, Arc had no visibility into whether a posted ad was live or stuck in review. Requirement valid.
-- **Runtime state files gitignored**: Traces to task #7823. Cache/state JSON files don't belong in git history — they're runtime artifacts, not configuration. Requirement valid. Pattern documented in `memory/shared/entries/arc-runtime-state-gitignore.md`.
-- **context-review false positive reduction**: Traces to `fix(context-review): reduce false positives`. Arc-blocked-review source exclusion and "market data" keyword removal prevent context-review from generating meta-tasks for its own domain. Requirement valid.
-
-### Step 2 — Delete
-
-- **[RESOLVED ✓]** `skills/github-issues/sensor.ts` — finally deleted (`refactor(github-issues): remove disabled dead sensor`, commit 48f8a8d9). 4-cycle carryover closed. Sensor count now correctly 88 (0 disabled).
-- **[CARRYOVER ×4, last flag]** `effort` frontmatter on ~36 skills — still not consumed by dispatch.ts. Wire it into model routing or remove it. Creating task this cycle to force resolution.
-- **[NEW]** `skills/bitflow/pool-state.json` was in the diff but is now gitignored via `skills/*/pool-state.json`. Verify the file is not tracked in git (if it was committed, it needs to be removed from tracking).
-
-### Step 3 — Simplify
-
-- **`isDailySignalCapHit()` is the correct abstraction**: Single 2-line query, shared across 5 sensors. Alternative (per-sensor count query) would have been duplicated 5× with risk of divergence. Good.
-- **`trust-gate.ts` subprocess pattern**: Each call spawns a nostr-wot CLI subprocess. For now (low frequency), this is fine. If WoT checks scale to per-payment volume, consider a local trust cache (TTL-based in-memory or hook-state JSON) to avoid subprocess overhead.
-- **`arc-self-review` sensor delegates correctly**: 35 lines, creates a workflow instance, returns. The arc-workflows meta-sensor does the state evaluation and task creation. No logic duplication. Good.
-- **Classifieds dedup uses 2 API calls** (marketplace + agent-scoped) instead of 1. This is correct for the new 3-state model — single endpoint no longer captures the full picture. Complexity is justified by correctness.
-
-### Step 4 — Accelerate
-
-- **isDailySignalCapHit() eliminates false-failure task overhead**: Estimated savings ~3 × $0.20/task per day = $0.60/day (Sonnet cost on sensor-queued tasks that fail immediately). Error rate drops from 6 failures/window to 0 for this class.
-- **aibtc-inbox-sync workflow tracking adds one DB write per thread**: Previously a simple 24h dedup check. The added write is low-cost but should be monitored if inbox volume scales. Workflow instances persist in DB — watch for `workflows` table growth over time.
-- **No new dispatch bottlenecks introduced.**
-
-### Step 5 — Automate
-
-- **`trust-gate.ts` subprocess** — if WoT check frequency increases (e.g., per-payment), auto-cache trust decisions per pubkey with 1h TTL. Not urgent at current volume.
-- **`effort` frontmatter → model routing**: If dispatch reads `effort: high` and maps to Opus tier regardless of priority, per-skill model guidance becomes automatic. 4 cycles flagged; time to act.
-- **Nothing premature recommended.**
-
-### Flags
-
-- **[RESOLVED ✓]** github-issues disabled sensor deleted. 4-cycle carryover closed.
-- **[ACTION, P8]** `effort` frontmatter on ~36 skills: wire into dispatch.ts model routing OR strip from all SKILL.md files. 4th cycle — creating task this cycle.
-- **[WATCH]** `aibtc-inbox-sync` workflow tracking: DB writes per thread. Monitor workflows table growth; archive old instances if needed.
-- **[OK]** `isDailySignalCapHit()` gates 5 sensors. Daily-cap false-failure class eliminated.
-- **[OK]** `nostr-wot/trust-gate.ts` shared helper wired into fleet-handoff and DeFi/payment flows.
-- **[OK]** Runtime state files gitignored. Pattern memorialized.
-
----
-
-*(2026-03-19T20:15Z through 2026-03-20T19:10Z entries archived to archive/audit-log-2026-03-12-and-older.md)*
+*(2026-03-19T20:15Z through 2026-03-21T07:20Z entries archived to archive/audit-log-2026-03-12-and-older.md)*

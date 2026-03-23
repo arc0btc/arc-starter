@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-22T19:15:00.000Z*
+*Generated: 2026-03-23T07:15:00.000Z*
 *Sensor count: 80 (0 disabled) | Skill count: 113*
 
 ```mermaid
@@ -146,7 +146,9 @@ stateDiagram-v2
             CheckLandingPageGate --> AutoClose: subject matches landing-page pattern
             CheckLandingPageGate --> CheckGitHubRoute: not landing-page
             CheckGitHubRoute --> RouteToArc: GitHub task on worker
-            CheckGitHubRoute --> ModelRoute: not GitHub
+            CheckGitHubRoute --> ModelGate: not GitHub
+            ModelGate --> RejectTask: no model set (Claude tasks)
+            ModelGate --> BuildPrompt: model set
         }
 
         PreFlightCheck --> BuildPrompt
@@ -164,27 +166,27 @@ stateDiagram-v2
         BuildPrompt --> ModelRoute
 
         state ModelRoute {
-            [*] --> CheckTaskModel
-            CheckTaskModel --> OpusTier: P1-4 (senior)
-            CheckTaskModel --> SonnetTier: P5-7 (mid)
-            CheckTaskModel --> HaikuTier: P8+ (junior)
-            CheckTaskModel --> CodexRoute: model=codex/*
-            CheckTaskModel --> OpenRouterRoute: model=openrouter/*
+            [*] --> ReadTaskModel
+            ReadTaskModel --> OpusTier: model=opus (explicit)
+            ReadTaskModel --> SonnetTier: model=sonnet (explicit)
+            ReadTaskModel --> HaikuTier: model=haiku (explicit)
+            ReadTaskModel --> CodexRoute: model=codex/*
+            ReadTaskModel --> OpenRouterRoute: model=openrouter/*
         }
 
         state OpusTier {
             timeout_30min
-            note: P1→Opus 4.6, deep work
+            note: deep work
         }
 
         state SonnetTier {
             timeout_15min
-            note: P5-7→Sonnet 4.6, composition
+            note: composition
         }
 
         state HaikuTier {
             timeout_5min
-            note: P8+→Haiku 4.5, simple exec
+            note: simple exec
         }
 
         ModelRoute --> WorktreeCheck
@@ -240,7 +242,7 @@ stateDiagram-v2
     state TaskQueue {
         pending --> active: dispatch selects
         active --> completed: success
-        active --> failed: error / max retries
+        active --> failed: error / max retries / no model set
         active --> blocked: unresolvable dependency
         failed --> pending: retry (max 3)
         blocked --> [*]: human intervention
@@ -250,7 +252,7 @@ stateDiagram-v2
     SensorsService --> TaskQueue
 ```
 
-## Sensor Count by Category (2026-03-22, cycle 2)
+## Sensor Count by Category (2026-03-23, cycle 3)
 
 | Category | Count |
 |----------|-------|
@@ -265,10 +267,11 @@ stateDiagram-v2
 | Other | 17 |
 | **Total** | **80** |
 
-## Key Architectural Changes (17260cc → 8bc2945)
+## Key Architectural Changes (8bc2945 → 669d781)
 
 | Change | Impact |
 |--------|--------|
-| `chore(skills): delete 9 classification-flagged dead skills` (71819079) | Removed arc-bounty-scanner, arc-dispatch-eval, arc-mcp, bitflow, defi-compounding, fleet-log-pull, fleet-rebalance, skill-effectiveness, zest-v2. ~4,564 lines deleted. Skill count: 122→113. Sensor count: 88→80. Executes [ACTION, P8] from previous audit. |
-| `fix(dispatch): broaden landing-page gate regex` (dispatch.ts) | Regex updated from `^\[landing-page\]\|landing-page.*(?:merge\|deploy\|PR)` to `\[[^\]]*\/landing-page\]\|^\[landing-page\]`. Now catches `[org/landing-page]` sensor-sourced forms. Analysis tasks dropped too (require human context, consistently fail). Closes 2026-03-20 retro action. |
-| `chore(housekeeping): archive old ISO 8601 report files` (3165d8b4) | 2 old watch report files moved to reports/archive/. No structural change. |
+| `refactor(dispatch): remove 3-tier model routing` (451c438d) | Implicit priority→model fallback removed. Tasks without `model` column are rejected at dispatch with `status=failed`. Priority = urgency; model = capability. Both must be set independently. |
+| `fix(sensors): add missing model field to 4 sensors` (b0945b0d) | github-release-watcher, arc-opensource, arc-ops-review, arc-memory now set model explicitly. Previously tasks from these sensors failed at dispatch. |
+| `fix(ordinals-market-data): add cooldown pre-check` (580003b6) | Hook-state cooldown checked before queuing signal tasks. Prevents duplicate signals within 60-min window. |
+| `fix(aibtc-welcome): harden isRelayHealthy()` (2b3b2397) | Stops self-heal loop — relay health check no longer re-triggers NONCE_CONFLICT recovery cycle. |
