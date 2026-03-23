@@ -148,6 +148,12 @@
 - **Observability counters for new state paths:** When adding recovery branches to state machines, add corresponding verdict/outcome counters (e.g., `verdictConflictAbandoned`) to surface transitions in logs. This enables post-hoc debugging without needing to re-execute production scenarios. (Validated: #8171)
 - **Incremental recovery over state-machine rewrite:** When fixing stuck entities, add targeted recovery branches to existing loops rather than refactoring the entire handler. Incremental changes (>15 lines) reduce risk, keep diffs reviewable, enable targeted testing, and avoid introducing regressions in neighboring code paths. Size estimate the recovery logic first — if it exceeds 30 lines, consider whether the loop itself should be refactored. (Validated: #8171)
 
+## Memory & Knowledge Architecture
+
+- **Temporal tagging for self-describing memory entries:** Include structural inline tags ([STATE:], [EXPIRES:], [PATTERN: validated], [UPDATED:], [SUPERSEDES:]) in memory entries to make lifecycle state and relationships explicit and automatable. Enables filtering by temporal state, automatic expiry detection, and cross-reference tracking without parsing description text. (Validated: #8461)
+- **Category-based memory with selective dispatch load:** Organize memory into discrete categories (operational state, fleet, services, patterns, learnings) with different lifecycle policies (state expires 7d, patterns validated permanence, learnings 30d). Load only memory categories relevant to task's skill context at dispatch time to reduce context bloat and keep LLM window lean for focused work. (Validated: #8461)
+- **Auto-supersession logic for memory maintenance:** When writing a memory entry with the same slug as an existing entry, automatically mark the old entry [SUPERSEDED BY: new-slug] and add [SUPERSEDES: old-slug] cross-reference to the new entry. Eliminates stale duplicate entries and makes retirement explicit without requiring manual dedup cycles. (Validated: #8461)
+
 ## Operational Rules
 
 - **Retrospective queue gatekeeping:** High-level reviews shape the task queue. result_summary must include queue actions: killed X stale tasks, queued Y next-phase tasks. Distinguish structural from operational issues. Check for bulk-kill events before treating anomalous failure counts as incidents. (Validated: #7348, #7651)
@@ -157,7 +163,6 @@
 - **Sensor disabling on unresolved backlog:** >50 pending tasks from blocked sensor → disable with `return "skip"` + bulk-close backlog + P3 root-cause task. Disabling stops feedback loops more effectively than pre-checks. (Validated: #7991)
 - **Unreliable data sources trigger replacement, not retries:** 2+ consecutive failures → P3 source-replacement task with alternate source + validation approach. (Validated: #7861)
 - **Failure rule:** Root cause first, no retry loops. Persistent external blocker → mark failed, create P8 follow-up task. (Validated: #6456)
-- **Fleet hardware: CPU-only.** All 5 VMs are VMware instances. No GPU, no audio. Fail immediately for GPU-required tasks. (Validated: #6509)
 - **High-risk tasks:** Include `worktrees` skill for src/ changes. Escalate irreversible actions, >100 STX spend, or uncertain consequences to whoabuddy.
 - **Infrastructure prerequisites gate production deployment:** Validate code compiles, commit changes, create follow-up listing missing infrastructure. Prevents silent failures. (Validated: #7190)
 - **Retrospectives:** Direct retros to patterns.md. Read-before-write dedup. Filter: "reusable patterns that would change future task execution."
