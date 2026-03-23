@@ -20,8 +20,20 @@ const COINGECKO_API = "https://api.coingecko.com/api/v3";
 type Category = "inscriptions" | "brc20" | "fees" | "nft-floors";
 const CATEGORIES: Category[] = ["inscriptions", "brc20", "fees", "nft-floors"];
 
+// Angle rotation — each run assigns an analytical lens to the signal
+type Angle = "trend" | "comparison" | "anomaly" | "structure";
+const ANGLES: Angle[] = ["trend", "comparison", "anomaly", "structure"];
+
+const ANGLE_DIRECTIVES: Record<Angle, string> = {
+  trend: "ANALYTICAL ANGLE: Trend Analysis — Focus on multi-reading direction and momentum. Compare current data against prior readings to identify whether metrics are rising, falling, or inflecting. Emphasise trajectory over snapshot: use language like 'accelerating', 'decelerating', 'reversing', 'sustaining'. Frame the implication around where the trend leads if it continues.",
+  comparison: "ANALYTICAL ANGLE: Cross-Category Comparison — Focus on relative performance across categories or collections. Compare inscription types against each other, BRC-20 tokens against NFT floors, or fee conditions against inscription economics. Use ratios, spreads, and divergences to surface insights invisible in single-category analysis.",
+  anomaly: "ANALYTICAL ANGLE: Anomaly Detection — Focus on deviations from typical ranges. Highlight any metric that is unusually high or low relative to recent history. Use language like 'outlier', 'deviation', 'unprecedented', 'atypical'. Frame the implication around what the anomaly might signal about changing market dynamics.",
+  structure: "ANALYTICAL ANGLE: Market Structure — Focus on concentration, distribution, and microstructure. Analyse holder distribution, liquidity depth, fee tier stratification, or content-type composition. Surface structural patterns: is activity consolidating or fragmenting? Is liquidity deepening or thinning? Frame the implication around structural health and resilience.",
+};
+
 interface HookState {
   lastCategory: number; // index into CATEGORIES
+  lastAngle: number; // index into ANGLES
   lastRun?: string;
   lastSignalQueued?: string; // ISO timestamp of last signal task creation — used for cooldown gate
   lastInscriptionCount?: number;
@@ -313,7 +325,7 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
 
     // Load state for category rotation and cooldown tracking
     const rawState = (await readHookState(SENSOR_NAME)) as HookState | null;
-    const state: HookState = rawState ?? { lastCategory: -1 };
+    const state: HookState = rawState ?? { lastCategory: -1, lastAngle: -1 };
 
     // Hook-state cooldown guard — check if a signal was recently queued by this sensor
     if (state.lastSignalQueued) {
@@ -338,7 +350,11 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
       CATEGORIES[(startIdx + 1) % CATEGORIES.length],
     ];
 
-    log(`categories this run: ${categoriesToFetch.join(", ")}`);
+    // Pick next angle (rotates independently of category)
+    const angleIdx = ((state.lastAngle ?? -1) + 1) % ANGLES.length;
+    const angle = ANGLES[angleIdx];
+
+    log(`categories this run: ${categoriesToFetch.join(", ")} | angle: ${angle}`);
 
     // Unisat API key needed for inscription/brc20 categories
     const unisatKey = await getCredential("unisat", "api_key").catch(() => null);
@@ -407,6 +423,14 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
 **Sources:** ${sourcesJson}
 **Tags:** ${signal.tags}
 
+---
+
+${ANGLE_DIRECTIVES[angle]}
+
+Use the angle above to reshape the raw data into a signal with a distinctive analytical voice. The claim/evidence/implication provided are starting material — rewrite them through the lens of the assigned angle. Do NOT simply repeat the raw data verbatim.
+
+---
+
 File this signal to the ordinals beat using:
 \`\`\`
 arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals \\
@@ -432,8 +456,9 @@ Use Economist voice — precise, data-rich, no hype language.`,
       queued++;
     }
 
-    // Update state with rotation index
+    // Update state with rotation indices
     state.lastCategory = (startIdx + categoriesToFetch.length - 1) % CATEGORIES.length;
+    state.lastAngle = angleIdx;
     state.lastRun = new Date().toISOString();
     await writeHookState(SENSOR_NAME, state);
 
