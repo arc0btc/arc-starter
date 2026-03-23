@@ -128,6 +128,103 @@ function validateSlug(slug: string): boolean {
   return /^[a-z0-9][a-z0-9-]{1,48}[a-z0-9]$/.test(slug) || /^[a-z0-9]$/.test(slug);
 }
 
+// ---- Narrative Thread Helpers ----
+
+const NARRATIVE_HOOK_STATE_KEY = "ordinals-market-data";
+const MAX_NARRATIVE_SIGNALS = 3;
+const MAX_NARRATIVE_SUMMARY_LENGTH = 500;
+
+interface NarrativeSignalEntry {
+  category: string;
+  headline: string;
+  claim: string;
+  timestamp: string;
+}
+
+interface NarrativeThread {
+  signals: NarrativeSignalEntry[];
+  summary: string;
+  weekStarted: string;
+  archived?: string[];
+}
+
+/**
+ * Update the narrative thread in ordinals-market-data hook state after a successful signal filing.
+ * Appends the new signal, trims to last 3, and regenerates the summary.
+ */
+async function updateNarrativeThread(headline: string, claim: string): Promise<void> {
+  const rawState = (await readHookState(NARRATIVE_HOOK_STATE_KEY)) as Record<string, unknown> | null;
+  if (!rawState) {
+    log("narrative: no ordinals-market-data hook state found, skipping update");
+    return;
+  }
+
+  // Extract or infer category from headline/tags
+  const category = inferCategoryFromHeadline(headline);
+
+  // Initialize thread if missing
+  if (!rawState.narrativeThread) {
+    const now = new Date();
+    const day = now.getUTCDay();
+    const diff = day === 0 ? 6 : day - 1;
+    const monday = new Date(now);
+    monday.setUTCDate(monday.getUTCDate() - diff);
+    rawState.narrativeThread = {
+      signals: [],
+      summary: "",
+      weekStarted: monday.toISOString().slice(0, 10),
+      archived: [],
+    };
+  }
+
+  const thread = rawState.narrativeThread as NarrativeThread;
+
+  // Append new signal entry
+  thread.signals.push({
+    category,
+    headline: headline.slice(0, 120),
+    claim: claim.slice(0, 300),
+    timestamp: new Date().toISOString(),
+  });
+
+  // Trim to last MAX_NARRATIVE_SIGNALS
+  if (thread.signals.length > MAX_NARRATIVE_SIGNALS) {
+    thread.signals.splice(0, thread.signals.length - MAX_NARRATIVE_SIGNALS);
+  }
+
+  // Regenerate summary from the last 3 signals
+  thread.summary = generateNarrativeSummary(thread.signals);
+
+  await writeHookState(NARRATIVE_HOOK_STATE_KEY, rawState);
+}
+
+/** Infer category from headline keywords. */
+function inferCategoryFromHeadline(headline: string): string {
+  const lower = headline.toLowerCase();
+  if (lower.includes("inscription") || lower.includes("inscri")) return "inscriptions";
+  if (lower.includes("brc-20") || lower.includes("brc20")) return "brc20";
+  if (lower.includes("fee") || lower.includes("mempool")) return "fees";
+  if (lower.includes("nft") || lower.includes("floor") || lower.includes("collection")) return "nft-floors";
+  if (lower.includes("rune")) return "runes";
+  return "ordinals";
+}
+
+/** Generate a max-500-char narrative summary from recent signals. */
+function generateNarrativeSummary(signals: NarrativeSignalEntry[]): string {
+  if (signals.length === 0) return "";
+
+  const parts = signals.map((s) => {
+    const claimSnippet = s.claim.length > 120 ? s.claim.slice(0, 117) + "..." : s.claim;
+    return `[${s.category}] ${claimSnippet}`;
+  });
+
+  let summary = parts.join(" | ");
+  if (summary.length > MAX_NARRATIVE_SUMMARY_LENGTH) {
+    summary = summary.slice(0, MAX_NARRATIVE_SUMMARY_LENGTH - 3) + "...";
+  }
+  return summary;
+}
+
 // ---- Signal Composition Helpers ----
 
 function generateHeadline(observation: string): string {
@@ -424,6 +521,17 @@ async function cmdFileSignal(args: string[]): Promise<void> {
 
     log(`Signal filed successfully`);
     console.log(JSON.stringify(result, null, 2));
+
+    // Post-filing: update narrative thread for ordinals beat
+    if (beat === "ordinals") {
+      try {
+        await updateNarrativeThread(headline || generateHeadline(claim), claim);
+        log("narrative thread updated");
+      } catch (narrativeErr) {
+        // Non-fatal — don't fail the signal filing over narrative tracking
+        log(`narrative update failed (non-fatal): ${(narrativeErr as Error).message}`);
+      }
+    }
   } catch (e) {
     const error = e as Error;
     log(`Error: ${error.message}`);
@@ -1315,6 +1423,45 @@ async function cmdFetchOrdinalsData(args: string[]): Promise<void> {
   }
 }
 
+// ---- Narrative Thread Commands ----
+
+async function cmdUpdateNarrative(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+
+  if (!flags.headline || !flags.claim) {
+    console.error(
+      "Usage: arc skills run --name aibtc-news-editorial -- update-narrative --headline <text> --claim <text>"
+    );
+    process.exit(1);
+  }
+
+  await updateNarrativeThread(flags.headline, flags.claim);
+  log("narrative thread updated manually");
+
+  // Read back and display current state
+  const rawState = (await readHookState(NARRATIVE_HOOK_STATE_KEY)) as Record<string, unknown> | null;
+  const thread = rawState?.narrativeThread as NarrativeThread | undefined;
+  console.log(JSON.stringify({ narrativeThread: thread ?? null }, null, 2));
+}
+
+async function cmdShowNarrative(_args: string[]): Promise<void> {
+  const rawState = (await readHookState(NARRATIVE_HOOK_STATE_KEY)) as Record<string, unknown> | null;
+  const thread = rawState?.narrativeThread as NarrativeThread | undefined;
+
+  if (!thread || thread.signals.length === 0) {
+    console.log(JSON.stringify({ status: "empty", message: "No narrative thread active" }, null, 2));
+    return;
+  }
+
+  console.log(JSON.stringify({
+    weekStarted: thread.weekStarted,
+    signalCount: thread.signals.length,
+    signals: thread.signals,
+    summary: thread.summary,
+    archivedWeeks: thread.archived?.length ?? 0,
+  }, null, 2));
+}
+
 // ---- Main ----
 
 async function main(): Promise<void> {
@@ -1323,7 +1470,7 @@ async function main(): Promise<void> {
   if (args.length === 0) {
     console.error("Usage: arc skills run --name aibtc-news -- <command> [flags]");
     console.error(
-      "Commands: claim-beat, file-signal, list-beats, status, list-signals, correspondents, compile-brief, compose-signal, check-sources, editorial-guide, judge-signal, fetch-ordinals-data"
+      "Commands: claim-beat, file-signal, list-beats, status, list-signals, correspondents, compile-brief, compose-signal, check-sources, editorial-guide, judge-signal, fetch-ordinals-data, update-narrative, show-narrative"
     );
     process.exit(1);
   }
@@ -1371,6 +1518,12 @@ async function main(): Promise<void> {
         break;
       case "fetch-ordinals-data":
         await cmdFetchOrdinalsData(commandArgs);
+        break;
+      case "update-narrative":
+        await cmdUpdateNarrative(commandArgs);
+        break;
+      case "show-narrative":
+        await cmdShowNarrative(commandArgs);
         break;
       default:
         console.error(`Unknown command: ${command}`);

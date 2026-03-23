@@ -51,6 +51,22 @@ interface DeltaInfo {
   trendDurationMs: number;
 }
 
+// ---- Narrative Thread Types ----
+
+interface NarrativeSignalEntry {
+  category: Category;
+  headline: string;
+  claim: string;
+  timestamp: string; // ISO
+}
+
+interface NarrativeThread {
+  signals: NarrativeSignalEntry[]; // last 3 filed signals
+  summary: string; // max 500 chars — running narrative context
+  weekStarted: string; // ISO Monday date (YYYY-MM-DD) for weekly reset
+  archived?: string[]; // prior week summaries (kept for reference, max 4)
+}
+
 // ---- State & Signal Types ----
 
 interface HookState {
@@ -64,6 +80,7 @@ interface HookState {
   lastRuneTopIds?: string[]; // top-10 rune IDs from last runes run (for change-detection)
   lastRuneHolders?: Record<string, number>; // runeId -> holderCount from last runes run
   history?: CategoryHistory;
+  narrativeThread?: NarrativeThread;
   [key: string]: unknown;
 }
 
@@ -141,6 +158,69 @@ function formatDeltas(deltas: DeltaInfo[]): string {
     return `${d.metric}: ${sign}${absStr} (${pctSign}${d.percentChange.toFixed(1)}%)`;
   });
   return `Deltas vs prior reading (${timeLabel} ago): ${parts.join("; ")}`;
+}
+
+// ---- Narrative Thread Helpers ----
+
+/** Get the Monday (YYYY-MM-DD) of the current week in UTC. */
+function getCurrentMonday(): string {
+  const now = new Date();
+  const day = now.getUTCDay(); // 0=Sun, 1=Mon, ...
+  const diff = day === 0 ? 6 : day - 1; // days since Monday
+  const monday = new Date(now);
+  monday.setUTCDate(monday.getUTCDate() - diff);
+  return monday.toISOString().slice(0, 10);
+}
+
+/** Check if narrative thread needs weekly reset. Archive old summary and start fresh. */
+function checkNarrativeWeeklyReset(state: HookState): void {
+  const currentMonday = getCurrentMonday();
+  const thread = state.narrativeThread;
+
+  if (!thread) {
+    // Initialize empty thread
+    state.narrativeThread = {
+      signals: [],
+      summary: "",
+      weekStarted: currentMonday,
+      archived: [],
+    };
+    return;
+  }
+
+  if (thread.weekStarted !== currentMonday) {
+    // New week — archive prior summary and reset
+    const archived = thread.archived ?? [];
+    if (thread.summary) {
+      archived.push(`[${thread.weekStarted}] ${thread.summary}`);
+      // Keep max 4 archived weeks
+      if (archived.length > 4) archived.splice(0, archived.length - 4);
+    }
+    log(`narrative: weekly reset (${thread.weekStarted} → ${currentMonday}), archived prior thread`);
+    state.narrativeThread = {
+      signals: [],
+      summary: "",
+      weekStarted: currentMonday,
+      archived,
+    };
+  }
+}
+
+/** Build narrative context block for inclusion in signal task description. */
+function buildNarrativeContext(thread: NarrativeThread | undefined): string {
+  if (!thread || thread.signals.length === 0) {
+    return "";
+  }
+
+  const signalList = thread.signals
+    .map((s, i) => `${i + 1}. [${s.category}] ${s.headline} — Key claim: ${s.claim.slice(0, 150)}${s.claim.length > 150 ? "..." : ""}`)
+    .join("\n");
+
+  const summaryBlock = thread.summary
+    ? `\n\nRunning narrative: ${thread.summary}`
+    : "";
+
+  return `\n---\n\nNARRATIVE CONTEXT — Prior signals this week:\n${signalList}${summaryBlock}\n\nReference whether this data continues, contradicts, or resolves the developing narrative. Build story continuity across signals — note when trends persist, when new data breaks a pattern, or when a prior observation reaches resolution.\n`;
 }
 
 // ---- Data Fetchers ----
@@ -551,6 +631,9 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
     // Ensure history arrays exist on state
     const history = ensureHistory(state);
 
+    // Weekly narrative reset — archive prior week's thread every Monday
+    checkNarrativeWeeklyReset(state);
+
     // Hook-state cooldown guard — check if a signal was recently queued by this sensor
     if (state.lastSignalQueued) {
       const minutesSince = (Date.now() - new Date(state.lastSignalQueued).getTime()) / 60000;
@@ -634,6 +717,7 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
       }
 
       const sourcesJson = JSON.stringify(signal.sources);
+      const narrativeBlock = buildNarrativeContext(state.narrativeThread);
 
       insertTask({
         subject: `File ordinals signal: ${signal.headline.slice(0, 120)}`,
@@ -656,7 +740,7 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
 ${ANGLE_DIRECTIVES[angle]}
 
 Use the angle above to reshape the raw data into a signal with a distinctive analytical voice. The claim/evidence/implication provided are starting material — rewrite them through the lens of the assigned angle. Do NOT simply repeat the raw data verbatim.
-
+${narrativeBlock}
 ---
 
 File this signal to the ordinals beat using:
