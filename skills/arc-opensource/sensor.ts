@@ -60,6 +60,7 @@ export default async function arcOpensourceSensor(): Promise<string> {
     ].join("\n"),
     skills: JSON.stringify(["arc-opensource", "fleet-handoff"]),
     priority: 5,
+    model: "haiku",
     source: TASK_SOURCE,
   });
 

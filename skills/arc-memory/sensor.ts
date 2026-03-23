@@ -215,6 +215,7 @@ export default async function arcMemorySensor(): Promise<string> {
     skills: '["arc-memory", "arc-introspection"]',
     source: TASK_SOURCE,
     priority: 7,
+    model: "sonnet",
   });
 
   log(`pattern extraction task created for week ending ${week}`);

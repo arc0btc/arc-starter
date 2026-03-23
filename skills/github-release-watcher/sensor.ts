@@ -183,6 +183,7 @@ export default async function releaseWatcherSensor(): Promise<string> {
           ].join("\n"),
           skills: JSON.stringify(["aibtc-repo-maintenance", "dev-landing-page-review"]),
           priority: 6,
+          model: "sonnet",
           source: lpSource,
         });
         tasksCreated++;

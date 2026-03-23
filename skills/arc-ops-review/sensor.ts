@@ -254,6 +254,7 @@ export default async function opsReviewSensor(): Promise<string> {
       "Full snapshot at memory/ops-metrics.json",
     ].join("\n"),
     priority: 7,
+    model: "sonnet",
     skills: '["arc-ops-review"]',
   });
 
