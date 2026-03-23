@@ -20,6 +20,12 @@ const DAILY_RATE_LOW_THRESHOLD = 10_000; // <10k inscriptions/day = suppressed m
 const RATE_SUSTAINED_READINGS = 3; // consecutive readings required to confirm sustained rate
 const RATE_MILESTONE_COOLDOWN_HOURS = 24; // minimum hours between same-type rate milestone signals
 
+// Change-detection thresholds — signal only fires when material change exceeds these gates
+const FEE_CHANGE_THRESHOLD_PCT = 20; // >20% move in fastestFee
+const INSCRIPTION_CONTENT_SHIFT_PP = 10; // >10 percentage-point shift in dominant content-type share
+const BRC20_HOLDER_CHANGE_THRESHOLD_PCT = 5; // >5% holder count change in any top-5 token
+const NFT_FLOOR_CHANGE_THRESHOLD_PCT = 10; // >10% floor price move in any tracked collection
+
 const UNISAT_API = "https://open-api.unisat.io";
 const MEMPOOL_API = "https://mempool.space/api";
 const COINGECKO_API = "https://api.coingecko.com/api/v3";
@@ -87,6 +93,13 @@ interface HookState {
   lastRuneHolders?: Record<string, number>; // runeId -> holderCount from last runes run
   lastRateMilestoneHigh?: string; // ISO timestamp of last high-rate milestone task creation
   lastRateMilestoneLow?: string; // ISO timestamp of last low-rate milestone task creation
+  // Change-detection state — always updated, used to gate signal creation
+  lastFastestFee?: number; // last observed fastestFee for >20% change gate
+  lastContentTypeDist?: Record<string, number>; // content-type -> percentage share (0-100) from recent inscriptions
+  lastDominantContentType?: string; // dominant content type from last inscription fetch
+  lastBrc20TopTickers?: string[]; // top-5 BRC-20 tickers from last run
+  lastBrc20Holders?: Record<string, number>; // ticker -> holderCount from last BRC-20 run
+  lastNftFloors?: Record<string, number>; // collection-id -> floor BTC from last NFT fetch
   history?: CategoryHistory;
   narrativeThread?: NarrativeThread;
   [key: string]: unknown;
@@ -349,7 +362,7 @@ function detectMilestoneSignals(state: HookState, history: CategoryHistory): Sig
 
 // ---- Data Fetchers ----
 
-async function fetchInscriptionData(apiKey: string, history: CategoryHistory): Promise<SignalData | null> {
+async function fetchInscriptionData(apiKey: string, state: HookState, history: CategoryHistory): Promise<SignalData | null> {
   try {
     // BRC-20 status for overall inscription activity
     const statusRes = await fetch(`${UNISAT_API}/v1/indexer/brc20/status`, {
@@ -401,11 +414,40 @@ async function fetchInscriptionData(apiKey: string, history: CategoryHistory): P
       return null;
     }
 
-    // Historical data: compute deltas then store reading
+    // Historical data: compute deltas then store reading (always, regardless of gate)
     const metrics: Record<string, number> = { totalInscriptions, tokenCount };
     const deltas = computeDeltas(history, "inscriptions", metrics);
     pushReading(history, "inscriptions", metrics);
     const deltaStr = formatDeltas(deltas);
+
+    // Change-detection gate: >10pp shift in dominant content-type share or dominant type change
+    const currentDist: Record<string, number> = {};
+    for (const [ct, count] of Object.entries(contentTypes)) {
+      currentDist[ct] = (count / recentCount) * 100;
+    }
+    const currentDominant = topType ? topType[0] : "unknown";
+    const prevDist = state.lastContentTypeDist;
+    const prevDominant = state.lastDominantContentType;
+    state.lastContentTypeDist = currentDist; // always update
+    state.lastDominantContentType = currentDominant;
+
+    if (prevDist !== undefined && prevDominant !== undefined) {
+      const dominantChanged = currentDominant !== prevDominant;
+      // Check if any content-type's share shifted by >10 percentage points
+      const allTypes = new Set([...Object.keys(prevDist), ...Object.keys(currentDist)]);
+      let maxShiftPp = 0;
+      for (const ct of allTypes) {
+        const shift = Math.abs((currentDist[ct] ?? 0) - (prevDist[ct] ?? 0));
+        if (shift > maxShiftPp) maxShiftPp = shift;
+      }
+      if (!dominantChanged && maxShiftPp < INSCRIPTION_CONTENT_SHIFT_PP) {
+        log(`inscriptions: below threshold — dominant still "${currentDominant}", max shift ${maxShiftPp.toFixed(1)}pp < ${INSCRIPTION_CONTENT_SHIFT_PP}pp; skipping signal`);
+        return null;
+      }
+      log(`inscriptions: threshold met — ${dominantChanged ? `dominant changed "${prevDominant}"→"${currentDominant}"` : `max shift ${maxShiftPp.toFixed(1)}pp >= ${INSCRIPTION_CONTENT_SHIFT_PP}pp`}`);
+    } else {
+      log("inscriptions: first content-type reading — allowing signal (no prior baseline)");
+    }
 
     const inscriptionCountStr = totalInscriptions > 0
       ? `${(totalInscriptions / 1_000_000).toFixed(1)}M total inscriptions`
@@ -429,7 +471,7 @@ async function fetchInscriptionData(apiKey: string, history: CategoryHistory): P
   }
 }
 
-async function fetchBrc20Data(apiKey: string, history: CategoryHistory): Promise<SignalData | null> {
+async function fetchBrc20Data(apiKey: string, state: HookState, history: CategoryHistory): Promise<SignalData | null> {
   try {
     const statusRes = await fetch(`${UNISAT_API}/v1/indexer/brc20/status`, {
       headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
@@ -471,7 +513,7 @@ async function fetchBrc20Data(apiKey: string, history: CategoryHistory): Promise
     const totalTokens = Number(status.tokenCount ?? status.count ?? tokens.length);
     const topList = tokenSummaries.map((t) => `${t.ticker} (${t.holders} holders, ${t.mintPct}% minted)`).join("; ");
 
-    // Historical data: compute deltas then store reading
+    // Historical data: compute deltas then store reading (always, regardless of gate)
     const metrics: Record<string, number> = { totalTokens };
     for (const ts of tokenSummaries) {
       metrics[`holders_${ts.ticker}`] = ts.holders;
@@ -479,6 +521,33 @@ async function fetchBrc20Data(apiKey: string, history: CategoryHistory): Promise
     const deltas = computeDeltas(history, "brc20", metrics);
     pushReading(history, "brc20", metrics);
     const deltaStr = formatDeltas(deltas);
+
+    // Change-detection gate: >5% holder count change in any top-5 token, or new token entering top-5
+    const currentTickers = tokenSummaries.map((t) => t.ticker);
+    const prevTickers: string[] = (state.lastBrc20TopTickers as string[] | undefined) ?? [];
+    const prevHolders: Record<string, number> = (state.lastBrc20Holders as Record<string, number> | undefined) ?? {};
+
+    // Always update state
+    state.lastBrc20TopTickers = currentTickers;
+    state.lastBrc20Holders = Object.fromEntries(tokenSummaries.map((t) => [t.ticker, t.holders]));
+
+    const isFirstRun = prevTickers.length === 0;
+    if (!isFirstRun) {
+      const newInTop5 = currentTickers.some((t) => !prevTickers.includes(t));
+      const holderShift = tokenSummaries.some((t) => {
+        const prev = prevHolders[t.ticker];
+        if (prev === undefined || prev === 0) return false;
+        return Math.abs(t.holders - prev) / prev * 100 >= BRC20_HOLDER_CHANGE_THRESHOLD_PCT;
+      });
+      if (!newInTop5 && !holderShift) {
+        log(`brc20: below threshold — no new top-5 token, no >${BRC20_HOLDER_CHANGE_THRESHOLD_PCT}% holder shift; skipping signal`);
+        return null;
+      }
+      const reason = newInTop5 ? "new token entered top-5" : `holder count shift >${BRC20_HOLDER_CHANGE_THRESHOLD_PCT}% in top-5`;
+      log(`brc20: threshold met — ${reason}`);
+    } else {
+      log("brc20: first reading — allowing signal (no prior baseline)");
+    }
 
     return {
       category: "brc20",
@@ -498,7 +567,7 @@ async function fetchBrc20Data(apiKey: string, history: CategoryHistory): Promise
   }
 }
 
-async function fetchFeeMarketData(history: CategoryHistory): Promise<SignalData | null> {
+async function fetchFeeMarketData(state: HookState, history: CategoryHistory): Promise<SignalData | null> {
   try {
     // Fetch recommended fees
     const feesRes = await fetchWithRetry(`${MEMPOOL_API}/v1/fees/recommended`);
@@ -531,11 +600,25 @@ async function fetchFeeMarketData(history: CategoryHistory): Promise<SignalData 
     const feeSpread = fastestFee - minimumFee;
     const urgencyLabel = fastestFee > 50 ? "elevated" : fastestFee > 20 ? "moderate" : "low";
 
-    // Historical data: compute deltas then store reading
+    // Historical data: compute deltas then store reading (always, regardless of gate)
     const metrics: Record<string, number> = { fastestFee, hourFee, minimumFee, mempoolSize, feeSpread };
     const deltas = computeDeltas(history, "fees", metrics);
     pushReading(history, "fees", metrics);
     const deltaStr = formatDeltas(deltas);
+
+    // Change-detection gate: >20% move in fastestFee
+    const prevFee = state.lastFastestFee;
+    state.lastFastestFee = fastestFee; // always update
+    if (prevFee !== undefined && prevFee > 0) {
+      const feePctChange = Math.abs(fastestFee - prevFee) / prevFee * 100;
+      if (feePctChange < FEE_CHANGE_THRESHOLD_PCT) {
+        log(`fees: below threshold — fastestFee ${prevFee}→${fastestFee} (${feePctChange.toFixed(1)}% < ${FEE_CHANGE_THRESHOLD_PCT}%); skipping signal`);
+        return null;
+      }
+      log(`fees: threshold met — fastestFee ${prevFee}→${fastestFee} (${feePctChange.toFixed(1)}% >= ${FEE_CHANGE_THRESHOLD_PCT}%)`);
+    } else {
+      log("fees: first reading — allowing signal (no prior baseline)");
+    }
 
     return {
       category: "fees",
@@ -555,7 +638,7 @@ async function fetchFeeMarketData(history: CategoryHistory): Promise<SignalData 
   }
 }
 
-async function fetchNftFloorData(history: CategoryHistory): Promise<SignalData | null> {
+async function fetchNftFloorData(state: HookState, history: CategoryHistory): Promise<SignalData | null> {
   try {
     // CoinGecko free tier — Bitcoin NFT collections
     // Known collection IDs on CoinGecko: bitcoin-frogs, nodemonkes, bitcoin-puppets
@@ -602,7 +685,7 @@ async function fetchNftFloorData(history: CategoryHistory): Promise<SignalData |
     const topCollection = results[0];
     const totalVolume = results.reduce((sum, r) => sum + r.volume24h, 0);
 
-    // Historical data: compute deltas then store reading
+    // Historical data: compute deltas then store reading (always, regardless of gate)
     const metrics: Record<string, number> = { totalVolume };
     for (const r of results) {
       metrics[`floor_${r.id}`] = r.floor;
@@ -611,6 +694,37 @@ async function fetchNftFloorData(history: CategoryHistory): Promise<SignalData |
     const deltas = computeDeltas(history, "nft-floors", metrics);
     pushReading(history, "nft-floors", metrics);
     const deltaStr = formatDeltas(deltas);
+
+    // Change-detection gate: >10% floor price move in any tracked collection
+    const prevFloors: Record<string, number> = (state.lastNftFloors as Record<string, number> | undefined) ?? {};
+    // Always update state
+    state.lastNftFloors = Object.fromEntries(results.map((r) => [r.id, r.floor]));
+
+    const isFirstRun = Object.keys(prevFloors).length === 0;
+    if (!isFirstRun) {
+      const floorMoved = results.some((r) => {
+        const prev = prevFloors[r.id];
+        if (prev === undefined || prev === 0) return false;
+        return Math.abs(r.floor - prev) / prev * 100 >= NFT_FLOOR_CHANGE_THRESHOLD_PCT;
+      });
+      if (!floorMoved) {
+        log(`nft-floors: below threshold — no collection floor moved >${NFT_FLOOR_CHANGE_THRESHOLD_PCT}%; skipping signal`);
+        return null;
+      }
+      // Log which collection triggered
+      const moved = results.filter((r) => {
+        const prev = prevFloors[r.id];
+        if (prev === undefined || prev === 0) return false;
+        return Math.abs(r.floor - prev) / prev * 100 >= NFT_FLOOR_CHANGE_THRESHOLD_PCT;
+      }).map((r) => {
+        const prev = prevFloors[r.id];
+        const pct = ((r.floor - prev) / prev * 100).toFixed(1);
+        return `${r.name} ${prev.toFixed(4)}→${r.floor.toFixed(4)} BTC (${pct}%)`;
+      });
+      log(`nft-floors: threshold met — ${moved.join(", ")}`);
+    } else {
+      log("nft-floors: first reading — allowing signal (no prior baseline)");
+    }
 
     return {
       category: "nft-floors",
@@ -798,25 +912,28 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
       let signal: SignalData | null = null;
 
       switch (cat) {
-        case "inscriptions":
+        case "inscriptions": {
           if (!unisatKey) { log("inscriptions: no unisat api_key, skipping"); break; }
-          signal = await fetchInscriptionData(unisatKey, history);
-          // Milestone detection runs only when fresh inscription data was fetched
-          if (signal !== null) {
+          const preLen = history["inscriptions"].length;
+          signal = await fetchInscriptionData(unisatKey, state, history);
+          // Milestone detection runs when fresh inscription data was fetched (history updated),
+          // regardless of whether the content-type gate allowed a regular signal
+          if (history["inscriptions"].length > preLen) {
             for (const ms of detectMilestoneSignals(state, history)) {
               milestoneSignals.push(ms);
             }
           }
           break;
+        }
         case "brc20":
           if (!unisatKey) { log("brc20: no unisat api_key, skipping"); break; }
-          signal = await fetchBrc20Data(unisatKey, history);
+          signal = await fetchBrc20Data(unisatKey, state, history);
           break;
         case "fees":
-          signal = await fetchFeeMarketData(history);
+          signal = await fetchFeeMarketData(state, history);
           break;
         case "nft-floors":
-          signal = await fetchNftFloorData(history);
+          signal = await fetchNftFloorData(state, history);
           break;
         case "runes":
           if (!unisatKey) { log("runes: no unisat api_key, skipping"); break; }
