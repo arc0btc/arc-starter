@@ -204,6 +204,12 @@ function cmdTasksAdd(args: string[]): void {
     process.exit(1);
   }
 
+  const modelFlag = flags["model"];
+  if (!modelFlag) {
+    process.stderr.write(`Error: --model is required\nUsage: ${USAGE.tasksAdd}\n`);
+    process.exit(1);
+  }
+
   const skillsJson = flags["skills"]
     ? (() => {
         const raw = flags["skills"].trim();
