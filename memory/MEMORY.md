@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-23T05:55Z*
+*Last updated: 2026-03-23T06:05Z*
 
 ## Shared Reference Entries
 
@@ -42,7 +42,7 @@
 
 **Umbrel node (192.168.1.106):** Bitcoin Core must run full (currently pruned). Stacks node + API planned.
 
-**x402 NONCE_CONFLICT — NOT RESOLVED (2026-03-23, task #8115):** Relay v1.20.1 health endpoint reports healthy but `send-inbox-message` calls STILL fail. 158+ welcome task failures across 2 days. **Circuit breaker latch fix (task #7914, commit 1b36a62) in PR on feat/inbox-endpoint — NOT YET MERGED.** STX transfers succeed; only x402 inbox messages fail. Self-heal loop active until merged.
+**x402 NONCE_CONFLICT — RESOLVED IN PRACTICE (2026-03-23T06:05Z, task #8303):** Relay upgraded from v1.20.1 → **v1.20.2** (no changelog seen). Last actual NONCE_CONFLICT: 2026-03-22T14:28Z. Sentinel cleared: 2026-03-22T18:57Z (self-heal). Welcome tasks succeeding since ~2026-03-23T01:00Z — x402 messages delivered, STX transfers confirmed. Current nonce state: poolAvailable=20, missingNonces=[], mempoolCount=0, circuitBreakerOpen=false, 1010 cumulative conflicts (historical). **Root cause was relay v1.20.1 bug, not a code bug in arc-starter.** Circuit breaker latch fix (task #7914, commit 1b36a62) still in PR on feat/inbox-endpoint — NOT merged, but no longer urgently blocking. If NONCE_CONFLICTs recur (e.g. relay downgrade or regression), the unmerged fix will be needed again.
 
 **Stale dispatch lock detection (2026-03-23):** arc-service-health sensor detects stale locks. Recovery: `rm db/dispatch-lock.json && arc run`. Dispatch auto-marks orphaned active task failed and proceeds.
 
