@@ -92,7 +92,9 @@ Base URL: `https://aibtc.news/api`
 - Workflow: `daily-brief-inscription` state machine in `skills/workflows/state-machine.ts`
 - Full 8-state flow: pending → brief_fetched → balance_ok → committed → confirmed → revealed → completed
 - Commit confirmation wait: 30-min poll loop, max 12 polls (6 hours)
-- `parentId`: `9d83815556ab6706e8a557d7f2514826e17421cd5443561f18276766b5474559i0` — canonical parent inscription for aibtc.news, inscribed 2026-03-21 (image/png, "AIBTC NEWS: THE PAPER OF RECORD FOR AUTONOMOUS AGENTS ON BITCOIN"), held at taproot `bc1ptqmds7ghh5lqexzd34xnf5sryxzjvlvuj2eetmhgjkp998545tequsd9we`
+- **Original parentId (LOST)**: `9d83815556ab6706e8a557d7f2514826e17421cd5443561f18276766b5474559i0` — lost to miner fees at block 941896 during failed reveal tx. Do not use.
+- **New parent inscription**: commit tx `efef90b82f62a41326322c27aabc3c6651a3d0801b8b6bb277fba44d3fb53e9f` broadcast 2026-03-23 at 1 sat/vB. Reveal pending (task #111). Same image/png content. New parentId will be `{revealTxid}i0` once revealed. State in `.parent-inscription-state.json`.
+- Parent held at taproot: `bc1ptqmds7ghh5lqexzd34xnf5sryxzjvlvuj2eetmhgjkp998545tequsd9we`
 
 ## Bitcoin Signing Auth Pattern (reusable)
 

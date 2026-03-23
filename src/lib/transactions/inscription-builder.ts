@@ -246,7 +246,8 @@ export function buildCommitTransaction(
 
   // Create P2TR output from the reveal script
   // For script path spending, we use the internal pubkey and the script tree
-  const p2trReveal = btc.p2tr(xOnlyPubkey, revealScriptData, btcNetwork);
+  // 4th arg `true` required for micro-ordinals@0.3.0 unknown leaf scripts
+  const p2trReveal = btc.p2tr(xOnlyPubkey, revealScriptData, btcNetwork, true);
 
   if (!p2trReveal.address) {
     throw new Error("Failed to generate reveal address");
@@ -426,7 +427,8 @@ export function buildRevealTransaction(
 
   // Build the reveal transaction
   const btcNetwork = getBtcNetwork(network);
-  const tx = new btc.Transaction();
+  // Bug fix: allowUnknownOutputs/Inputs required for micro-ordinals@0.3.0
+  const tx = new btc.Transaction({ allowUnknownOutputs: true, allowUnknownInputs: true });
 
   // Add input spending from commit transaction
   // For Taproot script path spending, we need to provide the witness data
@@ -437,8 +439,8 @@ export function buildRevealTransaction(
       script: revealScript.script,
       amount: BigInt(commitAmount),
     },
-    // Include taproot script path info for script-path spending
-    ...revealScript.tapLeafScript,
+    // Bug fix: tapLeafScript must be a named property, not spread
+    tapLeafScript: revealScript.tapLeafScript,
   });
 
   // Add output to recipient (Taproot address)
