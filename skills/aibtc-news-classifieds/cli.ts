@@ -275,10 +275,10 @@ async function cmdPostClassified(args: string[]): Promise<void> {
     // Check for duplicate active ads
     log("Checking for duplicate active classifieds");
     const existing = (await apiGet("/classifieds")) as {
-      classifieds: Array<{ title: string; contact: string; active: boolean }>;
+      classifieds: Array<{ title: string; placedBy: string; active: boolean }>;
     };
     const duplicate = existing.classifieds.find(
-      (ad) => ad.active && ad.contact === contact && ad.title === title
+      (ad) => ad.active && ad.placedBy === contact && ad.title === title
     );
     if (duplicate) {
       throw new Error(
@@ -289,10 +289,10 @@ async function cmdPostClassified(args: string[]): Promise<void> {
     // Post via x402 payment
     log(`Posting classified: "${title}" [${category}] (5000 sats sBTC)`);
     const result = await x402Request("POST", `${API_BASE}/classifieds`, {
-      title,
+      headline: title,
       body,
       category,
-      contact,
+      btc_address: contact,
     });
 
     log("Classified posted successfully");
