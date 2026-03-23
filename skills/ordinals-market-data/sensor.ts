@@ -237,6 +237,68 @@ function checkNarrativeWeeklyReset(state: HookState): void {
   }
 }
 
+/** Human-readable labels for each category — used in cross-category context. */
+const CATEGORY_LABELS: Record<Category, string> = {
+  inscriptions: "Inscriptions",
+  brc20: "BRC-20 Tokens",
+  fees: "Fee Market",
+  "nft-floors": "NFT Floors",
+  runes: "Runes",
+};
+
+/** Build cross-category context block from stored history readings (no live API calls).
+ *  Summarises the latest reading from every category OTHER than the current one,
+ *  so the composing LLM can draw correlations across the ordinals ecosystem. */
+function buildCrossCategoryContext(history: CategoryHistory, currentCategory: Category): string {
+  const sections: string[] = [];
+
+  for (const cat of CATEGORIES) {
+    if (cat === currentCategory) continue;
+    const readings = history[cat];
+    if (!readings || readings.length === 0) continue;
+
+    const latest = readings[readings.length - 1];
+    const age = Date.now() - new Date(latest.timestamp).getTime();
+    const ageLabel = age < 3_600_000
+      ? `${Math.round(age / 60_000)}m ago`
+      : `${(age / 3_600_000).toFixed(1)}h ago`;
+
+    // Format metrics as key: value pairs
+    const metricLines = Object.entries(latest.metrics)
+      .map(([k, v]) => {
+        // Format large numbers with locale separators, small ones with decimals
+        const formatted = v >= 1000 ? v.toLocaleString("en-US") : v % 1 === 0 ? String(v) : v.toFixed(4);
+        return `  ${k}: ${formatted}`;
+      })
+      .join("\n");
+
+    // If there are 2+ readings, show direction of key metrics
+    let trendHint = "";
+    if (readings.length >= 2) {
+      const prev = readings[readings.length - 2];
+      const changes: string[] = [];
+      for (const [k, v] of Object.entries(latest.metrics)) {
+        const pv = prev.metrics[k];
+        if (pv !== undefined && pv !== 0) {
+          const pct = ((v - pv) / Math.abs(pv)) * 100;
+          if (Math.abs(pct) >= 1) {
+            changes.push(`${k} ${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`);
+          }
+        }
+      }
+      if (changes.length > 0) {
+        trendHint = `\n  Recent trend: ${changes.join(", ")}`;
+      }
+    }
+
+    sections.push(`**${CATEGORY_LABELS[cat]}** (${ageLabel}):\n${metricLines}${trendHint}`);
+  }
+
+  if (sections.length === 0) return "";
+
+  return `\n---\n\n## Cross-Category Context (for correlation opportunities)\n\nLatest stored readings from other ordinals categories. Use these to identify cross-category correlations, divergences, or reinforcing patterns. Do NOT simply list these — weave relevant connections into your claim, evidence, or implication where the data supports it.\n\n${sections.join("\n\n")}\n`;
+}
+
 /** Build narrative context block for inclusion in signal task description. */
 function buildNarrativeContext(thread: NarrativeThread | undefined): string {
   if (!thread || thread.signals.length === 0) {
@@ -1151,6 +1213,7 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
           })), null, 2)
         : "[]";
       const narrativeBlock = buildNarrativeContext(state.narrativeThread);
+      const crossCategoryBlock = buildCrossCategoryContext(history, signal.category);
 
       insertTask({
         subject: `File ordinals signal: ${signal.category} [${signal.changeReason.slice(0, 100)}]`,
@@ -1189,7 +1252,7 @@ Compose each field from scratch using the raw data. Do NOT use canned phrases or
 - **claim**: 1-2 sentences. The core assertion — what happened and why it matters.
 - **evidence**: 2-3 sentences. Cite specific numbers from the raw data and deltas. Include absolute values AND percentage changes where available.
 - **implication**: 1-2 sentences. What this means for the ordinals ecosystem going forward. Be specific to the data — no generic "this could signal changing dynamics."
-${narrativeBlock}
+${narrativeBlock}${crossCategoryBlock}
 ---
 
 File the composed signal to the ordinals beat using:
@@ -1232,6 +1295,7 @@ Arc ONLY files to the ordinals beat (slug: ordinals). Do NOT file to any other b
       if (mSource.includes(":milestone-rate-low")) state.lastRateMilestoneLow = new Date().toISOString();
 
       const mSourcesJson = JSON.stringify(mSignal.sources);
+      const milestoneCrossCategory = buildCrossCategoryContext(history, mSignal.category);
       insertTask({
         subject: `[MILESTONE] File ordinals signal: ${mSignal.headline.slice(0, 110)}`,
         description: `Arc's ordinals-market-data sensor detected a milestone signal.
@@ -1251,7 +1315,7 @@ Arc ONLY files to the ordinals beat (slug: ordinals). Do NOT file to any other b
 ---
 
 ANALYTICAL ANGLE: Milestone Analysis — This is an inherently newsworthy event. Focus on the significance of the milestone, what it represents about the protocol's trajectory, and what it implies for the near-term ecosystem. Use precise numbers. Frame around cumulative achievement and forward momentum. Do NOT pad with generic commentary.
-
+${milestoneCrossCategory}
 File this signal to the ordinals beat using:
 \`\`\`
 arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals \\

@@ -118,6 +118,34 @@ When composing a signal with an angle directive:
 3. **Preserve** Economist voice (no hype, data-rich, precise)
 4. The raw data is starting material, not final copy
 
+## Cross-Category Correlation (Multi-Category Context)
+
+Signal tasks from `ordinals-market-data` include a **Cross-Category Context** block — latest stored readings from all other ordinals categories (inscriptions, BRC-20, fees, NFT floors, runes). This data comes from hook state, not live API calls, so it reflects the most recent sensor readings.
+
+### How to Use Cross-Category Data
+
+1. **Scan** the cross-category block for metrics that reinforce, contradict, or contextualise the primary signal's data
+2. **Weave** relevant correlations into the claim, evidence, or implication — don't add a separate "cross-category" paragraph
+3. **Be selective** — only reference other categories when the connection is data-supported. Not every signal needs a cross-category angle
+4. **Prioritise causally linked pairs:**
+   - Fees ↔ Inscriptions: fee spikes suppress inscription volumes; fee drops enable batching
+   - BRC-20 ↔ Inscriptions: BRC-20 deploy waves show up as text-heavy inscription batches
+   - NFT Floors ↔ Fees: high fees compress NFT trading volume; low fees enable accumulation
+   - Runes ↔ BRC-20: competing fungible token standards — holder migration signals preference shifts
+5. **Never fabricate** a correlation. If cross-category data doesn't connect meaningfully, omit it. A single-category signal with strong evidence beats a forced multi-category narrative
+
+### Example Cross-Category Integration
+
+**Primary signal (fees):** "Bitcoin fee market moderates — fastest fee fell 42→18 sat/vB"
+
+**Without cross-category context:**
+> "Fee moderation opens space for inscription batching economics."
+
+**With cross-category context** (inscriptions show rising text-type share):
+> "Fee moderation coincides with a shift toward text-heavy inscription batches (text share: 40%, up from 25%), consistent with BRC-20 deploy activity returning as fee economics improve."
+
+The second version is stronger because the cross-category data provides specific evidence for the implication.
+
 ## When to Load
 
 Load when: filing a signal on aibtc.news, claiming or renewing a beat, compiling a brief, or checking correspondent status. Pair with `aibtc-news-deal-flow` for beat-specific editorial guidance. Sensor creates brief-compilation tasks automatically.
