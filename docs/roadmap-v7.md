@@ -62,6 +62,28 @@ This avoids the risk of breaking Arc's live operations during the reorg.
 
 ---
 
+## Design Principle: Skills Required Everywhere
+
+**Decision (2026-03-22):** Every task, sensor, and workflow in the engine MUST be anchored to at least one skill. Skills are the single unit of organization — a bundle of {SKILL.md context, sensor.ts, cli.ts, workflow templates}. Nothing runs without a skill.
+
+**What this means:**
+
+| Component | v6 (current) | v7 (engine) |
+|-----------|-------------|-------------|
+| **Tasks** | `skills` column optional; many tasks dispatch with no skill context loaded | `skills TEXT NOT NULL` — every task loads ≥1 SKILL.md at dispatch |
+| **Sensors** | Any `skills/*/sensor.ts` runs; no formal link back to parent skill on created tasks | Sensors **auto-tag tasks** with their parent skill name. A sensor in `skills/foo/sensor.ts` always sets `skills: ["foo"]` on tasks it creates |
+| **Workflows** | Templates hardcoded in `state-machine.ts`, loosely coupled to skills | Templates **live inside skill directories** (`skills/<name>/templates/*.ts`). The `workflows` table gets `skills TEXT NOT NULL`. Workflow-created tasks inherit the skill |
+
+**Three enforcement points:**
+
+1. **CLI gate** — `art tasks add` rejects without `--skills`. `art workflows create` requires `--skills`.
+2. **DB constraint** — `tasks.skills TEXT NOT NULL`, `workflows.skills TEXT NOT NULL`. Catches anything bypassing CLI.
+3. **Sensor convention** — `insertTaskIfNew` and `createTaskIfDue` infer the skill name from the calling sensor's parent directory path. Orphan sensors (outside a skill dir) cannot create tasks.
+
+**Why:** Skills become self-documenting. You can always answer "why does this task/sensor/workflow exist?" by looking at its skill. No more ghost skill references, no more context-less dispatch, no more orphan workflows.
+
+---
+
 ## Roadmap Phases
 
 ### Phase 1: Classify & Extract (Quests 1-4)
@@ -72,8 +94,8 @@ Original quest plan in `docs/quest-repo-reorg.md`. Formalized as ARC-0100. Reseq
 | Quest | Slug | Goal | Model | Priority | Task ID | Status |
 |-------|------|------|-------|----------|---------|--------|
 | Q1 | `skill-classification` | Analyze arc-starter (read-only). Classify all 121 skills into shared/arc-specific/runtime-builtin/delete. Cross-reference with `aibtcdev/skills`. Produce migration manifest at `docs/skill-classification.json` | Opus | P3 | workflow #518 | Completed |
-| Q2 | `runtime-extraction` | Create clean `aibtcdev/agent-runtime` at `/home/dev/agent-runtime/`. Extract minimal engine from arc-starter. CLI: `art`. Minimal DB schema, short CLAUDE.md, fill-in SOUL.md template. Fix known issues during extraction | Opus | P3 | workflow #547 | Planning |
-| Q3 | `engine-validation` | Spin up a fresh agent using the new engine. Blank VM test: `art init` → `art skills add` → `art services install` → `art sensors` → `art run` completes a task. Target: <5 minutes from clone to working agent | Opus | P3 | — | Not started |
+| Q2 | `runtime-extraction` | Create clean `aibtcdev/agent-runtime` at `/home/dev/agent-runtime/`. Extract minimal engine from arc-starter. CLI: `art`. Enforce skills-required-everywhere (NOT NULL on tasks + workflows, CLI gates, sensor auto-tagging). Minimal DB schema, short CLAUDE.md, fill-in SOUL.md template. Fix known issues during extraction | Opus | P3 | workflow #547 | Planning |
+| Q3 | `engine-validation` | Spin up a fresh agent using the new engine on test VM (192.168.1.16). Blank VM test: `art init` → `art skills add` → `art services install` → `art sensors` → `art run` completes a task. Target: <5 minutes from clone to working agent | Opus | P3 | — | Not started |
 | Q4 | `arc-migration` | Create `arc0btc/arc` instance repo. Move Arc's personality, memory, and Arc-specific skills into it. Wire `agent-runtime` as submodule. `arc` aliases to `art`. Boot Arc from new structure. Verify zero downtime, zero data loss. Rollback plan: arc-starter still intact | Opus | P3 | — | Not started |
 
 **What changed from the original plan:**
@@ -233,6 +255,8 @@ Track key decisions made during roadmap execution here.
 | 2026-03-20 | ARC proposals live in instance repo until different maintainer | RFC thread email #857 | whoabuddy |
 | 2026-03-20 | DB migrations use 3-phase protocol (prep → execute+snapshot → integrity) | RFC thread email #857, task #7746 | whoabuddy + Arc |
 | 2026-03-20 | Start as blank slate, not fork | RFC thread email #857 | whoabuddy |
+| 2026-03-22 | Skills required everywhere: tasks, sensors, and workflows all require ≥1 skill. `skills TEXT NOT NULL` on tasks + workflows tables. Sensors auto-tag tasks with parent skill. CLI rejects skillless task/workflow creation | Unifies the organizational model — skills become the single unit of composition. Eliminates ghost skills, context-less dispatch, orphan workflows | whoabuddy |
+| 2026-03-22 | Test VM provisioned at 192.168.1.16 for Q3 engine-validation (blank VM test) | Credentials in `arc creds` service `manage-agents` | whoabuddy |
 | 2026-03-18 | v7 priorities: fleet, revenue, ERC-8004, sensor volume, memory-as-training | v6 review email #802 | Arc |
 | 2026-03-19 | Strip fleet items from HOM gaps — focus on solo-agent improvements first | Email #816 | whoabuddy |
 

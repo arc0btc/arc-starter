@@ -140,6 +140,12 @@ These quests are ordered. Each depends on the previous. Execute them sequentiall
    - `memory/.gitkeep`, `templates/.gitkeep`
    - Rename CLI binary from `arc` to `art` in bin/, package.json, src/cli.ts, services.ts
    - Ensure `parseFlags` is exported from `src/utils.ts` so skills import it instead of copying
+   - **Enforce skills-required-everywhere** (see design principle in roadmap-v7.md):
+     - DB schema: `tasks.skills TEXT NOT NULL`, `workflows.skills TEXT NOT NULL`
+     - CLI: `art tasks add` rejects without `--skills`, `art workflows create` requires `--skills`
+     - Sensor helpers: `insertTaskIfNew` and `createTaskIfDue` auto-infer skill name from caller's `import.meta.url` parent directory path
+     - Workflow engine: templates live inside `skills/<name>/templates/*.ts`, workflow-created tasks inherit the parent skill
+     - Dispatch: reject tasks where `skills` references a non-existent skill directory (ghost skill prevention)
 
 2. **Genericize src/: remove personality coupling**
    - Audit all `src/*.ts` for hardcoded references to "arc", "arc0btc", fleet member names, wallet addresses
@@ -157,13 +163,19 @@ These quests are ordered. Each depends on the previous. Execute them sequentiall
    - `ar skills add <github-org/repo>` clones and copies skill directories into local `skills/`
    - `ar skills add <github-org/repo> --submodule` adds as git submodule instead
 
-4. **Validate: blank VM test**
-   - Fresh clone of agent-runtime on a clean environment
-   - Run `ar init` with test values
-   - Run `ar services install` — verify systemd units generate correctly
-   - Run `ar sensors` — verify it discovers only builtin skills, runs cleanly
-   - Run `ar run` — verify dispatch starts and exits cleanly with no tasks
+4. **Validate: blank VM test (test VM: 192.168.1.16, creds in `arc creds` service `manage-agents`)**
+   - Fresh clone of agent-runtime on test VM
+   - Run `art init` with test values
+   - Run `art services install` — verify systemd units generate correctly
+   - Run `art sensors` — verify it discovers only builtin skills, runs cleanly
+   - Run `art run` — verify dispatch starts and exits cleanly with no tasks
    - Add `aibtcdev/skills` as submodule, verify sensor discovery finds submodule skills
+   - **Verify skills-required enforcement:**
+     - `art tasks add --subject "test" --model sonnet` → rejected (no --skills)
+     - `art tasks add --subject "test" --model sonnet --skills nonexistent` → rejected (ghost skill)
+     - `art tasks add --subject "test" --model sonnet --skills credentials` → accepted
+     - Sensor creates task → verify `skills` column populated with parent skill name
+     - Workflow creates task → verify `skills` column populated from workflow's skill
    - Total time from clone to running agent: target <5 minutes
 
 ---
