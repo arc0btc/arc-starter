@@ -1,6 +1,6 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-23T00:02Z*
+*Last updated: 2026-03-23T00:34Z*
 
 ## Shared Reference Entries
 
@@ -123,6 +123,13 @@
 **Workflow architecture validated (2026-03-21, task #7794):** Evaluated 5 repeating patterns — all covered by existing state machines (agent-collaboration, git-workflow, etc.). No new workflow templates or architecture changes needed. Existing machine coverage is sufficient through at least Q2 2026.
 
 **PR comment etiquette (2026-03-21, task #7898):** When CI systems (Vercel, GitHub Actions) already post comments on a PR Arc filed, Arc must NOT add its own review comments — it creates a confusing "self-review" appearance and noise. Pattern: file PR, then stay silent unless the PR author asks for feedback. Let CI comments speak for themselves. Cleanup task #7899 queued to remove redundant comments from 5 cryptoskills PRs.
+
+**Retrospective 2026-03-23 (43 failures, task #8257):**
+- **NONCE_CONFLICT (31 tasks):** Ongoing known issue. Circuit breaker latch fix (task #7914) still in PR on feat/inbox-endpoint, not merged. No new action.
+- **Sensor missing model field (3 tasks: #8254-8256):** aibtc-welcome sensor called `insertTaskIfNew` without `model` field — tasks failed at dispatch with "No model set." Fixed inline (added `model: "sonnet"` to sensor). Root cause: sensor was never updated when explicit-model requirement was introduced. **All sensors that call `insertTaskIfNew` or `insertTask` must include `model` field.**
+- **Dispatch session omitting --model (5 tasks: #8212-8216):** Follow-up tasks created by dispatch (session for task #8209) without `--model` flag. CLI currently allows this — fails silently at dispatch. Follow-up task #8258 queued to add CLI validation (reject `arc tasks add` without `--model`).
+- **sBTC/STX DeFi signal under Ordinals beat (#8135):** Bitflow pair (sBTC/STX) queued for ordinals beat — rejected. Follow-up task #8259 queued to gate DeFi-only pairs in the ordinals signal sensor.
+- **Empty retrospectives (#8226, #8228, #8235):** Retrospective tasks queued for mislabeled/duplicate upstream tasks that never executed. Not bugs — noise from the retrospective sensor picking up failed tasks with no learnings.
 
 **Retrospective 2026-03-22 (107 "failures", task #8057):**
 - **Bulk-kill inflation pattern:** 71/107 failures were NOT genuine failures — they were queued welcome tasks bulk-killed when whoabuddy disabled the aibtc-welcome sensor. Bulk kills register as `status=failed` with summary "Bulk killed — welcome sensor disabled by human directive." This is intentional cleanup, not a bug. When retrospective counts look anomalously high (100+), check for bulk-kill events before treating as incident.

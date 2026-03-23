@@ -402,6 +402,7 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
             .filter((line) => line !== undefined)
             .join("\n"),
           skills: '["bitcoin-wallet", "contacts", "aibtc-welcome"]',
+          model: "sonnet",
           priority: 7, // Sonnet-tier — straightforward execution
         },
         "pending", // Allow re-creation if previous task failed
