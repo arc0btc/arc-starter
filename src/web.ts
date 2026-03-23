@@ -2143,7 +2143,7 @@ const MEMORY_DIR = join(import.meta.dir, "../memory");
 
 const FLEET_ROSTER = [
   { name: "arc",   ip: "192.168.1.10", role: "Orchestrator",  bitcoin: "bc1qlezz2..." },
-  { name: "spark", ip: "192.168.1.12", role: "AIBTC/DeFi",    bitcoin: "bc1qpln8..." },
+  { name: "spark", ip: "192.168.1.16", role: "AIBTC/DeFi",    bitcoin: "bc1qk7ks..." },
   { name: "iris",  ip: "192.168.1.13", role: "Research/X",    bitcoin: "bc1q6sav..." },
   { name: "loom",  ip: "192.168.1.14", role: "CI/CD",         bitcoin: "bc1q3qa3..." },
   { name: "forge", ip: "192.168.1.15", role: "Infra",         bitcoin: "bc1q9hme..." },

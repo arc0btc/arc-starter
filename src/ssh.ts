@@ -16,7 +16,7 @@ export interface AgentConfig {
 }
 
 export const AGENTS: Record<string, AgentConfig> = {
-  spark: { ip: "192.168.1.12", gitUser: "spark0btc", hostname: "spark" },
+  spark: { ip: "192.168.1.16", gitUser: "spark0btc", hostname: "spark" },
   iris: { ip: "192.168.1.13", gitUser: "iris0btc", hostname: "iris" },
   loom: { ip: "192.168.1.14", gitUser: "loom0btc", hostname: "loom" },
   forge: { ip: "192.168.1.15", gitUser: "forge0btc", hostname: "forge" },
