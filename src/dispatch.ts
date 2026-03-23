@@ -74,9 +74,9 @@ function getDispatchTimeoutMs(model: ModelTier = "opus"): number {
 /** Pre-compiled rate-limit detection pattern — single regex, tested once per error. */
 const RATE_LIMIT_RE = /(?:status|HTTP|error|code)[:\s]*429|\brate[_\s-]?limit|\btoo many requests|\b(?:max\s*usage|plan\s*limit|usage\s*limit|token\s*limit)\b|\bplan.*cap|\b(?:limit|quota)\s*(?:reached|exceeded|hit)\b|\bexceeded.*(?:limit|quota)/i;
 
-// Track whether the Claude CLI supports the -n flag. Once detected unsupported,
-// all subsequent dispatch calls in this process skip the flag rather than retrying.
-let claudeCliSupportsNameFlag = true;
+// Track whether the Claude CLI supports the -n flag. Initialized false because Claude CLI 2.1.71
+// does not support it — avoids a wasted first attempt and spurious transient error per cycle.
+let claudeCliSupportsNameFlag = false; // set true only if future CLI re-adds -n
 
 function classifyError(errMsg: string): ErrorClass {
   if (/(?:status|HTTP|error|code)[:\s]*(?:401|403)/i.test(errMsg)
