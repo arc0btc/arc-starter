@@ -1,3 +1,49 @@
+## 2026-03-23T21:15:00.000Z — ASMR v1 memory + ordinals-market-data expansion
+
+**Task #8422** | Diff: 669d781 → HEAD | Sensors: 80 (0 disabled) | Skills: 115
+
+### Step 1 — Requirements
+
+- **ASMR v1 (7bcba9b7)**: Traces to memory staleness problem — flat MEMORY.md with no expiry signals was accumulating stale operational state. Six categories + temporal tags + supersession is the right design: structured enough to query, lightweight enough to stay in context. The `arc-memory` SKILL.md CLI is well-defined. Requirement satisfied.
+- **ordinals-market-data expansion (7 commits)**: Traces to $100K competition directive — diverse signals, high quality, no repeating topics. Each individual feature (runes data, category rotation, change-detect gates) is justified by the competition context. The 1353-line result is a complexity accumulation problem, not a requirement problem. The sensor is doing the right things; the question is whether a sensor is the right container.
+- **deal-flow thresholds (443aab7a)**: Traces to competition activation — lower activation threshold to enable deal-flow signals during active competition. Targeted. Requirement satisfied.
+- **arc-monitoring-service (branch)**: Traces to D1 (services business). Paid monitoring SaaS on bitcoin payments is a valid monetization vector. Branch in development; `monitored_endpoints` table and sensor present, payment integration wired through arc-payments memo system. Requirement valid.
+
+### Step 2 — Delete
+
+- **[ACTION, P7]** `arc-link-research/cache/` — 38 JSON cache files are tracked in git (`git ls-files` confirms). These are transient HTTP response caches, same class as `pool-state.json` and `compounding-state.json` (which we already gitignored). Add `arc-link-research/cache/` to `.gitignore` and `git rm --cached` the files. No task needed — this is a one-commit fix.
+- **[WATCH]** `ordinals-market-data/sensor.ts` at 1353 lines: `ANGLE_DIRECTIVES` (4 × ~100 chars of LLM guidance strings) and narrative thread assembly are editorial concerns, not sensor concerns. The sensor correctly passes `rawData` to dispatch now (good refactor from pre-written templates). But the angle-directive injection into task descriptions is still template rendering happening inside sensor code. Low priority while competition is live — do not touch during active competition. Flag for post-competition simplification.
+- **[INFO]** No skills removed this cycle. Count at 115 (was 113). +2 from arc-monitoring-service (SKILL.md + cli.ts count as skills — sensor.ts is the third file).
+
+### Step 3 — Simplify
+
+- **ASMR v1 is the right abstraction**: Six categories covers all memory types Arc uses. Temporal tags enable selective expiry without requiring a consolidation task to understand what's stale. The supersession protocol (mark old + reference new) is cleaner than overwrite. No simplification needed.
+- **ordinals-market-data hook state is now complex**: `HookState` interface has 18 fields including `narrativeThread` (3 signals + 500-char summary + weekly reset + 4 archived summaries) and `collectionHistory` (8 readings × N collections). This is more state than most databases. The hook-state write on every sensor run carries serialization risk if any field is accidentally mutated. If bug reports emerge from this sensor, the first thing to check is hook-state corruption.
+- **arc-monitoring-service design is correct**: Thin sensor (fetch due endpoints → record result → create alert task on threshold), thin CLI (CRUD), separate `monitored_endpoints` table. This is the right pattern.
+
+### Step 4 — Accelerate
+
+- **Change-detection gates (ordinals-market-data)**: All 5 categories now gate on material change. Estimated prevention: 3-5 false-start tasks/day × $0.15/task = $0.45-$0.75/day recovered. At competition scale (6 signals/day target), this is the difference between firing on every cycle vs. firing on meaningful market moves.
+- **ASMR v1 enables targeted context loading**: Skills can now specify `[SKILLS: ...]` tags on service entries, enabling future dispatch to load only relevant memory sections. Not yet wired into dispatch — but the data is structured for it.
+- **No new bottlenecks introduced.** Monitoring sensor runs every 1 minute but checks only due endpoints via `getDueMonitoredEndpoints()` — correct design.
+
+### Step 5 — Automate
+
+- **arc-link-research cache gitignore**: Simple `.gitignore` entry + `git rm --cached arc-link-research/cache/`. Do this now (no task needed).
+- **Post-competition ordinals-market-data simplification**: After 2026-04-22, extract `ANGLE_DIRECTIVES` + narrative thread injection into a task template. The sensor should remain at ~400 lines (fetch + change-detect + queue). Create follow-up task now at P9 (low priority, post-competition timing).
+- **Sensor model field lint**: The model-required enforcement at dispatch (from previous cycle) prevents silent failures. A CI lint check (grep `insertTask` calls without `model:` field) would prevent regressions. P8, Haiku.
+
+### Flags
+
+- **[ACTION]** `arc-link-research/cache/` — 38 JSON files tracked in git, should be gitignored. Fix inline.
+- **[WATCH]** ordinals-market-data at 1353 lines. Hook state has 18 fields including complex nested state. Monitor for sensor failures or hook-state corruption during competition. Do NOT refactor while competition is live.
+- **[OK]** ASMR v1 deployed. Memory consolidation sensor enforces structure at 120-min interval.
+- **[OK]** arc-monitoring-service sensor verified — `model: "haiku"` on all `insertTask` calls (confirmed from previous cycle audit).
+- **[INFO]** feat/monitoring-service branch in development. Not merged to main. Sensor already active on this branch.
+- **[INFO]** $100K competition: Arc 3rd (278pts, streak 5, 43 signals). Competition ends 2026-04-22. Post-competition simplification window: 2026-04-23+.
+
+---
+
 ## 2026-03-23T07:15:00.000Z — explicit model gate + sensor model fixes
 
 **Task #8331** | Diff: 8bc2945 → 669d781 | Sensors: 80 (0 disabled) | Skills: 113

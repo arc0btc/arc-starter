@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-03-23T07:15:00.000Z*
-*Sensor count: 80 (0 disabled) | Skill count: 113*
+*Generated: 2026-03-23T21:15:00.000Z*
+*Sensor count: 80 (0 disabled) | Skill count: 115*
 
 ```mermaid
 stateDiagram-v2
@@ -156,11 +156,12 @@ stateDiagram-v2
         state BuildPrompt {
             [*] --> LoadSOUL
             LoadSOUL --> LoadCLAUDE
-            LoadCLAUDE --> LoadMEMORY
-            LoadMEMORY --> LoadFleetKnowledge
+            LoadCLAUDE --> LoadMEMORY_ASMR
+            LoadMEMORY_ASMR --> LoadFleetKnowledge
             LoadFleetKnowledge --> LoadSkillContext
             LoadSkillContext --> LoadTaskSubject
             LoadTaskSubject --> [*]
+            note right of LoadMEMORY_ASMR: ASMR v1 format\n6 categories + temporal tags\nsupersession tracking
         }
 
         BuildPrompt --> ModelRoute
@@ -252,7 +253,7 @@ stateDiagram-v2
     SensorsService --> TaskQueue
 ```
 
-## Sensor Count by Category (2026-03-23, cycle 3)
+## Sensor Count by Category (2026-03-23, cycle ~21)
 
 | Category | Count |
 |----------|-------|
@@ -267,11 +268,11 @@ stateDiagram-v2
 | Other | 17 |
 | **Total** | **80** |
 
-## Key Architectural Changes (8bc2945 → 669d781)
+## Key Architectural Changes (669d781 → HEAD / feat/monitoring-service)
 
 | Change | Impact |
 |--------|--------|
-| `refactor(dispatch): remove 3-tier model routing` (451c438d) | Implicit priority→model fallback removed. Tasks without `model` column are rejected at dispatch with `status=failed`. Priority = urgency; model = capability. Both must be set independently. |
-| `fix(sensors): add missing model field to 4 sensors` (b0945b0d) | github-release-watcher, arc-opensource, arc-ops-review, arc-memory now set model explicitly. Previously tasks from these sensors failed at dispatch. |
-| `fix(ordinals-market-data): add cooldown pre-check` (580003b6) | Hook-state cooldown checked before queuing signal tasks. Prevents duplicate signals within 60-min window. |
-| `fix(aibtc-welcome): harden isRelayHealthy()` (2b3b2397) | Stops self-heal loop — relay health check no longer re-triggers NONCE_CONFLICT recovery cycle. |
+| `feat(arc-memory): ASMR v1` (7bcba9b7) | Structured memory format with 6 categories ([A]/[F]/[S]/[T]/[P]/[L]), temporal tags (`[STATE: DATE]`, `[EXPIRES: DATE]`), and supersession tracking. Prevents stale entries accumulating. arc-memory SKILL.md documents write-entry/list-entries/supersede CLI. Memory is now queryable, not just a flat log. |
+| `feat(ordinals-market-data): runes + angle rotation + narrative + history + milestones + change-detect` (7 commits) | Sensor grew from ~300 to 1353 lines. Adds: 5-category rotation (inscriptions, brc20, fees, nft-floors, runes), 4 analytical angles with directive strings, narrative threading (NarrativeThread state), rolling history arrays (6 readings/category + 8/collection), change-detection gates for all categories, inscription milestone detection. Passes raw data payload to dispatch (LLM composes editorial). **[WATCH]** Largest sensor in codebase — complexity risk. |
+| `feat(deal-flow): lower activation thresholds` (443aab7a) | x402 and sats auction thresholds reduced for competition phase. Targeted business config — no structural change. |
+| `arc-monitoring-service` (feat branch) | Paid monitoring-as-a-service: `monitored_endpoints` table, sensor checks due endpoints every 1 minute, Pro tier fires alert webhooks after 3 consecutive failures. 2 new skills (+monitoring-service skill + CLI). Branch in development. |
