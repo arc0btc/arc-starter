@@ -1,7 +1,8 @@
 // skills/ordinals-market-data/sensor.ts
 // Fetches diverse ordinals market data and queues signal-filing tasks for the ordinals beat.
-// Data sources: Unisat (inscriptions + BRC-20), mempool.space (fee market), CoinGecko (NFT floors).
+// Data sources: Unisat (inscriptions + BRC-20 + runes), mempool.space (fee market), CoinGecko (NFT floors).
 // Rotates through categories to ensure signal diversity for the $100K competition.
+// Stores rolling history (last 6 readings per category) for delta computation and trend analysis.
 
 import { claimSensorRun, createSensorLogger, fetchWithRetry, readHookState, writeHookState } from "../../src/sensors.ts";
 import { insertTask, isDailySignalCapHit, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
@@ -11,6 +12,7 @@ const SENSOR_NAME = "ordinals-market-data";
 const INTERVAL_MINUTES = 240; // every 4 hours
 const RATE_LIMIT_MINUTES = 240; // 4 hours between signal batches from this sensor
 const MAX_SIGNALS_PER_RUN = 1; // one signal per run — aibtc.news has 60-min cooldown per beat
+const MAX_HISTORY_READINGS = 6; // rolling window per category for delta computation
 
 const UNISAT_API = "https://open-api.unisat.io";
 const MEMPOOL_API = "https://mempool.space/api";
@@ -31,6 +33,26 @@ const ANGLE_DIRECTIVES: Record<Angle, string> = {
   structure: "ANALYTICAL ANGLE: Market Structure — Focus on concentration, distribution, and microstructure. Analyse holder distribution, liquidity depth, fee tier stratification, or content-type composition. Surface structural patterns: is activity consolidating or fragmenting? Is liquidity deepening or thinning? Frame the implication around structural health and resilience.",
 };
 
+// ---- History Types ----
+
+interface CategoryReading {
+  timestamp: string;
+  metrics: Record<string, number>;
+}
+
+type CategoryHistory = Record<Category, CategoryReading[]>;
+
+interface DeltaInfo {
+  metric: string;
+  current: number;
+  previous: number;
+  absoluteChange: number;
+  percentChange: number;
+  trendDurationMs: number;
+}
+
+// ---- State & Signal Types ----
+
 interface HookState {
   lastCategory: number; // index into CATEGORIES
   lastAngle: number; // index into ANGLES
@@ -41,6 +63,7 @@ interface HookState {
   lastBrc20Volume?: number;
   lastRuneTopIds?: string[]; // top-10 rune IDs from last runes run (for change-detection)
   lastRuneHolders?: Record<string, number>; // runeId -> holderCount from last runes run
+  history?: CategoryHistory;
   [key: string]: unknown;
 }
 
@@ -56,9 +79,73 @@ interface SignalData {
 
 const log = createSensorLogger(SENSOR_NAME);
 
+// ---- History Helpers ----
+
+function ensureHistory(state: HookState): CategoryHistory {
+  if (!state.history) {
+    state.history = { inscriptions: [], brc20: [], fees: [], "nft-floors": [], runes: [] };
+  }
+  // Ensure all category arrays exist (handles state from before a category was added)
+  for (const cat of CATEGORIES) {
+    if (!state.history[cat]) {
+      state.history[cat] = [];
+    }
+  }
+  return state.history;
+}
+
+/** Store a reading in the rolling history window. Trims to MAX_HISTORY_READINGS. */
+function pushReading(history: CategoryHistory, category: Category, metrics: Record<string, number>): void {
+  history[category].push({ timestamp: new Date().toISOString(), metrics });
+  if (history[category].length > MAX_HISTORY_READINGS) {
+    history[category].splice(0, history[category].length - MAX_HISTORY_READINGS);
+  }
+}
+
+/** Compute deltas between current metrics and the most recent stored reading. Call BEFORE pushReading. */
+function computeDeltas(history: CategoryHistory, category: Category, currentMetrics: Record<string, number>): DeltaInfo[] {
+  const arr = history[category];
+  if (arr.length === 0) return [];
+  const previous = arr[arr.length - 1];
+  const trendDurationMs = Date.now() - new Date(previous.timestamp).getTime();
+  const deltas: DeltaInfo[] = [];
+  for (const [metric, value] of Object.entries(currentMetrics)) {
+    const prevValue = previous.metrics[metric];
+    if (prevValue !== undefined && prevValue !== 0) {
+      deltas.push({
+        metric,
+        current: value,
+        previous: prevValue,
+        absoluteChange: value - prevValue,
+        percentChange: ((value - prevValue) / Math.abs(prevValue)) * 100,
+        trendDurationMs,
+      });
+    }
+  }
+  return deltas;
+}
+
+/** Format deltas into a human-readable summary for inclusion in signal evidence. */
+function formatDeltas(deltas: DeltaInfo[]): string {
+  if (deltas.length === 0) return "";
+  const durationHours = deltas[0].trendDurationMs / 3_600_000;
+  const timeLabel = durationHours >= 24
+    ? `${(durationHours / 24).toFixed(1)}d`
+    : `${durationHours.toFixed(1)}h`;
+  const parts = deltas.map((d) => {
+    const sign = d.absoluteChange >= 0 ? "+" : "";
+    const pctSign = d.percentChange >= 0 ? "+" : "";
+    const absStr = Math.abs(d.absoluteChange) >= 1
+      ? Math.round(d.absoluteChange).toLocaleString()
+      : d.absoluteChange.toFixed(4);
+    return `${d.metric}: ${sign}${absStr} (${pctSign}${d.percentChange.toFixed(1)}%)`;
+  });
+  return `Deltas vs prior reading (${timeLabel} ago): ${parts.join("; ")}`;
+}
+
 // ---- Data Fetchers ----
 
-async function fetchInscriptionData(apiKey: string): Promise<SignalData | null> {
+async function fetchInscriptionData(apiKey: string, history: CategoryHistory): Promise<SignalData | null> {
   try {
     // BRC-20 status for overall inscription activity
     const statusRes = await fetch(`${UNISAT_API}/v1/indexer/brc20/status`, {
@@ -110,6 +197,12 @@ async function fetchInscriptionData(apiKey: string): Promise<SignalData | null> 
       return null;
     }
 
+    // Historical data: compute deltas then store reading
+    const metrics: Record<string, number> = { totalInscriptions, tokenCount };
+    const deltas = computeDeltas(history, "inscriptions", metrics);
+    pushReading(history, "inscriptions", metrics);
+    const deltaStr = formatDeltas(deltas);
+
     const inscriptionCountStr = totalInscriptions > 0
       ? `${(totalInscriptions / 1_000_000).toFixed(1)}M total inscriptions`
       : `${tokenCount} BRC-20 tokens deployed`;
@@ -118,7 +211,7 @@ async function fetchInscriptionData(apiKey: string): Promise<SignalData | null> 
       category: "inscriptions",
       headline: `Bitcoin inscription activity: ${inscriptionCountStr}, recent batch dominated by ${topTypeLabel}`,
       claim: `Bitcoin inscription activity shows ${inscriptionCountStr} on the network, with recent inscriptions dominated by ${topTypeLabel} content types.`,
-      evidence: `Unisat indexer reports ${totalInscriptions > 0 ? totalInscriptions.toLocaleString() : "N/A"} total inscriptions, ${tokenCount} BRC-20 tokens deployed. The latest ${recentCount} inscriptions show content-type distribution: ${Object.entries(contentTypes).map(([k, v]) => `${k}: ${v}`).join(", ")}.`,
+      evidence: `Unisat indexer reports ${totalInscriptions > 0 ? totalInscriptions.toLocaleString() : "N/A"} total inscriptions, ${tokenCount} BRC-20 tokens deployed. The latest ${recentCount} inscriptions show content-type distribution: ${Object.entries(contentTypes).map(([k, v]) => `${k}: ${v}`).join(", ")}.${deltaStr ? ` ${deltaStr}` : ""}`,
       implication: `The content-type mix in recent inscriptions signals whether the market favours collectible media (image/video) or financial instruments (text/BRC-20 deploys). A shift toward text-heavy inscriptions typically precedes BRC-20 trading volume spikes.`,
       sources: [
         { url: "https://open-api.unisat.io", title: "Unisat Indexer API — inscription status" },
@@ -132,7 +225,7 @@ async function fetchInscriptionData(apiKey: string): Promise<SignalData | null> 
   }
 }
 
-async function fetchBrc20Data(apiKey: string): Promise<SignalData | null> {
+async function fetchBrc20Data(apiKey: string, history: CategoryHistory): Promise<SignalData | null> {
   try {
     const statusRes = await fetch(`${UNISAT_API}/v1/indexer/brc20/status`, {
       headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
@@ -174,11 +267,20 @@ async function fetchBrc20Data(apiKey: string): Promise<SignalData | null> {
     const totalTokens = Number(status.tokenCount ?? status.count ?? tokens.length);
     const topList = tokenSummaries.map((t) => `${t.ticker} (${t.holders} holders, ${t.mintPct}% minted)`).join("; ");
 
+    // Historical data: compute deltas then store reading
+    const metrics: Record<string, number> = { totalTokens };
+    for (const ts of tokenSummaries) {
+      metrics[`holders_${ts.ticker}`] = ts.holders;
+    }
+    const deltas = computeDeltas(history, "brc20", metrics);
+    pushReading(history, "brc20", metrics);
+    const deltaStr = formatDeltas(deltas);
+
     return {
       category: "brc20",
       headline: `BRC-20 ecosystem: ${totalTokens} tokens deployed, ${topToken.ticker} leads with ${topToken.holders} holders`,
       claim: `The BRC-20 token ecosystem on Bitcoin has grown to ${totalTokens} deployed tokens, with ${topToken.ticker} leading holder count at ${topToken.holders} addresses.`,
-      evidence: `Unisat BRC-20 indexer shows ${totalTokens} total tokens. Top 5 by activity: ${topList}.`,
+      evidence: `Unisat BRC-20 indexer shows ${totalTokens} total tokens. Top 5 by activity: ${topList}.${deltaStr ? ` ${deltaStr}` : ""}`,
       implication: `BRC-20 holder concentration in top tokens indicates whether the market is consolidating around blue-chip fungibles or fragmenting into speculative micro-caps. High holder counts with incomplete mints suggest sustained accumulation rather than mint-and-dump cycles.`,
       sources: [
         { url: "https://open-api.unisat.io", title: "Unisat BRC-20 Indexer — token status and rankings" },
@@ -192,7 +294,7 @@ async function fetchBrc20Data(apiKey: string): Promise<SignalData | null> {
   }
 }
 
-async function fetchFeeMarketData(): Promise<SignalData | null> {
+async function fetchFeeMarketData(history: CategoryHistory): Promise<SignalData | null> {
   try {
     // Fetch recommended fees
     const feesRes = await fetchWithRetry(`${MEMPOOL_API}/v1/fees/recommended`);
@@ -225,11 +327,17 @@ async function fetchFeeMarketData(): Promise<SignalData | null> {
     const feeSpread = fastestFee - minimumFee;
     const urgencyLabel = fastestFee > 50 ? "elevated" : fastestFee > 20 ? "moderate" : "low";
 
+    // Historical data: compute deltas then store reading
+    const metrics: Record<string, number> = { fastestFee, hourFee, minimumFee, mempoolSize, feeSpread };
+    const deltas = computeDeltas(history, "fees", metrics);
+    pushReading(history, "fees", metrics);
+    const deltaStr = formatDeltas(deltas);
+
     return {
       category: "fees",
       headline: `Bitcoin fee market ${urgencyLabel}: ${fastestFee} sat/vB fastest, ${mempoolSize.toLocaleString()} unconfirmed txs (${mempoolMB} MvB)`,
       claim: `Bitcoin's fee market is at ${urgencyLabel} levels with fastest confirmation at ${fastestFee} sat/vB, creating a ${feeSpread} sat/vB spread between priority and economy transactions.`,
-      evidence: `mempool.space reports: fastest fee ${fastestFee} sat/vB, 1-hour fee ${hourFee} sat/vB, minimum ${minimumFee} sat/vB. Mempool holds ${mempoolSize.toLocaleString()} unconfirmed transactions (${mempoolMB} MvB). Fee spread (fastest minus minimum): ${feeSpread} sat/vB.`,
+      evidence: `mempool.space reports: fastest fee ${fastestFee} sat/vB, 1-hour fee ${hourFee} sat/vB, minimum ${minimumFee} sat/vB. Mempool holds ${mempoolSize.toLocaleString()} unconfirmed transactions (${mempoolMB} MvB). Fee spread (fastest minus minimum): ${feeSpread} sat/vB.${deltaStr ? ` ${deltaStr}` : ""}`,
       implication: `Fee market conditions directly impact inscription economics. ${urgencyLabel === "elevated" ? "Elevated fees discourage low-value inscriptions and compress daily inscription volume, favouring larger or higher-value ordinals." : urgencyLabel === "moderate" ? "Moderate fees allow steady inscription flow while filtering spam, a healthy environment for ordinals market activity." : "Low fees create favourable conditions for inscription batching and BRC-20 minting, potentially boosting daily inscription counts."}`,
       sources: [
         { url: "https://mempool.space/api/v1/fees/recommended", title: "mempool.space — recommended fee rates" },
@@ -243,12 +351,12 @@ async function fetchFeeMarketData(): Promise<SignalData | null> {
   }
 }
 
-async function fetchNftFloorData(): Promise<SignalData | null> {
+async function fetchNftFloorData(history: CategoryHistory): Promise<SignalData | null> {
   try {
     // CoinGecko free tier — Bitcoin NFT collections
     // Known collection IDs on CoinGecko: bitcoin-frogs, nodemonkes, bitcoin-puppets
     const collections = ["bitcoin-frogs", "nodemonkes", "bitcoin-puppets"];
-    const results: Array<{ name: string; floor: number; volume24h: number; marketCap: number }> = [];
+    const results: Array<{ name: string; id: string; floor: number; volume24h: number; marketCap: number }> = [];
 
     for (const id of collections) {
       try {
@@ -264,6 +372,7 @@ async function fetchNftFloorData(): Promise<SignalData | null> {
 
         results.push({
           name: String(data.name ?? id),
+          id,
           floor: floorPrice?.native_currency ?? 0,
           volume24h: volume24h?.native_currency ?? 0,
           marketCap: marketCap?.native_currency ?? 0,
@@ -289,11 +398,21 @@ async function fetchNftFloorData(): Promise<SignalData | null> {
     const topCollection = results[0];
     const totalVolume = results.reduce((sum, r) => sum + r.volume24h, 0);
 
+    // Historical data: compute deltas then store reading
+    const metrics: Record<string, number> = { totalVolume };
+    for (const r of results) {
+      metrics[`floor_${r.id}`] = r.floor;
+      metrics[`volume_${r.id}`] = r.volume24h;
+    }
+    const deltas = computeDeltas(history, "nft-floors", metrics);
+    pushReading(history, "nft-floors", metrics);
+    const deltaStr = formatDeltas(deltas);
+
     return {
       category: "nft-floors",
       headline: `Ordinals NFT floors: ${topCollection.name} at ${topCollection.floor.toFixed(4)} BTC, ${totalVolume.toFixed(2)} BTC combined 24h volume`,
       claim: `Top Bitcoin NFT collections show ${topCollection.name} leading at ${topCollection.floor.toFixed(4)} BTC floor price, with ${totalVolume.toFixed(2)} BTC combined 24-hour trading volume across major collections.`,
-      evidence: `CoinGecko data for ${results.length} tracked Ordinals collections: ${floorSummary}.`,
+      evidence: `CoinGecko data for ${results.length} tracked Ordinals collections: ${floorSummary}.${deltaStr ? ` ${deltaStr}` : ""}`,
       implication: `Floor price trends in blue-chip Ordinals collections serve as a sentiment proxy for the broader Bitcoin NFT market. ${totalVolume > 10 ? "Elevated volume suggests active price discovery and potential floor repricing." : totalVolume > 1 ? "Moderate volume indicates stable market participation with neither panic selling nor euphoric accumulation." : "Thin volume suggests the market is in a wait-and-see posture, with floors potentially fragile if liquidity remains sparse."}`,
       sources: [
         { url: "https://www.coingecko.com/en/nft", title: "CoinGecko — Ordinals NFT collection data" },
@@ -307,7 +426,7 @@ async function fetchNftFloorData(): Promise<SignalData | null> {
   }
 }
 
-async function fetchRunesData(apiKey: string, state: HookState): Promise<SignalData | null> {
+async function fetchRunesData(apiKey: string, state: HookState, history: CategoryHistory): Promise<SignalData | null> {
   try {
     // Overall rune ecosystem status
     const statusRes = await fetch(`${UNISAT_API}/v1/indexer/runes/status`, {
@@ -335,6 +454,7 @@ async function fetchRunesData(apiKey: string, state: HookState): Promise<SignalD
     const runes = (listData?.data as Record<string, unknown>)?.list as Array<Record<string, unknown>> | undefined;
 
     const totalRunes = Number(status.runesCount ?? status.total ?? status.count ?? 0);
+    const etchingCount = Number(status.etchingCount ?? status.etching ?? 0);
 
     if (totalRunes === 0 && (!runes || runes.length === 0)) {
       log("runes: no data available");
@@ -359,9 +479,18 @@ async function fetchRunesData(apiKey: string, state: HookState): Promise<SignalD
       return Math.abs(r.holders - prev) / prev > 0.1;
     });
 
-    // Always update state with current snapshot
+    // Always update rune-specific state with current snapshot
     state.lastRuneTopIds = top10.map((r) => r.id);
     state.lastRuneHolders = Object.fromEntries(top10.map((r) => [r.id, r.holders]));
+
+    // Historical data: compute deltas then store reading (always, regardless of change-detection)
+    const metrics: Record<string, number> = { totalRunes, etchingCount };
+    for (const r of top10.slice(0, 5)) {
+      metrics[`holders_${r.name}`] = r.holders;
+    }
+    const deltas = computeDeltas(history, "runes", metrics);
+    pushReading(history, "runes", metrics);
+    const deltaStr = formatDeltas(deltas);
 
     if (!isFirstRun && !newInTop10 && !holderShift) {
       log("runes: no significant change (no new top-10 rune, no >10% holder shift); skipping signal");
@@ -377,14 +506,13 @@ async function fetchRunesData(apiKey: string, state: HookState): Promise<SignalD
 
     const top5Summary = top10.slice(0, 5).map((r) => `${r.name} (${r.holders} holders)`).join("; ");
     const topRune = top10[0];
-    const etchingCount = Number(status.etchingCount ?? status.etching ?? 0);
     const etchingNote = etchingCount > 0 ? `, ${etchingCount} recent etchings` : "";
 
     return {
       category: "runes",
       headline: `Bitcoin Runes: ${totalRunes.toLocaleString()} runes etched${etchingNote}, ${topRune?.name ?? "N/A"} leads at ${topRune?.holders ?? 0} holders`,
       claim: `The Bitcoin Runes protocol has ${totalRunes.toLocaleString()} total runes etched${etchingNote}, with ${changeReason} observed in holder rankings. ${topRune?.name ?? "N/A"} holds the top position at ${topRune?.holders ?? 0} addresses.`,
-      evidence: `Unisat Runes indexer: ${totalRunes.toLocaleString()} total runes${etchingCount > 0 ? `, ${etchingCount} recent etchings` : ""}. Top 5 by holder count: ${top5Summary}. Change trigger: ${changeReason}.`,
+      evidence: `Unisat Runes indexer: ${totalRunes.toLocaleString()} total runes${etchingCount > 0 ? `, ${etchingCount} recent etchings` : ""}. Top 5 by holder count: ${top5Summary}. Change trigger: ${changeReason}.${deltaStr ? ` ${deltaStr}` : ""}`,
       implication: `Rune holder shifts signal whether Bitcoin's native fungible token layer is redistributing or consolidating. New entrants to the top-10 indicate emerging protocols gaining market share; holder count movements above 10% represent meaningful accumulation or distribution events that often precede price action in the broader Runes market.`,
       sources: [
         { url: "https://open-api.unisat.io", title: "Unisat Runes Indexer API — rune status and list" },
@@ -420,6 +548,9 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
     const rawState = (await readHookState(SENSOR_NAME)) as HookState | null;
     const state: HookState = rawState ?? { lastCategory: -1, lastAngle: -1 };
 
+    // Ensure history arrays exist on state
+    const history = ensureHistory(state);
+
     // Hook-state cooldown guard — check if a signal was recently queued by this sensor
     if (state.lastSignalQueued) {
       const minutesSince = (Date.now() - new Date(state.lastSignalQueued).getTime()) / 60000;
@@ -436,7 +567,7 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
       return "rate-limited";
     }
 
-    // Pick next two categories (rotate through all four)
+    // Pick next two categories (rotate through all five)
     const startIdx = ((state.lastCategory ?? -1) + 1) % CATEGORIES.length;
     const categoriesToFetch: Category[] = [
       CATEGORIES[startIdx],
@@ -449,7 +580,7 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
 
     log(`categories this run: ${categoriesToFetch.join(", ")} | angle: ${angle}`);
 
-    // Unisat API key needed for inscription/brc20 categories
+    // Unisat API key needed for inscription/brc20/runes categories
     const unisatKey = await getCredential("unisat", "api_key").catch(() => null);
 
     // Fetch data for selected categories
@@ -461,21 +592,21 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
       switch (cat) {
         case "inscriptions":
           if (!unisatKey) { log("inscriptions: no unisat api_key, skipping"); break; }
-          signal = await fetchInscriptionData(unisatKey);
+          signal = await fetchInscriptionData(unisatKey, history);
           break;
         case "brc20":
           if (!unisatKey) { log("brc20: no unisat api_key, skipping"); break; }
-          signal = await fetchBrc20Data(unisatKey);
+          signal = await fetchBrc20Data(unisatKey, history);
           break;
         case "fees":
-          signal = await fetchFeeMarketData();
+          signal = await fetchFeeMarketData(history);
           break;
         case "nft-floors":
-          signal = await fetchNftFloorData();
+          signal = await fetchNftFloorData(history);
           break;
         case "runes":
           if (!unisatKey) { log("runes: no unisat api_key, skipping"); break; }
-          signal = await fetchRunesData(unisatKey, state);
+          signal = await fetchRunesData(unisatKey, state, history);
           break;
       }
 
