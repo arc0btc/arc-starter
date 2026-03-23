@@ -526,6 +526,18 @@ async function cmdInscribeBrief(args: string[]): Promise<void> {
       data = { raw: text };
     }
 
+    if (response.status === 429) {
+      const retryAfter = parseInt(response.headers.get("Retry-After") ?? "0", 10);
+      const retrySeconds = retryAfter > 0 ? retryAfter : 3600;
+      log(`Rate limited by aibtc.news — Retry-After: ${retrySeconds}s`);
+      console.error(JSON.stringify({
+        error: "rate_limited",
+        retry_after: retrySeconds,
+        message: `Rate limited. Do NOT retry for ${retrySeconds} seconds. Wait until the rate-limit window resets before calling inscribe-brief again for any date.`,
+      }, null, 2));
+      process.exit(1);
+    }
+
     if (!response.ok) {
       throw new Error(`API error ${response.status}: ${text}`);
     }
