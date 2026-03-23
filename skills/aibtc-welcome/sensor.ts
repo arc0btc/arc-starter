@@ -84,18 +84,38 @@ interface WelcomeState {
 }
 
 /**
- * Self-healing: check if x402 relay is actually healthy despite a stale sentinel.
- * Returns true if relay is reachable AND sponsor has no nonce gaps.
+ * Self-healing: check if x402 relay is actually functional — not just reachable.
+ *
+ * Three-layer probe:
+ * 1. /health — relay process is alive
+ * 2. /supported — relay is actively serving requests (not just a static health response)
+ * 3. Sponsor nonce check — strict zero-tolerance for mempool backlog or missing nonces.
+ *    Any pending mempool nonces from the sponsor = NONCE_CONFLICT risk on next send.
+ *    The /health endpoint cannot surface this condition; the nonce check catches it.
+ *
+ * Returns true only when all three probes pass.
  */
 async function isRelayHealthy(): Promise<boolean> {
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10_000);
-    const resp = await fetch(`${RELAY_URL}/health`, { signal: controller.signal });
-    clearTimeout(timeout);
-    if (!resp.ok) return false;
+    // Probe 1: relay /health endpoint
+    const hc = new AbortController();
+    const ht = setTimeout(() => hc.abort(), 10_000);
+    const healthResp = await fetch(`${RELAY_URL}/health`, { signal: hc.signal });
+    clearTimeout(ht);
+    if (!healthResp.ok) return false;
 
-    // Check sponsor nonce status for gaps
+    // Probe 2: relay /supported endpoint — proves relay is actively serving beyond a static ping.
+    // This endpoint returns supported payment kinds and is cheap (no side-effects).
+    const sc = new AbortController();
+    const st = setTimeout(() => sc.abort(), 10_000);
+    const supportedResp = await fetch(`${RELAY_URL}/supported`, { signal: sc.signal });
+    clearTimeout(st);
+    if (!supportedResp.ok) return false;
+
+    // Probe 3: sponsor nonce status — strict zero-tolerance thresholds.
+    // NONCE_CONFLICT occurs when the relay's internal nonce counter diverges from chain state.
+    // Any pending mempool transaction from the sponsor means the relay is at risk.
+    // (Previous threshold of <=5 was too loose — even 1 pending nonce can trigger conflict.)
     const nc = new AbortController();
     const nt = setTimeout(() => nc.abort(), 10_000);
     const nonceResp = await fetch(
@@ -110,8 +130,11 @@ async function isRelayHealthy(): Promise<boolean> {
       detected_mempool_nonces: number[];
     };
 
-    // Healthy = no missing nonces and mempool not congested
-    return nonces.detected_missing_nonces.length === 0 && nonces.detected_mempool_nonces.length <= 5;
+    // Zero tolerance: any missing nonces or any mempool backlog = unsafe to clear sentinel
+    if (nonces.detected_missing_nonces.length > 0) return false;
+    if (nonces.detected_mempool_nonces.length > 0) return false;
+
+    return true;
   } catch {
     return false;
   }
@@ -226,10 +249,15 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
         return "skip";
       }
 
-      // Gate 2: recent failure rate — don't clear sentinel if tasks are still failing
-      const recentFailures = countRecentNonceFailures(SELF_HEAL_COOLDOWN_HOURS);
+      // Gate 2: failures since sentinel was written — not just the last 4h.
+      // Bug: using a fixed 4h window meant failures from the triggering batch fell
+      // outside the window by the time the 4h cooldown expired, so Gate 2 always passed.
+      // Fix: count failures across the full period since the sentinel was written (+1h buffer).
+      const sentinelAgeHours = sentinelAgeMs / 3_600_000;
+      const failureWindowHours = Math.max(sentinelAgeHours + 1, SELF_HEAL_COOLDOWN_HOURS);
+      const recentFailures = countRecentNonceFailures(failureWindowHours);
       if (recentFailures >= SELF_HEAL_FAILURE_THRESHOLD) {
-        log(`${recentFailures} NONCE_CONFLICT failures in last ${SELF_HEAL_COOLDOWN_HOURS}h — keeping sentinel, incrementing backoff`);
+        log(`${recentFailures} NONCE_CONFLICT failures in last ${failureWindowHours.toFixed(1)}h — keeping sentinel, incrementing backoff`);
         await writeHookState(NONCE_SENTINEL, {
           ...nonceSentinel,
           last_ran: new Date().toISOString(),
