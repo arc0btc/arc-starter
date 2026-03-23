@@ -170,9 +170,9 @@ function pushReading(history: CategoryHistory, category: Category, metrics: Reco
 
 /** Compute deltas between current metrics and the most recent stored reading. Call BEFORE pushReading. */
 function computeDeltas(history: CategoryHistory, category: Category, currentMetrics: Record<string, number>): DeltaInfo[] {
-  const arr = history[category];
-  if (arr.length === 0) return [];
-  const previous = arr[arr.length - 1];
+  const readings = history[category];
+  if (readings.length === 0) return [];
+  const previous = readings[readings.length - 1];
   const trendDurationMs = Date.now() - new Date(previous.timestamp).getTime();
   const deltas: DeltaInfo[] = [];
   for (const [metric, value] of Object.entries(currentMetrics)) {
@@ -725,8 +725,8 @@ async function fetchBrc20Data(apiKey: string, state: HookState, history: Categor
 
     // Historical data: compute deltas then store reading (always, regardless of gate)
     const metrics: Record<string, number> = { totalTokens };
-    for (const ts of tokenSummaries) {
-      metrics[`holders_${ts.ticker}`] = ts.holders;
+    for (const tokenSummary of tokenSummaries) {
+      metrics[`holders_${tokenSummary.ticker}`] = tokenSummary.holders;
     }
     const deltas = computeDeltas(history, "brc20", metrics);
     pushReading(history, "brc20", metrics);
