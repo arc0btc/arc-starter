@@ -300,6 +300,107 @@ function buildParentChain(task: Task): string {
   return chain.length > 0 ? "Parent chain:\n" + chain.join("\n") : "";
 }
 
+// ---- Memory filter ----
+
+/** Section letters always included regardless of skill context */
+const MEMORY_ALWAYS_LETTERS = new Set(["A", "F", "P", "L"]);
+
+/**
+ * Filter the [S] Services section: keep entries whose [SKILLS: ...] tag overlaps
+ * relevantSkills, entries with no tag (cross-cutting), and any [FLAG] entries.
+ * Expired entries ([EXPIRES: date] in the past) are dropped.
+ */
+function filterServicesSection(block: string, relevantSkills: Set<string>): string {
+  const now = new Date().toISOString().slice(0, 10);
+  const lines = block.split("\n");
+
+  const preamble: string[] = []; // section header + HTML comment
+  const entries: Array<string[]> = [];
+  let current: string[] | null = null;
+
+  for (const line of lines) {
+    if (/^\*\*/.test(line)) {
+      if (current) entries.push(current);
+      current = [line];
+    } else if (current) {
+      current.push(line);
+    } else {
+      preamble.push(line);
+    }
+  }
+  if (current) entries.push(current);
+
+  const filtered = entries.filter((entry) => {
+    const firstLine = entry[0];
+    // Always keep [FLAG] entries
+    if (/\[FLAG\]/i.test(firstLine)) return true;
+    // Drop expired entries
+    const expiresMatch = firstLine.match(/\[EXPIRES:\s*([^\]]+)\]/);
+    if (expiresMatch && expiresMatch[1].trim() < now) return false;
+    // No [SKILLS] tag → cross-cutting, always include
+    const skillsMatch = firstLine.match(/\[SKILLS:\s*([^\]]+)\]/);
+    if (!skillsMatch) return true;
+    // Include if any tagged skill appears in relevantSkills
+    const tagged = skillsMatch[1].split(/[,\s]+/).map((s) => s.trim()).filter(Boolean);
+    return tagged.some((s) => relevantSkills.has(s));
+  });
+
+  if (filtered.length === 0) return "";
+
+  const resultLines = [...preamble];
+  for (const entry of filtered) resultLines.push(...entry);
+  return resultLines.join("\n").trimEnd();
+}
+
+/**
+ * Selectively filter MEMORY.md (ASMR v1) by task skill context.
+ *
+ * Always loads:  [A] Operational State, [F] Fleet, [P] Patterns, [L] Learnings
+ * Filtered:      [S] Services — only entries matching task skills (or untagged)
+ * Skipped:       [T] Temporal Events — incident audit trail, not needed per-task
+ *
+ * Falls back to full content when skillNames is empty.
+ * Uses the fleet-learnings topicMap to expand skill names into topics for matching.
+ */
+function filterMemoryBySkills(memoryContent: string, skillNames: string[]): string {
+  if (!memoryContent) return "";
+  if (skillNames.length === 0) return memoryContent;
+
+  // Build relevant skill set (direct skill names + topic aliases from topicMap)
+  const index = loadFleetIndex();
+  const relevantSkills = new Set<string>(skillNames);
+  if (index) {
+    for (const skill of skillNames) {
+      const topics = index.topicMap[skill];
+      if (topics) for (const t of topics) relevantSkills.add(t);
+    }
+  }
+
+  // Split before each "## [X]" section header, preserving the header in each block
+  const parts = memoryContent.split(/(?=^## \[[A-Z]\])/m);
+  const header = parts[0];
+  const sectionBlocks = parts.slice(1);
+
+  const output: string[] = [header.trimEnd()];
+
+  for (const block of sectionBlocks) {
+    const letter = block.match(/^## \[([A-Z])\]/)?.[1];
+    if (!letter) continue;
+
+    if (MEMORY_ALWAYS_LETTERS.has(letter)) {
+      // Always include: A (Operational State), F (Fleet), P (Patterns), L (Learnings)
+      output.push("", block.trimEnd());
+    } else if (letter === "S") {
+      // Filter Services entries by skill tags
+      const filtered = filterServicesSection(block, relevantSkills);
+      if (filtered) output.push("", filtered);
+    }
+    // [T] Temporal Events: skip — incident audit trail not needed per-task
+  }
+
+  return output.join("\n");
+}
+
 // ---- Prompt builder ----
 
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] as const;
@@ -341,7 +442,8 @@ function buildPrompt(task: Task, skillNames: string[], recentCycles: string): st
   const dayOfWeek = DAY_NAMES[now.getUTCDay()];
 
   const soul = readFile(join(ROOT, "SOUL.md"));
-  const memory = readFile(join(ROOT, "memory", "MEMORY.md"));
+  const rawMemory = readFile(join(ROOT, "memory", "MEMORY.md"));
+  const memory = filterMemoryBySkills(rawMemory, skillNames);
   const skillContext = resolveSkillContext(skillNames);
   const parentChain = buildParentChain(task);
 
@@ -358,9 +460,9 @@ function buildPrompt(task: Task, skillNames: string[], recentCycles: string): st
     }
   }
 
-  // Memory staleness warning
+  // Memory staleness warning (check raw to avoid false negatives from filtering)
   let memoryNote = "";
-  const memLastUpdatedMatch = memory.match(/\*Last updated:\s*([^*\n]+)\*/);
+  const memLastUpdatedMatch = rawMemory.match(/Last (?:updated|consolidated):\s*([^*\n]+)/);
   if (memLastUpdatedMatch) {
     const memAgeMs = now.getTime() - new Date(memLastUpdatedMatch[1].trim()).getTime();
     const memAgeDays = Math.floor(memAgeMs / 86_400_000);
