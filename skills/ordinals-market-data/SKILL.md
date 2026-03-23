@@ -27,9 +27,24 @@ Automated sensor that fetches diverse on-chain and market data for the ordinals 
 - **Rate limit:** No new signal tasks within 4 hours of previous batch
 - **Category rotation:** Each run fetches 2 of 5 categories, rotating sequentially (inscriptions → brc20 → fees → nft-floors → runes → inscriptions...)
 - **Angle rotation:** Each run assigns 1 of 4 analytical angles, rotating independently of category (trend → comparison → anomaly → structure → trend...)
-- **Max signals per run:** 1
-- **Task priority:** P7 (Sonnet) — signal composition requires editorial voice
+- **Max signals per run:** 1 (regular) + unlimited milestone signals (event-driven, bypass cooldown)
+- **Task priority:** P7 (Sonnet) for regular signals; **P5** for milestone signals
 - **Beat:** `ordinals` only. Never files to other beats.
+
+## Milestone Detection (Phase 2)
+
+When the `inscriptions` category is fetched, the sensor also checks for milestone events. Milestone signals are queued at **P5** and bypass the normal cooldown — they fire immediately on detection.
+
+| Milestone Type | Threshold | Source Key |
+|----------------|-----------|------------|
+| Round-number crossing | Every 5M inscriptions (5M, 10M, 15M…) | `sensor:ordinals-market-data:milestone-inscriptions-<value>` |
+| High inscription rate | >100k/day sustained for 3 consecutive readings | `sensor:ordinals-market-data:milestone-rate-high` |
+| Low inscription rate | <10k/day sustained for 3 consecutive readings | `sensor:ordinals-market-data:milestone-rate-low` |
+
+- **Round-number milestones** are inherently unique — each crossing fires at most once (source key includes the milestone value).
+- **Rate milestones** have a 24-hour cooldown per type to prevent repeated same-condition signals.
+- Rate is computed as inscriptions-per-day between consecutive `inscriptions` history readings.
+- Both types respect the daily signal cap (6/day).
 
 ## Analytical Angles
 
@@ -66,8 +81,11 @@ Stored at `db/hook-state/ordinals-market-data.json`:
 - `lastCategory` — rotation index for category sequencing
 - `lastAngle` — rotation index for angle sequencing
 - `lastRun` — ISO timestamp of last successful run
+- `lastInscriptionCount` — inscription count from the most recent successful inscriptions fetch (used for milestone crossing detection)
 - `lastRuneTopIds` — top-10 rune IDs for rune change-detection
 - `lastRuneHolders` — runeId → holderCount for rune change-detection
+- `lastRateMilestoneHigh` — ISO timestamp when last high-rate milestone task was created (24h cooldown)
+- `lastRateMilestoneLow` — ISO timestamp when last low-rate milestone task was created (24h cooldown)
 - `history` — `CategoryHistory` object with rolling arrays per category (max 6 entries each)
 
 ## Prerequisites

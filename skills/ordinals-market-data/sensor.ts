@@ -14,6 +14,12 @@ const RATE_LIMIT_MINUTES = 240; // 4 hours between signal batches from this sens
 const MAX_SIGNALS_PER_RUN = 1; // one signal per run — aibtc.news has 60-min cooldown per beat
 const MAX_HISTORY_READINGS = 6; // rolling window per category for delta computation
 
+const INSCRIPTION_MILESTONE_INTERVAL = 5_000_000; // fire P5 signal at every 5M crossing
+const DAILY_RATE_HIGH_THRESHOLD = 100_000; // >100k inscriptions/day = high-rate milestone
+const DAILY_RATE_LOW_THRESHOLD = 10_000; // <10k inscriptions/day = suppressed market milestone
+const RATE_SUSTAINED_READINGS = 3; // consecutive readings required to confirm sustained rate
+const RATE_MILESTONE_COOLDOWN_HOURS = 24; // minimum hours between same-type rate milestone signals
+
 const UNISAT_API = "https://open-api.unisat.io";
 const MEMPOOL_API = "https://mempool.space/api";
 const COINGECKO_API = "https://api.coingecko.com/api/v3";
@@ -79,6 +85,8 @@ interface HookState {
   lastBrc20Volume?: number;
   lastRuneTopIds?: string[]; // top-10 rune IDs from last runes run (for change-detection)
   lastRuneHolders?: Record<string, number>; // runeId -> holderCount from last runes run
+  lastRateMilestoneHigh?: string; // ISO timestamp of last high-rate milestone task creation
+  lastRateMilestoneLow?: string; // ISO timestamp of last low-rate milestone task creation
   history?: CategoryHistory;
   narrativeThread?: NarrativeThread;
   [key: string]: unknown;
@@ -92,6 +100,8 @@ interface SignalData {
   implication: string;
   sources: Array<{ url: string; title: string }>;
   tags: string;
+  priority?: number; // optional override (default: 7 for regular signals, 5 for milestones)
+  milestoneSource?: string; // if set, used as task source instead of default category source
 }
 
 const log = createSensorLogger(SENSOR_NAME);
@@ -221,6 +231,120 @@ function buildNarrativeContext(thread: NarrativeThread | undefined): string {
     : "";
 
   return `\n---\n\nNARRATIVE CONTEXT — Prior signals this week:\n${signalList}${summaryBlock}\n\nReference whether this data continues, contradicts, or resolves the developing narrative. Build story continuity across signals — note when trends persist, when new data breaks a pattern, or when a prior observation reaches resolution.\n`;
+}
+
+// ---- Milestone Detection ----
+
+/** Returns the milestone value if prevCount → currCount crossed an INSCRIPTION_MILESTONE_INTERVAL boundary, else null. */
+function detectMilestoneCrossed(prevCount: number, currCount: number): number | null {
+  if (prevCount <= 0 || currCount <= prevCount) return null;
+  const prevMilestone = Math.floor(prevCount / INSCRIPTION_MILESTONE_INTERVAL);
+  const currMilestone = Math.floor(currCount / INSCRIPTION_MILESTONE_INTERVAL);
+  return currMilestone > prevMilestone ? currMilestone * INSCRIPTION_MILESTONE_INTERVAL : null;
+}
+
+/** Returns high/low rate milestone if the last RATE_SUSTAINED_READINGS inscription readings all breach a threshold. */
+function detectDailyRateMilestone(history: CategoryHistory): { type: "high" | "low"; rate: number } | null {
+  const readings = history["inscriptions"];
+  if (readings.length < RATE_SUSTAINED_READINGS) return null;
+  const lastN = readings.slice(-RATE_SUSTAINED_READINGS);
+  const rates: number[] = [];
+  for (let i = 1; i < lastN.length; i++) {
+    const prev = lastN[i - 1];
+    const curr = lastN[i];
+    const delta = (curr.metrics.totalInscriptions ?? 0) - (prev.metrics.totalInscriptions ?? 0);
+    const days = (new Date(curr.timestamp).getTime() - new Date(prev.timestamp).getTime()) / 86_400_000;
+    if (days <= 0 || delta < 0) continue;
+    rates.push(delta / days);
+  }
+  if (rates.length < RATE_SUSTAINED_READINGS - 1) return null;
+  const avg = rates.reduce((a, b) => a + b, 0) / rates.length;
+  if (rates.every((r) => r > DAILY_RATE_HIGH_THRESHOLD)) return { type: "high", rate: avg };
+  if (rates.every((r) => r > 0 && r < DAILY_RATE_LOW_THRESHOLD)) return { type: "low", rate: avg };
+  return null;
+}
+
+/**
+ * Check for inscription milestones using freshly-updated history and previous state.
+ * Call AFTER fetchInscriptionData has pushed a new reading to history["inscriptions"].
+ * Updates state.lastInscriptionCount for future milestone tracking.
+ * Returns array of milestone SignalData items (may be empty).
+ */
+function detectMilestoneSignals(state: HookState, history: CategoryHistory): SignalData[] {
+  const milestones: SignalData[] = [];
+  const readings = history["inscriptions"];
+  if (readings.length === 0) return milestones;
+
+  const currentCount = readings[readings.length - 1].metrics.totalInscriptions ?? 0;
+
+  // --- Round-number milestone crossing ---
+  const prevCount = state.lastInscriptionCount ?? 0;
+  if (prevCount > 0 && currentCount > prevCount) {
+    const crossed = detectMilestoneCrossed(prevCount, currentCount);
+    if (crossed !== null) {
+      const crossedM = (crossed / 1_000_000).toFixed(0);
+      log(`milestone: inscription count crossed ${crossedM}M (${prevCount.toLocaleString()} → ${currentCount.toLocaleString()})`);
+      milestones.push({
+        category: "inscriptions",
+        headline: `Bitcoin inscription count reaches ${crossedM}M milestone`,
+        claim: `The Bitcoin ordinals protocol has crossed the ${crossedM} million inscription mark, a round-number milestone reflecting sustained protocol adoption.`,
+        evidence: `Unisat indexer confirms ${currentCount.toLocaleString()} total inscriptions, crossing the ${crossed.toLocaleString()} milestone. Previous recorded count: ${prevCount.toLocaleString()} (Δ: +${(currentCount - prevCount).toLocaleString()}).`,
+        implication: `Round-number milestones in protocol adoption metrics attract media attention and serve as ecosystem reflection points. The ${crossedM}M mark signals that ordinals inscription activity has maintained sufficient economic incentive to sustain this level of cumulative output.`,
+        sources: [
+          { url: "https://open-api.unisat.io", title: "Unisat Indexer API — inscription count" },
+          { url: "https://mempool.space", title: "mempool.space — Bitcoin block explorer" },
+        ],
+        tags: "ordinals-business,inscriptions,bitcoin,milestone,on-chain",
+        priority: 5,
+        milestoneSource: `sensor:${SENSOR_NAME}:milestone-inscriptions-${crossed}`,
+      });
+    }
+  }
+
+  // Always update stored count after checking, so next run has fresh baseline
+  state.lastInscriptionCount = currentCount;
+
+  // --- Daily rate milestones ---
+  const rateMilestone = detectDailyRateMilestone(history);
+  if (rateMilestone) {
+    const cooldownKey = rateMilestone.type === "high" ? "lastRateMilestoneHigh" : "lastRateMilestoneLow";
+    const lastFired = state[cooldownKey] as string | undefined;
+    if (lastFired) {
+      const hoursSince = (Date.now() - new Date(lastFired).getTime()) / 3_600_000;
+      if (hoursSince < RATE_MILESTONE_COOLDOWN_HOURS) {
+        log(`rate milestone (${rateMilestone.type}): filed ${hoursSince.toFixed(1)}h ago — within ${RATE_MILESTONE_COOLDOWN_HOURS}h cooldown; skipping`);
+        return milestones;
+      }
+    }
+
+    const rateK = (rateMilestone.rate / 1000).toFixed(1);
+    const isHigh = rateMilestone.type === "high";
+    const thresholdLabel = isHigh
+      ? `>${(DAILY_RATE_HIGH_THRESHOLD / 1000).toFixed(0)}k/day`
+      : `<${(DAILY_RATE_LOW_THRESHOLD / 1000).toFixed(0)}k/day`;
+    log(`milestone: inscription rate ${rateMilestone.type} — ${rateK}k/day sustained`);
+    milestones.push({
+      category: "inscriptions",
+      headline: isHigh
+        ? `Bitcoin inscription rate exceeds 100k/day — ${rateK}k inscriptions/day sustained`
+        : `Bitcoin inscription rate drops below 10k/day — ${rateK}k inscriptions/day sustained`,
+      claim: isHigh
+        ? `Bitcoin's ordinals inscription rate has sustained above 100,000 per day, averaging ${rateK}k inscriptions/day across the last ${RATE_SUSTAINED_READINGS} readings — signalling elevated on-chain creative and economic activity.`
+        : `Bitcoin's ordinals inscription rate has sustained below 10,000 per day, averaging ${rateK}k inscriptions/day across the last ${RATE_SUSTAINED_READINGS} readings — signalling suppressed market activity.`,
+      evidence: `${RATE_SUSTAINED_READINGS} consecutive inscription readings confirm sustained rate of ~${rateK}k inscriptions/day (threshold: ${thresholdLabel}). Current total: ${currentCount.toLocaleString()} inscriptions.`,
+      implication: isHigh
+        ? `Sustained inscription velocity above 100k/day indicates active minting campaigns, BRC-20 deployments, or collectible inscription series, placing meaningful demand pressure on block space.`
+        : `Sustained inscription velocity below 10k/day signals reduced economic incentive to inscribe — high fees pricing out low-value content, or a cyclical lull in minting activity.`,
+      sources: [
+        { url: "https://open-api.unisat.io", title: "Unisat Indexer API — inscription count history" },
+      ],
+      tags: `ordinals-business,inscriptions,bitcoin,rate,${isHigh ? "high-activity" : "low-activity"}`,
+      priority: 5,
+      milestoneSource: `sensor:${SENSOR_NAME}:milestone-rate-${rateMilestone.type}`,
+    });
+  }
+
+  return milestones;
 }
 
 // ---- Data Fetchers ----
@@ -668,6 +792,7 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
 
     // Fetch data for selected categories
     const signals: SignalData[] = [];
+    const milestoneSignals: SignalData[] = [];
 
     for (const cat of categoriesToFetch) {
       let signal: SignalData | null = null;
@@ -676,6 +801,12 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
         case "inscriptions":
           if (!unisatKey) { log("inscriptions: no unisat api_key, skipping"); break; }
           signal = await fetchInscriptionData(unisatKey, history);
+          // Milestone detection runs only when fresh inscription data was fetched
+          if (signal !== null) {
+            for (const ms of detectMilestoneSignals(state, history)) {
+              milestoneSignals.push(ms);
+            }
+          }
           break;
         case "brc20":
           if (!unisatKey) { log("brc20: no unisat api_key, skipping"); break; }
@@ -766,6 +897,64 @@ Use Economist voice — precise, data-rich, no hype language.`,
       log(`queued signal: ${signal.category} — ${signal.headline.slice(0, 80)}`);
       state.lastSignalQueued = new Date().toISOString();
       queued++;
+    }
+
+    // Queue milestone signals (P5, bypass cooldown — event-driven newsworthy events)
+    for (const mSignal of milestoneSignals) {
+      if (isDailySignalCapHit()) {
+        log(`daily cap hit; cannot queue milestone signal`);
+        break;
+      }
+      const mSource = mSignal.milestoneSource ?? `sensor:${SENSOR_NAME}:milestone`;
+      if (pendingTaskExistsForSource(mSource)) {
+        log(`pending milestone task exists (${mSource}); skipping`);
+        continue;
+      }
+      // Track rate milestone timestamps in state to enforce cooldown on next run
+      if (mSource.includes(":milestone-rate-high")) state.lastRateMilestoneHigh = new Date().toISOString();
+      if (mSource.includes(":milestone-rate-low")) state.lastRateMilestoneLow = new Date().toISOString();
+
+      const mSourcesJson = JSON.stringify(mSignal.sources);
+      insertTask({
+        subject: `[MILESTONE] File ordinals signal: ${mSignal.headline.slice(0, 110)}`,
+        description: `Arc's ordinals-market-data sensor detected a milestone signal.
+
+**Category:** ${mSignal.category} (milestone)
+**Headline:** ${mSignal.headline}
+
+**Claim:** ${mSignal.claim}
+
+**Evidence:** ${mSignal.evidence}
+
+**Implication:** ${mSignal.implication}
+
+**Sources:** ${mSourcesJson}
+**Tags:** ${mSignal.tags}
+
+---
+
+ANALYTICAL ANGLE: Milestone Analysis — This is an inherently newsworthy event. Focus on the significance of the milestone, what it represents about the protocol's trajectory, and what it implies for the near-term ecosystem. Use precise numbers. Frame around cumulative achievement and forward momentum. Do NOT pad with generic commentary.
+
+File this signal to the ordinals beat using:
+\`\`\`
+arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals \\
+  --headline "${mSignal.headline.replace(/"/g, '\\"')}" \\
+  --claim "${mSignal.claim.replace(/"/g, '\\"')}" \\
+  --evidence "${mSignal.evidence.replace(/"/g, '\\"')}" \\
+  --implication "${mSignal.implication.replace(/"/g, '\\"')}" \\
+  --sources '${mSourcesJson}' \\
+  --tags "${mSignal.tags}"
+\`\`\`
+
+Arc ONLY files to the ordinals beat (slug: ordinals). Do NOT file to any other beat.
+Use Economist voice — precise, data-rich, no hype language.`,
+        skills: JSON.stringify(["ordinals-market-data", "aibtc-news-editorial"]),
+        priority: mSignal.priority ?? 5,
+        model: "sonnet",
+        status: "pending",
+        source: mSource,
+      });
+      log(`queued milestone signal (P${mSignal.priority ?? 5}): ${mSignal.headline.slice(0, 80)}`);
     }
 
     // Update state with rotation indices
