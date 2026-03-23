@@ -17,8 +17,8 @@ const MEMPOOL_API = "https://mempool.space/api";
 const COINGECKO_API = "https://api.coingecko.com/api/v3";
 
 // Category rotation — each run picks the next category in sequence
-type Category = "inscriptions" | "brc20" | "fees" | "nft-floors";
-const CATEGORIES: Category[] = ["inscriptions", "brc20", "fees", "nft-floors"];
+type Category = "inscriptions" | "brc20" | "fees" | "nft-floors" | "runes";
+const CATEGORIES: Category[] = ["inscriptions", "brc20", "fees", "nft-floors", "runes"];
 
 // Angle rotation — each run assigns an analytical lens to the signal
 type Angle = "trend" | "comparison" | "anomaly" | "structure";
@@ -39,6 +39,8 @@ interface HookState {
   lastInscriptionCount?: number;
   lastFeeRate?: number;
   lastBrc20Volume?: number;
+  lastRuneTopIds?: string[]; // top-10 rune IDs from last runes run (for change-detection)
+  lastRuneHolders?: Record<string, number>; // runeId -> holderCount from last runes run
   [key: string]: unknown;
 }
 
@@ -305,6 +307,97 @@ async function fetchNftFloorData(): Promise<SignalData | null> {
   }
 }
 
+async function fetchRunesData(apiKey: string, state: HookState): Promise<SignalData | null> {
+  try {
+    // Overall rune ecosystem status
+    const statusRes = await fetch(`${UNISAT_API}/v1/indexer/runes/status`, {
+      headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
+    });
+    if (!statusRes.ok) {
+      log(`runes: unisat runes/status failed (${statusRes.status})`);
+      return null;
+    }
+    const statusData = (await statusRes.json()) as Record<string, unknown>;
+    const status = statusData?.data as Record<string, unknown> | undefined;
+    if (!status) return null;
+
+    await Bun.sleep(200);
+
+    // Top runes by holder count
+    const listRes = await fetch(`${UNISAT_API}/v1/indexer/runes/list?start=0&limit=10`, {
+      headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
+    });
+    if (!listRes.ok) {
+      log(`runes: unisat runes/list failed (${listRes.status})`);
+      return null;
+    }
+    const listData = (await listRes.json()) as Record<string, unknown>;
+    const runes = (listData?.data as Record<string, unknown>)?.list as Array<Record<string, unknown>> | undefined;
+
+    const totalRunes = Number(status.runesCount ?? status.total ?? status.count ?? 0);
+
+    if (totalRunes === 0 && (!runes || runes.length === 0)) {
+      log("runes: no data available");
+      return null;
+    }
+
+    const top10 = (runes ?? []).slice(0, 10).map((r) => ({
+      id: String(r.runeId ?? r.id ?? r.rune ?? ""),
+      name: String(r.spacedRune ?? r.rune ?? r.name ?? "unknown"),
+      holders: Number(r.holdersCount ?? r.holders ?? 0),
+    }));
+
+    // Change-detection: new rune in top-10 or >10% holder shift
+    const prevIds: string[] = (state.lastRuneTopIds as string[] | undefined) ?? [];
+    const prevHolders: Record<string, number> = (state.lastRuneHolders as Record<string, number> | undefined) ?? {};
+
+    const isFirstRun = prevIds.length === 0;
+    const newInTop10 = top10.some((r) => r.id && !prevIds.includes(r.id));
+    const holderShift = top10.some((r) => {
+      const prev = prevHolders[r.id];
+      if (prev === undefined || prev === 0) return false;
+      return Math.abs(r.holders - prev) / prev > 0.1;
+    });
+
+    // Always update state with current snapshot
+    state.lastRuneTopIds = top10.map((r) => r.id);
+    state.lastRuneHolders = Object.fromEntries(top10.map((r) => [r.id, r.holders]));
+
+    if (!isFirstRun && !newInTop10 && !holderShift) {
+      log("runes: no significant change (no new top-10 rune, no >10% holder shift); skipping signal");
+      return null;
+    }
+
+    const changeReason = isFirstRun
+      ? "first runes snapshot"
+      : newInTop10
+        ? "new rune entered top-10 by holder count"
+        : "holder count shift >10% detected in top-10";
+    log(`runes: signal threshold met — ${changeReason}`);
+
+    const top5Summary = top10.slice(0, 5).map((r) => `${r.name} (${r.holders} holders)`).join("; ");
+    const topRune = top10[0];
+    const etchingCount = Number(status.etchingCount ?? status.etching ?? 0);
+    const etchingNote = etchingCount > 0 ? `, ${etchingCount} recent etchings` : "";
+
+    return {
+      category: "runes",
+      headline: `Bitcoin Runes: ${totalRunes.toLocaleString()} runes etched${etchingNote}, ${topRune?.name ?? "N/A"} leads at ${topRune?.holders ?? 0} holders`,
+      claim: `The Bitcoin Runes protocol has ${totalRunes.toLocaleString()} total runes etched${etchingNote}, with ${changeReason} observed in holder rankings. ${topRune?.name ?? "N/A"} holds the top position at ${topRune?.holders ?? 0} addresses.`,
+      evidence: `Unisat Runes indexer: ${totalRunes.toLocaleString()} total runes${etchingCount > 0 ? `, ${etchingCount} recent etchings` : ""}. Top 5 by holder count: ${top5Summary}. Change trigger: ${changeReason}.`,
+      implication: `Rune holder shifts signal whether Bitcoin's native fungible token layer is redistributing or consolidating. New entrants to the top-10 indicate emerging protocols gaining market share; holder count movements above 10% represent meaningful accumulation or distribution events that often precede price action in the broader Runes market.`,
+      sources: [
+        { url: "https://open-api.unisat.io", title: "Unisat Runes Indexer API — rune status and list" },
+        { url: "https://unisat.io/runes", title: "Unisat — Runes marketplace" },
+      ],
+      tags: "ordinals-business,runes,bitcoin,fungibles",
+    };
+  } catch (e) {
+    log(`runes: error — ${(e as Error).message}`);
+    return null;
+  }
+}
+
 // ---- Main Sensor ----
 
 export default async function ordinalsMarketDataSensor(): Promise<string> {
@@ -379,6 +472,10 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
           break;
         case "nft-floors":
           signal = await fetchNftFloorData();
+          break;
+        case "runes":
+          if (!unisatKey) { log("runes: no unisat api_key, skipping"); break; }
+          signal = await fetchRunesData(unisatKey, state);
           break;
       }
 
