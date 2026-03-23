@@ -15,6 +15,7 @@ const WATCHED_REPOS = [
   "aibtcdev/skills",
   "aibtcdev/aibtc-mcp-server",
   "hirosystems/clarinet",
+  "supermemory-ai/supermemory",
 ];
 
 const STATE_DIR = new URL("../../db/hook-state", import.meta.url).pathname;
