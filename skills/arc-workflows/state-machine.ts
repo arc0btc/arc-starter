@@ -3082,6 +3082,101 @@ Steps:
 };
 
 /**
+ * GithubMentionMachine — models the recurring GitHub @mention → work → retrospective cycle.
+ *
+ * Pattern detected: "github @mention in aibtcdev/agent-news" tasks (4 recurrences, avg 2.0 steps)
+ * consistently spawn a work task followed by a retrospective to capture learnings.
+ * This machine deduplicates concurrent mention processing and guarantees the retrospective runs.
+ *
+ * instance_key: "github-mention-{repo-slug}-{mention-type}-{id}"
+ *   e.g. "github-mention-aibtcdev-agent-news-pr-200"
+ *
+ * States:
+ *   received              → @mention detected; creates the work task (bugfix, feature, response)
+ *   executing             → work task running; waiting for completion
+ *   retrospective_pending → work done; create retrospective to extract learnings
+ *   completed             → done
+ *
+ * Context:
+ *   repo            — "owner/repo" e.g. "aibtcdev/agent-news"
+ *   mentionUrl      — URL to the PR/issue/comment containing the mention
+ *   mentionContext  — brief description of what is needed
+ *   workType        — "bugfix" | "feature" | "response" | "pr-review" (default: response)
+ *   skills          — skill names to load for the work task
+ *   taskRef         — "task:{id}" of the execution task (populated after receiving)
+ *   retrospectiveRef — "task:{id}" of the retrospective (for cross-referencing)
+ */
+export const GithubMentionMachine: StateMachine<{
+  repo?: string;
+  mentionUrl?: string;
+  mentionContext?: string;
+  workType?: string;
+  skills?: string[];
+  taskRef?: string;
+  retrospectiveRef?: string;
+}> = {
+  name: "github-mention",
+  initialState: "received",
+  states: {
+    received: {
+      on: { execute: "executing" },
+      action: (ctx) => {
+        if (!ctx.repo) return null;
+        const repo = ctx.repo;
+        const workType = ctx.workType || "response";
+        const context = ctx.mentionContext ? ` — ${ctx.mentionContext}` : "";
+        const skills = ctx.skills?.length
+          ? ctx.skills
+          : ["aibtc-repo-maintenance", "arc-skill-manager"];
+        return {
+          type: "create-task",
+          subject: `GitHub @mention in ${repo}${context}`,
+          priority: 4,
+          skills,
+          description: `Respond to a GitHub @mention in ${repo}.${ctx.mentionUrl ? `\nMention: ${ctx.mentionUrl}` : ""}${ctx.mentionContext ? `\nContext: ${ctx.mentionContext}` : ""}
+Work type: ${workType}
+
+Steps:
+1. Read the mention and any surrounding thread context
+2. Perform the required work (bugfix, feature, review comment, or written response)
+3. If work requires a PR, use fleet-handoff to route to Arc (GitHub-only policy)
+4. Transition this workflow to 'executing'
+5. Set taskRef to "task:{this-task-id}" in context before transitioning`,
+        };
+      },
+    },
+    executing: {
+      on: { done: "retrospective_pending" },
+      action: () => null,
+    },
+    retrospective_pending: {
+      on: { learnings_extracted: "completed" },
+      action: (ctx) => {
+        const repo = ctx.repo || "unknown-repo";
+        return {
+          type: "create-task",
+          subject: `Retrospective: extract learnings from GitHub @mention in ${repo}`,
+          priority: 8,
+          skills: ["arc-skill-manager"],
+          description: `Extract learnings from handling a GitHub @mention in ${repo}.
+${ctx.taskRef ? `Work task: ${ctx.taskRef}` : ""}${ctx.mentionUrl ? `\nMention: ${ctx.mentionUrl}` : ""}${ctx.mentionContext ? `\nContext: ${ctx.mentionContext}` : ""}
+
+Steps:
+1. Review what the mention requested and how it was addressed
+2. Identify patterns (recurring request types, gaps in the codebase, process issues)
+3. If a pattern is recurring, add prevention or improvement notes to memory/MEMORY.md
+4. Transition workflow to 'completed'`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -3122,6 +3217,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "ceo-review": CeoReviewMachine,
     "workflow-review": WorkflowReviewMachine,
     "compliance-review": ComplianceReviewMachine,
+    "github-mention": GithubMentionMachine,
   };
   return templates[name] || null;
 }
