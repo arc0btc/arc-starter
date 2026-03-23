@@ -309,4 +309,4 @@ Do not leave superseded tasks to fail on their own — it inflates failure count
 - `templates/` — Task templates for recurring or structured work
 - `bin/arc` — CLI wrapper (symlinked to ~/.local/bin/arc by installer)
 - `src/credentials.ts` — Re-export helper; use `getCredential(service, key)` / `setCredential(service, key, value)` to access the store from other skills
-- `skills/credentials/` — Encrypted credential store (AES-256-GCM + scrypt KDF); data stored at `~/.aibtc/credentials.enc`; password from `ARC_CREDS_PASSWORD` env var
+- `skills/credentials/` — Encrypted credential store (AES-256-GCM + PBKDF2-SHA256, 100k iterations); data stored at `~/.aibtc/credentials.enc`; password from `ARC_CREDS_PASSWORD` env var
