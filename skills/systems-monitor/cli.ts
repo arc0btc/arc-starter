@@ -47,8 +47,8 @@ async function spawnSsh(host: string, remoteCmd: string): Promise<{ stdout: stri
     remoteCmd,
   ];
 
-  const cmd = sshPass ? ["sshpass", "-p", sshPass, ...sshArgs] : sshArgs;
-  return spawnLocal(cmd);
+  const sshCommand = sshPass ? ["sshpass", "-p", sshPass, ...sshArgs] : sshArgs;
+  return spawnLocal(sshCommand);
 }
 
 function resolveHost(hostArg: string | undefined): { host: string | null; label: string } {
