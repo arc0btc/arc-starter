@@ -1,38 +1,40 @@
 # Arc Memory — Current Status & Index
 
-*Last updated: 2026-03-23T05:18Z*
+*Last updated: 2026-03-23T05:55Z*
 
 ## Shared Reference Entries
 
 - **bare-flag-exclusion** (task #7780): Why Arc dispatch must never use `--bare` flag (bypasses syntax check & service health hooks)
 - **housekeeping_state_files** (task #7823): Runtime state files (cache, status) should be ignored in .gitignore, not committed
+- **[v7-test-vm](reference_test_vm.md)**: Test VM at 192.168.1.16 for Q3 engine-validation (creds in `arc creds` manage-agents)
+- **[v7-skills-required-everywhere](project_v7_skills_required.md)**: Design decision — tasks, sensors, workflows all require ≥1 skill
 
 ## Directives & Milestones
 
 **Five Directives:** D1=services business, D2=grow AIBTC, D3=improve stack, D4=$200/day cap, D5=honest public.
 **Milestones:** Revenue, Zest V2, Bitflow, Zero Authority DAO, ERC-8004, MCP Phase 1.
 **Priorities:** Monetization → DeFi → AIBTC → Stack reliability.
-**Blocked:** Spark GitHub (awaiting whoabuddy). Spark DeFi execution blocked (OAuth expired, fleet suspended). DeFi tasks pre-positioned: #6807 Bitflow LP (P9, defi-bitflow), #6808 Zest V2 sBTC (P9, zest-v2). Jingswap skill needs building first (#6809, P3).
+**Blocked:** Spark GitHub (awaiting whoabuddy). Spark DeFi execution blocked (fleet suspended). DeFi tasks pre-positioned: #6807 Bitflow LP (P9, defi-bitflow), #6808 Zest V2 sBTC (P9, zest-v2). Jingswap skill build first (#6809, P3).
 
-**Bitcoin DeFi Landscape (2026-03-19, task #7290):**
-- **sBTC yield ladder** (low→high risk): Dual Stacking alone ~0.5% → +STX lock ~2-5% → Zest lending ~3.5% BTC → stSTXbtc ~15% → Bitflow LP 12-50%+ → Hermetica USDh 8-25%
-- **Bitflow:** Leading DEX aggregator on Stacks. XYK + StableSwap pools. Deployer: `SPQC38PW542EQJ5M11CR25P7BS1CA6QT4TBXGB3M`. SDK: `@bitflowlabs/core-sdk`. Public REST API at `https://bitflow-sdk-api-gateway-7owjsmt8.uc.gateway.dev` (no auth, 500 req/min). sBTC/STX pool reported 22-500% APY (emission-dependent). All contracts audited.
-- **Zest v2:** Aave v3-style lending on Stacks. Deployer: `SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N`. Entry: `pool-borrow-v2-3`. Supports sBTC/STX/stSTX/aeUSDC. Traditional mode: 50% max LTV, 70% liquidation threshold. E-mode: 80% LTV, 85% liquidation. sBTC supply APY: ~3.5% (utilization-dependent). GitHub: `Zest-Protocol/zest-v2-contracts`.
-- sBTC pool on Zest earns "real BTC yield" from borrower interest. Hermetica USDh used for Zest liquidations.
+**Bitcoin DeFi Landscape (2026-03-19):**
+- **sBTC yield ladder** (low→high risk): Dual Stacking ~0.5% → +STX lock ~2-5% → Zest lending ~3.5% BTC → stSTXbtc ~15% → Bitflow LP 12-50%+ → Hermetica USDh 8-25%
+- **Bitflow:** Leading DEX aggregator on Stacks. Deployer: `SPQC38PW542EQJ5M11CR25P7BS1CA6QT4TBXGB3M`. SDK: `@bitflowlabs/core-sdk`. Public REST API at `https://bitflow-sdk-api-gateway-7owjsmt8.uc.gateway.dev` (no auth, 500 req/min). defi-bitflow skill ✅ READY.
+- **Zest v2:** Aave v3-style lending. Deployer: `SP2VCQJGH7PHP2DJK7Z0V48AGBHQAW3R3ZW1QF4N`. Entry: `pool-borrow-v2-3`. sBTC APY ~3.5%. E-mode: 80% LTV. GitHub: `Zest-Protocol/zest-v2-contracts`.
+- **Jingswap contracts:** `sbtc-stx-jing`, `sbtc-usdcx-jing` (updated in v1.42.0).
 
 ## Fleet Roster
 
 | Agent | IP | Bitcoin | Role |
 |-------|-----|---------|------|
 | Arc | 192.168.1.10 | bc1qlezz2... | Orchestrator |
-| Spark | 192.168.1.12 | bc1qpln8... | AIBTC/DeFi |
-| Iris | 192.168.1.13 | bc1q6sav... | Research/X |
-| Loom | 192.168.1.14 | bc1q3qa3... | CI/CD, AIBTC Publisher (Rising Leviathan) |
-| Forge | 192.168.1.15 | bc1q9hme... | Infra (codex, early dispatch) |
+| Spark | 192.168.1.12 | bc1qpln8... | AIBTC/DeFi — OFFLINE |
+| Iris | 192.168.1.13 | bc1q6sav... | Research/X — OFFLINE |
+| Loom | 192.168.1.14 | bc1q3qa3... | CI/CD, AIBTC Publisher (Rising Leviathan) — ONLINE |
+| Forge | 192.168.1.15 | bc1q9hme... | Infra (codex, early dispatch) — ONLINE |
 
 ## Critical Flags
 
-**FLEET PARTIALLY RECOVERED (2026-03-23):** Loom is ONLINE as AIBTC publisher Rising Leviathan. Forge is ONLINE with codex and early dispatch testing. Spark and Iris remain OFFLINE (suspended by Anthropic). Arc can route work to Loom and Forge. Do NOT route to Spark or Iris.
+**FLEET PARTIALLY RECOVERED (2026-03-23):** Loom ONLINE (Rising Leviathan AIBTC publisher). Forge ONLINE (codex, early dispatch). Spark and Iris remain OFFLINE (suspended by Anthropic). Route work to Loom/Forge only.
 
 **Ordinals APIs:** Hiro shutdown 2026-03-09. Use Unisat (open-api.unisat.io, 5 req/s free). Stacks Extended API unaffected.
 
@@ -40,109 +42,83 @@
 
 **Umbrel node (192.168.1.106):** Bitcoin Core must run full (currently pruned). Stacks node + API planned.
 
-**x402 NONCE_CONFLICT — NOT RESOLVED (updated 2026-03-23, task #8115):** Relay v1.20.1 health endpoint reports healthy but actual x402 `send-inbox-message` calls STILL fail with NONCE_CONFLICT. 34 additional welcome task failures today (2026-03-23), total 158+ failures across 2 days. **Circuit breaker latch fix (task #7914, commit 1b36a62) is in PR on feat/inbox-endpoint — NOT YET MERGED.** Until merged, welcome sends will keep failing at steady state. STX transfers succeed; only x402 inbox messages fail. Self-healing loop continues: sensor clears sentinel because `isRelayHealthy()` passes → queues tasks → all fail → sentinel re-written → 30min repeat.
+**x402 NONCE_CONFLICT — NOT RESOLVED (2026-03-23, task #8115):** Relay v1.20.1 health endpoint reports healthy but `send-inbox-message` calls STILL fail. 158+ welcome task failures across 2 days. **Circuit breaker latch fix (task #7914, commit 1b36a62) in PR on feat/inbox-endpoint — NOT YET MERGED.** STX transfers succeed; only x402 inbox messages fail. Self-heal loop active until merged.
 
-**Stale dispatch lock detection (2026-03-23, task #8279):** arc-service-health sensor detects stale locks (lock file exists, recorded PID dead). Recovery: `rm db/dispatch-lock.json && arc run`. Dispatch automatically marks orphaned active task as failed (crash recovery) and proceeds. Pattern is working correctly.
+**Stale dispatch lock detection (2026-03-23):** arc-service-health sensor detects stale locks. Recovery: `rm db/dispatch-lock.json && arc run`. Dispatch auto-marks orphaned active task failed and proceeds.
+
+**[FLAG] $100K competition ACTIVE (started 2026-03-23, runs through 2026-04-22):** Arc 3rd (278pts, streak 5, 43 signals). Leaders: Secret Mars (504, 20-streak), Sonic Mast (449, 20-streak). Ionic Anvil 4th (259pts) — 19pts behind. $20/inscribed signal, max 6/day ($120/day), weekly bonuses up to $1,200. Day-1 task #7837 scheduled 2026-03-23T06:00Z — verify executed. **Must file daily.** No NONCE_CONFLICT excuse — signals use BIP-137, not x402.
+
+**[FLAG] aibtc.news signal rules:**
+- **Disclosure auto-filled** by file-signal CLI (task #7681). PATCH /signals does NOT store disclosure — only POST.
+- **Beat slug:** `ordinals` (NOT `ordinals-business`). Arc ONLY files to ordinals beat. DAO Watch / BTC Macro owned by others.
+- **Rate limit:** 60 min/signal/beat. **Daily cap:** 6/day. Do NOT retry same-day after cap hit.
+- **Approved signal types:** NFT floors (CoinGecko), ordinals marketplace liquidity, fee market (only when materially changed), inscription volumes, BRC-20 (Unisat), cross-collection comparisons.
+- **NEVER:** sBTC/STX DeFi volatility under Ordinals beat (rejected). Repetitive fee-market with no material change (rejected).
+- API requires: beat_slug, btc_address, headline, sources (array), tags. BIP-137 works from bc1q addresses.
+- **magiceden.io unreachable** — unreliable, don't use as sole source.
+
+**D4 cost pattern:** Normal run rate $107/day avg (sustainable under $200/day cap). $272 spike on 2026-03-18 was incident-driven (x402 endpoint + monitoring deploy + 191 gh-issues backlog). Monitor if day exceeds $150 to flag risk. High volume (455 tasks on 2026-03-20) still under cap at ~$0.255/task avg.
 
 ## Fleet Architecture
 
 - GitHub sensors centralized (Arc-only). Pre-dispatch gate routes GitHub tasks to Arc.
 - OAuth: Workers use ANTHROPIC_API_KEY (OAuth unreliable across VMs).
-- Welcome dedup: Verify completion in DB via `completedTaskCountForSource()`, not task creation.
-- Monitoring: Arc's 74 sensors unaffected. Loom and Forge sensors resuming. Spark and Iris sensors still down.
-- **Agent identities:** Arc=Trustless Indra (1), Spark=Topaz Centaur (29), Loom=Fractal Hydra (85) aka Rising Leviathan (AIBTC publisher), Forge=Sapphire Mars (84), Iris=not yet registered (task #2890).
+- Welcome dedup: Verify completion via `completedTaskCountForSource()`, not task creation.
+- **Agent identities:** Arc=Trustless Indra (1), Spark=Topaz Centaur (29), Loom=Fractal Hydra (85) aka Rising Leviathan, Forge=Sapphire Mars (84), Iris=not yet registered (#2890).
+- ALB: trustless-indra@agentslovebitcoin.com registered. Spark/Forge queued (#6803/#6804) for fleet resumption.
 
 ## Key Learnings
 
 **Sentinel file pattern:** For 402/CreditsDepleted or transient gate conditions, write sentinel and gate all downstream callers. Check before runtime failure.
 
-**Auth cascade pattern:** OAuth token expiry causes wave of consecutive auth failures. Mitigation: ANTHROPIC_API_KEY fallback in dispatch.ts (task #5215). whoabuddy refreshes OAuth; dispatch auto-recovers.
+**Auth cascade:** OAuth expiry causes wave of consecutive auth failures. Mitigation: ANTHROPIC_API_KEY fallback in dispatch.ts. whoabuddy refreshes; dispatch auto-recovers.
 
-**arc-payments (2026-03-12):** `stacks-payments` → `arc-payments`. Monitors STX token_transfer + sBTC SIP-010 (SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token). Hook state key: `arc-payments`.
+**arc-payments:** Monitors STX token_transfer + sBTC SIP-010 (`SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token`). Hook state key: `arc-payments`.
 
-**Zero Authority DAO (2026-03-12):** Sensor removed (no on-chain contracts). CLI + daos.json ready. Rebuild sensor when contracts deploy on Stacks.
+**Zero Authority DAO:** Sensor removed (no on-chain contracts). CLI + daos.json ready. Rebuild sensor when contracts deploy.
 
-**ERC-8004 status (2026-03-19, task #7291):** Standard live on Ethereum mainnet since Jan 29, 2026 (Draft status but de-facto standard). 100,000+ agents registered across 30+ EVM chains; BNB Chain leads growth, Solana cross-compatible via SATI soul-bound NFTs. Arc is agent #1 (Trustless Indra). Dominant pattern: polyglot agent stack = ERC-8004 identity + A2A tasks + MCP tools + x402 micropayments + AP2 mandates. Complementary standards: ERC-8001 (multi-agent coordination, orthogonal), ERC-8126 (verification/compliance, complementary). No competing identity standards in EVM. Open risks: Validation Registry can't be read by smart contracts (events only), reputation aggregation unsettled. V2 roadmap: deeper MCP support, richer on-chain reputation, x402 payment proof formats. Arc's zero-task-activity issue is NOT ecosystem adoption — adoption is massive. Arc sensors monitoring correct signals; likely need to expand to Validation Registry events or Reputation Registry interactions.
+**ERC-8004:** Standard live Jan 29, 2026. Arc is agent #1 (Trustless Indra). Polyglot stack: ERC-8004 identity + A2A tasks + MCP tools + x402 + AP2 mandates. Expand sensors to Validation Registry events and Reputation Registry interactions.
 
-**Temporal awareness (2026-03-18):** Dispatch prompt shows day-of-week, last cycle elapsed, DST-correct MT via `Intl.DateTimeFormat("America/Denver")`, memory staleness warning if 3+ days old. Task #6703.
+**nostr-wot trust:** Wired into defi-bitflow swap (--counterparty-pubkey gate), arc-payments trust scoring, x402-sponsor-relay validation.
 
-**Memory as training (2026-03-18):** `memory/frameworks.md` has 6 decision trees. `skills/arc-memory/` provides `add-pattern`, `list-sections`, `retrospective`, `framework` commands. Load `arc-memory` skill on retrospective/strategy/triage tasks.
+**aibtc-mcp-server:** v1.42.0 updated Jingswap contracts. Credential store via MCP needs security review (#7596, P4 Opus) before HTTP transport enabled.
 
-**Spark DeFi pre-positioning (2026-03-18):** DeFi tasks #6807/#6808 at P9 (won't dispatch). #6809 Jingswap skill build at P3 (Opus). Spark still offline — cannot activate yet. Loom and Forge are back but Spark remains suspended.
+**Memory as training:** `memory/frameworks.md` has 6 decision trees. `skills/arc-memory/` provides `add-pattern`, `list-sections`, `retrospective`, `framework`. Load on retrospective/strategy/triage tasks.
 
-**Group Decisions directive (2026-03-18):** whoabuddy committed to consensus-seeking pattern — seek input via AIBTC inbox, message agents directly for testing, pay 100 sats for 2nd opinions. Multi-agent input before fleet/contacts feature decisions.
+**Temporal awareness:** Dispatch prompt shows day-of-week, elapsed, DST-correct MT, memory staleness warning if 3+ days old.
 
-**Weekly review (2026-03-18):** D2/D3/D4/D5 on track. D1 stalled — x402 KB (#6734) and ALB registration (#6804) in queue. DeFi blocked by fleet suspension. MCP Phase 1 v6 progressing.
+**Group Decisions directive:** whoabuddy seeks multi-agent input before fleet/contacts feature decisions — use AIBTC inbox, message agents, pay 100 sats for 2nd opinions.
 
-**[FLAG] D4 breach (2026-03-19):** Spent $272.28 on 2026-03-18, exceeding the $200/day cap. Cost drivers: x402-relay inbox endpoint ($7.814), monitoring service deployment ($3.678), and high github-issues volume (191 tasks). Expensive Opus tasks and large sensor-driven reactive volume are the root cause. Monitor daily spend; consider gating low-value github-issues tasks or routing to Haiku.
+**GitHub tasks + fleet-handoff:** Tasks requiring git push/PR must include `fleet-handoff` in skills array so handoff route is visible. Otherwise task fails.
 
-**D4 recovery confirmed (2026-03-19 06:40Z):** Day trajectory: $27.78 code + $38.27 API est (125 cycles by 06:40Z). Cost report (#7304) showed 82 tasks through mid-afternoon: $22.62 code + $33.39 API est. Top drivers: arc-skill-manager ($5.35, strategic), arxiv-research ($3.78, 4 tasks—monitor alignment), aibtc-repo-maintenance ($2.08), aibtc-news-editorial ($1.91). Sensor costs distributed, no runaway. Expensive Opus tasks are strategic (architecture, skill building). **PATTERN CONFIRMED:** Yesterday's $272 spike WAS one-day incident (x402 endpoint, monitoring deployment, gh-issues backlog surge to 191 tasks). Today's volume 82-118 tasks/day is normal. D4 cap ($200/day) is holding. Weekly trend $747.09 / 7 = $107/day avg — healthy.
+**aibtc.news /api/brief:** POST /api/brief doesn't exist. Don't queue brief tasks until endpoint is built.
 
-**Landing-page drop pattern (2026-03-19):** Pre-dispatch gate correctly drops landing-page PR/merge tasks (17 dropped today) with note "handled interactively by human." Pattern is working — no merge accidents.
+**GitHub sensor dedup:** No daily caps. Dedup on unique IDs. One reaction per review/re-review. `github-issue-monitor` uses "any"; `github-mentions` uses "pending"; `aibtc-repo-maintenance` uses pendingTaskExistsForSource.
 
-**ALB registration resolved (2026-03-19):** trustless-indra@agentslovebitcoin.com registered (#7189). DO bindings issue was stale deploy — fixed. Spark/Forge ALB registration queued (#6803/#6804) for when fleet resumes.
+**Landing-page gate:** Pre-dispatch gate drops landing-page PR/merge tasks. Analysis tasks pass. Consider dropping all `[landing-page]` tasks if analysis is also wasteful.
 
-**GitHub tasks need fleet-handoff in skills (2026-03-19):** When tasks require git push/PR but fleet-handoff isn't listed in the skills array, Claude doesn't know to use it — the task just fails. GitHub-requiring tasks must always include `fleet-handoff` in skills array so the skill SKILL.md is loaded and handoff route is visible.
+**PR comment etiquette:** When CI (Vercel, GitHub Actions) already comments a PR Arc filed, Arc must NOT add review comments. File PR, stay silent unless asked.
 
-**aibtc.news /api/brief endpoint missing (2026-03-19):** Brief compilation tasks fail because POST /api/brief doesn't exist on aibtc.news. Don't queue new brief tasks until endpoint is built.
+**Workflow coverage:** All repeating patterns covered by existing state machines through Q2 2026. No new templates needed.
 
-**Beat ownership: Arc ONLY files to `ordinals` beat (slug: `ordinals`) (2026-03-19):** DAO Watch and BTC Macro beats are owned by other agents. The beat slug is `ordinals` NOT `ordinals-business`. Sensors fixed (task #7287): aibtc-news-editorial/sensor.ts and aibtc-news-deal-flow/sensor.ts now use correct `--beat ordinals`. auto-queue sensor has domain constraint. Root causes of task #7141 dao-watch violation: dispatch session created task from batch instructions without beat-ownership check (source=null). All sensor-generated tasks now hardcode correct slug.
-
-**[FLAG] $100K competition DAY 1 (2026-03-23):** Competition started today. 0 ordinals signals filed in the 24h period (2026-03-23). Day-1 task #7837 was scheduled 2026-03-23T06:00Z — verify it executed. Need to file up to 6 signals today to stay competitive. Arc is 3rd (278pts); leaders Secret Mars (504) and Sonic Mast (449) have 20-streak. Must file daily. No NONCE_CONFLICT excuse for signals — signals use BIP-137, not x402.
-
-**[FLAG] $100K competition readiness (2026-03-22, task #8123):** Competition runs March 23 – April 22. Leaderboard: Arc **3rd (278pts, streak 5, 43 signals)**. Leaders: Secret Mars (504, 20-streak), Sonic Mast (449, 20-streak). Ionic Anvil (#4, 259pts) is only 19pts behind — close race. Day-1 task #7837 scheduled 2026-03-23T06:00Z. Ordinals beat active. Today 4/6 signals filed. **REJECTION PATTERN (5 rejections in recent batch):** (1) Repetitive fee-market templates filed multiple times/day when fees didn't materially change — publisher rejects as noise; only file fee-market signal when spread/rates are materially different from last filed; (2) sBTC/STX DeFi volatility signals filed under Ordinals beat — rejected as wrong beat. ONLY file NFT floors, inscription volumes, BRC-20, fee market (when notable), ordinals marketplace metrics. **Signal diversity plan:** (1) NFT floors via CoinGecko — BEST (approved), (2) Ordinals marketplace liquidity, (3) Fee market only when materially changed, (4) Block space/inscription economics, (5) BRC-20 via Unisat, (6) Cross-collection comparison. NEVER: sBTC/STX DeFi under Ordinals beat.
-
-**[FLAG] aibtc.news disclosure REQUIRED (2026-03-20, task #7681):** All signals were being rejected for missing `disclosure` field. Fix deployed: file-signal CLI now auto-fills `[Model: Claude (Arc agent) | Tools: Unisat API, Bitflow API, mempool.space, CoinGecko | Skills: aibtc-news-editorial, bitcoin-wallet]` as default. Classifieds PATCH endpoints updated to header-based auth (API v2). PATCH /signals corrections do NOT store disclosure — only new signals via POST include it. **$100K competition starts 2026-03-23** (March 23 – April 22): $20/inscribed signal, max 6/day ($120/day), weekly bonuses up to $1,200. aibtc.news docs reference BIP-322 but BIP-137 still works from bc1q addresses.
-
-**AIBTC News Signal Filing (2026-03-19):** Arc is actively filing signals to `ordinals` beat (slug is `ordinals`, NOT `ordinals-business`) via `aibtc-news-editorial` skill. **RATE LIMIT: 60 minutes per signal per beat. DAILY CAP: 6 signals/day.** API requires: beat_slug, btc_address, headline, sources (array of {url,title}), tags. file-signal CLI accepts --headline, --claim, --evidence, --implication, --sources (JSON), --tags (comma-separated). `--force` skips judge-signal pre-flight. Signals auto-signed via BIP-137. Most recent signal filed 2026-03-19 22:35:59Z (sBTC/STX 18.2% range, rapid sequence). Daily limit reached 2026-03-19 (6/6) — no more signals until 2026-03-20. Do NOT queue retry tasks for same-day signals after daily limit is hit.
-
-**GitHub sensor dedup policy (2026-03-19, task #7438):** whoabuddy directive: NO daily caps. Dedup on unique IDs (issue:{repo}#{number}, pr-review:{repo}#{number}). One reaction per review/re-review request. Real-maintainer approach. github-issue-monitor uses "any" dedup (triage once per issue). github-mentions uses "pending" dedup (re-engagement on completed entities — re-reviews, new mentions). aibtc-repo-maintenance uses pendingTaskExistsForSource (retry resilience). Daily caps removed from all three sensors.
-
-**Volume vs. strategy (2026-03-13):** 243 tasks/day, all sensor-driven. Reactive GitHub/PR volume can crowd D1/D2 work. Strategic tasks may need explicit scheduling or higher priority.
-
-**Cost pattern (2026-03-13):** blog-publishing drives ~30% of spend. arc-payments CLI → Sonnet for future iterations. Current spend $7.96/day healthy.
+**agentslovebitcoin.com:** D1/D2 strategic initiative. 4-phase plan active.
 
 **Site mapping:** `blog-publishing`, `blog-deploy`, `arc0btc-site-health`. X dedup: 24h window, rewrite > split.
 
-**agentslovebitcoin.com (2026-03-12):** D1/D2 strategic initiative. 4-phase plan. Monitor for follow-up tasks.
+## Consolidated Retrospective Patterns
 
-**defi-bitflow skill readiness (2026-03-19, task #7292):** ✅ READY FOR FLEET RESUMPTION. All CLI commands functional (tokens, spreads, quote, routes, ticker). Sensor logic sound: fetches tickers via Bitflow API, detects high-spread pairs (>5%), rate-limits signals (4h cooldown), creates signal filing tasks. Fixed documentation mismatch: ticker command accepts `--base-currency` and `--target-currency`, not `--base` and `--target`. No blockers. Bitflow API healthy at `bitflow-sdk-api-gateway-7owjsmt8.uc.gateway.dev`. DCA commands stubbed but not implemented (safe to defer). Ready for Spark resumption.
+**Sensor model field required:** All sensors calling `insertTaskIfNew`/`insertTask` must include `model` field. Failure: tasks fail at dispatch with "No model set." (Fixed in aibtc-welcome, 2026-03-23.)
 
-**D4 sustained (2026-03-19 13:39Z):** Report #7346 at 07:39 MDT: $32.98 code + $51.78 API est, 124 tasks. No runaway costs. Cost distribution healthy: arc-skill-manager ($5.82, strategic), arxiv-research ($3.78), editorial ($2.22). No single expensive outlier. Confirmed pattern: $107/day normal run rate is sustainable within $200/day cap. Yesterday's $272 spike was incident-driven (x402 endpoint + monitoring deploy + gh-issues backlog). Today tracking normal volume.
+**Dispatch must include --model:** Follow-up tasks created without `--model` fail silently at dispatch. CLI validation task #8258 queued.
 
-**aibtc-mcp-server releases (2026-03-19/2026-03-20):**
-- **v1.41.0 (task #7594):** No breaking changes. Impacts: (1) Bounty-scanner is new capability Arc lacks — task #7595 (P6) to assess. (2) Credential store via MCP needs security review before HTTP transport — task #7596 (P4 Opus). (3) ERC-8004 tools duplicate Arc's existing skill suite (no action). (4) Runes support + restored Unisat wallet tools strengthen ordinals beat. (5) Souldinals adds cross-chain identity depth (low priority). Security review (#7596) is critical path item before enabling HTTP transport.
-- **v1.42.0 (2026-03-20, task #7777):** Non-breaking feature update. Jingswap contract names updated to `sbtc-stx-jing` and `sbtc-usdcx-jing`. No immediate action. When Jingswap skill (#6809, P3) is built, use updated contract identifiers. Created follow-up task #7797.
+**No same-day retry after daily cap:** Never create retry tasks for signals after 6/6 daily cap hit. Sensor handles next day naturally.
 
-**Claude Code upgraded (2026-03-20, task #7779):** Upgraded v2.1.73 → v2.1.81 via `bun add -g @anthropic-ai/claude-code@2.1.81`. Fixes: stdin hang (v2.1.79), background agent task hang (v2.1.81). Version lag resolved.
+**PR supersession closure:** When a higher-priority task supersedes pending tasks, explicitly close them (`status=failed, summary="superseded by #X"`). Don't leave to fail independently.
 
-**Volume high-water mark (2026-03-20):** 455 tasks in 24h, $115.94 — new volume record. Still under D4 cap ($200). Driven by aibtc-repo-maintenance (160), arc-skill-manager (113), github-ci-status (58). 97% success rate. Volume is high but cost-efficient at $0.255/task avg. Monitor if next day exceeds $150 to flag D4 risk.
+**Bulk-kill inflation:** Bulk-killed tasks register as `status=failed`. When retro failure counts look anomalously high (100+), check for bulk-kill events first.
 
-**nostr-wot trust integration (2026-03-21, task #7793):** nostr-wot wired into 3 DeFi/payment flows: (1) defi-bitflow swap --counterparty-pubkey gate (blocks untrusted counterparties), (2) arc-payments incoming payment trust scoring, (3) x402-sponsor-relay counterparty validation. Trust layer is now available as a first-class gate in payment and DeFi operations. Use `--counterparty-pubkey <hex>` on swap commands to enforce trust check.
+**Cooldown pre-check in sensors:** Before `db.createTask()` in signal-filing sensors, check (1) active cooldown via hook-state and (2) daily task count. Gap exists in ordinals-market-data sensor (task #8259 queued).
 
-**Landing-page gate scope (2026-03-21):** Pre-dispatch gate drops landing-page *merge/PR* tasks but passes *analysis* tasks (#7791, #7790, #7789 all executed). If analysis tasks for landing-page are also wasteful (human context required), tighten gate to drop all subjects containing "[landing-page]" regardless of task type.
+**DeFi pairs not in Ordinals beat:** Bitflow sBTC/STX pair rejected under ordinals beat. Gate DeFi-only pairs in ordinals signal sensor (#8259).
 
-**Workflow architecture validated (2026-03-21, task #7794):** Evaluated 5 repeating patterns — all covered by existing state machines (agent-collaboration, git-workflow, etc.). No new workflow templates or architecture changes needed. Existing machine coverage is sufficient through at least Q2 2026.
-
-**PR comment etiquette (2026-03-21, task #7898):** When CI systems (Vercel, GitHub Actions) already post comments on a PR Arc filed, Arc must NOT add its own review comments — it creates a confusing "self-review" appearance and noise. Pattern: file PR, then stay silent unless the PR author asks for feedback. Let CI comments speak for themselves. Cleanup task #7899 queued to remove redundant comments from 5 cryptoskills PRs.
-
-**Retrospective 2026-03-23 (43 failures, task #8257):**
-- **NONCE_CONFLICT (31 tasks):** Ongoing known issue. Circuit breaker latch fix (task #7914) still in PR on feat/inbox-endpoint, not merged. No new action.
-- **Sensor missing model field (3 tasks: #8254-8256):** aibtc-welcome sensor called `insertTaskIfNew` without `model` field — tasks failed at dispatch with "No model set." Fixed inline (added `model: "sonnet"` to sensor). Root cause: sensor was never updated when explicit-model requirement was introduced. **All sensors that call `insertTaskIfNew` or `insertTask` must include `model` field.**
-- **Dispatch session omitting --model (5 tasks: #8212-8216):** Follow-up tasks created by dispatch (session for task #8209) without `--model` flag. CLI currently allows this — fails silently at dispatch. Follow-up task #8258 queued to add CLI validation (reject `arc tasks add` without `--model`).
-- **sBTC/STX DeFi signal under Ordinals beat (#8135):** Bitflow pair (sBTC/STX) queued for ordinals beat — rejected. Follow-up task #8259 queued to gate DeFi-only pairs in the ordinals signal sensor.
-- **Empty retrospectives (#8226, #8228, #8235):** Retrospective tasks queued for mislabeled/duplicate upstream tasks that never executed. Not bugs — noise from the retrospective sensor picking up failed tasks with no learnings.
-
-**Retrospective 2026-03-22 (107 "failures", task #8057):**
-- **Bulk-kill inflation pattern:** 71/107 failures were NOT genuine failures — they were queued welcome tasks bulk-killed when whoabuddy disabled the aibtc-welcome sensor. Bulk kills register as `status=failed` with summary "Bulk killed — welcome sensor disabled by human directive." This is intentional cleanup, not a bug. When retrospective counts look anomalously high (100+), check for bulk-kill events before treating as incident.
-- **NONCE_CONFLICT continuing (31 tasks):** Circuit breaker latch fix (task #7914, commit 1b36a62) is in PR on feat/inbox-endpoint but NOT yet merged. Until it merges, welcome sends will keep producing NONCE_CONFLICT failures. No new action — #7914/#7916 are the path.
-- **Cooldown pre-check gap in ordinals-market-data (4 tasks):** Same pattern as editorial sensor (noted 2026-03-21 retro). ordinals-market-data sensor is also queuing signal tasks without checking active cooldown first. Fix needed in that sensor (same pattern as task #7806 for editorial). Created follow-up task.
-
-**Retrospective 2026-03-21 (6 failures, task #7805):**
-- **Sensor pre-check gap (recurring):** All 6 failures split into two known gate conditions — 3 rate-limit (cooldown active) and 3 daily-cap (6/6 hit). Root cause: sensors queue signal tasks without checking these transient states first. Fix pattern: before `db.createTask()` in a signal-filing sensor, check (1) active cooldown via hook-state and (2) daily task count for same beat/source. Task #7806 created to implement pre-checks in aibtc-news-editorial sensor.
-- **magiceden.io unreachable (task #7749):** Signal pre-flight detected magiceden.io/ordinals unreachable. Note as unreliable data source — don't use as sole evidence source for signals.
-
-**Retrospective 2026-03-20 (13 failures, task #7644):**
-- **No-same-day-retry policy violations (2026-03-20):** Task #7623 was a retry for a signal that hit the daily cap — a policy violation. When closing a task due to daily cap hit, do NOT create a follow-up retry task. The policy is clear: "Do NOT queue retry tasks for same-day signals after daily limit is hit." The retry will be handled naturally by the sensor the next day.
-- **Landing-page task leakage (2026-03-20):** Tasks #7432 and #7451 have subject prefix "[landing-page]" and lack a `source` field — they appear to be human-queued. Pre-dispatch gate drops them, but tasks are still executing and timing out (wasting Sonnet budget). Root cause: gate may be running post-queue not pre-execution. Create follow-up to harden landing-page detection in the gate.
-- **PR supersession without closure (2026-03-20):** Tasks #7389, #7408, #7409 all related to the same aibtcdev PR/mention, all failed as "superseded by P1 Opus." When a higher-priority task supersedes others, old tasks should be explicitly closed (status=failed, summary="superseded by #X") by the superseding task — not left to fail independently. This creates clean audit trails and avoids confusion.
+**Empty retrospectives:** Retro sensor queuing tasks for upstream tasks that never executed — not bugs, just noise.
