@@ -8,10 +8,10 @@ const POLL_INTERVAL = 30; // check every 30 min
 const TARGET_HOUR_PST = 23; // 11 PM PST = end of calendar day
 const TASK_SOURCE = "sensor:daily-brief-inscribe";
 
-// Path to the child-inscription CLI (github/aibtcdev/skills must be cloned)
+// Path to the child-inscription CLI (installed in skills/child-inscription/)
 const CHILD_INSCRIPTION_CLI = join(
   import.meta.dir,
-  "../../github/aibtcdev/skills/child-inscription/child-inscription.ts"
+  "../child-inscription/child-inscription.ts"
 );
 
 function getPSTInfo(now: Date): { hour: number; date: string } {
@@ -34,14 +34,14 @@ function getPSTInfo(now: Date): { hour: number; date: string } {
  * Returns { ok: true } if all prerequisites pass, or { ok: false, reason } if not.
  *
  * Prerequisites:
- *   1. child-inscription CLI must exist at github/aibtcdev/skills/child-inscription/child-inscription.ts
- *      (requires cloning aibtcdev/skills into ~/arc-starter/github/aibtcdev/skills)
+ *   1. child-inscription CLI must exist at skills/child-inscription/child-inscription.ts
+ *      (installed by arc skills install child-inscription)
  */
 function checkPrerequisites(): { ok: boolean; reason?: string } {
   if (!existsSync(CHILD_INSCRIPTION_CLI)) {
     return {
       ok: false,
-      reason: "missing-child-inscription-cli: clone aibtcdev/skills into github/aibtcdev/skills",
+      reason: "missing-child-inscription-cli: skill not found at skills/child-inscription/child-inscription.ts",
     };
   }
   return { ok: true };

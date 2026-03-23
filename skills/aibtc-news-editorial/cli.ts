@@ -591,8 +591,8 @@ async function cmdCompileBrief(args: string[]): Promise<void> {
     const today = new Date().toISOString().split("T")[0];
 
     // v2: auth via headers, snake_case body
-    const headers = await buildAuthHeaders("POST", "/brief");
-    log(`Signing message for POST /api/brief`);
+    const headers = await buildAuthHeaders("POST", "/brief/compile");
+    log(`Signing message for POST /api/brief/compile`);
 
     const body: Record<string, unknown> = {
       date: today,
