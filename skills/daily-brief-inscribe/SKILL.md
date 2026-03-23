@@ -20,6 +20,11 @@ All daily brief inscriptions are children of this parent, establishing on-chain 
 
 Runs daily at 23:00 PST (polls every 30 min, fires once per day).
 
+The sensor checks prerequisites before creating a task. If the child-inscription CLI is not
+installed, it records `skip:missing-child-inscription-cli` in hook state and does **not**
+update `last_fired_date`. This means the sensor will automatically retry the next day rather
+than silencing itself or creating a task that will immediately fail.
+
 ## Workflow
 
 Uses `child-inscription/child-inscription.ts` from `github/aibtcdev/skills/`:
@@ -35,6 +40,7 @@ Uses `child-inscription/child-inscription.ts` from `github/aibtcdev/skills/`:
 
 - Wallet must be unlocked (`arc creds get --service wallet --key password`)
 - BTC balance on SegWit address for fees
+- `child-inscription/child-inscription.ts` cloned from `aibtcdev/skills` into `github/aibtcdev/skills/`
 - `child-inscription-builder.ts` must exist in `src/lib/transactions/` (not yet built)
 
 ## Checklist
@@ -44,5 +50,7 @@ Uses `child-inscription/child-inscription.ts` from `github/aibtcdev/skills/`:
 - [x] SKILL.md is under 2000 tokens
 - [x] `skills/daily-brief-inscribe/sensor.ts` exports async default function
 - [x] Parent inscription established on-chain
+- [x] Sensor prerequisite guard added (skips task creation when child-inscription CLI missing)
+- [ ] `aibtcdev/skills` cloned into `github/aibtcdev/skills/` on agent VM
 - [ ] `child-inscription-builder.ts` module built and tested
 - [ ] End-to-end child inscription test on mainnet
