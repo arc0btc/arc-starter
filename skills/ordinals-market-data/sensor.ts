@@ -133,6 +133,16 @@ interface SignalData {
   milestoneSource?: string; // if set, used as task source instead of default category source
 }
 
+/** Raw data payload — fetch functions return structured data + deltas; dispatch LLM composes editorial. */
+interface RawSignalPayload {
+  category: Category;
+  rawData: Record<string, unknown>; // structured data from the API source
+  deltas: DeltaInfo[];              // computed deltas vs prior reading
+  sources: Array<{ url: string; title: string }>;
+  tags: string;
+  changeReason: string;             // why the change-detection gate was passed
+}
+
 const log = createSensorLogger(SENSOR_NAME);
 
 // ---- History Helpers ----
@@ -179,24 +189,6 @@ function computeDeltas(history: CategoryHistory, category: Category, currentMetr
     }
   }
   return deltas;
-}
-
-/** Format deltas into a human-readable summary for inclusion in signal evidence. */
-function formatDeltas(deltas: DeltaInfo[]): string {
-  if (deltas.length === 0) return "";
-  const durationHours = deltas[0].trendDurationMs / 3_600_000;
-  const timeLabel = durationHours >= 24
-    ? `${(durationHours / 24).toFixed(1)}d`
-    : `${durationHours.toFixed(1)}h`;
-  const parts = deltas.map((d) => {
-    const sign = d.absoluteChange >= 0 ? "+" : "";
-    const pctSign = d.percentChange >= 0 ? "+" : "";
-    const absStr = Math.abs(d.absoluteChange) >= 1
-      ? Math.round(d.absoluteChange).toLocaleString()
-      : d.absoluteChange.toFixed(4);
-    return `${d.metric}: ${sign}${absStr} (${pctSign}${d.percentChange.toFixed(1)}%)`;
-  });
-  return `Deltas vs prior reading (${timeLabel} ago): ${parts.join("; ")}`;
 }
 
 // ---- Narrative Thread Helpers ----
@@ -511,7 +503,7 @@ function detectCollectionEventSignals(
 
 // ---- Data Fetchers ----
 
-async function fetchInscriptionData(apiKey: string, state: HookState, history: CategoryHistory): Promise<SignalData | null> {
+async function fetchInscriptionData(apiKey: string, state: HookState, history: CategoryHistory): Promise<RawSignalPayload | null> {
   try {
     // BRC-20 status for overall inscription activity
     const statusRes = await fetch(`${UNISAT_API}/v1/indexer/brc20/status`, {
@@ -567,7 +559,6 @@ async function fetchInscriptionData(apiKey: string, state: HookState, history: C
     const metrics: Record<string, number> = { totalInscriptions, tokenCount };
     const deltas = computeDeltas(history, "inscriptions", metrics);
     pushReading(history, "inscriptions", metrics);
-    const deltaStr = formatDeltas(deltas);
 
     // Change-detection gate: >10pp shift in dominant content-type share or dominant type change
     const currentDist: Record<string, number> = {};
@@ -598,21 +589,30 @@ async function fetchInscriptionData(apiKey: string, state: HookState, history: C
       log("inscriptions: first content-type reading — allowing signal (no prior baseline)");
     }
 
-    const inscriptionCountStr = totalInscriptions > 0
-      ? `${(totalInscriptions / 1_000_000).toFixed(1)}M total inscriptions`
-      : `${tokenCount} BRC-20 tokens deployed`;
+    // Determine change reason for context
+    const changeReason = prevDist === undefined
+      ? "first content-type reading (no prior baseline)"
+      : currentDominant !== prevDominant
+        ? `dominant content type changed "${prevDominant}" → "${currentDominant}"`
+        : `content-type share shifted beyond ${INSCRIPTION_CONTENT_SHIFT_PP}pp threshold`;
 
     return {
       category: "inscriptions",
-      headline: `Bitcoin inscription activity: ${inscriptionCountStr}, recent batch dominated by ${topTypeLabel}`,
-      claim: `Bitcoin inscription activity shows ${inscriptionCountStr} on the network, with recent inscriptions dominated by ${topTypeLabel} content types.`,
-      evidence: `Unisat indexer reports ${totalInscriptions > 0 ? totalInscriptions.toLocaleString() : "N/A"} total inscriptions, ${tokenCount} BRC-20 tokens deployed. The latest ${recentCount} inscriptions show content-type distribution: ${Object.entries(contentTypes).map(([k, v]) => `${k}: ${v}`).join(", ")}.${deltaStr ? ` ${deltaStr}` : ""}`,
-      implication: `The content-type mix in recent inscriptions signals whether the market favours collectible media (image/video) or financial instruments (text/BRC-20 deploys). A shift toward text-heavy inscriptions typically precedes BRC-20 trading volume spikes.`,
+      rawData: {
+        totalInscriptions,
+        tokenCount,
+        recentCount,
+        contentTypeDistribution: contentTypes,
+        dominantType: currentDominant,
+        dominantTypeShare: currentDist[currentDominant] ?? 0,
+      },
+      deltas,
       sources: [
         { url: "https://open-api.unisat.io", title: "Unisat Indexer API — inscription status" },
         { url: "https://mempool.space", title: "mempool.space — Bitcoin fee market" },
       ],
       tags: "ordinals-business,inscriptions,bitcoin,on-chain",
+      changeReason,
     };
   } catch (e) {
     log(`inscriptions: error — ${(e as Error).message}`);
@@ -620,7 +620,7 @@ async function fetchInscriptionData(apiKey: string, state: HookState, history: C
   }
 }
 
-async function fetchBrc20Data(apiKey: string, state: HookState, history: CategoryHistory): Promise<SignalData | null> {
+async function fetchBrc20Data(apiKey: string, state: HookState, history: CategoryHistory): Promise<RawSignalPayload | null> {
   try {
     const statusRes = await fetch(`${UNISAT_API}/v1/indexer/brc20/status`, {
       headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
@@ -660,7 +660,6 @@ async function fetchBrc20Data(apiKey: string, state: HookState, history: Categor
 
     const topToken = tokenSummaries[0];
     const totalTokens = Number(status.tokenCount ?? status.count ?? tokens.length);
-    const topList = tokenSummaries.map((t) => `${t.ticker} (${t.holders} holders, ${t.mintPct}% minted)`).join("; ");
 
     // Historical data: compute deltas then store reading (always, regardless of gate)
     const metrics: Record<string, number> = { totalTokens };
@@ -669,7 +668,6 @@ async function fetchBrc20Data(apiKey: string, state: HookState, history: Categor
     }
     const deltas = computeDeltas(history, "brc20", metrics);
     pushReading(history, "brc20", metrics);
-    const deltaStr = formatDeltas(deltas);
 
     // Change-detection gate: >5% holder count change in any top-5 token, or new token entering top-5
     const currentTickers = tokenSummaries.map((t) => t.ticker);
@@ -680,6 +678,7 @@ async function fetchBrc20Data(apiKey: string, state: HookState, history: Categor
     state.lastBrc20TopTickers = currentTickers;
     state.lastBrc20Holders = Object.fromEntries(tokenSummaries.map((t) => [t.ticker, t.holders]));
 
+    let changeReason: string;
     const isFirstRun = prevTickers.length === 0;
     if (!isFirstRun) {
       const newInTop5 = currentTickers.some((t) => !prevTickers.includes(t));
@@ -694,21 +693,26 @@ async function fetchBrc20Data(apiKey: string, state: HookState, history: Categor
       }
       const reason = newInTop5 ? "new token entered top-5" : `holder count shift >${BRC20_HOLDER_CHANGE_THRESHOLD_PCT}% in top-5`;
       log(`brc20: threshold met — ${reason}`);
+      changeReason = reason;
     } else {
       log("brc20: first reading — allowing signal (no prior baseline)");
+      changeReason = "first reading (no prior baseline)";
     }
 
     return {
       category: "brc20",
-      headline: `BRC-20 ecosystem: ${totalTokens} tokens deployed, ${topToken.ticker} leads with ${topToken.holders} holders`,
-      claim: `The BRC-20 token ecosystem on Bitcoin has grown to ${totalTokens} deployed tokens, with ${topToken.ticker} leading holder count at ${topToken.holders} addresses.`,
-      evidence: `Unisat BRC-20 indexer shows ${totalTokens} total tokens. Top 5 by activity: ${topList}.${deltaStr ? ` ${deltaStr}` : ""}`,
-      implication: `BRC-20 holder concentration in top tokens indicates whether the market is consolidating around blue-chip fungibles or fragmenting into speculative micro-caps. High holder counts with incomplete mints suggest sustained accumulation rather than mint-and-dump cycles.`,
+      rawData: {
+        totalTokens,
+        tokenSummaries,
+        topToken,
+      },
+      deltas,
       sources: [
         { url: "https://open-api.unisat.io", title: "Unisat BRC-20 Indexer — token status and rankings" },
         { url: "https://mempool.space", title: "mempool.space — Bitcoin transaction fees" },
       ],
       tags: "ordinals-business,brc-20,bitcoin,fungibles",
+      changeReason,
     };
   } catch (e) {
     log(`brc20: error — ${(e as Error).message}`);
@@ -716,7 +720,7 @@ async function fetchBrc20Data(apiKey: string, state: HookState, history: Categor
   }
 }
 
-async function fetchFeeMarketData(state: HookState, history: CategoryHistory): Promise<SignalData | null> {
+async function fetchFeeMarketData(state: HookState, history: CategoryHistory): Promise<RawSignalPayload | null> {
   try {
     // Fetch recommended fees
     const feesRes = await fetchWithRetry(`${MEMPOOL_API}/v1/fees/recommended`);
@@ -739,7 +743,6 @@ async function fetchFeeMarketData(state: HookState, history: CategoryHistory): P
     const minimumFee = fees.minimumFee ?? 0;
     const mempoolSize = Number(mempool.count ?? 0);
     const mempoolVsize = Number(mempool.vsize ?? 0);
-    const mempoolMB = (mempoolVsize / 1_000_000).toFixed(1);
 
     if (fastestFee === 0) {
       log("fees: no fee data");
@@ -753,11 +756,11 @@ async function fetchFeeMarketData(state: HookState, history: CategoryHistory): P
     const metrics: Record<string, number> = { fastestFee, hourFee, minimumFee, mempoolSize, feeSpread };
     const deltas = computeDeltas(history, "fees", metrics);
     pushReading(history, "fees", metrics);
-    const deltaStr = formatDeltas(deltas);
 
     // Change-detection gate: >20% move in fastestFee
     const prevFee = state.lastFastestFee;
     state.lastFastestFee = fastestFee; // always update
+    let changeReason: string;
     if (prevFee !== undefined && prevFee > 0) {
       const feePctChange = Math.abs(fastestFee - prevFee) / prevFee * 100;
       if (feePctChange < FEE_CHANGE_THRESHOLD_PCT) {
@@ -765,21 +768,30 @@ async function fetchFeeMarketData(state: HookState, history: CategoryHistory): P
         return null;
       }
       log(`fees: threshold met — fastestFee ${prevFee}→${fastestFee} (${feePctChange.toFixed(1)}% >= ${FEE_CHANGE_THRESHOLD_PCT}%)`);
+      changeReason = `fastestFee moved ${feePctChange.toFixed(1)}% (${prevFee} → ${fastestFee} sat/vB)`;
     } else {
       log("fees: first reading — allowing signal (no prior baseline)");
+      changeReason = "first reading (no prior baseline)";
     }
 
     return {
       category: "fees",
-      headline: `Bitcoin fee market ${urgencyLabel}: ${fastestFee} sat/vB fastest, ${mempoolSize.toLocaleString()} unconfirmed txs (${mempoolMB} MvB)`,
-      claim: `Bitcoin's fee market is at ${urgencyLabel} levels with fastest confirmation at ${fastestFee} sat/vB, creating a ${feeSpread} sat/vB spread between priority and economy transactions.`,
-      evidence: `mempool.space reports: fastest fee ${fastestFee} sat/vB, 1-hour fee ${hourFee} sat/vB, minimum ${minimumFee} sat/vB. Mempool holds ${mempoolSize.toLocaleString()} unconfirmed transactions (${mempoolMB} MvB). Fee spread (fastest minus minimum): ${feeSpread} sat/vB.${deltaStr ? ` ${deltaStr}` : ""}`,
-      implication: `Fee market conditions directly impact inscription economics. ${urgencyLabel === "elevated" ? "Elevated fees discourage low-value inscriptions and compress daily inscription volume, favouring larger or higher-value ordinals." : urgencyLabel === "moderate" ? "Moderate fees allow steady inscription flow while filtering spam, a healthy environment for ordinals market activity." : "Low fees create favourable conditions for inscription batching and BRC-20 minting, potentially boosting daily inscription counts."}`,
+      rawData: {
+        fastestFee,
+        hourFee,
+        minimumFee,
+        mempoolSize,
+        mempoolVsize,
+        feeSpread,
+        urgencyLabel,
+      },
+      deltas,
       sources: [
         { url: "https://mempool.space/api/v1/fees/recommended", title: "mempool.space — recommended fee rates" },
         { url: "https://mempool.space/api/mempool", title: "mempool.space — mempool statistics" },
       ],
       tags: "ordinals-business,fees,bitcoin,mempool",
+      changeReason,
     };
   } catch (e) {
     log(`fees: error — ${(e as Error).message}`);
@@ -787,7 +799,7 @@ async function fetchFeeMarketData(state: HookState, history: CategoryHistory): P
   }
 }
 
-async function fetchNftFloorData(state: HookState, history: CategoryHistory): Promise<{ signal: SignalData | null; collectionEvents: SignalData[] }> {
+async function fetchNftFloorData(state: HookState, history: CategoryHistory): Promise<{ signal: RawSignalPayload | null; collectionEvents: SignalData[] }> {
   try {
     // CoinGecko free tier — Bitcoin NFT collections
     // Known collection IDs on CoinGecko: bitcoin-frogs, nodemonkes, bitcoin-puppets
@@ -827,11 +839,6 @@ async function fetchNftFloorData(state: HookState, history: CategoryHistory): Pr
     // Sort by floor price descending
     results.sort((a, b) => b.floor - a.floor);
 
-    const floorSummary = results.map((r) =>
-      `${r.name}: ${r.floor.toFixed(4)} BTC floor, ${r.volume24h.toFixed(2)} BTC 24h volume`
-    ).join("; ");
-
-    const topCollection = results[0];
     const totalVolume = results.reduce((sum, r) => sum + r.volume24h, 0);
 
     // Historical data: compute deltas then store reading (always, regardless of gate)
@@ -842,7 +849,6 @@ async function fetchNftFloorData(state: HookState, history: CategoryHistory): Pr
     }
     const deltas = computeDeltas(history, "nft-floors", metrics);
     pushReading(history, "nft-floors", metrics);
-    const deltaStr = formatDeltas(deltas);
 
     // Detect per-collection events (floor-break, floor-surge, volume-spike) before aggregate gate
     // so collection history always accumulates regardless of whether the regular signal fires.
@@ -853,6 +859,7 @@ async function fetchNftFloorData(state: HookState, history: CategoryHistory): Pr
     // Always update state
     state.lastNftFloors = Object.fromEntries(results.map((r) => [r.id, r.floor]));
 
+    let changeReason: string;
     const isFirstRun = Object.keys(prevFloors).length === 0;
     if (!isFirstRun) {
       const floorMoved = results.some((r) => {
@@ -875,22 +882,32 @@ async function fetchNftFloorData(state: HookState, history: CategoryHistory): Pr
         return `${r.name} ${prev.toFixed(4)}→${r.floor.toFixed(4)} BTC (${pct}%)`;
       });
       log(`nft-floors: threshold met — ${moved.join(", ")}`);
+      changeReason = `floor moved >${NFT_FLOOR_CHANGE_THRESHOLD_PCT}%: ${moved.join(", ")}`;
     } else {
       log("nft-floors: first reading — allowing signal (no prior baseline)");
+      changeReason = "first reading (no prior baseline)";
     }
 
     return {
       signal: {
         category: "nft-floors",
-        headline: `Ordinals NFT floors: ${topCollection.name} at ${topCollection.floor.toFixed(4)} BTC, ${totalVolume.toFixed(2)} BTC combined 24h volume`,
-        claim: `Top Bitcoin NFT collections show ${topCollection.name} leading at ${topCollection.floor.toFixed(4)} BTC floor price, with ${totalVolume.toFixed(2)} BTC combined 24-hour trading volume across major collections.`,
-        evidence: `CoinGecko data for ${results.length} tracked Ordinals collections: ${floorSummary}.${deltaStr ? ` ${deltaStr}` : ""}`,
-        implication: `Floor price trends in blue-chip Ordinals collections serve as a sentiment proxy for the broader Bitcoin NFT market. ${totalVolume > 10 ? "Elevated volume suggests active price discovery and potential floor repricing." : totalVolume > 1 ? "Moderate volume indicates stable market participation with neither panic selling nor euphoric accumulation." : "Thin volume suggests the market is in a wait-and-see posture, with floors potentially fragile if liquidity remains sparse."}`,
+        rawData: {
+          collections: results.map((r) => ({
+            name: r.name,
+            id: r.id,
+            floorBtc: r.floor,
+            volume24hBtc: r.volume24h,
+            marketCapBtc: r.marketCap,
+          })),
+          totalVolumeBtc: totalVolume,
+        },
+        deltas,
         sources: [
           { url: "https://www.coingecko.com/en/nft", title: "CoinGecko — Ordinals NFT collection data" },
           { url: "https://unisat.io/market", title: "Unisat — Ordinals NFT marketplace" },
         ],
         tags: "ordinals-business,nft,bitcoin,floors",
+        changeReason,
       },
       collectionEvents,
     };
@@ -900,7 +917,7 @@ async function fetchNftFloorData(state: HookState, history: CategoryHistory): Pr
   }
 }
 
-async function fetchRunesData(apiKey: string, state: HookState, history: CategoryHistory): Promise<SignalData | null> {
+async function fetchRunesData(apiKey: string, state: HookState, history: CategoryHistory): Promise<RawSignalPayload | null> {
   try {
     // Overall rune ecosystem status
     const statusRes = await fetch(`${UNISAT_API}/v1/indexer/runes/status`, {
@@ -964,7 +981,6 @@ async function fetchRunesData(apiKey: string, state: HookState, history: Categor
     }
     const deltas = computeDeltas(history, "runes", metrics);
     pushReading(history, "runes", metrics);
-    const deltaStr = formatDeltas(deltas);
 
     if (!isFirstRun && !newInTop10 && !holderShift) {
       log("runes: no significant change (no new top-10 rune, no >10% holder shift); skipping signal");
@@ -978,21 +994,20 @@ async function fetchRunesData(apiKey: string, state: HookState, history: Categor
         : "holder count shift >10% detected in top-10";
     log(`runes: signal threshold met — ${changeReason}`);
 
-    const top5Summary = top10.slice(0, 5).map((r) => `${r.name} (${r.holders} holders)`).join("; ");
-    const topRune = top10[0];
-    const etchingNote = etchingCount > 0 ? `, ${etchingCount} recent etchings` : "";
-
     return {
       category: "runes",
-      headline: `Bitcoin Runes: ${totalRunes.toLocaleString()} runes etched${etchingNote}, ${topRune?.name ?? "N/A"} leads at ${topRune?.holders ?? 0} holders`,
-      claim: `The Bitcoin Runes protocol has ${totalRunes.toLocaleString()} total runes etched${etchingNote}, with ${changeReason} observed in holder rankings. ${topRune?.name ?? "N/A"} holds the top position at ${topRune?.holders ?? 0} addresses.`,
-      evidence: `Unisat Runes indexer: ${totalRunes.toLocaleString()} total runes${etchingCount > 0 ? `, ${etchingCount} recent etchings` : ""}. Top 5 by holder count: ${top5Summary}. Change trigger: ${changeReason}.${deltaStr ? ` ${deltaStr}` : ""}`,
-      implication: `Rune holder shifts signal whether Bitcoin's native fungible token layer is redistributing or consolidating. New entrants to the top-10 indicate emerging protocols gaining market share; holder count movements above 10% represent meaningful accumulation or distribution events that often precede price action in the broader Runes market.`,
+      rawData: {
+        totalRunes,
+        etchingCount,
+        top10: top10.map((r) => ({ id: r.id, name: r.name, holders: r.holders })),
+      },
+      deltas,
       sources: [
         { url: "https://open-api.unisat.io", title: "Unisat Runes Indexer API — rune status and list" },
         { url: "https://unisat.io/runes", title: "Unisat — Runes marketplace" },
       ],
       tags: "ordinals-business,runes,bitcoin,fungibles",
+      changeReason,
     };
   } catch (e) {
     log(`runes: error — ${(e as Error).message}`);
@@ -1061,11 +1076,11 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
     const unisatKey = await getCredential("unisat", "api_key").catch(() => null);
 
     // Fetch data for selected categories
-    const signals: SignalData[] = [];
+    const signals: RawSignalPayload[] = [];
     const milestoneSignals: SignalData[] = [];
 
     for (const cat of categoriesToFetch) {
-      let signal: SignalData | null = null;
+      let signal: RawSignalPayload | null = null;
 
       switch (cat) {
         case "inscriptions": {
@@ -1110,7 +1125,7 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
       return "ok";
     }
 
-    // Queue signal-filing tasks
+    // Queue signal-filing tasks — pass raw data to dispatch LLM for original editorial composition
     let queued = 0;
     for (const signal of signals) {
       if (queued >= MAX_SIGNALS_PER_RUN) break;
@@ -1124,45 +1139,71 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
       }
 
       const sourcesJson = JSON.stringify(signal.sources);
+      const rawDataJson = JSON.stringify(signal.rawData, null, 2);
+      const deltasJson = signal.deltas.length > 0
+        ? JSON.stringify(signal.deltas.map((d) => ({
+            metric: d.metric,
+            current: d.current,
+            previous: d.previous,
+            change: d.absoluteChange,
+            changePct: `${d.percentChange >= 0 ? "+" : ""}${d.percentChange.toFixed(1)}%`,
+            elapsed: `${(d.trendDurationMs / 3_600_000).toFixed(1)}h`,
+          })), null, 2)
+        : "[]";
       const narrativeBlock = buildNarrativeContext(state.narrativeThread);
 
       insertTask({
-        subject: `File ordinals signal: ${signal.headline.slice(0, 120)}`,
-        description: `Arc's ordinals-market-data sensor detected a signal opportunity.
+        subject: `File ordinals signal: ${signal.category} [${signal.changeReason.slice(0, 100)}]`,
+        description: `Arc's ordinals-market-data sensor detected a material change in **${signal.category}** data.
 
-**Category:** ${signal.category}
-**Headline:** ${signal.headline}
+## Raw Data
 
-**Claim:** ${signal.claim}
+\`\`\`json
+${rawDataJson}
+\`\`\`
 
-**Evidence:** ${signal.evidence}
+## Deltas vs Prior Reading
 
-**Implication:** ${signal.implication}
+\`\`\`json
+${deltasJson}
+\`\`\`
 
+**Change Trigger:** ${signal.changeReason}
 **Sources:** ${sourcesJson}
 **Tags:** ${signal.tags}
 
 ---
 
-${ANGLE_DIRECTIVES[angle]}
+## Editorial Instructions
 
-Use the angle above to reshape the raw data into a signal with a distinctive analytical voice. The claim/evidence/implication provided are starting material — rewrite them through the lens of the assigned angle. Do NOT simply repeat the raw data verbatim.
+You are composing an original signal for the **ordinals** beat on aibtc.news. Use the raw data and deltas above as your source material.
+
+**Voice:** The Economist — precise, data-rich, understated authority. No hype, no breathless enthusiasm. Let the numbers carry the weight.
+
+**${ANGLE_DIRECTIVES[angle]}**
+
+Compose each field from scratch using the raw data. Do NOT use canned phrases or generic market commentary. Every claim must be traceable to a specific number in the data above. Every implication must follow logically from the evidence.
+
+**Required output fields:**
+- **headline**: One sentence, max 140 chars. Lead with the most newsworthy number or shift.
+- **claim**: 1-2 sentences. The core assertion — what happened and why it matters.
+- **evidence**: 2-3 sentences. Cite specific numbers from the raw data and deltas. Include absolute values AND percentage changes where available.
+- **implication**: 1-2 sentences. What this means for the ordinals ecosystem going forward. Be specific to the data — no generic "this could signal changing dynamics."
 ${narrativeBlock}
 ---
 
-File this signal to the ordinals beat using:
+File the composed signal to the ordinals beat using:
 \`\`\`
 arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals \\
-  --headline "${signal.headline.replace(/"/g, '\\"')}" \\
-  --claim "${signal.claim.replace(/"/g, '\\"')}" \\
-  --evidence "${signal.evidence.replace(/"/g, '\\"')}" \\
-  --implication "${signal.implication.replace(/"/g, '\\"')}" \\
+  --headline "<your composed headline>" \\
+  --claim "<your composed claim>" \\
+  --evidence "<your composed evidence>" \\
+  --implication "<your composed implication>" \\
   --sources '${sourcesJson}' \\
   --tags "${signal.tags}"
 \`\`\`
 
-Arc ONLY files to the ordinals beat (slug: ordinals). Do NOT file to any other beat.
-Use Economist voice — precise, data-rich, no hype language.`,
+Arc ONLY files to the ordinals beat (slug: ordinals). Do NOT file to any other beat.`,
         skills: JSON.stringify(["ordinals-market-data", "aibtc-news-editorial"]),
         priority: 7,
         model: "sonnet",
@@ -1170,7 +1211,7 @@ Use Economist voice — precise, data-rich, no hype language.`,
         source: signalSource,
       });
 
-      log(`queued signal: ${signal.category} — ${signal.headline.slice(0, 80)}`);
+      log(`queued signal: ${signal.category} — ${signal.changeReason.slice(0, 80)}`);
       state.lastSignalQueued = new Date().toISOString();
       queued++;
     }
