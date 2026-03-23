@@ -31,6 +31,21 @@ Automated sensor that fetches diverse on-chain and market data for the ordinals 
 - **Task priority:** P7 (Sonnet) for regular signals; **P5** for milestone signals
 - **Beat:** `ordinals` only. Never files to other beats.
 
+## Collection Event Detection (Phase 3)
+
+When the `nft-floors` category is fetched, the sensor also checks for collection-level events. These are high-signal, low-frequency events queued at **P5**, bypassing the regular 4-hour cooldown. Collection history is stored per-collection in hook state and accumulates regardless of whether the aggregate floor signal fires.
+
+| Event Type | Threshold | Tags |
+|------------|-----------|------|
+| Floor break | >25% floor drop vs prior reading | `floor-break` |
+| Floor surge | >25% floor rise vs prior reading | `floor-surge` |
+| Volume spike | >3x rolling average 24h volume | `volume-spike` |
+
+- **Source keys:** `sensor:ordinals-market-data:collection-event-<collectionId>-<eventType>` (e.g. `collection-event-bitcoin-frogs-floor-break`)
+- **Cooldown:** 24 hours per collection+event pair, enforced via `state.lastCollectionEvents`
+- **History:** Per-collection reading arrays (`collectionHistory`) — max 8 readings, used for rolling average volume and prior-floor comparison
+- **Tracked collections:** bitcoin-frogs, nodemonkes, bitcoin-puppets (same as aggregate NFT floors)
+
 ## Milestone Detection (Phase 2)
 
 When the `inscriptions` category is fetched, the sensor also checks for milestone events. Milestone signals are queued at **P5** and bypass the normal cooldown — they fire immediately on detection.
@@ -87,6 +102,8 @@ Stored at `db/hook-state/ordinals-market-data.json`:
 - `lastRateMilestoneHigh` — ISO timestamp when last high-rate milestone task was created (24h cooldown)
 - `lastRateMilestoneLow` — ISO timestamp when last low-rate milestone task was created (24h cooldown)
 - `history` — `CategoryHistory` object with rolling arrays per category (max 6 entries each)
+- `collectionHistory` — per-collection reading history: `Record<collectionId, CollectionReading[]>` (max 8 readings each)
+- `lastCollectionEvents` — cooldown map: `"<collectionId>-<eventType>" → ISO timestamp` for 24h collection event gates
 
 ## Prerequisites
 

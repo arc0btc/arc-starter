@@ -26,6 +26,14 @@ const INSCRIPTION_CONTENT_SHIFT_PP = 10; // >10 percentage-point shift in domina
 const BRC20_HOLDER_CHANGE_THRESHOLD_PCT = 5; // >5% holder count change in any top-5 token
 const NFT_FLOOR_CHANGE_THRESHOLD_PCT = 10; // >10% floor price move in any tracked collection
 
+// Collection event detection — high-signal, low-frequency events that bypass the regular cooldown
+const COLLECTION_FLOOR_BREAK_PCT = 25;       // >25% floor drop fires a floor-break event
+const COLLECTION_FLOOR_SURGE_PCT = 25;       // >25% floor rise fires a floor-surge event
+const COLLECTION_VOLUME_SPIKE_MULT = 3;      // >3x rolling average volume fires a volume-spike event
+const COLLECTION_EVENT_COOLDOWN_HOURS = 24;  // minimum hours between same event+collection pair
+const COLLECTION_HISTORY_MAX = 8;            // maximum per-collection readings stored in hook state
+const COLLECTION_VOLUME_AVG_WINDOW = 5;      // readings used to compute rolling average volume
+
 const UNISAT_API = "https://open-api.unisat.io";
 const MEMPOOL_API = "https://mempool.space/api";
 const COINGECKO_API = "https://api.coingecko.com/api/v3";
@@ -61,6 +69,12 @@ interface DeltaInfo {
   absoluteChange: number;
   percentChange: number;
   trendDurationMs: number;
+}
+
+interface CollectionReading {
+  timestamp: string;
+  floor: number;     // BTC floor price
+  volume24h: number; // BTC 24h trading volume
 }
 
 // ---- Narrative Thread Types ----
@@ -100,6 +114,8 @@ interface HookState {
   lastBrc20TopTickers?: string[]; // top-5 BRC-20 tickers from last run
   lastBrc20Holders?: Record<string, number>; // ticker -> holderCount from last BRC-20 run
   lastNftFloors?: Record<string, number>; // collection-id -> floor BTC from last NFT fetch
+  collectionHistory?: Record<string, CollectionReading[]>; // collectionId -> per-collection rolling readings
+  lastCollectionEvents?: Record<string, string>; // "<collectionId>-<eventType>" -> ISO timestamp for cooldown
   history?: CategoryHistory;
   narrativeThread?: NarrativeThread;
   [key: string]: unknown;
@@ -358,6 +374,139 @@ function detectMilestoneSignals(state: HookState, history: CategoryHistory): Sig
   }
 
   return milestones;
+}
+
+// ---- Collection Event Detection ----
+
+/**
+ * Detect floor-break, floor-surge, and volume-spike events for individual NFT collections.
+ * Compares current readings against per-collection history stored in state.
+ * Updates state.collectionHistory with the new reading after checks.
+ * Returns an array of SignalData for any events that cleared the cooldown gate.
+ * Call BEFORE the aggregate change-detection gate so history always accumulates.
+ */
+function detectCollectionEventSignals(
+  results: Array<{ name: string; id: string; floor: number; volume24h: number }>,
+  state: HookState,
+): SignalData[] {
+  if (!state.collectionHistory) state.collectionHistory = {};
+  if (!state.lastCollectionEvents) state.lastCollectionEvents = {};
+  const events: SignalData[] = [];
+  const now = new Date().toISOString();
+
+  for (const r of results) {
+    if (r.floor <= 0) continue; // skip collections with no floor data
+
+    const colHistory = state.collectionHistory[r.id] ?? [];
+
+    if (colHistory.length > 0) {
+      const prev = colHistory[colHistory.length - 1];
+
+      // Floor change detection (only when prior floor is valid)
+      if (prev.floor > 0) {
+        const floorChangePct = ((r.floor - prev.floor) / prev.floor) * 100;
+
+        if (floorChangePct <= -COLLECTION_FLOOR_BREAK_PCT) {
+          const eventKey = `${r.id}-floor-break`;
+          const lastFired = state.lastCollectionEvents[eventKey];
+          const hoursSince = lastFired
+            ? (Date.now() - new Date(lastFired).getTime()) / 3_600_000
+            : Infinity;
+          if (hoursSince >= COLLECTION_EVENT_COOLDOWN_HOURS) {
+            log(`collection-event: floor-break ${r.name} ${prev.floor.toFixed(4)}→${r.floor.toFixed(4)} BTC (${floorChangePct.toFixed(1)}%)`);
+            state.lastCollectionEvents[eventKey] = now;
+            events.push({
+              category: "nft-floors",
+              headline: `${r.name} floor breaks ${Math.abs(floorChangePct).toFixed(0)}% lower — now ${r.floor.toFixed(4)} BTC`,
+              claim: `${r.name} has seen its floor price collapse ${Math.abs(floorChangePct).toFixed(1)}% from ${prev.floor.toFixed(4)} BTC to ${r.floor.toFixed(4)} BTC, marking a significant floor-break event in this leading Bitcoin NFT collection.`,
+              evidence: `CoinGecko: ${r.name} floor ${prev.floor.toFixed(4)} BTC → ${r.floor.toFixed(4)} BTC (${floorChangePct.toFixed(1)}%). Prior reading: ${prev.timestamp}. Current 24h volume: ${r.volume24h.toFixed(2)} BTC.`,
+              implication: `Floor breaks >25% in blue-chip Ordinals collections signal forced liquidations, declining collector confidence, or macro-driven selling pressure in Bitcoin NFTs. Rapid floor repricing in a leading collection often precedes sector-wide revaluation.`,
+              sources: [
+                { url: "https://www.coingecko.com/en/nft", title: `CoinGecko — ${r.name} collection data` },
+                { url: "https://unisat.io/market", title: "Unisat — Ordinals NFT marketplace" },
+              ],
+              tags: "ordinals-business,nft,bitcoin,floors,floor-break",
+              priority: 5,
+              milestoneSource: `sensor:${SENSOR_NAME}:collection-event-${r.id}-floor-break`,
+            });
+          } else {
+            log(`collection-event: floor-break cooldown active for ${r.name} (${hoursSince.toFixed(1)}h < ${COLLECTION_EVENT_COOLDOWN_HOURS}h)`);
+          }
+        } else if (floorChangePct >= COLLECTION_FLOOR_SURGE_PCT) {
+          const eventKey = `${r.id}-floor-surge`;
+          const lastFired = state.lastCollectionEvents[eventKey];
+          const hoursSince = lastFired
+            ? (Date.now() - new Date(lastFired).getTime()) / 3_600_000
+            : Infinity;
+          if (hoursSince >= COLLECTION_EVENT_COOLDOWN_HOURS) {
+            log(`collection-event: floor-surge ${r.name} ${prev.floor.toFixed(4)}→${r.floor.toFixed(4)} BTC (+${floorChangePct.toFixed(1)}%)`);
+            state.lastCollectionEvents[eventKey] = now;
+            events.push({
+              category: "nft-floors",
+              headline: `${r.name} floor surges ${floorChangePct.toFixed(0)}% — now ${r.floor.toFixed(4)} BTC`,
+              claim: `${r.name} has seen its floor price surge ${floorChangePct.toFixed(1)}% from ${prev.floor.toFixed(4)} BTC to ${r.floor.toFixed(4)} BTC, marking a significant floor appreciation event in this leading Bitcoin NFT collection.`,
+              evidence: `CoinGecko: ${r.name} floor ${prev.floor.toFixed(4)} BTC → ${r.floor.toFixed(4)} BTC (+${floorChangePct.toFixed(1)}%). Prior reading: ${prev.timestamp}. Current 24h volume: ${r.volume24h.toFixed(2)} BTC.`,
+              implication: `Floor surges >25% in leading Ordinals collections signal strong collector demand, potential new liquidity entering the Bitcoin NFT space, or a catalyst event such as a high-profile sale or partnership announcement. Rapid floor appreciation typically attracts broader market attention and can trigger cascading demand across the sector.`,
+              sources: [
+                { url: "https://www.coingecko.com/en/nft", title: `CoinGecko — ${r.name} collection data` },
+                { url: "https://unisat.io/market", title: "Unisat — Ordinals NFT marketplace" },
+              ],
+              tags: "ordinals-business,nft,bitcoin,floors,floor-surge",
+              priority: 5,
+              milestoneSource: `sensor:${SENSOR_NAME}:collection-event-${r.id}-floor-surge`,
+            });
+          } else {
+            log(`collection-event: floor-surge cooldown active for ${r.name} (${hoursSince.toFixed(1)}h < ${COLLECTION_EVENT_COOLDOWN_HOURS}h)`);
+          }
+        }
+      }
+
+      // Volume spike detection — compare current to rolling average of prior readings
+      if (colHistory.length >= 2) {
+        const window = colHistory.slice(-COLLECTION_VOLUME_AVG_WINDOW);
+        const avgVolume = window.reduce((sum, rd) => sum + rd.volume24h, 0) / window.length;
+        if (avgVolume > 0 && r.volume24h >= avgVolume * COLLECTION_VOLUME_SPIKE_MULT) {
+          const multiplier = r.volume24h / avgVolume;
+          const eventKey = `${r.id}-volume-spike`;
+          const lastFired = state.lastCollectionEvents[eventKey];
+          const hoursSince = lastFired
+            ? (Date.now() - new Date(lastFired).getTime()) / 3_600_000
+            : Infinity;
+          if (hoursSince >= COLLECTION_EVENT_COOLDOWN_HOURS) {
+            log(`collection-event: volume-spike ${r.name} ${r.volume24h.toFixed(2)} BTC (${multiplier.toFixed(1)}x avg ${avgVolume.toFixed(2)} BTC)`);
+            state.lastCollectionEvents[eventKey] = now;
+            events.push({
+              category: "nft-floors",
+              headline: `${r.name} volume spikes ${multiplier.toFixed(1)}x average — ${r.volume24h.toFixed(2)} BTC in 24h`,
+              claim: `${r.name} has recorded ${r.volume24h.toFixed(2)} BTC in 24-hour volume, ${multiplier.toFixed(1)}x its recent rolling average of ${avgVolume.toFixed(2)} BTC — an unusual volume spike signalling heightened market activity.`,
+              evidence: `CoinGecko: ${r.name} 24h volume ${r.volume24h.toFixed(2)} BTC vs rolling ${window.length}-reading average of ${avgVolume.toFixed(2)} BTC (${multiplier.toFixed(1)}x). Current floor: ${r.floor.toFixed(4)} BTC.`,
+              implication: `Volume spikes >3x the rolling average in a single Ordinals collection signal a catalytic event — a high-profile sale, new collector demand, or coordinated trading activity. Elevated volume typically precedes floor repricing and draws wider attention to the collection and broader Bitcoin NFT market.`,
+              sources: [
+                { url: "https://www.coingecko.com/en/nft", title: `CoinGecko — ${r.name} collection data` },
+                { url: "https://unisat.io/market", title: "Unisat — Ordinals NFT marketplace" },
+              ],
+              tags: "ordinals-business,nft,bitcoin,volume,volume-spike",
+              priority: 5,
+              milestoneSource: `sensor:${SENSOR_NAME}:collection-event-${r.id}-volume-spike`,
+            });
+          } else {
+            log(`collection-event: volume-spike cooldown active for ${r.name} (${hoursSince.toFixed(1)}h < ${COLLECTION_EVENT_COOLDOWN_HOURS}h)`);
+          }
+        }
+      }
+    } else {
+      log(`collection-event: first reading for ${r.name} — building history baseline`);
+    }
+
+    // Always push new reading after event checks (history used for next run's comparisons)
+    colHistory.push({ timestamp: now, floor: r.floor, volume24h: r.volume24h });
+    if (colHistory.length > COLLECTION_HISTORY_MAX) {
+      colHistory.splice(0, colHistory.length - COLLECTION_HISTORY_MAX);
+    }
+    state.collectionHistory[r.id] = colHistory;
+  }
+
+  return events;
 }
 
 // ---- Data Fetchers ----
@@ -638,7 +787,7 @@ async function fetchFeeMarketData(state: HookState, history: CategoryHistory): P
   }
 }
 
-async function fetchNftFloorData(state: HookState, history: CategoryHistory): Promise<SignalData | null> {
+async function fetchNftFloorData(state: HookState, history: CategoryHistory): Promise<{ signal: SignalData | null; collectionEvents: SignalData[] }> {
   try {
     // CoinGecko free tier — Bitcoin NFT collections
     // Known collection IDs on CoinGecko: bitcoin-frogs, nodemonkes, bitcoin-puppets
@@ -672,7 +821,7 @@ async function fetchNftFloorData(state: HookState, history: CategoryHistory): Pr
 
     if (results.length === 0) {
       log("nft-floors: no data from CoinGecko");
-      return null;
+      return { signal: null, collectionEvents: [] };
     }
 
     // Sort by floor price descending
@@ -695,6 +844,10 @@ async function fetchNftFloorData(state: HookState, history: CategoryHistory): Pr
     pushReading(history, "nft-floors", metrics);
     const deltaStr = formatDeltas(deltas);
 
+    // Detect per-collection events (floor-break, floor-surge, volume-spike) before aggregate gate
+    // so collection history always accumulates regardless of whether the regular signal fires.
+    const collectionEvents = detectCollectionEventSignals(results, state);
+
     // Change-detection gate: >10% floor price move in any tracked collection
     const prevFloors: Record<string, number> = (state.lastNftFloors as Record<string, number> | undefined) ?? {};
     // Always update state
@@ -709,7 +862,7 @@ async function fetchNftFloorData(state: HookState, history: CategoryHistory): Pr
       });
       if (!floorMoved) {
         log(`nft-floors: below threshold — no collection floor moved >${NFT_FLOOR_CHANGE_THRESHOLD_PCT}%; skipping signal`);
-        return null;
+        return { signal: null, collectionEvents };
       }
       // Log which collection triggered
       const moved = results.filter((r) => {
@@ -727,20 +880,23 @@ async function fetchNftFloorData(state: HookState, history: CategoryHistory): Pr
     }
 
     return {
-      category: "nft-floors",
-      headline: `Ordinals NFT floors: ${topCollection.name} at ${topCollection.floor.toFixed(4)} BTC, ${totalVolume.toFixed(2)} BTC combined 24h volume`,
-      claim: `Top Bitcoin NFT collections show ${topCollection.name} leading at ${topCollection.floor.toFixed(4)} BTC floor price, with ${totalVolume.toFixed(2)} BTC combined 24-hour trading volume across major collections.`,
-      evidence: `CoinGecko data for ${results.length} tracked Ordinals collections: ${floorSummary}.${deltaStr ? ` ${deltaStr}` : ""}`,
-      implication: `Floor price trends in blue-chip Ordinals collections serve as a sentiment proxy for the broader Bitcoin NFT market. ${totalVolume > 10 ? "Elevated volume suggests active price discovery and potential floor repricing." : totalVolume > 1 ? "Moderate volume indicates stable market participation with neither panic selling nor euphoric accumulation." : "Thin volume suggests the market is in a wait-and-see posture, with floors potentially fragile if liquidity remains sparse."}`,
-      sources: [
-        { url: "https://www.coingecko.com/en/nft", title: "CoinGecko — Ordinals NFT collection data" },
-        { url: "https://unisat.io/market", title: "Unisat — Ordinals NFT marketplace" },
-      ],
-      tags: "ordinals-business,nft,bitcoin,floors",
+      signal: {
+        category: "nft-floors",
+        headline: `Ordinals NFT floors: ${topCollection.name} at ${topCollection.floor.toFixed(4)} BTC, ${totalVolume.toFixed(2)} BTC combined 24h volume`,
+        claim: `Top Bitcoin NFT collections show ${topCollection.name} leading at ${topCollection.floor.toFixed(4)} BTC floor price, with ${totalVolume.toFixed(2)} BTC combined 24-hour trading volume across major collections.`,
+        evidence: `CoinGecko data for ${results.length} tracked Ordinals collections: ${floorSummary}.${deltaStr ? ` ${deltaStr}` : ""}`,
+        implication: `Floor price trends in blue-chip Ordinals collections serve as a sentiment proxy for the broader Bitcoin NFT market. ${totalVolume > 10 ? "Elevated volume suggests active price discovery and potential floor repricing." : totalVolume > 1 ? "Moderate volume indicates stable market participation with neither panic selling nor euphoric accumulation." : "Thin volume suggests the market is in a wait-and-see posture, with floors potentially fragile if liquidity remains sparse."}`,
+        sources: [
+          { url: "https://www.coingecko.com/en/nft", title: "CoinGecko — Ordinals NFT collection data" },
+          { url: "https://unisat.io/market", title: "Unisat — Ordinals NFT marketplace" },
+        ],
+        tags: "ordinals-business,nft,bitcoin,floors",
+      },
+      collectionEvents,
     };
   } catch (e) {
     log(`nft-floors: error — ${(e as Error).message}`);
-    return null;
+    return { signal: null, collectionEvents: [] };
   }
 }
 
@@ -932,9 +1088,12 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
         case "fees":
           signal = await fetchFeeMarketData(state, history);
           break;
-        case "nft-floors":
-          signal = await fetchNftFloorData(state, history);
+        case "nft-floors": {
+          const nftResult = await fetchNftFloorData(state, history);
+          signal = nftResult.signal;
+          for (const ev of nftResult.collectionEvents) milestoneSignals.push(ev);
           break;
+        }
         case "runes":
           if (!unisatKey) { log("runes: no unisat api_key, skipping"); break; }
           signal = await fetchRunesData(unisatKey, state, history);
