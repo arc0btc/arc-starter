@@ -11,8 +11,8 @@ const STACKS_API_BASE = "https://api.mainnet.hiro.so";
 
 // Thresholds (mirror sensor.ts)
 const ORDINALS_WEEKLY_VOLUME_USD = 2_000_000;
-const SATS_AUCTION_MIN_SATS = 50_000;
-const X402_WEEKLY_VOLUME_USD = 5_000_000;
+const SATS_AUCTION_MIN_SATS = 10_000;    // lowered from 50k
+const X402_WEEKLY_VOLUME_USD = 100_000;  // lowered from $5M
 const DAO_TREASURY_CHANGE_BTC = 1.0;
 
 function log(message: string): void {

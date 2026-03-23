@@ -12,8 +12,8 @@ const STACKS_API_BASE = "https://api.mainnet.hiro.so";
 
 // Thresholds (from SKILL.md)
 const ORDINALS_WEEKLY_VOLUME_USD = 2_000_000;   // $2M
-const SATS_AUCTION_MIN_SATS = 50_000;           // 50k sats
-const X402_WEEKLY_VOLUME_USD = 5_000_000;       // $5M
+const SATS_AUCTION_MIN_SATS = 10_000;           // 10k sats (lowered from 50k — capture more activity)
+const X402_WEEKLY_VOLUME_USD = 100_000;         // $100K (lowered from $5M — realistic for current volumes)
 const DAO_TREASURY_CHANGE_BTC = 1.0;            // 1 BTC
 
 const log = createSensorLogger(SENSOR_NAME);
