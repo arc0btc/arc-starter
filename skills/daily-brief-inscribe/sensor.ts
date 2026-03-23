@@ -114,7 +114,7 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
     last_fired_date: pstDate,
   });
 
-  const parentId = "9d83815556ab6706e8a557d7f2514826e17421cd5443561f18276766b5474559i0";
+  const parentId = "fd96e26b82413c2162ba536629e981fd5e503b49e289797d38eadc9bbd3808e1i0";
 
   const id = insertTaskIfNew(TASK_SOURCE, {
     subject: `Inscribe daily brief for ${pstDate}`,
