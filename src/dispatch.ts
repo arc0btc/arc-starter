@@ -551,8 +551,14 @@ async function validateSecurity(): Promise<SecurityScanResult> {
   const fnmBinPath = join(fnmPath, "aliases", "default", "bin");
   const envPath = `${fnmBinPath}:${process.env.PATH ?? ""}`;
 
+  const agentshieldBin = join(fnmBinPath, "agentshield");
+  const binExists = await Bun.file(agentshieldBin).exists();
+  if (!binExists) {
+    return { grade: "skipped", numericScore: 0, totalFindings: 0, critical: 0, high: 0, blocked: false, raw: "" };
+  }
+
   const proc = Bun.spawn(
-    [join(fnmBinPath, "agentshield"), "scan", "--format", "json", "--min-severity", "high"],
+    [agentshieldBin, "scan", "--format", "json", "--min-severity", "high"],
     {
       cwd: ROOT,
       stdout: "pipe",
@@ -587,6 +593,7 @@ async function validateSecurity(): Promise<SecurityScanResult> {
 async function runSecurityScan(taskId: number, cycleId?: number): Promise<void> {
   try {
     const scan = await validateSecurity();
+    if (scan.grade === "skipped") return;
     log(`dispatch: security scan — grade=${scan.grade} score=${scan.numericScore} findings=${scan.totalFindings} (critical=${scan.critical}, high=${scan.high})`);
 
     if (cycleId !== undefined) {
