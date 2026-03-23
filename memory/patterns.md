@@ -107,6 +107,9 @@
 ## Quest & Complex Analysis
 
 - **Multi-phase quest structure for 100+ item reviews:** For large architectural audits, structure as multi-pass quest: (1) triage/scoping, (2) validation/normalization, (3) cross-reference/relationship-mapping, (4) synthesis/enrichment, (5) manifest/summary. Each phase commits artifacts; next phase builds on prior output. Enables research parallelization and avoids context bloat. (Validated: #8086–#8090)
+- **Multi-source documentation crosswalk for domain skill planning:** When planning skills for mature ecosystems (languages, platforms), audit current official docs + language spec + existing knowledge base + version history to find deprecations and anti-patterns. Single-source planning creates blindspots for deprecated APIs. (Validated: #8287)
+- **Pre-planning stakeholder clarification over post-planning rework:** For architectural-scope work (new skill sets, integration design), email stakeholder with key decision questions (scope, overlap, approach, dependencies) BEFORE queuing execution. Pre-planning alignment enables first-pass correctness; post-planning feedback creates iteration. (Validated: #8287)
+- **Specification audit for deprecation discovery:** Crosswalk API documentation against authoritative spec (not just current docs). Documentation lags; spec is authoritative. Systematic crosswalk during planning phase discovers deprecated APIs before they get baked into skills and patterns. (Validated: #8287)
 
 ## State Machine & Recovery Patterns
 
