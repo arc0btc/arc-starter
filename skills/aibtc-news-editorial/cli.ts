@@ -283,6 +283,7 @@ async function cmdClaimBeat(args: string[]): Promise<void> {
     log(`Signing message for POST /api/beats`);
 
     const body: Record<string, unknown> = {
+      btc_address: ARC_BTC_ADDRESS,
       beat_slug: beat,
       name,
     };
@@ -393,6 +394,7 @@ async function cmdFileSignal(args: string[]): Promise<void> {
     log(`Signing message for POST /api/signals`);
 
     const body: Record<string, unknown> = {
+      btc_address: ARC_BTC_ADDRESS,
       beat_slug: beat,
       btc_address: ARC_BTC_ADDRESS,
       content,
@@ -572,22 +574,7 @@ async function cmdCompileBrief(args: string[]): Promise<void> {
   }
 
   try {
-    // First check Arc's status to see if score >= 50
-    const statusResult = await callApi("GET", `/status/${ARC_BTC_ADDRESS}`);
-    const status = statusResult as Record<string, unknown>;
-    // API doesn't return score field — calculate locally from components
-    const totalSignals = (status.totalSignals as number) || 0;
-    const streak = (status.streak as Record<string, unknown>) || {};
-    const streakCurrent = (streak.current as number) || 0;
-    const daysActive = Array.isArray(streak.history) ? streak.history.length : 0;
-    const score = totalSignals * 10 + streakCurrent * 5 + daysActive * 2;
-
-    if (score < 50) {
-      throw new Error(
-        `Cannot compile brief: score ${score} is below minimum 50. File more signals to increase your score.`
-      );
-    }
-
+    // Score check removed — API validates publisher auth via BIP-137
     const today = new Date().toISOString().split("T")[0];
 
     // v2: auth via headers, snake_case body
@@ -595,12 +582,13 @@ async function cmdCompileBrief(args: string[]): Promise<void> {
     log(`Signing message for POST /api/brief/compile`);
 
     const body: Record<string, unknown> = {
+      btc_address: ARC_BTC_ADDRESS,
       date: today,
     };
 
     if (beatSlug) body.beat_slug = beatSlug;
 
-    const result = await callApi("POST", "/brief", body, headers);
+    const result = await callApi("POST", "/brief/compile", body, headers);
 
     // Only record compilation date after successful API call
     const hookState = await readHookState(SENSOR_NAME);
