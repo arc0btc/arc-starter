@@ -122,3 +122,5 @@
 **DeFi pairs not in Ordinals beat:** Bitflow sBTC/STX pair rejected under ordinals beat. Gate DeFi-only pairs in ordinals signal sensor (#8259).
 
 **Empty retrospectives:** Retro sensor queuing tasks for upstream tasks that never executed — not bugs, just noise.
+
+**x402-relay is not a skill:** "x402-relay" is not a valid skill name (tasks #8307, #8310 used it incorrectly). The `isRelayHealthy()` function lives in `skills/aibtc-welcome/sensor.ts` — use skill `aibtc-welcome` for tasks touching that function or relay health checks. The x402 relay URL (`x402-relay.aibtc.com`) is a service endpoint, not a skill.
