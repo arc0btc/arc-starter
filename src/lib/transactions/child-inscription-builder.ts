@@ -467,10 +467,17 @@ export function buildChildCommitTransaction(
  * Build a reveal transaction for a child inscription
  *
  * This transaction has 2 inputs and 2 outputs:
- * - Input 0: commit output (script-path spend via tapLeafScript)
- * - Input 1: parent UTXO (key-path spend)
- * - Output 0: child inscription (to recipientAddress)
- * - Output 1: parent return (back to recipientAddress)
+ * - Input 0: parent UTXO (key-path spend)
+ * - Input 1: commit output (script-path spend via tapLeafScript)
+ * - Output 0: parent return (back to recipientAddress)
+ * - Output 1: child inscription (to recipientAddress)
+ *
+ * IMPORTANT — Sat-accounting safety:
+ * The parent UTXO MUST be input 0 so its inscription sat (position 0)
+ * always lands in output 0 (parent return), regardless of fee size.
+ * Previously the parent was input 1 (sat position = commitAmount), which
+ * caused the parent inscription sat to fall into miner fees when
+ * revealFee > parentUtxo.value.
  *
  * The parent UTXO must be spent in the same transaction to establish
  * the parent-child relationship per the Ordinals provenance spec.
@@ -478,6 +485,7 @@ export function buildChildCommitTransaction(
  * Bug fixes applied:
  * 1. tapLeafScript: revealScript.tapLeafScript — named property, not spread
  * 2. new btc.Transaction({ allowUnknownOutputs, allowUnknownInputs })
+ * 3. Input/output reorder to prevent parent inscription loss to fees
  *
  * @param options - Reveal transaction building options
  * @returns Unsigned reveal transaction
@@ -542,8 +550,8 @@ export function buildChildRevealTransaction(
   }
 
   // Allocate outputs:
-  // - Child inscription output gets DUST_THRESHOLD (minimum for inscription)
-  // - Parent return output gets the remainder (parent value - fees contribution)
+  // - Parent return output (output 0) gets the parent value back (preserves parent inscription)
+  // - Child inscription output (output 1) gets DUST_THRESHOLD (minimum for inscription)
   // - Fees come from commit amount (which was sized to cover reveal fee + 2x dust + buffer)
   const childOutputAmount = DUST_THRESHOLD;
   const parentReturnAmount = totalAvailable - revealFee - childOutputAmount;
@@ -554,27 +562,31 @@ export function buildChildRevealTransaction(
     );
   }
 
+  // Sat-accounting safety check:
+  // Parent inscription sat is at position 0 (first sat of input 0).
+  // It MUST land in output 0 (parent return). Since parentReturnAmount >= DUST_THRESHOLD > 0,
+  // position 0 always maps to output 0. ✓
+  //
+  // Child inscription sat is the first sat of input 1 (the commit reveal), at position
+  // parentUtxo.value. It must land in an output (not fees). Total output sats =
+  // parentReturnAmount + childOutputAmount = commitAmount + parentUtxo.value - revealFee.
+  // Since commitAmount > revealFee (by construction), total output > parentUtxo.value. ✓
+  if (commitAmount <= revealFee) {
+    throw new Error(
+      `Commit amount (${commitAmount}) must exceed reveal fee (${revealFee}) ` +
+        `to ensure child inscription sat lands in an output`
+    );
+  }
+
   // Bug fix: allowUnknownOutputs and allowUnknownInputs required for taproot script-path spending
   const tx = new btc.Transaction({
     allowUnknownOutputs: true,
     allowUnknownInputs: true,
   });
 
-  // Input 0: commit output — script-path spend
-  // Bug fix: tapLeafScript must be a named property, not spread (spread produces numeric array keys
-  // that btc-signer does not recognise, causing signing to fail silently)
-  tx.addInput({
-    txid: commitTxid,
-    index: commitVout,
-    witnessUtxo: {
-      script: revealScript.script,
-      amount: BigInt(commitAmount),
-    },
-    tapLeafScript: revealScript.tapLeafScript,
-  });
-
-  // Input 1: parent UTXO — key-path spend
-  // Build the P2TR script for the parent owner using their internal public key
+  // Input 0: parent UTXO — key-path spend
+  // MUST be input 0 so the parent inscription sat (position 0) always lands in output 0,
+  // preventing loss to miner fees regardless of reveal fee size.
   const xOnlyParentPubKey = parentOwnerTaprootInternalPubKey.length === 33
     ? toXOnly(parentOwnerTaprootInternalPubKey)
     : parentOwnerTaprootInternalPubKey;
@@ -590,11 +602,24 @@ export function buildChildRevealTransaction(
     },
   });
 
-  // Output 0: child inscription (dust amount, inscription is in the witness of input 0)
-  tx.addOutputAddress(recipientAddress, BigInt(childOutputAmount), btcNetwork);
+  // Input 1: commit output — script-path spend
+  // Bug fix: tapLeafScript must be a named property, not spread (spread produces numeric array keys
+  // that btc-signer does not recognise, causing signing to fail silently)
+  tx.addInput({
+    txid: commitTxid,
+    index: commitVout,
+    witnessUtxo: {
+      script: revealScript.script,
+      amount: BigInt(commitAmount),
+    },
+    tapLeafScript: revealScript.tapLeafScript,
+  });
 
-  // Output 1: parent return (remaining funds back to the owner)
+  // Output 0: parent return (parent inscription sat at position 0 always lands here)
   tx.addOutputAddress(recipientAddress, BigInt(parentReturnAmount), btcNetwork);
+
+  // Output 1: child inscription (inscription is in the witness of input 1)
+  tx.addOutputAddress(recipientAddress, BigInt(childOutputAmount), btcNetwork);
 
   return {
     tx,

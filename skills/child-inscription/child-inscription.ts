@@ -470,8 +470,8 @@ program
         });
 
         // Sign both inputs:
-        //   Input[0] (commit output) — script-path spend → btcPrivateKey
-        //   Input[1] (parent UTXO)  — key-path spend    → taprootPrivateKey
+        //   Input[0] (parent UTXO)  — key-path spend    → taprootPrivateKey
+        //   Input[1] (commit output) — script-path spend → btcPrivateKey
         revealResult.tx.sign(account.btcPrivateKey);
         revealResult.tx.sign(account.taprootPrivateKey);
         revealResult.tx.finalize();
