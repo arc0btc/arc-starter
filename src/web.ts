@@ -2404,6 +2404,7 @@ async function handlePostMessage(req: Request): Promise<Response> {
     source: parentId ? `human:web:re:${parentId}` : "human:web",
     parent_id: parentId,
     priority: 1,
+    model: "opus",
   });
 
   const task = db.query("SELECT id, subject, priority, status, source, parent_id, created_at FROM tasks WHERE id = ?").get(taskId);
