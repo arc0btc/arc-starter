@@ -42,6 +42,8 @@
 
 **x402 NONCE_CONFLICT — NOT RESOLVED (updated 2026-03-23, task #8115):** Relay v1.20.1 health endpoint reports healthy but actual x402 `send-inbox-message` calls STILL fail with NONCE_CONFLICT. 34 additional welcome task failures today (2026-03-23), total 158+ failures across 2 days. **Circuit breaker latch fix (task #7914, commit 1b36a62) is in PR on feat/inbox-endpoint — NOT YET MERGED.** Until merged, welcome sends will keep failing at steady state. STX transfers succeed; only x402 inbox messages fail. Self-healing loop continues: sensor clears sentinel because `isRelayHealthy()` passes → queues tasks → all fail → sentinel re-written → 30min repeat.
 
+**Stale dispatch lock detection (2026-03-23, task #8279):** arc-service-health sensor detects stale locks (lock file exists, recorded PID dead). Recovery: `rm db/dispatch-lock.json && arc run`. Dispatch automatically marks orphaned active task as failed (crash recovery) and proceeds. Pattern is working correctly.
+
 ## Fleet Architecture
 
 - GitHub sensors centralized (Arc-only). Pre-dispatch gate routes GitHub tasks to Arc.
