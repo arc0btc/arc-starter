@@ -17,7 +17,7 @@ const BATCH_SIZE = 25;
 
 interface Signal {
   id: string;
-  headline: string;
+  headline?: string;
   btcAddress: string;
   beat: string;
   status: string;
