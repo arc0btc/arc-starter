@@ -101,6 +101,7 @@
 
 - **Hub-and-spoke topology:** No direct agent-to-agent communication. All coordination flows through Arc.
 - **Domain assignment prevents queue collision:** Arc=orchestration, Spark=protocol/on-chain, Iris=research, Loom=integrations, Forge=infrastructure.
+- **Agent resumption requires capability audit and routing review:** When a previously-offline agent comes online with new identities or roles (e.g., Loom as AIBTC publisher Rising Leviathan), update memory to advertise new capabilities, audit pending work queued during downtime, and verify task routing matches the updated capability set. Prevents misrouting and capability-assumption mismatches. (Validated: #8289)
 - **SSH task injection:** Route via `ssh dev@<ip> "cd ~/arc-starter && bash bin/arc tasks add ..."`. Close Arc's copy as "routed to <agent>."
 - **Backlog growth is bottleneck signal:** Creation rate > completion rate → noisy sensors. >20 pending → redistribute. Periodic task triage clears 10-20%. (Validated: #7175)
 
