@@ -6,6 +6,11 @@
  *   list-sections                                        List section headers in patterns.md
  *   retrospective [--days 7] [--dry-run]                 Print retrospective briefing
  *   framework     --name "NAME"                          Show a decision framework by name
+ *   write-entry   --category A|F|S|T|P|L --slug SLUG --title TITLE --body TEXT
+ *                 [--skills s1,s2] [--expires YYYY-MM-DD] [--follows EVENT_ID]
+ *                 Write a structured entry to MEMORY.md; auto-supersedes entry with same slug
+ *   list-entries  [--category A|F|S|T|P|L]              List all entries in MEMORY.md
+ *   supersede     --slug OLD_SLUG --new-slug NEW_SLUG    Mark an entry as superseded
  */
 
 import { join } from "node:path";
@@ -15,7 +20,27 @@ import { Database } from "bun:sqlite";
 const ROOT = join(import.meta.dir, "..", "..");
 const PATTERNS_PATH = join(ROOT, "memory", "patterns.md");
 const FRAMEWORKS_PATH = join(ROOT, "memory", "frameworks.md");
+const MEMORY_PATH = join(ROOT, "memory", "MEMORY.md");
 const DB_PATH = join(ROOT, "db", "arc.sqlite");
+
+// Category headers as they appear in MEMORY.md
+const CATEGORY_HEADERS: Record<string, string> = {
+  A: "## [A] Operational State",
+  F: "## [F] Fleet",
+  S: "## [S] Services",
+  T: "## [T] Temporal Events",
+  P: "## [P] Patterns",
+  L: "## [L] Learnings",
+};
+
+const CATEGORY_NAMES: Record<string, string> = {
+  A: "Operational State",
+  F: "Fleet",
+  S: "Services",
+  T: "Temporal Events",
+  P: "Patterns",
+  L: "Learnings",
+};
 
 // ---- Helpers ----
 
@@ -25,6 +50,283 @@ function readFile(path: string): string {
     process.exit(1);
   }
   return readFileSync(path, "utf8");
+}
+
+// Build the primary temporal tag for a category
+function buildPrimaryTag(category: string, timestamp?: string): string {
+  const ts = timestamp ?? new Date().toISOString().split("T")[0];
+  const tagsByCategory: Record<string, string> = {
+    A: `[STATE: ${ts}]`,
+    F: `[UPDATED: ${ts}]`,
+    S: `[UPDATED: ${ts}]`,
+    T: `[EVENT: ${ts}]`,
+    P: `[PATTERN: validated]`,
+    L: `[LEARNING: ${ts}]`,
+  };
+  return tagsByCategory[category] ?? `[UPDATED: ${ts}]`;
+}
+
+// ---- MEMORY.md entry parsing ----
+
+interface MemoryEntry {
+  slug: string;
+  category: string;
+  headerLine: string;
+  bodyLines: string[];
+  lineIndex: number; // line index of the header
+}
+
+function parseMemoryEntries(content: string): MemoryEntry[] {
+  const lines = content.split("\n");
+  const entries: MemoryEntry[] = [];
+  let currentCategory = "";
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Track current category section
+    for (const [cat, header] of Object.entries(CATEGORY_HEADERS)) {
+      if (line.startsWith(header)) {
+        currentCategory = cat;
+        break;
+      }
+    }
+
+    // Match entry header: **slug** [optional tags]
+    // Slugs: lowercase, digits, hyphens only
+    const match = line.match(/^\*\*([a-z0-9-]+)\*\*/);
+    if (match && currentCategory) {
+      const slug = match[1];
+      const bodyLines: string[] = [];
+      let j = i + 1;
+      // Collect body until next entry header, section header, or --- separator
+      while (
+        j < lines.length &&
+        !lines[j].match(/^\*\*[a-z0-9-]+\*\*/) &&
+        !lines[j].startsWith("## ") &&
+        lines[j] !== "---"
+      ) {
+        bodyLines.push(lines[j]);
+        j++;
+      }
+      entries.push({
+        slug,
+        category: currentCategory,
+        headerLine: line,
+        bodyLines,
+        lineIndex: i,
+      });
+    }
+  }
+
+  return entries;
+}
+
+// Find a category section's insertion point (just before the "---" that ends the section)
+function findCategoryInsertPoint(lines: string[], category: string): number {
+  const header = CATEGORY_HEADERS[category];
+  const sectionStart = lines.findIndex((l) => l.startsWith(header));
+  if (sectionStart === -1) return lines.length;
+
+  // Find the next "---" separator that is followed by a "## [" ASMR section header
+  // (within a few lines, to handle blank lines between --- and the header)
+  for (let i = sectionStart + 1; i < lines.length; i++) {
+    if (lines[i] === "---") {
+      for (let j = i + 1; j < Math.min(i + 4, lines.length); j++) {
+        if (lines[j].match(/^## \[/)) {
+          return i; // Insert before the "---"
+        }
+      }
+    }
+  }
+  return lines.length;
+}
+
+// Update the schema timestamp in MEMORY.md header
+function updateSchemaTimestamp(content: string): string {
+  const now = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
+  return content.replace(
+    /\*Schema: ASMR v1 — Last consolidated: [^\*]+\*/,
+    `*Schema: ASMR v1 — Last consolidated: ${now}*`
+  );
+}
+
+// ---- write-entry ----
+
+function cmdWriteEntry(args: string[]): void {
+  let category: string | undefined;
+  let slug: string | undefined;
+  let title: string | undefined;
+  let body: string | undefined;
+  let skills: string | undefined;
+  let expires: string | undefined;
+  let follows: string | undefined;
+
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--category" && args[i + 1]) category = args[++i].toUpperCase();
+    else if (args[i] === "--slug" && args[i + 1]) slug = args[++i];
+    else if (args[i] === "--title" && args[i + 1]) title = args[++i];
+    else if (args[i] === "--body" && args[i + 1]) body = args[++i];
+    else if (args[i] === "--skills" && args[i + 1]) skills = args[++i];
+    else if (args[i] === "--expires" && args[i + 1]) expires = args[++i];
+    else if (args[i] === "--follows" && args[i + 1]) follows = args[++i];
+  }
+
+  if (!category || !slug || !body) {
+    console.error("Usage: write-entry --category A|F|S|T|P|L --slug SLUG --body TEXT [--title TITLE] [--skills s1,s2] [--expires YYYY-MM-DD] [--follows EVENT_ID]");
+    console.error("Categories: A=Operational State, F=Fleet, S=Services, T=Temporal Events, P=Patterns, L=Learnings");
+    process.exit(1);
+  }
+
+  if (!CATEGORY_HEADERS[category]) {
+    console.error(`Unknown category: "${category}". Valid: A, F, S, T, P, L`);
+    process.exit(1);
+  }
+
+  // Validate slug format
+  if (!/^[a-z0-9-]+$/.test(slug)) {
+    console.error(`Invalid slug "${slug}": use lowercase letters, digits, and hyphens only`);
+    process.exit(1);
+  }
+
+  const content = readFile(MEMORY_PATH);
+  const lines = content.split("\n");
+  const entries = parseMemoryEntries(content);
+
+  // Check for existing entry with same slug
+  const existing = entries.find((e) => e.slug === slug);
+  let supersededNote = "";
+
+  if (existing) {
+    // Tag the existing entry as superseded
+    const today = new Date().toISOString().split("T")[0];
+    const supersededTag = `[SUPERSEDED BY: ${slug} ${today}]`;
+
+    // Insert superseded tag into existing entry's header line if not already there
+    if (!lines[existing.lineIndex].includes("[SUPERSEDED BY:")) {
+      lines[existing.lineIndex] = lines[existing.lineIndex] + ` ${supersededTag}`;
+      console.log(`Marked existing entry as superseded: ${existing.slug} (was in [${existing.category}])`);
+      supersededNote = ` [SUPERSEDES: ${slug}]`;
+    }
+  }
+
+  // Build the new entry header
+  const primaryTag = buildPrimaryTag(category);
+  let headerTags = primaryTag;
+  if (expires) headerTags += ` [EXPIRES: ${expires}]`;
+  if (skills) headerTags += ` [SKILLS: ${skills}]`;
+  if (follows) headerTags += ` [FOLLOWS: ${follows}]`;
+  if (supersededNote) headerTags += supersededNote;
+
+  const entryTitle = title ?? slug;
+  const newHeader = `**${slug}** ${headerTags}`;
+
+  // Build new entry block
+  const newEntryLines = ["", newHeader, body, ""];
+
+  // Find insertion point (end of category section)
+  const insertPoint = findCategoryInsertPoint(lines, category);
+
+  // Insert the new entry
+  lines.splice(insertPoint, 0, ...newEntryLines);
+
+  // Update schema timestamp
+  const updatedContent = updateSchemaTimestamp(lines.join("\n"));
+  writeFileSync(MEMORY_PATH, updatedContent, "utf8");
+
+  console.log(`Written to [${category}] ${CATEGORY_NAMES[category]}:`);
+  console.log(`  ${newHeader}`);
+  console.log(`  ${body.slice(0, 80)}${body.length > 80 ? "..." : ""}`);
+  if (existing) {
+    console.log(`  (superseded entry '${slug}' in [${existing.category}])`);
+  }
+}
+
+// ---- list-entries ----
+
+function cmdListEntries(args: string[]): void {
+  let filterCategory: string | undefined;
+
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--category" && args[i + 1]) filterCategory = args[++i].toUpperCase();
+  }
+
+  const content = readFile(MEMORY_PATH);
+  const entries = parseMemoryEntries(content);
+
+  const filtered = filterCategory
+    ? entries.filter((e) => e.category === filterCategory)
+    : entries;
+
+  if (filtered.length === 0) {
+    console.log(filterCategory ? `No entries in category [${filterCategory}]` : "No entries found");
+    return;
+  }
+
+  // Group by category for display
+  const byCategory = new Map<string, MemoryEntry[]>();
+  for (const entry of filtered) {
+    const list = byCategory.get(entry.category) ?? [];
+    list.push(entry);
+    byCategory.set(entry.category, list);
+  }
+
+  const categoryOrder = ["A", "F", "S", "T", "P", "L"];
+  for (const cat of categoryOrder) {
+    const catEntries = byCategory.get(cat);
+    if (!catEntries) continue;
+
+    console.log(`\n[${cat}] ${CATEGORY_NAMES[cat]} (${catEntries.length}):`);
+    for (const entry of catEntries) {
+      const isSuperseded = entry.headerLine.includes("[SUPERSEDED BY:");
+      const tag = isSuperseded ? " [SUPERSEDED]" : "";
+      // Extract key tags for display
+      const tags = (entry.headerLine.match(/\[(?:STATE|UPDATED|EVENT|PATTERN|LEARNING|EXPIRES|SKILLS): [^\]]+\]/g) ?? []).join(" ");
+      console.log(`  ${entry.slug}${tag}  ${tags}`);
+    }
+  }
+  console.log();
+}
+
+// ---- supersede ----
+
+function cmdSupersede(args: string[]): void {
+  let oldSlug: string | undefined;
+  let newSlug: string | undefined;
+
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--slug" && args[i + 1]) oldSlug = args[++i];
+    else if (args[i] === "--new-slug" && args[i + 1]) newSlug = args[++i];
+  }
+
+  if (!oldSlug || !newSlug) {
+    console.error("Usage: supersede --slug OLD_SLUG --new-slug NEW_SLUG");
+    process.exit(1);
+  }
+
+  const content = readFile(MEMORY_PATH);
+  const lines = content.split("\n");
+  const entries = parseMemoryEntries(content);
+
+  const target = entries.find((e) => e.slug === oldSlug);
+  if (!target) {
+    console.error(`Entry not found: "${oldSlug}"`);
+    console.log("Use 'list-entries' to see available slugs.");
+    process.exit(1);
+  }
+
+  if (lines[target.lineIndex].includes("[SUPERSEDED BY:")) {
+    console.log(`Entry "${oldSlug}" is already marked superseded.`);
+    return;
+  }
+
+  const today = new Date().toISOString().split("T")[0];
+  lines[target.lineIndex] = lines[target.lineIndex] + ` [SUPERSEDED BY: ${newSlug} ${today}]`;
+
+  const updatedContent = updateSchemaTimestamp(lines.join("\n"));
+  writeFileSync(MEMORY_PATH, updatedContent, "utf8");
+
+  console.log(`Marked "${oldSlug}" as [SUPERSEDED BY: ${newSlug} ${today}]`);
 }
 
 // ---- add-pattern ----
@@ -262,6 +564,15 @@ function cmdFramework(args: string[]): void {
 const [command, ...rest] = process.argv.slice(2);
 
 switch (command) {
+  case "write-entry":
+    cmdWriteEntry(rest);
+    break;
+  case "list-entries":
+    cmdListEntries(rest);
+    break;
+  case "supersede":
+    cmdSupersede(rest);
+    break;
   case "add-pattern":
     cmdAddPattern(rest);
     break;
@@ -277,6 +588,9 @@ switch (command) {
   default:
     console.log("Usage: arc skills run --name arc-memory -- <command> [options]");
     console.log("Commands:");
+    console.log("  write-entry   --category A|F|S|T|P|L --slug SLUG --body TEXT [--title TITLE] [--skills s1,s2] [--expires DATE] [--follows EVENT_ID]");
+    console.log("  list-entries  [--category A|F|S|T|P|L]");
+    console.log("  supersede     --slug OLD_SLUG --new-slug NEW_SLUG");
     console.log("  add-pattern   --section SECTION --pattern TEXT");
     console.log("  list-sections");
     console.log("  retrospective [--days 7] [--dry-run]");
