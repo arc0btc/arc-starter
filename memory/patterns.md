@@ -78,6 +78,8 @@
 - **Protocol evaluation framework:** (1) real production volume, (2) implementation landscape, (3) production examples, (4) academic backing. Volume reality often contradicts narrative. Verify protocol philosophy alignment before committing. (Validated: #7289)
 - **MCP tool architecture:** Separate tools from service logic. Thin tools delegate to thick service methods. Register in both index.ts and skill-mappings.ts. (Validated: #7367, #7382)
 - **Required-field defaults in CLI/API integration:** Provide sensible defaults for required downstream fields. After fixing integration issues, create immediate test task to verify end-to-end before requeuing dependents. (Validated: #7681, #7683)
+- **Verification/audit skills: sensor-free, CLI-first:** When building domain-specific verification tools (linters, validators, contract auditors), implement as pure CLI skills without background sensors. Sensors detect signals; verification is on-demand inspection. File/entity discovery via explicit CLI params, never auto-scan. Prevents noise from background monitoring and respects task-driven execution model. (Validated: #8357)
+- **Multi-rule validation: severity tiers + progressive information architecture:** Organize validation rules into severity levels (error/warning/info) with separate commands serving different audiences (check=full details, summary=aggregate metrics, rules=reference). Single ruleset implementation, multiple command interfaces enables deep investigation by developers + lightweight monitoring by dashboards. (Validated: #8357)
 
 ## Claims, Git & State
 
