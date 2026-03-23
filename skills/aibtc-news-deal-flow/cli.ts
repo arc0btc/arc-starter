@@ -7,7 +7,9 @@ import { getCredential } from "../../src/credentials.ts";
 
 const SENSOR_NAME = "aibtc-news-deal-flow";
 const UNISAT_API_BASE = "https://open-api.unisat.io";
+const COINGECKO_API = "https://api.coingecko.com/api/v3";
 const STACKS_API_BASE = "https://api.mainnet.hiro.so";
+const NFT_COLLECTIONS = ["bitcoin-frogs", "nodemonkes", "bitcoin-puppets"];
 
 // Thresholds (mirror sensor.ts)
 const ORDINALS_WEEKLY_VOLUME_USD = 2_000_000;
@@ -45,58 +47,71 @@ async function cmdCheck(): Promise<void> {
 
   const results: Array<{ hook: string; status: string; value?: string; threshold: string; fired: boolean }> = [];
 
-  // 1. Ordinals weekly volume
+  // 1. Ordinals weekly volume (CoinGecko NFT collections — /v1/market/collection/auctions returns 404)
   process.stdout.write("1. Ordinals Weekly Volume\n");
-  if (!apiKey) {
-    process.stdout.write("   status: SKIP (unisat api_key not configured)\n");
-    results.push({ hook: "ordinals-volume", status: "skip", threshold: `>=$${ORDINALS_WEEKLY_VOLUME_USD.toLocaleString()}`, fired: false });
-  } else {
-    try {
-      const url = `${UNISAT_API_BASE}/v1/market/collection/auctions?limit=20&offset=0&orderBy=volume&timeType=7d`;
-      const response = await fetch(url, {
-        headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
-      });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = (await response.json()) as Record<string, unknown>;
-      const list = (data?.data as Record<string, unknown>)?.list as Array<Record<string, unknown>> | undefined;
-      const totalSats = (list || []).reduce((s, i) => s + ((i.volume as number) || 0), 0);
-      const volumeUsd = (totalSats / 100_000_000) * 100_000;
-      const fired = volumeUsd >= ORDINALS_WEEKLY_VOLUME_USD;
-      process.stdout.write(`   volume: ~$${Math.round(volumeUsd).toLocaleString()}\n`);
-      process.stdout.write(`   threshold: >=$${ORDINALS_WEEKLY_VOLUME_USD.toLocaleString()}\n`);
-      process.stdout.write(`   signal: ${fired ? "YES — would queue filing task" : "no"}\n`);
-      results.push({ hook: "ordinals-volume", status: "ok", value: `$${Math.round(volumeUsd).toLocaleString()}`, threshold: `>=$${ORDINALS_WEEKLY_VOLUME_USD.toLocaleString()}`, fired });
-    } catch (e) {
-      const error = e as Error;
-      process.stdout.write(`   status: ERROR — ${error.message}\n`);
-      results.push({ hook: "ordinals-volume", status: "error", threshold: `>=$${ORDINALS_WEEKLY_VOLUME_USD.toLocaleString()}`, fired: false });
+  try {
+    let totalVolumeBtc = 0;
+    let validCount = 0;
+    for (const id of NFT_COLLECTIONS) {
+      try {
+        const response = await fetch(`${COINGECKO_API}/nfts/${id}`, {
+          headers: { Accept: "application/json" },
+        });
+        if (!response.ok) {
+          process.stdout.write(`   CoinGecko ${id}: HTTP ${response.status}\n`);
+          continue;
+        }
+        const data = (await response.json()) as Record<string, unknown>;
+        const volume24h = (data.volume_24h as Record<string, number> | undefined)?.native_currency ?? 0;
+        totalVolumeBtc += volume24h;
+        validCount++;
+      } catch {
+        process.stdout.write(`   CoinGecko ${id}: error\n`);
+      }
+      await new Promise((r) => setTimeout(r, 500)); // CoinGecko rate limit
     }
+    if (validCount === 0) throw new Error("no CoinGecko data returned");
+    const weeklyVolumeBtc = totalVolumeBtc * 7;
+    const volumeUsd = weeklyVolumeBtc * 100_000;
+    const fired = volumeUsd >= ORDINALS_WEEKLY_VOLUME_USD;
+    process.stdout.write(`   volume: ~$${Math.round(volumeUsd).toLocaleString()} (${validCount}/${NFT_COLLECTIONS.length} collections)\n`);
+    process.stdout.write(`   threshold: >=$${ORDINALS_WEEKLY_VOLUME_USD.toLocaleString()}\n`);
+    process.stdout.write(`   signal: ${fired ? "YES — would queue filing task" : "no"}\n`);
+    results.push({ hook: "ordinals-volume", status: "ok", value: `$${Math.round(volumeUsd).toLocaleString()}`, threshold: `>=$${ORDINALS_WEEKLY_VOLUME_USD.toLocaleString()}`, fired });
+  } catch (e) {
+    const error = e as Error;
+    process.stdout.write(`   status: ERROR — ${error.message}\n`);
+    results.push({ hook: "ordinals-volume", status: "error", threshold: `>=$${ORDINALS_WEEKLY_VOLUME_USD.toLocaleString()}`, fired: false });
   }
 
-  // 2. Sats auctions
+  // 2. Sats auctions (indexer recent inscriptions — /v1/sat-collectibles/market/auctions returns 404)
   process.stdout.write("\n2. Sats Auctions\n");
   if (!apiKey) {
     process.stdout.write("   status: SKIP (unisat api_key not configured)\n");
-    results.push({ hook: "sats-auctions", status: "skip", threshold: `>=${SATS_AUCTION_MIN_SATS.toLocaleString()} sats`, fired: false });
+    results.push({ hook: "sats-auctions", status: "skip", threshold: "any rare-sat inscriptions", fired: false });
   } else {
     try {
-      const url = `${UNISAT_API_BASE}/v1/sat-collectibles/market/auctions?limit=20&offset=0&orderBy=price&order=desc`;
+      const url = `${UNISAT_API_BASE}/v1/indexer/inscription/info/recent?limit=50`;
       const response = await fetch(url, {
         headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = (await response.json()) as Record<string, unknown>;
       const list = (data?.data as Record<string, unknown>)?.list as Array<Record<string, unknown>> | undefined;
-      const topSats = list?.[0] ? (Number(list[0].price) || 0) : 0;
-      const fired = topSats >= SATS_AUCTION_MIN_SATS;
-      process.stdout.write(`   top auction: ${topSats.toLocaleString()} sats\n`);
-      process.stdout.write(`   threshold: >=${SATS_AUCTION_MIN_SATS.toLocaleString()} sats\n`);
+      const rareSats = (list || []).filter((item) => {
+        const rarity = item.satRarity as string | undefined;
+        return rarity && rarity !== "common";
+      });
+      const rareCount = rareSats.length;
+      const fired = rareCount > 0;
+      process.stdout.write(`   rare-sat inscriptions: ${rareCount}/${(list || []).length} recent\n`);
+      process.stdout.write(`   threshold: any rare-sat inscriptions\n`);
       process.stdout.write(`   signal: ${fired ? "YES — would queue filing task" : "no"}\n`);
-      results.push({ hook: "sats-auctions", status: "ok", value: `${topSats.toLocaleString()} sats`, threshold: `>=${SATS_AUCTION_MIN_SATS.toLocaleString()} sats`, fired });
+      results.push({ hook: "sats-auctions", status: "ok", value: `${rareCount} rare-sat inscriptions`, threshold: "any rare-sat inscriptions", fired });
     } catch (e) {
       const error = e as Error;
       process.stdout.write(`   status: ERROR — ${error.message}\n`);
-      results.push({ hook: "sats-auctions", status: "error", threshold: `>=${SATS_AUCTION_MIN_SATS.toLocaleString()} sats`, fired: false });
+      results.push({ hook: "sats-auctions", status: "error", threshold: "any rare-sat inscriptions", fired: false });
     }
   }
 

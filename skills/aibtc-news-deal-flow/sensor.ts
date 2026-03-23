@@ -8,7 +8,9 @@ import { getCredential } from "../../src/credentials.ts";
 const SENSOR_NAME = "aibtc-news-deal-flow";
 const INTERVAL_MINUTES = 60;
 const UNISAT_API_BASE = "https://open-api.unisat.io";
+const COINGECKO_API = "https://api.coingecko.com/api/v3";
 const STACKS_API_BASE = "https://api.mainnet.hiro.so";
+const NFT_COLLECTIONS = ["bitcoin-frogs", "nodemonkes", "bitcoin-puppets"];
 
 // Thresholds (from SKILL.md)
 const ORDINALS_WEEKLY_VOLUME_USD = 2_000_000;   // $2M
@@ -32,41 +34,44 @@ interface HookState {
 // ---- Ordinals Volume Hook ----
 
 async function checkOrdinalsVolume(state: HookState): Promise<HookState> {
-  const apiKey = await getCredential("unisat", "api_key").catch(() => null);
-  if (!apiKey) {
-    log("ordinals: unisat api_key not configured, skipping");
-    return state;
-  }
-
+  // /v1/market/collection/auctions returns 404 — use CoinGecko NFT API instead (no auth required)
   try {
-    // Fetch Ordinals inscription stats from Unisat
-    const url = `${UNISAT_API_BASE}/v1/market/collection/auctions?limit=20&offset=0&orderBy=volume&timeType=7d`;
-    const response = await fetch(url, {
-      headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
-    });
+    let totalVolumeBtc = 0;
+    let validCount = 0;
 
-    if (!response.ok) {
-      log(`ordinals: unisat fetch failed (${response.status})`);
-      return state;
+    for (const id of NFT_COLLECTIONS) {
+      try {
+        const response = await fetch(`${COINGECKO_API}/nfts/${id}`, {
+          headers: { Accept: "application/json" },
+        });
+        if (!response.ok) {
+          log(`ordinals: CoinGecko ${id} returned ${response.status}`);
+          continue;
+        }
+        const data = (await response.json()) as Record<string, unknown>;
+        const volume24h = (data.volume_24h as Record<string, number> | undefined)?.native_currency ?? 0;
+        totalVolumeBtc += volume24h;
+        validCount++;
+      } catch (e) {
+        log(`ordinals: CoinGecko ${id} error — ${(e as Error).message}`);
+      }
+      await Bun.sleep(500); // CoinGecko free tier: ~10-30 req/min
     }
 
-    const data = (await response.json()) as Record<string, unknown>;
     const now = new Date().toISOString();
 
-    // Sum 7-day volume across top collections (in satoshis)
-    const list = (data?.data as Record<string, unknown>)?.list as Array<Record<string, unknown>> | undefined;
-    if (!list || !Array.isArray(list)) {
-      log("ordinals: no list in response");
+    if (validCount === 0) {
+      log("ordinals: no CoinGecko data available, skipping");
       state.lastOrdinalsCheck = now;
       return state;
     }
 
-    // volume is in satoshis; 1 BTC ≈ $100k for rough conversion
-    const totalSats = list.reduce((sum, item) => sum + ((item.volume as number) || 0), 0);
+    // Estimate 7d volume from 24h data (rough approximation)
+    const weeklyVolumeBtc = totalVolumeBtc * 7;
     const btcPrice = 100_000; // rough USD/BTC
-    const volumeUsd = (totalSats / 100_000_000) * btcPrice;
+    const volumeUsd = weeklyVolumeBtc * btcPrice;
 
-    log(`ordinals: 7d volume ~$${Math.round(volumeUsd).toLocaleString()} (threshold $${ORDINALS_WEEKLY_VOLUME_USD.toLocaleString()})`);
+    log(`ordinals: 7d volume estimate ~$${Math.round(volumeUsd).toLocaleString()} (threshold $${ORDINALS_WEEKLY_VOLUME_USD.toLocaleString()})`);
 
     state.lastOrdinalsVolume = volumeUsd;
     state.lastOrdinalsCheck = now;
@@ -79,7 +84,7 @@ async function checkOrdinalsVolume(state: HookState): Promise<HookState> {
         log(`ordinals: threshold met — queuing signal task`);
         insertTask({
           subject: `File ordinals signal: Ordinals weekly volume ~$${Math.round(volumeUsd / 1_000_000 * 10) / 10}M`,
-          description: `Ordinals 7-day marketplace volume reached ~$${Math.round(volumeUsd).toLocaleString()} (threshold $${ORDINALS_WEEKLY_VOLUME_USD.toLocaleString()}). File an ordinals signal (Arc's only beat — do NOT file to deal-flow, dao-watch, or btc-macro).\n\nResearch: arc skills run --name aibtc-news-editorial -- fetch-ordinals-data\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals --claim "..." --evidence "..." --implication "..."`,
+          description: `Ordinals 7-day marketplace volume estimated at ~$${Math.round(volumeUsd).toLocaleString()} (threshold $${ORDINALS_WEEKLY_VOLUME_USD.toLocaleString()}) from CoinGecko NFT collection data (${NFT_COLLECTIONS.join(", ")}). File an ordinals signal (Arc's only beat — do NOT file to deal-flow, dao-watch, or btc-macro).\n\nResearch: arc skills run --name aibtc-news-editorial -- fetch-ordinals-data\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals --claim "..." --evidence "..." --implication "..."`,
           skills: JSON.stringify(["aibtc-news-editorial", "aibtc-news-deal-flow"]),
           priority: 6,
           model: "sonnet",
@@ -242,8 +247,9 @@ async function checkSatsAuctions(state: HookState): Promise<HookState> {
   }
 
   try {
-    // Unisat rare sats marketplace
-    const url = `${UNISAT_API_BASE}/v1/sat-collectibles/market/auctions?limit=20&offset=0&orderBy=price&order=desc`;
+    // /v1/sat-collectibles/market/auctions returns 404 — use indexer recent inscriptions instead
+    // Filter for inscriptions on non-common-rarity satoshis as a proxy for rare-sat activity
+    const url = `${UNISAT_API_BASE}/v1/indexer/inscription/info/recent?limit=50`;
     const response = await fetch(url, {
       headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
     });
@@ -258,28 +264,32 @@ async function checkSatsAuctions(state: HookState): Promise<HookState> {
     const list = (data?.data as Record<string, unknown>)?.list as Array<Record<string, unknown>> | undefined;
 
     if (!list || !Array.isArray(list)) {
-      log("sats-auctions: no auction list in response");
+      log("sats-auctions: no inscriptions in response");
       state.lastSatsAuctionCheck = now;
       return state;
     }
 
-    // Find highest recent auction in sats
-    const topAuction = list[0];
-    const priceSats = topAuction ? (Number(topAuction.price) || 0) : 0;
+    // Filter for inscriptions on non-common-rarity sats
+    const rareSats = list.filter((item) => {
+      const rarity = item.satRarity as string | undefined;
+      return rarity && rarity !== "common";
+    });
+    const rareCount = rareSats.length;
 
-    log(`sats-auctions: top auction at ${priceSats.toLocaleString()} sats (threshold ${SATS_AUCTION_MIN_SATS.toLocaleString()})`);
+    log(`sats-auctions: ${rareCount}/${list.length} recent inscriptions on rare sats (threshold: >=${SATS_AUCTION_MIN_SATS.toLocaleString()} sats or any activity)`);
 
     state.lastSatsAuctionCheck = now;
 
-    if (priceSats >= SATS_AUCTION_MIN_SATS) {
+    if (rareCount > 0) {
+      const topItem = rareSats[0];
       const source = `sensor:${SENSOR_NAME}:sats-auction`;
       if (isDailySignalCapHit()) {
         log("sats-auctions: daily cap hit (6/6); skipping signal task");
       } else if (!recentTaskExistsForSource(source, 24 * 60)) {
-        log(`sats-auctions: threshold met — queuing signal task`);
+        log(`sats-auctions: rare sat activity detected (${rareCount} inscriptions) — queuing signal task`);
         insertTask({
-          subject: `File ordinals signal: Rare sat auction at ${priceSats.toLocaleString()} sats`,
-          description: `Rare sat auction detected at ${priceSats.toLocaleString()} sats (threshold ${SATS_AUCTION_MIN_SATS.toLocaleString()} sats). File an ordinals signal (Arc's only beat — do NOT file to deal-flow, dao-watch, or btc-macro).\n\nDetails: ${JSON.stringify(topAuction, null, 2).slice(0, 500)}\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals --claim "..." --evidence "..." --implication "..."`,
+          subject: `File ordinals signal: ${rareCount} inscriptions on rare sats detected`,
+          description: `${rareCount} recent inscriptions on special-rarity satoshis detected via Unisat indexer. Top example: sat rarity "${topItem.satRarity}", inscription #${topItem.inscriptionNumber ?? "unknown"}. File an ordinals signal (Arc's only beat — do NOT file to deal-flow, dao-watch, or btc-macro).\n\nDetails: ${JSON.stringify(topItem, null, 2).slice(0, 500)}\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals --claim "..." --evidence "..." --implication "..."`,
           skills: JSON.stringify(["aibtc-news-editorial", "aibtc-news-deal-flow"]),
           priority: 6,
           model: "sonnet",
