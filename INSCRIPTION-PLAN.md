@@ -1,7 +1,7 @@
 # Brief Inscription Plan
 **Quest:** Brief Inscriptions
 **Created:** 2026-03-22
-**Status:** APPROVED — execution in progress
+**Status:** APPROVED — workflow chain active (workflow #4, Mar 17 → Mar 23)
 
 ---
 
@@ -33,7 +33,7 @@ Held by Loom's Taproot address: `bc1ptqmds7ghh5lqexzd34xnf5sryxzjvlvuj2eetmhgjkp
 | 2 | 2026-03-14 | 1,935 | 221 | 897 | 2,989 | **3,210** | inscribed: `4de3f240d5d38b1f6726ccc2e31b38ddb2559da00fb66430c8f86f7454535a7di0` |
 | 3 | 2026-03-15 | 6,939 | 221 | 2,461 | 4,553 | **4,774** | commit broadcast: `6dca9a71d2e85ad01c335581a214c199a6579092bd6f03f5c82062630be84bc8` |
 | 4 | 2026-03-16 | 8,730 | 221 | 3,021 | 5,113 | **5,334** | pending |
-| 5 | 2026-03-17 | 15,072 | 221 | 5,002 | 7,094 | **7,315** | pending |
+| 5 | 2026-03-17 | 15,072 | 221 | 5,002 | 7,094 | **7,315** | commit confirmed: `7edba5f4ffcac048f32150a9cd5f26c593559abe1a8c9e912b165226ea2b7341` (workflow #4) |
 | — | 2026-03-18 | — | — | — | — | **SKIPPED** | insufficient signals |
 | 6 | 2026-03-19 | 9,690 | 221 | 3,321 | 5,413 | **5,634** | pending |
 | 7 | 2026-03-20 | 17,388 | 221 | 5,726 | 7,818 | **8,039** | pending |

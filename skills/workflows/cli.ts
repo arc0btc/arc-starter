@@ -44,7 +44,7 @@ USAGE
 SUBCOMMANDS
   list                                      List all active workflows
   list-by-template <template>               List workflows for a template
-  create <template> <instance_key> <state>  Create a new workflow
+  create <template> <instance_key> <state>  Create a new workflow (--context JSON)
   show <id>                                 Show workflow details
   transition <id> <new_state>               Move to a new state
   complete <id>                             Mark workflow as completed
@@ -98,12 +98,22 @@ function listByTemplate(template: string): CommandResult {
   }
 }
 
-function create(template: string, instanceKey: string, initialState: string): CommandResult {
+function create(template: string, instanceKey: string, initialState: string, contextJson?: string): CommandResult {
   if (!template || !instanceKey || !initialState) {
     return {
       success: false,
       message: "template, instance_key, and initial_state arguments required",
     };
+  }
+
+  let context: string | null = null;
+  if (contextJson) {
+    try {
+      JSON.parse(contextJson); // Validate JSON
+      context = contextJson;
+    } catch {
+      return { success: false, message: "Invalid JSON in --context" };
+    }
   }
 
   try {
@@ -122,13 +132,13 @@ function create(template: string, instanceKey: string, initialState: string): Co
       template,
       instance_key: instanceKey,
       current_state: initialState,
-      context: null,
+      context,
     });
 
     return {
       success: true,
       message: `Created workflow id=${id}`,
-      data: { id, template, instance_key: instanceKey, current_state: initialState },
+      data: { id, template, instance_key: instanceKey, current_state: initialState, context: context ? JSON.parse(context) : null },
     };
   } catch (error) {
     return {
@@ -389,7 +399,7 @@ function main(): void {
       break;
 
     case "create":
-      result = create(args[1] ?? "", args[2] ?? "", args[3] ?? "");
+      result = create(args[1] ?? "", args[2] ?? "", args[3] ?? "", params.context);
       break;
 
     case "show":

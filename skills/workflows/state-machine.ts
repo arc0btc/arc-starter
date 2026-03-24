@@ -664,6 +664,8 @@ export interface DailyBriefInscriptionContext {
   confirmPollCount?: number;
   verifyPollCount?: number;
   failureReason?: string;
+  /** Remaining dates to inscribe after this one completes. Enables sequential chaining. */
+  remainingDates?: string[];
 }
 
 export const DailyBriefInscriptionMachine: StateMachine<DailyBriefInscriptionContext> = {
@@ -713,7 +715,7 @@ Workflow instance_key: brief-inscription-${ctx.date}`,
 
 Steps:
 1. Estimate fee:
-   cd github/aibtcdev/skills && bun run child-inscription/child-inscription.ts estimate \\
+   bun run skills/child-inscription/child-inscription.ts estimate \\
      --parent-id "${ctx.parentId ?? "<LOOM_PARENT_INSCRIPTION_ID>"}" \\
      --content-type "${ctx.contentType ?? "text/plain"}" \\
      --content "<briefContent from context>"
@@ -744,11 +746,11 @@ Workflow instance_key: brief-inscription-${ctx.date}`,
         description: `Broadcast the commit transaction for the ${ctx.date} brief inscription.
 
 Steps:
-1. cd github/aibtcdev/skills && bun run child-inscription/child-inscription.ts inscribe \\
+1. bun run skills/child-inscription/child-inscription.ts inscribe \\
      --parent-id "${ctx.parentId ?? "<LOOM_PARENT_INSCRIPTION_ID>"}" \\
      --content-type "${ctx.contentType ?? "text/plain"}" \\
      --content "<briefContent from context>" \\
-     --fee-rate medium
+     --fee-rate ${ctx.feeRate ?? 1}
 
 2. On success: store commitTxid, revealAmount, and feeRate in workflow context.
    Transition workflow to 'committed'.
@@ -813,7 +815,7 @@ Workflow instance_key: brief-inscription-${ctx.date}`,
 commitTxid: ${ctx.commitTxid ?? "<commitTxid from context>"}
 
 Steps:
-1. cd github/aibtcdev/skills && bun run child-inscription/child-inscription.ts reveal \\
+1. bun run skills/child-inscription/child-inscription.ts reveal \\
      --commit-txid ${ctx.commitTxid ?? "<commitTxid>"} \\
      --vout 0
 
@@ -929,6 +931,18 @@ Steps:
      (populate earnings array and totalSats from the earnings response in step 1)
 
 4. Transition this workflow (brief-inscription-${ctx.date}) to 'payout_triggered' → 'completed'.
+${ctx.remainingDates && ctx.remainingDates.length > 0 ? (() => {
+          const nextDate = ctx.remainingDates![0];
+          const rest = ctx.remainingDates!.slice(1);
+          const nextCtx = { date: nextDate, parentId: ctx.parentId, contentType: ctx.contentType ?? "text/plain", feeRate: ctx.feeRate ?? 1, remainingDates: rest.length > 0 ? rest : undefined };
+          return `
+5. **CHAIN TO NEXT DATE**: After transitioning this workflow to completed, create the next
+   inscription workflow for ${nextDate}:
+   arc skills run --name workflows -- create daily-brief-inscription brief-inscription-${nextDate} pending \\
+     --context '${JSON.stringify(nextCtx)}'
+   This ensures sequential execution — the parent UTXO must be returned before the next inscribe.
+   Remaining after ${nextDate}: ${rest.length > 0 ? rest.join(", ") : "none (last in chain)"}`;
+        })() : ""}
 
 Workflow instance_key: brief-inscription-${ctx.date}`,
       }),
