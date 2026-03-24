@@ -79,7 +79,9 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   // x402 is a payment/messaging protocol — do NOT use "x402 message" or "send x402" here.
   // Those keywords appear in fleet-comms and stacks-payments tasks, not social engagement.
   "social-agent-engagement": ["agent engagement", "agent-engagement skill", "x post reply", "engage on x"],
-  "github-ci-status": ["ci status", "github actions", "workflow run"],
+  // "github-ci-status" intentionally excluded — its SKILL.md states it is sensor-only and
+  // should never be explicitly loaded at dispatch. Flagging tasks for not loading it is always
+  // a false positive. PR review tasks that mention "ci status" use gh commands directly.
   "github-security-alerts": ["security alert", "dependabot", "vulnerability"],
   "arc-email-sync": ["email sync", "inbox sync", "arc-email"],
   "defi-bitflow": ["bitflow", "dex swap", "liquidity pool"],
