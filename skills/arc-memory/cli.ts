@@ -54,14 +54,14 @@ function readFile(path: string): string {
 
 // Build the primary temporal tag for a category
 function buildPrimaryTag(category: string, timestamp?: string): string {
-  const ts = timestamp ?? new Date().toISOString().split("T")[0];
+  const dateStamp = timestamp ?? new Date().toISOString().split("T")[0];
   const tagsByCategory: Record<string, string> = {
-    A: `[STATE: ${ts}]`,
-    F: `[UPDATED: ${ts}]`,
-    S: `[UPDATED: ${ts}]`,
-    T: `[EVENT: ${ts}]`,
+    A: `[STATE: ${dateStamp}]`,
+    F: `[UPDATED: ${dateStamp}]`,
+    S: `[UPDATED: ${dateStamp}]`,
+    T: `[EVENT: ${dateStamp}]`,
     P: `[PATTERN: validated]`,
-    L: `[LEARNING: ${ts}]`,
+    L: `[LEARNING: ${dateStamp}]`,
   };
   return tagsByCategory[category] ?? `[UPDATED: ${ts}]`;
 }
