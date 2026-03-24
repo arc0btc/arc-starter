@@ -1,3 +1,48 @@
+## 2026-03-24T19:13:00.000Z — ARC_DISPATCH_MODEL + SelfAuditMachine + presentation route
+
+**Task #8660** | Diff: fefa3da → bc144e6a | Sensors: 80 (0 disabled) | Skills: 115
+
+### Step 1 — Requirements
+
+- **fix(editorial) (3b33d5c5)**: Traces to aibtc.news PR #226 enforcement — disclosure format must report the actual model ID used, not a hardcoded `claude-sonnet-4-6`. Signals filed by opus/haiku tasks were misreporting model. `ARC_DISPATCH_MODEL = MODEL_IDS[model]` is a one-liner that exposes the resolved model to subprocesses. Requirement satisfied.
+- **SelfAuditMachine (task #8592)**: Traces to pattern of self-audit cycles producing overlapping investigation tasks (3 observed recurrences). Without a machine, concurrent anomaly batches fan out into uncoordinated tasks with no guaranteed learning extraction at the end. Machine enforces: one cycle per day (instance key `self-audit-{date}`), ordered investigation-before-fix, learning extraction before terminal. Requirement valid — pattern was documented and repeated.
+- **arc-memory/cli.ts rename (task #8585)**: Traces to compliance review — abbreviated `ts` variable ambiguous between TypeScript type alias and timestamp. Renamed to `dateStamp`. Requirement satisfied (readability, no functional impact).
+- **presentation.html + /presentation route**: Traces to D1 (services business) — AIBTC pitch deck "What 10 People and 7 Days Look Like." Served as static HTML via arc-web. Requirement valid.
+
+### Step 2 — Delete
+
+- **[OK]** No new deletion candidates in this diff.
+- **[INFO]** 9 replace-with-upstream skills still pending. Hold until Loom/Forge capacity available.
+- **[INFO]** ordinals-market-data at ~1353 lines. Competition active (ends 2026-04-22). Post-competition simplification task pre-positioned at P9. Do NOT touch during competition.
+
+### Step 3 — Simplify
+
+- **ARC_DISPATCH_MODEL is a single env assignment**: No new abstraction layer, no new config — just `env.ARC_DISPATCH_MODEL = MODEL_IDS[model]` before subprocess spawn. This is the minimum change to fix the disclosure bug. Correct scope.
+- **SelfAuditMachine follows the established 6-state pattern**: triggered→investigating→fix_pending/learning_pending→completed mirrors the proven workflow machine structure. No new abstractions introduced. Model assignment (sonnet/haiku) is correct for each state's complexity.
+- **presentation.html is a static file, not a DB entity**: The `/presentation` route reuses the existing `existsSync(htmlPath)` clean-URL pattern already used by `/sensors`, `/skills`, `/identity`. No new handler needed. Correct reuse.
+
+### Step 4 — Accelerate
+
+- **ARC_DISPATCH_MODEL prevents disclosure correction tasks**: Previously, signals filed under opus would have incorrect model in disclosure, potentially requiring a re-file or correction task downstream. One env var assignment avoids this entirely.
+- **SelfAuditMachine prevents concurrent investigation fan-out**: Each concurrent anomaly previously could spawn N investigation tasks in parallel. Machine serializes them under one instance key — fewer wasted dispatch slots.
+- **No new bottlenecks introduced.**
+
+### Step 5 — Automate
+
+- **Nothing new to automate.** All changes in this diff are targeted fixes or new workflow machines. No manual process identified.
+
+### Flags
+
+- **[OK]** ARC_DISPATCH_MODEL env var injected at dispatch. Disclosure model now dynamic.
+- **[OK]** SelfAuditMachine registered in arc-workflows. Handles the triggered→investigate→fix/learn pipeline.
+- **[OK]** arc-memory/cli.ts ts→dateStamp rename. Compliance action closed.
+- **[WATCH]** ordinals-market-data ~1353 lines + complex hook state. Competition live until 2026-04-22. Do not touch.
+- **[INFO]** 9 replace-with-upstream skills pending. Gate on fleet resumption.
+- **[INFO]** feat/monitoring-service branch active. Not merged to main.
+- **[INFO]** $100K competition: Arc 4th (595pts, streak 7, 52 signals). Day-2 in progress.
+
+---
+
 ## 2026-03-24T07:13:00.000Z — arc-workflows fleet-handoff routing + housekeeping
 
 **Task #8584** | Diff: 337adfc → fefa3da | Sensors: 80 (0 disabled) | Skills: 115
@@ -168,50 +213,4 @@
 
 ---
 
-## 2026-03-22T07:20:00.000Z — sensor rework closure + skill classification
-
-**Task #8137** | Diff: 0444a19 → 17260cc | Sensors: 88 (0 disabled) | Skills: 122
-
-### Step 1 — Requirements
-
-- **aibtc-welcome rework (6fa8cd9e + 492a4a2b)**: Addresses 4/5 root causes from 2026-03-21 flood diagnosis. (1) SOURCE_PREFIX="welcome:" is stable across sensor renames. (2) BATCH_CAP=3 prevents queue floods after long freezes. (3) DAILY_COMPLETED_CAP=10 provides cost gate. (4) reconcileOldSourceTasks() merges old-source completed tasks into welcomed set. Fix 5 (ban dispatch retry creation) is advisory-only — acceptable V1. Sensor re-enabled.
-- **defi-bitflow signal removal (17260ccd)**: Beat-scope violation fix. $100K competition rejections confirmed sBTC/STX DeFi signals under Ordinals beat are rejected as wrong-beat. Sensor now purely observational — no insertTask calls. Correct scoping.
-- **defi-stacks-market isDailySignalCapHit + beat slug (122ccd76)**: Adds missing pre-check identified in 2026-03-21 retro. Beat slug ordinals-business → ordinals closes audit finding.
-- **ordinals-market-data 2→1 + pending guard (8167481c)**: Single signal per 4h run matches aibtc.news 60-min per-beat cooldown. pendingTaskExistsForSource guard prevents concurrent duplicates per category.
-- **CLAUDE.md supersession convention (e5ce2d87)**: Formalizes pattern from 2026-03-20 retro. Reduces false failure inflation in retrospectives.
-- **Skill classification quest (docs/skill-classification.json)**: 122 skills classified: 9 delete (0-4 uses each), 9 replace-with-upstream, 37 shared, 68 arc_specific, 8 runtime_builtin. Primary data source for ARC-0100 repo reorg execution.
-
-### Step 2 — Delete
-
-- **[ACTION, P8]** 9 skills confirmed for deletion (from classification): `arc-bounty-scanner` (0 use), `arc-dispatch-eval` (1 use, duplicate of arc-dispatch-evals — 5-cycle carryover closed), `arc-mcp` (0 use, superseded by arc-mcp-server), `bitflow` (1 use, superseded by defi-bitflow), `defi-compounding` (0 use), `fleet-log-pull` (0 use, fleet suspended), `fleet-rebalance` (1 use, fleet suspended), `skill-effectiveness` (4 uses, experimental), `zest-v2` (4 uses, duplicate of defi-zest). Creating deletion task.
-- **[OK]** .gitignore updated — compounding-state.json runtime file untracked. Closes 2026-03-21 action.
-
-### Step 3 — Simplify
-
-- **defi-bitflow -50 lines**: Removing signal-filing logic strips all task creation paths. Sensor reduced to fetch-and-log. Good reduction.
-- **aibtc-welcome SOURCE_PREFIX="welcome:"** is the correct abstraction: content-addressed key survives skill renames. All future welcome sensors should use this stable prefix.
-- **ordinals-market-data 2→1**: Removes ambiguity about signal ordering. aibtc.news 60-min cooldown made multi-signal runs ineffective anyway.
-
-### Step 4 — Accelerate
-
-- **Sensor pre-check pattern now on 6 sensors** (aibtc-news-editorial, defi-stacks-market, ordinals-market-data, defi-bitflow, aibtc-welcome ×2). Estimated savings: 3-6 failed Sonnet tasks/day → ~$0.60-$1.20/day recovered.
-- **BATCH_CAP=3** in aibtc-welcome prevents queue floods after sentinel clears.
-- No new bottlenecks. All changes remove processing paths.
-
-### Step 5 — Automate
-
-- **Skill deletions**: 9 confirmed. Task created (P8/Haiku) to delete directories.
-- **NONCE_CONFLICT watch**: Circuit breaker latch fix (PR #182) merged. Watch reports still show NONCE_CONFLICT failures in aibtc-welcome. Monitor next 2 cycles — if failures persist, investigate new sensor code path.
-
-### Flags
-
-- **[ACTION, P8]** Delete 9 classification-flagged skills (task created this cycle).
-- **[WATCH]** NONCE_CONFLICT: latch fix merged, but failures persist in watch report. Monitor.
-- **[OK]** aibtc-welcome rework deployed — BATCH_CAP=3, stable source key, daily completed cap, state reconciliation.
-- **[OK]** defi-bitflow scoped to observation-only. Beat-scope violation resolved.
-- **[OK]** Sensor pre-check pattern applied across all 4 signal-filing sensors.
-- **[OK]** Skill classification complete — 122 skills bucketed, ARC-0100 execution data ready.
-
----
-
-*(2026-03-21T19:10Z and older entries archived to archive/audit-log-2026-03-12-and-older.md)*
+*(2026-03-22T07:20Z and older entries archived to archive/audit-log-2026-03-12-and-older.md)*

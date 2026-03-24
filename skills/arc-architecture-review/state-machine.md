@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-24T07:13:00.000Z*
+*Generated: 2026-03-24T19:13:00.000Z*
 *Sensor count: 80 (0 disabled) | Skill count: 115*
 
 ```mermaid
@@ -173,6 +173,7 @@ stateDiagram-v2
             ReadTaskModel --> HaikuTier: model=haiku (explicit)
             ReadTaskModel --> CodexRoute: model=codex/*
             ReadTaskModel --> OpenRouterRoute: model=openrouter/*
+            note right of ReadTaskModel: ARC_DISPATCH_MODEL env var\nset from MODEL_IDS[model]\npassed to subprocess
         }
 
         state OpusTier {
@@ -253,7 +254,7 @@ stateDiagram-v2
     SensorsService --> TaskQueue
 ```
 
-## Sensor Count by Category (2026-03-24, cycle ~7)
+## Sensor Count by Category (2026-03-24, cycle ~12)
 
 | Category | Count |
 |----------|-------|
@@ -268,13 +269,12 @@ stateDiagram-v2
 | Other | 17 |
 | **Total** | **80** |
 
-## Key Architectural Changes (337adfc → fefa3da / feat/monitoring-service)
+## Key Architectural Changes (fefa3da → bc144e6a / feat/monitoring-service)
 
 | Change | Impact |
 |--------|--------|
-| `feat(arc-memory): ASMR v1` (7bcba9b7) | Structured memory format with 6 categories ([A]/[F]/[S]/[T]/[P]/[L]), temporal tags (`[STATE: DATE]`, `[EXPIRES: DATE]`), and supersession tracking. Prevents stale entries accumulating. arc-memory SKILL.md documents write-entry/list-entries/supersede CLI. Memory is now queryable, not just a flat log. |
-| `feat(ordinals-market-data): runes + angle rotation + narrative + history + milestones + change-detect` (7 commits) | Sensor grew from ~300 to 1353 lines. Adds: 5-category rotation (inscriptions, brc20, fees, nft-floors, runes), 4 analytical angles with directive strings, narrative threading (NarrativeThread state), rolling history arrays (6 readings/category + 8/collection), change-detection gates for all categories, inscription milestone detection. Passes raw data payload to dispatch (LLM composes editorial). **[WATCH]** Largest sensor in codebase — complexity risk. |
-| `feat(deal-flow): lower activation thresholds` (443aab7a) | x402 and sats auction thresholds reduced for competition phase. Targeted business config — no structural change. |
-| `arc-monitoring-service` (feat branch) | Paid monitoring-as-a-service: `monitored_endpoints` table, sensor checks due endpoints every 1 minute, Pro tier fires alert webhooks after 3 consecutive failures. 2 new skills (+monitoring-service skill + CLI). Branch in development. |
-| `fix(arc-workflows): planning → fleet-handoff for external repos` (4de87769) | GithubIssueImplementationMachine `planning` state no longer routes to local `implementing` state for external repos (aibtcdev/*, landing-page, x402-*). Now creates fleet-handoff task directly (`planning → awaiting-handoff`). Closes p-github-implement-pollution pattern. Saves ~$0.10-0.40/task previously wasted on bulk-killed implementation tasks. |
-| `chore(housekeeping): runtime state files → .gitignore` (3910c43a) | Additional runtime state files added to .gitignore. arc-link-research/cache/ untracked (38 JSON files). Closes action from 2026-03-23 audit. |
+| `fix(editorial): dynamic disclosure model` (3b33d5c5) | `ARC_DISPATCH_MODEL` env var now set from `MODEL_IDS[model]` in `dispatch.ts` and passed to every subprocess. Disclosure format in `aibtc-news-editorial/cli.ts` reads this var instead of hardcoding `claude-sonnet-4-6`. Signals filed by opus/haiku tasks now report the correct model ID. Required by aibtc.news PR #226 enforcement format. |
+| `SelfAuditMachine` added to `arc-workflows/state-machine.ts` | New workflow template for the recurring self-audit → investigate → fix/learn cycle. 6 states: triggered → investigating → fix_pending/learning_pending → completed. Instance key `self-audit-{YYYY-MM-DD}` prevents concurrent overlapping audit cycles. Model assignment: sonnet for investigation, sonnet for fix, haiku for learning extraction. Registered in `getTemplateByName`. |
+| `arc-memory/cli.ts`: `ts` → `dateStamp` rename (task #8585) | Variable `ts` was ambiguous (TypeScript abbreviation vs timestamp). Renamed to `dateStamp` for clarity. Compliance review catch — readability improvement, no functional change. |
+| `src/web.ts + presentation.html`: `/presentation` route | Static slide deck (`presentation.html` — "AIBTC: What 10 People and 7 Days Look Like") served at `/presentation` in the web dashboard. Clean URL routing via `existsSync(htmlPath)` pattern. D1 (services business) asset. |
+| `arc-monitoring-service` (feat branch, ongoing) | Paid monitoring-as-a-service: `monitored_endpoints` table, sensor checks due endpoints every 1 minute, Pro tier fires alert webhooks after 3 consecutive failures. Branch in development; not merged to main. |

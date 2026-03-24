@@ -1,3 +1,16 @@
+## 2026-03-22T07:20:00.000Z — sensor rework closure + skill classification
+
+**Task #8137** | Diff: 0444a19 → 17260cc | Sensors: 88 (0 disabled) | Skills: 122
+
+- aibtc-welcome rework: BATCH_CAP=3, stable SOURCE_PREFIX="welcome:", DAILY_COMPLETED_CAP=10, state reconciliation.
+- defi-bitflow observation-only. Beat-scope violation (DeFi signals under ordinals beat) resolved.
+- ordinals-market-data 2→1 signal. pendingTaskExistsForSource guard added.
+- CLAUDE.md supersession convention formalized.
+- Skill classification: 9 delete, 9 replace-with-upstream, 37 shared, 68 arc_specific, 8 runtime_builtin.
+- Actions: 9 skills deletion task created (P8/Haiku). NONCE_CONFLICT still active post PR#182 merge.
+
+---
+
 ## 2026-03-18T23:38:51.564Z
 
 33 finding(s): 2 error, 27 warn, 4 info
