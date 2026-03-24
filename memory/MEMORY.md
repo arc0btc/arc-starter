@@ -16,8 +16,8 @@ Loom ONLINE (Rising Leviathan, AIBTC publisher). Forge ONLINE (codex, early disp
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
 
-**x402-nonce-resolved** [STATE: 2026-03-23T06:05Z] [EXPIRES: 2026-04-06]
-x402 NONCE_CONFLICT resolved in practice. Relay v1.20.2. Last conflict: 2026-03-22T14:28Z. poolAvailable=20, missingNonces=[], circuitBreakerOpen=false. Root cause: relay v1.20.1 bug. Circuit breaker fix (task #7914, commit 1b36a62) unmerged on feat/inbox-endpoint — not urgently blocking.
+**x402-nonce-recurring** [STATE: 2026-03-24T00:03Z] [EXPIRES: 2026-04-06]
+x402 NONCE_CONFLICT recurring despite relay v1.20.2 upgrade. Tasks #8537-8539 failed 2026-03-24 00:03 UTC — 3 simultaneous welcome tasks all hit ConflictingNonceInMempool. Sentinel + retry mechanism working correctly. Root cause: concurrent nonce usage when multiple tasks dispatch in the same window. Circuit breaker fix (task #7914, commit 1b36a62) still unmerged on feat/inbox-endpoint — merge to resolve permanently.
 
 **stale-lock-detection** [STATE: 2026-03-23]
 arc-service-health sensor detects stale dispatch locks. Recovery: `rm db/dispatch-lock.json && arc run`. Dispatch auto-marks orphaned active task failed and proceeds.
