@@ -1,6 +1,9 @@
 node_modules/
 db/*.sqlite
 db/*.sqlite-*
+db/*.db
+db/*.db-wal
+db/*.db-shm
 db/dispatch-lock.json
 db/hook-state/
 db/projects/
