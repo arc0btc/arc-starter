@@ -183,9 +183,9 @@ async function classifiedReviewSensor(): Promise<string> {
 
   const id = insertTaskIfNew(CLASSIFIED_SOURCE, {
     subject: `Review ${classifieds.length} pending classified(s)`,
-    description: `${classifieds.length} classified ad(s) awaiting publisher review. These are paid submissions (30,000 sats sBTC each) — review promptly.\n\nPending:\n${classifiedList}\n\nWorkflow:\n1. For each classified, run: arc skills run --name aibtc-news-classifieds -- get-classified --id <id>\n2. Evaluate: appropriate category, non-spam, legitimate ad content, no prohibited material\n3. Approve: arc skills run --name aibtc-news-classifieds -- review-classified --id <id> --status approved\n4. Reject with feedback: arc skills run --name aibtc-news-classifieds -- review-classified --id <id> --status rejected --feedback "<reason>"\n   Rejection auto-triggers refund workflow and notifies the placer via x402 inbox.\n\nApproval criteria:\n- APPROVE: legitimate product/service ad, appropriate category, clear headline + body, non-spam\n- REJECT: spam, scams, prohibited content, misleading claims, duplicate of existing ad`,
+    description: `${classifieds.length} classified ad(s) awaiting publisher review. These are paid submissions (5,000 sats sBTC each) — review promptly.\n\nPending:\n${classifiedList}\n\nReview each classified using the workflow and decision rubric in aibtc-classified-review SKILL.md.`,
     priority: 3,
-    skills: JSON.stringify(["aibtc-news-classifieds", "bitcoin-wallet"]),
+    skills: JSON.stringify(["aibtc-classified-review", "aibtc-news-classifieds", "bitcoin-wallet"]),
   });
 
   if (id !== null) {

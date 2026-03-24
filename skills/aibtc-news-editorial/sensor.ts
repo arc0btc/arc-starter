@@ -73,9 +73,9 @@ async function signalReviewSensor(): Promise<string> {
 
   const id = insertTaskIfNew(SIGNAL_SOURCE, {
     subject: `Review ${signals.length} submitted signal(s)`,
-    description: `${signals.length} signal(s) awaiting publisher review.\n\nOldest batch (${batch.length}):\n${signalList}\n\nWorkflow:\n1. For each signal, run: arc skills run --name aibtc-news-classifieds -- get-signal --id <id>\n2. Evaluate: news value, specificity, sourcing, relevance to beat\n3. Approve quality signals: arc skills run --name aibtc-news-classifieds -- review-signal --id <id> --status approved\n4. Reject low-quality with feedback: arc skills run --name aibtc-news-classifieds -- review-signal --id <id> --status rejected --feedback "<reason>"\n\nQuality gates:\n- APPROVE: specific claims, named sources, data points, timely, relevant to beat, clear writing\n- REJECT: generic essays, no specific news hook, promotional, duplicate/stale, unsourced claims, typos or grammatical errors in title/body, title that doesn't make clear sense\n\nWriting rejection feedback:\nThe --feedback text is auto-sent to the agent via x402 inbox. Write it so they can fix and resubmit:\n- Be specific: quote the problem ("title 'Bitconi Prce Dips' has typos" not "has errors")\n- Be actionable: say what to fix ("fix the typo in the title and add a source" not "improve quality")\n- Be concise: one or two sentences max\n- Example: "Title has a typo and doesn't clearly convey the news. Fix spelling, make the headline specific (what happened, to whom, when), and resubmit."\n\nIf more than ${BATCH_SIZE} signals remain after this batch, a follow-up task will be created on next sensor run.`,
-    priority: 6,
-    skills: JSON.stringify(["aibtc-news-classifieds", "bitcoin-wallet"]),
+    description: `${signals.length} signal(s) awaiting publisher review.\n\nOldest batch (${batch.length}):\n${signalList}\n\nReview each signal using the workflow and decision rubric in aibtc-signal-review SKILL.md. If more than ${BATCH_SIZE} signals remain after this batch, a follow-up task will be created on next sensor run.`,
+    priority: 4,
+    skills: JSON.stringify(["aibtc-signal-review", "aibtc-news-classifieds", "bitcoin-wallet"]),
   });
 
   if (id !== null) {
@@ -188,9 +188,9 @@ async function correctionReviewSensor(): Promise<string> {
 
   const id = insertTaskIfNew(CORRECTION_SOURCE, {
     subject: `Review ${pendingCorrections.length} pending correction(s)`,
-    description: `${pendingCorrections.length} fact-check correction(s) awaiting publisher review.\n\nPending:\n${correctionList}\n\nWorkflow:\n1. For each correction, review the original signal and the correction claim:\n   arc skills run --name aibtc-news-classifieds -- get-signal --id <signal-id>\n   arc skills run --name aibtc-news-classifieds -- corrections --signal <signal-id>\n2. Evaluate: Is the correction factually accurate? Does it cite sources?\n3. Approve valid corrections:\n   arc skills run --name aibtc-news-classifieds -- review-correction --signal-id <id> --correction-id <id> --status approved\n4. Reject invalid corrections with feedback:\n   arc skills run --name aibtc-news-classifieds -- review-correction --signal-id <id> --correction-id <id> --status rejected --feedback "<reason>"\n\nApproval criteria:\n- APPROVE: factual error identified, correction supported by sources, specific claim corrected\n- REJECT: opinion disagreement (not factual error), no sources, vague or unverifiable claim`,
-    priority: 6,
-    skills: JSON.stringify(["aibtc-news-classifieds", "bitcoin-wallet"]),
+    description: `${pendingCorrections.length} fact-check correction(s) awaiting publisher review.\n\nPending:\n${correctionList}\n\nReview each correction using the workflow and decision rubric in aibtc-correction-review SKILL.md.`,
+    priority: 4,
+    skills: JSON.stringify(["aibtc-correction-review", "aibtc-news-classifieds", "bitcoin-wallet"]),
   });
 
   if (id !== null) {
