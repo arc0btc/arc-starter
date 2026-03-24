@@ -11,10 +11,10 @@ const API_BASE = "https://aibtc.news/api";
 // ---- Signal Review Sensor ----
 
 const SIGNAL_SENSOR = "signal-review";
-const SIGNAL_INTERVAL = 30;
+const SIGNAL_INTERVAL = 15;
 const SIGNAL_SOURCE = "sensor:signal-review";
 const signalLog = createSensorLogger(SIGNAL_SENSOR);
-const BATCH_SIZE = 25;
+const BATCH_SIZE = 10;
 
 interface Signal {
   id: string;
