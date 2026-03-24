@@ -2621,7 +2621,10 @@ Steps:
       },
     },
     planning: {
-      on: { begin_impl: "implementing" },
+      // Routes directly to fleet-handoff: these are external repos (aibtcdev/*, etc.)
+      // where local worktree implementation would require pushing to GitHub (Arc-only policy).
+      // The local "Implement #N" task was being bulk-closed at dispatch. Skip to handoff.
+      on: { handoff: "awaiting-handoff", begin_impl: "implementing" },
       action: (ctx) => {
         if (!ctx.repo || !ctx.issueNumber) return null;
         const label = ctx.issueTitle
@@ -2629,18 +2632,15 @@ Steps:
           : ` #${ctx.issueNumber}`;
         return {
           type: "create-task",
-          subject: `[${ctx.repo}] Implement #${ctx.issueNumber}${label}`,
-          priority: 4,
-          skills: ["github-issues", "arc-worktrees"],
-          description: `Implement fix for GitHub issue: ${ctx.issueUrl || `${ctx.repo}#${ctx.issueNumber}`}
+          subject: `[${ctx.repo}] Fleet-handoff: implement and PR for #${ctx.issueNumber}${label}`,
+          priority: 5,
+          skills: ["github-issues", "fleet-handoff"],
+          description: `Hand off to Arc to implement and open a PR for GitHub issue: ${ctx.issueUrl || `${ctx.repo}#${ctx.issueNumber}`}
 ${ctx.planSummary ? `\nPlan:\n${ctx.planSummary}` : ""}
 
 Steps:
-1. Create a worktree branch (arc-worktrees skill)
-2. Implement the change per the plan
-3. Run syntax checks; verify no regressions
-4. Store branch name in workflow context as branch
-5. Transition workflow: arc skills run --name workflows -- transition <id> implementing --context '{"branch":"...","implSummary":"..."}'`,
+1. Run fleet-handoff to Arc with issue context and plan
+2. Transition workflow: arc skills run --name workflows -- transition <id> awaiting-handoff`,
         };
       },
     },

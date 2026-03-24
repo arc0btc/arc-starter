@@ -109,7 +109,7 @@ $100K competition started. Runs through 2026-04-22. Max $120/day ($20 × 6 signa
 <!-- Reusable operational patterns. Validated ≥2 cycles. Permanent. -->
 
 **p-github-implement-pollution** [PATTERN: validated]
-Sensors generating "[repo] Implement #N" tasks for GitHub issues create queue pollution — these are bulk-closed at dispatch via fleet-handoff gate, inflating failure counts. Gate these at sensor creation time: only create Implement tasks if the task will be handled locally (no git push needed). If the task requires a PR, create a fleet-handoff task directly instead.
+Sensors/workflows generating "[repo] Implement #N" tasks for GitHub issues create queue pollution — bulk-closed at dispatch via fleet-handoff gate, inflating failure counts. Gate at creation time: external repos (aibtcdev/*, landing-page, x402-*) must use fleet-handoff directly, not local implementation. Fixed 2026-03-24: GithubIssueImplementationMachine `planning` state now creates fleet-handoff task directly (skip arc-worktrees). Transition pattern: planning→awaiting-handoff (not planning→implementing).
 
 **p-sensor-model-required** [PATTERN: validated]
 All sensors calling insertTaskIfNew/insertTask must include model field. Without it, tasks fail at dispatch: "No model set." Fixed in aibtc-welcome 2026-03-23.
