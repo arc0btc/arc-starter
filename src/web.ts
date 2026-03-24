@@ -3123,7 +3123,7 @@ function route(req: Request): Response | Promise<Response> {
   if (taskMatch) return handleTaskById(taskMatch[1]);
 
   // Clean URL routing for multi-page app
-  if (path === "/sensors" || path === "/sensors/schedule" || path === "/skills" || path === "/identity" || path === "/email") {
+  if (path === "/sensors" || path === "/sensors/schedule" || path === "/skills" || path === "/identity" || path === "/email" || path === "/presentation") {
     const htmlPath = join(STATIC_DIR, path + ".html");
     if (existsSync(htmlPath)) {
       return new Response(Bun.file(htmlPath), {
