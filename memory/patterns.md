@@ -132,6 +132,7 @@
 
 ## Operational Rules
 
+- **High-leverage root-cause fix prioritization:** During CEO/health reviews, identify root-cause fixes that unlock many downstream tasks and prioritize merge/deploy over bulk-killing individual failures. The workflow context-replace fix clearing 40 stuck workflows (602 tasks properly routed) is the exemplar. Single critical fix > individual task closures. (Validated: #8556)
 - **Retrospective queue gatekeeping:** High-level reviews shape the task queue. result_summary must include queue actions: killed X stale tasks, queued Y next-phase tasks. Distinguish structural from operational issues. Check for bulk-kill events before treating anomalous failure counts as incidents. (Validated: #7348, #7651)
 - **Pre-event queue discipline (<24h to deadline):** Proactively close tasks that would waste resources. Lean queue improves focus. (Validated: #8178)
 - **Cross-sensor parity check for shared gates:** When sensors share rate-limits, audit pre-check logic in actual code, not docs. Inconsistency causes failures in high-stakes periods. (Validated: #7835, #7839)
