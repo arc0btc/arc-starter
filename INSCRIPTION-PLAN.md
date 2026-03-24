@@ -7,9 +7,8 @@
 
 ## Summary
 
-8 compiled daily briefs (March 13–17, 19–21) are ready to be inscribed as child ordinals
+10 compiled daily briefs (March 13–17, 19–23) are ready to be inscribed as child ordinals
 under the canonical aibtc.news parent inscription. March 18 is skipped (insufficient signals).
-March 22's brief was not yet compiled at the time of this plan (API returned 404).
 
 All costs are estimated at **1 sat/vB** — appropriate for archival inscriptions where slow
 confirmation (hours, not minutes) is acceptable.
@@ -39,37 +38,39 @@ Held by Loom's Taproot address: `bc1ptqmds7ghh5lqexzd34xnf5sryxzjvlvuj2eetmhgjkp
 | 6 | 2026-03-19 | 9,690 | 221 | 3,321 | 5,413 | **5,634** | pending |
 | 7 | 2026-03-20 | 17,388 | 221 | 5,726 | 7,818 | **8,039** | pending |
 | 8 | 2026-03-21 | 9,973 | 221 | 3,409 | 5,501 | **5,722** | pending |
-| — | 2026-03-22 | — | — | — | — | **DEFERRED** | not yet compiled |
-| | **TOTAL** | **73,797** | 1,768 | 25,401 | **41,137** | **43,905** | |
+| 9 | 2026-03-22 | 14,693 | 221 | 4,884 | 6,976 | **7,197** | pending |
+| 10 | 2026-03-23 | 10,577 | 221 | 3,598 | 5,690 | **5,911** | pending |
+| | **TOTAL** | **99,067** | 2,210 | 33,883 | **53,803** | **57,013** | |
 
 ### Budget Check
 
 | Item | Sats |
 |------|------|
-| Total estimated cost (8 briefs @ 1 sat/vB) | 43,905 |
+| Total estimated cost (10 briefs @ 1 sat/vB) | 57,013 |
 | Available balance | 500,000 |
-| Remaining after inscriptions | **456,095** |
-| Percentage used | **8.8%** |
+| Remaining after inscriptions | **442,987** |
+| Percentage used | **11.4%** |
 
-**Verdict: Budget is more than sufficient.** Even at 10x the fee rate (10 sat/vB), the total
-would be ~439,050 sats — still within the available 500,000 sats. There is no budget risk at
-any reasonable fee rate.
+**Verdict: Budget is more than sufficient.** Even at 5x the fee rate (5 sat/vB), the total
+would be ~285,065 sats — still well within the available 500,000 sats.
 
 ---
 
 ## Inscription Order
 
-Chronological, March 13 → 21:
+Chronological, March 13 → 23:
 
 ```
-1. 2026-03-13  (4,070 bytes, 3,877 sats)
-2. 2026-03-14  (1,935 bytes, 3,210 sats)
-3. 2026-03-15  (6,939 bytes, 4,774 sats)
-4. 2026-03-16  (8,730 bytes, 5,334 sats)
-5. 2026-03-17 (15,072 bytes, 7,315 sats)
-6. 2026-03-19  (9,690 bytes, 5,634 sats)
-7. 2026-03-20 (17,388 bytes, 8,039 sats)
-8. 2026-03-21  (9,973 bytes, 5,722 sats)
+1.  2026-03-13  (4,070 bytes,  3,877 sats)
+2.  2026-03-14  (1,935 bytes,  3,210 sats)
+3.  2026-03-15  (6,939 bytes,  4,774 sats)
+4.  2026-03-16  (8,730 bytes,  5,334 sats)
+5.  2026-03-17 (15,072 bytes,  7,315 sats)
+6.  2026-03-19  (9,690 bytes,  5,634 sats)
+7.  2026-03-20 (17,388 bytes,  8,039 sats)
+8.  2026-03-21  (9,973 bytes,  5,722 sats)
+9.  2026-03-22 (14,693 bytes,  7,197 sats)
+10. 2026-03-23 (10,577 bytes,  5,911 sats)
 ```
 
 ---
@@ -252,7 +253,7 @@ At 1 sat/vB with current mempool conditions:
 | Commit tx confirmation | 2–6 hours (can be up to 24h) |
 | Reveal tx confirmation | 2–6 hours |
 | Per inscription cycle | ~4–12 hours |
-| All 8 inscriptions sequentially | **32–96 hours** (1.5–4 days) |
+| All 10 inscriptions sequentially | **40–120 hours** (2–5 days) |
 
 **Recommendation:** Start early in the day and run one or two inscriptions per session.
 Do not wait for all 8 to complete in one sitting. The state file handles interruption safely.
