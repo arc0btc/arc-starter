@@ -662,6 +662,7 @@ export interface DailyBriefInscriptionContext {
   feeRate?: number;
   inscriptionId?: string;
   confirmPollCount?: number;
+  verifyPollCount?: number;
   failureReason?: string;
 }
 
@@ -834,7 +835,7 @@ Workflow instance_key: brief-inscription-${ctx.date}`,
      * Note: inscription exists on-chain regardless — capture inscriptionId even on API failure.
      */
     revealed: {
-      on: { recorded: "payout", record_failed: "failed" },
+      on: { recorded: "verified", record_failed: "failed" },
       action: (ctx) => ({
         type: "create-task",
         subject: `Record ${ctx.date} brief inscription on aibtc.news`,
@@ -848,11 +849,49 @@ Steps:
 1. arc skills run --name aibtc-news-classifieds -- inscribe-brief --date ${ctx.date} --inscription-id ${ctx.inscriptionId ?? "<inscriptionId from context>"}
    (requires BIP-137 publisher auth)
 
-2. On success: transition workflow to 'payout'. Close task as completed with
+2. On success: transition workflow to 'recorded' → 'verified'. Close task as completed with
    summary including the inscriptionId.
 
 3. On API failure: transition to 'failed' with failureReason. The inscription already
    exists on-chain — record the inscriptionId in the failure reason for manual recovery.
+
+Workflow instance_key: brief-inscription-${ctx.date}`,
+      }),
+    },
+
+    /**
+     * verified → confirm inscription landed on-chain and API recorded it correctly.
+     * Task: check aibtc.news API + mempool for reveal tx confirmation.
+     * Only proceed to payout after on-chain verification passes.
+     */
+    verified: {
+      on: { verification_passed: "payout", verification_failed: "failed" },
+      action: (ctx) => ({
+        type: "create-task",
+        subject: `Verify inscription for ${ctx.date} brief`,
+        priority: 7,
+        skills: ["aibtc-news-classifieds", "bitcoin-wallet"],
+        description: `Verify the ${ctx.date} brief inscription is confirmed on-chain and recorded on aibtc.news.
+
+inscriptionId: ${ctx.inscriptionId ?? "<inscriptionId from context>"}
+Current verify poll count: ${ctx.verifyPollCount ?? 0}
+
+Steps:
+1. Check API: GET https://aibtc.news/api/brief/${ctx.date}/inscription
+   Confirm response has inscribed: true and inscription_id matches.
+
+2. Check mempool: GET https://mempool.space/api/tx/${ctx.inscriptionId?.split("i")[0] ?? "<revealTxid>"}
+   Confirm the reveal transaction has at least 1 confirmation (status.confirmed: true).
+
+3. If both checks pass: transition workflow to 'verification_passed' → 'payout'.
+
+4. If reveal tx unconfirmed and verifyPollCount < 12:
+   Increment verifyPollCount in workflow context, do NOT transition.
+   Close task as completed with summary "Awaiting confirmation, poll ${(ctx.verifyPollCount ?? 0) + 1}/12".
+   The meta-sensor will re-evaluate and create a new verification task on next cycle.
+
+5. If verifyPollCount >= 12 (6+ hours): transition to 'verification_failed' → 'failed'
+   with failureReason noting the timeout.
 
 Workflow instance_key: brief-inscription-${ctx.date}`,
       }),
@@ -1095,6 +1134,168 @@ Workflow instance_key: payout-${ctx.date}`,
 };
 
 /**
+ * ClassifiedRefundMachine — processes refund for a rejected classified ad.
+ *
+ * Triggered by: cmdReviewClassified on rejection
+ * instance_key: "classified-refund-{classifiedId}" (one per rejected classified)
+ *
+ * States:
+ *   fetch_rejected   → get classified details (payer address, amount)
+ *   balance_check    → verify wallet sBTC covers refund
+ *   transfer_sent    → send sBTC to original payer
+ *   recorded         → record refund txid on aibtc.news API
+ *   notify           → x402 inbox confirmation to payer
+ *   completed        → terminal success
+ *   failed           → terminal failure
+ *
+ * Context:
+ *   classifiedId     — the rejected classified's ID
+ *   payerBtcAddress  — BTC address of original payer (for notification)
+ *   payerStxAddress  — STX address of payer (for sBTC transfer)
+ *   refundAmountSats — amount to refund (from classified paidAmount)
+ *   balanceSats      — wallet sBTC balance at check time
+ *   transferTxid     — sBTC refund transfer txid
+ *   failureReason    — on failure
+ */
+export interface ClassifiedRefundContext {
+  classifiedId: string;
+  payerBtcAddress?: string;
+  payerStxAddress?: string | null;
+  refundAmountSats?: number;
+  balanceSats?: number;
+  transferTxid?: string;
+  failureReason?: string;
+}
+
+export const ClassifiedRefundMachine: StateMachine<ClassifiedRefundContext> = {
+  name: "classified-refund",
+  initialState: "fetch_rejected",
+  states: {
+    fetch_rejected: {
+      on: { details_found: "balance_check", details_missing: "failed" },
+      action: (ctx) => ({
+        type: "create-task",
+        subject: `Fetch rejected classified details for refund ${ctx.classifiedId}`,
+        priority: 6,
+        skills: ["aibtc-news-classifieds", "bitcoin-wallet"],
+        description: `Fetch the rejected classified record to confirm refund details.
+
+Steps:
+1. arc skills run --name aibtc-news-classifieds -- get-classified --id ${ctx.classifiedId}
+2. Confirm payer BTC address (contact field), STX address (placedBy/payerStxAddress field),
+   and paid amount (paidAmount field).
+3. If details found: update workflow context with payerBtcAddress, payerStxAddress,
+   refundAmountSats. Transition to 'details_found' → 'balance_check'.
+4. If classified not found or missing payer info: transition to 'details_missing' → 'failed'
+   with failureReason.
+
+Workflow instance_key: classified-refund-${ctx.classifiedId}`,
+      }),
+    },
+
+    balance_check: {
+      on: { balance_ok: "transfer_sent", insufficient_funds: "failed" },
+      action: (ctx) => ({
+        type: "create-task",
+        subject: `Check sBTC balance for ${ctx.refundAmountSats ?? "?"} sats refund`,
+        priority: 6,
+        skills: ["bitcoin-wallet"],
+        description: `Verify wallet sBTC balance covers the refund of ${ctx.refundAmountSats ?? "?"} sats.
+
+Steps:
+1. arc skills run --name bitcoin-wallet -- info
+2. Check sBTC balance against refundAmountSats (${ctx.refundAmountSats ?? "?"}).
+3. If balance >= refundAmountSats: store balanceSats in context, transition to 'balance_ok'.
+4. If balance < refundAmountSats: set failureReason, transition to 'insufficient_funds' → 'failed'.
+   Escalate to whoabuddy for funding.
+
+Workflow instance_key: classified-refund-${ctx.classifiedId}`,
+      }),
+    },
+
+    transfer_sent: {
+      on: { transfer_complete: "recorded", transfer_failed: "failed" },
+      action: (ctx) => ({
+        type: "create-task",
+        subject: `Send ${ctx.refundAmountSats ?? "?"} sats sBTC refund for classified ${ctx.classifiedId}`,
+        priority: 5,
+        skills: ["bitcoin-wallet"],
+        description: `Send sBTC refund transfer to the classified placer.
+
+Recipient STX address: ${ctx.payerStxAddress ?? "<lookup from context>"}
+Amount: ${ctx.refundAmountSats ?? "?"} sats
+
+Steps:
+1. arc skills run --name bitcoin-wallet -- sbtc-transfer \\
+     --amount ${ctx.refundAmountSats ?? "?"} --recipient ${ctx.payerStxAddress ?? "<payerStxAddress>"}
+2. On success: store transferTxid in workflow context. Transition to 'transfer_complete' → 'recorded'.
+3. On failure: set failureReason, transition to 'transfer_failed' → 'failed'.
+
+Workflow instance_key: classified-refund-${ctx.classifiedId}`,
+      }),
+    },
+
+    recorded: {
+      on: { refund_recorded: "notify", record_failed: "notify" },
+      action: (ctx) => ({
+        type: "create-task",
+        subject: `Record refund txid for classified ${ctx.classifiedId}`,
+        priority: 6,
+        skills: ["aibtc-news-classifieds", "bitcoin-wallet"],
+        description: `Record the refund transaction on aibtc.news.
+
+Steps:
+1. arc skills run --name aibtc-news-classifieds -- refund-classified \\
+     --id ${ctx.classifiedId} --txid ${ctx.transferTxid ?? "<transferTxid>"}
+2. On success or failure: transition to 'notify'. The sBTC is already sent —
+   record txid in failureReason if the API call fails for manual recovery.
+
+Workflow instance_key: classified-refund-${ctx.classifiedId}`,
+      }),
+    },
+
+    notify: {
+      on: { notified: "completed", notify_failed: "completed" },
+      action: (ctx) => {
+        if (!ctx.payerBtcAddress || !ctx.payerStxAddress) return null;
+
+        return {
+          type: "create-task",
+          subject: `Notify classified placer of refund for ${ctx.classifiedId}`,
+          priority: 7,
+          skills: ["bitcoin-wallet", "contact-registry"],
+          description: `Send x402 inbox confirmation that the classified refund has been processed.
+
+Recipient BTC: ${ctx.payerBtcAddress}
+Recipient STX: ${ctx.payerStxAddress}
+Amount: ${ctx.refundAmountSats ?? "?"} sats
+Txid: ${ctx.transferTxid ?? "<txid>"}
+
+Steps:
+1. arc skills run --name bitcoin-wallet -- x402 send-inbox-message \\
+     --recipient-btc-address ${ctx.payerBtcAddress} \\
+     --recipient-stx-address ${ctx.payerStxAddress} \\
+     --content "Classified Refund | ${ctx.classifiedId} — Your ${ctx.refundAmountSats ?? "?"} sats payment has been refunded. Txid: ${ctx.transferTxid ?? "<txid>"}."
+2. Transition to 'notified' → 'completed'.
+
+Workflow instance_key: classified-refund-${ctx.classifiedId}`,
+        };
+      },
+    },
+
+    completed: {
+      on: {},
+      action: () => null,
+    },
+
+    failed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -1109,6 +1310,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "research-to-prd": ResearchToPrdMachine,
     "daily-brief-inscription": DailyBriefInscriptionMachine,
     "payout-distribution": PayoutDistributionMachine,
+    "classified-refund": ClassifiedRefundMachine,
   };
   return templates[name] || null;
 }

@@ -3,7 +3,7 @@
 // Classified ads and extended API coverage for aibtc.news
 
 import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
-import { getContactByAddress } from "../contact-registry/schema.ts";
+import { getContactByAddress, insertContactInteraction } from "../contact-registry/schema.ts";
 
 const API_BASE = "https://aibtc.news/api";
 const VALID_CATEGORIES = ["ordinals", "services", "agents", "wanted"] as const;
@@ -50,6 +50,60 @@ async function apiGet(endpoint: string): Promise<unknown> {
   }
 
   return data;
+}
+
+interface ClassifiedRecord {
+  btcAddress: string | undefined;
+  headline: string;
+  stxAddress: string | undefined;
+  payerStxAddress: string | undefined;
+  paidAmount: number;
+}
+
+async function fetchClassifiedRecord(classifiedId: string): Promise<ClassifiedRecord> {
+  const raw = (await apiGet(`/classifieds/${classifiedId}`)) as {
+    classified?: { contact?: string; headline?: string; placedBy?: string; payerStxAddress?: string; paidAmount?: number };
+    contact?: string;
+    headline?: string;
+    placedBy?: string;
+    payerStxAddress?: string;
+    paidAmount?: number;
+  };
+
+  const inner = raw.classified ?? raw;
+  return {
+    btcAddress: inner.contact,
+    headline: inner.headline ?? "(unknown)",
+    stxAddress: inner.placedBy,
+    payerStxAddress: inner.payerStxAddress ?? inner.placedBy,
+    paidAmount: inner.paidAmount ?? 30000,
+  };
+}
+
+/**
+ * Send an x402 inbox message. Spawns the wallet skill. Throws on failure.
+ */
+async function sendX402InboxMessage(btcAddress: string, stxAddress: string, content: string): Promise<void> {
+  const proc = Bun.spawn(
+    [
+      "bash", "bin/arc", "skills", "run", "--name", "bitcoin-wallet", "--",
+      "x402", "send-inbox-message",
+      "--recipient-btc-address", btcAddress,
+      "--recipient-stx-address", stxAddress,
+      "--content", content,
+    ],
+    { cwd: process.cwd(), stdin: "ignore", stdout: "pipe", stderr: "pipe" }
+  );
+
+  const [stdout, stderr] = await Promise.all([
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text(),
+  ]);
+
+  const exitCode = await proc.exited;
+  if (exitCode !== 0) {
+    throw new Error(`x402 send failed (exit ${exitCode}): ${(stdout + stderr).slice(0, 300)}`);
+  }
 }
 
 async function signMessage(message: string): Promise<string> {
@@ -757,85 +811,6 @@ async function cmdRecordPayout(args: string[]): Promise<void> {
 
 // ---- Subcommands: Publisher Config ----
 
-/**
- * Send an x402 inbox message to the signal's author with rejection feedback.
- * Looks up the agent's STX address from the contact registry.
- * Fails silently (logs warning) — rejection still stands even if notification fails.
- */
-async function notifyRejection(signalId: string, feedback: string): Promise<void> {
-  try {
-    // Fetch signal to get submitter's BTC address
-    const signal = (await apiGet(`/signals/${signalId}`)) as {
-      signal?: { btcAddress?: string; headline?: string };
-      btcAddress?: string;
-      headline?: string;
-    };
-
-    const btcAddress = signal.signal?.btcAddress ?? signal.btcAddress;
-    const headline = signal.signal?.headline ?? signal.headline ?? "(unknown)";
-
-    if (!btcAddress) {
-      log(`Notify skip: no BTC address found for signal ${signalId}`);
-      return;
-    }
-
-    if (btcAddress === ARC_BTC_ADDRESS) {
-      log("Notify skip: signal is from self");
-      return;
-    }
-
-    // Look up STX address from contact registry
-    const contact = getContactByAddress(null, btcAddress);
-    if (!contact?.stx_address) {
-      log(`Notify skip: no STX address found for ${btcAddress} in contact registry`);
-      return;
-    }
-
-    const message = [
-      `Signal Rejected | ${signalId}`,
-      ``,
-      `Your signal "${headline}" was reviewed and not approved.`,
-      ``,
-      `Feedback: ${feedback}`,
-      ``,
-      `Please fix the issues noted above and resubmit. We want to publish quality content and appreciate your contributions.`,
-    ].join("\n");
-
-    log(`Sending rejection notice to ${btcAddress} (${contact.stx_address})`);
-
-    // Send via wallet skill's x402 inbox command
-    const sendArgs = [
-      "bash", "bin/arc", "skills", "run", "--name", "bitcoin-wallet", "--",
-      "x402", "send-inbox-message",
-      "--recipient-btc-address", btcAddress,
-      "--recipient-stx-address", contact.stx_address,
-      "--content", message,
-    ];
-
-    const proc = Bun.spawn(sendArgs, {
-      cwd: process.cwd(),
-      stdin: "ignore",
-      stdout: "pipe",
-      stderr: "pipe",
-    });
-
-    const [stdout, stderr] = await Promise.all([
-      new Response(proc.stdout).text(),
-      new Response(proc.stderr).text(),
-    ]);
-
-    const exitCode = await proc.exited;
-    if (exitCode !== 0) {
-      throw new Error(`x402 send failed (exit ${exitCode}): ${(stdout + stderr).slice(0, 300)}`);
-    }
-
-    log(`Rejection notice sent to ${btcAddress}`);
-  } catch (err) {
-    // Non-fatal: the rejection itself already succeeded
-    log(`Notify failed (non-fatal): ${err instanceof Error ? err.message : String(err)}`);
-  }
-}
-
 async function cmdReviewSignal(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
@@ -908,9 +883,51 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
     log(`Signal ${flags.id} reviewed as ${flags.status}`);
     console.log(JSON.stringify(data, null, 2));
 
-    // Auto-notify agent via x402 inbox on rejection with feedback
-    if (flags.status === "rejected" && flags.feedback && flags["no-notify"] !== "true") {
-      await notifyRejection(flags.id, flags.feedback);
+    // Fetch signal once for notification + contact logging
+    try {
+      const signal = (await apiGet(`/signals/${flags.id}`)) as {
+        signal?: { btcAddress?: string; headline?: string };
+        btcAddress?: string;
+        headline?: string;
+      };
+      const sigBtcAddress = signal.signal?.btcAddress ?? signal.btcAddress;
+      const sigHeadline = signal.signal?.headline ?? signal.headline ?? "(unknown)";
+
+      if (flags.status === "rejected" && flags.feedback && flags["no-notify"] !== "true" && sigBtcAddress && sigBtcAddress !== ARC_BTC_ADDRESS) {
+        const contact = getContactByAddress(null, sigBtcAddress);
+        if (contact?.stx_address) {
+          const message = [
+            `Signal Rejected | ${flags.id}`,
+            ``,
+            `Your signal "${sigHeadline}" was reviewed and not approved.`,
+            ``,
+            `Feedback: ${flags.feedback}`,
+            ``,
+            `Please fix the issues noted above and resubmit. We want to publish quality content and appreciate your contributions.`,
+          ].join("\n");
+
+          try {
+            log(`Sending rejection notice to ${sigBtcAddress} (${contact.stx_address})`);
+            await sendX402InboxMessage(sigBtcAddress, contact.stx_address, message);
+            log(`Rejection notice sent to ${sigBtcAddress}`);
+          } catch (err) {
+            log(`Notify failed (non-fatal): ${err instanceof Error ? err.message : String(err)}`);
+          }
+        }
+      }
+
+      if (sigBtcAddress) {
+        const sigContact = getContactByAddress(null, sigBtcAddress);
+        if (sigContact) {
+          insertContactInteraction({
+            contact_id: sigContact.id,
+            type: "collaboration",
+            summary: `${flags.status === "approved" ? "Approved" : flags.status === "rejected" ? "Rejected" : `Set ${flags.status}`} signal ${flags.id}: "${sigHeadline}"${flags.feedback ? ` — ${flags.feedback.slice(0, 100)}` : ""}`,
+          });
+        }
+      }
+    } catch {
+      // Non-fatal
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -979,6 +996,363 @@ async function cmdGetPublisher(): Promise<void> {
   }
 }
 
+// ---- Subcommands: Classified Review (Publisher-only) ----
+
+async function cmdListPendingClassifieds(): Promise<void> {
+  try {
+    const path = "/classifieds/pending";
+    const headers = await buildAuthHeaders("GET", path);
+    log("Fetching pending classifieds");
+
+    const url = `${API_BASE}${path}`;
+    const response = await fetch(url, { headers });
+
+    const text = await response.text();
+    let data: unknown;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { raw: text };
+    }
+
+    if (!response.ok) {
+      throw new Error(`API error ${response.status}: ${text}`);
+    }
+
+    log("Listed pending classifieds");
+    console.log(JSON.stringify(data, null, 2));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`Error: ${message}`);
+    console.error(JSON.stringify({ error: message }, null, 2));
+    process.exit(1);
+  }
+}
+
+async function cmdReviewClassified(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+
+  if (!flags.id || !flags.status) {
+    console.error(
+      "Usage: arc skills run --name aibtc-news-classifieds -- review-classified --id <id> --status approved|rejected [--feedback <text>]"
+    );
+    process.exit(1);
+  }
+
+  const validStatuses = ["approved", "rejected"];
+  if (!validStatuses.includes(flags.status)) {
+    console.error(
+      `Invalid status: ${flags.status}. Must be one of: ${validStatuses.join(", ")}`
+    );
+    process.exit(1);
+  }
+
+  if (flags.feedback && flags.feedback.length > 500) {
+    console.error(`Feedback too long: ${flags.feedback.length}/500 chars`);
+    process.exit(1);
+  }
+
+  try {
+    const path = `/classifieds/${flags.id}/review`;
+    const headers = await buildAuthHeaders("PATCH", path);
+    log(`Signing message for PATCH /api${path}`);
+
+    const body: Record<string, unknown> = {
+      btc_address: ARC_BTC_ADDRESS,
+      status: flags.status,
+    };
+    if (flags.feedback) {
+      body.feedback = flags.feedback;
+    }
+
+    const url = `${API_BASE}${path}`;
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify(body),
+    });
+
+    const text = await response.text();
+    let data: unknown;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { raw: text };
+    }
+
+    if (!response.ok) {
+      throw new Error(`API error ${response.status}: ${text}`);
+    }
+
+    log(`Classified ${flags.id} reviewed as ${flags.status}`);
+    console.log(JSON.stringify(data, null, 2));
+
+    // Fetch classified once for notification, contact logging, and refund
+    const record = await fetchClassifiedRecord(flags.id);
+
+    // Log interaction to contact registry
+    try {
+      if (record.btcAddress) {
+        const contact = getContactByAddress(null, record.btcAddress);
+        if (contact) {
+          insertContactInteraction({
+            contact_id: contact.id,
+            type: "collaboration",
+            summary: `${flags.status === "approved" ? "Approved" : "Rejected"} classified ${flags.id}: "${record.headline}"${flags.feedback ? ` — ${flags.feedback.slice(0, 100)}` : ""}`,
+          });
+        }
+      }
+    } catch { /* non-fatal */ }
+
+    // Notify the placer via x402 inbox
+    await notifyClassifiedDecision(flags.id, flags.status as "approved" | "rejected", record, flags.feedback);
+
+    if (flags.status === "rejected") {
+      await triggerClassifiedRefund(flags.id, record);
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`Error: ${message}`);
+    console.error(JSON.stringify({ error: message }, null, 2));
+    process.exit(1);
+  }
+}
+
+/**
+ * Send x402 inbox notification to classified placer on approval or rejection.
+ * Fails silently — the review decision still stands even if notification fails.
+ */
+async function notifyClassifiedDecision(
+  classifiedId: string,
+  decision: "approved" | "rejected",
+  record: ClassifiedRecord,
+  feedback?: string,
+): Promise<void> {
+  try {
+    if (!record.btcAddress || record.btcAddress === ARC_BTC_ADDRESS) {
+      log(`Notify skip: ${!record.btcAddress ? "no BTC address" : "classified is from self"}`);
+      return;
+    }
+
+    const contact = getContactByAddress(null, record.btcAddress);
+    const recipientStx = contact?.stx_address ?? record.stxAddress;
+
+    if (!recipientStx) {
+      log(`Notify skip: no STX address found for ${record.btcAddress}`);
+      return;
+    }
+
+    const message = decision === "approved"
+      ? [
+          `Classified Approved | ${classifiedId}`,
+          ``,
+          `Your classified "${record.headline}" has been approved and is now live on aibtc.news.`,
+          ``,
+          `It will remain active for 7 days from the original posting date.`,
+        ].join("\n")
+      : [
+          `Classified Rejected | ${classifiedId}`,
+          ``,
+          `Your classified "${record.headline}" was reviewed and not approved.`,
+          ``,
+          `Feedback: ${feedback ?? "(none)"}`,
+          ``,
+          `Your payment will be refunded. A refund workflow has been initiated.`,
+        ].join("\n");
+
+    log(`Sending classified ${decision} notice to ${record.btcAddress} (${recipientStx})`);
+    await sendX402InboxMessage(record.btcAddress, recipientStx, message);
+    log(`Classified ${decision} notice sent to ${record.btcAddress}`);
+  } catch (err) {
+    log(`Notify failed (non-fatal): ${err instanceof Error ? err.message : String(err)}`);
+  }
+}
+
+/**
+ * Trigger a classified refund workflow after rejection.
+ */
+async function triggerClassifiedRefund(classifiedId: string, record: ClassifiedRecord): Promise<void> {
+  try {
+    if (!record.btcAddress) {
+      log(`Refund skip: no payer BTC address found for classified ${classifiedId}`);
+      return;
+    }
+
+    const context = JSON.stringify({
+      classifiedId,
+      payerBtcAddress: record.btcAddress,
+      payerStxAddress: record.payerStxAddress ?? null,
+      refundAmountSats: record.paidAmount,
+    });
+
+    const instanceKey = `classified-refund-${classifiedId}`;
+    log(`Creating refund workflow: ${instanceKey}`);
+
+    const proc = Bun.spawn(
+      [
+        "bash", "bin/arc", "skills", "run", "--name", "workflows", "--",
+        "create", "classified-refund", instanceKey, "fetch_rejected",
+        "--context", context,
+      ],
+      { cwd: process.cwd(), stdin: "ignore", stdout: "pipe", stderr: "pipe" }
+    );
+
+    const [stdout, stderr] = await Promise.all([
+      new Response(proc.stdout).text(),
+      new Response(proc.stderr).text(),
+    ]);
+
+    const exitCode = await proc.exited;
+    if (exitCode !== 0) {
+      throw new Error(`Workflow creation failed (exit ${exitCode}): ${(stdout + stderr).slice(0, 300)}`);
+    }
+
+    log(`Refund workflow created: ${instanceKey}`);
+  } catch (err) {
+    log(`Refund trigger failed (non-fatal): ${err instanceof Error ? err.message : String(err)}`);
+  }
+}
+
+async function cmdRefundClassified(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+
+  if (!flags.id || !flags.txid) {
+    console.error(
+      "Usage: arc skills run --name aibtc-news-classifieds -- refund-classified --id <id> --txid <txid>"
+    );
+    process.exit(1);
+  }
+
+  const txid = flags.txid.trim();
+  if (txid.length === 0) {
+    console.error("--txid cannot be empty");
+    process.exit(1);
+  }
+
+  try {
+    const path = `/classifieds/${flags.id}/refund`;
+    const headers = await buildAuthHeaders("PATCH", path);
+    log(`Recording classified refund: id=${flags.id}, txid=${txid}`);
+
+    const url = `${API_BASE}${path}`;
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify({
+        btc_address: ARC_BTC_ADDRESS,
+        refund_txid: txid,
+      }),
+    });
+
+    const text = await response.text();
+    let data: unknown;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { raw: text };
+    }
+
+    if (!response.ok) {
+      throw new Error(`API error ${response.status}: ${text}`);
+    }
+
+    log("Classified refund recorded");
+    console.log(JSON.stringify(data, null, 2));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`Error: ${message}`);
+    console.error(JSON.stringify({ error: message }, null, 2));
+    process.exit(1);
+  }
+}
+
+// ---- Subcommands: Correction Review (Publisher-only) ----
+
+async function cmdReviewCorrection(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+
+  if (!flags["signal-id"] || !flags["correction-id"] || !flags.status) {
+    console.error(
+      "Usage: arc skills run --name aibtc-news-classifieds -- review-correction --signal-id <id> --correction-id <id> --status approved|rejected [--feedback <text>]"
+    );
+    process.exit(1);
+  }
+
+  const validStatuses = ["approved", "rejected"];
+  if (!validStatuses.includes(flags.status)) {
+    console.error(
+      `Invalid status: ${flags.status}. Must be one of: ${validStatuses.join(", ")}`
+    );
+    process.exit(1);
+  }
+
+  if (flags.feedback && flags.feedback.length > 500) {
+    console.error(`Feedback too long: ${flags.feedback.length}/500 chars`);
+    process.exit(1);
+  }
+
+  try {
+    const signalId = flags["signal-id"];
+    const correctionId = flags["correction-id"];
+    const path = `/signals/${signalId}/corrections/${correctionId}`;
+    const headers = await buildAuthHeaders("PATCH", path);
+    log(`Signing message for PATCH /api${path}`);
+
+    const body: Record<string, unknown> = {
+      btc_address: ARC_BTC_ADDRESS,
+      status: flags.status,
+    };
+    if (flags.feedback) {
+      body.feedback = flags.feedback;
+    }
+
+    const url = `${API_BASE}${path}`;
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify(body),
+    });
+
+    const text = await response.text();
+    let data: unknown;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { raw: text };
+    }
+
+    if (!response.ok) {
+      throw new Error(`API error ${response.status}: ${text}`);
+    }
+
+    log(`Correction ${correctionId} on signal ${signalId} reviewed as ${flags.status}`);
+    console.log(JSON.stringify(data, null, 2));
+
+    // Log interaction to contact registry
+    try {
+      const correction = data as Record<string, unknown>;
+      const correctorAddress = (correction.btc_address ?? correction.btcAddress) as string | undefined;
+      if (correctorAddress) {
+        const contact = getContactByAddress(null, correctorAddress);
+        if (contact) {
+          insertContactInteraction({
+            contact_id: contact.id,
+            type: "collaboration",
+            summary: `Reviewed correction ${correctionId} on signal ${signalId}: ${flags.status}${flags.feedback ? ` — ${flags.feedback.slice(0, 100)}` : ""}`,
+          });
+        }
+      }
+    } catch {
+      // Non-fatal
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`Error: ${message}`);
+    console.error(JSON.stringify({ error: message }, null, 2));
+    process.exit(1);
+  }
+}
+
 // ---- Main ----
 
 async function main(): Promise<void> {
@@ -987,9 +1361,10 @@ async function main(): Promise<void> {
   if (args.length === 0) {
     console.error("Usage: arc skills run --name aibtc-news-classifieds -- <command> [flags]");
     console.error(
-      "Commands: list-classifieds, get-classified, post-classified, get-signal, correct-signal, " +
-        "review-signal, update-beat, get-brief, inscribe-brief, streaks, list-skills, earnings, corrections, " +
-        "record-payout, designate-publisher, get-publisher"
+      "Commands: list-classifieds, get-classified, post-classified, list-pending-classifieds, " +
+        "review-classified, refund-classified, get-signal, correct-signal, review-signal, " +
+        "review-correction, update-beat, get-brief, inscribe-brief, streaks, list-skills, " +
+        "earnings, corrections, record-payout, designate-publisher, get-publisher"
     );
     process.exit(1);
   }
@@ -1007,6 +1382,15 @@ async function main(): Promise<void> {
         break;
       case "post-classified":
         await cmdPostClassified(commandArgs);
+        break;
+      case "list-pending-classifieds":
+        await cmdListPendingClassifieds();
+        break;
+      case "review-classified":
+        await cmdReviewClassified(commandArgs);
+        break;
+      case "refund-classified":
+        await cmdRefundClassified(commandArgs);
         break;
       case "get-signal":
         await cmdGetSignal(commandArgs);
@@ -1037,6 +1421,9 @@ async function main(): Promise<void> {
         break;
       case "review-signal":
         await cmdReviewSignal(commandArgs);
+        break;
+      case "review-correction":
+        await cmdReviewCorrection(commandArgs);
         break;
       case "record-payout":
         await cmdRecordPayout(commandArgs);

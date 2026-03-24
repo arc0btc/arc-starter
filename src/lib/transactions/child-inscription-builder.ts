@@ -600,6 +600,7 @@ export function buildChildRevealTransaction(
       script: parentP2tr.script,
       amount: BigInt(parentUtxo.value),
     },
+    tapInternalKey: xOnlyParentPubKey,
   });
 
   // Input 1: commit output — script-path spend

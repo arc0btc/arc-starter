@@ -241,9 +241,16 @@ program
           throw new Error("Either --content or --content-file is required");
         }
 
-        // Wallet check
+        // Wallet check (with auto-restore from disk session)
         const walletManager = getWalletManager();
-        const sessionInfo = walletManager.getSessionInfo();
+        let sessionInfo = walletManager.getSessionInfo();
+        if (!sessionInfo) {
+          const activeId = await walletManager.getActiveWalletId();
+          if (activeId) {
+            await walletManager.restoreSessionFromDisk(activeId);
+            sessionInfo = walletManager.getSessionInfo();
+          }
+        }
         if (!sessionInfo) {
           throw new Error("Wallet not unlocked. Run 'bun run wallet/wallet.ts unlock' first.");
         }
@@ -386,9 +393,16 @@ program
           throw new Error("--vout must be a non-negative integer");
         }
 
-        // Wallet check
+        // Wallet check (with auto-restore from disk session)
         const walletManager = getWalletManager();
-        const sessionInfo = walletManager.getSessionInfo();
+        let sessionInfo = walletManager.getSessionInfo();
+        if (!sessionInfo) {
+          const activeId = await walletManager.getActiveWalletId();
+          if (activeId) {
+            await walletManager.restoreSessionFromDisk(activeId);
+            sessionInfo = walletManager.getSessionInfo();
+          }
+        }
         if (!sessionInfo) {
           throw new Error("Wallet not unlocked. Run 'bun run wallet/wallet.ts unlock' first.");
         }

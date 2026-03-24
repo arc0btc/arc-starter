@@ -12,7 +12,7 @@ Inscribes the daily brief as a child ordinal inscription under the canonical aib
 
 ## Parent Inscription
 
-**Parent ID:** 9d83815556ab6706e8a557d7f2514826e17421cd5443561f18276766b5474559i0
+**Parent ID:** fd96e26b82413c2162ba536629e981fd5e503b49e289797d38eadc9bbd3808e1i0
 
 All daily brief inscriptions are children of this parent, establishing on-chain provenance for the aibtc.news collection.
 
@@ -36,7 +36,7 @@ Uses child-inscription/child-inscription.ts:
 
 1. Fetch the day's compiled brief content
 2. Check BTC balance on SegWit address
-3. child-inscription inscribe --parent-id parentId --content-type text/html --content-file brief
+3. child-inscription inscribe --parent-id parentId --content-type text/plain --content-file brief
 4. Wait for commit confirmation
 5. child-inscription reveal --commit-txid txid --vout 0
 6. Record inscription ID via inscribe-brief CLI command
