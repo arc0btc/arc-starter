@@ -1,3 +1,43 @@
+## 2026-03-24T07:13:00.000Z — arc-workflows fleet-handoff routing + housekeeping
+
+**Task #8584** | Diff: 337adfc → fefa3da | Sensors: 80 (0 disabled) | Skills: 115
+
+### Step 1 — Requirements
+
+- **fix(arc-workflows) (4de87769)**: Traces to p-github-implement-pollution pattern — sensors creating "[repo] Implement #N" tasks for GitHub issues on external repos (aibtcdev/*, landing-page, x402-*) caused queue pollution. Previously those tasks reached `implementing` state before failing, inflating failure counts and wasting dispatch cycles. The `planning → awaiting-handoff` fix routes them to fleet-handoff at planning time — correct ownership boundary. Requirement satisfied.
+- **chore(housekeeping) (3910c43a)**: Traces to [ACTION] from 2026-03-23 audit — arc-link-research/cache/ (38 JSON files) tracked in git. Now gitignored + untracked. Requirement satisfied. Runtime state file hygiene consistent: pool-state.json, compounding-state.json, link-research/cache/ all properly excluded.
+
+### Step 2 — Delete
+
+- **[OK]** arc-link-research/cache/ — 0 files tracked in git. Previous action closed.
+- **[INFO]** 9 replace-with-upstream skills still pending. Hold until Loom/Forge capacity available. Not a blocker.
+- **[INFO]** ordinals-market-data still at ~1353 lines. Competition live (ends 2026-04-22). Post-competition simplification task (#TBD) pre-positioned. Do NOT touch during active competition.
+
+### Step 3 — Simplify
+
+- **arc-workflows state machine gains clarity**: Eliminating `planning → implementing` for external repos removes a confusing dual-path. The state machine was implicitly branching on repo type mid-execution; now it branches at planning time. Single-responsibility states are cleaner.
+- **No new complexity introduced.** All changes in this diff range are fixes or hygiene.
+
+### Step 4 — Accelerate
+
+- **fleet-handoff at planning state**: Each blocked GitHub implementation task that previously consumed a dispatch slot (~$0.10-0.40) now routes without subprocess launch. At 5-10 such tasks/day, this recovers $0.50-4.00/day and more importantly unblocks the queue faster for real work.
+
+### Step 5 — Automate
+
+- **Nothing new to automate.** This diff is fixes and hygiene — no new manual process to automate.
+
+### Flags
+
+- **[OK]** arc-workflows planning state fleet-handoff routing — p-github-implement-pollution pattern closed.
+- **[OK]** arc-link-research/cache/ gitignored — 2026-03-23 audit action closed.
+- **[OK]** arc-link-research/cache/ — 0 tracked files confirmed.
+- **[WATCH]** ordinals-market-data ~1353 lines + complex hook state. Monitor for sensor failures during competition. Post-competition simplification task queued at P9.
+- **[WATCH]** x402 NONCE_CONFLICT: PR #202 (circuit breaker latch fix) open but not merged. Tasks #8537-8539 hit NONCE_CONFLICT 2026-03-24 00:03Z. Welcome tasks affected. Monitor post-merge.
+- **[INFO]** feat/monitoring-service branch active. Not merged to main.
+- **[INFO]** $100K competition Day 2: Arc 4th (595pts, streak 7, 52 signals). Ends 2026-04-22.
+
+---
+
 ## 2026-03-23T21:15:00.000Z — ASMR v1 memory + ordinals-market-data expansion
 
 **Task #8422** | Diff: 669d781 → HEAD | Sensors: 80 (0 disabled) | Skills: 115
@@ -174,116 +214,4 @@
 
 ---
 
-## 2026-03-21T19:20:00.000Z — aibtc-welcome flood diagnosis
-
-**Task #8000** | Source: task:7999 | Scope: aibtc-welcome sensor flood root cause + rework plan
-
-### Root Causes (3 distinct failure modes)
-
-**1. Source rename broke dedup (195 tasks, ~$28)**
-- Old sensor `social-agent-engagement` used source: `sensor:social-agent-engagement:welcome-{btcAddress}`
-- New sensor `aibtc-welcome` uses source: `sensor:aibtc-welcome:{stxAddress}`
-- Both prefix AND address key changed
-- `insertTaskIfNew` checks `source = ?` exactly → all 86 agents from old sensor looked new
-- Created 198 tasks (86 old prefix × duplicated + 123 new prefix) for ~156 unique agents
-- **The `welcomed_agents` set in hook state was not cross-referenced with old-source completed tasks**
-
-**2. Dispatch-created retry cascades (62 tasks, ~$14)**
-- Failed welcome tasks spawned retries with different subjects ("Retry x402 welcome to X")
-- Different subjects bypass `pendingTaskExistsForSubject()` dedup
-- Different/missing source bypasses source-level dedup
-- 62 retry tasks: 54 failed, 8 completed — net negative (more cost than value)
-
-**3. No batch cap (flood on sentinel clear)**
-- 10-day nonce sentinel freeze accumulated 500+ unwelcomed agents
-- On clear, sensor created tasks for ALL of them in one 30-min cycle
-- No per-cycle cap → queue flooded with P7 welcome tasks
-
-### Impact
-
-| Metric | Value |
-|--------|-------|
-| Total welcome tasks | 392 |
-| Completed | 41 (10.5%) |
-| Failed | 350 (89.5%) |
-| Code cost | $32.64 |
-| API cost | $37.34 |
-| **Total cost** | **~$70** |
-| Agents successfully welcomed | 76 (per state) |
-| Unique agents targeted | 156 |
-
-### Rework Plan (5 fixes)
-
-**Fix 1 — Stable source key (critical)**
-Use a content-addressed source that survives skill renames: `welcome:{stxAddress}`. The sensor name should not be part of the source key for dedup. Also: on re-enable, run a one-time reconciliation that marks agents with completed tasks under the old `sensor:social-agent-engagement:welcome-*` source as already welcomed.
-
-**Fix 2 — Batch cap per cycle (critical)**
-Max 3 welcome tasks per sensor cycle. At 30-min cadence, this allows 144/day max but prevents queue flooding. New agent registration rate is ~5-10/day, so 3/cycle is more than sufficient for steady state.
-
-**Fix 3 — Ban dispatch retry creation (moderate)**
-Add explicit instruction in task description: "Do NOT create any follow-up or retry task." But more importantly, the sensor's `completedTaskCountForSource` + `recentTaskExistsForSource` already handle retries organically. Failed tasks are re-created on the next sensor cycle if needed.
-
-**Fix 4 — Pre-dispatch cost gate (low)**
-If >10 welcome tasks completed today, skip creating more. Prevents budget impact even if fixes 1-3 fail.
-
-**Fix 5 — State reconciliation on re-enable (one-time)**
-Cross-reference `welcomed_agents` state with BOTH old (`sensor:social-agent-engagement:welcome-*`) and new (`sensor:aibtc-welcome:*`) completed tasks. Merge into welcomed set before re-enabling sensor.
-
-### Preserve on rework
-- `isRelayHealthy()` self-healing logic — correct and validated
-- `getInteractionCountForContact()` check — prevents re-welcoming agents with prior interactions
-- `completedTaskExistsForSourceSubstring()` — catches partial source matches
-- Fleet agent exclusion list
-- Nonce sentinel circuit breaker
-
----
-
-## 2026-03-21T19:10:00.000Z
-
-**Diff range:** 8a8c5c9 → 0444a19 | Sensors: 88 (1 disabled: aibtc-welcome) | Skills: 122
-
-### Step 1 — Requirements
-
-- **`effort` frontmatter removal**: Traces to 4-cycle carryover (36 skills, never consumed by dispatch.ts). Removal clean — no dispatch changes needed. **Requirement satisfied.**
-- **aibtc-welcome self-healing**: Traces to task #7908 (sentinel cleared) and task #7914 (circuit breaker latch bug fix). `isRelayHealthy()` function correctly checks relay /health + nonce pool before honoring sentinel. Requirement valid.
-- **aibtc-welcome full disable (line 121)**: Traces to human directive — "task flood." Root cause of flood not embedded in the commit or sensor comments. Disable is blunt instrument; rework needed before re-enabling.
-- **ordinals-market-data zero-guard**: Traces to Unisat occasionally returning 0 recent inscriptions (confirmed via #7749 magiceden follow-through). Prevents empty signal submission. Requirement valid.
-- **ordinals-market-data source swap (magiceden → unisat)**: Traces to task #7863 (watch report flag: 2 consecutive failures). magiceden.io unreachable confirmed. Requirement satisfied.
-- **arc-workflow-review `patternAlreadyModeled()`**: Traces to task #7794 (validated: all patterns covered by existing state machines). Function prevents re-generating design tasks for already-modeled patterns. Requirement valid.
-- **email thread sent messages**: Traces to task #7998 (web fix). `getEmailThread()` now returns both inbox + sent messages for two-way conversation view. Requirement valid.
-
-### Step 2 — Delete
-
-- **[NEW, P8]** `skills/defi-compounding/compounding-state.json` is tracked in git but is a runtime state file (`lastChecked`, empty pools). Should be gitignored like `skills/*/pool-state.json`. Needs `.gitignore` entry + `git rm --cached`. Creating task.
-- **[OK]** `effort` frontmatter — REMOVED from all 36 skills. 4-cycle carryover **closed**.
-- **[INFO]** `aibtc-welcome/sensor.ts` self-healing code (`isRelayHealthy()`) is dead while sensor is disabled. When rework executes, preserve it — the logic is correct.
-
-### Step 3 — Simplify
-
-- **`patternAlreadyModeled()` is correct abstraction**: Pure TypeScript, no subprocess, ~35 lines. Derives 2-3 name candidates per pattern key and calls `getTemplateByName()`. Clean.
-- **aibtc-welcome disable is the right short-term move**: A broken sensor that floods the queue is worse than no sensor. The disable-and-rework pattern is correct. But the rework task should be created now, not deferred.
-- **Jingswap `res → response` rename**: Cosmetic, correct. No structural change.
-
-### Step 4 — Accelerate
-
-- **ordinals-market-data zero-guard** saves ~1 failed Sonnet task per Unisat zero-count event. Small but zero-cost fix.
-- **arc-workflow-review template check** prevents redundant P5-7 workflow design tasks. Keeps queue cleaner pre-competition.
-- **No new bottlenecks introduced.**
-
-### Step 5 — Automate
-
-- **aibtc-welcome rework**: After identifying flood root cause, the sensor should be re-enabled with a per-run cap (e.g., max 5 welcome tasks per sensor cycle). This would prevent floods while maintaining automation.
-- **`compounding-state.json` gitignore**: Should be automated — extend gitignore pattern from `skills/*/pool-state.json` to `skills/*/compounding-state.json` (or more broadly `skills/*/*-state.json`).
-
-### Flags
-
-- **[RESOLVED ✓]** `effort` frontmatter on 36 skills — removed. 4-cycle carryover closed.
-- **[ACTION, P4]** aibtc-welcome flood root cause — diagnose and rework plan. Self-healing code is good; flood mechanism unknown. Create task.
-- **[ACTION, P8]** `skills/defi-compounding/compounding-state.json` tracked in git. Gitignore + untrack.
-- **[WATCH]** aibtc-welcome `isRelayHealthy()` — dead while disabled. Preserve when re-enabling.
-- **[OK]** ordinals-market-data source fixes deployed ahead of competition (2026-03-23).
-- **[OK]** arc-workflow-review template dedup working.
-
----
-
-*(2026-03-19T20:15Z through 2026-03-21T07:20Z entries archived to archive/audit-log-2026-03-12-and-older.md)*
+*(2026-03-21T19:10Z and older entries archived to archive/audit-log-2026-03-12-and-older.md)*

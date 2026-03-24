@@ -857,3 +857,18 @@
 ---
 
 *(2026-03-19T20:15Z through 2026-03-20T07:10Z entries archived to archive/audit-log-2026-03-12-and-older.md)*
+
+---
+
+## 2026-03-21T19:10:00.000Z
+
+**Diff range:** 8a8c5c9 → 0444a19 | Sensors: 88 (1 disabled: aibtc-welcome) | Skills: 122
+
+Key actions: effort frontmatter removed from 36 skills; aibtc-welcome disabled (task flood); ordinals-market-data zero-guard + magiceden→unisat swap; arc-workflow-review patternAlreadyModeled(); email thread sent messages fix. defi-compounding/compounding-state.json flagged for gitignore.
+
+---
+
+## 2026-03-21T19:20:00.000Z — aibtc-welcome flood diagnosis
+
+**Task #8000** | Root causes: (1) source rename broke dedup — 195 tasks ~$28, (2) dispatch retry cascades — 62 tasks ~$14, (3) no batch cap on sentinel clear. Total impact: 392 tasks, 89.5% failed, ~$70. Rework: stable source key "welcome:{stxAddress}", BATCH_CAP=3, ban retry creation, daily completed cap=10, state reconciliation on re-enable.
+
