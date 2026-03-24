@@ -20,11 +20,15 @@ const MONITORED_REPOS = [
   "secret-mars/loop-starter-kit",
 ] as const;
 
+/** GitHub username Arc operates as — only create workflows for issues targeting this user. */
+const ARC_GITHUB_LOGIN = "arc0btc";
+
 interface GitHubIssue {
   number: number;
   title: string;
   user: string;
   labels: string[];
+  assignees: string[];
   html_url: string;
   created_at: string;
   updated_at: string;
@@ -53,7 +57,7 @@ function fetchOpenIssues(repo: string): GitHubIssue[] {
     "-f", "direction=desc",
     "-f", `since=${sinceWindow()}`,
     "--jq",
-    `.[] | select(.pull_request == null) | {number: .number, title: .title, user: .user.login, labels: [.labels[].name], html_url: .html_url, created_at: .created_at, updated_at: .updated_at}`,
+    `.[] | select(.pull_request == null) | {number: .number, title: .title, user: .user.login, labels: [.labels[].name], assignees: [.assignees[].login], html_url: .html_url, created_at: .created_at, updated_at: .updated_at}`,
   ]);
 
   if (!result.ok || !result.stdout) return [];
@@ -84,6 +88,12 @@ export default async function githubIssueMonitorSensor(): Promise<string> {
       const repoClass = classifyRepo(repo);
 
       for (const issue of issues) {
+        // Only create workflows for issues where Arc is assigned or mentioned.
+        // The github-mentions sensor handles notification-based engagement separately.
+        const isAssigned = issue.assignees.includes(ARC_GITHUB_LOGIN);
+        const isManaged = repoClass === "managed";
+        if (!isAssigned && !isManaged) continue;
+
         // Canonical key shared with github-mentions sensor for cross-sensor dedup
         const canonicalSource = `issue:${repo}#${issue.number}`;
         const legacySource = `sensor:github-issue-monitor:${repo}#${issue.number}`;
