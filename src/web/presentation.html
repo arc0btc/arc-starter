@@ -2,25 +2,47 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>AIBTC Weekly Summary — Mar 17–24, 2026</title>
+  <title>AIBTC — What 10 People and 7 Days Look Like</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reveal.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/theme/black.css">
   <style>
-    .reveal h1, .reveal h2, .reveal h3 { text-transform: none; }
-    .reveal table { font-size: 0.65em; margin: 0 auto; }
-    .reveal th, .reveal td { padding: 0.3em 0.6em; }
-    .small { font-size: 0.7em; }
-    .highlight { color: #f7931a; }
-    .green { color: #4ade80; }
-    .blue { color: #60a5fa; }
-    .red { color: #f87171; }
-    .purple { color: #c084fc; }
-    .stat-row { display: flex; justify-content: center; gap: 50px; margin-top: 30px; }
+    :root {
+      --btc: #f7931a;
+      --green: #4ade80;
+      --blue: #60a5fa;
+      --dim: rgba(255,255,255,0.4);
+      --soft: rgba(255,255,255,0.7);
+    }
+    .reveal { font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; }
+    .reveal h1, .reveal h2, .reveal h3 { text-transform: none; font-family: inherit; letter-spacing: -0.02em; }
+    .reveal h1 { font-size: 2.2em; }
+    .reveal h2 { font-size: 1.6em; }
+    .reveal p, .reveal li, .reveal td, .reveal th { font-size: 0.75em; line-height: 1.5; }
+    .reveal table { font-size: 0.65em; margin: 0 auto; border-collapse: collapse; }
+    .reveal th { color: var(--dim); font-weight: normal; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .reveal td { text-align: left; }
+    .reveal th, .reveal td { padding: 0.35em 0.8em; }
+    .highlight { color: var(--btc); }
+    .green { color: var(--green); }
+    .blue { color: var(--blue); }
+    .dim { color: var(--dim); }
+    .soft { color: var(--soft); }
+    .stat-row { display: flex; justify-content: center; gap: 60px; margin-top: 40px; }
     .stat-box { text-align: center; }
-    .stat-box .number { font-size: 3em; font-weight: bold; }
-    .stat-box .label { font-size: 0.6em; opacity: 0.7; }
-    .logo-row { display: flex; justify-content: center; align-items: center; gap: 30px; margin-top: 20px; }
-    .logo-row img { height: 40px; opacity: 0.9; }
+    .stat-box .number { font-size: 3.5em; font-weight: bold; line-height: 1; }
+    .stat-box .label { font-size: 0.55em; color: var(--dim); margin-top: 8px; }
+    .aside { font-size: 0.55em; color: var(--dim); font-style: italic; margin-top: 30px; }
+    .take { font-size: 1.1em; color: var(--soft); margin-top: 20px; line-height: 1.6; }
+    .logo-row { display: flex; justify-content: center; align-items: center; gap: 30px; margin-top: 30px; }
+    .logo-row img { height: 40px; opacity: 0.85; }
+    .fix-grid { display: grid; grid-template-columns: 1fr auto; gap: 4px 20px; text-align: left; max-width: 700px; margin: 0 auto; }
+    .fix-grid .item { color: var(--soft); font-size: 0.7em; padding: 4px 0; }
+    .fix-grid .status { color: var(--green); font-size: 0.7em; padding: 4px 0; text-align: right; }
+    .reveal ul { list-style: none; padding: 0; }
+    .reveal ul li { padding: 6px 0; }
+    .reveal ul li::before { content: "→ "; color: var(--btc); }
+    .cred-row { display: flex; justify-content: center; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
+    .cred { font-size: 0.5em; color: var(--dim); padding: 4px 12px; border: 1px solid rgba(255,255,255,0.08); border-radius: 3px; }
   </style>
 </head>
 <body>
@@ -29,99 +51,108 @@
 
       <!-- 1. Title -->
       <section>
-        <h1>AIBTC Week in Review</h1>
-        <h3>Mar 17 – 24, 2026</h3>
+        <p class="dim" style="font-size:0.5em; margin-bottom: 30px;">AIBTC · Week in Review</p>
+        <h1>What <span class="highlight">10 people</span> and<br><span class="highlight">7 days</span> look like</h1>
+        <p class="dim" style="margin-top: 30px; font-size: 0.6em;">Mar 17 – 24, 2026</p>
         <div class="logo-row">
           <img src="https://aibtc.dev/logos/aibtcdev-avatar-1000px.png" alt="AIBTC">
         </div>
       </section>
 
-      <!-- 2. The Big Numbers -->
+      <!-- 2. The Numbers -->
       <section>
         <div class="stat-row">
           <div class="stat-box">
             <div class="number highlight">216</div>
-            <div class="label">PRs Merged</div>
+            <div class="label">PRs merged</div>
           </div>
           <div class="stat-box">
             <div class="number green">145</div>
-            <div class="label">Issues Closed</div>
+            <div class="label">Issues closed</div>
           </div>
           <div class="stat-box">
             <div class="number blue">32</div>
             <div class="label">Releases</div>
           </div>
         </div>
-        <br><br>
-        <p class="small">7 repos. 10 contributors. 7 days.</p>
+        <p class="aside">7 repos · 10 contributors · 7 days</p>
       </section>
 
-      <!-- 3. The Team -->
+      <!-- 3. For Perspective -->
       <section>
-        <h2>Who Built It</h2>
-        <table>
-          <tr><th>Who</th><th>Role</th><th>PRs</th></tr>
-          <tr><td class="highlight">Jason Schrader</td><td>Core Dev</td><td>67</td></tr>
-          <tr><td class="blue">Arc</td><td>AI Agent</td><td>30</td></tr>
-          <tr><td class="blue">tfibtcagent</td><td>AI Agent</td><td>25</td></tr>
-          <tr><td class="green">Biwas Bhandari</td><td>Contributor</td><td>11</td></tr>
-          <tr><td class="green">Secret Mars</td><td>Contributor</td><td>9</td></tr>
-          <tr><td class="green">Cedar, Rapha, gregoryford963-sys, pbtc21, warmidris</td><td>Community</td><td>12</td></tr>
-        </table>
-        <br>
-        <p class="small"><span class="highlight">3 humans</span> + <span class="blue">2 AI agents</span> + <span class="green">5 community</span></p>
-      </section>
-
-      <!-- 4. What We Shipped -->
-      <section>
-        <h2>What We Shipped</h2>
+        <h2>For perspective</h2>
         <br>
         <table>
-          <tr><td class="highlight">Agent News</td><td>Full news platform — signals, classifieds, payouts, daily briefs inscribed on Bitcoin</td></tr>
-          <tr><td class="highlight">Achievements</td><td>6 new badges: Soul Inscription, Stacker, sBTC Holder, x402 Earner, Streaks</td></tr>
-          <tr><td class="highlight">10 New Tools</td><td>Identity, credentials, reputation, ordinals, runes, bounties, prediction markets</td></tr>
-          <tr><td class="highlight">DeFi</td><td>JingSwap multi-market, Nostr Web of Trust, stacking lottery</td></tr>
-          <tr><td class="highlight">Infrastructure</td><td>Nonce pool recovery, structured errors, KV caching, x402 payment hardening</td></tr>
+          <tr><th>Team size</th><th>Typical week</th></tr>
+          <tr><td>Startup <span class="dim">(5–10 devs)</span></td><td>15 – 30 PRs</td></tr>
+          <tr><td>Mid-size <span class="dim">(20–30 devs)</span></td><td>40 – 80 PRs</td></tr>
+          <tr><td>Large org <span class="dim">(100+ eng)</span></td><td>150 – 300 PRs</td></tr>
         </table>
+        <p class="take">We shipped <span class="highlight">216</span> with <span class="highlight">10</span>.</p>
+        <p class="aside">A quarter's worth of output in a calendar week.</p>
       </section>
 
-      <!-- 5. What We Fixed -->
+      <!-- 4. Who Built It -->
       <section>
-        <h2>What We Fixed</h2>
+        <h2>Who built it</h2>
         <br>
         <table>
-          <tr><td>888 nonce conflicts blocking all payments</td><td class="green">Fixed</td></tr>
-          <tr><td>60-second page load times</td><td class="green">Fixed</td></tr>
-          <tr><td>x402 payment settlements failing</td><td class="green">Fixed</td></tr>
-          <tr><td>MCP server crash on startup</td><td class="green">Fixed</td></tr>
-          <tr><td>Identity badges not showing</td><td class="green">Fixed</td></tr>
-          <tr><td>API rate limits crashing retries</td><td class="green">Fixed</td></tr>
-        </table>
-      </section>
-
-      <!-- 6. For Perspective -->
-      <section>
-        <h2>For Perspective</h2>
-        <br>
-        <table>
-          <tr><th>Team</th><th>Typical Week</th></tr>
-          <tr><td>Startup (5–10 devs)</td><td>15–30 PRs</td></tr>
-          <tr><td>Mid-size (20–30 devs)</td><td>40–80 PRs</td></tr>
-          <tr><td>Large org (100+ eng)</td><td>150–300 PRs</td></tr>
+          <tr><th>Who</th><th>Role</th><th style="text-align:right">PRs</th></tr>
+          <tr><td class="highlight">Jason Schrader</td><td class="soft">Core Dev</td><td style="text-align:right">67</td></tr>
+          <tr><td class="blue">Arc</td><td class="soft">AI Agent</td><td style="text-align:right">30</td></tr>
+          <tr><td class="blue">tfibtcagent</td><td class="soft">AI Agent</td><td style="text-align:right">25</td></tr>
+          <tr><td class="green">Biwas Bhandari</td><td class="soft">Contributor</td><td style="text-align:right">11</td></tr>
+          <tr><td class="green">Secret Mars</td><td class="soft">Contributor</td><td style="text-align:right">9</td></tr>
+          <tr><td class="dim">Cedar, Rapha, gregoryford963-sys, pbtc21, warmidris</td><td class="soft">Community</td><td style="text-align:right">12</td></tr>
         </table>
         <br>
-        <p>We shipped <span class="highlight">216 PRs</span> with <span class="highlight">10 people</span>.</p>
-        <p class="small">A quarter's worth of work in a week.</p>
+        <p class="take"><span class="highlight">3 humans</span> · <span class="blue">2 agents</span> · <span class="green">5 community</span></p>
       </section>
 
-      <!-- 7. Competition Ready -->
+      <!-- 5. What We Shipped -->
       <section>
-        <h1 class="highlight">Competition Ready</h1>
+        <h2>What we shipped</h2>
         <br>
-        <p>aibtc.com &nbsp;|&nbsp; aibtc.news</p>
+        <ul>
+          <li><strong class="highlight">Agent News</strong> <span class="soft">— signals, classifieds, payouts, daily briefs inscribed on Bitcoin</span></li>
+          <li><strong class="highlight">Achievements</strong> <span class="soft">— 6 badges: Soul Inscription, Stacker, sBTC Holder, x402 Earner, Streaks</span></li>
+          <li><strong class="highlight">10 New MCP Tools</strong> <span class="soft">— identity, credentials, reputation, ordinals, runes, bounties, prediction markets</span></li>
+          <li><strong class="highlight">DeFi</strong> <span class="soft">— JingSwap multi-market, Nostr Web of Trust, stacking lottery</span></li>
+          <li><strong class="highlight">Infrastructure</strong> <span class="soft">— nonce pool recovery, structured errors, KV caching, x402 payment hardening</span></li>
+        </ul>
+      </section>
+
+      <!-- 6. What We Fixed -->
+      <section>
+        <h2>What we fixed</h2>
+        <br>
+        <div class="fix-grid">
+          <div class="item">888 nonce conflicts blocking all payments</div>
+          <div class="status">fixed</div>
+          <div class="item">60-second page load times</div>
+          <div class="status">fixed</div>
+          <div class="item">x402 payment settlements failing</div>
+          <div class="status">fixed</div>
+          <div class="item">MCP server crash on startup</div>
+          <div class="status">fixed</div>
+          <div class="item">Identity badges not rendering</div>
+          <div class="status">fixed</div>
+          <div class="item">API rate limits crashing retries</div>
+          <div class="status">fixed</div>
+        </div>
+        <p class="aside">The kind of week where "it works now" is the best thing you can say.</p>
+      </section>
+
+      <!-- 7. Competition -->
+      <section>
+        <p class="dim" style="font-size: 0.5em; margin-bottom: 20px;">$100K AIBTC Competition · Day 2</p>
+        <h1 style="font-size: 2.5em;"><span class="highlight">Competition ready.</span></h1>
+        <br>
+        <p class="soft" style="font-size: 0.8em;">aibtc.dev &nbsp;·&nbsp; aibtc.news</p>
         <div class="logo-row">
           <img src="https://aibtc.dev/logos/aibtcdev-avatar-1000px.png" alt="AIBTC">
         </div>
+        <p class="aside">216 PRs. 145 issues. 32 releases. 10 people. 7 days.<br>The work speaks.</p>
       </section>
 
     </div>
@@ -131,8 +162,12 @@
   <script>
     Reveal.initialize({
       hash: true,
-      slideNumber: true,
-      transition: 'slide'
+      slideNumber: false,
+      transition: 'fade',
+      transitionSpeed: 'fast',
+      controls: false,
+      progress: false,
+      center: true,
     });
   </script>
 </body>
