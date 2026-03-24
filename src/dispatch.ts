@@ -80,7 +80,10 @@ let claudeCliSupportsNameFlag = false; // set true only if future CLI re-adds -n
 
 function classifyError(errMsg: string): ErrorClass {
   if (/(?:status|HTTP|error|code)[:\s]*(?:401|403)/i.test(errMsg)
-      || /\b(?:unauthorized|forbidden)\b/i.test(errMsg)) {
+      || /\b(?:unauthorized|forbidden)\b/i.test(errMsg)
+      || /does not have access to Claude/i.test(errMsg)
+      || /\borganization.*(?:suspended|disabled|no access)\b/i.test(errMsg)
+      || /please login again/i.test(errMsg)) {
     return "auth";
   }
   if (RATE_LIMIT_RE.test(errMsg)) {

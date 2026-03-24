@@ -92,8 +92,8 @@ export function checkDispatchGate(): boolean {
   const state = readGateState();
   if (state.status === "running") return true;
 
-  // Auto-recovery: if stopped for a non-rate-limit reason and enough time has passed, reset
-  if (state.stopped_at && state.last_error_class !== "rate_limited") {
+  // Auto-recovery: if stopped for a non-auth/rate-limit reason and enough time has passed, reset
+  if (state.stopped_at && state.last_error_class !== "rate_limited" && state.last_error_class !== "auth") {
     const stoppedMs = Date.now() - new Date(state.stopped_at).getTime();
     if (stoppedMs >= AUTO_RECOVERY_MS) {
       log(`dispatch: gate auto-recovering after ${Math.round(stoppedMs / 60_000)}min (was: ${state.stop_reason?.slice(0, 80)})`);
@@ -122,8 +122,8 @@ export function recordGateFailure(errMsg: string, errClass: ErrorClass): void {
   state.consecutive_failures += 1;
   state.last_error_class = errClass;
 
-  // Rate limit or plan suspension → immediate stop (no threshold)
-  if (errClass === "rate_limited") {
+  // Auth or rate limit → immediate stop (no threshold)
+  if (errClass === "rate_limited" || errClass === "auth") {
     state.status = "stopped";
     state.stopped_at = new Date().toISOString();
     state.stop_reason = errMsg.slice(0, 500);
