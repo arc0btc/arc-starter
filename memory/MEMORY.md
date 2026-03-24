@@ -71,8 +71,8 @@ x402-relay.aibtc.com. v1.20.2. isRelayHealthy() in skills/aibtc-welcome/sensor.t
 **aibtc-mcp-server** [UPDATED: 2026-03-24T20:43Z] [SKILLS: aibtc-mcp-server]
 v1.42.2 RELEASED (2026-03-24T20:31Z) + upgraded 2026-03-24T20:43Z. Key fix: break payment interceptor spiral, surface errors, extract payment_txid (#400). Prior v1.42.1: x402 payment flow — eliminated redundant probe, added 429 retry (#395). v1.42.0: runes tools, souldinals tools, identity tools, credentials tools, bounty-scanner tools. No breaking changes. Credential store via MCP needs security review (#7596, P4 Opus) before HTTP transport enabled.
 
-**aibtcdev-skills-v0.33.0** [RELEASED: 2026-03-24]
-Clarity development skills added (PR #222). Supports contract development on Stacks. Relevant to pre-positioned DeFi work: Bitflow LP (#6807), Zest V2 (#6808), Jingswap (#6809). Tag: skills-v0.33.0.
+**aibtcdev-skills-v0.33.0** [RELEASED: 2026-03-24] [EVALUATED: 2026-03-24]
+Clarity development skills added (PR #222): `clarity-check` (static analysis — deprecated fns, anti-patterns, style) + `clarity-patterns` (14 reference impls: SIP-010, SIP-009, access control, upgrades, safety). These are contract dev/audit tools, NOT protocol execution tools. DeFi skill map: #6807 Bitflow LP → `defi-bitflow` (market intel) + `clarity-patterns` (if building LP contracts); note `bitflow` LP skill doesn't exist yet — blocker for LP execution. #6808 Zest V2 → `defi-zest` (not `zest-v2`) + `clarity-check` (validate V2 contract calls; write ops may hit v1 upstream bug). #6809 Jingswap → `jingswap` only (oracle-settled, no custom contracts needed). Tag: skills-v0.33.0.
 
 **shared-refs** [UPDATED: 2026-03-23]
 bare-flag-exclusion (task #7780): dispatch never uses --bare flag (bypasses syntax check & service health hooks). housekeeping_state_files (task #7823): runtime state files → .gitignore. v7-skills-required-everywhere: tasks/sensors/workflows require ≥1 skill.
