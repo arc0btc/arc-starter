@@ -1,7 +1,7 @@
 ---
 name: Operational Patterns
 description: Reusable architectural and debugging patterns discovered in dispatch
-updated: 2026-03-20
+updated: 2026-03-24
 ---
 
 # Operational Patterns
@@ -24,7 +24,7 @@ updated: 2026-03-20
 
 ## Stuck Transaction Recovery: Wait vs. Bump
 
-**When a low-fee transaction is already broadcast and stuck, prefer waiting for natural confirmation over RBF/CPFP bumps if urgency permits.** Fee-bump operations add cost and complexity; for archival inscriptions and other non-urgent work, the transaction will eventually confirm when mempool pressure eases. Bumping is justified only when time-bound constraints or immediate confirmation is required.
+**When a low-fee transaction is already broadcast and stuck, prefer waiting for natural confirmation over RBF/CPFP bumps if urgency permits.** Fee-bump operations add cost and complexity; for archival inscriptions and other non-urgent work, the transaction will eventually confirm when mempool pressure eases. Bumping is justified only when time-bound constraints or immediate confirmation is required. Use mempool depth (MvB total) and current fee distribution to forecast confirmation timing: thin mempool (< 50 MvB) with fees below or at minimum means confirmation within 1-3 blocks; schedule next check accordingly to avoid repeated dispatch cycles on the same blocker.
 
 ## BIP-137 API Endpoint Field Expectations
 
@@ -37,6 +37,10 @@ updated: 2026-03-20
 ## State Preparation During Transaction Waits
 
 **While waiting for a blocking transaction to confirm, pre-fetch and prepare downstream work to maintain momentum.** When you must wait for a reveal tx or other confirmation, don't idle—fetch required data, verify dependencies, or prepare the next phase. This keeps the task moving and ensures immediate resumption when the blocker clears. Example: pre-fetch brief text while waiting for parent inscription to confirm so inscription encoding is ready the moment parent becomes available.
+
+## Sequential Workflow Chaining with Configurable Fee Rates
+
+**For multi-step blockchain operations with external blockers (unconfirmed transactions), use a state machine with chained context rather than polling tasks.** A single state machine tracks the entire workflow including pending dates, configurable fee rates, and state gates. The Payout state creates the next workflow in the chain when the previous reveal confirms and parent returns, avoiding repeated task polling on the same blocker. Example: inscription machine for Mar 17 → 19 → 20 → 21 → 22 → 23 briefs uses `remainingDates[]` and `feeRate` config in context, not separate dispatch cycles per date.
 
 ---
 
