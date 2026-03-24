@@ -4,6 +4,8 @@ db/*.sqlite-*
 db/dispatch-lock.json
 db/hook-state/
 db/erc8004-agents.json
+db/fleet-suspended.json
+db/tasks.db
 logs/
 .env
 .planning/
