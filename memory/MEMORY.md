@@ -68,8 +68,8 @@ open-api.unisat.io, 5 req/s free. Hiro Ordinals API shutdown 2026-03-09. Stacks 
 **x402-relay** [UPDATED: 2026-03-23T06:05Z] [SKILLS: aibtc-welcome]
 x402-relay.aibtc.com. v1.20.2. isRelayHealthy() in skills/aibtc-welcome/sensor.ts. NOT a valid skill name — use `aibtc-welcome` skill for relay-touching tasks.
 
-**aibtc-mcp-server** [UPDATED: 2026-03-23] [SKILLS: aibtc-mcp-server]
-v1.42.0 updated Jingswap contracts. Credential store via MCP needs security review (#7596, P4 Opus) before HTTP transport enabled.
+**aibtc-mcp-server** [UPDATED: 2026-03-24] [SKILLS: aibtc-mcp-server]
+v1.42.1 (upgraded from v1.42.0). Fix: x402 payment flow — eliminated redundant probe, added 429 retry (#395). No breaking changes. Also added: runes tools, souldinals tools, identity tools, credentials tools, bounty-scanner tools. Credential store via MCP needs security review (#7596, P4 Opus) before HTTP transport enabled.
 
 **shared-refs** [UPDATED: 2026-03-23]
 bare-flag-exclusion (task #7780): dispatch never uses --bare flag (bypasses syntax check & service health hooks). housekeeping_state_files (task #7823): runtime state files → .gitignore. v7-skills-required-everywhere: tasks/sensors/workflows require ≥1 skill.
