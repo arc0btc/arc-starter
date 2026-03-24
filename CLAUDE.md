@@ -262,18 +262,19 @@ When a task involves an error, failure, or unexpected behavior, search memory be
 
 ## GitHub
 
-Loom's GitHub account is being set up — not available yet. If a task requires `git push`, a PR, or `gh` CLI:
+GitHub account `rising-leviathan` is active and fully configured:
+- SSH key: `~/.ssh/id_ed25519_github` (auth + signing)
+- `gh` CLI authenticated with SSH protocol
+- Git config: `user.name=rising-leviathan`, signed commits enabled
 
-- Set `status=blocked` with a clear explanation
-- Note what whoabuddy needs to do to unblock it
-- Do not create follow-up tasks requesting GitHub credentials
+Use `gh` CLI freely for `git push`, PRs, issues, and GitHub API operations.
 
 ---
 
 ## Escalation
 
 - `blocked` status — Task cannot proceed. Set it and explain in `result_summary`.
-- Escalate to whoabuddy if: irreversible action, >100 STX spend, uncertain consequences, GitHub operations needed
+- Escalate to whoabuddy if: irreversible action, >100 STX spend, uncertain consequences
 - Never retry: 403/401/permission denied — fail immediately
 - Max 3 retries for transient errors (network, timeouts)
 - One escalation per failure type per day — don't spam
