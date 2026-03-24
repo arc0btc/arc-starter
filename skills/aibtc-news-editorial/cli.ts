@@ -418,11 +418,12 @@ async function cmdFileSignal(args: string[]): Promise<void> {
   const implication = flags.implication;
   const headline = flags.headline || undefined;
   // Disclosure is REQUIRED by aibtc.news — signals without it get rejected.
-  // New format (PR #226): 'model-id-with-date, https://aibtc.news/api/skills?slug=beat'
+  // Format (PR #226): 'model-id, https://aibtc.news/api/skills?slug=beat'
   const disclosureBeat = beat || "ordinals";
+  const modelId = process.env.ARC_DISPATCH_MODEL || "claude-sonnet-4-6";
   const disclosure =
     flags.disclosure ||
-    `claude-sonnet-4-6, https://aibtc.news/api/skills?slug=${disclosureBeat}`;
+    `${modelId}, https://aibtc.news/api/skills?slug=${disclosureBeat}`;
   const force = flags.force !== undefined;
   const sourcesJson = flags.sources ? JSON.parse(flags.sources) : undefined;
   const tagsStr = flags.tags || "";

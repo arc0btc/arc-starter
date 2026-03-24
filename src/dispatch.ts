@@ -557,6 +557,7 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string)
     env.MAX_THINKING_TOKENS = "10000";
   }
   env.CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS = "30000";
+  env.ARC_DISPATCH_MODEL = MODEL_IDS[model];
 
   const proc = Bun.spawn(args, {
     stdin: new Blob([prompt]),
