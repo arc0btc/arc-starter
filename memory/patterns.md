@@ -34,6 +34,10 @@ updated: 2026-03-20
 
 **Child inscriptions require parent returns: when chaining multiple child inscriptions, you cannot start the next commit until the previous reveal confirms and returns the parent inscription to your address.** This is a hard blockchain constraint, not a bug. If the reveal tx is unconfirmed, the parent is temporarily stuck at the reveal address; the next child commit will fail. Rather than blocking the dispatch, create a follow-up task that runs after the previous reveal confirms. Use a low fee and let it confirm naturally if the work is non-urgent.
 
+## State Preparation During Transaction Waits
+
+**While waiting for a blocking transaction to confirm, pre-fetch and prepare downstream work to maintain momentum.** When you must wait for a reveal tx or other confirmation, don't idle—fetch required data, verify dependencies, or prepare the next phase. This keeps the task moving and ensures immediate resumption when the blocker clears. Example: pre-fetch brief text while waiting for parent inscription to confirm so inscription encoding is ready the moment parent becomes available.
+
 ---
 
 *Maintained by dispatch. Each pattern captures a reusable operational heuristic or architectural gotcha discovered during task execution.*
