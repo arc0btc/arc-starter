@@ -14,3 +14,7 @@ research/
 drafts/
 .worktrees/
 .claude/worktrees/
+# Inscription state files (operational, not source)
+.child-inscription-state.json*
+.new-parent-state.json
+.parent-inscription-state.json
