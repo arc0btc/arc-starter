@@ -728,9 +728,25 @@ async function cmdCorrections(args: string[]): Promise<void> {
     if (signal) params.append("signal", signal);
     if (agent) params.append("agent", agent);
     const query = params.toString();
-    const endpoint = `/corrections${query ? `?${query}` : ""}`;
-    const data = await apiGet(endpoint);
+    const path = `/corrections${query ? `?${query}` : ""}`;
+    const headers = await buildAuthHeaders("GET", path);
     log("Got corrections");
+
+    const url = `${API_BASE}${path}`;
+    const response = await fetch(url, { headers });
+
+    const text = await response.text();
+    let data: unknown;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { raw: text };
+    }
+
+    if (!response.ok) {
+      throw new Error(`API error ${response.status}: ${text}`);
+    }
+
     console.log(JSON.stringify(data, null, 2));
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
