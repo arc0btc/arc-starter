@@ -24,7 +24,7 @@ updated: 2026-03-24
 
 ## Stuck Transaction Recovery: Wait vs. Bump
 
-**When a low-fee transaction is already broadcast and stuck, prefer waiting for natural confirmation over RBF/CPFP bumps if urgency permits.** Fee-bump operations add cost and complexity; for archival inscriptions and other non-urgent work, the transaction will eventually confirm when mempool pressure eases. Bumping is justified only when time-bound constraints or immediate confirmation is required. Use mempool depth (MvB total) and current fee distribution to forecast confirmation timing: thin mempool (< 50 MvB) with fees below or at minimum means confirmation within 1-3 blocks; schedule next check accordingly to avoid repeated dispatch cycles on the same blocker.
+**When a low-fee transaction is already broadcast and stuck, prefer waiting for natural confirmation over RBF/CPFP bumps if urgency permits.** Fee-bump operations add cost and complexity; for archival inscriptions and other non-urgent work, the transaction will eventually confirm when mempool pressure eases. Bumping is justified only when time-bound constraints or immediate confirmation is required. Use mempool depth (MvB total) and current fee distribution to forecast confirmation timing: thin mempool (< 50 MvB) with fees below or at minimum means confirmation within 1-3 blocks. When scheduling a follow-up, add safety padding (~2–3x the forecasted window) to account for block arrival jitter; for a 1-3 block forecast at 10-min target blocks (10–30 min), schedule the follow-up at 60–120 minutes rather than immediately polling.
 
 ## BIP-137 API Endpoint Field Expectations
 
