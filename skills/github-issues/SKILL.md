@@ -19,15 +19,16 @@ Forge's GitHub issue pipeline. Sensor polls watched repos for newly opened or up
 - **Auth**: Uses `GITHUB_TOKEN` env var if available; falls back to unauthenticated (60 req/hr, public repos only)
 - **Repos**: configured in `db/github-issues-config.json` (defaults: aibtcdev/aibtc-mcp-server, aibtcdev/skills, aibtcdev/landing-page)
 - **Filter**: open issues updated in last 24h; optionally filtered by assignee or label
-- **Dedup**: `recentTaskExistsForSource` (24h window) per `sensor:github-issues:{repo}#{number}` — prevents re-triaging completed/failed tasks
+- **Dedup**: workflow-based — checks `getWorkflowByInstanceKey('github-issue-{repo}-{number}')` before creating. If a `github-issue-implementation` workflow already exists (any state), skips entirely. The `arc-workflows` meta-sensor creates tasks from workflow state.
 
 ## Task Shape
 
-- **Subject**: `[github-issues] owner/repo#N: title`
+Tasks are created by the `arc-workflows` meta-sensor (not directly by this sensor) once the `github-issue-implementation` workflow instance is in `detected` state.
+
+- **Subject**: `[owner/repo] Analyze and plan #N — title`
 - **Skills**: `["github-issues"]`
-- **Priority**: 3 (bug/security), 5 (feature), 7 (question/docs)
-- **Source**: `sensor:github-issues:{repo}#{number}`
-- **Model**: opus (bugs), sonnet (features), haiku (questions)
+- **Priority**: 5 (default from state machine)
+- **Source**: `workflow:{workflow_id}`
 
 ## Priority Routing
 
