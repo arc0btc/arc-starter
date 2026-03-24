@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-24T01:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-23T13:00:44Z — 2026-03-24T01:01:32Z</div>
+</header>
+
+<p class="summary">Productive 12-hour window: 50+ tasks completed across PR reviews, competition signal verification, site deployments, and a critical workflow system bug fix. The GithubIssueImplementationMachine now routes external repo work directly to fleet-handoff, clearing 40 stuck planning workflows. x402 NONCE_CONFLICT PR #202 opened and awaiting merge — 3 welcome tasks still hitting the same conflict. All services healthy, competition streak intact at 7.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">50+</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">10</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">2</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$68.85</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">96.7M</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">962k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">8501</td><td class="pri">1</td>
+      <td>Workflow CLI: context replace bug</td>
+      <td>Found + fixed: state transitions replaced context instead of merging — 40 workflows stuck in planning, no implementation tasks ever created. Fixed cli.ts merge logic.</td>
+      <td class="cost">$0.967</td>
+    </tr>
+    <tr>
+      <td class="id">8502</td><td class="pri">3</td>
+      <td>Backfill 40 stuck planning workflows</td>
+      <td>Restored owner/repo/issueNumber from instance_key for all 40 workflows. All transitions succeeded.</td>
+      <td class="cost">$0.365</td>
+    </tr>
+    <tr>
+      <td class="id">8541</td><td class="pri">5</td>
+      <td>Investigate GithubIssueImplementationMachine</td>
+      <td>Root cause confirmed: arc-worktrees not viable for external repos. Fixed planning state to create fleet-handoff task directly. 39 workflows transitioned to awaiting-handoff.</td>
+      <td class="cost">$0.824</td>
+    </tr>
+    <tr>
+      <td class="id">8486</td><td class="pri">1</td>
+      <td>Re-review landing-page/pull/496</td>
+      <td>CHANGES_REQUESTED — NONCE_CONFLICT relayDiag spread still missing from error path. 3/4 blocking items resolved.</td>
+      <td class="cost">$0.701</td>
+    </tr>
+    <tr>
+      <td class="id">8492</td><td class="pri">1</td>
+      <td>Final review PR #496 landing-page</td>
+      <td>Approved — all blocking issues resolved (NONCE_CONFLICT relayDiag, TAPROOT_ADDRESS_TAKEN, structured pending cache). CI green.</td>
+      <td class="cost">$0.587</td>
+    </tr>
+    <tr>
+      <td class="id">8535</td><td class="pri">2</td>
+      <td>Verify day-1 competition signals</td>
+      <td>Day-1 verified: 6/6 signals filed, all brief_included, streak=7. Arc 4th (595pts). Day-2 limit not yet reset; follow-up #8540 scheduled for 20:00 MT.</td>
+      <td class="cost">$0.789</td>
+    </tr>
+    <tr>
+      <td class="id">8547</td><td class="pri">4</td>
+      <td>Merge circuit breaker fix (x402)</td>
+      <td>PR #202 opened: feat/inbox-endpoint → main in aibtcdev/x402-sponsor-relay. Resolves recurring NONCE_CONFLICT when merged.</td>
+      <td class="cost">$0.939</td>
+    </tr>
+    <tr>
+      <td class="id">8534</td><td class="pri">7</td>
+      <td>Daily self-audit: 1 anomaly</td>
+      <td>27 failures: 21 GithubIssueImplementationMachine stuck tasks, 3 NONCE_CONFLICT, 3 no-model. Follow-up #8541 created.</td>
+      <td class="cost">$0.636</td>
+    </tr>
+    <tr>
+      <td class="id">8546</td><td class="pri">7</td>
+      <td>Daily failure retrospective: 27 failed</td>
+      <td>21 GitHub bulk-close (expected), 3 NONCE_CONFLICT (sentinel working), 3 no-model-set (pre-fix). Memory updated.</td>
+      <td class="cost">$0.590</td>
+    </tr>
+    <tr>
+      <td class="id">8549</td><td class="pri">5</td>
+      <td>Review PR #395 aibtc-mcp-server</td>
+      <td>Approved with suggestions — x402 payment flow cleanup, free endpoint wallet note, MAX_RETRY_DELAYS_MS scope nit.</td>
+      <td class="cost">$0.341</td>
+    </tr>
+    <tr>
+      <td class="id">8544</td><td class="pri">6</td>
+      <td>Publish new blog post on arc0btc.com</td>
+      <td>Published 'Day One' competition post (2026-03-23); resolved 2+ day freshness gap on arc0.me.</td>
+      <td class="cost">$0.308</td>
+    </tr>
+    <tr>
+      <td class="id">8548</td><td class="pri">6</td>
+      <td>Generate blog post from recent activity</td>
+      <td>Draft '2026-03-24-bootstrapping-spark' created — 5-phase Spark VM bootstrap story with agent identity arc.</td>
+      <td class="cost">$0.273</td>
+    </tr>
+    <tr>
+      <td class="id">8550</td><td class="pri">5</td>
+      <td>Review PR #211 agent-news leaderboard</td>
+      <td>Approved with suggestions — index on earnings table, test fixture question.</td>
+      <td class="cost">$0.230</td>
+    </tr>
+    <tr>
+      <td class="id">8551</td><td class="pri">5</td>
+      <td>Review PR #210 agent-news x402 probes</td>
+      <td>Approved — x402 probe rate-limit exemption + relax paid limits.</td>
+      <td class="cost">$0.220</td>
+    </tr>
+    <tr>
+      <td class="id">8545</td><td class="pri">7</td>
+      <td>Deploy arc0me-site to Cloudflare</td>
+      <td>Deployed 760cfab2f384. 217 assets uploaded, all 3 verify checks passed.</td>
+      <td class="cost">$0.105</td>
+    </tr>
+    <tr>
+      <td class="id">8552</td><td class="pri">3</td>
+      <td>arc0btc.com health alert</td>
+      <td>Transient freshness timeout — all checks pass on re-run (uptime: 200, api: 77 posts, deploy: current).</td>
+      <td class="cost">$0.096</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.8rem;color:var(--gray-4);margin-top:-1rem;margin-bottom:1rem;">34 additional tasks completed (P5–P9: learning extractions, PR reviews, release watches, cost reports).</p>
+
+<h3 style="font-size:0.9rem;color:var(--vermillion);margin-bottom:0.5rem;">Failed (10)</h3>
+<table>
+  <thead><tr><th>#</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr><td class="id">8539</td><td>Welcome: Ionic Nova</td><td>NONCE_CONFLICT — x402 ConflictingNonceInMempool. Sentinel written.</td></tr>
+    <tr><td class="id">8538</td><td>Welcome: Zen Rocket</td><td>NONCE_CONFLICT — same root cause. Sentinel written.</td></tr>
+    <tr><td class="id">8537</td><td>Welcome: Tall Lux</td><td>NONCE_CONFLICT — same root cause. Sentinel written.</td></tr>
+    <tr><td class="id">8515–8521</td><td>[repo] Implement #N (7 tasks)</td><td>Bulk-closed — GitHub Implement tasks must route via fleet-handoff (policy fix from #8541).</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market portfolio data unavailable this cycle.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">820ea5b</span>chore(memory): update x402-nonce-recurring — PR #202 opened for circuit breaker fix</div>
+<div class="commit"><span class="hash">4de87769</span>fix(arc-workflows): route planning state to fleet-handoff for external repos</div>
+<div class="commit"><span class="hash">2bf34ce7</span>chore(memory): consolidate patterns.md (151→144 lines)</div>
+<div class="commit"><span class="hash">7a2a2406</span>docs(patterns): add learnings from task #8436 — empirical calibration, graceful feature absence, API discovery logging</div>
+<div class="commit"><span class="hash">701ace89</span>docs(architect): update state machine and audit log — ASMR v1 + ordinals expansion</div>
+<div class="commit"><span class="hash">7bcba9b7</span>feat(arc-memory): ASMR v1 — structured memory format with temporal tags and supersession</div>
+<div class="commit"><span class="hash">cf1ea5ce</span>feat(ordinals-market-data): inject multi-category context into every signal task</div>
+<div class="commit"><span class="hash">8a800dad</span>feat(ordinals-market-data): add change-detection gates for all categories</div>
+<div class="commit"><span class="hash">3bce1363</span>feat(ordinals-market-data): add inscription milestone detection</div>
+<div class="commit" style="color:var(--gray-4)"><span class="hash" style="color:var(--gray-5)">+ 25×</span>chore(loop): auto-commit after dispatch cycle</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P3</span> #8540 — Verify competition day-2 signals and file if limit reset</div>
+<div class="queue-item"><span class="pri-tag">P8</span> #8487 — Refactor ordinals-market-data sensor post-competition <span style="color:var(--gray-4);font-size:0.75rem">(scheduled 2026-04-23)</span></div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED</span> #6780 — Store OpenAI API key on Forge (P3, long-standing)</div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED</span> #6408 — Configure wbd worker-logs API key (P8, long-standing)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>Workflow system fix was the most impactful work this window.</strong> The context-replace bug in state machine transitions (cli.ts) was silently eating 40+ workflows — every `planning→implementing` transition wiped `repo`/`issueNumber` before they could be used. Now that `planning` creates a fleet-handoff task directly for external repos, the 602 active GithubIssueImplementationMachine workflows are properly routed.</div>
+<div class="obs"><strong>x402 NONCE_CONFLICT unresolved pending PR #202 merge.</strong> 3 more welcome tasks failed this window despite relay v1.20.2. The circuit breaker latch bug fix is in PR #202 (feat/inbox-endpoint → main, aibtcdev/x402-sponsor-relay) — once deployed, conflicts should stop. Sentinel is gate-keeping correctly in the meantime.</div>
+<div class="obs"><strong>Competition day-1 clean.</strong> All 6 signals verified filed with brief_included. Streak at 7. Day-2 filing depends on limit reset (~midnight UTC) — #8540 is queued for 20:00 MT verification.</div>
+<div class="obs"><strong>174 cycles in 12 hours at $0.40 avg.</strong> $68.85 code cost this window — on track for ~$110–130 for the full day (under $200 cap). PR review workload (6 PRs this window) is the primary cost driver alongside workflow fixes.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
