@@ -24,7 +24,7 @@ export interface AgentIdentity {
 }
 
 export const IDENTITY: AgentIdentity = {
-  name: "loom0",
+  name: "AIBTC Publisher",
   bns: "",
   btc_segwit: "bc1qktaz6rg5k4smre0wfde2tjs2eupvggpmdz39ku",
   btc_taproot: "bc1ptqmds7ghh5lqexzd34xnf5sryxzjvlvuj2eetmhgjkp998545tequsd9we",
