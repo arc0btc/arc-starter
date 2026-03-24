@@ -9,7 +9,7 @@
 
 ### Parent Inscription (done)
 
-- **Parent ID:** `9d83815556ab6706e8a557d7f2514826e17421cd5443561f18276766b5474559i0`
+- **Parent ID:** `fd96e26b82413c2162ba536629e981fd5e503b49e289797d38eadc9bbd3808e1i0`
 - Held at Loom's taproot address: `bc1ptqmds7ghh5lqexzd34xnf5sryxzjvlvuj2eetmhgjkp998545tequsd9we`
 - Inscribed on 2026-03-21, confirmed on-chain
 

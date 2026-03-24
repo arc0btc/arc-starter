@@ -1,7 +1,7 @@
 # Brief Inscription Plan
 **Quest:** Brief Inscriptions
 **Created:** 2026-03-22
-**Status:** AWAITING HUMAN APPROVAL — do not execute until approved
+**Status:** APPROVED — execution in progress
 
 ---
 
@@ -19,7 +19,7 @@ confirmation (hours, not minutes) is acceptable.
 ## Parent Inscription
 
 ```
-9d83815556ab6706e8a557d7f2514826e17421cd5443561f18276766b5474559i0
+fd96e26b82413c2162ba536629e981fd5e503b49e289797d38eadc9bbd3808e1i0
 ```
 
 Held by Loom's Taproot address: `bc1ptqmds7ghh5lqexzd34xnf5sryxzjvlvuj2eetmhgjkp998545tequsd9we`
@@ -87,8 +87,7 @@ Chronological, March 13 → 21:
 To check current mempool before executing:
 
 ```bash
-source ~/manage-agents/.env && sshpass -p "$VM_PASSWORD" ssh -o StrictHostKeyChecking=no dev@192.168.1.14 \
-  "curl -s https://mempool.space/api/v1/fees/recommended"
+curl -s https://mempool.space/api/v1/fees/recommended
 ```
 
 If `minimumFee` is above 2, defer until mempool clears. These are archival inscriptions —
@@ -118,24 +117,21 @@ returned before the next inscription can proceed.
 
 ---
 
-## Exact SSH Commands
+## Exact Commands
 
 ### Setup (run once before starting)
 
 ```bash
-source /home/whoabuddy/manage-agents/.env
+cd ~/arc-starter
 
-# Verify wallet is unlocked on Loom
-sshpass -p "$VM_PASSWORD" ssh -o StrictHostKeyChecking=no dev@192.168.1.14 \
-  "cd ~/arc-starter && bun run skills/bitcoin-wallet/bitcoin-wallet.ts status"
+# Verify wallet is unlocked
+bun run skills/bitcoin-wallet/bitcoin-wallet.ts status
 
 # If not unlocked:
-sshpass -p "$VM_PASSWORD" ssh -o StrictHostKeyChecking=no dev@192.168.1.14 \
-  "cd ~/arc-starter && bun run skills/bitcoin-wallet/bitcoin-wallet.ts unlock"
+bun run skills/bitcoin-wallet/bitcoin-wallet.ts unlock
 
 # Check BTC balance
-sshpass -p "$VM_PASSWORD" ssh -o StrictHostKeyChecking=no dev@192.168.1.14 \
-  "cd ~/arc-starter && bun run skills/bitcoin-wallet/bitcoin-wallet.ts balance"
+bun run skills/bitcoin-wallet/bitcoin-wallet.ts balance
 ```
 
 ### Per-inscription Execution Template
@@ -145,27 +141,21 @@ Replace `{DATE}` with the target date (e.g., `2026-03-13`).
 **Step 1 — Fetch brief content:**
 
 ```bash
-source /home/whoabuddy/manage-agents/.env
-
 DATE="{DATE}"
 curl -s https://aibtc.news/api/brief/$DATE | python3 -c \
   "import sys, json; d=json.load(sys.stdin); t=d.get('brief',{}).get('text','') or d.get('text',''); print(t, end='')" \
   > /tmp/brief-$DATE.txt
-
-# Copy to Loom
-sshpass -p "$VM_PASSWORD" scp -o StrictHostKeyChecking=no \
-  /tmp/brief-$DATE.txt dev@192.168.1.14:/tmp/brief-$DATE.txt
 ```
 
 **Step 2 — Run commit (inscribe):**
 
 ```bash
-sshpass -p "$VM_PASSWORD" ssh -o StrictHostKeyChecking=no dev@192.168.1.14 \
-  "cd ~/arc-starter && bun run skills/child-inscription/child-inscription.ts inscribe \
-    --parent-id 9d83815556ab6706e8a557d7f2514826e17421cd5443561f18276766b5474559i0 \
-    --content-type text/plain \
-    --content-file /tmp/brief-$DATE.txt \
-    --fee-rate 1"
+cd ~/arc-starter
+bun run skills/child-inscription/child-inscription.ts inscribe \
+  --parent-id fd96e26b82413c2162ba536629e981fd5e503b49e289797d38eadc9bbd3808e1i0 \
+  --content-type text/plain \
+  --content-file /tmp/brief-$DATE.txt \
+  --fee-rate 1
 ```
 
 This outputs a `commitTxid`. Note it. **Wait for 1 confirmation before proceeding.**
@@ -183,8 +173,8 @@ curl -s https://mempool.space/api/tx/{COMMIT_TXID}/status | python3 -c \
 The state file is saved automatically by the `inscribe` step. The `reveal` command reads it.
 
 ```bash
-sshpass -p "$VM_PASSWORD" ssh -o StrictHostKeyChecking=no dev@192.168.1.14 \
-  "cd ~/arc-starter && bun run skills/child-inscription/child-inscription.ts reveal"
+cd ~/arc-starter
+bun run skills/child-inscription/child-inscription.ts reveal
 ```
 
 This outputs the child inscription ID. Note it.
@@ -192,14 +182,13 @@ This outputs the child inscription ID. Note it.
 **Step 5 — Record inscription on aibtc.news API:**
 
 ```bash
-# First get a fresh auth token (Loom signs with its BTC key)
-# The PATCH endpoint requires publisher authentication (BIP-322)
+cd ~/arc-starter
+
+# Sign the PATCH request with BIP-137
 TIMESTAMP=$(date +%s)
 MESSAGE="PATCH /api/brief/$DATE:$TIMESTAMP"
 
-# Sign the message via Loom's bitcoin-wallet skill
-SIGNATURE=$(sshpass -p "$VM_PASSWORD" ssh -o StrictHostKeyChecking=no dev@192.168.1.14 \
-  "cd ~/arc-starter && bun run skills/bitcoin-wallet/bitcoin-wallet.ts sign-message '$MESSAGE'" \
+SIGNATURE=$(bun run skills/bitcoin-wallet/bitcoin-wallet.ts sign-message "$MESSAGE" \
   | python3 -c "import sys, json; print(json.load(sys.stdin).get('signature',''))")
 
 BTC_ADDRESS="bc1qktaz6rg5k4smre0wfde2tjs2eupvggpmdz39ku"
@@ -225,11 +214,12 @@ after each `inscribe` command. The `reveal` command reads this file.
 **Before each inscription:**
 
 ```bash
+cd ~/arc-starter
+
 # Backup previous state (if any)
-sshpass -p "$VM_PASSWORD" ssh -o StrictHostKeyChecking=no dev@192.168.1.14 \
-  "cd ~/arc-starter && [ -f .child-inscription-state.json ] && \
-   cp .child-inscription-state.json .child-inscription-state-backup-\$(date +%Y%m%d%H%M%S).json && \
-   echo 'Backed up state file'"
+[ -f .child-inscription-state.json ] && \
+  cp .child-inscription-state.json .child-inscription-state-backup-$(date +%Y%m%d%H%M%S).json && \
+  echo 'Backed up state file'
 ```
 
 **If something goes wrong:**
@@ -278,7 +268,7 @@ After each reveal:
 
 1. Search `https://ordinals.com/inscription/{INSCRIPTION_ID}` — verify content renders as plain text
 2. Verify parent relationship: inscription metadata should show parent as
-   `9d83815556ab6706e8a557d7f2514826e17421cd5443561f18276766b5474559i0`
+   `fd96e26b82413c2162ba536629e981fd5e503b49e289797d38eadc9bbd3808e1i0`
 3. Check `https://aibtc.news/api/brief/{DATE}` — verify `inscription` field is now set
 4. Update this document's cost table row status from `pending` → `inscribed: {INSCRIPTION_ID}`
 
@@ -303,9 +293,9 @@ are plain text (`text/plain`). Phase 4 should correct this inconsistency.
 
 Before Phase 4 (execution) begins, confirm:
 
-- [ ] This plan has been reviewed and approved
-- [ ] Fee rate strategy is acceptable (1 sat/vB default, 2 sat/vB max)
-- [ ] Sequential execution approach is acceptable (not parallel)
-- [ ] Timeline is acceptable (up to 4 days at 1 sat/vB, or ~16 hours at 2 sat/vB)
-- [ ] PATCH endpoint authentication method has been verified
+- [x] This plan has been reviewed and approved
+- [x] Fee rate strategy is acceptable (1 sat/vB default, 2 sat/vB max)
+- [x] Sequential execution approach is acceptable (not parallel)
+- [x] Timeline is acceptable (up to 4 days at 1 sat/vB, or ~16 hours at 2 sat/vB)
+- [x] PATCH endpoint authentication method has been verified
 - [ ] Wallet is unlocked on Loom before execution begins
