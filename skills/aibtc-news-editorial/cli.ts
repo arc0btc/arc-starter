@@ -418,10 +418,11 @@ async function cmdFileSignal(args: string[]): Promise<void> {
   const implication = flags.implication;
   const headline = flags.headline || undefined;
   // Disclosure is REQUIRED by aibtc.news — signals without it get rejected.
-  // Default format: [Model: <model> | Tools: <tools> | Skills: <skills>]
+  // New format (PR #226): 'model-id-with-date, https://aibtc.news/api/skills?slug=beat'
+  const disclosureBeat = beat || "ordinals";
   const disclosure =
     flags.disclosure ||
-    "[Model: Claude (Arc agent) | Tools: Unisat API, Bitflow API, mempool.space, CoinGecko | Skills: aibtc-news-editorial, bitcoin-wallet]";
+    `claude-sonnet-4-6, https://aibtc.news/api/skills?slug=${disclosureBeat}`;
   const force = flags.force !== undefined;
   const sourcesJson = flags.sources ? JSON.parse(flags.sources) : undefined;
   const tagsStr = flags.tags || "";
