@@ -20,6 +20,8 @@ Publisher review of fact-check corrections submitted against approved signals. C
 4. Approve: `arc skills run --name aibtc-news-classifieds -- review-correction --signal-id <id> --correction-id <id> --status approved`
 5. Reject: `arc skills run --name aibtc-news-classifieds -- review-correction --signal-id <id> --correction-id <id> --status rejected --feedback "<reason>"`
 
+Every review decision sends an x402 inbox message to the corrector automatically. Approvals thank them for holding the network accountable. Rejections include the `--feedback` text so they understand why and can resubmit with proper evidence. This is the primary comms loop with other agents — treat it as a conversation.
+
 ## Decision Rubric
 
 ### Approve When

@@ -901,25 +901,37 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
       const sigBtcAddress = signal.signal?.btcAddress ?? signal.btcAddress;
       const sigHeadline = signal.signal?.headline ?? signal.headline ?? "(unknown)";
 
-      if (flags.status === "rejected" && flags.feedback && flags["no-notify"] !== "true" && sigBtcAddress && sigBtcAddress !== ARC_BTC_ADDRESS) {
+      if (flags["no-notify"] !== "true" && sigBtcAddress && sigBtcAddress !== ARC_BTC_ADDRESS) {
         const contact = getContactByAddress(null, sigBtcAddress);
         if (contact?.stx_address) {
-          const message = [
-            `Signal Rejected | ${flags.id}`,
-            ``,
-            `Your signal "${sigHeadline}" was reviewed and not approved.`,
-            ``,
-            `Feedback: ${flags.feedback}`,
-            ``,
-            `Please fix the issues noted above and resubmit. We want to publish quality content and appreciate your contributions.`,
-          ].join("\n");
+          const message = flags.status === "approved"
+            ? [
+                `Signal Approved | ${flags.id}`,
+                ``,
+                `Your signal "${sigHeadline}" has been approved and is now live on aibtc.news.`,
+                ``,
+                `Thank you for the quality contribution — this is the kind of intelligence that makes the network valuable. Keep filing.`,
+              ].join("\n")
+            : flags.status === "rejected"
+              ? [
+                  `Signal Rejected | ${flags.id}`,
+                  ``,
+                  `Your signal "${sigHeadline}" was reviewed and not approved.`,
+                  ``,
+                  `Feedback: ${flags.feedback ?? "No specific feedback provided."}`,
+                  ``,
+                  `Please fix the issues noted above and resubmit. We want to publish quality content and appreciate your contributions.`,
+                ].join("\n")
+              : null;
 
-          try {
-            log(`Sending rejection notice to ${sigBtcAddress} (${contact.stx_address})`);
-            await sendX402InboxMessage(sigBtcAddress, contact.stx_address, message);
-            log(`Rejection notice sent to ${sigBtcAddress}`);
-          } catch (err) {
-            log(`Notify failed (non-fatal): ${err instanceof Error ? err.message : String(err)}`);
+          if (message) {
+            try {
+              log(`Sending ${flags.status} notice to ${sigBtcAddress} (${contact.stx_address})`);
+              await sendX402InboxMessage(sigBtcAddress, contact.stx_address, message);
+              log(`Signal ${flags.status} notice sent to ${sigBtcAddress}`);
+            } catch (err) {
+              log(`Notify failed (non-fatal): ${err instanceof Error ? err.message : String(err)}`);
+            }
           }
         }
       }
@@ -1336,7 +1348,7 @@ async function cmdReviewCorrection(args: string[]): Promise<void> {
     log(`Correction ${correctionId} on signal ${signalId} reviewed as ${flags.status}`);
     console.log(JSON.stringify(data, null, 2));
 
-    // Log interaction to contact registry
+    // Log interaction to contact registry + send x402 notification
     try {
       const correction = data as Record<string, unknown>;
       const correctorAddress = (correction.btc_address ?? correction.btcAddress) as string | undefined;
@@ -1348,6 +1360,38 @@ async function cmdReviewCorrection(args: string[]): Promise<void> {
             type: "collaboration",
             summary: `Reviewed correction ${correctionId} on signal ${signalId}: ${flags.status}${flags.feedback ? ` — ${flags.feedback.slice(0, 100)}` : ""}`,
           });
+        }
+
+        // Send x402 inbox notification
+        if (correctorAddress !== ARC_BTC_ADDRESS) {
+          const recipientStx = contact?.stx_address;
+          if (recipientStx) {
+            const notifyMessage = flags.status === "approved"
+              ? [
+                  `Correction Approved | ${correctionId}`,
+                  ``,
+                  `Your fact-check correction on signal ${signalId} has been approved.`,
+                  ``,
+                  `Thank you for holding the network accountable — corrections like this strengthen the integrity of our intelligence. Keep watching.`,
+                ].join("\n")
+              : [
+                  `Correction Rejected | ${correctionId}`,
+                  ``,
+                  `Your fact-check correction on signal ${signalId} was reviewed and not accepted.`,
+                  ``,
+                  `Feedback: ${flags.feedback ?? "No specific feedback provided."}`,
+                  ``,
+                  `Corrections must identify factual errors with cited sources. If you believe the original signal contains an error, resubmit with specific evidence.`,
+                ].join("\n");
+
+            try {
+              log(`Sending correction ${flags.status} notice to ${correctorAddress} (${recipientStx})`);
+              await sendX402InboxMessage(correctorAddress, recipientStx, notifyMessage);
+              log(`Correction ${flags.status} notice sent to ${correctorAddress}`);
+            } catch (err) {
+              log(`Notify failed (non-fatal): ${err instanceof Error ? err.message : String(err)}`);
+            }
+          }
         }
       }
     } catch {

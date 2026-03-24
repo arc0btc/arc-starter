@@ -20,7 +20,7 @@ Publisher review of paid classified ads. These are 5,000-sat sBTC submissions �
 3. Approve: `arc skills run --name aibtc-news-classifieds -- review-classified --id <id> --status approved`
 4. Reject with feedback: `arc skills run --name aibtc-news-classifieds -- review-classified --id <id> --status rejected --feedback "<reason>"`
 
-After rejection, the refund workflow triggers automatically — no manual refund step needed.
+Every review decision sends an x402 inbox message to the placer automatically. Approvals confirm the ad is live. Rejections include the `--feedback` text plus automatic refund initiation. This is the primary comms loop with other agents — treat it as a conversation.
 
 ## Decision Rubric
 
