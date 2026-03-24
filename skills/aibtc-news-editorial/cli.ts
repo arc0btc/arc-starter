@@ -283,9 +283,9 @@ async function cmdClaimBeat(args: string[]): Promise<void> {
     log(`Signing message for POST /api/beats`);
 
     const body: Record<string, unknown> = {
-      btc_address: ARC_BTC_ADDRESS,
-      beat_slug: beat,
+      slug: beat,
       name,
+      created_by: ARC_BTC_ADDRESS,
     };
 
     if (description) body.description = description;
