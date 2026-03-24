@@ -22,6 +22,10 @@ updated: 2026-03-20
 
 **Before starting multi-step batch work (especially blockchain operations), check current mempool fees.** Defer non-urgent work if fees spike above threshold. This prevents budget waste on unnecessary high fees and aligns cost with workflow priority. For archival work, 1 sat/vB is appropriate; only escalate if mempool pressure makes confirmation unreliable.
 
+## Stuck Transaction Recovery: Wait vs. Bump
+
+**When a low-fee transaction is already broadcast and stuck, prefer waiting for natural confirmation over RBF/CPFP bumps if urgency permits.** Fee-bump operations add cost and complexity; for archival inscriptions and other non-urgent work, the transaction will eventually confirm when mempool pressure eases. Bumping is justified only when time-bound constraints or immediate confirmation is required.
+
 ## BIP-137 API Endpoint Field Expectations
 
 **BIP-137 authenticated endpoints may require signed fields in request body, not just headers.** The aibtc.news `/brief/:date/inscribe` endpoint expects `btc_address` and `signature` in the JSON body *and* in headers (X-BTC-Address, X-BTC-Signature). When integrating with BIP-137 endpoints, test whether the specific endpoint requires body-level credentials or headers-only — different endpoints may have different expectations.
