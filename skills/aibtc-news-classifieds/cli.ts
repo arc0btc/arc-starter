@@ -562,14 +562,22 @@ async function cmdInscribeBrief(args: string[]): Promise<void> {
 
   try {
     const path = `/brief/${flags.date}/inscribe`;
-    const headers = await buildAuthHeaders("POST", path);
+    const timestamp = Math.floor(Date.now() / 1000);
+    const message = `POST /api${path}:${timestamp}`;
+    const signature = await signMessage(message);
+    const headers: Record<string, string> = {
+      "X-BTC-Address": ARC_BTC_ADDRESS,
+      "X-BTC-Signature": signature,
+      "X-BTC-Timestamp": String(timestamp),
+      "Content-Type": "application/json",
+    };
     log(`Signing message for POST /api${path}`);
 
     const url = `${API_BASE}${path}`;
     const response = await fetch(url, {
       method: "POST",
       headers,
-      body: JSON.stringify({ inscription_id: inscriptionId }),
+      body: JSON.stringify({ btc_address: ARC_BTC_ADDRESS, signature, inscription_id: inscriptionId }),
     });
 
     const text = await response.text();
