@@ -3177,6 +3177,141 @@ Steps:
 };
 
 /**
+ * SelfAuditMachine — models the recurring daily audit anomaly → investigate → fix/learn cycle.
+ *
+ * Pattern detected: "sensor:arc-self-audit" tasks (3 recurrences, avg 2.3 steps/chain)
+ * consistently spawn investigation and fix/learning follow-ups. Without a machine, concurrent
+ * anomalies produce overlapping investigation tasks and audit cycles close without extracting
+ * learnings.
+ *
+ * instance_key: "self-audit-{YYYY-MM-DD}" (one per day)
+ *
+ * States:
+ *   triggered          → investigation task created for the detected anomalies
+ *   investigating      → root cause analysis running; auto-transitions based on needsFix
+ *   fix_pending        → fix or PR task created
+ *   fixing             → fix executing; dispatch agent transitions when done
+ *   learning_pending   → learning-extraction task created
+ *   completed          → learnings recorded (terminal)
+ *
+ * Context:
+ *   auditDate          — YYYY-MM-DD of this audit cycle
+ *   anomalyCount       — number of anomalies detected
+ *   anomalySummary     — brief text listing anomalies
+ *   investigationSummary — root cause findings (populated during investigating)
+ *   needsFix           — true if code/config change required (populated during investigating)
+ *   fixDescription     — what to fix (populated when needsFix is true)
+ *   learningsSummary   — brief summary of learnings (populated before completing)
+ */
+export const SelfAuditMachine: StateMachine<{
+  auditDate?: string;
+  anomalyCount?: number;
+  anomalySummary?: string;
+  investigationSummary?: string;
+  needsFix?: boolean;
+  fixDescription?: string;
+  learningsSummary?: string;
+}> = {
+  name: "self-audit",
+  initialState: "triggered",
+  states: {
+    triggered: {
+      on: { investigate: "investigating" },
+      action: (ctx) => {
+        const date = ctx.auditDate || new Date().toISOString().slice(0, 10);
+        const count = ctx.anomalyCount || 1;
+        const summary = ctx.anomalySummary || "see audit task";
+        return {
+          type: "create-task",
+          subject: `Investigate: ${count} self-audit anomaly(ies) on ${date}`,
+          priority: 5,
+          skills: ["arc-self-audit", "arc-skill-manager", "arc-failure-triage"],
+          model: "sonnet",
+          description: `Investigate ${count} anomaly(ies) detected in the daily self-audit for ${date}.
+
+Anomalies: ${summary}
+
+Steps:
+1. Review recent task history, sensor state, and cost trends for each anomaly
+2. Identify root cause(s)
+3. Determine if a code/config fix is needed or if learnings-only is sufficient
+4. Transition this workflow to 'investigating', then set in context:
+   - investigationSummary: root cause description
+   - needsFix: true if a fix is required, false if learnings only
+   - fixDescription: what to fix (only if needsFix is true)
+5. Then transition to 'fix_pending' (if needsFix) or 'learning_pending' (if not)`,
+        };
+      },
+    },
+    investigating: {
+      on: { needs_fix: "fix_pending", no_fix: "learning_pending" },
+      action: (ctx) => {
+        if (ctx.investigationSummary === undefined) return null;
+        if (ctx.needsFix) {
+          return { type: "transition", nextState: "fix_pending" };
+        }
+        return { type: "transition", nextState: "learning_pending" };
+      },
+    },
+    fix_pending: {
+      on: { apply: "fixing" },
+      action: (ctx) => {
+        if (!ctx.fixDescription) return null;
+        const date = ctx.auditDate || new Date().toISOString().slice(0, 10);
+        return {
+          type: "create-task",
+          subject: `Fix: self-audit anomaly on ${date}`,
+          priority: 5,
+          skills: ["arc-self-audit", "arc-skill-manager"],
+          model: "sonnet",
+          description: `Apply the fix identified during investigation of self-audit anomalies on ${date}.
+
+Investigation summary: ${ctx.investigationSummary || "see investigation task"}
+
+Fix to apply: ${ctx.fixDescription}
+
+After applying the fix:
+1. Verify it resolves the root cause
+2. Transition this workflow to 'fixing', then 'learning_pending'`,
+        };
+      },
+    },
+    fixing: {
+      on: { fixed: "learning_pending" },
+      action: () => null,
+    },
+    learning_pending: {
+      on: { learnings_extracted: "completed" },
+      action: (ctx) => {
+        const date = ctx.auditDate || new Date().toISOString().slice(0, 10);
+        return {
+          type: "create-task",
+          subject: `Extract learning from self-audit: ${date}`,
+          priority: 8,
+          skills: ["arc-skill-manager"],
+          model: "haiku",
+          description: `Record learnings from the ${date} self-audit cycle.
+
+Anomalies: ${ctx.anomalySummary || "see audit task"}
+Investigation: ${ctx.investigationSummary || "see investigation task"}
+${ctx.fixDescription ? `Fix applied: ${ctx.fixDescription}` : "No code fix needed."}
+
+Steps:
+1. Summarize the anomaly pattern, root cause, and resolution
+2. If this reveals a recurring or systemic pattern, update memory/MEMORY.md
+3. Set learningsSummary in workflow context
+4. Transition workflow to 'completed'`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -3218,6 +3353,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "workflow-review": WorkflowReviewMachine,
     "compliance-review": ComplianceReviewMachine,
     "github-mention": GithubMentionMachine,
+    "self-audit": SelfAuditMachine,
   };
   return templates[name] || null;
 }
