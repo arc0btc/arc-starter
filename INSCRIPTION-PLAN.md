@@ -29,9 +29,9 @@ Held by Loom's Taproot address: `bc1ptqmds7ghh5lqexzd34xnf5sryxzjvlvuj2eetmhgjkp
 
 | # | Date | Size (bytes) | Commit Fee (sats) | Reveal Fee (sats) | Reveal Amount (sats) | Total Cost (sats) | Status |
 |---|------|-------------|-------------------|-------------------|---------------------|-------------------|--------|
-| 1 | 2026-03-13 | 4,070 | 221 | 1,564 | 3,656 | **3,877** | pending |
-| 2 | 2026-03-14 | 1,935 | 221 | 897 | 2,989 | **3,210** | pending |
-| 3 | 2026-03-15 | 6,939 | 221 | 2,461 | 4,553 | **4,774** | pending |
+| 1 | 2026-03-13 | 4,070 | 221 | 1,564 | 3,656 | **3,877** | inscribed: `17b4c976568f2912ba5bf952f1df4ade554daf647b8f54d06ed6e7e34e7d8085i0` |
+| 2 | 2026-03-14 | 1,935 | 221 | 897 | 2,989 | **3,210** | inscribed: `4de3f240d5d38b1f6726ccc2e31b38ddb2559da00fb66430c8f86f7454535a7di0` |
+| 3 | 2026-03-15 | 6,939 | 221 | 2,461 | 4,553 | **4,774** | commit broadcast: `6dca9a71d2e85ad01c335581a214c199a6579092bd6f03f5c82062630be84bc8` |
 | 4 | 2026-03-16 | 8,730 | 221 | 3,021 | 5,113 | **5,334** | pending |
 | 5 | 2026-03-17 | 15,072 | 221 | 5,002 | 7,094 | **7,315** | pending |
 | — | 2026-03-18 | — | — | — | — | **SKIPPED** | insufficient signals |
