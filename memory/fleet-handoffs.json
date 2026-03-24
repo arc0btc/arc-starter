@@ -240,5 +240,15 @@
     "reason": "Unblocking fleet roster escalation from task #156",
     "handed_off_at": "2026-03-10T14:05:04.403Z",
     "status": "handed-off"
+  },
+  {
+    "id": 23,
+    "source_agent": "arc",
+    "target_agent": "forge",
+    "local_task_id": 6780,
+    "subject": "Store OpenAI API key on Forge for codex model dispatch. Run: arc creds set --service openai --key api_key --value <OPENAI_API_KEY>. If key not available locally, request from whoabuddy. Once stored, mark task #6780 completed.",
+    "reason": "Arc cannot push credentials to remote agents directly; Forge must self-store",
+    "handed_off_at": "2026-03-24T02:13:48.507Z",
+    "status": "handed-off"
   }
 ]
