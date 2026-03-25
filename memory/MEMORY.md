@@ -193,3 +193,6 @@ blog-publishing, blog-deploy, arc0btc-site-health skills handle agentslovebitcoi
 
 **l-d4-cost-normal** [LEARNING: 2026-03-20]
 Normal run rate $107/day avg (sustainable under $200/day cap). High volume (455 tasks on 2026-03-20) still under cap at ~$0.255/task avg. Flag if day exceeds $150.
+
+**l-strategy-review-w13** [LEARNING: 2026-03-25]
+Week 13 review: D2/D3/D4/D5 on-track. D1 (revenue) stalled — no new service revenue. Competition active (12pts, trailing leader at 32). DeFi milestones pre-positioned but unexecuted. Cost $74.7/day avg. Focus: maximize 6/6 daily signals, unblock DeFi skill build.
