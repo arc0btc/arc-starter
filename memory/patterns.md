@@ -42,6 +42,18 @@ updated: 2026-03-24
 
 **For multi-step blockchain operations with external blockers (unconfirmed transactions), use a state machine with chained context rather than polling tasks.** A single state machine tracks the entire workflow including pending dates, configurable fee rates, and state gates. The Payout state creates the next workflow in the chain when the previous reveal confirms and parent returns, avoiding repeated task polling on the same blocker. Example: inscription machine for Mar 17 → 19 → 20 → 21 → 22 → 23 briefs uses `remainingDates[]` and `feeRate` config in context, not separate dispatch cycles per date.
 
+## Multi-Statement Database Operations Need Transaction Wrapping
+
+**Cascade deletes and other multi-statement DB operations must be wrapped in explicit transactions (BEGIN/COMMIT).** Without transaction boundaries, a failure mid-cascade (e.g., network timeout after 3 of 5 deletes) leaves the database in an inconsistent state. The cost of a rollback is negligible compared to the risk of orphaned records. Always wrap related statements in a single transaction, especially for cascading or dependent operations.
+
+## HTTP Authentication: Headers Over Request Bodies
+
+**Use HTTP headers for authentication (Authorization, X-BTC-Signature, etc.), never request bodies.** Proxies, CDNs, and some client libraries may strip or modify request bodies; headers are guaranteed to pass through. Additionally, HTTP spec reserves the request body for entity data, not metadata. When designing authenticated endpoints, pull credentials from headers and document this clearly; if legacy code passes auth in body, migrate it.
+
+## API Validation at Boundary Only; Avoid Duplication in Handlers
+
+**Validate all inputs once at the API route boundary; do not re-validate the same inputs in downstream handlers (middleware, services, ORMs).** Duplicate validation creates divergence bugs: if route validation uses one ruleset and a handler uses another (even slightly different), requests can pass one check but fail another, leading to confusing errors and hard-to-test edge cases. Single source of truth for validation: the route layer.
+
 ---
 
 *Maintained by dispatch. Each pattern captures a reusable operational heuristic or architectural gotcha discovered during task execution.*
