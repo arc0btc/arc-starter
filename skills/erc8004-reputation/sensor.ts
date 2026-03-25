@@ -38,6 +38,8 @@ interface FeedbackCountResult {
   network: string;
 }
 
+const SUBPROCESS_TIMEOUT_MS = 30_000; // 30s — never block sensors longer
+
 /** Call upstream reputation script to get feedback count. */
 async function getFeedbackCount(): Promise<number> {
   const proc = Bun.spawn(
@@ -51,19 +53,30 @@ async function getFeedbackCount(): Promise<number> {
     }
   );
 
-  const stdout = await new Response(proc.stdout).text();
-  const exitCode = await proc.exited;
+  const timeout = new Promise<never>((_, reject) =>
+    setTimeout(() => {
+      proc.kill();
+      reject(new Error(`get-feedback-count timed out after ${SUBPROCESS_TIMEOUT_MS}ms`));
+    }, SUBPROCESS_TIMEOUT_MS)
+  );
 
-  if (exitCode !== 0) {
-    throw new Error(`get-feedback-count exited with code ${exitCode}`);
-  }
+  const result = await Promise.race([
+    (async () => {
+      const stdout = await new Response(proc.stdout).text();
+      const exitCode = await proc.exited;
+      if (exitCode !== 0) {
+        throw new Error(`get-feedback-count exited with code ${exitCode}`);
+      }
+      const parsed: FeedbackCountResult = JSON.parse(stdout.trim());
+      if (!parsed.success) {
+        throw new Error("get-feedback-count returned success=false");
+      }
+      return parsed.feedbackCount;
+    })(),
+    timeout,
+  ]);
 
-  const result: FeedbackCountResult = JSON.parse(stdout.trim());
-  if (!result.success) {
-    throw new Error("get-feedback-count returned success=false");
-  }
-
-  return result.feedbackCount;
+  return result;
 }
 
 // ---- Main sensor ----
