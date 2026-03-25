@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-03-24T19:13:00.000Z*
-*Sensor count: 80 (0 disabled) | Skill count: 115*
+*Generated: 2026-03-25T21:30:00.000Z*
+*Sensor count: 67 (working tree) | Skill count: 97*
 
 ```mermaid
 stateDiagram-v2
@@ -15,7 +15,6 @@ stateDiagram-v2
     state SensorsService {
         [*] --> RunAllSensors: parallel via Promise.allSettled
         RunAllSensors --> HealthSensors
-        RunAllSensors --> FleetSensors
         RunAllSensors --> GitHubSensors
         RunAllSensors --> ContentSensors
         RunAllSensors --> DeFiSensors
@@ -27,16 +26,6 @@ stateDiagram-v2
         state HealthSensors {
             arc_alive_check
             arc_service_health
-            systems_monitor
-        }
-
-        state FleetSensors {
-            fleet_comms
-            fleet_health
-            fleet_memory
-            fleet_self_sync
-            fleet_push
-            agent_hub
         }
 
         state GitHubSensors {
@@ -61,10 +50,14 @@ stateDiagram-v2
             social_agent_engagement
             social_x_ecosystem
             arxiv_research
+            note right of ordinals_market_data: 3 ordinals + 3 dev-tools/day\noverflow after 18:00 UTC
+            note right of arxiv_research: routes dev-tool papers\nto dev-tools signal tasks
         }
 
         state DeFiSensors {
             defi_bitflow
+            defi_stacks_market
+            defi_zest
             mempool_watch
             arc_payments
         }
@@ -75,20 +68,22 @@ stateDiagram-v2
             aibtc_welcome
             erc8004_reputation
             erc8004_indexer
-            erc8004_trust
-            erc8004_validation
-            arc_inbox
+            identity_guard
+            alb
         }
 
         state InfrastructureSensors {
-            alb
             arc_housekeeping
             arc_email_sync
             arc_ceo_review
-            arc_ops_review
+            arc_report_email
+            arc_scheduler
+            arc_umbrel
+            arc_starter_publish
+            blog_deploy
+            worker_deploy
             context_review
             compliance_review
-            worker_logs_monitor
         }
 
         state MemoryMaintenanceSensors {
@@ -103,6 +98,8 @@ stateDiagram-v2
             arc_reputation
             arc_strategy_review
             arc_workflow_review
+            arc_skill_manager
+            arc_self_audit
             auto_queue
         }
 
@@ -112,10 +109,10 @@ stateDiagram-v2
             arc0btc_site_health
             arc0btc_services
             arc_self_review
+            site_consistency
         }
 
         HealthSensors --> TaskQueue: queue if signal detected
-        FleetSensors --> TaskQueue
         GitHubSensors --> TaskQueue
         ContentSensors --> TaskQueue
         DeFiSensors --> TaskQueue
@@ -250,31 +247,45 @@ stateDiagram-v2
         blocked --> [*]: human intervention
     }
 
+    state SignalAllocation {
+        [*] --> CheckGlobalCap: 6/day total
+        CheckGlobalCap --> CheckBeatAllocation: cap not hit
+        CheckBeatAllocation --> OrdinalsBeat: ordinalsToday < allocation
+        CheckBeatAllocation --> DevToolsBeat: devToolsToday < 3
+        OrdinalsBeat --> TaskQueue: File ordinals signal
+        DevToolsBeat --> TaskQueue: File dev-tools signal
+        note right of CheckBeatAllocation: ordinals: 3/day base\n+ unused dev-tools after 18:00 UTC\ndev-tools: 3/day (arxiv, arc-link-research, x-ecosystem)
+    }
+
     TaskQueue --> DispatchService
     SensorsService --> TaskQueue
+    ContentSensors --> SignalAllocation
 ```
 
-## Sensor Count by Category (2026-03-24, cycle ~12)
+## Sensor Count by Category (2026-03-25, working tree)
 
 | Category | Count |
 |----------|-------|
-| Memory/Maintenance | 12 |
+| Memory/Maintenance | 14 |
 | GitHub/PR | 10 |
 | Content/Publishing | 8 |
-| AIBTC/ERC-8004 | 8 |
-| Fleet | 6 |
-| Infrastructure | 8 |
-| DeFi | 3 |
-| Health/Monitoring | 8 |
-| Other | 17 |
-| **Total** | **80** |
+| AIBTC/ERC-8004 | 7 |
+| Infrastructure | 11 |
+| DeFi | 5 |
+| Health | 2 |
+| Monitoring | 6 |
+| Other/Misc | 4 |
+| **Total** | **67** |
 
-## Key Architectural Changes (fefa3da → bc144e6a / feat/monitoring-service)
+*Note: Fleet sensor group removed — fleet-comms, fleet-health, fleet-memory, fleet-self-sync, fleet-push, fleet-router, agent-hub, and related skills deleted from working tree (unstaged, not yet committed). Previous total was 80.*
+
+## Key Architectural Changes (bc144e6 → HEAD / feat/monitoring-service)
 
 | Change | Impact |
 |--------|--------|
-| `fix(editorial): dynamic disclosure model` (3b33d5c5) | `ARC_DISPATCH_MODEL` env var now set from `MODEL_IDS[model]` in `dispatch.ts` and passed to every subprocess. Disclosure format in `aibtc-news-editorial/cli.ts` reads this var instead of hardcoding `claude-sonnet-4-6`. Signals filed by opus/haiku tasks now report the correct model ID. Required by aibtc.news PR #226 enforcement format. |
-| `SelfAuditMachine` added to `arc-workflows/state-machine.ts` | New workflow template for the recurring self-audit → investigate → fix/learn cycle. 6 states: triggered → investigating → fix_pending/learning_pending → completed. Instance key `self-audit-{YYYY-MM-DD}` prevents concurrent overlapping audit cycles. Model assignment: sonnet for investigation, sonnet for fix, haiku for learning extraction. Registered in `getTemplateByName`. |
-| `arc-memory/cli.ts`: `ts` → `dateStamp` rename (task #8585) | Variable `ts` was ambiguous (TypeScript abbreviation vs timestamp). Renamed to `dateStamp` for clarity. Compliance review catch — readability improvement, no functional change. |
-| `src/web.ts + presentation.html`: `/presentation` route | Static slide deck (`presentation.html` — "AIBTC: What 10 People and 7 Days Look Like") served at `/presentation` in the web dashboard. Clean URL routing via `existsSync(htmlPath)` pattern. D1 (services business) asset. |
-| `arc-monitoring-service` (feat branch, ongoing) | Paid monitoring-as-a-service: `monitored_endpoints` table, sensor checks due endpoints every 1 minute, Pro tier fires alert webhooks after 3 consecutive failures. Branch in development; not merged to main. |
+| **Multi-beat signal rotation** (3+3/day) | `BEAT_DAILY_ALLOCATION = 3` constant + `countSignalTasksTodayForBeat(beat)` in `src/db.ts`. ordinals-market-data sensor gates per-beat with 18:00 UTC overflow (unused dev-tools slots → ordinals). Three dev-tools signal sources: arxiv-research (keyword regex), arc-link-research (devToolTags field), social-x-ecosystem (discovery keywords). disclosure format uses beat directly (was hardcoded to "ordinals"). |
+| **`SENSOR_FETCH_TIMEOUT_MS = 15_000` exported** | Canonical timeout reference for bare fetch calls in sensors. `fetchWithRetry` now applies 30s AbortSignal if caller provides no signal. 6+ sensors updated to use AbortSignal.timeout(15_000) on individual fetch calls. |
+| **`erc8004-reputation` subprocess timeout** | `Promise.race([subprocess, 30s timeout])` — subprocess killed on timeout. Prevents single subprocess hang from occupying a sensor runner slot for up to SENSOR_TIMEOUT_MS (2min). |
+| **Fleet skills deleted (working tree, unstaged)** | 15+ skill directories removed: fleet-comms, fleet-dashboard, fleet-escalation, fleet-handoff, fleet-health, fleet-memory, fleet-push, fleet-router, fleet-self-sync, fleet-sync, agent-hub, arc-observatory, arc-ops-review, arc-remote-setup, github-interceptor, systems-monitor, worker-logs-monitor. Reduces sensors 80→67, skills 115→97. **Deletions not yet committed.** |
+| **`inferCategoryFromHeadline` default "general"** | Previous default was "ordinals". Any unrecognized signal headline now tagged "general" instead of "ordinals". Behavioral change — verify "general" is a valid aibtc.news category. |
+| **`lastSignalQueued` deprecated** | Field renamed `lastOrdinalSignalQueued` in ordinals HookState for per-beat cooldown tracking. Old field name still in type definition — schedule cleanup post-competition (2026-04-23+). |
