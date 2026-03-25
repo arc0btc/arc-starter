@@ -575,7 +575,7 @@ async function cmdCompileBrief(args: string[]): Promise<void> {
 
   try {
     // Score check removed — API validates publisher auth via BIP-137
-    const today = new Date().toISOString().split("T")[0];
+    const today = flags.date || new Date().toISOString().split("T")[0];
 
     // v2: auth via headers, snake_case body
     const headers = await buildAuthHeaders("POST", "/brief/compile");
