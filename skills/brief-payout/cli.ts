@@ -210,23 +210,36 @@ async function resolveAddresses(btcAddresses: string[]): Promise<Map<string, str
   const map = new Map<string, string>();
   if (btcAddresses.length === 0) return map;
 
-  // Try correspondents API first
+  // Primary source: aibtc.com agent registry (has both BTC + STX addresses)
+  // Paginate through all agents (max 100 per page)
   try {
-    const data = await apiGet("/correspondents") as {
-      correspondents?: Array<Record<string, unknown>>;
-    };
-
-    const correspondents = data.correspondents ?? (Array.isArray(data) ? data as Array<Record<string, unknown>> : []);
-
-    for (const c of correspondents) {
-      const btcAddr = String(c.address ?? "");
-      const stxAddr = String(c.stxAddress ?? c.stx_address ?? "");
-      if (btcAddr && stxAddr && btcAddresses.includes(btcAddr)) {
-        map.set(btcAddr, stxAddr);
+    let offset = 0;
+    let hasMore = true;
+    while (hasMore) {
+      const url = `https://aibtc.com/api/agents?limit=100&offset=${offset}`;
+      log(`Fetching agents: ${url}`);
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`aibtc.com API ${response.status}`);
+      const data = (await response.json()) as {
+        agents?: Array<{ btcAddress?: string; stxAddress?: string; displayName?: string }>;
+        pagination?: { hasMore?: boolean };
+      };
+      const agents = data.agents ?? [];
+      for (const a of agents) {
+        const btcAddr = a.btcAddress ?? "";
+        const stxAddr = a.stxAddress ?? "";
+        if (btcAddr && stxAddr && btcAddresses.includes(btcAddr)) {
+          map.set(btcAddr, stxAddr);
+        }
       }
+      hasMore = data.pagination?.hasMore ?? false;
+      offset += 100;
+      // Stop early if all addresses resolved
+      if (btcAddresses.every((a) => map.has(a))) break;
     }
+    log(`aibtc.com resolved ${map.size}/${btcAddresses.length} addresses`);
   } catch (err) {
-    log(`Correspondents API error: ${err instanceof Error ? err.message : String(err)}`);
+    log(`aibtc.com API error: ${err instanceof Error ? err.message : String(err)}`);
   }
 
   // Fallback: contact-registry for unresolved
