@@ -13,7 +13,6 @@
 
 import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
 import { getCredential } from "../../src/credentials.ts";
-import { getContactByAddress, insertContactInteraction } from "../contact-registry/schema.ts";
 import { resolve, join } from "node:path";
 import { mkdirSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 
@@ -89,29 +88,6 @@ interface PayoutPlan {
 
 function log(message: string): void {
   console.error(`[${new Date().toISOString()}] [brief-payout/cli] ${message}`);
-}
-
-async function sendX402InboxMessage(btcAddress: string, stxAddress: string, content: string): Promise<void> {
-  const proc = Bun.spawn(
-    [
-      "bash", "bin/arc", "skills", "run", "--name", "bitcoin-wallet", "--",
-      "x402", "send-inbox-message",
-      "--recipient-btc-address", btcAddress,
-      "--recipient-stx-address", stxAddress,
-      "--content", content,
-    ],
-    { cwd: resolve(import.meta.dir, "../.."), stdin: "ignore", stdout: "pipe", stderr: "pipe" }
-  );
-
-  const [stdout, stderr] = await Promise.all([
-    new Response(proc.stdout).text(),
-    new Response(proc.stderr).text(),
-  ]);
-
-  const exitCode = await proc.exited;
-  if (exitCode !== 0) {
-    throw new Error(`x402 send failed (exit ${exitCode}): ${(stdout + stderr).slice(0, 300)}`);
-  }
 }
 
 function parseFlags(args: string[]): Record<string, string> {
@@ -615,35 +591,6 @@ async function cmdExecute(args: string[]): Promise<void> {
           }
         }
         log(`Recorded ${transfer.earning_ids.length} earning(s) on API`);
-
-        // Send x402 inbox confirmation to correspondent
-        try {
-          const satsLabel = transfer.amount_sats.toLocaleString();
-          const signalWord = transfer.earning_ids.length === 1 ? "signal" : "signals";
-          const message = [
-            `Payout Confirmation | ${date}`,
-            ``,
-            `You've been paid ${satsLabel} sats (sBTC) for ${transfer.earning_ids.length} ${signalWord} included in the ${date} daily brief on aibtc.news.`,
-            ``,
-            `Transaction: ${result.txid}`,
-            ``,
-            `Thank you for your contributions to the network.`,
-          ].join("\n");
-          log(`Sending payout confirmation to ${transfer.correspondent_name} (${transfer.btc_address})`);
-          await sendX402InboxMessage(transfer.btc_address, transfer.stx_address, message);
-          log(`Payout confirmation sent to ${transfer.correspondent_name}`);
-
-          const contact = getContactByAddress(null, transfer.btc_address);
-          if (contact) {
-            insertContactInteraction({
-              contact_id: contact.id,
-              type: "collaboration",
-              summary: `Paid ${satsLabel} sats for ${transfer.earning_ids.length} ${signalWord} in ${date} brief (txid: ${result.txid?.slice(0, 12)}...)`,
-            });
-          }
-        } catch (notifyErr) {
-          log(`Payout notification failed (non-fatal): ${notifyErr instanceof Error ? notifyErr.message : String(notifyErr)}`);
-        }
       } else {
         const errorMsg = result.error ?? result.detail ?? "Unknown error";
 
@@ -662,34 +609,6 @@ async function cmdExecute(args: string[]): Promise<void> {
               log(`Retry succeeded: ${retry.txid}`);
               for (const earningId of transfer.earning_ids) {
                 try { await apiPatch(`/earnings/${earningId}`, { btc_address: transfer.btc_address, payout_txid: retry.txid }); } catch { /* best effort */ }
-              }
-
-              // Send x402 inbox confirmation after retry success
-              try {
-                const satsLabel = transfer.amount_sats.toLocaleString();
-                const signalWord = transfer.earning_ids.length === 1 ? "signal" : "signals";
-                const msg = [
-                  `Payout Confirmation | ${date}`,
-                  ``,
-                  `You've been paid ${satsLabel} sats (sBTC) for ${transfer.earning_ids.length} ${signalWord} included in the ${date} daily brief on aibtc.news.`,
-                  ``,
-                  `Transaction: ${retry.txid}`,
-                  ``,
-                  `Thank you for your contributions to the network.`,
-                ].join("\n");
-                await sendX402InboxMessage(transfer.btc_address, transfer.stx_address, msg);
-                log(`Payout confirmation sent to ${transfer.correspondent_name} (retry path)`);
-
-                const contact = getContactByAddress(null, transfer.btc_address);
-                if (contact) {
-                  insertContactInteraction({
-                    contact_id: contact.id,
-                    type: "collaboration",
-                    summary: `Paid ${satsLabel} sats for ${transfer.earning_ids.length} ${signalWord} in ${date} brief (txid: ${retry.txid?.slice(0, 12)}...)`,
-                  });
-                }
-              } catch (notifyErr) {
-                log(`Payout notification failed (non-fatal): ${notifyErr instanceof Error ? notifyErr.message : String(notifyErr)}`);
               }
             } else {
               transfer.status = "failed";
@@ -721,6 +640,27 @@ async function cmdExecute(args: string[]): Promise<void> {
 
   record.status = failCount === 0 ? "complete" : successCount === 0 ? "failed" : "partial";
   writePayoutRecord(record);
+
+  // Queue inbox-notify task to send payout confirmations to correspondents
+  if (successCount > 0) {
+    try {
+      const proc = Bun.spawn(
+        [
+          "bash", "bin/arc", "tasks", "add",
+          "--subject", `Send payout confirmation messages for ${date} brief (${successCount} correspondents)`,
+          "--priority", "7",
+          "--skills", "inbox-notify",
+          "--source", `task:brief-payout`,
+        ],
+        { cwd: resolve(import.meta.dir, "../.."), stdin: "ignore", stdout: "pipe", stderr: "pipe" }
+      );
+      const stdout = await new Response(proc.stdout).text();
+      await proc.exited;
+      log(`Queued inbox-notify task for ${successCount} payout confirmations: ${stdout.trim()}`);
+    } catch (err) {
+      log(`Warning: failed to queue notification task: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
 
   console.log(JSON.stringify({
     date,
