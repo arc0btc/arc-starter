@@ -11,7 +11,7 @@ const STACKS_MARKET_API = "https://api.stacksmarket.app";
 const AIBTC_NEWS_API = "https://aibtc.news/api";
 const VOLUME_THRESHOLD = 100; // STX (configurable via env)
 
-// Only file signals for markets relevant to Arc's ordinals-business beat
+// Only file signals for markets relevant to the ordinals beat
 // Ordinals Business scope: inscription volumes, BRC-20, marketplace metrics, Runes
 const EXCLUDED_CATEGORIES = [
   "sports", "entertainment", "politics", "celebrity", "pop culture", "gaming",
@@ -122,7 +122,7 @@ ${market.category ? `Category: ${market.category}` : ""}
 ${market.endDate ? `Resolves: ${market.endDate}` : ""}
 MongoDB ID: ${market._id}
 
-File this signal to the ordinals beat (Arc's only beat — do NOT file to dao-watch, btc-macro, or any other beat):
+File this signal to the ordinals beat (this market is ordinals-relevant):
 
 arc skills run --name aibtc-news-editorial -- file-signal \\
   --beat ordinals \\
@@ -185,7 +185,7 @@ export default async function stacksMarketSensor(): Promise<string> {
       const isOrdinalsRelated = ORDINALS_KEYWORDS.some(
         (kw) => titleLower.includes(kw) || descLower.includes(kw) || cat.includes(kw)
       );
-      // Skip non-ordinals markets (Stacks DeFi, crypto macro, etc.) — Arc has no other beat
+      // Skip non-ordinals markets (Stacks DeFi, crypto macro, etc.) — this sensor targets ordinals beat only
       if (!isOrdinalsRelated) return false;
       return true;
     });

@@ -84,7 +84,7 @@ async function checkOrdinalsVolume(state: HookState): Promise<HookState> {
         log(`ordinals: threshold met — queuing signal task`);
         insertTask({
           subject: `File ordinals signal: Ordinals weekly volume ~$${Math.round(volumeUsd / 1_000_000 * 10) / 10}M`,
-          description: `Ordinals 7-day marketplace volume estimated at ~$${Math.round(volumeUsd).toLocaleString()} (threshold $${ORDINALS_WEEKLY_VOLUME_USD.toLocaleString()}) from CoinGecko NFT collection data (${NFT_COLLECTIONS.join(", ")}). File an ordinals signal (Arc's only beat — do NOT file to deal-flow, dao-watch, or btc-macro).\n\nResearch: arc skills run --name aibtc-news-editorial -- fetch-ordinals-data\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals --claim "..." --evidence "..." --implication "..."`,
+          description: `Ordinals 7-day marketplace volume estimated at ~$${Math.round(volumeUsd).toLocaleString()} (threshold $${ORDINALS_WEEKLY_VOLUME_USD.toLocaleString()}) from CoinGecko NFT collection data (${NFT_COLLECTIONS.join(", ")}). File this to the ordinals beat.\n\nResearch: arc skills run --name aibtc-news-editorial -- fetch-ordinals-data\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals --claim "..." --evidence "..." --implication "..."`,
           skills: JSON.stringify(["aibtc-news-editorial", "aibtc-news-deal-flow"]),
           priority: 6,
           model: "sonnet",
@@ -157,7 +157,7 @@ async function checkX402Escrow(state: HookState): Promise<HookState> {
         log(`x402: threshold met — queuing signal task`);
         insertTask({
           subject: `File ordinals signal: x402 weekly escrow volume ~$${Math.round(volumeUsd / 1_000_000 * 10) / 10}M`,
-          description: `x402 agent escrow 7-day volume reached ~$${Math.round(volumeUsd).toLocaleString()} (threshold $${X402_WEEKLY_VOLUME_USD.toLocaleString()}). File an ordinals signal (Arc's only beat — do NOT file to deal-flow, dao-watch, or btc-macro).\n\nContract: ${contractAddress}\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals --claim "..." --evidence "..." --implication "..."`,
+          description: `x402 agent escrow 7-day volume reached ~$${Math.round(volumeUsd).toLocaleString()} (threshold $${X402_WEEKLY_VOLUME_USD.toLocaleString()}). File this to the ordinals beat.\n\nContract: ${contractAddress}\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals --claim "..." --evidence "..." --implication "..."`,
           skills: JSON.stringify(["aibtc-news-editorial", "aibtc-news-deal-flow"]),
           priority: 6,
           model: "sonnet",
@@ -218,7 +218,7 @@ async function checkDaoTreasury(state: HookState): Promise<HookState> {
         log(`dao-treasury: threshold met (${change.toFixed(2)} BTC change) — queuing signal task`);
         insertTask({
           subject: `File ordinals signal: DAO treasury ${direction} by ${change.toFixed(2)} BTC`,
-          description: `${daoContract} treasury ${direction} by ${change.toFixed(2)} BTC (now ${btcBalance.toFixed(4)} BTC, was ${prev.toFixed(4)} BTC). Threshold: ${DAO_TREASURY_CHANGE_BTC} BTC.\n\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals --claim "..." --evidence "..." --implication "..."`,
+          description: `${daoContract} treasury ${direction} by ${change.toFixed(2)} BTC (now ${btcBalance.toFixed(4)} BTC, was ${prev.toFixed(4)} BTC). Threshold: ${DAO_TREASURY_CHANGE_BTC} BTC. File this to the ordinals beat.\n\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals --claim "..." --evidence "..." --implication "..."`,
           skills: JSON.stringify(["aibtc-news-editorial", "aibtc-news-deal-flow"]),
           priority: 6,
           model: "sonnet",
@@ -289,7 +289,7 @@ async function checkSatsAuctions(state: HookState): Promise<HookState> {
         log(`sats-auctions: rare sat activity detected (${rareCount} inscriptions) — queuing signal task`);
         insertTask({
           subject: `File ordinals signal: ${rareCount} inscriptions on rare sats detected`,
-          description: `${rareCount} recent inscriptions on special-rarity satoshis detected via Unisat indexer. Top example: sat rarity "${topItem.satRarity}", inscription #${topItem.inscriptionNumber ?? "unknown"}. File an ordinals signal (Arc's only beat — do NOT file to deal-flow, dao-watch, or btc-macro).\n\nDetails: ${JSON.stringify(topItem, null, 2).slice(0, 500)}\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals --claim "..." --evidence "..." --implication "..."`,
+          description: `${rareCount} recent inscriptions on special-rarity satoshis detected via Unisat indexer. Top example: sat rarity "${topItem.satRarity}", inscription #${topItem.inscriptionNumber ?? "unknown"}. File this to the ordinals beat.\n\nDetails: ${JSON.stringify(topItem, null, 2).slice(0, 500)}\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals --claim "..." --evidence "..." --implication "..."`,
           skills: JSON.stringify(["aibtc-news-editorial", "aibtc-news-deal-flow"]),
           priority: 6,
           model: "sonnet",
@@ -351,7 +351,7 @@ async function checkBountyActivity(state: HookState): Promise<HookState> {
         log(`bounty: new launches detected — queuing signal task`);
         insertTask({
           subject: `File ordinals signal: ${recentLaunches.length} new bounty program(s) launched`,
-          description: `${recentLaunches.length} new bounty program(s) detected on ${bountyContract} in the last 24 hours. Verify reward amounts and file an ordinals signal.\n\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals --claim "..." --evidence "..." --implication "..."`,
+          description: `${recentLaunches.length} new bounty program(s) detected on ${bountyContract} in the last 24 hours. Verify reward amounts and file this to the ordinals beat.\n\nFile: arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals --claim "..." --evidence "..." --implication "..."`,
           skills: JSON.stringify(["aibtc-news-editorial", "aibtc-news-deal-flow"]),
           priority: 6,
           model: "sonnet",

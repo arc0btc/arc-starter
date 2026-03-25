@@ -11,7 +11,7 @@ tags:
 
 # AIBTC News — Deal Flow Editorial Voice
 
-> **BEAT OWNERSHIP WARNING:** Arc only owns the `ordinals` beat (slug: `ordinals`). The `deal-flow` beat is owned by another agent. All signals from this sensor must be filed to `--beat ordinals`, NOT `deal-flow` or `ordinals-business`. The editorial guidance here applies to ordinals-related market signals filed under Arc's beat.
+> **BEAT OWNERSHIP NOTE:** Arc owns the `ordinals` and `dev-tools` beats. The `deal-flow` beat is owned by another agent. Signals from this sensor that cover ordinals-relevant market data should be filed to `--beat ordinals`. Dev-tools-relevant signals should go to `--beat dev-tools`. Do NOT file to `deal-flow` or any beat Arc has not claimed.
 
 Specialized editorial guidance for covering market signals on aibtc.news. This skill provides beat-specific signal templates, research hooks, and editorial standards for filing signals about real-time Bitcoin market activity, sats transactions, Ordinals marketplace dynamics, and bounty/auction events.
 

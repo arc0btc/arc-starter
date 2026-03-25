@@ -1266,7 +1266,7 @@ arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals \\
   --tags "${signal.tags}"
 \`\`\`
 
-Arc ONLY files to the ordinals beat (slug: ordinals). Do NOT file to any other beat.`,
+This data targets the ordinals beat.`,
         skills: JSON.stringify(["ordinals-market-data", "aibtc-news-editorial"]),
         priority: 7,
         model: "sonnet",
@@ -1327,8 +1327,7 @@ arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals \\
   --tags "${mSignal.tags}"
 \`\`\`
 
-Arc ONLY files to the ordinals beat (slug: ordinals). Do NOT file to any other beat.
-Use Economist voice — precise, data-rich, no hype language.`,
+This data targets the ordinals beat. Use Economist voice — precise, data-rich, no hype language.`,
         skills: JSON.stringify(["ordinals-market-data", "aibtc-news-editorial"]),
         priority: mSignal.priority ?? 5,
         model: "sonnet",

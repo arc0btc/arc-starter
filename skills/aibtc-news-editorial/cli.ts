@@ -149,13 +149,15 @@ interface NarrativeThread {
 }
 
 /**
- * Update the narrative thread in ordinals-market-data hook state after a successful signal filing.
+ * Update the narrative thread in hook state after a successful signal filing.
  * Appends the new signal, trims to last 3, and regenerates the summary.
+ * Uses beat-specific hook state key (ordinals → ordinals-market-data, others → <beat>-editorial).
  */
-async function updateNarrativeThread(headline: string, claim: string): Promise<void> {
-  const rawState = (await readHookState(NARRATIVE_HOOK_STATE_KEY)) as Record<string, unknown> | null;
+async function updateNarrativeThread(headline: string, claim: string, beat?: string): Promise<void> {
+  const hookKey = beat === "ordinals" || !beat ? NARRATIVE_HOOK_STATE_KEY : `${beat}-editorial`;
+  const rawState = (await readHookState(hookKey)) as Record<string, unknown> | null;
   if (!rawState) {
-    log("narrative: no ordinals-market-data hook state found, skipping update");
+    log(`narrative: no ${hookKey} hook state found, skipping update`);
     return;
   }
 
@@ -195,7 +197,7 @@ async function updateNarrativeThread(headline: string, claim: string): Promise<v
   // Regenerate summary from the last 3 signals
   thread.summary = generateNarrativeSummary(thread.signals);
 
-  await writeHookState(NARRATIVE_HOOK_STATE_KEY, rawState);
+  await writeHookState(hookKey, rawState);
 }
 
 /** Infer category from headline keywords. */
@@ -206,7 +208,9 @@ function inferCategoryFromHeadline(headline: string): string {
   if (lower.includes("fee") || lower.includes("mempool")) return "fees";
   if (lower.includes("nft") || lower.includes("floor") || lower.includes("collection")) return "nft-floors";
   if (lower.includes("rune")) return "runes";
-  return "ordinals";
+  if (lower.includes("sdk") || lower.includes("api") || lower.includes("framework") || lower.includes("clarinet") || lower.includes("stacks.js")) return "dev-tools";
+  if (lower.includes("release") || lower.includes("deprecat") || lower.includes("migration")) return "dev-tools";
+  return "general";
 }
 
 /** Generate a max-500-char narrative summary from recent signals. */
@@ -419,11 +423,10 @@ async function cmdFileSignal(args: string[]): Promise<void> {
   const headline = flags.headline || undefined;
   // Disclosure is REQUIRED by aibtc.news — signals without it get rejected.
   // Format (PR #226): 'model-id, https://aibtc.news/api/skills?slug=beat'
-  const disclosureBeat = beat || "ordinals";
   const modelId = process.env.ARC_DISPATCH_MODEL || "claude-sonnet-4-6";
   const disclosure =
     flags.disclosure ||
-    `${modelId}, https://aibtc.news/api/skills?slug=${disclosureBeat}`;
+    `${modelId}, https://aibtc.news/api/skills?slug=${beat}`;
   const force = flags.force !== undefined;
   const sourcesJson = flags.sources ? JSON.parse(flags.sources) : undefined;
   const tagsStr = flags.tags || "";
@@ -524,15 +527,13 @@ async function cmdFileSignal(args: string[]): Promise<void> {
     log(`Signal filed successfully`);
     console.log(JSON.stringify(result, null, 2));
 
-    // Post-filing: update narrative thread for ordinals beat
-    if (beat === "ordinals") {
-      try {
-        await updateNarrativeThread(headline || generateHeadline(claim), claim);
-        log("narrative thread updated");
-      } catch (narrativeErr) {
-        // Non-fatal — don't fail the signal filing over narrative tracking
-        log(`narrative update failed (non-fatal): ${(narrativeErr as Error).message}`);
-      }
+    // Post-filing: update narrative thread for the filed beat
+    try {
+      await updateNarrativeThread(headline || generateHeadline(claim), claim, beat);
+      log(`narrative thread updated for beat ${beat}`);
+    } catch (narrativeErr) {
+      // Non-fatal — don't fail the signal filing over narrative tracking
+      log(`narrative update failed (non-fatal): ${(narrativeErr as Error).message}`);
     }
   } catch (e) {
     const error = e as Error;
@@ -738,6 +739,7 @@ async function cmdCompileBrief(args: string[]): Promise<void> {
 
 async function cmdComposeSignal(args: string[]): Promise<void> {
   const flags = parseFlags(args);
+  const beat = (flags.beat || "ordinals").toLowerCase();
   const observation = flags.observation;
   const headlineOverride = flags.headline;
   const sourcesJson = flags.sources || "[]";
@@ -745,7 +747,7 @@ async function cmdComposeSignal(args: string[]): Promise<void> {
 
   if (!observation || observation.trim().length === 0) {
     console.error(
-      "Usage: arc skills run --name aibtc-news -- compose-signal --observation <text> [--headline <text>] [--sources <json>] [--tags <json>]"
+      "Usage: arc skills run --name aibtc-news -- compose-signal --beat <slug> --observation <text> [--headline <text>] [--sources <json>] [--tags <json>]"
     );
     process.exit(1);
   }
@@ -773,8 +775,9 @@ async function cmdComposeSignal(args: string[]): Promise<void> {
     const headline = headlineOverride || generateHeadline(observation);
     const content = buildContent(observation);
 
-    // Merge tags (ordinals-business always included)
-    const allTags = [...new Set(["ordinals-business", ...additionalTags])];
+    // Merge tags (beat-specific tag always included)
+    const beatTag = beat === "ordinals" ? "ordinals-business" : beat;
+    const allTags = [...new Set([beatTag, ...additionalTags])];
 
     // Validate
     const validation = validateSignal(headline, content, sources, allTags);
@@ -782,7 +785,7 @@ async function cmdComposeSignal(args: string[]): Promise<void> {
     const signal = {
       headline,
       content,
-      beat: "ordinals-business",
+      beat: beatTag,
       sources: sources.map((s) => s.url),
       tags: allTags,
     };
@@ -884,8 +887,12 @@ async function cmdCheckSources(args: string[]): Promise<void> {
 }
 
 async function cmdEditorialGuide(args: string[]): Promise<void> {
-  try {
-    const guide = {
+  const flags = parseFlags(args);
+  const beat = (flags.beat || "ordinals").toLowerCase();
+
+  // Beat-specific editorial guides
+  const EDITORIAL_GUIDES: Record<string, Record<string, unknown>> = {
+    ordinals: {
       beat: {
         id: "ordinals-business",
         name: "Ordinals Business",
@@ -906,7 +913,7 @@ async function cmdEditorialGuide(args: string[]): Promise<void> {
           "Ethereum or Solana NFTs (Bitcoin only)",
           "Cryptocurrency price speculation",
           "Technical blockchain data without market context",
-          "Developer tooling (use protocol-infrastructure beat)",
+          "Developer tooling (use dev-tools beat)",
         ],
       },
       voice: {
@@ -922,27 +929,10 @@ async function cmdEditorialGuide(args: string[]): Promise<void> {
           "Attribute: data sources, marketplace, timestamp.",
         ],
         vocabulary: {
-          use: [
-            "rose",
-            "fell",
-            "signals",
-            "indicates",
-            "suggests",
-            "notably",
-            "meanwhile",
-            "held steady",
-          ],
-          avoid: [
-            "moon",
-            "pump",
-            "dump",
-            "amazing",
-            "huge",
-            "incredible",
-          ],
+          use: ["rose", "fell", "signals", "indicates", "suggests", "notably", "meanwhile", "held steady"],
+          avoid: ["moon", "pump", "dump", "amazing", "huge", "incredible"],
         },
-        headlineFormat:
-          "[Subject] [Action] — [Implication] (max 120 chars, no period)",
+        headlineFormat: "[Subject] [Action] — [Implication] (max 120 chars, no period)",
         headlineExamples: [
           "Ordinals Inscriptions Rose 12% — BRC-20 Volume Surge Continues",
           "Yuga Labs Collection Hits New Floor — 0.5 BTC Demand Persists",
@@ -952,10 +942,7 @@ async function cmdEditorialGuide(args: string[]): Promise<void> {
       sourcesAndMetrics: {
         everyCycle: [
           { source: "Unisat API", metric: "Inscription volumes, holder count" },
-          {
-            source: "Magic Eden",
-            metric: "Ordinals marketplace volume, floor prices",
-          },
+          { source: "Magic Eden", metric: "Ordinals marketplace volume, floor prices" },
           { source: "OKX NFT", metric: "Cross-exchange trading activity" },
         ],
         daily: [
@@ -965,17 +952,7 @@ async function cmdEditorialGuide(args: string[]): Promise<void> {
       },
       tags: {
         alwaysInclude: ["ordinals-business"],
-        taxonomy: [
-          "ordinals-business",
-          "inscriptions",
-          "brc20",
-          "marketplace",
-          "collection",
-          "floor",
-          "volume",
-          "trading",
-          "issuance",
-        ],
+        taxonomy: ["ordinals-business", "inscriptions", "brc20", "marketplace", "collection", "floor", "volume", "trading", "issuance"],
       },
       antiPatterns: [
         "Never speculate on price direction without volume or supply data.",
@@ -983,7 +960,84 @@ async function cmdEditorialGuide(args: string[]): Promise<void> {
         "Never hype rarity — describe with data.",
         "Correct errors publicly — trust compounds.",
       ],
-    };
+    },
+    "dev-tools": {
+      beat: {
+        id: "dev-tools",
+        name: "Dev Tools",
+        description:
+          "Developer tooling, SDKs, APIs, frameworks, and infrastructure for building on Bitcoin and Stacks.",
+      },
+      scope: {
+        covers: [
+          "SDK releases, deprecations, and breaking changes (Stacks.js, Hiro, Clarinet, etc.)",
+          "API availability, rate limits, and migration paths",
+          "Developer framework updates and new tooling launches",
+          "Smart contract development tools and static analysis",
+          "Testing infrastructure and CI/CD for blockchain development",
+          "Developer adoption metrics and ecosystem growth signals",
+          "Documentation quality and developer experience improvements",
+        ],
+        doesNotCover: [
+          "Protocol-level consensus changes (use protocol-infra beat)",
+          "DeFi yield strategies or token prices (use defi-yields beat)",
+          "Ordinals marketplace metrics (use ordinals beat)",
+          "General cryptocurrency news without developer impact",
+        ],
+      },
+      voice: {
+        structure: "Claim → Evidence → Implication. Every signal.",
+        principles: [
+          "One signal = one observation. No bundling.",
+          "Lead with the most important fact.",
+          "Target 150-400 chars. Max 1,000.",
+          "Headline under 120 chars, no trailing period.",
+          "No first person. No speculation without data.",
+          "No hype: revolutionary, game-changing, groundbreaking.",
+          "Quantify: version numbers, download counts, API response times, breaking changes count.",
+          "Attribute: GitHub repos, release notes, changelog URLs.",
+        ],
+        vocabulary: {
+          use: ["ships", "deprecates", "introduces", "migrates", "adds support for", "removes", "stabilizes", "targets"],
+          avoid: ["revolutionary", "game-changing", "groundbreaking", "amazing", "incredible", "exciting"],
+        },
+        headlineFormat: "[Tool/SDK] [Action] — [Developer Impact] (max 120 chars, no period)",
+        headlineExamples: [
+          "Stacks.js v7.2 Ships sBTC Helpers — Reduces Integration Boilerplate by 60%",
+          "Clarinet v2.8 Adds Fuzz Testing — Smart Contract Security Tooling Matures",
+          "Hiro API Deprecates v1 Endpoints — Migration Deadline Set for Q2 2026",
+        ],
+      },
+      sourcesAndMetrics: {
+        everyCycle: [
+          { source: "GitHub releases", metric: "Version bumps, breaking changes, new features" },
+          { source: "npm/crates.io", metric: "Download trends, dependency adoption" },
+          { source: "Developer docs", metric: "API changes, deprecation notices" },
+        ],
+        daily: [
+          { source: "arXiv CS papers", metric: "Relevant research with Bitcoin/blockchain developer implications" },
+          { source: "Stacks ecosystem repos", metric: "Commit velocity, issue trends" },
+        ],
+      },
+      tags: {
+        alwaysInclude: ["dev-tools"],
+        taxonomy: ["dev-tools", "sdk", "api", "framework", "testing", "smart-contract", "documentation", "migration", "release"],
+      },
+      antiPatterns: [
+        "Never report a release without checking the actual changelog.",
+        "Never conflate protocol changes with tooling changes.",
+        "Never speculate on adoption without download or usage data.",
+        "Correct errors publicly — trust compounds.",
+      ],
+    },
+  };
+
+  try {
+    const guide = EDITORIAL_GUIDES[beat];
+    if (!guide) {
+      console.error(`No editorial guide for beat '${beat}'. Available: ${Object.keys(EDITORIAL_GUIDES).join(", ")}`);
+      process.exit(1);
+    }
 
     console.log(JSON.stringify(guide, null, 2));
   } catch (e) {
@@ -1132,6 +1186,8 @@ async function judgeSignalCore(
 const BEAT_SCOPE_REF: Record<string, string> = {
   "ordinals-business":
     "Inscription volumes, BRC-20 markets, Ordinals marketplace metrics, collection activity, NFT economics on Bitcoin",
+  "dev-tools":
+    "Developer tooling, SDKs, APIs, frameworks, testing infrastructure, and developer experience for Bitcoin/Stacks ecosystem",
   "deal-flow":
     "Real-time market signals, sats auctions, Ordinals bounties, x402 commerce, DAO treasury activity",
   "protocol-infra":
