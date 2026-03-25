@@ -575,6 +575,7 @@ async function fetchInscriptionData(apiKey: string, state: HookState, history: C
     // BRC-20 status for overall inscription activity
     const statusRes = await fetch(`${UNISAT_API}/v1/indexer/brc20/status`, {
       headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
+      signal: AbortSignal.timeout(15_000),
     });
     if (!statusRes.ok) {
       log(`inscriptions: unisat status failed (${statusRes.status})`);
@@ -589,6 +590,7 @@ async function fetchInscriptionData(apiKey: string, state: HookState, history: C
     // Recent inscriptions
     const recentRes = await fetch(`${UNISAT_API}/v1/indexer/inscription/info/recent?limit=20`, {
       headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
+      signal: AbortSignal.timeout(15_000),
     });
     if (!recentRes.ok) {
       log(`inscriptions: unisat recent failed (${recentRes.status})`);
@@ -691,6 +693,7 @@ async function fetchBrc20Data(apiKey: string, state: HookState, history: Categor
   try {
     const statusRes = await fetch(`${UNISAT_API}/v1/indexer/brc20/status`, {
       headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
+      signal: AbortSignal.timeout(15_000),
     });
     if (!statusRes.ok) return null;
     const statusData = (await statusRes.json()) as Record<string, unknown>;
@@ -702,6 +705,7 @@ async function fetchBrc20Data(apiKey: string, state: HookState, history: Categor
     // Fetch top BRC-20 tokens by market activity
     const listRes = await fetch(`${UNISAT_API}/v1/indexer/brc20/list?limit=10&offset=0`, {
       headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
+      signal: AbortSignal.timeout(15_000),
     });
     if (!listRes.ok) {
       log(`brc20: list fetch failed (${listRes.status})`);
@@ -989,6 +993,7 @@ async function fetchRunesData(apiKey: string, state: HookState, history: Categor
     // Overall rune ecosystem status
     const statusRes = await fetch(`${UNISAT_API}/v1/indexer/runes/status`, {
       headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
+      signal: AbortSignal.timeout(15_000),
     });
     if (!statusRes.ok) {
       log(`runes: unisat runes/status failed (${statusRes.status})`);
@@ -1003,6 +1008,7 @@ async function fetchRunesData(apiKey: string, state: HookState, history: Categor
     // Top runes by holder count
     const listRes = await fetch(`${UNISAT_API}/v1/indexer/runes/list?start=0&limit=10`, {
       headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
+      signal: AbortSignal.timeout(15_000),
     });
     if (!listRes.ok) {
       log(`runes: unisat runes/list failed (${listRes.status})`);

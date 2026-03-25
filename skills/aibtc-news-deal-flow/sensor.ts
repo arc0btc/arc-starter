@@ -43,6 +43,7 @@ async function checkOrdinalsVolume(state: HookState): Promise<HookState> {
       try {
         const response = await fetch(`${COINGECKO_API}/nfts/${id}`, {
           headers: { Accept: "application/json" },
+          signal: AbortSignal.timeout(15_000),
         });
         if (!response.ok) {
           log(`ordinals: CoinGecko ${id} returned ${response.status}`);
@@ -252,6 +253,7 @@ async function checkSatsAuctions(state: HookState): Promise<HookState> {
     const url = `${UNISAT_API_BASE}/v1/indexer/inscription/info/recent?limit=50`;
     const response = await fetch(url, {
       headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
+      signal: AbortSignal.timeout(15_000),
     });
 
     if (!response.ok) {

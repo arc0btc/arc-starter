@@ -71,6 +71,9 @@ export function createSensorLogger(name: string): (msg: string) => void {
  * Fetch with a single retry on 5xx server errors or network failures.
  * Client errors (4xx) are returned immediately without retrying.
  */
+/** Default timeout for fetch calls in sensors. Use AbortSignal.timeout(SENSOR_FETCH_TIMEOUT_MS) for bare fetch. */
+export const SENSOR_FETCH_TIMEOUT_MS = 15_000;
+
 export async function fetchWithRetry(
   url: string,
   options?: RequestInit,
@@ -83,7 +86,11 @@ export async function fetchWithRetry(
       await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
     }
     try {
-      const res = await fetch(url, options);
+      // Apply default 30s timeout if caller didn't provide an AbortSignal
+      const fetchOptions = options?.signal
+        ? options
+        : { ...options, signal: AbortSignal.timeout(30_000) };
+      const res = await fetch(url, fetchOptions);
       if (res.status >= 500 && attempt < maxRetries) {
         lastError = new Error(`HTTP ${res.status}`);
         continue;

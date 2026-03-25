@@ -104,6 +104,7 @@ async function heartbeatForWallet(wallet: WalletAddresses, timestamp: string): P
         signature,
         btcAddress,
       }),
+      signal: AbortSignal.timeout(15_000),
     });
 
     responseBody = (await response.json()) as Record<string, unknown>;

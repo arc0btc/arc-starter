@@ -122,6 +122,7 @@ export default async function reportEmailSensor(): Promise<string> {
       "X-Admin-Key": adminKey,
       "Content-Type": "application/json",
     },
+    signal: AbortSignal.timeout(15_000),
     body: JSON.stringify({
       to: recipient,
       subject,
