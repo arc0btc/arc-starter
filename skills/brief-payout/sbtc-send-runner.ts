@@ -6,7 +6,7 @@
 //
 // Usage (called by cli.ts, not directly):
 //   WALLET_ID=... WALLET_PASSWORD=... bun skills/brief-payout/sbtc-send-runner.ts \
-//     --recipient SP... --amount-sats 30000 [--memo "payout 2026-03-25"]
+//     --recipient SP... --amount-sats 30000 [--memo "payout 2026-03-25"] [--nonce 42]
 
 import { getWalletManager } from "../../github/aibtcdev/skills/src/lib/services/wallet-manager.js";
 import { getSbtcService } from "../../src/lib/services/sbtc.service.ts";
@@ -60,6 +60,10 @@ if (!recipient.startsWith("SP") && !recipient.startsWith("ST")) {
 
 const memo = flags.memo || "";
 
+// Parse optional nonce for local nonce tracking
+const nonceStr = flags.nonce;
+const nonce = nonceStr ? BigInt(nonceStr) : undefined;
+
 // Unlock wallet manager singleton
 const wm = getWalletManager();
 
@@ -81,6 +85,9 @@ try {
     recipient,
     BigInt(amountSats),
     memo || undefined,
+    undefined, // fee: auto-estimate
+    false,     // sponsored: no
+    nonce,     // nonce: locally tracked or auto-fetched
   );
 
   console.log(JSON.stringify({
@@ -88,6 +95,7 @@ try {
     txid: result.txid,
     recipient,
     amount_sats: amountSats,
+    nonce: nonce !== undefined ? Number(nonce) : null,
     explorer: `https://explorer.hiro.so/txid/${result.txid}?chain=mainnet`,
   }));
 } catch (err) {

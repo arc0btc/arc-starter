@@ -273,6 +273,55 @@ async function getWalletCreds(): Promise<{ walletId: string; walletPassword: str
   return { walletId, walletPassword };
 }
 
+// ---- Nonce Management ----
+
+/**
+ * Fetch the current nonce from the Hiro API as the seed for local tracking.
+ * Uses possible_next_nonce which accounts for mempool pending txs.
+ * Only called once at the start of a payout batch — all subsequent nonces
+ * are incremented locally to avoid load-balanced API inconsistency.
+ */
+async function fetchSeedNonce(stxAddress: string): Promise<bigint> {
+  const url = `https://api.hiro.so/extended/v1/address/${stxAddress}/nonces`;
+  log(`Fetching seed nonce from ${url}`);
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch nonce: ${response.status} ${response.statusText}`);
+  }
+
+  const data = (await response.json()) as {
+    possible_next_nonce: number;
+    last_executed_tx_nonce: number | null;
+    last_mempool_tx_nonce: number | null;
+    detected_missing_nonces: number[];
+    detected_mempool_nonces: number[];
+  };
+
+  const nextNonce = BigInt(data.possible_next_nonce);
+  log(`Seed nonce: ${nextNonce} (last executed: ${data.last_executed_tx_nonce}, mempool pending: ${data.detected_mempool_nonces?.length ?? 0})`);
+
+  if (data.detected_missing_nonces.length > 0) {
+    log(`Warning: ${data.detected_missing_nonces.length} missing nonce gap(s) detected: [${data.detected_missing_nonces.join(", ")}]`);
+  }
+
+  return nextNonce;
+}
+
+/**
+ * Check if a broadcast error is nonce-related and we should re-seed.
+ */
+function isNonceError(errorMsg: string): boolean {
+  const noncePhrases = [
+    "ConflictingNonceInMempool",
+    "nonce",
+    "ExpectedNonce",
+    "BadNonce",
+    "TooMuchChaining",
+  ];
+  return noncePhrases.some((phrase) => errorMsg.toLowerCase().includes(phrase.toLowerCase()));
+}
+
 // ---- Commands ----
 
 async function cmdCalculate(args: string[]): Promise<PayoutPlan> {
@@ -418,7 +467,31 @@ async function cmdExecute(args: string[]): Promise<void> {
     writePayoutRecord(record);
   }
 
-  // Execute transfers sequentially
+  // ---- Local Nonce Management ----
+  // Seed nonce from the network once, then track locally.
+  // The Hiro API is load-balanced across nodes with different mempool views,
+  // so querying per-tx gives inconsistent nonces. Local tracking overcomes this.
+  // Only re-seed if a broadcast fails with a nonce-related error.
+
+  // Resolve our STX address for nonce lookup
+  const senderStxAddress = "SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM";
+  let currentNonce: bigint;
+
+  try {
+    currentNonce = await fetchSeedNonce(senderStxAddress);
+  } catch (err) {
+    log(`Failed to seed nonce: ${err instanceof Error ? err.message : String(err)}`);
+    console.log(JSON.stringify({ error: "Failed to fetch initial nonce", detail: err instanceof Error ? err.message : String(err) }));
+    process.exit(1);
+  }
+
+  // Account for already-sent transfers in this batch (resume scenario).
+  // If we're resuming, the nonce from the network should already reflect
+  // previously broadcast txs, but we skip those transfers anyway.
+  const pendingTransfers = record.transfers.filter((t) => t.status !== "sent");
+  log(`Nonce strategy: seed=${currentNonce}, pending transfers=${pendingTransfers.length}, already sent=${record.transfers.length - pendingTransfers.length}`);
+
+  // Execute transfers sequentially with local nonce tracking
   let successCount = 0;
   let failCount = 0;
 
@@ -432,7 +505,7 @@ async function cmdExecute(args: string[]): Promise<void> {
       continue;
     }
 
-    log(`Sending ${transfer.amount_sats} sats sBTC to ${transfer.stx_address} (${i + 1}/${record.transfers.length})`);
+    log(`Sending ${transfer.amount_sats} sats sBTC to ${transfer.stx_address} (${i + 1}/${record.transfers.length}, nonce=${currentNonce})`);
 
     try {
       const result = await sendSbtc(
@@ -441,6 +514,7 @@ async function cmdExecute(args: string[]): Promise<void> {
         transfer.stx_address,
         transfer.amount_sats,
         `aibtc.news payout ${date}`,
+        currentNonce,
       );
 
       if (result.success && result.txid) {
@@ -448,7 +522,8 @@ async function cmdExecute(args: string[]): Promise<void> {
         transfer.txid = result.txid;
         transfer.sent_at = new Date().toISOString();
         successCount++;
-        log(`Transfer sent: ${result.txid}`);
+        currentNonce++; // Increment locally — don't re-query the network
+        log(`Transfer sent: ${result.txid} (next nonce=${currentNonce})`);
 
         // Record payout on the API immediately
         try {
@@ -464,10 +539,60 @@ async function cmdExecute(args: string[]): Promise<void> {
           // Transfer is on-chain — don't fail the whole batch over API recording
         }
       } else {
-        transfer.status = "failed";
-        transfer.error = result.error ?? result.detail ?? "Unknown error";
-        failCount++;
-        log(`Transfer failed: ${transfer.error}`);
+        const errorMsg = result.error ?? result.detail ?? "Unknown error";
+
+        // If nonce-related error, re-seed from network and retry once
+        if (isNonceError(errorMsg)) {
+          log(`Nonce error detected: ${errorMsg} — re-seeding from network`);
+          try {
+            currentNonce = await fetchSeedNonce(senderStxAddress);
+            log(`Re-seeded nonce: ${currentNonce} — retrying transfer`);
+
+            const retry = await sendSbtc(
+              walletId,
+              walletPassword,
+              transfer.stx_address,
+              transfer.amount_sats,
+              `aibtc.news payout ${date}`,
+              currentNonce,
+            );
+
+            if (retry.success && retry.txid) {
+              transfer.status = "sent";
+              transfer.txid = retry.txid;
+              transfer.sent_at = new Date().toISOString();
+              successCount++;
+              currentNonce++;
+              log(`Retry succeeded: ${retry.txid} (next nonce=${currentNonce})`);
+
+              try {
+                await apiPost("/payouts/record", {
+                  btc_address: ARC_BTC_ADDRESS,
+                  earning_ids: transfer.earning_ids,
+                  txid: retry.txid,
+                  amount_sats: transfer.amount_sats,
+                });
+              } catch {
+                // Best-effort API recording
+              }
+            } else {
+              transfer.status = "failed";
+              transfer.error = `Retry failed: ${retry.error ?? retry.detail ?? "Unknown"}`;
+              failCount++;
+              log(`Retry also failed: ${transfer.error}`);
+            }
+          } catch (reseedErr) {
+            transfer.status = "failed";
+            transfer.error = `Nonce re-seed failed: ${reseedErr instanceof Error ? reseedErr.message : String(reseedErr)}`;
+            failCount++;
+            log(`Nonce re-seed failed: ${transfer.error}`);
+          }
+        } else {
+          transfer.status = "failed";
+          transfer.error = errorMsg;
+          failCount++;
+          log(`Transfer failed: ${transfer.error}`);
+        }
       }
     } catch (err) {
       transfer.status = "failed";
@@ -514,9 +639,15 @@ async function sendSbtc(
   recipient: string,
   amountSats: number,
   memo: string,
-): Promise<{ success: boolean; txid?: string; error?: string; detail?: string }> {
+  nonce?: bigint,
+): Promise<{ success: boolean; txid?: string; nonce?: number; error?: string; detail?: string }> {
+  const runnerArgs = ["--recipient", recipient, "--amount-sats", String(amountSats), "--memo", memo];
+  if (nonce !== undefined) {
+    runnerArgs.push("--nonce", String(nonce));
+  }
+
   const proc = Bun.spawn(
-    ["bun", "run", SBTC_SEND_RUNNER, "--recipient", recipient, "--amount-sats", String(amountSats), "--memo", memo],
+    ["bun", "run", SBTC_SEND_RUNNER, ...runnerArgs],
     {
       cwd: resolve(import.meta.dir, "../.."),
       stdin: "ignore",
