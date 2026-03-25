@@ -2,6 +2,14 @@
 // skills/brief-payout/cli.ts
 // CLI for correspondent payout management: calculate, execute, status.
 // Usage: arc skills run --name brief-payout -- <command> [flags]
+//
+// Data flow:
+//   1. Fetch brief sections for target date → list of signal IDs per correspondent
+//   2. For each correspondent, GET /api/earnings/{btcAddress} → match earning records
+//      by reference_id (signal ID), filter to active (not voided) + unpaid (no payout_txid)
+//   3. Resolve BTC→STX addresses via correspondents API / contact-registry
+//   4. Send sBTC transfers sequentially (local nonce tracking)
+//   5. Record each payout via PATCH /api/earnings/{earningId} with payout_txid
 
 import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
 import { getCredential } from "../../src/credentials.ts";
@@ -11,7 +19,6 @@ import { mkdirSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 const API_BASE = "https://aibtc.news/api";
 const PAYOUTS_DIR = resolve(import.meta.dir, "../../db/payouts");
 const SBTC_SEND_RUNNER = resolve(import.meta.dir, "sbtc-send-runner.ts");
-const ROOT = resolve(import.meta.dir, "../../github/aibtcdev/skills");
 
 // Ensure payouts directory exists
 mkdirSync(PAYOUTS_DIR, { recursive: true });
@@ -19,16 +26,26 @@ mkdirSync(PAYOUTS_DIR, { recursive: true });
 // ---- Types ----
 
 interface EarningRecord {
-  id: number;
-  btcAddress: string;
+  id: string;
+  btc_address: string;
   amount_sats: number;
-  status: string;
-  signal_id?: number;
-  date?: string;
+  reason: string;
+  reference_id: string | null;
+  created_at: string;
+  payout_txid: string | null;
+  voided_at: string | null;
+}
+
+interface BriefSection {
+  correspondent: string;
+  correspondentName: string;
+  signalId: string;
+  beatSlug: string;
+  headline: string;
 }
 
 interface PayoutTransfer {
-  earning_ids: number[];
+  earning_ids: string[];
   btc_address: string;
   stx_address: string;
   amount_sats: number;
@@ -36,6 +53,7 @@ interface PayoutTransfer {
   status: "pending" | "sent" | "failed";
   error?: string;
   sent_at?: string;
+  correspondent_name: string;
 }
 
 interface PayoutRecord {
@@ -53,13 +71,17 @@ interface PayoutPlan {
   payouts: Array<{
     btcAddress: string;
     stxAddress: string;
+    correspondentName: string;
     amountSats: number;
-    earningIds: number[];
+    earningIds: string[];
+    signalCount: number;
   }>;
   totalSats: number;
   balanceSats: number;
   canPay: boolean;
   unresolvedAddresses: string[];
+  briefSignals: number;
+  briefCorrespondents: number;
 }
 
 // ---- Helpers ----
@@ -85,9 +107,8 @@ function parseFlags(args: string[]): Record<string, string> {
 }
 
 function todayPST(): string {
-  const now = new Date();
-  const pst = new Date(now.toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
-  return pst.toISOString().split("T")[0];
+  const pst = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles" }).format(new Date());
+  return pst; // YYYY-MM-DD
 }
 
 function payoutFilePath(date: string): string {
@@ -148,7 +169,6 @@ async function signMessage(message: string): Promise<string> {
 async function buildAuthHeaders(method: string, path: string): Promise<Record<string, string>> {
   const timestamp = Math.floor(Date.now() / 1000);
   const message = `${method} /api${path}:${timestamp}`;
-  log(`Signing: ${message}`);
   const sig = await signMessage(message);
   return {
     "X-BTC-Address": ARC_BTC_ADDRESS,
@@ -160,7 +180,6 @@ async function buildAuthHeaders(method: string, path: string): Promise<Record<st
 
 async function apiGet(endpoint: string): Promise<unknown> {
   const url = `${API_BASE}${endpoint}`;
-  log(`GET ${url}`);
   const response = await fetch(url);
   const data = await response.json();
   if (!response.ok) {
@@ -169,12 +188,12 @@ async function apiGet(endpoint: string): Promise<unknown> {
   return data;
 }
 
-async function apiPost(endpoint: string, body: Record<string, unknown>): Promise<unknown> {
-  const headers = await buildAuthHeaders("POST", endpoint);
+async function apiPatch(endpoint: string, body: Record<string, unknown>): Promise<unknown> {
+  const headers = await buildAuthHeaders("PATCH", endpoint);
   const url = `${API_BASE}${endpoint}`;
-  log(`POST ${url}`);
+  log(`PATCH ${url}`);
   const response = await fetch(url, {
-    method: "POST",
+    method: "PATCH",
     headers,
     body: JSON.stringify(body),
   });
@@ -187,28 +206,21 @@ async function apiPost(endpoint: string, body: Record<string, unknown>): Promise
 
 // ---- Address Resolution ----
 
-/**
- * Resolve BTC addresses to STX addresses using the correspondents API.
- * Returns a map of btcAddress → stxAddress.
- */
 async function resolveAddresses(btcAddresses: string[]): Promise<Map<string, string>> {
   const map = new Map<string, string>();
   if (btcAddresses.length === 0) return map;
 
+  // Try correspondents API first
   try {
     const data = await apiGet("/correspondents") as {
-      correspondents?: Array<{
-        address?: string;
-        stxAddress?: string;
-        stx_address?: string;
-      }>;
+      correspondents?: Array<Record<string, unknown>>;
     };
 
     const correspondents = data.correspondents ?? (Array.isArray(data) ? data as Array<Record<string, unknown>> : []);
 
     for (const c of correspondents) {
-      const btcAddr = (c.address ?? "") as string;
-      const stxAddr = (c.stxAddress ?? c.stx_address ?? "") as string;
+      const btcAddr = String(c.address ?? "");
+      const stxAddr = String(c.stxAddress ?? c.stx_address ?? "");
       if (btcAddr && stxAddr && btcAddresses.includes(btcAddr)) {
         map.set(btcAddr, stxAddr);
       }
@@ -217,7 +229,7 @@ async function resolveAddresses(btcAddresses: string[]): Promise<Map<string, str
     log(`Correspondents API error: ${err instanceof Error ? err.message : String(err)}`);
   }
 
-  // Fallback: try contact-registry for unresolved addresses
+  // Fallback: contact-registry for unresolved
   for (const btcAddr of btcAddresses) {
     if (map.has(btcAddr)) continue;
     try {
@@ -227,37 +239,32 @@ async function resolveAddresses(btcAddresses: string[]): Promise<Map<string, str
       );
       const stdout = await new Response(proc.stdout).text();
       await proc.exited;
-
-      // Parse STX address from search output (format: "    STX: SP...")
       const stxMatch = stdout.match(/STX:\s*(S[PT][A-Z0-9]+)/);
       if (stxMatch) {
         map.set(btcAddr, stxMatch[1]);
       }
     } catch {
-      // Skip — will be reported as unresolved
+      // Will be reported as unresolved
     }
   }
 
   return map;
 }
 
-/**
- * Get sBTC balance in sats from wallet info.
- */
 async function getSbtcBalance(): Promise<number> {
+  const stxAddress = "SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM";
+  const sbtcContract = "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token::sbtc-token";
   try {
-    const proc = Bun.spawn(
-      ["bash", "bin/arc", "skills", "run", "--name", "bitcoin-wallet", "--", "info"],
-      { cwd: resolve(import.meta.dir, "../.."), stdin: "ignore", stdout: "pipe", stderr: "pipe" }
-    );
-
-    const stdout = await new Response(proc.stdout).text();
-    await proc.exited;
-
-    const parsed = JSON.parse(stdout.trim());
-    // Try common field names for sBTC balance
-    const sbtcSats = parsed.sbtcBalanceSats ?? parsed.sbtc_balance_sats ?? parsed.sbtcBalance ?? "0";
-    return parseInt(String(sbtcSats), 10) || 0;
+    const url = `https://api.hiro.so/extended/v1/address/${stxAddress}/balances`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Hiro API ${response.status}`);
+    const data = (await response.json()) as {
+      fungible_tokens?: Record<string, { balance: string }>;
+    };
+    const sbtcBalance = data.fungible_tokens?.[sbtcContract]?.balance ?? "0";
+    const sats = parseInt(sbtcBalance, 10);
+    log(`sBTC balance: ${sats} sats (${(sats / 100_000_000).toFixed(8)} sBTC)`);
+    return sats;
   } catch (err) {
     log(`Failed to get sBTC balance: ${err instanceof Error ? err.message : String(err)}`);
     return 0;
@@ -275,51 +282,113 @@ async function getWalletCreds(): Promise<{ walletId: string; walletPassword: str
 
 // ---- Nonce Management ----
 
-/**
- * Fetch the current nonce from the Hiro API as the seed for local tracking.
- * Uses possible_next_nonce which accounts for mempool pending txs.
- * Only called once at the start of a payout batch — all subsequent nonces
- * are incremented locally to avoid load-balanced API inconsistency.
- */
 async function fetchSeedNonce(stxAddress: string): Promise<bigint> {
   const url = `https://api.hiro.so/extended/v1/address/${stxAddress}/nonces`;
   log(`Fetching seed nonce from ${url}`);
-
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`Failed to fetch nonce: ${response.status} ${response.statusText}`);
   }
-
   const data = (await response.json()) as {
     possible_next_nonce: number;
     last_executed_tx_nonce: number | null;
-    last_mempool_tx_nonce: number | null;
     detected_missing_nonces: number[];
     detected_mempool_nonces: number[];
   };
-
   const nextNonce = BigInt(data.possible_next_nonce);
   log(`Seed nonce: ${nextNonce} (last executed: ${data.last_executed_tx_nonce}, mempool pending: ${data.detected_mempool_nonces?.length ?? 0})`);
-
   if (data.detected_missing_nonces.length > 0) {
-    log(`Warning: ${data.detected_missing_nonces.length} missing nonce gap(s) detected: [${data.detected_missing_nonces.join(", ")}]`);
+    log(`Warning: ${data.detected_missing_nonces.length} missing nonce gap(s): [${data.detected_missing_nonces.join(", ")}]`);
   }
-
   return nextNonce;
 }
 
-/**
- * Check if a broadcast error is nonce-related and we should re-seed.
- */
 function isNonceError(errorMsg: string): boolean {
-  const noncePhrases = [
-    "ConflictingNonceInMempool",
-    "nonce",
-    "ExpectedNonce",
-    "BadNonce",
-    "TooMuchChaining",
-  ];
-  return noncePhrases.some((phrase) => errorMsg.toLowerCase().includes(phrase.toLowerCase()));
+  const phrases = ["ConflictingNonceInMempool", "nonce", "ExpectedNonce", "BadNonce", "TooMuchChaining"];
+  return phrases.some((p) => errorMsg.toLowerCase().includes(p.toLowerCase()));
+}
+
+// ---- Brief + Earnings Data ----
+
+/**
+ * Fetch brief sections and match against per-correspondent earning records
+ * to build the definitive payout list for a date.
+ */
+async function buildPayoutData(date: string): Promise<{
+  byCorrespondent: Map<string, {
+    name: string;
+    amountSats: number;
+    earningIds: string[];
+    signalCount: number;
+  }>;
+  briefSignals: number;
+  briefCorrespondents: number;
+}> {
+  // 1. Fetch brief for the date
+  const briefData = await apiGet(`/brief/${date}`) as {
+    sections?: BriefSection[];
+    summary?: { correspondents: number; beats: number; signals: number };
+  };
+
+  const sections = briefData.sections ?? [];
+  if (sections.length === 0) {
+    throw new Error(`No brief found for ${date} or brief has no sections`);
+  }
+
+  const summary = briefData.summary ?? { correspondents: 0, beats: 0, signals: 0 };
+  log(`Brief ${date}: ${summary.signals} signals, ${summary.correspondents} correspondents, ${summary.beats} beats`);
+
+  // 2. Group sections by correspondent BTC address
+  const correspondentSignals = new Map<string, { name: string; signalIds: string[] }>();
+  for (const s of sections) {
+    const addr = s.correspondent;
+    if (!addr) continue;
+    const entry = correspondentSignals.get(addr) ?? { name: s.correspondentName, signalIds: [] };
+    entry.signalIds.push(s.signalId);
+    correspondentSignals.set(addr, entry);
+  }
+
+  // 3. For each correspondent, fetch their earnings and match by signal ID
+  const byCorrespondent = new Map<string, {
+    name: string;
+    amountSats: number;
+    earningIds: string[];
+    signalCount: number;
+  }>();
+
+  for (const [btcAddr, { name, signalIds }] of correspondentSignals) {
+    try {
+      const earningsData = await apiGet(`/earnings/${encodeURIComponent(btcAddr)}`) as {
+        earnings?: EarningRecord[];
+      };
+
+      const earnings = earningsData.earnings ?? [];
+
+      // Filter to: brief_inclusion, matching signal IDs, not voided, not yet paid
+      const unpaid = earnings.filter((e) =>
+        e.reason === "brief_inclusion" &&
+        e.reference_id !== null &&
+        signalIds.includes(e.reference_id) &&
+        !e.voided_at &&
+        !e.payout_txid
+      );
+
+      if (unpaid.length > 0) {
+        byCorrespondent.set(btcAddr, {
+          name,
+          amountSats: unpaid.reduce((sum, e) => sum + e.amount_sats, 0),
+          earningIds: unpaid.map((e) => e.id),
+          signalCount: unpaid.length,
+        });
+      } else {
+        log(`${name} (${btcAddr.slice(0, 12)}...): no unpaid earnings for ${signalIds.length} signal(s)`);
+      }
+    } catch (err) {
+      log(`Failed to fetch earnings for ${btcAddr}: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  return { byCorrespondent, briefSignals: sections.length, briefCorrespondents: correspondentSignals.size };
 }
 
 // ---- Commands ----
@@ -330,49 +399,30 @@ async function cmdCalculate(args: string[]): Promise<PayoutPlan> {
 
   log(`Calculating payouts for ${date}`);
 
-  // 1. Fetch pending earnings
-  const earningsData = await apiGet(`/earnings/${encodeURIComponent(ARC_BTC_ADDRESS)}?status=pending&from=${date}&to=${date}`) as {
-    earnings?: EarningRecord[];
-  };
+  const { byCorrespondent, briefSignals, briefCorrespondents } = await buildPayoutData(date);
 
-  const earnings = earningsData.earnings ?? (Array.isArray(earningsData) ? earningsData as EarningRecord[] : []);
-
-  if (earnings.length === 0) {
+  if (byCorrespondent.size === 0) {
     const plan: PayoutPlan = {
-      date,
-      payouts: [],
-      totalSats: 0,
-      balanceSats: 0,
-      canPay: true,
-      unresolvedAddresses: [],
+      date, payouts: [], totalSats: 0, balanceSats: 0, canPay: true,
+      unresolvedAddresses: [], briefSignals, briefCorrespondents,
     };
+    log("No unpaid earnings found");
     console.log(JSON.stringify(plan, null, 2));
     return plan;
   }
 
-  // 2. Aggregate by agent BTC address
-  const byAgent = new Map<string, { amountSats: number; earningIds: number[] }>();
-  for (const e of earnings) {
-    const addr = e.btcAddress;
-    if (!addr) continue;
-    const entry = byAgent.get(addr) ?? { amountSats: 0, earningIds: [] };
-    entry.amountSats += e.amount_sats;
-    entry.earningIds.push(e.id);
-    byAgent.set(addr, entry);
-  }
-
-  // 3. Resolve BTC → STX addresses
-  const btcAddresses = [...byAgent.keys()];
+  // Resolve BTC → STX addresses
+  const btcAddresses = [...byCorrespondent.keys()];
   const addressMap = await resolveAddresses(btcAddresses);
 
-  // 4. Get sBTC balance
+  // Get sBTC balance
   const balanceSats = await getSbtcBalance();
 
-  // 5. Build payout plan
+  // Build payout plan
   const payouts: PayoutPlan["payouts"] = [];
   const unresolvedAddresses: string[] = [];
 
-  for (const [btcAddr, entry] of byAgent) {
+  for (const [btcAddr, entry] of byCorrespondent) {
     const stxAddr = addressMap.get(btcAddr);
     if (!stxAddr) {
       unresolvedAddresses.push(btcAddr);
@@ -381,15 +431,20 @@ async function cmdCalculate(args: string[]): Promise<PayoutPlan> {
     payouts.push({
       btcAddress: btcAddr,
       stxAddress: stxAddr,
+      correspondentName: entry.name,
       amountSats: entry.amountSats,
       earningIds: entry.earningIds,
+      signalCount: entry.signalCount,
     });
   }
 
   const totalSats = payouts.reduce((sum, p) => sum + p.amountSats, 0);
   const canPay = balanceSats >= totalSats && unresolvedAddresses.length === 0;
 
-  const plan: PayoutPlan = { date, payouts, totalSats, balanceSats, canPay, unresolvedAddresses };
+  const plan: PayoutPlan = {
+    date, payouts, totalSats, balanceSats, canPay,
+    unresolvedAddresses, briefSignals, briefCorrespondents,
+  };
   console.log(JSON.stringify(plan, null, 2));
   return plan;
 }
@@ -400,7 +455,7 @@ async function cmdExecute(args: string[]): Promise<void> {
 
   log(`Executing payouts for ${date}`);
 
-  // Check for existing partial state (resume support)
+  // Check for existing state (resume support)
   let record = readPayoutRecord(date);
 
   if (record?.status === "complete") {
@@ -409,16 +464,15 @@ async function cmdExecute(args: string[]): Promise<void> {
     return;
   }
 
-  // Calculate plan (suppresses stdout by capturing it)
+  // Calculate plan (capture stdout)
   const originalLog = console.log;
-  let planOutput = "";
-  console.log = (msg: string) => { planOutput = msg; };
+  console.log = () => {};
   const plan = await cmdCalculate(["--date", date]);
   console.log = originalLog;
 
   if (plan.payouts.length === 0) {
     log("No payouts to execute");
-    console.log(JSON.stringify({ date, status: "complete", message: "No pending earnings" }));
+    console.log(JSON.stringify({ date, status: "complete", message: "No unpaid earnings" }));
     return;
   }
 
@@ -427,7 +481,7 @@ async function cmdExecute(args: string[]): Promise<void> {
     console.log(JSON.stringify({
       error: "Unresolved addresses",
       unresolvedAddresses: plan.unresolvedAddresses,
-      hint: "Add these agents to the contact-registry with their STX addresses, or check correspondents API",
+      hint: "Add these agents to the contact-registry with their STX addresses",
     }));
     process.exit(1);
   }
@@ -443,7 +497,6 @@ async function cmdExecute(args: string[]): Promise<void> {
     process.exit(1);
   }
 
-  // Get wallet credentials
   const { walletId, walletPassword } = await getWalletCreds();
 
   // Initialize or resume payout record
@@ -462,18 +515,13 @@ async function cmdExecute(args: string[]): Promise<void> {
         amount_sats: p.amountSats,
         txid: null,
         status: "pending" as const,
+        correspondent_name: p.correspondentName,
       })),
     };
     writePayoutRecord(record);
   }
 
-  // ---- Local Nonce Management ----
-  // Seed nonce from the network once, then track locally.
-  // The Hiro API is load-balanced across nodes with different mempool views,
-  // so querying per-tx gives inconsistent nonces. Local tracking overcomes this.
-  // Only re-seed if a broadcast fails with a nonce-related error.
-
-  // Resolve our STX address for nonce lookup
+  // ---- Local Nonce Tracking ----
   const senderStxAddress = "SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM";
   let currentNonce: bigint;
 
@@ -485,77 +533,56 @@ async function cmdExecute(args: string[]): Promise<void> {
     process.exit(1);
   }
 
-  // Account for already-sent transfers in this batch (resume scenario).
-  // If we're resuming, the nonce from the network should already reflect
-  // previously broadcast txs, but we skip those transfers anyway.
-  const pendingTransfers = record.transfers.filter((t) => t.status !== "sent");
-  log(`Nonce strategy: seed=${currentNonce}, pending transfers=${pendingTransfers.length}, already sent=${record.transfers.length - pendingTransfers.length}`);
+  const pendingCount = record.transfers.filter((t) => t.status !== "sent").length;
+  log(`Nonce strategy: seed=${currentNonce}, pending=${pendingCount}, already sent=${record.transfers.length - pendingCount}`);
 
-  // Execute transfers sequentially with local nonce tracking
+  // Execute transfers sequentially
   let successCount = 0;
   let failCount = 0;
 
   for (let i = 0; i < record.transfers.length; i++) {
     const transfer = record.transfers[i];
 
-    // Skip already-sent transfers (resume support)
     if (transfer.status === "sent") {
-      log(`Skipping already-sent transfer to ${transfer.stx_address} (txid: ${transfer.txid})`);
+      log(`Skipping already-sent: ${transfer.correspondent_name} (txid: ${transfer.txid})`);
       successCount++;
       continue;
     }
 
-    log(`Sending ${transfer.amount_sats} sats sBTC to ${transfer.stx_address} (${i + 1}/${record.transfers.length}, nonce=${currentNonce})`);
+    log(`[${i + 1}/${record.transfers.length}] ${transfer.correspondent_name}: ${transfer.amount_sats} sats → ${transfer.stx_address} (nonce=${currentNonce})`);
 
     try {
-      const result = await sendSbtc(
-        walletId,
-        walletPassword,
-        transfer.stx_address,
-        transfer.amount_sats,
-        `aibtc.news payout ${date}`,
-        currentNonce,
-      );
+      const result = await sendSbtc(walletId, walletPassword, transfer.stx_address, transfer.amount_sats, `aibtc.news payout ${date}`, currentNonce);
 
       if (result.success && result.txid) {
         transfer.status = "sent";
         transfer.txid = result.txid;
         transfer.sent_at = new Date().toISOString();
         successCount++;
-        currentNonce++; // Increment locally — don't re-query the network
-        log(`Transfer sent: ${result.txid} (next nonce=${currentNonce})`);
+        currentNonce++;
+        log(`Sent: ${result.txid} (next nonce=${currentNonce})`);
 
-        // Record payout on the API immediately
-        try {
-          await apiPost("/payouts/record", {
-            btc_address: ARC_BTC_ADDRESS,
-            earning_ids: transfer.earning_ids,
-            txid: result.txid,
-            amount_sats: transfer.amount_sats,
-          });
-          log(`Payout recorded on API for earning IDs: ${transfer.earning_ids.join(",")}`);
-        } catch (recordErr) {
-          log(`Warning: API record-payout failed (transfer succeeded): ${recordErr instanceof Error ? recordErr.message : String(recordErr)}`);
-          // Transfer is on-chain — don't fail the whole batch over API recording
+        // Record payout on API: PATCH each earning record with the txid
+        for (const earningId of transfer.earning_ids) {
+          try {
+            await apiPatch(`/earnings/${earningId}`, {
+              btc_address: transfer.btc_address,
+              payout_txid: result.txid,
+            });
+          } catch (recordErr) {
+            log(`Warning: PATCH /earnings/${earningId} failed: ${recordErr instanceof Error ? recordErr.message : String(recordErr)}`);
+            // Transfer is on-chain — don't fail the batch over API recording
+          }
         }
+        log(`Recorded ${transfer.earning_ids.length} earning(s) on API`);
       } else {
         const errorMsg = result.error ?? result.detail ?? "Unknown error";
 
-        // If nonce-related error, re-seed from network and retry once
         if (isNonceError(errorMsg)) {
-          log(`Nonce error detected: ${errorMsg} — re-seeding from network`);
+          log(`Nonce error: ${errorMsg} — re-seeding`);
           try {
             currentNonce = await fetchSeedNonce(senderStxAddress);
-            log(`Re-seeded nonce: ${currentNonce} — retrying transfer`);
-
-            const retry = await sendSbtc(
-              walletId,
-              walletPassword,
-              transfer.stx_address,
-              transfer.amount_sats,
-              `aibtc.news payout ${date}`,
-              currentNonce,
-            );
+            const retry = await sendSbtc(walletId, walletPassword, transfer.stx_address, transfer.amount_sats, `aibtc.news payout ${date}`, currentNonce);
 
             if (retry.success && retry.txid) {
               transfer.status = "sent";
@@ -563,57 +590,39 @@ async function cmdExecute(args: string[]): Promise<void> {
               transfer.sent_at = new Date().toISOString();
               successCount++;
               currentNonce++;
-              log(`Retry succeeded: ${retry.txid} (next nonce=${currentNonce})`);
-
-              try {
-                await apiPost("/payouts/record", {
-                  btc_address: ARC_BTC_ADDRESS,
-                  earning_ids: transfer.earning_ids,
-                  txid: retry.txid,
-                  amount_sats: transfer.amount_sats,
-                });
-              } catch {
-                // Best-effort API recording
+              log(`Retry succeeded: ${retry.txid}`);
+              for (const earningId of transfer.earning_ids) {
+                try { await apiPatch(`/earnings/${earningId}`, { btc_address: transfer.btc_address, payout_txid: retry.txid }); } catch { /* best effort */ }
               }
             } else {
               transfer.status = "failed";
               transfer.error = `Retry failed: ${retry.error ?? retry.detail ?? "Unknown"}`;
               failCount++;
-              log(`Retry also failed: ${transfer.error}`);
             }
           } catch (reseedErr) {
             transfer.status = "failed";
             transfer.error = `Nonce re-seed failed: ${reseedErr instanceof Error ? reseedErr.message : String(reseedErr)}`;
             failCount++;
-            log(`Nonce re-seed failed: ${transfer.error}`);
           }
         } else {
           transfer.status = "failed";
           transfer.error = errorMsg;
           failCount++;
-          log(`Transfer failed: ${transfer.error}`);
+          log(`Failed: ${transfer.error}`);
         }
       }
     } catch (err) {
       transfer.status = "failed";
       transfer.error = err instanceof Error ? err.message : String(err);
       failCount++;
-      log(`Transfer error: ${transfer.error}`);
+      log(`Error: ${transfer.error}`);
     }
 
-    // Persist after each transfer
     record.status = "partial";
     writePayoutRecord(record);
   }
 
-  // Final status
-  if (failCount === 0) {
-    record.status = "complete";
-  } else if (successCount === 0) {
-    record.status = "failed";
-  } else {
-    record.status = "partial";
-  }
+  record.status = failCount === 0 ? "complete" : successCount === 0 ? "failed" : "partial";
   writePayoutRecord(record);
 
   console.log(JSON.stringify({
@@ -624,11 +633,13 @@ async function cmdExecute(args: string[]): Promise<void> {
     failed: failCount,
     totalSats: record.total_sats,
     transfers: record.transfers.map((t) => ({
+      name: t.correspondent_name,
       btcAddress: t.btc_address,
       stxAddress: t.stx_address,
       amountSats: t.amount_sats,
       txid: t.txid,
       status: t.status,
+      error: t.error,
     })),
   }, null, 2));
 }
@@ -640,7 +651,7 @@ async function sendSbtc(
   amountSats: number,
   memo: string,
   nonce?: bigint,
-): Promise<{ success: boolean; txid?: string; nonce?: number; error?: string; detail?: string }> {
+): Promise<{ success: boolean; txid?: string; error?: string; detail?: string }> {
   const runnerArgs = ["--recipient", recipient, "--amount-sats", String(amountSats), "--memo", memo];
   if (nonce !== undefined) {
     runnerArgs.push("--nonce", String(nonce));
@@ -653,55 +664,31 @@ async function sendSbtc(
       stdin: "ignore",
       stdout: "pipe",
       stderr: "pipe",
-      env: {
-        ...process.env,
-        WALLET_ID: walletId,
-        WALLET_PASSWORD: walletPassword,
-        NETWORK: "mainnet",
-      },
+      env: { ...process.env, WALLET_ID: walletId, WALLET_PASSWORD: walletPassword, NETWORK: "mainnet" },
     }
   );
 
   let stdout = "";
-  let stderr = "";
+  const stderrPromise = new Response(proc.stderr).text();
 
-  const stderrPromise = new Response(proc.stderr).text().then((t) => { stderr = t; });
-
-  // Read stdout with timeout (wallet auto-lock timer may keep process alive)
   const reader = proc.stdout.getReader();
   const decoder = new TextDecoder();
 
-  const readWithTimeout = new Promise<string>(async (resolve, reject) => {
-    const timer = setTimeout(() => {
-      proc.kill();
-      reject(new Error("Timeout waiting for sbtc-send response (90s)"));
-    }, 90000);
-
+  const readWithTimeout = new Promise<string>(async (resolvePromise, reject) => {
+    const timer = setTimeout(() => { proc.kill(); reject(new Error("Timeout (90s)")); }, 90000);
     try {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         stdout += decoder.decode(value, { stream: true });
-
         const trimmed = stdout.trim();
         if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
-          try {
-            JSON.parse(trimmed);
-            clearTimeout(timer);
-            proc.kill();
-            resolve(trimmed);
-            return;
-          } catch {
-            // Incomplete JSON, keep reading
-          }
+          try { JSON.parse(trimmed); clearTimeout(timer); proc.kill(); resolvePromise(trimmed); return; } catch { /* incomplete */ }
         }
       }
       clearTimeout(timer);
-      resolve(stdout.trim());
-    } catch (error) {
-      clearTimeout(timer);
-      reject(error);
-    }
+      resolvePromise(stdout.trim());
+    } catch (error) { clearTimeout(timer); reject(error); }
   });
 
   const result = await readWithTimeout;
@@ -732,14 +719,13 @@ function cmdStatus(args: string[]): void {
     date,
     status: record.status,
     totalTransfers: record.transfers.length,
-    sent,
-    failed,
-    pending,
+    sent, failed, pending,
     totalSats: record.total_sats,
     balanceSats: record.balance_sats,
     createdAt: record.created_at,
     updatedAt: record.updated_at,
     transfers: record.transfers.map((t) => ({
+      name: t.correspondent_name,
       btcAddress: t.btc_address,
       stxAddress: t.stx_address,
       amountSats: t.amount_sats,
@@ -751,27 +737,25 @@ function cmdStatus(args: string[]): void {
 }
 
 function printUsage(): void {
-  console.error(`brief-payout CLI
+  console.error(`brief-payout CLI — pay correspondents for daily brief inclusions
 
 USAGE
   arc skills run --name brief-payout -- <command> [flags]
 
 COMMANDS
-  calculate --date YYYY-MM-DD   Dry run: fetch earnings, resolve addresses, check balance
-  execute --date YYYY-MM-DD     Execute payouts: send sBTC, record txids (supports resume)
+  calculate --date YYYY-MM-DD   Dry run: fetch brief, match earnings, resolve addresses, check balance
+  execute --date YYYY-MM-DD     Execute payouts: send sBTC, record txids via PATCH /earnings/{id}
   status --date YYYY-MM-DD      Check payout status for a date
 
 FLAGS
   --date YYYY-MM-DD   Target date (defaults to today PST)
 
 EXAMPLES
-  arc skills run --name brief-payout -- calculate --date 2026-03-25
-  arc skills run --name brief-payout -- execute --date 2026-03-25
-  arc skills run --name brief-payout -- status --date 2026-03-25
+  arc skills run --name brief-payout -- calculate --date 2026-03-24
+  arc skills run --name brief-payout -- execute --date 2026-03-24
+  arc skills run --name brief-payout -- status --date 2026-03-24
 `);
 }
-
-// ---- Main ----
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
@@ -779,21 +763,10 @@ async function main(): Promise<void> {
   const commandArgs = args.slice(1);
 
   switch (command) {
-    case "calculate":
-      await cmdCalculate(commandArgs);
-      break;
-    case "execute":
-      await cmdExecute(commandArgs);
-      break;
-    case "status":
-      cmdStatus(commandArgs);
-      break;
-    case "help":
-    case "--help":
-    case "-h":
-    case undefined:
-      printUsage();
-      break;
+    case "calculate": await cmdCalculate(commandArgs); break;
+    case "execute": await cmdExecute(commandArgs); break;
+    case "status": cmdStatus(commandArgs); break;
+    case "help": case "--help": case "-h": case undefined: printUsage(); break;
     default:
       console.error(`Unknown command: ${command}`);
       printUsage();
