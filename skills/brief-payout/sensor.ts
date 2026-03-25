@@ -117,7 +117,9 @@ export default async function briefPayoutSensor(): Promise<string> {
     return "error";
   }
 
-  // All conditions met — create the payout task
+  // All conditions met — create a DRY RUN task (calculate only, no transfers).
+  // When we're ready for live payments, change this to use `execute` instead of `calculate`
+  // and remove the [DRY RUN] prefix.
   await writeHookState(SENSOR_NAME, {
     ...(state ?? { version: 0 }),
     last_ran: now.toISOString(),
@@ -127,21 +129,21 @@ export default async function briefPayoutSensor(): Promise<string> {
   });
 
   const id = insertTaskIfNew(TASK_SOURCE, {
-    subject: `Pay correspondents for ${pstDate} daily brief`,
+    subject: `[DRY RUN] Calculate correspondent payouts for ${pstDate} daily brief`,
     description: [
-      `Execute sBTC payouts to correspondents whose signals were included in the ${pstDate} daily brief.`,
+      `Run a dry-run payout calculation for the ${pstDate} daily brief.`,
+      `This is a DRY RUN — no sBTC transfers will be sent.`,
       ``,
       `## Steps`,
-      `1. Dry run: arc skills run --name brief-payout -- calculate --date ${pstDate}`,
-      `2. Review the payout plan — verify addresses and amounts.`,
-      `3. Execute: arc skills run --name brief-payout -- execute --date ${pstDate}`,
-      `4. Check status: arc skills run --name brief-payout -- status --date ${pstDate}`,
+      `1. Run: arc skills run --name brief-payout -- calculate --date ${pstDate}`,
+      `2. Review the output: verify correspondent count, earnings match, address resolution, and balance.`,
+      `3. Close task with a summary of the payout plan.`,
       ``,
-      `If sBTC balance is insufficient, set task to blocked and escalate to whoabuddy.`,
-      `If address resolution fails, check contact-registry or correspondents API.`,
+      `## When ready for live payments`,
+      `Edit skills/brief-payout/sensor.ts — change the task to use \`execute\` instead of \`calculate\`.`,
     ].join("\n"),
-    priority: 5,
-    skills: JSON.stringify(["brief-payout", "bitcoin-wallet", "aibtc-news-classifieds"]),
+    priority: 6,
+    skills: JSON.stringify(["brief-payout", "bitcoin-wallet"]),
   });
 
   return id !== null ? "ok" : "skip";
