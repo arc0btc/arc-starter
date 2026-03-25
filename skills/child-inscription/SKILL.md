@@ -113,7 +113,7 @@ Options:
 - `--commit-txid` (required) — Txid of the confirmed commit transaction (from the `inscribe` step).
 - `--vout` (required) — Output index of the commit transaction (almost always `0`).
 
-Note: Content, content-type, parent-id, and reveal-amount are read from the `.child-inscription-state.json` file written by the `inscribe` subcommand.
+Note: Content, content-type, parent-id, and reveal-amount are read from the per-instance state file (`.child-inscription-state-{commitTxid}.json`) written by the `inscribe` subcommand.
 
 Output:
 ```json
@@ -139,7 +139,7 @@ Output:
 ## Notes
 
 - Always run `estimate` first to understand total cost before committing funds.
-- The `inscribe` subcommand writes a `.child-inscription-state.json` file in the current working directory. Do not delete it before running `reveal`.
+- The `inscribe` subcommand writes a per-instance state file (`.child-inscription-state-{commitTxid}.json`) in the current working directory. Do not delete it before running `reveal`. Each inscription gets its own state file, preventing overwrites from concurrent inscriptions.
 - The parent inscription must remain at your Taproot address between the `inscribe` and `reveal` steps. Do not transfer the parent during this window.
 - Content is encoded as UTF-8 and base64-encoded before being passed to the MCP tool. Binary content (images etc.) should be supplied pre-encoded.
 - Wallet operations require an unlocked wallet (`bun run wallet/wallet.ts unlock` first).

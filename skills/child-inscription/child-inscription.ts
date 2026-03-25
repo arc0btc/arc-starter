@@ -33,10 +33,15 @@ import { printJson, handleError } from "../../src/lib/utils/cli.js";
 import type { InscriptionData } from "../../src/lib/transactions/inscription-builder.js";
 
 // ---------------------------------------------------------------------------
-// State file path (relative to cwd)
+// Per-instance state files (keyed by commit txid to prevent overwrites)
 // ---------------------------------------------------------------------------
 
-const STATE_FILE = resolve(process.cwd(), ".child-inscription-state.json");
+/** Legacy single state file (for backward compatibility on reveal). */
+const LEGACY_STATE_FILE = resolve(process.cwd(), ".child-inscription-state.json");
+
+function stateFileForTxid(commitTxid: string): string {
+  return resolve(process.cwd(), `.child-inscription-state-${commitTxid}.json`);
+}
 
 interface ChildInscriptionState {
   parentInscriptionId: string;
@@ -49,17 +54,30 @@ interface ChildInscriptionState {
 }
 
 function saveState(state: ChildInscriptionState): void {
-  writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
+  const path = stateFileForTxid(state.commitTxid);
+  writeFileSync(path, JSON.stringify(state, null, 2));
 }
 
-function loadState(): ChildInscriptionState {
-  if (!existsSync(STATE_FILE)) {
+function loadState(commitTxid: string): ChildInscriptionState {
+  // Try per-instance file first, fall back to legacy single file
+  const instanceFile = stateFileForTxid(commitTxid);
+  if (existsSync(instanceFile)) {
+    return JSON.parse(readFileSync(instanceFile, "utf8")) as ChildInscriptionState;
+  }
+  if (existsSync(LEGACY_STATE_FILE)) {
+    const state = JSON.parse(readFileSync(LEGACY_STATE_FILE, "utf8")) as ChildInscriptionState;
+    if (state.commitTxid === commitTxid) {
+      return state;
+    }
     throw new Error(
-      `State file not found at ${STATE_FILE}. ` +
-        "Run the 'inscribe' subcommand first to broadcast the commit transaction."
+      `Legacy state file exists but contains commit ${state.commitTxid}, not ${commitTxid}. ` +
+        "The state for this commit may have been overwritten."
     );
   }
-  return JSON.parse(readFileSync(STATE_FILE, "utf8")) as ChildInscriptionState;
+  throw new Error(
+    `State file not found for commit ${commitTxid}. ` +
+      "Run the 'inscribe' subcommand first to broadcast the commit transaction."
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -350,7 +368,7 @@ program
           },
           contentType: opts.contentType,
           contentSize: body.length,
-          stateFile: STATE_FILE,
+          stateFile: stateFileForTxid(commitTxid),
           nextStep:
             "After commit confirms, run: bun run child-inscription/child-inscription.ts reveal " +
             `--commit-txid ${commitTxid} --vout 0`,
@@ -424,8 +442,8 @@ program
           );
         }
 
-        // Load persisted state
-        const state = loadState();
+        // Load persisted state (per-instance file keyed by commit txid)
+        const state = loadState(opts.commitTxid);
 
         // Verify commit txid matches state
         if (state.commitTxid !== opts.commitTxid) {

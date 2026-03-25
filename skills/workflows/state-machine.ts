@@ -757,7 +757,7 @@ Steps:
 
 3. On failure: transition to 'failed' with failureReason set to the error message.
 
-Note: child-inscription writes .child-inscription-state.json — keep it until reveal is done.
+Note: child-inscription writes a per-instance state file (.child-inscription-state-{commitTxid}.json) — keep it until reveal is done.
 
 Workflow instance_key: brief-inscription-${ctx.date}`,
       }),
@@ -819,8 +819,8 @@ Steps:
      --commit-txid ${ctx.commitTxid ?? "<commitTxid>"} \\
      --vout 0
 
-   Content, parentId, and revealAmount are read from .child-inscription-state.json —
-   do not delete that file before running this command.
+   Content, parentId, and revealAmount are read from the per-instance state file
+   (.child-inscription-state-{commitTxid}.json) — do not delete it before running this command.
 
 2. On success: store inscriptionId ({revealTxid}i0) in workflow context.
    Transition workflow to 'revealed'.

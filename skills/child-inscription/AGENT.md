@@ -38,7 +38,7 @@ Use this skill when an operator or user wants to:
    → bun run child-inscription/child-inscription.ts inscribe \
        --parent-id <id> --content-type <mime> --content <text> [--fee-rate fast|medium|slow|N]
    → Save commitTxid and revealAmount from output
-   → State file written: .child-inscription-state.json
+   → State file written: .child-inscription-state-{commitTxid}.json
 
 3. Wait for commit confirmation
    → Poll: bun run btc/btc.ts ... OR check mempool.space
@@ -81,7 +81,7 @@ Use this skill when an operator or user wants to:
 
 ## State File
 
-The `inscribe` subcommand writes `.child-inscription-state.json` in the current working directory:
+The `inscribe` subcommand writes a per-instance state file (`.child-inscription-state-{commitTxid}.json`) in the current working directory:
 
 ```json
 {

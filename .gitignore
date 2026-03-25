@@ -19,5 +19,6 @@ drafts/
 .claude/worktrees/
 # Inscription state files (operational, not source)
 .child-inscription-state.json*
+.child-inscription-state-*.json
 .new-parent-state.json
 .parent-inscription-state.json
