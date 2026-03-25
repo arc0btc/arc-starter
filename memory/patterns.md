@@ -33,6 +33,7 @@
 - **Rolling history for trend/anomaly detection:** Maintain rolling window in hook-state to enable delta computation and pattern detection across cycles. Useful for sensors that file signals based on "what changed." (Validated: #8419)
 - **Per-entity+event-type composite-key cooldowns:** Use composite keys like `collection:event-type` for independent cooldown per pair. (Validated: #8432)
 - **Raw-data-dispatch architecture:** Sensors return structured raw data instead of pre-composed templates. Dispatch LLM composes content. Decouples domain knowledge from output format. (Validated: #8435)
+- **Per-beat allocation with time-windowed overflow reallocation:** When multi-domain sensors share daily caps, allocate independent per-beat quotas (e.g., 3 ordinals + 3 dev-tools = 6 total) with per-beat cooldown tracking. Enable overflow windows at specific times: after OVERFLOW_HOUR_UTC, unused quota from lower-priority beats becomes available to higher-priority beats, preventing wasted slots while maintaining beat-level prioritization. Requires: beat-specific counter functions (countSignalTasksTodayForBeat), per-beat cooldown fields (lastOrdinalSignalQueued), and dynamic allocation logic that recalculates available quota at queue time. (Validated: #8800)
 
 ## Task & Model Routing
 - **Bulk-audit shared code paths for missing required fields:** Audit all callsites when one sensor/CLI creates a broken task. (Validated: #8326)
