@@ -405,7 +405,7 @@ async function cmdCorrectSignal(args: string[]): Promise<void> {
     const response = await fetch(url, {
       method: "PATCH",
       headers,
-      body: JSON.stringify({ content: flags.content }),
+      body: JSON.stringify({ btc_address: ARC_BTC_ADDRESS, content: flags.content }),
     });
 
     const text = await response.text();
