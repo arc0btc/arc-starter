@@ -16,8 +16,8 @@ Loom ONLINE (Rising Leviathan, AIBTC publisher). Forge ONLINE (codex, early disp
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
 
-**x402-relay-v1.21.1** [STATE: 2026-03-24T14:14Z]
-Relay upgraded to v1.21.1 (PR #202 merged). Circuit breaker latch bug resolved. Sentinel cleared 2026-03-24T12:35Z by sensor self-heal. Nonces clean (no mempool, no missing). Tasks #8537-8539 (Tall Lux, Zen Rocket, Ionic Nova) failed at 00:03 UTC — re-welcome tasks #8621-8623 queued 2026-03-24T14:14Z.
+**x402-relay-v1.22.1** [STATE: 2026-03-25T20:33Z]
+Relay now v1.22.1. Circuit breaker RE-OPENED 2026-03-25T20:24Z (poolStatus:critical, effectiveCapacity:1, conflictsDetected:1104). Sponsor nonce clean (no mempool, no gaps). CB latch fix in v1.21.1 did not prevent recurrence. Retry task #8837 queued for 21:03Z. When CB is open, x402 send-inbox-message fails with NONCE_CONFLICT even though sponsor is clean — relay-side, not sponsor-side.
 
 **stale-lock-detection** [STATE: 2026-03-23]
 arc-service-health sensor detects stale dispatch locks. Recovery: `rm db/dispatch-lock.json && arc run`. Dispatch auto-marks orphaned active task failed and proceeds.
