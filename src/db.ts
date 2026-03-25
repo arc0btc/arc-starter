@@ -637,6 +637,9 @@ export function recentTaskExistsForSourcePrefix(prefix: string, withinMinutes: n
 /** Daily cap for aibtc.news signal filing (6 signals/day enforced by publisher). */
 export const DAILY_SIGNAL_CAP = 6;
 
+/** Per-beat daily allocation — split evenly across claimed beats. */
+export const BEAT_DAILY_ALLOCATION = 3;
+
 /**
  * Count aibtc.news signal-filing tasks created today (UTC) with status completed, pending, or active.
  * Each task represents one claimed signal slot. Used by sensors to gate new task creation.
@@ -651,10 +654,33 @@ export function countSignalTasksToday(): number {
        AND (
          subject LIKE 'File ordinals signal%'
          OR subject LIKE 'File Ordinals Business signal%'
+         OR subject LIKE 'File dev-tools signal%'
+         OR subject LIKE '[MILESTONE] File ordinals signal%'
+         OR subject LIKE '[MILESTONE] File dev-tools signal%'
          OR subject LIKE 'Maintain%streak%aibtc.news%'
        )`
     )
     .get() as { count: number } | null;
+  return row?.count ?? 0;
+}
+
+/**
+ * Count signal-filing tasks created today for a specific beat.
+ * Matches both regular and milestone signal subjects.
+ */
+export function countSignalTasksTodayForBeat(beat: string): number {
+  const db = getDatabase();
+  const row = db
+    .query(
+      `SELECT COUNT(*) as count FROM tasks
+       WHERE DATE(created_at) = DATE('now')
+       AND status IN ('completed', 'pending', 'active')
+       AND (
+         subject LIKE 'File ' || ? || ' signal%'
+         OR subject LIKE '[MILESTONE] File ' || ? || ' signal%'
+       )`
+    )
+    .get(beat, beat) as { count: number } | null;
   return row?.count ?? 0;
 }
 

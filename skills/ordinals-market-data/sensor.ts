@@ -5,7 +5,7 @@
 // Stores rolling history (last 6 readings per category) for delta computation and trend analysis.
 
 import { claimSensorRun, createSensorLogger, fetchWithRetry, readHookState, writeHookState } from "../../src/sensors.ts";
-import { insertTask, isDailySignalCapHit, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix } from "../../src/db.ts";
+import { insertTask, isDailySignalCapHit, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix, countSignalTasksTodayForBeat, BEAT_DAILY_ALLOCATION, DAILY_SIGNAL_CAP, countSignalTasksToday } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
 
 const SENSOR_NAME = "ordinals-market-data";
@@ -33,6 +33,10 @@ const COLLECTION_VOLUME_SPIKE_MULT = 3;      // >3x rolling average volume fires
 const COLLECTION_EVENT_COOLDOWN_HOURS = 24;  // minimum hours between same event+collection pair
 const COLLECTION_HISTORY_MAX = 8;            // maximum per-collection readings stored in hook state
 const COLLECTION_VOLUME_AVG_WINDOW = 5;      // readings used to compute rolling average volume
+
+// Multi-beat allocation — 3 ordinals + 3 dev-tools per day
+// After OVERFLOW_HOUR_UTC, unused dev-tools slots become available to ordinals
+const OVERFLOW_HOUR_UTC = 18; // 18:00 UTC = noon MDT — late-day overflow window
 
 const UNISAT_API = "https://open-api.unisat.io";
 const MEMPOOL_API = "https://mempool.space/api";
@@ -99,7 +103,8 @@ interface HookState {
   lastCategory: number; // index into CATEGORIES
   lastAngle: number; // index into ANGLES
   lastRun?: string;
-  lastSignalQueued?: string; // ISO timestamp of last signal task creation — used for cooldown gate
+  lastSignalQueued?: string; // DEPRECATED: legacy field, migrated to lastOrdinalSignalQueued
+  lastOrdinalSignalQueued?: string; // ISO timestamp of last ordinals signal task creation — per-beat cooldown
   lastInscriptionCount?: number;
   lastFeeRate?: number;
   lastBrc20Volume?: number;
@@ -1089,11 +1094,35 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
 
     log("run started — fetching diverse ordinals market data");
 
-    // Daily cap guard — skip if 6/6 signal slots already claimed today
-    if (isDailySignalCapHit()) {
-      log("daily cap: 6/6 signal slots claimed today; skipping");
+    // ---- Multi-beat allocation gate ----
+    // Global cap: 6 signals/day across all beats
+    const totalToday = countSignalTasksToday();
+    if (totalToday >= DAILY_SIGNAL_CAP) {
+      log(`daily cap: ${totalToday}/${DAILY_SIGNAL_CAP} signal slots claimed today; skipping`);
       return "skip";
     }
+
+    // Per-beat allocation: 3 ordinals + 3 dev-tools per day
+    const ordinalsToday = countSignalTasksTodayForBeat("ordinals");
+    const devToolsToday = countSignalTasksTodayForBeat("dev-tools");
+    let ordinalsAllocation = BEAT_DAILY_ALLOCATION;
+
+    // Late-day overflow: if dev-tools hasn't used its slots by OVERFLOW_HOUR_UTC, ordinals can take them
+    const hourUTC = new Date().getUTCHours();
+    if (hourUTC >= OVERFLOW_HOUR_UTC) {
+      const devToolsUnused = BEAT_DAILY_ALLOCATION - devToolsToday;
+      if (devToolsUnused > 0) {
+        ordinalsAllocation += devToolsUnused;
+        log(`late-day overflow: ${devToolsUnused} unused dev-tools slot(s) available to ordinals (allocation: ${ordinalsAllocation})`);
+      }
+    }
+
+    if (ordinalsToday >= ordinalsAllocation) {
+      log(`ordinals beat allocation reached: ${ordinalsToday}/${ordinalsAllocation} (dev-tools: ${devToolsToday}/${BEAT_DAILY_ALLOCATION}); skipping`);
+      return "skip";
+    }
+
+    log(`beat allocation: ordinals ${ordinalsToday}/${ordinalsAllocation}, dev-tools ${devToolsToday}/${BEAT_DAILY_ALLOCATION}, total ${totalToday}/${DAILY_SIGNAL_CAP}`);
 
     // Load state for category rotation and cooldown tracking
     const rawState = (await readHookState(SENSOR_NAME)) as HookState | null;
@@ -1105,11 +1134,19 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
     // Weekly narrative reset — archive prior week's thread every Monday
     checkNarrativeWeeklyReset(state);
 
-    // Hook-state cooldown guard — check if a signal was recently queued by this sensor
-    if (state.lastSignalQueued) {
+    // Per-beat cooldown guard — check if an ordinals signal was recently queued by this sensor
+    if (state.lastOrdinalSignalQueued) {
+      const minutesSince = (Date.now() - new Date(state.lastOrdinalSignalQueued).getTime()) / 60000;
+      if (minutesSince < RATE_LIMIT_MINUTES) {
+        log(`ordinals cooldown active: last signal queued ${minutesSince.toFixed(1)} min ago (${RATE_LIMIT_MINUTES} min limit); skipping`);
+        return "rate-limited";
+      }
+    }
+    // Legacy field migration: fall back to lastSignalQueued if lastOrdinalSignalQueued not yet set
+    if (!state.lastOrdinalSignalQueued && state.lastSignalQueued) {
       const minutesSince = (Date.now() - new Date(state.lastSignalQueued).getTime()) / 60000;
       if (minutesSince < RATE_LIMIT_MINUTES) {
-        log(`cooldown active: last signal queued ${minutesSince.toFixed(1)} min ago (${RATE_LIMIT_MINUTES} min limit); skipping`);
+        log(`cooldown active (legacy): last signal queued ${minutesSince.toFixed(1)} min ago (${RATE_LIMIT_MINUTES} min limit); skipping`);
         return "rate-limited";
       }
     }
@@ -1120,6 +1157,10 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
       log(`rate limit (db): signal task created within last ${RATE_LIMIT_MINUTES} min; skipping`);
       return "rate-limited";
     }
+
+    // Cross-beat stagger note: ordinals uses 4h RATE_LIMIT_MINUTES cooldown between its own signals.
+    // Dev-tools signals come from separate sensors (arc-link-research, arxiv-research) on independent
+    // schedules. The 3+3 allocation naturally staggers across beats without explicit cross-beat gating.
 
     // Pick next two categories (rotate through all five)
     const startIdx = ((state.lastCategory ?? -1) + 1) % CATEGORIES.length;
@@ -1191,6 +1232,13 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
     let queued = 0;
     for (const signal of signals) {
       if (queued >= MAX_SIGNALS_PER_RUN) break;
+
+      // Re-check per-beat allocation before each queuing (other sensors may have filed since loop start)
+      const currentOrdinals = countSignalTasksTodayForBeat("ordinals");
+      if (currentOrdinals >= ordinalsAllocation) {
+        log(`ordinals allocation reached (${currentOrdinals}/${ordinalsAllocation}); stopping signal queue`);
+        break;
+      }
 
       const signalSource = `sensor:${SENSOR_NAME}:${signal.category}`;
 
@@ -1274,15 +1322,30 @@ This data targets the ordinals beat.`,
         source: signalSource,
       });
 
-      log(`queued signal: ${signal.category} — ${signal.changeReason.slice(0, 80)}`);
-      state.lastSignalQueued = new Date().toISOString();
+      log(`queued ordinals signal: ${signal.category} — ${signal.changeReason.slice(0, 80)}`);
+      const now = new Date().toISOString();
+      state.lastOrdinalSignalQueued = now;
+      state.lastSignalQueued = now; // keep legacy field in sync
       queued++;
     }
 
     // Queue milestone signals (P5, bypass cooldown — event-driven newsworthy events)
+    // Re-check per-beat allocation for milestones too
     for (const mSignal of milestoneSignals) {
-      if (isDailySignalCapHit()) {
-        log(`daily cap hit; cannot queue milestone signal`);
+      const currentOrdinals = countSignalTasksTodayForBeat("ordinals");
+      const currentTotal = countSignalTasksToday();
+      if (currentTotal >= DAILY_SIGNAL_CAP) {
+        log(`daily cap hit (${currentTotal}/${DAILY_SIGNAL_CAP}); cannot queue milestone signal`);
+        break;
+      }
+      // Milestones respect per-beat allocation but can use overflow slots
+      let milestoneAllocation = BEAT_DAILY_ALLOCATION;
+      if (hourUTC >= OVERFLOW_HOUR_UTC) {
+        const devToolsNow = countSignalTasksTodayForBeat("dev-tools");
+        milestoneAllocation += Math.max(0, BEAT_DAILY_ALLOCATION - devToolsNow);
+      }
+      if (currentOrdinals >= milestoneAllocation) {
+        log(`ordinals allocation full for milestone (${currentOrdinals}/${milestoneAllocation}); skipping`);
         break;
       }
       const mSource = mSignal.milestoneSource ?? `sensor:${SENSOR_NAME}:milestone`;
@@ -1343,7 +1406,9 @@ This data targets the ordinals beat. Use Economist voice — precise, data-rich,
     state.lastRun = new Date().toISOString();
     await writeHookState(SENSOR_NAME, state);
 
-    log(`queued ${queued} signal task(s), next categories: ${CATEGORIES[((state.lastCategory) + 1) % CATEGORIES.length]}, ${CATEGORIES[((state.lastCategory) + 2) % CATEGORIES.length]}`);
+    const finalOrdinals = countSignalTasksTodayForBeat("ordinals");
+    const finalDevTools = countSignalTasksTodayForBeat("dev-tools");
+    log(`queued ${queued} ordinals signal(s) | allocation: ordinals ${finalOrdinals}/${ordinalsAllocation}, dev-tools ${finalDevTools}/${BEAT_DAILY_ALLOCATION} | next categories: ${CATEGORIES[((state.lastCategory) + 1) % CATEGORIES.length]}, ${CATEGORIES[((state.lastCategory) + 2) % CATEGORIES.length]}`);
     return "ok";
   } catch (e) {
     log(`error: ${(e as Error).message}`);
