@@ -113,11 +113,14 @@ interface LinkAnalysis {
 // research into dev-tools signal filing tasks
 const DEV_TOOL_SIGNALS = [
   "autonomous agent", "claude code", "agent skill", "mcp",
-  "model context protocol", "x402", "agent framework", "llm routing",
-  "llm-routing", "tool use", "tool-use", "function calling",
+  "model context protocol", "mcp server", "x402", "agent framework",
+  "llm routing", "llm-routing", "tool use", "tool-use", "function calling",
   "multi-agent", "agentic", "agent orchestrat", "agent infrastructure",
   "codegen agent", "agent loop", "agent scheduler", "agent workflow",
   "sdk release", "api deprecat", "developer tool", "dev tool",
+  "agent tool", "a2a protocol", "agent-to-agent",
+  "langchain", "langgraph", "crewai", "autogen", "openai agents",
+  "ai coding", "code assistant", "agent runtime",
 ];
 
 const MISSION_TOPICS = [

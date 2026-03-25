@@ -8,7 +8,7 @@ import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 const SENSOR_NAME = "arxiv-research";
 const INTERVAL_MINUTES = 720; // 12 hours
 const ARXIV_API = "http://export.arxiv.org/api/query";
-const CATEGORIES = ["cs.AI", "cs.CL", "cs.LG", "cs.MA"];
+const CATEGORIES = ["cs.AI", "cs.CL", "cs.LG", "cs.MA", "cs.SE"];
 const MAX_RESULTS = 30;
 
 const log = createSensorLogger(SENSOR_NAME);
@@ -28,6 +28,12 @@ const DEV_TOOL_PAPER_KEYWORDS = [
   /\bLLM[-\s]?routing/i,
   /\bagent[-\s]?skill/i,
   /\bagent[-\s]?infra/i,
+  /\bMCP[-\s]?server/i,
+  /\bagent[-\s]?tool/i,
+  /\bLLM[-\s]?agent/i,
+  /\bsoftware[-\s]?agent/i,
+  /\bA2A\b/,
+  /\bagent[-\s]?to[-\s]?agent/i,
 ];
 
 function isDevToolPaper(title: string): boolean {
