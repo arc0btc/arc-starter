@@ -19,7 +19,7 @@ const SITE_DIR = resolve(import.meta.dir, "../../github/arc0btc/arc0me-site");
 const AGENTS_MDX_PATH = join(SITE_DIR, "src/content/docs/agents/index.mdx");
 const AGENTS_API_PATH = join(SITE_DIR, "src/pages/api/agents.json.ts");
 
-// Known fleet agents for display names
+// Known agents for display names
 const KNOWN_AGENTS: Record<number, { name: string; handle?: string; role?: string }> = {
   1: { name: "Arc", handle: "arc0btc", role: "Orchestrator" },
   29: { name: "Spark", role: "AIBTC/DeFi" },

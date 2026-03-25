@@ -96,8 +96,7 @@ export default async function bitflowSensor(): Promise<string> {
     // Log intelligence only — do NOT file signals.
     // Bitflow is a Stacks L2 DEX (sBTC/STX pairs). These are DeFi volatility signals,
     // not ordinals data. Arc owns the `ordinals` beat only; filing Bitflow spreads there
-    // is a beat-scope violation and gets rejected. When fleet resumes, Spark (DeFi beat)
-    // should own this signal path.
+    // is a beat-scope violation and gets rejected.
     for (const { ticker, spreadPct } of highSpreadPairs.slice(0, 3)) {
       const pairLabel = `${ticker.base_currency}/${ticker.target_currency}`;
       const liquidityK = (Number(ticker.liquidity_in_usd) / 1000).toFixed(0);

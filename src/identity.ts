@@ -1,4 +1,4 @@
-// src/identity.ts — Shared identity constants for Arc agent fleet
+// src/identity.ts — Shared identity constants for Arc agent
 //
 // Single source of truth for on-chain addresses and identity metadata.
 // Detects current agent from hostname and returns the correct identity.

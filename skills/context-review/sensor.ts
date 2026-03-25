@@ -77,7 +77,7 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   "blog-deploy": ["deploy blog", "blog deploy", "deploy arc0.me"],
   "social-x-posting": ["compose tweet", "draft tweet", "publish tweet", "schedule tweet", "post to x", "x posting"],
   // x402 is a payment/messaging protocol — do NOT use "x402 message" or "send x402" here.
-  // Those keywords appear in fleet-comms and stacks-payments tasks, not social engagement.
+  // Those keywords appear in payments tasks, not social engagement.
   "social-agent-engagement": ["agent engagement", "agent-engagement skill", "x post reply", "engage on x"],
   // "github-ci-status" intentionally excluded — its SKILL.md states it is sensor-only and
   // should never be explicitly loaded at dispatch. Flagging tasks for not loading it is always

@@ -149,6 +149,7 @@ async function apiGet(
 
   const response = await fetch(url, {
     headers: { Authorization: `OAuth ${headerParts}` },
+    signal: AbortSignal.timeout(15_000),
   });
 
   if (!response.ok) {

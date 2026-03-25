@@ -1351,265 +1351,8 @@ Steps:
   },
 };
 
-/**
- * FleetAlertMachine — models the recurring fleet alert → fix → retrospective cycle.
- *
- * Pattern detected: "fleet alert" tasks (4 recurrences, avg 2.0 steps/chain)
- * consistently spawn a retrospective to capture learnings after resolving remote
- * agent service issues. Distinct from HealthAlertMachine: fleet alerts target
- * remote nodes and require fleet-health + arc-remote-setup skills.
- *
- * instance_key: "fleet-alert-{agent-slug}-{YYYY-MM-DD}" (dedup multiple alerts per agent per day)
- *
- * States:
- *   alert                 → service issue detected on remote agent; creates investigation/fix task
- *   fixing                → fix task executing; waiting for resolution
- *   retrospective_pending → resolved; create retrospective to capture learnings
- *   completed             → done
- *
- * Context:
- *   agentName         — remote agent name, e.g. "iris", "loom"
- *   alertDescription  — short description, e.g. "dispatch: no cycles", "services down"
- *   alertDate         — ISO date string (for dedup / reference)
- *   taskRef           — "task:{id}" of the original fleet alert task
- *   fixSummary        — brief description of how it was resolved (populated before retrospective)
- */
-export const FleetAlertMachine: StateMachine<{
-  agentName?: string;
-  alertDescription?: string;
-  alertDate?: string;
-  taskRef?: string;
-  fixSummary?: string;
-}> = {
-  name: "fleet-alert",
-  initialState: "alert",
-  states: {
-    alert: {
-      on: { investigate: "fixing" },
-      action: (ctx) => {
-        const agent = ctx.agentName || "unknown-agent";
-        const desc = ctx.alertDescription
-          ? ` — ${ctx.alertDescription}`
-          : "";
-        return {
-          type: "create-task",
-          subject: `Fleet alert: ${agent} service issues${desc}`,
-          priority: 5,
-          skills: ["fleet-health", "arc-remote-setup", "arc-skill-manager"],
-          description: `Fleet health alert for remote agent "${agent}"${ctx.alertDate ? ` on ${ctx.alertDate}` : ""}.
-Issue: ${ctx.alertDescription || "service issues detected"}${ctx.taskRef ? `\nOriginal alert: ${ctx.taskRef}` : ""}
 
-Steps:
-1. Run fleet-health CLI to check service status on ${agent}
-2. Identify the root cause (dispatch stalled, services crashed, connectivity, etc.)
-3. Apply fix via arc-remote-setup if needed (restart services, clear stale locks, etc.)
-4. Verify services are healthy before closing
-5. Transition this workflow to 'fixing', then 'retrospective_pending'
-6. Set fixSummary in context before transitioning`,
-        };
-      },
-    },
-    fixing: {
-      on: { resolved: "retrospective_pending" },
-      action: () => null,
-    },
-    retrospective_pending: {
-      on: { learnings_extracted: "completed" },
-      action: (ctx) => {
-        const agent = ctx.agentName || "unknown-agent";
-        return {
-          type: "create-task",
-          subject: `Retrospective: fleet alert — ${agent} service issues`,
-          priority: 8,
-          skills: ["arc-skill-manager"],
-          description: `Extract learnings from a fleet health alert for remote agent "${agent}".
-${ctx.taskRef ? `Original alert: ${ctx.taskRef}` : ""}${ctx.fixSummary ? `\nFix applied: ${ctx.fixSummary}` : ""}${ctx.alertDate ? `\nAlert date: ${ctx.alertDate}` : ""}
 
-Steps:
-1. Review what caused the service failure on ${agent}
-2. Identify if this is a recurring pattern across fleet nodes
-3. Note prevention measures or monitoring improvements in memory/MEMORY.md if recurring
-4. Transition workflow to 'completed'`,
-        };
-      },
-    },
-    completed: {
-      on: {},
-      action: () => null,
-    },
-  },
-};
-
-/**
- * FleetSyncMachine — models the recurring fleet git drift → sync → retrospective cycle.
- *
- * Pattern detected: "sensor:fleet-sync" tasks (8 recurrences, avg 2.8 steps)
- * consistently spawn retrospective follow-ups after syncing drifted agents.
- * This machine deduplicates concurrent drift tasks for the same day and ensures
- * sync results are reviewed for patterns.
- *
- * instance_key: "fleet-sync-{YYYY-MM-DD}" (one per day — multiple drifts same day deduplicate)
- *
- * States:
- *   drift_detected        → agents are behind Arc HEAD; creates sync task
- *   syncing               → sync task executing; waiting for completion
- *   retrospective_pending → sync done; create retrospective to extract learnings
- *   completed             → done
- *
- * Context:
- *   driftedAgents  — comma-separated agent names, e.g. "spark,iris,loom,forge"
- *   commitHash     — Arc HEAD commit that agents need to catch up to
- *   syncSummary    — brief description of what was deployed (populated before retrospective)
- *   alertDate      — ISO date string (for dedup / reference)
- */
-export const FleetSyncMachine: StateMachine<{
-  driftedAgents?: string;
-  commitHash?: string;
-  syncSummary?: string;
-  alertDate?: string;
-}> = {
-  name: "fleet-sync",
-  initialState: "drift_detected",
-  states: {
-    drift_detected: {
-      on: { sync: "syncing" },
-      action: (ctx) => {
-        const agents = ctx.driftedAgents || "all agents";
-        const commit = ctx.commitHash ? ` (${ctx.commitHash.slice(0, 8)})` : "";
-        return {
-          type: "create-task",
-          subject: `Fleet git drift: sync ${agents} to Arc HEAD${commit}`,
-          priority: 5,
-          skills: ["fleet-sync", "arc-skill-manager"],
-          description: `Fleet git drift detected: ${agents} are behind Arc HEAD${commit}.${ctx.alertDate ? `\nDate: ${ctx.alertDate}` : ""}
-
-Steps:
-1. Run fleet-sync CLI to push Arc HEAD to drifted agents
-2. Verify all agents are on the correct commit
-3. Transition this workflow to 'syncing', then 'retrospective_pending'
-4. Set syncSummary in context: what changed in this commit and any sync issues encountered`,
-        };
-      },
-    },
-    syncing: {
-      on: { synced: "retrospective_pending" },
-      action: () => null,
-    },
-    retrospective_pending: {
-      on: { learnings_extracted: "completed" },
-      action: (ctx) => {
-        const agents = ctx.driftedAgents || "fleet agents";
-        return {
-          type: "create-task",
-          subject: `Retrospective: fleet git drift — ${agents}`,
-          priority: 8,
-          skills: ["arc-skill-manager"],
-          description: `Extract learnings from a fleet git drift sync event.
-${ctx.commitHash ? `Commit: ${ctx.commitHash}` : ""}${ctx.syncSummary ? `\nSync summary: ${ctx.syncSummary}` : ""}${ctx.alertDate ? `\nDate: ${ctx.alertDate}` : ""}
-
-Steps:
-1. Review what caused the drift (sensor cadence, large batch of commits, etc.)
-2. Note whether any agents had sync failures or needed manual intervention
-3. If a recurring pattern, suggest sensor interval or deployment improvements in memory/MEMORY.md
-4. Transition workflow to 'completed'`,
-        };
-      },
-    },
-    completed: {
-      on: {},
-      action: () => null,
-    },
-  },
-};
-
-/**
- * FleetEscalationMachine — models the recurring fleet escalation → resolve → retrospective cycle.
- *
- * Pattern detected: "fleet escalation" tasks (8 recurrences, avg 2.1 steps)
- * consistently spawn retrospective follow-ups after resolving blocked worker tasks.
- * This machine deduplicates escalations for the same blocked task and ensures learnings
- * are captured for each unblock pattern.
- *
- * instance_key: "fleet-escalation-{agent}-{blocked-task-id}" (one per blocked task per agent)
- *
- * States:
- *   escalated             → worker is blocked; creates an unblock task
- *   resolving             → unblock task executing; waiting for resolution
- *   retrospective_pending → unblocked; create retrospective to capture learnings
- *   completed             → done
- *
- * Context:
- *   agentName         — remote agent name, e.g. "iris", "loom", "forge"
- *   blockedTaskId     — task ID on the worker that is blocked
- *   blockDescription  — short description of what the task is blocked on
- *   resolutionSummary — how it was unblocked (populated before retrospective)
- *   alertDate         — ISO date string (for reference)
- */
-export const FleetEscalationMachine: StateMachine<{
-  agentName?: string;
-  blockedTaskId?: number;
-  blockDescription?: string;
-  resolutionSummary?: string;
-  alertDate?: string;
-}> = {
-  name: "fleet-escalation",
-  initialState: "escalated",
-  states: {
-    escalated: {
-      on: { resolve: "resolving" },
-      action: (ctx) => {
-        const agent = ctx.agentName || "unknown-agent";
-        const taskRef = ctx.blockedTaskId ? ` task #${ctx.blockedTaskId}` : "";
-        const blockDesc = ctx.blockDescription ? ` — ${ctx.blockDescription}` : "";
-        return {
-          type: "create-task",
-          subject: `Resolve fleet escalation: ${agent} blocked on${taskRef}${blockDesc}`,
-          priority: 4,
-          skills: ["fleet-escalation", "fleet-task-sync", "arc-skill-manager"],
-          description: `Fleet escalation: remote agent "${agent}" is blocked on${taskRef}.
-Block reason: ${ctx.blockDescription || "see escalation alert"}${ctx.alertDate ? `\nDate: ${ctx.alertDate}` : ""}
-
-Steps:
-1. Review the blocked task on ${agent} and determine the root cause
-2. Provide the missing resource (credentials, config, unblock signal, etc.)
-3. Verify the task resumes or is explicitly closed as failed
-4. Transition this workflow to 'resolving', then 'retrospective_pending'
-5. Set resolutionSummary in context before transitioning`,
-        };
-      },
-    },
-    resolving: {
-      on: { resolved: "retrospective_pending" },
-      action: () => null,
-    },
-    retrospective_pending: {
-      on: { learnings_extracted: "completed" },
-      action: (ctx) => {
-        const agent = ctx.agentName || "unknown-agent";
-        const taskRef = ctx.blockedTaskId ? ` task #${ctx.blockedTaskId}` : "";
-        return {
-          type: "create-task",
-          subject: `Retrospective: fleet escalation — ${agent} blocked on${taskRef}`,
-          priority: 8,
-          skills: ["arc-skill-manager"],
-          description: `Extract learnings from a fleet escalation: ${agent} was blocked on${taskRef}.
-Block reason: ${ctx.blockDescription || "see escalation alert"}${ctx.resolutionSummary ? `\nResolution: ${ctx.resolutionSummary}` : ""}${ctx.alertDate ? `\nDate: ${ctx.alertDate}` : ""}
-
-Steps:
-1. Review what caused the block and how it was resolved
-2. Identify if this block type is recurring (same agent, same missing resource)
-3. If recurring, propose a proactive fix (pre-provision credentials, update provisioning template, etc.)
-4. Update templates/agent-provisioning.md or memory/MEMORY.md if a gap is identified
-5. Transition workflow to 'completed'`,
-        };
-      },
-    },
-    completed: {
-      on: {},
-      action: () => null,
-    },
-  },
-};
 
 /**
  * CostAlertMachine — models the recurring cost alert → review → retrospective cycle.
@@ -1628,7 +1371,7 @@ Steps:
  *   completed             → done
  *
  * Context:
- *   spendAmount    — current fleet spend, e.g. 168.62
+ *   spendAmount    — current daily spend, e.g. 168.62
  *   cap            — configured daily cap, e.g. 200
  *   alertDate      — ISO date string (for dedup / reference)
  *   reviewSummary  — what drove the spend spike (populated before retrospective)
@@ -1649,10 +1392,10 @@ export const CostAlertMachine: StateMachine<{
         const cap = ctx.cap ? `/$${ctx.cap}` : "";
         return {
           type: "create-task",
-          subject: `Cost alert: fleet spend ${spend}${cap} — review drivers`,
+          subject: `Cost alert: daily spend ${spend}${cap} — review drivers`,
           priority: 7,
           skills: ["arc-cost-alerting", "arc-skill-manager"],
-          description: `Cost alert triggered: fleet spend is at ${spend}${cap}.${ctx.alertDate ? `\nDate: ${ctx.alertDate}` : ""}
+          description: `Cost alert triggered: daily spend is at ${spend}${cap}.${ctx.alertDate ? `\nDate: ${ctx.alertDate}` : ""}
 
 Steps:
 1. Run arc status to see current cost breakdown by agent and task type
@@ -1673,10 +1416,10 @@ Steps:
         const spend = ctx.spendAmount ? `$${ctx.spendAmount.toFixed(2)}` : "elevated spend";
         return {
           type: "create-task",
-          subject: `Retrospective: cost alert — ${spend} fleet spend`,
+          subject: `Retrospective: cost alert — ${spend} daily spend`,
           priority: 8,
           skills: ["arc-skill-manager"],
-          description: `Extract learnings from a cost alert for fleet spend of ${spend}.
+          description: `Extract learnings from a cost alert for daily spend of ${spend}.
 ${ctx.reviewSummary ? `Review summary: ${ctx.reviewSummary}` : ""}${ctx.alertDate ? `\nAlert date: ${ctx.alertDate}` : ""}
 
 Steps:
@@ -1853,96 +1596,6 @@ Steps:
   },
 };
 
-/**
- * CredentialRotationMachine — models the recurring credential-expires → migrate → verify cycle.
- *
- * Pattern detected: "sensor:fleet-health:loom" tasks (16 recurrences, avg 2.3 steps) include
- * "OAuth expires in 4h — migrate to API key" patterns. Credential expirations follow a clear
- * detect → rotate → verify → confirm pattern. This machine deduplicates concurrent rotation
- * attempts for the same credential and tracks verification.
- *
- * instance_key: "cred-rotation-{agent}-{service}" (one per agent per service)
- *
- * States:
- *   expiring         → credential near-expiry detected; creates rotation task
- *   rotating         → rotation task executing
- *   verifying        → new credential set; creates verification task
- *   completed        → verified and confirmed
- *
- * Context:
- *   agentName        — agent whose credential is expiring (e.g. "loom", "iris")
- *   service          — service name (e.g. "anthropic-oauth", "x-oauth")
- *   credType         — current cred type (e.g. "oauth", "api-key")
- *   targetCredType   — what to migrate to (e.g. "api-key")
- *   expiresAt        — ISO timestamp of expiry
- *   newCredKey       — credential store key after rotation (populated after rotating)
- */
-export const CredentialRotationMachine: StateMachine<{
-  agentName?: string;
-  service?: string;
-  credType?: string;
-  targetCredType?: string;
-  expiresAt?: string;
-  newCredKey?: string;
-}> = {
-  name: "credential-rotation",
-  initialState: "expiring",
-  states: {
-    expiring: {
-      on: { rotate: "rotating" },
-      action: (ctx) => {
-        const agent = ctx.agentName || "unknown-agent";
-        const svc = ctx.service || "unknown-service";
-        const from = ctx.credType || "current credential";
-        const to = ctx.targetCredType || "new credential";
-        const expiry = ctx.expiresAt ? ` (expires: ${ctx.expiresAt})` : "";
-        return {
-          type: "create-task",
-          subject: `Rotate ${svc} credential for ${agent}: ${from} → ${to}`,
-          priority: 4,
-          skills: ["fleet-health", "arc-remote-setup"],
-          description: `Credential expiry detected for ${agent} — ${svc} ${from}${expiry}.
-
-Steps:
-1. Generate or retrieve the new ${to} for ${svc}
-2. Store it via: arc creds set --service ${svc} --key ${to} --value <VALUE>
-3. Update the service config on ${agent} to use the new credential
-4. Restart affected services on ${agent} if needed
-5. Transition this workflow to 'rotating', then 'verifying'
-6. Set newCredKey in context (the creds store key for the new credential)`,
-        };
-      },
-    },
-    rotating: {
-      on: { verify: "verifying" },
-      action: () => null,
-    },
-    verifying: {
-      on: { confirmed: "completed" },
-      action: (ctx) => {
-        const agent = ctx.agentName || "unknown-agent";
-        const svc = ctx.service || "unknown-service";
-        return {
-          type: "create-task",
-          subject: `Verify ${svc} credential rotation on ${agent}`,
-          priority: 5,
-          skills: ["fleet-health", "arc-remote-setup"],
-          description: `Verify the rotated ${svc} credential is working on ${agent}.
-New credential key: ${ctx.newCredKey || "see workflow context"}
-
-Steps:
-1. Trigger a test dispatch cycle on ${agent} or run a health check
-2. Confirm services are running and no auth errors in logs
-3. Transition workflow to 'completed'`,
-        };
-      },
-    },
-    completed: {
-      on: {},
-      action: () => null,
-    },
-  },
-};
 
 /**
  * PsbtEscalationMachine — models the recurring PSBT-needs-sign-off → approval → proceed chain.
@@ -2552,140 +2205,6 @@ export const PrReviewMachine: StateMachine<{
   },
 };
 
-/**
- * GithubIssueImplementationMachine — models the recurring GitHub issue detection →
- * plan → worktree implementation → fleet-handoff for PR cycle.
- *
- * Pattern detected: "sensor:github-issues:*" tasks (10-11 recurrences, avg 2.0–2.4 steps/chain)
- * consistently spawn planning and implementation follow-ups, then a fleet-handoff to Arc
- * for the actual GitHub PR (Arc-only policy). This machine deduplicates re-triggers:
- * once a workflow exists for an issue, the sensor skips creating new tasks.
- *
- * instance_key: "github-issue-{owner}/{repo}-{issueNumber}"
- *   e.g. "github-issue-aibtcdev/landing-page-418"
- *
- * States:
- *   detected          → issue found; creates a planning task
- *   planning          → plan is being drafted (executor transitions → implementing)
- *   implementing      → implementation task running in worktree
- *   awaiting-handoff  → implementation complete; fleet-handoff task created for Arc to open PR
- *   pr-open           → PR exists on GitHub; waiting for CI/review
- *   completed         → PR merged or issue resolved
- *   failed            → unrecoverable error
- *
- * Context:
- *   repo         — "owner/repo" e.g. "aibtcdev/landing-page"
- *   issueNumber  — GitHub issue number
- *   issueTitle   — issue title (for task subject generation)
- *   issueUrl     — full GitHub issue URL
- *   branch       — feature branch name
- *   worktreePath — local worktree path (populated during implementing)
- *   prUrl        — GitHub PR URL (populated by fleet-handoff task)
- *   planSummary  — brief description of approach (populated during planning)
- *   implSummary  — summary of what was implemented
- */
-export const GithubIssueImplementationMachine: StateMachine<{
-  repo?: string;
-  issueNumber?: number;
-  issueTitle?: string;
-  issueUrl?: string;
-  branch?: string;
-  worktreePath?: string;
-  prUrl?: string;
-  planSummary?: string;
-  implSummary?: string;
-}> = {
-  name: "github-issue-implementation",
-  initialState: "detected",
-  states: {
-    detected: {
-      on: { start_planning: "planning" },
-      action: (ctx) => {
-        if (!ctx.repo || !ctx.issueNumber) return null;
-        const label = ctx.issueTitle
-          ? ` — ${ctx.issueTitle}`
-          : ` #${ctx.issueNumber}`;
-        return {
-          type: "create-task",
-          subject: `[${ctx.repo}] Analyze and plan #${ctx.issueNumber}${label}`,
-          priority: 5,
-          skills: ["github-issues"],
-          description: `Plan implementation for GitHub issue: ${ctx.issueUrl || `${ctx.repo}#${ctx.issueNumber}`}
-
-Steps:
-1. Read the issue and any linked discussion
-2. Design a minimal, focused solution
-3. Write a brief plan (2-5 bullets) — store in workflow context as planSummary
-4. Transition this workflow: arc skills run --name workflows -- transition <id> planning --context '{"planSummary":"..."}'`,
-        };
-      },
-    },
-    planning: {
-      // Routes directly to fleet-handoff: these are external repos (aibtcdev/*, etc.)
-      // where local worktree implementation would require pushing to GitHub (Arc-only policy).
-      // The local "Implement #N" task was being bulk-closed at dispatch. Skip to handoff.
-      on: { handoff: "awaiting-handoff", begin_impl: "implementing" },
-      action: (ctx) => {
-        if (!ctx.repo || !ctx.issueNumber) return null;
-        const label = ctx.issueTitle
-          ? ` — ${ctx.issueTitle}`
-          : ` #${ctx.issueNumber}`;
-        return {
-          type: "create-task",
-          subject: `[${ctx.repo}] Fleet-handoff: implement and PR for #${ctx.issueNumber}${label}`,
-          priority: 5,
-          skills: ["github-issues", "fleet-handoff"],
-          description: `Hand off to Arc to implement and open a PR for GitHub issue: ${ctx.issueUrl || `${ctx.repo}#${ctx.issueNumber}`}
-${ctx.planSummary ? `\nPlan:\n${ctx.planSummary}` : ""}
-
-Steps:
-1. Run fleet-handoff to Arc with issue context and plan
-2. Transition workflow: arc skills run --name workflows -- transition <id> awaiting-handoff`,
-        };
-      },
-    },
-    implementing: {
-      on: { handoff: "awaiting-handoff" },
-      action: (ctx) => {
-        if (!ctx.repo || !ctx.issueNumber || !ctx.branch) return null;
-        const label = ctx.issueTitle
-          ? ` — ${ctx.issueTitle}`
-          : ` #${ctx.issueNumber}`;
-        return {
-          type: "create-task",
-          subject: `[${ctx.repo}] Fleet-handoff: open PR for #${ctx.issueNumber}${label}`,
-          priority: 5,
-          skills: ["github-issues", "fleet-handoff"],
-          description: `Implementation complete for ${ctx.repo}#${ctx.issueNumber}. Hand off to Arc to open the PR (GitHub is Arc-only).
-
-Branch: ${ctx.branch}
-${ctx.implSummary ? `Implementation summary:\n${ctx.implSummary}` : ""}
-${ctx.issueUrl ? `Issue: ${ctx.issueUrl}` : ""}
-
-Steps:
-1. Run fleet-handoff to Arc with branch and issue context
-2. Transition workflow: arc skills run --name workflows -- transition <id> awaiting-handoff`,
-        };
-      },
-    },
-    "awaiting-handoff": {
-      on: { pr_opened: "pr-open", close: "completed" },
-      action: () => null,
-    },
-    "pr-open": {
-      on: { merged: "completed", closed: "completed" },
-      action: () => null,
-    },
-    completed: {
-      on: {},
-      action: () => null,
-    },
-    failed: {
-      on: {},
-      action: () => null,
-    },
-  },
-};
 
 /**
  * LandingPageReviewMachine — models the recurring "new release → review landing page content
@@ -2776,7 +2295,7 @@ Steps:
 1. Open llms.txt and llms-full.txt in the landing page repo
 2. Add the notable skills enumeration under the appropriate section
 3. Ensure descriptions are accurate and concise
-4. Hand off to Arc via fleet-handoff for the PR (GitHub is Arc-only)
+4. Hand off to Arc via PR workflow for the PR (GitHub is Arc-only)
 5. Transition workflow to completed: arc skills run --name workflows -- transition <id> done`,
         };
       },
@@ -2796,8 +2315,8 @@ Steps:
  * CeoReviewMachine — models the recurring CEO review → action items → retrospective cycle.
  *
  * Pattern detected: "sensor:arc-ceo-review" tasks (3 recurrences, avg 4.7 steps/chain)
- * consistently spawn diverse action item tasks (github-mentions, blog-deploy, fleet-handoff,
- * arc-reporting, fleet-memory) followed by a retrospective to extract learnings.
+ * consistently spawn diverse action item tasks (github-mentions, blog-deploy, PR workflow,
+ * arc-reporting, arc-memory) followed by a retrospective to extract learnings.
  * This machine deduplicates concurrent review tasks for the same timeslot and ensures
  * the retrospective always follows.
  *
@@ -2837,8 +2356,8 @@ export const CeoReviewMachine: StateMachine<{
           description: `Run the CEO review for ${date}.
 
 Steps:
-1. Run arc-ceo-review CLI to gather status across directives, fleet, and metrics
-2. Identify action items (github-mentions, blog drafts, fleet tasks, reporting gaps)
+1. Run arc-ceo-review CLI to gather status across directives and metrics
+2. Identify action items (github-mentions, blog drafts, reporting gaps)
 3. Create follow-up tasks for each action item (arc tasks add)
 4. Set reviewSummary and actionItems (comma-separated) in workflow context
 5. Transition this workflow to 'reviewing', then 'actions_pending'`,
@@ -3032,7 +2551,7 @@ export const ComplianceReviewMachine: StateMachine<{
           type: "create-task",
           subject: `compliance-review: ${count} finding(s)${skills}`,
           priority: 6,
-          skills: ["compliance-review", "fleet-memory", "arc-skill-manager"],
+          skills: ["compliance-review", "arc-memory", "arc-skill-manager"],
           description: `Compliance scan on ${date} found ${count} finding(s)${skills}.
 
 Steps:
@@ -3139,7 +2658,7 @@ Work type: ${workType}
 Steps:
 1. Read the mention and any surrounding thread context
 2. Perform the required work (bugfix, feature, review comment, or written response)
-3. If work requires a PR, use fleet-handoff to route to Arc (GitHub-only policy)
+3. If work requires a PR, use PR workflow to route to Arc (GitHub-only policy)
 4. Transition this workflow to 'executing'
 5. Set taskRef to "task:{this-task-id}" in context before transitioning`,
         };
@@ -3335,19 +2854,14 @@ export function getTemplateByName(name: string): StateMachine | null {
     "recurring-failure": RecurringFailureMachine,
     "health-alert": HealthAlertMachine,
     "overnight-brief": OvernightBriefMachine,
-    "fleet-alert": FleetAlertMachine,
-    "fleet-sync": FleetSyncMachine,
-    "fleet-escalation": FleetEscalationMachine,
     "cost-alert": CostAlertMachine,
     "wallet-funding": WalletFundingMachine,
     "content-promotion": ContentPromotionMachine,
-    "credential-rotation": CredentialRotationMachine,
     "psbt-escalation": PsbtEscalationMachine,
     "skill-maintenance": SkillMaintenanceMachine,
     "compounding": CompoundingMachine,
     "self-review-cycle": SelfReviewCycleMachine,
     "cost-report-audit": CostReportAuditMachine,
-    "github-issue-implementation": GithubIssueImplementationMachine,
     "landing-page-review": LandingPageReviewMachine,
     "ceo-review": CeoReviewMachine,
     "workflow-review": WorkflowReviewMachine,

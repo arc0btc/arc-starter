@@ -1,10 +1,9 @@
 /**
  * identity-guard sensor — validates SOUL.md matches expected agent identity.
  *
- * Detects identity drift caused by fleet-sync overwriting per-agent files
- * with Arc's versions. Fires P1 alert if SOUL.md contains wrong identity.
+ * Detects identity drift. Fires P1 alert if SOUL.md contains wrong identity.
  *
- * Runs every 30 minutes on all agents (workers + Arc).
+ * Runs every 30 minutes.
  */
 
 import {
@@ -24,7 +23,7 @@ const log = createSensorLogger(SENSOR_NAME);
 /**
  * Identity markers that indicate the SOUL.md *claims to be* a specific agent.
  * Only use definitive identity claims (first-person declarations + wallet addresses).
- * Exclude handles/BNS names — workers legitimately reference "arc0.btc" as fleet coordinator.
+ * Exclude handles/BNS names — only match definitive identity claims.
  */
 const ARC_MARKERS: readonly string[] = [
   "# Arc\n",

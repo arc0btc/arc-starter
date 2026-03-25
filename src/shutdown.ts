@@ -1,5 +1,5 @@
 /**
- * Fleet agent shutdown state — idempotent, reversible shutdown/resume.
+ * Agent shutdown state — idempotent, reversible shutdown/resume.
  *
  * State file: db/shutdown-state.json
  * Checked by sensors (runSensors) and dispatch (runDispatch) on every cycle.

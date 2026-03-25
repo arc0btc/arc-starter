@@ -51,14 +51,10 @@ const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
     patterns: [/crash recovery/i, /left active from a previous cycle/i, /stuck active/i],
   },
   {
-    signature: "fleet-suspended",
+    signature: "agent-suspended",
     patterns: [
       /suspended/i,
-      /fleet.*degraded/i,
       /OAuth.*expired/i,
-      /cannot.*execute.*spark|loom|forge|iris/i,
-      /cannot.*complete.*spark|loom|forge|iris/i,
-      /requires.*spark|loom|forge|iris/i,
     ],
   },
   {
@@ -66,7 +62,6 @@ const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
     patterns: [
       /github.*operations.*required/i,
       /no github credentials/i,
-      /fleet-handoff.*not installed/i,
       /human must implement/i,
     ],
   },
@@ -110,7 +105,7 @@ const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
 const SKIP_SIGNATURES = new Set([
   "dismissed",
   "crash-recovery",
-  "fleet-suspended",
+  "agent-suspended",
   "github-blocked",
   "x-budget-exhausted",
   "missing-hardware",

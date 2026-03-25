@@ -234,7 +234,7 @@ export async function dispatchOpenRouter(
         "Authorization": `Bearer ${key}`,
         "Content-Type": "application/json",
         "HTTP-Referer": "https://arc0.me",
-        "X-Title": "Arc Agent Fleet",
+        "X-Title": "Arc Agent",
       },
       body: JSON.stringify(body),
     });

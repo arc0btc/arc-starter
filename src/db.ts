@@ -475,17 +475,6 @@ export function initDatabase(): Database {
   `);
   db.run("CREATE INDEX IF NOT EXISTS idx_roundtable_responses_discussion ON roundtable_responses(discussion_id)");
 
-  db.run(`
-    CREATE TABLE IF NOT EXISTS fleet_messages (
-      id INTEGER PRIMARY KEY,
-      from_agent TEXT NOT NULL,
-      from_bns TEXT,
-      message_type TEXT DEFAULT 'status',
-      content TEXT NOT NULL,
-      created_at TEXT DEFAULT (datetime('now'))
-    )
-  `);
-  db.run("CREATE INDEX IF NOT EXISTS idx_fleet_messages_created ON fleet_messages(created_at DESC)");
 
   db.run(`
     CREATE TABLE IF NOT EXISTS consensus_proposals (

@@ -384,7 +384,7 @@ function cmdExport(params: Record<string, string>): void {
   // Default to active; pass undefined to getAllContacts to get all statuses when "all" requested
   const contacts = statusParam === "all" ? getAllContacts() : getAllContacts(statusParam || "active");
   const filtered = typeFilter ? contacts.filter((c) => c.type === typeFilter) : contacts;
-  // Status to stderr so stdout is clean JSON (fleet-sync parses stdout)
+  // Status to stderr so stdout is clean JSON
   console.error(`[contacts] exporting ${filtered.length} contact(s)`);
   console.log(JSON.stringify(filtered, null, 2));
 }
@@ -589,7 +589,7 @@ Commands:
   log                               Log a new interaction
   search                            Search contacts by name/address/handle
   context                           Get relevant contacts for a task (dispatch context injection)
-  export                            Export contacts as JSON (for fleet-sync seeding)
+  export                            Export contacts as JSON
   import                            Import contacts from JSON file (upsert by address/agent_id/name)
   dedup                             Find and archive duplicate contacts (keeps most complete record)
 
@@ -658,7 +658,7 @@ Examples:
   arc skills run --name contacts -- search --term "arc0"
   arc skills run --name contacts -- context --task-subject "collaborate with Topaz Centaur on ordinals"
   arc skills run --name contacts -- export --type agent
-  arc skills run --name contacts -- import --file /tmp/arc-fleet-contacts.json
+  arc skills run --name contacts -- import --file /tmp/contacts.json
   `);
 }
 

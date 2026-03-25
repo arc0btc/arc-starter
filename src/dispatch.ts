@@ -34,13 +34,13 @@ import {
 import { isPidAlive, log } from "./utils.ts";
 import { getShutdownState } from "./shutdown.ts";
 import { getCredential } from "./credentials.ts";
-import { AGENT_NAME } from "./identity.ts";
+
 import { type ModelTier, type SdkRoute, MODEL_IDS, MODEL_PRICING, parseTaskSdk } from "./models.ts";
 import { dispatchOpenRouter, getOpenRouterApiKey } from "./openrouter.ts";
 import { dispatchCodex } from "./codex.ts";
 import { captureBaseline, classifyFile, evaluateExperiment, scheduleVerification, type BaselineSnapshot } from "./experiment.ts";
 import { type ErrorClass, checkDispatchGate, recordGateSuccess, recordGateFailure } from "./dispatch-gate.ts";
-import { writeFleetStatus, writeFleetStatusIdle } from "./fleet-status.ts";
+
 import { safeCommitCycleChanges, getHeadSha, codeChangedSince } from "./safe-commit.ts";
 import { createWorktree, validateWorktree, getWorktreeChangedFiles, mergeWorktree, discardWorktree } from "./worktree.ts";
 
@@ -56,12 +56,6 @@ const SKILLS_DIR = join(ROOT, "skills");
 /** Daily cost ceiling (USD). Above this, only P1-2 tasks dispatch. D4 directive: $200/day cap. */
 const DAILY_BUDGET_USD = 200;
 
-/**
- * GitHub gate — on workers, detect GitHub-related tasks before invoking LLM.
- * Auto-routes them to Arc via fleet-handoff, saving cost and preventing escalations.
- * Only active on non-Arc agents.
- */
-const GITHUB_TASK_RE = /github|git\s*push|git\s*clone|\bPAT\b|personal access token|ssh key|github credential|github token|gh auth|GITHUB_TOKEN|pull request|create.*PR|open.*PR|merge.*PR/i;
 
 /** Maximum time (ms) a Claude subprocess can run before being killed.
  *  Model-aware: Haiku tasks get 5min (simple execution), Sonnet 15min,
@@ -218,72 +212,6 @@ function computeSkillHashes(skillNames: string[]): Record<string, string> {
   return hashes;
 }
 
-// ---- Fleet knowledge loader ----
-
-const FLEET_LEARNINGS_DIR = join(ROOT, "memory", "fleet-learnings");
-const MAX_FLEET_ENTRIES = 20;
-
-interface FleetEntry {
-  id: string;
-  topics: string[];
-  content: string;
-  source: string;
-  created: string;
-  expires?: string;
-}
-
-interface FleetIndex {
-  topicMap: Record<string, string[]>;
-  entries: FleetEntry[];
-}
-
-function loadFleetIndex(): FleetIndex | null {
-  const raw = readFile(join(FLEET_LEARNINGS_DIR, "index.json"));
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as FleetIndex;
-  } catch {
-    return null;
-  }
-}
-
-function resolveFleetKnowledge(skillNames: string[]): string {
-  if (skillNames.length === 0) return "";
-
-  const index = loadFleetIndex();
-  if (!index || index.entries.length === 0) return "";
-
-  // Collect all topics relevant to this task's skills
-  const relevantTopics = new Set<string>();
-  for (const skill of skillNames) {
-    const topics = index.topicMap[skill];
-    if (topics) {
-      for (const t of topics) relevantTopics.add(t);
-    }
-  }
-  if (relevantTopics.size === 0) return "";
-
-  const now = new Date().toISOString().slice(0, 10);
-
-  // Filter: matching topics, not expired
-  const matched = index.entries.filter((entry) => {
-    if (entry.expires && entry.expires < now) return false;
-    return entry.topics.some((t) => relevantTopics.has(t));
-  });
-
-  if (matched.length === 0) return "";
-
-  // Cap at MAX_FLEET_ENTRIES, prefer newest
-  const sorted = matched
-    .sort((a, b) => (b.created > a.created ? 1 : -1))
-    .slice(0, MAX_FLEET_ENTRIES);
-
-  const lines = sorted.map(
-    (e) => `- [${e.source}] ${e.content}`
-  );
-
-  return `# Fleet Knowledge\n*${sorted.length} entries matching skills: ${skillNames.join(", ")}*\n\n${lines.join("\n")}`;
-}
 
 // ---- Parent chain builder ----
 
@@ -355,26 +283,17 @@ function filterServicesSection(block: string, relevantSkills: Set<string>): stri
 /**
  * Selectively filter MEMORY.md (ASMR v1) by task skill context.
  *
- * Always loads:  [A] Operational State, [F] Fleet, [P] Patterns, [L] Learnings
+ * Always loads:  [A] Operational State, [P] Patterns, [L] Learnings
  * Filtered:      [S] Services — only entries matching task skills (or untagged)
  * Skipped:       [T] Temporal Events — incident audit trail, not needed per-task
  *
  * Falls back to full content when skillNames is empty.
- * Uses the fleet-learnings topicMap to expand skill names into topics for matching.
  */
 function filterMemoryBySkills(memoryContent: string, skillNames: string[]): string {
   if (!memoryContent) return "";
   if (skillNames.length === 0) return memoryContent;
 
-  // Build relevant skill set (direct skill names + topic aliases from topicMap)
-  const index = loadFleetIndex();
   const relevantSkills = new Set<string>(skillNames);
-  if (index) {
-    for (const skill of skillNames) {
-      const topics = index.topicMap[skill];
-      if (topics) for (const t of topics) relevantSkills.add(t);
-    }
-  }
 
   // Split before each "## [X]" section header, preserving the header in each block
   const parts = memoryContent.split(/(?=^## \[[A-Z]\])/m);
@@ -388,7 +307,7 @@ function filterMemoryBySkills(memoryContent: string, skillNames: string[]): stri
     if (!letter) continue;
 
     if (MEMORY_ALWAYS_LETTERS.has(letter)) {
-      // Always include: A (Operational State), F (Fleet), P (Patterns), L (Learnings)
+      // Always include: A (Operational State), P (Patterns), L (Learnings)
       output.push("", block.trimEnd());
     } else if (letter === "S") {
       // Filter Services entries by skill tags
@@ -477,12 +396,9 @@ function buildPrompt(task: Task, skillNames: string[], recentCycles: string): st
     "",
   ];
 
-  const fleetKnowledge = resolveFleetKnowledge(skillNames);
-
   const optionalSections: Array<[string, string]> = [
     ["# Identity", soul],
     [`# Memory${memoryNote}`, memory],
-    ["", fleetKnowledge],
     ["# Recent Cycles", recentCycles],
   ];
   for (const [heading, content] of optionalSections) {
@@ -558,6 +474,10 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string)
   }
   env.CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS = "30000";
   env.ARC_DISPATCH_MODEL = MODEL_IDS[model];
+  // Strip Anthropic/cloud-provider credentials from Bash tool subprocesses, hooks, and MCP stdio.
+  // Arc's CLI calls (arc tasks add/close, arc creds) only need ARC_CREDS_PASSWORD which survives.
+  // Arc's hooks (session-start.sh, memory-save.sh) use only git/jq — no API keys needed.
+  env.CLAUDE_CODE_SUBPROCESS_ENV_SCRUB = "1";
 
   const proc = Bun.spawn(args, {
     stdin: new Blob([prompt]),
@@ -756,24 +676,6 @@ async function runSecurityScan(taskId: number, cycleId?: number): Promise<void> 
 
 // ---- Learning retrospective ----
 
-/** Keywords in result_summary that suggest a reusable discovery was made. */
-const DISCOVERY_KEYWORDS_RE = /\b(?:discovered|found\s+that|learned|new\s+pattern|insight|workaround|fixed|solved|realized|gotcha|tip:)\b/i;
-
-function scheduleLearningExtraction(task: Task, resultSummary: string): void {
-  const parentSkills: string[] = task.skills ? JSON.parse(task.skills) : [];
-  const extractionSkills = ["fleet-memory", ...parentSkills.filter((s) => s !== "fleet-memory")];
-  insertTask({
-    subject: `Extract learning from task #${task.id} — ${task.subject.slice(0, 60)}`,
-    description: `Task #${task.id} result summary suggests a reusable discovery:\n"${resultSummary.slice(0, 300)}"\n\nIf a reusable pattern was found, write it to memory/shared/entries/<id>.md with frontmatter:\n---\nid: <unique-slug>\ntopics: [tag1, tag2]\nsource: arc\ncreated: YYYY-MM-DD\n---\n<content>\n\nCheck memory/shared/entries/ first for duplicates. Keep content to 1-2 sentences. If nothing worth capturing, close as completed with summary "No learnings to capture".`,
-    priority: 8,
-    model: "haiku",
-    skills: JSON.stringify(extractionSkills),
-    source: `task:${task.id}`,
-    parent_id: task.id,
-  });
-  log(`dispatch: scheduled learning extraction for task #${task.id}`);
-}
-
 function scheduleRetrospective(task: Task, resultSummary: string, resultDetail: string, costUsd: number): void {
   const maxLen = costUsd > 1.0 ? 3000 : 1500;
   const summaryBlock = resultSummary ? `[Summary] ${resultSummary.trim()}\n\n` : "";
@@ -799,7 +701,7 @@ function scheduleRetrospective(task: Task, resultSummary: string, resultDetail: 
  * Phase 1 — Pre-flight: lock, shutdown gate, crash recovery, dispatch gate
  * Phase 2 — Task selection: pick task, budget gate, GitHub gate
  * Phase 3 — Execute: build prompt, dispatch with retry
- * Phase 4 — Post-dispatch: close task, commit, fleet status, security scan
+ * Phase 4 — Post-dispatch: close task, commit, security scan
  */
 export async function runDispatch(): Promise<void> {
   // ---- Phase 1: Pre-flight ----
@@ -817,7 +719,6 @@ export async function runDispatch(): Promise<void> {
   const shutdownState = getShutdownState();
   if (shutdownState) {
     log(`dispatch: SHUTDOWN — skipping dispatch (${shutdownState.reason}, since ${shutdownState.since})`);
-    writeFleetStatusIdle();
     return;
   }
 
@@ -839,7 +740,6 @@ export async function runDispatch(): Promise<void> {
   const pendingTasks = getPendingTasks();
   if (pendingTasks.length === 0) {
     log("dispatch: No pending tasks. Idle.");
-    writeFleetStatusIdle();
     clearDispatchLock();
     return;
   }
@@ -869,36 +769,6 @@ export async function runDispatch(): Promise<void> {
     markTaskCompleted(task.id, summary);
     clearDispatchLock();
     return;
-  }
-
-  // GitHub gate — on workers, auto-route GitHub tasks to Arc without invoking LLM
-  if (AGENT_NAME !== "arc0") {
-    const taskText = [task.subject, task.description ?? ""].join(" ");
-    if (GITHUB_TASK_RE.test(taskText)) {
-      log(`dispatch: GITHUB GATE — task #${task.id} matches GitHub pattern on worker. Auto-routing to Arc.`);
-      markTaskActive(task.id);
-      const handoff = Bun.spawnSync({
-        cmd: [
-          "bash", "bin/arc", "skills", "run", "--name", "fleet-handoff", "--",
-          "initiate",
-          "--agent", "arc",
-          "--task-id", String(task.id),
-          "--progress", "Pre-dispatch GitHub gate intercepted this task",
-          "--remaining", task.subject,
-          "--reason", "GitHub is Arc-only (dispatch pre-gate)",
-        ],
-        cwd: ROOT,
-        stdout: "pipe",
-        stderr: "pipe",
-      });
-      const summary = handoff.exitCode === 0
-        ? "Auto-routed to Arc via dispatch GitHub gate (GitHub is Arc-only)"
-        : "GitHub gate: fleet-handoff failed, marked completed to prevent escalation loop";
-      markTaskCompleted(task.id, summary);
-      log(`dispatch: ${summary} — task #${task.id}`);
-      clearDispatchLock();
-      return;
-    }
   }
 
   // ---- Phase 3: Execute ----
@@ -1081,12 +951,6 @@ export async function runDispatch(): Promise<void> {
     if ((task.priority <= 1 || cost_usd > 1.0) && finalStatus?.status === "completed") {
       // Full retrospective: patterns.md update for high-value work
       scheduleRetrospective(task, finalStatus.result_summary ?? result.slice(0, 300), result, cost_usd);
-    } else if (finalStatus?.status === "completed") {
-      // Lightweight extraction: fleet-learnings entry if summary suggests a discovery
-      const summaryText = finalStatus.result_summary ?? "";
-      if (DISCOVERY_KEYWORDS_RE.test(summaryText)) {
-        scheduleLearningExtraction(task, summaryText);
-      }
     }
 
     const duration_ms = Date.now() - dispatchStart;
@@ -1208,11 +1072,6 @@ export async function runDispatch(): Promise<void> {
   } else {
     await safeCommitCycleChanges(task.id);
   }
-
-  // Fleet status
-  const finalDuration = Date.now() - dispatchStart;
-  const finalTask = getTaskById(task.id) ?? task;
-  writeFleetStatus(finalTask, finalDuration, cycleCostUsd);
 
   // Security scan — only when src/ or skills/ changed
   if (await codeChangedSince(preDispatchSha)) {

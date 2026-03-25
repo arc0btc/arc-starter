@@ -22,7 +22,7 @@ import {
 } from "../../src/sensors.ts";
 import { getDatabase, recentTaskExistsForSource, insertTask } from "../../src/db.ts";
 import { initContactsSchema, type Contact } from "../contacts/schema.ts";
-import { resolve } from "node:path";
+
 
 const SENSOR_NAME = "reputation-tracker";
 const INTERVAL_MINUTES = 30;
@@ -31,31 +31,18 @@ const LOOKBACK_HOURS = 2; // scan window — overlaps slightly with interval for
 const MAX_REVIEWS_PER_DAY = 10;
 const MAX_REVIEWS_PER_RUN = 3; // per-run cap to prevent burst spam
 
-// Fleet-internal sources that should never trigger reputation reviews
+// Internal sources that should never trigger reputation reviews
 const INTERNAL_SOURCE_PREFIXES = [
-  "sensor:fleet-health",
-  "sensor:fleet-task-sync",
-  "sensor:fleet-memory",
-  "sensor:fleet-self-sync",
   "sensor:arc-alive-check",
   "sensor:arc-service-health",
   "workflow:",
 ];
 
-// Fleet-internal subject patterns that are operational noise, not real interactions
-const INTERNAL_SUBJECT_PATTERNS = [
-  /^fleet alert:/i,
-  /^fleet circuit breaker:/i,
-  /^fleet memory collection/i,
-  /^resolve fleet escalation/i,
-  /^close (iris|loom|forge|spark|arc) task/i,
-  /^notify (iris|loom|forge|spark|arc):/i,
-  /^enforce worker sensor/i,
-];
+// Internal subject patterns that are operational noise, not real interactions
+const INTERNAL_SUBJECT_PATTERNS: RegExp[] = [];
 
 const log = createSensorLogger(SENSOR_NAME);
 
-const FLEET_MAINTENANCE_PATH = resolve(import.meta.dir, "../../db/fleet-maintenance.json");
 const REVIEW_DEDUP_DAYS = 7;
 
 // ---- Types ----
@@ -156,17 +143,6 @@ function alreadyTracked(taskId: number, contactId: number, reviewedKeys: Set<str
 
 // ---- Main sensor ----
 
-/** Check if fleet is in maintenance/suspended mode. */
-async function isFleetSuspended(): Promise<boolean> {
-  try {
-    const file = Bun.file(FLEET_MAINTENANCE_PATH);
-    if (!(await file.exists())) return false;
-    const data = await file.json();
-    return data?.enabled === true;
-  } catch {
-    return false;
-  }
-}
 
 /** Check if a contact was already reviewed within the dedup window. */
 function wasRecentlyReviewed(contactName: string, contactBtcAddress: string | null): boolean {
@@ -185,12 +161,6 @@ function wasRecentlyReviewed(contactName: string, contactBtcAddress: string | nu
 export default async function reputationTrackerSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
-
-  // Worker-suspension gate: skip if fleet is in maintenance mode
-  if (await isFleetSuspended()) {
-    log("fleet suspended — skipping reputation review creation");
-    return "ok";
-  }
 
   // Load state to track already-reviewed interactions
   const hookState = await readHookState(SENSOR_NAME);
@@ -219,15 +189,15 @@ export default async function reputationTrackerSensor(): Promise<string> {
     return "ok";
   }
 
-  // Skip tasks created by this sensor and fleet-internal operational tasks
+  // Skip tasks created by this sensor and internal operational tasks
   const candidateTasks = tasks.filter((t) => {
     // Self-referential loop prevention
     if (t.source?.startsWith(TASK_SOURCE_PREFIX)) return false;
 
-    // Fleet-internal sources — operational noise, not real interactions
+    // Internal sources — operational noise, not real interactions
     if (t.source && INTERNAL_SOURCE_PREFIXES.some((p) => t.source!.startsWith(p))) return false;
 
-    // Fleet-internal subjects
+    // Internal subject patterns
     if (INTERNAL_SUBJECT_PATTERNS.some((p) => p.test(t.subject))) return false;
 
     return true;

@@ -50,8 +50,8 @@ const SPONSOR_ADDRESS = "SP1PMPPVCMVW96FSWFV30KJQ4MNBMZ8MRWR3JWQ7";
 // Arc's own STX address — never welcome ourselves
 const SELF_STX = "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B";
 
-// Fleet agent display name patterns — already known, skip welcoming
-const FLEET_NAMES: ReadonlySet<string> = new Set([
+// Known agent display name patterns — skip welcoming our own agents
+const KNOWN_AGENT_NAMES: ReadonlySet<string> = new Set([
   "arc", "spark", "iris", "loom", "forge",
   "topaz centaur", "fractal hydra", "sapphire mars", // AIBTC identities
 ]);
@@ -326,9 +326,9 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
       // Skip self
       if (agent.stxAddress === SELF_STX) continue;
 
-      // Skip fleet agents by name match
+      // Skip known agents by name match
       const lowerName = (agent.displayName ?? "").toLowerCase();
-      if ([...FLEET_NAMES].some((n) => lowerName.includes(n))) continue;
+      if ([...KNOWN_AGENT_NAMES].some((n) => lowerName.includes(n))) continue;
 
       // Skip if already in welcomed set
       if (welcomedSet.has(agent.stxAddress)) continue;

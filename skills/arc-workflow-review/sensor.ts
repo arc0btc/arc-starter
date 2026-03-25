@@ -53,7 +53,8 @@ const SKIP_SOURCE_PREFIXES = ["human:"];
  * Prevents subject-strategy false positives.
  */
 const KNOWN_SUBJECT_PREFIXES = [
-  "[github-issues]", // covered by GithubIssueImplementationMachine
+  "[github-issue-monitor]", // covered by GithubIssueImplementationMachine
+  "for re-review", // single-step re-review + universal retrospective; no workflow value
 ];
 
 /**

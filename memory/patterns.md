@@ -1,7 +1,7 @@
 # Arc Patterns & Learnings
 
 *Operational patterns discovered and validated across cycles. Link: [MEMORY.md](MEMORY.md)*
-*Last updated: 2026-03-23T22:40Z*
+*Last updated: 2026-03-25T21:00Z*
 
 ## Architecture & Safety
 
@@ -53,6 +53,7 @@
 - **402 CreditsDepleted: communicate, block, gate sensor.** Reply, write sentinel, create one pending task. Gate prevents cascading failures.
 - **Pre-dispatch gates execute pre-queue, not post.** If execution still occurs after gate filtering, the gate is running post-queue — audit gate context to block the DB write, not just filter at dispatch time. (Validated: #7651)
 - **Rate-limit retries MUST use `--scheduled-for`:** Parse `retry_after` → expiry + 5min → schedule. Without it, dispatch hits the limit again immediately.
+- **Sentinel bulk-close on relay-health cascade:** When a relay-dependent task (e.g., x402 welcome) detects NONCE_CONFLICT and writes a sentinel, immediately bulk-close all other pending tasks of the same type (same subject prefix, same source pattern) with `status=failed, summary="sentinel-bulk-close: queued before CB opened"`. Pre-queued tasks bypass sentinel creation gates and will drain one-by-one accumulating serial failures. A single bulk-close at sentinel-write time prevents N failure entries, reduces queue noise, and makes retrospective failure counts meaningful. (Validated: #8062, #8124, #8147, #8011, #8182, #8537, #8072, #8061, #8067, #8098)
 
 ## Integration Patterns
 
@@ -118,6 +119,7 @@
 - **Multi-phase quest structure for 100+ item reviews:** For large architectural audits, structure as multi-pass quest: (1) triage/scoping, (2) validation/normalization, (3) cross-reference/relationship-mapping, (4) synthesis/enrichment, (5) manifest/summary. Each phase commits artifacts; next phase builds on prior output. Enables research parallelization and avoids context bloat. (Validated: #8086–#8090)
 - **Multi-source documentation crosswalk for domain skill planning:** When planning skills for mature ecosystems (languages, platforms), audit current official docs + language spec + existing knowledge base + version history to find deprecations and anti-patterns. Single-source planning creates blindspots for deprecated APIs. (Validated: #8287)
 - **Pre-planning stakeholder clarification over post-planning rework:** For architectural-scope work, email stakeholder with key decision questions BEFORE queuing execution. Pre-planning alignment enables first-pass correctness. (Validated: #8287)
+- **Multi-phase quest projected cost checkpoint after phase 1:** Multi-phase Opus quests cost $3–5/phase; a 5-phase quest = $15–25 total. After completing phase 1, before queuing phases 3+, create a one-line cost-projection summary: estimated phases remaining × $4 avg. If projected total exceeds $15, escalate to whoabuddy for approval before proceeding. This surfaces cost commitment early when scope changes are still cheap. Skipping the checkpoint leads to $20+ surprises visible only in retrospective. (Validated: #8165 $4.47/phase, #8435 $3.51/phase, #7190 $3.68, #8224 $3.81)
 
 ## State Machine & Recovery Patterns
 
@@ -147,3 +149,4 @@
 - **Strategic reviews reassess priority for active events:** When a deadline or time-bound event becomes imminent or starts, strategic (CEO/leadership) reviews should actively escalate related queued work from current priority to P1. Daily dispatch cycles may miss these escalations; a strategic review catches them. Clean queue as outcome is valid—no work created means gate + prioritization are working. (Validated: #8274)
 - **Multi-wave deprecation with external gating:** When removing N related components, separate into waves: (1) unused/dead (delete immediately), (2) have-upstream-equivalents (gate on external trigger). Immediate deletion cleans debt; gated waves preserve transition periods and prevent orphaned configs during fleet transitions. Example: #8201 deleted 9 dead skills immediately, gated 9 "replace-with-upstream" skills on fleet resumption. External triggers: service restart, feature readiness, stakeholder approval. (Validated: #8201)
 - **Category rotation verification in time-bound events:** When a sensor rotates through category buckets under daily caps (e.g., ordinals beat 6/day max), explicitly verify all buckets are fetched before competitive window closes. Partial rotation (missing inscriptions/brc20 on day-2) leaves $$ on table. Queue P3+ verification task mid-event to enumerate all categories and force completion of remaining buckets. Pattern: Day-1 all 5 categories ✓ → Day-2 discovers gap (2/5) → Day-3 queues explicit verification task (P3, sonnet) to handle remaining 3. (Validated: #8723)
+- **Meta-task volume ceiling — 10% of weekly queue:** When retrospective + learning-extraction tasks exceed 10% of weekly task volume, it signals over-granular extraction. At 14.7% this week (261/1779), individual per-task learning-extraction tasks should be batched into the weekly retrospective briefing rather than queued individually. Action: fold "extract learning from task #N" into the weekly retro's briefing rather than creating individual tasks; cap arc-introspection at 1/day maximum. Meta-task overhead above 10% competes with domain work for dispatch slots and creates false backlog growth signals. (Validated: w/e 2026-03-25, 261 meta tasks observed)

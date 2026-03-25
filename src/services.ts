@@ -92,7 +92,7 @@ function generateObservatoryServiceUnit(): string {
   const envFile = join(ROOT, ".env");
   const envLine = existsSync(envFile) ? `EnvironmentFile=${envFile}\n` : "";
   return `[Unit]
-Description=Arc Observatory — Fleet Dashboard
+Description=Arc Observatory — Dashboard
 After=network.target arc-web.service
 
 [Service]

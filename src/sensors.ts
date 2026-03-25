@@ -12,8 +12,7 @@ import { existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { discoverSkills } from "./skills.ts";
 import { initDatabase } from "./db.ts";
-import { AGENT_NAME } from "./identity.ts";
-import { isShutdown, getShutdownState } from "./shutdown.ts";
+import { getShutdownState } from "./shutdown.ts";
 import { insertTask, pendingTaskExistsForSource, pendingTaskExistsForSubject, taskExistsForSource } from "./db.ts";
 export { insertTask, pendingTaskExistsForSource, taskExistsForSource };
 import type { InsertTask } from "./db.ts";
@@ -175,29 +174,6 @@ export async function createTaskIfDue(
 
 // ---- Sensor runner ----
 
-/**
- * Worker allowlist — workers ONLY run these sensors. Everything else is Arc-only.
- * Simpler than exclusion lists and safer as the sensor count grows.
- * Workers are lean executors; Arc is the workhorse with 66+ sensors.
- */
-const WORKER_SENSORS: ReadonlySet<string> = new Set([
-  // Core — every agent needs these
-  "aibtc-heartbeat",        // signed platform check-in (5min)
-  "aibtc-inbox-sync",       // poll AIBTC inbox for messages
-  "arc-service-health",     // self-monitor: detect own stale cycles/dead services
-  "arc-alive-check",        // periodic alive signal
-  "arc-housekeeping",       // basic repo hygiene
-  "fleet-self-sync",        // receive code updates from Arc
-  "arc-scheduler",          // fire scheduled tasks
-  "contacts",               // contact sync
-  // Identity — detect SOUL.md drift from fleet sync
-  "identity-guard",              // validate SOUL.md matches hostname (30min)
-  // Reputation — all agents should review peers and monitor feedback
-  "reputation-tracker",          // detect review opportunities from completed tasks (30min)
-  "erc8004-reputation-monitor",  // watch for incoming on-chain feedback (60min)
-  // GitHub policy enforcement — intercept blocked GitHub tasks and route to Arc
-  "github-interceptor",          // auto-handoff GitHub work to Arc (10min)
-]);
 
 /** Per-sensor timeout in milliseconds. Liberal limit to catch hangs, not rush normal work. */
 const SENSOR_TIMEOUT_MS = 90_000; // 90 seconds
@@ -228,17 +204,7 @@ export async function runSensors(): Promise<void> {
   }
 
   const skills = discoverSkills();
-  let sensorsToRun = skills.filter((s) => s.hasSensor);
-
-  // Workers only run allowlisted sensors. Arc runs everything.
-  if (AGENT_NAME !== "arc0") {
-    const before = sensorsToRun.length;
-    sensorsToRun = sensorsToRun.filter((s) => WORKER_SENSORS.has(s.name));
-    const skipped = before - sensorsToRun.length;
-    if (skipped > 0) {
-      process.stdout.write(`sensors: ${sensorsToRun.length} allowed, ${skipped} Arc-only skipped on ${AGENT_NAME}\n`);
-    }
-  }
+  const sensorsToRun = skills.filter((s) => s.hasSensor);
 
   if (sensorsToRun.length === 0) {
     process.stdout.write("sensors: ran 0 sensors\n");

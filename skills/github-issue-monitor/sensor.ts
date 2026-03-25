@@ -1,5 +1,4 @@
-import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { taskExistsForSource, insertWorkflow, getWorkflowByInstanceKey } from "../../src/db.ts";
+import { claimSensorRun, createSensorLogger, insertTaskIfNew } from "../../src/sensors.ts";
 import { classifyRepo } from "../../src/constants.ts";
 
 const SENSOR_NAME = "github-issue-monitor";
@@ -20,7 +19,7 @@ const MONITORED_REPOS = [
   "secret-mars/loop-starter-kit",
 ] as const;
 
-/** GitHub username Arc operates as — only create workflows for issues targeting this user. */
+/** GitHub username Arc operates as — only create tasks for issues targeting this user. */
 const ARC_GITHUB_LOGIN = "arc0btc";
 
 interface GitHubIssue {
@@ -88,45 +87,41 @@ export default async function githubIssueMonitorSensor(): Promise<string> {
       const repoClass = classifyRepo(repo);
 
       for (const issue of issues) {
-        // Only create workflows for issues where Arc is assigned or mentioned.
-        // The github-mentions sensor handles notification-based engagement separately.
+        // Managed repos: triage all issues (Arc owns these repos)
+        // Collaborative repos: only triage when Arc is explicitly assigned
         const isAssigned = issue.assignees.includes(ARC_GITHUB_LOGIN);
-        const isManaged = repoClass === "managed";
-        if (!isAssigned && !isManaged) continue;
+        if (repoClass !== "managed" && !isAssigned) continue;
 
         // Canonical key shared with github-mentions sensor for cross-sensor dedup
         const canonicalSource = `issue:${repo}#${issue.number}`;
-        const legacySource = `sensor:github-issue-monitor:${repo}#${issue.number}`;
+        const priority = repoClass === "managed" ? 4 : 5;
 
-        if (taskExistsForSource(canonicalSource) || taskExistsForSource(legacySource)) continue;
+        const id = insertTaskIfNew(canonicalSource, {
+          subject: `GitHub issue in ${repo}#${issue.number}: ${issue.title}`,
+          description: [
+            `Triage GitHub issue: ${issue.html_url}`,
+            `Repo class: ${repoClass} | Author: ${issue.user} | Labels: ${issue.labels.join(", ") || "none"}`,
+            "",
+            "Steps:",
+            "1. Read the issue: gh issue view --repo " + repo + " " + issue.number,
+            "2. Check for related open issues, recent PRs, and CI status",
+            "3. Cross-reference with operational experience — have sensors/logs seen related signals?",
+            repoClass === "managed"
+              ? "4. Take ownership: fix, close, or create a follow-up task"
+              : "4. Add context and triage. Open a PR if fixable. Let whoabuddy decide on closure.",
+            "5. Close this task with a summary of what you found and did",
+          ].join("\n"),
+          priority,
+          model: "sonnet",
+          skills: JSON.stringify(["github-issue-monitor"]),
+        }, "any");
 
-        // Workflow-based dedup: skip if a workflow instance already exists for this issue
-        const workflowKey = `github-issue-${repo}-${issue.number}`;
-        if (getWorkflowByInstanceKey(workflowKey)) continue;
-
-        // Create a GithubIssueImplementationMachine instance at "detected" state.
-        // The meta-sensor (arc-workflows) evaluates this every 5 minutes and creates
-        // the planning task automatically via the machine's detected.action.
-        insertWorkflow({
-          template: "github-issue-implementation",
-          instance_key: workflowKey,
-          current_state: "detected",
-          context: JSON.stringify({
-            repo,
-            issueNumber: issue.number,
-            issueTitle: issue.title,
-            issueUrl: issue.html_url,
-            repoClass,
-            labels: issue.labels,
-          }),
-        });
-
-        totalCreated++;
+        if (id !== null) totalCreated++;
       }
     }
 
     if (totalCreated > 0) {
-      log(`created ${totalCreated} github-issue-implementation workflow instance(s)`);
+      log(`created ${totalCreated} triage task(s)`);
     }
 
     return "ok";

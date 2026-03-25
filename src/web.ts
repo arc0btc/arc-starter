@@ -9,25 +9,11 @@ import { initDatabase, getDatabase, insertTask, markTaskFailed, markTaskComplete
 import { discoverSkills } from "./skills.ts";
 import { IDENTITY } from "./identity.ts";
 import { dispatchCodex } from "./codex.ts";
-import {
-  initHubSchema,
-  getAllHubAgents,
-  getHubAgent,
-  upsertHubAgent,
-  getHubCapabilities,
-  replaceAgentCapabilities,
-  findAgentForSkill,
-  getFleetHealth,
-  getRoutingStats,
-  insertTaskRoute,
-} from "../skills/agent-hub/schema.ts";
-import type { InsertHubCapability } from "../skills/agent-hub/schema.ts";
 
 // ---- Database ----
 
 // Initialize singleton database on startup
 initDatabase();
-initHubSchema();
 const db = getDatabase();
 const dbWrite = getDatabase();
 
@@ -1254,18 +1240,18 @@ async function handleConsensusVote(req: Request): Promise<Response> {
   const taskId = insertTask({
     subject: `[consensus] Vote on proposal #${proposalId}: ${topic}`,
     description: [
-      `**Fleet Consensus Proposal #${proposalId}**`,
+      `**Consensus Proposal #${proposalId}**`,
       "",
       `**Topic:** ${topic}`,
       "",
       description,
       "",
-      "Evaluate this proposal and cast your vote. Consider: risk, reversibility, alignment with fleet goals.",
+      "Evaluate this proposal and cast your vote. Consider: risk, reversibility, and alignment with goals.",
       "",
       "Cast your vote using:",
-      `\`arc skills run --name fleet-consensus -- vote --id ${proposalId} --vote approve|reject|abstain --reason "YOUR REASONING"\``,
+      `\`arc skills run --name consensus -- vote --id ${proposalId} --vote approve|reject|abstain --reason "YOUR REASONING"\``,
     ].join("\n"),
-    skills: JSON.stringify(["fleet-consensus"]),
+    skills: JSON.stringify(["consensus"]),
     priority: 4,
     model: "opus",
     source,
@@ -1274,53 +1260,6 @@ async function handleConsensusVote(req: Request): Promise<Response> {
   return json({ task_id: taskId, proposal_id: proposalId, status: "pending" }, 201);
 }
 
-// ---- Fleet Messages ----
-
-async function handlePostFleetMessage(req: Request): Promise<Response> {
-  let body: { from_agent?: string; from_bns?: string; message_type?: string; content?: string };
-  try {
-    body = await req.json() as { from_agent?: string; from_bns?: string; message_type?: string; content?: string };
-  } catch {
-    return errorResponse("Invalid JSON body", 400);
-  }
-
-  const fromAgent = typeof body.from_agent === "string" ? body.from_agent.trim() : "";
-  if (!fromAgent) return errorResponse("'from_agent' is required", 400);
-  if (fromAgent.length > 50) return errorResponse("'from_agent' too long (max 50)", 400);
-
-  const content = typeof body.content === "string" ? body.content.trim() : "";
-  if (!content) return errorResponse("'content' is required", 400);
-  if (content.length > 2000) return errorResponse("'content' too long (max 2000 chars)", 400);
-
-  const validTypes = new Set(["status", "question", "alert"]);
-  const messageType = typeof body.message_type === "string" && validTypes.has(body.message_type) ? body.message_type : "status";
-  const fromBns = typeof body.from_bns === "string" ? body.from_bns.trim() : null;
-
-  const result = dbWrite.query(
-    "INSERT INTO fleet_messages (from_agent, from_bns, message_type, content) VALUES (?, ?, ?, ?)"
-  ).run(fromAgent, fromBns, messageType, content);
-
-  const id = Number(result.lastInsertRowid);
-  const msg = db.query("SELECT * FROM fleet_messages WHERE id = ?").get(id);
-  return json(msg, 201);
-}
-
-function handleGetFleetMessages(url: URL): Response {
-  const limit = Math.min(parseInt(url.searchParams.get("limit") || "50", 10), 200);
-  const since = url.searchParams.get("since"); // ISO datetime for incremental polling
-
-  let rows;
-  if (since) {
-    rows = db.query(
-      "SELECT * FROM fleet_messages WHERE created_at > ? ORDER BY created_at DESC LIMIT ?"
-    ).all(since, limit);
-  } else {
-    rows = db.query(
-      "SELECT * FROM fleet_messages ORDER BY created_at DESC LIMIT ?"
-    ).all(limit);
-  }
-  return json({ messages: rows });
-}
 
 // ---- Arena: Dual-model comparison ----
 
@@ -2136,81 +2075,6 @@ async function handleFace(): Promise<Response> {
   }
 }
 
-// ---- Fleet Status API ----
-
-const DB_DIR = join(import.meta.dir, "../db");
-const MEMORY_DIR = join(import.meta.dir, "../memory");
-
-const FLEET_ROSTER = [
-  { name: "arc",   ip: "192.168.1.10", role: "Orchestrator",  bitcoin: "bc1qlezz2..." },
-  { name: "spark", ip: "192.168.1.16", role: "AIBTC/DeFi",    bitcoin: "bc1qk7ks..." },
-  { name: "iris",  ip: "192.168.1.13", role: "Research/X",    bitcoin: "bc1q6sav..." },
-  { name: "loom",  ip: "192.168.1.14", role: "CI/CD",         bitcoin: "bc1q3qa3..." },
-  { name: "forge", ip: "192.168.1.15", role: "Infra",         bitcoin: "bc1q9hme..." },
-] as const;
-
-function readJsonFile<T>(path: string): T | null {
-  try {
-    if (!existsSync(path)) return null;
-    return JSON.parse(readFileSync(path, "utf-8")) as T;
-  } catch {
-    return null;
-  }
-}
-
-function handleFleetStatus(): Response {
-  const suspended = readJsonFile<{ suspended: string[]; reason: string; since: string }>(
-    join(DB_DIR, "fleet-suspended.json")
-  );
-  const maintenance = readJsonFile<{ enabled: boolean; reason: string; since: string }>(
-    join(DB_DIR, "fleet-maintenance.json")
-  );
-  const arcStatus = readJsonFile<{
-    agent: string;
-    updated_at: string;
-    idle: boolean;
-    idle_since: string | null;
-    last_task: { id: number; subject: string; status: string; priority: number } | null;
-    last_cycle: { duration_ms: number; cost_usd: number } | null;
-    health: { uptime_seconds: number; disk_total_bytes: number; disk_avail_bytes: number };
-  }>(join(MEMORY_DIR, "fleet-status.json"));
-
-  const suspendedNames = new Set(suspended?.suspended ?? []);
-
-  const agents = FLEET_ROSTER.map((a) => {
-    const isSuspended = suspendedNames.has(a.name);
-    const isArc = a.name === "arc";
-    let status: "active" | "suspended" | "maintenance" | "unknown" = "unknown";
-    if (isSuspended) status = "suspended";
-    else if (maintenance?.enabled && !isArc) status = "maintenance";
-    else if (isArc) status = arcStatus ? (arcStatus.idle ? "idle" : "active") : "unknown";
-    else status = "unknown";
-
-    return {
-      name: a.name,
-      role: a.role,
-      ip: a.ip,
-      status,
-      ...(isArc && arcStatus
-        ? {
-            idle: arcStatus.idle,
-            last_task: arcStatus.last_task,
-            last_cycle: arcStatus.last_cycle,
-            uptime_seconds: arcStatus.health?.uptime_seconds,
-            updated_at: arcStatus.updated_at,
-          }
-        : {}),
-    };
-  });
-
-  return json({
-    agents,
-    maintenance: maintenance ?? null,
-    suspension: suspended
-      ? { suspended: suspended.suspended, reason: suspended.reason, since: suspended.since }
-      : null,
-  });
-}
 
 function handleReputation(): Response {
   try {
@@ -2576,352 +2440,6 @@ function serveStatic(pathname: string): Response | null {
   });
 }
 
-// ---- Fleet Task API: Authenticated cross-agent endpoints ----
-
-const FLEET_SECRET = process.env.ARC_FLEET_SECRET || "";
-const KNOWN_AGENTS = new Set(["arc", "spark", "iris", "loom", "forge"]);
-
-function authenticateFleet(req: Request): string | null {
-  if (!FLEET_SECRET) return "ARC_FLEET_SECRET not configured";
-  const auth = req.headers.get("authorization");
-  if (!auth) return "Missing Authorization header";
-  const [scheme, token] = auth.split(" ", 2);
-  if (scheme?.toLowerCase() !== "bearer" || token !== FLEET_SECRET) {
-    return "Invalid fleet credentials";
-  }
-  return null;
-}
-
-function fleetAuthError(message: string): Response {
-  return json({ error: message }, 401);
-}
-
-async function handleFleetCreateTask(req: Request): Promise<Response> {
-  const authErr = authenticateFleet(req);
-  if (authErr) return fleetAuthError(authErr);
-
-  let body: {
-    subject?: string;
-    priority?: number;
-    description?: string;
-    skills?: string[];
-    source?: string;
-    assigned_to?: string;
-    parent_id?: number;
-    model?: string;
-  };
-  try {
-    body = await req.json() as typeof body;
-  } catch {
-    return errorResponse("Invalid JSON body", 400);
-  }
-
-  const subject = typeof body.subject === "string" ? body.subject.trim() : "";
-  if (!subject) return errorResponse("'subject' is required", 400);
-  if (subject.length > 500) return errorResponse("Subject too long (max 500 chars)", 400);
-
-  const source = typeof body.source === "string" ? body.source.trim() : "";
-  if (!source) return errorResponse("'source' is required (e.g. 'agent:spark')", 400);
-
-  let priority = 5;
-  if (body.priority !== undefined) {
-    if (typeof body.priority !== "number" || !Number.isInteger(body.priority) || body.priority < 1 || body.priority > 10) {
-      return errorResponse("'priority' must be an integer 1-10", 400);
-    }
-    priority = body.priority;
-  }
-
-  let description: string | undefined;
-  if (body.description !== undefined) {
-    if (typeof body.description !== "string") return errorResponse("'description' must be a string", 400);
-    if (body.description.length > 5000) return errorResponse("Description too long (max 5000 chars)", 400);
-    description = body.description.trim() || undefined;
-  }
-
-  let skills: string | undefined;
-  if (body.skills !== undefined) {
-    if (!Array.isArray(body.skills) || !body.skills.every((s): s is string => typeof s === "string")) {
-      return errorResponse("'skills' must be an array of strings", 400);
-    }
-    if (body.skills.length > 10) return errorResponse("Too many skills (max 10)", 400);
-    skills = JSON.stringify(body.skills);
-  }
-
-  let assignedTo: string | undefined;
-  if (body.assigned_to !== undefined) {
-    if (typeof body.assigned_to !== "string") return errorResponse("'assigned_to' must be a string", 400);
-    assignedTo = body.assigned_to.trim().toLowerCase();
-    if (!KNOWN_AGENTS.has(assignedTo)) {
-      return errorResponse(`Unknown agent '${assignedTo}'. Known: ${[...KNOWN_AGENTS].join(", ")}`, 400);
-    }
-  }
-
-  let parentId: number | undefined;
-  if (body.parent_id !== undefined) {
-    if (typeof body.parent_id !== "number" || !Number.isInteger(body.parent_id) || body.parent_id < 1) {
-      return errorResponse("'parent_id' must be a positive integer", 400);
-    }
-    parentId = body.parent_id;
-  }
-
-  let model: string | undefined;
-  if (body.model !== undefined) {
-    if (typeof body.model !== "string") return errorResponse("'model' must be a string", 400);
-    model = body.model.trim() || undefined;
-  }
-
-  const taskId = insertTask({
-    subject,
-    description,
-    skills,
-    priority,
-    source,
-    assigned_to: assignedTo,
-    parent_id: parentId,
-    model,
-  });
-
-  const task = db.query(
-    "SELECT id, subject, description, skills, priority, status, source, assigned_to, model, created_at FROM tasks WHERE id = ?"
-  ).get(taskId);
-
-  return json(task, 201);
-}
-
-function handleFleetGetTasks(url: URL, req: Request): Response {
-  const authErr = authenticateFleet(req);
-  if (authErr) return fleetAuthError(authErr);
-
-  const agent = url.searchParams.get("agent")?.trim().toLowerCase();
-  const status = url.searchParams.get("status") || "pending";
-  const limit = Math.min(parseInt(url.searchParams.get("limit") || "50", 10), 200);
-
-  let rows;
-  if (agent) {
-    rows = db.query(
-      `SELECT id, subject, description, skills, priority, status, source, assigned_to, model, created_at
-       FROM tasks WHERE assigned_to = ? AND status = ? ORDER BY priority ASC, id ASC LIMIT ?`
-    ).all(agent, status, limit);
-  } else {
-    rows = db.query(
-      `SELECT id, subject, description, skills, priority, status, source, assigned_to, model, created_at
-       FROM tasks WHERE assigned_to IS NOT NULL AND status = ? ORDER BY priority ASC, id ASC LIMIT ?`
-    ).all(status, limit);
-  }
-
-  return json({ tasks: rows, count: (rows as unknown[]).length });
-}
-
-async function handleFleetCompleteTask(req: Request, id: string): Promise<Response> {
-  const authErr = authenticateFleet(req);
-  if (authErr) return fleetAuthError(authErr);
-
-  const taskId = parseInt(id, 10);
-  if (isNaN(taskId)) return errorResponse("Invalid task ID", 400);
-
-  let body: {
-    status?: string;
-    summary?: string;
-    detail?: string;
-    cost_usd?: number;
-  };
-  try {
-    body = await req.json() as typeof body;
-  } catch {
-    return errorResponse("Invalid JSON body", 400);
-  }
-
-  const task = db.query("SELECT id, status, assigned_to FROM tasks WHERE id = ?").get(taskId) as {
-    id: number; status: string; assigned_to: string | null;
-  } | null;
-
-  if (!task) return errorResponse("Task not found", 404);
-  if (task.status !== "pending" && task.status !== "active") {
-    return errorResponse(`Task is not pending or active (current: ${task.status})`, 409);
-  }
-
-  const finalStatus = body.status === "failed" ? "failed" : "completed";
-  const summary = typeof body.summary === "string" ? body.summary.trim() : "";
-  if (!summary) return errorResponse("'summary' is required", 400);
-  if (summary.length > 1000) return errorResponse("Summary too long (max 1000 chars)", 400);
-
-  const detail = typeof body.detail === "string" ? body.detail.trim() : undefined;
-
-  if (finalStatus === "completed") {
-    markTaskCompleted(taskId, summary, detail);
-  } else {
-    markTaskFailed(taskId, summary);
-  }
-
-  // Update cost if provided
-  if (typeof body.cost_usd === "number" && body.cost_usd >= 0) {
-    dbWrite.query("UPDATE tasks SET cost_usd = ? WHERE id = ?").run(body.cost_usd, taskId);
-  }
-
-  const updated = db.query("SELECT * FROM tasks WHERE id = ?").get(taskId);
-  return json(updated);
-}
-
-// ---- Agent Hub API ----
-
-function handleHubListAgents(): Response {
-  const agents = getAllHubAgents();
-  return json({ agents, count: agents.length });
-}
-
-function handleHubGetAgent(name: string): Response {
-  const agent = getHubAgent(name);
-  if (!agent) return errorResponse("Agent not found", 404);
-  const capabilities = getHubCapabilities(name);
-  return json({ agent, capabilities });
-}
-
-async function handleHubRegisterAgent(req: Request): Promise<Response> {
-  const authErr = authenticateFleet(req);
-  if (authErr) return fleetAuthError(authErr);
-
-  let body: {
-    agent_name?: string;
-    ip_address?: string;
-    display_name?: string;
-    stx_address?: string;
-    btc_address?: string;
-    bns_name?: string;
-    status?: string;
-    version?: string;
-    skill_count?: number;
-    sensor_count?: number;
-    pending_tasks?: number;
-    active_tasks?: number;
-    cost_today_usd?: number;
-    capabilities?: Array<{
-      skill_name: string;
-      has_sensor?: boolean;
-      has_cli?: boolean;
-      has_agent_md?: boolean;
-      tags?: string[];
-    }>;
-  };
-
-  try {
-    body = await req.json() as typeof body;
-  } catch {
-    return errorResponse("Invalid JSON body", 400);
-  }
-
-  if (!body.agent_name || !body.ip_address) {
-    return errorResponse("'agent_name' and 'ip_address' are required", 400);
-  }
-
-  upsertHubAgent({
-    agent_name: body.agent_name,
-    ip_address: body.ip_address,
-    display_name: body.display_name,
-    stx_address: body.stx_address,
-    btc_address: body.btc_address,
-    bns_name: body.bns_name,
-    status: body.status,
-    version: body.version,
-    skill_count: body.skill_count,
-    sensor_count: body.sensor_count,
-    pending_tasks: body.pending_tasks,
-    active_tasks: body.active_tasks,
-    cost_today_usd: body.cost_today_usd,
-  });
-
-  // Update capabilities if provided
-  if (body.capabilities && Array.isArray(body.capabilities)) {
-    const caps: InsertHubCapability[] = body.capabilities.map((c) => ({
-      agent_name: body.agent_name!,
-      skill_name: c.skill_name,
-      has_sensor: c.has_sensor ? 1 : 0,
-      has_cli: c.has_cli ? 1 : 0,
-      has_agent_md: c.has_agent_md ? 1 : 0,
-      tags: c.tags && c.tags.length > 0 ? JSON.stringify(c.tags) : null,
-    }));
-    replaceAgentCapabilities(body.agent_name, caps);
-  }
-
-  const agent = getHubAgent(body.agent_name);
-  return json(agent, 201);
-}
-
-function handleHubCapabilities(url: URL): Response {
-  const skill = url.searchParams.get("skill")?.trim();
-  if (skill) {
-    const matches = findAgentForSkill(skill);
-    return json({ skill, agents: matches });
-  }
-  // No filter: return all agents with their capability counts
-  const agents = getAllHubAgents();
-  const summary = agents.map((a) => ({
-    agent_name: a.agent_name,
-    skill_count: a.skill_count,
-    sensor_count: a.sensor_count,
-    status: a.status,
-  }));
-  return json({ capabilities: summary });
-}
-
-function handleHubHealth(): Response {
-  const health = getFleetHealth();
-  const agents = getAllHubAgents();
-  const agentDetails = agents.map((a) => ({
-    agent_name: a.agent_name,
-    status: a.status,
-    ip_address: a.ip_address,
-    pending_tasks: a.pending_tasks,
-    active_tasks: a.active_tasks,
-    cost_today_usd: a.cost_today_usd,
-    last_heartbeat: a.last_heartbeat,
-  }));
-  return json({ ...health, agents: agentDetails });
-}
-
-async function handleHubRoute(req: Request): Promise<Response> {
-  const authErr = authenticateFleet(req);
-  if (authErr) return fleetAuthError(authErr);
-
-  let body: {
-    task_id?: number;
-    skill?: string;
-    from_agent?: string;
-  };
-
-  try {
-    body = await req.json() as typeof body;
-  } catch {
-    return errorResponse("Invalid JSON body", 400);
-  }
-
-  if (!body.skill) return errorResponse("'skill' is required", 400);
-
-  const matches = findAgentForSkill(body.skill);
-  if (matches.length === 0) {
-    return json({ routed: false, reason: `No online agent has skill '${body.skill}'` });
-  }
-
-  const bestAgent = matches[0].agent_name;
-  let routeId: number | null = null;
-
-  if (body.task_id) {
-    routeId = insertTaskRoute(
-      body.task_id,
-      body.from_agent || "arc",
-      bestAgent,
-      body.skill,
-      "capability-match",
-    );
-  }
-
-  return json({
-    routed: true,
-    to_agent: bestAgent,
-    skill_match: body.skill,
-    route_id: routeId,
-    alternatives: matches.slice(1).map((m) => m.agent_name),
-  });
-}
 
 // ---- Router ----
 
@@ -2942,24 +2460,8 @@ function route(req: Request): Response | Promise<Response> {
     });
   }
 
-  // Fleet task API (authenticated)
-  if (method === "POST" && path === "/api/fleet/tasks") return handleFleetCreateTask(req);
-  if (method === "GET" && path === "/api/fleet/tasks") return handleFleetGetTasks(url, req);
-  const fleetCompleteMatch = path.match(/^\/api\/fleet\/tasks\/(\d+)\/complete$/);
-  if (method === "POST" && fleetCompleteMatch) return handleFleetCompleteTask(req, fleetCompleteMatch[1]);
-
-  // Agent Hub API
-  if (method === "GET" && path === "/api/hub/agents") return handleHubListAgents();
-  if (method === "POST" && path === "/api/hub/agents") return handleHubRegisterAgent(req);
-  if (method === "GET" && path === "/api/hub/capabilities") return handleHubCapabilities(url);
-  if (method === "GET" && path === "/api/hub/health") return handleHubHealth();
-  if (method === "POST" && path === "/api/hub/route") return handleHubRoute(req);
-  const hubAgentMatch = path.match(/^\/api\/hub\/agents\/([a-z0-9-]+)$/);
-  if (method === "GET" && hubAgentMatch) return handleHubGetAgent(hubAgentMatch[1]);
-
   // POST routes
   if (method === "POST" && path === "/api/tasks") return handlePostTask(req);
-  if (method === "POST" && path === "/api/messages/fleet") return handlePostFleetMessage(req);
   if (method === "POST" && path === "/api/messages") return handlePostMessage(req);
   if (method === "POST" && path === "/api/ask") return handleAsk(req);
   if (method === "POST" && path === "/api/voice/ask") return handleVoiceAsk(req);
@@ -3084,11 +2586,6 @@ function route(req: Request): Response | Promise<Response> {
     });
   }
 
-  // Fleet messages
-  if (path === "/api/messages/fleet") {
-    if (method === "GET") return handleGetFleetMessages(url);
-  }
-
   // Email thread API
   if (path === "/api/email/threads") return handleEmailThreads(url);
   const emailThreadMatch = path.match(/^\/api\/email\/threads\/(.+)$/);
@@ -3105,7 +2602,6 @@ function route(req: Request): Response | Promise<Response> {
   if (path === "/api/costs/by-skill") return handleCostsBySkill(url);
   if (path === "/api/identity") return handleIdentity();
   if (path === "/api/face") return handleFace();
-  if (path === "/api/fleet-status") return handleFleetStatus();
   if (path === "/api/reputation") return handleReputation();
   if (path === "/api/events") return handleEvents();
   if (path === "/api/arena/history") return handleArenaHistory();
