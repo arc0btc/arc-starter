@@ -13,6 +13,27 @@ const MAX_RESULTS = 30;
 
 const log = createSensorLogger(SENSOR_NAME);
 
+// Dev-tools beat: keywords that indicate a paper is relevant to the dev-tools signal beat
+const DEV_TOOL_PAPER_KEYWORDS = [
+  /\bautonomous agent/i,
+  /\bAI agent/i,
+  /\bmulti[-\s]?agent/i,
+  /\bMCP\b/,
+  /\bmodel context protocol/i,
+  /\btool[-\s]?use\b/i,
+  /\bfunction[-\s]?call/i,
+  /\bagent[-\s]?framework/i,
+  /\borchestrat/i,
+  /\bcode[-\s]?gen/i,
+  /\bLLM[-\s]?routing/i,
+  /\bagent[-\s]?skill/i,
+  /\bagent[-\s]?infra/i,
+];
+
+function isDevToolPaper(title: string): boolean {
+  return DEV_TOOL_PAPER_KEYWORDS.some((re) => re.test(title));
+}
+
 interface ArxivEntry {
   id: string;
   title: string;
@@ -123,6 +144,36 @@ export default async function arxivResearchSensor(): Promise<string> {
       status: "pending",
       source,
     });
+
+    // Dev-tools signal routing: check new papers for dev-tool relevance
+    const newEntries = entries.slice(0, newCount);
+    const devToolPapers = newEntries.filter((e) => isDevToolPaper(e.title));
+    if (devToolPapers.length > 0) {
+      const signalSource = `sensor:${SENSOR_NAME}:devtools-signal-${today}`;
+      if (!pendingTaskExistsForSource(signalSource)) {
+        const paperList = devToolPapers
+          .slice(0, 5)
+          .map((p) => `- ${p.title} (${p.id})`)
+          .join("\n");
+        insertTask({
+          subject: `File dev-tools signal from arXiv digest (${devToolPapers.length} paper(s))`,
+          description:
+            `${devToolPapers.length} dev-tool-relevant papers found in today's arXiv fetch:\n\n` +
+            paperList + "\n\n" +
+            "Instructions:\n" +
+            "1. Review the compiled digest: research/arxiv/ (latest file)\n" +
+            "2. Compose a signal: arc skills run --name aibtc-news-editorial -- compose-signal --beat dev-tools\n" +
+            "3. Focus on agent frameworks, tool-use, MCP, or orchestration findings\n" +
+            "4. File the signal: arc skills run --name aibtc-news-editorial -- file-signal --beat dev-tools ...",
+          skills: JSON.stringify(["aibtc-news-editorial", "arxiv-research"]),
+          priority: 6,
+          model: "sonnet",
+          status: "pending",
+          source: signalSource,
+        });
+        log(`dev-tools signal task queued (${devToolPapers.length} matching papers)`);
+      }
+    }
 
     log("run completed");
     return "ok";

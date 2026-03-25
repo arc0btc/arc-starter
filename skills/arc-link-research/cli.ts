@@ -106,7 +106,19 @@ interface LinkAnalysis {
   justification: string;
   takeaways: string[];
   fetchError: string | null;
+  devToolTags: string[];
 }
+
+// Dev-tools beat signal keywords — matched against content to route high-relevance
+// research into dev-tools signal filing tasks
+const DEV_TOOL_SIGNALS = [
+  "autonomous agent", "claude code", "agent skill", "mcp",
+  "model context protocol", "x402", "agent framework", "llm routing",
+  "llm-routing", "tool use", "tool-use", "function calling",
+  "multi-agent", "agentic", "agent orchestrat", "agent infrastructure",
+  "codegen agent", "agent loop", "agent scheduler", "agent workflow",
+  "sdk release", "api deprecat", "developer tool", "dev tool",
+];
 
 const MISSION_TOPICS = [
   "AIBTC platform",
@@ -413,6 +425,7 @@ function analyzeContent(url: string, title: string, content: string): LinkAnalys
     justification: "",
     takeaways: [],
     fetchError: null,
+    devToolTags: [],
   };
 
   result.title = title;
@@ -477,6 +490,9 @@ function analyzeContent(url: string, title: string, content: string): LinkAnalys
       result.justification = "No direct mission connection detected";
     }
 
+    // Dev-tool tag detection for signal routing
+    result.devToolTags = DEV_TOOL_SIGNALS.filter((s) => lower.includes(s));
+
     // Extract takeaways — first few meaningful sentences
     const sentences = content
       .split(/[.!?]+/)
@@ -507,6 +523,7 @@ async function fetchAndAnalyze(url: string): Promise<{ analysis: LinkAnalysis; e
         justification: `Fetch failed — ${errorMsg}`,
         takeaways: ["Fetch failed — review link manually or check authentication."],
         fetchError: errorMsg,
+        devToolTags: [],
       },
       embeddedUrls: [],
     };
@@ -553,6 +570,7 @@ async function cmdProcess(args: string[]): Promise<void> {
         justification: "Analysis failed",
         takeaways: [`Error: ${a.reason}`],
         fetchError: String(a.reason),
+        devToolTags: [],
       });
     }
   }
@@ -574,6 +592,7 @@ async function cmdProcess(args: string[]): Promise<void> {
           justification: "Embedded link fetch failed",
           takeaways: [`Error: ${a.reason}`],
           fetchError: String(a.reason),
+          devToolTags: [],
         });
       }
     }
@@ -637,6 +656,49 @@ async function cmdProcess(args: string[]): Promise<void> {
 
   process.stdout.write(`Report written: research/${filename}\n`);
   process.stdout.write(JSON.stringify({ file: filename, links: results.length, high: counts.high, medium: counts.medium, low: counts.low }, null, 2) + "\n");
+
+  // Signal routing: HIGH relevance + dev-tool tags → queue dev-tools signal filing task
+  const devToolHighLinks = results.filter(
+    (r) => r.relevance === "high" && r.devToolTags.length > 0 && !r.fetchError
+  );
+  if (devToolHighLinks.length > 0) {
+    routeDevToolsSignal(devToolHighLinks, filename);
+  }
+}
+
+function routeDevToolsSignal(links: LinkAnalysis[], reportFile: string): void {
+  const linkSummary = links
+    .map((l) => `- ${l.title} (${l.url}): ${l.justification} [dev-tool tags: ${l.devToolTags.join(", ")}]`)
+    .join("\n");
+  const subject = `File dev-tools signal from research (${links.length} high-relevance link(s))`;
+  const description = [
+    `Research report: arc-link-research/${reportFile}`,
+    "",
+    "High-relevance dev-tools links found:",
+    linkSummary,
+    "",
+    "Instructions:",
+    "1. Read the research report for full context",
+    "2. Compose a signal: arc skills run --name aibtc-news-editorial -- compose-signal --beat dev-tools",
+    "3. Follow editorial guide for dev-tools beat voice and sourcing",
+    "4. File the signal: arc skills run --name aibtc-news-editorial -- file-signal --beat dev-tools ...",
+  ].join("\n");
+
+  const arcBin = join(ROOT, "bin", "arc");
+  const proc = Bun.spawnSync([
+    arcBin, "tasks", "add",
+    "--subject", subject,
+    "--skills", "aibtc-news-editorial,arc-link-research",
+    "--priority", "5",
+    "--model", "sonnet",
+    "--description", description,
+  ]);
+
+  if (proc.exitCode === 0) {
+    process.stdout.write(`Signal routing: queued dev-tools signal filing task (${links.length} link(s))\n`);
+  } else {
+    process.stderr.write(`Signal routing: failed to queue task — ${proc.stderr.toString()}\n`);
+  }
 }
 
 function cmdList(): void {

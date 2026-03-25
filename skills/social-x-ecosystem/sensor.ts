@@ -23,6 +23,10 @@ const KEYWORDS = [
   "Bitcoin AI agent",
   "Stacks STX",
   "AIBTC",
+  // Dev-tools beat discovery keywords
+  "MCP protocol tools",
+  "agent framework SDK",
+  "x402 payment protocol",
 ];
 
 const log = createSensorLogger(SENSOR_NAME);
