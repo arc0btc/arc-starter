@@ -63,6 +63,7 @@ export class SbtcService {
   /**
    * Transfer sBTC to a recipient
    * @param fee Optional fee in micro-STX. If omitted, fee is auto-estimated.
+   * @param nonce Optional nonce for local nonce tracking. If omitted, auto-fetched from network.
    */
   async transfer(
     account: Account,
@@ -70,7 +71,8 @@ export class SbtcService {
     amount: bigint,
     memo?: string,
     fee?: bigint,
-    sponsored?: boolean
+    sponsored?: boolean,
+    nonce?: bigint,
   ): Promise<TransferResult> {
     const sbtcContract = this.contracts.SBTC_TOKEN;
     const { address: contractAddress, name: contractName } = parseContractId(sbtcContract);
@@ -98,6 +100,7 @@ export class SbtcService {
       functionArgs,
       postConditions: [postCondition],
       ...(fee !== undefined && { fee }),
+      ...(nonce !== undefined && { nonce }),
     };
 
     if (sponsored) {

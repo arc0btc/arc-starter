@@ -58,6 +58,8 @@ export interface ContractCallOptions {
   postConditions?: PostCondition[];
   /** Optional fee in micro-STX. If omitted, fee is auto-estimated. */
   fee?: bigint;
+  /** Optional nonce. If omitted, auto-fetched from the network. Use for local nonce tracking. */
+  nonce?: bigint;
 }
 
 export interface ContractDeployOptions {
@@ -125,6 +127,7 @@ export async function callContract(
     postConditionMode: options.postConditionMode || PostConditionMode.Deny,
     postConditions: options.postConditions || [],
     ...(options.fee !== undefined && { fee: options.fee }),
+    ...(options.nonce !== undefined && { nonce: options.nonce }),
   });
 
   const broadcastResponse = await broadcastTransaction({
