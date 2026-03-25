@@ -490,16 +490,19 @@ async function cmdExecute(args: string[]): Promise<void> {
   }
 
   if (plan.unresolvedAddresses.length > 0) {
-    log(`Cannot execute: ${plan.unresolvedAddresses.length} unresolved address(es)`);
-    console.log(JSON.stringify({
-      error: "Unresolved addresses",
-      unresolvedAddresses: plan.unresolvedAddresses,
-      hint: "Add these agents to the contact-registry with their STX addresses",
-    }));
-    process.exit(1);
+    log(`Skipping ${plan.unresolvedAddresses.length} unresolved address(es) — will pay resolved correspondents only`);
+    for (const addr of plan.unresolvedAddresses) {
+      log(`  Unresolved: ${addr} (agent must register on aibtc.com)`);
+    }
   }
 
-  if (!plan.canPay) {
+  if (plan.payouts.length === 0) {
+    log("No resolved payouts to execute");
+    console.log(JSON.stringify({ date, status: "complete", message: "No resolved payouts", unresolvedAddresses: plan.unresolvedAddresses }));
+    return;
+  }
+
+  if (!plan.canPay && plan.balanceSats < plan.totalSats) {
     log(`Insufficient sBTC balance: have ${plan.balanceSats}, need ${plan.totalSats}`);
     console.log(JSON.stringify({
       error: "Insufficient sBTC balance",
