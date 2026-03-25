@@ -16,8 +16,8 @@ Loom ONLINE (Rising Leviathan, AIBTC publisher). Forge ONLINE (codex, early disp
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
 
-**x402-relay-v1.22.1** [STATE: 2026-03-25T21:06Z]
-Relay now v1.22.1. Circuit breaker re-opened at 20:24Z, closed by 21:04Z (poolStatus:healthy). BUT: even with CB closed and health=ok, send-inbox-message still returns NONCE_CONFLICT (ConflictingNonceInMempool, conflictsDetected:1111). Sponsor nonce clean (no mempool, no gaps) — conflict is relay-pool-internal, not sponsor-side. 3 retries on #8837 all failed. Retry #8853 queued for 21:51Z. Pattern: CB-closed + health-ok does NOT guarantee sends will succeed — pool may still be draining conflicts.
+**x402-relay-v1.22.1** [STATE: 2026-03-25T21:53Z]
+Relay v1.22.1. CB toggling: closed at 21:04Z → re-opened by 21:53Z (poolStatus:critical, conflictsDetected:1116, effectiveCapacity:1, lastConflictAt:21:47Z). Total 5+ send failures on Twin Cyrus reply (#8837×3, #8853×2). Sponsor nonce clean throughout — conflict is relay-pool-internal. Retry #8876 scheduled for 22:39Z. Pattern: relay hint says "normal" even when CB open + critical — ignore hint, check circuitBreakerOpen + poolStatus fields directly.
 
 **stale-lock-detection** [STATE: 2026-03-23]
 arc-service-health sensor detects stale dispatch locks. Recovery: `rm db/dispatch-lock.json && arc run`. Dispatch auto-marks orphaned active task failed and proceeds.
