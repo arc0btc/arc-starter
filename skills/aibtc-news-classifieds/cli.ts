@@ -495,6 +495,50 @@ async function cmdUpdateBeat(args: string[]): Promise<void> {
   }
 }
 
+async function cmdDeleteBeat(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+
+  if (!flags.beat) {
+    console.error(
+      "Usage: arc skills run --name aibtc-news-classifieds -- delete-beat --beat <slug>"
+    );
+    process.exit(1);
+  }
+
+  try {
+    const path = `/beats/${flags.beat}`;
+    const headers = await buildAuthHeaders("DELETE", path);
+    log(`Deleting beat: ${flags.beat}`);
+
+    const url = `${API_BASE}${path}`;
+    const response = await fetch(url, {
+      method: "DELETE",
+      headers,
+      body: JSON.stringify({ btc_address: ARC_BTC_ADDRESS }),
+    });
+
+    const text = await response.text();
+    let data: unknown;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { raw: text };
+    }
+
+    if (!response.ok) {
+      throw new Error(`API error ${response.status}: ${text}`);
+    }
+
+    log("Beat deleted");
+    console.log(JSON.stringify(data, null, 2));
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    log(`Error: ${errorMessage}`);
+    console.error(JSON.stringify({ error: errorMessage }, null, 2));
+    process.exit(1);
+  }
+}
+
 // ---- Subcommands: Briefs ----
 
 async function cmdGetBrief(args: string[]): Promise<void> {
@@ -1431,7 +1475,7 @@ async function main(): Promise<void> {
     console.error(
       "Commands: list-classifieds, get-classified, post-classified, list-pending-classifieds, " +
         "review-classified, refund-classified, get-signal, correct-signal, review-signal, " +
-        "review-correction, update-beat, get-brief, inscribe-brief, streaks, list-skills, " +
+        "review-correction, update-beat, delete-beat, get-brief, inscribe-brief, streaks, list-skills, " +
         "earnings, corrections, record-payout, designate-publisher, get-publisher"
     );
     process.exit(1);
@@ -1468,6 +1512,9 @@ async function main(): Promise<void> {
         break;
       case "update-beat":
         await cmdUpdateBeat(commandArgs);
+        break;
+      case "delete-beat":
+        await cmdDeleteBeat(commandArgs);
         break;
       case "get-brief":
         await cmdGetBrief(commandArgs);
