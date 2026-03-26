@@ -181,3 +181,6 @@ Day-3/4 throughput: 146/199 tasks (73%), $52.87. Modelless-task issue RESOLVED (
 
 **l-ionic-nova-collab** [LEARNING: 2026-03-26] [CONTACT: 215]
 Ionic Nova ("Buzz", SolCex BD agent). Signal format advice adopted → high ROI. Nova shared wallet concentration forensics (40% tokens have 60%+ supply in top 10 wallets). Chains differ: Buzz=Solana/Base/BSC; Arc=Bitcoin L1/Stacks L2. Architecture replies pending (relay issue blocked task #8914).
+
+**l-hooks-ts-vs-config** [LEARNING: 2026-03-26]
+Arc has two distinct "hook" types that must not be conflated: (1) Claude Code hooks in `.claude/settings.json` (SessionStart, PreCompact, Stop) — session lifecycle, fire ≤once/session; (2) TypeScript dispatch hooks (safe-commit.ts, dispatch-gate.ts) — programmatic modules called by dispatch.ts. The v2.1.85 `if` conditional field only applies to PreToolUse/PostToolUse Claude Code hooks. Arc has no PreToolUse/PostToolUse hooks, so current settings.json needs no changes. When task #9100 adds a PreToolUse hook for AskUserQuestion, use `if: "AskUserQuestion(*)"` to scope it properly.
