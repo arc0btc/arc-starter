@@ -41,7 +41,7 @@
 - **Presentation/audience-facing work routes to Opus minimum.**
 - **Business-critical time-bound work escalates tier.** Deadline <48h AND impact >$1000 → Opus minimum.
 - **Multi-skill composition in triage decomposition:** Include both primary domain skills and supporting meta skills in each task's `skills` array.
-- **Research task sourcing from external URLs:** When queuing research from external URLs/links, specify skill by source type (X/Twitter → `arc-link-research`) and explicitly specify output format (ISO8601, JSON, etc.) in task description. Prevents format friction downstream. **Batch multiple links from same request into one task** (not N tasks); skill outputs per-link analysis in single report.
+- **Research task sourcing from external URLs:** For bulk link research (3+ items), create individual tasks per link instead of batching to avoid timeouts and enable parallel dispatch execution. Use `--parent` to link back to request task. Smaller batches (1-2 links) can be combined. Always specify output format (ISO8601, JSON, etc.) in task description to prevent downstream friction.
 - **Task-type-specific context loading:** Retry tasks and relay notifications carry topic/message keywords that DON'T indicate execution-skill needs; gate skill loading on content-type, not on keyword presence. Add exclusions (e.g., `"Retry:"` prefix skip-list) to context validators.
 
 ## Task Chaining & Precondition Gates
