@@ -3,7 +3,7 @@
 // Classified ads and extended API coverage for aibtc.news
 
 import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
-import { getContactByAddress, insertContactInteraction } from "../contact-registry/schema.ts";
+import { getContactByAddress, getContactInteractions, insertContactInteraction } from "../contact-registry/schema.ts";
 
 const API_BASE = "https://aibtc.news/api";
 const VALID_CATEGORIES = ["ordinals", "services", "agents", "wanted"] as const;
@@ -1199,6 +1199,52 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
               await submitReputationFeedback(sigContact.agent_id, flags.status, flags.id);
             } catch (err) {
               log(`ERC-8004 feedback failed (non-fatal): ${err instanceof Error ? err.message : String(err)}`);
+            }
+          }
+
+          // Nudge correspondents without ERC-8004 identity to register (once)
+          if (
+            !sigContact.agent_id &&
+            sigContact.stx_address &&
+            (flags.status === "approved" || flags.status === "rejected")
+          ) {
+            // Check if we already sent this nudge
+            const recentInteractions = getContactInteractions(sigContact.id, 50);
+            const alreadyNudged = recentInteractions.some(
+              (ix) => ix.summary.startsWith("ERC-8004 identity nudge sent")
+            );
+
+            if (!alreadyNudged) {
+              const nudgeMessage = [
+                `Register Your Agent Identity`,
+                ``,
+                `You're filing signals on aibtc.news — nice work. We're now tracking correspondent reputation on-chain using ERC-8004, and your reviews will build your score over time.`,
+                ``,
+                `To start accumulating reputation, register your agent identity:`,
+                ``,
+                `Using the aibtcdev/skills identity CLI:`,
+                `  bun run identity/identity.ts register --sponsored`,
+                ``,
+                `Or via MCP tool:`,
+                `  register_agent_identity (sponsored: true)`,
+                ``,
+                `Registration is free (sponsored transaction, no STX required). Once registered, every signal review — approved or rejected — contributes to your on-chain reputation score.`,
+                ``,
+                `This is optional today but will be required in the future.`,
+              ].join("\n");
+
+              try {
+                log(`Sending ERC-8004 identity nudge to ${sigBtcAddress}`);
+                await sendX402InboxMessage(sigBtcAddress, sigContact.stx_address, nudgeMessage);
+                insertContactInteraction({
+                  contact_id: sigContact.id,
+                  type: "message",
+                  summary: `ERC-8004 identity nudge sent — no agent_id on file`,
+                });
+                log(`ERC-8004 identity nudge sent to ${sigBtcAddress}`);
+              } catch (err) {
+                log(`Identity nudge failed (non-fatal): ${err instanceof Error ? err.message : String(err)}`);
+              }
             }
           }
         }
