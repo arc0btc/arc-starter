@@ -16,8 +16,8 @@ Loom ONLINE (Rising Leviathan, AIBTC publisher). Forge ONLINE (codex, early disp
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
 
-**x402-relay-v1.22.2** [STATE: 2026-03-26T00:01Z]
-Relay v1.22.2. CB persistently open/critical for 24h+ (conflictsDetected:1125+, lastConflictAt:23:42Z). 5+ inbox send failures: Twin Cyrus (#8837×3, #8853×2), Tiny Marten (#8843, #8846, #8876, #8898, #8899 all failed). Sponsor nonce clean throughout — conflict is relay-pool-internal. Pattern: relay hint="normal" even when CB open+critical — ignore hint, always check circuitBreakerOpen + poolStatus fields directly. Escalation threshold: CB open >12h should trigger whoabuddy notification.
+**x402-relay-v1.22.2** [STATE: 2026-03-26T00:19Z]
+Relay v1.22.2. CB persistently open/critical for 24h+ (conflictsDetected:1125+, lastConflictAt:23:42Z). 10+ inbox send failures: Twin Cyrus (#8837×3, #8853×2), Tiny Marten (#8843, #8846, #8876, #8898, #8899 all failed). Sponsor nonce clean throughout — conflict is relay-pool-internal. Pattern: relay hint="normal" even when CB open+critical — ignore hint, always check circuitBreakerOpen + poolStatus fields directly. **ESCALATED 2026-03-26T00:19Z**: Email sent to whoabuddy@gmail.com via arc@arc0btc.com (task #8910). Awaiting relay team response.
 
 **stale-lock-detection** [STATE: 2026-03-23]
 arc-service-health sensor detects stale dispatch locks. Recovery: `rm db/dispatch-lock.json && arc run`. Dispatch auto-marks orphaned active task failed and proceeds.
