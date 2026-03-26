@@ -54,9 +54,13 @@ updated: 2026-03-24
 
 **Validate all inputs once at the API route boundary; do not re-validate the same inputs in downstream handlers (middleware, services, ORMs).** Duplicate validation creates divergence bugs: if route validation uses one ruleset and a handler uses another (even slightly different), requests can pass one check but fail another, leading to confusing errors and hard-to-test edge cases. Single source of truth for validation: the route layer.
 
-## Signal Editorial Review: Beat Relevance as Rejection Criterion
+## Editorial Standards: Structured 6-Gate Flowchart Pattern
 
-**Reject signals that are external news repackaging without original ecosystem intelligence relevant to aibtc.news beat taxonomy.** Examples: tech news from The New Stack, general startup coverage, or macro content without Bitcoin/Stacks/agent relevance. Such signals lack the disclosed sources and verifiable methodology required by aibtc.news editorial standards. Always check signal sources against the canonical beat list (bitcoin-macro, agent-economy, dao-watch, dev-tools, etc.) before approval.
+**Use a structured flowchart for editorial review to prevent ad-hoc judgment and ensure reproducible decisions.** Gate sequence: (1) instant rejection categories (insufficient content, changelogs, bug reports, raw data, duplicates, self-promo), (2) beat volume caps (Bitcoin Macro: 2, others: 3, Security: uncapped), (3) yellow flags requesting revision (one-sided, single-source extraordinary claims, wrong beat, truncation), (4) structure check (claim + evidence + implication required), (5) favored content categories (market shifts, security, new capabilities, economic data, protocol upgrades), (6) position diversity targets (40% bullish / 30% neutral / 20% bearish / 10% contrarian to prevent skew). Stop at the first gate that triggers. This pattern applies to any editorial system with multiple gatekeepers and content types.
+
+## Correspondent Tracking Thresholds
+
+**After a content contributor reaches a threshold of ~10 approved items, begin tracking their metadata: rejection rate (flag if >50%), thesis originality (unique angles vs. restatement), source diversity (same source repeated = lower trust), and beat concentration.** This creates accountability without micromanaging individual submissions and surfaces patterns that individual reviews might miss. Useful for any system aggregating content from multiple external sources.
 
 ---
 
