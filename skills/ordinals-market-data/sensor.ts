@@ -5,13 +5,11 @@
 // Stores rolling history (last 6 readings per category) for delta computation and trend analysis.
 
 import { claimSensorRun, createSensorLogger, fetchWithRetry, readHookState, writeHookState } from "../../src/sensors.ts";
-import { insertTask, isDailySignalCapHit, pendingTaskExistsForSource, recentTaskExistsForSourcePrefix, countSignalTasksTodayForBeat, BEAT_DAILY_ALLOCATION, DAILY_SIGNAL_CAP, countSignalTasksToday } from "../../src/db.ts";
+import { insertTask, pendingTaskExistsForSource, countSignalTasksTodayForBeat, BEAT_DAILY_ALLOCATION, DAILY_SIGNAL_CAP, countSignalTasksToday } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
 
 const SENSOR_NAME = "ordinals-market-data";
-const INTERVAL_MINUTES = 240; // every 4 hours
-const RATE_LIMIT_MINUTES = 240; // 4 hours between signal batches from this sensor
-const MAX_SIGNALS_PER_RUN = 1; // one signal per run — aibtc.news has 60-min cooldown per beat
+const INTERVAL_MINUTES = 240; // every 4 hours — claimSensorRun gate
 const MAX_HISTORY_READINGS = 6; // rolling window per category for delta computation
 
 const INSCRIPTION_MILESTONE_INTERVAL = 5_000_000; // fire P5 signal at every 5M crossing
@@ -1140,40 +1138,9 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
     // Weekly narrative reset — archive prior week's thread every Monday
     checkNarrativeWeeklyReset(state);
 
-    // Per-beat cooldown guard — check if an ordinals signal was recently queued by this sensor
-    if (state.lastOrdinalSignalQueued) {
-      const minutesSince = (Date.now() - new Date(state.lastOrdinalSignalQueued).getTime()) / 60000;
-      if (minutesSince < RATE_LIMIT_MINUTES) {
-        log(`ordinals cooldown active: last signal queued ${minutesSince.toFixed(1)} min ago (${RATE_LIMIT_MINUTES} min limit); skipping`);
-        return "rate-limited";
-      }
-    }
-    // Legacy field migration: fall back to lastSignalQueued if lastOrdinalSignalQueued not yet set
-    if (!state.lastOrdinalSignalQueued && state.lastSignalQueued) {
-      const minutesSince = (Date.now() - new Date(state.lastSignalQueued).getTime()) / 60000;
-      if (minutesSince < RATE_LIMIT_MINUTES) {
-        log(`cooldown active (legacy): last signal queued ${minutesSince.toFixed(1)} min ago (${RATE_LIMIT_MINUTES} min limit); skipping`);
-        return "rate-limited";
-      }
-    }
-
-    // DB rate limit guard — belt-and-suspenders: no signal tasks from this sensor in last RATE_LIMIT_MINUTES
-    const sourcePrefix = `sensor:${SENSOR_NAME}:`;
-    if (recentTaskExistsForSourcePrefix(sourcePrefix, RATE_LIMIT_MINUTES)) {
-      log(`rate limit (db): signal task created within last ${RATE_LIMIT_MINUTES} min; skipping`);
-      return "rate-limited";
-    }
-
-    // Cross-beat stagger note: ordinals uses 4h RATE_LIMIT_MINUTES cooldown between its own signals.
-    // Dev-tools signals come from separate sensors (arc-link-research, arxiv-research) on independent
-    // schedules. The 3+3 allocation naturally staggers across beats without explicit cross-beat gating.
-
-    // Pick next two categories (rotate through all five)
-    const startIdx = ((state.lastCategory ?? -1) + 1) % CATEGORIES.length;
-    const categoriesToFetch: Category[] = [
-      CATEGORIES[startIdx],
-      CATEGORIES[(startIdx + 1) % CATEGORIES.length],
-    ];
+    // Fetch all categories each run — per-category pendingTaskExistsForSource prevents duplicates.
+    // Daily allocation cap enforces the 3/day ordinals limit (6/day with overflow).
+    const categoriesToFetch: Category[] = [...CATEGORIES];
 
     // Pick next angle (rotates independently of category)
     const angleIdx = ((state.lastAngle ?? -1) + 1) % ANGLES.length;
@@ -1229,15 +1196,13 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
 
     if (signals.length === 0) {
       log("no signal data fetched from any category");
-      state.lastCategory = (startIdx + 1) % CATEGORIES.length;
       await writeHookState(SENSOR_NAME, { ...state, lastRun: new Date().toISOString() });
       return "ok";
     }
 
-    // Queue signal-filing tasks — pass raw data to dispatch LLM for original editorial composition
+    // Queue one signal-filing task per passing category — per-category dedup prevents duplicates
     let queued = 0;
     for (const signal of signals) {
-      if (queued >= MAX_SIGNALS_PER_RUN) break;
 
       // Re-check per-beat allocation before each queuing (other sensors may have filed since loop start)
       const currentOrdinals = countSignalTasksTodayForBeat("ordinals");
@@ -1329,9 +1294,6 @@ This data targets the ordinals beat.`,
       });
 
       log(`queued ordinals signal: ${signal.category} — ${signal.changeReason.slice(0, 80)}`);
-      const now = new Date().toISOString();
-      state.lastOrdinalSignalQueued = now;
-      state.lastSignalQueued = now; // keep legacy field in sync
       queued++;
     }
 
@@ -1406,15 +1368,14 @@ This data targets the ordinals beat. Use Economist voice — precise, data-rich,
       log(`queued milestone signal (P${mSignal.priority ?? 5}): ${mSignal.headline.slice(0, 80)}`);
     }
 
-    // Update state with rotation indices
-    state.lastCategory = (startIdx + categoriesToFetch.length - 1) % CATEGORIES.length;
+    // Update angle rotation index and last run time
     state.lastAngle = angleIdx;
     state.lastRun = new Date().toISOString();
     await writeHookState(SENSOR_NAME, state);
 
     const finalOrdinals = countSignalTasksTodayForBeat("ordinals");
     const finalDevTools = countSignalTasksTodayForBeat("dev-tools");
-    log(`queued ${queued} ordinals signal(s) | allocation: ordinals ${finalOrdinals}/${ordinalsAllocation}, dev-tools ${finalDevTools}/${BEAT_DAILY_ALLOCATION} | next categories: ${CATEGORIES[((state.lastCategory) + 1) % CATEGORIES.length]}, ${CATEGORIES[((state.lastCategory) + 2) % CATEGORIES.length]}`);
+    log(`queued ${queued} ordinals signal(s) this run | allocation: ordinals ${finalOrdinals}/${ordinalsAllocation}, dev-tools ${finalDevTools}/${BEAT_DAILY_ALLOCATION}`);
     return "ok";
   } catch (e) {
     log(`error: ${(e as Error).message}`);

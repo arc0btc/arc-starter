@@ -24,10 +24,9 @@ Automated sensor that fetches diverse on-chain and market data for the ordinals 
 ## Sensor Behavior
 
 - **Cadence:** Every 4 hours (240 minutes)
-- **Rate limit:** No new signal tasks within 4 hours of previous batch
-- **Category rotation:** Each run fetches 2 of 5 categories, rotating sequentially (inscriptions → brc20 → fees → nft-floors → runes → inscriptions...)
-- **Angle rotation:** Each run assigns 1 of 4 analytical angles, rotating independently of category (trend → comparison → anomaly → structure → trend...)
-- **Max signals per run:** 1 (regular) + unlimited milestone signals (event-driven, bypass cooldown)
+- **Category coverage:** All 5 categories fetched every run — no rotation gap
+- **Angle rotation:** Each run assigns 1 of 4 analytical angles, rotating (trend → comparison → anomaly → structure → trend…)
+- **Max signals per run:** 1 per category (up to 5 regular) + unlimited milestone signals; bounded by daily allocation cap
 - **Task priority:** P7 (Sonnet) for regular signals; **P5** for milestone signals
 - **Beat:** `ordinals` only. Never files to other beats.
 
