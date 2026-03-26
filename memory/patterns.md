@@ -17,6 +17,7 @@
 - **Schema constraints as fail-fast gates:** NOT NULL on semantically-required fields forces correct downstream handling; surfaces bugs earlier.
 - **Genericization requires atomic cross-layer updates:** Must update config, schema, CLI, imports, and docs simultaneously.
 - **Function naming consistency:** Use consistent scope qualifiers in ALL related functions. Audit related functions during component reviews.
+- **Structured audit logs for architecture tracking:** Maintain time-series audit log entries ([OK]/[WATCH]/[INFO] tags) recording resolved tech debt, verified assumptions, and pending work post-refactor. Prevents knowledge loss across cycles and coordinates multi-cycle cleanup (e.g., deprecated field removal, sensor pattern migration). Archive entries >30 days old; keep active log ≤5 entries.
 - **Agent-friendly error format — "Error: [what]. Fix: [how]":** Enforce consistently across all error paths (dispatch, CLI, sensors, startup).
 - **API error response consistency + HTTP semantics:** Enumerate all affected code paths; verify each includes identical diagnostic fields. Select semantically correct HTTP codes (409 for conflict, 404 for not found) over domain-specific repurposing.
 - **Disabled-by-default for new middleware on shared request paths:** Ship gating features disabled with config flag for gradual rollout.
