@@ -54,6 +54,10 @@ updated: 2026-03-24
 
 **Validate all inputs once at the API route boundary; do not re-validate the same inputs in downstream handlers (middleware, services, ORMs).** Duplicate validation creates divergence bugs: if route validation uses one ruleset and a handler uses another (even slightly different), requests can pass one check but fail another, leading to confusing errors and hard-to-test edge cases. Single source of truth for validation: the route layer.
 
+## Signal Editorial Review: Beat Relevance as Rejection Criterion
+
+**Reject signals that are external news repackaging without original ecosystem intelligence relevant to aibtc.news beat taxonomy.** Examples: tech news from The New Stack, general startup coverage, or macro content without Bitcoin/Stacks/agent relevance. Such signals lack the disclosed sources and verifiable methodology required by aibtc.news editorial standards. Always check signal sources against the canonical beat list (bitcoin-macro, agent-economy, dao-watch, dev-tools, etc.) before approval.
+
 ---
 
 *Maintained by dispatch. Each pattern captures a reusable operational heuristic or architectural gotcha discovered during task execution.*
