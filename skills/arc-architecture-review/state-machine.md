@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-03-25T21:30:00.000Z*
-*Sensor count: 67 (working tree) | Skill count: 97*
+*Generated: 2026-03-26T06:27:00.000Z*
+*Sensor count: 67 | Skill count: 97*
 
 ```mermaid
 stateDiagram-v2
@@ -154,8 +154,7 @@ stateDiagram-v2
             [*] --> LoadSOUL
             LoadSOUL --> LoadCLAUDE
             LoadCLAUDE --> LoadMEMORY_ASMR
-            LoadMEMORY_ASMR --> LoadFleetKnowledge
-            LoadFleetKnowledge --> LoadSkillContext
+            LoadMEMORY_ASMR --> LoadSkillContext
             LoadSkillContext --> LoadTaskSubject
             LoadTaskSubject --> [*]
             note right of LoadMEMORY_ASMR: ASMR v1 format\n6 categories + temporal tags\nsupersession tracking
@@ -262,7 +261,7 @@ stateDiagram-v2
     ContentSensors --> SignalAllocation
 ```
 
-## Sensor Count by Category (2026-03-25, working tree)
+## Sensor Count by Category (2026-03-26)
 
 | Category | Count |
 |----------|-------|
@@ -279,13 +278,15 @@ stateDiagram-v2
 
 *Note: Fleet sensor group removed — fleet-comms, fleet-health, fleet-memory, fleet-self-sync, fleet-push, fleet-router, agent-hub, and related skills deleted from working tree (unstaged, not yet committed). Previous total was 80.*
 
-## Key Architectural Changes (bc144e6 → HEAD / feat/monitoring-service)
+## Key Architectural Changes (bc144e6 → ab4f520 / feat/monitoring-service)
 
 | Change | Impact |
 |--------|--------|
-| **Multi-beat signal rotation** (3+3/day) | `BEAT_DAILY_ALLOCATION = 3` constant + `countSignalTasksTodayForBeat(beat)` in `src/db.ts`. ordinals-market-data sensor gates per-beat with 18:00 UTC overflow (unused dev-tools slots → ordinals). Three dev-tools signal sources: arxiv-research (keyword regex), arc-link-research (devToolTags field), social-x-ecosystem (discovery keywords). disclosure format uses beat directly (was hardcoded to "ordinals"). |
-| **`SENSOR_FETCH_TIMEOUT_MS = 15_000` exported** | Canonical timeout reference for bare fetch calls in sensors. `fetchWithRetry` now applies 30s AbortSignal if caller provides no signal. 6+ sensors updated to use AbortSignal.timeout(15_000) on individual fetch calls. |
-| **`erc8004-reputation` subprocess timeout** | `Promise.race([subprocess, 30s timeout])` — subprocess killed on timeout. Prevents single subprocess hang from occupying a sensor runner slot for up to SENSOR_TIMEOUT_MS (2min). |
-| **Fleet skills deleted (working tree, unstaged)** | 15+ skill directories removed: fleet-comms, fleet-dashboard, fleet-escalation, fleet-handoff, fleet-health, fleet-memory, fleet-push, fleet-router, fleet-self-sync, fleet-sync, agent-hub, arc-observatory, arc-ops-review, arc-remote-setup, github-interceptor, systems-monitor, worker-logs-monitor. Reduces sensors 80→67, skills 115→97. **Deletions not yet committed.** |
-| **`inferCategoryFromHeadline` default "general"** | Previous default was "ordinals". Any unrecognized signal headline now tagged "general" instead of "ordinals". Behavioral change — verify "general" is a valid aibtc.news category. |
-| **`lastSignalQueued` deprecated** | Field renamed `lastOrdinalSignalQueued` in ordinals HookState for per-beat cooldown tracking. Old field name still in type definition — schedule cleanup post-competition (2026-04-23+). |
+| **Fleet context layer removed from dispatch** | `resolveFleetKnowledge()`, `fleet-learnings` index loader, and `LoadFleetKnowledge` BuildPrompt step removed. `fleet_messages` DB table removed. `writeFleetStatus`/`writeFleetStatusIdle`, `fleet-status.ts`, `fleet-web.ts`, `ssh.ts` deleted. BuildPrompt now: SOUL → CLAUDE → MEMORY → Skills → Task. |
+| **Worker sensor allowlist removed** | `WORKER_SENSORS` set and `GITHUB_TASK_RE` regex removed from sensors.ts and dispatch.ts. Worker-specific routing logic gone. Arc-only sensors run on Arc; no per-agent branching in runner. |
+| **`model: "sonnet"` on all follow-up insertTask calls** | safe-commit.ts, dispatch.ts, experiment.ts, web.ts. Prevents follow-up tasks (syntax errors, health check alerts, experiment probes) from failing at dispatch with "No model set." (fix 5c7325e7) |
+| **Multi-beat signal rotation** (3+3/day) | `BEAT_DAILY_ALLOCATION = 3` + `countSignalTasksTodayForBeat(beat)` in `src/db.ts`. ordinals-market-data sensor gates per-beat with 18:00 UTC overflow. Three dev-tools signal sources: arxiv-research, arc-link-research, social-x-ecosystem. |
+| **`SENSOR_FETCH_TIMEOUT_MS = 15_000` exported** | Canonical timeout for bare fetch calls. `fetchWithRetry` applies 30s AbortSignal default. Prevents sensor slot starvation under network degradation. |
+| **`erc8004-reputation` subprocess timeout** | `Promise.race([subprocess, 30s timeout])`. Prevents single subprocess hang from blocking sensor runner slot. |
+| **Fleet skills committed (committed b73f1a21)** | 15+ skill directories removed and committed: fleet-comms, fleet-dashboard, fleet-escalation, fleet-handoff, fleet-health, fleet-memory, fleet-push, fleet-router, fleet-self-sync, fleet-sync, agent-hub, arc-observatory, arc-ops-review, arc-remote-setup, github-interceptor, systems-monitor, worker-logs-monitor. Sensors 80→67, skills 115→97. |
+| **`lastSignalQueued` deprecated** | Field renamed `lastOrdinalSignalQueued` in ordinals HookState. Old field name still in type definition — cleanup post-competition (2026-04-23+). |

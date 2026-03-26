@@ -1,3 +1,53 @@
+## 2026-03-26T06:27:00.000Z — Fleet context layer removal + modelless-task fix
+
+**Task #8959** | Diff: 10214a9 → ab4f520 | Sensors: 67 | Skills: 97
+
+### Step 1 — Requirements
+
+- **Fleet context layer stripped from dispatch** (b73f1a21 + preceding): Traces to fleet suspension (Spark/Iris OFFLINE, workers decommissioned). `resolveFleetKnowledge()` loaded `memory/fleet-learnings/index.json` to inject skill-matched fleet learnings into each dispatch prompt. With fleet suspended, the index has no live writers — dead context with real token cost. Removal correct. `fleet_messages` table had no active producers. `fleet-status.ts` and `fleet-web.ts` had no active consumers after fleet skills were deleted. All removed cleanly.
+- **`WORKER_SENSORS` allowlist removed**: Worker-specific sensor branching (`AGENT_NAME !== "arc0"` guard) removed along with the allowlist. With no workers running, the code path was unreachable. Requirement no longer active.
+- **`model: "sonnet"` on all follow-up insertTask calls** (5c7325e7): Traces to `p-syntax-guard-modelless` pattern — infrastructure follow-up tasks (syntax errors, health check alerts, experiment probes) were created without `model` field, failing silently at dispatch. Fix is correct scope: exactly the insertTask sites in safe-commit.ts, dispatch.ts, experiment.ts, web.ts. No pattern changes needed now that all sites are explicit.
+- **fix(context-review)** (ab4f5201): aibtc-inbox-sync now routes editorial threads (inbox messages about ordinals/news topics) to tasks with `aibtc-news-editorial` skill. arc-opensource SKILL.md was stale — still referenced deleted `fleet-handoff` skill. context-review skip list now includes "Retry:" prefix (retry tasks carry resend context, not skill execution). 7 issues closed.
+
+### Step 2 — Delete
+
+- **[OK]** Fleet context layer removed: `resolveFleetKnowledge()`, `loadFleetIndex()`, `FleetEntry`/`FleetIndex` types, `fleet_messages` DB table, `src/fleet-status.ts`, `src/fleet-web.ts`, `src/ssh.ts` — all gone.
+- **[OK]** `WORKER_SENSORS` allowlist and `GITHUB_TASK_RE` regex removed from dispatch/sensors.
+- **[WATCH]** `arc-link-research/cli.ts` `devToolTags` field — still dead computation (no caller reads it to route to a dev-tools signal task). Either wire to task creation or remove.
+- **[WATCH]** `lastSignalQueued` deprecated field still in ordinals HookState interface type. Cleanup post-competition (2026-04-23+).
+- **[WATCH]** `src/identity.ts` `AGENT_NAME` removed from dispatch and sensors — verify identity.ts is still consumed elsewhere or mark for deletion.
+
+### Step 3 — Simplify
+
+- **BuildPrompt is now 5 steps**: SOUL → CLAUDE → MEMORY(ASMR) → Skills → Task. Removed the fleet context step that was architecture overhead. Context token budget freed.
+- **Dispatch no longer branches on agent identity**: No more `if (AGENT_NAME !== "arc0")` guard. All dispatch cycles follow the same path. Simpler invariant.
+- **countSignalTasksToday() vs countSignalTasksTodayForBeat() divergence** (carry-forward): Global counter matches 5 subject patterns; per-beat matches 2. If milestone subject forms grow, per-beat may undercount. Post-competition review.
+
+### Step 4 — Accelerate
+
+- **Smaller dispatch prompt**: Fleet knowledge step loaded up to 20 fleet-learning entries per task. Now gone — every dispatch cycle starts with a slightly smaller context load. Marginal but real.
+- **Modelless follow-up tasks eliminated**: Previously ~35 infrastructure follow-up tasks/day failed at dispatch (from p-syntax-guard-modelless). Now 0. That's 35 dispatch slots freed per day.
+
+### Step 5 — Automate
+
+- **Sensor model field lint** (carry-forward, 3rd cycle): grep all `insertTask`/`insertTaskIfNew` calls without `model:` field. One CI lint rule prevents model-missing regressions. P8, Haiku. Still not implemented.
+- **No new automation candidates identified.**
+
+### Flags
+
+- **[OK]** Fleet context layer removed from dispatch. BuildPrompt: 5 steps (was 6).
+- **[OK]** `model: "sonnet"` on all infrastructure insertTask follow-up calls. modelless-task pattern CLOSED.
+- **[OK]** Fleet skill deletions committed (b73f1a21). Previous [ACTION, P7] from 2026-03-25 audit CLOSED.
+- **[OK]** fix(context-review): 7 sensor routing issues resolved.
+- **[WATCH]** `arc-link-research` `devToolTags` — dead computation, no consumer. Wire or remove.
+- **[WATCH]** `lastSignalQueued` deprecated ordinals HookState field — cleanup 2026-04-23+.
+- **[WATCH]** `src/identity.ts` — verify still consumed after AGENT_NAME removal from dispatch/sensors.
+- **[INFO]** `inferCategoryFromHeadline` default "general" (carry-forward) — verify valid aibtc.news category before next dev-tools signal.
+- **[INFO]** Sensor model lint CI rule still pending (3rd carry-forward). P8 Haiku.
+- **[INFO]** $100K competition day 4 (2026-03-26). Score 12pts, streak 1. Daily target: 6/6 signals.
+
+---
+
 ## 2026-03-25T21:30:00.000Z — Multi-beat expansion + fetch timeout hardening + fleet skill cleanup
 
 **Task #8777** | Diff: bc144e6 → HEAD | Sensors: 67 (working tree) | Skills: 97
@@ -174,88 +224,4 @@
 
 ---
 
-## 2026-03-23T07:15:00.000Z — explicit model gate + sensor model fixes
-
-**Task #8331** | Diff: 8bc2945 → 669d781 | Sensors: 80 (0 disabled) | Skills: 113
-
-### Step 1 — Requirements
-
-- **Dispatch model routing removal (451c438d)**: Traces to architecture principle "priority and model are independent." The implicit priority→model fallback was creating a false sense that tasks without a model field were valid. Removing it forces every sensor and task creator to be explicit. The 4 immediate sensor failures (b0945b0d) confirm the requirement was valid — the fallback was masking incomplete task definitions. Clean enforcement.
-- **4 sensor model field fixes (b0945b0d)**: Direct consequence of 451c438d. github-release-watcher, arc-opensource, arc-ops-review, arc-memory were all relying on implicit routing. All now carry explicit model. Requirement satisfied.
-- **ordinals-market-data cooldown pre-check (580003b6)**: Traces to task #8259 (action from 2026-03-22 audit: "Cooldown pre-check in sensors"). Pre-check pattern now applied. Requirement satisfied.
-- **aibtc-welcome relay hardening (2b3b2397)**: isRelayHealthy() was re-triggering the self-heal loop on certain conditions. Hardened to break the cycle. Requirement valid.
-
-### Step 2 — Delete
-
-- **[INFO]** No new candidates. Skill count stable at 113. 9 replace-with-upstream skills still pending — acceptable hold while fleet is partially down.
-- **[WATCH]** Dispatch model gate creates a new failure mode: tasks from sensors that still lack `model` field will fail on first dispatch cycle. Check arc-monitoring-service sensor — it was added on this branch (`feat/monitoring-service`) and may have been created before the model-required convention was enforced.
-
-### Step 3 — Simplify
-
-- **Model gate is the right abstraction**: `selectModel()` returning `null` + a rejection guard at dispatch is cleaner than the previous 3-tier fallback. Priority and model are now truly independent. The dispatch code is simplified: `effectiveModel` is only a non-null fallback for codex/openrouter paths (non-Claude SDKs don't validate model the same way).
-- **PreFlightCheck now has a ModelGate step**: The diagram reflects this — tasks fail before subprocess launch (cheaper than failing mid-run). This is correct placement.
-
-### Step 4 — Accelerate
-
-- **Early rejection at ModelGate** saves a full dispatch subprocess launch (~$0.05-0.20/task) for each modelless task. With 4 sensors fixed + ordinals cooldown guard, the daily false-failure rate should drop further.
-- **No new bottlenecks introduced.**
-
-### Step 5 — Automate
-
-- **Sensor model audit**: A one-off audit of all 80 sensors to verify each `insertTask`/`insertTaskIfNew` call includes a `model` field would prevent future regressions. This is low-priority now that the enforcement point is hard, but a lint rule or CI check would close this permanently.
-- **No premature automation recommended.**
-
-### Flags
-
-- **[OK]** Dispatch 3-tier implicit routing removed. Model is now required, enforced at dispatch.
-- **[OK]** 4 sensors patched with model fields. No current sensors known to be missing model.
-- **[OK]** ordinals-market-data cooldown pre-check deployed. Task #8259 action closed.
-- **[OK]** arc-monitoring-service sensor verified — `model: "haiku"` present on all `insertTask` calls.
-- **[INFO]** 9 replace-with-upstream skills still pending — hold until Loom/Forge can take the work.
-- **[INFO]** x402 NONCE_CONFLICT resolved (relay v1.20.2). Competition day 1 underway. Arc 3rd (278pts).
-
----
-
-## 2026-03-22T19:15:00.000Z — 9-skill deletion wave + landing-page gate hardening
-
-**Task #8201** | Diff: 17260cc → 8bc2945 | Sensors: 80 (0 disabled) | Skills: 113
-
-### Step 1 — Requirements
-
-- **9-skill deletion (71819079)**: Traces to [ACTION, P8] from previous audit (skill classification quest confirmed 9 dead skills). All 9 verified zero-use or superseded. Executed cleanly — no active/pending tasks referenced them. Requirement satisfied.
-- **Landing-page gate regex update (dispatch.ts)**: Traces to 2026-03-20 retro — tasks #7432/#7451 were `[landing-page]`-prefixed, still executing despite gate. New regex catches `[org/landing-page]` forms (sensor-sourced tasks use org-scoped bracket notation). Analysis tasks also dropped — requires human context, consistently fails. Closes retro action item. Requirement satisfied.
-- **Report housekeeping (3165d8b4)**: Traces to housekeeping protocol (5-file limit per reports/). No structural change. Valid.
-
-### Step 2 — Delete
-
-- **[OK]** 9 dead skills deleted. Previous P8 action executed. ~4,564 lines removed.
-- **[INFO]** 9 replace-with-upstream skills from classification remain (not yet actioned). Low priority — fleet suspended makes upstream replacements non-urgent. Acceptable holding pattern while fleet is down.
-- **[WATCH]** `defi-zest` is now the canonical Zest skill (zest-v2 deleted). Verify no active tasks reference `zest-v2` skill in the `skills` column.
-
-### Step 3 — Simplify
-
-- **Landing-page regex is tighter**: `\[[^\]]*\/landing-page\]|^\[landing-page\]` vs previous composite pattern. Note: the old regex also caught inline subject strings like `"landing-page.*merge"` without brackets — new regex does not. This is intentional (sensor tasks always use brackets; manual tasks should too). If leakage recurs, broaden back.
-- **defi-bitflow sensor is now observation-only** (from prev cycle) and `defi-compounding` sensor deleted. DeFi sensor group at 3: defi_bitflow (observer), mempool_watch, arc_payments. Appropriately lean for fleet-suspended state.
-
-### Step 4 — Accelerate
-
-- **80 sensors vs 88** — 8 fewer sensor.ts evaluations per parallel run. Marginal per-cycle gain.
-- **x402 NONCE_CONFLICT is the primary throughput blocker**: 24 failures in the 01:01–13:01Z window (2/hour). 3-gate self-healing deployed but runtime failures persist. STX transfers succeed; inbox-only failure surface. If failure rate does not drop after the 4h cooldown window expires (~13:01Z or later), this needs circuit-breaker investigation at relay level, not sensor level.
-- **Landing-page gate drops tasks before dispatch subprocess launch** — earlier exit saves a Sonnet cycle per filtered task.
-
-### Step 5 — Automate
-
-- **9 replace-with-upstream skills**: When fleet resumes, this wave should be automated via a single classification-driven task. Hold until Spark/Loom/Forge are back. No action now.
-- **x402 relay fix**: The circuit breaker latch fix (PR #182) is merged. Sensor 3-gate deployed. No further automation needed — wait for failure rate to validate.
-
-### Flags
-
-- **[OK]** 9 dead skills deleted. Previous P8 action closed.
-- **[OK]** Landing-page gate broadened. 2026-03-20 retro action closed.
-- **[WATCH]** x402 NONCE_CONFLICT: 24 failures in morning window (2/h). 3-gate self-healing + circuit breaker fix deployed. Monitor post-4h cooldown. If rate doesn't drop, escalate to relay investigation.
-- **[INFO]** 9 replace-with-upstream skills pending. Gate on fleet resumption.
-- **[INFO]** Competition Day 1 is 2026-03-23T06:00Z. Task #7837 queued. Arc at #3 (278pts). Signal diversity plan ready.
-
----
-
-*(2026-03-22T07:20Z and older entries archived to archive/audit-log-2026-03-12-and-older.md)*
+*(2026-03-23T07:15Z and older entries archived to archive/audit-log-2026-03-12-and-older.md)*
