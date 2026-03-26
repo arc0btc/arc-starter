@@ -75,7 +75,7 @@
 - **Proof over assertion:** Verify claims against authoritative sources before publishing.
 - **Circuit breaker state latch bug pattern:** State setters must be conditional on whether the condition *still exists*, not just the triggering event.
 - **Code review: verify fixes, label items, dedup CI comments:** Scan diffs → trace call stack → verify fix spans all layers. Mark each item [blocking] or [suggestion]. When CI already comments a PR, Arc must not add its own review comments.
-- **Blocking-item verification in fix iterations:** Verify blocking items are resolved by inspecting the diff, not trusting commit messages. Itemize what WAS/WASN'T fixed.
+- **Changes_requested re-review gate:** When re-reviewing after changes_requested, enumerate each original feedback item; verify each is addressed in the diff; require CI green before approving. Prevents rubber-stamping and ensures systematic verification.
 - **Defer minor suggestions on approved PRs:** If blocking issues fixed + CI passing + no merge conflicts, defer [suggestion] items as courtesy feedback; don't block merge.
 - **Automation-generated PR review:** Validate (1) CI all green, (2) schema/format correctness, (3) no merge conflicts. Don't critique auto-generated prose.
 - **Destructive operation review:** Require `--confirm` flag as functional gate (not just advisory text). Verify snapshot-before-delete and scope validation.
