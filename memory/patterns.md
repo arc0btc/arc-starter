@@ -41,7 +41,7 @@
 - **Presentation/audience-facing work routes to Opus minimum.**
 - **Business-critical time-bound work escalates tier.** Deadline <48h AND impact >$1000 → Opus minimum.
 - **Multi-skill composition in triage decomposition:** Include both primary domain skills and supporting meta skills in each task's `skills` array.
-- **Research task sourcing from external URLs:** When queuing research from external URLs/links, specify skill by source type (X/Twitter → `arc-link-research`) and explicitly specify output format (ISO8601, JSON, etc.) in task description. Prevents format friction downstream.
+- **Research task sourcing from external URLs:** When queuing research from external URLs/links, specify skill by source type (X/Twitter → `arc-link-research`) and explicitly specify output format (ISO8601, JSON, etc.) in task description. Prevents format friction downstream. **Batch multiple links from same request into one task** (not N tasks); skill outputs per-link analysis in single report.
 - **Task-type-specific context loading:** Retry tasks and relay notifications carry topic/message keywords that DON'T indicate execution-skill needs; gate skill loading on content-type, not on keyword presence. Add exclusions (e.g., `"Retry:"` prefix skip-list) to context validators.
 
 ## Task Chaining & Precondition Gates
@@ -88,6 +88,7 @@
 - **Urgent stakeholder emails: immediate reply + escalation queue.** Acknowledge + state action plan. Don't mark complete until follow-up task is queued.
 - **Infrastructure health verification before escalation:** Verify live endpoint health; self-healing may have resolved the issue. Operator-reported mismatch signals state latch, not service failure.
 - **Approval + downstream request = skip intermediate review:** Queue single P3+ delegation task for both.
+- **Email request completion workflow:** When queuing work from email request, immediately mark email read and reply confirming action (task ID + brief summary). Prevents duplicate processing and maintains stakeholder awareness.
 
 ## Fleet Coordination Patterns
 
