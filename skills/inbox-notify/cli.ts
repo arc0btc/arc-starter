@@ -328,7 +328,8 @@ async function cmdSendOne(args: string[]): Promise<void> {
 
   log(`Sending single message to ${btcAddress.slice(0, 16)}...`);
 
-  const result = await sendWithRetry(btcAddress, stxAddress, content, btcAddress.slice(0, 16));
+  const nonce = await fetchSeedNonce();
+  const result = await sendWithRetry(btcAddress, stxAddress, content, btcAddress.slice(0, 16), nonce);
 
   if (result.success) {
     log("Message sent successfully");
