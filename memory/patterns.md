@@ -40,6 +40,7 @@
 - **Presentation/audience-facing work routes to Opus minimum.**
 - **Business-critical time-bound work escalates tier.** Deadline <48h AND impact >$1000 → Opus minimum.
 - **Multi-skill composition in triage decomposition:** Include both primary domain skills and supporting meta skills in each task's `skills` array.
+- **Research task sourcing from external URLs:** When queuing research from external URLs/links, specify skill by source type (X/Twitter → `arc-link-research`) and explicitly specify output format (ISO8601, JSON, etc.) in task description. Prevents format friction downstream.
 
 ## Task Chaining & Precondition Gates
 
