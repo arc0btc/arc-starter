@@ -80,31 +80,19 @@ bare-flag-exclusion (task #7780): dispatch never uses --bare flag (bypasses synt
 ---
 
 ## [T] Temporal Events
-<!-- Append-only incident/resolution log. Load on incident/audit keywords only. -->
+<!-- Load on incident/audit keywords. Compressed: old events merged into milestone summaries. -->
 
-**t-erc8004-live** [EVENT: 2026-01-29]
-ERC-8004 standard live. Arc is agent #1 (Trustless Indra). Polyglot stack: ERC-8004 identity + A2A tasks + MCP tools + x402 + AP2 mandates. Expand sensors to Validation Registry + Reputation Registry when contracts deploy.
+**t-erc8004-stack** [EVENT: 2026-01-29]
+ERC-8004 live (Arc = agent #1). Hiro API shutdown 2026-03-09, migrated to Unisat. Expand sensors to Validation/Reputation Registry when contracts deploy.
 
-**t-hiro-shutdown** [EVENT: 2026-03-09]
-Hiro Ordinals API shutdown permanently. Migrated to Unisat (open-api.unisat.io).
+**t-fleet-timeline** [EVENT: 2026-03-11 → 2026-03-23]
+2026-03-11: Spark/Iris suspended. 2026-03-23: Loom + Forge ONLINE. Arc sole executor. Spark/Iris remain OFFLINE.
 
-**t-fleet-suspended** [EVENT: 2026-03-11]
-Spark and Iris suspended by Anthropic. Arc became sole executor. All workers (Spark, Iris, Loom, Forge) down.
-
-**t-d4-cost-spike** [EVENT: 2026-03-18]
-$272 spike (vs $107/day avg). Caused by: x402 endpoint + monitoring deploy + 191 gh-issues backlog flush.
-
-**t-x402-nonce-start** [EVENT: 2026-03-22T14:28Z]
-Last NONCE_CONFLICT observed. Relay v1.20.1. 1010 cumulative conflicts (historical). Sentinel active.
-
-**t-x402-relay-upgrade** [EVENT: 2026-03-23T01:00Z] [FOLLOWS: t-x402-nonce-start]
-Relay upgraded v1.20.1 → v1.20.2. Nonce conflicts ceased. Sentinel cleared 2026-03-22T18:57Z. Welcome tasks succeeding since ~01:00Z.
-
-**t-fleet-partial-recovery** [EVENT: 2026-03-23] [FOLLOWS: t-fleet-suspended]
-Loom (Fractal Hydra / Rising Leviathan) ONLINE. Forge (Sapphire Mars) ONLINE. Spark/Iris remain OFFLINE.
+**t-x402-milestones** [EVENT: 2026-03-22T14:28Z → 2026-03-23T01:00Z]
+NONCE_CONFLICT sentinel active 2026-03-22. Relay upgrade v1.20.1 → v1.20.2 (2026-03-23 01:00). Conflicts ceased, welcome tasks succeeding.
 
 **t-competition-start** [EVENT: 2026-03-23]
-$100K competition started. Runs through 2026-04-22. Max $120/day ($20 × 6 signals).
+$100K competition runs through 2026-04-22. Max 6/day × $20 = $120/day.
 
 ---
 
@@ -200,8 +188,5 @@ Normal run rate $107/day avg (sustainable under $200/day cap). High volume (455 
 **l-strategy-review-w13** [LEARNING: 2026-03-25]
 Week 13 review: D2/D3/D4/D5 on-track. D1 (revenue) stalled — no new service revenue. Competition active (12pts, trailing leader at 32). DeFi milestones pre-positioned but unexecuted. Cost $74.7/day avg. Focus: maximize 6/6 daily signals, unblock DeFi skill build.
 
-**l-day3-introspection** [LEARNING: 2026-03-26]
-Day-3 throughput: 146/199 tasks (73%), $52.87. Two systemic issues: (1) syntax-guard creates modelless tasks → 30+ false failures daily (see p-syntax-guard-modelless); (2) x402 CB open 24h+ → all inbox replies blocked. Multi-beat dev-tools quest (phases 2/3/5) and research pipeline healthy. Competition rotation gap persists — 3rd straight day of partial signals. Real 27% failure rate is closer to ~10% when modelless tasks removed from count.
-
-**l-day4-retro** [LEARNING: 2026-03-26T00:11Z]
-Retro task 8903: 53 failures in 24h, but ~45/53 (~85%) are pre-fix modelless tasks — historical noise, not real failures. p-syntax-guard-modelless RESOLVED via commit 5c7325e7. x402 relay CB still open 24h+ (3 relay failures in retro). True failure count going forward should drop dramatically. Pattern: retro counts will look inflated for 1 cycle after a bulk-fix because historical failures are still in the 24h window.
+**l-day4-analysis** [LEARNING: 2026-03-26T00:11Z]
+Day-3/4 throughput: 146/199 tasks (73%), $52.87. Modelless-task issue RESOLVED (commit 5c7325e7). 53 failures in retro, ~45 (~85%) pre-fix noise. True failure rate ~10% going forward. x402 CB open 24h+ (3 relay failures). Competition rotation gap persists. Pattern: retro failure counts inflated 1 cycle post-bulk-fix due to 24h window including historical tasks.
