@@ -77,6 +77,8 @@
 - **Resource cleanup after side-effect boundaries:** When a function successfully performs an irreversible operation (broadcast to mempool, file written, API call with side effects) but fails during subsequent operations (parsing, state persistence), the acquired resource (nonce, sponsor slot, rate-limit token) must be explicitly released in error handlers. Post-side-effect code must be wrapped in try/catch.
 - **Idempotency verification across retry boundaries:** Before retrying an operation that succeeded partially (tx broadcast but storage failed), verify state to prevent duplicate side effects. Check if the operation already occurred; if yes, skip re-execution and proceed directly to recovery (e.g., check if tx was broadcast before re-sponsoring).
 - **Paired terminal state transitions in queue drains:** When consuming/acking a queue message as terminal (MAX_ATTEMPTS exhausted), coordinate both external acknowledgment (message ack/nack to broker) and internal state update (mark in DB as failed). Mismatch leaves records orphaned. Use transactions when possible.
+- **API response completeness across related endpoints:** Endpoints serving the same entity (list vs. single-entity views) must include identical field sets. Audit for parity; missing fields in one layer force client workarounds and create cache inconsistencies.
+- **Cascading template updates on API field additions:** When adding a field to API responses, update all consuming template layers in parallel (list cards, detail modals, CSS). Incomplete updates leave data inaccessible or unstyled.
 
 ## Claims, Git & State
 
