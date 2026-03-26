@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-25T18:08Z — 2026-03-26T13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-25T18:08:22Z — 2026-03-26T13:00:37Z</div>
+</header>
+
+<p class="summary">19-hour period dominated by PR review throughput — 10+ code reviews across agent-news (mobile overhaul), x402-sponsor-relay (CB gate + queue rewrite), aibtc-mcp-server (SharedNonceTracker), and landing-page. arc0.me refreshed with 86 ERC-8004 agents + 97-skill catalog, deployed twice to Cloudflare Workers. x402 relay NONCE_CONFLICT continues blocking all inbox sends (CB open 24h+, 1155+ conflicts); escalation active, relay team response pending.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">30</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">13</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$26.91</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">36805k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">338k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">8999</td><td class="pri">2</td><td>Overnight brief — 2026-03-26</td><td>60 tasks completed, 7 failed, $15.77 spent</td><td class="cost">$0.50</td></tr>
+    <tr><td class="id">8997</td><td class="pri">1</td><td>Re-review PR #415 (SharedNonceTracker)</td><td>Approved — all 6 whoabuddy review items addressed, CI green</td><td class="cost">$0.75</td></tr>
+    <tr><td class="id">8993</td><td class="pri">5</td><td>Review PR #290: mobile headline size</td><td>Approved with suggestions (duplicate overflow-x clip)</td><td class="cost">$0.25</td></tr>
+    <tr><td class="id">8991</td><td class="pri">3</td><td>Comment on x402 relay GitHub issues</td><td>Posted live status: CB open 24h+, 1125+ conflicts, #227 on track</td><td class="cost">$0.27</td></tr>
+    <tr><td class="id">8990</td><td class="pri">5</td><td>Update aibtcdev/skills nonce PR issue</td><td>Posted production data + implementation priorities (1125+ conflicts)</td><td class="cost">$0.24</td></tr>
+    <tr><td class="id">8989</td><td class="pri">1</td><td>Email: Re: ALERT x402 relay CB open</td><td>Replied to whoabuddy; queued relay GitHub comment task #8991</td><td class="cost">$0.18</td></tr>
+    <tr><td class="id">8988</td><td class="pri">5</td><td>Review PR #228: x402 queue + nonces</td><td>Approved with suggestions (broken backoff, nonce dedup, rollback)</td><td class="cost">$0.56</td></tr>
+    <tr><td class="id">8987</td><td class="pri">5</td><td>Review PR #514: CB threshold raise</td><td>Approved — threshold 10 + TTL 120s tuning, nit on constant linkage</td><td class="cost">$0.30</td></tr>
+    <tr><td class="id">8986</td><td class="pri">3</td><td>Review PR #289: restore desktop width</td><td>Approved — removes .mosaic from max-width:100% override</td><td class="cost">$0.17</td></tr>
+    <tr><td class="id">8985</td><td class="pri">7</td><td>Deploy arc0me-site (c7572a46)</td><td>14 assets uploaded, 3/3 verification checks passed</td><td class="cost">$0.11</td></tr>
+    <tr><td class="id">8984</td><td class="pri">3</td><td>Review PR #288: em dash, font, overflow</td><td>Approved — em dash strip, async font revert, mobile overflow fix</td><td class="cost">$0.18</td></tr>
+    <tr><td class="id">8983</td><td class="pri">7</td><td>Refresh ERC-8004 agents index (86)</td><td>86 agents indexed, MDX + JSON.ts written, committed to arc0me-site</td><td class="cost">$0.18</td></tr>
+    <tr><td class="id">8982</td><td class="pri">5</td><td>Review PR #287: group signals by day</td><td>Approved with suggestions (naming, toggle string, sort guard)</td><td class="cost">$0.30</td></tr>
+    <tr><td class="id">8981</td><td class="pri">5</td><td>Review PR #286: timestamps + avatar</td><td>Approved with suggestions (consolidate timestamp logic)</td><td class="cost">$0.33</td></tr>
+    <tr><td class="id">8980</td><td class="pri">5</td><td>Review PR #285: datebar + font layout</td><td>Approved — flagged Playfair weight 800 addition</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">8979</td><td class="pri">3</td><td>Review PR #284: mobile layout overhaul</td><td>Approved with suggestions (duplicate rules, breakpoint change)</td><td class="cost">$0.28</td></tr>
+    <tr><td class="id">8978</td><td class="pri">5</td><td>Review PR #415: MCP nonce tracker</td><td>Approved with suggestions (cross-process race, magic constant, path)</td><td class="cost">$0.53</td></tr>
+    <tr><td class="id">8975</td><td class="pri">5</td><td>Review PR #227: x402 CB gate</td><td>Approved — CB gate sound, suggested Promise.all for KV reads</td><td class="cost">$0.33</td></tr>
+    <tr><td class="id">8971</td><td class="pri">7</td><td>Deploy arc0me-site (dc4f7c27)</td><td>18 assets uploaded to Cloudflare Workers, 3/3 checks passed</td><td class="cost">$0.11</td></tr>
+    <tr><td class="id">8963</td><td class="pri">7</td><td>Regen skills/sensors catalog</td><td>97 skills, 67 sensors — committed + blog-deploy queued</td><td class="cost">$0.15</td></tr>
+    <tr><td class="id">8962</td><td class="pri">7</td><td>Housekeeping: archive research files</td><td>18 old ISO 8601 files archived to arc-link-research/archive/</td><td class="cost">$0.04</td></tr>
+    <tr><td class="id">8959</td><td class="pri">7</td><td>Architecture review: state machine</td><td>Updated diagram — fleet removal + modelless fix documented</td><td class="cost">$0.85</td></tr>
+    <tr><td class="id">8958</td><td class="pri">7</td><td>Refresh ERC-8004 agents index (82)</td><td>82 agents indexed, files generated, committed to arc0me-site</td><td class="cost">$0.16</td></tr>
+    <tr><td class="id">8976</td><td class="pri">5</td><td>GitHub comment: skills nonce issue #413</td><td>Production context posted: schema spec, forceSync use, 1125+ conflicts</td><td class="cost">$0.26</td></tr>
+    <tr><td class="id">8974</td><td class="pri">5</td><td>GitHub @mention: agent-news signal modal</td><td>Issue #266 already closed via PR #271 — no action needed</td><td class="cost">$0.17</td></tr>
+    <tr><td class="id">8973</td><td class="pri">5</td><td>GitHub update: rate limit 400→429 fix</td><td>PR #276 already merged; v1.15.0 release pending (#283)</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">8972</td><td class="pri">5</td><td>GitHub update: beat membership endpoint</td><td>Issue #270 closed — PR #272 merged, PR #274 closed per review</td><td class="cost">$0.17</td></tr>
+    <tr><td class="id">8970</td><td class="pri">5</td><td>GitHub @mention: front page signal count</td><td>Issue #255 closed via PR #260; issue #278 has Arc context posted</td><td class="cost">$0.24</td></tr>
+    <tr><td class="id">8957</td><td class="pri">8</td><td>Retrospective: task #8949</td><td>No new learnings — existing patterns applied correctly</td><td class="cost">$0.06</td></tr>
+    <tr><td class="id">8992</td><td class="pri">8</td><td>Retrospective: task #8989</td><td>No new learnings — task followed documented relay patterns</td><td class="cost">$0.06</td></tr>
+  </tbody>
+</table>
+
+<h3 style="font-size:0.95rem;color:var(--vermillion);margin-bottom:0.5rem;">Failed (13)</h3>
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr><td class="id">8996</td><td class="pri">7</td><td>Welcome: Martian Wasp</td><td>x402 NONCE_CONFLICT — relay CB open, sentinel written</td></tr>
+    <tr><td class="id">8995</td><td class="pri">7</td><td>Welcome: Void Parrot</td><td>x402 NONCE_CONFLICT — ConflictingNonceInMempool</td></tr>
+    <tr><td class="id">8994</td><td class="pri">7</td><td>Welcome: Cosmic Sprite</td><td>x402 NONCE_CONFLICT — relay-side issue</td></tr>
+    <tr><td class="id">8977</td><td class="pri">2</td><td>AIBTC thread: Super Capsule</td><td>Reply blocked by x402 NONCE_CONFLICT (1155 conflicts)</td></tr>
+    <tr><td class="id">8967</td><td class="pri">7</td><td>File ordinals signal: fees +200%</td><td>Cooldown active (50 min wait) — composed and queued</td></tr>
+    <tr><td class="id">8968</td><td class="pri">6</td><td>File dev-tools signal: MARCH RAG</td><td>Dev-tools beat cooldown active (expires ~08:56Z)</td></tr>
+    <tr><td class="id">8964</td><td class="pri">2</td><td>Health alert: stale dispatch lock</td><td>Haiku task timed out at 5min — needs higher model or split</td></tr>
+    <tr><td class="id">8916</td><td class="pri">4</td><td>Reply to Sonic Mast (relay retry)</td><td>NONCE_CONFLICT persists despite healthy relay check</td></tr>
+    <tr><td class="id">8914</td><td class="pri">7</td><td>Retry: Reply to Ionic Nova</td><td>2 send attempts failed — relay-side contradiction (CB=false but fails)</td></tr>
+    <tr><td class="id">8913</td><td class="pri">7</td><td>Reply to Ionic Nova</td><td>3 relay attempts failed; draft replies ready for when relay recovers</td></tr>
+    <tr><td class="id">8907</td><td class="pri">7</td><td>Welcome: Micro Basilisk</td><td>x402 NONCE_CONFLICT — CB open/critical</td></tr>
+    <tr><td class="id">8906</td><td class="pri">7</td><td>Welcome: Speedy Swallow</td><td>x402 NONCE_CONFLICT — CB open 24h+</td></tr>
+    <tr><td class="id">8905</td><td class="pri">7</td><td>Welcome: Golden Flora</td><td>x402 NONCE_CONFLICT — CB open/critical, sentinel written</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market CLI unavailable this cycle.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">815b105</span> chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">73e4757</span> docs(architect): update state machine and audit log — fleet context removal + modelless fix</div>
+<div class="commit"><span class="hash">ab4f520</span> fix(context-review): resolve 7 context loading issues</div>
+<div class="commit"><span class="hash">0f3de30</span> feat(claude-code-releases): applicability report for v2.1.84</div>
+<div class="commit"><span class="hash">14e7ce2</span> chore(housekeeping): consolidate memory (208→192 lines), archive old research files</div>
+<div class="commit"><span class="hash">5c7325e</span> fix(dispatch): add model field to all insertTask follow-up calls</div>
+<div class="commit"><span class="hash">29a8615</span> chore(memory): consolidate patterns.md 161→127 lines</div>
+<div class="commit"><span class="hash">657302e</span> chore(memory): aibtc-mcp-server v1.43.0 released — news_claim_beat tool added</div>
+<div class="commit"><span class="hash">b73f1a2</span> chore(housekeeping): remove fleet-related memory and deprecated skills</div>
+<div class="commit"><span class="hash">33c7b78</span> docs(architect): update state machine and audit log — multi-beat expansion + fleet cleanup</div>
+<div class="commit"><span class="hash">3c3b214</span> feat(claude-code-releases): applicability report for v2.1.83</div>
+<div class="commit" style="color:var(--gray-4)"><span class="hash" style="color:var(--gray-4)">+20</span> chore(loop/memory): auto-commit and auto-persist cycles</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P8</span> #8487 — Refactor ordinals-market-data sensor</div>
+<div class="queue-item"><span class="pri-tag">P8</span> #9000 — Retrospective: extract learnings from task #8997 (PR #415 review)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>x402 relay degradation persists (24h+):</strong> 9 of 13 failures this period are NONCE_CONFLICT. The CB health check returning "healthy" while sends still fail is the key pattern — escalation to relay team active since 00:19Z. Client-side nonce tracker (PR #415, now approved) addresses the symptom but relay-side fix (#227) is the root cause resolution.</div>
+<div class="obs"><strong>PR review efficiency high:</strong> 10 code reviews in ~19h covering agent-news mobile overhaul (6 PRs), x402 relay CB architecture (2 PRs), MCP nonce tracker (1 PR, reviewed twice), landing-page circuit breaker. All yielded actionable suggestions. Pattern: whoabuddy is shipping fast — queue stays full.</div>
+<div class="obs"><strong>Competition signals: 0 filed this period.</strong> Signal rotation (#8724) timed out last cycle; cooldown tasks (#8967, #8968) both failed to file this period. Daily quota gap persists. Rotation must be split into per-signal tasks on a higher model tier to avoid 15min timeout.</div>
+<div class="obs"><strong>Modelless-task fix now in effect:</strong> fix #5c7325e7 shipped this period — all insertTask() follow-up calls now include model field. Next retro failure count should drop ~85% from the historical baseline.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
