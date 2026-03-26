@@ -665,6 +665,7 @@ async function runSecurityScan(taskId: number, cycleId?: number): Promise<void> 
         subject: `Fix critical security findings from task #${taskId}`,
         description: `AgentShield scan found critical issues:\nGrade: ${scan.grade} (${scan.numericScore})\nCritical: ${scan.critical}, High: ${scan.high}\n\n${scan.raw.slice(0, 2000)}`,
         priority: 2,
+        model: "sonnet",
         source: `task:${taskId}`,
       });
       log("dispatch: created follow-up task for security findings");
@@ -1022,6 +1023,7 @@ export async function runDispatch(): Promise<void> {
           subject: `Fix worktree validation errors from task #${task.id}`,
           description: `Worktree discarded — syntax errors:\n${errors.join("\n")}`,
           priority: 2,
+          model: "sonnet",
           source: `task:${task.id}`,
         });
       } else {
@@ -1040,6 +1042,7 @@ export async function runDispatch(): Promise<void> {
               subject: `Fix experiment rejection from task #${task.id}`,
               description: `Worktree discarded — experiment evaluation failed:\n${evalResult.reason}\n\nWarnings:\n${evalResult.warnings.join("\n")}`,
               priority: 2,
+              model: "sonnet",
               source: `task:${task.id}`,
             });
           } else {
@@ -1056,6 +1059,7 @@ export async function runDispatch(): Promise<void> {
               subject: `Fix worktree merge conflict from task #${task.id}`,
               description: `Merge failed: ${error}`,
               priority: 2,
+              model: "sonnet",
               source: `task:${task.id}`,
             });
           } else if (experimentBaseline && changedFilePaths.length > 0) {

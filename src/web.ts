@@ -2225,11 +2225,16 @@ async function handlePostTask(req: Request): Promise<Response> {
     skills = JSON.stringify(body.skills);
   }
 
+  // Validate model (required)
+  const model = typeof body.model === "string" ? body.model.trim() : "";
+  if (!model) return errorResponse("'model' is required (e.g. 'sonnet', 'opus', 'haiku')", 400);
+
   const taskId = insertTask({
     subject,
     description,
     skills,
     priority,
+    model,
     source,
   });
 

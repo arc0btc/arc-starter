@@ -326,6 +326,7 @@ export function scheduleVerification(
     subject: `Verify experiment from task #${taskId} — check metric impact`,
     description,
     priority: 8,
+    model: "sonnet",
     source: `task:${taskId}`,
     // Schedule 2 hours out to allow enough cycles to accumulate
     scheduled_for: new Date(Date.now() + 2 * 3600_000).toISOString(),

@@ -146,6 +146,7 @@ async function revertOnServiceDeath(
     subject: `Fix service crash from task #${taskId}`,
     description: `Services died after commit: ${diedServices.join(", ")}. Commit was reverted.`,
     priority: 2,
+    model: "sonnet",
     source: `task:${taskId}`,
   });
   log("dispatch: created follow-up task for service crash");
@@ -168,6 +169,7 @@ export async function safeCommitCycleChanges(taskId: number): Promise<void> {
       subject: `Fix staging failure from task #${taskId}`,
       description: `git add failed during auto-commit:\n${String(err)}`,
       priority: 2,
+      model: "sonnet",
       source: `task:${taskId}`,
     });
     return;
@@ -186,6 +188,7 @@ export async function safeCommitCycleChanges(taskId: number): Promise<void> {
         subject: `Fix syntax errors from task #${taskId}`,
         description: `Syntax check failed after dispatch:\n${syntaxErrors.join("\n")}`,
         priority: 2,
+        model: "sonnet",
         source: `task:${taskId}`,
       });
       log("dispatch: created follow-up task for syntax errors");
@@ -202,6 +205,7 @@ export async function safeCommitCycleChanges(taskId: number): Promise<void> {
       subject: `Fix commit failure from task #${taskId}`,
       description: `Auto-commit failed during dispatch:\n${commit.error}`,
       priority: 3,
+      model: "sonnet",
       source: `task:${taskId}`,
     });
     return;
