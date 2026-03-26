@@ -61,6 +61,7 @@
 
 ## Integration Patterns
 
+- **Health endpoint scope isolation:** Surface only high-level state + recommendations in health endpoints (`/health`); route detailed diagnostics to separate endpoints (`/state`, `/diagnostics`). Prevents clients from parsing implementation details and simplifies endpoint evolution.
 - **Configuration consistency validation across layers:** When docs, code defaults, schema, and env vars specify the same setting, validate consistency. Grep for setting across all layers; mismatches create silent policy violations.
 - **DRY in multi-module systems — shared utils + single-pass loading + config parsing:** Extract repeated functions to shared utils; merge multi-consumer reads into single-pass loaders. Support env var overrides at every config field.
 - **Credential patterns:** Never pass secrets via CLI flags. Use identical service/key names across sensor/CLI/creds layers. Validate at health-check time, not first API call.
@@ -83,7 +84,7 @@
 - **Proof over assertion:** Verify claims against authoritative sources before publishing.
 - **Circuit breaker state latch bug pattern:** State setters must be conditional on whether the condition *still exists*, not just the triggering event.
 - **Symmetric state ownership at integration points:** When integrating shared-state components across modules, enforce single source of truth: x402.ts imports getNextNonce from builder.ts rather than maintaining duplicate nonce tracking. Audit all callers during integration to prevent process-level state divergence. Mixed local+imported tracking causes reconciliation failures.
-- **Code review: verify fixes, label items, dedup CI comments:** Scan diffs → trace call stack → verify fix spans all layers. Mark each item [blocking] or [suggestion]. When CI already comments a PR, Arc must not add its own review comments.
+- **Code review: verify fixes, label items, dedup CI comments:** Scan diffs → trace call stack → verify fix spans all layers. **For fixes involving shared logic (calculation, state validation), verify that all callers use the identical function, not reimplemented versions.** Mark each item [blocking] or [suggestion]. When CI already comments a PR, Arc must not add its own review comments.
 - **Changes_requested re-review gate:** When re-reviewing after changes_requested, enumerate each original feedback item; verify each is addressed in the diff; require CI green before approving. Prevents rubber-stamping and ensures systematic verification.
 - **Two-pass review for state machines with error paths:** For queue consumers or state machines with critical error paths, conduct second pass targeting exception handlers, retry boundaries, and resource cleanup. Early feedback typically addresses logic/auth; edge-cases (nonce leaks, double-operations on retry, zombie states from dead-letter) emerge in error-path pass. Document per phase-scope (safe to defer vs. must-fix blockers).
 - **Defer minor suggestions on approved PRs:** If blocking issues fixed + CI passing + no merge conflicts, defer [suggestion] items as courtesy feedback; don't block merge.
