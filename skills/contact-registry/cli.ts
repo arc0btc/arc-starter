@@ -483,6 +483,90 @@ async function cmdImport(params: Record<string, string>): Promise<void> {
   log(`import complete: ${created} created, ${updated} updated (${reactivated} reactivated)`);
 }
 
+async function cmdBackfillAgents(params: Record<string, string>): Promise<void> {
+  initContactsSchema();
+
+  const API_BASE = "https://aibtc.com/api";
+  const PAGE_SIZE = 100;
+  const DELAY_MS = parseInt(params.delay || "1000", 10);
+
+  interface AgentRecord {
+    stxAddress: string;
+    btcAddress: string;
+    taprootAddress: string | null;
+    displayName: string | null;
+    bnsName: string | null;
+    erc8004AgentId: number | null;
+    level: number;
+    levelName: string;
+  }
+
+  interface AgentsResponse {
+    agents: AgentRecord[];
+    pagination: { total: number; limit: number; offset: number; hasMore: boolean };
+  }
+
+  let offset = 0;
+  let total = 0;
+  let created = 0;
+  let updated = 0;
+  let pages = 0;
+
+  do {
+    const url = `${API_BASE}/agents?limit=${PAGE_SIZE}&offset=${offset}`;
+    log(`fetching ${url}`);
+    const res = await fetch(url);
+    if (!res.ok) {
+      logError(`API error ${res.status} at offset ${offset}`);
+      break;
+    }
+    const data = (await res.json()) as AgentsResponse;
+    total = data.pagination.total;
+    pages++;
+
+    for (const agent of data.agents) {
+      const existing = getContactByAddress(agent.stxAddress, agent.btcAddress);
+
+      if (existing) {
+        const updates: Partial<InsertContact> = {};
+        if (agent.displayName && !existing.display_name) updates.display_name = agent.displayName;
+        if (agent.bnsName && !existing.bns_name) updates.bns_name = agent.bnsName;
+        if (agent.stxAddress && !existing.stx_address) updates.stx_address = agent.stxAddress;
+        if (agent.btcAddress && !existing.btc_address) updates.btc_address = agent.btcAddress;
+        if (agent.taprootAddress && !existing.taproot_address) updates.taproot_address = agent.taprootAddress;
+        if (agent.erc8004AgentId != null && !existing.agent_id) updates.agent_id = String(agent.erc8004AgentId);
+        if (agent.levelName && existing.aibtc_level !== agent.levelName) updates.aibtc_level = agent.levelName;
+        if (Object.keys(updates).length > 0) {
+          updateContact(existing.id, updates);
+          updated++;
+        }
+      } else {
+        insertContact({
+          display_name: agent.displayName,
+          bns_name: agent.bnsName,
+          type: "agent",
+          status: "active",
+          stx_address: agent.stxAddress,
+          btc_address: agent.btcAddress,
+          taproot_address: agent.taprootAddress,
+          agent_id: agent.erc8004AgentId != null ? String(agent.erc8004AgentId) : null,
+          aibtc_level: agent.levelName,
+        });
+        created++;
+      }
+    }
+
+    offset += PAGE_SIZE;
+
+    // Rate-limit delay between pages
+    if (data.pagination.hasMore) {
+      await new Promise((r) => setTimeout(r, DELAY_MS));
+    }
+  } while (offset < total);
+
+  log(`backfill complete: ${total} agents across ${pages} page(s) — ${created} created, ${updated} updated`);
+}
+
 function cmdDedup(_params: Record<string, string>): void {
   initContactsSchema();
   const allContacts = getAllContacts();
@@ -592,6 +676,7 @@ Commands:
   export                            Export contacts as JSON (for fleet-sync seeding)
   import                            Import contacts from JSON file (upsert by address/agent_id/name)
   dedup                             Find and archive duplicate contacts (keeps most complete record)
+  backfill-agents                   Backfill contacts from aibtc.com/api/agents (paginated, rate-limited)
 
 list flags:
   --status <active|inactive|archived>   Filter by status
@@ -706,6 +791,9 @@ async function main(): Promise<void> {
       break;
     case "dedup":
       cmdDedup(params);
+      break;
+    case "backfill-agents":
+      await cmdBackfillAgents(params);
       break;
     default:
       logError(`Unknown command: ${command}`);
