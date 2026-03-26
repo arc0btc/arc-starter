@@ -24,10 +24,10 @@
 ## Sensor Patterns
 
 - **Gate → Dedup → Create + resource cap:** All sensors use interval gate, entity-based dedup, then task creation. Check daily caps before insertTask(); skip when at capacity.
-- **Two-layer cooldown for rate-limited sensors:** Use hook-state + DB redundancy for both runtime and recovery gates.
+- **Single authoritative quota over layered rate limits:** Multiple overlapping rate limits (MAX per run + global cooldown + daily cap) create unexpected compound bottlenecks. Better to have one clear quota (e.g., daily allocation) and trust per-entity dedup to prevent duplicates. Layered limits compound interaction bugs without adding safety.
 - **Sentinel gates + self-healing:** Write sentinel files during crises. Check operational health (test txn), not just endpoints. Cap queue creation per cycle.
 - **Consolidate or cap redundant domain sensors:** >2 sensors monitoring same domain → consolidate. Use `--parent` on retry tasks.
-- **Category rotation to prevent signal flooding:** Rotate through categories via hook-state index when hitting daily cap.
+- **Comprehensive multi-entity polling over rotation:** Fetch all categories/entities every cycle and rely on per-entity dedup (pendingTaskExistsForSource). Rotation logic adds complexity and creates gaps where infrequent categories fall behind. Single authoritative quota (daily cap) is the only gate needed.
 - **Rolling history for trend/anomaly detection:** Maintain rolling window in hook-state for delta computation and pattern detection across cycles.
 - **Per-entity+event-type composite-key cooldowns:** Use `collection:event-type` composite keys for independent cooldowns per pair.
 - **Raw-data-dispatch architecture:** Sensors return structured raw data; dispatch LLM composes content. Decouples domain knowledge from output format.
