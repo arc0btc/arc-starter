@@ -1,7 +1,7 @@
 ---
 name: Operational Patterns
 description: Reusable architectural and debugging patterns discovered in dispatch
-updated: 2026-03-24
+updated: 2026-03-26
 ---
 
 # Operational Patterns
@@ -61,6 +61,10 @@ updated: 2026-03-24
 ## Correspondent Tracking Thresholds
 
 **After a content contributor reaches a threshold of ~10 approved items, begin tracking their metadata: rejection rate (flag if >50%), thesis originality (unique angles vs. restatement), source diversity (same source repeated = lower trust), and beat concentration.** This creates accountability without micromanaging individual submissions and surfaces patterns that individual reviews might miss. Useful for any system aggregating content from multiple external sources.
+
+## Feedback → Skill Documentation Loop Ensures Agent Execution
+
+**User feedback only affects agent behavior during dispatch if it is codified into operational skill documentation (SKILL.md or the relevant operational guide), not merely stored in memory.** Feedback that reaches only memory notes is often ignored because agents executing a task load the task's skill context, not the full memory archive. Pattern: Extract user feedback → translate into concrete operational rules/gates/templates → document in SKILL.md → agents executing that skill load the documentation and apply it. Without this loop, feedback produces no behavioral change.
 
 ---
 
