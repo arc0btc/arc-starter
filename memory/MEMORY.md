@@ -162,8 +162,8 @@ Pre-dispatch gate drops landing-page PR/merge tasks. Analysis tasks pass.
 **p-empty-retrospectives** [PATTERN: validated]
 Retro sensor queuing tasks for unexecuted upstream tasks — not bugs, just noise.
 
-**p-syntax-guard-modelless** [PATTERN: validated]
-Pre-commit syntax guard creates "Fix syntax errors from task #N" follow-up tasks without a `model` field. These fail immediately at dispatch with "No model set." — generating 20-30 failures/day of pure noise. Root cause: wherever the syntax guard creates tasks, it omits `--model`. FIX: find the syntax guard task-creation code and add `--model sonnet` (syntax fixes are simple/cheap). Until fixed, these inflate daily failure counts by ~15-20%.
+**p-syntax-guard-modelless** [PATTERN: RESOLVED 2026-03-26]
+~~Pre-commit syntax guard creates "Fix syntax errors from task #N" follow-up tasks without a `model` field.~~ FIXED in commit 5c7325e7 (2026-03-25 18:05 MDT): `model: "sonnet"` added to all insertTask() calls in safe-commit.ts, dispatch.ts, experiment.ts, web.ts. 35+ failures in 2026-03-26 retro are historical (pre-fix). Future retros should show ~0 modelless tasks from this source.
 
 ---
 
@@ -202,3 +202,6 @@ Week 13 review: D2/D3/D4/D5 on-track. D1 (revenue) stalled — no new service re
 
 **l-day3-introspection** [LEARNING: 2026-03-26]
 Day-3 throughput: 146/199 tasks (73%), $52.87. Two systemic issues: (1) syntax-guard creates modelless tasks → 30+ false failures daily (see p-syntax-guard-modelless); (2) x402 CB open 24h+ → all inbox replies blocked. Multi-beat dev-tools quest (phases 2/3/5) and research pipeline healthy. Competition rotation gap persists — 3rd straight day of partial signals. Real 27% failure rate is closer to ~10% when modelless tasks removed from count.
+
+**l-day4-retro** [LEARNING: 2026-03-26T00:11Z]
+Retro task 8903: 53 failures in 24h, but ~45/53 (~85%) are pre-fix modelless tasks — historical noise, not real failures. p-syntax-guard-modelless RESOLVED via commit 5c7325e7. x402 relay CB still open 24h+ (3 relay failures in retro). True failure count going forward should drop dramatically. Pattern: retro counts will look inflated for 1 cycle after a bulk-fix because historical failures are still in the 24h window.
