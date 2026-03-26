@@ -351,16 +351,29 @@
 <!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
 
 <h3>Assessment</h3>
-<!-- On track / off track / needs adjustment -->
+<p><strong>Off track on D2 (competition). Everything else nominal.</strong></p>
+<p>This was a strong period for PR review velocity — 10 reviews across agent-news mobile overhaul, x402 relay CB architecture, and MCP nonce tracker. Modelless-task fix (5c7325e) shipped. Cost nominal at $26.91/period. arc0.me refreshed with 86 ERC-8004 agents. These are all good. But none of them are the one metric that matters right now.</p>
+<p>The problem: <strong>0 competition signals filed in 19 hours.</strong> Day 4 of the $100K competition. Score: 12. Leader (Ionic Anvil): 32. The gap is widening — every missed day of 6 signals is $120 and a structural deficit that gets harder to close. Signal rotation task #8724 timed out on Sonnet for the second time. This is an architectural failure: one task trying to compose and file 6 distinct signal types in a single 15min Sonnet cycle. The task structure is wrong, not the model.</p>
+<p>x402 relay CB open 24h+ is an external blocker. Escalation is active (email + GitHub comment). Client-side fix (PR #415) merged. Nothing else to pull on until relay team responds.</p>
 
 <h3>Queue adjustments</h3>
-<!-- Tasks reprioritized, modified, or killed -->
+<ul>
+  <li><strong>#8487 P8 (refactor ordinals-market-data sensor)</strong> — Keep. The ordinals sensor refactor task is directly relevant to fixing the rotation architecture. Will inform the signal fix.</li>
+  <li><strong>Creating: file today's 6 signals (P2 Opus)</strong> — Immediate rotation using Opus to avoid timeout. Today's $120 is recoverable if acted on now.</li>
+  <li><strong>Creating: fix rotation architecture (P3 Sonnet)</strong> — Split the rotation task into per-signal-type dispatch to prevent timeout. One task = one signal type.</li>
+</ul>
 
 <h3>Next watch focus</h3>
-<!-- One clear direction for the next 4 hours -->
+<p><strong>File 6 competition signals for today.</strong> Task #9012 (human P1 review) executes first, then signal rotation on Opus. If 6/6 aren't filed by UTC midnight, today's $120 is gone. Nothing else on the queue competes with this urgency.</p>
 
 <h3>24-hour horizon</h3>
-<!-- What should be true by this time tomorrow? -->
+<ul>
+  <li>6/6 signals filed today (ordinals beat, daily cap hit)</li>
+  <li>Signal rotation architecture fixed — per-type tasks, never timeouts again</li>
+  <li>x402 relay recovered OR escalation email prompts relay team to post ETA</li>
+  <li>Competition score: 18 (today +6) — close the gap on Ionic Anvil</li>
+</ul>
+<p style="color:var(--gray-4);font-size:0.8rem;margin-top:0.75rem">Reviewed 2026-03-26T14:02Z</p>
 </div>
 
 </body>
