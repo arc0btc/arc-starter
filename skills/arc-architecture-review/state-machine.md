@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-26T06:27:00.000Z*
+*Generated: 2026-03-26T18:20:00.000Z*
 *Sensor count: 67 | Skill count: 97*
 
 ```mermaid
@@ -50,7 +50,7 @@ stateDiagram-v2
             social_agent_engagement
             social_x_ecosystem
             arxiv_research
-            note right of ordinals_market_data: 3 ordinals + 3 dev-tools/day\noverflow after 18:00 UTC
+            note right of ordinals_market_data: 3 ordinals + 3 dev-tools/day\noverflow after 18:00 UTC\nAll 5 categories fetched per run\nper-category pending dedup
             note right of arxiv_research: routes dev-tool papers\nto dev-tools signal tasks
         }
 
@@ -276,17 +276,24 @@ stateDiagram-v2
 | Other/Misc | 4 |
 | **Total** | **67** |
 
-*Note: Fleet sensor group removed — fleet-comms, fleet-health, fleet-memory, fleet-self-sync, fleet-push, fleet-router, agent-hub, and related skills deleted from working tree (unstaged, not yet committed). Previous total was 80.*
+*Note: Fleet sensor group removed (committed b73f1a21). Previous total was 80.*
 
-## Key Architectural Changes (bc144e6 → ab4f520 / feat/monitoring-service)
+## Key Architectural Changes (ab4f520 → 9cc7a12)
 
 | Change | Impact |
 |--------|--------|
-| **Fleet context layer removed from dispatch** | `resolveFleetKnowledge()`, `fleet-learnings` index loader, and `LoadFleetKnowledge` BuildPrompt step removed. `fleet_messages` DB table removed. `writeFleetStatus`/`writeFleetStatusIdle`, `fleet-status.ts`, `fleet-web.ts`, `ssh.ts` deleted. BuildPrompt now: SOUL → CLAUDE → MEMORY → Skills → Task. |
-| **Worker sensor allowlist removed** | `WORKER_SENSORS` set and `GITHUB_TASK_RE` regex removed from sensors.ts and dispatch.ts. Worker-specific routing logic gone. Arc-only sensors run on Arc; no per-agent branching in runner. |
-| **`model: "sonnet"` on all follow-up insertTask calls** | safe-commit.ts, dispatch.ts, experiment.ts, web.ts. Prevents follow-up tasks (syntax errors, health check alerts, experiment probes) from failing at dispatch with "No model set." (fix 5c7325e7) |
-| **Multi-beat signal rotation** (3+3/day) | `BEAT_DAILY_ALLOCATION = 3` + `countSignalTasksTodayForBeat(beat)` in `src/db.ts`. ordinals-market-data sensor gates per-beat with 18:00 UTC overflow. Three dev-tools signal sources: arxiv-research, arc-link-research, social-x-ecosystem. |
-| **`SENSOR_FETCH_TIMEOUT_MS = 15_000` exported** | Canonical timeout for bare fetch calls. `fetchWithRetry` applies 30s AbortSignal default. Prevents sensor slot starvation under network degradation. |
-| **`erc8004-reputation` subprocess timeout** | `Promise.race([subprocess, 30s timeout])`. Prevents single subprocess hang from blocking sensor runner slot. |
-| **Fleet skills committed (committed b73f1a21)** | 15+ skill directories removed and committed: fleet-comms, fleet-dashboard, fleet-escalation, fleet-handoff, fleet-health, fleet-memory, fleet-push, fleet-router, fleet-self-sync, fleet-sync, agent-hub, arc-observatory, arc-ops-review, arc-remote-setup, github-interceptor, systems-monitor, worker-logs-monitor. Sensors 80→67, skills 115→97. |
-| **`lastSignalQueued` deprecated** | Field renamed `lastOrdinalSignalQueued` in ordinals HookState. Old field name still in type definition — cleanup post-competition (2026-04-23+). |
+| **ordinals-market-data: all-5-categories per run** (9cc7a120) | Removed: per-run hook-state cooldown, legacy `lastSignalQueued` field sync, `recentTaskExistsForSourcePrefix` DB check, `MAX_SIGNALS_PER_RUN = 1` cap, category rotation logic (`startIdx`/`lastCategory` state). Now fetches all 5 categories every 4h run; per-category `pendingTaskExistsForSource` dedup prevents duplicate queuing; daily allocation cap (3/day) is the only throttle. Closes rotation gap that cost Day-2 and Day-3 competition signals. |
+| **arc-link-research devToolTags wired** | `routeDevToolsSignal()` function called when high-relevance dev-tool links found. Previous [WATCH] item RESOLVED — devToolTags computation is no longer dead. |
+| **memory/patterns.md updated** | 3 new patterns added from x402-sponsor-relay review: file-backed shared state for multi-process coordination, single authoritative quota over layered rate limits, proactive deadline-critical task filing. |
+
+## Prior Key Changes (bc144e6 → ab4f520)
+
+| Change | Impact |
+|--------|--------|
+| **Fleet context layer removed from dispatch** | `resolveFleetKnowledge()`, `fleet-learnings` index loader, and `LoadFleetKnowledge` BuildPrompt step removed. BuildPrompt now: SOUL → CLAUDE → MEMORY → Skills → Task. |
+| **Worker sensor allowlist removed** | `WORKER_SENSORS` set and `GITHUB_TASK_RE` regex removed. No per-agent branching in runner. |
+| **`model: "sonnet"` on all follow-up insertTask calls** | safe-commit.ts, dispatch.ts, experiment.ts, web.ts. Modelless-task pattern CLOSED. |
+| **Multi-beat signal rotation** (3+3/day) | `BEAT_DAILY_ALLOCATION = 3` + `countSignalTasksTodayForBeat(beat)`. Three dev-tools sources: arxiv-research, arc-link-research, social-x-ecosystem. |
+| **`SENSOR_FETCH_TIMEOUT_MS = 15_000` exported** | Canonical 15s timeout. `fetchWithRetry` applies 30s AbortSignal default. |
+| **`erc8004-reputation` subprocess timeout** | `Promise.race([subprocess, 30s timeout])`. |
+| **Fleet skills committed (b73f1a21)** | 15+ skill directories removed. Sensors 80→67, skills 115→97. |

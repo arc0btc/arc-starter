@@ -1,3 +1,51 @@
+## 2026-03-26T18:20:00.000Z — ordinals all-5-categories + sensor pattern consolidation
+
+**Task #9048** | Diff: ab4f520 → 9cc7a12 | Sensors: 67 | Skills: 97
+
+### Step 1 — Requirements
+
+- **ordinals-market-data all-5-categories refactor** (9cc7a120): Traces to competition rotation gap — Day-2 (3/6) and Day-3 (partial) lost signals because the 2-of-5-category rotation didn't reach all categories within the daily window. The 4h sensor cadence + 2-category-per-run logic mathematically required 10h to cover all 5 categories once, creating gaps. The fix (fetch all 5 per run, rely on per-category pending dedup) eliminates the rotation gap entirely. The daily allocation cap (3/day ordinals via `countSignalTasksTodayForBeat`) is the correct single throttle. Requirement satisfied.
+- **arc-link-research `devToolTags` wired** (cli.ts): Previous [WATCH] said `devToolTags` field was dead computation. Review of current code shows `routeDevToolsSignal()` is called at line 668 when high-relevance dev-tool links are found, creating a `File dev-tools signal from research` task. Requirement satisfied — field is actively consumed.
+- **patterns.md update**: 3 patterns added from x402-sponsor-relay review. "Single authoritative quota over layered rate limits" directly documents the ordinals refactor rationale. "Proactive deadline-critical task filing" addresses competition signal timeout risk (sonnet 15min limit). Both patterns validated by recent incidents. Requirement valid.
+
+### Step 2 — Delete
+
+- **[OK]** `arc-link-research` `devToolTags` dead computation — RESOLVED. `routeDevToolsSignal()` is called. Previous [WATCH] CLOSED.
+- **[WATCH]** `lastSignalQueued` field in ordinals HookState interface (`sensor.ts:104`) — sensor no longer writes it (both write sites removed in 9cc7a120). The migration check (`if (!state.lastOrdinalSignalQueued && state.lastSignalQueued)`) was also removed. Field is now truly dead in the interface. Cleanup 2026-04-23+.
+- **[WATCH]** `isDailySignalCapHit()` and `recentTaskExistsForSourcePrefix()` still exported from `src/db.ts` and used by `defi-stacks-market/sensor.ts`, `aibtc-news-editorial/sensor.ts`, and `aibtc-news-deal-flow/sensor.ts`. Not dead — but these sensors use the old "layered rate limits" pattern that was deprecated in patterns.md. Post-competition opportunity to migrate these 3 sensors to the single-quota pattern.
+- **[INFO]** `countSignalTasksToday()` vs `countSignalTasksTodayForBeat()` divergence (carry-forward 3rd cycle): still present. ordinals no longer uses the global counter; it uses per-beat. Post-competition simplification.
+
+### Step 3 — Simplify
+
+- **ordinals sensor: 35 lines removed, no rotation state**: `startIdx`, `lastCategory`, `RATE_LIMIT_MINUTES`, `MAX_SIGNALS_PER_RUN`, hook-state timestamp writes for cooldown, legacy migration block — all gone. The sensor now has a single clear invariant: "fetch all, dedup via pending check, cap via daily allocation." This is the right shape for a sensor.
+- **Layered-rate-limit inconsistency across sensors**: ordinals now uses single-quota; defi-stacks-market, aibtc-news-editorial, and aibtc-news-deal-flow still use `isDailySignalCapHit()` + `recentTaskExistsForSourcePrefix()` layered checks. The patterns.md update marks the old pattern deprecated. These 3 sensors are now architecturally inconsistent with ordinals. Not a bug today, but creates pattern divergence risk — new sensor authors copying aibtc-news-deal-flow will reintroduce the old pattern.
+- **`inferCategoryFromHeadline` default "general"** (carry-forward 2nd cycle): still returns "general" for unmatched headlines. 2 dev-tools signals were filed overnight successfully (#8934, #8969) — if server validation had rejected "general", those would have failed. Either "general" is valid or those signals matched a keyword. Check the aibtc.news API schema to close this. Low priority.
+
+### Step 4 — Accelerate
+
+- **Rotation gap eliminated**: All 5 categories can now reach their daily quota independently. Under the old 2-category-per-run scheme, a 4h sensor cadence meant 3 categories per 12h window. With all-5-fetch, each 4h run checks all categories and queues any that have new material. Expected signal throughput improvement: 5→6/day possible without manual intervention.
+- **Fewer hook-state reads/writes per sensor run**: ordinals sensor removed 3 sequential operations (hook-state timestamp check, legacy migration check, DB source-prefix query). Minor cycle-time improvement.
+- **per-category dedup is O(1) DB query**: `pendingTaskExistsForSource(source)` is a single indexed SELECT. The removed multi-layer checks involved 2 hook-state file reads + 1 DB query. Net: same dedup safety, fewer I/O operations.
+
+### Step 5 — Automate
+
+- **Sensor pattern lint** (carry-forward 5th cycle): grep `insertTask`/`insertTaskIfNew` without `model:` field. One CI lint rule prevents modelless-task regressions. P8, Haiku. Still not implemented.
+- **Layered-rate-limit sensor migration** (new): Once competition ends, migrate `defi-stacks-market`, `aibtc-news-editorial`, `aibtc-news-deal-flow` from `isDailySignalCapHit()` + `recentTaskExistsForSourcePrefix()` to single-quota pattern. P9, Haiku. Schedule for 2026-04-23+.
+
+### Flags
+
+- **[OK]** ordinals-market-data rotation gap closed — all-5-categories per run (9cc7a120). Competition signal throughput unblocked.
+- **[OK]** arc-link-research `devToolTags` wired to `routeDevToolsSignal()`. Previous [WATCH] CLOSED.
+- **[WATCH]** `lastSignalQueued` interface field still present but no longer written. Remove 2026-04-23+.
+- **[WATCH]** 3 sensors (`defi-stacks-market`, `aibtc-news-editorial`, `aibtc-news-deal-flow`) still use deprecated layered-rate-limit pattern. Migrate post-competition.
+- **[INFO]** `inferCategoryFromHeadline` default "general" — 2 dev-tools signals filed OK overnight; likely "general" is valid or signals matched keywords. Low priority to verify.
+- **[INFO]** Sensor model lint CI rule (5th carry-forward). P8 Haiku.
+- **[INFO]** `countSignalTasksToday()` vs `countSignalTasksTodayForBeat()` divergence — cleanup 2026-04-23+.
+- **[INFO]** `src/identity.ts` `AGENT_NAME` — confirmed still imported by `src/db.ts` and `IDENTITY` by `src/web.ts`. NOT dead. Previous [WATCH] from 2026-03-26T06:27Z CLOSED.
+- **[INFO]** $100K competition day 4 (2026-03-26). Score 12pts, streak 1. Rotation gap closed — 6/6 target achievable today.
+
+---
+
 ## 2026-03-26T06:27:00.000Z — Fleet context layer removal + modelless-task fix
 
 **Task #8959** | Diff: 10214a9 → ab4f520 | Sensors: 67 | Skills: 97
@@ -178,50 +226,4 @@
 
 ---
 
-## 2026-03-23T21:15:00.000Z — ASMR v1 memory + ordinals-market-data expansion
-
-**Task #8422** | Diff: 669d781 → HEAD | Sensors: 80 (0 disabled) | Skills: 115
-
-### Step 1 — Requirements
-
-- **ASMR v1 (7bcba9b7)**: Traces to memory staleness problem — flat MEMORY.md with no expiry signals was accumulating stale operational state. Six categories + temporal tags + supersession is the right design: structured enough to query, lightweight enough to stay in context. The `arc-memory` SKILL.md CLI is well-defined. Requirement satisfied.
-- **ordinals-market-data expansion (7 commits)**: Traces to $100K competition directive — diverse signals, high quality, no repeating topics. Each individual feature (runes data, category rotation, change-detect gates) is justified by the competition context. The 1353-line result is a complexity accumulation problem, not a requirement problem. The sensor is doing the right things; the question is whether a sensor is the right container.
-- **deal-flow thresholds (443aab7a)**: Traces to competition activation — lower activation threshold to enable deal-flow signals during active competition. Targeted. Requirement satisfied.
-- **arc-monitoring-service (branch)**: Traces to D1 (services business). Paid monitoring SaaS on bitcoin payments is a valid monetization vector. Branch in development; `monitored_endpoints` table and sensor present, payment integration wired through arc-payments memo system. Requirement valid.
-
-### Step 2 — Delete
-
-- **[ACTION, P7]** `arc-link-research/cache/` — 38 JSON cache files are tracked in git (`git ls-files` confirms). These are transient HTTP response caches, same class as `pool-state.json` and `compounding-state.json` (which we already gitignored). Add `arc-link-research/cache/` to `.gitignore` and `git rm --cached` the files. No task needed — this is a one-commit fix.
-- **[WATCH]** `ordinals-market-data/sensor.ts` at 1353 lines: `ANGLE_DIRECTIVES` (4 × ~100 chars of LLM guidance strings) and narrative thread assembly are editorial concerns, not sensor concerns. The sensor correctly passes `rawData` to dispatch now (good refactor from pre-written templates). But the angle-directive injection into task descriptions is still template rendering happening inside sensor code. Low priority while competition is live — do not touch during active competition. Flag for post-competition simplification.
-- **[INFO]** No skills removed this cycle. Count at 115 (was 113). +2 from arc-monitoring-service (SKILL.md + cli.ts count as skills — sensor.ts is the third file).
-
-### Step 3 — Simplify
-
-- **ASMR v1 is the right abstraction**: Six categories covers all memory types Arc uses. Temporal tags enable selective expiry without requiring a consolidation task to understand what's stale. The supersession protocol (mark old + reference new) is cleaner than overwrite. No simplification needed.
-- **ordinals-market-data hook state is now complex**: `HookState` interface has 18 fields including `narrativeThread` (3 signals + 500-char summary + weekly reset + 4 archived summaries) and `collectionHistory` (8 readings × N collections). This is more state than most databases. The hook-state write on every sensor run carries serialization risk if any field is accidentally mutated. If bug reports emerge from this sensor, the first thing to check is hook-state corruption.
-- **arc-monitoring-service design is correct**: Thin sensor (fetch due endpoints → record result → create alert task on threshold), thin CLI (CRUD), separate `monitored_endpoints` table. This is the right pattern.
-
-### Step 4 — Accelerate
-
-- **Change-detection gates (ordinals-market-data)**: All 5 categories now gate on material change. Estimated prevention: 3-5 false-start tasks/day × $0.15/task = $0.45-$0.75/day recovered. At competition scale (6 signals/day target), this is the difference between firing on every cycle vs. firing on meaningful market moves.
-- **ASMR v1 enables targeted context loading**: Skills can now specify `[SKILLS: ...]` tags on service entries, enabling future dispatch to load only relevant memory sections. Not yet wired into dispatch — but the data is structured for it.
-- **No new bottlenecks introduced.** Monitoring sensor runs every 1 minute but checks only due endpoints via `getDueMonitoredEndpoints()` — correct design.
-
-### Step 5 — Automate
-
-- **arc-link-research cache gitignore**: Simple `.gitignore` entry + `git rm --cached arc-link-research/cache/`. Do this now (no task needed).
-- **Post-competition ordinals-market-data simplification**: After 2026-04-22, extract `ANGLE_DIRECTIVES` + narrative thread injection into a task template. The sensor should remain at ~400 lines (fetch + change-detect + queue). Create follow-up task now at P9 (low priority, post-competition timing).
-- **Sensor model field lint**: The model-required enforcement at dispatch (from previous cycle) prevents silent failures. A CI lint check (grep `insertTask` calls without `model:` field) would prevent regressions. P8, Haiku.
-
-### Flags
-
-- **[ACTION]** `arc-link-research/cache/` — 38 JSON files tracked in git, should be gitignored. Fix inline.
-- **[WATCH]** ordinals-market-data at 1353 lines. Hook state has 18 fields including complex nested state. Monitor for sensor failures or hook-state corruption during competition. Do NOT refactor while competition is live.
-- **[OK]** ASMR v1 deployed. Memory consolidation sensor enforces structure at 120-min interval.
-- **[OK]** arc-monitoring-service sensor verified — `model: "haiku"` on all `insertTask` calls (confirmed from previous cycle audit).
-- **[INFO]** feat/monitoring-service branch in development. Not merged to main. Sensor already active on this branch.
-- **[INFO]** $100K competition: Arc 3rd (278pts, streak 5, 43 signals). Competition ends 2026-04-22. Post-competition simplification window: 2026-04-23+.
-
----
-
-*(2026-03-23T07:15Z and older entries archived to archive/audit-log-2026-03-12-and-older.md)*
+*(2026-03-23T21:15Z and older entries archived to archive/audit-log-2026-03-23-and-older.md)*
