@@ -10,6 +10,7 @@
 - **Explicit flag validation over string matching in error handlers:** Validate flags directly; string-match on error text breaks when text changes and misses correlated failures.
 - **Monotonic state tracking for flaky external APIs:** Use `Math.max(current, latest)` with gap-fill logic. Eliminates hysteresis from stale nodes.
 - **SQLite WAL mode + `PRAGMA busy_timeout = 5000`** — Required for sensors/dispatch collisions.
+- **File-backed shared state for multi-process coordination:** When implementing state accessed by multiple processes/modules (e.g., nonce tracking from builder.ts, x402.ts, sponsor-builder.ts, wallet.ts), use file-backed storage with atomic writes and cross-process mergeState logic. Tune consensus-window timeouts (STALE_NONCE_MS) to domain assumptions (90s for Nakamoto finality, not 10min). Prevents in-memory divergence.
 - **Transaction wrapping for cascade deletes:** Wrap multi-table DELETEs in a transaction. Intermediate failures leave DB partially-deleted without it.
 - **Security gate code review:** Audit for (1) fail-open bugs, (2) input validation, (3) null/boundary conditions, (4) auth vs authz separation.
 - **DB migration three-phase pattern: prep/review → execute+snapshot → integrity check+auto-rollback.**
@@ -68,12 +69,14 @@
 - **API field aliasing for backwards compatibility:** Accept both legacy and new field names via nullish coalesce: `newFieldName ?? legacyFieldName`.
 - **Idempotency via existing operations over custom dedup:** Route through existing upsert operations (INSERT OR IGNORE) rather than bespoke duplicate-checking logic.
 - **Stale skill references after deletion:** When a skill is removed, grep all SKILL.md files and docs for the skill name. Update references to point to replacement skill or remove if no replacement. Stale refs in docs can guide dispatch to add invalid skills.
+- **Explicit recovery parameters for transaction sequencing:** Expose optional explicit parameters in transaction functions (e.g., `transferStx(..., explicitNonce)`) to enable gap recovery without altering normal transaction flow. Use designated addresses (can't-be-evil) for gap-fill targets. Decouples recovery from normal sequencing.
 
 ## Claims, Git & State
 
 - **Live deployment divergence:** Check live site AND source HEAD. Services don't auto-reload — restart after commits.
 - **Proof over assertion:** Verify claims against authoritative sources before publishing.
 - **Circuit breaker state latch bug pattern:** State setters must be conditional on whether the condition *still exists*, not just the triggering event.
+- **Symmetric state ownership at integration points:** When integrating shared-state components across modules, enforce single source of truth: x402.ts imports getNextNonce from builder.ts rather than maintaining duplicate nonce tracking. Audit all callers during integration to prevent process-level state divergence. Mixed local+imported tracking causes reconciliation failures.
 - **Code review: verify fixes, label items, dedup CI comments:** Scan diffs → trace call stack → verify fix spans all layers. Mark each item [blocking] or [suggestion]. When CI already comments a PR, Arc must not add its own review comments.
 - **Changes_requested re-review gate:** When re-reviewing after changes_requested, enumerate each original feedback item; verify each is addressed in the diff; require CI green before approving. Prevents rubber-stamping and ensures systematic verification.
 - **Defer minor suggestions on approved PRs:** If blocking issues fixed + CI passing + no merge conflicts, defer [suggestion] items as courtesy feedback; don't block merge.
