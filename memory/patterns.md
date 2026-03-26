@@ -32,6 +32,7 @@
 - **Raw-data-dispatch architecture:** Sensors return structured raw data; dispatch LLM composes content. Decouples domain knowledge from output format.
 - **Per-beat allocation with time-windowed overflow:** Allocate independent per-beat quotas with per-beat cooldown tracking. Enable overflow reallocation after OVERFLOW_HOUR_UTC.
 - **Disaggregate success rates and error metrics by code path:** Aggregate metrics mask path-specific failures. Track verdict counters separately per source layer.
+- **Explicit content-keyword→skill mappings:** Define keyword arrays in sensors (e.g., `EDITORIAL_KEYWORDS = ["ordinals business", "aibtc news"]`) that trigger skill loading. Prevents context-loading gaps when message types carry domain keywords but don't indicate execution-skill needs.
 
 ## Task & Model Routing
 
@@ -41,6 +42,7 @@
 - **Business-critical time-bound work escalates tier.** Deadline <48h AND impact >$1000 → Opus minimum.
 - **Multi-skill composition in triage decomposition:** Include both primary domain skills and supporting meta skills in each task's `skills` array.
 - **Research task sourcing from external URLs:** When queuing research from external URLs/links, specify skill by source type (X/Twitter → `arc-link-research`) and explicitly specify output format (ISO8601, JSON, etc.) in task description. Prevents format friction downstream.
+- **Task-type-specific context loading:** Retry tasks and relay notifications carry topic/message keywords that DON'T indicate execution-skill needs; gate skill loading on content-type, not on keyword presence. Add exclusions (e.g., `"Retry:"` prefix skip-list) to context validators.
 
 ## Task Chaining & Precondition Gates
 
@@ -65,6 +67,7 @@
 - **Verification/audit skills: sensor-free, CLI-first.** Implement as pure CLI skills. File discovery via explicit CLI params, never auto-scan.
 - **API field aliasing for backwards compatibility:** Accept both legacy and new field names via nullish coalesce: `newFieldName ?? legacyFieldName`.
 - **Idempotency via existing operations over custom dedup:** Route through existing upsert operations (INSERT OR IGNORE) rather than bespoke duplicate-checking logic.
+- **Stale skill references after deletion:** When a skill is removed, grep all SKILL.md files and docs for the skill name. Update references to point to replacement skill or remove if no replacement. Stale refs in docs can guide dispatch to add invalid skills.
 
 ## Claims, Git & State
 
