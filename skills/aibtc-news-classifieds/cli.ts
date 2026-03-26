@@ -102,7 +102,36 @@ async function sendX402InboxMessage(btcAddress: string, stxAddress: string, cont
 
   const exitCode = await proc.exited;
   if (exitCode !== 0) {
-    throw new Error(`x402 send failed (exit ${exitCode}): ${(stdout + stderr).slice(0, 300)}`);
+    const combined = (stdout + stderr).trim();
+
+    // Parse structured 409/502/503 error JSON from subprocess
+    const jsonMatch = combined.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        const errObj = JSON.parse(jsonMatch[0]) as Record<string, unknown>;
+        const status = errObj.status as number | undefined;
+        const code = errObj.code as string | undefined;
+        const retryAfter = errObj.retryAfter as number | undefined;
+
+        if (status === 409 && code) {
+          throw new Error(
+            `Inbox send nonce error (409 ${code}): ${errObj.detail || errObj.error || "nonce conflict"}.${retryAfter ? ` Retry after ${retryAfter}s. [retryAfter=${retryAfter}]` : ""}`
+          );
+        }
+        if (status === 502 || status === 503) {
+          const delay = retryAfter ?? (status === 503 ? 60 : 10);
+          throw new Error(
+            `Inbox send relay error (${status}): ${errObj.detail || "temporarily unavailable"}. Retry after ${delay}s. [retryAfter=${delay}]`
+          );
+        }
+      } catch (e) {
+        if (e instanceof Error && (e.message.includes("409") || e.message.includes("502") || e.message.includes("503"))) {
+          throw e;
+        }
+      }
+    }
+
+    throw new Error(`x402 send failed (exit ${exitCode}): ${combined.slice(0, 300)}`);
   }
 }
 
@@ -186,9 +215,80 @@ async function x402Request(
   const exitCode = await proc.exited;
 
   if (exitCode !== 0) {
-    // Check for rate limit in stderr or stdout
     const combined = stdout + stderr;
+
+    // Try to parse structured error JSON from subprocess output.
+    // The subprocess output may be double-wrapped: x402-runner wraps x402.ts output
+    // as {success, error, detail: "<inner JSON>"}, so we unwrap the detail field.
+    const jsonMatch = combined.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        let errObj = JSON.parse(jsonMatch[0]) as Record<string, unknown>;
+
+        // Unwrap x402-runner.ts wrapper: check if detail contains inner JSON
+        if (typeof errObj.detail === "string" && errObj.detail.startsWith("{")) {
+          try {
+            const inner = JSON.parse(errObj.detail) as Record<string, unknown>;
+            if (inner.status || inner.code) {
+              errObj = inner;
+            }
+          } catch { /* detail wasn't JSON, use outer */ }
+        }
+
+        const code = errObj.code as string | undefined;
+        const retryAfter = errObj.retryAfter as number | undefined;
+        const status = errObj.status as number | undefined;
+
+        // 409 nonce errors from x402 relay
+        if (status === 409 && code) {
+          const retryAt = retryAfter
+            ? new Date(Date.now() + retryAfter * 1000).toISOString()
+            : undefined;
+          if (code === "SENDER_NONCE_DUPLICATE") {
+            throw new Error(
+              `Nonce duplicate (409 ${code}): payment already in-flight. Wait ${retryAfter ?? 30}s then retry.${retryAt ? ` Retry at ${retryAt}.` : ""} [retryAfter=${retryAfter ?? 30}]`
+            );
+          }
+          if (code === "SENDER_NONCE_STALE") {
+            throw new Error(
+              `Nonce stale (409 ${code}): nonce already confirmed on-chain. Re-fetch nonce and re-sign.`
+            );
+          }
+          if (code === "SENDER_NONCE_GAP") {
+            throw new Error(
+              `Nonce gap (409 ${code}): nonce skips ahead. Re-fetch nonce and re-sign with next sequential nonce.`
+            );
+          }
+          if (code === "NONCE_CONFLICT") {
+            throw new Error(
+              `Sponsor nonce conflict (409 ${code}): transient collision. Retry after ${retryAfter ?? 10}s with same signed payment.${retryAt ? ` Retry at ${retryAt}.` : ""} [retryAfter=${retryAfter ?? 10}]`
+            );
+          }
+          // Unknown 409 code
+          throw new Error(
+            `Nonce error (409 ${code}): ${errObj.detail || errObj.error || "unknown"}.${retryAfter ? ` Retry after ${retryAfter}s. [retryAfter=${retryAfter}]` : ""}`
+          );
+        }
+
+        // 502/503 relay errors
+        if ((status === 502 || status === 503) && code === "RELAY_ERROR") {
+          const delay = retryAfter ?? (status === 503 ? 60 : 10);
+          const retryAt = new Date(Date.now() + delay * 1000).toISOString();
+          throw new Error(
+            `Relay error (${status}): ${errObj.detail || "temporarily unavailable"}. Retry after ${delay}s (${retryAt}). [retryAfter=${delay}]`
+          );
+        }
+      } catch (parseErr) {
+        if (parseErr instanceof Error && (parseErr.message.includes("409") || parseErr.message.includes("502") || parseErr.message.includes("503") || parseErr.message.includes("Relay"))) {
+          throw parseErr; // Re-throw our structured errors
+        }
+        // Fall through to legacy parsing if JSON parse failed
+      }
+    }
+
+    // Legacy: check for rate limit patterns in raw output
     const retryMatch = combined.match(/retry.after[:\s]*(\d+)/i)
+      || combined.match(/retryAfter[=:](\d+)/i)
       || combined.match(/(\d+)\s*(?:seconds?|s)\s*remaining/i);
     if (retryMatch || combined.includes("429") || combined.includes("rate limit")) {
       const retrySeconds = retryMatch ? parseInt(retryMatch[1], 10) : undefined;
