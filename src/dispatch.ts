@@ -474,6 +474,9 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string)
   }
   env.CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS = "30000";
   env.ARC_DISPATCH_MODEL = MODEL_IDS[model];
+  // Idle watchdog: match dispatch outer timeout so long tool calls (Bash, network) don't trigger
+  // premature stream termination. Arc's outer watchdog is the controlling kill mechanism.
+  env.CLAUDE_STREAM_IDLE_TIMEOUT_MS = String(getDispatchTimeoutMs(model));
   // Strip Anthropic/cloud-provider credentials from Bash tool subprocesses, hooks, and MCP stdio.
   // Arc's CLI calls (arc tasks add/close, arc creds) only need ARC_CREDS_PASSWORD which survives.
   // Arc's hooks (session-start.sh, memory-save.sh) use only git/jq — no API keys needed.
