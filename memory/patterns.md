@@ -32,6 +32,8 @@
 - **Per-entity+event-type composite-key cooldowns:** Use `collection:event-type` composite keys for independent cooldowns per pair.
 - **Raw-data-dispatch architecture:** Sensors return structured raw data; dispatch LLM composes content. Decouples domain knowledge from output format.
 - **Per-beat allocation with time-windowed overflow:** Allocate independent per-beat quotas with per-beat cooldown tracking. Enable overflow reallocation after OVERFLOW_HOUR_UTC.
+- **Proactive deadline-critical task filing over sensor auto-filing:** For operations with hard deadlines (daily caps, timed competitions), don't rely on sensor background logic—queue explicit P2+ task in the critical window. Sensor auto-filing can be pre-empted by queue load or timeouts; deadline work must be human-visible and dispatch-scheduled.
+- **Decompose orchestration work to avoid timeouts:** Sensor tasks that orchestrate multiple sequential operations (multi-category rotation, multi-beat aggregation) should decompose into per-operation subtasks. Avoids 15min timeout overhead of sequential I/O and enables parallel dispatch execution. Single large cycle timeout → N smaller independent cycles.
 - **Disaggregate success rates and error metrics by code path:** Aggregate metrics mask path-specific failures. Track verdict counters separately per source layer.
 - **Explicit content-keyword→skill mappings:** Define keyword arrays in sensors (e.g., `EDITORIAL_KEYWORDS = ["ordinals business", "aibtc news"]`) that trigger skill loading. Prevents context-loading gaps when message types carry domain keywords but don't indicate execution-skill needs.
 
@@ -40,7 +42,7 @@
 - **Bulk-audit shared code paths for missing required fields** when one sensor/CLI creates a broken task.
 - **Explicit model selection independent of priority.** Every task must specify `model`.
 - **Presentation/audience-facing work routes to Opus minimum.**
-- **Business-critical time-bound work escalates tier.** Deadline <48h AND impact >$1000 → Opus minimum.
+- **Business-critical time-bound work escalates tier.** Deadline <48h AND impact >$1000 → Opus minimum. For deadline-critical operations that would timeout on Sonnet (multi-category rotation, multi-beat aggregation), use Opus proactively; cost of model upgrade ($0.20–0.30) << cost of missed deadline.
 - **Multi-skill composition in triage decomposition:** Include both primary domain skills and supporting meta skills in each task's `skills` array.
 - **Research task sourcing from external URLs:** For bulk link research (3+ items), create individual tasks per link instead of batching to avoid timeouts and enable parallel dispatch execution. Use `--parent` to link back to request task. Smaller batches (1-2 links) can be combined. Always specify output format (ISO8601, JSON, etc.) in task description to prevent downstream friction.
 - **Task-type-specific context loading:** Retry tasks and relay notifications carry topic/message keywords that DON'T indicate execution-skill needs; gate skill loading on content-type, not on keyword presence. Add exclusions (e.g., `"Retry:"` prefix skip-list) to context validators.
