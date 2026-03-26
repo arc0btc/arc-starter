@@ -135,6 +135,91 @@ async function sendX402InboxMessage(btcAddress: string, stxAddress: string, cont
   }
 }
 
+/**
+ * Submit ERC-8004 reputation feedback for a correspondent's signal review.
+ * Non-fatal — logs errors but never throws. Uses sponsored tx to avoid STX fees.
+ */
+async function submitReputationFeedback(
+  agentId: string,
+  status: "approved" | "rejected",
+  signalId: string
+): Promise<void> {
+  const ROOT = (await import("node:path")).resolve(import.meta.dir, "../../github/aibtcdev/skills");
+  const { getCredential } = await import("../../src/credentials.ts");
+
+  const walletId = await getCredential("bitcoin-wallet", "id");
+  const password = await getCredential("bitcoin-wallet", "password");
+  if (!walletId || !password) {
+    log("ERC-8004 feedback skipped: no wallet credentials");
+    return;
+  }
+
+  const sponsorKey = await getCredential("x402-relay", "sponsor_api_key");
+
+  const value = status === "approved" ? "1" : "-1";
+  const tag1 = "signal-review";
+  const tag2 = status;
+
+  // Write a runner script that unlocks wallet then calls give-feedback
+  const escapedPassword = password.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+  const escapedWalletId = walletId.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+  const runnerPath = (await import("node:path")).resolve(ROOT, ".reputation-runner.ts");
+  const script = `
+import { getWalletManager } from './src/lib/services/wallet-manager.js';
+const wm = getWalletManager();
+await wm.unlock('${escapedWalletId}', '${escapedPassword}');
+process.argv = ['bun', 'reputation', 'give-feedback',
+  '--agent-id', '${agentId}',
+  '--value', '${value}',
+  '--tag1', '${tag1}',
+  '--tag2', '${tag2}',
+  '--endpoint', 'aibtc.news/signals/${signalId}',
+  '--sponsored'];
+await import('./reputation/reputation.ts');
+setTimeout(() => process.exit(0), 5000);
+`;
+  await Bun.write(runnerPath, script);
+
+  try {
+    const proc = Bun.spawn(["bun", "run", runnerPath], {
+      cwd: ROOT,
+      stdin: "ignore",
+      stdout: "pipe",
+      stderr: "pipe",
+      env: {
+        ...process.env,
+        NETWORK: process.env.NETWORK || "mainnet",
+        ...(sponsorKey ? { SPONSOR_API_KEY: sponsorKey } : {}),
+      },
+    });
+
+    const [stdout, stderr] = await Promise.all([
+      new Response(proc.stdout).text(),
+      new Response(proc.stderr).text(),
+    ]);
+
+    const exitCode = await proc.exited;
+    if (exitCode !== 0) {
+      log(`ERC-8004 feedback failed (exit ${exitCode}): ${(stdout + stderr).slice(0, 200)}`);
+    } else {
+      // Try to extract txid from JSON output
+      try {
+        const result = JSON.parse(stdout.trim().split("\n").pop() || "{}");
+        log(`ERC-8004 feedback submitted: agent ${agentId} ${status} (txid: ${result.txid || "unknown"})`);
+      } catch {
+        log(`ERC-8004 feedback submitted: agent ${agentId} ${status}`);
+      }
+    }
+  } catch (err) {
+    log(`ERC-8004 feedback error: ${err instanceof Error ? err.message : String(err)}`);
+  } finally {
+    try {
+      const { unlink } = await import("node:fs/promises");
+      await unlink(runnerPath);
+    } catch {}
+  }
+}
+
 async function signMessage(message: string): Promise<string> {
   const proc = Bun.spawn(
     ["bash", "bin/arc", "skills", "run", "--name", "bitcoin-wallet", "--", "btc-sign", "--message", message],
@@ -1104,6 +1189,18 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
             type: "collaboration",
             summary: `${flags.status === "approved" ? "Approved" : flags.status === "rejected" ? "Rejected" : `Set ${flags.status}`} signal ${flags.id}: "${sigHeadline}"${flags.feedback ? ` — ${flags.feedback.slice(0, 100)}` : ""}`,
           });
+
+          // Submit ERC-8004 reputation feedback if correspondent has an agent ID
+          if (
+            sigContact.agent_id &&
+            (flags.status === "approved" || flags.status === "rejected")
+          ) {
+            try {
+              await submitReputationFeedback(sigContact.agent_id, flags.status, flags.id);
+            } catch (err) {
+              log(`ERC-8004 feedback failed (non-fatal): ${err instanceof Error ? err.message : String(err)}`);
+            }
+          }
         }
       }
     } catch {
