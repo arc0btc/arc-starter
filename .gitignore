@@ -6,6 +6,7 @@ db/*.db-wal
 db/*.db-shm
 db/dispatch-lock.json
 db/hook-state/
+db/payouts/
 db/projects/
 logs/
 .env

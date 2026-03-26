@@ -318,7 +318,7 @@ arc tasks close --id <id> --status completed --summary "<summary>"
 
 Ask: "Could a junior dev do this?" If yes → P8+. "Does this need careful judgment?" → P5-7. "Does this need senior-level reasoning?" → P1-4.
 
-**Git commits:** The dispatched session is responsible for committing its own work. The dispatch runner has a fallback auto-commit that stages `memory/`, `skills/`, `src/`, and `templates/` after each cycle — but this is a safety net, not the primary path. Commit deliberately during the session. Dispatch never pushes to remote.
+**Git commits:** Commit early and commit often. Every meaningful change — code, memory, config — should be committed immediately, not batched. The dispatched session is responsible for committing its own work. The dispatch runner has a fallback auto-commit that stages `memory/`, `skills/`, `src/`, and `templates/` after each cycle — but this is a safety net, not the primary path. Commit deliberately during the session. Dispatch never pushes to remote.
 
 ---
 
