@@ -114,13 +114,13 @@ async function fetchSeedNonce(): Promise<bigint> {
 
 /**
  * Send an x402 inbox message using the bitcoin-wallet CLI.
- * Passes --nonce to override the default Hiro lookup if the wallet supports it.
- * Falls back to the standard send-inbox-message command.
+ * Passes --nonce to override the default Hiro lookup.
  */
 async function sendX402Message(
   btcAddress: string,
   stxAddress: string,
   content: string,
+  nonce: bigint,
 ): Promise<{ success: boolean; error?: string }> {
   const proc = Bun.spawn(
     [
@@ -129,6 +129,7 @@ async function sendX402Message(
       "--recipient-btc-address", btcAddress,
       "--recipient-stx-address", stxAddress,
       "--content", content,
+      "--nonce", nonce.toString(),
     ],
     { cwd: ROOT, stdin: "ignore", stdout: "pipe", stderr: "pipe" }
   );
@@ -147,8 +148,12 @@ async function sendX402Message(
   return { success: true };
 }
 
-function isNonceConflict(error: string): boolean {
-  return error.includes("NONCE_CONFLICT") || error.includes("ConflictingNonceInMempool");
+function isNonceDuplicate(error: string): boolean {
+  return error.includes("SENDER_NONCE_DUPLICATE");
+}
+
+function isNonceStale(error: string): boolean {
+  return error.includes("SENDER_NONCE_STALE") || error.includes("NONCE_CONFLICT") || error.includes("ConflictingNonceInMempool");
 }
 
 function isRelayTransient(error: string): boolean {
@@ -157,31 +162,53 @@ function isRelayTransient(error: string): boolean {
 
 // ---- Send with Retry ----
 
+/**
+ * Send a message with retry, returning updated nonce after success or fatal failure.
+ * On SENDER_NONCE_DUPLICATE, bumps nonce by 1 (relay has it stuck) and retries.
+ * On SENDER_NONCE_STALE, re-seeds nonce from Hiro and retries.
+ */
 async function sendWithRetry(
   btcAddress: string,
   stxAddress: string,
   content: string,
   label: string,
-): Promise<{ success: boolean; error?: string }> {
-  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-    const result = await sendX402Message(btcAddress, stxAddress, content);
+  nonce: bigint,
+): Promise<{ success: boolean; error?: string; nonce: bigint }> {
+  let currentNonce = nonce;
 
-    if (result.success) return result;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    const result = await sendX402Message(btcAddress, stxAddress, content, currentNonce);
+
+    if (result.success) return { ...result, nonce: currentNonce };
 
     const err = result.error ?? "";
-    const retryable = isNonceConflict(err) || isRelayTransient(err);
 
-    if (retryable && attempt < MAX_RETRIES) {
-      const delay = isNonceConflict(err) ? NONCE_RETRY_DELAY_MS : POST_SEND_DELAY_MS;
-      log(`  Retryable error for ${label} (attempt ${attempt}/${MAX_RETRIES}), waiting ${delay / 1000}s...`);
-      await sleep(delay);
+    if (isNonceDuplicate(err) && attempt < MAX_RETRIES) {
+      // Relay has this nonce stuck — skip to next
+      currentNonce += 1n;
+      log(`  SENDER_NONCE_DUPLICATE for ${label} (attempt ${attempt}/${MAX_RETRIES}), bumping nonce to ${currentNonce}...`);
+      await sleep(NONCE_RETRY_DELAY_MS);
       continue;
     }
 
-    return result;
+    if (isNonceStale(err) && attempt < MAX_RETRIES) {
+      // Nonce is below current — re-seed from Hiro
+      log(`  Nonce stale for ${label} (attempt ${attempt}/${MAX_RETRIES}), re-seeding from Hiro...`);
+      await sleep(NONCE_RETRY_DELAY_MS);
+      currentNonce = await fetchSeedNonce();
+      continue;
+    }
+
+    if (isRelayTransient(err) && attempt < MAX_RETRIES) {
+      log(`  Relay transient error for ${label} (attempt ${attempt}/${MAX_RETRIES}), waiting ${POST_SEND_DELAY_MS / 1000}s...`);
+      await sleep(POST_SEND_DELAY_MS);
+      continue;
+    }
+
+    return { success: false, error: result.error, nonce: currentNonce };
   }
 
-  return { success: false, error: "Max retries exhausted" };
+  return { success: false, error: "Max retries exhausted", nonce: currentNonce };
 }
 
 // ---- Commands ----
@@ -333,9 +360,9 @@ async function executeBatch(state: BatchState): Promise<void> {
   log(`Batch ${state.id}: ${pending.length} to send, ${alreadySent} already sent, ${total} total`);
   log(`Delay between messages: ${POST_SEND_DELAY_MS / 1000}s`);
 
-  // Wait for mempool to clear if there are pending transactions
-  const seedNonce = await fetchSeedNonce();
-  log(`Sender nonce: ${seedNonce} — proceeding with batch`);
+  // Seed nonce once for the batch
+  let currentNonce = await fetchSeedNonce();
+  log(`Sender nonce: ${currentNonce} — proceeding with batch`);
 
   let successCount = alreadySent;
   let failCount = state.messages.filter(m => m.status === "failed").length;
@@ -344,19 +371,24 @@ async function executeBatch(state: BatchState): Promise<void> {
   for (let i = 0; i < state.messages.length; i++) {
     const msg = state.messages[i];
     if (msg.status === "sent") continue;
-    if (msg.status === "failed") continue; // skip previously failed — re-run with fresh state to retry
+    if (msg.status === "failed") {
+      // Reset failed messages to pending so they can be retried in this run
+      msg.status = "pending";
+    }
 
     const idx = successCount + failCount + 1;
-    log(`[${idx}/${total}] Sending to ${msg.label} (${msg.btc_address.slice(0, 16)}...)`);
+    log(`[${idx}/${total}] Sending to ${msg.label} (${msg.btc_address.slice(0, 16)}...) nonce=${currentNonce}`);
 
-    const result = await sendWithRetry(msg.btc_address, msg.stx_address, msg.content, msg.label);
+    const result = await sendWithRetry(msg.btc_address, msg.stx_address, msg.content, msg.label, currentNonce);
+    currentNonce = result.nonce;
 
     if (result.success) {
       msg.status = "sent";
       msg.sent_at = new Date().toISOString();
       successCount++;
       pendingSent++;
-      log(`  Sent to ${msg.label}`);
+      currentNonce += 1n; // advance nonce after successful send
+      log(`  Sent to ${msg.label} (next nonce: ${currentNonce})`);
 
       // Log contact interaction
       try {
