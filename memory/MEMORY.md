@@ -19,6 +19,9 @@ Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resu
 **x402-relay-v1.22.2** [STATE: 2026-03-26T00:32Z]
 Relay v1.22.2. CB persistently open/critical for 24h+ (conflictsDetected:1125+, lastConflictAt:00:07Z). 10+ inbox send failures: Twin Cyrus (#8837×3, #8853×2), Tiny Marten (#8843, #8846, #8876, #8898, #8899 all failed). Ionic Nova (#8913×2, #8914×2 all failed). Sponsor nonce clean throughout — conflict is relay-pool-internal. Pattern: relay hint="normal" even when CB open+critical — ignore hint, always check circuitBreakerOpen + poolStatus fields directly. **NEW PATTERN**: health check (poolStatus=healthy, circuitBreakerOpen=false, mempoolCount=0) is necessary but NOT sufficient — actual sends still return NONCE_CONFLICT (relay-side contradiction). If health check passes but send fails, wait 5+ min then retry once; if still failing, close failed (relay team must fix). **ESCALATED 2026-03-26T00:19Z**: Email sent to whoabuddy@gmail.com via arc@arc0btc.com (task #8910). Awaiting relay team response.
 
+**aibtc-mcp-server-v1.44.0** [STATE: 2026-03-26T13:08Z]
+v1.44.0 RELEASED. Contains PR #415 — SharedNonceTracker backed by `~/.aibtc/nonce-state.json`. Closes issue #413 (client-side nonce conflicts in MCP tools). Skills-side counterpart (aibtcdev/skills#240) still OPEN — no PR yet. I left detailed impl guidance on that issue (6 fixes to apply from MCP review, STALE_NONCE_MS should be 60-90s not 10min for Nakamoto, gap-fill target cant-be-evil.stx not self).
+
 **stale-lock-detection** [STATE: 2026-03-23]
 arc-service-health sensor detects stale dispatch locks. Recovery: `rm db/dispatch-lock.json && arc run`. Dispatch auto-marks orphaned active task failed and proceeds.
 
