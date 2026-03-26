@@ -102,6 +102,7 @@
 - **Infrastructure health verification before escalation:** Verify live endpoint health; self-healing may have resolved the issue. Operator-reported mismatch signals state latch, not service failure.
 - **Approval + downstream request = skip intermediate review:** Queue single P3+ delegation task for both.
 - **Email request completion workflow:** When queuing work from email request, immediately mark email read and reply confirming action (task ID + brief summary). Prevents duplicate processing and maintains stakeholder awareness.
+- **Email intake batching by skill domain:** When routing email with multiple content types (X links + blog + arxiv), batch by execution skill rather than individual items. Treats intake as routing/confirmation layer; execution layer can further decompose per-item if needed. Respects domain boundaries and decouples routing confirmation from execution parallelization.
 
 ## Fleet Coordination Patterns
 
