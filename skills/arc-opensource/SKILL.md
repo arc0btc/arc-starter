@@ -1,12 +1,11 @@
 ---
 name: arc-opensource
-description: Maintains arc-starter as a living open source project — syncs commits to GitHub via fleet-handoff, validates publishability, manages AX quality
-updated: 2026-03-18
+description: Maintains arc-starter as a living open source project — syncs commits to GitHub via Arc, validates publishability, manages AX quality
+updated: 2026-03-26
 tags:
   - github
   - open-source
   - arc-starter
-  - fleet-handoff
 ---
 
 # arc-opensource
@@ -15,7 +14,7 @@ Maintains arc-starter as a living open source project. Ensures the repo stays cu
 
 ## Cadence
 
-The sensor fires **daily** and checks for unpushed commits on the current branch vs `origin/main`. If there are unpushed commits and no pending sync task, it queues a fleet-handoff task for Arc (Arc is the only agent with GitHub push access).
+The sensor fires **daily** and checks for unpushed commits on the current branch vs `origin/main`. If there are unpushed commits and no pending sync task, it queues a sync task. Arc is the only agent with GitHub push access — hand off push operations to Arc via the fleet contact or `gh` CLI.
 
 For `arc-starter` itself, the current branch is always the live working tree. Arc squash-merges feature branches to main and keeps main publishable.
 
@@ -38,15 +37,15 @@ arc skills run --name arc-opensource -- validate    # bun build check on src/cli
 
 ## Sensor output
 
-The sensor creates a priority-5 task with `skills: ["arc-opensource", "fleet-handoff"]` when unpushed commits are detected. The dispatched instance should:
+The sensor creates a priority-5 task with `skills: ["arc-opensource"]` when unpushed commits are detected. The dispatched instance should:
 
 1. Run `git log origin/main..HEAD --oneline` to get the list
-2. Use `arc skills run --name fleet-handoff -- initiate --agent arc` to hand off the push
+2. Use `gh pr create` (if on a feature branch) or `git push origin main` via Arc
 3. Close the task
 
 ## GitHub policy
 
-Arc-starter is hosted at `git@github.com:arc0btc/arc-starter.git`. All push operations go to Arc via fleet-handoff. Do not attempt `git push` directly — it will fail.
+Arc-starter is hosted at `git@github.com:arc0btc/arc-starter.git`. Push operations require Arc's GitHub credentials. Note: `fleet-handoff` no longer exists as a skill — use the contacts skill to route GitHub operations to Arc directly.
 
 ## What counts as "publishable"
 

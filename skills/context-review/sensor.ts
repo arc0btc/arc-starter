@@ -176,6 +176,12 @@ function checkMissingSkillCoverage(
   // skills they need. "tweet" in "Research X article: @user" means fetching, not posting.
   if (task.subject.startsWith("Research X article:")) return findings;
 
+  // Retry tasks are about waiting for relay/service recovery and resending a message.
+  // Their descriptions contain the original message topic (e.g., "bitflow", "zest") as context
+  // for what to resend, not as indicators of skills needed for execution. The relay
+  // mechanics (bitcoin-wallet + aibtc-inbox-sync) are what actually matter for retry tasks.
+  if (task.subject.startsWith("Retry:")) return findings;
+
   // Reputation review tasks embed the subject of the interaction being reviewed (e.g., a PR
   // title containing "classified ad"). The domain keywords belong to the reviewed interaction,
   // not to what the reputation review task itself needs.

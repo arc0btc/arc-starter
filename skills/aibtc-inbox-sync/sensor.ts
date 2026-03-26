@@ -51,6 +51,13 @@ const ZEST_KEYWORDS = [
   "zest", "zest protocol", "zest yield", "zest supply", "zest withdraw",
 ];
 
+// Keywords that indicate AIBTC news/editorial activity (ordinals beat, news signals).
+const EDITORIAL_KEYWORDS = [
+  "ordinals business", "aibtc news", "news signal", "news beat",
+  "inscription signal", "brc-20 signal", "inscribed signal",
+  "ordinals beat", "file a signal", "news submission",
+];
+
 function matchesKeywords(
   messages: Array<{ content: string | null }>,
   keywords: string[],
@@ -245,6 +252,7 @@ export default async function aibtcInboxSensor(): Promise<string> {
     const isBitflow = matchesKeywords(peerMessages, BITFLOW_KEYWORDS);
     const isPoX = matchesKeywords(peerMessages, POX_KEYWORDS);
     const isZest = matchesKeywords(peerMessages, ZEST_KEYWORDS);
+    const isEditorial = matchesKeywords(peerMessages, EDITORIAL_KEYWORDS);
     const inboxSkills = ["bitcoin-wallet"];
     if (isCoSign) {
       inboxSkills.push("bitcoin-quorumclaw", "bitcoin-taproot-multisig");
@@ -260,6 +268,9 @@ export default async function aibtcInboxSensor(): Promise<string> {
     }
     if (isZest) {
       inboxSkills.push("defi-zest");
+    }
+    if (isEditorial) {
+      inboxSkills.push("aibtc-news-editorial");
     }
     if (isResponseToOutreach) {
       inboxSkills.push("erc8004-reputation", "contacts");
