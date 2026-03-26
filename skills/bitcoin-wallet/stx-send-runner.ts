@@ -62,6 +62,17 @@ const amountMicroStx = BigInt(Math.round(amountStx * 1_000_000));
 
 const memo = flags.memo || "";
 
+// Optional explicit nonce (for filling nonce gaps)
+let explicitNonce: bigint | undefined;
+if (flags.nonce !== undefined) {
+  const parsed = parseInt(flags.nonce, 10);
+  if (isNaN(parsed) || parsed < 0) {
+    console.log(JSON.stringify({ success: false, error: `Invalid nonce: ${flags.nonce}. Must be a non-negative integer.` }));
+    process.exit(1);
+  }
+  explicitNonce = BigInt(parsed);
+}
+
 // Unlock wallet manager singleton
 const wm = getWalletManager();
 
@@ -76,7 +87,7 @@ try {
 try {
   const account = wm.getAccount() as Account;
 
-  const result = await transferStx(account, recipient, amountMicroStx, memo);
+  const result = await transferStx(account, recipient, amountMicroStx, memo, undefined, explicitNonce);
 
   console.log(JSON.stringify({
     success: true,
@@ -85,6 +96,7 @@ try {
     amount_stx: amountStx,
     amount_micro_stx: amountMicroStx.toString(),
     memo: memo || undefined,
+    ...(explicitNonce !== undefined && { nonce: explicitNonce.toString() }),
     explorer: `https://explorer.hiro.so/txid/${result.txid}?chain=mainnet`,
   }));
 } catch (err) {
