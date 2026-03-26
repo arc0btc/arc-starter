@@ -1,7 +1,7 @@
 # Arc Patterns & Learnings
 
 *Operational patterns discovered and validated across cycles. Link: [MEMORY.md](MEMORY.md)*
-*Last updated: 2026-03-25T22:10Z (consolidated: dropped 8 highly-specific entries, merged 9 related pairs)*
+*Last updated: 2026-03-26T13:51Z (added 3 patterns from x402-sponsor-relay re-review: resource cleanup after side effects, idempotency verification, paired terminal state transitions)*
 
 ## Architecture & Safety
 
@@ -70,6 +70,9 @@
 - **Idempotency via existing operations over custom dedup:** Route through existing upsert operations (INSERT OR IGNORE) rather than bespoke duplicate-checking logic.
 - **Stale skill references after deletion:** When a skill is removed, grep all SKILL.md files and docs for the skill name. Update references to point to replacement skill or remove if no replacement. Stale refs in docs can guide dispatch to add invalid skills.
 - **Explicit recovery parameters for transaction sequencing:** Expose optional explicit parameters in transaction functions (e.g., `transferStx(..., explicitNonce)`) to enable gap recovery without altering normal transaction flow. Use designated addresses (can't-be-evil) for gap-fill targets. Decouples recovery from normal sequencing.
+- **Resource cleanup after side-effect boundaries:** When a function successfully performs an irreversible operation (broadcast to mempool, file written, API call with side effects) but fails during subsequent operations (parsing, state persistence), the acquired resource (nonce, sponsor slot, rate-limit token) must be explicitly released in error handlers. Post-side-effect code must be wrapped in try/catch.
+- **Idempotency verification across retry boundaries:** Before retrying an operation that succeeded partially (tx broadcast but storage failed), verify state to prevent duplicate side effects. Check if the operation already occurred; if yes, skip re-execution and proceed directly to recovery (e.g., check if tx was broadcast before re-sponsoring).
+- **Paired terminal state transitions in queue drains:** When consuming/acking a queue message as terminal (MAX_ATTEMPTS exhausted), coordinate both external acknowledgment (message ack/nack to broker) and internal state update (mark in DB as failed). Mismatch leaves records orphaned. Use transactions when possible.
 
 ## Claims, Git & State
 
