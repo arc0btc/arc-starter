@@ -1,7 +1,7 @@
 # Arc Patterns & Learnings
 
 *Operational patterns discovered and validated across cycles. Link: [MEMORY.md](MEMORY.md)*
-*Last updated: 2026-03-27T00:39Z (added dedup ordering + cross-layer constraint validation from x402-sponsor-relay P1 review #9106)*
+*Last updated: 2026-03-27T02:38Z (consolidated: merged arch/integration entries, pruned x402-specific one-offs)*
 
 ## Architecture & Safety
 
@@ -10,44 +10,38 @@
 - **Explicit flag validation over string matching in error handlers:** Validate flags directly; string-match on error text breaks when text changes and misses correlated failures.
 - **Monotonic state tracking for flaky external APIs:** Use `Math.max(current, latest)` with gap-fill logic. Eliminates hysteresis from stale nodes.
 - **SQLite WAL mode + `PRAGMA busy_timeout = 5000`** — Required for sensors/dispatch collisions.
-- **File-backed shared state for multi-process coordination:** When implementing state accessed by multiple processes/modules (e.g., nonce tracking from builder.ts, x402.ts, sponsor-builder.ts, wallet.ts), use file-backed storage with atomic writes and cross-process mergeState logic. Tune consensus-window timeouts (STALE_NONCE_MS) to domain assumptions (90s for Nakamoto finality, not 10min). Prevents in-memory divergence.
-- **Transaction wrapping for cascade deletes:** Wrap multi-table DELETEs in a transaction. Intermediate failures leave DB partially-deleted without it.
+- **File-backed shared state + atomic transactions for multi-process coordination:** Use file-backed storage with atomic writes and cross-process mergeState for state accessed by multiple processes. Wrap multi-table DELETEs in transactions. Tune STALE_NONCE_MS to domain assumptions (90s for Nakamoto finality, not 10min).
 - **Security gate code review:** Audit for (1) fail-open bugs, (2) input validation, (3) null/boundary conditions, (4) auth vs authz separation.
 - **DB migration three-phase pattern: prep/review → execute+snapshot → integrity check+auto-rollback.**
 - **Schema constraints as fail-fast gates:** NOT NULL on semantically-required fields forces correct downstream handling; surfaces bugs earlier.
-- **Genericization requires atomic cross-layer updates:** Must update config, schema, CLI, imports, and docs simultaneously.
-- **Function naming consistency:** Use consistent scope qualifiers in ALL related functions. Audit related functions during component reviews.
-- **Structured audit logs for architecture tracking:** Maintain time-series audit log entries ([OK]/[WATCH]/[INFO] tags) recording resolved tech debt, verified assumptions, and pending work post-refactor. Prevents knowledge loss across cycles and coordinates multi-cycle cleanup (e.g., deprecated field removal, sensor pattern migration). Archive entries >30 days old; keep active log ≤5 entries.
-- **Agent-friendly error format — "Error: [what]. Fix: [how]":** Enforce consistently across all error paths (dispatch, CLI, sensors, startup).
-- **API error response consistency + HTTP semantics:** Enumerate all affected code paths; verify each includes identical diagnostic fields. Select semantically correct HTTP codes (409 for conflict, 404 for not found) over domain-specific repurposing.
+- **Genericization requires atomic cross-layer updates + consistent naming:** Must update config, schema, CLI, imports, and docs simultaneously. Use consistent scope qualifiers in ALL related functions; audit during component reviews.
+- **Structured audit logs for architecture tracking:** Maintain time-series audit log entries ([OK]/[WATCH]/[INFO] tags). Archive entries >30 days old; keep active log ≤5 entries.
+- **Agent-friendly error format + HTTP semantics:** Enforce "Error: [what]. Fix: [how]" consistently. Select semantically correct HTTP codes (409 conflict, 404 not found) over domain-specific repurposing.
 - **Disabled-by-default for new middleware on shared request paths:** Ship gating features disabled with config flag for gradual rollout.
 
 ## Sensor Patterns
 
-- **Gate → Dedup → Create + resource cap:** All sensors use interval gate, entity-based dedup, then task creation. Check daily caps before insertTask(); skip when at capacity.
-- **Single authoritative quota over layered rate limits:** Multiple overlapping rate limits (MAX per run + global cooldown + daily cap) create unexpected compound bottlenecks. Better to have one clear quota (e.g., daily allocation) and trust per-entity dedup to prevent duplicates. Layered limits compound interaction bugs without adding safety.
+- **Gate → Dedup → Create with single authoritative quota:** All sensors use interval gate, entity-based dedup, then task creation with one clear daily quota. Multiple overlapping rate limits compound interaction bugs; trust per-entity dedup to prevent duplicates.
 - **Sentinel gates + self-healing:** Write sentinel files during crises. Check operational health (test txn), not just endpoints. Cap queue creation per cycle.
 - **Consolidate or cap redundant domain sensors:** >2 sensors monitoring same domain → consolidate. Use `--parent` on retry tasks.
-- **Comprehensive multi-entity polling over rotation:** Fetch all categories/entities every cycle and rely on per-entity dedup (pendingTaskExistsForSource). Rotation logic adds complexity and creates gaps where infrequent categories fall behind. Single authoritative quota (daily cap) is the only gate needed.
+- **Comprehensive multi-entity polling + per-beat allocation:** Fetch all categories/entities every cycle and rely on per-entity dedup. Allocate independent per-beat quotas with per-beat cooldown. Rotation logic adds complexity and creates gaps.
 - **Rolling history for trend/anomaly detection:** Maintain rolling window in hook-state for delta computation and pattern detection across cycles.
 - **Per-entity+event-type composite-key cooldowns:** Use `collection:event-type` composite keys for independent cooldowns per pair.
 - **Raw-data-dispatch architecture:** Sensors return structured raw data; dispatch LLM composes content. Decouples domain knowledge from output format.
-- **Per-beat allocation with time-windowed overflow:** Allocate independent per-beat quotas with per-beat cooldown tracking. Enable overflow reallocation after OVERFLOW_HOUR_UTC.
-- **Proactive deadline-critical task filing over sensor auto-filing:** For operations with hard deadlines (daily caps, timed competitions), don't rely on sensor background logic—queue explicit P2+ task in the critical window. Sensor auto-filing can be pre-empted by queue load or timeouts; deadline work must be human-visible and dispatch-scheduled.
-- **Decompose orchestration work to avoid timeouts:** Sensor tasks that orchestrate multiple sequential operations (multi-category rotation, multi-beat aggregation) should decompose into per-operation subtasks. Avoids 15min timeout overhead of sequential I/O and enables parallel dispatch execution. Single large cycle timeout → N smaller independent cycles.
-- **Per-signal tasks over batch dispatch:** File each signal as individual task (one signal → one dispatch cycle), not multiple signals per task. Batching wastes expensive Opus slots, blocks the queue, and misses parallelization; individual tasks enable parallel dispatch and lower cost-per-signal.
+- **Proactive deadline-critical task filing over sensor auto-filing:** For hard deadlines, queue explicit P2+ task in the critical window. Sensor auto-filing can be pre-empted by queue load or timeouts.
+- **Decompose orchestration + per-signal tasks:** File each signal as individual task; decompose multi-operation sensors into per-operation subtasks. Batching blocks the queue and misses parallelization.
 - **Disaggregate success rates and error metrics by code path:** Aggregate metrics mask path-specific failures. Track verdict counters separately per source layer.
-- **Explicit content-keyword→skill mappings:** Define keyword arrays in sensors (e.g., `EDITORIAL_KEYWORDS = ["ordinals business", "aibtc news"]`) that trigger skill loading. Prevents context-loading gaps when message types carry domain keywords but don't indicate execution-skill needs.
+- **Explicit content-keyword→skill mappings:** Define keyword arrays in sensors that trigger skill loading. Prevents context-loading gaps when message types carry domain keywords.
 
 ## Task & Model Routing
 
 - **Bulk-audit shared code paths for missing required fields** when one sensor/CLI creates a broken task.
 - **Explicit model selection independent of priority.** Every task must specify `model`.
 - **Presentation/audience-facing work routes to Opus minimum.**
-- **Business-critical time-bound work escalates tier.** Deadline <48h AND impact >$1000 → Opus minimum. For deadline-critical operations that would timeout on Sonnet (multi-category rotation, multi-beat aggregation), use Opus proactively; cost of model upgrade ($0.20–0.30) << cost of missed deadline.
+- **Business-critical time-bound work escalates tier.** Deadline <48h AND impact >$1000 → Opus minimum.
 - **Multi-skill composition in triage decomposition:** Include both primary domain skills and supporting meta skills in each task's `skills` array.
-- **Research task sourcing from external URLs:** For bulk link research (3+ items), create individual tasks per link instead of batching to avoid timeouts and enable parallel dispatch execution. Use `--parent` to link back to request task. Smaller batches (1-2 links) can be combined. Always specify output format (ISO8601, JSON, etc.) in task description to prevent downstream friction.
-- **Task-type-specific context loading:** Retry tasks and relay notifications carry topic/message keywords that DON'T indicate execution-skill needs; gate skill loading on content-type, not on keyword presence. Add exclusions (e.g., `"Retry:"` prefix skip-list) to context validators.
+- **Research task sourcing from external URLs:** For bulk link research (3+ items), create individual tasks per link. Always specify output format in task description.
+- **Task-type-specific context loading:** Retry tasks and relay notifications carry keywords that DON'T indicate execution-skill needs; gate skill loading on content-type, not keyword presence.
 
 ## Task Chaining & Precondition Gates
 
@@ -58,61 +52,53 @@
 - **Verify event premise before spawning derivative tasks:** Use persistent artifacts (git history, source files, DB records), not session memory.
 - **Task source attribution:** Set source (`task:<parent_id>`) for derived tasks. Source=null bypasses domain constraints.
 - **Rate-limit retries MUST use `--scheduled-for`:** Parse `retry_after` → expiry + 5min → schedule. Without it, dispatch hits the limit again immediately.
-- **Sentinel bulk-close on relay-health cascade:** When writing a sentinel, immediately bulk-close all pending tasks of the same type with `status=failed, summary="sentinel-bulk-close"`. Pre-queued tasks bypass sentinel creation gates.
+- **Sentinel bulk-close on relay-health cascade:** When writing a sentinel, immediately bulk-close all pending tasks of the same type.
 
 ## Integration Patterns
 
-- **Health endpoint scope isolation:** Surface only high-level state + recommendations in health endpoints (`/health`); route detailed diagnostics to separate endpoints (`/state`, `/diagnostics`). Prevents clients from parsing implementation details and simplifies endpoint evolution.
-- **Configuration consistency validation across layers:** When docs, code defaults, schema, and env vars specify the same setting, validate consistency. Grep for setting across all layers; mismatches create silent policy violations.
-- **DRY in multi-module systems — shared utils + single-pass loading + config parsing:** Extract repeated functions to shared utils; merge multi-consumer reads into single-pass loaders. Support env var overrides at every config field.
+- **Health endpoint scope isolation:** Surface only high-level state + recommendations in `/health`; route diagnostics to `/state`, `/diagnostics`.
+- **Configuration consistency validation across layers:** Grep for setting across all layers (docs, code defaults, schema, env vars); mismatches create silent policy violations.
+- **DRY in multi-module systems:** Extract repeated functions to shared utils; merge multi-consumer reads into single-pass loaders. Support env var overrides at every config field.
 - **Credential patterns:** Never pass secrets via CLI flags. Use identical service/key names across sensor/CLI/creds layers. Validate at health-check time, not first API call.
 - **Idempotent setup with secure scaffolding:** Skip existing resources; create credential files with mode 0600; use `.template` files with parameter substitution.
-- **API version/auth migration requires coordinated client updates:** Update all callers simultaneously with phase/state gates to prevent operations in wrong cycle state.
+- **API version/auth migration requires coordinated client updates:** Update all callers simultaneously with phase/state gates.
 - **Component audit methodology:** Export metadata as queryable JSON. Classify: shared/agent_specific/runtime_builtin/delete. Delete-safe: unused 30+ days + zero refs.
-- **Multi-domain feature parameterization via explicit CLI flags:** Add `--beat` params; make hook-state keys composite (`editorial:ordinals`); extract domain logic into beat-scoped functions. Gate routing on relevance AND domain-keyword match.
-- **Verification/audit skills: sensor-free, CLI-first.** Implement as pure CLI skills. File discovery via explicit CLI params, never auto-scan.
+- **Multi-domain feature parameterization via explicit CLI flags:** Add `--beat` params; make hook-state keys composite; extract domain logic into beat-scoped functions.
+- **Verification/audit skills: sensor-free, CLI-first.** File discovery via explicit CLI params, never auto-scan.
 - **API field aliasing for backwards compatibility:** Accept both legacy and new field names via nullish coalesce: `newFieldName ?? legacyFieldName`.
 - **Idempotency via existing operations over custom dedup:** Route through existing upsert operations (INSERT OR IGNORE) rather than bespoke duplicate-checking logic.
-- **Stale skill references after deletion:** When a skill is removed, grep all SKILL.md files and docs for the skill name. Update references to point to replacement skill or remove if no replacement. Stale refs in docs can guide dispatch to add invalid skills.
-- **Explicit recovery parameters for transaction sequencing:** Expose optional explicit parameters in transaction functions (e.g., `transferStx(..., explicitNonce)`) to enable gap recovery without altering normal transaction flow. Use designated addresses (can't-be-evil) for gap-fill targets. Decouples recovery from normal sequencing.
-- **HTML parsing for APIs with incomplete JSON coverage:** When a third-party API provides POST endpoints for writes but lacks JSON read endpoints, parse structured HTML from dashboard pages (CSS classes, data attributes, ID patterns) to extract read data. Use robust selectors keyed to semantic structure (e.g., `.delivery-record`), not cosmetic classes. Unblocks integrations where API completeness awaits external roadmaps.
-- **Resource cleanup after side-effect boundaries:** When a function successfully performs an irreversible operation (broadcast to mempool, file written, API call with side effects) but fails during subsequent operations (parsing, state persistence), the acquired resource (nonce, sponsor slot, rate-limit token) must be explicitly released in error handlers. Post-side-effect code must be wrapped in try/catch.
-- **Idempotency verification across retry boundaries:** Before retrying an operation that succeeded partially (tx broadcast but storage failed), verify state to prevent duplicate side effects. Check if the operation already occurred; if yes, skip re-execution and proceed directly to recovery (e.g., check if tx was broadcast before re-sponsoring).
-- **Dedup ordering for idempotent correctness:** In systems with multiple dedups (sender-level, transaction-level), apply in order of broadest scope first. Transaction-level dedup before sender-level dedup: if sender dedup runs first, it can miss duplicates that transaction-level dedup would catch for idempotent clients.
-- **Cross-layer constraint validation on integration:** Configuration minimums/maximums at one layer (e.g., KV expirationTtl minimum 60s) can silently break assumptions from dependent layers (retry logic assuming retryAfter=10s). Enumerate all constraints and validate parity across integration boundaries during code review.
-- **Mempool state confirmation via nonce conflict:** When a tx broadcast succeeds in mempool but indexer verification fails due to lag, retry with the same nonce. ConflictingNonceInMempool error confirms the broadcast succeeded; nonce occupation is the ground truth. Use for gap-fill verification without explicit state queries (e.g., verify nonce-fill txs confirmed).
-- **Paired terminal state transitions in queue drains:** When consuming/acking a queue message as terminal (MAX_ATTEMPTS exhausted), coordinate both external acknowledgment (message ack/nack to broker) and internal state update (mark in DB as failed). Mismatch leaves records orphaned. Use transactions when possible.
-- **API response completeness across related endpoints:** Endpoints serving the same entity (list vs. single-entity views) must include identical field sets. Audit for parity; missing fields in one layer force client workarounds and create cache inconsistencies.
-- **Cascading template updates on API field additions:** When adding a field to API responses, update all consuming template layers in parallel (list cards, detail modals, CSS). Incomplete updates leave data inaccessible or unstyled.
-- **PreToolUse hooks for blocking tool auto-answer:** When interactive tools (AskUserQuestion) block headless dispatch, gate them with PreToolUse hooks that pattern-match question type and provide safe defaults ('yes, proceed', model='sonnet', first option for choices). Prevents dispatch stalls in headless contexts.
-- **Message encoding for cryptographic signatures:** Use `printf "%s"` instead of `echo` when preparing message strings for signing (BIP-137, contract calls, API auth). `echo` adds trailing newline that signature verification includes, causing mismatch.
-- **Environment variables for external signing tools:** Signing operations (btc-sign, Stacks auth) require explicit environment (NETWORK=mainnet/testnet). Tool-env mismatch with API expectations causes silent verification failure.
+- **Stale skill references after deletion:** When a skill is removed, grep all SKILL.md files and docs. Update references to replacement or remove if no replacement.
+- **Resource cleanup + idempotency across side-effect boundaries:** When a function performs an irreversible op (mempool broadcast, API call), wrap post-side-effect code in try/catch and explicitly release acquired resources on error. Before retrying a partial success, verify the operation didn't already complete.
+- **Dedup ordering for idempotent correctness:** Apply dedup in order of broadest scope first. Transaction-level before sender-level.
+- **Cross-layer constraint validation on integration:** Configuration minimums at one layer (e.g., KV TTL=60s) can silently break assumptions in dependent layers (retry logic expecting 10s). Enumerate and validate parity across boundaries.
+- **API response completeness across related endpoints:** List and single-entity endpoints must include identical field sets. Audit for parity.
+- **PreToolUse hooks for blocking tool auto-answer:** Gate AskUserQuestion with PreToolUse hooks that pattern-match question type and provide safe defaults.
+- **Message encoding for cryptographic signatures:** Use `printf "%s"` instead of `echo` when preparing message strings for signing. `echo` adds trailing newline that verification includes.
+- **Environment variables for external signing tools:** Signing ops require explicit NETWORK=mainnet/testnet. Tool-env mismatch with API expectations causes silent verification failure.
 
 ## Claims, Git & State
 
 - **Live deployment divergence:** Check live site AND source HEAD. Services don't auto-reload — restart after commits.
 - **Proof over assertion:** Verify claims against authoritative sources before publishing.
 - **Circuit breaker state latch bug pattern:** State setters must be conditional on whether the condition *still exists*, not just the triggering event.
-- **Symmetric state ownership at integration points:** When integrating shared-state components across modules, enforce single source of truth: x402.ts imports getNextNonce from builder.ts rather than maintaining duplicate nonce tracking. Audit all callers during integration to prevent process-level state divergence. Mixed local+imported tracking causes reconciliation failures.
-- **Code review: verify fixes, label items, dedup CI comments:** Scan diffs → trace call stack → verify fix spans all layers. **For fixes involving shared logic (calculation, state validation), verify that all callers use the identical function, not reimplemented versions.** Mark each item [blocking] or [suggestion]. When CI already comments a PR, Arc must not add its own review comments.
-- **Changes_requested re-review gate:** When re-reviewing after changes_requested, enumerate each original feedback item; verify each is addressed in the diff; require CI green before approving. Prevents rubber-stamping and ensures systematic verification.
-- **Two-pass review for state machines with error paths:** For queue consumers or state machines with critical error paths, conduct second pass targeting exception handlers, retry boundaries, and resource cleanup. Early feedback typically addresses logic/auth; edge-cases (nonce leaks, double-operations on retry, zombie states from dead-letter) emerge in error-path pass. Document per phase-scope (safe to defer vs. must-fix blockers).
-- **Defer minor suggestions on approved PRs:** If blocking issues fixed + CI passing + no merge conflicts, defer [suggestion] items as courtesy feedback; don't block merge.
+- **Symmetric state ownership at integration points:** Enforce single source of truth; audit all callers during integration to prevent process-level state divergence.
+- **Code review methodology:** Scan diffs → trace call stack → verify fix spans all layers (including shared logic callers). Mark each item [blocking] or [suggestion]. When CI already comments a PR, Arc must not add its own review comments. Changes_requested re-review: enumerate each original feedback item; verify each addressed; CI green before approving.
+- **Defer minor suggestions on approved PRs:** If blocking issues fixed + CI passing + no merge conflicts, defer [suggestion] items.
 - **Automation-generated PR review:** Validate (1) CI all green, (2) schema/format correctness, (3) no merge conflicts. Don't critique auto-generated prose.
 - **Destructive operation review:** Require `--confirm` flag as functional gate (not just advisory text). Verify snapshot-before-delete and scope validation.
 - **Frontend PR review — three-layer gate:** (1) XSS prevention (textContent→innerHTML, encodeURIComponent); (2) design tokens, dark mode, responsive; (3) pagination/scalability flags.
 
 ## Email & Coordination Patterns
 
-- **Email request completion workflow:** When queuing work from email request, immediately mark email read and reply confirming action. Prevents duplicate processing and maintains stakeholder awareness.
+- **Email request completion workflow:** When queuing work from email request, immediately mark email read and reply confirming action. Prevents duplicate processing.
 - **Stakeholder request decomposition:** Decompose into triage (same cycle) + execution tasks. Stakeholder-directed architecture overrides defaults.
-- **Email intake batching by skill domain:** When routing email with multiple content types, batch by execution skill rather than individual items. Decouples routing confirmation from execution parallelization.
+- **Email intake batching by skill domain:** When routing email with multiple content types, batch by execution skill rather than individual items.
 
 ## Partnership & Revenue Patterns
 
-- **Partnership marginal-cost evaluation:** Evaluate adopting new partnership by assessing integration cost into existing workflow. Zero marginal cost (existing cadence + minor CTA addition) = YES; requires new execution path = defer. Paperboy example: Arc already files 6/day signals, adding AMBASSADOR CTA costs nothing.
-- **Spec-first skill creation for external integrations:** For distribution/revenue partnerships, create SKILL.md spec first to lock in decision and document interface. Queue CLI implementation as separate follow-up task. Decouples decision-making from implementation details and allows concurrent work.
-- **Degrade-to-free-auth on infrastructure degradation:** When paid relay (x402) has circuit breaker open, route to free authentication paths (BIP-137 outbox) to bypass the broken relay. Critical operations should always have a free fallback to prevent cascading infrastructure failures.
+- **Partnership marginal-cost evaluation:** Zero marginal cost (existing cadence + minor CTA addition) = YES; requires new execution path = defer.
+- **Spec-first skill creation for external integrations:** Create SKILL.md spec first to lock in decision. Queue CLI implementation as separate follow-up task.
+- **Degrade-to-free-auth on infrastructure degradation:** When paid relay (x402) has circuit breaker open, route to free authentication paths (BIP-137 outbox).
 
 ## Fleet Coordination Patterns
 
@@ -127,12 +113,12 @@
 - **Multi-phase quest structure for 100+ item reviews:** Triage/scoping → validation → cross-reference → synthesis → manifest. Each phase commits artifacts.
 - **Pre-planning stakeholder clarification over post-planning rework:** Email stakeholder with decision questions BEFORE queuing execution.
 - **Multi-phase quest projected cost checkpoint after phase 1:** $3–5/phase for Opus; if projected total >$15, escalate before proceeding.
-- **Quest phase state verification before closure:** Verify state transition persisted via API or DB check BEFORE closing the task. False completions occur when state-write fails silently.
+- **Quest phase state verification before closure:** Verify state transition persisted via API or DB check BEFORE closing the task.
 
 ## State Machine & Recovery Patterns
 
-- **Context merge vs replace in state transitions:** Always merge (`{...existing, newField}`) rather than replace. Replacement loses upstream data downstream transitions depend on.
-- **Compound state recovery via dispatch branches + observability counters:** Add explicit `else if (stateA && stateB)` recovery branches rather than catch-all fallthrough. Add verdict counters to surface new paths in logs.
+- **Context merge vs replace in state transitions:** Always merge (`{...existing, newField}`) rather than replace.
+- **Compound state recovery via dispatch branches + observability counters:** Add explicit `else if (stateA && stateB)` recovery branches. Add verdict counters to surface new paths in logs.
 - **Incremental recovery over state-machine rewrite:** Add targeted recovery branches to existing loops. >30 lines of recovery code signals the loop itself needs refactoring.
 
 ## Memory & Knowledge Architecture
@@ -145,13 +131,12 @@
 
 - **Deprecated field cleanup scheduling:** Mark fields with post-event cleanup dates rather than immediate deletion. Queue cleanup task for explicit date.
 - **High-leverage root-cause fix prioritization:** Single critical root-cause fix > bulk-killing individual failures.
-- **Retrospective queue gatekeeping:** result_summary must include queue actions: killed X stale tasks, queued Y next-phase tasks. Check bulk-kill events before treating high failure counts as incidents.
-- **Separate infrastructure failures from execution failures in metrics:** When external infrastructure (relay, API gateway, mempool) has known transient failures, tag those failures separately. High infrastructure failure count does not indicate broken execution logic and should not trigger execution-layer incident response. Affects SLA reporting, trend analysis, and prioritization.
+- **Retrospective queue gatekeeping:** result_summary must include queue actions. Check bulk-kill events before treating high failure counts as incidents.
+- **Separate infrastructure failures from execution failures in metrics:** Tag external infrastructure failures separately. High infra failure count does not indicate broken execution logic.
 - **Pre-event queue discipline (<24h to deadline):** Proactively close stale/blocked tasks (no recovery path, 7+ days pending).
-- **Cross-sensor parity check for shared gates:** Audit pre-check logic in actual code, not docs. Inconsistency causes failures in high-stakes periods.
-- **Sensor disabling on unresolved backlog:** >50 pending tasks from blocked sensor → disable + bulk-close + P3 root-cause task.
-- **Unreliable data sources trigger replacement, not retries:** 2+ consecutive failures → P3 source-replacement task with alternate source.
+- **Cross-sensor parity check for shared gates:** Audit pre-check logic in actual code, not docs.
+- **Sensor disabling on unresolved backlog + unreliable sources:** >50 pending tasks from blocked sensor → disable + bulk-close + P3 root-cause task. 2+ consecutive source failures → P3 source-replacement task with alternate.
 - **Failure rule:** Root cause first, no retry loops. Persistent external blocker → mark failed, create P8 follow-up.
 - **Strategic reviews escalate time-bound work to P1.** Don't rely on daily dispatch to catch imminent deadlines.
-- **Multi-wave deprecation with external gating:** Wave 1: delete unused immediately; Wave 2: gate replacement on external trigger (service restart, feature readiness).
+- **Multi-wave deprecation with external gating:** Wave 1: delete unused immediately; Wave 2: gate replacement on external trigger.
 - **Category rotation verification in time-bound events:** Explicitly verify all buckets are fetched before competitive window closes. Queue P3 verification task mid-event.
