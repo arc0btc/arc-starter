@@ -573,14 +573,15 @@ async function cmdExecute(args: string[]): Promise<void> {
     log(`[${i + 1}/${record.transfers.length}] ${transfer.correspondent_name}: ${transfer.amount_sats} sats → ${transfer.stx_address} (nonce=${currentNonce})`);
 
     try {
-      const result = await sendSbtc(walletId, walletPassword, transfer.stx_address, transfer.amount_sats, `aibtc.news payout ${date}`, currentNonce);
+      const result = await sendSbtc(walletId, walletPassword, transfer.stx_address, transfer.amount_sats, `aibtc.news payout ${date}`, BigInt(currentNonce));
 
       if (result.success && result.txid) {
         transfer.status = "sent";
         transfer.txid = result.txid;
         transfer.sent_at = new Date().toISOString();
         successCount++;
-        currentNonce++;
+        await releaseManagedNonce(senderStxAddress, currentNonce, true);
+        currentNonce = await acquireManagedNonce(senderStxAddress);
         log(`Sent: ${result.txid} (next nonce=${currentNonce})`);
 
         // Record payout on API: PATCH each earning record with the txid
@@ -600,22 +601,25 @@ async function cmdExecute(args: string[]): Promise<void> {
         const errorMsg = result.error ?? result.detail ?? "Unknown error";
 
         if (isNonceError(errorMsg)) {
-          log(`Nonce error: ${errorMsg} — re-seeding`);
+          log(`Nonce error: ${errorMsg} — releasing and re-syncing via nonce-manager`);
           try {
-            currentNonce = await fetchSeedNonce(senderStxAddress);
-            const retry = await sendSbtc(walletId, walletPassword, transfer.stx_address, transfer.amount_sats, `aibtc.news payout ${date}`, currentNonce);
+            await releaseManagedNonce(senderStxAddress, currentNonce, false);
+            currentNonce = await acquireManagedNonce(senderStxAddress);
+            const retry = await sendSbtc(walletId, walletPassword, transfer.stx_address, transfer.amount_sats, `aibtc.news payout ${date}`, BigInt(currentNonce));
 
             if (retry.success && retry.txid) {
               transfer.status = "sent";
               transfer.txid = retry.txid;
               transfer.sent_at = new Date().toISOString();
               successCount++;
-              currentNonce++;
+              await releaseManagedNonce(senderStxAddress, currentNonce, true);
+              currentNonce = await acquireManagedNonce(senderStxAddress);
               log(`Retry succeeded: ${retry.txid}`);
               for (const earningId of transfer.earning_ids) {
                 try { await apiPatch(`/earnings/${earningId}`, { btc_address: transfer.btc_address, payout_txid: retry.txid }); } catch { /* best effort */ }
               }
             } else {
+              await releaseManagedNonce(senderStxAddress, currentNonce, false);
               transfer.status = "failed";
               transfer.error = `Retry failed: ${retry.error ?? retry.detail ?? "Unknown"}`;
               failCount++;
@@ -626,6 +630,7 @@ async function cmdExecute(args: string[]): Promise<void> {
             failCount++;
           }
         } else {
+          await releaseManagedNonce(senderStxAddress, currentNonce, false);
           transfer.status = "failed";
           transfer.error = errorMsg;
           failCount++;
