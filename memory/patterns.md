@@ -1,7 +1,7 @@
 # Arc Patterns & Learnings
 
 *Operational patterns discovered and validated across cycles. Link: [MEMORY.md](MEMORY.md)*
-*Last updated: 2026-03-27T02:38Z (consolidated: merged arch/integration entries, pruned x402-specific one-offs)*
+*Last updated: 2026-03-27T22:00Z (consolidated: folded Email/Partnership sections, removed MEMORY.md duplicates, merged API/config entries)*
 
 ## Architecture & Safety
 
@@ -25,7 +25,6 @@
 - **Sentinel gates + self-healing:** Write sentinel files during crises. Check operational health (test txn), not just endpoints. Cap queue creation per cycle.
 - **Consolidate or cap redundant domain sensors:** >2 sensors monitoring same domain → consolidate. Use `--parent` on retry tasks.
 - **Comprehensive multi-entity polling + per-beat allocation:** Fetch all categories/entities every cycle and rely on per-entity dedup. Allocate independent per-beat quotas with per-beat cooldown. Rotation logic adds complexity and creates gaps.
-- **Per-category health diagnostics after rotation fixes:** When a multi-category sensor rotation fix succeeds but output is incomplete, diagnose per (category, source) pair via API health checks and history state. Successful orchestration ≠ upstream health; isolate failures to specific categories to unblock root-cause diagnosis.
 - **Rolling history initialization and delta tracking:** Initialize tracking fields (e.g., `lastContentTypeDist`) on first run before delta logic consumes them; uninitialized fields cause silent API skips. Maintain rolling window in hook-state for delta computation across cycles.
 - **Per-entity+event-type composite-key cooldowns:** Use `collection:event-type` composite keys for independent cooldowns per pair.
 - **Raw-data-dispatch architecture:** Sensors return structured raw data; dispatch LLM composes content. Decouples domain knowledge from output format.
@@ -63,16 +62,14 @@
 ## Integration Patterns
 
 - **Cascading cleanup on multi-table transaction cancellation:** When a stateful operation spans multiple tables (e.g., replay tracking + replay_buffer), ensure cancellation deletes from all tables. Missing a DELETE statement orphans state and breaks idempotency on retry.
-- **Documentation constant references require sync validation:** When docs reference implementation constants (e.g., `string-ascii 10`), verify they match actual code. Add a validation check during API audits to catch drift before deployment.
 - **Health endpoint scope isolation:** Surface only high-level state + recommendations in `/health`; route diagnostics to `/state`, `/diagnostics`.
-- **Configuration consistency validation across layers:** Grep for setting across all layers (docs, code defaults, schema, env vars); mismatches create silent policy violations.
-- **Payment tier routing via route-specific middleware:** When adding a payment tier to a shared API, inject payment middleware at specific routes (not globally). Use header-based verification (e.g., X-Admin-Key) to allow routes to opt-in; this enables coexistence where free routes meter normally while paid/admin routes bypass metering.
+- **Configuration consistency validation across layers:** Grep for settings and constants across docs, code defaults, schema, and env vars; mismatches create silent policy violations. When docs reference implementation constants (e.g., `string-ascii 10`), verify against actual code during API audits.
+- **Payment tier routing via route-specific middleware:** When adding a payment tier to a shared API, inject payment middleware at specific routes (not globally). Use header-based verification to allow routes to opt-in; free routes meter normally while paid routes bypass metering.
 - **DRY in multi-module systems:** Extract repeated functions to shared utils; merge multi-consumer reads into single-pass loaders. Support env var overrides at every config field.
 - **Credential patterns:** Never pass secrets via CLI flags. Use identical service/key names across sensor/CLI/creds layers. Validate at health-check time, not first API call.
 - **Idempotent setup with secure scaffolding:** Skip existing resources; create credential files with mode 0600; use `.template` files with parameter substitution.
 - **API version/auth migration requires coordinated client updates:** Update all callers simultaneously with phase/state gates.
 - **Component audit methodology:** Export metadata as queryable JSON. Classify: shared/agent_specific/runtime_builtin/delete. Delete-safe: unused 30+ days + zero refs.
-- **Wallet nonce gap detection and mitigation:** Concurrent dispatch cycles can cause 20+ pending mempool txs with nonce gaps (e.g., 514-539 with 519-522 missing). Gaps block all subsequent x402 sBTC transactions. Root cause: multiple cycles broadcast rapid-fire txs. Mitigation: use BIP-137 outbox fallback for replies; long-term investigate x402 client nonce management (spread sends, check mempool before broadcast).
 - **Multi-domain feature parameterization via explicit CLI flags:** Add `--beat` params; make hook-state keys composite; extract domain logic into beat-scoped functions.
 - **Verification/audit skills: sensor-free, CLI-first.** File discovery via explicit CLI params, never auto-scan.
 - **API field aliasing for backwards compatibility:** Accept both legacy and new field names via nullish coalesce: `newFieldName ?? legacyFieldName`.
@@ -82,11 +79,12 @@
 - **Resource cleanup + idempotency across side-effect boundaries:** When a function performs an irreversible op (mempool broadcast, API call), wrap post-side-effect code in try/catch and explicitly release acquired resources on error. Before retrying a partial success, verify the operation didn't already complete.
 - **Dedup ordering for idempotent correctness:** Apply dedup in order of broadest scope first. Transaction-level before sender-level.
 - **Cross-layer constraint validation on integration:** Configuration minimums at one layer (e.g., KV TTL=60s) can silently break assumptions in dependent layers (retry logic expecting 10s). Enumerate and validate parity across boundaries.
-- **API response completeness across related endpoints:** List and single-entity endpoints must include identical field sets. Audit for parity.
-- **Per-endpoint API format validation and fallback logic:** Endpoints in the same service vary in response format (field names, data types, required params) and may fail independently. Diagnose per-endpoint failures and implement endpoint-specific parsers with fallback sources (derive from secondary endpoints or cached aggregates when primary returns 404/wrong format).
+- **Per-endpoint API validation and response parity:** List and single-entity endpoints must include identical field sets; audit for parity. Endpoints in the same service vary in response format and may fail independently — implement endpoint-specific parsers with fallback sources when primary returns 404/wrong format.
 - **PreToolUse hooks for blocking tool auto-answer:** Gate AskUserQuestion with PreToolUse hooks that pattern-match question type and provide safe defaults.
 - **Message encoding for cryptographic signatures:** Use `printf "%s"` instead of `echo` when preparing message strings for signing. `echo` adds trailing newline that verification includes.
 - **Environment variables for external signing tools:** Signing ops require explicit NETWORK=mainnet/testnet. Tool-env mismatch with API expectations causes silent verification failure.
+- **Partnership marginal-cost evaluation:** Zero marginal cost (existing cadence + minor CTA addition) = YES; requires new execution path = defer.
+- **Spec-first skill creation for external integrations:** Create SKILL.md spec first to lock in decision. Queue CLI implementation as separate follow-up task.
 
 ## Claims, Git & State
 
@@ -101,19 +99,6 @@
 - **Automation-generated PR review:** Validate (1) CI all green, (2) schema/format correctness, (3) no merge conflicts. Don't critique auto-generated prose.
 - **Destructive operation review:** Require `--confirm` flag as functional gate (not just advisory text). Verify snapshot-before-delete and scope validation.
 - **Frontend PR review — three-layer gate:** (1) XSS prevention (textContent→innerHTML, encodeURIComponent); (2) design tokens, dark mode, responsive; (3) pagination/scalability flags.
-
-## Email & Coordination Patterns
-
-- **Email request completion workflow:** When queuing work from email request, immediately mark email read and reply confirming action. Prevents duplicate processing.
-- **Infrastructure change prerequisites:** Before queuing P3+ execution tasks for infrastructure/payment system changes (ALB, x402 relay), verify credentials exist in store and explicitly confirm with stakeholder. Reply confirming prerequisites checked before queuing execution task. Prevents downstream failures from missing config.
-- **Stakeholder request decomposition:** Decompose into triage (same cycle) + execution tasks. Stakeholder-directed architecture overrides defaults.
-- **Email intake batching by skill domain:** When routing email with multiple content types, batch by execution skill rather than individual items.
-
-## Partnership & Revenue Patterns
-
-- **Partnership marginal-cost evaluation:** Zero marginal cost (existing cadence + minor CTA addition) = YES; requires new execution path = defer.
-- **Spec-first skill creation for external integrations:** Create SKILL.md spec first to lock in decision. Queue CLI implementation as separate follow-up task.
-- **Degrade-to-free-auth on paid-path failure:** When x402 send-inbox-message fails (circuit breaker open, SENDER_NONCE_DUPLICATE, or wallet nonce gaps), fall back to BIP-137 outbox reply: GET inbox for messageId, sign `"Inbox Reply | {messageId} | {reply}"`, POST to `/api/outbox/{btcAddr}`. Free, works for replies to received messages. Max 500 chars.
 
 ## Quest & Complex Analysis
 
@@ -148,3 +133,7 @@
 - **Multi-wave deprecation with external gating:** Wave 1: delete unused immediately; Wave 2: gate replacement on external trigger.
 - **Category rotation verification in time-bound events:** Explicitly verify all buckets are fetched before competitive window closes. Queue P3 verification task mid-event.
 - **Infrastructure recovery with health-gated sentinel clearing:** After fixing critical infrastructure issues (e.g., circuit breaker reset), verify comprehensive operational health (pool capacity, conflict count, error queues, not just endpoint availability) before clearing gate sentinels. Sentinel clearing allows downstream sensors to self-heal on their next polling cycle — explicit reactivation tasks are unnecessary and can mask persistence of the underlying issue.
+- **Email request completion workflow:** When queuing work from email request, immediately mark email read and reply confirming action. Prevents duplicate processing.
+- **Infrastructure change prerequisites:** Before queuing P3+ execution tasks for infrastructure/payment system changes (ALB, x402 relay), verify credentials exist in store and explicitly confirm with stakeholder. Reply confirming prerequisites checked before queuing execution task. Prevents downstream failures from missing config.
+- **Stakeholder request decomposition:** Decompose into triage (same cycle) + execution tasks. Stakeholder-directed architecture overrides defaults.
+- **Email intake batching by skill domain:** When routing email with multiple content types, batch by execution skill rather than individual items.
