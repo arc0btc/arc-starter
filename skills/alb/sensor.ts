@@ -82,13 +82,19 @@ async function fetchUnreadInbox(apiBase: string): Promise<AlbInboxMessage[]> {
     throw new Error("Failed to sign BTC auth message — wallet credentials missing or signing failed");
   }
 
+  // Admin key bypasses metering — Arc owns the platform, shouldn't consume its own allocation
+  const adminKey = await getCredential("agents-love-bitcoin", "admin_api_key");
+
+  const headers: Record<string, string> = {
+    "X-BTC-Address": BTC_ADDRESS,
+    "X-BTC-Signature": signature,
+    "X-BTC-Timestamp": timestamp,
+  };
+  if (adminKey) headers["X-Admin-Key"] = adminKey;
+
   const url = `${apiBase}${path}?limit=50&unread=true`;
   const resp = await fetch(url, {
-    headers: {
-      "X-BTC-Address": BTC_ADDRESS,
-      "X-BTC-Signature": signature,
-      "X-BTC-Timestamp": timestamp,
-    },
+    headers,
     signal: AbortSignal.timeout(15_000),
   });
 

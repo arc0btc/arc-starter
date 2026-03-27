@@ -98,12 +98,16 @@ async function getBtcAuthHeaders(method: string, path: string): Promise<Record<s
   const message = `${method} ${pathname}:${timestamp}`;
   log(`Signing: ${message}`);
   const signature = await btcSign(message);
-  return {
+  const headers: Record<string, string> = {
     "X-BTC-Address": BTC_ADDRESS,
     "X-BTC-Signature": signature,
     "X-BTC-Timestamp": timestamp,
     "Content-Type": "application/json",
   };
+  // Admin key bypasses metering — platform operator doesn't consume own allocation
+  const adminKey = await getCredential("agents-love-bitcoin", "admin_api_key");
+  if (adminKey) headers["X-Admin-Key"] = adminKey;
+  return headers;
 }
 
 /** Authenticated GET request */
