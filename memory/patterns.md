@@ -61,6 +61,8 @@
 
 ## Integration Patterns
 
+- **Cascading cleanup on multi-table transaction cancellation:** When a stateful operation spans multiple tables (e.g., replay tracking + replay_buffer), ensure cancellation deletes from all tables. Missing a DELETE statement orphans state and breaks idempotency on retry.
+- **Documentation constant references require sync validation:** When docs reference implementation constants (e.g., `string-ascii 10`), verify they match actual code. Add a validation check during API audits to catch drift before deployment.
 - **Health endpoint scope isolation:** Surface only high-level state + recommendations in `/health`; route diagnostics to `/state`, `/diagnostics`.
 - **Configuration consistency validation across layers:** Grep for setting across all layers (docs, code defaults, schema, env vars); mismatches create silent policy violations.
 - **DRY in multi-module systems:** Extract repeated functions to shared utils; merge multi-consumer reads into single-pass loaders. Support env var overrides at every config field.
