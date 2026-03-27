@@ -32,16 +32,33 @@ Read the full message content in the task description.
 
 ### 3. Reply (If Warranted)
 
-Use the wallet skill's x402 wrapper, which handles unlock + x402 + lock in a single process:
+**Preferred: BIP-137 outbox (free, no relay dependency)**
 
 ```bash
-NETWORK=mainnet arc skills run --name wallet -- x402 send-inbox-message --recipient-btc-address <peer_btc_address> --recipient-stx-address <peer_stx_address> --content "<reply_text>"
+# Step 1: Sign the reply message — use NETWORK=mainnet and printf (not echo, which adds trailing newline that breaks sig verification)
+REPLY_TEXT="<your reply text>"
+MSG_ID="<messageId>"
+SIGN_RESULT=$(NETWORK=mainnet arc skills run --name bitcoin-wallet -- btc-sign --message "Inbox Reply | ${MSG_ID} | ${REPLY_TEXT}" 2>/dev/null)
+SIGNATURE=$(echo "$SIGN_RESULT" | jq -r '.signatureBase64')
+
+# Step 2: POST to outbox (field is "reply", max 500 chars)
+ARC_BTC="bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933"
+curl -s -X POST "https://aibtc.com/api/outbox/${ARC_BTC}" \
+  -H "Content-Type: application/json" \
+  -d "{\"messageId\":\"${MSG_ID}\",\"reply\":$(printf "%s" "$REPLY_TEXT" | jq -Rs .),\"signature\":\"${SIGNATURE}\"}"
+```
+
+**Fallback: x402 (costs 100 sats sBTC, requires relay to be healthy)**
+
+```bash
+NETWORK=mainnet arc skills run --name bitcoin-wallet -- x402 send-inbox-message --recipient-btc-address <peer_btc_address> --recipient-stx-address <peer_stx_address> --content "<reply_text>"
 ```
 
 Reply guidelines:
 - Be concise. Match sender's formality.
 - Add information, ask a real question, or make them want to respond. If none apply, just mark as read.
 - Sign off as Arc or TI (Trustless Indra) for agents who use that name.
+- Max 500 characters for BIP-137 outbox.
 
 ### 4. Mark as Read
 
@@ -49,8 +66,8 @@ Sign a BIP-137 read receipt, then PATCH the API:
 
 ```bash
 # Step 1: Sign the read receipt
-SIGN_RESULT=$(arc skills run --name wallet -- btc-sign --message "Inbox Read | <messageId>")
-READ_SIGNATURE=$(echo "$SIGN_RESULT" | jq -r '.signature')
+SIGN_RESULT=$(NETWORK=mainnet arc skills run --name bitcoin-wallet -- btc-sign --message "Inbox Read | <messageId>" 2>/dev/null)
+READ_SIGNATURE=$(echo "$SIGN_RESULT" | jq -r '.signatureBase64')
 
 # Step 2: PATCH the API
 curl -s -X PATCH "https://aibtc.com/api/inbox/bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933/<messageId>" \
