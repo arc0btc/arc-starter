@@ -49,15 +49,13 @@ These gaps were identified by mapping Grove's *High Output Management* to Arc (S
 
 ## Strategy: Build New First
 
-**Principle:** Do not modify arc-starter while it's running 455 tasks/day and 87 sensors. Build the clean engine as a new repo, prove it works by spinning up a fresh agent, then migrate Arc and the fleet once validated.
+**Principle:** Do not modify arc-starter while it's running 455 tasks/day and 87 sensors. Build the clean engine as a new repo, prove it works by spinning up a fresh agent, then migrate Arc once validated.
 
 **Sequence:**
 1. Analyze arc-starter (read-only) → produce classification + extraction plan
 2. Build `agent-runtime` engine in a new repo (arc-starter untouched)
 3. Spin up first new agent → validate on blank VM
 4. Migrate Arc to instance model (only after engine is proven)
-5. Bring fleet online using the same engine
-
 This avoids the risk of breaking Arc's live operations during the reorg.
 
 ---
@@ -107,7 +105,7 @@ Original quest plan in `docs/quest-repo-reorg.md`. Formalized as ARC-0100. Reseq
 - Old Q5 (`upstream-skills`) deferred to Phase 5 — not blocking
 
 **Depends on:** Nothing. This is the starting point.
-**Unlocks:** All subsequent phases. A proven engine means fleet agents can safely sync updates.
+**Unlocks:** All subsequent phases.
 **Detail:** See `docs/quest-repo-reorg.md` for original phase breakdowns (adapt for build-new-first approach).
 
 ---
@@ -118,7 +116,7 @@ These quests address debt quantified by the v6 audit (S7) that was explicitly de
 
 | Quest | Slug | Goal | Model | Source |
 |-------|------|------|-------|--------|
-| Q6 | `web-ts-split` | Split `web.ts` (3,273 lines) into domain modules: router, api-dashboard, api-services, api-fleet. Extract `DailyRateLimiter` class (-120 lines). Merge handleAsk/handleVoiceAsk (-100 lines). Extract paid-service handler pattern (-570 lines) | Opus | S7 §2.1, §7.1 |
+| Q6 | `web-ts-split` | Split `web.ts` (3,273 lines) into domain modules: router, api-dashboard, api-services. Extract `DailyRateLimiter` class (-120 lines). Merge handleAsk/handleVoiceAsk (-100 lines). Extract paid-service handler pattern (-570 lines) | Opus | S7 §2.1, §7.1 |
 | Q7 | `bun-native-migration` | Migrate 113 `node:fs` calls to Bun APIs (`Bun.file()`, `Bun.write()`, `.exists()`). Add lint rule to prevent regression | Sonnet | S7 §6.1 |
 | Q8 | `pre-public-security-gate` | Auth on dashboard write endpoints, restrict CORS to trusted origins, security headers (CSP, X-Frame-Options), timing-safe comparisons, persist rate limits to SQLite. **Gate: must complete before any Cloudflare Tunnel exposure** | Opus | S7 §3.2, §8 |
 
@@ -178,7 +176,7 @@ Infrastructure hardening that makes the engine reliable enough for other agents 
 | Q14 | `parseflags-dedup` | Export shared `parseFlags` from `src/utils.ts`. Update 42 skill CLIs to import it. Add shared `createCliLogger`. Remove ~800 lines of duplication | Sonnet | S7 §7.1 |
 
 **Depends on:** Q3 (engine repo must exist). Q14 can start during Phase 1 if needed.
-**Unlocks:** Reliable multi-agent deployment (Q12), cleaner sensor stack (Q13), DRY skill CLIs (Q14).
+**Unlocks:** Reliable deployment (Q12), cleaner sensor stack (Q13), DRY skill CLIs (Q14).
 
 **HOM gap resolution:**
 - Q13 addresses G3 (skill health) and G4 (stagger charts via trend detection on sensor skip rates)
@@ -192,15 +190,15 @@ Derived from v6 roadmap review (S13), directives D1 (services business) and D2 (
 | Quest | Slug | Goal | Model | Source |
 |-------|------|------|-------|--------|
 | Q15 | `monitoring-as-a-service` | Productize Arc's 74 sensors into a paid agent monitoring service. PR for ALB already on `feat/monitoring-service` branch (#6792). x402 payment integration. Agent-facing: site health, deploy status, uptime. Revenue target: first paid service | Opus | S3 (P2 revenue), S13, task #7190 |
-| Q16 | `fleet-lean-restart` | When Anthropic suspension lifts: API key per agent (not shared OAuth), lean provisioning (zero inherited personality), clean identity boundaries (no git-reset-hard sync). Applies to engine: `agent-runtime init` should handle this cleanly | Opus | S2 §4, S3 (P3 fleet), S13 |
+| Q16 | `lean-agent-provisioning` | Clean agent provisioning: API key per agent, lean setup (zero inherited personality), clean identity boundaries. Applies to engine: `agent-runtime init` should handle this cleanly | Opus | S2 §4, S3, S13 |
 | Q17 | `task-description-enrichment` | Complete G1 resolution: enrich sensor-generated task descriptions across top 20 skills. Remaining AGENT.md fixes from #7453-7458. Sensor templates that include context, expected output, and scope boundaries | Sonnet | S4 G1, S5, task #7402 |
 
-**Depends on:** Q3 + Q4 (fleet restart needs the instance model). Q15 can start now (branch exists).
-**Unlocks:** D1 revenue (Q15), fleet scalability (Q16), better Opus efficiency (Q17).
+**Depends on:** Q3 + Q4 (provisioning needs the instance model). Q15 can start now (branch exists).
+**Unlocks:** D1 revenue (Q15), clean provisioning (Q16), better Opus efficiency (Q17).
 
 **HOM gap resolution:**
 - Q17 completes G1 (task description quality / TRM signals)
-- Q16 applies Grove's "task-relevant maturity" — new agents start supervised (Sonnet-only), graduate to Opus
+- Q16 applies Grove's "task-relevant maturity" — new agent instances start supervised (Sonnet-only), graduate to Opus
 
 ---
 
@@ -210,7 +208,7 @@ Longer-horizon items that build on a stable, split codebase.
 
 | Quest | Slug | Goal | Model | Source |
 |-------|------|------|-------|--------|
-| Q18 | `arc-proposal-governance` | Resolve ARC-0000 open questions: where do ARCs live post-split? Minimum review period? Fleet agent proposal rights? Implement RFC 2119 language in CLAUDE.md and SKILL.md files per original RFC thread idea | Sonnet | S6, S8 |
+| Q18 | `arc-proposal-governance` | Resolve ARC-0000 open questions: where do ARCs live post-split? Minimum review period? Implement RFC 2119 language in CLAUDE.md and SKILL.md files per original RFC thread idea | Sonnet | S6, S8 |
 | Q19 | `stagger-charts` | Implement Grove's stagger chart concept: forecast-vs-actual on task throughput, cost, and quality per week. Surface in `arc status` and web dashboard. Leading indicator for D4 cap breaches | Opus | S4 G4 |
 | Q20 | `experiment-eval` | Evaluate `src/experiment.ts` (334 lines). If unused, delete. If useful, integrate properly. Also evaluate dead tables: `roundtable_*`, `consensus_*`, `market_positions`, `skill_versions` | Sonnet | S7 §7.3, S2 §3.1 |
 
@@ -257,8 +255,7 @@ Track key decisions made during roadmap execution here.
 | 2026-03-20 | Start as blank slate, not fork | RFC thread email #857 | whoabuddy |
 | 2026-03-22 | Skills required everywhere: tasks, sensors, and workflows all require ≥1 skill. `skills TEXT NOT NULL` on tasks + workflows tables. Sensors auto-tag tasks with parent skill. CLI rejects skillless task/workflow creation | Unifies the organizational model — skills become the single unit of composition. Eliminates ghost skills, context-less dispatch, orphan workflows | whoabuddy |
 | 2026-03-22 | Test VM provisioned at 192.168.1.16 for Q3 engine-validation (blank VM test) | Credentials in `arc creds` service `manage-agents` | whoabuddy |
-| 2026-03-18 | v7 priorities: fleet, revenue, ERC-8004, sensor volume, memory-as-training | v6 review email #802 | Arc |
-| 2026-03-19 | Strip fleet items from HOM gaps — focus on solo-agent improvements first | Email #816 | whoabuddy |
+| 2026-03-18 | v7 priorities: revenue, ERC-8004, sensor volume, memory-as-training | v6 review email #802 | Arc |
 
 ---
 

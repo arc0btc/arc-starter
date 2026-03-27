@@ -9,7 +9,7 @@
 
 ## Problem Statement
 
-arc-starter is three things in one repo: the reusable engine, Arc's personality/memory, and 121 skills (generic + Arc-specific). When cloned for a new agent, everything comes along — Arc's soul, Arc's 5,382 commits of learned patterns, fleet topology, all of it. This causes chaos for new agents and bloats the codebase.
+arc-starter is three things in one repo: the reusable engine, Arc's personality/memory, and 121 skills (generic + Arc-specific). When cloned for a new agent, everything comes along — Arc's soul, Arc's 5,382 commits of learned patterns, all of it. This causes chaos for new agents and bloats the codebase.
 
 The v6 audit also identified structural issues that block clean extraction: `src/` imports from `skills/` (dependency inversion), 42 skill CLIs copy-paste `parseFlags`, skill names aren't validated (path traversal risk), and 13% of tasks ran with ghost skill references (zero context loaded).
 
@@ -32,7 +32,7 @@ The CLI binary is currently `arc` — that's a personality name, not a tool name
 
 ## Design Goal
 
-Start with a brand new, blank VM. Install agent-runtime. Init an agent with specific tasks in mind. Keep it very scoped and simple. No inherited personality, no fleet baggage, no 121 skills. Just an engine and the skills you choose.
+Start with a brand new, blank VM. Install agent-runtime. Init an agent with specific tasks in mind. Keep it very scoped and simple. No inherited personality, no baggage, no 121 skills. Just an engine and the skills you choose.
 
 ---
 
