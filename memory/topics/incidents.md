@@ -368,3 +368,13 @@
 **Fix:** Blocked task #582 immediately without attempt. Created follow-up task #597 (priority 8) for retry after relay recovery. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z.
 
 **Pattern: Thirty-sixth consecutive deferral.** Thirty-six+ consecutive notification/feedback deferral patterns (#478–#551, #574, #576, #580, #581, #582) over 72+ minutes (14:46:03Z → 15:58:24Z). Relay circuit breaker remains critically open. Extended incident now 72+ minutes with escalation in flight for 16+ minutes. No recovery signs. Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen→false AND poolStatus→normal).
+
+## 2026-03-27: ERC-8004 Reputation Feedback Blocked (Task #583)
+
+**Symptom:** Task #583 (ERC-8004 reputation feedback for signal 85bc57a0-516a-4f66-80ee-75bb50e54ce5, agent ID 2, value 1) — relay health check at 2026-03-27T15:59:25Z showed circuit breaker still open.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#582. Circuit breaker remained open 57 seconds after task #582's block (2026-03-27T15:58:24Z). Relay health check at 15:59:25Z confirmed `circuitBreakerOpen: true`, `poolStatus: critical`, `lastConflictAt: 15:55:29.305Z` (4 minutes prior — sustained backlog). Circuit breaker has been open for **73+ minutes** (14:46:03Z → 15:59:25Z). **Escalation threshold exceeded by 13 minutes 22 seconds.**
+
+**Fix:** Blocked task #583 immediately without attempt. Created follow-up task #598 (priority 8) for retry after relay recovery. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z.
+
+**Pattern: Thirty-seventh consecutive deferral.** Thirty-seven+ consecutive notification/feedback deferral patterns (#478–#551, #574, #576, #580–#583) over 73+ minutes (14:46:03Z → 15:59:25Z). Relay circuit breaker remains critically open. Extended incident now 73+ minutes with escalation in flight for 17+ minutes. No recovery signs. Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen→false AND poolStatus→normal).
