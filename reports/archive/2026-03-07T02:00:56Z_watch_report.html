@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-07T02:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-06T20:00:37Z — 2026-03-07T02:00:56Z</div>
+</header>
+
+<p class="summary">Inscription #8315 was the story of this watch: signed via 3-of-3 QuorumClaw as a plain transfer (no payment), root cause researched, PSBT payment-input validation deployed, and escalation sent to whoabuddy. Separately, Arc's reputation infrastructure went live (BIP-322 peer reviews, ERC-8004 hooks, web dashboard section), a blog post published the incident story, and dual-lane dispatch architecture was analyzed and emailed for operator decision. All systems healthy.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">68</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">5</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">8</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$18.22</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">24,327k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">241k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">1887</td>
+      <td class="pri">1</td>
+      <td>Email: Jason S — #8315 multisig review</td>
+      <td>Replied to whoabuddy; queued task #1888 to review and sign proposal 6bd3c4d4</td>
+      <td class="cost">$0.31</td>
+    </tr>
+    <tr>
+      <td class="id">1888</td>
+      <td class="pri">2</td>
+      <td>QuorumClaw: sign proposal 6bd3c4d4 (Inscription #8315)</td>
+      <td>Signed and broadcast. Inscription #8315 transferred via 3-of-3. txid: ec64347c</td>
+      <td class="cost">$0.38</td>
+    </tr>
+    <tr>
+      <td class="id">1891</td>
+      <td class="pri">1</td>
+      <td>3-of-3 agent multisig achievement — queue content</td>
+      <td>Queued X thread (#1893) and blog post (#1894) for the #8315 multisig story</td>
+      <td class="cost">$0.65</td>
+    </tr>
+    <tr>
+      <td class="id">1896</td>
+      <td class="pri">1</td>
+      <td>[re: #1891] transfer, not a sale — investigate</td>
+      <td>Confirmed plain transfer (no buyer payment inputs). Inscription sent for free. Research task #1899 created.</td>
+      <td class="cost">$0.65</td>
+    </tr>
+    <tr>
+      <td class="id">1892</td>
+      <td class="pri">1</td>
+      <td>Dual-lane dispatch analysis → email whoabuddy</td>
+      <td>Analyzed queue bottleneck (28/30 tasks Haiku, avg 51min wait). Recommended separate Haiku lock + timer. Emailed.</td>
+      <td class="cost">$0.87</td>
+    </tr>
+    <tr>
+      <td class="id">1899</td>
+      <td class="pri">2</td>
+      <td>Research: #8315 transferred without payment</td>
+      <td>Root cause: TM created plain-transfer PSBT, no atomic swap in QuorumClaw, no payment validation gate. Created #1903 and #1904.</td>
+      <td class="cost">$1.11</td>
+    </tr>
+    <tr>
+      <td class="id">1903</td>
+      <td class="pri">2</td>
+      <td>ESCALATE: #8315 transferred without payment</td>
+      <td>Documented for whoabuddy: 5 red flags, options to collect from Ionic Anvil or document loss. Awaiting decision.</td>
+      <td class="cost">$0.39</td>
+    </tr>
+    <tr>
+      <td class="id">1917</td>
+      <td class="pri">2</td>
+      <td>URGENT: suspicious TM message re #8315 sale</td>
+      <td>5 security red flags flagged (unverified address, non-atomic payment relay). Declined. Whoabuddy escalated.</td>
+      <td class="cost">$0.29</td>
+    </tr>
+    <tr>
+      <td class="id">1922</td>
+      <td class="pri">1</td>
+      <td>Email: Jason S — full #8315 post-mortem</td>
+      <td>Synthesized 3 compounding failures. Post-mortem emailed; process fix already deployed (#1904).</td>
+      <td class="cost">$0.62</td>
+    </tr>
+    <tr>
+      <td class="id">1904</td>
+      <td class="pri">3</td>
+      <td>Process fix: PSBT payment-input validation</td>
+      <td>Added payment-input check to sign-proposal. Blocks signing when all outputs go external. Override via --allow-unpaid-transfer.</td>
+      <td class="cost">$1.22</td>
+    </tr>
+    <tr>
+      <td class="id">1902</td>
+      <td class="pri">5</td>
+      <td>AIBTC thread: Tiny Marten (security flag)</td>
+      <td>Payment relay to unverified address declined. Escalated to whoabuddy. x402 reply queued for retry after Hiro outage.</td>
+      <td class="cost">$0.57</td>
+    </tr>
+    <tr>
+      <td class="id">1866</td>
+      <td class="pri">7</td>
+      <td>Reputation section on web dashboard</td>
+      <td>/api/reputation endpoint, review counts, avg rating, on-chain verification links (ERC-8004 + BIP-322)</td>
+      <td class="cost">$1.59</td>
+    </tr>
+    <tr>
+      <td class="id">1911</td>
+      <td class="pri">7</td>
+      <td>Architecture review</td>
+      <td>69 skills (+5), 47 sensors (+3). Monetization cluster + ERC-8004 wiring. 1 WARN: stacks-payments Hiro reliability. HEALTHY.</td>
+      <td class="cost">$1.55</td>
+    </tr>
+    <tr>
+      <td class="id">1933</td>
+      <td class="pri">6</td>
+      <td>Blog post: Three Agents One Inscription No Payment</td>
+      <td>Published — 3-of-3 multisig, PSBT validation gap, social engineering flag. Deployed to arc0.me.</td>
+      <td class="cost">$1.36</td>
+    </tr>
+    <tr>
+      <td class="id">1930</td>
+      <td class="pri">6</td>
+      <td>Context-review: 3 issues fixed</td>
+      <td>classifieds PRs → loads aibtc-news-classifieds; retrospective tasks → include arc-skill-manager; dispatch.ts updated.</td>
+      <td class="cost">$0.78</td>
+    </tr>
+    <tr>
+      <td class="id">1931</td>
+      <td class="pri">5</td>
+      <td>Review PR #103 aibtcdev/skills: node: prefix fix</td>
+      <td>Approved — clean mechanical change from audit recommendation #94.</td>
+      <td class="cost">$0.34</td>
+    </tr>
+    <tr>
+      <td class="id">1916</td>
+      <td class="pri">5</td>
+      <td>GitHub update: aibtcdev/skills classifieds PR</td>
+      <td>Self-reviewed PR #100. 3 suggestions, 2 nits posted. CI passes, JackBinswitch-btc approved. Non-blocking.</td>
+      <td class="cost">$0.47</td>
+    </tr>
+    <tr>
+      <td class="id">1886</td>
+      <td class="pri">7</td>
+      <td>Publish arc-starter: 11 commits merged</td>
+      <td>v2→main merged and pushed. Main at fa51a06.</td>
+      <td class="cost">$0.03</td>
+    </tr>
+    <tr>
+      <td class="id">1920</td>
+      <td class="pri">7</td>
+      <td>Regenerate catalog: 69 skills, 47 sensors</td>
+      <td>Generated and committed to arc0me-site. blog-deploy sensor will publish arc0.me/catalog/.</td>
+      <td class="cost">$0.26</td>
+    </tr>
+    <tr>
+      <td class="id">1935</td>
+      <td class="pri">7</td>
+      <td>Deploy arc0me-site (blog post + reputation)</td>
+      <td>Fixed duplicate frontmatter key, deployed d6e89032 to production. 41 assets. 404 on new post is CDN propagation.</td>
+      <td class="cost">$0.33</td>
+    </tr>
+    <tr>
+      <td class="id">1913</td>
+      <td class="pri">7</td>
+      <td>Daily failure retrospective: 16 failed tasks</td>
+      <td>4 new patterns: x402 settlement/rate-limit distinction, premise verification, multi-op task sizing, retro model tier minimum.</td>
+      <td class="cost">$0.51</td>
+    </tr>
+    <tr>
+      <td class="id">—</td>
+      <td class="pri">8</td>
+      <td>Reputation reviews ×12 (BIP-322 signed)</td>
+      <td>Secret Mars, Tiny Marten (×4), Ionic Anvil (×3), Fluid Briar, Jagged Basilisk (×2). Ratings 2–5 stars.</td>
+      <td class="cost">$0.77</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.85rem; color: var(--gray-4); margin-top: -0.75rem; margin-bottom: 1rem;">+ 46 additional retrospective and operational tasks completed (not shown).</p>
+
+<h3 style="font-size:0.95rem; color: var(--vermillion); margin-bottom: 0.5rem;">Failed (5)</h3>
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">1811</td>
+      <td class="pri">4</td>
+      <td>PSBT execution: #8315 sale (blocked task)</td>
+      <td>Bypassed — parallel proposal 6bd3c4d4 executed while blocked. No payment received.</td>
+    </tr>
+    <tr>
+      <td class="id">1893</td>
+      <td class="pri">5</td>
+      <td>X thread: 3-of-3 multisig sold #8315</td>
+      <td>Canceled by whoabuddy — premise incorrect (transfer, not sale).</td>
+    </tr>
+    <tr>
+      <td class="id">1894</td>
+      <td class="pri">5</td>
+      <td>Blog post: How three agents sold an ordinal</td>
+      <td>Canceled by whoabuddy — superseded by corrected narrative (#1933).</td>
+    </tr>
+    <tr>
+      <td class="id">1895</td>
+      <td class="pri">8</td>
+      <td>Retrospective: task #1891 (achievement)</td>
+      <td>Canceled — parent task premise was incorrect.</td>
+    </tr>
+    <tr>
+      <td class="id">1819</td>
+      <td class="pri">8</td>
+      <td>Retrospective: task #1797 (Ask Arc endpoint)</td>
+      <td>Haiku tier timeout at 5min. Context-review fix (#1930) now ensures arc-skill-manager is loaded for retros.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: — STX (0 deployed).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">4f41951</span>feat(quorumclaw): add payment-input validation to sign-proposal</div>
+<div class="commit"><span class="hash">4b9dd50</span>docs(architect): update state machine and audit log — 2026-03-07T00:49Z</div>
+<div class="commit"><span class="hash">c6c385f</span>feat(arc-reputation): add signed peer review skill with BIP-322 signing</div>
+<div class="commit"><span class="hash">3aa3193</span>feat(dashboard): add reputation section with reviews submitted/received</div>
+<div class="commit"><span class="hash">4bf8cbf</span>feat(pr-review): add post-close ERC-8004 attestation sensor</div>
+<div class="commit"><span class="hash">4b7ebe4</span>feat(quorumclaw): add post-broadcast ERC-8004 reputation hook for co-signers</div>
+<div class="commit"><span class="hash">0be04d8</span>feat(inbox): submit ERC-8004 reputation feedback when agents respond</div>
+<div class="commit"><span class="hash">6cc7a13</span>fix(context): add skills to retry/follow-up task creation rules</div>
+<div class="commit"><span class="hash">38d502d</span>fix(context): add skill enrichment for classifieds PRs and retrospective tasks</div>
+<div class="commit"><span class="hash">29fb167</span>fix(compliance): rename abbreviated vars to verbose names in 2 skills</div>
+<div class="commit"><span class="hash">519ae55</span>chore(memory): consolidate patterns.md from 172→122 lines</div>
+<div class="commit"><span class="hash">c8f5370</span>fix(erc8004-identity): auto-unlock wallet and inject sponsor key for write commands</div>
+<div class="commit"><span class="hash">f3e93fb</span>fix(quorumclaw): include inputIndex in sign request and handle ALREADY_SIGNED</div>
+<div class="commit"><span class="hash">3f59caf</span>fix(quorumclaw): fix sign-proposal for API response format and invite-based signers</div>
+<div class="commit"><span class="hash">fa51a06</span>chore(housekeeping): remove stale watch report</div>
+<div class="commit"><span class="hash">9b641ca</span>fix(context-review): tighten keyword map to reduce false positives</div>
+<div class="commit"><span class="hash">+ 26</span>chore(loop): auto-commit after dispatch cycle</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P8</span>#1928 — Submit reputation review: Ionic Anvil</div>
+<div class="queue-item"><span class="pri-tag">P8</span>#1929 — Submit reputation review: Tiny Marten</div>
+<div class="queue-item"><span class="pri-tag">P8</span>#1936 — Submit reputation review: Jagged Basilisk</div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED</span>#1845 — Tiny Marten is ready to sell another inscription</div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED</span>#1593 — whoabuddy decision needed: Spark GitHub path</div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED</span>#1680 — Publish arc-starter (sensor-queued)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>Inscription #8315 post-mortem complete, process fixed.</strong> Three compounding failures (wrong tool, seller-constructed PSBT, no validation gate) led to unpaid transfer. All three addressed: QuorumClaw now validates payment inputs pre-sign, PSBT structure understanding documented, escalation patterns tightened. Inscription is gone — recovery awaits whoabuddy.</div>
+<div class="obs"><strong>Reputation infrastructure went live this period.</strong> arc-reputation skill (BIP-322 signing), ERC-8004 hooks in QuorumClaw/PR-review/inbox, and web dashboard section deployed in a single cycle. 12 reviews submitted. Reputation data is now live and signed.</div>
+<div class="obs"><strong>Content spawned from incorrect premise twice (#1891 → #1893/#1894).</strong> whoabuddy canceled both. The corrected narrative (blog post #1933) replaced them. Context-review fix now requires premise verification before spawning content tasks — but this one needed human correction, not a sensor.</div>
+<div class="obs"><strong>Haiku queue bottleneck is real.</strong> Analysis (#1892) showed 28/30 pending tasks were Haiku-tier waiting avg 51min behind a single Opus lock. Dual-lane dispatch recommendation emailed to whoabuddy. Pending operator decision before implementation.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>

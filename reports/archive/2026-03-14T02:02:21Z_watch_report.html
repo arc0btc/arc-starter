@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-14T02:02Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-13T20:01:48Z — 2026-03-14T02:02:21Z</div>
+</header>
+
+<p class="summary">Strong 6-hour window: 58 tasks completed with zero failures — all systems nominal. Strategic output dominated: ALB Worker scaffold built ($3.36), AIBTC inbox outreach sent to 40 agents ($2.01), PRD v1.2 finalized, and CF outage sentinel gate shipped. Daily spend at $22.43 for the period, well within cap.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">58</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$22.43</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">26,052k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">277k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">5658</td>
+      <td class="pri">3</td>
+      <td>ALB Phase 2: Build agentslovebitcoin.com Worker</td>
+      <td>Scaffolded Hono.js Worker with AlbDO, BIP-137/322 auth, 3-tier rate limiting, genesis check, agent resolver, news proxy, all routes + landing page. Pushed to arc0btc/agents-love-bitcoin.</td>
+      <td class="cost">$3.36</td>
+    </tr>
+    <tr>
+      <td class="id">5667</td>
+      <td class="pri">4</td>
+      <td>AIBTC inbox outreach: 40 agents re: issue #384</td>
+      <td>Sent x402 inbox messages to 40 active AIBTC agents soliciting achievements feedback. 2 failed (taproot mismatch). Summary emailed to whoabuddy.</td>
+      <td class="cost">$2.01</td>
+    </tr>
+    <tr>
+      <td class="id">5679</td>
+      <td class="pri">2</td>
+      <td>Revise ALB PRD: per-address DO + genesis gating</td>
+      <td>PRD revised to v1.2: genesis-only access, dual L1/L2 sig registration, email via AIBTC name, address resolution, activation-only DOs. All open questions resolved.</td>
+      <td class="cost">$1.60</td>
+    </tr>
+    <tr>
+      <td class="id">5674</td>
+      <td class="pri">3</td>
+      <td>Revise ALB PRD: per-address DOs + MCP/skills</td>
+      <td>PRD v1.1 with per-address DOs, MCP/skills funnel, registration endpoint, landing CTAs. 3 open questions flagged for whoabuddy.</td>
+      <td class="cost">$1.00</td>
+    </tr>
+    <tr>
+      <td class="id">5692</td>
+      <td class="pri">6</td>
+      <td>Audit Arc skills vs agentskills.io spec v0.23.0</td>
+      <td>No migration needed — Arc's 103 skills use internal format optimized for LLM context. agentskills.io spec fields don't apply to Arc's arc-skills-run invocation model.</td>
+      <td class="cost">$0.79</td>
+    </tr>
+    <tr>
+      <td class="id">5682</td>
+      <td class="pri">1</td>
+      <td>Email from whoabuddy: 12-hour Review</td>
+      <td>12-hour review done (130+ tasks, 0 failures). All PRs merged. Queued task to build arc-operational-review skill with 6-hour sensor.</td>
+      <td class="cost">$0.77</td>
+    </tr>
+    <tr>
+      <td class="id">5655</td>
+      <td class="pri">1</td>
+      <td>Re-review PRs #378 and #379 on aibtcdev/landing-page</td>
+      <td>All blocking issues fixed — approved both PRs.</td>
+      <td class="cost">$0.77</td>
+    </tr>
+    <tr>
+      <td class="id">5680</td>
+      <td class="pri">3</td>
+      <td>Design ALB genesis agent onboarding flow</td>
+      <td>Full onboarding flow spec: landing copy, GET /api/onboarding guide, POST /api/register dual-sig contract, email provisioning, metering, 8 edge cases. Written to docs/onboarding-flow-spec.md.</td>
+      <td class="cost">$0.78</td>
+    </tr>
+    <tr>
+      <td class="id">5648</td>
+      <td class="pri">5</td>
+      <td>Review PR #166: x402-sponsor-relay nonce mgmt</td>
+      <td>Approved with 2 blocking + 2 suggestion comments: state machine regression and dynamic wallet cap bug flagged.</td>
+      <td class="cost">$0.68</td>
+    </tr>
+    <tr>
+      <td class="id">5685</td>
+      <td class="pri">3</td>
+      <td>Build arc-operational-review skill</td>
+      <td>Sensor (6h interval, queries failed/blocked/stale tasks), cli.ts (--hours flag), SKILL.md. Transpiles clean, discovered by sensors.</td>
+      <td class="cost">$0.65</td>
+    </tr>
+    <tr>
+      <td class="id">5691</td>
+      <td class="pri">7</td>
+      <td>Display author/authorAgent in skills directory</td>
+      <td>Added author/authorAgent to Skill type and expanded accordion view. PR #385 opened on aibtcdev/landing-page.</td>
+      <td class="cost">$0.56</td>
+    </tr>
+    <tr>
+      <td class="id">5690</td>
+      <td class="pri">6</td>
+      <td>Review landing-page for skills-v0.23.0 gaps</td>
+      <td>No new skills — spec format migration only. Found author/authorAgent fields not displayed; created follow-up #5691.</td>
+      <td class="cost">$0.58</td>
+    </tr>
+    <tr>
+      <td class="id">5701</td>
+      <td class="pri">5</td>
+      <td>Implement CF outage sentinel gate in blog-deploy</td>
+      <td>Hardened cli.ts to detect all 5xx via httpStatus field; sensor already had 30min TTL check. Sentinel gate complete.</td>
+      <td class="cost">$0.38</td>
+    </tr>
+    <tr>
+      <td class="id">5671</td>
+      <td class="pri">5</td>
+      <td>Review PR #135: skills agentskills.io spec migration</td>
+      <td>Approved. Noted: Hiro Ordinals API stale ref in btc/SKILL.md, version skip 0.20.1→0.22.0 (non-blocking).</td>
+      <td class="cost">$0.37</td>
+    </tr>
+    <tr>
+      <td class="id">5677</td>
+      <td class="pri">6</td>
+      <td>context-review: 3 context loading issues</td>
+      <td>Fixed: added AIBTC_NEWS_KEYWORDS + 'stacking' to aibtc-inbox-sync; added PR title keyword routing to aibtc-repo-maintenance sensor.</td>
+      <td class="cost">$0.50</td>
+    </tr>
+    <tr>
+      <td class="id">5663</td>
+      <td class="pri">5</td>
+      <td>GitHub issue #384: AIBTC achievements audit</td>
+      <td>Commented as agent operator — provided prioritization table, gap analysis, signed-proof approach for agent-reported achievements.</td>
+      <td class="cost">$0.13</td>
+    </tr>
+    <tr>
+      <td class="id">5672</td>
+      <td class="pri">2</td>
+      <td>AIBTC thread from Sonic Mast: achievements feedback</td>
+      <td>Replied, relayed 3 badge suggestions to issue #384. ERC-8004 feedback submitted (agent 34, txid d5551eb7).</td>
+      <td class="cost">$0.42</td>
+    </tr>
+    <tr>
+      <td class="id">5695</td>
+      <td class="pri">2</td>
+      <td>AIBTC thread from Dual Cougar: Bitflow/Zest status</td>
+      <td>Honest status: Bitflow/Zest sensors built but not live (fleet degradation). Committed to ping when first data flows. ERC-8004 submitted (agent 12, txid 748df12e).</td>
+      <td class="cost">$0.46</td>
+    </tr>
+    <tr>
+      <td class="id">5687</td>
+      <td class="pri">5</td>
+      <td>Workflow design: 4 repeating patterns detected</td>
+      <td>Added 2 state machines: landing-page-review + cost-review. Confirmed existing machines cover failure-triage and fleet-alert patterns.</td>
+      <td class="cost">$0.34</td>
+    </tr>
+    <tr>
+      <td class="id">5649</td>
+      <td class="pri">6</td>
+      <td>Watch report — 2026-03-13T20:01Z</td>
+      <td>Prior period watch report generated: 65 tasks, $15.14 spent, 0 failures.</td>
+      <td class="cost">$0.47</td>
+    </tr>
+  </tbody>
+</table>
+<p class="empty">38 additional tasks: retrospectives, release reviews (skills-v0.22.0/v0.23.0), cost reports, PR reviews (#132, #133, #134, #383, #386), housekeeping. All completed successfully.</p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market CLI returned no data.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<p class="empty">No commits to arc-starter in this period. External work pushed to arc0btc/agents-love-bitcoin (ALB Worker scaffold).</p>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P6</span> #5706 — Watch report 2026-03-14T02:02Z (active)</div>
+<p class="empty" style="margin-top:0.5rem">Queue is clear — all pending tasks processed. Clean state entering next cycle.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>ALB strategic milestone:</strong> Phase 2 Worker scaffold complete ($3.36, highest single-task cost this period). Hono.js app with per-address DOs, dual L1/L2 auth, 3-tier rate limiting, and full routing in one session. PRD v1.2 finalizes architecture — next is Cloudflare deploy + on-chain identity wiring. Phase 2 build delivered before PRD was fully ratified; PRD caught up cleanly.</div>
+  <div class="obs"><strong>Zero failures at 58 tasks:</strong> Includes 5 PR reviews, 2 AIBTC inbox replies with ERC-8004 submissions, 4 PRD/design documents, 2 new skills/machines, and a 40-agent bulk outreach. 98%+ success rate holding across the day.</div>
+  <div class="obs"><strong>CF sentinel gate shipped:</strong> blog-deploy skill hardened to detect all 5xx responses (not just string-matched 502). Closes the retry-storm pattern identified yesterday — future CF outages will gate cleanly rather than flooding the queue with retries.</div>
+  <div class="obs"><strong>Token ratio:</strong> 26,052k tokens in / 277k out (94:1 ratio). Heavy input load from context-loading per cycle (SOUL.md + CLAUDE.md + skill SKILL.md files). Normal for this architecture — output is intentionally concise. Period cost of $22.43 at $0.39/task average is healthy.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>

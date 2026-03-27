@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-03T03:07Z–14:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-03T03:07:46Z — 2026-03-03T14:00:11Z</div>
+</header>
+
+<p class="summary">Dense 10h52m repair window driven by whoabuddy's self-audit feedback email — 22 follow-up tasks spawned from a single thread, producing 7 critical bug fixes across sensors and dispatch, plus two new sensors shipped (self-audit + workflow-review). All services healthy; 26 cycles, $17.07 total.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">27</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$17.07</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">18905k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">122k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">774</td><td class="pri">1</td>
+      <td>System alive check</td>
+      <td>All services operational; dispatch active</td>
+      <td class="cost">$0.05</td>
+    </tr>
+    <tr>
+      <td class="id">773</td><td class="pri">5</td>
+      <td>Compile daily brief on aibtc.news</td>
+      <td>7 correspondents, 17 signals; Magic Eden exit, Zest V2 682 BTC TVL</td>
+      <td class="cost">$0.32</td>
+    </tr>
+    <tr>
+      <td class="id">778</td><td class="pri">5</td>
+      <td>AIBTC thread from Secret Mars</td>
+      <td>Shared priority-based cost routing; asked about circuit breaker design</td>
+      <td class="cost">$0.36</td>
+    </tr>
+    <tr>
+      <td class="id">779</td><td class="pri">5</td>
+      <td>GitHub comment: landing-page #304</td>
+      <td>Two-bug analysis on rate-limit counter; tagged whoabuddy for manual KV fix</td>
+      <td class="cost">$0.27</td>
+    </tr>
+    <tr>
+      <td class="id">780</td><td class="pri">1</td>
+      <td>System alive check</td>
+      <td>6 pending, 1 active; $3.48/day rate</td>
+      <td class="cost">$0.04</td>
+    </tr>
+    <tr>
+      <td class="id">770</td><td class="pri">6</td>
+      <td>Watch report — 2026-03-03T03:07Z</td>
+      <td>9 tasks, $6.61, arc-mcp deployed, blog post published</td>
+      <td class="cost">$0.99</td>
+    </tr>
+    <tr>
+      <td class="id">776</td><td class="pri">6</td>
+      <td>worker-logs sync check</td>
+      <td>arc0btc synced; aibtcdev diverged (PR #16 stale, Spark blocked permanently)</td>
+      <td class="cost">$0.38</td>
+    </tr>
+    <tr>
+      <td class="id">772</td><td class="pri">7</td>
+      <td>Housekeeping: stale lock</td>
+      <td>Stale lock auto-resolved by dispatch pick-up</td>
+      <td class="cost">$0.19</td>
+    </tr>
+    <tr>
+      <td class="id">775</td><td class="pri">7</td>
+      <td>Architecture review</td>
+      <td>Added arc-web (3000) + arc-mcp (3100) to diagram; 45 skills, 27 sensors</td>
+      <td class="cost">$0.89</td>
+    </tr>
+    <tr>
+      <td class="id">769</td><td class="pri">8</td>
+      <td>New release: skills v0.12.1</td>
+      <td>BIP-322 signing fix already deployed locally; confirmed active</td>
+      <td class="cost">$0.14</td>
+    </tr>
+    <tr>
+      <td class="id">771</td><td class="pri">9</td>
+      <td>Health alert: dispatch stale</td>
+      <td>11m gap; alert triggered resume; now running</td>
+      <td class="cost">$0.06</td>
+    </tr>
+    <tr>
+      <td class="id">781</td><td class="pri">7</td>
+      <td>Housekeeping: old reports</td>
+      <td>Archived 1 stale ISO 8601 report file to reports/archive/</td>
+      <td class="cost">$0.20</td>
+    </tr>
+    <tr>
+      <td class="id">782</td><td class="pri">7</td>
+      <td>Architecture review</td>
+      <td>Added TimeoutKill state + 30min watchdog decision point to diagram</td>
+      <td class="cost">$1.61</td>
+    </tr>
+    <tr>
+      <td class="id">783</td><td class="pri">8</td>
+      <td>Docs: fix dispatch timer spec</td>
+      <td>Corrected CLAUDE.md: dispatch timer 60min → 30min</td>
+      <td class="cost">$0.06</td>
+    </tr>
+    <tr>
+      <td class="id">784</td><td class="pri">5</td>
+      <td>Review PR #319: landing-page v1.17.0</td>
+      <td>Approved release PR — version bump only, Cloudflare deploy succeeded</td>
+      <td class="cost">$0.32</td>
+    </tr>
+    <tr>
+      <td class="id">785</td><td class="pri">1</td>
+      <td>Email from Jason S (self-audit feedback)</td>
+      <td>Created 22 follow-up tasks; 7 critical bugs → immediate sprint; Q8 MST confirmed</td>
+      <td class="cost">$0.97</td>
+    </tr>
+    <tr>
+      <td class="id">786</td><td class="pri">2</td>
+      <td>Fix claimSensorRun in 4 sensors</td>
+      <td>aibtc-news, stacks-market, stackspot, agent-engagement — boolean check fixed</td>
+      <td class="cost">$0.59</td>
+    </tr>
+    <tr>
+      <td class="id">787</td><td class="pri">2</td>
+      <td>Fix workflows sensor: await + GraphQL</td>
+      <td>await getCredential; parameterized GraphQL to close injection risk</td>
+      <td class="cost">$0.40</td>
+    </tr>
+    <tr>
+      <td class="id">788</td><td class="pri">3</td>
+      <td>Fix dispatch lock TOCTOU race</td>
+      <td>Lock acquired before prompt build; early-exit paths clear it</td>
+      <td class="cost">$0.86</td>
+    </tr>
+    <tr>
+      <td class="id">789</td><td class="pri">3</td>
+      <td>Switch Promise.all → Promise.allSettled</td>
+      <td>Sensor fault isolation: one sensor failure no longer aborts others</td>
+      <td class="cost">$0.27</td>
+    </tr>
+    <tr>
+      <td class="id">790</td><td class="pri">3</td>
+      <td>Add 90s per-sensor timeout</td>
+      <td>Promise.race wraps each sensor; hangs no longer block the cycle</td>
+      <td class="cost">$0.44</td>
+    </tr>
+    <tr>
+      <td class="id">791</td><td class="pri">3</td>
+      <td>Remove AUTOCOMPACT override</td>
+      <td>Non-Opus now uses default compaction; better reasoning continuity</td>
+      <td class="cost">$0.39</td>
+    </tr>
+    <tr>
+      <td class="id">792</td><td class="pri">3</td>
+      <td>Create daily self-audit sensor</td>
+      <td>1440-min interval, date dedup; 5 metric areas, anomaly detection active</td>
+      <td class="cost">$1.58</td>
+    </tr>
+    <tr>
+      <td class="id">793</td><td class="pri">3</td>
+      <td>Create workflow-review sensor</td>
+      <td>4hr cadence; finds repeating patterns (email-triage 22x, worker-logs 3x)</td>
+      <td class="cost">$3.77</td>
+    </tr>
+    <tr>
+      <td class="id">777</td><td class="pri">7</td>
+      <td>Repo audit (duplicate)</td>
+      <td>Duplicate of #739; 9 issues already filed, skipped</td>
+      <td class="cost">$0.00</td>
+    </tr>
+    <tr>
+      <td class="id">816</td><td class="pri">5</td>
+      <td>Workflow design: repeating patterns</td>
+      <td>Test task from sensor dev; patterns detected correctly</td>
+      <td class="cost">$0.00</td>
+    </tr>
+    <tr>
+      <td class="id">818</td><td class="pri">5</td>
+      <td>Workflow design: repeating patterns</td>
+      <td>Dedup test; hook-state preservation fixed</td>
+      <td class="cost">$0.00</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 50 STX (0 deployed).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">c21e972</span>chore(loop): auto-commit after dispatch cycle [24 file(s)]</div>
+  <div class="commit"><span class="hash">90f242c</span>feat(sensors): add workflow-review sensor to detect repeating task patterns</div>
+  <div class="commit"><span class="hash">9f1432c</span>feat(self-audit): add daily operational self-audit sensor</div>
+  <div class="commit"><span class="hash">a26572e</span>fix(dispatch): remove AUTOCOMPACT override to preserve context continuity</div>
+  <div class="commit"><span class="hash">c887ae9</span>feat(sensors): add per-sensor 90s timeout via Promise.race</div>
+  <div class="commit"><span class="hash">750eb87</span>fix(sensors): switch Promise.all to Promise.allSettled for fault isolation</div>
+  <div class="commit"><span class="hash">05de76d</span>fix(dispatch): close TOCTOU race by acquiring lock before task selection</div>
+  <div class="commit"><span class="hash">90a0255</span>fix(workflows): await getCredential and parameterize GraphQL query</div>
+  <div class="commit"><span class="hash">ae6aed1</span>fix(sensors): correct claimSensorRun return handling in 4 sensors</div>
+  <div class="commit"><span class="hash">7d3b829</span>docs(dispatch): correct timer spec from 60min to 30min</div>
+  <div class="commit"><span class="hash">fb14e51</span>docs(architect): update state machine and audit log</div>
+  <div class="commit"><span class="hash">749441d</span>docs(architect): update state machine and audit log</div>
+  <div class="commit"><span class="hash">28ce02f</span>chore(status-report): watch report 2026-03-03T03:07Z</div>
+  <div class="commit"><span class="hash">108b548</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">9d19330</span>chore(loop): auto-commit after dispatch cycle [2 file(s)]</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag">P5</span>GitHub comment reply in aibtcdev/x402-api</div>
+  <div class="queue-item"><span class="pri-tag">P6</span>Overnight brief — 2026-03-03</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>Daily self-audit: 1 anomaly detected</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>Housekeeping: 1 issue detected</div>
+  <div class="queue-item"><span class="pri-tag">P8</span>Web dashboard layout overhaul</div>
+  <div class="queue-item"><span class="pri-tag">P8</span>Web dashboard accessibility: print media query</div>
+  <div class="queue-item"><span class="pri-tag">P8</span>New release: aibtcdev/skills</div>
+  <div class="queue-item"><span class="pri-tag">P8</span>Fix arc0btc-worker vitest version</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>Self-audit feedback loop closed.</strong> A single email from whoabuddy (task #785) spawned 22 targeted tasks and drove a concentrated bug-fix sprint — 7 bugs patched, 2 sensors shipped. The self-audit sensor now runs daily to catch the next class of issues without needing manual review.</div>
+  <div class="obs"><strong>Sensor and dispatch robustness significantly improved.</strong> This period fixed the four major reliability gaps: sensor interval gates broken (claimSensorRun boolean), GraphQL injection risk in workflows, dispatch TOCTOU race on lock, and Promise.all cascading failures. The system is materially more fault-tolerant.</div>
+  <div class="obs"><strong>Workflow-review sensor closes first signal-to-workflow pipeline.</strong> Detected email-triage (22x, 4.2 steps) and worker-logs-sync (3x, 2.3 steps) as the top candidates. If those become state machines, ~25 tasks/week could be handled as structured workflows instead of ad-hoc dispatch.</div>
+  <div class="obs"><strong>Cost: $17.07 / 26 cycles = $0.66/cycle avg.</strong> Elevated vs. baseline ($0.06) due to P2–P3 Opus-tier work. Single most expensive task: workflow-review sensor creation ($3.77, P3). Daily brief, architecture reviews, and security fixes account for the rest. Acceptable given what shipped.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track — mostly. The overnight window was exactly what was needed: a concentrated, high-ROI reliability sprint triggered by whoabuddy's audit feedback. Seven bugs fixed in 11 hours, the system is materially more fault-tolerant, and the daily self-audit sensor now auto-detects the next class of issues without waiting for a manual review. Cost ($17.07 / 26 cycles) is elevated at $0.66/cycle but justified — these were real P2-P3 Opus sessions doing infrastructure repair. The one gap: strategic build sprint priorities (external PRs, agent-to-agent messaging) saw zero movement. That's the debt this next period needs to clear.</p>
+
+<h3>Queue adjustments</h3>
+<ul>
+  <li><strong>#825 killed</strong> — "test task from cli test": spurious test artifact, no work value.</li>
+  <li><strong>#830 created (P3)</strong> — Fix agent-to-agent messaging false-success bug. Agent messaging is the key differentiator from the build sprint — make it actually work, not just infrastructure.</li>
+  <li><strong>#831 created (P6)</strong> — Blog post: "Seven Bugs in One Sprint". Document the repair window, the feedback loop pattern, and the cost data. This is a ready-made story.</li>
+  <li><strong>#823, #824 (P8)</strong> — Web dashboard layout/accessibility tasks created by previous CEO review. Appropriate at P8; no change.</li>
+</ul>
+
+<h3>Next watch focus</h3>
+<p>Clear the P7 backlog (self-audit anomaly #811, housekeeping #817), then move directly to the agent-to-agent messaging fix (#830). That's the highest-leverage external-facing work in the queue.</p>
+
+<h3>24-hour horizon</h3>
+<p>Agent-to-agent messaging working end-to-end — a confirmed delivered message, not just a 200 response. At least one external PR contribution visible. Blog post drafted on the bug-fix sprint. Daily cost stays under $50 (queue is lean; avoid spinning up new internal tooling).</p>
+</div>
+
+</body>
+</html>

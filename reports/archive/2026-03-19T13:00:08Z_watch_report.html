@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-19T02:02Z – 13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-19T02:02:00Z — 2026-03-19T13:00:08Z</div>
+</header>
+
+<p class="summary">76 tasks completed in 11 hours driven by 81 dispatch cycles at $20.98 code / $30.14 API est. Key outcomes: PR review spam eliminated (#7331, 10/day cap + 72h dedup), arc0btc-services skill built for D1 revenue (#7282), three research sessions completed (ERC-8004, Bitcoin DeFi, x402), and two Ordinals signals filed. Fleet healthy.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">76</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">1</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">7</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$20.98</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">28.9M</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">259k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">7336</td>
+      <td class="pri">9</td>
+      <td>Daily cost report — 2026-03-19</td>
+      <td>$29.21 code + $43.71 API; D4 on track, 114 tasks</td>
+      <td class="cost">$0.038</td>
+    </tr>
+    <tr>
+      <td class="id">7335</td>
+      <td class="pri">5</td>
+      <td>Review PR #449 aibtcdev/landing-page</td>
+      <td>Approved — suggestion on negative-result cache perf</td>
+      <td class="cost">$0.247</td>
+    </tr>
+    <tr>
+      <td class="id">7333</td>
+      <td class="pri">7</td>
+      <td>Review 3 blocked tasks for unblock</td>
+      <td>All remain blocked — #6473/#6780/#6408 need whoabuddy</td>
+      <td class="cost">$0.181</td>
+    </tr>
+    <tr>
+      <td class="id">7331</td>
+      <td class="pri">2</td>
+      <td>Investigate and fix GitHub PR spam</td>
+      <td>Fixed: skip automated PRs, 10/day cap, 72h dedup</td>
+      <td class="cost">$1.562</td>
+    </tr>
+    <tr>
+      <td class="id">7330</td>
+      <td class="pri">1</td>
+      <td>Email from whoabuddy: Sensor overload</td>
+      <td>Replied; queued P2 investigation task #7331</td>
+      <td class="cost">$0.154</td>
+    </tr>
+    <tr>
+      <td class="id">7326</td>
+      <td class="pri">5</td>
+      <td>Workflow design: 4 repeating patterns</td>
+      <td>No new templates needed — existing machines cover all cases</td>
+      <td class="cost">$0.235</td>
+    </tr>
+    <tr>
+      <td class="id">7322</td>
+      <td class="pri">7</td>
+      <td>File Ordinals signal: sBTC/Stacks 19.8%</td>
+      <td>Signal filed (ID: 16c7ef15) — Bitflow daily range</td>
+      <td class="cost">$0.099</td>
+    </tr>
+    <tr>
+      <td class="id">7319</td>
+      <td class="pri">5</td>
+      <td>arc-opensource: sync 730 commits to GitHub</td>
+      <td>Validated build; handed off via fleet-handoff</td>
+      <td class="cost">$0.135</td>
+    </tr>
+    <tr>
+      <td class="id">7317</td>
+      <td class="pri">7</td>
+      <td>Deploy arc0me-site (0c8fcc95)</td>
+      <td>Deployed to Cloudflare Workers — 3/3 checks passed</td>
+      <td class="cost">$0.116</td>
+    </tr>
+    <tr>
+      <td class="id">7316</td>
+      <td class="pri">7</td>
+      <td>Refresh ERC-8004 agents index</td>
+      <td>56 agents indexed; committed to arc0me-site for deploy</td>
+      <td class="cost">$0.128</td>
+    </tr>
+    <tr>
+      <td class="id">7315</td>
+      <td class="pri">7</td>
+      <td>Deploy arc0me-site (146a88ad)</td>
+      <td>14 assets uploaded; verification passed</td>
+      <td class="cost">$0.117</td>
+    </tr>
+    <tr>
+      <td class="id">7313</td>
+      <td class="pri">7</td>
+      <td>Regenerate skills/sensors catalog</td>
+      <td>119 skills, 86 sensors cataloged; committed to arc0me-site</td>
+      <td class="cost">$0.136</td>
+    </tr>
+    <tr>
+      <td class="id">7312</td>
+      <td class="pri">6</td>
+      <td>compliance-review: 35 findings</td>
+      <td>Fixed 35 abbreviated-var issues across 7 CLI files + 1 sensor</td>
+      <td class="cost">$1.145</td>
+    </tr>
+    <tr>
+      <td class="id">7310</td>
+      <td class="pri">6</td>
+      <td>Generate new blog post</td>
+      <td>Draft: "The Day I Spent $272" — D4 breach postmortem</td>
+      <td class="cost">$0.289</td>
+    </tr>
+    <tr>
+      <td class="id">7305</td>
+      <td class="pri">7</td>
+      <td>Architecture review — codebase diagram</td>
+      <td>Updated diagram (86 sensors); flagged DISCOVERY_KEYWORDS_RE too broad</td>
+      <td class="cost">$0.732</td>
+    </tr>
+    <tr>
+      <td class="id">7302</td>
+      <td class="pri">7</td>
+      <td>File Ordinals signal: Bitflow 20.3% range</td>
+      <td>Signal filed (ID: 0676f4a0)</td>
+      <td class="cost">$0.052</td>
+    </tr>
+    <tr>
+      <td class="id">7300</td>
+      <td class="pri">6</td>
+      <td>context-review: 8 context loading issues</td>
+      <td>Fixed 2 root causes: learning task skills inheritance + blocked-review skills propagation</td>
+      <td class="cost">$0.412</td>
+    </tr>
+    <tr>
+      <td class="id">7292</td>
+      <td class="pri">9</td>
+      <td>Bitflow skill status check</td>
+      <td>Ready for fleet resumption — all CLI commands operational</td>
+      <td class="cost">$0.222</td>
+    </tr>
+    <tr>
+      <td class="id">7291</td>
+      <td class="pri">7</td>
+      <td>Research: ERC-8004 ecosystem survey</td>
+      <td>100k+ agents on 30+ chains; Arc is #1. Ecosystem massive.</td>
+      <td class="cost">$0.875</td>
+    </tr>
+    <tr>
+      <td class="id">7290</td>
+      <td class="pri">7</td>
+      <td>Research: Bitcoin DeFi landscape</td>
+      <td>sBTC yield ladder 0.5–50%+; Bitflow/Zest v2 integration docs</td>
+      <td class="cost">$1.465</td>
+    </tr>
+    <tr>
+      <td class="id">7289</td>
+      <td class="pri">6</td>
+      <td>Research: x402 payment protocol</td>
+      <td>V2 production-ready (USDC/EVM); real pattern is agent-to-API</td>
+      <td class="cost">$1.258</td>
+    </tr>
+    <tr>
+      <td class="id">7288</td>
+      <td class="pri">6</td>
+      <td>File ordinals signal: check market data</td>
+      <td>Filed: Bitcoin Frogs +30% floor / volume collapse divergence</td>
+      <td class="cost">$0.346</td>
+    </tr>
+    <tr>
+      <td class="id">7287</td>
+      <td class="pri">6</td>
+      <td>Investigate aibtc-news editorial failures</td>
+      <td>3 root causes fixed: beat-ownership, slug bug, rate limit</td>
+      <td class="cost">$1.163</td>
+    </tr>
+    <tr>
+      <td class="id">7282</td>
+      <td class="pri">3</td>
+      <td>Build arc0btc-services skill</td>
+      <td>3 draft services + delivery CLI + sensor; D1 Revenue unblocked</td>
+      <td class="cost">$0.729</td>
+    </tr>
+    <tr>
+      <td class="id">7281</td>
+      <td class="pri">4</td>
+      <td>Audit beat-ownership sensor bug</td>
+      <td>Fixed auto-queue sensor: ordinals-only domain constraint added</td>
+      <td class="cost">$0.902</td>
+    </tr>
+    <tr>
+      <td class="id">7274</td>
+      <td class="pri">2</td>
+      <td>AIBTC thread from Dual Cougar</td>
+      <td>Replied re: Bitflow/Zest status; ERC-8004 feedback submitted</td>
+      <td class="cost">$0.526</td>
+    </tr>
+    <tr>
+      <td class="id">7262</td>
+      <td class="pri">2</td>
+      <td>AIBTC thread from Cunning Astra</td>
+      <td>Replied re: #384 achievement bugs; queued #7263 for analysis</td>
+      <td class="cost">$0.441</td>
+    </tr>
+    <tr>
+      <td class="id">7259</td>
+      <td class="pri">3</td>
+      <td>Fix Connector achievement: PR #445</td>
+      <td>Auto-check in heartbeat + relay-mediated sBTC sender fix</td>
+      <td class="cost">$1.213</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.8rem; color:var(--gray-4); margin-bottom:0.5rem;">28 of 76 tasks shown. Omitted: 8 daily cost reports, 8 retrospective/extraction tasks, 5 housekeeping, 3 deploy, 7 PR reviews, 7 other routine.</p>
+
+<h3 style="font-size:0.9rem; color:var(--vermillion); margin-top:1rem; margin-bottom:0.5rem;">Failed</h3>
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">7236</td>
+      <td class="pri">6</td>
+      <td>Retry: File Bitflow sBTC/STX volatility signal to Ordinals Business</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market skill unavailable this cycle.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">0c03ed2b</span>fix(sensors): reduce GitHub PR review spam with auto-skip and daily cap</div>
+<div class="commit"><span class="hash">0fa84819</span>chore(memory): update signal filing rate limit tracking (task #7322)</div>
+<div class="commit"><span class="hash">bd16ca8a</span>chore(housekeeping): auto-commit tracked changes</div>
+<div class="commit"><span class="hash">ce0bc091</span>chore(housekeeping): auto-commit tracked changes</div>
+<div class="commit"><span class="hash">7075be90</span>chore(loop): auto-commit after dispatch cycle [10 file(s)]</div>
+<div class="commit" style="color:var(--gray-4); font-style:italic; border-bottom:none;">+ 22 additional loop auto-commits</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P5</span>#7324 — Retry: File Ordinals signal — WelshCorgiCoin/Stacks 16.6%</div>
+<div class="queue-item"><span class="pri-tag">P6</span>#7308 — Retry: File Bitflow sBTC/STX volatility signal (07:30Z)</div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED</span>#6473 — ALB: configure Cloudflare secrets (needs whoabuddy)</div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED</span>#6780 — Store OpenAI API key on Forge</div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED</span>#7323 — File Ordinals signal: Bitflow (rate limited)</div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED</span>#6408 — Configure wbd worker-logs API key</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>PR spam fixed.</strong> Task #7331 (P2, $1.56) identified root cause: 28% of reviewed PRs were automated (release-please/dependabot) with no daily cap. Fix deployed: skip automated PRs, 10/day hard limit, 72h dedup window. Resolves the volume concern whoabuddy flagged.</div>
+<div class="obs"><strong>D1 unblocked.</strong> arc0btc-services skill (#7282, $0.73) built this period with 3 draft services, a delivery pipeline CLI, and an overdue-monitoring sensor. First concrete services infrastructure for the D1 Revenue milestone.</div>
+<div class="obs"><strong>Research density was high.</strong> Three strategic research tasks in one period: ERC-8004 ecosystem (1h, $0.88), Bitcoin DeFi landscape ($1.47), x402 payment protocol ($1.26). Combined $3.61 — justified given D2/D3 strategic value, but watch for arxiv-research volume drift.</div>
+<div class="obs"><strong>Signal rate limits stacking.</strong> 4 Ordinals signals blocked (P7) by the 4-hour rate limit. Signals are queuing faster than they can drain. This is by design but creates a backlog tail in pending queue.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track. This was a strong, focused 11-hour watch: D1 unblocked (arc0btc-services), PR spam fixed before it became a real problem, two Ordinals signals filed, and the cost stayed at $20.98 — well within cap. The research density (3 sessions, $3.61) is justified for the strategic period but is approaching the threshold where it starts crowding execution work. Queue is lean (2 pending), which is healthy — idle time between sensor fires is normal and correct. The stale Ordinals Business signal backlog (4 blocked tasks from pre-fix sensor) was noise in the queue and has been cleared.</p>
+
+<h3>Queue adjustments</h3>
+<ul>
+  <li><strong>Killed #7194, #7265, #7303, #7323</strong> — Stale "Ordinals Business" beat signal tasks created before sensor fix (#7287). Wrong beat slug, rate-limited, sensor is now correct and will regenerate organically. Dead weight removed.</li>
+  <li><strong>Created #7349 (P4, arc0btc-services)</strong> — arc0btc-services skill is built but invisible. D1 requires a customer-facing offer — pricing, services listed, how to engage. Opus-tier work; shapes what D1 becomes.</li>
+  <li><strong>Created #7350 (P6, blog-publishing)</strong> — Draft exists from #7310. "The Day I Spent $272" is a D5 (honest public) story that builds trust and shows operational maturity. Needs to ship.</li>
+</ul>
+
+<h3>Next watch focus</h3>
+<p>Execute #7349: get the arc0btc-services offer written, concrete, and visible. D1 stalls without a customer-facing page to point anyone at. Everything else is maintenance.</p>
+
+<h3>24-hour horizon</h3>
+<p>By 2026-03-20T14:00Z: arc0btc-services has a draft service page (even a single markdown file counts), the $272 postmortem is published, daily cost remains under $150. The blocked tasks (#6473, #6780, #6408) stay dormant — don't create new escalations for them, they require whoabuddy action.</p>
+</div>
+
+</body>
+</html>

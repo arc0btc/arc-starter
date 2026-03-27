@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-11T14:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-11T02:01:49Z — 2026-03-11T14:00:55Z</div>
+</header>
+
+<p class="summary">Heavy architectural cycle: dispatch state machine refactored (1,611→924 lines), fleet shutdown/resume state shipped, Bitcoin Core installed on Umbrel (full node, IBD started), and arc0btc.com storefront deployed to Cloudflare. 186 tasks completed across 330 cycles. Fleet workers remain suspended — Arc running solo. Email sync dedup bug fixed; x402 nonce conflict escalated to whoabuddy.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">186</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">5</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$89.65</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">105,539k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">935k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">4815</td>
+      <td class="pri">3</td>
+      <td>Simplify dispatch state machine</td>
+      <td>Extracted 4 modules from dispatch.ts (1,611→924 lines)</td>
+      <td class="cost">$1.96</td>
+    </tr>
+    <tr>
+      <td class="id">4739</td>
+      <td class="pri">3</td>
+      <td>Fleet agent shutdown state</td>
+      <td>shutdown.ts module + sensor/dispatch gates; resume via arc-remote-setup</td>
+      <td class="cost">$1.66</td>
+    </tr>
+    <tr>
+      <td class="id">4814</td>
+      <td class="pri">3</td>
+      <td>Replace circuit breaker with on/off gate</td>
+      <td>Dispatch gate: rate limit → email notify, manual resume</td>
+      <td class="cost">$1.43</td>
+    </tr>
+    <tr>
+      <td class="id">4743</td>
+      <td class="pri">3</td>
+      <td>Install Bitcoin Core on Umbrel node</td>
+      <td>Full node (txindex=1, IBD started). Pruned incompatible with Stacks.</td>
+      <td class="cost">$1.35</td>
+    </tr>
+    <tr>
+      <td class="id">4744</td>
+      <td class="pri">3</td>
+      <td>Bitcoin Core pruned mode verification</td>
+      <td>Confirmed pruned=incompatible; switched to full. Config corrected.</td>
+      <td class="cost">$1.34</td>
+    </tr>
+    <tr>
+      <td class="id">4820</td>
+      <td class="pri">1</td>
+      <td>Email: dispatch gate — email-reply restart</td>
+      <td>dispatch-gate.ts: reply-to-restart flow; notification includes resume command</td>
+      <td class="cost">$1.10</td>
+    </tr>
+    <tr>
+      <td class="id">4740</td>
+      <td class="pri">4</td>
+      <td>Umbrel skill: Bitcoin Core RPC integration</td>
+      <td>arc-umbrel skill: status/install/rpc/sync CLI commands</td>
+      <td class="cost">$0.82</td>
+    </tr>
+    <tr>
+      <td class="id">4771</td>
+      <td class="pri">1</td>
+      <td>Email: Bitcoin Core pruned confirmation</td>
+      <td>Verified pruned=incompatible with Stacks txindex. Switched to full.</td>
+      <td class="cost">$0.89</td>
+    </tr>
+    <tr>
+      <td class="id">5184</td>
+      <td class="pri">1</td>
+      <td>Email: email sync missing messages</td>
+      <td>Fixed dedup bug: sensor checked oldest unread, not newest</td>
+      <td class="cost">$0.70</td>
+    </tr>
+    <tr>
+      <td class="id">5180</td>
+      <td class="pri">1</td>
+      <td>Email: arc0btc.com storefront deployment</td>
+      <td>Deployed services storefront to Cloudflare production. Health OK.</td>
+      <td class="cost">$0.59</td>
+    </tr>
+    <tr>
+      <td class="id">5091</td>
+      <td class="pri">1</td>
+      <td>Email: x402 relay triage</td>
+      <td>Relay self-recovered (v1.17.4, all 5 wallets healthy). Nonce stuck escalated.</td>
+      <td class="cost">$0.54</td>
+    </tr>
+    <tr>
+      <td class="id">4999</td>
+      <td class="pri">2</td>
+      <td>x402 nonce conflict escalation</td>
+      <td>Escalated to whoabuddy via email. Sentinel file gates downstream callers.</td>
+      <td class="cost">$0.27</td>
+    </tr>
+    <tr>
+      <td class="id">4737</td>
+      <td class="pri">4</td>
+      <td>Fleet status: workers suspended</td>
+      <td>MEMORY.md updated: suspension flags, sensor coverage gaps</td>
+      <td class="cost">$0.42</td>
+    </tr>
+    <tr>
+      <td class="id">4736</td>
+      <td class="pri">3</td>
+      <td>Explore Umbrel node — sync status</td>
+      <td>Fresh v1.5.0 install, no apps. 2 viable install paths identified.</td>
+      <td class="cost">$0.46</td>
+    </tr>
+    <tr>
+      <td class="id">5185</td>
+      <td class="pri">1</td>
+      <td>Email: whoabuddy task batch (4 messages)</td>
+      <td>Replied to 4 emails; queued tasks: x402 filing, welcome sensor, retro</td>
+      <td class="cost">$0.33</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.8rem; color:var(--gray-4)">+ 171 additional completed tasks (operational: fleet sync, housekeeping, AIBTC heartbeat, inbox routing, CEO reviews, git drift sync)</p>
+
+<h3 style="font-size:0.9rem; color:var(--vermillion); margin-top:1rem; margin-bottom:0.5rem">Failed (5)</h3>
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th></tr></thead>
+  <tbody>
+    <tr><td class="id">4619</td><td class="pri">3</td><td>Deploy agent-hub CF Worker — requires GitHub push (blocked, Arc-only policy)</td></tr>
+    <tr><td class="id">4769</td><td class="pri">3</td><td>Deploy arc0btc.com storefront — requires git push (handed off; completed via alternate path)</td></tr>
+    <tr><td class="id">4764</td><td class="pri">5</td><td>Push arc0me-site services-page branch — GitHub push, no credentials</td></tr>
+    <tr><td class="id">4767</td><td class="pri">6</td><td>Sync arc0me-site services branch — GitHub op, no credentials</td></tr>
+    <tr><td class="id">4788</td><td class="pri">6</td><td>Cloudflare API token expired — credential update needed</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 50 STX (0 deployed).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">f0ca0db</span>feat(dispatch): add email-reply restart for dispatch gate</div>
+<div class="commit"><span class="hash">622f2e5</span>refactor(dispatch): extract 4 modules from 1,611-line dispatch.ts</div>
+<div class="commit"><span class="hash">4a84f0c</span>feat(dispatch): replace circuit breaker with on/off gate + email notification</div>
+<div class="commit"><span class="hash">9fc5a93</span>feat(fleet-router): add suspended-worker gate to skip offline agents</div>
+<div class="commit"><span class="hash">8a5deab</span>feat(shutdown): add fleet agent shutdown/resume state</div>
+<div class="commit"><span class="hash">4366dbc</span>feat(arc-umbrel): add Bitcoin Core RPC integration and Umbrel node skill</div>
+<div class="commit"><span class="hash">6ff8424</span>feat(arc-umbrel): install Bitcoin Core and fix CLI for Umbrel v1.5</div>
+<div class="commit"><span class="hash">598c3bf</span>feat(fleet-sensors): filter suspended agents in all fleet sensors</div>
+<div class="commit"><span class="hash">3d6df05</span>feat(fleet-sync): add suspended-agent filtering for fleet resilience</div>
+<div class="commit"><span class="hash">3c3486a</span>feat(bitflow): scaffold Bitflow DEX skill for swaps and liquidity</div>
+<div class="commit"><span class="hash">f5410ad</span>feat(zest-v2): scaffold Zest Protocol V2 lending/borrowing skill</div>
+<div class="commit"><span class="hash">201958c</span>fix(sensors): add x402 nonce conflict circuit breaker + fix welcome state tracking</div>
+<div class="commit"><span class="hash">536f496</span>feat(arc-email-sync): thread by subject + store message-id for proper threading</div>
+<div class="commit"><span class="hash">979f159</span>fix(aibtc-welcome): check completed task history before welcoming agents</div>
+<div class="commit"><span class="hash">6467475</span>fix(arc-email-sync): check newest unread, not oldest, for reply dedup</div>
+<div class="commit"><span class="hash">11334e5</span>fix(arc-email-sync): prevent remote overwrite of local read state and fix res.status bug</div>
+<div class="commit"><span class="hash">e50179a</span>feat(workflows): add 4 new state machine templates from pattern analysis</div>
+<div class="commit"><span class="hash">244fed2</span>feat(arc-reputation): add 7-day dedup, substantive filter, fleet gate, calibration</div>
+<div class="commit"><span class="hash">cc30238</span>feat(aibtc-welcome): add sensor to detect and welcome new AIBTC agents</div>
+<div class="commit"><span class="hash">5527fb1</span>chore(housekeeping): consolidate memory, remove stale worktree</div>
+<div class="commit"><span class="hash">+ ~300</span>chore(loop): auto-commit (memory, fleet status, cycle files)</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P8</span>#5197 — Retrospective: extract learnings from task #5196</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">Dispatch refactor (1,611→924 lines, 4 modules) is the most significant code change this period — long overdue. The circuit breaker → on/off gate swap makes failure handling clearer and gives whoabuddy an explicit resume path. Both ship cleanly with no follow-up bugs filed.</div>
+<div class="obs">All 5 failed tasks are GitHub push operations. Arc-only policy is holding — no credential requests, no blocks, just clean failures routed correctly. Storefront deployment unblocked via alternate fleet-handoff path.</div>
+<div class="obs">Bitcoin Core on Umbrel required two cycles: first installed pruned (wrong), second switched to full (correct for Stacks txindex). The pruned incompatibility wasn't documented pre-task — added to memory. IBD running; full sync will take days.</div>
+<div class="obs">$89.65 cost this period against a $200/day cap. 12-hour pace projects to ~$178/day — within budget but close to ceiling. The high cycle count (330) reflects email-heavy routing; consider batching low-priority inbox tasks.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>

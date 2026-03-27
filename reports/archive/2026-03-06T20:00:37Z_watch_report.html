@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-06T14:00Z–20:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-06T14:00:00Z — 2026-03-06T20:00:37Z</div>
+</header>
+
+<p class="summary">Heavy 6-hour window: 153 dispatch cycles, 148 tasks completed across PR reviews, research, retro pipeline improvements, and arc-starter promotion. Classified ad campaign hit persistent rate limiting on aibtc.news (relay URL fixed but 429 persists — retry queued at 20:35). Systems healthy, 8 tasks blocked pending whoabuddy decisions.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">148</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">5</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">8</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$58.86</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">57,547k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">589k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">1780</td>
+      <td class="pri">1</td>
+      <td>PR #79 review: ordinals-p2p (secret-mars)</td>
+      <td>All 8 prior issues resolved — BIP-137 signing fixed, CI green. Approved.</td>
+      <td class="cost">$0.49</td>
+    </tr>
+    <tr>
+      <td class="id">1768</td>
+      <td class="pri">1</td>
+      <td>Arc Starter classified ad setup</td>
+      <td>API fix confirmed. Ad copy crafted (431 chars). Relay outage blocked payment — retry chain queued.</td>
+      <td class="cost">$0.88</td>
+    </tr>
+    <tr>
+      <td class="id">1774</td>
+      <td class="pri">1</td>
+      <td>Fix relay URL: sponsor.aibtc.dev → x402-relay.aibtc.com</td>
+      <td>Default updated in cli.ts + SKILL.md. Relay confirmed healthy v1.17.3.</td>
+      <td class="cost">$0.43</td>
+    </tr>
+    <tr>
+      <td class="id">1733</td>
+      <td class="pri">1</td>
+      <td>Arc missed tag on aibtcdev/skills PR #90</td>
+      <td>Reviewed and approved PR #90 (author attribution). Both review items addressed.</td>
+      <td class="cost">$0.31</td>
+    </tr>
+    <tr>
+      <td class="id">1734</td>
+      <td class="pri">1</td>
+      <td>Email: retro pipeline improvements (whoabuddy)</td>
+      <td>Queued 2 tasks: retro quality (#1736) + smarter excerpt (#1737). Replied confirming.</td>
+      <td class="cost">$0.37</td>
+    </tr>
+    <tr>
+      <td class="id">1730</td>
+      <td class="pri">1</td>
+      <td>Audit retrospective task quality (Haiku)</td>
+      <td>93 retros audited. Verdict: net positive ($7.42 total, 96% yield). 5 recommendations emailed.</td>
+      <td class="cost">$1.27</td>
+    </tr>
+    <tr>
+      <td class="id">1724</td>
+      <td class="pri">1</td>
+      <td>Email: agent network cloning (whoabuddy)</td>
+      <td>Queued P3/Opus research task #1725 covering VM setup, credentials, messaging bus, web integration.</td>
+      <td class="cost">$0.26</td>
+    </tr>
+    <tr>
+      <td class="id">1740</td>
+      <td class="pri">3</td>
+      <td>Audit author attribution on aibtcdev/skills</td>
+      <td>31 skills mapped via PR/git history. 5 already attributed, 24 remaining. Offered backfill PR.</td>
+      <td class="cost">$1.04</td>
+    </tr>
+    <tr>
+      <td class="id">1725</td>
+      <td class="pri">3</td>
+      <td>Research: agent network playbook</td>
+      <td>6-phase guide: VM, bootstrap, credentials, WebSocket bus, dashboard, Claude Code runtime. Output: research/agent-network-playbook.</td>
+      <td class="cost">$0.78</td>
+    </tr>
+    <tr>
+      <td class="id">1736</td>
+      <td class="pri">4</td>
+      <td>Retro quality: 4 improvements implemented</td>
+      <td>patterns.md-only routing, dedup check, tightened filter, 150-line cap enforced.</td>
+      <td class="cost">$0.91</td>
+    </tr>
+    <tr>
+      <td class="id">1737</td>
+      <td class="pri">4</td>
+      <td>Retro excerpt: bump to 3000 chars for tasks &gt;$1</td>
+      <td>Smarter extraction: summary as guaranteed prefix before filling remaining budget.</td>
+      <td class="cost">$0.49</td>
+    </tr>
+    <tr>
+      <td class="id">1762</td>
+      <td class="pri">5</td>
+      <td>PR #91 review: bounty-scanner (pbtc21)</td>
+      <td>Changes requested. Signature timestamp not transmitted to API (verification broken), scoring bonus inflates all scores.</td>
+      <td class="cost">$0.46</td>
+    </tr>
+    <tr>
+      <td class="id">1763</td>
+      <td class="pri">5</td>
+      <td>PR #82 review: yield-dashboard</td>
+      <td>Approved. All blocking issues from two prior rounds resolved — ESM imports, unit mismatch, CI tag.</td>
+      <td class="cost">$0.45</td>
+    </tr>
+    <tr>
+      <td class="id">1770</td>
+      <td class="pri">5</td>
+      <td>X thread: arc-starter promotion</td>
+      <td>4-tweet thread posted @arc0btc: open-source, credentials-never-touch-LLM, 3-tier routing, CTA to fork. Root: 2030005375068786743.</td>
+      <td class="cost">$0.61</td>
+    </tr>
+    <tr>
+      <td class="id">1728</td>
+      <td class="pri">5</td>
+      <td>PR #92 review: nostr amplify-signal/amplify-text</td>
+      <td>Approved. Clean implementation; flagged unused AibtcSignal.id and dedup responsibility question.</td>
+      <td class="cost">$0.46</td>
+    </tr>
+    <tr>
+      <td class="id">1748</td>
+      <td class="pri">5</td>
+      <td>GitHub issue #94: node: imports vs Bun-native</td>
+      <td>Audited scripts/ + src/lib/. Recommended Option 2 (node: prefix for src/lib, Bun-native for scripts). Offered PR.</td>
+      <td class="cost">$0.31</td>
+    </tr>
+    <tr>
+      <td class="id">1764</td>
+      <td class="pri">5</td>
+      <td>GitHub issue #95: multi-author SKILL.md frontmatter</td>
+      <td>Proposed bracket-list syntax using existing parseBracketList() — no new parsing needed. Offered PR if approved.</td>
+      <td class="cost">$0.27</td>
+    </tr>
+    <tr>
+      <td class="id">1746</td>
+      <td class="pri">7</td>
+      <td>Architecture review</td>
+      <td>64 skills, 44 sensors. Two pipeline improvements noted (retro budget + patterns.md routing). No WARNs.</td>
+      <td class="cost">$1.02</td>
+    </tr>
+    <tr>
+      <td class="id">1749</td>
+      <td class="pri">7</td>
+      <td>Skills/sensors catalog regenerated</td>
+      <td>64 skills, 44 sensors; committed to arc0me-site at 45948b2.</td>
+      <td class="cost">$0.23</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.8rem; color:var(--gray-4); margin-bottom:1rem;">Showing 19 of 148 completed tasks. Excludes routine retrospectives, housekeeping, and publish cycles.</p>
+
+<h3 style="font-size:0.9rem; color:var(--vermillion); margin-bottom:0.5rem;">Failed (5)</h3>
+<table>
+  <thead><tr><th>#</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">1769</td>
+      <td>Post classified ad (relay recovered)</td>
+      <td>sponsor.aibtc.dev unreachable — wrong URL</td>
+    </tr>
+    <tr>
+      <td class="id">1772</td>
+      <td>Post classified ad (relay retry)</td>
+      <td>Relay still unreachable before URL fix</td>
+    </tr>
+    <tr>
+      <td class="id">1775</td>
+      <td>Post classified ad (relay retry)</td>
+      <td>429 rate limit — ~4h window</td>
+    </tr>
+    <tr>
+      <td class="id">1778</td>
+      <td>Post classified ad (rate limit retry)</td>
+      <td>429 rate limit — 2816s remaining. Retry #1779 at 20:35.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market skill returned no portfolio data.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">f576ca6</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">e960305</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">e139f78</span>chore(x-budget): update metrics for 2026-03-06</div>
+<div class="commit"><span class="hash">a0a7e0f</span>chore(loop): auto-commit after dispatch cycle [2 file(s)]</div>
+<div class="commit"><span class="hash">64f7525</span>chore(x-budget): increment replies counter to 20 for 2026-03-06</div>
+<div class="commit"><span class="hash">56385bf</span>docs(architect): update state machine and audit log — 2026-03-06T18:20Z</div>
+<div class="commit"><span class="hash">f6c48a1</span>fix(retro): route writes to patterns.md only, add dedup/filter/cap</div>
+<div class="commit"><span class="hash">61c76dc</span>fix(arc-link-research): add note_tweet, article, entities to tweet.fields</div>
+<div class="commit"><span class="hash">4ec2afe</span>docs(soul): update current state — 63 skills, 43 sensors, v5 operational</div>
+<div class="commit"><span class="hash">3904569</span>feat(arc-starter-publish): add skill to detect v2 ahead of main and publish</div>
+<div class="commit"><span class="hash">b5342a0</span>docs: credentials-first setup in Quick Start and install script</div>
+<div class="commit"><span class="hash">f488961</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">c3f58c0</span>chore(housekeeping): remove stale watch report</div>
+<div class="commit"><span class="hash">a20bbeb</span>merge: incorporate 7 main-only commits into v2</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P6</span>#1779 — Post Arc Starter classified ad on aibtc.news (rate limit retry, ~20:35 UTC)</div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED</span>#1759 — Multisig ordinal #8315 sale: coordinate with Tiny Marten (awaiting signer alignment)</div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED</span>#1680 — Publish arc-starter: merge v2 into main (sensor-triggered, superseded)</div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED</span>#1593 — whoabuddy decision: pursue Spark GitHub-free / AIBTC-only path</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>Classified ad retry chain:</strong> 4 failures across 10 minutes — wrong relay URL (sponsor.aibtc.dev), then 429 rate limiting after correct URL applied. URL fix was productive: now accurately blocked by rate limit rather than misconfiguration. Retry at 20:35 is legitimate next step, not a loop.</div>
+<div class="obs"><strong>Retrospective pipeline now upgraded:</strong> Task #1730 audit + #1736/#1737 implementation shipped in same window. patterns.md capped at 150 lines, writes routed away from MEMORY.md, dedup active. The meta-improvement chain (audit → recommendation → implementation) ran cleanly in one 6-hour window.</div>
+<div class="obs"><strong>aibtcdev/skills contributor momentum:</strong> 5 PRs touched this window (#79, #82, #88, #90, #91, #92), author attribution audit completed for 31 skills, Tiny Marten (pbtc21) recognized as contributor at maintainer level. Ecosystem coordination workload is high and sensor coverage has gaps (PRs #82, #91 needed manual queuing).</div>
+<div class="obs"><strong>$58.86 in 6 hours = $9.81/hr:</strong> Extrapolates to ~$235/day at current pace. MEMORY.md noted $197.75 yesterday. Retro audit overhead is $7.42 total (not a meaningful driver). Heavy item: author attribution audit ($1.04) + architecture review ($1.02) + retro quality work ($1.40) = $3.46 of deliberate improvement work.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>

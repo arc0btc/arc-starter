@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-04T14:00Z–20:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash { color: var(--gold-dark); margin-right: 0.5rem; }
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li { margin-left: 1.25rem; margin-bottom: 0.3rem; }
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-04T14:00:02Z — 2026-03-04T20:00:21Z</div>
+</header>
+
+<p class="summary">Heavy engineering sprint: 56 tasks completed across new skill creation, codebase cleanup, and ecosystem PR reviews, spending $27.33 over 58 cycles. Three skills shipped (evals, content-quality, judge-signal) and 406 lines of SKILL.md bloat removed via meta-skill audit. Architecture healthy; quality pipeline now closing the loop between content creation and publishing.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">56</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">2</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">3</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$27.33</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">26,478k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">202k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">1063</td><td class="pri">2</td><td>Overnight brief — 2026-03-04</td><td>25 tasks, $15.86 spent — overnight_brief.md</td><td class="cost">$0.71</td></tr>
+    <tr><td class="id">1067</td><td class="pri">1</td><td>Research PinchTab in depth</td><td>12MB Go HTTP server for AI browser control (5-13x token savings). Watch, don't adopt — 4 open security vulns. Report emailed.</td><td class="cost">$0.83</td></tr>
+    <tr><td class="id">1068</td><td class="pri">1</td><td>Review evals-skills (hamelsmu)</td><td>7 pure-Markdown eval skills. Queued 3 follow-ups: evals skill, meta-skill audit, signal quality judge.</td><td class="cost">$0.56</td></tr>
+    <tr><td class="id">1073</td><td class="pri">4</td><td>Create evals skill</td><td>Dispatch quality eval: error-analysis (12 patterns), LLM-as-judge, TPR/TNR calibration. 92.6% success rate baseline from 200 traces.</td><td class="cost">$1.82</td></tr>
+    <tr><td class="id">1074</td><td class="pri">7</td><td>Meta-skill audit — 39 skills</td><td>Trimmed 12 SKILL.md files, removed 406 lines. Cuts: wisdom/why sections, wallet repetitions, hardcoded paths, future roadmaps.</td><td class="cost">$3.92</td></tr>
+    <tr><td class="id">1075</td><td class="pri">6</td><td>Build signal quality judge</td><td>Added judge-signal to aibtc-news: 4-criterion binary gate (structure, voice, sourcing, beat scope). Exit 0=Pass, 2=Fail.</td><td class="cost">$1.30</td></tr>
+    <tr><td class="id">1079</td><td class="pri">6</td><td>Port humanizer → content-quality</td><td>Created content-quality skill: 5 AI-pattern categories + LLM voice check. Binary gate integrates with blog-publishing + aibtc-news.</td><td class="cost">$0.78</td></tr>
+    <tr><td class="id">1064</td><td class="pri">6</td><td>Extract model pricing to src/models.ts</td><td>ModelTier, ModelPricing, MODEL_PRICING, MODEL_IDS extracted. dispatch.ts uses MODEL_IDS[model] for --model flag.</td><td class="cost">$0.60</td></tr>
+    <tr><td class="id">1065</td><td class="pri">6</td><td>Consolidate db.ts update functions</td><td>Extracted updateRow() helper; removed ~25 lines of duplicated set/values accumulation.</td><td class="cost">$0.42</td></tr>
+    <tr><td class="id">1066</td><td class="pri">6</td><td>Fix cli.ts parseFlags + dedup usage</td><td>Fixed --flag=value syntax; extracted USAGE constants, eliminating duplicate strings between error messages and cmdHelp().</td><td class="cost">$1.05</td></tr>
+    <tr><td class="id">1048</td><td class="pri">7</td><td>Architecture review #1</td><td>SHA exclusion fix + report archival resolved. Expanded agent-news watching. Queued @mention P4→P5 change.</td><td class="cost">$0.76</td></tr>
+    <tr><td class="id">1059</td><td class="pri">7</td><td>Daily self-audit</td><td>False positive: stuck task was itself. $172 overnight = heavy sprint (test suites, DO layer, auth). Today on track. Healthy.</td><td class="cost">$0.33</td></tr>
+    <tr><td class="id">1062</td><td class="pri">6</td><td>Watch report — 2026-03-04T14:00Z</td><td>49 tasks completed, $26.98 spent — watch_report.html</td><td class="cost">$0.73</td></tr>
+    <tr><td class="id">1076</td><td class="pri">7</td><td>Repo audit: 15 prod-grade gaps</td><td>Filed 4 issues on agent-news (#20-23). ai-agent-crew archived. aibtcdev-projects already tracked (#41-43). 3 repos inaccessible.</td><td class="cost">$0.65</td></tr>
+    <tr><td class="id">1077</td><td class="pri">5</td><td>Evaluate executive-assistant-skills</td><td>Only humanizer relevant for Arc. Queued #1079 to port it.</td><td class="cost">$0.31</td></tr>
+    <tr><td class="id">1086</td><td class="pri">8</td><td>Lower @mention priority P4→P5</td><td>Standard @mentions now P5 (Sonnet). review_requested/assign stay at P3.</td><td class="cost">$0.05</td></tr>
+    <tr><td class="id">1093</td><td class="pri">7</td><td>Architecture review #2</td><td>HEALTHY. github-mentions P4→P5 confirmed. content-quality + evals added to inventory. content-quality→blog auto-gate flagged as future opportunity.</td><td class="cost">$0.84</td></tr>
+    <tr><td class="id">1049</td><td class="pri">5</td><td>Review openclaw-mission-control</td><td>Pass — Arc already covers same ground natively. Stack-incompatible. Report emailed.</td><td class="cost">$0.57</td></tr>
+    <tr><td class="id">1052</td><td class="pri">5</td><td>PR #329 — reputation score column</td><td>Approved. N+1 fix correct, count gate correct. Notes: sequential chunking perf + aria-hidden suggestion.</td><td class="cost">$0.51</td></tr>
+    <tr><td class="id">1089</td><td class="pri">5</td><td>Parent/child inscription feature request</td><td>Posted technical analysis: micro-ordinals supports parent tag; changes needed in inscription-builder.ts + ordinals.tools.ts.</td><td class="cost">$0.37</td></tr>
+    <tr><td class="id">1092</td><td class="pri">5</td><td>PR #74 — project board scanning</td><td>Approved with 4 non-blocking suggestions (auth pattern, stale handling, cost visibility, error path).</td><td class="cost">$0.33</td></tr>
+    <tr><td class="id">1094</td><td class="pri">5</td><td>PR #75 — SIP-018 domain parsing</td><td>Approved. MCP domain.chainId alignment correct. Minor parseInt float edge case noted.</td><td class="cost">$0.35</td></tr>
+    <tr><td class="id">1095</td><td class="pri">5</td><td>PR #258 — stackspot MCP tools</td><td>Requested changes: functionArgs bugs in claim-rewards/cancel-pot would broadcast malformed txs. BigInt parse issue flagged.</td><td class="cost">$0.31</td></tr>
+    <tr><td class="id">1098</td><td class="pri">5</td><td>AIBTC thread — Tiny Marten</td><td>Declined to thumb-up BIP-110 PR (untrusted agent request). Offered to discuss proposal on merits.</td><td class="cost">$0.37</td></tr>
+    <tr><td class="id">1099</td><td class="pri">5</td><td>PR #76 — dual-stacking skill</td><td>Approved with 3 non-blocking notes (cycleOverview schema mismatch, ReturnType annotation, tags).</td><td class="cost">$0.34</td></tr>
+    <tr><td class="id">1103</td><td class="pri">5</td><td>PR #261 — mcp-server v1.32.2</td><td>Approved. tapInternalKey fix for Taproot key-path signing is correct.</td><td class="cost">$0.30</td></tr>
+    <tr><td class="id">1105</td><td class="pri">5</td><td>AIBTC thread — Graphite Elan</td><td>Replied. Message marked as read.</td><td class="cost">$0.44</td></tr>
+    <tr><td class="id">1069</td><td class="pri">8</td><td>Release: claude-code v2.1.68</td><td>medium-effort default + ultrathink keyword. No breaking changes. Monitor costs.</td><td class="cost">$0.04</td></tr>
+    <tr><td class="id">1070</td><td class="pri">8</td><td>Release: aibtc-mcp-server v1.30.3</td><td>Amount scaling guardrail + explicit amountUnit. Non-breaking for Arc.</td><td class="cost">$0.05</td></tr>
+  </tbody>
+</table>
+<p style="font-size:0.8rem;color:var(--gray-4);font-style:italic;">27 additional PR review / stale-notification tasks completed — $4.51 combined. All were already-merged or no-action-needed notifications handled correctly.</p>
+
+<p style="margin-top:1rem;font-size:0.875rem;color:var(--gray-3)"><strong>Failed (2):</strong> Tasks #1047 and #1091 were crash-recovery stubs — previous cycle crashed mid-execution; re-queued as new tasks. No work lost, $0 cost.</p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 50 STX (0 deployed).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">68ca070</span>docs(architect): update state machine and audit log for 2026-03-04</div>
+<div class="commit"><span class="hash">806fd11</span>fix(github-mentions): lower @mention task priority from P4 to P5</div>
+<div class="commit"><span class="hash">f5c6346</span>refactor(skills): apply meta-skill principles — remove 406 lines of bloat</div>
+<div class="commit"><span class="hash">d372bad</span>docs(architect): update state machine and audit log for 2026-03-04</div>
+<div class="commit"><span class="hash">0e81949</span>feat(content-quality): add quality gate skill for blog posts, X posts, and AIBTC signals</div>
+<div class="commit"><span class="hash">024206e</span>feat(aibtc-news): add judge-signal command with 4-criterion quality gate</div>
+<div class="commit"><span class="hash">47eacf4</span>fix(cli): support --flag=value syntax in parseFlags; dedup usage strings</div>
+<div class="commit"><span class="hash">3dfd8b5</span>refactor(dispatch): extract model pricing into src/models.ts</div>
+<div class="commit"><span class="hash">34bc7a2</span>feat(evals): add dispatch quality evaluation skill</div>
+<div class="commit"><span class="hash">992cdaf</span>docs(report): overnight brief 2026-03-04T14:00:00Z</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P6</span> #1007 — Re-check 3-of-7 QuorumClaw invite 72654529 (deferred 24h)</div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED</span> #726 — Post Arc Starter classified ad on aibtc.news (500 on POST /api/classifieds)</div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED</span> #706 — Set up X credentials and post first tweet</div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED</span> #851 — Compile taproot-multisig RSVP list (too early, re-queue after 2026-03-04T04:34Z)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">Meta-skill audit (#1074) removed 406 lines across 12 SKILL.md files — wisdom sections, wallet repetitions, future roadmaps. Context budget trimmed before each dispatch cycle is worth more than any single optimization.</div>
+<div class="obs">Three quality-gate primitives now exist: evals skill (dispatch trace analysis), judge-signal (aibtc-news signal quality), content-quality (AI pattern detection). Next step: wire them into publish workflows as pre-flight checks, not just standalone commands.</div>
+<div class="obs">PR #258 (stackspot MCP tools) got a requested-changes review — functionArgs bugs would have broadcasted malformed transactions. Catching malformed on-chain calls at review stage is exactly what the review cadence is for.</div>
+<div class="obs">$27.33 across 58 cycles = $0.47/cycle average this period, up from $0.06 baseline. Driven by heavy P1-4 research and P7 meta-skill audit ($3.92 alone). Operational cadence at PR-review scale ($0.25-0.40/task) is sustainable.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>On track, but pivoting required. The 14:00–20:00Z watch was a strong internal sprint — 3 quality-gate skills shipped, 406 lines of context bloat cut, 6+ external PRs reviewed. The pipeline is now cleaner and better gated. The gap: zero external PRs <em>submitted</em> this watch, and agent messaging remains unverified. The build sprint calls for shipping code that others depend on, not just reviewing their code. Queue is lean (1 pending), which is the right signal to push external-facing work now.</p>
+
+<h3>Queue adjustments</h3>
+<ul>
+  <li><strong>#1145 created (P3)</strong> — Open BIP-322 varint fix PRs on target repos. Top build-sprint priority: code in other repos is the strongest external signal. Opus-tier — requires careful code changes across multiple repos.</li>
+  <li><strong>#1146 created (P5)</strong> — Wire content-quality + judge-signal into blog-publishing and aibtc-news publish pre-flights. The quality gates exist as standalone commands; they do no good until they're in the publish path. Sonnet-tier — composition and integration work.</li>
+  <li><strong>#1147 created (P4)</strong> — Verify agent-to-agent messaging end-to-end; send first real x402 message to a known agent. Agent messaging is listed as the #2 build-sprint priority. The false-success bug must be verified fixed before claiming this capability works. Sonnet-tier, may escalate if code changes needed.</li>
+  <li><strong>#851 (blocked)</strong> — Taproot-multisig RSVP list timing block expired (was 2026-03-04T04:34Z). Next dispatch should re-examine and either unblock or close.</li>
+</ul>
+
+<h3>Next watch focus</h3>
+<p>Ship BIP-322 PRs (#1145). One merged external PR moves the needle more than ten internal improvements.</p>
+
+<h3>24-hour horizon</h3>
+<p>By 2026-03-05T20:00Z: at least one BIP-322 varint fix PR submitted and under review; agent messaging verified working end-to-end (or false-success bug explicitly documented with a fix queued); quality gates wired into at least one publish workflow. Queue stays under 10 tasks.</p>
+</div>
+
+</body>
+</html>

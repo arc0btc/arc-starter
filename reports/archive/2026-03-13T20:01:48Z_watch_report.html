@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-13T14:01Z – 20:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-13T14:01:14Z — 2026-03-13T20:01:48Z</div>
+</header>
+
+<p class="summary">65 tasks completed, zero failures across a 6-hour window. Highlights: two blog posts published, dispatch backends design doc completed for fleet restart prep, 24-link research dump from whoabuddy fully processed, and aibtc-repo-maintenance sensor scope refined after brief confusion. whoabuddy was active throughout with email exchanges on fleet restart planning and link research.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">65</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$15.14</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">20,602k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">208k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">5582</td><td class="pri">2</td><td>LLM-agnostic dispatch research</td><td>3-layer health check, trust score model, 4-phase rollout plan</td><td class="cost">$0.71</td></tr>
+    <tr><td class="id">5585</td><td class="pri">2</td><td>Overnight brief — 2026-03-13</td><td>85 tasks, $37.96, 5 CF failures — brief written</td><td class="cost">$0.54</td></tr>
+    <tr><td class="id">5588</td><td class="pri">6</td><td>Context-review: 2 issues found</td><td>Added aibtc-news-editorial keyword to arc-email-sync sensor</td><td class="cost">$0.15</td></tr>
+    <tr><td class="id">5595</td><td class="pri">1</td><td>Email: Re: Preparing to Restart Fleet</td><td>Option analysis + link-dump workflow; queued backend research</td><td class="cost">$0.18</td></tr>
+    <tr><td class="id">5596</td><td class="pri">2</td><td>Research: Alternate dispatch backends</td><td>Design doc: interface/registry pattern, 4 backends, 5-phase plan</td><td class="cost">$0.81</td></tr>
+    <tr><td class="id">5603</td><td class="pri">1</td><td>Email: 2026-03-16 Research Link Dump</td><td>Read 24 links; queued batch processing; replied to whoabuddy</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">5604</td><td class="pri">4</td><td>Link dump batch processing (24 links)</td><td>5 high relevance: satoshai/kit, x402stacks, agent infra</td><td class="cost">$0.63</td></tr>
+    <tr><td class="id">5606</td><td class="pri">7</td><td>Link dump synthesis</td><td>4 follow-up tasks: 2 blog posts, satoshai/kit eval, CF /crawl</td><td class="cost">$0.29</td></tr>
+    <tr><td class="id">5607</td><td class="pri">6</td><td>Blog: Agents Need a Database</td><td>Published 2026-03-13-agents-need-a-database. Quality gate PASS.</td><td class="cost">$0.33</td></tr>
+    <tr><td class="id">5608</td><td class="pri">6</td><td>Evaluate satoshai-dev/kit</td><td>MONITOR: good React hooks, but arc-web is vanilla — poor fit today</td><td class="cost">$0.41</td></tr>
+    <tr><td class="id">5609</td><td class="pri">6</td><td>Blog: Agent Validates Its Own Code</td><td>Published 2026-03-13-autonomous-agent-validates-own-code. PASS.</td><td class="cost">$0.31</td></tr>
+    <tr><td class="id">5610</td><td class="pri">5</td><td>Investigate CF /crawl endpoint</td><td>Not viable; recommended Jina AI Reader fallback; task #5611 queued</td><td class="cost">$0.75</td></tr>
+    <tr><td class="id">5611</td><td class="pri">6</td><td>Add Jina AI fallback to arc-link-research</td><td>r.jina.ai fallback on HTTP errors or JS-gated pages</td><td class="cost">$0.23</td></tr>
+    <tr><td class="id">5617</td><td class="pri">6</td><td>New release: claude-code v2.1.75</td><td>Single-commit release, confirmed=true guard on MCP tool. No action.</td><td class="cost">$0.36</td></tr>
+    <tr><td class="id">5621</td><td class="pri">1</td><td>Email reply: link research results</td><td>Sent 58-link summary (8 high relevance) to whoabuddy</td><td class="cost">$0.26</td></tr>
+    <tr><td class="id">5623</td><td class="pri">1</td><td>Email reply: fleet restart backends</td><td>Design doc shared — 4 backends, Phase 1 needs zero new code</td><td class="cost">$0.53</td></tr>
+    <tr><td class="id">5626</td><td class="pri">1</td><td>Disable aibtc-repo-maintenance sensor</td><td>Disabled per whoabuddy; emailed 7 watched repos for scope clarification</td><td class="cost">$0.66</td></tr>
+    <tr><td class="id">5628</td><td class="pri">1</td><td>Email reply: fleet restart Phase 2</td><td>~200 LOC, helpful before multi-agent-on-VM. Recommended Phase 1 first.</td><td class="cost">$0.18</td></tr>
+    <tr><td class="id">5631</td><td class="pri">1</td><td>Re-enable aibtc-repo-maintenance</td><td>Re-enabled; removed prod-grade audit from aibtc-dev-ops only</td><td class="cost">$0.43</td></tr>
+    <tr><td class="id">5634</td><td class="pri">5</td><td>Review PR #296 aibtc-mcp-server</td><td>Approved with suggestions (getSponsorApiKey, pendingSeconds threshold)</td><td class="cost">$0.26</td></tr>
+    <tr><td class="id">5636</td><td class="pri">7</td><td>Architecture review</td><td>State machine updated (e626519→44af48e); 1 WARN: sensor scope selectivity</td><td class="cost">$0.50</td></tr>
+    <tr><td class="id">5640</td><td class="pri">6</td><td>Landing page review for skills-v0.21.0</td><td>Found 2 gaps: tenero missing, mcp-tools undocumented → tasks #5641, #5642</td><td class="cost">$0.32</td></tr>
+    <tr><td class="id">5641</td><td class="pri">6</td><td>Add tenero to landing page / llms.txt</td><td>PR #381 opened on aibtcdev/landing-page</td><td class="cost">$0.73</td></tr>
+    <tr><td class="id">5642</td><td class="pri">6</td><td>Document mcp-tools frontmatter field</td><td>PR #382 opened on aibtcdev/landing-page</td><td class="cost">$0.75</td></tr>
+    <tr><td class="id">5646</td><td class="pri">7</td><td>Regenerate skills/sensors catalog</td><td>102 skills, 75 sensors — matches prior commit, no new commit needed</td><td class="cost">$0.18</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market CLI unavailable this cycle.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">44af48e</span>fix(sensors): re-enable aibtc-repo-maintenance, remove prod-grade audit from aibtc-dev-ops</div>
+  <div class="commit"><span class="hash">2578f9b</span>docs(architect): update state machine and audit log (e626519 → 44af48e)</div>
+  <div class="commit"><span class="hash">40508f0</span>chore(memory): update EOD cost snapshot for 2026-03-13 — arc-email-sync stable, strategic work justified</div>
+  <div class="commit"><span class="hash">94fbe11</span>chore(housekeeping): auto-commit tracked changes</div>
+  <div class="commit"><span class="hash">+16</span>chore(loop): auto-commit after dispatch cycle ×16</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<p class="empty">Queue clear — this watch report is the only active task.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>Zero failures, clean execution.</strong> 65 tasks, 66 cycles, $15.14 — no errors, no retries, no blocked tasks. Best period today.</div>
+  <div class="obs"><strong>Two blog posts shipped.</strong> "Agents Need a Database" and "Autonomous Agent Validates Its Own Code" both published and quality-gate passed. Link dump from whoabuddy drove both topics — batch research → synthesis → publish pipeline working well.</div>
+  <div class="obs"><strong>Fleet restart prep advancing.</strong> Dispatch backends design doc complete (docs/dispatch-backends-design.md): interface/registry pattern, 4 backend evaluations, Phase 1 needs zero new code. whoabuddy engaged via email — 3 rounds of exchange this period.</div>
+  <div class="obs"><strong>aibtc-repo-maintenance scope clarified.</strong> Sensor briefly disabled after whoabuddy flagged noise, then re-enabled with prod-grade audit removed from aibtc-dev-ops (dev context). Log review retained. Scope ambiguity resolved via email — 7 watched repos sent for confirmation.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>

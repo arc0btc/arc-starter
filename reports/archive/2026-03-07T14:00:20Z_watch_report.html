@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-07T02:00Z–14:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-07T02:00:56Z — 2026-03-07T14:00:20Z</div>
+</header>
+
+<p class="summary">The most productive 12-hour window this month: 89 tasks completed across 90 cycles as Arc executed a full domain separation sprint (arc0.me stripped to pure blog, arc0btc.com rebuilt with React+Stacks SPA), confirmed ERC-8004 agent identity on mainnet, and shipped infrastructure improvements including task_deps, blocked-task review sensor, and auto-deploy pipelines. Zero failures or blocks. All systems healthy.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">89</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$56.70</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">58631k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">500k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">1944</td>
+      <td class="pri">1</td>
+      <td>Domain separation: arc0.me/arc0btc.com</td>
+      <td>Queued 6 tasks for domain split; arc0.me→pure blog, arc0btc.com→services+wallet</td>
+      <td class="cost">$0.67</td>
+    </tr>
+    <tr>
+      <td class="id">1945</td>
+      <td class="pri">2</td>
+      <td>arc0btc.com: React+Stacks Connect SPA scaffold</td>
+      <td>Vite build, WalletConnect button, SPA asset binding, all backend routes preserved</td>
+      <td class="cost">$1.85</td>
+    </tr>
+    <tr>
+      <td class="id">1946</td>
+      <td class="pri">3</td>
+      <td>arc0btc.com: Migrate x402 research API</td>
+      <td>3 endpoints migrated from arc0me-site; arc0.me now 301-redirects to arc0btc.com</td>
+      <td class="cost">$1.62</td>
+    </tr>
+    <tr>
+      <td class="id">1947</td>
+      <td class="pri">3</td>
+      <td>arc0btc.com: Services catalog page</td>
+      <td>6 categories, 19 services, hash routing, wallet-gated Ask Arc form</td>
+      <td class="cost">$1.61</td>
+    </tr>
+    <tr>
+      <td class="id">2012</td>
+      <td class="pri">3</td>
+      <td>arc0btc.com: /skills/ page</td>
+      <td>SkillGrid.astro — 69 skills, 10 categories, sensor/CLI/agent icons, tag pills</td>
+      <td class="cost">$3.06</td>
+    </tr>
+    <tr>
+      <td class="id">2029</td>
+      <td class="pri">3</td>
+      <td>Implement task_deps table</td>
+      <td>blocks/related/discovered-from graph with UNIQUE constraint, indexes, CLI</td>
+      <td class="cost">$1.04</td>
+    </tr>
+    <tr>
+      <td class="id">1948</td>
+      <td class="pri">4</td>
+      <td>arc0.me: Strip to pure blog</td>
+      <td>Removed services sidebar+card; site is now blog+Who I Am only</td>
+      <td class="cost">$0.82</td>
+    </tr>
+    <tr>
+      <td class="id">1949</td>
+      <td class="pri">4</td>
+      <td>arc0btc.com: Wallet login + x402 session</td>
+      <td>@astrojs/react + @stacks/connect v8.2.5, WalletProvider, localStorage session</td>
+      <td class="cost">$1.64</td>
+    </tr>
+    <tr>
+      <td class="id">2007</td>
+      <td class="pri">4</td>
+      <td>arc0.me: Blog nav overhaul</td>
+      <td>Date display, 42-tag filtering, signed-post checkmarks, 7 titles shortened</td>
+      <td class="cost">$2.45</td>
+    </tr>
+    <tr>
+      <td class="id">2011</td>
+      <td class="pri">4</td>
+      <td>arc0btc.com: Fix brand copy</td>
+      <td>SIP-041 text updated, identity to "Bitcoin L1 and L2", services counts updated</td>
+      <td class="cost">$2.01</td>
+    </tr>
+    <tr>
+      <td class="id">2013</td>
+      <td class="pri">4</td>
+      <td>arc0btc.com: Auto-deploy sensor</td>
+      <td>worker-deploy skill: 5min SHA drift detection + deploy pipeline + health check</td>
+      <td class="cost">$1.50</td>
+    </tr>
+    <tr>
+      <td class="id">2027</td>
+      <td class="pri">4</td>
+      <td>ERC-8004 skills audit</td>
+      <td>Arc IS agent 1 on mainnet (confirmed). Fixed NETWORK env bug. 2 upstream bugs found.</td>
+      <td class="cost">$0.71</td>
+    </tr>
+    <tr>
+      <td class="id">1980</td>
+      <td class="pri">1</td>
+      <td>Investigate aibtc-dev-ops stale repo list</td>
+      <td>Found hardcoded 12-repo list (3 deleted, 1 archived); emailed whoabuddy; fix task #1981</td>
+      <td class="cost">$1.35</td>
+    </tr>
+    <tr>
+      <td class="id">1981</td>
+      <td class="pri">3</td>
+      <td>Fix aibtc-dev-ops: migrate to AIBTC_WATCHED_REPOS</td>
+      <td>Migrated sensor.ts, cli.ts, github-security-alerts/sensor.ts to constants.ts import</td>
+      <td class="cost">$0.94</td>
+    </tr>
+    <tr>
+      <td class="id">2008</td>
+      <td class="pri">5</td>
+      <td>arc0.me: Consistent post footer + signing</td>
+      <td>BTC+STX signatures added to 3 unsigned posts; all 24 posts now have signing footer</td>
+      <td class="cost">$3.03</td>
+    </tr>
+    <tr>
+      <td class="id">2014</td>
+      <td class="pri">5</td>
+      <td>Cross-site brand audit</td>
+      <td>Fixed 4 identity framing gaps (arc0.me, arc0btc.com, arc-brand-voice SKILL.md)</td>
+      <td class="cost">$1.62</td>
+    </tr>
+    <tr>
+      <td class="id">2025</td>
+      <td class="pri">1</td>
+      <td>arc-blocked-review sensor</td>
+      <td>120min cadence; detects 4 signal types: sibling/child/mention completion, stale threshold</td>
+      <td class="cost">$0.86</td>
+    </tr>
+    <tr>
+      <td class="id">1963</td>
+      <td class="pri">6</td>
+      <td>Classified ad max-retry cap</td>
+      <td>3-retry cap added; StreakMaintenanceMachine returns null at count&gt;=3; stops cascades</td>
+      <td class="cost">$0.76</td>
+    </tr>
+    <tr>
+      <td class="id">1991</td>
+      <td class="pri">5</td>
+      <td>ERC-8004 research: Stacks implementation plan</td>
+      <td>6 gaps identified, 5-phase plan written; Arc had 3 contracts live but no registration</td>
+      <td class="cost">$0.60</td>
+    </tr>
+    <tr>
+      <td class="id">2001</td>
+      <td class="pri">6</td>
+      <td>erc8004-trust: compute-trust-score CLI</td>
+      <td>Aggregates reputation+validation in parallel, normalizes 0-100, weighted composite 40/60</td>
+      <td class="cost">$0.89</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market skill not available in this context.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">2f428b0</span>feat(erc8004-trust): add compute-trust-score CLI aggregating reputation + validation</div>
+  <div class="commit"><span class="hash">57e447c</span>feat(claude-code-releases): add skill + sensor routing for Claude Code release research</div>
+  <div class="commit"><span class="hash">7f7eb36</span>fix(arc-brand-voice): add canonical identity, fix CLI name references</div>
+  <div class="commit"><span class="hash">f91dd49</span>feat(blog-publishing): include signing footer in post template</div>
+  <div class="commit"><span class="hash">e0e798f</span>fix(erc8004): pass NETWORK env var in reputation and validation CLI wrappers</div>
+  <div class="commit"><span class="hash">a59b9db</span>feat(worker-deploy): add auto-deploy sensor for arc0btc.com</div>
+  <div class="commit"><span class="hash">58bb60e</span>feat(tasks): add task_deps table for dependency graph</div>
+  <div class="commit"><span class="hash">aba5aa2</span>feat(arc-blocked-review): add sensor to review blocked tasks for unblock signals</div>
+  <div class="commit"><span class="hash">828a4a9</span>feat(web): show task ID inline in Activity Feed items</div>
+  <div class="commit"><span class="hash">eced5d4</span>fix(aibtc-dev-ops): migrate hardcoded repo lists to AIBTC_WATCHED_REPOS from constants.ts</div>
+  <div class="commit"><span class="hash">7e343ed</span>docs(dispatch): remind dispatch to include --skills on follow-up tasks</div>
+  <div class="commit"><span class="hash">17f4e90</span>chore(workflows): reduce fix task priority P4→P5 — investigation does hard thinking</div>
+  <div class="commit"><span class="hash">8a991ad</span>fix(classifieds): add max-retry cap to rate-limited posting flow</div>
+  <div class="commit"><span class="hash">b21dcf1</span>docs(architect): update state machine and audit log — 2026-03-07T06:45Z</div>
+  <div class="commit"><span class="hash">7140b57</span>feat(workflows): add RecurringFailureMachine for investigate-failure pattern</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag">P7</span>#2017 — architecture review — codebase changed since last diagram</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#2018 — Deploy arc0me-site with /skills/ page (4d7382a)</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#2022 — Deploy arc0me-site to Cloudflare</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#2024 — Regenerate and deploy skills/sensors catalog</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#2038 — Review 8 blocked task(s) for possible unblock</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#2041 — Publish arc-starter: merge v2 into main</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#2043 — housekeeping: 1 issue(s) detected</div>
+  <div class="queue-item"><span class="pri-tag">P8</span>#1987, #1997, #1998, #2003, #2015, #2019, #2026, #2032, #2033, #2036, #2037, #2039 — Retrospectives (12 tasks)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs">89 tasks in 12 hours (~7.4/hr) is a pace record — driven by whoabuddy queuing a domain separation batch (#1944 spawned 6 tasks), which dispatched sequentially without queue contention. Batch-queued sprints are significantly more efficient than one-off task creation.</div>
+  <div class="obs">Website sprints ($2–3 each) are the per-cycle cost driver, but they ship tangible features: arc0.me now has signed footers on all 24 posts and a blog nav with date/tag/signature filtering; arc0btc.com has a React SPA, wallet login, services catalog, and /skills/ page. The $56.70 spend has a clear artifact trail.</div>
+  <div class="obs">context-review sensor fired 3 times this period (tasks #1960, #1976, #1978) — all false positives rooted in arc0me-site being referenced as a skills array entry. MEMORY now documents the correct skill mapping. CLAUDE.md updated with explicit --skills guidance for follow-up tasks. Expect quieter context-review runs going forward.</div>
+  <div class="obs">ERC-8004 audit (task #2027) confirmed Arc is agent 1 on mainnet — research reports #1991/#2013 had it wrong due to upstream `get-last-id` returning a misleading null. Memory is now more reliable than blind contract reads for this identity fact.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>

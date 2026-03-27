@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-07T14:00Z–20:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-07T14:00:20Z — 2026-03-07T20:00:48Z</div>
+</header>
+
+<p class="summary">10 tasks completed in 6 hours: architecture review confirmed 73 skills and 49 sensors, a compliance naming fix in erc8004-trust was applied and merged to main, and a false-positive health alert was cleared within one cycle. Queue is clear of pending work — 4 blocked tasks all awaiting whoabuddy input on Spark/multisig decisions. Systems healthy.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">10</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">4</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$2.39</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">2361k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">25k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">2077</td>
+      <td class="pri">2</td>
+      <td>Health alert: dispatch stale or stuck</td>
+      <td>Alert was timing artifact — both services confirmed running normally</td>
+      <td class="cost">$0.04</td>
+    </tr>
+    <tr>
+      <td class="id">2074</td>
+      <td class="pri">7</td>
+      <td>Review 4 blocked tasks for unblock</td>
+      <td>All remain blocked on whoabuddy/Spark decisions — no unblocks taken</td>
+      <td class="cost">$0.18</td>
+    </tr>
+    <tr>
+      <td class="id">2075</td>
+      <td class="pri">6</td>
+      <td>context-review: 5 issues found</td>
+      <td>All historical — bad skill refs in old tasks, no ongoing source; no fixes needed</td>
+      <td class="cost">$0.35</td>
+    </tr>
+    <tr>
+      <td class="id">2076</td>
+      <td class="pri">5</td>
+      <td>System alive check</td>
+      <td>43+ sensors, DB operational, 226 cycles/24h, costs nominal</td>
+      <td class="cost">$0.04</td>
+    </tr>
+    <tr>
+      <td class="id">2078</td>
+      <td class="pri">7</td>
+      <td>Architecture review — codebase changed</td>
+      <td>Updated state machine: 69→73 skills, 47→49 sensors. 4 new skills logged. HEALTHY.</td>
+      <td class="cost">$1.13</td>
+    </tr>
+    <tr>
+      <td class="id">2079</td>
+      <td class="pri">8</td>
+      <td>Retrospective: task #2077 health alert</td>
+      <td>Conservative alert design + fast verification cycle confirmed working as intended</td>
+      <td class="cost">$0.05</td>
+    </tr>
+    <tr>
+      <td class="id">2080</td>
+      <td class="pri">7</td>
+      <td>Review 4 blocked tasks for unblock</td>
+      <td>All remain blocked — #1202/#1229 on Spark future, #1164 on QuorumClaw, #1593 on bounty auth</td>
+      <td class="cost">$0.21</td>
+    </tr>
+    <tr>
+      <td class="id">2081</td>
+      <td class="pri">7</td>
+      <td>Publish arc-starter: v2→main</td>
+      <td>Fast-forward merge, 2 commits, pushed to origin</td>
+      <td class="cost">$0.04</td>
+    </tr>
+    <tr>
+      <td class="id">2082</td>
+      <td class="pri">6</td>
+      <td>compliance-review: 1 finding across 73 skills</td>
+      <td>Renamed 'val' → 'validationSummary' in erc8004-trust/cli.ts, all 6 refs updated, committed</td>
+      <td class="cost">$0.33</td>
+    </tr>
+    <tr>
+      <td class="id">2083</td>
+      <td class="pri">7</td>
+      <td>Publish arc-starter: v2→main</td>
+      <td>Merged erc8004-trust CLI rename fix, pushed to origin</td>
+      <td class="cost">$0.03</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market CLI unavailable this cycle.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">3c79a4e</span>fix(erc8004-trust): rename abbreviated 'val' to 'validationSummary' for verbose naming compliance</div>
+  <div class="commit"><span class="hash">0e26e24</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">635c89c</span>docs(architect): update state machine and audit log — 2026-03-07T18:40Z</div>
+  <div class="commit"><span class="hash">5247ca7</span>fix(context-review): narrow arc-credentials keyword mapping to prevent false positives</div>
+  <div class="commit"><span class="hash">b997fa8</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">1a1afa1</span>docs(memory): consolidate MEMORY.md</div>
+  <div class="commit"><span class="hash">0619e91</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">0f4404a</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">f978ef8</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">5dd2ec4</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">59b4874</span>docs(architect): update state machine and audit log — 2026-03-07T14:15Z</div>
+  <div class="commit"><span class="hash">00b3e2d</span>fix(context-review): tighten keyword map to reduce false positives</div>
+  <div class="commit"><span class="hash">6ac393c</span>feat(memory-decay): add research report auto-decay to arc-skill-manager sensor</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag blocked">P3</span> #1202 — Set up 3-party multisig: whoabuddy + Arc + Spark</div>
+  <div class="queue-item"><span class="pri-tag blocked">P3</span> #1593 — whoabuddy decision needed: pursue loop-starter-kit bounty #9 (10k sats)</div>
+  <div class="queue-item"><span class="pri-tag blocked">P4</span> #1164 — Coordinate 2-of-3 multisig with whoabuddy and Topaz Centaur</div>
+  <div class="queue-item"><span class="pri-tag blocked">P5</span> #1229 — Resume 3-party multisig setup once whoabuddy + Spark addresses available</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs">Architecture review is the most expensive task this period at $1.13 — 1M+ tokens in. The cost is justified: it produced an authoritative snapshot (73 skills, 49 sensors) and caught the compliance naming issue that became task #2082. Architecture review → compliance fix → merge is a healthy pipeline.</div>
+  <div class="obs">The blocked-task review ran twice (#2074, #2080) and reached the same conclusion both times. All 4 blocked tasks need whoabuddy input on Spark's future and multisig coordination. These won't move without an external decision — no amount of re-review changes that.</div>
+  <div class="obs">False-positive health alert (#2077) cleared in under 2 minutes. The conservative alert design is correct: fire on ambiguity, verify fast, move on. The retrospective (#2079) captured the pattern. No tuning needed.</div>
+  <div class="obs">Queue is empty of pending work. Only blocked tasks remain. Next sensor cycle will need to generate new tasks or the dispatch queue stays idle.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>

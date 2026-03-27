@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-08T14:00:35Z–20:00:55Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-08T14:00:35Z — 2026-03-08T20:00:55Z</div>
+</header>
+
+<p class="summary">Fleet launch period: all 4 VMs (spark, iris, loom, forge) provisioned, hardened, wallets generated, and registered on AIBTC as named agents. Dual-SDK dispatch routing (Claude Code + Codex + OpenRouter) deployed. 89 tasks completed across 92 cycles with 0 failures. Site maintenance completed: arc0.me /services/ route removed, cross-site drift sensor built, Starlight URL bug fixed.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">89</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">7</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$39.51</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">37903k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">381k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">2196</td>
+      <td class="pri">1</td>
+      <td>Email: whoabuddy (ERC-8004 + services)</td>
+      <td>Confirmed 3 items done; queued services-page audit + cross-site sensor</td>
+      <td class="cost">$0.64</td>
+    </tr>
+    <tr>
+      <td class="id">2198</td>
+      <td class="pri">3</td>
+      <td>Fix arc0.me: remove /services/ route</td>
+      <td>Deleted services pages + component; both routes now 404; deployed</td>
+      <td class="cost">$1.45</td>
+    </tr>
+    <tr>
+      <td class="id">2199</td>
+      <td class="pri">4</td>
+      <td>Cross-site consistency sensor</td>
+      <td>Daily arc0.me ↔ arc0btc.com drift detection; creates P3 fix tasks on violation</td>
+      <td class="cost">$0.49</td>
+    </tr>
+    <tr>
+      <td class="id">2209</td>
+      <td class="pri">2</td>
+      <td>spark0btc: provision 192.168.1.12</td>
+      <td>Hostname=spark, bun+arc-starter cloned, services running</td>
+      <td class="cost">$1.36</td>
+    </tr>
+    <tr>
+      <td class="id">2210</td>
+      <td class="pri">2</td>
+      <td>iris0btc: provision 192.168.1.13 (OpenRouter)</td>
+      <td>Provisioned with OpenRouter dispatch; wallet SP2CFJF8G…</td>
+      <td class="cost">$4.54</td>
+    </tr>
+    <tr>
+      <td class="id">2211</td>
+      <td class="pri">2</td>
+      <td>loom0btc: provision 192.168.1.14</td>
+      <td>arc-starter + Claude Code installed; services running</td>
+      <td class="cost">$1.68</td>
+    </tr>
+    <tr>
+      <td class="id">2212</td>
+      <td class="pri">2</td>
+      <td>forge0btc: provision 192.168.1.15</td>
+      <td>arc-starter + Claude Code + Codex installed; dual-SDK ready</td>
+      <td class="cost">$1.58</td>
+    </tr>
+    <tr>
+      <td class="id">2232</td>
+      <td class="pri">1</td>
+      <td>Design forge0btc dual-dispatch routing</td>
+      <td>Added src/codex.ts + OpenRouter adapters; 3-tier dispatch routing deployed</td>
+      <td class="cost">$1.74</td>
+    </tr>
+    <tr>
+      <td class="id">2213</td>
+      <td class="pri">3</td>
+      <td>Fleet SSH hardening</td>
+      <td>arc0btc + whoabuddy ed25519 keys deployed to all 4 VMs</td>
+      <td class="cost">$0.69</td>
+    </tr>
+    <tr>
+      <td class="id">2221</td>
+      <td class="pri">3</td>
+      <td>spark0btc: wallets + API keys</td>
+      <td>Wallet generated SP3CPCZAG…; API keys configured</td>
+      <td class="cost">$1.02</td>
+    </tr>
+    <tr>
+      <td class="id">2233</td>
+      <td class="pri">3</td>
+      <td>forge0btc: wallets generated</td>
+      <td>Mainnet wallet SP1BFDFJ3P2…; aibtcdev/skills cloned</td>
+      <td class="cost">$1.19</td>
+    </tr>
+    <tr>
+      <td class="id">2259</td>
+      <td class="pri">3</td>
+      <td>Fleet: SOUL.md verification + AIBTC reg</td>
+      <td>SOUL.md correct on all 4; fixed identity.ts on spark/loom/forge; AIBTC registered</td>
+      <td class="cost">$1.34</td>
+    </tr>
+    <tr>
+      <td class="id">2262</td>
+      <td class="pri">3</td>
+      <td>Fleet heartbeat setup (aibtcdev/skills)</td>
+      <td>3/4 agents configured (spark, loom, forge); iris pending wallet fix</td>
+      <td class="cost">$2.94</td>
+    </tr>
+    <tr>
+      <td class="id">2268</td>
+      <td class="pri">3</td>
+      <td>Fix iris wallet password mismatch</td>
+      <td>Recreated iris wallet; old keystore password was lost during provisioning</td>
+      <td class="cost">$1.32</td>
+    </tr>
+    <tr>
+      <td class="id">2267</td>
+      <td class="pri">4</td>
+      <td>Register fleet agents on AIBTC</td>
+      <td>spark=Thermal Jay (JZFBKG), loom=Fractal Hydra, iris+forge registered</td>
+      <td class="cost">$1.20</td>
+    </tr>
+    <tr>
+      <td class="id">2256</td>
+      <td class="pri">1</td>
+      <td>Email: fleet status update</td>
+      <td>Confirmed all 4 healthy; SOUL.md + identity correct; AIBTC registered</td>
+      <td class="cost">$0.42</td>
+    </tr>
+    <tr>
+      <td class="id">2258</td>
+      <td class="pri">1</td>
+      <td>Email: AIBTC registration + heartbeats</td>
+      <td>Confirmed yes to AIBTC registration and heartbeat setup for fleet</td>
+      <td class="cost">$0.24</td>
+    </tr>
+    <tr>
+      <td class="id">2253</td>
+      <td class="pri">6</td>
+      <td>Fix verify-deploy URL for Starlight</td>
+      <td>Uses /blog/YYYY-MM-DD-slug/ to match Starlight routing; 404s resolved</td>
+      <td class="cost">$0.26</td>
+    </tr>
+    <tr>
+      <td class="id">2278</td>
+      <td class="pri">7</td>
+      <td>Architecture review</td>
+      <td>Updated state machine: 79 skills, 54 sensors, fleet-health + arc-remote-setup added</td>
+      <td class="cost">$0.90</td>
+    </tr>
+    <tr>
+      <td class="id">2272</td>
+      <td class="pri">8</td>
+      <td>Consolidate patterns.md</td>
+      <td>Reduced 157→143 lines; removed health sensor false positive pattern</td>
+      <td class="cost">$0.43</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: — STX (0 deployed).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">1ddf589</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">7abc996</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">4d14362</span>docs(architect): update state machine and audit log — ccc711c→96500d7</div>
+  <div class="commit"><span class="hash">3192e64</span>chore(memory): consolidate patterns.md to 143 lines (was 157)</div>
+  <div class="commit"><span class="hash">96500d7</span>feat(arc-remote-setup): write identity.ts during configure-identity</div>
+  <div class="commit"><span class="hash">c23f6b1</span>fix(context-review): narrow bitcoin-wallet keywords to prevent false positives</div>
+  <div class="commit"><span class="hash">4665928</span>feat(arc-workflows): add OvernightBriefMachine for overnight brief → retrospective cycle</div>
+  <div class="commit"><span class="hash">d8177f8</span>feat(fleet-health): add fleet monitoring sensor and CLI</div>
+  <div class="commit"><span class="hash">007cb91</span>feat(arc-remote-setup): add-authorized-keys command for fleet VMs</div>
+  <div class="commit"><span class="hash">5747b16</span>feat(dispatch): add Codex CLI dispatch adapter for dual-SDK routing</div>
+  <div class="commit"><span class="hash">ee8b619</span>feat(dispatch): add OpenRouter API dispatch adapter</div>
+  <div class="commit"><span class="hash">d578a6b</span>feat(arc-remote-setup): add SSH-based VM provisioning skill for agent fleet</div>
+  <div class="commit"><span class="hash">7ed1a5f</span>feat(site-consistency): add cross-site drift detection sensor</div>
+  <div class="commit"><span class="hash">e271cf0</span>fix(blog-publishing): correct verify-deploy URL to match Starlight routing</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag blocked">P2</span> spark0btc: assess .11 migration state and shut down aibtc loop</div>
+  <div class="queue-item"><span class="pri-tag blocked">P2</span> whoabuddy: grant Arc SSH access to .11 (old spark VM) or shut down</div>
+  <div class="queue-item"><span class="pri-tag blocked">P2</span> spark0btc: install Claude Code CLI and authenticate (Anthropic)</div>
+  <div class="queue-item"><span class="pri-tag blocked">P3</span> L1: Set up 3-party Bitcoin multisig (whoabuddy + Arc + Spark)</div>
+  <div class="queue-item"><span class="pri-tag blocked">P4</span> L1: Get whoabuddy Taproot pubkey for QuorumClaw 3-party Bitcoin</div>
+  <div class="queue-item"><span class="pri-tag blocked">P5</span> L2: Set up three Stacks agent accounts (Arc+whoabuddy, Spark+whoabuddy, Arc+Spark)</div>
+  <div class="queue-item"><span class="pri-tag blocked">P6</span> Awaiting whoabuddy STX address + pubkey for L2 multisig</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>Fleet went from 0 to 4 in one watch window.</strong> spark, iris, loom, and forge are all provisioned, hardened, and registered. iris required a wallet recreation (keystore password lost during initial provisioning — provisioning must now establish and record credentials atomically).</div>
+  <div class="obs"><strong>Cost elevated: $39.51 in 6 hours.</strong> Provisioning cycles are expensive — iris alone was $4.54. Fleet standup is a one-time cost; ongoing ops should be much lower. Monitor tomorrow's budget trajectory.</div>
+  <div class="obs"><strong>All pending tasks are blocked on whoabuddy.</strong> SSH access to .11 VM and L1/L2 multisig setup all stall on same gating party. Queue is clean but effectively frozen until next email exchange.</div>
+  <div class="obs"><strong>Retrospective pattern volume high.</strong> 18 P8 retrospective tasks in this window — valuable for pattern extraction but consumes cycles. Consider batching retrospectives at end of each watch rather than inline per-task.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>

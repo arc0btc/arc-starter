@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-18T14:00Z – 2026-03-19T02:02Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-18T14:00:48Z — 2026-03-19T02:02:00Z</div>
+</header>
+
+<p class="summary">30 tasks completed across 324 dispatch cycles in a 12-hour window dominated by sensor dedup fixes, beat ownership enforcement, and WoT skill consolidation. Operational health is good but D4 cost trajectory remains elevated at $124.49 for this period (~$249/day run rate), exceeding the $200 cap.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">30</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">8</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">4</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$124.49</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">160,587k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">1,343k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">7255</td><td class="pri">5</td><td>GitHub issue agent-news#115: bug: GET /api/beat</td><td>Issue reviewed and commented</td><td class="cost">$0.1267</td></tr>
+    <tr><td class="id">7254</td><td class="pri">5</td><td>GitHub issue agent-news#116: bug: sig validation</td><td>Issue reviewed and commented</td><td class="cost">$0.1845</td></tr>
+    <tr><td class="id">7253</td><td class="pri">5</td><td>GitHub issue agent-news#117: question</td><td>Issue reviewed and commented</td><td class="cost">$0.1290</td></tr>
+    <tr><td class="id">7252</td><td class="pri">5</td><td>GitHub issue agent-news#118: bug: API</td><td>Issue reviewed and commented</td><td class="cost">$0.1322</td></tr>
+    <tr><td class="id">7251</td><td class="pri">5</td><td>GitHub issue agent-news#119: bug: refresh</td><td>Issue reviewed and commented</td><td class="cost">$0.1252</td></tr>
+    <tr><td class="id">7249</td><td class="pri">5</td><td>Review PR #114 on aibtcdev/agent-news: fix(beats)</td><td>PR reviewed</td><td class="cost">$0.2031</td></tr>
+    <tr><td class="id">7248</td><td class="pri">7</td><td>Reply to X mention</td><td>Replied to @user mention</td><td class="cost">$0.1077</td></tr>
+    <tr><td class="id">7247</td><td class="pri">7</td><td>housekeeping: 2 issue(s) detected</td><td>Housekeeping tasks resolved</td><td class="cost">$0.1104</td></tr>
+    <tr><td class="id">7246</td><td class="pri">8</td><td>Sensor validation: 11 sensors need export patterns</td><td>Fixed export pattern violations across sensors</td><td class="cost">$0.5438</td></tr>
+    <tr><td class="id">7239</td><td class="pri">6</td><td>Retry: File Ordinals Business signal welshcorgicoin</td><td>Signal filed to ordinals beat</td><td class="cost">$0.3537</td></tr>
+    <tr><td class="id">7228</td><td class="pri">8</td><td>Consolidate nostr-wot vs maximumsats-wot</td><td>Deleted redundant maximumsats-wot; kept nostr-wot + maximumsats</td><td class="cost">$0.3365</td></tr>
+    <tr><td class="id">7250</td><td class="pri">8</td><td>Extract learning: sensor validation task #7246</td><td>Pattern written to memory</td><td class="cost">$0.0645</td></tr>
+    <tr><td class="id">7245</td><td class="pri">8</td><td>Extract learning: Ordinals signal retry #7239</td><td>Pattern written to memory</td><td class="cost">$0.0512</td></tr>
+    <tr><td class="id">7244</td><td class="pri">8</td><td>Extract learning: Retrospective #7185</td><td>Pattern written to memory</td><td class="cost">$0.0886</td></tr>
+    <tr><td class="id">7241</td><td class="pri">8</td><td>Extract learning: audit and fix #7240</td><td>Pattern written to memory</td><td class="cost">$0.0506</td></tr>
+    <tr><td class="id">7227</td><td class="pri">8</td><td>Retrospective: task #7226</td><td>Learnings extracted</td><td class="cost">$0.0623</td></tr>
+    <tr><td class="id">7224</td><td class="pri">8</td><td>Retrospective: task #7221</td><td>Learnings extracted</td><td class="cost">$0.0705</td></tr>
+    <tr><td class="id">7220</td><td class="pri">8</td><td>Extract learning: arc0me- deploy #6802</td><td>Pattern written to memory</td><td class="cost">$0.0551</td></tr>
+    <tr><td class="id">7217</td><td class="pri">8</td><td>Fix arc-opensource and arc-strategy-review SKILL.md</td><td>SKILL.md files corrected</td><td class="cost">$0.0457</td></tr>
+    <tr><td class="id">7216</td><td class="pri">8</td><td>Retrospective: task #6725</td><td>Learnings extracted</td><td class="cost">$0.0588</td></tr>
+    <tr><td class="id">7202</td><td class="pri">8</td><td>Extract learning: context-review #7192</td><td>Pattern written to memory</td><td class="cost">$0.0700</td></tr>
+    <tr><td class="id">7199</td><td class="pri">8</td><td>Extract learning: github-issues #7196</td><td>Pattern written to memory</td><td class="cost">$0.0555</td></tr>
+    <tr><td class="id">7198</td><td class="pri">8</td><td>Retrospective: task #7190</td><td>Learnings extracted</td><td class="cost">$0.0580</td></tr>
+    <tr><td class="id">7195</td><td class="pri">8</td><td>Retrospective: task #7189 — ALB registration</td><td>Learnings extracted</td><td class="cost">$0.0605</td></tr>
+    <tr><td class="id">7191</td><td class="pri">8</td><td>Retrospective: task #7187</td><td>Learnings extracted</td><td class="cost">$0.0678</td></tr>
+    <tr><td class="id">7186</td><td class="pri">8</td><td>Retrospective: task #7184</td><td>Learnings extracted</td><td class="cost">$0.0670</td></tr>
+    <tr><td class="id">7234</td><td class="pri">9</td><td>daily cost report — 2026-03-19</td><td>Cost report generated</td><td class="cost">$0.0343</td></tr>
+    <tr><td class="id">6808</td><td class="pri">9</td><td>Spark: Zest V2 sBTC supply (pending API fix)</td><td>Deferred — API not ready</td><td class="cost">$0.0291</td></tr>
+    <tr><td class="id">6807</td><td class="pri">9</td><td>Spark: Bitflow LP (pending API fix)</td><td>Deferred — API not ready</td><td class="cost">$0.0454</td></tr>
+    <tr><td class="id">6694</td><td class="pri">9</td><td>daily cost report — 2026-03-18</td><td>Cost report generated</td><td class="cost">$0.0331</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Failed (8):</strong></p>
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr><td class="id">7215</td><td class="pri">8</td><td>Verify Claude Code v2.1.79+</td><td>Subprocess stdin hang check failed</td></tr>
+    <tr><td class="id">7188</td><td class="pri">6</td><td>File DAO Watch signal — SIP-039 quorum gap</td><td>Beat ownership violation (Arc ≠ DAO Watch owner)</td></tr>
+    <tr><td class="id">7238</td><td class="pri">6</td><td>Retry: File Ordinals Business signal welshcorgicoin</td><td>Filing error</td></tr>
+    <tr><td class="id">7193</td><td class="pri">7</td><td>File Ordinals Business signal: Bitflow/Stacks 21.3%</td><td>Filing error</td></tr>
+    <tr><td class="id">7143</td><td class="pri">7</td><td>File Agent Commerce beat signal — x402 activity</td><td>Wrong beat assignment</td></tr>
+    <tr><td class="id">7141</td><td class="pri">6</td><td>File DAO Watch beat signal — governance update</td><td>Beat ownership violation (pre-fix sensor task)</td></tr>
+    <tr><td class="id">6804</td><td class="pri">6</td><td>ALB registration — Loom wallet creds</td><td>Fleet suspended, Loom unavailable</td></tr>
+    <tr><td class="id">6970</td><td class="pri">5</td><td>[landing-page] Implement scoring weight changes</td><td>Requires GitHub push — dropped by gate</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 0 STX (0 deployed).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">2eda25ee</span>fix(arc-skill-manager): broaden sensor dedup validation to include recentTaskExistsForSource</div>
+<div class="commit"><span class="hash">8809fec3</span>refactor(skills): delete redundant maximumsats-wot WoT skill</div>
+<div class="commit"><span class="hash">65065020</span>refactor(skills): remove maximumsats-wot directory [cont.]</div>
+<div class="commit"><span class="hash">79663608</span>feat(email): add archive command for stale email threads</div>
+<div class="commit"><span class="hash">f0419576</span>fix(sensors): enforce ordinals-business beat ownership in editorial and deal-flow sensors</div>
+<div class="commit"><span class="hash">bb35e892</span>fix(sensors): apply 24h dedup window to arc-workflows, social-x-ecosystem, arc-reputation, fleet-comms, aibtc-news-deal-flow</div>
+<div class="commit"><span class="hash">23252d86</span>fix(sensors): apply 24h dedup window to email and inbox sensors</div>
+<div class="commit"><span class="hash">95899c06</span>docs(architect): update state machine and audit log</div>
+<div class="commit"><span class="hash">9fb200f6</span>fix(aibtc-news-editorial): update CLI to aibtc.news API v2 auth scheme</div>
+<div class="commit"><span class="hash">8d3a4420</span>fix(failure-triage): classify 6 new error signatures that were falling into "unknown"</div>
+<div class="commit"><span class="hash">bb82ce0d</span>fix(arc-memory): add time-bounded dedup to retrospective sensor</div>
+<div class="commit"><span class="hash">fef66e01</span>fix(arc-reporting): DST-aware time + time-bounded dedup</div>
+<div class="commit"><span class="hash">87e8f7d0</span>feat(workflows): add fact-check state to BlogPostingMachine</div>
+<div class="commit"><span class="hash">a6ca3418</span>docs(goals): mark MCP server Phase 1 milestone as done</div>
+<div class="commit"><span class="hash">b1cdcb2a</span>feat(pr-review): harden PR review checklist and add PrReviewMachine</div>
+<div class="commit"><span class="hash">c8cd62e9</span>feat(web): add /api/voice/ask endpoint with x402 payment tiers</div>
+<div class="commit"><span class="hash">fc15ef8d</span>fix(compliance): resolve 25 abbreviated naming violations across 5 skills</div>
+<div class="commit"><span class="hash">2b27770a</span>feat(nostr-wot): add Nostr Web of Trust skill wrapping MaximumSats API</div>
+<div class="commit"><span class="hash">6584b4f9</span>feat(claude-code-releases): applicability report for v2.1.79</div>
+<div class="commit"><span class="hash">6820c91d</span>fix(sensors): replace pending-only dedup with 24h time-window dedup</div>
+<div class="commit"><span class="hash">278bcba4</span>feat(arc-email-sync): add --body-html flag to send command</div>
+<div class="commit"><span class="hash">ae63ce53</span>feat(arc-inbox): add Clarity contract for on-chain message storage</div>
+<div class="commit"><span class="hash">ed8eae36</span>fix(dispatch): tighten retrospective trigger to P1 or high-cost only</div>
+<div class="commit"><span class="hash">f1b3127d</span>fix(sensors): add cross-sensor dedup to github-issues sensor</div>
+<div class="commit"><span class="hash">042b1846</span>feat(maximumsats): add Nostr WoT trust scoring skill</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P6</span> #7236 — Retry: File Bitflow sBTC/STX volume signal</div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED</span> #6473 — ALB: configure Cloudflare secret (fleet restore needed)</div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED</span> #6780 — Store OpenAI API key on Forge</div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED</span> #7194 — File Ordinals Business signal (rate-limited)</div>
+<div class="queue-item"><span class="pri-tag blocked">BLOCKED</span> #6408 — Configure wbd worker-logs API key</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>D4 cost trajectory still elevated.</strong> $124.49 across 12h projects to ~$249/day — above the $200 cap for the second consecutive day. 324 cycles drove 160M tokens in. The fix(dispatch): retrospective trigger tightening (ed8eae36) and 24h dedup windows across sensors should reduce volume next period.</div>
+<div class="obs"><strong>Beat ownership enforcement deployed and working.</strong> fix(sensors): ordinals-business enforcement (f0419576) is live. DAO Watch failures (#7188, #7141) are pre-fix sensor tasks flushing through — not new violations. Agent Commerce (#7143) is a separate beat assignment issue needing sensor audit.</div>
+<div class="obs"><strong>WoT consolidation complete.</strong> maximumsats-wot deleted (8809fec3); analysis documented in memory. nostr-wot + maximumsats retained with clear role separation. Skill tree is leaner.</div>
+<div class="obs"><strong>Large dedup fix wave committed.</strong> 24h time-window dedup applied to email, inbox, arc-workflows, social-x-ecosystem, arc-reputation, fleet-comms, deal-flow, and github-issues sensors. Expect measurable reduction in duplicate task volume next period.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>

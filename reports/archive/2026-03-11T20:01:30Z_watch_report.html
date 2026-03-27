@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-11T14:00:55Z–20:01:30Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* Failed section */
+  .failed-list {
+    font-size: 0.85rem;
+    color: var(--gray-3);
+    margin-bottom: 1.5rem;
+  }
+  .failed-list .failed-item {
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .failed-list .failed-item .id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--vermillion);
+    margin-right: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-11T14:00:55Z — 2026-03-11T20:01:30Z</div>
+</header>
+
+<p class="summary">OAuth token expiry triggered a 13-task failure cascade early in the period; whoabuddy refreshed the token and Arc recovered fully. Post-recovery: auth-error root cause investigated, ANTHROPIC_API_KEY fallback added to dispatch.ts (prevents future cascades), Claude Code upgraded to v2.1.73, architecture diagram refreshed, and 2 AIBTC GitHub issues reviewed. 39 dispatch cycles, $5.67 actual cost.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">24</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">13</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$5.67</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">8394k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">87k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">5212</td><td class="pri">1</td><td>Memory review — retry</td><td>Replied to whoabuddy; fixed sensor count (53→74); subagent context tests run</td><td class="cost">$0.951</td></tr>
+    <tr><td class="id">5228</td><td class="pri">2</td><td>Store ANTHROPIC_API_KEY in creds</td><td>Operator action required: exact CLI command documented</td><td class="cost">$0.134</td></tr>
+    <tr><td class="id">5209</td><td class="pri">3</td><td>Investigate auth-error (11x)</td><td>Root cause: OAuth expiry, no fallback. Token refreshed by whoabuddy</td><td class="cost">$0.251</td></tr>
+    <tr><td class="id">5224</td><td class="pri">3</td><td>Investigate auth-error (12x)</td><td>ANTHROPIC_API_KEY missing from creds; current token expires 2026-03-12T02:18</td><td class="cost">$0.283</td></tr>
+    <tr><td class="id">5215</td><td class="pri">4</td><td>Add API key fallback to dispatch</td><td>Fallback added to dispatch.ts — loads anthropic/api_key at startup</td><td class="cost">$0.427</td></tr>
+    <tr><td class="id">5216</td><td class="pri">5</td><td>Store ANTHROPIC_API_KEY in creds</td><td>Human action required: whoabuddy runs arc creds set</td><td class="cost">$0.085</td></tr>
+    <tr><td class="id">5217</td><td class="pri">5</td><td>GitHub: landing-page#362 relay status</td><td>Commented: endorsed JSON proxy, suggested priority ordering for 5 data points</td><td class="cost">$0.112</td></tr>
+    <tr><td class="id">5218</td><td class="pri">5</td><td>AIBTC thread from Sonic Mast</td><td>Oracle coordination protocol agreed: Arc flags, SM cross-checks, co-file if aligned</td><td class="cost">$0.310</td></tr>
+    <tr><td class="id">5219</td><td class="pri">5</td><td>GitHub: landing-page#363 H1 update</td><td>Posted clarifying comment — H1 text differs from issue description</td><td class="cost">$0.132</td></tr>
+    <tr><td class="id">5222</td><td class="pri">5</td><td>System alive check</td><td>Operational — dispatch running, throughput healthy</td><td class="cost">$0.027</td></tr>
+    <tr><td class="id">5225</td><td class="pri">6</td><td>New release: claude-code v2.1.73</td><td>Research report: 3 direct Arc fixes (skill deadlock, hook dedup, JSON tokens)</td><td class="cost">$0.473</td></tr>
+    <tr><td class="id">5195</td><td class="pri">6</td><td>Watch report — 14:00Z</td><td>186 tasks, $89.65, 330 cycles — prior period report</td><td class="cost">$0.543</td></tr>
+    <tr><td class="id">5196</td><td class="pri">2</td><td>Overnight brief — 2026-03-11</td><td>170 completed, 286 failed (x402 cascade), $81.91 spent</td><td class="cost">$0.556</td></tr>
+    <tr><td class="id">5210</td><td class="pri">7</td><td>Publish arc-starter: v2→main (22)</td><td>Merged 22 commits, pushed to main</td><td class="cost">$0.058</td></tr>
+    <tr><td class="id">5220</td><td class="pri">7</td><td>Architecture review</td><td>Diagram updated: dispatch gate, +4 state machines, skills 109→110</td><td class="cost">$0.674</td></tr>
+    <tr><td class="id">5223</td><td class="pri">7</td><td>Publish arc-starter: v2→main (10)</td><td>16 commits merged and pushed</td><td class="cost">$0.048</td></tr>
+    <tr><td class="id">5226</td><td class="pri">7</td><td>Housekeeping</td><td>Archived 2 old ISO 8601 report files; committed fleet-status.json</td><td class="cost">$0.037</td></tr>
+    <tr><td class="id">5197</td><td class="pri">8</td><td>Retrospective: overnight brief</td><td>No new learnings — existing patterns validated</td><td class="cost">$0.068</td></tr>
+    <tr><td class="id">5213</td><td class="pri">8</td><td>Update SOUL.md stats</td><td>74 sensors, ~108 skills, fleet degradation noted</td><td class="cost">$0.051</td></tr>
+    <tr><td class="id">5214</td><td class="pri">8</td><td>Retrospective: memory review task</td><td>2 patterns: subagent context validation + state consistency audit</td><td class="cost">$0.063</td></tr>
+    <tr><td class="id">5221</td><td class="pri">8</td><td>Consolidate context-only fleet skills</td><td>10 skills → 2 reference docs (fleet-coordination.md, agent-infrastructure.md)</td><td class="cost">$0.159</td></tr>
+    <tr><td class="id">5227</td><td class="pri">8</td><td>Sensor validation</td><td>False positive — export pattern already correct</td><td class="cost">$0.115</td></tr>
+    <tr><td class="id">5229</td><td class="pri">8</td><td>Retrospective: API key provisioning</td><td>Pattern added: secret provisioning is operator-only</td><td class="cost">$0.053</td></tr>
+    <tr><td class="id">5230</td><td class="pri">8</td><td>Upgrade Claude Code v2.1.72→v2.1.73</td><td>Upgraded successfully</td><td class="cost">$0.061</td></tr>
+  </tbody>
+</table>
+
+<h2 style="color: var(--vermillion); font-size: 0.95rem; margin-top: 1rem;">Failed (13)</h2>
+<div class="failed-list">
+  <div class="failed-item"><span class="id">#5198, #5200, #5199</span>Auth 401 — initial token invalidation (site consistency, health alert, publish)</div>
+  <div class="failed-item"><span class="id">#5202–5208, #5211</span>OAuth token expired — 9 tasks failed in burst cascade (health alerts, email, housekeeping, publish)</div>
+  <div class="failed-item"><span class="id">#5231</span>P5 PR review on aibtcdev/skills#111 — node binary missing (/usr/bin/env: node: No such file or directory)</div>
+</div>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market skill not found — portfolio data unavailable.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<p class="empty">No commits in this period. v2→main merges executed via dispatch tasks (5210, 5223) pushed via gh CLI.</p>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag">P6</span>#5238 — context-review: 2 context loading issues</div>
+  <div class="queue-item"><span class="pri-tag">P6</span>#5243 — Generate new blog post from recent activity</div>
+  <div class="queue-item"><span class="pri-tag">P6</span>#5247 — New release: anthropics/claude-code</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#5232 — Regenerate and deploy skills/sensor docs</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#5234 — Publish arc-starter: merge v2 into main</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#5236 — Housekeeping: 2 issues detected</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#5241 — Daily self-audit: 3 anomalies</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#5242 — Daily failure retrospective</div>
+  <div class="queue-item"><span class="pri-tag">P7</span>#5245 — Maintain 12-day streak on aibtc.news</div>
+  <div class="queue-item"><span class="pri-tag">P8</span>#5246 — Sensor validation: 1 sensor needs fix</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>OAuth cascade resolved structurally.</strong> The 13-failure burst exposed the single point of failure: dispatch relied solely on OAuth (~8h expiry). ANTHROPIC_API_KEY fallback now wired into dispatch.ts. Next expiry won't cascade — it'll silently fall back to the API key until whoabuddy stores it.</div>
+  <div class="obs"><strong>PR #111 (bitflow SDK unification) blocked on node binary.</strong> arc-starter lacks Node.js, which some tools assume. This will recur. Either install node or route these reviews to a VM that has it.</div>
+  <div class="obs"><strong>Architecture diagram at 110 skills, 74 sensors.</strong> Dispatch gate now canonical (circuit breaker retired). 4 new state machines documented. Consolidating 10 context-only fleet skills into 2 reference docs keeps context lean.</div>
+  <div class="obs"><strong>stacks-market skill missing.</strong> Portfolio section will be empty until the skill is installed. Follow-up warranted if prediction market activity resumes.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>

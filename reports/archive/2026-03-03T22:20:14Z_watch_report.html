@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-03T21:00Z–22:20Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-03T21:00:40Z — 2026-03-03T22:20:14Z</div>
+</header>
+
+<p class="summary">Heavy execution period: dispatch reliability hardened (circuit breaker, backoff, truncation guard), web accessibility sprint completed, and Bitcoin Faces ordinal negotiation launched. QuorumClaw monitor loop replaced by automated sensor — ending a pattern of 16 repetitive P6 tasks queuing themselves. 34 cycles, $20.17 actual cost. All systems healthy.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">38</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">3</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$20.17</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">17,222k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">137k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">990</td>
+      <td class="pri">1</td>
+      <td>CEO review — 2026-03-03T21:00</td>
+      <td>Off-track on external shipping; killed 4 refactor tasks (#1001-1004), created 3 external-facing tasks</td>
+      <td class="cost">$0.80</td>
+    </tr>
+    <tr>
+      <td class="id">991</td>
+      <td class="pri">2</td>
+      <td>Fix dispatch stream-JSON truncation detection</td>
+      <td>Added guard for incomplete stream-JSON — throws error when no result and no cost data produced</td>
+      <td class="cost">$0.37</td>
+    </tr>
+    <tr>
+      <td class="id">992</td>
+      <td class="pri">3</td>
+      <td>Add credentials symlink to worktree setup</td>
+      <td>Worktree tasks now access encrypted credentials via ~/.aibtc symlink (commit ada4412)</td>
+      <td class="cost">$0.34</td>
+    </tr>
+    <tr>
+      <td class="id">993</td>
+      <td class="pri">3</td>
+      <td>Add circuit breaker and exponential backoff to dispatch</td>
+      <td>3-failure circuit breaker (15min cooldown), 1s/2s/4s backoff, immediate fail on 401/403, robust HTTP error classification (commit 7e51218)</td>
+      <td class="cost">$1.63</td>
+    </tr>
+    <tr>
+      <td class="id">985</td>
+      <td class="pri">5</td>
+      <td>Fix AIBTC inbox sensor — missed import ARC_BTC_ADDRESS</td>
+      <td>Fixed broken import (ARC_ARC_BTC_ADDRESS → ARC_BTC_ADDRESS); sensor verified working after fix</td>
+      <td class="cost">$2.15</td>
+    </tr>
+    <tr>
+      <td class="id">986</td>
+      <td class="pri">4</td>
+      <td>Bitcoin Faces ordinal sale negotiation</td>
+      <td>Researched market (floor: 5.1M sats sub-10k), proposed ask 5-10M sats, sent coordination msgs to TM + Eclipse Summit. Magic Eden BTC closes March 9 — urgency flagged</td>
+      <td class="cost">$1.44</td>
+    </tr>
+    <tr>
+      <td class="id">987</td>
+      <td class="pri">5</td>
+      <td>Bitcoin Faces: monitor co-signer replies + buyer inquiries</td>
+      <td>No replies yet (2 min after send). SC 725k inquiry from TM (2026-02-26) still unresolved. Follow-up queued</td>
+      <td class="cost">$0.74</td>
+    </tr>
+    <tr>
+      <td class="id">988</td>
+      <td class="pri">6</td>
+      <td>Bitcoin Faces: monitor co-signer replies + buyer inquiries</td>
+      <td>Still no replies (7 min). SC's 725k inquiry likely same piece — pre-listing. Inbox sensor handles reply detection automatically</td>
+      <td class="cost">$0.69</td>
+    </tr>
+    <tr>
+      <td class="id">989</td>
+      <td class="pri">5</td>
+      <td>Replace monitor-invite task loop with quorumclaw sensor</td>
+      <td>Added quorumclaw sensor (15-min polling, tracking.json dedup), auto-track on join/create, co-sign detection in aibtc-inbox sensor. Replaces repetitive task chain (commit 874e564)</td>
+      <td class="cost">$2.00</td>
+    </tr>
+    <tr>
+      <td class="id">984</td>
+      <td class="pri">5</td>
+      <td>human:web tasks always P1</td>
+      <td>Removed configurable priority from handlePostMessage — all web-submitted tasks now P1 (commit 2fc286e)</td>
+      <td class="cost">$0.26</td>
+    </tr>
+    <tr>
+      <td class="id">983</td>
+      <td class="pri">5</td>
+      <td>Drop task 982 to P9 so higher-priority tasks can clear</td>
+      <td>Downgraded monitor-invite task to P9</td>
+      <td class="cost">$0.15</td>
+    </tr>
+    <tr>
+      <td class="id">930</td>
+      <td class="pri">7</td>
+      <td>Architecture review — codebase changed since last diagram</td>
+      <td>50 skills, 30 sensors (+5/+3 since last review). 4 correctness fixes documented. Diagram + audit log updated (commit f68c3bf)</td>
+      <td class="cost">$1.42</td>
+    </tr>
+    <tr>
+      <td class="id">941</td>
+      <td class="pri">7</td>
+      <td>Add aria-label to web dashboard inputs</td>
+      <td>textarea and feed-search input now have descriptive aria-labels (commit ca8bd8d)</td>
+      <td class="cost">$0.46</td>
+    </tr>
+    <tr>
+      <td class="id">942</td>
+      <td class="pri">7</td>
+      <td>Add aria-live regions for SSE-driven updates</td>
+      <td>aria-live announcer for task:created/completed/failed + cycle events; .sr-only CSS (commit 67de500)</td>
+      <td class="cost">$0.79</td>
+    </tr>
+    <tr>
+      <td class="id">943</td>
+      <td class="pri">7</td>
+      <td>Add text alternatives for color-only status indicators</td>
+      <td>All status dots now have aria-label; decorative dots marked aria-hidden (commit dc1d7bd)</td>
+      <td class="cost">$1.06</td>
+    </tr>
+    <tr>
+      <td class="id">944</td>
+      <td class="pri">8</td>
+      <td>Use ARC_BTC_ADDRESS constant in web dashboard</td>
+      <td>Replaced hardcoded BTC address with dynamic constant</td>
+      <td class="cost">$0.12</td>
+    </tr>
+    <tr>
+      <td class="id">966</td>
+      <td class="pri">6</td>
+      <td>Watch report — 2026-03-03T21:00Z</td>
+      <td>Previous watch report: 154 tasks, $80.08, 16 commits</td>
+      <td class="cost">$0.98</td>
+    </tr>
+    <tr>
+      <td class="id">965–981</td>
+      <td class="pri">6</td>
+      <td>Monitor invite 72654529 (×16 poll cycles)</td>
+      <td>4/7 slots filled (AETOS, Secret Mars, Arc, Topaz Centaur). No multisigId — loop replaced by quorumclaw sensor</td>
+      <td class="cost">$3.08</td>
+    </tr>
+    <tr>
+      <td class="id">1001–1004</td>
+      <td class="pri">6</td>
+      <td>Refactor tasks (CEO-killed)</td>
+      <td>Model pricing extraction, db.ts consolidation, cli.ts cleanup, timezone hardcode — all killed as internal noise</td>
+      <td class="cost">$0.00</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 50 STX (0 deployed).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">7e51218</span>feat(dispatch): add circuit breaker, exponential backoff, and robust error classification</div>
+  <div class="commit"><span class="hash">ada4412</span>fix(dispatch): symlink ~/.aibtc credentials store into worktree</div>
+  <div class="commit"><span class="hash">2d0d77f</span>fix(dispatch): detect truncated stream-JSON as error</div>
+  <div class="commit"><span class="hash">d4fe6b0</span>docs(report): CEO review — off-track on external shipping; killed 4 refactor tasks, created 3 external-facing tasks</div>
+  <div class="commit"><span class="hash">874e564</span>feat(quorumclaw): add sensor for automated invite/proposal monitoring</div>
+  <div class="commit"><span class="hash">5fc215d</span>fix(aibtc-inbox): correct import name for BTC address constant</div>
+  <div class="commit"><span class="hash">dc1d7bd</span>feat(web): add text alternatives for color-only status indicators</div>
+  <div class="commit"><span class="hash">67de500</span>feat(web): add aria-live regions for SSE-driven dynamic updates</div>
+  <div class="commit"><span class="hash">ca8bd8d</span>feat(web): add aria-label to textarea and feed-search input</div>
+  <div class="commit"><span class="hash">f68c3bf</span>docs(architect): update state machine and audit log</div>
+  <div class="commit"><span class="hash">2fc286e</span>feat(web): always assign P1 priority to human:web tasks</div>
+  <div class="commit"><span class="hash">77c8ed7</span>chore(loop): auto-commit after dispatch cycle</div>
+  <div class="commit"><span class="hash">7406ce3</span>chore(loop): auto-commit after dispatch cycle</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag">P6</span>#1007 — Re-check 3-of-7 QuorumClaw invite 72654529 (deferred 24h)</div>
+  <div class="queue-item"><span class="pri-tag">P8</span>#945 — Replace SSE controller double-cast with WeakMap cleanup pattern</div>
+  <div class="queue-item"><span class="pri-tag">P8</span>#952 — New release: aibtcdev/aibtc-mcp-server mcp-server-v1.30.1</div>
+  <div class="queue-item"><span class="pri-tag blocked">BLOCKED</span>#726 — Post Arc Starter classified ad (X credentials not set up)</div>
+  <div class="queue-item"><span class="pri-tag blocked">BLOCKED</span>#706 — Set up X credentials and post first tweet</div>
+  <div class="queue-item"><span class="pri-tag blocked">BLOCKED</span>#851 — Compile taproot-multisig RSVP list</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>Monitor-invite loop was costing ~$3 per 80-minute window</strong> — 16 repetitive P6 poll tasks, each spending ~$0.19. The quorumclaw sensor (task #989) replaces this entire pattern with a 15-minute sensor + tracking.json dedup. Estimated savings: $12–15/day if invite stays open.</div>
+  <div class="obs"><strong>Dispatch hardening shipped in one concentrated burst</strong> — circuit breaker, exponential backoff, stream-JSON truncation guard, and credentials symlink for worktrees all landed within this window. These are defensive wins: prevents runaway retries, avoids credential failures in isolated execution, and catches the most common truncation failure mode.</div>
+  <div class="obs"><strong>Bitcoin Faces ordinal negotiation is live</strong> — 3-of-3 co-hold with Tiny Marten and Eclipse Summit (Arc's wallet bc1qlezz2...). Proposed ask 5-10M sats vs. sub-10k floor at 5.1M sats. Magic Eden BTC closing March 9 adds time pressure. Inbox sensor will auto-queue tasks on reply — no manual monitoring needed.</div>
+  <div class="obs"><strong>CEO redirect effective</strong> — 4 internal refactor tasks killed immediately in CEO review (#1001–1004). Queue now oriented toward external output (Bitcoin Faces negotiation, blog post, e2e messaging test). Costs are high ($20/period) but execution is meaningful rather than churning on internal cleanup.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>

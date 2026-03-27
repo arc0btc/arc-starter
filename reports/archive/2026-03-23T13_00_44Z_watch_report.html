@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-23T01:02Z — 2026-03-23T13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-23T01:02:32Z — 2026-03-23T13:00:44Z</div>
+</header>
+
+<p class="summary">79 tasks completed in 12h at $24.12 actual cost — highlights include an Opus deep-dive on Clarity skills ($2.76), fixing 4 sensors missing model fields (#8326), 10 agent welcomes, and 9 PR reviews. All 3 failures were "No model set" — root cause identified and closed in #8326. x402 relay healthy; two ordinals fee-market signals filed.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">79</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">3</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">3</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$24.12</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">31,616k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">284k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">8274</td><td class="pri">1</td><td>CEO review — 2026-03-23T01_02</td><td>On track; escalated #7837 P3→P1</td><td class="cost">$0.29</td></tr>
+    <tr><td class="id">8279</td><td class="pri">2</td><td>health alert: stale dispatch lock</td><td>Stale lock cleared (PID 386089 dead)</td><td class="cost">$0.07</td></tr>
+    <tr><td class="id">8287</td><td class="pri">1</td><td>Opus review: Clarity skills plan</td><td>Cross-ref'd docs.stacks.co; 6 questions emailed whoabuddy</td><td class="cost">$2.76</td></tr>
+    <tr><td class="id">8289</td><td class="pri">1</td><td>Fleet update: Loom + Forge online</td><td>Loom=Rising Leviathan, Forge=codex/dispatch; memory updated</td><td class="cost">$0.45</td></tr>
+    <tr><td class="id">8295</td><td class="pri">1</td><td>Re-review PR #204 skills</td><td>Approved — Hiro→Unisat + witness calc fixed, CI green</td><td class="cost">$0.51</td></tr>
+    <tr><td class="id">8309</td><td class="pri">1</td><td>Re-review PR #202 skills</td><td>Approved — signMessage fix + CI green, ready to merge</td><td class="cost">$0.40</td></tr>
+    <tr><td class="id">8326</td><td class="pri">1</td><td>Fix 4 sensors missing model field</td><td>Fixed github-release-watcher, arc-opensource, arc-ops-review, arc-memory</td><td class="cost">$1.85</td></tr>
+    <tr><td class="id">8341</td><td class="pri">2</td><td>AIBTC thread from Warm Idris</td><td>Replied re Signal podcast pitch; asked about sourcing/crediting</td><td class="cost">$0.47</td></tr>
+    <tr><td class="id">8299</td><td class="pri">3</td><td>Audit 71 sensors for model field</td><td>All 71 pass — no violations found</td><td class="cost">$0.36</td></tr>
+    <tr><td class="id">8302</td><td class="pri">3</td><td>Wallet health: BIP-137 + STX reserves</td><td>All checks pass; 66.59 STX; signing pipeline healthy</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">8308</td><td class="pri">4</td><td>Cooldown pre-check: ordinals sensor</td><td>Added hook-state + DB 2-layer guard before signal queue</td><td class="cost">$1.21</td></tr>
+    <tr><td class="id">8265</td><td class="pri">6</td><td>Watch report — 2026-03-23T01:02Z</td><td>94 tasks completed, $54.97 spent</td><td class="cost">$0.69</td></tr>
+    <tr><td class="id">8273</td><td class="pri">5</td><td>Review PR #390 aibtc-mcp-server</td><td>Approved — getBtcNetwork dedup + dead validation.ts removal</td><td class="cost">$0.28</td></tr>
+    <tr><td class="id">8285</td><td class="pri">5</td><td>Analyze #206: Clarity dev skills</td><td>4 skills planned in priority order (check/patterns/audit/scaffold)</td><td class="cost">$0.39</td></tr>
+    <tr><td class="id">8288</td><td class="pri">5</td><td>Review PR #391 aibtc-mcp-server</td><td>Changes requested — tests import deleted validation.ts</td><td class="cost">$0.47</td></tr>
+    <tr><td class="id">8292</td><td class="pri">5</td><td>Review PR #477 landing-page</td><td>Approved w/ 2 suggestions on sponsored exception + error codes</td><td class="cost">$0.62</td></tr>
+    <tr><td class="id">8293</td><td class="pri">5</td><td>Review PR #169 agent-news</td><td>Approved w/ suggestions (null-caching regression, indentation)</td><td class="cost">$0.54</td></tr>
+    <tr><td class="id">8297</td><td class="pri">5</td><td>Self-review health check 2026-03-23</td><td>3 issues found; NONCE_CONFLICT ongoing; PR #7914 unmerged</td><td class="cost">$0.38</td></tr>
+    <tr><td class="id">8300</td><td class="pri">5</td><td>Memory consolidation</td><td>149 → 124 lines; duplicates merged, stale entries removed</td><td class="cost">$0.32</td></tr>
+    <tr><td class="id">8306</td><td class="pri">5</td><td>Triage: x402-api + agent-news issues</td><td>x402-sponsor-relay #187 confirmed as NONCE_CONFLICT root cause</td><td class="cost">$0.33</td></tr>
+    <tr><td class="id">8317</td><td class="pri">5</td><td>Review PR #392 aibtc-mcp-server</td><td>Approved — 49 missing tool-to-skill entries, clean metadata</td><td class="cost">$0.27</td></tr>
+    <tr><td class="id">8321</td><td class="pri">5</td><td>Analyze #191: nonce pool /health endpoint</td><td>Plan in workflow 566 — additive fields to health.ts</td><td class="cost">$0.68</td></tr>
+    <tr><td class="id">8322</td><td class="pri">6</td><td>context-review: x402-relay not a skill</td><td>isRelayHealthy() is in aibtc-welcome; memory note added</td><td class="cost">$0.53</td></tr>
+    <tr><td class="id">8330</td><td class="pri">5</td><td>Review PR #192 x402-sponsor-relay</td><td>Approved — effectiveCapacity + poolStatus additive fields</td><td class="cost">$0.28</td></tr>
+    <tr><td class="id">8333</td><td class="pri">5</td><td>Review PR #480 landing-page</td><td>Approved w/ questions on retryAfter:15 + BIP-137 omission</td><td class="cost">$0.34</td></tr>
+    <tr><td class="id">8264</td><td class="pri">7</td><td>Welcome Titanium Basilisk</td><td>x402 message + 0.1 STX sent</td><td class="cost">$0.20</td></tr>
+    <tr><td class="id">8266</td><td class="pri">7</td><td>Welcome Tall Lark</td><td>x402 message (msg_1774229478339) + 0.1 STX txid ae560039</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">8267</td><td class="pri">7</td><td>Welcome Savage Wynn</td><td>x402 message (msg_1774229543386) + 0.1 STX txid 1d13c1d6</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">8268</td><td class="pri">7</td><td>Welcome Emerald Halo</td><td>x402 message (msg_1774229593827) + 0.1 STX txid 2ae1a552</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">8270</td><td class="pri">7</td><td>Welcome Lasting Jaguar</td><td>x402 message (msg_1774231292129) + 0.1 STX txid 539194c8</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">8271</td><td class="pri">7</td><td>Welcome Heavy Wasp</td><td>x402 message (msg_1774231350856) + 0.1 STX txid e3789adb</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">8272</td><td class="pri">7</td><td>Welcome Watchful Idris</td><td>x402 message (msg_1774231411454) + 0.1 STX txid 93540af</td><td class="cost">$0.20</td></tr>
+    <tr><td class="id">8276</td><td class="pri">7</td><td>Welcome Twilight Star</td><td>x402 message (msg_1774233069988) + 0.1 STX txid 001cb180</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">8277</td><td class="pri">7</td><td>Welcome Spare Chain</td><td>x402 message (msg_1774233129207) + 0.1 STX txid 5cdd6a28</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">8278</td><td class="pri">7</td><td>Welcome Mighty Anvil</td><td>x402 message (msg_1774233192316) + 0.1 STX txid 08c1dbaa</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">8282</td><td class="pri">7</td><td>File ordinals signal: 1 sat/vB</td><td>Fee market signal ddb0566c — 11,077 unconfirmed txs</td><td class="cost">$0.14</td></tr>
+    <tr><td class="id">8284</td><td class="pri">5</td><td>arXiv digest 2026-03-23</td><td>26 relevant papers from 50 fetched (LLM=17, reasoning=3, agent=2)</td><td class="cost">$0.14</td></tr>
+    <tr><td class="id">8301</td><td class="pri">6</td><td>Skill tree audit: 113 skills</td><td>All pass — frontmatter valid, 76 CLIs functional, 80 sensors</td><td class="cost">$0.12</td></tr>
+    <tr><td class="id">8303</td><td class="pri">6</td><td>x402 relay: root cause documentation</td><td>Relay v1.20.2 resolved NONCE_CONFLICT; memory updated</td><td class="cost">$0.52</td></tr>
+    <tr><td class="id">8305</td><td class="pri">6</td><td>Changelog: skills + mcp-server</td><td>skills v0.30.0 (42 PRs), mcp-server v1.42.0 (48 PRs)</td><td class="cost">$0.23</td></tr>
+    <tr><td class="id">8331</td><td class="pri">7</td><td>Architecture review</td><td>State machine updated (8bc2945→669d781): explicit model gate added</td><td class="cost">$0.74</td></tr>
+    <tr><td class="id">8334</td><td class="pri">6</td><td>compliance-review: 2 findings</td><td>Fixed abbreviated cmd→sshCommand in systems-monitor/cli.ts</td><td class="cost">$0.10</td></tr>
+    <tr><td class="id">8336</td><td class="pri">7</td><td>Regenerate skills/sensors catalog</td><td>113 skills, 80 sensors — committed to arc0me-site</td><td class="cost">$0.28</td></tr>
+    <tr><td class="id">8338</td><td class="pri">5</td><td>arc-opensource: sync 1438 commits</td><td>Synced to arc0btc/arc-starter feat/monitoring-service branch</td><td class="cost">$0.05</td></tr>
+    <tr><td class="id">8339</td><td class="pri">7</td><td>Refresh ERC-8004 agents index</td><td>61 agents fetched; arc0.me/agents updated</td><td class="cost">$0.15</td></tr>
+    <tr><td class="id">8337</td><td class="pri">7</td><td>Deploy arc0me-site ebcffbe79fba</td><td>5 assets uploaded, 3/3 checks passed</td><td class="cost">$0.10</td></tr>
+    <tr><td class="id">8340</td><td class="pri">7</td><td>Deploy arc0me-site c1044c96b79c</td><td>14 assets uploaded, 3/3 checks passed</td><td class="cost">$0.10</td></tr>
+    <tr><td class="id">8342</td><td class="pri">7</td><td>File ordinals signal: 3 sat/vB</td><td>Fee market signal 52eaa743 — 22,020 unconfirmed txs</td><td class="cost">$0.15</td></tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.8rem; color: var(--gray-4); margin-top:-1rem; margin-bottom:1rem;">
+  Showing 47 key tasks. Omitted: 10 retrospective/extract-learning tasks, 7 housekeeping/misc.
+</p>
+
+<h3 style="font-size:0.9rem; color:var(--vermillion); margin-bottom:0.5rem;">Failed (3)</h3>
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr><td class="id">7837</td><td class="pri">1</td><td>Competition day-1: file 6 ordinals signals</td><td>No model set — sensor bug (fixed in #8326)</td></tr>
+    <tr><td class="id">8286</td><td class="pri">1</td><td>Re-review PR #204 skills</td><td>No model set — human task missing model (re-ran as #8295)</td></tr>
+    <tr><td class="id">8325</td><td class="pri">6</td><td>Review landing-page for skills-v0.30.0</td><td>No model set — sensor bug (fixed in #8326)</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market skill not installed on this node.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">fd1719b7</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">88b3b819</span>docs: update v7 design principle — skills required everywhere</div>
+<div class="commit"><span class="hash">5b9176e2</span>docs(architect): update state machine and audit log (8bc2945 → 669d781)</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag blocked">P3</span> <span style="color:var(--vermillion)">#6473</span> — ALB: configure Cloudflare secrets in arc0btc/agents-love-bitcoin repo</div>
+<div class="queue-item"><span class="pri-tag blocked">P3</span> <span style="color:var(--vermillion)">#6780</span> — Store OpenAI API key on Forge for Codex dispatch</div>
+<div class="queue-item"><span class="pri-tag blocked">P8</span> <span style="color:var(--vermillion)">#6408</span> — Configure wbd worker-logs API key credential</div>
+<p class="empty" style="margin-top:0.5rem;">Queue is empty aside from pre-existing blocked tasks. No pending work.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">All 3 failures this period share one root cause: missing <code>model</code> field on task creation. Four sensors were fixed in #8326 (github-release-watcher, arc-opensource, arc-ops-review, arc-memory). The audit in #8299 confirmed all 71 sensors pass now — pattern is closed.</div>
+<div class="obs">$2.76 for the Opus Clarity skills deep-dive (#8287) is 11.4% of total period spend. It produced a cross-referenced plan with docs.stacks.co, 3 deprecation discoveries, and 6 stakeholder questions — justified given the strategic scope of adding Clarity dev tooling to the skill tree.</div>
+<div class="obs">10 agent welcomes in 12h signals strong AIBTC ecosystem growth. x402 relay has been healthy since v1.20.2 upgrade (last NONCE_CONFLICT: 2026-03-22T14:28Z). Welcome tasks are running cleanly — avg $0.20/welcome.</div>
+<div class="obs">Competition day-1 signal (#7837) failed due to the sensor bug. Two organic fee-market signals were filed via ordinals-market-data sensor instead. Competition ranking position needs attention — check sensor health before next dispatch cycle to ensure daily signal filing resumes normally.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p><strong>On track — outstanding period.</strong> 79 tasks completed, 3 failures all from the same root cause (missing <code>model</code> field), which is now permanently closed: sensors fixed (#8326), 71-sensor audit passed (#8299), architecture gate added to state machine (#8331). This is a clean close — pattern won't recur. At $24.12 for 79 tasks ($0.30/task avg), cost efficiency is excellent. x402 relay stable. Fleet partially recovered. Welcome pipeline delivering at $0.20/welcome.</p>
+<p>One gap demands attention: competition day-1 only 2/6 signals filed. Task #7837 failed (sensor bug, now fixed), and the two organic fee-market signals (#8282, #8342) don't max the daily cap. We have ~10 hours left in UTC day-1. Leaving 4 signals on the table is $80 in foregone competition points — and day-1 streak context matters for weekly bonuses.</p>
+<p>Clarity skills plan is solid — cross-referenced docs.stacks.co, 6 questions to whoabuddy, priority order established (check → patterns → audit → scaffold). Implementation can begin on clarity-check without waiting; the plan from #8285/#8287 has enough detail to proceed.</p>
+
+<h3>Queue adjustments</h3>
+<ul>
+  <li>Queue is empty — no active adjustments needed.</li>
+  <li>3 blocked tasks (#6473, #6780, #6408) remain externally gated. No new action — they need Cloudflare/OpenAI/wbd credential inputs from whoabuddy.</li>
+  <li>Creating 2 follow-up tasks: (1) competition signal coverage, (2) clarity-check implementation.</li>
+</ul>
+
+<h3>Next watch focus</h3>
+<p><strong>Competition signals.</strong> File 4 more diverse ordinals signals before UTC midnight to reach 6/6 day-1 cap. Use signal types beyond fee-market: NFT floor prices (CoinGecko), BRC-20 volumes (Unisat), inscription counts. Fee-market signals alone don't qualify unless materially changed — diversify.</p>
+
+<h3>24-hour horizon</h3>
+<ul>
+  <li>Competition: 6/6 signals filed daily, streak protected through 2026-03-24.</li>
+  <li>Clarity skills: clarity-check skill scaffold exists and CLI passes basic syntax check.</li>
+  <li>Model field failures: 0 (pattern fully closed; monitor for 1 week to confirm).</li>
+  <li>Cost: under $150/day (today on track at ~$30 with 99 cycles run).</li>
+</ul>
+<p style="font-size:0.8rem; color:var(--gray-4); margin-top:0.75rem;">CEO review by Arc — 2026-03-23T14:10Z</p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-13T02:01Z – 2026-03-18T14:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-13T02:01:36Z — 2026-03-18T14:00:48Z (5-day catchup)</div>
+</header>
+
+<p class="summary">5-day watch window covering 1,300 dispatch cycles. 1,262 tasks completed across skill maintenance, ERC-8004 infrastructure, DeFi groundwork, PR reviews, and temporal awareness fixes — all executed solo by Arc with fleet still suspended. System healthy; watch report sensor gap addressed.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">1262</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">122</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">3</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$547.61</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">681M</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">5.8M</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks (recent 20)</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">6897</td><td class="pri">6</td>
+      <td>[x402] On-chain message storage feasibility</td>
+      <td>sBTC memo insufficient; Clarity contract viable; recommend hybrid hot-store + hash anchor</td>
+      <td class="cost">$0.317</td>
+    </tr>
+    <tr>
+      <td class="id">6827</td><td class="pri">6</td>
+      <td>x402 on-chain messaging: memo vs contract</td>
+      <td>Memo fields (34 bytes) unsuitable; Clarity contract viable with sBTC payment gate</td>
+      <td class="cost">$0.178</td>
+    </tr>
+    <tr>
+      <td class="id">7168</td><td class="pri">3</td>
+      <td>Human action: Loom wallet creds + ALB unblock</td>
+      <td>3 blockers documented; all require whoabuddy. Recommend defer until Loom restored.</td>
+      <td class="cost">$0.156</td>
+    </tr>
+    <tr>
+      <td class="id">7165</td><td class="pri">5</td>
+      <td>PR review: agent-news publisher auto-welcome</td>
+      <td>Blocking: timing-safe secret comparison needed. Suggestions: BTC addr validation, rate limiting.</td>
+      <td class="cost">$0.273</td>
+    </tr>
+    <tr>
+      <td class="id">7164</td><td class="pri">1</td>
+      <td>Re-review: agent-news PR #106 17-beat taxonomy</td>
+      <td>All 3 items addressed. CI green. Approved.</td>
+      <td class="cost">$0.537</td>
+    </tr>
+    <tr>
+      <td class="id">6793</td><td class="pri">6</td>
+      <td>Compliance-review: 25 findings across 104 skills</td>
+      <td>Fixed all 25 abbreviated naming violations across 5 skills</td>
+      <td class="cost">$0.703</td>
+    </tr>
+    <tr>
+      <td class="id">6787</td><td class="pri">6</td>
+      <td>fleet-memory v2: learning extraction in dispatch</td>
+      <td>Added pattern-writing instruction; DISCOVERY_KEYWORDS_RE triggers P8 Haiku extraction</td>
+      <td class="cost">$0.382</td>
+    </tr>
+    <tr>
+      <td class="id">7163</td><td class="pri">4</td>
+      <td>Add fact-check state to BlogPostingMachine</td>
+      <td>draft→review→fact_check→published added with validation task before publish</td>
+      <td class="cost">$0.413</td>
+    </tr>
+    <tr>
+      <td class="id">7153</td><td class="pri">3</td>
+      <td>Build ERC-8004 standalone indexer</td>
+      <td>Cloudflare Worker + Hono + D1 at erc8004.aibtc.com; 6-hour cron; pushed to main</td>
+      <td class="cost">$2.183</td>
+    </tr>
+    <tr>
+      <td class="id">7154</td><td class="pri">4</td>
+      <td>Audit web interface (port 3000)</td>
+      <td>Confirmed POST /api/messages → task pipeline end-to-end. Minor: hardcoded P1. No fixes needed.</td>
+      <td class="cost">$1.316</td>
+    </tr>
+    <tr>
+      <td class="id">7148</td><td class="pri">5</td>
+      <td>Cost breakdown view: web dashboard</td>
+      <td>Added /api/costs/by-skill + bar chart in activity dashboard (top 20 skills, 3 ranges)</td>
+      <td class="cost">$0.579</td>
+    </tr>
+    <tr>
+      <td class="id">7158</td><td class="pri">5</td>
+      <td>Research: High Output Management</td>
+      <td>Grove's 5 frameworks mapped to Arc/AIBTC architecture. 5 gaps identified. Sent to whoabuddy.</td>
+      <td class="cost">$0.249</td>
+    </tr>
+    <tr>
+      <td class="id">7144</td><td class="pri">5</td>
+      <td>Process unread inbox emails</td>
+      <td>Replied to 4 whoabuddy emails (Loom OAuth, contacts, free time, voice mode). All read.</td>
+      <td class="cost">$0.725</td>
+    </tr>
+    <tr>
+      <td class="id">7139</td><td class="pri">5</td>
+      <td>Audit arc-email-sync failure rate</td>
+      <td>Failure rate 1.4% (not ongoing). Real issue: cost spike 3x since Mar 11. Fixed AGENT.md: email tasks delegate, never inline.</td>
+      <td class="cost">$0.593</td>
+    </tr>
+    <tr>
+      <td class="id">7132</td><td class="pri">3</td>
+      <td>Scaffold MCP server skill (Phase 1)</td>
+      <td>Already complete — arc-mcp-server running 2+ weeks. Milestone marked done in GOALS.md.</td>
+      <td class="cost">$0.484</td>
+    </tr>
+    <tr>
+      <td class="id">7161</td><td class="pri">5</td>
+      <td>PR review: landing-page sBTC Holder achievement</td>
+      <td>Cache-on-failure issue flagged. CI green. Confirmed contract address from arc-payments sensor.</td>
+      <td class="cost">$0.322</td>
+    </tr>
+    <tr>
+      <td class="id">6782</td><td class="pri">6</td>
+      <td>Generate new blog post</td>
+      <td>Published "What Day Is It" — temporal awareness fix (DST, day-of-week, elapsed time).</td>
+      <td class="cost">$0.357</td>
+    </tr>
+    <tr>
+      <td class="id">6703</td><td class="pri">5</td>
+      <td>Temporal awareness fix in dispatch</td>
+      <td>DST-correct MT, day-of-week, last-cycle elapsed, memory staleness warning added</td>
+      <td class="cost">$0.272</td>
+    </tr>
+    <tr>
+      <td class="id">7160</td><td class="pri">2</td>
+      <td>health alert: stale dispatch lock</td>
+      <td>Stale lock (PID 3823180) removed. Fresh cycle initiated.</td>
+      <td class="cost">$0.047</td>
+    </tr>
+    <tr>
+      <td class="id">6677</td><td class="pri">5</td>
+      <td>Auto-queue: 8 hungry domains</td>
+      <td>Queued 26 tasks across aibtc-repo-maintenance, arc-skill-manager, blog, failure-triage, editorial, email, dashboard, arxiv</td>
+      <td class="cost">$0.287</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.8rem; color:var(--gray-4);">Showing 20 of 1,262 completed tasks in period. 8.8% failure rate (122 failed).</p>
+
+<p style="font-size:0.85rem; color:var(--gray-3); margin-top:0.75rem;"><strong>Blocked (3):</strong></p>
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">6473</td><td class="pri">3</td>
+      <td>ALB: configure Cloudflare secrets</td>
+      <td>Awaiting Cloudflare API token from whoabuddy</td>
+    </tr>
+    <tr>
+      <td class="id">6780</td><td class="pri">3</td>
+      <td>Store OpenAI API key on Forge</td>
+      <td>Fleet suspended — Forge unreachable</td>
+    </tr>
+    <tr>
+      <td class="id">6408</td><td class="pri">8</td>
+      <td>Configure wbd worker-logs API key</td>
+      <td>Credential not available</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market skill unavailable — skill not installed.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">60bdbbf2</span>fix(codex): resolve nvm binary path when codex not in systemd PATH</div>
+<div class="commit"><span class="hash">d39424da</span>feat(maximumsats-wot): add WoT trust scoring skill</div>
+<div class="commit"><span class="hash">fed93d37</span>feat(fleet-handoff): create fleet-handoff skill for GitHub push routing</div>
+<div class="commit"><span class="hash">1b251fc7</span>feat(forge): add github-issues, code-audit, systems-monitor skills</div>
+<div class="commit"><span class="hash">d5939822</span>feat(email): add forge@agentslovebitcoin.com email setup</div>
+<div class="commit"><span class="hash">bd9fd775</span>feat(jingswap): build Jingswap order-book DEX skill</div>
+<div class="commit"><span class="hash">315fae42</span>feat(arc-opensource): add open source maintenance skill + LICENSE file</div>
+<div class="commit"><span class="hash">125915c8</span>feat(erc8004-indexer): add ERC-8004 agent identity indexer skill</div>
+<div class="commit"><span class="hash">32eb9cb1</span>fix(dispatch): DST-aware timezone, day-of-week, elapsed time, memory staleness warning</div>
+<div class="commit"><span class="hash">cddb9a4c</span>feat(logging): structured service_logs table + arc logs CLI</div>
+<div class="commit"><span class="hash">d4f6b380</span>feat(fleet-memory): context-aware fleet knowledge loading in dispatch</div>
+<div class="commit"><span class="hash">12503f3f</span>feat(defi-compounding): add compounding automation for Bitflow LP yields</div>
+<div class="commit"><span class="hash">92640d25</span>feat(security-audit): add paid code security audit service</div>
+<div class="commit"><span class="hash">4cee5e60</span>feat(monitoring): add monitoring-as-a-service skill and API</div>
+<div class="commit"><span class="hash">a486a9b7</span>fix(arc-cost-reporting): track dual cost fields in all report sections</div>
+<div class="commit"><span class="hash">bbdc1075</span>feat(arc-payments): add CLI for payment inspection and manual scan</div>
+<div class="commit"><span class="hash">69c0fb5f</span>feat(arc-mcp): scaffold MCP server skill with task and skill endpoints</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P6</span>Review open PRs on aibtcdev/skills-marketplace</div>
+<div class="queue-item"><span class="pri-tag">P6</span>Review open PRs on aibtcdev/x402</div>
+<div class="queue-item"><span class="pri-tag">P6</span>Audit skill tree for broken or stale sensors</div>
+<div class="queue-item"><span class="pri-tag">P6</span>Syndicate recent arc0btc.com blog posts to X</div>
+<div class="queue-item"><span class="pri-tag">P6</span>Draft and post X thread on ERC-8004</div>
+<div class="queue-item"><span class="pri-tag">P6</span>Scan for recurring failure patterns</div>
+<div class="queue-item"><span class="pri-tag">P6</span>File Ordinals Business beat signal</div>
+<div class="queue-item"><span class="pri-tag">P6</span>File DAO Watch beat signal</div>
+<div class="queue-item"><span class="pri-tag">P6</span>Add fleet status panel to web dashboard</div>
+<div class="queue-item"><span class="pri-tag">P6</span>Research latest arxiv papers on agent systems</div>
+<div class="queue-item"><span class="pri-tag">P7</span>v6 P1: Phase 1 checkpoint review</div>
+<div class="queue-item"><span class="pri-tag">P7</span>v6 P2: Cost observability dashboard</div>
+<div class="queue-item"><span class="pri-tag">P7</span>v6 P3: Phase 3 checkpoint review</div>
+<div class="queue-item"><span class="pri-tag">P7</span>Investigate missing HTML in classifier output</div>
+<div class="queue-item"><span class="pri-tag">P7</span>Reply to X mention from user</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs">Watch reports have been dark for 5 days — the arc-reporting sensor stopped firing since 2026-03-13. This report is a manual catch-up. Sensor cadence needs a health check to ensure the 6-hour trigger is still active.</div>
+<div class="obs">$547.61 across 1,300 cycles ($421.24/day average) is above the D4 $200/day cap. ERC-8004 standalone indexer ($2.18) and web audit ($1.32) are outliers; most Sonnet tasks are $0.20–$0.70. Recommend reviewing high-cost Sonnet tasks for context bloat.</div>
+<div class="obs">8.8% failure rate (122/1,384) is elevated. Most failures appear to be the 2026-03-11 auth cascade (5 P1 failed tasks still in DB). arc-failure-triage sweep queued.</div>
+<div class="obs">17 meaningful commits in the period: fleet-handoff routing, ERC-8004 infrastructure, Jingswap, defi-compounding, monitoring-as-a-service, and dispatch improvements. Strong build velocity despite fleet degradation.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<p>Needs adjustment — strong build velocity (17 meaningful commits, 1,262 tasks completed solo) but operational health has two gaps that matter: the reporting sensor was dark for 5 days (invisible to oversight) and the fleet-memory sensor is generating retrospective spam at 6+ tasks per cycle. Cost is ~$100/day, well under the $200 cap (the report's "$421/day" figure is a calculation error — $547.61 ÷ 5.5 days = $99.57/day). D1 revenue remains stalled: ALB blocked, monitoring-as-a-service committed but not deployed.</p>
+
+<h3>Queue adjustments</h3>
+<ul>
+  <li><strong>Killed #7104, #7112, #7116, #7117, #7120, #7121</strong> — Retrospective spam. 6 identical extraction tasks queued simultaneously by fleet-memory sensor. Root cause needs fixing (#7178 created).</li>
+  <li><strong>Killed #6796, #6797</strong> — Duplicate "File Ordinals Business signal" tasks. #6882 is the current one.</li>
+  <li><strong>Killed #6704</strong> — v6 P1 checkpoint. MCP Phase 1 confirmed done in task #7132; checkpoint is redundant.</li>
+  <li><strong>Killed #6707, #6708</strong> — v6 P2 cost observability + checkpoint. Cost breakdown dashboard built in task #7148; done.</li>
+  <li><strong>Killed #6868</strong> — "Review blocked tasks for unblocking." All 3 blocked tasks are gated on whoabuddy credentials. Sensor-generated noise.</li>
+</ul>
+<p>Total: 12 tasks killed. Queue reduced from ~55+ to ~43 pending.</p>
+
+<h3>New tasks created</h3>
+<ul>
+  <li><strong>#7177 (P3)</strong> — Fix arc-reporting sensor: 5-day dark period. Sensor health is non-negotiable for oversight.</li>
+  <li><strong>#7178 (P4)</strong> — Fix retrospective dedup in fleet-memory sensor. 6+ simultaneous extractions per cycle is spam, not learning.</li>
+  <li><strong>#7179 (P5)</strong> — Email whoabuddy: ALB unblock + monitoring-as-a-service deployment path. Both are D1 revenue gates and need one nudge.</li>
+</ul>
+
+<h3>Next watch focus</h3>
+<p>Fix the reporting sensor (#7177) and the retrospective spam (#7178) — operational health first, then clear the v6 checkpoint backlog starting with P3/P4 items.</p>
+
+<h3>24-hour horizon</h3>
+<p>Watch reports firing reliably again; retrospective task dedup in place; whoabuddy nudged on ALB + monitoring deployment; v6 roadmap checkpoint tasks either executed or pruned down to a single active thread.</p>
+</div>
+
+</body>
+</html>

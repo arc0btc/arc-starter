@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-12T14:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-11T20:01:30Z — 2026-03-12T14:00:28Z</div>
+</header>
+
+<p class="summary">Strong overnight run: 159 tasks completed in 18 hours across email replies, sensor audit follow-ups, code fixes, and PR reviews. Major deliverables: email threading bug fix, sensor schedule visualization page, Zest V2 sensor/CLI rewrite, and arc-payments rename with sBTC monitoring. Zero failures. System healthy.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">159</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$48.50</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">64,762k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">576k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">5387</td>
+      <td class="pri">1</td>
+      <td>Fix email threading depth bug</td>
+      <td>Thread depth was counting all 164 whoabuddy msgs across every subject; fixed to per-sender+subject scope</td>
+      <td class="cost">$1.06</td>
+    </tr>
+    <tr>
+      <td class="id">5333</td>
+      <td class="pri">1</td>
+      <td>Add /architecture page to arc0btc.com</td>
+      <td>Built mermaid state machine diagram page; added link from landing page; deployed to production</td>
+      <td class="cost">$1.50</td>
+    </tr>
+    <tr>
+      <td class="id">5378</td>
+      <td class="pri">1</td>
+      <td>Email: Group 3 sensor audit feedback</td>
+      <td>Replied to whoabuddy — addressed 6 points; created 4 follow-up tasks (#5380–5383)</td>
+      <td class="cost">$0.37</td>
+    </tr>
+    <tr>
+      <td class="id">5351</td>
+      <td class="pri">1</td>
+      <td>Email: Group 2 sensor audit (AIBTC)</td>
+      <td>Replied with 9 follow-up tasks queued (#5353–5362); aibtc-dev-ops fix flagged P2/urgent</td>
+      <td class="cost">$0.29</td>
+    </tr>
+    <tr>
+      <td class="id">5294</td>
+      <td class="pri">1</td>
+      <td>PR review: bitflow SDK unification #111</td>
+      <td>Posted 7 findings — PostConditionMode.Allow scope, multiple any types, double SDK quote fetch in swap path</td>
+      <td class="cost">$0.74</td>
+    </tr>
+    <tr>
+      <td class="id">5358</td>
+      <td class="pri">2</td>
+      <td>Fix aibtc-dev-ops dual-auth + worker-logs</td>
+      <td>Fixed X-Api-Key+X-App-ID vs X-Admin-Key split; arc0btc instance verified; follow-up #5367 for missing keys</td>
+      <td class="cost">$2.25</td>
+    </tr>
+    <tr>
+      <td class="id">5314</td>
+      <td class="pri">2</td>
+      <td>Sensor schedule visualization page</td>
+      <td>Built /sensors/schedule with 24h heatmap, sortable table, /api/sensors/schedule endpoint</td>
+      <td class="cost">$1.55</td>
+    </tr>
+    <tr>
+      <td class="id">5235</td>
+      <td class="pri">2</td>
+      <td>Fix dispatch stale/stuck alert</td>
+      <td>Missing node binary; symlinked fnm node to ~/.local/bin/node and reset dispatch gate</td>
+      <td class="cost">$0.00</td>
+    </tr>
+    <tr>
+      <td class="id">5388</td>
+      <td class="pri">3</td>
+      <td>Rewrite zest-v2 + defi-zest for v2 contracts</td>
+      <td>Sensors use v0-1-data get-user-position; CLIs updated with 6-asset registry; write ops pending upstream</td>
+      <td class="cost">$3.10</td>
+    </tr>
+    <tr>
+      <td class="id">5385</td>
+      <td class="pri">4</td>
+      <td>arc-payments: rename + sBTC SIP-010 monitoring</td>
+      <td>Renamed stacks-payments → arc-payments; added sBTC sbtc-token contract_call monitoring; backwards-compat</td>
+      <td class="cost">$1.31</td>
+    </tr>
+    <tr>
+      <td class="id">5324</td>
+      <td class="pri">4</td>
+      <td>Fleet-suspended sentinel on 10 fleet sensors</td>
+      <td>Added isFleetSuspended() gate to all 10 fleet sensors; reversible by deleting sentinel file</td>
+      <td class="cost">$1.89</td>
+    </tr>
+    <tr>
+      <td class="id">5322</td>
+      <td class="pri">4</td>
+      <td>Align dispatch stale threshold constant</td>
+      <td>Added DISPATCH_STALE_THRESHOLD_MS (95min) to constants.ts; arc-service-health updated</td>
+      <td class="cost">$0.50</td>
+    </tr>
+    <tr>
+      <td class="id">5271</td>
+      <td class="pri">4</td>
+      <td>Fix dispatch model field + backfill</td>
+      <td>Fix already committed (6dfb32d); backfilled 1660 tasks from cycle_log; 1182 remain NULL (pre-tracking)</td>
+      <td class="cost">$0.82</td>
+    </tr>
+    <tr>
+      <td class="id">5396</td>
+      <td class="pri">5</td>
+      <td>Update aibtcdev/skills to v0.19.1</td>
+      <td>Zest supply LP token fix — v0.19.1 tag present; local skills already using correct API</td>
+      <td class="cost">$0.70</td>
+    </tr>
+    <tr>
+      <td class="id">5391</td>
+      <td class="pri">5</td>
+      <td>PR review: souldinals skill #118</td>
+      <td>Requested changes: Hiro API offline (blocking), parent inscription ID not passed to buildCommitTransaction</td>
+      <td class="cost">$0.30</td>
+    </tr>
+    <tr>
+      <td class="id">5364</td>
+      <td class="pri">5</td>
+      <td>x402-sponsor-relay v1.18.0 release review</td>
+      <td>Approved; nonce backoff 1s→30s + /health nonce state directly addresses our NONCE_CONFLICT issue</td>
+      <td class="cost">$0.18</td>
+    </tr>
+    <tr>
+      <td class="id">5341</td>
+      <td class="pri">5</td>
+      <td>PR review: x402-sponsor-relay 1.18.0</td>
+      <td>Approved; nonce cascade fix confirmed operational context provided</td>
+      <td class="cost">$0.24</td>
+    </tr>
+    <tr>
+      <td class="id">5355</td>
+      <td class="pri">5</td>
+      <td>Fix aibtc-news-editorial API compat</td>
+      <td>Fixed 3 signing message/body issues: claim-beat, file-signal, compile-brief endpoint paths and timestamps</td>
+      <td class="cost">$0.86</td>
+    </tr>
+  </tbody>
+</table>
+<p class="empty" style="margin-top: -1rem; margin-bottom: 0.5rem;">+ 141 additional tasks completed (retrospectives, routine PR reviews, sensor maintenance, email processing)</p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market skill not found on this node.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">385a666</span>feat(zest-v2,defi-zest): rewrite sensor/cli for v2 contracts</div>
+  <div class="commit"><span class="hash">963d9cf</span>fix(email): scope thread depth to per-subject inbox messages</div>
+  <div class="commit"><span class="hash">88c1eb6</span>docs(zest): document v2 contract migration — new deployer, vaults, position API</div>
+  <div class="commit"><span class="hash">daa0b40</span>feat(payments): rename stacks-payments → arc-payments, add sBTC SIP-010 monitoring</div>
+  <div class="commit"><span class="hash">997cc47</span>feat(aibtc-welcome): improve welcome message — link skills library, add ability proof prompt</div>
+  <div class="commit"><span class="hash">3a35b75</span>fix(aibtc-dev-ops): use per-repo profiles for production audit — reduce false positives</div>
+  <div class="commit"><span class="hash">d4ce6c6</span>feat(aibtc-inbox-sync): raise task priority from P5 to P2 (Opus)</div>
+  <div class="commit"><span class="hash">c4f2709</span>fix(worker-logs): use correct dual-auth model (X-Api-Key + X-App-ID / X-Admin-Key)</div>
+  <div class="commit"><span class="hash">e7998c2</span>feat(cost): replace arc-cost-alerting with arc-cost-reporting</div>
+  <div class="commit"><span class="hash">c783ab4</span>fix(housekeeping): update MEMORY_MAX_LINES to 200, fix interval docs</div>
+  <div class="commit"><span class="hash">df6ee91</span>chore(sensor): disable arc-alive-check for Arc (22+ sensors confirm liveness)</div>
+  <div class="commit"><span class="hash">7540571</span>feat(fleet): add fleet-suspended sentinel gate to all 10 fleet sensors</div>
+  <div class="commit"><span class="hash">3484879</span>feat(health): add shared DISPATCH_STALE_THRESHOLD_MS constant</div>
+  <div class="commit"><span class="hash">171ca77</span>feat(web): add sensor schedule visualization page</div>
+  <div class="commit"><span class="hash">81fb1a7</span>fix(defi-zest): use LP token balance for supply, confirmed by mcp-server v1.33.3</div>
+  <div class="commit"><span class="hash">84ade61</span>feat(email): transform task names — whoabuddy vs external senders</div>
+  <div class="commit"><span class="hash">fecc3e7</span>feat(email): add thread view to web dashboard</div>
+  <div class="commit"><span class="hash">6dfb32d</span>fix(dispatch): write model to tasks table during dispatch</div>
+  <div class="commit"><span class="hash">17661ea</span>docs(arc-reputation): add public rating methodology</div>
+  <div class="commit"><span class="hash">ceac881</span>fix(dao-zero-authority): remove sensor — no on-chain contracts yet</div>
+  <div class="commit"><span class="hash">608ef1b</span>fix(aibtc-news-editorial): align signing messages and POST bodies with upstream</div>
+  <div class="commit"><span class="hash">bd07619</span>fix(blog-deploy): check npm on PATH instead of node in resolveFnmBinDir</div>
+  <div class="commit"><span class="hash">41e3cf5</span>fix(memory): sync auto-memory dir on every memory-save hook run</div>
+  <div class="commit"><span class="hash">bd2f62e</span>docs(architect): update state machine and audit log — 2026-03-12</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag">P6</span><span class="id">#5402</span> context-review: 6 context loading issues</div>
+  <div class="queue-item"><span class="pri-tag">P7</span><span class="id">#5404</span> Publish arc-starter: merge v2 into main</div>
+  <div class="queue-item"><span class="pri-tag">P8</span><span class="id">#5377</span> New release: aibtcdev/aibtc-mcp-server</div>
+  <div class="queue-item"><span class="pri-tag">P8</span><span class="id">#5379</span> [Email] Consider new thread with Jason S</div>
+  <div class="queue-item"><span class="pri-tag">P8</span><span class="id">#5384</span> Retrospective: extract learnings (task #5378)</div>
+  <div class="queue-item"><span class="pri-tag">P8</span><span class="id">#5389</span> Retrospective: extract learnings (task #5387)</div>
+  <div class="queue-item"><span class="pri-tag">P8</span><span class="id">#5401</span> Retrospective: extract learnings (task #5397)</div>
+  <div class="queue-item"><span class="pri-tag">P8</span><span class="id">#5403</span> Retrospective: extract learnings (task #5400)</div>
+  <div class="queue-item"><span class="pri-tag">P8</span><span class="id">#5405</span> Retrospective: extract learnings (task #5399)</div>
+  <div class="queue-item"><span class="pri-tag">P9</span><span class="id">#5386</span> daily cost report — 2026-03-12</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs">Sensor audit follow-ups drove most of the overnight volume — whoabuddy's 3-group audit generated ~25 follow-up tasks, most now complete. Sensor hygiene materially improved: arc-alive-check disabled, fleet-suspended gates added to 10 sensors, stale threshold unified.</div>
+  <div class="obs">Zest V2 migration complete on Arc's side. Sensor and CLI now use new deployer (SP1A27KFY4XERQCCRCARCYD1CC5N7M6688BSYADJ7) and v0-1-data get-user-position API. Remaining gap: write ops depend on upstream aibtcdev/skills defi.service.ts migration — PR or follow-up needed there.</div>
+  <div class="obs">Email threading was producing false deep-thread counts (164 msgs per subject). Fix scoped depth to per-sender+subject inbox count — largest legitimate thread is now 11. More accurate task subjects going forward.</div>
+  <div class="obs">x402 NONCE_CONFLICT cleared by v1.18.0 relay deploy (30s backoff + /health surfacing). ~60 contacts still pending re-welcoming when nonce pool stabilizes. Monitor /health for pool state before re-enabling welcome sensor.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
