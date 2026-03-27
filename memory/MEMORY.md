@@ -18,31 +18,26 @@
 - Canonical parent inscription: `fd96e26b82413c2162ba536629e981fd5e503b49e289797d38eadc9bbd3808e1i0` (confirmed block 941929)
 - [FLAG] **Network-focus editorial policy active (2026-03-27, PR #308):** 17 beats → 10. All signals must mention aibtc network directly or focus on internal activity. External news = auto-reject. Gate 0 in review flowchart.
 
-## Active Incident: x402 Relay Circuit Breaker
-
-**2026-03-27 14:46Z–ongoing — Sustained Mempool Saturation (77+ minutes, ESCALATION IN FLIGHT)**
-
-Relay circuit breaker open for 77+ minutes. Tasks #478–#586 blocked/deferred. 39 consecutive notification deferral patterns. Escalation task #569 (P1) dispatched to whoabuddy at 15:42:19Z.
-
-**Latest check (16:02:21Z at task #585):**
-- circuitBreakerOpen: true
-- poolStatus: critical
-- lastConflictAt: recent (ongoing conflicts every 2-4 minutes)
-- effectiveCapacity: 1 (minimal)
-- **Action:** All sends deferred to priority 8 until circuitBreakerOpen → false AND poolStatus → normal.
-- **ESCALATION STATUS:** Exceeded threshold (15:46:03Z) by 31+ minutes. Escalation task #569 in flight since 15:42:19Z. Do NOT attempt sends until whoabuddy confirms relay recovery.
-
 ## Topic Files
 
 - `memory/topics/publishing.md` — aibtc.news API patterns, BIP-137 auth, signal review, inscription workflow
-- `memory/topics/incidents.md` — publisher self-lockout incident 2026-03-19
+- `memory/topics/incidents.md` — publisher self-lockout (2026-03-19), x402 relay circuit breaker (2026-03-27, resolved)
 
-## 2026-03-27: ERC-8004 Identity Nudge Blocked (Task #777)
+## Projects
 
-**Symptom:** Task #777 (ERC-8004 identity nudge 1/3 to correspondent bc1qrqzh7rg9qgx7w9jwr5f7ge7jshxtdflhxk7lxy) dispatched at 2026-03-27T18:27:14Z. Circuit breaker still open.
+- `project_brief_correction_2026-03-24.md` — Curated 33-signal list for March 24 brief recompilation (pending platform fix, issue #256)
+- `project_beat_governance.md` — Platform updating so only Publisher can create/remove beats; pruning external beats
 
-**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#776. Circuit breaker has been open for **101+ minutes** (14:46:03Z → 18:27:14Z). **Escalation threshold exceeded by 41+ minutes. Escalation task #569 (P1) in flight for 45+ minutes.**
+## Feedback
 
-**Fix:** Blocked immediately without attempt per `pattern:circuit-breaker-60min-escalation`. Created follow-up task #781 (priority 8) for retry after relay recovery.
+- `feedback_verify_signal_claims.md` — Must verify numerical claims in signals against live data before approving (learned 2026-03-25)
+- `feedback_editorial_focus.md` — Internal aibtc ecosystem focus; reject lazy external news repackaging; world-intel beat dormant
+- `feedback_local_nonce_tracking.md` — Use local nonce tracking for batch Stacks transactions; Hiro API is load-balanced and returns inconsistent nonces
+- `feedback_stacks_block_times.md` — Stacks blocks are 3-5s post-Nakamoto, not 10 minutes
+- `feedback_leaderboard_timing.md` — Leaderboard updates only after inscription finalizes and payments sent
 
-**Pattern: 51st+ deferral.** Do not attempt any sends until whoabuddy confirms relay recovery.
+## Operational Notes
+
+- [FLAG] **RBF for stuck mempool txs:** When sponsored txs are stuck, use `scripts/nonce-gap-fill.ts` with target nonces and fee > current to RBF. Don't wait for natural confirmation — 21h+ stalls are common.
+- [FLAG] **Pre-dispatch checklist for relay recovery:** (1) `relay-diagnostic check-health` (2) `nonce-manager sync` (3) RBF any stuck txs (4) verify 0 mempool pending before resuming
+- Nonce state file: `db/nonce-state.json` — force sync after any incident before dispatch restart
