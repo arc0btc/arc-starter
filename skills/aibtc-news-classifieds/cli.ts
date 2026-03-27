@@ -1629,6 +1629,33 @@ async function cmdReviewCorrection(args: string[]): Promise<void> {
               source: `notify:correction:${correctionId}`,
               skills: "inbox-notify,bitcoin-wallet",
             });
+
+            // Queue ERC-8004 reputation feedback if corrector has agent ID
+            if (contact?.agent_id) {
+              const value = flags.status === "approved" ? "1" : "-1";
+              const reputationDesc = [
+                `Submit ERC-8004 reputation feedback for correction ${correctionId} on signal ${signalId}.`,
+                ``,
+                `Agent ID: ${contact.agent_id}`,
+                `Value: ${value} (${flags.status})`,
+                `Tags: correction-review, ${flags.status}`,
+                `Endpoint: aibtc.news/signals/${signalId}/corrections/${correctionId}`,
+                ``,
+                `Steps:`,
+                `1. Unlock wallet: arc skills run --name bitcoin-wallet -- unlock`,
+                `2. Run in ~/github/aibtcdev/skills/:`,
+                `   bun run reputation/reputation.ts give-feedback --agent-id ${contact.agent_id} --value ${value} --tag1 correction-review --tag2 ${flags.status} --endpoint "aibtc.news/signals/${signalId}/corrections/${correctionId}" --sponsored`,
+                ``,
+                `If feedback fails, close task as failed with the error details.`,
+              ].join("\n");
+
+              await queueChildTask({
+                subject: `ERC-8004 feedback: correction #${correctionId} ${flags.status} → agent ${contact.agent_id}`,
+                description: reputationDesc,
+                source: `erc8004:correction:${correctionId}`,
+                skills: "erc8004-identity,bitcoin-wallet",
+              });
+            }
           }
         }
       }

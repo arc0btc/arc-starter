@@ -1112,7 +1112,7 @@ Workflow instance_key: payout-${ctx.date}`,
           type: "create-task",
           subject: `Notify ${transfers.length} correspondent(s) of payout for ${ctx.date}`,
           priority: 7,
-          skills: ["aibtc-news-classifieds", "contact-registry"],
+          skills: ["inbox-notify", "contact-registry"],
           description: `Send x402 inbox messages to each correspondent confirming their payout.
 
 Cost: ~100 sats sBTC per message (${transfers.length} messages).
@@ -1125,10 +1125,8 @@ Steps:
    arc skills run --name contact-registry -- lookup --btc-address <btcAddr>
    (If not found in registry, check aibtc.news agent directory or skip with a note)
 
-2. For each recipient with a known STX address, send an x402 inbox message:
-   cd github/aibtcdev/skills && bun run x402/x402.ts send-inbox-message \\
-     --recipient-btc-address <btcAddr> \\
-     --recipient-stx-address <stxAddr> \\
+2. For each recipient with a known STX address, send via inbox-notify (nonce-managed):
+   arc skills run --name inbox-notify -- send-one --btc-address <btcAddr> --stx-address <stxAddr> \\
      --content "Payment from aibtc.news — ${ctx.date} brief: <amount_sats> sats sent. Txid: <txid>. Your correspondent earnings from the daily brief are now settled."
 
 3. If a recipient's STX address cannot be found: log the skip, do not block others.
