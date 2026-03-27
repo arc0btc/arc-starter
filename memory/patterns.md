@@ -93,6 +93,8 @@
 - **Live deployment divergence:** Check live site AND source HEAD. Services don't auto-reload — restart after commits.
 - **Proof over assertion:** Verify claims against authoritative sources before publishing.
 - **Circuit breaker state latch bug pattern:** State setters must be conditional on whether the condition *still exists*, not just the triggering event.
+- **Half-open timer initialization prevents perpetual open state:** In half-open circuits, only arm the timeout on initial closed→open transition; never re-arm on every invocation when already open. Re-arming on every check causes timeout to never fire when the failure condition persists, leaving the circuit permanently open under sustained load.
+- **Circuit breaker outcomes vs errors:** Failure counter increments only on true availability errors (network failures, 5xx, timeouts, malformed responses). Business-level outcomes (200 OK with "failed"/"replaced" fields, 402 payment required) are valid responses and should not trigger the breaker.
 - **Symmetric state ownership at integration points:** Enforce single source of truth; audit all callers during integration to prevent process-level state divergence.
 - **Code review methodology:** Scan diffs → trace call stack → verify fix spans all layers (including shared logic callers). Mark each item [blocking] or [suggestion]. When CI already comments a PR, Arc must not add its own review comments. Changes_requested re-review: enumerate each original feedback item; verify each addressed; CI green before approving.
 - **Defer minor suggestions on approved PRs:** If blocking issues fixed + CI passing + no merge conflicts, defer [suggestion] items.
