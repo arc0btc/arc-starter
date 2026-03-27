@@ -20,6 +20,7 @@ const RATE_MILESTONE_COOLDOWN_HOURS = 24; // minimum hours between same-type rat
 
 // Change-detection thresholds — signal only fires when material change exceeds these gates
 const FEE_CHANGE_THRESHOLD_PCT = 20; // >20% move in fastestFee
+const FEE_MIN_NEWSWORTHY = 10; // ignore fee moves when both old and new values are below this sat/vB
 const INSCRIPTION_CONTENT_SHIFT_PP = 10; // >10 percentage-point shift in dominant content-type share
 const BRC20_HOLDER_CHANGE_THRESHOLD_PCT = 5; // >5% holder count change in any top-5 token
 const NFT_FLOOR_CHANGE_THRESHOLD_PCT = 10; // >10% floor price move in any tracked collection
@@ -776,6 +777,11 @@ async function fetchFeeMarketData(state: HookState, history: CategoryHistory): P
     state.lastFastestFee = fastestFee; // always update
     let changeReason: string;
     if (prevFee !== undefined && prevFee > 0) {
+      // Skip trivial low-fee noise: 2→3 sat/vB is 50% but not newsworthy
+      if (prevFee < FEE_MIN_NEWSWORTHY && fastestFee < FEE_MIN_NEWSWORTHY) {
+        log(`fees: both values below ${FEE_MIN_NEWSWORTHY} sat/vB — ${prevFee}→${fastestFee}; not newsworthy`);
+        return null;
+      }
       const feePctChange = Math.abs(fastestFee - prevFee) / prevFee * 100;
       if (feePctChange < FEE_CHANGE_THRESHOLD_PCT) {
         log(`fees: below threshold — fastestFee ${prevFee}→${fastestFee} (${feePctChange.toFixed(1)}% < ${FEE_CHANGE_THRESHOLD_PCT}%); skipping signal`);
