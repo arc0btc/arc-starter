@@ -30,6 +30,7 @@
 - **Per-entity+event-type composite-key cooldowns:** Use `collection:event-type` composite keys for independent cooldowns per pair.
 - **Raw-data-dispatch architecture:** Sensors return structured raw data; dispatch LLM composes content. Decouples domain knowledge from output format.
 - **Proactive deadline-critical task filing over sensor auto-filing:** For hard deadlines, queue explicit P2+ task in the critical window. Sensor auto-filing can be pre-empted by queue load or timeouts.
+- **Bare queue natural replenishment over manual injection:** When queue falls to 2–3 items, don't manually create injection tasks. Sensors naturally replenish on their next cycle. Manual injection risks queue flooding and disrupts natural sensor-paced work cadence.
 - **Decompose orchestration + per-signal tasks:** File each signal as individual task; decompose multi-operation sensors into per-operation subtasks. Batching blocks the queue and misses parallelization.
 - **Disaggregate success rates and error metrics by code path:** Aggregate metrics mask path-specific failures. Track verdict counters separately per source layer.
 - **Explicit content-keyword→skill mappings:** Define keyword arrays in sensors that trigger skill loading. Prevents context-loading gaps when message types carry domain keywords.
