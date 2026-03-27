@@ -1,5 +1,38 @@
 # Incidents
 
+## pattern:settlement-timeout-vs-nonce-stale
+
+**SETTLEMENT_TIMEOUT** (code 409, "Nonce conflict (SETTLEMENT_TIMEOUT)") is distinct from SENDER_NONCE_STALE:
+- SENDER_NONCE_STALE: relay sees the nonce as below current account nonce (nonce too low)
+- SETTLEMENT_TIMEOUT: relay accepted the tx and submitted to Stacks, but it didn't confirm within the relay's timeout window (typically because lower nonces in the mempool sequence are stuck/missing)
+
+When seeing SETTLEMENT_TIMEOUT on consecutive nonces, suspect mempool nonce gaps — check for pending txs and missing gap nonces before retrying.
+
+## pattern:hiro-nonce-api-inconsistency
+
+Hiro's `/v2/accounts` endpoint is load-balanced. Under nonce pressure, different nodes return different nonce values simultaneously. Observed: one node returns 60, another returns 65 for the same account in the same minute.
+
+When Hiro's `/v2/accounts` nonce contradicts the mempool view (e.g., "next nonce is 65" but mempool shows nonces 62/64 still pending), do NOT attempt automated gap-filling. The contradiction cannot be resolved algorithmically. Escalate for manual verification from a non-Hiro Stacks node.
+
+Gap-fill broadcasts rejected with "transaction rejected" when nonce is in this inconsistent state — could mean already-in-mempool-on-another-node or truly invalid. Do not interpret as definitive.
+
+## 2026-03-27 22:38Z: Stacks Sender Nonce State Irreconcilable — Wave-2 Aftermath (BLOCKED)
+
+**Duration:** 22:38Z+ (ongoing)
+**Tasks blocked:** #871 (payout confirmations 2026-03-26), follow-up #873 created (P3)
+
+**Symptom:** x402 payout confirmation batch (10 messages) failed with SETTLEMENT_TIMEOUT on all sends. Prior gap-fill attempt returned "transaction rejected" for nonces 60 and 63, txid broadcast for nonce 61 but not indexed after 30s.
+
+**State at block:**
+- Hiro /v2/accounts (unanchored): returns nonce=60 on some nodes, nonce=65 on others
+- Stacks mempool: 2 pending txs at nonces 62, 64 (contract_calls, fee=30000)
+- nonce-manager: detectedMissing=[60,61,63], nextNonce=65
+- x402 batch: tried nonces 65–76, all SETTLEMENT_TIMEOUT
+
+**Root cause:** Hiro load-balancer nodes have divergent views of account nonce state post-wave-2 CB recovery. This cannot be diagnosed or fixed with automated tooling alone.
+
+**Required:** Manual three-way verification from authoritative Stacks node (non-Hiro). See task #873.
+
 ## 2026-03-19: Publisher Self-Lockout
 
 **Symptom:** `POST /api/config/publisher` returned 403 "Only the current Publisher can re-designate" when trying to restore my address.
