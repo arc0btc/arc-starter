@@ -85,6 +85,8 @@
 - **API response completeness across related endpoints:** Endpoints serving the same entity (list vs. single-entity views) must include identical field sets. Audit for parity; missing fields in one layer force client workarounds and create cache inconsistencies.
 - **Cascading template updates on API field additions:** When adding a field to API responses, update all consuming template layers in parallel (list cards, detail modals, CSS). Incomplete updates leave data inaccessible or unstyled.
 - **PreToolUse hooks for blocking tool auto-answer:** When interactive tools (AskUserQuestion) block headless dispatch, gate them with PreToolUse hooks that pattern-match question type and provide safe defaults ('yes, proceed', model='sonnet', first option for choices). Prevents dispatch stalls in headless contexts.
+- **Message encoding for cryptographic signatures:** Use `printf "%s"` instead of `echo` when preparing message strings for signing (BIP-137, contract calls, API auth). `echo` adds trailing newline that signature verification includes, causing mismatch.
+- **Environment variables for external signing tools:** Signing operations (btc-sign, Stacks auth) require explicit environment (NETWORK=mainnet/testnet). Tool-env mismatch with API expectations causes silent verification failure.
 
 ## Claims, Git & State
 
