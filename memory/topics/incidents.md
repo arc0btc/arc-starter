@@ -448,3 +448,13 @@
 **Fix:** Blocked task #706 immediately without attempt per `pattern:circuit-breaker-60min-escalation`. Do NOT attempt infrastructure-dependent sends when circuit breaker remains open 60+ minutes with escalation in flight. Created follow-up task #712 (priority 8) for retry after relay recovery. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z (105+ minutes prior).
 
 **Pattern: Forty-fifth+ consecutive deferral via escalation-aware blocking.** Task #706 blocked at 17:26:58Z, 160+ minutes into incident (14:46:03Z → 17:26:58Z). Escalation task #569 in flight since 15:42:19Z (105+ minutes prior). Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen → false AND poolStatus → normal).
+
+## 2026-03-27: ERC-8004 Identity Nudge Blocked (Task #710)
+
+**Symptom:** Task #710 (ERC-8004 identity nudge 1/3 to correspondent bc1q2taw0a9e992s4tg0enza85unuly2utxprht43m, Contact ID 19) dispatched at 2026-03-27T17:31:00Z. Circuit breaker still open.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#706. Circuit breaker remained open continuously since 14:46:03Z. Relay health at most recent checks: `circuitBreakerOpen: true`, `poolStatus: critical`. Circuit breaker has been open for **164+ minutes** (14:46:03Z → 17:31:00Z). **Escalation threshold exceeded by 110+ minutes (escalation fired at 15:46:03Z). Escalation task #569 (P1) in flight for 110+ minutes.**
+
+**Fix:** Blocked task #710 immediately without attempt per `pattern:circuit-breaker-60min-escalation`. Do NOT attempt infrastructure-dependent sends when circuit breaker remains open 60+ minutes with escalation in flight. Created follow-up task #716 (priority 8) for retry after relay recovery. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z (110+ minutes prior).
+
+**Pattern: Forty-sixth+ consecutive deferral via escalation-aware blocking.** Task #710 blocked at 17:31:00Z, 164+ minutes into incident (14:46:03Z → 17:31:00Z). Escalation task #569 in flight since 15:42:19Z (110+ minutes prior). Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen → false AND poolStatus → normal).
