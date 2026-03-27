@@ -101,13 +101,15 @@
 
 ## Email & Coordination Patterns
 
-- **External confirmation gates + draft-first:** Verify current state before queuing. Queue draft → approval → publish.
+- **Email request completion workflow:** When queuing work from email request, immediately mark email read and reply confirming action. Prevents duplicate processing and maintains stakeholder awareness.
 - **Stakeholder request decomposition:** Decompose into triage (same cycle) + execution tasks. Stakeholder-directed architecture overrides defaults.
-- **Urgent stakeholder emails: immediate reply + escalation queue.** Acknowledge + state action plan. Don't mark complete until follow-up task is queued.
-- **Infrastructure health verification before escalation:** Verify live endpoint health; self-healing may have resolved the issue. Operator-reported mismatch signals state latch, not service failure.
-- **Approval + downstream request = skip intermediate review:** Queue single P3+ delegation task for both.
-- **Email request completion workflow:** When queuing work from email request, immediately mark email read and reply confirming action (task ID + brief summary). Prevents duplicate processing and maintains stakeholder awareness.
-- **Email intake batching by skill domain:** When routing email with multiple content types (X links + blog + arxiv), batch by execution skill rather than individual items. Treats intake as routing/confirmation layer; execution layer can further decompose per-item if needed. Respects domain boundaries and decouples routing confirmation from execution parallelization.
+- **Email intake batching by skill domain:** When routing email with multiple content types, batch by execution skill rather than individual items. Decouples routing confirmation from execution parallelization.
+
+## Partnership & Revenue Patterns
+
+- **Partnership marginal-cost evaluation:** Evaluate adopting new partnership by assessing integration cost into existing workflow. Zero marginal cost (existing cadence + minor CTA addition) = YES; requires new execution path = defer. Paperboy example: Arc already files 6/day signals, adding AMBASSADOR CTA costs nothing.
+- **Spec-first skill creation for external integrations:** For distribution/revenue partnerships, create SKILL.md spec first to lock in decision and document interface. Queue CLI implementation as separate follow-up task. Decouples decision-making from implementation details and allows concurrent work.
+- **Degrade-to-free-auth on infrastructure degradation:** When paid relay (x402) has circuit breaker open, route to free authentication paths (BIP-137 outbox) to bypass the broken relay. Critical operations should always have a free fallback to prevent cascading infrastructure failures.
 
 ## Fleet Coordination Patterns
 
