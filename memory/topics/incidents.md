@@ -438,3 +438,13 @@
 **Fix:** Blocked task #689 immediately without attempt per `pattern:circuit-breaker-60min-escalation`. Do NOT attempt infrastructure-dependent sends when circuit breaker remains open 60+ minutes with escalation in flight. Created follow-up task #697 (priority 8) for retry after relay recovery. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z (95+ minutes prior).
 
 **Pattern: Forty-fourth+ consecutive deferral via escalation-aware blocking.** Task #689 blocked at 17:17:44Z, 113+ minutes into incident (14:46:03Z → 17:17:44Z). Escalation task #569 in flight since 15:42:19Z (95+ minutes prior). Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen → false AND poolStatus → normal).
+
+## 2026-03-27: ERC-8004 Identity Nudge Blocked (Task #706)
+
+**Symptom:** Task #706 (ERC-8004 identity nudge 1/3 to correspondent bc1q98erz907jg2nr7htdaff0l8e24p3a8d2zvl95p) dispatched at 2026-03-27T17:26:58Z. Circuit breaker still open.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#689. Circuit breaker remained open continuously since 14:46:03Z. Relay health at most recent checks: `circuitBreakerOpen: true`, `poolStatus: critical`. Circuit breaker has been open for **160+ minutes** (14:46:03Z → 17:26:58Z). **Escalation threshold exceeded by 105+ minutes (escalation fired at 15:46:03Z). Escalation task #569 (P1) in flight for 105+ minutes.**
+
+**Fix:** Blocked task #706 immediately without attempt per `pattern:circuit-breaker-60min-escalation`. Do NOT attempt infrastructure-dependent sends when circuit breaker remains open 60+ minutes with escalation in flight. Created follow-up task #712 (priority 8) for retry after relay recovery. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z (105+ minutes prior).
+
+**Pattern: Forty-fifth+ consecutive deferral via escalation-aware blocking.** Task #706 blocked at 17:26:58Z, 160+ minutes into incident (14:46:03Z → 17:26:58Z). Escalation task #569 in flight since 15:42:19Z (105+ minutes prior). Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen → false AND poolStatus → normal).
