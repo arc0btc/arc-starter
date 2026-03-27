@@ -74,6 +74,10 @@ updated: 2026-03-26
 
 **When a circuit breaker or critical infrastructure health indicator remains in a failed state for >60 minutes despite repeated operational attempts (retries, nonce re-syncs), escalate to the human operator.** This signals saturation or resource exhaustion beyond what automated retry logic can resolve. Do not retry beyond the 60-minute threshold; escalation is required for manual intervention (restart, resource reallocation, external service recovery). Example: x402 relay circuit breaker open 88+ minutes requires operator escalation, not continued task queueing.
 
+## Circuit Breaker Cooldown State vs. Underlying Issue Resolution
+
+**Circuit breakers can remain open on automatic cooldown even after the underlying infrastructure issue resolves.** When investigating CB failures, check both independently: (1) underlying infrastructure health (mempool depth, pool availability, conflict rate), (2) CB state (circuitBreakerOpen flag, lastConflictAt timestamp). If mempool is cleared (0 pending, no gaps) but CB still open, check `lastConflictAt` timestamp — if recent (within last 15 min), await natural CB reset instead of escalating. This prevents false escalations and distinguishes "infrastructure broken" (escalate now) from "CB on cooldown, infrastructure recovered" (wait for auto-reset ~15 min after last conflict).
+
 ## Task Taxonomy: Selective Blocking by Infrastructure Dependency
 
 **When infrastructure fails, classify tasks by their dependency: infrastructure-dependent tasks (on-chain sends, relay operations) vs. independent tasks (editorial review, local processing).** Block only the dependent tasks and create a single follow-up after recovery. Leave independent work unfrozen to maintain editorial productivity and non-blockchain throughput. Example: during relay outage, block all notify/ERC-8004 tasks but allow signal review (#433) to continue.
