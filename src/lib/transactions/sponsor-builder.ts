@@ -13,6 +13,8 @@ export interface SponsoredTransferOptions {
   amount: bigint;
   memo?: string;
   network: Network;
+  /** Optional nonce. If omitted, auto-fetched from the network. Use for local nonce tracking. */
+  nonce?: bigint;
 }
 
 export interface SponsorRelayResponse {
@@ -81,6 +83,7 @@ export async function sponsoredContractCall(
     postConditions: options.postConditions || [],
     sponsored: true,
     fee: 0n,
+    ...(options.nonce !== undefined && { nonce: options.nonce }),
   });
 
   const serializedTx = transaction.serialize();
@@ -114,6 +117,7 @@ export async function transferStxSponsored(
     memo: options.memo || "",
     sponsored: true,
     fee: 0n,
+    ...(options.nonce !== undefined && { nonce: options.nonce }),
   });
 
   const serializedTx = transaction.serialize();

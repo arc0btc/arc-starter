@@ -2,7 +2,7 @@
 // Atomic nonce oracle for Stacks transactions.
 // Uses mkdir-based file locking for cross-process safety.
 
-import { mkdirSync, rmdirSync, existsSync, readFileSync, writeFileSync, statSync } from "node:fs";
+import { mkdirSync, rmdirSync, existsSync, readFileSync, writeFileSync, statSync, unlinkSync } from "node:fs";
 import { resolve } from "node:path";
 
 const ROOT = resolve(import.meta.dir, "../..");
@@ -74,7 +74,6 @@ function releaseLock(): void {
     // Remove pid file first, then directory
     const pidFile = resolve(LOCK_DIR, "pid");
     if (existsSync(pidFile)) {
-      const { unlinkSync } = require("node:fs");
       unlinkSync(pidFile);
     }
     rmdirSync(LOCK_DIR);
@@ -96,7 +95,6 @@ function forceReleaseLock(): void {
   try {
     const pidFile = resolve(LOCK_DIR, "pid");
     if (existsSync(pidFile)) {
-      const { unlinkSync } = require("node:fs");
       unlinkSync(pidFile);
     }
     rmdirSync(LOCK_DIR);
