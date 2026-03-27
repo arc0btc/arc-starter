@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-03-26T18:20:00.000Z*
-*Sensor count: 67 | Skill count: 97*
+*Generated: 2026-03-27T06:16:00.000Z*
+*Sensor count: 67 | Skill count: 98*
 
 ```mermaid
 stateDiagram-v2
@@ -204,6 +204,7 @@ stateDiagram-v2
             StreamJSON --> ParseResult
             ParseResult --> ExtractCost
             ExtractCost --> [*]
+            note right of StreamJSON: AskUserQuestion intercepted by\nPreToolUse hook (autoanswer.sh)\npermissionDecision:allow + answer\nreturned in 5s — no stall
         }
 
         ClaudeSubprocess --> PostDispatch
@@ -261,7 +262,7 @@ stateDiagram-v2
     ContentSensors --> SignalAllocation
 ```
 
-## Sensor Count by Category (2026-03-26)
+## Sensor Count by Category (2026-03-27)
 
 | Category | Count |
 |----------|-------|
@@ -278,22 +279,21 @@ stateDiagram-v2
 
 *Note: Fleet sensor group removed (committed b73f1a21). Previous total was 80.*
 
-## Key Architectural Changes (ab4f520 → 9cc7a12)
+## Key Architectural Changes (9cc7a12 → 1955a04)
 
 | Change | Impact |
 |--------|--------|
-| **ordinals-market-data: all-5-categories per run** (9cc7a120) | Removed: per-run hook-state cooldown, legacy `lastSignalQueued` field sync, `recentTaskExistsForSourcePrefix` DB check, `MAX_SIGNALS_PER_RUN = 1` cap, category rotation logic (`startIdx`/`lastCategory` state). Now fetches all 5 categories every 4h run; per-category `pendingTaskExistsForSource` dedup prevents duplicate queuing; daily allocation cap (3/day) is the only throttle. Closes rotation gap that cost Day-2 and Day-3 competition signals. |
-| **arc-link-research devToolTags wired** | `routeDevToolsSignal()` function called when high-relevance dev-tool links found. Previous [WATCH] item RESOLVED — devToolTags computation is no longer dead. |
-| **memory/patterns.md updated** | 3 new patterns added from x402-sponsor-relay review: file-backed shared state for multi-process coordination, single authoritative quota over layered rate limits, proactive deadline-critical task filing. |
+| **ordinals-market-data: 3 Unisat API fixes** (f5b16985) | inscriptions: removed broken `/inscription/info/recent` call, now derives from brc20/status max. brc20: removed broken `/brc20/list`, now uses detail array from brc20/status. runes: removed broken `/runes/list`, now uses runes/status only; `lastRuneTopIds`/`lastRuneHolders` deprecated → `lastRuneTotal`. Net: 54 inserts / 137 deletes. All 5 categories produce readings on first run post-fix. |
+| **stacks-stackspot: epoch 3.4 guard** (1955a04) | Sensor checks burn block height before creating auto-join tasks. Pauses in window [943,050–943,500] (~2026-04-02). Guard auto-lifts — no manual action needed. Adds one Hiro API call per 7-min sensor run during ~2-week window. |
+| **dispatch: AskUserQuestion autoanswer hook** (80628eff) | `.claude/hooks/ask-user-autoanswer.sh` + `settings.json` PreToolUse hook. Intercepts AskUserQuestion during headless dispatch; returns safe defaults in 5s. Prevents indefinite stalls when Claude Code asks for confirmation with no human present. |
+| **paperboy skill added** (f0f098eb) | New D1 revenue stream: AMBASSADOR route at aibtc.news. 500 sats/placement, 2000 sats/new correspondent. SKILL.md + cli.ts present; sensor for payout tracking still missing (open TODO). |
+| **arc-inbox: block-height → stacks-block-height** (c20b444c) | Clarity contract fix for deprecated builtin. Required for continued compatibility post-epoch. |
+| **memory: partnership & revenue patterns** (f1f3f76f) | patterns.md consolidated from 157 → 142 lines; new patterns added from Paperboy integration. |
 
-## Prior Key Changes (bc144e6 → ab4f520)
+## Prior Key Changes (ab4f520 → 9cc7a12)
 
 | Change | Impact |
 |--------|--------|
-| **Fleet context layer removed from dispatch** | `resolveFleetKnowledge()`, `fleet-learnings` index loader, and `LoadFleetKnowledge` BuildPrompt step removed. BuildPrompt now: SOUL → CLAUDE → MEMORY → Skills → Task. |
-| **Worker sensor allowlist removed** | `WORKER_SENSORS` set and `GITHUB_TASK_RE` regex removed. No per-agent branching in runner. |
-| **`model: "sonnet"` on all follow-up insertTask calls** | safe-commit.ts, dispatch.ts, experiment.ts, web.ts. Modelless-task pattern CLOSED. |
-| **Multi-beat signal rotation** (3+3/day) | `BEAT_DAILY_ALLOCATION = 3` + `countSignalTasksTodayForBeat(beat)`. Three dev-tools sources: arxiv-research, arc-link-research, social-x-ecosystem. |
-| **`SENSOR_FETCH_TIMEOUT_MS = 15_000` exported** | Canonical 15s timeout. `fetchWithRetry` applies 30s AbortSignal default. |
-| **`erc8004-reputation` subprocess timeout** | `Promise.race([subprocess, 30s timeout])`. |
-| **Fleet skills committed (b73f1a21)** | 15+ skill directories removed. Sensors 80→67, skills 115→97. |
+| **ordinals-market-data: all-5-categories per run** (9cc7a120) | Removed category rotation (`startIdx`/`lastCategory`), cooldown hook-state writes, and `MAX_SIGNALS_PER_RUN = 1`. Fetches all 5 categories per 4h run; per-category pending dedup is the only guard. Closed Day-2/Day-3 competition rotation gap. |
+| **arc-link-research devToolTags wired** | `routeDevToolsSignal()` called when high-relevance dev-tool links found. Previous dead-computation [WATCH] CLOSED. |
+| **memory/patterns.md: 3 new patterns** | file-backed shared state, single authoritative quota over layered rate limits, proactive deadline-critical task filing. |

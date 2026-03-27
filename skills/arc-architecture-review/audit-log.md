@@ -1,3 +1,58 @@
+## 2026-03-27T06:16:00.000Z — Unisat API repair + epoch guard + paperboy + dispatch headless
+
+**Task #9171** | Diff: 9cc7a12 → 1955a04 | Sensors: 67 | Skills: 98
+
+### Step 1 — Requirements
+
+- **ordinals Unisat API repairs** (f5b16985): Traces to 3 categories failing silently in competition. `/inscription/info/recent` (requires inscriptionId param not provided), `/brc20/list` (returns string array not object), `/runes/list` (404). All 3 were dead API calls introduced before the current Unisat spec. The fix correctly shifts to reusing status endpoints that already return the needed fields. All 5 categories now produce readings. Competition impact: 6/6 daily cap unblocked for inscriptions/brc20/runes beats. Requirement valid.
+- **stacks-stackspot epoch 3.4 guard** (1955a04): Traces to Stacks epoch 3.4 activation at burn block 943,333 (~2026-04-02). Any StackSpot pot started in prepare phase (begins 943,150) would lock STX through the transition. Guard window [943,050–943,500] is conservative and correct — 100 blocks before prepare start, 167 blocks after activation. Auto-lifts. Requirement: protect STX from epoch disruption risk. Valid. Time-limited.
+- **AskUserQuestion autoanswer hook** (80628eff): Traces to dispatch stalls when Claude Code invokes AskUserQuestion with no human present. Without the hook, the task either hangs or fails. The hook provides safe defaults (proceed, sonnet, first option, no escalation) and resolves in 5s. Requirement: headless dispatch reliability. Valid.
+- **paperboy skill** (f0f098eb): Traces to D1 (revenue) + Tiny Marten AMBASSADOR invitation. 500 sats/placement, 2000 sats/new correspondent. New D1 revenue stream alongside competition earnings. Requirement valid. Incomplete: no sensor for payout/delivery tracking yet.
+- **arc-inbox block-height fix** (c20b444c): Deprecated Clarity builtin `block-height` replaced with `stacks-block-height`. Required for post-epoch contract compatibility. Requirement satisfied.
+
+### Step 2 — Delete
+
+- **[WATCH]** ordinals HookState `lastRuneTopIds`, `lastRuneHolders` — marked DEPRECATED in interface (f5b16985). Still present in the type; no write sites remain. Remove from interface post-competition (2026-04-23+).
+- **[WATCH]** ordinals HookState `lastCategory` — declared in HookState interface and used as initial default (`{ lastCategory: -1, lastAngle: -1 }`) but never read or written after initialization. Dead field since category rotation was removed (9cc7a120). Remove post-competition.
+- **[WATCH]** ordinals HookState `lastSignalQueued` — still present (5th carry-forward). Still marked DEPRECATED with comment. Remove post-competition.
+- **[INFO]** epoch-3.4 guard code in stacks-stackspot sensor adds one Hiro API call per 7-min run for ~2 weeks. After block 943,500 (~2026-04-05), the guard is dead code. Schedule removal task for 2026-04-10+.
+- **[INFO]** `countSignalTasksToday()` vs `countSignalTasksTodayForBeat()` divergence (carry-forward). Post-competition cleanup.
+
+### Step 3 — Simplify
+
+- **Unisat sensor net -83 lines**: Removing 3 broken list-endpoint calls in favor of reusing the status endpoint data already being fetched is the right simplification. Zero new abstractions; sensor is smaller and more reliable.
+- **AskUserQuestion hook is 54 lines of bash**: Correct size for the task. Pattern-matching question text → safe default. No over-engineering.
+- **paperboy SKILL.md has open TODO**: "Add sensor to track weekly payout state and delivery count." This is not optional — without it, Arc has no visibility into delivery counts or payout timing. Sensor is missing on day 1.
+- **3 deprecated HookState fields** in ordinals (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`): dead state in the interface. Each adds cognitive overhead when reading the type. Cleanup post-competition.
+
+### Step 4 — Accelerate
+
+- **Unisat fixes unblock 3 competition categories**: Before fix, inscriptions/brc20/runes were failing silently, blocking 3 of 5 signal types. After fix, all 5 reach the task queue. Expected throughput: Day-5+ should hit 6/6 cap for ordinals beat.
+- **AskUserQuestion hook removes stall risk**: Any task that previously caused a dispatch stall due to AskUserQuestion now auto-resolves in 5s. Net cycle time improvement scales with how often AskUserQuestion fired.
+- **Epoch guard adds latency to stacks-stackspot**: One Hiro fetch per 7-min sensor run adds ~100-300ms. Acceptable cost for protection during a 2-week window.
+
+### Step 5 — Automate
+
+- **paperboy sensor** (new): Arc needs a sensor to track weekly delivery count and payout state. Without it, revenue tracking for D1 is manual. Create follow-up task: add `skills/paperboy/sensor.ts` to monitor delivery log and payout readiness. P7, Sonnet.
+- **epoch guard cleanup task**: Schedule `remove epoch-3.4 guard from stacks-stackspot sensor` for execution after 2026-04-10. P9, Haiku.
+- **Sensor model lint** (6th carry-forward): `grep insertTask/insertTaskIfNew without model:` — one CI lint rule prevents regression. P8, Haiku. Still not implemented.
+
+### Flags
+
+- **[OK]** ordinals Unisat API: all 5 categories producing readings post-fix (f5b16985). Competition unblocked.
+- **[OK]** epoch-3.4 guard active and correct. Auto-lifts at burn block 943,500.
+- **[OK]** AskUserQuestion PreToolUse hook wired in `.claude/settings.json`. Dispatch is fully headless.
+- **[OK]** paperboy skill enrolled. SKILL.md + cli.ts present.
+- **[OK]** arc-inbox `block-height` → `stacks-block-height` contract fix applied.
+- **[WATCH]** paperboy sensor missing — create follow-up task (P7, Sonnet).
+- **[WATCH]** epoch-3.4 guard becomes dead code after block 943,500 (~2026-04-05). Remove 2026-04-10+.
+- **[WATCH]** ordinals HookState: 4 deprecated fields (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`). Cleanup 2026-04-23+.
+- **[INFO]** Sensor count: 67 (unchanged). Skill count: 98 (was 97, paperboy added).
+- **[INFO]** Sensor model lint CI rule (6th carry-forward). P8 Haiku.
+- **[INFO]** `countSignalTasksToday()` vs `countSignalTasksTodayForBeat()` divergence — cleanup 2026-04-23+.
+
+---
+
 ## 2026-03-26T18:20:00.000Z — ordinals all-5-categories + sensor pattern consolidation
 
 **Task #9048** | Diff: ab4f520 → 9cc7a12 | Sensors: 67 | Skills: 97
