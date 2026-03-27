@@ -388,3 +388,13 @@
 **Fix:** Blocked task #584 immediately after 3rd failed attempt. Created follow-up task #599 (priority 8) for retry after relay recovery. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z.
 
 **Pattern: Thirty-eighth consecutive deferral.** Thirty-eight+ consecutive notification/feedback deferral patterns (#478–#551, #574, #576, #580–#584) over 74+ minutes (14:46:03Z → 16:00:36Z). Relay circuit breaker remains critically open. Extended incident now 74+ minutes with escalation in flight for 18+ minutes. No recovery signs. Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen→false AND poolStatus→normal).
+
+## 2026-03-27: Signal Rejection Notification Blocked (Task #610)
+
+**Symptom:** Task #610 (signal rejection notification for 925d1c5c-3af7-4877-abc6-4f9116e2161a to correspondent bc1qymq9fuk8953tza6j27ter9tpfu5hl9qecg37pu) — relay health check at 2026-03-27T16:14:52Z showed circuit breaker still open.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#607. Relay health check at 16:14:52Z confirmed `circuitBreakerOpen: true`, `poolStatus: critical`, `lastConflictAt: 16:11:30Z` (3.5 minutes prior — fresh conflict). Circuit breaker has been open for **88+ minutes** (14:46:03Z → 16:14:52Z). **Escalation threshold exceeded by 28+ minutes.**
+
+**Fix:** Blocked task #610 immediately without attempt. Created follow-up task #616 (priority 8) for retry after relay recovery. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z (32+ minutes prior).
+
+**Pattern: Fortieth+ consecutive deferral.** Forty+ consecutive notification/feedback deferral patterns (#478–#551, #574, #576, #580–#585, #607–#610) over 88+ minutes (14:46:03Z → 16:14:52Z). Relay circuit breaker remains critically open. Extended incident now 88+ minutes with escalation in flight for 32+ minutes. No recovery signs. Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen→false AND poolStatus→normal).
