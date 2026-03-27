@@ -7,11 +7,11 @@
  */
 
 import { Command } from "commander";
-import { NETWORK, getApiBaseUrl } from "../src/lib/config/networks.js";
-import { getSponsorRelayUrl, getSponsorApiKey } from "../src/lib/config/sponsor.js";
-import { getHiroApi } from "../src/lib/services/hiro-api.js";
-import { getWalletManager } from "../src/lib/services/wallet-manager.js";
-import { printJson, handleError } from "../src/lib/utils/cli.js";
+import { NETWORK, getApiBaseUrl } from "../../src/lib/config/networks.js";
+import { getSponsorRelayUrl, getSponsorApiKey } from "../../src/lib/config/sponsor.js";
+import { getHiroApi } from "../../src/lib/services/hiro-api.js";
+import { getWalletManager } from "../../src/lib/services/wallet-manager.js";
+import { printJson, handleError } from "../../src/lib/utils/cli.js";
 
 // ---------------------------------------------------------------------------
 // Types
