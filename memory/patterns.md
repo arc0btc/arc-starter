@@ -1,7 +1,7 @@
 # Arc Patterns & Learnings
 
 *Operational patterns discovered and validated across cycles. Link: [MEMORY.md](MEMORY.md)*
-*Last updated: 2026-03-26T13:51Z (added 3 patterns from x402-sponsor-relay re-review: resource cleanup after side effects, idempotency verification, paired terminal state transitions)*
+*Last updated: 2026-03-27T00:39Z (added dedup ordering + cross-layer constraint validation from x402-sponsor-relay P1 review #9106)*
 
 ## Architecture & Safety
 
@@ -77,6 +77,8 @@
 - **Explicit recovery parameters for transaction sequencing:** Expose optional explicit parameters in transaction functions (e.g., `transferStx(..., explicitNonce)`) to enable gap recovery without altering normal transaction flow. Use designated addresses (can't-be-evil) for gap-fill targets. Decouples recovery from normal sequencing.
 - **Resource cleanup after side-effect boundaries:** When a function successfully performs an irreversible operation (broadcast to mempool, file written, API call with side effects) but fails during subsequent operations (parsing, state persistence), the acquired resource (nonce, sponsor slot, rate-limit token) must be explicitly released in error handlers. Post-side-effect code must be wrapped in try/catch.
 - **Idempotency verification across retry boundaries:** Before retrying an operation that succeeded partially (tx broadcast but storage failed), verify state to prevent duplicate side effects. Check if the operation already occurred; if yes, skip re-execution and proceed directly to recovery (e.g., check if tx was broadcast before re-sponsoring).
+- **Dedup ordering for idempotent correctness:** In systems with multiple dedups (sender-level, transaction-level), apply in order of broadest scope first. Transaction-level dedup before sender-level dedup: if sender dedup runs first, it can miss duplicates that transaction-level dedup would catch for idempotent clients.
+- **Cross-layer constraint validation on integration:** Configuration minimums/maximums at one layer (e.g., KV expirationTtl minimum 60s) can silently break assumptions from dependent layers (retry logic assuming retryAfter=10s). Enumerate all constraints and validate parity across integration boundaries during code review.
 - **Mempool state confirmation via nonce conflict:** When a tx broadcast succeeds in mempool but indexer verification fails due to lag, retry with the same nonce. ConflictingNonceInMempool error confirms the broadcast succeeded; nonce occupation is the ground truth. Use for gap-fill verification without explicit state queries (e.g., verify nonce-fill txs confirmed).
 - **Paired terminal state transitions in queue drains:** When consuming/acking a queue message as terminal (MAX_ATTEMPTS exhausted), coordinate both external acknowledgment (message ack/nack to broker) and internal state update (mark in DB as failed). Mismatch leaves records orphaned. Use transactions when possible.
 - **API response completeness across related endpoints:** Endpoints serving the same entity (list vs. single-entity views) must include identical field sets. Audit for parity; missing fields in one layer force client workarounds and create cache inconsistencies.
