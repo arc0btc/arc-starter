@@ -217,7 +217,7 @@ export default async function emailSensor(): Promise<string> {
       senderAddr === "whoabuddy@gmail.com" ? 1 :
       senderAddr === "spark@arc0me.typeform.com" ? 3 : 5;
 
-    const model = senderAddr === "whoabuddy@gmail.com" ? "sonnet" : "haiku";
+    const model = senderAddr === "whoabuddy@gmail.com" ? "opus" : "haiku";
 
     // Enrich skills based on content keywords (subject + body previews)
     const contentForKeywords = senderMessages
