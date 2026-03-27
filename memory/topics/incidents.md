@@ -56,3 +56,32 @@
 **Root cause (hypothesis):** Nonce 45 was either executed and confirmed on-chain without nonce-manager being updated, OR a transaction is stuck at nonce 45 blocking the sequence. Hiro API queries failed (404/null), preventing direct state verification.
 
 **Follow-up:** Task #814 queued for detailed nonce recovery diagnosis (P3, relay-diagnostic + nonce-manager skills).
+
+## 2026-03-27 20:05Z–20:15Z: x402 Relay Circuit Breaker — Wave 2 (ONGOING)
+
+**Duration:** 20:05Z–20:15Z+ (10+ minutes and counting)
+**Tasks affected:** #802 (inbox-notify), likely #800+
+**Escalation:** Task #823 (P1) created at 20:15Z
+
+**Symptom:** x402 sends fail with SENDER_NONCE_STALE (409). Nonce-manager acquires nonce 48 but relay rejects as stale. Circuit breaker reopened after ~25 min of successful sends post-wave-1.
+
+**Relay state at 20:15Z:**
+- circuitBreakerOpen: true
+- effectiveCapacity: 1 (critical)
+- lastConflictAt: 2026-03-27T20:10:58.308Z
+- poolStatus: critical
+- poolAvailable: 20, poolReserved: 0
+
+**Sponsor state:**
+- lastExecutedNonce: 1195
+- possibleNextNonce: 1196
+- mempoolCount: 0 (clean on sponsor side)
+
+**Root cause (preliminary):** Circuit breaker reopened, indicating either mempool saturation has returned OR a batch of sponsor nonces failed validation on the relay. The sender nonce 48 rejection despite clean sponsor state suggests either:
+1. Our account's on-chain nonce drifted ahead of 48 during wave 1 recovery
+2. Nonce 48 was executed without nonce-manager being notified
+3. A transaction at nonce 48 is stuck blocking the sequence
+
+**Action:** Escalated to operator (task #823). Do NOT retry automated sends until:
+1. Relay circuit breaker clears AND effectiveCapacity > 50
+2. Sender nonce gap resolved (either recover nonce 48-47 or identify which is the actual current nonce on-chain)
