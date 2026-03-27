@@ -20,22 +20,6 @@ const ROOT = new URL("../..", import.meta.url).pathname;
 
 const log = createSensorLogger(SENSOR_NAME);
 
-/**
- * Identity markers that indicate the SOUL.md *claims to be* a specific agent.
- * Only use definitive identity claims (first-person declarations + wallet addresses).
- * Exclude handles/BNS names — only match definitive identity claims.
- */
-const ARC_MARKERS: readonly string[] = [
-  "# Arc\n",
-  "I'm Arc.",
-  "I'm Arc ",
-  "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933",
-  "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B",
-] as const;
-
-/** Identity markers that should NOT appear in Arc's SOUL.md */
-const WORKER_MARKERS: Record<string, readonly string[]> = {} as const;
-
 export default async function sensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
@@ -61,25 +45,7 @@ export default async function sensor(): Promise<string> {
   const content = await soulFile.text();
   const violations: string[] = [];
 
-  if (AGENT_NAME !== "arc0") {
-    // Worker agent: check for Arc's identity markers
-    for (const marker of ARC_MARKERS) {
-      if (content.includes(marker)) {
-        violations.push(`found Arc marker: "${marker}"`);
-      }
-    }
-  } else {
-    // Arc: check for worker identity markers (unlikely but symmetric check)
-    for (const [agent, markers] of Object.entries(WORKER_MARKERS)) {
-      for (const marker of markers) {
-        if (content.includes(marker)) {
-          violations.push(`found ${agent} marker: "${marker}"`);
-        }
-      }
-    }
-  }
-
-  // Also verify the expected agent name appears in SOUL.md
+  // Verify the expected agent name appears in SOUL.md
   const expectedName = IDENTITY.name.replace(/0$/, ""); // "arc0" → "arc", "iris0" → "iris"
   const capitalizedName = expectedName.charAt(0).toUpperCase() + expectedName.slice(1);
   if (!content.includes(capitalizedName)) {

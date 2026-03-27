@@ -189,8 +189,7 @@ export default async function emailSensor(): Promise<string> {
 
     // Build recipient display (show all recipient addresses and identify agent)
     const recipientsList = Array.from(recipientAddresses).sort();
-    const recipientDisplay = recipientsList.join(" / ");
-    const inboxLabel = recipientsList.length === 1 ? `Arc's inbox (${recipientsList[0]})` : `Arc's inbox (${recipientDisplay})`;
+    const inboxLabel = `Arc's inbox (${recipientsList.join(" / ")})`;
 
     const description = [
       "Read skills/arc-email-sync/AGENT.md before acting.",
