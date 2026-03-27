@@ -15,12 +15,13 @@ import { getCredential } from "../src/credentials.js";
 const RECIPIENT = "SP6BBNM7Q8GKDG2FMKRBZJCJ3SE4BWVC1XPH7KZH"; // funding source
 const AMOUNT = 1n; // 1 uSTX — minimal
 const NETWORK = "mainnet";
-const FEE = 5000n; // 5000 uSTX — reasonable fee to confirm quickly
+const FEE = 10000n; // 10000 uSTX — high enough to RBF stuck 3000-fee txs
 const DRY_RUN = process.argv.includes("--dry-run");
 
-// SP1K (our wallet / x402 sender) has nonce 38 missing, blocking 39-42.
-// Task #366 referenced SP2G but that's not our wallet — x402 uses SP1K.
-const MISSING_NONCES = [38];
+// Set target nonces before running. Works for both gap-fill (missing nonces)
+// and RBF (replacing stuck txs at lower fee). See memory/topics/incidents.md
+// for the 2026-03-27 recovery where this cleared nonces 39-43.
+const MISSING_NONCES: number[] = [];
 
 // ---- Unlock wallet ----
 const walletId = process.env.WALLET_ID || await getCredential("bitcoin-wallet", "id");
