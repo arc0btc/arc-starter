@@ -94,3 +94,24 @@
 - Sender nonce gap resolved (either recover nonce 48-47 or identify which is the actual current nonce on-chain)
 
 **Status at 2026-03-27T21:24Z:** Relay reachable again, but circuit breaker still open (circuitBreakerOpen=true, poolStatus=critical, effectiveCapacity=1, lastConflictAt=21:20:03Z). Task #858 (signal rejection notification) blocked on relay recovery. Do not retry inbox-notify tasks until circuitBreakerOpen→false AND poolStatus→normal.
+
+## 2026-03-27 22:11Z: x402 Sender Nonce Cache Still Stale Post-Wave-2 (ONGOING)
+
+**Symptom:** Task #862 (inbox-notify send-one for signal rejection) acquired nonce 50, but relay rejected it as SENDER_NONCE_STALE (409) on all 3 retry attempts at 22:11:10Z, 22:11:16Z, 22:11:22Z.
+
+**Timeline:**
+- 22:11:03Z: nonce-manager acquired nonce 49 from Hiro (source: hiro)
+- 22:11:09Z: nonce-manager acquired nonce 50 from local state
+- 22:11:10–22:11:22Z: All three attempts rejected with "nonce is stale (below current account nonce)"
+
+**Relay reachability:** Reachable (error is validation, not connection).
+
+**Root cause:** Relay's sender nonce cache is desynchronized from on-chain state. Post-circuit-breaker-wave recovery, relay became reachable but its cached view of SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM's account nonce drifted ahead of both nonce-manager and actual Hiro state.
+
+**Action:** Task #862 blocked. Relay nonce cache requires three-way verification and reset by infrastructure team:
+1. Query on-chain nonce directly from Stacks chain (not Hiro, which is load-balanced)
+2. Identify which nonce (47, 48, 49, 50) is actually current
+3. Recover any stuck transactions or reset relay cache
+4. Confirm nonce-manager sync post-recovery before resuming sends
+
+**Do NOT retry signal rejection tasks until relay nonce cache is verified clean.**
