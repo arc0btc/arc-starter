@@ -134,3 +134,4 @@
 - **Strategic reviews escalate time-bound work to P1.** Don't rely on daily dispatch to catch imminent deadlines.
 - **Multi-wave deprecation with external gating:** Wave 1: delete unused immediately; Wave 2: gate replacement on external trigger.
 - **Category rotation verification in time-bound events:** Explicitly verify all buckets are fetched before competitive window closes. Queue P3 verification task mid-event.
+- **Infrastructure recovery with health-gated sentinel clearing:** After fixing critical infrastructure issues (e.g., circuit breaker reset), verify comprehensive operational health (pool capacity, conflict count, error queues, not just endpoint availability) before clearing gate sentinels. Sentinel clearing allows downstream sensors to self-heal on their next polling cycle — explicit reactivation tasks are unnecessary and can mask persistence of the underlying issue.
