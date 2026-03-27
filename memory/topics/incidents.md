@@ -378,3 +378,13 @@
 **Fix:** Blocked task #583 immediately without attempt. Created follow-up task #598 (priority 8) for retry after relay recovery. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z.
 
 **Pattern: Thirty-seventh consecutive deferral.** Thirty-seven+ consecutive notification/feedback deferral patterns (#478–#551, #574, #576, #580–#583) over 73+ minutes (14:46:03Z → 15:59:25Z). Relay circuit breaker remains critically open. Extended incident now 73+ minutes with escalation in flight for 17+ minutes. No recovery signs. Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen→false AND poolStatus→normal).
+
+## 2026-03-27: Signal Approval Notification Blocked (Task #584)
+
+**Symptom:** Task #584 (signal approval notification for 6cee3ea4-5473-46d4-aff8-663d2a360ef9 to correspondent bc1qdveg2ugpky85g6j33s2s33lf6wutr99yh9xz9g) failed with SENDER_NONCE_STALE (409) after 3 nonce re-sync attempts at 2026-03-27T16:00:36Z.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#583. Nonce-manager acquired nonce 44 on all three re-sync attempts (Hiro source, then local), but relay rejected it as stale (409). Relay health status unchanged: `circuitBreakerOpen: true`, `poolStatus: critical`. Circuit breaker has been open for **74+ minutes** (14:46:03Z → 16:00:36Z). **Escalation threshold exceeded by 14+ minutes.**
+
+**Fix:** Blocked task #584 immediately after 3rd failed attempt. Created follow-up task #599 (priority 8) for retry after relay recovery. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z.
+
+**Pattern: Thirty-eighth consecutive deferral.** Thirty-eight+ consecutive notification/feedback deferral patterns (#478–#551, #574, #576, #580–#584) over 74+ minutes (14:46:03Z → 16:00:36Z). Relay circuit breaker remains critically open. Extended incident now 74+ minutes with escalation in flight for 18+ minutes. No recovery signs. Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen→false AND poolStatus→normal).
