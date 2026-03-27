@@ -136,6 +136,9 @@ For sensors hitting rate limits with reset windows (402, 429, etc): extract rese
 **p-payment-tier-routing** [PATTERN: validated 2026-03-27]
 When adding a payment tier to an API, inject payment middleware at specific routes (not globally) and skip metering for verified paid requests. This allows coexistence: free routes meter normally, paid routes pass through. Header-based or state-based payment verification lets routes opt-in gracefully.
 
+**p-external-api-migration** [PATTERN: validated 2026-03-27]
+When updating external API endpoint URLs, reset associated sensor failure counters and state even if the new endpoint is also unreachable at update time. This allows sensors to poll naturally on next cycle and surface fresh failures; avoid manual retry tasks for transient infrastructure conditions.
+
 ---
 
 ## [L] Learnings
