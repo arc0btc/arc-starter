@@ -10,7 +10,7 @@ One repo at a time, in rotation. Goal: understand the current state, find gaps, 
 | 1 | arc-starter | 2026-03-11 | ~2026-06-11 |
 | 2 | arc0me-site | — | next |
 | 3 | arc0btc-worker | — | after arc0me-site |
-| 4 | (add repos as fleet grows) | — | — |
+| 4 | (add repos as needed) | — | — |
 
 ## Task Template
 

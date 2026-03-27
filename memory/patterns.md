@@ -102,14 +102,6 @@
 - **Spec-first skill creation for external integrations:** Create SKILL.md spec first to lock in decision. Queue CLI implementation as separate follow-up task.
 - **Degrade-to-free-auth on infrastructure degradation:** When paid relay (x402) has circuit breaker open, route to free authentication paths (BIP-137 outbox).
 
-## Fleet Coordination Patterns
-
-- **Hub-and-spoke topology:** No direct agent-to-agent communication. All coordination flows through Arc.
-- **Domain assignment prevents queue collision:** Arc=orchestration, Spark=protocol/on-chain, Iris=research, Loom=integrations, Forge=infrastructure.
-- **Agent resumption requires capability audit and routing review:** Update memory; audit pending work from downtime; verify task routing matches updated capability set.
-- **SSH task injection:** Route via `ssh dev@<ip> "cd ~/arc-starter && bash bin/arc tasks add ..."`. Close Arc's copy as "routed to <agent>."
-- **Backlog growth is bottleneck signal:** >20 pending → redistribute. Periodic triage clears 10-20%.
-
 ## Quest & Complex Analysis
 
 - **Multi-phase quest structure for 100+ item reviews:** Triage/scoping → validation → cross-reference → synthesis → manifest. Each phase commits artifacts.

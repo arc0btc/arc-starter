@@ -38,22 +38,6 @@ Research basis: Chronos (2603.16862) temporal event decomposition, OEL continuou
 
 ---
 
-### Category F — Fleet
-
-**Purpose:** Agent roster, routing rules, capabilities, addresses, relationships. Medium churn.
-
-**Examples:** agent IPs, online/offline status, ERC-8004 identities, email addresses, task routing decisions
-
-**Retention:** Until explicitly updated. No automatic expiry.
-
-**Supersession rule:** Explicit update with `[UPDATED: YYYY-MM-DD]` tag. Prior value noted in Temporal Events if change is significant.
-
-**Load in dispatch:** Always — routing decisions require current fleet state.
-
-**Token budget share:** ≤ 400 tokens
-
----
-
 ### Category S — Services
 
 **Purpose:** External integrations, API endpoints, credential key names, SDK versions, rate limits. Medium churn.
@@ -74,7 +58,7 @@ Research basis: Chronos (2603.16862) temporal event decomposition, OEL continuou
 
 **Purpose:** Append-only log of significant incidents, resolutions, and changes. Immutable history.
 
-**Examples:** x402 NONCE_CONFLICT resolution timeline, Hiro API shutdown, relay upgrade from v1.20.1→v1.20.2, fleet suspension/recovery events
+**Examples:** x402 NONCE_CONFLICT resolution timeline, Hiro API shutdown, relay upgrade from v1.20.1→v1.20.2
 
 **Retention:** 90 days rolling, then archive to `memory/archive.md`.
 
@@ -90,7 +74,7 @@ Research basis: Chronos (2603.16862) temporal event decomposition, OEL continuou
 
 **Purpose:** Reusable operational patterns validated in ≥2 distinct task cycles. Low churn.
 
-**Examples:** sentinel gate pattern, sensor dedup timing, dispatch model selection rules, fleet routing decisions
+**Examples:** sentinel gate pattern, sensor dedup timing, dispatch model selection rules
 
 **Retention:** Permanent until explicitly retired. Retirement requires evidence it no longer applies.
 
@@ -125,7 +109,7 @@ Each entry in MEMORY.md uses inline temporal tags (no YAML frontmatter — file 
 ```
 [STATE: 2026-03-23]          # Operational State — date created/last-confirmed
 [EVENT: 2026-03-23T06:05Z]   # Temporal Event — precise timestamp (Chronos-style)
-[UPDATED: 2026-03-23]        # Fleet/Services — last modification date
+[UPDATED: 2026-03-23]        # Services — last modification date
 [PATTERN: validated]          # Pattern — validated status
 [LEARNING: 2026-03-23]       # Learning — date captured
 [SUPERSEDED BY: entry-id]    # Any category — nullifies this entry
@@ -151,15 +135,12 @@ Replace the current flat structure with this section layout:
 ```markdown
 # Arc Memory
 *Schema: ASMR v1 — Last consolidated: YYYY-MM-DDTHH:MM:SSZ*
-*Token estimate: ~XXXt (A:Xt F:Xt S:Xt T:Xt P:Xt L:Xt)*
+*Token estimate: ~XXXt (A:Xt S:Xt T:Xt P:Xt L:Xt)*
 
 ---
 
 ## [A] Operational State
 <!-- High-churn system status. Expires after 7 days unless refreshed. -->
-
-## [F] Fleet
-<!-- Agent roster, routing rules, capabilities. No automatic expiry. -->
 
 ## [S] Services
 <!-- External integrations, API endpoints, versions. Skill-tagged for selective load. -->
@@ -210,7 +191,7 @@ Dispatch inlines entire `MEMORY.md` into context. ~2k tokens, growing.
 
 ```typescript
 interface MemoryLoadSpec {
-  always: ["A", "F"];           // Operational State + Fleet always loaded
+  always: ["A"];                // Operational State always loaded
   conditional: {
     "S": { when: "skills_overlap" };     // Services: filter by task.skills
     "T": { when: "keywords_match" };     // Temporal Events: incident keywords
@@ -218,7 +199,7 @@ interface MemoryLoadSpec {
     "L": { when: "always" };             // Learnings: all tasks
   };
   token_budget: 2800;           // Hard cap (leaves room for SOUL + CLAUDE + SKILL.md)
-  priority_order: ["A", "F", "L", "P", "S", "T"];  // Drop from right if over budget
+  priority_order: ["A", "L", "P", "S", "T"];  // Drop from right if over budget
 }
 ```
 
@@ -232,7 +213,7 @@ interface MemoryLoadSpec {
 
 **Token budget enforcement:**
 1. Compute token estimate per section (rough: 1 token ≈ 4 chars)
-2. Build output in priority order: A → F → L → P → S → T
+2. Build output in priority order: A → L → P → S → T
 3. Stop adding sections once cumulative estimate exceeds budget
 4. Always include complete sections (no mid-section truncation)
 
@@ -265,10 +246,9 @@ Current MEMORY.md sections map to new categories as follows:
 | Current Section | New Category |
 |----------------|--------------|
 | Shared Reference Entries | [L] initially; review for promotion to [P] |
-| Directives & Milestones | [F] (fleet/strategic) + [L] (tactical directives) |
-| Fleet Roster | [F] |
+| Directives & Milestones | [L] (tactical directives) |
 | Critical Flags | [A] (active flags) or [T] (resolved incidents) |
-| Fleet Architecture | [F] + [S] (service architecture) |
+| Service Architecture | [S] |
 | Key Learnings | [L] or [P] (if ≥2 validation cycles) |
 | Consolidated Retrospective Patterns | [P] |
 

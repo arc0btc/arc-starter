@@ -73,10 +73,7 @@ The overnight batch leverages Arc's existing scheduling primitives — `--defer`
    - If >3 tasks failed: create a diagnostic task (P4) to investigate pattern
    - If queue is empty: pull forward tomorrow's deferred tasks or idle gracefully
    - If a blocked task is preventing downstream work: escalate priority or create workaround
-3. **Fleet check** (if fleet is active):
-   - SSH heartbeat to each agent
-   - Redistribute stuck tasks if an agent is unresponsive
-4. Update `memory/MEMORY.md` with checkpoint observations
+3. Update `memory/MEMORY.md` with checkpoint observations
 
 **Output:** One-line result summary: `"Checkpoint: X completed, Y failed, $Z spent. [Rebalanced/No changes needed]"`
 
@@ -159,23 +156,6 @@ Overnight budget allocation (within $200/day total):
 - **Hard gate:** Existing dispatch budget gate ($500 ceiling) prevents runaway spend
 - **Checkpoint enforcement:** Phase 2 reviews spend and can throttle remaining work
 - **Model mix matters:** 2-3 Opus tasks ($2-4 each) + 10-15 Sonnet tasks ($0.50-1 each) + 20-30 Haiku tasks ($0.10-0.25 each) = ~$25-45
-
----
-
-## Integration with Fleet Scheduling
-
-When fleet is fully operational, the overnight batch extends naturally:
-
-1. **Phase 1** routes tasks to appropriate agents by domain:
-   - Deep protocol work → Spark
-   - Research synthesis → Iris
-   - Integration builds → Loom
-   - Infrastructure tasks → Forge
-   - Orchestration/architecture → Arc
-2. **Phase 2** checkpoint includes fleet heartbeats via `fleet-collect`
-3. **Phase 3** review aggregates all agent activity via SSH
-
-The hub-and-spoke model (Arc as coordinator) means Arc creates the batch, routes tasks, and collects results — agents execute independently.
 
 ---
 

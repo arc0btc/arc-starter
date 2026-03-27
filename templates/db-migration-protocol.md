@@ -27,7 +27,7 @@ This works for a single developer iterating on one instance. It breaks when:
 1. **Skills ship as submodules.** A skill may add tables or columns. Without versioning, there's no way to know which migrations a given instance has applied.
 2. **Blank-slate provisioning.** New agent instances need to go from zero to current schema reliably. The current approach works only because all DDL runs on every startup — but this becomes fragile as migration count grows and includes data transforms.
 3. **Data-altering migrations.** Column renames, type changes, or data backfills can't be expressed as `addColumn()` calls. These require ordered execution and rollback capability.
-4. **Fleet divergence.** Multiple agent instances (Arc, Spark, Forge, etc.) sharing the same codebase but running independently can drift into incompatible schema states with no way to detect or reconcile.
+4. **Instance divergence.** Multiple instances sharing the same codebase but running independently can drift into incompatible schema states with no way to detect or reconcile.
 
 ## Motivation
 
@@ -35,7 +35,7 @@ The cost of the current approach increases with every table and every agent inst
 
 The cost of this proposal is low: it formalizes what's already implicit (ordered DDL execution) and adds safety rails (manifests, rollback, alerts) that prevent the class of bugs that are hardest to debug in a 24/7 autonomous system.
 
-If we do nothing: each new skill that touches the schema is a gamble. Each new fleet member is a divergence risk. Each `addColumn()` call is technical debt that compounds.
+If we do nothing: each new skill that touches the schema is a gamble. Each `addColumn()` call is technical debt that compounds.
 
 ## Proposal
 
@@ -222,7 +222,7 @@ Existing databases are unaffected. New databases get the same schema through the
 ## Alternatives Considered
 
 **1. Continue with `addColumn()` pattern.**
-Rejected: no versioning, no rollback, no integrity checks. Adequate for prototyping, inadequate for a fleet of autonomous agents.
+Rejected: no versioning, no rollback, no integrity checks. Adequate for prototyping, inadequate for a 24/7 autonomous agent.
 
 **2. Use an ORM migration framework (Drizzle, Prisma).**
 Rejected: adds a dependency for a problem that's solvable with ~200 lines of TypeScript. Arc's schema is simple enough that raw SQL migrations are clearer and more portable. ORMs also obscure the actual DDL, making integrity checks harder.
@@ -237,11 +237,9 @@ Rejected: numeric prefixes enforce a strict total order. Timestamps allow parall
 
 1. **Skill migration versioning**: Should skills use a reserved numeric range (5000+), or should all migrations live in `db/migrations/` with a flat sequence? The flat approach is simpler but requires coordination when multiple skills add migrations.
 
-2. **Fleet schema sync**: Should there be a mechanism to compare `schema_hash` across fleet members and alert on divergence? This would require the fleet-sync protocol to include schema version in its heartbeat.
+2. **Automatic vs. manual execution**: Should migrations auto-run on startup (current proposal) or require explicit `arc db migrate`? Auto-run is simpler for autonomous operation but more dangerous for irreversible migrations.
 
-3. **Automatic vs. manual execution**: Should migrations auto-run on startup (current proposal) or require explicit `arc db migrate`? Auto-run is simpler for autonomous operation but more dangerous for irreversible migrations.
-
-4. **Test harness**: Should the migration runner support a `--dry-run` flag that validates and simulates without committing? Useful for CI but adds complexity.
+3. **Test harness**: Should the migration runner support a `--dry-run` flag that validates and simulates without committing? Useful for CI but adds complexity.
 
 ## References
 

@@ -43,38 +43,7 @@ Is this simple execution — read state, mark complete, config edit, status chec
 
 ---
 
-## Framework 2: Fleet Routing
-
-**Question:** Who should execute this task?
-
-```
-Does the task require git push / PR / gh CLI / GitHub Actions?
-  YES → fleet-handoff --agent arc (absolute, no exceptions)
-
-Is the task DeFi / protocol / on-chain Stacks work?
-  YES → Spark (when operational, IP: 192.168.1.12)
-  FLEET DEGRADED → execute locally or queue as pending
-
-Is the task research / X / social media analysis?
-  YES → Iris (when operational, IP: 192.168.1.13)
-  FLEET DEGRADED → execute locally or queue as pending
-
-Is the task CI/CD / testing / integration?
-  YES → Loom (when operational, IP: 192.168.1.14)
-  FLEET DEGRADED → queue with note in result_summary
-
-Is the task infra / deploy / VM management?
-  YES → Forge (when operational, IP: 192.168.1.15)
-  FLEET DEGRADED → route to Forge (has OpenRouter fallback)
-
-Default: Arc handles locally.
-```
-
-**Fleet status check:** Before routing, verify agent is operational (`arc skills run --name fleet-health`). Do not route to agents whose status is unverified.
-
----
-
-## Framework 3: Failure Triage
+## Framework 2: Failure Triage
 
 **Question:** A task or integration has failed. What do I do?
 
@@ -109,7 +78,7 @@ Is the state ambiguous / external system inconsistent?
 
 ---
 
-## Framework 4: Task Decomposition
+## Framework 3: Task Decomposition
 
 **Question:** Should I decompose this task, and how?
 
@@ -133,7 +102,7 @@ Is the state ambiguous / external system inconsistent?
 
 ---
 
-## Framework 5: Memory / Pattern Extraction
+## Framework 4: Memory / Pattern Extraction
 
 **Question:** What belongs in patterns.md vs MEMORY.md vs SKILL.md?
 
@@ -155,7 +124,7 @@ Is this architectural context needed at every dispatch?
 - **Reusable:** would change how ≥3 future task types are approached
 - **Actionable:** changes what you DO, not just what you know
 - **Validated:** observed in ≥2 distinct task cycles
-- **Specific:** names the context (sensor, integration, fleet) not just the principle
+- **Specific:** names the context (sensor, integration, service) not just the principle
 
 **When to run retrospective:**
 - After any task that required ≥3 retries or a revert
@@ -165,7 +134,7 @@ Is this architectural context needed at every dispatch?
 
 ---
 
-## Framework 6: Cost / Model Optimization
+## Framework 5: Cost / Model Optimization
 
 **Question:** Is this task costing more than it should?
 
