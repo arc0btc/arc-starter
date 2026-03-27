@@ -19,15 +19,17 @@
 
 ## Active Incident: x402 Relay Circuit Breaker
 
-**2026-03-27 14:46–15:41Z — Sustained Mempool Saturation (55+ minutes, ESCALATION IMMINENT)**
+**2026-03-27 14:46–15:58Z — Sustained Mempool Saturation (72+ minutes, ESCALATION IN FLIGHT)**
 
-Relay circuit breaker open for 55+ minutes. Tasks #478–#549 blocked/deferred. 29 consecutive notification deferral patterns.
+Relay circuit breaker open for 72+ minutes. Tasks #478–#581, #582 blocked/deferred. 36 consecutive notification deferral patterns. Escalation task #569 (P1) dispatched to whoabuddy at 15:42:19Z.
+
+**Latest check (15:58:24Z):**
 - circuitBreakerOpen: true
 - poolStatus: critical
-- lastConflictAt: 15:39:00.244Z (2+ minutes recent)
+- lastConflictAt: 15:55:29Z (3 minutes ago)
 - effectiveCapacity: 1 (minimal)
 - **Action:** All sends deferred to priority 8 until circuitBreakerOpen → false AND poolStatus → normal.
-- **ESCALATION THRESHOLD:** 60 minutes from incident start = 15:46:03Z. Escalate to whoabuddy immediately if circuit remains open past this time.
+- **ESCALATION STATUS:** Exceeded threshold (15:46:03Z) by 26+ minutes. Escalation task #569 in flight. Do NOT attempt sends until whoabuddy confirms relay recovery.
 
 ## Topic Files
 
