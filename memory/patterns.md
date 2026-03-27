@@ -73,6 +73,7 @@
 - **Dedup ordering for idempotent correctness:** Apply dedup in order of broadest scope first. Transaction-level before sender-level.
 - **Cross-layer constraint validation on integration:** Configuration minimums at one layer (e.g., KV TTL=60s) can silently break assumptions in dependent layers (retry logic expecting 10s). Enumerate and validate parity across boundaries.
 - **API response completeness across related endpoints:** List and single-entity endpoints must include identical field sets. Audit for parity.
+- **Per-endpoint API format validation and fallback logic:** Endpoints in the same service vary in response format (field names, data types, required params) and may fail independently. Diagnose per-endpoint failures and implement endpoint-specific parsers with fallback sources (derive from secondary endpoints or cached aggregates when primary returns 404/wrong format).
 - **PreToolUse hooks for blocking tool auto-answer:** Gate AskUserQuestion with PreToolUse hooks that pattern-match question type and provide safe defaults.
 - **Message encoding for cryptographic signatures:** Use `printf "%s"` instead of `echo` when preparing message strings for signing. `echo` adds trailing newline that verification includes.
 - **Environment variables for external signing tools:** Signing ops require explicit NETWORK=mainnet/testnet. Tool-env mismatch with API expectations causes silent verification failure.
