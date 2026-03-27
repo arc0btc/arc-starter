@@ -99,6 +99,7 @@
 ## Email & Coordination Patterns
 
 - **Email request completion workflow:** When queuing work from email request, immediately mark email read and reply confirming action. Prevents duplicate processing.
+- **Infrastructure change prerequisites:** Before queuing P3+ execution tasks for infrastructure/payment system changes (ALB, x402 relay), verify credentials exist in store and explicitly confirm with stakeholder. Reply confirming prerequisites checked before queuing execution task. Prevents downstream failures from missing config.
 - **Stakeholder request decomposition:** Decompose into triage (same cycle) + execution tasks. Stakeholder-directed architecture overrides defaults.
 - **Email intake batching by skill domain:** When routing email with multiple content types, batch by execution skill rather than individual items.
 
