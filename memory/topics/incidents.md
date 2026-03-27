@@ -468,3 +468,14 @@
 **Fix:** Blocked task #722 immediately without attempt per `pattern:circuit-breaker-60min-escalation`. Do NOT attempt infrastructure-dependent sends when circuit breaker remains open 60+ minutes with escalation in flight. Created follow-up task #728 (priority 8) for retry after relay recovery. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z (57+ minutes prior).
 
 **Pattern: Forty-seventh+ consecutive deferral via escalation-aware blocking.** Task #722 blocked at 17:39:52Z, 113+ minutes into incident (14:46:03Z → 17:39:52Z). Escalation task #569 in flight since 15:42:19Z (57+ minutes prior). Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen → false AND poolStatus → normal).
+
+## 2026-03-27: ERC-8004 Identity Nudge Blocked (Task #723)
+
+**Symptom:** Task #723 (ERC-8004 identity nudge 1/3 to correspondent bc1qhu4ze3zswxnqzudwwjlvnxenejx6ky8gm8uyv7, Contact ID 17) blocked without send attempt at 2026-03-27T17:40:52Z.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#722. Circuit breaker has been open for **113+ minutes** (14:46:03Z → 17:40:52Z). **Escalation threshold exceeded by 54+ minutes (escalation fired at 15:46:03Z). Escalation task #569 (P1) in flight for 58+ minutes.**
+
+**Fix:** Blocked task #723 immediately without attempt per `pattern:circuit-breaker-60min-escalation`. Do NOT attempt infrastructure-dependent sends when circuit breaker remains open 60+ minutes with escalation in flight. Existing follow-up retry task already queued at priority 8. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z (58+ minutes prior).
+
+**Pattern: Forty-eighth+ consecutive deferral via escalation-aware blocking.** Task #723 blocked at 17:40:52Z, 113+ minutes into incident (14:46:03Z → 17:40:52Z). Escalation task #569 in flight since 15:42:19Z (58+ minutes prior). Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen → false AND poolStatus → normal).
+
