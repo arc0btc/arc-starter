@@ -1,18 +1,17 @@
 // ceo-review/sensor.ts
 //
-// Creates a CEO review task every hour, offset to run after the status report.
-// Checks that a recent report exists before creating the review task.
+// Creates a CEO review workflow when an unreviewed watch report exists.
+// The workflow handles: review → email delivery to whoabuddy.
+// Report-only — no task creation or modification during review.
 // Pure TypeScript — no LLM.
 
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import { claimSensorRun } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { insertWorkflow, getWorkflowByInstanceKey } from "../../src/db.ts";
 
 const SENSOR_NAME = "arc-ceo-review";
 const INTERVAL_MINUTES = 720; // 12 hours — daily strategic review
-const TASK_SOURCE = "sensor:arc-ceo-review";
-const PRIORITY = 3; // important but shouldn't preempt emails and inbox
 
 const ROOT = new URL("../../", import.meta.url).pathname;
 const REPORTS_DIR = join(ROOT, "reports");
@@ -59,9 +58,6 @@ export default async function ceoReviewSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
-  // Don't stack reviews
-  if (pendingTaskExistsForSource(TASK_SOURCE)) return "skip";
-
   // Need a report to review
   const latestReport = findLatestReport();
   if (!latestReport) return "skip";
@@ -70,18 +66,18 @@ export default async function ceoReviewSensor(): Promise<string> {
   const alreadyReviewed = await reportHasReview(latestReport);
   if (alreadyReviewed) return "skip";
 
-  insertTask({
-    subject: `CEO review — ${latestReport.slice(0, 16)}`,
-    description:
-      `Review the latest status report and provide strategic direction.\n\n` +
-      `Report file: reports/${latestReport}\n\n` +
-      `Follow the instructions in skills/arc-ceo-review/AGENT.md.\n` +
-      `Load the CEO skill context for strategic framework.\n` +
-      `Maximum 3 follow-up tasks.`,
-    skills: '["arc-ceo-review", "arc-ceo-strategy"]',
-    source: TASK_SOURCE,
-    priority: PRIORITY,
-    model: "sonnet",
+  // Use workflow for review → email chain
+  const wfKey = `ceo-review:${latestReport}`;
+  if (getWorkflowByInstanceKey(wfKey)) return "skip";
+
+  insertWorkflow({
+    template: "ceo-review",
+    instance_key: wfKey,
+    current_state: "scheduled",
+    context: JSON.stringify({
+      reviewDate: new Date().toISOString().slice(0, 16),
+      reportFile: latestReport,
+    }),
   });
 
   return "ok";

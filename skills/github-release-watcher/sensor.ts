@@ -1,5 +1,5 @@
 import { claimSensorRun } from "../../src/sensors.ts";
-import { insertTask, taskExistsForSource } from "../../src/db.ts";
+import { insertTask, insertWorkflow, getWorkflowByInstanceKey, taskExistsForSource } from "../../src/db.ts";
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 
@@ -136,28 +136,21 @@ export default async function releaseWatcherSensor(): Promise<string> {
         source,
       });
     } else {
-      insertTask({
-        subject: `New release: ${repo} ${release.tag_name}`,
-        description: [
-          `New release detected on ${repo}`,
-          `Tag: ${release.tag_name}`,
-          `Name: ${release.name}`,
-          `Published: ${release.published_at}`,
-          `URL: ${release.html_url}`,
-          "",
-          "Release notes preview:",
-          bodyPreview,
-          "",
-          "Instructions:",
-          `1. Review the full release at ${release.html_url}`,
-          "2. Assess impact on our projects and dependencies",
-          "3. Create follow-up tasks if action is needed (dependency updates, breaking changes, etc.)",
-        ].join("\n"),
-        skills: skillsJson,
-        priority: 8,
-        model: "haiku",
-        source,
-      });
+      // Use workflow for assess→integrate chain tracking
+      const wfKey = `new-release:${repo}@${release.tag_name}`;
+      if (!getWorkflowByInstanceKey(wfKey)) {
+        insertWorkflow({
+          template: "new-release",
+          instance_key: wfKey,
+          current_state: "detected",
+          context: JSON.stringify({
+            repo,
+            version: release.tag_name,
+            releaseUrl: release.html_url,
+            skills: repoSkills || [],
+          }),
+        });
+      }
     }
 
     // For aibtcdev/skills releases, also queue a landing-page content review

@@ -5,8 +5,8 @@
 // Creates high-priority alert tasks when anomalies are found.
 
 import { join } from "node:path";
-import { claimSensorRun, createSensorLogger, pendingTaskExistsForSource, insertTask } from "../../src/sensors.ts";
-import { getRecentCycles, getPendingTasks } from "../../src/db.ts";
+import { claimSensorRun, createSensorLogger, pendingTaskExistsForSource } from "../../src/sensors.ts";
+import { getRecentCycles, getPendingTasks, insertWorkflow, getWorkflowByInstanceKey } from "../../src/db.ts";
 import { isPidAlive } from "../../src/utils.ts";
 import { DISPATCH_STALE_THRESHOLD_MS } from "../../src/constants.ts";
 
@@ -56,28 +56,36 @@ export default async function healthSensor(): Promise<string> {
   if (!claimed) return "skip";
 
   if (checkStaleCycle() && !pendingTaskExistsForSource(TASK_SOURCE)) {
-    insertTask({
-      subject: "health alert: dispatch stale or stuck",
-      description:
-        `The last dispatch cycle started more than ${DISPATCH_STALE_THRESHOLD_MS / 60_000} minutes ago and there are pending tasks. ` +
-        "Check arc status, systemd timers, and dispatch logs.",
-      priority: PRIORITY,
-      model: "haiku",
-      source: TASK_SOURCE,
-    });
+    const now = new Date().toISOString();
+    const wfKey = `health-alert:dispatch-stale:${now.slice(0, 13)}`; // hourly dedup
+    if (!getWorkflowByInstanceKey(wfKey)) {
+      insertWorkflow({
+        template: "health-alert",
+        instance_key: wfKey,
+        current_state: "triggered",
+        context: JSON.stringify({
+          alertType: "dispatch-stale",
+          alertDate: now.slice(0, 10),
+        }),
+      });
+    }
   }
 
   const staleLock = await checkStaleLock();
   if (staleLock && !pendingTaskExistsForSource(STALE_LOCK_SOURCE)) {
-    insertTask({
-      subject: "health alert: stale dispatch lock detected",
-      description:
-        "A dispatch lock file exists at db/dispatch-lock.json but the recorded PID is no longer alive. " +
-        "Run: rm db/dispatch-lock.json && arc run",
-      priority: PRIORITY,
-      model: "haiku",
-      source: STALE_LOCK_SOURCE,
-    });
+    const now = new Date().toISOString();
+    const wfKey = `health-alert:stale-lock:${now.slice(0, 13)}`;
+    if (!getWorkflowByInstanceKey(wfKey)) {
+      insertWorkflow({
+        template: "health-alert",
+        instance_key: wfKey,
+        current_state: "triggered",
+        context: JSON.stringify({
+          alertType: "stale-lock",
+          alertDate: now.slice(0, 10),
+        }),
+      });
+    }
   }
 
   return "ok";

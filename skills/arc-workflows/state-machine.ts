@@ -490,6 +490,7 @@ export const NewReleaseMachine: StateMachine<{
           type: "create-task",
           subject: `Assess release: ${ctx.repo} ${ctx.version}`,
           priority: 5,
+          model: "sonnet",
           skills: skillList,
           description: `Review release ${ctx.version} of ${ctx.repo} for breaking changes or integration opportunities.${ctx.releaseUrl ? ` Release: ${ctx.releaseUrl}` : ""}\n\nAfter assessment, transition workflow to 'integration_pending' (if action required) or 'no_action' (if nothing to do).`,
         };
@@ -508,6 +509,7 @@ export const NewReleaseMachine: StateMachine<{
           type: "create-task",
           subject: `Integrate: ${ctx.repo} ${ctx.version}`,
           priority: 4,
+          model: "sonnet",
           skills: skillList,
           description: ctx.integrationDescription || `Apply relevant changes from ${ctx.repo} ${ctx.version} to Arc.`,
         };
@@ -821,7 +823,8 @@ export const StreakMaintenanceMachine: StateMachine<{
         return {
           type: "create-task",
           subject: `Maintain ${streak}-day streak on ${beat}`,
-          priority: 6,
+          priority: 7,
+          model: "haiku",
           skills: ["aibtc-news-editorial"],
           description: `Maintain the ${streak}-day streak on ${beat}.\n\nOn success: transition this workflow to 'attempting', then 'completed'.\nIf rate limited: transition to 'attempting', then 'rate_limited' and set windowOpenAt (ISO timestamp estimate) in context.`,
         };
@@ -848,7 +851,8 @@ export const StreakMaintenanceMachine: StateMachine<{
         return {
           type: "create-task",
           subject: `Maintain ${streak}-day streak on ${beat} (post-window retry ${retryCount}/${MAX_RETRIES})`,
-          priority: 6,
+          priority: 7,
+          model: "haiku",
           skills: ["aibtc-news-editorial"],
           description: `Retry streak maintenance for ${beat} after rate limit window.\n${windowNote}\nThis is retry attempt ${retryCount} of ${MAX_RETRIES} max.\n\nOn success: transition workflow to 'attempting', then 'completed'.\nIf rate limited again: transition to 'attempting', then 'rate_limited' with updated retryCount and windowOpenAt.`,
         };
@@ -1009,8 +1013,8 @@ export const SiteHealthAlertMachine: StateMachine<{
         return {
           type: "create-task",
           subject: `Fix arc0btc.com health issue(s)${summary}`,
-          priority: 5,
-          skills: ["arc0btc-site-health", "blog-deploy", "blog-publishing"],
+          priority: 3,
+          skills: ["arc0btc-site-health", "blog-deploy"],
           description: `Site health alert: ${issues} issue(s) detected${summary}.
 
 Steps:
@@ -1230,8 +1234,8 @@ export const HealthAlertMachine: StateMachine<{
         return {
           type: "create-task",
           subject,
-          priority: 6,
-          skills: ["arc-skill-manager"],
+          priority: 2,
+          skills: ["arc-service-health"],
           description: `Health alert triggered: ${alertType}.${ctx.taskRef ? `\nOriginal alert: ${ctx.taskRef}` : ""}${ctx.alertDate ? `\nDate: ${ctx.alertDate}` : ""}
 
 Steps:
@@ -1308,8 +1312,8 @@ export const OvernightBriefMachine: StateMachine<{
         return {
           type: "create-task",
           subject: `Overnight brief — ${date}`,
-          priority: 6,
-          skills: ["arc-reporting", "arc-skill-manager"],
+          priority: 2,
+          skills: ["arc-reporting"],
           description: `Generate the overnight brief for ${date}.
 
 Steps:
@@ -2337,8 +2341,8 @@ Steps:
  */
 export const CeoReviewMachine: StateMachine<{
   reviewDate?: string;
+  reportFile?: string;
   reviewSummary?: string;
-  actionItems?: string;
   taskRef?: string;
 }> = {
   name: "ceo-review",
@@ -2352,51 +2356,41 @@ export const CeoReviewMachine: StateMachine<{
           type: "create-task",
           subject: `CEO review — ${date}`,
           priority: 4,
-          skills: ["arc-ceo-review", "arc-ceo-strategy", "arc-skill-manager"],
-          description: `Run the CEO review for ${date}.
+          skills: ["arc-ceo-review", "arc-ceo-strategy"],
+          description: `Run the CEO review for ${date}.${ctx.reportFile ? `\nReport file: reports/${ctx.reportFile}` : ""}
+
+This is a REPORT-ONLY review. Do NOT create follow-up tasks or modify existing tasks.
 
 Steps:
-1. Run arc-ceo-review CLI to gather status across directives and metrics
-2. Identify action items (github-mentions, blog drafts, reporting gaps)
-3. Create follow-up tasks for each action item (arc tasks add)
-4. Set reviewSummary and actionItems (comma-separated) in workflow context
-5. Transition this workflow to 'reviewing', then 'actions_pending'`,
+1. Follow the instructions in skills/arc-ceo-review/AGENT.md
+2. Write the Assessment section into the watch report
+3. Set reviewSummary (2-3 sentence strategic assessment) in workflow context
+4. Transition this workflow to 'reviewing'`,
         };
       },
     },
     reviewing: {
-      on: { actions_created: "actions_pending", no_actions: "retrospective_pending" },
+      on: { email: "emailing" },
       action: (ctx) => {
         if (ctx.reviewSummary === undefined) return null;
-        if (!ctx.actionItems || ctx.actionItems.trim() === "") {
-          return { type: "transition", nextState: "retrospective_pending" };
-        }
-        return { type: "transition", nextState: "actions_pending" };
+        return { type: "transition", nextState: "emailing" };
       },
     },
-    actions_pending: {
-      on: { all_done: "retrospective_pending" },
-      action: () => null,
-    },
-    retrospective_pending: {
-      on: { learnings_extracted: "completed" },
+    emailing: {
+      on: { sent: "completed" },
       action: (ctx) => {
         const date = ctx.reviewDate || "unknown date";
         return {
           type: "create-task",
-          subject: `Retrospective: extract learnings from CEO review — ${date}`,
-          priority: 8,
-          skills: ["arc-skill-manager"],
-          description: `Extract learnings from the CEO review for ${date}.
-${ctx.taskRef ? `Review task: ${ctx.taskRef}` : ""}
-${ctx.reviewSummary ? `Review summary: ${ctx.reviewSummary}` : ""}
-${ctx.actionItems ? `Action items spawned: ${ctx.actionItems}` : ""}
+          subject: `Email watch report to whoabuddy — ${date}`,
+          priority: 4,
+          skills: ["arc-email-sync"],
+          description: `Send the completed watch report to whoabuddy.${ctx.reportFile ? `\nReport file: reports/${ctx.reportFile}` : ""}
 
 Steps:
-1. Review the CEO review output and action items created
-2. Identify patterns in recurring issues, missed directives, or operational gaps
-3. Update memory/MEMORY.md with key strategic learnings
-4. Transition workflow to 'completed'`,
+1. Read the watch report file
+2. Send via arc skills run --name arc-email-sync -- send with the report as the email body
+3. Transition workflow to 'completed'`,
         };
       },
     },

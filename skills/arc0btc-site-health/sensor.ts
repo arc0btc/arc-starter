@@ -5,7 +5,7 @@
 // Creates alert tasks when issues are detected.
 
 import { claimSensorRun, createSensorLogger, readHookState } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { insertTask, pendingTaskExistsForSource, insertWorkflow, getWorkflowByInstanceKey } from "../../src/db.ts";
 import { join } from "node:path";
 import { existsSync } from "node:fs";
 
@@ -149,21 +149,25 @@ export default async function arc0btcSiteHealthSensor(): Promise<string> {
       return "ok";
     }
 
+    const failedChecks = failures.map((f) => f.check).join(",");
     const failSummary = failures.map((f) => `- ${f.check}: ${f.detail}`).join("\n");
-    const allSummary = checks.map((c) => `- ${c.check}: ${c.ok ? "OK" : "FAIL"} — ${c.detail}`).join("\n");
 
-    insertTask({
-      subject: `arc0btc.com health alert: ${failures.length} issue(s)`,
-      description:
-        `Site health check detected issues on arc0.me:\n\n` +
-        `**Failures:**\n${failSummary}\n\n` +
-        `**Full results:**\n${allSummary}\n\n` +
-        `Run: arc skills run --name arc0btc-site-health -- check --verbose`,
-      skills: JSON.stringify(["arc0btc-site-health", "blog-deploy"]),
-      source: TASK_SOURCE,
-      priority: 3,
-      model: "sonnet",
-    });
+    // Use workflow for fix→retrospective chain tracking
+    const today = new Date().toISOString().slice(0, 10);
+    const wfKey = `site-health:${failedChecks}:${today}`;
+
+    if (!getWorkflowByInstanceKey(wfKey)) {
+      insertWorkflow({
+        template: "site-health-alert",
+        instance_key: wfKey,
+        current_state: "alert",
+        context: JSON.stringify({
+          issueCount: failures.length,
+          issuesSummary: failSummary,
+          alertDate: today,
+        }),
+      });
+    }
 
     log(`created alert task: ${failures.length} issue(s)`);
     return "ok";

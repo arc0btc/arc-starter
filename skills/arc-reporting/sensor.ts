@@ -8,7 +8,7 @@
 // Pure TypeScript — no LLM.
 
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { insertTask, recentTaskExistsForSource } from "../../src/db.ts";
+import { insertTask, recentTaskExistsForSource, insertWorkflow, getWorkflowByInstanceKey } from "../../src/db.ts";
 
 // ---- Shared helpers ----
 
@@ -87,19 +87,17 @@ async function overnightBriefSensor(): Promise<string> {
   if (recentTaskExistsForSource(OVERNIGHT_SOURCE, 1440)) return "skip";
 
   const now = new Date().toISOString();
+  const today = now.slice(0, 10);
 
-  insertTask({
-    subject: `Overnight brief — ${now.slice(0, 10)}`,
-    description:
-      "Generate a consolidated overnight brief covering all activity from 8pm–6am PST.\n\n" +
-      "Follow the instructions in skills/arc-reporting/AGENT.md (Overnight Brief section).\n" +
-      "Use the template at templates/overnight-brief.md.\n" +
-      "Write output to reports/ directory.\n\n" +
-      `Brief generated at: ${now}`,
-    skills: '["arc-reporting"]',
-    source: OVERNIGHT_SOURCE,
-    priority: OVERNIGHT_PRIORITY,
-    model: "sonnet",
+  // Use workflow for brief→retrospective chain tracking
+  const wfKey = `overnight-brief:${today}`;
+  if (getWorkflowByInstanceKey(wfKey)) return "skip";
+
+  insertWorkflow({
+    template: "overnight-brief",
+    instance_key: wfKey,
+    current_state: "pending",
+    context: JSON.stringify({ date: today }),
   });
 
   return "ok";

@@ -6,8 +6,8 @@
 import {
   claimSensorRun,
   createSensorLogger,
-  insertTaskIfNew,
 } from "../../src/sensors.ts";
+import { insertWorkflow, getWorkflowByInstanceKey } from "../../src/db.ts";
 import { discoverSkills, type SkillInfo } from "../../src/skills.ts";
 import { existsSync } from "node:fs";
 import { join, basename, resolve } from "node:path";
@@ -314,13 +314,21 @@ export default async function complianceReviewSensor(): Promise<string> {
 
     description += "Review each finding and fix or document exceptions. Structural issues should be fixed first.";
 
-    insertTaskIfNew(TASK_SOURCE, {
-      subject: `compliance-review: ${all_findings.length} finding(s) across ${all_skills.length} skills`,
-      description,
-      skills: '["compliance-review"]',
-      priority: 6,
-      model: "sonnet",
-    });
+    // Use workflow for findings→retrospective chain tracking
+    const today = new Date().toISOString().slice(0, 10);
+    const wfKey = `compliance-review:${today}`;
+    if (!getWorkflowByInstanceKey(wfKey)) {
+      insertWorkflow({
+        template: "compliance-review",
+        instance_key: wfKey,
+        current_state: "scan_complete",
+        context: JSON.stringify({
+          findingCount: all_findings.length,
+          skillCount: all_skills.length,
+          scanDate: today,
+        }),
+      });
+    }
 
     return "ok";
   } catch (e) {
