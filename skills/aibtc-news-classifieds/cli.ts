@@ -80,143 +80,36 @@ async function fetchClassifiedRecord(classifiedId: string): Promise<ClassifiedRe
   };
 }
 
+
 /**
- * Send an x402 inbox message. Spawns the wallet skill. Throws on failure.
+ * Queue a child task for post-review operations (x402 notifications, ERC-8004 feedback).
+ * Pre-composes the message/command so the task can be executed by Haiku at P3.
  */
-async function sendX402InboxMessage(btcAddress: string, stxAddress: string, content: string): Promise<void> {
+async function queueChildTask(opts: {
+  subject: string;
+  description: string;
+  source: string;
+  skills: string;
+}): Promise<void> {
   const proc = Bun.spawn(
     [
-      "bash", "bin/arc", "skills", "run", "--name", "bitcoin-wallet", "--",
-      "x402", "send-inbox-message",
-      "--recipient-btc-address", btcAddress,
-      "--recipient-stx-address", stxAddress,
-      "--content", content,
+      "bash", "bin/arc", "tasks", "add",
+      "--subject", opts.subject,
+      "--description", opts.description,
+      "--priority", "3",
+      "--model", "haiku",
+      "--source", opts.source,
+      "--skills", opts.skills,
     ],
     { cwd: process.cwd(), stdin: "ignore", stdout: "pipe", stderr: "pipe" }
   );
 
-  const [stdout, stderr] = await Promise.all([
-    new Response(proc.stdout).text(),
-    new Response(proc.stderr).text(),
-  ]);
-
+  const stderr = await new Response(proc.stderr).text();
   const exitCode = await proc.exited;
   if (exitCode !== 0) {
-    const combined = (stdout + stderr).trim();
-
-    // Parse structured 409/502/503 error JSON from subprocess
-    const jsonMatch = combined.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      try {
-        const errObj = JSON.parse(jsonMatch[0]) as Record<string, unknown>;
-        const status = errObj.status as number | undefined;
-        const code = errObj.code as string | undefined;
-        const retryAfter = errObj.retryAfter as number | undefined;
-
-        if (status === 409 && code) {
-          throw new Error(
-            `Inbox send nonce error (409 ${code}): ${errObj.detail || errObj.error || "nonce conflict"}.${retryAfter ? ` Retry after ${retryAfter}s. [retryAfter=${retryAfter}]` : ""}`
-          );
-        }
-        if (status === 502 || status === 503) {
-          const delay = retryAfter ?? (status === 503 ? 60 : 10);
-          throw new Error(
-            `Inbox send relay error (${status}): ${errObj.detail || "temporarily unavailable"}. Retry after ${delay}s. [retryAfter=${delay}]`
-          );
-        }
-      } catch (e) {
-        if (e instanceof Error && (e.message.includes("409") || e.message.includes("502") || e.message.includes("503"))) {
-          throw e;
-        }
-      }
-    }
-
-    throw new Error(`x402 send failed (exit ${exitCode}): ${combined.slice(0, 300)}`);
-  }
-}
-
-/**
- * Submit ERC-8004 reputation feedback for a correspondent's signal review.
- * Non-fatal — logs errors but never throws. Uses sponsored tx to avoid STX fees.
- */
-async function submitReputationFeedback(
-  agentId: string,
-  status: "approved" | "rejected",
-  signalId: string
-): Promise<void> {
-  const ROOT = (await import("node:path")).resolve(import.meta.dir, "../../github/aibtcdev/skills");
-  const { getCredential } = await import("../../src/credentials.ts");
-
-  const walletId = await getCredential("bitcoin-wallet", "id");
-  const password = await getCredential("bitcoin-wallet", "password");
-  if (!walletId || !password) {
-    log("ERC-8004 feedback skipped: no wallet credentials");
-    return;
-  }
-
-  const sponsorKey = await getCredential("x402-relay", "sponsor_api_key");
-
-  const value = status === "approved" ? "1" : "-1";
-  const tag1 = "signal-review";
-  const tag2 = status;
-
-  // Write a runner script that unlocks wallet then calls give-feedback
-  const escapedPassword = password.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
-  const escapedWalletId = walletId.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
-  const runnerPath = (await import("node:path")).resolve(ROOT, ".reputation-runner.ts");
-  const script = `
-import { getWalletManager } from './src/lib/services/wallet-manager.js';
-const wm = getWalletManager();
-await wm.unlock('${escapedWalletId}', '${escapedPassword}');
-process.argv = ['bun', 'reputation', 'give-feedback',
-  '--agent-id', '${agentId}',
-  '--value', '${value}',
-  '--tag1', '${tag1}',
-  '--tag2', '${tag2}',
-  '--endpoint', 'aibtc.news/signals/${signalId}',
-  '--sponsored'];
-await import('./reputation/reputation.ts');
-setTimeout(() => process.exit(0), 5000);
-`;
-  await Bun.write(runnerPath, script);
-
-  try {
-    const proc = Bun.spawn(["bun", "run", runnerPath], {
-      cwd: ROOT,
-      stdin: "ignore",
-      stdout: "pipe",
-      stderr: "pipe",
-      env: {
-        ...process.env,
-        NETWORK: process.env.NETWORK || "mainnet",
-        ...(sponsorKey ? { SPONSOR_API_KEY: sponsorKey } : {}),
-      },
-    });
-
-    const [stdout, stderr] = await Promise.all([
-      new Response(proc.stdout).text(),
-      new Response(proc.stderr).text(),
-    ]);
-
-    const exitCode = await proc.exited;
-    if (exitCode !== 0) {
-      log(`ERC-8004 feedback failed (exit ${exitCode}): ${(stdout + stderr).slice(0, 200)}`);
-    } else {
-      // Try to extract txid from JSON output
-      try {
-        const result = JSON.parse(stdout.trim().split("\n").pop() || "{}");
-        log(`ERC-8004 feedback submitted: agent ${agentId} ${status} (txid: ${result.txid || "unknown"})`);
-      } catch {
-        log(`ERC-8004 feedback submitted: agent ${agentId} ${status}`);
-      }
-    }
-  } catch (err) {
-    log(`ERC-8004 feedback error: ${err instanceof Error ? err.message : String(err)}`);
-  } finally {
-    try {
-      const { unlink } = await import("node:fs/promises");
-      await unlink(runnerPath);
-    } catch {}
+    log(`Failed to queue task "${opts.subject}": ${stderr.slice(0, 200)}`);
+  } else {
+    log(`Queued task: ${opts.subject}`);
   }
 }
 
@@ -1146,41 +1039,7 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
       const sigBtcAddress = signal.signal?.btcAddress ?? signal.btcAddress;
       const sigHeadline = signal.signal?.headline ?? signal.headline ?? "(unknown)";
 
-      if (flags["no-notify"] !== "true" && sigBtcAddress && sigBtcAddress !== ARC_BTC_ADDRESS) {
-        const contact = getContactByAddress(null, sigBtcAddress);
-        if (contact?.stx_address) {
-          const message = flags.status === "approved"
-            ? [
-                `Signal Approved | ${flags.id}`,
-                ``,
-                `Your signal "${sigHeadline}" has been approved and is now live on aibtc.news.`,
-                ``,
-                `Thank you for the quality contribution — this is the kind of intelligence that makes the network valuable. Keep filing.`,
-              ].join("\n")
-            : flags.status === "rejected"
-              ? [
-                  `Signal Rejected | ${flags.id}`,
-                  ``,
-                  `Your signal "${sigHeadline}" was reviewed and not approved.`,
-                  ``,
-                  `Feedback: ${flags.feedback ?? "No specific feedback provided."}`,
-                  ``,
-                  `Please fix the issues noted above and resubmit. We want to publish quality content and appreciate your contributions.`,
-                ].join("\n")
-              : null;
-
-          if (message) {
-            try {
-              log(`Sending ${flags.status} notice to ${sigBtcAddress} (${contact.stx_address})`);
-              await sendX402InboxMessage(sigBtcAddress, contact.stx_address, message);
-              log(`Signal ${flags.status} notice sent to ${sigBtcAddress}`);
-            } catch (err) {
-              log(`Notify failed (non-fatal): ${err instanceof Error ? err.message : String(err)}`);
-            }
-          }
-        }
-      }
-
+      // Log interaction to contact registry
       if (sigBtcAddress) {
         const sigContact = getContactByAddress(null, sigBtcAddress);
         if (sigContact) {
@@ -1189,27 +1048,80 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
             type: "collaboration",
             summary: `${flags.status === "approved" ? "Approved" : flags.status === "rejected" ? "Rejected" : `Set ${flags.status}`} signal ${flags.id}: "${sigHeadline}"${flags.feedback ? ` — ${flags.feedback.slice(0, 100)}` : ""}`,
           });
+        }
+      }
 
-          // Submit ERC-8004 reputation feedback if correspondent has an agent ID
-          if (
-            sigContact.agent_id &&
-            (flags.status === "approved" || flags.status === "rejected")
-          ) {
-            try {
-              await submitReputationFeedback(sigContact.agent_id, flags.status, flags.id);
-            } catch (err) {
-              log(`ERC-8004 feedback failed (non-fatal): ${err instanceof Error ? err.message : String(err)}`);
-            }
+      // Queue child tasks for post-review operations (x402 notify + ERC-8004 feedback)
+      if (sigBtcAddress && sigBtcAddress !== ARC_BTC_ADDRESS && (flags.status === "approved" || flags.status === "rejected")) {
+        const contact = getContactByAddress(null, sigBtcAddress);
+        const recipientStx = contact?.stx_address;
+
+        if (recipientStx) {
+          // Queue x402 notification task
+          const message = flags.status === "approved"
+            ? [
+                `Signal Approved | ${flags.id}`,
+                ``,
+                `Your signal "${sigHeadline}" has been approved and is now live on aibtc.news.`,
+                ``,
+                `Thank you for the quality contribution — this is the kind of intelligence that makes the network valuable. Keep filing.`,
+              ].join("\n")
+            : [
+                `Signal Rejected | ${flags.id}`,
+                ``,
+                `Your signal "${sigHeadline}" was reviewed and not approved.`,
+                ``,
+                `Feedback: ${flags.feedback ?? "No specific feedback provided."}`,
+                ``,
+                `Please fix the issues noted above and resubmit. We want to publish quality content and appreciate your contributions.`,
+              ].join("\n");
+
+          const notifyDesc = [
+            `Send x402 inbox notification for signal ${flags.id} review (${flags.status}).`,
+            ``,
+            `Run this command:`,
+            `arc skills run --name inbox-notify -- send-one --btc-address ${sigBtcAddress} --stx-address ${recipientStx} --content "${message.replace(/"/g, '\\"')}"`,
+            ``,
+            `If send fails, close task as failed with the error details.`,
+          ].join("\n");
+
+          await queueChildTask({
+            subject: `Notify signal ${flags.status}: #${flags.id} → ${sigBtcAddress.slice(0, 12)}…`,
+            description: notifyDesc,
+            source: `notify:signal:${flags.id}`,
+            skills: "inbox-notify,bitcoin-wallet",
+          });
+
+          // Queue ERC-8004 reputation feedback task if correspondent has agent ID
+          if (contact?.agent_id) {
+            const value = flags.status === "approved" ? "1" : "-1";
+            const reputationDesc = [
+              `Submit ERC-8004 reputation feedback for signal ${flags.id} review.`,
+              ``,
+              `Agent ID: ${contact.agent_id}`,
+              `Value: ${value} (${flags.status})`,
+              `Tags: signal-review, ${flags.status}`,
+              `Endpoint: aibtc.news/signals/${flags.id}`,
+              ``,
+              `Steps:`,
+              `1. Unlock wallet: arc skills run --name bitcoin-wallet -- unlock`,
+              `2. Run in ~/github/aibtcdev/skills/:`,
+              `   bun run reputation/reputation.ts give-feedback --agent-id ${contact.agent_id} --value ${value} --tag1 signal-review --tag2 ${flags.status} --endpoint "aibtc.news/signals/${flags.id}" --sponsored`,
+              ``,
+              `If feedback fails, close task as failed with the error details.`,
+            ].join("\n");
+
+            await queueChildTask({
+              subject: `ERC-8004 feedback: signal #${flags.id} ${flags.status} → agent ${contact.agent_id}`,
+              description: reputationDesc,
+              source: `erc8004:signal:${flags.id}`,
+              skills: "erc8004-identity,bitcoin-wallet",
+            });
           }
 
-          // Nudge correspondents without ERC-8004 identity to register (once)
-          if (
-            !sigContact.agent_id &&
-            sigContact.stx_address &&
-            (flags.status === "approved" || flags.status === "rejected")
-          ) {
-            // Check if we already sent this nudge
-            const recentInteractions = getContactInteractions(sigContact.id, 50);
+          // Queue ERC-8004 identity nudge if correspondent has no agent ID (one-time)
+          if (!contact?.agent_id && contact) {
+            const recentInteractions = getContactInteractions(contact.id, 50);
             const alreadyNudged = recentInteractions.some(
               (ix) => ix.summary.startsWith("ERC-8004 identity nudge sent")
             );
@@ -1221,30 +1133,28 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
                 `You're filing signals on aibtc.news — nice work. We're now tracking correspondent reputation on-chain using ERC-8004, and your reviews will build your score over time.`,
                 ``,
                 `To start accumulating reputation, register your agent identity:`,
-                ``,
-                `Using the aibtcdev/skills identity CLI:`,
                 `  bun run identity/identity.ts register --sponsored`,
                 ``,
-                `Or via MCP tool:`,
-                `  register_agent_identity (sponsored: true)`,
-                ``,
-                `Registration is free (sponsored transaction, no STX required). Once registered, every signal review — approved or rejected — contributes to your on-chain reputation score.`,
-                ``,
-                `This is optional today but will be required in the future.`,
+                `Registration is free (sponsored transaction, no STX required). Once registered, every signal review contributes to your on-chain reputation score.`,
               ].join("\n");
 
-              try {
-                log(`Sending ERC-8004 identity nudge to ${sigBtcAddress}`);
-                await sendX402InboxMessage(sigBtcAddress, sigContact.stx_address, nudgeMessage);
-                insertContactInteraction({
-                  contact_id: sigContact.id,
-                  type: "message",
-                  summary: `ERC-8004 identity nudge sent — no agent_id on file`,
-                });
-                log(`ERC-8004 identity nudge sent to ${sigBtcAddress}`);
-              } catch (err) {
-                log(`Identity nudge failed (non-fatal): ${err instanceof Error ? err.message : String(err)}`);
-              }
+              const nudgeDesc = [
+                `Send one-time ERC-8004 identity registration nudge to correspondent.`,
+                ``,
+                `Run: arc skills run --name inbox-notify -- send-one --btc-address ${sigBtcAddress} --stx-address ${recipientStx} --content "${nudgeMessage.replace(/"/g, '\\"')}"`,
+                ``,
+                `After successful send, log interaction:`,
+                `Contact ID: ${contact.id}`,
+                `Type: message`,
+                `Summary: ERC-8004 identity nudge sent — no agent_id on file`,
+              ].join("\n");
+
+              await queueChildTask({
+                subject: `ERC-8004 nudge: register identity → ${sigBtcAddress.slice(0, 12)}…`,
+                description: nudgeDesc,
+                source: `nudge:erc8004:${sigBtcAddress}`,
+                skills: "inbox-notify,bitcoin-wallet,contact-registry",
+              });
             }
           }
         }
@@ -1427,8 +1337,47 @@ async function cmdReviewClassified(args: string[]): Promise<void> {
       }
     } catch { /* non-fatal */ }
 
-    // Notify the placer via x402 inbox
-    await notifyClassifiedDecision(flags.id, flags.status as "approved" | "rejected", record, flags.feedback);
+    // Queue x402 notification task for classified decision
+    if (record.btcAddress && record.btcAddress !== ARC_BTC_ADDRESS) {
+      const contact = getContactByAddress(null, record.btcAddress);
+      const recipientStx = contact?.stx_address ?? record.stxAddress;
+
+      if (recipientStx) {
+        const message = flags.status === "approved"
+          ? [
+              `Classified Approved | ${flags.id}`,
+              ``,
+              `Your classified "${record.headline}" has been approved and is now live on aibtc.news.`,
+              ``,
+              `It will remain active for 7 days from the original posting date.`,
+            ].join("\n")
+          : [
+              `Classified Rejected | ${flags.id}`,
+              ``,
+              `Your classified "${record.headline}" was reviewed and not approved.`,
+              ``,
+              `Feedback: ${flags.feedback ?? "(none)"}`,
+              ``,
+              `Your payment will be refunded. A refund workflow has been initiated.`,
+            ].join("\n");
+
+        const notifyDesc = [
+          `Send x402 inbox notification for classified ${flags.id} review (${flags.status}).`,
+          ``,
+          `Run this command:`,
+          `arc skills run --name inbox-notify -- send-one --btc-address ${record.btcAddress} --stx-address ${recipientStx} --content "${message.replace(/"/g, '\\"')}"`,
+          ``,
+          `If send fails, close task as failed with the error details.`,
+        ].join("\n");
+
+        await queueChildTask({
+          subject: `Notify classified ${flags.status}: #${flags.id} → ${record.btcAddress.slice(0, 12)}…`,
+          description: notifyDesc,
+          source: `notify:classified:${flags.id}`,
+          skills: "inbox-notify,bitcoin-wallet",
+        });
+      }
+    }
 
     if (flags.status === "rejected") {
       await triggerClassifiedRefund(flags.id, record);
@@ -1441,55 +1390,6 @@ async function cmdReviewClassified(args: string[]): Promise<void> {
   }
 }
 
-/**
- * Send x402 inbox notification to classified placer on approval or rejection.
- * Fails silently — the review decision still stands even if notification fails.
- */
-async function notifyClassifiedDecision(
-  classifiedId: string,
-  decision: "approved" | "rejected",
-  record: ClassifiedRecord,
-  feedback?: string,
-): Promise<void> {
-  try {
-    if (!record.btcAddress || record.btcAddress === ARC_BTC_ADDRESS) {
-      log(`Notify skip: ${!record.btcAddress ? "no BTC address" : "classified is from self"}`);
-      return;
-    }
-
-    const contact = getContactByAddress(null, record.btcAddress);
-    const recipientStx = contact?.stx_address ?? record.stxAddress;
-
-    if (!recipientStx) {
-      log(`Notify skip: no STX address found for ${record.btcAddress}`);
-      return;
-    }
-
-    const message = decision === "approved"
-      ? [
-          `Classified Approved | ${classifiedId}`,
-          ``,
-          `Your classified "${record.headline}" has been approved and is now live on aibtc.news.`,
-          ``,
-          `It will remain active for 7 days from the original posting date.`,
-        ].join("\n")
-      : [
-          `Classified Rejected | ${classifiedId}`,
-          ``,
-          `Your classified "${record.headline}" was reviewed and not approved.`,
-          ``,
-          `Feedback: ${feedback ?? "(none)"}`,
-          ``,
-          `Your payment will be refunded. A refund workflow has been initiated.`,
-        ].join("\n");
-
-    log(`Sending classified ${decision} notice to ${record.btcAddress} (${recipientStx})`);
-    await sendX402InboxMessage(record.btcAddress, recipientStx, message);
-    log(`Classified ${decision} notice sent to ${record.btcAddress}`);
-  } catch (err) {
-    log(`Notify failed (non-fatal): ${err instanceof Error ? err.message : String(err)}`);
-  }
-}
 
 /**
  * Trigger a classified refund workflow after rejection.
@@ -1665,7 +1565,7 @@ async function cmdReviewCorrection(args: string[]): Promise<void> {
           });
         }
 
-        // Send x402 inbox notification
+        // Queue x402 notification task for correction decision
         if (correctorAddress !== ARC_BTC_ADDRESS) {
           const recipientStx = contact?.stx_address;
           if (recipientStx) {
@@ -1687,13 +1587,21 @@ async function cmdReviewCorrection(args: string[]): Promise<void> {
                   `Corrections must identify factual errors with cited sources. If you believe the original signal contains an error, resubmit with specific evidence.`,
                 ].join("\n");
 
-            try {
-              log(`Sending correction ${flags.status} notice to ${correctorAddress} (${recipientStx})`);
-              await sendX402InboxMessage(correctorAddress, recipientStx, notifyMessage);
-              log(`Correction ${flags.status} notice sent to ${correctorAddress}`);
-            } catch (err) {
-              log(`Notify failed (non-fatal): ${err instanceof Error ? err.message : String(err)}`);
-            }
+            const notifyDesc = [
+              `Send x402 inbox notification for correction ${correctionId} on signal ${signalId} (${flags.status}).`,
+              ``,
+              `Run this command:`,
+              `arc skills run --name inbox-notify -- send-one --btc-address ${correctorAddress} --stx-address ${recipientStx} --content "${notifyMessage.replace(/"/g, '\\"')}"`,
+              ``,
+              `If send fails, close task as failed with the error details.`,
+            ].join("\n");
+
+            await queueChildTask({
+              subject: `Notify correction ${flags.status}: #${correctionId} → ${correctorAddress.slice(0, 12)}…`,
+              description: notifyDesc,
+              source: `notify:correction:${correctionId}`,
+              skills: "inbox-notify,bitcoin-wallet",
+            });
           }
         }
       }
