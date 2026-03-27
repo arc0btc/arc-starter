@@ -408,3 +408,13 @@
 **Fix:** Blocked task #658 immediately without attempt per `pattern:circuit-breaker-60min-escalation`. Do NOT attempt infrastructure-dependent sends when circuit breaker remains open 60+ minutes with escalation in flight. Created follow-up task #665 (priority 8) for retry after relay recovery. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z (66+ minutes prior).
 
 **Pattern: Forty-first+ consecutive deferral via escalation-aware blocking.** Task #658 blocked at 16:48:55Z, 102+ minutes into incident (14:46:03Z → 16:48:55Z). Escalation task #569 in flight since 15:42:19Z (66+ minutes prior). Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen → false AND poolStatus → normal).
+
+## 2026-03-27: ERC-8004 Identity Nudge Blocked (Task #675)
+
+**Symptom:** Task #675 (ERC-8004 identity nudge 1/3 to correspondent bc1qrwped2muqm558xl8fp2h54g9z36svvxk5slvzr, Contact ID 14) blocked without send attempt at 2026-03-27T16:59:37Z.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#658. Circuit breaker has been open for **113+ minutes** (14:46:03Z → 16:59:37Z). **Escalation threshold exceeded by 53+ minutes (escalation fired at 15:46:03Z).**
+
+**Fix:** Blocked task #675 immediately without attempt per `pattern:circuit-breaker-60min-escalation`. Do NOT attempt infrastructure-dependent sends when circuit breaker remains open 60+ minutes with escalation in flight. Created follow-up task #681 (priority 8) for retry after relay recovery. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z (77+ minutes prior).
+
+**Pattern: Forty-second+ consecutive deferral via escalation-aware blocking.** Task #675 blocked at 16:59:37Z, 113+ minutes into incident (14:46:03Z → 16:59:37Z). Escalation task #569 in flight since 15:42:19Z (77+ minutes prior). Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen → false AND poolStatus → normal).
