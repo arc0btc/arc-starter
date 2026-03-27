@@ -328,3 +328,33 @@
 **Fix:** Blocked task #574 immediately without attempt. Created follow-up task #588 (priority 8) for retry after mempool clears naturally. Escalation task #569 (P1) already in flight for 7+ minutes.
 
 **Pattern: Thirty-second consecutive deferral.** Thirty-two+ consecutive notification/feedback deferral patterns (#478–#551, #574) over 64+ minutes (14:46:03Z → 15:50:06Z). Relay circuit breaker remains critically open with fresh conflicts every 2-3 minutes. **Extended incident continues well past escalation threshold.** Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen→false AND poolStatus→normal).
+
+## 2026-03-27: Signal Approval Notification Blocked (Task #576)
+
+**Symptom:** Task #576 (signal approval notification for a58c4ec6-e874-464d-8b95-e877a0a9fcde) — dispatch at 2026-03-27T15:51:45Z found circuit breaker still open.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#574. Circuit breaker has been open for **65+ minutes** (14:46:03Z → 15:51:45Z). **Escalation threshold exceeded by 5+ minutes (escalation fired at 15:46:03Z).**
+
+**Fix:** Blocked task #576 immediately without attempt. Created follow-up task #590 (priority 8) for retry after relay recovery.
+
+**Pattern: Thirty-third consecutive deferral.** Do not attempt any sends until whoabuddy confirms relay recovery.
+
+## 2026-03-27: Signal Approval Notification Blocked (Task #580)
+
+**Symptom:** Task #580 (signal approval notification for 76e70795-56a8-4612-8fbe-2a54c6b457fd to correspondent bc1qzh2z92dlvccxq5w756qppzz8fymhgrt2dv8cf5) — blocked at 2026-03-27T15:55:46Z without attempting send. Circuit breaker still open.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#576. Circuit breaker remained open 4 minutes 1 second after task #576's block (2026-03-27T15:51:45Z). Relay health status at most recent check: `circuitBreakerOpen: true`, `poolStatus: critical`. Circuit breaker has been open for **69+ minutes** (14:46:03Z → 15:55:46Z). **Escalation threshold exceeded by 9 minutes 43 seconds.**
+
+**Fix:** Blocked task #580 immediately without attempt. Created follow-up task #595 (priority 8) for retry after relay recovery. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z.
+
+**Pattern: Thirty-fourth consecutive deferral.** Thirty-four+ consecutive notification/feedback deferral patterns (#478–#551, #574, #576, #580) over 69+ minutes (14:46:03Z → 15:55:46Z). Relay circuit breaker remains critically open. Extended incident continues well past escalation threshold with no recovery signs. Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen→false AND poolStatus→normal).
+
+## 2026-03-27: ERC-8004 Reputation Feedback Blocked (Task #581)
+
+**Symptom:** Task #581 (ERC-8004 reputation feedback for signal 76e70795-56a8-4612-8fbe-2a54c6b457fd, agent ID 77, value 1) — relay health check at 2026-03-27T15:56:58Z showed circuit breaker still open.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#580. Circuit breaker remained open 1 minute 12 seconds after task #580's block (2026-03-27T15:55:46Z). Relay health status at check: `circuitBreakerOpen: true`, `poolStatus: critical`, `lastConflictAt: 15:55:29.305Z` (29 seconds prior). Circuit breaker has been open for **70+ minutes** (14:46:03Z → 15:56:58Z). **Escalation threshold exceeded by 10 minutes 55 seconds.**
+
+**Fix:** Blocked task #581 immediately without attempt. Created follow-up task #596 (priority 8) for retry after relay recovery. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z.
+
+**Pattern: Thirty-fifth consecutive deferral.** Thirty-five+ consecutive notification/feedback deferral patterns (#478–#551, #574, #576, #580, #581) over 70+ minutes (14:46:03Z → 15:56:58Z). Relay circuit breaker remains critically open with fresh conflicts every 2-4 minutes. Extended incident continues well past escalation threshold with no recovery signs. Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen→false AND poolStatus→normal).
