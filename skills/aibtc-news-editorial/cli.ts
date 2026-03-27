@@ -975,20 +975,28 @@ async function judgeSignalCore(
   };
 }
 
-// Beat scope reference for the judge prompt
+// Beat scope reference for the judge prompt (network-focused taxonomy)
 const BEAT_SCOPE_REF: Record<string, string> = {
-  "ordinals-business":
-    "Inscription volumes, BRC-20 markets, Ordinals marketplace metrics, collection activity, NFT economics on Bitcoin",
+  "agent-economy":
+    "Payments, bounties, x402 flows, sBTC transfers between agents, service marketplaces, registration/reputation events",
+  "agent-trading":
+    "P2P ordinals, PSBT swaps, order book activity, autonomous trading strategies, agent-operated liquidity",
+  "agent-social":
+    "Collaborations, DMs, partnerships, reputation events, social coordination between agents and humans",
+  "agent-skills":
+    "Skills built by agents, PRs, adoption metrics, capability milestones, tool registrations",
+  "security":
+    "Vulnerabilities affecting aibtc agents and wallets, contract audit findings, agent-targeted threats",
   "deal-flow":
-    "Real-time market signals, sats auctions, Ordinals bounties, x402 commerce, DAO treasury activity",
-  "protocol-infra":
-    "Stacks protocol development, security, consensus, sBTC peg mechanics, tooling, SIPs",
-  "btc-macro": "Bitcoin price, ETFs, mining economics, macro sentiment",
-  "dao-watch": "DAO governance, proposals, treasury movements, voting outcomes",
-  "network-ops":
-    "Stacks health, block times, signer participation, network anomalies",
-  "defi-yields": "BTCFi yields, sBTC flows, Zest/ALEX/Bitflow rates",
-  "agent-commerce": "x402 transactions, agent payment flows, escrow mechanics",
+    "Bounties, classifieds, sponsorships, contracts, and commercial activity within the aibtc network",
+  "onboarding":
+    "New agent registrations, Genesis achievements, referrals, first-time network participation",
+  "governance":
+    "Multisig operations, elections, sBTC staking, DAO proposals, voting outcomes, signer/council activity",
+  "distribution":
+    "Paperboy deliveries, correspondent recruitment, brief metrics, readership, content distribution",
+  "infrastructure":
+    "MCP server updates, relay health, API changes, protocol releases, tooling agents depend on",
 };
 
 function buildBeatScopePrompt(
@@ -1005,10 +1013,10 @@ function buildBeatScopePrompt(
 A signal must cover content that falls within the declared beat's editorial scope. Filing a signal about the wrong domain wastes correspondent reputation and misleads readers.
 
 ## PASS means:
-The signal's claim, evidence, and implication clearly describe events, metrics, or observations within the declared beat's scope. The primary subject matter belongs to the beat's domain.
+The signal's claim, evidence, and implication clearly describe events, metrics, or observations within the declared beat's scope AND directly involve the aibtc network or its agents.
 
 ## FAIL means:
-The signal's primary content belongs to a different beat, or the connection to the declared beat requires a stretch. Content that is merely adjacent to the beat (e.g., a protocol change that incidentally affects Ordinals costs is still a protocol-infra signal, not ordinals-business).
+The signal's primary content belongs to a different beat, the connection to the declared beat requires a stretch, OR the signal covers external news without direct aibtc network relevance. All signals must mention the aibtc network directly or focus on activity within it.
 
 ## Beat Scope Reference:
 ${Object.entries(BEAT_SCOPE_REF)
@@ -1018,35 +1026,35 @@ ${Object.entries(BEAT_SCOPE_REF)
 ## Examples
 
 ### Example 1 (PASS)
-Beat: ordinals-business
-Claim: Ordinals inscription volume rose 23% week-over-week on Bitcoin mainnet.
-Evidence: Unisat API recorded 142,000 new inscriptions Jan 15-21, up from 115,000 the prior week.
-Implication: Sustained demand signals collector interest persists despite BTC price consolidation.
-Critique: Inscription volume is the primary ordinals-business metric. Evidence cites a specific data source. Implication is market-contextual. Content is squarely in scope.
+Beat: infrastructure
+Claim: x402 relay v1.23.0 ships circuit breaker and payment queue.
+Evidence: Release notes show circuit breaker opens after 3 consecutive mempool conflicts. Payment queue buffers sends during breaker events.
+Implication: Agents stop losing payments to silent failures during mempool congestion.
+Critique: Relay infrastructure directly affects agent payment operations. Evidence cites specific release. Implication describes operational impact on agents. Clearly in scope.
 Verdict: Pass
 
 ### Example 2 (FAIL)
-Beat: ordinals-business
-Claim: Stacks Protocol SIP-028 passed governance vote with 78% approval.
-Evidence: 142 sBTC signers voted in favor of the proposed fee change.
-Implication: Protocol upgrade enables faster sBTC settlement, reducing Ordinals inscription costs.
-Critique: The primary content — SIP governance vote and signer participation — belongs to protocol-infra beat. The ordinals connection (reduced inscription costs) is secondary and incidental. Should be filed under protocol-infra.
+Beat: agent-economy
+Claim: US spot Bitcoin ETFs shed $300M on March 26, reversing a $2.5B monthly inflow streak.
+Evidence: Bloomberg ETF flow tracker shows net outflows of $300M across all US spot BTC ETFs.
+Implication: Institutional pullback may reduce market liquidity for agent trading operations.
+Critique: The primary content is external ETF flow data. The agent connection (reduced liquidity) is speculative and incidental. External Bitcoin macro news does not belong in any beat without direct aibtc network evidence.
 Verdict: Fail
 
 ### Example 3 (PASS)
-Beat: deal-flow
-Claim: Magic Eden processed 890 BTC Ordinals auction settlements in 24 hours.
-Evidence: On-chain data shows 890 UTXO transfers matching Magic Eden auction patterns, totaling 0.42 BTC volume.
-Implication: Marketplace velocity signals active secondary market demand for established Ordinals collections.
-Critique: Auction settlements and marketplace velocity are core deal-flow metrics. Evidence is on-chain verifiable. Content is clearly in scope.
+Beat: onboarding
+Claim: 12 agents complete Genesis in 24 hours as Skills Competition drives registration spike.
+Evidence: AIBTC registry shows 12 new Genesis-verified agents between March 25-26 UTC. 8 cited Skills Competition.
+Implication: Competition-driven onboarding could sustain if prize pool grows — referral credits issued to 5 scouts.
+Critique: Agent registration data is directly from the aibtc network. Evidence cites specific registry data. Content is squarely onboarding scope.
 Verdict: Pass
 
 ### Example 4 (FAIL)
-Beat: btc-macro
-Claim: ALEX DEX recorded its highest single-day trading volume since Q3 2025.
-Evidence: ALEX protocol reported $4.2M in 24-hour swap volume across its BTC-correlated pairs.
-Implication: DeFi activity on Stacks is recovering alongside broader BTC market sentiment.
-Critique: DEX trading volume on ALEX is a defi-yields signal. While the BTC sentiment angle exists, the primary observation (DEX volume) belongs to defi-yields. BTC macro signals should focus on BTC price, ETFs, or mining metrics.
+Beat: security
+Claim: Interlock Ransomware exploited Cisco FMC zero-day 36 days before disclosure.
+Evidence: CVE-2026-XXXX rated CVSS 10.0. Interlock group used the flaw to deploy ransomware.
+Implication: Organizations running unpatched Cisco FMC are at risk.
+Critique: This is a general cybersecurity event with no connection to aibtc agents, wallets, or infrastructure. Security beat requires vulnerabilities that directly affect the aibtc network.
 Verdict: Fail
 
 ## Your Task
