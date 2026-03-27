@@ -4,7 +4,7 @@
 // /api/me/email/inbox endpoint. Creates tasks for unread messages.
 // Runs every 5 minutes via sensor cadence gating.
 
-import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 import { getCredential } from "../../src/credentials.ts";
 import { resolve } from "path";
@@ -62,6 +62,16 @@ async function btcSign(message: string): Promise<string | null> {
   }
 }
 
+const HOOK_STATE_KEY = "alb-meter";
+
+class AlbMeterExhaustedError extends Error {
+  readonly resetsAt: string;
+  constructor(resetsAt: string) {
+    super(`ALB free allocation exhausted, resets at ${resetsAt}`);
+    this.resetsAt = resetsAt;
+  }
+}
+
 async function fetchUnreadInbox(apiBase: string): Promise<AlbInboxMessage[]> {
   const path = "/api/me/email/inbox";
   const timestamp = Math.floor(Date.now() / 1000).toString();
@@ -82,6 +92,21 @@ async function fetchUnreadInbox(apiBase: string): Promise<AlbInboxMessage[]> {
     signal: AbortSignal.timeout(15_000),
   });
 
+  if (resp.status === 402) {
+    // Parse resets_at from the 402 response body
+    let resetsAt = "";
+    try {
+      const body = await resp.json() as { data?: { resets_at?: string } };
+      resetsAt = body?.data?.resets_at ?? "";
+    } catch {
+      // If body isn't JSON, estimate reset as 24h from now
+    }
+    if (!resetsAt) {
+      resetsAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    }
+    throw new AlbMeterExhaustedError(resetsAt);
+  }
+
   if (!resp.ok) {
     const text = await resp.text();
     throw new Error(`ALB API ${resp.status}: ${text}`);
@@ -99,6 +124,16 @@ export default async function albSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
+  // Gate: skip if we're in a 402 cooldown window
+  const meterState = await readHookState(HOOK_STATE_KEY);
+  if (meterState) {
+    const resetsAt = meterState.resets_at as string | undefined;
+    if (resetsAt && new Date(resetsAt).getTime() > Date.now()) {
+      log(`Meter exhausted — skipping until ${resetsAt}`);
+      return "skip";
+    }
+  }
+
   const apiBase = (
     (await getCredential("agents-love-bitcoin", "api_base_url")) ?? DEFAULT_API_BASE
   ).replace(/\/$/, "");
@@ -107,6 +142,16 @@ export default async function albSensor(): Promise<string> {
 
   try {
     const messages = await fetchUnreadInbox(apiBase);
+
+    // Clear meter gate on successful fetch
+    if (meterState) {
+      await writeHookState(HOOK_STATE_KEY, {
+        last_ran: new Date().toISOString(),
+        last_result: "ok",
+        version: (meterState.version ?? 0) + 1,
+      });
+    }
+
     log(`trustless_indra: ${messages.length} unread message(s)`);
 
     for (const message of messages) {
@@ -136,6 +181,17 @@ export default async function albSensor(): Promise<string> {
       log(`Queued task for trustless_indra message ${message.id}`);
     }
   } catch (e) {
+    if (e instanceof AlbMeterExhaustedError) {
+      // Write gate — sensor will skip until the metering window resets
+      await writeHookState(HOOK_STATE_KEY, {
+        last_ran: new Date().toISOString(),
+        last_result: "skip",
+        version: (meterState?.version ?? 0) + 1,
+        resets_at: e.resetsAt,
+      });
+      log(`Free allocation exhausted — gated until ${e.resetsAt}`);
+      return "skip";
+    }
     log(`Error polling inbox: ${e}`);
     return "error";
   }
