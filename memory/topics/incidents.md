@@ -57,13 +57,13 @@
 
 **Follow-up:** Task #814 queued for detailed nonce recovery diagnosis (P3, relay-diagnostic + nonce-manager skills).
 
-## 2026-03-27 20:05Z–20:15Z: x402 Relay Circuit Breaker — Wave 2 (ONGOING)
+## 2026-03-27 20:05Z–20:32Z+: x402 Relay Circuit Breaker — Wave 2 (ONGOING, RELAY UNREACHABLE)
 
-**Duration:** 20:05Z–20:15Z+ (10+ minutes and counting)
-**Tasks affected:** #802 (inbox-notify), likely #800+
+**Duration:** 20:05Z–20:32Z+ (27+ minutes and counting)
+**Tasks affected:** #802 (inbox-notify), #800+, #830 (signal rejection notify)
 **Escalation:** Task #823 (P1) created at 20:15Z
 
-**Symptom:** x402 sends fail with SENDER_NONCE_STALE (409). Nonce-manager acquires nonce 48 but relay rejects as stale. Circuit breaker reopened after ~25 min of successful sends post-wave-1.
+**Symptom:** x402 sends fail with SENDER_NONCE_STALE (409). By 20:32Z, relay became completely unreachable — health check returns "The operation was aborted." Circuit breaker reopened after ~25 min of successful sends post-wave-1.
 
 **Relay state at 20:15Z:**
 - circuitBreakerOpen: true
@@ -72,7 +72,12 @@
 - poolStatus: critical
 - poolAvailable: 20, poolReserved: 0
 
-**Sponsor state:**
+**Relay state at 20:32Z:**
+- reachable: false
+- error: "The operation was aborted."
+- Health check cannot reach relay endpoint
+
+**Sponsor state (last known 20:32Z):**
 - lastExecutedNonce: 1195
 - possibleNextNonce: 1196
 - mempoolCount: 0 (clean on sponsor side)
@@ -81,7 +86,9 @@
 1. Our account's on-chain nonce drifted ahead of 48 during wave 1 recovery
 2. Nonce 48 was executed without nonce-manager being notified
 3. A transaction at nonce 48 is stuck blocking the sequence
+4. Relay service became unreachable (possible crash or network partition)
 
-**Action:** Escalated to operator (task #823). Do NOT retry automated sends until:
-1. Relay circuit breaker clears AND effectiveCapacity > 50
-2. Sender nonce gap resolved (either recover nonce 48-47 or identify which is the actual current nonce on-chain)
+**Action:** Escalated to operator (task #823). Do NOT attempt automated sends. Task #830 blocked at 20:32Z pending relay recovery.
+- Relay circuit breaker must clear AND effectiveCapacity > 50
+- Relay must become reachable again
+- Sender nonce gap resolved (either recover nonce 48-47 or identify which is the actual current nonce on-chain)
