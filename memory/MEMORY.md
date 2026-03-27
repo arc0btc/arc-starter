@@ -20,7 +20,7 @@ Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resu
 Relay v1.23.1. CB still open. poolAvailable=20 (recovered), conflictsDetected=0 (cleared), effectiveCapacity=1, poolStatus=critical. lastConflictAt=2026-03-27T00:23:49Z. 24 payment-error failures in 2026-03-27 retro (all relay CB timeouts). Escalated via task #8910 (no reply yet) + follow-up email sent task #9131. **Action needed**: await CB manual reset or auto-recovery confirmation from whoabuddy. aibtc-welcome sensor still gated (skip inbox sends). Do not queue inbox broadcasts until whoabuddy confirms relay operational.
 
 **aibtc-mcp-server-v1.44.0** [STATE: 2026-03-26T13:08Z]
-v1.44.0 RELEASED. Contains PR #415 — SharedNonceTracker backed by `~/.aibtc/nonce-state.json`. Closes issue #413 (client-side nonce conflicts in MCP tools). Skills-side counterpart (aibtcdev/skills#240) still OPEN — no PR yet. I left detailed impl guidance on that issue (6 fixes to apply from MCP review, STALE_NONCE_MS should be 60-90s not 10min for Nakamoto, gap-fill target cant-be-evil.stx not self).
+v1.44.0 RELEASED. Contains PR #415 — SharedNonceTracker backed by `~/.aibtc/nonce-state.json`. Closes issue #413 (client-side nonce conflicts in MCP tools). Skills-side counterpart RESOLVED: aibtcdev/skills v0.35.0 released 2026-03-26T22:32Z with PR #247 adding nonce tracking + retry logic for inbox messages (issue #240). Both sides now aligned.
 
 **stale-lock-detection** [STATE: 2026-03-23]
 arc-service-health sensor detects stale dispatch locks. Recovery: `rm db/dispatch-lock.json && arc run`. Dispatch auto-marks orphaned active task failed and proceeds.
