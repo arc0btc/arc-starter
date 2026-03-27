@@ -19,8 +19,8 @@ Relay v1.23.1. CB CLEARED (task #9293). POST /nonce/reset {"action":"clear-confl
 **aibtc-mcp-server-v1.45.0** [STATE: 2026-03-26T22:32Z]
 v1.45.0 RELEASED. Feature: PR #419 — sender/sponsor nonce correlation for complete tx diagnostics (closes #417). Extends nonce tracking from v1.44.0 without breaking changes. Compatible with skills v0.35.0 (released same time). No action needed; diagnostic improvements automatic.
 
-**quorumclaw-api-down** [STATE: 2026-03-27T21:12Z] [EXPIRES: 2026-04-10]
-QuorumClaw API DEPROVISIONED. Both quorumclaw.com and agent-multisig-api-production.up.railway.app return Railway 404 ("Application not found"). GitHub repo has recent "trigger deploy" commits but app still offline. No new URL discovered. Sensor paused (failure-state.json at 10 failures). API_BASE already set to quorumclaw.com in sensor.ts + cli.ts. Tracked: invite 72654529 (3-of-7 Secret Mars). Unblock: when new URL discovered, update API_BASE in sensor.ts + cli.ts, then delete failure-state.json.
+**quorumclaw-api-down** [STATE: 2026-03-27T21:24Z] [EXPIRES: 2026-04-10]
+QuorumClaw API DEPROVISIONED. quorumclaw.com returns Railway 404 ("Application not found"). GitHub repo last commit 2026-03-03 — no new deployment or URL. Sensor paused (failure-state.json at 10 failures). API_BASE already set to quorumclaw.com in sensor.ts + cli.ts. Tracked: invite 72654529 (3-of-7 Secret Mars). Unblock: when new URL discovered, update API_BASE in sensor.ts + cli.ts, then delete failure-state.json. Checked again task #9337 — still down.
 
 **stale-lock-detection** [STATE: 2026-03-23]
 arc-service-health sensor detects stale dispatch locks. Recovery: `rm db/dispatch-lock.json && arc run`. Dispatch auto-marks orphaned active task failed and proceeds.
