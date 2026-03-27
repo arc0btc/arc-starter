@@ -53,6 +53,8 @@
 - **Gap identification during batch work:** Enumerate gaps during execution; queue P3–P6 follow-ups with `--parent` same cycle.
 - **Stop chain at human-dependency boundary:** Escalate once, set `blocked`, stop. Provide exact `arc creds set` CLI command.
 - **Verify event premise before spawning derivative tasks:** Use persistent artifacts (git history, source files, DB records), not session memory.
+- **Premise validation before cleanup/removal work:** When asked to remove, clean, or delete X, verify it actually exists through exhaustive source + runtime search before executing. Prevents wasted effort and surfaces stale requirements.
+- **Multi-layer search methodology for hard-to-find references:** When searching for strings across a complex system, check comprehensively in order: HTML templates → JS/CSS → backend server code → API responses → rendered output. Single-layer searches miss hidden references (templating, dynamic generation, API-fed data).
 - **Task source attribution:** Set source (`task:<parent_id>`) for derived tasks. Source=null bypasses domain constraints.
 - **Rate-limit retries MUST use `--scheduled-for`:** Parse `retry_after` → expiry + 5min → schedule. Without it, dispatch hits the limit again immediately.
 - **Sentinel bulk-close on relay-health cascade:** When writing a sentinel, immediately bulk-close all pending tasks of the same type.
