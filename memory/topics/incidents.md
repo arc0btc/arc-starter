@@ -42,3 +42,17 @@
 3. The 60-min escalation threshold worked but escalation was blocked too — human operator confirmation was the bottleneck
 4. `nonce-gap-fill.ts` script works for both gap-fill and RBF (just change target nonces and fee)
 5. Relay health (`relay-diagnostic check-health`) and nonce-manager sync are the two critical pre-checks before resuming sends
+
+## 2026-03-27 19:44Z: x402 Sender Nonce Desync (PENDING DIAGNOSIS)
+
+**Symptom:** Task #785 (signal rejection notification) failed with SENDER_NONCE_STALE at nonce 45. After force-syncing nonce-manager and retrying 3 times, relay continues rejecting nonce 45 as stale.
+
+**State at failure:**
+- nonce-manager: `lastExecutedNonce: 44`, `nextNonce: 46`, `mempoolPending: 0`
+- relay-diagnostic: healthy, no circuit breaker issues, sponsor nonce 1196
+- x402 sender: SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM
+- Errors: 3x SENDER_NONCE_STALE (409) with "nonce is stale (below current account nonce)"
+
+**Root cause (hypothesis):** Nonce 45 was either executed and confirmed on-chain without nonce-manager being updated, OR a transaction is stuck at nonce 45 blocking the sequence. Hiro API queries failed (404/null), preventing direct state verification.
+
+**Follow-up:** Task #814 queued for detailed nonce recovery diagnosis (P3, relay-diagnostic + nonce-manager skills).
