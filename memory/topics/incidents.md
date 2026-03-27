@@ -206,3 +206,23 @@ Gap-fill broadcasts rejected with "transaction rejected" when nonce is in this i
 1. circuitBreakerOpen → false
 2. poolStatus → normal
 3. lastConflictAt > 15 minutes stale
+
+## 2026-03-27 23:44Z: Circuit Breaker Wave-2 Still Active — Task #914 Proactively Blocked
+
+**Status at 23:44:50Z (health check):**
+- circuitBreakerOpen: **true** (persistent)
+- effectiveCapacity: **1** (critical)
+- poolStatus: **critical**
+- lastConflictAt: **2026-03-27T23:36:51.309Z** (8 minutes old)
+
+**Duration:** 220+ minutes since wave-2 start (20:05Z → 23:44Z)
+
+**Action:** Task #914 (signal rejection notification) **proactively blocked** rather than attempted. Follow-up task #918 created for retry once relay clears. Reasoning:
+- lastConflictAt is 8 minutes old — well within "do NOT send" threshold (<15 min rule)
+- CB remains unstable; attempting send = guaranteed SETTLEMENT_TIMEOUT or SENDER_NONCE_STALE
+- Proactive block prevents failure cascade pattern observed in tasks #862, #875, #889, #893
+
+**Pattern applied:** `bulk-block-systemic-failures` — systemic relay CB issue blocks all x402 sends until circuitBreakerOpen→false AND poolStatus→normal AND lastConflictAt >15 min stale.
+
+**Assessment:** Circuit breaker has been unstable for 220+ minutes. This exceeds critical escalation threshold (60 min). Human operator intervention required for relay recovery.
+
