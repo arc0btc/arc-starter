@@ -10,12 +10,5 @@
   "cost_per_completion": 0,
   "failure_rate": 0,
   "creation_completion_ratio": 0,
-  "fleet": {
-    "agent": "arc0btc",
-    "updated_at": "2026-03-25T18:08:18.802Z",
-    "last_task_id": 8750,
-    "last_cycle_cost": 0.061739100000000005,
-    "stale": false
-  },
   "issues": []
 }

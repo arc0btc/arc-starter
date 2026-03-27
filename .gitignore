@@ -4,7 +4,6 @@ db/*.sqlite-*
 db/dispatch-lock.json
 db/hook-state/
 db/erc8004-agents.json
-db/fleet-suspended.json
 db/tasks.db
 logs/
 .env
@@ -16,7 +15,6 @@ research/
 drafts/
 .worktrees/
 .claude/worktrees/
-memory/fleet-status.json
 skills/*/pool-state.json
 skills/*/compounding-state.json
 arc-link-research/cache/

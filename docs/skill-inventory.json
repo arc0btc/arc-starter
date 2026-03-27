@@ -80,7 +80,7 @@
   },
   {
     "name": "aibtc-news-classifieds",
-    "description": "Classified ads and extended API coverage for aibtc.news \u2014 list, post, and manage classifieds; read briefs; correct signals; update beats; fetch streaks and editorial resources",
+    "description": "Classified ads and extended API coverage for aibtc.news — list, post, and manage classifieds; read briefs; correct signals; update beats; fetch streaks and editorial resources",
     "tags": [
       "publishing",
       "news",
@@ -100,7 +100,7 @@
   },
   {
     "name": "aibtc-news-deal-flow",
-    "description": "Editorial voice for Deal Flow beat on aibtc.news \u2014 Real-time market signals, sats, Ordinals, bounties",
+    "description": "Editorial voice for Deal Flow beat on aibtc.news — Real-time market signals, sats, Ordinals, bounties",
     "tags": [
       "publishing",
       "news",
@@ -179,7 +179,7 @@
   },
   {
     "name": "alb",
-    "description": "Agents Love Bitcoin (agentslovebitcoin.com) \u2014 BTC-authenticated inbox for trustless_indra",
+    "description": "Agents Love Bitcoin (agentslovebitcoin.com) — BTC-authenticated inbox for trustless_indra",
     "tags": [
       "comms",
       "email",
@@ -198,7 +198,7 @@
   },
   {
     "name": "arc-alive-check",
-    "description": "Periodic system-alive task creator \u2014 6-hour canary confirming dispatch loop is healthy",
+    "description": "Periodic system-alive task creator — 6-hour canary confirming dispatch loop is healthy",
     "tags": [
       "sensor",
       "system"
@@ -276,7 +276,7 @@
   },
   {
     "name": "arc-brand-voice",
-    "description": "Brand identity consultant \u2014 voice rules, visual design system, content review",
+    "description": "Brand identity consultant — voice rules, visual design system, content review",
     "tags": [
       "brand",
       "content",
@@ -329,7 +329,7 @@
   },
   {
     "name": "arc-ceo-strategy",
-    "description": "Strategic operating manual \u2014 treat yourself as CEO of a one-entity company",
+    "description": "Strategic operating manual — treat yourself as CEO of a one-entity company",
     "tags": [],
     "files": [
       "SKILL.md",
@@ -362,7 +362,7 @@
   },
   {
     "name": "arc-cost-reporting",
-    "description": "Daily cost and token usage report \u2014 tracks dual costs (Claude Code vs API estimates)",
+    "description": "Daily cost and token usage report — tracks dual costs (Claude Code vs API estimates)",
     "tags": [
       "monitoring",
       "cost",
@@ -401,7 +401,7 @@
   },
   {
     "name": "arc-dispatch-eval",
-    "description": "Post-dispatch evaluation sensor \u2014 scores task outcomes and creates improvement tasks",
+    "description": "Post-dispatch evaluation sensor — scores task outcomes and creates improvement tasks",
     "tags": [
       "meta",
       "quality",
@@ -419,7 +419,7 @@
   },
   {
     "name": "arc-dispatch-evals",
-    "description": "Dispatch quality evaluation \u2014 error analysis, LLM judges, calibration",
+    "description": "Dispatch quality evaluation — error analysis, LLM judges, calibration",
     "tags": [],
     "files": [
       "SKILL.md",
@@ -474,7 +474,7 @@
   },
   {
     "name": "arc-housekeeping",
-    "description": "Periodic repo hygiene checks \u2014 uncommitted changes, stale locks, WAL size, memory bloat, file archival",
+    "description": "Periodic repo hygiene checks — uncommitted changes, stale locks, WAL size, memory bloat, file archival",
     "tags": [
       "infrastructure",
       "maintenance"
@@ -493,7 +493,7 @@
   },
   {
     "name": "arc-inbox",
-    "description": "On-chain message inbox for Arc \u2014 Clarity contract on Stacks for public message submission and Arc-only replies.",
+    "description": "On-chain message inbox for Arc — Clarity contract on Stacks for public message submission and Arc-only replies.",
     "tags": [
       "inbox",
       "messaging",
@@ -512,7 +512,7 @@
   },
   {
     "name": "arc-introspection",
-    "description": "Daily introspection \u2014 synthesizes 24h of dispatch cycles into qualitative self-assessment",
+    "description": "Daily introspection — synthesizes 24h of dispatch cycles into qualitative self-assessment",
     "tags": [
       "meta",
       "reflection",
@@ -530,7 +530,7 @@
   },
   {
     "name": "arc-link-research",
-    "description": "Process batches of links into mission-relevant research reports \u2014 evaluates Bitcoin/AIBTC/Stacks relevance",
+    "description": "Process batches of links into mission-relevant research reports — evaluates Bitcoin/AIBTC/Stacks relevance",
     "tags": [
       "research",
       "analysis"
@@ -587,7 +587,7 @@
   },
   {
     "name": "arc-memory",
-    "description": "Pattern libraries and decision frameworks \u2014 loads memory/patterns.md + memory/frameworks.md to change how problems are approached, not just store notes",
+    "description": "Pattern libraries and decision frameworks — loads memory/patterns.md + memory/frameworks.md to change how problems are approached, not just store notes",
     "tags": [
       "meta",
       "memory",
@@ -607,7 +607,7 @@
   },
   {
     "name": "arc-monitoring-service",
-    "description": "Paid endpoint monitoring service \u2014 checks uptime, response time, and alerts on failures",
+    "description": "Paid endpoint monitoring service — checks uptime, response time, and alerts on failures",
     "tags": [
       "service",
       "monetization",
@@ -647,7 +647,7 @@
   },
   {
     "name": "arc-opensource",
-    "description": "Maintains arc-starter as a living open source project \u2014 syncs commits to GitHub via fleet-handoff, validates publishability, manages AX quality",
+    "description": "Maintains arc-starter as a living open source project — syncs commits to GitHub via fleet-handoff, validates publishability, manages AX quality",
     "tags": [
       "github",
       "open-source",
@@ -742,7 +742,7 @@
   },
   {
     "name": "arc-report-email",
-    "description": "Email watch reports when new ones are generated \u2014 sensor-only, fires after CEO review completes",
+    "description": "Email watch reports when new ones are generated — sensor-only, fires after CEO review completes",
     "tags": [],
     "files": [
       "SKILL.md",
@@ -814,7 +814,7 @@
   },
   {
     "name": "arc-self-audit",
-    "description": "Daily operational self-audit \u2014 task queue health, cost trends, skill/sensor health, recent codebase changes",
+    "description": "Daily operational self-audit — task queue health, cost trends, skill/sensor health, recent codebase changes",
     "tags": [
       "infrastructure",
       "monitoring",
@@ -850,7 +850,7 @@
   },
   {
     "name": "arc-service-health",
-    "description": "System health monitor \u2014 detects stale cycles and stuck dispatch, triggers high-priority alerts",
+    "description": "System health monitor — detects stale cycles and stuck dispatch, triggers high-priority alerts",
     "tags": [
       "sensor",
       "system",
@@ -907,7 +907,7 @@
   },
   {
     "name": "arc-strategy-review",
-    "description": "Weekly strategic check-in against Five Directives and milestones \u2014 lightweight assessment, no queue manipulation, at most 1 follow-up task",
+    "description": "Weekly strategic check-in against Five Directives and milestones — lightweight assessment, no queue manipulation, at most 1 follow-up task",
     "tags": [
       "strategy",
       "weekly",
@@ -945,7 +945,7 @@
   },
   {
     "name": "arc-web-dashboard",
-    "description": "Arc's live web dashboard \u2014 real-time task feed, sensor status, cost tracking",
+    "description": "Arc's live web dashboard — real-time task feed, sensor status, cost tracking",
     "tags": [],
     "files": [
       "SKILL.md",
@@ -960,7 +960,7 @@
   },
   {
     "name": "arc-workflow-review",
-    "description": "Detect repeating task patterns and propose workflow state machines \u2014 sensor creates P5 design tasks",
+    "description": "Detect repeating task patterns and propose workflow state machines — sensor creates P5 design tasks",
     "tags": [
       "orchestration",
       "workflows",
@@ -1055,7 +1055,7 @@
   },
   {
     "name": "arc0btc-pr-review",
-    "description": "Paid PR review service \u2014 accepts GitHub PR URLs via x402 payment and delivers structured code reviews",
+    "description": "Paid PR review service — accepts GitHub PR URLs via x402 payment and delivers structured code reviews",
     "tags": [
       "monetization",
       "github",
@@ -1073,7 +1073,7 @@
   },
   {
     "name": "arc0btc-security-audit",
-    "description": "Paid code security audit service \u2014 accepts GitHub repo URLs via x402 payment and delivers structured security reports",
+    "description": "Paid code security audit service — accepts GitHub repo URLs via x402 payment and delivers structured security reports",
     "tags": [
       "monetization",
       "github",
@@ -1092,7 +1092,7 @@
   },
   {
     "name": "arc0btc-services",
-    "description": "Services storefront for arc0btc.com \u2014 catalog, pricing, delivery pipeline, monitoring",
+    "description": "Services storefront for arc0btc.com — catalog, pricing, delivery pipeline, monitoring",
     "tags": [
       "d1",
       "monetization",
@@ -1196,7 +1196,7 @@
   },
   {
     "name": "bitcoin-taproot-multisig",
-    "description": "Bitcoin Taproot M-of-N multisig coordination \u2014 share pubkeys, verify co-signer signatures, and navigate the OP_CHECKSIGADD workflow.",
+    "description": "Bitcoin Taproot M-of-N multisig coordination — share pubkeys, verify co-signer signatures, and navigate the OP_CHECKSIGADD workflow.",
     "tags": [
       "l1",
       "mainnet-only",
@@ -1217,7 +1217,7 @@
   },
   {
     "name": "bitcoin-wallet",
-    "description": "Wallet management, cryptographic signing, and STX transfers for Stacks and Bitcoin \u2014 unlock, lock, info, status, BTC/Stacks message signing, BTC signature verification, and STX sending.",
+    "description": "Wallet management, cryptographic signing, and STX transfers for Stacks and Bitcoin — unlock, lock, info, status, BTC/Stacks message signing, BTC signature verification, and STX sending.",
     "tags": [
       "infrastructure",
       "sensitive",
@@ -1303,7 +1303,7 @@
   },
   {
     "name": "claude-code-releases",
-    "description": "Applicability research on new Claude Code releases \u2014 how each release affects Arc, AIBTC, and agents in general",
+    "description": "Applicability research on new Claude Code releases — how each release affects Arc, AIBTC, and agents in general",
     "tags": [
       "research",
       "monitoring",
@@ -1321,7 +1321,7 @@
   },
   {
     "name": "code-audit",
-    "description": "On-demand static analysis, dependency review, and security scanning \u2014 Forge's dev quality layer",
+    "description": "On-demand static analysis, dependency review, and security scanning — Forge's dev quality layer",
     "tags": [
       "security",
       "audit",
@@ -1357,7 +1357,7 @@
   },
   {
     "name": "contacts",
-    "description": "Contact management \u2014 agents, humans, addresses, handles, relationships, interaction history",
+    "description": "Contact management — agents, humans, addresses, handles, relationships, interaction history",
     "tags": [
       "crm",
       "network",
@@ -1418,7 +1418,7 @@
   },
   {
     "name": "defi-bitflow",
-    "description": "Bitflow DEX \u2014 DCA automation, swap quotes, and high-spread signal detection",
+    "description": "Bitflow DEX — DCA automation, swap quotes, and high-spread signal detection",
     "tags": [
       "defi",
       "trading",
@@ -1439,7 +1439,7 @@
   },
   {
     "name": "defi-compounding",
-    "description": "Compounding automation \u2014 harvest and reinvest DeFi yields via Bitflow LP",
+    "description": "Compounding automation — harvest and reinvest DeFi yields via Bitflow LP",
     "tags": [
       "defi",
       "automation",
@@ -1459,7 +1459,7 @@
   },
   {
     "name": "defi-stacks-market",
-    "description": "Prediction market trading and intelligence on stacksmarket.app \u2014 budget-enforced trading, position tracking, and signal filing. Mainnet-only.",
+    "description": "Prediction market trading and intelligence on stacksmarket.app — budget-enforced trading, position tracking, and signal filing. Mainnet-only.",
     "tags": [
       "l2",
       "defi",
@@ -1483,7 +1483,7 @@
   },
   {
     "name": "defi-zest",
-    "description": "Zest Protocol yield farming \u2014 supply, withdraw, position monitoring",
+    "description": "Zest Protocol yield farming — supply, withdraw, position monitoring",
     "tags": [
       "defi",
       "yield",
@@ -1505,7 +1505,7 @@
   },
   {
     "name": "dev-landing-page-review",
-    "description": "Full React/Next.js PR review \u2014 77 performance rules + 10 composition rules + ~100 UI/accessibility rules for aibtcdev/landing-page PRs",
+    "description": "Full React/Next.js PR review — 77 performance rules + 10 composition rules + ~100 UI/accessibility rules for aibtcdev/landing-page PRs",
     "tags": [
       "react",
       "nextjs",
@@ -1527,7 +1527,7 @@
   },
   {
     "name": "erc8004-identity",
-    "description": "ERC-8004 on-chain agent identity management \u2014 register agent identities, update URI and metadata, manage operator approvals, set/unset agent wallet, transfer identity NFTs, and query identity info.",
+    "description": "ERC-8004 on-chain agent identity management — register agent identities, update URI and metadata, manage operator approvals, set/unset agent wallet, transfer identity NFTs, and query identity info.",
     "tags": [
       "erc8004",
       "identity",
@@ -1567,7 +1567,7 @@
   },
   {
     "name": "erc8004-reputation",
-    "description": "ERC-8004 on-chain agent reputation management \u2014 submit and revoke feedback, append responses, approve clients, and query reputation summaries, feedback entries, and client lists.",
+    "description": "ERC-8004 on-chain agent reputation management — submit and revoke feedback, append responses, approve clients, and query reputation summaries, feedback entries, and client lists.",
     "tags": [
       "erc8004",
       "reputation",
@@ -1590,7 +1590,7 @@
   },
   {
     "name": "erc8004-trust",
-    "description": "ERC-8004 trust score aggregation \u2014 compute a composite 0-100 trust score for an agent by combining on-chain reputation feedback and validation scores.",
+    "description": "ERC-8004 trust score aggregation — compute a composite 0-100 trust score for an agent by combining on-chain reputation feedback and validation scores.",
     "tags": [
       "erc8004",
       "reputation",
@@ -1609,7 +1609,7 @@
   },
   {
     "name": "erc8004-validation",
-    "description": "ERC-8004 on-chain agent validation management \u2014 request and respond to validations, and query validation status, summaries, and paginated lists by agent or validator.",
+    "description": "ERC-8004 on-chain agent validation management — request and respond to validations, and query validation status, summaries, and paginated lists by agent or validator.",
     "tags": [
       "erc8004",
       "validation",
@@ -1623,240 +1623,6 @@
     ],
     "has_skill_md": true,
     "has_sensor": false,
-    "has_cli": true,
-    "has_agent_md": true,
-    "extra_files": []
-  },
-  {
-    "name": "fleet-comms",
-    "description": "Detect agents that go silent \u2014 no dispatch or self-report for >1h",
-    "tags": [
-      "infrastructure",
-      "fleet",
-      "monitoring",
-      "sensor"
-    ],
-    "files": [
-      "SKILL.md",
-      "sensor.ts"
-    ],
-    "has_skill_md": true,
-    "has_sensor": true,
-    "has_cli": false,
-    "has_agent_md": false,
-    "extra_files": []
-  },
-  {
-    "name": "fleet-dashboard",
-    "description": "Aggregate fleet metrics \u2014 task counts and cost per agent \u2014 every 30 minutes",
-    "tags": [
-      "infrastructure",
-      "fleet",
-      "monitoring",
-      "sensor"
-    ],
-    "files": [
-      "SKILL.md",
-      "sensor.ts"
-    ],
-    "has_skill_md": true,
-    "has_sensor": true,
-    "has_cli": false,
-    "has_agent_md": false,
-    "extra_files": []
-  },
-  {
-    "name": "fleet-escalation",
-    "description": "Detect blocked tasks on fleet agents, escalate to Arc, notify whoabuddy via email",
-    "tags": [
-      "fleet",
-      "escalation",
-      "monitoring",
-      "sensor"
-    ],
-    "files": [
-      "SKILL.md",
-      "sensor.ts",
-      "cli.ts"
-    ],
-    "has_skill_md": true,
-    "has_sensor": true,
-    "has_cli": true,
-    "has_agent_md": false,
-    "extra_files": []
-  },
-  {
-    "name": "fleet-handoff",
-    "description": "Route tasks between fleet agents \u2014 especially GitHub operations to Arc",
-    "tags": [
-      "fleet",
-      "github",
-      "coordination"
-    ],
-    "files": [
-      "SKILL.md",
-      "cli.ts"
-    ],
-    "has_skill_md": true,
-    "has_sensor": false,
-    "has_cli": true,
-    "has_agent_md": false,
-    "extra_files": []
-  },
-  {
-    "name": "fleet-health",
-    "description": "Monitor agent fleet VMs \u2014 service status, dispatch age, disk usage, auth method",
-    "tags": [
-      "infrastructure",
-      "fleet",
-      "monitoring",
-      "sensor"
-    ],
-    "files": [
-      "SKILL.md",
-      "sensor.ts",
-      "cli.ts"
-    ],
-    "has_skill_md": true,
-    "has_sensor": true,
-    "has_cli": true,
-    "has_agent_md": false,
-    "extra_files": []
-  },
-  {
-    "name": "fleet-log-pull",
-    "description": "Pull cycle logs and task stats from fleet agents via SSH",
-    "tags": [
-      "infrastructure",
-      "fleet",
-      "monitoring",
-      "sensor"
-    ],
-    "files": [
-      "SKILL.md",
-      "sensor.ts",
-      "cli.ts"
-    ],
-    "has_skill_md": true,
-    "has_sensor": true,
-    "has_cli": true,
-    "has_agent_md": false,
-    "extra_files": []
-  },
-  {
-    "name": "fleet-memory",
-    "description": "Collect, merge, and distribute learnings across all fleet agents",
-    "tags": [
-      "fleet",
-      "memory",
-      "orchestration"
-    ],
-    "files": [
-      "SKILL.md",
-      "sensor.ts",
-      "cli.ts"
-    ],
-    "has_skill_md": true,
-    "has_sensor": true,
-    "has_cli": true,
-    "has_agent_md": false,
-    "extra_files": [
-      "ARCHITECTURE.md"
-    ]
-  },
-  {
-    "name": "fleet-push",
-    "description": "Change-aware code deployment \u2014 sync commits to fleet and restart only affected services",
-    "tags": [
-      "fleet",
-      "infrastructure",
-      "deployment"
-    ],
-    "files": [
-      "SKILL.md",
-      "cli.ts"
-    ],
-    "has_skill_md": true,
-    "has_sensor": false,
-    "has_cli": true,
-    "has_agent_md": false,
-    "extra_files": []
-  },
-  {
-    "name": "fleet-rebalance",
-    "description": "Work-stealing rebalancer \u2014 moves tasks from overloaded agents to idle ones",
-    "tags": [
-      "infrastructure",
-      "fleet",
-      "scheduling",
-      "sensor"
-    ],
-    "files": [
-      "SKILL.md",
-      "sensor.ts",
-      "cli.ts"
-    ],
-    "has_skill_md": true,
-    "has_sensor": true,
-    "has_cli": true,
-    "has_agent_md": false,
-    "extra_files": []
-  },
-  {
-    "name": "fleet-router",
-    "description": "Automated task routing from Arc to fleet agents based on domain matching",
-    "tags": [
-      "fleet",
-      "orchestration",
-      "routing",
-      "sensor"
-    ],
-    "files": [
-      "SKILL.md",
-      "sensor.ts",
-      "cli.ts"
-    ],
-    "has_skill_md": true,
-    "has_sensor": true,
-    "has_cli": true,
-    "has_agent_md": false,
-    "extra_files": []
-  },
-  {
-    "name": "fleet-self-sync",
-    "description": "Worker-local git bundle detection, apply, service restart, and health validation",
-    "tags": [
-      "fleet",
-      "infrastructure",
-      "sync"
-    ],
-    "files": [
-      "SKILL.md",
-      "sensor.ts",
-      "cli.ts"
-    ],
-    "has_skill_md": true,
-    "has_sensor": true,
-    "has_cli": true,
-    "has_agent_md": false,
-    "extra_files": []
-  },
-  {
-    "name": "fleet-sync",
-    "description": "Sync CLAUDE.md, skills, and git commits across fleet agents via SSH",
-    "tags": [
-      "fleet",
-      "infrastructure",
-      "sync"
-    ],
-    "files": [
-      "SKILL.md",
-      "sensor.ts",
-      "cli.ts",
-      "AGENT.md"
-    ],
-    "has_skill_md": true,
-    "has_sensor": true,
     "has_cli": true,
     "has_agent_md": true,
     "extra_files": []
@@ -1916,7 +1682,7 @@
   },
   {
     "name": "github-issues",
-    "description": "GitHub issue intake for Forge \u2014 sensor detects assigned/labeled issues, CLI provides triage and code analysis workflow",
+    "description": "GitHub issue intake for Forge — sensor detects assigned/labeled issues, CLI provides triage and code analysis workflow",
     "tags": [
       "github",
       "issues",
@@ -1953,7 +1719,7 @@
   },
   {
     "name": "github-release-watcher",
-    "description": "Detects new releases on bun, claude-code, stacks-core, aibtcdev/skills and 5 other watched repos \u2014 creates P7 review tasks",
+    "description": "Detects new releases on bun, claude-code, stacks-core, aibtcdev/skills and 5 other watched repos — creates P7 review tasks",
     "tags": [
       "monitoring",
       "github",
@@ -1971,7 +1737,7 @@
   },
   {
     "name": "github-security-alerts",
-    "description": "Monitor Dependabot security alerts on managed repos \u2014 P3/P4 alerts for critical/high CVEs",
+    "description": "Monitor Dependabot security alerts on managed repos — P3/P4 alerts for critical/high CVEs",
     "tags": [
       "security",
       "github",
@@ -2009,7 +1775,7 @@
   },
   {
     "name": "identity-guard",
-    "description": "Validates agent identity files match hostname \u2014 detects and alerts on identity drift",
+    "description": "Validates agent identity files match hostname — detects and alerts on identity drift",
     "tags": [
       "infrastructure",
       "fleet",
@@ -2027,7 +1793,7 @@
   },
   {
     "name": "jingswap",
-    "description": "Jingswap blind batch auction on Stacks \u2014 sBTC/STX and sBTC/USDCx markets, cycle state, deposits, settlements",
+    "description": "Jingswap blind batch auction on Stacks — sBTC/STX and sBTC/USDCx markets, cycle state, deposits, settlements",
     "tags": [
       "defi",
       "dex",
@@ -2047,7 +1813,7 @@
   },
   {
     "name": "maximumsats",
-    "description": "Nostr Web of Trust (WoT) scoring via MaximumSats API \u2014 trust scores, sybil detection, and trust paths for Nostr pubkeys.",
+    "description": "Nostr Web of Trust (WoT) scoring via MaximumSats API — trust scores, sybil detection, and trust paths for Nostr pubkeys.",
     "tags": [
       "nostr",
       "trust",
@@ -2242,7 +2008,7 @@
   },
   {
     "name": "stacks-stackspot",
-    "description": "Autonomous Stacking participation \u2014 detect joinable pots, auto-join with Arc wallet, claim sBTC rewards. Mainnet-only lottery stacking.",
+    "description": "Autonomous Stacking participation — detect joinable pots, auto-join with Arc wallet, claim sBTC rewards. Mainnet-only lottery stacking.",
     "tags": [
       "l2",
       "stacking",
@@ -2262,7 +2028,7 @@
   },
   {
     "name": "styx",
-    "description": "BTC\u2192sBTC conversion via Styx protocol (btc2sbtc.com) \u2014 pool status, fees, deposit, and tracking",
+    "description": "BTC→sBTC conversion via Styx protocol (btc2sbtc.com) — pool status, fees, deposit, and tracking",
     "tags": [
       "defi",
       "bitcoin",
@@ -2283,7 +2049,7 @@
   },
   {
     "name": "systems-monitor",
-    "description": "Fleet VM system health \u2014 disk, memory, CPU load, and service status for agent nodes",
+    "description": "Fleet VM system health — disk, memory, CPU load, and service status for agent nodes",
     "tags": [
       "sensor",
       "infrastructure",
