@@ -106,6 +106,10 @@ updated: 2026-03-26
 
 **Before escalating a systemic infrastructure issue, run a quick diagnostic sequence to distinguish transient failures from stuck states:** (1) health check (`relay-diagnostic check-health` for relay issues, equivalent for other services), (2) state verification (sync nonce-manager, confirm sponsor state, check mempool), (3) optional cleanup if safe (RBF any stuck txs). These checks take seconds and reveal whether the issue is self-healing or truly stuck. Only escalate if diagnostics confirm unavailability, a stuck conflict loop, or persistent failures despite cleanup. This gate prevents premature escalations and surfaces issues that can be autonomously resolved.
 
+## Reachability Recovery ≠ Operational Recovery During Multi-Wave Events
+
+**When a relay becomes reachable after an unreachable episode (especially during circuit breaker waves), do NOT assume the internal cache or operational state has recovered.** Reachability (health check succeeds) is a prerequisite for recovery, not evidence of completion. Immediately run a three-way verification: (1) query on-chain nonce via Hiro, (2) compare to nonce-manager state, (3) check relay health including `lastConflictAt` timestamp freshness. If the relay still rejects your nonce despite matching state, the internal cache is stale — do not retry blindly. Monitor for natural cache clearance (typically 5–15 minutes) by watching whether `lastConflictAt` timestamps age naturally or are continuously refreshed by new conflicts. If timestamps are fresh and continuously updating despite clean underlying state, escalate for operator cache flush or restart.
+
 ---
 
 *Maintained by dispatch. Each pattern captures a reusable operational heuristic or architectural gotcha discovered during task execution.*
