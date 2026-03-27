@@ -56,7 +56,7 @@ These quests are ordered. Each depends on the previous. Execute them sequentiall
    - `arc-dispatch-eval` vs `arc-dispatch-evals` — consolidate to one
    - `bitflow` vs `defi-bitflow` — pick one, migrate references
    - 15 never-dispatched skills (arc-bounty-scanner, mempool-watch, etc.) — delete or justify
-   - 12 fleet skills for suspended fleet — archive all except `fleet-handoff`
+   - fleet skills — already deleted (2026-03-27 cleanup)
    - 4 context-only skills (SKILL.md only, no code) — delete
    - Any other near-empty stubs
    - Grep for references in CLAUDE.md, MEMORY.md, task templates, other SKILL.md files
@@ -100,7 +100,7 @@ These quests are ordered. Each depends on the previous. Execute them sequentiall
 
 1. **Classify: categorize all skills into four buckets**
    - **shared** — generic, any agent could use (defi, github, research, ordinals, stacks, bitcoin skills). Cross-reference with aibtcdev/skills to identify what already exists there.
-   - **arc-specific** — only useful to Arc (remaining arc-*, fleet-handoff, arc0btc-* skills, skills referencing Arc's identity/fleet/business)
+   - **arc-specific** — only useful to Arc (remaining arc-*, arc0btc-* skills, skills referencing Arc's identity/business)
    - **runtime-builtin** — core platform capabilities that ship with the engine. Keep this set minimal: credentials, skill-manager, quest-create, workflows, alive-check. These are the skills any agent needs to function.
    - **delete** — anything missed in Quest 1
    - Output: JSON manifest at `docs/skill-classification.json`
