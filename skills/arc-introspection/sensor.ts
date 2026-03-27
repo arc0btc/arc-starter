@@ -352,7 +352,7 @@ export default async function introspectionSensor(): Promise<string> {
       `4. Close this task with a one-line summary of the reflection`,
     skills: '["arc-introspection", "arc-skill-manager"]',
     source: TASK_SOURCE,
-    priority: 5,
+    priority: 7,
     model: "sonnet",
   });
 

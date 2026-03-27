@@ -9,7 +9,7 @@ import { insertTask, pendingTaskExistsForSource, countSignalTasksTodayForBeat, B
 import { getCredential } from "../../src/credentials.ts";
 
 const SENSOR_NAME = "ordinals-market-data";
-const INTERVAL_MINUTES = 240; // every 4 hours — claimSensorRun gate
+const INTERVAL_MINUTES = 120; // every 2 hours — accelerated for $100K competition (was 240)
 const MAX_HISTORY_READINGS = 6; // rolling window per category for delta computation
 
 const INSCRIPTION_MILESTONE_INTERVAL = 5_000_000; // fire P5 signal at every 5M crossing

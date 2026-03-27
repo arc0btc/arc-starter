@@ -12,7 +12,7 @@ import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 const SENSOR_NAME = "arc-ceo-review";
 const INTERVAL_MINUTES = 720; // 12 hours — daily strategic review
 const TASK_SOURCE = "sensor:arc-ceo-review";
-const PRIORITY = 1; // blocks report delivery to whoabuddy — process first
+const PRIORITY = 3; // important but shouldn't preempt emails and inbox
 
 const ROOT = new URL("../../", import.meta.url).pathname;
 const REPORTS_DIR = join(ROOT, "reports");

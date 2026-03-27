@@ -405,7 +405,7 @@ export default async function workflowReviewSensor(): Promise<string> {
     description: lines.join("\n"),
     skills: '["arc-workflows", "arc-skill-manager"]',
     source: TASK_SOURCE,
-    priority: 5,
+    priority: 7,
     model: "sonnet",
   });
 

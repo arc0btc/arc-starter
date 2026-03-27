@@ -1,12 +1,17 @@
 // skills/erc8004-indexer/sensor.ts
-// Periodically queues a task to refresh the ERC-8004 agents index and website page.
+// Queues a task to refresh the ERC-8004 agents index only when registry has changed.
+// Compares current lastAgentId from local data file against hook-state to detect new registrations.
 
-import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
+import { join } from "node:path";
+import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
 import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "erc8004-indexer";
 const INTERVAL_MINUTES = 360; // 6 hours
 const TASK_SOURCE = "sensor:erc8004-indexer";
+
+const ROOT = new URL("../../", import.meta.url).pathname;
+const AGENTS_FILE = join(ROOT, "db", "erc8004-agents.json");
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -17,6 +22,24 @@ export default async function erc8004IndexerSensor(): Promise<string> {
 
     if (pendingTaskExistsForSource(TASK_SOURCE)) {
       log("indexer task already pending");
+      return "skip";
+    }
+
+    // Signal-gate: only create task if registry has new agents since last index
+    const state = await readHookState(SENSOR_NAME);
+    const lastKnownAgentId = state?.last_agent_id ?? 0;
+
+    let currentAgentId = 0;
+    try {
+      const data = JSON.parse(await Bun.file(AGENTS_FILE).text());
+      currentAgentId = data.lastAgentId ?? 0;
+    } catch {
+      // File missing or unreadable — run the index to create it
+      log("agents file missing or unreadable, will index");
+    }
+
+    if (currentAgentId > 0 && currentAgentId <= lastKnownAgentId) {
+      log(`no new agents (lastAgentId=${currentAgentId}, last indexed=${lastKnownAgentId})`);
       return "skip";
     }
 
@@ -33,7 +56,13 @@ export default async function erc8004IndexerSensor(): Promise<string> {
       model: "sonnet",
     });
 
-    log("queued ERC-8004 index refresh task");
+    // Record the agent count we just saw so next run can compare
+    await writeHookState(SENSOR_NAME, {
+      ...(state ?? {}),
+      last_agent_id: currentAgentId,
+    });
+
+    log(`queued ERC-8004 index refresh (lastAgentId=${currentAgentId}, was ${lastKnownAgentId})`);
     return "ok";
   } catch (e) {
     log(`sensor error: ${e instanceof Error ? e.message : String(e)}`);
