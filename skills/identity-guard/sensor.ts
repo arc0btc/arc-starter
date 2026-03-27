@@ -33,13 +33,8 @@ const ARC_MARKERS: readonly string[] = [
   "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B",
 ] as const;
 
-/** Identity markers that should NOT appear in Arc's SOUL.md (worker names) */
-const WORKER_MARKERS: Record<string, readonly string[]> = {
-  spark: ["# Spark\n", "I'm Spark.", "I'm Spark "],
-  iris: ["# Iris\n", "I'm Iris.", "I'm Iris "],
-  loom: ["# Loom\n", "I'm Loom.", "I'm Loom "],
-  forge: ["# Forge\n", "I'm Forge.", "I'm Forge "],
-} as const;
+/** Identity markers that should NOT appear in Arc's SOUL.md */
+const WORKER_MARKERS: Record<string, readonly string[]> = {} as const;
 
 export default async function sensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);

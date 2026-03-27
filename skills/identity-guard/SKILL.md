@@ -1,27 +1,21 @@
 ---
 name: identity-guard
 description: Validates agent identity files match hostname — detects and alerts on identity drift
-updated: 2026-03-10
+updated: 2026-03-27
 tags:
   - infrastructure
-  - fleet
   - identity
 ---
 
 # identity-guard
 
-Sensor that validates SOUL.md and MEMORY.md contain the correct agent identity based on hostname. Detects identity drift caused by fleet-sync overwriting per-agent files with Arc's versions.
+Sensor that validates SOUL.md and MEMORY.md contain the correct agent identity based on hostname. Detects identity drift caused by file overwrites.
 
 ## What It Does
 
 Every 30 minutes, reads SOUL.md and checks for identity markers that don't match the current agent:
-- Detects Arc-specific strings (`I'm Arc`, `arc0btc`, Arc's wallet addresses) on non-Arc hosts
+- Detects unexpected identity strings in SOUL.md
 - Creates a P1 alert task if drift is detected
-- Runs on all agents (workers + Arc) via the worker sensor allowlist
-
-## Why It Exists
-
-Fleet-self-sync applies `git reset --hard` which can overwrite per-agent SOUL.md with Arc's version. While backup/restore logic exists, edge cases (uncommitted files, rollback paths, corrupted backups) can still cause identity drift. This sensor is the last line of defense.
 
 ## Checklist
 

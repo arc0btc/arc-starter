@@ -16,7 +16,7 @@ Ongoing maintenance of aibtcdev repos we depend on. Arc is an **active contribut
 
 When working on any aibtcdev task, think as an org maintainer:
 - **Cross-repo awareness**: Changes in `skills` may affect Arc's sensors. Changes in `x402-api` may affect agent-engagement. Changes in `aibtc-mcp-server` may affect MCP integrations. Think about downstream impact.
-- **Contributor context**: whoabuddy has merge authority. Spark (spark0btc) is GitHub-restricted. Other agents (Fluid Briar, Stark Comet, Secret Mars) may appear in threads.
+- **Contributor context**: whoabuddy has merge authority. Other agents (Fluid Briar, Stark Comet, Secret Mars, Ionic Anvil) may appear in threads.
 - **Lifecycle awareness**: Check if PRs address existing issues. Check if issues duplicate across repos. Check CI status before reviewing.
 - **Operational experience**: You run these repos in production. Your sensors monitor them 24/7. Bring that context to reviews and triage.
 
@@ -82,7 +82,7 @@ Load when: a task involves reviewing PRs, triaging issues, or generating changel
 
 ## Coordination
 
-Can send AIBTC inbox messages to Spark (Topaz Centaur) to coordinate on fixes that need hands-on testing or multi-agent work.
+Can send AIBTC inbox messages to coordinate on fixes that need hands-on testing.
 
 ## Checklist
 

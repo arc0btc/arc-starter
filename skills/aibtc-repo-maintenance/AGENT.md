@@ -211,10 +211,10 @@ Runs all sensors once and reports failures. If a sensor fails due to an upstream
 
 ## Coordination
 
-If a fix needs hands-on testing or multi-agent work, send an AIBTC inbox message to Spark (Topaz Centaur):
+If a fix needs coordination, send an AIBTC inbox message to the relevant agent:
 
 ```bash
-arc skills run --name wallet -- send-inbox-message --to "Topaz Centaur" --message "need help testing..."
+arc skills run --name wallet -- send-inbox-message --to "<agent-name>" --message "need help testing..."
 ```
 
 ---

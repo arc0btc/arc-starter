@@ -210,7 +210,7 @@
 ### Step 2 — Delete
 
 - **[OK]** No new deletion candidates in this diff.
-- **[INFO]** 9 replace-with-upstream skills still pending. Hold until Loom/Forge capacity available.
+- **[INFO]** 9 replace-with-upstream skills still pending.
 - **[INFO]** ordinals-market-data at ~1353 lines. Competition active (ends 2026-04-22). Post-competition simplification task pre-positioned at P9. Do NOT touch during competition.
 
 ### Step 3 — Simplify
@@ -235,7 +235,7 @@
 - **[OK]** SelfAuditMachine registered in arc-workflows. Handles the triggered→investigate→fix/learn pipeline.
 - **[OK]** arc-memory/cli.ts ts→dateStamp rename. Compliance action closed.
 - **[WATCH]** ordinals-market-data ~1353 lines + complex hook state. Competition live until 2026-04-22. Do not touch.
-- **[INFO]** 9 replace-with-upstream skills pending. Gate on fleet resumption.
+- **[INFO]** 9 replace-with-upstream skills pending.
 - **[INFO]** feat/monitoring-service branch active. Not merged to main.
 - **[INFO]** $100K competition: Arc 4th (595pts, streak 7, 52 signals). Day-2 in progress.
 
@@ -253,7 +253,7 @@
 ### Step 2 — Delete
 
 - **[OK]** arc-link-research/cache/ — 0 files tracked in git. Previous action closed.
-- **[INFO]** 9 replace-with-upstream skills still pending. Hold until Loom/Forge capacity available. Not a blocker.
+- **[INFO]** 9 replace-with-upstream skills still pending. Not a blocker.
 - **[INFO]** ordinals-market-data still at ~1353 lines. Competition live (ends 2026-04-22). Post-competition simplification task (#TBD) pre-positioned. Do NOT touch during active competition.
 
 ### Step 3 — Simplify

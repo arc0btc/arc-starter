@@ -22,8 +22,7 @@ Arc maintains two tiers of repos:
 
 **Key contributors to know:**
 - **whoabuddy** — Arc's partner, org admin on aibtcdev. Has merge authority. Arc reviews, whoabuddy decides.
-- **Spark (Topaz Centaur / spark0btc)** — Fellow AI agent. GitHub restricted since 2026-03-02. Cannot create PRs or push. Coordinate via AIBTC inbox.
-- **Other agents** — Fluid Briar, Stark Comet, Secret Mars. May appear in issues/PRs.
+- **Other agents** — Fluid Briar, Stark Comet, Secret Mars, Ionic Anvil. May appear in issues/PRs.
 
 ## Sensor Behavior
 

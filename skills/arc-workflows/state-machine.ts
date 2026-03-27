@@ -1442,7 +1442,7 @@ Steps:
  *
  * Pattern detected: "source:human" tasks (8 recurrences, avg 5.3 steps) consistently spawn
  * a "funding received" confirmation task followed by an on-chain registration or operation.
- * Examples: "Fund Loom/Forge wallets → STX funding received → proceed with on-chain registration".
+ * Examples: "Fund wallet → STX funding received → proceed with on-chain registration".
  * This machine tracks the funding lifecycle and ensures the downstream operation is triggered.
  *
  * instance_key: "wallet-funding-{agent}-{operation-slug}" (one per agent per operation)

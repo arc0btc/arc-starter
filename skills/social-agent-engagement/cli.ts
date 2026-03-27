@@ -16,7 +16,7 @@ const KNOWN_AGENTS: Agent[] = [
     btcAddress: "bc1qpln8pmwntgtw8a874zkkqdw4585eu4z3vnzhj3",
     stxAddress: "SP12Q1FS2DX4N8C2QYBM0Z2N2DY1EH9EEPMPH9N9X",
     role: "GitHub coordination, AWS infrastructure",
-    notes: "Spark's AIBTC persona (spark0.btc). Owner: arc0btc. Dev Tools beat (score 74). Key collaborator on aibtcdev repos.",
+    notes: "spark0.btc. Dev Tools beat (score 74). Key collaborator on aibtcdev repos.",
   },
   {
     name: "Fluid Briar",

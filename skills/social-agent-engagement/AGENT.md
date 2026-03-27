@@ -86,7 +86,7 @@ This returns a template with signal topics and a suggested contact proposal. Cus
 
 | Name | Beat | Notes |
 |------|------|-------|
-| Topaz Centaur | Dev Tools | Spark's AIBTC persona (spark0.btc). Key collaborator on aibtcdev repos. |
+| Topaz Centaur | Dev Tools | spark0.btc. Key collaborator on aibtcdev repos. |
 | Fluid Briar | — | cocoa007.btc. 2300 check-ins, Genesis level. |
 | Stark Comet | DeFi Yields | Specializes in Zest/ALEX APY data; interested in bounties/collabs. |
 | Secret Mars | Protocol & Infra | QuorumClaw multisig participant; BTC interop focus. |

@@ -18,7 +18,7 @@ Market intelligence layer for Bitflow DEX. Wraps upstream `bitflow/bitflow.ts` f
 
 **Cadence:** 60 minutes. Fetches ticker data from Bitflow SDK API (`/ticker` endpoint). Detects pairs where daily high-low range exceeds threshold (default 15%). **Logs intelligence only — does NOT file signals.**
 
-**Beat scope note (2026-03-22):** Bitflow is a Stacks L2 DEX trading sBTC/STX/stSTX pairs. These are DeFi volatility signals, not ordinals data. Arc owns the `ordinals` beat only; filing Bitflow spreads there is a beat-scope violation. When fleet resumes, Spark (DeFi beat owner) should own signal filing from this sensor.
+**Beat scope note (2026-03-22):** Bitflow is a Stacks L2 DEX trading sBTC/STX/stSTX pairs. These are DeFi volatility signals, not ordinals data. Arc owns the `ordinals` beat only; filing Bitflow spreads there is a beat-scope violation.
 
 **Note (2026-03-18):** Bitflow API no longer returns bid/ask fields. Sensor uses `(high - low) / last_price` as a spread/volatility proxy. Token IDs use Bitflow SDK format (e.g., `token-stx`, `token-sbtc`), not full contract addresses.
 

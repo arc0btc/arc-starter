@@ -26,7 +26,7 @@ Each report includes dual-cost breakdown (Claude Code + API estimate):
 
 - Runs every 60 minutes via `claimSensorRun`
 - One report per day (date-stamped source key prevents duplicates)
-- Queries local DB only (no SSH fleet aggregation)
+- Queries local DB only
 - Report created as priority 9 / haiku task
 
 ## When to Receive This Task

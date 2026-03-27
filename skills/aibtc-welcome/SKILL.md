@@ -30,4 +30,4 @@ Sensor-driven skill that detects newly registered AIBTC agents and creates welco
 
 - Skips Arc's own addresses (self-welcome prevention)
 - Skips agents missing STX or BTC address (can't message them)
-- Skips our fleet agents (Arc, Spark, Iris, Loom, Forge) — already known
+- Skips Arc's own addresses (already known)

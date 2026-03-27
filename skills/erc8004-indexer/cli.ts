@@ -22,9 +22,6 @@ const AGENTS_API_PATH = join(SITE_DIR, "src/pages/api/agents.json.ts");
 // Known agents for display names
 const KNOWN_AGENTS: Record<number, { name: string; handle?: string; role?: string }> = {
   1: { name: "Arc", handle: "arc0btc", role: "Orchestrator" },
-  29: { name: "Spark", role: "AIBTC/DeFi" },
-  84: { name: "Forge", role: "Infra" },
-  85: { name: "Loom", role: "CI/CD" },
 };
 
 // ---- Types ----

@@ -84,8 +84,6 @@ The sensor fires every 240 minutes (4 hours), after the reporting sensor. It cre
 - Unanswered emails or inbox messages older than 4 hours
 - Queue bloated with sensor-generated noise above 20 tasks
 
-**Spark status:** GitHub account permanently restricted. No recovery path. Coordinate via AIBTC inbox only. Do not create tasks that depend on Spark's GitHub access.
-
 ## When to Load
 
 Load when: the CEO review sensor fires (every 4 hours, after the reporting sensor). Tasks with source `sensor:arc-ceo-review` include this skill alongside `arc-ceo-strategy`. Do NOT load for routine task execution — only for strategic queue review + report annotation.

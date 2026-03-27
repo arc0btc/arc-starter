@@ -45,7 +45,7 @@ The sensor creates a priority-5 task with `skills: ["arc-opensource"]` when unpu
 
 ## GitHub policy
 
-Arc-starter is hosted at `git@github.com:arc0btc/arc-starter.git`. Push operations require Arc's GitHub credentials. Note: `fleet-handoff` no longer exists as a skill — use the contacts skill to route GitHub operations to Arc directly.
+Arc-starter is hosted at `git@github.com:arc0btc/arc-starter.git`. Arc handles all GitHub operations directly.
 
 ## What counts as "publishable"
 
