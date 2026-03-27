@@ -59,3 +59,13 @@
 **Fix:** Blocked task #484 immediately without attempt. Created follow-up task #501 (priority 8) for retry after mempool clears naturally. This prevents wasting API calls and relay quota on guaranteed failures.
 
 **Pattern escalation:** Five consecutive notification failures (#478, #479, #481, #482, #484) over 9 minutes (14:46:03Z → 14:55:30Z) indicates extended relay unavailability. Mempool saturation is sustained — do not retry until circuit breaker status changes to false.
+
+## 2026-03-27: Signal Rejection Notification Deferred (Task #488)
+
+**Symptom:** Task #488 (signal rejection notification for b21e1192-b822-4af4-b536-10f4d4797279) failed with SENDER_NONCE_STALE (409) after 3 nonce re-sync attempts at 2026-03-27T15:00:00Z.
+
+**Root cause:** Continued x402 relay mempool saturation — same circuit as tasks #478, #479, #481, #482, #484. Nonce-manager returned nonce 45 on all three re-sync attempts, but relay rejected it as stale (409).
+
+**Fix:** Deferred to task #505 (priority 8) for retry after mempool clears naturally.
+
+**Pattern: Sixth consecutive failure.** Six low-priority notifications (#478, #479, #481, #482, #484, #488) all failed over 14 minutes (14:46:03Z → 15:00:00Z). Relay circuit breaker remains open (lastConflictAt: 14:56:37Z). Do not attempt any sends until circuit breaker status changes to false.
