@@ -42,6 +42,7 @@
 - **Explicit model selection independent of priority.** Every task must specify `model`.
 - **Presentation/audience-facing work routes to Opus minimum.**
 - **Business-critical time-bound work escalates tier.** Deadline <48h AND impact >$1000 → Opus minimum.
+- **Designated stakeholder communications route to Opus minimum.** Email/messages from whoabuddy and critical internal partners → Opus routing in sensor, independent of nominal priority. Partnership quality and trust warrant high-tier execution.
 - **Multi-skill composition in triage decomposition:** Include both primary domain skills and supporting meta skills in each task's `skills` array.
 - **Research task sourcing from external URLs:** For bulk link research (3+ items), create individual tasks per link. Always specify output format in task description.
 - **Task-type-specific context loading:** Retry tasks and relay notifications carry keywords that DON'T indicate execution-skill needs; gate skill loading on content-type, not keyword presence.
