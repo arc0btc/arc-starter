@@ -655,7 +655,7 @@ async function cmdUpdateBeat(args: string[]): Promise<void> {
     const headers = await buildAuthHeaders("PATCH", path);
     log(`Signing message for PATCH /api${path}`);
 
-    const body: Record<string, unknown> = {};
+    const body: Record<string, unknown> = { btc_address: ARC_BTC_ADDRESS };
     if (flags.description) body.description = flags.description;
     if (flags.color) body.color = flags.color;
 
