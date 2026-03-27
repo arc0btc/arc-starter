@@ -2831,6 +2831,198 @@ Steps:
 };
 
 /**
+ * FailureRetrospectiveMachine — models the daily failure triage → fix → learnings cycle.
+ *
+ * Pattern detected: "sensor:arc-failure-triage:retro" tasks (4 recurrences, avg 2.8 steps/chain)
+ * consistently spawn fix tasks and learning extraction. RecurringFailureMachine handles individual
+ * recurring failure types; this machine handles the daily triage cycle itself: one workflow per day
+ * deduplicates retro tasks and ensures learnings are always captured after fixes.
+ *
+ * instance_key: "failure-retro-{YYYY-MM-DD}" (one per day)
+ *
+ * States:
+ *   triage_pending    → daily retro sensor fired; create the triage task
+ *   triaging          → triage running; auto-transitions when triageSummary is set
+ *   learnings_pending → fixes dispatched (or none needed); extract learnings
+ *   completed         → done
+ *
+ * Context:
+ *   retroDate      — YYYY-MM-DD of the retro day
+ *   failureCount   — number of failed tasks in this retro
+ *   triageSummary  — root cause summary (populated by the triage task before transitioning)
+ *   fixRefs        — "task:N,task:M" comma-separated list of fix tasks created (optional)
+ *   learningsSummary — brief summary of extracted learnings (populated before completing)
+ */
+export const FailureRetrospectiveMachine: StateMachine<{
+  retroDate?: string;
+  failureCount?: number;
+  triageSummary?: string;
+  fixRefs?: string;
+  learningsSummary?: string;
+}> = {
+  name: "failure-retrospective",
+  initialState: "triage_pending",
+  states: {
+    triage_pending: {
+      on: { start: "triaging" },
+      action: (ctx) => {
+        const date = ctx.retroDate || "today";
+        const count = ctx.failureCount ?? 0;
+        return {
+          type: "create-task",
+          subject: `Daily failure retrospective: ${count} failed task(s)`,
+          priority: 6,
+          model: "sonnet",
+          skills: ["arc-failure-triage", "arc-skill-manager"],
+          description: `Triage ${count} failed tasks from ${date}.
+
+Steps:
+1. Review failed tasks from the past 24h
+2. Identify root causes and group by type
+3. For recurring patterns (3+ occurrences), create fix tasks via arc tasks add
+4. Set triageSummary in workflow context summarizing findings and any fix tasks created
+5. Set fixRefs to "task:N,task:M" for any fix tasks created (if applicable)
+6. Transition this workflow to 'learnings_pending'`,
+        };
+      },
+    },
+    triaging: {
+      on: { learnings: "learnings_pending" },
+      action: (ctx) => {
+        if (ctx.triageSummary === undefined) return null;
+        return { type: "transition", nextState: "learnings_pending" };
+      },
+    },
+    learnings_pending: {
+      on: { done: "completed" },
+      action: (ctx) => {
+        const date = ctx.retroDate || "today";
+        const fixes = ctx.fixRefs ? `\nFix tasks created: ${ctx.fixRefs}` : "";
+        return {
+          type: "create-task",
+          subject: `Extract learnings from failure retrospective ${date}`,
+          priority: 8,
+          model: "haiku",
+          skills: ["arc-skill-manager"],
+          description: `Extract and record learnings from the ${date} failure retrospective.
+${fixes}
+Findings: ${ctx.triageSummary || "see triage task"}
+
+Steps:
+1. Review the triage findings and any fix tasks created
+2. Identify systemic patterns or recurring themes
+3. Update memory/MEMORY.md with durable learnings
+4. Set learningsSummary in workflow context
+5. Transition workflow to 'completed'`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
+ * HumanReplyMachine — models the human-feedback → action → retrospective cycle.
+ *
+ * Pattern detected: "[re:" tasks (4 recurrences, avg 2.3 steps/chain) consistently spawn
+ * an action task followed by a learning-extraction retrospective. Human feedback messages
+ * (inbox replies referencing a prior task) trigger this machine.
+ *
+ * instance_key: "human-reply-{referencedTaskId}" (one per referenced task ID)
+ *
+ * States:
+ *   received              → feedback received; create task to address it
+ *   acknowledging         → action task running; auto-transitions when actionTaken is set
+ *   retrospective_pending → action done; extract learnings
+ *   completed             → done
+ *
+ * Context:
+ *   referencedTaskId — the task ID being replied to (from "[re: #N]" subject)
+ *   senderNote       — content of the human's message
+ *   actionTaken      — description of what was done (populated before transitioning to retrospective)
+ *   actionTaskRef    — "task:N" of the action task (optional cross-reference)
+ *   learningsSummary — brief summary of extracted learnings (populated before completing)
+ */
+export const HumanReplyMachine: StateMachine<{
+  referencedTaskId?: number;
+  senderNote?: string;
+  actionTaken?: string;
+  actionTaskRef?: string;
+  learningsSummary?: string;
+}> = {
+  name: "human-reply",
+  initialState: "received",
+  states: {
+    received: {
+      on: { acknowledge: "acknowledging" },
+      action: (ctx) => {
+        const refId = ctx.referencedTaskId;
+        const subject = refId
+          ? `Address human feedback on task #${refId}`
+          : "Address human feedback";
+        return {
+          type: "create-task",
+          subject,
+          priority: 3,
+          model: "sonnet",
+          skills: ["arc-skill-manager"],
+          description: `Human sent a reply with feedback or instructions.
+
+Original task reference: ${refId ? `#${refId}` : "unknown"}
+Message: ${ctx.senderNote || "(see inbox)"}
+
+Steps:
+1. Read task #${refId ?? "N"} to understand the original context
+2. Address the feedback (fix, update, or respond as appropriate)
+3. Set actionTaken in workflow context describing what was done
+4. Set actionTaskRef to "task:{this-task-id}"
+5. Transition workflow to 'retrospective_pending'`,
+        };
+      },
+    },
+    acknowledging: {
+      on: { done: "retrospective_pending" },
+      action: (ctx) => {
+        if (ctx.actionTaken === undefined) return null;
+        return { type: "transition", nextState: "retrospective_pending" };
+      },
+    },
+    retrospective_pending: {
+      on: { learnings_extracted: "completed" },
+      action: (ctx) => {
+        const refId = ctx.referencedTaskId;
+        const fixRef = ctx.actionTaskRef ? `\nAction taken: ${ctx.actionTaskRef}` : "";
+        return {
+          type: "create-task",
+          subject: `Retrospective: extract learnings from human reply on task #${refId ?? "unknown"}`,
+          priority: 8,
+          model: "haiku",
+          skills: ["arc-skill-manager"],
+          description: `Extract and record learnings from human feedback on task #${refId ?? "unknown"}.
+${fixRef}
+Feedback: ${ctx.senderNote || "(see inbox)"}
+Action taken: ${ctx.actionTaken || "see action task"}
+
+Steps:
+1. Summarize the feedback and the response
+2. Identify any systemic issues or process improvements
+3. Update memory/MEMORY.md if this reveals a pattern worth remembering
+4. Set learningsSummary in workflow context
+5. Transition workflow to 'completed'`,
+        };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
  * Get a template by name.
  * Registry maps template names to their state machines.
  */
@@ -2868,6 +3060,8 @@ export function getTemplateByName(name: string): StateMachine | null {
     "compliance-review": ComplianceReviewMachine,
     "github-mention": GithubMentionMachine,
     "self-audit": SelfAuditMachine,
+    "failure-retrospective": FailureRetrospectiveMachine,
+    "human-reply": HumanReplyMachine,
   };
   return templates[name] || null;
 }
