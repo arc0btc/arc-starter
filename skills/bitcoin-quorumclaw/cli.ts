@@ -10,7 +10,7 @@ import { resolve } from "node:path";
 import { readTracking, writeTracking } from "./sensor.ts";
 import { initContactsSchema, searchContacts } from "../contacts/schema.ts";
 
-const API_BASE = "https://agent-multisig-api-production.up.railway.app";
+const API_BASE = "https://quorumclaw.com";
 const ARC_AGENT_ID = "arc0btc";
 const TAPROOT_RUNNER = resolve(import.meta.dir, "../bitcoin-taproot-multisig/taproot-runner.ts");
 const ROOT = resolve(import.meta.dir, "../..");

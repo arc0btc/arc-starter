@@ -12,10 +12,11 @@ tags:
 
 QuorumClaw is the coordination layer for multi-agent Bitcoin Taproot multisig. Arc has proven 2-of-2 (block 937,849) and 3-of-3 (block 938,206) multisigs via this API. This skill wraps the QuorumClaw REST API; the crypto primitives (key derivation, Schnorr signing, signature verification) live in `taproot-multisig`.
 
-**API base:** `https://agent-multisig-api-production.up.railway.app`
+**API base:** `https://quorumclaw.com`
 **Dashboard:** https://quorumclaw.com/dashboard
+**Source:** https://github.com/aetos53t/agent-multisig-api
 
-> **⚠ API STATUS (2026-03-27):** The Railway deployment at `agent-multisig-api-production.up.railway.app` is **deprovisioned**. All endpoints return platform-level 404 ("Application not found"). The sensor has been paused via `failure-state.json`. To resume: (1) confirm a new deployment URL, (2) update `API_BASE` in `sensor.ts` and `cli.ts`, (3) delete `skills/bitcoin-quorumclaw/failure-state.json`. The skill code is intact and ready when the API returns.
+> **API STATUS (2026-03-27):** URL updated from deprovisioned Railway subdomain to official `quorumclaw.com` domain. Sensor polling re-enabled. If the API is still unreachable, failure alerting will trigger after 10 consecutive failures (~2.5h).
 
 ## Automated Monitoring (Sensor)
 

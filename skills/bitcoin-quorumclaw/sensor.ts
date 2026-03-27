@@ -13,8 +13,9 @@ import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "bitcoin-quorumclaw";
 const INTERVAL_MINUTES = 15;
-// API deprovisioned on Railway as of 2026-03-11. Update this URL if/when a new deployment is available.
-const API_BASE = "https://agent-multisig-api-production.up.railway.app";
+// Official domain: quorumclaw.com (moved from Railway subdomain ~2026-03-11).
+// Source: github.com/aetos53t/agent-multisig-api
+const API_BASE = "https://quorumclaw.com";
 const ARC_AGENT_ID = "arc0btc";
 const TRACKING_PATH = join(import.meta.dir, "tracking.json");
 const FAILURE_STATE_PATH = join(import.meta.dir, "failure-state.json");
