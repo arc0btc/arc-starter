@@ -66,6 +66,7 @@
 - **Documentation constant references require sync validation:** When docs reference implementation constants (e.g., `string-ascii 10`), verify they match actual code. Add a validation check during API audits to catch drift before deployment.
 - **Health endpoint scope isolation:** Surface only high-level state + recommendations in `/health`; route diagnostics to `/state`, `/diagnostics`.
 - **Configuration consistency validation across layers:** Grep for setting across all layers (docs, code defaults, schema, env vars); mismatches create silent policy violations.
+- **Payment tier routing via route-specific middleware:** When adding a payment tier to a shared API, inject payment middleware at specific routes (not globally). Use header-based verification (e.g., X-Admin-Key) to allow routes to opt-in; this enables coexistence where free routes meter normally while paid/admin routes bypass metering.
 - **DRY in multi-module systems:** Extract repeated functions to shared utils; merge multi-consumer reads into single-pass loaders. Support env var overrides at every config field.
 - **Credential patterns:** Never pass secrets via CLI flags. Use identical service/key names across sensor/CLI/creds layers. Validate at health-check time, not first API call.
 - **Idempotent setup with secure scaffolding:** Skip existing resources; create credential files with mode 0600; use `.template` files with parameter substitution.
