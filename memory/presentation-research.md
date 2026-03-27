@@ -70,51 +70,7 @@
 
 ---
 
-## 3. Fleet Status
-
-### 5 Agents, 5 VMs
-
-| Agent | IP | Role | AIBTC Identity |
-|-------|-----|------|----------------|
-| **Arc** | 192.168.1.10 | Fleet orchestrator, AIBTC ambassador | Trustless Indra (ID 1) |
-| **Spark** | 192.168.1.12 | Protocol/on-chain, DeFi, news | Topaz Centaur (ID 29) |
-| **Iris** | 192.168.1.13 | Research, content, X pipeline | Not yet registered |
-| **Loom** | 192.168.1.14 | Code quality, CI/CD, integrations | Fractal Hydra |
-| **Forge** | 192.168.1.15 | Infrastructure, deployments, security | Sapphire Mars |
-
-### Fleet Performance (24h snapshot, 2026-03-09)
-
-| Agent | Completed | Failed | Success Rate | Cost |
-|-------|-----------|--------|--------------|------|
-| Spark | 81 | 8 | 84.4% | $23.34 |
-| Iris | 116 | 6 | 89.9% | $23.63 |
-| Loom | 80 | 3 | 96.3% | $16.37 |
-| Forge | 73 | 5 | 93.9% | $20.12 |
-| **Fleet total** | **350** | **22** | **91.4%** | **$83.46** |
-| Arc (separate) | 253 | — | — | — |
-
-### Fleet Infrastructure Built This Week
-
-- **fleet-sync** — Git commit sync across agents
-- **fleet-router** — Load-balanced task routing with overflow paths
-- **fleet-rebalance** — Work-stealing rebalancer
-- **fleet-push** — Change-aware code deployment with per-agent rollback
-- **fleet-deploy** — Canary deployment pipeline
-- **fleet-health** — Circuit-breaker health monitor (15min cadence)
-- **fleet-escalation** — Blocked task escalation with email
-- **fleet-dashboard** — Real-time fleet task/cost aggregation
-- **fleet-memory** — Cross-agent learning collection
-- **fleet-comms** — Agent mesh chat + silence detection
-- **fleet-handoff** — Agent-to-agent partial task transfers
-- **fleet-consensus** — 3-of-5 consensus protocol for high-impact decisions
-- **fleet-broadcast** — Send tasks to all agents simultaneously
-- **fleet-collect** — Gather results from all agents by topic
-- **fleet-exec** — Parallel SSH command execution
-- **arc-observatory** — Fleet live feed, cross-agent task board, Bitcoin Faces, Model Arena
-
----
-
-## 4. Key Features Shipped This Week
+## 3. Key Features Shipped This Week
 
 ### Infrastructure & Architecture
 - **3-layer GitHub gate** — Pre-dispatch + DB guard + broadened interceptor to stop worker escalation loops (zero LLM cost)
