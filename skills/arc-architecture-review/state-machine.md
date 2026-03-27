@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-03-27T06:16:00.000Z*
-*Sensor count: 67 | Skill count: 98*
+*Generated: 2026-03-27T21:35:00.000Z*
+*Sensor count: 68 | Skill count: 98*
 
 ```mermaid
 stateDiagram-v2
@@ -103,6 +103,15 @@ stateDiagram-v2
             auto_queue
         }
 
+        state OtherSensors {
+            bitcoin_quorumclaw
+            contacts
+            paperboy
+            stacks_stackspot
+            note right of bitcoin_quorumclaw: API deprovisioned (Railway 404)\nfailure-state.json at 10 failures\nsensor paused until new URL found
+            note right of stacks_stackspot: epoch 3.4 guard active\npaused in window [943050-943500]\nauto-lifts ~2026-04-04
+        }
+
         state MonitoringSensors {
             arc_monitoring_service
             arc_opensource
@@ -120,6 +129,7 @@ stateDiagram-v2
         InfrastructureSensors --> TaskQueue
         MemoryMaintenanceSensors --> TaskQueue
         MonitoringSensors --> TaskQueue
+        OtherSensors --> TaskQueue
     }
 
     state DispatchService {
@@ -250,11 +260,11 @@ stateDiagram-v2
     state SignalAllocation {
         [*] --> CheckGlobalCap: 6/day total
         CheckGlobalCap --> CheckBeatAllocation: cap not hit
-        CheckBeatAllocation --> OrdinalsBeat: ordinalsToday < allocation
+        CheckBeatAllocation --> AgentTradingBeat: agentTradingToday < allocation
         CheckBeatAllocation --> DevToolsBeat: devToolsToday < 3
-        OrdinalsBeat --> TaskQueue: File ordinals signal
+        AgentTradingBeat --> TaskQueue: File agent-trading signal
         DevToolsBeat --> TaskQueue: File dev-tools signal
-        note right of CheckBeatAllocation: ordinals: 3/day base\n+ unused dev-tools after 18:00 UTC\ndev-tools: 3/day (arxiv, arc-link-research, x-ecosystem)
+        note right of CheckBeatAllocation: agent-trading: 3/day base (was ordinals)\n+ unused dev-tools after 18:00 UTC\ndev-tools: 3/day (arxiv, arc-link-research, x-ecosystem)\nBeat slug migrated per agent-news PR #314
     }
 
     TaskQueue --> DispatchService
@@ -274,10 +284,23 @@ stateDiagram-v2
 | DeFi | 5 |
 | Health | 2 |
 | Monitoring | 6 |
-| Other/Misc | 4 |
-| **Total** | **67** |
+| Other/Misc | 5 |
+| **Total** | **68** |
 
-*Note: Fleet sensor group removed (committed b73f1a21). Previous total was 80.*
+*Note: Fleet sensor group removed (committed b73f1a21). Previous total was 80. Other/Misc: bitcoin-quorumclaw (paused), contacts (new), paperboy, stacks-stackspot (guarded for epoch 3.4).*
+
+## Key Architectural Changes (1955a04 → ee4919b)
+
+| Change | Impact |
+|--------|--------|
+| **fleet cleanup: 46 files, ~2100 lines removed** (26b125e4 → 04b5e196) | SOUL.md, CLAUDE.md, MEMORY.md, 14 skill files, web dashboard, templates, docs, scripts. Arc now runs solo. Dispatch BuildPrompt: 5 clean steps (no fleet context). Largest simplification since v5. |
+| **ordinals beat slug → agent-trading** (815f72be) | Competition scores register against `agent-trading` beat (per agent-news PR #314, network-focus migration 17→10 beats). Previous `ordinals` slug was silently wrong. Fix required for competition ROI. |
+| **ordinals minimum fee threshold** (06d86211) | Low-fee signals (<threshold) skipped before task creation. Quality gate: prevents noisy fee-market tasks from consuming signal quota. |
+| **quorumclaw: disabled → re-enabled → still down** (5e45c392 + 37d1ad83) | Railway API deprovisioned. Sensor disabled at 10 failures, then re-enabled with updated API_BASE to quorumclaw.com. Still returns 404. failure-state.json at 10 failures, polling paused. Unblock: new URL needed. |
+| **arc-workflows: FailureRetrospectiveMachine + HumanReplyMachine** (d78912a0) | Two new 4-state machines for recurring patterns (4 recurrences each). FailureRetrospectiveMachine: daily triage→fix→learnings cycle. HumanReplyMachine: human-feedback→action→retrospective. Instance keys prevent concurrent duplication. |
+| **ALB: x402 metering + admin API key bypass** (037f9e25 + d5757511) | ALB sensor gates on 402 meter state. Admin API key bypasses metering for Arc's own platform calls. Pattern: owner bypass via header, metering for external consumers. |
+| **arc-email-sync: opus routing for whoabuddy emails** (bd66860a) | whoabuddy emails routed to opus model. Previously sonnet. Rationale: strategic email requires deep analysis. |
+| **identity-guard + email-sync: dead code removed** (0bb2cd93) | refactor(simplify): dead branches and unused state removed from 2 sensors. |
 
 ## Key Architectural Changes (9cc7a12 → 1955a04)
 

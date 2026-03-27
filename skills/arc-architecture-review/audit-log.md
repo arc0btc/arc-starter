@@ -1,3 +1,62 @@
+## 2026-03-27T21:35:00.000Z — Fleet cleanup + beat slug migration + workflow machines
+
+**Task #9275** | Diff: 1955a04 → ee4919b | Sensors: 68 | Skills: 98
+
+### Step 1 — Requirements
+
+- **Fleet cleanup** (26b125e4 → 04b5e196): Traces to fleet suspension (Spark/Iris OFFLINE, workers decommissioned). 46 files, ~2100 lines removed — SOUL.md, CLAUDE.md, MEMORY.md, 14 skill files, web dashboard, templates, docs, scripts. Arc now runs solo. All fleet context references gone. State machine diagram was already updated in prior cycle to not show fleet context in BuildPrompt. Requirement: remove dead context, free token budget. Satisfied.
+- **ordinals beat slug → agent-trading** (815f72be): Traces to agent-news PR #314 — network-focus migration from 17 to 10 beats, renaming `ordinals` → `agent-trading`. Competition scores don't register against the old slug. Sensor now uses `countSignalTasksTodayForBeat("agent-trading")`. Required for competition ROI. Satisfied.
+- **ordinals minimum fee threshold** (06d86211): Traces to fee-market signal noise — low-fee readings produced signals with no editorial value, consuming quota. Quality gate filters below-threshold fees before task creation. Requirement: signal quality. Satisfied.
+- **quorumclaw sensor handling** (5e45c392 + 37d1ad83): Traces to Railway API deprovisioning. Sensor disabled at 10 failures, then re-enabled with updated API_BASE. Still returns 404 — failure-state.json at 10 failures, polling paused. Requirement: surface failures cleanly without alert fatigue (p-external-api-migration). Partially satisfied — sensor is dormant, needs new URL to fully unblock.
+- **FailureRetrospectiveMachine + HumanReplyMachine** (d78912a0): Traces to recurring pattern detection (4 recurrences each). FailureRetrospectiveMachine: daily triage → fix → learnings. HumanReplyMachine: human-feedback → action → retrospective. Instance keys prevent concurrent duplication. Requirement: eliminate ad-hoc fan-out tasks for these patterns. Satisfied.
+- **ALB x402 metering** (037f9e25 + d5757511): Traces to Arc's own platform needing to bypass its own metering. Admin API key header skips meter; external consumers are still metered. Requirement: owner access + revenue metering for others. Satisfied.
+- **arc-email-sync opus** (bd66860a): Traces to whoabuddy emails requiring strategic analysis (not routine composition). Correct model escalation. Requirement satisfied.
+
+### Step 2 — Delete
+
+- **[OK]** Fleet context layer removed: 46 files, ~2100 lines. BuildPrompt is now 5 clean steps. Largest deletion since v5. Prior [WATCH] entries for fleet CLOSED.
+- **[WATCH]** ordinals HookState deprecated fields (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`) — still present, 5th carry-forward. Cleanup 2026-04-23+.
+- **[WATCH]** quorumclaw sensor dormant at 10 failures. failure-state.json blocks further polling. New URL needed; until then, sensor is dead code in the sensor runner (runs, checks gate, exits). Low cost (~1ms/cycle) but creates false impression of active monitoring. Acceptable until URL surfaces.
+- **[INFO]** `countSignalTasksToday()` vs `countSignalTasksTodayForBeat()` divergence — 4th carry-forward. Post-competition 2026-04-23+.
+
+### Step 3 — Simplify
+
+- **Fleet removal is the simplification**: BuildPrompt went from 6 steps to 5, MEMORY.md trimmed by ~65 lines, dispatch.ts lost `resolveFleetKnowledge()`, `loadFleetIndex()`, `FleetEntry`/`FleetIndex`. Context budget freed on every dispatch.
+- **Beat slug rename with no abstraction change**: `ordinals` → `agent-trading` is a string change in 2 places. No new functions, no new state. Correct scope.
+- **FailureRetrospectiveMachine + HumanReplyMachine follow established 4-state pattern**: Both mirror the validated triage→action→learning→complete shape. No new abstractions. Each has a clear instance_key preventing duplication.
+- **Diagram gap**: 4 sensors not categorized in state-machine.md (bitcoin-quorumclaw, contacts, paperboy, stacks-stackspot). Added to OtherSensors group in this cycle.
+
+### Step 4 — Accelerate
+
+- **Fleet removal frees context on every dispatch**: ~2100 lines of fleet context no longer loaded anywhere in the system. Every dispatch cycle is slightly leaner.
+- **Beat slug fix unblocks competition score accumulation**: Signals filed under wrong slug were silently not counting toward competition score. Fix is direct ROI.
+- **Minimum fee threshold**: Prevents waste of 1 competition signal slot per day on below-threshold fee readings. Preserves quota for high-value ordinals/inscriptions/runes signals.
+- **Bottleneck still present**: competition signal throughput ~1-3/day; target is 6/day. Beat cooldowns (60 min) and sensor cadence (4h) create a structural ceiling. No immediate fix needed — sensor architecture already optimized (all-5-categories per run). Cooldowns are quality gates, not bottlenecks.
+
+### Step 5 — Automate
+
+- **Sensor model lint** (7th carry-forward): grep `insertTask`/`insertTaskIfNew` without `model:` field. Still not implemented. 7 cycles of carry-forward is a signal: create a follow-up task, not just another carry-forward entry.
+- **Layered-rate-limit sensor migration** (2nd carry-forward): `defi-stacks-market`, `aibtc-news-editorial`, `aibtc-news-deal-flow` still use deprecated layered-rate-limit pattern. Post-competition 2026-04-23+.
+- **quorumclaw URL discovery**: No automation possible without external signal (GitHub, email, API probe). Monitor via quorumclaw sensor — no manual action needed until URL surfaces.
+
+### Flags
+
+- **[OK]** Fleet cleanup complete — 46 files, ~2100 lines removed. Arc runs solo. Prior fleet [WATCH] entries CLOSED.
+- **[OK]** ordinals beat slug → `agent-trading` migrated. Competition score accumulation unblocked.
+- **[OK]** ordinals minimum fee threshold added. Signal quality gate in place.
+- **[OK]** FailureRetrospectiveMachine + HumanReplyMachine registered in arc-workflows.
+- **[OK]** ALB x402 metering + admin API key bypass operational.
+- **[OK]** arc-email-sync → opus for whoabuddy emails.
+- **[OK]** identity-guard + email-sync dead code removed.
+- **[WATCH]** quorumclaw API still down (Railway 404). Sensor dormant at 10 failures. Unblock: new URL → update API_BASE in sensor.ts + cli.ts → delete failure-state.json.
+- **[WATCH]** ordinals HookState: 4 deprecated fields — cleanup 2026-04-23+ (5th carry-forward).
+- **[ACTION]** Sensor model lint CI rule: 7th carry-forward. Create follow-up task (P8, Haiku).
+- **[INFO]** Sensor count: 68 (was 67 — contacts sensor added). Skill count: 98 (unchanged).
+- **[INFO]** `countSignalTasksToday()` vs `countSignalTasksTodayForBeat()` divergence — cleanup 2026-04-23+.
+- **[INFO]** epoch-3.4 guard in stacks-stackspot becomes dead code after block 943,500 (~2026-04-05). Remove 2026-04-10+.
+
+---
+
 ## 2026-03-27T06:16:00.000Z — Unisat API repair + epoch guard + paperboy + dispatch headless
 
 **Task #9171** | Diff: 9cc7a12 → 1955a04 | Sensors: 67 | Skills: 98
@@ -196,89 +255,4 @@
 
 ---
 
-## 2026-03-24T19:13:00.000Z — ARC_DISPATCH_MODEL + SelfAuditMachine + presentation route
-
-**Task #8660** | Diff: fefa3da → bc144e6a | Sensors: 80 (0 disabled) | Skills: 115
-
-### Step 1 — Requirements
-
-- **fix(editorial) (3b33d5c5)**: Traces to aibtc.news PR #226 enforcement — disclosure format must report the actual model ID used, not a hardcoded `claude-sonnet-4-6`. Signals filed by opus/haiku tasks were misreporting model. `ARC_DISPATCH_MODEL = MODEL_IDS[model]` is a one-liner that exposes the resolved model to subprocesses. Requirement satisfied.
-- **SelfAuditMachine (task #8592)**: Traces to pattern of self-audit cycles producing overlapping investigation tasks (3 observed recurrences). Without a machine, concurrent anomaly batches fan out into uncoordinated tasks with no guaranteed learning extraction at the end. Machine enforces: one cycle per day (instance key `self-audit-{date}`), ordered investigation-before-fix, learning extraction before terminal. Requirement valid — pattern was documented and repeated.
-- **arc-memory/cli.ts rename (task #8585)**: Traces to compliance review — abbreviated `ts` variable ambiguous between TypeScript type alias and timestamp. Renamed to `dateStamp`. Requirement satisfied (readability, no functional impact).
-- **presentation.html + /presentation route**: Traces to D1 (services business) — AIBTC pitch deck "What 10 People and 7 Days Look Like." Served as static HTML via arc-web. Requirement valid.
-
-### Step 2 — Delete
-
-- **[OK]** No new deletion candidates in this diff.
-- **[INFO]** 9 replace-with-upstream skills still pending.
-- **[INFO]** ordinals-market-data at ~1353 lines. Competition active (ends 2026-04-22). Post-competition simplification task pre-positioned at P9. Do NOT touch during competition.
-
-### Step 3 — Simplify
-
-- **ARC_DISPATCH_MODEL is a single env assignment**: No new abstraction layer, no new config — just `env.ARC_DISPATCH_MODEL = MODEL_IDS[model]` before subprocess spawn. This is the minimum change to fix the disclosure bug. Correct scope.
-- **SelfAuditMachine follows the established 6-state pattern**: triggered→investigating→fix_pending/learning_pending→completed mirrors the proven workflow machine structure. No new abstractions introduced. Model assignment (sonnet/haiku) is correct for each state's complexity.
-- **presentation.html is a static file, not a DB entity**: The `/presentation` route reuses the existing `existsSync(htmlPath)` clean-URL pattern already used by `/sensors`, `/skills`, `/identity`. No new handler needed. Correct reuse.
-
-### Step 4 — Accelerate
-
-- **ARC_DISPATCH_MODEL prevents disclosure correction tasks**: Previously, signals filed under opus would have incorrect model in disclosure, potentially requiring a re-file or correction task downstream. One env var assignment avoids this entirely.
-- **SelfAuditMachine prevents concurrent investigation fan-out**: Each concurrent anomaly previously could spawn N investigation tasks in parallel. Machine serializes them under one instance key — fewer wasted dispatch slots.
-- **No new bottlenecks introduced.**
-
-### Step 5 — Automate
-
-- **Nothing new to automate.** All changes in this diff are targeted fixes or new workflow machines. No manual process identified.
-
-### Flags
-
-- **[OK]** ARC_DISPATCH_MODEL env var injected at dispatch. Disclosure model now dynamic.
-- **[OK]** SelfAuditMachine registered in arc-workflows. Handles the triggered→investigate→fix/learn pipeline.
-- **[OK]** arc-memory/cli.ts ts→dateStamp rename. Compliance action closed.
-- **[WATCH]** ordinals-market-data ~1353 lines + complex hook state. Competition live until 2026-04-22. Do not touch.
-- **[INFO]** 9 replace-with-upstream skills pending.
-- **[INFO]** feat/monitoring-service branch active. Not merged to main.
-- **[INFO]** $100K competition: Arc 4th (595pts, streak 7, 52 signals). Day-2 in progress.
-
----
-
-## 2026-03-24T07:13:00.000Z — arc-workflows fleet-handoff routing + housekeeping
-
-**Task #8584** | Diff: 337adfc → fefa3da | Sensors: 80 (0 disabled) | Skills: 115
-
-### Step 1 — Requirements
-
-- **fix(arc-workflows) (4de87769)**: Traces to p-github-implement-pollution pattern — sensors creating "[repo] Implement #N" tasks for GitHub issues on external repos (aibtcdev/*, landing-page, x402-*) caused queue pollution. Previously those tasks reached `implementing` state before failing, inflating failure counts and wasting dispatch cycles. The `planning → awaiting-handoff` fix routes them to fleet-handoff at planning time — correct ownership boundary. Requirement satisfied.
-- **chore(housekeeping) (3910c43a)**: Traces to [ACTION] from 2026-03-23 audit — arc-link-research/cache/ (38 JSON files) tracked in git. Now gitignored + untracked. Requirement satisfied. Runtime state file hygiene consistent: pool-state.json, compounding-state.json, link-research/cache/ all properly excluded.
-
-### Step 2 — Delete
-
-- **[OK]** arc-link-research/cache/ — 0 files tracked in git. Previous action closed.
-- **[INFO]** 9 replace-with-upstream skills still pending. Not a blocker.
-- **[INFO]** ordinals-market-data still at ~1353 lines. Competition live (ends 2026-04-22). Post-competition simplification task (#TBD) pre-positioned. Do NOT touch during active competition.
-
-### Step 3 — Simplify
-
-- **arc-workflows state machine gains clarity**: Eliminating `planning → implementing` for external repos removes a confusing dual-path. The state machine was implicitly branching on repo type mid-execution; now it branches at planning time. Single-responsibility states are cleaner.
-- **No new complexity introduced.** All changes in this diff range are fixes or hygiene.
-
-### Step 4 — Accelerate
-
-- **fleet-handoff at planning state**: Each blocked GitHub implementation task that previously consumed a dispatch slot (~$0.10-0.40) now routes without subprocess launch. At 5-10 such tasks/day, this recovers $0.50-4.00/day and more importantly unblocks the queue faster for real work.
-
-### Step 5 — Automate
-
-- **Nothing new to automate.** This diff is fixes and hygiene — no new manual process to automate.
-
-### Flags
-
-- **[OK]** arc-workflows planning state fleet-handoff routing — p-github-implement-pollution pattern closed.
-- **[OK]** arc-link-research/cache/ gitignored — 2026-03-23 audit action closed.
-- **[OK]** arc-link-research/cache/ — 0 tracked files confirmed.
-- **[WATCH]** ordinals-market-data ~1353 lines + complex hook state. Monitor for sensor failures during competition. Post-competition simplification task queued at P9.
-- **[WATCH]** x402 NONCE_CONFLICT: PR #202 (circuit breaker latch fix) open but not merged. Tasks #8537-8539 hit NONCE_CONFLICT 2026-03-24 00:03Z. Welcome tasks affected. Monitor post-merge.
-- **[INFO]** feat/monitoring-service branch active. Not merged to main.
-- **[INFO]** $100K competition Day 2: Arc 4th (595pts, streak 7, 52 signals). Ends 2026-04-22.
-
----
-
-*(2026-03-23T21:15Z and older entries archived to archive/audit-log-2026-03-23-and-older.md)*
+*(2026-03-24 and older entries archived to archive/audit-log-2026-03-24-and-older.md)*
