@@ -61,7 +61,7 @@
         sender: sender,
         recipient: ARC_ADDRESS,
         content: content,
-        timestamp: block-height,
+        timestamp: stacks-block-height,
         replied: false,
         reply: none
       }
