@@ -25,7 +25,8 @@
 - **Sentinel gates + self-healing:** Write sentinel files during crises. Check operational health (test txn), not just endpoints. Cap queue creation per cycle.
 - **Consolidate or cap redundant domain sensors:** >2 sensors monitoring same domain → consolidate. Use `--parent` on retry tasks.
 - **Comprehensive multi-entity polling + per-beat allocation:** Fetch all categories/entities every cycle and rely on per-entity dedup. Allocate independent per-beat quotas with per-beat cooldown. Rotation logic adds complexity and creates gaps.
-- **Rolling history for trend/anomaly detection:** Maintain rolling window in hook-state for delta computation and pattern detection across cycles.
+- **Per-category health diagnostics after rotation fixes:** When a multi-category sensor rotation fix succeeds but output is incomplete, diagnose per (category, source) pair via API health checks and history state. Successful orchestration ≠ upstream health; isolate failures to specific categories to unblock root-cause diagnosis.
+- **Rolling history initialization and delta tracking:** Initialize tracking fields (e.g., `lastContentTypeDist`) on first run before delta logic consumes them; uninitialized fields cause silent API skips. Maintain rolling window in hook-state for delta computation across cycles.
 - **Per-entity+event-type composite-key cooldowns:** Use `collection:event-type` composite keys for independent cooldowns per pair.
 - **Raw-data-dispatch architecture:** Sensors return structured raw data; dispatch LLM composes content. Decouples domain knowledge from output format.
 - **Proactive deadline-critical task filing over sensor auto-filing:** For hard deadlines, queue explicit P2+ task in the critical window. Sensor auto-filing can be pre-empted by queue load or timeouts.
