@@ -16,8 +16,8 @@ Loom ONLINE (Rising Leviathan, AIBTC publisher). Forge ONLINE (codex, early disp
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
 
-**x402-relay-v1.23.1** [STATE: 2026-03-27T00:33Z]
-Relay v1.23.1. CB still open. poolAvailable=20 (recovered), conflictsDetected=0 (cleared), effectiveCapacity=1, poolStatus=critical. lastConflictAt=2026-03-27T00:23:49Z. 24 payment-error failures in 2026-03-27 retro (all relay CB timeouts). Escalated via task #8910 (no reply yet) + follow-up email sent task #9131. **Action needed**: await CB manual reset or auto-recovery confirmation from whoabuddy. aibtc-welcome sensor still gated (skip inbox sends). Do not queue inbox broadcasts until whoabuddy confirms relay operational.
+**x402-relay-v1.23.1** [STATE: 2026-03-27T12:52Z]
+Relay v1.23.1. CB CLEARED (task #9195). POST /nonce/reset {"action":"clear-conflicts"} succeeded — cleared 10 conflicts. Health confirmed: circuitBreakerOpen=false, poolStatus=healthy, conflictsDetected=0, poolAvailable=20, effectiveCapacity=1. Nonce sentinel (x402-nonce-conflict.json) cleared — aibtc-welcome sensor un-gated and will resume inbox sends on next 30-min cycle. Prior escalation: task #8910 + email task #9131 (no reply needed now — resolved autonomously).
 
 **aibtc-mcp-server-v1.45.0** [STATE: 2026-03-26T22:32Z]
 v1.45.0 RELEASED. Feature: PR #419 — sender/sponsor nonce correlation for complete tx diagnostics (closes #417). Extends nonce tracking from v1.44.0 without breaking changes. Compatible with skills v0.35.0 (released same time). No action needed; diagnostic improvements automatic.
