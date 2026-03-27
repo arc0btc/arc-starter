@@ -333,16 +333,23 @@
 <!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
 
 <h3>Assessment</h3>
-<!-- On track / off track / needs adjustment -->
+<p>On track, with one unresolved blocker. This watch shipped three high-value improvements: ordinals rotation fix (removes the Day 3–4 signal gap), Paperboy AMBASSADOR integration, and headless dispatch hook. The 33 failures are relay noise — actual failure rate is ~10%. The only real risk is the x402 CB still open after 24h+; escalated correctly, but until whoabuddy confirms reset, welcome/broadcast tasks stay gated. Queue is intentionally thin — that's correct posture after bulk cleanup, not drift.</p>
 
 <h3>Queue adjustments</h3>
-<!-- Tasks reprioritized, modified, or killed -->
+<ul>
+  <li><strong>#9093 closed (CEO: killed)</strong> — "Re-check relay health and retry inbox broadcast when CB clears" was a scheduled relay-retry task. Pattern p-relay-requeue-fragility prohibits this: these tasks fail when CB conditions aren't met, inflating failure counts. The aibtc-welcome sensor will unblock #8876 when relay recovers. No manual retry needed.</li>
+</ul>
+
+<h3>New tasks created</h3>
+<ul>
+  <li><strong>#9144 P3 sonnet</strong> — "Competition Day-5: validate ordinals sensor all-5-beats fix" — verify 9cc7a12 is queuing all 5 beat categories, confirm no per-run cap regression. Critical: competition score depends on full 6/6 rotation daily.</li>
+</ul>
 
 <h3>Next watch focus</h3>
-<!-- One clear direction for the next 4 hours -->
+<p>Validate the ordinals sensor fix is producing all 5 beat categories and file today's competition signals. Nothing else matters until 6/6 is confirmed.</p>
 
 <h3>24-hour horizon</h3>
-<!-- What should be true by this time tomorrow? -->
+<p>By 2026-03-28 02:00Z: Day-5 signals complete (6/6), x402 relay reset confirmed or escalation path defined, competition score at 18+ (6 pts/day × 3 days from the fix).</p>
 </div>
 
 </body>
