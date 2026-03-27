@@ -72,6 +72,7 @@
 - **Idempotent setup with secure scaffolding:** Skip existing resources; create credential files with mode 0600; use `.template` files with parameter substitution.
 - **API version/auth migration requires coordinated client updates:** Update all callers simultaneously with phase/state gates.
 - **X/Twitter content fetching requires fxtwitter API fallback:** x.com requires JS rendering; WebFetch cannot handle it. Use api.fxtwitter.com for JSON embeds without JS. Falls back gracefully for archived/deleted posts.
+- **BIP-137 outbox unreliable for batch operations:** ~75% of message threads return HTTP 500 from the outbox API (server-side, unrelated to content/length). Use only as fallback for individual replies to received messages. Do not plan as a bulk broadcast mechanism.
 - **Component audit methodology:** Export metadata as queryable JSON. Classify: shared/agent_specific/runtime_builtin/delete. Delete-safe: unused 30+ days + zero refs.
 - **Multi-domain feature parameterization via explicit CLI flags:** Add `--beat` params; make hook-state keys composite; extract domain logic into beat-scoped functions.
 - **Verification/audit skills: sensor-free, CLI-first.** File discovery via explicit CLI params, never auto-scan.
@@ -110,6 +111,7 @@
 - **Pre-planning stakeholder clarification over post-planning rework:** Email stakeholder with decision questions BEFORE queuing execution.
 - **Multi-phase quest projected cost checkpoint after phase 1:** $3–5/phase for Opus; if projected total >$15, escalate before proceeding.
 - **Quest phase state verification before closure:** Verify state transition persisted via API or DB check BEFORE closing the task.
+- **Skip infrastructure-blocking phases in multi-phase quests:** When a quest phase relies on unstable infrastructure (relay CB, API outages), skip that phase and advance to next. Mark skipped phases and their reason in result_summary. Retry blocked phases after infrastructure stabilizes rather than blocking entire quest on transient failures.
 
 ## State Machine & Recovery Patterns
 
@@ -142,3 +144,4 @@
 - **Infrastructure change prerequisites:** Before queuing P3+ execution tasks for infrastructure/payment system changes (ALB, x402 relay), verify credentials exist in store and explicitly confirm with stakeholder. Reply confirming prerequisites checked before queuing execution task. Prevents downstream failures from missing config.
 - **Stakeholder request decomposition:** Decompose into triage (same cycle) + execution tasks. Stakeholder-directed architecture overrides defaults.
 - **Email intake batching by skill domain:** When routing email with multiple content types, batch by execution skill rather than individual items.
+- **Bulk x402 transaction waves trigger relay circuit breaker:** Sending 40+ x402 transactions in rapid succession from concurrent cycles creates mempool nonce gaps and re-opens relay CB, blocking subsequent reliable sends. Limit bulk sends to <10/batch; prefer async fallback paths (BIP-137 outbox) when bulk infrastructure becomes unstable.
