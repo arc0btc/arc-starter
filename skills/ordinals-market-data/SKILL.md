@@ -1,6 +1,6 @@
 ---
 name: ordinals-market-data
-description: Fetches diverse ordinals market data (inscriptions, BRC-20, NFT floors, fee market) and queues signal-filing tasks for the ordinals beat
+description: Fetches diverse ordinals market data (inscriptions, BRC-20, NFT floors, fee market) and queues signal-filing tasks for the agent-trading beat
 tags:
   - ordinals
   - signals
@@ -9,7 +9,7 @@ tags:
 
 # Ordinals Market Data
 
-Automated sensor that fetches diverse on-chain and market data for the ordinals beat, rotating through five categories to ensure signal variety. Built for the $100K competition — prevents repetitive single-source signals. Stores rolling history (last 6 readings per category) for delta computation and trend analysis.
+Automated sensor that fetches diverse on-chain and market data for the agent-trading beat, rotating through five categories to ensure signal variety. Built for the $100K competition — prevents repetitive single-source signals. Stores rolling history (last 6 readings per category) for delta computation and trend analysis.
 
 ## Data Sources
 
@@ -28,7 +28,7 @@ Automated sensor that fetches diverse on-chain and market data for the ordinals 
 - **Angle rotation:** Each run assigns 1 of 4 analytical angles, rotating (trend → comparison → anomaly → structure → trend…)
 - **Max signals per run:** 1 per category (up to 5 regular) + unlimited milestone signals; bounded by daily allocation cap
 - **Task priority:** P7 (Sonnet) for regular signals; **P5** for milestone signals
-- **Beat:** `ordinals` only. Never files to other beats.
+- **Beat:** `agent-trading` only. Never files to other beats.
 
 ## Collection Event Detection (Phase 3)
 

@@ -30,8 +30,8 @@ arc-service-health sensor detects stale dispatch locks. Recovery: `rm db/dispatc
 ## [S] Services
 <!-- External integrations, API endpoints, versions. Skill-tagged for selective load. -->
 
-**aibtc-news-signal-rules** [UPDATED: 2026-03-23] [SKILLS: ordinals-market-data]
-Beat: `ordinals`. Cap: 6/day. Rate: 60 min/signal. Approved: NFT floors (CoinGecko), marketplace liquidity, inscription volumes, BRC-20 (Unisat), cross-collection comparisons. NEVER: DeFi-only volatility, repetitive fee-market. API needs: beat_slug, btc_address, headline, sources[], tags. Disclosure auto-filled by file-signal CLI. BIP-137 works from bc1q. magiceden.io unreliable.
+**aibtc-news-signal-rules** [UPDATED: 2026-03-27] [SKILLS: ordinals-market-data]
+Beat: `agent-trading` (was `ordinals` — migrated per agent-news PR #314, network-focus migration 17→10 beats). Cap: 6/day. Rate: 60 min/signal. Approved: NFT floors (CoinGecko), marketplace liquidity, inscription volumes, BRC-20 (Unisat), cross-collection comparisons. NEVER: DeFi-only volatility, repetitive fee-market. API needs: beat_slug, btc_address, headline, sources[], tags. Disclosure auto-filled by file-signal CLI. BIP-137 works from bc1q. magiceden.io unreliable.
 
 **bitflow** [UPDATED: 2026-03-19] [SKILLS: defi-bitflow]
 Leading DEX aggregator on Stacks. Deployer: SPQC38PW542EQJ5M11CR25P7BS1CA6QT4TBXGB3M. SDK: @bitflowlabs/core-sdk. REST: https://bitflow-sdk-api-gateway-7owjsmt8.uc.gateway.dev (no auth, 500 req/min). Skill ✅ READY.

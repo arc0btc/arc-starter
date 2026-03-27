@@ -33,8 +33,8 @@ const COLLECTION_EVENT_COOLDOWN_HOURS = 24;  // minimum hours between same event
 const COLLECTION_HISTORY_MAX = 8;            // maximum per-collection readings stored in hook state
 const COLLECTION_VOLUME_AVG_WINDOW = 5;      // readings used to compute rolling average volume
 
-// Multi-beat allocation — 3 ordinals + 3 dev-tools per day
-// After OVERFLOW_HOUR_UTC, unused dev-tools slots become available to ordinals
+// Multi-beat allocation — 3 agent-trading + 3 dev-tools per day
+// After OVERFLOW_HOUR_UTC, unused dev-tools slots become available to agent-trading
 const OVERFLOW_HOUR_UTC = 18; // 18:00 UTC = noon MDT — late-day overflow window
 
 const UNISAT_API = "https://open-api.unisat.io";
@@ -1029,27 +1029,27 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
       return "skip";
     }
 
-    // Per-beat allocation: 3 ordinals + 3 dev-tools per day
-    const ordinalsToday = countSignalTasksTodayForBeat("ordinals");
+    // Per-beat allocation: 3 agent-trading + 3 dev-tools per day
+    const ordinalsToday = countSignalTasksTodayForBeat("agent-trading");
     const devToolsToday = countSignalTasksTodayForBeat("dev-tools");
     let ordinalsAllocation = BEAT_DAILY_ALLOCATION;
 
-    // Late-day overflow: if dev-tools hasn't used its slots by OVERFLOW_HOUR_UTC, ordinals can take them
+    // Late-day overflow: if dev-tools hasn't used its slots by OVERFLOW_HOUR_UTC, agent-trading can take them
     const hourUTC = new Date().getUTCHours();
     if (hourUTC >= OVERFLOW_HOUR_UTC) {
       const devToolsUnused = BEAT_DAILY_ALLOCATION - devToolsToday;
       if (devToolsUnused > 0) {
         ordinalsAllocation += devToolsUnused;
-        log(`late-day overflow: ${devToolsUnused} unused dev-tools slot(s) available to ordinals (allocation: ${ordinalsAllocation})`);
+        log(`late-day overflow: ${devToolsUnused} unused dev-tools slot(s) available to agent-trading (allocation: ${ordinalsAllocation})`);
       }
     }
 
     if (ordinalsToday >= ordinalsAllocation) {
-      log(`ordinals beat allocation reached: ${ordinalsToday}/${ordinalsAllocation} (dev-tools: ${devToolsToday}/${BEAT_DAILY_ALLOCATION}); skipping`);
+      log(`agent-trading beat allocation reached: ${ordinalsToday}/${ordinalsAllocation} (dev-tools: ${devToolsToday}/${BEAT_DAILY_ALLOCATION}); skipping`);
       return "skip";
     }
 
-    log(`beat allocation: ordinals ${ordinalsToday}/${ordinalsAllocation}, dev-tools ${devToolsToday}/${BEAT_DAILY_ALLOCATION}, total ${totalToday}/${DAILY_SIGNAL_CAP}`);
+    log(`beat allocation: agent-trading ${ordinalsToday}/${ordinalsAllocation}, dev-tools ${devToolsToday}/${BEAT_DAILY_ALLOCATION}, total ${totalToday}/${DAILY_SIGNAL_CAP}`);
 
     // Load state for category rotation and cooldown tracking
     const rawState = (await readHookState(SENSOR_NAME)) as HookState | null;
@@ -1062,7 +1062,7 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
     checkNarrativeWeeklyReset(state);
 
     // Fetch all categories each run — per-category pendingTaskExistsForSource prevents duplicates.
-    // Daily allocation cap enforces the 3/day ordinals limit (6/day with overflow).
+    // Daily allocation cap enforces the 3/day agent-trading limit (6/day with overflow).
     const categoriesToFetch: Category[] = [...CATEGORIES];
 
     // Pick next angle (rotates independently of category)
@@ -1128,9 +1128,9 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
     for (const signal of signals) {
 
       // Re-check per-beat allocation before each queuing (other sensors may have filed since loop start)
-      const currentOrdinals = countSignalTasksTodayForBeat("ordinals");
+      const currentOrdinals = countSignalTasksTodayForBeat("agent-trading");
       if (currentOrdinals >= ordinalsAllocation) {
-        log(`ordinals allocation reached (${currentOrdinals}/${ordinalsAllocation}); stopping signal queue`);
+        log(`agent-trading allocation reached (${currentOrdinals}/${ordinalsAllocation}); stopping signal queue`);
         break;
       }
 
@@ -1158,7 +1158,7 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
       const crossCategoryBlock = buildCrossCategoryContext(history, signal.category);
 
       insertTask({
-        subject: `File ordinals signal: ${signal.category} [${signal.changeReason.slice(0, 100)}]`,
+        subject: `File agent-trading signal: ${signal.category} [${signal.changeReason.slice(0, 100)}]`,
         description: `Arc's ordinals-market-data sensor detected a material change in **${signal.category}** data.
 
 ## Raw Data
@@ -1181,7 +1181,7 @@ ${deltasJson}
 
 ## Editorial Instructions
 
-You are composing an original signal for the **ordinals** beat on aibtc.news. Use the raw data and deltas above as your source material.
+You are composing an original signal for the **agent-trading** beat on aibtc.news. Use the raw data and deltas above as your source material.
 
 **Voice:** The Economist — precise, data-rich, understated authority. No hype, no breathless enthusiasm. Let the numbers carry the weight.
 
@@ -1197,9 +1197,9 @@ Compose each field from scratch using the raw data. Do NOT use canned phrases or
 ${narrativeBlock}${crossCategoryBlock}
 ---
 
-File the composed signal to the ordinals beat using:
+File the composed signal to the agent-trading beat using:
 \`\`\`
-arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals \\
+arc skills run --name aibtc-news-editorial -- file-signal --beat agent-trading \\
   --headline "<your composed headline>" \\
   --claim "<your composed claim>" \\
   --evidence "<your composed evidence>" \\
@@ -1208,7 +1208,7 @@ arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals \\
   --tags "${signal.tags}"
 \`\`\`
 
-This data targets the ordinals beat.`,
+This data targets the agent-trading beat.`,
         skills: JSON.stringify(["ordinals-market-data", "aibtc-news-editorial"]),
         priority: 7,
         model: "sonnet",
@@ -1216,14 +1216,14 @@ This data targets the ordinals beat.`,
         source: signalSource,
       });
 
-      log(`queued ordinals signal: ${signal.category} — ${signal.changeReason.slice(0, 80)}`);
+      log(`queued agent-trading signal: ${signal.category} — ${signal.changeReason.slice(0, 80)}`);
       queued++;
     }
 
     // Queue milestone signals (P5, bypass cooldown — event-driven newsworthy events)
     // Re-check per-beat allocation for milestones too
     for (const mSignal of milestoneSignals) {
-      const currentOrdinals = countSignalTasksTodayForBeat("ordinals");
+      const currentOrdinals = countSignalTasksTodayForBeat("agent-trading");
       const currentTotal = countSignalTasksToday();
       if (currentTotal >= DAILY_SIGNAL_CAP) {
         log(`daily cap hit (${currentTotal}/${DAILY_SIGNAL_CAP}); cannot queue milestone signal`);
@@ -1236,7 +1236,7 @@ This data targets the ordinals beat.`,
         milestoneAllocation += Math.max(0, BEAT_DAILY_ALLOCATION - devToolsNow);
       }
       if (currentOrdinals >= milestoneAllocation) {
-        log(`ordinals allocation full for milestone (${currentOrdinals}/${milestoneAllocation}); skipping`);
+        log(`agent-trading allocation full for milestone (${currentOrdinals}/${milestoneAllocation}); skipping`);
         break;
       }
       const mSource = mSignal.milestoneSource ?? `sensor:${SENSOR_NAME}:milestone`;
@@ -1251,7 +1251,7 @@ This data targets the ordinals beat.`,
       const mSourcesJson = JSON.stringify(mSignal.sources);
       const milestoneCrossCategory = buildCrossCategoryContext(history, mSignal.category);
       insertTask({
-        subject: `[MILESTONE] File ordinals signal: ${mSignal.headline.slice(0, 110)}`,
+        subject: `[MILESTONE] File agent-trading signal: ${mSignal.headline.slice(0, 110)}`,
         description: `Arc's ordinals-market-data sensor detected a milestone signal.
 
 **Category:** ${mSignal.category} (milestone)
@@ -1270,9 +1270,9 @@ This data targets the ordinals beat.`,
 
 ANALYTICAL ANGLE: Milestone Analysis — This is an inherently newsworthy event. Focus on the significance of the milestone, what it represents about the protocol's trajectory, and what it implies for the near-term ecosystem. Use precise numbers. Frame around cumulative achievement and forward momentum. Do NOT pad with generic commentary.
 ${milestoneCrossCategory}
-File this signal to the ordinals beat using:
+File this signal to the agent-trading beat using:
 \`\`\`
-arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals \\
+arc skills run --name aibtc-news-editorial -- file-signal --beat agent-trading \\
   --headline "${mSignal.headline.replace(/"/g, '\\"')}" \\
   --claim "${mSignal.claim.replace(/"/g, '\\"')}" \\
   --evidence "${mSignal.evidence.replace(/"/g, '\\"')}" \\
@@ -1281,7 +1281,7 @@ arc skills run --name aibtc-news-editorial -- file-signal --beat ordinals \\
   --tags "${mSignal.tags}"
 \`\`\`
 
-This data targets the ordinals beat. Use Economist voice — precise, data-rich, no hype language.`,
+This data targets the agent-trading beat. Use Economist voice — precise, data-rich, no hype language.`,
         skills: JSON.stringify(["ordinals-market-data", "aibtc-news-editorial"]),
         priority: mSignal.priority ?? 5,
         model: "sonnet",
@@ -1296,9 +1296,9 @@ This data targets the ordinals beat. Use Economist voice — precise, data-rich,
     state.lastRun = new Date().toISOString();
     await writeHookState(SENSOR_NAME, state);
 
-    const finalOrdinals = countSignalTasksTodayForBeat("ordinals");
+    const finalOrdinals = countSignalTasksTodayForBeat("agent-trading");
     const finalDevTools = countSignalTasksTodayForBeat("dev-tools");
-    log(`queued ${queued} ordinals signal(s) this run | allocation: ordinals ${finalOrdinals}/${ordinalsAllocation}, dev-tools ${finalDevTools}/${BEAT_DAILY_ALLOCATION}`);
+    log(`queued ${queued} agent-trading signal(s) this run | allocation: agent-trading ${finalOrdinals}/${ordinalsAllocation}, dev-tools ${finalDevTools}/${BEAT_DAILY_ALLOCATION}`);
     return "ok";
   } catch (e) {
     log(`error: ${(e as Error).message}`);
