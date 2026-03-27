@@ -6,6 +6,9 @@ db/*.db-wal
 db/*.db-shm
 db/dispatch-lock.json
 db/hook-state/
+db/inbox-notify/
+db/nonce-state.json
+db/nonce-state.lock/
 db/payouts/
 db/projects/
 logs/

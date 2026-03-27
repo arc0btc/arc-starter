@@ -285,15 +285,22 @@ async function x402Request(
   const exitCode = await proc.exited;
 
   if (exitCode !== 0) {
-    // Release nonce on failure
+    const combined = stdout + stderr;
+
+    // Determine failure kind for nonce release:
+    // 409 nonce errors = rejected (never broadcast, nonce reusable)
+    // 502/503/timeout/other = assume broadcast (nonce consumed)
+    const isNonceRejection = combined.includes("SENDER_NONCE_")
+      || combined.includes("NONCE_CONFLICT")
+      || combined.includes("SENDER_NONCE_STALE")
+      || combined.includes("SENDER_NONCE_GAP");
+
     if (managedNonce !== undefined) {
       try {
-        await releaseNonce(ARC_STX_ADDRESS, managedNonce, false);
-        log(`Released nonce ${managedNonce} (failed)`);
+        await releaseNonce(ARC_STX_ADDRESS, managedNonce, false, isNonceRejection ? "rejected" : "broadcast");
+        log(`Released nonce ${managedNonce} (${isNonceRejection ? "rejected — reusable" : "broadcast — consumed"})`);
       } catch { /* best effort */ }
     }
-
-    const combined = stdout + stderr;
 
     // Try to parse structured error JSON from subprocess output.
     // The subprocess output may be double-wrapped: x402-runner wraps x402.ts output

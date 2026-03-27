@@ -40,7 +40,13 @@ Returns the next nonce for the given address. Atomically increments the stored v
 
 ### release
 
-Marks a nonce as confirmed (`--success`) or failed (`--failed`). On failure, if the released nonce equals the current stored nonce minus 1, rolls back to allow reuse.
+Marks a nonce as confirmed (`--success`) or failed (`--failed`).
+
+**Failure kinds** (critical distinction):
+- `--rejected` — tx never reached mempool (signing error, relay 409 nonce rejection). Nonce NOT consumed, safe to roll back and reuse.
+- `--broadcast` (default) — tx reached mempool. Nonce IS consumed even if the tx fails on-chain. Do NOT roll back.
+
+Only `--failed --rejected` can trigger a rollback. Default `--failed` assumes broadcast (safer).
 
 ### sync
 

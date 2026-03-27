@@ -2,7 +2,7 @@
 // skills/nonce-manager/cli.ts
 // CLI wrapper for the nonce oracle. Cross-process nonce coordination.
 
-import { acquireNonce, releaseNonce, syncNonce, getStatus } from "./nonce-store.js";
+import { acquireNonce, releaseNonce, syncNonce, getStatus, type FailureKind } from "./nonce-store.js";
 
 function parseFlags(args: string[]): Record<string, string> {
   const flags: Record<string, string> = {};
@@ -39,12 +39,16 @@ try {
         process.exit(1);
       }
       const nonce = parseInt(nonceStr, 10);
-      // Check for --success or --failed flag (can be bare flags without value)
+      // Check for bare flags: --success, --failed, --rejected, --broadcast
       const rawArgs = rest;
       const success = rawArgs.includes("--success");
       const failed = rawArgs.includes("--failed");
       const isSuccess = success || !failed; // default to success if neither specified
-      const result = await releaseNonce(address, nonce, isSuccess);
+      // Failure kind: --rejected = nonce reusable, --broadcast = nonce consumed (default)
+      const failureKind: FailureKind | undefined = !isSuccess
+        ? (rawArgs.includes("--rejected") ? "rejected" : "broadcast")
+        : undefined;
+      const result = await releaseNonce(address, nonce, isSuccess, failureKind);
       console.log(JSON.stringify(result));
       break;
     }

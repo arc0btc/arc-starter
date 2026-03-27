@@ -110,9 +110,10 @@ async function acquireManagedNonce(): Promise<bigint> {
   return BigInt(result.nonce);
 }
 
-async function releaseManagedNonce(nonce: bigint, success: boolean): Promise<void> {
+async function releaseManagedNonce(nonce: bigint, success: boolean, rejected?: boolean): Promise<void> {
   try {
-    await releaseNonce(SENDER_STX, Number(nonce), success);
+    const failureKind = !success ? (rejected ? "rejected" as const : "broadcast" as const) : undefined;
+    await releaseNonce(SENDER_STX, Number(nonce), success, failureKind);
   } catch {
     // best effort
   }
@@ -192,17 +193,17 @@ async function sendWithRetry(
     const err = result.error ?? "";
 
     if (isNonceDuplicate(err) && attempt < MAX_RETRIES) {
-      // Relay has this nonce stuck — skip to next
-      currentNonce += 1n;
-      log(`  SENDER_NONCE_DUPLICATE for ${label} (attempt ${attempt}/${MAX_RETRIES}), bumping nonce to ${currentNonce}...`);
+      // Relay already has a tx with this nonce — nonce consumed, acquire next
+      log(`  SENDER_NONCE_DUPLICATE for ${label} (attempt ${attempt}/${MAX_RETRIES}), acquiring next nonce...`);
+      currentNonce = await acquireManagedNonce();
       await sleep(NONCE_RETRY_DELAY_MS);
       continue;
     }
 
     if (isNonceStale(err) && attempt < MAX_RETRIES) {
-      // Nonce is below current — release failed nonce and re-sync from Hiro via nonce-manager
+      // Nonce rejected pre-broadcast — release as rejected (reusable) and re-sync
       log(`  Nonce stale for ${label} (attempt ${attempt}/${MAX_RETRIES}), re-syncing via nonce-manager...`);
-      await releaseManagedNonce(currentNonce, false);
+      await releaseManagedNonce(currentNonce, false, true);
       await sleep(NONCE_RETRY_DELAY_MS);
       currentNonce = await acquireManagedNonce();
       continue;

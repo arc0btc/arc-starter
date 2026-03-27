@@ -313,9 +313,10 @@ async function acquireManagedNonce(stxAddress: string): Promise<number> {
   return result.nonce;
 }
 
-async function releaseManagedNonce(stxAddress: string, nonce: number, success: boolean): Promise<void> {
+async function releaseManagedNonce(stxAddress: string, nonce: number, success: boolean, rejected?: boolean): Promise<void> {
   try {
-    await releaseNonce(stxAddress, nonce, success);
+    const failureKind = !success ? (rejected ? "rejected" as const : "broadcast" as const) : undefined;
+    await releaseNonce(stxAddress, nonce, success, failureKind);
   } catch {
     // best effort
   }
@@ -601,9 +602,9 @@ async function cmdExecute(args: string[]): Promise<void> {
         const errorMsg = result.error ?? result.detail ?? "Unknown error";
 
         if (isNonceError(errorMsg)) {
-          log(`Nonce error: ${errorMsg} — releasing and re-syncing via nonce-manager`);
+          log(`Nonce error: ${errorMsg} — releasing as rejected and re-syncing via nonce-manager`);
           try {
-            await releaseManagedNonce(senderStxAddress, currentNonce, false);
+            await releaseManagedNonce(senderStxAddress, currentNonce, false, true);
             currentNonce = await acquireManagedNonce(senderStxAddress);
             const retry = await sendSbtc(walletId, walletPassword, transfer.stx_address, transfer.amount_sats, `aibtc.news payout ${date}`, BigInt(currentNonce));
 

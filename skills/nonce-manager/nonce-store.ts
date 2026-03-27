@@ -56,6 +56,15 @@ export interface ReleaseResult {
   action: "confirmed" | "rolled_back" | "noted";
 }
 
+/**
+ * Whether a nonce was consumed (broadcast to mempool) or can be reused (never broadcast).
+ * - "broadcast": tx reached mempool — nonce consumed even if tx later fails on-chain.
+ *   Do NOT roll back. Mempool limit is 25 per address; we can queue beyond that locally.
+ * - "rejected": tx never reached mempool (signing error, relay rejection before broadcast,
+ *   SENDER_NONCE_STALE, SENDER_NONCE_GAP). Nonce was NOT consumed and can be reused.
+ */
+export type FailureKind = "broadcast" | "rejected";
+
 // ---- File Locking ----
 
 function acquireLock(): boolean {
@@ -203,13 +212,19 @@ export async function acquireNonce(address: string): Promise<AcquireResult> {
 
 /**
  * Release a nonce after transaction outcome is known.
- * - success: nonce confirmed, no rollback needed
- * - failed: if nonce matches current-1, roll back to allow reuse
+ *
+ * @param success - true if tx succeeded (nonce consumed)
+ * @param failureKind - when success=false:
+ *   "broadcast" = tx reached mempool, nonce consumed (on-chain failure still uses nonce)
+ *   "rejected" = tx never broadcast (signing error, relay pre-broadcast rejection),
+ *                nonce NOT consumed and can be reused
+ *   Defaults to "broadcast" if omitted — safer to assume nonce was consumed.
  */
 export async function releaseNonce(
   address: string,
   nonce: number,
-  success: boolean
+  success: boolean,
+  failureKind?: FailureKind
 ): Promise<ReleaseResult> {
   return withLock(async () => {
     const state = readState();
@@ -223,14 +238,16 @@ export async function releaseNonce(
       return { address, nonce, action: "confirmed" as const };
     }
 
-    // Failed: roll back if this was the most recently acquired nonce
-    if (entry.nextNonce === nonce + 1) {
+    // Only roll back if tx was rejected before broadcast (nonce not consumed).
+    // Default to "broadcast" (nonce consumed) if caller doesn't specify — safer.
+    const kind = failureKind ?? "broadcast";
+    if (kind === "rejected" && entry.nextNonce === nonce + 1) {
       entry.nextNonce = nonce;
       writeState(state);
       return { address, nonce, action: "rolled_back" as const };
     }
 
-    // Can't roll back — another nonce was acquired after this one
+    // Nonce was consumed (broadcast) or can't roll back (another was acquired after)
     return { address, nonce, action: "noted" as const };
   });
 }
