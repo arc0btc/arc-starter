@@ -18,6 +18,7 @@
 - **Structured audit logs for architecture tracking:** Maintain time-series audit log entries ([OK]/[WATCH]/[INFO] tags). Archive entries >30 days old; keep active log ≤5 entries.
 - **Agent-friendly error format + HTTP semantics:** Enforce "Error: [what]. Fix: [how]" consistently. Select semantically correct HTTP codes (409 conflict, 404 not found) over domain-specific repurposing.
 - **Disabled-by-default for new middleware on shared request paths:** Ship gating features disabled with config flag for gradual rollout.
+- **Self-healing system design for operational gaps:** When systems experience transient gaps (missed cycles, stale pointers, partial operations), design recovery to happen automatically on the next polling cycle without requiring manual intervention or retry tasks. Example: replay buffer head may lag if advancement is missed, but gap self-fills on next sensor cycle via monotonic-max logic. Self-healing requires: clear invariants (e.g., monotonic state advancement), gap-fill recovery logic in normal polling, and catchup cycles. Eliminates fragile retry-task infrastructure and keeps logs clean.
 
 ## Sensor Patterns
 
@@ -100,6 +101,7 @@
 - **Circuit breaker outcomes vs errors:** Failure counter increments only on true availability errors (network failures, 5xx, timeouts, malformed responses). Business-level outcomes (200 OK with "failed"/"replaced" fields, 402 payment required) are valid responses and should not trigger the breaker.
 - **Symmetric state ownership at integration points:** Enforce single source of truth; audit all callers during integration to prevent process-level state divergence.
 - **Code review methodology:** Scan diffs → trace call stack → verify fix spans all layers (including shared logic callers). Mark each item [blocking] or [suggestion]. When CI already comments a PR, Arc must not add its own review comments. Multi-reviewer scenarios: enumerate ALL feedback items (whoabuddy + automated) before verifying fixes — prevents feedback from being overlooked in large diffs. Changes_requested re-review: verify each original feedback item addressed; CI green before approving.
+- **Production safety review for migrations/dispatch:** When reviewing migrations or dispatch changes, verify: (1) all schema/state transitions idempotent and reversible, (2) alarms/side-effects bounded and cannot cascade, (3) concurrency serialized via locks or single-threaded dispatch, (4) all result enum branches handled (no silent drops), (5) backwards compatibility preserved for external message consumers. Failure in any dimension blocks production deploy.
 - **Defer minor suggestions on approved PRs:** If blocking issues fixed + CI passing + no merge conflicts, defer [suggestion] items.
 - **Automation-generated PR review:** Validate (1) CI all green, (2) schema/format correctness, (3) no merge conflicts. Don't critique auto-generated prose.
 - **Destructive operation review:** Require `--confirm` flag as functional gate (not just advisory text). Verify snapshot-before-delete and scope validation.
