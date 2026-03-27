@@ -1275,7 +1275,7 @@ Workflow instance_key: classified-refund-${ctx.classifiedId}`,
           type: "create-task",
           subject: `Notify classified placer of refund for ${ctx.classifiedId}`,
           priority: 7,
-          skills: ["bitcoin-wallet", "contact-registry"],
+          skills: ["inbox-notify", "contact-registry"],
           description: `Send x402 inbox confirmation that the classified refund has been processed.
 
 Recipient BTC: ${ctx.payerBtcAddress}
@@ -1284,9 +1284,8 @@ Amount: ${ctx.refundAmountSats ?? "?"} sats
 Txid: ${ctx.transferTxid ?? "<txid>"}
 
 Steps:
-1. arc skills run --name bitcoin-wallet -- x402 send-inbox-message \\
-     --recipient-btc-address ${ctx.payerBtcAddress} \\
-     --recipient-stx-address ${ctx.payerStxAddress} \\
+1. arc skills run --name inbox-notify -- send-one \\
+     --btc-address ${ctx.payerBtcAddress} --stx-address ${ctx.payerStxAddress} \\
      --content "Classified Refund | ${ctx.classifiedId} — Your ${ctx.refundAmountSats ?? "?"} sats payment has been refunded. Txid: ${ctx.transferTxid ?? "<txid>"}."
 2. Transition to 'notified' → 'completed'.
 
