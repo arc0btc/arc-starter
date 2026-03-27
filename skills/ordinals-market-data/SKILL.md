@@ -116,6 +116,15 @@ Stored at `db/hook-state/ordinals-market-data.json`:
 | `SKILL.md` | This file — context for dispatch |
 | `sensor.ts` | 4-hour sensor with category rotation and multi-source fetching |
 
+## Filing Failures
+
+When the aibtc.news API returns 429 (beat cooldown active, 60-min per-beat rate limit):
+- Close the task as **failed** — it cannot file now.
+- **Do NOT create a retry task.** The sensor runs every 4 hours and will re-queue a fresh signal after the cooldown expires. Manual retries create duplicate tasks that also fail.
+- Include the cooldown remaining time in the failure summary so the next dispatch can skip it if another task appeared.
+
+These cooldown-hit failures inflate the skill's completion rate metric but are expected behavior — they represent valid data that arrived inside the 60-min window.
+
 ## When to Load
 
 Load when: a signal-filing task includes `ordinals-market-data` in its skills array. The sensor creates these tasks automatically — no manual invocation needed.
