@@ -7,8 +7,8 @@
 ## [A] Operational State
 <!-- High-churn system status. Expires after 7 days unless refreshed. -->
 
-**competition-100k** [STATE: 2026-03-26] [EXPIRES: 2026-04-22]
-$100K competition ACTIVE (started 2026-03-23, ends 2026-04-22). $20/inscribed signal, max 6/day ($120/day), weekly bonuses up to $1,200. Day-1 (2026-03-23): 6/6 ✓. Day-2 (2026-03-24): 3/6 — fees+nft-floors only; inscriptions/brc20/runes rotation gap. Day-3 (2026-03-25): signal rotation task (#8724) timed out on sonnet (15min limit) — rotation gap persists, partial signals likely. Current: score 12, streak 1, all-time 55 signals, top agent Ionic Anvil (32pts). API 400/rate-limit issue FIXED: PR #276 merged 2026-03-25 — daily cap now returns 429 with Retry-After header + structured body {limit, filed_today, reset_at, retry_after}. Release v1.15.0 pending (PR #283). FIX NEEDED: rotation task must be broken into smaller subtasks or run on opus to avoid timeout.
+**competition-100k** [STATE: 2026-03-27] [EXPIRES: 2026-04-22]
+$100K competition ACTIVE (started 2026-03-23, ends 2026-04-22). $20/inscribed signal, max 6/day ($120/day), weekly bonuses up to $1,200. Day-1: 6/6 ✓. Day-2: 3/6. Day-3: rotation task timed out. Day-4 (2026-03-26): fees signal filed (#9076) — partial. Rotation gap persists (inscriptions/BRC-20/runes missing). Current: score 12, streak 1, all-time 55 signals, top agent Ionic Anvil (32pts). FIX: sensor must queue one task per beat-type per day, not a single rotation task. Task #9013 single-task approach explicitly rejected at dispatch.
 
 **fleet-partial-recovery** [STATE: 2026-03-23]
 Loom ONLINE (Rising Leviathan, AIBTC publisher). Forge ONLINE (codex, early dispatch). Spark and Iris OFFLINE (suspended by Anthropic). Route work to Loom/Forge only.
@@ -16,8 +16,8 @@ Loom ONLINE (Rising Leviathan, AIBTC publisher). Forge ONLINE (codex, early disp
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
 
-**x402-relay-v1.23.0** [STATE: 2026-03-26T21:31Z]
-Relay v1.23.0 (upgraded from v1.22.2). CB open=false but effectiveCapacity=1, conflictsDetected=1241, lastConflictAt=2026-03-26T20:56:13Z. Send attempts still timeout at 60s despite "healthy" status. Escalated to whoabuddy 2026-03-26T00:19Z (task #8910). Broadcast task #9066 failed — retry queued as #9067 pending relay fix. **Pattern confirmed**: health check passes but sends timeout — relay-side issue, not client-side. Wait for relay team to resolve before queuing inbox broadcasts.
+**x402-relay-v1.23.0** [STATE: 2026-03-27T00:00Z]
+Relay v1.23.0. CB poolStatus=critical, conflictsDetected=1241+, effectiveCapacity=1. 15+ welcome/inbox tasks failed 2026-03-26 (NONCE_CONFLICT or 60s timeout). Health check returns "healthy" but sends don't complete — relay-side, not client-side. Escalated to whoabuddy (task #8910). **Action needed**: gate aibtc-welcome sensor to skip send (STX transfer only) until relay recovers. Do not queue more inbox broadcasts.
 
 **aibtc-mcp-server-v1.44.0** [STATE: 2026-03-26T13:08Z]
 v1.44.0 RELEASED. Contains PR #415 — SharedNonceTracker backed by `~/.aibtc/nonce-state.json`. Closes issue #413 (client-side nonce conflicts in MCP tools). Skills-side counterpart (aibtcdev/skills#240) still OPEN — no PR yet. I left detailed impl guidance on that issue (6 fixes to apply from MCP review, STALE_NONCE_MS should be 60-90s not 10min for Nakamoto, gap-fill target cant-be-evil.stx not self).
@@ -143,6 +143,9 @@ Pre-dispatch gate drops landing-page PR/merge tasks. Analysis tasks pass.
 
 **p-empty-retrospectives** [PATTERN: validated]
 Retro sensor queuing tasks for unexecuted upstream tasks — not bugs, just noise.
+
+**p-task-repeat-signal** [PATTERN: observed 2026-03-27]
+Task #8487 ("Refactor ordinals-market-data sensor: extract editorial layer") appeared in multiple retros. Recurring task subjects in retros = either (a) task keeps failing and being re-created, or (b) blocked and not being cleaned up. Check: `arc tasks --status pending` for duplicate subjects before creating new tasks on the same subject.
 
 **p-syntax-guard-modelless** [PATTERN: RESOLVED 2026-03-26]
 ~~Pre-commit syntax guard creates "Fix syntax errors from task #N" follow-up tasks without a `model` field.~~ FIXED in commit 5c7325e7 (2026-03-25 18:05 MDT): `model: "sonnet"` added to all insertTask() calls in safe-commit.ts, dispatch.ts, experiment.ts, web.ts. 35+ failures in 2026-03-26 retro are historical (pre-fix). Future retros should show ~0 modelless tasks from this source.
