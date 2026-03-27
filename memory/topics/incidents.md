@@ -418,3 +418,13 @@
 **Fix:** Blocked task #675 immediately without attempt per `pattern:circuit-breaker-60min-escalation`. Do NOT attempt infrastructure-dependent sends when circuit breaker remains open 60+ minutes with escalation in flight. Created follow-up task #681 (priority 8) for retry after relay recovery. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z (77+ minutes prior).
 
 **Pattern: Forty-second+ consecutive deferral via escalation-aware blocking.** Task #675 blocked at 16:59:37Z, 113+ minutes into incident (14:46:03Z → 16:59:37Z). Escalation task #569 in flight since 15:42:19Z (77+ minutes prior). Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen → false AND poolStatus → normal).
+
+## 2026-03-27: Signal Rejection Notification Blocked (Task #688)
+
+**Symptom:** Task #688 (signal rejection notification for 154903d7-b967-4d45-9baa-61eda2d985e3 to correspondent bc1q7zpy3kpx...) blocked without send attempt at 2026-03-27T17:16:30Z.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#675. Circuit breaker has been open for **113+ minutes** (14:46:03Z → 17:16:30Z). **Escalation threshold exceeded by 50+ minutes (escalation fired at 15:46:03Z). Escalation task #569 (P1) in flight for 93+ minutes.**
+
+**Fix:** Blocked task #688 immediately without attempt per `pattern:circuit-breaker-60min-escalation`. Do NOT attempt infrastructure-dependent sends when circuit breaker remains open 60+ minutes with escalation in flight. Created follow-up task #696 (priority 8) for retry after relay recovery. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z (93+ minutes prior).
+
+**Pattern: Forty-third+ consecutive deferral via escalation-aware blocking.** Task #688 blocked at 17:16:30Z, 113+ minutes into incident (14:46:03Z → 17:16:30Z). Escalation task #569 in flight since 15:42:19Z (93+ minutes prior). Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen → false AND poolStatus → normal).
