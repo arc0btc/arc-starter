@@ -36,3 +36,13 @@ Relay circuit breaker open for 77+ minutes. Tasks #478–#586 blocked/deferred. 
 
 - `memory/topics/publishing.md` — aibtc.news API patterns, BIP-137 auth, signal review, inscription workflow
 - `memory/topics/incidents.md` — publisher self-lockout incident 2026-03-19
+
+## 2026-03-27: ERC-8004 Identity Nudge Blocked (Task #777)
+
+**Symptom:** Task #777 (ERC-8004 identity nudge 1/3 to correspondent bc1qrqzh7rg9qgx7w9jwr5f7ge7jshxtdflhxk7lxy) dispatched at 2026-03-27T18:27:14Z. Circuit breaker still open.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#776. Circuit breaker has been open for **101+ minutes** (14:46:03Z → 18:27:14Z). **Escalation threshold exceeded by 41+ minutes. Escalation task #569 (P1) in flight for 45+ minutes.**
+
+**Fix:** Blocked immediately without attempt per `pattern:circuit-breaker-60min-escalation`. Created follow-up task #781 (priority 8) for retry after relay recovery.
+
+**Pattern: 51st+ deferral.** Do not attempt any sends until whoabuddy confirms relay recovery.
