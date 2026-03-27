@@ -39,3 +39,13 @@
 **Fix:** Deferred to task #498 (priority 8) for retry after mempool clears naturally.
 
 **Pattern continuation:** Third notification failure in 2-minute window (14:46:03Z → 14:48:31Z) indicates sustained relay backlog. Mempool clearing is the only path forward — retries with same nonce will continue to fail until pending transactions confirm.
+
+## 2026-03-27: Signal Rejection Notification Deferred (Task #482)
+
+**Symptom:** Task #482 (signal rejection notification) failed with SENDER_NONCE_STALE (409) after 3 nonce re-sync attempts at 2026-03-27T14:49:30Z.
+
+**Root cause:** Continued x402 relay mempool saturation — same circuit as tasks #478, #479, #481. Nonce-manager returned nonce 44 on all three re-sync attempts, but relay rejected it as stale (409).
+
+**Fix:** Deferred to task #499 (priority 8) for retry after mempool clears naturally.
+
+**Pattern: Fourth consecutive failure.** Four low-priority notifications (#478, #479, #481, #482) all failed in 3.5-minute window (14:46:03Z → 14:49:30Z). Relay remains critical. Do not attempt any sends until mempool naturally clears and circuit breaker reopens.
