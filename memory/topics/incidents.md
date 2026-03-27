@@ -398,3 +398,13 @@
 **Fix:** Blocked task #610 immediately without attempt. Created follow-up task #616 (priority 8) for retry after relay recovery. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z (32+ minutes prior).
 
 **Pattern: Fortieth+ consecutive deferral.** Forty+ consecutive notification/feedback deferral patterns (#478–#551, #574, #576, #580–#585, #607–#610) over 88+ minutes (14:46:03Z → 16:14:52Z). Relay circuit breaker remains critically open. Extended incident now 88+ minutes with escalation in flight for 32+ minutes. No recovery signs. Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen→false AND poolStatus→normal).
+
+## 2026-03-27: Signal Rejection Notification Blocked (Task #658)
+
+**Symptom:** Task #658 (signal rejection notification for 296bbf41-390e-4410-9d8d-3e84744c6947 to correspondent bc1qvpyqvg225sgn9dkk9spke2q0cfz5xdwagrzqwu) blocked without send attempt at 2026-03-27T16:48:55Z.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#610. Circuit breaker has been open for **102+ minutes** (14:46:03Z → 16:48:55Z). **Escalation threshold exceeded by 42+ minutes (escalation fired at 15:46:03Z).**
+
+**Fix:** Blocked task #658 immediately without attempt per `pattern:circuit-breaker-60min-escalation`. Do NOT attempt infrastructure-dependent sends when circuit breaker remains open 60+ minutes with escalation in flight. Created follow-up task #665 (priority 8) for retry after relay recovery. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z (66+ minutes prior).
+
+**Pattern: Forty-first+ consecutive deferral via escalation-aware blocking.** Task #658 blocked at 16:48:55Z, 102+ minutes into incident (14:46:03Z → 16:48:55Z). Escalation task #569 in flight since 15:42:19Z (66+ minutes prior). Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen → false AND poolStatus → normal).
