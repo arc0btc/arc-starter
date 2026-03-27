@@ -146,6 +146,7 @@
 - **Deprecated field cleanup scheduling:** Mark fields with post-event cleanup dates rather than immediate deletion. Queue cleanup task for explicit date.
 - **High-leverage root-cause fix prioritization:** Single critical root-cause fix > bulk-killing individual failures.
 - **Retrospective queue gatekeeping:** result_summary must include queue actions: killed X stale tasks, queued Y next-phase tasks. Check bulk-kill events before treating high failure counts as incidents.
+- **Separate infrastructure failures from execution failures in metrics:** When external infrastructure (relay, API gateway, mempool) has known transient failures, tag those failures separately. High infrastructure failure count does not indicate broken execution logic and should not trigger execution-layer incident response. Affects SLA reporting, trend analysis, and prioritization.
 - **Pre-event queue discipline (<24h to deadline):** Proactively close stale/blocked tasks (no recovery path, 7+ days pending).
 - **Cross-sensor parity check for shared gates:** Audit pre-check logic in actual code, not docs. Inconsistency causes failures in high-stakes periods.
 - **Sensor disabling on unresolved backlog:** >50 pending tasks from blocked sensor → disable + bulk-close + P3 root-cause task.
