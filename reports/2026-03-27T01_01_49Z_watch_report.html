@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-26T13:00Z – 2026-03-27T01:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-26T13:00:37Z — 2026-03-27T01:01:49Z</div>
+</header>
+
+<p class="summary">30 tasks completed across 133 cycles ($49.38 actual). x402 relay CB remains open — 26+ welcome and broadcast tasks failed on relay timeouts; escalated to whoabuddy via #9131. Key wins this period: Paperboy AMBASSADOR enrollment + CLI shipped, PreToolUse headless hook deployed to prevent AskUserQuestion stalls, ordinals sensor fixed to fetch all 5 categories per run.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">30</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">33</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">1</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$49.38</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">74,866k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">659k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">9106</td><td class="pri">1</td><td>P1 review: x402-sponsor-relay PR #242</td><td>3 HIGHs found: dedup ordering, KV TTL min 60s, nonce release</td><td class="cost">$0.64</td></tr>
+    <tr><td class="id">9131</td><td class="pri">3</td><td>Notify whoabuddy: relay CB open 24h+</td><td>Email sent; requested manual reset guidance</td><td class="cost">$0.38</td></tr>
+    <tr><td class="id">9125</td><td class="pri">3</td><td>arc0btc.com health alert</td><td>Freshness at threshold — site healthy, blog task queued</td><td class="cost">$0.11</td></tr>
+    <tr><td class="id">9126</td><td class="pri">4</td><td>Quest nonce-broadcast: Phase 1 compose</td><td>494-char message composed, saved to memory/quests/</td><td class="cost">$0.38</td></tr>
+    <tr><td class="id">9135</td><td class="pri">5</td><td>Review PR #244 x402-sponsor-relay</td><td>Approved w/ suggestions (dead imports, CB open visibility)</td><td class="cost">$0.40</td></tr>
+    <tr><td class="id">9134</td><td class="pri">5</td><td>GitHub @mention: nonce improvements</td><td>No action needed; skills PR #247 already covers this</td><td class="cost">$0.17</td></tr>
+    <tr><td class="id">9127</td><td class="pri">5</td><td>self-review triage: 2 issues found</td><td>CB escalation queued; fleet-handoff for branch PR</td><td class="cost">$0.36</td></tr>
+    <tr><td class="id">9123</td><td class="pri">5</td><td>Health check 2026-03-27</td><td>3 issues: relay critical, Day-5 signal gap, stale workflow</td><td class="cost">$0.56</td></tr>
+    <tr><td class="id">9119</td><td class="pri">5</td><td>daily introspection: 210 tasks</td><td>Day-4: 80% success; relay failures dominant</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">9118</td><td class="pri">5</td><td>GitHub @mention: BitflowFinance hodlmm-risk</td><td>Changes requested: output envelope + required flag docs</td><td class="cost">$0.27</td></tr>
+    <tr><td class="id">9112</td><td class="pri">5</td><td>Respond to Tiny Marten: AMBASSADOR</td><td>Enrolled in Paperboy AMBASSADOR; BIP-137 reply sent</td><td class="cost">$1.21</td></tr>
+    <tr><td class="id">9108</td><td class="pri">5</td><td>Review PR #242 x402-sponsor-relay</td><td>Commented: retry path dup, scheduleAlarm dead code, 2 nits</td><td class="cost">$0.38</td></tr>
+    <tr><td class="id">9107</td><td class="pri">5</td><td>GitHub @mention: Observer Protocol</td><td>Due diligence complete; pilot awaits whoabuddy confirmation</td><td class="cost">$0.24</td></tr>
+    <tr><td class="id">9104</td><td class="pri">5</td><td>[landing-page] Update messaging.txt</td><td>Auto-closed by landing-page gate</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">9128</td><td class="pri">6</td><td>Publish blog post on arc0btc.com</td><td>'Health Check Is Not Ready Check' live on arc0.me</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">9110</td><td class="pri">6</td><td>Triage AIBTC thread from Tiny Marten</td><td>Collaboration: workflow 701 triaged, follow-up #9112 queued</td><td class="cost">$0.42</td></tr>
+    <tr><td class="id">9100</td><td class="pri">6</td><td>PreToolUse hook: auto-answer dispatch</td><td>Hook live; 7 question patterns, prevents AskUserQuestion stalls</td><td class="cost">$1.36</td></tr>
+    <tr><td class="id">9098</td><td class="pri">6</td><td>Evaluate if-field for Arc hooks</td><td>No changes needed; if-field targets PreToolUse/PostToolUse only</td><td class="cost">$0.51</td></tr>
+    <tr><td class="id">9133</td><td class="pri">7</td><td>Deploy arc0me-site to Cloudflare</td><td>f2e8a68 deployed — 14 new assets, 3/3 checks passed</td><td class="cost">$0.13</td></tr>
+    <tr><td class="id">9124</td><td class="pri">7</td><td>Daily failure retrospective: 43 failed</td><td>Root cause: x402 CB. Pattern p-relay-requeue-fragility added</td><td class="cost">$0.44</td></tr>
+    <tr><td class="id">9121</td><td class="pri">7</td><td>Refresh ERC-8004 agents index</td><td>107 agents indexed, committed to arc0me-site</td><td class="cost">$0.17</td></tr>
+    <tr><td class="id">9120</td><td class="pri">7</td><td>daily self-audit: 3 anomalies</td><td>All false positives; 41 failures = known relay noise</td><td class="cost">$0.73</td></tr>
+    <tr><td class="id">9116</td><td class="pri">7</td><td>Build Paperboy CLI</td><td>log-delivery, list-deliveries, check-earnings implemented</td><td class="cost">$1.05</td></tr>
+    <tr><td class="id">9130</td><td class="pri">8</td><td>Retrospective: Ionic Nova collaboration</td><td>p-cross-agent-architecture-sharing pattern added to memory</td><td class="cost">$0.47</td></tr>
+    <tr><td class="id">9122</td><td class="pri">8</td><td>Retrospective: Paperboy CLI</td><td>HTML parsing fallback pattern for incomplete JSON APIs captured</td><td class="cost">$0.08</td></tr>
+    <tr><td class="id">9117</td><td class="pri">8</td><td>Retrospective: Paperboy AMBASSADOR</td><td>3 patterns: marginal-cost eval, spec-first scaffolding, free-auth</td><td class="cost">$0.09</td></tr>
+    <tr><td class="id">9111</td><td class="pri">8</td><td>Retrospective: PreToolUse hook</td><td>Headless dispatch stall-prevention pattern captured</td><td class="cost">$0.07</td></tr>
+    <tr><td class="id">9109</td><td class="pri">8</td><td>Retrospective: P1 PR review</td><td>2 patterns: dedup ordering + cross-layer constraint validation</td><td class="cost">$0.09</td></tr>
+    <tr><td class="id">9097</td><td class="pri">8</td><td>Release: aibtc-mcp-server v1.45.0</td><td>Nonce correlation; no breaking changes; compatible</td><td class="cost">$0.07</td></tr>
+    <tr><td class="id">9095</td><td class="pri">8</td><td>Release: skills v0.35.0</td><td>Nonce tracking + inbox retry logic released</td><td class="cost">$0.08</td></tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.85rem; color:var(--gray-3); margin-bottom:0.75rem;"><strong style="color:var(--vermillion)">33 failures</strong> — dominant cause: x402 relay CB open (26 welcome-agent + broadcast tasks timed out at 60s). All relay failures trace to known escalation (#8910, #9131). Secondary: 3 relay-requeue loop tasks failed when CB conditions weren't met at check time (p-relay-requeue-fragility pattern now in memory).</p>
+<p style="font-size:0.85rem; color:var(--gray-3);"><strong style="color:var(--vermillion)">1 blocked</strong> — #8876 Retry reply to Twin Cyrus re: stSTX Flex Pool (relay CB, waiting on whoabuddy reset).</p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market skill not installed on this instance.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">01c3a0e</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">f1f3f76</span>chore(patterns): add partnership &amp; revenue patterns from Paperboy integration</div>
+<div class="commit"><span class="hash">f0f098e</span>feat(paperboy): add AMBASSADOR skill — signal distribution with AIBTC CTA</div>
+<div class="commit"><span class="hash">80628ef</span>feat(dispatch): add PreToolUse hook to auto-answer AskUserQuestion headlessly</div>
+<div class="commit"><span class="hash">4d66902</span>feat(claude-code-releases): applicability report for v2.1.85</div>
+<div class="commit"><span class="hash">dabb566</span>feat(bitcoin-wallet): add --nonce flag to stx-send for explicit nonce control</div>
+<div class="commit"><span class="hash">76da4a6</span>chore(memory): consolidate stale learnings and compress temporal events</div>
+<div class="commit"><span class="hash">cf7a063</span>docs(architect): update state machine and audit log — ordinals all-5-categories refactor</div>
+<div class="commit"><span class="hash">9cc7a12</span>fix(ordinals-market-data): fetch all 5 categories per run, remove per-run signal cap</div>
+<div class="commit"><span class="hash">7a03437</span>chore(housekeeping): ignore arc-link-research archive/root files, remove tracked artifacts</div>
+<div class="commit" style="color:var(--gray-4)"><span class="hash" style="color:var(--gray-5)">+29</span>auto-commits (loop/memory persist)</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P4</span>#9093 — Re-check relay health and retry inbox broadcast when CB clears</div>
+<div class="queue-item"><span class="pri-tag">P8</span>#9139 — Retrospective: extract learnings from task #9138 (Paperboy Insider)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>Relay CB at 24h+.</strong> 26 welcome-agent and broadcast tasks failed in this period — all relay timeouts. Whoabuddy notified (#9131). Pattern p-relay-requeue-fragility now in memory: use <code>status=blocked</code> rather than retry tasks for transient infrastructure conditions.</div>
+<div class="obs"><strong>Paperboy AMBASSADOR integration complete.</strong> Enrollment, BIP-137 reply, CLI (log-delivery / list-deliveries / check-earnings), and AMBASSADOR skill all shipped in this period. Partnership patterns extracted to memory/patterns.md — marginal-cost evaluation framework now reusable.</div>
+<div class="obs"><strong>PreToolUse headless hook live.</strong> ask-user-autoanswer.sh registered in settings.json; covers 7 dispatch question patterns. AskUserQuestion no longer stalls headless dispatch cycles.</div>
+<div class="obs"><strong>Ordinals sensor fix deployed.</strong> 9cc7a12 removes per-run signal cap and fetches all 5 categories per sensor run. Competition Day-5+ should see full 6/6 rotation instead of the 1-beat gap that dropped points on Days 3–4.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
