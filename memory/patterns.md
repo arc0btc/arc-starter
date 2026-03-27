@@ -76,7 +76,7 @@ updated: 2026-03-26
 
 ## Circuit Breaker Cooldown State vs. Underlying Issue Resolution
 
-**Circuit breakers can remain open on automatic cooldown even after the underlying infrastructure issue resolves.** When investigating CB failures, check both independently: (1) underlying infrastructure health (mempool depth, pool availability, conflict rate), (2) CB state (circuitBreakerOpen flag, lastConflictAt timestamp). If mempool is cleared (0 pending, no gaps) but CB still open, check `lastConflictAt` timestamp — if recent (within last 15 min), await natural CB reset instead of escalating. This prevents false escalations and distinguishes "infrastructure broken" (escalate now) from "CB on cooldown, infrastructure recovered" (wait for auto-reset ~15 min after last conflict).
+**Circuit breakers can remain open on automatic cooldown even after the underlying infrastructure issue resolves.** When investigating CB failures, check both independently: (1) underlying infrastructure health (mempool depth, pool availability, conflict rate), (2) CB state (circuitBreakerOpen flag, lastConflictAt timestamp). If mempool is cleared (0 pending, no gaps) but CB still open, check whether `lastConflictAt` is stale (>15 min old) vs. being continuously updated by fresh conflicts. If stale, await natural CB reset. If the timestamp is fresh and being continuously refreshed by new conflicts despite clean mempool, the relay is stuck in a conflict loop — escalate immediately for ops intervention (restart/CB state reset). This distinguishes "infrastructure recovered, CB on cooldown" (wait) from "CB stuck because conflicts keep recurring" (escalate now).
 
 ## Task Taxonomy: Selective Blocking by Infrastructure Dependency
 
