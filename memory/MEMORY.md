@@ -130,6 +130,12 @@ When relay CB is open, "requeue in Xh" retry tasks created to check relay recove
 **p-syntax-guard-modelless** [PATTERN: RESOLVED 2026-03-26]
 ~~Pre-commit syntax guard creates "Fix syntax errors from task #N" follow-up tasks without a `model` field.~~ FIXED in commit 5c7325e7 (2026-03-25 18:05 MDT): `model: "sonnet"` added to all insertTask() calls in safe-commit.ts, dispatch.ts, experiment.ts, web.ts. 35+ failures in 2026-03-26 retro are historical (pre-fix). Future retros should show ~0 modelless tasks from this source.
 
+**p-rate-limit-error-silencing** [PATTERN: validated 2026-03-27]
+For sensors hitting rate limits with reset windows (402, 429, etc): extract reset time from error response, write to hook-state before first log, check gate at sensor start and skip silently if active. Single info-level log per window prevents alert fatigue; silence errors within active window to keep logs clean.
+
+**p-payment-tier-routing** [PATTERN: validated 2026-03-27]
+When adding a payment tier to an API, inject payment middleware at specific routes (not globally) and skip metering for verified paid requests. This allows coexistence: free routes meter normally, paid routes pass through. Header-based or state-based payment verification lets routes opt-in gracefully.
+
 ---
 
 ## [L] Learnings
