@@ -92,3 +92,5 @@
 - Relay circuit breaker must clear AND effectiveCapacity > 50
 - Relay must become reachable again
 - Sender nonce gap resolved (either recover nonce 48-47 or identify which is the actual current nonce on-chain)
+
+**Status at 2026-03-27T21:24Z:** Relay reachable again, but circuit breaker still open (circuitBreakerOpen=true, poolStatus=critical, effectiveCapacity=1, lastConflictAt=21:20:03Z). Task #858 (signal rejection notification) blocked on relay recovery. Do not retry inbox-notify tasks until circuitBreakerOpen→false AND poolStatus→normal.
