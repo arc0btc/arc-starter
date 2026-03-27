@@ -54,6 +54,64 @@ function validateSyntax(files: string[]): string[] {
   return errors;
 }
 
+/** Check .ts files for insertTask/insertTaskIfNew calls missing model field. */
+function lintModelField(files: string[]): string[] {
+  const errors: string[] = [];
+  const hasModelPattern = /model\s*:/;
+
+  for (const file of files) {
+    const fullPath = join(ROOT, file);
+    try {
+      const content = readFileSync(fullPath, "utf-8");
+      const lines = content.split("\n");
+      let inCall = false;
+      let callStart = 0;
+      let braceDepth = 0;
+      let callBuffer = "";
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        // Detect start of insertTask/insertTaskIfNew call (anywhere on the line)
+        if (!inCall && /insertTask(?:IfNew)?\s*\(/.test(line)) {
+          // Check if there's an opening brace on this line
+          const hasOpenBrace = line.includes("{");
+          if (hasOpenBrace) {
+            inCall = true;
+            callStart = i;
+            callBuffer = line;
+            braceDepth = (line.match(/\{/g) || []).length - (line.match(/\}/g) || []).length;
+          }
+        } else if (inCall) {
+          callBuffer += "\n" + line;
+          braceDepth += (line.match(/\{/g) || []).length;
+          braceDepth -= (line.match(/\}/g) || []).length;
+
+          // Check if call is complete (closing brace followed by closing paren)
+          if (braceDepth <= 0 && /\}\s*\)/.test(line)) {
+            inCall = false;
+            // Check if model: is present
+            if (!hasModelPattern.test(callBuffer)) {
+              errors.push(
+                `${file}:${callStart + 1}: insertTask/insertTaskIfNew call missing model: field`
+              );
+            }
+            callBuffer = "";
+          }
+        }
+      }
+
+      // Handle unterminated call (shouldn't happen if syntax is valid)
+      if (inCall) {
+        errors.push(`${file}:${callStart + 1}: unterminated insertTask/insertTaskIfNew call`);
+      }
+    } catch (err) {
+      // Skip files that can't be read, syntax errors already caught by validateSyntax
+    }
+  }
+  return errors;
+}
+
 /** Snapshot which systemd user services are currently active. */
 async function snapshotServiceState(): Promise<Map<string, boolean>> {
   const state = new Map<string, boolean>();
@@ -192,6 +250,23 @@ export async function safeCommitCycleChanges(taskId: number): Promise<void> {
         source: `task:${taskId}`,
       });
       log("dispatch: created follow-up task for syntax errors");
+      return;
+    }
+
+    // Lint for insertTask/insertTaskIfNew missing model field
+    const modelLintErrors = lintModelField(stage.tsFiles);
+    if (modelLintErrors.length > 0) {
+      log(`dispatch: model field lint FAILED for ${modelLintErrors.length} issue(s):`);
+      for (const err of modelLintErrors) log(`  ${err}`);
+      await git("reset", "HEAD");
+      insertTask({
+        subject: `Fix insertTask model: field violations from task #${taskId}`,
+        description: `Lint check found insertTask/insertTaskIfNew calls missing model: field:\n${modelLintErrors.join("\n")}`,
+        priority: 2,
+        model: "sonnet",
+        source: `task:${taskId}`,
+      });
+      log("dispatch: created follow-up task for model field lint failures");
       return;
     }
   }
