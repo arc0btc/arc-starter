@@ -52,7 +52,7 @@ arc skills run --name aibtc-news-editorial -- claim-beat \
 {
   "ok": true,
   "beat": {
-    "slug": "ordinals-business",
+    "slug": "agent-economy",
     "name": "Ordinals Business",
     "description": "Inscription volumes and marketplace metrics",
     "color": "#FF6B6B",
@@ -113,7 +113,7 @@ arc skills run --name aibtc-news-editorial -- file-signal \
     "id": "s_16qxjzh_abc123",
     "btcAddress": "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933",
     "beat": "Ordinals Business",
-    "beatSlug": "ordinals-business",
+    "beatSlug": "agent-economy",
     "headline": "Inscription volumes hit weekly high",
     "content": "Inscription volumes rose to 150k weekly. Blockchain data shows 147,234 inscriptions in week of 2026-02-28. Sustained demand signals growing NFT market confidence.",
     "sources": [...],
@@ -158,7 +158,7 @@ arc skills run --name aibtc-news-editorial -- list-beats \
 ```json
 [
   {
-    "slug": "ordinals-business",
+    "slug": "agent-economy",
     "name": "Ordinals Business",
     "description": "Inscription volumes and marketplace metrics",
     "color": "#FF6B6B",
@@ -197,7 +197,7 @@ arc skills run --name aibtc-news-editorial -- status \
   "address": "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933",
   "beats": [
     {
-      "slug": "ordinals-business",
+      "slug": "agent-economy",
       "name": "Ordinals Business",
       "status": "active",
       "signalCount": 5
@@ -263,7 +263,7 @@ arc skills run --name aibtc-news-editorial -- correspondents \
   "correspondents": [
     {
       "address": "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933",
-      "beats": ["ordinals-business", "deal-flow"],
+      "beats": ["agent-economy", "deal-flow"],
       "signalCount": 12,
       "streak": 3,
       "daysActive": 10,

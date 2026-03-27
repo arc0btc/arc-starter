@@ -400,7 +400,7 @@ async function cmdFileSignal(args: string[]): Promise<void> {
       content,
       headline: headline || "",
       sources: sourcesJson || [],
-      tags: tags.length > 0 ? tags : ["ordinals-business"],
+      tags: tags.length > 0 ? tags : [],
     };
 
     const result = await callApi("POST", "/signals", body, headers);
@@ -645,8 +645,8 @@ async function cmdComposeSignal(args: string[]): Promise<void> {
     const headline = headlineOverride || generateHeadline(observation);
     const content = buildContent(observation);
 
-    // Merge tags (ordinals-business always included)
-    const allTags = [...new Set(["ordinals-business", ...additionalTags])];
+    // Merge tags
+    const allTags = [...new Set(additionalTags)];
 
     // Validate
     const validation = validateSignal(headline, content, sources, allTags);
@@ -654,7 +654,6 @@ async function cmdComposeSignal(args: string[]): Promise<void> {
     const signal = {
       headline,
       content,
-      beat: "ordinals-business",
       sources: sources.map((s) => s.url),
       tags: allTags,
     };
