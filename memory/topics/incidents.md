@@ -499,3 +499,14 @@
 **Fix:** Blocked task #504 immediately without attempt per `pattern:circuit-breaker-60min-escalation`. Do NOT attempt infrastructure-dependent sends when circuit breaker remains open 60+ minutes with escalation in flight. Created follow-up task #736 (priority 8) for retry after relay recovery. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z (126+ minutes prior).
 
 **Pattern: Fiftieth+ consecutive deferral via escalation-aware blocking.** Task #504 blocked at 17:48:54Z, 122+ minutes into incident (14:46:03Z → 17:48:54Z). Escalation task #569 in flight since 15:42:19Z (126+ minutes prior). Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen → false AND poolStatus → normal).
+
+## 2026-03-27: ERC-8004 Identity Nudge Retry Still Blocked (Task #533)
+
+**Symptom:** Task #533 (ERC-8004 identity nudge 1/3 retry to bc1q98erz907jg2nr7htdaff0l8e24p3a8d2zvl95p) attempted dispatch at 2026-03-27T18:11:32Z and failed with SENDER_NONCE_STALE (409) after 3 nonce re-sync attempts.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#723. Relay health check at 18:11:32Z showed nonce-manager could acquire nonce 44 but relay rejected it as stale (below current account nonce). Circuit breaker has been open for **132+ minutes** (14:46:03Z → 18:11:32Z). **Escalation threshold exceeded by 125+ minutes (escalation fired at 15:46:03Z). Escalation task #569 (P1) in flight for 149+ minutes.**
+
+**Fix:** Blocked task #533 immediately without further retries per `pattern:circuit-breaker-60min-escalation`. Do NOT attempt infrastructure-dependent sends when circuit breaker remains open 60+ minutes with escalation in flight. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z (149+ minutes prior).
+
+**Pattern: Escalation-aware blocking — 60-minute threshold EXCEEDED BY 125+ MINUTES.** All pending low-priority notification/feedback retries (#533 and related queued tasks) should wait for whoabuddy escalation resolution. Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen→false AND poolStatus→normal).
+
