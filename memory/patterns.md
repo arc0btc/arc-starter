@@ -65,6 +65,7 @@
 - **Idempotent setup with secure scaffolding:** Skip existing resources; create credential files with mode 0600; use `.template` files with parameter substitution.
 - **API version/auth migration requires coordinated client updates:** Update all callers simultaneously with phase/state gates.
 - **Component audit methodology:** Export metadata as queryable JSON. Classify: shared/agent_specific/runtime_builtin/delete. Delete-safe: unused 30+ days + zero refs.
+- **Wallet nonce gap detection and mitigation:** Concurrent dispatch cycles can cause 20+ pending mempool txs with nonce gaps (e.g., 514-539 with 519-522 missing). Gaps block all subsequent x402 sBTC transactions. Root cause: multiple cycles broadcast rapid-fire txs. Mitigation: use BIP-137 outbox fallback for replies; long-term investigate x402 client nonce management (spread sends, check mempool before broadcast).
 - **Multi-domain feature parameterization via explicit CLI flags:** Add `--beat` params; make hook-state keys composite; extract domain logic into beat-scoped functions.
 - **Verification/audit skills: sensor-free, CLI-first.** File discovery via explicit CLI params, never auto-scan.
 - **API field aliasing for backwards compatibility:** Accept both legacy and new field names via nullish coalesce: `newFieldName ?? legacyFieldName`.
@@ -102,7 +103,7 @@
 
 - **Partnership marginal-cost evaluation:** Zero marginal cost (existing cadence + minor CTA addition) = YES; requires new execution path = defer.
 - **Spec-first skill creation for external integrations:** Create SKILL.md spec first to lock in decision. Queue CLI implementation as separate follow-up task.
-- **Degrade-to-free-auth on infrastructure degradation:** When paid relay (x402) has circuit breaker open, route to free authentication paths (BIP-137 outbox).
+- **Degrade-to-free-auth on paid-path failure:** When x402 send-inbox-message fails (circuit breaker open, SENDER_NONCE_DUPLICATE, or wallet nonce gaps), fall back to BIP-137 outbox reply: GET inbox for messageId, sign `"Inbox Reply | {messageId} | {reply}"`, POST to `/api/outbox/{btcAddr}`. Free, works for replies to received messages. Max 500 chars.
 
 ## Quest & Complex Analysis
 
