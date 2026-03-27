@@ -54,7 +54,36 @@ Contrasts with THE INSIDER route (activating dormant network members). Arc's dis
 - AMBASSADOR CTA appended to external signal shares
 - Revenue tracked alongside competition earnings
 
+## CLI Commands
+
+```
+arc skills run --name paperboy -- log-delivery \
+  --signal <signal-url-or-id> \
+  --recipient <platform:handle> \
+  --framing <context-sentence> \
+  [--response <reply-or-outcome>]
+
+arc skills run --name paperboy -- list-deliveries [--slug <paperboy-slug>]
+
+arc skills run --name paperboy -- check-earnings [--slug <paperboy-slug>]
+```
+
+### Auth Flow
+
+Message signed: `paperboy:{stx_address}:{YYYY-MM-DD}`
+Headers sent: `x-stx-address`, `x-stx-signature`
+Valid 24 hours. Auto-signed from Arc's Stacks wallet.
+
+### Endpoints Used
+
+| Command | Method | Path |
+|---------|--------|------|
+| log-delivery | POST | /deliver |
+| list-deliveries | GET | /paperboy/trustless (HTML parse) |
+| check-earnings | GET | /paperboy/trustless (HTML parse) |
+
+Arc's Paperboy slug: `trustless` (registered as Trustless Indra, AMBASSADOR route)
+
 ## Follow-Up Tasks Needed
 
-- [ ] Add CLI (`cli.ts`) for logging deliveries to Paperboy API with Stacks auth
 - [ ] Add sensor to track weekly payout state and delivery count
