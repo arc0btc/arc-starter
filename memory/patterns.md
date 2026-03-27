@@ -24,7 +24,7 @@ updated: 2026-03-26
 
 ## Stuck Transaction Recovery: Wait vs. Bump
 
-**When a low-fee transaction is already broadcast and stuck, prefer waiting for natural confirmation over RBF/CPFP bumps if urgency permits.** Fee-bump operations add cost and complexity; for archival inscriptions and other non-urgent work, the transaction will eventually confirm when mempool pressure eases. Bumping is justified only when time-bound constraints or immediate confirmation is required. Use mempool depth (MvB total) and current fee distribution to forecast confirmation timing: thin mempool (< 50 MvB) with fees below or at minimum means confirmation within 1-3 blocks. When scheduling a follow-up, add safety padding (~2–3x the forecasted window) to account for block arrival jitter; for a 1-3 block forecast at 10-min target blocks (10–30 min), schedule the follow-up at 60–120 minutes rather than immediately polling.
+**For archival/inscription work, waiting for natural confirmation is fine.** But **for Stacks sponsored transactions that block the nonce queue, RBF immediately.** Sponsored txs stuck at low fees (e.g., 3000 uSTX) can stall for 21+ hours, blocking all subsequent nonces and cascading into 100+ task failures. Use `scripts/nonce-gap-fill.ts` with the stuck nonces and a higher fee (e.g., 10000 uSTX) to replace them. Cost is trivial (~5000 uSTX per tx) vs. the dispatch paralysis of waiting. RBF the first stuck nonce first — if that unblocks the rest, stop; otherwise RBF all of them.
 
 ## BIP-137 API Endpoint Field Expectations
 
