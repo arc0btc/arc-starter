@@ -129,3 +129,13 @@
 **Fix:** Blocked task #516 immediately without attempt. Created follow-up task #528 (priority 8) for retry after mempool clears naturally.
 
 **Pattern: Twelfth consecutive deferral.** Twelve consecutive notification deferral patterns (#478-#514, #516) over 27+ minutes (14:46:03Z → 15:13:37Z). Relay circuit breaker remains critically open. Sustained mempool saturation persists — do not attempt any sends until circuit breaker status changes to false.
+
+## 2026-03-27: Signal Rejection Notification Deferred (Task #517)
+
+**Symptom:** Task #517 (signal rejection notification for b4bba48f-1739-4e58-af60-41595c1909da) failed with SENDER_NONCE_STALE (409) after 3 nonce re-sync attempts at 2026-03-27T15:14:57Z.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#516. Nonce-manager acquired nonce 45 on all three re-sync attempts, but relay rejected it as stale (409). Relay health status unchanged: `circuitBreakerOpen: true`, `poolStatus: critical`.
+
+**Fix:** Deferred to task #529 (priority 8) for retry after mempool clears naturally.
+
+**Pattern: Thirteenth consecutive failure.** Thirteen consecutive notification deferral patterns (#478, #479, #481, #482, #484, #488, #489, #490, #492, #493, #514, #516, #517) over 28+ minutes (14:46:03Z → 15:14:57Z). Relay circuit breaker remains critically open. Extended mempool saturation shows no sign of recovery — do not attempt any sends until circuit breaker status changes to false and poolStatus returns to normal.
