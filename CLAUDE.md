@@ -137,6 +137,8 @@ CREATE TABLE tasks (
   api_cost_usd REAL DEFAULT 0,
   tokens_in INTEGER DEFAULT 0,
   tokens_out INTEGER DEFAULT 0,
+  model TEXT,               -- opus|sonnet|haiku|codex — routed by priority
+  assigned_to TEXT,         -- agent assignment for multi-agent setups
   attempt_count INTEGER DEFAULT 0,
   max_retries INTEGER DEFAULT 3,
   FOREIGN KEY (parent_id) REFERENCES tasks(id)

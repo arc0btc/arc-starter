@@ -87,56 +87,6 @@ WantedBy=default.target
 `;
 }
 
-function generateObservatoryServiceUnit(): string {
-  const bun = bunPath();
-  const envFile = join(ROOT, ".env");
-  const envLine = existsSync(envFile) ? `EnvironmentFile=${envFile}\n` : "";
-  return `[Unit]
-Description=Arc Observatory — Fleet Dashboard
-After=network.target arc-web.service
-
-[Service]
-Type=simple
-WorkingDirectory=${ROOT}
-ExecStart=${bun} skills/arc-observatory/cli.ts start
-Restart=on-failure
-RestartSec=5
-Environment="HOME=${HOME}"
-Environment="PATH=/usr/local/bin:/usr/bin:/bin:${HOME}/.bun/bin:${HOME}/.local/bin"
-${envLine}StandardOutput=journal
-StandardError=journal
-
-[Install]
-WantedBy=default.target
-`;
-}
-
-function generateMcpServiceUnit(): string {
-  const bun = bunPath();
-  const envFile = join(ROOT, ".env");
-  const envLine = existsSync(envFile) ? `EnvironmentFile=${envFile}\n` : "";
-  const port = process.env.ARC_MCP_PORT || "3100";
-  return `[Unit]
-Description=Arc MCP Server
-After=network.target
-
-[Service]
-Type=simple
-WorkingDirectory=${ROOT}
-ExecStart=${bun} skills/arc-mcp-server/server.ts --transport http --port ${port}
-Restart=on-failure
-RestartSec=5
-Environment="HOME=${HOME}"
-Environment="PATH=/usr/local/bin:/usr/bin:/bin:${HOME}/.bun/bin:${HOME}/.local/bin"
-Environment="ARC_MCP_PORT=${port}"
-${envLine}StandardOutput=journal
-StandardError=journal
-
-[Install]
-WantedBy=default.target
-`;
-}
-
 function generateTimerUnit(description: string, bootSec: string, intervalSec: string): string {
   return `[Unit]
 Description=${description}
@@ -175,8 +125,6 @@ const SYSTEMD_UNITS: Array<{ name: string; content: () => string }> = [
   { name: "arc-dispatch.service", content: () => generateServiceUnit("run", "arc-agent dispatch runner", 6000) },
   { name: "arc-dispatch.timer", content: () => generateTimerUnit("arc-agent dispatch timer — fires every 1 minute", "2min", "1min") },
   { name: "arc-web.service", content: () => generateWebServiceUnit() },
-  { name: "arc-mcp.service", content: () => generateMcpServiceUnit() },
-  { name: "arc-observatory.service", content: () => generateObservatoryServiceUnit() },
   { name: "arc-watchdog.service", content: () => generateWatchdogServiceUnit() },
   { name: "arc-watchdog.timer", content: () => generateTimerUnit("Arc external dispatch watchdog — fires every 15 minutes", "5min", "15min") },
 ];
@@ -199,24 +147,18 @@ function systemdInstall(): void {
   run("systemctl", ["--user", "enable", "--now", "arc-sensors.timer"]);
   run("systemctl", ["--user", "enable", "--now", "arc-dispatch.timer"]);
   run("systemctl", ["--user", "enable", "--now", "arc-web.service"]);
-  run("systemctl", ["--user", "enable", "--now", "arc-mcp.service"]);
-  run("systemctl", ["--user", "enable", "--now", "arc-observatory.service"]);
   run("systemctl", ["--user", "enable", "--now", "arc-watchdog.timer"]);
-  process.stdout.write("Enabled and started timers + web + MCP + observatory + watchdog services\n");
+  process.stdout.write("Enabled and started timers + web + watchdog services\n");
 }
 
 function systemdUninstall(): void {
   run("systemctl", ["--user", "stop", "arc-sensors.timer"], { quiet: true });
   run("systemctl", ["--user", "stop", "arc-dispatch.timer"], { quiet: true });
   run("systemctl", ["--user", "stop", "arc-web.service"], { quiet: true });
-  run("systemctl", ["--user", "stop", "arc-mcp.service"], { quiet: true });
-  run("systemctl", ["--user", "stop", "arc-observatory.service"], { quiet: true });
   run("systemctl", ["--user", "stop", "arc-watchdog.timer"], { quiet: true });
   run("systemctl", ["--user", "disable", "arc-sensors.timer"], { quiet: true });
   run("systemctl", ["--user", "disable", "arc-dispatch.timer"], { quiet: true });
   run("systemctl", ["--user", "disable", "arc-web.service"], { quiet: true });
-  run("systemctl", ["--user", "disable", "arc-mcp.service"], { quiet: true });
-  run("systemctl", ["--user", "disable", "arc-observatory.service"], { quiet: true });
   run("systemctl", ["--user", "disable", "arc-watchdog.timer"], { quiet: true });
 
   const dir = systemdDir();
@@ -251,24 +193,6 @@ function systemdStatus(): void {
 
   process.stdout.write("\n");
 
-  const { stdout: mcpStatus } = run("systemctl", [
-    "--user", "status",
-    "arc-mcp.service",
-    "--no-pager",
-  ], { quiet: true });
-  process.stdout.write(mcpStatus || "MCP service not found. Run: arc services install\n");
-
-  process.stdout.write("\n");
-
-  const { stdout: observatoryStatus } = run("systemctl", [
-    "--user", "status",
-    "arc-observatory.service",
-    "--no-pager",
-  ], { quiet: true });
-  process.stdout.write(observatoryStatus || "Observatory service not found. Run: arc services install\n");
-
-  process.stdout.write("\n");
-
   const { stdout: watchdogStatus } = run("systemctl", [
     "--user", "status",
     "arc-watchdog.timer",
@@ -287,8 +211,6 @@ const TIMER_AGENTS = [
 ] as const;
 
 const WEB_AGENT = { label: "com.arc-agent.web" } as const;
-const MCP_AGENT = { label: "com.arc-agent.mcp" } as const;
-const OBSERVATORY_AGENT = { label: "com.arc-agent.observatory" } as const;
 
 function plistPath(label: string): string {
   return join(LAUNCHD_DIR, `${label}.plist`);
@@ -364,80 +286,6 @@ function generateWebPlist(): string {
 </plist>`;
 }
 
-function generateObservatoryPlist(): string {
-  const bun = bunPath();
-  const logDir = join(ROOT, "logs");
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>Label</key>
-    <string>${OBSERVATORY_AGENT.label}</string>
-    <key>ProgramArguments</key>
-    <array>
-        <string>${bun}</string>
-        <string>skills/arc-observatory/cli.ts</string>
-        <string>start</string>
-    </array>
-    <key>WorkingDirectory</key>
-    <string>${ROOT}</string>
-    <key>KeepAlive</key>
-    <true/>
-    <key>StandardOutPath</key>
-    <string>${logDir}/observatory.log</string>
-    <key>StandardErrorPath</key>
-    <string>${logDir}/observatory.err</string>
-    <key>EnvironmentVariables</key>
-    <dict>
-        <key>HOME</key>
-        <string>${HOME}</string>
-        <key>PATH</key>
-        <string>/usr/local/bin:/usr/bin:/bin:${HOME}/.bun/bin</string>
-    </dict>
-</dict>
-</plist>`;
-}
-
-function generateMcpPlist(): string {
-  const bun = bunPath();
-  const logDir = join(ROOT, "logs");
-  const port = process.env.ARC_MCP_PORT || "3100";
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>Label</key>
-    <string>${MCP_AGENT.label}</string>
-    <key>ProgramArguments</key>
-    <array>
-        <string>${bun}</string>
-        <string>skills/arc-mcp-server/server.ts</string>
-        <string>--transport</string>
-        <string>http</string>
-        <string>--port</string>
-        <string>${port}</string>
-    </array>
-    <key>WorkingDirectory</key>
-    <string>${ROOT}</string>
-    <key>KeepAlive</key>
-    <true/>
-    <key>StandardOutPath</key>
-    <string>${logDir}/mcp.log</string>
-    <key>StandardErrorPath</key>
-    <string>${logDir}/mcp.err</string>
-    <key>EnvironmentVariables</key>
-    <dict>
-        <key>HOME</key>
-        <string>${HOME}</string>
-        <key>PATH</key>
-        <string>/usr/local/bin:/usr/bin:/bin:${HOME}/.bun/bin</string>
-        <key>ARC_MCP_PORT</key>
-        <string>${port}</string>
-    </dict>
-</dict>
-</plist>`;
-}
-
 function launchdInstall(): void {
   mkdirSync(LAUNCHD_DIR, { recursive: true });
   mkdirSync(join(ROOT, "logs"), { recursive: true });
@@ -454,29 +302,19 @@ function launchdInstall(): void {
   writeFileSync(webPlist, generateWebPlist());
   process.stdout.write(`  Wrote ${WEB_AGENT.label}.plist\n`);
 
-  // Persistent MCP server
-  const mcpPlist = plistPath(MCP_AGENT.label);
-  writeFileSync(mcpPlist, generateMcpPlist());
-  process.stdout.write(`  Wrote ${MCP_AGENT.label}.plist\n`);
-
-  // Persistent observatory
-  const obsPlist = plistPath(OBSERVATORY_AGENT.label);
-  writeFileSync(obsPlist, generateObservatoryPlist());
-  process.stdout.write(`  Wrote ${OBSERVATORY_AGENT.label}.plist\n`);
-
   process.stdout.write("\n");
 
-  const allLabels = [...TIMER_AGENTS.map(a => a.label), WEB_AGENT.label, MCP_AGENT.label, OBSERVATORY_AGENT.label];
+  const allLabels = [...TIMER_AGENTS.map(a => a.label), WEB_AGENT.label];
   for (const label of allLabels) {
     const plist = plistPath(label);
     run("launchctl", ["unload", plist], { quiet: true });
     run("launchctl", ["load", plist]);
   }
-  process.stdout.write("Loaded launch agents + web + MCP services\n");
+  process.stdout.write("Loaded launch agents + web services\n");
 }
 
 function launchdUninstall(): void {
-  const allLabels = [...TIMER_AGENTS.map(a => a.label), WEB_AGENT.label, MCP_AGENT.label, OBSERVATORY_AGENT.label];
+  const allLabels = [...TIMER_AGENTS.map(a => a.label), WEB_AGENT.label];
   for (const label of allLabels) {
     const plist = plistPath(label);
     if (existsSync(plist)) {
@@ -490,7 +328,7 @@ function launchdUninstall(): void {
 
 function launchdStatus(): void {
   let found = false;
-  const allLabels = [...TIMER_AGENTS.map(a => a.label), WEB_AGENT.label, MCP_AGENT.label, OBSERVATORY_AGENT.label];
+  const allLabels = [...TIMER_AGENTS.map(a => a.label), WEB_AGENT.label];
   for (const label of allLabels) {
     const { stdout } = run("launchctl", ["list", label], { quiet: true });
     if (stdout.includes(label)) {

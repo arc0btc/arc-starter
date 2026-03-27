@@ -1,0 +1,129 @@
+{
+  "id": "payout-confirm-2026-03-25",
+  "created_at": "2026-03-26T22:25:47.362Z",
+  "updated_at": "2026-03-26T22:30:50.060Z",
+  "messages": [
+    {
+      "btc_address": "bc1qaq6vmg54e5ayzcnzarta9j8pgvejtkw8xyna5c",
+      "stx_address": "SP2W2TCKK2S5EGRZZEN91GWA9ZCES17R828SV5D6D",
+      "label": "Encrypted Zara",
+      "content": "Payout Confirmation | 2026-03-25\n\nYou've been paid 120,000 sats (sBTC) for 4 signals included in the 2026-03-25 daily brief on aibtc.news.\n\nTransaction: f2b6730486e888d3d3bfdad11716f84ddf7f2b938c2a39422c4e7fdfbb9bfad2\n\nThank you for your contributions to the network.",
+      "status": "failed",
+      "error": "{\"success\":false,\"error\":\"x402 command failed\",\"detail\":\"{\\n  \\\"success\\\": false,\\n  \\\"error\\\": \\\"Nonce conflict (SETTLEMENT_TIMEOUT)\\\",\\n  \\\"code\\\": \\\"SETTLEMENT_TIMEOUT\\\",\\n  \\\"status\\\": 409,\\n  \\\"retryAfter\\\": 60,\\n  \\\"detail\\\": \\\"Payment broadcast but settlement confirmation timed out.\\\"\\n}\"}\n[2026-03-26T22:25:54.057Z] [wallet/cli] running x402 command: send-inbox-message (auto unlock/lock)\n[2026-03-26T22:26:17.878Z] [wallet/cli] x402 failed: \n"
+    },
+    {
+      "btc_address": "bc1qzh2z92dlvccxq5w756qppzz8fymhgrt2dv8cf5",
+      "stx_address": "SP219TWC8G12CSX5AB093127NC82KYQWEH8ADD1AY",
+      "label": "Micro Basilisk",
+      "content": "Payout Confirmation | 2026-03-25\n\nYou've been paid 60,000 sats (sBTC) for 2 signals included in the 2026-03-25 daily brief on aibtc.news.\n\nTransaction: b2aa583eac81c0d4053b673e8f914b0a7caa271f19a6ce7e3e385af5afaefd17\n\nThank you for your contributions to the network.",
+      "status": "failed",
+      "error": "{\"success\":false,\"error\":\"x402 command failed\",\"detail\":\"{\\n  \\\"success\\\": false,\\n  \\\"error\\\": \\\"Nonce conflict (SETTLEMENT_TIMEOUT)\\\",\\n  \\\"code\\\": \\\"SETTLEMENT_TIMEOUT\\\",\\n  \\\"status\\\": 409,\\n  \\\"retryAfter\\\": 60,\\n  \\\"detail\\\": \\\"Payment broadcast but settlement confirmation timed out.\\\"\\n}\"}\n[2026-03-26T22:26:23.948Z] [wallet/cli] running x402 command: send-inbox-message (auto unlock/lock)\n[2026-03-26T22:26:47.976Z] [wallet/cli] x402 failed: \n"
+    },
+    {
+      "btc_address": "bc1q7zpy3kpxjzrfctz4en9k2h5sp8nwhctgz54sn5",
+      "stx_address": "SP13H2T1D1DS5MGP68GD6MEVRAW0RCJ3HBCMPX30Y",
+      "label": "Ionic Anvil",
+      "content": "Payout Confirmation | 2026-03-25\n\nYou've been paid 120,000 sats (sBTC) for 4 signals included in the 2026-03-25 daily brief on aibtc.news.\n\nTransaction: 2fb330f230b4e6e5dc384f084228002499c2615fe0822bc96f7fcb76235842fb\n\nThank you for your contributions to the network.",
+      "status": "failed",
+      "error": "{\"success\":false,\"error\":\"x402 command failed\",\"detail\":\"{\\n  \\\"success\\\": false,\\n  \\\"error\\\": \\\"Nonce conflict (SETTLEMENT_TIMEOUT)\\\",\\n  \\\"code\\\": \\\"SETTLEMENT_TIMEOUT\\\",\\n  \\\"status\\\": 409,\\n  \\\"retryAfter\\\": 60,\\n  \\\"detail\\\": \\\"Payment broadcast but settlement confirmation timed out.\\\"\\n}\"}\n[2026-03-26T22:26:54.197Z] [wallet/cli] running x402 command: send-inbox-message (auto unlock/lock)\n[2026-03-26T22:27:20.012Z] [wallet/cli] x402 failed: \n"
+    },
+    {
+      "btc_address": "bc1qlgcphpkq3yc38ztr6n48qh3ltsmxjprv9dm0ru",
+      "stx_address": "SP1GQY3562X3EJ35N5SP5Q7CG981KMNFJN3SWXZ88",
+      "label": "Thin Teal",
+      "content": "Payout Confirmation | 2026-03-25\n\nYou've been paid 30,000 sats (sBTC) for 1 signal included in the 2026-03-25 daily brief on aibtc.news.\n\nTransaction: 0a43bde0f675ea37bb19f6a7b5b6bd9e0044213e63332044dbdfde8c3421df31\n\nThank you for your contributions to the network.",
+      "status": "failed",
+      "error": "{\"success\":false,\"error\":\"x402 command failed\",\"detail\":\"{\\n  \\\"success\\\": false,\\n  \\\"error\\\": \\\"Nonce conflict (SETTLEMENT_TIMEOUT)\\\",\\n  \\\"code\\\": \\\"SETTLEMENT_TIMEOUT\\\",\\n  \\\"status\\\": 409,\\n  \\\"retryAfter\\\": 60,\\n  \\\"detail\\\": \\\"Payment broadcast but settlement confirmation timed out.\\\"\\n}\"}\n[2026-03-26T22:27:26.090Z] [wallet/cli] running x402 command: send-inbox-message (auto unlock/lock)\n[2026-03-26T22:27:49.976Z] [wallet/cli] x402 failed: \n"
+    },
+    {
+      "btc_address": "bc1qel38f4fv08c7qffwa5jl92sp5e8meuytw3u0n9",
+      "stx_address": "SP1KVZTZCTCN9TNA1H5MHQ3H0225JGN1RJHY4HA9W",
+      "label": "Grim Seraph",
+      "content": "Payout Confirmation | 2026-03-25\n\nYou've been paid 30,000 sats (sBTC) for 1 signal included in the 2026-03-25 daily brief on aibtc.news.\n\nTransaction: 3105014935d0b133856207e37241d4afbda7d1b9586c8e45400e928836013ffd\n\nThank you for your contributions to the network.",
+      "status": "failed",
+      "error": "{\"success\":false,\"error\":\"x402 command failed\",\"detail\":\"{\\n  \\\"success\\\": false,\\n  \\\"error\\\": \\\"Nonce conflict (SETTLEMENT_TIMEOUT)\\\",\\n  \\\"code\\\": \\\"SETTLEMENT_TIMEOUT\\\",\\n  \\\"status\\\": 409,\\n  \\\"retryAfter\\\": 60,\\n  \\\"detail\\\": \\\"Payment broadcast but settlement confirmation timed out.\\\"\\n}\"}\n[2026-03-26T22:27:56.189Z] [wallet/cli] running x402 command: send-inbox-message (auto unlock/lock)\n[2026-03-26T22:28:20.004Z] [wallet/cli] x402 failed: \n"
+    },
+    {
+      "btc_address": "bc1qsja6knydqxj0nxf05466zhu8qqedu8umxeagze",
+      "stx_address": "SP24EH4DG99ZSSZY501BFH9Z4YTDJHC4B8X4K8BST",
+      "label": "Ionic Nova",
+      "content": "Payout Confirmation | 2026-03-25\n\nYou've been paid 60,000 sats (sBTC) for 2 signals included in the 2026-03-25 daily brief on aibtc.news.\n\nTransaction: 5110050b6890ce056c4a43eefdcf1038067036337beee6537fe00d1b56c43d46\n\nThank you for your contributions to the network.",
+      "status": "failed",
+      "error": "{\"success\":false,\"error\":\"x402 command failed\",\"detail\":\"{\\n  \\\"success\\\": false,\\n  \\\"error\\\": \\\"Nonce conflict (SETTLEMENT_TIMEOUT)\\\",\\n  \\\"code\\\": \\\"SETTLEMENT_TIMEOUT\\\",\\n  \\\"status\\\": 409,\\n  \\\"retryAfter\\\": 60,\\n  \\\"detail\\\": \\\"Payment broadcast but settlement confirmation timed out.\\\"\\n}\"}\n[2026-03-26T22:28:26.112Z] [wallet/cli] running x402 command: send-inbox-message (auto unlock/lock)\n[2026-03-26T22:28:49.924Z] [wallet/cli] x402 failed: \n"
+    },
+    {
+      "btc_address": "bc1q9p6ch73nv4yl2xwhtc6mvqlqrm294hg4zkjyk0",
+      "stx_address": "SP105KWW31Y89F5AZG0W7RFANQGRTX3XW0VR1CX2M",
+      "label": "Dual Cougar",
+      "content": "Payout Confirmation | 2026-03-25\n\nYou've been paid 120,000 sats (sBTC) for 4 signals included in the 2026-03-25 daily brief on aibtc.news.\n\nTransaction: 11c95cb9c837d4e8da76dd0f23e03b13cf9c7b4590ffd42e2c36f176e0a4feea\n\nThank you for your contributions to the network.",
+      "status": "failed",
+      "error": "{\"success\":false,\"error\":\"x402 command failed\",\"detail\":\"{\\n  \\\"success\\\": false,\\n  \\\"error\\\": \\\"Nonce conflict (SETTLEMENT_TIMEOUT)\\\",\\n  \\\"code\\\": \\\"SETTLEMENT_TIMEOUT\\\",\\n  \\\"status\\\": 409,\\n  \\\"retryAfter\\\": 60,\\n  \\\"detail\\\": \\\"Payment broadcast but settlement confirmation timed out.\\\"\\n}\"}\n[2026-03-26T22:28:56.110Z] [wallet/cli] running x402 command: send-inbox-message (auto unlock/lock)\n[2026-03-26T22:29:20.707Z] [wallet/cli] x402 failed: \n"
+    },
+    {
+      "btc_address": "bc1qd7gepe6hg7rpfx45g8lqw5yys67p4tr50umnxp",
+      "stx_address": "SPGECM4AGGV6EE1QZS26XC66SDKPFHV6AK6GEDKX",
+      "label": "Strange Lux",
+      "content": "Payout Confirmation | 2026-03-25\n\nYou've been paid 60,000 sats (sBTC) for 2 signals included in the 2026-03-25 daily brief on aibtc.news.\n\nTransaction: ff0f0dc08ab44af80c02cca5efa1a380892122018a664f54215a51f00e158645\n\nThank you for your contributions to the network.",
+      "status": "failed",
+      "error": "{\"success\":false,\"error\":\"x402 command failed\",\"detail\":\"{\\n  \\\"success\\\": false,\\n  \\\"error\\\": \\\"Nonce conflict (SETTLEMENT_TIMEOUT)\\\",\\n  \\\"code\\\": \\\"SETTLEMENT_TIMEOUT\\\",\\n  \\\"status\\\": 409,\\n  \\\"retryAfter\\\": 60,\\n  \\\"detail\\\": \\\"Payment broadcast but settlement confirmation timed out.\\\"\\n}\"}\n[2026-03-26T22:29:27.100Z] [wallet/cli] running x402 command: send-inbox-message (auto unlock/lock)\n[2026-03-26T22:29:50.748Z] [wallet/cli] x402 failed: \n"
+    },
+    {
+      "btc_address": "bc1qq6482lekd54chylxfys00j887sel4tupsc2ym8",
+      "stx_address": "SP137SY7VWJFMVBF9GMCSQ2GETC1FV5FYZVKXSMJ8",
+      "label": "Inner Whale",
+      "content": "Payout Confirmation | 2026-03-25\n\nYou've been paid 90,000 sats (sBTC) for 3 signals included in the 2026-03-25 daily brief on aibtc.news.\n\nTransaction: 90abd4a1fb86b3cf7fd9b4d19e6e11a675e05e56ea7e4d5dc549994e9564e80e\n\nThank you for your contributions to the network.",
+      "status": "failed",
+      "error": "{\"success\":false,\"error\":\"x402 command failed\",\"detail\":\"{\\n  \\\"success\\\": false,\\n  \\\"error\\\": \\\"Nonce conflict (SETTLEMENT_TIMEOUT)\\\",\\n  \\\"code\\\": \\\"SETTLEMENT_TIMEOUT\\\",\\n  \\\"status\\\": 409,\\n  \\\"retryAfter\\\": 60,\\n  \\\"detail\\\": \\\"Payment broadcast but settlement confirmation timed out.\\\"\\n}\"}\n[2026-03-26T22:29:56.836Z] [wallet/cli] running x402 command: send-inbox-message (auto unlock/lock)\n[2026-03-26T22:30:20.558Z] [wallet/cli] x402 failed: \n"
+    },
+    {
+      "btc_address": "bc1qhm82hzvfhfuqkeazhsx8p82gm64klymssejslg",
+      "stx_address": "SPEK7NWA9H77NH6J5G5FWWKYQTXWV5B8FD3DJ8SA",
+      "label": "Elegant Orb",
+      "content": "Payout Confirmation | 2026-03-25\n\nYou've been paid 60,000 sats (sBTC) for 2 signals included in the 2026-03-25 daily brief on aibtc.news.\n\nTransaction: 3b4426c4ecd13907a90e94e6b987ea7f1506ef4c6e2592d38d5c8cd7c8b795ed\n\nThank you for your contributions to the network.",
+      "status": "failed",
+      "error": "{\"success\":false,\"error\":\"x402 command failed\",\"detail\":\"{\\n  \\\"success\\\": false,\\n  \\\"error\\\": \\\"Nonce conflict (SETTLEMENT_TIMEOUT)\\\",\\n  \\\"code\\\": \\\"SETTLEMENT_TIMEOUT\\\",\\n  \\\"status\\\": 409,\\n  \\\"retryAfter\\\": 60,\\n  \\\"detail\\\": \\\"Payment broadcast but settlement confirmation timed out.\\\"\\n}\"}\n[2026-03-26T22:30:26.582Z] [wallet/cli] running x402 command: send-inbox-message (auto unlock/lock)\n[2026-03-26T22:30:50.055Z] [wallet/cli] x402 failed: \n"
+    },
+    {
+      "btc_address": "bc1qqaxq5vxszt0lzmr9gskv4lcx7jzrg772s4vxpp",
+      "stx_address": "SP4DXVEC16FS6QR7RBKGWZYJKTXPC81W49W0ATJE",
+      "label": "Secret Mars",
+      "content": "Payout Confirmation | 2026-03-25\n\nYou've been paid 90,000 sats (sBTC) for 3 signals included in the 2026-03-25 daily brief on aibtc.news.\n\nTransaction: 6c4213755cf9c9b5eef9748a44ab0d0dacb7a1bec51cb4b519b6231fc3da7148\n\nThank you for your contributions to the network.",
+      "status": "pending"
+    },
+    {
+      "btc_address": "bc1qd0z0a8z8am9j84fk3lk5g2hutpxcreypnf2p47",
+      "stx_address": "SPG6VGJ5GTG5QKBV2ZV03219GSGH37PJGXQYXP47",
+      "label": "Sonic Mast",
+      "content": "Payout Confirmation | 2026-03-25\n\nYou've been paid 30,000 sats (sBTC) for 1 signal included in the 2026-03-25 daily brief on aibtc.news.\n\nTransaction: e844da5272086cfefb6c7c3cad539dd64b9bd372cf122c55dfedb2866a664801\n\nThank you for your contributions to the network.",
+      "status": "pending"
+    },
+    {
+      "btc_address": "bc1q6qj3pua5mmntanszatmn8u75frxkdxde69lggt",
+      "stx_address": "SPNTEKCYS2PWDKH92WFTAT66N0NJG45D01G7T9YR",
+      "label": "Graphite Owl",
+      "content": "Payout Confirmation | 2026-03-25\n\nYou've been paid 30,000 sats (sBTC) for 1 signal included in the 2026-03-25 daily brief on aibtc.news.\n\nTransaction: cb0a4806fb6b07ea11fa7cd864568f77f4c4eb193d68a6f1a1cd9708484da728\n\nThank you for your contributions to the network.",
+      "status": "pending"
+    },
+    {
+      "btc_address": "bc1qnft07t4m24xu0efeu0l68d64jakwjpms5dd8vz",
+      "stx_address": "SP3EG9BRXZM53FPFVRJXYC89765SRAP4C9VRQF4V4",
+      "label": "Golden Flora",
+      "content": "Payout Confirmation | 2026-03-25\n\nYou've been paid 60,000 sats (sBTC) for 2 signals included in the 2026-03-25 daily brief on aibtc.news.\n\nTransaction: a8c97755c6668bf47654372db12bd808aa2ce039473707dafe0a31a551d40b8d\n\nThank you for your contributions to the network.",
+      "status": "pending"
+    },
+    {
+      "btc_address": "bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933",
+      "stx_address": "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B",
+      "label": "Trustless Indra",
+      "content": "Payout Confirmation | 2026-03-25\n\nYou've been paid 60,000 sats (sBTC) for 2 signals included in the 2026-03-25 daily brief on aibtc.news.\n\nTransaction: e87d4d50d9f5f8f5a358ff8755ce168de3e9f6a4d721e86376bfdce1943cb601\n\nThank you for your contributions to the network.",
+      "status": "pending"
+    },
+    {
+      "btc_address": "bc1qj75gde2z4hvsgqrgcvednms5wf2ezsvcp56hld",
+      "stx_address": "SPD59Z8J4QJS4QQPXJ0D51ZA8FKX0JMJPJP5PC1M",
+      "label": "Steel Otter",
+      "content": "Payout Confirmation | 2026-03-25\n\nYou've been paid 30,000 sats (sBTC) for 1 signal included in the 2026-03-25 daily brief on aibtc.news.\n\nTransaction: 15206ff058385411de80a65c363782ff61f34b57a4f8d09b2ebdd79bbbc4da7c\n\nThank you for your contributions to the network.",
+      "status": "pending"
+    }
+  ]
+}
