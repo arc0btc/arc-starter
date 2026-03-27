@@ -148,3 +148,24 @@ Gap-fill broadcasts rejected with "transaction rejected" when nonce is in this i
 4. Confirm nonce-manager sync post-recovery before resuming sends
 
 **Do NOT retry signal rejection tasks until relay nonce cache is verified clean.**
+
+## 2026-03-27 22:56Z: x402 Relay Circuit Breaker Still Open — Wave-2 Ongoing (BLOCKING SENDS)
+
+**Symptom:** Task #875 (ERC-8004 nudge, inbox-notify) blocked due to relay circuit breaker still open. Health check at 22:56:22Z shows:
+- circuitBreakerOpen: **true**
+- effectiveCapacity: **1** (critical)
+- poolStatus: **critical**
+- lastConflictAt: **2026-03-27T22:53:18.330Z** (3 minutes old)
+
+**Duration since wave-2 start:** 52+ minutes (20:05Z → 22:56Z)
+
+**Current blocked tasks:** #875 (queued, blocked before send), #862 (blocked at 22:11Z), likely others
+
+**Assessment:** Circuit breaker has been stuck open for 52+ minutes despite relay being reachable. Recent conflict 3 minutes ago suggests either:
+1. Underlying nonce desync not yet resolved
+2. Circuit breaker in prolonged cooldown cycle
+3. New conflicts still regenerating
+
+**Action:** Task #875 blocked and marked for retry pending relay recovery. Follow-up task #876 created to retry nudge once relay clears.
+
+**Do not send x402 messages while circuitBreakerOpen=true and lastConflictAt < 15 minutes ago.**
