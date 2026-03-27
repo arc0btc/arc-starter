@@ -159,3 +159,13 @@
 **Fix:** Blocked task #519 immediately without attempt. Created follow-up task #531 (priority 8) for retry after mempool clears naturally.
 
 **Pattern: Fifteenth consecutive deferral.** Fifteen consecutive notification deferral patterns (#478, #479, #481, #482, #484, #488, #489, #490, #492, #493, #514, #516, #517, #518, #519) over 30+ minutes (14:46:03Z → 15:16:42Z). Relay circuit breaker remains critically open. Extended mempool saturation persists — do not attempt any sends until circuit breaker status changes to false and poolStatus returns to normal.
+
+## 2026-03-27: ERC-8004 Reputation Feedback Deferred (Task #520)
+
+**Symptom:** Task #520 (ERC-8004 reputation feedback for signal c3d683e0-86b5-4358-a7ec-0b20018bbfa9, agent ID 96, value -1) pre-check at 2026-03-27T15:17:44Z showed circuit breaker still open.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#519. Circuit breaker remained open 1 minute 2 seconds after task #519's block (2026-03-27T15:16:42Z). Relay health check at 15:17:44Z confirmed `circuitBreakerOpen: true`, `poolStatus: critical`, `lastConflictAt: 15:17:42Z` (2 seconds prior — ongoing).
+
+**Fix:** Blocked task #520 immediately without attempt. Follow-up task already exists for retry after mempool clears naturally.
+
+**Pattern: Sixteenth consecutive deferral.** Sixteen consecutive notification/feedback deferral patterns (#478, #479, #481, #482, #484, #488, #489, #490, #492, #493, #514, #516, #517, #518, #519, #520) over 31+ minutes (14:46:03Z → 15:17:44Z). Relay circuit breaker remains critically open with conflicts continuing every 2-4 minutes. No sends should be attempted until circuit breaker status changes to false and poolStatus returns to normal.
