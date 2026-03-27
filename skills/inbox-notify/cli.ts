@@ -6,11 +6,11 @@
 import { resolve } from "node:path";
 import { mkdirSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { getContactByAddress, insertContactInteraction } from "../contact-registry/schema.ts";
+import { acquireNonce, releaseNonce, syncNonce } from "../nonce-manager/nonce-store.js";
 
 const ROOT = resolve(import.meta.dir, "../..");
 const STATE_DIR = resolve(ROOT, "db/inbox-notify");
 const PAYOUTS_DIR = resolve(ROOT, "db/payouts");
-const HIRO_API = "https://api.hiro.so";
 const SENDER_STX = "SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM";
 const MAX_RETRIES = 3;
 const POST_SEND_DELAY_MS = 5_000; // 5s between sends (Stacks blocks are 3-5s post-Nakamoto)
@@ -86,28 +86,36 @@ function writeState(state: BatchState): void {
   writeFileSync(stateFilePath(state.id), JSON.stringify(state, null, 2));
 }
 
-// ---- Nonce Management ----
+// ---- Nonce Management (via nonce-manager) ----
 
 async function fetchSeedNonce(): Promise<bigint> {
-  const url = `${HIRO_API}/extended/v1/address/${SENDER_STX}/nonces`;
-  log(`Fetching seed nonce from Hiro`);
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Nonce fetch failed: ${response.status} ${response.statusText}`);
-  }
-  const data = (await response.json()) as {
-    possible_next_nonce: number;
-    last_executed_tx_nonce: number | null;
-    detected_mempool_nonces: number[];
-  };
-  const nonce = BigInt(data.possible_next_nonce);
-  log(`Seed nonce: ${nonce} (last executed: ${data.last_executed_tx_nonce}, mempool pending: ${data.detected_mempool_nonces?.length ?? 0})`);
+  // Sync from Hiro via nonce-manager (atomic, cross-skill safe)
+  const result = await syncNonce(SENDER_STX);
+  const nonce = BigInt(result.nonce);
+  log(`Seed nonce from nonce-manager: ${nonce} (last executed: ${result.lastExecuted}, mempool pending: ${result.mempoolPending})`);
 
-  if (data.detected_mempool_nonces?.length > 0) {
-    log(`Warning: ${data.detected_mempool_nonces.length} pending mempool tx(es) — may cause initial conflict`);
+  if (result.mempoolPending > 0) {
+    log(`Warning: ${result.mempoolPending} pending mempool tx(es) — may cause initial conflict`);
+  }
+  if (result.detectedMissing.length > 0) {
+    log(`Warning: ${result.detectedMissing.length} missing nonce gap(s): [${result.detectedMissing.join(", ")}]`);
   }
 
   return nonce;
+}
+
+async function acquireManagedNonce(): Promise<bigint> {
+  const result = await acquireNonce(SENDER_STX);
+  log(`Acquired nonce ${result.nonce} from nonce-manager (source: ${result.source})`);
+  return BigInt(result.nonce);
+}
+
+async function releaseManagedNonce(nonce: bigint, success: boolean): Promise<void> {
+  try {
+    await releaseNonce(SENDER_STX, Number(nonce), success);
+  } catch {
+    // best effort
+  }
 }
 
 // ---- x402 Send (with explicit nonce) ----
@@ -192,10 +200,11 @@ async function sendWithRetry(
     }
 
     if (isNonceStale(err) && attempt < MAX_RETRIES) {
-      // Nonce is below current — re-seed from Hiro
-      log(`  Nonce stale for ${label} (attempt ${attempt}/${MAX_RETRIES}), re-seeding from Hiro...`);
+      // Nonce is below current — release failed nonce and re-sync from Hiro via nonce-manager
+      log(`  Nonce stale for ${label} (attempt ${attempt}/${MAX_RETRIES}), re-syncing via nonce-manager...`);
+      await releaseManagedNonce(currentNonce, false);
       await sleep(NONCE_RETRY_DELAY_MS);
-      currentNonce = await fetchSeedNonce();
+      currentNonce = await acquireManagedNonce();
       continue;
     }
 
@@ -328,10 +337,11 @@ async function cmdSendOne(args: string[]): Promise<void> {
 
   log(`Sending single message to ${btcAddress.slice(0, 16)}...`);
 
-  const nonce = await fetchSeedNonce();
+  const nonce = await acquireManagedNonce();
   const result = await sendWithRetry(btcAddress, stxAddress, content, btcAddress.slice(0, 16), nonce);
 
   if (result.success) {
+    await releaseManagedNonce(result.nonce, true);
     log("Message sent successfully");
 
     const contact = getContactByAddress(null, btcAddress);
@@ -345,6 +355,7 @@ async function cmdSendOne(args: string[]): Promise<void> {
 
     console.log(JSON.stringify({ success: true }));
   } else {
+    await releaseManagedNonce(result.nonce, false);
     log(`Failed: ${result.error}`);
     console.log(JSON.stringify({ success: false, error: result.error }));
     process.exit(1);
@@ -361,8 +372,8 @@ async function executeBatch(state: BatchState): Promise<void> {
   log(`Batch ${state.id}: ${pending.length} to send, ${alreadySent} already sent, ${total} total`);
   log(`Delay between messages: ${POST_SEND_DELAY_MS / 1000}s`);
 
-  // Seed nonce once for the batch
-  let currentNonce = await fetchSeedNonce();
+  // Acquire nonce from nonce-manager (atomic, cross-skill safe)
+  let currentNonce = await acquireManagedNonce();
   log(`Sender nonce: ${currentNonce} — proceeding with batch`);
 
   let successCount = alreadySent;
@@ -388,7 +399,8 @@ async function executeBatch(state: BatchState): Promise<void> {
       msg.sent_at = new Date().toISOString();
       successCount++;
       pendingSent++;
-      currentNonce += 1n; // advance nonce after successful send
+      await releaseManagedNonce(currentNonce, true);
+      currentNonce = await acquireManagedNonce(); // get next from manager
       log(`  Sent to ${msg.label} (next nonce: ${currentNonce})`);
 
       // Log contact interaction
@@ -405,6 +417,7 @@ async function executeBatch(state: BatchState): Promise<void> {
         // Non-fatal
       }
     } else {
+      await releaseManagedNonce(currentNonce, false);
       msg.status = "failed";
       msg.error = result.error?.slice(0, 500);
       failCount++;

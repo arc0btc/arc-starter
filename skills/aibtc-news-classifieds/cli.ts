@@ -2,8 +2,9 @@
 // skills/aibtc-news-classifieds/cli.ts
 // Classified ads and extended API coverage for aibtc.news
 
-import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
+import { ARC_BTC_ADDRESS, ARC_STX_ADDRESS } from "../../src/identity.ts";
 import { getContactByAddress, getContactInteractions, insertContactInteraction } from "../contact-registry/schema.ts";
+import { acquireNonce, releaseNonce } from "../nonce-manager/nonce-store.js";
 
 const API_BASE = "https://aibtc.news/api";
 const VALID_CATEGORIES = ["ordinals", "services", "agents", "wanted"] as const;
@@ -234,12 +235,23 @@ async function signMessage(message: string): Promise<string> {
 /**
  * Execute an x402-paid request via the wallet skill's x402 runner.
  * Returns parsed JSON response from the endpoint.
+ * Acquires a nonce from the nonce-manager before sending to prevent mempool collisions.
  */
 async function x402Request(
   method: string,
   url: string,
   data?: Record<string, unknown>
 ): Promise<unknown> {
+  // Acquire managed nonce before sending
+  let managedNonce: number | undefined;
+  try {
+    const nonceResult = await acquireNonce(ARC_STX_ADDRESS);
+    managedNonce = nonceResult.nonce;
+    log(`Acquired nonce ${managedNonce} from nonce-manager (source: ${nonceResult.source})`);
+  } catch (err) {
+    log(`Warning: nonce-manager acquire failed (${err instanceof Error ? err.message : String(err)}), falling back to auto-fetch`);
+  }
+
   const args = [
     "bash", "bin/arc", "skills", "run", "--name", "bitcoin-wallet", "--",
     "x402", "execute-endpoint",
@@ -259,6 +271,10 @@ async function x402Request(
     stdin: "ignore",
     stdout: "pipe",
     stderr: "pipe",
+    env: {
+      ...process.env,
+      ...(managedNonce !== undefined && { X402_SENDER_NONCE: managedNonce.toString() }),
+    },
   });
 
   const [stdout, stderr] = await Promise.all([
@@ -269,6 +285,14 @@ async function x402Request(
   const exitCode = await proc.exited;
 
   if (exitCode !== 0) {
+    // Release nonce on failure
+    if (managedNonce !== undefined) {
+      try {
+        await releaseNonce(ARC_STX_ADDRESS, managedNonce, false);
+        log(`Released nonce ${managedNonce} (failed)`);
+      } catch { /* best effort */ }
+    }
+
     const combined = stdout + stderr;
 
     // Try to parse structured error JSON from subprocess output.
@@ -354,6 +378,14 @@ async function x402Request(
       );
     }
     throw new Error(`x402 request failed (exit ${exitCode}): ${combined.slice(0, 500)}`);
+  }
+
+  // Release nonce on success
+  if (managedNonce !== undefined) {
+    try {
+      await releaseNonce(ARC_STX_ADDRESS, managedNonce, true);
+      log(`Released nonce ${managedNonce} (success)`);
+    } catch { /* best effort */ }
   }
 
   // Parse JSON from stdout (wallet runner outputs JSON)

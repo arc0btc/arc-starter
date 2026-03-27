@@ -15,6 +15,7 @@ import { ARC_BTC_ADDRESS } from "../../src/identity.ts";
 import { getCredential } from "../../src/credentials.ts";
 import { resolve, join } from "node:path";
 import { mkdirSync, existsSync, readFileSync, writeFileSync } from "node:fs";
+import { acquireNonce, releaseNonce, syncNonce } from "../nonce-manager/nonce-store.js";
 
 const API_BASE = "https://aibtc.news/api";
 const PAYOUTS_DIR = resolve(import.meta.dir, "../../db/payouts");
@@ -293,27 +294,31 @@ async function getWalletCreds(): Promise<{ walletId: string; walletPassword: str
   return { walletId, walletPassword };
 }
 
-// ---- Nonce Management ----
+// ---- Nonce Management (via nonce-manager) ----
 
 async function fetchSeedNonce(stxAddress: string): Promise<bigint> {
-  const url = `https://api.hiro.so/extended/v1/address/${stxAddress}/nonces`;
-  log(`Fetching seed nonce from ${url}`);
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch nonce: ${response.status} ${response.statusText}`);
-  }
-  const data = (await response.json()) as {
-    possible_next_nonce: number;
-    last_executed_tx_nonce: number | null;
-    detected_missing_nonces: number[];
-    detected_mempool_nonces: number[];
-  };
-  const nextNonce = BigInt(data.possible_next_nonce);
-  log(`Seed nonce: ${nextNonce} (last executed: ${data.last_executed_tx_nonce}, mempool pending: ${data.detected_mempool_nonces?.length ?? 0})`);
-  if (data.detected_missing_nonces.length > 0) {
-    log(`Warning: ${data.detected_missing_nonces.length} missing nonce gap(s): [${data.detected_missing_nonces.join(", ")}]`);
+  // Sync from Hiro via nonce-manager (atomic, cross-skill safe)
+  const result = await syncNonce(stxAddress);
+  const nextNonce = BigInt(result.nonce);
+  log(`Seed nonce from nonce-manager: ${nextNonce} (last executed: ${result.lastExecuted}, mempool pending: ${result.mempoolPending})`);
+  if (result.detectedMissing.length > 0) {
+    log(`Warning: ${result.detectedMissing.length} missing nonce gap(s): [${result.detectedMissing.join(", ")}]`);
   }
   return nextNonce;
+}
+
+async function acquireManagedNonce(stxAddress: string): Promise<number> {
+  const result = await acquireNonce(stxAddress);
+  log(`Acquired nonce ${result.nonce} from nonce-manager (source: ${result.source})`);
+  return result.nonce;
+}
+
+async function releaseManagedNonce(stxAddress: string, nonce: number, success: boolean): Promise<void> {
+  try {
+    await releaseNonce(stxAddress, nonce, success);
+  } catch {
+    // best effort
+  }
 }
 
 function isNonceError(errorMsg: string): boolean {
@@ -537,12 +542,12 @@ async function cmdExecute(args: string[]): Promise<void> {
     writePayoutRecord(record);
   }
 
-  // ---- Local Nonce Tracking ----
+  // ---- Nonce Tracking (via nonce-manager) ----
   const senderStxAddress = "SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM";
-  let currentNonce: bigint;
+  let currentNonce: number;
 
   try {
-    currentNonce = await fetchSeedNonce(senderStxAddress);
+    currentNonce = await acquireManagedNonce(senderStxAddress);
   } catch (err) {
     log(`Failed to seed nonce: ${err instanceof Error ? err.message : String(err)}`);
     console.log(JSON.stringify({ error: "Failed to fetch initial nonce", detail: err instanceof Error ? err.message : String(err) }));
