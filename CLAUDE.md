@@ -163,9 +163,9 @@ Both fields exist on both `tasks` and `cycle_log` tables. Use `arc status` to se
 
 ## Memory
 
-Memory lives in `memory/MEMORY.md`, versioned by git. This is **your** long-term memory — compressed learnings, patterns, and operational state that persists across dispatch cycles. Each agent has their own MEMORY.md. It is never overwritten by fleet-sync.
+Memory lives in `memory/MEMORY.md`, versioned by git. This is **your** long-term memory — compressed learnings, patterns, and operational state that persists across dispatch cycles.
 
-Do not put shared rules or fleet-wide instructions in MEMORY.md — those belong in CLAUDE.md. MEMORY.md is for your personal operational learnings: what worked, what failed, domain-specific patterns, your identity details, your wallet state.
+MEMORY.md is for operational learnings: what worked, what failed, domain-specific patterns, identity details, wallet state. Shared rules and architecture belong in CLAUDE.md.
 
 **Memory update protocol:**
 1. During dispatch, append new learnings to `memory/MEMORY.md`
@@ -190,11 +190,11 @@ Do not put shared rules or fleet-wide instructions in MEMORY.md — those belong
 **Testing:** Never run test suites inline during dispatch. Tests block the dispatch queue — a hanging test means zero tasks execute until timeout. Instead, follow the full PR workflow:
 
 **Arc PR Workflow:**
-1. **Triage** — Discover or be assigned an open issue (sensor, human, or fleet-task-sync)
+1. **Triage** — Discover or be assigned an open issue (sensor or human)
 2. **Branch** — Create a feature branch (`git checkout -b fix/issue-slug`)
 3. **Changes** — Implement the fix or feature; keep scope tight
 4. **Simplify** — Run `/simplify` against all changed files before opening the PR. This reviews changed code for reuse, quality, and efficiency, then fixes issues found. Do this before PR creation, not as a post-merge review.
-5. **PR** — Push branch and open a PR via `gh pr create` (Arc-only: hand off via fleet-handoff if you can't push)
+5. **PR** — Push branch and open a PR via `gh pr create`
 6. **CI** — Let GitHub Actions run tests; review results
 7. **Review** — Address review comments, push fixups
 8. **Merge** — Squash merge when green; wait 30s, then merge release-please if present
@@ -203,31 +203,9 @@ This applies to all Arc-controlled repos. For `arc-starter` itself, run only tar
 
 ---
 
-## ⛔ GitHub is Arc-Only — MANDATORY PRE-TASK CHECK
+## GitHub Operations
 
-**STOP. Before doing ANY work, answer this: does this task require `git push`, a PR, `gh` CLI, GitHub Actions, or cloning a private repo?**
-
-If YES → **immediately** run fleet-handoff and close your task. Do not attempt the GitHub operation. Do not create a subtask. Do not request credentials. Do not set status=blocked. Just hand off:
-
-```
-arc skills run --name fleet-handoff -- initiate --agent arc --task-id <your-task-id> \
-  --progress "what you completed so far" \
-  --remaining "the GitHub operation needed" \
-  --reason "GitHub is Arc-only"
-arc tasks close --id <your-task-id> --status completed --summary "Handed off to Arc (GitHub-only policy)"
-```
-
-**You have no GitHub credentials and never will.** This is permanent and architectural — not a gap to escalate about.
-
-**Every one of these actions is a policy violation:**
-- ❌ Creating a task that requests GitHub credentials, PAT, SSH key, or GITHUB_TOKEN
-- ❌ Setting `status=blocked` with a GitHub-related reason
-- ❌ Creating any follow-up task about GitHub access
-- ❌ Asking a human for GitHub credentials
-- ❌ Mentioning "escalation" in the context of GitHub
-- ❌ Any task subject containing "GitHub credentials", "GitHub access", "request PAT"
-
-**The ONLY correct response to GitHub work is `fleet-handoff --agent arc`.** No exceptions. No alternatives. If you find yourself typing "credential" or "PAT" or "token" in a task subject — stop and fleet-handoff instead.
+Arc handles all GitHub operations directly — `git push`, PRs via `gh` CLI, GitHub Actions, cloning private repos. No handoff needed.
 
 ---
 
@@ -243,19 +221,14 @@ arc tasks close --id <your-task-id> --status completed --summary "Handed off to 
 
 Before setting `status=blocked` or escalating to a human:
 
-1. **Is this GitHub?** → `fleet-handoff --agent arc`. See "GitHub is Arc-Only" above. NEVER escalate to human.
-2. **Check your own skills.** Run `arc skills` — the answer is usually already installed.
-3. **Check your contacts.** The `contacts` skill has every fleet member, their addresses, and capabilities.
-4. **Can another agent help?** Use `fleet-handoff --agent <name>` or `POST /api/tasks` to route work.
-5. **Is this a funding request?** Route STX/funding requests to Arc via fleet-handoff, not to a human.
-6. **Does it need sBTC, or just BIP-137?** Free inbox operations (read/reply) use BIP-137 signatures — no sBTC required.
-7. **Is this truly irreversible or >100 STX?** If yes → escalate to human. If no → proceed autonomously.
+1. **Check your own skills.** Run `arc skills` — the answer is usually already installed.
+2. **Check your contacts.** The `contacts` skill has addresses and capabilities of known agents.
+3. **Does it need sBTC, or just BIP-137?** Free inbox operations (read/reply) use BIP-137 signatures — no sBTC required.
+4. **Is this truly irreversible or >100 STX?** If yes → escalate to human. If no → proceed autonomously.
 
 ### Self-Sufficiency Principle
 
-**Ask HOW, not TO DO.** When stuck, ask Arc (or another agent) for guidance on how to solve it yourself — not to do the work for you. Use `fleet-handoff` or `fleet-task-sync` to request instructions, then execute independently.
-
-Each agent owns their domain. Learn your tools, build your memory, solve your problems. Escalate to humans only when fleet tools are genuinely insufficient.
+Learn your tools, build your memory, solve your problems. Escalate to humans only when your own tools are genuinely insufficient.
 
 ---
 

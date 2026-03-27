@@ -1,6 +1,6 @@
 # Arc Memory
 *Schema: ASMR v1 — Last consolidated: 2026-03-26T22:12:35Z*
-*Token estimate: ~1200t (A:190t F:180t S:240t T:80t P:355t L:160t)*
+*Token estimate: ~1000t (A:190t S:240t T:80t P:300t L:160t)*
 
 ---
 
@@ -9,9 +9,6 @@
 
 **competition-100k** [STATE: 2026-03-27] [EXPIRES: 2026-04-22]
 $100K competition ACTIVE (started 2026-03-23, ends 2026-04-22). $20/inscribed signal, max 6/day ($120/day), weekly bonuses up to $1,200. Day-1: 6/6 ✓. Day-2: 3/6. Day-3: rotation task timed out. Day-4 (2026-03-26): fees signal filed (#9076) — partial. Rotation gap persists (inscriptions/BRC-20/runes missing). Current: score 12, streak 1, all-time 55 signals, top agent Ionic Anvil (32pts). FIX: sensor must queue one task per beat-type per day, not a single rotation task. Task #9013 single-task approach explicitly rejected at dispatch.
-
-**fleet-partial-recovery** [STATE: 2026-03-23]
-Loom ONLINE (Rising Leviathan, AIBTC publisher). Forge ONLINE (codex, early dispatch). Spark and Iris OFFLINE (suspended by Anthropic). Route work to Loom/Forge only.
 
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
@@ -24,29 +21,6 @@ v1.45.0 RELEASED. Feature: PR #419 — sender/sponsor nonce correlation for comp
 
 **stale-lock-detection** [STATE: 2026-03-23]
 arc-service-health sensor detects stale dispatch locks. Recovery: `rm db/dispatch-lock.json && arc run`. Dispatch auto-marks orphaned active task failed and proceeds.
-
----
-
-## [F] Fleet
-<!-- Agent roster, routing rules, capabilities. No automatic expiry. -->
-
-**fleet-roster** [UPDATED: 2026-03-23]
-| Agent | IP | Bitcoin | Role |
-|-------|-----|---------|------|
-| Arc | 192.168.1.10 | bc1qlezz2... | Orchestrator |
-| Spark | 192.168.1.12 | bc1qpln8... | AIBTC/DeFi — OFFLINE |
-| Iris | 192.168.1.13 | bc1q6sav... | Research/X — OFFLINE |
-| Loom | 192.168.1.14 | bc1q3qa3... | CI/CD, AIBTC Publisher (Rising Leviathan) — ONLINE |
-| Forge | 192.168.1.15 | bc1q9hme... | Infra (codex, early dispatch) — ONLINE |
-
-**fleet-strategy** [UPDATED: 2026-03-23]
-Five Directives: D1=services business, D2=grow AIBTC, D3=improve stack, D4=$200/day cap, D5=honest public. Priorities: Monetization → DeFi → AIBTC → Stack reliability. Milestones: Revenue, Zest V2, Bitflow, Zero Authority DAO, ERC-8004, MCP Phase 1. DeFi tasks pre-positioned: #6807 Bitflow LP (P9, defi-bitflow), #6808 Zest V2 sBTC (P9, zest-v2). Jingswap skill build first (#6809, P3).
-
-**agent-identities** [UPDATED: 2026-03-23]
-Arc=Trustless Indra (ERC-8004 #1), Spark=Topaz Centaur (29), Loom=Fractal Hydra (85) aka Rising Leviathan, Forge=Sapphire Mars (84), Iris=not yet registered (#2890). ALB: trustless-indra@agentslovebitcoin.com registered. Spark/Forge queued (#6803/#6804). GitHub centralized to Arc only. Workers use ANTHROPIC_API_KEY (OAuth unreliable).
-
-**umbrel-node** [STATE: 2026-03-23]
-192.168.1.106. Bitcoin Core running pruned (needs full). Stacks node + API planned. [v7-test-vm: 192.168.1.16 for Q3 engine-validation, creds in arc creds manage-agents]
 
 ---
 
@@ -97,7 +71,7 @@ Stacks 3.4 epoch activation. PoX cycle 132 prepare phase starts at block 943,150
 <!-- Reusable operational patterns. Validated ≥2 cycles. Permanent. -->
 
 **p-github-implement-pollution** [PATTERN: validated]
-Sensors/workflows generating "[repo] Implement #N" tasks for GitHub issues create queue pollution — bulk-closed at dispatch via fleet-handoff gate, inflating failure counts. Gate at creation time: external repos (aibtcdev/*, landing-page, x402-*) must use fleet-handoff directly, not local implementation. Fixed 2026-03-24: GithubIssueImplementationMachine `planning` state now creates fleet-handoff task directly (skip arc-worktrees). Transition pattern: planning→awaiting-handoff (not planning→implementing).
+Sensors/workflows generating "[repo] Implement #N" tasks for GitHub issues create queue pollution. Gate at creation time: use worktree isolation for implementation tasks. Fixed 2026-03-24: GithubIssueImplementationMachine `planning` state creates worktree task directly.
 
 **p-sensor-model-required** [PATTERN: validated]
 All sensors calling insertTaskIfNew/insertTask must include model field. Without it, tasks fail at dispatch: "No model set." Fixed in aibtc-welcome 2026-03-23.
@@ -125,9 +99,6 @@ For 402/CreditsDepleted or transient gate conditions, write sentinel file and ga
 
 **p-auth-cascade** [PATTERN: validated]
 OAuth expiry → wave of consecutive auth failures. Mitigation: ANTHROPIC_API_KEY fallback in dispatch.ts.
-
-**p-github-fleet-handoff** [PATTERN: validated]
-Tasks requiring git push/PR must include fleet-handoff in skills array. Otherwise task fails without handoff route.
 
 **p-x402-relay-not-skill** [PATTERN: validated]
 "x402-relay" is not a valid skill name. isRelayHealthy() lives in skills/aibtc-welcome/sensor.ts. Use skill `aibtc-welcome` for relay tasks.
@@ -171,7 +142,7 @@ memory/frameworks.md has 6 decision trees. skills/arc-memory/ provides add-patte
 Dispatch prompt shows day-of-week, elapsed, DST-correct MT, memory staleness warning if 3+ days old.
 
 **l-group-decisions** [LEARNING: 2026-03-11]
-whoabuddy seeks multi-agent input before fleet/contacts feature decisions — use AIBTC inbox, message agents, pay 100 sats for 2nd opinions.
+whoabuddy seeks external input before major feature decisions — use AIBTC inbox, pay 100 sats for 2nd opinions.
 
 **l-welcome-dedup** [LEARNING: 2026-03-18]
 Welcome dedup: Verify completion via completedTaskCountForSource(), not task creation.
