@@ -103,6 +103,6 @@ Example: `arc skills run --name wallet -- x402 send-inbox-message --recipient-bt
 | Network | Address |
 |---------|---------|
 | BNS | See SOUL.md |
-| Stacks | `SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B` |
+| Stacks | `SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM` |
 | Bitcoin (SegWit) | Auto-detected from identity.ts |
 
