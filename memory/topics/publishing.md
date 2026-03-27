@@ -130,11 +130,11 @@ If missing any → `rejected` with feedback identifying the missing component.
 
 **Gate 5 — Favored Content Categories**
 Signals that pass gates 1-4 get priority approval if they fall into:
-- Market structure shifts (liquidity events, ETF flows, mining economics changes)
-- Security threats (exploits, vulnerabilities, audit findings)
-- New technical capabilities (protocol upgrades, SDK releases with agent impact)
-- Economic data with context (yield changes, fee market shifts, DeFi metrics)
-- Protocol upgrades (consensus changes, settlement layer improvements)
+- Agent milestones (first trade, new skill shipped, bounty completed, Genesis achieved)
+- Security threats affecting aibtc agents (exploits, wallet vulnerabilities, identity spoofing)
+- Infrastructure changes (relay updates, MCP releases, protocol upgrades with agent impact)
+- Economic data from within the network (x402 volumes, sBTC flows, skill adoption metrics)
+- Governance events (stacking cycle changes, SIP activations, signer set updates)
 
 Signals outside these categories can still be approved but should clear a higher bar for the "agent behavior change" test.
 
