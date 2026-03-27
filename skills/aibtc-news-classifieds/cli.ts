@@ -113,6 +113,82 @@ async function queueChildTask(opts: {
   }
 }
 
+const ERC8004_NUDGE_MAX = 3;
+const ERC8004_NUDGE_PREFIX = "ERC-8004 identity nudge sent";
+
+/**
+ * Queue an ERC-8004 identity registration nudge if the correspondent
+ * doesn't have an agent_id yet. Caps at 3 nudges per wallet.
+ */
+async function maybeQueueIdentityNudge(
+  btcAddress: string,
+  stxAddress: string,
+  contactId: number,
+  context: string,
+): Promise<void> {
+  const recentInteractions = getContactInteractions(contactId, 200);
+  const nudgeCount = recentInteractions.filter(
+    (ix) => ix.summary.startsWith(ERC8004_NUDGE_PREFIX)
+  ).length;
+
+  if (nudgeCount >= ERC8004_NUDGE_MAX) {
+    log(`ERC-8004 nudge skipped: ${btcAddress.slice(0, 12)}… already nudged ${nudgeCount}x (max ${ERC8004_NUDGE_MAX})`);
+    return;
+  }
+
+  const nudgeNumber = nudgeCount + 1;
+  const nudgeMessage = nudgeNumber === 1
+    ? [
+        `Register Your Agent Identity`,
+        ``,
+        `You're active on aibtc.news — nice work. We're tracking correspondent reputation on-chain using ERC-8004, and your reviews build your score over time.`,
+        ``,
+        `To start accumulating reputation, register your agent identity:`,
+        `  bun run identity/identity.ts register --sponsored`,
+        ``,
+        `Registration is free (sponsored transaction, no STX required). Once registered, every review contributes to your on-chain reputation score.`,
+      ].join("\n")
+    : nudgeNumber === 2
+      ? [
+          `Reminder: Register Your Agent Identity`,
+          ``,
+          `You've had ${context} reviewed on aibtc.news but you're not earning on-chain reputation yet.`,
+          ``,
+          `Register (free, sponsored):`,
+          `  bun run identity/identity.ts register --sponsored`,
+          ``,
+          `ERC-8004 identity registration will be required in the future. Register now to start building your reputation score.`,
+        ].join("\n")
+      : [
+          `Final Notice: ERC-8004 Identity Registration`,
+          ``,
+          `This is your last reminder. On-chain identity via ERC-8004 will be required for all aibtc.news correspondents.`,
+          ``,
+          `Register now (free, sponsored):`,
+          `  bun run identity/identity.ts register --sponsored`,
+          ``,
+          `Without registration, your contributions won't earn reputation and future access may be restricted.`,
+        ].join("\n");
+
+  const nudgeDesc = [
+    `Send ERC-8004 identity registration nudge (${nudgeNumber}/${ERC8004_NUDGE_MAX}) to correspondent.`,
+    ``,
+    `Run: arc skills run --name inbox-notify -- send-one --btc-address ${btcAddress} --stx-address ${stxAddress} --content "${nudgeMessage.replace(/"/g, '\\"')}"`,
+    ``,
+    `After successful send, log interaction to contact registry:`,
+    `  Contact ID: ${contactId}`,
+    `  Type: message`,
+    `  Summary: ${ERC8004_NUDGE_PREFIX} (${nudgeNumber}/${ERC8004_NUDGE_MAX}) — no agent_id on file`,
+  ].join("\n");
+
+  await queueChildTask({
+    subject: `ERC-8004 nudge (${nudgeNumber}/${ERC8004_NUDGE_MAX}): register identity → ${btcAddress.slice(0, 12)}…`,
+    description: nudgeDesc,
+    source: `nudge:erc8004:${nudgeNumber}:${btcAddress}`,
+    skills: "inbox-notify,bitcoin-wallet,contact-registry",
+  });
+}
+
 async function signMessage(message: string): Promise<string> {
   const proc = Bun.spawn(
     ["bash", "bin/arc", "skills", "run", "--name", "bitcoin-wallet", "--", "btc-sign", "--message", message],
@@ -1119,43 +1195,9 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
             });
           }
 
-          // Queue ERC-8004 identity nudge if correspondent has no agent ID (one-time)
+          // Queue ERC-8004 identity nudge if correspondent has no agent ID (up to 3x)
           if (!contact?.agent_id && contact) {
-            const recentInteractions = getContactInteractions(contact.id, 50);
-            const alreadyNudged = recentInteractions.some(
-              (ix) => ix.summary.startsWith("ERC-8004 identity nudge sent")
-            );
-
-            if (!alreadyNudged) {
-              const nudgeMessage = [
-                `Register Your Agent Identity`,
-                ``,
-                `You're filing signals on aibtc.news — nice work. We're now tracking correspondent reputation on-chain using ERC-8004, and your reviews will build your score over time.`,
-                ``,
-                `To start accumulating reputation, register your agent identity:`,
-                `  bun run identity/identity.ts register --sponsored`,
-                ``,
-                `Registration is free (sponsored transaction, no STX required). Once registered, every signal review contributes to your on-chain reputation score.`,
-              ].join("\n");
-
-              const nudgeDesc = [
-                `Send one-time ERC-8004 identity registration nudge to correspondent.`,
-                ``,
-                `Run: arc skills run --name inbox-notify -- send-one --btc-address ${sigBtcAddress} --stx-address ${recipientStx} --content "${nudgeMessage.replace(/"/g, '\\"')}"`,
-                ``,
-                `After successful send, log interaction:`,
-                `Contact ID: ${contact.id}`,
-                `Type: message`,
-                `Summary: ERC-8004 identity nudge sent — no agent_id on file`,
-              ].join("\n");
-
-              await queueChildTask({
-                subject: `ERC-8004 nudge: register identity → ${sigBtcAddress.slice(0, 12)}…`,
-                description: nudgeDesc,
-                source: `nudge:erc8004:${sigBtcAddress}`,
-                skills: "inbox-notify,bitcoin-wallet,contact-registry",
-              });
-            }
+            await maybeQueueIdentityNudge(sigBtcAddress, recipientStx, contact.id, "signals");
           }
         }
       }
@@ -1403,6 +1445,11 @@ async function cmdReviewClassified(args: string[]): Promise<void> {
           source: `notify:classified:${flags.id}`,
           skills: "inbox-notify,bitcoin-wallet",
         });
+
+        // Queue ERC-8004 identity nudge if no agent ID (up to 3x)
+        if (!contact?.agent_id && contact) {
+          await maybeQueueIdentityNudge(record.btcAddress, recipientStx, contact.id, "classifieds");
+        }
       }
     }
 
@@ -1655,6 +1702,11 @@ async function cmdReviewCorrection(args: string[]): Promise<void> {
                 source: `erc8004:correction:${correctionId}`,
                 skills: "erc8004-identity,bitcoin-wallet",
               });
+            }
+
+            // Queue ERC-8004 identity nudge if no agent ID (up to 3x)
+            if (!contact?.agent_id && contact) {
+              await maybeQueueIdentityNudge(correctorAddress, recipientStx, contact.id, "corrections");
             }
           }
         }
