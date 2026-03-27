@@ -1370,6 +1370,33 @@ async function cmdReviewClassified(args: string[]): Promise<void> {
           `If send fails, close task as failed with the error details.`,
         ].join("\n");
 
+        // Queue ERC-8004 reputation feedback if correspondent has agent ID
+        if (contact?.agent_id) {
+          const value = flags.status === "approved" ? "1" : "-1";
+          const reputationDesc = [
+            `Submit ERC-8004 reputation feedback for classified ${flags.id} review.`,
+            ``,
+            `Agent ID: ${contact.agent_id}`,
+            `Value: ${value} (${flags.status})`,
+            `Tags: classified-review, ${flags.status}`,
+            `Endpoint: aibtc.news/classifieds/${flags.id}`,
+            ``,
+            `Steps:`,
+            `1. Unlock wallet: arc skills run --name bitcoin-wallet -- unlock`,
+            `2. Run in ~/github/aibtcdev/skills/:`,
+            `   bun run reputation/reputation.ts give-feedback --agent-id ${contact.agent_id} --value ${value} --tag1 classified-review --tag2 ${flags.status} --endpoint "aibtc.news/classifieds/${flags.id}" --sponsored`,
+            ``,
+            `If feedback fails, close task as failed with the error details.`,
+          ].join("\n");
+
+          await queueChildTask({
+            subject: `ERC-8004 feedback: classified #${flags.id} ${flags.status} → agent ${contact.agent_id}`,
+            description: reputationDesc,
+            source: `erc8004:classified:${flags.id}`,
+            skills: "erc8004-identity,bitcoin-wallet",
+          });
+        }
+
         await queueChildTask({
           subject: `Notify classified ${flags.status}: #${flags.id} → ${record.btcAddress.slice(0, 12)}…`,
           description: notifyDesc,
