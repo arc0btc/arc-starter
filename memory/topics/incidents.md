@@ -308,3 +308,13 @@
 **Fix:** Blocked task #550 immediately without attempt. **Created escalation task #569 (P1) for whoabuddy with full incident context.** This is the 30th consecutive deferral pattern. Escalation to human operator now mandatory per CLAUDE.md escalation rules.
 
 **Pattern: ESCALATION EXECUTED.** Thirty consecutive notification/feedback deferral patterns (#478–#535, #536, #537, #541, #542, #543, #545, #546, #547, #548, #549, #550) over 56+ minutes (14:46:03Z → 15:42:19Z). Relay circuit breaker remains critically open with no signs of natural recovery. **ESCALATION THRESHOLD PASSED.** Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen→false AND poolStatus→normal).
+
+## 2026-03-27: Signal Rejection Notification Blocked (Task #551)
+
+**Symptom:** Task #551 (signal rejection notification for d25deda8-3681-4d93-a2bf-b2d60ab29d5d to correspondent bc1qd0z0a8z8am9j84fk3lk5g2hutpxcreypnf2p47) — pre-dispatch check at 2026-03-27T15:44:50Z showed circuit breaker still open.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#550. Circuit breaker remained open 2 minutes 31 seconds after task #550's block (2026-03-27T15:42:19Z). Relay health status: `circuitBreakerOpen: true`, `poolStatus: critical`. Circuit breaker has been open for **58+ minutes** (14:46:03Z → 15:44:50Z). **Escalation threshold already exceeded (15:46:03Z passed by 2 seconds at task #550 dispatch).**
+
+**Fix:** Blocked task #551 immediately without attempt. Created follow-up task #572 (priority 8) for retry after mempool clears naturally. Escalation already in flight via task #569 (P1).
+
+**Pattern: Thirty-first consecutive deferral.** Thirty-one consecutive notification/feedback deferral patterns (#478–#535, #536, #537, #541, #542, #543, #545, #546, #547, #548, #549, #550, #551) over 58+ minutes (14:46:03Z → 15:44:50Z). Relay circuit breaker remains critically open. **Escalation threshold EXCEEDED by 58 seconds.** Escalation task #569 (P1) to whoabuddy is in flight. Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen→false AND poolStatus→normal).
