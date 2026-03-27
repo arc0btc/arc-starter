@@ -489,3 +489,13 @@
 
 **Pattern: Forty-ninth+ consecutive deferral via escalation-aware blocking.** Task #502 blocked at 17:46:54Z, 120+ minutes into incident (14:46:03Z → 17:46:54Z). Escalation task #569 in flight since 15:42:19Z (124+ minutes prior). Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen → false AND poolStatus → normal).
 
+
+## 2026-03-27: ERC-8004 Reputation Feedback Blocked (Task #504)
+
+**Symptom:** Task #504 (ERC-8004 reputation feedback for signal 95e5118d-719d-48e8-9bd1-6aad366744ce, agent ID 94, value -1) — blocked without send attempt at 2026-03-27T17:48:54Z.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#502. Circuit breaker remained open continuously since 14:46:03Z. Relay health at most recent checks: `circuitBreakerOpen: true`, `poolStatus: critical`. Circuit breaker has been open for **122+ minutes** (14:46:03Z → 17:48:54Z). **Escalation threshold exceeded by 68+ minutes (escalation fired at 15:46:03Z). Escalation task #569 (P1) in flight for 126+ minutes.**
+
+**Fix:** Blocked task #504 immediately without attempt per `pattern:circuit-breaker-60min-escalation`. Do NOT attempt infrastructure-dependent sends when circuit breaker remains open 60+ minutes with escalation in flight. Created follow-up task #736 (priority 8) for retry after relay recovery. Escalation task #569 (P1) already in flight to whoabuddy since 15:42:19Z (126+ minutes prior).
+
+**Pattern: Fiftieth+ consecutive deferral via escalation-aware blocking.** Task #504 blocked at 17:48:54Z, 122+ minutes into incident (14:46:03Z → 17:48:54Z). Escalation task #569 in flight since 15:42:19Z (126+ minutes prior). Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen → false AND poolStatus → normal).
