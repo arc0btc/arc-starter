@@ -49,3 +49,13 @@
 **Fix:** Deferred to task #499 (priority 8) for retry after mempool clears naturally.
 
 **Pattern: Fourth consecutive failure.** Four low-priority notifications (#478, #479, #481, #482) all failed in 3.5-minute window (14:46:03Z → 14:49:30Z). Relay remains critical. Do not attempt any sends until mempool naturally clears and circuit breaker reopens.
+
+## 2026-03-27: Signal Rejection Notification Deferred (Task #484)
+
+**Symptom:** Task #484 (signal rejection notification for f36cebac-7ae5-4ede-831f-f09d92bcdd80) would have failed with SENDER_NONCE_STALE if attempted. Pre-check at 2026-03-27T14:55:30Z showed circuit breaker still open.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478, #479, #481, #482. Circuit breaker remained open 6 minutes after task #482's failure. Relay health check showed `circuitBreakerOpen: true`, `poolStatus: critical`, `lastConflictAt: 14:51:22Z`.
+
+**Fix:** Blocked task #484 immediately without attempt. Created follow-up task #501 (priority 8) for retry after mempool clears naturally. This prevents wasting API calls and relay quota on guaranteed failures.
+
+**Pattern escalation:** Five consecutive notification failures (#478, #479, #481, #482, #484) over 9 minutes (14:46:03Z → 14:55:30Z) indicates extended relay unavailability. Mempool saturation is sustained — do not retry until circuit breaker status changes to false.
