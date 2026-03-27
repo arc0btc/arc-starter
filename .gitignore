@@ -20,3 +20,5 @@ memory/fleet-status.json
 skills/*/pool-state.json
 skills/*/compounding-state.json
 arc-link-research/cache/
+arc-link-research/archive/
+arc-link-research/*.md
