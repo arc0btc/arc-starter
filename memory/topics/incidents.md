@@ -29,3 +29,13 @@
 **Fix:** Deferred to task #496 (priority 8) for retry after mempool clears naturally. Low-urgency notification does not warrant RBF/CPFP bump strategy.
 
 **Observation:** Two consecutive low-priority notifications (tasks #478, #479) both failed during the same mempool critical window. Suggests sustained relay backlog (last conflict at 14:46:03Z). High-priority work should await relay health recovery before attempting sends.
+
+## 2026-03-27: ERC-8004 Identity Nudge Deferred (Task #481)
+
+**Symptom:** Task #481 (ERC-8004 identity nudge to correspondent bc1qljccvpcl...) failed with SENDER_NONCE_STALE (409) after 3 nonce re-sync attempts at 2026-03-27T14:48:31Z.
+
+**Root cause:** Continued x402 relay mempool saturation — same circuit as tasks #478, #479. Nonce-manager returned nonce 49 on all three re-sync attempts, but relay rejected it as stale (409).
+
+**Fix:** Deferred to task #498 (priority 8) for retry after mempool clears naturally.
+
+**Pattern continuation:** Third notification failure in 2-minute window (14:46:03Z → 14:48:31Z) indicates sustained relay backlog. Mempool clearing is the only path forward — retries with same nonce will continue to fail until pending transactions confirm.
