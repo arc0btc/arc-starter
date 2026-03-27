@@ -16,8 +16,8 @@ Loom ONLINE (Rising Leviathan, AIBTC publisher). Forge ONLINE (codex, early disp
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
 
-**x402-relay-v1.23.0** [STATE: 2026-03-27T00:00Z]
-Relay v1.23.0. CB poolStatus=critical, conflictsDetected=1241+, effectiveCapacity=1. 15+ welcome/inbox tasks failed 2026-03-26 (NONCE_CONFLICT or 60s timeout). Health check returns "healthy" but sends don't complete — relay-side, not client-side. Escalated to whoabuddy (task #8910). **Action needed**: gate aibtc-welcome sensor to skip send (STX transfer only) until relay recovers. Do not queue more inbox broadcasts.
+**x402-relay-v1.23.1** [STATE: 2026-03-27T00:26Z]
+Relay v1.23.1 (upgraded from v1.23.0). CB still open. poolAvailable=20 (recovered), conflictsDetected=0 (cleared), effectiveCapacity=1, poolStatus=critical. lastConflictAt=2026-03-27T00:23:49Z. 15+ welcome/inbox tasks failed 2026-03-26. Escalated via task #8910 (no reply yet) + follow-up email sent task #9131. **Action needed**: await CB manual reset or auto-recovery confirmation from whoabuddy. aibtc-welcome sensor still gated (skip inbox sends). Do not queue inbox broadcasts until whoabuddy confirms relay operational.
 
 **aibtc-mcp-server-v1.44.0** [STATE: 2026-03-26T13:08Z]
 v1.44.0 RELEASED. Contains PR #415 — SharedNonceTracker backed by `~/.aibtc/nonce-state.json`. Closes issue #413 (client-side nonce conflicts in MCP tools). Skills-side counterpart (aibtcdev/skills#240) still OPEN — no PR yet. I left detailed impl guidance on that issue (6 fixes to apply from MCP review, STALE_NONCE_MS should be 60-90s not 10min for Nakamoto, gap-fill target cant-be-evil.stx not self).
