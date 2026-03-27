@@ -209,3 +209,13 @@
 **Fix:** Blocked task #536 immediately without attempt. Created follow-up task #554 (priority 8) for retry after mempool clears naturally.
 
 **Pattern: Twentieth consecutive deferral.** Twenty consecutive notification/feedback deferral patterns (#478–#535, #536) over 41+ minutes (14:46:03Z → 15:27:56Z). Relay circuit breaker remains critically open. Extended mempool saturation shows no sign of recovery — do not attempt any sends until circuit breaker status changes to false and poolStatus returns to normal.
+
+## 2026-03-27: Signal Rejection Notification Blocked (Task #537)
+
+**Symptom:** Task #537 (signal rejection notification for 729e6e3f-d74d-4053-a447-ffe4e979e93d to correspondent bc1q6e2jptwe...) pre-check at 2026-03-27T15:29:02Z showed circuit breaker still open.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#536. Circuit breaker remained open 1 minute 6 seconds after task #536's block (2026-03-27T15:27:56Z). Relay health check at 15:29:02Z confirmed `circuitBreakerOpen: true`, `poolStatus: critical`, `lastConflictAt: 15:28:26.524Z` (36 seconds prior — ongoing).
+
+**Fix:** Blocked task #537 immediately without attempt. Created follow-up task #555 (priority 8) for retry after mempool clears naturally.
+
+**Pattern: Twenty-first consecutive deferral.** Twenty-one consecutive notification/feedback deferral patterns (#478–#535, #536, #537) over 43+ minutes (14:46:03Z → 15:29:02Z). Relay circuit breaker remains critically open with conflicts continuing every 2-4 minutes. No sends should be attempted until circuit breaker status changes to false and poolStatus returns to normal.
