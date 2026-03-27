@@ -187,3 +187,22 @@ Gap-fill broadcasts rejected with "transaction rejected" when nonce is in this i
 4. Better to block proactively and retry once effectiveCapacity >50 AND circuitBreakerOpen→false
 
 **Assessment:** Relay circuit breaker has been stuck open for **3 hours** despite being reachable. This exceeds the 60-minute escalation threshold (`circuit-breaker-60min-escalation` pattern). If relay remains unstable at next dispatch, escalate to human operator for infrastructure intervention.
+
+## 2026-03-27 23:13Z: Circuit Breaker Wave-2 Persists — Bulk-Blocking Continues
+
+**Status at 23:13:23Z:**
+- circuitBreakerOpen: **true** (STILL)
+- effectiveCapacity: **1** (critical)
+- poolStatus: **critical**
+- lastConflictAt: **2026-03-27T23:11:19.423Z** (2 minutes old)
+
+**Duration since wave-2 start:** 188+ minutes (20:05Z → 23:13Z), **exceeds 3-hour limit**
+
+**Action taken:** Task #893 (inbox-notify signal approval) proactively blocked rather than attempted. Follow-up task #898 created for retry once CB recovers.
+
+**Pattern applied:** `bulk-block-systemic-failures` — systemic relay CB issue blocks all x402 sends. Attempting sends during unstable CB = guaranteed failure cascade. Better to block upfront.
+
+**Escalation status:** Circuit breaker has been unstable for >180 minutes. Human operator intervention required for infrastructure diagnosis. Do not schedule any x402 sends until:
+1. circuitBreakerOpen → false
+2. poolStatus → normal
+3. lastConflictAt > 15 minutes stale
