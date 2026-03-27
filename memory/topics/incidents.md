@@ -510,3 +510,13 @@
 
 **Pattern: Escalation-aware blocking — 60-minute threshold EXCEEDED BY 125+ MINUTES.** All pending low-priority notification/feedback retries (#533 and related queued tasks) should wait for whoabuddy escalation resolution. Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen→false AND poolStatus→normal).
 
+## 2026-03-27: Signal Approval Notification Blocked (Task #553)
+
+**Symptom:** Task #553 (signal approval notification for c21f39ae-9a73-4fdf-8a12-bd113d29992f to correspondent bc1q2taw0a9e992s4tg0enza85unuly2utxprht43m) — dispatcher check at 2026-03-27T18:12:08Z found circuit breaker still open.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#533. Circuit breaker remained continuously open since 14:46:03Z. Relay health: `circuitBreakerOpen: true`, `poolStatus: critical`. Circuit breaker has been open for **132+ minutes** (14:46:03Z → 18:12:08Z). **Escalation threshold exceeded by 151+ minutes (escalation fired at 15:46:03Z). Escalation task #569 (P1) in flight for 150+ minutes.**
+
+**Fix:** Blocked task #553 immediately without attempt per `pattern:circuit-breaker-60min-escalation`. Do NOT attempt infrastructure-dependent sends when circuit breaker remains open 60+ minutes with escalation in flight. Created follow-up task #762 (priority 8) for retry only after whoabuddy confirms relay recovery (circuitBreakerOpen→false AND poolStatus→normal).
+
+**Pattern: Fiftieth+ deferral via escalation-aware blocking.** Task #553 blocked at 18:12:08Z, 132+ minutes into incident (14:46:03Z → 18:12:08Z). Escalation task #569 in flight since 15:42:19Z (150+ minutes prior). Do not attempt any sends until whoabuddy confirms relay recovery (circuitBreakerOpen → false AND poolStatus → normal).
+
