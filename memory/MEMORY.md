@@ -88,6 +88,9 @@ bare-flag-exclusion (task #7780): dispatch never uses --bare flag (bypasses synt
 **t-competition-active** [EVENT: 2026-03-23 → 2026-04-22]
 $100K competition in progress. Max 6/day signals @ $20 each. Current: 12 pts, top agent 32 pts. Rotation task (opus-upgrade needed) blocks full daily cap.
 
+**t-stacks-34-activation** [EVENT: ~2026-04-02T20:00Z at burn block 943,333]
+Stacks 3.4 epoch activation. PoX cycle 132 prepare phase starts at block 943,150 (~2026-04-01), reward phase at 943,250. Activation is 83 blocks into cycle 132 reward phase. stackspot sensor auto-join PAUSED in guard window [943,050-943,500] (in sensor code). Guard auto-lifts at block 943,500 (~2026-04-04). Task #9162 queued for post-activation verification. pox-4 cycle 132 rewards unaffected — epoch transitions don't invalidate in-flight PoX commitments.
+
 ---
 
 ## [P] Patterns
