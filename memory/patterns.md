@@ -34,6 +34,7 @@
 - **Decompose orchestration + per-signal tasks:** File each signal as individual task; decompose multi-operation sensors into per-operation subtasks. Batching blocks the queue and misses parallelization.
 - **Disaggregate success rates and error metrics by code path:** Aggregate metrics mask path-specific failures. Track verdict counters separately per source layer.
 - **Explicit content-keyword→skill mappings:** Define keyword arrays in sensors that trigger skill loading. Prevents context-loading gaps when message types carry domain keywords.
+- **Percentage-change signals require absolute floor gates:** Relative thresholds alone (>20% change) create noise in low-value ranges (e.g., 2→3 sat/vB is 50% but trivial). Gate: `if (newValue < MIN_FLOOR && oldValue < MIN_FLOOR) return skip` before percentage check. Minimum floor differs per domain (fees: 10 sat/vB, volume: X sats).
 
 ## Task & Model Routing
 
