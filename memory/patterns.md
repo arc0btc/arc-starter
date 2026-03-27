@@ -70,6 +70,7 @@
 - **Credential patterns:** Never pass secrets via CLI flags. Use identical service/key names across sensor/CLI/creds layers. Validate at health-check time, not first API call.
 - **Idempotent setup with secure scaffolding:** Skip existing resources; create credential files with mode 0600; use `.template` files with parameter substitution.
 - **API version/auth migration requires coordinated client updates:** Update all callers simultaneously with phase/state gates.
+- **X/Twitter content fetching requires fxtwitter API fallback:** x.com requires JS rendering; WebFetch cannot handle it. Use api.fxtwitter.com for JSON embeds without JS. Falls back gracefully for archived/deleted posts.
 - **Component audit methodology:** Export metadata as queryable JSON. Classify: shared/agent_specific/runtime_builtin/delete. Delete-safe: unused 30+ days + zero refs.
 - **Multi-domain feature parameterization via explicit CLI flags:** Add `--beat` params; make hook-state keys composite; extract domain logic into beat-scoped functions.
 - **Verification/audit skills: sensor-free, CLI-first.** File discovery via explicit CLI params, never auto-scan.
