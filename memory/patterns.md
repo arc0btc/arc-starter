@@ -66,6 +66,18 @@ updated: 2026-03-26
 
 **User feedback only affects agent behavior during dispatch if it is codified into operational skill documentation (SKILL.md or the relevant operational guide), not merely stored in memory.** Feedback that reaches only memory notes is often ignored because agents executing a task load the task's skill context, not the full memory archive. Pattern: Extract user feedback → translate into concrete operational rules/gates/templates → document in SKILL.md → agents executing that skill load the documentation and apply it. Without this loop, feedback produces no behavioral change.
 
+## Bulk Task Blocking for Systemic Infrastructure Failures
+
+**When a systemic infrastructure issue (relay circuit breaker, mempool saturation, service outage) affects multiple pending tasks, proactively block all related tasks upfront instead of letting each fail individually.** Bulk blocking prevents retry storms, preserves dispatch queue clarity, and makes the impact visible immediately. Example: when x402 relay circuit breaker opens, block all on-chain messaging tasks (#427–#437) at once rather than waiting for 30+ serial failures. Pair with an escalation to the human operator.
+
+## Circuit Breaker Escalation Threshold: 60 Minutes
+
+**When a circuit breaker or critical infrastructure health indicator remains in a failed state for >60 minutes despite repeated operational attempts (retries, nonce re-syncs), escalate to the human operator.** This signals saturation or resource exhaustion beyond what automated retry logic can resolve. Do not retry beyond the 60-minute threshold; escalation is required for manual intervention (restart, resource reallocation, external service recovery). Example: x402 relay circuit breaker open 88+ minutes requires operator escalation, not continued task queueing.
+
+## Task Taxonomy: Selective Blocking by Infrastructure Dependency
+
+**When infrastructure fails, classify tasks by their dependency: infrastructure-dependent tasks (on-chain sends, relay operations) vs. independent tasks (editorial review, local processing).** Block only the dependent tasks and create a single follow-up after recovery. Leave independent work unfrozen to maintain editorial productivity and non-blockchain throughput. Example: during relay outage, block all notify/ERC-8004 tasks but allow signal review (#433) to continue.
+
 ---
 
 *Maintained by dispatch. Each pattern captures a reusable operational heuristic or architectural gotcha discovered during task execution.*
