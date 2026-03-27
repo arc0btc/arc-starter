@@ -1,7 +1,7 @@
 ---
 name: bitcoin-quorumclaw
 description: Coordinate Bitcoin Taproot M-of-N multisig transactions via the QuorumClaw agent-multisig API. Handles agent registration, multisig creation, proposal submission, signing coordination, and broadcast.
-updated: 2026-03-05
+updated: 2026-03-27
 tags:
   - l1
   - mainnet-only
@@ -14,6 +14,8 @@ QuorumClaw is the coordination layer for multi-agent Bitcoin Taproot multisig. A
 
 **API base:** `https://agent-multisig-api-production.up.railway.app`
 **Dashboard:** https://quorumclaw.com/dashboard
+
+> **⚠ API STATUS (2026-03-27):** The Railway deployment at `agent-multisig-api-production.up.railway.app` is **deprovisioned**. All endpoints return platform-level 404 ("Application not found"). The sensor has been paused via `failure-state.json`. To resume: (1) confirm a new deployment URL, (2) update `API_BASE` in `sensor.ts` and `cli.ts`, (3) delete `skills/bitcoin-quorumclaw/failure-state.json`. The skill code is intact and ready when the API returns.
 
 ## Automated Monitoring (Sensor)
 
@@ -137,8 +139,8 @@ If a task involves UTXO operations (consolidation, coin selection, wallet inspec
 
 ## Proven Track Record
 
-| Config | Block | Signers |
-|--------|-------|---------|
-| 2-of-2 | 937,849 | Arc + Aetos |
-| 3-of-3 | 938,206 | Arc + Aetos + Bitclaw |
-| 3-of-7 | pending | Arc + Aetos + Secret Mars + 4 others (invite 72654529, joined 2026-03-03) |
+| Config | Block | Signers | Status |
+|--------|-------|---------|--------|
+| 2-of-2 | 937,849 | Arc + Aetos | ✅ broadcast txid confirmed |
+| 3-of-3 | 938,206 | Arc + Aetos + Bitclaw | ✅ broadcast txid ec64347c confirmed |
+| 3-of-7 | — | Arc + Aetos + Secret Mars + 4 others (invite 72654529, joined 2026-03-03) | ⏸ paused — API deprovisioned |

@@ -13,10 +13,13 @@ import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 
 const SENSOR_NAME = "bitcoin-quorumclaw";
 const INTERVAL_MINUTES = 15;
+// API deprovisioned on Railway as of 2026-03-11. Update this URL if/when a new deployment is available.
 const API_BASE = "https://agent-multisig-api-production.up.railway.app";
 const ARC_AGENT_ID = "arc0btc";
 const TRACKING_PATH = join(import.meta.dir, "tracking.json");
+const FAILURE_STATE_PATH = join(import.meta.dir, "failure-state.json");
 const FETCH_TIMEOUT_MS = 10_000;
+const ALERT_THRESHOLD = 10; // consecutive failed runs (~2.5h) before creating alert task
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -56,6 +59,11 @@ interface InviteRecord {
   createdAt: string;
 }
 
+interface FailureState {
+  consecutiveFailures: number;
+  lastFailureAt: string | null;
+}
+
 interface ProposalRecord {
   id: string;
   multisigId: string;
@@ -82,6 +90,19 @@ export async function writeTracking(t: Tracking): Promise<void> {
   await Bun.write(TRACKING_PATH, JSON.stringify(t, null, 2) + "\n");
 }
 
+async function readFailureState(): Promise<FailureState> {
+  if (!existsSync(FAILURE_STATE_PATH)) return { consecutiveFailures: 0, lastFailureAt: null };
+  try {
+    return (await Bun.file(FAILURE_STATE_PATH).json()) as FailureState;
+  } catch {
+    return { consecutiveFailures: 0, lastFailureAt: null };
+  }
+}
+
+async function writeFailureState(state: FailureState): Promise<void> {
+  await Bun.write(FAILURE_STATE_PATH, JSON.stringify(state, null, 2) + "\n");
+}
+
 // ---- API ----
 
 async function apiGet<T>(path: string): Promise<T> {
@@ -104,7 +125,7 @@ async function apiGet<T>(path: string): Promise<T> {
 async function pollInvite(
   invite: TrackedInvite,
   tracking: Tracking
-): Promise<void> {
+): Promise<boolean> {
   const source = `sensor:bitcoin-quorumclaw:invite:${invite.code}`;
 
   let raw: unknown;
@@ -112,7 +133,7 @@ async function pollInvite(
     raw = await apiGet<unknown>(`/v1/invites/${invite.code}`);
   } catch (error) {
     log(`invite ${invite.code}: fetch failed — ${error}`);
-    return;
+    return true; // API failure
   }
 
   const record = ((raw as { data?: InviteRecord }).data ?? raw) as InviteRecord;
@@ -161,7 +182,7 @@ async function pollInvite(
       });
       log(`created sign task for multisig ${record.multisigId}`);
     }
-    return;
+    return false; // API succeeded, multisig now tracked
   }
 
   // Still waiting — log status, no task needed (sensor will re-check next cycle)
@@ -169,24 +190,20 @@ async function pollInvite(
     log(
       `invite ${invite.code}: waiting for signers (${filled}/${total}) — no task needed, sensor will re-check`
     );
-    // If no task exists, create a low-priority status task so humans can see it in the queue
-    if (!pendingTaskExistsForSource(source)) {
-      // Don't create tasks for waiting invites — sensor handles polling silently
-      // Only create tasks when action is required
-    }
   }
+  return false; // no API failure
 }
 
 // ---- Multisig Proposal Polling ----
 
-async function pollMultisig(multisig: TrackedMultisig): Promise<void> {
+async function pollMultisig(multisig: TrackedMultisig): Promise<boolean> {
   let proposals: ProposalRecord[];
   try {
     const raw = await apiGet<unknown>(`/v1/multisigs/${multisig.id}/proposals`);
     proposals = (Array.isArray(raw) ? raw : []) as ProposalRecord[];
   } catch (error) {
     log(`multisig ${multisig.id}: proposals fetch failed — ${error}`);
-    return;
+    return true; // API failure
   }
 
   log(
@@ -251,6 +268,7 @@ async function pollMultisig(multisig: TrackedMultisig): Promise<void> {
       log(`  proposal ${proposal.id}: status=${proposal.status} — no action needed`);
     }
   }
+  return false; // no API failure
 }
 
 // ---- Sensor Entry ----
@@ -266,26 +284,78 @@ export default async function quorumclawSensor(): Promise<string> {
     return "ok";
   }
 
+  // Check if API has been consistently unreachable. When threshold is hit, pause polling
+  // and create a single alert task. Reset by deleting failure-state.json after confirming
+  // the API is back (or a new URL is available — update API_BASE in this file and cli.ts).
+  const failureState = await readFailureState();
+  if (failureState.consecutiveFailures >= ALERT_THRESHOLD) {
+    const alertSource = "sensor:bitcoin-quorumclaw:api-failure-alert";
+    if (!pendingTaskExistsForSource(alertSource)) {
+      insertTask({
+        subject: "QuorumClaw API unavailable — sensor paused, action required",
+        description: [
+          `The QuorumClaw API (${API_BASE}) has been unreachable for ${failureState.consecutiveFailures}+ consecutive sensor runs (~${Math.round((failureState.consecutiveFailures * INTERVAL_MINUTES) / 60)}h).`,
+          `Last failure: ${failureState.lastFailureAt ?? "unknown"}`,
+          ``,
+          `Tracked items waiting for API:`,
+          ...tracking.invites.map((i) => `- Invite ${i.code} (${i.label})`),
+          ...tracking.multisigs.map((m) => `- Multisig ${m.id} (${m.label})`),
+          ``,
+          `Actions:`,
+          `1. Check if API is back: curl ${API_BASE}/health`,
+          `2. If a new URL exists, update API_BASE in sensor.ts and cli.ts`,
+          `3. Reset failure counter: rm skills/bitcoin-quorumclaw/failure-state.json`,
+        ].join("\n"),
+        skills: '["bitcoin-quorumclaw"]',
+        priority: 4,
+        model: "sonnet",
+        source: alertSource,
+      });
+      log(`API failure alert created (${failureState.consecutiveFailures} consecutive failed runs)`);
+    } else {
+      log(`API unreachable for ${failureState.consecutiveFailures} runs, alert already pending — skipping poll`);
+    }
+    return "ok";
+  }
+
   log(
     `checking ${tracking.invites.length} invite(s), ${tracking.multisigs.length} multisig(s)`
   );
 
+  let hadApiFailure = false;
+
   // Poll invites (may mutate tracking to transition invite → multisig)
   for (const invite of [...tracking.invites]) {
     try {
-      await pollInvite(invite, tracking);
+      const failed = await pollInvite(invite, tracking);
+      if (failed) hadApiFailure = true;
     } catch (error) {
       log(`invite ${invite.code}: error — ${error}`);
+      hadApiFailure = true;
     }
   }
 
   // Poll multisigs
   for (const multisig of tracking.multisigs) {
     try {
-      await pollMultisig(multisig);
+      const failed = await pollMultisig(multisig);
+      if (failed) hadApiFailure = true;
     } catch (error) {
       log(`multisig ${multisig.id}: error — ${error}`);
+      hadApiFailure = true;
     }
+  }
+
+  // Update consecutive failure counter
+  if (hadApiFailure) {
+    await writeFailureState({
+      consecutiveFailures: failureState.consecutiveFailures + 1,
+      lastFailureAt: new Date().toISOString(),
+    });
+    log(`API failure recorded (consecutive: ${failureState.consecutiveFailures + 1})`);
+  } else if (failureState.consecutiveFailures > 0) {
+    await writeFailureState({ consecutiveFailures: 0, lastFailureAt: null });
+    log("API failures reset — connection restored");
   }
 
   // Persist any tracking state changes (invite → multisig transitions)

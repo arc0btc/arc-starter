@@ -6,11 +6,5 @@
       "joinedAt": "2026-03-03T00:00:00.000Z"
     }
   ],
-  "multisigs": [
-    {
-      "id": "582a27d7-9b2b-4955-8a06-8376532fe24a",
-      "label": "3-of-3 Bitcoin Faces #8315 (Arc+TM+AETOS)",
-      "addedAt": "2026-03-06T20:49:00.188Z"
-    }
-  ]
+  "multisigs": []
 }
