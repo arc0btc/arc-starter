@@ -76,11 +76,19 @@ updated: 2026-03-26
 
 ## Circuit Breaker Cooldown State vs. Underlying Issue Resolution
 
-**Circuit breakers can remain open on automatic cooldown even after the underlying infrastructure issue resolves.** When investigating CB failures, check both independently: (1) underlying infrastructure health (mempool depth, pool availability, conflict rate), (2) CB state (circuitBreakerOpen flag, lastConflictAt timestamp). If mempool is cleared (0 pending, no gaps) but CB still open, check whether `lastConflictAt` is stale (>15 min old) vs. being continuously updated by fresh conflicts. If stale, await natural CB reset. If the timestamp is fresh and being continuously refreshed by new conflicts despite clean mempool, the relay is stuck in a conflict loop — escalate immediately for ops intervention (restart/CB state reset). This distinguishes "infrastructure recovered, CB on cooldown" (wait) from "CB stuck because conflicts keep recurring" (escalate now).
+**Circuit breakers can remain open on automatic cooldown even after the underlying infrastructure issue resolves.** When investigating CB failures, check both independently: (1) underlying infrastructure health (mempool depth, pool availability, conflict rate), (2) CB state (circuitBreakerOpen flag, lastConflictAt timestamp). If mempool is cleared (0 pending, no gaps) but CB still open, check whether `lastConflictAt` is stale (>15 min old) vs. being continuously updated by fresh conflicts. If stale, await natural CB reset. If the timestamp is fresh and being continuously refreshed by new conflicts despite clean mempool, the relay is stuck in a conflict loop — escalate immediately for ops intervention (restart/CB state reset). **For multi-wallet relays: per-wallet CBs can heal while the aggregate CB remains open if other users' conflicts persist.** Per-wallet health (circuitBreakerOpen=false) does not mean your sends will succeed if the aggregate CB is open due to external conflicts. Verify both independently before resuming operations.
 
 ## Task Taxonomy: Selective Blocking by Infrastructure Dependency
 
 **When infrastructure fails, classify tasks by their dependency: infrastructure-dependent tasks (on-chain sends, relay operations) vs. independent tasks (editorial review, local processing).** Block only the dependent tasks and create a single follow-up after recovery. Leave independent work unfrozen to maintain editorial productivity and non-blockchain throughput. Example: during relay outage, block all notify/ERC-8004 tasks but allow signal review (#433) to continue.
+
+## Sponsor Nonce vs. Sender Wallet Nonce: Independent State Verification
+
+**Relay-based transaction systems track nonce state at two independent layers: the relay sponsor's nonce (pool-wide) and each sender wallet's nonce (account-specific).** These can diverge. When diagnosing nonce-related failures, check both: (1) sponsor nonce state (`lastExecutedNonce`, `nextNonce`, mempool pending), (2) sender wallet nonce state via the relay's `/nonce` v2 endpoint and local nonce-manager. A "healthy" sponsor (capacity 200/200, no pending, no gaps) does not mean individual sender nonces are correct. If a sender is rejected with SENDER_NONCE_STALE despite matching your local tracking, query the relay's authoritative nonce endpoint to identify divergence.
+
+## RBF Operations as Circuit Breaker Conflict Generators
+
+**Using automated nonce-reset or RBF endpoints (e.g., `/nonce/reset`) to fix stuck transactions generates new conflicts on the relay's conflict counter, potentially keeping the aggregate circuit breaker open even after the underlying nonce state heals.** Each RBF is counted as a conflict, especially if multiple wallets are RBF'd simultaneously. Plan for a waiting period after bulk RBF operations before resuming normal sends; do not expect the CB to immediately reset despite clean infrastructure state. If CB remains open after RBF cleanup, the wait for natural CB decay is part of recovery, not a sign of failure.
 
 ---
 
