@@ -119,3 +119,13 @@
 **Fix:** Blocked task #514 immediately without attempt. Created follow-up task #526 (priority 8) for retry after mempool clears naturally.
 
 **Pattern: Eleventh consecutive deferral.** Eleven consecutive notification deferral patterns (#478, #479, #481, #482, #484, #488, #489, #490, #492, #493, #514) over 25+ minutes (14:46:03Z → 15:11:40Z). Relay circuit breaker remains critically open. Sustained mempool saturation with fresh conflicts every 3-5 minutes — do not attempt any sends until circuit breaker status changes to false.
+
+## 2026-03-27: ERC-8004 Identity Nudge Deferred (Task #516)
+
+**Symptom:** Task #516 (ERC-8004 identity nudge to correspondent bc1q7tp55n7n6yjkny2ja0a2r9zz64wvr43l4d4hey) pre-check at 2026-03-27T15:13:37Z showed circuit breaker still open.
+
+**Root cause:** Sustained x402 relay mempool saturation — same circuit as tasks #478-#514. Circuit breaker remained open 2 minutes after task #514's block (2026-03-27T15:11:40Z). Relay health check at 15:13:37Z confirmed `circuitBreakerOpen: true`, `poolStatus: critical`, `lastConflictAt: 15:12:27Z` (70 seconds prior).
+
+**Fix:** Blocked task #516 immediately without attempt. Created follow-up task #528 (priority 8) for retry after mempool clears naturally.
+
+**Pattern: Twelfth consecutive deferral.** Twelve consecutive notification deferral patterns (#478-#514, #516) over 27+ minutes (14:46:03Z → 15:13:37Z). Relay circuit breaker remains critically open. Sustained mempool saturation persists — do not attempt any sends until circuit breaker status changes to false.
