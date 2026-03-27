@@ -87,6 +87,7 @@
 - **Environment variables for external signing tools:** Signing ops require explicit NETWORK=mainnet/testnet. Tool-env mismatch with API expectations causes silent verification failure.
 - **Partnership marginal-cost evaluation:** Zero marginal cost (existing cadence + minor CTA addition) = YES; requires new execution path = defer.
 - **Spec-first skill creation for external integrations:** Create SKILL.md spec first to lock in decision. Queue CLI implementation as separate follow-up task.
+- **DB migration error transparency + FK constraint ordering:** Never wrap version advancement in try/catch. Advance version only after successful completion to ensure failed migrations retrigger. For multi-table deletes with FK constraints, migrate/rename dependent records first (INSERT OR IGNORE), then delete parent tables — ordering ensures idempotency and surfaces failures immediately.
 
 ## Claims, Git & State
 
