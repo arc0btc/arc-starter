@@ -1,13 +1,12 @@
 // workflow-review/sensor.ts
 //
-// Detects repeating multi-step task patterns and proposes workflow state machines.
-// Runs every 4 hours. Pure TypeScript — no LLM.
+// Evaluates workflow system health and detects new repeating patterns.
+// Two-pass approach:
+//   Pass 1: Template health — utilization, completion rates, stale instances
+//   Pass 2: Pattern detection — repeating multi-step chains not yet modeled
 //
-// Detection strategy (two-pronged):
-// 1. Source-chain patterns: sensor sources that consistently spawn follow-up tasks
-// 2. Root-subject patterns: normalized root subjects that recur with child tasks
-//
-// A pattern qualifies when it recurs ≥3 times with ≥2 steps per chain.
+// Also enforces a 30-day auto-stale TTL on non-completed workflows.
+// Runs every 12 hours. Pure TypeScript — no LLM.
 
 import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
 import {
@@ -19,10 +18,11 @@ import type { Task } from "../../src/db.ts";
 import { getTemplateByName } from "../arc-workflows/state-machine.ts";
 
 const SENSOR_NAME = "arc-workflow-review";
-const INTERVAL_MINUTES = 720; // 12 hours — pattern detection is slow-burn
+const INTERVAL_MINUTES = 720; // 12 hours
 const TASK_SOURCE = "sensor:arc-workflow-review";
 const LOOKBACK_DAYS = 7;
 const MIN_RECURRENCES = 3;
+const STALE_WORKFLOW_DAYS = 30;
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -47,55 +47,29 @@ const KNOWN_PATTERNS = new Set([
 /** Source prefixes to skip — human-initiated tasks are inherently varied. */
 const SKIP_SOURCE_PREFIXES = ["human:"];
 
-/**
- * Known subject prefixes that already have workflow templates but whose
- * names aren't derivable from the normalized subject string.
- * Prevents subject-strategy false positives.
- */
 const KNOWN_SUBJECT_PREFIXES = [
-  "[github-issue-monitor]", // covered by GithubIssueImplementationMachine
-  "for re-review", // single-step re-review + universal retrospective; no workflow value
+  "[github-issue-monitor]",
+  "for re-review",
 ];
 
-/**
- * Normalize a source into a groupable prefix.
- * Strips instance-specific suffixes to group by "type" of source.
- * "sensor:arc-email-sync:thread:whoabuddy@gmail.com" → "sensor:arc-email-sync:thread"
- * "sensor:aibtc-repo-maintenance:pr:aibtcdev/skills#65" → "sensor:aibtc-repo-maintenance:pr"
- * "task:42" → "task:*"
- */
 function normalizeSource(source: string | null): string {
   if (!source) return "unknown";
   if (source.startsWith("task:")) return "task:*";
-
-  // Strip instance-specific parts: anything after the 3rd colon segment
-  // sensor:arc-email-sync:thread:whoabuddy@gmail.com → sensor:arc-email-sync:thread
-  // sensor:aibtc-repo-maintenance:pr:aibtcdev/skills#65 → sensor:aibtc-repo-maintenance:pr
   const parts = source.split(":");
   if (parts.length > 3) return parts.slice(0, 3).join(":");
   return source;
 }
 
-/**
- * Normalize a task subject for root-level grouping.
- * More aggressive than per-child normalization — extracts the "type" of task.
- * "CEO review — 2026-03-02T21:03" → "ceo review"
- * "Email thread from Jason S (1 messages)" → "email thread"
- * "architecture review — diagram stale" → "architecture review"
- */
 function normalizeRootSubject(subject: string): string {
   return (
     subject
       .toLowerCase()
-      // Remove everything after em-dash, colon, or parenthetical
       .replace(/\s*[—–]\s*.*/g, "")
       .replace(/\s*\(.*\)/g, "")
       .replace(/\s*:\s*.*/g, "")
-      // Remove dates, numbers, hashes
       .replace(/\d{4}-\d{2}-\d{2}[T\s]?\d{2}:\d{2}(:\d{2})?Z?/g, "")
       .replace(/\b[a-f0-9]{7,40}\b/g, "")
       .replace(/\b\d+\b/g, "")
-      // Remove "from NAME" patterns
       .replace(/\bfrom\s+\w+(\s+\w)?/g, "from")
       .replace(/\s+/g, " ")
       .trim()
@@ -111,17 +85,12 @@ interface ChainInfo {
   skills: Set<string>;
 }
 
-/**
- * Build chain info for all root tasks that spawn children.
- */
 function buildChainInfos(tasks: Task[]): ChainInfo[] {
   const byId = new Map<number, Task>();
   for (const t of tasks) byId.set(t.id, t);
 
-  // Build parent→children map
   const childrenOf = new Map<number, Task[]>();
   for (const t of tasks) {
-    // Link via parent_id
     if (t.parent_id && byId.has(t.parent_id)) {
       const children = childrenOf.get(t.parent_id) ?? [];
       if (!children.some((c) => c.id === t.id)) {
@@ -129,7 +98,6 @@ function buildChainInfos(tasks: Task[]): ChainInfo[] {
         childrenOf.set(t.parent_id, children);
       }
     }
-    // Link via "task:N" source
     if (t.source?.startsWith("task:")) {
       const parentId = parseInt(t.source.slice(5), 10);
       if (!isNaN(parentId) && byId.has(parentId) && parentId !== t.id) {
@@ -142,13 +110,11 @@ function buildChainInfos(tasks: Task[]): ChainInfo[] {
     }
   }
 
-  // Identify child task IDs
   const isChild = new Set<number>();
   for (const children of childrenOf.values()) {
     for (const c of children) isChild.add(c.id);
   }
 
-  // Collect all descendants recursively
   function collectDescendants(parentId: number): Task[] {
     const direct = childrenOf.get(parentId) ?? [];
     const all: Task[] = [...direct];
@@ -188,24 +154,18 @@ function buildChainInfos(tasks: Task[]): ChainInfo[] {
 }
 
 interface DetectedPattern {
-  key: string; // grouping key
+  key: string;
   description: string;
   recurrences: number;
   avgSteps: number;
-  examples: string[]; // example root subjects
-  childExamples: string[]; // example child subjects
+  examples: string[];
+  childExamples: string[];
   involvedSkills: string[];
 }
 
-/**
- * Detect patterns by grouping chains two ways:
- * 1. By normalized source prefix (same sensor type → same chain structure)
- * 2. By normalized root subject (same kind of root task → same chain structure)
- */
 function detectPatterns(chains: ChainInfo[]): DetectedPattern[] {
   const patterns: DetectedPattern[] = [];
 
-  // Strategy 1: Group by source prefix
   const bySource = new Map<string, ChainInfo[]>();
   for (const chain of chains) {
     const src = normalizeSource(chain.rootSource);
@@ -239,11 +199,10 @@ function detectPatterns(chains: ChainInfo[]): DetectedPattern[] {
     });
   }
 
-  // Strategy 2: Group by normalized root subject
   const bySubject = new Map<string, ChainInfo[]>();
   for (const chain of chains) {
     const key = normalizeRootSubject(chain.rootSubject);
-    if (key.length < 3) continue; // skip too-short keys
+    if (key.length < 3) continue;
     const subjectGroup = bySubject.get(key) ?? [];
     subjectGroup.push(chain);
     bySubject.set(key, subjectGroup);
@@ -251,10 +210,8 @@ function detectPatterns(chains: ChainInfo[]): DetectedPattern[] {
 
   for (const [subj, group] of bySubject) {
     if (group.length < MIN_RECURRENCES) continue;
-    // Skip if already detected by source-prefix strategy
     const src = normalizeSource(group[0].rootSource);
     if (patterns.some((p) => p.key === `source:${src}`)) continue;
-    // Skip subjects whose templates aren't derivable from the subject string
     if (KNOWN_SUBJECT_PREFIXES.some((p) => subj.startsWith(p))) continue;
 
     const avgSteps =
@@ -277,21 +234,10 @@ function detectPatterns(chains: ChainInfo[]): DetectedPattern[] {
     });
   }
 
-  // Sort by recurrences × avgSteps (highest impact first)
   patterns.sort((a, b) => b.recurrences * b.avgSteps - a.recurrences * a.avgSteps);
-
   return patterns;
 }
 
-/**
- * Check if a detected pattern already has a registered workflow template.
- * Derives candidate template names from the pattern key and calls getTemplateByName().
- *
- * source:sensor:arc-email-sync:thread → tries "arc-email-sync", "email-sync",
- *                                        "arc-email-sync-thread", "email-thread"
- * subject:site health alert           → tries "site-health-alert"
- * subject:quest runtime-extraction    → tries "quest-runtime-extraction", "quest"
- */
 function patternAlreadyModeled(patternKey: string): boolean {
   const candidates: string[] = [];
 
@@ -302,7 +248,6 @@ function patternAlreadyModeled(patternKey: string): boolean {
       candidates.push(part);
       if (part.startsWith("arc-")) candidates.push(part.slice(4));
     }
-    // Try combining adjacent parts: "email-sync" + "thread" → "email-sync-thread", "email-thread"
     for (let i = 0; i < meaningful.length - 1; i++) {
       const a = meaningful[i];
       const b = meaningful[i + 1];
@@ -311,9 +256,7 @@ function patternAlreadyModeled(patternKey: string): boolean {
     }
   } else if (patternKey.startsWith("subject:")) {
     const subject = patternKey.slice("subject:".length);
-    // "site health alert" → "site-health-alert"
     candidates.push(subject.replace(/\s+/g, "-"));
-    // Try first word: "quest runtime-extraction" → "quest"
     const firstWord = subject.split(/[\s-]+/)[0];
     if (firstWord && firstWord.length > 2) candidates.push(firstWord);
   }
@@ -321,8 +264,118 @@ function patternAlreadyModeled(patternKey: string): boolean {
   return candidates.some((name) => getTemplateByName(name) !== null);
 }
 
+// --- Pass 1: Template Health Evaluation ---
+
+interface TemplateHealth {
+  template: string;
+  total: number;
+  completed: number;
+  stale: number;
+  active: number;
+  completionRate: number;
+  lastActivity: string | null;
+  stuckStates: string[]; // non-terminal states with instances stuck >7d
+}
+
+function evaluateTemplateHealth(db: ReturnType<typeof getDatabase>): {
+  health: TemplateHealth[];
+  staleCount: number;
+  orphanCount: number;
+} {
+  // Get all workflow stats grouped by template
+  const rows = db
+    .query(
+      `SELECT
+        template,
+        current_state,
+        count(*) as cnt,
+        max(updated_at) as last_update,
+        sum(CASE WHEN completed_at IS NOT NULL THEN 1 ELSE 0 END) as completed_cnt,
+        sum(CASE WHEN completed_at IS NULL AND updated_at < datetime('now', '-7 days') THEN 1 ELSE 0 END) as stuck_cnt,
+        sum(CASE WHEN completed_at IS NULL AND updated_at < datetime('now', '-${STALE_WORKFLOW_DAYS} days') THEN 1 ELSE 0 END) as stale_cnt
+      FROM workflows
+      GROUP BY template, current_state
+      ORDER BY template, cnt DESC`
+    )
+    .all() as Array<{
+      template: string;
+      current_state: string;
+      cnt: number;
+      last_update: string;
+      completed_cnt: number;
+      stuck_cnt: number;
+      stale_cnt: number;
+    }>;
+
+  // Aggregate by template
+  const byTemplate = new Map<string, TemplateHealth>();
+  let totalStale = 0;
+  let orphanCount = 0;
+
+  for (const row of rows) {
+    // Check if template is registered
+    const isRegistered = getTemplateByName(row.template) !== null;
+    if (!isRegistered) {
+      orphanCount += row.cnt;
+      continue;
+    }
+
+    const existing = byTemplate.get(row.template) ?? {
+      template: row.template,
+      total: 0,
+      completed: 0,
+      stale: 0,
+      active: 0,
+      completionRate: 0,
+      lastActivity: null,
+      stuckStates: [],
+    };
+
+    existing.total += row.cnt;
+    existing.completed += row.completed_cnt;
+    existing.stale += row.stale_cnt;
+    existing.active += row.cnt - row.completed_cnt;
+    totalStale += row.stale_cnt;
+
+    if (!existing.lastActivity || row.last_update > existing.lastActivity) {
+      existing.lastActivity = row.last_update;
+    }
+
+    if (row.stuck_cnt > 0 && row.completed_cnt === 0) {
+      existing.stuckStates.push(`${row.current_state} (${row.stuck_cnt})`);
+    }
+
+    byTemplate.set(row.template, existing);
+  }
+
+  // Calculate completion rates
+  for (const h of byTemplate.values()) {
+    h.completionRate = h.total > 0 ? (h.completed / h.total) * 100 : 0;
+  }
+
+  return {
+    health: [...byTemplate.values()].sort((a, b) => a.completionRate - b.completionRate),
+    staleCount: totalStale,
+    orphanCount,
+  };
+}
+
+// --- Auto-stale: close workflows past TTL ---
+
+function autoStaleWorkflows(db: ReturnType<typeof getDatabase>): number {
+  const result = db
+    .query(
+      `UPDATE workflows
+       SET current_state = 'closed-stale', completed_at = datetime('now')
+       WHERE completed_at IS NULL
+         AND current_state != 'closed-stale'
+         AND updated_at < datetime('now', '-${STALE_WORKFLOW_DAYS} days')`
+    )
+    .run();
+  return result.changes;
+}
+
 export default async function workflowReviewSensor(): Promise<string> {
-  // Read state BEFORE claimSensorRun to preserve custom fields (proposed_keys)
   const statePre = await readHookState(SENSOR_NAME);
   const proposedKeys: string[] = (statePre?.proposed_keys as string[]) ?? [];
 
@@ -334,11 +387,26 @@ export default async function workflowReviewSensor(): Promise<string> {
     return "skip";
   }
 
-  // Re-read hook state after claim (has updated version/timestamp)
   const hookState = await readHookState(SENSOR_NAME);
-
-  // Query completed tasks from the lookback window
   const db = getDatabase();
+
+  // --- Auto-stale enforcement ---
+  const staleClosed = autoStaleWorkflows(db);
+  if (staleClosed > 0) {
+    log(`auto-stale: closed ${staleClosed} workflow(s) past ${STALE_WORKFLOW_DAYS}-day TTL`);
+  }
+
+  // --- Pass 1: Template health evaluation ---
+  const { health, staleCount, orphanCount } = evaluateTemplateHealth(db);
+
+  const unhealthy = health.filter(
+    (h) => h.completionRate < 70 || h.stuckStates.length > 0 || h.stale > 0
+  );
+  const unused = health.filter((h) => h.total === 0);
+
+  log(`template health: ${health.length} templates, ${unhealthy.length} unhealthy, ${orphanCount} orphan rows`);
+
+  // --- Pass 2: Pattern detection (existing logic) ---
   const tasks = db
     .query(
       `SELECT * FROM tasks
@@ -350,58 +418,95 @@ export default async function workflowReviewSensor(): Promise<string> {
 
   log(`analyzing ${tasks.length} completed tasks from last ${LOOKBACK_DAYS} days`);
 
-  if (tasks.length < 10) {
-    log("too few tasks for pattern detection — skipping");
+  let unmodeled: DetectedPattern[] = [];
+  if (tasks.length >= 10) {
+    const chains = buildChainInfos(tasks);
+    log(`found ${chains.length} task chains with children`);
+
+    const patterns = detectPatterns(chains);
+    const novel = patterns.filter((p) => !proposedKeys.includes(p.key));
+    unmodeled = novel.filter((p) => !patternAlreadyModeled(p.key));
+    log(`${unmodeled.length} unmodeled patterns after filtering`);
+  }
+
+  // --- Decide whether to create a task ---
+  const hasHealthIssues = unhealthy.length > 0 || orphanCount > 0;
+  const hasNewPatterns = unmodeled.length > 0;
+
+  if (!hasHealthIssues && !hasNewPatterns) {
+    log("no health issues or new patterns — skipping");
     if (proposedKeys.length > 0 && hookState) {
       await writeHookState(SENSOR_NAME, { ...hookState, proposed_keys: proposedKeys });
     }
     return "ok";
   }
 
-  // Build chains and detect patterns
-  const chains = buildChainInfos(tasks);
-  log(`found ${chains.length} task chains with children`);
+  // --- Build task description ---
+  const lines: string[] = [];
+  let subject = "";
 
-  const patterns = detectPatterns(chains);
-  log(`detected ${patterns.length} recurring patterns`);
+  if (hasHealthIssues) {
+    lines.push("# Workflow System Health\n");
 
-  // Filter already-proposed patterns
-  const novel = patterns.filter((p) => !proposedKeys.includes(p.key));
-  log(`${novel.length} novel patterns after filtering previously proposed`);
-
-  // Filter patterns that already have a registered template in state-machine.ts
-  const unmodeled = novel.filter((p) => !patternAlreadyModeled(p.key));
-  log(`${unmodeled.length} unmodeled patterns after template existence check`);
-
-  if (unmodeled.length === 0) {
-    log("no unmodeled patterns — skipping");
-    // Restore proposed_keys that claimSensorRun wiped
-    if (proposedKeys.length > 0 && hookState) {
-      await writeHookState(SENSOR_NAME, { ...hookState, proposed_keys: proposedKeys });
+    if (staleClosed > 0) {
+      lines.push(`Auto-stale: ${staleClosed} workflow(s) closed past ${STALE_WORKFLOW_DAYS}-day TTL this cycle.\n`);
     }
-    return "ok";
+
+    if (orphanCount > 0) {
+      lines.push(`## Orphan Workflows: ${orphanCount} rows`);
+      lines.push(`Workflows using template names not registered in state-machine.ts. These can never advance.`);
+      lines.push(`Action: bulk-close as \`closed-stale\` via \`arc skills run --name arc-workflows -- delete\` or direct SQL.\n`);
+    }
+
+    if (unhealthy.length > 0) {
+      lines.push("## Template Health Report\n");
+      lines.push("| Template | Total | Completed | Rate | Active | Stale | Stuck States | Last Activity |");
+      lines.push("|----------|-------|-----------|------|--------|-------|-------------|---------------|");
+      for (const h of unhealthy) {
+        lines.push(
+          `| ${h.template} | ${h.total} | ${h.completed} | ${h.completionRate.toFixed(0)}% | ${h.active} | ${h.stale} | ${h.stuckStates.join(", ") || "—"} | ${h.lastActivity?.slice(0, 10) ?? "never"} |`
+        );
+      }
+      lines.push("");
+      lines.push("**Actions to consider:**");
+      lines.push("- Templates with <70% completion rate: investigate failure patterns, fix or simplify the state machine");
+      lines.push("- Templates with stuck instances: transition or close stuck workflows");
+      lines.push("- Templates with stale instances: close as stale or fix the advancement path");
+      lines.push("");
+    }
   }
 
-  // Build task description
-  const lines: string[] = [
-    `Workflow review detected ${unmodeled.length} repeating multi-step process(es) not yet modeled as workflow state machines.\n`,
-    "For each pattern, evaluate whether a formal state machine would add value.",
-    "If yes, design the template in skills/arc-workflows/state-machine.ts and register in getTemplateByName().\n",
-  ];
+  if (hasNewPatterns) {
+    lines.push("# New Patterns Detected\n");
+    lines.push(`${unmodeled.length} repeating multi-step process(es) not yet modeled as workflow state machines.\n`);
+    lines.push("For each pattern, evaluate whether a formal state machine would add value.");
+    lines.push("If yes, design the template in skills/arc-workflows/state-machine.ts and register in getTemplateByName().\n");
 
-  for (const pattern of unmodeled.slice(0, 5)) {
-    lines.push(`## ${pattern.key}`);
-    lines.push(`${pattern.description}`);
-    lines.push(`- Recurrences: ${pattern.recurrences}`);
-    lines.push(`- Avg steps per chain: ${pattern.avgSteps.toFixed(1)}`);
-    lines.push(`- Skills involved: ${pattern.involvedSkills.join(", ") || "none"}`);
-    lines.push(`- Root examples: ${pattern.examples.join("; ")}`);
-    lines.push(`- Child examples: ${pattern.childExamples.join("; ")}`);
-    lines.push("");
+    for (const pattern of unmodeled.slice(0, 5)) {
+      lines.push(`## ${pattern.key}`);
+      lines.push(`${pattern.description}`);
+      lines.push(`- Recurrences: ${pattern.recurrences}`);
+      lines.push(`- Avg steps per chain: ${pattern.avgSteps.toFixed(1)}`);
+      lines.push(`- Skills involved: ${pattern.involvedSkills.join(", ") || "none"}`);
+      lines.push(`- Root examples: ${pattern.examples.join("; ")}`);
+      lines.push(`- Child examples: ${pattern.childExamples.join("; ")}`);
+      lines.push("");
+    }
   }
+
+  // Build subject line
+  const parts: string[] = [];
+  if (hasHealthIssues) {
+    const issues = unhealthy.length + (orphanCount > 0 ? 1 : 0);
+    parts.push(`${issues} health issue(s)`);
+  }
+  if (hasNewPatterns) {
+    parts.push(`${unmodeled.length} new pattern(s)`);
+  }
+  subject = `workflow review — ${parts.join(", ")}`;
 
   insertTask({
-    subject: `Workflow design: ${unmodeled.length} repeating pattern(s) detected`,
+    subject,
     description: lines.join("\n"),
     skills: '["arc-workflows", "arc-skill-manager"]',
     source: TASK_SOURCE,
@@ -409,7 +514,7 @@ export default async function workflowReviewSensor(): Promise<string> {
     model: "sonnet",
   });
 
-  // Record proposed keys to avoid re-proposing
+  // Record proposed keys
   const updatedKeys = [
     ...unmodeled.map((p) => p.key),
     ...proposedKeys.slice(0, 20),
@@ -427,6 +532,6 @@ export default async function workflowReviewSensor(): Promise<string> {
 
   await writeHookState(SENSOR_NAME, stateToWrite);
 
-  log(`created review task for ${unmodeled.length} pattern(s)`);
+  log(`created review task: ${subject}`);
   return "ok";
 }
