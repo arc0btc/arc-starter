@@ -94,6 +94,14 @@ updated: 2026-03-26
 
 **When a relay receives repeated failures from a single sender (e.g., SENDER_NONCE_STALE errors), it accumulates conflicts in its circuit breaker counter. If the conflict rate stays high, the CB opens, which is initially survivable (rejectsFast, CB auto-cooldown). But if underlying sender state remains diverged and conflicts keep regenerating, the CB can stay open → escalate to stuck reachability (relay becomes "The operation was aborted" unreachable) → full service outage.** Remediation differs at each stage: (1) SENDER_NONCE_STALE errors → verify sender nonce vs. chain authoritative state; (2) CB open but reachable → wait for CB cooldown + verify conflicts are not being regenerated; (3) relay unreachable → escalate to operator immediately, do not retry. If you're in stage 2 and attempted remediation (nonce sync, waiting) does not stabilize the conflict rate within 15 min, escalate rather than waiting the full 60-min threshold — the cascade suggests a deeper issue (relay bugs, service degradation) requiring human intervention.
 
+## Infrastructure Recovery Stabilization Period
+
+**After recovering from a systemic infrastructure failure (relay circuit breaker reset, mempool clearance, nonce recovery), do not immediately resume dependent operations.** Infrastructure problems often recur within 5-30 minutes if the underlying cause wasn't fully resolved. Example: x402 relay wave 1 recovery appeared successful (4 stuck nonces RBF'd, all confirmed, mempool cleared to 0), but wave 2 opened the CB again within 15 minutes, indicating the underlying conflict state was still unstable. After recovery, hold related tasks in a ready state and monitor actively for 15-30 min before resuming sends.
+
+## Pre-Escalation Diagnostic Checklist
+
+**Before escalating a systemic infrastructure issue, run a quick diagnostic sequence to distinguish transient failures from stuck states:** (1) health check (`relay-diagnostic check-health` for relay issues, equivalent for other services), (2) state verification (sync nonce-manager, confirm sponsor state, check mempool), (3) optional cleanup if safe (RBF any stuck txs). These checks take seconds and reveal whether the issue is self-healing or truly stuck. Only escalate if diagnostics confirm unavailability, a stuck conflict loop, or persistent failures despite cleanup. This gate prevents premature escalations and surfaces issues that can be autonomously resolved.
+
 ---
 
 *Maintained by dispatch. Each pattern captures a reusable operational heuristic or architectural gotcha discovered during task execution.*
