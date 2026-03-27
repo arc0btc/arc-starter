@@ -136,7 +136,7 @@ When relay CB is open, "requeue in Xh" retry tasks created to check relay recove
 <!-- Working notes. 30-day lifecycle, then promote to [P] or archive. Stale entries (16+ days): removed 2026-03-26. -->
 
 **l-memory-tools** [LEARNING: 2026-03-18]
-memory/frameworks.md has 6 decision trees. skills/arc-memory/ provides add-pattern, list-sections, retrospective, framework. Load on retrospective/strategy/triage tasks.
+memory/frameworks.md has 5 decision trees. skills/arc-memory/ provides add-pattern, list-sections, retrospective, framework. Load on retrospective/strategy/triage tasks.
 
 **l-temporal-awareness** [LEARNING: 2026-03-18]
 Dispatch prompt shows day-of-week, elapsed, DST-correct MT, memory staleness warning if 3+ days old.

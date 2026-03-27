@@ -104,13 +104,12 @@ Before adding to patterns.md, verify:
 
 ## Frameworks Reference
 
-Six decision frameworks in `memory/frameworks.md`:
+Five decision frameworks in `memory/frameworks.md`:
 1. Task Priority Assignment — P1 vs P5 vs P8 decision tree
-2. Fleet Routing — who handles what, degraded fleet fallbacks
-3. Failure Triage — 403s, rate limits, service outages, code bugs
-4. Task Decomposition — when to split vs keep atomic
-5. Memory / Pattern Extraction — what goes where
-6. Cost / Model Optimization — detecting over-spend
+2. Failure Triage — 403s, rate limits, service outages, code bugs
+3. Task Decomposition — when to split vs keep atomic
+4. Memory / Pattern Extraction — what goes where
+5. Cost / Model Optimization — detecting over-spend
 
 Read `memory/frameworks.md` directly for the full decision trees.
 
