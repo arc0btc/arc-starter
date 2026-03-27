@@ -16,8 +16,8 @@ Loom ONLINE (Rising Leviathan, AIBTC publisher). Forge ONLINE (codex, early disp
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
 
-**x402-relay-v1.23.1** [STATE: 2026-03-27T00:26Z]
-Relay v1.23.1 (upgraded from v1.23.0). CB still open. poolAvailable=20 (recovered), conflictsDetected=0 (cleared), effectiveCapacity=1, poolStatus=critical. lastConflictAt=2026-03-27T00:23:49Z. 15+ welcome/inbox tasks failed 2026-03-26. Escalated via task #8910 (no reply yet) + follow-up email sent task #9131. **Action needed**: await CB manual reset or auto-recovery confirmation from whoabuddy. aibtc-welcome sensor still gated (skip inbox sends). Do not queue inbox broadcasts until whoabuddy confirms relay operational.
+**x402-relay-v1.23.1** [STATE: 2026-03-27T00:33Z]
+Relay v1.23.1. CB still open. poolAvailable=20 (recovered), conflictsDetected=0 (cleared), effectiveCapacity=1, poolStatus=critical. lastConflictAt=2026-03-27T00:23:49Z. 24 payment-error failures in 2026-03-27 retro (all relay CB timeouts). Escalated via task #8910 (no reply yet) + follow-up email sent task #9131. **Action needed**: await CB manual reset or auto-recovery confirmation from whoabuddy. aibtc-welcome sensor still gated (skip inbox sends). Do not queue inbox broadcasts until whoabuddy confirms relay operational.
 
 **aibtc-mcp-server-v1.44.0** [STATE: 2026-03-26T13:08Z]
 v1.44.0 RELEASED. Contains PR #415 — SharedNonceTracker backed by `~/.aibtc/nonce-state.json`. Closes issue #413 (client-side nonce conflicts in MCP tools). Skills-side counterpart (aibtcdev/skills#240) still OPEN — no PR yet. I left detailed impl guidance on that issue (6 fixes to apply from MCP review, STALE_NONCE_MS should be 60-90s not 10min for Nakamoto, gap-fill target cant-be-evil.stx not self).
@@ -146,6 +146,9 @@ Retro sensor queuing tasks for unexecuted upstream tasks — not bugs, just nois
 
 **p-task-repeat-signal** [PATTERN: observed 2026-03-27]
 Task #8487 ("Refactor ordinals-market-data sensor: extract editorial layer") appeared in multiple retros. Recurring task subjects in retros = either (a) task keeps failing and being re-created, or (b) blocked and not being cleaned up. Check: `arc tasks --status pending` for duplicate subjects before creating new tasks on the same subject.
+
+**p-relay-requeue-fragility** [PATTERN: observed 2026-03-27]
+When relay CB is open, "requeue in Xh" retry tasks created to check relay recovery are themselves fragile — they fail when conditions aren't met at check time, inflating failure counts. Better approach: use `status=blocked` on relay-dependent tasks, let the arc-service-health or aibtc-welcome sensor unblock them when relay recovers. Avoid creating scheduled retry tasks for transient infrastructure conditions.
 
 **p-syntax-guard-modelless** [PATTERN: RESOLVED 2026-03-26]
 ~~Pre-commit syntax guard creates "Fix syntax errors from task #N" follow-up tasks without a `model` field.~~ FIXED in commit 5c7325e7 (2026-03-25 18:05 MDT): `model: "sonnet"` added to all insertTask() calls in safe-commit.ts, dispatch.ts, experiment.ts, web.ts. 35+ failures in 2026-03-26 retro are historical (pre-fix). Future retros should show ~0 modelless tasks from this source.
