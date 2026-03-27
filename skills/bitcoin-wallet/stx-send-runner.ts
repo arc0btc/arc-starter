@@ -73,6 +73,17 @@ if (flags.nonce !== undefined) {
   explicitNonce = BigInt(parsed);
 }
 
+// Optional explicit fee in micro-STX (for RBF replacements)
+let explicitFee: bigint | undefined;
+if (flags.fee !== undefined) {
+  const parsed = parseInt(flags.fee, 10);
+  if (isNaN(parsed) || parsed <= 0) {
+    console.log(JSON.stringify({ success: false, error: `Invalid fee: ${flags.fee}. Must be a positive integer (micro-STX).` }));
+    process.exit(1);
+  }
+  explicitFee = BigInt(parsed);
+}
+
 // Unlock wallet manager singleton
 const wm = getWalletManager();
 
@@ -87,7 +98,7 @@ try {
 try {
   const account = wm.getAccount() as Account;
 
-  const result = await transferStx(account, recipient, amountMicroStx, memo, undefined, explicitNonce);
+  const result = await transferStx(account, recipient, amountMicroStx, memo, explicitFee, explicitNonce);
 
   console.log(JSON.stringify({
     success: true,

@@ -556,7 +556,7 @@ async function cmdStxSend(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
   if (!flags.recipient || !flags["amount-stx"]) {
-    process.stderr.write("Usage: arc skills run --name wallet -- stx-send --recipient <STX address> --amount-stx <number> [--memo \"text\"] [--nonce N]\n");
+    process.stderr.write("Usage: arc skills run --name wallet -- stx-send --recipient <STX address> --amount-stx <number> [--memo \"text\"] [--nonce N] [--fee N]\n");
     process.exit(1);
   }
 
@@ -568,6 +568,9 @@ async function cmdStxSend(args: string[]): Promise<void> {
     }
     if (flags.nonce !== undefined) {
       sendArgs.push("--nonce", flags.nonce);
+    }
+    if (flags.fee !== undefined) {
+      sendArgs.push("--fee", flags.fee);
     }
 
     const result = await runStxSend(sendArgs);
