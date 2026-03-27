@@ -106,8 +106,9 @@ interface HookState {
   lastInscriptionCount?: number;
   lastFeeRate?: number;
   lastBrc20Volume?: number;
-  lastRuneTopIds?: string[]; // top-10 rune IDs from last runes run (for change-detection)
-  lastRuneHolders?: Record<string, number>; // runeId -> holderCount from last runes run
+  lastRuneTopIds?: string[]; // DEPRECATED: was top-10 rune IDs; runes/list endpoint removed
+  lastRuneHolders?: Record<string, number>; // DEPRECATED: was runeId -> holderCount; runes/list endpoint removed
+  lastRuneTotal?: number; // total rune count from last runes/status run (for change-detection)
   lastRateMilestoneHigh?: string; // ISO timestamp of last high-rate milestone task creation
   lastRateMilestoneLow?: string; // ISO timestamp of last low-rate milestone task creation
   // Change-detection state — always updated, used to gate signal creation
@@ -583,42 +584,18 @@ async function fetchInscriptionData(apiKey: string, state: HookState, history: C
     const status = statusData?.data as Record<string, unknown> | undefined;
     if (!status) return null;
 
-    await Bun.sleep(200); // respect rate limit
-
-    // Recent inscriptions
-    const recentRes = await fetch(`${UNISAT_API}/v1/indexer/inscription/info/recent?limit=20`, {
-      headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
-      signal: AbortSignal.timeout(15_000),
-    });
-    if (!recentRes.ok) {
-      log(`inscriptions: unisat recent failed (${recentRes.status})`);
-      return null;
-    }
-    const recentData = (await recentRes.json()) as Record<string, unknown>;
-    const recentList = (recentData?.data as Record<string, unknown>)?.list as Array<Record<string, unknown>> | undefined;
-
-    const totalInscriptions = Number(status.inscriptionCount ?? status.total ?? 0);
-    const tokenCount = Number(status.tokenCount ?? status.count ?? 0);
-    const recentCount = recentList?.length ?? 0;
-
-    // Detect content-type distribution from recent inscriptions
-    const contentTypes: Record<string, number> = {};
-    if (recentList) {
-      for (const item of recentList) {
-        const ct = String(item.contentType ?? item.content_type ?? "unknown").split("/")[0];
-        contentTypes[ct] = (contentTypes[ct] ?? 0) + 1;
-      }
-    }
-    const topType = Object.entries(contentTypes).sort((a, b) => b[1] - a[1])[0];
-    const topTypeLabel = topType ? `${topType[0]} (${topType[1]}/${recentCount})` : "mixed";
+    // Derive total inscription count from max inscriptionNumberEnd across top BRC-20 tokens.
+    // The /inscription/info/recent endpoint requires an inscriptionId parameter (no longer supports listing).
+    // inscriptionNumberEnd is the inscription number of the last mint for each BRC-20 token — the maximum
+    // across the top-10 tokens gives a reliable lower-bound proxy for total Bitcoin inscriptions.
+    const detail = (status.detail as Array<Record<string, unknown>> | undefined) ?? [];
+    const totalInscriptions = detail.length > 0
+      ? Math.max(...detail.map((d) => Number(d.inscriptionNumberEnd ?? d.inscriptionNumber ?? 0)))
+      : 0;
+    const tokenCount = Number(status.total ?? 0); // total BRC-20 token count
 
     if (totalInscriptions === 0 && tokenCount === 0) {
       log("inscriptions: no data available");
-      return null;
-    }
-
-    if (recentCount === 0) {
-      log("inscriptions: no recent inscription data returned; skipping signal");
       return null;
     }
 
@@ -627,56 +604,34 @@ async function fetchInscriptionData(apiKey: string, state: HookState, history: C
     const deltas = computeDeltas(history, "inscriptions", metrics);
     pushReading(history, "inscriptions", metrics);
 
-    // Change-detection gate: >10pp shift in dominant content-type share or dominant type change
-    const currentDist: Record<string, number> = {};
-    for (const [ct, count] of Object.entries(contentTypes)) {
-      currentDist[ct] = (count / recentCount) * 100;
-    }
-    const currentDominant = topType ? topType[0] : "unknown";
-    const prevDist = state.lastContentTypeDist;
-    const prevDominant = state.lastDominantContentType;
-    state.lastContentTypeDist = currentDist; // always update
-    state.lastDominantContentType = currentDominant;
+    // Change-detection gate: >0.1% change in totalInscriptions or first reading
+    const prevCount = state.lastInscriptionCount as number | undefined;
+    state.lastInscriptionCount = totalInscriptions;
 
-    if (prevDist !== undefined && prevDominant !== undefined) {
-      const dominantChanged = currentDominant !== prevDominant;
-      // Check if any content-type's share shifted by >10 percentage points
-      const allTypes = new Set([...Object.keys(prevDist), ...Object.keys(currentDist)]);
-      let maxShiftPp = 0;
-      for (const ct of allTypes) {
-        const shift = Math.abs((currentDist[ct] ?? 0) - (prevDist[ct] ?? 0));
-        if (shift > maxShiftPp) maxShiftPp = shift;
-      }
-      if (!dominantChanged && maxShiftPp < INSCRIPTION_CONTENT_SHIFT_PP) {
-        log(`inscriptions: below threshold — dominant still "${currentDominant}", max shift ${maxShiftPp.toFixed(1)}pp < ${INSCRIPTION_CONTENT_SHIFT_PP}pp; skipping signal`);
+    if (prevCount !== undefined) {
+      const changePct = prevCount > 0 ? Math.abs(totalInscriptions - prevCount) / prevCount * 100 : 0;
+      if (changePct < 0.1) {
+        log(`inscriptions: below threshold — change ${changePct.toFixed(3)}% < 0.1%; skipping signal`);
         return null;
       }
-      log(`inscriptions: threshold met — ${dominantChanged ? `dominant changed "${prevDominant}"→"${currentDominant}"` : `max shift ${maxShiftPp.toFixed(1)}pp >= ${INSCRIPTION_CONTENT_SHIFT_PP}pp`}`);
+      log(`inscriptions: threshold met — inscription count changed ${changePct.toFixed(2)}% (${prevCount.toLocaleString()} → ${totalInscriptions.toLocaleString()})`);
     } else {
-      log("inscriptions: first content-type reading — allowing signal (no prior baseline)");
+      log("inscriptions: first reading — allowing signal (no prior baseline)");
     }
 
-    // Determine change reason for context
-    const changeReason = prevDist === undefined
-      ? "first content-type reading (no prior baseline)"
-      : currentDominant !== prevDominant
-        ? `dominant content type changed "${prevDominant}" → "${currentDominant}"`
-        : `content-type share shifted beyond ${INSCRIPTION_CONTENT_SHIFT_PP}pp threshold`;
+    const changeReason = prevCount === undefined
+      ? "first inscription count reading (no prior baseline)"
+      : `inscription count changed ${((Math.abs(totalInscriptions - prevCount) / prevCount) * 100).toFixed(2)}%`;
 
     return {
       category: "inscriptions",
       rawData: {
         totalInscriptions,
         tokenCount,
-        recentCount,
-        contentTypeDistribution: contentTypes,
-        dominantType: currentDominant,
-        dominantTypeShare: currentDist[currentDominant] ?? 0,
       },
       deltas,
       sources: [
-        { url: "https://open-api.unisat.io", title: "Unisat Indexer API — inscription status" },
-        { url: "https://mempool.space", title: "mempool.space — Bitcoin fee market" },
+        { url: "https://open-api.unisat.io", title: "Unisat Indexer API — BRC-20 status with inscription numbers" },
       ],
       tags: "ordinals-business,inscriptions,bitcoin,on-chain",
       changeReason,
@@ -698,21 +653,11 @@ async function fetchBrc20Data(apiKey: string, state: HookState, history: Categor
     const status = statusData?.data as Record<string, unknown> | undefined;
     if (!status) return null;
 
-    await Bun.sleep(200);
+    // Use detail from the already-fetched status response — brc20/list endpoint returns only ticker strings,
+    // not full objects. The status endpoint's detail array has holdersCount and all needed fields.
+    const tokens = (status.detail as Array<Record<string, unknown>> | undefined) ?? [];
 
-    // Fetch top BRC-20 tokens by market activity
-    const listRes = await fetch(`${UNISAT_API}/v1/indexer/brc20/list?limit=10&offset=0`, {
-      headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
-      signal: AbortSignal.timeout(15_000),
-    });
-    if (!listRes.ok) {
-      log(`brc20: list fetch failed (${listRes.status})`);
-      return null;
-    }
-    const listData = (await listRes.json()) as Record<string, unknown>;
-    const tokens = (listData?.data as Record<string, unknown>)?.list as Array<Record<string, unknown>> | undefined;
-
-    if (!tokens || tokens.length === 0) {
+    if (tokens.length === 0) {
       log("brc20: no token data");
       return null;
     }
@@ -728,7 +673,7 @@ async function fetchBrc20Data(apiKey: string, state: HookState, history: Categor
     });
 
     const topToken = tokenSummaries[0];
-    const totalTokens = Number(status.tokenCount ?? status.count ?? tokens.length);
+    const totalTokens = Number(status.total ?? tokens.length);
 
     // Historical data: compute deltas then store reading (always, regardless of gate)
     const metrics: Record<string, number> = { totalTokens };
@@ -1001,80 +946,52 @@ async function fetchRunesData(apiKey: string, state: HookState, history: Categor
     const status = statusData?.data as Record<string, unknown> | undefined;
     if (!status) return null;
 
-    await Bun.sleep(200);
+    // runes/list endpoint no longer available — use status-only data.
+    // status.runes = total etched rune count; halvingBlockCount = blocks until next halving.
+    const totalRunes = Number(status.runes ?? 0);
+    const halvingBlockCount = Number(status.halvingBlockCount ?? 0);
+    const minimumRune = String(status.minimumRuneForNextBlock ?? "");
 
-    // Top runes by holder count
-    const listRes = await fetch(`${UNISAT_API}/v1/indexer/runes/list?start=0&limit=10`, {
-      headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
-      signal: AbortSignal.timeout(15_000),
-    });
-    if (!listRes.ok) {
-      log(`runes: unisat runes/list failed (${listRes.status})`);
-      return null;
-    }
-    const listData = (await listRes.json()) as Record<string, unknown>;
-    const runes = (listData?.data as Record<string, unknown>)?.list as Array<Record<string, unknown>> | undefined;
-
-    const totalRunes = Number(status.runesCount ?? status.total ?? status.count ?? 0);
-    const etchingCount = Number(status.etchingCount ?? status.etching ?? 0);
-
-    if (totalRunes === 0 && (!runes || runes.length === 0)) {
+    if (totalRunes === 0) {
       log("runes: no data available");
       return null;
     }
 
-    const top10 = (runes ?? []).slice(0, 10).map((r) => ({
-      id: String(r.runeId ?? r.id ?? r.rune ?? ""),
-      name: String(r.spacedRune ?? r.rune ?? r.name ?? "unknown"),
-      holders: Number(r.holdersCount ?? r.holders ?? 0),
-    }));
-
-    // Change-detection: new rune in top-10 or >10% holder shift
-    const prevIds: string[] = (state.lastRuneTopIds as string[] | undefined) ?? [];
-    const prevHolders: Record<string, number> = (state.lastRuneHolders as Record<string, number> | undefined) ?? {};
-
-    const isFirstRun = prevIds.length === 0;
-    const newInTop10 = top10.some((r) => r.id && !prevIds.includes(r.id));
-    const holderShift = top10.some((r) => {
-      const prev = prevHolders[r.id];
-      if (prev === undefined || prev === 0) return false;
-      return Math.abs(r.holders - prev) / prev > 0.1;
-    });
-
-    // Always update rune-specific state with current snapshot
-    state.lastRuneTopIds = top10.map((r) => r.id);
-    state.lastRuneHolders = Object.fromEntries(top10.map((r) => [r.id, r.holders]));
-
     // Historical data: compute deltas then store reading (always, regardless of change-detection)
-    const metrics: Record<string, number> = { totalRunes, etchingCount };
-    for (const r of top10.slice(0, 5)) {
-      metrics[`holders_${r.name}`] = r.holders;
-    }
+    const metrics: Record<string, number> = { totalRunes, halvingBlockCount };
     const deltas = computeDeltas(history, "runes", metrics);
     pushReading(history, "runes", metrics);
 
-    if (!isFirstRun && !newInTop10 && !holderShift) {
-      log("runes: no significant change (no new top-10 rune, no >10% holder shift); skipping signal");
+    // Change-detection: first run, or ≥100 new runes etched, or halving within 5,000 blocks
+    const prevTotal = state.lastRuneTotal as number | undefined;
+    const newRunesSince = prevTotal !== undefined ? totalRunes - prevTotal : 0;
+    const isFirstRun = prevTotal === undefined;
+    const halvingNear = halvingBlockCount > 0 && halvingBlockCount <= 5_000;
+
+    state.lastRuneTotal = totalRunes;
+
+    if (!isFirstRun && newRunesSince < 100 && !halvingNear) {
+      log(`runes: no significant change — ${newRunesSince} new runes since last reading, halving in ${halvingBlockCount} blocks; skipping signal`);
       return null;
     }
 
     const changeReason = isFirstRun
       ? "first runes snapshot"
-      : newInTop10
-        ? "new rune entered top-10 by holder count"
-        : "holder count shift >10% detected in top-10";
+      : halvingNear
+        ? `halving approaching — ${halvingBlockCount} blocks remaining`
+        : `${newRunesSince} new runes etched since last reading`;
     log(`runes: signal threshold met — ${changeReason}`);
 
     return {
       category: "runes",
       rawData: {
         totalRunes,
-        etchingCount,
-        top10: top10.map((r) => ({ id: r.id, name: r.name, holders: r.holders })),
+        halvingBlockCount,
+        minimumRune,
       },
       deltas,
       sources: [
-        { url: "https://open-api.unisat.io", title: "Unisat Runes Indexer API — rune status and list" },
+        { url: "https://open-api.unisat.io", title: "Unisat Runes Indexer API — rune ecosystem status" },
         { url: "https://unisat.io/runes", title: "Unisat — Runes marketplace" },
       ],
       tags: "ordinals-business,runes,bitcoin,fungibles",
