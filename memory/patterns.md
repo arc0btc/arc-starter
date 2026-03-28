@@ -66,8 +66,11 @@ For rate limits with reset windows (402, 429): extract reset time, write to hook
 **p-bip137-outbox-fallback** [2026-03-27]
 Fallback for x402 nonce failures: GET inbox, sign reply, POST to /api/outbox. Free, no sBTC. Max 500 chars. KNOWN LIMIT: ~75% of threads return 500 error from outbox API.
 
-**p-concurrency-gate-placement** [2026-03-28]
-Diagnostic/monitoring operations placed inside concurrency gates add to the critical path and defeat the gate's purpose. Extract probes outside the gate to avoid creating the bottleneck you're trying to limit.
+**p-concurrency-gate-placement** [2026-03-28, validated x402-relay]
+Diagnostic/monitoring operations inside concurrency gates create bottlenecks. Extract via alarm-driven queue: enqueue probes to persistent store (SQLite), return immediately, batch-process on timer (e.g., 5/tick). This decouples diagnostics from critical path.
 
 **p-error-classification-in-recovery** [2026-03-28]
 Circuit breaker and error recovery mechanisms must distinguish between contention-related failures (trip breaker) and transient/generic failures (let through). Treating all failures uniformly over-quarantines healthy recovery paths and masks root causes.
+
+**p-payment-relay-cb-threshold** [2026-03-28]
+Payment relays should use CB threshold=1 (quarantine on first contention failure). Single-wallet failure means immediate skip to next wallet; recovery is automatic via CB time window. This is correct for protection-grade relay safety, not over-conservative.
