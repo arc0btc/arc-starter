@@ -195,6 +195,7 @@ async function sendWithRetry(
     if (isNonceDuplicate(err) && attempt < MAX_RETRIES) {
       // Relay already has a tx with this nonce — nonce consumed, acquire next
       log(`  SENDER_NONCE_DUPLICATE for ${label} (attempt ${attempt}/${MAX_RETRIES}), acquiring next nonce...`);
+      await releaseManagedNonce(currentNonce, false, false); // broadcast — nonce consumed
       currentNonce = await acquireManagedNonce();
       await sleep(NONCE_RETRY_DELAY_MS);
       continue;
@@ -401,7 +402,12 @@ async function executeBatch(state: BatchState): Promise<void> {
       successCount++;
       pendingSent++;
       await releaseManagedNonce(currentNonce, true);
-      currentNonce = await acquireManagedNonce(); // get next from manager
+      try {
+        currentNonce = await acquireManagedNonce();
+      } catch (acqErr) {
+        log(`  Failed to acquire next nonce: ${acqErr instanceof Error ? acqErr.message : String(acqErr)} — stopping batch`);
+        break;
+      }
       log(`  Sent to ${msg.label} (next nonce: ${currentNonce})`);
 
       // Log contact interaction
@@ -434,6 +440,9 @@ async function executeBatch(state: BatchState): Promise<void> {
       await sleep(POST_SEND_DELAY_MS);
     }
   }
+
+  // Release the pre-acquired nonce that was never used (loop ended)
+  await releaseManagedNonce(currentNonce, false, true);
 
   const finalSent = state.messages.filter(m => m.status === "sent").length;
   const finalFailed = state.messages.filter(m => m.status === "failed").length;
