@@ -199,12 +199,15 @@ function transition(idStr: string, newState: string, contextJson?: string): Comm
 
     let newContext: string | null = null;
     if (contextJson) {
+      let parsed: Record<string, unknown>;
       try {
-        JSON.parse(contextJson); // Validate JSON
-        newContext = contextJson;
+        parsed = JSON.parse(contextJson);
       } catch {
         return { success: false, message: `Invalid JSON in --context` };
       }
+      // Merge new context fields into existing context to preserve prior fields (e.g. date, parentId)
+      const existing = workflow.context ? JSON.parse(workflow.context) as Record<string, unknown> : {};
+      newContext = JSON.stringify({ ...existing, ...parsed });
     } else {
       newContext = workflow.context;
     }
