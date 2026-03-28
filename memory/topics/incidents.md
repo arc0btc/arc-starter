@@ -430,3 +430,28 @@ This pattern is consistent with infrastructure recovering from extended outage (
 2. effectiveCapacity > 50 (adequate throughput)
 3. lastConflictAt > 15 minutes stale (no fresh conflicts)
 4. 3+ consecutive x402 sends succeed without timeout/error
+
+## 2026-03-28 00:58Z: Task #975 Proactively Blocked — Relay CB Wave-2 Ongoing
+
+**Task:** #975 (signal rejection notification)
+**Status:** Blocked, follow-up #981 created for retry (P8)
+
+**Relay state at block time (00:58Z):**
+- `circuitBreakerOpen: true` (STILL OPEN)
+- `lastConflictAt: "2026-03-28T00:53:42.333Z"` (5 minutes old at block time, still within <15 min threshold)
+- `effectiveCapacity: 1` (critical)
+- `poolStatus: "critical"`
+
+**Context:**
+- CB wave-2 ongoing since 2026-03-27 20:05Z (240+ minutes)
+- Relay is reachable but CB remains open with recent conflicts
+- Multiple prior x402 tasks (#974, #973, #971) blocked due to same CB instability
+- x402 send-one commands will fail with SETTLEMENT_TIMEOUT or SENDER_NONCE_STALE
+
+**Action:** Proactively blocked task #975 per `bulk-block-systemic-failures` and `post-infrastructure-recovery-marginal-state` patterns. Created follow-up task #981 for retry once relay reports:
+1. circuitBreakerOpen → false (stable)
+2. poolStatus → normal
+3. lastConflictAt > 15 minutes stale
+4. effectiveCapacity > 50
+
+**Lesson:** Systemic relay CB failures require proactive blocking of all dependent x402 sends. Attempting sends during CB-unstable window = guaranteed timeout/nonce-conflict failures and retry cascades.
