@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-03-27T21:35:00.000Z*
-*Sensor count: 68 | Skill count: 98*
+*Generated: 2026-03-28T06:13:00.000Z*
+*Sensor count: 68 | Skill count: 99*
 
 ```mermaid
 stateDiagram-v2
@@ -50,7 +50,7 @@ stateDiagram-v2
             social_agent_engagement
             social_x_ecosystem
             arxiv_research
-            note right of ordinals_market_data: 3 ordinals + 3 dev-tools/day\noverflow after 18:00 UTC\nAll 5 categories fetched per run\nper-category pending dedup
+            note right of ordinals_market_data: 3 ordinals + 3 dev-tools/day\noverflow after 18:00 UTC\nAll 5 categories fetched per run\nper-category pending dedup\nFlat-market fallback: stability signal when all thresholds=0
             note right of arxiv_research: routes dev-tool papers\nto dev-tools signal tasks
         }
 
@@ -108,7 +108,7 @@ stateDiagram-v2
             contacts
             paperboy
             stacks_stackspot
-            note right of bitcoin_quorumclaw: API deprovisioned (Railway 404)\nfailure-state.json at 10 failures\nsensor paused until new URL found
+            note right of bitcoin_quorumclaw: API deprovisioned (Railway 404)\nfailure-state.json at 10 failures\nReturns skip immediately (fix eaa40bfa)\nUnblock: new URL → update API_BASE → delete failure-state.json
             note right of stacks_stackspot: epoch 3.4 guard active\npaused in window [943050-943500]\nauto-lifts ~2026-04-04
         }
 
@@ -224,8 +224,10 @@ stateDiagram-v2
             RecordCycleLog --> RecordQuality
             RecordQuality --> SafeCommit
             SafeCommit --> SyntaxGuard: staged .ts files
-            SyntaxGuard --> PostCommitHealth: syntax OK
+            SyntaxGuard --> LintModelField: syntax OK
             SyntaxGuard --> BlockCommit: syntax error → follow-up task
+            LintModelField --> PostCommitHealth: model fields OK
+            LintModelField --> BlockCommit: model missing → follow-up task
             PostCommitHealth --> ValidateServices
             ValidateServices --> MergeWorktree: worktree path
             ValidateServices --> UpdateFleetStatus: in-place path
@@ -272,7 +274,7 @@ stateDiagram-v2
     ContentSensors --> SignalAllocation
 ```
 
-## Sensor Count by Category (2026-03-27)
+## Sensor Count by Category (2026-03-28)
 
 | Category | Count |
 |----------|-------|
@@ -287,7 +289,18 @@ stateDiagram-v2
 | Other/Misc | 5 |
 | **Total** | **68** |
 
-*Note: Fleet sensor group removed (committed b73f1a21). Previous total was 80. Other/Misc: bitcoin-quorumclaw (paused), contacts (new), paperboy, stacks-stackspot (guarded for epoch 3.4).*
+*Note: Fleet sensor group removed (committed b73f1a21). Previous total was 80. Other/Misc: bitcoin-quorumclaw (paused, skip-on-pause fixed), contacts, paperboy, stacks-stackspot (guarded for epoch 3.4). Skill count: 99 (nonce-manager added, no sensor).*
+
+## Key Architectural Changes (6da4625 → b8e6595)
+
+| Change | Impact |
+|--------|--------|
+| **feat(nonce-manager): cross-process nonce oracle** (6ec36831) | New skill (SKILL.md + AGENT.md + cli.ts). Fixes p-wallet-nonce-gap — concurrent x402 sends previously raced on Hiro API nonce fetch, causing 8h+ mempool stalls. mkdir-based file lock at `~/.aibtc/nonce-state.json` ensures single-writer nonce claims across dispatch processes. No sensor. |
+| **feat(ordinals-market-data): flat-market fallback** (a8af8f5e) | When competition active + allocation not met + all change-detection thresholds produce zero signals → file stability signal. "Stability is data." Picks best category by history depth; 6h cooldown; source key prevents dedup. Also fixes angle rotation advancing on zero-signal early-exit path. +222 lines. |
+| **feat(ci): lintModelField() in safe-commit.ts** (05ebbbde) | **Closes 7-cycle audit carry-forward.** Pre-commit pipeline now scans staged .ts files for insertTask/insertTaskIfNew without model: field. Failures block commit and create follow-up tasks. p-sensor-model-required now enforced at commit time, not discovered at dispatch time. |
+| **fix(bitcoin-quorumclaw): skip-on-pause** (eaa40bfa) | Returns "skip" immediately when `consecutiveFailures >= ALERT_THRESHOLD`. Previously dedup check only blocked pending tasks — since failures leave status=failed (not pending), a new alert task was created every cycle (12+ tasks/day). Fix: p-paused-sensor-task-leak. |
+| **fix(arc-workflows): arc-housekeeping for stale-lock alerts** (073ed91e) | Stale-lock health alert tasks now load `arc-housekeeping` skill. Previously dispatched without skill context — agent lacked lock recovery instructions. |
+| **docs(defi-zest): MCP tools section** (b8e65952) | zest_enable_collateral tool documented in SKILL.md (v1.46.0). Full Zest MCP tool table added. No code change. |
 
 ## Key Architectural Changes (1955a04 → ee4919b)
 

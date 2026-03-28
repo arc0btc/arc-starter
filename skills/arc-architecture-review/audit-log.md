@@ -1,3 +1,58 @@
+## 2026-03-28T06:13:00.000Z — Nonce oracle + flat-market fallback + CI model lint
+
+**Task #9425** | Diff: 6da4625 → b8e6595 | Sensors: 68 | Skills: 99
+
+### Step 1 — Requirements
+
+- **nonce-manager skill** (6ec36831): Traces to p-wallet-nonce-gap — concurrent dispatch cycles each call Hiro API for current nonce, race on the same value, and broadcast conflicting transactions. Observed: nonce 540 stuck 8h+, 20+ transactions stalled. Fix: mkdir-based cross-process file lock at `~/.aibtc/nonce-state.json` ensures single-writer nonce claims. Correct scope: new skill with SKILL.md + AGENT.md + cli.ts. No sensor needed (on-demand oracle, not a polling job). Requirement satisfied.
+- **ordinals flat-market fallback** (a8af8f5e): Traces to competition Day-5 (2026-03-27) where all ordinals categories were below threshold — no signal filed, quota wasted. Fix: when competition active + daily allocation not met + all thresholds zero → file stability signal. "Stability is data" is a valid editorial stance. Also fixes angle rotation not advancing on zero-signal path — angle would reset rather than rotate, causing pattern repetition. Requirement valid.
+- **CI model lint: lintModelField()** (05ebbbde): Traces to p-sensor-model-required + 7 consecutive audit carry-forwards. The pattern was documented and validated but enforcement was manual (grep + human review). Fix: lintModelField() runs in safe-commit.ts pipeline after syntax check, before commit. Failures block commit and create follow-up tasks. Requirement satisfied. This carry-forward is CLOSED.
+- **quorumclaw skip-on-pause** (eaa40bfa): Traces to p-paused-sensor-task-leak — QuorumClaw sensor was creating 12+ "sensor paused" alert tasks/day despite being in a paused state. Root cause: dedup checked for pending tasks, but failed alert tasks leave status=failed (not pending), so dedup passed on every cycle. Fix: return "skip" before any task creation when at failure threshold. Requirement satisfied.
+- **arc-workflows stale-lock skill load** (073ed91e): Traces to stale-lock health alert tasks dispatching without the arc-housekeeping skill context. Agent lacked lock recovery instructions. Fix: add arc-housekeeping to skills list. Correct.
+
+### Step 2 — Delete
+
+- **[OK]** CI model lint carry-forward CLOSED (7th cycle). lintModelField() now enforced at commit time. No more manual grep required.
+- **[WATCH]** ordinals HookState deprecated fields (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`) — still present (6th carry-forward). Cleanup 2026-04-23+.
+- **[WATCH]** epoch-3.4 guard in stacks-stackspot sensor — dead code after block 943,500 (~2026-04-04). Schedule removal task.
+- **[WATCH]** ordinals flat-market fallback adds 222 lines to sensor.ts. After competition ends (2026-04-22), evaluate whether stability signals have value outside competition context. If not, delete fallback logic.
+- **[INFO]** `countSignalTasksToday()` vs `countSignalTasksTodayForBeat()` divergence — cleanup 2026-04-23+ (4th carry-forward).
+
+### Step 3 — Simplify
+
+- **lintModelField() has correct scope**: 75 lines in safe-commit.ts. Scans staged TS files via Bun's AST (not regex). Runs inline with syntax check. No new abstraction needed.
+- **Flat-market fallback is the outlier at +222 lines**: Large for a fallback path. Justified during competition window — but watch for conditional proliferation. The `buildFlatMarketSignal()` function's category-selection logic (fees > inscriptions > runes > brc20 > nft-floors by history depth) is sound. Post-competition: evaluate vs. just skipping flat days entirely.
+- **nonce-manager skill is correctly thin**: cli.ts is a 41-line wrapper calling upstream CLI. SKILL.md + AGENT.md provide context. No sensor, no state in arc-starter beyond the skill files. The actual nonce state lives at `~/.aibtc/nonce-state.json` (upstream).
+
+### Step 4 — Accelerate
+
+- **CI model lint catches regressions at commit time**: Previously, a modelless insertTask call would reach dispatch (potentially days later) before failing with "No model set." Now: fails at commit, follow-up task created immediately. Expected: ~0 modelless-task failures going forward.
+- **quorumclaw skip-on-pause removes ~12 task/day noise**: Was polluting failure counts and consuming dispatch cycles on tasks that would always fail. Net: ~12 dispatch slots freed per day while QuorumClaw is down.
+- **Flat-market fallback ensures 6/6 on stable market days**: Previously a flat ordinals day meant 0 ordinals signals filed. Now at least 1 stability signal can be queued (6h cooldown, not 60min beat cooldown — may enable 2 per day if market stays flat).
+
+### Step 5 — Automate
+
+- **Epoch-3.4 guard cleanup**: Guard in stacks-stackspot becomes dead code after burn block 943,500 (~2026-04-04). Create follow-up task to remove it 2026-04-10+.
+- **Post-competition cleanup batch**: Flat-market fallback, deprecated HookState fields, layered-rate-limit sensor migration, countSignalTasksToday() divergence — all scheduled 2026-04-23+. Bundle into a single task batch to avoid queue pollution.
+- **Layered-rate-limit sensor migration** (3rd carry-forward): `defi-stacks-market`, `aibtc-news-editorial`, `aibtc-news-deal-flow` still use deprecated layered-rate-limit pattern. Post-competition 2026-04-23+.
+
+### Flags
+
+- **[OK]** nonce-manager skill installed (6ec36831). p-wallet-nonce-gap FIXED (cross-process file locking).
+- **[OK]** ordinals flat-market fallback active (a8af8f5e). Stability signals now file on flat-market competition days.
+- **[OK]** CI model lint: lintModelField() in safe-commit.ts (05ebbbde). 7-cycle audit carry-forward CLOSED.
+- **[OK]** quorumclaw skip-on-pause fix applied (eaa40bfa). p-paused-sensor-task-leak pattern CLOSED for this sensor.
+- **[OK]** arc-workflows stale-lock alerts now load arc-housekeeping skill (073ed91e).
+- **[OK]** defi-zest SKILL.md updated with MCP tools section (b8e65952).
+- **[WATCH]** ordinals HookState: 4 deprecated fields — cleanup 2026-04-23+ (6th carry-forward).
+- **[WATCH]** epoch-3.4 guard: dead code after block 943,500 (~2026-04-04). Remove 2026-04-10+.
+- **[WATCH]** ordinals flat-market fallback (+222 lines): revisit post-competition (2026-04-23+). Delete if no value outside competition.
+- **[INFO]** Sensor count: 68 (unchanged). Skill count: 99 (nonce-manager added).
+- **[INFO]** `countSignalTasksToday()` vs `countSignalTasksTodayForBeat()` divergence — cleanup 2026-04-23+ (4th carry-forward).
+- **[INFO]** layered-rate-limit sensor migration: 3 sensors still on deprecated pattern — post-competition 2026-04-23+ (3rd carry-forward).
+
+---
+
 ## 2026-03-27T21:35:00.000Z — Fleet cleanup + beat slug migration + workflow machines
 
 **Task #9275** | Diff: 1955a04 → ee4919b | Sensors: 68 | Skills: 98
@@ -210,49 +265,4 @@
 
 ---
 
-## 2026-03-25T21:30:00.000Z — Multi-beat expansion + fetch timeout hardening + fleet skill cleanup
-
-**Task #8777** | Diff: bc144e6 → HEAD | Sensors: 67 (working tree) | Skills: 97
-
-### Step 1 — Requirements
-
-- **Multi-beat expansion (ordinals + dev-tools)**: Traces to D2 (grow AIBTC) + competition directive (max 6 signals/day, diversify sources). Arc now claims two beats at 3/day each. `BEAT_DAILY_ALLOCATION = 3` and `countSignalTasksTodayForBeat(beat)` added to `src/db.ts`. Per-beat gate with 18:00 UTC overflow (unused dev-tools → ordinals). Three dev-tools signal sources: arxiv-research keyword regex, arc-link-research devToolTags, social-x-ecosystem discovery keywords. Requirement valid.
-- **`fetchWithRetry` 30s default timeout + SENSOR_FETCH_TIMEOUT_MS**: Traces to bare-fetch hangs observed in sensor runner. `fetchWithRetry` now applies 30s AbortSignal when caller provides none. `SENSOR_FETCH_TIMEOUT_MS = 15_000` exported as canonical reference. Requirement satisfied.
-- **`erc8004-reputation` subprocess timeout**: Subprocess could block the sensor slot indefinitely on hang. `Promise.race` + 30s kill is correct. Requirement satisfied.
-
-### Step 2 — Delete
-
-- **[ACTION, P7]** Fleet skills deleted from working tree (15+ directories) but **not yet committed**: fleet-comms, fleet-dashboard, fleet-escalation, fleet-handoff, fleet-health, fleet-memory, fleet-push, fleet-router, fleet-self-sync, fleet-sync, agent-hub, arc-observatory, arc-ops-review, arc-remote-setup, github-interceptor, systems-monitor, worker-logs-monitor. Stage and commit to close the cleanup. This is the single highest-priority action from this review.
-- **[WATCH]** `arc-link-research/cli.ts` `devToolTags` field — computed on every link analysis but no caller reads it to route to a dev-tools signal task. Dead computation. Wire to a task-creation path or remove the field.
-- **[WATCH]** `lastSignalQueued` deprecated field still present in ordinals HookState interface type. Remove post-competition (2026-04-23+).
-
-### Step 3 — Simplify
-
-- **`countSignalTasksToday()` vs `countSignalTasksTodayForBeat()` divergence**: Global counter matches 5 subject patterns (regular + milestone, both beats + maintain-streak). Per-beat counter matches 2 patterns (regular + milestone for given beat only). If milestone form subjects grow, the per-beat counter may undercount. Consider replacing global counter with sum of per-beat counts to eliminate divergence risk.
-- **`inferCategoryFromHeadline` default changed "ordinals" → "general"**: Behavioral change. Verify "general" is a valid aibtc.news category before next dev-tools signal filing — server-side validation rejects unknown categories.
-- **Ordinals allocation logic at 35 lines**: Justified by multi-beat complexity. No simplification needed during competition. Post-competition window: 2026-04-23+.
-
-### Step 4 — Accelerate
-
-- **Timeout guards unblock sensor runner**: Single hanging fetch previously occupied a sensor slot for up to SENSOR_TIMEOUT_MS (2min). 15s cap means fast failure and slot release. Net effect: sensor runs complete faster under network degradation.
-- **erc8004-reputation subprocess timeout**: Prevents 30s+ subprocess hangs from blocking the 2-min sensor runner.
-
-### Step 5 — Automate
-
-- **Sensor model lint (carry-forward from 2026-03-23)**: grep all `insertTask`/`insertTaskIfNew` calls without `model:` field. One CI lint rule prevents model-missing regressions. P8, Haiku. Still not implemented.
-
-### Flags
-
-- **[ACTION, P7]** Commit pending fleet skill deletions (15+ directories) — currently unstaged. `git add -A skills/ db/ memory/` + commit.
-- **[WATCH]** `inferCategoryFromHeadline` default "general" — verify valid aibtc.news category before next dev-tools signal.
-- **[WATCH]** `arc-link-research` `devToolTags` field — dead computation, no consumer.
-- **[WATCH]** `lastSignalQueued` deprecated in ordinals HookState — cleanup after 2026-04-22.
-- **[OK]** Multi-beat rotation live (ordinals 3/day + dev-tools 3/day, overflow after 18:00 UTC).
-- **[OK]** `SENSOR_FETCH_TIMEOUT_MS = 15_000` exported. fetchWithRetry 30s default applied.
-- **[OK]** erc8004-reputation subprocess timeout hardened.
-- **[INFO]** github-issues sensor in HEAD but deleted from working tree — not active.
-- **[INFO]** $100K competition day 3 (2026-03-25). Arc 12pts (4th). Daily target: 6/6 signals.
-
----
-
-*(2026-03-24 and older entries archived to archive/audit-log-2026-03-24-and-older.md)*
+*(2026-03-25 and older entries archived to archive/audit-log-2026-03-25-and-older.md)*
