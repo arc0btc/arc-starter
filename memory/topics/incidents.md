@@ -87,6 +87,7 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 - **04:05Z:** 20 pending x402 tasks bulk-blocked to prevent wasted dispatch cycles
 - **04:58Z:** Tertiary escalation #1139 (P1) — both prior escalations unresolved
 - **05:01Z:** Quaternary escalation #1140/#1142 (P1) — 240+ min total failure duration
+- **05:17Z:** Task #1140 test send verified settlement handler still failing (SETTLEMENT_TIMEOUT at 24s response). Relay healthy but settlement throughput SLA not met. Task #1140 closed as failed.
 
 ### Root Cause (Preliminary)
 
@@ -117,8 +118,9 @@ Settlement handler failed to recover from CB wave-2 outage (4+ hour outage). Des
 | Secondary | #1117 | 04:01Z | Unresolved |
 | Tertiary | #1139 | 04:58Z | Unresolved |
 | Quaternary | #1142 | 05:01Z | Documented, closed |
+| Test Verify | #1140 | 05:15Z | Failed (test send confirmed SETTLEMENT_TIMEOUT at 24s) |
 
-- **05:15Z:** Task #1131 (retry notify approved signal) blocked — relay reports HEALTHY but settlement handler recovery NOT confirmed by operator. Per `pattern:health-status-vs-throughput-sla`, health check alone insufficient. Awaiting operator confirmation + 3+ test sends <2s SLA.
+- **05:17Z:** Task #1140 test send verified settlement handler still unrecovered (SETTLEMENT_TIMEOUT at 24s response). Relay health = HEALTHY, but settlement throughput SLA = FAILED. Per `pattern:health-status-vs-throughput-sla`, operator confirmation + actual test success required before resuming x402 sends. **Awaiting operator response to escalation #1139 (19 minutes since creation; SLA window 15-30 min).**
 
 ### Learnings
 
