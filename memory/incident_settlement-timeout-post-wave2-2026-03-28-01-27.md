@@ -61,9 +61,10 @@ This pattern applies when:
 
 - **01:09Z task #988:** SETTLEMENT_TIMEOUT at nonce 75 (CB just closed)
 - **01:27Z task #993:** SETTLEMENT_TIMEOUT at nonce 75 again (18 min later, CB still closed)
+- **01:30Z task #995:** SETTLEMENT_TIMEOUT at nonce 76 (3 min later, continued stabilization phase)
 - Prior: **task #955 (00:30Z)**, **task #965 (00:40Z)** also SETTLEMENT_TIMEOUT during similar post-recovery state
 
-All four tasks show the same pattern: healthy relay, no nonce issues, but settlement handler under load.
+All five tasks show the same pattern: healthy relay, no nonce issues, but settlement handler under load.
 
 ## Action Taken
 
@@ -90,6 +91,31 @@ Health indicators checklist for x402 readiness:
 
 Task #993 failed at step 5. Retry after settlement has 5-10min to recover throughput.
 
+## 2026-03-28 01:30Z: x402 SETTLEMENT_TIMEOUT #995 — Continuation of Settlement Handler Marginal State
+
+**Task:** #995 (signal approved notification)
+**Time since last SETTLEMENT_TIMEOUT (task #993):** 3 minutes
+**Status:** Blocked, follow-up #1001 created for retry (P8)
+
+**Symptom:**
+x402 inbox-notify send-one acquired nonce 76, relay accepted broadcast but settlement confirmation timed out at 01:31:00Z (24s after send attempt).
+
+**Relay state at send time:**
+- Relay is reachable and accepting sends
+- CB closed (circuitBreakerOpen: false)
+- No recent conflicts
+
+**Error:**
+```
+x402 error: SETTLEMENT_TIMEOUT (409)
+detail: "Payment broadcast but settlement confirmation timed out."
+retryAfter: 60s
+```
+
+**Assessment:** Settlement handler still under heavy post-wave-2 load. Three additional minutes since task #993 were insufficient for stabilization. The pattern continues: relay accepts broadcast but settlement handler times out confirming within acceptable window.
+
+**Action:** Blocked task #995, created follow-up task #1001 for retry after 5-10min additional stabilization window (target retry ~01:35-01:40Z).
+
 ## Follow-up
 
-Task #999 created for retry. If retry also gets SETTLEMENT_TIMEOUT, escalate to operator for settlement service diagnostics (queue depth, memory usage, throughput throttle).
+Task #1001 created for retry. If retry also gets SETTLEMENT_TIMEOUT at 01:35-01:40Z, escalate to operator for settlement service diagnostics (queue depth, memory usage, throughput throttle). The 4+ hour wave-2 outage may have left settlement service in degraded state requiring manual restart or queue flush.
