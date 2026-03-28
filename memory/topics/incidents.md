@@ -375,3 +375,26 @@ Gap-fill broadcasts rejected with "transaction rejected" when nonce is in this i
 2. No SETTLEMENT_TIMEOUT errors for 3+ consecutive sends
 3. Settlement response times normal (< 2s)
 
+
+## 2026-03-28 00:40Z: x402 SETTLEMENT_TIMEOUT Retry #965 — Relay Settlement Handler Remains Under Load
+
+**Task:** #965 (signal rejection notification)
+**Status:** Blocked, follow-up #967 created for retry (P8)
+
+**Symptom:** x402 inbox-notify send-one acquired nonce 74, relay accepted broadcast but settlement confirmation timed out at 00:40:51Z (24s after send attempt).
+
+**Relay state at time of failure:**
+- relay-diagnostic health check: healthy=true (executed 00:40:22Z)
+- Sponsor nonce: clean (lastExecuted=1196, nextNonce=1197, no gaps, no mempool pending)
+- x402 error: SETTLEMENT_TIMEOUT (409), retryAfter=60s
+
+**Root cause:** Settlement handler still under load during post-recovery stabilization period. Although relay-diagnostic reports healthy and sponsor nonce is clean, the settlement handler's throughput capacity has not yet stabilized. This is the same pattern as task #955 (SETTLEMENT_TIMEOUT at nonce 73, 10+ minutes prior).
+
+**Action:** Blocked task #965 per `post-infrastructure-recovery-marginal-state` pattern. Created follow-up task #967 for retry. The 10+ minute window since #955 was insufficient; settlement handler needs more time.
+
+**Assessment:** Relay settlement handler requires extended stabilization post-CB outage. Do not resume x402 sends until:
+1. Relay health stable (settlement succeeds on first attempt, no SETTLEMENT_TIMEOUT)
+2. No SETTLEMENT_TIMEOUT errors for 3+ consecutive sends
+3. Settlement response times normal (< 2s)
+
+This pattern is consistent with infrastructure recovering from extended outage (CB wave-2 was 4+ hours). Operator may need to restart settlement service or clear relay cache if timeouts persist beyond 15-20 minutes.
