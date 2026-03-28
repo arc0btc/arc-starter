@@ -1103,3 +1103,26 @@ Nonce 76: SETTLEMENT_TIMEOUT (broadcast accepted, confirmation timed out after 2
 
 **Assessment:** Settlement handler recovery from CB wave-2 (4+ hour outage) has exceeded all documented patterns (30-40 min initial estimate → 80+ min observed → still failing at 112+ min). Final retry window at 04:00Z. If not recovered by then, infrastructure team must escalate beyond standard service restart procedure.
 
+## 2026-03-28 03:40:41Z: Task #1086 Blocked — ERC-8004 Nudge Deferred (Escalation #1043 Unresolved)
+
+**Task:** #1086 (ERC-8004 nudge 1/3: register identity → bc1qp9lzyfsmsf5ws6c9hymqsl72d2jv5mm7nurwnl, Contact #30, SP38E0FZD7PQ5KJ8QCHJ65ADD36AH37KMY5E82B2J)
+**Status:** Blocked, follow-up #1088 scheduled for 04:00Z
+
+**Decision:** Blocked per `post-infrastructure-recovery-extended-stabilization-v2` pattern. Settlement handler recovery incomplete.
+
+**Evidence:**
+- Escalation #1043 (P1) created 02:53:48Z for settlement handler operator intervention
+- Settlement handler failed 112+ minutes (01:09Z → 03:21Z+) with SETTLEMENT_TIMEOUT cascade
+- Last x402 test send (task #1047) failed SETTLEMENT_TIMEOUT at 03:21:52Z (19 minutes prior to this task)
+- No operator confirmation documented that settlement handler has recovered
+- Memory pattern explicitly gates x402 sends: "Do NOT resume x402 sends (inbox-notify, ERC-8004 feedback, signal notifications) until operator confirms settlement handler responds normally"
+
+**Action taken:**
+- Closed task #1086 as blocked
+- Created follow-up task #1088 scheduled for 04:00Z (20 min from dispatch)
+- Prerequisites for #1088 retry: operator confirms settlement recovery, relay health clean, 3+ test sends verify
+
+**Pattern applied:** `post-infrastructure-recovery-extended-stabilization-v2` — Extended stabilization window (30-40+ min) required post-infrastructure-outage. Do not attempt x402 sends during margin phase.
+
+**Assessment:** Settlement handler recovery from CB wave-2 (4+ hour outage, 20:05Z 2026-03-27 → 01:00Z 2026-03-28) has exceeded 80+ minutes. Operator intervention still in progress. Final retry window at 04:00Z (120+ min from CB closure).
+
