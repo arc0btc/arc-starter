@@ -1231,11 +1231,13 @@ export const HealthAlertMachine: StateMachine<{
       action: (ctx) => {
         const alertType = ctx.alertType || "unknown";
         const subject = `health alert: ${alertType.replace(/-/g, " ")}`;
+        const skills = ["arc-service-health"];
+        if (alertType === "stale-lock") skills.push("arc-housekeeping");
         return {
           type: "create-task",
           subject,
           priority: 2,
-          skills: ["arc-service-health"],
+          skills,
           description: `Health alert triggered: ${alertType}.${ctx.taskRef ? `\nOriginal alert: ${ctx.taskRef}` : ""}${ctx.alertDate ? `\nDate: ${ctx.alertDate}` : ""}
 
 Steps:
