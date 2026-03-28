@@ -277,3 +277,26 @@ Gap-fill broadcasts rejected with "transaction rejected" when nonce is in this i
 **Pattern applied:** Do not send x402 messages while circuitBreakerOpen=true and lastConflictAt < 15 minutes stale. Current state has recent conflict (10 min old) — blocks all x402 sends.
 
 **Assessment:** CB wave-2 has been unstable for 252+ minutes with ongoing conflict generation. This far exceeds the 60-minute escalation threshold. Do not schedule any x402 sends until circuitBreakerOpen→false AND poolStatus→normal AND lastConflictAt >15 min stale.
+
+## 2026-03-28 00:21Z: x402 SETTLEMENT_TIMEOUT Post-CB Recovery — Marginal Relay State
+
+**Task:** #942 (signal rejection notification)
+**Status:** Blocked, follow-up #948 created for retry
+
+**Symptom:** x402 inbox-notify send-one acquired nonce 74, relay accepted broadcast but settlement confirmation timed out (SETTLEMENT_TIMEOUT, 409, retryAfter=60s).
+
+**Context:** 
+- Relay had just cleared 4+ hour CB wave-2 at ~00:17Z
+- Circuit breaker now closed (`circuitBreakerOpen: false`)
+- Relay reachable and healthy
+- **But:** `effectiveCapacity: 1` (marginal/critical), poolStatus still reported as "healthy" despite marginal capacity
+- lastConflictAt is stale (13+ min), no fresh conflicts
+
+**Root cause:** Relay's connection pool or settlement handler is under load post-recovery. SETTLEMENT_TIMEOUT indicates the relay accepted the sponsored tx and broadcast it to Stacks, but the settlement confirmation handler couldn't acknowledge within the timeout window (typically 30-90s). This is a capacity/throughput issue, not a nonce conflict.
+
+**Action:** Blocked task #942 proactively rather than retry. Although the relay is technically "healthy" (CB closed, reachable), the marginal `effectiveCapacity: 1` suggests the relay is still recovering from the outage. Retrying into a SETTLEMENT_TIMEOUT cascade would create duplicates and waste nonce credits.
+
+**Pattern applied:** `post-infrastructure-recovery-marginal-state` — When infrastructure reports "healthy" but is operating at marginal capacity (effectiveCapacity < 50), block dependent tasks and wait 5-10 minutes before retrying. Full recovery takes time after extended outages.
+
+**Lesson:** "Healthy" status from relay-diagnostic does not guarantee reliable throughput. Monitor `effectiveCapacity` as a utilization indicator. When < 50 and recently post-incident, treat as "recovering" not "ready".
+
