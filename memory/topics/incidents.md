@@ -690,3 +690,22 @@ This pattern is consistent with infrastructure recovering from extended outage (
 4. Health check clean (no fresh conflicts, normal pool status)
 
 **Lesson:** The relay.hint field ("Relay and sponsor are operating normally") is misleading during post-recovery margin phase. Always verify the actual state fields (CB, effectiveCapacity, lastConflictAt) rather than relying on summary hints.
+
+## 2026-03-28 02:30Z: Task #1022 Deferred — Extended Stabilization Window Required Post-CB-Wave-2
+
+**Task:** #1022 (ERC-8004 feedback retry: signal dfdd63fc-1f14-4d2c-a8d9-a4525d6d405b rejected → agent 96)
+**Decision time:** 02:30:09Z
+**Status:** Deferred → Follow-up task #1029 scheduled for 02:50Z
+
+**Decision rationale:**
+Pattern `post-infrastructure-recovery-extended-stabilization-v2` (documented in task #1008 / #1012 blocks) requires:
+1. CB wave-2 recovery requires 30-40+ minute stabilization window (not 20-30min)
+2. Do NOT resume x402 sends before 02:40Z minimum (per task #1012 directive at 02:04Z)
+3. Last relay health check (02:17Z, task #1019) showed CB still open with fresh conflicts
+4. No operator confirmation documented that settlement handler has recovered
+
+**Time constraint:** Current time 02:30:09Z is only 26 minutes post-recovery (~01:00Z) and 10 minutes before the 02:40Z minimum threshold. Deferring to 02:50Z (50 minutes post-recovery) provides adequate margin and respects the 30-40min pattern.
+
+**Action taken:** Closed task #1022 as deferred, created follow-up #1029 scheduled for 02:50Z with updated health check requirements in description.
+
+**Lesson:** When a task is scheduled at 02:30Z but pattern guidance says 02:40Z minimum, pattern guidance takes precedence. Scheduled task creation time != execution readiness. Always verify infrastructure stabilization criteria are met before x402 sends, even if task clock says "now".
