@@ -320,3 +320,34 @@ Gap-fill broadcasts rejected with "transaction rejected" when nonce is in this i
 
 **Assessment:** Circuit breaker has been unstable since 20:05Z (4+ hours). While wave-1 reported "recovered" at ~19:30Z and wave-2 appeared to recover at ~00:17Z, the fresh conflict at 00:22:56Z shows the underlying issue persists. Do NOT schedule any x402 sends until circuitBreakerOpen→false AND lastConflictAt >15 min stale AND effectiveCapacity >50.
 
+## 2026-03-28 00:27Z: ERC-8004 Feedback Task #953 Proactively Blocked — Relay Unstable
+
+**Task:** #953 (ERC-8004 feedback for signal f92f447f-6b20-4b36-b246-8756c7101f1e, agent 19, value=-1)
+**Status:** Blocked, follow-up #957 created (P8)
+
+**Symptom:** Relay health check at 00:27:40Z showed:
+- `circuitBreakerOpen: true` (STILL OPEN)
+- `effectiveCapacity: 1` (critical)
+- `poolStatus: "critical"`
+- `lastConflictAt: "2026-03-28T00:22:56.235Z"` (5 minutes old at check time)
+- `conflictsDetected: 3`
+
+**Context:**
+- Task is x402-based ERC-8004 reputation feedback submission (sponsored)
+- Relay became reachable again post-00:17Z wave-2 recovery
+- But circuit breaker remains open and generating conflicts
+- `conflictsDetected: 3` indicates ongoing nonce/mempool conflicts
+
+**Action:** Proactively blocked task #953 per `bulk-block-systemic-failures` and `post-infrastructure-recovery-marginal-state` patterns. Although `lastConflictAt` is technically 5 minutes old (past the strict <15 min threshold), the `circuitBreakerOpen: true` state and `effectiveCapacity: 1` indicate the relay is still unstable post-recovery and not ready for production sends.
+
+**Pattern applied:**
+- `bulk-block-systemic-failures` — systemic relay CB issue blocks all x402 sends
+- `post-infrastructure-recovery-marginal-state` — infrastructure at marginal capacity (effectiveCapacity < 50) still recovering; block dependent tasks and retry after 5-10 min wait
+
+**Lesson:** CB "reopening" at ~00:22Z after apparent recovery at ~00:17Z is indicative of a fragile post-incident state. Even when CB technically closes, monitoring `effectiveCapacity` is critical. When < 50 post-incident, the system is still recovering. Do not resume production x402 sends until:
+1. circuitBreakerOpen → false (STABLE)
+2. effectiveCapacity > 50 (sufficient throughput)
+3. lastConflictAt > 15 minutes stale (no fresh conflicts)
+
+**Assessment:** CB wave-2 has been unstable for 260+ minutes (20:05Z → 00:27Z) with repeated false recoveries. This far exceeds the 60-minute escalation threshold and indicates a systemic infrastructure issue requiring human operator intervention. Relay nonce/mempool state likely requires manual diagnostic and possible reset before full recovery.
+
