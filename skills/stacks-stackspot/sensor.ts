@@ -9,13 +9,6 @@ const INTERVAL_MINUTES = 7; // ~5-10 min range: sensor runs every 7 minutes
 const JOIN_AMOUNT_USTX = 20000000; // 20 STX in micro-STX (1 STX = 1,000,000 micro-STX)
 const SKILLS_ROOT = "../../github/aibtcdev/skills";
 
-// Epoch 3.4 activation guard: block 943,333 (~2026-04-02 20:00 UTC)
-// Prepare phase for cycle 132 starts at 943,150; reward phase at 943,250.
-// Any pot started in the prepare window locks STX through the epoch transition.
-// Pause auto-join 100 blocks before prepare phase and resume 167 blocks after activation.
-const EPOCH_34_GUARD_START = 943050;
-const EPOCH_34_GUARD_END = 943500;
-
 interface ClarityValue<T> {
   value: T;
   [key: string]: unknown;
@@ -44,16 +37,6 @@ interface PotListResponse {
 }
 
 const log = createSensorLogger(SENSOR_NAME);
-
-async function getCurrentBurnBlockHeight(): Promise<number | null> {
-  try {
-    const resp = await fetch("https://api.hiro.so/v2/pox");
-    const data = (await resp.json()) as { current_burnchain_block_height?: number };
-    return data.current_burnchain_block_height ?? null;
-  } catch {
-    return null;
-  }
-}
 
 async function runUpstreamScript(
   script: string,
@@ -136,19 +119,6 @@ export default async function stackspotSensor(): Promise<string> {
     }
 
     log("run started");
-
-    // Epoch 3.4 guard: pause auto-join during prepare phase + early reward phase
-    const burnHeight = await getCurrentBurnBlockHeight();
-    if (
-      burnHeight !== null &&
-      burnHeight >= EPOCH_34_GUARD_START &&
-      burnHeight <= EPOCH_34_GUARD_END
-    ) {
-      log(
-        `epoch-3.4-guard: burn block ${burnHeight} in guard window [${EPOCH_34_GUARD_START}-${EPOCH_34_GUARD_END}]; pausing auto-join until post-activation`
-      );
-      return "skip";
-    }
 
     // List all pots
     log("fetching stackspot pots...");
