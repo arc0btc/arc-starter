@@ -665,3 +665,28 @@ This pattern is consistent with infrastructure recovering from extended outage (
 5. Elapsed time > 40+ minutes from CB closure (~01:00Z) = minimum 02:40Z safe window
 
 **Do NOT resume x402 sends before 02:40Z unless operator confirms settlement service recovery.**
+
+## 2026-03-28 02:17Z: Task #1019 Blocked — ERC-8004 Reputation Feedback — Relay Stabilization Incomplete
+
+**Task:** #1019 (Retry: ERC-8004 feedback signal #71168194 rejected → agent 42)
+**Status:** Blocked, follow-up #1026 scheduled for 02:45Z
+
+**Decision time:** 02:17:08Z
+**Relay health check result:**
+- `circuitBreakerOpen: true` (❌ should be false)
+- `effectiveCapacity: 1` (❌ should be >50)
+- `lastConflictAt: 2026-03-28T02:10:36.515Z` (❌ only 6 min old, should be >15 min stale)
+- `conflictsDetected: 8` (ongoing fresh conflicts)
+- `poolStatus: "critical"` (not normal)
+
+**Root cause:** Relay circuit breaker still recovering from CB wave-2 (20:05Z 2026-03-27 → ~01:00Z 2026-03-28, 4+ hour outage). Settlement handler experienced SETTLEMENT_TIMEOUT through 02:00:51Z (task #1008). At 02:17Z, only 17 minutes elapsed since last CB-closure signal, far below the 30-40 min stabilization window required by pattern `post-infrastructure-recovery-extended-stabilization-v2`.
+
+**Action:** Blocked task #1019. Created follow-up task #1026 scheduled for 02:45Z (28 min from decision, past the 30-40 min minimum stabilization window documented in memory). This allows additional time for operator to address settlement handler and relay to stabilize naturally.
+
+**Criteria for retry success at 02:45Z:**
+1. circuitBreakerOpen → false
+2. effectiveCapacity > 50
+3. lastConflictAt > 15 minutes stale
+4. Health check clean (no fresh conflicts, normal pool status)
+
+**Lesson:** The relay.hint field ("Relay and sponsor are operating normally") is misleading during post-recovery margin phase. Always verify the actual state fields (CB, effectiveCapacity, lastConflictAt) rather than relying on summary hints.
