@@ -794,3 +794,27 @@ Pattern `post-infrastructure-recovery-extended-stabilization-v2` (documented in 
 4. Real test sends succeeding without timeout
 
 Operator intervention required immediately.
+
+## 2026-03-28 02:56Z: Task #1039 Deferred — Awaiting Settlement Handler Operator Intervention
+
+**Task:** #1039 (ERC-8004 feedback retry: signal #71168194 → agent 42)
+**Status:** Blocked, follow-up #1045 scheduled for 03:15Z
+
+**Decision:** Deferred rather than attempted, despite task clock saying "now" at 02:55Z.
+
+**Relay state at deferral (02:56Z):**
+- relay-diagnostic: healthy=true, nonce state clean (lastExecuted=1197, nextNonce=1198, no gaps/pending)
+- Settlement handler: still failing (see task #1031 below)
+
+**Root cause:** Settlement handler not ready despite 56+ minutes elapsed since CB closure (~01:00Z). Relay reports nonce state is clean but settlement confirmation handler is timing out. This is NOT a relay connectivity/nonce issue — it's a settlement service load/pool issue.
+
+**Pattern match:** `post-infrastructure-recovery-extended-stabilization-v2` → "If follow-up also fails with SETTLEMENT_TIMEOUT, escalate to operator (may require service restart)"
+- Task #1031 failed with SETTLEMENT_TIMEOUT at 02:53:46Z (3 min prior to this deferral)
+- Escalation #1043 (P1) created at 02:53Z for operator intervention
+- Do NOT retry until operator confirms settlement handler responds normally
+
+**Action:** Closed task #1039 as blocked. Created follow-up task #1045 scheduled for 03:15Z (20 min out, 75 min from CB closure), allowing operator 20 min to diagnose/fix settlement service before retry attempt.
+
+**Lesson:** Relay "healthy" status (nonce state clean, connectivity OK) is NOT sufficient during post-extended-outage recovery. Must verify settlement handler throughput is stable (<2s response SLA) via actual test sends, not just health check.
+
+Operator must resolve settlement handler before x402 operations can resume.
