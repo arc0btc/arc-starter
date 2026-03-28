@@ -881,3 +881,53 @@ Operator must resolve settlement handler before x402 operations can resume.
 
 **Lesson:** "Relay reports healthy" is necessary but not sufficient for x402 operations post-extended-outage. Settlement handler requires actual operator intervention when SETTLEMENT_TIMEOUT persists for 80+ minutes. Operator response SLA for P1 infrastructure escalation is typically 15-30 min (diagnosis + remediation). Deferring to 03:25Z respects this timeline.
 
+
+## 2026-03-28 03:17Z: Task #1045 Test Send Failed — Settlement Handler Still Unrecovered (Escalation #1043 Unresolved)
+
+**Task:** #1045 (ERC-8004 feedback signal #71168194 → agent 42) POST-OPERATOR-FIX
+**Attempt time:** 03:17:13Z (test send via inbox-notify)
+**Failure time:** 03:17:37Z
+**Status:** Blocked, follow-up #1057 scheduled for 03:35Z
+
+**Symptom:** Test x402 settlement send failed with SETTLEMENT_TIMEOUT (409) at 03:17:37Z:
+```
+Acquired nonce 75
+Failed: Nonce conflict (SETTLEMENT_TIMEOUT)
+Payment broadcast but settlement confirmation timed out. (retryAfter: 60s)
+Response time: 24 seconds
+```
+
+**Timeline:**
+- Escalation #1043 (P1) created: 02:53Z (settlement handler recovery required)
+- Task #1045 dispatched: 03:15Z (scheduled for post-operator-fix retry)
+- Test send attempted: 03:17:13Z → SETTLEMENT_TIMEOUT at 03:17:37Z
+- **Elapsed since escalation: 24 minutes** (operator response SLA typically 15-30 min)
+
+**Root cause:** Settlement handler still not recovered. Operator either:
+1. Has not yet responded to P1 escalation #1043
+2. Responded but fix was ineffective (service restart did not resolve issue)
+3. Issue requires deeper infrastructure diagnosis (connection pool stuck, queue corruption, database lock)
+
+**Pattern applied:** `post-infrastructure-recovery-extended-stabilization-v2` → "If follow-up also fails with SETTLEMENT_TIMEOUT, escalate to operator (may require service restart)"
+
+This is a fresh SETTLEMENT_TIMEOUT at 03:17:37Z, confirming settlement handler remains under load / unrecovered post-CB-wave-2 outage (started 20:05Z 2026-03-27).
+
+**Action:** Blocked task #1045 (ERC-8004 feedback cannot proceed without x402 relay stability). Created follow-up task #1057 scheduled for 03:35Z (18 min out, 42 min from escalation #1043 creation).
+
+**Escalation status:** P1 escalation #1043 remains unresolved. Operator must:
+1. Diagnose settlement handler service state (is it running? in deadlock? out of memory?)
+2. Identify root cause of SETTLEMENT_TIMEOUT persistence (load, pool exhaustion, queue stuck)
+3. Implement remediation (service restart, pool reset, queue drain, database recovery)
+4. Verify fix via test sends (3+ consecutive x402 sends, response <2s, no timeouts)
+5. Report completion back to dispatch
+
+**Do NOT resume x402 operations (inbox-notify, ERC-8004 feedback, signal notifications) until settlement handler confirms <2s response SLA via test sends.**
+
+**Critical assessment:** Escalation #1043 was created 24 minutes ago. Standard P1 SLA is 15-30 minutes for diagnosis + remediation. Either:
+- Operator was not notified / did not receive escalation
+- Operator is still diagnosing root cause
+- Initial remediation attempt (likely service restart) was unsuccessful
+- Root cause is more complex than anticipated (requires deeper infrastructure work)
+
+Consider secondary escalation or manual operator intervention if settlement handler not recovered by 03:45Z (60+ min from escalation).
+
