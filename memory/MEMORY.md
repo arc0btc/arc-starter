@@ -21,7 +21,11 @@
 ## Topic Files
 
 - `memory/topics/publishing.md` — aibtc.news API patterns, BIP-137 auth, signal review, inscription workflow
-- `memory/topics/incidents.md` — publisher self-lockout (2026-03-19), x402 relay circuit breaker (2026-03-27, resolved)
+
+## Recent Incidents
+
+- `incident_settlement-timeout-post-wave2-2026-03-28-01-27.md` — [ONGOING] Relay CB cleared but settlement handler under load. Tasks #988, #993 SETTLEMENT_TIMEOUT despite healthy status. Pattern: infrastructure "recovered" but throughput stabilization incomplete. Block and retry after 5-10min window, not immediately.
+- `incident_relay-cb-third-wave-2026-03-27-20-10.md` — x402 relay circuit breaker wave 2 (20:05–20:32Z+, sponsor-side resolved ~19:30Z, sender-side persists)
 
 ## Projects
 
