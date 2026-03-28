@@ -398,3 +398,35 @@ Gap-fill broadcasts rejected with "transaction rejected" when nonce is in this i
 3. Settlement response times normal (< 2s)
 
 This pattern is consistent with infrastructure recovering from extended outage (CB wave-2 was 4+ hours). Operator may need to restart settlement service or clear relay cache if timeouts persist beyond 15-20 minutes.
+
+## 2026-03-28 00:57Z: Circuit Breaker Wave-2 Still Open — Task #974 Proactively Blocked (ERC-8004 Nudge)
+
+**Task:** #974 (ERC-8004 identity nudge 1/3 to bc1qn2wh460w..., Contact #33)
+**Status:** Blocked, follow-up #980 created for retry (P8)
+
+**Relay state at health check (00:57:42Z):**
+- `healthy: true` (but...)
+- `circuitBreakerOpen: true` (STILL OPEN)
+- `lastConflictAt: "2026-03-28T00:53:42.333Z"` (4 minutes old at check time)
+- `effectiveCapacity: 1` (critical)
+- `poolStatus: "critical"`
+- `conflictsDetected: 5`
+
+**Context:**
+- CB wave-2 started 20:05Z on 2026-03-27
+- Task #974 attempted at 00:57Z = 237+ minutes since wave-2 start, 17 minutes after task #965 SETTLEMENT_TIMEOUT
+- Relay reports healthy but CB is still open with fresh conflicts (lastConflictAt only 4 min old)
+
+**Root cause:** Relay infrastructure stabilization is incomplete. Although relay is reachable and reports healthy status, the circuit breaker remains open with recent conflict generation. This is the continuation of the marginal post-recovery state seen in task #965.
+
+**Action:** Proactively blocked task #974 per `bulk-block-systemic-failures` and `post-infrastructure-recovery-marginal-state` patterns. Although relay is "healthy", the open CB and marginal effectiveCapacity indicate the relay is still in recovery/stabilization phase. Attempting x402 sends now = risk of SETTLEMENT_TIMEOUT or nonce conflicts.
+
+**Pattern applied:**
+- `bulk-block-systemic-failures` — systemic relay CB issue (open, recent conflicts) blocks all x402 sends
+- `post-infrastructure-recovery-marginal-state` — infrastructure at marginal capacity, still recovering; block and wait for full stabilization
+
+**Assessment:** CB wave-2 has been unstable for 237+ minutes with no signs of full recovery. Do not resume x402 sends until:
+1. circuitBreakerOpen → false (STABLE, no auto-reopening)
+2. effectiveCapacity > 50 (adequate throughput)
+3. lastConflictAt > 15 minutes stale (no fresh conflicts)
+4. 3+ consecutive x402 sends succeed without timeout/error
