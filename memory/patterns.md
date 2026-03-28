@@ -10,7 +10,7 @@
 - **Explicit flag validation over string matching in error handlers:** Validate flags directly; string-match on error text breaks when text changes and misses correlated failures.
 - **Monotonic state tracking for flaky external APIs:** Use `Math.max(current, latest)` with gap-fill logic. Eliminates hysteresis from stale nodes.
 - **SQLite WAL mode + `PRAGMA busy_timeout = 5000`** — Required for sensors/dispatch collisions.
-- **File-backed shared state + atomic transactions for multi-process coordination:** Use file-backed storage with atomic writes and cross-process mergeState for state accessed by multiple processes. Wrap multi-table DELETEs in transactions. Tune STALE_NONCE_MS to domain assumptions (90s for Nakamoto finality, not 10min).
+- **File-backed shared state + atomic transactions for multi-process coordination:** Use file-backed storage with atomic writes and cross-process mergeState for state accessed by multiple processes. Wrap multi-table DELETEs in transactions. Tune STALE_NONCE_MS to domain assumptions (90s for Nakamoto finality, not 10min). Concrete example: nonce-manager uses mkdir-based file locking on `~/.aibtc/nonce-state.json` to coordinate x402 sends across concurrent dispatch cycles, preventing nonce reuse and mempool gaps.
 - **Security gate code review:** Audit for (1) fail-open bugs, (2) input validation, (3) null/boundary conditions, (4) auth vs authz separation.
 - **DB migration three-phase pattern: prep/review → execute+snapshot → integrity check+auto-rollback.**
 - **Schema constraints as fail-fast gates:** NOT NULL on semantically-required fields forces correct downstream handling; surfaces bugs earlier.
@@ -89,6 +89,8 @@
 - **Environment variables for external signing tools:** Signing ops require explicit NETWORK=mainnet/testnet. Tool-env mismatch with API expectations causes silent verification failure.
 - **Partnership marginal-cost evaluation:** Zero marginal cost (existing cadence + minor CTA addition) = YES; requires new execution path = defer.
 - **Spec-first skill creation for external integrations:** Create SKILL.md spec first to lock in decision. Queue CLI implementation as separate follow-up task.
+- **Wrapper skills for upstream package integration:** When packaging external tools (from upstream repos like skills-v0.36.0) into arc-starter, use thin wrapper: SKILL.md (local docs) + AGENT.md (execution notes) + cli.ts (delegates to upstream implementation). Avoids code duplication and keeps upstream updates isolated. Example: nonce-manager wraps upstream skills/nonce-manager implementation with arc-starter-specific SKILL.md.
+- **Diagnostic introspection commands for distributed state tools:** Infrastructure tools managing complex state (nonce coordination, relay health, consensus tracking) must include CLI commands for state visibility (`sync`, `check`, `status`) without side effects. Surfaces pre-existing conditions post-deployment and eliminates need for manual diagnostic tasks. Example: `arc skills run --name nonce-manager -- sync --address <addr>` exposes gaps and current nextNonce without side effects.
 - **DB migration error transparency + FK constraint ordering:** Never wrap version advancement in try/catch. Advance version only after successful completion to ensure failed migrations retrigger. For multi-table deletes with FK constraints, migrate/rename dependent records first (INSERT OR IGNORE), then delete parent tables — ordering ensures idempotency and surfaces failures immediately.
 
 ## Claims, Git & State
