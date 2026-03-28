@@ -747,3 +747,50 @@ Pattern `post-infrastructure-recovery-extended-stabilization-v2` (documented in 
 4. Verify with actual test send, not just health check
 
 **Assessment:** CB wave-2 has now persisted for 102+ minutes with ongoing fresh conflict generation despite relay reporting "ok". This exceeds the original 60-minute escalation threshold and indicates a systemic issue that may require operator intervention on relay service state (restart, connection pool reset, mempool purge).
+
+## 2026-03-28 02:53Z: Task #1031 Failed — Settlement Handler Failure Extended >80 Minutes (ESCALATION #1043 CREATED)
+
+**Task:** #1031 (ERC-8004 nudge (1/3) retry: register identity → bc1qlgcphpkq3yc38ztr6n48qh3ltsmxjprv9dm0ru [FINAL STABILIZATION])
+**Status:** Failed, escalation task #1043 created (P1)
+
+**Symptom:** x402 inbox-notify send-one acquired nonce 74, relay accepted broadcast but settlement confirmation timed out at 02:53:46Z (24s after send).
+
+**Timeline of SETTLEMENT_TIMEOUT cascade:**
+- Task #988 SETTLEMENT_TIMEOUT at nonce 75, 01:09:50Z
+- Task #997 SETTLEMENT_TIMEOUT at nonce 75, 01:33:36Z (24 min later)
+- Task #1008 SETTLEMENT_TIMEOUT at nonce 74, 02:00:51Z (27 min from task #988)
+- Task #1020 SETTLEMENT_TIMEOUT at nonce 74, 02:20:00Z (20 min from task #1008)
+- Task #1031 SETTLEMENT_TIMEOUT at nonce 74, 02:53:46Z (33 min from task #1020)
+
+**Total duration:** 84+ minutes (01:09Z → 02:53Z) of consecutive SETTLEMENT_TIMEOUT failures
+
+**Relay state at time of failure (02:53:46Z):**
+- relay-diagnostic health check: healthy=true (shows clean nonce state)
+- Sponsor nonce: clean (lastExecuted=1197, nextNonce=1198, no gaps/pending)
+- CB status: not visible in relay-diagnostic output, but CB should be closed post-01:00Z
+- No fresh relay conflicts detected by relay-diagnostic
+- x402 error: SETTLEMENT_TIMEOUT (409), retryAfter=60s
+
+**Root cause:** Settlement handler still recovering from CB wave-2 outage (20:05Z 2026-03-27 → ~01:00Z 2026-03-28, 4+ hour outage). Although relay reports healthy and sponsor nonce is clean, the settlement confirmation handler cannot acknowledge settlements within the timeout window. This indicates:
+1. Settlement service connection pool exhausted/stuck
+2. Settlement queue blocked on stuck transactions
+3. Settlement service under sustained load from post-recovery catchup
+4. Possible settlement service crash/restart with slow graceful recovery
+
+**Pattern violation:** Pattern `post-infrastructure-recovery-extended-stabilization-v2` documented 30-40min full stabilization window. Actual required window > 80 minutes and still not stabilized. This exceeds all documented patterns.
+
+**Action taken:** Closed task #1031 as failed. Created escalation task #1043 (P1) requiring operator intervention:
+1. Diagnose settlement handler: is it running? Is connection pool stuck?
+2. Inspect settlement queue for stuck/pending transactions from CB period
+3. If needed: restart settlement service to reset connection pools
+4. Verify settlement handler <2s response SLA on test sends before resuming x402 operations
+
+**Do NOT resume x402 sends (inbox-notify, ERC-8004 feedback, signal notifications) until operator confirms settlement handler responds normally.**
+
+**Critical assessment:** This incident demonstrates that infrastructure "healthy" status is insufficient for production x402 operations post-extended-outage. A fully recovered service requires:
+1. Health check clean (connectivity, nonce coherence) ✓
+2. Settlement throughput restored (<2s response SLA) ❌
+3. Extended stabilization period (30-40min minimum, actually 80+ min needed)
+4. Real test sends succeeding without timeout
+
+Operator intervention required immediately.
