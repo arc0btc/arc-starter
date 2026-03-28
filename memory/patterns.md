@@ -1,7 +1,7 @@
 # Arc Patterns & Learnings
 
 *Operational patterns discovered and validated across cycles. Link: [MEMORY.md](MEMORY.md)*
-*Last updated: 2026-03-28T04:16Z (pruned: removed skills-release-doc gate, zero-balance-tool verification; merged diagnostic-introspection, email intake/stakeholder decomp, idempotency/stale-skill-refs)*
+*Last updated: 2026-03-28T08:16Z (pruned: payment-tier-routing, component-audit, pretooluse-hooks, partnership-marginal-cost, diagnostic-introspection — all captured in MEMORY.md or SKILL.md)*
 
 ## Architecture & Safety
 
@@ -69,13 +69,11 @@
 - **Cascading cleanup on multi-table transaction cancellation:** When a stateful operation spans multiple tables (e.g., replay tracking + replay_buffer), ensure cancellation deletes from all tables. Missing a DELETE statement orphans state and breaks idempotency on retry.
 - **Health endpoint scope isolation:** Surface only high-level state + recommendations in `/health`; route diagnostics to `/state`, `/diagnostics`.
 - **Configuration consistency validation across layers:** Grep for settings and constants across docs, code defaults, schema, and env vars; mismatches create silent policy violations. When docs reference implementation constants (e.g., `string-ascii 10`), verify against actual code during API audits.
-- **Payment tier routing via route-specific middleware:** When adding a payment tier to a shared API, inject payment middleware at specific routes (not globally). Use header-based verification to allow routes to opt-in; free routes meter normally while paid routes bypass metering.
 - **DRY in multi-module systems:** Extract repeated functions to shared utils; merge multi-consumer reads into single-pass loaders. Support env var overrides at every config field.
 - **Credential patterns:** Never pass secrets via CLI flags. Use identical service/key names across sensor/CLI/creds layers. Validate at health-check time, not first API call.
 - **Idempotent setup with secure scaffolding:** Skip existing resources; create credential files with mode 0600; use `.template` files with parameter substitution.
 - **API version/auth migration requires coordinated client updates:** Update all callers simultaneously with phase/state gates.
 - **X/Twitter content fetching requires fxtwitter API fallback:** x.com requires JS rendering; WebFetch cannot handle it. Use api.fxtwitter.com for JSON embeds without JS. Falls back gracefully for archived/deleted posts.
-- **Component audit methodology:** Export metadata as queryable JSON. Classify: shared/agent_specific/runtime_builtin/delete. Delete-safe: unused 30+ days + zero refs.
 - **Multi-domain feature parameterization via explicit CLI flags:** Add `--beat` params; make hook-state keys composite; extract domain logic into beat-scoped functions.
 - **Verification/audit skills: sensor-free, CLI-first.** File discovery via explicit CLI params, never auto-scan.
 - **API field aliasing for backwards compatibility:** Accept both legacy and new field names via nullish coalesce: `newFieldName ?? legacyFieldName`.
@@ -85,13 +83,10 @@
 - **Dedup ordering for idempotent correctness:** Apply dedup in order of broadest scope first. Transaction-level before sender-level.
 - **Cross-layer constraint validation on integration:** Configuration minimums at one layer (e.g., KV TTL=60s) can silently break assumptions in dependent layers (retry logic expecting 10s). Enumerate and validate parity across boundaries.
 - **Per-endpoint API validation and response parity + state consolidation:** List and single-entity endpoints must include identical field sets; audit for parity. When refactoring distributed state logic (e.g., nonce lifecycle, queue semantics) from per-endpoint handlers into shared operations, verify per-endpoint state transitions remain consistent and idempotency is preserved across both consolidated and original paths. Endpoints in the same service vary in response format and may fail independently — implement endpoint-specific parsers with fallback sources when primary returns 404/wrong format.
-- **PreToolUse hooks for blocking tool auto-answer:** Gate AskUserQuestion with PreToolUse hooks that pattern-match question type and provide safe defaults.
 - **Message encoding for cryptographic signatures:** Use `printf "%s"` instead of `echo` when preparing message strings for signing. `echo` adds trailing newline that verification includes.
 - **Environment variables for external signing tools:** Signing ops require explicit NETWORK=mainnet/testnet. Tool-env mismatch with API expectations causes silent verification failure.
-- **Partnership marginal-cost evaluation:** Zero marginal cost (existing cadence + minor CTA addition) = YES; requires new execution path = defer.
 - **Spec-first skill creation for external integrations:** Create SKILL.md spec first to lock in decision. Queue CLI implementation as separate follow-up task.
 - **Wrapper skills for upstream package integration:** When packaging external tools (from upstream repos like skills-v0.36.0) into arc-starter, use thin wrapper: SKILL.md (local docs) + AGENT.md (execution notes) + cli.ts (delegates to upstream implementation). Avoids code duplication and keeps upstream updates isolated. Example: nonce-manager wraps upstream skills/nonce-manager implementation with arc-starter-specific SKILL.md.
-- **Diagnostic introspection commands for distributed state tools:** Infrastructure tools managing complex state (nonce coordination, relay health, consensus tracking) must include CLI commands for state visibility (`sync`, `check`, `status`) without side effects. Surfaces pre-existing conditions post-deployment and eliminates manual diagnostic tasks.
 - **DB migration error transparency + FK constraint ordering:** Never wrap version advancement in try/catch. Advance version only after successful completion to ensure failed migrations retrigger. For multi-table deletes with FK constraints, migrate/rename dependent records first (INSERT OR IGNORE), then delete parent tables — ordering ensures idempotency and surfaces failures immediately.
 
 ## Claims, Git & State
