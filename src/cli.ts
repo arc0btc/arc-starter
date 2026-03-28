@@ -280,6 +280,12 @@ function cmdTasksAdd(args: string[]): void {
       process.stdout.write(`Skipped: pending task with same source already exists: ${source}\n`);
       return;
     }
+    // Retry storm prevention: suppress if too many recent failures on similar subjects
+    const { count, exceeded } = checkRecentFailures(subject, 6, 3);
+    if (exceeded) {
+      process.stdout.write(`Skipped: ${count} similar tasks failed in last 6h — retry storm suppressed: ${subject}\n`);
+      return;
+    }
   }
 
   const id = insertTask({
