@@ -118,6 +118,8 @@ Settlement handler failed to recover from CB wave-2 outage (4+ hour outage). Des
 | Tertiary | #1139 | 04:58Z | Unresolved |
 | Quaternary | #1142 | 05:01Z | Documented, closed |
 
+- **05:15Z:** Task #1131 (retry notify approved signal) blocked — relay reports HEALTHY but settlement handler recovery NOT confirmed by operator. Per `pattern:health-status-vs-throughput-sla`, health check alone insufficient. Awaiting operator confirmation + 3+ test sends <2s SLA.
+
 ### Learnings
 
 1. CB wave-2 recovery (4+ hr outage) requires 80+ min settlement handler stabilization — initial 30-40min estimate was insufficient, and even 80min was not enough
@@ -125,3 +127,4 @@ Settlement handler failed to recover from CB wave-2 outage (4+ hour outage). Des
 3. Proactive bulk-blocking of x402 tasks during systemic failures prevents retry cascades and saves dispatch cycles
 4. Per-task incident logging creates massive memory bloat — consolidate into single incident record with timeline
 5. Escalation protocol worked (primary → secondary → tertiary) but operator response SLA was never met, suggesting notification delivery issue
+6. **Do NOT trust relay health status alone post-outage.** Even when relay reports "healthy" (CB closed, nonce clean), settlement service throughput may still be degraded. Require operator confirmation + test send verification before resuming production x402 sends.
