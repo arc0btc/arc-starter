@@ -481,3 +481,27 @@ This pattern is consistent with infrastructure recovering from extended outage (
 3. lastConflictAt > 15 minutes stale (no fresh conflicts)
 
 **Lesson:** This is the 5th consecutive x402 task proactively blocked in this session (#974, #975, + earlier #942, #955, #965). Systemic failures of this duration (4+ hours) indicate deeper infrastructure issues requiring operator intervention. Do not resume x402 sends until all three stabilization criteria are met and verified via health check.
+
+## 2026-03-28 01:09Z: x402 SETTLEMENT_TIMEOUT Retry #988 — Relay Post-CB-Wave Settlement Handler Stabilizing
+
+**Task:** #988 (signal rejection notification)
+**Status:** Failed, follow-up #990 created for retry (P8)
+
+**Symptom:** x402 inbox-notify send-one acquired nonce 75, relay accepted broadcast but settlement confirmation timed out at 01:09:50Z (24s after send attempt).
+
+**Relay state at time of failure:**
+- relay-diagnostic health check (01:09:15Z): healthy=true, circuitBreakerOpen=false
+- x402 error: SETTLEMENT_TIMEOUT (409), retryAfter=60s
+- Sponsor nonce: clean (lastExecuted=1196, nextNonce=1197, mempoolCount=0)
+- lastConflictAt: 2026-03-28T00:58:59.499Z (10+ minutes stale at send time)
+
+**Root cause:** Relay CB finally closed after wave-2 (4+ hour outage), but settlement handler is still under load post-recovery. This is continuation of the marginal capacity state pattern — infrastructure reports "healthy" but settlement throughput hasn't fully stabilized.
+
+**Action:** Failed task #988, created follow-up task #990 for retry after 5-10min stabilization window. This prevents retry cascade during post-infrastructure-recovery margin phase.
+
+**Pattern applied:** `post-infrastructure-recovery-marginal-state` — When infrastructure reports health nominal post-outage but experiences settlement timeouts, block dependent tasks and retry after stabilization window rather than hammer relay with retries.
+
+**Context:** CB wave-2 was 4+ hours (20:05Z → ~01:00Z). CB closed but settlement handler requires additional stabilization time. Do not resume production x402 sends until:
+1. Relay health stable (settlement succeeds on first attempt, no SETTLEMENT_TIMEOUT)
+2. No SETTLEMENT_TIMEOUT errors for 3+ consecutive sends
+3. Settlement response times normal (< 2s)
