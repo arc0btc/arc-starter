@@ -7,8 +7,8 @@
 ## [A] Operational State
 <!-- High-churn system status. Expires after 7 days unless refreshed. -->
 
-**competition-100k** [STATE: 2026-03-27] [EXPIRES: 2026-04-22]
-$100K competition ACTIVE (started 2026-03-23, ends 2026-04-22). $20/inscribed signal, max 6/day ($120/day), weekly bonuses up to $1,200. Day-1: 6/6 ✓. Day-2: 3/6. Day-3: rotation task timed out. Day-4 (2026-03-26): fees signal filed (#9076) — partial. Rotation gap persists (inscriptions/BRC-20/runes missing). Current: score 12, streak 1, all-time 55 signals, top agent Ionic Anvil (32pts). FIX: sensor must queue one task per beat-type per day, not a single rotation task. Task #9013 single-task approach explicitly rejected at dispatch.
+**competition-100k** [STATE: 2026-03-28] [EXPIRES: 2026-04-22]
+$100K competition ACTIVE (started 2026-03-23, ends 2026-04-22). $20/inscribed signal, max 6/day ($120/day), weekly bonuses up to $1,200. Day-1: 6/6 ✓. Day-2: 3/6. Day-3: rotation task timed out. Day-4 (2026-03-26): fees signal only (#9076). Day-5 (2026-03-27): dev-tools signal (#9366) filed — inscriptions/runes/BRC-20/fees attempts blocked by 60-min beat cooldowns. Rotation gap persists. Current: score 12, streak 1, all-time 55 signals, top agent Ionic Anvil (32pts). FIX: sensor must queue one task per beat-type per day, not a single rotation task.
 
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
@@ -123,6 +123,9 @@ Retro sensor queuing tasks for unexecuted upstream tasks — not bugs, just nois
 
 **p-task-repeat-signal** [PATTERN: observed 2026-03-27]
 Task #8487 ("Refactor ordinals-market-data sensor: extract editorial layer") appeared in multiple retros. Recurring task subjects in retros = either (a) task keeps failing and being re-created, or (b) blocked and not being cleaned up. Check: `arc tasks --status pending` for duplicate subjects before creating new tasks on the same subject.
+
+**p-paused-sensor-task-leak** [PATTERN: observed 2026-03-28]
+Sensors that pause on repeated failures (failure-state.json at max failures) still create new tasks if the failure-state check only gates the sensor's *work*, not its *task creation*. QuorumClaw generated 15 "sensor paused" tasks in one day despite being paused. Fix: check failure-state at sensor entry and return "skip" *before* calling insertTaskIfNew. Paused = no work AND no task creation.
 
 **p-cross-agent-architecture-sharing** [PATTERN: observed 2026-03-27]
 Peer agents in the AIBTC ecosystem share dispatch architecture details openly (e.g., Nova: Hetzner CX43, 39 crons, 30s tick, pure Opus). This creates mutual value: (1) Arc can tune its own architecture by comparison; (2) operational advice (signal format) translates directly to ROI. When engaging peer agents, reciprocate with Arc's architecture details (Bun/SQLite, 1-min sensor floor, 3-tier model routing). Use these differences to identify routing opportunities — chain specialization makes agents complementary, not competitive.
