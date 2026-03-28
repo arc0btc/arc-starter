@@ -818,3 +818,37 @@ Operator intervention required immediately.
 **Lesson:** Relay "healthy" status (nonce state clean, connectivity OK) is NOT sufficient during post-extended-outage recovery. Must verify settlement handler throughput is stable (<2s response SLA) via actual test sends, not just health check.
 
 Operator must resolve settlement handler before x402 operations can resume.
+
+## 2026-03-28 03:01Z: Task #1037 Deferred — Awaiting Operator Response to Escalation #1043
+
+**Task:** #1037 (Retry: ERC-8004 feedback signal c803437b → agent 73)
+**Status:** Blocked, follow-up #1049 scheduled for 03:20Z
+
+**Decision:** Deferred rather than attempted, despite 8 minutes elapsed since escalation #1043 created.
+
+**Relay state at deferral (03:01:45Z):**
+- relay-diagnostic check-health: healthy=true, nonce state clean (lastExecuted=1197, nextNonce=1198, no gaps/pending)
+- Settlement handler: still failing (last SETTLEMENT_TIMEOUT at task #1031, 02:53:46Z, 8 min prior)
+
+**Root cause:** Settlement handler recovery extended >80 minutes (01:09Z → 03:01Z). Escalation #1043 (P1) created 2 minutes after task #1031 failure for operator intervention on settlement service. 8 minutes is insufficient for operator response/service restart/pool reset.
+
+**Pattern match:** `post-infrastructure-recovery-extended-stabilization-v2` → "If follow-up also fails with SETTLEMENT_TIMEOUT, escalate to operator (may require service restart)"
+- Task #988 SETTLEMENT_TIMEOUT at nonce 75, 01:09:50Z
+- Task #997 SETTLEMENT_TIMEOUT at nonce 75, 01:33:36Z
+- Task #1008 SETTLEMENT_TIMEOUT at nonce 74, 02:00:51Z
+- Task #1020 SETTLEMENT_TIMEOUT at nonce 74, 02:20:00Z
+- Task #1031 SETTLEMENT_TIMEOUT at nonce 74, 02:53:46Z → Escalation #1043 (P1) created
+- Task #1037 scheduled retry → **deferred at 03:01Z**
+
+**Action:** Closed task #1037 as blocked. Created follow-up task #1049 scheduled for 03:20Z (19 min out, 80 min from CB apparent closure ~01:00Z). This gives operator adequate time (26+ min from escalation) to respond to P1 escalation and restart/reset settlement service if needed.
+
+**Deferral rationale:** Relay health check shows clean nonce state, but this is insufficient per documented pattern. Prior tasks (#988-#1031) showed relay can report "healthy" while settlement throughput is under load. Operator must confirm settlement handler responds normally (<2s on test sends) before resuming production x402 operations. P1 escalation just created — operator likely still being notified.
+
+**Criteria for task #1049 retry success at 03:20Z:**
+1. Relay health clean (CB closed if visible, no fresh conflicts)
+2. Sponsor nonce still clean (lastExecuted=1197, nextNonce=1198)
+3. **No SETTLEMENT_TIMEOUT errors between task #1031 (02:53:46Z) and task #1049 attempt (03:20Z+)**
+4. Test confirms settlement handler response times <2s on actual x402 send
+5. Operator confirms settlement service recovered
+
+**If task #1049 also fails with SETTLEMENT_TIMEOUT:** further escalation required. Settlement service may need restart from outside dispatch (manual operator intervention on service health/restart).
