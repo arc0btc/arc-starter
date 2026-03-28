@@ -74,9 +74,9 @@ updated: 2026-03-26
 
 **When a circuit breaker or critical infrastructure health indicator remains in a failed state for >60 minutes despite repeated operational attempts (retries, nonce re-syncs), escalate to the human operator.** This signals saturation or resource exhaustion beyond what automated retry logic can resolve. Do not retry beyond the 60-minute threshold; escalation is required for manual intervention (restart, resource reallocation, external service recovery). Example: x402 relay circuit breaker open 88+ minutes requires operator escalation, not continued task queueing.
 
-## Secondary Escalation When Primary Remains Unresolved
+## Multi-Tier Escalation Protocol: Secondary and Tertiary When Operator SLA Exceeded
 
-**If a P1 infrastructure escalation remains unresolved after 60–90 minutes (exceeding typical operator response SLA of 15–30 min for diagnosis + initial remediation), create a secondary escalation to a higher-priority channel or escalation queue.** This signals that the initial escalation did not resolve the issue and deeper infrastructure work is required (service restart, crash recovery, data corruption repair). Include in the secondary escalation: the original escalation ID, the duration of unresolved state, the count of affected tasks, and the last-known failure timestamp. Example: escalation #1043 created at 02:53Z for settlement handler failure; by 04:01Z (67 min later) with settlement handler still timing out on test sends and 20+ tasks bulk-blocked, secondary escalation #1117 is created to ensure human escalation ladder is engaged.
+**If a P1 infrastructure escalation remains unresolved after 60–90 minutes (exceeding typical operator response SLA of 15–30 min), create a secondary escalation to a higher-priority channel.** If the secondary escalation itself remains unresolved beyond 60 min, create a tertiary escalation. This escalation ladder ensures visibility increases with each tier: primary (internal ops queue) → secondary (higher visibility) → tertiary (emergency/manual intervention signal). Include: original escalation ID(s), cumulative duration, affected task count, last-known failure timestamp. Example: #1043 (02:53Z, settlement handler) unresolved 67 min → #1117 created (04:01Z); #1117 unresolved 57 min → #1139 created (04:58Z). If tertiary remains unresolved beyond 60 min, escalate to manual infrastructure team with full incident timeline.
 
 ## Circuit Breaker Cooldown State vs. Underlying Issue Resolution
 
@@ -104,7 +104,7 @@ updated: 2026-03-26
 
 ## Infrastructure Recovery Stabilization Period
 
-**After recovering from a systemic infrastructure failure (relay circuit breaker reset, mempool clearance, nonce recovery), do not immediately resume dependent operations.** Infrastructure problems often recur within 5-30 minutes if the underlying cause wasn't fully resolved. Example: x402 relay wave 1 recovery appeared successful (4 stuck nonces RBF'd, all confirmed, mempool cleared to 0), but wave 2 opened the CB again within 15 minutes, indicating the underlying conflict state was still unstable. After recovery, hold related tasks in a ready state and monitor actively for 15-30 min before resuming sends.
+**After recovering from a systemic infrastructure failure, do not immediately resume dependent operations.** Recovery duration depends on outage severity: transient failures (CB opens <30 min) stabilize within 5-30 min; extended outages (4+ hour CB waves) require 80+ min minimum stabilization for settlement handler recovery (relay itself recovers in 30-40 min but settlement service takes much longer). Example: x402 relay CB closed at 01:00Z but settlement handler SETTLEMENT_TIMEOUT errors continued until 04:58Z+ (240+ min total), indicating settlement service recovery has an extended tail beyond relay connectivity. After recovery, hold related tasks in a ready state and monitor for 30 min minimum (transient) or 80+ min (extended), watching for wave 2 recurrence within 15-30 min of apparent recovery.
 
 ## Pre-Escalation Diagnostic Checklist
 
