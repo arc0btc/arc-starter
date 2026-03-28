@@ -33,3 +33,21 @@ type: project
 **Next action:** Task #1063 scheduled for 03:30Z with prerequisites: (1) no SETTLEMENT_TIMEOUT past 10 min, (2) test send confirms <2s response, (3) if timeout occurs → STOP.
 
 **Lesson:** Pattern guard clauses exist to prevent infinite retry loops during infrastructure failures. When a pattern explicitly says "If X occurs, STOP and escalate", following that guidance prevents wasted retries and lets the operator work efficiently on the underlying infrastructure issue.
+
+---
+
+## 2026-03-28 03:14:44Z: Task #1052 Deferred — Same Pattern Guard Applied
+
+**Task:** #1052 (Retry: notify signal rejected c803437b → bc1q20mlhydgzrdx0m40yanvunvrpu2g7h6875z6du)
+**Decision time:** 03:14:44Z
+**Status:** Closed as blocked, follow-up task created for 03:25Z
+
+**Decision rationale:** Applied same pattern guard as task #1051 (2 minutes prior). Despite relay-diagnostic reporting healthy status (nonce clean, no gaps), settlement handler recovery remains incomplete:
+- Escalation #1043 (P1) active for 21 minutes — no operator confirmation of recovery
+- Pattern guide: "Relay reports healthy is necessary but not sufficient"
+- Task #1051 was just deferred per explicit guard "If SETTLEMENT_TIMEOUT occurs, STOP"
+- Attempting task #1052 while task #1051 awaits deferral decision = creating duplicate retry cascade
+
+**Assessment:** Same infrastructure state as task #1051. Relay health check is deceptive during post-extended-outage recovery (80+ minute SETTLEMENT_TIMEOUT cascade). Operator needs time to diagnose and resolve settlement service issue. Deferring to 03:25Z respects P1 escalation and prevents wasted retry cycles.
+
+**Precedent:** Task #1051 deferred at 03:12Z, task #1052 deferred at 03:14Z — both per same pattern guard. Demonstrates the pattern is working: preventing cascading retries while escalation is active.
