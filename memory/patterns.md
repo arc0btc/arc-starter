@@ -110,6 +110,10 @@ updated: 2026-03-26
 
 **When a relay becomes reachable after an unreachable episode (especially during circuit breaker waves), do NOT assume the internal cache or operational state has recovered.** Reachability (health check succeeds) is a prerequisite for recovery, not evidence of completion. Immediately run a three-way verification: (1) query on-chain nonce via Hiro, (2) compare to nonce-manager state, (3) check relay health including `lastConflictAt` timestamp freshness. If the relay still rejects your nonce despite matching state, the internal cache is stale — do not retry blindly. Monitor for natural cache clearance (typically 5–15 minutes) by watching whether `lastConflictAt` timestamps age naturally or are continuously refreshed by new conflicts. If timestamps are fresh and continuously updating despite clean underlying state, escalate for operator cache flush or restart.
 
+## ERC-8004 Reputation Feedback Submission
+
+**ERC-8004 reputation feedback operates independently of x402 relay infrastructure and can proceed even during relay circuit breaker outages.** Use the `send-reputation-feedback.ts` wrapper script in ~/github/aibtcdev/skills with WALLET_PASSWORD environment variable for automatic wallet unlock/lock handling. The wrapper resolves the issue where reputation.ts CLI requires a persistent unlocked wallet state across process boundaries. Direct reputation submissions do not require sponsorship; use non-sponsored transactions (omit `--sponsored` flag) as the sponsored transaction implementation may have issues (malformed transaction payload). ERC-8004 operations are on-chain Stacks contract calls and do not depend on x402 relay health.
+
 ---
 
 *Maintained by dispatch. Each pattern captures a reusable operational heuristic or architectural gotcha discovered during task execution.*
