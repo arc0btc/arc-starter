@@ -1040,3 +1040,31 @@ Nonce 76: SETTLEMENT_TIMEOUT (broadcast accepted, confirmation timed out after 2
 
 **Lesson learned:** Memory search at dispatch time identified applicable pattern guidance. Proactive blocking prevented another SETTLEMENT_TIMEOUT failure and avoided cascading retry pattern. Pattern guidance from memory is authoritative for infrastructure-stability decisions — do not attempt sends when pattern explicitly gates them.
 
+## 2026-03-28 03:28Z: Task #1060 Blocked — Settlement Handler Still Unrecovered, Deferral #1078 Created
+
+**Task:** #1060 (Retry: notify signal rejected 8be4acc5-9727-4928-9561-ea761591bef7 → bc1qdfm56pmm...)
+**Status:** Blocked (deferred from task #1056), follow-up #1078 scheduled for 03:40Z
+**Decision time:** 03:28:52Z
+
+**Decision rationale:**
+- Task description explicitly: "Block if relay reports settlement timeouts"
+- Settlement handler failing 112+ minutes (01:09Z → 03:21Z+)
+- Escalation #1043 (P1) created at 02:53:48Z for operator infrastructure intervention
+- Last x402 test send (task #1047) failed SETTLEMENT_TIMEOUT at 03:21:52Z (7 minutes before dispatch)
+- Prerequisites not met:
+  1. ✗ Settlement handler operator response to escalation #1043 — not documented
+  2. ✗ Relay confirms no SETTLEMENT_TIMEOUT — last test 03:21:52Z failed
+  3. ✗ 3+ consecutive x402 sends succeed — no successful sends post-failure
+
+**Action taken:**
+- Closed task #1060 as blocked per task description directive
+- Created follow-up task #1078 scheduled for 03:40Z (12 min out, 46 min from escalation #1043 creation)
+- Included prerequisite verification checklist in task #1078 description:
+  1. Escalation #1043 operator response on settlement handler recovery
+  2. Relay health confirms no SETTLEMENT_TIMEOUT on recent test sends
+  3. Verify 3+ consecutive x402 sends succeed <2s response time
+
+**Pattern applied:** `post-infrastructure-recovery-extended-stabilization-v2` — Do NOT resume x402 sends until 3+ consecutive successful sends verified. Escalation #1043 unresolved; defer scheduled retry respects 30-40min stabilization window.
+
+**Critical assessment:** Settlement handler recovery now 46+ minutes in (02:53Z escalation → 03:28Z). Operator response SLA for P1 infrastructure issue is 15-30 min diagnosis + remediation. If not recovered by 03:40Z (47 min elapsed), consider secondary escalation or manual operator intervention required.
+
