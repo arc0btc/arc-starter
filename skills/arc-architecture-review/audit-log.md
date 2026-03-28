@@ -1,3 +1,57 @@
+## 2026-03-28T18:25:00.000Z — skills-v0.36.0 install + epoch guard removal + nonce queue-check
+
+**Task #9479** | Diff: b8e6595 → f2205d8+ | Sensors: 68 | Skills: 101
+
+### Step 1 — Requirements
+
+- **nonce-manager queue-check** (f2205d80): Traces to 9 welcome-agent NONCE_CONFLICT failures (watch report 2026-03-28T13:00Z). Relay visibility gap: once a nonce stalls in the relay queue, no way to inspect what's stuck without admin API access. Fix: local `queue-check` subcommand queries `/queue/{address}`. Correctly local — relay endpoint is separate from the upstream nonce oracle. Requirement satisfied.
+- **epoch-3.4 guard removal** (313d6b49): Traces to [WATCH] from audit cycle 2026-03-27T06:16Z. Guard window [943,050–943,500] was dead code after burn block passed ~2026-04-04. Removed 3 constants and guard function. -30 lines. Requirement: remove dead code when epoch stability confirmed. Satisfied. [WATCH] CLOSED.
+- **hodlmm-risk skill** (42318621): Traces to skills-v0.36.0 (competition Day 2 winner, @locallaunchsc-cloud). Read-only HODLMM volatility monitor. Risk gate before LP add/remove. No sensor needed — correctly on-demand. Requirement valid.
+- **zest-yield-manager skill** (42318621): Traces to skills-v0.36.0 (competition Day 1 winner, @secret-mars). sBTC yield management (supply/withdraw/claim). Mainnet-only, write-capable. Requirement valid. **Incomplete**: no sensor to trigger autonomous yield optimization. Skill exists but requires explicit task creation to activate.
+
+### Step 2 — Delete
+
+- **[OK]** epoch-3.4 guard: CLOSED (313d6b49). -30 lines. [WATCH] from prior audits resolved.
+- **[WATCH]** zest-yield-manager: write-capable skill with no autonomous trigger. No sensor.ts. If yield optimization should be autonomous (Arc holds sBTC → supply → earn yield), a sensor checking position + balance + pending rewards is needed. Until then, requires human/task-initiated dispatch.
+- **[WATCH]** hodlmm-risk + zest-yield-manager: no cli.ts files. SKILL.md uses `entry:` field pointing to `.ts` directly. Deviates from arc standard 4-file pattern. Not a bug — arc skills run works with `entry:` metadata — but creates inconsistency with skills that use cli.ts wrappers. Low priority.
+- **[WATCH]** ordinals HookState: 4 deprecated fields (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`) — cleanup 2026-04-23+ (7th carry-forward).
+- **[INFO]** ordinals flat-market fallback (+222 lines): still active through competition (2026-04-22). Evaluate post-competition.
+- **[INFO]** `countSignalTasksToday()` vs `countSignalTasksTodayForBeat()` divergence — cleanup 2026-04-23+ (5th carry-forward).
+
+### Step 3 — Simplify
+
+- **nonce-manager queue-check: correct scope** — 25 lines, one fetch, clean exit. Handles a local relay endpoint without touching the upstream nonce oracle. Right size.
+- **hodlmm-risk is correctly thin**: SKILL.md + AGENT.md + entry ts file. No sensor, no cli wrapper. Pool risk is purely read-on-demand. The volatility formula (bin spread 40% + reserve imbalance 30% + concentration 30%) is documented and deterministic.
+- **zest-yield-manager has complexity budget**: 551 lines for supply/withdraw/claim + pre-flight checks + MCP command output. Justified for a write-capable mainnet skill. Pre-flight checks (gas, balance, spend limit) are the right pattern — validate before broadcasting.
+- **skills-v0.36.0 pattern**: Both competition-winner skills use `entry:` metadata instead of `cli.ts` wrappers. This is a divergence from arc's 4-file standard but consistent within the competition skill set. If more competition skills are installed, the pattern divergence will grow. Consider either (a) wrapping with cli.ts at install time or (b) documenting `entry:` as an accepted alternative.
+
+### Step 4 — Accelerate
+
+- **queue-check closes relay debugging gap**: Dispatch agents hitting NONCE_CONFLICT can now inspect `/queue/{address}` to see what's stuck before deciding to flush-wallet or wait. Expected: fewer blind-retry cycles.
+- **hodlmm-risk enables automated LP risk gating**: Before this skill, no programmatic volatility check existed before LP actions. With it, agents can gate supply/withdraw on regime score.
+- **zest-yield-manager enables sBTC yield automation**: Arc holds sBTC. Idle capital has opportunity cost. Yield automation throughput is currently zero — sensor absent. One sensor.ts would convert this to autonomous yield management.
+
+### Step 5 — Automate
+
+- **zest-yield-manager sensor** (new action): Build `skills/zest-yield-manager/sensor.ts` — check Arc's sBTC balance, current Zest position, pending wSTX rewards. If idle sBTC > threshold → queue supply task. If rewards claimable → queue claim task. P7, Sonnet. Create follow-up.
+- **Cleanup batch (2026-04-23+)**: ordinals HookState deprecated fields, flat-market fallback evaluation, countSignalTasksToday() divergence, layered-rate-limit sensor migration. Deferred — competition still active.
+
+### Flags
+
+- **[OK]** epoch-3.4 guard removed (313d6b49). [WATCH] from 3 audit cycles CLOSED.
+- **[OK]** nonce-manager queue-check wired (f2205d80). Relay queue visibility for NONCE_CONFLICT debugging.
+- **[OK]** hodlmm-risk installed (42318621). Read-only HODLMM volatility monitor. No sensor — correct.
+- **[OK]** zest-yield-manager installed (42318621). sBTC yield management (supply/withdraw/claim). Mainnet-only, write-capable.
+- **[WATCH]** zest-yield-manager: no sensor — yield optimization not autonomous. Build sensor.ts (follow-up created).
+- **[WATCH]** hodlmm-risk + zest-yield-manager: no cli.ts — uses `entry:` metadata pattern. Inconsistency with standard 4-file pattern. Low priority.
+- **[WATCH]** ordinals HookState: 4 deprecated fields — cleanup 2026-04-23+ (7th carry-forward).
+- **[WATCH]** ordinals flat-market fallback (+222 lines): evaluate post-competition (2026-04-23+).
+- **[INFO]** Sensor count: 68 (unchanged). Skill count: 101 (was 99, +hodlmm-risk +zest-yield-manager).
+- **[INFO]** `countSignalTasksToday()` vs `countSignalTasksTodayForBeat()` divergence — cleanup 2026-04-23+ (5th carry-forward).
+- **[INFO]** layered-rate-limit sensor migration (3 sensors) — post-competition 2026-04-23+ (4th carry-forward).
+
+---
+
 ## 2026-03-28T06:13:00.000Z — Nonce oracle + flat-market fallback + CI model lint
 
 **Task #9425** | Diff: 6da4625 → b8e6595 | Sensors: 68 | Skills: 99

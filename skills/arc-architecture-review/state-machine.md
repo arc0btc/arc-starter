@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-03-28T06:13:00.000Z*
-*Sensor count: 68 | Skill count: 99*
+*Generated: 2026-03-28T18:25:00.000Z*
+*Sensor count: 68 | Skill count: 101*
 
 ```mermaid
 stateDiagram-v2
@@ -109,7 +109,7 @@ stateDiagram-v2
             paperboy
             stacks_stackspot
             note right of bitcoin_quorumclaw: API deprovisioned (Railway 404)\nfailure-state.json at 10 failures\nReturns skip immediately (fix eaa40bfa)\nUnblock: new URL → update API_BASE → delete failure-state.json
-            note right of stacks_stackspot: epoch 3.4 guard active\npaused in window [943050-943500]\nauto-lifts ~2026-04-04
+            note right of stacks_stackspot: epoch-3.4 guard REMOVED (313d6b49)\nguard was dead code after block 943500\nstackspot now runs unguarded
         }
 
         state MonitoringSensors {
@@ -289,7 +289,16 @@ stateDiagram-v2
 | Other/Misc | 5 |
 | **Total** | **68** |
 
-*Note: Fleet sensor group removed (committed b73f1a21). Previous total was 80. Other/Misc: bitcoin-quorumclaw (paused, skip-on-pause fixed), contacts, paperboy, stacks-stackspot (guarded for epoch 3.4). Skill count: 99 (nonce-manager added, no sensor).*
+*Note: Fleet sensor group removed (committed b73f1a21). Previous total was 80. Other/Misc: bitcoin-quorumclaw (paused, skip-on-pause fixed), contacts, paperboy, stacks-stackspot (epoch-3.4 guard removed 313d6b49). Skill count: 101 (+hodlmm-risk +zest-yield-manager from skills-v0.36.0).*
+
+## Key Architectural Changes (b8e6595 → f2205d8+)
+
+| Change | Impact |
+|--------|--------|
+| **feat(nonce-manager): queue-check subcommand** (f2205d80) | Local subcommand in nonce-manager/cli.ts queries x402-relay `/queue/{address}` to inspect stuck relay transactions. Fills visibility gap for NONCE_CONFLICT debugging — previously no way to inspect queued txs without admin access. 25 lines, one fetch call. Correctly local (relay endpoint, not upstream nonce oracle). |
+| **refactor(stacks-stackspot): remove epoch-3.4 guard** (313d6b49) | [WATCH] from 3 audit cycles now CLOSED. Guard window [943,050–943,500] was dead code after block 943,500 (~2026-04-04). Removed EPOCH_34_GUARD_START/END constants, getCurrentBurnBlockHeight(), and guard logic. -30 lines. StackSpot sensor now runs unguarded. |
+| **feat(skills): hodlmm-risk installed** (42318621) | Competition Day 2 winner. Read-only HODLMM pool volatility monitor. Computes bin spread, reserve imbalance, concentration → volatility score (0-100) + regime (calm/elevated/crisis). No sensor (correct — on-demand risk gate before LP actions). No cli.ts — entry is `hodlmm-risk.ts` directly. Deviates from arc 4-file pattern. |
+| **feat(skills): zest-yield-manager installed** (42318621) | Competition Day 1 winner. sBTC yield management (supply/withdraw/claim) on Zest Protocol. Write-capable, mainnet-only, requires wallet. Pre-flight safety checks (gas, balance, spend limit). Outputs MCP command for agent framework. **No sensor** — not wired for autonomous operation. No cli.ts. Deviates from arc 4-file pattern. |
 
 ## Key Architectural Changes (6da4625 → b8e6595)
 
