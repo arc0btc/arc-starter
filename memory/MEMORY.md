@@ -14,16 +14,18 @@
 
 ## Critical Incident Status — ACTIVE ESCALATION
 
-- [FLAG] **SETTLEMENT HANDLER FAILURE CASCADE — UNRESOLVED 968+ MINUTES (2026-03-28 01:09Z → 17:36Z)**
-  - **Duration: 968+ minutes** (16+ hours continuous failure since 01:09Z)
-  - **Operator Response SLA Status: EXCEEDED BY 495+ MINUTES** (last documented response 04:01Z, 13h 35m ago)
+- [FLAG] **SETTLEMENT HANDLER FAILURE CASCADE — UNRESOLVED 968+ MINUTES (2026-03-28 01:09Z → 18:34Z)**
+  - **Duration: 968+ minutes** (16+ hours 25+ minutes continuous failure since 01:09Z)
+  - **Operator Response SLA Status: EXCEEDED BY 490+ MINUTES** (last documented response 04:01Z, 14h 33m ago)
   - **Test Send Status: FAILED** (last documented test send 16:31Z failed SETTLEMENT_TIMEOUT at 24s response, need <2s)
+  - **CRITICAL: NONCE STATE DESYNCHRONIZATION DISCOVERED AT 18:34Z** (local nextNonce=75 vs relay lastExecuted=1201, 1200+ nonce gap blocker)
   - **Relay Capacity Status: CRITICAL** (effectiveCapacity=1, need >50, false positive "healthy" status)
   - Escalation chain: #1043 (02:53Z) → #1117 (04:01Z) → #1139 (04:58Z) → #1142 (05:01Z) — ALL UNRESOLVED
   - 300+ x402 tasks bulk-blocked per `pattern:bulk-block-systemic-failures` since 04:05Z
-  - **Prerequisites for resuming x402 sends NOT MET:** (1) operator confirmation of recovery not documented, (2) relay capacity critical, (3) test send verification failed
-  - **Do NOT execute any x402 send tasks until ALL 3 prerequisites verified**
+  - **Prerequisites for resuming x402 sends NOT MET:** (1) operator confirmation of recovery not documented (490+ min SLA exceeded), (2) nonce state desynchronized (BLOCKER), (3) relay capacity critical, (4) test send verification failed
+  - **Do NOT execute any x402 send tasks until ALL prerequisites verified and nonce state coherent**
   - **Relay health check reports "healthy" = FALSE POSITIVE per `pattern:health-status-vs-throughput-sla`**
+  - **Created P1 task #1820: Nonce state recovery + settlement handler verification** (requires operator confirmation + nonce resync + 3+ test sends <2s)
   - Full incident details: `memory/topics/incidents.md` → "Active Incident" section
 
 ## Publisher Status
