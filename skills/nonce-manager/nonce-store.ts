@@ -161,11 +161,28 @@ interface HiroNonceResponse {
 
 async function fetchHiroNonce(address: string): Promise<HiroNonceResponse> {
   const url = `${HIRO_API}/extended/v1/address/${address}/nonces`;
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Hiro nonce fetch failed: ${response.status} ${response.statusText}`);
+  const MAX_FETCH_RETRIES = 3;
+  const FETCH_RETRY_DELAY_MS = 1000;
+  let lastError: Error | undefined;
+
+  for (let attempt = 0; attempt < MAX_FETCH_RETRIES; attempt++) {
+    if (attempt > 0) await new Promise(r => setTimeout(r, FETCH_RETRY_DELAY_MS));
+    try {
+      const response = await fetch(url);
+      if (response.status >= 500 && attempt < MAX_FETCH_RETRIES - 1) {
+        lastError = new Error(`Hiro nonce fetch: ${response.status} ${response.statusText}`);
+        continue;
+      }
+      if (!response.ok) {
+        throw new Error(`Hiro nonce fetch failed: ${response.status} ${response.statusText}`);
+      }
+      return (await response.json()) as HiroNonceResponse;
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      if (attempt < MAX_FETCH_RETRIES - 1) continue;
+    }
   }
-  return (await response.json()) as HiroNonceResponse;
+  throw lastError ?? new Error("fetchHiroNonce: exhausted retries");
 }
 
 function isStale(entry: NonceEntry): boolean {

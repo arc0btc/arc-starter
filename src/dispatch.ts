@@ -723,6 +723,48 @@ export async function runDispatch(): Promise<void> {
   }
   log(`dispatch: sdk=${sdkRoute.sdk} model=${sdkRoute.sdk === "codex" ? (sdkRoute.model ?? "default") : model} (${task.model ? "explicit" : `priority ${task.priority}`})`);
 
+  // ---- Blockchain pre-flight: relay health gate + nonce sync ----
+  const BLOCKCHAIN_SKILLS = new Set([
+    "inbox-notify", "brief-payout", "aibtc-news-classifieds",
+    "bitcoin-wallet", "nonce-manager", "relay-diagnostic",
+    "arc-payments", "styx",
+  ]);
+  const hasBlockchainSkill = skillNames.some(s => BLOCKCHAIN_SKILLS.has(s));
+  if (hasBlockchainSkill) {
+    // Relay health gate: skip blockchain tasks when relay is unhealthy
+    try {
+      const healthProc = Bun.spawn(
+        ["bun", "run", join(SKILLS_DIR, "relay-diagnostic/relay-diagnostic.ts"), "check-health"],
+        { cwd: ROOT, stdin: "ignore", stdout: "pipe", stderr: "pipe" }
+      );
+      const healthOut = await new Response(healthProc.stdout).text();
+      const exitCode = await healthProc.exited;
+      if (exitCode === 0) {
+        const health = JSON.parse(healthOut);
+        if (health.healthy === false) {
+          log(`dispatch: RELAY UNHEALTHY — skipping blockchain task #${task.id}: ${(health.issues ?? []).join(", ")}`);
+          clearDispatchLock();
+          return;
+        }
+      }
+    } catch (err) {
+      log(`dispatch: relay health check failed (non-blocking): ${String(err).slice(0, 200)}`);
+    }
+
+    // Pre-dispatch nonce sync: ensure local state matches chain truth
+    try {
+      const syncProc = Bun.spawn(
+        ["bun", "run", join(SKILLS_DIR, "nonce-manager/cli.ts"), "sync",
+         "--address", "SP1KGHF33817ZXW27CG50JXWC0Y6BNXAQ4E7YGAHM"],
+        { cwd: ROOT, stdin: "ignore", stdout: "pipe", stderr: "pipe" }
+      );
+      await syncProc.exited;
+      log("dispatch: pre-dispatch nonce synced");
+    } catch {
+      log("dispatch: nonce sync failed (non-blocking)");
+    }
+  }
+
   const recentCycles = getRecentCycles(10)
     .map(
       (c) =>
