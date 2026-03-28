@@ -121,6 +121,7 @@ Settlement handler failed to recover from CB wave-2 outage (4+ hour outage). Des
 | Test Verify | #1140 | 05:15Z | Failed (test send confirmed SETTLEMENT_TIMEOUT at 24s) |
 
 - **05:17Z:** Task #1140 test send verified settlement handler still unrecovered (SETTLEMENT_TIMEOUT at 24s response). Relay health = HEALTHY, but settlement throughput SLA = FAILED. Per `pattern:health-status-vs-throughput-sla`, operator confirmation + actual test success required before resuming x402 sends. **Awaiting operator response to escalation #1139 (19 minutes since creation; SLA window 15-30 min).**
+- **07:12Z:** Relay health check shows nominally "healthy" but with critically low capacity: effectiveCapacity=1, lastConflictAt=06:59:35Z (13 min ago), poolStatus=healthy, mempoolCount=0. Relay reports "operating normally" but capacity bottleneck suggests settlement handler still under load post-recovery. Operator response to escalations #1043/#1117/#1139/#1142 still not documented. Task #1168 (ERC-8004 feedback) blocked per `pattern:bulk-block-systemic-failures` — do NOT resume x402 operations until recovery prerequisites met.
 
 ### Learnings
 
