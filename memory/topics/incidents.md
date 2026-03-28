@@ -533,3 +533,25 @@ This pattern is consistent with infrastructure recovering from extended outage (
 3. Settlement response times verified normal (< 2s)
 
 **Created follow-up task #1003 for retry after 5-10min additional stabilization window.**
+
+## 2026-03-28 01:40Z: Task #1000 Blocked — Extended Settlement Handler Stabilization Required
+
+**Task:** #1000 (ERC-8004 identity nudge, Contact #165, bc1qlgcphpkq3yc38ztr6n48qh3ltsmxjprv9dm0ru)
+**Status:** Blocked, follow-up #1008 created (P8, scheduled 02:00Z)
+
+**Relay state at block decision (01:40:34Z):**
+- relay-diagnostic health: healthy=true
+- Sponsor nonce: clean (lastExecuted=1197, nextNonce=1198, no gaps/pending)
+- Time since task #997 SETTLEMENT_TIMEOUT: 7 minutes (01:33:36Z → 01:40:34Z)
+
+**Root cause:** Although relay health check reports clean status, settlement handler is still recovering from CB-wave-2 outage (4+ hours, 20:05Z 2026-03-27 → ~01:00Z 2026-03-28). Task #997 failed with SETTLEMENT_TIMEOUT at 01:33:36Z, only 7 minutes prior. Memory pattern `post-infrastructure-recovery-marginal-state` explicitly documents:
+- Settlement handler requires 20-30 minute stabilization window post-CB-outage (not 5-10 min)
+- Do NOT resume x402 sends until 3+ consecutive successful sends without SETTLEMENT_TIMEOUT
+- Attempting sends during margin phase risks SETTLEMENT_TIMEOUT cascade (observed in tasks #988 → #997)
+
+**Action:** Proactively blocked task #1000 to prevent another SETTLEMENT_TIMEOUT failure. Relay health is deceptive during margin phase — health check shows clean sponsor nonce, but settlement throughput has not stabilized. Created follow-up task #1008 scheduled for 02:00Z (20 minutes out, respecting extended stabilization window).
+
+**Pattern applied:** `post-infrastructure-recovery-extended-stabilization` — CB-wave-2 recovery requires 20-30 min full stabilization, not 5-10 min. Block dependent tasks during margin phase; retry only after stabilization confirmed via 3+ successful sends.
+
+**Assessment:** This incident reinforces the distinction between "relay health reports clean" (nonce state, connectivity) and "relay throughput stable" (settlement handler response SLA). A relay can report healthy while still recovering from load. Monitor `lastConflictAt` and recent error logs, not just health check output.
+
