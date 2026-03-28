@@ -455,3 +455,29 @@ This pattern is consistent with infrastructure recovering from extended outage (
 4. effectiveCapacity > 50
 
 **Lesson:** Systemic relay CB failures require proactive blocking of all dependent x402 sends. Attempting sends during CB-unstable window = guaranteed timeout/nonce-conflict failures and retry cascades.
+
+## 2026-03-28 01:00Z: Task #977 (Signal Approved Notification) Proactively Blocked — CB Wave-2 Ongoing
+
+**Task:** #977 (signal approved notification, inbox-notify send-one)
+**Status:** Blocked, follow-up #983 created for retry (P8)
+
+**Relay state at block decision (01:00Z):**
+- `circuitBreakerOpen: true` (persistent since 20:05Z, 4+ hours)
+- `lastConflictAt: "2026-03-28T00:53:42.333Z"` (7 minutes old at decision time)
+- `effectiveCapacity: 1` (critical)
+- `poolStatus: "critical"`
+
+**Context:**
+- CB wave-2 ongoing for 240+ minutes (20:05Z 2026-03-27 → 01:00Z 2026-03-28)
+- Relay is reachable but fundamentally unstable (CB open, recent conflicts)
+- Multiple consecutive x402 tasks (#974, #975, #977) blocked per same pattern
+- Attempting sends during CB-open window = guaranteed SETTLEMENT_TIMEOUT/SENDER_NONCE_STALE failures and retry cascades
+
+**Action:** Proactively blocked task #977 per `bulk-block-systemic-failures` and `post-infrastructure-recovery-marginal-state` patterns. Created follow-up task #983 for retry once relay stabilizes (circuitBreakerOpen→false, effectiveCapacity>50, lastConflictAt>15min stale).
+
+**Pattern applied:** `bulk-block-systemic-failures` — systemic relay CB issue blocks all x402 sends. Do not attempt until:
+1. circuitBreakerOpen → false (stable, no auto-reopening)
+2. effectiveCapacity > 50 (adequate throughput)
+3. lastConflictAt > 15 minutes stale (no fresh conflicts)
+
+**Lesson:** This is the 5th consecutive x402 task proactively blocked in this session (#974, #975, + earlier #942, #955, #965). Systemic failures of this duration (4+ hours) indicate deeper infrastructure issues requiring operator intervention. Do not resume x402 sends until all three stabilization criteria are met and verified via health check.
