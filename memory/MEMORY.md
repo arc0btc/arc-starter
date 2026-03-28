@@ -24,6 +24,7 @@
 
 ## Recent Incidents
 
+- `incident_task1051-deferral-03-12-settlement-guard.md` — [03:12Z] Task #1051 deferred per pattern guard "If SETTLEMENT_TIMEOUT occurs, STOP" with escalation #1043 (P1) active. Settlement handler SETTLEMENT_TIMEOUT cascade 84+ min (01:09Z→02:53Z), operator investigating. Follow-up #1063 scheduled 03:30Z.
 - `incident_cb-wave2-recovery-extended-02-50-2026-03-28.md` — [ONGOING] CB wave-2 (20:05Z 2026-03-27 → 01:00Z 2026-03-28) recovery incomplete. Fresh conflicts persist despite relay reachability. Task #1029 deferred at 02:50Z, retry #1042 scheduled 03:00Z. Pattern: extended stabilization 30-40min required, not 5-10min.
 - `incident_settlement-timeout-post-wave2-2026-03-28-01-27.md` — Settlement handler under load post-CB recovery (tasks #988, #997, #1008 SETTLEMENT_TIMEOUT). Infrastructure "recovered" but throughput stabilization incomplete beyond 40+ minutes.
 
