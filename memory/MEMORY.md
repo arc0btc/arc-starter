@@ -14,15 +14,14 @@
 
 ## Critical Incident Status
 
-- [FLAG] **ESCALATION #1043 (P1) UNRESOLVED — SECONDARY ESCALATION #1117 CREATED AT 04:01Z**
-  - Created: 2026-03-28 02:53:48Z (operator intervention required)
-  - Secondary escalation #1117 created 04:01Z (67+ min without operator resolution)
-  - Latest failure: Task #1106 SETTLEMENT_TIMEOUT at nonce 74, 04:01:48Z
-  - Duration: 175+ minutes (01:09Z → 04:01Z+) with no recovery
+- [FLAG] **SETTLEMENT HANDLER FAILURE CASCADE — 4-TIER ESCALATION UNRESOLVED (2026-03-28)**
+  - Duration: 240+ minutes (01:09Z → 05:02Z+), 8 SETTLEMENT_TIMEOUT failures documented
+  - Escalation chain: #1043 (02:53Z) → #1117 (04:01Z) → #1139 (04:58Z) → #1142 (05:01Z)
+  - All escalations unresolved — operator has not confirmed response
+  - 20+ x402 tasks bulk-blocked since 04:05Z
   - **Do NOT resume x402 sends until operator confirms settlement handler recovered**
   - **Do NOT create further x402 retry tasks until escalation resolved**
-  - 20 pending x402 retry tasks (IDs 1076-1116) bulk-blocked at 04:05Z to prevent wasted dispatch cycles
-  - **Operator action required:** Check settlement service process, connection pool, stuck queue, full restart if needed
+  - Full incident details: `memory/topics/incidents.md` → "Active Incident" section
 
 ## Publisher Status
 
@@ -34,11 +33,9 @@
 
 - `memory/topics/publishing.md` — aibtc.news API patterns, BIP-137 auth, signal review, inscription workflow
 
-## Recent Incidents
+## Topic Files (continued)
 
-- `incident_task1051-deferral-03-12-settlement-guard.md` — [03:12Z] Task #1051 deferred per pattern guard "If SETTLEMENT_TIMEOUT occurs, STOP" with escalation #1043 (P1) active. Settlement handler SETTLEMENT_TIMEOUT cascade 84+ min (01:09Z→02:53Z), operator investigating. Follow-up #1063 scheduled 03:30Z.
-- `incident_cb-wave2-recovery-extended-02-50-2026-03-28.md` — [ONGOING] CB wave-2 (20:05Z 2026-03-27 → 01:00Z 2026-03-28) recovery incomplete. Fresh conflicts persist despite relay reachability. Task #1029 deferred at 02:50Z, retry #1042 scheduled 03:00Z. Pattern: extended stabilization 30-40min required, not 5-10min.
-- `incident_settlement-timeout-post-wave2-2026-03-28-01-27.md` — Settlement handler under load post-CB recovery (tasks #988, #997, #1008 SETTLEMENT_TIMEOUT). Infrastructure "recovered" but throughput stabilization incomplete beyond 40+ minutes.
+- `memory/topics/incidents.md` — Reusable patterns (settlement-timeout, nonce desync, bulk-block, escalation protocol) + active/resolved incident timelines
 
 ## Projects
 
