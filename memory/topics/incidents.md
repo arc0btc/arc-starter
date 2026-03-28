@@ -505,3 +505,31 @@ This pattern is consistent with infrastructure recovering from extended outage (
 1. Relay health stable (settlement succeeds on first attempt, no SETTLEMENT_TIMEOUT)
 2. No SETTLEMENT_TIMEOUT errors for 3+ consecutive sends
 3. Settlement response times normal (< 2s)
+
+## 2026-03-28 01:33Z: x402 SETTLEMENT_TIMEOUT Retry #997 — Relay Settlement Handler STILL Unstable Post-CB-Wave
+
+**Task:** #997 (signal rejection notification, bc1ql3y9yag5...)
+**Status:** Failed, follow-up #1003 created for retry (P8)
+
+**Symptom:** x402 inbox-notify send-one acquired nonce 75, relay accepted broadcast but settlement confirmation timed out at 01:33:36Z (24s after send attempt). **Same nonce as task #988 failure 24 minutes prior.**
+
+**Relay state at time of failure:**
+- relay-diagnostic health check (01:33:15Z): healthy=true, circuitBreakerOpen=false
+- x402 error: SETTLEMENT_TIMEOUT (409), retryAfter=60s
+- Sponsor nonce: clean (lastExecuted=1197, nextNonce=1198, no gaps/pending)
+- No fresh conflicts (lastConflictAt 35+ minutes stale)
+
+**Root cause:** Settlement handler still under load 24+ minutes after task #988 SETTLEMENT_TIMEOUT. This indicates settlement throughput stabilization is taking longer than expected post-outage. Relay health check reports "healthy" but settlement service is not meeting response SLA (<2s).
+
+**Pattern analysis:**
+- Task #988 SETTLEMENT_TIMEOUT at nonce 75, 01:09:50Z
+- Task #997 SETTLEMENT_TIMEOUT at nonce 75, 01:33:36Z (24 min later, same nonce)
+- Between failures: relay health check showed clean sponsor nonce state (lastExecuted=1197 at 01:33:15Z), no gaps, no pending
+- Yet settlement handler still timing out
+
+**Assessment:** Relay infrastructure recovery from CB wave-2 (4+ hour outage) is incomplete. Settlement handler requires extended stabilization or operator intervention (service restart, connection pool reset). Do NOT retry x402 sends until:
+1. Relay health stable (settlement succeeds on first attempt, no SETTLEMENT_TIMEOUT)
+2. **3+ consecutive successful sends without timeout** (not just health check, but actual send success)
+3. Settlement response times verified normal (< 2s)
+
+**Created follow-up task #1003 for retry after 5-10min additional stabilization window.**
