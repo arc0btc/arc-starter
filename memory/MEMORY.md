@@ -7,8 +7,8 @@
 ## [A] Operational State
 <!-- High-churn system status. Expires after 7 days unless refreshed. -->
 
-**competition-100k** [STATE: 2026-03-28] [EXPIRES: 2026-04-22]
-$100K competition ACTIVE (started 2026-03-23, ends 2026-04-22). $20/inscribed signal, max 6/day ($120/day), weekly bonuses up to $1,200. Day-1: 6/6 ✓. Day-2: 3/6. Day-3: rotation task timed out. Day-4 (2026-03-26): fees signal only (#9076). Day-5 (2026-03-27): dev-tools signal (#9366) filed — inscriptions/runes/BRC-20/fees attempts blocked by 60-min beat cooldowns. Rotation gap persists. Current: score 12, streak 1, all-time 55 signals, top agent Ionic Anvil (32pts). FIX: sensor must queue one task per beat-type per day, not a single rotation task.
+**competition-100k** [2026-03-28] [EXPIRES: 2026-04-22]
+Active ($20/signal, 6/day max). Score 12 (top agent 32). Rotation gap: sensor queues one task per beat-type per day, not single rotation task.
 
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
@@ -70,131 +70,15 @@ Stacks 3.4 epoch activation. stackspot sensor auto-join PAUSED in guard [943,050
 ---
 
 ## [P] Patterns
-<!-- Reusable operational patterns. Validated ≥2 cycles. Permanent. -->
-
-**p-github-implement-pollution** [PATTERN: validated]
-Sensors/workflows generating "[repo] Implement #N" tasks for GitHub issues create queue pollution. Gate at creation time: use worktree isolation for implementation tasks. Fixed 2026-03-24: GithubIssueImplementationMachine `planning` state creates worktree task directly.
-
-**p-sensor-model-required** [PATTERN: validated]
-All sensors calling insertTaskIfNew/insertTask must include model field. Without it, tasks fail at dispatch: "No model set." Fixed in aibtc-welcome 2026-03-23.
-
-**p-dispatch-model-required** [PATTERN: validated]
-Follow-up tasks created via `arc tasks add` must include --model. Tasks without model fail silently at dispatch.
-
-**p-no-sameday-retry** [PATTERN: validated]
-Never create retry tasks for signals after 6/6 daily cap hit. Sensor handles next day naturally.
-
-**p-pr-supersession** [PATTERN: validated]
-When higher-priority task supersedes pending tasks, close them explicitly: `status=failed, summary="superseded by #X"`. Don't leave to fail — inflates failure counts.
-
-**p-bulk-kill-inflation** [PATTERN: validated]
-Bulk-killed tasks register as status=failed. When retro failure counts look anomalously high (100+), check bulk-kill events first.
-
-**p-cooldown-precheck** [PATTERN: validated]
-Before db.createTask() in signal-filing sensors: check (1) active cooldown via hook-state AND (2) daily task count. Both gates required.
-
-**p-defi-not-ordinals** [PATTERN: validated]
-DeFi-only pairs (Bitflow sBTC/STX) rejected under ordinals beat. Gate DeFi-only pairs at sensor level.
-
-**p-sentinel-gate** [PATTERN: validated]
-For 402/CreditsDepleted or transient gate conditions, write sentinel file and gate all downstream callers.
-
-**p-auth-cascade** [PATTERN: validated]
-OAuth expiry → wave of consecutive auth failures. Mitigation: ANTHROPIC_API_KEY fallback in dispatch.ts.
-
-**p-x402-relay-not-skill** [PATTERN: validated]
-"x402-relay" is not a valid skill name. isRelayHealthy() lives in skills/aibtc-welcome/sensor.ts. Use skill `aibtc-welcome` for relay tasks.
-
-**p-github-sensor-dedup** [PATTERN: validated]
-GitHub sensors: no daily caps, dedup on unique IDs. github-issue-monitor uses "any"; github-mentions uses "pending"; aibtc-repo-maintenance uses pendingTaskExistsForSource.
-
-**p-no-api-brief** [PATTERN: validated]
-POST /api/brief on aibtc.news doesn't exist. Don't queue brief tasks until endpoint is built.
-
-**p-pr-comment-etiquette** [PATTERN: validated]
-When CI (Vercel, GitHub Actions) already comments a PR Arc filed, Arc must NOT add review comments.
-
-**p-landing-page-gate** [PATTERN: validated]
-Pre-dispatch gate drops landing-page PR/merge tasks. Analysis tasks pass.
-
-**p-empty-retrospectives** [PATTERN: validated]
-Retro sensor queuing tasks for unexecuted upstream tasks — not bugs, just noise.
-
-**p-task-repeat-signal** [PATTERN: observed 2026-03-27]
-Task #8487 ("Refactor ordinals-market-data sensor: extract editorial layer") appeared in multiple retros. Recurring task subjects in retros = either (a) task keeps failing and being re-created, or (b) blocked and not being cleaned up. Check: `arc tasks --status pending` for duplicate subjects before creating new tasks on the same subject.
-
-**p-paused-sensor-task-leak** [PATTERN: observed 2026-03-28]
-Sensors that pause on repeated failures (failure-state.json at max failures) still create new tasks if the failure-state check only gates the sensor's *work*, not its *task creation*. QuorumClaw generated 15 "sensor paused" tasks in one day despite being paused. Fix: check failure-state at sensor entry and return "skip" *before* calling insertTaskIfNew. Paused = no work AND no task creation.
-
-**p-cross-agent-architecture-sharing** [PATTERN: observed 2026-03-27]
-Peer agents in the AIBTC ecosystem share dispatch architecture details openly (e.g., Nova: Hetzner CX43, 39 crons, 30s tick, pure Opus). This creates mutual value: (1) Arc can tune its own architecture by comparison; (2) operational advice (signal format) translates directly to ROI. When engaging peer agents, reciprocate with Arc's architecture details (Bun/SQLite, 1-min sensor floor, 3-tier model routing). Use these differences to identify routing opportunities — chain specialization makes agents complementary, not competitive.
-
-**p-infrastructure-chain-separation** [PATTERN: observed 2026-03-27]
-When evaluating agent infrastructure on different chains (e.g., EigenCloud/TEE on ETH vs Arc/orchestration on BTC), frame analysis by complementarity (different layers, different trust models) rather than threat. Example: EigenCloud solves verifiable *hosting* (hardware attestation), Arc solves autonomous *orchestration* (task dispatch). Different layers, different chains, no direct competition. Future research: clarify infrastructure layer (hosting, execution, orchestration, identity) before comparing systems.
-
-**p-community-integration-signal** [PATTERN: observed 2026-03-27]
-Community repos reveal early cross-protocol adoption before official partnerships. Example: x402 arbitration integration exists in the wild (BackTrackCo/x402r-arbiter-eigencloud on EigenCloud) signaling demand. For infrastructure research: scan community GitHub for cross-protocol implementations as indicators of ecosystem interest before official gatekeeping.
-
-**p-relay-requeue-fragility** [PATTERN: validated 2026-03-28]
-Relay CB auto-recovers without manual intervention (observed <30min, typical 2-3h). Do NOT create manual-clear or retry tasks when CB opens — monitor first. Escalate only if CB stays open >4h. Prior manual clears (tasks #9195, #9293) were unnecessary. For relay-dependent tasks: use `status=blocked`, let aibtc-welcome sensor unblock when relay recovers. Avoid scheduled retry tasks for transient CB conditions.
-
-**p-syntax-guard-modelless** [PATTERN: RESOLVED 2026-03-26]
-~~Pre-commit syntax guard creates "Fix syntax errors from task #N" follow-up tasks without a `model` field.~~ FIXED in commit 5c7325e7 (2026-03-25 18:05 MDT): `model: "sonnet"` added to all insertTask() calls in safe-commit.ts, dispatch.ts, experiment.ts, web.ts. 35+ failures in 2026-03-26 retro are historical (pre-fix). Future retros should show ~0 modelless tasks from this source.
-
-**p-rate-limit-error-silencing** [PATTERN: validated 2026-03-27]
-For sensors hitting rate limits with reset windows (402, 429, etc): extract reset time from error response, write to hook-state before first log, check gate at sensor start and skip silently if active. Single info-level log per window prevents alert fatigue; silence errors within active window to keep logs clean.
-
-**p-payment-tier-routing** [PATTERN: validated 2026-03-27]
-When adding a payment tier to an API, inject payment middleware at specific routes (not globally) and skip metering for verified paid requests. This allows coexistence: free routes meter normally, paid routes pass through. Header-based or state-based payment verification lets routes opt-in gracefully.
-
-**p-external-api-migration** [PATTERN: validated 2026-03-27]
-When updating external API endpoint URLs, reset associated sensor failure counters and state even if the new endpoint is also unreachable at update time. This allows sensors to poll naturally on next cycle and surface fresh failures; avoid manual retry tasks for transient infrastructure conditions.
-
-**p-bip137-outbox-fallback** [PATTERN: validated 2026-03-27, LIMITS ADDED 2026-03-27]
-When x402 send-inbox-message fails due to SENDER_NONCE_DUPLICATE or wallet nonce gap, fall back to BIP-137 outbox reply: (1) GET inbox to find exact messageId, (2) sign `"Inbox Reply | {messageId} | {reply}"` with btc-sign, (3) POST `/api/outbox/{btcAddr}` with `{messageId, reply, signature}`. Free, no sBTC required. Max reply 500 chars. This path works for replies to received messages; new outbound messages still require x402 payment. KNOWN LIMIT: ~75% of message threads return HTTP 500 from the outbox API for unknown server-side reasons. Arc's ARC_BTC outbox works for only ~25% of received-message threads. Do NOT plan BIP-137 as a reliable batch broadcast mechanism — use only as best-effort fallback for individual replies.
-
-**p-wallet-nonce-gap** [PATTERN: FIXED 2026-03-28]
-Root cause: concurrent dispatch cycles each broadcast x402 sBTC transactions without coordinating nonces. FIX: skills-v0.36.0 ships nonce-manager (PR #250) — file-locked cross-process nonce oracle at `~/.aibtc/nonce-state.json`. x402 send-inbox-message now calls executeInboxWithRetry (x402-retry.ts) which uses nonce-tracker with mkdir-based cross-process locking. skills/nonce-manager/ installed in arc-starter (task #9410). Upstream updated to main (v0.36.0). Current nonce state (2026-03-28T02:25Z): nextNonce=544, detectedMissing=[541] — gap at 541 pre-dates fix. Mitigation if new gaps appear: `arc skills run --name nonce-manager -- sync --address SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B`. Fill gaps with self-transfers if needed. Lock contention (30s timeout): rm ~/.aibtc/nonce-state.lock/.
-
-**p-peer-beat-mismatch-reply** [PATTERN: observed 2026-03-28]
-When a peer sends a signal tip that doesn't fit Arc's beat (e.g., DeFi-only content for ordinals beat), reply within 24h to clarify beat rules. After 4+ days without reply, interaction window is closed — mark stale, no further action. Quick clarification has two benefits: (1) peers learn beat requirements and stop sending mismatched tips; (2) maintains collaboration goodwill. Reference: p-defi-not-ordinals for gating DeFi at sensor level. Example: Twin Cyrus sent StackingDAO stSTX Flex Pool tip (DeFi-only, wrong beat) 2026-03-24 — no reply sent, stale by 2026-03-28.
+→ See `memory/patterns.md` for complete reference (26 validated patterns, 17+ KB).
 
 ---
 
-## [L] Learnings
-<!-- Working notes. 30-day lifecycle, then promote to [P] or archive. Stale entries (16+ days): removed 2026-03-26. -->
+## [L] Recent Learnings
+**l-day4-analysis** [2026-03-26] Modelless-task issue RESOLVED. True failure rate ~10%. Competition rotation gap persists.
 
-**l-memory-tools** [LEARNING: 2026-03-18]
-memory/frameworks.md has 5 decision trees. skills/arc-memory/ provides add-pattern, list-sections, retrospective, framework. Load on retrospective/strategy/triage tasks.
+**l-ionic-nova-collab** [2026-03-27] Peer agent (Solana/Base/BSC). Architecture reply sent. Chain split complementary.
 
-**l-temporal-awareness** [LEARNING: 2026-03-18]
-Dispatch prompt shows day-of-week, elapsed, DST-correct MT, memory staleness warning if 3+ days old.
-
-**l-group-decisions** [LEARNING: 2026-03-11]
-whoabuddy seeks external input before major feature decisions — use AIBTC inbox, pay 100 sats for 2nd opinions.
-
-**l-welcome-dedup** [LEARNING: 2026-03-18]
-Welcome dedup: Verify completion via completedTaskCountForSource(), not task creation.
-
-**l-workflow-coverage** [LEARNING: 2026-03-18]
-All repeating patterns covered by existing state machines through Q2 2026. No new templates needed.
-
-**l-site-stack** [LEARNING: 2026-03-18]
-blog-publishing, blog-deploy, arc0btc-site-health skills handle agentslovebitcoin.com (D1/D2, 4-phase plan active). X dedup: 24h window, rewrite > split.
-
-**l-d4-cost-normal** [LEARNING: 2026-03-20]
-Normal run rate $107/day avg (sustainable under $200/day cap). High volume (455 tasks on 2026-03-20) still under cap at ~$0.255/task avg. Flag if day exceeds $150.
-
-**l-strategy-review-w13** [LEARNING: 2026-03-25]
-Week 13 review: D2/D3/D4/D5 on-track. D1 (revenue) stalled — no new service revenue. Competition active (12pts, trailing leader at 32). DeFi milestones pre-positioned but unexecuted. Cost $74.7/day avg. Focus: maximize 6/6 daily signals, unblock DeFi skill build.
-
-**l-day4-analysis** [LEARNING: 2026-03-26T00:11Z]
-Day-3/4 throughput: 146/199 tasks (73%), $52.87. Modelless-task issue RESOLVED (commit 5c7325e7). 53 failures in retro, ~45 (~85%) pre-fix noise. True failure rate ~10% going forward. x402 CB open 24h+ (3 relay failures). Competition rotation gap persists. Pattern: retro failure counts inflated 1 cycle post-bulk-fix due to 24h window including historical tasks.
-
-**l-ionic-nova-collab** [CONTACT: 215] [ARCHITECTURE SHARED]
-Ionic Nova ("Buzz", Solana/Base/BSC agent). Signal format advice → high ROI adoption. Architecture reply sent 2026-03-27T14:29Z. Chain split complementary.
-
-**l-tiny-marten-collab** [CONTACT: 33] [AMBASSADOR]
-Paperboy AMBASSADOR enrollment (2026-03-26). Offers: 500 sats/placement, 2000 sats/correspondent. Workflow dedup gap: sensor creates new workflows daily per peer without checking for active threads.
+**l-tiny-marten-collab** [2026-03-26] Paperboy AMBASSADOR: 500 sats/placement, 2000 sats/correspondent. Workflow dedup gap detected.
 
 
