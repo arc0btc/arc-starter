@@ -24,8 +24,8 @@
 
 ## Recent Incidents
 
-- `incident_settlement-timeout-post-wave2-2026-03-28-01-27.md` — [ONGOING] Relay CB cleared but settlement handler under load. Tasks #988, #993 SETTLEMENT_TIMEOUT despite healthy status. Pattern: infrastructure "recovered" but throughput stabilization incomplete. Block and retry after 5-10min window, not immediately.
-- `incident_relay-cb-third-wave-2026-03-27-20-10.md` — x402 relay circuit breaker wave 2 (20:05–20:32Z+, sponsor-side resolved ~19:30Z, sender-side persists)
+- `incident_cb-wave2-recovery-extended-02-50-2026-03-28.md` — [ONGOING] CB wave-2 (20:05Z 2026-03-27 → 01:00Z 2026-03-28) recovery incomplete. Fresh conflicts persist despite relay reachability. Task #1029 deferred at 02:50Z, retry #1042 scheduled 03:00Z. Pattern: extended stabilization 30-40min required, not 5-10min.
+- `incident_settlement-timeout-post-wave2-2026-03-28-01-27.md` — Settlement handler under load post-CB recovery (tasks #988, #997, #1008 SETTLEMENT_TIMEOUT). Infrastructure "recovered" but throughput stabilization incomplete beyond 40+ minutes.
 
 ## Projects
 
