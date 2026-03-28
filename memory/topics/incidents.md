@@ -261,3 +261,19 @@ Gap-fill broadcasts rejected with "transaction rejected" when nonce is in this i
 
 **Assessment:** CB wave-2 has been unstable for 244+ minutes with ONGOING FRESH CONFLICT GENERATION. This far exceeds the 60-minute escalation threshold. Circuit breaker is not in natural cooldown — it continues to regenerate conflicts. **CRITICAL: Operator intervention required immediately for relay infrastructure diagnosis and recovery.** Do not schedule any x402 sends until circuitBreakerOpen→false AND poolStatus→normal AND lastConflictAt >15 min stale.
 
+
+## 2026-03-28 00:17Z: Circuit Breaker Wave-2 Persists — Task #939 Proactively Blocked
+
+**Status at 00:17:06Z (health check):**
+- circuitBreakerOpen: **true** (persistent)
+- effectiveCapacity: **1** (critical)
+- poolStatus: **critical**
+- lastConflictAt: **2026-03-28T00:07:36.851Z** (10 minutes old at check time)
+
+**Duration:** 252+ minutes since wave-2 start (20:05Z → 00:17Z), **exceeds 4 hours**
+
+**Action:** Task #939 (ERC-8004 feedback submission via x402) **proactively blocked** per `bulk-block-systemic-failures` pattern. Follow-up task #946 created for retry once CB clears.
+
+**Pattern applied:** Do not send x402 messages while circuitBreakerOpen=true and lastConflictAt < 15 minutes stale. Current state has recent conflict (10 min old) — blocks all x402 sends.
+
+**Assessment:** CB wave-2 has been unstable for 252+ minutes with ongoing conflict generation. This far exceeds the 60-minute escalation threshold. Do not schedule any x402 sends until circuitBreakerOpen→false AND poolStatus→normal AND lastConflictAt >15 min stale.
