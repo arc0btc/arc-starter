@@ -931,3 +931,53 @@ This is a fresh SETTLEMENT_TIMEOUT at 03:17:37Z, confirming settlement handler r
 
 Consider secondary escalation or manual operator intervention if settlement handler not recovered by 03:45Z (60+ min from escalation).
 
+
+## 2026-03-28 03:21Z: Test Send Failed — Settlement Handler Still Unrecovered After 112+ Minutes
+
+**Task:** #1047 (Retry: Notify signal rejected #71168194 → bc1qlezz2cgktx0t..., Trustless Indra contact #307)
+**Test attempt time:** 03:21:29Z
+**Failure time:** 03:21:52Z (SETTLEMENT_TIMEOUT at nonce 76)
+**Status:** Blocked, follow-up #1066 scheduled for 03:40Z
+
+**Symptom:** Test x402 send (single message to bc1qlezz2cgktx0t680ymrytef92wxksywx0jaw933) failed:
+```
+Nonce 74: SENDER_NONCE_DUPLICATE (relay cache from prior failure)
+Nonce 75: SENDER_NONCE_DUPLICATE (relay cache from prior failure)
+Nonce 76: SETTLEMENT_TIMEOUT (broadcast accepted, confirmation timed out after 29s)
+```
+
+**Timeline continuation:**
+- Task #988 SETTLEMENT_TIMEOUT at nonce 75, 01:09:50Z
+- Task #997 SETTLEMENT_TIMEOUT at nonce 75, 01:33:36Z
+- Task #1008 SETTLEMENT_TIMEOUT at nonce 74, 02:00:51Z
+- Task #1020 SETTLEMENT_TIMEOUT at nonce 74, 02:20:00Z
+- Task #1031 SETTLEMENT_TIMEOUT at nonce 74, 02:53:46Z → **Escalation #1043 (P1) created**
+- Task #1045 SETTLEMENT_TIMEOUT at nonce 75, 03:17:37Z
+- **Test send SETTLEMENT_TIMEOUT at nonce 76, 03:21:52Z** ← **FRESH FAILURE, 4 min after #1045**
+
+**Total duration:** 112+ minutes (01:09Z → 03:21Z) of continuous settlement handler failure
+
+**Root cause:** Settlement handler under load post-CB-wave-2 outage (20:05Z 2026-03-27 → 01:00Z 2026-03-28, 4+ hours). Despite relay reporting "healthy" and nonce state clean, settlement confirmation handler cannot acknowledge settlements within timeout window.
+
+**Critical assessment:**
+- Escalation #1043 created 28 minutes ago (02:53Z → 03:21Z)
+- Operator response expected 15-30 min post-escalation
+- Test send confirms settlement handler NOT recovered
+- Relay caching prior failure nonces (SENDER_NONCE_DUPLICATE at 74, 75) but still timing out on fresh nonce (76)
+
+**Pattern match:** `post-infrastructure-recovery-extended-stabilization-v2` → "If follow-up also fails with SETTLEMENT_TIMEOUT, escalate to operator (may require service restart)"
+- Multiple operator interventions may be required:
+  1. Settlement service restart (connection pool reset)
+  2. Settlement queue inspection (stuck transactions)
+  3. Relay nonce cache reset (clear DUPLICATE state)
+  4. Database recovery if settlement state corrupted
+
+**Action:** Blocked task #1047. Created follow-up #1066 scheduled for 03:40Z (19 min out, 47 min from escalation #1043 creation). This allows operator additional time to respond and remediate.
+
+**Do NOT resume x402 sends until operator confirms:**
+1. Settlement handler responds normally (<2s on test sends)
+2. No SETTLEMENT_TIMEOUT on 3+ consecutive test x402 sends
+3. Relay nonce cache cleared (no more SENDER_NONCE_DUPLICATE on fresh nonces)
+
+**If settlement handler not recovered by 03:40Z (60+ min from escalation), consider secondary escalation or manual operator intervention.**
+
