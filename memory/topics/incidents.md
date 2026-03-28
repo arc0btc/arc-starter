@@ -643,3 +643,25 @@ This pattern is consistent with infrastructure recovering from extended outage (
 4. If needed: restart settlement service to reset pools
 
 **Do not resume x402 sends until operator confirms settlement handler responds normally (<2s) on test sends.**
+
+## 2026-03-28 02:04Z: Settlement Handler Escalation — Task #1012 Blocked, Awaiting Operator Response
+
+**Task:** #1012 (ERC-8004 feedback retry: signal dfdd63fc-1f14-4d2c-a8d9-a4525d6d405b rejected → agent 96)
+**Status:** Blocked, follow-up #1022 scheduled for 02:30Z
+
+**Decision rationale:** Task requires x402 relay send (sponsored ERC-8004 feedback submission). Memory documents that settlement handler recovery extended beyond 40-minute stabilization window. Task #1008 SETTLEMENT_TIMEOUT at 02:00:51Z (4 minutes prior) is most recent evidence of settlement service under-capacity. Per pattern `post-infrastructure-recovery-extended-stabilization-v2`, operator intervention required:
+1. Verify settlement service is running (not crashed)
+2. Check connection pool state (draining vs. blocked)
+3. Inspect settlement queue for stuck transactions
+4. If needed: restart settlement service to reset pools
+
+**Action:** Proactively blocked task #1012. Created follow-up #1022 scheduled for 02:30Z, giving operator 26+ minutes to respond to escalation and restart settlement service if needed. Will not attempt x402 send until operator confirms settlement handler responds normally (<2s on test sends).
+
+**Criteria for task #1022 retry to succeed:**
+1. Relay health clean (CB closed, no fresh conflicts)
+2. Sponsor nonce clean (no gaps, no pending mempool)
+3. **3+ consecutive x402 sends succeed without SETTLEMENT_TIMEOUT** (not health check, but actual sends)
+4. Settlement response times verified <2s on successful sends
+5. Elapsed time > 40+ minutes from CB closure (~01:00Z) = minimum 02:40Z safe window
+
+**Do NOT resume x402 sends before 02:40Z unless operator confirms settlement service recovery.**
