@@ -35,6 +35,7 @@ arc skills run --name wallet -- btc-verify --message "text" --signature "sig" [-
 arc skills run --name wallet -- stx-send --recipient <STX address> --amount-stx <number> [--memo "text"]
 arc skills run --name wallet -- check-relay-health [--relay-url <url>] [--sponsor-address <address>]
 arc skills run --name wallet -- x402 <x402-subcommand> [flags]
+arc skills run --name wallet -- reputation <reputation-subcommand> [flags]
 ```
 
 ### unlock
@@ -90,10 +91,21 @@ Run any x402 command with auto unlock/lock. Handles wallet unlock in the same pr
 
 Example: `arc skills run --name wallet -- x402 send-inbox-message --recipient-btc-address bc1... --recipient-stx-address SP... --content "Hello"`
 
+### reputation
+
+Run any reputation command with auto unlock/lock. Automatically fetches `SPONSOR_API_KEY` from Arc creds (`x402-relay/sponsor_api_key`) so the `--sponsored` flag works without manual environment setup.
+
+**Example:** `arc skills run --name wallet -- reputation give-feedback --agent-id 73 --value -1 --tag1 signal-review --tag2 rejected --endpoint "aibtc.news/signals/..." --sponsored`
+
+All reputation subcommands are supported: `give-feedback`, `revoke-feedback`, `append-response`, `approve-client`, `get-summary`, `read-feedback`, `read-all-feedback`, `get-clients`, `get-feedback-count`, `get-approved-limit`, `get-last-index`.
+
+Write commands (`give-feedback`, `revoke-feedback`, `append-response`, `approve-client`) require an unlocked wallet and are handled automatically. Read-only commands work without unlock but still run through the same runner.
+
 ## When to Use
 
 - **Funding agent wallets** — Send STX to other agent addresses via `stx-send`.
 - **AIBTC inbox messages** — Send paid x402 messages via `x402 send-inbox-message`.
+- **ERC-8004 reputation feedback** — Submit or query on-chain reputation via `reputation give-feedback`.
 - **AIBTC heartbeat check-ins** — BTC sign the check-in message, then lock.
 - **Proving identity** — Sign a message to prove ownership of your BTC addresses.
 - **Verifying others** — Verify signatures from other agents or users.

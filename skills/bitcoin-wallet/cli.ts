@@ -19,6 +19,7 @@ const X402_RUNNER = resolve(import.meta.dir, "x402-runner.ts");
 const BNS_RUNNER = resolve(import.meta.dir, "bns-runner.ts");
 const STX_SEND_RUNNER = resolve(import.meta.dir, "stx-send-runner.ts");
 const SBTC_SEND_RUNNER = resolve(import.meta.dir, "../brief-payout/sbtc-send-runner.ts");
+const REPUTATION_RUNNER = resolve(import.meta.dir, "reputation-runner.ts");
 
 // ---- Helpers ----
 
@@ -721,6 +722,119 @@ async function cmdSbtcSend(args: string[]): Promise<void> {
   }
 }
 
+/**
+ * Run a reputation command via the reputation-runner, which handles unlock + reputation + lock
+ * in a single process. Injects SPONSOR_API_KEY from Arc creds so --sponsored flag works.
+ */
+async function runReputation(repArgs: string[]): Promise<{ stdout: string; stderr: string; exitCode: number }> {
+  const password = await getWalletPassword();
+  const walletId = await getWalletId();
+
+  // Fetch sponsor API key from Arc creds so --sponsored flag works
+  const sponsorApiKey = await getCredential("x402-relay", "sponsor_api_key")
+    || await getCredential("aibtc", "sponsor-api-key");
+
+  const proc = Bun.spawn(["bun", "run", REPUTATION_RUNNER, ...repArgs], {
+    cwd: ROOT,
+    stdin: "ignore",
+    stdout: "pipe",
+    stderr: "pipe",
+    env: {
+      ...process.env,
+      WALLET_ID: walletId,
+      WALLET_PASSWORD: password,
+      NETWORK: "mainnet",
+      ...(sponsorApiKey ? { SPONSOR_API_KEY: sponsorApiKey } : {}),
+    },
+  });
+
+  let stdout = "";
+  let stderr = "";
+
+  const stderrPromise = new Response(proc.stderr).text().then((t) => { stderr = t; });
+
+  // Read stdout incrementally, kill process once we have a complete JSON response.
+  // Reputation commands may take time (network + sponsored tx), so allow 60s.
+  const reader = proc.stdout.getReader();
+  const decoder = new TextDecoder();
+
+  const readWithTimeout = new Promise<string>(async (resolve, reject) => {
+    const timer = setTimeout(() => {
+      proc.kill();
+      reject(new Error("Timeout waiting for reputation response (60s)"));
+    }, 60000);
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        stdout += decoder.decode(value, { stream: true });
+
+        // Check if we have a complete JSON object
+        const trimmed = stdout.trim();
+        if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+          try {
+            JSON.parse(trimmed);
+            clearTimeout(timer);
+            proc.kill();
+            resolve(trimmed);
+            return;
+          } catch {
+            // Incomplete JSON, keep reading
+          }
+        }
+      }
+      clearTimeout(timer);
+      resolve(stdout.trim());
+    } catch (error) {
+      clearTimeout(timer);
+      reject(error);
+    }
+  });
+
+  const result = await readWithTimeout;
+  await stderrPromise.catch(() => {});
+
+  // Derive exit code from JSON response
+  let exitCode = 0;
+  try {
+    const parsed = JSON.parse(result) as Record<string, unknown>;
+    if (parsed.error || parsed.success === false) {
+      exitCode = 1;
+    }
+  } catch {
+    exitCode = 1;
+  }
+
+  return { stdout: result, stderr: stderr.trim(), exitCode };
+}
+
+async function cmdReputation(args: string[]): Promise<void> {
+  if (args.length === 0) {
+    process.stderr.write("Usage: arc skills run --name wallet -- reputation <reputation-subcommand> [flags]\n");
+    process.stderr.write("Example: arc skills run --name wallet -- reputation give-feedback --agent-id 73 --value -1 --sponsored\n");
+    process.exit(1);
+  }
+
+  log(`running reputation command: ${args[0]} (auto unlock/lock)`);
+  try {
+    const result = await runReputation(args);
+
+    if (result.exitCode !== 0) {
+      log(`reputation failed: ${result.stderr}`);
+      console.log(JSON.stringify({ success: false, error: "reputation command failed", detail: result.stderr || result.stdout }));
+      process.exit(1);
+    }
+
+    console.log(result.stdout);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`reputation failed: ${message}`);
+    console.log(JSON.stringify({ success: false, error: "reputation command failed", detail: message }));
+    process.exit(1);
+  }
+}
+
 async function cmdCheckRelayHealth(args: string[]): Promise<void> {
   const flags = parseFlags(args);
   const relayUrl = (flags["relay-url"] || "https://x402-relay.aibtc.com").replace(/\/+$/, "");
@@ -892,6 +1006,11 @@ SUBCOMMANDS
     Run any x402 command with auto unlock/lock. Handles wallet unlock
     in the same process so the wallet singleton is available to x402.
 
+  reputation <reputation-subcommand> [flags]
+    Run any reputation command with auto unlock/lock. Fetches SPONSOR_API_KEY
+    from Arc creds automatically so --sponsored flag works without manual env setup.
+    Example: give-feedback --agent-id 73 --value -1 --tag1 signal-review --sponsored
+
 EXAMPLES
   arc skills run --name wallet -- info
   arc skills run --name wallet -- unlock
@@ -903,6 +1022,7 @@ EXAMPLES
   arc skills run --name wallet -- stx-send --recipient SP... --amount-stx 0.5 --memo "funding"
   arc skills run --name wallet -- sbtc-send --recipient SP... --amount-sats 30000 --memo "payout"
   arc skills run --name wallet -- x402 send-inbox-message --recipient-btc-address bc1... --recipient-stx-address SP... --content "Hello"
+  arc skills run --name wallet -- reputation give-feedback --agent-id 73 --value -1 --tag1 signal-review --tag2 rejected --sponsored
 `);
 }
 
@@ -954,6 +1074,9 @@ async function main(): Promise<void> {
       break;
     case "x402":
       await cmdX402(args.slice(1));
+      break;
+    case "reputation":
+      await cmdReputation(args.slice(1));
       break;
     case "help":
     case "--help":
