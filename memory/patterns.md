@@ -1,7 +1,7 @@
 # Arc Patterns & Learnings
 
 *Operational patterns discovered and validated across cycles. Link: [MEMORY.md](MEMORY.md)*
-*Last updated: 2026-03-28T00:38Z (pruned: removed MEMORY.md duplicates BIP-137/x402-relay-CB, removed dated strategic-research entry, merged circuit-breaker state entries)*
+*Last updated: 2026-03-28T04:16Z (pruned: removed skills-release-doc gate, zero-balance-tool verification; merged diagnostic-introspection, email intake/stakeholder decomp, idempotency/stale-skill-refs)*
 
 ## Architecture & Safety
 
@@ -77,8 +77,7 @@
 - **Multi-domain feature parameterization via explicit CLI flags:** Add `--beat` params; make hook-state keys composite; extract domain logic into beat-scoped functions.
 - **Verification/audit skills: sensor-free, CLI-first.** File discovery via explicit CLI params, never auto-scan.
 - **API field aliasing for backwards compatibility:** Accept both legacy and new field names via nullish coalesce: `newFieldName ?? legacyFieldName`.
-- **Idempotency via existing operations over custom dedup:** Route through existing upsert operations (INSERT OR IGNORE) rather than bespoke duplicate-checking logic.
-- **Stale skill references after deletion:** When a skill is removed, grep all SKILL.md files and docs. Update references to replacement or remove if no replacement.
+- **Idempotency via existing operations over custom dedup:** Route through existing upsert operations (INSERT OR IGNORE) rather than bespoke duplicate-checking logic. After removing a skill, grep all SKILL.md files and docs for stale references; update or remove.
 - **Large-scale architectural concept removal requires phased execution + cross-layer audit:** When removing pervasive concepts (identity patterns, infrastructure patterns, agent models), audit impact across all layers (SOUL/CLAUDE/MEMORY, frameworks, skills, templates, docs, web UI) before starting. Execute in phases by layer, commit phase completions separately, and run `/simplify` + syntax validation after all deletions to catch dangling references and dead code.
 - **Resource cleanup + idempotency across side-effect boundaries:** When a function performs an irreversible op (mempool broadcast, API call), wrap post-side-effect code in try/catch and explicitly release acquired resources on error. Before retrying a partial success, verify the operation didn't already complete.
 - **Dedup ordering for idempotent correctness:** Apply dedup in order of broadest scope first. Transaction-level before sender-level.
@@ -90,10 +89,8 @@
 - **Partnership marginal-cost evaluation:** Zero marginal cost (existing cadence + minor CTA addition) = YES; requires new execution path = defer.
 - **Spec-first skill creation for external integrations:** Create SKILL.md spec first to lock in decision. Queue CLI implementation as separate follow-up task.
 - **Wrapper skills for upstream package integration:** When packaging external tools (from upstream repos like skills-v0.36.0) into arc-starter, use thin wrapper: SKILL.md (local docs) + AGENT.md (execution notes) + cli.ts (delegates to upstream implementation). Avoids code duplication and keeps upstream updates isolated. Example: nonce-manager wraps upstream skills/nonce-manager implementation with arc-starter-specific SKILL.md.
-- **Skills release documentation coordination gate:** When a new skills release includes new skills, landing-page documentation must be updated atomically across all surfaces: version headers (llms-full.txt), skill tables (llms.txt), and component descriptors (SkillsDirectory.tsx SHORT_DESC). Update version headers first to indicate what release is documented. Check prior releases (v0.35.0, etc.) to catch any missed skills. Use /simplify before PR creation to catch style inconsistencies (e.g., SHORT_DESC capitalization parity). Missing one file creates documentation gaps; style drift indicates incomplete reviews.
-- **Diagnostic introspection commands for distributed state tools:** Infrastructure tools managing complex state (nonce coordination, relay health, consensus tracking) must include CLI commands for state visibility (`sync`, `check`, `status`) without side effects. Surfaces pre-existing conditions post-deployment and eliminates need for manual diagnostic tasks. Example: `arc skills run --name nonce-manager -- sync --address <addr>` exposes gaps and current nextNonce without side effects.
+- **Diagnostic introspection commands for distributed state tools:** Infrastructure tools managing complex state (nonce coordination, relay health, consensus tracking) must include CLI commands for state visibility (`sync`, `check`, `status`) without side effects. Surfaces pre-existing conditions post-deployment and eliminates manual diagnostic tasks.
 - **DB migration error transparency + FK constraint ordering:** Never wrap version advancement in try/catch. Advance version only after successful completion to ensure failed migrations retrigger. For multi-table deletes with FK constraints, migrate/rename dependent records first (INSERT OR IGNORE), then delete parent tables — ordering ensures idempotency and surfaces failures immediately.
-- **Zero-balance tool verification for external integrations:** When integrating external tools (MCP, APIs) but account balance/state prevents live testing, verify via code review of implementation + credential compatibility check. Document in both local and upstream SKILL.md with tool purpose, parameters, and conditional-use guidance (when needed vs. standard flows that may make it optional).
 
 ## Claims, Git & State
 
@@ -144,9 +141,7 @@
 - **Category rotation verification in time-bound events:** Explicitly verify all buckets are fetched before competitive window closes. Queue P3 verification task mid-event.
 - **Infrastructure recovery with health-gated sentinel clearing:** After fixing critical infrastructure issues (e.g., circuit breaker reset), verify comprehensive operational health (pool capacity, conflict count, error queues, not just endpoint availability) before clearing gate sentinels. Sentinel clearing allows downstream sensors to self-heal on their next polling cycle — explicit reactivation tasks are unnecessary and can mask persistence of the underlying issue.
 - **Dispatch gate auto-recovery on usage windows:** When dispatch fails due to usage limits (3 consecutive failures → dispatch-gate stops), it auto-recovers when the usage limit window resets (typically 1pm MDT). Check gate status before escalating manually — `db/dispatch-lock.json` will show `status: "running"` when recovery has occurred. Email escalations may arrive after auto-recovery has already succeeded.
-- **Email request completion workflow:** When queuing work from email request, immediately mark email read and reply confirming action. Prevents duplicate processing.
-- **Infrastructure change prerequisites:** Before queuing P3+ execution tasks for infrastructure/payment system changes (ALB, x402 relay), verify credentials exist in store and explicitly confirm with stakeholder. Reply confirming prerequisites checked before queuing execution task. Prevents downstream failures from missing config.
-- **Stakeholder request decomposition:** Decompose into triage (same cycle) + execution tasks. Stakeholder-directed architecture overrides defaults.
-- **Email intake batching by skill domain:** When routing email with multiple content types, batch by execution skill rather than individual items.
+- **Email intake workflow:** On email requests, immediately mark read and reply confirming action. Before queuing infrastructure/payment execution tasks, verify credentials exist and confirm prerequisites with stakeholder to prevent downstream failures.
+- **Stakeholder request decomposition:** Decompose into triage + execution tasks; batch multi-content emails by execution skill. Stakeholder-directed architecture overrides defaults.
 - **Sensor architecture visibility groups:** Document low-signal/special-purpose sensors in a separate group within architecture diagrams (e.g., "OtherSensors" for paused sensors, epoch-guarded polling, new sensors). Prevents "missing from diagram" documentation debt and clarifies main signal flow.
 - **Carry-forward promotion to executable tasks:** Items deferred 3+ times in successive reviews become P8 standalone tasks rather than indefinite carry-forwards. Prevents architectural debt from accumulating in "someday" pile; forces explicit decision or completion.
