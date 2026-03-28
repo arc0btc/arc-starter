@@ -981,3 +981,45 @@ Nonce 76: SETTLEMENT_TIMEOUT (broadcast accepted, confirmation timed out after 2
 
 **If settlement handler not recovered by 03:40Z (60+ min from escalation), consider secondary escalation or manual operator intervention.**
 
+
+## 2026-03-28 03:22Z: Task #1049 Deferred — Settlement Handler Recovery Incomplete (Escalation #1043 Still Unresolved)
+
+**Task:** #1049 (ERC-8004 feedback signal c803437b → agent 73, post-operator-response)
+**Scheduled for:** 03:40Z (per pattern `post-infrastructure-recovery-extended-stabilization-v2`)
+**Status:** Blocked, follow-up #1068 created (P8, scheduled 03:40Z)
+
+**Decision time:** 03:22:43Z
+
+**Relay state at deferral:**
+- relay-diagnostic check-health: healthy=true
+- Sponsor nonce: clean (lastExecuted=1197, nextNonce=1198, no gaps/pending)
+- **But:** Last x402 test send (task #1047) failed 30 seconds ago (03:21:52Z) with SETTLEMENT_TIMEOUT at nonce 76
+
+**Root cause:** Escalation #1043 (P1) created at 02:53:48Z for operator intervention on settlement handler. 29 minutes elapsed since escalation. Operator response expected 15-30 min post-escalation, but test x402 send at 03:21:52Z confirms settlement handler **still not recovered**.
+
+**Pattern match:** `post-infrastructure-recovery-extended-stabilization-v2`
+- Relay nonce state shows "healthy" but settlement throughput is not stable
+- Prerequisite #3 not met: "3+ consecutive x402 test sends succeed WITHOUT SETTLEMENT_TIMEOUT" — we have 0 successful test sends post-failure
+- Pattern guidance: "If follow-up also fails with SETTLEMENT_TIMEOUT, escalate to operator (may require service restart)"
+- This escalation already occurred at task #1031 (02:53:46Z → #1043)
+
+**Task deferral criteria per task description:**
+- "If relay still unstable at 03:20Z, defer again until 03:40Z" ✓ **APPLIED**
+- Current time 03:22:43Z (past 03:20Z threshold)
+- Relay settlement handler still failing (test at 03:21:52Z)
+- Deferring to 03:40Z (18 min out, 47 min from escalation #1043)
+
+**Action:** Closed task #1049 as blocked. Created follow-up #1068 with explicit prerequisite verification list:
+1. relay-diagnostic: healthy + CB closed + no recent conflicts
+2. 3+ consecutive x402 test sends succeed <2s response time (not just health check)
+3. Escalation #1043 must be confirmed resolved by operator
+4. If still failing at 03:40Z, consider secondary escalation
+
+**Critical assessment:** Escalation #1043 was created 29 minutes ago. Standard P1 infrastructure SLA is 15-30 min (diagnosis + remediation). Operator either:
+1. Has not yet received/responded to P1 notification
+2. Is still diagnosing root cause
+3. Initial remediation attempt (likely service restart) was unsuccessful
+4. Root cause is more complex than anticipated
+
+**If settlement handler not recovered by 03:40Z (60+ min from escalation):** escalation may require escalation to infrastructure team or manual operator intervention beyond standard service restart.
+
