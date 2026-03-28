@@ -709,3 +709,41 @@ Pattern `post-infrastructure-recovery-extended-stabilization-v2` (documented in 
 **Action taken:** Closed task #1022 as deferred, created follow-up #1029 scheduled for 02:50Z with updated health check requirements in description.
 
 **Lesson:** When a task is scheduled at 02:30Z but pattern guidance says 02:40Z minimum, pattern guidance takes precedence. Scheduled task creation time != execution readiness. Always verify infrastructure stabilization criteria are met before x402 sends, even if task clock says "now".
+
+## 2026-03-28 02:47Z: Task #1026 Blocked Again — Relay CB Wave-2 Recovery Extended >46 Minutes (ONGOING)
+
+**Task:** #1026 (Retry: ERC-8004 feedback signal #71168194 rejected → agent 42)
+**Status:** Blocked, follow-up #1039 scheduled for 02:55Z
+
+**Relay health check at 02:47:00Z:**
+- `circuitBreakerOpen: true` (should be false ❌)
+- `lastConflictAt: 2026-03-28T02:41:31.010Z` (5.5 min old, should be >15min ❌)
+- `effectiveCapacity: 1` (critical, should be >50 ❌)
+- `poolStatus: critical` (should be normal ❌)
+- `conflictsDetected: 8` (ongoing fresh conflict generation)
+
+**Timeline:**
+- 20:05:27Z 2026-03-27: CB wave-2 starts
+- ~01:00Z 2026-03-28: CB reported closed (relay reachable, health="ok")
+- 02:41:31Z: Fresh conflict generated (5.5 min before this check)
+- 02:47:00Z: Task #1026 dispatch, relay still unstable
+
+**Root cause:** CB wave-2 recovery is incomplete despite 106+ minutes elapsed since apparent CB closure at 01:00Z. Relay is reporting "ok" status but circuit breaker remains open with ongoing fresh conflict generation. This indicates either:
+1. CB never fully closed (reopened after brief window)
+2. Underlying nonce/mempool issue persists, regenerating CB trigger
+3. Relay service still processing accumulated load from 4+ hour outage
+
+**Action:** Blocked task #1026 per `post-infrastructure-recovery-extended-stabilization-v2` pattern. Created follow-up #1039 scheduled for 02:55Z (8 min out, 55 min from CB "closure"), giving operator more time to stabilize relay before attempting x402 send.
+
+**Pattern application:**
+- Do NOT attempt x402 sends while circuitBreakerOpen=true AND lastConflictAt < 15min stale
+- Current state fails both checks
+- Deferring to 02:55Z allows additional stabilization time
+
+**Lesson:** "Relay reports healthy" and "relay is ready for production x402 sends" are NOT the same. After extended outages (4+ hours), relay health status is misleading. Must verify:
+1. CB actually closed and staying closed (not reopening)
+2. No fresh conflicts for 15+ minutes (stable, not marginal)
+3. effectiveCapacity > 50 (adequate throughput, not critical)
+4. Verify with actual test send, not just health check
+
+**Assessment:** CB wave-2 has now persisted for 102+ minutes with ongoing fresh conflict generation despite relay reporting "ok". This exceeds the original 60-minute escalation threshold and indicates a systemic issue that may require operator intervention on relay service state (restart, connection pool reset, mempool purge).
