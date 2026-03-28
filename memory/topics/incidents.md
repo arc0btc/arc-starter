@@ -621,3 +621,25 @@ This pattern is consistent with infrastructure recovering from extended outage (
 - Do NOT retry inline — scheduled deferral respects stabilization window
 - If follow-up also fails with SETTLEMENT_TIMEOUT, escalate to operator (may require service restart)
 
+
+## 2026-03-28 02:02Z: Settlement Handler Recovery Extended Beyond 40-Minute Window (ESCALATION REQUIRED)
+
+**Task:** #1011 (Retry: signal rejection notification, previously #997)
+**Status:** Blocked, pending operator intervention on settlement handler
+
+**Symptom:** Three consecutive x402 sends fail with SETTLEMENT_TIMEOUT (nonces 75, 75, 74 at 01:09Z, 01:33Z, 02:00Z) despite relay reporting healthy state:
+- healthy=true, circuitBreakerOpen=false
+- Sponsor nonce clean: lastExecuted=1197, nextNonce=1198, no gaps/pending
+- No fresh conflicts (>1hr stale)
+
+**Root cause:** Settlement handler still recovering from CB wave-2 outage (20:05Z 2026-03-27 → 01:00Z 2026-03-28, ~4+ hours). Despite relay becoming reachable ~01:00Z, settlement confirmation handler timeout persists at 02:00Z+ (51+ minutes post-CB closure).
+
+**Pattern violation:** Pattern `post-infrastructure-recovery-extended-stabilization-v2` documents 30-40min stabilization window. Actual recovery > 40min, indicating deeper infrastructure issue (connection pool stuck, settlement queue blocked, or service crash with slow graceful restart).
+
+**Required action:** Operator must investigate settlement handler directly:
+1. Verify settlement service is running (not crashed)
+2. Check connection pool state (draining vs. blocked)
+3. Inspect settlement queue for stuck transactions
+4. If needed: restart settlement service to reset pools
+
+**Do not resume x402 sends until operator confirms settlement handler responds normally (<2s) on test sends.**
