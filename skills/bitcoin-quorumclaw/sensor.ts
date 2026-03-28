@@ -286,37 +286,13 @@ export default async function quorumclawSensor(): Promise<string> {
   }
 
   // Check if API has been consistently unreachable. When threshold is hit, pause polling
-  // and create a single alert task. Reset by deleting failure-state.json after confirming
-  // the API is back (or a new URL is available — update API_BASE in this file and cli.ts).
+  // entirely — no task creation, no API calls. Reset by deleting failure-state.json after
+  // confirming the API is back (or a new URL is available — update API_BASE in this file
+  // and cli.ts). See MEMORY.md quorumclaw-api-down for current status.
   const failureState = await readFailureState();
   if (failureState.consecutiveFailures >= ALERT_THRESHOLD) {
-    const alertSource = "sensor:bitcoin-quorumclaw:api-failure-alert";
-    if (!pendingTaskExistsForSource(alertSource)) {
-      insertTask({
-        subject: "QuorumClaw API unavailable — sensor paused, action required",
-        description: [
-          `The QuorumClaw API (${API_BASE}) has been unreachable for ${failureState.consecutiveFailures}+ consecutive sensor runs (~${Math.round((failureState.consecutiveFailures * INTERVAL_MINUTES) / 60)}h).`,
-          `Last failure: ${failureState.lastFailureAt ?? "unknown"}`,
-          ``,
-          `Tracked items waiting for API:`,
-          ...tracking.invites.map((i) => `- Invite ${i.code} (${i.label})`),
-          ...tracking.multisigs.map((m) => `- Multisig ${m.id} (${m.label})`),
-          ``,
-          `Actions:`,
-          `1. Check if API is back: curl ${API_BASE}/health`,
-          `2. If a new URL exists, update API_BASE in sensor.ts and cli.ts`,
-          `3. Reset failure counter: rm skills/bitcoin-quorumclaw/failure-state.json`,
-        ].join("\n"),
-        skills: '["bitcoin-quorumclaw"]',
-        priority: 4,
-        model: "sonnet",
-        source: alertSource,
-      });
-      log(`API failure alert created (${failureState.consecutiveFailures} consecutive failed runs)`);
-    } else {
-      log(`API unreachable for ${failureState.consecutiveFailures} runs, alert already pending — skipping poll`);
-    }
-    return "ok";
+    log(`API paused (${failureState.consecutiveFailures} consecutive failures) — skipping`);
+    return "skip";
   }
 
   log(
