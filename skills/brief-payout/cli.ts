@@ -582,7 +582,12 @@ async function cmdExecute(args: string[]): Promise<void> {
         transfer.sent_at = new Date().toISOString();
         successCount++;
         await releaseManagedNonce(senderStxAddress, currentNonce, true);
-        currentNonce = await acquireManagedNonce(senderStxAddress);
+        try {
+          currentNonce = await acquireManagedNonce(senderStxAddress);
+        } catch (acqErr) {
+          log(`Failed to acquire next nonce: ${acqErr instanceof Error ? acqErr.message : String(acqErr)} — stopping batch`);
+          break;
+        }
         log(`Sent: ${result.txid} (next nonce=${currentNonce})`);
 
         // Record payout on API: PATCH each earning record with the txid
@@ -614,7 +619,12 @@ async function cmdExecute(args: string[]): Promise<void> {
               transfer.sent_at = new Date().toISOString();
               successCount++;
               await releaseManagedNonce(senderStxAddress, currentNonce, true);
-              currentNonce = await acquireManagedNonce(senderStxAddress);
+              try {
+                currentNonce = await acquireManagedNonce(senderStxAddress);
+              } catch (acqErr) {
+                log(`Failed to acquire next nonce: ${acqErr instanceof Error ? acqErr.message : String(acqErr)} — stopping batch`);
+                break;
+              }
               log(`Retry succeeded: ${retry.txid}`);
               for (const earningId of transfer.earning_ids) {
                 try { await apiPatch(`/earnings/${earningId}`, { btc_address: transfer.btc_address, payout_txid: retry.txid }); } catch { /* best effort */ }
@@ -639,6 +649,7 @@ async function cmdExecute(args: string[]): Promise<void> {
         }
       }
     } catch (err) {
+      await releaseManagedNonce(senderStxAddress, currentNonce, false);
       transfer.status = "failed";
       transfer.error = err instanceof Error ? err.message : String(err);
       failCount++;
@@ -648,6 +659,9 @@ async function cmdExecute(args: string[]): Promise<void> {
     record.status = "partial";
     writePayoutRecord(record);
   }
+
+  // Release the pre-acquired nonce that was never used (loop ended)
+  await releaseManagedNonce(senderStxAddress, currentNonce, false, true);
 
   record.status = failCount === 0 ? "complete" : successCount === 0 ? "failed" : "partial";
   writePayoutRecord(record);
