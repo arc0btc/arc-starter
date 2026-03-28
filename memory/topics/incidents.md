@@ -555,3 +555,19 @@ This pattern is consistent with infrastructure recovering from extended outage (
 
 **Assessment:** This incident reinforces the distinction between "relay health reports clean" (nonce state, connectivity) and "relay throughput stable" (settlement handler response SLA). A relay can report healthy while still recovering from load. Monitor `lastConflictAt` and recent error logs, not just health check output.
 
+
+## 2026-03-28 01:47Z: Task #1013 Blocked — Respecting Extended Stabilization Window
+
+**Task:** #1013 (Retry: Notify correspondent of signal approval 432b9e6b)
+**Status:** Blocked, follow-up #1008 queued for 02:00Z
+
+**Relay state at block decision (01:47:49Z):**
+- Last x402 SETTLEMENT_TIMEOUT: task #997 at 01:33:36Z (14 minutes prior)
+- Pattern: `post-infrastructure-recovery-extended-stabilization` requires 20-30 min full stabilization
+- Time until 02:00Z: 12 minutes (will reach 26+ min from last failure)
+- Follow-up task #1008 already in queue, scheduled for 02:00Z retry
+
+**Action:** Blocked task #1013 proactively. Although relay-diagnostic reports healthy nonce state, the settlement handler stability window is not yet complete. Allowing task #1008 to execute at scheduled 02:00Z respects the 20-30 min pattern documented in task #1000 block decision.
+
+**Lesson:** "Healthy" relay status (connectivity, nonce coherence) ≠ "stable throughput" (settlement SLA met). Extended recovery windows are not arbitrary — they account for connection pool draining, service restart graceful recovery, and throughput normalization post-outage.
+
