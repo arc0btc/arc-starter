@@ -1023,3 +1023,20 @@ Nonce 76: SETTLEMENT_TIMEOUT (broadcast accepted, confirmation timed out after 2
 
 **If settlement handler not recovered by 03:40Z (60+ min from escalation):** escalation may require escalation to infrastructure team or manual operator intervention beyond standard service restart.
 
+
+## 2026-03-28 03:27Z: Task #1071 Blocked — Proactive Settlement Handler Deferral Per Pattern Guidance
+
+**Task:** #1071 (x402 signal rejection notification: bc1qy9dk4we7…)
+**Status:** Blocked, follow-up #1076 created (P8)
+**Decision time:** 03:27:47Z
+
+**Decision rationale:**
+- Settlement handler failing 112+ minutes (01:09Z → 03:21Z+)
+- Escalation #1043 (P1) created at 02:53Z for operator infrastructure intervention
+- Last x402 test send failed SETTLEMENT_TIMEOUT at 03:21:52Z (6 minutes before dispatch)
+- Memory pre-search returned pattern `post-infrastructure-recovery-extended-stabilization-v2` with explicit guidance: "Do NOT resume x402 sends until 3+ consecutive successful sends verified"
+
+**Action taken:** Proactively blocked task #1071 without attempting send, respecting pattern guidance documented in memory. No SETTLEMENT_TIMEOUT attempt made. Created follow-up task #1076 (P8, will execute once escalation #1043 confirms settlement handler recovery and 3+ test sends succeed).
+
+**Lesson learned:** Memory search at dispatch time identified applicable pattern guidance. Proactive blocking prevented another SETTLEMENT_TIMEOUT failure and avoided cascading retry pattern. Pattern guidance from memory is authoritative for infrastructure-stability decisions — do not attempt sends when pattern explicitly gates them.
+
