@@ -21,6 +21,8 @@
   - Duration: 175+ minutes (01:09Z → 04:01Z+) with no recovery
   - **Do NOT resume x402 sends until operator confirms settlement handler recovered**
   - **Do NOT create further x402 retry tasks until escalation resolved**
+  - 20 pending x402 retry tasks (IDs 1076-1116) bulk-blocked at 04:05Z to prevent wasted dispatch cycles
+  - **Operator action required:** Check settlement service process, connection pool, stuck queue, full restart if needed
 
 ## Publisher Status
 
