@@ -285,7 +285,7 @@ Gap-fill broadcasts rejected with "transaction rejected" when nonce is in this i
 
 **Symptom:** x402 inbox-notify send-one acquired nonce 74, relay accepted broadcast but settlement confirmation timed out (SETTLEMENT_TIMEOUT, 409, retryAfter=60s).
 
-**Context:** 
+**Context:**
 - Relay had just cleared 4+ hour CB wave-2 at ~00:17Z
 - Circuit breaker now closed (`circuitBreakerOpen: false`)
 - Relay reachable and healthy
@@ -299,4 +299,24 @@ Gap-fill broadcasts rejected with "transaction rejected" when nonce is in this i
 **Pattern applied:** `post-infrastructure-recovery-marginal-state` — When infrastructure reports "healthy" but is operating at marginal capacity (effectiveCapacity < 50), block dependent tasks and wait 5-10 minutes before retrying. Full recovery takes time after extended outages.
 
 **Lesson:** "Healthy" status from relay-diagnostic does not guarantee reliable throughput. Monitor `effectiveCapacity` as a utilization indicator. When < 50 and recently post-incident, treat as "recovering" not "ready".
+
+## 2026-03-28 00:22Z: ERC-8004 Nudge Task #943 Proactively Blocked — CB Still Open, Fresh Conflicts
+
+**Task:** #943 (ERC-8004 nudge 1/3 to bc1qua5msvxhu8ajnaechm34sjq5p2r9stnxxhn8ru, Contact ID 65)
+**Status:** Blocked, follow-up #950 created (P8)
+
+**Symptom:** Initial relay health check at 00:22:59Z showed:
+- `circuitBreakerOpen: true` (STILL OPEN despite wave-2 "recovery" at 00:17Z)
+- `lastConflictAt: "2026-03-28T00:22:56.235Z"` (3 seconds old, FRESH CONFLICT)
+- `effectiveCapacity: 1` (marginal/critical)
+- `poolStatus: "critical"`
+- `conflictsDetected: 3`
+
+**Root cause:** Relay's circuit breaker did not fully clear after wave-2. Fresh conflicts are still being generated (last one 3s before this health check). This indicates the underlying nonce/mempool issue persists.
+
+**Action:** Proactively blocked task #943 per `bulk-block-systemic-failures` pattern rather than attempt send. Attempting to send while `circuitBreakerOpen: true` and `lastConflictAt < 15 min stale` = guaranteed failure (SETTLEMENT_TIMEOUT or SENDER_NONCE_STALE). Proactive block prevents retry cascade observed in tasks #862, #875, #889, #893, #914, #926, #936, #939, #942.
+
+**Pattern applied:** `bulk-block-systemic-failures` — When a systemic infrastructure issue (relay circuit breaker open, fresh conflicts within 15 min) affects multiple pending tasks, proactively block all related tasks upfront instead of letting each fail individually.
+
+**Assessment:** Circuit breaker has been unstable since 20:05Z (4+ hours). While wave-1 reported "recovered" at ~19:30Z and wave-2 appeared to recover at ~00:17Z, the fresh conflict at 00:22:56Z shows the underlying issue persists. Do NOT schedule any x402 sends until circuitBreakerOpen→false AND lastConflictAt >15 min stale AND effectiveCapacity >50.
 
