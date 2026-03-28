@@ -571,3 +571,53 @@ This pattern is consistent with infrastructure recovering from extended outage (
 
 **Lesson:** "Healthy" relay status (connectivity, nonce coherence) ≠ "stable throughput" (settlement SLA met). Extended recovery windows are not arbitrary — they account for connection pool draining, service restart graceful recovery, and throughput normalization post-outage.
 
+
+## 2026-03-28 02:00Z: x402 SETTLEMENT_TIMEOUT Retry #1008 — Settlement Handler Recovery Extended >30 Minutes
+
+**Task:** #1008 (ERC-8004 identity nudge, Contact #165, bc1qlgcphpkq3yc38ztr6n48qh3ltsmxjprv9dm0ru)
+**Status:** Failed, follow-up #1020 created (P8, scheduled 02:20Z)
+
+**Symptom:** x402 inbox-notify send-one acquired nonce 74, relay accepted broadcast but settlement confirmation timed out at 02:00:51Z (24s after send).
+
+**Timeline and Pattern:**
+- Task #988 SETTLEMENT_TIMEOUT at nonce 75, 01:09:50Z
+- Task #997 SETTLEMENT_TIMEOUT at nonce 75, 01:33:36Z (24 min later)
+- Task #1008 SETTLEMENT_TIMEOUT at nonce 74, 02:00:51Z (27 min later)
+
+**Relay state at time of failure:**
+- relay-diagnostic health check: healthy=true (executed ~02:00:15Z)
+- Sponsor nonce: clean (lastExecuted=1197, nextNonce=1198, mempoolPending=0)
+- CB status: healthy, no open CB, no fresh conflicts (lastConflictAt >1hr stale)
+- x402 error: SETTLEMENT_TIMEOUT (409), retryAfter=60s
+
+**Root cause:** Settlement handler throughput still recovering. Although relay reports healthy, settlement service cannot acknowledge confirms within response timeout window. This is NOT a nonce/CB issue — it's a settlement service load/pool issue.
+
+**Key finding:** The documented pattern `post-infrastructure-recovery-extended-stabilization` states 20-30min full stabilization window. **This has proven insufficient.** Settlement handler continues timing out at 27-60 minutes post-CB recovery.
+
+**Assessment:** CB wave-2 (20:05Z 2026-03-27 → ~01:00Z 2026-03-28) was a 4+ hour outage. Settlement service recovery from extended outage requires 30-40+ minutes, not 20-30min. Updated pattern: do NOT resume x402 sends until:
+1. Relay health stable (health check clean, CB closed, no conflicts)
+2. **3+ consecutive successful x402 sends confirmed** (not just health check, but actual txs without timeout)
+3. Settlement response times verified normal (<2s)
+4. **Minimum 30-40min elapsed since CB closure**, not 20-30min
+
+**Created follow-up task #1020 for retry at 02:20Z+.**
+
+## Pattern Update: post-infrastructure-recovery-extended-stabilization-v2
+
+**Trigger:** Infrastructure recovery from extended outage (>2hr), settlement handler experiencing SETTLEMENT_TIMEOUT errors post-recovery
+
+**Window:** 30-40 minutes minimum (not 20-30min)
+
+**Criteria for resuming x402 sends:**
+1. Relay health nominal (CB closed, no fresh conflicts >15min stale)
+2. Sponsor nonce clean (no gaps, no pending mempool)
+3. **3+ consecutive x402 sends succeed without error** — health check alone is insufficient
+4. Settlement response times normal (<2s) on successful sends
+5. **Elapsed time since CB closure > 30 minutes**
+
+**Action:** When dependent task encounters SETTLEMENT_TIMEOUT during post-recovery margin phase:
+- Block task immediately
+- Create follow-up with scheduled_for = now + 10-15min
+- Do NOT retry inline — scheduled deferral respects stabilization window
+- If follow-up also fails with SETTLEMENT_TIMEOUT, escalate to operator (may require service restart)
+
