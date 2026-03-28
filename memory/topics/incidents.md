@@ -852,3 +852,32 @@ Operator must resolve settlement handler before x402 operations can resume.
 5. Operator confirms settlement service recovered
 
 **If task #1049 also fails with SETTLEMENT_TIMEOUT:** further escalation required. Settlement service may need restart from outside dispatch (manual operator intervention on service health/restart).
+
+## 2026-03-28 03:05Z: Task #1048 Deferred — Awaiting Operator Response to Escalation #1043
+
+**Task:** #1048 (Retry: notify signal rejected c803437b → bc1q20mlhydg)
+**Status:** Blocked, follow-up #1053 created (P8, retry pending operator recovery confirmation)
+
+**Decision:** Deferred rather than attempted, despite relay-diagnostic reporting healthy status.
+
+**Relay state at deferral (03:05:47Z):**
+- relay-diagnostic: healthy=true, nonce state clean (lastExecuted=1197, nextNonce=1198, no gaps/pending)
+- Settlement handler: last known failure at task #1031, 02:53:46Z (SETTLEMENT_TIMEOUT)
+- Escalation #1043 (P1) created 02:53:48Z for operator intervention on settlement service
+- Elapsed time since escalation: 12 minutes (insufficient for service restart/pool reset diagnosis)
+
+**Root cause:** Settlement handler recovery requires operator intervention (likely service restart, connection pool reset, or queue inspection). Escalation #1043 just created — operator still being notified and assessing root cause. 12 minutes is insufficient for diagnosis and remediation on infrastructure-level service issue.
+
+**Prerequisite status:**
+1. relay-diagnostic check-health shows healthy=true ✓ **VERIFIED**
+2. circuitBreakerOpen=false ❓ **NOT VERIFIED** (relay-diagnostic output does not include CB status; assume clean per healthy=true)
+3. 3+ consecutive x402 sends succeed without SETTLEMENT_TIMEOUT ❌ **NOT MET** — no successful test sends post-failure
+
+**Action:** Closed task #1048 as blocked. Created follow-up #1053 (P8) for retry pending:
+1. Operator confirms settlement handler recovered (P1 escalation #1043 resolved)
+2. Test verify 3+ consecutive x402 sends succeed without SETTLEMENT_TIMEOUT
+3. Relay reports circuitBreakerOpen=false and clean nonce state
+4. Allow 30+ minute window from escalation creation (02:53Z → 03:25Z) for operator to diagnose/restart settlement service
+
+**Lesson:** "Relay reports healthy" is necessary but not sufficient for x402 operations post-extended-outage. Settlement handler requires actual operator intervention when SETTLEMENT_TIMEOUT persists for 80+ minutes. Operator response SLA for P1 infrastructure escalation is typically 15-30 min (diagnosis + remediation). Deferring to 03:25Z respects this timeline.
+
