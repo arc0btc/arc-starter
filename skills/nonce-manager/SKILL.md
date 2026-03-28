@@ -30,6 +30,7 @@ arc skills run --name nonce-manager -- release --address SP... --nonce 42 --fail
 arc skills run --name nonce-manager -- sync --address SP...
 arc skills run --name nonce-manager -- status
 arc skills run --name nonce-manager -- status --address SP...
+arc skills run --name nonce-manager -- queue-check --address SP... [--relay-url URL]
 ```
 
 ### acquire
@@ -63,6 +64,16 @@ Force re-sync from Hiro API. Use after manual intervention or mempool clearance.
 ### status
 
 Show tracked nonce state for one or all addresses.
+
+### queue-check
+
+Query the relay's dispatch queue for a sender address — shows queue position and pending txs. Useful for stuck-tx triage without waiting for cycle timeout.
+
+```json
+{ "address": "SP...", "pending": [], "queuePosition": 0 }
+```
+
+Default relay: `https://x402-relay.aibtc.com`. Override with `--relay-url`.
 
 ## Relay Error → Release Mapping
 
