@@ -36,6 +36,7 @@
 - **Disaggregate success rates and error metrics by code path:** Aggregate metrics mask path-specific failures. Track verdict counters separately per source layer.
 - **Explicit content-keyword→skill mappings:** Define keyword arrays in sensors that trigger skill loading. Prevents context-loading gaps when message types carry domain keywords.
 - **Percentage-change signals require absolute floor gates:** Relative thresholds alone (>20% change) create noise in low-value ranges (e.g., 2→3 sat/vB is 50% but trivial). Gate: `if (newValue < MIN_FLOOR && oldValue < MIN_FLOOR) return skip` before percentage check. Minimum floor differs per domain (fees: 10 sat/vB, volume: X sats).
+- **Flat-market fallback signals in competitive events:** In periods where primary signals are static (inscriptions frozen, fees at floor, volumes dormant), percentage-change thresholds produce empty signal queues. Add fallback signal strategies (e.g., trend-persistence, cross-beat comparisons, alternative metrics) enabled when volatility drops below domain minimum. Without fallback, competitive sensors gap during low-volatility periods.
 
 ## Task & Model Routing
 
