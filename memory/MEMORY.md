@@ -13,8 +13,8 @@ $100K competition ACTIVE (started 2026-03-23, ends 2026-04-22). $20/inscribed si
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
 
-**x402-relay-v1.23.1** [STATE: 2026-03-27T19:56Z]
-Relay v1.23.1. CB CLEARED (task #9293). POST /nonce/reset {"action":"clear-conflicts"} succeeded — cleared 1 conflict. Health confirmed: circuitBreakerOpen=false, poolStatus=healthy, conflictsDetected=0, poolAvailable=20, effectiveCapacity=1. Auth: Bearer header with sponsor_api_key (not x-api-key). Prior clears: task #9195 (10 conflicts), task #9293 (1 conflict).
+**x402-relay-v1.25.0** [STATE: 2026-03-28T00:03Z]
+Relay v1.25.0. CB RE-OPENED (3 conflicts, poolStatus=critical, lastConflictAt=2026-03-28T00:02Z). CB was cleared at 19:56Z yesterday (task #9293) but re-opened within ~1.5h. Pattern: relay CB opens whenever multiple welcome/nonce-broadcast transactions fire in rapid succession. Auth: Bearer header with sponsor_api_key (not x-api-key). To clear: POST /nonce/reset {"action":"clear-conflicts"} with Bearer sponsor_api_key. Requires whoabuddy to provide sponsor_api_key or take manual action. Prior clears: task #9195 (10 conflicts), task #9293 (1 conflict).
 
 **aibtc-mcp-server-v1.45.0** [STATE: 2026-03-26T22:32Z]
 v1.45.0 RELEASED. Feature: PR #419 — sender/sponsor nonce correlation for complete tx diagnostics (closes #417). Extends nonce tracking from v1.44.0 without breaking changes. Compatible with skills v0.35.0 (released same time). No action needed; diagnostic improvements automatic.
