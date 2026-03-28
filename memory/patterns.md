@@ -1,7 +1,7 @@
 # Arc Patterns & Learnings
 
 *Operational patterns discovered and validated across cycles. Link: [MEMORY.md](MEMORY.md)*
-*Last updated: 2026-03-27T22:00Z (consolidated: folded Email/Partnership sections, removed MEMORY.md duplicates, merged API/config entries)*
+*Last updated: 2026-03-28T00:38Z (pruned: removed MEMORY.md duplicates BIP-137/x402-relay-CB, removed dated strategic-research entry, merged circuit-breaker state entries)*
 
 ## Architecture & Safety
 
@@ -46,7 +46,6 @@
 - **Designated stakeholder communications route to Opus minimum.** Email/messages from whoabuddy and critical internal partners → Opus routing in sensor, independent of nominal priority. Partnership quality and trust warrant high-tier execution.
 - **Multi-skill composition in triage decomposition:** Include both primary domain skills and supporting meta skills in each task's `skills` array.
 - **Research task sourcing from external URLs:** For bulk link research (3+ items), create individual tasks per link. Always specify output format in task description.
-- **Strategic research synthesis for infrastructure topics with expert credibility weighting:** When researching external expert analysis of infrastructure/agent design, fetch both primary source AND nested references (quote-tweets often summarize articles; follow through). Validate expert domain (AI researcher vs crypto-native changes interpretation weight). Structure: expert credibility → thesis → technical foundation → competitive landscape (standard A vs B, backing orgs, adoption signals) → Arc alignment → evolution vectors. High-credibility cross-domain validation (e.g., Chollet on x402) signals mainstream adoption outside crypto silos. Transforms passive research into strategic planning input.
 - **Task-type-specific context loading:** Retry tasks and relay notifications carry keywords that DON'T indicate execution-skill needs; gate skill loading on content-type, not keyword presence.
 
 ## Task Chaining & Precondition Gates
@@ -73,7 +72,6 @@
 - **Idempotent setup with secure scaffolding:** Skip existing resources; create credential files with mode 0600; use `.template` files with parameter substitution.
 - **API version/auth migration requires coordinated client updates:** Update all callers simultaneously with phase/state gates.
 - **X/Twitter content fetching requires fxtwitter API fallback:** x.com requires JS rendering; WebFetch cannot handle it. Use api.fxtwitter.com for JSON embeds without JS. Falls back gracefully for archived/deleted posts.
-- **BIP-137 outbox unreliable for batch operations:** ~75% of message threads return HTTP 500 from the outbox API (server-side, unrelated to content/length). Use only as fallback for individual replies to received messages. Do not plan as a bulk broadcast mechanism.
 - **Component audit methodology:** Export metadata as queryable JSON. Classify: shared/agent_specific/runtime_builtin/delete. Delete-safe: unused 30+ days + zero refs.
 - **Multi-domain feature parameterization via explicit CLI flags:** Add `--beat` params; make hook-state keys composite; extract domain logic into beat-scoped functions.
 - **Verification/audit skills: sensor-free, CLI-first.** File discovery via explicit CLI params, never auto-scan.
@@ -96,8 +94,7 @@
 
 - **Live deployment divergence:** Check live site AND source HEAD. Services don't auto-reload — restart after commits.
 - **Proof over assertion:** Verify claims against authoritative sources before publishing.
-- **Circuit breaker state latch bug pattern:** State setters must be conditional on whether the condition *still exists*, not just the triggering event.
-- **Half-open timer initialization prevents perpetual open state:** In half-open circuits, only arm the timeout on initial closed→open transition; never re-arm on every invocation when already open. Re-arming on every check causes timeout to never fire when the failure condition persists, leaving the circuit permanently open under sustained load.
+- **Circuit breaker state correctness:** State setters must check whether condition *still exists* (not just the triggering event). Half-open timer only arms on initial closed→open transition — re-arming on every check when already open causes timeout to never fire, leaving circuit permanently open under sustained load.
 - **Circuit breaker outcomes vs errors:** Failure counter increments only on true availability errors (network failures, 5xx, timeouts, malformed responses). Business-level outcomes (200 OK with "failed"/"replaced" fields, 402 payment required) are valid responses and should not trigger the breaker.
 - **Symmetric state ownership at integration points:** Enforce single source of truth; audit all callers during integration to prevent process-level state divergence.
 - **Code review methodology:** Scan diffs → trace call stack → verify fix spans all layers (including shared logic callers). Mark each item [blocking] or [suggestion]. When CI already comments a PR, Arc must not add its own review comments. Multi-reviewer scenarios: enumerate ALL feedback items (whoabuddy + automated) before verifying fixes — prevents feedback from being overlooked in large diffs. Changes_requested re-review: verify each original feedback item addressed; CI green before approving.
@@ -146,6 +143,5 @@
 - **Infrastructure change prerequisites:** Before queuing P3+ execution tasks for infrastructure/payment system changes (ALB, x402 relay), verify credentials exist in store and explicitly confirm with stakeholder. Reply confirming prerequisites checked before queuing execution task. Prevents downstream failures from missing config.
 - **Stakeholder request decomposition:** Decompose into triage (same cycle) + execution tasks. Stakeholder-directed architecture overrides defaults.
 - **Email intake batching by skill domain:** When routing email with multiple content types, batch by execution skill rather than individual items.
-- **Bulk x402 transaction waves trigger relay circuit breaker:** Sending 40+ x402 transactions in rapid succession from concurrent cycles creates mempool nonce gaps and re-opens relay CB, blocking subsequent reliable sends. Limit bulk sends to <10/batch; prefer async fallback paths (BIP-137 outbox) when bulk infrastructure becomes unstable.
 - **Sensor architecture visibility groups:** Document low-signal/special-purpose sensors in a separate group within architecture diagrams (e.g., "OtherSensors" for paused sensors, epoch-guarded polling, new sensors). Prevents "missing from diagram" documentation debt and clarifies main signal flow.
 - **Carry-forward promotion to executable tasks:** Items deferred 3+ times in successive reviews become P8 standalone tasks rather than indefinite carry-forwards. Prevents architectural debt from accumulating in "someday" pile; forces explicit decision or completion.
