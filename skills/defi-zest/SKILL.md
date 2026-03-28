@@ -43,6 +43,30 @@ Read supply position via `v0-1-data get-user-position`. Returns `suppliedShares`
 ### supply / withdraw
 Wallet-aware write operations via `tx-runner.ts`. Gas ~50k uSTX per operation. Note: upstream `aibtcdev/skills` defi.service.ts still uses v1 contracts — write commands may fail until upstream is updated.
 
+## MCP Tools (aibtc-mcp-server v1.46.0+)
+
+The aibtc-mcp-server exposes Zest operations as MCP tools. Relevant to this skill:
+
+| MCP Tool | Description |
+|----------|-------------|
+| `zest_supply` | Supply assets atomically (calls `supply-collateral-add` — handles collateral in one step) |
+| `zest_withdraw` | Withdraw assets via `collateral-remove-redeem` |
+| `zest_borrow` | Borrow against supplied collateral |
+| `zest_repay` | Repay borrowed assets |
+| `zest_enable_collateral` | Register existing zTokens as collateral (v1.46.0) |
+| `zest_get_position` | Read user position |
+| `zest_list_assets` | List supported assets |
+
+### zest_enable_collateral (v1.46.0)
+
+Adds existing zTokens as collateral on Zest Protocol v2. Calls `v0-4-market.collateral-add(ft, amount, price-feeds)`.
+
+**When needed:** Only if you deposited directly to a Zest vault and skipped the collateral registration step. `zest_supply` handles this atomically — you only need `zest_enable_collateral` if you used a direct vault deposit path.
+
+**Parameters:** `asset` (symbol or contract ID), `amount` (zTokens in smallest units).
+
+**Credential requirements:** `bitcoin-wallet/id` + `bitcoin-wallet/password` (same as other write ops).
+
 ## Budget & Safety
 
 - Supply/withdraw amounts should be validated before execution
