@@ -38,6 +38,7 @@
 - **Explicit content-keyword→skill mappings:** Define keyword arrays in sensors that trigger skill loading. Prevents context-loading gaps when message types carry domain keywords.
 - **Percentage-change signals require absolute floor gates:** Relative thresholds alone (>20% change) create noise in low-value ranges (e.g., 2→3 sat/vB is 50% but trivial). Gate: `if (newValue < MIN_FLOOR && oldValue < MIN_FLOOR) return skip` before percentage check. Minimum floor differs per domain (fees: 10 sat/vB, volume: X sats).
 - **Flat-market fallback signals in competitive events:** In periods where primary signals are static (inscriptions frozen, fees at floor, volumes dormant), percentage-change thresholds produce empty signal queues. Add fallback signal strategies (e.g., trend-persistence, cross-beat comparisons, alternative metrics) enabled when volatility drops below domain minimum. Without fallback, competitive sensors gap during low-volatility periods.
+- **Workflow scope-based dedup for recurring entities:** Sensors that create workflows for recurring peers/entities (e.g., agent-collaboration per peer) should dedup on composite key (entity_id, template) before inserting. Check for active (non-terminal) workflows matching the pair before creating new ones. Prevents parallel stale workflows when sensor runs daily for same peer.
 
 ## Task & Model Routing
 
@@ -120,6 +121,8 @@
 - **Context merge vs replace in state transitions:** Always merge (`{...existing, newField}`) rather than replace.
 - **Compound state recovery via dispatch branches + observability counters:** Add explicit `else if (stateA && stateB)` recovery branches. Add verdict counters to surface new paths in logs.
 - **Incremental recovery over state-machine rewrite:** Add targeted recovery branches to existing loops. >30 lines of recovery code signals the loop itself needs refactoring.
+- **Invalid state recovery in workflows:** Workflows can be created with or migrate into invalid states when state-transition logic changes. Add explicit recovery branches for known-invalid pairs (e.g., `resolved` with no exit transitions, `learnings_extracted` not in schema); either auto-advance them or mark for manual review. Without recovery, invalid workflows block queue clearance indefinitely.
+- **Orphaned workflow cleanup on template removal:** When a workflow template is removed/replaced, bulk-close all workflows of that template in terminal states (completed, failed, blocked). Prevents accumulation of dead-row orphans. Query template from workflows table; close via API or bulk-update before deleting template record.
 
 ## Memory & Knowledge Architecture
 
