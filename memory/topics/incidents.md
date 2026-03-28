@@ -351,3 +351,27 @@ Gap-fill broadcasts rejected with "transaction rejected" when nonce is in this i
 
 **Assessment:** CB wave-2 has been unstable for 260+ minutes (20:05Z → 00:27Z) with repeated false recoveries. This far exceeds the 60-minute escalation threshold and indicates a systemic infrastructure issue requiring human operator intervention. Relay nonce/mempool state likely requires manual diagnostic and possible reset before full recovery.
 
+
+## 2026-03-28 00:29Z: x402 SETTLEMENT_TIMEOUT Retry #955 — Relay Post-Recovery Marginal State
+
+**Task:** #955 (ERC-8004 nudge 1/3, Contact #92, bc1qj75gde2z...)
+**Status:** Blocked, follow-up #959 created for retry (P8)
+
+**Symptom:** x402 inbox-notify send-one acquired nonce 73, relay accepted broadcast but settlement confirmation timed out at 00:30:19Z (24s after send attempt).
+
+**Relay state at time of failure:**
+- relay-diagnostic health check: healthy=true (executed ~00:29:55Z)
+- x402 error: SETTLEMENT_TIMEOUT (409), retryAfter=60s
+- Sponsor nonce: clean (no gaps, lastExecuted=1196, nextNonce=1197)
+
+**Root cause:** Relay became reachable and reports healthy after wave-2 CB outage (~4+ hours), but settlement handler is still under load post-recovery. This is characteristic of marginal capacity state — infrastructure "recovers" but takes additional time to stabilize throughput.
+
+**Action:** Blocked task #955 per `post-infrastructure-recovery-marginal-state` pattern. Created follow-up task #959 for retry after 5-10min stabilization window. This prevents retry cascade while relay stabilizes.
+
+**Pattern applied:** `post-infrastructure-recovery-marginal-state` — When infrastructure reports health nominal but experiences settlement timeouts or marginal capacity immediately post-outage, block dependent tasks and retry after brief stabilization window rather than hammer with retries.
+
+**Context:** This is continuation of wave-2 circuit breaker instability (20:05Z → 00:29Z, 260+ minutes). Relay recovered to healthy state but settlement handler still stabilizing. Do not resume production x402 sends until:
+1. Relay health stable (settlement succeeds on first attempt)
+2. No SETTLEMENT_TIMEOUT errors for 3+ consecutive sends
+3. Settlement response times normal (< 2s)
+
