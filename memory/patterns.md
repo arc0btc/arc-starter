@@ -68,11 +68,15 @@ updated: 2026-03-26
 
 ## Bulk Task Blocking for Systemic Infrastructure Failures
 
-**When a systemic infrastructure issue (relay circuit breaker, mempool saturation, service outage) affects multiple pending tasks, proactively block all related tasks upfront instead of letting each fail individually.** Bulk blocking prevents retry storms, preserves dispatch queue clarity, and makes the impact visible immediately. Example: when x402 relay circuit breaker opens, block all on-chain messaging tasks (#427–#437) at once rather than waiting for 30+ serial failures. Pair with an escalation to the human operator.
+**When a systemic infrastructure issue (relay circuit breaker, mempool saturation, service outage) affects multiple pending tasks, proactively block all related tasks upfront instead of letting each fail individually.** Bulk blocking prevents retry storms, preserves dispatch queue clarity, and makes the impact visible immediately. Example: when x402 relay circuit breaker opens, block all on-chain messaging tasks (#427–#437) at once rather than waiting for 30+ serial failures. Pair with an escalation to the human operator. **When bulk-blocking affects 20+ tasks, also consider a secondary escalation** if the primary escalation remains unresolved beyond the initial SLA window — this ensures human visibility of the cascading impact and signals that single-remediation attempts may be insufficient.
 
 ## Circuit Breaker Escalation Threshold: 60 Minutes
 
 **When a circuit breaker or critical infrastructure health indicator remains in a failed state for >60 minutes despite repeated operational attempts (retries, nonce re-syncs), escalate to the human operator.** This signals saturation or resource exhaustion beyond what automated retry logic can resolve. Do not retry beyond the 60-minute threshold; escalation is required for manual intervention (restart, resource reallocation, external service recovery). Example: x402 relay circuit breaker open 88+ minutes requires operator escalation, not continued task queueing.
+
+## Secondary Escalation When Primary Remains Unresolved
+
+**If a P1 infrastructure escalation remains unresolved after 60–90 minutes (exceeding typical operator response SLA of 15–30 min for diagnosis + initial remediation), create a secondary escalation to a higher-priority channel or escalation queue.** This signals that the initial escalation did not resolve the issue and deeper infrastructure work is required (service restart, crash recovery, data corruption repair). Include in the secondary escalation: the original escalation ID, the duration of unresolved state, the count of affected tasks, and the last-known failure timestamp. Example: escalation #1043 created at 02:53Z for settlement handler failure; by 04:01Z (67 min later) with settlement handler still timing out on test sends and 20+ tasks bulk-blocked, secondary escalation #1117 is created to ensure human escalation ladder is engaged.
 
 ## Circuit Breaker Cooldown State vs. Underlying Issue Resolution
 
@@ -109,6 +113,10 @@ updated: 2026-03-26
 ## Reachability Recovery ≠ Operational Recovery During Multi-Wave Events
 
 **When a relay becomes reachable after an unreachable episode (especially during circuit breaker waves), do NOT assume the internal cache or operational state has recovered.** Reachability (health check succeeds) is a prerequisite for recovery, not evidence of completion. Immediately run a three-way verification: (1) query on-chain nonce via Hiro, (2) compare to nonce-manager state, (3) check relay health including `lastConflictAt` timestamp freshness. If the relay still rejects your nonce despite matching state, the internal cache is stale — do not retry blindly. Monitor for natural cache clearance (typically 5–15 minutes) by watching whether `lastConflictAt` timestamps age naturally or are continuously refreshed by new conflicts. If timestamps are fresh and continuously updating despite clean underlying state, escalate for operator cache flush or restart.
+
+## Service-Level Health Status ≠ Throughput SLA Readiness
+
+**Infrastructure health checks (relay-diagnostic report "healthy=true", circuitBreakerOpen=false) indicate connectivity and basic responsiveness, NOT throughput or latency SLA compliance.** A service can report healthy while operating at marginal capacity (effectiveCapacity=1) or with settlement handlers timing out (SETTLEMENT_TIMEOUT errors despite clean nonce state). After infrastructure recovery from extended outages (especially 4+ hour CB waves), validate operational readiness with actual test sends: (1) execute 3+ test transactions through the affected service path, (2) verify response times meet SLA (<2s for settlement confirmation), (3) confirm zero timeout/rejection errors. Health status is a prerequisite gate; test sends are the true readiness verification. Example: relay-diagnostic reports "healthy=true" and "circuitBreakerOpen=false" but settlement handler times out on test x402 send = still not ready for production traffic despite passing health gate.
 
 ## ERC-8004 Reputation Feedback Submission
 
