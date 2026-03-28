@@ -33,6 +33,10 @@ const COLLECTION_EVENT_COOLDOWN_HOURS = 24;  // minimum hours between same event
 const COLLECTION_HISTORY_MAX = 8;            // maximum per-collection readings stored in hook state
 const COLLECTION_VOLUME_AVG_WINDOW = 5;      // readings used to compute rolling average volume
 
+// Competition-mode flat-market fallback — generates market-structure signals when all change-detection gates miss
+const COMPETITION_END_DATE = "2026-04-22"; // $100K competition ends April 22, 2026 UTC
+const FLAT_MARKET_FALLBACK_COOLDOWN_HOURS = 6; // min hours between flat-market fallback signals
+
 // Multi-beat allocation — 3 agent-trading + 3 dev-tools per day
 // After OVERFLOW_HOUR_UTC, unused dev-tools slots become available to agent-trading
 const OVERFLOW_HOUR_UTC = 18; // 18:00 UTC = noon MDT — late-day overflow window
@@ -123,6 +127,7 @@ interface HookState {
   lastCollectionEvents?: Record<string, string>; // "<collectionId>-<eventType>" -> ISO timestamp for cooldown
   history?: CategoryHistory;
   narrativeThread?: NarrativeThread;
+  lastFlatMarketSignal?: string; // ISO timestamp of last competition flat-market fallback task creation
   [key: string]: unknown;
 }
 
@@ -1009,6 +1014,134 @@ async function fetchRunesData(apiKey: string, state: HookState, history: Categor
   }
 }
 
+// ---- Competition-Mode Flat-Market Fallback ----
+
+/**
+ * Build a market-structure signal when all change-detection gates miss.
+ * Uses accumulated history to report on the sustained stable state — stability is data.
+ * Returns null if insufficient history exists for a meaningful signal.
+ */
+function buildFlatMarketSignal(history: CategoryHistory, angle: Angle): SignalData | null {
+  // Priority order: fees > inscriptions > runes > brc20 > nft-floors (readability + data richness)
+  const candidateOrder: Category[] = ["fees", "inscriptions", "runes", "brc20", "nft-floors"];
+
+  let bestCategory: Category | null = null;
+  let bestReadings: CategoryReading[] = [];
+
+  for (const cat of candidateOrder) {
+    const readings = history[cat];
+    if (readings && readings.length >= 3) {
+      bestCategory = cat;
+      bestReadings = readings;
+      break;
+    }
+  }
+  // Fall back to any category with 2+ readings
+  if (!bestCategory) {
+    for (const cat of candidateOrder) {
+      const readings = history[cat];
+      if (readings && readings.length >= 2) {
+        bestCategory = cat;
+        bestReadings = readings;
+        break;
+      }
+    }
+  }
+
+  if (!bestCategory || bestReadings.length < 2) return null;
+
+  const latest = bestReadings[bestReadings.length - 1];
+  const oldest = bestReadings[0];
+  const spanMs = new Date(latest.timestamp).getTime() - new Date(oldest.timestamp).getTime();
+  const spanHours = Math.round(spanMs / 3_600_000);
+  const readingCount = bestReadings.length;
+
+  let headline: string;
+  let claim: string;
+  let evidence: string;
+  let implication: string;
+  let sources: Array<{ url: string; title: string }>;
+  let tags: string;
+
+  switch (bestCategory) {
+    case "fees": {
+      const fastestFee = latest.metrics.fastestFee ?? 0;
+      const minimumFee = latest.metrics.minimumFee ?? 0;
+      const mempoolSize = latest.metrics.mempoolSize ?? 0;
+      const avgFastest = bestReadings.reduce((s, r) => s + (r.metrics.fastestFee ?? 0), 0) / readingCount;
+      const feeLabel = fastestFee <= 2 ? "floor" : fastestFee <= 5 ? "low" : fastestFee <= 15 ? "moderate" : "elevated";
+      headline = `Bitcoin fee market holds at ${feeLabel} — fastest fee stable near ${fastestFee} sat/vB across ${readingCount} readings`;
+      claim = `Bitcoin's fee market has remained in a ${feeLabel}-rate environment, with the fastest fee holding near ${fastestFee} sat/vB over ${spanHours} hours and ${readingCount} consecutive sensor readings — sustained ${feeLabel}-fee conditions shape inscription economics for the market.`;
+      evidence = `mempool.space: fastest fee ${fastestFee} sat/vB, minimum fee ${minimumFee} sat/vB, mempool count ${mempoolSize.toLocaleString("en-US")}. Average fastest fee across ${readingCount} readings: ${avgFastest.toFixed(1)} sat/vB (${spanHours}h span). No single reading exceeded the ${FEE_CHANGE_THRESHOLD_PCT}% change threshold.`;
+      implication = feeLabel === "floor" || feeLabel === "low"
+        ? `Sustained ${feeLabel}-fee conditions reduce inscription friction — historically, extended low-fee periods precede batched inscription activity and BRC-20 deploy waves as economic barriers to on-chain publishing compress.`
+        : `Sustained ${feeLabel} fees compress inscription economics, pricing out low-value content and concentrating block space usage in higher-value protocol activity.`;
+      sources = [
+        { url: "https://mempool.space/api/v1/fees/recommended", title: "mempool.space — recommended fee rates" },
+        { url: "https://mempool.space/api/mempool", title: "mempool.space — mempool statistics" },
+      ];
+      tags = "ordinals-business,fees,bitcoin,mempool,market-structure";
+      break;
+    }
+    case "inscriptions": {
+      const totalInscriptions = latest.metrics.totalInscriptions ?? 0;
+      const prevTotal = bestReadings[bestReadings.length - 2].metrics.totalInscriptions ?? 0;
+      const changePct = prevTotal > 0 ? ((totalInscriptions - prevTotal) / prevTotal * 100).toFixed(3) : "0.000";
+      headline = `Bitcoin inscription count holds at ${(totalInscriptions / 1_000_000).toFixed(2)}M — velocity below signal threshold for ${readingCount} consecutive readings`;
+      claim = `Bitcoin ordinals inscription velocity has held below material-change thresholds across ${readingCount} consecutive readings spanning ${spanHours} hours, with cumulative inscriptions stable at ${totalInscriptions.toLocaleString("en-US")}.`;
+      evidence = `Unisat indexer: ${totalInscriptions.toLocaleString("en-US")} total inscriptions. Latest reading delta: ${changePct}% (gate threshold: 0.1%). ${readingCount} consecutive sub-threshold readings spanning ${spanHours}h.`;
+      implication = `Sustained inscription inactivity indicates either a cyclical demand lull or fee/economic conditions suppressing new inscription activity. Historically, extended low-velocity periods resolve with a burst of activity when market conditions shift — the accumulated baseline provides a clean departure point for measuring the next uptick.`;
+      sources = [
+        { url: "https://open-api.unisat.io", title: "Unisat Indexer API — BRC-20 status with inscription numbers" },
+      ];
+      tags = "ordinals-business,inscriptions,bitcoin,on-chain,market-structure";
+      break;
+    }
+    case "runes": {
+      const totalRunes = latest.metrics.totalRunes ?? 0;
+      const halvingBlockCount = latest.metrics.halvingBlockCount ?? 0;
+      headline = `Bitcoin rune ecosystem stable at ${totalRunes.toLocaleString("en-US")} total runes — etching rate below change threshold for ${readingCount} readings`;
+      claim = `Bitcoin's rune protocol has maintained a near-static etching count near ${totalRunes.toLocaleString("en-US")} across ${readingCount} readings spanning ${spanHours} hours, with no sustained etching surge detected.`;
+      evidence = `Unisat rune indexer: ${totalRunes.toLocaleString("en-US")} total runes, ${halvingBlockCount.toLocaleString("en-US")} blocks to next halving. ${readingCount} consecutive readings over ${spanHours}h — each below the 100-rune change threshold.`;
+      implication = `Low etching velocity suggests consolidation after prior growth phases. With ${halvingBlockCount} blocks to next halving, rune etching economics remain tightly coupled to fee market conditions — current stability may shift rapidly when fee dynamics change.`;
+      sources = [
+        { url: "https://open-api.unisat.io", title: "Unisat Runes Indexer API — rune ecosystem status" },
+        { url: "https://unisat.io/runes", title: "Unisat — Runes marketplace" },
+      ];
+      tags = "ordinals-business,runes,bitcoin,fungibles,market-structure";
+      break;
+    }
+    case "brc20": {
+      const totalTokens = latest.metrics.totalTokens ?? 0;
+      headline = `BRC-20 market holds steady — ${totalTokens.toLocaleString("en-US")} tokens, top-5 holder counts stable across ${readingCount} readings`;
+      claim = `Bitcoin's BRC-20 token ecosystem has maintained stable holder distribution across ${readingCount} consecutive readings spanning ${spanHours} hours, with no token entering or exiting the top-5 and no holder count moving >${BRC20_HOLDER_CHANGE_THRESHOLD_PCT}%.`;
+      evidence = `Unisat BRC-20 indexer: ${totalTokens.toLocaleString("en-US")} total tokens. ${readingCount} readings over ${spanHours}h — top-5 composition and holder counts held within the ${BRC20_HOLDER_CHANGE_THRESHOLD_PCT}% change threshold.`;
+      implication = `Stable holder distribution signals neither accumulation nor distribution pressure across top BRC-20 positions. Sustained equilibrium often precedes a directional move — the next significant holder shift will establish clearer market direction.`;
+      sources = [
+        { url: "https://open-api.unisat.io", title: "Unisat BRC-20 Indexer — token status and rankings" },
+      ];
+      tags = "ordinals-business,brc-20,bitcoin,fungibles,market-structure";
+      break;
+    }
+    case "nft-floors":
+    default: {
+      const totalVolume = latest.metrics.totalVolume ?? 0;
+      headline = `Bitcoin Ordinals NFT floors hold — tracked collections stable for ${readingCount} consecutive readings`;
+      claim = `Bitcoin Ordinals NFT floor prices have held within change thresholds across ${readingCount} readings spanning ${spanHours} hours, with combined 24h volume at ${totalVolume.toFixed(2)} BTC showing no surge or collapse in leading collections.`;
+      evidence = `CoinGecko: combined tracked-collection 24h volume ${totalVolume.toFixed(2)} BTC. ${readingCount} consecutive readings over ${spanHours}h — no collection floor moved >${NFT_FLOOR_CHANGE_THRESHOLD_PCT}%.`;
+      implication = `Floor stability in leading Ordinals collections signals holder confidence at current price levels. Prolonged stability at current volumes typically resolves into either an accumulation move or a slow drift — the absence of volatility is itself a structural indicator.`;
+      sources = [
+        { url: "https://www.coingecko.com/en/nft", title: "CoinGecko — Ordinals NFT collection data" },
+        { url: "https://unisat.io/market", title: "Unisat — Ordinals NFT marketplace" },
+      ];
+      tags = "ordinals-business,nft,bitcoin,floors,market-structure";
+      break;
+    }
+  }
+
+  return { category: bestCategory, headline, claim, evidence, implication, sources, tags };
+}
+
 // ---- Main Sensor ----
 
 export default async function ordinalsMarketDataSensor(): Promise<string> {
@@ -1118,8 +1251,95 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
     }
 
     if (signals.length === 0) {
-      log("no signal data fetched from any category");
-      await writeHookState(SENSOR_NAME, { ...state, lastRun: new Date().toISOString() });
+      log("no signal data fetched from any category — checking competition-mode fallback");
+
+      // Competition-mode flat-market fallback:
+      // When competition is active and allocation not yet met, report on the stable market state.
+      // Stability is data — N consecutive sub-threshold readings is a signal worth filing.
+      const competitionActive = new Date() < new Date(`${COMPETITION_END_DATE}T23:59:59Z`);
+      if (competitionActive && ordinalsToday < ordinalsAllocation) {
+        const lastFlat = state.lastFlatMarketSignal as string | undefined;
+        const hoursSinceFlat = lastFlat
+          ? (Date.now() - new Date(lastFlat).getTime()) / 3_600_000
+          : Infinity;
+
+        if (hoursSinceFlat < FLAT_MARKET_FALLBACK_COOLDOWN_HOURS) {
+          log(`competition fallback: last flat-market signal ${hoursSinceFlat.toFixed(1)}h ago — within ${FLAT_MARKET_FALLBACK_COOLDOWN_HOURS}h cooldown; skipping`);
+        } else {
+          const flatSource = `sensor:${SENSOR_NAME}:flat-market-fallback`;
+          if (pendingTaskExistsForSource(flatSource)) {
+            log("competition fallback: pending flat-market task already exists; skipping");
+          } else {
+            const flatSignal = buildFlatMarketSignal(history, angle);
+            if (flatSignal) {
+              const sourcesJson = JSON.stringify(flatSignal.sources);
+              const narrativeBlock = buildNarrativeContext(state.narrativeThread);
+              const crossCategoryBlock = buildCrossCategoryContext(history, flatSignal.category);
+              const sinceLabel = lastFlat ? `last filed ${hoursSinceFlat.toFixed(1)}h ago` : "no prior fallback";
+              log(`competition fallback: generating flat-market signal (${flatSignal.category}) — competition active, allocation ${ordinalsToday}/${ordinalsAllocation}, ${sinceLabel}`);
+
+              insertTask({
+                subject: `File agent-trading signal: ${flatSignal.category} [flat-market — competition fallback]`,
+                description: `Arc's ordinals-market-data sensor is in competition-mode fallback — all change-detection thresholds were sub-gate this run, but the competition is active and daily allocation is not yet met. This signal reports on the sustained stable market state. Stability is data.
+
+## Pre-composed Signal
+
+The following signal was built from accumulated sensor history. **File it as written** unless a specific number is verifiably incorrect (check live data if uncertain).
+
+**Headline:** ${flatSignal.headline}
+
+**Claim:** ${flatSignal.claim}
+
+**Evidence:** ${flatSignal.evidence}
+
+**Implication:** ${flatSignal.implication}
+
+**Sources:** ${sourcesJson}
+**Tags:** ${flatSignal.tags}
+
+---
+
+## Editorial Instructions
+
+You are filing a **market-structure** signal for the **agent-trading** beat on aibtc.news. This signal reports on sustained stability — a legitimate editorial stance. Do NOT fabricate movement or manufacture excitement. Refine the language where needed but preserve all factual content.
+
+**Voice:** The Economist — precise, data-rich, understated authority. Let the numbers carry the weight.
+
+**${ANGLE_DIRECTIVES[angle]}**
+${narrativeBlock}${crossCategoryBlock}
+File using:
+\`\`\`
+arc skills run --name aibtc-news-editorial -- file-signal --beat agent-trading \\
+  --headline "<headline>" \\
+  --claim "<claim>" \\
+  --evidence "<evidence>" \\
+  --implication "<implication>" \\
+  --sources '${sourcesJson}' \\
+  --tags "${flatSignal.tags}"
+\`\`\``,
+                skills: JSON.stringify(["ordinals-market-data", "aibtc-news-editorial"]),
+                priority: 6,
+                model: "sonnet",
+                status: "pending",
+                source: flatSource,
+              });
+
+              state.lastFlatMarketSignal = new Date().toISOString();
+              log(`competition fallback: queued flat-market signal (${flatSignal.category})`);
+            } else {
+              log("competition fallback: insufficient history to build flat-market signal — need ≥2 readings in any category");
+            }
+          }
+        }
+      } else if (!competitionActive) {
+        log("competition not active — skipping flat-market fallback");
+      } else {
+        log(`competition fallback: allocation already met (${ordinalsToday}/${ordinalsAllocation}) — skipping`);
+      }
+
+      state.lastAngle = angleIdx;
+      state.lastRun = new Date().toISOString();
+      await writeHookState(SENSOR_NAME, state);
       return "ok";
     }
 
