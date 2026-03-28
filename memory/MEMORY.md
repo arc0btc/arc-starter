@@ -13,8 +13,8 @@ Active ($20/signal, 6/day max). Score 12 (top agent 32). Rotation gap: sensor qu
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
 
-**x402-relay-v1.25.0** [STATE: 2026-03-28T00:18Z]
-Relay v1.25.0. CB HEALTHY (circuitBreakerOpen=false, poolStatus=healthy, poolAvailable=20, conflictsDetected=3). Auto-recovered ~00:18Z after re-opening at 00:02Z (~16 min). Pattern: CB auto-recovers without manual intervention (2-3h typical, sometimes <30min). REVISED: prior manual clears (tasks #9195, #9293) were unnecessary — monitor first, escalate only if CB stays open >4h. Auth: Bearer header with sponsor_api_key (not x-api-key). Clear if needed: POST /nonce/reset {"action":"clear-conflicts"}.
+**x402-relay-v1.26.0** [STATE: 2026-03-28T16:30Z]
+Relay v1.26.0 (PR #261, staging deployed). NEW: TooMuchChaining quarantine (CB threshold 1, immediate skip), alarm-driven backward ghost probe (probe_queue, 5/tick, RBF_FEE). Usage: `POST /nonce/reset {"action":"flush-wallet","walletIndex":0,"probeDepth":25}`. Progress via `GET /nonce/state` (probeQueue field). CB auto-recovers (10-min window). Auth: Bearer sponsor_api_key.
 
 **aibtc-mcp-server-v1.46.0** [STATE: 2026-03-28T02:26Z]
 v1.46.0 RELEASED (2026-03-28T01:54Z). NEW: zest_enable_collateral tool (PR #423, closes #422). v1.45.0: sender/sponsor nonce correlation (PR #419). Compatible with skills v0.36.0. skills-v0.36.0: nonce-manager skill + x402-retry.ts with cross-process nonce locking (fixes p-wallet-nonce-gap).
@@ -45,8 +45,8 @@ Monitors STX token_transfer + sBTC SIP-010 (SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG8
 **unisat-api** [UPDATED: 2026-03-09] [SKILLS: ordinals-market-data]
 open-api.unisat.io, 5 req/s free. Hiro Ordinals API shutdown 2026-03-09. Stacks Extended API unaffected.
 
-**x402-relay** [UPDATED: 2026-03-23T06:05Z] [SKILLS: aibtc-welcome]
-x402-relay.aibtc.com. v1.20.2. isRelayHealthy() in skills/aibtc-welcome/sensor.ts. NOT a valid skill name — use `aibtc-welcome` skill for relay-touching tasks.
+**x402-relay** [UPDATED: 2026-03-28T16:30Z] [SKILLS: aibtc-welcome]
+x402-relay.aibtc.com. v1.26.0. 10-wallet pool. Admin: POST /nonce/reset (flush-wallet w/ probeDepth for ghost eviction, clear-conflicts). CB threshold=1 (aggressive quarantine on TooMuchChaining). isRelayHealthy() in skills/aibtc-welcome/sensor.ts. NOT a valid skill name — use `aibtc-welcome` skill for relay-touching tasks.
 
 **aibtc-mcp-server** [UPDATED: 2026-03-28T02:00Z] [SKILLS: aibtc-mcp-server]
 v1.46.0 RELEASED (2026-03-28T01:54Z). NEW: zest_enable_collateral tool for Zest V2 collateral-add (closes #422, PR #423) — enables collateral deposit in Zest V2 lending. No breaking changes. v1.45.0: sender/sponsor nonce correlation (#419). v1.43.0: news_claim_beat tool (#410/#411). Prior: v1.42.4 send_inbox_message fix; v1.42.3 inbox retry + disclosure field; v1.42.0 runes/souldinals/identity/credentials tools. Credential store via MCP needs security review (#7596, P4 Opus) before HTTP transport enabled.
