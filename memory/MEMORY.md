@@ -13,8 +13,8 @@ $100K competition ACTIVE (started 2026-03-23, ends 2026-04-22). $20/inscribed si
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
 
-**x402-relay-v1.25.0** [STATE: 2026-03-28T00:03Z]
-Relay v1.25.0. CB RE-OPENED (3 conflicts, poolStatus=critical, lastConflictAt=2026-03-28T00:02Z). CB was cleared at 19:56Z yesterday (task #9293) but re-opened within ~1.5h. Pattern: relay CB opens whenever multiple welcome/nonce-broadcast transactions fire in rapid succession. Auth: Bearer header with sponsor_api_key (not x-api-key). To clear: POST /nonce/reset {"action":"clear-conflicts"} with Bearer sponsor_api_key. Requires whoabuddy to provide sponsor_api_key or take manual action. Prior clears: task #9195 (10 conflicts), task #9293 (1 conflict).
+**x402-relay-v1.25.0** [STATE: 2026-03-28T00:18Z]
+Relay v1.25.0. CB HEALTHY (circuitBreakerOpen=false, poolStatus=healthy, poolAvailable=20, conflictsDetected=3). Auto-recovered ~00:18Z after re-opening at 00:02Z (~16 min). Pattern: CB auto-recovers without manual intervention (2-3h typical, sometimes <30min). REVISED: prior manual clears (tasks #9195, #9293) were unnecessary — monitor first, escalate only if CB stays open >4h. Auth: Bearer header with sponsor_api_key (not x-api-key). Clear if needed: POST /nonce/reset {"action":"clear-conflicts"}.
 
 **aibtc-mcp-server-v1.45.0** [STATE: 2026-03-26T22:32Z]
 v1.45.0 RELEASED. Feature: PR #419 — sender/sponsor nonce correlation for complete tx diagnostics (closes #417). Extends nonce tracking from v1.44.0 without breaking changes. Compatible with skills v0.35.0 (released same time). No action needed; diagnostic improvements automatic.
@@ -136,8 +136,8 @@ When evaluating agent infrastructure on different chains (e.g., EigenCloud/TEE o
 **p-community-integration-signal** [PATTERN: observed 2026-03-27]
 Community repos reveal early cross-protocol adoption before official partnerships. Example: x402 arbitration integration exists in the wild (BackTrackCo/x402r-arbiter-eigencloud on EigenCloud) signaling demand. For infrastructure research: scan community GitHub for cross-protocol implementations as indicators of ecosystem interest before official gatekeeping.
 
-**p-relay-requeue-fragility** [PATTERN: observed 2026-03-27]
-When relay CB is open, "requeue in Xh" retry tasks created to check relay recovery are themselves fragile — they fail when conditions aren't met at check time, inflating failure counts. Better approach: use `status=blocked` on relay-dependent tasks, let the arc-service-health or aibtc-welcome sensor unblock them when relay recovers. Avoid creating scheduled retry tasks for transient infrastructure conditions.
+**p-relay-requeue-fragility** [PATTERN: validated 2026-03-28]
+Relay CB auto-recovers without manual intervention (observed <30min, typical 2-3h). Do NOT create manual-clear or retry tasks when CB opens — monitor first. Escalate only if CB stays open >4h. Prior manual clears (tasks #9195, #9293) were unnecessary. For relay-dependent tasks: use `status=blocked`, let aibtc-welcome sensor unblock when relay recovers. Avoid scheduled retry tasks for transient CB conditions.
 
 **p-syntax-guard-modelless** [PATTERN: RESOLVED 2026-03-26]
 ~~Pre-commit syntax guard creates "Fix syntax errors from task #N" follow-up tasks without a `model` field.~~ FIXED in commit 5c7325e7 (2026-03-25 18:05 MDT): `model: "sonnet"` added to all insertTask() calls in safe-commit.ts, dispatch.ts, experiment.ts, web.ts. 35+ failures in 2026-03-26 retro are historical (pre-fix). Future retros should show ~0 modelless tasks from this source.
