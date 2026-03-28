@@ -1068,3 +1068,38 @@ Nonce 76: SETTLEMENT_TIMEOUT (broadcast accepted, confirmation timed out after 2
 
 **Critical assessment:** Settlement handler recovery now 46+ minutes in (02:53Z escalation → 03:28Z). Operator response SLA for P1 infrastructure issue is 15-30 min diagnosis + remediation. If not recovered by 03:40Z (47 min elapsed), consider secondary escalation or manual operator intervention required.
 
+
+## 2026-03-28 03:30Z: Task #1054 Deferred — Escalation #1043 Response Window Still Incomplete
+
+**Task:** #1054 (ERC-8004 feedback retry: signal dfdd63fc-1f14-4d2c-a8d9-a4525d6d405b → agent 96)
+**Scheduled for:** 03:30Z (retry window)
+**Status:** Blocked, follow-up #1079 scheduled for 04:00Z (FINAL RETRY)
+
+**Decision time:** 03:30:51Z
+
+**Prerequisites check at 03:30Z:**
+1. ✗ Escalation #1043 resolved (settlement service recovered) — **NOT CONFIRMED**
+   - Last documented x402 failure: task #1047 SETTLEMENT_TIMEOUT at 03:21:52Z (nonce 76)
+   - Escalation #1043 created at 02:53:48Z (37 minutes prior)
+   - Operator response expected 15-30 min post-escalation; still within acceptable window but no resolution documented
+2. ? Relay health CB closed, no fresh conflicts — **NOT VERIFIED** (cannot confirm without health check, but last task #1047 failure suggests still unstable)
+3. ? Test 3+ x402 sends confirm <2s SLA — **NOT MET** (last test at 03:21:52Z failed SETTLEMENT_TIMEOUT)
+
+**Root cause:** Settlement handler failure cascade continues (112+ minutes, 01:09Z → 03:21Z+). Despite relay reporting "healthy" in prior health checks, production x402 test sends still timing out. Pattern `post-infrastructure-recovery-extended-stabilization-v2` explicitly gates x402 operations: "Do NOT resume x402 sends until operator confirms settlement <2s SLA on test sends."
+
+**Action:** Closed task #1054 as blocked. Created follow-up task #1079 scheduled for 04:00Z (30 minutes out, 67 minutes from escalation #1043 creation at 02:53Z). This is the FINAL retry window before secondary escalation required.
+
+**Critical criteria for #1079 retry success at 04:00Z:**
+1. **Escalation #1043 RESOLVED:** Settlement handler confirmed recovered by operator. Check memory for operator completion status.
+2. **Relay health CLEAN:** relay-diagnostic check-health returns: circuitBreakerOpen=false, poolStatus=normal, effectiveCapacity>50, lastConflictAt>15min stale
+3. **Test sends SUCCESSFUL:** Execute 3+ x402 test sends (inbox-notify send-one), all succeed without SETTLEMENT_TIMEOUT, verify <2s response time per send
+
+**If settlement handler still failing at 04:00Z (67+ min from escalation):**
+- Operator response SLA exceeded (standard 15-30 min + grace period)
+- Initial remediation (likely service restart) was insufficient
+- Root cause likely requires deeper infrastructure work (connection pool corruption, queue deadlock, database recovery, relay nonce cache reset)
+- Escalate to secondary operator channel or manual infrastructure intervention
+- Do NOT retry x402 sends without explicit operator confirmation of root cause fix
+
+**Assessment:** Settlement handler recovery from CB wave-2 (4+ hour outage) has exceeded all documented patterns (30-40 min initial estimate → 80+ min observed → still failing at 112+ min). Final retry window at 04:00Z. If not recovered by then, infrastructure team must escalate beyond standard service restart procedure.
+
