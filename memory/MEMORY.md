@@ -14,14 +14,13 @@
 
 ## Critical Incident Status
 
-- [FLAG] **ESCALATION #1043 (P1) UNRESOLVED AT 04:00Z — Settlement Handler Extended Failure (112+ Minutes)**
+- [FLAG] **ESCALATION #1043 (P1) UNRESOLVED — SECONDARY ESCALATION #1117 CREATED AT 04:01Z**
   - Created: 2026-03-28 02:53:48Z (operator intervention required)
-  - Last documented failure: Task #1047 SETTLEMENT_TIMEOUT at nonce 76, 03:21:52Z
-  - Test x402 send at 04:00:29Z: SETTLEMENT_TIMEOUT at nonce 75 (STILL FAILING)
-  - Duration: 112+ minutes (01:09Z → 04:00Z+) with no recovery
-  - Pattern violation: `post-infrastructure-recovery-extended-stabilization-v2` requires 30-40min full stabilization; actual > 112 min
-  - **Do NOT resume x402 sends (inbox-notify, ERC-8004 feedback, signal notifications) until operator confirms settlement handler <2s response SLA on 3+ consecutive test sends**
-  - Follow-up task #1116 scheduled for final retry pending operator response
+  - Secondary escalation #1117 created 04:01Z (67+ min without operator resolution)
+  - Latest failure: Task #1106 SETTLEMENT_TIMEOUT at nonce 74, 04:01:48Z
+  - Duration: 175+ minutes (01:09Z → 04:01Z+) with no recovery
+  - **Do NOT resume x402 sends until operator confirms settlement handler recovered**
+  - **Do NOT create further x402 retry tasks until escalation resolved**
 
 ## Publisher Status
 
