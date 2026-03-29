@@ -35,11 +35,22 @@ interface NonceStatus {
   desyncGap: number;
 }
 
+interface RelayPoolState {
+  poolAvailable?: number;
+  poolReserved?: number;
+  conflictsDetected?: number;
+  circuitBreakerOpen?: boolean;
+  lastConflictAt?: string;
+  effectiveCapacity?: number;
+  poolStatus?: string;
+}
+
 interface RelayHealthStatus {
   healthy: boolean;
   network: string;
   version?: string;
   sponsorAddress?: string;
+  relayPool?: RelayPoolState;
   nonceStatus?: NonceStatus;
   stuckTransactions?: StuckTransaction[];
   issues?: string[];
@@ -103,7 +114,20 @@ async function checkRelayHealth(
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 30000);
-    let healthData: { status?: string; version?: string };
+    let healthData: {
+      status?: string;
+      version?: string;
+      nonce?: {
+        poolAvailable?: number;
+        poolReserved?: number;
+        conflictsDetected?: number;
+        circuitBreakerOpen?: boolean;
+        lastConflictAt?: string;
+        effectiveCapacity?: number;
+        poolStatus?: string;
+        recommendation?: string | null;
+      };
+    };
     try {
       const healthRes = await fetch(`${relayUrl}/health`, {
         method: "GET",
@@ -116,10 +140,7 @@ async function checkRelayHealth(
         return { ...status, formatted: formatRelayHealthStatus(status) };
       }
 
-      healthData = (await healthRes.json()) as {
-        status?: string;
-        version?: string;
-      };
+      healthData = await healthRes.json();
     } finally {
       clearTimeout(timeout);
     }
@@ -128,6 +149,23 @@ async function checkRelayHealth(
 
     if (healthData.status !== "ok") {
       issues.push(`Relay status: ${healthData.status ?? "unknown"}`);
+    }
+
+    // Check relay pool state fields (v1.26.1+)
+    const pool = healthData.nonce;
+    if (pool) {
+      if (pool.circuitBreakerOpen) {
+        issues.push("Relay circuit breaker is open");
+      }
+      if (pool.poolStatus === "critical") {
+        issues.push(`Relay nonce pool is critical (available=${pool.poolAvailable ?? "?"}, reserved=${pool.poolReserved ?? "?"})`);
+      }
+      if (pool.effectiveCapacity != null && pool.effectiveCapacity < 5) {
+        issues.push(`Relay effective capacity degraded: ${pool.effectiveCapacity}/20`);
+      }
+      if (pool.conflictsDetected != null && pool.conflictsDetected > 10) {
+        issues.push(`Relay has ${pool.conflictsDetected} nonce conflicts`);
+      }
     }
 
     const sponsorAddress = SPONSOR_ADDRESSES[network];
@@ -205,11 +243,24 @@ async function checkRelayHealth(
       // Non-fatal: stuck-tx fetch is best-effort
     }
 
+    const relayPool: RelayPoolState | undefined = pool
+      ? {
+          poolAvailable: pool.poolAvailable,
+          poolReserved: pool.poolReserved,
+          conflictsDetected: pool.conflictsDetected,
+          circuitBreakerOpen: pool.circuitBreakerOpen,
+          lastConflictAt: pool.lastConflictAt,
+          effectiveCapacity: pool.effectiveCapacity,
+          poolStatus: pool.poolStatus,
+        }
+      : undefined;
+
     const status: RelayHealthStatus = {
       healthy: issues.length === 0,
       network,
       version,
       sponsorAddress,
+      relayPool,
       nonceStatus,
       stuckTransactions,
       issues: issues.length > 0 ? issues : undefined,
@@ -233,6 +284,19 @@ function formatRelayHealthStatus(status: RelayHealthStatus): string {
 
   if (status.version) lines.push(`Version: ${status.version}`);
   if (status.sponsorAddress) lines.push(`Sponsor: ${status.sponsorAddress}`);
+
+  if (status.relayPool) {
+    const rp = status.relayPool;
+    lines.push("");
+    lines.push("Relay Pool:");
+    lines.push(`  Status: ${rp.poolStatus ?? "unknown"}`);
+    lines.push(`  Capacity: ${rp.effectiveCapacity ?? "?"}/${(rp.poolAvailable ?? 0) + (rp.poolReserved ?? 0)} effective`);
+    lines.push(`  Available: ${rp.poolAvailable ?? "?"}, Reserved: ${rp.poolReserved ?? "?"}`);
+    if (rp.circuitBreakerOpen) lines.push("  CIRCUIT BREAKER OPEN");
+    if (rp.conflictsDetected != null && rp.conflictsDetected > 0) {
+      lines.push(`  Conflicts: ${rp.conflictsDetected}${rp.lastConflictAt ? ` (last: ${rp.lastConflictAt})` : ""}`);
+    }
+  }
 
   if (status.nonceStatus) {
     const ns = status.nonceStatus;
