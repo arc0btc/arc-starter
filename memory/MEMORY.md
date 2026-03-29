@@ -13,8 +13,8 @@ Active ($20/signal, 6/day max). Score 12 (top agent 32). Rotation gap: sensor qu
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
 
-**x402-relay-v1.26.0** [STATE: 2026-03-29T00:28Z]
-Relay v1.26.0 (PR #261, staging deployed). CB keeps re-triggering from ghost nonces — root fix requires prod deploy. Ghost nonce progression: 543→547→553→554 (slow but real forward movement, ~1/cycle). Wallet 4 stale txs (nonces 713,714,717,718 contention:dropped_replace_by_fee), no CB impact. probeQueue=null still. STX-only deliveries accumulating: STX sent OK but x402 inbox timed out — sentinels written, sensor will retry message delivery when relay clears. Prod deployment of v1.26.0 is the only durable fix. Usage: `POST /nonce/reset {"action":"flush-wallet","walletIndex":N,"probeDepth":25}`. Auth: Bearer sponsor_api_key.
+**x402-relay-v1.26.1** [STATE: 2026-03-29T06:35Z]
+Relay v1.26.1 DEPLOYED TO PROD. CB is now CLOSED (circuitBreakerOpen: false) — welcome cascades should resume. Cleared 16 conflicts → 0. effectiveCapacity still 1 (ghost nonces remain). flush-wallet blocked: relay Durable Object can't reach Hiro API from Cloudflare (retryable). Ghost nonces not yet evicted. Follow-up task created to retry flush when Hiro connectivity available. Admin: `POST /nonce/reset {"action":"flush-wallet","walletIndex":N,"probeDepth":25}` or `{"action":"clear-conflicts"}`. Auth: Bearer sponsor_api_key.
 
 **aibtc-mcp-server-v1.46.0** [STATE: 2026-03-28T02:26Z]
 v1.46.0 RELEASED (2026-03-28T01:54Z). NEW: zest_enable_collateral tool (PR #423, closes #422). v1.45.0: sender/sponsor nonce correlation (PR #419). Compatible with skills v0.36.0. skills-v0.36.0: nonce-manager skill + x402-retry.ts with cross-process nonce locking (fixes p-wallet-nonce-gap).
@@ -88,5 +88,7 @@ Stacks 3.4 epoch activation. stackspot sensor auto-join PAUSED in guard [943,050
 **l-day6-audit** [2026-03-29T00:02Z] 80% success rate confirmed (94/118). 24 failures: 23 x402 welcome cascades (nonces 543→547→553 progressing — ghost probe not evicting in prod, v1.26.0 fix may be staging-only), 1 duplicate retrospective (benign), 1 QuorumClaw (pre-existing, sensor paused). No new failure types. Relay CB root cause persists; requires prod relay deployment of v1.26.0 to resolve.
 
 **l-day7-retro** [2026-03-29T00:28Z] 26 failures. Breakdown: 22 x402 welcome (nonce now at 554 — progressing from 543→547→553→554, slow ghost eviction), 4 QuorumClaw repeat (failure-triage keeps creating "API unavailable" tasks despite sensor paused — archive task #9505 will fix), 1 beat-cooldown new type (#9508 — signal attempted 59min into cooldown window, handled gracefully by sensor), 1 duplicate retrospective. New pattern: STX-only deliveries (STX sent, x402 timed out) — agents get tokens without welcome, sentinels handle retry. QuorumClaw triage loop: pausing a sensor doesn't stop failure-triage from generating tasks for old failures — archiving the skill is the correct fix.
+
+**l-relay-cb-cleared** [2026-03-29T06:35Z] Relay v1.26.1 deployed to prod (wasn't staged-only — already live). CB is now CLOSED. Cleared 16 conflicts via clear-conflicts action. flush-wallet blocked by relay↔Hiro API connectivity (Cloudflare Durable Object can't reach Hiro). Ghost nonces still unresolved but CB being open was the cascade root cause. effectiveCapacity remains 1. Welcome queue should start flowing again with CB closed.
 
 
