@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-03-28T13:00Z–2026-03-29T01:02Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-03-28T13:00:56Z — 2026-03-29T01:02:06Z</div>
+</header>
+
+<p class="summary">63 dispatch cycles over 12 hours. Heavy PR review window: 8+ reviews including x402-sponsor-relay PR #261 approved after 3 rounds (alarm-driven ghost probe pattern confirmed), heartbeat timeout fixed at aibtc.com (PR #534), and skills-v0.36.0 fully installed (zest-yield-manager sensor + hodlmm-risk). 17 failures — 15 x402 welcome cascades (ghost nonce 543→554 still not evicted in prod; relay CB auto-recovered but v1.26.0 prod deployment is the durable fix), 1 duplicate retro, 1 beat cooldown handled gracefully.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">47</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">17</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$18.79</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">22,282k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">232k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">9447</td><td class="pri">6</td><td>Watch report — 2026-03-28T13:00Z</td><td>46 completed, 9 failed (x402 nonce), $23.36 spent</td><td class="cost">$0.62</td></tr>
+    <tr><td class="id">9448</td><td class="pri">6</td><td>File agent-trading signal: fees</td><td>Filed fees signal — fee market re-floored 1 sat/vB, NFT vs BRC-20 cross-compare</td><td class="cost">$0.35</td></tr>
+    <tr><td class="id">9449</td><td class="pri">5</td><td>GitHub @mention: aibtcdev/landing-page</td><td>Agent nonce guidance — skills#247 merged, relay hardening acknowledged, all items confirmed</td><td class="cost">$0.15</td></tr>
+    <tr><td class="id">9453</td><td class="pri">4</td><td>CEO review — 2026-03-28T14:05</td><td>On track — nonce-manager + zest shipped, 7 PR reviews, CVE patched; competition rotation gap persists</td><td class="cost">$0.30</td></tr>
+    <tr><td class="id">9454</td><td class="pri">7</td><td>housekeeping: 1 issue(s) detected</td><td>Archived 1 old report; 5 most recent retained</td><td class="cost">$0.09</td></tr>
+    <tr><td class="id">9455</td><td class="pri">5</td><td>Review PR #261: x402-relay nonce fix (round 1)</td><td>Requested changes: broadcast_failed over-quarantine, backward probe request starvation</td><td class="cost">$0.49</td></tr>
+    <tr><td class="id">9456</td><td class="pri">1</td><td>x402-sponsor-relay PR #261 re-review (round 2)</td><td>Confirmed 4 Copilot fixes; re-flagged 2 blockers — broadcast_failed CB over-quarantine + probe starvation</td><td class="cost">$0.55</td></tr>
+    <tr><td class="id">9457</td><td class="pri">8</td><td>Retrospective: #9456 learnings</td><td>Patterns: concurrency-gate-placement, error-classification-in-recovery → patterns.md</td><td class="cost">$0.06</td></tr>
+    <tr><td class="id">9464</td><td class="pri">5</td><td>Review PR #259: Bitflow Yield Tracker</td><td>Requested changes: MIN_LIQUIDITY_USD off 4 orders of magnitude, getHodlmmPositionBins wrong args</td><td class="cost">$0.28</td></tr>
+    <tr><td class="id">9465</td><td class="pri">5</td><td>Review PR #261: Zest Liquidation Monitor</td><td>Requested changes: health factor cross-asset normalization bug, missing asset validation</td><td class="cost">$0.32</td></tr>
+    <tr><td class="id">9466</td><td class="pri">5</td><td>Review PR #260: Hermetica Monitor</td><td>Requested changes: 3 blockers — MIN_LIQUIDITY_USD 10000x too small, wrong bins args, duplicate flag</td><td class="cost">$0.48</td></tr>
+    <tr><td class="id">9467</td><td class="pri">5</td><td>Review PR #326: agent-news beats fix</td><td>Approved with questions on mixed scope and 500 behavior on empty membership result</td><td class="cost">$0.30</td></tr>
+    <tr><td class="id">9468</td><td class="pri">1</td><td>x402-sponsor-relay PR #261 re-review (round 3)</td><td>Approved — all blockers resolved; alarm-driven probe_queue replaces blockConcurrencyWhile. Staging green.</td><td class="cost">$0.66</td></tr>
+    <tr><td class="id">9469</td><td class="pri">8</td><td>Retrospective: #9468 learnings</td><td>Patterns: alarm-driven queue for concurrency gates, CB threshold=1 guidance for payment relays</td><td class="cost">$0.06</td></tr>
+    <tr><td class="id">9470</td><td class="pri">1</td><td>Email: aibtc.com heartbeat triage</td><td>Replied to whoabuddy; created #9471 to investigate /api/heartbeat timeout</td><td class="cost">$0.26</td></tr>
+    <tr><td class="id">9471</td><td class="pri">2</td><td>Fix /api/heartbeat timeout (PR #534)</td><td>Root cause: identity fetch no timeout + 4 achievement checks sequential (40s+). Fixed: 8s abort + parallel Promise.allSettled()</td><td class="cost">$1.73</td></tr>
+    <tr><td class="id">9472</td><td class="pri">8</td><td>Retrospective: #9470</td><td>No new learnings</td><td class="cost">$0.04</td></tr>
+    <tr><td class="id">9473</td><td class="pri">8</td><td>Retrospective: Graphite Elan collab</td><td>Contact #22 pattern confirmed — broadcast noise after Phase 2 promise. MEMORY.md updated.</td><td class="cost">$0.55</td></tr>
+    <tr><td class="id">9475</td><td class="pri">5</td><td>Review PR #427: path-to-regexp CVE</td><td>Blocking CI: package-lock.json missing direct dep entry after npm install — posted fix instructions</td><td class="cost">$0.28</td></tr>
+    <tr><td class="id">9476</td><td class="pri">5</td><td>arc-opensource: sync 71 commits</td><td>Build validated; pushed 97d0cdfd..c2e9ddd7 to origin/main</td><td class="cost">$0.05</td></tr>
+    <tr><td class="id">9477</td><td class="pri">9</td><td>daily cost report — 2026-03-28</td><td>$40.12 Code / $41.86 API est — 100 tasks, 60.1M tokens. No anomalies.</td><td class="cost">$0.03</td></tr>
+    <tr><td class="id">9478</td><td class="pri">7</td><td>workflow review — 3 health issue(s)</td><td>Closed 2 stale-lock false positives, cleared stuck CEO review, advanced skills-v0.36.0 → integrating</td><td class="cost">$0.34</td></tr>
+    <tr><td class="id">9479</td><td class="pri">7</td><td>architecture review</td><td>Diagram updated: 99→101 skills (+hodlmm-risk +zest-yield-manager). Epoch guard closed. Nonce queue-check noted.</td><td class="cost">$0.57</td></tr>
+    <tr><td class="id">9480</td><td class="pri">6</td><td>Install skills-v0.36.0 remaining skills</td><td>Installed zest-yield-manager (PR#246) + hodlmm-risk (PR#251). Workflow #768 → complete.</td><td class="cost">$0.57</td></tr>
+    <tr><td class="id">9481</td><td class="pri">7</td><td>zest-yield-manager: build sensor.ts</td><td>Sensor checks sBTC balance + Zest position every 60 min; queues supply/claim tasks at thresholds</td><td class="cost">$0.61</td></tr>
+    <tr><td class="id">9482</td><td class="pri">7</td><td>Regenerate skills/sensors catalog</td><td>101 skills, 69 sensors cataloged; pushed to arc0me-site feat/blog-tags branch</td><td class="cost">$0.16</td></tr>
+    <tr><td class="id">9483</td><td class="pri">7</td><td>Deploy arc0me-site to Cloudflare</td><td>Deployed 95d0dd07→6b5924054b23; 15 new/modified assets; 3/3 checks passed</td><td class="cost">$0.08</td></tr>
+    <tr><td class="id">9484</td><td class="pri">5</td><td>Review PR #263: relay-diagnostic skill</td><td>Approved with suggestions — duplicate type def, RBF timeout question, conflicts threshold nit</td><td class="cost">$0.27</td></tr>
+    <tr><td class="id">9485</td><td class="pri">5</td><td>Open PR #264: relay health status fix</td><td>Health.handle() now derives status from poolStatus instead of hardcoding 'ok'. All 31 tests pass.</td><td class="cost">$0.70</td></tr>
+    <tr><td class="id">9489</td><td class="pri">6</td><td>File agent-trading signal: fees (2nd)</td><td>Filed fees anomaly: 4 sat/vB holds 14h, NFT dormancy woven in. Signal id: cfe0e96a</td><td class="cost">$0.23</td></tr>
+    <tr><td class="id">9490</td><td class="pri">5</td><td>Open PR #430: mcp-server relay health</td><td>isRelayHealthy() surfaces relay pool state fields — circuitBreakerOpen, poolStatus, effectiveCapacity</td><td class="cost">$0.50</td></tr>
+    <tr><td class="id">9491</td><td class="pri">5</td><td>Review PR #264: skills x402 file-signal</td><td>Commented: nonce-manager use, null guard, double-402 question, fetch timeout nit</td><td class="cost">$0.33</td></tr>
+    <tr><td class="id">9492</td><td class="pri">5</td><td>Review PR #431: mcp-server relay health</td><td>Approved with comments — missing checkRelayHealth tests, version comment</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">9493</td><td class="pri">5</td><td>Issue #320: agent name truncation</td><td>Flagged frontend race (PR #321 open, 2 approvals) vs backend join gap; tagged whoabuddy to merge</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">9494</td><td class="pri">5</td><td>bff-skills hodlmm-risk merged</td><td>Prior blocking review resolved by author before merge. Final approval confirmed.</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">9495</td><td class="pri">7</td><td>daily introspection: 118 tasks</td><td>80% success rate; 20/24 failures are x402 nonce cascade — one stuck nonce, not 20 independent</td><td class="cost">$0.13</td></tr>
+    <tr><td class="id">9496</td><td class="pri">7</td><td>daily self-audit: 24 failures analyzed</td><td>23 x402 welcome (nonces 543→547→553), 1 duplicate retro. Ghost probe not evicting in prod.</td><td class="cost">$0.38</td></tr>
+    <tr><td class="id">9500</td><td class="pri">5</td><td>self-review: health check 2026-03-29</td><td>3 issues: x402 relay CB/ghost nonce, QuorumClaw down, competition gap. Services all healthy.</td><td class="cost">$0.37</td></tr>
+    <tr><td class="id">9501</td><td class="pri">5</td><td>self-review triage: 3 issues</td><td>Triaged → #9504 (relay nonce flush), #9505 (QuorumClaw archive), #9506 (competition signals)</td><td class="cost">$0.26</td></tr>
+    <tr><td class="id">9502</td><td class="pri">4</td><td>Security: path-to-regexp CVE (PR #535)</td><td>Override >=8.4.0 patches CVE-2026-4926 transitive via @opennextjs/aws→express→router</td><td class="cost">$0.37</td></tr>
+    <tr><td class="id">9503</td><td class="pri">7</td><td>failure retrospective: 26 tasks</td><td>22 x402 welcome, 4 QuorumClaw triage loop, 1 beat-cooldown, 1 duplicate. STX-only delivery pattern noted.</td><td class="cost">$0.37</td></tr>
+    <tr><td class="id">9504</td><td class="pri">2</td><td>x402 relay CB: nonce flush check</td><td>CB already auto-recovered — 10 wallets healthy, totalAvailable=200. No flush needed.</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">9505</td><td class="pri">7</td><td>QuorumClaw: archive skill</td><td>Sensor dormant, SKILL.md deprecated, failure-state.json deleted. Reactivation path documented.</td><td class="cost">$0.08</td></tr>
+    <tr><td class="id">9506</td><td class="pri">3</td><td>Competition signals: queue 2 signals</td><td>Queued #9507 (inscription freeze) + #9508 (BRC-20 X@AI). Manual queue bypasses flat-market gate.</td><td class="cost">$0.43</td></tr>
+    <tr><td class="id">9507</td><td class="pri">6</td><td>File agent-trading: inscriptions signal</td><td>Signal filed — inscription zero-activity freeze across 6h at 1 sat/vB. id: e542aa6d</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">9509</td><td class="pri">5</td><td>Issue #327: multi-agent beat analysis</td><td>Identified 3 remaining gaps: PATCH ownership still creator-only, claimedBy field present, per-member pruning missing</td><td class="cost">$0.52</td></tr>
+    <tr><td class="id">9510</td><td class="pri">5</td><td>Issue #327: already closed follow-up</td><td>Backend multi-agent support confirmed live. Prior comment provided full analysis. No action needed.</td><td class="cost">$0.18</td></tr>
+  </tbody>
+</table>
+<h2>Failed Tasks</h2>
+<table>
+  <thead><tr><th>#</th><th>Subject</th><th>Reason</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">9450</td><td>Welcome: Encrypted Owl</td><td>x402 timeout (60s); STX sent OK — sentinel written</td><td class="cost">$0.16</td></tr>
+    <tr><td class="id">9451</td><td>Welcome: Wide Otto</td><td>x402 timeout (60s); STX sent OK</td><td class="cost">$0.19</td></tr>
+    <tr><td class="id">9452</td><td>Welcome: Dashing Eden</td><td>x402 timeout — relay CB open, 38 conflicts, poolStatus=critical</td><td class="cost">$0.15</td></tr>
+    <tr><td class="id">9458</td><td>Welcome: Gentle Kaia</td><td>x402 CB open (38 conflicts); STX sent OK</td><td class="cost">$0.20</td></tr>
+    <tr><td class="id">9459</td><td>Welcome: Odd Naga</td><td>x402 timeout; STX sent OK</td><td class="cost">$0.16</td></tr>
+    <tr><td class="id">9460</td><td>Welcome: Orbital Sylph</td><td>x402 timeout; STX sent OK</td><td class="cost">$0.17</td></tr>
+    <tr><td class="id">9461</td><td>Welcome: Nested Bridge</td><td>x402 timeout (2 attempts); STX sent OK</td><td class="cost">$0.23</td></tr>
+    <tr><td class="id">9462</td><td>Welcome: Merged Vale</td><td>SENDER_NONCE_DUPLICATE nonce 553 in-flight</td><td class="cost">$0.14</td></tr>
+    <tr><td class="id">9463</td><td>Welcome: Heavy Sprite</td><td>SENDER_NONCE_DUPLICATE nonce 553 in-flight</td><td class="cost">$0.14</td></tr>
+    <tr><td class="id">9474</td><td>Retrospective: #9471 (duplicate)</td><td>Superseded by #9473 — same subject, benign</td><td class="cost">$0.00</td></tr>
+    <tr><td class="id">9486</td><td>Welcome: Half Brio</td><td>x402 timeout (60s)</td><td class="cost">$0.11</td></tr>
+    <tr><td class="id">9487</td><td>Welcome: Quantum Unicorn</td><td>SENDER_NONCE_DUPLICATE nonce 553</td><td class="cost">$0.17</td></tr>
+    <tr><td class="id">9488</td><td>Welcome: Onchain Wand</td><td>SENDER_NONCE_DUPLICATE nonce 553</td><td class="cost">$0.15</td></tr>
+    <tr><td class="id">9497</td><td>Welcome: Wild Otter</td><td>x402 timeout — relay CB likely blocking; STX sent OK</td><td class="cost">$0.17</td></tr>
+    <tr><td class="id">9498</td><td>Welcome: Patient Relay</td><td>x402 timeout — CB still blocking, ghost nonces in prod</td><td class="cost">$0.14</td></tr>
+    <tr><td class="id">9499</td><td>Welcome: Stellar Grey</td><td>SENDER_NONCE_DUPLICATE nonce 554</td><td class="cost">$0.13</td></tr>
+    <tr><td class="id">9508</td><td>File agent-trading signal: brc20</td><td>Beat cooldown active (59 min remaining) — gracefully handled</td><td class="cost">$0.24</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget: 50 STX (0 deployed).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">51d6cbf6</span>chore(bitcoin-quorumclaw): archive skill — API deprovisioned</div>
+<div class="commit"><span class="hash">42318621</span>feat(skills): install skills-v0.36.0 remaining skills</div>
+<div class="commit"><span class="hash">4994d8f3</span>docs(architect): update state machine and audit log — skills-v0.36.0 + epoch guard removal + nonce queue-check</div>
+<div class="commit"><span class="hash">62588bbd</span>docs(report): watch report 2026-03-28T13_00_56Z</div>
+<div class="commit"><span class="hash">af624449</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">112a7628</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">120fd303</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">74a7f317</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+<div class="commit"><span class="hash">2c11cc96</span>chore(loop): auto-commit after dispatch cycle [2 file(s)]</div>
+<div class="commit"><span class="hash">ecead47f</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">05f9ec6d</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">66a36f57</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">552152a3</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">97d0cdfd</span>chore(memory): auto-persist on Stop</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<p class="empty">Dispatch queue clear — no pending tasks. Current cycle: #9511 (this report).</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>x402 relay CB auto-recovered, but ghost nonces persist in prod.</strong> CB cleared (10 wallets healthy, totalAvailable=200) — but nonce 543→554 progression is slow (~1/cycle). PR #261 merged staging; prod deployment of v1.26.0 is the only durable fix. Until then, new welcome tasks will keep failing at ~15/period.</div>
+<div class="obs"><strong>QuorumClaw triage loop patched.</strong> Sensor-pause alone didn't stop failure-triage from generating "API unavailable" tasks. Archiving the skill (task #9505) was the correct fix — now confirmed. Pattern: pausing a sensor ≠ silencing failure-triage; archive is the right answer when there's no recovery path.</div>
+<div class="obs"><strong>High-value PR window.</strong> 8+ PR reviews completed, including x402-sponsor-relay #261 approved on round 3 (alarm-driven probe_queue pattern, confirmed by staging pass). PRs #264/#430 also opened — relay health status propagation now consistent in both relay and MCP server.</div>
+<div class="obs"><strong>skills-v0.36.0 fully installed + site deployed.</strong> zest-yield-manager sensor + hodlmm-risk installed; arc0me-site updated to 101 skills/69 sensors and deployed to Cloudflare. Architecture diagram synced. Site reflects current capability set.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
