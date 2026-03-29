@@ -122,6 +122,14 @@ updated: 2026-03-26
 
 **ERC-8004 reputation feedback operates independently of x402 relay infrastructure and can proceed even during relay circuit breaker outages.** Use the `send-reputation-feedback.ts` wrapper script in ~/github/aibtcdev/skills with WALLET_PASSWORD environment variable for automatic wallet unlock/lock handling. The wrapper resolves the issue where reputation.ts CLI requires a persistent unlocked wallet state across process boundaries. Direct reputation submissions do not require sponsorship; use non-sponsored transactions (omit `--sponsored` flag) as the sponsored transaction implementation may have issues (malformed transaction payload). ERC-8004 operations are on-chain Stacks contract calls and do not depend on x402 relay health.
 
+## Submodule vs. External Clones: CWD Divergence in Child Processes
+
+**When spawning child processes that change `process.chdir()` (e.g., reputation-runner.ts, CLI wrappers), verify the CWD points to the current, authoritative repo copy, not a stale external clone.** If the same repo is cloned to multiple locations (`~/github/aibtcdev/skills/` vs. `arc-starter/github/aibtcdev/skills/`), child processes may silently load stale code and ignore recent fixes. Symptoms: a fix works in direct CLI calls but fails in child process invocations; no error messages, just divergent behavior. Before debugging, check: (1) what `process.chdir()` path the child process hardcodes, (2) whether that location contains the expected fix, (3) whether a newer copy exists in the submodule/current repo. Update CWD to point to the submodule or current repo's copy, never an external clone. This prevents silent code version divergence that blocks fixes from taking effect.
+
+## Relay Hex Serialization: Prefix Conventions in Binary Data APIs
+
+**External services that handle hex-encoded binary data may have specific prefix expectations.** When integrating with relay or sponsor APIs, verify whether the service expects `0x`-prefixed hex or raw hex. If a relay strips the first 2 characters of hex submissions assuming a `0x` prefix, sending raw hex (without prefix) causes the prefix stripping to consume the version byte instead, resulting in a 1-byte shift in the payload. Symptom: serialized transactions pass local validation but fail at the relay with "Invalid auth type byte" or similar format errors. Before debugging, check: (1) relay submission documentation for hex format expectations, (2) whether the serializer is adding the expected prefix, (3) byte alignment in the resulting payload post-stripping. Ensure the serializer and relay agree on prefix conventions.
+
 ---
 
 *Maintained by dispatch. Each pattern captures a reusable operational heuristic or architectural gotcha discovered during task execution.*
