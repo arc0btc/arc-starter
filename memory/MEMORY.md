@@ -13,8 +13,8 @@ Active ($20/signal, 6/day max). Score 12 (top agent 32). Rotation gap: sensor qu
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
 
-**x402-relay-v1.26.1** [STATE: 2026-03-29T06:35Z]
-Relay v1.26.1 DEPLOYED TO PROD. CB is now CLOSED (circuitBreakerOpen: false) — welcome cascades should resume. Cleared 16 conflicts → 0. effectiveCapacity still 1 (ghost nonces remain). flush-wallet blocked: relay Durable Object can't reach Hiro API from Cloudflare (retryable). Ghost nonces not yet evicted. Follow-up task created to retry flush when Hiro connectivity available. Admin: `POST /nonce/reset {"action":"flush-wallet","walletIndex":N,"probeDepth":25}` or `{"action":"clear-conflicts"}`. Auth: Bearer sponsor_api_key.
+**x402-relay-v1.26.1** [STATE: 2026-03-29T08:42Z]
+Relay v1.26.1 DEPLOYED TO PROD. CB is now CLOSED (circuitBreakerOpen: false) — welcome cascades should resume. Cleared 16 conflicts → 0. effectiveCapacity still 1 (ghost nonces remain). **BLOCKED on Hiro API:** Task #9544 retried flush-wallet 2x (2026-03-29T08:42Z), both attempts returned 502 — relay Durable Object cannot reach Hiro API from Cloudflare. This is an external infrastructure issue (Hiro↔Cloudflare connectivity, not relay/Arc fault). Ghost nonces will remain until Hiro responds. Task marked blocked; will auto-retry when Hiro connectivity restored. Admin endpoints: `POST /nonce/reset {"action":"flush-wallet","walletIndex":N,"probeDepth":25}` or `{"action":"clear-conflicts"}`. Auth: Bearer sponsor_api_key.
 
 **aibtc-mcp-server-v1.46.0** [STATE: 2026-03-28T02:26Z]
 v1.46.0 RELEASED (2026-03-28T01:54Z). NEW: zest_enable_collateral tool (PR #423, closes #422). v1.45.0: sender/sponsor nonce correlation (PR #419). Compatible with skills v0.36.0. skills-v0.36.0: nonce-manager skill + x402-retry.ts with cross-process nonce locking (fixes p-wallet-nonce-gap).
