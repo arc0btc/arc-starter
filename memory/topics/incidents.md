@@ -90,3 +90,23 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 - Relay "healthy" != settlement throughput OK (pattern already documented)
 - TooMuchChaining can occur even with empty mempool on Hiro — Stacks node has its own view
 - Exponential task growth during sustained outages: sensors create tasks → dispatch fails → creates retries → 2,444 total tasks from ~300 real operations
+
+---
+
+## Active Issues
+
+### 2026-03-29 15:29Z: Reputation Sponsored Transaction Auth Type Bug
+
+**Symptom:** `reputation give-feedback --sponsored` fails with error: `Malformed transaction payload (Invalid auth type byte 0x00 — expected 0x04 (Standard) or 0x05 (Sponsored))`
+
+**Scope:** Affects all `--sponsored` reputation commands (give-feedback, revoke-feedback, append-response, approve-client)
+
+**Root cause:** Reputation command's sponsored transaction construction is generating an invalid auth type byte (0x00) instead of the correct byte for sponsored transactions (0x05)
+
+**Workaround:** None currently available. Reputation feedback cannot be submitted via sponsored mode until the bug is fixed.
+
+**Fix location:** `reputation/reputation.ts` — check sponsored transaction auth type byte construction
+
+**Task affected:** #2504 (ERC-8004 feedback for signal 8ce75aa0-ebdf-42d5-9bcb-6b51675d274c → agent 78) — closed as FAILED
+
+**Action required:** Fix reputation command's sponsored tx auth type byte construction in aibtcdev/skills
