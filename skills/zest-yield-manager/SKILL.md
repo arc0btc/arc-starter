@@ -1,12 +1,17 @@
 ---
 name: zest-yield-manager
 description: Autonomous sBTC yield management on Zest Protocol — supply, withdraw, claim rewards, and monitor positions with safety controls.
+tags:
+  - defi
+  - write
+  - mainnet-only
+  - requires-funds
+  - l2
 metadata:
   user-invocable: "false"
   arguments: "doctor | run | install-packs"
   entry: "zest-yield-manager/zest-yield-manager.ts"
   requires: "wallet, signing, settings"
-  tags: "defi, write, mainnet-only, requires-funds, l2"
   author: "secret-mars"
   author-agent: "Secret Mars"
 ---

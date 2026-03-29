@@ -50,30 +50,30 @@ function serializeCVToHex(cv: unknown): string {
 
 async function getSbtcBalance(): Promise<number> {
   const ftKey = `${SBTC_ADDR}.${SBTC_NAME}::${SBTC_NAME}`;
-  const res = await fetchWithRetry(`${HIRO_API}/extended/v1/address/${ARC_STX_ADDRESS}/balances`);
-  if (!res.ok) {
-    log(`warn: balances API returned ${res.status}`);
+  const response = await fetchWithRetry(`${HIRO_API}/extended/v1/address/${ARC_STX_ADDRESS}/balances`);
+  if (!response.ok) {
+    log(`warn: balances API returned ${response.status}`);
     return -1;
   }
-  const data = await res.json() as { fungible_tokens?: Record<string, { balance: string }> };
+  const data = await response.json() as { fungible_tokens?: Record<string, { balance: string }> };
   const entry = data.fungible_tokens?.[ftKey];
   return entry ? parseInt(entry.balance, 10) : 0;
 }
 
 async function getStxBalance(): Promise<number> {
-  const res = await fetchWithRetry(`${HIRO_API}/extended/v1/address/${ARC_STX_ADDRESS}/stx`);
-  if (!res.ok) {
-    log(`warn: STX balance API returned ${res.status}`);
+  const response = await fetchWithRetry(`${HIRO_API}/extended/v1/address/${ARC_STX_ADDRESS}/stx`);
+  if (!response.ok) {
+    log(`warn: STX balance API returned ${response.status}`);
     return -1;
   }
-  const data = await res.json() as { balance: string; locked: string };
+  const data = await response.json() as { balance: string; locked: string };
   return parseInt(data.balance, 10) - parseInt(data.locked, 10);
 }
 
 async function getZestPosition(): Promise<{ supplied: number; borrowed: number } | null> {
   try {
     const url = `${HIRO_API}/v2/contracts/call-read/${POOL_BORROW_ADDR}/${POOL_BORROW_NAME}/get-user-reserve-data`;
-    const res = await fetchWithRetry(url, {
+    const response = await fetchWithRetry(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -85,12 +85,12 @@ async function getZestPosition(): Promise<{ supplied: number; borrowed: number }
       }),
     });
 
-    if (!res.ok) {
-      log(`warn: get-user-reserve-data returned ${res.status}`);
+    if (!response.ok) {
+      log(`warn: get-user-reserve-data returned ${response.status}`);
       return null;
     }
 
-    const data = await res.json() as { okay: boolean; result?: string; cause?: string };
+    const data = await response.json() as { okay: boolean; result?: string; cause?: string };
     if (!data.okay || !data.result) {
       log(`warn: get-user-reserve-data not-okay: ${data.cause ?? "unknown"}`);
       return null;
@@ -98,10 +98,10 @@ async function getZestPosition(): Promise<{ supplied: number; borrowed: number }
 
     const decoded = cvToJSON(hexToCV(data.result));
     if (decoded && typeof decoded === "object" && "value" in decoded) {
-      const val = (decoded.value as Record<string, { value: string }>)?.value ?? decoded.value as Record<string, { value: string }>;
+      const decoded_value = (decoded.value as Record<string, { value: string }>)?.value ?? decoded.value as Record<string, { value: string }>;
       return {
-        supplied: parseInt((val as Record<string, { value: string }>)["current-atoken-balance"]?.value ?? "0", 10),
-        borrowed: parseInt((val as Record<string, { value: string }>)["current-variable-debt"]?.value ?? "0", 10),
+        supplied: parseInt((decoded_value as Record<string, { value: string }>)["current-atoken-balance"]?.value ?? "0", 10),
+        borrowed: parseInt((decoded_value as Record<string, { value: string }>)["current-variable-debt"]?.value ?? "0", 10),
       };
     }
     return { supplied: 0, borrowed: 0 };
@@ -114,7 +114,7 @@ async function getZestPosition(): Promise<{ supplied: number; borrowed: number }
 async function getRewardsPending(): Promise<number | null> {
   try {
     const url = `${HIRO_API}/v2/contracts/call-read/${INCENTIVES_ADDR}/${INCENTIVES_NAME}/get-vault-rewards`;
-    const res = await fetchWithRetry(url, {
+    const response = await fetchWithRetry(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -127,12 +127,12 @@ async function getRewardsPending(): Promise<number | null> {
       }),
     });
 
-    if (!res.ok) {
-      log(`warn: get-vault-rewards returned ${res.status}`);
+    if (!response.ok) {
+      log(`warn: get-vault-rewards returned ${response.status}`);
       return null;
     }
 
-    const data = await res.json() as { okay: boolean; result?: string; cause?: string };
+    const data = await response.json() as { okay: boolean; result?: string; cause?: string };
     if (!data.okay || !data.result) {
       log(`warn: get-vault-rewards not-okay: ${data.cause ?? "unknown"}`);
       return null;

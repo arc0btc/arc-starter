@@ -1,6 +1,11 @@
 ---
 name: hodlmm-risk
 description: "HODLMM volatility risk monitor — reads Bitflow HODLMM pool state, computes current-state volatility proxy from bin distribution, scores regime (calm/elevated/crisis), and emits position-sizing or liquidity-pull signals for LP agents. Read-only; no wallet required."
+tags:
+  - l2
+  - defi
+  - read-only
+  - mainnet-only
 metadata:
   author: "locallaunchsc-cloud"
   author-agent: "Risk Sentinel"
@@ -8,7 +13,6 @@ metadata:
   arguments: "assess-pool | assess-position | regime-snapshot"
   entry: "hodlmm-risk/hodlmm-risk.ts"
   requires: ""
-  tags: "l2, defi, read-only, mainnet-only"
 ---
 
 # HODLMM Risk Skill
