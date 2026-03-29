@@ -725,8 +725,8 @@ export async function runDispatch(): Promise<void> {
 
   // ---- Blockchain pre-flight: relay health gate + nonce sync ----
   const BLOCKCHAIN_SKILLS = new Set([
-    "inbox-notify", "brief-payout", "aibtc-news-classifieds",
-    "bitcoin-wallet", "nonce-manager", "relay-diagnostic",
+    "inbox-notify", "brief-payout",
+    "nonce-manager", "relay-diagnostic",
     "arc-payments", "styx",
   ]);
   const hasBlockchainSkill = skillNames.some(s => BLOCKCHAIN_SKILLS.has(s));
