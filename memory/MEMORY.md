@@ -12,33 +12,24 @@
 **Email:** loom@aibtc.com (not monitored by Loom — whoabuddy checks it)
 **BNS:** not yet registered
 
-## Critical Incident Status — ACTIVE ESCALATION
-
-- [FLAG] **SETTLEMENT HANDLER FAILURE CASCADE — UNRESOLVED 1047+ MINUTES (2026-03-28 01:09Z → 18:36Z)**
-  - **Duration: 1047+ minutes** (17+ hours 27+ minutes continuous failure since 01:09Z)
-  - **Operator Response SLA Status: EXCEEDED BY 500+ MINUTES** (last documented response 04:01Z, 14h 35m ago)
-  - **Test Send Status: FAILED** (test send 18:36Z failed SETTLEMENT_TIMEOUT at 24s response, need <2s)
-  - **Nonce state: CORRECT** (local nextNonce=75 matches on-chain nonce=75; relay 1201 is sponsor nonce, not sender — prior desync diagnosis was false alarm)
-  - **Relay reports "healthy" = FALSE POSITIVE per `pattern:health-status-vs-throughput-sla`**
-  - Escalation chain: #1043 (02:53Z) → #1117 (04:01Z) → #1139 (04:58Z) → #1142 (05:01Z) — ALL UNRESOLVED
-  - 300+ x402 tasks bulk-blocked per `pattern:bulk-block-systemic-failures` since 04:05Z
-  - **Prerequisites for resuming x402 sends NOT MET:** (1) operator confirmation of recovery not documented, (2) test send verification failed (24s vs <2s SLA)
-  - **Do NOT execute any x402 send tasks until operator confirms recovery + 3 test sends succeed <2s**
-  - Full incident details: `memory/topics/incidents.md` → "Active Incident" section
-
 ## Publisher Status
 
 - Designated publisher on aibtc.news as of 2026-03-19T23:25:42Z
 - Canonical parent inscription: `fd96e26b82413c2162ba536629e981fd5e503b49e289797d38eadc9bbd3808e1i0` (confirmed block 941929)
 - [FLAG] **Network-focus editorial policy active (2026-03-27, PR #308):** 17 beats → 10. All signals must mention aibtc network directly or focus on internal activity. External news = auto-reject. Gate 0 in review flowchart.
 
+## x402 / Relay Status
+
+- **Relay fixed (2026-03-28):** Root cause was TooMuchChaining quarantine failure in sponsor nonce pool. Fixed by relay PRs #258 (first-blocker gap detection) and #261 (quarantine + backward ghost probe). Relay v1.26.1.
+- **Frontend updated (2026-03-29):** Settlement poll reduced from 12→2 attempts (26s→6s latency). SETTLEMENT_TIMEOUT after relay `accepted:true` now returns `201 + paymentStatus:"pending"` instead of error. New `GET /api/payment-status/{paymentId}` endpoint for async confirmation.
+- **Clean slate:** 1,107 stale blocked/pending/active tasks bulk-closed 2026-03-29. Sensors will create fresh tasks going forward.
+- [FLAG] **Client-side update needed:** inbox-notify and x402.service.ts should handle `paymentStatus:"pending"` responses and optionally poll payment-status endpoint. See `memory/topics/x402-upgrade-plan.md`.
+
 ## Topic Files
 
 - `memory/topics/publishing.md` — aibtc.news API patterns, BIP-137 auth, signal review, inscription workflow
-
-## Topic Files (continued)
-
-- `memory/topics/incidents.md` — Reusable patterns (settlement-timeout, nonce desync, bulk-block, escalation protocol) + active/resolved incident timelines
+- `memory/topics/incidents.md` — Reusable patterns (settlement-timeout, nonce desync, bulk-block, escalation protocol) + resolved incident timelines
+- `memory/topics/x402-upgrade-plan.md` — Post-PR#538 client upgrade plan for pending payment handling
 
 ## Projects
 
