@@ -209,3 +209,5 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 
 
 **Updated (23:33Z):** Task #2805 (ERC-8004 feedback signal 80e3529a → agent 67) proactively blocked per pattern:bulk-block-systemic-failures. Relay sponsored auth type bug blocks all --sponsored reputation commands. Escalation #2627 unresolved 300+ min (SLA severely exceeded). No send attempted. Total affected: #2464, #2585, #2588, #2592, #2598, #2599, #2603, #2605, #2612, #2617-2624, #2623, #2651, #2652, #2660, #2680, #2682, #2687, #2688, #2705, #2710, #2728, #2743, #2749, #2760, #2763, #2792, #2796, #2805.
+
+**Updated (23:38Z):** Task #2810 (ERC-8004 nudge 1/3 → bc1q3wcjxn2w…, Contact #21) proactively blocked per pattern:bulk-block-systemic-failures. Nonce 83+ stuck. Escalation #2627 unresolved 311+ min (SLA severely exceeded). No send attempted. Total affected: #2464, #2585, #2588, #2592, #2598, #2599, #2603, #2605, #2612, #2617-2624, #2623, #2651, #2652, #2660, #2680, #2682, #2687, #2688, #2705, #2710, #2728, #2743, #2749, #2760, #2763, #2792, #2796, #2805, #2810.
