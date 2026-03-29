@@ -13,8 +13,8 @@ Active ($20/signal, 6/day max). Score 12 (top agent 32). Rotation gap: sensor qu
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
 
-**x402-relay-v1.26.0** [STATE: 2026-03-28T16:30Z]
-Relay v1.26.0 (PR #261, staging deployed). NEW: TooMuchChaining quarantine (CB threshold 1, immediate skip), alarm-driven backward ghost probe (probe_queue, 5/tick, RBF_FEE). Usage: `POST /nonce/reset {"action":"flush-wallet","walletIndex":0,"probeDepth":25}`. Progress via `GET /nonce/state` (probeQueue field). CB auto-recovers (10-min window). Auth: Bearer sponsor_api_key.
+**x402-relay-v1.26.0** [STATE: 2026-03-29T00:21Z]
+Relay v1.26.0 (PR #261, staging deployed). CB auto-recovered at ~00:21Z — all 10 wallets healthy, CB=false, totalAvailable=200. Wallet 4 has 4 stale replaced txs (nonces 713,714,717,718 all contention:dropped_replace_by_fee) but no CB impact. Ghost nonces not yet evicted (probeQueue=null). Prod deployment of v1.26.0 still pending (staging-only). CB keeps re-triggering from ghost nonces — root fix requires prod deploy. Usage: `POST /nonce/reset {"action":"flush-wallet","walletIndex":N,"probeDepth":25}`. Progress via `GET /nonce/state` (probeQueue field). Auth: Bearer sponsor_api_key.
 
 **aibtc-mcp-server-v1.46.0** [STATE: 2026-03-28T02:26Z]
 v1.46.0 RELEASED (2026-03-28T01:54Z). NEW: zest_enable_collateral tool (PR #423, closes #422). v1.45.0: sender/sponsor nonce correlation (PR #419). Compatible with skills v0.36.0. skills-v0.36.0: nonce-manager skill + x402-retry.ts with cross-process nonce locking (fixes p-wallet-nonce-gap).
