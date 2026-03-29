@@ -140,7 +140,10 @@ async function submitToSponsorRelay(
       "Content-Type": "application/json",
       "Authorization": `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({ transaction }),
+    body: JSON.stringify({
+      // Relay expects 0x-prefixed hex; serialize() returns raw hex in @stacks/transactions v7
+      transaction: transaction.startsWith("0x") ? transaction : "0x" + transaction,
+    }),
   });
 
   const responseText = await response.text();

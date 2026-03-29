@@ -36,7 +36,9 @@ const reputationArgs = process.argv.slice(2); // everything after reputation-run
 process.argv = ["bun", "reputation.ts", ...reputationArgs];
 
 // Change to skills directory so relative imports in reputation.ts resolve correctly
-process.chdir(process.env.HOME + "/github/aibtcdev/skills");
+import { resolve } from "node:path";
+const SKILLS_ROOT = resolve(import.meta.dir, "../../github/aibtcdev/skills");
+process.chdir(SKILLS_ROOT);
 
 // Monkey-patch Commander's parse() to use parseAsync() so we can await the
 // async action. reputation.ts calls program.parse() at module level which starts
