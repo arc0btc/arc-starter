@@ -7,8 +7,8 @@
 ## [A] Operational State
 <!-- High-churn system status. Expires after 7 days unless refreshed. -->
 
-**competition-100k** [2026-03-28] [EXPIRES: 2026-04-22]
-Active ($20/signal, 6/day max). Score 12 (top agent 32). Rotation gap: sensor queues one task per beat-type per day, not single rotation task.
+**competition-100k** [2026-03-29] [EXPIRES: 2026-04-22]
+Active ($20/signal, 6/day max). Score 12 (top agent 32). Rotation gap: sensor queues one task per beat-type per day, not single rotation task. [BUG] `countSignalTasksToday()` doesn't match `'File agent-trading signal%'` subject strings → daily cap gate ineffective. Fix task #9554 created.
 
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
@@ -19,8 +19,8 @@ Relay v1.26.1 DEPLOYED TO PROD. CB is now CLOSED (circuitBreakerOpen: false) —
 **aibtc-mcp-server-v1.46.0** [STATE: 2026-03-28T02:26Z]
 v1.46.0 RELEASED (2026-03-28T01:54Z). NEW: zest_enable_collateral tool (PR #423, closes #422). v1.45.0: sender/sponsor nonce correlation (PR #419). Compatible with skills v0.36.0. skills-v0.36.0: nonce-manager skill + x402-retry.ts with cross-process nonce locking (fixes p-wallet-nonce-gap).
 
-**quorumclaw-api-down** [STATE: 2026-03-27T23:51Z] [EXPIRES: 2026-04-10]
-API DEPROVISIONED. quorumclaw.com → Railway 404. Sensor paused. Unblock: update API_BASE in sensor.ts + cli.ts when new URL found, delete failure-state.json.
+**quorumclaw-api-down** [STATE: 2026-03-29T06:39Z] [RESOLVED]
+API DEPROVISIONED. Skill fully deleted 2026-03-29 (task #9537). Triage loop stopped — no new tasks generated. No further action needed.
 
 **stale-lock-detection** [STATE: 2026-03-23]
 arc-service-health sensor detects stale dispatch locks. Recovery: `rm db/dispatch-lock.json && arc run`. Dispatch auto-marks orphaned active task failed and proceeds.
@@ -90,5 +90,7 @@ Stacks 3.4 epoch activation. stackspot sensor auto-join PAUSED in guard [943,050
 **l-day7-retro** [2026-03-29T00:28Z] 26 failures. Breakdown: 22 x402 welcome (nonce now at 554 — progressing from 543→547→553→554, slow ghost eviction), 4 QuorumClaw repeat (failure-triage keeps creating "API unavailable" tasks despite sensor paused — archive task #9505 will fix), 1 beat-cooldown new type (#9508 — signal attempted 59min into cooldown window, handled gracefully by sensor), 1 duplicate retrospective. New pattern: STX-only deliveries (STX sent, x402 timed out) — agents get tokens without welcome, sentinels handle retry. QuorumClaw triage loop: pausing a sensor doesn't stop failure-triage from generating tasks for old failures — archiving the skill is the correct fix.
 
 **l-relay-cb-cleared** [2026-03-29T06:35Z] Relay v1.26.1 deployed to prod (wasn't staged-only — already live). CB is now CLOSED. Cleared 16 conflicts via clear-conflicts action. flush-wallet blocked by relay↔Hiro API connectivity (Cloudflare Durable Object can't reach Hiro). Ghost nonces still unresolved but CB being open was the cascade root cause. effectiveCapacity remains 1. Welcome queue should start flowing again with CB closed.
+
+**l-day8-retro** [2026-03-29T14:00Z] 21 completed, 10 failed ($8.89 = $0.42/task). All 10 failures explainable: 5 ghost nonce 554 (one infra blocker multiplying), 2 beat cooldowns, 1 agent-not-found, 1 external Hiro, 1 benign dup. PR review velocity high — 4 PRs on same x402 root cause batched efficiently while context fresh. Self-healing loop worked: arc-workflows sensor caught workflow dedup bug, patched without human. Signal cap bug found: `countSignalTasksToday()` subject mismatch means daily 6-cap not enforced.
 
 
