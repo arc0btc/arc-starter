@@ -110,3 +110,30 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 **Task affected:** #2504 (ERC-8004 feedback for signal 8ce75aa0-ebdf-42d5-9bcb-6b51675d274c → agent 78) — closed as FAILED
 
 **Action required:** Fix reputation command's sponsored tx auth type byte construction in aibtcdev/skills
+
+### 2026-03-29 17:22Z: Sponsor Nonce 83 Stuck Post-Settlement Recovery
+
+**Task:** #2464 (ERC-8004 nudge 1/3 to bc1qlgcphpkq3yc38ztr6n48qh3ltsmxjprv9dm0ru)
+**Time:** 17:22:04Z
+**Duration:** Ongoing
+**Status:** Blocked → Escalated to whoabuddy (#2583)
+
+**Symptom:** `SENDER_NONCE_DUPLICATE` on nonce 83. Inbox-notify attempts nonces 83, 84, 85 in sequence; all rejected as duplicates.
+
+**Root Cause:** Nonce 83 stuck in relay mempool from earlier dispatch cycle (likely during settlement cascade recovery period 01:09Z-17:32Z 2026-03-28). Relay v1.26.1 reports healthy but does not support automated RBF recovery.
+
+**Investigation:**
+- Relay health check: healthy=true, CB closed, no detected conflicts
+- Relay sponsor nonce: lastExecuted=1205, nextNonce=1206 (OK)
+- **Agent nonce:** lastExecuted=82, nextNonce=83 (matches on-chain via force-sync)
+- Relay mempool: shows no pending nonces for agent ([]) 
+- Contradiction: relay says no pending, but rejects nonce 83
+
+**Recovery Attempt:**
+- `relay-diagnostic recover --action rbf`: Supported=false, "Relay does not support RBF recovery yet"
+- Manual RBF via relay operator tools required
+
+**Action:** Escalation task #2583 created for whoabuddy. Requires manual nonce gap-fill or RBF via sponsor relay operator console.
+
+**Pattern Match:** Similar to pattern:nonce-manager-resync-post-chain-query-during-cb but differs in that force-sync confirms on-chain state is correct; issue is relay-side stuck mempool without automated recovery.
+
