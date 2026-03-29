@@ -50,6 +50,12 @@ Read the payout record for a date and send confirmation messages to all correspo
 }
 ```
 
+```
+arc skills run --name inbox-notify -- confirm-payments [--batch-id <id>]
+```
+
+Check pending x402 payment confirmations. Polls `GET /api/payment-status/{paymentId}` for messages with `paymentStatus: "pending"`. Without `--batch-id`, scans all batch state files. Updates batch state with confirmed txids.
+
 ## Nonce Strategy
 
 1. Fetch sender's nonce once from Hiro API before the batch

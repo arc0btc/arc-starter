@@ -34,6 +34,8 @@ interface BatchState {
   messages: Array<BatchMessage & {
     status: "pending" | "sent" | "failed";
     txid?: string;
+    payment_id?: string;
+    payment_status?: "confirmed" | "pending";
     error?: string;
     sent_at?: string;
   }>;
@@ -125,12 +127,20 @@ async function releaseManagedNonce(nonce: bigint, success: boolean, rejected?: b
  * Send an x402 inbox message using the bitcoin-wallet CLI.
  * Passes --nonce to override the default Hiro lookup.
  */
+interface SendResult {
+  success: boolean;
+  error?: string;
+  txid?: string;
+  payment_id?: string;
+  payment_status?: "confirmed" | "pending";
+}
+
 async function sendX402Message(
   btcAddress: string,
   stxAddress: string,
   content: string,
   nonce: bigint,
-): Promise<{ success: boolean; error?: string }> {
+): Promise<SendResult> {
   const proc = Bun.spawn(
     [
       "bash", "bin/arc", "skills", "run", "--name", "bitcoin-wallet", "--",
@@ -154,7 +164,19 @@ async function sendX402Message(
     return { success: false, error: output };
   }
 
-  return { success: true };
+  // Parse payment info from x402 send-inbox-message JSON output
+  try {
+    const output = JSON.parse(stdout.trim()) as Record<string, unknown>;
+    const payment = output.payment as Record<string, unknown> | undefined;
+    return {
+      success: true,
+      txid: payment?.txid as string | undefined,
+      payment_id: payment?.paymentId as string | undefined,
+      payment_status: payment?.status as "confirmed" | "pending" | undefined,
+    };
+  } catch {
+    return { success: true };
+  }
 }
 
 function isNonceDuplicate(error: string): boolean {
@@ -182,7 +204,7 @@ async function sendWithRetry(
   content: string,
   label: string,
   nonce: bigint,
-): Promise<{ success: boolean; error?: string; nonce: bigint }> {
+): Promise<SendResult & { nonce: bigint }> {
   let currentNonce = nonce;
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
@@ -355,7 +377,12 @@ async function cmdSendOne(args: string[]): Promise<void> {
       });
     }
 
-    console.log(JSON.stringify({ success: true }));
+    console.log(JSON.stringify({
+      success: true,
+      ...(result.txid && { txid: result.txid }),
+      ...(result.payment_id && { payment_id: result.payment_id }),
+      ...(result.payment_status && { payment_status: result.payment_status }),
+    }));
   } else {
     await releaseManagedNonce(result.nonce, false);
     log(`Failed: ${result.error}`);
@@ -399,6 +426,9 @@ async function executeBatch(state: BatchState): Promise<void> {
     if (result.success) {
       msg.status = "sent";
       msg.sent_at = new Date().toISOString();
+      msg.txid = result.txid;
+      msg.payment_id = result.payment_id;
+      msg.payment_status = result.payment_status;
       successCount++;
       pendingSent++;
       await releaseManagedNonce(currentNonce, true);
@@ -408,7 +438,8 @@ async function executeBatch(state: BatchState): Promise<void> {
         log(`  Failed to acquire next nonce: ${acqErr instanceof Error ? acqErr.message : String(acqErr)} — stopping batch`);
         break;
       }
-      log(`  Sent to ${msg.label} (next nonce: ${currentNonce})`);
+      const statusLabel = msg.payment_status === "pending" ? " (payment pending)" : "";
+      log(`  Sent to ${msg.label}${statusLabel} (next nonce: ${currentNonce})`);
 
       // Log contact interaction
       try {
@@ -446,21 +477,151 @@ async function executeBatch(state: BatchState): Promise<void> {
 
   const finalSent = state.messages.filter(m => m.status === "sent").length;
   const finalFailed = state.messages.filter(m => m.status === "failed").length;
+  const pendingPayments = state.messages.filter(m => m.status === "sent" && m.payment_status === "pending").length;
 
-  log(`Batch complete: ${finalSent} sent, ${finalFailed} failed out of ${total}`);
+  log(`Batch complete: ${finalSent} sent (${pendingPayments} pending confirmation), ${finalFailed} failed out of ${total}`);
 
   console.log(JSON.stringify({
     batch_id: state.id,
     status: finalFailed === 0 ? "complete" : finalSent === 0 ? "failed" : "partial",
     sent: finalSent,
     failed: finalFailed,
+    pending_payments: pendingPayments,
     total,
     failures: state.messages
       .filter(m => m.status === "failed")
       .map(m => ({ label: m.label, error: m.error?.slice(0, 200) })),
+    ...(pendingPayments > 0 && {
+      pending: state.messages
+        .filter(m => m.status === "sent" && m.payment_status === "pending")
+        .map(m => ({ label: m.label, payment_id: m.payment_id })),
+    }),
   }, null, 2));
 
   if (finalFailed > 0) process.exit(1);
+}
+
+// ---- Confirm Payments (Tier 3) ----
+
+const PAYMENT_STATUS_BASE = "https://aibtc.com/api/payment-status";
+
+interface PaymentStatusResponse {
+  paymentId: string;
+  status: string;
+  txid?: string;
+  blockHeight?: number;
+  confirmedAt?: string;
+  error?: string;
+  retryable?: boolean;
+}
+
+async function cmdConfirmPayments(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+  const batchId = flags["batch-id"];
+
+  if (!batchId) {
+    // Find all batch state files with pending payments
+    const { readdirSync } = await import("node:fs");
+    const files = readdirSync(STATE_DIR).filter(f => f.endsWith(".json"));
+    let totalPending = 0;
+    const results: Array<{ batch_id: string; confirmed: number; still_pending: number; failed: number }> = [];
+
+    for (const file of files) {
+      const state = readState(file.replace(".json", ""));
+      if (!state) continue;
+      const pendingMsgs = state.messages.filter(m => m.status === "sent" && m.payment_status === "pending" && m.payment_id);
+      if (pendingMsgs.length === 0) continue;
+
+      totalPending += pendingMsgs.length;
+      let confirmed = 0;
+      let failed = 0;
+
+      for (const msg of pendingMsgs) {
+        try {
+          const res = await fetch(`${PAYMENT_STATUS_BASE}/${msg.payment_id}`);
+          const data = await res.json() as PaymentStatusResponse;
+
+          if (data.status === "confirmed") {
+            msg.payment_status = "confirmed";
+            msg.txid = data.txid ?? msg.txid;
+            confirmed++;
+            log(`  Confirmed: ${msg.label} (${msg.payment_id}) txid=${data.txid}`);
+          } else if (data.status === "failed" || data.status === "not_found") {
+            msg.payment_status = undefined;
+            msg.error = `Payment ${data.status}: ${data.error ?? "unknown"}`;
+            failed++;
+            log(`  Failed: ${msg.label} (${msg.payment_id}) — ${data.error ?? data.status}`);
+          }
+          // else still in-progress (queued, broadcasting, mempool) — leave as pending
+        } catch (err) {
+          log(`  Error checking ${msg.payment_id}: ${err instanceof Error ? err.message : String(err)}`);
+        }
+      }
+
+      writeState(state);
+      results.push({
+        batch_id: state.id,
+        confirmed,
+        still_pending: pendingMsgs.length - confirmed - failed,
+        failed,
+      });
+    }
+
+    console.log(JSON.stringify({
+      total_checked: totalPending,
+      batches: results,
+    }, null, 2));
+    return;
+  }
+
+  // Single batch confirmation
+  const state = readState(batchId);
+  if (!state) {
+    console.error(`No batch state found for ${batchId}`);
+    process.exit(1);
+  }
+
+  const pendingMsgs = state.messages.filter(m => m.status === "sent" && m.payment_status === "pending" && m.payment_id);
+  if (pendingMsgs.length === 0) {
+    log("No pending payments to confirm");
+    console.log(JSON.stringify({ batch_id: batchId, confirmed: 0, still_pending: 0 }));
+    return;
+  }
+
+  log(`Checking ${pendingMsgs.length} pending payment(s) for batch ${batchId}...`);
+  let confirmed = 0;
+  let failed = 0;
+
+  for (const msg of pendingMsgs) {
+    try {
+      const res = await fetch(`${PAYMENT_STATUS_BASE}/${msg.payment_id}`);
+      const data = await res.json() as PaymentStatusResponse;
+
+      if (data.status === "confirmed") {
+        msg.payment_status = "confirmed";
+        msg.txid = data.txid ?? msg.txid;
+        confirmed++;
+        log(`  Confirmed: ${msg.label} (${msg.payment_id}) txid=${data.txid}`);
+      } else if (data.status === "failed" || data.status === "not_found") {
+        msg.payment_status = undefined;
+        msg.error = `Payment ${data.status}: ${data.error ?? "unknown"}`;
+        failed++;
+        log(`  Failed: ${msg.label} (${msg.payment_id}) — ${data.error ?? data.status}`);
+      } else {
+        log(`  Still in-progress: ${msg.label} (${msg.payment_id}) status=${data.status}`);
+      }
+    } catch (err) {
+      log(`  Error checking ${msg.payment_id}: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  writeState(state);
+  console.log(JSON.stringify({
+    batch_id: batchId,
+    confirmed,
+    still_pending: pendingMsgs.length - confirmed - failed,
+    failed,
+  }, null, 2));
 }
 
 // ---- Usage ----
@@ -476,10 +637,13 @@ COMMANDS
   send-one --btc-address <addr> --stx-address <addr> --content <text>
                                              Send a single x402 inbox message
   payout-confirmations --date YYYY-MM-DD     Send payout confirmation messages for a date
+  confirm-payments [--batch-id <id>]         Check pending payment confirmations (all batches or specific)
 
 EXAMPLES
   arc skills run --name inbox-notify -- payout-confirmations --date 2026-03-24
   arc skills run --name inbox-notify -- send-one --btc-address bc1q... --stx-address SP... --content "Hello"
+  arc skills run --name inbox-notify -- confirm-payments
+  arc skills run --name inbox-notify -- confirm-payments --batch-id payout-confirm-2026-03-24
 `);
 }
 
@@ -494,6 +658,7 @@ async function main(): Promise<void> {
     case "send-batch": await cmdSendBatch(commandArgs); break;
     case "send-one": await cmdSendOne(commandArgs); break;
     case "payout-confirmations": await cmdPayoutConfirmations(commandArgs); break;
+    case "confirm-payments": await cmdConfirmPayments(commandArgs); break;
     case "help": case "--help": case "-h": case undefined: printUsage(); break;
     default:
       console.error(`Unknown command: ${command}`);
