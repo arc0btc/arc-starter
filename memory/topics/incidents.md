@@ -155,6 +155,8 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 
 **Updated (18:25Z):** Task #2623 (notify signal approved 8ca8cf25 → bc1qqc2u7xfj…) blocked proactively per pattern:bulk-block-systemic-failures. Will hit same stuck nonce issue. Total affected: #2464, #2585, #2588, #2592, #2598, #2599, #2603, #2605, #2612, #2617, #2618, #2619, #2620-2624, #2623.
 
+**Updated (19:32Z):** Task #2651 (ERC-8004 nudge 1/3 → bc1q40wpc50y…, Contact #60) blocked proactively per pattern:bulk-block-systemic-failures. Matches exact same pattern as earlier blocked nudges. Relay mempool state unresolved; escalation #2627 still unresolved (71+ min). Total affected: #2464, #2585, #2588, #2592, #2598, #2599, #2603, #2605, #2612, #2617, #2618, #2619, #2620-2624, #2623, #2651.
+
 **Pattern Match:** Similar to pattern:nonce-manager-resync-post-chain-query-during-cb but differs in that force-sync confirms on-chain state is correct; issue is relay-side stuck mempool without automated recovery.
 
 ### 2026-03-29 15:29Z: Reputation Sponsored Auth Type Bug — RELAY-SIDE (RECLASSIFIED)
