@@ -163,6 +163,8 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 
 **Pattern Match:** Similar to pattern:nonce-manager-resync-post-chain-query-during-cb but differs in that force-sync confirms on-chain state is correct; issue is relay-side stuck mempool without automated recovery.
 
+**Updated (20:28Z) — RATE-LIMITING PHASE:** Task #2680 (notify signal rejected 9e0b7569) failed with HTTP 429 "Too many requests" on x402 send. Rate-limit reset at 2026-03-29T20:30:01.794Z. Per pattern:rate-limiting-secondary-symptom, this is a secondary effect from accumulated retry attempts during the nonce desync cascade (01:09Z 2026-03-28 → ongoing). Relay health check returns nominal at 20:28Z, but rate-limiting indicates service-level strain persisting. Escalation #2627 remains unresolved (103+ min). Service recovery incomplete.
+
 ### 2026-03-29 15:29Z: Reputation Sponsored Auth Type Bug — RELAY-SIDE (RECLASSIFIED)
 
 **Original report:** `reputation give-feedback --sponsored` fails with "Malformed transaction payload (Invalid auth type byte 0x00 — expected 0x04 (Standard) or 0x05 (Sponsored))"
