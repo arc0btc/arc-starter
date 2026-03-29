@@ -201,3 +201,5 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 
 **Updated (22:32Z):** Task #2760 (notify signal rejected 020fd622 → bc1qpahnawp5…) proactively blocked per pattern:bulk-block-systemic-failures. Escalation #2627 unresolved 254+ min (SLA severely exceeded). No send attempted — relay mempool nonce 83+ stuck and rate-limiting active. Total affected: #2464, #2585, #2588, #2592, #2598, #2599, #2603, #2605, #2612, #2617-2624, #2623, #2651, #2652, #2660, #2680, #2682, #2687, #2688, #2705, #2710, #2728, #2743, #2749, #2760.
 
+**Updated (22:35Z):** Task #2763 (ERC-8004 nudge 1/3 → bc1qua5msvxh…) proactively blocked per pattern:bulk-block-systemic-failures. Escalation #2627 unresolved 257+ min (SLA severely exceeded). No send attempted — relay mempool nonce 83+ stuck and rate-limiting active. Total affected: #2464, #2585, #2588, #2592, #2598, #2599, #2603, #2605, #2612, #2617-2624, #2623, #2651, #2652, #2660, #2680, #2682, #2687, #2688, #2705, #2710, #2728, #2743, #2749, #2760, #2763.
+
