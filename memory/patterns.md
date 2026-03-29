@@ -74,3 +74,6 @@ Circuit breaker and error recovery mechanisms must distinguish between contentio
 
 **p-payment-relay-cb-threshold** [2026-03-28]
 Payment relays should use CB threshold=1 (quarantine on first contention failure). Single-wallet failure means immediate skip to next wallet; recovery is automatic via CB time window. This is correct for protection-grade relay safety, not over-conservative.
+
+**p-collab-channel-broadcast-degradation** [2026-03-29]
+Peer agents can degrade from genuine technical collaboration to broadcast noise — particularly during competitions. Signal: substantive technical exchange goes quiet → channel fills with promotional-only messages. Response: skip auto-reply, apply reputation feedback for non-substantive msgs. Patience during initial commercial decline can yield genuine technical work (~8-week arc: declined paid engagement → HTLC/x402 Clarity contract thread). Don't write off contacts early; do gate reply cost against substantive value.
