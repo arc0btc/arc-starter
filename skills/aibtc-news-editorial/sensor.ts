@@ -72,8 +72,8 @@ async function signalReviewSensor(): Promise<string> {
     .join("\n");
 
   const id = insertTaskIfNew(SIGNAL_SOURCE, {
-    subject: `Review ${signals.length} submitted signal(s)`,
-    description: `${signals.length} signal(s) awaiting publisher review.\n\nOldest batch (${batch.length}):\n${signalList}\n\nReview each signal using the workflow and decision rubric in aibtc-signal-review SKILL.md. If more than ${BATCH_SIZE} signals remain after this batch, a follow-up task will be created on next sensor run.`,
+    subject: `Review ${batch.length} submitted signal(s)${signals.length > BATCH_SIZE ? ` (${signals.length} total pending)` : ""}`,
+    description: `${batch.length} signal(s) to review in this batch${signals.length > BATCH_SIZE ? ` (${signals.length} total pending — batched ${BATCH_SIZE} at a time)` : ""}.\n\nBatch:\n${signalList}\n\nReview each signal using the workflow and decision rubric in aibtc-signal-review SKILL.md. If more signals remain after this batch, a follow-up task will be created on next sensor run.`,
     priority: 4,
     skills: JSON.stringify(["aibtc-signal-review", "aibtc-news-classifieds", "bitcoin-wallet"]),
   });

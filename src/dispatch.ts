@@ -687,18 +687,74 @@ export async function runDispatch(): Promise<void> {
     clearDispatchLock();
     return;
   }
-  const task = pendingTasks[0];
-  log(`dispatch: selected task #${task.id} "${task.subject}" (priority ${task.priority})`);
 
-  const todayCost = getTodayCostUsd();
-  if (todayCost >= DAILY_BUDGET_USD && task.priority > 2) {
-    log(
-      `dispatch: BUDGET GATE — today's cost $${todayCost.toFixed(2)} >= $${DAILY_BUDGET_USD} ceiling. ` +
-      `Skipping P${task.priority} task #${task.id}. Only P1-2 tasks will dispatch.`
+  // ---- Blockchain pre-flight: check relay health once ----
+  const BLOCKCHAIN_SKILLS = new Set([
+    "inbox-notify", "brief-payout",
+    "nonce-manager", "relay-diagnostic",
+    "arc-payments", "styx",
+  ]);
+
+  let relayHealthy = true;
+  let relayIssues: string[] = [];
+  try {
+    const healthProc = Bun.spawn(
+      ["bun", "run", join(SKILLS_DIR, "relay-diagnostic/relay-diagnostic.ts"), "check-health"],
+      { cwd: ROOT, stdin: "ignore", stdout: "pipe", stderr: "pipe" }
     );
+    const healthOut = await new Response(healthProc.stdout).text();
+    const exitCode = await healthProc.exited;
+    if (exitCode === 0) {
+      const health = JSON.parse(healthOut);
+      if (health.healthy === false) {
+        relayHealthy = false;
+        relayIssues = health.issues ?? [];
+        log(`dispatch: relay unhealthy — blockchain tasks will be skipped: ${relayIssues.join(", ")}`);
+      }
+    }
+  } catch (err) {
+    log(`dispatch: relay health check failed (non-blocking): ${String(err).slice(0, 200)}`);
+  }
+
+  // Select first eligible task, skipping relay-gated and budget-gated tasks
+  const todayCost = getTodayCostUsd();
+  let task: typeof pendingTasks[0] | null = null;
+  let skippedRelay = 0;
+
+  for (const candidate of pendingTasks) {
+    // Budget gate: skip non-critical tasks when over budget
+    if (todayCost >= DAILY_BUDGET_USD && candidate.priority > 2) {
+      continue;
+    }
+
+    // Relay gate: skip blockchain tasks when relay is unhealthy
+    const candidateSkills = parseSkillNames(candidate.skills);
+    if (!relayHealthy && candidateSkills.some(s => BLOCKCHAIN_SKILLS.has(s))) {
+      skippedRelay++;
+      continue;
+    }
+
+    task = candidate;
+    break;
+  }
+
+  if (skippedRelay > 0) {
+    log(`dispatch: skipped ${skippedRelay} relay-gated task(s)`);
+  }
+
+  if (!task) {
+    if (todayCost >= DAILY_BUDGET_USD) {
+      log(`dispatch: BUDGET GATE — today's cost $${todayCost.toFixed(2)} >= $${DAILY_BUDGET_USD} ceiling. Only P1-2 tasks will dispatch.`);
+    } else if (skippedRelay > 0) {
+      log(`dispatch: all ${pendingTasks.length} pending task(s) are relay-gated. Idle until relay recovers.`);
+    } else {
+      log("dispatch: No eligible pending tasks. Idle.");
+    }
     clearDispatchLock();
     return;
   }
+
+  log(`dispatch: selected task #${task.id} "${task.subject}" (priority ${task.priority})`);
 
   // ---- Phase 3: Execute ----
 
@@ -723,35 +779,9 @@ export async function runDispatch(): Promise<void> {
   }
   log(`dispatch: sdk=${sdkRoute.sdk} model=${sdkRoute.sdk === "codex" ? (sdkRoute.model ?? "default") : model} (${task.model ? "explicit" : `priority ${task.priority}`})`);
 
-  // ---- Blockchain pre-flight: relay health gate + nonce sync ----
-  const BLOCKCHAIN_SKILLS = new Set([
-    "inbox-notify", "brief-payout",
-    "nonce-manager", "relay-diagnostic",
-    "arc-payments", "styx",
-  ]);
+  // Pre-dispatch nonce sync for blockchain tasks
   const hasBlockchainSkill = skillNames.some(s => BLOCKCHAIN_SKILLS.has(s));
   if (hasBlockchainSkill) {
-    // Relay health gate: skip blockchain tasks when relay is unhealthy
-    try {
-      const healthProc = Bun.spawn(
-        ["bun", "run", join(SKILLS_DIR, "relay-diagnostic/relay-diagnostic.ts"), "check-health"],
-        { cwd: ROOT, stdin: "ignore", stdout: "pipe", stderr: "pipe" }
-      );
-      const healthOut = await new Response(healthProc.stdout).text();
-      const exitCode = await healthProc.exited;
-      if (exitCode === 0) {
-        const health = JSON.parse(healthOut);
-        if (health.healthy === false) {
-          log(`dispatch: RELAY UNHEALTHY — skipping blockchain task #${task.id}: ${(health.issues ?? []).join(", ")}`);
-          clearDispatchLock();
-          return;
-        }
-      }
-    } catch (err) {
-      log(`dispatch: relay health check failed (non-blocking): ${String(err).slice(0, 200)}`);
-    }
-
-    // Pre-dispatch nonce sync: ensure local state matches chain truth
     try {
       const syncProc = Bun.spawn(
         ["bun", "run", join(SKILLS_DIR, "nonce-manager/cli.ts"), "sync",
