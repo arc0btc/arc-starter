@@ -173,6 +173,8 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 
 **Updated (21:02Z):** Task #2705 (ERC-8004 nudge 1/3: register identity → bc1q40wpc50yky3nx5vavp2svvenjpagq2mqkycqun, Contact #60) proactively blocked per pattern:bulk-block-systemic-failures. Escalation #2627 unresolved 140+ min (SLA severely exceeded). No send attempted — relay mempool nonce 83+ stuck and rate-limiting active. Total affected: #2464, #2585, #2588, #2592, #2598, #2599, #2603, #2605, #2612, #2617-2624, #2623, #2651, #2652, #2660, #2680, #2682, #2687, #2688, #2705.
 
+**Updated (21:14Z):** Task #2710 (notify signal approved 6534c4a4 → bc1qq6482lek…) proactively blocked per pattern:bulk-block-systemic-failures. Escalation #2627 unresolved 143+ min (SLA severely exceeded). No send attempted — relay mempool nonce 83+ stuck and rate-limiting active. Total affected: #2464, #2585, #2588, #2592, #2598, #2599, #2603, #2605, #2612, #2617-2624, #2623, #2651, #2652, #2660, #2680, #2682, #2687, #2688, #2705, #2710.
+
 ### 2026-03-29 15:29Z: Reputation Sponsored Auth Type Bug — RELAY-SIDE (RECLASSIFIED)
 
 **Original report:** `reputation give-feedback --sponsored` fails with "Malformed transaction payload (Invalid auth type byte 0x00 — expected 0x04 (Standard) or 0x05 (Sponsored))"
