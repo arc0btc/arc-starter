@@ -275,25 +275,12 @@ async function pollMultisig(multisig: TrackedMultisig): Promise<boolean> {
 // ---- Sensor Entry ----
 
 export default async function quorumclawSensor(): Promise<string> {
-  const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
-  if (!claimed) return "skip";
-
-  const tracking = await readTracking();
-
-  if (tracking.invites.length === 0 && tracking.multisigs.length === 0) {
-    log("nothing tracked — skipping");
-    return "ok";
-  }
-
-  // Check if API has been consistently unreachable. When threshold is hit, pause polling
-  // entirely — no task creation, no API calls. Reset by deleting failure-state.json after
-  // confirming the API is back (or a new URL is available — update API_BASE in this file
-  // and cli.ts). See MEMORY.md quorumclaw-api-down for current status.
-  const failureState = await readFailureState();
-  if (failureState.consecutiveFailures >= ALERT_THRESHOLD) {
-    log(`API paused (${failureState.consecutiveFailures} consecutive failures) — skipping`);
-    return "skip";
-  }
+  // [DORMANT] 2026-03-29: quorumclaw.com API deprovisioned (Railway subdomain 404).
+  // Tracked invite 72654529 unresolvable. Sensor paused indefinitely.
+  // To reactivate: confirm new API URL, update API_BASE in this file + cli.ts,
+  // delete failure-state.json, and re-enable sensor dispatch task creation.
+  // See MEMORY.md [A] quorumclaw-api-down for operational status.
+  return "skip";
 
   log(
     `checking ${tracking.invites.length} invite(s), ${tracking.multisigs.length} multisig(s)`

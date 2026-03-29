@@ -1,11 +1,15 @@
 ---
 name: bitcoin-quorumclaw
-description: Coordinate Bitcoin Taproot M-of-N multisig transactions via the QuorumClaw agent-multisig API. Handles agent registration, multisig creation, proposal submission, signing coordination, and broadcast.
-updated: 2026-03-27
+description: "[DEPRECATED] QuorumClaw API deprovisioned (2026-03-29). Coordinate Bitcoin Taproot M-of-N multisig transactions via the QuorumClaw agent-multisig API. Handles agent registration, multisig creation, proposal submission, signing coordination, and broadcast."
+status: dormant
+updated: 2026-03-29
+reason: "API deprovisioned (quorumclaw.com → Railway 404). Sensor paused. Awaiting new API endpoint."
+reactivation: "Update API_BASE in sensor.ts + cli.ts when new URL confirmed, delete failure-state.json."
 tags:
   - l1
   - mainnet-only
   - sensitive
+  - archived
 ---
 
 # QuorumClaw
