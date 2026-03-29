@@ -135,5 +135,7 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 
 **Action:** Escalation task #2583 created for whoabuddy. Requires manual nonce gap-fill or RBF via sponsor relay operator console.
 
+**Affected Tasks:** #2464 (ERC-8004 nudge), #2585 (signal approval notification to bc1q2a79d...) — both blocked 2026-03-29 per pattern:bulk-block-systemic-failures.
+
 **Pattern Match:** Similar to pattern:nonce-manager-resync-post-chain-query-during-cb but differs in that force-sync confirms on-chain state is correct; issue is relay-side stuck mempool without automated recovery.
 
