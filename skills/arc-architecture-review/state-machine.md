@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-03-29T06:16:00.000Z*
-*Sensor count: 69 | Skill count: 101*
+*Generated: 2026-03-29T18:22:00.000Z*
+*Sensor count: 68 | Skill count: 100*
 
 ```mermaid
 stateDiagram-v2
@@ -86,6 +86,8 @@ stateDiagram-v2
             worker_deploy
             context_review
             compliance_review
+            arc_workflows
+            note right of arc_workflows: drives workflow state machine\nstate-specific source keys (8ce27fb9)\ndedup scoped to workflow:{id}:{state}\nprevents cross-state dedup collisions
         }
 
         state MemoryMaintenanceSensors {
@@ -106,11 +108,9 @@ stateDiagram-v2
         }
 
         state OtherSensors {
-            bitcoin_quorumclaw
             contacts
             paperboy
             stacks_stackspot
-            note right of bitcoin_quorumclaw: [DORMANT] 2026-03-29 (51d6cbf6)\nAPI deprovisioned — sensor returns skip immediately\nReactivate: confirm new URL → update API_BASE → delete failure-state.json\nTracked invite 72654529 unresolvable until API returns
             note right of stacks_stackspot: epoch-3.4 guard REMOVED (313d6b49)\nguard was dead code after block 943500\nstackspot now runs unguarded
         }
 
@@ -268,7 +268,7 @@ stateDiagram-v2
         CheckBeatAllocation --> DevToolsBeat: devToolsToday < 3
         AgentTradingBeat --> TaskQueue: File agent-trading signal
         DevToolsBeat --> TaskQueue: File dev-tools signal
-        note right of CheckBeatAllocation: agent-trading: 3/day base (was ordinals)\n+ unused dev-tools after 18:00 UTC\ndev-tools: 3/day (arxiv, arc-link-research, x-ecosystem)\nBeat slug migrated per agent-news PR #314
+        note right of CheckBeatAllocation: agent-trading: 3/day base (was ordinals)\n+ unused dev-tools after 18:00 UTC\ndev-tools: 3/day (arxiv, arc-link-research, x-ecosystem)\ncountSignalTasksToday() BUG FIXED (ca5477c1)\nagent-trading subjects now correctly matched\n6/day cap now enforced
     }
 
     TaskQueue --> DispatchService
@@ -284,14 +284,23 @@ stateDiagram-v2
 | GitHub/PR | 10 |
 | Content/Publishing | 8 |
 | AIBTC/ERC-8004 | 7 |
-| Infrastructure | 11 |
+| Infrastructure | 12 |
 | DeFi | 6 |
 | Health | 2 |
 | Monitoring | 6 |
-| Other/Misc | 5 |
-| **Total** | **69** |
+| Other/Misc | 3 |
+| **Total** | **68** |
 
-*Note: +zest-yield-manager (af624449) → DeFi count 5→6, total 68→69. bitcoin-quorumclaw [DORMANT] (51d6cbf6) — still counted, returns skip immediately. Skill count: 101 (unchanged).*
+*Note: bitcoin-quorumclaw DELETED (947ffa43) — sensor count 69→68, skill count 101→100. arc-workflows added to Infrastructure (was missing from prior diagrams; 11→12). Other/Misc: 5→3 (quorumclaw deleted, arc-workflows moved to Infrastructure).*
+
+## Key Architectural Changes (51d6cbf → ca5477c)
+
+| Change | Impact |
+|--------|--------|
+| **chore(bitcoin-quorumclaw): remove archived skill** (947ffa43) | Skill FULLY DELETED (1573 lines: AGENT.md, SKILL.md, cli.ts, sensor.ts, tracking.json). Prior audit marked as "dormant" — but failure-triage was still generating tasks for old QuorumClaw failures even with sensor disabled, creating a triage loop. Complete deletion breaks the loop. Sensor count 69→68. Skill count 101→100. [WATCH] from prior audit: "dead code below early-return" — CLOSED (code gone). |
+| **fix(db): add agent-trading patterns to countSignalTasksToday()** (ca5477c1) | Beat was migrated from 'ordinals' to 'agent-trading' in a prior cycle but `countSignalTasksToday()` aggregate query wasn't updated. Subjects `'File agent-trading signal%'` and `'[MILESTONE] File agent-trading signal%'` were silently excluded — 6/day cap gate was ineffective. Fix: 2 lines in `src/db.ts`. Cap now enforced. [INFO] carry-forward from prior audit: CLOSED. |
+| **fix(arc-workflows): state-specific source keys** (8ce27fb9) | Workflow meta-sensor used `workflow:{id}` as dedup source for all states. Once a task was created in one state (e.g. 'scheduled'), the 24h dedup window blocked task creation for subsequent states (e.g. 'emailing') — left workflow 779 stuck 4+ hours. Fix: source key is now `workflow:{id}:{state}`. 4-line change. Cross-state dedup collision pattern resolved. |
+| **diagram gap fixed: arc-workflows sensor** | arc-workflows/sensor.ts existed but was missing from all prior state diagrams. It drives the workflow state machine (FailureRetrospectiveMachine, HumanReplyMachine, etc.). Added to InfrastructureSensors. No code change — diagram accuracy fix only. |
 
 ## Key Architectural Changes (f2205d8 → 90f401f9)
 

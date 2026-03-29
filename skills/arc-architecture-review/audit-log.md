@@ -1,3 +1,48 @@
+## 2026-03-29T18:22:00.000Z — quorumclaw deleted + signal cap fix + arc-workflows diagram gap
+
+**Task #9578** | Diff: 51d6cbf → ca5477c | Sensors: 68 | Skills: 100
+
+### Step 1 — Requirements
+
+- **bitcoin-quorumclaw fully deleted** (947ffa43): Prior audit marked as dormant (return "skip" immediately). But failure-triage kept generating tasks for old QuorumClaw failures — the sensor pause only stopped new failures, not the triage loop from old ones. Complete deletion breaks the loop: failure-triage can't create tasks for a skill that no longer exists. 1573 lines removed. Requirement: stop all noise from dead integration. Satisfied.
+- **countSignalTasksToday() fix** (ca5477c1): Beat slug migrated 'ordinals' → 'agent-trading' in a prior cycle but the aggregate daily-cap query wasn't updated. Subjects `'File agent-trading signal%'` were excluded → 6/day cap gate was ineffective. Fix: 2 lines in src/db.ts. Competition integrity restored. Requirement: enforce 6/day cap. Satisfied.
+- **arc-workflows source key fix** (8ce27fb9): Workflow meta-sensor used `workflow:{id}` dedup key for all states. 24h dedup window blocked subsequent states after first state created a task. Workflow 779 stuck 4+ hours. Fix: `workflow:{id}:{state}`. Requirement: workflow state machine must progress through all states. Satisfied.
+
+### Step 2 — Delete
+
+- **[OK]** bitcoin-quorumclaw DELETED (947ffa43). 1573 lines removed. Prior [WATCH] "dead code below early-return" — CLOSED (code gone entirely). No reactivation path needed without confirmed new API URL.
+- **[OK]** countSignalTasksToday() mismatch — CLOSED (ca5477c1). [INFO] carry-forward from prior audits resolved.
+- **[WATCH]** ordinals HookState deprecated fields (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`) — cleanup 2026-04-23+ (9th carry-forward).
+- **[INFO]** layered-rate-limit sensor migration (3 sensors) — post-competition 2026-04-23+ (6th carry-forward).
+- **[INFO]** diagram gap closed: arc-workflows sensor was missing from all prior diagrams. Added to InfrastructureSensors (no code change, diagram accuracy fix).
+
+### Step 3 — Simplify
+
+- **bitcoin-quorumclaw deletion: correct call over dormancy** — prior audit preserved dead code as "reactivation blueprint." Failure-triage loop proved dormancy insufficient. Deletion is simpler and breaks the loop at the root. When/if API returns, skill can be rebuilt from scratch — the reactivation path was never complex.
+- **countSignalTasksToday() fix: 2 lines** — minimal and targeted. No abstraction added. Correct scope.
+- **arc-workflows source key: 4 lines** — scoping dedup key from workflow level to state level. Correct fix for the pattern. No new state or abstraction.
+
+### Step 4 — Accelerate
+
+- **Signal cap now enforced**: 6/day limit was previously unenforced due to subject mismatch. Fixed before competition ramp-up. Prevents accidental over-filing and potential competition disqualification.
+- **arc-workflows unblocked**: state-specific dedup means workflow state machines progress correctly without 24h stalls between states.
+
+### Step 5 — Automate
+
+- **Post-competition cleanup batch (2026-04-23+)**: ordinals HookState deprecated fields, flat-market fallback evaluation, layered-rate-limit migration. Still bundled to avoid queue pollution.
+- **No new automation identified** — all three changes this cycle are reactive bug fixes, correctly small.
+
+### Flags
+
+- **[OK]** bitcoin-quorumclaw DELETED (947ffa43). Triage loop stopped. Sensor count 69→68. Skill count 101→100.
+- **[OK]** countSignalTasksToday() bug fixed (ca5477c1). 6/day competition cap now enforced.
+- **[OK]** arc-workflows cross-state dedup fixed (8ce27fb9). Workflow state machine unblocked.
+- **[OK]** arc-workflows diagram gap closed — sensor now visible in InfrastructureSensors.
+- **[WATCH]** ordinals HookState: 4 deprecated fields — cleanup 2026-04-23+ (9th carry-forward).
+- **[INFO]** layered-rate-limit sensor migration — post-competition 2026-04-23+ (6th carry-forward).
+
+---
+
 ## 2026-03-29T06:16:00.000Z — zest-yield-manager sensor + bitcoin-quorumclaw archived
 
 **Task #9526** | Diff: f2205d8 → 90f401f9 | Sensors: 69 | Skills: 101
