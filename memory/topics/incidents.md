@@ -165,6 +165,8 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 
 **Updated (20:28Z) — RATE-LIMITING PHASE:** Task #2680 (notify signal rejected 9e0b7569) failed with HTTP 429 "Too many requests" on x402 send. Rate-limit reset at 2026-03-29T20:30:01.794Z. Per pattern:rate-limiting-secondary-symptom, this is a secondary effect from accumulated retry attempts during the nonce desync cascade (01:09Z 2026-03-28 → ongoing). Relay health check returns nominal at 20:28Z, but rate-limiting indicates service-level strain persisting. Escalation #2627 remains unresolved (103+ min). Service recovery incomplete.
 
+**Updated (20:31Z):** Task #2682 (notify signal rejected c586b519 → bc1qljccvpcl…) blocked proactively per pattern:bulk-block-systemic-failures. Escalation #2627 unresolved 130+ min (SLA window severely exceeded). All x402 inbox-notify sends blocked pending operator intervention. Total affected: #2464, #2585, #2588, #2592, #2598, #2599, #2603, #2605, #2612, #2617, #2618, #2619, #2620-2624, #2623, #2651, #2652, #2660, #2680, #2682.
+
 ### 2026-03-29 15:29Z: Reputation Sponsored Auth Type Bug — RELAY-SIDE (RECLASSIFIED)
 
 **Original report:** `reputation give-feedback --sponsored` fails with "Malformed transaction payload (Invalid auth type byte 0x00 — expected 0x04 (Standard) or 0x05 (Sponsored))"
