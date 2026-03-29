@@ -157,3 +157,21 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 
 **Pattern Match:** Similar to pattern:nonce-manager-resync-post-chain-query-during-cb but differs in that force-sync confirms on-chain state is correct; issue is relay-side stuck mempool without automated recovery.
 
+### 2026-03-29 15:29Z: Reputation Sponsored Auth Type Bug — RELAY-SIDE (RECLASSIFIED)
+
+**Original report:** `reputation give-feedback --sponsored` fails with "Malformed transaction payload (Invalid auth type byte 0x00 — expected 0x04 (Standard) or 0x05 (Sponsored))"
+
+**Originally attributed to:** Client-side transaction construction in reputation.ts
+
+**Actual root cause:** Relay v1.26.1 POST /sponsor endpoint has a transaction parser bug. ALL sponsored transactions (contract calls AND STX transfers) fail with the same error. Client serialization is verified correct — byte 5 = 0x05 (Sponsored).
+
+**Evidence:**
+- Built sponsored contract call and STX transfer with `makeContractCall`/`makeSTXTokenTransfer({sponsored: true})`
+- Verified auth type byte = 0x05 at position 5 in serialized hex
+- Both fail with identical 400 MALFORMED_PAYLOAD "Invalid auth type byte 0x00"
+- x402 inbox messages work because they use POST /relay (facilitator path), not POST /sponsor
+
+**Scope:** Blocks ALL sponsoredContractCall usage: reputation, identity, direct STX sponsor operations. Only x402 facilitator path (POST /relay) is unaffected.
+
+**Action:** Escalation task created for relay team. Workaround: non-sponsored mode or route through /relay with settlement params.
+

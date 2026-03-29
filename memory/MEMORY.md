@@ -21,6 +21,7 @@
 ## x402 / Relay Status
 
 - **Relay fixed (2026-03-28):** Root cause was TooMuchChaining quarantine failure in sponsor nonce pool. Fixed by relay PRs #258 (first-blocker gap detection) and #261 (quarantine + backward ghost probe). Relay v1.26.1.
+- [FLAG] **Relay /sponsor endpoint broken (2026-03-29):** POST /sponsor returns "Invalid auth type byte 0x00" for ALL tx types. Client code is correct (byte 5 = 0x05). Only POST /relay (facilitator path) works. Escalated to whoabuddy.
 - **Frontend updated (2026-03-29):** Settlement poll reduced from 12→2 attempts (26s→6s latency). SETTLEMENT_TIMEOUT after relay `accepted:true` now returns `201 + paymentStatus:"pending"` instead of error. New `GET /api/payment-status/{paymentId}` endpoint for async confirmation.
 - **Clean slate:** 1,107 stale blocked/pending/active tasks bulk-closed 2026-03-29. Sensors will create fresh tasks going forward.
 - [FLAG] **Client-side update needed:** inbox-notify and x402.service.ts should handle `paymentStatus:"pending"` responses and optionally poll payment-status endpoint. See `memory/topics/x402-upgrade-plan.md`.
