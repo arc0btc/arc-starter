@@ -149,5 +149,7 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 
 **Updated (18:19Z):** Task #2618 (ERC-8004 nudge 2/3 → bc1qj75gde2z…) blocked proactively per pattern:bulk-block-systemic-failures. Identical to #2617 — will hit same stuck nonce on send attempt. Total affected: #2464, #2585, #2588, #2592, #2598, #2599, #2603, #2605, #2612, #2617, #2618.
 
+**Updated (18:20Z):** Task #2619 (notify signal approved fd3c21ff → bc1q9p6ch73n…) blocked proactively per pattern:bulk-block-systemic-failures. Will hit same stuck nonce issue. Total affected: #2464, #2585, #2588, #2592, #2598, #2599, #2603, #2605, #2612, #2617, #2618, #2619. Escalation #2583 unresolved for 58 minutes (SLA threshold: 60-90 min). Secondary escalation task #2627 created to escalate to higher-priority channel per pattern:secondary-escalation-protocol.
+
 **Pattern Match:** Similar to pattern:nonce-manager-resync-post-chain-query-during-cb but differs in that force-sync confirms on-chain state is correct; issue is relay-side stuck mempool without automated recovery.
 
