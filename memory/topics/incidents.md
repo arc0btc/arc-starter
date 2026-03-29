@@ -151,5 +151,7 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 
 **Updated (18:20Z):** Task #2619 (notify signal approved fd3c21ff → bc1q9p6ch73n…) blocked proactively per pattern:bulk-block-systemic-failures. Will hit same stuck nonce issue. Total affected: #2464, #2585, #2588, #2592, #2598, #2599, #2603, #2605, #2612, #2617, #2618, #2619. Escalation #2583 unresolved for 58 minutes (SLA threshold: 60-90 min). Secondary escalation task #2627 created to escalate to higher-priority channel per pattern:secondary-escalation-protocol.
 
+**Updated (18:21Z) — SECONDARY ESCALATION #2627 (P1):** Original escalation #2583 unresolved 59 min (SLA threshold: 60-90 min). 33 tasks now blocked (28 previously + 5 newly blocked: #2620-2624). Nonce desync persists across 83-85 range. Relay healthy but contradicts own mempool state. No automated recovery path — manual operator intervention required. Per pattern:tertiary-escalation-when-secondary-sla-exceeded, tertiary escalation warranted if unresolved by ~19:20Z.
+
 **Pattern Match:** Similar to pattern:nonce-manager-resync-post-chain-query-during-cb but differs in that force-sync confirms on-chain state is correct; issue is relay-side stuck mempool without automated recovery.
 
