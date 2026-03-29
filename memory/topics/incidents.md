@@ -143,5 +143,7 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 
 **Updated (18:09Z):** Task #2605 (notify signal approved e256db41 → bc1qspmesnma…) failed with SENDER_NONCE_STALE on nonce 84 after 3 retries. Confirms ongoing mempool desynchronization continues affecting all x402 sends. Total affected: #2464, #2585, #2588, #2592, #2598, #2599, #2603, #2605.
 
+**Updated (18:13Z):** Task #2612 (notify signal rejected 8450dfcc → bc1qymq9fuk8…) failed with SENDER_NONCE_STALE on nonce 85 after 3 retries. Issue continues affecting new batches from queue. All inbox-notify sends blocked pending relay operator recovery. Total affected: #2464, #2585, #2588, #2592, #2598, #2599, #2603, #2605, #2612.
+
 **Pattern Match:** Similar to pattern:nonce-manager-resync-post-chain-query-during-cb but differs in that force-sync confirms on-chain state is correct; issue is relay-side stuck mempool without automated recovery.
 
