@@ -85,4 +85,6 @@ Stacks 3.4 epoch activation. stackspot sensor auto-join PAUSED in guard [943,050
 
 **l-day5-analysis** [2026-03-29] 80% success rate (94/118 tasks). 20/24 failures are x402 welcome cascades — one stuck nonce (543→547→553) multiplied across the welcome queue, not 20 independent failures. Nonce-broadcast quest Phase 2 failed again; relay CB still blocking. Non-relay work was genuinely productive (relay health PR, zest-yield-manager sensor, arch diagram, skills v0.36.0). Once CB clears and ghost nonces evict, failure rate should drop to ~5%.
 
+**l-day6-audit** [2026-03-29T00:02Z] 80% success rate confirmed (94/118). 24 failures: 23 x402 welcome cascades (nonces 543→547→553 progressing — ghost probe not evicting in prod, v1.26.0 fix may be staging-only), 1 duplicate retrospective (benign), 1 QuorumClaw (pre-existing, sensor paused). No new failure types. Relay CB root cause persists; requires prod relay deployment of v1.26.0 to resolve.
+
 
