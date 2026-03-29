@@ -644,8 +644,10 @@ export function countSignalTasksToday(): number {
          subject LIKE 'File ordinals signal%'
          OR subject LIKE 'File Ordinals Business signal%'
          OR subject LIKE 'File dev-tools signal%'
+         OR subject LIKE 'File agent-trading signal%'
          OR subject LIKE '[MILESTONE] File ordinals signal%'
          OR subject LIKE '[MILESTONE] File dev-tools signal%'
+         OR subject LIKE '[MILESTONE] File agent-trading signal%'
          OR subject LIKE 'Maintain%streak%aibtc.news%'
        )`
     )
