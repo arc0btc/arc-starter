@@ -160,8 +160,8 @@ async function checkRelayHealth(
       if (pool.poolStatus === "critical") {
         issues.push(`Relay nonce pool is critical (available=${pool.poolAvailable ?? "?"}, reserved=${pool.poolReserved ?? "?"})`);
       }
-      if (pool.effectiveCapacity != null && pool.effectiveCapacity < 5) {
-        issues.push(`Relay effective capacity degraded: ${pool.effectiveCapacity}/20`);
+      if (pool.effectiveCapacity != null && pool.effectiveCapacity < 1) {
+        issues.push(`Relay effective capacity exhausted: ${pool.effectiveCapacity}/20`);
       }
       if (pool.conflictsDetected != null && pool.conflictsDetected > 10) {
         issues.push(`Relay has ${pool.conflictsDetected} nonce conflicts`);
