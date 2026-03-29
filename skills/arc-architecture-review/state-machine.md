@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-03-28T18:25:00.000Z*
-*Sensor count: 68 | Skill count: 101*
+*Generated: 2026-03-29T06:16:00.000Z*
+*Sensor count: 69 | Skill count: 101*
 
 ```mermaid
 stateDiagram-v2
@@ -60,6 +60,8 @@ stateDiagram-v2
             defi_zest
             mempool_watch
             arc_payments
+            zest_yield_manager
+            note right of zest_yield_manager: 60-min cadence\nChecks sBTC balance vs 200k-sat reserve\nQueues supply tasks (idle > threshold)\nQueues claim tasks (wSTX rewards > 1000 uSTX)\nAutonomous yield: idle sBTC → Zest ~3.5% APY
         }
 
         state AIBTCSensors {
@@ -108,7 +110,7 @@ stateDiagram-v2
             contacts
             paperboy
             stacks_stackspot
-            note right of bitcoin_quorumclaw: API deprovisioned (Railway 404)\nfailure-state.json at 10 failures\nReturns skip immediately (fix eaa40bfa)\nUnblock: new URL → update API_BASE → delete failure-state.json
+            note right of bitcoin_quorumclaw: [DORMANT] 2026-03-29 (51d6cbf6)\nAPI deprovisioned — sensor returns skip immediately\nReactivate: confirm new URL → update API_BASE → delete failure-state.json\nTracked invite 72654529 unresolvable until API returns
             note right of stacks_stackspot: epoch-3.4 guard REMOVED (313d6b49)\nguard was dead code after block 943500\nstackspot now runs unguarded
         }
 
@@ -274,7 +276,7 @@ stateDiagram-v2
     ContentSensors --> SignalAllocation
 ```
 
-## Sensor Count by Category (2026-03-28)
+## Sensor Count by Category (2026-03-29)
 
 | Category | Count |
 |----------|-------|
@@ -283,13 +285,20 @@ stateDiagram-v2
 | Content/Publishing | 8 |
 | AIBTC/ERC-8004 | 7 |
 | Infrastructure | 11 |
-| DeFi | 5 |
+| DeFi | 6 |
 | Health | 2 |
 | Monitoring | 6 |
 | Other/Misc | 5 |
-| **Total** | **68** |
+| **Total** | **69** |
 
-*Note: Fleet sensor group removed (committed b73f1a21). Previous total was 80. Other/Misc: bitcoin-quorumclaw (paused, skip-on-pause fixed), contacts, paperboy, stacks-stackspot (epoch-3.4 guard removed 313d6b49). Skill count: 101 (+hodlmm-risk +zest-yield-manager from skills-v0.36.0).*
+*Note: +zest-yield-manager (af624449) → DeFi count 5→6, total 68→69. bitcoin-quorumclaw [DORMANT] (51d6cbf6) — still counted, returns skip immediately. Skill count: 101 (unchanged).*
+
+## Key Architectural Changes (f2205d8 → 90f401f9)
+
+| Change | Impact |
+|--------|--------|
+| **feat(zest-yield-manager): sensor.ts installed** (af624449) | Closes [WATCH] from prior audit. 60-min cadence sensor: reads Arc's sBTC balance + pending wSTX rewards via Clarity `call-read-only`. Queues supply tasks when idle sBTC > 200k-sat reserve; queues claim tasks when wSTX rewards > 1000 uSTX. Prior to this, yield optimization required explicit task creation. Now autonomous. DeFi sensor count: 5→6. |
+| **chore(bitcoin-quorumclaw): archive skill — API deprovisioned** (51d6cbf6) | Sensor now returns "skip" immediately (dormant). SKILL.md marked [DEPRECATED]. failure-state.json deleted. Dead code (lines 286-329) preserved as reactivation blueprint — acceptable tradeoff. Reactivation path: confirm new API URL → update API_BASE in sensor.ts + cli.ts → delete failure-state.json. |
 
 ## Key Architectural Changes (b8e6595 → f2205d8+)
 

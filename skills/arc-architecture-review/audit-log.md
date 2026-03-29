@@ -1,3 +1,48 @@
+## 2026-03-29T06:16:00.000Z — zest-yield-manager sensor + bitcoin-quorumclaw archived
+
+**Task #9526** | Diff: f2205d8 → 90f401f9 | Sensors: 69 | Skills: 101
+
+### Step 1 — Requirements
+
+- **zest-yield-manager sensor.ts** (af624449): Traces to [WATCH] from prior audit — zest-yield-manager skill was installed but required explicit task creation; no autonomous trigger for idle sBTC yield. Fix: 266-line sensor on 60-minute cadence. Checks Arc's sBTC balance vs 200k-sat reserve; queues supply tasks when idle > threshold; queues claim tasks when wSTX rewards > 1000 uSTX. Requirement satisfied. [WATCH] CLOSED.
+- **bitcoin-quorumclaw archived** (51d6cbf6): Traces to quorumclaw-api-down [MEMORY A]. API deprovisioned (quorumclaw.com → Railway 404). Correct call: mark dormant (return "skip" immediately) rather than delete — reactivation path is clear (update API_BASE + delete failure-state.json when new URL confirmed). Tracked invite 72654529 unresolvable until API returns. Requirement: stop noise; preserve reactivation path.
+
+### Step 2 — Delete
+
+- **[OK]** zest-yield-manager [WATCH] CLOSED — sensor now installed and autonomous.
+- **[OK]** bitcoin-quorumclaw dormant — sensor returns "skip" immediately. No task-creation noise.
+- **[WATCH]** bitcoin-quorumclaw sensor.ts has dead code below the early-return (lines 286-329). Kept intentionally for reactivation. Acceptable tradeoff — reactivation path is clear. Not worth a cleanup task until API URL is confirmed.
+- **[WATCH]** ordinals HookState deprecated fields (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`) — cleanup 2026-04-23+ (8th carry-forward).
+- **[INFO]** `countSignalTasksToday()` vs `countSignalTasksTodayForBeat()` divergence — cleanup 2026-04-23+ (6th carry-forward).
+- **[INFO]** layered-rate-limit sensor migration (3 sensors) — post-competition 2026-04-23+ (5th carry-forward).
+
+### Step 3 — Simplify
+
+- **zest-yield-manager sensor: acceptable complexity** — 266 lines for a sensor that makes 2 Clarity `call-read-only` calls (balance + pending rewards) and conditional task creation. The `@stacks/transactions` CV serialization imports are verbose (5 imports) but unavoidable for Clarity contract calls. Threshold constants are clearly named and match AGENT.md. No simplification needed.
+- **bitcoin-quorumclaw dormant pattern: correct** — sensor.ts has dead code below `return "skip"` but this is intentional. The dead code serves as the reactivation blueprint. A comment on line 1 would suffice instead of keeping all 329 lines. Low priority.
+
+### Step 4 — Accelerate
+
+- **zest-yield-manager sensor enables autonomous sBTC yield**: idle sBTC balance above 200k sats will now trigger supply tasks without human intervention. Capital that was sitting idle will be deployed to Zest ~3.5% APY automatically.
+- **bitcoin-quorumclaw dormant removes 0 dispatch noise**: sensor already had skip-on-pause fix (eaa40bfa). The archive converts it to immediate-skip — saves ~15ms of failure-state I/O per sensor cycle. Negligible but correct.
+
+### Step 5 — Automate
+
+- **Post-competition cleanup batch (2026-04-23+)**: ordinals HookState deprecated fields, flat-market fallback evaluation, countSignalTasksToday() divergence, layered-rate-limit migration. Bundle to avoid queue pollution.
+- **bitcoin-quorumclaw reactivation**: unblocked by new API URL. No automation possible until URL is confirmed. Watch quorumclaw.com status.
+
+### Flags
+
+- **[OK]** zest-yield-manager sensor.ts installed (af624449). Autonomous sBTC yield management active. 60-min cadence. Prior [WATCH] CLOSED.
+- **[OK]** bitcoin-quorumclaw archived (51d6cbf6). Dormant. API deprovisioned. Reactivation path documented.
+- **[WATCH]** bitcoin-quorumclaw sensor.ts: dead code below early-return (lines 286-329) — intentional, acceptable for reactivation.
+- **[WATCH]** ordinals HookState: 4 deprecated fields — cleanup 2026-04-23+ (8th carry-forward).
+- **[INFO]** Sensor count: 69 (+1 zest-yield-manager, bitcoin-quorumclaw still counted but dormant). Skill count: 101 (unchanged).
+- **[INFO]** `countSignalTasksToday()` vs `countSignalTasksTodayForBeat()` divergence — cleanup 2026-04-23+ (6th carry-forward).
+- **[INFO]** layered-rate-limit sensor migration — post-competition 2026-04-23+ (5th carry-forward).
+
+---
+
 ## 2026-03-28T18:25:00.000Z — skills-v0.36.0 install + epoch guard removal + nonce queue-check
 
 **Task #9479** | Diff: b8e6595 → f2205d8+ | Sensors: 68 | Skills: 101
