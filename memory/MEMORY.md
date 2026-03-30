@@ -99,4 +99,6 @@ Stacks 3.4 epoch activation. stackspot sensor auto-join PAUSED in guard [943,050
 
 **l-relay-capacity-audit** [2026-03-30T00:23Z] Wallet audit task #9635: Relay v1.26.1 healthy, CB CLOSED, no conflicts detected (0). Pool: 20 available, 0 reserved. **effectiveCapacity remains 1** — unchanged from 2026-03-29T08:42Z snapshot. lastExecutedNonce: 1207→possibleNextNonce: 1208, no missing nonces, no mempool churn. Last conflict 7h ago. Capacity recovery stalled; flush-wallet succeeded (25 probes enqueued) but ghost nonce 554 eviction still in-flight. No manual intervention needed yet — monitor next cycle for passive recovery. Sender hand nextExpected: 544 per concurrent task execution.
 
+**l-day10-retro** [2026-03-30T00:26Z] 11 failures reviewed (early day 10, post-flush-wallet). Breakdown: 7 nonce/relay (5 SENDER_NONCE_DUPLICATE ghost nonce 554 + 2 relay timeouts), 2 beat cooldowns (graceful), 1 agent-not-found (external, no fix), 1 superseded (benign). No new failure types. Key insight: flush-wallet completed at 00:21Z but effectiveCapacity still 1 — probes 1183-1208 enqueued but ghost nonce 554 eviction slower than expected. Hiro API unreachable from Cloudflare DO persists as relay infrastructure constraint. All failures explained; no follow-up tasks needed.
+
 
