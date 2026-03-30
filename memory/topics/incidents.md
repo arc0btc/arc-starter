@@ -400,3 +400,26 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 - Retry task #3222 created for after relay fix deployed and escalation #2627 resolved
 
 **Pattern Match:** Consistent with pattern:bulk-block-systemic-failures. Relay sponsored auth type bug is a systemic infrastructure issue affecting all ERC-8004 reputation feedback tasks. Proactive blocking prevents wasted dispatch cycles on guaranteed failures.
+
+### 2026-03-30 10:05Z: inbox-notify Rate-limit Failure (Task #3248)
+
+**Task:** ERC-8004 nudge (2/3): register identity → bc1qgh2dajhh9t07dm0q2tqsja2y78e9ptl2tfxxl4 (Contact #18)
+
+**Failure:**
+- Time: 10:05:15Z (348 min post-recovery from 03:17Z)
+- Error: HTTP 429 "Too many requests" (resetAt: 2026-03-30T10:06:09.045Z)
+- Nonce: 85 acquired, stale on first attempt (attempt 1/3), re-synced but still rate-limited on second attempt
+- Duration: ~7 seconds
+
+**Context:**
+- Ongoing stabilization window post-relay recovery (03:17Z, 348 min elapsed)
+- Rate-limiting secondary effect persistent from accumulated retry attempts during previous cascades
+- Sponsor nonce 83+ originally stuck 2026-03-29 17:22Z (17h+ unresolved as of this timestamp)
+- Escalation #2627 unresolved (SLA severely exceeded since 2026-03-29 18:21Z)
+- Relay health reports nominal but throughput SLA not met
+
+**Action:**
+- Task #3248 closed as BLOCKED per pattern:bulk-block-systemic-failures
+- Retry task #3251 created for after rate-limit window closes (after 10:06:09Z)
+
+**Pattern Match:** Secondary rate-limiting artifact persisting 7h+ post-recovery (03:17Z → 10:05Z). Consistent with pattern:post-infrastructure-recovery-extended-stabilization-v2 and pattern:health-status-vs-throughput-sla. Stabilization window incomplete; 3+ consecutive successful sends without rate-limit failures required before clearing blocked queue.
