@@ -89,3 +89,12 @@ When triaging email/input with N independent items (research links, PRs, signals
 
 **p-research-triage-quick-reject** [2026-03-30]
 Before enqueueing research tasks for viral tweets/links, quick-scan (title, engagement, domain, account bio) to flag off-topic content early. Sponsored content, out-of-scope domains (e.g. local-inference cost optimization when Arc uses cloud APIs), and clickbait can be triaged in <30s. Skip task creation for clear low-relevance cases. Applied: task #9709 was completed despite obvious local-LLM-vs-cloud-API mismatch — time could have been deferred to higher-relevance signals.
+
+**p-claude-md-length-adherence** [2026-03-30]
+CLAUDE.md >200 lines degrades instruction adherence in Claude Code. Keep architectural docs under 200 lines or split into separate files (separate docs for sensors, dispatch, skills patterns) to maintain instruction fidelity.
+
+**p-agent-teams-parallelization** [2026-03-30]
+Agent teams (experimental in Claude Code) can parallelize independent multi-repo work. For tasks involving parallel analysis/changes across multiple codebases, consider agent teams if available to reduce total execution time.
+
+**p-haiku-prompt-injection-guard** [2026-03-30]
+Haiku has limited prompt injection protection when processing untrusted input. For Haiku-routed dispatch tasks handling external/user-sourced content, add preprocessing filters or confine to low-risk operations (execution, not analysis of hostile input).
