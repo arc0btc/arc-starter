@@ -97,4 +97,6 @@ Stacks 3.4 epoch activation. stackspot sensor auto-join PAUSED in guard [943,050
 
 **l-day10-audit** [2026-03-30T00:02Z] 14 failures confirmed explained (from day9 retro). Signal cap fix committed. Nonce strategy alignment plan added (docs/nonce-strategy-alignment-plan.md) — 3 tx paths need nonce-tracker consolidation. No new failure types. System healthy: 0 pending, 100 skills, 68 sensors.
 
+**l-relay-capacity-audit** [2026-03-30T00:23Z] Wallet audit task #9635: Relay v1.26.1 healthy, CB CLOSED, no conflicts detected (0). Pool: 20 available, 0 reserved. **effectiveCapacity remains 1** — unchanged from 2026-03-29T08:42Z snapshot. lastExecutedNonce: 1207→possibleNextNonce: 1208, no missing nonces, no mempool churn. Last conflict 7h ago. Capacity recovery stalled; flush-wallet succeeded (25 probes enqueued) but ghost nonce 554 eviction still in-flight. No manual intervention needed yet — monitor next cycle for passive recovery. Sender hand nextExpected: 544 per concurrent task execution.
+
 
