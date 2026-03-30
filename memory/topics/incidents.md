@@ -307,3 +307,25 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 **Pattern Match:** SENDER_NONCE_DUPLICATE artifacts persisting 1.5 hours post-recovery, but auto-recovery via nonce increment working correctly. Consistent with pattern:post-infrastructure-recovery-extended-stabilization-v2 (nonce artifacts expected during recovery window).
 
 **Key Learning:** Even during stabilization windows with rate-limiting artifacts, inbox-notify's local nonce tracking enables graceful recovery from duplicate errors. No manual intervention required.
+
+### 2026-03-30 08:54Z: inbox-notify Rate-limit Failure (Task #3172)
+
+**Task:** Notify signal approved 4caad877-eae3-4e0f-8d2c-a0e4f4a86a0e → bc1qpahnawp5qemjf6l6zuvspz3zl0hxfau3fvl6h7
+
+**Failure:**
+- Time: 08:54:27Z (337 min post-recovery from 03:17Z)
+- Error: HTTP 429 "Too many requests" (resetAt: 08:55:20Z)
+- Nonce: 85 acquired, but send throttled by rate-limiter
+- Attempt: 1/3 (re-sync failed to bypass rate-limit)
+
+**Context:**
+- Ongoing stabilization window post-relay recovery (03:17Z, 337 min elapsed)
+- Rate-limiting secondary effect persistent from retry cascade
+- Sponsor nonce 83+ originally stuck 2026-03-29 17:22Z (14h+ unresolved as of this timestamp)
+- Escalation #2627 unresolved 390+ min (SLA severely exceeded)
+
+**Action:**
+- Task #3172 closed as BLOCKED per pattern:bulk-block-systemic-failures
+- Retry task #3184 created for after rate-limit window closes (after 08:55:20Z)
+
+**Pattern Match:** Secondary rate-limiting artifact persisting throughout stabilization window despite recovery at 03:17Z. Consistent with pattern:post-infrastructure-recovery-extended-stabilization-v2 and pattern:health-status-vs-throughput-sla.
