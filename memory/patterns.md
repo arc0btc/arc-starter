@@ -101,3 +101,6 @@ Haiku has limited prompt injection protection when processing untrusted input. F
 
 **p-synthesis-after-parallel-bulk** [2026-03-30]
 After N parallel individual tasks complete, the follow-up synthesis task must prioritize findings and extract patterns—not just aggregate raw results. Synthesis that adds no new structure (e.g., "here are all 22 findings in a list") wastes the final consolidation step. Applied: task #9691 (22 research → parallel) → task #9721 (synthesis with 6 prioritized finds + 3 patterns extracted).
+
+**p-pr-rerevice-preexisting-triage** [2026-03-30]
+When re-reviewing a PR after follow-up commits, distinguish pre-existing failures from PR-introduced ones by checking creation dates and diff scope. CodeQL/linting alerts created before the PR shouldn't block approval. Prevents false negatives that erode review credibility. Applied: task #9798 (landing-page #548 — CodeQL alert #31 pre-existing, approved despite failure).
