@@ -5,6 +5,7 @@
 import { ARC_BTC_ADDRESS, ARC_STX_ADDRESS } from "../../src/identity.ts";
 import { getContactByAddress, getContactInteractions, insertContactInteraction } from "../contact-registry/schema.ts";
 import { acquireNonce, releaseNonce } from "../nonce-manager/nonce-store.js";
+import { enqueueNotification } from "../inbox-notify/notification-queue.ts";
 
 const API_BASE = "https://aibtc.news/api";
 const VALID_CATEGORIES = ["ordinals", "services", "agents", "wanted"] as const;
@@ -1172,7 +1173,7 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
         const recipientStx = contact?.stx_address;
 
         if (recipientStx) {
-          // Queue x402 notification task
+          // Enqueue x402 notification (batched by sensor every 10 min)
           const message = flags.status === "approved"
             ? [
                 `Signal Approved | ${flags.id}`,
@@ -1191,52 +1192,63 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
                 `Please fix the issues noted above and resubmit. We want to publish quality content and appreciate your contributions.`,
               ].join("\n");
 
-          const notifyDesc = [
-            `Send x402 inbox notification for signal ${flags.id} review (${flags.status}).`,
-            ``,
-            `Run this command:`,
-            `arc skills run --name inbox-notify -- send-one --btc-address ${sigBtcAddress} --stx-address ${recipientStx} --content "${message.replace(/"/g, '\\"')}"`,
-            ``,
-            `If send fails, close task as failed with the error details.`,
-          ].join("\n");
-
-          await queueChildTask({
-            subject: `Notify signal ${flags.status}: #${flags.id} → ${sigBtcAddress.slice(0, 12)}…`,
-            description: notifyDesc,
-            source: `notify:signal:${flags.id}`,
-            skills: "inbox-notify,bitcoin-wallet",
+          const added = enqueueNotification({
+            type: "notify",
+            signal_id: flags.id,
+            status: flags.status as "approved" | "rejected",
+            btc_address: sigBtcAddress,
+            stx_address: recipientStx,
+            content: message,
+            label: sigBtcAddress.slice(0, 16),
+            created_at: new Date().toISOString(),
           });
+          if (added) log(`Queued notification for signal ${flags.id} (${flags.status})`);
 
-          // Queue ERC-8004 reputation feedback task if correspondent has agent ID
+          // Enqueue ERC-8004 reputation feedback if correspondent has agent ID
           if (contact?.agent_id) {
-            const value = flags.status === "approved" ? "1" : "-1";
-            const reputationDesc = [
-              `Submit ERC-8004 reputation feedback for signal ${flags.id} review.`,
-              ``,
-              `Agent ID: ${contact.agent_id}`,
-              `Value: ${value} (${flags.status})`,
-              `Tags: signal-review, ${flags.status}`,
-              `Endpoint: aibtc.news/signals/${flags.id}`,
-              ``,
-              `Steps:`,
-              `1. Unlock wallet: arc skills run --name bitcoin-wallet -- unlock`,
-              `2. Run in ~/github/aibtcdev/skills/:`,
-              `   bun run reputation/reputation.ts give-feedback --agent-id ${contact.agent_id} --value ${value} --tag1 signal-review --tag2 ${flags.status} --endpoint "aibtc.news/signals/${flags.id}" --sponsored`,
-              ``,
-              `If feedback fails, close task as failed with the error details.`,
-            ].join("\n");
-
-            await queueChildTask({
-              subject: `ERC-8004 feedback: signal #${flags.id} ${flags.status} → agent ${contact.agent_id}`,
-              description: reputationDesc,
-              source: `erc8004:signal:${flags.id}`,
-              skills: "erc8004-identity,bitcoin-wallet",
+            const value = flags.status === "approved" ? 1 : -1;
+            enqueueNotification({
+              type: "erc8004-feedback",
+              signal_id: flags.id,
+              status: flags.status as "approved" | "rejected",
+              btc_address: sigBtcAddress,
+              stx_address: recipientStx,
+              content: "", // not used for feedback — task runs reputation CLI
+              label: `agent ${contact.agent_id}`,
+              agent_id: contact.agent_id,
+              reputation_value: value,
+              reputation_tags: ["signal-review", flags.status],
+              created_at: new Date().toISOString(),
             });
           }
 
-          // Queue ERC-8004 identity nudge if correspondent has no agent ID (up to 3x)
+          // Enqueue ERC-8004 identity nudge if no agent ID (caps at 3 per wallet)
           if (!contact?.agent_id && contact) {
-            await maybeQueueIdentityNudge(sigBtcAddress, recipientStx, contact.id, "signals");
+            const recentInteractions = getContactInteractions(contact.id, 200);
+            const nudgeCount = recentInteractions.filter(
+              (ix) => ix.summary.startsWith(ERC8004_NUDGE_PREFIX)
+            ).length;
+
+            if (nudgeCount < ERC8004_NUDGE_MAX) {
+              const nudgeNumber = nudgeCount + 1;
+              const nudgeMessage = nudgeNumber === 1
+                ? `Register Your Agent Identity\n\nYou're active on aibtc.news. We track correspondent reputation on-chain using ERC-8004.\n\nRegister (free, sponsored): bun run identity/identity.ts register --sponsored`
+                : nudgeNumber === 2
+                  ? `Reminder: Register Your Agent Identity\n\nYou've had signals reviewed but aren't earning on-chain reputation yet.\n\nRegister (free): bun run identity/identity.ts register --sponsored`
+                  : `Final Notice: ERC-8004 Identity Registration\n\nOn-chain identity will be required for all aibtc.news correspondents.\n\nRegister now (free): bun run identity/identity.ts register --sponsored`;
+
+              enqueueNotification({
+                type: "erc8004-nudge",
+                signal_id: flags.id,
+                status: flags.status as "approved" | "rejected",
+                btc_address: sigBtcAddress,
+                stx_address: recipientStx,
+                content: nudgeMessage,
+                label: `${sigBtcAddress.slice(0, 12)}… nudge ${nudgeNumber}/${ERC8004_NUDGE_MAX}`,
+                nudge_number: nudgeNumber,
+                created_at: new Date().toISOString(),
+              });
+            }
           }
         }
       }

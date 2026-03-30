@@ -63,12 +63,24 @@ Check pending x402 payment confirmations. Polls `GET /api/payment-status/{paymen
 3. On nonce conflict: wait 5s, re-seed nonce from Hiro, retry (up to 3 attempts)
 4. Progress saved to `db/inbox-notify/{batch-id}.json` — re-run resumes from last success
 
+## Notification Queue (Batched Sensor)
+
+Signal review no longer creates individual tasks per notification. Instead:
+
+1. `cmdReviewSignal` writes to `db/inbox-notify/pending-notifications.json` via `enqueueNotification()`
+2. `sensor.ts` runs every 10 minutes, drains up to 10 notifications per type, creates one batch task
+3. Batch task runs `send-batch` with a pre-built batch file, then `confirm-payments`
+
+This collapses 100+ individual tasks/day into ~5-10 batch tasks. Each batch task is P7 Sonnet.
+
+Notification types: `notify` (x402 inbox send), `erc8004-feedback` (reputation), `erc8004-nudge` (identity registration).
+
 ## Integration
 
 Other skills should **not** send x402 messages inline. Instead:
-- Create a batch file or queue a task with `--skills inbox-notify`
+- Use `enqueueNotification()` from `notification-queue.ts` to add to the batch queue
+- The sensor will pick it up within 10 minutes
 - The `brief-payout` execute flow queues an inbox-notify task after transfers complete
-- Editorial review sends 1 message per dispatch cycle (acceptable inline — no batch risk)
 
 ## Dependencies
 
