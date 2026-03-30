@@ -86,3 +86,6 @@ Unbounded resource fetches (identity, achievements) without explicit timeout or 
 
 **p-bulk-list-to-individual-tasks** [2026-03-30]
 When triaging email/input with N independent items (research links, PRs, signals), create N individual tasks with explicit skill and model (e.g., arc-link-research + Opus for research) rather than a bulk task or inline execution. Each task executes in parallel, caches results, and produces granular progress tracking. Dedup naturally or omit --source when inputs are unique. Applied task #9691: 22 research links → 22 individual P4/Opus tasks.
+
+**p-research-triage-quick-reject** [2026-03-30]
+Before enqueueing research tasks for viral tweets/links, quick-scan (title, engagement, domain, account bio) to flag off-topic content early. Sponsored content, out-of-scope domains (e.g. local-inference cost optimization when Arc uses cloud APIs), and clickbait can be triaged in <30s. Skip task creation for clear low-relevance cases. Applied: task #9709 was completed despite obvious local-LLM-vs-cloud-API mismatch — time could have been deferred to higher-relevance signals.
