@@ -13,8 +13,8 @@ Active ($20/signal, 6/day max). Score 12 (top agent 32). Rotation gap: sensor qu
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
 
-**x402-relay-v1.26.1** [STATE: 2026-03-30T02:21Z] [ESCALATED]
-Relay v1.26.1 DEPLOYED TO PROD. CB CLOSED (circuitBreakerOpen: false). ✅ **Hiro API now reachable** — 2026-03-30T00:21Z flush-wallet succeeded: 25 probe nonces enqueued (range 1183-1208) for backward clearing at 5/tick w/ RBF_FEE. Sender hand (Arc: SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B) nextExpected: 544, progressing from stuck ghost 554. **BLOCKER** [02:21Z]: effectiveCapacity STILL 1 after 2h eviction. Pool healthy (20 avail, 0 conflicts), but capacity limiter persists. Ghost nonce 554 eviction stalled; escalated to whoabuddy (task #9658) for manual intervention consideration.
+**x402-relay-v1.26.1** [STATE: 2026-03-30T02:30Z] [ESCALATED]
+Relay v1.26.1 DEPLOYED TO PROD. CB CLOSED. ✅ **Ghost nonce 554 RESOLVED** — sender progressed to 577/578, sponsor at 1207/1208. Both sides CLEAN: 0 missing nonces, 0 mempool pending. All 5 admin actions exhausted (resync, reset, clear-pools, clear-conflicts, flush-wallet) — effectiveCapacity remains 1. **ROOT CAUSE**: effectiveCapacity is a server-side config, not derived from nonce/conflict state. Requires relay code or Cloudflare DO config change. Pool nominal (20 avail, 0 conflicts, CB closed, lastConflictAt null). Escalated to whoabuddy (task #9658).
 
 **aibtc-mcp-server-v1.46.0** [STATE: 2026-03-28T02:26Z]
 v1.46.0 RELEASED (2026-03-28T01:54Z). NEW: zest_enable_collateral tool (PR #423, closes #422). v1.45.0: sender/sponsor nonce correlation (PR #419). Compatible with skills v0.36.0. skills-v0.36.0: nonce-manager skill + x402-retry.ts with cross-process nonce locking (fixes p-wallet-nonce-gap).
@@ -101,6 +101,6 @@ Stacks 3.4 epoch activation. stackspot sensor auto-join PAUSED in guard [943,050
 
 **l-day10-retro** [2026-03-30T00:26Z] 11 failures reviewed (early day 10, post-flush-wallet). Breakdown: 7 nonce/relay (5 SENDER_NONCE_DUPLICATE ghost nonce 554 + 2 relay timeouts), 2 beat cooldowns (graceful), 1 agent-not-found (external, no fix), 1 superseded (benign). No new failure types. Key insight: flush-wallet completed at 00:21Z but effectiveCapacity still 1 — probes 1183-1208 enqueued but ghost nonce 554 eviction slower than expected. Hiro API unreachable from Cloudflare DO persists as relay infrastructure constraint. All failures explained; no follow-up tasks needed.
 
-**l-capacity-stall-escalation** [2026-03-30T02:21Z] 2h follow-up check (task #9639): effectiveCapacity STILL 1 (unchanged from 00:23Z). Probes 1183-1208 enqueued at flush-wallet 00:21Z show no progress toward ghost nonce 554 eviction. Pool health nominal (20 avail, 0 conflicts, CB closed). Capacity recovery stalled despite infrastructure fixes. Escalated to whoabuddy (task #9658) for manual intervention decision — options: relay logs inspection, RBF fee bump, manual nonce skip, or restart. Indicates eviction rate insufficient or ghost nonce stuck in external mempool (Hiro API from Cloudflare DO).
+**l-capacity-stall-resolved-root-cause** [2026-03-30T02:30Z] Ghost nonce 554 RESOLVED — sender progressed to 577/578, sponsor at 1207/1208, both sides clean (0 missing, 0 mempool). effectiveCapacity=1 persists because it's a server-side relay config (Cloudflare DO), NOT derived from nonce state or conflict history. All 5 admin actions exhausted (resync, reset, clear-pools, clear-conflicts, flush-wallet) — none affect effectiveCapacity. Requires relay code or DO config change by whoabuddy. Welcome tasks will succeed at throughput=1 until capacity is raised.
 
 
