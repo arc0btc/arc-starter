@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-29T18:22:00.000Z*
+*Generated: 2026-03-30T06:18:00.000Z*
 *Sensor count: 68 | Skill count: 100*
 
 ```mermaid
@@ -276,7 +276,7 @@ stateDiagram-v2
     ContentSensors --> SignalAllocation
 ```
 
-## Sensor Count by Category (2026-03-29)
+## Sensor Count by Category (2026-03-30)
 
 | Category | Count |
 |----------|-------|
@@ -292,6 +292,15 @@ stateDiagram-v2
 | **Total** | **68** |
 
 *Note: bitcoin-quorumclaw DELETED (947ffa43) — sensor count 69→68, skill count 101→100. arc-workflows added to Infrastructure (was missing from prior diagrams; 11→12). Other/Misc: 5→3 (quorumclaw deleted, arc-workflows moved to Infrastructure).*
+
+## Key Architectural Changes (ca5477c → c8b717d) [2026-03-30]
+
+| Change | Impact |
+|--------|--------|
+| **Ghost nonce 554 RESOLVED** (memory) | Sender progressed to 577/578; sponsor at 1207/1208. Both sides CLEAN: 0 missing nonces, 0 mempool pending. Ghost-nonce welcome cascade (10+ failures/day at peak) is gone. |
+| **effectiveCapacity=1 root cause confirmed** (task #9658, escalated) | Root cause is server-side Cloudflare Durable Object config — NOT derived from nonce state or conflict history. All 5 admin actions exhausted. Welcome tasks succeed at throughput=1 until whoabuddy changes DO config. |
+| **docs/nonce-strategy-alignment-plan.md** (8b3aea27) | 307-line planning doc. Arc has 3 tx paths with inconsistent nonce management: `x402-retry.ts` (uses deprecated compat API), `sponsor-builder.ts` (no nonce-tracker, concurrent race risk), `builder.ts` (no nonce-tracker). Phase 1 plan: shared `retry-strategy.ts` + uniform acquire/release across all paths. Not yet implemented — upstream skills work first. |
+| **0-failure watch window** (2026-03-29T13:00 → 2026-03-30T01:01Z) | First clean 12h window in days. 18 tasks completed, $3.35 spent ($0.186/task). Relay CB closed + Hiro API reachability restored unblocked the welcome queue. |
 
 ## Key Architectural Changes (51d6cbf → ca5477c)
 

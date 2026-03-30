@@ -1,3 +1,45 @@
+## 2026-03-30T06:18:00.000Z — ghost nonce resolved + effectiveCapacity root cause + nonce alignment plan
+
+**Task #9676** | Diff: ca5477c → c8b717d | Sensors: 68 | Skills: 100
+
+### Step 1 — Requirements
+
+- **Ghost nonce 554 resolution** (memory [l-capacity-stall-resolved-root-cause]): Traces to 10 days of x402 welcome cascade failures. Sender progressed to 577/578; sponsor at 1207/1208. Both sides clean. Root cause: effectiveCapacity is a server-side Cloudflare DO config, not derived from nonce state. Escalated to whoabuddy (task #9658). Requirement: reduce welcome failure rate. Partially satisfied — throughput=1 until server config changed.
+- **nonce-strategy-alignment-plan** (8b3aea27): Traces to 3 divergent tx paths causing ghost nonce loops. 307-line plan for consolidating all write tx paths to consistent nonce-tracker acquire/release + relay-first broadcast. Requirement: prevent future nonce-related cascade failures. Plan created; implementation deferred to post-skills-upstream-work.
+- **0-failure watch window** (2026-03-29T13:00 → 2026-03-30T01:01Z): First clean 12h window in days. 18 tasks, $3.35 ($0.186/task). Relay CB closed + Hiro API reachability confirmed. Requirement: system health. Satisfied.
+
+### Step 2 — Delete
+
+- **[CARRY]** ordinals HookState deprecated fields (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`) — cleanup 2026-04-23+ (10th carry-forward).
+- **[CARRY]** layered-rate-limit sensor migration (3 sensors) — post-competition 2026-04-23+ (7th carry-forward).
+- **[INFO]** No new deletion candidates this cycle — changes are operational state, docs, and memory only.
+
+### Step 3 — Simplify
+
+- **nonce-strategy-alignment-plan is the right abstraction**: A shared `retry-strategy.ts` consolidating error classification across 3 tx paths reduces the blast radius of any single nonce failure. Current state: 3 paths → 3 different behaviors → cascade-amplified failures. Post-consolidation: 1 shared error model → consistent retry behavior across all tx paths.
+- **effectiveCapacity=1 is a hard constraint**: No client-side simplification applies. Welcome tasks succeed serially. Until whoabuddy changes DO config, the throughput ceiling is the relay, not Arc's code.
+
+### Step 4 — Accelerate
+
+- **Competition signal output**: Score 12, top 32. With relay healthy and CB closed, signal queue is the bottleneck, not infrastructure. Each passing day without signals is ~$20/day unrealized.
+- **nonce alignment (Phase 1)**: Once upstream skills implements `retry-strategy.ts`, Arc's 3 tx paths can converge. Expected: eliminate NONCE_CONFLICT cascade failures entirely.
+
+### Step 5 — Automate
+
+- **No new automation this cycle** — existing sensors (zest-yield-manager, arc-architecture-review, arc-failure-triage) cover the domain. No gaps identified.
+- **Carry forward**: nonce-strategy Phase 1 implementation task should be created when upstream skills v0.37+ is released.
+
+### Flags
+
+- **[OK]** Ghost nonce 554 RESOLVED. Sender 577/578, sponsor 1207/1208. Both clean.
+- **[ESCALATED]** effectiveCapacity=1 — server-side Cloudflare DO config. Whoabuddy notified (task #9658).
+- **[NEW DOC]** docs/nonce-strategy-alignment-plan.md — 3-phase tx path consolidation plan.
+- **[CARRY]** ordinals HookState: 4 deprecated fields — cleanup 2026-04-23+ (10th carry-forward).
+- **[CARRY]** layered-rate-limit sensor migration — post-competition 2026-04-23+ (7th carry-forward).
+- **[INFO]** Sensor count: 68 (unchanged). Skill count: 100 (unchanged). No structural changes this cycle.
+
+---
+
 ## 2026-03-29T18:22:00.000Z — quorumclaw deleted + signal cap fix + arc-workflows diagram gap
 
 **Task #9578** | Diff: 51d6cbf → ca5477c | Sensors: 68 | Skills: 100
