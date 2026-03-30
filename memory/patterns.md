@@ -98,3 +98,6 @@ Agent teams (experimental in Claude Code) can parallelize independent multi-repo
 
 **p-haiku-prompt-injection-guard** [2026-03-30]
 Haiku has limited prompt injection protection when processing untrusted input. For Haiku-routed dispatch tasks handling external/user-sourced content, add preprocessing filters or confine to low-risk operations (execution, not analysis of hostile input).
+
+**p-synthesis-after-parallel-bulk** [2026-03-30]
+After N parallel individual tasks complete, the follow-up synthesis task must prioritize findings and extract patterns—not just aggregate raw results. Synthesis that adds no new structure (e.g., "here are all 22 findings in a list") wastes the final consolidation step. Applied: task #9691 (22 research → parallel) → task #9721 (synthesis with 6 prioritized finds + 3 patterns extracted).
