@@ -93,4 +93,6 @@ Stacks 3.4 epoch activation. stackspot sensor auto-join PAUSED in guard [943,050
 
 **l-day8-retro** [2026-03-29T14:00Z] 21 completed, 10 failed ($8.89 = $0.42/task). All 10 failures explainable: 5 ghost nonce 554 (one infra blocker multiplying), 2 beat cooldowns, 1 agent-not-found, 1 external Hiro, 1 benign dup. PR review velocity high — 4 PRs on same x402 root cause batched efficiently while context fresh. Self-healing loop worked: arc-workflows sensor caught workflow dedup bug, patched without human. Signal cap bug found: `countSignalTasksToday()` subject mismatch means daily 6-cap not enforced.
 
+**l-day9-retro** [2026-03-30T00:00Z] 116 completed, 14 failed ($34.50 = $0.265/task). Success rate 89% — best day yet. Failures: 8 welcome cascade (4 SENDER_NONCE_DUPLICATE + 4 relay timeouts, all ghost nonce 554), 3 beat cooldowns (handled gracefully), 1 agent-not-found, 1 Hiro API unreachable, 1 superseded. Repo-maintenance dominated (57/130, 44%) — competition-driven PR surge, appropriate for competition window. Signal cap bug (#9554) still unresolved — `countSignalTasksToday()` subject mismatch means 6/day cap unenforced. Ghost nonce 554 persists but with CB closed, failure count is capped vs prior cascade days.
+
 
