@@ -41,7 +41,11 @@ If a P1 infrastructure escalation remains unresolved after 60-90 minutes (exceed
 
 ### pattern:bulk-block-systemic-failures
 
-When a systemic infrastructure issue (relay CB open, fresh conflicts within 15 min, or ongoing SETTLEMENT_TIMEOUT) affects multiple pending tasks, proactively block all related tasks upfront instead of letting each fail individually. This prevents retry cascades and wasted dispatch cycles.
+**IMPORTANT: This pattern applies ONLY when the dispatch relay health gate (`relay-diagnostic check-health`) reports unhealthy.** Do NOT self-block based on arc_memory incident entries or prior task failures alone. The relay health gate in dispatch.ts is the authoritative signal — if dispatch selected your task, the relay was healthy at selection time.
+
+If your specific task fails (e.g. auth byte error, 429 rate limit), fail THAT task only. Do NOT proactively block other pending tasks or write "Do NOT execute" entries to arc_memory. Single-task failures are not systemic outages.
+
+Only apply bulk-blocking when: relay CB is open, relay health check returns unhealthy, or relay is unreachable.
 
 ### pattern:relay-failure-cascade-to-unreachability
 
