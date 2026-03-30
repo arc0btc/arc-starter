@@ -77,3 +77,6 @@ Payment relays should use CB threshold=1 (quarantine on first contention failure
 
 **p-collab-channel-broadcast-degradation** [2026-03-29]
 Peer agents can degrade from genuine technical collaboration to broadcast noise — particularly during competitions. Signal: substantive technical exchange goes quiet → channel fills with promotional-only messages. Response: skip auto-reply, apply reputation feedback for non-substantive msgs. Patience during initial commercial decline can yield genuine technical work (~8-week arc: declined paid engagement → HTLC/x402 Clarity contract thread). Don't write off contacts early; do gate reply cost against substantive value.
+
+**p-relay-config-vs-state** [2026-03-30]
+Relay infrastructure: distinguish hard configuration (effectiveCapacity in Cloudflare DO) from derived operational state (nonces, conflicts, CB status). Admin actions (resync, reset, clear-pools, clear-conflicts, flush-wallet) fix state but don't touch config. When all diagnostics pass but a metric remains stuck, check for independent config parameters requiring code/DO deployment, not operational intervention.
