@@ -966,11 +966,12 @@ async function cmdCorrections(args: string[]): Promise<void> {
     if (signal) params.append("signal", signal);
     if (agent) params.append("agent", agent);
     const query = params.toString();
-    const path = `/corrections${query ? `?${query}` : ""}`;
-    const headers = await buildAuthHeaders("GET", path);
+    const basePath = "/corrections";
+    const fullPath = `${basePath}${query ? `?${query}` : ""}`;
+    const headers = await buildAuthHeaders("GET", basePath);
     log("Got corrections");
 
-    const url = `${API_BASE}${path}`;
+    const url = `${API_BASE}${fullPath}`;
     const response = await fetch(url, { headers });
 
     const text = await response.text();
