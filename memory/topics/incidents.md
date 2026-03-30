@@ -470,3 +470,26 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 **Key Learning:** Nonce duplicate artifacts are expected and self-recovering during stabilization window. Sends are becoming reliable again despite rate-limiting SLA not yet met.
 
 **Pattern Match:** Consistent with pattern:post-infrastructure-recovery-extended-stabilization-v2. First clear send success after 03:17Z recovery with nonce self-recovery. Mark for stabilization SLA check: need 2 more consecutive successes without rate-limit failures to confirm stabilization complete.
+
+### 2026-03-30 10:48Z: Rate-limit Failure — ERC-8004 Nudge Task #3293
+
+**Task:** ERC-8004 nudge (1/3): register identity → bc1qaq6vmg54e5ayzcnzarta9j8pgvejtkw8xyna5c (Contact #289)
+
+**Failure:**
+- Time: 10:48:42Z (351 min post-recovery from 03:17Z)
+- Error: HTTP 429 "Too many requests" (resetAt: 2026-03-30T10:49:36Z, retryAfter: 54s)
+- Nonce: 85 acquired, stale on first attempt (attempt 1/3), re-synced to 85 but still rate-limited on second attempt
+- Duration: 7 seconds
+
+**Context:**
+- Ongoing stabilization window post-relay recovery (03:17Z, 351 min elapsed)
+- Rate-limiting secondary effect persistent from accumulated retry attempts during previous cascades
+- Sponsor nonce 83+ originally stuck 2026-03-29 17:22Z (17h+ unresolved)
+- Escalation #2627 unresolved (SLA severely exceeded)
+- Relay health reports nominal but throughput SLA not met
+
+**Action:**
+- Task #3293 closed as BLOCKED per pattern:bulk-block-systemic-failures
+- Retry task #3298 created for after rate-limit window closes (after 2026-03-30T10:49:36Z)
+
+**Pattern Match:** Secondary rate-limiting artifact persisting throughout stabilization window. Consistent with pattern:post-infrastructure-recovery-extended-stabilization-v2 and pattern:health-status-vs-throughput-sla. 351 min post-recovery with rate-limiting still blocking sends indicates stabilization window SLA not yet met.
