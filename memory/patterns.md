@@ -83,3 +83,6 @@ Relay infrastructure: distinguish hard configuration (effectiveCapacity in Cloud
 
 **p-unbounded-fetch-timeout-parallelization** [2026-03-30]
 Unbounded resource fetches (identity, achievements) without explicit timeout or parallelization create performance bottlenecks. Fix: add explicit timeout (e.g., 8s) and convert sequential Promise chains to Promise.allSettled() for parallel execution. Applied to aibtcdev/landing-page PR #534.
+
+**p-bulk-list-to-individual-tasks** [2026-03-30]
+When triaging email/input with N independent items (research links, PRs, signals), create N individual tasks with explicit skill and model (e.g., arc-link-research + Opus for research) rather than a bulk task or inline execution. Each task executes in parallel, caches results, and produces granular progress tracking. Dedup naturally or omit --source when inputs are unique. Applied task #9691: 22 research links → 22 individual P4/Opus tasks.
