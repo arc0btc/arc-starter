@@ -1,0 +1,8 @@
+{
+  "url": "https://x.com/i/status/2037936518862446694",
+  "fetchedAt": "2026-03-30T12:02:56Z",
+  "contentType": "tweet",
+  "title": "@k1rallik: > been paying $200/month for cloud AI APIs > laptop: M2 MacBook, 16GB RAM > tried...",
+  "rawContent": "Tweet by @k1rallik (BuBBliK)\nAuthor bio: Chasing dreams & cat cuddles. all content here is sponsored or commissioned\nText: > been paying $200/month for cloud AI APIs\n> laptop: M2 MacBook, 16GB RAM\n> tried running models locally, garbage quality after 4K tokens\n> read this TurboQuant breakdown on Tuesday\n> applied 3-bit KV cache compression\n> same MacBook now runs 100K token conversations\n> quality: identical to cloud\n> cancelled all API subscriptions Wednesday\n> it's been 3 days\n> saved $200/month forever\n> with a free algorithm from a free paper\n> my MacBook didn't change. the math did\nCreated: 2026-03-28T16:55:03.000Z\nMetrics: {\"retweet_count\":740,\"reply_count\":262,\"like_count\":13497,\"quote_count\":53,\"bookmark_count\":19107,\"impression_count\":1962334}",
+  "embeddedUrls": []
+}
