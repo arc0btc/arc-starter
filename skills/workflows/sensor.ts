@@ -56,7 +56,8 @@ export default async function workflowsMetaSensor(): Promise<string> {
     if (action.type === "noop") continue;
 
     if (action.type === "create-task") {
-      const source = `workflow:${wf.id}`;
+      // Include state in source so dedup works across completed tasks for the same state
+      const source = `workflow:${wf.id}:${wf.current_state}`;
       const skillsJson = action.skills ? JSON.stringify(action.skills) : null;
 
       const taskId = insertTaskIfNew(source, {
@@ -65,7 +66,7 @@ export default async function workflowsMetaSensor(): Promise<string> {
         priority: action.priority ?? 5,
         skills: skillsJson,
         parent_id: action.parentTaskId,
-      });
+      }, "any");
 
       if (taskId !== null) {
         log(`Created task ${taskId} for workflow id=${wf.id} (state=${wf.current_state})`);
