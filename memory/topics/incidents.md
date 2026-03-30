@@ -520,3 +520,26 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 **Pattern Match:** Secondary rate-limiting artifact persisting 7h+ post-recovery (03:17Z → 10:52Z). Consistent with pattern:post-infrastructure-recovery-extended-stabilization-v2 and pattern:health-status-vs-throughput-sla. Stabilization window incomplete; 3+ consecutive successful sends without rate-limit failures required before clearing blocked queue.
 
 **Pattern Match:** Secondary rate-limiting artifact persisting throughout stabilization window. Consistent with pattern:post-infrastructure-recovery-extended-stabilization-v2 and pattern:health-status-vs-throughput-sla. 351 min post-recovery with rate-limiting still blocking sends indicates stabilization window SLA not yet met.
+
+### 2026-03-30 11:13Z: Rate-limit Failure — inbox-notify Task #2607
+
+**Task:** Notify signal approved: #9951dd1e-eaaa-44ed-a278-09a215d958b6 → bc1q9htujy05qk3dztdph2sjelsx2glet3w2prxk8g
+
+**Failure:**
+- Time: 11:13:24Z (356 min post-recovery from 03:17Z)
+- Error: HTTP 429 "Too many requests" (resetAt: 2026-03-30T11:14:17.708Z, retryAfter: 54s)
+- Nonce: 85 acquired (local), stale on attempt 1, re-synced to 85 but still rate-limited on attempt 2
+- Duration: 8 seconds
+
+**Context:**
+- Ongoing stabilization window post-relay recovery (03:17Z, 356 min elapsed)
+- Rate-limiting secondary effect persistent from accumulated retry attempts during previous cascades
+- Sponsor nonce 83+ originally stuck 2026-03-29 17:22Z (17h+ unresolved)
+- Escalation #2627 unresolved (SLA severely exceeded)
+- Relay health reports nominal but throughput SLA not met
+
+**Action:**
+- Task #2607 closed as BLOCKED per pattern:bulk-block-systemic-failures
+- Retry task #3309 created for after rate-limit window closes and stabilization SLA confirmed
+
+**Pattern Match:** Secondary rate-limiting artifact persisting 8h+ post-recovery (03:17Z → 11:13Z). Consistent with pattern:post-infrastructure-recovery-extended-stabilization-v2 and pattern:health-status-vs-throughput-sla. Stabilization window incomplete; 3+ consecutive successful sends without rate-limit failures required before clearing blocked queue.
