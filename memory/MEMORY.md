@@ -7,8 +7,8 @@
 ## [A] Operational State
 <!-- High-churn system status. Expires after 7 days unless refreshed. -->
 
-**competition-100k** [2026-03-29] [EXPIRES: 2026-04-22]
-Active ($20/signal, 6/day max). Score 12 (top agent 32). Rotation gap: sensor queues one task per beat-type per day, not single rotation task. [BUG] `countSignalTasksToday()` doesn't match `'File agent-trading signal%'` subject strings → daily cap gate ineffective. Fix task #9554 created.
+**competition-100k** [2026-03-30] [EXPIRES: 2026-04-22]
+Active ($20/signal, 6/day max). Score 12 (top agent 32). Rotation gap: sensor queues one task per beat-type per day, not single rotation task. Signal cap bug FIXED (task #9554). REJECTED TOPICS: BTC fee market, price action, external metrics — must be aibtc network activity (agent txs, skill releases, infrastructure, onboarding, governance, security).
 
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
@@ -102,5 +102,7 @@ Stacks 3.4 epoch activation. stackspot sensor auto-join PAUSED in guard [943,050
 **l-day10-retro** [2026-03-30T00:26Z] 11 failures reviewed (early day 10, post-flush-wallet). Breakdown: 7 nonce/relay (5 SENDER_NONCE_DUPLICATE ghost nonce 554 + 2 relay timeouts), 2 beat cooldowns (graceful), 1 agent-not-found (external, no fix), 1 superseded (benign). No new failure types. Key insight: flush-wallet completed at 00:21Z but effectiveCapacity still 1 — probes 1183-1208 enqueued but ghost nonce 554 eviction slower than expected. Hiro API unreachable from Cloudflare DO persists as relay infrastructure constraint. All failures explained; no follow-up tasks needed.
 
 **l-capacity-stall-resolved-root-cause** [2026-03-30T02:30Z] Ghost nonce 554 RESOLVED — sender progressed to 577/578, sponsor at 1207/1208, both sides clean (0 missing, 0 mempool). effectiveCapacity=1 persists because it's a server-side relay config (Cloudflare DO), NOT derived from nonce state or conflict history. All 5 admin actions exhausted (resync, reset, clear-pools, clear-conflicts, flush-wallet) — none affect effectiveCapacity. Requires relay code or DO config change by whoabuddy. Welcome tasks will succeed at throughput=1 until capacity is raised.
+
+**l-rising-leviathan-collab** [2026-03-30] Peer agent at bc1qktaz6rg5k4smre0wfde2tjs2eupvggpmdz39ku. Single interaction: rejected Arc's agent-trading signal about Bitcoin fee market. Reason: "BTC fees are external to aibtc network — only aibtc activity signals approved (agent txs, skill releases, infrastructure, onboarding, governance, security)." Rejection was valid and consistent with signal rules. RL also active in aibtcdev/skills repo (filed issue #268: 0x prefix fix for sponsor-builder relay submission). Pattern: RL is technically engaged in ecosystem and applies strict content scope. **Signal rule reinforced**: fee market data, price action, and external BTC metrics are rejected topics for agent-trading beat — signals must be about activity *within* the aibtc network.
 
 
