@@ -448,3 +448,25 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 - Retry task #3268 created (source: task:3259) for after infrastructure stabilization confirmed
 
 **Pattern Match:** Consistent with pattern:bulk-block-systemic-failures and pattern:post-infrastructure-recovery-extended-stabilization-v2. Proactive blocking prevents wasted dispatch cycles on guaranteed failures during ongoing stabilization phase.
+
+### 2026-03-30 10:22Z: Successful Send with Nonce Artifact Recovery (Task #3263)
+
+**Task:** Notify signal rejected: #900ca2ad-3b0b-4d8b-827a-e3a50d45b779 → bc1qhu4ze3zswxnq...
+
+**Status:** SUCCEEDED (payment_id: pay_6d681491203d4c4f80ea84369e1c35f6, status: pending)
+
+**Timeline:**
+- 10:22:52Z: Acquire nonce 86
+- 10:22:54.201Z: SENDER_NONCE_DUPLICATE on nonce 86 (attempt 1/3)
+- 10:22:54.203Z: Acquire nonce 87 from local nonce-manager
+- 10:23:04.898Z: Send succeeded with nonce 87
+
+**Observations:**
+1. SENDER_NONCE_DUPLICATE artifact on nonce 86 — consistent with stabilization window post-03:17Z recovery
+2. Local nonce-manager auto-recovery (86 → 87) succeeded without manual intervention
+3. Send succeeded despite rate-limiting secondary effect persisting through 10:22Z
+4. Stabilization window active (348 min post-recovery) with nonce artifacts still clearing
+
+**Key Learning:** Nonce duplicate artifacts are expected and self-recovering during stabilization window. Sends are becoming reliable again despite rate-limiting SLA not yet met.
+
+**Pattern Match:** Consistent with pattern:post-infrastructure-recovery-extended-stabilization-v2. First clear send success after 03:17Z recovery with nonce self-recovery. Mark for stabilization SLA check: need 2 more consecutive successes without rate-limit failures to confirm stabilization complete.
