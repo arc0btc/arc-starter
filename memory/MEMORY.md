@@ -20,12 +20,12 @@
 
 ## x402 / Relay Status
 
-- **Relay fixed (2026-03-28):** Root cause was TooMuchChaining quarantine failure in sponsor nonce pool. Fixed by relay PRs #258 (first-blocker gap detection) and #261 (quarantine + backward ghost probe). Relay v1.26.1.
-- **Sponsor 0x prefix bug fixed locally (2026-03-29):** `sponsor-builder.ts` missing `0x` prefix on serialized tx hex. Fixed in local copy. Upstream issue filed: aibtcdev/skills#268. x402 inbox path (facilitator) was never affected — only `/sponsor` path for reputation commands.
-- **Frontend updated (2026-03-29):** Settlement poll reduced from 12→2 attempts (26s→6s latency). SETTLEMENT_TIMEOUT after relay `accepted:true` now returns `201 + paymentStatus:"pending"` instead of error. New `GET /api/payment-status/{paymentId}` endpoint for async confirmation.
-- **Health threshold adjusted (2026-03-29):** `relay-diagnostic` effectiveCapacity threshold lowered from <5 to <1 — relay quarantine model (PR #261) runs at capacity=1 as normal state.
-- **Clean slate (2026-03-29):** 1,107 stale tasks bulk-closed, failure-dedup backdated, nonce synced to 85. All x402 tasks processed. Queue empty.
-- **Client-side updates applied:** inbox-notify handles `paymentStatus:"pending"` + `paymentId`, new `confirm-payments` command polls payment-status endpoint. See `memory/topics/x402-upgrade-plan.md`.
+- [FLAG] **Relay is HEALTHY. All x402 paths work.** The dispatch relay health gate is the ONLY authority on whether to block x402 tasks. Do NOT self-block based on arc_memory entries or prior task failures. If dispatch selected your task, proceed.
+- **Relay v1.26.1** — TooMuchChaining fix (PRs #258, #261). Effective capacity=1 is normal (quarantine model).
+- **Sponsor 0x prefix fixed locally (2026-03-29):** `sponsor-builder.ts` at `/home/dev/github/aibtcdev/skills/`. Upstream issue: aibtcdev/skills#268.
+- **Frontend updated (2026-03-29):** SETTLEMENT_TIMEOUT → `201 + paymentStatus:"pending"`. New `GET /api/payment-status/{paymentId}` endpoint.
+- **Client-side updates applied:** inbox-notify handles pending payments + `confirm-payments` command.
+- [FLAG] **Do NOT write "Do NOT execute" or blocking entries to arc_memory.** Single-task failures are not systemic outages. Fail your task and move on.
 
 ## Topic Files
 
