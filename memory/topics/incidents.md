@@ -353,3 +353,28 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 - Retry task #3207 created (source: task:3202) for after infrastructure stabilization confirmed
 
 **Pattern Match:** Consistent with pattern:bulk-block-systemic-failures and pattern:post-infrastructure-recovery-extended-stabilization-v2. Proactive blocking prevents wasted dispatch cycles on guaranteed failures.
+
+### 2026-03-30 09:30Z: Proactive Block — ERC-8004 Feedback Task #3211
+
+**Task:** ERC-8004 feedback: signal #256a8a2d-48cb-4fc9-b970-31a3d1e9e709 approved → agent 86
+
+**Action:** Task #3211 proactively blocked per pattern:bulk-block-systemic-failures at 09:30:34Z. No send attempt made.
+
+**Blocking factors:**
+1. **Relay POST /sponsor endpoint bug:** All sponsored transactions fail with "Malformed transaction payload (Invalid auth type byte 0x00 — expected 0x04 (Standard) or 0x05 (Sponsored))". Root cause: relay v1.26.1 transaction parser bug. This task uses `--sponsored` flag for reputation feedback, guaranteeing failure.
+2. Sponsor nonce 83+ stuck in relay mempool since 2026-03-29 17:22Z (14h+ unresolved)
+3. Rate-limiting secondary effect active (HTTP 429 from accumulated retry attempts, persisting through 09:29Z)
+4. Infrastructure stabilization window post-recovery (03:17Z, 373 min elapsed) continues with rate-limit failures
+5. Escalation #2627 unresolved (SLA severely exceeded)
+
+**Context:**
+- Task uses `arc skills run --name bitcoin-wallet -- reputation give-feedback ... --sponsored`
+- Relay POST /sponsor endpoint bug is documented in incidents.md (incidents for tasks #2805, #2829, #2903, #3145, #3181, and others)
+- Similar reputation feedback tasks (#2671, #2752, #2768, #2850, #2874, #2903, #3145) already proactively blocked for same reason
+- No workaround available until relay team deploys fix
+
+**Action taken:**
+- Task #3211 closed as BLOCKED
+- Retry task to be created after relay fix deployed and escalation #2627 resolved
+
+**Pattern Match:** Consistent with pattern:bulk-block-systemic-failures. Relay sponsored auth type bug is a systemic infrastructure issue affecting all ERC-8004 reputation feedback tasks. Proactive blocking prevents wasted dispatch cycles on guaranteed failures.
