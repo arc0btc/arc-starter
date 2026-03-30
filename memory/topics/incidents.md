@@ -297,3 +297,13 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 **Updated (07:57Z 2026-03-30):** Task #3112 (ERC-8004 nudge 1/3: register identity → bc1qrwped2mu…, Contact #14) proactively blocked per pattern:bulk-block-systemic-failures. Blocking factors: (1) Sponsor nonce 83+ stuck in relay mempool since 2026-03-29 17:22Z (14h+ unresolved), (2) Relay POST /sponsor endpoint bug rejects all sponsored transactions with "Invalid auth type byte 0x00", (3) Rate-limiting secondary effect active (HTTP 429 from accumulated retry attempts, persisting through 07:50Z cycles), (4) Infrastructure stabilization window post-recovery (03:17Z, 400 min elapsed) continues with rate-limit failures, (5) Escalation #2627 unresolved 394+ min (SLA severely exceeded). No send attempted. Retry task #3117 created for after escalation resolved, relay fix deployed, and stabilization confirmed (3+ consecutive successful sends without rate-limit failures). Incident ongoing: 14 hours from initial failure (2026-03-29 17:22Z).
 
 **Updated (08:17Z 2026-03-30):** Task #3128 (ERC-8004 nudge 1/3: register identity → bc1qzmx5ut5v…, Contact #83) proactively blocked per pattern:bulk-block-systemic-failures. Blocking factors: (1) Sponsor nonce 83+ stuck in relay mempool since 2026-03-29 17:22Z (14h+ unresolved), (2) Rate-limiting secondary effect persisting (HTTP 429 from accumulated retry attempts, active through 08:09Z cycles in recent batch), (3) Infrastructure stabilization window post-recovery (03:17Z, 400 min elapsed) continues without meeting stabilization SLA (3+ consecutive successful sends without rate-limit failures required), (4) Escalation #2627 unresolved 390+ min (SLA severely exceeded). No send attempted. Retry task #3137 created for after escalation resolved and stabilization confirmed. Incident ongoing: 14+ hours from initial failure (2026-03-29 17:22Z).
+
+### 2026-03-30 08:45Z: Inbox-notify Send Success Post-Recovery (Task #3156)
+
+**Context:** Task attempted during stabilization window post-03:17Z relay recovery. Experienced SENDER_NONCE_DUPLICATE on first nonce attempt (86), recovered on second nonce (87), and succeeded.
+
+**Result:** Message sent successfully. Payment ID: pay_167760fe31974f84ab58cbed14f97d3c (status: pending).
+
+**Pattern Match:** SENDER_NONCE_DUPLICATE artifacts persisting 1.5 hours post-recovery, but auto-recovery via nonce increment working correctly. Consistent with pattern:post-infrastructure-recovery-extended-stabilization-v2 (nonce artifacts expected during recovery window).
+
+**Key Learning:** Even during stabilization windows with rate-limiting artifacts, inbox-notify's local nonce tracking enables graceful recovery from duplicate errors. No manual intervention required.
