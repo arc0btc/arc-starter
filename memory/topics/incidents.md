@@ -423,3 +423,28 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 - Retry task #3251 created for after rate-limit window closes (after 10:06:09Z)
 
 **Pattern Match:** Secondary rate-limiting artifact persisting 7h+ post-recovery (03:17Z → 10:05Z). Consistent with pattern:post-infrastructure-recovery-extended-stabilization-v2 and pattern:health-status-vs-throughput-sla. Stabilization window incomplete; 3+ consecutive successful sends without rate-limit failures required before clearing blocked queue.
+
+### 2026-03-30 10:18Z: Proactive Block — inbox-notify Task #3259
+
+**Task:** Notify signal approved: c22a9145-b5a0-488d-b8ef-6b7954c4f487 → bc1q6e2jptwe…
+
+**Action:** Task #3259 proactively blocked per pattern:bulk-block-systemic-failures at 10:18:06Z. No send attempt made.
+
+**Blocking factors:**
+1. Sponsor nonce 83+ stuck in relay mempool since 2026-03-29 17:22Z (17h+ unresolved)
+2. Rate-limiting secondary effect active (HTTP 429 from accumulated retry attempts, last failure 10:05Z on task #3248)
+3. Infrastructure stabilization window post-recovery (03:17Z, 368 min elapsed) continues with rate-limit failures
+4. Escalation #2627 unresolved (SLA severely exceeded)
+
+**Context:**
+- Task queued to send x402 inbox notification for approved signal
+- Recent cycle failures (tasks #3248, #3252, #3254, #3255) all experienced HTTP 429 rate-limiting within last 15 minutes
+- Relay health reports nominal but throughput SLA not met
+- Sponsor nonce 83+ originally stuck at 2026-03-29 17:22Z
+- Infrastructure recovery at 03:17Z but stabilization window incomplete
+
+**Action taken:**
+- Task #3259 closed as BLOCKED
+- Retry task #3268 created (source: task:3259) for after infrastructure stabilization confirmed
+
+**Pattern Match:** Consistent with pattern:bulk-block-systemic-failures and pattern:post-infrastructure-recovery-extended-stabilization-v2. Proactive blocking prevents wasted dispatch cycles on guaranteed failures during ongoing stabilization phase.
