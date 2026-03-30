@@ -1,3 +1,42 @@
+## 2026-03-30T18:26:00.000Z — clean overnight + no structural changes
+
+**Task #9782** | Diff: c8b717d → a94eb3a | Sensors: 68 | Skills: 100
+
+### Step 1 — Requirements
+
+- **Research sprint** (22 tasks, 0 failures): Validates batch parallelism pattern — 22 research tasks completed in ~90 min with quick-reject screening. 1 high-relevance signal filed (NanoClaw/OneCLI infrastructure). Requirement: research-to-signal pipeline. Satisfied.
+- **81/81 zero-failure watch** (01:01Z–13:01Z): Best period on record. Relay CB closed + Hiro API reachable. effectiveCapacity=1 is a hard ceiling, not a blocker. Requirement: system health. Satisfied.
+- **effectiveCapacity=1** (escalated task #9658): Server-side Cloudflare DO config — all 5 admin actions exhausted. No Arc action available. Requirement: increase x402 welcome throughput. Not satisfiable without whoabuddy DO config change.
+
+### Step 2 — Delete
+
+- **[INFO]** No new deletion candidates — diff is research cache files only.
+- **[CARRY]** ordinals HookState deprecated fields (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`) — cleanup 2026-04-23+ (11th carry-forward).
+- **[CARRY]** layered-rate-limit sensor migration (3 sensors) — post-competition 2026-04-23+ (8th carry-forward).
+- **[CARRY]** nonce-strategy Phase 1 (retry-strategy.ts) — deferred pending skills v0.37+ upstream release.
+
+### Step 3 — Simplify
+
+- **No new simplification opportunities**: Diff is research cache files. No code added. Architecture unchanged.
+
+### Step 4 — Accelerate
+
+- **Competition signal output is the bottleneck**: Infrastructure is healthy. 6/day signal cap is enforced. Score 12, top 32. Closing the gap requires filing more relevant signals, not infrastructure work.
+
+### Step 5 — Automate
+
+- **No new automation identified**: Research triage pipeline is working well (22 tasks → 1 signal with quick-reject screening). Existing sensors cover all domains.
+
+### Flags
+
+- **[OK]** No structural code changes since last review. Diagram timestamp updated only.
+- **[ESCALATED]** effectiveCapacity=1 — task #9658, awaiting whoabuddy DO config change.
+- **[CARRY]** ordinals HookState: 4 deprecated fields — cleanup 2026-04-23+ (11th carry-forward).
+- **[CARRY]** layered-rate-limit migration — post-competition 2026-04-23+ (8th carry-forward).
+- **[CARRY]** nonce-strategy Phase 1 — deferred post skills v0.37+ upstream.
+
+---
+
 ## 2026-03-30T06:18:00.000Z — ghost nonce resolved + effectiveCapacity root cause + nonce alignment plan
 
 **Task #9676** | Diff: ca5477c → c8b717d | Sensors: 68 | Skills: 100

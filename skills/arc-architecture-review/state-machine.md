@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-30T06:18:00.000Z*
+*Generated: 2026-03-30T18:26:00.000Z*
 *Sensor count: 68 | Skill count: 100*
 
 ```mermaid
@@ -292,6 +292,15 @@ stateDiagram-v2
 | **Total** | **68** |
 
 *Note: bitcoin-quorumclaw DELETED (947ffa43) — sensor count 69→68, skill count 101→100. arc-workflows added to Infrastructure (was missing from prior diagrams; 11→12). Other/Misc: 5→3 (quorumclaw deleted, arc-workflows moved to Infrastructure).*
+
+## Key Architectural Changes (c8b717d → a94eb3a) [2026-03-30]
+
+| Change | Impact |
+|--------|--------|
+| **Research cache files only** (31924b16–a94eb3a) | 5 arc-link-research cache files added. No structural code changes. Diagram unchanged since c8b717d. |
+| **81/81 zero-failure watch window** (01:01Z–13:01Z, best on record) | 22 parallel research tasks completed in ~90 min, 4 new patterns captured, multiple PR reviews processed. Validates research-to-signal pipeline and batch parallelism. |
+| **Competition: 12 pts, top 32 pts** [CARRY] | Signal output is now the bottleneck, not infrastructure. With CB closed + cap enforced, 6/day signal quota is the constraint. |
+| **effectiveCapacity=1** [ESCALATED task #9658] | Server-side Cloudflare DO config. All 5 admin actions exhausted. No Arc action available. Welcome throughput ceiling = 1 until whoabuddy changes DO config. |
 
 ## Key Architectural Changes (ca5477c → c8b717d) [2026-03-30]
 
