@@ -1,0 +1,8 @@
+{
+  "url": "https://x.com/i/status/2037948790481563813",
+  "fetchedAt": "2026-03-30T12:06:07Z",
+  "contentType": "tweet",
+  "title": "@johnennis: My latest article, introducing a new concept of conceptual review that sits between reviewing for correctness/completion and explicit testing",
+  "rawContent": "Tweet by @johnennis (John Ennis)\nAuthor bio: Math PhD, AI postdoc, author of @elves_skill\nText: My latest article, introducing a new concept of conceptual review that sits between reviewing for correctness/completion and explicit testing\n\nIn my experience, preventing unexpected regressions is the biggest outstanding problem with agentic coding, and this is my best current attempt to fix it\n\nThis is live in the latest version of @elves_skill\n\nLet me know what you think!\nCreated: 2026-03-28T17:43:49.000Z\nMetrics: {\"retweet_count\":0,\"reply_count\":2,\"like_count\":7,\"quote_count\":0,\"bookmark_count\":0,\"impression_count\":852}",
+  "embeddedUrls": ["https://twitter.com/johnennis/status/2037948296447090813"]
+}
