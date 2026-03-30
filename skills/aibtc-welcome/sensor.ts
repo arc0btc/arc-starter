@@ -45,7 +45,6 @@ const SELF_HEAL_FAILURE_THRESHOLD = 3;
 /** Sentinel file: if present, x402 relay has a nonce conflict — skip creating welcome tasks */
 const NONCE_SENTINEL = "x402-nonce-conflict";
 const RELAY_URL = "https://x402-relay.aibtc.com";
-const SPONSOR_ADDRESS = "SP1PMPPVCMVW96FSWFV30KJQ4MNBMZ8MRWR3JWQ7";
 
 // Arc's own STX address — never welcome ourselves
 const SELF_STX = "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B";
@@ -89,9 +88,9 @@ interface WelcomeState {
  * Three-layer probe:
  * 1. /health — relay process is alive
  * 2. /supported — relay is actively serving requests (not just a static health response)
- * 3. Sponsor nonce check — strict zero-tolerance for mempool backlog or missing nonces.
- *    Any pending mempool nonces from the sponsor = NONCE_CONFLICT risk on next send.
- *    The /health endpoint cannot surface this condition; the nonce check catches it.
+ * 3. /status/sponsor — covers all 10 pool wallets; replaces per-wallet Hiro nonce check.
+ *    Returns canSponsor:bool + status:'healthy'|'degraded'. Pass only if both are affirmative.
+ *    This avoids direct Hiro API calls from arc-starter and covers the full pool, not just wallet 0.
  *
  * Returns true only when all three probes pass.
  */
@@ -112,27 +111,21 @@ async function isRelayHealthy(): Promise<boolean> {
     clearTimeout(st);
     if (!supportedResp.ok) return false;
 
-    // Probe 3: sponsor nonce status — strict zero-tolerance thresholds.
-    // NONCE_CONFLICT occurs when the relay's internal nonce counter diverges from chain state.
-    // Any pending mempool transaction from the sponsor means the relay is at risk.
-    // (Previous threshold of <=5 was too loose — even 1 pending nonce can trigger conflict.)
+    // Probe 3: /status/sponsor — relay-aggregated health across all 10 pool wallets.
+    // Replaces direct Hiro nonce check (wallet 0 only). Relay computes canSponsor and
+    // status from its full pool state — single call, no Hiro dependency from arc-starter.
     const nc = new AbortController();
     const nt = setTimeout(() => nc.abort(), 10_000);
-    const nonceResp = await fetch(
-      `https://api.mainnet.hiro.so/extended/v1/address/${SPONSOR_ADDRESS}/nonces`,
-      { signal: nc.signal },
-    );
+    const sponsorResp = await fetch(`${RELAY_URL}/status/sponsor`, { signal: nc.signal });
     clearTimeout(nt);
-    if (!nonceResp.ok) return false;
+    if (!sponsorResp.ok) return false;
 
-    const nonces = (await nonceResp.json()) as {
-      detected_missing_nonces: number[];
-      detected_mempool_nonces: number[];
+    const sponsor = (await sponsorResp.json()) as {
+      canSponsor: boolean;
+      status: string;
     };
 
-    // Zero tolerance: any missing nonces or any mempool backlog = unsafe to clear sentinel
-    if (nonces.detected_missing_nonces.length > 0) return false;
-    if (nonces.detected_mempool_nonces.length > 0) return false;
+    if (sponsor.status !== "healthy" || !sponsor.canSponsor) return false;
 
     return true;
   } catch {
