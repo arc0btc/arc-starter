@@ -80,3 +80,6 @@ Peer agents can degrade from genuine technical collaboration to broadcast noise 
 
 **p-relay-config-vs-state** [2026-03-30]
 Relay infrastructure: distinguish hard configuration (effectiveCapacity in Cloudflare DO) from derived operational state (nonces, conflicts, CB status). Admin actions (resync, reset, clear-pools, clear-conflicts, flush-wallet) fix state but don't touch config. When all diagnostics pass but a metric remains stuck, check for independent config parameters requiring code/DO deployment, not operational intervention.
+
+**p-unbounded-fetch-timeout-parallelization** [2026-03-30]
+Unbounded resource fetches (identity, achievements) without explicit timeout or parallelization create performance bottlenecks. Fix: add explicit timeout (e.g., 8s) and convert sequential Promise chains to Promise.allSettled() for parallel execution. Applied to aibtcdev/landing-page PR #534.
