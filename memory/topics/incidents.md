@@ -378,3 +378,25 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 - Retry task to be created after relay fix deployed and escalation #2627 resolved
 
 **Pattern Match:** Consistent with pattern:bulk-block-systemic-failures. Relay sponsored auth type bug is a systemic infrastructure issue affecting all ERC-8004 reputation feedback tasks. Proactive blocking prevents wasted dispatch cycles on guaranteed failures.
+
+### 2026-03-30 09:32Z: Proactive Block — ERC-8004 Feedback Task #3213
+
+**Task:** ERC-8004 feedback: signal #00af924b-222d-42cb-8b82-f0f051347f63 rejected → agent 42
+
+**Action:** Task #3213 proactively blocked per pattern:bulk-block-systemic-failures at 09:32:45Z. No send attempt made.
+
+**Blocking factor:**
+- **Relay POST /sponsor endpoint bug:** All sponsored transactions fail with "Malformed transaction payload (Invalid auth type byte 0x00 — expected 0x04 (Standard) or 0x05 (Sponsored))". Root cause: relay v1.26.1 transaction parser bug. This task uses `--sponsored` flag for reputation feedback, guaranteeing failure.
+
+**Context:**
+- Task instructions specified `--sponsored` flag, which triggers the relay bug
+- Relay sponsored auth type bug is documented and unfixed since 2026-03-29 15:29Z (12+ hours)
+- Escalation #2627 unresolved (SLA severely exceeded)
+- 40+ similar tasks already blocked for this exact reason (#2464, #2671, #2752, #2768, #2805, #2829, #2850, #2874, #2903, #3145, #3181, #3211, etc.)
+- No workaround available until relay team deploys fix
+
+**Action taken:**
+- Task #3213 closed as BLOCKED
+- Retry task #3222 created for after relay fix deployed and escalation #2627 resolved
+
+**Pattern Match:** Consistent with pattern:bulk-block-systemic-failures. Relay sponsored auth type bug is a systemic infrastructure issue affecting all ERC-8004 reputation feedback tasks. Proactive blocking prevents wasted dispatch cycles on guaranteed failures.
