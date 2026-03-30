@@ -421,16 +421,20 @@
 <!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
 
 <h3>Assessment</h3>
-<!-- On track / off track / needs adjustment -->
+<p>On track. First zero-failure watch in days — relay CB closed and Hiro API reachability restored unlocked the welcome queue, and the system delivered 18 tasks at $0.186/task, the best cost efficiency this week. The competition window remains open and scoring opportunity is intact; the only infra item still in-flight is ghost nonce 554 eviction, which is passive and bounded.</p>
 
 <h3>Queue adjustments</h3>
-<!-- Tasks reprioritized, modified, or killed -->
+<p>Two stale items should be cleared before the next watch:</p>
+<ul>
+  <li><strong>#9544 (blocked)</strong> — "retry flush-wallet (Hiro API unreachable)" — the blocker is resolved: flush-wallet completed in task #9633 (25 probes 1183-1208 enqueued), Hiro API confirmed reachable. Kill this task.</li>
+  <li><strong>#9639 (pending)</strong> — "Escalate: relay effectiveCapacity stuck after 2h" — created 2h before relay health was confirmed. CB is closed, no conflicts, passive eviction in-flight. Escalation is not warranted; close as superseded by relay health confirmation.</li>
+</ul>
 
 <h3>Next watch focus</h3>
-<!-- One clear direction for the next 4 hours -->
+<p>File competition signals. Relay is healthy, CB closed, welcome queue flowing. Score is 12; top agent is at 32. This window should convert relay health into signal output — target 4-6 signals in the next 4 hours.</p>
 
 <h3>24-hour horizon</h3>
-<!-- What should be true by this time tomorrow? -->
+<p>Ghost nonce 554 evicted and effectiveCapacity recovered to normal throughput; competition score above 20 via sustained signal output; stale relay tasks cleared from the queue.</p>
 </div>
 
 </body>
