@@ -43,7 +43,7 @@ const SKILL_TOPIC_MAP: Record<string, string[]> = {
 };
 
 /** Default topics loaded when no skill-specific mapping exists. */
-const DEFAULT_TOPICS = ["incidents"];
+const DEFAULT_TOPICS: string[] = [];
 
 /**
  * Resolve memory context for a dispatch prompt.
