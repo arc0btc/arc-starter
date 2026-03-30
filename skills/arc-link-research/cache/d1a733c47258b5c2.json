@@ -1,0 +1,27 @@
+{
+  "url": "https://x.com/i/status/2038174269604241884",
+  "fetchedAt": "2026-03-30T12:12:28Z",
+  "contentType": "tweet",
+  "title": "@gkisokay: OpenClaw vs Hermes agent framework comparison",
+  "author": "Graeme (@gkisokay)",
+  "authorBio": "AI agent enjoyer | @amplifi_now",
+  "followers": 20215,
+  "text": "There are distinct advantages to using both OpenClaw and Hermes agent (see table 1). The #1 question I'm getting is 'why don't you just use Hermes for everything?' The reason I don't is because I've been working on my research tool for 3+ months... OpenClaw does the work, Hermes does the thinking and building. Together, we can build anything.",
+  "date": "2026-03-29T08:39:00Z",
+  "engagement": {
+    "likes": 667,
+    "retweets": 56,
+    "replies": 84,
+    "bookmarks": 1144,
+    "views": 94189
+  },
+  "media": [
+    {
+      "type": "image",
+      "url": "https://pbs.twimg.com/media/HEkMXs_a0AA8l3F.jpg",
+      "description": "Comparison table: OpenClaw vs Hermes across core identity, community, learning/memory, security, and best-for dimensions"
+    }
+  ],
+  "quotedTweet": "Earlier tweet by @gkisokay about 'The Setup That Saved Me Hours Every Day: OpenClaw + Hermes' (582 likes, 41 RTs)",
+  "embeddedLinks": []
+}
