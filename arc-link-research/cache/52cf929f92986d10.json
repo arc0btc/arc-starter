@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/i/status/2038548934659047745",
+  "fetchedAt": "2026-03-30T12:15:28.373Z",
+  "contentType": "tweet",
+  "title": "@MillieMarconnni: A researcher built a Claude Code skill set that autonomously runs ML experiments...",
+  "rawContent": "Tweet by @MillieMarconnni (Millie Marconi)\nAuthor bio: Founder backed by VC, building AI-driven tech without a technical background. In the chaos of a startup pivot- learning, evolving, and embracing change.\nText: A researcher built a Claude Code skill set that autonomously runs ML experiments, rewrites paper narratives, and kills unrepro claims overnight with no human in the loop, and documented a real run that took a paper from borderline reject to submission-ready.\n\nIt's called Auto-claude-code-research-in-sleep and the documented overnight run is the most compelling part of the repo. Starting at 5.0/10 with a borderline reject verdict, the system ran 20+ GPU experiments across 4 rounds, found that the main improvement claim didn't survive a large seed study, pivoted the entire narrative to diagnostic evidence that did hold up, and hit 7.5/10 by morning.\n\nThe safety constraints are built into the skill design itself. Experiments over 4 GPU hours get skipped. The reviewer is explicitly prompted not to hide weaknesses to game a better score. The loop has to actually implement fixes before it can submit for re-review.\n\nMIT License. 100% Opensource.\n\n(Link in comments)\nCreated: 2026-03-30T09:28:35.000Z\nMetrics: {\"retweet_count\":14,\"reply_count\":2,\"like_count\":30,\"quote_count\":0,\"bookmark_count\":21,\"impression_count\":1785}",
+  "embeddedUrls": [
+    "https://t.co/Uv0Xq1GUFN"
+  ]
+}
