@@ -13,31 +13,57 @@ const MAX_RESULTS = 30;
 
 const log = createSensorLogger(SENSOR_NAME);
 
-// Dev-tools beat: keywords that indicate a paper is relevant to the dev-tools signal beat
-const DEV_TOOL_PAPER_KEYWORDS = [
-  /\bautonomous agent/i,
-  /\bAI agent/i,
-  /\bmulti[-\s]?agent/i,
+// Infrastructure beat: aibtc-relevance filter.
+// Tier 1 — specific aibtc/MCP/payment keywords (single match is sufficient).
+// Tier 2 — compound match: at least one AGENT keyword AND one CRYPTO keyword.
+// Papers that only match generic agent/LLM terms (e.g. "deception in Among Us") are excluded.
+
+const AIBTC_SPECIFIC_KEYWORDS = [
   /\bMCP\b/,
   /\bmodel context protocol/i,
-  /\btool[-\s]?use\b/i,
-  /\bfunction[-\s]?call/i,
-  /\bagent[-\s]?framework/i,
-  /\borchestrat/i,
-  /\bcode[-\s]?gen/i,
-  /\bLLM[-\s]?routing/i,
-  /\bagent[-\s]?skill/i,
-  /\bagent[-\s]?infra/i,
   /\bMCP[-\s]?server/i,
-  /\bagent[-\s]?tool/i,
-  /\bLLM[-\s]?agent/i,
-  /\bsoftware[-\s]?agent/i,
-  /\bA2A\b/,
-  /\bagent[-\s]?to[-\s]?agent/i,
+  /\bHTTP[-\s]?402\b/,
+  /\bx402\b/,
+  /\bstacks\b/i,
+  /\bclarity[-\s]?(language|vm|contract)/i,
+  /\bsBTC\b/,
+  /\bBRC-20\b/,
+  /\bbitcoin.*relay/i,
+  /\brelay.*bitcoin/i,
+  /\bnonce.*manag.*agent/i,
 ];
 
-function isDevToolPaper(title: string): boolean {
-  return DEV_TOOL_PAPER_KEYWORDS.some((re) => re.test(title));
+const AGENT_KEYWORDS = [
+  /\bautonomous agent/i,
+  /\bLLM[-\s]?agent/i,
+  /\bagent[-\s]?framework/i,
+  /\bagent[-\s]?infra/i,
+  /\borchestrat/i,
+  /\bagent[-\s]?to[-\s]?agent/i,
+  /\bAI[-\s]?agent/i,
+  /\bmulti[-\s]?agent/i,
+];
+
+const CRYPTO_INFRA_KEYWORDS = [
+  /\bbitcoin/i,
+  /\bblockchain/i,
+  /\bon[-\s]?chain/i,
+  /\bsmart[-\s]?contract/i,
+  /\bmicropayment/i,
+  /\bpayment[-\s]?channel/i,
+  /\bdecentralized.*finance/i,
+  /\bDeFi\b/,
+  /\bweb3\b/i,
+  /\bcryptocurren/i,
+];
+
+function isAibtcInfraPaper(title: string): boolean {
+  // Tier 1: specific aibtc keywords always qualify
+  if (AIBTC_SPECIFIC_KEYWORDS.some((re) => re.test(title))) return true;
+  // Tier 2: agent context + crypto/blockchain context together
+  const hasAgent = AGENT_KEYWORDS.some((re) => re.test(title));
+  const hasCrypto = CRYPTO_INFRA_KEYWORDS.some((re) => re.test(title));
+  return hasAgent && hasCrypto;
 }
 
 interface ArxivEntry {
@@ -151,33 +177,34 @@ export default async function arxivResearchSensor(): Promise<string> {
       source,
     });
 
-    // Dev-tools signal routing: check new papers for dev-tool relevance
+    // Infrastructure signal routing: check new papers for aibtc-network relevance
     const newEntries = entries.slice(0, newCount);
-    const devToolPapers = newEntries.filter((e) => isDevToolPaper(e.title));
-    if (devToolPapers.length > 0) {
-      const signalSource = `sensor:${SENSOR_NAME}:devtools-signal-${today}`;
+    const infraPapers = newEntries.filter((e) => isAibtcInfraPaper(e.title));
+    if (infraPapers.length > 0) {
+      const signalSource = `sensor:${SENSOR_NAME}:infra-signal-${today}`;
       if (!pendingTaskExistsForSource(signalSource)) {
-        const paperList = devToolPapers
+        const paperList = infraPapers
           .slice(0, 5)
           .map((p) => `- ${p.title} (${p.id})`)
           .join("\n");
         insertTask({
-          subject: `File dev-tools signal from arXiv digest (${devToolPapers.length} paper(s))`,
+          subject: `File infrastructure signal from arXiv digest (${infraPapers.length} paper(s))`,
           description:
-            `${devToolPapers.length} dev-tool-relevant papers found in today's arXiv fetch:\n\n` +
+            `${infraPapers.length} aibtc-relevant papers found in today's arXiv fetch:\n\n` +
             paperList + "\n\n" +
             "Instructions:\n" +
             "1. Review the compiled digest: research/arxiv/ (latest file)\n" +
-            "2. Compose a signal: arc skills run --name aibtc-news-editorial -- compose-signal --beat dev-tools\n" +
-            "3. Focus on agent frameworks, tool-use, MCP, or orchestration findings\n" +
-            "4. File the signal: arc skills run --name aibtc-news-editorial -- file-signal --beat dev-tools ...",
+            "2. Ensure papers have direct aibtc network relevance (MCP, relay tooling, Bitcoin/Stacks infra, agent payment systems)\n" +
+            "3. Compose a signal: arc skills run --name aibtc-news-editorial -- compose-signal --beat infrastructure\n" +
+            "4. Focus on MCP protocol advances, agent infrastructure, Bitcoin/Stacks tooling, or relay/payment channels\n" +
+            "5. File the signal: arc skills run --name aibtc-news-editorial -- file-signal --beat infrastructure ...",
           skills: JSON.stringify(["aibtc-news-editorial", "arxiv-research"]),
           priority: 6,
           model: "sonnet",
           status: "pending",
           source: signalSource,
         });
-        log(`dev-tools signal task queued (${devToolPapers.length} matching papers)`);
+        log(`infrastructure signal task queued (${infraPapers.length} matching papers)`);
       }
     }
 
