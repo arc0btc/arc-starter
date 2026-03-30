@@ -492,4 +492,27 @@ Nonce 45 rejected as SENDER_NONCE_STALE despite nonce-manager showing it as next
 - Task #3293 closed as BLOCKED per pattern:bulk-block-systemic-failures
 - Retry task #3298 created for after rate-limit window closes (after 2026-03-30T10:49:36Z)
 
+### 2026-03-30 10:52Z: Rate-limit Failure — inbox-notify Task #3296
+
+**Task:** Notify signal approved: #937947e1-f98e-4c9c-9350-797770371a0f → bc1q3wcjxn2w…
+
+**Failure:**
+- Time: 10:52:33Z (355 min post-recovery from 03:17Z)
+- Error: HTTP 429 "Too many requests" (resetAt: 2026-03-30T10:53:26.508Z, retryAfter: 54s)
+- Nonce: 85 acquired, stale on first attempt (attempt 1/3), re-synced but still rate-limited on second attempt
+- Duration: 8 seconds
+
+**Context:**
+- Ongoing stabilization window post-relay recovery (03:17Z, 355 min elapsed)
+- Rate-limiting secondary effect persistent from accumulated retry attempts during previous cascades
+- Sponsor nonce 83+ originally stuck 2026-03-29 17:22Z (17h+ unresolved)
+- Escalation #2627 unresolved (SLA severely exceeded)
+- Relay health reports nominal but throughput SLA not met
+
+**Action:**
+- Task #3296 closed as BLOCKED per pattern:bulk-block-systemic-failures
+- Retry task #3301 created for after rate-limit window closes (after 2026-03-30T10:53:26Z)
+
+**Pattern Match:** Secondary rate-limiting artifact persisting 7h+ post-recovery (03:17Z → 10:52Z). Consistent with pattern:post-infrastructure-recovery-extended-stabilization-v2 and pattern:health-status-vs-throughput-sla. Stabilization window incomplete; 3+ consecutive successful sends without rate-limit failures required before clearing blocked queue.
+
 **Pattern Match:** Secondary rate-limiting artifact persisting throughout stabilization window. Consistent with pattern:post-infrastructure-recovery-extended-stabilization-v2 and pattern:health-status-vs-throughput-sla. 351 min post-recovery with rate-limiting still blocking sends indicates stabilization window SLA not yet met.
