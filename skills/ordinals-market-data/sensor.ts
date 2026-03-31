@@ -48,6 +48,8 @@ const COINGECKO_API = "https://api.coingecko.com/api/v3";
 // Category rotation — each run picks the next category in sequence
 type Category = "inscriptions" | "brc20" | "fees" | "nft-floors" | "runes";
 const CATEGORIES: Category[] = ["inscriptions", "brc20", "fees", "nft-floors", "runes"];
+// Fees excluded from flat-market fallback — rejected by agent-trading beat (external to aibtc network)
+const FLAT_MARKET_CATEGORIES: Category[] = ["nft-floors", "inscriptions", "brc20", "runes"];
 
 // Angle rotation — each run assigns an analytical lens to the signal
 type Angle = "trend" | "comparison" | "anomaly" | "structure";
@@ -1022,8 +1024,7 @@ async function fetchRunesData(apiKey: string, state: HookState, history: Categor
  * Returns null if insufficient history exists for a meaningful signal.
  */
 function buildFlatMarketSignal(history: CategoryHistory, angle: Angle): SignalData | null {
-  // Priority order: fees > inscriptions > runes > brc20 > nft-floors (readability + data richness)
-  const candidateOrder: Category[] = ["fees", "inscriptions", "runes", "brc20", "nft-floors"];
+  const candidateOrder = FLAT_MARKET_CATEGORIES;
 
   let bestCategory: Category | null = null;
   let bestReadings: CategoryReading[] = [];
@@ -1064,25 +1065,6 @@ function buildFlatMarketSignal(history: CategoryHistory, angle: Angle): SignalDa
   let tags: string;
 
   switch (bestCategory) {
-    case "fees": {
-      const fastestFee = latest.metrics.fastestFee ?? 0;
-      const minimumFee = latest.metrics.minimumFee ?? 0;
-      const mempoolSize = latest.metrics.mempoolSize ?? 0;
-      const avgFastest = bestReadings.reduce((s, r) => s + (r.metrics.fastestFee ?? 0), 0) / readingCount;
-      const feeLabel = fastestFee <= 2 ? "floor" : fastestFee <= 5 ? "low" : fastestFee <= 15 ? "moderate" : "elevated";
-      headline = `Bitcoin fee market holds at ${feeLabel} — fastest fee stable near ${fastestFee} sat/vB across ${readingCount} readings`;
-      claim = `Bitcoin's fee market has remained in a ${feeLabel}-rate environment, with the fastest fee holding near ${fastestFee} sat/vB over ${spanHours} hours and ${readingCount} consecutive sensor readings — sustained ${feeLabel}-fee conditions shape inscription economics for the market.`;
-      evidence = `mempool.space: fastest fee ${fastestFee} sat/vB, minimum fee ${minimumFee} sat/vB, mempool count ${mempoolSize.toLocaleString("en-US")}. Average fastest fee across ${readingCount} readings: ${avgFastest.toFixed(1)} sat/vB (${spanHours}h span). No single reading exceeded the ${FEE_CHANGE_THRESHOLD_PCT}% change threshold.`;
-      implication = feeLabel === "floor" || feeLabel === "low"
-        ? `Sustained ${feeLabel}-fee conditions reduce inscription friction — historically, extended low-fee periods precede batched inscription activity and BRC-20 deploy waves as economic barriers to on-chain publishing compress.`
-        : `Sustained ${feeLabel} fees compress inscription economics, pricing out low-value content and concentrating block space usage in higher-value protocol activity.`;
-      sources = [
-        { url: "https://mempool.space/api/v1/fees/recommended", title: "mempool.space — recommended fee rates" },
-        { url: "https://mempool.space/api/mempool", title: "mempool.space — mempool statistics" },
-      ];
-      tags = "ordinals-business,fees,bitcoin,mempool,market-structure";
-      break;
-    }
     case "inscriptions": {
       const totalInscriptions = latest.metrics.totalInscriptions ?? 0;
       const prevTotal = bestReadings[bestReadings.length - 2].metrics.totalInscriptions ?? 0;
