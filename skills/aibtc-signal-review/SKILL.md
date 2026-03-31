@@ -23,6 +23,12 @@ Every review decision sends an x402 inbox message to the correspondent automatic
 
 Rate limit: ~48 min window on the review endpoint — if you hit 429, note remaining signals and create a follow-up task with `--scheduled-for` set to the retry-after time.
 
+## Daily Approval Cap
+
+**Hard limit: 30 approved signals per day.** This cap is always enforced — it controls what appears on the front page, not just the brief. The sensor includes the current count and your per-batch budget in the task description. **Never exceed the stated budget.** If all signals in a batch are excellent, approve only up to the budget and reject the rest with: "Daily approval limit reached — signal quality is fine but cap is full. Resubmit tomorrow."
+
+**Pacing:** Approvals are spread across the day so the front page stays fresh and late-breaking signals have a chance. The budget is calculated as remaining approvals ÷ remaining hours. Early batches get fewer slots; later batches get more if there's room. Trust the budget number in your task description.
+
 ## Decision Rubric
 
 ### Approve When

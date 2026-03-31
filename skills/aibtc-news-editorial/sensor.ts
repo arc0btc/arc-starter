@@ -29,11 +29,58 @@ interface SignalsResponse {
   signals: Signal[];
 }
 
+const DAILY_APPROVAL_CAP = 30;
+
+/** Count how many signals are approved for today (Pacific date). */
+async function getTodayApprovedCount(): Promise<number> {
+  const todayPST = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Los_Angeles",
+  }).format(new Date());
+  const sinceUTC = new Date(`${todayPST}T00:00:00-07:00`).toISOString();
+
+  try {
+    const resp = await fetchWithRetry(
+      `${API_BASE}/signals?status=approved&since=${sinceUTC}&limit=100`
+    );
+    if (!resp.ok) return 0;
+    const data = (await resp.json()) as SignalsResponse;
+    return (data.signals ?? []).length;
+  } catch {
+    return 0;
+  }
+}
+
+/** Estimate how many approvals this batch should allow based on time of day. */
+function approvalPaceBudget(approvedSoFar: number): number {
+  const remaining = DAILY_APPROVAL_CAP - approvedSoFar;
+  if (remaining <= 0) return 0;
+
+  // Hours remaining in the PST day (signals stop around 11 PM PST when brief compiles)
+  const nowPST = new Date(
+    new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" })
+  );
+  const hoursLeft = Math.max(1, 23 - nowPST.getHours());
+
+  // Pace: spread remaining budget across remaining hours, minimum 1 per batch
+  return Math.max(1, Math.ceil(remaining / hoursLeft));
+}
+
 async function signalReviewSensor(): Promise<string> {
   const claimed = await claimSensorRun(SIGNAL_SENSOR, SIGNAL_INTERVAL);
   if (!claimed) return "skip";
 
   signalLog("Checking for submitted signals...");
+
+  // Check daily approval budget before creating review tasks
+  const approvedToday = await getTodayApprovedCount();
+  const approvalBudget = approvalPaceBudget(approvedToday);
+
+  if (approvedToday >= DAILY_APPROVAL_CAP) {
+    signalLog(
+      `Daily approval cap reached (${approvedToday}/${DAILY_APPROVAL_CAP}) — skipping review task creation`
+    );
+    return "ok";
+  }
 
   let signals: Signal[];
   try {
@@ -58,7 +105,7 @@ async function signalReviewSensor(): Promise<string> {
     return "ok";
   }
 
-  signalLog(`Found ${signals.length} submitted signal(s)`);
+  signalLog(`Found ${signals.length} submitted signal(s) — ${approvedToday}/${DAILY_APPROVAL_CAP} approved today, pace budget: ${approvalBudget}`);
 
   signals.sort(
     (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
@@ -71,15 +118,17 @@ async function signalReviewSensor(): Promise<string> {
     )
     .join("\n");
 
+  const budgetNote = `\n\n**Daily approval budget:** ${approvedToday}/${DAILY_APPROVAL_CAP} approved today. You may approve at most ${approvalBudget} signal(s) in this batch. Reject all others (even quality ones) to stay within the daily cap and leave room for stronger signals later. If all ${BATCH_SIZE} are excellent, approve only the top ${approvalBudget} and reject the rest with: "Daily approval limit reached — signal quality is fine but cap is full. Resubmit tomorrow."`;
+
   const id = insertTaskIfNew(SIGNAL_SOURCE, {
     subject: `Review ${batch.length} submitted signal(s)${signals.length > BATCH_SIZE ? ` (${signals.length} total pending)` : ""}`,
-    description: `${batch.length} signal(s) to review in this batch${signals.length > BATCH_SIZE ? ` (${signals.length} total pending — batched ${BATCH_SIZE} at a time)` : ""}.\n\nBatch:\n${signalList}\n\nReview each signal using the workflow and decision rubric in aibtc-signal-review SKILL.md. If more signals remain after this batch, a follow-up task will be created on next sensor run.`,
+    description: `${batch.length} signal(s) to review in this batch${signals.length > BATCH_SIZE ? ` (${signals.length} total pending — batched ${BATCH_SIZE} at a time)` : ""}.${budgetNote}\n\nBatch:\n${signalList}\n\nReview each signal using the workflow and decision rubric in aibtc-signal-review SKILL.md. If more signals remain after this batch, a follow-up task will be created on next sensor run.`,
     priority: 4,
     skills: JSON.stringify(["aibtc-signal-review", "aibtc-news-classifieds", "bitcoin-wallet"]),
   });
 
   if (id !== null) {
-    signalLog(`Review task created: #${id} — ${signals.length} signal(s) pending`);
+    signalLog(`Review task created: #${id} — ${signals.length} signal(s) pending, budget ${approvalBudget}`);
   } else {
     signalLog("Review task already pending, skipped duplicate");
   }

@@ -99,7 +99,10 @@ Check each. If any match → `rejected` with reason.
 | 5 | Duplicate coverage | Same beat already has a signal today on the same topic | "Duplicate — [beat] already has a signal on this topic today." |
 | 6 | Self-promotional | Individual activity log disguised as news | "Activity updates are not intelligence. File a signal when the activity produces a verifiable ecosystem outcome." |
 
-**Gate 2 — Beat Volume Check**
+**Gate 2 — Daily Approval Cap (hard limit: 30/day)**
+The sensor includes the current approved count and your per-batch budget in the task description. Never exceed the stated budget. If you've already approved that many in this batch, reject remaining signals — even good ones — with: "Daily approval limit reached — signal quality is fine but cap is full. Resubmit tomorrow." This cap exists to keep the front page tight and leave room for late-breaking signals.
+
+**Gate 3 — Beat Volume Check**
 Before approving, check today's approved count for this beat:
 
 | Beat | Daily cap |
@@ -112,7 +115,7 @@ Before approving, check today's approved count for this beat:
 
 If at cap → `rejected` with "Beat [X] has reached its daily signal limit. Hold for tomorrow or reassign to a different beat."
 
-**Gate 3 — Yellow Flags (revision, not rejection)**
+**Gate 4 — Yellow Flags (revision, not rejection)**
 If any match → `rejected` with specific `feedback` asking for revision. Do NOT approve with yellow flags present.
 
 - **One-sided position**: Presents only upside without addressing risks → "Add a risk or downside consideration."
@@ -120,7 +123,7 @@ If any match → `rejected` with specific `feedback` asking for revision. Do NOT
 - **Wrong beat**: Content better fits another beat → "Reassign to [correct beat]."
 - **Incomplete/truncated**: Analysis cuts off mid-thought → "Content appears truncated. Complete the analysis."
 
-**Gate 4 — Structure & Quality Check**
+**Gate 5 — Structure & Quality Check**
 Signal must have all three components:
 1. **Claim** — what occurred (declarative, verifiable)
 2. **Evidence** — supporting data with attribution
@@ -128,7 +131,7 @@ Signal must have all three components:
 
 If missing any → `rejected` with feedback identifying the missing component.
 
-**Gate 5 — Favored Content Categories**
+**Gate 6 — Favored Content Categories**
 Signals that pass gates 1-4 get priority approval if they fall into:
 - Agent milestones (first trade, new skill shipped, bounty completed, Genesis achieved)
 - Security threats affecting aibtc agents (exploits, wallet vulnerabilities, identity spoofing)
@@ -138,7 +141,7 @@ Signals that pass gates 1-4 get priority approval if they fall into:
 
 Signals outside these categories can still be approved but should clear a higher bar for the "agent behavior change" test.
 
-**Gate 6 — Position Diversity**
+**Gate 7 — Position Diversity**
 Before approving, check the day's position balance:
 - Target: 40% bullish, 30% neutral/observational, 20% bearish/risk, 10% contrarian
 - If today's approved signals are >60% bullish → flag internally, prefer neutral/bearish signals
