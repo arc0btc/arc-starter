@@ -1,3 +1,46 @@
+## 2026-03-31T06:22:00.000Z — sensor quality fixes: arxiv filter, welcome relay probe, ordinals fee-market removal
+
+**Task #9839** | Diff: a94eb3a → 6282b8b | Sensors: 68 | Skills: 100
+
+### Step 1 — Requirements
+
+- **arxiv-research beat slug drift** (d2bc3c0d): Beat renamed from `dev-tools` to `infrastructure` by platform without notice. Sensor was filing 404s. Also: broad `DEV_TOOL_PAPER_KEYWORDS` was letting generic agent/ML papers through — publishers rejected for "no aibtc network connection." Two-tier filter added: Tier 1 (specific keywords: MCP, x402, Stacks, Clarity, sBTC, BRC-20, bitcoin relay); Tier 2 (agent + crypto/blockchain compound). Requirement: stop wasting signal quota on rejected topics. Satisfied.
+- **aibtc-welcome relay health probe** (e5210b25): Probe 3 previously called Hiro API directly for wallet 0 nonces only. Now calls GET `/status/sponsor` on the relay (covers all 10 pool wallets, returns `canSponsor + status`). Requirement: health check should reflect full pool state, not single-wallet Hiro snapshot. Satisfied. Removes `SPONSOR_ADDRESS` constant and direct Hiro dependency from arc-starter.
+- **ordinals fee-market removal** (6282b8b2): Rising Leviathan (automated signal reviewer) rejected 5 fee-market signals in 27h as "external to aibtc network." Sensor still included fee-market in FLAT_MARKET_CATEGORIES fallback despite the known rejection rule. Requirement: no more fee-market fallback signals. Satisfied. Also extracted candidate order to module-level constant, removed dead case block.
+
+### Step 2 — Delete
+
+- **[OK]** Dead code removed: `SPONSOR_ADDRESS` constant in aibtc-welcome (e5210b25), dead case block in ordinals-market-data (6282b8b2).
+- **[CARRY]** ordinals HookState deprecated fields (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`) — cleanup 2026-04-23+ (12th carry-forward).
+- **[CARRY]** layered-rate-limit sensor migration (3 sensors) — post-competition 2026-04-23+ (9th carry-forward).
+- **[CARRY]** nonce-strategy Phase 1 (retry-strategy.ts) — deferred pending skills v0.37+ upstream release.
+
+### Step 3 — Simplify
+
+- **aibtc-welcome**: Replacing a Hiro single-wallet nonce probe with a relay `/status/sponsor` endpoint is a net simplification: fewer dependencies (no Hiro API), better coverage (10 wallets vs 1), more accurate health signal. +12/-19 lines.
+- **ordinals-market-data**: Extracting `FLAT_MARKET_CATEGORIES` to module-level constant is a minor readability improvement. +3/-21 lines.
+- **No new complexity introduced**: All three changes are targeted fixes or removals.
+
+### Step 4 — Accelerate
+
+- **Signal quality loop**: Rising Leviathan rejects feed into arxiv (two-tier filter) + ordinals (fee-market removal) fixes. Same-day feedback loop from rejection → fix closes in ~27h. Pattern: automated reviewers provide fast signal quality feedback — treat rejections as actionable sensor bugs.
+- **Beat slug drift mitigation needed**: Recurring failure class (day 11 retro, arxiv 404). Sensors should detect 404 on signal file and either self-heal or create a beat-slug-drift task. No sensor currently does this proactively.
+
+### Step 5 — Automate
+
+- **[WATCH]** Beat slug validation: sensors file signals to slugs defined as constants. When platform renames a beat, sensors produce 404s until manually fixed. A lightweight beat-existence check (GET /beats on startup or first signal attempt) would catch slug drift without human intervention. Low-effort automation candidate.
+
+### Flags
+
+- **[OK]** All 3 fixes are targeted sensor improvements. No structural dispatch or schema changes.
+- **[ESCALATED]** effectiveCapacity=1 — task #9658, awaiting whoabuddy DO config change.
+- **[WATCH]** Beat slug drift: recurring failure class (3rd occurrence). Automate beat-existence validation.
+- **[CARRY]** ordinals HookState: 4 deprecated fields — cleanup 2026-04-23+ (12th carry-forward).
+- **[CARRY]** layered-rate-limit migration — post-competition 2026-04-23+ (9th carry-forward).
+- **[CARRY]** nonce-strategy Phase 1 — deferred post skills v0.37+ upstream.
+
+---
+
 ## 2026-03-30T18:26:00.000Z — clean overnight + no structural changes
 
 **Task #9782** | Diff: c8b717d → a94eb3a | Sensors: 68 | Skills: 100

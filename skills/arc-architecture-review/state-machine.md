@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-30T18:26:00.000Z*
+*Generated: 2026-03-31T06:22:00.000Z*
 *Sensor count: 68 | Skill count: 100*
 
 ```mermaid
@@ -50,8 +50,8 @@ stateDiagram-v2
             social_agent_engagement
             social_x_ecosystem
             arxiv_research
-            note right of ordinals_market_data: 3 ordinals + 3 dev-tools/day\noverflow after 18:00 UTC\nAll 5 categories fetched per run\nper-category pending dedup\nFlat-market fallback: stability signal when all thresholds=0
-            note right of arxiv_research: routes dev-tool papers\nto dev-tools signal tasks
+            note right of ordinals_market_data: 3 ordinals + 3 dev-tools/day\noverflow after 18:00 UTC\nAll 5 categories fetched per run\nper-category pending dedup\nFlat-market fallback: stability signal (fee-market REMOVED 6282b8b2)\nFLAT_MARKET_CATEGORIES extracted to module-level constant
+            note right of arxiv_research: routes papers to infrastructure beat (was dev-tools)\ntwo-tier aibtc-relevance filter (d2bc3c0d)\nTier 1: MCP/x402/Stacks/Clarity/sBTC/BRC-20\nTier 2: agent + crypto/blockchain compound
         }
 
         state DeFiSensors {
@@ -68,6 +68,7 @@ stateDiagram-v2
             aibtc_heartbeat
             aibtc_inbox_sync
             aibtc_welcome
+            note right of aibtc_welcome: isRelayHealthy() probe 3: relay /status/sponsor\n(was Hiro nonce API, wallet 0 only)\nNow covers all 10 pool wallets (e5210b25)\nRemoves SPONSOR_ADDRESS + direct Hiro dependency
             erc8004_reputation
             erc8004_indexer
             identity_guard
@@ -292,6 +293,15 @@ stateDiagram-v2
 | **Total** | **68** |
 
 *Note: bitcoin-quorumclaw DELETED (947ffa43) — sensor count 69→68, skill count 101→100. arc-workflows added to Infrastructure (was missing from prior diagrams; 11→12). Other/Misc: 5→3 (quorumclaw deleted, arc-workflows moved to Infrastructure).*
+
+## Key Architectural Changes (a94eb3a → 6282b8b) [2026-03-31]
+
+| Change | Impact |
+|--------|--------|
+| **fix(arxiv-research): update beat slug to infrastructure, add aibtc-relevance filter** (d2bc3c0d) | Beat `dev-tools` (404) replaced with `infrastructure`. Broad keyword list replaced with two-tier filter: Tier 1 (specific: MCP, x402, Stacks, Clarity, sBTC, BRC-20, bitcoin relay) + Tier 2 (agent + crypto compound). Prevents generic agent/ML papers from consuming signal quota. +56/-29 lines. Root cause: beat slug drift — platform renamed beat without notice. 3rd occurrence of this failure class. |
+| **fix(aibtc-welcome): replace Hiro nonce probe with relay /status/sponsor** (e5210b25) | `isRelayHealthy()` Probe 3 now calls GET `/status/sponsor` on the relay instead of Hiro nonce API for wallet 0 only. New probe passes only when `status==='healthy' && canSponsor===true` — covers all 10 pool wallets. Removes `SPONSOR_ADDRESS` constant and direct Hiro dependency from arc-starter health checks. Closes issue #263. +12/-19 lines. |
+| **fix(ordinals-market-data): remove fee-market from flat-market fallback** (6282b8b2) | Rising Leviathan (automated signal reviewer) rejected 5 fee-market signals in 27h — all classified as "external to aibtc network activity." Sensor still included fee-market in `FLAT_MARKET_CATEGORIES` despite known rejection rule. Removed. Extracted candidate order to module-level constant; removed dead case block. +3/-21 lines. Pattern: RL rejections are actionable sensor bugs — same-day feedback loop closed in ~27h. |
+| **[WATCH] Beat slug drift: 3rd occurrence** | arxiv-research is the 3rd sensor to fail due to platform renaming a beat without notice. No sensor currently validates beat existence before filing. Automation candidate: lightweight beat-existence check on first signal attempt could catch slug drift without human. |
 
 ## Key Architectural Changes (c8b717d → a94eb3a) [2026-03-30]
 
