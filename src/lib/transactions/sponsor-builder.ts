@@ -5,7 +5,7 @@ import {
 } from "@stacks/transactions";
 import { getStacksNetwork, type Network } from "../config/networks.js";
 import { getSponsorRelayUrl, getSponsorApiKey } from "../config/sponsor.js";
-import { getHiroApi } from "../services/hiro-api.js";
+import { acquireNonce, releaseNonce } from "../../skills/nonce-manager/nonce-store.js";
 import type { Account, ContractCallOptions, TransferResult } from "./builder.js";
 
 export interface SponsoredTransferOptions {
@@ -71,13 +71,11 @@ export async function sponsoredContractCall(
   network: Network
 ): Promise<TransferResult> {
   const apiKey = resolveSponsorApiKey(account);
-
   const networkName = getStacksNetwork(network);
 
-  // Fetch current nonce from chain
-  const hiro = getHiroApi(network);
-  const accountInfo = await hiro.getAccountInfo(account.address);
-  const nonce = BigInt(accountInfo.nonce);
+  // Acquire nonce from the oracle — single source of truth for all tx paths
+  const acquired = await acquireNonce(account.address);
+  const nonce = BigInt(acquired.nonce);
 
   const transaction = await makeContractCall({
     contractAddress: options.contractAddress,
@@ -94,16 +92,32 @@ export async function sponsoredContractCall(
   });
 
   const serializedTx = transaction.serialize();
-  const response = await submitToSponsorRelay(serializedTx, network, apiKey);
+  let response: SponsorRelayResponse;
+
+  try {
+    response = await submitToSponsorRelay(serializedTx, network, apiKey);
+  } catch (err) {
+    // Network error — assume nonce was NOT consumed (never reached relay)
+    await releaseNonce(account.address, acquired.nonce, false, "rejected");
+    throw err;
+  }
 
   if (!response.success) {
+    // Relay rejected: SENDER_NONCE_STALE/GAP means nonce not consumed.
+    // Other codes (SENDER_NONCE_DUPLICATE) mean relay already has it — nonce consumed.
+    const code = response.code ?? "";
+    const rejected = code === "SENDER_NONCE_STALE" || code === "SENDER_NONCE_GAP";
+    await releaseNonce(account.address, acquired.nonce, false, rejected ? "rejected" : "broadcast");
     throw new Error(formatRelayError(response));
   }
 
   if (!response.txid) {
+    // Relay accepted but no txid — nonce was consumed by the relay
+    await releaseNonce(account.address, acquired.nonce, true);
     throw new Error("Sponsor relay succeeded but returned no txid");
   }
 
+  await releaseNonce(account.address, acquired.nonce, true);
   return { txid: response.txid, rawTx: serializedTx };
 }
 
