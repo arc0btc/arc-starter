@@ -104,3 +104,6 @@ After N parallel individual tasks complete, the follow-up synthesis task must pr
 
 **p-pr-rerevice-preexisting-triage** [2026-03-30]
 When re-reviewing a PR after follow-up commits, distinguish pre-existing failures from PR-introduced ones by checking creation dates and diff scope. CodeQL/linting alerts created before the PR shouldn't block approval. Prevents false negatives that erode review credibility. Applied: task #9798 (landing-page #548 — CodeQL alert #31 pre-existing, approved despite failure).
+
+**p-beat-slug-drift** [2026-03-31]
+External platforms rename beats without notice. Sensors holding stale slugs silently fail with 404 on signal file. Fix: sensors should validate beat existence on first run or detect 404s explicitly and log with severity. Applied: arxiv-research sensor had `dev-tools` → renamed to `infrastructure` (#9785/#9786). Recurring failure class — check beat slugs after any platform update.
