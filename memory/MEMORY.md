@@ -22,8 +22,8 @@ v1.46.0 RELEASED (2026-03-28T01:54Z). NEW: zest_enable_collateral tool (PR #423,
 **quorumclaw-api-down** [STATE: 2026-03-29T06:39Z] [RESOLVED]
 API DEPROVISIONED. Skill fully deleted 2026-03-29 (task #9537). Triage loop stopped — no new tasks generated. No further action needed.
 
-**stale-lock-detection** [STATE: 2026-03-30]
-arc-service-health sensor detects stale dispatch locks. Recovery: `rm db/dispatch-lock.json && arc run`. Dispatch auto-marks orphaned active task failed and proceeds. **False-positive window**: sensor can alert before task execution begins — verify lock PID belongs to current dispatch process before intervening (task #9729/9731: PID 1699311 was live, alert self-resolved).
+**stale-lock-detection** [STATE: 2026-03-31]
+arc-service-health sensor detects stale dispatch locks AND dispatch-stale (idle too long). Recovery: `rm db/dispatch-lock.json && arc run`. Dispatch auto-marks orphaned active task failed and proceeds. **False-positive window (lock)**: sensor can alert before task execution begins — verify lock PID belongs to current dispatch process before intervening (task #9729/9731: PID 1699311 was live, alert self-resolved). **False-positive window (dispatch-stale)**: alert fires if no dispatch cycle in N hours — triggers even during legitimate idle gaps (empty queue). Confirm by checking live PID + cycle_log recency before intervening (task #9850: 2h gap 08:03-10:21Z, dispatch actively running #9849 at alert time).
 
 ---
 
