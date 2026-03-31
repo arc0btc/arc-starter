@@ -128,6 +128,69 @@ function validateSlug(slug: string): boolean {
   return /^[a-z0-9][a-z0-9-]{1,48}[a-z0-9]$/.test(slug) || /^[a-z0-9]$/.test(slug);
 }
 
+// ---- Beat Slug Existence Validation (drift detection) ----
+
+const BEAT_CACHE_FILE = "db/beat-slug-cache.json";
+const BEAT_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
+interface BeatSlugCache {
+  fetchedAt: number;
+  slugs: string[];
+}
+
+async function fetchBeatSlugs(): Promise<string[]> {
+  const response = await fetch(`${API_BASE}/beats`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch beats list: HTTP ${response.status}`);
+  }
+  const data = await response.json() as Array<{ slug: string }>;
+  if (!Array.isArray(data)) {
+    throw new Error(`Unexpected /beats response format`);
+  }
+  return data.map((b) => b.slug).filter((s) => typeof s === "string");
+}
+
+async function validateBeatExists(beat: string): Promise<void> {
+  // Check file-based cache first (shared across invocations in same dispatch window)
+  try {
+    const cacheFile = Bun.file(BEAT_CACHE_FILE);
+    if (await cacheFile.exists()) {
+      const cache = await cacheFile.json() as BeatSlugCache;
+      if (typeof cache.fetchedAt === "number" && Date.now() - cache.fetchedAt < BEAT_CACHE_TTL_MS) {
+        if (!cache.slugs.includes(beat)) {
+          throw new Error(
+            `Beat slug '${beat}' not found on aibtc.news. Available beats: ${cache.slugs.join(", ")} (cached)`
+          );
+        }
+        log(`beat '${beat}' validated via cache (age: ${Math.round((Date.now() - cache.fetchedAt) / 1000)}s)`);
+        return;
+      }
+    }
+  } catch (e) {
+    if (e instanceof Error && e.message.startsWith("Beat slug")) throw e;
+    // Cache read/parse error — fall through to API fetch
+  }
+
+  // Fetch fresh list from API
+  log(`fetching beats list for slug validation`);
+  const slugs = await fetchBeatSlugs();
+
+  // Write cache (non-fatal if it fails)
+  try {
+    const cache: BeatSlugCache = { fetchedAt: Date.now(), slugs };
+    await Bun.write(BEAT_CACHE_FILE, JSON.stringify(cache));
+  } catch {
+    log(`Warning: failed to write beat slug cache`);
+  }
+
+  if (!slugs.includes(beat)) {
+    throw new Error(
+      `Beat slug '${beat}' not found on aibtc.news. Available beats: ${slugs.join(", ")}`
+    );
+  }
+  log(`beat '${beat}' validated (${slugs.length} beats fetched from API)`);
+}
+
 // ---- Narrative Thread Helpers ----
 
 const NARRATIVE_HOOK_STATE_KEY = "ordinals-market-data";
@@ -434,6 +497,16 @@ async function cmdFileSignal(args: string[]): Promise<void> {
   // Validate inputs
   if (!validateSlug(beat)) {
     console.error(`Invalid beat slug: ${beat}`);
+    process.exit(1);
+  }
+
+  // Validate beat exists on aibtc.news (catches slug drift before judge-signal runs)
+  try {
+    await validateBeatExists(beat);
+  } catch (e) {
+    const error = e as Error;
+    log(`Beat existence check failed: ${error.message}`);
+    console.error(JSON.stringify({ error: error.message }, null, 2));
     process.exit(1);
   }
 
