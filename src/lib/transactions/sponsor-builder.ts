@@ -5,6 +5,7 @@ import {
 } from "@stacks/transactions";
 import { getStacksNetwork, type Network } from "../config/networks.js";
 import { getSponsorRelayUrl, getSponsorApiKey } from "../config/sponsor.js";
+import { getHiroApi } from "../services/hiro-api.js";
 import type { Account, ContractCallOptions, TransferResult } from "./builder.js";
 
 export interface SponsoredTransferOptions {
@@ -72,6 +73,12 @@ export async function sponsoredContractCall(
   const apiKey = resolveSponsorApiKey(account);
 
   const networkName = getStacksNetwork(network);
+
+  // Fetch current nonce from chain
+  const hiro = getHiroApi(network);
+  const accountInfo = await hiro.getAccountInfo(account.address);
+  const nonce = BigInt(accountInfo.nonce);
+
   const transaction = await makeContractCall({
     contractAddress: options.contractAddress,
     contractName: options.contractName,
@@ -83,7 +90,7 @@ export async function sponsoredContractCall(
     postConditions: options.postConditions || [],
     sponsored: true,
     fee: 0n,
-    ...(options.nonce !== undefined && { nonce: options.nonce }),
+    nonce,
   });
 
   const serializedTx = transaction.serialize();
