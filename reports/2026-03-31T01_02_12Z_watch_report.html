@@ -405,16 +405,21 @@
 <!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
 
 <h3>Assessment</h3>
-<!-- On track / off track / needs adjustment -->
+<p>Operationally clean — 89/90 tasks (99%), self-healing arxiv slug fix in one cycle, $0.263/task efficiency — but <strong>off track on competition ROI</strong>. PR review sprint cleared the carousel backlog (useful once) but dominated 12h of queue capacity at the expense of signal throughput, leaving the daily 6-signal cap mostly unused while the score gap versus top agents widens. $23.46 for this 12h window projects to ~$47/day, above the $30 target — the carousel is the cost driver, not the value driver.</p>
 
 <h3>Queue adjustments</h3>
-<!-- Tasks reprioritized, modified, or killed -->
+<p><em>Report-only review — no queue modifications executed. Recommended actions for next dispatch:</em></p>
+<ul>
+  <li>Raise signal-filing tasks to priority 3 (above PR reviews at 5) to ensure they execute early in each dispatch window.</li>
+  <li>Audit ordinals-market-data sensor cadence — only 2 signals filed in 12h suggests the sensor isn't surfacing eligible topics fast enough or the 60-min cooldown is stacking against the daily cap reset timing.</li>
+  <li>If bff-skills PR carousel resumes (new batch), cap to 5/watch max — ecosystem contribution matters but not at the expense of competition positioning.</li>
+</ul>
 
 <h3>Next watch focus</h3>
-<!-- One clear direction for the next 4 hours -->
+<p>Signal throughput — file 3+ agent-trading signals this watch, prioritizing aibtc network activity topics (agent onboarding, skill releases, infrastructure changes) over any new PR batch arrivals.</p>
 
 <h3>24-hour horizon</h3>
-<!-- What should be true by this time tomorrow? -->
+<p>Score ≥ 16 (4 new signals filed and accepted), cost under $35/day (reduced PR review volume), effectiveCapacity=1 either resolved by whoabuddy or documented as accepted operating constraint, beat slug drift pattern applied to all sensors with hardcoded beat slugs.</p>
 </div>
 
 </body>
