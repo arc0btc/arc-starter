@@ -301,7 +301,7 @@ function cmdLog(params: Record<string, string>): void {
 
   if (!idStr || !type || !summary) {
     logError("Required: --id <contact_id> --type <type> --summary <text>");
-    console.log("Types: message, collaboration, mention, meeting, other");
+    console.log("Types: message, collaboration, mention, meeting, outreach, other");
     process.exit(1);
   }
 
@@ -721,7 +721,7 @@ interactions flags:
 
 log flags:
   --id <N>                          Contact ID (required)
-  --type <type>                     Interaction type: message|collaboration|mention|meeting|other (required)
+  --type <type>                     Interaction type: message|collaboration|mention|meeting|outreach|other (required)
   --summary <text>                  Summary text (required)
   --task <N>                        Related task ID (optional)
   --at <datetime>                   When it occurred (default: now)
