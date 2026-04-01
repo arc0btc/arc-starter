@@ -31,6 +31,10 @@ Delegate to this agent when the workflow needs to:
 - Link or unlink a Stacks wallet address to an agent identity
 - Transfer identity ownership to a new address
 
+## Local Cache
+
+Read operations are backed by a local SQLite cache. Identities and feedback are stored indefinitely (immutable on chain). Reputation summaries expire after 5 minutes. All Hiro API calls are rate-limited to 1 call per second. Run `sync` to pre-populate the cache, or `sync --agent-id N` for a single agent.
+
 ## Key Constraints
 
 - register, set-uri, set-metadata, set-approval, set-wallet, unset-wallet, and transfer all require an unlocked wallet

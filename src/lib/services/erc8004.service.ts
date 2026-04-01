@@ -144,7 +144,7 @@ export class Erc8004Service {
     callerAddress: string
   ): Promise<{ okay: boolean; result?: string; cause?: string }> {
     await this.rateLimit();
-    return this.callReadOnly(contractId, functionName, functionArgs, callerAddress);
+    return this.hiro.callReadOnlyFunction(contractId, functionName, functionArgs, callerAddress);
   }
 
   // ==========================================================================

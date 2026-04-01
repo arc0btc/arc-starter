@@ -6,3 +6,6 @@ export { getWalletManager } from "./wallet-manager.js";
 export type { WalletCreateResult, WalletImportResult } from "./wallet-manager.js";
 export { UnisatIndexer, UnisatApiError, createUnisatIndexer } from "./unisat-indexer.js";
 export type { UnisatInscription, UnisatRuneBalance, UnisatRuneUtxo, ClassifiedUtxos } from "./unisat-indexer.js";
+export { Erc8004Service } from "./erc8004.service.js";
+export type { IdentityInfo, ReputationSummary, FeedbackEntry, FeedbackPage, FeedbackPageItem, ValidationStatus, ValidationSummary } from "./erc8004.service.js";
+export { getCachedIdentity, getCachedFeedback, getAllCachedFeedback, getCachedReputation, getCachedIdentityCount, getCachedFeedbackCount, getAllCachedAgentIds } from "./erc8004-cache.js";

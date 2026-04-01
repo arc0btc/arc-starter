@@ -26,6 +26,8 @@ arc skills run --name erc8004-identity -- unset-wallet --agent-id <id> [--fee <f
 arc skills run --name erc8004-identity -- transfer --agent-id <id> --recipient <address> [--fee <fee>] [--sponsored]
 arc skills run --name erc8004-identity -- get-metadata --agent-id <id> --key <key>
 arc skills run --name erc8004-identity -- get-last-id
+arc skills run --name erc8004-identity -- sync [--agent-id <id>]
+arc skills run --name erc8004-identity -- cache-stats
 ```
 
 ## Subcommands
@@ -122,6 +124,24 @@ Load when: registering or updating Arc's on-chain agent identity, managing opera
 ## Requires
 
 - wallet (for write operations)
+
+## Local Cache
+
+Read operations use a local SQLite cache to avoid hitting the Hiro API on every call. Cache behavior:
+
+- **Identities** — stored indefinitely (immutable on chain). First read fetches from Hiro and caches; subsequent reads return from local DB.
+- **Feedback entries** — stored indefinitely (immutable once given; revocation updates in place).
+- **Reputation summaries** — cached with 5-minute staleness. Stale entries trigger a fresh Hiro fetch.
+
+All Hiro API calls use 1-second spacing to avoid 429 rate limits.
+
+### sync
+
+Pulls all agent identities, reputation, and feedback from chain into local cache. Use `--agent-id N` for single-agent sync, or omit for a full sync of all registered agents.
+
+### cache-stats
+
+Prints the count of cached identities and feedback entries.
 
 ## Notes
 
