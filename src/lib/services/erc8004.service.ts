@@ -144,7 +144,7 @@ export class Erc8004Service {
     callerAddress: string
   ): Promise<{ okay: boolean; result?: string; cause?: string }> {
     await this.rateLimit();
-    return this.hiro.callReadOnlyFunction(contractId, functionName, functionArgs, callerAddress);
+    return this.callReadOnly(contractId, functionName, functionArgs, callerAddress);
   }
 
   // ==========================================================================
@@ -465,7 +465,7 @@ export class Erc8004Service {
    * Returns the raw buffer value as a hex string, or null if not set.
    */
   async getMetadata(agentId: number, key: string, callerAddress: string): Promise<string | null> {
-    const result = await this.hiro.callReadOnlyFunction(
+    const result = await this.callReadOnly(
       this.contracts.identityRegistry,
       "get-metadata",
       [uintCV(agentId), stringUtf8CV(key)],
@@ -489,7 +489,7 @@ export class Erc8004Service {
    * Returns null if no agents have been registered yet.
    */
   async getLastTokenId(callerAddress: string): Promise<number | null> {
-    const result = await this.hiro.callReadOnlyFunction(
+    const result = await this.callReadOnly(
       this.contracts.identityRegistry,
       "get-last-token-id",
       [],
@@ -656,10 +656,22 @@ export class Erc8004Service {
   }
 
   /**
-   * Get aggregated reputation for an agent
+   * Get aggregated reputation for an agent.
+   * Returns from local cache if fresh (< 5 min). Falls back to Hiro API.
    */
   async getReputation(agentId: number, callerAddress: string): Promise<ReputationSummary> {
-    const result = await this.hiro.callReadOnlyFunction(
+    const cached = getCachedReputation(agentId);
+    if (cached) return cached;
+
+    return this.fetchAndCacheReputation(agentId, callerAddress);
+  }
+
+  /**
+   * Fetch reputation from chain and store in local cache.
+   * Exposed for the sync command to force-refresh.
+   */
+  async fetchAndCacheReputation(agentId: number, callerAddress: string): Promise<ReputationSummary> {
+    const result = await this.callReadOnly(
       this.contracts.reputationRegistry,
       "get-summary",
       [uintCV(agentId)],
@@ -679,20 +691,22 @@ export class Erc8004Service {
       );
     }
 
-    const rep = data.value.value;
-    return {
+    const repData = data.value.value;
+    const rep: ReputationSummary = {
       agentId,
-      totalFeedback: parseInt(rep.count.value, 10),
-      summaryValue: rep["summary-value"].value,
-      summaryValueDecimals: parseInt(rep["summary-value-decimals"].value, 10),
+      totalFeedback: parseInt(repData.count.value, 10),
+      summaryValue: repData["summary-value"].value,
+      summaryValueDecimals: parseInt(repData["summary-value-decimals"].value, 10),
     };
+    upsertReputation(rep);
+    return rep;
   }
 
   /**
    * Get total feedback count for an agent
    */
   async getFeedbackCount(agentId: number, callerAddress: string): Promise<number> {
-    const result = await this.hiro.callReadOnlyFunction(
+    const result = await this.callReadOnly(
       this.contracts.reputationRegistry,
       "get-agent-feedback-count",
       [uintCV(agentId)],
@@ -712,11 +726,9 @@ export class Erc8004Service {
   }
 
   /**
-   * Get specific feedback entry by client and index
-   *
-   * Uses `read-feedback (agent-id uint) (client principal) (index uint)` from the
-   * reputation registry. The feedback map is keyed by {agent-id, client, index},
-   * so both the client principal and the index are required to retrieve an entry.
+   * Get specific feedback entry by client and index.
+   * Returns from local cache if available (feedback is immutable once given).
+   * Falls back to Hiro API with 1s spacing, then stores locally.
    */
   async getFeedback(
     agentId: number,
@@ -724,7 +736,23 @@ export class Erc8004Service {
     index: number,
     callerAddress: string
   ): Promise<FeedbackEntry | null> {
-    const result = await this.hiro.callReadOnlyFunction(
+    const cached = getCachedFeedback(agentId, client, index);
+    if (cached) return cached;
+
+    return this.fetchAndCacheFeedback(agentId, client, index, callerAddress);
+  }
+
+  /**
+   * Fetch feedback from chain and store in local cache.
+   * Exposed for the sync command to force-refresh.
+   */
+  async fetchAndCacheFeedback(
+    agentId: number,
+    client: string,
+    index: number,
+    callerAddress: string
+  ): Promise<FeedbackEntry | null> {
+    const result = await this.callReadOnly(
       this.contracts.reputationRegistry,
       "read-feedback",
       [uintCV(agentId), principalCV(client), uintCV(index)],
@@ -741,7 +769,7 @@ export class Erc8004Service {
     }
 
     const fb = data.value.value;
-    return {
+    const entry: FeedbackEntry = {
       client,
       value: parseInt(fb.value.value, 10),
       valueDecimals: parseInt(fb["value-decimals"].value, 10),
@@ -750,6 +778,8 @@ export class Erc8004Service {
       tag2: fb.tag2.value,
       isRevoked: fb["is-revoked"].value,
     };
+    upsertFeedback(agentId, client, index, entry);
+    return entry;
   }
 
   /**
@@ -764,7 +794,7 @@ export class Erc8004Service {
     includeRevoked?: boolean,
     cursor?: number
   ): Promise<FeedbackPage> {
-    const result = await this.hiro.callReadOnlyFunction(
+    const result = await this.callReadOnly(
       this.contracts.reputationRegistry,
       "read-all-feedback",
       [
@@ -800,6 +830,11 @@ export class Erc8004Service {
       isRevoked: item.value["is-revoked"].value,
     }));
 
+    // Cache each feedback entry as a side effect
+    for (const item of items) {
+      upsertFeedback(agentId, item.client, item.index, item);
+    }
+
     const cursorValue =
       page.cursor.value !== null && page.cursor.value !== undefined
         ? parseInt(page.cursor.value.value, 10)
@@ -817,7 +852,7 @@ export class Erc8004Service {
     callerAddress: string,
     cursor?: number
   ): Promise<ClientsPage> {
-    const result = await this.hiro.callReadOnlyFunction(
+    const result = await this.callReadOnly(
       this.contracts.reputationRegistry,
       "get-clients",
       [uintCV(agentId), cursor !== undefined ? optionalCVOf(uintCV(cursor)) : noneCV()],
@@ -851,7 +886,7 @@ export class Erc8004Service {
    * Returns 0 if the client has no approval.
    */
   async getApprovedLimit(agentId: number, client: string, callerAddress: string): Promise<number> {
-    const result = await this.hiro.callReadOnlyFunction(
+    const result = await this.callReadOnly(
       this.contracts.reputationRegistry,
       "get-approved-limit",
       [uintCV(agentId), principalCV(client)],
@@ -875,7 +910,7 @@ export class Erc8004Service {
    * Returns 0 if the client has not given any feedback.
    */
   async getLastIndex(agentId: number, client: string, callerAddress: string): Promise<number> {
-    const result = await this.hiro.callReadOnlyFunction(
+    const result = await this.callReadOnly(
       this.contracts.reputationRegistry,
       "get-last-index",
       [uintCV(agentId), principalCV(client)],
@@ -979,7 +1014,7 @@ export class Erc8004Service {
     requestHash: Buffer,
     callerAddress: string
   ): Promise<ValidationStatus | null> {
-    const result = await this.hiro.callReadOnlyFunction(
+    const result = await this.callReadOnly(
       this.contracts.validationRegistry,
       "get-validation-status",
       [bufferCV(requestHash)],
@@ -1014,7 +1049,7 @@ export class Erc8004Service {
     agentId: number,
     callerAddress: string
   ): Promise<ValidationSummary> {
-    const result = await this.hiro.callReadOnlyFunction(
+    const result = await this.callReadOnly(
       this.contracts.validationRegistry,
       "get-summary",
       [uintCV(agentId)],
@@ -1050,7 +1085,7 @@ export class Erc8004Service {
     callerAddress: string,
     cursor?: number
   ): Promise<ValidationsPage> {
-    const result = await this.hiro.callReadOnlyFunction(
+    const result = await this.callReadOnly(
       this.contracts.validationRegistry,
       "get-agent-validations",
       [uintCV(agentId), cursor !== undefined ? optionalCVOf(uintCV(cursor)) : noneCV()],
@@ -1088,7 +1123,7 @@ export class Erc8004Service {
     callerAddress: string,
     cursor?: number
   ): Promise<ValidatorRequestsPage> {
-    const result = await this.hiro.callReadOnlyFunction(
+    const result = await this.callReadOnly(
       this.contracts.validationRegistry,
       "get-validator-requests",
       [principalCV(validator), cursor !== undefined ? optionalCVOf(uintCV(cursor)) : noneCV()],
