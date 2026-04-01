@@ -30,6 +30,8 @@ interface NonceEntry {
   lastAcquired: string;
   mempoolPending: number;
   lastExecutedNonce: number | null;
+  /** Nonces acquired but not yet released (in-flight to sponsor/mempool) */
+  inFlight: number[];
 }
 
 interface NonceState {
@@ -48,6 +50,8 @@ export interface SyncResult {
   mempoolPending: number;
   lastExecuted: number | null;
   detectedMissing: number[];
+  /** Number of nonces acquired locally but not yet released */
+  inFlightCount: number;
 }
 
 export interface ReleaseResult {
@@ -205,21 +209,33 @@ export async function acquireNonce(address: string): Promise<AcquireResult> {
     // Auto-sync if missing or stale
     if (!entry || isStale(entry)) {
       const hiro = await fetchHiroNonce(address);
+      // Preserve in-flight nonces across sync — they represent real acquired state
+      const existingInFlight = entry?.inFlight ?? [];
+      const hiroNext = hiro.possible_next_nonce;
+      // Never roll back nextNonce below max in-flight + 1
+      const minNext = existingInFlight.length > 0
+        ? Math.max(...existingInFlight) + 1
+        : hiroNext;
       entry = {
-        nextNonce: hiro.possible_next_nonce,
+        nextNonce: Math.max(hiroNext, minNext),
         lastSynced: new Date().toISOString(),
         lastAcquired: new Date().toISOString(),
         mempoolPending: hiro.detected_mempool_nonces?.length ?? 0,
         lastExecutedNonce: hiro.last_executed_tx_nonce,
+        inFlight: existingInFlight,
       };
       state[address] = entry;
       source = "hiro";
     }
 
+    // Ensure inFlight array exists (migration from old state format)
+    if (!entry.inFlight) entry.inFlight = [];
+
     const nonce = entry.nextNonce;
 
-    // Increment for next caller
+    // Increment for next caller and track in-flight
     entry.nextNonce = nonce + 1;
+    entry.inFlight.push(nonce);
     entry.lastAcquired = new Date().toISOString();
     writeState(state);
 
@@ -251,7 +267,15 @@ export async function releaseNonce(
       return { address, nonce, action: "noted" as const };
     }
 
+    // Ensure inFlight array exists (migration from old state format)
+    if (!entry.inFlight) entry.inFlight = [];
+
+    // Remove from in-flight tracking
+    const idx = entry.inFlight.indexOf(nonce);
+    if (idx !== -1) entry.inFlight.splice(idx, 1);
+
     if (success) {
+      writeState(state);
       return { address, nonce, action: "confirmed" as const };
     }
 
@@ -265,6 +289,7 @@ export async function releaseNonce(
     }
 
     // Nonce was consumed (broadcast) or can't roll back (another was acquired after)
+    writeState(state);
     return { address, nonce, action: "noted" as const };
   });
 }
@@ -276,13 +301,23 @@ export async function syncNonce(address: string): Promise<SyncResult> {
   return withLock(async () => {
     const state = readState();
     const hiro = await fetchHiroNonce(address);
+    const existing = state[address];
+
+    // Preserve in-flight nonces — they represent acquired state the chain hasn't seen yet
+    const inFlight = existing?.inFlight ?? [];
+    const hiroNext = hiro.possible_next_nonce;
+    // Never roll back nextNonce below max in-flight + 1
+    const minNext = inFlight.length > 0
+      ? Math.max(...inFlight) + 1
+      : hiroNext;
 
     state[address] = {
-      nextNonce: hiro.possible_next_nonce,
+      nextNonce: Math.max(hiroNext, minNext),
       lastSynced: new Date().toISOString(),
-      lastAcquired: state[address]?.lastAcquired ?? new Date().toISOString(),
+      lastAcquired: existing?.lastAcquired ?? new Date().toISOString(),
       mempoolPending: hiro.detected_mempool_nonces?.length ?? 0,
       lastExecutedNonce: hiro.last_executed_tx_nonce,
+      inFlight,
     };
     writeState(state);
 
@@ -292,6 +327,7 @@ export async function syncNonce(address: string): Promise<SyncResult> {
       mempoolPending: hiro.detected_mempool_nonces?.length ?? 0,
       lastExecuted: hiro.last_executed_tx_nonce,
       detectedMissing: hiro.detected_missing_nonces ?? [],
+      inFlightCount: inFlight.length,
     };
   });
 }
