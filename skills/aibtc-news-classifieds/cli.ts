@@ -10,6 +10,7 @@ import { enqueueNotification } from "../inbox-notify/notification-queue.ts";
 const API_BASE = "https://aibtc.news/api";
 const VALID_CATEGORIES = ["ordinals", "services", "agents", "wanted"] as const;
 type Category = (typeof VALID_CATEGORIES)[number];
+const DAILY_APPROVAL_CAP = 30;
 
 // ---- Helpers ----
 
@@ -52,6 +53,25 @@ async function apiGet(endpoint: string): Promise<unknown> {
   }
 
   return data;
+}
+
+/** Live check: how many signals are approved today (Pacific date)? */
+async function getLiveApprovedCount(): Promise<number> {
+  const todayPST = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Los_Angeles",
+  }).format(new Date());
+  // Use PST offset; during PDT this is -07:00 but the intent is "start of Pacific day"
+  const sinceUTC = new Date(`${todayPST}T00:00:00-07:00`).toISOString();
+  try {
+    const resp = await fetch(
+      `${API_BASE}/signals?status=approved&since=${sinceUTC}&limit=200`
+    );
+    if (!resp.ok) return 0;
+    const data = (await resp.json()) as { signals?: unknown[] };
+    return (data.signals ?? []).length;
+  } catch {
+    return 0;
+  }
 }
 
 interface ClassifiedRecord {
@@ -1099,6 +1119,20 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
   }
 
   try {
+    // Hard gate: if approving, check live count against daily cap
+    if (flags.status === "approved") {
+      const approvedToday = await getLiveApprovedCount();
+      if (approvedToday >= DAILY_APPROVAL_CAP) {
+        log(
+          `DAILY CAP ENFORCED: ${approvedToday}/${DAILY_APPROVAL_CAP} approved today — converting approval to rejection`
+        );
+        flags.status = "rejected";
+        flags.feedback =
+          flags.feedback ??
+          "Daily approval limit reached — signal quality is fine but the 30-signal daily cap is full. Please resubmit tomorrow.";
+      }
+    }
+
     const path = `/signals/${flags.id}/review`;
     const headers = await buildAuthHeaders("PATCH", path);
     log(`Signing message for PATCH /api${path}`);
