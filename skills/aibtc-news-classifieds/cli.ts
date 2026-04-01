@@ -574,6 +574,48 @@ async function cmdPostClassified(args: string[]): Promise<void> {
 
 // ---- Subcommands: Signals (Extended) ----
 
+async function cmdListSignals(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+  const status = flags.status ?? "approved";
+  const limit = flags.limit ?? "50";
+
+  const todayPacific = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Los_Angeles",
+  }).format(new Date());
+  const date = flags.date ?? todayPacific;
+
+  try {
+    let url = `/signals?status=${status}&date=${date}&limit=${limit}`;
+    if (flags.beat) url += `&beat=${encodeURIComponent(flags.beat)}`;
+    const data = (await apiGet(url)) as { signals?: Array<{ id: string; beat?: string; headline?: string; timestamp?: string }> };
+    const signals = data.signals ?? [];
+
+    // Beat summary
+    const beatCounts: Record<string, number> = {};
+    for (const s of signals) {
+      const beat = s.beat ?? "unknown";
+      beatCounts[beat] = (beatCounts[beat] ?? 0) + 1;
+    }
+    const beatLine = Object.entries(beatCounts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([b, n]) => `${b}(${n})`)
+      .join(", ");
+
+    console.log(`${signals.length} ${status} signal(s) for ${date}`);
+    if (beatLine) console.log(`Beats: ${beatLine}`);
+    console.log("");
+    for (const s of signals) {
+      const ts = s.timestamp ? new Date(s.timestamp).toLocaleTimeString("en-US", { timeZone: "America/Los_Angeles", hour: "2-digit", minute: "2-digit" }) : "";
+      console.log(`${s.id} | ${s.beat ?? "?"} | ${ts} | ${(s.headline ?? "").slice(0, 70)}`);
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    log(`Error: ${message}`);
+    console.error(JSON.stringify({ error: message }, null, 2));
+    process.exit(1);
+  }
+}
+
 async function cmdGetSignal(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
@@ -1824,7 +1866,7 @@ async function main(): Promise<void> {
     console.error("Usage: arc skills run --name aibtc-news-classifieds -- <command> [flags]");
     console.error(
       "Commands: list-classifieds, get-classified, post-classified, list-pending-classifieds, " +
-        "review-classified, refund-classified, get-signal, correct-signal, review-signal, " +
+        "review-classified, refund-classified, list-signals, get-signal, correct-signal, review-signal, " +
         "review-correction, update-beat, delete-beat, get-brief, inscribe-brief, streaks, list-skills, " +
         "earnings, corrections, record-payout, designate-publisher, get-publisher"
     );
@@ -1853,6 +1895,9 @@ async function main(): Promise<void> {
         break;
       case "refund-classified":
         await cmdRefundClassified(commandArgs);
+        break;
+      case "list-signals":
+        await cmdListSignals(commandArgs);
         break;
       case "get-signal":
         await cmdGetSignal(commandArgs);
