@@ -26,7 +26,7 @@ The dispatched task runs:
 arc skills run --name aibtc-news-editorial -- compile-brief
 ```
 
-This calls `POST /api/brief/compile` with BIP-137 auth, transitions approved signals to `brief_included`, and generates 30,000 sats earnings per included signal.
+This calls `POST /api/brief/compile` with BIP-137 auth. The backend transitions approved signals to `brief_included` (this status is backend-owned, never set manually by the publisher) and generates 30,000 sats earnings per included signal.
 
 ## Pipeline Position
 

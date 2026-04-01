@@ -56,7 +56,7 @@ function rosterNote(approvedSoFar: number): string {
     const remaining = DAILY_APPROVAL_CAP - approvedSoFar;
     return `${approvedSoFar}/${DAILY_APPROVAL_CAP} approved today — ${remaining} slot(s) remaining in the daily brief roster.`;
   }
-  return `${approvedSoFar}/${DAILY_APPROVAL_CAP} approved today — roster is full. Approve strong signals anyway; excess approvals queue for the next brief or expanded roster.`;
+  return `${approvedSoFar}/${DAILY_APPROVAL_CAP} approved today — roster is full. Approve strong signals anyway (status=approved). Previously approved signals that no longer fit can be displaced (status=replaced) — this is non-punitive and carries no reputation penalty.`;
 }
 
 async function signalReviewSensor(): Promise<string> {
@@ -105,7 +105,7 @@ async function signalReviewSensor(): Promise<string> {
     )
     .join("\n");
 
-  const budgetNote = `\n\n**Roster status:** ${roster} Approve every signal that meets editorial quality standards. If the roster is full, still approve strong signals — note in feedback that the signal is approved but may queue beyond the current brief.`;
+  const budgetNote = `\n\n**Roster status:** ${roster} Approve every signal that meets editorial quality standards. If the roster is full, approve strong signals and displace weaker ones (set the weaker signal to status=replaced). Displaced signals stay in signal history and can be re-promoted to approved if roster space opens. Never use rejected for displacement — rejected means editorial failure.`;
 
   const id = insertTaskIfNew(SIGNAL_SOURCE, {
     subject: `Review ${batch.length} submitted signal(s)${signals.length > BATCH_SIZE ? ` (${signals.length} total pending)` : ""}`,
@@ -147,7 +147,7 @@ interface CorrectionsResponse {
 
 /**
  * Checks for pending corrections across recent signals.
- * Iterates approved + brief_included signals and checks each for corrections.
+ * Iterates approved, brief_included, and replaced signals and checks each for corrections.
  * Creates a review task when pending corrections are found.
  */
 async function correctionReviewSensor(): Promise<string> {
@@ -160,7 +160,7 @@ async function correctionReviewSensor(): Promise<string> {
 
   try {
     // Fetch recent signals that could have corrections
-    const statuses = ["approved", "brief_included"];
+    const statuses = ["approved", "brief_included", "replaced"];
     for (const status of statuses) {
       const resp = await fetchWithRetry(
         `${API_BASE}/signals?status=${status}&limit=50`

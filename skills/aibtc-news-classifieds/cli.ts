@@ -1101,11 +1101,11 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
     console.error(
       "Usage: arc skills run --name aibtc-news-classifieds -- review-signal --id <id> --status <status> [--feedback <text>]"
     );
-    console.error("Valid statuses: submitted, in_review, approved, rejected, brief_included");
+    console.error("Valid statuses: submitted, in_review, approved, rejected, replaced");
     process.exit(1);
   }
 
-  const validStatuses = ["submitted", "in_review", "approved", "rejected", "brief_included"];
+  const validStatuses = ["submitted", "in_review", "approved", "rejected", "replaced"];
   if (!validStatuses.includes(flags.status)) {
     console.error(
       `Invalid status: ${flags.status}. Must be one of: ${validStatuses.join(", ")}`
@@ -1193,35 +1193,46 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
           insertContactInteraction({
             contact_id: sigContact.id,
             type: "collaboration",
-            summary: `${flags.status === "approved" ? "Approved" : flags.status === "rejected" ? "Rejected" : `Set ${flags.status}`} signal ${flags.id}: "${sigHeadline}"${flags.feedback ? ` — ${flags.feedback.slice(0, 100)}` : ""}`,
+            summary: `${flags.status === "approved" ? "Approved" : flags.status === "rejected" ? "Rejected" : flags.status === "replaced" ? "Displaced" : `Set ${flags.status}`} signal ${flags.id}: "${sigHeadline}"${flags.feedback ? ` — ${flags.feedback.slice(0, 100)}` : ""}`,
           });
         }
       }
 
       // Queue child tasks for post-review operations (x402 notify + ERC-8004 feedback)
-      if (sigBtcAddress && sigBtcAddress !== ARC_BTC_ADDRESS && (flags.status === "approved" || flags.status === "rejected")) {
+      if (sigBtcAddress && sigBtcAddress !== ARC_BTC_ADDRESS && (flags.status === "approved" || flags.status === "rejected" || flags.status === "replaced")) {
         const contact = getContactByAddress(null, sigBtcAddress);
         const recipientStx = contact?.stx_address;
 
         if (recipientStx) {
           // Enqueue x402 notification (batched by sensor every 10 min)
-          const message = flags.status === "approved"
-            ? [
-                `Signal Approved | ${flags.id}`,
-                ``,
-                `Your signal "${sigHeadline}" has been approved and is now live on aibtc.news.`,
-                ``,
-                `Thank you for the quality contribution — this is the kind of intelligence that makes the network valuable. Keep filing.`,
-              ].join("\n")
-            : [
-                `Signal Rejected | ${flags.id}`,
-                ``,
-                `Your signal "${sigHeadline}" was reviewed and not approved.`,
-                ``,
-                `Feedback: ${flags.feedback ?? "No specific feedback provided."}`,
-                ``,
-                `Please fix the issues noted above and resubmit. We want to publish quality content and appreciate your contributions.`,
-              ].join("\n");
+          let message: string;
+          if (flags.status === "approved") {
+            message = [
+              `Signal Approved | ${flags.id}`,
+              ``,
+              `Your signal "${sigHeadline}" has been approved and is now live on aibtc.news.`,
+              ``,
+              `Thank you for the quality contribution — this is the kind of intelligence that makes the network valuable. Keep filing.`,
+            ].join("\n");
+          } else if (flags.status === "replaced") {
+            message = [
+              `Signal Displaced | ${flags.id}`,
+              ``,
+              `Your signal "${sigHeadline}" met editorial standards but has been displaced from the current roster by higher-priority signals.`,
+              ``,
+              `This is not a rejection — the signal remains in signal history and may be re-promoted if roster space opens. No action needed on your part.`,
+            ].join("\n");
+          } else {
+            message = [
+              `Signal Rejected | ${flags.id}`,
+              ``,
+              `Your signal "${sigHeadline}" was reviewed and not approved.`,
+              ``,
+              `Feedback: ${flags.feedback ?? "No specific feedback provided."}`,
+              ``,
+              `Please fix the issues noted above and resubmit. We want to publish quality content and appreciate your contributions.`,
+            ].join("\n");
+          }
 
           const added = enqueueNotification({
             type: "notify",
@@ -1236,8 +1247,9 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
           if (added) log(`Queued notification for signal ${flags.id} (${flags.status})`);
 
           // Enqueue ERC-8004 reputation feedback if correspondent has agent ID
+          // Displaced signals are not penalized — only true rejections carry negative rep
           if (contact?.agent_id) {
-            const value = flags.status === "approved" ? 1 : -1;
+            const value = flags.status === "approved" ? 1 : flags.status === "replaced" ? 0 : -1;
             enqueueNotification({
               type: "erc8004-feedback",
               signal_id: flags.id,
