@@ -5,6 +5,15 @@
 
 import { resolve } from "node:path";
 import { getCredential } from "../../src/credentials.ts";
+import { initDatabase } from "../../src/db.ts";
+import { ARC_STX_ADDRESS } from "../../src/identity.ts";
+import { Erc8004Service } from "../../src/lib/services/erc8004.service.ts";
+import {
+  getCachedIdentityCount,
+  getCachedFeedbackCount,
+  getAllCachedAgentIds,
+} from "../../src/lib/services/erc8004-cache.ts";
+import type { Network } from "../../src/lib/config/index.ts";
 
 const ROOT = resolve(import.meta.dir, "../../github/aibtcdev/skills");
 const IDENTITY_SCRIPT = resolve(ROOT, "identity/identity.ts");
@@ -83,6 +92,103 @@ async function runScript(
   return { stdout, stderr, exitCode };
 }
 
+// ---- Sync command ----
+
+async function cmdSync(args: string[]): Promise<void> {
+  initDatabase();
+  const network = (process.env.NETWORK || "mainnet") as Network;
+  const service = new Erc8004Service(network);
+  const callerAddress = ARC_STX_ADDRESS;
+
+  // Parse --agent-id flag for single-agent sync
+  let targetAgentId: number | undefined;
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--agent-id" && args[i + 1]) {
+      targetAgentId = parseInt(args[i + 1], 10);
+    }
+  }
+
+  if (targetAgentId !== undefined) {
+    // Sync a single agent
+    log(`syncing agent ${targetAgentId}...`);
+
+    const identity = await service.fetchAndCacheIdentity(targetAgentId, callerAddress);
+    if (!identity) {
+      log(`agent ${targetAgentId} not found on chain`);
+      return;
+    }
+    log(`  identity: ${identity.owner} (uri: ${identity.uri || "none"})`);
+
+    const rep = await service.fetchAndCacheReputation(targetAgentId, callerAddress);
+    log(`  reputation: ${rep.totalFeedback} feedback entries`);
+
+    // Sync all feedback pages
+    let cursor: number | undefined;
+    let feedbackCount = 0;
+    do {
+      const page = await service.readAllFeedback(targetAgentId, callerAddress, undefined, undefined, true, cursor);
+      feedbackCount += page.items.length;
+      cursor = page.cursor;
+    } while (cursor !== undefined);
+    log(`  cached ${feedbackCount} feedback entries`);
+
+    log("sync complete");
+    return;
+  }
+
+  // Full sync: discover all agents via getLastTokenId, then sync each
+  log("discovering agents on chain...");
+  const lastId = await service.getLastTokenId(callerAddress);
+  if (lastId === null) {
+    log("no agents registered on chain");
+    return;
+  }
+  log(`found ${lastId} registered agent(s), syncing...`);
+
+  let synced = 0;
+  let skipped = 0;
+
+  for (let id = 1; id <= lastId; id++) {
+    try {
+      const identity = await service.fetchAndCacheIdentity(id, callerAddress);
+      if (!identity) {
+        skipped++;
+        continue;
+      }
+
+      await service.fetchAndCacheReputation(id, callerAddress);
+
+      // Sync all feedback pages
+      let cursor: number | undefined;
+      do {
+        const page = await service.readAllFeedback(id, callerAddress, undefined, undefined, true, cursor);
+        cursor = page.cursor;
+      } while (cursor !== undefined);
+
+      synced++;
+      log(`  [${id}/${lastId}] ${identity.owner} — synced`);
+    } catch (err) {
+      log(`  [${id}/${lastId}] error: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  const cachedIdentities = getCachedIdentityCount();
+  log(`sync complete: ${synced} synced, ${skipped} empty, ${cachedIdentities} total cached identities`);
+}
+
+// ---- Cache stats command ----
+
+function cmdCacheStats(): void {
+  initDatabase();
+  const agentIds = getAllCachedAgentIds();
+  console.log(`Cached identities: ${agentIds.length}`);
+  let totalFeedback = 0;
+  for (const id of agentIds) {
+    totalFeedback += getCachedFeedbackCount(id);
+  }
+  console.log(`Cached feedback entries: ${totalFeedback}`);
+}
+
 // ---- Main ----
 
 async function main(args: string[]): Promise<void> {
@@ -102,6 +208,8 @@ Subcommands:
   transfer                 Transfer identity NFT to new owner
   get-metadata             Read metadata value by key
   get-last-id              Get most recently minted agent ID
+  sync                     Sync chain state to local cache (all agents or --agent-id N)
+  cache-stats              Show local cache statistics
 
 Run 'bun run identity/identity.ts <subcommand> --help' for more details.
 `);
@@ -110,6 +218,16 @@ Run 'bun run identity/identity.ts <subcommand> --help' for more details.
 
   try {
     const subcommand = args[0];
+
+    // Handle local commands before delegating to upstream
+    if (subcommand === "sync") {
+      await cmdSync(args.slice(1));
+      return;
+    }
+    if (subcommand === "cache-stats") {
+      cmdCacheStats();
+      return;
+    }
     let walletCreds: { walletId: string; password: string } | undefined;
 
     // Load wallet credentials for write commands
