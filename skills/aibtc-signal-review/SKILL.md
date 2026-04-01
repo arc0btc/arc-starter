@@ -46,10 +46,12 @@ Rate limit: ~48 min window on the review endpoint — if you hit 429, note remai
 Each review task includes a roster snapshot: current count, open slots, per-beat coverage, and (when full) the list of approved signals that are displacement candidates. Use this to make informed trade-offs.
 
 **Key principles:**
-- Approve every signal that meets editorial standards, even if the roster is full — then displace a weaker one.
+- **When roster is under 30:** Approve signals that meet editorial standards.
+- **When roster is at or over 30:** Only approve signals that are clearly exceptional (security incidents, major milestones, breaking infra). For each approval, you MUST displace a weaker signal in the same action. Decent-but-not-exceptional signals should be rejected with feedback that the roster is full and they should resubmit tomorrow or strengthen their claim.
 - A signal approved in the morning may be displaced by a stronger afternoon signal. This is expected.
 - Beat diversity matters: prefer displacing a signal from an over-represented beat over cutting an under-represented one.
 - The compile step may also displace signals. Approved ≠ guaranteed inclusion.
+- **Never let the roster grow unchecked past 30.** The 30-cap exists to maintain editorial quality and keep brief compilation costs predictable.
 
 ## Decision Rubric
 
