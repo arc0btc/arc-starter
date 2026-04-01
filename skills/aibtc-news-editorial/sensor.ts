@@ -50,19 +50,13 @@ async function getTodayApprovedCount(): Promise<number> {
   }
 }
 
-/** Estimate how many approvals this batch should allow based on time of day. */
-function approvalPaceBudget(approvedSoFar: number): number {
-  const remaining = DAILY_APPROVAL_CAP - approvedSoFar;
-  if (remaining <= 0) return 0;
-
-  // Hours remaining in the PST day (signals stop around 11 PM PST when brief compiles)
-  const nowPST = new Date(
-    new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" })
-  );
-  const hoursLeft = Math.max(1, 23 - nowPST.getHours());
-
-  // Pace: spread remaining budget across remaining hours, minimum 1 per batch
-  return Math.max(1, Math.ceil(remaining / hoursLeft));
+/** Build a roster note so the reviewer knows current brief capacity. */
+function rosterNote(approvedSoFar: number): string {
+  if (approvedSoFar < DAILY_APPROVAL_CAP) {
+    const remaining = DAILY_APPROVAL_CAP - approvedSoFar;
+    return `${approvedSoFar}/${DAILY_APPROVAL_CAP} approved today — ${remaining} slot(s) remaining in the daily brief roster.`;
+  }
+  return `${approvedSoFar}/${DAILY_APPROVAL_CAP} approved today — roster is full. Approve strong signals anyway; excess approvals queue for the next brief or expanded roster.`;
 }
 
 async function signalReviewSensor(): Promise<string> {
@@ -71,16 +65,9 @@ async function signalReviewSensor(): Promise<string> {
 
   signalLog("Checking for submitted signals...");
 
-  // Check daily approval budget before creating review tasks
+  // Roster info for reviewer context (never blocks task creation)
   const approvedToday = await getTodayApprovedCount();
-  const approvalBudget = approvalPaceBudget(approvedToday);
-
-  if (approvedToday >= DAILY_APPROVAL_CAP) {
-    signalLog(
-      `Daily approval cap reached (${approvedToday}/${DAILY_APPROVAL_CAP}) — skipping review task creation`
-    );
-    return "ok";
-  }
+  const roster = rosterNote(approvedToday);
 
   let signals: Signal[];
   try {
@@ -105,7 +92,7 @@ async function signalReviewSensor(): Promise<string> {
     return "ok";
   }
 
-  signalLog(`Found ${signals.length} submitted signal(s) — ${approvedToday}/${DAILY_APPROVAL_CAP} approved today, pace budget: ${approvalBudget}`);
+  signalLog(`Found ${signals.length} submitted signal(s) — ${roster}`);
 
   signals.sort(
     (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
@@ -118,7 +105,7 @@ async function signalReviewSensor(): Promise<string> {
     )
     .join("\n");
 
-  const budgetNote = `\n\n**Daily approval budget:** ${approvedToday}/${DAILY_APPROVAL_CAP} approved today. You may approve at most ${approvalBudget} signal(s) in this batch. Reject all others (even quality ones) to stay within the daily cap and leave room for stronger signals later. If all ${BATCH_SIZE} are excellent, approve only the top ${approvalBudget} and reject the rest with: "Daily approval limit reached — signal quality is fine but cap is full. Resubmit tomorrow."`;
+  const budgetNote = `\n\n**Roster status:** ${roster} Approve every signal that meets editorial quality standards. If the roster is full, still approve strong signals — note in feedback that the signal is approved but may queue beyond the current brief.`;
 
   const id = insertTaskIfNew(SIGNAL_SOURCE, {
     subject: `Review ${batch.length} submitted signal(s)${signals.length > BATCH_SIZE ? ` (${signals.length} total pending)` : ""}`,
@@ -128,7 +115,7 @@ async function signalReviewSensor(): Promise<string> {
   });
 
   if (id !== null) {
-    signalLog(`Review task created: #${id} — ${signals.length} signal(s) pending, budget ${approvalBudget}`);
+    signalLog(`Review task created: #${id} — ${signals.length} signal(s) pending, ${roster}`);
   } else {
     signalLog("Review task already pending, skipped duplicate");
   }

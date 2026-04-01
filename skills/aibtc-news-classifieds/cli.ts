@@ -1119,17 +1119,13 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
   }
 
   try {
-    // Hard gate: if approving, check live count against daily cap
+    // Roster info: log when approving past the brief slot count (never blocks approval)
     if (flags.status === "approved") {
       const approvedToday = await getLiveApprovedCount();
       if (approvedToday >= DAILY_APPROVAL_CAP) {
         log(
-          `DAILY CAP ENFORCED: ${approvedToday}/${DAILY_APPROVAL_CAP} approved today — converting approval to rejection`
+          `ROSTER FULL: ${approvedToday}/${DAILY_APPROVAL_CAP} approved today — approving anyway; signal queues for next brief or expanded roster`
         );
-        flags.status = "rejected";
-        flags.feedback =
-          flags.feedback ??
-          "Daily approval limit reached — signal quality is fine but the 30-signal daily cap is full. Please resubmit tomorrow.";
       }
     }
 
