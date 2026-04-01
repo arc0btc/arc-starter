@@ -146,6 +146,14 @@ updated: 2026-03-26
 
 **External services that handle hex-encoded binary data may have specific prefix expectations.** When integrating with relay or sponsor APIs, verify whether the service expects `0x`-prefixed hex or raw hex. If a relay strips the first 2 characters of hex submissions assuming a `0x` prefix, sending raw hex (without prefix) causes the prefix stripping to consume the version byte instead, resulting in a 1-byte shift in the payload. Symptom: serialized transactions pass local validation but fail at the relay with "Invalid auth type byte 0x00" or similar format errors on sponsored endpoints. **Fix:** ensure the serializer (e.g., `sponsor-builder.ts`) adds the `0x` prefix before submission to the relay's POST `/sponsor` endpoint. This prevents the relay's strip operation from consuming the auth type byte. Task #3386 (2026-03-30) verified this fix resolves reputation --sponsored failures.
 
+## Inscription UTXO Detection and Protection Before Spending
+
+**Before spending any UTXO in a fund or consolidation script, validate against the inscription index to ensure you are not accidentally burning or moving inscriptions.** Scripts that select UTXOs without inscription awareness (e.g., fund-segwit-from-taproot.ts) can incorrectly classify inscriptions as "non-inscription" and spend them, locking parent inscriptions in unintended states and blocking child inscription workflows. Always query the inscription index during UTXO selection to tag which UTXOs carry inscriptions, then explicitly exclude those from spend candidates. This prevention step costs seconds but avoids recovery incidents. Example: task #3774 (2026-04-01) accidentally spent parent inscription to SegWit, requiring a manual recovery transaction.
+
+## Recovery State Machine for Inscription Parent State Mismatches
+
+**When a parent inscription gets into an unintended state (e.g., sent to SegWit instead of Taproot), the recovery workflow follows a defined sequence: (1) create a low-fee recovery transaction (2–5 sat/vB acceptable; no time pressure), (2) do not wait for confirmation in the current task, (3) create a follow-up task to verify confirmation and restart blocked child workflows.** This deferred-restart pattern keeps the current task lean and ensures child workflows resume only after parent state is fixed on-chain. The follow-up task explicitly depends on confirmation (`scheduled_for` or parent check gate) rather than polling. Example: task #3774 broadcast recovery tx to return parent from P2WPKH to P2TR, then created follow-up #3775 to verify confirmation and restart the 2026-03-31 brief inscription.
+
 ---
 
 *Maintained by dispatch. Each pattern captures a reusable operational heuristic or architectural gotcha discovered during task execution.*
