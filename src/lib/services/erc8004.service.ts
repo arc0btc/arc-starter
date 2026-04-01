@@ -25,6 +25,14 @@ import { getErc8004Contracts, parseContractId, type Network } from "../config/in
 import { callContract, type Account, type TransferResult } from "../transactions/builder.js";
 import { sponsoredContractCall } from "../transactions/sponsor-builder.js";
 import { createNftSendPostCondition } from "../transactions/post-conditions.js";
+import {
+  getCachedIdentity,
+  upsertIdentity,
+  getCachedFeedback,
+  upsertFeedback,
+  getCachedReputation,
+  upsertReputation,
+} from "./erc8004-cache.js";
 
 // ============================================================================
 // Types
@@ -106,13 +114,37 @@ export interface ValidationSummary {
 // ERC8004 Service
 // ============================================================================
 
+/** 1-second delay between Hiro API calls to avoid 429s. */
+const API_SPACING_MS = 1000;
+
 export class Erc8004Service {
   private hiro: HiroApiService;
   private contracts: ReturnType<typeof getErc8004Contracts>;
+  private lastApiCall = 0;
 
   constructor(private network: Network) {
     this.hiro = getHiroApi(network);
     this.contracts = getErc8004Contracts(network);
+  }
+
+  /** Wait until at least API_SPACING_MS has elapsed since the last Hiro call. */
+  private async rateLimit(): Promise<void> {
+    const elapsed = Date.now() - this.lastApiCall;
+    if (elapsed < API_SPACING_MS) {
+      await new Promise((r) => setTimeout(r, API_SPACING_MS - elapsed));
+    }
+    this.lastApiCall = Date.now();
+  }
+
+  /** Rate-limited wrapper around hiro.callReadOnlyFunction. */
+  private async callReadOnly(
+    contractId: string,
+    functionName: string,
+    functionArgs: ClarityValue[],
+    callerAddress: string
+  ): Promise<{ okay: boolean; result?: string; cause?: string }> {
+    await this.rateLimit();
+    return this.hiro.callReadOnlyFunction(contractId, functionName, functionArgs, callerAddress);
   }
 
   // ==========================================================================
@@ -174,11 +206,25 @@ export class Erc8004Service {
   }
 
   /**
-   * Get agent identity information
+   * Get agent identity information.
+   * Returns from local cache if available (identity is immutable).
+   * Falls back to Hiro API with 1s spacing, then stores locally.
    */
   async getIdentity(agentId: number, callerAddress: string): Promise<IdentityInfo | null> {
+    // Check local cache first — identity data is immutable
+    const cached = getCachedIdentity(agentId);
+    if (cached) return cached;
+
+    return this.fetchAndCacheIdentity(agentId, callerAddress);
+  }
+
+  /**
+   * Fetch identity from chain and store in local cache.
+   * Exposed for the sync command to force-refresh.
+   */
+  async fetchAndCacheIdentity(agentId: number, callerAddress: string): Promise<IdentityInfo | null> {
     // Get owner
-    const ownerResult = await this.hiro.callReadOnlyFunction(
+    const ownerResult = await this.callReadOnly(
       this.contracts.identityRegistry,
       "get-owner",
       [uintCV(agentId)],
@@ -199,7 +245,7 @@ export class Erc8004Service {
     const owner = ownerData.value.value.value;
 
     // Get URI
-    const uriResult = await this.hiro.callReadOnlyFunction(
+    const uriResult = await this.callReadOnly(
       this.contracts.identityRegistry,
       "get-uri",
       [uintCV(agentId)],
@@ -215,7 +261,7 @@ export class Erc8004Service {
     }
 
     // Get agent wallet
-    const walletResult = await this.hiro.callReadOnlyFunction(
+    const walletResult = await this.callReadOnly(
       this.contracts.identityRegistry,
       "get-agent-wallet",
       [uintCV(agentId)],
@@ -230,12 +276,9 @@ export class Erc8004Service {
       }
     }
 
-    return {
-      agentId,
-      owner,
-      uri,
-      wallet,
-    };
+    const identity: IdentityInfo = { agentId, owner, uri, wallet };
+    upsertIdentity(identity);
+    return identity;
   }
 
   /**

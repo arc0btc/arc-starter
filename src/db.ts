@@ -514,6 +514,46 @@ export function initDatabase(): Database {
     db.run("ALTER TABLE arc_memory_meta ADD COLUMN api_cost_usd REAL");
   } catch (_) { /* column already exists */ }
 
+  // ---- ERC-8004 local cache tables ----
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS erc8004_identities (
+      agent_id INTEGER PRIMARY KEY,
+      owner TEXT NOT NULL,
+      uri TEXT NOT NULL DEFAULT '',
+      wallet TEXT,
+      synced_at TEXT NOT NULL
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS erc8004_feedback (
+      id INTEGER PRIMARY KEY,
+      agent_id INTEGER NOT NULL,
+      client TEXT NOT NULL,
+      feedback_index INTEGER NOT NULL,
+      value INTEGER NOT NULL,
+      value_decimals INTEGER NOT NULL,
+      wad_value TEXT NOT NULL,
+      tag1 TEXT NOT NULL DEFAULT '',
+      tag2 TEXT NOT NULL DEFAULT '',
+      is_revoked INTEGER NOT NULL DEFAULT 0,
+      synced_at TEXT NOT NULL,
+      UNIQUE(agent_id, client, feedback_index)
+    )
+  `);
+  db.run("CREATE INDEX IF NOT EXISTS idx_erc8004_feedback_agent ON erc8004_feedback(agent_id)");
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS erc8004_reputation (
+      agent_id INTEGER PRIMARY KEY,
+      total_feedback INTEGER NOT NULL DEFAULT 0,
+      summary_value TEXT NOT NULL DEFAULT '0',
+      summary_value_decimals INTEGER NOT NULL DEFAULT 0,
+      synced_at TEXT NOT NULL
+    )
+  `);
+
   _db = db;
   return db;
 }
