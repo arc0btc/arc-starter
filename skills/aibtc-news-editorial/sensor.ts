@@ -31,16 +31,16 @@ interface SignalsResponse {
 
 const DAILY_APPROVAL_CAP = 30;
 
-/** Count how many signals are approved for today (Pacific date). */
+/** Count how many signals are approved for today (Pacific editorial day).
+ *  Sends date=YYYY-MM-DD and lets the backend own the day boundary. */
 async function getTodayApprovedCount(): Promise<number> {
-  const todayPST = new Intl.DateTimeFormat("en-CA", {
+  const todayPacific = new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Los_Angeles",
   }).format(new Date());
-  const sinceUTC = new Date(`${todayPST}T00:00:00-07:00`).toISOString();
 
   try {
     const resp = await fetchWithRetry(
-      `${API_BASE}/signals?status=approved&since=${sinceUTC}&limit=100`
+      `${API_BASE}/signals?status=approved&date=${todayPacific}&limit=100`
     );
     if (!resp.ok) return 0;
     const data = (await resp.json()) as SignalsResponse;

@@ -55,16 +55,15 @@ async function apiGet(endpoint: string): Promise<unknown> {
   return data;
 }
 
-/** Live check: how many signals are approved today (Pacific date)? */
+/** Live check: how many signals are approved today (Pacific editorial day)?
+ *  Sends date=YYYY-MM-DD and lets the backend own the day boundary. */
 async function getLiveApprovedCount(): Promise<number> {
-  const todayPST = new Intl.DateTimeFormat("en-CA", {
+  const todayPacific = new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Los_Angeles",
   }).format(new Date());
-  // Use PST offset; during PDT this is -07:00 but the intent is "start of Pacific day"
-  const sinceUTC = new Date(`${todayPST}T00:00:00-07:00`).toISOString();
   try {
     const resp = await fetch(
-      `${API_BASE}/signals?status=approved&since=${sinceUTC}&limit=200`
+      `${API_BASE}/signals?status=approved&date=${todayPacific}&limit=200`
     );
     if (!resp.ok) return 0;
     const data = (await resp.json()) as { signals?: unknown[] };
