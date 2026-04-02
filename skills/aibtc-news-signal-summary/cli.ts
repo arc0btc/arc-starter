@@ -1,14 +1,15 @@
 #!/usr/bin/env bun
 // skills/aibtc-news-signal-summary/cli.ts
 // Outputs a daily signal activity summary table for aibtc.news.
+// Sources: aibtc.news API (signal counts, inscriptions), db/briefs/ (brief files), db/payouts/ (payout records).
 
-import { initDatabase } from "../../src/db.ts";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 
 const ROOT = resolve(import.meta.dir, "../..");
 const PAYOUTS_DIR = resolve(ROOT, "db/payouts");
 const BRIEFS_DIR = resolve(ROOT, "db/briefs");
+const API_BASE = "https://aibtc.news/api";
 
 // ---- Helpers ----
 
@@ -23,177 +24,85 @@ function parseFlags(args: string[]): Record<string, string> {
   return flags;
 }
 
-function todayPST(): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles" }).format(new Date());
-}
-
 function daysAgo(n: number): string {
   const d = new Date();
   d.setDate(d.getDate() - n);
   return d.toISOString().slice(0, 10);
 }
 
-// ---- Review Counts ----
+async function apiGetCount(endpoint: string): Promise<number> {
+  // The API caps `total` at `limit` (max 200), so we must paginate to get true counts.
+  let count = 0;
+  let offset = 0;
+  const pageSize = 200;
+  try {
+    while (true) {
+      const sep = endpoint.includes("?") ? "&" : "?";
+      const url = `${API_BASE}${endpoint}${sep}limit=${pageSize}&offset=${offset}`;
+
+      let response: Response | null = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        response = await fetch(url, {
+          headers: { "Content-Type": "application/json" },
+        });
+        if (response.status === 429) {
+          // Rate limited — wait and retry
+          const retryAfter = parseInt(response.headers.get("retry-after") ?? "2", 10);
+          await new Promise((r) => setTimeout(r, retryAfter * 1000));
+          continue;
+        }
+        break;
+      }
+
+      if (!response || !response.ok) return count;
+      const data = (await response.json()) as { signals?: unknown[] };
+      const page = data.signals?.length ?? 0;
+      count += page;
+      if (page < pageSize) break;
+      offset += pageSize;
+    }
+    return count;
+  } catch {
+    return count;
+  }
+}
+
+// ---- Signal Counts (from API) ----
 
 interface DayCounts {
-  reviewed: number;
+  total: number;
   approved: number;
   rejected: number;
+  briefIncluded: number;
+  replaced: number;
 }
 
-function parseReviewSummary(s: string): DayCounts {
-  let approved = 0, rejected = 0, reviewed = 0;
-
-  const revMatch = s.match(/[Rr]eviewed (\d+) signal/);
-  if (revMatch) reviewed = parseInt(revMatch[1]);
-
-  const revAppr = s.match(/[Rr]eviewed and approved (\d+)/);
-
-  const na = s.match(/(\d+) approved/i);
-  if (na) approved = parseInt(na[1]);
-
-  const anm = s.match(/[Aa]pproved (\d+)\/(\d+)/);
-  if (anm) { approved = parseInt(anm[1]); reviewed = parseInt(anm[2]); }
-
-  const ans = s.match(/[Aa]pproved (\d+) signal/);
-  if (ans && !na) approved = parseInt(ans[1]);
-
-  if (!na && !ans && !anm && s.match(/[Aa]pproved (signal )?[a-f0-9]{7,}/i)) approved = 1;
-
-  if (revAppr) { approved = parseInt(revAppr[1]); reviewed = parseInt(revAppr[1]); }
-
-  const nr = s.match(/(\d+) rejected/i);
-  if (nr) rejected = parseInt(nr[1]);
-  if (!nr && s.match(/rejected both/i)) rejected = 2;
-  const ra = s.match(/rejected all (\d+)/i);
-  if (ra) rejected = parseInt(ra[1]);
-
-  if (reviewed > 0 && approved === 0 && rejected === 0) {
-    if (s.match(/[Rr]ejected/)) rejected = reviewed;
-    else if (s.match(/[Aa]pproved/) && !s.match(/[Rr]ejected/)) approved = reviewed;
-  }
-
-  if (reviewed === 0) reviewed = approved + rejected;
-  if (s.match(/returned 404/)) { reviewed = 1; rejected = 1; }
-
-  return { reviewed, approved, rejected };
+async function getSignalCounts(date: string): Promise<DayCounts> {
+  // Fetch each status sequentially to avoid API rate limiting
+  const approved = await apiGetCount(`/signals?status=approved&date=${date}`);
+  const rejected = await apiGetCount(`/signals?status=rejected&date=${date}`);
+  const briefIncluded = await apiGetCount(`/signals?status=brief_included&date=${date}`);
+  const replaced = await apiGetCount(`/signals?status=replaced&date=${date}`);
+  // Derive total from known statuses (pending signals are excluded — they haven't been reviewed)
+  const total = approved + rejected + briefIncluded + replaced;
+  return { total, approved, rejected, briefIncluded, replaced };
 }
 
-function getReviewCounts(db: ReturnType<typeof initDatabase>, startDate: string): Map<string, DayCounts> {
-  const rows = db.query(
-    `SELECT date(created_at) as day, result_summary FROM tasks
-     WHERE subject LIKE 'Review%signal%'
-       AND created_at >= ?
-       AND status = 'completed'
-     ORDER BY created_at`
-  ).all(startDate) as Array<{ day: string; result_summary: string | null }>;
+// ---- Brief Counts (from files) ----
 
-  const days = new Map<string, DayCounts>();
+function getBriefCounts(): Map<string, number> {
+  const counts = new Map<string, number>();
+  if (!existsSync(BRIEFS_DIR)) return counts;
 
-  for (const row of rows) {
-    if (!row.result_summary) continue;
-    const counts = parseReviewSummary(row.result_summary);
-    const existing = days.get(row.day) ?? { reviewed: 0, approved: 0, rejected: 0 };
-    existing.reviewed += counts.reviewed;
-    existing.approved += counts.approved;
-    existing.rejected += counts.rejected;
-    days.set(row.day, existing);
-  }
+  for (const file of readdirSync(BRIEFS_DIR)) {
+    const amendedMatch = file.match(/^amended-(\d{4}-\d{2}-\d{2})\.html$/);
+    const briefMatch = file.match(/^brief-(\d{4}-\d{2}-\d{2})\.txt$/);
+    const date = amendedMatch?.[1] ?? briefMatch?.[1];
+    if (!date) continue;
 
-  return days;
-}
-
-// ---- Brief Counts ----
-
-function getBriefCounts(db: ReturnType<typeof initDatabase>, startDate: string): Map<string, number | null> {
-  const counts = new Map<string, number | null>();
-
-  // Compile tasks: "Compile daily brief for YYYY-MM-DD" — has signal count in summary
-  const compiles = db.query(
-    `SELECT subject, result_summary FROM tasks
-     WHERE subject LIKE 'Compile daily brief%'
-       AND created_at >= ?
-       AND status = 'completed'`
-  ).all(startDate) as Array<{ subject: string; result_summary: string | null }>;
-
-  for (const c of compiles) {
-    const dateMatch = c.subject.match(/(\d{4}-\d{2}-\d{2})/);
-    if (!dateMatch) continue;
-    const sigMatch = c.result_summary?.match(/(\d+) signals/);
-    if (sigMatch) counts.set(dateMatch[1], parseInt(sigMatch[1]));
-  }
-
-  // Fetch tasks: "Fetch compiled brief for YYYY-MM-DD" — also has signal count
-  const fetches = db.query(
-    `SELECT subject, result_summary FROM tasks
-     WHERE subject LIKE 'Fetch compiled brief%'
-       AND created_at >= ?
-       AND status = 'completed'`
-  ).all(startDate) as Array<{ subject: string; result_summary: string | null }>;
-
-  for (const f of fetches) {
-    const dateMatch = f.subject.match(/(\d{4}-\d{2}-\d{2})/);
-    if (!dateMatch || counts.has(dateMatch[1])) continue;
-    const sigMatch = f.result_summary?.match(/(\d+) signals/);
-    if (sigMatch) counts.set(dateMatch[1], parseInt(sigMatch[1]));
-  }
-
-  // Inscribe tasks: signal counts in subject or result_summary
-  const inscribes = db.query(
-    `SELECT subject, result_summary FROM tasks
-     WHERE subject LIKE 'Inscribe daily brief%'
-       AND created_at >= ?
-       AND status = 'completed'`
-  ).all(startDate) as Array<{ subject: string; result_summary: string | null }>;
-
-  for (const i of inscribes) {
-    const dateMatch = i.subject.match(/(\d{4}-\d{2}-\d{2})/);
-    if (!dateMatch || counts.has(dateMatch[1])) continue;
-    // Check subject first (e.g. "curated to 35 signals")
-    const subjectSigMatch = i.subject.match(/(\d+) signals?\b/);
-    if (subjectSigMatch) { counts.set(dateMatch[1], parseInt(subjectSigMatch[1])); continue; }
-    // Then result_summary
-    const sigMatch = i.result_summary?.match(/(\d+) signals/);
-    if (sigMatch) counts.set(dateMatch[1], parseInt(sigMatch[1]));
-  }
-
-  // Daily report anomaly tasks: "brief was compiled (38 signals"
-  const anomalies = db.query(
-    `SELECT subject, result_summary FROM tasks
-     WHERE subject LIKE 'Daily report anomaly%'
-       AND created_at >= ?
-       AND status = 'completed'`
-  ).all(startDate) as Array<{ subject: string; result_summary: string | null }>;
-
-  for (const a of anomalies) {
-    if (!a.result_summary) continue;
-    // Match "YYYY-MM-DD brief was compiled (N signals" or "compiled...N signals"
-    const match = a.result_summary.match(/(\d{4}-\d{2}-\d{2}).*?compiled.*?(\d+) signals/);
-    if (match && !counts.has(match[1])) {
-      counts.set(match[1], parseInt(match[2]));
-    }
-    // Also match "brief was compiled (N signals" preceded by date in subject
-    const subjectDate = a.subject.match(/(\d{4}-\d{2}-\d{2})/);
-    if (subjectDate && !counts.has(subjectDate[1])) {
-      const sigMatch = a.result_summary.match(/compiled \((\d+) signals/);
-      if (sigMatch) counts.set(subjectDate[1], parseInt(sigMatch[1]));
-    }
-  }
-
-  // Check db/briefs/ for amended and regular brief files
-  // File-based counts override task-derived counts (files are source of truth)
-  // Amended briefs take priority over regular briefs for the same date
-  if (existsSync(BRIEFS_DIR)) {
-    for (const file of readdirSync(BRIEFS_DIR)) {
-      const amendedMatch = file.match(/^amended-(\d{4}-\d{2}-\d{2})\.html$/);
-      const briefMatch = file.match(/^brief-(\d{4}-\d{2}-\d{2})\.txt$/);
-      const date = amendedMatch?.[1] ?? briefMatch?.[1];
-      if (!date) continue;
-
-      const content = readFileSync(resolve(BRIEFS_DIR, file), "utf-8");
-      const signalCount = (content.match(/^▸ /gm) ?? []).length;
-      if (signalCount > 0) counts.set(date, signalCount);
-    }
+    const content = readFileSync(resolve(BRIEFS_DIR, file), "utf-8");
+    const signalCount = (content.match(/^▸ /gm) ?? []).length;
+    if (signalCount > 0) counts.set(date, signalCount);
   }
 
   return counts;
@@ -211,30 +120,51 @@ function getAmendedDates(): Set<string> {
   return amended;
 }
 
-// ---- Inscription Status ----
+// ---- Inscription Status (from API + task DB fallback) ----
 
-function getInscriptionStatus(db: ReturnType<typeof initDatabase>, startDate: string): Map<string, boolean> {
+async function getInscriptionStatuses(dates: string[]): Promise<Map<string, boolean>> {
   const status = new Map<string, boolean>();
 
-  // Only count inscriptions that have a confirmed reveal or platform record.
-  // A completed "Inscribe" task alone doesn't mean on-chain finalization.
-  const tasks = db.query(
-    `SELECT subject, result_summary FROM tasks
-     WHERE (subject LIKE '%Record%brief%inscription%'
-            OR subject LIKE '%Reveal%inscription%brief%'
-            OR subject LIKE '%Reveal%brief%inscription%')
-       AND created_at >= ?
-       AND status = 'completed'`
-  ).all(startDate) as Array<{ subject: string; result_summary: string | null }>;
+  // 1. Check API first
+  await Promise.all(dates.map(async (date) => {
+    try {
+      const response = await fetch(`${API_BASE}/brief?date=${date}`, {
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!response.ok) return;
+      const data = (await response.json()) as { inscription?: string | null };
+      if (data.inscription) status.set(date, true);
+    } catch { /* ignore */ }
+  }));
 
-  for (const t of tasks) {
-    const dateMatch = t.subject.match(/(\d{4}-\d{2}-\d{2})/);
-    if (!dateMatch) continue;
-    const s = t.result_summary ?? "";
-    if (s.match(/recorded|revealed|confirm/i)) {
-      status.set(dateMatch[1], true);
+  // 2. Fall back to task DB for dates without API confirmation
+  try {
+    const { initDatabase } = await import("../../src/db.ts");
+    const db = initDatabase();
+    const startDate = dates[0];
+    const tasks = db.query(
+      `SELECT subject, result_summary FROM tasks
+       WHERE (subject LIKE '%inscri%brief%'
+              OR subject LIKE '%brief%inscri%'
+              OR subject LIKE '%Record%brief%inscription%'
+              OR subject LIKE '%Reveal%inscription%'
+              OR subject LIKE '%Reveal%brief%')
+         AND created_at >= ?
+         AND status = 'completed'`
+    ).all(startDate) as Array<{ subject: string; result_summary: string | null }>;
+
+    for (const t of tasks) {
+      const dateMatch = t.subject.match(/(\d{4}-\d{2}-\d{2})/);
+      if (!dateMatch || status.has(dateMatch[1])) continue;
+      // Skip recovery/verify tasks that aren't actual brief inscriptions
+      if (t.subject.match(/recovery|recover|verify.*recovery/i)) continue;
+      const s = t.result_summary ?? "";
+      // Match confirmed inscriptions: must have inscription ID (64-char hex + i0) or explicit recorded/revealed
+      if (s.match(/recorded.*aibtc|[Rr]eveal(?:ed| succeeded)|[a-f0-9]{64}i0/)) {
+        status.set(dateMatch[1], true);
+      }
     }
-  }
+  } catch { /* DB unavailable, rely on API only */ }
 
   return status;
 }
@@ -266,36 +196,13 @@ function getPayoutStatus(date: string): PayoutInfo | null {
   }
 }
 
-// ---- Live Roster Count ----
-
-async function getLiveRosterCount(date: string): Promise<number | null> {
-  try {
-    const url = `https://aibtc.news/api/signals?status=approved&date=${date}&limit=200`;
-    const response = await fetch(url, {
-      headers: { "Content-Type": "application/json" },
-    });
-    if (!response.ok) return null;
-    const data = (await response.json()) as { signals?: unknown[]; total?: number };
-    if (typeof data.total === "number") return data.total;
-    if (Array.isArray(data.signals)) return data.signals.length;
-    return null;
-  } catch {
-    return null;
-  }
-}
-
 // ---- Main ----
 
 async function main(): Promise<void> {
   const flags = parseFlags(process.argv.slice(2));
   const numDays = parseInt(flags.days ?? "7", 10);
 
-  const db = initDatabase();
-  const startDate = daysAgo(numDays);
-
-  const reviewCounts = getReviewCounts(db, startDate);
-  const briefCounts = getBriefCounts(db, startDate);
-  const inscriptionStatus = getInscriptionStatus(db, startDate);
+  const briefCounts = getBriefCounts();
   const amendedDates = getAmendedDates();
 
   // Build date range
@@ -304,28 +211,42 @@ async function main(): Promise<void> {
     dates.push(daysAgo(i));
   }
 
-  // For today, fetch live roster count from the API
-  const today = daysAgo(0);
-  const liveRoster = await getLiveRosterCount(today);
+  // Fetch API data sequentially per date to avoid rate limiting
+  // (each date fires 5 status queries; parallel dates would overwhelm the API)
+  const signalData: Array<{ date: string; counts: DayCounts }> = [];
+  for (const date of dates) {
+    const counts = await getSignalCounts(date);
+    signalData.push({ date, counts });
+  }
+  const inscriptionStatus = await getInscriptionStatuses(dates);
 
   // Header
-  console.log("| Date | Reviewed | Approved | Rejected | Roster | In Brief | Inscribed | Payout |");
-  console.log("|------|----------|----------|----------|--------|----------|-----------|--------|");
+  console.log("| Date | Filed | Approved | Rejected | Replaced | Roster | In Brief | Inscribed | Payout |");
+  console.log("|------|-------|----------|----------|----------|--------|----------|-----------|--------|");
 
-  for (const date of dates) {
-    const review = reviewCounts.get(date) ?? { reviewed: 0, approved: 0, rejected: 0 };
+  for (const { date, counts } of signalData) {
     const brief = briefCounts.get(date);
-    const inscribed = inscriptionStatus.get(date) ? "Yes" : "No";
+    const inscribed = inscriptionStatus.get(date) ?? false;
     const payout = getPayoutStatus(date);
 
     // Skip days with zero activity
-    if (review.reviewed === 0 && !brief && !inscriptionStatus.get(date) && !payout) continue;
+    if (counts.total === 0 && !brief && !inscribed && !payout) continue;
 
-    let briefStr = brief !== null && brief !== undefined ? String(brief) : "\u2014";
+    // Roster = currently approved (not yet compiled into brief)
+    const rosterStr = counts.approved > 0 ? String(counts.approved) : "—";
+
+    // In Brief = file-based count (source of truth), or API brief_included count as fallback
+    let briefStr: string;
+    if (brief !== undefined) {
+      briefStr = String(brief);
+    } else if (counts.briefIncluded > 0) {
+      briefStr = String(counts.briefIncluded);
+    } else {
+      briefStr = "—";
+    }
     if (amendedDates.has(date)) briefStr += " *amended*";
 
-    // Roster: live count for today, brief count for past days
-    const rosterStr = date === today && liveRoster !== null ? String(liveRoster) : "\u2014";
+    const inscribedStr = inscribed ? "Yes" : "No";
 
     let payoutStr = "No";
     if (payout) {
@@ -333,8 +254,10 @@ async function main(): Promise<void> {
       if (payout.curated) payoutStr += " *curated*";
     }
 
+    const replacedStr = counts.replaced > 0 ? String(counts.replaced) : "—";
+
     const shortDate = date.slice(5); // MM-DD
-    console.log(`| ${shortDate} | ${review.reviewed} | ${review.approved} | ${review.rejected} | ${rosterStr} | ${briefStr} | ${inscribed} | ${payoutStr} |`);
+    console.log(`| ${shortDate} | ${counts.total} | ${counts.approved} | ${counts.rejected} | ${replacedStr} | ${rosterStr} | ${briefStr} | ${inscribedStr} | ${payoutStr} |`);
   }
 }
 
