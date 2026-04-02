@@ -181,8 +181,8 @@ function getBriefCounts(db: ReturnType<typeof initDatabase>, startDate: string):
   }
 
   // Check db/briefs/ for amended and regular brief files
-  // Amended briefs (amended-YYYY-MM-DD.html) override task-derived counts
-  // Regular briefs (brief-YYYY-MM-DD.txt) fill gaps
+  // File-based counts override task-derived counts (files are source of truth)
+  // Amended briefs take priority over regular briefs for the same date
   if (existsSync(BRIEFS_DIR)) {
     for (const file of readdirSync(BRIEFS_DIR)) {
       const amendedMatch = file.match(/^amended-(\d{4}-\d{2}-\d{2})\.html$/);
@@ -190,12 +190,9 @@ function getBriefCounts(db: ReturnType<typeof initDatabase>, startDate: string):
       const date = amendedMatch?.[1] ?? briefMatch?.[1];
       if (!date) continue;
 
-      // For amended briefs, always override; for regular briefs, only fill gaps
-      if (amendedMatch || !counts.has(date)) {
-        const content = readFileSync(resolve(BRIEFS_DIR, file), "utf-8");
-        const signalCount = (content.match(/^▸ /gm) ?? []).length;
-        if (signalCount > 0) counts.set(date, signalCount);
-      }
+      const content = readFileSync(resolve(BRIEFS_DIR, file), "utf-8");
+      const signalCount = (content.match(/^▸ /gm) ?? []).length;
+      if (signalCount > 0) counts.set(date, signalCount);
     }
   }
 
@@ -269,9 +266,27 @@ function getPayoutStatus(date: string): PayoutInfo | null {
   }
 }
 
+// ---- Live Roster Count ----
+
+async function getLiveRosterCount(date: string): Promise<number | null> {
+  try {
+    const url = `https://aibtc.news/api/signals?status=approved&date=${date}&limit=200`;
+    const response = await fetch(url, {
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.ok) return null;
+    const data = (await response.json()) as { signals?: unknown[]; total?: number };
+    if (typeof data.total === "number") return data.total;
+    if (Array.isArray(data.signals)) return data.signals.length;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 // ---- Main ----
 
-function main(): void {
+async function main(): Promise<void> {
   const flags = parseFlags(process.argv.slice(2));
   const numDays = parseInt(flags.days ?? "7", 10);
 
@@ -289,9 +304,13 @@ function main(): void {
     dates.push(daysAgo(i));
   }
 
+  // For today, fetch live roster count from the API
+  const today = daysAgo(0);
+  const liveRoster = await getLiveRosterCount(today);
+
   // Header
-  console.log("| Date | Reviewed | Approved | Rejected | In Brief | Inscribed | Payout |");
-  console.log("|------|----------|----------|----------|----------|-----------|--------|");
+  console.log("| Date | Reviewed | Approved | Rejected | Roster | In Brief | Inscribed | Payout |");
+  console.log("|------|----------|----------|----------|--------|----------|-----------|--------|");
 
   for (const date of dates) {
     const review = reviewCounts.get(date) ?? { reviewed: 0, approved: 0, rejected: 0 };
@@ -305,6 +324,9 @@ function main(): void {
     let briefStr = brief !== null && brief !== undefined ? String(brief) : "\u2014";
     if (amendedDates.has(date)) briefStr += " *amended*";
 
+    // Roster: live count for today, brief count for past days
+    const rosterStr = date === today && liveRoster !== null ? String(liveRoster) : "\u2014";
+
     let payoutStr = "No";
     if (payout) {
       payoutStr = `${payout.status} (${payout.transfers} transfers, ${payout.sats.toLocaleString()} sats)`;
@@ -312,8 +334,8 @@ function main(): void {
     }
 
     const shortDate = date.slice(5); // MM-DD
-    console.log(`| ${shortDate} | ${review.reviewed} | ${review.approved} | ${review.rejected} | ${briefStr} | ${inscribed} | ${payoutStr} |`);
+    console.log(`| ${shortDate} | ${review.reviewed} | ${review.approved} | ${review.rejected} | ${rosterStr} | ${briefStr} | ${inscribed} | ${payoutStr} |`);
   }
 }
 
-main();
+main().catch(console.error);
