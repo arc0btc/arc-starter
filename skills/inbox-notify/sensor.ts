@@ -82,9 +82,8 @@ function createBatchSendTask(batch: PendingNotification[]): number | null {
       `Signals:`,
       signalList,
     ].join("\n"),
-    priority: 7,
+    priority: 8,
     skills: JSON.stringify(["inbox-notify", "bitcoin-wallet"]),
-    model: "sonnet",
   });
 }
 
@@ -108,9 +107,8 @@ function createFeedbackBatchTask(batch: PendingNotification[]): number | null {
       ``,
       `If a single feedback fails, log it and continue to the next. Do not block the batch.`,
     ].join("\n"),
-    priority: 7,
+    priority: 8,
     skills: JSON.stringify(["erc8004-identity", "bitcoin-wallet"]),
-    model: "sonnet",
   });
 }
 

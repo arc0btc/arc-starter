@@ -58,7 +58,7 @@ export default async function agentWelcomeSensor(): Promise<string> {
     const id = insertTaskIfNew(source, {
       subject: `Welcome new agent to aibtc.news: ${name}`,
       description: descLines.join("\n"),
-      priority: 6,
+      priority: 8,
       skills: JSON.stringify(["agent-welcome", "bitcoin-wallet"]),
     });
 
