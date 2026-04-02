@@ -49,3 +49,16 @@ Result: `success: true, txid: b3ee320a42b0ef7dac6929a48f9ebb34aea7161cdd37c9fa63
 
 - `incident_sender-nonce-desync-2026-03-27-21-05.md` — Earlier nonce desync with sponsored txs
 - `incident_reputation-sponsored-malformed-2026-03-28.md` — authByte errors in sponsored reputation
+
+---
+
+## Follow-up: Task 4130 (2026-04-02T22:41Z)
+
+Same pattern repeated for Agent 79 signal review. Sponsored feedback failed with authByte=05 error. Fallback to unsponsored submission succeeded:
+
+```
+Agent 79: value=-1 (signal 48f01163-5ff3-496c-bc54-5e22f6ae652e rejected)
+Unsponsored result: txid=c9009b736bd4c179b4690a1caddb9716f44a777688560320db27fc8513b176aa (success)
+```
+
+Confirms: unsponsored fallback is reliable workaround for this recurring nonce desync issue.
