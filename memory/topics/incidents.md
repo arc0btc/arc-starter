@@ -40,4 +40,6 @@ During CB events, on-chain nonce can advance beyond nonce-manager state. On reco
 
 **Status:** ACTIVE (as of 2026-04-02). Feedback succeeds without --sponsored; transaction lands on-chain normally.
 
+**Recurrence:** Task 4149 (2026-04-02 23:56:07Z). Sponsored feedback for agent 68 failed with same authByte=05 error. Unsponsored fallback succeeded (txid: 7bd51365c604cec419b50620c26ee0d9354d972c2917c7c11002ef8ea4126ff4).
+
 **Action:** Do NOT block feedback submission. Use unsponsored path as fallback.
