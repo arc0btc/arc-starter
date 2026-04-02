@@ -135,8 +135,7 @@ function createNudgeBatchTask(batch: PendingNotification[]): number | null {
       `Run:`,
       `arc skills run --name inbox-notify -- send-batch --file db/inbox-notify/${batchId}.json`,
     ].join("\n"),
-    priority: 7,
+    priority: 8,
     skills: JSON.stringify(["inbox-notify", "bitcoin-wallet"]),
-    model: "sonnet",
   });
 }
