@@ -3,11 +3,12 @@
 // Outputs a daily signal activity summary table for aibtc.news.
 
 import { initDatabase } from "../../src/db.ts";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 
 const ROOT = resolve(import.meta.dir, "../..");
 const PAYOUTS_DIR = resolve(ROOT, "db/payouts");
+const BRIEFS_DIR = resolve(ROOT, "db/briefs");
 
 // ---- Helpers ----
 
@@ -179,7 +180,38 @@ function getBriefCounts(db: ReturnType<typeof initDatabase>, startDate: string):
     }
   }
 
+  // Check db/briefs/ for amended and regular brief files
+  // Amended briefs (amended-YYYY-MM-DD.html) override task-derived counts
+  // Regular briefs (brief-YYYY-MM-DD.txt) fill gaps
+  if (existsSync(BRIEFS_DIR)) {
+    for (const file of readdirSync(BRIEFS_DIR)) {
+      const amendedMatch = file.match(/^amended-(\d{4}-\d{2}-\d{2})\.html$/);
+      const briefMatch = file.match(/^brief-(\d{4}-\d{2}-\d{2})\.txt$/);
+      const date = amendedMatch?.[1] ?? briefMatch?.[1];
+      if (!date) continue;
+
+      // For amended briefs, always override; for regular briefs, only fill gaps
+      if (amendedMatch || !counts.has(date)) {
+        const content = readFileSync(resolve(BRIEFS_DIR, file), "utf-8");
+        const signalCount = (content.match(/^▸ /gm) ?? []).length;
+        if (signalCount > 0) counts.set(date, signalCount);
+      }
+    }
+  }
+
   return counts;
+}
+
+// ---- Amended Brief Detection ----
+
+function getAmendedDates(): Set<string> {
+  const amended = new Set<string>();
+  if (!existsSync(BRIEFS_DIR)) return amended;
+  for (const file of readdirSync(BRIEFS_DIR)) {
+    const match = file.match(/^amended-(\d{4}-\d{2}-\d{2})\.html$/);
+    if (match) amended.add(match[1]);
+  }
+  return amended;
 }
 
 // ---- Inscription Status ----
@@ -187,9 +219,13 @@ function getBriefCounts(db: ReturnType<typeof initDatabase>, startDate: string):
 function getInscriptionStatus(db: ReturnType<typeof initDatabase>, startDate: string): Map<string, boolean> {
   const status = new Map<string, boolean>();
 
+  // Only count inscriptions that have a confirmed reveal or platform record.
+  // A completed "Inscribe" task alone doesn't mean on-chain finalization.
   const tasks = db.query(
     `SELECT subject, result_summary FROM tasks
-     WHERE (subject LIKE '%inscri%brief%' OR subject LIKE '%Record%brief%inscription%' OR subject LIKE '%Reveal%brief%')
+     WHERE (subject LIKE '%Record%brief%inscription%'
+            OR subject LIKE '%Reveal%inscription%brief%'
+            OR subject LIKE '%Reveal%brief%inscription%')
        AND created_at >= ?
        AND status = 'completed'`
   ).all(startDate) as Array<{ subject: string; result_summary: string | null }>;
@@ -198,7 +234,7 @@ function getInscriptionStatus(db: ReturnType<typeof initDatabase>, startDate: st
     const dateMatch = t.subject.match(/(\d{4}-\d{2}-\d{2})/);
     if (!dateMatch) continue;
     const s = t.result_summary ?? "";
-    if (s.match(/inscription|inscribed|reveal|recorded.*aibtc/i)) {
+    if (s.match(/recorded|revealed|confirm/i)) {
       status.set(dateMatch[1], true);
     }
   }
@@ -245,6 +281,7 @@ function main(): void {
   const reviewCounts = getReviewCounts(db, startDate);
   const briefCounts = getBriefCounts(db, startDate);
   const inscriptionStatus = getInscriptionStatus(db, startDate);
+  const amendedDates = getAmendedDates();
 
   // Build date range
   const dates: string[] = [];
@@ -265,7 +302,8 @@ function main(): void {
     // Skip days with zero activity
     if (review.reviewed === 0 && !brief && !inscriptionStatus.get(date) && !payout) continue;
 
-    const briefStr = brief !== null && brief !== undefined ? String(brief) : "\u2014";
+    let briefStr = brief !== null && brief !== undefined ? String(brief) : "\u2014";
+    if (amendedDates.has(date)) briefStr += " *amended*";
 
     let payoutStr = "No";
     if (payout) {
