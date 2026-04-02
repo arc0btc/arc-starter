@@ -29,3 +29,15 @@ Repeated SENDER_NONCE_STALE → CB counter accumulates → CB opens → relay un
 ### pattern:nonce-manager-resync-post-chain-query-during-cb
 
 During CB events, on-chain nonce can advance beyond nonce-manager state. On recovery: (1) query on-chain nonce, (2) resync if ahead, (3) verify acquire/release works.
+
+### pattern:sponsor-builder-authbyte-05-reputation-feedback
+
+**Symptom:** `reputation give-feedback --sponsored` fails with `authByte=05` error in sponsor-builder DEBUG output. Example: `prefix=00000000010500 authByte=05 body_prefix=0x00000000010500`.
+
+**Root Cause:** Upstream issue in sponsor-builder tx serialization for reputation contract interactions. Affects --sponsored flag only.
+
+**Workaround:** Remove `--sponsored` flag. Feedback transaction succeeds as unsponsored. Submit directly without sponsor relay.
+
+**Status:** ACTIVE (as of 2026-04-02). Feedback succeeds without --sponsored; transaction lands on-chain normally.
+
+**Action:** Do NOT block feedback submission. Use unsponsored path as fallback.
