@@ -5,7 +5,7 @@ import {
 } from "@stacks/transactions";
 import { getStacksNetwork, type Network } from "../config/networks.js";
 import { getSponsorRelayUrl, getSponsorApiKey } from "../config/sponsor.js";
-import { acquireNonce, releaseNonce } from "../../skills/nonce-manager/nonce-store.js";
+import { acquireNonce, releaseNonce } from "../../../skills/nonce-manager/nonce-store.js";
 import type { Account, ContractCallOptions, TransferResult } from "./builder.js";
 
 export interface SponsoredTransferOptions {
