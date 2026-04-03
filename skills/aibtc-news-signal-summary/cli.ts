@@ -128,12 +128,12 @@ async function getInscriptionStatuses(dates: string[]): Promise<Map<string, bool
   // 1. Check API first
   await Promise.all(dates.map(async (date) => {
     try {
-      const response = await fetch(`${API_BASE}/brief?date=${date}`, {
+      const response = await fetch(`${API_BASE}/brief/${date}`, {
         headers: { "Content-Type": "application/json" },
       });
       if (!response.ok) return;
-      const data = (await response.json()) as { inscription?: string | null };
-      if (data.inscription) status.set(date, true);
+      const data = (await response.json()) as { inscription?: { inscriptionId?: string | null } | null };
+      if (data.inscription?.inscriptionId) status.set(date, true);
     } catch { /* ignore */ }
   }));
 
