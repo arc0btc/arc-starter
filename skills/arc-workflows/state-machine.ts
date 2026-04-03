@@ -1232,7 +1232,7 @@ export const HealthAlertMachine: StateMachine<{
         const alertType = ctx.alertType || "unknown";
         const subject = `health alert: ${alertType.replace(/-/g, " ")}`;
         const skills = ["arc-service-health"];
-        if (alertType === "stale-lock") skills.push("arc-housekeeping");
+        if (alertType === "stale-lock" || alertType === "dispatch-stale") skills.push("arc-housekeeping");
         return {
           type: "create-task",
           subject,
