@@ -1,6 +1,6 @@
 ---
 name: nonce-manager
-description: Cross-process Stacks nonce oracle — atomic acquire/release prevents mempool collisions across concurrent x402 sends
+description: Backup sender nonce tracker for Stacks transactions — use canonical payment-status polling (by paymentId) as primary x402 state machine
 updated: 2026-04-03
 tags:
   - infrastructure
@@ -8,9 +8,11 @@ tags:
 
 # Nonce Manager
 
-Cross-process nonce oracle for Stacks transactions. Prevents the wallet nonce gaps that stall mempool transactions for 8+ hours when multiple dispatch cycles send x402 sBTC transactions concurrently.
+Backup sender nonce tracker for Stacks transactions. Prevents wallet nonce gaps when multiple dispatch cycles send concurrently.
 
-Wraps the upstream `nonce-manager` skill from skills-v0.36.1 (PR #250, #279). State file: `~/.aibtc/nonce-state.json`, shared with aibtc-mcp-server.
+Canonical x402 payment state comes from polling `checkUrl` by `paymentId` — that is the primary state machine. This skill handles local sender nonce coordination and recovery only.
+
+Wraps the upstream `nonce-manager` skill from skills-v0.36.2 (PR #250, #279, #290). State file: `~/.aibtc/nonce-state.json`, shared with aibtc-mcp-server.
 
 ## How It Works
 
@@ -75,7 +77,17 @@ Query the relay's dispatch queue for a sender address — shows queue position a
 
 Default relay: `https://x402-relay.aibtc.com`. Override with `--relay-url`.
 
-## Relay Error → Release Mapping
+## Payment Status → Release Mapping (v0.36.2+)
+
+Use canonical payment status (from `checkUrl` polling) first. `terminalReason` is the normalized terminal signal.
+
+| Canonical Status / terminalReason | Release Action |
+|---|---|
+| `confirmed` | `release --address ... --nonce N` |
+| `replaced` / `not_found` | Stop polling old paymentId; `release --address ... --nonce N --failed --broadcast` |
+| `failed` (terminal) | `release --address ... --nonce N --failed --broadcast` |
+
+When canonical polling is unavailable, fall back to relay error codes:
 
 | Relay Response | Release Action |
 |---|---|
@@ -88,8 +100,10 @@ Default relay: `https://x402-relay.aibtc.com`. Override with `--relay-url`.
 
 ## When to Load
 
-Load when: diagnosing wallet nonce gaps, manually filling mempool gaps with self-transfers, or inspecting nonce state after wallet stalls. The x402 send path already uses nonce tracking internally (via x402-retry.ts in skills-v0.36.1) — this skill is for manual operations and diagnostics.
+Load when: diagnosing wallet nonce gaps, manually filling mempool gaps with self-transfers, or inspecting nonce state after wallet stalls. The x402 send path uses nonce tracking internally (via x402-retry.ts in skills-v0.36.2) and canonical payment-status polling as the primary state machine — this skill is for manual operations and diagnostics only.
 
 ## Changelog
+
+**v0.36.2** (2026-04-03, PR #290): Architectural shift — canonical payment-status polling (by `paymentId` via `checkUrl`) is now the primary x402 state machine. nonce-manager demoted to backup sender nonce tracker. `terminalReason` is the normalized terminal signal for failed payments, replacing transport-level error classification. Local nonce release mapping now driven by canonical status states (`confirmed`, `replaced`, `not_found`); relay error code fallback preserved for when canonical polling is unavailable.
 
 **v0.36.1** (2026-03-31, PR #279): `x402-retry.ts` now records `pending:{paymentId}` in the nonce tracker when payment is in pending state (no settlement txid yet) — previously stored empty string. Pairs with aibtc-mcp-server v1.46.1 which adds `payment` block (paymentId, status, checkUrl) to inbox responses. Together they close the payment observability gap for in-flight x402 transactions.
