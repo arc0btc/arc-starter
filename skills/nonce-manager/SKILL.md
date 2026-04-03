@@ -1,7 +1,7 @@
 ---
 name: nonce-manager
 description: Cross-process Stacks nonce oracle — atomic acquire/release prevents mempool collisions across concurrent x402 sends
-updated: 2026-03-28
+updated: 2026-04-03
 tags:
   - infrastructure
 ---
@@ -10,7 +10,7 @@ tags:
 
 Cross-process nonce oracle for Stacks transactions. Prevents the wallet nonce gaps that stall mempool transactions for 8+ hours when multiple dispatch cycles send x402 sBTC transactions concurrently.
 
-Wraps the upstream `nonce-manager` skill from skills-v0.36.0 (PR #250). State file: `~/.aibtc/nonce-state.json`, shared with aibtc-mcp-server.
+Wraps the upstream `nonce-manager` skill from skills-v0.36.1 (PR #250, #279). State file: `~/.aibtc/nonce-state.json`, shared with aibtc-mcp-server.
 
 ## How It Works
 
@@ -88,4 +88,8 @@ Default relay: `https://x402-relay.aibtc.com`. Override with `--relay-url`.
 
 ## When to Load
 
-Load when: diagnosing wallet nonce gaps, manually filling mempool gaps with self-transfers, or inspecting nonce state after wallet stalls. The x402 send path already uses nonce tracking internally (via x402-retry.ts in skills-v0.36.0) — this skill is for manual operations and diagnostics.
+Load when: diagnosing wallet nonce gaps, manually filling mempool gaps with self-transfers, or inspecting nonce state after wallet stalls. The x402 send path already uses nonce tracking internally (via x402-retry.ts in skills-v0.36.1) — this skill is for manual operations and diagnostics.
+
+## Changelog
+
+**v0.36.1** (2026-03-31, PR #279): `x402-retry.ts` now records `pending:{paymentId}` in the nonce tracker when payment is in pending state (no settlement txid yet) — previously stored empty string. Pairs with aibtc-mcp-server v1.46.1 which adds `payment` block (paymentId, status, checkUrl) to inbox responses. Together they close the payment observability gap for in-flight x402 transactions.

@@ -16,8 +16,8 @@ Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resu
 **x402-relay-v1.26.1** [STATE: 2026-03-30T02:30Z] [ESCALATED]
 Relay v1.26.1 DEPLOYED TO PROD. CB CLOSED. ✅ **Ghost nonce 554 RESOLVED** — sender progressed to 577/578, sponsor at 1207/1208. Both sides CLEAN: 0 missing nonces, 0 mempool pending. All 5 admin actions exhausted (resync, reset, clear-pools, clear-conflicts, flush-wallet) — effectiveCapacity remains 1. **ROOT CAUSE**: effectiveCapacity is a server-side config, not derived from nonce/conflict state. Requires relay code or Cloudflare DO config change. Pool nominal (20 avail, 0 conflicts, CB closed, lastConflictAt null). Escalated to whoabuddy (task #9658).
 
-**aibtc-mcp-server-v1.46.0** [STATE: 2026-03-28T02:26Z]
-v1.46.0 RELEASED (2026-03-28T01:54Z). NEW: zest_enable_collateral tool (PR #423, closes #422). v1.45.0: sender/sponsor nonce correlation (PR #419). Compatible with skills v0.36.0. skills-v0.36.0: nonce-manager skill + x402-retry.ts with cross-process nonce locking (fixes p-wallet-nonce-gap).
+**aibtc-mcp-server-v1.46.1** [STATE: 2026-04-03]
+v1.46.1 RELEASED (2026-03-31). PATCH: inbox paymentId observability (PR #434). v1.46.0: zest_enable_collateral (PR #423). Compatible with skills v0.36.1. **skills-v0.36.1** (2026-03-31, PR #279): x402-retry.ts records `pending:{paymentId}` in nonce tracker instead of empty string when payment pending. Pairs with mcp-server v1.46.1 `payment` block (paymentId, status, checkUrl) — payment observability gap now CLOSED. checkUrl enables settlement polling. skills-v0.36.0: nonce-manager skill + x402-retry.ts cross-process nonce locking.
 
 **quorumclaw-api-down** [STATE: 2026-03-29T06:39Z] [RESOLVED]
 API DEPROVISIONED. Skill fully deleted 2026-03-29 (task #9537). Triage loop stopped — no new tasks generated. No further action needed.

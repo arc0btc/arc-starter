@@ -68,3 +68,13 @@ arc skills run --name nonce-manager -- status --address SP...
 - Never modify `~/.aibtc/nonce-state.json` directly — always use the CLI
 - Never call `sync` between `acquire` and `release` — it resets state and may cause the acquired nonce to be reissued
 - Never acquire multiple nonces without releasing them in order — this creates gaps if any intermediate transaction fails
+
+## Pending Payment Tracking (v0.36.1)
+
+When `send-inbox-message` returns a payment in `pending` state (paymentStatus=pending, no settlement txid), x402-retry now records `pending:{paymentId}` in the nonce tracker rather than empty string. The response also includes a `payment` block:
+
+```json
+{ "payment": { "paymentId": "pay_...", "status": "pending", "checkUrl": "https://..." } }
+```
+
+This enables polling `checkUrl` to detect settlement without re-sending. If triage shows nonce state with `pending:pay_...` entries, the payment is still in-flight — wait for settlement before treating as failed.
