@@ -754,6 +754,11 @@ export function insertTask(fields: InsertTask): number {
   const cols: string[] = ["subject"];
   const values: unknown[] = [fields.subject];
 
+  // Auto-set model to "script" when a script is provided but no model specified
+  if (fields.script && !fields.model) {
+    fields = { ...fields, model: "script" };
+  }
+
   const optionalColumns: Array<keyof InsertTask> = [
     "description", "skills", "priority", "status",
     "source", "parent_id", "template", "model", "assigned_to", "script",
