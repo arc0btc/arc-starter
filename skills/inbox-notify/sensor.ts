@@ -70,18 +70,8 @@ function createBatchSendTask(batch: PendingNotification[]): number | null {
 
   return insertTaskIfNew(`sensor:inbox-notify:${batchId}`, {
     subject: `Send ${batch.length} signal notification(s) (batch ${batchId.slice(-6)})`,
-    description: [
-      `Batch x402 inbox notifications for ${batch.length} reviewed signal(s).`,
-      ``,
-      `Run:`,
-      `arc skills run --name inbox-notify -- send-batch --file db/inbox-notify/${batchId}.json`,
-      ``,
-      `Then confirm pending payments:`,
-      `arc skills run --name inbox-notify -- confirm-payments --batch-id ${batchId}`,
-      ``,
-      `Signals:`,
-      signalList,
-    ].join("\n"),
+    description: `Batch x402 inbox notifications for ${batch.length} reviewed signal(s).\n\nSignals:\n${signalList}`,
+    script: `arc skills run --name inbox-notify -- send-batch --file db/inbox-notify/${batchId}.json && arc skills run --name inbox-notify -- confirm-payments --batch-id ${batchId}`,
     priority: 8,
     skills: JSON.stringify(["inbox-notify", "bitcoin-wallet"]),
   });
@@ -129,12 +119,8 @@ function createNudgeBatchTask(batch: PendingNotification[]): number | null {
 
   return insertTaskIfNew(`sensor:inbox-notify:${batchId}`, {
     subject: `Send ${batch.length} ERC-8004 identity nudge(s) (batch)`,
-    description: [
-      `Batch x402 inbox identity nudges for ${batch.length} unregistered correspondent(s).`,
-      ``,
-      `Run:`,
-      `arc skills run --name inbox-notify -- send-batch --file db/inbox-notify/${batchId}.json`,
-    ].join("\n"),
+    description: `Batch x402 inbox identity nudges for ${batch.length} unregistered correspondent(s).`,
+    script: `arc skills run --name inbox-notify -- send-batch --file db/inbox-notify/${batchId}.json`,
     priority: 8,
     skills: JSON.stringify(["inbox-notify", "bitcoin-wallet"]),
   });

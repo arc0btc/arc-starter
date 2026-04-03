@@ -637,6 +637,111 @@ function scheduleRetrospective(task: Task, resultSummary: string, resultDetail: 
   log(`dispatch: scheduled retrospective task for P${task.priority} task #${task.id}`);
 }
 
+// ---- Script execution mode ----
+
+/** Maximum time (ms) a script task can run before being killed. */
+const SCRIPT_TIMEOUT_MS = 5 * 60 * 1000;
+
+/**
+ * Execute a task's pre-baked script directly — no LLM involved.
+ * Captures stdout/stderr, records results to task and cycle_log with zero cost/tokens.
+ */
+async function dispatchScript(task: Task): Promise<void> {
+  const script = task.script!;
+  log(`dispatch: script mode for task #${task.id} — "${script.slice(0, 120)}"`);
+
+  markTaskActive(task.id);
+  writeDispatchLock(task.id);
+
+  const cycleStartedAt = toSqliteDatetime(new Date());
+  const cycleId = insertCycleLog({
+    started_at: cycleStartedAt,
+    task_id: task.id,
+    skills_loaded: task.skills || null,
+    model: "script",
+  });
+  updateTask(task.id, { model: "script" });
+
+  const dispatchStart = Date.now();
+
+  try {
+    const proc = Bun.spawn(["bash", "-c", script], {
+      cwd: ROOT,
+      stdin: "ignore",
+      stdout: "pipe",
+      stderr: "pipe",
+      env: process.env,
+    });
+
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      log(`dispatch: script task #${task.id} timed out after ${SCRIPT_TIMEOUT_MS / 60_000}min — killing`);
+      proc.kill("SIGTERM");
+      setTimeout(() => { try { proc.kill("SIGKILL"); } catch { /* already dead */ } }, 5_000);
+    }, SCRIPT_TIMEOUT_MS);
+
+    const [stdout, stderr] = await Promise.all([
+      new Response(proc.stdout).text(),
+      new Response(proc.stderr).text(),
+    ]);
+
+    clearTimeout(timer);
+    const exitCode = await proc.exited;
+    const duration_ms = Date.now() - dispatchStart;
+
+    if (timedOut) {
+      throw new Error(`script timed out after ${SCRIPT_TIMEOUT_MS / 60_000} minutes`);
+    }
+
+    if (exitCode === 0) {
+      // Use the last non-empty line of stdout as the summary (CLI tools typically print status last)
+      const lines = stdout.trim().split("\n").filter(Boolean);
+      const summary = (lines[lines.length - 1] ?? "Script completed successfully").slice(0, 500);
+      const detail = [`$ ${script}`, "--- stdout ---", stdout, ...(stderr ? ["--- stderr ---", stderr] : [])].join("\n").trim();
+
+      markTaskCompleted(task.id, summary, detail);
+      recordGateSuccess();
+      log(`dispatch: script task #${task.id} completed (${duration_ms}ms)`);
+    } else {
+      const errOutput = (stderr.trim() || stdout.trim() || `exit code ${exitCode}`).slice(0, 400);
+      throw new Error(`exit code ${exitCode}: ${errOutput}`);
+    }
+
+    updateTaskCost(task.id, 0, 0, 0, 0);
+    updateCycleLog(cycleId, {
+      completed_at: toSqliteDatetime(new Date()),
+      duration_ms,
+      cost_usd: 0,
+      api_cost_usd: 0,
+      tokens_in: 0,
+      tokens_out: 0,
+    });
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    const duration_ms = Date.now() - dispatchStart;
+
+    if (task.attempt_count + 1 < task.max_retries) {
+      requeueTask(task.id);
+      log(`dispatch: script task #${task.id} failed (attempt ${task.attempt_count + 1}/${task.max_retries}) — requeuing: ${errMsg.slice(0, 200)}`);
+    } else {
+      markTaskFailed(task.id, `Script failed: ${errMsg.slice(0, 400)}`);
+      recordGateFailure("unknown");
+      log(`dispatch: script task #${task.id} failed — max retries exhausted`);
+    }
+
+    updateTaskCost(task.id, 0, 0, 0, 0);
+    updateCycleLog(cycleId, {
+      completed_at: toSqliteDatetime(new Date()),
+      duration_ms,
+      cost_usd: 0,
+      api_cost_usd: 0,
+      tokens_in: 0,
+      tokens_out: 0,
+    });
+  }
+}
+
 // ---- Main entry point ----
 
 /**
@@ -755,6 +860,16 @@ export async function runDispatch(): Promise<void> {
   }
 
   log(`dispatch: selected task #${task.id} "${task.subject}" (priority ${task.priority})`);
+
+  // ---- Script shortcut: bypass LLM for tasks with pre-baked commands ----
+  if (task.script) {
+    try {
+      await dispatchScript(task);
+    } finally {
+      clearDispatchLock();
+    }
+    return;
+  }
 
   // ---- Phase 3: Execute ----
 

@@ -56,7 +56,7 @@ const USAGE = {
   tasksAdd:
     'arc tasks add --subject TEXT [--description TEXT] [--priority N] [--source TEXT]\n' +
     '              [--skills SKILL1,SKILL2|none] [--parent ID] [--model opus|sonnet|haiku|codex|codex:<model>]\n' +
-    '              [--defer DURATION | --scheduled-for ISO_DATETIME]',
+    '              [--script COMMAND] [--defer DURATION | --scheduled-for ISO_DATETIME]',
   tasksUpdate:
     'arc tasks update --id N [--subject TEXT] [--description TEXT] [--priority N] [--skills S1,S2|none] [--model opus|sonnet|haiku|codex|codex:<model>] [--status pending]',
   tasksClose:
@@ -297,6 +297,7 @@ function cmdTasksAdd(args: string[]): void {
     parent_id: parentId,
     model,
     scheduled_for: scheduledFor,
+    script: flags["script"],
   });
 
   if (scheduledFor) {
