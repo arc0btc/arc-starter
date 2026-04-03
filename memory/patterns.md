@@ -107,3 +107,9 @@ When re-reviewing a PR after follow-up commits, distinguish pre-existing failure
 
 **p-beat-slug-drift** [2026-03-31]
 External platforms rename beats without notice. Sensors holding stale slugs silently fail with 404 on signal file. Fix: sensors should validate beat existence on first run or detect 404s explicitly and log with severity. Applied: arxiv-research sensor had `dev-tools` → renamed to `infrastructure` (#9785/#9786). Recurring failure class — check beat slugs after any platform update.
+
+**p-workflow-state-batching** [2026-04-03]
+When multiple workflow instances of the same template are stuck in identical states (e.g., 61 health-alert in `triggered`), batch-advance them through valid transitions rather than processing individually: select all by state → validate single transition path → execute bulk update. Reduces individual triage overhead by 10-20x. Applied task #10573: health-alert `triggered`→`acknowledging`→`resolved`→complete in parallel batches.
+
+**p-workflow-triage-before-followup** [2026-04-03]
+Before creating follow-up tasks from workflow cleanup, triage instances first to understand blocking state and next-action options. Blind follow-up creation against stuck workflows often queues misaligned work. Template-level audit (before/after state counts per template) reveals true bottleneck, enabling precise follow-up scope. Applied task #10573: discovered 5 templates with 111 total active instances, created 6 targeted follow-ups (assessments, inbox reads, blog post) instead of generic "fix workflows" task.
