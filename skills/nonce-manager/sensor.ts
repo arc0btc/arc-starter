@@ -13,6 +13,11 @@ const DRIFT_THRESHOLD = 2;
 const log = createSensorLogger(SENSOR_NAME);
 
 export default async function nonceSensor(): Promise<"skip" | void> {
+  // Disabled: local-ahead-of-chain drift is expected behavior — the nonce manager
+  // acquires nonces for txs in the sponsor pipeline before the chain API sees them.
+  // This sensor was creating ~$13/day in unnecessary Opus correction tasks.
+  return "skip";
+
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
