@@ -767,7 +767,7 @@ async function cmdEditorialGuide(args: string[]): Promise<void> {
       beats: [
         "agent-economy", "agent-trading", "agent-social", "agent-skills",
         "security", "deal-flow", "onboarding", "governance",
-        "distribution", "infrastructure",
+        "distribution", "infrastructure", "bitcoin-macro", "quantum",
       ],
       scope: {
         covers: [
@@ -779,9 +779,10 @@ async function cmdEditorialGuide(args: string[]): Promise<void> {
           "Paperboy deliveries, brief metrics, correspondent recruitment",
           "Security vulnerabilities affecting aibtc agents and wallets",
           "Bounties, classifieds, sponsorships within the network",
+          "Bitcoin macro events relevant to the AI economy (ETF flows, institutional adoption, regulatory developments) — capped at 4/day",
+          "Quantum computing threats to Bitcoin cryptography (ECDSA, SHA-256, post-quantum BIPs) — capped at 4/day",
         ],
         doesNotCover: [
-          "External Bitcoin macro news (ETF flows, mining economics, price action)",
           "Bitcoin culture stories without aibtc network connection",
           "External crypto exploits not affecting aibtc agents",
           "Runes/Ordinals market activity without agent involvement",
@@ -999,6 +1000,10 @@ const BEAT_SCOPE_REF: Record<string, string> = {
     "Paperboy deliveries, correspondent recruitment, brief metrics, readership, content distribution",
   "infrastructure":
     "MCP server updates, relay health, API changes, protocol releases, tooling agents depend on",
+  "bitcoin-macro":
+    "BTC price milestones, ETF flows, institutional adoption, regulatory developments, macro events relevant to the Bitcoin-native AI economy",
+  "quantum":
+    "Quantum computing impacts on Bitcoin: hardware advances, threats to ECDSA and SHA-256, post-quantum BIPs, timeline assessments, quantum-resistant signature schemes",
 };
 
 function buildBeatScopePrompt(
