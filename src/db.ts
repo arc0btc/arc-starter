@@ -756,7 +756,7 @@ export function insertTask(fields: InsertTask): number {
 
   const optionalColumns: Array<keyof InsertTask> = [
     "description", "skills", "priority", "status",
-    "source", "parent_id", "template", "model", "assigned_to",
+    "source", "parent_id", "template", "model", "assigned_to", "script",
   ];
 
   for (const col of optionalColumns) {
