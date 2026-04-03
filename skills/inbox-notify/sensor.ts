@@ -80,23 +80,22 @@ function createBatchSendTask(batch: PendingNotification[]): number | null {
 function createFeedbackBatchTask(batch: PendingNotification[]): number | null {
   const batchId = `feedback-${Date.now()}`;
 
-  const steps = batch.map((n, i) => [
-    `${i + 1}. Agent ${n.agent_id}: value=${n.reputation_value} (signal ${n.signal_id.slice(0, 8)} ${n.status})`,
-    `   bun run reputation/reputation.ts give-feedback --agent-id ${n.agent_id} --value ${n.reputation_value} --tag1 signal-review --tag2 ${n.status} --endpoint "aibtc.news/signals/${n.signal_id}" --sponsored`,
-  ].join("\n")).join("\n");
+  const stepDescs = batch.map((n, i) =>
+    `${i + 1}. Agent ${n.agent_id}: value=${n.reputation_value} (signal ${n.signal_id.slice(0, 8)} ${n.status})`
+  ).join("\n");
+
+  // Build script: unlock wallet, then run each feedback (semicolons = continue on failure)
+  const cmds = [
+    `cd ~/github/aibtcdev/skills && arc skills run --name bitcoin-wallet -- unlock`,
+    ...batch.map(n =>
+      `cd ~/github/aibtcdev/skills && bun run reputation/reputation.ts give-feedback --agent-id ${n.agent_id} --value ${n.reputation_value} --tag1 signal-review --tag2 ${n.status} --endpoint "aibtc.news/signals/${n.signal_id}" --sponsored`
+    ),
+  ];
 
   return insertTaskIfNew(`sensor:inbox-notify:${batchId}`, {
     subject: `Submit ${batch.length} ERC-8004 reputation feedback(s) (batch)`,
-    description: [
-      `Submit ERC-8004 reputation feedback for ${batch.length} reviewed signal(s).`,
-      ``,
-      `Steps (run each in ~/github/aibtcdev/skills/):`,
-      `First: arc skills run --name bitcoin-wallet -- unlock`,
-      ``,
-      steps,
-      ``,
-      `If a single feedback fails, log it and continue to the next. Do not block the batch.`,
-    ].join("\n"),
+    description: `Submit ERC-8004 reputation feedback for ${batch.length} reviewed signal(s).\n\n${stepDescs}`,
+    script: cmds.join(" ; "),
     priority: 8,
     skills: JSON.stringify(["erc8004-identity", "bitcoin-wallet"]),
   });
