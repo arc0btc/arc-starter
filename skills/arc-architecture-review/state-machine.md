@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-03-31T06:22:00.000Z*
+*Generated: 2026-04-03T18:30:00.000Z*
 *Sensor count: 68 | Skill count: 100*
 
 ```mermaid
@@ -52,6 +52,7 @@ stateDiagram-v2
             arxiv_research
             note right of ordinals_market_data: 3 ordinals + 3 dev-tools/day\noverflow after 18:00 UTC\nAll 5 categories fetched per run\nper-category pending dedup\nFlat-market fallback: stability signal (fee-market REMOVED 6282b8b2)\nFLAT_MARKET_CATEGORIES extracted to module-level constant
             note right of arxiv_research: routes papers to infrastructure beat (was dev-tools)\ntwo-tier aibtc-relevance filter (d2bc3c0d)\nTier 1: MCP/x402/Stacks/Clarity/sBTC/BRC-20\nTier 2: agent + crypto/blockchain compound
+            note right of aibtc_news_editorial: validateBeatExists() pre-validates beat slug\nGET /api/beats before filing any signal (391e4921)\n10-min cache: db/beat-slug-cache.json\nFails early with available slugs listed\n[WATCH-CLOSED] beat-slug drift detection shipped
         }
 
         state DeFiSensors {
@@ -293,6 +294,15 @@ stateDiagram-v2
 | **Total** | **68** |
 
 *Note: bitcoin-quorumclaw DELETED (947ffa43) — sensor count 69→68, skill count 101→100. arc-workflows added to Infrastructure (was missing from prior diagrams; 11→12). Other/Misc: 5→3 (quorumclaw deleted, arc-workflows moved to Infrastructure).*
+
+## Key Architectural Changes (5f84c07d → 3913c094) [2026-04-03]
+
+| Change | Impact |
+|--------|--------|
+| **feat(aibtc-news-editorial): validateBeatExists() beat-slug drift detection** (391e4921) | `cli.ts` now calls `GET /api/beats` before filing any signal. Caches to `db/beat-slug-cache.json` (10-min TTL). Fails early with available slugs list. **Closes [WATCH] from 3 prior audit cycles** — recurring failure class (3rd occurrence in 2 weeks) is now self-detected at filing time. +74 lines. |
+| **Compute outage 2026-04-02/03** (operational, not code) | 637 tasks bulk-failed due to host-level outage; `failure-triage` sensor fired as if 637 independent failures. Services restored 2026-04-03T15:00Z. Pattern: bulk failures with identical summaries in short window = outage, not independent bugs. |
+| **[NEW WATCH] failure-triage outage bypass** | failure-triage cannot distinguish 1-outage-×-637 vs 637 independent failures. If >200 tasks fail with identical summaries in <1h, log as "outage event" instead of spawning investigation tasks. Low-complexity automation candidate. |
+| **[NEW WATCH] stale-lock PID pre-validation** | Every stale-lock/dispatch-stale alert to date has been a false positive (live PID). Sensor could verify lock PID is live before creating alert task, eliminating all false-positive alert tasks. |
 
 ## Key Architectural Changes (a94eb3a → 6282b8b) [2026-03-31]
 

@@ -1,3 +1,48 @@
+## 2026-04-03T18:30:00.000Z — beat-slug drift closed; compute outage triage gap identified
+
+**Task #10572** | Diff: 5f84c07d → 3913c094 | Sensors: 68 | Skills: 100
+
+### Step 1 — Requirements
+
+- **validateBeatExists() shipped** (391e4921, 2026-03-31T06:29Z): `aibtc-news-editorial/cli.ts` now calls `GET /api/beats` before filing any signal. Caches result to `db/beat-slug-cache.json` (10-min TTL). Fails early with list of available slugs if slug not found. Directly addresses the recurring beat-slug-drift failure class (3rd occurrence in 2 weeks). Requirement: catch slug drift before filing. Satisfied.
+- **Compute outage 2026-04-02/03**: 637 tasks bulk-failed due to host-level outage. `failure-triage` sensor fired as if 637 independent failures occurred. Documented in MEMORY.md (l-compute-outage-2026-04-03). Services restored 2026-04-03T15:00Z.
+- **stale-lock false-positive pattern confirmed** (MEMORY.md): Every stale-lock/dispatch-stale alert to date has been a false positive. The sensor creates correct alert tasks — but the alert interpretation protocol matters more than the sensor code itself.
+
+### Step 2 — Delete
+
+- **[CLOSED]** `validateBeatExists()` [WATCH] from 3 prior audit cycles — shipped (391e4921).
+- **[CARRY-13]** ordinals HookState deprecated fields (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`) — cleanup 2026-04-23+.
+- **[CARRY-10]** layered-rate-limit sensor migration (3 sensors) — post-competition 2026-04-23+.
+- **[CARRY]** nonce-strategy Phase 1 (retry-strategy.ts) — deferred post skills v0.37+ upstream.
+
+### Step 3 — Simplify
+
+- **No new complexity introduced this window.** Only auto-memory persist commits and housekeeping since last diagram.
+- **failure-triage signal quality**: Sensor fires identically for 1-outage-×-637 vs 637 independent failures. A simple check — "N tasks failed with identical summaries in <1h window?" — could distinguish outage events and suppress false retro tasks. Low complexity, high value.
+
+### Step 4 — Accelerate
+
+- **Beat-slug validation cache** (10-min TTL) is well-tuned — prevents API churn across rapid dispatch cycles while staying fresh. No changes needed.
+- **Stale-lock confirmation latency**: False-positive resolution requires a human or dispatch cycle to verify PID and close the alert task. Could add PID validation directly in sensor before creating alert — would eliminate false-positive tasks entirely.
+
+### Step 5 — Automate
+
+- **[NEW WATCH]** failure-triage outage bypass: if >200 tasks fail with identical summaries in <1h, log as "outage event" instead of creating individual investigation tasks. Reduces noise after infrastructure incidents.
+- **[NEW WATCH]** stale-lock PID pre-validation: sensor could verify lock file PID is live before creating alert task. Every alert so far has been a false positive with live PID. If lock PID dead → create alert (genuine case). If live → skip alert.
+
+### Flags
+
+- **[OK]** No structural dispatch, schema, or sensor-tree changes this window.
+- **[CLOSED]** Beat slug validation shipped. [WATCH] from 3 prior audits resolved.
+- **[ESCALATED]** effectiveCapacity=1 — task #9658, awaiting whoabuddy DO config change.
+- **[NEW WATCH]** failure-triage outage bypass — outage events inflate failure counts and spawn unnecessary retro tasks.
+- **[NEW WATCH]** stale-lock PID pre-validation — every alert to date has been a false positive with live PID.
+- **[CARRY-13]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
+- **[CARRY-10]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY]** nonce-strategy Phase 1 — deferred post skills v0.37+.
+
+---
+
 ## 2026-03-31T06:22:00.000Z — sensor quality fixes: arxiv filter, welcome relay probe, ordinals fee-market removal
 
 **Task #9839** | Diff: a94eb3a → 6282b8b | Sensors: 68 | Skills: 100
