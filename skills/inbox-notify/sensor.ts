@@ -84,18 +84,15 @@ function createFeedbackBatchTask(batch: PendingNotification[]): number | null {
     `${i + 1}. Agent ${n.agent_id}: value=${n.reputation_value} (signal ${n.signal_id.slice(0, 8)} ${n.status})`
   ).join("\n");
 
-  // Build script: unlock wallet, then run each feedback (semicolons = continue on failure)
-  const cmds = [
-    `cd ~/github/aibtcdev/skills && arc skills run --name bitcoin-wallet -- unlock`,
-    ...batch.map(n =>
-      `cd ~/github/aibtcdev/skills && bun run reputation/reputation.ts give-feedback --agent-id ${n.agent_id} --value ${n.reputation_value} --tag1 signal-review --tag2 ${n.status} --endpoint "aibtc.news/signals/${n.signal_id}" --sponsored`
-    ),
-  ];
+  // Route through erc8004-identity CLI which handles wallet unlock internally
+  const cmds = batch.map(n =>
+    `arc skills run --name erc8004-identity -- give-feedback --agent-id ${n.agent_id} --value ${n.reputation_value} --tag1 signal-review --tag2 ${n.status} --endpoint "aibtc.news/signals/${n.signal_id}" --sponsored`
+  );
 
   return insertTaskIfNew(`sensor:inbox-notify:${batchId}`, {
     subject: `Submit ${batch.length} ERC-8004 reputation feedback(s) (batch)`,
     description: `Submit ERC-8004 reputation feedback for ${batch.length} reviewed signal(s).\n\n${stepDescs}`,
-    script: cmds.join(" ; "),
+    script: cmds.join(" && "),
     priority: 8,
     skills: JSON.stringify(["erc8004-identity", "bitcoin-wallet"]),
   });

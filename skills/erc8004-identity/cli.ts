@@ -17,11 +17,20 @@ import type { Network } from "../../src/lib/config/index.ts";
 
 const ROOT = resolve(import.meta.dir, "../../github/aibtcdev/skills");
 const IDENTITY_SCRIPT = resolve(ROOT, "identity/identity.ts");
+const REPUTATION_SCRIPT = resolve(ROOT, "reputation/reputation.ts");
 
 /** Subcommands that require an unlocked wallet */
 const WRITE_COMMANDS = new Set([
   "register", "set-uri", "set-metadata", "set-approval",
   "set-wallet", "unset-wallet", "transfer",
+  "give-feedback", "revoke-feedback", "append-response", "approve-client",
+]);
+
+/** Subcommands that route to the reputation script instead of identity */
+const REPUTATION_COMMANDS = new Set([
+  "give-feedback", "revoke-feedback", "append-response", "approve-client",
+  "get-summary", "read-feedback", "read-all-feedback", "get-clients",
+  "get-feedback-count", "get-approved-limit", "get-last-index",
 ]);
 
 // ---- Helpers ----
@@ -32,30 +41,32 @@ function log(message: string): void {
 
 /**
  * Write a temporary runner script that unlocks the wallet in-process,
- * then runs the identity CLI — all in one bun process so the
+ * then runs the target CLI — all in one bun process so the
  * in-memory session is shared.
  */
-async function writeRunnerScript(walletId: string, password: string, identityArgs: string[]): Promise<string> {
+async function writeRunnerScript(walletId: string, password: string, targetScript: string, cliArgs: string[]): Promise<string> {
   const runnerPath = resolve(ROOT, ".identity-runner.ts");
   const escapedPassword = password.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
   const escapedWalletId = walletId.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
-  const escapedArgs = identityArgs.map(a => `'${a.replace(/'/g, "\\'")}'`).join(", ");
+  const escapedArgs = cliArgs.map(a => `'${a.replace(/'/g, "\\'")}'`).join(", ");
+  const importPath = `./${targetScript.replace(ROOT + "/", "")}`;
   const script = `
 import { getWalletManager } from './src/lib/services/wallet-manager.js';
 const wm = getWalletManager();
 await wm.unlock('${escapedWalletId}', '${escapedPassword}');
-process.argv = ['bun', 'identity', ${escapedArgs}];
-await import('./identity/identity.ts');
-// Commander async actions may not resolve before module-level code returns;
-// give them time to complete, then force exit.
-setTimeout(() => process.exit(0), 5000);
+process.argv = ['bun', 'cli', ${escapedArgs}];
+await import('${importPath}');
+// Commander uses .parse() (not .parseAsync()), so the async action runs detached.
+// Allow up to 120s for sponsored relay round-trips before force exit.
+setTimeout(() => process.exit(0), 120_000);
 `;
   await Bun.write(runnerPath, script);
   return runnerPath;
 }
 
 /**
- * Run the upstream identity script as a subprocess.
+ * Run the upstream script as a subprocess.
+ * Routes to identity or reputation script based on subcommand.
  * For write commands, unlocks wallet in the same process via a runner script.
  */
 async function runScript(
@@ -65,11 +76,14 @@ async function runScript(
   let spawnArgs: string[];
   let runnerPath: string | undefined;
 
+  const subcommand = args[0] ?? "";
+  const targetScript = REPUTATION_COMMANDS.has(subcommand) ? REPUTATION_SCRIPT : IDENTITY_SCRIPT;
+
   if (walletCreds) {
-    runnerPath = await writeRunnerScript(walletCreds.walletId, walletCreds.password, args);
+    runnerPath = await writeRunnerScript(walletCreds.walletId, walletCreds.password, targetScript, args);
     spawnArgs = ["bun", "run", runnerPath];
   } else {
-    spawnArgs = ["bun", "run", IDENTITY_SCRIPT, ...args];
+    spawnArgs = ["bun", "run", targetScript, ...args];
   }
 
   const proc = Bun.spawn(spawnArgs, {
@@ -193,11 +207,11 @@ function cmdCacheStats(): void {
 
 async function main(args: string[]): Promise<void> {
   if (args.length === 0) {
-    console.log(`Identity Skill
+    console.log(`Identity & Reputation Skill
 
 Usage: arc skills run --name erc8004-identity -- <subcommand> [options]
 
-Subcommands:
+Identity subcommands:
   register                 Register a new agent identity
   get                      Get agent identity info
   set-uri                  Update agent identity URI
@@ -208,10 +222,23 @@ Subcommands:
   transfer                 Transfer identity NFT to new owner
   get-metadata             Read metadata value by key
   get-last-id              Get most recently minted agent ID
+
+Reputation subcommands:
+  give-feedback            Submit feedback for an agent
+  revoke-feedback          Revoke previously submitted feedback
+  append-response          Append a response to feedback
+  approve-client           Approve a client for feedback submission
+  get-summary              Get aggregated reputation summary
+  read-feedback            Read a specific feedback entry
+  read-all-feedback        List all feedback for an agent
+  get-clients              List clients who gave feedback
+  get-feedback-count       Get total feedback count
+  get-approved-limit       Check approved feedback limit
+  get-last-index           Get last feedback index for a client
+
+Local subcommands:
   sync                     Sync chain state to local cache (all agents or --agent-id N)
   cache-stats              Show local cache statistics
-
-Run 'bun run identity/identity.ts <subcommand> --help' for more details.
 `);
     process.exit(0);
   }

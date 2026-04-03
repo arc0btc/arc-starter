@@ -695,9 +695,18 @@ async function dispatchScript(task: Task): Promise<void> {
     }
 
     if (exitCode === 0) {
-      // Use the last non-empty line of stdout as the summary (CLI tools typically print status last)
-      const lines = stdout.trim().split("\n").filter(Boolean);
-      const summary = (lines[lines.length - 1] ?? "Script completed successfully").slice(0, 500);
+      // Try to extract a meaningful summary from stdout
+      const trimmed = stdout.trim();
+      let summary = "Script completed successfully";
+      try {
+        const json = JSON.parse(trimmed);
+        // Prefer status/message fields, fall back to compact one-liner
+        summary = json.message ?? json.status ?? JSON.stringify(json).slice(0, 500);
+      } catch {
+        // Not JSON — use last non-empty line
+        const lines = trimmed.split("\n").filter(Boolean);
+        summary = (lines[lines.length - 1] ?? summary).slice(0, 500);
+      }
       const detail = [`$ ${script}`, "--- stdout ---", stdout, ...(stderr ? ["--- stderr ---", stderr] : [])].join("\n").trim();
 
       markTaskCompleted(task.id, summary, detail);
