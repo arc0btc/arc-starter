@@ -8,7 +8,7 @@ import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
 const SENSOR_NAME = "arxiv-research";
 const INTERVAL_MINUTES = 720; // 12 hours
 const ARXIV_API = "http://export.arxiv.org/api/query";
-const CATEGORIES = ["cs.AI", "cs.CL", "cs.LG", "cs.MA", "cs.SE"];
+const CATEGORIES = ["cs.AI", "cs.CL", "cs.LG", "cs.MA", "cs.SE", "quant-ph"];
 const MAX_RESULTS = 30;
 
 const log = createSensorLogger(SENSOR_NAME);
@@ -32,6 +32,33 @@ const AIBTC_SPECIFIC_KEYWORDS = [
   /\brelay.*bitcoin/i,
   /\bnonce.*manag.*agent/i,
 ];
+
+// Quantum beat: papers relevant to quantum computing's impact on Bitcoin security.
+// Matches quantum hardware/algorithm advances, ECDSA/SHA-256 threats, post-quantum BIPs,
+// and quantum-resistant cryptography proposals.
+const QUANTUM_KEYWORDS = [
+  /\bpost[-\s]?quantum/i,
+  /\bquantum[-\s]?(attack|threat|resist|safe|secur)/i,
+  /\b(break|break.*ECDSA|attack.*ECDSA|ECDSA.*break)/i,
+  /\bquantum.*bitcoin/i,
+  /\bbitcoin.*quantum/i,
+  /\bquantum.*cryptocurren/i,
+  /\bShor'?s algorithm/i,
+  /\bGrover'?s algorithm/i,
+  /\bquantum.*key.*distribut/i,
+  /\bquantum[-\s]?resistant/i,
+  /\bquantum[-\s]?proof/i,
+  /\blattice[-\s]?based.*crypt/i,
+  /\bNIST.*post[-\s]?quantum/i,
+  /\bP2QRH\b/,
+  /\bBIP[-\s]?360\b/,
+  /\bquantum.*hash/i,
+  /\bquantum.*elliptic/i,
+];
+
+function isQuantumBeatPaper(title: string): boolean {
+  return QUANTUM_KEYWORDS.some((re) => re.test(title));
+}
 
 const AGENT_KEYWORDS = [
   /\bautonomous agent/i,
@@ -205,6 +232,36 @@ export default async function arxivResearchSensor(): Promise<string> {
           source: signalSource,
         });
         log(`infrastructure signal task queued (${infraPapers.length} matching papers)`);
+      }
+    }
+
+    // Quantum beat signal routing: check new papers for quantum-computing/Bitcoin security relevance
+    const quantumPapers = newEntries.filter((e) => isQuantumBeatPaper(e.title));
+    if (quantumPapers.length > 0) {
+      const quantumSource = `sensor:${SENSOR_NAME}:quantum-signal-${today}`;
+      if (!pendingTaskExistsForSource(quantumSource)) {
+        const paperList = quantumPapers
+          .slice(0, 5)
+          .map((p) => `- ${p.title} (${p.id})`)
+          .join("\n");
+        insertTask({
+          subject: `File quantum beat signal from arXiv digest (${quantumPapers.length} paper(s))`,
+          description:
+            `${quantumPapers.length} quantum-relevant paper(s) found in today's arXiv fetch:\n\n` +
+            paperList + "\n\n" +
+            "Instructions:\n" +
+            "1. Review the compiled digest: research/arxiv/ (latest file)\n" +
+            "2. Confirm papers address quantum computing impacts on Bitcoin (ECDSA/SHA-256 threats, post-quantum BIPs, Shor/Grover relevance, timeline assessments, NIST PQC standards)\n" +
+            "3. Compose a signal: arc skills run --name aibtc-news-editorial -- compose-signal --beat quantum\n" +
+            "4. Focus on concrete threats, timeline estimates, or post-quantum proposals (BIP-360/P2QRH, lattice-based schemes)\n" +
+            "5. File the signal: arc skills run --name aibtc-news-editorial -- file-signal --beat quantum ...",
+          skills: JSON.stringify(["aibtc-news-editorial", "arxiv-research"]),
+          priority: 6,
+          model: "sonnet",
+          status: "pending",
+          source: quantumSource,
+        });
+        log(`quantum signal task queued (${quantumPapers.length} matching papers)`);
       }
     }
 
