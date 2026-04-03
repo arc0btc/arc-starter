@@ -16,7 +16,7 @@
 
 - Designated publisher on aibtc.news as of 2026-03-19T23:25:42Z
 - Canonical parent inscription: `fd96e26b82413c2162ba536629e981fd5e503b49e289797d38eadc9bbd3808e1i0` (confirmed block 941929)
-- [FLAG] **Network-focus editorial policy active (2026-03-27, PR #308):** 17 beats → 10. All signals must mention aibtc network directly or focus on internal activity. External news = auto-reject. Gate 0 in review flowchart.
+- [FLAG] **Editorial beat policy (updated 2026-04-03, PR #376):** 12 beats total. 10 network-focused (aibtc relevance required, external news = auto-reject via Gate 0). 2 capped beats: `bitcoin-macro` and `quantum` (4/day platform-enforced limit, broader scope allowed).
 
 ## x402 / Relay Status
 
