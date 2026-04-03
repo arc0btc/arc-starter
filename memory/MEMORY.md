@@ -1,6 +1,6 @@
 # Arc Memory
-*Schema: ASMR v1 — Last consolidated: 2026-03-28T10:16:28Z*
-*Token estimate: ~1000t (A:190t S:240t T:80t P:300t L:160t)*
+*Schema: ASMR v1 — Last consolidated: 2026-04-03T18:47:03Z*
+*Token estimate: ~1100t (A:200t S:260t T:80t P:300t L:260t)*
 
 ---
 
@@ -16,8 +16,8 @@ Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resu
 **x402-relay-v1.26.1** [STATE: 2026-03-30T02:30Z] [ESCALATED]
 Relay v1.26.1 DEPLOYED TO PROD. CB CLOSED. ✅ **Ghost nonce 554 RESOLVED** — sender progressed to 577/578, sponsor at 1207/1208. Both sides CLEAN: 0 missing nonces, 0 mempool pending. All 5 admin actions exhausted (resync, reset, clear-pools, clear-conflicts, flush-wallet) — effectiveCapacity remains 1. **ROOT CAUSE**: effectiveCapacity is a server-side config, not derived from nonce/conflict state. Requires relay code or Cloudflare DO config change. Pool nominal (20 avail, 0 conflicts, CB closed, lastConflictAt null). Escalated to whoabuddy (task #9658).
 
-**aibtc-mcp-server-v1.46.1** [STATE: 2026-04-03]
-v1.46.1 RELEASED (2026-03-31). PATCH: inbox paymentId observability (PR #434). v1.46.0: zest_enable_collateral (PR #423). Compatible with skills v0.36.1. **skills-v0.36.1** (2026-03-31, PR #279): x402-retry.ts records `pending:{paymentId}` in nonce tracker instead of empty string when payment pending. Pairs with mcp-server v1.46.1 `payment` block (paymentId, status, checkUrl) — payment observability gap now CLOSED. checkUrl enables settlement polling. skills-v0.36.0: nonce-manager skill + x402-retry.ts cross-process nonce locking.
+**aibtc-mcp-server-v1.46.2** [STATE: 2026-04-01] [LATEST RELEASE]
+v1.46.2 RELEASED (2026-04-01, PR #437). PATCH: include created_by (agent btc address) in news_claim_beat payload (#436 — auto-included on beat claims, no code changes needed). v1.46.1: inbox paymentId observability (#434). v1.46.0: zest_enable_collateral tool (#423). v1.45.0: sender/sponsor nonce correlation (#419). v1.44.0: unified sender nonce tracker (#415). v1.43.0: news_claim_beat tool (#411). Compatible with skills v0.36.1. **Skill/docs compatibility**: defi-zest (up-to-date, v1.46.0+ referenced), nonce-manager (up-to-date, v0.36.1 + v1.46.1 pairing documented), aibtc-news-editorial (compatible, no version-specific docs). bitcoin-wallet skill last updated 2026-03-09 (STALE — pre-dates recent releases). **No breaking changes** — all Arc skills remain operational. bitcoin-wallet SKILL.md should be updated to mention v1.46.2 support for completeness.
 
 **quorumclaw-api-down** [STATE: 2026-03-29T06:39Z] [RESOLVED]
 API DEPROVISIONED. Skill fully deleted 2026-03-29 (task #9537). Triage loop stopped — no new tasks generated. No further action needed.
@@ -115,4 +115,5 @@ Stacks 3.4 epoch activation. stackspot sensor auto-join PAUSED in guard [943,050
 
 **l-compute-outage-2026-04-03** [2026-04-03] **Compute outage ~2026-04-02/03** — 637 tasks bulk-failed, NOT 637 independent bugs. Root cause: host-level outage; whoabuddy force-killed in-flight tasks ("failed by admin not processes"), then ran bulk-triage marking remaining actives as "stale: bulk triage after compute outage". Services fully restored by 2026-04-03T15:00Z (dispatch cycling, 35 tasks completed today). **Key pattern**: when failure count spikes to 500+ in a short window with summaries like "bulk triage" or "force killed", treat it as a single outage event — no individual investigation tasks warranted. **Failure-triage gap**: the sensor cannot distinguish "637 independent failures" from "1 outage × 637 casualties" — if this recurs, the retro sensor will fire again with inflated counts. Consider adding an outage-detection bypass (e.g., if >200 tasks fail with identical summaries, skip pattern investigation and log "outage event" instead). Services healthy post-recovery: dispatch timer active, 35 completed today, 0 pending.
 
+**l-mcp-server-v1.46.2-assessment** [2026-04-03T18:47Z] Assessed aibtcdev/aibtc-mcp-server@v1.46.2 for skill/docs updates (task #10578). **v1.46.2 patch** (2026-04-01): include created_by (agent btc address) in news_claim_beat payload (#436) — auto-included on beat claims via MCP tool, no Arc code changes needed. **Version chain since v1.43.0**: v1.46.2 (created_by in news_claim_beat) ← v1.46.1 (paymentId observability for x402) ← v1.46.0 (zest_enable_collateral tool) ← v1.45.0 (sender/sponsor nonce correlation for diagnostics) ← v1.44.0 (unified nonce tracker with file persistence) ← v1.43.0 (news_claim_beat tool initial). **Skill compatibility audit**: defi-zest (✓ up-to-date, v1.46.0+ referenced), nonce-manager (✓ up-to-date, v0.36.1 + v1.46.1 pairing documented), aibtc-news-editorial (✓ compatible, no version-specific docs needed), bitcoin-wallet (⚠ STALE — last updated 2026-03-09, pre-dates all post-v1.43.0 releases). **Operational impact**: NONE. v1.46.2 is backward-compatible patch; all Arc skills remain fully functional. bitcoin-wallet SKILL.md should be updated (optional) to mention v1.46.2+ support for completeness and to reset the "updated" date.
 
