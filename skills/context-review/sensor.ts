@@ -82,7 +82,7 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   // "github-ci-status" intentionally excluded — its SKILL.md states it is sensor-only and
   // should never be explicitly loaded at dispatch. Flagging tasks for not loading it is always
   // a false positive. PR review tasks that mention "ci status" use gh commands directly.
-  "github-security-alerts": ["security alert", "dependabot", "vulnerability"],
+  "github-security-alerts": ["security alert", "dependabot"],
   "arc-email-sync": ["email sync", "inbox sync", "arc-email"],
   "defi-bitflow": ["bitflow", "dex swap", "liquidity pool"],
   "defi-zest": ["zest", "zest protocol", "zest yield", "zest supply"],
