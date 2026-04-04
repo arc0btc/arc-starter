@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-04-04T06:35:00.000Z*
+*Generated: 2026-04-04T18:35:00.000Z*
 *Sensor count: 68 | Skill count: 100*
 
 ```mermaid
@@ -39,6 +39,8 @@ stateDiagram-v2
             arc0btc_security_audit
             aibtc_dev_ops
             aibtc_repo_maintenance
+            note right of github_mentions: review_requested/assign on watched repos\ndeferred to PrLifecycleMachine (8a984348)\nno longer creates PR review tasks directly\nstill handles mention/team_mention
+            note right of aibtc_repo_maintenance: sensor simplified (8a984348)\nPR review task creation moved to PrLifecycleMachine\nno direct insertTask/pendingTaskExistsForSource\nwatched repos from AIBTC_WATCHED_REPOS constant
         }
 
         state ContentSensors {
@@ -89,7 +91,7 @@ stateDiagram-v2
             context_review
             compliance_review
             arc_workflows
-            note right of arc_workflows: drives workflow state machine\nstate-specific source keys (8ce27fb9)\ndedup scoped to workflow:{id}:{state}\nprevents cross-state dedup collisions
+            note right of arc_workflows: drives workflow state machine\nstate-specific source keys (8ce27fb9)\ndedup scoped to workflow:{id}:{state}\nprevents cross-state dedup collisions\nPrLifecycleMachine owns ALL PR review dispatch (061c807d)\nAUTOMATED_PR_PATTERNS exported from state-machine.ts\ncontext preserved on state transitions (not overwritten)\ngithub-mentions defers review_requested/assign to workflow engine
         }
 
         state MemoryMaintenanceSensors {
@@ -294,6 +296,17 @@ stateDiagram-v2
 | **Total** | **68** |
 
 *Note: bitcoin-quorumclaw DELETED (947ffa43) — sensor count 69→68, skill count 101→100. arc-workflows added to Infrastructure (was missing from prior diagrams; 11→12). Other/Misc: 5→3 (quorumclaw deleted, arc-workflows moved to Infrastructure).*
+
+## Key Architectural Changes (34bb98a → 6ce1d0f) [2026-04-04]
+
+| Change | Impact |
+|--------|--------|
+| **refactor(arc-workflows): PrLifecycleMachine owns all PR review dispatch** (061c807d, 8a984348) | `AUTOMATED_PR_PATTERNS` extracted from `aibtc-repo-maintenance/sensor.ts` → exported from `arc-workflows/state-machine.ts`. `PrLifecycleMachine` now drives PR review task creation via `shouldSkipPrReview()`, `prReviewSkills()`, `buildReviewDescription()`. `reviewCycle` and `isAutomated` added to context. React repos (`aibtcdev/landing-page`) get `dev-landing-page-review` skill. Centralization closes the dual-creation gap (sensor + mentions both creating review tasks). |
+| **fix(github-mentions): defer review_requested/assign to PrLifecycleMachine** (8a984348) | `github-mentions/sensor.ts` now skips `review_requested`/`assign` events on watched repos — these are handled by `PrLifecycleMachine` via state transitions. Also removed `completedTaskCountForSource` check (workflow handles re-review tracking). Prevents duplicate tasks from parallel sensor + workflow paths. |
+| **refactor(aibtc-repo-maintenance): sensor simplified** (8a984348, 061c807d) | Sensor reduced ~85 lines — removed `isAutomatedPR()`, React reviewer detection, and all direct `insertTask` calls. PR review logic centralized in `PrLifecycleMachine`. Sensor now only manages workflow creation/state-sync. |
+| **fix(safe-commit): lintModelField() two bug fixes** (8a984348) | (1) Negative lookbehind `(?<!/)` prevents false positives when `insertTask` pattern appears in regex literal comments. (2) Closing-brace detection no longer requires `}` immediately before `)` — fixes `insertTaskIfNew` calls with extra positional args (e.g. `}, "pending"`). |
+| **fix(arc-workflows): preserve context on state transitions** (8a984348) | `syncGitHubPRs()` previously overwrote workflow context on state change, losing `reviewCycle`, `isAutomated`, `fromIssue`. Now merges existing context with updated PR fields — preserves all accumulated workflow state across transitions. |
+| **fix(aibtc-repo-maintenance): update watched repo descriptions** (6ce1d0f) | SKILL.md updated with accurate repo descriptions. No code change. |
 
 ## Key Architectural Changes (4f33bbe9 → 34bb98a8) [2026-04-04]
 

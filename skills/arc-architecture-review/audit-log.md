@@ -1,3 +1,48 @@
+## 2026-04-04T18:35:00.000Z — PR review lifecycle centralized; safe-commit lint fixed; context preservation
+
+**Task #10693** | Diff: 34bb98a → 6ce1d0f | Sensors: 68 | Skills: 100
+
+### Step 1 — Requirements
+
+- **PR review lifecycle centralized in PrLifecycleMachine** (061c807d, 8a984348): `AUTOMATED_PR_PATTERNS` moved from `aibtc-repo-maintenance/sensor.ts` to `arc-workflows/state-machine.ts` (exported). `PrLifecycleMachine` now owns all PR review task dispatch via `shouldSkipPrReview()`, `prReviewSkills()`, `buildReviewDescription()`. Requirement: prevent dual-creation from sensor + github-mentions racing on same PR. Satisfied.
+- **safe-commit lintModelField() two bugs fixed** (8a984348): (1) False positives on regex literal comments containing `insertTask`. (2) `insertTaskIfNew` with extra positional args (e.g. `}, "pending"`) was misdetected as missing `model:`. Both fixed. Requirement: accurate model-field enforcement at commit time. Satisfied.
+- **Context preservation on PrLifecycleMachine state transitions** (8a984348): Prior code overwrote workflow context on state change, losing `reviewCycle`, `isAutomated`, `fromIssue`. Now merges. Requirement: multi-cycle PR review tracking. Satisfied.
+- **relay v1.27.2 sponsor nonce degraded** [CARRY-ESCALATED task #10617]: No change. Still awaiting whoabuddy intervention.
+
+### Step 2 — Delete
+
+- **[CLOSED]** dual PR review task creation (sensor + github-mentions racing) — centralized in PrLifecycleMachine.
+- **[CARRY-15]** ordinals HookState deprecated fields (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`) — cleanup 2026-04-23+.
+- **[CARRY-12]** layered-rate-limit sensor migration (3 sensors) — post-competition 2026-04-23+.
+- **[CARRY]** nonce-strategy Phase 1 (retry-strategy.ts) — deferred post skills v0.37+.
+
+### Step 3 — Simplify
+
+- **PrLifecycleMachine consolidation is the right move**: PR review task creation was split across 3 locations (sensor.ts, github-mentions, aibtc-repo-maintenance). Now 1 location. State machine pattern scales well for multi-cycle re-reviews.
+- **aibtc-repo-maintenance sensor ~85 lines lighter**: net simplification, no functionality lost.
+
+### Step 4 — Accelerate
+
+- No bottlenecks introduced. PrLifecycleMachine state transitions fire at sensor cadence (15 min), same as before.
+
+### Step 5 — Automate
+
+- **[CARRY-WATCH]** relay v1.27.2 schema change: `isRelayHealthy()` health probe may not handle missing CB/pool/effectiveCapacity fields gracefully. Consider graceful field fallback.
+- **Competition signal velocity**: 2/6 signals filed overnight 2026-04-04. Trend improving (1→1→2). Quantum beat diversifying portfolio.
+
+### Flags
+
+- **[OK]** No dispatch loop, schema, or task queue changes this window.
+- **[CLOSED]** dual PR review task creation — centralized in PrLifecycleMachine.
+- **[ESCALATED]** relay v1.27.2 nonce regression — task #10617, awaiting whoabuddy.
+- **[ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
+- **[CARRY-WATCH]** relay v1.27.2 schema change — `isRelayHealthy()` missing-field handling.
+- **[CARRY-15]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
+- **[CARRY-12]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY]** nonce-strategy Phase 1 — deferred post skills v0.37+.
+
+---
+
 ## 2026-04-04T06:35:00.000Z — quantum beat routing; outage bypass shipped; stale-lock watch closed
 
 **Task #10648** | Diff: 4f33bbe9 → 34bb98a8 | Sensors: 68 | Skills: 100
