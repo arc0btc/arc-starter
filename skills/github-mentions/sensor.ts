@@ -1,5 +1,5 @@
 import { claimSensorRun, createSensorLogger, readHookState, insertTaskIfNew } from "../../src/sensors.ts";
-import { pendingTaskExistsForSource, completedTaskCountForSource } from "../../src/db.ts";
+import { pendingTaskExistsForSource } from "../../src/db.ts";
 import { AIBTC_WATCHED_REPOS, classifyRepo, type RepoClass } from "../../src/constants.ts";
 
 const SENSOR_NAME = "github-mentions";
@@ -128,11 +128,15 @@ export default async function githubMentionsSensor(): Promise<string> {
         n.reason === "review_requested" || n.reason === "assign";
       const subjectNum = n.url.split("/").pop() ?? "";
 
-      // For PRs on watched repos, only actionable reasons create tasks:
-      // - review_requested / assign: explicit review request
-      // - mention / team_mention: someone directly asked for Arc's input
+      // PrLifecycleMachine handles review_requested/assign on watched repos —
+      // the workflow creates review tasks via state transitions, including re-reviews.
+      if (isPROnWatchedRepo && isReviewWork) {
+        gated++;
+        continue;
+      }
+
+      // For PRs on watched repos, only mention/team_mention create tasks.
       // Skip comment / state_change / author — these are status updates, not action requests.
-      // This prevents duplicate review tasks when a PR generates multiple notification events.
       const isDirectRequest =
         isReviewWork || n.reason === "mention" || n.reason === "team_mention";
       if (isPROnWatchedRepo && !isDirectRequest) {
@@ -140,7 +144,7 @@ export default async function githubMentionsSensor(): Promise<string> {
         continue;
       }
 
-      // Canonical keys for cross-sensor dedup (shared with github-issue-monitor / aibtc-maintenance)
+      // Canonical keys for cross-sensor dedup (shared with github-issue-monitor)
       const canonicalSource =
         isPROnWatchedRepo
           ? `pr-review:${n.repo}#${subjectNum}`
@@ -153,14 +157,6 @@ export default async function githubMentionsSensor(): Promise<string> {
         pendingTaskExistsForSource(threadSource) ||
         (canonicalSource && pendingTaskExistsForSource(canonicalSource))
       ) {
-        continue;
-      }
-
-      // For PR reviews, also skip if we already completed a review for this PR.
-      // Re-review events (comment, state_change) on already-reviewed PRs should not
-      // create new tasks — the review is done.
-      if (canonicalSource?.startsWith("pr-review:") && completedTaskCountForSource(canonicalSource) > 0) {
-        gated++;
         continue;
       }
 

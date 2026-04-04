@@ -73,7 +73,8 @@ function lintModelField(files: string[]): string[] {
         const line = lines[i];
 
         // Detect start of insertTask/insertTaskIfNew call (anywhere on the line)
-        if (!inCall && /insertTask(?:IfNew)?\s*\(/.test(line)) {
+        // Negative lookbehind for / to avoid matching regex literals (e.g. /insertTask.../)
+        if (!inCall && /(?<!\/)insertTask(?:IfNew)?\s*\(\s*\{/.test(line)) {
           // Check if there's an opening brace on this line
           const hasOpenBrace = line.includes("{");
           if (hasOpenBrace) {
@@ -87,8 +88,9 @@ function lintModelField(files: string[]): string[] {
           braceDepth += (line.match(/\{/g) || []).length;
           braceDepth -= (line.match(/\}/g) || []).length;
 
-          // Check if call is complete (closing brace followed by closing paren)
-          if (braceDepth <= 0 && /\}\s*\)/.test(line)) {
+          // Check if the object argument is closed (braceDepth hits zero).
+          // Don't require ) immediately after } — insertTaskIfNew passes extra args: }, "pending")
+          if (braceDepth <= 0) {
             inCall = false;
             // Check if model: is present
             if (!hasModelPattern.test(callBuffer)) {

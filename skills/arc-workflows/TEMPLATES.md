@@ -2,60 +2,67 @@
 
 Detailed specifications for all built-in workflow templates.
 
-## PR Review (`pr-review`)
+## PR Lifecycle (`pr-lifecycle`)
 
-Track Arc's internal hardened review workflow for a GitHub PR — from detection through posting the review.
+Unified PR lifecycle tracking and review task creation. Replaces the former separate `pr-review` template.
 
 **States:**
-- `detected` — PR found by sensor, needs review (auto-creates review task with hardened checklist)
-- `reviewing` — Review task is running (functionality, security, performance, clean code, big-picture + simplifier)
-- `posted` — Review has been posted to GitHub
-- `approved` — Terminal: PR approved after passing all five dimensions
-- `changes_requested` — Terminal (resettable): Changes requested; transitions back to `posted` when re-reviewed
-- `commented` — Terminal: Comment-only review posted (no approve/request-changes)
+- `issue-opened` — Issue tracked, waiting for a PR to link
+- `opened` — PR exists, no formal review requested yet (auto-creates review task for non-automated, non-self PRs)
+- `review-requested` — Review requested via GitHub (auto-creates review task; re-reviews get bumped priority)
+- `changes-requested` — Reviewer requested changes (no task — waiting for author)
+- `approved` — All reviewers approved (terminal-ish)
+- `merged` — PR is merged (terminal)
+- `closed` — PR is closed without merging (terminal)
+
+**Task creation:**
+- `opened` and `review-requested` states create review tasks via `create-task` action
+- Tasks are skipped for Arc's own PRs (`arc0btc`) and automated PRs (release-please, dependabot)
+- React repos (e.g., `aibtcdev/landing-page`) get extra `dev-landing-page-review` skill
+- Source key: `pr-review:owner/repo#number:v${reviewCycle}` — versioned per review cycle
+- Dedup: 24h window via `recentTaskExistsForSource`
+
+**Re-review cycle:**
+- When a PR transitions from `changes-requested` back to `review-requested`, `reviewCycle` increments
+- Re-review tasks (cycle > 1) get P4 priority (vs P5 initial) and "Re-review" subject prefix
+- Each cycle gets a unique source key, so dedup doesn't block re-reviews
+
+**State regression guard:** `review-requested` cannot regress to `opened` — prevents the workflow sensor from undoing promotions.
 
 **Context schema:**
 ```typescript
 {
-  owner: string;          // GitHub org or user
-  repo: string;           // Repository name
-  number: number;         // PR number
-  title?: string;         // PR title (for task subject)
-  url?: string;           // Full PR URL
-  author?: string;        // PR author login
-  reviewOutcome?: "approved" | "changes_requested" | "commented";
-  simplifierNotes?: string;  // Key findings from simplifier pass
+  owner: string;              // GitHub org or user
+  repo: string;               // Repository name
+  number: number;             // PR number
+  title?: string;             // PR title
+  url?: string;               // Full PR URL
+  author?: string;            // PR author login
+  reviewers?: string[];       // Requested reviewers
+  fromIssue?: number;         // Linked issue number
+  issueUrl?: string;          // Linked issue URL
+  reviewCycle?: number;       // 1-based, incremented on re-review transitions
+  isAutomated?: boolean;      // true for release-please, dependabot, etc.
+  lastChecked?: string;       // ISO timestamp of last sync
 }
 ```
 
-**Pattern:** Sensor detects unreviewed PR → creates `pr-review` workflow instance → `detected` state auto-creates P3 review task → agent runs five-dimension checklist + simplifier → posts review → transitions to outcome state.
-
-**Instance key:** `owner/repo/number` (e.g., `aibtcdev/skills/42`)
-
-**Requires:** `aibtc-repo-maintenance` skill
-
-## PR Lifecycle (`pr-lifecycle`)
-
-Track GitHub pull requests through their full lifecycle.
-
-**States:**
-- `opened` — PR is newly created
-- `review-requested` — Review has been requested
-- `changes-requested` — Reviewer requested changes
-- `approved` — All reviewers approved
-- `merged` — PR is merged (terminal)
-- `closed` — PR is closed without merging (terminal)
-
-**Auto-detection:** The workflows sensor automatically syncs GitHub PRs to workflow instances. It:
-1. Queries GitHub API for open/closed PRs (every 5 minutes)
+**Auto-detection:** The workflows sensor syncs GitHub PRs to workflow instances every 5 minutes:
+1. Queries GitHub API for open/closed PRs across watched repos
 2. Creates workflow instances for new PRs (instance_key = `owner/repo/number`)
-3. Updates workflow state when PR state changes
+3. Updates workflow state when PR state changes (preserving context fields like `reviewCycle`)
 4. Auto-completes workflows when PR reaches terminal state (merged/closed)
+
+**Interaction with other sensors:**
+- `aibtc-repo-maintenance` — tracks issues only; PR review task creation is handled here
+- `github-mentions` — skips `review_requested`/`assign` on watched repos (workflow handles); still creates tasks for direct @mentions
 
 **Configuration:**
 - Set `PR_LIFECYCLE_REPOS` env var to comma-separated list of repos (e.g., `org/repo1,org/repo2`)
-- Default repos: `arc0btc/arc-starter, arc0btc/arc0me-site`
+- Default repos: `arc0btc/arc-starter, arc0btc/arc0me-site` + `AIBTC_WATCHED_REPOS`
 - Requires GitHub token in credentials: `arc creds get --service github --key token`
+
+**Requires:** `aibtc-repo-maintenance` skill (loaded via task's skills array)
 
 ## Reputation Feedback (`reputation-feedback`)
 

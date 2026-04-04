@@ -30,12 +30,11 @@ When working on any aibtcdev task, think as an org maintainer:
 
 ## Sensor
 
-Runs every 15 minutes via `claimSensorRun("aibtc-repo-maintenance", 15)`. Checks:
+Runs every 15 minutes via `claimSensorRun("aibtc-repo-maintenance", 15)`. Tracks:
 
-1. **Unreviewed PRs** — open PRs on watched repos we haven't reviewed yet (skips our own PRs)
-2. **New issues** — tracked as workflow instances (issue-opened state) for lifecycle tracking
+- **New issues** — tracked as workflow instances (issue-opened state) for lifecycle tracking
 
-Creates a task with `skills: ["aibtc-repo-maintenance"]` when unreviewed PRs are found. Cross-deduplicates with github-mentions via shared `pr-review:` source keys.
+PR review task creation is handled by `PrLifecycleMachine` in `arc-workflows`. This sensor focuses on issue tracking only.
 
 ## CLI
 
@@ -69,7 +68,7 @@ Shows current state of all watched repos — open PRs, recent issues, our pendin
 
 ## Review Workflow
 
-1. Sensor detects unreviewed PR → creates task
+1. `PrLifecycleMachine` workflow detects PR via `syncGitHubPRs` → creates review task
 2. Arc reviews PR diff, checks for known operational issues
 3. Arc writes review with mentor/expert framing: severity labels (`[blocking]`/`[suggestion]`/`[nit]`/`[question]`), inline `suggestion` blocks for concrete fixes, operational context from production experience
 4. Arc posts review via `gh pr review` (approve or request changes)
@@ -87,7 +86,7 @@ Can send AIBTC inbox messages to coordinate on fixes that need hands-on testing.
 ## Checklist
 
 - [x] `skills/aibtc-repo-maintenance/SKILL.md` exists with valid frontmatter
-- [x] Sensor runs every 15 min, creates task on unreviewed PRs or mentions
+- [x] Sensor runs every 15 min, tracks new issues as workflow instances
 - [x] CLI supports review-pr, triage-issues, changelog, test-integration, status
 - [x] AGENT.md documents PR review workflow and safety rules
 - [ ] Integration test validates sensor against live GitHub API

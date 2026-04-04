@@ -234,7 +234,8 @@ interface PrLifecycleContext {
 function shouldSkipPrReview(ctx: PrLifecycleContext): boolean {
   if (ctx.author === "arc0btc") return true;
   if (ctx.isAutomated) return true;
-  if (ctx.title && AUTOMATED_PR_PATTERNS.some((p) => p.test(ctx.title!))) return true;
+  const title = ctx.title;
+  if (title && AUTOMATED_PR_PATTERNS.some((p) => p.test(title))) return true;
   return false;
 }
 
@@ -268,6 +269,25 @@ function buildReviewDescription(ctx: PrLifecycleContext, cycle: number): string 
   return lines.join("\n");
 }
 
+function buildReviewAction(ctx: PrLifecycleContext): WorkflowAction | null {
+  if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+  if (shouldSkipPrReview(ctx)) return null;
+  const cycle = ctx.reviewCycle || 1;
+  const isRereview = cycle > 1;
+  const repoFull = `${ctx.owner}/${ctx.repo}`;
+  return {
+    type: "create-task",
+    subject: isRereview
+      ? `Re-review PR #${ctx.number} on ${repoFull}: ${ctx.title || "untitled"} (cycle ${cycle})`
+      : `Review PR #${ctx.number} on ${repoFull}: ${ctx.title || "untitled"}`,
+    description: buildReviewDescription(ctx, cycle),
+    priority: isRereview ? 4 : 5,
+    model: "sonnet",
+    skills: prReviewSkills(repoFull),
+    source: `pr-review:${repoFull}#${ctx.number}:v${cycle}`,
+  };
+}
+
 export { AUTOMATED_PR_PATTERNS };
 
 export const PrLifecycleMachine: StateMachine<PrLifecycleContext> = {
@@ -283,21 +303,7 @@ export const PrLifecycleMachine: StateMachine<PrLifecycleContext> = {
     },
     opened: {
       on: { request_review: "review-requested", close: "closed" },
-      action: (ctx) => {
-        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
-        if (shouldSkipPrReview(ctx)) return null;
-        const cycle = ctx.reviewCycle || 1;
-        const repoFull = `${ctx.owner}/${ctx.repo}`;
-        return {
-          type: "create-task" as const,
-          subject: `Review PR #${ctx.number} on ${repoFull}: ${ctx.title || "untitled"}`,
-          description: buildReviewDescription(ctx, cycle),
-          priority: 5,
-          model: "sonnet",
-          skills: prReviewSkills(repoFull),
-          source: `pr-review:${repoFull}#${ctx.number}:v${cycle}`,
-        };
-      },
+      action: buildReviewAction,
     },
     "review-requested": {
       on: {
@@ -305,24 +311,7 @@ export const PrLifecycleMachine: StateMachine<PrLifecycleContext> = {
         approve: "approved",
         close: "closed",
       },
-      action: (ctx) => {
-        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
-        if (shouldSkipPrReview(ctx)) return null;
-        const cycle = ctx.reviewCycle || 1;
-        const isRereview = cycle > 1;
-        const repoFull = `${ctx.owner}/${ctx.repo}`;
-        return {
-          type: "create-task" as const,
-          subject: isRereview
-            ? `Re-review PR #${ctx.number} on ${repoFull}: ${ctx.title || "untitled"} (cycle ${cycle})`
-            : `Review PR #${ctx.number} on ${repoFull}: ${ctx.title || "untitled"}`,
-          description: buildReviewDescription(ctx, cycle),
-          priority: isRereview ? 4 : 5,
-          model: "sonnet",
-          skills: prReviewSkills(repoFull),
-          source: `pr-review:${repoFull}#${ctx.number}:v${cycle}`,
-        };
-      },
+      action: buildReviewAction,
     },
     "changes-requested": {
       on: { request_review: "review-requested", close: "closed" },

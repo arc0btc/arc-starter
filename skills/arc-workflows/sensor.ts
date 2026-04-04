@@ -11,6 +11,7 @@ import {
 import {
   evaluateWorkflow,
   getTemplateByName,
+  AUTOMATED_PR_PATTERNS,
   type WorkflowAction,
 } from "./state-machine.ts";
 import { getCredential } from "../../src/credentials.ts";
@@ -212,6 +213,7 @@ async function syncGitHubPRs(): Promise<number> {
 
     if (!workflow) {
       // Create new workflow
+      const isAutomated = AUTOMATED_PR_PATTERNS.some((p) => p.test(pr.title));
       insertWorkflow({
         template: "pr-lifecycle",
         instance_key: instanceKey,
@@ -224,6 +226,7 @@ async function syncGitHubPRs(): Promise<number> {
           url: pr.url,
           author: pr.author,
           fromIssue: pr.closingIssueNumbers?.[0] ?? undefined,
+          isAutomated: isAutomated || undefined,
           lastChecked: new Date().toISOString(),
         }),
       });
@@ -251,20 +254,33 @@ async function syncGitHubPRs(): Promise<number> {
         }
       }
     } else if (workflow.current_state !== newState) {
-      // Update workflow if state changed
-      updateWorkflowState(
-        workflow.id,
-        newState,
-        JSON.stringify({
-          owner: pr.owner,
-          repo: pr.repo,
-          number: pr.number,
-          title: pr.title,
-          url: pr.url,
-          author: pr.author,
-          lastChecked: new Date().toISOString(),
-        })
-      );
+      // Preserve existing context fields (reviewCycle, isAutomated, fromIssue, etc.)
+      let existingCtx: Record<string, unknown> = {};
+      try { existingCtx = JSON.parse(workflow.context); } catch { /* fresh context */ }
+
+      const updatedCtx: Record<string, unknown> = {
+        ...existingCtx,
+        owner: pr.owner,
+        repo: pr.repo,
+        number: pr.number,
+        title: pr.title,
+        url: pr.url,
+        author: pr.author,
+        lastChecked: new Date().toISOString(),
+      };
+
+      // Prevent regression: don't overwrite review-requested back to opened
+      if (workflow.current_state === "review-requested" && newState === "opened") {
+        continue;
+      }
+
+      // Increment reviewCycle on re-review transitions (changes-requested → review-requested)
+      if (workflow.current_state === "changes-requested" &&
+          (newState === "review-requested" || newState === "opened")) {
+        updatedCtx.reviewCycle = ((existingCtx.reviewCycle as number) || 1) + 1;
+      }
+
+      updateWorkflowState(workflow.id, newState, JSON.stringify(updatedCtx));
       workflowsUpdated++;
 
       // Auto-complete if terminal state
