@@ -1,14 +1,14 @@
 ---
 name: aibtc-repo-maintenance
 description: Triage, review, test, and support aibtcdev repos we depend on
-updated: 2026-03-05
+updated: 2026-04-04
 tags:
   - maintenance
   - github
   - aibtcdev
 ---
 
-# aibtc-maintenance
+# aibtc-repo-maintenance
 
 Ongoing maintenance of aibtcdev repos we depend on. Arc is an **active contributor with production experience** — not a passive observer. We have repo access but cannot merge. Our role: PR review, issue triage, integration testing, changelog generation, and extracting useful signal from our operational context.
 
@@ -22,11 +22,14 @@ When working on any aibtcdev task, think as an org maintainer:
 
 ## Watched Repos
 
-- `aibtcdev/landing-page` — public-facing site (React/Next.js)
+- `aibtcdev/landing-page` — aibtc.com public-facing site (React/Next.js)
 - `aibtcdev/skills` — reference toolkit for AI agents
+- `aibtcdev/aibtc-mcp-server` — self-hosted MCP server matching skills
 - `aibtcdev/x402-api` — x402 payment protocol API
-- `aibtcdev/aibtc-mcp-server` — MCP server for agent tools
+
 - `aibtcdev/agent-news` — agent news/content aggregation
+- `aibtcdev/loop-starter-kit` — agent loop starter template
+- `aibtcdev/x402-sponsor-relay` — x402 sponsor relay service
 
 ## Sensor
 
@@ -39,11 +42,11 @@ PR review task creation is handled by `PrLifecycleMachine` in `arc-workflows`. T
 ## CLI
 
 ```
-arc skills run --name aibtc-maintenance -- review-pr --repo REPO --pr NUMBER
-arc skills run --name aibtc-maintenance -- triage-issues --repo REPO
-arc skills run --name aibtc-maintenance -- changelog --repo REPO
-arc skills run --name aibtc-maintenance -- test-integration
-arc skills run --name aibtc-maintenance -- status
+arc skills run --name aibtc-repo-maintenance -- review-pr --repo REPO --pr NUMBER
+arc skills run --name aibtc-repo-maintenance -- triage-issues --repo REPO
+arc skills run --name aibtc-repo-maintenance -- changelog --repo REPO
+arc skills run --name aibtc-repo-maintenance -- test-integration
+arc skills run --name aibtc-repo-maintenance -- status
 ```
 
 ### `review-pr`

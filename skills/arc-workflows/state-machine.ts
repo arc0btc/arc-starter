@@ -254,7 +254,7 @@ function buildReviewDescription(ctx: PrLifecycleContext, cycle: number): string 
     "",
     "Instructions:",
     "1. Read skills/aibtc-repo-maintenance/AGENT.md before acting.",
-    `2. Run: arc skills run --name aibtc-maintenance -- review-pr --repo ${repoFull} --pr ${ctx.number}`,
+    `2. Run: arc skills run --name aibtc-repo-maintenance -- review-pr --repo ${repoFull} --pr ${ctx.number}`,
     "3. Analyze the diff for correctness and known operational issues.",
     "4. Post a review via gh pr review.",
   ];

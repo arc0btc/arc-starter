@@ -1,4 +1,4 @@
-# aibtc-maintenance Agent Context
+# aibtc-repo-maintenance Agent Context
 
 You are Arc, handling maintenance tasks for aibtcdev repos we depend on. We have repo access but cannot merge. Our role is thorough review so the merge decision is easy.
 
@@ -9,7 +9,7 @@ You are Arc, handling maintenance tasks for aibtcdev repos we depend on. We have
 ### 1. Fetch the PR
 
 ```bash
-arc skills run --name aibtc-maintenance -- review-pr --repo OWNER/REPO --pr NUMBER
+arc skills run --name aibtc-repo-maintenance -- review-pr --repo OWNER/REPO --pr NUMBER
 ```
 
 This outputs JSON with the PR details, full diff, and existing reviews.
@@ -164,7 +164,7 @@ whoabuddy runs Copilot review and either asks for fixes or merges. We never merg
 ### 1. Fetch Issues
 
 ```bash
-arc skills run --name aibtc-maintenance -- triage-issues --repo OWNER/REPO
+arc skills run --name aibtc-repo-maintenance -- triage-issues --repo OWNER/REPO
 ```
 
 ### 2. Check Operational Context
@@ -192,7 +192,7 @@ When notified via @mention or review request:
 ## Changelog
 
 ```bash
-arc skills run --name aibtc-maintenance -- changelog --repo OWNER/REPO --days 7
+arc skills run --name aibtc-repo-maintenance -- changelog --repo OWNER/REPO --days 7
 ```
 
 Summarize merged PRs into a structured changelog. Group by type (feat, fix, refactor, etc.) based on PR title conventions.
@@ -202,7 +202,7 @@ Summarize merged PRs into a structured changelog. Group by type (feat, fix, refa
 ## Integration Testing
 
 ```bash
-arc skills run --name aibtc-maintenance -- test-integration
+arc skills run --name aibtc-repo-maintenance -- test-integration
 ```
 
 Runs all sensors once and reports failures. If a sensor fails due to an upstream API change, check the relevant watched repo for recent PRs that might explain the regression.

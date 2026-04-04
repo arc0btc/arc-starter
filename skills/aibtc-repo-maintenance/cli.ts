@@ -44,7 +44,7 @@ function cmdReviewPr(args: string[]): void {
 
   if (!flags.repo || !flags.pr) {
     process.stderr.write(
-      "Usage: arc skills run --name aibtc-maintenance -- review-pr --repo OWNER/REPO --pr NUMBER\n"
+      "Usage: arc skills run --name aibtc-repo-maintenance -- review-pr --repo OWNER/REPO --pr NUMBER\n"
     );
     process.exit(1);
   }
@@ -93,7 +93,7 @@ function cmdTriageIssues(args: string[]): void {
 
   if (!flags.repo) {
     process.stderr.write(
-      "Usage: arc skills run --name aibtc-maintenance -- triage-issues --repo OWNER/REPO\n"
+      "Usage: arc skills run --name aibtc-repo-maintenance -- triage-issues --repo OWNER/REPO\n"
     );
     process.exit(1);
   }
@@ -140,7 +140,7 @@ function cmdChangelog(args: string[]): void {
 
   if (!flags.repo) {
     process.stderr.write(
-      "Usage: arc skills run --name aibtc-maintenance -- changelog --repo OWNER/REPO [--days N]\n"
+      "Usage: arc skills run --name aibtc-repo-maintenance -- changelog --repo OWNER/REPO [--days N]\n"
     );
     process.exit(1);
   }
@@ -258,10 +258,10 @@ function cmdStatus(): void {
 
 function printUsage(): void {
   process.stdout.write(
-    `aibtc-maintenance CLI
+    `aibtc-repo-maintenance CLI
 
 USAGE
-  arc skills run --name aibtc-maintenance -- <subcommand> [flags]
+  arc skills run --name aibtc-repo-maintenance -- <subcommand> [flags]
 
 SUBCOMMANDS
   review-pr          Fetch PR diff and details for review
