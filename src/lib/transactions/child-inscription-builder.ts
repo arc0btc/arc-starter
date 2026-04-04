@@ -390,7 +390,7 @@ export function buildChildCommitTransaction(
     );
   }
 
-  // UTXO selection: accumulate until we have enough
+  // UTXO selection: accumulate until we have enough with non-dust change
   let selectedTotal = 0;
   const selectedUtxos: UTXO[] = [];
 
@@ -399,7 +399,18 @@ export function buildChildCommitTransaction(
     selectedTotal += utxo.value;
 
     if (selectedTotal >= requiredTotal) {
-      break;
+      // Check if change would be below dust — if so, keep adding UTXOs
+      const tentativeVsize =
+        TX_OVERHEAD_VBYTES +
+        selectedUtxos.length * P2WPKH_INPUT_VBYTES +
+        P2TR_OUTPUT_VBYTES +
+        P2WPKH_OUTPUT_VBYTES;
+      const tentativeFee = Math.ceil(tentativeVsize * feeRate);
+      const tentativeChange = selectedTotal - revealAmount - tentativeFee;
+      if (tentativeChange >= DUST_THRESHOLD) {
+        break;
+      }
+      // Change is below dust, continue adding UTXOs if available
     }
   }
 
