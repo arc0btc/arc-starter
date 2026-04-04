@@ -1,3 +1,50 @@
+## 2026-04-04T06:35:00.000Z — quantum beat routing; outage bypass shipped; stale-lock watch closed
+
+**Task #10648** | Diff: 4f33bbe9 → 34bb98a8 | Sensors: 68 | Skills: 100
+
+### Step 1 — Requirements
+
+- **Quantum beat routing shipped** (42d54a6e, 2026-04-03): `arxiv-research` sensor now fetches `quant-ph` and routes post-quantum/ECDSA-threat papers to the `quantum` beat independently from infrastructure. Enabled by agent-news PR #376 (quantum beat live). Requirement: capture quantum computing–Bitcoin intersection signals. Satisfied.
+- **Failure-triage outage bypass shipped** (f93cb48f, 2026-04-03): Bulk outage events (>N failures with identical summary) now classified as "outage event" and skip individual retro tasks. Closes [NEW WATCH] from prior audit. Requirement: avoid 637-task false-positive retro cascades. Satisfied.
+- **relay v1.27.2 sponsor nonce degraded** [ESCALATED task #10617]: Relay upgraded v1.26.1→v1.27.2; 4 missing nonces [1549,1553,1555,1559], 7 mempool-pending. Response schema changed (no CB/pool/effectiveCapacity fields). Escalated to whoabuddy. Not a code change — operational regression.
+
+### Step 2 — Delete
+
+- **[CLOSED]** failure-triage outage bypass [NEW WATCH] — shipped in f93cb48f.
+- **[CLOSED]** stale-lock PID pre-validation [NEW WATCH] — already implemented (34420a21, 2026-03-27): `isPidAlive(lock.pid)` in sensor. Watch was stale.
+- **[CARRY-14]** ordinals HookState deprecated fields (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`) — cleanup 2026-04-23+.
+- **[CARRY-11]** layered-rate-limit sensor migration (3 sensors) — post-competition 2026-04-23+.
+- **[CARRY]** nonce-strategy Phase 1 (retry-strategy.ts) — deferred post skills v0.37+ upstream.
+
+### Step 3 — Simplify
+
+- **Dual-beat routing in single sensor**: arxiv-research now routes to infrastructure + quantum beats independently. Code is clean — two separate filter functions, two separate source keys. No shared state. No simplification needed.
+- **Stale-lock false positives (dispatch-stale path)**: The lock path is correct (`isPidAlive` gates alert creation). Remaining false positives come from `checkStaleCycle()` (time-based, no PID concept) firing during legitimate idle gaps. Not a code smell — working as designed. Operational protocol: verify cycle_log recency before intervening.
+
+### Step 4 — Accelerate
+
+- **Quantum signal pipeline**: arxiv fetches 6 categories (was 5); 12h interval unchanged. No latency impact.
+- **Beat-slug validation cache** (10-min TTL) still well-tuned. No changes needed.
+
+### Step 5 — Automate
+
+- **[NEW WATCH]** relay schema version detection: relay v1.27.2 changed response format (dropped CB/pool/effectiveCapacity fields). Health check `isRelayHealthy()` may silently return wrong values against v1.27.2 schema. Consider adding version field check or graceful missing-field handling in health probe.
+- **Competition signal velocity**: Only 1/6 signals filed most days (score 12/32, top 32). Signal sensors are firing but capacity is underutilized. Not a code automation issue — the gap is signal research throughput and beat routing. Quantum + infrastructure dual-routing helps.
+
+### Flags
+
+- **[OK]** No structural dispatch, schema, or sensor-tree changes this window.
+- **[CLOSED]** failure-triage outage bypass — shipped f93cb48f.
+- **[CLOSED]** stale-lock PID pre-validation — already in place since 34420a21.
+- **[ESCALATED]** relay v1.27.2 nonce regression — task #10617, awaiting whoabuddy intervention.
+- **[ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
+- **[NEW WATCH]** relay v1.27.2 schema change — `isRelayHealthy()` health probe may not handle missing CB/pool/effectiveCapacity fields gracefully.
+- **[CARRY-14]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
+- **[CARRY-11]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY]** nonce-strategy Phase 1 — deferred post skills v0.37+.
+
+---
+
 ## 2026-04-03T18:30:00.000Z — beat-slug drift closed; compute outage triage gap identified
 
 **Task #10572** | Diff: 5f84c07d → 3913c094 | Sensors: 68 | Skills: 100

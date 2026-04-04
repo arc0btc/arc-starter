@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-04-03T18:30:00.000Z*
+*Generated: 2026-04-04T06:35:00.000Z*
 *Sensor count: 68 | Skill count: 100*
 
 ```mermaid
@@ -51,7 +51,7 @@ stateDiagram-v2
             social_x_ecosystem
             arxiv_research
             note right of ordinals_market_data: 3 ordinals + 3 dev-tools/day\noverflow after 18:00 UTC\nAll 5 categories fetched per run\nper-category pending dedup\nFlat-market fallback: stability signal (fee-market REMOVED 6282b8b2)\nFLAT_MARKET_CATEGORIES extracted to module-level constant
-            note right of arxiv_research: routes papers to infrastructure beat (was dev-tools)\ntwo-tier aibtc-relevance filter (d2bc3c0d)\nTier 1: MCP/x402/Stacks/Clarity/sBTC/BRC-20\nTier 2: agent + crypto/blockchain compound
+            note right of arxiv_research: DUAL-BEAT routing (42d54a6e)\nInfrastructure: two-tier aibtc-relevance filter (d2bc3c0d)\nTier 1: MCP/x402/Stacks/Clarity/sBTC/BRC-20\nTier 2: agent + crypto/blockchain compound\nQuantum: quant-ph category + QUANTUM_KEYWORDS\nShor/Grover/ECDSA threats/BIP-360/P2QRH/NIST PQC\nBoth beats fire independently same day
             note right of aibtc_news_editorial: validateBeatExists() pre-validates beat slug\nGET /api/beats before filing any signal (391e4921)\n10-min cache: db/beat-slug-cache.json\nFails early with available slugs listed\n[WATCH-CLOSED] beat-slug drift detection shipped
         }
 
@@ -294,6 +294,16 @@ stateDiagram-v2
 | **Total** | **68** |
 
 *Note: bitcoin-quorumclaw DELETED (947ffa43) — sensor count 69→68, skill count 101→100. arc-workflows added to Infrastructure (was missing from prior diagrams; 11→12). Other/Misc: 5→3 (quorumclaw deleted, arc-workflows moved to Infrastructure).*
+
+## Key Architectural Changes (4f33bbe9 → 34bb98a8) [2026-04-04]
+
+| Change | Impact |
+|--------|--------|
+| **feat(arxiv-research): add quantum beat routing** (42d54a6e) | `arxiv-research` sensor now fetches `quant-ph` category and applies `QUANTUM_KEYWORDS` filter (17 regex patterns: Shor/Grover, post-quantum, ECDSA threats, BIP-360/P2QRH, NIST PQC, lattice-based crypto). Quantum signal tasks queue **independently** from infrastructure signal tasks — both can fire the same day. +58/-1 lines. Enabled by agent-news PR #376 (quantum beat merged 2026-04-03). State diagram updated: `arxiv_research` now routes to TWO beats. |
+| **feat(failure-triage): outage-detection bypass shipped** (f93cb48f) | `arc-failure-triage/sensor.ts` +35 lines: if `>OUTAGE_MIN_COUNT` failures share identical `result_summary` in a short window, classifies as "outage event" and skips individual retro tasks. Closes **[NEW WATCH]** from prior audit. Pattern: "bulk triage" / "stale: bulk triage" / "compute outage" summary prefixes are now recognized outage signatures. |
+| **docs(nonce-manager): skills-v0.36.1/v0.36.2** (208f6d9f, 6dea9567) | SKILL.md updated: canonical payment-status polling by `paymentId` is now the primary x402 state machine; nonce-manager demoted to backup sender nonce tracker. `terminalReason` is the new normalized terminal signal. No Arc code changes — upstream shift documented. |
+| **[CLOSED]** stale-lock PID pre-validation [WATCH] | `arc-service-health/sensor.ts` already validates `isPidAlive(lock.pid)` (added 34420a21, 2026-03-27). The prior [WATCH] was stale. Sensor only creates alert when lock PID is dead. Remaining false positives from dispatch-stale path (no-PID-concept) or race condition during lock handoff are an interpretation/protocol issue, not code. |
+| **[ESCALATED]** relay v1.27.2 sponsor nonce degraded | Relay upgraded v1.26.1→v1.27.2. 4 missing nonces [1559,1555,1553,1549] + 7 mempool-pending. lastExecutedNonce: 1548, possibleNextNonce: 1561. Response schema changed (no CB/pool/effectiveCapacity fields in v1.27.2). Escalated to whoabuddy — task #10617. |
 
 ## Key Architectural Changes (5f84c07d → 3913c094) [2026-04-03]
 
