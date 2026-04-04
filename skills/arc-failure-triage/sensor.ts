@@ -12,6 +12,11 @@ const INTERVAL_MINUTES = 60;
 const LOOKBACK_HOURS = 24;
 const OCCURRENCE_THRESHOLD = 3;
 
+/** Outage detection: if this fraction of non-dismissed failures share an identical summary... */
+const OUTAGE_PCT_THRESHOLD = 0.5;
+/** ...AND the absolute count is at least this many, treat it as a bulk outage event. */
+const OUTAGE_MIN_COUNT = 50;
+
 /** Normalized error signature patterns. Order matters — first match wins. */
 const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
   {
@@ -99,11 +104,24 @@ const ERROR_PATTERNS: Array<{ signature: string; patterns: RegExp[] }> = [
     signature: "dismissed",
     patterns: [/too noisy/i, /cleaning queue/i, /duplicate.*brief/i, /wrong priority/i, /focusing on mentions/i, /recreating with/i, /test task/i],
   },
+  {
+    signature: "outage-artifact",
+    patterns: [
+      /bulk triage.*outage/i,
+      /stale:.*bulk triage/i,
+      /failed by admin/i,
+      /force.?killed/i,
+      /intentionally offline/i,
+      /admin.*triage/i,
+      /compute outage/i,
+    ],
+  },
 ];
 
 /** Signatures that should never trigger an investigation task — handled elsewhere or intentional. */
 const SKIP_SIGNATURES = new Set([
   "dismissed",
+  "outage-artifact",
   "crash-recovery",
   "agent-suspended",
   "github-blocked",
@@ -218,6 +236,23 @@ export default async function failureTriageSensor(): Promise<string> {
     });
 
     if (nonDismissed.length > 0) {
+      // Outage-detection bypass: if >50% of non-dismissed failures share an identical
+      // result_summary AND the count >= OUTAGE_MIN_COUNT, this is a bulk outage event,
+      // not individual failures worth retrospecting. Skip retro creation.
+      const summaryFreq = new Map<string, number>();
+      for (const task of nonDismissed) {
+        const s = task.result_summary ?? "";
+        if (s) summaryFreq.set(s, (summaryFreq.get(s) ?? 0) + 1);
+      }
+      const maxCount = summaryFreq.size > 0 ? Math.max(...summaryFreq.values()) : 0;
+      if (
+        maxCount >= OUTAGE_MIN_COUNT &&
+        maxCount / nonDismissed.length >= OUTAGE_PCT_THRESHOLD
+      ) {
+        const dominantSummary = [...summaryFreq.entries()].find(([, v]) => v === maxCount)?.[0] ?? "";
+        return `ok: outage event detected — ${maxCount}/${nonDismissed.length} failures share identical summary "${dominantSummary.slice(0, 80)}" — skipping retro`;
+      }
+
       const listing = nonDismissed
         .slice(0, 10)
         .map((t) => {
