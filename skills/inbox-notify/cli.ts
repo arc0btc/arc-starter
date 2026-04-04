@@ -308,10 +308,12 @@ async function cmdPayoutConfirmations(args: string[]): Promise<void> {
         txid: string | null;
         status: string;
         correspondent_name: string;
+        error?: string;
       }>;
     };
 
-    const sentTransfers = record.transfers.filter(t => t.status === "sent" && t.txid);
+    // Only notify correspondents whose sBTC transfer actually succeeded (no error field)
+    const sentTransfers = record.transfers.filter(t => t.status === "sent" && t.txid && !t.error);
     if (sentTransfers.length === 0) {
       log("No sent transfers to notify");
       console.log(JSON.stringify({ date, status: "complete", sent: 0, total: 0 }));
