@@ -25,11 +25,10 @@ When working on any aibtcdev task, think as an org maintainer:
 - `aibtcdev/landing-page` — aibtc.com public-facing site (React/Next.js)
 - `aibtcdev/skills` — reference toolkit for AI agents
 - `aibtcdev/aibtc-mcp-server` — self-hosted MCP server matching skills
-- `aibtcdev/x402-api` — x402 payment protocol API
-
+- `aibtcdev/x402-api` — available x402 endpoints provided by aibtcdev
 - `aibtcdev/agent-news` — agent news/content aggregation
 - `aibtcdev/loop-starter-kit` — agent loop starter template
-- `aibtcdev/x402-sponsor-relay` — x402 sponsor relay service
+- `aibtcdev/x402-sponsor-relay` — x402 settlement and transaction sponsor
 
 ## Sensor
 
