@@ -205,7 +205,18 @@ export const BeatClaimingMachine: StateMachine<{
   },
 };
 
-export const PrLifecycleMachine: StateMachine<{
+/** Patterns matching automated PRs that don't need code review. */
+const AUTOMATED_PR_PATTERNS = [
+  /^chore\(main\): release/i,
+  /^chore\(deps\)/i,
+  /^chore\(deps-dev\)/i,
+  /^bump /i,
+];
+
+/** Repos using React/Next.js — load dev-landing-page-review for these PRs. */
+const REACT_REPOS = new Set(["aibtcdev/landing-page"]);
+
+interface PrLifecycleContext {
   owner?: string;
   repo?: string;
   number?: number;
@@ -216,7 +227,50 @@ export const PrLifecycleMachine: StateMachine<{
   lastChecked?: string;
   fromIssue?: number;
   issueUrl?: string;
-}> = {
+  reviewCycle?: number;
+  isAutomated?: boolean;
+}
+
+function shouldSkipPrReview(ctx: PrLifecycleContext): boolean {
+  if (ctx.author === "arc0btc") return true;
+  if (ctx.isAutomated) return true;
+  if (ctx.title && AUTOMATED_PR_PATTERNS.some((p) => p.test(ctx.title!))) return true;
+  return false;
+}
+
+function prReviewSkills(repoFull: string): string[] {
+  return REACT_REPOS.has(repoFull)
+    ? ["aibtc-repo-maintenance", "dev-landing-page-review"]
+    : ["aibtc-repo-maintenance"];
+}
+
+function buildReviewDescription(ctx: PrLifecycleContext, cycle: number): string {
+  const repoFull = `${ctx.owner}/${ctx.repo}`;
+  const isRereview = cycle > 1;
+  const lines = [
+    `PR #${ctx.number} on ${repoFull} by ${ctx.author || "unknown"}`,
+    `Title: ${ctx.title || "untitled"}`,
+    "",
+    "Instructions:",
+    "1. Read skills/aibtc-repo-maintenance/AGENT.md before acting.",
+    `2. Run: arc skills run --name aibtc-maintenance -- review-pr --repo ${repoFull} --pr ${ctx.number}`,
+    "3. Analyze the diff for correctness and known operational issues.",
+    "4. Post a review via gh pr review.",
+  ];
+  if (REACT_REPOS.has(repoFull)) {
+    lines.push(
+      "5. Apply the full landing-page review: React performance, composition patterns, and UI/accessibility — see skills/dev-landing-page-review/AGENT.md.",
+    );
+  }
+  if (isRereview) {
+    lines.push("", `This is re-review cycle ${cycle}. Focus on whether prior feedback was addressed.`);
+  }
+  return lines.join("\n");
+}
+
+export { AUTOMATED_PR_PATTERNS };
+
+export const PrLifecycleMachine: StateMachine<PrLifecycleContext> = {
   name: "pr-lifecycle",
   initialState: "opened",
   states: {
@@ -231,7 +285,18 @@ export const PrLifecycleMachine: StateMachine<{
       on: { request_review: "review-requested", close: "closed" },
       action: (ctx) => {
         if (!ctx.owner || !ctx.repo || !ctx.number) return null;
-        return { type: "noop" };
+        if (shouldSkipPrReview(ctx)) return null;
+        const cycle = ctx.reviewCycle || 1;
+        const repoFull = `${ctx.owner}/${ctx.repo}`;
+        return {
+          type: "create-task" as const,
+          subject: `Review PR #${ctx.number} on ${repoFull}: ${ctx.title || "untitled"}`,
+          description: buildReviewDescription(ctx, cycle),
+          priority: 5,
+          model: "sonnet",
+          skills: prReviewSkills(repoFull),
+          source: `pr-review:${repoFull}#${ctx.number}:v${cycle}`,
+        };
       },
     },
     "review-requested": {
@@ -240,7 +305,24 @@ export const PrLifecycleMachine: StateMachine<{
         approve: "approved",
         close: "closed",
       },
-      action: () => null,
+      action: (ctx) => {
+        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
+        if (shouldSkipPrReview(ctx)) return null;
+        const cycle = ctx.reviewCycle || 1;
+        const isRereview = cycle > 1;
+        const repoFull = `${ctx.owner}/${ctx.repo}`;
+        return {
+          type: "create-task" as const,
+          subject: isRereview
+            ? `Re-review PR #${ctx.number} on ${repoFull}: ${ctx.title || "untitled"} (cycle ${cycle})`
+            : `Review PR #${ctx.number} on ${repoFull}: ${ctx.title || "untitled"}`,
+          description: buildReviewDescription(ctx, cycle),
+          priority: isRereview ? 4 : 5,
+          model: "sonnet",
+          skills: prReviewSkills(repoFull),
+          source: `pr-review:${repoFull}#${ctx.number}:v${cycle}`,
+        };
+      },
     },
     "changes-requested": {
       on: { request_review: "review-requested", close: "closed" },
@@ -2161,56 +2243,6 @@ Steps:
   },
 };
 
-export const PrReviewMachine: StateMachine<{
-  owner?: string;
-  repo?: string;
-  number?: number;
-  title?: string;
-  url?: string;
-  author?: string;
-  reviewOutcome?: "approved" | "changes_requested" | "commented";
-  simplifierNotes?: string;
-}> = {
-  name: "pr-review",
-  initialState: "detected",
-  states: {
-    detected: {
-      on: { start_review: "reviewing" },
-      action: (ctx) => {
-        if (!ctx.owner || !ctx.repo || !ctx.number) return null;
-        return {
-          type: "create-task",
-          subject: `Review PR: ${ctx.owner}/${ctx.repo}#${ctx.number}${ctx.title ? ` — ${ctx.title}` : ""}`,
-          description: `Hardened PR review for ${ctx.url || `${ctx.owner}/${ctx.repo}#${ctx.number}`}.\n\nRun all five checklist dimensions: functionality, security, performance, clean code, big-picture fit. Run simplifier analysis. Do NOT approve without passing all five.`,
-          priority: 3,
-          skills: ["aibtc-repo-maintenance"],
-          nextState: "reviewing",
-        };
-      },
-    },
-    reviewing: {
-      on: { post_review: "posted" },
-      action: () => null,
-    },
-    posted: {
-      on: { approved: "approved", request_changes: "changes_requested", comment_only: "commented" },
-      action: () => null,
-    },
-    approved: {
-      on: {},
-      action: () => null,
-    },
-    changes_requested: {
-      on: { rereviewed: "posted" },
-      action: () => null,
-    },
-    commented: {
-      on: {},
-      action: () => null,
-    },
-  },
-};
-
 
 /**
  * LandingPageReviewMachine — models the recurring "new release → review landing page content
@@ -3028,7 +3060,6 @@ export function getTemplateByName(name: string): StateMachine | null {
     "signal-filing": SignalFilingMachine,
     "beat-claiming": BeatClaimingMachine,
     "pr-lifecycle": PrLifecycleMachine,
-    "pr-review": PrReviewMachine,
     "reputation-feedback": ReputationFeedbackMachine,
     "validation-request": ValidationRequestMachine,
     "inscription": InscriptionMachine,
