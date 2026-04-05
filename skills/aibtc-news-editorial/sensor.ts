@@ -91,21 +91,31 @@ function rosterContext(roster: RosterSnapshot): string {
   return lines.join("\n");
 }
 
+/** Convert any ISO timestamp to its Pacific-timezone date string (YYYY-MM-DD). */
+function toPacificDate(ts: string): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Los_Angeles",
+  }).format(new Date(ts));
+}
+
 async function signalReviewSensor(): Promise<string> {
   const claimed = await claimSensorRun(SIGNAL_SENSOR, SIGNAL_INTERVAL);
   if (!claimed) return "skip";
 
   signalLog("Checking for submitted signals...");
 
-  // Roster info for reviewer context (never blocks task creation)
+  // Check cap BEFORE fetching signals — no point reviewing if we can't approve anything
   const roster = await getTodayApprovedRoster();
-  const rosterBlock = rosterContext(roster);
+  const remainingSlots = DAILY_APPROVAL_CAP - roster.count;
+
+  if (remainingSlots <= 0) {
+    signalLog(`Cap full (${roster.count}/${DAILY_APPROVAL_CAP}) — skipping review task`);
+    return "ok";
+  }
 
   let signals: Signal[];
   try {
-    const resp = await fetchWithRetry(
-      `${API_BASE}/signals?status=submitted`
-    );
+    const resp = await fetchWithRetry(`${API_BASE}/signals?status=submitted`);
 
     if (!resp.ok) {
       signalLog(`API returned ${resp.status}`);
@@ -124,33 +134,51 @@ async function signalReviewSensor(): Promise<string> {
     return "ok";
   }
 
-  signalLog(`Found ${signals.length} submitted signal(s) — ${roster.count}/${DAILY_APPROVAL_CAP} approved`);
+  signalLog(`Found ${signals.length} submitted signal(s) — ${roster.count}/${DAILY_APPROVAL_CAP} approved, ${remainingSlots} slot(s) remaining`);
 
-  signals.sort(
-    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-  );
+  // Prioritize today's signals over backlog; sort each group oldest-first
+  const todayPacific = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Los_Angeles",
+  }).format(new Date());
 
-  const batch = signals.slice(0, BATCH_SIZE);
+  const sortByTime = (a: Signal, b: Signal) =>
+    new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+
+  const todaySignals = signals
+    .filter((s) => toPacificDate(s.timestamp) === todayPacific)
+    .sort(sortByTime);
+  const olderSignals = signals
+    .filter((s) => toPacificDate(s.timestamp) !== todayPacific)
+    .sort(sortByTime);
+
+  // Batch size capped to remaining slots so we never queue more reviews than we can approve
+  const effectiveBatchSize = Math.min(BATCH_SIZE, remainingSlots);
+  const prioritized = [...todaySignals, ...olderSignals];
+  const batch = prioritized.slice(0, effectiveBatchSize);
+
+  const rosterBlock = rosterContext(roster);
   const signalList = batch
-    .map(
-      (s) => `- ${s.id} | ${s.beat} | ${(s.headline ?? "").slice(0, 80)}`
-    )
+    .map((s) => `- ${s.id} | ${s.beat} | ${(s.headline ?? "").slice(0, 80)}`)
     .join("\n");
 
-  const overCap = roster.count >= DAILY_APPROVAL_CAP;
-  const rosterInstruction = overCap
-    ? `\n\n${rosterBlock}\n\n**HARD CAP ENFORCED.** The roster already has ${roster.count} approved signals — well over the daily target of ${DAILY_APPROVAL_CAP}. Do NOT approve any more signals unless they are **clearly exceptional** (security incidents, major milestones, breaking infrastructure changes). For each signal you approve, you MUST displace a weaker signal (status=replaced) in the same review action. If a signal is decent but not exceptional, reject it with feedback: "Daily roster is full (${roster.count}/${DAILY_APPROVAL_CAP}). Signal meets baseline standards but does not clear the bar for displacement. Resubmit tomorrow or strengthen the claim with more specific data."\n\nDisplacement is non-punitive (rep=0). Never use rejected for displacement. Check the roster before approving: \`arc skills run --name aibtc-news-classifieds -- list-signals --status approved\``
-    : `\n\n${rosterBlock}\n\nYou are managing a competitive roster of the best ${DAILY_APPROVAL_CAP} signals for today's brief. Approve signals that meet editorial standards. If the roster is full, approve strong candidates and displace a weaker approved signal (status=replaced). Displacement is non-punitive (rep=0) — the signal was acceptable but outranked. Never use rejected for displacement.\n\nA signal's "approved" status means it is compile-eligible — it is not a guarantee of final inclusion. Later review batches or the compile step may displace it if stronger signals arrive.`;
+  const todayInBatch = batch.filter((s) => toPacificDate(s.timestamp) === todayPacific).length;
+  const olderInBatch = batch.length - todayInBatch;
+  const priorityNote =
+    olderInBatch > 0
+      ? `\n\n**Batch composition:** ${todayInBatch} today's signal(s), ${olderInBatch} from backlog. Today's signals appear first.`
+      : "";
+
+  const totalRemaining = signals.length - batch.length;
 
   const id = insertTaskIfNew(SIGNAL_SOURCE, {
-    subject: `Review ${batch.length} submitted signal(s) [${roster.count}/${DAILY_APPROVAL_CAP} roster]`,
-    description: `${batch.length} signal(s) to review in this batch${signals.length > BATCH_SIZE ? ` (${signals.length} total pending — batched ${BATCH_SIZE} at a time)` : ""}.${rosterInstruction}\n\nBatch:\n${signalList}\n\nReview each signal using the workflow and decision rubric in aibtc-signal-review SKILL.md. If more signals remain after this batch, a follow-up task will be created on next sensor run.`,
+    subject: `Review ${batch.length} submitted signal(s) [${roster.count}/${DAILY_APPROVAL_CAP} roster, ${remainingSlots} slot(s) open]`,
+    description: `${batch.length} signal(s) to review (batch capped to ${remainingSlots} remaining approval slot(s))${totalRemaining > 0 ? ` — ${signals.length} total pending, ${totalRemaining} deferred to next run` : ""}.\n\n${rosterBlock}\n\nApprove signals that meet editorial standards. If the roster fills mid-batch, reject remaining signals with: "Daily approval cap reached — resubmit tomorrow." A signal's "approved" status means compile-eligible, not a guarantee of final inclusion.${priorityNote}\n\nBatch:\n${signalList}\n\nReview each signal using the workflow and decision rubric in aibtc-signal-review SKILL.md.`,
     priority: 4,
     skills: JSON.stringify(["aibtc-signal-review", "aibtc-news-classifieds", "bitcoin-wallet"]),
   });
 
   if (id !== null) {
-    signalLog(`Review task created: #${id} — ${signals.length} signal(s) pending, ${roster.count}/${DAILY_APPROVAL_CAP} approved`);
+    signalLog(`Review task created: #${id} — ${batch.length} in batch, ${signals.length} total pending, ${remainingSlots} slot(s) open`);
   } else {
     signalLog("Review task already pending, skipped duplicate");
   }
