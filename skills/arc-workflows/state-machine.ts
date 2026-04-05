@@ -2047,12 +2047,16 @@ export const SelfReviewCycleMachine: StateMachine<{
           skills: ["arc-self-review"],
           description: `Periodic self-review cycle for ${date}.
 
-Steps:
+FIRST (before any other work): Extract the workflow_id from this task's source field (format: workflow:<id>) and immediately transition the workflow out of 'triggered' to prevent duplicate tasks:
+  arc skills run --name arc-workflows -- transition <workflow_id> reviewing
+
+Then complete the health check:
 1. Run the full self-review checklist (sensors, dispatch health, cost, skill drift)
-2. Record issueCount and issueSummary in workflow context
-3. Transition workflow to 'reviewing'
-4. If issues found: set issueCount > 0 and transition to 'issues_found'
-5. If clean: transition to 'clean'`,
+2. Update workflow context with issueCount and issueSummary:
+   arc skills run --name arc-workflows -- transition <workflow_id> reviewing --context '{"issueCount":<n>,"issueSummary":"<summary>"}'
+   (If already in reviewing state, use: arc skills run --name arc-workflows -- transition <workflow_id> issues_found --context '...' OR transition <workflow_id> clean)
+3. If issues found (issueCount > 0): transition to 'issues_found'
+4. If clean (issueCount = 0): transition to 'clean'`,
         };
       },
     },
