@@ -18,6 +18,7 @@ const SIGN_RUNNER = resolve(import.meta.dir, "sign-runner.ts");
 const X402_RUNNER = resolve(import.meta.dir, "x402-runner.ts");
 const BNS_RUNNER = resolve(import.meta.dir, "bns-runner.ts");
 const STX_SEND_RUNNER = resolve(import.meta.dir, "stx-send-runner.ts");
+const BALANCE_RUNNER = resolve(import.meta.dir, "balance-runner.ts");
 
 // ---- Helpers ----
 
@@ -590,6 +591,23 @@ async function cmdStxSend(args: string[]): Promise<void> {
   }
 }
 
+async function cmdBalance(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+  const address = flags.address || "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B";
+
+  log(`querying balance for ${address}`);
+
+  const result = await runScript(BALANCE_RUNNER, ["--address", address]);
+
+  if (result.exitCode !== 0) {
+    log(`balance query failed: ${result.stderr}`);
+    console.log(JSON.stringify({ success: false, error: "Balance query failed", detail: result.stderr || result.stdout }));
+    process.exit(1);
+  }
+
+  console.log(result.stdout);
+}
+
 async function cmdCheckRelayHealth(args: string[]): Promise<void> {
   const flags = parseFlags(args);
   const relayUrl = (flags["relay-url"] || "https://x402-relay.aibtc.com").replace(/\/+$/, "");
@@ -738,6 +756,11 @@ SUBCOMMANDS
     Send STX to a recipient. Auto-unlocks and locks.
     Amount is in STX (e.g. 2.5 = 2,500,000 micro-STX).
 
+  balance [--address <STX address>]
+    Query STX balance for a Stacks address (no unlock needed).
+    Default address: SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B (Arc's address)
+    Returns available, locked, and total balances in both STX and micro-STX.
+
   check-relay-health [--relay-url <url>] [--sponsor-address <address>]
     Check x402 sponsor relay health and nonce status (no unlock needed).
     Default relay: https://x402-relay.aibtc.com
@@ -755,6 +778,8 @@ SUBCOMMANDS
 EXAMPLES
   arc skills run --name wallet -- info
   arc skills run --name wallet -- unlock
+  arc skills run --name wallet -- balance
+  arc skills run --name wallet -- balance --address SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE
   arc skills run --name wallet -- btc-sign --message "Hello"
   arc skills run --name wallet -- btc-verify --message "Hello" --signature "abc..." --expected-signer "bc1q..."
   arc skills run --name wallet -- check-relay-health
@@ -798,6 +823,9 @@ async function main(): Promise<void> {
       break;
     case "stx-send":
       await cmdStxSend(args.slice(1));
+      break;
+    case "balance":
+      await cmdBalance(args.slice(1));
       break;
     case "check-relay-health":
       await cmdCheckRelayHealth(args.slice(1));

@@ -1,7 +1,7 @@
 ---
 name: bitcoin-wallet
-description: Wallet management, cryptographic signing, and STX transfers for Stacks and Bitcoin — unlock, lock, info, status, BTC/Stacks message signing, BTC signature verification, and STX sending.
-updated: 2026-03-09
+description: Wallet management, cryptographic signing, and STX transfers for Stacks and Bitcoin — unlock, lock, info, status, balance query, BTC/Stacks message signing, BTC signature verification, and STX sending.
+updated: 2026-04-05
 tags:
   - infrastructure
   - sensitive
@@ -17,7 +17,7 @@ Wraps the aibtcdev/skills wallet and signing tools for Arc dispatch. Manages the
 - **Wallet password** is stored in Arc's encrypted credential store at `wallet/password`.
 - **Signing auto-unlocks and locks** — `btc-sign` and `stacks-sign` handle unlock/lock internally. No manual unlock needed.
 - **`unlock` command** verifies the password works (test operation, not required before signing).
-- **Read-only commands** (`info`, `status`, `btc-verify`, `check-relay-health`) do not require unlock.
+- **Read-only commands** (`info`, `status`, `balance`, `btc-verify`, `check-relay-health`) do not require unlock.
 - **Never expose** the mnemonic, password, or private keys in task output.
 
 **Note:** The upstream wallet manager holds unlock state in memory per-process. Signing operations run unlock + sign + lock in a single process via `sign-runner.ts`.
@@ -29,6 +29,7 @@ arc skills run --name wallet -- unlock
 arc skills run --name wallet -- lock
 arc skills run --name wallet -- info
 arc skills run --name wallet -- status
+arc skills run --name wallet -- balance [--address <STX address>]
 arc skills run --name wallet -- btc-sign --message "text"
 arc skills run --name wallet -- stacks-sign --message "text"
 arc skills run --name wallet -- btc-verify --message "text" --signature "sig" [--expected-signer "addr"]
@@ -52,6 +53,17 @@ Returns wallet addresses (Stacks, Bitcoin SegWit, Taproot) and network. No unloc
 ### status
 
 Returns wallet readiness: whether it exists, is active, and is unlocked. No unlock required.
+
+### balance
+
+Query STX balance for a Stacks address. Queries the Stacks API and returns total, available, and locked balances in both STX and micro-STX. Defaults to Arc's address if no address is provided. No unlock required.
+
+**Flags:**
+- `--address` (optional): Stacks address to query. Default: `SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B` (Arc's address)
+
+**Output:** JSON with `balance_stx`, `balance_micro_stx`, `locked_stx`, `locked_micro_stx`, `available_stx`, `available_micro_stx`, and `lock_height`.
+
+**Example:** `arc skills run --name wallet -- balance` or `arc skills run --name wallet -- balance --address SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE`
 
 ### btc-sign / stacks-sign
 
@@ -92,6 +104,7 @@ Example: `arc skills run --name wallet -- x402 send-inbox-message --recipient-bt
 
 ## When to Use
 
+- **Checking wallet balance** — Query Arc's STX balance or any Stacks address via `balance`.
 - **Funding agent wallets** — Send STX to other agent addresses via `stx-send`.
 - **AIBTC inbox messages** — Send paid x402 messages via `x402 send-inbox-message`.
 - **AIBTC heartbeat check-ins** — BTC sign the check-in message, then lock.
