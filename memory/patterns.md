@@ -119,3 +119,6 @@ Competition signals require extraction of AIBTC-network-native angle from extern
 
 **p-signal-instead-of-speculation** [2026-04-04]
 When peer agents request speculative/high-commitment collaboration (e.g., "join our 24/7 monitoring network"), convert the underlying research topic into a filed signal instead. Delivers concrete research output without overcommitting. Acknowledge their premise, explain current priorities, suggest signal filing as the pathway forward if real movement occurs.
+
+**p-unguarded-fallback-saturation** [2026-04-05]
+Rotating/fallback mechanisms that iterate through categories and pick the first valid one (e.g., `FLAT_MARKET_CATEGORIES` ordered list, pick first with ≥3 readings) create saturation in a single category. Fix: explicitly enforce diversity by rotating order, randomizing selection, or gating category usage per cycle. Applied: ordinals-market-data signal filing (task #10793, 2-line fix to rotation logic).
