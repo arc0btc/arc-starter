@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-04-04T18:35:00.000Z*
+*Generated: 2026-04-05T06:35:00.000Z*
 *Sensor count: 68 | Skill count: 100*
 
 ```mermaid
@@ -39,7 +39,7 @@ stateDiagram-v2
             arc0btc_security_audit
             aibtc_dev_ops
             aibtc_repo_maintenance
-            note right of github_mentions: review_requested/assign on watched repos\ndeferred to PrLifecycleMachine (8a984348)\nno longer creates PR review tasks directly\nstill handles mention/team_mention
+            note right of github_mentions: review_requested/assign on watched repos\ndeferred to PrLifecycleMachine (8a984348)\nno longer creates PR review tasks directly\nstill handles mention/team_mention\nIssue @mention flood guard (10964091)\n24h recentTaskExistsForSource blocks re-creation after complete\nPullRequest re-review unaffected
             note right of aibtc_repo_maintenance: sensor simplified (8a984348)\nPR review task creation moved to PrLifecycleMachine\nno direct insertTask/pendingTaskExistsForSource\nwatched repos from AIBTC_WATCHED_REPOS constant
         }
 
@@ -91,7 +91,7 @@ stateDiagram-v2
             context_review
             compliance_review
             arc_workflows
-            note right of arc_workflows: drives workflow state machine\nstate-specific source keys (8ce27fb9)\ndedup scoped to workflow:{id}:{state}\nprevents cross-state dedup collisions\nPrLifecycleMachine owns ALL PR review dispatch (061c807d)\nAUTOMATED_PR_PATTERNS exported from state-machine.ts\ncontext preserved on state transitions (not overwritten)\ngithub-mentions defers review_requested/assign to workflow engine
+            note right of arc_workflows: drives workflow state machine\nstate-specific source keys (8ce27fb9)\ndedup scoped to workflow:{id}:{state}\nprevents cross-state dedup collisions\nPrLifecycleMachine owns ALL PR review dispatch (061c807d)\nAUTOMATED_PR_PATTERNS exported from state-machine.ts\ncontext preserved on state transitions (not overwritten)\ngithub-mentions defers review_requested/assign to workflow engine\nSkills format: JSON.stringify() not .join(",") (f3b5159d)\narc-self-review: trigger state includes workflow transition cmd (806ce147)
         }
 
         state MemoryMaintenanceSensors {
@@ -296,6 +296,14 @@ stateDiagram-v2
 | **Total** | **68** |
 
 *Note: bitcoin-quorumclaw DELETED (947ffa43) — sensor count 69→68, skill count 101→100. arc-workflows added to Infrastructure (was missing from prior diagrams; 11→12). Other/Misc: 5→3 (quorumclaw deleted, arc-workflows moved to Infrastructure).*
+
+## Key Architectural Changes (6ce1d0f → f3b5159) [2026-04-05]
+
+| Change | Impact |
+|--------|--------|
+| **fix(github-mentions): suppress issue @mention flood within 24h window** (10964091) | Issue notifications now use `recentTaskExistsForSource()` (24h window) instead of `pendingTaskExistsForSource()` (pending-only). Previously, completing a task allowed the *next* mention on the same issue to immediately create a new task — each of 10+ @mentions on issue #383 became a separate ~$0.25 task. PullRequest re-review is unaffected (re-review is desirable). +6/-3 lines in `github-mentions/sensor.ts`. Closes the day-14 flood gap. |
+| **fix(arc-self-review): transition workflow to reviewing at task start** (806ce147) | arc-self-review 'triggered' state task description lacked the workflow transition CLI command. Without the explicit transition, workflows accumulated in 'triggered' state across days — duplicate health-check tasks on every sensor cycle. Fix: task description now requires `arc skills run --name arc-workflows -- transition <id> reviewing` as first step. +9/-5 lines in `arc-workflows/state-machine.ts`. |
+| **fix(context-review): correct skills format mismatch** (f3b5159d) | `arc-workflows/sensor.ts` was serializing skills as `action.skills.join(",")` (comma-separated string) but all parsers — `dispatch.ts` and `context-review/sensor.ts` — expect JSON arrays (`["skill-name"]`). Silent data corruption: workflow-dispatched tasks silently lost skill context at dispatch time, and were incorrectly flagged as "empty skills" by the context-review sensor. Fix: `JSON.stringify(action.skills)` in sensor; comma-separated fallback added in context-review parser for historical tasks. Superseded tasks filtered from empty-skills-failed check. +7/-2 lines across 2 files. |
 
 ## Key Architectural Changes (34bb98a → 6ce1d0f) [2026-04-04]
 

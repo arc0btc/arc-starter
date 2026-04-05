@@ -1,3 +1,52 @@
+## 2026-04-05T06:35:00.000Z — issue flood guard; workflow skills format fix; self-review stuck state
+
+**Task #10768** | Diff: 6ce1d0f → f3b5159 | Sensors: 68 | Skills: 100
+
+### Step 1 — Requirements
+
+- **Issue @mention flood guard shipped** (10964091): `github-mentions/sensor.ts` Issue notifications now use `recentTaskExistsForSource()` (24h) instead of `pendingTaskExistsForSource()`. Day-14 issue: issue #383 generated 10+ tasks (~$2.50 wasted) because completing a task allowed the next @mention to re-create. PullRequest notifications unaffected. Requirement: suppress queue floods from multi-participant issue threads. Satisfied.
+- **arc-workflows skills format fixed** (f3b5159d): `arc-workflows/sensor.ts` was using `.join(",")` for skills serialization; all parsers expect JSON arrays. Silent data corruption: workflow-created tasks lost skill context at dispatch. Fixed to `JSON.stringify()`. context-review/sensor.ts also gets comma-separated fallback for historical tasks + superseded-task filter for empty-skills check. Requirement: workflow-created tasks load correct skill context. Satisfied.
+- **arc-self-review stuck state fixed** (806ce147): 'triggered' state task description lacked workflow transition CLI command. Workflows accumulated in 'triggered' state, generating duplicate health-check tasks each cycle. Fix: explicit `arc skills run --name arc-workflows -- transition <id> reviewing` added to task description as first step. Requirement: arc-self-review workflows advance through states without accumulation. Satisfied.
+- **relay v1.27.2 sponsor nonce** [CARRY-ESCALATED task #10617]: No change. Still awaiting whoabuddy intervention.
+
+### Step 2 — Delete
+
+- No deletions this window.
+- **[CARRY-16]** ordinals HookState deprecated fields (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`) — cleanup 2026-04-23+.
+- **[CARRY-13]** layered-rate-limit sensor migration (3 sensors) — post-competition 2026-04-23+.
+- **[CARRY]** nonce-strategy Phase 1 (retry-strategy.ts) — deferred post skills v0.37+.
+
+### Step 3 — Simplify
+
+- **Issue flood guard**: adding `recentTaskExistsForSource()` is the minimum viable fix — no over-engineering. One guard applies to all future Issue floods regardless of issue URL.
+- **Skills format fix**: 1-line change at write path + 3-line fallback at read path. Backward-compatible. Correct.
+- **arc-self-review fix**: pure task-description text change (no code logic added). AGENT.md-style fix applied to state machine task body.
+
+### Step 4 — Accelerate
+
+- **Issue flood prevention** directly reduces wasted dispatch cycles. Estimated: 10+ cycles saved per multi-participant issue thread.
+- **Skills format fix** ensures workflow-dispatched tasks actually load skill context — previously they were running with empty context, likely degrading task quality silently.
+
+### Step 5 — Automate
+
+- **[CARRY-WATCH]** relay v1.27.2 schema change: `isRelayHealthy()` may not handle missing CB/pool/effectiveCapacity fields from v1.27.2 response. Consider graceful fallback.
+- **Competition signal velocity**: 2/6 signals filed per night (score 12+, trend improving). Quantum + infrastructure dual-routing operational.
+
+### Flags
+
+- **[OK]** No dispatch loop, schema, or task queue changes this window.
+- **[CLOSED]** arc-workflows skills format mismatch — fixed in f3b5159d.
+- **[CLOSED]** arc-self-review stuck 'triggered' state — fixed in 806ce147.
+- **[CLOSED]** Issue @mention flood gap — fixed in 10964091.
+- **[ESCALATED]** relay v1.27.2 nonce regression — task #10617, awaiting whoabuddy.
+- **[ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
+- **[CARRY-WATCH]** relay v1.27.2 schema change — `isRelayHealthy()` missing-field handling.
+- **[CARRY-16]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
+- **[CARRY-13]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY]** nonce-strategy Phase 1 — deferred post skills v0.37+.
+
+---
+
 ## 2026-04-04T18:35:00.000Z — PR review lifecycle centralized; safe-commit lint fixed; context preservation
 
 **Task #10693** | Diff: 34bb98a → 6ce1d0f | Sensors: 68 | Skills: 100
