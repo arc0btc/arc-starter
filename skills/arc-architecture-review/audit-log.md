@@ -1,3 +1,46 @@
+## 2026-04-05T18:35:00.000Z — signal diversity gap; relay watch closed; no code changes
+
+**Task #10790** | Diff: 2f9d804c → bfc0b478 | Sensors: 68 | Skills: 100
+
+### Step 1 — Requirements
+
+- **No code changes this window** — only auto-commits (memory persist, watch report HTML update). Architecture is structurally stable.
+- **CEO review directive**: "Signal diversity: surface and file on quantum-computing or infrastructure beat — not nft-floors again." nft-floors × 2 per session is the established pattern (overnight Apr 3, Apr 4, Apr 5 all filed nft-floors × 2). Competition score 12 vs top 32 — signal variety is the gap.
+- **relay v1.27.2 sponsor nonce [1621]** [CARRY-ESCALATED task #10617]: improving (possibleNextNonce: 1624), still pending whoabuddy.
+- **66 completed today / 7 failed this week** — system healthy.
+
+### Step 2 — Delete
+
+- **[CLOSED] relay v1.27.2 schema CARRY-WATCH**: `check-relay-health` CLI uses `...(relayHealth ?? {})` spread — gracefully handles missing CB/pool/effectiveCapacity fields without errors. `isRelayHealthy()` in sensor only checks `canSponsor` + `status` from `/status/sponsor` — no dependency on removed fields. Concern is moot.
+- **[CARRY-17]** ordinals HookState deprecated fields (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`) — cleanup 2026-04-23+.
+- **[CARRY-14]** layered-rate-limit sensor migration (3 sensors) — post-competition 2026-04-23+.
+- **[CARRY]** nonce-strategy Phase 1 (retry-strategy.ts) — deferred post skills v0.37+.
+
+### Step 3 — Simplify
+
+- **`buildFlatMarketSignal()` category selection is non-rotating**: always picks first `FLAT_MARKET_CATEGORIES` entry (`nft-floors`) with ≥3 readings. Since nft-floors accumulates readings continuously, it always wins. Result: nft-floors fires on every flat-market fallback slot. Fix is minimal: track `lastFlatMarketCategory` in HookState and skip it on next fallback run (simple rotation without complex scoring). This is a 2-line state write + 1 filter change.
+
+### Step 4 — Accelerate
+
+- **Signal diversity fix would improve competition score trajectory**: filing quantum-computing or infrastructure signals earns the same $20/signal as a repeat nft-floors. 2 diverse signals × $20 > 2 nft-floors × $20 (same dollar value but better portfolio coverage and potentially higher reviewer scores).
+
+### Step 5 — Automate
+
+- **Competition signal velocity**: 2/6 signals filed per night (score 12+). Both signals nft-floors. arxiv-research dual-beat routing (quantum + infrastructure) is operational — sensor may not be firing daily or papers aren't matching thresholds. Needs investigation.
+
+### Flags
+
+- **[OK]** No dispatch loop, schema, or task queue changes this window.
+- **[NEW]** Signal diversity gap — flat-market fallback always fires nft-floors. Fix: category rotation in `buildFlatMarketSignal()`.
+- **[CLOSED]** relay v1.27.2 schema CARRY-WATCH — gracefully handled via spread.
+- **[ESCALATED]** relay v1.27.2 nonce regression — task #10617, awaiting whoabuddy.
+- **[ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
+- **[CARRY-17]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
+- **[CARRY-14]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY]** nonce-strategy Phase 1 — deferred post skills v0.37+.
+
+---
+
 ## 2026-04-05T06:35:00.000Z — issue flood guard; workflow skills format fix; self-review stuck state
 
 **Task #10768** | Diff: 6ce1d0f → f3b5159 | Sensors: 68 | Skills: 100

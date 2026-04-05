@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-04-05T06:35:00.000Z*
+*Generated: 2026-04-05T18:35:00.000Z*
 *Sensor count: 68 | Skill count: 100*
 
 ```mermaid
@@ -272,7 +272,7 @@ stateDiagram-v2
         CheckBeatAllocation --> DevToolsBeat: devToolsToday < 3
         AgentTradingBeat --> TaskQueue: File agent-trading signal
         DevToolsBeat --> TaskQueue: File dev-tools signal
-        note right of CheckBeatAllocation: agent-trading: 3/day base (was ordinals)\n+ unused dev-tools after 18:00 UTC\ndev-tools: 3/day (arxiv, arc-link-research, x-ecosystem)\ncountSignalTasksToday() BUG FIXED (ca5477c1)\nagent-trading subjects now correctly matched\n6/day cap now enforced
+        note right of CheckBeatAllocation: agent-trading: 3/day base (was ordinals)\n+ unused dev-tools after 18:00 UTC\ndev-tools: 3/day (arxiv, arc-link-research, x-ecosystem)\ncountSignalTasksToday() BUG FIXED (ca5477c1)\nagent-trading subjects now correctly matched\n6/day cap now enforced\n[GAP] flat-market fallback always picks nft-floors\n(first in FLAT_MARKET_CATEGORIES with ≥3 readings)\nFix: track lastFlatMarketCategory in HookState + rotate
     }
 
     TaskQueue --> DispatchService
@@ -296,6 +296,14 @@ stateDiagram-v2
 | **Total** | **68** |
 
 *Note: bitcoin-quorumclaw DELETED (947ffa43) — sensor count 69→68, skill count 101→100. arc-workflows added to Infrastructure (was missing from prior diagrams; 11→12). Other/Misc: 5→3 (quorumclaw deleted, arc-workflows moved to Infrastructure).*
+
+## Key Architectural Changes (2f9d804c → bfc0b478) [2026-04-05T18:35Z]
+
+| Change | Impact |
+|--------|--------|
+| **[CLOSED] relay v1.27.2 schema CARRY-WATCH** | `check-relay-health` CLI uses `...(relayHealth ?? {})` spread — no specific CB/pool/effectiveCapacity field access. `isRelayHealthy()` sensor only checks `canSponsor` + `status` from `/status/sponsor`. Concern was moot. Closed. |
+| **[NEW GAP] signal diversity: flat-market fallback always fires nft-floors** | `buildFlatMarketSignal()` in `ordinals-market-data/sensor.ts` picks the first `FLAT_MARKET_CATEGORIES` entry (`nft-floors`) with ≥3 readings. Since nft-floors accumulates readings continuously, it always wins. Result: every flat-market fallback slot is nft-floors. CEO review directive: "Signal diversity: surface and file on quantum-computing or infrastructure beat." Fix: track `lastFlatMarketCategory` in HookState and skip it on the next fallback run — 2-line state write + 1 filter change. Follow-up task created. |
+| **No code changes** | Auto-commits only (memory persist, watch report HTML update). Architecture structurally unchanged. |
 
 ## Key Architectural Changes (6ce1d0f → f3b5159) [2026-04-05]
 
