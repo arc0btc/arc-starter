@@ -1,4 +1,4 @@
-import { claimSensorRun, createSensorLogger, fetchWithRetry } from "../../src/sensors.ts";
+import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import {
   insertTask,
   recentTaskExistsForSource,
@@ -14,7 +14,7 @@ import {
   AUTOMATED_PR_PATTERNS,
   type WorkflowAction,
 } from "./state-machine.ts";
-import { getCredential } from "../../src/credentials.ts";
+
 import { AIBTC_WATCHED_REPOS } from "../../src/constants.ts";
 
 const SENSOR_NAME = "arc-workflows";
@@ -71,118 +71,103 @@ function mapPRStateToWorkflowState(pr: GithubPR): WorkflowState {
 }
 
 /**
- * Fetch PRs from GitHub API for specified repos
+ * Fetch PRs from GitHub using `gh api graphql` (uses gh CLI auth, no separate token needed).
+ * Batches all repos into a single GraphQL query for efficiency.
  */
-async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
-  const token = await getCredential("github", "token");
-  if (!token) {
-    log("pr-lifecycle: github token not found in credentials");
-    return [];
-  }
-
-  const prs: GithubPR[] = [];
-
+function fetchGitHubPRs(repos: string[]): GithubPR[] {
+  const validRepos: Array<{ owner: string; repo: string; full: string }> = [];
   for (const repoPath of repos) {
     const [owner, repo] = repoPath.split("/");
     if (!owner || !repo) {
       log(`pr-lifecycle: invalid repo path: ${repoPath}`);
       continue;
     }
+    validRepos.push({ owner, repo, full: repoPath });
+  }
 
-    try {
-      const query = `
-        query($owner: String!, $repo: String!) {
-          repository(owner: $owner, name: $repo) {
-            pullRequests(first: 50, states: [OPEN, CLOSED]) {
-              nodes {
-                number
-                title
-                url
-                author {
-                  login
-                }
-                state
-                merged
-                reviewDecision
-                closingIssuesReferences(first: 5) {
-                  nodes {
-                    number
-                  }
-                }
-              }
-            }
+  if (validRepos.length === 0) return [];
+
+  // Batch all repos into one GraphQL query (like aibtc-repo-maintenance sensor)
+  const fragments = validRepos.map((r, i) => `repo${i}: repository(owner: "${r.owner}", name: "${r.repo}") {
+      pullRequests(first: 50, states: [OPEN, CLOSED]) {
+        nodes {
+          number
+          title
+          url
+          author { login }
+          state
+          merged
+          reviewDecision
+          closingIssuesReferences(first: 5) {
+            nodes { number }
           }
         }
-      `;
+      }
+    }`);
 
-      const response = await fetchWithRetry("https://api.github.com/graphql", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ query, variables: { owner, repo } }),
+  const query = `query { ${fragments.join("\n")} }`;
+  const result = Bun.spawnSync(["gh", "api", "graphql", "-f", `query=${query}`], {
+    timeout: 30_000,
+  });
+
+  if (result.exitCode !== 0) {
+    log(`pr-lifecycle: gh api graphql failed: ${result.stderr.toString().trim()}`);
+    return [];
+  }
+
+  type PRNode = {
+    number: number;
+    title: string;
+    url: string;
+    author?: { login: string };
+    state: string;
+    merged?: boolean;
+    reviewDecision?: string | null;
+    closingIssuesReferences?: { nodes?: Array<{ number: number }> };
+  };
+
+  type RepoData = {
+    pullRequests: { nodes: PRNode[] };
+  };
+
+  let data: Record<string, RepoData>;
+  try {
+    const parsed = JSON.parse(result.stdout.toString().trim()) as { data: Record<string, RepoData> };
+    data = parsed.data;
+  } catch {
+    log("pr-lifecycle: failed to parse GraphQL response");
+    return [];
+  }
+
+  const prs: GithubPR[] = [];
+  for (let i = 0; i < validRepos.length; i++) {
+    const { owner, repo } = validRepos[i];
+    const repoData = data[`repo${i}`];
+    if (!repoData) continue;
+
+    for (const node of repoData.pullRequests.nodes) {
+      const closingIssueNumbers = (node.closingIssuesReferences?.nodes || []).map(
+        (n) => n.number,
+      );
+      prs.push({
+        owner,
+        repo,
+        number: node.number,
+        title: node.title,
+        url: node.url,
+        author: node.author?.login || "unknown",
+        state: (node.state.toLowerCase() === "open"
+          ? "open"
+          : "closed") as "open" | "closed",
+        merged: node.merged,
+        reviewDecision: node.reviewDecision as
+          | "APPROVED"
+          | "CHANGES_REQUESTED"
+          | "PENDING"
+          | null
+          | undefined,
+        closingIssueNumbers: closingIssueNumbers.length > 0 ? closingIssueNumbers : undefined,
       });
-
-      if (!response.ok) {
-        log(`pr-lifecycle: GitHub API error for ${repoPath}: ${response.status}`);
-        continue;
-      }
-
-      const data = (await response.json()) as {
-        data?: {
-          repository?: {
-            pullRequests?: {
-              nodes?: Array<{
-                number: number;
-                title: string;
-                url: string;
-                author?: { login: string };
-                state: string;
-                merged?: boolean;
-                reviewDecision?: string | null;
-                closingIssuesReferences?: {
-                  nodes?: Array<{ number: number }>;
-                };
-              }>;
-            };
-          };
-        };
-        errors?: Array<{ message: string }>;
-      };
-
-      if (data.errors) {
-        log(`pr-lifecycle: GraphQL error for ${repoPath}: ${data.errors.map((e) => e.message).join(", ")}`);
-        continue;
-      }
-
-      const nodes = data.data?.repository?.pullRequests?.nodes || [];
-      for (const node of nodes) {
-        const closingIssueNumbers = (node.closingIssuesReferences?.nodes || []).map(
-          (n) => n.number,
-        );
-        prs.push({
-          owner,
-          repo,
-          number: node.number,
-          title: node.title,
-          url: node.url,
-          author: node.author?.login || "unknown",
-          state: (node.state.toLowerCase() === "open"
-            ? "open"
-            : "closed") as "open" | "closed",
-          merged: node.merged,
-          reviewDecision: node.reviewDecision as
-            | "APPROVED"
-            | "CHANGES_REQUESTED"
-            | "PENDING"
-            | null
-            | undefined,
-          closingIssueNumbers: closingIssueNumbers.length > 0 ? closingIssueNumbers : undefined,
-        });
-      }
-    } catch (error) {
-      log(`pr-lifecycle: error fetching ${repoPath}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -192,14 +177,14 @@ async function fetchGitHubPRs(repos: string[]): Promise<GithubPR[]> {
 /**
  * Handle GitHub PR state changes: create or update workflow instances
  */
-async function syncGitHubPRs(): Promise<number> {
+function syncGitHubPRs(): number {
   // Repos to monitor: Arc's own repos + aibtcdev watched repos (configurable via env override)
   const reposEnv = Bun.env.PR_LIFECYCLE_REPOS;
   const repos = reposEnv
     ? reposEnv.split(",").map((r) => r.trim())
     : ["arc0btc/arc-starter", "arc0btc/arc0me-site", ...AIBTC_WATCHED_REPOS];
 
-  const prs = await fetchGitHubPRs(repos);
+  const prs = fetchGitHubPRs(repos);
   if (prs.length === 0) return 0;
 
   let workflowsCreated = 0;
@@ -305,7 +290,7 @@ export default async function workflowsSensor(): Promise<string> {
     let totalActions = 0;
 
     // Sync GitHub PRs and create/update workflow instances
-    const prActionsCount = await syncGitHubPRs();
+    const prActionsCount = syncGitHubPRs();
     totalActions += prActionsCount;
 
     // Evaluate all active workflows and process their actions
