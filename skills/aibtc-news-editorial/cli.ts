@@ -11,6 +11,13 @@ const SENSOR_NAME = "aibtc-news-editorial";
 
 // ---- Helpers ----
 
+class ApiError extends Error {
+  constructor(public readonly status: number, message: string) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 function log(message: string): void {
   console.error(`[${new Date().toISOString()}] [aibtc-news/cli] ${message}`);
 }
@@ -61,10 +68,87 @@ async function callApi(
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(`API error ${response.status}: ${JSON.stringify(data)}`);
+    throw new ApiError(response.status, `API error ${response.status}: ${JSON.stringify(data)}`);
   }
 
   return data as Record<string, unknown>;
+}
+
+/**
+ * Execute an x402-paid request via the wallet skill's x402 runner.
+ * Used as fallback when POST /api/signals returns 402 (payment required).
+ */
+async function x402Request(
+  method: string,
+  url: string,
+  data?: Record<string, unknown>
+): Promise<unknown> {
+  const args = [
+    "bash", "bin/arc", "skills", "run", "--name", "bitcoin-wallet", "--",
+    "x402", "execute-endpoint",
+    "--method", method,
+    "--url", url,
+    "--auto-approve",
+  ];
+
+  if (data) {
+    args.push("--data", JSON.stringify(data));
+  }
+
+  log(`x402 request: ${method} ${url}`);
+
+  const proc = Bun.spawn(args, {
+    cwd: process.cwd(),
+    stdin: "ignore",
+    stdout: "pipe",
+    stderr: "pipe",
+  });
+
+  const [stdout, stderr] = await Promise.all([
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text(),
+  ]);
+
+  const exitCode = await proc.exited;
+
+  if (exitCode !== 0) {
+    const combined = stdout + stderr;
+    const retryMatch = combined.match(/retry.after[:\s]*(\d+)/i)
+      || combined.match(/(\d+)\s*(?:seconds?|s)\s*remaining/i);
+    if (retryMatch || combined.includes("429") || combined.includes("rate limit")) {
+      const retrySeconds = retryMatch ? parseInt(retryMatch[1], 10) : undefined;
+      const retryAt = retrySeconds
+        ? new Date(Date.now() + retrySeconds * 1000).toISOString()
+        : undefined;
+      throw new Error(
+        `Rate limited (429).${retrySeconds ? ` Retry after ${retrySeconds}s (${retryAt}).` : ""} Raw: ${combined.slice(0, 300)}`
+      );
+    }
+    throw new Error(`x402 request failed (exit ${exitCode}): ${combined.slice(0, 500)}`);
+  }
+
+  // Parse JSON from stdout
+  const trimmed = stdout.trim();
+  const jsonStart = trimmed.indexOf("{");
+  if (jsonStart === -1) {
+    throw new Error(`No JSON in x402 response. Output: ${trimmed.slice(0, 300)}`);
+  }
+
+  // Find the outermost JSON object
+  let depth = 0;
+  let jsonEnd = jsonStart;
+  for (let i = jsonStart; i < trimmed.length; i++) {
+    if (trimmed[i] === "{") depth++;
+    else if (trimmed[i] === "}") {
+      depth--;
+      if (depth === 0) {
+        jsonEnd = i + 1;
+        break;
+      }
+    }
+  }
+
+  return JSON.parse(trimmed.substring(jsonStart, jsonEnd));
 }
 
 async function signMessage(message: string): Promise<string> {
@@ -591,13 +675,24 @@ async function cmdFileSignal(args: string[]): Promise<void> {
     if (sourcesJson) body.sources = sourcesJson;
     if (tags.length > 0) body.tags = tags;
 
-    const result = await callApi("POST", "/signals", body, {
-      address: ARC_BTC_ADDRESS,
-      signature,
-      timestamp,
-    });
+    let result: Record<string, unknown>;
+    try {
+      result = await callApi("POST", "/signals", body, {
+        address: ARC_BTC_ADDRESS,
+        signature,
+        timestamp,
+      });
+      log(`Signal filed successfully (BIP-137)`);
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 402) {
+        log(`Signal filing requires payment (402) — falling back to x402 payment flow`);
+        result = await x402Request("POST", `${API_BASE}/signals`, body) as Record<string, unknown>;
+        log(`Signal filed successfully (x402)`);
+      } else {
+        throw e;
+      }
+    }
 
-    log(`Signal filed successfully`);
     console.log(JSON.stringify(result, null, 2));
 
     // Post-filing: update narrative thread for the filed beat
