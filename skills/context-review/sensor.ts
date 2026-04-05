@@ -107,7 +107,9 @@ function parseSkillsArray(skills_json: string | null): string[] {
     const parsed = JSON.parse(skills_json);
     if (Array.isArray(parsed)) return parsed.filter((s): s is string => typeof s === "string");
   } catch {
-    // malformed JSON
+    // fallback: comma-separated plain string (legacy format from arc-workflows sensor)
+    const parts = skills_json.split(",").map((s) => s.trim()).filter(Boolean);
+    if (parts.length > 0) return parts;
   }
   return [];
 }
@@ -252,6 +254,9 @@ function checkEmptySkillsFailed(
 
   // Tasks rejected at dispatch (no model set) never ran — missing skills is irrelevant.
   if (task.result_summary?.startsWith("No model set")) return [];
+
+  // Superseded tasks were intentionally closed before running — not a context issue.
+  if (task.result_summary?.startsWith("superseded by task")) return [];
 
   const loaded_skills = parseSkillsArray(task.skills);
   if (loaded_skills.length === 0) {
