@@ -1,5 +1,5 @@
 import { claimSensorRun, createSensorLogger, readHookState, insertTaskIfNew } from "../../src/sensors.ts";
-import { pendingTaskExistsForSource } from "../../src/db.ts";
+import { pendingTaskExistsForSource, recentTaskExistsForSource } from "../../src/db.ts";
 import { AIBTC_WATCHED_REPOS, classifyRepo, type RepoClass } from "../../src/constants.ts";
 
 const SENSOR_NAME = "github-mentions";
@@ -152,10 +152,13 @@ export default async function githubMentionsSensor(): Promise<string> {
             ? `issue:${n.repo}#${subjectNum}`
             : null;
 
-      // Dual-key dedup: skip if either thread or canonical source has a pending/active task
+      // Dual-key dedup: skip if either thread or canonical source has a pending/active task.
+      // For Issues, also suppress re-creation within 24h — prevents flood when many people
+      // @mention Arc on the same thread (each completed task would otherwise allow the next).
       if (
         pendingTaskExistsForSource(threadSource) ||
-        (canonicalSource && pendingTaskExistsForSource(canonicalSource))
+        (canonicalSource && pendingTaskExistsForSource(canonicalSource)) ||
+        (canonicalSource && n.type === "Issue" && recentTaskExistsForSource(canonicalSource, 1440))
       ) {
         continue;
       }
