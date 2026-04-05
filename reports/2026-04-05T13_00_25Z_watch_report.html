@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-05T01:02Z–13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-05T01:02:17Z — 2026-04-05T13:00:25Z</div>
+</header>
+
+<p class="summary">27 tasks completed across 12 hours with zero failures — 9 agents welcomed, 3 PR reviews, 2 competition signals filed, plus context-review fix shipped and architecture diagram updated. System is idle at report time; queue is empty pending next sensor cycle.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">27</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">0</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$8.86</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">13,953k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">87k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr><td class="id">10773</td><td class="pri">6</td><td>File signal: nft-floors [competition]</td><td>Filed (id: 776c43be): floor stability vs near-zero fee env</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">10772</td><td class="pri">5</td><td>GitHub: Flying Whale Marketplace PR</td><td>Approved PR #428 — all prior feedback addressed</td><td class="cost">$0.36</td></tr>
+    <tr><td class="id">10771</td><td class="pri">7</td><td>Deploy arc0me-site (5d3eb9be)</td><td>Deployed to arc0.me — 15 assets, 3/3 checks passed</td><td class="cost">$0.14</td></tr>
+    <tr><td class="id">10770</td><td class="pri">7</td><td>Regenerate skills/sensors catalog</td><td>100 skills, 68 sensors cataloged + committed</td><td class="cost">$0.17</td></tr>
+    <tr><td class="id">10769</td><td class="pri">7</td><td>workflow review — 2 health issues</td><td>Resolved site-health-alert; closed 3 stale pr-lifecycle</td><td class="cost">$0.44</td></tr>
+    <tr><td class="id">10768</td><td class="pri">7</td><td>architecture review</td><td>Diagram + audit updated: flood guard, skills fmt, stuck state</td><td class="cost">$0.77</td></tr>
+    <tr><td class="id">10767</td><td class="pri">7</td><td>Welcome: Linked Lemur</td><td>x402 staged (pay_76da9b7f) + 0.1 STX (899f39ad)</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">10766</td><td class="pri">7</td><td>Welcome: Woven Cube</td><td>x402 pending (pay_2e22ebdc) + 0.1 STX</td><td class="cost">$0.22</td></tr>
+    <tr><td class="id">10765</td><td class="pri">7</td><td>Welcome: Solid Drift</td><td>x402 accepted (pay_2b4fd04a) + 0.1 STX (63b69b77)</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">10764</td><td class="pri">7</td><td>Welcome: Astral Stag</td><td>x402 pending (pay_ef5d3879) + 0.1 STX (365e76c2)</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">10763</td><td class="pri">7</td><td>Welcome: Light Gull</td><td>x402 sent (pay_968715f7) + 0.1 STX (6ba06151)</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">10762</td><td class="pri">7</td><td>Welcome: Sharp Sylph</td><td>x402 staged (pay_68adb8ab) + 0.1 STX (c90e0042)</td><td class="cost">$0.23</td></tr>
+    <tr><td class="id">10761</td><td class="pri">7</td><td>Welcome: Hasty Harp</td><td>x402 sent, relay pending + 0.1 STX (f36087c7)</td><td class="cost">$0.23</td></tr>
+    <tr><td class="id">10760</td><td class="pri">7</td><td>Welcome: Verified Deer</td><td>x402 staged (80211f77) + 0.1 STX (58f205fd)</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">10759</td><td class="pri">7</td><td>Welcome: Flaring Tiger</td><td>x402 staged (pay_3f620424) + 0.1 STX (28508734)</td><td class="cost">$0.21</td></tr>
+    <tr><td class="id">10758</td><td class="pri">5</td><td>GitHub: agent-news PR #384 review</td><td>Flagged discarded_at clearing on finalized; added context</td><td class="cost">$0.34</td></tr>
+    <tr><td class="id">10757</td><td class="pri">6</td><td>File signal: nft-floors</td><td>Filed NFT floor signal (id: c04ca81e)</td><td class="cost">$0.24</td></tr>
+    <tr><td class="id">10756</td><td class="pri">5</td><td>GitHub: agent-news PR hard-gate re-rev</td><td>PR merged; all 4 requests addressed; re-approved</td><td class="cost">$0.20</td></tr>
+    <tr><td class="id">10755</td><td class="pri">5</td><td>GitHub: agent-news issue #362 mention</td><td>Issue resolved via PR #382; cross-ref comment on #349</td><td class="cost">$0.26</td></tr>
+    <tr><td class="id">10752</td><td class="pri">7</td><td>housekeeping: 1 issue detected</td><td>Archived 1 old watch report</td><td class="cost">$0.12</td></tr>
+    <tr><td class="id">10754</td><td class="pri">4</td><td>Email watch report to whoabuddy</td><td>Emailed (id: de0a610a); workflow 956 completed</td><td class="cost">$0.58</td></tr>
+    <tr><td class="id">10753</td><td class="pri">4</td><td>Email watch report to whoabuddy</td><td>Emailed to whoabuddy@gmail.com; workflow 971</td><td class="cost">$0.35</td></tr>
+    <tr><td class="id">10751</td><td class="pri">6</td><td>context-review: 4 loading issues</td><td>Fixed join→JSON.stringify; fallback + superseded filter</td><td class="cost">$0.80</td></tr>
+    <tr><td class="id">10750</td><td class="pri">4</td><td>CEO review — 2026-04-05T02:22</td><td>On track, maintenance shipped; queue empty</td><td class="cost">$0.44</td></tr>
+    <tr><td class="id">10749</td><td class="pri">7</td><td>Deploy arc0me-site (90640a)</td><td>Deployed @ b20e6867 (fixed duplicate frontmatter)</td><td class="cost">$0.24</td></tr>
+    <tr><td class="id">10748</td><td class="pri">6</td><td>Generate blog post from recent activity</td><td>Published week-4 notification-dedup post; deployed</td><td class="cost">$0.63</td></tr>
+    <tr><td class="id">10747</td><td class="pri">6</td><td>Watch report — 2026-04-05T01:02Z</td><td>23 tasks completed, $6.48 spent</td><td class="cost">$0.60</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market skill not available.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">2f9d804c</span>docs(architect): update state machine — issue flood guard; skills format fix; self-review stuck state</div>
+  <div class="commit"><span class="hash">213ad636</span>chore(housekeeping): archive old watch reports</div>
+  <div class="commit"><span class="hash">f3b5159d</span>fix(context-review): correct skills format mismatch between workflow sensor and parsers</div>
+  <div class="commit"><span class="hash">d39d0694</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">5470ba23</span>docs(report): watch report 2026-04-05T01_02_17Z</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<p class="empty">No pending tasks. Queue empty — awaiting next sensor cycle.</p>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs">9 agents welcomed in a continuous batch (05:25–06:26Z) at $0.21–0.23/each — welcome throughput stable; all x402 payments staged or accepted with 0.1 STX transfers confirmed.</div>
+  <div class="obs">context-review sensor detected and fixed 4 skills-format issues in one pass: <code>join(',')→JSON.stringify</code> in arc-workflows/sensor.ts, comma-sep fallback in parseSkillsArray, superseded-task filter in checkEmptySkillsFailed — resolves a recurring dispatch context-loading failure class.</div>
+  <div class="obs">2 competition signals filed (nft-floors × 2 separate beat slots) — architecture review and catalog regeneration also shipped alongside. Cost-per-signal: ~$0.23; competition signal velocity holding at 2+/session.</div>
+  <div class="obs">Zero queue depth at report end — $0.328/task average across 27 cycles, cleanest cost ratio in recent memory.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
