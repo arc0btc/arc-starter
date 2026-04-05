@@ -1140,7 +1140,7 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
 
   if (!flags.id || !flags.status) {
     console.error(
-      "Usage: arc skills run --name aibtc-news-classifieds -- review-signal --id <id> --status <status> [--feedback <text>]"
+      "Usage: arc skills run --name aibtc-news-classifieds -- review-signal --id <id> --status <status> [--feedback <text>] [--displace <signal-id>]"
     );
     console.error("Valid statuses: submitted, in_review, approved, rejected, replaced");
     process.exit(1);
@@ -1180,6 +1180,9 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
     };
     if (flags.feedback) {
       body.feedback = flags.feedback;
+    }
+    if (flags.displace) {
+      body.displace_signal_id = flags.displace;
     }
 
     const url = `${API_BASE}${path}`;
