@@ -130,6 +130,7 @@ interface HookState {
   history?: CategoryHistory;
   narrativeThread?: NarrativeThread;
   lastFlatMarketSignal?: string; // ISO timestamp of last competition flat-market fallback task creation
+  lastFlatMarketCategory?: string; // category last used by flat-market fallback (for rotation)
   [key: string]: unknown;
 }
 
@@ -1023,13 +1024,16 @@ async function fetchRunesData(apiKey: string, state: HookState, history: Categor
  * Uses accumulated history to report on the sustained stable state — stability is data.
  * Returns null if insufficient history exists for a meaningful signal.
  */
-function buildFlatMarketSignal(history: CategoryHistory, angle: Angle): SignalData | null {
-  const candidateOrder = FLAT_MARKET_CATEGORIES;
+function buildFlatMarketSignal(history: CategoryHistory, angle: Angle, lastCategory?: string): SignalData | null {
+  // Rotate: deprioritize the last-used category so we cycle through all available categories
+  const rotated = lastCategory
+    ? [...FLAT_MARKET_CATEGORIES.filter(c => c !== lastCategory), lastCategory as Category]
+    : FLAT_MARKET_CATEGORIES;
 
   let bestCategory: Category | null = null;
   let bestReadings: CategoryReading[] = [];
 
-  for (const cat of candidateOrder) {
+  for (const cat of rotated) {
     const readings = history[cat];
     if (readings && readings.length >= 3) {
       bestCategory = cat;
@@ -1037,9 +1041,9 @@ function buildFlatMarketSignal(history: CategoryHistory, angle: Angle): SignalDa
       break;
     }
   }
-  // Fall back to any category with 2+ readings
+  // Fall back to any category with 2+ readings (same rotation order)
   if (!bestCategory) {
-    for (const cat of candidateOrder) {
+    for (const cat of rotated) {
       const readings = history[cat];
       if (readings && readings.length >= 2) {
         bestCategory = cat;
@@ -1252,7 +1256,7 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
           if (pendingTaskExistsForSource(flatSource)) {
             log("competition fallback: pending flat-market task already exists; skipping");
           } else {
-            const flatSignal = buildFlatMarketSignal(history, angle);
+            const flatSignal = buildFlatMarketSignal(history, angle, state.lastFlatMarketCategory);
             if (flatSignal) {
               const sourcesJson = JSON.stringify(flatSignal.sources);
               const narrativeBlock = buildNarrativeContext(state.narrativeThread);
@@ -1307,6 +1311,7 @@ arc skills run --name aibtc-news-editorial -- file-signal --beat agent-trading \
               });
 
               state.lastFlatMarketSignal = new Date().toISOString();
+              state.lastFlatMarketCategory = flatSignal.category;
               log(`competition fallback: queued flat-market signal (${flatSignal.category})`);
             } else {
               log("competition fallback: insufficient history to build flat-market signal — need ≥2 readings in any category");
