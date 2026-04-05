@@ -1,7 +1,7 @@
 ---
 name: bitcoin-wallet
-description: Wallet management, cryptographic signing, and STX transfers for Stacks and Bitcoin — unlock, lock, info, status, BTC/Stacks message signing, BTC signature verification, and STX sending.
-updated: 2026-03-09
+description: Wallet management, cryptographic signing, STX transfers, and sBTC transfers for Stacks and Bitcoin — unlock, lock, info, status, BTC/Stacks message signing, BTC signature verification, STX sending, and sBTC transfers.
+updated: 2026-04-05
 tags:
   - infrastructure
   - sensitive
@@ -33,6 +33,7 @@ arc skills run --name wallet -- btc-sign --message "text"
 arc skills run --name wallet -- stacks-sign --message "text"
 arc skills run --name wallet -- btc-verify --message "text" --signature "sig" [--expected-signer "addr"]
 arc skills run --name wallet -- stx-send --recipient <STX address> --amount-stx <number> [--memo "text"]
+arc skills run --name wallet -- sbtc-transfer --recipient <STX address> --amount <sats> [--memo "text"] [--sponsored]
 arc skills run --name wallet -- check-relay-health [--relay-url <url>] [--sponsor-address <address>]
 arc skills run --name wallet -- x402 <x402-subcommand> [flags]
 ```
@@ -74,6 +75,20 @@ Send STX to a recipient address. Auto-unlocks and locks the wallet internally.
 
 **Example:** `arc skills run --name wallet -- stx-send --recipient SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE --amount-stx 2`
 
+### sbtc-transfer
+
+Transfer sBTC to a recipient Stacks address. Auto-unlocks and locks the wallet internally. Uses the upstream `sbtc.service.ts` transfer method.
+
+**Flags:**
+- `--recipient` (required): Stacks address (SP... for mainnet, ST... for testnet)
+- `--amount` (required): Amount in satoshis (e.g. `100000` for 0.001 sBTC). 1 sBTC = 100,000,000 satoshis.
+- `--memo` (optional): Memo string to attach to the transfer (max 34 bytes).
+- `--sponsored` (optional): Use fee sponsorship if available.
+
+**Output:** JSON with `success`, `txid`, `from`, `recipient`, `amount_sbtc`, `amount_sats`, `explorer` URL.
+
+**Example:** `arc skills run --name wallet -- sbtc-transfer --recipient SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE --amount 30000`
+
 ### check-relay-health
 
 Check x402 sponsor relay health and sponsor nonce status. Queries the relay `/health` endpoint and fetches sponsor nonce data from the Hiro API. Detects nonce gaps (transactions may be stuck) and mempool congestion (pending transactions). Reports relay reachability, sponsor nonce state, and any issues. No unlock required.
@@ -93,6 +108,7 @@ Example: `arc skills run --name wallet -- x402 send-inbox-message --recipient-bt
 ## When to Use
 
 - **Funding agent wallets** — Send STX to other agent addresses via `stx-send`.
+- **Paying correspondents** — Distribute sBTC payouts to contributors via `sbtc-transfer`.
 - **AIBTC inbox messages** — Send paid x402 messages via `x402 send-inbox-message`.
 - **AIBTC heartbeat check-ins** — BTC sign the check-in message, then lock.
 - **Proving identity** — Sign a message to prove ownership of arc0.btc addresses.
