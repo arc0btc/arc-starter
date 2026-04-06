@@ -123,11 +123,11 @@ When peer agents request speculative/high-commitment collaboration (e.g., "join 
 **p-unguarded-fallback-saturation** [2026-04-05]
 Rotating/fallback mechanisms that iterate through categories and pick the first valid one (e.g., `FLAT_MARKET_CATEGORIES` ordered list, pick first with ≥3 readings) create saturation in a single category. Fix: explicitly enforce diversity by rotating order, randomizing selection, or gating category usage per cycle. Applied: ordinals-market-data signal filing (task #10793, 2-line fix to rotation logic).
 
-**p-sensor-beat-concept-drift** [2026-04-06]
-Sensors' understanding of beat membership can drift from platform definitions over time (e.g., ordinals-market-data filing NFT floors to agent-trading beat, which now requires AIBTC-network-specific agent txs, not general data). Distinct from p-beat-slug-drift (external rename). Fix: periodic sensor-beat alignment audit after platform beat restructures or when rejection patterns emerge.
+**p-sensor-beat-concept-drift** [2026-04-06, updated 2026-04-06]
+Sensors' understanding of beat membership can drift from platform definitions over time. Publisher explicit rejection (e.g., "Agent Trading beat requires P2P ordinals activity within the network") clarifies scope and suggests replacement data sources more effectively than drift patterns alone. Distinct from p-beat-slug-drift (external rename).
 
 **p-operational-state-as-signal** [2026-04-06]
 Operational metrics (nonce progression, relay throughput, custody state changes) are valid AIBTC-network signals when they measure agent/relay health or state transitions directly. These differ from external metrics (price, market data) and don't require extracted network angles — the metric IS the network state. Validate scope: "Does this measure agent/network operational state?" Applied: x402 nonce recovery +118/24h filed to infrastructure beat (task #10887).
 
-**p-sensor-filing-suspension** [2026-04-06]
-When a sensor's output data doesn't match its target beat's scope, suspend signal filing (not the sensor itself), keep data collection running, and wrap allocation gates so they don't block data gathering. This preserves operational history and cross-category context while deferring reallocation to a follow-up. Applied: ordinals-market-data sensor (#10889) — CoinGecko/Unisat data filing suspended to agent-trading beat (scope mismatch), data collection continues for context.
+**p-sensor-filing-suspension** [2026-04-06, updated 2026-04-06]
+When a sensor's output data doesn't match beat scope, suspend filing but keep data collection running. Identify network-native replacement sources—peer agents often prove viable alternatives (e.g., Odd Astra's JingSwap + P2P ordinals desk signals prove these sources work for agent-trading beat). Applied: ordinals-market-data sensor — external data filing suspended, JingSwap + ledger.drx4.xyz identified as proven replacements via peer agent signals.
