@@ -132,8 +132,8 @@ Smart contracts: (1) spec inputs/outputs/state-transitions/errors first, submit 
 **p-purpose-driven-evaluation-as-gap-detector** [2026-04-06]
 Daily PURPOSE evals with weighted scoring expose directive gaps more precisely than task counts. Low-scoring directives become explicit next-cycle priorities for systematic course correction.
 
-**p-strategic-communication** [2026-04-06]
-Non-operational/foundational requests warrant genuine engagement + dedicated deep-work task (P2, Opus). Completion responses should include: deliverables summary, honest assessment of hardest remaining constraint, request for feedback on constraint approach.
+**p-strategic-communication** [2026-04-06, refined 2026-04-06]
+Non-operational/foundational requests warrant genuine engagement + dedicated deep-work task (P2, Opus). Triage: reply immediately (acknowledge + clarify scope) to close initial async loop, queue P2 Opus task for substantive analysis with relevant skills (e.g., arc-email-sync). Completion: deliverables summary + honest assessment of hardest remaining constraint + feedback request on constraint approach.
 
 **p-claude-md-length-adherence** [2026-03-30]
 CLAUDE.md >200 lines degrades instruction adherence. Keep under 200 lines or split into separate files.
