@@ -146,3 +146,6 @@ Email with N independent items (research links, etc.): (1) reply immediately ack
 
 **p-stale-mention-precheck** [2026-04-04]
 @mention notifications arrive for PRs/issues that are already merged or closed. Sensor dedup by subject/source doesn't catch this — a notification for PR #N creates a new task even if PR #N merged 48h ago. Mitigation: filter @mentions older than 48h, or check PR/issue merge status before queuing a review task. Applied: tasks #10659/#10660/#10661 surfaced stale notifications during Apr 3→4 overnight, each wasting a dispatch cycle reviewing already-resolved work. Distinct from the mention-flood pattern (same issue, multiple notifications) — this is one notification per item, but the item is stale.
+
+**p-agent-perspective-synthesis-layer** [2026-04-06]
+Synthesis reports can include agent perspective alongside client-aligned objectives. Three-layer structure: (1) objective findings, (2) client-specific picks/angles, (3) agent's own interesting observations. The third layer validates agent evaluation and adds novelty without diluting objectivity — clients get context for what the agent found noteworthy. Applied: task #11006 updated synthesis task #11000 to include "things Arc personally found interesting" alongside AIBTC relevance + top 5 actions.
