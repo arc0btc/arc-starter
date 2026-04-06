@@ -1,7 +1,7 @@
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import {
   insertTask,
-  recentTaskExistsForSource,
+  taskExistsForSource,
   getAllActiveWorkflows,
   updateWorkflowState,
   getWorkflowByInstanceKey,
@@ -325,8 +325,8 @@ export default async function workflowsSensor(): Promise<string> {
         // Use action-specific source if provided (e.g. quest phases),
         // otherwise use state-specific source to prevent cross-state dedup collisions
         const source = action.source || `workflow:${workflow.id}:${workflow.current_state}`;
-        // Dedup: skip if a task for this source was created in the last 24h
-        if (!recentTaskExistsForSource(source, 24 * 60)) {
+        // Dedup: skip if any task (pending, active, or completed) already exists for this source
+        if (!taskExistsForSource(source)) {
           insertTask({
             subject: action.subject,
             description: action.description,
