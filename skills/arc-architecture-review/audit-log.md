@@ -1,3 +1,49 @@
+## 2026-04-06T06:47:00.000Z — aibtc-agent-trading sensor; ordinals suspended; contact validation guard
+
+**Task #10920** | Diff: bfc0b478 → 24bbee7f | Sensors: 69 | Skills: 101
+
+### Step 1 — Requirements
+
+- **aibtc-agent-trading sensor SHIPPED** (5da9081c): New 2-hour sensor filing `agent-trading` beat signals using AIBTC-network-native data (JingSwap cycles/prices, P2P ordinals desk, agent registry growth). This is the architectural answer to the signal diversity gap — dedicated sensor with native data replaces external-data fallback. Requirement: competition signals on `agent-trading` beat must use AIBTC-network data (per beat scope definition). Satisfied.
+- **ordinals-market-data signal filing SUSPENDED** (80322a56): Beat scope mismatch resolved by suspension. Data collection continues. Requirement: no more off-beat signals from external market data sources. Satisfied.
+- **contact validation guard** (b181a5d6): `isContactActuallyInvolved()` in arc-reputation sensor closes the false-positive contact match class (task #10871 Halcyon Wolf). Requirement: reputation tracker must only score contacts actually involved in interactions. Satisfied.
+- **aibtc-news-editorial x402 fallback** (09c036d0): Signal filing survives 402 payment-required responses. Requirement: filing should not fail on payment-gated endpoints. Satisfied.
+- **arc-workflows gh CLI GraphQL** (arc-workflows/sensor.ts): Removes credential fetch dependency for PR lookups. Consistent with aibtc-repo-maintenance approach. Requirement: no orphaned credential reads for standard GitHub API operations. Satisfied.
+
+### Step 2 — Delete
+
+- **ordinals HookState deprecated fields** (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`) — [CARRY-18]. Signal filing suspended makes cleanup lower priority but the fields are still dead weight. Defer 2026-04-23+.
+- **[CARRY-14]** layered-rate-limit sensor migration (3 sensors) — post-competition 2026-04-23+.
+- **[CARRY]** nonce-strategy Phase 1 (retry-strategy.ts) — deferred post skills v0.37+.
+
+### Step 3 — Simplify
+
+- **arc-workflows gh CLI GraphQL migration** is the right simplification: batched multi-repo query with `gh` CLI (which manages auth implicitly) is strictly simpler than per-repo REST calls with explicit credential lookups. No downside identified.
+- **Signal architecture is now clean**: two sensors (aibtc-agent-trading for native, arxiv-research for dual-beat) plus ordinals data collection. The suspension mechanism in ordinals is minimal (1 flag). No over-engineering detected.
+
+### Step 4 — Accelerate
+
+- **aibtc-agent-trading sensor immediately fills the competition signal gap**: AIBTC-native data sources (JingSwap, P2P desk, agent registry) are always generating activity. The new sensor should yield 2-3 diverse signal opportunities per day vs the prior nft-floors repetition. Expected competition score improvement: +4 to +10 points/day.
+- **Batched GraphQL** in arc-workflows: single network call per cycle replaces N sequential calls. Faster PR state sync for active workflow pipelines.
+
+### Step 5 — Automate
+
+- **[WATCH]** aibtc-agent-trading `flat-market` fallback: sensor fires a strength-30 fallback signal if all change detection thresholds are quiet. This is correct behavior (guaranteed daily filing even in low-activity windows), but the fallback signal quality may not score well. Monitor first 5 signals for quality.
+- **[CARRY-ESCALATED]** effectiveCapacity=1 — task #9658, unchanged. relay v1.27.2 nonce [1739] new gap — monitor.
+
+### Flags
+
+- **[OK]** No dispatch loop, schema, or task queue changes this window.
+- **[NEW RESOLVED]** Signal diversity gap — aibtc-agent-trading sensor ships AIBTC-native data. [GAP] from prior 2 audits CLOSED.
+- **[WATCH]** aibtc-agent-trading flat-market fallback signal quality — monitor first 5 outputs.
+- **[ESCALATED]** relay v1.27.2 nonce regression — task #10617, awaiting whoabuddy.
+- **[ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
+- **[CARRY-18]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
+- **[CARRY-14]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY]** nonce-strategy Phase 1 — deferred post skills v0.37+.
+
+---
+
 ## 2026-04-05T18:35:00.000Z — signal diversity gap; relay watch closed; no code changes
 
 **Task #10790** | Diff: 2f9d804c → bfc0b478 | Sensors: 68 | Skills: 100

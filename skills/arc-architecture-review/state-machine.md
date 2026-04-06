@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-04-05T18:35:00.000Z*
-*Sensor count: 68 | Skill count: 100*
+*Generated: 2026-04-06T06:47:00.000Z*
+*Sensor count: 69 | Skill count: 101*
 
 ```mermaid
 stateDiagram-v2
@@ -47,14 +47,16 @@ stateDiagram-v2
             blog_publishing
             aibtc_news_editorial
             aibtc_news_deal_flow
+            aibtc_agent_trading
             ordinals_market_data
             social_x_posting
             social_agent_engagement
             social_x_ecosystem
             arxiv_research
-            note right of ordinals_market_data: 3 ordinals + 3 dev-tools/day\noverflow after 18:00 UTC\nAll 5 categories fetched per run\nper-category pending dedup\nFlat-market fallback: stability signal (fee-market REMOVED 6282b8b2)\nFLAT_MARKET_CATEGORIES extracted to module-level constant
+            note right of aibtc_agent_trading: NEW (5da9081c) — 2h cadence\nSources: JingSwap API (cycle/prices), ledger.drx4.xyz (P2P desk), aibtc.news/api/agents\nSignal types: jingswap-cycle, jingswap-price, p2p-activity, agent-growth\nStrength 50-95; P5 if >=70, P7 otherwise\nDiversity rotation: skips lastSignalType from prior run\nReplaces ordinals-market-data for agent-trading beat filing\nAIBTC-network-native data only (no CoinGecko/Unisat/mempool)
+            note right of ordinals_market_data: Signal filing SUSPENDED (80322a56)\nSIGNAL_FILING_SUSPENDED=true — agent-trading beat scope mismatch\nData collection continues for cross-category context\nFlat-market rotation FIXED (f3b5159d): lastFlatMarketCategory\nin HookState rotates FLAT_MARKET_CATEGORIES — [GAP] CLOSED\n[CARRY-17] deprecated fields cleanup 2026-04-23+
             note right of arxiv_research: DUAL-BEAT routing (42d54a6e)\nInfrastructure: two-tier aibtc-relevance filter (d2bc3c0d)\nTier 1: MCP/x402/Stacks/Clarity/sBTC/BRC-20\nTier 2: agent + crypto/blockchain compound\nQuantum: quant-ph category + QUANTUM_KEYWORDS\nShor/Grover/ECDSA threats/BIP-360/P2QRH/NIST PQC\nBoth beats fire independently same day
-            note right of aibtc_news_editorial: validateBeatExists() pre-validates beat slug\nGET /api/beats before filing any signal (391e4921)\n10-min cache: db/beat-slug-cache.json\nFails early with available slugs listed\n[WATCH-CLOSED] beat-slug drift detection shipped
+            note right of aibtc_news_editorial: validateBeatExists() pre-validates beat slug\nGET /api/beats before filing any signal (391e4921)\n10-min cache: db/beat-slug-cache.json\nFails early with available slugs listed\nx402 402-response fallback (09c036d0): POST /api/signals\nreturns 402 → bitcoin-wallet x402 execute-endpoint fallback\n[WATCH-CLOSED] beat-slug drift detection shipped
         }
 
         state DeFiSensors {
@@ -76,6 +78,7 @@ stateDiagram-v2
             erc8004_indexer
             identity_guard
             alb
+            note right of erc8004_reputation: contact validation guard (b181a5d6)\nisContactActuallyInvolved() — prevents false-positive contact matches\npr-review: contact.github_handle must appear in task text\nx402-exchange: btc_address or stx_address must appear\nFixes task #10871 Halcyon Wolf contact-mismatch bug
         }
 
         state InfrastructureSensors {
@@ -91,7 +94,7 @@ stateDiagram-v2
             context_review
             compliance_review
             arc_workflows
-            note right of arc_workflows: drives workflow state machine\nstate-specific source keys (8ce27fb9)\ndedup scoped to workflow:{id}:{state}\nprevents cross-state dedup collisions\nPrLifecycleMachine owns ALL PR review dispatch (061c807d)\nAUTOMATED_PR_PATTERNS exported from state-machine.ts\ncontext preserved on state transitions (not overwritten)\ngithub-mentions defers review_requested/assign to workflow engine\nSkills format: JSON.stringify() not .join(",") (f3b5159d)\narc-self-review: trigger state includes workflow transition cmd (806ce147)
+            note right of arc_workflows: drives workflow state machine\nstate-specific source keys (8ce27fb9)\ndedup scoped to workflow:{id}:{state}\nprevents cross-state dedup collisions\nPrLifecycleMachine owns ALL PR review dispatch (061c807d)\nAUTOMATED_PR_PATTERNS exported from state-machine.ts\ncontext preserved on state transitions (not overwritten)\ngithub-mentions defers review_requested/assign to workflow engine\nSkills format: JSON.stringify() not .join(",") (f3b5159d)\narc-self-review: trigger state includes workflow transition cmd (806ce147)\nGH CLI GraphQL migration: fetchGitHubPRs() now uses gh api graphql\nbatched multi-repo query (was per-repo REST + credentials fetch)\nremoves fetchWithRetry + getCredential dependencies
         }
 
         state MemoryMaintenanceSensors {
@@ -272,7 +275,7 @@ stateDiagram-v2
         CheckBeatAllocation --> DevToolsBeat: devToolsToday < 3
         AgentTradingBeat --> TaskQueue: File agent-trading signal
         DevToolsBeat --> TaskQueue: File dev-tools signal
-        note right of CheckBeatAllocation: agent-trading: 3/day base (was ordinals)\n+ unused dev-tools after 18:00 UTC\ndev-tools: 3/day (arxiv, arc-link-research, x-ecosystem)\ncountSignalTasksToday() BUG FIXED (ca5477c1)\nagent-trading subjects now correctly matched\n6/day cap now enforced\n[GAP] flat-market fallback always picks nft-floors\n(first in FLAT_MARKET_CATEGORIES with ≥3 readings)\nFix: track lastFlatMarketCategory in HookState + rotate
+        note right of CheckBeatAllocation: agent-trading: 3/day via aibtc-agent-trading sensor\nordinals-market-data signal filing SUSPENDED (80322a56)\ndev-tools: 3/day (arxiv, arc-link-research, x-ecosystem)\ncountSignalTasksToday() BUG FIXED (ca5477c1)\nagent-trading subjects now correctly matched\n6/day cap now enforced\n[CLOSED] flat-market rotation: lastFlatMarketCategory rotation\nguard in ordinals-market-data HookState (moot — filing suspended)
     }
 
     TaskQueue --> DispatchService
@@ -280,22 +283,33 @@ stateDiagram-v2
     ContentSensors --> SignalAllocation
 ```
 
-## Sensor Count by Category (2026-03-30)
+## Sensor Count by Category (2026-04-06)
 
 | Category | Count |
 |----------|-------|
 | Memory/Maintenance | 14 |
 | GitHub/PR | 10 |
-| Content/Publishing | 8 |
+| Content/Publishing | 9 |
 | AIBTC/ERC-8004 | 7 |
 | Infrastructure | 12 |
 | DeFi | 6 |
 | Health | 2 |
 | Monitoring | 6 |
 | Other/Misc | 3 |
-| **Total** | **68** |
+| **Total** | **69** |
 
-*Note: bitcoin-quorumclaw DELETED (947ffa43) — sensor count 69→68, skill count 101→100. arc-workflows added to Infrastructure (was missing from prior diagrams; 11→12). Other/Misc: 5→3 (quorumclaw deleted, arc-workflows moved to Infrastructure).*
+*Note: aibtc-agent-trading NEW (5da9081c) — sensor count 68→69, skill count 100→101. Content/Publishing 8→9.*
+
+## Key Architectural Changes (bfc0b478 → 24bbee7f) [2026-04-06T06:47Z]
+
+| Change | Impact |
+|--------|--------|
+| **feat(aibtc-agent-trading): new sensor** (5da9081c) | 2-hour sensor monitoring JingSwap cycle/prices, P2P ordinals desk (ledger.drx4.xyz), and agent registry growth. Files `agent-trading` beat signals using AIBTC-network-native data only. Signal types: `jingswap-cycle`, `jingswap-price`, `p2p-activity`, `agent-growth`. Diversity rotation via `lastSignalType` in HookState. Replaces ordinals-market-data for agent-trading beat. Sensor count 68→69, skill count 100→101. |
+| **fix(ordinals-market-data): suspend signal filing** (80322a56) | `SIGNAL_FILING_SUSPENDED = true` — agent-trading beat scope mismatch (beat requires AIBTC-network data, not external CoinGecko/Unisat/mempool). Data collection continues for cross-category context. Agent-trading signal filing fully transferred to `aibtc-agent-trading` sensor. |
+| **fix(ordinals-market-data): flat-market category rotation** (f3b5159d) | `lastFlatMarketCategory` added to HookState. `buildFlatMarketSignal()` deprioritizes last-used category — [GAP] from prior audit CLOSED. (Moot now that signal filing is suspended, but correct for future reuse.) |
+| **feat(aibtc-news-editorial): x402 402-response fallback** (09c036d0) | When POST /api/signals returns 402, CLI now falls back to `bitcoin-wallet x402 execute-endpoint`. Ensures signal filing succeeds even when the endpoint requires payment. `ApiError` class added for typed HTTP error handling. |
+| **fix(arc-reputation): contact validation guard** (b181a5d6) | `isContactActuallyInvolved()` prevents false-positive contact matches. PR-review interactions require `contact.github_handle` in task text; x402-exchange requires on-chain address. Closes task #10871 Halcyon Wolf bug class. |
+| **refactor(arc-workflows): gh CLI GraphQL migration** | `fetchGitHubPRs()` migrated from per-repo REST + `getCredential("github","token")` to `gh api graphql` batched multi-repo query. Removes `fetchWithRetry` + `getCredential` dependencies. Consistent with aibtc-repo-maintenance sensor approach. |
 
 ## Key Architectural Changes (2f9d804c → bfc0b478) [2026-04-05T18:35Z]
 
