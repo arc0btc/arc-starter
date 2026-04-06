@@ -104,14 +104,9 @@ async function signalReviewSensor(): Promise<string> {
 
   signalLog("Checking for submitted signals...");
 
-  // Check cap BEFORE fetching signals — no point reviewing if we can't approve anything
   const roster = await getTodayApprovedRoster();
-  const remainingSlots = DAILY_APPROVAL_CAP - roster.count;
-
-  if (remainingSlots <= 0) {
-    signalLog(`Cap full (${roster.count}/${DAILY_APPROVAL_CAP}) — skipping review task`);
-    return "ok";
-  }
+  const remainingSlots = Math.max(0, DAILY_APPROVAL_CAP - roster.count);
+  const rosterFull = remainingSlots <= 0;
 
   let signals: Signal[];
   try {
@@ -151,10 +146,9 @@ async function signalReviewSensor(): Promise<string> {
     .filter((s) => toPacificDate(s.timestamp) !== todayPacific)
     .sort(sortByTime);
 
-  // Batch size capped to remaining slots so we never queue more reviews than we can approve
-  const effectiveBatchSize = Math.min(BATCH_SIZE, remainingSlots);
+  // Always review full batches — at 30/30, reviews result in displacement, not net-new approvals
   const prioritized = [...todaySignals, ...olderSignals];
-  const batch = prioritized.slice(0, effectiveBatchSize);
+  const batch = prioritized.slice(0, BATCH_SIZE);
 
   const rosterBlock = rosterContext(roster);
   const signalList = batch
@@ -170,9 +164,14 @@ async function signalReviewSensor(): Promise<string> {
 
   const totalRemaining = signals.length - batch.length;
 
+  // Task description varies: open slots → approve freely; full roster → displacement mode
+  const reviewInstruction = rosterFull
+    ? `**ROSTER FULL — DISPLACEMENT MODE.** The roster has ${roster.count} approved signals. To approve a new signal, you MUST displace a weaker one using \`--displace <signal-id>\`. Displacement sets the old signal to \`replaced\` (non-punitive, rep=0). If no signal in this batch clearly outranks an existing roster entry, reject it with feedback explaining why. Check the roster before approving:\n\`arc skills run --name aibtc-news-classifieds -- list-signals --status approved\``
+    : `Approve signals that meet editorial standards. ${remainingSlots} slot(s) remain. If the roster fills mid-batch, switch to displacement mode: approve strong signals with \`--displace <weaker-signal-id>\`. A signal's "approved" status means compile-eligible, not a guarantee of final inclusion.`;
+
   const id = insertTaskIfNew(SIGNAL_SOURCE, {
-    subject: `Review ${batch.length} submitted signal(s) [${roster.count}/${DAILY_APPROVAL_CAP} roster, ${remainingSlots} slot(s) open]`,
-    description: `${batch.length} signal(s) to review (batch capped to ${remainingSlots} remaining approval slot(s))${totalRemaining > 0 ? ` — ${signals.length} total pending, ${totalRemaining} deferred to next run` : ""}.\n\n${rosterBlock}\n\nApprove signals that meet editorial standards. If the roster fills mid-batch, reject remaining signals with: "Daily approval cap reached — resubmit tomorrow." A signal's "approved" status means compile-eligible, not a guarantee of final inclusion.${priorityNote}\n\nBatch:\n${signalList}\n\nReview each signal using the workflow and decision rubric in aibtc-signal-review SKILL.md.`,
+    subject: `Review ${batch.length} submitted signal(s) [${roster.count}/${DAILY_APPROVAL_CAP} roster${rosterFull ? ", DISPLACEMENT MODE" : `, ${remainingSlots} slot(s) open`}]`,
+    description: `${batch.length} signal(s) to review${totalRemaining > 0 ? ` — ${signals.length} total pending, ${totalRemaining} deferred to next run` : ""}.\n\n${rosterBlock}\n\n${reviewInstruction}${priorityNote}\n\nBatch:\n${signalList}\n\nReview each signal using the workflow and decision rubric in aibtc-signal-review SKILL.md.`,
     priority: 4,
     skills: JSON.stringify(["aibtc-signal-review", "aibtc-news-classifieds", "bitcoin-wallet"]),
   });
