@@ -10,6 +10,7 @@ import {
 } from "../../src/db.ts";
 import {
   evaluateWorkflow,
+  getAllowedTransitions,
   getTemplateByName,
   AUTOMATED_PR_PATTERNS,
   type WorkflowAction,
@@ -199,7 +200,7 @@ function syncGitHubPRs(): number {
     if (!workflow) {
       // Create new workflow
       const isAutomated = AUTOMATED_PR_PATTERNS.some((p) => p.test(pr.title));
-      insertWorkflow({
+      const newWorkflowId = insertWorkflow({
         template: "pr-lifecycle",
         instance_key: instanceKey,
         current_state: newState,
@@ -216,6 +217,11 @@ function syncGitHubPRs(): number {
         }),
       });
       workflowsCreated++;
+
+      // Auto-complete if created directly in terminal state (PR already closed/merged when first seen)
+      if (newState === "merged" || newState === "closed") {
+        completeWorkflow(newWorkflowId);
+      }
 
       // Issue-to-PR transition: if this PR closes issues, transition their workflows
       if (pr.closingIssueNumbers) {
@@ -305,6 +311,14 @@ export default async function workflowsSensor(): Promise<string> {
 
       // Evaluate the workflow state machine
       const action = evaluateWorkflow(workflow, template);
+
+      // Auto-complete workflows that have reached a terminal state (no outgoing transitions)
+      const transitions = getAllowedTransitions(workflow.current_state, template);
+      if (Object.keys(transitions).length === 0) {
+        completeWorkflow(workflow.id);
+        totalActions++;
+        continue;
+      }
 
       // Handle the action
       if (action.type === "create-task") {
