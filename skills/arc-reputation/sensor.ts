@@ -83,6 +83,38 @@ function buildContactTokens(contact: Contact): string[] {
 }
 
 /**
+ * Validate that the contact is actually involved in the interaction — not just a
+ * coincidental token match. Applies a stricter identity check per interaction type:
+ *
+ * - pr-review:    contact.github_handle must appear in the task text. PR authors/reviewers
+ *                 are identified by GitHub handle. No handle = no match.
+ * - x402-exchange: contact btc_address or stx_address must appear. Financial transactions
+ *                 are identified by on-chain addresses.
+ *
+ * This guard prevents the "Halcyon Wolf on tfireubs-ui's PR" false-positive class, where a
+ * contact's display_name or aibtc_name happened to appear in an unrelated PR title or subject.
+ */
+function isContactActuallyInvolved(
+  contact: Contact,
+  interactionType: string,
+  searchText: string,
+): boolean {
+  switch (interactionType) {
+    case "pr-review":
+      // GitHub handle is the definitive PR author/reviewer identifier
+      if (!contact.github_handle) return false;
+      return searchText.includes(contact.github_handle.toLowerCase());
+    case "x402-exchange":
+      // On-chain address is the definitive transaction party identifier
+      if (contact.btc_address && searchText.includes(contact.btc_address.toLowerCase())) return true;
+      if (contact.stx_address && searchText.includes(contact.stx_address.toLowerCase())) return true;
+      return false;
+    default:
+      return false;
+  }
+}
+
+/**
  * Classify the interaction type based on task signals.
  * Returns null if the task doesn't represent a meaningful interaction worthy of review.
  *
@@ -232,6 +264,10 @@ export default async function reputationTrackerSensor(): Promise<string> {
     // Check each token against the search text
     for (const [token, contact] of tokenIndex) {
       if (!searchText.includes(token)) continue;
+
+      // Validate the contact is actually involved — not just a coincidental token match.
+      // E.g. a contact's display_name matching words in an unrelated PR title.
+      if (!isContactActuallyInvolved(contact, interactionType, searchText)) continue;
 
       // Skip self-references (Arc's own addresses)
       if (
