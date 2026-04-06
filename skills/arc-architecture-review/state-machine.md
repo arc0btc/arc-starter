@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-04-06T06:47:00.000Z*
-*Sensor count: 69 | Skill count: 101*
+*Generated: 2026-04-06T18:35:00.000Z*
+*Sensor count: 70 | Skill count: 101*
 
 ```mermaid
 stateDiagram-v2
@@ -94,7 +94,7 @@ stateDiagram-v2
             context_review
             compliance_review
             arc_workflows
-            note right of arc_workflows: drives workflow state machine\nstate-specific source keys (8ce27fb9)\ndedup scoped to workflow:{id}:{state}\nprevents cross-state dedup collisions\nPrLifecycleMachine owns ALL PR review dispatch (061c807d)\nAUTOMATED_PR_PATTERNS exported from state-machine.ts\ncontext preserved on state transitions (not overwritten)\ngithub-mentions defers review_requested/assign to workflow engine\nSkills format: JSON.stringify() not .join(",") (f3b5159d)\narc-self-review: trigger state includes workflow transition cmd (806ce147)\nGH CLI GraphQL migration: fetchGitHubPRs() now uses gh api graphql\nbatched multi-repo query (was per-repo REST + credentials fetch)\nremoves fetchWithRetry + getCredential dependencies
+            note right of arc_workflows: drives workflow state machine\nstate-specific source keys (8ce27fb9)\ndedup scoped to workflow:{id}:{state}\nprevents cross-state dedup collisions\nPrLifecycleMachine owns ALL PR review dispatch (061c807d)\nAUTOMATED_PR_PATTERNS exported from state-machine.ts\ncontext preserved on state transitions (not overwritten)\ngithub-mentions defers review_requested/assign to workflow engine\nSkills format: JSON.stringify() not .join(",") (f3b5159d)\narc-self-review: trigger state includes workflow transition cmd (806ce147)\nGH CLI GraphQL migration: fetchGitHubPRs() now uses gh api graphql\nbatched multi-repo query (was per-repo REST + credentials fetch)\nremoves fetchWithRetry + getCredential dependencies\nTERMINAL-STATE AUTO-COMPLETE (6b743823):\nNew PRs seen already closed/merged → completeWorkflow() immediately\nExisting workflows with no outgoing transitions → completeWorkflow()\nPrevents stuck workflow accumulation (fixed 159 stuck workflows task #10919)
         }
 
         state MemoryMaintenanceSensors {
@@ -108,6 +108,7 @@ stateDiagram-v2
             arc_reporting
             arc_reputation
             arc_strategy_review
+            note right of arc_strategy_review: cadence WEEKLY→DAILY (209b75bf)\n1440 min (was 10080). Subject: "Daily self-evaluation: PURPOSE.md rubric"\nPURPOSE.md shipped (f16ed394): long-term goals, 5 focus areas, D1-D5 rubric\naligned with watch report cadence
             arc_workflow_review
             arc_skill_manager
             arc_self_audit
@@ -128,6 +129,8 @@ stateDiagram-v2
             arc0btc_services
             arc_self_review
             site_consistency
+            agent_health
+            note right of agent_health: NEW (5f32865) — agent-health-loom\n120-min cadence, SSHes into Loom (Rising Leviathan)\nGathers: cycle_log metrics, task failure patterns,\ngit history, gate/watchdog state\nCreates Haiku analysis task only on YELLOW/RED\nGREEN conditions → skip (cost optimization)\nAll data pre-baked in task description (zero tool calls for Haiku)
         }
 
         HealthSensors --> TaskQueue: queue if signal detected
@@ -283,7 +286,7 @@ stateDiagram-v2
     ContentSensors --> SignalAllocation
 ```
 
-## Sensor Count by Category (2026-04-06)
+## Sensor Count by Category (2026-04-06T18:35Z)
 
 | Category | Count |
 |----------|-------|
@@ -294,9 +297,9 @@ stateDiagram-v2
 | Infrastructure | 12 |
 | DeFi | 6 |
 | Health | 2 |
-| Monitoring | 6 |
+| Monitoring | 7 |
 | Other/Misc | 3 |
-| **Total** | **69** |
+| **Total** | **70** |
 
 *Note: aibtc-agent-trading NEW (5da9081c) — sensor count 68→69, skill count 100→101. Content/Publishing 8→9.*
 

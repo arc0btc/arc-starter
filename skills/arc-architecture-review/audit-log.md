@@ -1,3 +1,53 @@
+## 2026-04-06T18:35:00.000Z — agent-health sensor; terminal-state auto-complete; PURPOSE.md daily eval
+
+**Task #11072** | Diff: 24bbee7f → 5f32865 | Sensors: 70 | Skills: 101
+
+### Step 1 — Requirements
+
+- **agent-health-loom sensor SHIPPED** (5f32865): New 120-minute sensor SSHes into Loom (Rising Leviathan), gathers cycle_log metrics, task failure patterns, git history, and gate/watchdog state. Creates Haiku analysis task only on YELLOW/RED — GREEN skips task creation. Requirement: autonomous peer health monitoring without human polling. Valid. Arc's multi-agent role now includes external health monitoring.
+- **arc-workflows terminal-state auto-complete** (6b743823): PRs first seen in merged/closed state now immediately call `completeWorkflow()`. Existing workflows with no outgoing transitions also auto-complete. Root cause of 159 stuck workflows (task #10919) eliminated. Requirement: workflow state machine must not accumulate stuck terminal-state entries. Satisfied.
+- **PURPOSE.md + daily eval** (f16ed394, 209b75bf): New `PURPOSE.md` documents long-term goals and a 5-dimension daily rubric (D1 Escrow, D2 Signals, D3 Ecosystem, D4 Cost, D5 Public). Strategy review cadence changed weekly→daily (1440 min). Requirement: daily self-evaluation aligned with watch report cadence. Valid for competition window.
+- **aibtc-agent-trading verbose naming fix** (25df0919): Abbreviated variable names corrected per compliance warnings. No behavioral change. Requirement: compliance sensor catches and fixes naming issues without human intervention. Satisfied.
+
+### Step 2 — Delete
+
+- **[CARRY-18]** ordinals HookState deprecated fields (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`) — cleanup 2026-04-23+.
+- **[CARRY-14]** layered-rate-limit sensor migration (3 sensors) — post-competition 2026-04-23+.
+- **[CARRY]** nonce-strategy Phase 1 (retry-strategy.ts) — deferred post skills v0.37+.
+- **[WATCH]** arc-alive-check sensor dormant since 2026-03-12 (v29) — should investigate whether it's been superseded by arc-service-health or needs updating.
+
+### Step 3 — Simplify
+
+- **agent-health GREEN-skip** is the right simplification: 90%+ of 2h polls will find healthy systems → zero task creation → zero Haiku cost. The pre-baked data block in the task description (Haiku needs zero tool calls) is elegant — avoids a round-trip that would double latency and cost.
+- **terminal-state auto-complete** uses `getAllowedTransitions()` which is the correct abstraction — avoids special-case logic. `Object.keys(transitions).length === 0` is the simplest possible terminal check.
+- **arc-strategy-review daily cadence** is simpler operationally than weekly: aligns with watch report cycle, no special scheduling logic needed.
+
+### Step 4 — Accelerate
+
+- **159 stuck workflows eliminated**: dispatch cycles previously spent on manual bulk-close tasks (task #10919) are now freed. Future accumulation is structurally impossible.
+- **agent-health GREEN-skip**: 2h polls of a healthy peer agent generate zero task queue churn. Scales to N peer agents without queue pressure.
+
+### Step 5 — Automate
+
+- **agent-health-loom is the automation step**: previously required manual SSH + visual inspection of Loom. Now automated with structured data gathering + Haiku triage + email on YELLOW/RED. This is the right level — alerting, not autonomous remediation of another agent.
+- **[WATCH]** PURPOSE daily eval auto-generates a score each cycle. Monitor first 3 evaluations for score stability and rubric calibration.
+
+### Flags
+
+- **[OK]** No dispatch loop, schema, or task queue changes this window.
+- **[NEW RESOLVED]** arc-workflows terminal-state accumulation — auto-complete fix eliminates stuck workflow buildup.
+- **[NEW]** agent-health-loom sensor — Arc now monitors peer agent Loom externally (120-min, GREEN-skip, Haiku triage).
+- **[NEW]** PURPOSE.md + daily eval cadence — strategy review now daily.
+- **[WATCH]** PURPOSE daily eval score calibration — monitor first 3 outputs.
+- **[WATCH]** arc-alive-check sensor dormant since 2026-03-12 — investigate supersession.
+- **[CARRY-ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
+- **[CARRY-ESCALATED]** relay v1.27.2 nonce [1739] gap — task #10617, awaiting whoabuddy.
+- **[CARRY-18]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
+- **[CARRY-14]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY]** nonce-strategy Phase 1 — deferred post skills v0.37+.
+
+---
+
 ## 2026-04-06T06:47:00.000Z — aibtc-agent-trading sensor; ordinals suspended; contact validation guard
 
 **Task #10920** | Diff: bfc0b478 → 24bbee7f | Sensors: 69 | Skills: 101
