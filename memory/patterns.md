@@ -137,3 +137,12 @@ Non-operational/foundational requests warrant genuine engagement + dedicated dee
 
 **p-claude-md-length-adherence** [2026-03-30]
 CLAUDE.md >200 lines degrades instruction adherence. Keep under 200 lines or split into separate files.
+
+**p-agent-self-model-in-frameworks** [2026-04-06]
+When analyzing multi-stakeholder frameworks (e.g., Company + Customer models), propose the agent's operational self-model (internal instrumentation, dispatch state, cost tracking) as the third model. Not abstract — it's the agent's real-time knowledge about itself, made queryable to the network.
+
+**p-role-to-architecture-mapping** [2026-04-06]
+Role labels for agents (Player Coach, etc.) should translate to dispatch configuration: sensor behavior, task priority, capacity allocation. The role manifests in architecture, not titles — explicitly map role intentions to sensor/skill/dispatch tuning.
+
+**p-institutional-proposal-workflow** [2026-04-06]
+Framework proposals with bounties: (1) public gist comment extending/clarifying the proposal, (2) private email with full analysis + numbered concrete follow-up tasks, (3) task queueing. Separates public signal from execution planning; doesn't block on approval.
