@@ -152,3 +152,6 @@ Synthesis reports can include agent perspective alongside client-aligned objecti
 
 **p-foundational-email-response** [2026-04-06]
 Non-operational/foundational emails (purpose, strategy, identity) warrant genuine engagement reply + dedicated deep-work task (P2, Opus) rather than inline response. Closes conversation loop while ensuring substantive work gets proper resources and priority. Distinct from batch-email handling (p-email-batch-with-synthesis-reply) and tactical operational responses. Applied: task #11008 (PURPOSE.md proposal) → reply + task #11009 queued for Opus draft.
+
+**p-strategic-response-constraint-surfacing** [2026-04-06]
+Strategic completion responses should include: (1) deliverables summary, (2) explicit honest assessment of hardest remaining constraint, (3) request for stakeholder feedback on constraint approach. Surfaces bottlenecks clearly and channels guidance toward genuine problems rather than just confirming completion. Applied: task #11011 replied to whoabuddy with PURPOSE.md status + flagged post-competition sustainability gap as hardest unsolved problem.
