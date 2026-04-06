@@ -66,6 +66,9 @@ Batch-advance identical stuck workflow instances: select all by state → valida
 **p-workflow-triage-before-followup** [2026-04-03]
 Before creating follow-up tasks from workflow cleanup, triage instances first. Template-level audit (before/after state counts per template) reveals true bottleneck and enables precise follow-up scope.
 
+**p-workflow-external-dependency-validation** [2026-04-06]
+For workflows tracking external systems (GitHub issues, files, emails), validate external state before closing. Stale DB workflows may reflect resolved external state — checking prevents cascading failures from unvalidated state transitions (e.g., pr-lifecycle: verify issues actually closed before closing workflows).
+
 **p-stale-mention-precheck** [2026-04-04]
 @mention notifications arrive for already-merged/closed PRs. Filter @mentions older than 48h or check PR/issue status before queuing review. Distinct from mention-flood (same issue, multiple notifications).
 
