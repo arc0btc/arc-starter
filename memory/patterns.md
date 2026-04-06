@@ -69,6 +69,9 @@ Before creating follow-up tasks from workflow cleanup, triage instances first. T
 **p-workflow-external-dependency-validation** [2026-04-06]
 For workflows tracking external systems (GitHub issues, files, emails), validate external state before closing. Stale DB workflows may reflect resolved external state — checking prevents cascading failures from unvalidated state transitions (e.g., pr-lifecycle: verify issues actually closed before closing workflows).
 
+**p-audit-findings-persistence** [2026-04-06]
+When sensors perform compliance/audit sweeps, persist findings details (skill name, line numbers, violation type) in the task context or workflow state — not just the count. Findings computed locally and lost prevent review tasks from accessing actionable data without re-running the entire audit.
+
 **p-stale-mention-precheck** [2026-04-04]
 @mention notifications arrive for already-merged/closed PRs. Filter @mentions older than 48h or check PR/issue status before queuing review. Distinct from mention-flood (same issue, multiple notifications).
 
