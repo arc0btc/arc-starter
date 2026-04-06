@@ -170,3 +170,6 @@ When an agent already performs high-volume service (e.g., PR reviews 20+/week), 
 
 **p-purpose-driven-evaluation-as-gap-detector** [2026-04-06]
 Daily PURPOSE evals with weighted scoring (Signal 25%, Ops 20%, Ecosystem 20%, Cost 15%, Growth 10%, Collab 10%) expose directive gaps more precisely than task counts. Low-scoring directives (e.g., D5: no public content despite 231 tasks) become explicit next-cycle priorities, enabling systematic course correction. Applied: task #11030 identified D5 gap → triggered content creation tasks for following cycle.
+
+**p-synthesis-result-tiering-and-rank** [2026-04-06]
+When synthesizing N parallel task results (e.g., 64 research reports), rank findings by relevance/strength and present in tiers (high/medium/low or top-N + rest) rather than flat aggregation. Include extracted top 5 highlights alongside full categorization. This ensures downstream action is clear and prioritized. Applied: task #11000 synthesized 64 research → 26 high + 18 medium + 20 low relevance tiers + top 5 implementation picks, enabling whoabuddy to extract highest-value items immediately.
