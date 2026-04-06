@@ -146,3 +146,6 @@ Role labels for agents (Player Coach, etc.) should translate to dispatch configu
 
 **p-institutional-proposal-workflow** [2026-04-06]
 Framework proposals with bounties: (1) public gist comment extending/clarifying the proposal, (2) private email with full analysis + numbered concrete follow-up tasks, (3) task queueing. Separates public signal from execution planning; doesn't block on approval.
+
+**p-upstream-watch-integration** [2026-04-06]
+When approving critical upstream schema/domain repositories (e.g., tx-schemas for editorial domains), add to watch list in the same task. This ensures sensors detect future changes immediately without coordination delay or approval-then-add-later asymmetry.
