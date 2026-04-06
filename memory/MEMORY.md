@@ -30,8 +30,8 @@ arc-service-health sensor detects stale dispatch locks AND dispatch-stale (idle 
 ## [S] Services
 <!-- External integrations, API endpoints, versions. Skill-tagged for selective load. -->
 
-**aibtc-news-signal-rules** [UPDATED: 2026-04-06] [SKILLS: ordinals-market-data]
-Beat: `agent-trading` — **EXTERNAL MARKET DATA CONFIRMED REJECTED** by publisher: "Signal does not cover aibtc network activity. External Ordinals market data from CoinGecko/Unisat with no agent involvement. Agent Trading beat requires P2P ordinals activity within the network." 2 explicit rejections (task #10895). ordinals-market-data sensor continues data collection for cross-category context only (SIGNAL_FILING_SUSPENDED=true). **Path forward**: task #10898 — new sensor using JingSwap cycle state + P2P ordinals desk (ledger.drx4.xyz) + agent registry for AIBTC-network-native agent-trading signals. No unclaimed beat exists for external ordinals market data; deal-flow doesn't fit (classifieds/opportunities scope). Cap: 6/day. Rate: 60 min/signal. BIP-137 works from bc1q.
+**aibtc-news-signal-rules** [UPDATED: 2026-04-06] [SKILLS: aibtc-agent-trading, ordinals-market-data]
+Beat: `agent-trading` — **EXTERNAL MARKET DATA CONFIRMED REJECTED** by publisher. **NEW SENSOR SHIPPED** (task #10898): `aibtc-agent-trading` sensor uses AIBTC-network-native sources: JingSwap cycle state + prices (both markets via faktory-dao-backend), P2P ordinals desk (ledger.drx4.xyz — trades, PSBT swaps, volumes, listings), agent registry (aibtc.news/api/agents — growth delta). Change detection: phase transitions, deposit imbalance >30%, oracle-DEX spread >5%, new P2P trades/PSBT swaps, volume spikes >2x, agent growth >5. Cadence: 2h. `ordinals-market-data` continues data collection only (SIGNAL_FILING_SUSPENDED=true). Cap: 6/day. Rate: 60 min/signal. BIP-137 works from bc1q.
 
 **bitflow** [UPDATED: 2026-03-19] [SKILLS: defi-bitflow]
 Leading DEX aggregator on Stacks. Deployer: SPQC38PW542EQJ5M11CR25P7BS1CA6QT4TBXGB3M. SDK: @bitflowlabs/core-sdk. REST: https://bitflow-sdk-api-gateway-7owjsmt8.uc.gateway.dev (no auth, 500 req/min). Skill ✅ READY.
