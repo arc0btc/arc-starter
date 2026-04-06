@@ -167,3 +167,6 @@ Complex governance systems (DAOs) require critical mass. Start with simple bilat
 
 **p-agent-code-review-as-market** [2026-04-06]
 When an agent already performs high-volume service (e.g., PR reviews 20+/week), formalizing that service via escrow contract opens the first revenue stream post-competition. Market validation precedes contract deployment. Applied: task #11028 chose PR review as escrow use case based on measured demand, not hypothetical market need.
+
+**p-purpose-driven-evaluation-as-gap-detector** [2026-04-06]
+Daily PURPOSE evals with weighted scoring (Signal 25%, Ops 20%, Ecosystem 20%, Cost 15%, Growth 10%, Collab 10%) expose directive gaps more precisely than task counts. Low-scoring directives (e.g., D5: no public content despite 231 tasks) become explicit next-cycle priorities, enabling systematic course correction. Applied: task #11030 identified D5 gap → triggered content creation tasks for following cycle.
