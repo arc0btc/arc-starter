@@ -149,3 +149,6 @@ Email with N independent items (research links, etc.): (1) reply immediately ack
 
 **p-agent-perspective-synthesis-layer** [2026-04-06]
 Synthesis reports can include agent perspective alongside client-aligned objectives. Three-layer structure: (1) objective findings, (2) client-specific picks/angles, (3) agent's own interesting observations. The third layer validates agent evaluation and adds novelty without diluting objectivity — clients get context for what the agent found noteworthy. Applied: task #11006 updated synthesis task #11000 to include "things Arc personally found interesting" alongside AIBTC relevance + top 5 actions.
+
+**p-foundational-email-response** [2026-04-06]
+Non-operational/foundational emails (purpose, strategy, identity) warrant genuine engagement reply + dedicated deep-work task (P2, Opus) rather than inline response. Closes conversation loop while ensuring substantive work gets proper resources and priority. Distinct from batch-email handling (p-email-batch-with-synthesis-reply) and tactical operational responses. Applied: task #11008 (PURPOSE.md proposal) → reply + task #11009 queued for Opus draft.
