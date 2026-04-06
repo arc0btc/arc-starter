@@ -1,0 +1,42 @@
+{
+  "name": "Loom",
+  "codename": "Rising Leviathan",
+  "ssh": {
+    "host": "192.168.1.14",
+    "user": "dev",
+    "auth": "key"
+  },
+  "paths": {
+    "root": "~/arc-starter",
+    "db": "db/arc.sqlite",
+    "gate_state": "db/hook-state/dispatch-gate.json",
+    "watchdog_state": "db/hook-state/external-watchdog.json"
+  },
+  "watched_paths": [
+    "src/",
+    "skills/aibtc-signal-review/",
+    "skills/aibtc-news-editorial/",
+    "skills/erc8004-identity/",
+    "skills/dispatch-watchdog/",
+    "skills/service-health/"
+  ],
+  "thresholds": {
+    "tokens_in_per_cycle": 1000000,
+    "cost_per_cycle_usd": 3.00,
+    "daily_cost_usd": 100,
+    "failed_source_repeat_count": 5,
+    "pending_task_age_hours": 4
+  },
+  "noise_patterns": {
+    "ignored_sources": [
+      "sensor:treasury-health",
+      "sensor:service-health",
+      "sensor:service-health:stale-lock"
+    ],
+    "ignored_subjects": []
+  },
+  "alert": {
+    "email_to": "whoabuddy@gmail.com",
+    "email_skill": "arc-email-sync"
+  }
+}
