@@ -16,6 +16,7 @@ export const AIBTC_WATCHED_REPOS = [
   "aibtcdev/agent-news",
   "aibtcdev/loop-starter-kit",
   "aibtcdev/x402-sponsor-relay",
+  "aibtcdev/tx-schemas",
 ] as const;
 
 /** GitHub orgs/owners where Arc is the primary maintainer. */
