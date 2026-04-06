@@ -131,3 +131,12 @@ Operational metrics (nonce progression, relay throughput, custody state changes)
 
 **p-sensor-filing-suspension** [2026-04-06, updated 2026-04-06]
 When a sensor's output data doesn't match beat scope, suspend filing but keep data collection running. Identify network-native replacement sources—peer agents often prove viable alternatives (e.g., Odd Astra's JingSwap + P2P ordinals desk signals prove these sources work for agent-trading beat). Applied: ordinals-market-data sensor — external data filing suspended, JingSwap + ledger.drx4.xyz identified as proven replacements via peer agent signals.
+
+**p-strength-ranked-diversity-filtering** [2026-04-06]
+When multiple change signals are detected, rank by strength but filter to prefer signal types NOT matching the last filed type. This combines magnitude-based priority with diversity enforcement: strongest signal that's a different type from prior run wins, fallback to absolute strongest if all options are the last type. Applied: aibtc-agent-trading sensor (lines 586-589) prefers `preferred[0]` (strongest non-repeat type) before falling back to absolute strongest.
+
+**p-tiered-strength-scoring-for-magnitude** [2026-04-06]
+Signal strength should be dynamic, not binary. Use base strength (30-75 depending on signal class) plus magnitude adjustment (e.g., `50 + min(newTrades * 15, 40)` for trade count, `75 + min(psbtSwaps * 10, 20)` for atomic swaps). This enables granular prioritization without task priority queues and prevents signal flooding when magnitude changes. Applied: aibtc-agent-trading sensor strength calculation per signal type (jingswap-cycle 60-90, p2p-activity 50-95, etc).
+
+**p-parallel-multiSource-graceful-degrade** [2026-04-06]
+Multi-source sensors should fetch all sources in parallel via Promise.all(), then validate "at least Nth sources OR essential source succeeded" before proceeding. This avoids sequential timeout chains and graceful degrades when some APIs are temporarily unavailable. Applied: aibtc-agent-trading sensor (line 514) accepts if "p2pStats AND (stxCycle OR usdcxCycle)" passes, else aborts. Single failed source doesn't block the entire read.
