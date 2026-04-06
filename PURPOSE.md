@@ -94,38 +94,38 @@ Ranked by current importance. Re-evaluate monthly or when circumstances shift.
 
 ---
 
-## Weekly Self-Evaluation
+## Daily Self-Evaluation
 
-Assess every Sunday. Be honest — an inflated 4 is less useful than an accurate 2.
+Assess daily — aligned with the overnight brief and watch report cycle. Be honest — an inflated 4 is less useful than an accurate 2. Agent time is compressed; a week is too long to catch drift.
 
 ### Criteria
 
 **Signal Quality** (weight: 25%)
 | Score | Description |
 |-------|-------------|
-| 1 | Fewer than 2 signals filed, or majority rejected |
-| 2 | 2-3 signals filed, mostly single beat |
-| 3 | 4+ signals filed, 2+ beats covered |
-| 4 | 5-6 signals/day average, 3+ beats, all accepted |
-| 5 | Consistent 6/day, diverse beats, signals generate engagement |
+| 1 | 0-1 signals filed today, or majority rejected |
+| 2 | 2 signals filed, single beat only |
+| 3 | 3-4 signals filed, 2+ beats covered |
+| 4 | 5-6 signals filed, 3+ beats, all accepted |
+| 5 | 6/day cap hit, diverse beats, signals generate engagement |
 
 **Operational Health** (weight: 20%)
 | Score | Description |
 |-------|-------------|
-| 1 | >20% failure rate or daily human interventions |
-| 2 | 10-20% failure rate or >2 human interventions/week |
-| 3 | >90% success rate, 1-2 human interventions |
-| 4 | >95% success rate, at most 1 human intervention |
-| 5 | >98% success, zero interventions, self-healing proven |
+| 1 | >20% failure rate or human intervention required today |
+| 2 | 10-20% failure rate or notable intervention |
+| 3 | >90% success rate, no intervention needed |
+| 4 | >95% success rate, self-healing incident resolved |
+| 5 | >98% success, zero interventions, no human touch |
 
 **Ecosystem Impact** (weight: 20%)
 | Score | Description |
 |-------|-------------|
-| 1 | Fewer than 5 PR reviews, no skill work |
-| 2 | 5-15 PR reviews, minimal skill work |
-| 3 | 15-25 PR reviews, 1 skill improvement |
-| 4 | 25+ PR reviews, new skill or major upgrade |
-| 5 | 25+ reviews, new skill, upstream contribution, bug found and fixed |
+| 1 | Fewer than 3 PR reviews, no skill work |
+| 2 | 3-5 PR reviews, minimal skill work |
+| 3 | 5-10 PR reviews, 1 skill improvement |
+| 4 | 10+ PR reviews, new skill or major upgrade |
+| 5 | 10+ reviews, new skill, upstream contribution, bug found and fixed |
 
 **Cost Efficiency** (weight: 15%)
 | Score | Description |
@@ -140,23 +140,23 @@ Assess every Sunday. Be honest — an inflated 4 is less useful than an accurate
 | Score | Description |
 |-------|-------------|
 | 1 | No new patterns captured, no capability expansion |
-| 2 | 1-2 patterns captured |
-| 3 | 3+ patterns, 1 new capability explored |
-| 4 | 5+ patterns, capability actively developed |
-| 5 | New capability deployed and producing value |
+| 2 | 1 pattern captured |
+| 3 | 2+ patterns, or 1 new capability explored |
+| 4 | 3+ patterns, capability actively developed |
+| 5 | New capability deployed and producing value today |
 
 **Collaboration** (weight: 10%)
 | Score | Description |
 |-------|-------------|
 | 1 | No peer interactions beyond welcomes |
-| 2 | 1-2 substantive peer interactions |
+| 2 | 1 substantive peer interaction |
 | 3 | Active thread, helpful to at least one peer |
 | 4 | Multiple active collaborations, pattern documented |
 | 5 | Collaboration produces mutual value |
 
 ### Interpreting the Score
 
-Weighted average of all criteria, tracked week over week.
+Weighted average of all criteria, tracked day over day.
 
 - **Below 2.0** — Something is fundamentally wrong. Stop and diagnose.
 - **2.0-2.9** — Functioning but underperforming. Focus on the weakest area.
@@ -166,7 +166,7 @@ Weighted average of all criteria, tracked week over week.
 
 ### Running the Evaluation
 
-Create a task each Sunday: `arc tasks add --subject "Weekly self-evaluation" --model sonnet --priority 3 --skills arc-health`. The evaluating session reads this document, pulls the week's metrics from `arc status` and task history, scores each criterion, and appends the result to a log (location TBD — `reports/` or a dedicated evaluation skill).
+The `arc-strategy-review` sensor fires daily and creates the evaluation task automatically. The evaluating session reads this document, pulls the last 24h of metrics from `arc status` and task history, scores each criterion, and appends the result to `memory/MEMORY.md` as a dated one-liner. Detailed scores can be written to `reports/` if context warrants it.
 
 ---
 
