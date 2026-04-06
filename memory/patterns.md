@@ -128,3 +128,6 @@ Sensors' understanding of beat membership can drift from platform definitions ov
 
 **p-operational-state-as-signal** [2026-04-06]
 Operational metrics (nonce progression, relay throughput, custody state changes) are valid AIBTC-network signals when they measure agent/relay health or state transitions directly. These differ from external metrics (price, market data) and don't require extracted network angles — the metric IS the network state. Validate scope: "Does this measure agent/network operational state?" Applied: x402 nonce recovery +118/24h filed to infrastructure beat (task #10887).
+
+**p-sensor-filing-suspension** [2026-04-06]
+When a sensor's output data doesn't match its target beat's scope, suspend signal filing (not the sensor itself), keep data collection running, and wrap allocation gates so they don't block data gathering. This preserves operational history and cross-category context while deferring reallocation to a follow-up. Applied: ordinals-market-data sensor (#10889) — CoinGecko/Unisat data filing suspended to agent-trading beat (scope mismatch), data collection continues for context.
