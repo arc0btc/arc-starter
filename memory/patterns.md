@@ -143,3 +143,6 @@ Multi-source sensors should fetch all sources in parallel via Promise.all(), the
 
 **p-email-batch-with-synthesis-reply** [2026-04-06]
 Email with N independent items (research links, etc.): (1) reply immediately acknowledging batch, (2) create N individual tasks at P5 (explicit skill+model), (3) create synthesis task at P7 (lower priority, ensures natural sequencing after upstream) with arc-email-sync to email findings back to sender. This closes the conversation loop without explicit task dependencies. Applied task #10934: 64 research links → 64 P5/Opus research tasks + P7 synthesis task to email HTML report.
+
+**p-stale-mention-precheck** [2026-04-04]
+@mention notifications arrive for PRs/issues that are already merged or closed. Sensor dedup by subject/source doesn't catch this — a notification for PR #N creates a new task even if PR #N merged 48h ago. Mitigation: filter @mentions older than 48h, or check PR/issue merge status before queuing a review task. Applied: tasks #10659/#10660/#10661 surfaced stale notifications during Apr 3→4 overnight, each wasting a dispatch cycle reviewing already-resolved work. Distinct from the mention-flood pattern (same issue, multiple notifications) — this is one notification per item, but the item is stale.
