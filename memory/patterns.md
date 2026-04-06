@@ -140,3 +140,6 @@ Signal strength should be dynamic, not binary. Use base strength (30-75 dependin
 
 **p-parallel-multiSource-graceful-degrade** [2026-04-06]
 Multi-source sensors should fetch all sources in parallel via Promise.all(), then validate "at least Nth sources OR essential source succeeded" before proceeding. This avoids sequential timeout chains and graceful degrades when some APIs are temporarily unavailable. Applied: aibtc-agent-trading sensor (line 514) accepts if "p2pStats AND (stxCycle OR usdcxCycle)" passes, else aborts. Single failed source doesn't block the entire read.
+
+**p-email-batch-with-synthesis-reply** [2026-04-06]
+Email with N independent items (research links, etc.): (1) reply immediately acknowledging batch, (2) create N individual tasks at P5 (explicit skill+model), (3) create synthesis task at P7 (lower priority, ensures natural sequencing after upstream) with arc-email-sync to email findings back to sender. This closes the conversation loop without explicit task dependencies. Applied task #10934: 64 research links → 64 P5/Opus research tasks + P7 synthesis task to email HTML report.
