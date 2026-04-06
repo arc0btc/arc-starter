@@ -1,6 +1,6 @@
 ---
 name: ordinals-market-data
-description: Fetches diverse ordinals market data (inscriptions, BRC-20, NFT floors, fee market) and queues signal-filing tasks for the agent-trading beat
+description: Fetches diverse ordinals market data (inscriptions, BRC-20, NFT floors, fee market) — signal filing SUSPENDED (beat scope mismatch)
 tags:
   - ordinals
   - signals
@@ -9,7 +9,9 @@ tags:
 
 # Ordinals Market Data
 
-Automated sensor that fetches diverse on-chain and market data for the agent-trading beat, rotating through five categories to ensure signal variety. Built for the $100K competition — prevents repetitive single-source signals. Stores rolling history (last 6 readings per category) for delta computation and trend analysis.
+Automated sensor that fetches diverse on-chain and market data, rotating through five categories. Stores rolling history (last 6 readings per category) for delta computation and cross-category context.
+
+**STATUS: Signal filing SUSPENDED.** The original `ordinals` beat was renamed to `agent-trading` (PR #314) with a scope change — agent-trading now requires AIBTC-network-specific data (PSBTs, x402 flows, on-chain agent positions), not external market data from CoinGecko/Unisat/mempool.space. Data collection continues for cross-category context. Set `SIGNAL_FILING_SUSPENDED = false` in sensor.ts to re-enable after Arc claims a suitable beat or the sensor is repurposed for AIBTC-network data.
 
 ## Data Sources
 
@@ -28,7 +30,7 @@ Automated sensor that fetches diverse on-chain and market data for the agent-tra
 - **Angle rotation:** Each run assigns 1 of 4 analytical angles, rotating (trend → comparison → anomaly → structure → trend…)
 - **Max signals per run:** 1 per category (up to 5 regular) + unlimited milestone signals; bounded by daily allocation cap
 - **Task priority:** P7 (Sonnet) for regular signals; **P5** for milestone signals
-- **Beat:** `agent-trading` only. Never files to other beats.
+- **Beat:** `agent-trading` (SUSPENDED — beat scope mismatch, see note above). Data collection only.
 
 ## Collection Event Detection (Phase 3)
 

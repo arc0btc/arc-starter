@@ -37,6 +37,13 @@ const COLLECTION_VOLUME_AVG_WINDOW = 5;      // readings used to compute rolling
 const COMPETITION_END_DATE = "2026-04-22"; // $100K competition ends April 22, 2026 UTC
 const FLAT_MARKET_FALLBACK_COOLDOWN_HOURS = 6; // min hours between flat-market fallback signals
 
+// Signal filing SUSPENDED — agent-trading beat now requires AIBTC-network-specific data
+// (PSBTs, x402 flows, on-chain agent positions), not external market data from CoinGecko/Unisat/mempool.space.
+// Original 'ordinals' beat was renamed to 'agent-trading' (PR #314) with a scope change.
+// Data collection continues for cross-category context. Re-enable when Arc claims a suitable beat
+// or the sensor is repurposed for AIBTC-network agent trading data.
+const SIGNAL_FILING_SUSPENDED = true;
+
 // Multi-beat allocation — 3 agent-trading + 3 dev-tools per day
 // After OVERFLOW_HOUR_UTC, unused dev-tools slots become available to agent-trading
 const OVERFLOW_HOUR_UTC = 18; // 18:00 UTC = noon MDT — late-day overflow window
@@ -1141,34 +1148,39 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
     log("run started — fetching diverse ordinals market data");
 
     // ---- Multi-beat allocation gate ----
-    // Global cap: 6 signals/day across all beats
-    const totalToday = countSignalTasksToday();
-    if (totalToday >= DAILY_SIGNAL_CAP) {
-      log(`daily cap: ${totalToday}/${DAILY_SIGNAL_CAP} signal slots claimed today; skipping`);
-      return "skip";
-    }
-
-    // Per-beat allocation: 3 agent-trading + 3 dev-tools per day
-    const ordinalsToday = countSignalTasksTodayForBeat("agent-trading");
-    const devToolsToday = countSignalTasksTodayForBeat("dev-tools");
+    // Skip allocation checks when signal filing is suspended — data collection still runs
     let ordinalsAllocation = BEAT_DAILY_ALLOCATION;
-
-    // Late-day overflow: if dev-tools hasn't used its slots by OVERFLOW_HOUR_UTC, agent-trading can take them
-    const hourUTC = new Date().getUTCHours();
-    if (hourUTC >= OVERFLOW_HOUR_UTC) {
-      const devToolsUnused = BEAT_DAILY_ALLOCATION - devToolsToday;
-      if (devToolsUnused > 0) {
-        ordinalsAllocation += devToolsUnused;
-        log(`late-day overflow: ${devToolsUnused} unused dev-tools slot(s) available to agent-trading (allocation: ${ordinalsAllocation})`);
+    let hourUTC = new Date().getUTCHours();
+    if (!SIGNAL_FILING_SUSPENDED) {
+      // Global cap: 6 signals/day across all beats
+      const totalToday = countSignalTasksToday();
+      if (totalToday >= DAILY_SIGNAL_CAP) {
+        log(`daily cap: ${totalToday}/${DAILY_SIGNAL_CAP} signal slots claimed today; skipping`);
+        return "skip";
       }
-    }
 
-    if (ordinalsToday >= ordinalsAllocation) {
-      log(`agent-trading beat allocation reached: ${ordinalsToday}/${ordinalsAllocation} (dev-tools: ${devToolsToday}/${BEAT_DAILY_ALLOCATION}); skipping`);
-      return "skip";
-    }
+      // Per-beat allocation: 3 agent-trading + 3 dev-tools per day
+      const ordinalsToday = countSignalTasksTodayForBeat("agent-trading");
+      const devToolsToday = countSignalTasksTodayForBeat("dev-tools");
 
-    log(`beat allocation: agent-trading ${ordinalsToday}/${ordinalsAllocation}, dev-tools ${devToolsToday}/${BEAT_DAILY_ALLOCATION}, total ${totalToday}/${DAILY_SIGNAL_CAP}`);
+      // Late-day overflow: if dev-tools hasn't used its slots by OVERFLOW_HOUR_UTC, agent-trading can take them
+      if (hourUTC >= OVERFLOW_HOUR_UTC) {
+        const devToolsUnused = BEAT_DAILY_ALLOCATION - devToolsToday;
+        if (devToolsUnused > 0) {
+          ordinalsAllocation += devToolsUnused;
+          log(`late-day overflow: ${devToolsUnused} unused dev-tools slot(s) available to agent-trading (allocation: ${ordinalsAllocation})`);
+        }
+      }
+
+      if (ordinalsToday >= ordinalsAllocation) {
+        log(`agent-trading beat allocation reached: ${ordinalsToday}/${ordinalsAllocation} (dev-tools: ${devToolsToday}/${BEAT_DAILY_ALLOCATION}); skipping`);
+        return "skip";
+      }
+
+      log(`beat allocation: agent-trading ${ordinalsToday}/${ordinalsAllocation}, dev-tools ${devToolsToday}/${BEAT_DAILY_ALLOCATION}, total ${totalToday}/${DAILY_SIGNAL_CAP}`);
+    } else {
+      log("signal filing suspended — collecting data for cross-category context only");
+    }
 
     // Load state for category rotation and cooldown tracking
     const rawState = (await readHookState(SENSOR_NAME)) as HookState | null;
@@ -1234,6 +1246,15 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
       }
 
       if (signal) signals.push(signal);
+    }
+
+    // When signal filing is suspended, save state and return after data collection
+    if (SIGNAL_FILING_SUSPENDED) {
+      log(`data collection complete — ${signals.length} regular signal(s), ${milestoneSignals.length} milestone(s) detected (not filed — beat scope mismatch)`);
+      state.lastAngle = angleIdx;
+      state.lastRun = new Date().toISOString();
+      await writeHookState(SENSOR_NAME, state);
+      return "ok";
     }
 
     if (signals.length === 0) {
