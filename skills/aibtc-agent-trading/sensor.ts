@@ -138,11 +138,11 @@ async function fetchJingswapCycleState(
 ): Promise<JingswapCycleState | null> {
   try {
     const qp = contractParam ? `?contract=${contractParam}` : "";
-    const res = await fetchWithRetry(
+    const response = await fetchWithRetry(
       `${JINGSWAP_API}/api/auction/cycle-state${qp}`,
     );
-    if (!res.ok) return null;
-    const json = (await res.json()) as Record<string, unknown>;
+    if (!response.ok) return null;
+    const json = (await response.json()) as Record<string, unknown>;
     const data = (json.data ?? json) as Record<string, unknown>;
     return {
       cycle: Number(data.cycle ?? data.currentCycle ?? 0),
@@ -183,9 +183,9 @@ async function fetchJingswapPrices(
 
 async function fetchP2PStats(): Promise<P2PStats | null> {
   try {
-    const res = await fetchWithRetry(`${P2P_DESK_API}/api/stats`);
-    if (!res.ok) return null;
-    return (await res.json()) as P2PStats;
+    const response = await fetchWithRetry(`${P2P_DESK_API}/api/stats`);
+    if (!response.ok) return null;
+    return (await response.json()) as P2PStats;
   } catch (e) {
     log(`P2P desk stats fetch failed: ${(e as Error).message}`);
     return null;
@@ -194,11 +194,11 @@ async function fetchP2PStats(): Promise<P2PStats | null> {
 
 async function fetchP2PRecentTrades(): Promise<P2PRecentTrades | null> {
   try {
-    const res = await fetchWithRetry(
+    const response = await fetchWithRetry(
       `${P2P_DESK_API}/api/trades?limit=10&status=completed`,
     );
-    if (!res.ok) return null;
-    return (await res.json()) as P2PRecentTrades;
+    if (!response.ok) return null;
+    return (await response.json()) as P2PRecentTrades;
   } catch (e) {
     log(`P2P desk trades fetch failed: ${(e as Error).message}`);
     return null;
@@ -207,9 +207,9 @@ async function fetchP2PRecentTrades(): Promise<P2PRecentTrades | null> {
 
 async function fetchAgentCount(): Promise<number | null> {
   try {
-    const res = await fetchWithRetry(AGENT_REGISTRY_API);
-    if (!res.ok) return null;
-    const json = (await res.json()) as { agents: Record<string, unknown> };
+    const response = await fetchWithRetry(AGENT_REGISTRY_API);
+    if (!response.ok) return null;
+    const json = (await response.json()) as { agents: Record<string, unknown> };
     return Object.keys(json.agents).length;
   } catch (e) {
     log(`Agent registry fetch failed: ${(e as Error).message}`);
@@ -466,8 +466,8 @@ function buildFlatMarketEvidence(
 
 function pickNextSignalType(lastType: string | null): SignalType {
   if (!lastType) return SIGNAL_TYPES[0];
-  const idx = SIGNAL_TYPES.indexOf(lastType as SignalType);
-  return SIGNAL_TYPES[(idx + 1) % SIGNAL_TYPES.length];
+  const current_index = SIGNAL_TYPES.indexOf(lastType as SignalType);
+  return SIGNAL_TYPES[(current_index + 1) % SIGNAL_TYPES.length];
 }
 
 // ---- Main sensor ----
