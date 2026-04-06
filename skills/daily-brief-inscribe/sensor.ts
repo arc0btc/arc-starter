@@ -45,10 +45,6 @@ function checkPrerequisites(): { ok: boolean; reason?: string } {
 }
 
 export default async function dailyBriefInscribeSensor(): Promise<string> {
-  // TEMPORARILY DISABLED: code changes in progress (aibtcdev/agent-news#349)
-  // Re-enable after new flow is tested and updated
-  return "skip";
-
   initDatabase();
 
   const claimed = await claimSensorRun(SENSOR_NAME, POLL_INTERVAL);
