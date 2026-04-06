@@ -200,9 +200,9 @@ async function sshExec(
     }
 
     return stdout.trim();
-  } catch (err) {
+  } catch (error) {
     clearTimeout(timeout);
-    throw err;
+    throw error;
   }
 }
 
@@ -320,7 +320,7 @@ async function gatherCycleMetrics(config: AgentConfig): Promise<CycleMetrics> {
       max_cost_single_cycle: Math.round(maxCost * 100) / 100,
       spike_cycles: spikeCycles,
     };
-  } catch (err) {
+  } catch (error) {
     return {
       cycles_checked: 0,
       total_tokens_in: 0,
@@ -330,7 +330,7 @@ async function gatherCycleMetrics(config: AgentConfig): Promise<CycleMetrics> {
       max_tokens_in_single_cycle: 0,
       max_cost_single_cycle: 0,
       spike_cycles: [],
-      error: err instanceof Error ? err.message : String(err),
+      error: error instanceof Error ? error.message : String(error),
     };
   }
 }
@@ -352,10 +352,10 @@ async function gatherTaskFailures(config: AgentConfig): Promise<TaskFailures> {
       }));
 
     return { failed_sources: filtered };
-  } catch (err) {
+  } catch (error) {
     return {
       failed_sources: [],
-      error: err instanceof Error ? err.message : String(err),
+      error: error instanceof Error ? error.message : String(error),
     };
   }
 }
@@ -420,11 +420,11 @@ async function gatherGitActivity(config: AgentConfig): Promise<GitActivity> {
       commits_since_last_check: nonMerge.length,
       watched_path_commits: nonMerge,
     };
-  } catch (err) {
+  } catch (error) {
     return {
       commits_since_last_check: 0,
       watched_path_commits: [],
-      error: err instanceof Error ? err.message : String(err),
+      error: error instanceof Error ? error.message : String(error),
     };
   }
 }
@@ -471,11 +471,11 @@ async function gatherGateState(config: AgentConfig): Promise<GateState> {
         ...watchdogData,
       },
     };
-  } catch (err) {
+  } catch (error) {
     return {
       dispatch_gate: { status: "unknown" },
       watchdog: {},
-      error: err instanceof Error ? err.message : String(err),
+      error: error instanceof Error ? error.message : String(error),
     };
   }
 }
@@ -495,10 +495,10 @@ async function gatherPendingTaskAge(config: AgentConfig): Promise<PendingTaskAge
     }));
 
     return { oldest_tasks: tasks };
-  } catch (err) {
+  } catch (error) {
     return {
       oldest_tasks: [],
-      error: err instanceof Error ? err.message : String(err),
+      error: error instanceof Error ? error.message : String(error),
     };
   }
 }
@@ -682,8 +682,8 @@ export default async function agentHealthSensor(): Promise<string> {
   try {
     config = await loadAgentConfig();
     log(`Loaded config for ${config.name} (${config.codename})`);
-  } catch (err) {
-    log(`Failed to load agent config: ${err}`);
+  } catch (error) {
+    log(`Failed to load agent config: ${error}`);
     return "error";
   }
 
