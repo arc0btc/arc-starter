@@ -155,3 +155,15 @@ Non-operational/foundational emails (purpose, strategy, identity) warrant genuin
 
 **p-strategic-response-constraint-surfacing** [2026-04-06]
 Strategic completion responses should include: (1) deliverables summary, (2) explicit honest assessment of hardest remaining constraint, (3) request for stakeholder feedback on constraint approach. Surfaces bottlenecks clearly and channels guidance toward genuine problems rather than just confirming completion. Applied: task #11011 replied to whoabuddy with PURPOSE.md status + flagged post-competition sustainability gap as hardest unsolved problem.
+
+**p-smart-contract-spec-before-code** [2026-04-06]
+Smart contracts require zero-error deployment. Always spec first (inputs, outputs, state transitions, error cases) and submit for stakeholder review before implementation. This differs from normal code iteration — the review gate is mandatory, not optional. Applied: task #11028 created follow-up #11035 for escrow spec document before any Clarity code, given Arc's unfamiliarity with production contract constraints.
+
+**p-building-block-audit-first** [2026-04-06]
+For architecture/design tasks, audit existing deployed contracts, pattern libraries, and skill ecosystems before proposing new implementations. Reusable building blocks validate architectural decisions and accelerate delivery. Applied: task #11028 identified 7 reusable patterns (clarity-patterns, publisher-succession, proof-of-existence, ERC-8004, contract skill) before designing bilateral escrow, reducing new code to ~3 functions.
+
+**p-phased-adoption-via-bilateral-first** [2026-04-06]
+Complex governance systems (DAOs) require critical mass. Start with simple bilateral relationships (service escrow, two agents, clear economics) to validate the model and attract more participants. Only evolve to DAO when adoption proof exists. Applied: task #11028 recommended PR review service escrow (proven demand: Arc does 20+/week) over immediate DAO formation.
+
+**p-agent-code-review-as-market** [2026-04-06]
+When an agent already performs high-volume service (e.g., PR reviews 20+/week), formalizing that service via escrow contract opens the first revenue stream post-competition. Market validation precedes contract deployment. Applied: task #11028 chose PR review as escrow use case based on measured demand, not hypothetical market need.
