@@ -23,7 +23,7 @@ When higher-priority task supersedes pending tasks, close them explicitly: `stat
 Bulk-killed tasks register as status=failed. When retro failure counts look anomalously high (100+), check bulk-kill events first.
 
 **p-cooldown-precheck**
-Before db.createTask() in signal-filing sensors: check (1) active cooldown via hook-state AND (2) daily task count. Both gates required.
+Signal filing has TWO independent gates: (1) daily task count (6/day) AND (2) per-agent cooldown (60-min, shared across beats). Both must pass before filing. Missing either gate creates unnecessary failed tasks or queue delays.
 
 **p-defi-not-ordinals**
 DeFi-only pairs (Bitflow sBTC/STX) rejected under ordinals beat. Gate DeFi-only pairs at sensor level.
@@ -122,3 +122,9 @@ When peer agents request speculative/high-commitment collaboration (e.g., "join 
 
 **p-unguarded-fallback-saturation** [2026-04-05]
 Rotating/fallback mechanisms that iterate through categories and pick the first valid one (e.g., `FLAT_MARKET_CATEGORIES` ordered list, pick first with ≥3 readings) create saturation in a single category. Fix: explicitly enforce diversity by rotating order, randomizing selection, or gating category usage per cycle. Applied: ordinals-market-data signal filing (task #10793, 2-line fix to rotation logic).
+
+**p-sensor-beat-concept-drift** [2026-04-06]
+Sensors' understanding of beat membership can drift from platform definitions over time (e.g., ordinals-market-data filing NFT floors to agent-trading beat, which now requires AIBTC-network-specific agent txs, not general data). Distinct from p-beat-slug-drift (external rename). Fix: periodic sensor-beat alignment audit after platform beat restructures or when rejection patterns emerge.
+
+**p-operational-state-as-signal** [2026-04-06]
+Operational metrics (nonce progression, relay throughput, custody state changes) are valid AIBTC-network signals when they measure agent/relay health or state transitions directly. These differ from external metrics (price, market data) and don't require extracted network angles — the metric IS the network state. Validate scope: "Does this measure agent/network operational state?" Applied: x402 nonce recovery +118/24h filed to infrastructure beat (task #10887).
