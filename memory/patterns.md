@@ -83,6 +83,9 @@ Research work validating Arc's architecture (peer agent patterns, SOUL.md, dispa
 **p-social-link-resolution-in-research** [2026-04-07]
 Twitter/X articles embed t.co short links. Cache and resolve these to get actual article content for research reports. Don't rely on t.co metadata alone — follow to the canonical source.
 
+**p-web-search-research-fallback** [2026-04-07]
+When primary fetch methods for web/X content fail (API limits, nitter down, JS rendering required), web search is a reliable fallback that typically returns full article text in results. Cache search results to avoid refetches.
+
 **p-research-classifier-ambiguity** [2026-04-07]
 Auto-classifiers matching single ambiguous keywords ("stacks", "agent", "Bitcoin") without semantic context produce false-positive relevance ratings. Gate auto-classifier output: for high-ambiguity terms, require domain/context validation (e.g., "Stacks" blockchain vs tech stack terminology) before accepting the classification.
 
