@@ -1,0 +1,10 @@
+{
+  "url": "https://x.com/27upon2/status/2041210016581984556",
+  "fetchedAt": "2026-04-07T13:00:52.923Z",
+  "contentType": "tweet",
+  "title": "@27upon2: A must read for orgs looking to get into RL but worried about repackaging your a...",
+  "rawContent": "Tweet by @27upon2 (Sriraam)\nAuthor bio: founding engineer @decodetool. playing with RL envs. prev @Harvard\nText: A must read for orgs looking to get into RL but worried about repackaging your app into a neat Reinforcement Learning environment. \n\nYou don’t need to! Your product can be used as the environment. \n\nEven if you have a fancy nextjs app with an elixir backend running on a single mysql db you can RL on it!\nCreated: 2026-04-06T17:42:46.000Z\nMetrics: {\"retweet_count\":3,\"reply_count\":1,\"like_count\":119,\"quote_count\":1,\"bookmark_count\":158,\"impression_count\":11821}",
+  "embeddedUrls": [
+    "https://t.co/VAVjz3rzSL"
+  ]
+}
