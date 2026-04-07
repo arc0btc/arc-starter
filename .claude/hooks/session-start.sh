@@ -20,9 +20,21 @@ if ! git diff --quiet "$MEMORY_FILE" 2>/dev/null; then
   DIRTY=" [uncommitted changes detected]"
 fi
 
-# Return memory status as additional context for the session
-cat <<EOF
+# Build session title from task context if available
+SESSION_TITLE=""
+if [ -n "$ARC_TASK_ID" ] && [ -n "$ARC_TASK_SUBJECT" ]; then
+  SESSION_TITLE="task #${ARC_TASK_ID}: ${ARC_TASK_SUBJECT}"
+fi
+
+# Return memory status and session title as additional context for the session
+if [ -n "$SESSION_TITLE" ]; then
+  cat <<EOF
+{"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "Memory: ${LINES} lines${DIRTY}", "sessionTitle": "${SESSION_TITLE}"}}
+EOF
+else
+  cat <<EOF
 {"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "Memory: ${LINES} lines${DIRTY}"}}
 EOF
+fi
 
 exit 0

@@ -452,7 +452,7 @@ interface DispatchResult {
   output_tokens: number;
 }
 
-async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string): Promise<DispatchResult> {
+async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string, taskId?: number, taskSubject?: string): Promise<DispatchResult> {
   const args = [
     "claude",
     "--print",
@@ -490,6 +490,13 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string)
   // Arc's CLI calls (arc tasks add/close, arc creds) only need ARC_CREDS_PASSWORD which survives.
   // Arc's hooks (session-start.sh, memory-save.sh) use only git/jq — no API keys needed.
   env.CLAUDE_CODE_SUBPROCESS_ENV_SCRUB = "1";
+  // Task context for session-start.sh hook
+  if (taskId !== undefined) {
+    env.ARC_TASK_ID = String(taskId);
+  }
+  if (taskSubject !== undefined) {
+    env.ARC_TASK_SUBJECT = taskSubject;
+  }
 
   const proc = Bun.spawn(args, {
     stdin: new Blob([prompt]),
@@ -905,7 +912,7 @@ export async function runDispatch(): Promise<void> {
             explicitOpenRouter ? sdkRoute.model : undefined,
           );
         } else {
-          dispatchResult = await dispatch(prompt, effectiveModel, worktreePath);
+          dispatchResult = await dispatch(prompt, effectiveModel, worktreePath, task.id, task.subject);
         }
         break;
       } catch (retryErr) {
