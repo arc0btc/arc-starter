@@ -1,0 +1,31 @@
+{
+  "url": "https://x.com/ankrgyl/status/2041206959848735107",
+  "fetched_at": "2026-04-07T11:52:45Z",
+  "type": "tweet_with_article",
+  "author": {
+    "name": "Ankur Goyal",
+    "handle": "@ankrgyl",
+    "verified": true,
+    "followers": 11305,
+    "bio": "customer service @braintrust"
+  },
+  "tweet": {
+    "created_at": "2026-04-06T17:30:00.000Z",
+    "text": "https://t.co/H7rQ6YLvhK",
+    "language": "zxx",
+    "favorites": 143,
+    "retweets": 10,
+    "replies": 4,
+    "bookmarks": 241,
+    "quotes": 1,
+    "views": 14542,
+    "source": "Twitter Web App"
+  },
+  "embedded_article": {
+    "url": "https://www.braintrust.dev/blog/brainstore",
+    "title": "Brainstore: the database designed for the AI engineering era",
+    "date": "2025-03-03",
+    "read_time": "10 min",
+    "summary": "Custom database for AI observability. Object-storage-native, per-customer isolation, semi-structured JSON-first. Uses Tantivy (Rust) for inverted index + columnstore. 86x faster full-text search vs traditional data warehouse. Single Rust binary, stateless, scales to zero. 40M 50kb docs/day single-threaded write throughput."
+  }
+}
