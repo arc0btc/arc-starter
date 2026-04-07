@@ -1,0 +1,35 @@
+{
+  "url": "https://x.com/essamsleiman/status/2041224799746428944",
+  "fetched_at": "2026-04-07T11:47:30Z",
+  "type": "tweet_with_article",
+  "author": {
+    "name": "Essam Sleiman",
+    "handle": "@essamsleiman",
+    "user_id": "1530772574862381056",
+    "verified": true,
+    "followers": 1851
+  },
+  "tweet": {
+    "created_at": "2026-04-06T18:41:31.000Z",
+    "text": "https://t.co/vm9v7SWBG2",
+    "language": "zxx",
+    "favorites": 188,
+    "retweets": 25,
+    "replies": 17,
+    "bookmarks": 230,
+    "quotes": 6,
+    "views": 13628,
+    "source": "Twitter Web App"
+  },
+  "embedded_article": {
+    "title": "meta-agent: continual learning for agents",
+    "preview": "An open-source library that automatically and continuously improves agent harnesses from production traces.",
+    "github_repo": "https://github.com/canvas-org/meta-agent",
+    "references": [
+      "https://arxiv.org/abs/2603.28052",
+      "https://github.com/sierra-research/tau-bench",
+      "https://platform.claude.com/docs/en/agent-sdk/overview",
+      "https://github.com/karpathy/autoresearch"
+    ]
+  }
+}
