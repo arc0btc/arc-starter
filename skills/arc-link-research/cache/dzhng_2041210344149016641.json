@@ -1,0 +1,11 @@
+{
+  "url": "https://x.com/dzhng/status/2041210344149016641",
+  "fetchedAt": "2026-04-07T12:25:50.000Z",
+  "contentType": "tweet",
+  "title": "@dzhng: The headless CRM for your agent",
+  "rawContent": "Tweet by @dzhng (David)\nAuthor bio: founder @duetchat • prev: @socialpluscorp @nasajpl\nText: [link to X article]\nArticle title: The headless CRM for your agent\nCreated: 2026-04-06T17:44:04.000Z\nMetrics: {retweet_count: 16, reply_count: 18, like_count: 262, quote_count: 7, bookmark_count: 601, impression_count: 25763}\n\nLinked project: github.com/dzhng/crm.cli\nRepo description: An open-source, headless CRM built for agents. No UI. No dashboard. Just a CLI and a FUSE-mounted filesystem.\nRepo stats: 66 stars, 2 forks, TypeScript, MIT license, created 2026-04-03\nTopics: agent, ai-agents, claude, claude-code, codex, codex-cli, crm, openclaw\n\nProject details:\n- Headless CRM: no server, no Docker, no GUI. Single SQLite file.\n- CLI-first: `npm install -g @dzhng/crm.cli` or `bun install -g @dzhng/crm`\n- FUSE filesystem mount: `crm mount ~/crm` exposes CRM data as virtual files readable by any tool\n- Commands: contact add/list/show/edit/merge, company add/list, deal add/list\n- Data normalization: E.164 phone, LinkedIn URL extraction, fuzzy duplicate detection\n- Unix-friendly: JSON output, pipeable to jq/grep/awk\n- Config: crm.toml with cascading resolution, pipeline stages, hooks\n- Storage: single SQLite DB (~/.crm/crm.db), no external dependencies\n- AI agent integration: ships with skills/ folder for Claude Code context\n- Multi-reference lookup: find contacts by ID, email, phone, or social handle (LinkedIn, X, Bluesky, Telegram)",
+  "embeddedUrls": [
+    "https://x.com/i/article/2041093431028817920",
+    "https://github.com/dzhng/crm.cli"
+  ]
+}
