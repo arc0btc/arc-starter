@@ -71,8 +71,8 @@ When sensors perform compliance/audit sweeps, persist findings details (skill na
 
 ## Research & Synthesis
 
-**p-batch-to-individual-tasks** [2026-03-30/04-06]
-When triaging N independent items (research links, PRs, email batches): create N individual tasks (explicit skill+model) rather than bulk execution. For emails: reply immediately acknowledging the batch, then create N P5 tasks + P7 synthesis task with arc-email-sync to close the conversation loop.
+**p-batch-to-individual-tasks** [2026-03-30/04-06/04-07]
+When triaging N independent items (research links, PRs, email batches): create N individual P5 tasks + P5 synthesis task using same skill, not bulk execution. Reply immediately to acknowledge batch. For N>10 from single source, ensure unique source per task (e.g., `source: task:11239/link-1`) to avoid dedup blocking.
 
 **p-research-triage-quick-reject** [2026-03-30]
 Before enqueueing research tasks, quick-scan (title, engagement, domain, account bio) to flag off-topic content. Skip task creation for clear low-relevance cases.
