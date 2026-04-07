@@ -99,7 +99,7 @@ function fetchGitHubPRs(repos: string[]): GithubPR[] {
 
   // Batch all repos into one GraphQL query (like aibtc-repo-maintenance sensor)
   const fragments = validRepos.map((r, i) => `repo${i}: repository(owner: "${r.owner}", name: "${r.repo}") {
-      pullRequests(first: 50, states: [OPEN, CLOSED]) {
+      pullRequests(last: 50, states: [OPEN, CLOSED]) {
         nodes {
           number
           title
