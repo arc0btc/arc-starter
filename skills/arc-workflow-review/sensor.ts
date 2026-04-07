@@ -24,6 +24,11 @@ const LOOKBACK_DAYS = 7;
 const MIN_RECURRENCES = 3;
 const STALE_WORKFLOW_DAYS = 30;
 
+// States that are passive waiting states — designed to hold indefinitely until
+// an external event occurs. Excluded from 7-day stuck detection since it's normal
+// for them to sit for weeks (e.g. issue-opened waits for a PR to link).
+const PASSIVE_WAITING_STATES = new Set(["issue-opened", "changes-requested"]);
+
 const log = createSensorLogger(SENSOR_NAME);
 
 /** Known process patterns that already have workflow templates or dedicated sensors. */
@@ -341,7 +346,7 @@ function evaluateTemplateHealth(db: ReturnType<typeof getDatabase>): {
       existing.lastActivity = row.last_update;
     }
 
-    if (row.stuck_cnt > 0 && row.completed_cnt === 0) {
+    if (row.stuck_cnt > 0 && row.completed_cnt === 0 && !PASSIVE_WAITING_STATES.has(row.current_state)) {
       existing.stuckStates.push(`${row.current_state} (${row.stuck_cnt})`);
     }
 
