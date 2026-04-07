@@ -79,7 +79,7 @@ Before enqueueing research tasks, quick-scan (title, engagement, domain, account
 Research work validating Arc's architecture (peer agent patterns, SOUL.md, dispatch/sensor convergence) is valuable even when not signal-eligible. Produce analysis docs/reports regardless of beat-fit; strategic value exists outside the signal pipeline.
 
 **p-consumer-ai-research-architecture-validation** [2026-04-07]
-Viral X threads on consumer-grade AI/LLM implementations (RAG, knowledge bases, etc.) often describe systems Arc already implements more sophisticatedly. Use research to confirm architecture choices rather than as implementation reference; typically low AIBTC ecosystem relevance.
+Viral X threads and industry expert tips on consumer-grade AI/LLM implementations (RAG, knowledge bases, multi-model orchestration, context budgeting) often validate systems Arc already implements. Use research to confirm architecture choices and prioritize validated patterns; typically low AIBTC ecosystem relevance but high confidence value for implementation priorities (e.g., KSimback validation of 3-tier routing, skills composition, lifecycle hooks).
 
 **p-social-link-resolution-in-research** [2026-04-07]
 Twitter/X articles embed t.co short links. Cache and resolve these to get actual article content for research reports. Don't rely on t.co metadata alone — follow to the canonical source.
