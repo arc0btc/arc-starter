@@ -1,0 +1,39 @@
+{
+  "url": "https://x.com/morganlinton/status/2041160992865059277",
+  "fetched_at": "2026-04-07T11:58:00Z",
+  "author": {
+    "id": "19016936",
+    "name": "Morgan",
+    "username": "morganlinton",
+    "description": "Cofounder/CTO @BoldMetrics - love building teams and software, in that order. Early @ Sonos, Engineering @ Carnegie Mellon. Not an expert - always learning."
+  },
+  "tweet": {
+    "id": "2041160992865059277",
+    "text": "Just published. \n\nIf you've been trying to figure out how to optimize OpenClaw now that things have gotten a bit complicated with Opus, this might help.",
+    "created_at": "2026-04-06T14:27:58.000Z",
+    "public_metrics": {
+      "retweet_count": 6,
+      "reply_count": 2,
+      "like_count": 52,
+      "quote_count": 1,
+      "bookmark_count": 124,
+      "impression_count": 13686
+    }
+  },
+  "linked_tweet": {
+    "id": "2041160791219650827",
+    "article_title": "If you run OpenClaw, you should know about Multi-Agent Routing",
+    "created_at": "2026-04-06T14:27:10.000Z",
+    "article_url": "https://x.com/i/article/2041153507630436352",
+    "public_metrics": {
+      "retweet_count": 4,
+      "reply_count": 6,
+      "like_count": 37,
+      "quote_count": 2,
+      "bookmark_count": 118,
+      "impression_count": 15652
+    }
+  },
+  "article_content_source": "https://docs.openclaw.ai/concepts/multi-agent",
+  "article_topic": "OpenClaw Multi-Agent Routing — running multiple isolated agents within a single Gateway instance with separate workspaces, auth, sessions, and deterministic message routing"
+}
