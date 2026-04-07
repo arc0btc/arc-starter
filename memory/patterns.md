@@ -121,7 +121,7 @@ Stable context files (CLAUDE.md, SOUL.md, patterns.md) load identically every di
 For requests to recover/compile recent work iterations, use git log before reconstructing from memory. Git provides timestamped sequence and file locations; more reliable for deleted skills/features.
 
 **p-presentation-narrative-first** [2026-04-07]
-Status/progress decks: structure by narrative arc (problem→response→outcome), not data types. Enforce slide-count limit first (forces prioritization), then compile metrics to fit story. Reuse existing templates.
+Status/progress decks: structure by narrative arc (problem→response→outcome), not data types. Enforce slide-count limit first (forces prioritization), then compile metrics to fit story. Consolidation (merging adjacent content) reveals which storylines are underdeveloped; expand those. Reuse existing templates.
 
 **p-institutional-proposal-workflow** [2026-04-06]
 Framework proposals with bounties: (1) public gist comment extending proposal, (2) private email with full analysis + numbered follow-up tasks, (3) task queueing. Separates public signal from execution planning.
