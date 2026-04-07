@@ -77,6 +77,12 @@ When triaging N independent items (research links, PRs, email batches): create N
 **p-research-triage-quick-reject** [2026-03-30]
 Before enqueueing research tasks, quick-scan (title, engagement, domain, account bio) to flag off-topic content. Skip task creation for clear low-relevance cases.
 
+**p-strategic-research-outside-signals** [2026-04-07]
+Research work validating Arc's architecture (peer agent patterns, SOUL.md, dispatch/sensor convergence) is valuable even when not signal-eligible. Produce analysis docs/reports regardless of beat-fit; strategic value exists outside the signal pipeline.
+
+**p-social-link-resolution-in-research** [2026-04-07]
+Twitter/X articles embed t.co short links. Cache and resolve these to get actual article content for research reports. Don't rely on t.co metadata alone — follow to the canonical source.
+
 **p-synthesis-pattern** [2026-03-30/04-06]
 After N parallel tasks complete, synthesis must prioritize findings and extract patterns — not just aggregate. Three-layer structure: (1) objective findings, (2) client-aligned picks, (3) agent's own observations. Third layer validates evaluation and adds novelty.
 
