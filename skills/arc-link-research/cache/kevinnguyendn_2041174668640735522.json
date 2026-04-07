@@ -1,0 +1,21 @@
+{
+  "url": "https://x.com/kevinnguyendn/status/2041174668640735522",
+  "fetched_at": "2026-04-07T13:03:00Z",
+  "type": "tweet",
+  "author": {
+    "name": "andy nguyen",
+    "handle": "kevinnguyendn",
+    "verified": true
+  },
+  "posted_at": "2026-04-06T15:22:18Z",
+  "text": "ByteRover just shipped Context Management - the feature that allow you to browse, organize, and search your project's context data. The Idea: We take Karpathy's LLM Knowledge Base wikis (Obsidian + LLM workflow) to the next level: A product that's free, open-sourced, production-proven and you can share with your entire team's code, docs, and context: LLM automatically stores, organizes all knowledge/ context for you, recalls when you need. It cleans, tags, summarizes, removes outdated knowledge and keeps your whole team's knowledge base tidy without any manual work. You can easily view & manage your whole team's context. Raw context --> organized, beautiful, filterable, searchable, and versioned. Your project context will become a smart, queryable that grows smarter every time you use it. This new feature Context Management allows you to easily view your context It introduces two visual modes: Tree View and Grid View along with a powerful full-text search with filtering capabilities.",
+  "engagement": {
+    "likes": 72,
+    "retweets": 11,
+    "replies": 17,
+    "bookmarks": 115,
+    "views": 5465
+  },
+  "media": ["1 photo (2005x1200px)"],
+  "links": ["byterover.dev"]
+}
