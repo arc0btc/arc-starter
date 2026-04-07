@@ -96,7 +96,9 @@ const SKILL_KEYWORD_MAP: Record<string, string[]> = {
   // credential usage. Tasks that say "arc creds get/set" are just using the CLI — they don't
   // need the skill loaded. Only flag when the task is explicitly about the credential store itself.
   "arc-credentials": ["credential store audit", "rotate credentials", "kdf rotation", "credentials.enc audit"],
-  "arc-web-dashboard": ["web dashboard", "arc-web-dashboard"],
+  // presentation.html lives in src/web/ — arc-web-dashboard is the correct skill.
+  // "arc-site" and "arc-weekly-presentation" are common incorrect aliases dispatch uses.
+  "arc-web-dashboard": ["web dashboard", "arc-web-dashboard", "presentation.html", "tuesday deck", "tuesday presentation", "weekly deck", "weekly presentation"],
 };
 
 // ---- Helpers ----
@@ -194,6 +196,14 @@ function checkMissingSkillCoverage(
   if (/^Review PR #\d+/.test(task.subject)) return findings;
   // Audit tasks similarly embed issue/PR titles (e.g. "Produce prioritized achievements audit for landing-page#384")
   if (/audit for [\w/-]+#\d+/.test(task.subject)) return findings;
+
+  // Presentation update tasks (src/web/presentation.html) describe slide *content* as context
+  // for what to write — e.g. "Zest sBTC supply ops", "AIBTC NEWS COMPETITION" — not as
+  // operational requirements. These keywords belong to the slide topic, not the skill set.
+  // arc-web-dashboard is the only skill these tasks need; its coverage is caught via the
+  // keyword map entry ("presentation.html", "tuesday deck", etc.).
+  if (/presentation\.html|tuesday\s+(deck|presentation)|weekly\s+(deck|presentation|slides)/i
+    .test(`${task.subject} ${task.description ?? ""}`)) return findings;
 
   // Meta-analysis tasks have descriptions that quote other tasks' subjects/content.
   // Scanning those descriptions would produce false positives, so limit to subject only.
