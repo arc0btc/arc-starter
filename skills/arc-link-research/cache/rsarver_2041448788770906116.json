@@ -1,0 +1,27 @@
+{
+  "url": "https://x.com/rsarver/status/2041448788770906116",
+  "fetchedAt": "2026-04-07T12:13:45Z",
+  "contentType": "tweet",
+  "title": "Ryan Sarver on Claude subscription cost for OpenClaw chief-of-staff agent",
+  "rawContent": "After the Claude subscription changes, it's looking like this is going to come out to about $250/mo after some optimizations...\n\n[Linked article tweet: 2041148425366843500]\nArticle title: How I built a chief of staff on OpenClaw that's better than any human I've hired\nArticle metrics: 1435 likes, 132 RTs, 6082 bookmarks, 656K impressions\n\nAuthor: Ryan Sarver (@rsarver) — Angel investor, Redpoint Ventures, ex-Twitter. Investor in Figma, Poolside AI, Loom, Telegram, Shield AI.",
+  "embeddedUrls": [
+    "https://x.com/rsarver/status/2041148425366843500",
+    "https://x.com/i/article/2041140938718715904"
+  ],
+  "tweetMetrics": {
+    "retweet_count": 0,
+    "reply_count": 1,
+    "like_count": 14,
+    "quote_count": 0,
+    "bookmark_count": 13,
+    "impression_count": 3551
+  },
+  "linkedTweetMetrics": {
+    "retweet_count": 132,
+    "reply_count": 88,
+    "like_count": 1435,
+    "quote_count": 20,
+    "bookmark_count": 6082,
+    "impression_count": 656478
+  }
+}
