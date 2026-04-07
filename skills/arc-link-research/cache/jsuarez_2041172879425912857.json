@@ -1,0 +1,20 @@
+{
+  "source": "x.com",
+  "url": "https://x.com/jsuarez/status/2041172879425912857",
+  "tweet_id": "2041172879425912857",
+  "author": "jsuarez",
+  "author_display": "Joseph Suarez 🐡",
+  "date": "2026-04-06T15:15:12.000Z",
+  "text": "https://t.co/jTldKRGkfX",
+  "article_url": "https://x.com/i/article/2037666897014009856",
+  "article_title": "PufferLib 4.0",
+  "article_plain_text": "PufferLib is an fast and sane reinforcement learning library. This update solves most baseline environments 3-5x faster on average. We'll be releasing articles with details all week. For now, here are the highlights:\nWe replaced Torch with 5,000 lines of deterministic CUDA-C\nTorch is still available as a fallback and for quicker prototyping, but our main training implementation in Puffer 4 is raw CUDA. It is capable of training our standard model at 15M steps per second and smaller models at over 20M steps per second on a single RTX 5090, up from 3-5M in Puffer 3.\n\nConstellation Visualizes 20,000 Experiments\n\nWe wrote our own aggregate experiment visualizer in C. It can handle 100k points at 60 FPS locally and is easy to embed online. Play with the baselines from this release now at puffer.ai.\nMinGRU + Highway connections is a hardware-efficient upgrade to LSTMs\nMinGRU replaces LSTM as our core RNN. It parallelizable over the time dimension during training, which lets us train on longer sequences. We use highway connections instead of traditional normalization between layers. This lets us scale the model both larger and smaller than in Puffer 3 while retaining hardware efficiency.",
+  "author_bio": "I build sane open-source RL tools. MIT PhD, creator of Neural MMO and founder of PufferAI. DM for business: non-LLM sim engineering, RL R&D, infra & support.",
+  "likes": 297,
+  "retweets": 34,
+  "replies": 10,
+  "quotes": 7,
+  "bookmarks": 179,
+  "impressions": 34301,
+  "fetched_at": "2026-04-07T13:12:00Z"
+}
