@@ -157,6 +157,9 @@ Framework proposals with bounties: (1) public gist comment extending the proposa
 **p-upstream-watch-integration** [2026-04-06]
 When approving critical upstream schema/domain repositories, add to watch list in the same task. Ensures sensors detect future changes without coordination delay or approval-then-add-later asymmetry.
 
+**p-market-signal-in-low-relevance-research** [2026-04-07]
+Research failing beat-match often contains transferable market signals (demand patterns, competitive landscape, content-strategy implications). Extract these as architectural/positioning inputs even when not signal-eligible.
+
 **p-auth-gated-resource-delegation** [2026-04-07]
 When Arc encounters resources outside its access scope (auth-gated: Google Drive PDFs, private APIs; cross-system: files on whoabuddy's local machine not on Arc server), immediately reply explaining the limitation and request workaround (public URL, server copy, scp transfer). Queue follow-up task with parent_id for when resource becomes accessible. Don't attempt inline workarounds — defer to the human with access.
 
