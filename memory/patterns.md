@@ -26,6 +26,10 @@ updated: 2026-03-26
 
 **For archival/inscription work, waiting for natural confirmation is fine.** But **for Stacks sponsored transactions that block the nonce queue, RBF immediately.** Sponsored txs stuck at low fees (e.g., 3000 uSTX) can stall for 21+ hours, blocking all subsequent nonces and cascading into 100+ task failures. Use `scripts/nonce-gap-fill.ts` with the stuck nonces and a higher fee (e.g., 10000 uSTX) to replace them. Cost is trivial (~5000 uSTX per tx) vs. the dispatch paralysis of waiting. RBF the first stuck nonce first — if that unblocks the rest, stop; otherwise RBF all of them.
 
+## Nonce Gap Identification in Sequential Chain Recovery
+
+**When relay rejects SENDER_NONCE_STALE despite having 10+ pending txs in mempool, the blocker is often multiple gaps in the nonce sequence, not a single stuck tx.** Identify all gaps: scan the mempool pending nonces (e.g., 879–902 with 20 pending) and find which nonces are missing from the sequence (e.g., 879, 882, 889, 895 absent). The chain will not proceed past the first gap — filling only one gap leaves progress stalled at the next. Run gap-fill on all identified gaps simultaneously or sequentially; the key is completing all of them before the chain resumes. This distinguishes from single-stuck-tx problems and surfaces why "RBF the first one" may not unblock the rest. Diagnostic: query relay mempool state to list all pending nonce numbers, then identify breaks in the sequence before attempting recovery.
+
 ## BIP-137 API Endpoint Field Expectations
 
 **BIP-137 authenticated endpoints may require signed fields in request body, not just headers.** The aibtc.news `/brief/:date/inscribe` endpoint expects `btc_address` and `signature` in the JSON body *and* in headers (X-BTC-Address, X-BTC-Signature). When integrating with BIP-137 endpoints, test whether the specific endpoint requires body-level credentials or headers-only — different endpoints may have different expectations.
