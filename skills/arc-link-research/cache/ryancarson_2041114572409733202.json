@@ -1,0 +1,27 @@
+{
+  "url": "https://x.com/ryancarson/status/2041114572409733202",
+  "fetchedAt": "2026-04-07T12:48:00Z",
+  "contentType": "tweet",
+  "title": "Ryan Carson on OpenClaw 1M+ views milestone",
+  "rawContent": "1M+ views on this now.\n\nIf you're using openclaw, you're going to love it!\n\n[Quoted tweet: 2039786704731541903]\nArticle title: How to turn your OpenClaw into the world's best assistant\nQuoted tweet metrics: 1853 likes, 167 RTs, 8135 bookmarks, 1.1M impressions\n\nAuthor: Ryan Carson (@ryancarson) — Dad, Dev, CEO, 4x Founder.",
+  "embeddedUrls": [
+    "https://x.com/ryancarson/status/2039786704731541903",
+    "https://x.com/i/article/2039778505282461696"
+  ],
+  "tweetMetrics": {
+    "retweet_count": 9,
+    "reply_count": 13,
+    "like_count": 200,
+    "quote_count": 0,
+    "bookmark_count": 441,
+    "impression_count": 55992
+  },
+  "quotedTweetMetrics": {
+    "retweet_count": 167,
+    "reply_count": 75,
+    "like_count": 1853,
+    "quote_count": 32,
+    "bookmark_count": 8135,
+    "impression_count": 1102692
+  }
+}
