@@ -34,6 +34,8 @@ interface GithubPR {
   merged?: boolean;
   reviewDecision?: "APPROVED" | "CHANGES_REQUESTED" | "PENDING" | null;
   closingIssueNumbers?: number[];
+  /** True if arc0btc already submitted an APPROVED or COMMENTED review on this PR. */
+  arcHasReview?: boolean;
 }
 
 type WorkflowState =
@@ -54,6 +56,13 @@ function mapPRStateToWorkflowState(pr: GithubPR): WorkflowState {
   }
   if (pr.state === "closed") {
     return "closed";
+  }
+
+  // If Arc already reviewed this PR (approved or commented), treat as approved.
+  // This prevents new commits from resetting the workflow back to review-requested
+  // and flooding the queue with duplicate review tasks.
+  if (pr.arcHasReview) {
+    return "approved";
   }
 
   // Open PR state machine
@@ -102,6 +111,12 @@ function fetchGitHubPRs(repos: string[]): GithubPR[] {
           closingIssuesReferences(first: 5) {
             nodes { number }
           }
+          reviews(last: 20) {
+            nodes {
+              author { login }
+              state
+            }
+          }
         }
       }
     }`);
@@ -125,6 +140,7 @@ function fetchGitHubPRs(repos: string[]): GithubPR[] {
     merged?: boolean;
     reviewDecision?: string | null;
     closingIssuesReferences?: { nodes?: Array<{ number: number }> };
+    reviews?: { nodes?: Array<{ author?: { login: string }; state: string }> };
   };
 
   type RepoData = {
@@ -168,6 +184,9 @@ function fetchGitHubPRs(repos: string[]): GithubPR[] {
           | null
           | undefined,
         closingIssueNumbers: closingIssueNumbers.length > 0 ? closingIssueNumbers : undefined,
+        arcHasReview: (node.reviews?.nodes || []).some(
+          (r) => r.author?.login === "arc0btc" && (r.state === "APPROVED" || r.state === "COMMENTED"),
+        ) || undefined,
       });
     }
   }
@@ -262,6 +281,13 @@ function syncGitHubPRs(): number {
 
       // Prevent regression: don't overwrite review-requested back to opened
       if (workflow.current_state === "review-requested" && newState === "opened") {
+        continue;
+      }
+
+      // Prevent regression: once approved, don't regress to review states due to new commits
+      // (mapPRStateToWorkflowState handles this via arcHasReview, but guard here as well)
+      if (workflow.current_state === "approved" &&
+          (newState === "opened" || newState === "review-requested")) {
         continue;
       }
 
