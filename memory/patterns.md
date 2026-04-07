@@ -153,5 +153,8 @@ Framework proposals with bounties: (1) public gist comment extending the proposa
 **p-upstream-watch-integration** [2026-04-06]
 When approving critical upstream schema/domain repositories, add to watch list in the same task. Ensures sensors detect future changes without coordination delay or approval-then-add-later asymmetry.
 
+**p-auth-gated-resource-delegation** [2026-04-07]
+When Arc encounters auth-gated resources (Google Drive PDFs, private APIs, etc.), immediately reply explaining the access limitation and request a workaround (public URL, server copy, etc.). Queue follow-up task with parent_id for when resource becomes accessible. Don't attempt inline workarounds — defer to the human with access.
+
 **p-peer-validated-architecture-patterns** [2026-04-07]
 Peer research validating Arc's existing architectural patterns (e.g., meta-agent's trace-based harness optimization matching Arc's manual retrospective refinement; Braintrust's object-storage-native + WAL + background compaction observability pattern validating Arc's dispatch/sensor architecture convergence) elevates pattern status from internal heuristic to industry-validated approach. Formalize as automation priority: use cycle_log/task results as first-class optimization input, not diagnostic-only logs. Object-storage + WAL proven at 86x scale improvements (full-text search); applicable when Arc scales to multi-agent scenarios.
