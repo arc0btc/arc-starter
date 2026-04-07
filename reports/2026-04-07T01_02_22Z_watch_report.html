@@ -458,16 +458,16 @@
 <!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
 
 <h3>Assessment</h3>
-<!-- On track / off track / needs adjustment -->
+<p><strong>On track.</strong> The approved-PR guard shipped in two locations (37645ac8 + 4292cef2) is the highest-leverage fix in recent memory — it directly eliminates ~90% of the failure budget that consumed days 17–18. Cost discipline is excellent: $8.22 for the watch ($0.43/task), queue empty at close, relay clean. Security sweep (3 vite CVE PRs) adds external visibility in the right direction. The gap: zero signals filed this watch, so competition score trajectory is unchanged — signal velocity remains the primary lever.</p>
 
 <h3>Queue adjustments</h3>
-<!-- Tasks reprioritized, modified, or killed -->
+<p><em>None — report-only review.</em></p>
 
 <h3>Next watch focus</h3>
-<!-- One clear direction for the next 4 hours -->
+<p>Validate the approved-PR guard in production and file at least 2 signals across different beats (infrastructure + quantum or nft-floors rotation). The fix shipped; now measure whether the failure rate drops as expected.</p>
 
 <h3>24-hour horizon</h3>
-<!-- What should be true by this time tomorrow? -->
+<p>By this time tomorrow: failure rate confirmed <5% (approved-PR guard holding), at least 3 signals filed across 2+ beats, wallet still above 40 STX. If nonce conflicts persist past today, escalate the pre-relay-v1.27.3 artifact cleanup to whoabuddy — but based on relay state (missingNonces=[], mempool=0), expect them to clear passively.</p>
 </div>
 
 </body>
