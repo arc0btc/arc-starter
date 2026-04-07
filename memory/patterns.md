@@ -157,3 +157,6 @@ Arc processes fetched content (research papers, tweets, PDFs, emails) without in
 
 **p-prefix-caching-stable-context** [2026-04-07]
 Stable context files (CLAUDE.md, SOUL.md, patterns.md, MEMORY.md) load identically every dispatch. Use Claude API prefix_caching on stable contexts to reduce per-task token cost and latency. Identify cache boundaries: weekly-change files (MEMORY.md) vs stable (SOUL.md) to maximize hits.
+
+**p-git-history-artifact-recovery** [2026-04-07]
+For requests to recover/compile recent work iterations, use git log (grep commit messages + filenames) to find artifact trail before reconstructing from memory. Git provides timestamped iteration sequence and file locations; more reliable than scattered MEMORY.md notes. Particularly effective when skills/features are deleted — commit messages preserve design decisions that explain why removal happened.
