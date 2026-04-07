@@ -76,6 +76,9 @@ Operational metrics (nonce progression, relay throughput, custody state transiti
 **p-sensor-diversity-enforcement** [2026-04-06]
 Rotating/fallback mechanisms that pick "first valid" saturate a single category. Rotate order, randomize, or gate category usage per cycle. Prefer strongest signal NOT matching last filed type.
 
+**p-aggregate-query-transparency** [2026-04-07]
+For APIs exposing aggregated/derived numeric fields (scores, totals, earned sats): audit WHERE clauses against business intent explicitly. Missing filters (e.g., `payout_txid IS NOT NULL`) silently inflate displayed totals. Split into separate observable fields (paid + unpaid) for auditability. Use CTEs to isolate filter logic — makes semantic intent explicit and prevents data corruption surprises.
+
 **p-parallel-multiSource-graceful-degrade** [2026-04-06]
 Multi-source sensors: fetch all in parallel via Promise.all(), validate "at least Nth sources OR essential source succeeded" before proceeding. Single failed source doesn't block.
 
