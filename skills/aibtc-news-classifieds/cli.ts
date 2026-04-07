@@ -11,6 +11,14 @@ const API_BASE = "https://aibtc.news/api";
 const VALID_CATEGORIES = ["ordinals", "services", "agents", "wanted"] as const;
 type Category = (typeof VALID_CATEGORIES)[number];
 const DAILY_APPROVAL_CAP = 30;
+const X402_MESSAGE_CHAR_LIMIT = 500;
+
+function enforceMessageLimit(message: string, label: string): string {
+  if (message.length <= X402_MESSAGE_CHAR_LIMIT) return message;
+  const truncated = message.slice(0, X402_MESSAGE_CHAR_LIMIT - 3) + "...";
+  console.error(`Warning: ${label} message truncated from ${message.length} to ${X402_MESSAGE_CHAR_LIMIT} chars`);
+  return truncated;
+}
 
 // ---- Helpers ----
 
@@ -1154,9 +1162,9 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
     process.exit(1);
   }
 
-  if (flags.feedback && flags.feedback.length > 500) {
-    console.error(`Feedback too long: ${flags.feedback.length}/500 chars`);
-    process.exit(1);
+  if (flags.feedback && flags.feedback.length > 280) {
+    console.error(`Warning: feedback truncated from ${flags.feedback.length} to 280 chars (x402 message limit)`);
+    flags.feedback = flags.feedback.slice(0, 277) + "...";
   }
 
   try {
@@ -1278,6 +1286,7 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
             ].join("\n");
           }
 
+          message = enforceMessageLimit(message, "signal notification");
           const added = enqueueNotification({
             type: "notify",
             signal_id: flags.id,
@@ -1460,9 +1469,9 @@ async function cmdReviewClassified(args: string[]): Promise<void> {
     process.exit(1);
   }
 
-  if (flags.feedback && flags.feedback.length > 500) {
-    console.error(`Feedback too long: ${flags.feedback.length}/500 chars`);
-    process.exit(1);
+  if (flags.feedback && flags.feedback.length > 280) {
+    console.error(`Warning: feedback truncated from ${flags.feedback.length} to 280 chars (x402 message limit)`);
+    flags.feedback = flags.feedback.slice(0, 277) + "...";
   }
 
   try {
@@ -1541,11 +1550,12 @@ async function cmdReviewClassified(args: string[]): Promise<void> {
               `Your payment will be refunded. A refund workflow has been initiated.`,
             ].join("\n");
 
+        const limitedMessage = enforceMessageLimit(message, "classified notification");
         const notifyDesc = [
           `Send x402 inbox notification for classified ${flags.id} review (${flags.status}).`,
           ``,
           `Run this command:`,
-          `arc skills run --name inbox-notify -- send-one --btc-address ${record.btcAddress} --stx-address ${recipientStx} --content "${message.replace(/"/g, '\\"')}"`,
+          `arc skills run --name inbox-notify -- send-one --btc-address ${record.btcAddress} --stx-address ${recipientStx} --content "${limitedMessage.replace(/"/g, '\\"')}"`,
           ``,
           `If send fails, close task as failed with the error details.`,
         ].join("\n");
@@ -1721,9 +1731,9 @@ async function cmdReviewCorrection(args: string[]): Promise<void> {
     process.exit(1);
   }
 
-  if (flags.feedback && flags.feedback.length > 500) {
-    console.error(`Feedback too long: ${flags.feedback.length}/500 chars`);
-    process.exit(1);
+  if (flags.feedback && flags.feedback.length > 280) {
+    console.error(`Warning: feedback truncated from ${flags.feedback.length} to 280 chars (x402 message limit)`);
+    flags.feedback = flags.feedback.slice(0, 277) + "...";
   }
 
   try {
@@ -1799,11 +1809,12 @@ async function cmdReviewCorrection(args: string[]): Promise<void> {
                   `Corrections must identify factual errors with cited sources. If you believe the original signal contains an error, resubmit with specific evidence.`,
                 ].join("\n");
 
+            const limitedNotifyMessage = enforceMessageLimit(notifyMessage, "correction notification");
             const notifyDesc = [
               `Send x402 inbox notification for correction ${correctionId} on signal ${signalId} (${flags.status}).`,
               ``,
               `Run this command:`,
-              `arc skills run --name inbox-notify -- send-one --btc-address ${correctorAddress} --stx-address ${recipientStx} --content "${notifyMessage.replace(/"/g, '\\"')}"`,
+              `arc skills run --name inbox-notify -- send-one --btc-address ${correctorAddress} --stx-address ${recipientStx} --content "${limitedNotifyMessage.replace(/"/g, '\\"')}"`,
               ``,
               `If send fails, close task as failed with the error details.`,
             ].join("\n");

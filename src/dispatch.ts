@@ -713,7 +713,12 @@ async function dispatchScript(task: Task): Promise<void> {
       recordGateSuccess();
       log(`dispatch: script task #${task.id} completed (${duration_ms}ms)`);
     } else {
-      const errOutput = (stderr.trim() || stdout.trim() || `exit code ${exitCode}`).slice(0, 400);
+      // Combine stderr tail (where real errors appear) + stdout (structured JSON errors)
+      // to avoid log noise at the start of stderr hiding the actual failure reason.
+      const stderrTail = stderr.trim().slice(-300);
+      const stdoutHead = stdout.trim().slice(0, 300);
+      const parts = [stderrTail, stdoutHead].filter(Boolean);
+      const errOutput = (parts.join(" | ") || `exit code ${exitCode}`).slice(0, 600);
       throw new Error(`exit code ${exitCode}: ${errOutput}`);
     }
 
@@ -734,7 +739,7 @@ async function dispatchScript(task: Task): Promise<void> {
       requeueTask(task.id);
       log(`dispatch: script task #${task.id} failed (attempt ${task.attempt_count + 1}/${task.max_retries}) — requeuing: ${errMsg.slice(0, 200)}`);
     } else {
-      markTaskFailed(task.id, `Script failed: ${errMsg.slice(0, 400)}`);
+      markTaskFailed(task.id, `Script failed: ${errMsg.slice(0, 600)}`);
       recordGateFailure("unknown");
       log(`dispatch: script task #${task.id} failed — max retries exhausted`);
     }

@@ -191,6 +191,15 @@ function isRelayTransient(error: string): boolean {
   return error.includes("RELAY_ERROR") || error.includes("retryable") || error.includes("TimeoutError");
 }
 
+function isRateLimited(error: string): boolean {
+  return error.includes("Too many requests") || error.includes("429");
+}
+
+function parseRetryAfter(error: string): number {
+  const match = error.match(/"retryAfter"\s*:\s*(\d+)/);
+  return match ? Math.min(Number(match[1]), 120) : 60;
+}
+
 // ---- Send with Retry ----
 
 /**
@@ -228,6 +237,15 @@ async function sendWithRetry(
       log(`  Nonce stale for ${label} (attempt ${attempt}/${MAX_RETRIES}), re-syncing via nonce-manager...`);
       await releaseManagedNonce(currentNonce, false, true);
       await sleep(NONCE_RETRY_DELAY_MS);
+      currentNonce = await acquireManagedNonce();
+      continue;
+    }
+
+    if (isRateLimited(err) && attempt < MAX_RETRIES) {
+      const waitSec = parseRetryAfter(err);
+      log(`  Rate limited for ${label} (attempt ${attempt}/${MAX_RETRIES}), waiting ${waitSec}s...`);
+      await releaseManagedNonce(currentNonce, false, true); // nonce not consumed
+      await sleep(waitSec * 1000);
       currentNonce = await acquireManagedNonce();
       continue;
     }
@@ -500,7 +518,9 @@ async function executeBatch(state: BatchState): Promise<void> {
     }),
   }, null, 2));
 
-  if (finalFailed > 0) process.exit(1);
+  // Exit 0 on partial success (some sent) — dispatch treats as completed.
+  // Only exit 1 when ALL messages failed (zero sent).
+  if (finalFailed > 0 && finalSent === 0) process.exit(1);
 }
 
 // ---- Confirm Payments (Tier 3) ----
