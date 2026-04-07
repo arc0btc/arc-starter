@@ -210,7 +210,7 @@ export default async function zestYieldManagerSensor(): Promise<string> {
           `The skill will perform pre-flight checks (gas, balance, spend limit) and output`,
           `the MCP command to execute via zest_supply tool.`,
         ].join("\n"),
-        skills: JSON.stringify(["zest-yield-manager"]),
+        skills: JSON.stringify(["zest-yield-manager", "defi-zest"]),
         priority: 7,
         model: "sonnet",
       });
@@ -243,7 +243,7 @@ export default async function zestYieldManagerSensor(): Promise<string> {
           `Post-conditions: rewards claimed as wSTX to wallet. No sBTC movement.`,
           `After claiming, consider supplying any new idle sBTC to Zest.`,
         ].join("\n"),
-        skills: JSON.stringify(["zest-yield-manager"]),
+        skills: JSON.stringify(["zest-yield-manager", "defi-zest"]),
         priority: 7,
         model: "sonnet",
       });
