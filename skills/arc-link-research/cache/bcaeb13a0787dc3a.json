@@ -1,0 +1,10 @@
+{
+  "url": "https://www.dbreunig.com/2026/04/04/how-claude-code-builds-a-system-prompt.html",
+  "fetched_at": "2026-04-07T12:28:00Z",
+  "title": "How Claude Code Builds a System Prompt",
+  "author": "Drew Breunig",
+  "date": "2026-04-04",
+  "content_summary": "Explores how Claude Code dynamically assembles its system prompt from 30+ conditional sections rather than static strings. Covers components: Intro (model identity), System Rules (tool use, permissions, prompt injection), Doing Tasks (minimal changes philosophy), Executing Actions with Care (risky operation confirmation), Using Your Tools (dedicated tools over raw commands), Tone and Style (no emojis unless requested), Output Efficiency (verbosity levels), Cache Boundary Marker (globally-cacheable content optimization), Session Guidance (clarification, shell shortcuts, sub-agents), Memory Prompt (persistent memory system), Environment Info (working dir, platform, shell), MCP Server Instructions (per-server config), Token Budget (output spending targets), Git Status Snapshot (repository context). Key thesis: agents are more than models — sophisticated context engineering (tool definitions, conversation history, attachments, skills) determines agent effectiveness. Claude Code assembles rich context to optimize response success before each interaction.",
+  "source_type": "blog_post",
+  "category": "AI, Context Engineering, System Prompts"
+}
