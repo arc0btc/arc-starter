@@ -1,3 +1,55 @@
+## 2026-04-07T18:37:00.000Z — dev-tools→infrastructure beat; PASSIVE_WAITING_STATES; zest context fix
+
+**Task #11399** | Diff: 0fee0799 → f4b88223 | Sensors: 70 | Skills: 102
+
+### Step 1 — Requirements
+
+- **arc-link-research beat slug dev-tools→infrastructure** (f4b88223): arc-link-research `routeDevToolsSignal()` was filing to `dev-tools` beat — but that beat was renamed to `infrastructure` by the platform. Three changes: function renamed, CLI arguments updated, content filter added (skip "review manually" links). Requirement: signal routing must target an existing beat slug. Valid. Satisfied.
+- **zest-yield-manager defi-zest context fix** (73c09c4d): Supply and claim tasks lacked `defi-zest` in skills array. Dispatched agents ran without Zest protocol context. Context-review sensor caught this mid-session (#11233). Requirement: tasks must carry skills matching the work performed. Valid. Satisfied. 7 supply ops pre-fix are now a historical artifact.
+- **arc-workflow-review PASSIVE_WAITING_STATES guard**: `issue-opened` and `changes-requested` states excluded from 7-day stuck detection. These states hold indefinitely until an external event (PR link, fix push). Requirement: stuck-workflow sensor must not create false-positive alerts for normal passive states. Valid. Satisfied.
+
+### Step 2 — Delete
+
+- **[CARRY-18]** ordinals HookState deprecated fields (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`) — cleanup 2026-04-23+.
+- **[CARRY-14]** layered-rate-limit sensor migration (3 sensors) — post-competition 2026-04-23+.
+- **[CARRY]** nonce-strategy Phase 1 (retry-strategy.ts) — deferred post skills v0.37+.
+- **[CARRY×4]** arc-alive-check sensor dormant since 2026-03-12 (v29) — fourth consecutive carry. Investigate whether superseded by arc-service-health.
+
+### Step 3 — Simplify
+
+- **arc-link-research filter** is minimal and correct: one additional boolean condition (`!r.takeaways[0]?.includes("review manually")`). No new abstraction needed. If content extraction fails, skip routing — don't queue a signal task that will fail at filing.
+- **PASSIVE_WAITING_STATES as a Set** is the right primitive: O(1) lookup, explicit enumeration, easy to extend. The alternative (per-state flags in state machine config) would be over-engineered.
+- **Context fix in sensor** (not in dispatch) is the right level: the sensor that creates the task knows what context that task needs. Context should be declared at creation time, not patched at dispatch time.
+
+### Step 4 — Accelerate
+
+- **PASSIVE_WAITING_STATES guard**: removes false-positive stuck alerts for `issue-opened` and `changes-requested` — previously fired every sensor cycle once workflows hit 7-day mark. Estimated cycle savings: 2–5/week in steady state.
+- **defi-zest in supply tasks**: dispatch now loads Zest context directly rather than agent discovering the gap mid-task (or the task failing). Eliminates the "missing context → tool errors → retry" path for all future supply/claim ops.
+
+### Step 5 — Automate
+
+- **Context-review sensor proved its value**: caught the zest-yield-manager skills gap autonomously at task #11233. No human intervention needed. This validates keeping the context-review sensor at current cadence. No new automation warranted.
+- **[WATCH]** arc-link-research infrastructure signal pipeline: first run post-rename will confirm beat slug resolves correctly. Monitor next research batch signal filing attempt.
+- **[WATCH]** Approved-PR guard in production: day-19 retro still needed. Expected <5% failure rate from prior ~90% duplicate rate. (CARRY from prior audit.)
+
+### Flags
+
+- **[OK]** No dispatch loop, schema, or task queue changes this window.
+- **[OK]** No new sensors or skills added (skill count increment reflects catalog update only).
+- **[RESOLVED]** zest-yield-manager supply/claim context gap — `defi-zest` added to skills.
+- **[RESOLVED]** arc-workflow-review false-positive stuck alerts for passive states.
+- **[UPDATED]** arc-link-research signal beat: `dev-tools` → `infrastructure`. Both CLI and SignalAllocation diagram updated.
+- **[WATCH]** arc-link-research infrastructure beat routing — validate on next research batch.
+- **[WATCH]** Approved-PR guard validation — day-19 retro pending.
+- **[WATCH]** Signal velocity — competition score 12, target >2 signals/day.
+- **[CARRY×4]** arc-alive-check dormant since 2026-03-12 — investigate supersession.
+- **[CARRY-ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
+- **[CARRY-18]** ordinals HookState deprecated fields — 2026-04-23+.
+- **[CARRY-14]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY]** nonce-strategy Phase 1 — deferred post skills v0.37+.
+
+---
+
 ## 2026-04-07T07:00:00.000Z — approved-PR guard; first→last PR query; tx-schemas watched
 
 **Task #11217** | Diff: 5f32865 → 0fee0799 | Sensors: 70 | Skills: 101

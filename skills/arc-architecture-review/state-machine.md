@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-04-07T07:00:00.000Z*
-*Sensor count: 70 | Skill count: 101*
+*Generated: 2026-04-07T18:37:00.000Z*
+*Sensor count: 70 | Skill count: 102*
 
 ```mermaid
 stateDiagram-v2
@@ -66,7 +66,7 @@ stateDiagram-v2
             mempool_watch
             arc_payments
             zest_yield_manager
-            note right of zest_yield_manager: 60-min cadence\nChecks sBTC balance vs 200k-sat reserve\nQueues supply tasks (idle > threshold)\nQueues claim tasks (wSTX rewards > 1000 uSTX)\nAutonomous yield: idle sBTC → Zest ~3.5% APY
+            note right of zest_yield_manager: 60-min cadence\nChecks sBTC balance vs 200k-sat reserve\nQueues supply tasks (idle > threshold)\nQueues claim tasks (wSTX rewards > 1000 uSTX)\nAutonomous yield: idle sBTC → Zest ~3.5% APY\nContext fix (73c09c4d): skills=[zest-yield-manager, defi-zest]\ndefi-zest was missing → supply/claim ran without Zest context\n7 supply ops failed before fix; self-corrected by context-review sensor
         }
 
         state AIBTCSensors {
@@ -110,6 +110,7 @@ stateDiagram-v2
             arc_strategy_review
             note right of arc_strategy_review: cadence WEEKLY→DAILY (209b75bf)\n1440 min (was 10080). Subject: "Daily self-evaluation: PURPOSE.md rubric"\nPURPOSE.md shipped (f16ed394): long-term goals, 5 focus areas, D1-D5 rubric\naligned with watch report cadence
             arc_workflow_review
+            note right of arc_workflow_review: PASSIVE_WAITING_STATES guard (committed 2026-04-07)\nSet ["issue-opened", "changes-requested"] excluded from\n7-day stuck detection — these states legitimately sit idle for\nweeks waiting for external events (PR link, fix push)\nPrevents false-positive stuck-workflow alerts for normal hold states
             arc_skill_manager
             arc_self_audit
             auto_queue
@@ -275,10 +276,10 @@ stateDiagram-v2
         [*] --> CheckGlobalCap: 6/day total
         CheckGlobalCap --> CheckBeatAllocation: cap not hit
         CheckBeatAllocation --> AgentTradingBeat: agentTradingToday < allocation
-        CheckBeatAllocation --> DevToolsBeat: devToolsToday < 3
+        CheckBeatAllocation --> InfrastructureBeat: infraToday < 3
         AgentTradingBeat --> TaskQueue: File agent-trading signal
-        DevToolsBeat --> TaskQueue: File dev-tools signal
-        note right of CheckBeatAllocation: agent-trading: 3/day via aibtc-agent-trading sensor\nordinals-market-data signal filing SUSPENDED (80322a56)\ndev-tools: 3/day (arxiv, arc-link-research, x-ecosystem)\ncountSignalTasksToday() BUG FIXED (ca5477c1)\nagent-trading subjects now correctly matched\n6/day cap now enforced\n[CLOSED] flat-market rotation: lastFlatMarketCategory rotation\nguard in ordinals-market-data HookState (moot — filing suspended)
+        InfrastructureBeat --> TaskQueue: File infrastructure signal
+        note right of CheckBeatAllocation: agent-trading: 3/day via aibtc-agent-trading sensor\nordinals-market-data signal filing SUSPENDED (80322a56)\ninfrastructure: 3/day (arxiv, arc-link-research, x-ecosystem)\narc-link-research BEAT SLUG dev-tools→infrastructure (f4b88223)\nrouteDevToolsSignal→routeInfrastructureSignal; model filter: skip review-manually links\ncountSignalTasksToday() BUG FIXED (ca5477c1)\nagent-trading subjects now correctly matched\n6/day cap now enforced\n[CLOSED] flat-market rotation: lastFlatMarketCategory rotation\nguard in ordinals-market-data HookState (moot — filing suspended)
     }
 
     TaskQueue --> DispatchService
@@ -301,7 +302,17 @@ stateDiagram-v2
 | Other/Misc | 3 |
 | **Total** | **70** |
 
-*Note: aibtc-agent-trading NEW (5da9081c) — sensor count 68→69, skill count 100→101. Content/Publishing 8→9.*
+*Note: aibtc-agent-trading NEW (5da9081c) — sensor count 68→69, skill count 100→101. Content/Publishing 8→9. Skill count 101→102 (arc-link-research/arc-workflow-review/zest-yield-manager fixes, no new sensor).*
+
+## Key Architectural Changes (0fee0799 → f4b88223) [2026-04-07T18:37Z]
+
+| Change | Impact |
+|--------|--------|
+| **fix(arc-link-research): beat slug dev-tools→infrastructure** (f4b88223) | `routeDevToolsSignal()` renamed `routeInfrastructureSignal()`. Signal task subject and CLI commands updated from `dev-tools` → `infrastructure` beat. Added filter: skip links where content couldn't be extracted (`review manually` in takeaways). `SignalAllocation` diagram updated: `DevToolsBeat` → `InfrastructureBeat`. |
+| **fix(zest-yield-manager): add defi-zest to supply+claim task skills** (73c09c4d) | Supply and claim tasks were created with `skills: ["zest-yield-manager"]` only — `defi-zest` was missing. The dispatched agent had no Zest protocol context. Fix: `skills: ["zest-yield-manager", "defi-zest"]` for both task types. Self-caught by context-review sensor mid-session (#11233). 7 supply ops pre-fix ran without full context. |
+| **fix(arc-workflow-review): PASSIVE_WAITING_STATES guard** | `PASSIVE_WAITING_STATES = new Set(["issue-opened", "changes-requested"])` excluded from 7-day stuck workflow detection. These states are designed to wait indefinitely for external events (a PR to link, a fix push). Without the guard, legitimately-idle workflows fired false-positive stuck alerts on every cycle. |
+| **feat(presentation): Tuesday deck updated** (f4b88223, 3ae91a18) | `src/web/presentation.html` updated with research pipeline + ecosystem slides per whoabuddy feedback. Non-architectural. |
+| **chore(memory): patterns.md consolidation** (ef90162b) | `memory/patterns.md` condensed 169→127 lines. No information loss; duplicate patterns merged. |
 
 ## Key Architectural Changes (5f32865 → 0fee0799) [2026-04-07T07:00Z]
 
