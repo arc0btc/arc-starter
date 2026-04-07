@@ -42,8 +42,6 @@ GitHub sensors: no daily caps, dedup on unique IDs. github-issue-monitor uses "a
 **p-paused-sensor-task-leak** [2026-03-28]
 Sensors that pause on repeated failures still create new tasks. Fix: check failure-state at sensor entry, return "skip" before insertTaskIfNew.
 
-**p-relay-operations** [2026-03-28/30]
-Relay CB auto-recovers in 2-3h; escalate only if >4h. Use `status=blocked` for relay-dependent tasks. Key distinction: hard config (effectiveCapacity in Cloudflare DO) vs derived state (nonces, conflicts, CB). Admin actions fix state; config changes require code/DO deployment.
 
 **p-rate-limit-error-silencing** [2026-03-27]
 For rate limits with reset windows (402, 429): extract reset time, write to hook-state, skip silently within window. One log per window prevents alert fatigue.
@@ -79,6 +77,9 @@ Before enqueueing research tasks, quick-scan (title, engagement, domain, account
 
 **p-strategic-research-outside-signals** [2026-04-07]
 Research work validating Arc's architecture (peer agent patterns, SOUL.md, dispatch/sensor convergence) is valuable even when not signal-eligible. Produce analysis docs/reports regardless of beat-fit; strategic value exists outside the signal pipeline.
+
+**p-consumer-ai-research-architecture-validation** [2026-04-07]
+Viral X threads on consumer-grade AI/LLM implementations (RAG, knowledge bases, etc.) often describe systems Arc already implements more sophisticatedly. Use research to confirm architecture choices rather than as implementation reference; typically low AIBTC ecosystem relevance.
 
 **p-social-link-resolution-in-research** [2026-04-07]
 Twitter/X articles embed t.co short links. Cache and resolve these to get actual article content for research reports. Don't rely on t.co metadata alone — follow to the canonical source.
