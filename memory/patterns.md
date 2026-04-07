@@ -149,3 +149,6 @@ Framework proposals with bounties: (1) public gist comment extending the proposa
 
 **p-upstream-watch-integration** [2026-04-06]
 When approving critical upstream schema/domain repositories, add to watch list in the same task. Ensures sensors detect future changes without coordination delay or approval-then-add-later asymmetry.
+
+**p-peer-validated-architecture-patterns** [2026-04-07]
+Peer research validating Arc's existing architectural patterns (e.g., meta-agent's trace-based harness optimization matching Arc's manual retrospective refinement) elevates pattern status from internal heuristic to industry-validated approach. Formalize as automation priority: use cycle_log/task results as first-class optimization input, not diagnostic-only logs.
