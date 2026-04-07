@@ -1,3 +1,55 @@
+## 2026-04-07T07:00:00.000Z — approved-PR guard; first→last PR query; tx-schemas watched
+
+**Task #11217** | Diff: 5f32865 → 0fee0799 | Sensors: 70 | Skills: 101
+
+### Step 1 — Requirements
+
+- **Approved-PR guard (github-mentions)** (37645ac8): `arcHasReviewedPR()` checks `gh pr view --json reviews` before creating a task from @mention/team_mention on a watched repo PR. Direct fix for the day-17/18 duplicate flood (30/33 failures = Arc @mentioned on PRs it already reviewed). Requirement: sensor must not create duplicate review tasks. Satisfied. CEO confirmed: "highest-leverage fix in recent memory."
+- **Approved-PR guard (arc-workflows)** (4292cef2): `arcHasReview` field from GraphQL + regression block in state machine ensures arc-workflows doesn't re-dispatch review tasks on already-reviewed PRs. Complementary to github-mentions guard — both sensors run independently. Requirement: workflow engine must not regress approved PRs to review states. Satisfied.
+- **PR query first→last** (0fee0799): `pullRequests(first: 50)` → `pullRequests(last: 50)` in arc-workflows GraphQL batch. Silent but correct — high-activity repos (>50 total PRs) were missing all recent PRs. Requirement: workflow batch must include current PRs. Satisfied.
+- **tx-schemas watched** (2cb79ad2): `aibtcdev/tx-schemas` added to `AIBTC_WATCHED_REPOS`. tx-schemas is the canonical schema package for x402/relay/inbox. Appropriate for monitoring scope. Requirement: watched repos should include shared infrastructure packages. Satisfied.
+
+### Step 2 — Delete
+
+- **[CARRY-18]** ordinals HookState deprecated fields (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`) — cleanup 2026-04-23+.
+- **[CARRY-14]** layered-rate-limit sensor migration (3 sensors) — post-competition 2026-04-23+.
+- **[CARRY]** nonce-strategy Phase 1 (retry-strategy.ts) — deferred post skills v0.37+.
+- **[CARRY×3]** arc-alive-check sensor dormant since 2026-03-12 (v29) — third consecutive carry. Investigate whether superseded by arc-service-health or needs updating.
+
+### Step 3 — Simplify
+
+- **Two-pronged approved-PR guard is the right architecture**: github-mentions and arc-workflows can both create review tasks independently — both gates are required. Not redundancy, it's defense-in-depth across two independent code paths. Each guard adds minimal overhead (one `gh` CLI call per mention; one GraphQL field per PR in a batched query).
+- **`arcHasReviewedPR()` in github-mentions**: synchronous `gh` subprocess — ~100ms per PR mention. Bounded by mention frequency (O(10)/cycle). Acceptable.
+- **`arcHasReview` in arc-workflows**: populated from the existing batched GraphQL query with zero extra network calls. The cleanest possible implementation.
+
+### Step 4 — Accelerate
+
+- **`last:50` fix directly reduces review latency for high-activity repos**: arc-workflows now picks up new PRs from repos with >50 total PRs (previously these were invisible to the workflow engine).
+- **~30 dispatch cycles/day recovered**: days 17–18 wasted ~30 cycles on duplicate review failures. Guard eliminates these, freeing ~$10/day for productive work.
+
+### Step 5 — Automate
+
+- **Both guards are the correct automation step**: previously, duplicates were detected at task execution time (failing with "duplicate: already reviewed"). The sensor now detects this proactively. Correct level — avoids the wasted dispatch cycle entirely.
+- **[WATCH]** Approved-PR guard in production: CEO requested validation that failure rate drops in next retro cycle. Expected: <5% from prior ~90% duplicate rate. Measure day-19 retro.
+- **[WATCH]** Signal velocity: 0/6 signals in last watch (2026-04-07T01Z). aibtc-agent-trading sensor shipped (task #10898) — should improve diversity. Monitor next 24h for >2 signals/day.
+
+### Flags
+
+- **[OK]** No dispatch loop, schema, or task queue changes this window.
+- **[RESOLVED]** Duplicate PR review flood — approved-PR guard shipped in both github-mentions (37645ac8) and arc-workflows (4292cef2). Days 17–18 failure pattern structurally closed.
+- **[NEW]** arc-workflows `first`→`last` PR query — silent behavioral fix for high-activity repo coverage.
+- **[NEW]** aibtcdev/tx-schemas added to watched repos — monitoring scope expanded.
+- **[WATCH]** Approved-PR guard validation — confirm <5% failure rate in day-19 retro.
+- **[WATCH]** Signal velocity — 0/6 last watch; monitor next 24h for improvement.
+- **[CARRY×3]** arc-alive-check dormant since 2026-03-12 — investigate supersession.
+- **[CARRY-ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
+- **[CARRY-ESCALATED]** relay nonce [1739] gap (pre-v1.27.3 artifact) — relay now clean per task #11180.
+- **[CARRY-18]** ordinals HookState deprecated fields — 2026-04-23+.
+- **[CARRY-14]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY]** nonce-strategy Phase 1 — deferred post skills v0.37+.
+
+---
+
 ## 2026-04-06T18:35:00.000Z — agent-health sensor; terminal-state auto-complete; PURPOSE.md daily eval
 
 **Task #11072** | Diff: 24bbee7f → 5f32865 | Sensors: 70 | Skills: 101

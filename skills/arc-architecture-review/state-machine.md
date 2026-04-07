@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-04-06T18:35:00.000Z*
+*Generated: 2026-04-07T07:00:00.000Z*
 *Sensor count: 70 | Skill count: 101*
 
 ```mermaid
@@ -39,7 +39,7 @@ stateDiagram-v2
             arc0btc_security_audit
             aibtc_dev_ops
             aibtc_repo_maintenance
-            note right of github_mentions: review_requested/assign on watched repos\ndeferred to PrLifecycleMachine (8a984348)\nno longer creates PR review tasks directly\nstill handles mention/team_mention\nIssue @mention flood guard (10964091)\n24h recentTaskExistsForSource blocks re-creation after complete\nPullRequest re-review unaffected
+            note right of github_mentions: review_requested/assign on watched repos\ndeferred to PrLifecycleMachine (8a984348)\nno longer creates PR review tasks directly\nstill handles mention/team_mention\nIssue @mention flood guard (10964091)\n24h recentTaskExistsForSource blocks re-creation after complete\nPullRequest re-review unaffected\nAPPROVED-PR GUARD (37645ac8): arcHasReviewedPR() calls\ngh pr view --json reviews before task creation\nskips mention/team_mention if Arc already reviewed\nPrevents flood from re-@mention after prior approval\n(genuine re-reviews still flow via arc-workflows reviewCycle)
             note right of aibtc_repo_maintenance: sensor simplified (8a984348)\nPR review task creation moved to PrLifecycleMachine\nno direct insertTask/pendingTaskExistsForSource\nwatched repos from AIBTC_WATCHED_REPOS constant
         }
 
@@ -94,7 +94,7 @@ stateDiagram-v2
             context_review
             compliance_review
             arc_workflows
-            note right of arc_workflows: drives workflow state machine\nstate-specific source keys (8ce27fb9)\ndedup scoped to workflow:{id}:{state}\nprevents cross-state dedup collisions\nPrLifecycleMachine owns ALL PR review dispatch (061c807d)\nAUTOMATED_PR_PATTERNS exported from state-machine.ts\ncontext preserved on state transitions (not overwritten)\ngithub-mentions defers review_requested/assign to workflow engine\nSkills format: JSON.stringify() not .join(",") (f3b5159d)\narc-self-review: trigger state includes workflow transition cmd (806ce147)\nGH CLI GraphQL migration: fetchGitHubPRs() now uses gh api graphql\nbatched multi-repo query (was per-repo REST + credentials fetch)\nremoves fetchWithRetry + getCredential dependencies\nTERMINAL-STATE AUTO-COMPLETE (6b743823):\nNew PRs seen already closed/merged → completeWorkflow() immediately\nExisting workflows with no outgoing transitions → completeWorkflow()\nPrevents stuck workflow accumulation (fixed 159 stuck workflows task #10919)
+            note right of arc_workflows: drives workflow state machine\nstate-specific source keys (8ce27fb9)\ndedup scoped to workflow:{id}:{state}\nprevents cross-state dedup collisions\nPrLifecycleMachine owns ALL PR review dispatch (061c807d)\nAUTOMATED_PR_PATTERNS exported from state-machine.ts\ncontext preserved on state transitions (not overwritten)\ngithub-mentions defers review_requested/assign to workflow engine\nSkills format: JSON.stringify() not .join(",") (f3b5159d)\narc-self-review: trigger state includes workflow transition cmd (806ce147)\nGH CLI GraphQL migration: fetchGitHubPRs() now uses gh api graphql\nbatched multi-repo query (was per-repo REST + credentials fetch)\nremoves fetchWithRetry + getCredential dependencies\nTERMINAL-STATE AUTO-COMPLETE (6b743823):\nNew PRs seen already closed/merged → completeWorkflow() immediately\nExisting workflows with no outgoing transitions → completeWorkflow()\nPrevents stuck workflow accumulation (fixed 159 stuck workflows task #10919)\nAPPROVED-PR GUARD (4292cef2): arcHasReview field in GithubPR\nGraphQL fetches last 20 reviews per PR (batched, no extra calls)\nmapPRStateToWorkflowState() → "approved" if Arc has any review\nRegression guard: approved → opened/review-requested blocked\nPR query: first:50 → last:50 (0fee0799) — most recent PRs now\nincluded even in high-activity repos (>50 total PRs)
         }
 
         state MemoryMaintenanceSensors {
@@ -302,6 +302,15 @@ stateDiagram-v2
 | **Total** | **70** |
 
 *Note: aibtc-agent-trading NEW (5da9081c) — sensor count 68→69, skill count 100→101. Content/Publishing 8→9.*
+
+## Key Architectural Changes (5f32865 → 0fee0799) [2026-04-07T07:00Z]
+
+| Change | Impact |
+|--------|--------|
+| **fix(github-mentions): approved-PR guard** (37645ac8) | Added `arcHasReviewedPR()` helper — calls `gh pr view --json reviews` before creating a task for `@mention`/`team_mention` notifications on watched repos. Skips task creation if `arc0btc` already has any review. Prevents the re-@mention flood class (days 17–18: 30/33 failures were duplicates). Zero overhead when mention is not a PR. |
+| **fix(arc-workflows): approved-PR guard + regression block** (4292cef2) | Added `arcHasReview` field to `GithubPR`. GraphQL query now fetches `last: 20 reviews` per PR (batched — no extra network calls). `mapPRStateToWorkflowState()` returns `"approved"` when Arc has any review. Regression guard prevents `approved → opened/review-requested` transitions from new commits. Complementary to github-mentions guard — both sensors can create tasks independently, so both need the gate. |
+| **fix(arc-workflows): PR query first→last** (0fee0799) | `pullRequests(first: 50)` → `pullRequests(last: 50)` in GraphQL batch query. Ensures the most recent 50 PRs are included per repo. Previously `first:50` on high-activity repos (>50 PRs) would miss all recent PRs. Silent behavioral correction. |
+| **feat(constants): aibtcdev/tx-schemas to watched repos** (2cb79ad2) | `tx-schemas` added to `AIBTC_WATCHED_REPOS`. Propagates monitoring to: `github-mentions`, `aibtc-repo-maintenance`, `arc-workflows`, `arc0btc-security-audit` sensors. tx-schemas is the canonical schema package for x402/relay/inbox payloads — appropriate for watched scope. |
 
 ## Key Architectural Changes (bfc0b478 → 24bbee7f) [2026-04-06T06:47Z]
 
