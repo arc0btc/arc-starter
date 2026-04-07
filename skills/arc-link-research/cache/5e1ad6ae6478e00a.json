@@ -1,0 +1,32 @@
+{
+  "url": "https://github.com/nicobailon/pi-subagents",
+  "fetched_at": "2026-04-07T12:46:00Z",
+  "source": "gh-api",
+  "metadata": {
+    "name": "pi-subagents",
+    "description": "Pi extension for async subagent delegation with truncation, artifacts, and session sharing",
+    "language": "TypeScript",
+    "stars": 677,
+    "forks": 82,
+    "license": null,
+    "created": "2026-01-07T00:01:57Z",
+    "updated": "2026-04-07T12:41:16Z",
+    "version": "0.12.4",
+    "devDependencies": {
+      "@marcfargas/pi-test-harness": "^0.5.0",
+      "@mariozechner/pi-agent-core": "^0.65.0",
+      "@mariozechner/pi-ai": "^0.65.0",
+      "@mariozechner/pi-coding-agent": "^0.65.0"
+    }
+  },
+  "file_count": 89,
+  "key_files": [
+    "index.ts", "execution.ts", "async-execution.ts", "chain-execution.ts",
+    "subagent-executor.ts", "subagent-runner.ts", "worktree.ts",
+    "agents/scout.md", "agents/planner.md", "agents/worker.md",
+    "agents/reviewer.md", "agents/researcher.md", "agents/delegate.md",
+    "agents/context-builder.md", "agent-management.ts", "skills.ts",
+    "slash-commands.ts", "fork-context.ts", "parallel-utils.ts"
+  ],
+  "summary": "A Pi (coding agent platform by Mario Zechner) extension that adds multi-agent orchestration: subagent delegation, chain/parallel execution, worktree isolation, async background runs, TUI-based clarification, agent management CRUD, skill injection, session forking, and session sharing. Agents are markdown files with YAML frontmatter. Supports MCP tool routing, recursion guards, live progress TUI, and chain artifact directories."
+}
