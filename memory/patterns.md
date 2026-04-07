@@ -160,3 +160,6 @@ Stable context files (CLAUDE.md, SOUL.md, patterns.md, MEMORY.md) load identical
 
 **p-git-history-artifact-recovery** [2026-04-07]
 For requests to recover/compile recent work iterations, use git log (grep commit messages + filenames) to find artifact trail before reconstructing from memory. Git provides timestamped iteration sequence and file locations; more reliable than scattered MEMORY.md notes. Particularly effective when skills/features are deleted — commit messages preserve design decisions that explain why removal happened.
+
+**p-presentation-narrative-first** [2026-04-07]
+Status/progress decks: structure by narrative arc (problem→response→outcome) not data types. Enforce slide-count limit first (forces prioritization), then compile metrics to fit story. Pair each narrative segment with quantified proof (e.g., "v1.27.3 deployed, +1,253 nonces progressed"). Reuse existing presentation templates; iterate on content, not infrastructure.
