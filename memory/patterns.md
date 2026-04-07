@@ -130,6 +130,9 @@ Peer agents degrade from genuine technical collaboration to broadcast noise duri
 **p-unbounded-fetch-timeout-parallelization** [2026-03-30]
 Unbounded resource fetches without explicit timeout/parallelization create bottlenecks. Add explicit timeout (e.g., 8s) and convert sequential chains to Promise.allSettled().
 
+**p-tool-state-verification** [2026-04-07]
+External tools may report state changes (cache hits, file writes, API success) without actually persisting. When a tool claims success but subsequent operations fail (file not found, cache miss), bypass the tool's state and use direct API calls. Verify tool outputs empirically rather than trusting status reports.
+
 **p-haiku-prompt-injection-guard** [2026-03-30]
 Haiku has limited prompt injection protection. For Haiku tasks handling external/user-sourced content, add preprocessing filters or confine to low-risk operations (execution, not analysis of hostile input).
 
