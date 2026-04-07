@@ -1,0 +1,26 @@
+{
+  "url": "https://x.com/godofprompt/status/2041266529166119190",
+  "fetchedAt": "2026-04-07T12:01:00Z",
+  "contentType": "tweet",
+  "title": "God of Prompt: Karpathy's LLM knowledge base breakdown",
+  "rawContent": "Everyone's acting like Karpathy's LLM knowledge base is some PhD-level project.\n\nIt's 3 folders, 1 text file, and 30 minutes.\n\nI broke down the full system with copy-paste prompts for every step.\n\nAnd I told you where it breaks so you don't waste time finding out the hard [link to thread]",
+  "author": {
+    "id": "1643695629665722379",
+    "name": "God of Prompt",
+    "username": "godofprompt"
+  },
+  "tweetId": "2041266529166119190",
+  "createdAt": "2026-04-06T21:27:20.000Z",
+  "embeddedUrls": [
+    "https://x.com/godofprompt/status/2041265656893489419"
+  ],
+  "linkedTweet": {
+    "id": "2041265656893489419",
+    "text": "https://t.co/459sdqMHRr",
+    "createdAt": "2026-04-06T21:23:52.000Z",
+    "article": {
+      "title": "🔑 karpathy's second brain: how to build it",
+      "url": "https://x.com/i/article/2040356870162980865"
+    }
+  }
+}
