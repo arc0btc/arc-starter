@@ -1,0 +1,8 @@
+{
+  "url": "https://arxiv.org/abs/2604.01658v1",
+  "fetchedAt": "2026-04-07T13:28:00Z",
+  "contentType": "paper",
+  "title": "CORAL: Towards Autonomous Multi-Agent Evolution for Open-Ended Discovery",
+  "rawContent": "Authors: Ao Qu, Han Zheng, Zijian Zhou, Yihao Yan, Yihong Tang, Shao Yong Ong, Fenglu Hong, Kaichen Zhou, Chonghe Jiang, Minwei Kong, Jiacheng Zhu, Xuan Jiang, Sirui Li, Cathy Wu, Bryan Kian Hsiang Low, Jinhua Zhao, Paul Pu Liang. Published: 2026-04-02. Abstract: Large language model (LLM)-based evolution is a promising approach for open-ended discovery, where progress requires sustained search and knowledge accumulation. Existing methods still rely heavily on fixed heuristics and hard-coded exploration rules, which limit the autonomy of LLM agents. We present CORAL, the first framework for autonomous multi-agent evolution on open-ended problems. CORAL replaces rigid control with long-running agents that explore, reflect, and collaborate through shared persistent memory, asynchronous multi-agent execution, and heartbeat-based interventions. Key contributions: (1) First autonomous multi-agent evolution framework, (2) Shared persistent memory via filesystem (attempts/, notes/, skills/), (3) Heartbeat-based interventions (per-iteration reflection, periodic consolidation every 10 evals, stagnation-triggered redirection after 5 non-improving evals), (4) SOTA on 10 tasks with 3-10x efficiency, (5) Multi-agent co-evolution outperforms independent best-of-N. Code: https://github.com/Human-Agent-Society/CORAL",
+  "embeddedUrls": ["https://github.com/Human-Agent-Society/CORAL", "https://www.alphaxiv.org/abs/2604.01658"]
+}

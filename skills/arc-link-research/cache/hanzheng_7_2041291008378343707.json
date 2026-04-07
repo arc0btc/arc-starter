@@ -1,0 +1,9 @@
+{
+  "url": "https://x.com/hanzheng_7/status/2041291008378343707",
+  "fetchedAt": "2026-04-07T13:28:00Z",
+  "contentType": "tweet",
+  "title": "@hanzheng_7: CORAL multi-agent evolution paper co-author share",
+  "rawContent": "Tweet by @hanzheng_7 (Han Zheng) — co-author of CORAL paper. Sharing link to CORAL paper (arxiv.org/abs/2604.01658v1). Han Zheng is second author. Tweet content not fully extractable via WebFetch (JS-required). Embedded link followed to arXiv paper. Full paper analysis available via first author tweet (ao_qu18465_2041233318373388459.json).",
+  "embeddedUrls": ["https://arxiv.org/abs/2604.01658v1"],
+  "note": "Tweet content fetched via CLI X API but cache write failed. Partial reconstruction from available metadata."
+}
