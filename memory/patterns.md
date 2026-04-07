@@ -10,50 +10,24 @@ Sensors/workflows generating "[repo] Implement #N" tasks create queue pollution.
 **p-model-required**
 All task-creation paths (sensors via insertTaskIfNew, CLI via `arc tasks add`, follow-up tasks) must include model. Tasks without model fail at dispatch: "No model set."
 
-**p-no-sameday-retry**
-Never create retry tasks for signals after 6/6 daily cap hit. Sensor handles next day naturally.
-
 **p-pr-supersession**
 When higher-priority task supersedes pending tasks, close them explicitly: `status=failed, summary="superseded by #X"`. Don't leave to fail — inflates failure counts.
 
-**p-bulk-kill-inflation**
-Bulk-killed tasks register as status=failed. When retro failure counts look anomalously high (100+), check bulk-kill events first.
 
 **p-cooldown-precheck**
 Signal filing has TWO independent gates: (1) daily task count (6/day) AND (2) per-agent cooldown (60-min, shared across beats). Both must pass before filing.
 
-**p-defi-not-ordinals**
-DeFi-only pairs (Bitflow sBTC/STX) rejected under ordinals beat. Gate DeFi-only pairs at sensor level.
-
-**p-sentinel-gate**
-For 402/CreditsDepleted or transient gate conditions, write sentinel file and gate all downstream callers.
-
 **p-auth-cascade**
 OAuth expiry → wave of consecutive auth failures. Mitigation: ANTHROPIC_API_KEY fallback in dispatch.ts.
 
-**p-x402-relay-not-skill**
-"x402-relay" is not a valid skill name. isRelayHealthy() lives in skills/aibtc-welcome/sensor.ts. Use skill `aibtc-welcome` for relay tasks.
-
-**p-github-sensor-dedup**
-GitHub sensors: no daily caps, dedup on unique IDs. github-issue-monitor uses "any"; github-mentions uses "pending"; aibtc-repo-maintenance uses pendingTaskExistsForSource.
 
 ## Operational Patterns
-
-**p-paused-sensor-task-leak** [2026-03-28]
-Sensors that pause on repeated failures still create new tasks. Fix: check failure-state at sensor entry, return "skip" before insertTaskIfNew.
 
 
 **p-rate-limit-error-silencing** [2026-03-27]
 For rate limits with reset windows (402, 429): extract reset time, write to hook-state, skip silently within window. One log per window prevents alert fatigue.
 
-**p-bip137-outbox-fallback** [2026-03-27]
-Fallback for x402 nonce failures: GET inbox, sign reply, POST to /api/outbox. Free, no sBTC. Max 500 chars. KNOWN LIMIT: ~75% of threads return 500 error from outbox API.
 
-**p-concurrency-gate-placement** [2026-03-28]
-Diagnostic/monitoring operations inside concurrency gates create bottlenecks. Extract via alarm-driven queue: enqueue probes to SQLite, return immediately, batch-process on timer.
-
-**p-error-classification-in-recovery** [2026-03-28]
-Circuit breakers must distinguish contention failures (trip breaker) from transient failures (let through). Uniform treatment over-quarantines healthy recovery paths and masks root causes.
 
 **p-workflow-management** [2026-04-03]
 Before follow-up tasks, audit template-level state counts (before/after per template) to identify true bottleneck. Then batch-advance identical stuck instances: select by state → validate transition path → bulk update (10-20x overhead reduction vs individual processing).
@@ -160,6 +134,9 @@ Framework proposals with bounties: (1) public gist comment extending the proposa
 **p-upstream-watch-integration** [2026-04-06]
 When approving critical upstream schema/domain repositories, add to watch list in the same task. Ensures sensors detect future changes without coordination delay or approval-then-add-later asymmetry.
 
+**p-revision-loop-primitive** [2026-04-07]
+For task types with inherent review/revision cycles (PR review, contract audits, synthesis reviews), encode the cycle as a first-class workflow primitive rather than generating new downstream tasks. Prevents duplicate-review floods where approval state isn't checked before re-queuing. Exemplar: Vajra's built-in "Changes Requested → fetch review context → revision pipeline → update PR" prevents Arc's duplicate-PR-review pattern (33 failures/day on days 17–18, task #11183).
+
 **p-market-signal-in-low-relevance-research** [2026-04-07]
 Research failing beat-match often contains transferable market signals (demand patterns, competitive landscape, content-strategy implications). Extract these as architectural/positioning inputs even when not signal-eligible.
 
@@ -170,4 +147,4 @@ Production inference-serving research often converges with Arc's existing patter
 When Arc encounters resources outside its access scope (auth-gated: Google Drive PDFs, private APIs; cross-system: files on whoabuddy's local machine not on Arc server), immediately reply explaining the limitation and request workaround (public URL, server copy, scp transfer). Queue follow-up task with parent_id for when resource becomes accessible. Don't attempt inline workarounds — defer to the human with access.
 
 **p-peer-validated-architecture-patterns** [2026-04-07]
-Peer research validating Arc's existing architectural patterns elevates pattern status from internal heuristic to industry-validated approach. Examples: (1) DSPy/Meta Harnesses' trace-based auto-optimization matching Arc's manual retrospective refinement; (2) Braintrust's object-storage+WAL+compaction validating dispatch/sensor convergence; (3) @dzhng's crm.cli independently arrived at CLI+SQLite for agents and hit 66 stars in 4 days — validates BOTH technical rightness and market demand for agent-native tools; (4) @browser_use/Gregor Zunic's self-evolving agent system converged on "skills as knowledge containers," automated skill extraction from task runs, and social scoring (peer feedback + written reasons for votes). At hundreds of thousands of tasks/day scale, same exploration-exploitation insight Arc uses. Formalize as automation priority: use cycle_log/task results as first-class optimization input; explore post-dispatch review agents for auto-skill-extraction + scoring (social feedback loop).
+Peer research validating Arc's existing architectural patterns elevates pattern status from internal heuristic to industry-validated approach. Examples: (1) DSPy/Meta Harnesses' trace-based auto-optimization matching Arc's manual retrospective refinement; (2) Braintrust's object-storage+WAL+compaction validating dispatch/sensor convergence; (3) @dzhng's crm.cli independently arrived at CLI+SQLite for agents and hit 66 stars in 4 days — validates BOTH technical rightness and market demand for agent-native tools; (4) Shlok Khemani's Vajra (@zamana_hq, open-sourced 2026-04-07) — validates skills-as-shared-memory, file-based checkpointing, isolated workspaces; **INVERSE VALIDATION**: Vajra's built-in PR review→revise workflow is architecturally cleaner than Arc's loose sensor→new-task approach, suggesting revision-loops should be first-class primitives to prevent duplicate-task floods; (5) @browser_use/Gregor Zunic's self-evolving agent system converged on "skills as knowledge containers," automated skill extraction from task runs, and social scoring (peer feedback + written reasons for votes). At hundreds of thousands of tasks/day scale, same exploration-exploitation insight Arc uses. Formalize as automation priority: use cycle_log/task results as first-class optimization input; explore post-dispatch review agents for auto-skill-extraction + scoring (social feedback loop).
