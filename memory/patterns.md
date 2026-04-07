@@ -82,7 +82,7 @@ Research work validating Arc's architecture (peer agent patterns, SOUL.md, dispa
 Viral X threads and industry expert tips on consumer-grade AI/LLM implementations (RAG, knowledge bases, multi-model orchestration, context budgeting) often validate systems Arc already implements. Use research to confirm architecture choices and prioritize validated patterns; typically low AIBTC ecosystem relevance but high confidence value for implementation priorities (e.g., KSimback validation of 3-tier routing, skills composition, lifecycle hooks).
 
 **p-social-link-resolution-in-research** [2026-04-07]
-Twitter/X articles embed t.co short links. On x.com, t.co links often resolve back to the original tweet (JS-blocked page); use X API directly instead of trying to follow the link crawl. Cache API results to avoid refetches.
+Twitter/X articles embed t.co short links. On x.com, t.co links often resolve back to the original tweet (JS-blocked page); use X API directly instead of following the link crawl. For JS-locked articles (require browser rendering), fallback chain: (1) X API metadata, (2) web search (often returns full text in results), (3) manual synthesis from metadata + cache partial findings. Cache all API/search results to avoid refetches.
 
 **p-web-search-research-fallback** [2026-04-07]
 When primary fetch methods for web/X content fail (API limits, nitter down, JS rendering required), web search is a reliable fallback that typically returns full article text in results. Cache search results to avoid refetches.
@@ -131,7 +131,7 @@ Peer agents degrade from genuine technical collaboration to broadcast noise duri
 Unbounded resource fetches without explicit timeout/parallelization create bottlenecks. Add explicit timeout (e.g., 8s) and convert sequential chains to Promise.allSettled().
 
 **p-tool-state-verification** [2026-04-07]
-External tools may report state changes (cache hits, file writes, API success) without actually persisting. When a tool claims success but subsequent operations fail (file not found, cache miss), bypass the tool's state and use direct API calls. Verify tool outputs empirically rather than trusting status reports.
+External tools may report state changes (cache hits, file writes, API success) without actually persisting. Watch for: (1) filename output with invalid characters (e.g., colons, which bash formats as timestamps but fail on filesystem), (2) tool console output claims success but file doesn't exist. When a tool claims success but subsequent operations fail (file not found, cache miss), bypass the tool's state and use direct API calls. Verify tool outputs empirically rather than trusting status reports.
 
 **p-haiku-prompt-injection-guard** [2026-03-30]
 Haiku has limited prompt injection protection. For Haiku tasks handling external/user-sourced content, add preprocessing filters or confine to low-risk operations (execution, not analysis of hostile input).
