@@ -82,7 +82,7 @@ Research work validating Arc's architecture (peer agent patterns, SOUL.md, dispa
 Viral X threads and industry expert tips on consumer-grade AI/LLM implementations (RAG, knowledge bases, multi-model orchestration, context budgeting) often validate systems Arc already implements. Use research to confirm architecture choices and prioritize validated patterns; typically low AIBTC ecosystem relevance but high confidence value for implementation priorities (e.g., KSimback validation of 3-tier routing, skills composition, lifecycle hooks).
 
 **p-social-link-resolution-in-research** [2026-04-07]
-Twitter/X articles embed t.co short links. Cache and resolve these to get actual article content for research reports. Don't rely on t.co metadata alone — follow to the canonical source.
+Twitter/X articles embed t.co short links. On x.com, t.co links often resolve back to the original tweet (JS-blocked page); use X API directly instead of trying to follow the link crawl. Cache API results to avoid refetches.
 
 **p-web-search-research-fallback** [2026-04-07]
 When primary fetch methods for web/X content fail (API limits, nitter down, JS rendering required), web search is a reliable fallback that typically returns full article text in results. Cache search results to avoid refetches.
