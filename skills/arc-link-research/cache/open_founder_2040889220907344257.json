@@ -1,0 +1,36 @@
+{
+  "url": "https://x.com/open_founder/status/2040889220907344257",
+  "fetched_at": "2026-04-07T12:11:00Z",
+  "source": "x-api-v2",
+  "data": {
+    "id": "2040889220907344257",
+    "text": "We've been pretty quiet about what we're building. That changes now.\n\nOur reasoning framework is currently beating every @OpenAI model on industry standard benchmarks. There are six models in development. SERV-nano just matched GPT-5.4 at 20x lower cost and 3x the speed. The https://t.co/JbkR0ARcep",
+    "author_id": "1774400273798045697",
+    "author_name": "Tim",
+    "author_username": "open_founder",
+    "created_at": "2026-04-05T20:28:02.000Z",
+    "public_metrics": {
+      "retweet_count": 169,
+      "reply_count": 63,
+      "like_count": 1477,
+      "quote_count": 32,
+      "bookmark_count": 2031,
+      "impression_count": 287623
+    },
+    "referenced_tweet": {
+      "id": "2040814798103830996",
+      "author_username": "iamfakeguru",
+      "author_name": "fakeguru",
+      "article_title": "A team just solved AI's hardest engineering problem.",
+      "created_at": "2026-04-05T15:32:19.000Z",
+      "public_metrics": {
+        "retweet_count": 81,
+        "reply_count": 32,
+        "like_count": 413,
+        "quote_count": 21,
+        "bookmark_count": 804,
+        "impression_count": 290712
+      }
+    }
+  }
+}
