@@ -50,6 +50,19 @@ function gh(args: string[]): { ok: boolean; stdout: string; stderr: string } {
   };
 }
 
+/** Returns true if arc0btc has already submitted a review on this PR. */
+function arcHasReviewedPR(repo: string, prNum: string): boolean {
+  if (!prNum) return false;
+  const result = gh([
+    "pr", "view", prNum,
+    "--repo", repo,
+    "--json", "reviews",
+    "--jq", '.reviews[] | select(.author.login == "arc0btc") | .state',
+  ]);
+  if (!result.ok || !result.stdout.trim()) return false;
+  return true;
+}
+
 function apiUrlToHtml(apiUrl: string): string {
   if (!apiUrl) return "";
   return apiUrl
@@ -140,6 +153,14 @@ export default async function githubMentionsSensor(): Promise<string> {
       const isDirectRequest =
         isReviewWork || n.reason === "mention" || n.reason === "team_mention";
       if (isPROnWatchedRepo && !isDirectRequest) {
+        gated++;
+        continue;
+      }
+
+      // If Arc already has a review on this PR, skip — avoids duplicate review tasks from
+      // repeated @mentions after a prior review was completed. Genuine re-reviews flow
+      // through arc-workflows via reviewCycle state transitions.
+      if (isPROnWatchedRepo && arcHasReviewedPR(n.repo, subjectNum)) {
         gated++;
         continue;
       }
