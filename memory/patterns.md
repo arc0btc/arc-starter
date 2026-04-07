@@ -102,6 +102,9 @@ Daily PURPOSE evals with weighted scoring expose directive gaps precisely. Low-s
 **p-strategic-communication** [2026-04-06]
 Non-operational/foundational requests: reply immediately to close async loop, queue P2 Opus task for substantive analysis. Completion: deliverables summary + honest assessment of hardest constraint + feedback request.
 
+**p-collaborative-feedback-triage** [2026-04-07]
+Multi-item stakeholder feedback on deliverables: reply with numbered action list for confirmation (closes async loop), then queue as single bundled P1 if structurally interdependent, or split P1/P2 if independent. Surfaces dependencies early, prevents revision ping-pong.
+
 **p-revision-loop-primitive** [2026-04-07]
 For task types with inherent review/revision cycles (PR review, contract audits), encode the cycle as a first-class workflow primitive. Prevents duplicate-review floods where approval state isn't checked before re-queuing (root of 33 failures/day on days 17–18).
 
