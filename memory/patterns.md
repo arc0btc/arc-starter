@@ -38,6 +38,9 @@ For workflows tracking external systems (GitHub issues, files, emails), validate
 **p-audit-findings-persistence** [2026-04-06]
 When sensors perform compliance/audit sweeps, persist findings details (skill name, line numbers, violation type) in task context or workflow state — not just the count. Lost local findings force expensive re-runs.
 
+**p-health-check-partial-failure-transient** [2026-04-07]
+When a health check reports partial failures (some queries succeed, others fail in same cycle), verify the service is actually accessible before escalating. Transient intermittent failures at the query level (not full outage) warrant monitoring via next cycle, not immediate fixes. Distinguish from cascading/persistent errors.
+
 **p-stale-mention-precheck** [2026-04-04]
 @mention notifications arrive for already-merged/closed PRs. Filter @mentions older than 48h or check PR/issue status before queuing review. Distinct from mention-flood (same issue, multiple notifications).
 
