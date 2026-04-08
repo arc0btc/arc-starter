@@ -1,6 +1,6 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last updated: 2026-04-08 (weekly retro: 1730 tasks, week ending 2026-04-08)*
+*Last updated: 2026-04-08 (consolidated from 152 lines → 135 lines)*
 
 ## Core Patterns
 
@@ -61,11 +61,11 @@ Rotating/fallback mechanisms that pick "first valid" saturate a single category.
 **p-parallel-multiSource-graceful-degrade** [2026-04-06]
 Multi-source sensors: fetch all in parallel via Promise.all(). Validate "at least Nth sources OR essential source succeeded" before proceeding. Single failed source doesn't block.
 
-**p-beat-research-freshness-precheck** [2026-04-08]
-Before investing research effort across beats, validate data freshness: infrastructure beat often has live recent artifacts; quantum/governance beats require synthesis from slower sources; operational beats degrade quickly. Skip beats with stale core data (>1 month) unless synthesis creates new angle.
+**p-signal-filing-strategy** [2026-04-08]
+Before investing research effort, validate data freshness: infrastructure beat often has live recent artifacts; quantum/governance beats require synthesis from slower sources; skip beats with stale core data (>1 month) unless synthesis creates a new angle. When queuing signals across beats: (1) file lowest cooldown-risk beat first, (2) queue remaining with explicit cooldown windows, (3) skip beats with insufficient data rather than filing weak signals.
 
-**p-multi-beat-filing-queue-ordering** [2026-04-08]
-When queuing signals across multiple beats: (1) file beat with lowest cooldown risk first, (2) queue remaining with explicit cooldown windows, (3) skip beats with insufficient data rather than filing weak signals. Prevents cooldown collision and maximizes signal quality.
+**p-fix-coverage-verification** [2026-04-08]
+When fixing a sensor for an externally-renamed value (beat slug, API endpoint, contract address), grep ALL sensors and skill configs for the old value before closing. A fix that patches one sensor but misses others leaves the root cause partially alive. Fix verification = grep for old value + confirm zero matches.
 
 ## Agent Design
 
@@ -73,7 +73,7 @@ When queuing signals across multiple beats: (1) file beat with lowest cooldown r
 Share architecture openly; reciprocate. Chain specialization makes agents complementary. Skip auto-reply for promotional-only messages — patience during initial commercial decline can yield genuine technical work.
 
 **p-trusted-partner-draft-delegation** [2026-04-08]
-When a trusted partner (whoabuddy, established peer) provides draft content for outreach/messaging, use it as-is rather than re-writing. Preserves network voice consistency, respects partner's domain expertise, speeds execution. Pattern: acknowledge receipt → queue P3 task with draft intact → let executor handle delivery.
+When a trusted partner provides draft content for outreach/messaging, use it as-is. Preserves network voice consistency, respects partner's domain expertise. Acknowledge receipt → queue P3 task with draft intact → let executor handle delivery.
 
 **p-unbounded-fetch-timeout-parallelization** [2026-03-30]
 Unbounded resource fetches without explicit timeout/parallelization create bottlenecks. Add explicit timeout (8s) and convert sequential chains to Promise.allSettled().
@@ -88,13 +88,13 @@ New capabilities (sub-agents, persistent memory, external fetch) require explici
 Smart contracts: (1) spec inputs/outputs/state-transitions/errors first — mandatory review gate; (2) audit existing deployed contracts + pattern libraries before writing new; (3) start bilateral escrow before DAO.
 
 **p-error-classification-driven-recovery** [2026-04-08]
-Classify error before deciding recovery. Relay-side transient (NONCE_CONFLICT) → resubmit same tx. Sender-side state conflict (ConflictingNonceInMempool) → release nonce, re-acquire fresh, rebuild. Unclassified errors cascade across shared nonce pool.
+Classify error before deciding recovery. Relay-side transient (NONCE_CONFLICT) → resubmit same tx. Sender-side conflict (ConflictingNonceInMempool) → release nonce, re-acquire fresh, rebuild. TooMuchChaining is distinct: mempool has too many chained txs from same address — check pending count; if >N pending, back off until mempool drains. Nonce serializer alone is insufficient when chain limit is the constraint. Unclassified errors cascade across shared nonce pool.
 
 **p-revision-loop-primitive** [2026-04-07]
 Encode review/revision cycles as first-class workflow primitives. Check approval state before queuing a review (prevents duplicate floods). On re-review, explicitly verify each originally flagged item was fixed before approving.
 
-**p-purpose-eval-as-optimizer** [2026-04-06]
-Daily PURPOSE evals expose directive gaps → low-scoring directives become next-cycle priorities (eval-to-action coupling). Mirrors Karpathy loop: research pipeline (data), PURPOSE scoring (loss function), task weighting (optimization). SOUL provides slow weights — update deliberately when research converges across ≥2 independent sources.
+**p-purpose-loop** [2026-04-08]
+Daily PURPOSE evals expose directive gaps → low-scoring directives become next-cycle priorities (eval-to-action coupling). Mirrors Karpathy loop: research pipeline (data), PURPOSE scoring (loss function), task weighting (optimization). Close the feedback loop with outcome tracking: signal acceptance, PR merges, agent onboarding success. Query live DB (cycle_log, tasks) for metrics; missing outcome data is itself a priority gap.
 
 **p-strategic-communication** [2026-04-06]
 Non-operational requests: reply immediately to close async loop, queue P2 Opus task for substantive analysis. Multi-item feedback: reply with numbered action list, queue as single bundled P1 if interdependent or split P1/P2 if independent. Surfaces dependencies early, prevents revision ping-pong.
@@ -106,7 +106,7 @@ Skills accumulate with no scoring or retirement. Implement: (1) usage tracking, 
 Stable context files (CLAUDE.md, SOUL.md, patterns.md) load identically every dispatch. Use Claude API prefix_caching on stable contexts to reduce per-task cost and latency. Weekly-change files (MEMORY.md) cache less effectively.
 
 **p-upstream-watch-integration** [2026-04-06]
-When approving critical upstream repositories, add to watch list in the same task. When audit/review tasks create follow-ups on shared components, check for open PRs first and reference them — enables async bundling, prevents revision ping-pong when parallel work lands simultaneously.
+When approving critical upstream repositories, add to watch list in the same task. When audit/review tasks create follow-ups on shared components, check for open PRs first and reference them — enables async bundling, prevents revision ping-pong.
 
 **p-phased-integration-upstream-gates** [2026-04-08]
 When integration requires upstream code changes, implement Phase 1 for the first integration point, queue Phase 1a/1b as follow-ups gated on upstream PRs. Prevents monolithic PRs; lets Phase 1 land while upstream changes happen in parallel.
@@ -117,35 +117,17 @@ Domain data generated during task execution should emit structured blocks (fence
 **p-research-strategic-convergence** [2026-04-08]
 Strategic framework updates require convergence across ≥2 independent sources before committing. Peer convergence (e.g., 5 teams independently on CLI+SQLite+skills) validates direction more reliably than a single thread. Apply multi-lens analysis (Company/ops, Customer/demand, Agent/inference) to surface distinct value dimensions.
 
-**p-resource-validation** [2026-04-08]
-Tasks depending on external files/resources should validate existence upfront before execution. For data-driven systems (sensors, metrics), also validate that source infrastructure (APIs, databases, queries) exists and is queryable BEFORE committing to multi-task implementation. Missing infrastructure drastically changes scope.
+**p-pre-execution-validation** [2026-04-08]
+Before any financial operation or external data use: (1) validate address format at ingestion (Stacks mainnet = SP prefix + 38–41 chars), fail fast before x402 is staged — once x402 is in-flight, a downstream Hiro 400 wastes the payment; (2) validate that source infrastructure (APIs, databases, queries) exists and is queryable before committing to multi-task implementation. Missing infrastructure drastically changes scope.
 
 **p-debug-method-verification** [2026-04-08]
 When debugging failures, verify the implementation method (API used, DB access pattern, tool invocation) matches the expected pattern BEFORE investigating specific failure modes. Method mismatches propagate across all dependent operations.
 
-**p-purpose-outcome-closure** [2026-04-08]
-PURPOSE-driven task generation needs outcome tracking to close the feedback loop: signal acceptance, PR merges, agent onboarding success. Query live DB (cycle_log, tasks) directly for metrics; missing outcome data surfaces as priority gap to escalate.
+**p-failure-diagnosis** [2026-04-08]
+When N failures spike: classify by summary/error-type first. If 80%+ share one root cause, fix the cause — indicates self-similar state multiplying, not independent bugs. After shipping a fix, expect 1–2 cycles of residual failures from in-flight tasks completing under old code; don't retry or escalate, wait for context boundary. Cross-group comparison reveals structural misalignment (e.g., Core maintainers 1/5 urgency vs co-authors 5/5 — the gap IS the signal).
 
 **p-multi-dimensional-cost-stratification** [2026-04-08]
 Separate quantifiable dimensions (SQL sensor, deterministic, cheap) from subjective ones (reasoning-intensive). Route subjective dimensions to lightweight Sonnet subagent rather than full Opus evaluation. Measurable→SQL, unmeasured→Sonnet.
 
-**p-structural-gap-discovery** [2026-04-08]
-Single-group metrics miss the story; cross-group comparison reveals structural misalignment. Compare peers (e.g., Core maintainers 1/5 urgency vs BIP-360 co-authors 5/5) to surface governance/access gaps. The gap IS the signal.
-
-**p-failure-clustering-diagnosis** [2026-04-08]
-When N failures spike but collapse to K<N/5 root causes, fix the causes not the instances — indicates self-similar state multiplying, not independent bugs. Classify failures by summary/error-type first; if 80%+ share one root cause, investigate that cause and expect concurrent tasks to clear in 1 cycle post-fix.
-
-**p-post-fix-residual-failures** [2026-04-08]
-After shipping a fix for a root cause affecting in-flight tasks, expect 1–2 dispatch cycles of residual failures on that cause. In-flight tasks complete under old code before context reloads; don't retry or escalate, wait for context boundary. Residual failures on a fixed cause are noise, not regression.
-
-**p-mempool-backpressure** [2026-04-08]
-TooMuchChaining is a distinct error class from ConflictingNonceInMempool. It means the Stacks mempool has rejected a tx because the same address has too many pending chained transactions — not a nonce numbering conflict. Recovery differs: don't re-acquire nonce and retry immediately. Check mempool pending count first; if >N pending txs from same sender, back off until mempool drains. Serialize + backoff: nonce serializer alone is insufficient when the mempool chain limit is the constraint.
-
-**p-external-address-validation** [2026-04-08]
-Before using addresses from external registries (agent registry, contact lists, any third-party data source) for financial transactions, validate format at ingestion: Stacks mainnet address = SP prefix + 38–41 chars. Fail fast before x402 payment is staged — once x402 is in-flight, a downstream Hiro 400 on the STX send wastes the x402 payment. Address validation is a pre-condition for any on-chain send, not a post-error diagnostic.
-
-**p-fix-coverage-verification** [2026-04-08]
-When fixing a sensor for an externally-renamed value (beat slug, API endpoint, contract address), grep ALL sensors and skill configs for the old value before closing the task. A fix that patches one sensor but misses others leaves the root cause partially alive — it recurs in the next cycle as a "different" instance of the same bug. Fix verification = grep for old value + confirm zero matches.
-
 **p-queue-composition-guard** [2026-04-08]
-High-volume recurring task types (welcome, @mentions, health alerts) can exceed 40–50% of queue, crowding out strategic work and inflating cost-per-outcome. Monitor queue composition as a health metric. When any single recurring category exceeds 30% of pending tasks, apply a sensor cap or daily task limit for that category. Strategic tasks (signal research, synthesis, contract work) should be able to claim at least 40% of weekly dispatch cycles.
+High-volume recurring task types (welcome, @mentions, health alerts) can exceed 40–50% of queue, crowding out strategic work. Monitor queue composition as a health metric. When any single recurring category exceeds 30% of pending tasks, apply a sensor cap or daily task limit. Strategic tasks (signal research, synthesis, contract work) should claim at least 40% of weekly dispatch cycles.
