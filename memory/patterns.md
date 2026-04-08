@@ -146,3 +146,9 @@ Before implementing a feature with N consumers, map all integration points in on
 
 **p-multi-agent-integration-discovery** [2026-04-08]
 When learning about a new autonomous agent that will integrate with your stack, engage in direct strategic dialogue: propose a concrete integration concept (feeds Arc's needs), ask clarifying questions about infrastructure and comms, and queue research follow-ups to unblock dependencies. Don't default to async task queue — two-way messaging establishes coordination faster and surfaces integration constraints early.
+
+**p-small-model-operator-design** [2026-04-08]
+For small MoE models (<50B active), architect around hard constraints at design time: max 5-8 tools, max 16K context window, reset on error instead of debug loops. These aren't performance hints — they're operating envelopes. Tool/context limiting belongs in the sensor/task queue layer, not as post-hoc patches during inference.
+
+**p-external-service-config-defaults** [2026-04-08]
+External services with tunable config (quantization, context windows, connection limits) often ship unsafe defaults. Validate on first use: explicit num_ctx for Ollama (not auto), Q4_K_M quantization VRAM target (not auto-select), connection pools (not unlimited). Document required vs optional config explicitly per service.
