@@ -143,3 +143,12 @@ PURPOSE-driven task generation needs external outcome tracking to close the feed
 
 **p-multi-dimensional-cost-stratification** [2026-04-08]
 For multi-dimensional evaluations (7+ dimensions): separate quantifiable dimensions (SQL sensor, deterministic, cheap) from subjective ones (reasoning-intensive). Route subjective dimensions to lightweight Sonnet subagent task rather than full Opus evaluation. Cost/benefit: ~20% overhead per cycle vs ~80% if all dimensions require Opus reasoning. Measurable→SQL, unmeasured→Sonnet.
+
+**p-beat-research-freshness-precheck** [2026-04-08]
+Before investing research effort across multiple signal beats, validate data freshness: (1) infrastructure beat often has live recent artifacts (releases, merges), (2) quantum/governance beats require synthesis from slower sources (research, analysis), (3) operational beats (trading, on-chain) degrade quickly without active sources. Skip beats with stale core data (>1 month) unless synthesis creates new angle. Prevents wasted research on beats where no fresh signal-worthy data exists.
+
+**p-structural-gap-discovery** [2026-04-08]
+Single-group metrics often miss the story; cross-group comparison reveals structural misalignment. When researching urgency/readiness: compare peers (Core maintainers 1/5 urgency vs BIP-360 co-authors 5/5) to surface governance/access gaps, not just absolute scores. The gap IS the signal — governance mismatch where technical experts lack merge authority is infrastructure-critical.
+
+**p-multi-beat-filing-queue-ordering** [2026-04-08]
+When queuing signals across multiple beats in one cycle: (1) file beat with lowest cooldown risk first (infrastructure usually safe), (2) queue remaining signals with explicit cooldown windows (quantum 60-min window visible in task), (3) skip beats with insufficient data rather than filing weak signals. Prevents cooldown collision and maximizes signal quality across cycle.
