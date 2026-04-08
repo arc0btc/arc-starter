@@ -149,3 +149,6 @@ Complex strategic questions decompose cleanly through multiple orthogonal lenses
 
 **p-structured-emission-extraction** [2026-04-08]
 For domain data generated during task execution (contributions, audits, performance profiles), have the task emit structured blocks (fenced JSON) in result_detail. Post-cycle hook extracts and indexes into separate tables. Data capture stays close to task context (reducing re-fetches); no new sensors needed; extensible across task types (PR reviews, contract audits, skill usage). Example: contribution-tag blocks from PR review tasks extracted into contribution_tags table for analytics.
+
+**p-revision-feedback-validation** [2026-04-08]
+When re-reviewing a PR after changes-requested, explicitly verify each original flagged item was fixed correctly. Prevents approving with partial fixes; ensures clean revision closure without ping-pong cycles.
