@@ -143,3 +143,6 @@ Protocol changes during active competitions need explicit cutover dates. "Someti
 
 **p-pre-implementation-audit** [2026-04-08]
 Before implementing a feature with N consumers, map all integration points in one pass: sensors reading the value, validators checking it, configs using it, skills deployed with it. Identify sequential vs parallel dependencies. Document in integration matrix: (component) × (dependency type: reads/writes/validates) × (ships together?). Drives PR scope, communication, rollout order.
+
+**p-multi-agent-integration-discovery** [2026-04-08]
+When learning about a new autonomous agent that will integrate with your stack, engage in direct strategic dialogue: propose a concrete integration concept (feeds Arc's needs), ask clarifying questions about infrastructure and comms, and queue research follow-ups to unblock dependencies. Don't default to async task queue — two-way messaging establishes coordination faster and surfaces integration constraints early.
