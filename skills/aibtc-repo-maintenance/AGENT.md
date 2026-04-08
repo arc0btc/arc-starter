@@ -157,6 +157,66 @@ Use `--approve` only after passing all five checklist dimensions (functionality,
 
 whoabuddy runs Copilot review and either asks for fixes or merges. We never merge — that's not our role. If changes are requested after our approval, we review again when updated.
 
+### 8. Emit a Contribution Tag
+
+After posting the review, output a structured tag block. This is extracted by dispatch and stored in the `contribution_tags` table for analytics. Include it at the end of your response, after all other output.
+
+Fill every field accurately. Use the PR data you already fetched. For fields you cannot determine, use `null` (strings) or `0` (numbers).
+
+```contribution-tag
+{
+  "version": 1,
+  "company": {
+    "repo": "OWNER/REPO",
+    "repo_class": "managed",
+    "contributor": "github-login",
+    "contributor_type": "human",
+    "time_to_review_h": 2.5,
+    "review_cycle": 1,
+    "files_changed": 4,
+    "lines_delta": 42,
+    "skills_area": ["defi-zest", "x402"]
+  },
+  "customer": {
+    "type": "feature",
+    "scope": "wallet",
+    "linked_issue": "aibtcdev/skills#268",
+    "demand_signal": "user-reported",
+    "beat_relevance": ["infrastructure"]
+  },
+  "agent": {
+    "task_id": 12345,
+    "task_source": "sensor:github-mentions",
+    "sensor_origin": "github-mentions",
+    "model": "sonnet",
+    "review_cost_usd": 0.0,
+    "review_decision": "approved",
+    "severity_counts": {
+      "blocking": 0,
+      "suggestion": 2,
+      "nit": 1,
+      "question": 0
+    },
+    "automated_pr": false
+  }
+}
+```
+
+**Field reference:**
+
+- `repo_class`: `"managed"` = aibtcdev org repos we actively maintain; `"collaborative"` = external repos we contribute to; `"external"` = third-party
+- `contributor_type`: `"bot"` for dependabot/release-please/`*[bot]`; `"agent"` if login matches a known agent contact; `"human"` otherwise
+- `time_to_review_h`: hours from PR `createdAt` to now — get PR createdAt via `gh pr view NUMBER --repo OWNER/REPO --json createdAt`
+- `review_cycle`: 1 for first review, increment if re-reviewing after new commits
+- `lines_delta`: PR additions minus deletions (`gh pr view NUMBER --repo OWNER/REPO --json additions,deletions`)
+- `skills_area`: map changed file paths to skill names by checking which `skills/*/` paths appear in the diff
+- `type`: infer from PR title — `feat(...)` → `feature`, `fix(...)` → `bugfix`, `docs(...)` → `docs`, `refactor(...)` → `refactor`, `test(...)` → `test`, `chore/build/ci(...)` → `chore`, CVE mention → `security`
+- `demand_signal`: `"sensor-detected"` if task source contains `sensor:` or `workflow:`; `"user-reported"` if PR links to issue opened by someone other than PR author; `"contributor-initiated"` if no linked issue; `"unknown"` otherwise
+- `beat_relevance`: which aibtc.news beats this touches — `x402-*` → `infrastructure`, quantum/ECDSA → `quantum-computing`, NFT/ordinals → `ordinals-market`, agent registry → `agent-trading`
+- `review_decision`: match what you passed to `gh pr review` — `"approved"`, `"changes-requested"`, or `"commented"`
+- `review_cost_usd`: leave as `0.0` — dispatch fills this from `tasks.cost_usd` after cycle completes
+- `automated_pr`: `true` if PR is from dependabot, release-please, or any `*[bot]` login
+
 ---
 
 ## Issue Triage

@@ -506,6 +506,49 @@ export function initDatabase(): Database {
   `);
   db.run("CREATE INDEX IF NOT EXISTS idx_consensus_votes_proposal ON consensus_votes(proposal_id)");
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS contribution_tags (
+      id INTEGER PRIMARY KEY,
+      task_id INTEGER NOT NULL,
+      tagged_at TEXT DEFAULT (datetime('now')),
+
+      -- Company world
+      repo TEXT NOT NULL,
+      repo_class TEXT NOT NULL,
+      contributor TEXT NOT NULL,
+      contributor_type TEXT NOT NULL,
+      time_to_review_h REAL,
+      review_cycle INTEGER DEFAULT 1,
+      files_changed INTEGER DEFAULT 0,
+      lines_delta INTEGER DEFAULT 0,
+      skills_area TEXT DEFAULT '[]',
+
+      -- Customer world
+      contribution_type TEXT NOT NULL,
+      scope TEXT,
+      linked_issue TEXT,
+      demand_signal TEXT,
+      beat_relevance TEXT DEFAULT '[]',
+
+      -- Agent world
+      sensor_origin TEXT,
+      model TEXT,
+      review_cost_usd REAL DEFAULT 0,
+      review_decision TEXT,
+      severity_blocking INTEGER DEFAULT 0,
+      severity_suggestion INTEGER DEFAULT 0,
+      severity_nit INTEGER DEFAULT 0,
+      severity_question INTEGER DEFAULT 0,
+      automated_pr INTEGER DEFAULT 0,
+
+      FOREIGN KEY (task_id) REFERENCES tasks(id)
+    )
+  `);
+  db.run("CREATE INDEX IF NOT EXISTS idx_ct_repo ON contribution_tags(repo)");
+  db.run("CREATE INDEX IF NOT EXISTS idx_ct_type ON contribution_tags(contribution_type)");
+  db.run("CREATE INDEX IF NOT EXISTS idx_ct_contributor ON contribution_tags(contributor)");
+  db.run("CREATE INDEX IF NOT EXISTS idx_ct_tagged_at ON contribution_tags(tagged_at)");
+
   _db = db;
   return db;
 }

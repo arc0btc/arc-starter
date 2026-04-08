@@ -43,6 +43,7 @@ import { type ErrorClass, checkDispatchGate, recordGateSuccess, recordGateFailur
 
 import { safeCommitCycleChanges, getHeadSha, codeChangedSince } from "./safe-commit.ts";
 import { createWorktree, validateWorktree, getWorktreeChangedFiles, mergeWorktree, discardWorktree } from "./worktree.ts";
+import { extractContributionTagFromText, insertContributionTag } from "./contribution-tags.ts";
 
 // Re-export for cli.ts
 export { resetDispatchGate } from "./dispatch-gate.ts";
@@ -966,8 +967,25 @@ export async function runDispatch(): Promise<void> {
     }
     updateTaskCost(task.id, cost_usd, api_cost_usd, input_tokens, output_tokens);
 
-    // Schedule retrospective for complex/expensive tasks; lightweight learning extraction for others
+    // Extract contribution tag if present in result_detail
     const finalStatus = getTaskById(task.id);
+    if (finalStatus?.result_detail) {
+      const ctag = extractContributionTagFromText(finalStatus.result_detail);
+      if (ctag) {
+        try {
+          // Backfill actual cost now that updateTaskCost has run
+          ctag.agent.review_cost_usd = cost_usd;
+          insertContributionTag(ctag);
+          log(`dispatch: contribution tag extracted and stored for task #${task.id} (${ctag.company.repo})`);
+        } catch (tagErr) {
+          log(`dispatch: contribution tag insert failed for task #${task.id}: ${String(tagErr).slice(0, 200)}`);
+        }
+      } else if (/review pr #?\d+/i.test(task.subject)) {
+        log(`dispatch: no contribution tag emitted for review task #${task.id} — "${task.subject}"`);
+      }
+    }
+
+    // Schedule retrospective for complex/expensive tasks; lightweight learning extraction for others
     if ((task.priority <= 1 || cost_usd > 1.0) && finalStatus?.status === "completed") {
       // Full retrospective: patterns.md update for high-value work
       scheduleRetrospective(task, finalStatus.result_summary ?? result.slice(0, 300), result, cost_usd);
