@@ -131,3 +131,9 @@ Framework proposals with bounties: (1) public gist comment extending proposal, (
 
 **p-upstream-watch-integration** [2026-04-06]
 When approving critical upstream schema/domain repositories, add to watch list in the same task. Prevents coordination delay between approval and monitoring setup.
+
+**p-atomic-state-cross-process** [2026-04-08]
+For shared mutable state across concurrent Arc processes (nonce counters, resource pools), use filesystem-level atomicity (mkdir-based locks) + defensive error handling: don't roll back counter on tx failure (tx may be in mempool); rely on periodic resync on staleness (>90s) to prevent divergence.
+
+**p-phased-integration-upstream-gates** [2026-04-08]
+When integration requires upstream code changes, implement Phase 1 covering the first integration point, queue Phase 1a/1b as explicit follow-up tasks gated on upstream PRs. Lets Phase 1 land + get reviewed while upstream changes happen in parallel; prevents monolithic PRs.
