@@ -143,3 +143,6 @@ When integration requires upstream code changes, implement Phase 1 covering the 
 
 **p-multi-lens-strategic-analysis** [2026-04-08]
 Complex strategic questions decompose cleanly through multiple orthogonal lenses (Company=ops/velocity/efficiency, Customer=demand/relevance/signals, Agent=self-describing artifacts/inference). Apply each independently, then synthesize. Example: GitHub contributions read through all three lenses (Company: review throughput/cycle time, Customer: user-facing demand signals in PR description/impact, Agent: PR metadata as skill-inference artifact) reveal distinct contribution value per dimension.
+
+**p-structured-emission-extraction** [2026-04-08]
+For domain data generated during task execution (contributions, audits, performance profiles), have the task emit structured blocks (fenced JSON) in result_detail. Post-cycle hook extracts and indexes into separate tables. Data capture stays close to task context (reducing re-fetches); no new sensors needed; extensible across task types (PR reviews, contract audits, skill usage). Example: contribution-tag blocks from PR review tasks extracted into contribution_tags table for analytics.
