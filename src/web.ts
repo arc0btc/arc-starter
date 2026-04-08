@@ -1555,6 +1555,16 @@ function handleStatus(): Response {
     uptimeHours = Math.round(((Date.now() - firstTime) / 3600000) * 10) / 10;
   }
 
+  const ctToday = db.query(`
+    SELECT
+      COUNT(*) as reviews,
+      COALESCE(SUM(CASE WHEN contribution_type = 'feature' THEN 1 ELSE 0 END), 0) as features,
+      COALESCE(SUM(CASE WHEN contribution_type = 'bugfix' THEN 1 ELSE 0 END), 0) as bugfixes,
+      COALESCE(SUM(severity_blocking), 0) as blocking_issues
+    FROM contribution_tags
+    WHERE date(tagged_at, '-7 hours') = date('now', '-7 hours')
+  `).get() as { reviews: number; features: number; bugfixes: number; blocking_issues: number };
+
   return json({
     pending: pending.count,
     active: active.count,
@@ -1562,6 +1572,12 @@ function handleStatus(): Response {
     failed_today: failedToday.count,
     cost_today_usd: Math.round(costs.cost_today_usd * 100) / 100,
     api_cost_today_usd: Math.round(costs.api_cost_today_usd * 100) / 100,
+    contributions_today: {
+      reviews: ctToday.reviews,
+      features: ctToday.features,
+      bugfixes: ctToday.bugfixes,
+      blocking_issues: ctToday.blocking_issues,
+    },
     last_cycle: lastCycle,
     uptime_hours: uptimeHours,
   });
@@ -2006,6 +2022,122 @@ function handleCostsBySkill(url: URL): Response {
     .slice(0, 20);
 
   return json({ range, skills: result });
+}
+
+function handleContributions(url: URL): Response {
+  const period = url.searchParams.get("period") || "day";
+
+  let dateFilter: string;
+  let periodLabel: string;
+  if (period === "month") {
+    dateFilter = "datetime(tagged_at) >= datetime('now', '-30 days')";
+    periodLabel = "month";
+  } else if (period === "week") {
+    dateFilter = "datetime(tagged_at) >= datetime('now', '-7 days')";
+    periodLabel = "week";
+  } else {
+    dateFilter = "date(tagged_at, '-7 hours') = date('now', '-7 hours')";
+    periodLabel = new Date().toISOString().slice(0, 10);
+  }
+
+  const totals = db.query(`
+    SELECT
+      COUNT(*) as total_reviews,
+      COALESCE(AVG(time_to_review_h), 0) as avg_time_to_review_h,
+      COALESCE(SUM(severity_blocking), 0) as blocking_issues_found,
+      COALESCE(SUM(severity_suggestion), 0) as suggestions_made,
+      COALESCE(SUM(severity_nit), 0) as nits_found,
+      COALESCE(SUM(review_cost_usd), 0) as total_review_cost_usd,
+      COALESCE(SUM(CASE WHEN review_decision = 'approved' THEN 1 ELSE 0 END), 0) as approvals
+    FROM contribution_tags
+    WHERE ${dateFilter}
+  `).get() as {
+    total_reviews: number;
+    avg_time_to_review_h: number;
+    blocking_issues_found: number;
+    suggestions_made: number;
+    nits_found: number;
+    total_review_cost_usd: number;
+    approvals: number;
+  };
+
+  const byType = db.query(`
+    SELECT contribution_type as type, COUNT(*) as count
+    FROM contribution_tags
+    WHERE ${dateFilter}
+    GROUP BY contribution_type
+    ORDER BY count DESC
+  `).all() as { type: string; count: number }[];
+
+  const byRepo = db.query(`
+    SELECT repo, COUNT(*) as count
+    FROM contribution_tags
+    WHERE ${dateFilter}
+    GROUP BY repo
+    ORDER BY count DESC
+  `).all() as { repo: string; count: number }[];
+
+  const byContributorType = db.query(`
+    SELECT contributor_type as type, COUNT(*) as count
+    FROM contribution_tags
+    WHERE ${dateFilter}
+    GROUP BY contributor_type
+    ORDER BY count DESC
+  `).all() as { type: string; count: number }[];
+
+  const total = totals.total_reviews;
+  const approvalRate = total > 0 ? Math.round((totals.approvals / total) * 100) / 100 : 0;
+  const avgCost = total > 0 ? Math.round((totals.total_review_cost_usd / total) * 10000) / 10000 : 0;
+
+  return json({
+    period: periodLabel,
+    total_reviews: total,
+    by_type: Object.fromEntries(byType.map((r) => [r.type, r.count])),
+    by_repo: Object.fromEntries(byRepo.map((r) => [r.repo, r.count])),
+    by_contributor_type: Object.fromEntries(byContributorType.map((r) => [r.type, r.count])),
+    review_velocity: {
+      avg_time_to_review_h: Math.round(totals.avg_time_to_review_h * 10) / 10,
+    },
+    review_quality: {
+      blocking_issues_found: totals.blocking_issues_found,
+      suggestions_made: totals.suggestions_made,
+      nits_found: totals.nits_found,
+      approval_rate: approvalRate,
+    },
+    cost: {
+      total_review_cost_usd: Math.round(totals.total_review_cost_usd * 10000) / 10000,
+      avg_per_review_usd: avgCost,
+    },
+  });
+}
+
+function handleContributionsStream(url: URL): Response {
+  const limit = Math.min(parseInt(url.searchParams.get("limit") || "20", 10), 100);
+
+  const rows = db.query(`
+    SELECT
+      ct.id,
+      ct.task_id,
+      ct.tagged_at,
+      ct.repo,
+      ct.contribution_type,
+      ct.contributor,
+      ct.contributor_type,
+      ct.review_decision,
+      ct.severity_blocking,
+      ct.severity_suggestion,
+      ct.severity_nit,
+      ct.severity_question,
+      ct.review_cost_usd,
+      ct.time_to_review_h,
+      ct.scope,
+      ct.model
+    FROM contribution_tags ct
+    ORDER BY ct.tagged_at DESC
+    LIMIT ?
+  `).all(limit);
+
+  return json({ contributions: rows });
 }
 
 function handleIdentity(): Response {
@@ -2605,6 +2737,8 @@ function route(req: Request): Response | Promise<Response> {
   if (path === "/api/skills") return handleSkills();
   if (path === "/api/costs") return handleCosts(url);
   if (path === "/api/costs/by-skill") return handleCostsBySkill(url);
+  if (path === "/api/contributions") return handleContributions(url);
+  if (path === "/api/contributions/stream") return handleContributionsStream(url);
   if (path === "/api/identity") return handleIdentity();
   if (path === "/api/face") return handleFace();
   if (path === "/api/reputation") return handleReputation();
