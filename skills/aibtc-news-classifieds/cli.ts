@@ -112,24 +112,31 @@ async function fetchClassifiedRecord(classifiedId: string): Promise<ClassifiedRe
 
 /**
  * Queue a child task for post-review operations (x402 notifications, ERC-8004 feedback).
- * Pre-composes the message/command so the task can be executed by Haiku at P3.
+ * When a script is provided, runs as a zero-cost script task (P8).
+ * Falls back to Haiku dispatch (P3) when no script is given.
  */
 async function queueChildTask(opts: {
   subject: string;
   description: string;
   source: string;
   skills: string;
+  script?: string;
 }): Promise<void> {
-  const proc = Bun.spawn(
-    [
-      "bash", "bin/arc", "tasks", "add",
-      "--subject", opts.subject,
-      "--description", opts.description,
-      "--priority", "3",
-      "--model", "haiku",
-      "--source", opts.source,
-      "--skills", opts.skills,
-    ],
+  const args = [
+    "bash", "bin/arc", "tasks", "add",
+    "--subject", opts.subject,
+    "--description", opts.description,
+    "--source", opts.source,
+    "--skills", opts.skills,
+  ];
+
+  if (opts.script) {
+    args.push("--script", opts.script, "--priority", "8");
+  } else {
+    args.push("--priority", "3", "--model", "haiku");
+  }
+
+  const proc = Bun.spawn(args,
     { cwd: process.cwd(), stdin: "ignore", stdout: "pipe", stderr: "pipe" }
   );
 
@@ -199,22 +206,15 @@ async function maybeQueueIdentityNudge(
           `Without registration, your contributions won't earn reputation and future access may be restricted.`,
         ].join("\n");
 
-  const nudgeDesc = [
-    `Send ERC-8004 identity registration nudge (${nudgeNumber}/${ERC8004_NUDGE_MAX}) to correspondent.`,
-    ``,
-    `Run: arc skills run --name inbox-notify -- send-one --btc-address ${btcAddress} --stx-address ${stxAddress} --content "${nudgeMessage.replace(/"/g, '\\"')}"`,
-    ``,
-    `After successful send, log interaction to contact registry:`,
-    `  Contact ID: ${contactId}`,
-    `  Type: message`,
-    `  Summary: ${ERC8004_NUDGE_PREFIX} (${nudgeNumber}/${ERC8004_NUDGE_MAX}) — no agent_id on file`,
-  ].join("\n");
+  const escapedNudge = nudgeMessage.replace(/"/g, '\\"');
+  const nudgeScript = `arc skills run --name inbox-notify -- send-one --btc-address ${btcAddress} --stx-address ${stxAddress} --content "${escapedNudge}"`;
 
   await queueChildTask({
     subject: `ERC-8004 nudge (${nudgeNumber}/${ERC8004_NUDGE_MAX}): register identity → ${btcAddress.slice(0, 12)}…`,
-    description: nudgeDesc,
+    description: `Send ERC-8004 identity registration nudge (${nudgeNumber}/${ERC8004_NUDGE_MAX}) to correspondent ${btcAddress.slice(0, 16)}…`,
     source: `nudge:erc8004:${nudgeNumber}:${btcAddress}`,
-    skills: "inbox-notify,bitcoin-wallet,contact-registry",
+    skills: "inbox-notify,bitcoin-wallet",
+    script: nudgeScript,
   });
 }
 
@@ -1551,47 +1551,29 @@ async function cmdReviewClassified(args: string[]): Promise<void> {
             ].join("\n");
 
         const limitedMessage = enforceMessageLimit(message, "classified notification");
-        const notifyDesc = [
-          `Send x402 inbox notification for classified ${flags.id} review (${flags.status}).`,
-          ``,
-          `Run this command:`,
-          `arc skills run --name inbox-notify -- send-one --btc-address ${record.btcAddress} --stx-address ${recipientStx} --content "${limitedMessage.replace(/"/g, '\\"')}"`,
-          ``,
-          `If send fails, close task as failed with the error details.`,
-        ].join("\n");
+        const escapedClassifiedContent = limitedMessage.replace(/"/g, '\\"');
+        const classifiedNotifyScript = `arc skills run --name inbox-notify -- send-one --btc-address ${record.btcAddress} --stx-address ${recipientStx} --content "${escapedClassifiedContent}"`;
 
         // Queue ERC-8004 reputation feedback if correspondent has agent ID
         if (contact?.agent_id) {
           const value = flags.status === "approved" ? "1" : "-1";
-          const reputationDesc = [
-            `Submit ERC-8004 reputation feedback for classified ${flags.id} review.`,
-            ``,
-            `Agent ID: ${contact.agent_id}`,
-            `Value: ${value} (${flags.status})`,
-            `Tags: classified-review, ${flags.status}`,
-            `Endpoint: aibtc.news/classifieds/${flags.id}`,
-            ``,
-            `Steps:`,
-            `1. Unlock wallet: arc skills run --name bitcoin-wallet -- unlock`,
-            `2. Run in ~/github/aibtcdev/skills/:`,
-            `   bun run reputation/reputation.ts give-feedback --agent-id ${contact.agent_id} --value ${value} --tag1 classified-review --tag2 ${flags.status} --endpoint "aibtc.news/classifieds/${flags.id}" --sponsored`,
-            ``,
-            `If feedback fails, close task as failed with the error details.`,
-          ].join("\n");
+          const classifiedFeedbackScript = `arc skills run --name erc8004-identity -- give-feedback --agent-id ${contact.agent_id} --value ${value} --tag1 classified-review --tag2 ${flags.status} --endpoint "aibtc.news/classifieds/${flags.id}" --sponsored`;
 
           await queueChildTask({
             subject: `ERC-8004 feedback: classified #${flags.id} ${flags.status} → agent ${contact.agent_id}`,
-            description: reputationDesc,
+            description: `Submit ERC-8004 reputation feedback for classified ${flags.id} review. Agent ${contact.agent_id}, value=${value} (${flags.status}).`,
             source: `erc8004:classified:${flags.id}`,
             skills: "erc8004-identity,bitcoin-wallet",
+            script: classifiedFeedbackScript,
           });
         }
 
         await queueChildTask({
           subject: `Notify classified ${flags.status}: #${flags.id} → ${record.btcAddress.slice(0, 12)}…`,
-          description: notifyDesc,
+          description: `Send x402 inbox notification for classified ${flags.id} review (${flags.status}).`,
           source: `notify:classified:${flags.id}`,
           skills: "inbox-notify,bitcoin-wallet",
+          script: classifiedNotifyScript,
         });
 
         // Queue ERC-8004 identity nudge if no agent ID (up to 3x)
@@ -1810,46 +1792,28 @@ async function cmdReviewCorrection(args: string[]): Promise<void> {
                 ].join("\n");
 
             const limitedNotifyMessage = enforceMessageLimit(notifyMessage, "correction notification");
-            const notifyDesc = [
-              `Send x402 inbox notification for correction ${correctionId} on signal ${signalId} (${flags.status}).`,
-              ``,
-              `Run this command:`,
-              `arc skills run --name inbox-notify -- send-one --btc-address ${correctorAddress} --stx-address ${recipientStx} --content "${limitedNotifyMessage.replace(/"/g, '\\"')}"`,
-              ``,
-              `If send fails, close task as failed with the error details.`,
-            ].join("\n");
+            const escapedContent = limitedNotifyMessage.replace(/"/g, '\\"');
+            const notifyScript = `arc skills run --name inbox-notify -- send-one --btc-address ${correctorAddress} --stx-address ${recipientStx} --content "${escapedContent}"`;
 
             await queueChildTask({
               subject: `Notify correction ${flags.status}: #${correctionId} → ${correctorAddress.slice(0, 12)}…`,
-              description: notifyDesc,
+              description: `Send x402 inbox notification for correction ${correctionId} on signal ${signalId} (${flags.status}).`,
               source: `notify:correction:${correctionId}`,
               skills: "inbox-notify,bitcoin-wallet",
+              script: notifyScript,
             });
 
             // Queue ERC-8004 reputation feedback if corrector has agent ID
             if (contact?.agent_id) {
               const value = flags.status === "approved" ? "1" : "-1";
-              const reputationDesc = [
-                `Submit ERC-8004 reputation feedback for correction ${correctionId} on signal ${signalId}.`,
-                ``,
-                `Agent ID: ${contact.agent_id}`,
-                `Value: ${value} (${flags.status})`,
-                `Tags: correction-review, ${flags.status}`,
-                `Endpoint: aibtc.news/signals/${signalId}/corrections/${correctionId}`,
-                ``,
-                `Steps:`,
-                `1. Unlock wallet: arc skills run --name bitcoin-wallet -- unlock`,
-                `2. Run in ~/github/aibtcdev/skills/:`,
-                `   bun run reputation/reputation.ts give-feedback --agent-id ${contact.agent_id} --value ${value} --tag1 correction-review --tag2 ${flags.status} --endpoint "aibtc.news/signals/${signalId}/corrections/${correctionId}" --sponsored`,
-                ``,
-                `If feedback fails, close task as failed with the error details.`,
-              ].join("\n");
+              const feedbackScript = `arc skills run --name erc8004-identity -- give-feedback --agent-id ${contact.agent_id} --value ${value} --tag1 correction-review --tag2 ${flags.status} --endpoint "aibtc.news/signals/${signalId}/corrections/${correctionId}" --sponsored`;
 
               await queueChildTask({
                 subject: `ERC-8004 feedback: correction #${correctionId} ${flags.status} → agent ${contact.agent_id}`,
-                description: reputationDesc,
+                description: `Submit ERC-8004 reputation feedback for correction ${correctionId} on signal ${signalId}. Agent ${contact.agent_id}, value=${value} (${flags.status}).`,
                 source: `erc8004:correction:${correctionId}`,
                 skills: "erc8004-identity,bitcoin-wallet",
+                script: feedbackScript,
               });
             }
 
