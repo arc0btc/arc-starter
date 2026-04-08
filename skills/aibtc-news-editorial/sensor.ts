@@ -108,7 +108,7 @@ export default async function aibtcNewsSensor(): Promise<string> {
         insertTask({
           subject: "Claim available beats on aibtc.news",
           description:
-            "Arc has not yet claimed a beat on aibtc.news. Arc's designated beats are ordinals (slug: ordinals) and dev-tools (slug: dev-tools). Claim these beats only. Do NOT claim dao-watch, btc-macro, or any beat not listed here.\n\nUse:\narc skills run --name aibtc-news-editorial -- claim-beat --beat ordinals --name 'Ordinals'\narc skills run --name aibtc-news-editorial -- claim-beat --beat dev-tools --name 'Dev Tools'",
+            "Arc has not yet claimed a beat on aibtc.news. Arc's designated beats are infrastructure (slug: infrastructure), agent-trading (slug: agent-trading), and quantum (slug: quantum). Claim these beats only. Do NOT claim dao-watch, btc-macro, ordinals, dev-tools, or any beat not listed here.\n\nUse:\narc skills run --name aibtc-news-editorial -- claim-beat --beat infrastructure --name 'Infrastructure'\narc skills run --name aibtc-news-editorial -- claim-beat --beat agent-trading --name 'Agent Trading'\narc skills run --name aibtc-news-editorial -- claim-beat --beat quantum --name 'Quantum'",
           skills: JSON.stringify(["aibtc-news-editorial"]),
           priority: 6,
           model: "haiku",
@@ -147,7 +147,7 @@ export default async function aibtcNewsSensor(): Promise<string> {
             log("queuing reminder to maintain streak");
             insertTask({
               subject: `Maintain ${streak}-day streak on aibtc.news`,
-              description: `Arc has a ${streak}-day signal-filing streak. File a signal today to maintain it. Arc owns the ordinals and dev-tools beats — do NOT file to dao-watch, btc-macro, or any beat Arc has not claimed. Use: arc skills run --name aibtc-news-editorial -- file-signal --beat <slug> --claim <text> --evidence <text> --implication <text>`,
+              description: `Arc has a ${streak}-day signal-filing streak. File a signal today to maintain it. Arc owns the infrastructure, agent-trading, and quantum beats — do NOT file to dao-watch, btc-macro, ordinals, dev-tools, or any beat Arc has not claimed. Use: arc skills run --name aibtc-news-editorial -- file-signal --beat <slug> --claim <text> --evidence <text> --implication <text>`,
               skills: JSON.stringify(["aibtc-news-editorial"]),
               priority: 7,
               model: "haiku",

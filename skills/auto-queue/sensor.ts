@@ -257,7 +257,7 @@ export default async function autoQueueSensor(): Promise<string> {
     "6. If a domain has high failure rate, investigate before queuing more work",
     "",
     "## Domain-Specific Constraints\n",
-    "- **aibtc-news-editorial**: Arc owns the `ordinals` and `dev-tools` beats. Do NOT create tasks for dao-watch, btc-macro, or any beat Arc has not claimed. Signal-filing tasks must target one of Arc's claimed beats.",
+    "- **aibtc-news-editorial**: Arc owns the `infrastructure`, `agent-trading`, and `quantum` beats. Do NOT create tasks for dao-watch, btc-macro, ordinals, dev-tools, or any beat Arc has not claimed. Signal-filing tasks must target one of Arc's claimed beats.",
   ].join("\n");
 
   // Build skills array: auto-queue + hungry domain names (valid skills only, max 5 domains)

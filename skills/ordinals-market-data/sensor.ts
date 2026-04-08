@@ -44,8 +44,8 @@ const FLAT_MARKET_FALLBACK_COOLDOWN_HOURS = 6; // min hours between flat-market 
 // or the sensor is repurposed for AIBTC-network agent trading data.
 const SIGNAL_FILING_SUSPENDED = true;
 
-// Multi-beat allocation — 3 agent-trading + 3 dev-tools per day
-// After OVERFLOW_HOUR_UTC, unused dev-tools slots become available to agent-trading
+// Multi-beat allocation — 3 agent-trading + 3 infrastructure per day
+// After OVERFLOW_HOUR_UTC, unused infrastructure slots become available to agent-trading
 const OVERFLOW_HOUR_UTC = 18; // 18:00 UTC = noon MDT — late-day overflow window
 
 const UNISAT_API = "https://open-api.unisat.io";
@@ -1159,25 +1159,25 @@ export default async function ordinalsMarketDataSensor(): Promise<string> {
         return "skip";
       }
 
-      // Per-beat allocation: 3 agent-trading + 3 dev-tools per day
+      // Per-beat allocation: 3 agent-trading + 3 infrastructure per day
       const ordinalsToday = countSignalTasksTodayForBeat("agent-trading");
-      const devToolsToday = countSignalTasksTodayForBeat("dev-tools");
+      const infraToday = countSignalTasksTodayForBeat("infrastructure");
 
-      // Late-day overflow: if dev-tools hasn't used its slots by OVERFLOW_HOUR_UTC, agent-trading can take them
+      // Late-day overflow: if infrastructure hasn't used its slots by OVERFLOW_HOUR_UTC, agent-trading can take them
       if (hourUTC >= OVERFLOW_HOUR_UTC) {
-        const devToolsUnused = BEAT_DAILY_ALLOCATION - devToolsToday;
-        if (devToolsUnused > 0) {
-          ordinalsAllocation += devToolsUnused;
-          log(`late-day overflow: ${devToolsUnused} unused dev-tools slot(s) available to agent-trading (allocation: ${ordinalsAllocation})`);
+        const infraUnused = BEAT_DAILY_ALLOCATION - infraToday;
+        if (infraUnused > 0) {
+          ordinalsAllocation += infraUnused;
+          log(`late-day overflow: ${infraUnused} unused infrastructure slot(s) available to agent-trading (allocation: ${ordinalsAllocation})`);
         }
       }
 
       if (ordinalsToday >= ordinalsAllocation) {
-        log(`agent-trading beat allocation reached: ${ordinalsToday}/${ordinalsAllocation} (dev-tools: ${devToolsToday}/${BEAT_DAILY_ALLOCATION}); skipping`);
+        log(`agent-trading beat allocation reached: ${ordinalsToday}/${ordinalsAllocation} (infrastructure: ${infraToday}/${BEAT_DAILY_ALLOCATION}); skipping`);
         return "skip";
       }
 
-      log(`beat allocation: agent-trading ${ordinalsToday}/${ordinalsAllocation}, dev-tools ${devToolsToday}/${BEAT_DAILY_ALLOCATION}, total ${totalToday}/${DAILY_SIGNAL_CAP}`);
+      log(`beat allocation: agent-trading ${ordinalsToday}/${ordinalsAllocation}, infrastructure ${infraToday}/${BEAT_DAILY_ALLOCATION}, total ${totalToday}/${DAILY_SIGNAL_CAP}`);
     } else {
       log("signal filing suspended — collecting data for cross-category context only");
     }
@@ -1460,8 +1460,8 @@ This data targets the agent-trading beat.`,
       // Milestones respect per-beat allocation but can use overflow slots
       let milestoneAllocation = BEAT_DAILY_ALLOCATION;
       if (hourUTC >= OVERFLOW_HOUR_UTC) {
-        const devToolsNow = countSignalTasksTodayForBeat("dev-tools");
-        milestoneAllocation += Math.max(0, BEAT_DAILY_ALLOCATION - devToolsNow);
+        const infraNow = countSignalTasksTodayForBeat("infrastructure");
+        milestoneAllocation += Math.max(0, BEAT_DAILY_ALLOCATION - infraNow);
       }
       if (currentOrdinals >= milestoneAllocation) {
         log(`agent-trading allocation full for milestone (${currentOrdinals}/${milestoneAllocation}); skipping`);
@@ -1525,8 +1525,8 @@ This data targets the agent-trading beat. Use Economist voice — precise, data-
     await writeHookState(SENSOR_NAME, state);
 
     const finalOrdinals = countSignalTasksTodayForBeat("agent-trading");
-    const finalDevTools = countSignalTasksTodayForBeat("dev-tools");
-    log(`queued ${queued} agent-trading signal(s) this run | allocation: agent-trading ${finalOrdinals}/${ordinalsAllocation}, dev-tools ${finalDevTools}/${BEAT_DAILY_ALLOCATION}`);
+    const finalInfra = countSignalTasksTodayForBeat("infrastructure");
+    log(`queued ${queued} agent-trading signal(s) this run | allocation: agent-trading ${finalOrdinals}/${ordinalsAllocation}, infrastructure ${finalInfra}/${BEAT_DAILY_ALLOCATION}`);
     return "ok";
   } catch (e) {
     log(`error: ${(e as Error).message}`);
