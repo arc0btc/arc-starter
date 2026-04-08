@@ -11,6 +11,7 @@ import { getWalletManager } from "../../github/aibtcdev/skills/src/lib/services/
 import { transferStx } from "../../github/aibtcdev/skills/src/lib/transactions/builder.js";
 import type { Account } from "../../github/aibtcdev/skills/src/lib/transactions/builder.js";
 import { acquireNonce, releaseNonce } from "../../github/aibtcdev/skills/src/lib/services/nonce-tracker.js";
+import { validateStacksAddress } from "../../github/aibtcdev/skills/node_modules/@stacks/transactions/dist/esm/utils.js";
 
 const walletId = process.env.WALLET_ID;
 const walletPassword = process.env.WALLET_PASSWORD;
@@ -52,9 +53,13 @@ if (isNaN(amountStx) || amountStx <= 0) {
   process.exit(1);
 }
 
-// Validate recipient address format (basic check for Stacks addresses)
-if (!recipient.startsWith("SP") && !recipient.startsWith("ST")) {
-  console.log(JSON.stringify({ success: false, error: `Invalid recipient address: must start with SP (mainnet) or ST (testnet)` }));
+// Validate recipient address via c32check — catches bad checksums and non-Stacks strings.
+// Also guard against contract principals (contain '.') since makeSTXTokenTransfer expects a standard principal.
+if (!validateStacksAddress(recipient) || recipient.includes(".")) {
+  console.log(JSON.stringify({
+    success: false,
+    error: `Invalid recipient address: '${recipient}' failed Stacks address validation (c32check). Must be a standard SP/ST principal (no contract suffix).`,
+  }));
   process.exit(1);
 }
 

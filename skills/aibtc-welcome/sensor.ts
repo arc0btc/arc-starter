@@ -412,7 +412,7 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
             "- Write sentinel: `echo '{\"last_ran\":\"'$(date -u +%FT%TZ)'\",\"last_result\":\"error\",\"version\":1}' > db/hook-state/x402-nonce-conflict.json`",
             "- Close this task as **failed** with summary mentioning NONCE_CONFLICT",
             "",
-            "For any other x402/STX failure, close as **failed** with a note about what failed.",
+            "For any other x402/STX failure, close as **failed** with the EXACT JSON output from the failed command in the summary — do NOT paraphrase. Include the `error` and `detail` fields verbatim so root cause is diagnosable.",
             "",
             "## DO NOT create retry or follow-up tasks",
             "",
