@@ -271,7 +271,7 @@ function buildReviewDescription(ctx: PrLifecycleContext, cycle: number): string 
 
 function buildReviewAction(ctx: PrLifecycleContext): WorkflowAction | null {
   if (!ctx.owner || !ctx.repo || !ctx.number) return null;
-  if (shouldSkipPrReview(ctx)) return null;
+  if (shouldSkipPrReview(ctx)) return { type: "transition", nextState: "closed" };
   const cycle = ctx.reviewCycle || 1;
   const isRereview = cycle > 1;
   const repoFull = `${ctx.owner}/${ctx.repo}`;
