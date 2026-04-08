@@ -105,6 +105,47 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
     return "error";
   }
 
+  // Pre-flight: check SegWit BTC balance via mempool API.
+  // If balance is too low, create a funding escalation instead of an inscription task
+  // that will dispatch a full LLM session only to discover "insufficient balance".
+  const BTC_ADDRESS = "bc1qktaz6rg5k4smre0wfde2tjs2eupvggpmdz39ku";
+  const MIN_BALANCE_SATS = 10_000; // ~minimum for a small brief inscription
+  try {
+    const mempoolResp = await fetchWithRetry(`https://mempool.space/api/address/${BTC_ADDRESS}`);
+    if (mempoolResp.ok) {
+      const addrData = (await mempoolResp.json()) as {
+        chain_stats: { funded_txo_sum: number; spent_txo_sum: number };
+      };
+      const balance = addrData.chain_stats.funded_txo_sum - addrData.chain_stats.spent_txo_sum;
+      if (balance < MIN_BALANCE_SATS) {
+        log(`SegWit balance too low for inscription: ${balance} sats (need >= ${MIN_BALANCE_SATS}). Creating funding escalation.`);
+        await writeHookState(SENSOR_NAME, {
+          ...(state ?? { version: 0 }),
+          last_ran: now.toISOString(),
+          last_result: `skip:low-balance-${balance}`,
+          version: (state?.version ?? 0) + 1,
+          // Do NOT set last_fired_date — allow retry after funding
+        });
+        insertTaskIfNew(TASK_SOURCE, {
+          subject: `Fund SegWit wallet for inscription (balance: ${balance} sats)`,
+          description: [
+            `The SegWit wallet (${BTC_ADDRESS}) has ${balance} sats, below the ${MIN_BALANCE_SATS} sat minimum for inscriptions.`,
+            `Brief for ${pstDate} is ready to inscribe but cannot proceed without funding.`,
+            ``,
+            `Send BTC to: ${BTC_ADDRESS}`,
+            `Recommended: 100,000 sats (~1 month of daily inscriptions).`,
+          ].join("\n"),
+          priority: 3,
+          skills: JSON.stringify(["bitcoin-wallet"]),
+        });
+        return "ok";
+      }
+      log(`SegWit balance: ${balance} sats — sufficient for inscription`);
+    }
+  } catch (err) {
+    log(`Balance check failed (proceeding anyway): ${err instanceof Error ? err.message : String(err)}`);
+  }
+
   // All prerequisites pass -- create the inscription task
   await writeHookState(SENSOR_NAME, {
     ...(state ?? { version: 0 }),

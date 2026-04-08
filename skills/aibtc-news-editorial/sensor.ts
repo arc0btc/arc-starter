@@ -3,6 +3,7 @@ import {
   insertTaskIfNew,
   createSensorLogger,
   fetchWithRetry,
+  pendingTaskExistsForSource,
 } from "../../src/sensors.ts";
 import { initDatabase } from "../../src/db.ts";
 
@@ -366,12 +367,19 @@ async function dailyReportSensor(): Promise<string> {
   }
 
   // Brief not inscribed (yesterday's brief should be inscribed by now)
+  // Debounce: skip this alert if there's already a pending inscription or funding task.
+  // These tasks burn $0.30-0.50 LLM each when the root cause is known (low BTC balance).
   if (
     report.latestBrief.date === yesterday &&
     !report.latestBrief.inscribed_txid &&
     !report.latestBrief.inscription_id
   ) {
-    alerts.push(`Yesterday's brief (${yesterday}) is not inscribed`);
+    const inscriptionTaskPending = pendingTaskExistsForSource("sensor:daily-brief-inscribe");
+    if (!inscriptionTaskPending) {
+      alerts.push(`Yesterday's brief (${yesterday}) is not inscribed`);
+    } else {
+      reportLog(`Brief not inscribed but inscription/funding task already pending — suppressing alert`);
+    }
   }
 
   // No active correspondents
