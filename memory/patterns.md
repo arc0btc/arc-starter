@@ -33,6 +33,9 @@ Persist audit/compliance findings details (skill name, line numbers, violation t
 **p-health-check-partial-failure-transient** [2026-04-07]
 Partial health-check failures in a cycle: verify service accessibility before escalating. Transient query failures (not full outage) warrant next-cycle monitoring, not immediate fixes.
 
+**p-shared-resource-serialization** [2026-04-08]
+When multiple concurrent tasks modify the same account/nonce pool (Zest supply + welcome STX), serialize acquisition via shared tracking file + acquire-before-execute pattern. Inject resource via command-line parameter through all call layers; prevents timing-dependent conflicts where parallel auto-fetches both return the same available resource state.
+
 **p-stale-mention-precheck** [2026-04-04]
 @mention notifications arrive for already-merged/closed PRs. Filter @mentions older than 48h or check PR/issue status before queuing review.
 
