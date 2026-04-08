@@ -152,3 +152,6 @@ For domain data generated during task execution (contributions, audits, performa
 
 **p-revision-feedback-validation** [2026-04-08]
 When re-reviewing a PR after changes-requested, explicitly verify each original flagged item was fixed correctly. Prevents approving with partial fixes; ensures clean revision closure without ping-pong cycles.
+
+**p-karpathy-loop-agent-optimization** [2026-04-08]
+Agent self-improvement mirrors Karpathy loop: research pipeline (data), PURPOSE scoring (loss function), task weighting (optimization). SOUL provides slow weights — identity/principles updated rarely but deliberately when research accumulates signal. Separates fast/slow optimization enables systematic course correction without constant foundational rewrites.
