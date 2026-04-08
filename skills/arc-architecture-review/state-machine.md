@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-04-08T07:10:00.000Z*
-*Sensor count: 70 | Skill count: 103*
+*Generated: 2026-04-08T18:50:00.000Z*
+*Sensor count: 71 | Skill count: 104*
 
 ```mermaid
 stateDiagram-v2
@@ -94,7 +94,7 @@ stateDiagram-v2
             context_review
             compliance_review
             arc_workflows
-            note right of arc_workflows: drives workflow state machine\nstate-specific source keys (8ce27fb9)\ndedup scoped to workflow:{id}:{state}\nprevents cross-state dedup collisions\nPrLifecycleMachine owns ALL PR review dispatch (061c807d)\nAUTOMATED_PR_PATTERNS exported from state-machine.ts\ncontext preserved on state transitions (not overwritten)\ngithub-mentions defers review_requested/assign to workflow engine\nSkills format: JSON.stringify() not .join(",") (f3b5159d)\narc-self-review: trigger state includes workflow transition cmd (806ce147)\nGH CLI GraphQL migration: fetchGitHubPRs() now uses gh api graphql\nbatched multi-repo query (was per-repo REST + credentials fetch)\nremoves fetchWithRetry + getCredential dependencies\nTERMINAL-STATE AUTO-COMPLETE (6b743823):\nNew PRs seen already closed/merged → completeWorkflow() immediately\nExisting workflows with no outgoing transitions → completeWorkflow()\nPrevents stuck workflow accumulation (fixed 159 stuck workflows task #10919)\nAPPROVED-PR GUARD (4292cef2): arcHasReview field in GithubPR\nGraphQL fetches last 20 reviews per PR (batched, no extra calls)\nmapPRStateToWorkflowState() → "approved" if Arc has any review\nRegression guard: approved → opened/review-requested blocked\nPR query: first:50 → last:50 (0fee0799) — most recent PRs now\nincluded even in high-activity repos (>50 total PRs)
+            note right of arc_workflows: drives workflow state machine\nstate-specific source keys (8ce27fb9)\ndedup scoped to workflow:{id}:{state}\nprevents cross-state dedup collisions\nPrLifecycleMachine owns ALL PR review dispatch (061c807d)\nAUTOMATED_PR_PATTERNS exported from state-machine.ts\ncontext preserved on state transitions (not overwritten)\ngithub-mentions defers review_requested/assign to workflow engine\nSkills format: JSON.stringify() not .join(",") (f3b5159d)\narc-self-review: trigger state includes workflow transition cmd (806ce147)\nGH CLI GraphQL migration: fetchGitHubPRs() now uses gh api graphql\nbatched multi-repo query (was per-repo REST + credentials fetch)\nremoves fetchWithRetry + getCredential dependencies\nTERMINAL-STATE AUTO-COMPLETE (6b743823):\nNew PRs seen already closed/merged → completeWorkflow() immediately\nExisting workflows with no outgoing transitions → completeWorkflow()\nPrevents stuck workflow accumulation (fixed 159 stuck workflows task #10919)\nAPPROVED-PR GUARD (4292cef2): arcHasReview field in GithubPR\nGraphQL fetches last 20 reviews per PR (batched, no extra calls)\nmapPRStateToWorkflowState() → "approved" if Arc has any review\nRegression guard: approved → opened/review-requested blocked\nPR query: first:50 → last:50 (0fee0799) — most recent PRs now\nincluded even in high-activity repos (>50 total PRs)\nAUTO-CLOSE AUTOMATED PRs (46389bb8): buildReviewAction() returned null\nfor dependabot/release-please in 'opened' state → meta-sensor noop loop\nNow returns transition→closed for skipped PRs → auto-advances without human\nFixed 21 stuck automated PR workflows (pr-lifecycle completion 69%→normal)
         }
 
         state MemoryMaintenanceSensors {
@@ -113,6 +113,8 @@ stateDiagram-v2
             note right of arc_workflow_review: PASSIVE_WAITING_STATES guard (committed 2026-04-07)\nSet ["issue-opened", "changes-requested"] excluded from\n7-day stuck detection — these states legitimately sit idle for\nweeks waiting for external events (PR link, fix push)\nPrevents false-positive stuck-workflow alerts for normal hold states
             arc_skill_manager
             arc_self_audit
+            arc_purpose_eval
+            note right of arc_purpose_eval: NEW (f1e0a1f6) — 720-min cadence + date dedup\n4 SQL-measurable dimensions: Signal (25%), Ops (20%), Eco (20%), Cost (15%)\nScores computed from tasks + cycle_log, no LLM\nAuto-creates follow-up tasks for low-score dimensions:\n  signal≤2 → research signal-worthy topics\n  ops≤2 → failure triage\n  cost=1 → cost optimization review\n  ecosystem≤1 → PR review sweep\nCreates eval summary task (sonnet) for 3 LLM dimensions\nSensor count 70→71, skill count 103→104
             auto_queue
         }
 
@@ -131,7 +133,7 @@ stateDiagram-v2
             arc_self_review
             site_consistency
             agent_health
-            note right of agent_health: NEW (5f32865) — agent-health-loom\n120-min cadence, SSHes into Loom (Rising Leviathan)\nGathers: cycle_log metrics, task failure patterns,\ngit history, gate/watchdog state\nCreates Haiku analysis task only on YELLOW/RED\nGREEN conditions → skip (cost optimization)\nAll data pre-baked in task description (zero tool calls for Haiku)
+            note right of agent_health: NEW (5f32865) — agent-health-loom\n120-min cadence, SSHes into Loom (Rising Leviathan)\nGathers: cycle_log metrics, task failure patterns,\ngit history, gate/watchdog state\nCreates Haiku analysis task only on YELLOW/RED\nGREEN conditions → skip (cost optimization)\nAll data pre-baked in task description (zero tool calls for Haiku)\nSQL ESCAPING FIX (16110678): queryLoomDb shell command used single-quoted\nstring for bun --eval; SQL literals (datetime('now'), status='failed')\nbroke the outer single-quoted argument. POSIX '\''-escaping applied.
         }
 
         HealthSensors --> TaskQueue: queue if signal detected
@@ -289,11 +291,11 @@ stateDiagram-v2
     ContentSensors --> SignalAllocation
 ```
 
-## Sensor Count by Category (2026-04-06T18:35Z)
+## Sensor Count by Category (2026-04-08T18:50Z)
 
 | Category | Count |
 |----------|-------|
-| Memory/Maintenance | 14 |
+| Memory/Maintenance | 15 |
 | GitHub/PR | 10 |
 | Content/Publishing | 9 |
 | AIBTC/ERC-8004 | 7 |
@@ -302,9 +304,17 @@ stateDiagram-v2
 | Health | 2 |
 | Monitoring | 7 |
 | Other/Misc | 3 |
-| **Total** | **70** |
+| **Total** | **71** |
 
-*Note: aibtc-agent-trading NEW (5da9081c) — sensor count 68→69, skill count 100→101. Content/Publishing 8→9. Skill count 101→102 (arc-link-research/arc-workflow-review/zest-yield-manager fixes, no new sensor). Skill count 102→103: aibtc-news-editor installed (c7c03bec).*
+*Note: aibtc-agent-trading NEW (5da9081c) — sensor count 68→69, skill count 100→101. Content/Publishing 8→9. Skill count 101→102. Skill count 102→103: aibtc-news-editor (c7c03bec). arc-purpose-eval NEW (f1e0a1f6) — sensor count 70→71, skill count 103→104. Memory/Maintenance 14→15.*
+
+## Key Architectural Changes (2d7a735a → 1611067) [2026-04-08T18:50Z]
+
+| Change | Impact |
+|--------|--------|
+| **feat(arc-purpose-eval): data-driven PURPOSE eval sensor** (f1e0a1f6) | New sensor + skill in MemoryMaintenanceSensors. Scores 4 SQL-measurable PURPOSE dimensions (Signal 25%, Ops 20%, Ecosystem 20%, Cost 15%) from `tasks` and `cycle_log` tables. No LLM calls. 720-min interval + date-based dedup. Auto-creates follow-up tasks when scores are low. Creates sonnet eval task for 3 LLM-only dimensions. Sensor count 70→71, skill count 103→104. Complements `arc-strategy-review` by doing quantitative scoring first. |
+| **fix(arc-workflows): auto-close automated PR workflows** (46389bb8) | `buildReviewAction()` returned `null` for automated PRs (dependabot, release-please) in `opened` state — meta-sensor would noop indefinitely, creating stuck workflow accumulation. Fix: return `{ transition: 'closed' }` for null-action PRs so meta-sensor auto-advances via `completeWorkflow()`. Fixed 21 stuck automated PR workflows; pr-lifecycle completion rate recovered from ~69%. |
+| **fix(agent-health): escape single quotes in queryLoomDb** (16110678) | SSH-executed `bun --eval` script used single-quoted outer argument. SQL literals with single quotes (`datetime('now')`, `status = 'failed'`) broke the shell argument boundary. POSIX `'\''` escaping applied to embedded SQL before shell injection. Agent-health Loom queries now function correctly. |
 
 ## Key Architectural Changes (f4b88223 → 2d7a735a) [2026-04-08T07:10Z]
 

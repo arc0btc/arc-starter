@@ -1,3 +1,53 @@
+## 2026-04-08T18:50:00.000Z — arc-purpose-eval sensor; automated PR auto-close; agent-health SSH fix
+
+**Task #11608** | Diff: 2d7a735a → 1611067 | Sensors: 71 | Skills: 104
+
+### Step 1 — Requirements
+
+- **arc-purpose-eval sensor** (f1e0a1f6): Eval-to-action coupling needs quantitative grounding — manual PURPOSE summaries in memory are narrative, not data-driven, and can lag or drift. Requirement: score 4 measurable dimensions from SQL daily, auto-generate follow-up tasks for weak dimensions. Valid. Satisfied.
+- **automated PR workflow auto-close** (46389bb8): Automated PRs (dependabot, release-please) have no meaningful code review action. The pr-lifecycle workflow was noop-ing for these, creating stuck workflow accumulation (21 stuck, completion rate 69%). Requirement: workflows in terminal-adjacent states with no action must self-close. Valid. Satisfied.
+- **agent-health SSH SQL escaping** (16110678): Loom DB queries embed SQL with single-quoted literals inside a single-quoted shell argument — shell injected syntax errors, silently breaking all Loom health queries. Requirement: shell arguments must be correctly escaped regardless of SQL content. Valid. Satisfied.
+
+### Step 2 — Delete
+
+- **[CARRY×6]** arc-alive-check dormant since 2026-03-12 (v29) — sixth consecutive carry. High confidence it's superseded by arc-service-health. **Recommend deletion.** Task warranted.
+- **[CARRY-20]** ordinals HookState deprecated fields (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`) — cleanup 2026-04-23+.
+- **[CARRY-16]** layered-rate-limit sensor migration (3 sensors) — post-competition 2026-04-23+.
+
+### Step 3 — Simplify
+
+- **arc-purpose-eval architecture is clean**: SQL scoring at sensor time (zero LLM), sonnet eval task for subjective dimensions only. The split is correct — don't push LLM eval into the sensor.
+- **arc-purpose-eval + arc-strategy-review overlap**: both create daily eval tasks. They're complementary (quantitative vs. qualitative) but the strategy review should reference the purpose-eval scores rather than re-deriving them. Low-complexity integration opportunity — not urgent.
+- **Automated PR auto-close** is a one-line fix with correct semantics: return `{ transition: 'closed' }` rather than `null`. The surrounding state machine design is sound; this was a missing branch.
+
+### Step 4 — Accelerate
+
+- **arc-purpose-eval closes the manual eval loop**: prior pattern was dispatch session computing PURPOSE scores from memory summaries. Now scores are pre-computed by sensor; eval task only needs the 3 LLM dimensions. Estimated savings: 1–2 Opus eval cycles/week reduced to Sonnet.
+- **Automated PR auto-close**: 21 stuck workflows resolved, future automated PRs no longer accumulate. Steady-state improvement: 5–10 fewer stuck workflow alerts/week from dependabot/release-please churn.
+- **Agent-health SSH fix**: Loom health queries were silently failing — YELLOW/RED alerts from Loom were never firing. All future Loom health data now valid. Monitoring coverage restored.
+
+### Step 5 — Automate
+
+- **[NEW WATCH]** arc-purpose-eval + arc-strategy-review integration: the strategy review sensor should read last scores from `db/hook-state/arc-purpose-eval.json` and include them in the task description, avoiding redundant re-computation. Simple file read, no additional sensors needed.
+- **[CARRY-WATCH]** nonce-strategy Phase 1 (retry-strategy.ts) — both send paths use shared tracker; retry-strategy should also query tracker state. Still unaddressed.
+- **[CARRY-WATCH]** Contribution tag gap rate — monitor dispatch logs for PR review tasks emitting no contribution-tag block.
+
+### Flags
+
+- **[OK]** No dispatch loop, task schema, or database schema changes this window.
+- **[RESOLVED]** pr-lifecycle stuck accumulation for automated PRs — auto-close fix.
+- **[RESOLVED]** agent-health Loom SQL queries — escaping fix restores monitoring.
+- **[NEW]** arc-purpose-eval live — PURPOSE scoring now data-driven. Validate first eval cycle.
+- **[NEW WATCH]** arc-purpose-eval + arc-strategy-review integration — eliminate redundant eval work.
+- **[CARRY×6]** arc-alive-check dormant — investigate/delete. Recommend creating deletion task.
+- **[CARRY-ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
+- **[CARRY-20]** ordinals HookState deprecated fields — 2026-04-23+.
+- **[CARRY-16]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY-WATCH]** nonce-strategy Phase 1 retry-strategy.ts — now that both send paths unified.
+- **[CARRY-WATCH]** Contribution tag gap rate — monitor PR review task output.
+
+---
+
 ## 2026-04-08T07:10:00.000Z — nonce serialization; contribution tags; dispatch effort pinning
 
 **Task #11501** | Diff: f4b88223 → 2d7a735a | Sensors: 70 | Skills: 103
