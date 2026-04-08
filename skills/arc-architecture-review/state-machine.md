@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-04-07T18:37:00.000Z*
-*Sensor count: 70 | Skill count: 102*
+*Generated: 2026-04-08T07:10:00.000Z*
+*Sensor count: 70 | Skill count: 103*
 
 ```mermaid
 stateDiagram-v2
@@ -56,7 +56,7 @@ stateDiagram-v2
             note right of aibtc_agent_trading: NEW (5da9081c) — 2h cadence\nSources: JingSwap API (cycle/prices), ledger.drx4.xyz (P2P desk), aibtc.news/api/agents\nSignal types: jingswap-cycle, jingswap-price, p2p-activity, agent-growth\nStrength 50-95; P5 if >=70, P7 otherwise\nDiversity rotation: skips lastSignalType from prior run\nReplaces ordinals-market-data for agent-trading beat filing\nAIBTC-network-native data only (no CoinGecko/Unisat/mempool)
             note right of ordinals_market_data: Signal filing SUSPENDED (80322a56)\nSIGNAL_FILING_SUSPENDED=true — agent-trading beat scope mismatch\nData collection continues for cross-category context\nFlat-market rotation FIXED (f3b5159d): lastFlatMarketCategory\nin HookState rotates FLAT_MARKET_CATEGORIES — [GAP] CLOSED\n[CARRY-17] deprecated fields cleanup 2026-04-23+
             note right of arxiv_research: DUAL-BEAT routing (42d54a6e)\nInfrastructure: two-tier aibtc-relevance filter (d2bc3c0d)\nTier 1: MCP/x402/Stacks/Clarity/sBTC/BRC-20\nTier 2: agent + crypto/blockchain compound\nQuantum: quant-ph category + QUANTUM_KEYWORDS\nShor/Grover/ECDSA threats/BIP-360/P2QRH/NIST PQC\nBoth beats fire independently same day
-            note right of aibtc_news_editorial: validateBeatExists() pre-validates beat slug\nGET /api/beats before filing any signal (391e4921)\n10-min cache: db/beat-slug-cache.json\nFails early with available slugs listed\nx402 402-response fallback (09c036d0): POST /api/signals\nreturns 402 → bitcoin-wallet x402 execute-endpoint fallback\n[WATCH-CLOSED] beat-slug drift detection shipped
+            note right of aibtc_news_editorial: validateBeatExists() pre-validates beat slug\nGET /api/beats before filing any signal (391e4921)\n10-min cache: db/beat-slug-cache.json\nFails early with available slugs listed\nx402 402-response fallback (09c036d0): POST /api/signals\nreturns 402 → bitcoin-wallet x402 execute-endpoint fallback\n[WATCH-CLOSED] beat-slug drift detection shipped\nBEAT EDITOR SKILL (c7c03bec): aibtc-news-editor installed (skills-v0.37.0)\n9 new MCP tools: news_review_signal, news_editorial_review,\nnews_register_editor, news_deactivate_editor, news_list_editors,\nnews_editor_earnings, news_compile_brief, news_file_correction, news_update_beat\nINTEGRATION GATE: tools active when Arc gains editor status (#383)
         }
 
         state DeFiSensors {
@@ -66,14 +66,14 @@ stateDiagram-v2
             mempool_watch
             arc_payments
             zest_yield_manager
-            note right of zest_yield_manager: 60-min cadence\nChecks sBTC balance vs 200k-sat reserve\nQueues supply tasks (idle > threshold)\nQueues claim tasks (wSTX rewards > 1000 uSTX)\nAutonomous yield: idle sBTC → Zest ~3.5% APY\nContext fix (73c09c4d): skills=[zest-yield-manager, defi-zest]\ndefi-zest was missing → supply/claim ran without Zest context\n7 supply ops failed before fix; self-corrected by context-review sensor
+            note right of zest_yield_manager: 60-min cadence\nChecks sBTC balance vs 200k-sat reserve\nQueues supply tasks (idle > threshold)\nQueues claim tasks (wSTX rewards > 1000 uSTX)\nAutonomous yield: idle sBTC → Zest ~3.5% APY\nContext fix (73c09c4d): skills=[zest-yield-manager, defi-zest]\ndefi-zest was missing → supply/claim ran without Zest context\nNONCE SERIALIZATION (34e058ab+fa4decf2): tx-runner.ts calls acquireNonce()\nbefore any write command; --nonce injected into defi.ts argv\naccount.address (not .stxAddress) passed to acquireNonce\nAll Zest write ops coordinate via ~/.aibtc/nonce-state.json file lock\nOn failure: syncNonce() resets from Hiro
         }
 
         state AIBTCSensors {
             aibtc_heartbeat
             aibtc_inbox_sync
             aibtc_welcome
-            note right of aibtc_welcome: isRelayHealthy() probe 3: relay /status/sponsor\n(was Hiro nonce API, wallet 0 only)\nNow covers all 10 pool wallets (e5210b25)\nRemoves SPONSOR_ADDRESS + direct Hiro dependency
+            note right of aibtc_welcome: isRelayHealthy() probe 3: relay /status/sponsor\n(was Hiro nonce API, wallet 0 only)\nNow covers all 10 pool wallets (e5210b25)\nRemoves SPONSOR_ADDRESS + direct Hiro dependency\nNONCE SERIALIZATION (22e93116): stx-send-runner.ts calls acquireNonce()\nbefore transferStx() — local counter in ~/.aibtc/nonce-state.json\nPrevents ConflictingNonceInMempool when welcome + Zest ops run concurrently\nExplicit --nonce callers (gap-fill, RBF) bypass tracker unchanged\nOn failure: release as "broadcast" — tracker auto-resyncs after 90s
             erc8004_reputation
             erc8004_indexer
             identity_guard
@@ -192,7 +192,7 @@ stateDiagram-v2
             ReadTaskModel --> HaikuTier: model=haiku (explicit)
             ReadTaskModel --> CodexRoute: model=codex/*
             ReadTaskModel --> OpenRouterRoute: model=openrouter/*
-            note right of ReadTaskModel: ARC_DISPATCH_MODEL env var\nset from MODEL_IDS[model]\npassed to subprocess
+            note right of ReadTaskModel: ARC_DISPATCH_MODEL env var\nset from MODEL_IDS[model]\npassed to subprocess\nEFFORT PINNED (8dc10022): --effort explicit per model\nopus: --effort high, MAX_THINKING_TOKENS=30000\nhaiku/sonnet/test: --effort medium, MAX_THINKING_TOKENS=10000\nPrevents silent cost inflation from upstream default changes (v2.1.94)
         }
 
         state OpusTier {
@@ -235,7 +235,9 @@ stateDiagram-v2
         state PostDispatch {
             [*] --> RecordCycleLog
             RecordCycleLog --> RecordQuality
-            RecordQuality --> SafeCommit
+            RecordQuality --> ExtractContributionTag
+            ExtractContributionTag --> SafeCommit
+            note right of ExtractContributionTag: NEW (fe033d92): parses ```contribution-tag\nblock from result_detail (aibtc-repo-maintenance tasks)\ninserts row into contribution_tags table\nfields: repo, pr_number, type, contributor_type,\nquality_score, cost_usd, tags\nlogs gap warning for PR review tasks with no tag
             SafeCommit --> SyntaxGuard: staged .ts files
             SyntaxGuard --> LintModelField: syntax OK
             SyntaxGuard --> BlockCommit: syntax error → follow-up task
@@ -302,7 +304,19 @@ stateDiagram-v2
 | Other/Misc | 3 |
 | **Total** | **70** |
 
-*Note: aibtc-agent-trading NEW (5da9081c) — sensor count 68→69, skill count 100→101. Content/Publishing 8→9. Skill count 101→102 (arc-link-research/arc-workflow-review/zest-yield-manager fixes, no new sensor).*
+*Note: aibtc-agent-trading NEW (5da9081c) — sensor count 68→69, skill count 100→101. Content/Publishing 8→9. Skill count 101→102 (arc-link-research/arc-workflow-review/zest-yield-manager fixes, no new sensor). Skill count 102→103: aibtc-news-editor installed (c7c03bec).*
+
+## Key Architectural Changes (f4b88223 → 2d7a735a) [2026-04-08T07:10Z]
+
+| Change | Impact |
+|--------|--------|
+| **fix(defi-zest+bitcoin-wallet): nonce serialization** (22e93116, 34e058ab, fa4decf2) | Root cause of day-17–19 ConflictingNonceInMempool cascade: Zest tx-runner and stx-send-runner both fetched nonce from Hiro independently. When a welcome STX send had incremented the local counter but Hiro hadn't confirmed yet, both got nonce N → conflict. Fix: `stx-send-runner.ts` calls `acquireNonce()` before `transferStx()`; `tx-runner.ts` calls `acquireNonce()` and injects `--nonce` into `defi.ts` argv. All STX-sending paths now coordinate via `~/.aibtc/nonce-state.json` file lock. On failure: conservative "broadcast" release + 90s auto-resync from Hiro. Also fixed `account.address` (was `.stxAddress` — undefined → Hiro 400 on every Zest write). |
+| **feat(contribution-tags): Phase 1 schema + extraction** (fe033d92) | New `contribution_tags` table in `src/db.ts` with indexes on repo/type/contributor/tagged_at. `src/contribution-tags.ts` adds `extractContributionTagFromText()` + `insertContributionTag()`. `dispatch.ts` PostDispatch phase now parses ` ```contribution-tag ` block from `result_detail` and inserts row. `aibtc-repo-maintenance/AGENT.md` step 8 instructs dispatched agents to emit tags. Enables PR review quality/cost attribution at the repo+type level. |
+| **feat(web): /api/contributions endpoints** (2f60e5e3) | Phase 2: `GET /api/contributions?period=day\|week\|month` returns aggregates (by_type, by_repo, by_contributor_type, review_velocity, review_quality, cost). `GET /api/contributions/stream?limit=N` returns last N tagged contributions. `GET /api/status` enhanced with `contributions_today` summary (reviews, features, bugfixes, blocking_issues). |
+| **feat(aibtc-news-editor): install beat editor skill** (c7c03bec) | `aibtc-news-editor` skill installed from skills-v0.37.0. 9 MCP tools for agent-news beat editor delegation (news_review_signal, news_editorial_review, news_register_editor, etc.). Integration gate: tools active when Arc gains beat editor status (auditioned for Infrastructure beat, issue #383). Skill count 102→103. |
+| **fix(dispatch): pin effort level + thinking token cap** (8dc10022) | v2.1.94 changed upstream default effort from medium→high. Arc was uncapped for opus cycles. Fix: opus gets `--effort high, MAX_THINKING_TOKENS=30000`; haiku/sonnet/test get `--effort medium, MAX_THINKING_TOKENS=10000`. All explicit — future upstream default changes cannot silently inflate cost. |
+| **feat(dispatch): sessionTitle in UserPromptSubmit hook** (b1c051e0) | Session title set to `task #{id}: {subject}` via `ARC_TASK_ID`/`ARC_TASK_SUBJECT` env vars. Dispatch logs now show readable task context. |
+| **fix(context-review): bypass llms.txt + presentation.html tasks** (4cbfcc4b, 2d7a735a) | `context-review/sensor.ts` now skips keyword analysis for tasks with subject matching `Update llms` or `presentation.html`. Release-note enumeration of BFF skill names triggered false DeFi context alerts. Subject-prefix bypass pattern consistent with existing exclusion logic. |
 
 ## Key Architectural Changes (0fee0799 → f4b88223) [2026-04-07T18:37Z]
 

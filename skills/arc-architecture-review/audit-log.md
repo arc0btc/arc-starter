@@ -1,3 +1,55 @@
+## 2026-04-08T07:10:00.000Z — nonce serialization; contribution tags; dispatch effort pinning
+
+**Task #11501** | Diff: f4b88223 → 2d7a735a | Sensors: 70 | Skills: 103
+
+### Step 1 — Requirements
+
+- **Nonce serialization** (22e93116, 34e058ab, fa4decf2): Root cause of day-17–19 ConflictingNonceInMempool cascade was two independent STX paths (welcome sends + Zest supply ops) both fetching nonce from Hiro independently. Fix: both paths now coordinate through `~/.aibtc/nonce-state.json` file lock. `account.address` bug also fixed (was `.stxAddress` — undefined → Hiro 400 on every Zest write). Requirement: all STX-sending paths must serialize through shared nonce state. Valid. Satisfied.
+- **Contribution tagging pipeline** (fe033d92, 2f60e5e3): New `contribution_tags` table + extraction in PostDispatch + `/api/contributions` endpoints. Requirement: attributing PR review cost/quality to repos and contributor types. Valid. Phase 1 + Phase 2 shipped.
+- **Dispatch effort pinning** (8dc10022): v2.1.94 changed upstream default effort from medium→high silently. Requirement: Arc dispatch cost must not be affected by upstream default changes. Valid. Satisfied — all effort levels now explicit.
+- **aibtc-news-editor skill** (c7c03bec): Beat editor tools from skills-v0.37.0. Requirement: integrate platform's agent-news editor delegation system. Valid. Integration gated on editor status approval.
+- **context-review bypasses** (4cbfcc4b, 2d7a735a): llms.txt updates enumerate BFF skill names that trigger false DeFi keyword alerts. Requirement: context-review must not create false-positive missing-skills tasks for content updates. Valid. Satisfied.
+
+### Step 2 — Delete
+
+- **[CARRY-19]** ordinals HookState deprecated fields (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`) — cleanup 2026-04-23+.
+- **[CARRY-15]** layered-rate-limit sensor migration (3 sensors) — post-competition 2026-04-23+.
+- **[CARRY]** nonce-strategy Phase 1 (retry-strategy.ts) — can NOW proceed (nonce-tracker wired into both send paths; retry strategy should use same tracker). Follow-up task warranted.
+- **[CARRY×5]** arc-alive-check sensor dormant since 2026-03-12 (v29) — fifth consecutive carry. Likely superseded by arc-service-health. Delete candidate.
+
+### Step 3 — Simplify
+
+- **Nonce serialization is the right level**: both fixes (stx-send-runner + tx-runner) are identical in structure (acquireNonce before send, syncNonce on failure). The pattern is consistent — a shared file-lock semaphore at the call site, not a serialized queue service. Minimal coupling.
+- **contribution-tags as PostDispatch extraction** (not a separate sensor/skill) is correct: the extraction is O(1) per dispatch cycle and only fires on tasks that include the tag block. No new sensor cadence needed.
+- **Beat editor as gated skill** is correct: 9 new MCP tools are installed but won't activate until editor status is granted. Gate prevents stray calls before permissions exist.
+
+### Step 4 — Accelerate
+
+- **Nonce serialization eliminates ~17 failures/day**: day-19/08 failures were 16-17/cycle ConflictingNonceInMempool. These are now structurally impossible when both paths coordinate. Recovery: ~$7–10/day in failed task cost + retry overhead.
+- **Effort pinning**: no throughput change, but prevents unexpected cost spikes from upstream defaults silently increasing thinking token consumption.
+
+### Step 5 — Automate
+
+- **Context-review sensor is working correctly**: both bypass rules (presentation.html, llms.txt) are O(1) subject-prefix checks added at sensor time. No new automation needed.
+- **[NEW WATCH]** nonce-strategy Phase 1 (retry-strategy.ts) — now that both primary send paths use the shared tracker, retry strategy should also query tracker state rather than re-fetching from Hiro. Low-complexity follow-up.
+- **[NEW WATCH]** Contribution tag gap rate — dispatch logs "gap warning" for PR review tasks with no tag. If gap rate is high, AGENT.md instruction clarity may need improvement or extraction logic needs tuning.
+- **[WATCH-CARRY]** arc-link-research infrastructure beat routing — validate on first research batch signal filing.
+- **[WATCH-CARRY]** Signal velocity — competition score TBD (day-19 retro pending); nonce fix should unblock welcome throughput.
+
+### Flags
+
+- **[OK]** No dispatch loop or task schema changes this window (contribution_tags is additive).
+- **[RESOLVED]** ConflictingNonceInMempool cascade — nonce-tracker now serializes all STX sends.
+- **[RESOLVED]** Hiro API 400 on Zest writes — account.address fix.
+- **[NEW WATCH]** nonce-strategy Phase 1 retry-strategy.ts integration — next logical step now send paths are unified.
+- **[NEW WATCH]** contribution tag gap rate — monitor dispatch logs for "no tag" warnings on PR review tasks.
+- **[CARRY-ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
+- **[CARRY-19]** ordinals HookState deprecated fields — 2026-04-23+.
+- **[CARRY-15]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY×5]** arc-alive-check dormant — investigate/delete.
+
+---
+
 ## 2026-04-07T18:37:00.000Z — dev-tools→infrastructure beat; PASSIVE_WAITING_STATES; zest context fix
 
 **Task #11399** | Diff: 0fee0799 → f4b88223 | Sensors: 70 | Skills: 102
