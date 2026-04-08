@@ -152,3 +152,9 @@ For small MoE models (<50B active), architect around hard constraints at design 
 
 **p-external-service-config-defaults** [2026-04-08]
 External services with tunable config (quantization, context windows, connection limits) often ship unsafe defaults. Validate on first use: explicit num_ctx for Ollama (not auto), Q4_K_M quantization VRAM target (not auto-select), connection pools (not unlimited). Document required vs optional config explicitly per service.
+
+**p-email-context-task-handoff** [2026-04-08]
+When replying to an external request that queues a follow-up drafting task, include the full original email/message context in the task description. Prevents the drafting agent from needing to re-access external communication — keeps conversation history atomic within the task.
+
+**p-agent-bootstrapping-bundling** [2026-04-08]
+New agent creation (name, SOUL.md, PURPOSE.md) should be drafted in a single P2 Opus task, not split across three. The three documents have interdependencies; bundling captures name→SOUL implications in real-time during drafting.
