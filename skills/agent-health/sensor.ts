@@ -221,10 +221,17 @@ async function queryLoomDb(
   sql: string,
 ): Promise<Array<Record<string, unknown>>> {
   const dbPath = join(config.paths.root, config.paths.db).replace("~", "/home/dev");
-  // Escape double quotes in SQL for embedding in the bun --eval string
+  // Escape double quotes in SQL for embedding in the JS string inside bun --eval
   const escapedSql = sql.replace(/"/g, '\\"');
 
-  const bunCmd = `cd ~/arc-starter && bun --eval 'import{Database}from"bun:sqlite";const db=new Database("${dbPath}",{readonly:true});const r=db.prepare("${escapedSql}").all();process.stdout.write(JSON.stringify(r));'`;
+  // Build the eval script, then escape single quotes for shell embedding.
+  // SQL often contains single-quoted literals like datetime('now') or status='failed'.
+  // These would prematurely terminate the outer single-quoted shell argument.
+  // The POSIX workaround is: replace each ' with '\'' (end quote, literal ', reopen quote).
+  const evalScript = `import{Database}from"bun:sqlite";const db=new Database("${dbPath}",{readonly:true});const r=db.prepare("${escapedSql}").all();process.stdout.write(JSON.stringify(r));`;
+  const shellEscapedEval = evalScript.replace(/'/g, "'\\''");
+
+  const bunCmd = `cd ~/arc-starter && bun --eval '${shellEscapedEval}'`;
 
   const output = await sshExec(config.ssh.host, config.ssh.user, bunCmd);
   if (!output || output === "") return [];
