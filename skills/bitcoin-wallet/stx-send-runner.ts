@@ -10,6 +10,7 @@
 import { getWalletManager } from "../../github/aibtcdev/skills/src/lib/services/wallet-manager.js";
 import { transferStx } from "../../github/aibtcdev/skills/src/lib/transactions/builder.js";
 import type { Account } from "../../github/aibtcdev/skills/src/lib/transactions/builder.js";
+import { acquireNonce, releaseNonce } from "../../github/aibtcdev/skills/src/lib/services/nonce-tracker.js";
 
 const walletId = process.env.WALLET_ID;
 const walletPassword = process.env.WALLET_PASSWORD;
@@ -98,18 +99,44 @@ try {
 try {
   const account = wm.getAccount() as Account;
 
-  const result = await transferStx(account, recipient, amountMicroStx, memo, explicitFee, explicitNonce);
+  // Use nonce-tracker to serialise concurrent STX sends across dispatch cycles.
+  // Skip when caller provides an explicit nonce (gap-fill / RBF flows).
+  let nonce = explicitNonce;
+  let trackedNonce: number | undefined;
+  if (nonce === undefined) {
+    const acquired = await acquireNonce(account.stxAddress);
+    trackedNonce = acquired.nonce;
+    nonce = BigInt(acquired.nonce);
+  }
 
-  console.log(JSON.stringify({
-    success: true,
-    txid: result.txid,
-    recipient,
-    amount_stx: amountStx,
-    amount_micro_stx: amountMicroStx.toString(),
-    memo: memo || undefined,
-    ...(explicitNonce !== undefined && { nonce: explicitNonce.toString() }),
-    explorer: `https://explorer.hiro.so/txid/${result.txid}?chain=mainnet`,
-  }));
+  try {
+    const result = await transferStx(account, recipient, amountMicroStx, memo, explicitFee, nonce);
+
+    if (trackedNonce !== undefined) {
+      await releaseNonce(account.stxAddress, trackedNonce, true, undefined, result.txid);
+    }
+
+    console.log(JSON.stringify({
+      success: true,
+      txid: result.txid,
+      recipient,
+      amount_stx: amountStx,
+      amount_micro_stx: amountMicroStx.toString(),
+      memo: memo || undefined,
+      nonce: nonce.toString(),
+      explorer: `https://explorer.hiro.so/txid/${result.txid}?chain=mainnet`,
+    }));
+  } catch (txErr) {
+    if (trackedNonce !== undefined) {
+      // Treat as broadcast (conservative): do not roll back the nonce counter.
+      // The nonce-tracker auto-syncs from Hiro after 90s if the conflict turns
+      // out to be a false alarm; in the meantime we avoid re-using a nonce that
+      // may already be in the mempool from a prior tx.
+      await releaseNonce(account.stxAddress, trackedNonce, false, "broadcast");
+    }
+    const msg = txErr instanceof Error ? txErr.message : String(txErr);
+    console.log(JSON.stringify({ success: false, error: "STX transfer failed", detail: msg }));
+  }
 } catch (err) {
   const msg = err instanceof Error ? err.message : String(err);
   console.log(JSON.stringify({ success: false, error: "STX transfer failed", detail: msg }));
