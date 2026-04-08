@@ -175,7 +175,7 @@ function reconcileOldSourceTasks(welcomedSet: Set<string>): void {
   let added = 0;
   for (const task of oldTasks) {
     if (!task.description) continue;
-    const match = task.description.match(/STX: (SP[A-Z0-9]+)/);
+    const match = task.description.match(/STX: (SP[A-Z0-9]{38,40})/);
     if (match && !welcomedSet.has(match[1])) {
       welcomedSet.add(match[1]);
       added++;
