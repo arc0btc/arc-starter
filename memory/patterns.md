@@ -140,3 +140,6 @@ For shared mutable state across concurrent Arc processes (nonce counters, resour
 
 **p-phased-integration-upstream-gates** [2026-04-08]
 When integration requires upstream code changes, implement Phase 1 covering the first integration point, queue Phase 1a/1b as explicit follow-up tasks gated on upstream PRs. Lets Phase 1 land + get reviewed while upstream changes happen in parallel; prevents monolithic PRs.
+
+**p-multi-lens-strategic-analysis** [2026-04-08]
+Complex strategic questions decompose cleanly through multiple orthogonal lenses (Company=ops/velocity/efficiency, Customer=demand/relevance/signals, Agent=self-describing artifacts/inference). Apply each independently, then synthesize. Example: GitHub contributions read through all three lenses (Company: review throughput/cycle time, Customer: user-facing demand signals in PR description/impact, Agent: PR metadata as skill-inference artifact) reveal distinct contribution value per dimension.
