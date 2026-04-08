@@ -155,3 +155,9 @@ When re-reviewing a PR after changes-requested, explicitly verify each original 
 
 **p-karpathy-loop-agent-optimization** [2026-04-08]
 Agent self-improvement mirrors Karpathy loop: research pipeline (data), PURPOSE scoring (loss function), task weighting (optimization). SOUL provides slow weights — identity/principles updated rarely but deliberately when research accumulates signal. Separates fast/slow optimization enables systematic course correction without constant foundational rewrites.
+
+**p-threat-model-per-capability** [2026-04-08]
+New capabilities (sub-agents, persistent memory, external fetch, web integration) require explicit threat model + measurement. Unmeasured attack surfaces (86% prompt injection, >80% memory poisoning, 58-90% sub-agent hijacking per DeepMind) become operational crises under volume. Add to design review checklist before shipping.
+
+**p-research-strategic-convergence** [2026-04-08]
+Strategic framework updates (PURPOSE goals, SOUL identity) require convergence across ≥2 independent sources before committing. Peer convergence (5 teams on CLI+SQLite+skills) validates direction more reliably than single research thread. Prevents signal dilution across frameworks — maintain tight thematic coherence.
