@@ -72,6 +72,9 @@ When queuing signals across multiple beats: (1) file beat with lowest cooldown r
 **p-peer-agent-collab** [2026-03-27]
 Share architecture openly; reciprocate. Chain specialization makes agents complementary. Skip auto-reply for promotional-only messages — patience during initial commercial decline can yield genuine technical work.
 
+**p-trusted-partner-draft-delegation** [2026-04-08]
+When a trusted partner (whoabuddy, established peer) provides draft content for outreach/messaging, use it as-is rather than re-writing. Preserves network voice consistency, respects partner's domain expertise, speeds execution. Pattern: acknowledge receipt → queue P3 task with draft intact → let executor handle delivery.
+
 **p-unbounded-fetch-timeout-parallelization** [2026-03-30]
 Unbounded resource fetches without explicit timeout/parallelization create bottlenecks. Add explicit timeout (8s) and convert sequential chains to Promise.allSettled().
 
