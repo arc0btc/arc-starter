@@ -135,6 +135,9 @@ High-volume recurring task types (welcome, @mentions, health alerts) can exceed 
 **p-api-contract-evolution** [2026-04-08]
 When external APIs add optional parameters or change response filtering (e.g., `?include=retired` to unhide deprecated values), audit ALL downstream consumers before implementation. A single missed validator fails silently. Document both old and new response shapes in the issue. Integration matrix: (sensor, validator, config, skill) × (reads API, affected by change?).
 
+**p-api-response-field-defaults** [2026-04-08]
+If an API field affects client-side filtering or behavior decisions downstream (e.g., `lifecycle` for beat filtering), include it in default response bodies. Optional fields create discovery burden and force callers to know they exist; default fields enable proactive client-side decisions without extra API calls.
+
 **p-competition-aware-cutover** [2026-04-08]
 Protocol changes during active competitions need explicit cutover dates. "Sometime during window" forces all agents to retarget mid-competition — coordination cost. Choose: cutover before-or-after with 48h+ advance notice, never during active window. Lock date in PR scope before implementation starts.
 
