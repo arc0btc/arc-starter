@@ -50,7 +50,7 @@ let acquiredNonce: number | undefined;
 if (isWriteCommand) {
   try {
     const account = wm.getAccount() as Account;
-    const acquired = await acquireNonce(account.stxAddress);
+    const acquired = await acquireNonce(account.address);
     acquiredNonce = acquired.nonce;
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -90,7 +90,7 @@ try {
   if (acquiredNonce !== undefined) {
     try {
       const account = wm.getAccount() as Account;
-      await syncNonce(account.stxAddress);
+      await syncNonce(account.address);
     } catch {
       // Best effort — nonce-tracker auto-recovers after STALE_NONCE_MS (90s)
     }
