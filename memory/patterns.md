@@ -22,16 +22,13 @@ Signal filing has TWO independent gates: (1) daily task count (6/day) AND (2) pe
 For rate limits with reset windows (402, 429): extract reset time, write to hook-state, skip silently within window. One log per window prevents alert fatigue.
 
 **p-workflow-management** [2026-04-06]
-Audit template-level state counts before follow-up tasks to identify true bottleneck. Batch-advance identical stuck instances (10-20x overhead reduction vs individual). For workflows tracking external systems (GitHub issues, files, emails), validate external state before closing — stale DB workflows may reflect already-resolved external state.
+Audit template-level state counts before follow-up tasks to identify true bottleneck. Batch-advance identical stuck instances (10-20x overhead reduction vs individual). Validate external state before closing — stale DB workflows may reflect already-resolved external state.
 
-**p-audit-findings-persistence** [2026-04-06]
-Persist audit/compliance findings details (skill name, line numbers, violation type) in task context — not just counts. Lost findings force expensive re-runs.
-
-**p-audit-gap-categorization** [2026-04-08]
-Categorize audit gaps by resolution mechanism: (1) auto-updated sources — no follow-up needed; (2) static content — queue P5 maintenance; (3) dependent on external changes — reference open PRs in follow-up. Gap category drives priority.
+**p-audit-discipline** [2026-04-08]
+Persist audit findings with detail (skill name, line numbers, violation type) — lost findings force expensive re-runs. Categorize gaps by resolution: (1) auto-updated sources — no follow-up; (2) static content — queue P5 maintenance; (3) dependent on external changes — reference open PRs. Gap category drives priority.
 
 **p-shared-resource-serialization** [2026-04-08]
-When concurrent tasks modify the same account/nonce pool, serialize via shared tracking file + acquire-before-execute. Use mkdir-based locks for filesystem-level atomicity. Don't roll back counter on tx failure (tx may be in mempool); rely on periodic resync on staleness (>90s). Inject resource via CLI parameter through all call layers.
+Concurrent tasks on the same account/nonce pool must serialize via shared tracking file + acquire-before-execute. Use mkdir-based locks for atomicity. Don't roll back counter on tx failure (tx may be in mempool); resync on staleness (>90s). Inject resource via CLI parameter through all call layers.
 
 **p-stale-mention-precheck** [2026-04-04]
 @mention notifications arrive for already-merged/closed PRs. Filter @mentions older than 48h or check PR/issue status before queuing review.
@@ -44,22 +41,16 @@ When triaging N independent items (research links, PRs, email batches): quick-sc
 **p-content-fetch-fallback-chain** [2026-04-07]
 For fetched content (Twitter/X, JS-locked articles): (1) direct API, (2) web search (often returns full text), (3) synthesis from metadata. Cache all results to avoid refetches.
 
-**p-research-value-extraction** [2026-04-07]
-Research failing beat-match still yields value: architecture-validating work produces analysis docs; low-relevance research yields transferable market signals. Extract both even when not signal-eligible.
-
-**p-research-classifier-ambiguity** [2026-04-07]
-Auto-classifiers matching single ambiguous keywords ("stacks", "agent") without semantic context produce false positives. Require domain/context validation for high-ambiguity terms.
+**p-research-signal-extraction** [2026-04-07]
+Research failing beat-match still yields architecture/market value — extract both even when not signal-eligible. Auto-classifiers matching ambiguous keywords ("stacks", "agent") without semantic context produce false positives; require domain/context validation for high-ambiguity terms.
 
 **p-synthesis-pattern** [2026-03-30]
 After N parallel tasks complete, synthesis must prioritize findings — not just aggregate. Three layers: (1) objective findings, (2) client-aligned picks, (3) agent's own observations.
 
-**p-pr-prereview-preexisting-triage** [2026-03-30]
-When re-reviewing a PR after follow-up commits, distinguish pre-existing failures from PR-introduced ones by checking creation dates and diff scope.
-
 ## Signal Quality
 
 **p-beat-slug-drift** [2026-03-31]
-External platforms rename beats without notice; sensors silently fail with 404. When publisher rejects signals or scope clarification arrives, suspend filing but keep data collection running — identify network-native replacement sources. Validate beat existence on first run or detect 404s explicitly.
+External platforms rename beats without notice; sensors silently fail with 404. Validate beat existence on first run or detect 404s explicitly. When publisher rejects signals, suspend filing but keep data collection running — identify network-native replacement sources.
 
 **p-signal-quality** [2026-04-04]
 Signals require AIBTC-network-native angle: "Does this impact AIBTC protocol, agents, or infrastructure?" Operational metrics (nonce progression, relay throughput, custody state transitions) are valid signals — the metric IS the network state, no extracted angle needed.
@@ -67,22 +58,25 @@ Signals require AIBTC-network-native angle: "Does this impact AIBTC protocol, ag
 **p-sensor-diversity-enforcement** [2026-04-06]
 Rotating/fallback mechanisms that pick "first valid" saturate a single category. Rotate order, randomize, or gate category usage per cycle. Prefer strongest signal NOT matching last filed type.
 
-**p-aggregate-query-transparency** [2026-04-07]
-For APIs exposing aggregated numeric fields: audit WHERE clauses against business intent. Missing filters (e.g., `payout_txid IS NOT NULL`) silently inflate totals. Split into paid + unpaid observable fields; use CTEs to isolate filter logic.
-
 **p-parallel-multiSource-graceful-degrade** [2026-04-06]
 Multi-source sensors: fetch all in parallel via Promise.all(). Validate "at least Nth sources OR essential source succeeded" before proceeding. Single failed source doesn't block.
+
+**p-beat-research-freshness-precheck** [2026-04-08]
+Before investing research effort across beats, validate data freshness: infrastructure beat often has live recent artifacts; quantum/governance beats require synthesis from slower sources; operational beats degrade quickly. Skip beats with stale core data (>1 month) unless synthesis creates new angle.
+
+**p-multi-beat-filing-queue-ordering** [2026-04-08]
+When queuing signals across multiple beats: (1) file beat with lowest cooldown risk first, (2) queue remaining with explicit cooldown windows, (3) skip beats with insufficient data rather than filing weak signals. Prevents cooldown collision and maximizes signal quality.
 
 ## Agent Design
 
 **p-peer-agent-collab** [2026-03-27]
-Share architecture openly; reciprocate. Chain specialization makes agents complementary. Skip auto-reply for promotional-only messages — patience during initial commercial decline can yield genuine technical work. Gate reply cost against substantive value.
+Share architecture openly; reciprocate. Chain specialization makes agents complementary. Skip auto-reply for promotional-only messages — patience during initial commercial decline can yield genuine technical work.
 
 **p-unbounded-fetch-timeout-parallelization** [2026-03-30]
 Unbounded resource fetches without explicit timeout/parallelization create bottlenecks. Add explicit timeout (8s) and convert sequential chains to Promise.allSettled().
 
 **p-tool-state-verification** [2026-04-07]
-External tools may report state changes without actually persisting. Watch for invalid filename chars (colons fail on filesystem), tool output claiming success but file missing. Bypass tool state and use direct API calls when success is unverifiable.
+External tools may report state changes without actually persisting. Watch for invalid filename chars, tool output claiming success but file missing. Bypass tool state and use direct API calls when success is unverifiable.
 
 **p-security-threat-model** [2026-04-08]
 New capabilities (sub-agents, persistent memory, external fetch) require explicit threat model + measurement before shipping. Sanitize fetched content: strip malicious prompts, normalize encodings, validate structure. DeepMind: 86% prompt injection, >80% memory poisoning, 58-90% sub-agent hijacking — unmeasured surfaces become operational crises under volume.
@@ -94,13 +88,13 @@ Smart contracts: (1) spec inputs/outputs/state-transitions/errors first — mand
 Classify error before deciding recovery. Relay-side transient (NONCE_CONFLICT) → resubmit same tx. Sender-side state conflict (ConflictingNonceInMempool) → release nonce, re-acquire fresh, rebuild. Unclassified errors cascade across shared nonce pool.
 
 **p-revision-loop-primitive** [2026-04-07]
-Encode review/revision cycles as first-class workflow primitives. Check approval state before queuing a review (prevents duplicate floods — root of 33 failures/day days 17–18). On re-review, explicitly verify each originally flagged item was fixed before approving.
+Encode review/revision cycles as first-class workflow primitives. Check approval state before queuing a review (prevents duplicate floods). On re-review, explicitly verify each originally flagged item was fixed before approving.
 
 **p-purpose-eval-as-optimizer** [2026-04-06]
-Daily PURPOSE evals expose directive gaps precisely → low-scoring directives become next-cycle priorities (eval-to-action coupling). Mirrors Karpathy loop: research pipeline (data), PURPOSE scoring (loss function), task weighting (optimization). SOUL provides slow weights — update deliberately when research converges across ≥2 independent sources.
+Daily PURPOSE evals expose directive gaps → low-scoring directives become next-cycle priorities (eval-to-action coupling). Mirrors Karpathy loop: research pipeline (data), PURPOSE scoring (loss function), task weighting (optimization). SOUL provides slow weights — update deliberately when research converges across ≥2 independent sources.
 
 **p-strategic-communication** [2026-04-06]
-Non-operational/foundational requests: reply immediately to close async loop, queue P2 Opus task for substantive analysis. Multi-item feedback: reply with numbered action list for confirmation, then queue as single bundled P1 if structurally interdependent, or split P1/P2 if independent. Surfaces dependencies early, prevents revision ping-pong.
+Non-operational requests: reply immediately to close async loop, queue P2 Opus task for substantive analysis. Multi-item feedback: reply with numbered action list, queue as single bundled P1 if interdependent or split P1/P2 if independent. Surfaces dependencies early, prevents revision ping-pong.
 
 **p-skill-lifecycle-management** [2026-04-07]
 Skills accumulate with no scoring or retirement. Implement: (1) usage tracking, (2) performance scoring (success rate, cost/benefit), (3) retirement gates (unused >6mo OR score <0.5). Archive rather than delete.
@@ -108,14 +102,8 @@ Skills accumulate with no scoring or retirement. Implement: (1) usage tracking, 
 **p-prefix-caching-stable-context** [2026-04-07]
 Stable context files (CLAUDE.md, SOUL.md, patterns.md) load identically every dispatch. Use Claude API prefix_caching on stable contexts to reduce per-task cost and latency. Weekly-change files (MEMORY.md) cache less effectively.
 
-**p-git-history-artifact-recovery** [2026-04-07]
-For recovering recent work iterations, use git log before reconstructing from memory. Git provides timestamped sequence and file locations; more reliable than memory for deleted skills/features.
-
-**p-presentation-narrative-first** [2026-04-07]
-Status/progress decks: structure by narrative arc (problem→response→outcome), not data types. Enforce slide-count limit first (forces prioritization), then compile metrics to fit story.
-
 **p-upstream-watch-integration** [2026-04-06]
-When approving critical upstream repositories, add to watch list in the same task. When audit/review tasks create follow-ups on shared components, check for open PRs first and reference them in follow-up description — enables async bundling, prevents revision ping-pong when parallel work lands simultaneously.
+When approving critical upstream repositories, add to watch list in the same task. When audit/review tasks create follow-ups on shared components, check for open PRs first and reference them — enables async bundling, prevents revision ping-pong when parallel work lands simultaneously.
 
 **p-phased-integration-upstream-gates** [2026-04-08]
 When integration requires upstream code changes, implement Phase 1 for the first integration point, queue Phase 1a/1b as follow-ups gated on upstream PRs. Prevents monolithic PRs; lets Phase 1 land while upstream changes happen in parallel.
@@ -124,31 +112,19 @@ When integration requires upstream code changes, implement Phase 1 for the first
 Domain data generated during task execution should emit structured blocks (fenced JSON) in result_detail. Post-cycle hook extracts and indexes into separate tables. Data capture stays close to task context; no new sensors needed; extensible across task types.
 
 **p-research-strategic-convergence** [2026-04-08]
-Strategic framework updates require convergence across ≥2 independent sources before committing. Peer convergence (e.g., 5 teams independently on CLI+SQLite+skills) validates direction more reliably than a single thread. Apply multi-lens analysis (Company/ops, Customer/demand, Agent/inference) — each lens reveals distinct value dimensions that single-lens analysis misses.
+Strategic framework updates require convergence across ≥2 independent sources before committing. Peer convergence (e.g., 5 teams independently on CLI+SQLite+skills) validates direction more reliably than a single thread. Apply multi-lens analysis (Company/ops, Customer/demand, Agent/inference) to surface distinct value dimensions.
 
-**p-institutional-proposal-workflow** [2026-04-06]
-Framework proposals with bounties: (1) public gist comment extending proposal, (2) private email with full analysis + numbered follow-up tasks, (3) task queueing. Separates public signal from execution planning.
-
-**p-external-resource-prevalidation** [2026-04-08]
-Tasks depending on external files/resources (Google Drive, local paths, uploaded files) should validate existence upfront before execution. Clarify path ambiguity (local vs server) synchronously rather than trying multiple lookup strategies — prevents cascading work on unavailable resources.
-
-**p-infrastructure-validation-before-commitment** [2026-04-08]
-For data-driven systems (sensors, metrics, evals), validate that source infrastructure (APIs, databases, queries) exists and is queryable BEFORE committing to multi-task implementation. Single sync with stakeholder can unblock entire initiative; missing infrastructure drastically changes scope (SQL queries vs memory parsing).
+**p-resource-validation** [2026-04-08]
+Tasks depending on external files/resources should validate existence upfront before execution. For data-driven systems (sensors, metrics), also validate that source infrastructure (APIs, databases, queries) exists and is queryable BEFORE committing to multi-task implementation. Missing infrastructure drastically changes scope.
 
 **p-debug-method-verification** [2026-04-08]
-When debugging infrastructure/tool failures, verify the implementation method (API used, DB access pattern, tool invocation) matches the expected pattern BEFORE investigating specific failure modes. Implementation method mismatches propagate across all dependent operations; confirm method first saves iterating on symptoms.
+When debugging failures, verify the implementation method (API used, DB access pattern, tool invocation) matches the expected pattern BEFORE investigating specific failure modes. Method mismatches propagate across all dependent operations.
 
 **p-purpose-outcome-closure** [2026-04-08]
-PURPOSE-driven task generation needs external outcome tracking to close the feedback loop: signal acceptance, PR merges, agent onboarding success. Without measuring whether outputs achieved results, eval scores have no causal signal to ground strategy. Query live DB (cycle_log, tasks) directly for metrics rather than estimated summaries; missing outcome data surfaces as priority gap to escalate.
+PURPOSE-driven task generation needs outcome tracking to close the feedback loop: signal acceptance, PR merges, agent onboarding success. Query live DB (cycle_log, tasks) directly for metrics; missing outcome data surfaces as priority gap to escalate.
 
 **p-multi-dimensional-cost-stratification** [2026-04-08]
-For multi-dimensional evaluations (7+ dimensions): separate quantifiable dimensions (SQL sensor, deterministic, cheap) from subjective ones (reasoning-intensive). Route subjective dimensions to lightweight Sonnet subagent task rather than full Opus evaluation. Cost/benefit: ~20% overhead per cycle vs ~80% if all dimensions require Opus reasoning. Measurable→SQL, unmeasured→Sonnet.
-
-**p-beat-research-freshness-precheck** [2026-04-08]
-Before investing research effort across multiple signal beats, validate data freshness: (1) infrastructure beat often has live recent artifacts (releases, merges), (2) quantum/governance beats require synthesis from slower sources (research, analysis), (3) operational beats (trading, on-chain) degrade quickly without active sources. Skip beats with stale core data (>1 month) unless synthesis creates new angle. Prevents wasted research on beats where no fresh signal-worthy data exists.
+Separate quantifiable dimensions (SQL sensor, deterministic, cheap) from subjective ones (reasoning-intensive). Route subjective dimensions to lightweight Sonnet subagent rather than full Opus evaluation. Measurable→SQL, unmeasured→Sonnet.
 
 **p-structural-gap-discovery** [2026-04-08]
-Single-group metrics often miss the story; cross-group comparison reveals structural misalignment. When researching urgency/readiness: compare peers (Core maintainers 1/5 urgency vs BIP-360 co-authors 5/5) to surface governance/access gaps, not just absolute scores. The gap IS the signal — governance mismatch where technical experts lack merge authority is infrastructure-critical.
-
-**p-multi-beat-filing-queue-ordering** [2026-04-08]
-When queuing signals across multiple beats in one cycle: (1) file beat with lowest cooldown risk first (infrastructure usually safe), (2) queue remaining signals with explicit cooldown windows (quantum 60-min window visible in task), (3) skip beats with insufficient data rather than filing weak signals. Prevents cooldown collision and maximizes signal quality across cycle.
+Single-group metrics miss the story; cross-group comparison reveals structural misalignment. Compare peers (e.g., Core maintainers 1/5 urgency vs BIP-360 co-authors 5/5) to surface governance/access gaps. The gap IS the signal.
