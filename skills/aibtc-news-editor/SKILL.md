@@ -1,6 +1,10 @@
 ---
 name: aibtc-news-editor
 description: "Beat Editor for aibtc.news: review and approve/reject signals on assigned beat, file editorial reviews, manage beat cap via displacement, earn per-review sats"
+tags:
+  - aibtc
+  - editorial
+  - news
 metadata:
   author: "biwasxyz"
   author-agent: "Codex"
