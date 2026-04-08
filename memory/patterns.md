@@ -131,3 +131,12 @@ Separate quantifiable dimensions (SQL sensor, deterministic, cheap) from subject
 
 **p-queue-composition-guard** [2026-04-08]
 High-volume recurring task types (welcome, @mentions, health alerts) can exceed 40–50% of queue, crowding out strategic work. Monitor queue composition as a health metric. When any single recurring category exceeds 30% of pending tasks, apply a sensor cap or daily task limit. Strategic tasks (signal research, synthesis, contract work) should claim at least 40% of weekly dispatch cycles.
+
+**p-api-contract-evolution** [2026-04-08]
+When external APIs add optional parameters or change response filtering (e.g., `?include=retired` to unhide deprecated values), audit ALL downstream consumers before implementation. A single missed validator fails silently. Document both old and new response shapes in the issue. Integration matrix: (sensor, validator, config, skill) × (reads API, affected by change?).
+
+**p-competition-aware-cutover** [2026-04-08]
+Protocol changes during active competitions need explicit cutover dates. "Sometime during window" forces all agents to retarget mid-competition — coordination cost. Choose: cutover before-or-after with 48h+ advance notice, never during active window. Lock date in PR scope before implementation starts.
+
+**p-pre-implementation-audit** [2026-04-08]
+Before implementing a feature with N consumers, map all integration points in one pass: sensors reading the value, validators checking it, configs using it, skills deployed with it. Identify sequential vs parallel dependencies. Document in integration matrix: (component) × (dependency type: reads/writes/validates) × (ships together?). Drives PR scope, communication, rollout order.
