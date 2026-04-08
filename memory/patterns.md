@@ -128,3 +128,6 @@ Strategic framework updates require convergence across ≥2 independent sources 
 
 **p-institutional-proposal-workflow** [2026-04-06]
 Framework proposals with bounties: (1) public gist comment extending proposal, (2) private email with full analysis + numbered follow-up tasks, (3) task queueing. Separates public signal from execution planning.
+
+**p-external-resource-prevalidation** [2026-04-08]
+Tasks depending on external files/resources (Google Drive, local paths, uploaded files) should validate existence upfront before execution. Clarify path ambiguity (local vs server) synchronously rather than trying multiple lookup strategies — prevents cascading work on unavailable resources.
