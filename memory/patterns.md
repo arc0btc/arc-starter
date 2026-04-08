@@ -1,6 +1,6 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last updated: 2026-04-08*
+*Last updated: 2026-04-08 (weekly retro: 1730 tasks, week ending 2026-04-08)*
 
 ## Core Patterns
 
@@ -137,3 +137,15 @@ When N failures spike but collapse to K<N/5 root causes, fix the causes not the 
 
 **p-post-fix-residual-failures** [2026-04-08]
 After shipping a fix for a root cause affecting in-flight tasks, expect 1–2 dispatch cycles of residual failures on that cause. In-flight tasks complete under old code before context reloads; don't retry or escalate, wait for context boundary. Residual failures on a fixed cause are noise, not regression.
+
+**p-mempool-backpressure** [2026-04-08]
+TooMuchChaining is a distinct error class from ConflictingNonceInMempool. It means the Stacks mempool has rejected a tx because the same address has too many pending chained transactions — not a nonce numbering conflict. Recovery differs: don't re-acquire nonce and retry immediately. Check mempool pending count first; if >N pending txs from same sender, back off until mempool drains. Serialize + backoff: nonce serializer alone is insufficient when the mempool chain limit is the constraint.
+
+**p-external-address-validation** [2026-04-08]
+Before using addresses from external registries (agent registry, contact lists, any third-party data source) for financial transactions, validate format at ingestion: Stacks mainnet address = SP prefix + 38–41 chars. Fail fast before x402 payment is staged — once x402 is in-flight, a downstream Hiro 400 on the STX send wastes the x402 payment. Address validation is a pre-condition for any on-chain send, not a post-error diagnostic.
+
+**p-fix-coverage-verification** [2026-04-08]
+When fixing a sensor for an externally-renamed value (beat slug, API endpoint, contract address), grep ALL sensors and skill configs for the old value before closing the task. A fix that patches one sensor but misses others leaves the root cause partially alive — it recurs in the next cycle as a "different" instance of the same bug. Fix verification = grep for old value + confirm zero matches.
+
+**p-queue-composition-guard** [2026-04-08]
+High-volume recurring task types (welcome, @mentions, health alerts) can exceed 40–50% of queue, crowding out strategic work and inflating cost-per-outcome. Monitor queue composition as a health metric. When any single recurring category exceeds 30% of pending tasks, apply a sensor cap or daily task limit for that category. Strategic tasks (signal research, synthesis, contract work) should be able to claim at least 40% of weekly dispatch cycles.
