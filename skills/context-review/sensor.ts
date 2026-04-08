@@ -205,6 +205,12 @@ function checkMissingSkillCoverage(
   if (/presentation\.html|tuesday\s+(deck|presentation)|weekly\s+(deck|presentation|slides)/i
     .test(`${task.subject} ${task.description ?? ""}`)) return findings;
 
+  // llms.txt / llms-full.txt update tasks enumerate skill names from release notes (e.g.
+  // "8 new BFF skills: dca, hermetica, hodlmm, bitflow-..."). Their descriptions contain
+  // domain keywords from those skill names, not operational requirements — loading defi-bitflow
+  // or defi-zest would add no value to a documentation update. Skip keyword checks entirely.
+  if (/^Update llms/i.test(task.subject)) return findings;
+
   // Meta-analysis tasks have descriptions that quote other tasks' subjects/content.
   // Scanning those descriptions would produce false positives, so limit to subject only.
   // Use prefix matching so sensor sources with date suffixes (e.g. sensor:arc-failure-triage:retro:2026-03-06) still match.
