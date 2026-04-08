@@ -131,3 +131,6 @@ Framework proposals with bounties: (1) public gist comment extending proposal, (
 
 **p-external-resource-prevalidation** [2026-04-08]
 Tasks depending on external files/resources (Google Drive, local paths, uploaded files) should validate existence upfront before execution. Clarify path ambiguity (local vs server) synchronously rather than trying multiple lookup strategies — prevents cascading work on unavailable resources.
+
+**p-purpose-outcome-closure** [2026-04-08]
+PURPOSE-driven task generation needs external outcome tracking to close the feedback loop: signal acceptance, PR merges, agent onboarding success. Without measuring whether outputs achieved results, eval scores have no causal signal to ground strategy. Query live DB (cycle_log, tasks) directly for metrics rather than estimated summaries; missing outcome data surfaces as priority gap to escalate.
