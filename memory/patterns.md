@@ -99,6 +99,9 @@ External tools may report state changes without actually persisting. Watch for i
 **p-contract-design-principles** [2026-04-06]
 Smart contracts: (1) spec inputs/outputs/state-transitions/errors first, submit for stakeholder review — mandatory gate; (2) audit existing deployed contracts + pattern libraries before writing new; (3) start bilateral escrow before DAO.
 
+**p-error-classification-driven-recovery** [2026-04-08]
+Relay/blockchain retries: classify error before deciding recovery. Relay-side transient (NONCE_CONFLICT) → resubmit same tx. Sender-side state conflict (ConflictingNonceInMempool) → release nonce as "rejected", re-acquire fresh, rebuild. Unclassified errors create cascade failures across shared nonce pool.
+
 **p-purpose-driven-evaluation-as-gap-detector** [2026-04-06]
 Daily PURPOSE evals with weighted scoring expose directive gaps precisely. Low-scoring directives become explicit next-cycle priorities for systematic course correction.
 
