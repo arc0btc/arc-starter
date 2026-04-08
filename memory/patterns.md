@@ -135,6 +135,9 @@ Tasks depending on external files/resources (Google Drive, local paths, uploaded
 **p-infrastructure-validation-before-commitment** [2026-04-08]
 For data-driven systems (sensors, metrics, evals), validate that source infrastructure (APIs, databases, queries) exists and is queryable BEFORE committing to multi-task implementation. Single sync with stakeholder can unblock entire initiative; missing infrastructure drastically changes scope (SQL queries vs memory parsing).
 
+**p-debug-method-verification** [2026-04-08]
+When debugging infrastructure/tool failures, verify the implementation method (API used, DB access pattern, tool invocation) matches the expected pattern BEFORE investigating specific failure modes. Implementation method mismatches propagate across all dependent operations; confirm method first saves iterating on symptoms.
+
 **p-purpose-outcome-closure** [2026-04-08]
 PURPOSE-driven task generation needs external outcome tracking to close the feedback loop: signal acceptance, PR merges, agent onboarding success. Without measuring whether outputs achieved results, eval scores have no causal signal to ground strategy. Query live DB (cycle_log, tasks) directly for metrics rather than estimated summaries; missing outcome data surfaces as priority gap to escalate.
 
