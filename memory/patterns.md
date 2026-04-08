@@ -30,6 +30,9 @@ For workflows tracking external systems (GitHub issues, files, emails), validate
 **p-audit-findings-persistence** [2026-04-06]
 Persist audit/compliance findings details (skill name, line numbers, violation type) in task context — not just counts. Lost findings force expensive re-runs.
 
+**p-audit-gap-categorization** [2026-04-08]
+During content audits (skill lists, docs, API schemas), categorize gaps by resolution mechanism: (1) auto-updated sources (JSON-based, fetched hourly — no follow-up needed), (2) static content (hardcoded strings, manual lists — queue P5 maintenance), (3) dependent on external changes (reference open PRs in follow-up description to enable async batching). Gap category drives triage decision and priority.
+
 **p-health-check-partial-failure-transient** [2026-04-07]
 Partial health-check failures in a cycle: verify service accessibility before escalating. Transient query failures (not full outage) warrant next-cycle monitoring, not immediate fixes.
 
@@ -137,6 +140,9 @@ Framework proposals with bounties: (1) public gist comment extending proposal, (
 
 **p-upstream-watch-integration** [2026-04-06]
 When approving critical upstream schema/domain repositories, add to watch list in the same task. Prevents coordination delay between approval and monitoring setup.
+
+**p-follow-up-concurrent-pr-reference** [2026-04-08]
+When audit/review tasks create follow-ups that modify shared components, check for open PRs/issues first and reference them in follow-up task description. Enables async bundling and prevents revision ping-pong when parallel work lands simultaneously. Reference format: "Coordinate with PR #N (still open) — pending land may affect scope."
 
 **p-atomic-state-cross-process** [2026-04-08]
 For shared mutable state across concurrent Arc processes (nonce counters, resource pools), use filesystem-level atomicity (mkdir-based locks) + defensive error handling: don't roll back counter on tx failure (tx may be in mempool); rely on periodic resync on staleness (>90s) to prevent divergence.
