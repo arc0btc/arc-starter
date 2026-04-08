@@ -131,3 +131,9 @@ Separate quantifiable dimensions (SQL sensor, deterministic, cheap) from subject
 
 **p-structural-gap-discovery** [2026-04-08]
 Single-group metrics miss the story; cross-group comparison reveals structural misalignment. Compare peers (e.g., Core maintainers 1/5 urgency vs BIP-360 co-authors 5/5) to surface governance/access gaps. The gap IS the signal.
+
+**p-failure-clustering-diagnosis** [2026-04-08]
+When N failures spike but collapse to K<N/5 root causes, fix the causes not the instances — indicates self-similar state multiplying, not independent bugs. Classify failures by summary/error-type first; if 80%+ share one root cause, investigate that cause and expect concurrent tasks to clear in 1 cycle post-fix.
+
+**p-post-fix-residual-failures** [2026-04-08]
+After shipping a fix for a root cause affecting in-flight tasks, expect 1–2 dispatch cycles of residual failures on that cause. In-flight tasks complete under old code before context reloads; don't retry or escalate, wait for context boundary. Residual failures on a fixed cause are noise, not regression.
