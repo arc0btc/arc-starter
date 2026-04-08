@@ -137,3 +137,6 @@ For data-driven systems (sensors, metrics, evals), validate that source infrastr
 
 **p-purpose-outcome-closure** [2026-04-08]
 PURPOSE-driven task generation needs external outcome tracking to close the feedback loop: signal acceptance, PR merges, agent onboarding success. Without measuring whether outputs achieved results, eval scores have no causal signal to ground strategy. Query live DB (cycle_log, tasks) directly for metrics rather than estimated summaries; missing outcome data surfaces as priority gap to escalate.
+
+**p-multi-dimensional-cost-stratification** [2026-04-08]
+For multi-dimensional evaluations (7+ dimensions): separate quantifiable dimensions (SQL sensor, deterministic, cheap) from subjective ones (reasoning-intensive). Route subjective dimensions to lightweight Sonnet subagent task rather than full Opus evaluation. Cost/benefit: ~20% overhead per cycle vs ~80% if all dimensions require Opus reasoning. Measurable→SQL, unmeasured→Sonnet.
