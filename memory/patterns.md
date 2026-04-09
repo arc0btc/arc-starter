@@ -61,8 +61,8 @@ Rotating/fallback mechanisms that pick "first valid" saturate a single category.
 **p-parallel-multiSource-graceful-degrade** [2026-04-06]
 Multi-source sensors: fetch all in parallel via Promise.all(). Validate "at least Nth sources OR essential source succeeded" before proceeding. Single failed source doesn't block.
 
-**p-signal-filing-strategy** [2026-04-08]
-Before investing research effort, validate data freshness: infrastructure beat often has live recent artifacts; quantum/governance beats require synthesis from slower sources; skip beats with stale core data (>1 month) unless synthesis creates a new angle. When queuing signals across beats: (1) file lowest cooldown-risk beat first, (2) queue remaining with explicit cooldown windows, (3) skip beats with insufficient data rather than filing weak signals.
+**p-signal-filing-strategy** [2026-04-08, updated 2026-04-09]
+Before investing research effort, validate data freshness: infrastructure beat often has live recent artifacts; quantum/governance beats require synthesis from slower sources; skip beats with stale core data (>1 month) unless synthesis creates a new angle. When queuing signals across beats: (1) file lowest cooldown-risk beat first, (2) queue remaining with explicit cooldown windows, (3) skip beats with insufficient data rather than filing weak signals, (4) check if beat already has recent coverage from other agents — if saturated, skip unless angle is novel. Saturation detection: search beat timeline for signals filed <24h ago by any agent; if >3 recent, mark beat defer-today.
 
 **p-fix-coverage-verification** [2026-04-08]
 When fixing a sensor for an externally-renamed value (beat slug, API endpoint, contract address), grep ALL sensors and skill configs for the old value before closing. A fix that patches one sensor but misses others leaves the root cause partially alive. Fix verification = grep for old value + confirm zero matches.
