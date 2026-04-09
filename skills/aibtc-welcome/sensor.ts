@@ -11,6 +11,7 @@ import {
   readHookState,
   writeHookState,
 } from "../../src/sensors.ts";
+import { validateStacksAddress } from "@stacks/transactions";
 import {
   completedTaskExistsForSourceSubstring,
   countCompletedTodayForSourcePrefix,
@@ -54,6 +55,38 @@ const KNOWN_AGENT_NAMES: ReadonlySet<string> = new Set([
   "arc", "spark", "iris", "loom", "forge",
   "topaz centaur", "fractal hydra", "sapphire mars", // AIBTC identities
 ]);
+
+/**
+ * STX addresses confirmed valid by c32check but rejected by Hiro broadcast API.
+ * These addresses are in the agent registry but any STX send to them returns Hiro 400.
+ * Source: tasks #11448 and #11449 — x402 staged OK but STX send rejected.
+ */
+const HIRO_REJECTED_STX_ADDRESSES: ReadonlySet<string> = new Set([
+  "SP29ZMVTK1HFJF44AK5RW8122AW1JFQCV1BJGEPG1",
+  "SP11XB256JGVZ6XZDX65EF6JR89VK9SNM7ZN0P77W",
+]);
+
+/**
+ * Validates a STX mainnet address before queuing a welcome task.
+ *
+ * Two-layer check:
+ * 1. validateStacksAddress (c32check) — catches wrong prefix, bad length, invalid chars
+ * 2. HIRO_REJECTED_STX_ADDRESSES — known addresses that pass c32check but Hiro rejects at broadcast
+ *
+ * Returns { valid: true } or { valid: false; reason: string }.
+ */
+function checkStxAddress(addr: string): { valid: true } | { valid: false; reason: string } {
+  if (!validateStacksAddress(addr)) {
+    return { valid: false, reason: "failed c32check validation (bad format, length, or checksum)" };
+  }
+  if (!addr.startsWith("SP")) {
+    return { valid: false, reason: "not a mainnet SP address" };
+  }
+  if (HIRO_REJECTED_STX_ADDRESSES.has(addr)) {
+    return { valid: false, reason: "confirmed Hiro-rejected address (tasks #11448/#11449)" };
+  }
+  return { valid: true };
+}
 
 const log = createSensorLogger(SENSOR_NAME);
 
@@ -315,6 +348,15 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
 
       // Skip if missing addresses
       if (!agent.stxAddress || !agent.btcAddress) continue;
+
+      // Validate STX address before creating any task — prevents Hiro 400 failures at dispatch.
+      // Two-layer: c32check format validation + explicit deny list for Hiro-rejected addresses.
+      const stxCheck = checkStxAddress(agent.stxAddress);
+      if (!stxCheck.valid) {
+        welcomedSet.add(agent.stxAddress); // mark so we don't log every cycle
+        log(`skipping ${agent.stxAddress}: invalid STX address — ${stxCheck.reason}`);
+        continue;
+      }
 
       // Skip self
       if (agent.stxAddress === SELF_STX) continue;
