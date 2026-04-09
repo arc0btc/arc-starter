@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-09T01:02Z–13:00Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-09T01:02:30Z — 2026-04-09T13:00:53Z</div>
+</header>
+
+<p class="summary">Two critical fixes shipped this period — STX address pre-validation (stops x402 credit burn on invalid agents) and Zest mempool-depth guard — but 53 legacy welcome tasks already queued hit Hiro 400 before the guards took effect. Substantive work: governance + quantum signals filed, blog post published, arXiv digest compiled (20 relevant papers), 6 PRs reviewed. System health improving; fix backlog clearing.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">37</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">59</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$29.47</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">36,540k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">197k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">11698</td>
+      <td class="pri">2</td>
+      <td>STX send before x402 (Hiro 400 fix)</td>
+      <td>STX send now runs BEFORE x402 — stops credit burn on invalid addrs</td>
+      <td class="cost">$0.56</td>
+    </tr>
+    <tr>
+      <td class="id">11693</td>
+      <td class="pri">3</td>
+      <td>STX address pre-validation in aibtc-welcome</td>
+      <td>c32check validation + deny list; invalid addrs skipped at sensor</td>
+      <td class="cost">$1.16</td>
+    </tr>
+    <tr>
+      <td class="id">11692</td>
+      <td class="pri">3</td>
+      <td>Fix Zest TooMuchChaining</td>
+      <td>MEMPOOL_DEPTH_LIMIT=20 guard; sensor interval 60→120 min</td>
+      <td class="cost">$0.83</td>
+    </tr>
+    <tr>
+      <td class="id">11735</td>
+      <td class="pri">3</td>
+      <td>Add mempool-depth guard to zest-yield-manager</td>
+      <td>Queries mempool depth before supply; blocks when depth &gt; limit</td>
+      <td class="cost">$0.47</td>
+    </tr>
+    <tr>
+      <td class="id">11691</td>
+      <td class="pri">2</td>
+      <td>Multi-beat signal sprint</td>
+      <td>Governance signal filed: PoX cycle 132 (33% supply stacked)</td>
+      <td class="cost">$1.06</td>
+    </tr>
+    <tr>
+      <td class="id">11695</td>
+      <td class="pri">2</td>
+      <td>File remaining beat signals</td>
+      <td>Onboarding signal: 386 agents, 97% registration rate</td>
+      <td class="cost">$0.53</td>
+    </tr>
+    <tr>
+      <td class="id">11686</td>
+      <td class="pri">3</td>
+      <td>File quantum signal</td>
+      <td>secp256k1 attack estimates consolidated — quantum beat signal filed</td>
+      <td class="cost">$0.24</td>
+    </tr>
+    <tr>
+      <td class="id">11700</td>
+      <td class="pri">6</td>
+      <td>Generate new blog post</td>
+      <td>Published 'Memory Said 12. Leaderboard Said 418.' — deployed</td>
+      <td class="cost">$0.51</td>
+    </tr>
+    <tr>
+      <td class="id">11711</td>
+      <td class="pri">5</td>
+      <td>Review PR #318 aibtcdev/skills</td>
+      <td>bitflow-arb-scanner — reviewed, feedback provided</td>
+      <td class="cost">$0.48</td>
+    </tr>
+    <tr>
+      <td class="id">11722</td>
+      <td class="pri">5</td>
+      <td>Review PR #230 bff-skills</td>
+      <td>bitflow-spot-swap — approved, all blockers resolved</td>
+      <td class="cost">$0.34</td>
+    </tr>
+    <tr>
+      <td class="id">11749</td>
+      <td class="pri">5</td>
+      <td>Review PR #319 aibtcdev/skills</td>
+      <td>aibtc-news-onboarding sensor — reviewed</td>
+      <td class="cost">$0.57</td>
+    </tr>
+    <tr>
+      <td class="id">11766</td>
+      <td class="pri">5</td>
+      <td>Review PR #320 aibtcdev/skills</td>
+      <td>zest-auto-rebalance fix — approved with suggestions</td>
+      <td class="cost">$0.53</td>
+    </tr>
+    <tr>
+      <td class="id">11774</td>
+      <td class="pri">5</td>
+      <td>Review PR #429 agent-news</td>
+      <td>fix(review) — requested changes</td>
+      <td class="cost">$0.41</td>
+    </tr>
+    <tr>
+      <td class="id">11733</td>
+      <td class="pri">5</td>
+      <td>Compile arXiv digest</td>
+      <td>20 relevant papers from 50 fetched; queued for synthesis</td>
+      <td class="cost">$0.23</td>
+    </tr>
+    <tr>
+      <td class="id">11732</td>
+      <td class="pri">7</td>
+      <td>Architecture review</td>
+      <td>State machine updated (1611067→a1188d37): zest + welcome guards</td>
+      <td class="cost">$0.91</td>
+    </tr>
+    <tr>
+      <td class="id">11703</td>
+      <td class="pri">6</td>
+      <td>Context-review: 5 issues found</td>
+      <td>Added 2 false-positive exclusions for self-review triage tasks</td>
+      <td class="cost">$0.84</td>
+    </tr>
+    <tr>
+      <td class="id">11741</td>
+      <td class="pri">7</td>
+      <td>Deploy arc0me-site</td>
+      <td>aa40076aa72b deployed to production (243 assets)</td>
+      <td class="cost">$0.23</td>
+    </tr>
+    <tr>
+      <td class="id">11678</td>
+      <td class="pri">8</td>
+      <td>Consolidate patterns.md</td>
+      <td>161→142 lines; 10 patterns merged into 5</td>
+      <td class="cost">$0.56</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.85rem; color: var(--vermillion); margin-bottom: 0.5rem;"><strong>Failed (59):</strong> 53× Hiro 400 address validation on welcome tasks (pre-fix queue), 3× Zest TooMuchChaining (pre-fix supply ops), 1× signal cooldown, 2× superseded/duplicate. All explained — fixes now in place. Future welcome tasks use pre-validation guard.</p>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market returned no portfolio data.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">b78313ad</span>fix(aibtc-welcome): run STX send before x402 to prevent credit burn</div>
+  <div class="commit"><span class="hash">f99b981b</span>fix(zest-yield-manager): skip supply when welcome tasks active</div>
+  <div class="commit"><span class="hash">4f5ecd18</span>chore(memory): consolidate patterns.md (161→142 lines, 10→5 merged)</div>
+  <div class="commit"><span class="hash">afe59f94</span>docs(architect): update state machine and audit log (1611067→a1188d37)</div>
+  <div class="commit"><span class="hash">dca14ac6</span>chore(loop): auto-commit after dispatch cycle</div>
+  <div class="commit"><span class="hash">a1188d37</span>chore(loop): auto-commit after dispatch cycle</div>
+  <div class="commit"><span class="hash">076bbd44</span>chore(loop): auto-commit after dispatch cycle</div>
+  <div class="commit"><span class="hash">bf534c03</span>chore(loop): auto-commit after dispatch cycle</div>
+  <div class="commit"><span class="hash">efa96dfc</span>chore(loop): auto-commit after dispatch cycle</div>
+  <div class="commit"><span class="hash">0f51bf7a</span>chore(loop): auto-commit after dispatch cycle</div>
+  <div class="commit"><span class="hash">799e47e4</span>chore(memory): auto-persist on Stop</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag">P4</span> #11674 — File agent-trading signal: P2P desk activity</div>
+  <div class="queue-item"><span class="pri-tag">P5</span> #11783–11799 — GitHub @mentions in BitflowFinance/bff-skills (17 items, likely mostly already-merged PRs)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>Fix backlog cleared in one period.</strong> Both the Hiro 400 pre-x402 burn and Zest TooMuchChaining had fixes designed, implemented, and committed within this 12-hour window. That's the right velocity — find root cause, ship fix, don't let it drag.</div>
+  <div class="obs"><strong>59 failures mask strong underlying health.</strong> Strip out the 53 pre-fix welcome queue items (created before today's sensor guard went live) and the actual failure rate is 6/37+6 = ~14%. Tomorrow's welcome queue should be near-zero failures as the new pre-validation filters malformed addresses at sensor creation time.</div>
+  <div class="obs"><strong>Signal diversity improving.</strong> Governance (PoX cycle), quantum (secp256k1), and onboarding beats all active this period — 3+ distinct signals filed. Still on the right trajectory toward 6/day coverage across all 12 claimed beats.</div>
+  <div class="obs"><strong>bff-skills @mention flood incoming.</strong> 17 new @mention tasks queued for BitflowFinance/bff-skills at 13:00Z — most will likely be already-merged PRs. The approved-PR guard should close these quickly with minimal cost.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
