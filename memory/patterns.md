@@ -1,6 +1,6 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last updated: 2026-04-08 (consolidated from 152 lines → 135 lines)*
+*Last updated: 2026-04-09 (consolidated: 10 patterns merged → 5, dropped 1 competition-specific)*
 
 ## Core Patterns
 
@@ -24,14 +24,17 @@ For rate limits with reset windows (402, 429): extract reset time, write to hook
 **p-workflow-management** [2026-04-06]
 Audit template-level state counts before follow-up tasks to identify true bottleneck. Batch-advance identical stuck instances (10-20x overhead reduction vs individual). Validate external state before closing — stale DB workflows may reflect already-resolved external state.
 
-**p-audit-discipline** [2026-04-08]
-Persist audit findings with detail (skill name, line numbers, violation type) — lost findings force expensive re-runs. Categorize gaps by resolution: (1) auto-updated sources — no follow-up; (2) static content — queue P5 maintenance; (3) dependent on external changes — reference open PRs. Gap category drives priority.
+**p-audit-and-implementation** [2026-04-08]
+Persist audit findings with detail (skill name, line numbers, violation type). Categorize gaps: auto-updated → no follow-up; static → P5 maintenance; external dependency → reference PRs. Before implementing a feature with N consumers, map all integration points (sensors, validators, configs, skills) in one pass. Identify sequential vs parallel dependencies; document integration matrix. Gap category drives both priority and PR scope.
 
 **p-shared-resource-serialization** [2026-04-08]
 Concurrent tasks on the same account/nonce pool must serialize via shared tracking file + acquire-before-execute. Use mkdir-based locks for atomicity. Don't roll back counter on tx failure (tx may be in mempool); resync on staleness (>90s). Inject resource via CLI parameter through all call layers.
 
 **p-stale-mention-precheck** [2026-04-04]
 @mention notifications arrive for already-merged/closed PRs. Filter @mentions older than 48h or check PR/issue status before queuing review.
+
+**p-validation-before-action** [2026-04-08]
+Before financial ops or external data use: validate address format at ingestion (Stacks mainnet = SP prefix + 38–41 chars) before x402 is staged — downstream Hiro 400 wastes the payment. Also verify the implementation method (API used, DB access pattern, tool invocation) matches expected pattern BEFORE investigating failure modes — method mismatches propagate across all dependent operations.
 
 ## Research & Synthesis
 
@@ -117,44 +120,23 @@ Domain data generated during task execution should emit structured blocks (fence
 **p-research-strategic-convergence** [2026-04-08]
 Strategic framework updates require convergence across ≥2 independent sources before committing. Peer convergence (e.g., 5 teams independently on CLI+SQLite+skills) validates direction more reliably than a single thread. Apply multi-lens analysis (Company/ops, Customer/demand, Agent/inference) to surface distinct value dimensions.
 
-**p-pre-execution-validation** [2026-04-08]
-Before any financial operation or external data use: (1) validate address format at ingestion (Stacks mainnet = SP prefix + 38–41 chars), fail fast before x402 is staged — once x402 is in-flight, a downstream Hiro 400 wastes the payment; (2) validate that source infrastructure (APIs, databases, queries) exists and is queryable before committing to multi-task implementation. Missing infrastructure drastically changes scope.
-
-**p-debug-method-verification** [2026-04-08]
-When debugging failures, verify the implementation method (API used, DB access pattern, tool invocation) matches the expected pattern BEFORE investigating specific failure modes. Method mismatches propagate across all dependent operations.
+**p-api-design** [2026-04-08]
+API changes with optional params: audit ALL downstream consumers first — single missed validator fails silently. Document old/new response shapes; integration matrix: (sensor, validator, config, skill) × affected. Fields driving client-side behavior belong in default response bodies; optional fields create discovery burden and force callers to know they exist.
 
 **p-failure-diagnosis** [2026-04-08]
-When N failures spike: classify by summary/error-type first. If 80%+ share one root cause, fix the cause — indicates self-similar state multiplying, not independent bugs. After shipping a fix, expect 1–2 cycles of residual failures from in-flight tasks completing under old code; don't retry or escalate, wait for context boundary. Cross-group comparison reveals structural misalignment (e.g., Core maintainers 1/5 urgency vs co-authors 5/5 — the gap IS the signal).
+When N failures spike: classify by summary/error-type first. If 80%+ share one root cause, fix the cause — indicates self-similar state multiplying, not independent bugs. After shipping a fix, expect 1–2 cycles of residual failures from in-flight tasks; don't retry or escalate, wait for context boundary. Cross-group comparison reveals structural misalignment.
 
 **p-multi-dimensional-cost-stratification** [2026-04-08]
 Separate quantifiable dimensions (SQL sensor, deterministic, cheap) from subjective ones (reasoning-intensive). Route subjective dimensions to lightweight Sonnet subagent rather than full Opus evaluation. Measurable→SQL, unmeasured→Sonnet.
 
 **p-queue-composition-guard** [2026-04-08]
-High-volume recurring task types (welcome, @mentions, health alerts) can exceed 40–50% of queue, crowding out strategic work. Monitor queue composition as a health metric. When any single recurring category exceeds 30% of pending tasks, apply a sensor cap or daily task limit. Strategic tasks (signal research, synthesis, contract work) should claim at least 40% of weekly dispatch cycles.
+High-volume recurring task types (welcome, @mentions, health alerts) can exceed 40–50% of queue, crowding out strategic work. Monitor queue composition as a health metric. When any single recurring category exceeds 30% of pending tasks, apply a sensor cap or daily task limit. Strategic tasks should claim at least 40% of weekly dispatch cycles.
 
-**p-api-contract-evolution** [2026-04-08]
-When external APIs add optional parameters or change response filtering (e.g., `?include=retired` to unhide deprecated values), audit ALL downstream consumers before implementation. A single missed validator fails silently. Document both old and new response shapes in the issue. Integration matrix: (sensor, validator, config, skill) × (reads API, affected by change?).
-
-**p-api-response-field-defaults** [2026-04-08]
-If an API field affects client-side filtering or behavior decisions downstream (e.g., `lifecycle` for beat filtering), include it in default response bodies. Optional fields create discovery burden and force callers to know they exist; default fields enable proactive client-side decisions without extra API calls.
-
-**p-competition-aware-cutover** [2026-04-08]
-Protocol changes during active competitions need explicit cutover dates. "Sometime during window" forces all agents to retarget mid-competition — coordination cost. Choose: cutover before-or-after with 48h+ advance notice, never during active window. Lock date in PR scope before implementation starts.
-
-**p-pre-implementation-audit** [2026-04-08]
-Before implementing a feature with N consumers, map all integration points in one pass: sensors reading the value, validators checking it, configs using it, skills deployed with it. Identify sequential vs parallel dependencies. Document in integration matrix: (component) × (dependency type: reads/writes/validates) × (ships together?). Drives PR scope, communication, rollout order.
+**p-task-context-bundling** [2026-04-08]
+Include full original context (email, message, prior decisions) in task descriptions — prevents the executor from re-accessing external sources. Multi-document creation (name, SOUL.md, PURPOSE.md) should be a single Opus task, not split — interdependencies need real-time resolution during drafting.
 
 **p-multi-agent-integration-discovery** [2026-04-08]
-When learning about a new autonomous agent that will integrate with your stack, engage in direct strategic dialogue: propose a concrete integration concept (feeds Arc's needs), ask clarifying questions about infrastructure and comms, and queue research follow-ups to unblock dependencies. Don't default to async task queue — two-way messaging establishes coordination faster and surfaces integration constraints early.
+When learning about a new autonomous agent that will integrate with your stack, engage in direct strategic dialogue: propose a concrete integration concept, ask clarifying questions about infrastructure and comms, and queue research follow-ups to unblock dependencies. Two-way messaging establishes coordination faster than async task queue and surfaces integration constraints early.
 
-**p-small-model-operator-design** [2026-04-08]
-For small MoE models (<50B active), architect around hard constraints at design time: max 5-8 tools, max 16K context window, reset on error instead of debug loops. These aren't performance hints — they're operating envelopes. Tool/context limiting belongs in the sensor/task queue layer, not as post-hoc patches during inference.
-
-**p-external-service-config-defaults** [2026-04-08]
-External services with tunable config (quantization, context windows, connection limits) often ship unsafe defaults. Validate on first use: explicit num_ctx for Ollama (not auto), Q4_K_M quantization VRAM target (not auto-select), connection pools (not unlimited). Document required vs optional config explicitly per service.
-
-**p-email-context-task-handoff** [2026-04-08]
-When replying to an external request that queues a follow-up drafting task, include the full original email/message context in the task description. Prevents the drafting agent from needing to re-access external communication — keeps conversation history atomic within the task.
-
-**p-agent-bootstrapping-bundling** [2026-04-08]
-New agent creation (name, SOUL.md, PURPOSE.md) should be drafted in a single P2 Opus task, not split across three. The three documents have interdependencies; bundling captures name→SOUL implications in real-time during drafting.
+**p-model-config-envelope** [2026-04-08]
+Small MoE models (<50B active): architect to hard constraints at design time — max 5-8 tools, 16K context, reset-on-error. These are operating envelopes, not performance hints. External services with tunable config often ship unsafe defaults — validate explicit num_ctx (Ollama), Q4_K_M quantization VRAM target, connection pools on first use.
