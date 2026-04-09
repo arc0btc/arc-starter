@@ -19,7 +19,7 @@ import {
 } from "../../github/aibtcdev/skills/node_modules/@stacks/transactions/dist/index.js";
 
 const SENSOR_NAME = "zest-yield-manager";
-const INTERVAL_MINUTES = 60;
+const INTERVAL_MINUTES = 120; // 2 hours — reduced from 60 to limit supply tx chaining in mempool
 const HIRO_API = "https://api.mainnet.hiro.so";
 
 // Zest Protocol contracts (mainnet)

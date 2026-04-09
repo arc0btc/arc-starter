@@ -44,6 +44,33 @@ const WRITE_COMMANDS = new Set([
 const command = process.argv[2];
 const isWriteCommand = command !== undefined && WRITE_COMMANDS.has(command);
 
+// Mempool depth guard: refuse to submit if too many pending txs are already
+// in the mempool for this sender. Prevents TooMuchChaining (Stacks limit ~25).
+const MEMPOOL_DEPTH_LIMIT = 20;
+const HIRO_API = "https://api.mainnet.hiro.so";
+
+if (isWriteCommand) {
+  try {
+    const account = wm.getAccount() as Account;
+    const mempoolResp = await fetch(
+      `${HIRO_API}/extended/v1/tx/mempool?sender_address=${account.address}&limit=1`,
+    );
+    if (mempoolResp.ok) {
+      const mempoolData = await mempoolResp.json() as { total: number };
+      if (mempoolData.total >= MEMPOOL_DEPTH_LIMIT) {
+        console.log(JSON.stringify({
+          success: false,
+          error: `Mempool depth ${mempoolData.total} >= limit ${MEMPOOL_DEPTH_LIMIT}. Skipping Zest tx to avoid TooMuchChaining. Retry after mempool clears.`,
+        }));
+        wm.lock();
+        process.exit(1);
+      }
+    }
+  } catch {
+    // Best-effort check — proceed if Hiro API is unreachable
+  }
+}
+
 // Acquire nonce before running the defi command so all STX-sending paths
 // coordinate through the shared nonce-tracker file lock.
 let acquiredNonce: number | undefined;
