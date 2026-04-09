@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-04-08T18:50:00.000Z*
+*Generated: 2026-04-09T06:50:00.000Z*
 *Sensor count: 71 | Skill count: 104*
 
 ```mermaid
@@ -66,14 +66,14 @@ stateDiagram-v2
             mempool_watch
             arc_payments
             zest_yield_manager
-            note right of zest_yield_manager: 60-min cadence\nChecks sBTC balance vs 200k-sat reserve\nQueues supply tasks (idle > threshold)\nQueues claim tasks (wSTX rewards > 1000 uSTX)\nAutonomous yield: idle sBTC → Zest ~3.5% APY\nContext fix (73c09c4d): skills=[zest-yield-manager, defi-zest]\ndefi-zest was missing → supply/claim ran without Zest context\nNONCE SERIALIZATION (34e058ab+fa4decf2): tx-runner.ts calls acquireNonce()\nbefore any write command; --nonce injected into defi.ts argv\naccount.address (not .stxAddress) passed to acquireNonce\nAll Zest write ops coordinate via ~/.aibtc/nonce-state.json file lock\nOn failure: syncNonce() resets from Hiro
+            note right of zest_yield_manager: 60-min cadence\nChecks sBTC balance vs 200k-sat reserve\nQueues supply tasks (idle > threshold)\nQueues claim tasks (wSTX rewards > 1000 uSTX)\nAutonomous yield: idle sBTC → Zest ~3.5% APY\nContext fix (73c09c4d): skills=[zest-yield-manager, defi-zest]\ndefi-zest was missing → supply/claim ran without Zest context\nNONCE SERIALIZATION (34e058ab+fa4decf2): tx-runner.ts calls acquireNonce()\nbefore any write command; --nonce injected into defi.ts argv\naccount.address (not .stxAddress) passed to acquireNonce\nAll Zest write ops coordinate via ~/.aibtc/nonce-state.json file lock\nOn failure: syncNonce() resets from Hiro\nWELCOME GUARD (f99b981b): pre-claimSensorRun check\nqueries active tasks for aibtc-welcome\nif activeWelcomeTasks.length > 0 → return skip\nInterval preserved — retries next 1-min fire\nPrevents TooMuchChaining: welcome STX sends fill mempool\nchain depth before Zest op can land
         }
 
         state AIBTCSensors {
             aibtc_heartbeat
             aibtc_inbox_sync
             aibtc_welcome
-            note right of aibtc_welcome: isRelayHealthy() probe 3: relay /status/sponsor\n(was Hiro nonce API, wallet 0 only)\nNow covers all 10 pool wallets (e5210b25)\nRemoves SPONSOR_ADDRESS + direct Hiro dependency\nNONCE SERIALIZATION (22e93116): stx-send-runner.ts calls acquireNonce()\nbefore transferStx() — local counter in ~/.aibtc/nonce-state.json\nPrevents ConflictingNonceInMempool when welcome + Zest ops run concurrently\nExplicit --nonce callers (gap-fill, RBF) bypass tracker unchanged\nOn failure: release as "broadcast" — tracker auto-resyncs after 90s
+            note right of aibtc_welcome: isRelayHealthy() probe 3: relay /status/sponsor\n(was Hiro nonce API, wallet 0 only)\nNow covers all 10 pool wallets (e5210b25)\nRemoves SPONSOR_ADDRESS + direct Hiro dependency\nNONCE SERIALIZATION (22e93116): stx-send-runner.ts calls acquireNonce()\nbefore transferStx() — local counter in ~/.aibtc/nonce-state.json\nPrevents ConflictingNonceInMempool when welcome + Zest ops run concurrently\nExplicit --nonce callers (gap-fill, RBF) bypass tracker unchanged\nOn failure: release as "broadcast" — tracker auto-resyncs after 90s\nSTX ADDR VALIDATION (b78313ad): checkStxAddress() at sensor level\nLayer 1: c32check format/checksum/length validation\nLayer 2: HIRO_REJECTED_STX_ADDRESSES deny list (known Hiro-bad)\nInvalid → skip task creation (no x402 credit burn)\nEXECUTION ORDER FIX: STX send runs before x402 payment\nIf Hiro rejects address → abort before x402 staged\nPrevents double loss (credits burned + STX send failed)
             erc8004_reputation
             erc8004_indexer
             identity_guard
@@ -307,6 +307,14 @@ stateDiagram-v2
 | **Total** | **71** |
 
 *Note: aibtc-agent-trading NEW (5da9081c) — sensor count 68→69, skill count 100→101. Content/Publishing 8→9. Skill count 101→102. Skill count 102→103: aibtc-news-editor (c7c03bec). arc-purpose-eval NEW (f1e0a1f6) — sensor count 70→71, skill count 103→104. Memory/Maintenance 14→15.*
+
+## Key Architectural Changes (1611067 → a1188d37) [2026-04-09T06:50Z]
+
+| Change | Impact |
+|--------|--------|
+| **fix(zest-yield-manager): welcome-task guard** (f99b981b) | Pre-claim check: queries active tasks for `aibtc-welcome` before `claimSensorRun()`. If any welcome tasks are active, returns `"skip"` immediately — interval is preserved, sensor retries on next 1-min timer. Prevents TooMuchChaining: concurrent welcome STX sends saturate the Stacks mempool chain depth, making Zest supply ops fail. Root cause of 15/57 (29%) failures in day-19 retro. |
+| **fix(aibtc-welcome): STX address validation + execution order** (b78313ad) | Two-layer STX address validation at sensor level: (1) c32check format/checksum/length, (2) HIRO_REJECTED_STX_ADDRESSES deny list. Invalid addresses skip task creation entirely — no x402 credit burn. Execution order fix: STX transfer runs before x402 payment in dispatch instructions. Addresses 29/57 (57%) failure class from day-19 retro where x402 staged successfully but STX send was rejected post-payment (double loss). |
+| **chore(memory): patterns.md consolidation** (4f5ecd18) | 161→142 lines, 10→5 merged patterns. No information loss. |
 
 ## Key Architectural Changes (2d7a735a → 1611067) [2026-04-08T18:50Z]
 
