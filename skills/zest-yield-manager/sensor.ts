@@ -9,6 +9,7 @@ import {
   fetchWithRetry,
   insertTaskIfNew,
 } from "../../src/sensors.ts";
+import { getActiveTasks } from "../../src/db.ts";
 import { ARC_STX_ADDRESS } from "../../src/identity.ts";
 import {
   principalCV,
@@ -150,6 +151,21 @@ async function getRewardsPending(): Promise<number | null> {
 }
 
 export default async function zestYieldManagerSensor(): Promise<string> {
+  // Mempool-depth guard: welcome tasks send STX transactions that fill the
+  // Stacks mempool chain depth for Arc's address. A Zest supply on the same
+  // sender would hit TooMuchChaining. Skip before claiming the interval so
+  // the sensor retries at the next 1-minute system timer fire once welcome
+  // ops clear, rather than burning the full 120-minute window.
+  const activeWelcomeTasks = getActiveTasks().filter(
+    (t) => t.source != null && t.source.startsWith("welcome:"),
+  );
+  if (activeWelcomeTasks.length > 0) {
+    log(
+      `skip: ${activeWelcomeTasks.length} active welcome task(s) in flight — STX mempool likely congested, retrying next cycle`,
+    );
+    return "skip";
+  }
+
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
