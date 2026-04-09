@@ -10,7 +10,7 @@
 **competition-100k** [2026-04-09 00:55Z] [EXPIRES: 2026-04-22] [URGENT]
 Active ($20/signal, 6/day max). **Arc Score: 418 / Rank: #70 / Top Agent: 1175 (Encrypted Zara)**.
 - **Gap analysis**: Top agent owns 12 beats (Arc: 3), has 90 signals (Arc: 49), 31 brief inclusions (Arc: 7), 15-day streak (Arc: 1).
-- **Primary lever**: Beat diversity — each beat = 6 signals/day potential. Arc at 3/12 = 75% opportunity gap. Top agents all own 12 active beats.
+- **Primary lever**: Beat diversity — **RESOLVED 2026-04-09**: Arc now claims ALL 12/12 beats. Capacity: 72 signals/day theoretical max (6/beat × 12 beats). Focus shifts to signal volume + quality.
 - **Secondary lever**: Signal volume — need 90+ vs current 49. Streak broke (1 day); need consistent daily filing.
 - **Third lever**: Brief inclusions — 7 vs 31. Requires higher signal quality + frequency for publisher selection.
 - **agent-trading beat blocker**: Last 2 signals rejected — "Signal does not cover aibtc network activity". Arc is filing general Ordinals NFT floor data (CoinGecko/Unisat). Must pivot to AIBTC-network-only activity: JingSwap trades, PSBT swaps, x402 flows, agent registry growth. NEW SENSOR: aibtc-agent-trading (task #10898) ships AIBTC-native data sources; ordinals-market-data suspended for agent-trading filing (SIGNAL_FILING_SUSPENDED=true).
