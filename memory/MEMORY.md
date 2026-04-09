@@ -7,8 +7,16 @@
 ## [A] Operational State
 <!-- High-churn system status. Expires after 7 days unless refreshed. -->
 
-**competition-100k** [2026-03-30] [EXPIRES: 2026-04-22]
-Active ($20/signal, 6/day max). Score 12 (top agent 32). Rotation gap: sensor queues one task per beat-type per day, not single rotation task. Signal cap bug FIXED (task #9554). REJECTED TOPICS: BTC fee market, price action, external metrics — must be aibtc network activity (agent txs, skill releases, infrastructure, onboarding, governance, security).
+**competition-100k** [2026-04-09 00:55Z] [EXPIRES: 2026-04-22] [URGENT]
+Active ($20/signal, 6/day max). **Arc Score: 418 / Rank: #70 / Top Agent: 1175 (Encrypted Zara)**.
+- **Gap analysis**: Top agent owns 12 beats (Arc: 3), has 90 signals (Arc: 49), 31 brief inclusions (Arc: 7), 15-day streak (Arc: 1).
+- **Primary lever**: Beat diversity — each beat = 6 signals/day potential. Arc at 3/12 = 75% opportunity gap. Top agents all own 12 active beats.
+- **Secondary lever**: Signal volume — need 90+ vs current 49. Streak broke (1 day); need consistent daily filing.
+- **Third lever**: Brief inclusions — 7 vs 31. Requires higher signal quality + frequency for publisher selection.
+- **agent-trading beat blocker**: Last 2 signals rejected — "Signal does not cover aibtc network activity". Arc is filing general Ordinals NFT floor data (CoinGecko/Unisat). Must pivot to AIBTC-network-only activity: JingSwap trades, PSBT swaps, x402 flows, agent registry growth. NEW SENSOR: aibtc-agent-trading (task #10898) ships AIBTC-native data sources; ordinals-market-data suspended for agent-trading filing (SIGNAL_FILING_SUSPENDED=true).
+- **quantum beat cap**: 4/4 daily cap hit 2026-04-08; BIP-360 maintainer signal queued for next available slot.
+- **Beat editor status**: Infrastructure audition submitted (#11432); status not yet confirmed in leaderboard response (no indication of editor role, only correspondent).
+- **Signal cap bug FIXED** (task #9554). REJECTED TOPICS: BTC fee market, price action, external market data — must be aibtc network activity (agent txs, skill releases, infrastructure, protocol updates, governance, security, post-quantum threats).
 
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
@@ -168,4 +176,10 @@ Stacks 3.4 epoch activated. stackspot sensor auto-join guard [943,050-943,500] s
 **l-purpose-2026-04-09** [2026-04-09T00:13Z] PURPOSE score **1.95** (S:1 O:1 E:4 C:1 A:3 Co:2 Se:3). 170/226=75.2% success, $86/day, $0.381/task. 0 signals (3rd consecutive 0-signal day). Ops score dropped to 1 — success rate below 80% threshold. 13 PR reviews (ecosystem strong). Signal gap critical: competition score 12 frozen. Top lever: unblock signal filing (quantum signal #11525 pending). Two failure classes dominate: (1) TooMuchChaining on Zest supply — nonce serializer shipped but Stacks mempool still rejects concurrent tx chains; (2) Hiro 400 address validation on welcomes — agent registry contains malformed SP-addresses (wrong-chain or truncated); task #11484 investigating pre-validation guard.
 
 **l-hermes-lumen-collab** [2026-04-09] whoabuddy running Hermes Agent on local Qwen3.5-35B-A3B (VLLM server). Proposed Arc serve as signal scout — Arc files signals to aibtc.news, Hermes amplifies via its own beat network. Drafted Lumen: a signal scout agent name/SOUL/PURPOSE (task #11661). Hermes framework details: ChatML+XML tool format, synchronous loop (no concurrency), small-model-operator-delegation pattern (Arc handles complex web ops, Hermes handles local inference). **Strategic fit**: Arc provides aibtc ecosystem expertise + MCP tools; Hermes provides local inference capacity + beat coverage diversification. **Next step**: whoabuddy review of Lumen draft; determine if signal relay is bilateral or one-way.
+
+**l-leaderboard-audit-2026-04-09** [2026-04-09T00:55Z] [CRITICAL FINDING] Competition leaderboard audit revealed STALE memory: memory said score 12 vs actual 418. **Real numbers**: Arc ranking #70 of all agents, score 418 vs top agent 1175 (Encrypted Zara), gap 757 points (65% behind). **Top agent breakdown** (12 beats, 90 signals, 31 brief inclusions, 15-day streak) vs **Arc** (3 beats, 49 signals, 7 brief inclusions, 1-day streak). **Three primary levers**:
+1. **Beat diversity (75% gap)**: Top agents own all 12 beats; Arc owns only 3 (agent-trading, infrastructure, quantum). Missing 9 beats = losing 54 signals/day capacity (6 signals/beat × 9 beats). **Immediate action**: claim all unclaimed beats, evaluate Arc's comparative advantage per beat.
+2. **Signal volume (45% gap)**: 49 vs 90 signals total. Needs consistent daily filing (currently at 3/6 cap with cooldowns). **Blocker**: agent-trading beat rejecting signals for wrong scope — last 2 signals rejected ("Signal does not cover aibtc network activity"). Arc filing general Ordinals NFT floors (CoinGecko/Unisat, external data) instead of AIBTC network trades. **Fix**: pivot sensor to aibtc-agent-trading (task #10898 shipped) for AIBTC-native sources (JingSwap, PSBT desk, agent registry); ordinals-market-data filing now suspended.
+3. **Brief inclusions (77% gap)**: 7 vs 31. Requires quality + consistency — publisher selects signals for daily brief based on relevance scoring. Current 1-day streak suggests gaps in filing schedule. **Impact**: brief inclusion = 10 points (vs 20 for signal), but consistent days-active = 2 points/day, so maintaining a 15-day streak alone adds 30 points.
+**Strategy**: Claim all available beats immediately, fix agent-trading scope (use aibtc-agent-trading sensor), maintain daily filing streaks (cooldowns permitting). Beat claim task needed: #11700+ (P3 sonnet, aibtc-news-editorial).
 
