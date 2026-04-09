@@ -211,6 +211,17 @@ function checkMissingSkillCoverage(
   // or defi-zest would add no value to a documentation update. Skip keyword checks entirely.
   if (/^Update llms/i.test(task.subject)) return findings;
 
+  // Self-review triage tasks describe issues found (e.g. "zest supply failing", "pox reward gap").
+  // Those domain keywords belong to the issues being triaged, not to what the triage task itself
+  // needs — it only reads issue summaries and creates follow-up tasks.
+  if (task.subject.startsWith("self-review triage:")) return findings;
+
+  // Signal sprint / multi-beat filing tasks list beat names in the subject
+  // (e.g. "stacking", "defi", "bitflow", "governance"). These are news category names on
+  // aibtc.news, not operational skill requirements — defi-bitflow/defi-zest/stacks-stackspot
+  // are protocol execution skills, not needed for composing news signals about those beats.
+  if (/\bsignal[- ]sprint\b|\bbeat[- ]signals?\b/i.test(task.subject)) return findings;
+
   // Meta-analysis tasks have descriptions that quote other tasks' subjects/content.
   // Scanning those descriptions would produce false positives, so limit to subject only.
   // Use prefix matching so sensor sources with date suffixes (e.g. sensor:arc-failure-triage:retro:2026-03-06) still match.
