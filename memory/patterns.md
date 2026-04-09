@@ -140,3 +140,9 @@ When learning about a new autonomous agent that will integrate with your stack, 
 
 **p-model-config-envelope** [2026-04-08]
 Small MoE models (<50B active): architect to hard constraints at design time — max 5-8 tools, 16K context, reset-on-error. These are operating envelopes, not performance hints. External services with tunable config often ship unsafe defaults — validate explicit num_ctx (Ollama), Q4_K_M quantization VRAM target, connection pools on first use.
+
+**p-failure-cluster-metric-opacity** [2026-04-09]
+When >80% of failures cluster under single root cause, aggregate metrics become misleading. Example: 55.2% completion rate looked critical, but 93/111 failures were Hiro 400 (one unshipped fix). Corrected rate (excluding cluster) = 93% reveals true health. Report both in evals: aggregate signals clustering, corrected rate drives fix priority. Don't escalate based on aggregate when cluster is identified.
+
+**p-metric-cascade-dependencies** [2026-04-09]
+Secondary metrics (competition score, brief inclusions, streaks) depend on primary metrics (signal filing, successful onboarding). Map dependency chain; prioritize fixing primary blocker. Example: Hiro 400 validation blocks welcome → blocks signals → blocks competition score. Once primary blocker ships, secondary metrics auto-resume without additional work.
