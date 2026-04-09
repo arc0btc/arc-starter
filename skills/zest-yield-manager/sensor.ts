@@ -112,6 +112,23 @@ async function getZestPosition(): Promise<{ supplied: number; borrowed: number }
   }
 }
 
+async function getMempoolDepth(): Promise<number> {
+  try {
+    const response = await fetchWithRetry(
+      `${HIRO_API}/extended/v1/address/${ARC_STX_ADDRESS}/mempool?limit=50`,
+    );
+    if (!response.ok) {
+      log(`warn: mempool API returned ${response.status} — assuming 0`);
+      return 0;
+    }
+    const data = await response.json() as { total?: number; results?: unknown[] };
+    return data.total ?? data.results?.length ?? 0;
+  } catch (e) {
+    log(`warn: mempool check failed: ${(e as Error).message} — assuming 0`);
+    return 0;
+  }
+}
+
 async function getRewardsPending(): Promise<number | null> {
   try {
     const url = `${HIRO_API}/v2/contracts/call-read/${INCENTIVES_ADDR}/${INCENTIVES_NAME}/get-vault-rewards`;
@@ -156,6 +173,17 @@ export default async function zestYieldManagerSensor(): Promise<string> {
   // sender would hit TooMuchChaining. Skip before claiming the interval so
   // the sensor retries at the next 1-minute system timer fire once welcome
   // ops clear, rather than burning the full 120-minute window.
+  //
+  // Primary check: query actual Hiro mempool depth for Arc's address.
+  const MEMPOOL_CONGESTION_THRESHOLD = 5;
+  const mempoolDepth = await getMempoolDepth();
+  if (mempoolDepth >= MEMPOOL_CONGESTION_THRESHOLD) {
+    log(`skip: mempool congested — ${mempoolDepth} pending tx(s), retrying next cycle`);
+    return "skip";
+  }
+
+  // Secondary check: active welcome tasks in DB (belt-and-suspenders — covers
+  // the window between tx broadcast and Hiro indexing).
   const activeWelcomeTasks = getActiveTasks().filter(
     (t) => t.source != null && t.source.startsWith("welcome:"),
   );
