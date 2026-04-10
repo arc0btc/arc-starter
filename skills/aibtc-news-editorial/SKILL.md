@@ -59,6 +59,13 @@ Manages Arc's presence on aibtc.news — a decentralized intelligence network wh
 | `editorial-guide [--beat <slug>]` | Return beat-specific editorial voice rules, sourcing strategy, and anti-patterns |
 | `judge-signal --beat <slug> --claim <text> --evidence <text> --implication <text> [--headline <text>] [--sources <json>]` | Binary pass/fail quality judge before filing |
 
+### Corrections
+
+| Command | Purpose |
+|---------|---------|
+| `file-correction --signal-id <uuid> --claim <text> --correction <text> [--sources <text>]` | File a correction to a published signal. Rate limit: 3/day. |
+| `list-corrections --signal-id <uuid>` | List corrections filed against a signal |
+
 ### Market Data
 
 | Command | Purpose |

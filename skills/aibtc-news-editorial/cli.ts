@@ -1688,6 +1688,101 @@ async function cmdShowNarrative(_args: string[]): Promise<void> {
   }, null, 2));
 }
 
+// ---- Correction Commands ----
+
+async function cmdFileCorrection(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+
+  if (!flags["signal-id"] || !flags.claim || !flags.correction) {
+    console.error(
+      "Usage: arc skills run --name aibtc-news-editorial -- file-correction --signal-id <uuid> --claim <text> --correction <text> [--sources <text>]"
+    );
+    process.exit(1);
+  }
+
+  const signalId = flags["signal-id"];
+  const claim = flags.claim;
+  const correction = flags.correction;
+  const sources = flags.sources || undefined;
+
+  if (claim.length < 1 || claim.length > 1000) {
+    console.error("Claim must be 1-1000 chars");
+    process.exit(1);
+  }
+
+  if (correction.length < 1 || correction.length > 1000) {
+    console.error("Correction must be 1-1000 chars");
+    process.exit(1);
+  }
+
+  try {
+    // Sign the request: "POST /api/signals/{id}/corrections:unix_seconds"
+    const timestamp = Math.floor(Date.now() / 1000);
+    const message = `POST /api/signals/${signalId}/corrections:${timestamp}`;
+    log(`Signing message: ${message}`);
+
+    const signature = await signMessage(message);
+    log(`Got signature: ${signature.slice(0, 20)}...`);
+
+    const body: Record<string, unknown> = {
+      btc_address: ARC_BTC_ADDRESS,
+      claim,
+      correction,
+    };
+
+    if (sources) body.sources = sources;
+
+    let result: Record<string, unknown>;
+    try {
+      result = await callApi("POST", `/signals/${signalId}/corrections`, body, {
+        address: ARC_BTC_ADDRESS,
+        signature,
+        timestamp,
+      });
+      log(`Correction filed successfully (BIP-137)`);
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 402) {
+        log(`Correction requires payment (402) — falling back to x402`);
+        result = await x402Request("POST", `${API_BASE}/signals/${signalId}/corrections`, body) as Record<string, unknown>;
+        log(`Correction filed successfully (x402)`);
+      } else {
+        throw e;
+      }
+    }
+
+    console.log(JSON.stringify(result, null, 2));
+  } catch (e) {
+    const error = e as Error;
+    log(`Error: ${error.message}`);
+    console.error(JSON.stringify({ error: error.message }, null, 2));
+    process.exit(1);
+  }
+}
+
+async function cmdListCorrections(args: string[]): Promise<void> {
+  const flags = parseFlags(args);
+
+  if (!flags["signal-id"]) {
+    console.error(
+      "Usage: arc skills run --name aibtc-news-editorial -- list-corrections --signal-id <uuid>"
+    );
+    process.exit(1);
+  }
+
+  const signalId = flags["signal-id"];
+
+  try {
+    const result = await callApi("GET", `/signals/${signalId}/corrections`);
+    log(`Listed corrections for signal ${signalId}`);
+    console.log(JSON.stringify(result, null, 2));
+  } catch (e) {
+    const error = e as Error;
+    log(`Error: ${error.message}`);
+    console.error(JSON.stringify({ error: error.message }, null, 2));
+    process.exit(1);
+  }
+}
+
 // ---- Main ----
 
 async function main(): Promise<void> {
@@ -1696,7 +1791,7 @@ async function main(): Promise<void> {
   if (args.length === 0) {
     console.error("Usage: arc skills run --name aibtc-news -- <command> [flags]");
     console.error(
-      "Commands: claim-beat, file-signal, list-beats, status, list-signals, correspondents, compile-brief, compose-signal, check-sources, editorial-guide, judge-signal, fetch-ordinals-data, update-narrative, show-narrative"
+      "Commands: claim-beat, file-signal, file-correction, list-corrections, list-beats, status, list-signals, correspondents, compile-brief, compose-signal, check-sources, editorial-guide, judge-signal, fetch-ordinals-data, update-narrative, show-narrative"
     );
     process.exit(1);
   }
@@ -1750,6 +1845,12 @@ async function main(): Promise<void> {
         break;
       case "show-narrative":
         await cmdShowNarrative(commandArgs);
+        break;
+      case "file-correction":
+        await cmdFileCorrection(commandArgs);
+        break;
+      case "list-corrections":
+        await cmdListCorrections(commandArgs);
         break;
       default:
         console.error(`Unknown command: ${command}`);
