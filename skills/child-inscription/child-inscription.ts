@@ -470,10 +470,9 @@ program
         };
 
         const mempoolApi = new MempoolApi(NETWORK);
-        // Use the stored fee rate (or current rate if higher) to ensure
-        // the locked revealAmount is sufficient for the reveal tx fees.
-        const currentFeeRate = await resolveFeeRate(undefined, mempoolApi);
-        const actualFeeRate = Math.max(state.feeRate, currentFeeRate);
+        // Use the stored fee rate — the commit output was sized for this rate.
+        // Using a higher rate would make the locked revealAmount insufficient.
+        const actualFeeRate = state.feeRate;
 
         // Derive the same reveal script as was used in the commit
         const p2trReveal = deriveChildRevealScript({
