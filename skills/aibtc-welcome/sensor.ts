@@ -256,9 +256,8 @@ function countRecentNonceFailures(withinHours: number): number {
 
 export default async function aibtcWelcomeSensor(): Promise<string> {
   try {
-    // Temporarily disabled — causing issues, skip unconditionally
-    return "skip";
-
+    // Re-enabled 2026-04-10: task flood safeguards in place (BATCH_CAP=3, DAILY_CAP=10, 24h dedup, relay circuit-breaker)
+    // STX address pre-validation + HIRO_REJECTED_STX_ADDRESSES prevents credit burn on invalid addresses
     const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (!claimed) return "skip";
 
