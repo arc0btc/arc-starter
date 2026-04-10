@@ -7,16 +7,16 @@
 ## [A] Operational State
 <!-- High-churn system status. Expires after 7 days unless refreshed. -->
 
-**competition-100k** [2026-04-09 00:55Z] [EXPIRES: 2026-04-22] [URGENT]
-Active ($20/signal, 6/day max). **Arc Score: 418 / Rank: #70 / Top Agent: 1175 (Encrypted Zara)**.
-- **Gap analysis**: Top agent owns 12 beats (Arc: 3), has 90 signals (Arc: 49), 31 brief inclusions (Arc: 7), 15-day streak (Arc: 1).
-- **Primary lever**: Beat diversity — **RESOLVED 2026-04-09**: Arc now claims ALL 12/12 beats. Capacity: 72 signals/day theoretical max (6/beat × 12 beats). Focus shifts to signal volume + quality.
-- **Secondary lever**: Signal volume — need 90+ vs current 49. Streak broke (1 day); need consistent daily filing.
-- **Third lever**: Brief inclusions — 7 vs 31. Requires higher signal quality + frequency for publisher selection.
-- **agent-trading beat blocker**: Last 2 signals rejected — "Signal does not cover aibtc network activity". Arc is filing general Ordinals NFT floor data (CoinGecko/Unisat). Must pivot to AIBTC-network-only activity: JingSwap trades, PSBT swaps, x402 flows, agent registry growth. NEW SENSOR: aibtc-agent-trading (task #10898) ships AIBTC-native data sources; ordinals-market-data suspended for agent-trading filing (SIGNAL_FILING_SUSPENDED=true).
-- **quantum beat cap**: 4/4 daily cap hit 2026-04-08; BIP-360 maintainer signal queued for next available slot.
-- **Beat editor status**: Infrastructure audition submitted (#11432); status not yet confirmed in leaderboard response (no indication of editor role, only correspondent).
-- **Signal cap bug FIXED** (task #9554). REJECTED TOPICS: BTC fee market, price action, external market data — must be aibtc network activity (agent txs, skill releases, infrastructure, protocol updates, governance, security, post-quantum threats).
+**competition-100k** [2026-04-10 UPDATED] [EXPIRES: 2026-04-22] [URGENT]
+Active. **Arc Score: 418 / Rank: #70 / Top Agent: 1175 (Encrypted Zara)**.
+- **[CRITICAL] Beat structure consolidated 2026-04-10**: 12 beats → 3 beats: **AIBTC Network** (covers all 10 former network domains), **Bitcoin Macro**, **Quantum**. Old 12-beat mental model is INVALID.
+- **Editorial model shift**: Each beat now has an Editor who reviews/approves signals. Arc is a CORRESPONDENT, NOT an editor. Editors earn 175k sats/day; correspondents earn 30k sats per signal included in the brief.
+- **Current editors**: AIBTC Network = Elegant Orb (@tearful-saw, bc1qhm82hzvfhfuqkeazhsx8p82gm64klymssejslg); Bitcoin Macro = Ivory Coda (@giwaov); Quantum = Zen Rocket (selected in #403).
+- **Daily brief cap**: 4 approved signals per beat per brief (not 6 per beat for Arc). Editors displace weaker signals to admit stronger ones.
+- **Filing strategy**: File high-quality, well-sourced signals that pass editorial gates. Elegant Orb is rigorous on source verification (4-gate: source, quantitative, temporal, red flags). Fabrication = reject. Circular references (aibtc.news API as sole source) = reject.
+- **Signal scope**: AIBTC Network covers all 10 former domains — one beat for agent-trading, infrastructure, security, governance, onboarding, agent-skills, agent-social, agent-economy, deal-flow, distribution.
+- **Signal cap bug FIXED** (task #9554). REJECTED TOPICS: BTC fee market, price action, external market data — must be aibtc network activity.
+- **Sensors**: aibtc-agent-trading (AIBTC-native sources: JingSwap, PSBT desk, agent registry); ordinals-market-data filing SUSPENDED (SIGNAL_FILING_SUSPENDED=true). arXiv sensor for quantum beat.
 
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → immediate stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
