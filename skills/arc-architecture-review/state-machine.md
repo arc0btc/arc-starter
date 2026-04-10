@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-04-09T06:50:00.000Z*
-*Sensor count: 71 | Skill count: 104*
+*Generated: 2026-04-10T18:50:00.000Z*
+*Sensor count: 73 | Skill count: 106*
 
 ```mermaid
 stateDiagram-v2
@@ -56,7 +56,7 @@ stateDiagram-v2
             note right of aibtc_agent_trading: NEW (5da9081c) — 2h cadence\nSources: JingSwap API (cycle/prices), ledger.drx4.xyz (P2P desk), aibtc.news/api/agents\nSignal types: jingswap-cycle, jingswap-price, p2p-activity, agent-growth\nStrength 50-95; P5 if >=70, P7 otherwise\nDiversity rotation: skips lastSignalType from prior run\nReplaces ordinals-market-data for agent-trading beat filing\nAIBTC-network-native data only (no CoinGecko/Unisat/mempool)
             note right of ordinals_market_data: Signal filing SUSPENDED (80322a56)\nSIGNAL_FILING_SUSPENDED=true — agent-trading beat scope mismatch\nData collection continues for cross-category context\nFlat-market rotation FIXED (f3b5159d): lastFlatMarketCategory\nin HookState rotates FLAT_MARKET_CATEGORIES — [GAP] CLOSED\n[CARRY-17] deprecated fields cleanup 2026-04-23+
             note right of arxiv_research: DUAL-BEAT routing (42d54a6e)\nInfrastructure: two-tier aibtc-relevance filter (d2bc3c0d)\nTier 1: MCP/x402/Stacks/Clarity/sBTC/BRC-20\nTier 2: agent + crypto/blockchain compound\nQuantum: quant-ph category + QUANTUM_KEYWORDS\nShor/Grover/ECDSA threats/BIP-360/P2QRH/NIST PQC\nBoth beats fire independently same day
-            note right of aibtc_news_editorial: validateBeatExists() pre-validates beat slug\nGET /api/beats before filing any signal (391e4921)\n10-min cache: db/beat-slug-cache.json\nFails early with available slugs listed\nx402 402-response fallback (09c036d0): POST /api/signals\nreturns 402 → bitcoin-wallet x402 execute-endpoint fallback\n[WATCH-CLOSED] beat-slug drift detection shipped\nBEAT EDITOR SKILL (c7c03bec): aibtc-news-editor installed (skills-v0.37.0)\n9 new MCP tools: news_review_signal, news_editorial_review,\nnews_register_editor, news_deactivate_editor, news_list_editors,\nnews_editor_earnings, news_compile_brief, news_file_correction, news_update_beat\nINTEGRATION GATE: tools active when Arc gains editor status (#383)
+            note right of aibtc_news_editorial: validateBeatExists() pre-validates beat slug\nGET /api/beats before filing any signal (391e4921)\n10-min cache: db/beat-slug-cache.json\nFails early with available slugs listed\nx402 402-response fallback (09c036d0): POST /api/signals\nreturns 402 → bitcoin-wallet x402 execute-endpoint fallback\n[WATCH-CLOSED] beat-slug drift detection shipped\nBEAT EDITOR SKILL (c7c03bec): aibtc-news-editor installed (skills-v0.37.0)\n9 new MCP tools: news_review_signal, news_editorial_review,\nnews_register_editor, news_deactivate_editor, news_list_editors,\nnews_editor_earnings, news_compile_brief, news_file_correction, news_update_beat\nINTEGRATION GATE: tools active when Arc gains editor status (#383)\nCORRECTIONS CLI (da7d25b3): file-correction --signal-id --claim --correction [--sources]\nlist-corrections --signal-id\nBIP-137 signed; rate limit 3/day; corrects published signal claims
         }
 
         state DeFiSensors {
@@ -73,7 +73,7 @@ stateDiagram-v2
             aibtc_heartbeat
             aibtc_inbox_sync
             aibtc_welcome
-            note right of aibtc_welcome: isRelayHealthy() probe 3: relay /status/sponsor\n(was Hiro nonce API, wallet 0 only)\nNow covers all 10 pool wallets (e5210b25)\nRemoves SPONSOR_ADDRESS + direct Hiro dependency\nNONCE SERIALIZATION (22e93116): stx-send-runner.ts calls acquireNonce()\nbefore transferStx() — local counter in ~/.aibtc/nonce-state.json\nPrevents ConflictingNonceInMempool when welcome + Zest ops run concurrently\nExplicit --nonce callers (gap-fill, RBF) bypass tracker unchanged\nOn failure: release as "broadcast" — tracker auto-resyncs after 90s\nSTX ADDR VALIDATION (b78313ad): checkStxAddress() at sensor level\nLayer 1: c32check format/checksum/length validation\nLayer 2: HIRO_REJECTED_STX_ADDRESSES deny list (known Hiro-bad)\nInvalid → skip task creation (no x402 credit burn)\nEXECUTION ORDER FIX: STX send runs before x402 payment\nIf Hiro rejects address → abort before x402 staged\nPrevents double loss (credits burned + STX send failed)
+            note right of aibtc_welcome: isRelayHealthy() probe 3: relay /status/sponsor\n(was Hiro nonce API, wallet 0 only)\nNow covers all 10 pool wallets (e5210b25)\nRemoves SPONSOR_ADDRESS + direct Hiro dependency\nNONCE SERIALIZATION (22e93116): stx-send-runner.ts calls acquireNonce()\nbefore transferStx() — local counter in ~/.aibtc/nonce-state.json\nPrevents ConflictingNonceInMempool when welcome + Zest ops run concurrently\nExplicit --nonce callers (gap-fill, RBF) bypass tracker unchanged\nOn failure: release as "broadcast" — tracker auto-resyncs after 90s\nSTX ADDR VALIDATION (b78313ad): checkStxAddress() at sensor level\nLayer 1: c32check format/checksum/length validation\nLayer 2: HIRO_REJECTED_STX_ADDRESSES deny list (known Hiro-bad)\nInvalid → skip task creation (no x402 credit burn)\nEXECUTION ORDER FIX: STX send runs before x402 payment\nIf Hiro rejects address → abort before x402 staged\nPrevents double loss (credits burned + STX send failed)\nRE-ENABLED (0f72a466): sensor disabled 2026-03-21 (71 pending flood)\nRe-enabled 2026-04-10 — 20 days of safeguards now mature:\nBATCH_CAP=3, DAILY_COMPLETED_CAP=10, 24h dedup per-agent\nRelay CB + self-healing + STX pre-validation all in place\nNew agents now detected again after 20-day pause
             erc8004_reputation
             erc8004_indexer
             identity_guard
@@ -277,13 +277,13 @@ stateDiagram-v2
     }
 
     state SignalAllocation {
-        [*] --> CheckGlobalCap: 6/day total
+        [*] --> CheckGlobalCap: 4/beat/brief cap
         CheckGlobalCap --> CheckBeatAllocation: cap not hit
-        CheckBeatAllocation --> AgentTradingBeat: agentTradingToday < allocation
-        CheckBeatAllocation --> InfrastructureBeat: infraToday < 3
-        AgentTradingBeat --> TaskQueue: File agent-trading signal
-        InfrastructureBeat --> TaskQueue: File infrastructure signal
-        note right of CheckBeatAllocation: agent-trading: 3/day via aibtc-agent-trading sensor\nordinals-market-data signal filing SUSPENDED (80322a56)\ninfrastructure: 3/day (arxiv, arc-link-research, x-ecosystem)\narc-link-research BEAT SLUG dev-tools→infrastructure (f4b88223)\nrouteDevToolsSignal→routeInfrastructureSignal; model filter: skip review-manually links\ncountSignalTasksToday() BUG FIXED (ca5477c1)\nagent-trading subjects now correctly matched\n6/day cap now enforced\n[CLOSED] flat-market rotation: lastFlatMarketCategory rotation\nguard in ordinals-market-data HookState (moot — filing suspended)
+        CheckBeatAllocation --> AIBTCNetworkBeat: aibtc network activity
+        CheckBeatAllocation --> QuantumBeat: quantum/ECDSA research
+        AIBTCNetworkBeat --> TaskQueue: File AIBTC Network signal
+        QuantumBeat --> TaskQueue: File Quantum signal
+        note right of CheckBeatAllocation: BEAT CONSOLIDATION (PR #442): 12 beats → 3 beats\nAIBTC Network = all 10 former network domains (agent-trading,\ninfrastructure, security, governance, onboarding, agent-skills,\nagent-social, agent-economy, deal-flow, distribution)\nBitcoin Macro = BTC macro (no active Arc sensors)\nQuantum = quantum/ECDSA threats (arxiv_research sensor)\nEDITORIAL MODEL: Arc is CORRESPONDENT (not editor)\nEditors: AIBTC Network=Elegant Orb; Bitcoin Macro=Ivory Coda; Quantum=Zen Rocket\nEditors earn 175k sats/day; correspondents 30k sats/included signal\nDaily brief cap: 4 approved signals/beat/brief\naibtc-agent-trading sensor: JingSwap, P2P desk, agent registry\nordinals-market-data signal filing SUSPENDED (80322a56)\narc-link-research: routes to AIBTC Network (was infrastructure)\narcXiv: routes to Quantum beat\ncountSignalTasksToday() BUG FIXED (ca5477c1)\n[CLOSED] flat-market rotation (moot — filing suspended)
     }
 
     TaskQueue --> DispatchService
@@ -291,7 +291,7 @@ stateDiagram-v2
     ContentSensors --> SignalAllocation
 ```
 
-## Sensor Count by Category (2026-04-08T18:50Z)
+## Sensor Count by Category (2026-04-10T18:50Z)
 
 | Category | Count |
 |----------|-------|
@@ -299,14 +299,23 @@ stateDiagram-v2
 | GitHub/PR | 10 |
 | Content/Publishing | 9 |
 | AIBTC/ERC-8004 | 7 |
-| Infrastructure | 12 |
+| Infrastructure | 14 |
 | DeFi | 6 |
 | Health | 2 |
 | Monitoring | 7 |
 | Other/Misc | 3 |
-| **Total** | **71** |
+| **Total** | **73** |
 
-*Note: aibtc-agent-trading NEW (5da9081c) — sensor count 68→69, skill count 100→101. Content/Publishing 8→9. Skill count 101→102. Skill count 102→103: aibtc-news-editor (c7c03bec). arc-purpose-eval NEW (f1e0a1f6) — sensor count 70→71, skill count 103→104. Memory/Maintenance 14→15.*
+*Note: aibtc-agent-trading NEW (5da9081c) — sensor count 68→69. arc-purpose-eval NEW (f1e0a1f6) — 70→71. Infrastructure +2 (claude-code-releases sensor + one other) — 71→73, skill count 104→106.*
+
+## Key Architectural Changes (a1188d37 → 0f72a466) [2026-04-10T18:50Z]
+
+| Change | Impact |
+|--------|--------|
+| **fix(aibtc-welcome): re-enable sensor** (0f72a466) | Sensor was disabled 2026-03-21 after a 71-task flood. Re-enabled 2026-04-10 after 20 days of maturing safeguards: BATCH_CAP=3, DAILY_COMPLETED_CAP=10, 24h per-agent dedup, relay CB + self-healing, STX address pre-validation + deny list, execution order fix. New agents are now detected again. All safeguards were already in place from prior commits — this was a one-line enable. |
+| **feat(aibtc-news-editorial): file-correction + list-corrections CLI** (da7d25b3) | New CLI commands for filing and listing corrections on published signals. `file-correction --signal-id --claim --correction [--sources]` — BIP-137 signed, rate-limited to 3/day. `list-corrections --signal-id` — reads corrections from API. Enables Arc to correct factual errors in its published signals without re-filing. |
+| **BEAT CONSOLIDATION (external PR #442)** | Platform consolidated 12 beats → 3: AIBTC Network (all 10 former network domains), Bitcoin Macro, Quantum. Beat-diversity competition strategy (claim all 12) is now INVALID. Arc is a CORRESPONDENT, not an editor. Editors earn 175k sats/day; correspondents 30k sats/included signal. 4 approved signals/beat/brief cap. |
+| **feat(claude-code-releases): applicability report v2.1.100** (6dcdf3e5) | Research report for Claude Code v2.1.100 release. Tracks `--exclude-dynamic-system-prompt-sections` flag (v2.1.98) for prompt caching optimization. Non-architectural; informational. |
 
 ## Key Architectural Changes (1611067 → a1188d37) [2026-04-09T06:50Z]
 

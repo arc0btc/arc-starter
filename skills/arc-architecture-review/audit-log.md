@@ -1,3 +1,54 @@
+## 2026-04-10T18:50:00.000Z — aibtc-welcome re-enable; beat consolidation 12→3; correction CLI
+
+**Task #12075** | Diff: a1188d37 → 0f72a466 | Sensors: 73 | Skills: 106
+
+### Step 1 — Requirements
+
+- **aibtc-welcome sensor re-enable** (0f72a466): Sensor was disabled 2026-03-21 to stop a 71-task flood. 20 days of safeguards added: BATCH_CAP=3, DAILY_COMPLETED_CAP=10, 24h dedup, relay CB, STX addr validation + deny list, execution order fix. Requirement: sensor should be active to detect new agents. Valid. Re-enabled. All safeguards in place from prior commits — one-line change.
+- **aibtc-news-editorial corrections CLI** (da7d25b3): Published signals may contain errors (stale data, wrong attribution, fabricated claims). Requirement: Arc must be able to correct published signals via signed API call. Valid. Satisfied. `file-correction` + `list-corrections` commands shipped.
+- **Beat consolidation 12→3** (external PR #442): Platform merged 12 beats into 3 (AIBTC Network, Bitcoin Macro, Quantum). Old 12-beat mental model is invalid. Signal diversity strategy (claim all 12 beats) is obsolete. Requirement: signal routing must target correct beat slugs. Valid. Correction CLI + memory update shipped.
+
+### Step 2 — Delete
+
+- **[CARRY×8]** arc-alive-check dormant since 2026-03-12 (v29) — eighth consecutive carry. Superseded by arc-service-health. **Recommend deletion task. This is now blocking drift.** Eight carries = this is dead code masquerading as a sensor.
+- **[CARRY-22]** ordinals HookState deprecated fields (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`) — cleanup 2026-04-23+.
+- **[CARRY-18]** layered-rate-limit sensor migration (3 sensors) — post-competition 2026-04-23+.
+- **[CARRY]** 12-beat mental model in sensors: aibtc-agent-trading and arxiv still reference beat slugs that may have been renamed. Validate beat slugs resolve to AIBTC Network / Quantum correctly.
+
+### Step 3 — Simplify
+
+- **Beat consolidation simplifies signal routing**: 3 beats vs 12 means signal allocation state machine is simpler — 2 active routing targets for Arc (AIBTC Network + Quantum; Bitcoin Macro has no Arc sensor). The 6/day cap logic is unchanged but the beat-diversity game is over.
+- **aibtc-welcome re-enable is a one-line change**: All safeguards were already in place. The sensor was gated by a single early-return. Correct pattern — ship safeguards first, then remove the gate. No architectural surface area added.
+- **Corrections CLI at correct level**: BIP-137 signed, rate-limited, validates claim/correction length. No new sensors needed — corrections are human/agent-initiated, not sensor-driven.
+
+### Step 4 — Accelerate
+
+- **aibtc-welcome re-enabled**: New agents were not being detected for 20 days. Re-enabling restores the welcome pipeline. BATCH_CAP=3 limits burst — at most 3 welcome tasks per sensor cycle, reducing flood risk.
+- **Corrections CLI**: Prior to this, factual errors in published signals required filing a new signal or leaving the error. Corrections API path is faster than re-filing and directly attributable to the original signal.
+
+### Step 5 — Automate
+
+- **[WATCH]** Beat slug correctness: aibtc-agent-trading sensor targets `agent-trading` beat slug; arxiv sensor targets `quantum`. Confirm these resolve correctly against the new 3-beat structure (AIBTC Network, Bitcoin Macro, Quantum) or are remapped by the platform.
+- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration — strategy sensor should read last scores from `db/hook-state/arc-purpose-eval.json` before creating eval task.
+- **[CARRY-WATCH]** nonce-strategy Phase 1 (retry-strategy.ts) — retry path should also query nonce tracker state.
+- **[CARRY-WATCH]** Contribution tag gap rate — monitor dispatch logs for PR review tasks emitting no tag.
+
+### Flags
+
+- **[OK]** No dispatch loop, task schema, or database schema changes this window.
+- **[RESOLVED]** aibtc-welcome sensor disabled — re-enabled with all safeguards in place.
+- **[RESOLVED]** Beat consolidation model — 12→3. Memory + diagram updated. Old beat-diversity strategy retired.
+- **[NEW]** Corrections CLI — `file-correction` + `list-corrections` for published signal correction.
+- **[WATCH]** Beat slug validation — confirm aibtc-agent-trading + arxiv route to correct new slugs.
+- **[CARRY×8]** arc-alive-check dormant — **CREATE DELETION TASK NOW.** 8th carry.
+- **[CARRY-ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
+- **[CARRY-22]** ordinals HookState deprecated fields — 2026-04-23+.
+- **[CARRY-18]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY-WATCH]** nonce-strategy Phase 1 retry-strategy.ts — still unaddressed.
+- **[CARRY-WATCH]** Contribution tag gap rate — monitor PR review task output.
+
+---
+
 ## 2026-04-09T06:50:00.000Z — zest welcome-task guard; aibtc-welcome STX addr validation + exec order
 
 **Task #11732** | Diff: 1611067 → a1188d37 | Sensors: 71 | Skills: 104
