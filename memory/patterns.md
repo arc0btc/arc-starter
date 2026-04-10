@@ -36,6 +36,12 @@ Concurrent tasks on the same account/nonce pool must serialize via shared tracki
 **p-validation-before-action** [2026-04-08, enhanced 2026-04-09]
 Before financial ops or external data use: validate address format at ingestion (Stacks mainnet = SP prefix + 38–41 chars) AND use an explicit deny list for addresses passing format validation but rejected by downstream APIs — format specs alone are insufficient since external services often have stricter validation rules (e.g., Hiro rejecting valid c32check addresses); validate at sensor level before creating tasks or staging payments to prevent resource waste on undeliverable targets. Also verify implementation method (API used, DB access pattern, tool invocation) matches expected pattern BEFORE investigating failure modes — method mismatches propagate across all dependent operations.
 
+**p-mcp-tool-wrapper-first** [2026-04-10]
+When building a skill to expose a capability (e.g., signal corrections, news management), check if an MCP tool already exists in upstream server (aibtc-mcp-server) before building from scratch. If yes, build thin CLI wrapper in your skill to expose the tool via `arc` CLI, rather than reimplementing. Keeps code synchronized with upstream and avoids duplicate logic.
+
+**p-deprecated-resource-precheck** [2026-04-10]
+Before filing signals, corrections, or follow-up tasks about a resource (repo, API, beat), verify it's still active in the publisher's system. Archived repos and sunset APIs don't warrant correction filings — if not in active use, just close the task. Example: agent-tools-ts was archived/replaced; no correction needed.
+
 ## Research & Synthesis
 
 **p-batch-to-individual-tasks** [2026-03-30]
@@ -77,9 +83,6 @@ Share architecture openly; reciprocate. Chain specialization makes agents comple
 
 **p-trusted-partner-draft-delegation** [2026-04-08]
 When a trusted partner provides draft content for outreach/messaging, use it as-is. Preserves network voice consistency, respects partner's domain expertise. Acknowledge receipt → queue P3 task with draft intact → let executor handle delivery.
-
-**p-unbounded-fetch-timeout-parallelization** [2026-03-30]
-Unbounded resource fetches without explicit timeout/parallelization create bottlenecks. Add explicit timeout (8s) and convert sequential chains to Promise.allSettled().
 
 **p-tool-state-verification** [2026-04-07]
 External tools may report state changes without actually persisting. Watch for invalid filename chars, tool output claiming success but file missing. Bypass tool state and use direct API calls when success is unverifiable.
