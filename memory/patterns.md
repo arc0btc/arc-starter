@@ -30,8 +30,8 @@ Persist audit findings with detail (skill name, line numbers, violation type). C
 **p-shared-resource-serialization** [2026-04-08]
 Concurrent tasks on the same account/nonce pool must serialize via shared tracking file + acquire-before-execute. Use mkdir-based locks for atomicity. Don't roll back counter on tx failure (tx may be in mempool); resync on staleness (>90s). Inject resource via CLI parameter through all call layers.
 
-**p-stale-mention-precheck** [2026-04-04]
-@mention notifications arrive for already-merged/closed PRs. Filter @mentions older than 48h or check PR/issue status before queuing review.
+**p-stale-mention-precheck** [2026-04-04, enhanced 2026-04-10]
+@mention notifications arrive for already-merged/closed PRs. Before queuing review: check PR state via `gh pr view` + Arc's prior approval (state check is authoritative, age-based filtering misses bulk closures). Bulk maintainer actions (e.g., end-of-competition cleanup) cause notification waves within 48h window.
 
 **p-validation-before-action** [2026-04-08, enhanced 2026-04-09]
 Before financial ops or external data use: validate address format at ingestion (Stacks mainnet = SP prefix + 38–41 chars) AND use an explicit deny list for addresses passing format validation but rejected by downstream APIs — format specs alone are insufficient since external services often have stricter validation rules (e.g., Hiro rejecting valid c32check addresses); validate at sensor level before creating tasks or staging payments to prevent resource waste on undeliverable targets. Also verify implementation method (API used, DB access pattern, tool invocation) matches expected pattern BEFORE investigating failure modes — method mismatches propagate across all dependent operations.
