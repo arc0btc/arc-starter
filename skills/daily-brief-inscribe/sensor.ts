@@ -162,14 +162,14 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
     description: [
       `Inscribe the aibtc.news daily brief for ${pstDate} as a child ordinal under the canonical parent.`,
       ``,
-      `## Workflow`,
+      `## Steps`,
       `1. Create workflow: arc skills run --name workflows -- create daily-brief-inscription brief-inscription-${pstDate} pending --context '{"date":"${pstDate}","parentId":"${parentId}","contentType":"text/plain"}'`,
       `2. Evaluate state machine: arc skills run --name workflows -- evaluate <workflow_id>`,
-      `3. Follow the state machine instructions at each state (fetch brief -> check balance -> commit tx -> confirm -> reveal -> record inscription -> payout)`,
+      `3. Close this task as completed. The workflows meta-sensor will pick up subsequent states automatically.`,
       ``,
-      `Close as failed if inscription tooling errors.`,
+      `Do NOT follow the state machine beyond step 2 — each state is handled as a separate task by the meta-sensor.`,
     ].join("\n"),
-    priority: 4,
+    priority: 5,
     skills: JSON.stringify(["workflows", "aibtc-news-classifieds", "bitcoin-wallet"]),
   });
 

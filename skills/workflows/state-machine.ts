@@ -753,7 +753,10 @@ Steps:
      --fee-rate ${ctx.feeRate ?? 1}
 
 2. On success: store commitTxid, revealAmount, and feeRate in workflow context.
-   Transition workflow to 'committed'.
+   IMPORTANT: Also clear briefContent from context to reduce token usage in later states:
+   arc skills run --name workflows -- transition <workflow_id> committed \\
+     --context '{"commitTxid":"<txid>","revealAmount":<amount>,"feeRate":${ctx.feeRate ?? 1},"briefContent":null}'
+   The brief text is preserved in the child-inscription state file for the reveal step.
 
 3. On failure: transition to 'failed' with failureReason set to the error message.
 
