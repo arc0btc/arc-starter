@@ -256,6 +256,9 @@ function countRecentNonceFailures(withinHours: number): number {
 
 export default async function aibtcWelcomeSensor(): Promise<string> {
   try {
+    // Temporarily disabled — causing issues, skip unconditionally
+    return "skip";
+
     const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (!claimed) return "skip";
 
