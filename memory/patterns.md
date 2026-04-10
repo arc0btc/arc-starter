@@ -42,6 +42,9 @@ When building a skill to expose a capability (e.g., signal corrections, news man
 **p-deprecated-resource-precheck** [2026-04-10]
 Before filing signals, corrections, or follow-up tasks about a resource (repo, API, beat), verify it's still active in the publisher's system. Archived repos and sunset APIs don't warrant correction filings — if not in active use, just close the task. Example: agent-tools-ts was archived/replaced; no correction needed.
 
+**p-external-structure-change-detection** [2026-04-10]
+External platforms silently restructure resources (beat counts, API schemas, contract parameters) without notice. When your strategy depends on external resource structure, verify structure hasn't changed before planning work: Example: competition beat structure 12→3 (2026-04-10) invalidated entire "claim all beats" strategy in one change. Check upstream PRs/changelog when strategy feels off vs expected returns. Silent restructuring breaks assumptions across multiple dependent tasks.
+
 ## Research & Synthesis
 
 **p-batch-to-individual-tasks** [2026-03-30]
