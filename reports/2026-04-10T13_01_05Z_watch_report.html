@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-09T13:00Z — 2026-04-10T13:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-09T13:00:53Z — 2026-04-10T13:01:05Z</div>
+</header>
+
+<p class="summary">36 tasks completed across 54 cycles ($16.62). All 15 failures are Hiro 400 address validation on welcome agents — same single unshipped pre-validation fix (#11484) for day 4. 1 signal filed (agent-trading). bff-skills closed-PR review wave cleared. System healthy except welcome queue.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">36</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">15</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$16.62</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">21,150k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">103k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">11782</td>
+      <td class="pri">6</td>
+      <td>Watch report — 2026-04-09T13:00Z</td>
+      <td>37 tasks, $0.75 — prev period baseline</td>
+      <td class="cost">$0.7497</td>
+    </tr>
+    <tr>
+      <td class="id">11800</td>
+      <td class="pri">2</td>
+      <td>Overnight brief — 2026-04-09</td>
+      <td>20 completed, 56 failed (54 Hiro 400)</td>
+      <td class="cost">$0.7664</td>
+    </tr>
+    <tr>
+      <td class="id">11804</td>
+      <td class="pri">8</td>
+      <td>Retrospective: overnight brief learnings</td>
+      <td>Signal drought broken; Hiro 400 pattern confirmed</td>
+      <td class="cost">$0.3446</td>
+    </tr>
+    <tr>
+      <td class="id">11807</td>
+      <td class="pri">5</td>
+      <td>Review PR #321 aibtcdev/skills</td>
+      <td>Approved with 1 suggestion (relay-health fix)</td>
+      <td class="cost">$0.6166</td>
+    </tr>
+    <tr>
+      <td class="id">11808</td>
+      <td class="pri">5</td>
+      <td>bff-skills PR #211 hodlmm-advisor</td>
+      <td>Approved — both open issues addressed</td>
+      <td class="cost">$0.2925</td>
+    </tr>
+    <tr>
+      <td class="id">11809</td>
+      <td class="pri">5</td>
+      <td>bff-skills PR #137 hodlmm-liquidity-tide</td>
+      <td>Reviewed and approved — solid implementation</td>
+      <td class="cost">$0.4207</td>
+    </tr>
+    <tr>
+      <td class="id">11813</td>
+      <td class="pri">5</td>
+      <td>bff-skills @mention (re-review)</td>
+      <td>Arc already approved; author addressed all prior issues</td>
+      <td class="cost">$0.2344</td>
+    </tr>
+    <tr>
+      <td class="id">11814</td>
+      <td class="pri">5</td>
+      <td>bff-skills PR #250 hodlmm-idle-liquidity</td>
+      <td>Reviewed and requested changes</td>
+      <td class="cost">$0.3714</td>
+    </tr>
+    <tr>
+      <td class="id">11818</td>
+      <td class="pri">4</td>
+      <td>CEO review — 2026-04-09T14:31</td>
+      <td>On track — P2 fixes shipped (STX pre-validation)</td>
+      <td class="cost">$0.4490</td>
+    </tr>
+    <tr>
+      <td class="id">11822</td>
+      <td class="pri">7</td>
+      <td>Housekeeping: 1 issue detected</td>
+      <td>Archived 2 old ISO 8601 files from reports/</td>
+      <td class="cost">$0.1104</td>
+    </tr>
+    <tr>
+      <td class="id">11823</td>
+      <td class="pri">4</td>
+      <td>Email watch report to whoabuddy</td>
+      <td>Watch report emailed successfully</td>
+      <td class="cost">$0.5238</td>
+    </tr>
+    <tr>
+      <td class="id">11824</td>
+      <td class="pri">5</td>
+      <td>Daily self-evaluation: PURPOSE rubric</td>
+      <td>PURPOSE 3.20 (S:3 O:2 E:4 C:3 A:5 Co:3 Se:3)</td>
+      <td class="cost">$1.3438</td>
+    </tr>
+    <tr>
+      <td class="id">11825</td>
+      <td class="pri">8</td>
+      <td>Retrospective: learnings from task #11824</td>
+      <td>2 patterns extracted: failure-cluster-metric-opacity</td>
+      <td class="cost">$0.1337</td>
+    </tr>
+    <tr>
+      <td class="id">11674</td>
+      <td class="pri">4</td>
+      <td>File agent-trading signal: P2P desk</td>
+      <td>Filed: P2P desk 7/8 trades, 5000 sats avg</td>
+      <td class="cost">$0.2185</td>
+    </tr>
+    <tr>
+      <td class="id">11826</td>
+      <td class="pri">5</td>
+      <td>bff-skills PR #243 sBTC Yield Maximizer</td>
+      <td>Requested changes — initial review</td>
+      <td class="cost">$0.4259</td>
+    </tr>
+    <tr>
+      <td class="id">11827</td>
+      <td class="pri">5</td>
+      <td>bff-skills PR #243 re-review</td>
+      <td>4 of 6 issues resolved, 2 remaining</td>
+      <td class="cost">$0.5484</td>
+    </tr>
+    <tr>
+      <td class="id">11831</td>
+      <td class="pri">5</td>
+      <td>bff-skills PR #243 re-review (2nd)</td>
+      <td>Re-reviewed sBTC Yield Maximizer — still in progress</td>
+      <td class="cost">$0.4179</td>
+    </tr>
+    <tr>
+      <td class="id">11784</td>
+      <td class="pri">5</td>
+      <td>bff-skills @mention (closed PR #110)</td>
+      <td>PR already closed; validated TheBigMacBTC findings</td>
+      <td class="cost">$0.2803</td>
+    </tr>
+    <tr>
+      <td class="id">11785</td>
+      <td class="pri">5</td>
+      <td>bff-skills @mention (closed PR #108)</td>
+      <td>PR closed by maintainer — test coverage gap noted</td>
+      <td class="cost">$0.2683</td>
+    </tr>
+    <tr>
+      <td class="id">11786</td>
+      <td class="pri">5</td>
+      <td>bff-skills @mention (closed PR #114)</td>
+      <td>Exact duplicate of PR; maintainer closed correctly</td>
+      <td class="cost">$0.2067</td>
+    </tr>
+    <tr>
+      <td class="id">11787</td>
+      <td class="pri">5</td>
+      <td>bff-skills @mention (closed PR #115)</td>
+      <td>Validated TheBigMacBTC closure feedback</td>
+      <td class="cost">$0.3413</td>
+    </tr>
+    <tr>
+      <td class="id">11788</td>
+      <td class="pri">5</td>
+      <td>bff-skills @mention (closed PR)</td>
+      <td>Validated TheBigMacBTC close decision on Zest PR</td>
+      <td class="cost">$0.2904</td>
+    </tr>
+    <tr>
+      <td class="id">11789</td>
+      <td class="pri">5</td>
+      <td>bff-skills @mention (closed PR #135)</td>
+      <td>Already closed by moderator; validation comment posted</td>
+      <td class="cost">$0.2937</td>
+    </tr>
+    <tr>
+      <td class="id">11790</td>
+      <td class="pri">5</td>
+      <td>bff-skills @mention (closed PR #175)</td>
+      <td>Validated TheBigMacBTC feedback on Zest position PR</td>
+      <td class="cost">$0.3381</td>
+    </tr>
+    <tr>
+      <td class="id">11791</td>
+      <td class="pri">5</td>
+      <td>bff-skills @mention (closed PR #165)</td>
+      <td>Validated TheBigMacBTC closing feedback</td>
+      <td class="cost">$0.2775</td>
+    </tr>
+    <tr>
+      <td class="id">11792</td>
+      <td class="pri">5</td>
+      <td>bff-skills @mention (closed PR #209)</td>
+      <td>PR closed; Arc previously reviewed</td>
+      <td class="cost">$0.2049</td>
+    </tr>
+    <tr>
+      <td class="id">11793</td>
+      <td class="pri">5</td>
+      <td>bff-skills @mention (closed PR #204)</td>
+      <td>Closed by TheBigMacBTC; Arc's prior changes validated</td>
+      <td class="cost">$0.2613</td>
+    </tr>
+    <tr>
+      <td class="id">11794</td>
+      <td class="pri">5</td>
+      <td>bff-skills @mention (closed PR #95)</td>
+      <td>Closed/superseded by merged hermetica-yield PR</td>
+      <td class="cost">$0.3839</td>
+    </tr>
+    <tr>
+      <td class="id">11795</td>
+      <td class="pri">5</td>
+      <td>bff-skills @mention (closed PR #113)</td>
+      <td>Validated prior review feedback on zest-collateral</td>
+      <td class="cost">$0.3446</td>
+    </tr>
+    <tr>
+      <td class="id">11796</td>
+      <td class="pri">5</td>
+      <td>bff-skills @mention (closed PR #240)</td>
+      <td>Closed by maintainer as duplicate</td>
+      <td class="cost">$0.2810</td>
+    </tr>
+    <tr>
+      <td class="id">11797</td>
+      <td class="pri">5</td>
+      <td>bff-skills @mention (closed PR #241)</td>
+      <td>Closed by TheBigMacBTC as duplicate of #242</td>
+      <td class="cost">$0.2709</td>
+    </tr>
+    <tr>
+      <td class="id">11798</td>
+      <td class="pri">5</td>
+      <td>bff-skills @mention (closed PR #242)</td>
+      <td>Validated TheBigMacBTC closure feedback</td>
+      <td class="cost">$0.2375</td>
+    </tr>
+    <tr>
+      <td class="id">11799</td>
+      <td class="pri">5</td>
+      <td>bff-skills @mention (closed PR #245)</td>
+      <td>Closed by TheBigMacBTC for mock stubs + two-review</td>
+      <td class="cost">$0.2550</td>
+    </tr>
+    <tr>
+      <td class="id">11805</td>
+      <td class="pri">5</td>
+      <td>bff-skills @mention (closed PR #110)</td>
+      <td>Already closed; arc0btc validated both bug fixes</td>
+      <td class="cost">$0.2332</td>
+    </tr>
+    <tr>
+      <td class="id">11806</td>
+      <td class="pri">5</td>
+      <td>bff-skills @mention (closed PR)</td>
+      <td>Already closed and Arc already reviewed</td>
+      <td class="cost">$0.1027</td>
+    </tr>
+    <tr>
+      <td class="id">11782</td>
+      <td class="pri">6</td>
+      <td>Watch report — 2026-04-09T13:00Z</td>
+      <td>Watch report generated and emailed</td>
+      <td class="cost">$0.7497</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 style="font-size:0.95rem; color:var(--vermillion); margin:0.5rem 0;">Failed (15)</h3>
+<table>
+  <thead><tr><th>#</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr><td class="id">11801–11821</td><td>Welcome new AIBTC agent (×15)</td><td>Hiro 400 address validation — pre-validation guard #11484 unshipped (day 4)</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. stacks-market portfolio unavailable.</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+<div class="commit"><span class="hash">95fabae8</span>docs(report): overnight brief 2026-04-10T14:00:00Z</div>
+<div class="commit"><span class="hash">3812d28c</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">da7d25b3</span>feat(aibtc-news-editorial): add file-correction and list-corrections CLI commands</div>
+<div class="commit"><span class="hash">2a0d7920</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">d7425d19</span>chore(memory): auto-persist on Stop</div>
+<div class="commit"><span class="hash">6dcdf3e5</span>feat(claude-code-releases): applicability report for v2.1.100</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+<div class="queue-item"><span class="pri-tag">P7</span>Supply 21,700 sats idle sBTC to Zest yield pool (#11858)</div>
+<div class="queue-item"><span class="pri-tag">P7</span>Welcome new AIBTC agent: Indigo Deer (#12032)</div>
+<div class="queue-item"><span class="pri-tag">P7</span>Welcome new AIBTC agent: Verified Panther (#12033)</div>
+<div class="queue-item"><span class="pri-tag">P7</span>Welcome new AIBTC agent: Flash Kael (#12034)</div>
+<div class="queue-item"><span class="pri-tag">P7</span>Housekeeping: 1 issue detected (#12037)</div>
+<div class="queue-item"><span class="pri-tag">P7</span>Welcome new AIBTC agent: Halcyon Heron (#12043)</div>
+<div class="queue-item"><span class="pri-tag">P7</span>Welcome new AIBTC agent: Small Gear (#12044)</div>
+<div class="queue-item"><span class="pri-tag">P7</span>Welcome new AIBTC agent: Snappy Teal (#12045)</div>
+<div class="queue-item"><span class="pri-tag">P7</span>[Loom Health] RED - Token spiral: 1.8M tokens (#12051)</div>
+<div class="queue-item"><span class="pri-tag">P7</span>Assess CLAUDE_CODE_SUBPROCESS_ENV_SCRUB for dispatch (#12055)</div>
+<div class="queue-item"><span class="pri-tag">P7</span>Welcome new AIBTC agent: Ancient Scepter (#12057)</div>
+<div class="queue-item"><span class="pri-tag">P7</span>Welcome new AIBTC agent: Flash Fox (#12058)</div>
+<div class="queue-item"><span class="pri-tag">P7</span>Welcome new AIBTC agent: Pure Troll (#12059)</div>
+<div class="queue-item"><span class="pri-tag">P8</span>Retrospective: learnings from task #12007 (#12036)</div>
+<div class="queue-item"><span class="pri-tag">P8</span>Retrospective: learnings from overnight brief (#12040)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+<div class="obs"><strong>Hiro 400 fix (#11484) is now day 4 unshipped.</strong> All 15 failures this period are the exact same root cause: STX address pre-validation missing before x402 payment. Each failed welcome burns x402 credits in addition to the task cost. This is the single highest-leverage fix in the system right now.</div>
+<div class="obs"><strong>bff-skills closed-PR wave dominated the period.</strong> ~19 tasks validated TheBigMacBTC's bulk closure of old PRs. These are technically correct but low-ROI — the approved-PR guard handles same-PR re-notifications but doesn't filter bulk maintainer-closed PRs. Pattern: PRs closed by maintainers after competition ends generate a notification burst. Low priority mitigation: check PR state before queuing review task.</div>
+<div class="obs"><strong>PURPOSE score 3.20 — best recent result.</strong> ~7 signals filed across 5 beats in the prior overnight session (including quantum×2 and agent-trading). The competition position improved; leaderboard check pending. Signal filing is now the primary competition lever now that beat consolidation (12→3) has simplified the landscape.</div>
+<div class="obs"><strong>6 commits landed including file-correction CLI for aibtc-news-editorial.</strong> This unlocks the ability to correct published signals against the new 3-beat structure. The aibtc-news-editorial correction commands (file-correction + list-corrections) are now operational via `arc skills run`.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
