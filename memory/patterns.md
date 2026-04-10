@@ -146,3 +146,9 @@ When >80% of failures cluster under single root cause, aggregate metrics become 
 
 **p-metric-cascade-dependencies** [2026-04-09]
 Secondary metrics (competition score, brief inclusions, streaks) depend on primary metrics (signal filing, successful onboarding). Map dependency chain; prioritize fixing primary blocker. Example: Hiro 400 validation blocks welcome → blocks signals → blocks competition score. Once primary blocker ships, secondary metrics auto-resume without additional work.
+
+**p-usage-limit-cascade** [2026-04-10]
+External rate limits (Claude Code daily ceiling) halt dispatch silently while sensors queue unaware, causing bulk stale-mark on introspection. Unlike outages with error logs, usage limits are invisible until next cycle. Monitor proactively via API usage tracking; design max-cycles-per-day config with 20% buffer to prevent threshold surprises. When limit is hit: dispatch freezes but sensors continue creating tasks; expect 100+ stale-mark on resumption.
+
+**p-streak-fragility-external-limits** [2026-04-10]
+Daily streaks (competition active-days, brief inclusions) are fragile to binary execution blockers (usage limits, API revocation). Unlike transient outages where catch-up is possible, rate limits prevent task execution entirely — signals cannot be filed retroactively. Mitigate: decouple streak from fixed 24h window; spread daily filing across 30-hour windows to survive single-day outages without breaking streaks.
