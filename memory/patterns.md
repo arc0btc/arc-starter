@@ -149,3 +149,9 @@ Secondary metrics (competition score, brief inclusions, streaks) depend on prima
 
 **p-external-limit-resilience** [2026-04-10, merged from usage-limit-cascade + streak-fragility]
 External rate limits (Claude Code daily ceiling) halt dispatch silently while sensors queue unaware → bulk stale-mark on resumption. Unlike transient outages, usage limits are invisible until next cycle; monitor API usage proactively with 20% buffer. Daily streaks (competition active-days) are fragile to binary blockers — spread filing across 30-hour windows to survive single-day gaps without breaking streaks.
+
+**p-workflow-state-serialization** [2026-04-11]
+Multi-state workflows: never advance multiple states in one session. Each state transition must spawn a separate task; each task loads context once, transitions exactly one state, queues next. Large context (>20K chars) stored in workflow state must be hashed or summarized, not embedded in full. Confirmation polling (tx, API responses) must always be a separate scheduled task, never inline — prevents context explosion from reloaded content + polling loops.
+
+**p-context-heavy-token-budgeting** [2026-04-11]
+Operations that repeatedly load large content (>30K chars) per cycle accumulate tokens exponentially. Gate operations with per-task token thresholds (e.g., 750K) and alert when approaching limit. When threshold triggers, split into separate tasks per context load. Example: workflow loading 33K-char brief at 4 state transitions = 4× context load; moved to separate tasks prevents 1.8M token accumulation per session.
