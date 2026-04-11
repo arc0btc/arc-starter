@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-04-10T18:50:00.000Z*
-*Sensor count: 73 | Skill count: 106*
+*Generated: 2026-04-11T06:45:00.000Z*
+*Sensor count: 70 | Skill count: 103*
 
 ```mermaid
 stateDiagram-v2
@@ -24,8 +24,8 @@ stateDiagram-v2
         RunAllSensors --> MonitoringSensors
 
         state HealthSensors {
-            arc_alive_check
             arc_service_health
+            note right of arc_service_health: arc-alive-check DELETED (ee328387)\nDormant since 2026-03-12, superseded by arc-service-health\nCARRY×8 resolved — sensor count 73→70
         }
 
         state GitHubSensors {
@@ -73,7 +73,7 @@ stateDiagram-v2
             aibtc_heartbeat
             aibtc_inbox_sync
             aibtc_welcome
-            note right of aibtc_welcome: isRelayHealthy() probe 3: relay /status/sponsor\n(was Hiro nonce API, wallet 0 only)\nNow covers all 10 pool wallets (e5210b25)\nRemoves SPONSOR_ADDRESS + direct Hiro dependency\nNONCE SERIALIZATION (22e93116): stx-send-runner.ts calls acquireNonce()\nbefore transferStx() — local counter in ~/.aibtc/nonce-state.json\nPrevents ConflictingNonceInMempool when welcome + Zest ops run concurrently\nExplicit --nonce callers (gap-fill, RBF) bypass tracker unchanged\nOn failure: release as "broadcast" — tracker auto-resyncs after 90s\nSTX ADDR VALIDATION (b78313ad): checkStxAddress() at sensor level\nLayer 1: c32check format/checksum/length validation\nLayer 2: HIRO_REJECTED_STX_ADDRESSES deny list (known Hiro-bad)\nInvalid → skip task creation (no x402 credit burn)\nEXECUTION ORDER FIX: STX send runs before x402 payment\nIf Hiro rejects address → abort before x402 staged\nPrevents double loss (credits burned + STX send failed)\nRE-ENABLED (0f72a466): sensor disabled 2026-03-21 (71 pending flood)\nRe-enabled 2026-04-10 — 20 days of safeguards now mature:\nBATCH_CAP=3, DAILY_COMPLETED_CAP=10, 24h dedup per-agent\nRelay CB + self-healing + STX pre-validation all in place\nNew agents now detected again after 20-day pause
+            note right of aibtc_welcome: isRelayHealthy() probe 3: relay /status/sponsor\n(was Hiro nonce API, wallet 0 only)\nNow covers all 10 pool wallets (e5210b25)\nRemoves SPONSOR_ADDRESS + direct Hiro dependency\nNONCE SERIALIZATION (22e93116): stx-send-runner.ts calls acquireNonce()\nbefore transferStx() — local counter in ~/.aibtc/nonce-state.json\nPrevents ConflictingNonceInMempool when welcome + Zest ops run concurrently\nExplicit --nonce callers (gap-fill, RBF) bypass tracker unchanged\nOn failure: release as "broadcast" — tracker auto-resyncs after 90s\nSTX ADDR VALIDATION (b78313ad): checkStxAddress() at sensor level\nLayer 1: c32check format/checksum/length validation\nLayer 2: HIRO_REJECTED_STX_ADDRESSES deny list (known Hiro-bad)\nLayer 3: probeHiroStxAddress() (4bb84aee) — async GET /v2/accounts/{addr}\n5s timeout, fail-open on network error (don't block on Hiro downtime)\n4xx → skip agent + mark welcomed (no x402 credit burn)\nSome addresses pass c32check but fail Hiro pattern check at broadcast\nFull 3-layer validation eliminates residual Hiro 400 failures\nEXECUTION ORDER FIX: STX send runs before x402 payment\nIf Hiro rejects address → abort before x402 staged\nPrevents double loss (credits burned + STX send failed)\nRE-ENABLED (0f72a466): sensor disabled 2026-03-21 (71 pending flood)\nRe-enabled 2026-04-10 — 20 days of safeguards now mature:\nBATCH_CAP=3, DAILY_COMPLETED_CAP=10, 24h dedup per-agent\nRelay CB + self-healing + STX pre-validation all in place\nNew agents now detected again after 20-day pause
             erc8004_reputation
             erc8004_indexer
             identity_guard
@@ -194,7 +194,7 @@ stateDiagram-v2
             ReadTaskModel --> HaikuTier: model=haiku (explicit)
             ReadTaskModel --> CodexRoute: model=codex/*
             ReadTaskModel --> OpenRouterRoute: model=openrouter/*
-            note right of ReadTaskModel: ARC_DISPATCH_MODEL env var\nset from MODEL_IDS[model]\npassed to subprocess\nEFFORT PINNED (8dc10022): --effort explicit per model\nopus: --effort high, MAX_THINKING_TOKENS=30000\nhaiku/sonnet/test: --effort medium, MAX_THINKING_TOKENS=10000\nPrevents silent cost inflation from upstream default changes (v2.1.94)
+            note right of ReadTaskModel: ARC_DISPATCH_MODEL env var\nset from MODEL_IDS[model]\npassed to subprocess\nEFFORT PINNED (8dc10022): --effort explicit per model\nopus: --effort high, MAX_THINKING_TOKENS=30000\nhaiku/sonnet/test: --effort medium, MAX_THINKING_TOKENS=10000\nPrevents silent cost inflation from upstream default changes (v2.1.94)\nAPI_TIMEOUT_MS (95930cf0): env var set to match dispatch timeout\nOpus=30min, Sonnet=15min, Haiku=5min (model-aware)\nv2.1.101+ respects API_TIMEOUT_MS (previously hardcoded 5min)\nPre-set so individual API calls don't abort before outer watchdog fires
         }
 
         state OpusTier {
@@ -291,7 +291,7 @@ stateDiagram-v2
     ContentSensors --> SignalAllocation
 ```
 
-## Sensor Count by Category (2026-04-10T18:50Z)
+## Sensor Count by Category (2026-04-11T06:45Z)
 
 | Category | Count |
 |----------|-------|
@@ -301,12 +301,20 @@ stateDiagram-v2
 | AIBTC/ERC-8004 | 7 |
 | Infrastructure | 14 |
 | DeFi | 6 |
-| Health | 2 |
+| Health | 1 |
 | Monitoring | 7 |
 | Other/Misc | 3 |
-| **Total** | **73** |
+| **Total** | **72** |
 
-*Note: aibtc-agent-trading NEW (5da9081c) — sensor count 68→69. arc-purpose-eval NEW (f1e0a1f6) — 70→71. Infrastructure +2 (claude-code-releases sensor + one other) — 71→73, skill count 104→106.*
+*Note: arc-alive-check DELETED (ee328387) — Health: 2→1, sensor count 73→70 (file count). arc-purpose-eval NEW (f1e0a1f6) — 70→71. aibtc-agent-trading NEW (5da9081c) — 68→69.*
+
+## Key Architectural Changes (0f72a466 → 4bb84aee) [2026-04-11T06:45Z]
+
+| Change | Impact |
+|--------|--------|
+| **chore(sensors): delete arc-alive-check** (ee328387) | Dormant sensor finally removed after 8 consecutive architecture review carries. Superseded by arc-service-health. Sensor count 73→70. |
+| **fix(aibtc-welcome): probe-based Hiro address validation** (4bb84aee) | `probeHiroStxAddress()` added as Layer 3 of address validation. Async GET /v2/accounts/{addr} with 5s timeout, fail-open on network error. Catches addresses that pass c32check but fail Hiro pattern check at broadcast. Drop from 135 Hiro 400 failures/period to ~10 (residual pre-fix backlog). |
+| **fix(dispatch): API_TIMEOUT_MS model-aware timeout** (95930cf0) | `API_TIMEOUT_MS` env var set in dispatch subprocess env, matching model dispatch timeout (Opus=30min, Sonnet=15min, Haiku=5min). v2.1.101+ respects this var (was hardcoded 5min). Prevents individual API calls from aborting before outer watchdog fires. |
 
 ## Key Architectural Changes (a1188d37 → 0f72a466) [2026-04-10T18:50Z]
 

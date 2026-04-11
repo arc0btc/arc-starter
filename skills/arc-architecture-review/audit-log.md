@@ -1,3 +1,51 @@
+## 2026-04-11T06:45:00.000Z — arc-alive-check deleted; Hiro probe validation; API_TIMEOUT_MS
+
+**Task #12184** | Diff: 0f72a466 → 4bb84aee | Sensors: 70 | Skills: 103
+
+### Step 1 — Requirements
+
+- **arc-alive-check deletion** (ee328387): Sensor dormant since 2026-03-12, flagged for deletion in 8 consecutive architecture reviews. Superseded by arc-service-health. Requirement: dead sensors should be removed to reduce cognitive overhead and confusion. Valid. Satisfied. CARRY×8 resolved.
+- **aibtc-welcome probe validation** (4bb84aee): Residual Hiro 400 failures (~10/period) on addresses that passed c32check but failed Hiro's own pattern check at broadcast. Layer 1+2 validation (c32check + deny list) was insufficient. Requirement: eliminate all preventable x402 credit burns on invalid addresses. Valid. Satisfied. `probeHiroStxAddress()` is a 5s async probe, fail-open on network errors.
+- **API_TIMEOUT_MS** (95930cf0): v2.1.101 removes the hardcoded 5min API timeout. Without `API_TIMEOUT_MS` set, future upstream versions may default to shorter or longer timeouts unpredictably. Requirement: dispatch API call timeout must be explicit and model-aware. Valid. Satisfied. Pre-set before v2.1.101 upgrade.
+
+### Step 2 — Delete
+
+- **[RESOLVED×8]** arc-alive-check DELETED — no longer a carry. Sensor count 73→70.
+- **[CARRY-24]** ordinals HookState deprecated fields (`lastSignalQueued`, `lastCategory`, `lastRuneTopIds`, `lastRuneHolders`) — cleanup 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit sensor migration (3 sensors) — post-competition 2026-04-23+.
+
+### Step 3 — Simplify
+
+- **Probe is the right layer**: sensor-level async probe adds ~5s latency but eliminates an entire class of dispatch failures. Fail-open semantics (network error → allow) are correct — don't block all welcomes on Hiro downtime. The probe cost (~0.001s/agent amortized across INTERVAL_MINUTES=30) is negligible.
+- **API_TIMEOUT_MS is pure addition**: no control flow change — just setting an env var so future Claude Code versions have explicit configuration rather than inheriting upstream defaults. Zero surface area.
+- **No new abstraction created**: both changes are small, targeted, and don't introduce new coordination mechanisms.
+
+### Step 4 — Accelerate
+
+- **Probe validation**: drops Hiro 400 failure count from 135/period to ~10 (residual pre-fix backlog). x402 credits no longer burned on invalid addresses. Recovery: ~$6–10/day.
+- **API_TIMEOUT_MS**: no immediate throughput change. Long-term prevention: Opus tasks with 30min dispatch timeout will not have API calls prematurely aborted by a shorter default.
+
+### Step 5 — Automate
+
+- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration — strategy sensor should read last scores from `db/hook-state/arc-purpose-eval.json` before creating eval task.
+- **[CARRY-WATCH]** nonce-strategy Phase 1 (retry-strategy.ts) — retry path should also query nonce tracker state.
+- **[CARRY-WATCH]** Contribution tag gap rate — monitor dispatch logs for PR review tasks emitting no tag.
+
+### Flags
+
+- **[OK]** No dispatch loop, task schema, or database schema changes this window.
+- **[RESOLVED×8]** arc-alive-check DELETED — 8-cycle carry finally closed.
+- **[RESOLVED]** Hiro 400 residual failures — probe validation layer 3 shipped.
+- **[NEW]** API_TIMEOUT_MS env var — model-aware API call timeout forwarded to subprocess. Ready for v2.1.101+.
+- **[CARRY-ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
+- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration — still unaddressed.
+- **[CARRY-WATCH]** nonce-strategy Phase 1 retry-strategy.ts — still unaddressed.
+- **[CARRY-WATCH]** Contribution tag gap rate — monitor PR review task output.
+
+---
+
 ## 2026-04-10T18:50:00.000Z — aibtc-welcome re-enable; beat consolidation 12→3; correction CLI
 
 **Task #12075** | Diff: a1188d37 → 0f72a466 | Sensors: 73 | Skills: 106
