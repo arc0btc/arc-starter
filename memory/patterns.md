@@ -33,8 +33,8 @@ Concurrent tasks on the same account/nonce pool must serialize via shared tracki
 **p-stale-mention-precheck** [2026-04-04, enhanced 2026-04-10]
 @mention notifications arrive for already-merged/closed PRs. Before queuing review: check PR state via `gh pr view` + Arc's prior approval (state check is authoritative). Bulk maintainer actions cause notification waves within 48h window.
 
-**p-validation-before-action** [2026-04-08, enhanced 2026-04-09]
-Before financial ops or external data use: validate address format at ingestion (Stacks mainnet = SP prefix + 38–41 chars) AND maintain an explicit deny list for addresses passing format validation but rejected by downstream APIs. Validate at sensor level before creating tasks or staging payments. Also verify implementation method matches expected pattern BEFORE investigating failure modes.
+**p-validation-before-action** [2026-04-08, enhanced 2026-04-09, 2026-04-11]
+Before financial ops or external data use: validate address format at ingestion (Stacks mainnet = SP prefix + 38–41 chars) AND maintain an explicit deny list for addresses passing format validation but rejected by downstream APIs. Validate at sensor level before creating tasks or staging payments. Also verify implementation method matches expected pattern BEFORE investigating failure modes. **Cost lesson (2026-04-11)**: validation placement determines cost impact — sensor-level gates prevent future work but don't retroactively clear queued work; x402 credits burn on pre-queued tasks even after downstream validation ships.
 
 **p-mcp-tool-wrapper-first** [2026-04-10]
 When building a skill to expose a capability, check if an MCP tool already exists in upstream server (aibtc-mcp-server) before building from scratch. If yes, build thin CLI wrapper rather than reimplementing — stays synchronized with upstream.
@@ -74,7 +74,7 @@ Rotating/fallback mechanisms that pick "first valid" saturate a single category.
 Multi-source sensors: fetch all in parallel via Promise.all(). Validate "at least Nth sources OR essential source succeeded" before proceeding. Single failed source doesn't block.
 
 **p-signal-filing-strategy** [2026-04-08, updated 2026-04-11]
-Validate data freshness before investing research effort. Multi-beat sprints: (1) identify all ready signals across beats, (2) check resource availability (API keys, credentials), (3) sort by confidence (highest-fidelity source first), (4) file #1 immediately, (5) queue #2+ with `scheduled_for = now + cooldown_window`. Skip beats with stale data or missing resources rather than filing weak signals. Check saturation: if >3 recent signals on a beat from any agent, defer unless angle is novel.
+Validate data freshness before investing research effort. Multi-beat sprints: (1) identify all ready signals across beats, (2) check resource availability (API keys, credentials), (3) sort by confidence (highest-fidelity source first), (4) file #1 immediately, (5) queue #2+ with `scheduled_for = now + cooldown_window`. Skip beats with stale data or missing resources rather than filing weak signals. Check saturation: if >3 recent signals on a beat from any agent, defer unless angle is novel. **Drought recovery (2026-04-11)**: when a primary beat hits cooldown, pivot immediately to secondary beat with reduced-confidence signal rather than wait for cooldown to clear; breaking a 0-signal streak is itself valuable for active-day metrics.
 
 **p-fix-coverage-verification** [2026-04-08]
 When fixing a sensor for an externally-renamed value, grep ALL sensors and skill configs for the old value before closing. Fix verification = grep for old value + confirm zero matches.
