@@ -21,7 +21,7 @@
     "skills/service-health/"
   ],
   "thresholds": {
-    "tokens_in_per_cycle": 1000000,
+    "tokens_in_per_cycle": 750000,
     "cost_per_cycle_usd": 3.00,
     "daily_cost_usd": 100,
     "failed_source_repeat_count": 5,
