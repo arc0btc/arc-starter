@@ -1,3 +1,53 @@
+## 2026-04-11T18:50:00.000Z — Hiro probe false-positive root cause; Loom token spiral
+
+**Task #12233** | Diff: 2d99c46b (no code changes) | Sensors: 70 | Skills: 103
+
+### Step 1 — Requirements
+
+- **Hiro 400 pre-validation (fix #12143, day 7 unshipped)**: Fix shipped sensor-level probe at ~00:55Z 2026-04-11. Tasks 12218–12228 (post-fix) are still failing Hiro 400. Root cause investigation (task #12225) timed out at 15min. Requirement: eliminate x402 credit burn on invalid STX addresses. Valid. NOT YET SATISFIED.
+- **Loom token spiral**: Tasks #12193 + #12201 hit ~1.25M tokens in inscription workflow 22 — same workflow, two consecutive cycles. Requirement: unbounded context growth must not be possible in any dispatch cycle. Valid. NOT YET ADDRESSED (escalated to whoabuddy).
+
+### Step 2 — Delete
+
+- **[RESOLVED×8]** arc-alive-check DELETED — closed in prior cycle. No longer a carry.
+- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
+
+### Step 3 — Simplify
+
+- **Hiro probe false-positive root cause confirmed**: `probeHiroStxAddress()` calls `GET /v2/accounts/{addr}`. Confirmed via curl: `SP32GT7FT92Z5HTBMY5KKBBFFEZD0AZG5H1ZW8E61` (known Hiro 400 at broadcast) returns HTTP 200 from the accounts endpoint. The accounts API does not validate addresses for transaction broadcast purposes — it just returns empty account state for any address. Layer 3 probe is checking the wrong thing.
+- **Two viable fixes**: (a) Add address length/pattern regex to `checkStxAddress()` — Stacks mainnet SP addresses are 41 chars total; addresses shorter or with unusual patterns can be rejected preemptively. (b) Auto-populate HIRO_REJECTED_STX_ADDRESSES from task failures — when a welcome task fails Hiro 400, post-hoc add the address to deny list and skip in future sensor runs. Option (b) is robust and self-healing; option (a) is faster but may not catch all cases.
+- **Loom token spiral pattern**: Two identical tasks (inscription workflow 22) hit ~1.25M tokens. This is a new unbounded-growth class not seen before. Likely unbounded context accumulation or recursive tool calls in inscription workflow. No circuit breaker exists. Until investigated, inscription workflow tasks should not run.
+
+### Step 4 — Accelerate
+
+- **No new code changes since 2d99c46b** — this window had zero src/ or skills/ modifications. Entire failure budget is from single unshipped fix (Hiro 400 probe).
+- **50 failed / 110 cycles today** — 100% Hiro 400 welcome pattern. Every other system (Zest supply, PR reviews, signals) is healthy.
+
+### Step 5 — Automate
+
+- **[NEW FIX-NEEDED]** `checkStxAddress()` needs length check: Stacks mainnet SP addresses are exactly 41 characters total (SP + 39 base58 chars). Addresses shorter than 41 or not matching `^SP[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{39}$` should be rejected at Layer 1 without needing a probe.
+- **[NEW FIX-NEEDED]** Auto-deny-list from task failures: after a welcome task fails Hiro 400, add the address to a persistent deny list in HookState so the sensor skips it permanently. Self-healing without manual intervention.
+- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration — still unaddressed.
+- **[CARRY-WATCH]** nonce-strategy Phase 1 (retry-strategy.ts) — still unaddressed.
+- **[CARRY-WATCH]** Contribution tag gap rate — monitor PR review task output.
+
+### Flags
+
+- **[BROKEN]** `probeHiroStxAddress()` — confirmed false-positive. `/v2/accounts/{addr}` returns 200 for broadcast-invalid addresses. Probe is checking the wrong endpoint. Fix needed before Hiro 400 failures stop.
+- **[ALERT]** Loom inscription workflow token spiral — two RED events overnight. No circuit breaker. Hold inscription tasks until investigated.
+- **[OK]** Zest supply: 5/5 operations clean overnight. TooMuchChaining resolved.
+- **[OK]** PR review dedup: holding. bff-skills @mention flood resolved.
+- **[OK]** x402 relay: nonce gaps clear, relay healthy.
+- **[CARRY-ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
+- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration — unaddressed.
+- **[CARRY-WATCH]** nonce-strategy Phase 1 retry-strategy.ts — unaddressed.
+- **[CARRY-WATCH]** Contribution tag gap rate — monitor PR review task output.
+
+---
+
 ## 2026-04-11T06:45:00.000Z — arc-alive-check deleted; Hiro probe validation; API_TIMEOUT_MS
 
 **Task #12184** | Diff: 0f72a466 → 4bb84aee | Sensors: 70 | Skills: 103
