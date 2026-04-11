@@ -34,7 +34,7 @@ Concurrent tasks on the same account/nonce pool must serialize via shared tracki
 @mention notifications arrive for already-merged/closed PRs. Before queuing review: check PR state via `gh pr view` + Arc's prior approval (state check is authoritative). Bulk maintainer actions cause notification waves within 48h window.
 
 **p-validation-before-action** [2026-04-08, enhanced 2026-04-09, 2026-04-11]
-Before financial ops or external data use: validate address format at ingestion (Stacks mainnet = SP prefix + 38–41 chars) AND maintain an explicit deny list for addresses passing format validation but rejected by downstream APIs. Validate at sensor level before creating tasks or staging payments. Also verify implementation method matches expected pattern BEFORE investigating failure modes. **Cost lesson (2026-04-11)**: validation placement determines cost impact — sensor-level gates prevent future work but don't retroactively clear queued work; x402 credits burn on pre-queued tasks even after downstream validation ships.
+Before financial ops or external data use: validate address format at ingestion (Stacks mainnet = SP prefix + 38–41 chars) AND maintain an explicit deny list for addresses passing format validation but rejected by downstream APIs. Validate at sensor level before creating tasks or staging payments. Also verify implementation method matches expected pattern BEFORE investigating failure modes. **Endpoint selection gotcha (2026-04-11)**: calling the wrong API endpoint (e.g., GET /v2/accounts returns 200 for broadcast-invalid addresses) produces structural false-positives — validation appears successful but fails downstream. Validate actual use case, not just endpoint availability. **Cost lesson**: validation placement determines cost impact — sensor-level gates prevent future work but don't retroactively clear queued work; x402 credits burn on pre-queued tasks even after downstream validation ships.
 
 **p-mcp-tool-wrapper-first** [2026-04-10]
 When building a skill to expose a capability, check if an MCP tool already exists in upstream server (aibtc-mcp-server) before building from scratch. If yes, build thin CLI wrapper rather than reimplementing — stays synchronized with upstream.
@@ -78,6 +78,9 @@ Validate data freshness before investing research effort. Multi-beat sprints: (1
 
 **p-fix-coverage-verification** [2026-04-08]
 When fixing a sensor for an externally-renamed value, grep ALL sensors and skill configs for the old value before closing. Fix verification = grep for old value + confirm zero matches.
+
+**p-fix-verification-post-deploy** [2026-04-11]
+Shipping a fix does NOT guarantee it works. After deploying a fix, verify effectiveness by checking if newly-created tasks (post-deploy task IDs) still fail with the same error. If post-fix task IDs appear in failure logs, the fix missed the root cause. Pattern: "shipped" ≠ "working" — always require 1–2 cycles of observation before considering a fix validated. Gate expensive operations (x402 credits, STX transfers) at sensor level before deploying fix; upstream fixes don't prevent pre-queued tasks from executing.
 
 ## Agent Design
 
