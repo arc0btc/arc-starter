@@ -28,6 +28,7 @@ import {
 const SENSOR_NAME = "aibtc-welcome";
 const INTERVAL_MINUTES = 30;
 const API_BASE = "https://aibtc.com/api";
+const HIRO_API = "https://api.hiro.so";
 const PAGE_LIMIT = 50;
 
 /** Max welcome tasks created per sensor cycle — prevents queue flood after long freezes */
@@ -86,6 +87,29 @@ function checkStxAddress(addr: string): { valid: true } | { valid: false; reason
     return { valid: false, reason: "confirmed Hiro-rejected address (tasks #11448/#11449)" };
   }
   return { valid: true };
+}
+
+/**
+ * Probes Hiro's accounts API to verify an address passes Hiro's validation.
+ * Some addresses pass @stacks/transactions validateStacksAddress (c32check) but fail
+ * Hiro's stricter pattern check at broadcast ("params/principal must match pattern").
+ * Affected: SP3ZKK0... (Clever Castle), SP3G7M... (Wide Key), SP2C28... (Keyed Wand).
+ *
+ * Returns true if valid (2xx response), false if rejected (4xx).
+ * Returns true on network errors to avoid blocking on Hiro downtime.
+ */
+async function probeHiroStxAddress(addr: string): Promise<boolean> {
+  try {
+    const ac = new AbortController();
+    const t = setTimeout(() => ac.abort(), 5_000);
+    const resp = await fetch(`${HIRO_API}/v2/accounts/${encodeURIComponent(addr)}`, {
+      signal: ac.signal,
+    });
+    clearTimeout(t);
+    return resp.ok;
+  } catch {
+    return true; // network failure — don't block welcomes on Hiro being down
+  }
 }
 
 const log = createSensorLogger(SENSOR_NAME);
@@ -352,11 +376,22 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
       if (!agent.stxAddress || !agent.btcAddress) continue;
 
       // Validate STX address before creating any task — prevents Hiro 400 failures at dispatch.
-      // Two-layer: c32check format validation + explicit deny list for Hiro-rejected addresses.
+      // Layer 1: c32check format validation + explicit deny list for known-bad addresses.
       const stxCheck = checkStxAddress(agent.stxAddress);
       if (!stxCheck.valid) {
         welcomedSet.add(agent.stxAddress); // mark so we don't log every cycle
         log(`skipping ${agent.stxAddress}: invalid STX address — ${stxCheck.reason}`);
+        continue;
+      }
+
+      // Layer 2: Probe Hiro accounts API — catches addresses that pass c32check but fail
+      // Hiro's stricter broadcast validation ("params/principal must match pattern").
+      const hiroValid = await probeHiroStxAddress(agent.stxAddress);
+      if (!hiroValid) {
+        welcomedSet.add(agent.stxAddress); // mark so we don't re-probe every cycle
+        log(
+          `skipping ${agent.displayName ?? agent.stxAddress}: Hiro API rejected STX address — ${agent.stxAddress}`,
+        );
         continue;
       }
 
