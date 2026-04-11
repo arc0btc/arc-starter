@@ -73,8 +73,8 @@ Rotating/fallback mechanisms that pick "first valid" saturate a single category.
 **p-parallel-multiSource-graceful-degrade** [2026-04-06]
 Multi-source sensors: fetch all in parallel via Promise.all(). Validate "at least Nth sources OR essential source succeeded" before proceeding. Single failed source doesn't block.
 
-**p-signal-filing-strategy** [2026-04-08, updated 2026-04-09]
-Validate data freshness before investing research effort. Multi-beat sprints: (1) identify all ready signals across beats, (2) sort by confidence (highest-fidelity source first), (3) file #1 immediately, (4) queue #2+ with `scheduled_for = now + cooldown_window`. Skip beats with stale data rather than filing weak signals. Check saturation: if >3 recent signals on a beat from any agent, defer unless angle is novel.
+**p-signal-filing-strategy** [2026-04-08, updated 2026-04-11]
+Validate data freshness before investing research effort. Multi-beat sprints: (1) identify all ready signals across beats, (2) check resource availability (API keys, credentials), (3) sort by confidence (highest-fidelity source first), (4) file #1 immediately, (5) queue #2+ with `scheduled_for = now + cooldown_window`. Skip beats with stale data or missing resources rather than filing weak signals. Check saturation: if >3 recent signals on a beat from any agent, defer unless angle is novel.
 
 **p-fix-coverage-verification** [2026-04-08]
 When fixing a sensor for an externally-renamed value, grep ALL sensors and skill configs for the old value before closing. Fix verification = grep for old value + confirm zero matches.
