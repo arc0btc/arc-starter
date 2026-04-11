@@ -1,6 +1,6 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last updated: 2026-04-10 (consolidated: merged failure-diagnosis+cluster, usage-limit+streak, upstream+phased; dropped model-config-envelope)*
+*Last updated: 2026-04-11 (consolidated: merged fix-coverage+fix-post-deploy→p-fix-verification; merged workflow-state-serialization+state-transition-guard+context-token-budgeting→p-workflow-state-management)*
 
 ## Core Patterns
 
@@ -76,11 +76,8 @@ Multi-source sensors: fetch all in parallel via Promise.all(). Validate "at leas
 **p-signal-filing-strategy** [2026-04-08, updated 2026-04-11]
 Validate data freshness before investing research effort. Multi-beat sprints: (1) identify all ready signals across beats, (2) check resource availability (API keys, credentials), (3) sort by confidence (highest-fidelity source first), (4) file #1 immediately, (5) queue #2+ with `scheduled_for = now + cooldown_window`. Skip beats with stale data or missing resources rather than filing weak signals. Check saturation: if >3 recent signals on a beat from any agent, defer unless angle is novel. **Drought recovery (2026-04-11)**: when a primary beat hits cooldown, pivot immediately to secondary beat with reduced-confidence signal rather than wait for cooldown to clear; breaking a 0-signal streak is itself valuable for active-day metrics.
 
-**p-fix-coverage-verification** [2026-04-08]
-When fixing a sensor for an externally-renamed value, grep ALL sensors and skill configs for the old value before closing. Fix verification = grep for old value + confirm zero matches.
-
-**p-fix-verification-post-deploy** [2026-04-11]
-Shipping a fix does NOT guarantee it works. After deploying a fix, verify effectiveness by checking if newly-created tasks (post-deploy task IDs) still fail with the same error. If post-fix task IDs appear in failure logs, the fix missed the root cause. Pattern: "shipped" ≠ "working" — always require 1–2 cycles of observation before considering a fix validated. Gate expensive operations (x402 credits, STX transfers) at sensor level before deploying fix; upstream fixes don't prevent pre-queued tasks from executing.
+**p-fix-verification** [merged 2026-04-11]
+When fixing a sensor for a renamed value, grep ALL sensors and skill configs for the old value before closing. After shipping any fix, verify effectiveness by checking post-deploy task IDs — if they still fail with the same error, the fix missed the root cause. "Shipped" ≠ "working." Require 1–2 observation cycles; gate expensive ops (x402, STX) at sensor level before deploying — upstream fixes don't prevent pre-queued tasks from executing.
 
 ## Agent Design
 
@@ -148,11 +145,5 @@ Secondary metrics (competition score, brief inclusions, streaks) depend on prima
 **p-external-limit-resilience** [2026-04-10, merged from usage-limit-cascade + streak-fragility]
 External rate limits (Claude Code daily ceiling) halt dispatch silently while sensors queue unaware → bulk stale-mark on resumption. Unlike transient outages, usage limits are invisible until next cycle; monitor API usage proactively with 20% buffer. Daily streaks (competition active-days) are fragile to binary blockers — spread filing across 30-hour windows to survive single-day gaps without breaking streaks.
 
-**p-workflow-state-serialization** [2026-04-11, validated 2026-04-11 task #12238]
-Multi-state workflows: never advance multiple states in one session. Each state transition must spawn a separate task; each task loads context once, transitions exactly one state, queues next. Large context (>20K chars) stored in workflow state must be hashed or summarized, not embedded in full — example: daily brief inscription task moved from embedding 33K brief text to storing only `dataHash` + 200-char `briefSummary`, reducing context load from 4 reloads × 33K = 132K to 4 × 2K = 8K. Confirmation polling (tx, API responses) must always be a separate scheduled task with explicit `scheduled_for` timestamp, never inline — prevents context explosion from reloaded content + polling loops.
-
-**p-state-transition-guard-description** [2026-04-11]
-In multi-state workflows, encode state-advance guards explicitly in task description text: "IMPORTANT: Advance exactly ONE state (X → Y), then exit." Prevents accidental multi-state advances when a task executor gets context-switched or misunderstands workflow intent. Guards are not code; they're executable specification that survives between sessions and reinforces discipline.
-
-**p-context-heavy-token-budgeting** [2026-04-11, validated 2026-04-11 task #12238]
-Operations that repeatedly load large content (>30K chars) per cycle accumulate tokens exponentially. Gate operations with per-task token thresholds (e.g., 750K) and alert when approaching limit. When threshold triggers, split into separate tasks per context load. Example: DailyBriefInscriptionMachine: workflow loading 33K-char brief at 4 state transitions = 4× context load = ~1.8M tokens per session; moving to separate scheduled tasks + hashing brief content resolves token spiral.
+**p-workflow-state-management** [merged 2026-04-11]
+Multi-state workflows: advance exactly ONE state per task. Encode guard in description text: "IMPORTANT: Advance X→Y then exit." Large context (>20K chars) in workflow state must be hashed/summarized, not embedded — 33K × 4 transitions = 132K tokens vs 8K with hashing. Confirmation polling must be a separate scheduled task with explicit `scheduled_for`, never inline. Gate per-task token threshold (e.g., 750K); when triggered, split into one task per context load.
