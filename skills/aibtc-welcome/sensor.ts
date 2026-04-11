@@ -11,7 +11,6 @@ import {
   readHookState,
   writeHookState,
 } from "../../src/sensors.ts";
-import { validateStacksAddress } from "@stacks/transactions";
 import {
   completedTaskExistsForSourceSubstring,
   countCompletedTodayForSourcePrefix,
@@ -28,7 +27,6 @@ import {
 const SENSOR_NAME = "aibtc-welcome";
 const INTERVAL_MINUTES = 30;
 const API_BASE = "https://aibtc.com/api";
-const HIRO_API = "https://api.hiro.so";
 const PAGE_LIMIT = 50;
 
 /** Max welcome tasks created per sensor cycle — prevents queue flood after long freezes */
@@ -67,49 +65,99 @@ const HIRO_REJECTED_STX_ADDRESSES: ReadonlySet<string> = new Set([
   "SP11XB256JGVZ6XZDX65EF6JR89VK9SNM7ZN0P77W",
 ]);
 
+/** Hook state key for the auto-populated dynamic Hiro-rejected address deny-list */
+const HIRO_REJECTED_HOOK_KEY = "aibtc-welcome-hiro-rejected";
+
+/**
+ * Stacks mainnet SP address: "SP" + exactly 39 c32-encoding characters (41 chars total).
+ * c32 alphabet: 0-9 A-H J K M N P-T V-Z (32 chars — no lowercase, no I L O U).
+ * Catches wrong-length addresses and wrong-network addresses (ST = testnet, SM = mocknet).
+ */
+const STX_MAINNET_REGEX = /^SP[0-9A-HJKMNP-TV-Z]{39}$/;
+
+interface HiroRejectedState {
+  addresses: string[];
+  updated_at: string;
+}
+
 /**
  * Validates a STX mainnet address before queuing a welcome task.
  *
- * Two-layer check:
- * 1. validateStacksAddress (c32check) — catches wrong prefix, bad length, invalid chars
- * 2. HIRO_REJECTED_STX_ADDRESSES — known addresses that pass c32check but Hiro rejects at broadcast
+ * Three-layer check:
+ * 1. Strict regex — SP prefix + exactly 39 c32 chars (41 total). Fast rejection without network calls.
+ * 2. Hardcoded deny-list — addresses confirmed Hiro-rejected (tasks #11448/#11449).
+ * 3. Dynamic deny-list — auto-populated from failed welcome tasks with Hiro 400 errors.
  *
  * Returns { valid: true } or { valid: false; reason: string }.
  */
-function checkStxAddress(addr: string): { valid: true } | { valid: false; reason: string } {
-  if (!validateStacksAddress(addr)) {
-    return { valid: false, reason: "failed c32check validation (bad format, length, or checksum)" };
-  }
-  if (!addr.startsWith("SP")) {
-    return { valid: false, reason: "not a mainnet SP address" };
+function checkStxAddress(
+  addr: string,
+  dynamicDenyList: ReadonlySet<string>,
+): { valid: true } | { valid: false; reason: string } {
+  if (!STX_MAINNET_REGEX.test(addr)) {
+    return {
+      valid: false,
+      reason: "failed strict SP-mainnet regex (must be SP + 39 c32 chars, 41 chars total)",
+    };
   }
   if (HIRO_REJECTED_STX_ADDRESSES.has(addr)) {
-    return { valid: false, reason: "confirmed Hiro-rejected address (tasks #11448/#11449)" };
+    return { valid: false, reason: "in hardcoded Hiro-rejected deny-list (tasks #11448/#11449)" };
+  }
+  if (dynamicDenyList.has(addr)) {
+    return {
+      valid: false,
+      reason: "in dynamic Hiro-rejected deny-list (auto-populated from task failures)",
+    };
   }
   return { valid: true };
 }
 
 /**
- * Probes Hiro's accounts API to verify an address passes Hiro's validation.
- * Some addresses pass @stacks/transactions validateStacksAddress (c32check) but fail
- * Hiro's stricter pattern check at broadcast ("params/principal must match pattern").
- * Affected: SP3ZKK0... (Clever Castle), SP3G7M... (Wide Key), SP2C28... (Keyed Wand).
+ * Loads the dynamic Hiro-rejected address deny-list from hook state and auto-populates
+ * it by scanning failed welcome tasks for Hiro 400 errors.
  *
- * Returns true if valid (2xx response), false if rejected (4xx).
- * Returns true on network errors to avoid blocking on Hiro downtime.
+ * Replaces probeHiroStxAddress(): Hiro's GET /v2/accounts/{addr} returns HTTP 200 for
+ * broadcast-invalid addresses (confirmed via curl on SP32GT7FT92Z5HTBMY5KKBBFFEZD0AZG5H1ZW8E61),
+ * so per-address probing cannot detect broadcast-invalid addresses.
+ *
+ * Self-healing instead: when a welcome task fails with Hiro 400, the source STX address
+ * is discovered here and added to the deny-list so the sensor skips it permanently.
+ *
+ * Returns the updated deny-list set and a dirty flag (true if new addresses were added).
  */
-async function probeHiroStxAddress(addr: string): Promise<boolean> {
-  try {
-    const ac = new AbortController();
-    const t = setTimeout(() => ac.abort(), 5_000);
-    const resp = await fetch(`${HIRO_API}/v2/accounts/${encodeURIComponent(addr)}`, {
-      signal: ac.signal,
-    });
-    clearTimeout(t);
-    return resp.ok;
-  } catch {
-    return true; // network failure — don't block welcomes on Hiro being down
+async function loadAndUpdateDenyList(): Promise<{ denyList: Set<string>; dirty: boolean }> {
+  const state = (await readHookState(HIRO_REJECTED_HOOK_KEY)) as HiroRejectedState | null;
+  const denyList = new Set<string>(state?.addresses ?? []);
+  let dirty = false;
+
+  const db = getDatabase();
+  const failedTasks = db
+    .query(
+      `SELECT source, result_summary FROM tasks
+       WHERE source LIKE ? || '%'
+       AND status = 'failed'
+       AND (
+         result_summary LIKE '%Hiro 400%'
+         OR result_summary LIKE '%400 Bad Request%'
+         OR result_summary LIKE '%params/principal must match pattern%'
+       )`,
+    )
+    .all(SOURCE_PREFIX) as { source: string; result_summary: string | null }[];
+
+  for (const task of failedTasks) {
+    const stx = task.source.replace(SOURCE_PREFIX, "");
+    if (
+      stx.startsWith("SP") &&
+      !denyList.has(stx) &&
+      !HIRO_REJECTED_STX_ADDRESSES.has(stx)
+    ) {
+      denyList.add(stx);
+      dirty = true;
+      log(`auto-deny-list: adding ${stx} (found in failed Hiro 400 welcome task)`);
+    }
   }
+
+  return { denyList, dirty };
 }
 
 const log = createSensorLogger(SENSOR_NAME);
@@ -363,6 +411,9 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
 
     initContactsSchema();
 
+    // Load dynamic deny-list and auto-populate from failed tasks
+    const { denyList: dynamicDenyList, dirty: denyListDirty } = await loadAndUpdateDenyList();
+
     let tasksCreated = 0;
 
     for (const agent of agents) {
@@ -376,22 +427,11 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
       if (!agent.stxAddress || !agent.btcAddress) continue;
 
       // Validate STX address before creating any task — prevents Hiro 400 failures at dispatch.
-      // Layer 1: c32check format validation + explicit deny list for known-bad addresses.
-      const stxCheck = checkStxAddress(agent.stxAddress);
+      // Three layers: strict regex (Layer 1) + hardcoded deny-list (Layer 2) + dynamic deny-list (Layer 3).
+      const stxCheck = checkStxAddress(agent.stxAddress, dynamicDenyList);
       if (!stxCheck.valid) {
         welcomedSet.add(agent.stxAddress); // mark so we don't log every cycle
         log(`skipping ${agent.stxAddress}: invalid STX address — ${stxCheck.reason}`);
-        continue;
-      }
-
-      // Layer 2: Probe Hiro accounts API — catches addresses that pass c32check but fail
-      // Hiro's stricter broadcast validation ("params/principal must match pattern").
-      const hiroValid = await probeHiroStxAddress(agent.stxAddress);
-      if (!hiroValid) {
-        welcomedSet.add(agent.stxAddress); // mark so we don't re-probe every cycle
-        log(
-          `skipping ${agent.displayName ?? agent.stxAddress}: Hiro API rejected STX address — ${agent.stxAddress}`,
-        );
         continue;
       }
 
@@ -524,6 +564,15 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
       } else {
         log(`welcome task already pending for ${name}`);
       }
+    }
+
+    // Persist updated deny-list if new addresses were discovered from failed tasks
+    if (denyListDirty) {
+      await writeHookState(HIRO_REJECTED_HOOK_KEY, {
+        addresses: [...dynamicDenyList],
+        updated_at: new Date().toISOString(),
+      } satisfies HiroRejectedState);
+      log(`auto-deny-list: persisted ${dynamicDenyList.size} Hiro-rejected addresses`);
     }
 
     // Persist state with reconciliation flag
