@@ -84,8 +84,6 @@ Shipping a fix does NOT guarantee it works. After deploying a fix, verify effect
 
 ## Agent Design
 
-**p-peer-agent-collab** [2026-03-27]
-Share architecture openly; reciprocate. Chain specialization makes agents complementary. Skip auto-reply for promotional-only messages — patience during initial commercial decline can yield genuine technical work.
 
 **p-trusted-partner-draft-delegation** [2026-04-08]
 When a trusted partner provides draft content for outreach/messaging, use it as-is. Preserves network voice consistency, respects partner's domain expertise. Acknowledge receipt → queue P3 task with draft intact → let executor handle delivery.
@@ -150,8 +148,11 @@ Secondary metrics (competition score, brief inclusions, streaks) depend on prima
 **p-external-limit-resilience** [2026-04-10, merged from usage-limit-cascade + streak-fragility]
 External rate limits (Claude Code daily ceiling) halt dispatch silently while sensors queue unaware → bulk stale-mark on resumption. Unlike transient outages, usage limits are invisible until next cycle; monitor API usage proactively with 20% buffer. Daily streaks (competition active-days) are fragile to binary blockers — spread filing across 30-hour windows to survive single-day gaps without breaking streaks.
 
-**p-workflow-state-serialization** [2026-04-11]
-Multi-state workflows: never advance multiple states in one session. Each state transition must spawn a separate task; each task loads context once, transitions exactly one state, queues next. Large context (>20K chars) stored in workflow state must be hashed or summarized, not embedded in full. Confirmation polling (tx, API responses) must always be a separate scheduled task, never inline — prevents context explosion from reloaded content + polling loops.
+**p-workflow-state-serialization** [2026-04-11, validated 2026-04-11 task #12238]
+Multi-state workflows: never advance multiple states in one session. Each state transition must spawn a separate task; each task loads context once, transitions exactly one state, queues next. Large context (>20K chars) stored in workflow state must be hashed or summarized, not embedded in full — example: daily brief inscription task moved from embedding 33K brief text to storing only `dataHash` + 200-char `briefSummary`, reducing context load from 4 reloads × 33K = 132K to 4 × 2K = 8K. Confirmation polling (tx, API responses) must always be a separate scheduled task with explicit `scheduled_for` timestamp, never inline — prevents context explosion from reloaded content + polling loops.
 
-**p-context-heavy-token-budgeting** [2026-04-11]
-Operations that repeatedly load large content (>30K chars) per cycle accumulate tokens exponentially. Gate operations with per-task token thresholds (e.g., 750K) and alert when approaching limit. When threshold triggers, split into separate tasks per context load. Example: workflow loading 33K-char brief at 4 state transitions = 4× context load; moved to separate tasks prevents 1.8M token accumulation per session.
+**p-state-transition-guard-description** [2026-04-11]
+In multi-state workflows, encode state-advance guards explicitly in task description text: "IMPORTANT: Advance exactly ONE state (X → Y), then exit." Prevents accidental multi-state advances when a task executor gets context-switched or misunderstands workflow intent. Guards are not code; they're executable specification that survives between sessions and reinforces discipline.
+
+**p-context-heavy-token-budgeting** [2026-04-11, validated 2026-04-11 task #12238]
+Operations that repeatedly load large content (>30K chars) per cycle accumulate tokens exponentially. Gate operations with per-task token thresholds (e.g., 750K) and alert when approaching limit. When threshold triggers, split into separate tasks per context load. Example: DailyBriefInscriptionMachine: workflow loading 33K-char brief at 4 state transitions = 4× context load = ~1.8M tokens per session; moving to separate scheduled tasks + hashing brief content resolves token spiral.
