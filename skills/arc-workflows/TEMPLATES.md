@@ -132,6 +132,45 @@ Manage Bitcoin inscription lifecycle through two-phase commit/reveal process.
 
 **Requires:** `bitcoin-wallet` skill (for transaction preparation and broadcast)
 
+## Daily Brief Inscription (`daily-brief-inscription`)
+
+Higher-level workflow for inscribing daily briefs onto Bitcoin L1. Wraps the commit/reveal flow with brief-specific states (fetch, balance check, record). Designed to prevent token spirals by enforcing single-state-per-task discipline.
+
+**States:**
+- `pending` — Fetch brief, compute SHA-256 hash, store hash + summary (NOT full text)
+- `brief_fetched` — Check wallet balance for commit+reveal fees
+- `balance_ok` — Build and broadcast commit transaction
+- `committed` — Wait for commit confirmation (separate scheduled task if unconfirmed)
+- `commit_confirmed` — Build and broadcast reveal transaction
+- `revealed` — Wait for reveal confirmation (separate scheduled task if unconfirmed)
+- `confirmed` — Record inscription on aibtc.news
+- `completed` — Workflow finished (terminal)
+
+**Context schema:**
+```typescript
+{
+  date: string;                // Brief date (YYYY-MM-DD)
+  dataHash?: string;           // SHA-256 hash of brief content
+  dataSize?: number;           // Brief content size in bytes
+  briefSummary?: string;       // 1-2 sentence summary (max 200 chars)
+  walletAddress: string;       // Bitcoin address for inscription
+  network?: string;            // "mainnet" or "testnet" (default: mainnet)
+  commitTxid?: string;         // Commit transaction ID
+  commitFee?: number;          // Commit fee (sats)
+  revealTxid?: string;         // Reveal transaction ID
+  revealFee?: number;          // Reveal fee (sats)
+  inscriptionId?: string;      // Final inscription ID ({txid}i{index})
+}
+```
+
+**Token spiral prevention rules:**
+1. Each task advances exactly ONE state transition, then exits
+2. Brief content NEVER stored in context — only `dataHash` + `briefSummary`
+3. Confirmation polling always spawns a separate scheduled task
+4. Workflow context must stay under 2KB
+
+**Requires:** `daily-brief-inscribe` + `aibtc-news-classifieds` + `bitcoin-wallet` skills
+
 ## Validation Request (`validation-request`)
 
 Multi-step request for attestation or validation of data or identity.

@@ -475,7 +475,7 @@ export const InscriptionMachine: StateMachine<{
           subject: `Inscription: Prepare commit for ${ctx.dataHash.slice(0, 8)}...`,
           priority: 5,
           skills: ["bitcoin-wallet"],
-          description: `Prepare commit transaction. Data hash: ${ctx.dataHash}, Wallet: ${ctx.walletAddress}, Network: ${ctx.network || "mainnet"}`,
+          description: `Prepare commit transaction. Data hash: ${ctx.dataHash}, Wallet: ${ctx.walletAddress}, Network: ${ctx.network || "mainnet"}.\n\nIMPORTANT: Advance exactly ONE state transition (pending → commit_preparing), then exit. Do NOT proceed to broadcast or further states in this session.`,
         };
       },
     },
@@ -489,10 +489,10 @@ export const InscriptionMachine: StateMachine<{
         if (!ctx.commitTxid) return null;
         return {
           type: "create-task",
-          subject: `Inscription: Confirm commit transaction ${ctx.commitTxid.slice(0, 8)}...`,
+          subject: `Inscription: Confirm commit ${ctx.commitTxid.slice(0, 8)}...`,
           priority: 5,
           skills: ["bitcoin-wallet"],
-          description: `Wait for commit confirmation (typically 1-6 blocks). Commit txid: ${ctx.commitTxid}`,
+          description: `Check commit confirmation status (typically 1-6 blocks). Commit txid: ${ctx.commitTxid}.\n\nIMPORTANT: Advance exactly ONE state transition (commit_broadcasted → reveal_pending), then exit. If not yet confirmed, create a scheduled follow-up task — do NOT poll inline.`,
         };
       },
     },
@@ -506,10 +506,10 @@ export const InscriptionMachine: StateMachine<{
         if (!ctx.commitTxid) return null;
         return {
           type: "create-task",
-          subject: `Inscription: Prepare reveal transaction for ${ctx.commitTxid.slice(0, 8)}...`,
+          subject: `Inscription: Prepare reveal for ${ctx.commitTxid.slice(0, 8)}...`,
           priority: 5,
           skills: ["bitcoin-wallet"],
-          description: `Prepare reveal transaction using commit UTXO. Commit txid: ${ctx.commitTxid}`,
+          description: `Prepare and broadcast reveal transaction using commit UTXO. Commit txid: ${ctx.commitTxid}.\n\nIMPORTANT: Advance exactly ONE state transition (reveal_preparing → reveal_broadcasted), then exit. Do NOT wait for confirmation in this session.`,
         };
       },
     },
@@ -519,10 +519,10 @@ export const InscriptionMachine: StateMachine<{
         if (!ctx.revealTxid) return null;
         return {
           type: "create-task",
-          subject: `Inscription: Confirm reveal transaction ${ctx.revealTxid.slice(0, 8)}...`,
+          subject: `Inscription: Confirm reveal ${ctx.revealTxid.slice(0, 8)}...`,
           priority: 5,
           skills: ["bitcoin-wallet"],
-          description: `Wait for reveal confirmation and extract inscription ID. Reveal txid: ${ctx.revealTxid}`,
+          description: `Check reveal confirmation and extract inscription ID. Reveal txid: ${ctx.revealTxid}.\n\nIMPORTANT: Advance exactly ONE state transition (reveal_broadcasted → confirmed), then exit. If not yet confirmed, create a scheduled follow-up task — do NOT poll inline.`,
         };
       },
     },
@@ -531,6 +531,217 @@ export const InscriptionMachine: StateMachine<{
       action: (ctx) => {
         if (!ctx.inscriptionId) return null;
         return { type: "noop" };
+      },
+    },
+    completed: {
+      on: {},
+      action: () => null,
+    },
+  },
+};
+
+/**
+ * Daily Brief Inscription Machine
+ *
+ * Higher-level workflow for inscribing daily briefs onto Bitcoin L1.
+ * Wraps the raw inscription commit/reveal flow with brief-specific states
+ * (fetch, balance check, record).
+ *
+ * DESIGN CONSTRAINTS (token spiral prevention):
+ * - Each state creates ONE task that advances ONE state, then exits.
+ * - Brief content is NEVER stored in workflow context — only a hash + summary.
+ * - Confirmation states must spawn separate scheduled follow-up tasks, never poll inline.
+ * - Context budget: workflow context must stay under 2KB total.
+ */
+export const DailyBriefInscriptionMachine: StateMachine<{
+  date?: string;
+  dataHash?: string;
+  dataSize?: number;
+  briefSummary?: string;
+  walletAddress?: string;
+  network?: string;
+  commitTxid?: string;
+  commitFee?: number;
+  revealTxid?: string;
+  revealFee?: number;
+  inscriptionId?: string;
+}> = {
+  name: "daily-brief-inscription",
+  initialState: "pending",
+  states: {
+    pending: {
+      on: { brief_fetched: "brief_fetched" },
+      action: (ctx) => {
+        if (!ctx.date) return null;
+        return {
+          type: "create-task",
+          subject: `Brief inscription: fetch brief for ${ctx.date}`,
+          priority: 5,
+          model: "sonnet",
+          skills: ["daily-brief-inscribe", "aibtc-news-classifieds"],
+          description: [
+            `Fetch the daily brief for ${ctx.date} and prepare it for inscription.`,
+            "",
+            "Steps:",
+            "1. Fetch the brief via: arc skills run --name aibtc-news-classifieds -- get-brief --date " + (ctx.date || "YYYY-MM-DD"),
+            "2. Compute SHA-256 hash of the brief text content",
+            "3. Store ONLY the hash and byte size in workflow context (dataHash, dataSize)",
+            "4. Store a 1-2 sentence summary in briefSummary (max 200 chars)",
+            "5. Transition workflow to brief_fetched state",
+            "",
+            "IMPORTANT: Do NOT store the full brief text in workflow context.",
+            "IMPORTANT: Advance exactly ONE state (pending → brief_fetched), then exit.",
+          ].join("\n"),
+        };
+      },
+    },
+    brief_fetched: {
+      on: { balance_ok: "balance_ok" },
+      action: (ctx) => {
+        if (!ctx.dataHash) return null;
+        return {
+          type: "create-task",
+          subject: `Brief inscription: check balance for ${ctx.date || "brief"}`,
+          priority: 5,
+          model: "haiku",
+          skills: ["daily-brief-inscribe", "bitcoin-wallet"],
+          description: [
+            `Verify wallet has sufficient balance for inscription.`,
+            `Data size: ${ctx.dataSize || "unknown"} bytes. Wallet: ${ctx.walletAddress || "default"}.`,
+            "",
+            "Steps:",
+            "1. Check wallet balance (need enough for commit + reveal fees)",
+            "2. If balance sufficient, transition workflow to balance_ok",
+            "3. If insufficient, set workflow status to blocked with reason",
+            "",
+            "IMPORTANT: Advance exactly ONE state (brief_fetched → balance_ok), then exit.",
+          ].join("\n"),
+        };
+      },
+    },
+    balance_ok: {
+      on: { committed: "committed" },
+      action: (ctx) => {
+        if (!ctx.dataHash || !ctx.walletAddress) return null;
+        return {
+          type: "create-task",
+          subject: `Brief inscription: commit tx for ${ctx.date || "brief"}`,
+          priority: 4,
+          model: "sonnet",
+          skills: ["daily-brief-inscribe", "bitcoin-wallet"],
+          description: [
+            `Build and broadcast the commit transaction for the brief inscription.`,
+            `Data hash: ${ctx.dataHash}. Wallet: ${ctx.walletAddress}. Network: ${ctx.network || "mainnet"}.`,
+            "",
+            "Steps:",
+            "1. Build the commit transaction for the inscription",
+            "2. Broadcast the commit transaction",
+            "3. Store commitTxid and commitFee in workflow context",
+            "4. Transition workflow to committed state",
+            "",
+            "IMPORTANT: Advance exactly ONE state (balance_ok → committed), then exit.",
+            "Do NOT wait for confirmation — a separate task handles that.",
+          ].join("\n"),
+        };
+      },
+    },
+    committed: {
+      on: { commit_confirmed: "commit_confirmed" },
+      action: (ctx) => {
+        if (!ctx.commitTxid) return null;
+        return {
+          type: "create-task",
+          subject: `Brief inscription: confirm commit ${ctx.commitTxid.slice(0, 8)}...`,
+          priority: 6,
+          model: "haiku",
+          skills: ["daily-brief-inscribe", "bitcoin-wallet"],
+          description: [
+            `Check if commit transaction is confirmed. Txid: ${ctx.commitTxid}.`,
+            "",
+            "Steps:",
+            "1. Query the transaction status",
+            "2. If confirmed (≥1 block), transition workflow to commit_confirmed",
+            "3. If NOT confirmed, create a scheduled follow-up task (scheduled_for: 15 min from now) and exit",
+            "",
+            "IMPORTANT: Advance exactly ONE state (committed → commit_confirmed), then exit.",
+            "IMPORTANT: Do NOT poll in a loop. If unconfirmed, schedule a follow-up task and exit immediately.",
+          ].join("\n"),
+        };
+      },
+    },
+    commit_confirmed: {
+      on: { revealed: "revealed" },
+      action: (ctx) => {
+        if (!ctx.commitTxid) return null;
+        return {
+          type: "create-task",
+          subject: `Brief inscription: reveal tx for ${ctx.date || "brief"}`,
+          priority: 4,
+          model: "sonnet",
+          skills: ["daily-brief-inscribe", "bitcoin-wallet"],
+          description: [
+            `Build and broadcast the reveal transaction using the confirmed commit UTXO.`,
+            `Commit txid: ${ctx.commitTxid}. Network: ${ctx.network || "mainnet"}.`,
+            "",
+            "Steps:",
+            "1. Build the reveal transaction from the commit UTXO",
+            "2. Broadcast the reveal transaction",
+            "3. Store revealTxid and revealFee in workflow context",
+            "4. Transition workflow to revealed state",
+            "",
+            "IMPORTANT: Advance exactly ONE state (commit_confirmed → revealed), then exit.",
+            "Do NOT wait for confirmation — a separate task handles that.",
+          ].join("\n"),
+        };
+      },
+    },
+    revealed: {
+      on: { reveal_confirmed: "confirmed" },
+      action: (ctx) => {
+        if (!ctx.revealTxid) return null;
+        return {
+          type: "create-task",
+          subject: `Brief inscription: confirm reveal ${ctx.revealTxid.slice(0, 8)}...`,
+          priority: 6,
+          model: "haiku",
+          skills: ["daily-brief-inscribe", "bitcoin-wallet"],
+          description: [
+            `Check if reveal transaction is confirmed and extract inscription ID. Txid: ${ctx.revealTxid}.`,
+            "",
+            "Steps:",
+            "1. Query the transaction status",
+            "2. If confirmed, extract the inscription ID (format: {txid}i0)",
+            "3. Store inscriptionId in workflow context",
+            "4. Transition workflow to confirmed state",
+            "5. If NOT confirmed, create a scheduled follow-up task (scheduled_for: 15 min from now) and exit",
+            "",
+            "IMPORTANT: Advance exactly ONE state (revealed → confirmed), then exit.",
+            "IMPORTANT: Do NOT poll in a loop. If unconfirmed, schedule a follow-up task and exit immediately.",
+          ].join("\n"),
+        };
+      },
+    },
+    confirmed: {
+      on: { recorded: "completed" },
+      action: (ctx) => {
+        if (!ctx.inscriptionId || !ctx.date) return null;
+        return {
+          type: "create-task",
+          subject: `Brief inscription: record ${ctx.date} → ${ctx.inscriptionId}`,
+          priority: 5,
+          model: "haiku",
+          skills: ["daily-brief-inscribe", "aibtc-news-classifieds"],
+          description: [
+            `Record the inscription on aibtc.news for brief ${ctx.date}.`,
+            `Inscription ID: ${ctx.inscriptionId}.`,
+            "",
+            "Steps:",
+            "1. Call: arc skills run --name aibtc-news-classifieds -- inscribe-brief --date " + (ctx.date || "YYYY-MM-DD"),
+            "2. Transition workflow to completed state",
+            "",
+            "IMPORTANT: Advance exactly ONE state (confirmed → completed), then exit.",
+          ].join("\n"),
+        };
       },
     },
     completed: {
@@ -3056,6 +3267,7 @@ export function getTemplateByName(name: string): StateMachine | null {
     "reputation-feedback": ReputationFeedbackMachine,
     "validation-request": ValidationRequestMachine,
     "inscription": InscriptionMachine,
+    "daily-brief-inscription": DailyBriefInscriptionMachine,
     "new-release": NewReleaseMachine,
     "architecture-review": ArchitectureReviewMachine,
     "email-thread": EmailThreadMachine,
