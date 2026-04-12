@@ -1,5 +1,11 @@
 import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
-import { getWorkflowByInstanceKey, insertWorkflow } from "../../src/db.ts";
+import {
+  completeWorkflow,
+  getWorkflowByInstanceKey,
+  getWorkflowsByTemplate,
+  insertWorkflow,
+  updateWorkflowState,
+} from "../../src/db.ts";
 import { AIBTC_WATCHED_REPOS } from "../../src/constants.ts";
 
 const SENSOR_NAME = "aibtc-repo-maintenance";
@@ -106,6 +112,50 @@ function trackIssueWorkflows(issues: IssueInfo[]): number {
   return created;
 }
 
+/**
+ * Close issue-opened workflows whose GitHub issues have since been closed.
+ * Only checks issues older than 24h to avoid unnecessary API calls for new issues.
+ */
+function closeStaleIssueWorkflows(): number {
+  const allIssueWorkflows = getWorkflowsByTemplate("pr-lifecycle").filter(
+    (w) => w.current_state === "issue-opened" && w.completed_at === null,
+  );
+
+  const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const toCheck = allIssueWorkflows.filter((w) => w.created_at < cutoff);
+
+  let closed = 0;
+  for (const workflow of toCheck) {
+    // instance_key format: owner/repo/issue/number
+    const parts = workflow.instance_key.split("/");
+    if (parts.length < 4) continue;
+    const [owner, repo, , numberStr] = parts;
+    const issueRef = `${owner}/${repo}#${numberStr}`;
+
+    const result = Bun.spawnSync(
+      ["gh", "issue", "view", numberStr, "--repo", `${owner}/${repo}`, "--json", "state"],
+      { timeout: 15_000 },
+    );
+    if (result.exitCode !== 0) continue;
+
+    let state: string;
+    try {
+      const parsed = JSON.parse(result.stdout.toString().trim()) as { state: string };
+      state = parsed.state;
+    } catch {
+      continue;
+    }
+
+    if (state === "CLOSED") {
+      updateWorkflowState(workflow.id, "closed", workflow.context);
+      completeWorkflow(workflow.id);
+      log(`closed stale issue-opened workflow for ${issueRef}`);
+      closed++;
+    }
+  }
+  return closed;
+}
+
 export default async function aibtcMaintenanceSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
@@ -117,6 +167,12 @@ export default async function aibtcMaintenanceSensor(): Promise<string> {
 
   if (issuesCreated > 0) {
     log(`tracked ${issuesCreated} new issue(s)`);
+  }
+
+  // Close workflows for issues that have since been closed on GitHub
+  const issuesClosed = closeStaleIssueWorkflows();
+  if (issuesClosed > 0) {
+    log(`closed ${issuesClosed} stale issue-opened workflow(s)`);
   }
 
   return "ok";
