@@ -684,13 +684,8 @@ export function countSignalTasksToday(): number {
        WHERE DATE(created_at) = DATE('now')
        AND status IN ('completed', 'pending', 'active')
        AND (
-         subject LIKE 'File ordinals signal%'
-         OR subject LIKE 'File Ordinals Business signal%'
-         OR subject LIKE 'File dev-tools signal%'
-         OR subject LIKE 'File agent-trading signal%'
-         OR subject LIKE '[MILESTONE] File ordinals signal%'
-         OR subject LIKE '[MILESTONE] File dev-tools signal%'
-         OR subject LIKE '[MILESTONE] File agent-trading signal%'
+         subject LIKE 'File % signal%'
+         OR subject LIKE '[MILESTONE] File % signal%'
          OR subject LIKE 'Maintain%streak%aibtc.news%'
        )`
     )

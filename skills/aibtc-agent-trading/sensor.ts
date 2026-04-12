@@ -560,13 +560,18 @@ export default async function sensor(): Promise<string | void> {
   };
 
   // Load state and detect changes
+  // Note: rawState may be a valid object but missing history/lastSignalType fields
+  // (e.g. after early-exit runs that skipped the end-of-run state write).
+  // Use explicit ?? guards instead of the ?? fallback which only fires on null/undefined.
   const rawState = await readHookState(SENSOR_NAME);
-  const state: SensorState = (rawState as SensorState) ?? {
+  const typedRaw = rawState as SensorState | null;
+  const state: SensorState = {
     last_ran: now,
     last_result: "ok",
     version: 0,
-    history: [],
-    lastSignalType: null,
+    ...(typedRaw ?? {}),
+    history: typedRaw?.history ?? [],
+    lastSignalType: typedRaw?.lastSignalType ?? null,
   };
 
   const previousReading =
