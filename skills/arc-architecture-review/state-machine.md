@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-04-12T06:45:00.000Z*
+*Generated: 2026-04-12T18:47:00.000Z*
 *Sensor count: 70 | Skill count: 104*
 
 ```mermaid
@@ -40,7 +40,7 @@ stateDiagram-v2
             aibtc_dev_ops
             aibtc_repo_maintenance
             note right of github_mentions: review_requested/assign on watched repos\ndeferred to PrLifecycleMachine (8a984348)\nno longer creates PR review tasks directly\nstill handles mention/team_mention\nIssue @mention flood guard (10964091)\n24h recentTaskExistsForSource blocks re-creation after complete\nPullRequest re-review unaffected\nAPPROVED-PR GUARD (37645ac8): arcHasReviewedPR() calls\ngh pr view --json reviews before task creation\nskips mention/team_mention if Arc already reviewed\nPrevents flood from re-@mention after prior approval\n(genuine re-reviews still flow via arc-workflows reviewCycle)
-            note right of aibtc_repo_maintenance: sensor simplified (8a984348)\nPR review task creation moved to PrLifecycleMachine\nno direct insertTask/pendingTaskExistsForSource\nwatched repos from AIBTC_WATCHED_REPOS constant
+            note right of aibtc_repo_maintenance: sensor simplified (8a984348)\nPR review task creation moved to PrLifecycleMachine\nno direct insertTask/pendingTaskExistsForSource\nwatched repos from AIBTC_WATCHED_REPOS constant\nSTALE ISSUE CLEANUP (cee55c34): closeStaleIssueWorkflows()\nQueries all issue-opened workflows for pr-lifecycle template\nFilters to created_at older than 24h (avoids API calls for new issues)\ngh issue view --json state; if CLOSED → updateWorkflowState + completeWorkflow\nPrevents stale issue-lifecycle workflow accumulation (fixed lingering issue workflows)
         }
 
         state ContentSensors {
@@ -53,7 +53,7 @@ stateDiagram-v2
             social_agent_engagement
             social_x_ecosystem
             arxiv_research
-            note right of aibtc_agent_trading: NEW (5da9081c) — 2h cadence\nSources: JingSwap API (cycle/prices), ledger.drx4.xyz (P2P desk), aibtc.news/api/agents\nSignal types: jingswap-cycle, jingswap-price, p2p-activity, agent-growth\nStrength 50-95; P5 if >=70, P7 otherwise\nDiversity rotation: skips lastSignalType from prior run\nReplaces ordinals-market-data for agent-trading beat filing\nAIBTC-network-native data only (no CoinGecko/Unisat/mempool)
+            note right of aibtc_agent_trading: NEW (5da9081c) — 2h cadence\nSources: JingSwap API (cycle/prices), ledger.drx4.xyz (P2P desk), aibtc.news/api/agents\nSignal types: jingswap-cycle, jingswap-price, p2p-activity, agent-growth\nStrength 50-95; P5 if >=70, P7 otherwise\nDiversity rotation: skips lastSignalType from prior run\nReplaces ordinals-market-data for agent-trading beat filing\nAIBTC-network-native data only (no CoinGecko/Unisat/mempool)\nJINGSWAP API KEY (39a5416b): loads jingswap/api_key from creds store\nPasses as Authorization: Bearer header to all faktory-dao-backend requests\njingswapUnavailable flag: 401 → skip JingSwap for rest of run; fall back to P2P+registry only\nP2P flat-market boost (aec9ad29): strength 30→45 when completed_trades>0 or psbt_swaps>0\nType forced to p2p-activity; implication reflects actual trade counts\nCRASH FIX + CAP (4d91de01): countSignalTasksToday() generalized to LIKE 'File % signal%'\nWas 6 hardcoded beat patterns; now 2 generic globs — future-proofs new beats
             note right of ordinals_market_data: Signal filing SUSPENDED (80322a56)\nSIGNAL_FILING_SUSPENDED=true — agent-trading beat scope mismatch\nData collection continues for cross-category context\nFlat-market rotation FIXED (f3b5159d): lastFlatMarketCategory\nin HookState rotates FLAT_MARKET_CATEGORIES — [GAP] CLOSED\n[CARRY-17] deprecated fields cleanup 2026-04-23+
             note right of arxiv_research: DUAL-BEAT routing (42d54a6e)\nInfrastructure: two-tier aibtc-relevance filter (d2bc3c0d)\nTier 1: MCP/x402/Stacks/Clarity/sBTC/BRC-20\nTier 2: agent + crypto/blockchain compound\nQuantum: quant-ph category + QUANTUM_KEYWORDS\nShor/Grover/ECDSA threats/BIP-360/P2QRH/NIST PQC\nBoth beats fire independently same day
             note right of aibtc_news_editorial: validateBeatExists() pre-validates beat slug\nGET /api/beats before filing any signal (391e4921)\n10-min cache: db/beat-slug-cache.json\nFails early with available slugs listed\nx402 402-response fallback (09c036d0): POST /api/signals\nreturns 402 → bitcoin-wallet x402 execute-endpoint fallback\n[WATCH-CLOSED] beat-slug drift detection shipped\nBEAT EDITOR SKILL (c7c03bec): aibtc-news-editor installed (skills-v0.37.0)\n9 new MCP tools: news_review_signal, news_editorial_review,\nnews_register_editor, news_deactivate_editor, news_list_editors,\nnews_editor_earnings, news_compile_brief, news_file_correction, news_update_beat\nINTEGRATION GATE: tools active when Arc gains editor status (#383)\nCORRECTIONS CLI (da7d25b3): file-correction --signal-id --claim --correction [--sources]\nlist-corrections --signal-id\nBIP-137 signed; rate limit 3/day; corrects published signal claims
@@ -291,7 +291,7 @@ stateDiagram-v2
     ContentSensors --> SignalAllocation
 ```
 
-## Sensor Count by Category (2026-04-11T06:45Z)
+## Sensor Count by Category (2026-04-12T18:47Z)
 
 | Category | Count |
 |----------|-------|
@@ -307,6 +307,15 @@ stateDiagram-v2
 | **Total** | **72** |
 
 *Note: arc-alive-check DELETED (ee328387) — Health: 2→1, sensor count 73→70 (file count). arc-purpose-eval NEW (f1e0a1f6) — 70→71. aibtc-agent-trading NEW (5da9081c) — 68→69. daily-brief-inscribe SKILL.md NEW (f7e9124c) — skill count 103→104.*
+
+## Key Architectural Changes (7bd2c117 → 39a5416b) [2026-04-12T18:47Z]
+
+| Change | Impact |
+|--------|--------|
+| **feat(sensors): JingSwap API key support** (39a5416b) | `jingswap/api_key` loaded from creds store; passed as `Authorization: Bearer` header to all faktory-dao-backend requests. Module-level `jingswapUnavailable` flag: first 401 sets flag, subsequent calls skip JingSwap entirely (avoids N×401 per run). Graceful fallback to P2P desk + agent registry only. Fixes signal drought caused by API key requirement introduced on faktory-dao-backend. |
+| **fix(sensors): P2P flat-market signal boost + 401 handling** (aec9ad29) | When `jingswapUnavailable=true`, flat-market fallback still runs using P2P data. Signal strength boosted 30→45 when P2P has `completed_trades>0 or psbt_swaps>0`; type forced to `p2p-activity` with trade-count implication. Fixes sensor state corruption (`history` array was version 79 with empty history → every run was a "first-run baseline"). History restored; P2P-driven signals now viable even without JingSwap. |
+| **fix(sensors): crash fix + signal cap counter generalized** (4d91de01) | `countSignalTasksToday()` in `src/db.ts` simplified from 6 hardcoded beat-specific `LIKE` patterns to 2 generic globs (`LIKE 'File % signal%'` and `LIKE '[MILESTONE] File % signal%'`). Removes dependency on specific beat slugs — future beat additions don't require db.ts changes. Crash fix for sensor runtime error on state access. |
+| **fix(sensors): aibtc-repo-maintenance stale issue cleanup** (cee55c34) | New `closeStaleIssueWorkflows()` function. Queries `issue-opened` workflows from `pr-lifecycle` template older than 24h; checks GitHub issue state via `gh issue view --json state`; auto-closes workflow if `CLOSED`. Prevents stale issue-opened workflow accumulation without human intervention. |
 
 ## Key Architectural Changes (4bb84aee → 7bd2c117) [2026-04-12T06:45Z]
 

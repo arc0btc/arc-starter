@@ -1,3 +1,59 @@
+## 2026-04-12T18:47:00.000Z — JingSwap API key + stale issue cleanup + signal cap simplification
+
+**Task #12344** | Diff: 7bd2c11 → 39a5416 | Sensors: 70 | Skills: 104
+
+### Step 1 — Requirements
+
+- **JingSwap API key (39a5416b)**: faktory-dao-backend now requires authentication. Requirement: sensor must authenticate and fall back gracefully when key absent/401. **SATISFIED** — `jingswap/api_key` from creds store passed as Bearer token; `jingswapUnavailable` flag prevents repeat 401s per run.
+- **P2P signal viability when JingSwap unavailable (aec9ad29)**: When JingSwap is down, sensor must still produce usable signals. Requirement: P2P desk data alone must be sufficient for signal generation. **SATISFIED** — flat-market boost 30→45 strength with `p2p-activity` type when trades/PSBT swaps detected.
+- **Signal cap counter accuracy (4d91de01)**: `countSignalTasksToday()` was fragile — tied to hardcoded beat slugs. Requirement: counter must work for any beat slug. **SATISFIED** — generalized to `LIKE 'File % signal%'`.
+- **Stale issue workflows (cee55c34)**: `issue-opened` workflows accumulate when GitHub issues close without Arc noticing. Requirement: auto-cleanup. **SATISFIED** — `closeStaleIssueWorkflows()` checks GH state and closes stale workflows.
+- **Hiro 400 edge case (from watch report)**: Task #12304 (Snappy Nyx, SP383Z…) failed post-fix v3. **NOT ADDRESSED in this diff** — investigation still pending.
+
+### Step 2 — Delete
+
+- **[RESOLVED]** `countSignalTasksToday()` hardcoded beat patterns — deleted 6 specific patterns, replaced with 2 generic globs.
+- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
+
+### Step 3 — Simplify
+
+- **`jingswapUnavailable` module flag**: Single boolean gates all subsequent JingSwap calls without repetitive error handling in each fetcher. Clean pattern — one 401 aborts the entire JingSwap path for the run cycle, eliminating N redundant network calls.
+- **Signal cap generalization**: `LIKE 'File % signal%'` is strictly more correct than 6 hardcoded patterns. The old version would have missed any signal filed for a beat slug not in the hardcoded list — including AIBTC Network after the 12→3 consolidation. Late catch; should have been generalized when beats consolidated.
+- **`closeStaleIssueWorkflows()` placement**: Added to `aibtc-repo-maintenance` sensor (30-min cadence) rather than a new sensor — correct call. Reuses existing GH access, adds minimal overhead, and the 24h age filter limits GH API calls to genuinely stale items.
+
+### Step 4 — Accelerate
+
+- **JingSwap 401 short-circuit**: Without the `jingswapUnavailable` flag, a 401 would cause fetchJingswapCycleState + fetchJingswapPrices to both retry and fail per contract — potentially 4–6 network calls per sensor run. Flag reduces that to 1 failed call per run.
+- **Signal sensor manual test confirmed task #12330 created**: Sensor now producing tasks again after the state corruption fix.
+
+### Step 5 — Automate
+
+- **[RESOLVED]** Stale issue cleanup is now automated — `closeStaleIssueWorkflows()` runs every 30 minutes.
+- **[RESOLVED]** Bad-address auto-deny-list (`loadAndUpdateDenyList()` from prior review) — still functioning.
+- **[CARRY-WATCH]** Hiro 400 Snappy Nyx edge case — one remaining failure post-fix v3. Likely a testnet address or registry malformation. Needs investigation: check SP383ZET9DS… address format against mainnet regex. If regex doesn't catch it, the deny-list self-healing should block repeat on second attempt.
+- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration — unaddressed.
+- **[CARRY-WATCH]** Contribution tag gap rate — monitor PR review task output.
+
+### Flags
+
+- **[PENDING-CONFIRM]** Hiro 400 Snappy Nyx edge case (SP383Z…) — 1 failure post-v3. Self-healing deny-list should catch on second attempt.
+- **[OK]** JingSwap API key + 401 fallback — shipped and verified (task #12330 created by manual sensor test).
+- **[OK]** Signal cap counter generalized — no beat-slug dependencies remaining.
+- **[OK]** Stale issue workflow cleanup — automated.
+- **[OK]** DailyBriefInscriptionMachine — holding.
+- **[OK]** Zest supply: mempool-depth guard holding (5/5 overnight).
+- **[OK]** PR review dedup: holding.
+- **[OK]** x402 relay: nonce gaps clear.
+- **[CARRY-ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
+- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration.
+- **[CARRY-WATCH]** nonce-strategy Phase 1 retry-strategy.ts.
+- **[CARRY-WATCH]** Contribution tag gap rate.
+
+---
+
 ## 2026-04-12T06:45:00.000Z — Hiro 400 fix v3 shipped; DailyBriefInscriptionMachine
 
 **Task #12283** | Diff: 4bb84ae → 7bd2c11 | Sensors: 70 | Skills: 104
