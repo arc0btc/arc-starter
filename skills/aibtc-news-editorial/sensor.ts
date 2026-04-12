@@ -17,6 +17,9 @@ const SIGNAL_SOURCE = "sensor:signal-review";
 const signalLog = createSensorLogger(SIGNAL_SENSOR);
 const BATCH_SIZE = 10;
 
+// Beats with active editors — skip publisher review, editor handles it
+const EDITOR_MANAGED_BEATS = new Set(["quantum"]);
+
 interface Signal {
   id: string;
   headline?: string;
@@ -125,8 +128,16 @@ async function signalReviewSensor(): Promise<string> {
     return "error";
   }
 
+  // Filter out beats managed by active editors (e.g. quantum → Zen Rocket)
+  const editorSkipped = signals.filter((s) => EDITOR_MANAGED_BEATS.has(s.beat));
+  signals = signals.filter((s) => !EDITOR_MANAGED_BEATS.has(s.beat));
+
+  if (editorSkipped.length > 0) {
+    signalLog(`Skipped ${editorSkipped.length} signal(s) on editor-managed beats: ${[...new Set(editorSkipped.map((s) => s.beat))].join(", ")}`);
+  }
+
   if (signals.length === 0) {
-    signalLog("No submitted signals awaiting review");
+    signalLog("No submitted signals awaiting publisher review");
     return "ok";
   }
 
