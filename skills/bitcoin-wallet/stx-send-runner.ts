@@ -63,6 +63,19 @@ if (!validateStacksAddress(recipient) || recipient.includes(".")) {
   process.exit(1);
 }
 
+// Validate mainnet address format: SP + exactly 39 c32 chars (41 chars total).
+// validateStacksAddress accepts testnet (ST) and mocknet (SM) addresses, but Hiro's mainnet
+// broadcast API rejects them with "params/principal must match pattern" (HTTP 400).
+// c32 alphabet: 0-9 A-H J K M N P-T V-Z (excludes I L O U).
+const STX_MAINNET_REGEX = /^SP[0-9A-HJKMNP-TV-Z]{39}$/;
+if (!STX_MAINNET_REGEX.test(recipient)) {
+  console.log(JSON.stringify({
+    success: false,
+    error: `Invalid recipient address: '${recipient}' is not a valid Stacks mainnet address (must be SP + 39 c32 chars). Hiro mainnet API rejects non-mainnet addresses.`,
+  }));
+  process.exit(1);
+}
+
 // Convert STX to micro-STX (1 STX = 1,000,000 micro-STX)
 const amountMicroStx = BigInt(Math.round(amountStx * 1_000_000));
 
