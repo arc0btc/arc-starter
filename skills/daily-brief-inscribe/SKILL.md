@@ -1,3 +1,13 @@
+---
+name: daily-brief-inscribe
+description: Manages Bitcoin L1 inscription lifecycle for daily briefs using single-state-per-task workflow pattern
+updated: 2026-04-12
+tags:
+  - inscription
+  - bitcoin
+  - workflow
+---
+
 # Daily Brief Inscribe
 
 Manages the lifecycle of inscribing daily briefs onto Bitcoin L1. Uses the `daily-brief-inscription` workflow template to coordinate multi-step inscription flows as single-state-per-task operations.
