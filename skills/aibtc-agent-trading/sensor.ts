@@ -133,14 +133,23 @@ const log = createSensorLogger(SENSOR_NAME);
 
 // ---- Data fetchers ----
 
+// Track whether JingSwap is unavailable this run (401 = API key required)
+let jingswapUnavailable = false;
+
 async function fetchJingswapCycleState(
   contractParam: string,
 ): Promise<JingswapCycleState | null> {
+  if (jingswapUnavailable) return null;
   try {
     const qp = contractParam ? `?contract=${contractParam}` : "";
     const response = await fetchWithRetry(
       `${JINGSWAP_API}/api/auction/cycle-state${qp}`,
     );
+    if (response.status === 401) {
+      log("JingSwap API requires API key (401) — falling back to P2P + agent registry only");
+      jingswapUnavailable = true;
+      return null;
+    }
     if (!response.ok) return null;
     const json = (await response.json()) as Record<string, unknown>;
     const data = (json.data ?? json) as Record<string, unknown>;
@@ -160,6 +169,7 @@ async function fetchJingswapCycleState(
 async function fetchJingswapPrices(
   contractParam: string,
 ): Promise<{ pythPrice: number; dexPrice: number } | null> {
+  if (jingswapUnavailable) return null;
   try {
     const qp = contractParam ? `?contract=${contractParam}` : "";
     const [pythRes, dexRes] = await Promise.all([
@@ -377,15 +387,19 @@ function detectChanges(
   }
 
   // --- Flat-market fallback ---
-  // If no changes detected, generate a market-structure signal from current state
+  // If no changes detected, generate a market-structure signal from current state.
+  // Boost strength when P2P has meaningful activity (trades, volume, listings).
   if (signals.length === 0) {
+    const hasP2PActivity = current.p2p.completed_trades > 0 || current.p2p.psbt_swaps > 0;
+    const baseStrength = hasP2PActivity ? 45 : 30;
     signals.push({
-      type: pickNextSignalType(null),
-      strength: 30,
+      type: hasP2PActivity ? "p2p-activity" : pickNextSignalType(null),
+      strength: baseStrength,
       headline: buildFlatMarketHeadline(current),
       evidence: buildFlatMarketEvidence(current, previous, recentTrades),
-      implication:
-        "Stable trading conditions across JingSwap and P2P desk indicate steady-state agent participation — no structural shifts detected in the current observation window.",
+      implication: hasP2PActivity
+        ? `P2P ordinals desk shows ${current.p2p.completed_trades} completed trades and ${current.p2p.psbt_swaps} PSBT swaps — active agent trading despite no incremental changes in this observation window.`
+        : "Stable trading conditions across JingSwap and P2P desk indicate steady-state agent participation — no structural shifts detected in the current observation window.",
     });
   }
 
@@ -430,10 +444,12 @@ function buildBaselineEvidence(
 
 function buildFlatMarketHeadline(current: HistoryReading): string {
   const stxMarket = current.markets["sbtc-stx"];
-  const phase = stxMarket
-    ? ["deposit", "buffer", "settle"][stxMarket.phase] ?? `phase-${stxMarket.phase}`
-    : "unknown";
-  return `AIBTC agent-trading steady state: JingSwap ${phase} phase, ${current.p2p.completed_trades} P2P trades, ${current.agentCount} agents`;
+  if (stxMarket) {
+    const phase = ["deposit", "buffer", "settle"][stxMarket.phase] ?? `phase-${stxMarket.phase}`;
+    return `AIBTC agent-trading steady state: JingSwap ${phase} phase, ${current.p2p.completed_trades} P2P trades, ${current.agentCount} agents`;
+  }
+  // JingSwap unavailable — lead with P2P data
+  return `AIBTC P2P trading: ${current.p2p.completed_trades} trades, ${current.p2p.psbt_swaps} PSBT swaps, ${current.p2p.total_agents}/${current.agentCount} agents active`;
 }
 
 function buildFlatMarketEvidence(
@@ -477,6 +493,9 @@ export default async function sensor(): Promise<string | void> {
   if (!claimed) return "skip";
 
   log("starting aibtc-agent-trading sensor run");
+
+  // Reset per-run flag (module-level var persists across invocations in same process)
+  jingswapUnavailable = false;
 
   // Daily cap check
   const todayTotal = countSignalTasksToday();
@@ -573,6 +592,11 @@ export default async function sensor(): Promise<string | void> {
     history: typedRaw?.history ?? [],
     lastSignalType: typedRaw?.lastSignalType ?? null,
   };
+
+  // Guard: detect state corruption (high version but no history = previous run failed to persist)
+  if (state.version > 1 && state.history.length === 0) {
+    log(`state corruption detected: version ${state.version} but empty history — rebuilding from current reading`);
+  }
 
   const previousReading =
     state.history.length > 0
