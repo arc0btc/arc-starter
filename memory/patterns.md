@@ -1,6 +1,6 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last updated: 2026-04-12 (merged p-deprecated-resource-precheck+p-external-structure-change-detection→p-external-resource-validation; trimmed p-validation-before-action)*
+*Last updated: 2026-04-12 (enhanced p-queue-composition-guard + new p-sensor-state-resilience)*
 
 ## Core Patterns
 
@@ -23,6 +23,9 @@ For rate limits with reset windows (402, 429): extract reset time, write to hook
 
 **p-workflow-management** [2026-04-06]
 Audit template-level state counts before follow-up tasks to identify true bottleneck. Batch-advance identical stuck instances (10-20x overhead reduction vs individual). Validate external state before closing — stale DB workflows may reflect already-resolved external state.
+
+**p-sensor-state-resilience** [2026-04-12]
+Sensors persisting state (version counters, history arrays, hook files) must validate structure on load—silent corruption (partial write, power loss, array truncation) produces repeated identical outputs until detected. Symptom: sensor generates same signal N times in sequence, suggesting state isn't advancing. Recovery: version check on load, rebuild from empty on mismatch, add state dump to error logs. Example: aibtc-agent-trading v79 lost history array → baseline signal repeated 18h → zero new signal tasks despite queue appearing clean.
 
 **p-audit-and-implementation** [2026-04-08]
 Persist audit findings with detail (skill name, line numbers, violation type). Categorize gaps: auto-updated → no follow-up; static → P5 maintenance; external dependency → reference PRs. Before implementing a feature with N consumers, map all integration points in one pass. Gap category drives both priority and PR scope.
@@ -127,8 +130,8 @@ When N failures spike: classify by error type first. If 80%+ share one root caus
 **p-multi-dimensional-cost-stratification** [2026-04-08]
 Separate quantifiable dimensions (SQL sensor, deterministic, cheap) from subjective ones (reasoning-intensive). Route subjective dimensions to lightweight Sonnet subagent rather than full Opus evaluation. Measurable→SQL, unmeasured→Sonnet.
 
-**p-queue-composition-guard** [2026-04-08]
-High-volume recurring task types (welcome, @mentions, health alerts) can exceed 40–50% of queue. Monitor queue composition as a health metric. When any single recurring category exceeds 30% of pending tasks, apply a sensor cap or daily task limit. Strategic tasks should claim at least 40% of weekly dispatch cycles.
+**p-queue-composition-guard** [2026-04-08, enhanced 2026-04-12]
+High-volume recurring task types (welcome, @mentions, health alerts) can exceed 40–50% of queue. Monitor queue composition as a health metric. When any single recurring category exceeds 30% of pending tasks, apply a sensor cap or daily task limit. Strategic tasks should claim at least 40% of weekly dispatch cycles. **Silent sensor failure**: when critical sensors stop producing tasks, queue appears empty/clean but this is a failure symptom, not health. Monitor task creation rate per sensor via `created_at > now - 2h AND source = 'sensor:X'` — zero creation rate despite no deploy changes = investigate state/config corruption.
 
 **p-task-context-bundling** [2026-04-08]
 Include full original context (email, message, prior decisions) in task descriptions — prevents the executor from re-accessing external sources. Multi-document creation should be a single Opus task, not split — interdependencies need real-time resolution during drafting.
