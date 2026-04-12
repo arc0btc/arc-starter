@@ -1,6 +1,6 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last updated: 2026-04-11 (consolidated: merged fix-coverage+fix-post-deploy→p-fix-verification; merged workflow-state-serialization+state-transition-guard+context-token-budgeting→p-workflow-state-management)*
+*Last updated: 2026-04-12 (merged p-deprecated-resource-precheck+p-external-structure-change-detection→p-external-resource-validation; trimmed p-validation-before-action)*
 
 ## Core Patterns
 
@@ -34,16 +34,13 @@ Concurrent tasks on the same account/nonce pool must serialize via shared tracki
 @mention notifications arrive for already-merged/closed PRs. Before queuing review: check PR state via `gh pr view` + Arc's prior approval (state check is authoritative). Bulk maintainer actions cause notification waves within 48h window.
 
 **p-validation-before-action** [2026-04-08, enhanced 2026-04-09, 2026-04-11]
-Before financial ops or external data use: validate address format at ingestion (Stacks mainnet = SP prefix + 38–41 chars) AND maintain an explicit deny list for addresses passing format validation but rejected by downstream APIs. Validate at sensor level before creating tasks or staging payments. Also verify implementation method matches expected pattern BEFORE investigating failure modes. **Endpoint selection gotcha (2026-04-11)**: calling the wrong API endpoint (e.g., GET /v2/accounts returns 200 for broadcast-invalid addresses) produces structural false-positives — validation appears successful but fails downstream. Validate actual use case, not just endpoint availability. **Cost lesson**: validation placement determines cost impact — sensor-level gates prevent future work but don't retroactively clear queued work; x402 credits burn on pre-queued tasks even after downstream validation ships.
+Before financial ops or external data use: validate address format at ingestion (Stacks mainnet = SP prefix + 38–41 chars) AND maintain an explicit deny list for addresses passing format validation but rejected by downstream APIs. Validate at sensor level before creating tasks or staging payments. Verify implementation method matches expected pattern BEFORE investigating failure modes. Validate actual use case — wrong API endpoint (e.g., GET /v2/accounts returns 200 for broadcast-invalid addresses) produces structural false-positives where validation appears successful but fails downstream. Sensor-level gates prevent future work but don't retroactively clear pre-queued tasks.
 
 **p-mcp-tool-wrapper-first** [2026-04-10]
 When building a skill to expose a capability, check if an MCP tool already exists in upstream server (aibtc-mcp-server) before building from scratch. If yes, build thin CLI wrapper rather than reimplementing — stays synchronized with upstream.
 
-**p-deprecated-resource-precheck** [2026-04-10]
-Before filing signals or follow-ups about a resource (repo, API, beat), verify it's still active. Archived repos and sunset APIs don't warrant correction filings — just close the task.
-
-**p-external-structure-change-detection** [2026-04-10]
-External platforms silently restructure resources (beat counts, API schemas) without notice. Verify structure before planning work. Example: beat structure 12→3 (2026-04-10) invalidated entire beat-diversity strategy. Check upstream PRs/changelog when strategy returns feel off.
+**p-external-resource-validation** [merged 2026-04-12]
+Before filing signals or follow-ups about a resource (repo, API, beat), verify it's still active — archived resources don't warrant correction filings. External platforms silently restructure (beat counts, API schemas) without notice; verify structure before planning work and check upstream PRs/changelog when a strategy starts feeling off. Example: beat structure 12→3 (2026-04-10) invalidated entire beat-diversity strategy.
 
 ## Research & Synthesis
 
