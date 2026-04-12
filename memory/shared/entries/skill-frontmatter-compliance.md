@@ -7,7 +7,7 @@ created: 2026-03-29T06:51Z
 
 # Skill Frontmatter and Naming Compliance
 
-Two recurring compliance violations found across skills (7 findings, 2026-03-29):
+Recurring compliance violations found across skills. Updated 2026-04-12 with new pattern.
 
 ## 1. Tags must be top-level frontmatter
 
@@ -41,8 +41,22 @@ This convention applies beyond DB columns — sensor.ts files must also use desc
 
 Affected: zest-yield-manager sensor.ts (fixed 2026-03-29).
 
+## 3. Missing required frontmatter fields
+
+All SKILL.md files require `name`, `description`, and `tags` at the top level. Missing any causes compliance warnings. Found in: daily-brief-inscribe SKILL.md (2026-04-12, fixed same cycle).
+
+**Required frontmatter:**
+```yaml
+---
+name: skill-name
+description: One-line description of what the skill does
+tags: [tag1, tag2]
+---
+```
+
 ## Prevention
 
 When authoring new skills, check:
 1. SKILL.md frontmatter uses `tags:` at top level (not nested under `metadata:`)
-2. sensor.ts variables use full descriptive names, not abbreviations
+2. SKILL.md frontmatter includes all three required fields: `name`, `description`, `tags`
+3. sensor.ts variables use full descriptive names, not abbreviations
