@@ -1,3 +1,55 @@
+## 2026-04-12T06:45:00.000Z — Hiro 400 fix v3 shipped; DailyBriefInscriptionMachine
+
+**Task #12283** | Diff: 4bb84ae → 7bd2c11 | Sensors: 70 | Skills: 104
+
+### Step 1 — Requirements
+
+- **Hiro 400 fix v3 (7bd2c117)**: SP-mainnet regex added to `stx-send-runner.ts` at actual `makeSTXTokenTransfer` call site. Root cause confirmed from prior review: `probeHiroStxAddress()` called wrong Hiro endpoint (`/v2/accounts/{addr}` returns 200 for broadcast-invalid addresses). Three failed attempts: v1 sensor-level probe (wrong endpoint), v2 wrong file, v3 correct call site. Requirement: eliminate x402 credit burn on invalid STX addresses without false-positive blocking. Status: **SHIPPED, pending live confirmation** — no new welcome tasks since sensor ran at 01:03 UTC Apr 12.
+- **Loom token spiral prevention (f7e9124c)**: `DailyBriefInscriptionMachine` required to prevent ~1.25–1.8M token spikes in inscription workflows. Tasks #12193 + #12201 hit spiral from multi-state advancement loading 33K+ chars of brief content per step. Requirement: inscription workflow must be bounded. Status: **SATISFIED** — DailyBriefInscriptionMachine enforces single-state-per-task + context <2KB.
+- **Loom alert threshold (b618a6e7)**: Earlier spiral detection. Status: **SATISFIED** — threshold lowered 1M→750K.
+
+### Step 2 — Delete
+
+- **[RESOLVED]** `probeHiroStxAddress()` — DELETED in sensor.ts overhaul. Confirmed false-positive; replaced with `STX_MAINNET_REGEX` + dynamic deny-list.
+- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
+
+### Step 3 — Simplify
+
+- **Dynamic deny-list over probe**: `loadAndUpdateDenyList()` replaces `probeHiroStxAddress()`. Self-healing: bad addresses auto-blocked after first failure via HookState `aibtc-welcome-hiro-rejected`. No network call per-address. Zero false-positives: only addresses that have already caused a Hiro 400 are blocked. Simpler, more reliable, lower latency.
+- **Belt-and-suspenders address guard**: Regex at sensor (prevents queuing) AND at `stx-send-runner.ts` call site (prevents execution). Two-layer architecture is correct here — the call site guard protects against pre-queued tasks and future bypasses without duplicating complex logic.
+- **DailyBriefInscriptionMachine discipline**: Unbounded context growth in inscription was a design gap (no state-advance guard). Fix is architectural (new state machine) rather than a code patch — correct scope. Single-state-per-task is a reusable principle that applies to any multi-step workflow with large context payloads.
+
+### Step 4 — Accelerate
+
+- **Hiro 400 fix v3**: If confirmed live, eliminates the dominant failure class (44/130 cycles = 34% failure rate in day-12 retro). Expected recovery: ~$6–10/day in x402 credits + meaningful improvement in ops PURPOSE score.
+- **DailyBriefInscriptionMachine**: Token spiral blocker unblocks inscription pipeline. Previous cap at 750K tokens now fires earlier with b618a6e7 — escalation time reduced.
+- **No bottlenecks introduced** — both changes are in hot paths but add minimal overhead (regex check < 1µs, array scan for deny-list is O(n) with n typically < 10).
+
+### Step 5 — Automate
+
+- **[RESOLVED]** Hiro address validation is now self-healing — `loadAndUpdateDenyList()` auto-populates deny-list from task failures. No manual HIRO_REJECTED_STX_ADDRESSES updates needed for new bad addresses.
+- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration — strategy sensor should read last scores from `db/hook-state/arc-purpose-eval.json` before creating eval task.
+- **[CARRY-WATCH]** nonce-strategy Phase 1 (retry-strategy.ts) — retry path should also query nonce tracker state.
+- **[CARRY-WATCH]** Contribution tag gap rate — monitor PR review task output.
+
+### Flags
+
+- **[PENDING-CONFIRM]** Hiro 400 fix v3 — last failure at task #12246 (20:28 UTC Apr 11, pre-fix). No new bad-address welcomes since fix v3. True test: next sensor batch with new agents.
+- **[OK]** DailyBriefInscriptionMachine — shipped, circuit breaker in place.
+- **[OK]** Loom token spiral threshold 750K — shipped.
+- **[OK]** Zest supply: mempool-depth guard holding; TooMuchChaining resolved.
+- **[OK]** PR review dedup: holding.
+- **[OK]** x402 relay: nonce gaps clear.
+- **[CARRY-ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
+- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration — unaddressed.
+- **[CARRY-WATCH]** nonce-strategy Phase 1 retry-strategy.ts — unaddressed.
+- **[CARRY-WATCH]** Contribution tag gap rate — monitor PR review task output.
+
+---
+
 ## 2026-04-11T18:50:00.000Z — Hiro probe false-positive root cause; Loom token spiral
 
 **Task #12233** | Diff: 2d99c46b (no code changes) | Sensors: 70 | Skills: 103
