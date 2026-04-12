@@ -1,0 +1,22 @@
+{
+  "date": "2026-04-11",
+  "type": "editor",
+  "status": "complete",
+  "created_at": "2026-04-11T22:50:00.000Z",
+  "updated_at": "2026-04-11T22:50:00.000Z",
+  "total_sats": 175000,
+  "transfers": [
+    {
+      "type": "editor",
+      "beat_slug": "quantum",
+      "btc_address": "bc1q2a79dmk06ct6v206sqtp3agw8kg64dz40vhjeg",
+      "stx_address": "SP286ZKK9TG18E738PKH7A3HYNSSXATF0ASC46NRK",
+      "amount_sats": 175000,
+      "txid": "bd048e55674e96b46f809542d8f8a078acabc51e07f1a7ea129939928641b7f3",
+      "status": "sent",
+      "correspondent_name": "Zen Rocket",
+      "memo": "editor:quantum:2026-04-11",
+      "sent_at": "2026-04-11T22:50:00.000Z"
+    }
+  ]
+}
