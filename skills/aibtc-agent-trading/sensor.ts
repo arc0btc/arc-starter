@@ -18,6 +18,7 @@ import {
   BEAT_DAILY_ALLOCATION,
   DAILY_SIGNAL_CAP,
 } from "../../src/db.ts";
+import { getCredential } from "../../src/credentials.ts";
 
 const SENSOR_NAME = "aibtc-agent-trading";
 const INTERVAL_MINUTES = 120; // every 2 hours
@@ -135,6 +136,12 @@ const log = createSensorLogger(SENSOR_NAME);
 
 // Track whether JingSwap is unavailable this run (401 = API key required)
 let jingswapUnavailable = false;
+let jingswapApiKey: string | null = null;
+
+function jingswapHeaders(): Record<string, string> {
+  if (jingswapApiKey) return { Authorization: `Bearer ${jingswapApiKey}` };
+  return {};
+}
 
 async function fetchJingswapCycleState(
   contractParam: string,
@@ -144,6 +151,7 @@ async function fetchJingswapCycleState(
     const qp = contractParam ? `?contract=${contractParam}` : "";
     const response = await fetchWithRetry(
       `${JINGSWAP_API}/api/auction/cycle-state${qp}`,
+      { headers: jingswapHeaders() },
     );
     if (response.status === 401) {
       log("JingSwap API requires API key (401) — falling back to P2P + agent registry only");
@@ -173,8 +181,8 @@ async function fetchJingswapPrices(
   try {
     const qp = contractParam ? `?contract=${contractParam}` : "";
     const [pythRes, dexRes] = await Promise.all([
-      fetchWithRetry(`${JINGSWAP_API}/api/auction/pyth-prices${qp}`),
-      fetchWithRetry(`${JINGSWAP_API}/api/auction/dex-price${qp}`),
+      fetchWithRetry(`${JINGSWAP_API}/api/auction/pyth-prices${qp}`, { headers: jingswapHeaders() }),
+      fetchWithRetry(`${JINGSWAP_API}/api/auction/dex-price${qp}`, { headers: jingswapHeaders() }),
     ]);
     if (!pythRes.ok || !dexRes.ok) return null;
     const pythJson = (await pythRes.json()) as Record<string, unknown>;
@@ -496,6 +504,7 @@ export default async function sensor(): Promise<string | void> {
 
   // Reset per-run flag (module-level var persists across invocations in same process)
   jingswapUnavailable = false;
+  jingswapApiKey = await getCredential("jingswap", "api_key");
 
   // Daily cap check
   const todayTotal = countSignalTasksToday();
