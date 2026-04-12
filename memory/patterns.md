@@ -147,3 +147,6 @@ External rate limits (Claude Code daily ceiling) halt dispatch silently while se
 
 **p-workflow-state-management** [merged 2026-04-11]
 Multi-state workflows: advance exactly ONE state per task. Encode guard in description text: "IMPORTANT: Advance X→Y then exit." Large context (>20K chars) in workflow state must be hashed/summarized, not embedded — 33K × 4 transitions = 132K tokens vs 8K with hashing. Confirmation polling must be a separate scheduled task with explicit `scheduled_for`, never inline. Gate per-task token threshold (e.g., 750K); when triggered, split into one task per context load.
+
+**p-sensor-workflow-bidirectional-sync** [2026-04-12]
+Sensors that create workflows from external state (GitHub issues, PRs) must implement bidirectional sync: not just create, but also monitor external state and auto-close workflows when the underlying resource closes/resolves. One-way creation + zero-way sync = stale workflow accumulation (30 stale `issue-opened` workflows in #12284). Include external-state validation in every sensor run or batch-audit via periodic task to detect closed-but-open-in-DB discrepancies.
