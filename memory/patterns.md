@@ -16,6 +16,9 @@ When higher-priority task supersedes pending tasks, close them explicitly: `stat
 **p-cooldown-precheck**
 Signal filing has TWO independent gates: (1) daily task count (6/day) AND (2) per-agent cooldown (60-min, shared across beats). Both must pass before filing.
 
+**p-signal-task-dedup** [2026-04-13]
+Multi-source sensors can generate duplicate signal filing tasks within the same cycle if cooldown state hasn't propagated. Before creating a signal task, query pending tasks for same source data; skip if already queued. Dedup source by combination of (beat, source_url/issue_id, data_hash). Example: aibtc-agent-trading tasks #12345 + #12349 both queued same P2P trade data within 2h window.
+
 ## Operational Patterns
 
 **p-rate-limit-error-silencing** [2026-03-27]
