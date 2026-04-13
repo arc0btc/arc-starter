@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // skills/bitcoin-wallet/cli.ts
 // Unified CLI for wallet management and signing.
-// Usage: arc skills run --name wallet -- <subcommand> [flags]
+// Usage: arc skills run --name bitcoin-wallet -- <subcommand> [flags]
 //
 // The upstream wallet manager holds unlock state in memory (singleton).
 // Signing requires unlock + sign in the same process. For operations that
@@ -10,6 +10,11 @@
 
 import { getCredential } from "../../src/credentials.ts";
 import { resolve } from "node:path";
+
+// Project root (arc-starter/) — used for reading hook state files at execution time.
+const PROJECT_ROOT = resolve(import.meta.dir, "../..");
+// Dynamic deny-list written by aibtc-welcome sensor after Hiro 400 failures.
+const HIRO_REJECTED_STATE_FILE = resolve(PROJECT_ROOT, "db/hook-state/aibtc-welcome-hiro-rejected.json");
 
 const ROOT = resolve(import.meta.dir, "../../github/aibtcdev/skills");
 const WALLET_SCRIPT = resolve(ROOT, "wallet/wallet.ts");
@@ -557,8 +562,31 @@ async function cmdStxSend(args: string[]): Promise<void> {
   const flags = parseFlags(args);
 
   if (!flags.recipient || !flags["amount-stx"]) {
-    process.stderr.write("Usage: arc skills run --name wallet -- stx-send --recipient <STX address> --amount-stx <number> [--memo \"text\"] [--nonce N] [--fee N]\n");
+    process.stderr.write("Usage: arc skills run --name bitcoin-wallet -- stx-send --recipient <STX address> --amount-stx <number> [--memo \"text\"] [--nonce N] [--fee N]\n");
     process.exit(1);
+  }
+
+  // Check dynamic Hiro-rejected deny-list before attempting transfer.
+  // Addresses in this list pass regex/c32check but are rejected by Hiro's broadcast API.
+  // The aibtc-welcome sensor auto-populates this file from failed welcome tasks.
+  // This prevents repeated Hiro 400 failures for known-bad addresses already in the queue.
+  try {
+    const file = Bun.file(HIRO_REJECTED_STATE_FILE);
+    if (await file.exists()) {
+      const state = (await file.json()) as { addresses?: string[] };
+      const denied = new Set<string>(state.addresses ?? []);
+      if (denied.has(flags.recipient)) {
+        log(`rejecting ${flags.recipient}: in Hiro-rejected deny-list`);
+        console.log(JSON.stringify({
+          success: false,
+          error: `Address ${flags.recipient} is in the Hiro-rejected deny-list (known broadcast-invalid). Hiro returns 400 for this address. Not attempting transfer.`,
+        }));
+        process.exit(1);
+      }
+    }
+  } catch {
+    // Fail-open: if deny-list file is unreadable, proceed without this check.
+    // The regex guard in stx-send-runner.ts still catches wrong-network addresses.
   }
 
   log(`sending ${flags["amount-stx"]} STX to ${flags.recipient} (auto unlock/lock)`);

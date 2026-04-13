@@ -25,17 +25,17 @@ Wraps the aibtcdev/skills wallet and signing tools for Arc dispatch. Manages the
 ## CLI Commands
 
 ```
-arc skills run --name wallet -- unlock
-arc skills run --name wallet -- lock
-arc skills run --name wallet -- info
-arc skills run --name wallet -- status
-arc skills run --name wallet -- balance [--address <STX address>]
-arc skills run --name wallet -- btc-sign --message "text"
-arc skills run --name wallet -- stacks-sign --message "text"
-arc skills run --name wallet -- btc-verify --message "text" --signature "sig" [--expected-signer "addr"]
-arc skills run --name wallet -- stx-send --recipient <STX address> --amount-stx <number> [--memo "text"]
-arc skills run --name wallet -- check-relay-health [--relay-url <url>] [--sponsor-address <address>]
-arc skills run --name wallet -- x402 <x402-subcommand> [flags]
+arc skills run --name bitcoin-wallet -- unlock
+arc skills run --name bitcoin-wallet -- lock
+arc skills run --name bitcoin-wallet -- info
+arc skills run --name bitcoin-wallet -- status
+arc skills run --name bitcoin-wallet -- balance [--address <STX address>]
+arc skills run --name bitcoin-wallet -- btc-sign --message "text"
+arc skills run --name bitcoin-wallet -- stacks-sign --message "text"
+arc skills run --name bitcoin-wallet -- btc-verify --message "text" --signature "sig" [--expected-signer "addr"]
+arc skills run --name bitcoin-wallet -- stx-send --recipient <STX address> --amount-stx <number> [--memo "text"]
+arc skills run --name bitcoin-wallet -- check-relay-health [--relay-url <url>] [--sponsor-address <address>]
+arc skills run --name bitcoin-wallet -- x402 <x402-subcommand> [flags]
 ```
 
 ### unlock
@@ -63,7 +63,7 @@ Query STX balance for a Stacks address. Queries the Stacks API and returns total
 
 **Output:** JSON with `balance_stx`, `balance_micro_stx`, `locked_stx`, `locked_micro_stx`, `available_stx`, `available_micro_stx`, and `lock_height`.
 
-**Example:** `arc skills run --name wallet -- balance` or `arc skills run --name wallet -- balance --address SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE`
+**Example:** `arc skills run --name bitcoin-wallet -- balance` or `arc skills run --name bitcoin-wallet -- balance --address SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE`
 
 ### btc-sign / stacks-sign
 
@@ -84,7 +84,7 @@ Send STX to a recipient address. Auto-unlocks and locks the wallet internally.
 
 **Output:** JSON with `success`, `txid`, `recipient`, `amount_stx`, `explorer` URL.
 
-**Example:** `arc skills run --name wallet -- stx-send --recipient SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE --amount-stx 2`
+**Example:** `arc skills run --name bitcoin-wallet -- stx-send --recipient SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE --amount-stx 2`
 
 ### check-relay-health
 
@@ -100,7 +100,7 @@ Check x402 sponsor relay health and sponsor nonce status. Queries the relay `/he
 
 Run any x402 command with auto unlock/lock. Handles wallet unlock in the same process so the wallet manager singleton is available. Used for paid x402 operations like sending inbox messages.
 
-Example: `arc skills run --name wallet -- x402 send-inbox-message --recipient-btc-address bc1... --recipient-stx-address SP... --content "Hello"`
+Example: `arc skills run --name bitcoin-wallet -- x402 send-inbox-message --recipient-btc-address bc1... --recipient-stx-address SP... --content "Hello"`
 
 ## When to Use
 
