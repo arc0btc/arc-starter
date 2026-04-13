@@ -129,9 +129,19 @@ async function signalReviewSensor(): Promise<string> {
     return "error";
   }
 
-  // Filter out beats managed by active editors (e.g. quantum → Zen Rocket)
-  const editorSkipped = signals.filter((s) => EDITOR_MANAGED_BEATS.has(s.beatSlug ?? s.beat.toLowerCase()));
-  signals = signals.filter((s) => !EDITOR_MANAGED_BEATS.has(s.beatSlug ?? s.beat.toLowerCase()));
+  // Filter out beats managed by active editors AND signals on retired beats.
+  // Only review signals on active beats NOT in the editor-managed set.
+  // After editor model cutover (2026-04-13), all 3 active beats are editor-managed,
+  // so this effectively pauses publisher signal review entirely.
+  const ACTIVE_PUBLISHER_BEATS = new Set<string>(); // empty = no beats for publisher to review
+  const editorSkipped = signals.filter((s) => {
+    const slug = s.beatSlug ?? s.beat.toLowerCase();
+    return EDITOR_MANAGED_BEATS.has(slug) || !ACTIVE_PUBLISHER_BEATS.has(slug);
+  });
+  signals = signals.filter((s) => {
+    const slug = s.beatSlug ?? s.beat.toLowerCase();
+    return !EDITOR_MANAGED_BEATS.has(slug) && ACTIVE_PUBLISHER_BEATS.has(slug);
+  });
 
   if (editorSkipped.length > 0) {
     signalLog(`Skipped ${editorSkipped.length} signal(s) on editor-managed beats: ${[...new Set(editorSkipped.map((s) => s.beat))].join(", ")}`);
