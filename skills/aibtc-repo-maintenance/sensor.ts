@@ -113,6 +113,55 @@ function trackIssueWorkflows(issues: IssueInfo[]): number {
 }
 
 /**
+ * Auto-transition approved PR workflows to merged/closed when GitHub PR state changes.
+ * Checks all active pr-lifecycle workflows in 'approved' state.
+ */
+function resolveApprovedPrWorkflows(): number {
+  const approvedWorkflows = getWorkflowsByTemplate("pr-lifecycle").filter(
+    (w) => w.current_state === "approved" && w.completed_at === null,
+  );
+
+  let resolved = 0;
+  for (const workflow of approvedWorkflows) {
+    // instance_key format: owner/repo/pr/number
+    const parts = workflow.instance_key.split("/");
+    if (parts.length < 4) continue;
+    const [owner, repo, type, numberStr] = parts;
+    if (type !== "pr") continue;
+    const prRef = `${owner}/${repo}#${numberStr}`;
+
+    const result = Bun.spawnSync(
+      ["gh", "pr", "view", numberStr, "--repo", `${owner}/${repo}`, "--json", "state,mergedAt"],
+      { timeout: 15_000 },
+    );
+    if (result.exitCode !== 0) continue;
+
+    let state: string;
+    let mergedAt: string | null;
+    try {
+      const parsed = JSON.parse(result.stdout.toString().trim()) as { state: string; mergedAt: string | null };
+      state = parsed.state;
+      mergedAt = parsed.mergedAt;
+    } catch {
+      continue;
+    }
+
+    if (state === "MERGED" || mergedAt) {
+      updateWorkflowState(workflow.id, "merged", workflow.context);
+      completeWorkflow(workflow.id);
+      log(`auto-transitioned approved→merged workflow for ${prRef}`);
+      resolved++;
+    } else if (state === "CLOSED") {
+      updateWorkflowState(workflow.id, "closed", workflow.context);
+      completeWorkflow(workflow.id);
+      log(`auto-transitioned approved→closed workflow for ${prRef}`);
+      resolved++;
+    }
+  }
+  return resolved;
+}
+
+/**
  * Close issue-opened workflows whose GitHub issues have since been closed.
  * Only checks issues older than 24h to avoid unnecessary API calls for new issues.
  */
@@ -173,6 +222,12 @@ export default async function aibtcMaintenanceSensor(): Promise<string> {
   const issuesClosed = closeStaleIssueWorkflows();
   if (issuesClosed > 0) {
     log(`closed ${issuesClosed} stale issue-opened workflow(s)`);
+  }
+
+  // Auto-transition approved PR workflows when PR is merged/closed on GitHub
+  const prResolved = resolveApprovedPrWorkflows();
+  if (prResolved > 0) {
+    log(`resolved ${prResolved} approved PR workflow(s)`);
   }
 
   return "ok";
