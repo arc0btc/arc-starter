@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc Watch — 2026-04-12T13:00Z–2026-04-13T01:01Z</title>
+<style>
+  :root {
+    --gold: #FEC233;
+    --gold-dark: #D4A020;
+    --gold-light: #FFD666;
+    --gold-glow: rgba(254, 194, 51, 0.3);
+    --vermillion: #DF2D2C;
+    --magenta: #BB278F;
+    --bg: #000000;
+    --nav-bg: #0a0a0a;
+    --code-bg: #0c0c0e;
+    --border-subtle: #1e1e22;
+    --border-default: #2a2a2e;
+    --border-strong: #3a3a40;
+    --border-accent: rgba(254, 194, 51, 0.25);
+    --gray-1: #eee;
+    --gray-2: #ccc;
+    --gray-3: #999;
+    --gray-4: #666;
+    --gray-5: #333;
+    --gray-6: #1a1a1a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--gray-1);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    border-bottom: 1px solid var(--border-accent);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  header h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+  }
+  header .meta {
+    color: var(--gray-3);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .summary {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--gray-2);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .metric .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  }
+  .metric .value.red { color: var(--vermillion); }
+  .metric .value.dim { color: var(--gray-3); }
+  .metric .label {
+    font-size: 0.75rem;
+    color: var(--gray-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+  th {
+    text-align: left;
+    color: var(--gray-3);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--gray-2);
+  }
+  tr:hover td { background: var(--nav-bg); }
+  td.id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gray-3);
+    font-size: 0.8rem;
+  }
+  td.cost {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: var(--gold-dark);
+    text-align: right;
+  }
+  td.pri {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    text-align: center;
+  }
+
+  /* Commits */
+  .commit {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .commit .hash {
+    color: var(--gold-dark);
+    margin-right: 0.5rem;
+  }
+
+  /* Market positions */
+  .market-card {
+    background: var(--nav-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .market-card .title {
+    font-size: 0.875rem;
+    color: var(--gray-1);
+    font-weight: 500;
+  }
+  .market-card .detail {
+    font-size: 0.8rem;
+    color: var(--gray-4);
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    margin-top: 0.25rem;
+  }
+  .market-card .detail .positive { color: #4ade80; }
+  .market-card .detail .negative { color: var(--vermillion); }
+
+  /* Observations */
+  .obs {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .obs:last-child { border-bottom: none; }
+
+  /* Queue */
+  .queue-item {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    color: var(--gray-2);
+  }
+  .queue-item .pri-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: rgba(254, 194, 51, 0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-right: 0.4rem;
+  }
+  .queue-item .blocked {
+    color: var(--vermillion);
+    background: rgba(223, 45, 44, 0.1);
+    border-color: rgba(223, 45, 44, 0.25);
+  }
+
+  /* CEO section */
+  .ceo-review {
+    border-top: 2px solid var(--border-accent);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+  }
+  .ceo-review h2 { color: var(--gold); }
+  .ceo-review h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray-3);
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+  .ceo-review p, .ceo-review ul {
+    font-size: 0.9rem;
+    color: var(--gray-2);
+    line-height: 1.6;
+  }
+  .ceo-review li {
+    margin-left: 1.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* Utility */
+  .empty { color: var(--gray-4); font-style: italic; font-size: 0.85rem; }
+  .section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Arc Watch</h1>
+  <div class="meta">2026-04-12T13:00:21Z — 2026-04-13T01:01:47Z</div>
+</header>
+
+<p class="summary">Signal filing bottleneck identified and resolved — JingSwap 401 + sensor state corruption were silently killing signal creation for 18+ hours; 3 agent-trading signals filed once fixed. 50 tasks completed across 55 cycles ($27.75). Hiro 400 fix v3 is still leaking: 2 bad-address welcomes slipped through.</p>
+
+<div class="metrics">
+  <div class="metric"><div class="value">50</div><div class="label">Completed</div></div>
+  <div class="metric"><div class="value red">5</div><div class="label">Failed</div></div>
+  <div class="metric"><div class="value dim">0</div><div class="label">Blocked</div></div>
+  <div class="metric"><div class="value">$27.75</div><div class="label">Cost (actual)</div></div>
+  <div class="metric"><div class="value dim">38,037k</div><div class="label">Tokens in</div></div>
+  <div class="metric"><div class="value dim">241k</div><div class="label">Tokens out</div></div>
+</div>
+
+<h2>Tasks</h2>
+<div class="section">
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Summary</th><th style="text-align:right">Cost</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">12311</td>
+      <td class="pri">3</td>
+      <td>Security: axios CVE in landing-page</td>
+      <td>PR #590 opened; overrides axios ≥1.15.0 (CVE-2025-62718 SSRF)</td>
+      <td class="cost">$0.54</td>
+    </tr>
+    <tr>
+      <td class="id">12312</td>
+      <td class="pri">3</td>
+      <td>Security: axios CVE in x402-api</td>
+      <td>PR #102 opened; pinned axios 1.13.5→1.15.0 (CVSS 9.3)</td>
+      <td class="cost">$0.62</td>
+    </tr>
+    <tr>
+      <td class="id">12314</td>
+      <td class="pri">2</td>
+      <td>Overnight brief — 2026-04-12</td>
+      <td>42/43 completed (97.7%), $15.87/43 cycles, Hiro 400 v3 preliminary validation</td>
+      <td class="cost">$0.89</td>
+    </tr>
+    <tr>
+      <td class="id">12316</td>
+      <td class="pri">5</td>
+      <td>PR review: bff-skills #275 hodlmm-il-tracker</td>
+      <td>All 5 prior feedback points addressed in 91146ef; approved</td>
+      <td class="cost">$0.33</td>
+    </tr>
+    <tr>
+      <td class="id">12319</td>
+      <td class="pri">4</td>
+      <td>CEO review — 2026-04-12T14:37</td>
+      <td>98% completion, Hiro v3 holding; off track on signals this watch</td>
+      <td class="cost">$0.42</td>
+    </tr>
+    <tr>
+      <td class="id">12321</td>
+      <td class="pri">5</td>
+      <td>Daily self-evaluation: PURPOSE.md</td>
+      <td>PURPOSE 3.05 (S:1 O:5 E:4 C:2 A:4 Co:2 Se:4). Best ops day in a week.</td>
+      <td class="cost">$1.29</td>
+    </tr>
+    <tr>
+      <td class="id">12323</td>
+      <td class="pri">5</td>
+      <td>PR review: bff-skills #273 hodlmm-stop-loss</td>
+      <td>Denied 5/6 TheBigMacBTC claims; approval stands on core implementation</td>
+      <td class="cost">$0.64</td>
+    </tr>
+    <tr>
+      <td class="id">12324</td>
+      <td class="pri">4</td>
+      <td>Investigate signal sensor cadence</td>
+      <td>2 bugs: sensor crash on missing history field + narrow countSignalTasksToday; both fixed</td>
+      <td class="cost">$1.46</td>
+    </tr>
+    <tr>
+      <td class="id">12328</td>
+      <td class="pri">2</td>
+      <td>Investigate signal filing bottleneck</td>
+      <td>Root cause: JingSwap 401 + state corruption (empty history v79). Fix shipped, sensor confirmed working.</td>
+      <td class="cost">$3.45</td>
+    </tr>
+    <tr>
+      <td class="id">12331</td>
+      <td class="pri">4</td>
+      <td>Obtain JingSwap API key</td>
+      <td>Escalated to whoabuddy via email; sensor updated to use api_key cred when available</td>
+      <td class="cost">$0.75</td>
+    </tr>
+    <tr>
+      <td class="id">12332</td>
+      <td class="pri">3</td>
+      <td>File AIBTC agent-trading signal</td>
+      <td>P2P desk: 7 trades, 5k sats, 57 agents, 1 PSBT swap (id: 42744df1)</td>
+      <td class="cost">$0.41</td>
+    </tr>
+    <tr>
+      <td class="id">12337</td>
+      <td class="pri">5</td>
+      <td>PR review: bff-skills #273 re-review</td>
+      <td>Smoke test event names fixed (trigger→threshold_pending_confirmation); approved</td>
+      <td class="cost">$0.26</td>
+    </tr>
+    <tr>
+      <td class="id">12339</td>
+      <td class="pri">7</td>
+      <td>File agent-trading signal ×2</td>
+      <td>AIBTC P2P desk 7 trades + 1 PSBT swap (id: 10bbb6dd)</td>
+      <td class="cost">$0.40</td>
+    </tr>
+    <tr>
+      <td class="id">12341</td>
+      <td class="pri">5</td>
+      <td>arc-opensource: sync 34 commits</td>
+      <td>Pushed 34 commits to arc0btc/arc-starter main; build validated</td>
+      <td class="cost">$0.08</td>
+    </tr>
+    <tr>
+      <td class="id">12343</td>
+      <td class="pri">5</td>
+      <td>PR review: bff-skills #274 hodlmm-position-tracker</td>
+      <td>All 3 prior issues fixed (HODL circularity, IL Uniswap v3 formula, nits); approved</td>
+      <td class="cost">$0.32</td>
+    </tr>
+    <tr>
+      <td class="id">12344</td>
+      <td class="pri">7</td>
+      <td>Architecture review — state machine</td>
+      <td>Updated: JingSwap API key/401 fallback, stale issue cleanup, signal cap generalization</td>
+      <td class="cost">$0.85</td>
+    </tr>
+    <tr>
+      <td class="id">12345</td>
+      <td class="pri">7</td>
+      <td>File agent-trading signal</td>
+      <td>AIBTC P2P desk 7 trades/1 PSBT swap/57 agents (id: d83b729d)</td>
+      <td class="cost">$0.43</td>
+    </tr>
+    <tr>
+      <td class="id">12346</td>
+      <td class="pri">7</td>
+      <td>Regenerate skills/sensors catalog</td>
+      <td>104 skills, 70 sensors; committed to arc0me-site</td>
+      <td class="cost">$0.40</td>
+    </tr>
+    <tr>
+      <td class="id">12317+</td>
+      <td class="pri">7</td>
+      <td>Zest sBTC supply ×5</td>
+      <td>5 × 22,000 sats = 110,000 sats deployed to Zest v2 yield pool</td>
+      <td class="cost">$1.41</td>
+    </tr>
+    <tr>
+      <td class="id">12351</td>
+      <td class="pri">5</td>
+      <td>agent-news editor selections</td>
+      <td>Confirmed Elegant Orb + Ivory Coda; PR #442 still awaiting whoabuddy merge</td>
+      <td class="cost">$0.39</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 style="font-size:0.9rem;color:var(--gray-3);margin-bottom:0.5rem;">Failed (5)</h3>
+<table>
+  <thead><tr><th>#</th><th>P</th><th>Subject</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="id">12336</td>
+      <td class="pri">7</td>
+      <td>Welcome Amber Seed</td>
+      <td>Hiro 400 — SP31YV5KJ87... rejected (bad address, v3 still leaking)</td>
+    </tr>
+    <tr>
+      <td class="id">12348</td>
+      <td class="pri">7</td>
+      <td>Welcome Flash Mantis</td>
+      <td>Hiro 400 — address format invalid; x402 skipped per invalid-address protocol</td>
+    </tr>
+    <tr>
+      <td class="id">12330</td>
+      <td class="pri">7</td>
+      <td>File agent-trading baseline signal</td>
+      <td>Cooldown active (56 min); signal composed, re-queued</td>
+    </tr>
+    <tr>
+      <td class="id">12358</td>
+      <td class="pri">3</td>
+      <td>File quantum signal (neural decoder)</td>
+      <td>Cooldown active (58 min remaining); retry queued as #12361</td>
+    </tr>
+    <tr>
+      <td class="id">12360</td>
+      <td class="pri">3</td>
+      <td>File quantum signal (retry)</td>
+      <td>Cooldown active (57 min remaining)</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Prediction Markets</h2>
+<div class="section">
+<p class="empty">No open positions. Budget unavailable (stacks-market portfolio returned no data).</p>
+</div>
+
+<h2>Git</h2>
+<div class="section">
+  <div class="commit"><span class="hash">2ab3431c</span>fix(bitcoin-wallet): add execution-time deny-list check + fix skill name inconsistency</div>
+  <div class="commit"><span class="hash">57eda9a2</span>docs(architect): update state machine and audit log</div>
+  <div class="commit"><span class="hash">cb2c2fdf</span>chore(memory): consolidate patterns.md 153→118 lines</div>
+  <div class="commit"><span class="hash">39a5416b</span>feat(sensors): add JingSwap API key support to aibtc-agent-trading sensor</div>
+  <div class="commit"><span class="hash">aec9ad29</span>fix(sensors): handle JingSwap API 401 gracefully in aibtc-agent-trading sensor</div>
+  <div class="commit"><span class="hash">d196b1b2</span>chore(housekeeping): archive old ISO 8601 report files</div>
+  <div class="commit"><span class="hash">4d91de01</span>fix(sensors): repair aibtc-agent-trading crash + widen signal cap counter</div>
+  <div class="commit"><span class="hash">63561ee2</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+  <div class="commit"><span class="hash">a9792a42</span>chore(loop): auto-commit after dispatch cycle [1 file(s)]</div>
+</div>
+
+<h2>Queue</h2>
+<div class="section">
+  <div class="queue-item"><span class="pri-tag">P3</span>#12361 — File quantum signal: neural decoder 17x QEC improvement (cooldown retry)</div>
+</div>
+
+<h2>Observations</h2>
+<div class="section">
+  <div class="obs"><strong>Signal drought broken.</strong> Root cause was two interacting bugs: aibtc-agent-trading sensor crashing on missing <code>history</code> field (TypeError on <code>state.history.length</code>), and <code>countSignalTasksToday()</code> missing quantum/infrastructure beat patterns. Both fixed in 4d91de01. 3 agent-trading signals filed once sensor recovered. Quantum signal #12361 still queued behind cooldown.</div>
+  <div class="obs"><strong>Hiro 400 fix v3 still leaking.</strong> Tasks #12336 and #12348 (both higher IDs than the pre-fix marker #12246) failed with Hiro 400 on invalid SP-addresses. The c32 regex guard in stx-send-runner.ts is not catching all invalid-address paths. Follow-up investigation needed — this is day 9 of x402 credits burning on bad addresses.</div>
+  <div class="obs"><strong>5 Zest supply ops clean.</strong> 110,000 sats deployed across 5 cycles with zero TooMuchChaining errors. Mempool-depth guard fully validated over multiple overnight + daytime cycles.</div>
+  <div class="obs"><strong>2 axios CVE PRs opened.</strong> CVE-2025-62718 (SSRF, CVSS 9.3) — transitive dep via x402-stacks/rollup in both landing-page and x402-api. PRs #590 and #102 opened; awaiting CI + merge by whoabuddy.</div>
+</div>
+
+<div class="ceo-review">
+<h2>CEO Review</h2>
+<!-- FILLED BY CEO REVIEW TASK — do not edit above this line -->
+
+<h3>Assessment</h3>
+<!-- On track / off track / needs adjustment -->
+
+<h3>Queue adjustments</h3>
+<!-- Tasks reprioritized, modified, or killed -->
+
+<h3>Next watch focus</h3>
+<!-- One clear direction for the next 4 hours -->
+
+<h3>24-hour horizon</h3>
+<!-- What should be true by this time tomorrow? -->
+</div>
+
+</body>
+</html>
