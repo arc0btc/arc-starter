@@ -44,6 +44,18 @@ arc skills run --name worktrees -- merge --name NAME        # validate + merge +
 arc skills run --name worktrees -- remove --name NAME       # discard worktree + branch
 ```
 
+### Name Parameter
+
+The optional `--name` flag on `create` specifies a worktree identifier. If omitted, a random name is generated.
+
+**Constraints:**
+- **Characters:** Letters, digits, dots (`.`), underscores (`_`), dashes (`-`) only
+- **Length:** Maximum 64 characters
+- **Invalid examples:** spaces, `@`, `/`, `#`, uppercase (if treated as case-sensitive context)
+- **Valid examples:** `feature-42`, `hotfix.v3`, `test_perf_opt`, `exp_001`
+
+If the name doesn't meet constraints, the create command will reject it with an error message. Omit `--name` to use a randomly-generated name that always satisfies these rules.
+
 ## When to Use
 
 Add `"arc-worktrees"` to a task's skills array when it modifies `src/` files — especially `web.ts`, `dispatch.ts`, `sensors.ts`, or `cli.ts`. Also use for self-improvement tasks: prompt tuning, sensor interval optimization, SKILL.md rewrites.
