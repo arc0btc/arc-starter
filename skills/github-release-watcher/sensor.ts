@@ -96,6 +96,13 @@ export default async function releaseWatcherSensor(): Promise<string> {
     const knownTag = tagState[repo];
     if (knownTag === release.tag_name) continue;
 
+    // Skip empty-body releases (no notes to review)
+    if (!release.body || release.body.trim() === "") {
+      console.log(`[release-watcher] Skipping ${repo}@${release.tag_name} (empty body)`);
+      tagState[repo] = release.tag_name;
+      continue;
+    }
+
     // New release detected
     const source = `sensor:github-release-watcher:${repo}@${release.tag_name}`;
     if (taskExistsForSource(source)) {
