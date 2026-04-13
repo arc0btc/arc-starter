@@ -557,6 +557,41 @@ export function initDatabase(): Database {
     )
   `);
 
+  // ---- Editor payout tables ----
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS editor_registry (
+      beat_slug TEXT PRIMARY KEY,
+      editor_name TEXT NOT NULL,
+      btc_address TEXT NOT NULL,
+      stx_address TEXT,
+      cached_at TEXT NOT NULL DEFAULT (datetime('now')),
+      source TEXT NOT NULL DEFAULT 'manual'
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS editor_payouts (
+      id INTEGER PRIMARY KEY,
+      date TEXT NOT NULL,
+      beat_slug TEXT NOT NULL,
+      editor_name TEXT NOT NULL,
+      editor_btc_address TEXT NOT NULL,
+      editor_stx_address TEXT,
+      amount_sats INTEGER NOT NULL,
+      signals_included INTEGER NOT NULL DEFAULT 0,
+      txid TEXT,
+      status TEXT NOT NULL DEFAULT 'pending',
+      spot_check_task_id INTEGER,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      sent_at TEXT,
+      error TEXT,
+      UNIQUE(date, beat_slug)
+    )
+  `);
+  db.run("CREATE INDEX IF NOT EXISTS idx_editor_payouts_date ON editor_payouts(date)");
+  db.run("CREATE INDEX IF NOT EXISTS idx_editor_payouts_status ON editor_payouts(status)");
+
   _db = db;
   return db;
 }

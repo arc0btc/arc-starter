@@ -41,6 +41,12 @@ function getPSTInfo(now: Date): { hour: number; date: string } {
 export default async function briefPayoutSensor(): Promise<string> {
   initDatabase();
 
+  // Editor model active (2026-04-13) — editors pay correspondents directly.
+  // Publisher pays editors via editor-payout skill instead.
+  // To re-enable: remove this early return.
+  log("brief-payout disabled — editor model active, editors pay correspondents");
+  return "skip";
+
   const claimed = await claimSensorRun(SENSOR_NAME, POLL_INTERVAL);
   if (!claimed) return "skip";
 

@@ -18,7 +18,7 @@ const signalLog = createSensorLogger(SIGNAL_SENSOR);
 const BATCH_SIZE = 10;
 
 // Beats with active editors — skip publisher review, editor handles it
-const EDITOR_MANAGED_BEATS = new Set(["quantum"]);
+const EDITOR_MANAGED_BEATS = new Set(["quantum", "aibtc-network", "bitcoin-macro"]);
 
 interface Signal {
   id: string;
