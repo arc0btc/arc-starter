@@ -119,3 +119,6 @@ Multi-state workflows: advance exactly ONE state per task. Large context (>20K c
 
 **p-sensor-workflow-bidirectional-sync** [2026-04-12]
 Sensors creating workflows from external state (GitHub issues, PRs) must implement bidirectional sync — not just create, but also monitor external state and auto-close workflows when the underlying resource closes/resolves. One-way creation = stale workflow accumulation.
+
+**p-breaking-change-validation** [2026-04-13]
+Before merging breaking data-contract changes (field removal, header format, enum restructure): exhaustive search across all consuming systems — transport layer (MCP passthrough?), parsing layer (JSON deserialize), business logic (references in skills/agents). Validate zero references by repo (not just codebase scan). Update documentation that references old contract. Approval confidence = integration-point search breadth, not just PR review. Example: agent-news breaking change (pacificDate field removal) required checking MCP wrapping logic, skills parser, Arc AGENT.md docs separately.
