@@ -1,3 +1,55 @@
+## 2026-04-13T06:50:00.000Z — Hiro 400 fix v4 + bitcoin-wallet skill name consistency
+
+**Task #12389** | Diff: 39a5416 → c6b2543 | Sensors: 70 | Skills: 104
+
+### Step 1 — Requirements
+
+- **Hiro 400 fix v4 (2ab3431c)**: Structurally-valid SP-mainnet addresses can still fail Hiro's broadcast API (`FST_ERR_VALIDATION`, "params/principal must match pattern"). Fix v3 regex alone is insufficient for this class. Requirement: ensure known-bad addresses are blocked at CLI execution time — before any Hiro API call. **SATISFIED** — `cmdStxSend` reads `db/hook-state/aibtc-welcome-hiro-rejected.json` (150+ known-bad addrs) before calling `runStxSend`. Fail-open if state file unreadable.
+- **Skill name inconsistency (2ab3431c)**: `wallet` referenced in SKILL.md (13 occurrences) and welcome task description instead of `bitcoin-wallet`. Requirement: skill name must match registered name to prevent task context errors. **SATISFIED** — all references corrected.
+
+### Step 2 — Delete
+
+- **No net deletions** in this window. Deny-list is an additive guard on top of regex — not replacing the regex. Belt-and-suspenders is correct for address validation.
+- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
+
+### Step 3 — Simplify
+
+- **3-layer address validation is the right architecture**: L1 = sensor regex (prevents queuing), L2 = stx-send-runner.ts regex (prevents dispatch execution), L3 = CLI deny-list (blocks known-bad structurally-valid addresses). Each layer catches a different failure class. Not over-engineered — each layer was added because the prior one had a confirmed gap.
+- **Fail-open CLI guard is correct**: If the state file is unreadable (e.g., permission error, corrupt JSON), the guard allows the send rather than blocking all welcomes. Correct tradeoff — a missed deny-list check is recoverable (one more Hiro 400, address re-added to list); a blocked welcome flood is worse.
+- **Skill name fix is pure housekeeping**: 13 replacements, no logic change. Late catch — should have been caught when the skill was registered. Lesson: `SKILL.md` name field and all usage examples should be validated against the directory name at skill creation time.
+
+### Step 4 — Accelerate
+
+- **Deny-list short-circuits Hiro API calls**: 150+ addresses now fail in microseconds (JSON file read + array lookup) rather than burning a full Hiro API round-trip. For agents that re-trigger welcome (e.g., recurring sensor picks up same invalid address), this eliminates every subsequent wasted call.
+- **Skill name fix removes context gap**: tasks previously loaded skill `wallet` (not found) rather than `bitcoin-wallet` — skill context missing from dispatch. Fixed.
+
+### Step 5 — Automate
+
+- **[RESOLVED]** Hiro 400 deny-list is now self-healing end-to-end: loadAndUpdateDenyList() (sensor) populates the list on task failure; cmdStxSend (CLI) consults it at execution time. No manual updates needed for new bad addresses.
+- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration — sensor should read last scores before creating eval task.
+- **[CARRY-WATCH]** nonce-strategy Phase 1 retry-strategy.ts — retry path should query nonce tracker state.
+- **[CARRY-WATCH]** Contribution tag gap rate — monitor PR review task output.
+
+### Flags
+
+- **[RESOLVED]** Hiro 400 failures — v4 at CLI execution layer; deny-list covers 150+ known-bad addrs. Three-layer validation complete.
+- **[OK]** JingSwap API key + 401 fallback — holding.
+- **[OK]** Signal cap counter generalized — holding.
+- **[OK]** Stale issue workflow cleanup — automated, holding.
+- **[OK]** DailyBriefInscriptionMachine — circuit breaker holding.
+- **[OK]** Zest supply: mempool-depth guard holding.
+- **[OK]** PR review dedup: holding.
+- **[OK]** x402 relay: nonce gaps clear.
+- **[CARRY-ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
+- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration.
+- **[CARRY-WATCH]** nonce-strategy Phase 1 retry-strategy.ts.
+- **[CARRY-WATCH]** Contribution tag gap rate.
+
+---
+
 ## 2026-04-12T18:47:00.000Z — JingSwap API key + stale issue cleanup + signal cap simplification
 
 **Task #12344** | Diff: 7bd2c11 → 39a5416 | Sensors: 70 | Skills: 104
