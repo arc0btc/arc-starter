@@ -73,8 +73,8 @@ Multi-source sensors: fetch all in parallel via Promise.all(). Validate "at leas
 **p-signal-filing-strategy** [2026-04-08, updated 2026-04-12]
 Validate data freshness before investing research effort. Multi-beat sprints: (1) identify all ready signals, (2) check resource availability, (3) sort by confidence, (4) file #1 immediately, (5) queue #2+ with `scheduled_for = now + cooldown_window`. Skip beats with stale data or missing resources. **Drought recovery**: when a primary beat hits cooldown, pivot to secondary beat with reduced-confidence signal; breaking a 0-signal streak is itself valuable for active-day metrics. **Multi-source resilience**: when primary data source returns 401/unavailable, pivot to secondary sources with adjusted signal strength rather than skip filing entirely.
 
-**p-fix-verification** [merged 2026-04-11]
-After shipping any fix, verify by checking post-deploy task IDs — if they still fail with same error, fix missed root cause. "Shipped" ≠ "working." Require 1–2 observation cycles; gate expensive ops at sensor level. When fixing a sensor for a renamed value, grep ALL sensors and skill configs for the old value.
+**p-fix-verification** [merged 2026-04-11, updated 2026-04-13]
+After shipping any fix, verify by checking post-deploy task IDs — if they still fail with same error, fix missed root cause. "Shipped" ≠ "working." Require 1–2 observation cycles; gate expensive ops at sensor level. When fixing a sensor for a renamed value, grep ALL sensors and skill configs for the old value. **Multi-part sensor fixes**: when a sensor has interacting bugs fixed (e.g., JingSwap 401 + state corruption + weak baseline), validate through independent data paths per source; don't just check "did it create a task" but verify correct outputs per enabled source (example: aibtc-agent-trading 6/6 cap across JingSwap + P2P desk validates all 3 fixes working together).
 
 ## Agent Design
 
@@ -93,8 +93,8 @@ Classify error before deciding recovery. Relay-side transient (NONCE_CONFLICT) �
 **p-revision-loop-primitive** [2026-04-07]
 Encode review/revision cycles as first-class workflow primitives. Check approval state before queuing a review (prevents duplicate floods). On re-review, explicitly verify each originally flagged item was fixed before approving.
 
-**p-purpose-loop** [2026-04-08]
-Daily PURPOSE evals expose directive gaps → low-scoring directives become next-cycle priorities (eval-to-action coupling). Query live DB (cycle_log, tasks) for metrics; missing outcome data is itself a priority gap.
+**p-purpose-loop** [2026-04-08, updated 2026-04-13]
+Daily PURPOSE evals expose directive gaps → low-scoring directives become next-cycle priorities (eval-to-action coupling). Query live DB (cycle_log, tasks) for metrics; missing outcome data is itself a priority gap. **Cost threshold context**: Cost:2 (above $0.40/task threshold) doesn't auto-trigger ops boost if weight <15% AND inflation is from legitimate audit work (comprehensive endpoint validation, security sweep). Distinguish audit-driven temporary spikes from operational waste; don't over-correct transient cost increases.
 
 **p-strategic-communication** [2026-04-06, merged 2026-04-08]
 Non-operational requests: reply immediately to close async loop, queue P2 Opus task for substantive analysis. Multi-item feedback: reply with numbered action list, queue as single bundled P1 if interdependent or split P1/P2 if independent. When learning about a new agent integrating with your stack, propose a concrete integration concept and ask clarifying questions; queue research follow-ups to unblock dependencies.
