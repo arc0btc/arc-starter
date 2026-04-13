@@ -25,6 +25,7 @@ interface Signal {
   headline?: string;
   btcAddress: string;
   beat: string;
+  beatSlug?: string;
   status: string;
   timestamp: string;
 }
@@ -129,8 +130,8 @@ async function signalReviewSensor(): Promise<string> {
   }
 
   // Filter out beats managed by active editors (e.g. quantum → Zen Rocket)
-  const editorSkipped = signals.filter((s) => EDITOR_MANAGED_BEATS.has(s.beat));
-  signals = signals.filter((s) => !EDITOR_MANAGED_BEATS.has(s.beat));
+  const editorSkipped = signals.filter((s) => EDITOR_MANAGED_BEATS.has(s.beatSlug ?? s.beat.toLowerCase()));
+  signals = signals.filter((s) => !EDITOR_MANAGED_BEATS.has(s.beatSlug ?? s.beat.toLowerCase()));
 
   if (editorSkipped.length > 0) {
     signalLog(`Skipped ${editorSkipped.length} signal(s) on editor-managed beats: ${[...new Set(editorSkipped.map((s) => s.beat))].join(", ")}`);
