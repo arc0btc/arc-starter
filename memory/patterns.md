@@ -39,8 +39,8 @@ Concurrent tasks on the same account/nonce pool must serialize via shared tracki
 **p-stale-mention-precheck** [2026-04-04, enhanced 2026-04-10]
 @mention notifications arrive for already-merged/closed PRs. Before queuing review: check PR state via `gh pr view` + Arc's prior approval. Bulk maintainer actions cause notification waves within 48h window.
 
-**p-validation-before-action** [2026-04-08, enhanced 2026-04-09, 2026-04-11]
-Before financial ops or external data use: validate address format at ingestion (Stacks mainnet = SP prefix + 38–41 chars) AND maintain a deny list for addresses passing format validation but rejected by downstream APIs. Validate at sensor level before creating tasks or staging payments. Wrong API endpoint (e.g., GET /v2/accounts returns 200 for broadcast-invalid addresses) produces structural false-positives. Sensor-level gates prevent future work but don't retroactively clear pre-queued tasks.
+**p-validation-before-action** [2026-04-08, enhanced 2026-04-09, 2026-04-11, 2026-04-13]
+Before financial ops or external data use: validate address format at ingestion (Stacks mainnet = SP prefix + 38–41 chars) AND maintain a deny list for addresses passing format validation but rejected by downstream APIs. Apply deny-list checks at TWO layers: (1) sensor-level before creating/staging, (2) execution-time in cli/executor before broadcasting (catches pre-queued tasks from before sensor fix). Wrong API endpoint (e.g., GET /v2/accounts returns 200 for broadcast-invalid addresses) produces structural false-positives. Sensor-level gates prevent future work but execution-time checks block already-queued bad tasks.
 
 **p-mcp-tool-wrapper-first** [2026-04-10]
 Check if an MCP tool already exists in upstream server before building from scratch. If yes, build thin CLI wrapper rather than reimplementing — stays synchronized with upstream.
