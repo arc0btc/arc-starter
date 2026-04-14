@@ -379,41 +379,43 @@ async function dailyReportSensor(): Promise<string> {
     alerts.push(`No signals filed today (${report.date}) as of ${hourUTC}:00 UTC`);
   }
 
-  // Brief not compiled for yesterday
+  // Brief not compiled for yesterday — log only, never create LLM task.
+  // The compile sensor handles this; an LLM investigation just burns tokens.
   const today = report.date;
   const yesterday = report.yesterday ?? "";
   if (report.latestBrief.date !== yesterday && report.latestBrief.date !== today) {
-    alerts.push(`Latest brief is from ${report.latestBrief.date}, expected ${yesterday} or ${today}`);
+    const compileTaskPending = pendingTaskExistsForSource("sensor:daily-brief-compile");
+    if (compileTaskPending) {
+      reportLog(`Brief not compiled for ${yesterday} but compile task pending — no action needed`);
+    } else {
+      reportLog(`Brief not compiled: latest is ${report.latestBrief.date}, expected ${yesterday} or ${today}. No compile task pending.`);
+    }
+    // Never push to alerts — compile issues resolve themselves or need manual trigger, not LLM investigation
   }
 
-  // Brief not inscribed (yesterday's brief should be inscribed by now)
-  // Debounce: skip this alert if there's already a pending inscription or funding task,
-  // or if the local state file shows the inscription exists (API may lag behind).
+  // Brief not inscribed — log only, never create LLM task.
+  // The inscription script pipeline handles this via script tasks.
   if (
     report.latestBrief.date === yesterday &&
     !report.latestBrief.inscribed_txid &&
     !report.latestBrief.inscription_id
   ) {
-    // Check local inscription state — it updates before the API does
     const localStateFile = Bun.file(`db/inscriptions/${yesterday}.json`);
-    let locallyInscribed = false;
+    let localStatus = "none";
     if (await localStateFile.exists()) {
       try {
-        const localState = JSON.parse(await localStateFile.text()) as { inscription_id?: string };
-        locallyInscribed = !!localState.inscription_id;
+        const localState = JSON.parse(await localStateFile.text()) as { status?: string; inscription_id?: string };
+        localStatus = localState.inscription_id ? "inscribed" : (localState.status ?? "in-progress");
       } catch { /* ignore parse errors */ }
     }
 
-    if (locallyInscribed) {
-      reportLog(`Inscription exists locally for ${yesterday} — suppressing alert (API may lag)`);
+    if (localStatus === "inscribed") {
+      reportLog(`Inscription exists locally for ${yesterday} — API may lag`);
     } else {
       const inscriptionTaskPending = pendingTaskExistsForSource("sensor:daily-brief-inscribe");
-      if (!inscriptionTaskPending) {
-        alerts.push(`Yesterday's brief (${yesterday}) is not inscribed`);
-      } else {
-        reportLog(`Brief not inscribed but inscription/funding task already pending — suppressing alert`);
-      }
+      reportLog(`Brief ${yesterday} not inscribed (local state: ${localStatus}, pending task: ${inscriptionTaskPending ? "yes" : "no"})`);
     }
+    // Never push to alerts — inscription pipeline is automated, LLM can't help
   }
 
   // No active correspondents
