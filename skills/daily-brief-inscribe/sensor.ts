@@ -43,7 +43,12 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
   // Only fire at 07:00 UTC
   if (hour !== TARGET_HOUR_UTC) return "skip";
 
-  // Dedup: only fire once per UTC calendar day
+  // Brief covers the previous UTC day (sensor fires 2 hours after compile at 05:00 UTC)
+  const yesterdayUTC = new Date(now);
+  yesterdayUTC.setUTCDate(yesterdayUTC.getUTCDate() - 1);
+  const briefDate = yesterdayUTC.toISOString().slice(0, 10);
+
+  // Dedup: only fire once per UTC calendar day (keyed on today's date)
   const state = await readHookState(SENSOR_NAME);
   if (state?.last_fired_date === utcDate) return "skip";
 
@@ -59,11 +64,11 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
     return "skip";
   }
 
-  // Prerequisite: compiled brief must exist for today
+  // Prerequisite: compiled brief must exist for yesterday
   try {
-    const resp = await fetchWithRetry(`${API_BASE}/brief/${utcDate}`);
+    const resp = await fetchWithRetry(`${API_BASE}/brief/${briefDate}`);
     if (!resp.ok) {
-      log(`No brief found for ${utcDate} (API returned ${resp.status}) -- skipping inscription`);
+      log(`No brief found for ${briefDate} (API returned ${resp.status}) -- skipping inscription`);
       await writeHookState(SENSOR_NAME, {
         ...(state ?? { version: 0 }),
         last_ran: now.toISOString(),
@@ -76,7 +81,7 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
 
     const data = (await resp.json()) as { compiledAt?: string | null };
     if (!data.compiledAt) {
-      log(`Brief for ${utcDate} exists but not compiled yet -- skipping inscription`);
+      log(`Brief for ${briefDate} exists but not compiled yet -- skipping inscription`);
       await writeHookState(SENSOR_NAME, {
         ...(state ?? { version: 0 }),
         last_ran: now.toISOString(),
@@ -86,7 +91,7 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
       return "skip";
     }
 
-    log(`Compiled brief found for ${utcDate} (compiled at ${data.compiledAt})`);
+    log(`Compiled brief found for ${briefDate} (compiled at ${data.compiledAt})`);
   } catch (err) {
     log(`Error checking brief: ${err instanceof Error ? err.message : String(err)} -- skipping`);
     return "error";
@@ -115,7 +120,7 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
           subject: `Fund SegWit wallet for inscription (balance: ${balance} sats)`,
           description: [
             `The SegWit wallet (${BTC_ADDRESS}) has ${balance} sats, below the ${MIN_BALANCE_SATS} sat minimum for inscriptions.`,
-            `Brief for ${utcDate} is ready to inscribe but cannot proceed without funding.`,
+            `Brief for ${briefDate} is ready to inscribe but cannot proceed without funding.`,
             ``,
             `Send BTC to: ${BTC_ADDRESS}`,
             `Recommended: 100,000 sats (~1 month of daily inscriptions).`,
@@ -143,12 +148,12 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
   });
 
   insertTaskIfNew(TASK_SOURCE, {
-    subject: `Inscribe brief ${utcDate} (phase: fetch)`,
-    description: `Start the daily brief inscription pipeline for ${utcDate}.\n\nThe script runs one phase per dispatch, queuing continuations automatically.`,
+    subject: `Inscribe brief ${briefDate} (phase: fetch)`,
+    description: `Start the daily brief inscription pipeline for ${briefDate}.\n\nThe script runs one phase per dispatch, queuing continuations automatically.`,
     priority: 3,
-    script: `bun run scripts/inscribe-brief.ts run --date ${utcDate}`,
+    script: `bun run scripts/inscribe-brief.ts run --date ${briefDate}`,
   });
 
-  log(`Queued inscription task for ${utcDate}`);
+  log(`Queued inscription task for ${briefDate}`);
   return "ok";
 }
