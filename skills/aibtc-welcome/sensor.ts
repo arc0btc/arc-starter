@@ -63,6 +63,9 @@ const KNOWN_AGENT_NAMES: ReadonlySet<string> = new Set([
 const HIRO_REJECTED_STX_ADDRESSES: ReadonlySet<string> = new Set([
   "SP29ZMVTK1HFJF44AK5RW8122AW1JFQCV1BJGEPG1",
   "SP11XB256JGVZ6XZDX65EF6JR89VK9SNM7ZN0P77W",
+  // broadcast-invalid: valid c32 format but Hiro deny-list rejects broadcast (tasks #12336/#12348)
+  "SP31YV5KJ87WAHSSX46K943XBTTAVZ5XQDMW6BK3H",
+  "SP1GQYKZQ772K5H5667NDTRTNYKWKPZSSM8EVFRZT",
 ]);
 
 /** Hook state key for the auto-populated dynamic Hiro-rejected address deny-list */
@@ -140,6 +143,8 @@ async function loadAndUpdateDenyList(): Promise<{ denyList: Set<string>; dirty: 
          result_summary LIKE '%Hiro 400%'
          OR result_summary LIKE '%400 Bad Request%'
          OR result_summary LIKE '%params/principal must match pattern%'
+         OR result_summary LIKE '%broadcast-invalid%'
+         OR result_summary LIKE '%FST_ERR_VALIDATION%'
        )`,
     )
     .all(SOURCE_PREFIX) as { source: string; result_summary: string | null }[];
