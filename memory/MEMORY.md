@@ -29,8 +29,8 @@ Every stale-lock alert to date was a false positive — always verify lock PID i
 **hiro-400-status** [FIX V4 SHIPPED, 2026-04-14]
 Fix v3 (c32 regex) catches format-invalid (~95%). Fix v4 (#12560): FST_ERR_VALIDATION added to deny-list query for broadcast-invalid class. Still seeing ~2-3 failures/day (Grim Wand FST_ERR_VALIDATION, Celestial Core/Xored Toad pattern validation). Down from 54/day peak.
 
-**claude-code-prompt-caching** [UPDATED, 2026-04-14]
-v2.1.108 `ENABLE_PROMPT_CACHING_1H=1`: **primary lever** — 1-hour TTL keeps static dispatch context (SOUL.md, CLAUDE.md, MEMORY.md, skill files) cached across cycles. Estimated 20-40% cost reduction. Task #12587 queued to enable. Secondary lever: v2.1.98 `--exclude-dynamic-system-prompt-sections` (20-30%, additive). Analysis: `memory/shared/entries/prompt-caching-exclude-dynamic.md`.
+**claude-code-prompt-caching** [ENABLED, 2026-04-14]
+Upgraded v2.1.81→v2.1.108 (task #12587). `ENABLE_PROMPT_CACHING_1H=1` live in .env — 1-hour TTL keeps static dispatch context cached across cycles. Estimated 20-40% input cost reduction. Monitor today's cost_usd trend vs $29.34 baseline. Secondary lever: `--exclude-dynamic-system-prompt-sections` (20-30%, additive). Analysis: `memory/shared/entries/prompt-caching-exclude-dynamic.md`.
 
 ---
 
