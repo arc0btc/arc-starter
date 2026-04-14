@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { join } from "node:path";
 import { claimSensorRun, readHookState, writeHookState, insertTaskIfNew, createSensorLogger, fetchWithRetry } from "../../src/sensors.ts";
 import { initDatabase } from "../../src/db.ts";
 
@@ -92,11 +92,9 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
     return "error";
   }
 
-  // Pre-flight: check SegWit BTC balance via mempool API.
-  // If balance is too low, create a funding escalation instead of an inscription task
-  // that will dispatch a full LLM session only to discover "insufficient balance".
+  // Pre-flight: check SegWit BTC balance via mempool API
   const BTC_ADDRESS = "bc1qktaz6rg5k4smre0wfde2tjs2eupvggpmdz39ku";
-  const MIN_BALANCE_SATS = 10_000; // ~minimum for a small brief inscription
+  const MIN_BALANCE_SATS = 10_000;
   try {
     const mempoolResp = await fetchWithRetry(`https://mempool.space/api/address/${BTC_ADDRESS}`);
     if (mempoolResp.ok) {
@@ -133,7 +131,9 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
     log(`Balance check failed (proceeding anyway): ${err instanceof Error ? err.message : String(err)}`);
   }
 
-  // All prerequisites pass -- create the inscription task
+  // All prerequisites pass — queue the first script task and mark date as fired.
+  // Safe to set last_fired_date now: the task queue handles retries (max 3 per phase),
+  // and each phase queues its own continuation. Failures are visible in arc status.
   await writeHookState(SENSOR_NAME, {
     ...(state ?? { version: 0 }),
     last_ran: now.toISOString(),
@@ -142,37 +142,13 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
     last_fired_date: utcDate,
   });
 
-  // Run the inscription script directly — no LLM dispatch needed.
-  // The script is idempotent and resumes from its last completed phase.
-  const scriptPath = resolve(import.meta.dir, "../../scripts/inscribe-brief.ts");
-  const proc = Bun.spawn(
-    ["bun", "run", scriptPath, "run", "--date", utcDate],
-    { cwd: resolve(import.meta.dir, "../.."), stdin: "ignore", stdout: "pipe", stderr: "pipe" }
-  );
+  insertTaskIfNew(TASK_SOURCE, {
+    subject: `Inscribe brief ${utcDate} (phase: fetch)`,
+    description: `Start the daily brief inscription pipeline for ${utcDate}.\n\nThe script runs one phase per dispatch, queuing continuations automatically.`,
+    priority: 3,
+    script: `bun run scripts/inscribe-brief.ts run --date ${utcDate}`,
+  });
 
-  const [stdout, stderr] = await Promise.all([
-    new Response(proc.stdout).text(),
-    new Response(proc.stderr).text(),
-  ]);
-  const exitCode = await proc.exited;
-
-  if (exitCode !== 0) {
-    log(`Inscription script failed (exit ${exitCode}): ${stderr.slice(0, 300)}`);
-    insertTaskIfNew(TASK_SOURCE, {
-      subject: `Inscription failed for ${utcDate} (exit ${exitCode})`,
-      description: [
-        `The inscribe-brief script exited with code ${exitCode}.`,
-        ``,
-        `Re-run: bun run scripts/inscribe-brief.ts run --date ${utcDate}`,
-        ``,
-        `Stderr (truncated): ${stderr.slice(0, 500)}`,
-      ].join("\n"),
-      priority: 4,
-      skills: JSON.stringify(["bitcoin-wallet"]),
-    });
-    return "error";
-  }
-
-  log(`Inscription script completed for ${utcDate}`);
+  log(`Queued inscription task for ${utcDate}`);
   return "ok";
 }

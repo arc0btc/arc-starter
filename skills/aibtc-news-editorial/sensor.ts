@@ -387,18 +387,32 @@ async function dailyReportSensor(): Promise<string> {
   }
 
   // Brief not inscribed (yesterday's brief should be inscribed by now)
-  // Debounce: skip this alert if there's already a pending inscription or funding task.
-  // These tasks burn $0.30-0.50 LLM each when the root cause is known (low BTC balance).
+  // Debounce: skip this alert if there's already a pending inscription or funding task,
+  // or if the local state file shows the inscription exists (API may lag behind).
   if (
     report.latestBrief.date === yesterday &&
     !report.latestBrief.inscribed_txid &&
     !report.latestBrief.inscription_id
   ) {
-    const inscriptionTaskPending = pendingTaskExistsForSource("sensor:daily-brief-inscribe");
-    if (!inscriptionTaskPending) {
-      alerts.push(`Yesterday's brief (${yesterday}) is not inscribed`);
+    // Check local inscription state — it updates before the API does
+    const localStateFile = Bun.file(`db/inscriptions/${yesterday}.json`);
+    let locallyInscribed = false;
+    if (await localStateFile.exists()) {
+      try {
+        const localState = JSON.parse(await localStateFile.text()) as { inscription_id?: string };
+        locallyInscribed = !!localState.inscription_id;
+      } catch { /* ignore parse errors */ }
+    }
+
+    if (locallyInscribed) {
+      reportLog(`Inscription exists locally for ${yesterday} — suppressing alert (API may lag)`);
     } else {
-      reportLog(`Brief not inscribed but inscription/funding task already pending — suppressing alert`);
+      const inscriptionTaskPending = pendingTaskExistsForSource("sensor:daily-brief-inscribe");
+      if (!inscriptionTaskPending) {
+        alerts.push(`Yesterday's brief (${yesterday}) is not inscribed`);
+      } else {
+        reportLog(`Brief not inscribed but inscription/funding task already pending — suppressing alert`);
+      }
     }
   }
 
