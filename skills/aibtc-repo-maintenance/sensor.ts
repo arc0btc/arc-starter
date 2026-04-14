@@ -123,11 +123,16 @@ function resolveApprovedPrWorkflows(): number {
 
   let resolved = 0;
   for (const workflow of approvedWorkflows) {
-    // instance_key format: owner/repo/pr/number
+    // instance_key format: owner/repo/number (PRs) or owner/repo/issue/number (issues)
     const parts = workflow.instance_key.split("/");
-    if (parts.length < 4) continue;
-    const [owner, repo, type, numberStr] = parts;
-    if (type !== "pr") continue;
+    let owner: string, repo: string, numberStr: string;
+    if (parts.length === 3) {
+      [owner, repo, numberStr] = parts;
+    } else if (parts.length === 4 && parts[2] === "pr") {
+      [owner, repo, , numberStr] = parts;
+    } else {
+      continue;
+    }
     const prRef = `${owner}/${repo}#${numberStr}`;
 
     const result = Bun.spawnSync(
