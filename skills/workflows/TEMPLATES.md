@@ -52,7 +52,7 @@ Decompose complex tasks into sequential phases.
 
 ## Daily Brief Inscription (`daily-brief-inscription`)
 
-Inscribes the aibtc.news daily compiled brief on Bitcoin once per PST calendar day using the Ordinals commit/reveal pattern. Triggered by `sensor:daily-brief-inscribe` at 11 PM PST.
+Inscribes the aibtc.news daily compiled brief on Bitcoin once per UTC calendar day using the Ordinals commit/reveal pattern. Triggered by `sensor:daily-brief-inscribe` at 07:00 UTC.
 
 **instance_key:** `brief-inscription-{YYYY-MM-DD}`
 
@@ -69,7 +69,7 @@ Inscribes the aibtc.news daily compiled brief on Bitcoin once per PST calendar d
 **Context schema:**
 ```typescript
 {
-  date: string;              // PST date YYYY-MM-DD
+  date: string;              // UTC date YYYY-MM-DD
   parentId?: string;         // Loom's parent inscription ID (collection root)
   contentType?: string;      // MIME type; default "text/plain"
   briefContent?: string;     // compiled brief text
@@ -85,5 +85,5 @@ Inscribes the aibtc.news daily compiled brief on Bitcoin once per PST calendar d
 
 **Skills required:** `aibtc-news-classifieds`, `bitcoin-wallet`, `child-inscription`
 
-**Setup required:** Set `parentId` in context to Loom's collection root inscription ID before first run. Brief must be compiled before 11 PM PST each day or the workflow fails at `pending`.
+**Setup required:** Set `parentId` in context to Loom's collection root inscription ID before first run. Brief must be compiled before 07:00 UTC each day or the workflow fails at `pending`.
 

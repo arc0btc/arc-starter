@@ -42,15 +42,13 @@ interface RosterSnapshot {
   beatCounts: Record<string, number>;
 }
 
-/** Fetch today's approved signals with per-beat breakdown (Pacific editorial day). */
+/** Fetch today's approved signals with per-beat breakdown (UTC editorial day). */
 async function getTodayApprovedRoster(): Promise<RosterSnapshot> {
-  const todayPacific = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Los_Angeles",
-  }).format(new Date());
+  const todayDate = new Date().toISOString().slice(0, 10);
 
   try {
     const resp = await fetchWithRetry(
-      `${API_BASE}/signals?status=approved&date=${todayPacific}&limit=200`
+      `${API_BASE}/signals?status=approved&date=${todayDate}&limit=200`
     );
     if (!resp.ok) return { signals: [], count: 0, beatCounts: {} };
     const data = (await resp.json()) as SignalsResponse;
@@ -96,11 +94,9 @@ function rosterContext(roster: RosterSnapshot): string {
   return lines.join("\n");
 }
 
-/** Convert any ISO timestamp to its Pacific-timezone date string (YYYY-MM-DD). */
-function toPacificDate(ts: string): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Los_Angeles",
-  }).format(new Date(ts));
+/** Convert any ISO timestamp to its UTC date string (YYYY-MM-DD). */
+function toUTCDate(ts: string): string {
+  return new Date(ts).toISOString().slice(0, 10);
 }
 
 async function signalReviewSensor(): Promise<string> {
@@ -155,18 +151,16 @@ async function signalReviewSensor(): Promise<string> {
   signalLog(`Found ${signals.length} submitted signal(s) — ${roster.count}/${DAILY_APPROVAL_CAP} approved, ${remainingSlots} slot(s) remaining`);
 
   // Prioritize today's signals over backlog; sort each group oldest-first
-  const todayPacific = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Los_Angeles",
-  }).format(new Date());
+  const todayDate = new Date().toISOString().slice(0, 10);
 
   const sortByTime = (a: Signal, b: Signal) =>
     new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
 
   const todaySignals = signals
-    .filter((s) => toPacificDate(s.timestamp) === todayPacific)
+    .filter((s) => toUTCDate(s.timestamp) === todayDate)
     .sort(sortByTime);
   const olderSignals = signals
-    .filter((s) => toPacificDate(s.timestamp) !== todayPacific)
+    .filter((s) => toUTCDate(s.timestamp) !== todayDate)
     .sort(sortByTime);
 
   // Always review full batches — at 30/30, reviews result in displacement, not net-new approvals
@@ -178,7 +172,7 @@ async function signalReviewSensor(): Promise<string> {
     .map((s) => `- ${s.id} | ${s.beat} | ${(s.headline ?? "").slice(0, 80)}`)
     .join("\n");
 
-  const todayInBatch = batch.filter((s) => toPacificDate(s.timestamp) === todayPacific).length;
+  const todayInBatch = batch.filter((s) => toUTCDate(s.timestamp) === todayDate).length;
   const olderInBatch = batch.length - todayInBatch;
   const priorityNote =
     olderInBatch > 0
@@ -236,6 +230,11 @@ interface CorrectionsResponse {
  * Creates a review task when pending corrections are found.
  */
 async function correctionReviewSensor(): Promise<string> {
+  // Editor model active (2026-04-13) — editors handle corrections on their beats.
+  // Code preserved for sharing to aibtcdev/skills. To re-enable: remove this early return.
+  correctionLog("correction-review disabled — editors handle corrections on their beats");
+  return "skip";
+
   const claimed = await claimSensorRun(CORRECTION_SENSOR, CORRECTION_INTERVAL);
   if (!claimed) return "skip";
 
@@ -370,15 +369,14 @@ async function dailyReportSensor(): Promise<string> {
     return "error";
   }
 
-  // Get current PST hour
-  const nowPST = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
-  const hourPST = nowPST.getHours();
+  // Get current UTC hour
+  const hourUTC = new Date().getUTCHours();
 
   const alerts: string[] = [];
 
-  // No signals filed today after 6 PM PST
-  if (report.signalsToday === 0 && hourPST >= 18) {
-    alerts.push(`No signals filed today (${report.date}) as of ${hourPST}:00 PST`);
+  // No signals filed today after 18:00 UTC
+  if (report.signalsToday === 0 && hourUTC >= 18) {
+    alerts.push(`No signals filed today (${report.date}) as of ${hourUTC}:00 UTC`);
   }
 
   // Brief not compiled for yesterday

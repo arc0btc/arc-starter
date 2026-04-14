@@ -6,14 +6,16 @@ import {
 } from "../../src/sensors.ts";
 import { initDatabase, getDatabase } from "../../src/db.ts";
 
+import { getUTCInfo } from "../../src/time.ts";
+
 const SENSOR_NAME = "editor-spot-check";
 const POLL_INTERVAL = 60; // check every 60 min, but only fire in 3 windows
 const TASK_SOURCE = "sensor:editor-spot-check";
 const API_BASE = "https://aibtc.news/api";
 const log = createSensorLogger(SENSOR_NAME);
 
-// Spot-check windows (PST hours): 10 AM, 2 PM, 6 PM
-const SPOT_CHECK_WINDOWS = [10, 14, 18];
+// Spot-check windows (UTC hours): 17:00, 21:00, 01:00
+const SPOT_CHECK_WINDOWS = [17, 21, 1];
 const WINDOW_TOLERANCE = 1; // fire if within 1 hour of window
 
 interface Signal {
@@ -33,23 +35,6 @@ interface EditorEntry {
   btc_address: string;
 }
 
-function getPSTHour(): number {
-  return parseInt(
-    new Intl.DateTimeFormat("en-US", {
-      timeZone: "America/Los_Angeles",
-      hour: "numeric",
-      hour12: false,
-    }).format(new Date()),
-    10
-  );
-}
-
-function getTodayPST(): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Los_Angeles",
-  }).format(new Date());
-}
-
 function isInWindow(hour: number): boolean {
   return SPOT_CHECK_WINDOWS.some(
     (w) => hour >= w && hour < w + WINDOW_TOLERANCE
@@ -57,8 +42,8 @@ function isInWindow(hour: number): boolean {
 }
 
 function getWindowLabel(hour: number): string {
-  if (hour >= 10 && hour < 14) return "morning";
-  if (hour >= 14 && hour < 18) return "midday";
+  if (hour >= 17 && hour < 21) return "morning";
+  if (hour >= 21 || hour < 1) return "midday";
   return "pre-compile";
 }
 
@@ -68,12 +53,10 @@ export default async function editorSpotCheckSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, POLL_INTERVAL);
   if (!claimed) return "skip";
 
-  const hour = getPSTHour();
+  const { hour, date: today } = getUTCInfo();
   if (!isInWindow(hour)) {
     return "skip";
   }
-
-  const today = getTodayPST();
   const windowLabel = getWindowLabel(hour);
 
   // Dedup: don't create multiple tasks for the same window
@@ -141,7 +124,7 @@ export default async function editorSpotCheckSensor(): Promise<string> {
   const anomalies: string[] = [];
 
   lines.push(`## Editor Spot-Check: ${windowLabel} (${today})`);
-  lines.push(`Approved/included signals as of ${hour}:00 PST:\n`);
+  lines.push(`Approved/included signals as of ${hour}:00 UTC:\n`);
 
   const activeBeats = ["aibtc-network", "bitcoin-macro", "quantum"];
   for (const beat of activeBeats) {
@@ -153,8 +136,8 @@ export default async function editorSpotCheckSensor(): Promise<string> {
 
     if (beatSignals.length === 0) {
       lines.push("- No approved signals yet");
-      if (hour >= 14) {
-        anomalies.push(`${beat}: zero approvals by ${hour}:00 PST`);
+      if (hour >= 21) {
+        anomalies.push(`${beat}: zero approvals by ${hour}:00 UTC`);
       }
     } else {
       for (const s of beatSignals.slice(0, 10)) {

@@ -13,7 +13,7 @@ Final stage of the publishing pipeline. After the daily brief is compiled and in
 ## Pipeline Position
 
 ```
-editorial sensor (review) → daily-brief-compile (9 PM) → daily-brief-inscribe (11 PM) → brief-payout (1 AM)
+editorial sensor (review) → daily-brief-compile (05:00 UTC) → daily-brief-inscribe (07:00 UTC) → brief-payout (09:00 UTC)
 ```
 
 ## How Payouts Work
@@ -44,7 +44,7 @@ Check payout status for a date (pending/partial/complete).
 
 ## Sensor
 
-Safety-net trigger. The primary trigger is the `PayoutDistributionMachine` workflow created by the inscription state machine. The sensor fires as a fallback at 1-6 AM PST if the workflow path did not trigger payouts.
+Safety-net trigger. The primary trigger is the `PayoutDistributionMachine` workflow created by the inscription state machine. The sensor fires as a fallback at 09:00-14:00 UTC if the workflow path did not trigger payouts.
 
 - Polls every 30 minutes
 - Checks inscription hook-state for completion

@@ -75,7 +75,7 @@ async function callApi(
 }
 
 async function signMessage(message: string): Promise<string> {
-  // Call wallet skill to sign message with BIP-137
+  // Call wallet skill to sign message with BIP-322
   const proc = Bun.spawn(
     ["bash", "bin/arc", "skills", "run", "--name", "bitcoin-wallet", "--", "btc-sign", "--message", message],
     {
@@ -575,9 +575,7 @@ async function cmdCompileBrief(args: string[]): Promise<void> {
 
   try {
     // Score check removed — API validates publisher auth via BIP-137
-    const today = flags.date || new Intl.DateTimeFormat("en-CA", {
-      timeZone: "America/Los_Angeles",
-    }).format(new Date());
+    const today = flags.date || new Date().toISOString().slice(0, 10);
 
     // v2: auth via headers, snake_case body
     const headers = await buildAuthHeaders("POST", "/brief/compile");

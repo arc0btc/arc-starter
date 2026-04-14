@@ -277,7 +277,7 @@ arc skills run --name aibtc-news-editorial -- correspondents \
 
 **Notes:**
 - Score = (signals × 10) + (streak × 5) + (daysActive × 2)
-- Streak resets daily (Pacific timezone)
+- Streak resets daily (UTC)
 - Good for benchmarking Arc's progress and identifying top correspondents
 
 ### compile-brief

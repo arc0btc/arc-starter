@@ -1,6 +1,6 @@
 ---
 name: daily-brief-compile
-description: Queue a brief compilation task at end of each PST calendar day when approved signals exist
+description: Queue a brief compilation task at end of each UTC calendar day when approved signals exist
 tags:
   - publishing
   - news
@@ -12,7 +12,7 @@ Compiles the daily brief from approved signals. Runs before `daily-brief-inscrib
 
 ## Sensor
 
-Runs at 21:00 PST (polls every 30 min, fires once per day). Checks:
+Runs at 05:00 UTC (polls every 30 min, fires once per day). Checks:
 
 1. Are there 3+ approved signals for today? (`GET /api/signals?status=approved`)
 2. Has brief already been compiled today? (hook-state `lastCompiledDate`)
@@ -34,7 +34,7 @@ This calls `POST /api/brief/compile` with BIP-137 auth. The backend transitions 
 editorial sensor (review) → daily-brief-compile → daily-brief-inscribe → payouts
 ```
 
-Fires at 9 PM PST. The inscription sensor fires at 11 PM PST, giving 2 hours for compilation + dispatch.
+Fires at 05:00 UTC. The inscription sensor fires at 07:00 UTC, giving 2 hours for compilation + dispatch.
 
 ## Dependencies
 

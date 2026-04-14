@@ -3,9 +3,11 @@ import { join } from "node:path";
 import { claimSensorRun, readHookState, writeHookState, insertTaskIfNew, createSensorLogger, fetchWithRetry } from "../../src/sensors.ts";
 import { initDatabase } from "../../src/db.ts";
 
+import { getUTCInfo } from "../../src/time.ts";
+
 const SENSOR_NAME = "daily-brief-inscribe";
 const POLL_INTERVAL = 30; // check every 30 min
-const TARGET_HOUR_PST = 23; // 11 PM PST = end of calendar day
+const TARGET_HOUR_UTC = 7; // 07:00 UTC — 2 hours after compile at 05:00 UTC
 const TASK_SOURCE = "sensor:daily-brief-inscribe";
 const API_BASE = "https://aibtc.news/api";
 const log = createSensorLogger(SENSOR_NAME);
@@ -15,21 +17,6 @@ const CHILD_INSCRIPTION_CLI = join(
   import.meta.dir,
   "../child-inscription/child-inscription.ts"
 );
-
-function getPSTInfo(now: Date): { hour: number; date: string } {
-  const hour = parseInt(
-    new Intl.DateTimeFormat("en-US", {
-      timeZone: "America/Los_Angeles",
-      hour: "numeric",
-      hour12: false,
-    }).format(now),
-    10
-  );
-  const date = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Los_Angeles",
-  }).format(now); // YYYY-MM-DD
-  return { hour, date };
-}
 
 /**
  * Check whether the inscription tooling is available before queuing a task.
@@ -51,14 +38,14 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
   if (!claimed) return "skip";
 
   const now = new Date();
-  const { hour, date: pstDate } = getPSTInfo(now);
+  const { hour, date: utcDate } = getUTCInfo(now);
 
-  // Only fire at 11 PM PST
-  if (hour !== TARGET_HOUR_PST) return "skip";
+  // Only fire at 07:00 UTC
+  if (hour !== TARGET_HOUR_UTC) return "skip";
 
-  // Dedup: only fire once per PST calendar day
+  // Dedup: only fire once per UTC calendar day
   const state = await readHookState(SENSOR_NAME);
-  if (state?.last_fired_date === pstDate) return "skip";
+  if (state?.last_fired_date === utcDate) return "skip";
 
   // Prerequisite: child-inscription CLI must exist
   const prereq = checkPrerequisites();
@@ -74,9 +61,9 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
 
   // Prerequisite: compiled brief must exist for today
   try {
-    const resp = await fetchWithRetry(`${API_BASE}/brief/${pstDate}`);
+    const resp = await fetchWithRetry(`${API_BASE}/brief/${utcDate}`);
     if (!resp.ok) {
-      log(`No brief found for ${pstDate} (API returned ${resp.status}) -- skipping inscription`);
+      log(`No brief found for ${utcDate} (API returned ${resp.status}) -- skipping inscription`);
       await writeHookState(SENSOR_NAME, {
         ...(state ?? { version: 0 }),
         last_ran: now.toISOString(),
@@ -89,7 +76,7 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
 
     const data = (await resp.json()) as { compiledAt?: string | null };
     if (!data.compiledAt) {
-      log(`Brief for ${pstDate} exists but not compiled yet -- skipping inscription`);
+      log(`Brief for ${utcDate} exists but not compiled yet -- skipping inscription`);
       await writeHookState(SENSOR_NAME, {
         ...(state ?? { version: 0 }),
         last_ran: now.toISOString(),
@@ -99,7 +86,7 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
       return "skip";
     }
 
-    log(`Compiled brief found for ${pstDate} (compiled at ${data.compiledAt})`);
+    log(`Compiled brief found for ${utcDate} (compiled at ${data.compiledAt})`);
   } catch (err) {
     log(`Error checking brief: ${err instanceof Error ? err.message : String(err)} -- skipping`);
     return "error";
@@ -130,7 +117,7 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
           subject: `Fund SegWit wallet for inscription (balance: ${balance} sats)`,
           description: [
             `The SegWit wallet (${BTC_ADDRESS}) has ${balance} sats, below the ${MIN_BALANCE_SATS} sat minimum for inscriptions.`,
-            `Brief for ${pstDate} is ready to inscribe but cannot proceed without funding.`,
+            `Brief for ${utcDate} is ready to inscribe but cannot proceed without funding.`,
             ``,
             `Send BTC to: ${BTC_ADDRESS}`,
             `Recommended: 100,000 sats (~1 month of daily inscriptions).`,
@@ -152,18 +139,18 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
     last_ran: now.toISOString(),
     last_result: "ok",
     version: (state?.version ?? 0) + 1,
-    last_fired_date: pstDate,
+    last_fired_date: utcDate,
   });
 
   const parentId = "fd96e26b82413c2162ba536629e981fd5e503b49e289797d38eadc9bbd3808e1i0";
 
   const id = insertTaskIfNew(TASK_SOURCE, {
-    subject: `Inscribe daily brief for ${pstDate}`,
+    subject: `Inscribe daily brief for ${utcDate}`,
     description: [
-      `Inscribe the aibtc.news daily brief for ${pstDate} as a child ordinal under the canonical parent.`,
+      `Inscribe the aibtc.news daily brief for ${utcDate} as a child ordinal under the canonical parent.`,
       ``,
       `## Steps`,
-      `1. Create workflow: arc skills run --name workflows -- create daily-brief-inscription brief-inscription-${pstDate} pending --context '{"date":"${pstDate}","parentId":"${parentId}","contentType":"text/plain"}'`,
+      `1. Create workflow: arc skills run --name workflows -- create daily-brief-inscription brief-inscription-${utcDate} pending --context '{"date":"${utcDate}","parentId":"${parentId}","contentType":"text/plain"}'`,
       `2. Evaluate state machine: arc skills run --name workflows -- evaluate <workflow_id>`,
       `3. Close this task as completed. The workflows meta-sensor will pick up subsequent states automatically.`,
       ``,

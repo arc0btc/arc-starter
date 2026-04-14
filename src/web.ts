@@ -130,14 +130,14 @@ function handleStatus(): Response {
   const pending = db.query("SELECT COUNT(*) as count FROM tasks WHERE status = 'pending'").get() as { count: number };
   const active = db.query("SELECT COUNT(*) as count FROM tasks WHERE status = 'active'").get() as { count: number };
   const completedToday = db.query(
-    "SELECT COUNT(*) as count FROM tasks WHERE status = 'completed' AND date(completed_at, '-7 hours') = date('now', '-7 hours')"
+    "SELECT COUNT(*) as count FROM tasks WHERE status = 'completed' AND date(completed_at) = date('now')"
   ).get() as { count: number };
   const failedToday = db.query(
-    "SELECT COUNT(*) as count FROM tasks WHERE status = 'failed' AND date(completed_at, '-7 hours') = date('now', '-7 hours')"
+    "SELECT COUNT(*) as count FROM tasks WHERE status = 'failed' AND date(completed_at) = date('now')"
   ).get() as { count: number };
 
   const costs = db.query(
-    "SELECT COALESCE(SUM(cost_usd), 0) as cost_today_usd, COALESCE(SUM(api_cost_usd), 0) as api_cost_today_usd FROM tasks WHERE date(created_at, '-7 hours') = date('now', '-7 hours')"
+    "SELECT COALESCE(SUM(cost_usd), 0) as cost_today_usd, COALESCE(SUM(api_cost_usd), 0) as api_cost_today_usd FROM tasks WHERE date(created_at) = date('now')"
   ).get() as { cost_today_usd: number; api_cost_today_usd: number };
 
   const lastCycleRow = db.query(
@@ -150,7 +150,7 @@ function handleStatus(): Response {
 
   // Uptime: hours since earliest pending/active task or first cycle today
   const firstCycleToday = db.query(
-    "SELECT started_at FROM cycle_log WHERE date(started_at, '-7 hours') = date('now', '-7 hours') ORDER BY started_at ASC LIMIT 1"
+    "SELECT started_at FROM cycle_log WHERE date(started_at) = date('now') ORDER BY started_at ASC LIMIT 1"
   ).get() as { started_at: string } | null;
 
   let uptimeHours = 0;
@@ -541,7 +541,7 @@ function handleCosts(url: URL): Response {
   if (range === "week") {
     rows = db.query(`
       SELECT
-        strftime('%Y-%m-%d %H:00', started_at, '-7 hours') as hour,
+        strftime('%Y-%m-%d %H:00', started_at) as hour,
         COALESCE(SUM(cost_usd), 0) as cost_usd,
         COALESCE(SUM(api_cost_usd), 0) as api_cost_usd,
         COALESCE(SUM(tokens_in), 0) as tokens_in,
@@ -555,14 +555,14 @@ function handleCosts(url: URL): Response {
   } else {
     rows = db.query(`
       SELECT
-        strftime('%Y-%m-%d %H:00', started_at, '-7 hours') as hour,
+        strftime('%Y-%m-%d %H:00', started_at) as hour,
         COALESCE(SUM(cost_usd), 0) as cost_usd,
         COALESCE(SUM(api_cost_usd), 0) as api_cost_usd,
         COALESCE(SUM(tokens_in), 0) as tokens_in,
         COALESCE(SUM(tokens_out), 0) as tokens_out,
         COUNT(*) as cycles
       FROM cycle_log
-      WHERE date(started_at, '-7 hours') = date('now', '-7 hours')
+      WHERE date(started_at) = date('now')
       GROUP BY hour
       ORDER BY hour ASC
     `).all();

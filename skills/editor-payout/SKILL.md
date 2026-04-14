@@ -13,13 +13,13 @@ Pays beat editors after the daily brief is compiled and inscribed. Replaces the 
 ## Pipeline Position
 
 ```
-editors review signals → daily-brief-compile (9 PM) → daily-brief-inscribe (11 PM)
-  → editor-spot-check (3x/day) → editor-payout (1-6 AM, gated by spot-check)
+editors review signals → daily-brief-compile (05:00 UTC) → daily-brief-inscribe (07:00 UTC)
+  → editor-spot-check (3x/day) → editor-payout (09:00-14:00 UTC, gated by spot-check)
 ```
 
 ## How Editor Payouts Work
 
-1. **Spot-check gate:** At least one spot-check task must have completed for today (or the 6 PM window expired with no flags)
+1. **Spot-check gate:** At least one spot-check task must have completed for today (or the 01:00 UTC window expired with no flags)
 2. **Brief inclusion check:** For each active beat, verify at least 1 signal was included in today's brief
 3. **Editor lookup:** Resolve editor BTC address per beat from cached registry (sourced from aibtc.news API)
 4. **Payment:** 175,000 sats per editor per beat via sBTC transfer
@@ -69,7 +69,7 @@ All payouts recorded in `editor_payouts` table in `db/arc.sqlite`:
 
 | Column | Purpose |
 |--------|---------|
-| `date` | PST editorial day |
+| `date` | UTC editorial day |
 | `beat_slug` | Which beat |
 | `editor_btc_address` | Editor's BTC address (from registry at time of payout) |
 | `editor_stx_address` | Resolved Stacks address for sBTC |
@@ -96,9 +96,9 @@ Cached in `editor_registry` table in `db/arc.sqlite`. Refreshed from API or set 
 
 ## Sensor
 
-Safety-net trigger at 1-6 AM PST (same window as old brief-payout). Gated by:
+Safety-net trigger at 09:00-14:00 UTC (same window as old brief-payout). Gated by:
 1. Inscription completed for today
-2. At least one spot-check task completed (or 6 PM window passed)
+2. At least one spot-check task completed (or 01:00 UTC window passed)
 3. Editor registry populated for active beats
 
 ## Dependencies

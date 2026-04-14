@@ -20,9 +20,9 @@ Gives the publisher visibility into what editors are approving without blocking 
 ## Sensor Schedule
 
 Fires 3x/day at approximately:
-- **10:00 AM PST** — morning check (early signal activity)
-- **2:00 PM PST** — midday check (main filing window)
-- **6:00 PM PST** — pre-compile check (final review before 9 PM compile)
+- **17:00 UTC** — morning check (early signal activity)
+- **21:00 UTC** — midday check (main filing window)
+- **01:00 UTC** — pre-compile check (final review before 05:00 UTC compile)
 
 Uses 8-hour interval with 3 daily windows to avoid duplicate firings.
 

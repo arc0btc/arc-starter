@@ -14,28 +14,15 @@ const TASK_SOURCE = "sensor:editor-payout";
 const API_BASE = "https://aibtc.news/api";
 const log = createSensorLogger(SENSOR_NAME);
 
+import { getUTCInfo } from "../../src/time.ts";
+
 const EDITOR_RATE_SATS = 175_000;
 
-function getPSTInfo(now: Date): { hour: number; date: string } {
-  const hour = parseInt(
-    new Intl.DateTimeFormat("en-US", {
-      timeZone: "America/Los_Angeles",
-      hour: "numeric",
-      hour12: false,
-    }).format(now),
-    10
-  );
-  const date = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Los_Angeles",
-  }).format(now);
-  return { hour, date };
-}
-
 /**
- * Editor payout sensor. Fires 1-6 AM PST, gated by:
+ * Editor payout sensor. Fires 09:00-14:00 UTC, gated by:
  * 1. Inscription completed for today
- * 2. At least one spot-check task completed (or window expired)
- * 3. Editor registry populated
+ * 2. Editor registry populated
+ * Spot-check status is logged (informational) but does not gate payout.
  */
 export default async function editorPayoutSensor(): Promise<string> {
   initDatabase();
@@ -44,42 +31,39 @@ export default async function editorPayoutSensor(): Promise<string> {
   if (!claimed) return "skip";
 
   const now = new Date();
-  const { hour, date: pstDate } = getPSTInfo(now);
+  const { hour, date: utcDate } = getUTCInfo(now);
 
-  // Only fire in the 1-6 AM PST window (post-inscription)
-  if (hour < 1 || hour > 6) return "skip";
+  // Only fire in the 09:00-14:00 UTC window (post-inscription)
+  if (hour < 9 || hour > 14) return "skip";
 
-  // Dedup: only fire once per PST calendar day
+  // Dedup: only fire once per UTC calendar day
   const state = await readHookState(SENSOR_NAME);
-  if (state?.lastPayoutDate === pstDate) return "skip";
+  if (state?.lastPayoutDate === utcDate) return "skip";
 
   // Gate 1: inscription must have completed for today
   const inscribeState = await readHookState("daily-brief-inscribe");
-  if (!inscribeState?.last_fired_date || inscribeState.last_fired_date !== pstDate) {
-    log(`Inscription not completed for ${pstDate} — skipping`);
+  if (!inscribeState?.last_fired_date || inscribeState.last_fired_date !== utcDate) {
+    log(`Inscription not completed for ${utcDate} — skipping`);
     return "skip";
   }
 
-  // Gate 2: spot-check must have completed (or 6 PM window passed)
+  // Informational: log spot-check status (does not gate payout)
   const db = getDatabase();
-  const spotCheckDone = db.query<{ id: number }, [string, string]>(
+  const spotCheckDone = db.query<{ id: number }, [string]>(
     `SELECT id FROM tasks
      WHERE source LIKE 'sensor:editor-spot-check%'
        AND status = 'completed'
        AND created_at >= ?
      LIMIT 1`
-  ).get(pstDate, pstDate);
+  ).get(utcDate);
 
-  if (!spotCheckDone) {
-    // Allow payout if it's past 6 PM PST (spot-check window expired without flags)
-    if (hour < 18) {
-      log(`No completed spot-check for ${pstDate} and window not expired — skipping`);
-      return "skip";
-    }
-    log(`Spot-check window expired without flags — proceeding`);
+  if (spotCheckDone) {
+    log(`Spot-check completed for ${utcDate} (task #${spotCheckDone.id})`);
+  } else {
+    log(`No completed spot-check for ${utcDate} — proceeding (informational only)`);
   }
 
-  // Gate 3: editor registry must have entries
+  // Gate 2: editor registry must have entries
   const editors = db.query<{ beat_slug: string; editor_name: string }, []>(
     "SELECT beat_slug, editor_name FROM editor_registry"
   ).all();
@@ -93,7 +77,7 @@ export default async function editorPayoutSensor(): Promise<string> {
   let beatSignalCounts: Record<string, number> = {};
   try {
     const resp = await fetchWithRetry(
-      `${API_BASE}/signals?status=brief_included&date=${pstDate}&limit=200`
+      `${API_BASE}/signals?status=brief_included&date=${utcDate}&limit=200`
     );
     if (resp.ok) {
       const data = (await resp.json()) as { signals?: Array<{ beat: string; beatSlug?: string }> };
@@ -115,7 +99,7 @@ export default async function editorPayoutSensor(): Promise<string> {
       last_ran: now.toISOString(),
       last_result: "ok:no-signals",
       version: (state?.version ?? 0) + 1,
-      lastPayoutDate: pstDate,
+      lastPayoutDate: utcDate,
     });
     return "ok";
   }
@@ -126,7 +110,7 @@ export default async function editorPayoutSensor(): Promise<string> {
     last_ran: now.toISOString(),
     last_result: "ok",
     version: (state?.version ?? 0) + 1,
-    lastPayoutDate: pstDate,
+    lastPayoutDate: utcDate,
   });
 
   const beatSummary = beatsWithSignals
@@ -135,9 +119,9 @@ export default async function editorPayoutSensor(): Promise<string> {
   const totalSats = beatsWithSignals.length * EDITOR_RATE_SATS;
 
   const id = insertTaskIfNew(TASK_SOURCE, {
-    subject: `[DRY RUN] Pay ${beatsWithSignals.length} editor(s) for ${pstDate} brief (${totalSats.toLocaleString()} sats)`,
+    subject: `[DRY RUN] Pay ${beatsWithSignals.length} editor(s) for ${utcDate} brief (${totalSats.toLocaleString()} sats)`,
     description: [
-      `Editor payouts for the ${pstDate} daily brief.`,
+      `Editor payouts for the ${utcDate} daily brief.`,
       `This is a DRY RUN — no sBTC transfers will be sent.`,
       ``,
       `## Beats with signals`,
@@ -146,7 +130,7 @@ export default async function editorPayoutSensor(): Promise<string> {
       `## Total: ${totalSats.toLocaleString()} sats across ${beatsWithSignals.length} editor(s)`,
       ``,
       `## Steps`,
-      `1. Run: arc skills run --name editor-payout -- calculate --date ${pstDate}`,
+      `1. Run: arc skills run --name editor-payout -- calculate --date ${utcDate}`,
       `2. Review the output: verify editor addresses, signal counts, balance.`,
       `3. Close task with a summary of the payout plan.`,
       ``,

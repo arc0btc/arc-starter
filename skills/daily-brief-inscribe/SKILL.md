@@ -1,6 +1,6 @@
 ---
 name: daily-brief-inscribe
-description: Queue a brief inscription task at end of each PST calendar day
+description: Queue a brief inscription task at end of each UTC calendar day
 tags:
   - publishing
   - ordinals
@@ -18,7 +18,7 @@ All daily brief inscriptions are children of this parent, establishing on-chain 
 
 ## Sensor
 
-Runs daily at 23:00 PST (polls every 30 min, fires once per day).
+Runs daily at 07:00 UTC (polls every 30 min, fires once per day).
 
 Prerequisites checked before creating a task:
 1. **Child-inscription CLI** must exist at skills/child-inscription/child-inscription.ts
@@ -28,7 +28,7 @@ If either prerequisite fails, last_fired_date is NOT updated so the sensor retri
 
 ## Pipeline Position
 
-editorial sensor (review) -> daily-brief-compile (9 PM) -> daily-brief-inscribe (11 PM) -> payouts
+editorial sensor (review) -> daily-brief-compile (05:00 UTC) -> daily-brief-inscribe (07:00 UTC) -> payouts
 
 ## Workflow
 

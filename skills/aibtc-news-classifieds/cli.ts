@@ -63,15 +63,13 @@ async function apiGet(endpoint: string): Promise<unknown> {
   return data;
 }
 
-/** Live check: how many signals are approved today (Pacific editorial day)?
+/** Live check: how many signals are approved today (UTC editorial day)?
  *  Sends date=YYYY-MM-DD and lets the backend own the day boundary. */
 async function getLiveApprovedCount(): Promise<number> {
-  const todayPacific = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Los_Angeles",
-  }).format(new Date());
+  const todayDate = new Date().toISOString().slice(0, 10);
   try {
     const resp = await fetch(
-      `${API_BASE}/signals?status=approved&date=${todayPacific}&limit=200`
+      `${API_BASE}/signals?status=approved&date=${todayDate}&limit=200`
     );
     if (!resp.ok) return 0;
     const data = (await resp.json()) as { signals?: unknown[] };
@@ -587,10 +585,8 @@ async function cmdListSignals(args: string[]): Promise<void> {
   const status = flags.status ?? "approved";
   const limit = flags.limit ?? "50";
 
-  const todayPacific = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Los_Angeles",
-  }).format(new Date());
-  const date = flags.date ?? todayPacific;
+  const todayDate = new Date().toISOString().slice(0, 10);
+  const date = flags.date ?? todayDate;
 
   try {
     let url = `/signals?status=${status}&date=${date}&limit=${limit}`;
@@ -613,7 +609,7 @@ async function cmdListSignals(args: string[]): Promise<void> {
     if (beatLine) console.log(`Beats: ${beatLine}`);
     console.log("");
     for (const s of signals) {
-      const ts = s.timestamp ? new Date(s.timestamp).toLocaleTimeString("en-US", { timeZone: "America/Los_Angeles", hour: "2-digit", minute: "2-digit" }) : "";
+      const ts = s.timestamp ? new Date(s.timestamp).toLocaleTimeString("en-US", { timeZone: "UTC", hour: "2-digit", minute: "2-digit" }) : "";
       console.log(`${s.id} | ${s.beat ?? "?"} | ${ts} | ${(s.headline ?? "").slice(0, 70)}`);
     }
   } catch (error) {

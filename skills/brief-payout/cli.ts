@@ -107,9 +107,8 @@ function parseFlags(args: string[]): Record<string, string> {
   return flags;
 }
 
-function todayPST(): string {
-  const pst = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles" }).format(new Date());
-  return pst; // YYYY-MM-DD
+function todayUTC(): string {
+  return new Date().toISOString().slice(0, 10);
 }
 
 function payoutFilePath(date: string): string {
@@ -414,7 +413,7 @@ async function buildPayoutData(date: string): Promise<{
 
 async function cmdCalculate(args: string[]): Promise<PayoutPlan> {
   const flags = parseFlags(args);
-  const date = flags.date || todayPST();
+  const date = flags.date || todayUTC();
 
   log(`Calculating payouts for ${date}`);
 
@@ -470,7 +469,7 @@ async function cmdCalculate(args: string[]): Promise<PayoutPlan> {
 
 async function cmdExecute(args: string[]): Promise<void> {
   const flags = parseFlags(args);
-  const date = flags.date || todayPST();
+  const date = flags.date || todayUTC();
 
   log(`Executing payouts for ${date}`);
 
@@ -765,7 +764,7 @@ async function sendSbtc(
 
 function cmdStatus(args: string[]): void {
   const flags = parseFlags(args);
-  const date = flags.date || todayPST();
+  const date = flags.date || todayUTC();
 
   const record = readPayoutRecord(date);
   if (!record) {
@@ -810,7 +809,7 @@ COMMANDS
   status --date YYYY-MM-DD      Check payout status for a date
 
 FLAGS
-  --date YYYY-MM-DD   Target date (defaults to today PST)
+  --date YYYY-MM-DD   Target date (defaults to today UTC)
 
 EXAMPLES
   arc skills run --name brief-payout -- calculate --date 2026-03-24

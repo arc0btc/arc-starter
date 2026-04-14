@@ -625,8 +625,8 @@ export const ResearchToPrdMachine: StateMachine<{
 /**
  * DailyBriefInscriptionMachine — inscribes the aibtc.news daily brief on Bitcoin once per day.
  *
- * Triggered by: sensor:daily-brief-inscribe at 11 PM PST
- * instance_key: "brief-inscription-{YYYY-MM-DD}" (one per PST calendar day)
+ * Triggered by: sensor:daily-brief-inscribe at 07:00 UTC
+ * instance_key: "brief-inscription-{YYYY-MM-DD}" (one per UTC calendar day)
  *
  * States:
  *   pending              → fetch the compiled brief content from aibtc.news
@@ -639,7 +639,7 @@ export const ResearchToPrdMachine: StateMachine<{
  *   failed               → terminal failure (set from any state on unrecoverable error)
  *
  * Context:
- *   date                 — PST date YYYY-MM-DD (the brief date being inscribed)
+ *   date                 — UTC date YYYY-MM-DD (the brief date being inscribed)
  *   parentId             — Parent inscription ID (Loom's collection root; set once at setup)
  *   contentType          — MIME type; default "text/plain"
  *   briefContent         — compiled brief text fetched in brief_fetched step

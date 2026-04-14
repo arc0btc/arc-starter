@@ -43,8 +43,8 @@ function parseFlags(args: string[]): Record<string, string> {
   return flags;
 }
 
-function todayPST(): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles" }).format(new Date());
+function todayUTC(): string {
+  return new Date().toISOString().slice(0, 10);
 }
 
 // ---- Editor Registry ----
@@ -338,7 +338,7 @@ async function sendSbtc(
 
 async function cmdCalculate(args: string[]): Promise<void> {
   const flags = parseFlags(args);
-  const date = flags.date || todayPST();
+  const date = flags.date || todayUTC();
 
   log(`Calculating editor payouts for ${date}`);
 
@@ -408,7 +408,7 @@ async function cmdCalculate(args: string[]): Promise<void> {
 
 async function cmdExecute(args: string[]): Promise<void> {
   const flags = parseFlags(args);
-  const date = flags.date || todayPST();
+  const date = flags.date || todayUTC();
 
   log(`Executing editor payouts for ${date}`);
 
@@ -563,7 +563,7 @@ async function getWalletCreds(): Promise<{ walletId: string; walletPassword: str
 
 function cmdStatus(args: string[]): void {
   const flags = parseFlags(args);
-  const date = flags.date || todayPST();
+  const date = flags.date || todayUTC();
 
   const payouts = getPayoutsForDate(date);
   if (payouts.length === 0) {
@@ -642,7 +642,7 @@ COMMANDS
   registry set --beat SLUG --btc-address ADDR [--stx-address ADDR] [--name NAME]
 
 FLAGS
-  --date YYYY-MM-DD   Target date (defaults to today PST)
+  --date YYYY-MM-DD   Target date (defaults to today UTC)
 
 ECONOMICS
   Each editor receives ${EDITOR_RATE_SATS.toLocaleString()} sats per beat per day (if beat has signals in brief).
