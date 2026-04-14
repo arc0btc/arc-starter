@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { claimSensorRun, readHookState, writeHookState, insertTaskIfNew, createSensorLogger, fetchWithRetry } from "../../src/sensors.ts";
 import { initDatabase } from "../../src/db.ts";
 
@@ -142,23 +142,37 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
     last_fired_date: utcDate,
   });
 
-  const parentId = "fd96e26b82413c2162ba536629e981fd5e503b49e289797d38eadc9bbd3808e1i0";
+  // Run the inscription script directly — no LLM dispatch needed.
+  // The script is idempotent and resumes from its last completed phase.
+  const scriptPath = resolve(import.meta.dir, "../../scripts/inscribe-brief.ts");
+  const proc = Bun.spawn(
+    ["bun", "run", scriptPath, "run", "--date", utcDate],
+    { cwd: resolve(import.meta.dir, "../.."), stdin: "ignore", stdout: "pipe", stderr: "pipe" }
+  );
 
-  const id = insertTaskIfNew(TASK_SOURCE, {
-    subject: `Inscribe daily brief for ${utcDate}`,
-    description: [
-      `Inscribe the aibtc.news daily brief for ${utcDate} as a child ordinal under the canonical parent.`,
-      ``,
-      `## Steps`,
-      `1. Create workflow: arc skills run --name workflows -- create daily-brief-inscription brief-inscription-${utcDate} pending --context '{"date":"${utcDate}","parentId":"${parentId}","contentType":"text/plain"}'`,
-      `2. Evaluate state machine: arc skills run --name workflows -- evaluate <workflow_id>`,
-      `3. Close this task as completed. The workflows meta-sensor will pick up subsequent states automatically.`,
-      ``,
-      `Do NOT follow the state machine beyond step 2 — each state is handled as a separate task by the meta-sensor.`,
-    ].join("\n"),
-    priority: 5,
-    skills: JSON.stringify(["workflows", "aibtc-news-classifieds", "bitcoin-wallet"]),
-  });
+  const [stdout, stderr] = await Promise.all([
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text(),
+  ]);
+  const exitCode = await proc.exited;
 
-  return id !== null ? "ok" : "skip";
+  if (exitCode !== 0) {
+    log(`Inscription script failed (exit ${exitCode}): ${stderr.slice(0, 300)}`);
+    insertTaskIfNew(TASK_SOURCE, {
+      subject: `Inscription failed for ${utcDate} (exit ${exitCode})`,
+      description: [
+        `The inscribe-brief script exited with code ${exitCode}.`,
+        ``,
+        `Re-run: bun run scripts/inscribe-brief.ts run --date ${utcDate}`,
+        ``,
+        `Stderr (truncated): ${stderr.slice(0, 500)}`,
+      ].join("\n"),
+      priority: 4,
+      skills: JSON.stringify(["bitcoin-wallet"]),
+    });
+    return "error";
+  }
+
+  log(`Inscription script completed for ${utcDate}`);
+  return "ok";
 }
