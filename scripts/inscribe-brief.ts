@@ -424,21 +424,15 @@ async function notifyEditors(record: InscriptionRecord): Promise<InscriptionReco
   await Bun.write(batchFile, JSON.stringify(batchData, null, 2));
   log(`Batch file written: ${batchFile} (${notifiable.length} editors)`);
 
-  // Queue inbox-notify task
+  // Queue script task — dispatch runs it directly, no LLM involved
   const names = notifiable.map((e) => e.editor_name).join(", ");
   const subject = `Notify editors of ${record.date} brief inscription: ${names}`;
-  const description = [
-    `Send inscription notification to ${notifiable.length} editor(s).`,
-    ``,
-    `Run: arc skills run --name inbox-notify -- send-batch --file db/inbox-notify/${batchId}.json`,
-  ].join("\n");
+  const script = `arc skills run --name inbox-notify -- send-batch --file db/inbox-notify/${batchId}.json`;
 
   const proc = Bun.spawnSync(
     ["bash", "bin/arc", "tasks", "add",
       "--subject", subject,
-      "--priority", "9",
-      "--skills", "inbox-notify",
-      "--description", description],
+      "--script", script],
     { cwd: ROOT }
   );
   const taskOut = new TextDecoder().decode(proc.stdout).trim();
