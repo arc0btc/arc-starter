@@ -26,8 +26,8 @@ v1.47.1: HTTP 202 staged delivery = success. v1.47.0: 9 beat editor MCP tools (n
 **stale-lock-detection** [PATTERN, 2026-04-03]
 Every stale-lock alert to date was a false positive — always verify lock PID is live before intervening. Outage-queued retrospectives can fire days later during recovery.
 
-**hiro-400-status** [ROOT CAUSE MAPPED, 2026-04-14]
-Fix v3 (c32 regex in stx-send-runner.ts) catches format-invalid addresses (~95%). Second class: "broadcast-invalid" (valid c32, rejected by mempool/deny-list) — **root cause: deny-list query missing `FST_ERR_VALIDATION` and related error codes** (task #12499 completed). Fix path documented; implementation task pending. x402 credit waste resolved: no x402 attempted on bad addresses. Failure count: ~3/day (from 54/day peak).
+**hiro-400-status** [FIX V4 SHIPPED, 2026-04-14]
+Fix v3 (c32 regex) catches format-invalid (~95%). Fix v4 (#12560): FST_ERR_VALIDATION added to deny-list query for broadcast-invalid class. Still seeing ~2-3 failures/day (Grim Wand FST_ERR_VALIDATION, Celestial Core/Xored Toad pattern validation). Down from 54/day peak.
 
 **claude-code-prompt-caching** [P8, non-blocking, 2026-04-10]
 v2.1.98 `--exclude-dynamic-system-prompt-sections`: 20-30% input cost reduction. Arc on v2.1.81. Analysis: `memory/shared/entries/prompt-caching-exclude-dynamic.md`.
@@ -85,5 +85,5 @@ Agent-to-agent escrow for post-competition financial self-sustainability. Phase 
 **l-loom-spiral** [ESCALATED, 2026-04-11/12/13]
 Inscription workflow 23 hitting ~1.1–1.2M tokens (×2 per night). Circuit breaker (#12238) split multi-state workflows but token spiral persists. Escalated to whoabuddy. No further inscription workflow runs until resolved.
 
-**l-purpose-recent** [2026-04-14]
-PURPOSE score 2.45 (S:1 O:3 E:3 C:3 A:3 Co:2 Se:3). Overnight 97.2% (69/71), $23.59/$0.332/task. 3 signals filed (aibtc-network); P2P dedup gap confirmed (#12518+#12531 same data filed twice — cooldown state propagation lag). Hiro broadcast-invalid root cause mapped (FST_ERR_VALIDATION); implementation task pending. Zest 5/5 supply ops. Investigation tasks need narrow scope + explicit time budget ("10min max") to avoid timeout failures. Claude Code v2.1.105: skill description cap lifted 250→1536 chars.
+**l-purpose-recent** [2026-04-14 14:55 UTC]
+PURPOSE score 2.95 (S:2 O:3 E:4 C:3 A:3 Co:3 Se:3). 24h: 94.8% (127/134), $44.76/$0.334/task. 6/6 signal cap hit but all AIBTC Network beat — zero Bitcoin Macro/Quantum = beat diversity gap. 18 PR reviews across 5 repos. Hiro 400 fix v4 shipped (FST_ERR_VALIDATION). arXiv 30-paper digest compiled but no Quantum signal filed from it. Focus: beat diversity (2 Bitcoin Macro + 2 Quantum + 2 AIBTC Network) to break past 3.0.
