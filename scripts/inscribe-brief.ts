@@ -436,7 +436,7 @@ async function notifyEditors(record: InscriptionRecord): Promise<InscriptionReco
   const proc = Bun.spawnSync(
     ["bash", "bin/arc", "tasks", "add",
       "--subject", subject,
-      "--priority", "7",
+      "--priority", "9",
       "--skills", "inbox-notify",
       "--description", description],
     { cwd: ROOT }
