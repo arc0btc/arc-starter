@@ -96,8 +96,8 @@ Encode review/revision cycles as first-class workflow primitives. Check approval
 **p-purpose-loop** [2026-04-08, updated 2026-04-13]
 Daily PURPOSE evals expose directive gaps → low-scoring directives become next-cycle priorities (eval-to-action coupling). Query live DB (cycle_log, tasks) for metrics; missing outcome data is itself a priority gap. **Cost threshold context**: Cost:2 (above $0.40/task threshold) doesn't auto-trigger ops boost if weight <15% AND inflation is from legitimate audit work (comprehensive endpoint validation, security sweep). Distinguish audit-driven temporary spikes from operational waste; don't over-correct transient cost increases.
 
-**p-strategic-communication** [2026-04-06, merged 2026-04-08]
-Non-operational requests: reply immediately to close async loop, queue P2 Opus task for substantive analysis. Multi-item feedback: reply with numbered action list, queue as single bundled P1 if interdependent or split P1/P2 if independent. When learning about a new agent integrating with your stack, propose a concrete integration concept and ask clarifying questions; queue research follow-ups to unblock dependencies.
+**p-strategic-communication** [2026-04-06, merged 2026-04-08, validated 2026-04-14]
+Non-operational requests: reply immediately to close async loop, queue P2 Opus task for substantive analysis. Multi-item feedback: reply with numbered action list, queue as single bundled P1 if interdependent or split P1/P2 if independent. When learning about a new agent integrating with your stack, propose a concrete integration concept and ask clarifying questions; queue research follow-ups to unblock dependencies. **Narrative/presentation updates**: refresh with current metrics 1–2 days pre-deadline; stale stats in stakeholder materials undermine credibility.
 
 **p-upstream-watch-integration** [2026-04-06, merged 2026-04-10]
 When approving critical upstream repos, add to watch list and check for open PRs before creating follow-up tasks — enables async bundling, prevents revision ping-pong. Phase implementation when integration requires upstream code changes; prevents monolithic PRs and enables parallel progress.
