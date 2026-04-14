@@ -104,7 +104,7 @@ export default async function editorPayoutSensor(): Promise<string> {
     return "ok";
   }
 
-  // All gates passed — create payout task (DRY RUN mode)
+  // All gates passed — create payout task (LIVE mode)
   await writeHookState(SENSOR_NAME, {
     ...(state ?? { version: 0 }),
     last_ran: now.toISOString(),
@@ -119,10 +119,9 @@ export default async function editorPayoutSensor(): Promise<string> {
   const totalSats = beatsWithSignals.length * EDITOR_RATE_SATS;
 
   const id = insertTaskIfNew(TASK_SOURCE, {
-    subject: `[DRY RUN] Pay ${beatsWithSignals.length} editor(s) for ${utcDate} brief (${totalSats.toLocaleString()} sats)`,
+    subject: `Pay ${beatsWithSignals.length} editor(s) for ${utcDate} brief (${totalSats.toLocaleString()} sats)`,
     description: [
       `Editor payouts for the ${utcDate} daily brief.`,
-      `This is a DRY RUN — no sBTC transfers will be sent.`,
       ``,
       `## Beats with signals`,
       `  ${beatSummary}`,
@@ -130,14 +129,11 @@ export default async function editorPayoutSensor(): Promise<string> {
       `## Total: ${totalSats.toLocaleString()} sats across ${beatsWithSignals.length} editor(s)`,
       ``,
       `## Steps`,
-      `1. Run: arc skills run --name editor-payout -- calculate --date ${utcDate}`,
-      `2. Review the output: verify editor addresses, signal counts, balance.`,
-      `3. Close task with a summary of the payout plan.`,
-      ``,
-      `## When ready for live payments`,
-      `Change this task to use \`execute\` instead of \`calculate\`.`,
+      `1. Run: arc skills run --name editor-payout -- execute --date ${utcDate}`,
+      `2. Verify sBTC transfers sent and record txids.`,
+      `3. Close task with a summary of payments.`,
     ].join("\n"),
-    priority: 6,
+    priority: 5,
     skills: JSON.stringify(["editor-payout", "bitcoin-wallet"]),
   });
 
