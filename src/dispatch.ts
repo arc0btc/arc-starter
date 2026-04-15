@@ -466,7 +466,13 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
   ];
 
   if (Bun.env.DANGEROUS === "true") {
-    args.push("--dangerously-skip-permissions");
+    // v2.1.108 split permission bypass into enable (--allow-...) + activate (--permission-mode).
+    // Passing only the activator silently no-ops; LLM hits "requires approval" on every tool call.
+    // --setting-sources user,project skips .claude/settings.local.json narrow allowlists that
+    // accumulate in sibling repos when dispatch cd's into them (PR reviews).
+    args.push("--allow-dangerously-skip-permissions");
+    args.push("--permission-mode", "bypassPermissions");
+    args.push("--setting-sources", "user,project");
   }
 
   const env = { ...process.env };
@@ -963,9 +969,14 @@ export async function runDispatch(): Promise<void> {
     // Anchor to multi-command denial phrases — the LLM narrates these when every tool call
     // is blocked. Single-instance "requires approval" false-positives on review prose.
     const sandboxFailurePattern = /(sandbox failed to initialize|sandbox is (?:completely )?(?:non-functional|down|unavailable|blocking)|bash sandbox has (?:completely )?failed|all bash (?:commands|execution) (?:are|is) blocked|unable to execute any bash commands|every (?:bash )?command (?:is |being )?blocked)/i;
-    if (sandboxFailurePattern.test(result)) {
-      log(`dispatch: task #${task.id} sandbox-failure detected — forcing status=failed`);
-      insertServiceLog("error", "dispatch", `task #${task.id} sandbox-failure detected`, task.id);
+    const sandboxMatch = result.match(sandboxFailurePattern);
+    if (sandboxMatch) {
+      const matchIdx = sandboxMatch.index ?? 0;
+      const ctxStart = Math.max(0, matchIdx - 200);
+      const ctxEnd = Math.min(result.length, matchIdx + sandboxMatch[0].length + 200);
+      const ctx = result.slice(ctxStart, ctxEnd).replace(/\s+/g, " ");
+      log(`dispatch: task #${task.id} sandbox-failure detected — matched "${sandboxMatch[0]}" — context: ...${ctx}...`);
+      insertServiceLog("error", "dispatch", `task #${task.id} sandbox-failure matched "${sandboxMatch[0]}" — ctx: ${ctx.slice(0, 400)}`, task.id);
       markTaskFailed(task.id, "Sandbox blocked tool execution — no real work performed. Check .claude/settings.json sandbox.enabled.");
       updateTaskCost(task.id, cost_usd, api_cost_usd, input_tokens, output_tokens);
       return;
