@@ -957,6 +957,18 @@ export async function runDispatch(): Promise<void> {
       `dispatch: task #${task.id} returned — cost_usd=$${cost_usd.toFixed(6)} api_cost=$${api_cost_usd.toFixed(6)} tokens=${input_tokens}in/${output_tokens}out`
     );
 
+    // Sandbox-failure guard: if the subagent reported it couldn't run tools, force failure.
+    // Why: v2.1.108 Bash sandbox can block every command; LLM still produces clean prose and
+    // may self-close as completed. Without this guard, PR reviews silently no-op.
+    const sandboxFailurePattern = /(sandbox failed to initialize|sandbox is (?:completely )?(?:non-functional|down|unavailable|blocking)|bash sandbox has (?:completely )?failed|this command requires approval)/i;
+    if (sandboxFailurePattern.test(result)) {
+      log(`dispatch: task #${task.id} sandbox-failure detected — forcing status=failed`);
+      insertServiceLog("error", "dispatch", `task #${task.id} sandbox-failure detected`, task.id);
+      markTaskFailed(task.id, "Sandbox blocked tool execution — no real work performed. Check .claude/settings.json sandbox.enabled.");
+      updateTaskCost(task.id, cost_usd, api_cost_usd, input_tokens, output_tokens);
+      return;
+    }
+
     // Check if LLM self-closed the task
     const postStatus = getTaskById(task.id);
     if (postStatus && postStatus.status !== "active") {
