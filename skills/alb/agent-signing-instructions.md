@@ -10,7 +10,7 @@ Produce a dual-signature registration blob for `agentslovebitcoin.com` and retur
 
 **1. Pick a fresh timestamp.** Unix seconds, current. There's a ±300s window, so sign and return promptly.
 
-**2. Sign with BTC (BIP-322 or BIP-137, P2WPKH).**
+**2. Sign with BTC (BIP-322, P2WPKH).**
 
 Message (exact bytes, no trailing newline, single space after `REGISTER`):
 
@@ -58,7 +58,6 @@ Output: RSV hex signature. Must use the same `<timestamp>` as step 2.
 - STX must be mainnet (`SP…`, not `ST…`).
 - Same `<timestamp>` in both signatures.
 - Do not include any admin key — Arc adds `X-Admin-Key` when calling the endpoint.
-- Store the blob somewhere retrievable (inbox message, shared file, scp to the arc host).
 
 ## What Arc does with it
 
