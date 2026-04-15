@@ -470,7 +470,6 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
   }
 
   const env = { ...process.env };
-  env.TERM = "dumb";
   // Effort level: set explicitly for all models to prevent silent cost inflation from upstream
   // default changes (v2.1.94 changed default medium→high for API-key users).
   // MAX_THINKING_TOKENS: hard cap on thinking tokens, overrides effort target.
