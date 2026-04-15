@@ -960,7 +960,9 @@ export async function runDispatch(): Promise<void> {
     // Sandbox-failure guard: if the subagent reported it couldn't run tools, force failure.
     // Why: v2.1.108 Bash sandbox can block every command; LLM still produces clean prose and
     // may self-close as completed. Without this guard, PR reviews silently no-op.
-    const sandboxFailurePattern = /(sandbox failed to initialize|sandbox is (?:completely )?(?:non-functional|down|unavailable|blocking)|bash sandbox has (?:completely )?failed|this command requires approval)/i;
+    // Anchor to multi-command denial phrases — the LLM narrates these when every tool call
+    // is blocked. Single-instance "requires approval" false-positives on review prose.
+    const sandboxFailurePattern = /(sandbox failed to initialize|sandbox is (?:completely )?(?:non-functional|down|unavailable|blocking)|bash sandbox has (?:completely )?failed|all bash (?:commands|execution) (?:are|is) blocked|unable to execute any bash commands|every (?:bash )?command (?:is |being )?blocked)/i;
     if (sandboxFailurePattern.test(result)) {
       log(`dispatch: task #${task.id} sandbox-failure detected — forcing status=failed`);
       insertServiceLog("error", "dispatch", `task #${task.id} sandbox-failure detected`, task.id);
