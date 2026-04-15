@@ -508,6 +508,7 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
     env.ARC_TASK_SUBJECT = taskSubject;
   }
 
+  log(`dispatch: spawn args (task=${taskId ?? "n/a"}): ${args.slice(1).join(" ")}`);
   const proc = Bun.spawn(args, {
     stdin: new Blob([prompt]),
     stdout: "pipe",
@@ -969,6 +970,9 @@ export async function runDispatch(): Promise<void> {
     // Anchor to multi-command denial phrases — the LLM narrates these when every tool call
     // is blocked. Single-instance "requires approval" false-positives on review prose.
     const sandboxFailurePattern = /(sandbox failed to initialize|sandbox is (?:completely )?(?:non-functional|down|unavailable|blocking)|bash sandbox has (?:completely )?failed|all bash (?:commands|execution) (?:are|is) blocked|unable to execute any bash commands|every (?:bash )?command (?:is |being )?blocked)/i;
+    try {
+      Bun.write(`db/last-dispatch-${task.id}.txt`, result);
+    } catch { /* best-effort diagnostic */ }
     const sandboxMatch = result.match(sandboxFailurePattern);
     if (sandboxMatch) {
       const matchIdx = sandboxMatch.index ?? 0;
