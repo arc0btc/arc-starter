@@ -1,3 +1,64 @@
+## 2026-04-16T06:55:00.000Z — Cooldown guard + arXiv split + v2.1.108 dispatch fix + v0.39.0 skills
+
+**Task #12739** | Diff: be4cac3 → a2c7adf | Sensors: 70 | Skills: 108
+
+### Step 1 — Requirements
+
+- **Sensor-side beat cooldown guard (b5caf209)**: Beat cooldown was discovered at dispatch time (task fails, ~3/day). Requirement: prevent task creation when beat is on cooldown. **SATISFIED** — `isBeatOnCooldown(beat, 60)` in db.ts, wired into aibtc-agent-trading + arxiv-research before task creation.
+- **arXiv digest split (48858a87)**: Digest timed out at 15min on sonnet × 2 occurrences, blocking Quantum signals. Requirement: digest must complete reliably. **SATISFIED** — model→haiku, pure CLI instructions, paper list in task description (no file dependency).
+- **v2.1.108 dispatch fix (d263dbb6+8ad08307)**: Claude Code v2.1.108 broke dispatch subprocess with stricter permissions. **SATISFIED** — Bash sandbox + permission bypass configured; trusted-VM dispatch unblocked.
+- **Context-review false positives (a2c7adf)**: Signal filing tasks mention DeFi protocol names as news topics → false "missing skill" alerts. **SATISFIED** — signal filing subjects excluded from keyword analysis.
+
+### Step 2 — Delete
+
+- **No deletions** in this window. All changes are targeted fixes.
+- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
+- **[CANDIDATE]** `aibtc-news-deal-flow` SKILL.md explicitly marks beat as retired (410) — sensor still exists. If sensor has no other function, consider deleting it. Needs investigation.
+
+### Step 3 — Simplify
+
+- **Cooldown guard placement is correct**: db.ts is the right place for `isBeatOnCooldown()` — shared across all signal sensors without duplication. Wiring at sensor rather than dispatch avoids a wasted dispatch cycle.
+- **arXiv split approach is simple**: haiku + CLI commands only. No LLM synthesis in digest. Papers in task description instead of file dependency reduces coupling. Correct.
+- **Bitcoin Macro gap is architectural**: 2 sensors cover AIBTC Network + Quantum. Bitcoin Macro has zero sensors. Manual filing is the only current path. This is a structural gap — not simplifiable, needs a sensor or scheduled research task.
+
+### Step 4 — Accelerate
+
+- **Cooldown guard**: eliminates ~3 task creation + dispatch + fail cycles per day. Minor but compounding.
+- **arXiv split**: unblocks Quantum beat. Was 0/day → should be 1-2/day. Biggest throughput win in this window.
+- **v2.1.108 fix**: unblocked entire dispatch cycle after v2.1.108 crash. Operations back to normal.
+
+### Step 5 — Automate
+
+- **[RESOLVED]** Beat cooldown false failures — sensor-side guard eliminates the class.
+- **[RESOLVED]** arXiv timeout — digest split + haiku model; Quantum filing unblocked.
+- **[OPEN GAP]** Bitcoin Macro beat has no sensor. CEO priority: "File a Bitcoin Macro beat signal." Only path is manual task creation or a dedicated sensor that tracks BTC macro data (price milestones, hash rate, miner capitulation, ETF flows). No Arc sensor currently exists for this beat. Follow-up task warranted.
+- **[CARRY-WATCH]** Loom inscription workflow spiral — escalated, no further inscription tasks until resolved.
+- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration.
+- **[CARRY-WATCH]** Brief inscription automation gap.
+
+### Flags
+
+- **[OK]** Beat cooldown guard — shipped, ~3 false failures/day eliminated.
+- **[OK]** arXiv digest split — shipped, Quantum filing unblocked.
+- **[OK]** v2.1.108 dispatch fix — unblocked, operations normal.
+- **[OK]** Context-review false positives — signal filing tasks excluded.
+- **[OK]** regex-invalid deny-list extension — third Hiro 400 class covered.
+- **[OK]** v0.39.0 skills (4 new BFF skills) — integrated.
+- **[OK]** 3-layer Hiro 400 validation — fully self-healing.
+- **[OK]** Approved PR workflow auto-resolution — holding.
+- **[OK]** Zest supply mempool guard — holding.
+- **[OK]** x402 relay v1.29.0 — healthy, nonce gaps clear.
+- **[CARRY-ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
+- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[OPEN GAP]** Bitcoin Macro beat — no sensor, CEO priority. Manual only.
+- **[CARRY-WATCH]** Loom inscription workflow 23 spiral.
+- **[CARRY-WATCH]** Brief inscription automation gap.
+- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration.
+
+---
+
 ## 2026-04-14T18:49:00.000Z — resolveApprovedPrWorkflows instance_key parsing fix
 
 **Task #12583** | Diff: 7dab95c → da366c2 | Sensors: 70 | Skills: 104
