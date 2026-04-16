@@ -98,3 +98,6 @@ Signal tasks that hit beat cooldown are closed as `status=failed` — this infla
 
 **l-bitcoin-macro-sensor** [SHIPPED, 2026-04-16, task #12742]
 Bitcoin Macro beat now has a dedicated sensor at `skills/bitcoin-macro/sensor.ts`. Runs every 240min (4×/day). Signal types: price-milestone (round-number crossings $50K–$200K, one-time), price-move (>5% in 4h), hashrate-record (ATH or >5% drop), difficulty-adjustment (≤288 blocks to retarget + ≥3% change). Data sources: blockchain.info/ticker (price), mempool.space hashrate+difficulty. First-run guard: pre-populates firedMilestones from current price so stale milestones never fire retroactively.
+
+**l-compliance-recurring** [PATTERN, 2026-04-16]
+Compliance scan 2026-04-16 found 4 findings — same 2 recurring patterns (3rd+ occurrence each): (1) `metadata.tags` nested frontmatter instead of top-level `tags:` (defi-portfolio-scanner, hodlmm-move-liquidity, sbtc-yield-maximizer, zest-auto-repay — all fixed); (2) abbreviated sensor variables `const res` in bitcoin-macro/sensor.ts (introduced by task #12742 same day — fixed). Both documented in `memory/shared/entries/skill-frontmatter-compliance.md`. These fire every compliance scan — new skill authoring consistently reintroduces them. Consider adding pre-commit lint check.
