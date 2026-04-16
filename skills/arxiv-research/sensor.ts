@@ -186,20 +186,18 @@ export default async function arxivResearchSensor(): Promise<string> {
       return "ok";
     }
 
-    log("queuing arxiv digest compilation task");
+    log("queuing arxiv digest fetch+compile task");
     insertTask({
-      subject: `Compile arXiv digest — ${today} (${newCount} new papers)`,
+      subject: `Fetch and compile arXiv digest — ${today} (${newCount} new papers)`,
       description:
         `${newCount} new papers found in ${CATEGORIES.join(", ")}.\n\n` +
-        "Use the arxiv-research skill to compile a digest:\n" +
-        "1. Run: arc skills run --name arxiv-research -- fetch\n" +
-        "2. Review the fetched papers for LLM/agent relevance\n" +
-        "3. Run: arc skills run --name arxiv-research -- compile\n\n" +
-        "Follow AGENT.md for digest compilation instructions.\n" +
+        "Run these two CLI commands in sequence — the CLI handles all scoring and formatting automatically, no manual review needed:\n" +
+        "1. arc skills run --name arxiv-research -- fetch\n" +
+        "2. arc skills run --name arxiv-research -- compile\n\n" +
         `Output: research/arxiv/{ISO8601}_arxiv_digest.md`,
       skills: JSON.stringify(["arxiv-research"]),
       priority: 5,
-      model: "sonnet",
+      model: "haiku",
       status: "pending",
       source,
     });
@@ -219,12 +217,12 @@ export default async function arxivResearchSensor(): Promise<string> {
           description:
             `${infraPapers.length} aibtc-relevant papers found in today's arXiv fetch:\n\n` +
             paperList + "\n\n" +
-            "Instructions:\n" +
-            "1. Review the compiled digest: research/arxiv/ (latest file)\n" +
-            "2. Ensure papers have direct aibtc network relevance (MCP, relay tooling, Bitcoin/Stacks infra, agent payment systems)\n" +
-            "3. Compose a signal: arc skills run --name aibtc-news-editorial -- compose-signal --beat infrastructure\n" +
+            "Instructions (work from the paper list above — no compiled digest required):\n" +
+            "1. The paper titles and arXiv IDs above are your source material; fetch abstracts if needed: arc skills run --name arxiv-research -- fetch\n" +
+            "2. Confirm papers have direct aibtc network relevance (MCP, relay tooling, Bitcoin/Stacks infra, agent payment systems)\n" +
+            "3. Compose a signal: arc skills run --name aibtc-news-editorial -- compose-signal --beat aibtc-network\n" +
             "4. Focus on MCP protocol advances, agent infrastructure, Bitcoin/Stacks tooling, or relay/payment channels\n" +
-            "5. File the signal: arc skills run --name aibtc-news-editorial -- file-signal --beat infrastructure ...",
+            "5. File the signal: arc skills run --name aibtc-news-editorial -- file-signal --beat aibtc-network ...",
           skills: JSON.stringify(["aibtc-news-editorial", "arxiv-research"]),
           priority: 6,
           model: "sonnet",
@@ -249,12 +247,13 @@ export default async function arxivResearchSensor(): Promise<string> {
           description:
             `${quantumPapers.length} quantum-relevant paper(s) found in today's arXiv fetch:\n\n` +
             paperList + "\n\n" +
-            "Instructions:\n" +
-            "1. Review the compiled digest: research/arxiv/ (latest file)\n" +
+            "Instructions (work from the paper list above — no compiled digest required):\n" +
+            "1. The paper titles and arXiv IDs above are your source material; if you need abstracts run: arc skills run --name arxiv-research -- fetch\n" +
             "2. Confirm papers address quantum computing impacts on Bitcoin (ECDSA/SHA-256 threats, post-quantum BIPs, Shor/Grover relevance, timeline assessments, NIST PQC standards)\n" +
-            "3. Compose a signal: arc skills run --name aibtc-news-editorial -- compose-signal --beat quantum\n" +
-            "4. Focus on concrete threats, timeline estimates, or post-quantum proposals (BIP-360/P2QRH, lattice-based schemes)\n" +
-            "5. File the signal: arc skills run --name aibtc-news-editorial -- file-signal --beat quantum ...",
+            "3. Pick the top 1-3 most newsworthy papers from the list above\n" +
+            "4. Compose a signal: arc skills run --name aibtc-news-editorial -- compose-signal --beat quantum\n" +
+            "5. Focus on concrete threats, timeline estimates, or post-quantum proposals (BIP-360/P2QRH, lattice-based schemes)\n" +
+            "6. File the signal: arc skills run --name aibtc-news-editorial -- file-signal --beat quantum ...",
           skills: JSON.stringify(["aibtc-news-editorial", "arxiv-research"]),
           priority: 6,
           model: "sonnet",
