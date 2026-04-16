@@ -664,6 +664,20 @@ async function dispatchScript(task: Task): Promise<void> {
 
   const dispatchStart = Date.now();
 
+  // Pre-flight: if the task declares the bitcoin-wallet skill, unlock the wallet
+  // from Arc creds so downstream processes can restoreSessionFromDisk. Idempotent.
+  const skillsLoaded = parseSkillNames(task.skills);
+  if (skillsLoaded.includes("bitcoin-wallet")) {
+    const unlock = Bun.spawnSync(
+      ["bash", "bin/arc", "skills", "run", "--name", "bitcoin-wallet", "--", "unlock"],
+      { cwd: ROOT, stdout: "pipe", stderr: "pipe", env: process.env }
+    );
+    if (unlock.exitCode !== 0) {
+      const err = new TextDecoder().decode(unlock.stderr).trim().slice(-300);
+      log(`dispatch: wallet pre-unlock failed for task #${task.id} (exit ${unlock.exitCode}): ${err || "no stderr"}`);
+    }
+  }
+
   try {
     const proc = Bun.spawn(["bash", "-c", script], {
       cwd: ROOT,

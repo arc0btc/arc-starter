@@ -29,7 +29,8 @@ const CHILD_INSCRIPTION_CLI = resolve(ROOT, "skills/child-inscription/child-insc
 
 const MAX_POLL_ATTEMPTS = 30; // 30 × 2min defer = 1 hour max wait
 const TASK_PRIORITY = 3;
-const TASK_SOURCE = "script:inscribe-brief";
+const TASK_SOURCE_PREFIX = "script:inscribe-brief";
+const TASK_SKILLS = "bitcoin-wallet,child-inscription";
 
 mkdirSync(INSCRIPTIONS_DIR, { recursive: true });
 mkdirSync(BRIEFS_DIR, { recursive: true });
@@ -121,7 +122,8 @@ function queueContinuation(date: string, nextPhase: string, defer?: string): voi
     "--script", script,
     "--priority", String(TASK_PRIORITY),
     "--subject", subject,
-    "--source", TASK_SOURCE,
+    "--source", `${TASK_SOURCE_PREFIX}:${date}`,
+    "--skills", TASK_SKILLS,
   ];
   if (defer) {
     args.push("--defer", defer);
@@ -419,7 +421,8 @@ async function phaseNotify(record: InscriptionRecord): Promise<InscriptionRecord
       "--subject", subject,
       "--script", script,
       "--priority", String(TASK_PRIORITY),
-      "--source", TASK_SOURCE],
+      "--source", `${TASK_SOURCE_PREFIX}:notify:${record.date}`,
+      "--skills", TASK_SKILLS],
     { cwd: ROOT }
   );
   const taskOut = new TextDecoder().decode(proc.stdout).trim();
