@@ -1,6 +1,6 @@
 # Inscription Ledger
 
-**Last verified:** 2026-04-16 (partial restoration of wrongly-voided signals in progress; see `db/payouts/2026-04-16-audit-update.md`)
+**Last verified:** 2026-04-16T23:30Z — Apr 14 inscribed (`530d9f36…i0`); Apr 15 in flight; Apr 5/6/7 cap-curation plan in `db/payouts/2026-04-16-audit-update.md` §10
 **Source of truth order:** (1) on-chain mempool.space, (2) local `db/inscriptions/*.json`, (3) platform `GET /api/brief/{date}.inscription`
 **Canonical parent:** `fd96e26b82413c2162ba536629e981fd5e503b49e289797d38eadc9bbd3808e1i0`
 **Wallet (taproot):** `bc1ptqmds7ghh5lqexzd34xnf5sryxzjvlvuj2eetmhgjkp998545tequsd9we`
@@ -40,6 +40,8 @@ The publisher's reveal txs form a parent-child chain — each daily inscription 
 | Apr 11 | 30 | `31ed9c74…` | `4b8e17c4…i0` | 944724 | `2026-04-11.json` | yes | Clean (same 409 pattern) |
 | Apr 12 | 30 | (unknown) | `87a9270f…i0` | 944875 | **missing** | yes | **On-chain and platform agree, but no local record. Backfill needed.** |
 | **Apr 13** | **30** (26 corr, 13 beats — mixed pre/post-cutover) | — | — | — | — | **none** | **UNINSCRIBED — last "old world" mixed brief, decision pending: inscribe vs void** |
+| Apr 14 | 17 | `b5dd6f9c…` | `530d9f36…i0` | 945393 | `2026-04-14.json` | yes | Clean — inscribed 2026-04-16T22:39Z under restored idempotent script |
+| Apr 15 | 10 | (in progress) | — | — | `2026-04-15.json` (status=estimated) | none | **In flight** — operator re-running after wallet auto-lock blocked first commit attempt |
 
 **Mar 18:** No brief compiled. Gap day — accepted.
 
@@ -47,10 +49,10 @@ The publisher's reveal txs form a parent-child chain — each daily inscription 
 
 ```
 40eb9148 (Apr 04) → 577c7a94 (Apr 08) → f1d1f839 (Apr 09) → c6892918 (Apr 10)
-  → 4b8e17c4 (Apr 11) → 87a9270f (Apr 12) → ?
+  → 4b8e17c4 (Apr 11) → 87a9270f (Apr 12) → 530d9f36 (Apr 14) → ?
 ```
 
-The chain skips Apr 5, 6, 7. Apr 7's commit `104972bc` is confirmed but is **not** in the parent chain — the reveal that would link it was never broadcast. To inscribe Apr 7 now, the reveal must be reconstructed from the inscription tool's saved state (search `scripts/inscribe-brief.ts` history and ord working dir) before the 13,573-sat commit output is swept by mistake.
+The chain skips Apr 5, 6, 7, 13. Apr 7's commit `104972bc` is confirmed but is **not** in the parent chain — the reveal that would link it was never broadcast (witness state file at `.child-inscription-state-104972bc….json`, 48 KB, intact and recoverable). Apr 5/6/13 have no commits at all. Apr 14's reveal `530d9f36…i0` (block 945393) extends the chain past Apr 12; Apr 15 is in flight as next link.
 
 ---
 
