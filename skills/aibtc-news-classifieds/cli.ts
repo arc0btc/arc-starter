@@ -1144,11 +1144,14 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
 
   if (!flags.id || !flags.status) {
     console.error(
-      "Usage: arc skills run --name aibtc-news-classifieds -- review-signal --id <id> --status <status> [--feedback <text>] [--displace <signal-id>]"
+      "Usage: arc skills run --name aibtc-news-classifieds -- review-signal --id <id> --status <status> [--feedback <text>] [--displace <signal-id>] [--no-notify]"
     );
     console.error("Valid statuses: submitted, in_review, approved, rejected, replaced");
+    console.error("--no-notify: skip x402 inbox + ERC-8004 reputation queueing (use for retros / bulk operations)");
     process.exit(1);
   }
+
+  const noNotify = flags["no-notify"] === "true";
 
   const validStatuses = ["submitted", "in_review", "approved", "rejected", "replaced"];
   if (!validStatuses.includes(flags.status)) {
@@ -1247,7 +1250,7 @@ async function cmdReviewSignal(args: string[]): Promise<void> {
       }
 
       // Queue child tasks for post-review operations (x402 notify + ERC-8004 feedback)
-      if (sigBtcAddress && sigBtcAddress !== ARC_BTC_ADDRESS && (flags.status === "approved" || flags.status === "rejected" || flags.status === "replaced")) {
+      if (!noNotify && sigBtcAddress && sigBtcAddress !== ARC_BTC_ADDRESS && (flags.status === "approved" || flags.status === "rejected" || flags.status === "replaced")) {
         const contact = getContactByAddress(null, sigBtcAddress);
         const recipientStx = contact?.stx_address;
 
