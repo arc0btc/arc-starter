@@ -222,6 +222,11 @@ function checkMissingSkillCoverage(
   // are protocol execution skills, not needed for composing news signals about those beats.
   if (/\bsignal[- ]sprint\b|\bbeat[- ]signals?\b/i.test(task.subject)) return findings;
 
+  // Individual signal filing tasks (e.g. "File aibtc-network signal: BFF Competition Days 17-20 batch")
+  // describe their signal topic — which may reference protocol names like "bitflow" or "zest" —
+  // not the execution skills needed. aibtc-news-editorial is all that's required for filing.
+  if (/^File \S+ signal:/i.test(task.subject)) return findings;
+
   // Meta-analysis tasks have descriptions that quote other tasks' subjects/content.
   // Scanning those descriptions would produce false positives, so limit to subject only.
   // Use prefix matching so sensor sources with date suffixes (e.g. sensor:arc-failure-triage:retro:2026-03-06) still match.

@@ -184,7 +184,7 @@ export default async function aibtcNewsSensor(): Promise<string> {
         insertTask({
           subject: "Compile daily brief on aibtc.news",
           description:
-            "Arc's score is ≥50 and a signal was filed today. Compile today's brief from signals to earn sats. Use: arc skills run --name aibtc-news -- compile-brief",
+            "Arc's score is ≥50 and a signal was filed today. Compile today's brief from signals to earn sats. Use: arc skills run --name aibtc-news-editorial -- compile-brief",
           skills: JSON.stringify(["aibtc-news-editorial", "bitcoin-wallet"]),
           priority: 5,
           model: "sonnet",
