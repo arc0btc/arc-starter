@@ -417,7 +417,7 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
     initContactsSchema();
 
     // Load dynamic deny-list and auto-populate from failed tasks
-    const { denyList: dynamicDenyList, dirty: denyListDirty } = await loadAndUpdateDenyList();
+    let { denyList: dynamicDenyList, dirty: denyListDirty } = await loadAndUpdateDenyList();
 
     let tasksCreated = 0;
 
@@ -436,6 +436,13 @@ export default async function aibtcWelcomeSensor(): Promise<string> {
       const stxCheck = checkStxAddress(agent.stxAddress, dynamicDenyList);
       if (!stxCheck.valid) {
         welcomedSet.add(agent.stxAddress); // mark so we don't log every cycle
+        // Also add to dynamic deny-list for resilience — double-guards against hook-state resets.
+        // This covers addresses that fail the regex at sensor time (never dispatched, so
+        // loadAndUpdateDenyList() would never discover them from failed-task scanning alone).
+        if (!dynamicDenyList.has(agent.stxAddress) && !HIRO_REJECTED_STX_ADDRESSES.has(agent.stxAddress)) {
+          dynamicDenyList.add(agent.stxAddress);
+          denyListDirty = true;
+        }
         log(`skipping ${agent.stxAddress}: invalid STX address — ${stxCheck.reason}`);
         continue;
       }
