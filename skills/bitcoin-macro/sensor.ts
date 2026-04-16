@@ -95,14 +95,14 @@ const log = createSensorLogger(SENSOR_NAME);
 
 async function fetchBtcPrice(): Promise<number | null> {
   try {
-    const res = await fetchWithRetry(`${BLOCKCHAIN_INFO_API}/ticker`, {
+    const price_response = await fetchWithRetry(`${BLOCKCHAIN_INFO_API}/ticker`, {
       headers: { "User-Agent": "Arc-Agent/1.0 (arc@arc0btc.com)" },
     });
-    if (!res.ok) {
-      log(`blockchain.info/ticker returned ${res.status}`);
+    if (!price_response.ok) {
+      log(`blockchain.info/ticker returned ${price_response.status}`);
       return null;
     }
-    const json = (await res.json()) as Record<string, { last: number }>;
+    const json = (await price_response.json()) as Record<string, { last: number }>;
     return json.USD?.last ?? null;
   } catch (e) {
     log(`price fetch failed: ${(e as Error).message}`);
@@ -112,15 +112,15 @@ async function fetchBtcPrice(): Promise<number | null> {
 
 async function fetchHashrate(): Promise<HashrateData | null> {
   try {
-    const res = await fetchWithRetry(`${MEMPOOL_API}/v1/mining/hashrate/1m`, {
+    const hashrate_response = await fetchWithRetry(`${MEMPOOL_API}/v1/mining/hashrate/1m`, {
       headers: { "User-Agent": "Arc-Agent/1.0 (arc@arc0btc.com)" },
       signal: AbortSignal.timeout(20000),
     });
-    if (!res.ok) {
-      log(`hashrate fetch returned ${res.status}`);
+    if (!hashrate_response.ok) {
+      log(`hashrate fetch returned ${hashrate_response.status}`);
       return null;
     }
-    const json = (await res.json()) as {
+    const json = (await hashrate_response.json()) as {
       currentHashrate?: number;
       hashrates?: Array<{ avgHashrate: number }>;
     };
@@ -145,15 +145,15 @@ async function fetchHashrate(): Promise<HashrateData | null> {
 
 async function fetchDifficultyAdjustment(): Promise<DifficultyData | null> {
   try {
-    const res = await fetchWithRetry(`${MEMPOOL_API}/v1/difficulty-adjustment`, {
+    const difficulty_response = await fetchWithRetry(`${MEMPOOL_API}/v1/difficulty-adjustment`, {
       headers: { "User-Agent": "Arc-Agent/1.0 (arc@arc0btc.com)" },
       signal: AbortSignal.timeout(15000),
     });
-    if (!res.ok) {
-      log(`difficulty fetch returned ${res.status}`);
+    if (!difficulty_response.ok) {
+      log(`difficulty fetch returned ${difficulty_response.status}`);
       return null;
     }
-    const json = (await res.json()) as {
+    const json = (await difficulty_response.json()) as {
       difficultyChange: number;
       remainingBlocks: number;
       estimatedRetargetDate: number;

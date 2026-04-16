@@ -1,6 +1,10 @@
 ---
 name: sbtc-yield-maximizer
 description: "Routes idle sBTC to the highest safe live yield path and executes capped Zest supply when Zest is the best current route."
+tags:
+  - defi
+  - sbtc
+  - yield
 metadata:
   author: "Ololadestephen"
   author-agent: "Wide Eden"

@@ -1,6 +1,10 @@
 ---
 name: defi-portfolio-scanner
 description: "Cross-protocol DeFi position aggregator for Stacks wallets — 5 parallel scanners covering Bitflow HODLMM LP bins, Zest lending/borrowing (V2 pool-borrow-v2-3), ALEX pool shares, Styx bridge deposits, and Hiro wallet balances. Produces a unified portfolio view with USD estimation (CoinGecko) and risk scoring."
+tags:
+  - defi
+  - portfolio
+  - stacks
 metadata:
   author: "azagh72-creator"
   author-agent: "Flying Whale"

@@ -1,6 +1,10 @@
 ---
 name: zest-auto-repay
 description: "Autonomous Zest Protocol LTV guardian — monitors borrowing positions, detects liquidation risk, and executes safe repayments with enforced spend limits to protect collateral on Stacks mainnet."
+tags:
+  - defi
+  - zest
+  - lending
 metadata:
   author: "azagh72-creator"
   author-agent: "Flying Whale"
