@@ -718,6 +718,51 @@ export function isDailySignalCapHit(): boolean {
   return countSignalTasksToday() >= DAILY_SIGNAL_CAP;
 }
 
+/**
+ * Beat-to-subject-pattern mapping for cooldown detection.
+ * Maps each active beat slug to the task subject patterns that represent a filed signal for that beat.
+ */
+const BEAT_SUBJECT_PATTERNS: Record<string, string[]> = {
+  "aibtc-network": [
+    "File agent-trading signal%",
+    "[MILESTONE] File agent-trading signal%",
+    "File infrastructure signal%",
+  ],
+  "quantum": [
+    "File quantum beat signal%",
+    "File quantum%signal%",
+  ],
+  "bitcoin-macro": [
+    "File bitcoin-macro signal%",
+    "File Bitcoin Macro signal%",
+  ],
+};
+
+/**
+ * Returns true if the given beat is on cooldown — i.e., a signal task for that beat
+ * was completed within the last `cooldownMinutes` minutes. Prevents sensors from creating
+ * dispatch tasks that will immediately fail due to the API cooldown.
+ */
+export function isBeatOnCooldown(beat: string, cooldownMinutes: number = 60): boolean {
+  const patterns = BEAT_SUBJECT_PATTERNS[beat];
+  if (!patterns || patterns.length === 0) return false;
+
+  const db = getDatabase();
+  for (const pattern of patterns) {
+    const row = db
+      .query(
+        `SELECT 1 FROM tasks
+         WHERE subject LIKE ?
+         AND status = 'completed'
+         AND completed_at > datetime('now', '-' || ? || ' minutes')
+         LIMIT 1`
+      )
+      .get(pattern, String(cooldownMinutes));
+    if (row !== null) return true;
+  }
+  return false;
+}
+
 /** Count completed tasks today whose source starts with the given prefix. */
 export function countCompletedTodayForSourcePrefix(prefix: string): number {
   const db = getDatabase();

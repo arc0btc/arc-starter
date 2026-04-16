@@ -15,6 +15,7 @@ import {
   pendingTaskExistsForSource,
   countSignalTasksTodayForBeat,
   countSignalTasksToday,
+  isBeatOnCooldown,
   BEAT_DAILY_ALLOCATION,
   DAILY_SIGNAL_CAP,
 } from "../../src/db.ts";
@@ -629,23 +630,28 @@ export default async function sensor(): Promise<string | void> {
 
   // Queue signal task
   if (bestSignal) {
-    const source = `sensor:${SENSOR_NAME}:${bestSignal.type}`;
-
-    // Dedup: skip if pending task with same source exists
-    if (!pendingTaskExistsForSource(source)) {
-      const taskId = insertTask({
-        subject: `File agent-trading signal: ${bestSignal.headline}`,
-        description: buildTaskDescription(bestSignal, currentReading, recentTrades),
-        skills: JSON.stringify(["aibtc-agent-trading", "aibtc-news-editorial"]),
-        priority: bestSignal.strength >= 70 ? 5 : 7,
-        model: "sonnet",
-        source,
-      });
-
-      log(`queued signal task #${taskId}: ${bestSignal.headline}`);
-      state.lastSignalType = bestSignal.type;
+    // Cooldown guard: skip if the beat was recently filed (60min cooldown enforced by API)
+    if (isBeatOnCooldown(BEAT_SLUG, 60)) {
+      log(`beat cooldown active for ${BEAT_SLUG} (60min) — skipping signal task to avoid dispatch failure`);
     } else {
-      log(`signal task already pending for source ${source}, skipping`);
+      const source = `sensor:${SENSOR_NAME}:${bestSignal.type}`;
+
+      // Dedup: skip if pending task with same source exists
+      if (!pendingTaskExistsForSource(source)) {
+        const taskId = insertTask({
+          subject: `File agent-trading signal: ${bestSignal.headline}`,
+          description: buildTaskDescription(bestSignal, currentReading, recentTrades),
+          skills: JSON.stringify(["aibtc-agent-trading", "aibtc-news-editorial"]),
+          priority: bestSignal.strength >= 70 ? 5 : 7,
+          model: "sonnet",
+          source,
+        });
+
+        log(`queued signal task #${taskId}: ${bestSignal.headline}`);
+        state.lastSignalType = bestSignal.type;
+      } else {
+        log(`signal task already pending for source ${source}, skipping`);
+      }
     }
   }
 

@@ -3,7 +3,7 @@
 // queues a digest compilation task if new papers are found.
 
 import { claimSensorRun, createSensorLogger, readHookState, writeHookState } from "../../src/sensors.ts";
-import { insertTask, pendingTaskExistsForSource } from "../../src/db.ts";
+import { insertTask, pendingTaskExistsForSource, isBeatOnCooldown } from "../../src/db.ts";
 
 const SENSOR_NAME = "arxiv-research";
 const INTERVAL_MINUTES = 720; // 12 hours
@@ -207,7 +207,9 @@ export default async function arxivResearchSensor(): Promise<string> {
     const infraPapers = newEntries.filter((e) => isAibtcInfraPaper(e.title));
     if (infraPapers.length > 0) {
       const signalSource = `sensor:${SENSOR_NAME}:infra-signal-${today}`;
-      if (!pendingTaskExistsForSource(signalSource)) {
+      if (isBeatOnCooldown("aibtc-network", 60)) {
+        log("beat cooldown active for aibtc-network (60min) — skipping infrastructure signal task");
+      } else if (!pendingTaskExistsForSource(signalSource)) {
         const paperList = infraPapers
           .slice(0, 5)
           .map((p) => `- ${p.title} (${p.id})`)
@@ -237,7 +239,9 @@ export default async function arxivResearchSensor(): Promise<string> {
     const quantumPapers = newEntries.filter((e) => isQuantumBeatPaper(e.title));
     if (quantumPapers.length > 0) {
       const quantumSource = `sensor:${SENSOR_NAME}:quantum-signal-${today}`;
-      if (!pendingTaskExistsForSource(quantumSource)) {
+      if (isBeatOnCooldown("quantum", 60)) {
+        log("beat cooldown active for quantum (60min) — skipping quantum signal task");
+      } else if (!pendingTaskExistsForSource(quantumSource)) {
         const paperList = quantumPapers
           .slice(0, 5)
           .map((p) => `- ${p.title} (${p.id})`)
