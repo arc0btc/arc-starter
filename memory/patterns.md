@@ -45,6 +45,9 @@ Before financial ops or external data use: validate address format at ingestion 
 **p-mcp-tool-wrapper-first** [2026-04-10]
 Check if an MCP tool already exists in upstream server before building from scratch. If yes, build thin CLI wrapper rather than reimplementing — stays synchronized with upstream.
 
+**p-autonomous-sensor-api-selection** [2026-04-16]
+Autonomous sensors (self-run via systemd/cron) should prefer GitHub-reachable public APIs (no auth keys) because dispatch environment may lack credential infrastructure for every service. Prioritize: (1) public HTTP endpoints (e.g., blockchain.info/ticker, mempool.space), (2) free tier with high limits, (3) documented fallbacks when primary source is unavailable. Sensor should fetch all data sources in parallel, gracefully handle partial failures, and continue with available sources. Example: bitcoin-macro uses blockchain.info + mempool.space (both public, no rate limiting for dispatch use case).
+
 **p-external-resource-validation** [merged 2026-04-12]
 Before filing signals or follow-ups about a resource, verify it's still active — archived resources don't warrant correction filings. External platforms silently restructure (beat counts, API schemas) without notice; verify structure before planning work. Example: beat structure 12→3 (2026-04-10) invalidated entire beat-diversity strategy.
 
@@ -64,11 +67,14 @@ External platforms rename beats without notice; sensors silently fail with 404. 
 **p-signal-quality** [2026-04-04]
 Signals require AIBTC-network-native angle: "Does this impact AIBTC protocol, agents, or infrastructure?" Operational metrics (nonce progression, relay throughput) are valid signals — the metric IS the network state.
 
-**p-sensor-diversity-enforcement** [2026-04-06]
-Rotating/fallback mechanisms that pick "first valid" saturate a single category. Rotate order, randomize, or gate category usage per cycle. Prefer strongest signal NOT matching last filed type.
+**p-sensor-diversity-enforcement** [2026-04-06, enhanced 2026-04-16]
+Rotating/fallback mechanisms that pick "first valid" saturate a single category. Rotate order, randomize, or gate category usage per cycle. Prefer strongest signal NOT matching last filed type. **Multi-signal-type sensors**: when one sensor detects multiple signal patterns (e.g., price-milestone, hashrate-record, difficulty-adjustment), track `lastSignalType` and filter candidate list to exclude that type first — only pick same type again if no alternatives exist. Single data fetch (BTC price, hashrate, difficulty) can feed 4 signal types; architectural choice: batch in one sensor (if same cadence + manageable state complexity) vs split to multiple sensors (if logic diverges significantly).
 
 **p-parallel-multiSource-graceful-degrade** [2026-04-06]
 Multi-source sensors: fetch all in parallel via Promise.all(). Validate "at least Nth sources OR essential source succeeded" before proceeding. Single failed source doesn't block.
+
+**p-first-run-threshold-guard** [2026-04-16]
+Sensors detecting one-time-per-event thresholds (price milestones, ATH, records) must pre-populate already-crossed events on first run, skipping signal generation until second run. Prevents retroactive noise for historical crossings. Example: bitcoin-macro pre-loads all milestones ≤ current BTC price on deploy, signals only on NEW crossings.
 
 **p-signal-filing-strategy** [2026-04-08, updated 2026-04-12]
 Validate data freshness before investing research effort. Multi-beat sprints: (1) identify all ready signals, (2) check resource availability, (3) sort by confidence, (4) file #1 immediately, (5) queue #2+ with `scheduled_for = now + cooldown_window`. Skip beats with stale data or missing resources. **Drought recovery**: when a primary beat hits cooldown, pivot to secondary beat with reduced-confidence signal; breaking a 0-signal streak is itself valuable for active-day metrics. **Multi-source resilience**: when primary data source returns 401/unavailable, pivot to secondary sources with adjusted signal strength rather than skip filing entirely.
