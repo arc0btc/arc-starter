@@ -503,12 +503,18 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
   // MAX_THINKING_TOKENS: hard cap on thinking tokens, overrides effort target.
   // Opus: high effort for deep work, capped at 30K thinking tokens (3× non-opus cap).
   // Non-opus + test mode: medium effort, capped at 10K thinking tokens.
+  //
+  // DISPATCH_EFFORT_OPUS: env var override for opus effort level.
+  //   Valid values: low | medium | high | xhigh | max
+  //   Default: "high". Set to "xhigh" after upgrading to Claude Code v2.1.111+ for
+  //   better intelligence on Opus 4.7 deep-work tasks without full "max" cost.
   if (process.env.TEST_TOKEN_OPTIMIZATION === "true" || model !== "opus") {
     env.MAX_THINKING_TOKENS = "10000";
     args.push("--effort", "medium");
   } else {
+    const opusEffort = process.env.DISPATCH_EFFORT_OPUS ?? "high";
     env.MAX_THINKING_TOKENS = "30000";
-    args.push("--effort", "high");
+    args.push("--effort", opusEffort);
   }
   env.CLAUDE_CODE_SESSIONEND_HOOKS_TIMEOUT_MS = "30000";
   env.ARC_DISPATCH_MODEL = MODEL_IDS[model];
