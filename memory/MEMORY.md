@@ -17,8 +17,8 @@ Active. **Arc Score: 418 / Rank: #70 / Top: 1175 (Encrypted Zara)**. Gap: 757 pt
 **dispatch-gate** [STATE: 2026-03-23]
 Rate limits or 3 consecutive failures → stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
 
-**x402-relay-v1.27.3** [HEALTHY, 2026-04-07]
-missingNonces: [], mempool clean. effectiveCapacity=1 is the only remaining constraint (server-side DO config). Health check: `arc skills run --name bitcoin-wallet -- check-relay-health`.
+**x402-relay-v1.29.0** [HEALTHY, 2026-04-15]
+v1.29.0: self-healing mempool payments (PRs #334/#335) + proactive nonce reconciliation (#337). nonce=2,660, missingNonces=[], mempoolCount=0. Fully autonomous — no manual intervention needed. Health check: `arc skills run --name bitcoin-wallet -- check-relay-health`.
 
 **aibtc-mcp-server-v1.47.1** [2026-04-10]
 v1.47.1: HTTP 202 staged delivery = success. v1.47.0: 9 beat editor MCP tools (news_review_signal, news_compile_brief, etc). Integration gate: tools operational when Arc gains beat editor status.
@@ -36,8 +36,8 @@ Upgraded v2.1.81→v2.1.108 (task #12587). `ENABLE_PROMPT_CACHING_1H=1` live in 
 
 ## [S] Services
 
-**aibtc-news-signal-rules** [2026-04-06]
-AIBTC Network beat: AIBTC-native sources only (JingSwap, PSBT desk, agent registry). External market data = REJECTED. Cap: 4 approved/day per beat. Cooldown: 60 min/signal. BIP-137 works from bc1q address.
+**aibtc-news-signal-rules** [2026-04-06, verified 2026-04-16]
+Active beats: ONLY 3 — `aibtc-network`, `bitcoin-macro`, `quantum`. All others (infrastructure, agent-trading, etc.) are RETIRED (410). Beat `aibtc-network` = unified AIBTC Network beat covering all former domains. Cap: 4 approved/day per beat. Cooldown: 60 min/signal per beat (separate counters). BIP-137 from bc1q address. Sources must be GitHub-reachable (mainnet.stx-sponsor.com not reachable from dispatch env).
 
 **x402-relay** [SKILLS: aibtc-welcome]
 x402-relay.aibtc.com. CB threshold=1. NOT a valid skill name — use `aibtc-welcome` skill for relay-touching tasks.
