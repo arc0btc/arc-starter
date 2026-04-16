@@ -4,6 +4,7 @@ import {
   taskExistsForSource,
   getAllActiveWorkflows,
   updateWorkflowState,
+  updateWorkflowContext,
   getWorkflowByInstanceKey,
   insertWorkflow,
   completeWorkflow,
@@ -362,6 +363,9 @@ export default async function workflowsSensor(): Promise<string> {
             source,
             parent_id: action.parentTaskId ?? undefined,
           });
+          if (action.contextUpdate) {
+            updateWorkflowContext(workflow.id, action.contextUpdate);
+          }
           totalActions++;
         }
       } else if (action.type === "transition" && action.nextState) {

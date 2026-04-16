@@ -23,6 +23,7 @@ export interface WorkflowAction {
   model?: string;
   parentTaskId?: number;
   source?: string;
+  contextUpdate?: Record<string, unknown>;
 }
 
 export interface StateConfig<C = unknown> {
@@ -2582,6 +2583,7 @@ export const CeoReviewMachine: StateMachine<{
   reportFile?: string;
   reviewSummary?: string;
   taskRef?: string;
+  emailTaskCreated?: boolean;
 }> = {
   name: "ceo-review",
   initialState: "scheduled",
@@ -2617,12 +2619,14 @@ Steps:
     emailing: {
       on: { sent: "completed" },
       action: (ctx) => {
+        if (ctx.emailTaskCreated) return null;
         const date = ctx.reviewDate || "unknown date";
         return {
           type: "create-task",
           subject: `Email watch report to whoabuddy — ${date}`,
           priority: 4,
           skills: ["arc-email-sync"],
+          contextUpdate: { emailTaskCreated: true },
           description: `Send the completed watch report to whoabuddy.${ctx.reportFile ? `\nReport file: reports/${ctx.reportFile}` : ""}
 
 Steps:

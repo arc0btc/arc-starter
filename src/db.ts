@@ -1213,6 +1213,16 @@ export function completeWorkflow(id: number): void {
   ).run(id);
 }
 
+export function updateWorkflowContext(id: number, patch: Record<string, unknown>): void {
+  const db = getDatabase();
+  const row = db.query("SELECT context FROM workflows WHERE id = ?").get(id) as { context: string | null } | null;
+  const current = row?.context ? (JSON.parse(row.context) as Record<string, unknown>) : {};
+  const updated = { ...current, ...patch };
+  db.query(
+    "UPDATE workflows SET context = ?, updated_at = datetime('now') WHERE id = ?"
+  ).run(JSON.stringify(updated), id);
+}
+
 export function deleteWorkflow(id: number): void {
   const db = getDatabase();
   db.query("DELETE FROM workflows WHERE id = ?").run(id);
