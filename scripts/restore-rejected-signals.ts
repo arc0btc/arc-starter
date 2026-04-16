@@ -74,6 +74,15 @@ async function apiPatch(endpoint: string, body: Record<string, unknown>): Promis
   return response.json();
 }
 
+/** Public read — returns current status of a signal, or null if not found. */
+async function fetchSignalStatus(signalId: string): Promise<string | null> {
+  const response = await fetch(`${API_BASE}/signals/${signalId}`);
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error(`API GET /signals/${signalId} ${response.status}: ${await response.text()}`);
+  const body = (await response.json()) as { status?: string };
+  return body.status ?? null;
+}
+
 // ---- Parse void log ----
 
 interface RestoreTarget {
@@ -124,15 +133,37 @@ async function run(mode: "dry-run" | "execute", dateFilter: string | null): Prom
   }
 
   let totalRestored = 0;
+  let totalSkipped = 0;
   let totalErrors = 0;
+
+  // Statuses that mean "already restored" — no PATCH needed.
+  const RESTORED_STATUSES = new Set(["approved", "brief_included"]);
 
   for (const [date, dateTargets] of byDate) {
     console.log(`\n--- Brief ${date} ---`);
     console.log(`  ${dateTargets.length} signals to restore (rejected -> approved)`);
 
     for (const target of dateTargets) {
+      // Idempotency pre-check: skip if already approved/brief_included.
+      let currentStatus: string | null;
+      try {
+        currentStatus = await fetchSignalStatus(target.signalId);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.error(`  [ERROR] pre-check signal ${target.signalId}: ${msg}`);
+        console.error(`          ${target.label}`);
+        totalErrors++;
+        continue;
+      }
+      if (currentStatus !== null && RESTORED_STATUSES.has(currentStatus)) {
+        console.log(`  [SKIP] signal ${target.signalId} already ${currentStatus}`);
+        console.log(`         ${target.label}`);
+        totalSkipped++;
+        continue;
+      }
+
       if (mode === "dry-run") {
-        console.log(`  [DRY-RUN] Would approve signal ${target.signalId}`);
+        console.log(`  [DRY-RUN] Would approve signal ${target.signalId} (current: ${currentStatus ?? "missing"})`);
         console.log(`            ${target.label}`);
         totalRestored++;
       } else {
@@ -160,6 +191,7 @@ async function run(mode: "dry-run" | "execute", dateFilter: string | null): Prom
   console.log(`  Dates processed:  ${byDate.size}`);
   console.log(`  Signals eligible: ${targets.length}`);
   console.log(`  ${mode === "dry-run" ? "Would approve" : "Approved"}:    ${totalRestored}`);
+  if (totalSkipped > 0) console.log(`  Skipped (already restored): ${totalSkipped}`);
   if (totalErrors > 0) console.log(`  Errors:           ${totalErrors}`);
   console.log();
 }
