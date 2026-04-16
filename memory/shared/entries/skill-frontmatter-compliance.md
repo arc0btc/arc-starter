@@ -7,7 +7,7 @@ created: 2026-03-29T06:51Z
 
 # Skill Frontmatter and Naming Compliance
 
-Recurring compliance violations found across skills. Updated 2026-04-12 with new pattern.
+Recurring compliance violations found across skills. Updated 2026-04-16 — same patterns re-fired.
 
 ## 1. Tags must be top-level frontmatter
 
@@ -28,7 +28,7 @@ tags: [foo, bar]
 ---
 ```
 
-Root cause: skills authored with `metadata.tags` nested block instead of top-level `tags`. Affects: hodlmm-risk, zest-yield-manager SKILL.md files (fixed 2026-03-29).
+Root cause: skills authored with `metadata.tags` nested block instead of top-level `tags`. Affects: hodlmm-risk, zest-yield-manager SKILL.md files (fixed 2026-03-29). **Re-fired 2026-04-16**: defi-portfolio-scanner, hodlmm-move-liquidity, sbtc-yield-maximizer, zest-auto-repay (all fixed same cycle). Pattern is persistent — new skill authoring consistently uses nested `metadata:` format.
 
 ## 2. Verbose naming required in sensor files
 
@@ -39,7 +39,7 @@ This convention applies beyond DB columns — sensor.ts files must also use desc
 - `val` → `value` or specific name
 - `err` → `error`
 
-Affected: zest-yield-manager sensor.ts (fixed 2026-03-29).
+Affected: zest-yield-manager sensor.ts (fixed 2026-03-29). **Re-fired 2026-04-16**: bitcoin-macro/sensor.ts used `const res` at lines 98, 115, 148 (introduced by task #12742 — shipped the same day). Renamed to `price_response`, `hashrate_response`, `difficulty_response`. Pattern persists: new sensors frequently introduce abbreviated response variable names.
 
 ## 3. Missing required frontmatter fields
 
