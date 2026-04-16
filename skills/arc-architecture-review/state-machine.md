@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-04-16T06:55:00.000Z*
-*Sensor count: 70 | Skill count: 108*
+*Generated: 2026-04-16T18:53:00.000Z*
+*Sensor count: 71 | Skill count: 108*
 
 ```mermaid
 stateDiagram-v2
@@ -53,6 +53,8 @@ stateDiagram-v2
             social_agent_engagement
             social_x_ecosystem
             arxiv_research
+            bitcoin_macro
+            note right of bitcoin_macro: NEW (64ff537) — 240-min cadence\nSignal types: price-milestone (round-number $50K–$200K, one-time),\nprice-move (>5% in 4h), hashrate-record (ATH or >5% drop),\ndifficulty-adjustment (≤288 blocks + ≥3% change)\nData: blockchain.info/ticker (price), mempool.space hashrate+difficulty\nFirst-run guard: pre-populates firedMilestones from current price\nso stale milestones never fire retroactively\nFirst signal filed: hashrate ATH 972.3 EH/s (id: 13f3d03e, task #12744)\n[RESOLVED] Bitcoin Macro open gap from prior audits
             note right of aibtc_agent_trading: NEW (5da9081c) — 2h cadence\nSources: JingSwap API (cycle/prices), ledger.drx4.xyz (P2P desk), aibtc.news/api/agents\nSignal types: jingswap-cycle, jingswap-price, p2p-activity, agent-growth\nStrength 50-95; P5 if >=70, P7 otherwise\nDiversity rotation: skips lastSignalType from prior run\nReplaces ordinals-market-data for agent-trading beat filing\nAIBTC-network-native data only (no CoinGecko/Unisat/mempool)\nJINGSWAP API KEY (39a5416b): loads jingswap/api_key from creds store\nPasses as Authorization: Bearer header to all faktory-dao-backend requests\njingswapUnavailable flag: 401 → skip JingSwap for rest of run; fall back to P2P+registry only\nP2P flat-market boost (aec9ad29): strength 30→45 when completed_trades>0 or psbt_swaps>0\nType forced to p2p-activity; implication reflects actual trade counts\nCRASH FIX + CAP (4d91de01): countSignalTasksToday() generalized to LIKE 'File % signal%'\nWas 6 hardcoded beat patterns; now 2 generic globs — future-proofs new beats\nBEAT SLUG FIX (7dab95c0): agent-trading beat retired (API 410)\nSlug updated to aibtc-network — all AIBTC activity now routes there\nCOOLDOWN GUARD (b5caf209): isBeatOnCooldown(beat, 60) checked before task creation\nPrevents dispatch failures from 60-min beat cooldown (~3 false failures/day eliminated)\nWired into aibtc-agent-trading + arxiv-research sensors
             note right of ordinals_market_data: Signal filing SUSPENDED (80322a56)\nSIGNAL_FILING_SUSPENDED=true — agent-trading beat scope mismatch\nData collection continues for cross-category context\nFlat-market rotation FIXED (f3b5159d): lastFlatMarketCategory\nin HookState rotates FLAT_MARKET_CATEGORIES — [GAP] CLOSED\n[CARRY-17] deprecated fields cleanup 2026-04-23+
             note right of arxiv_research: DUAL-BEAT routing (42d54a6e)\nInfrastructure: two-tier aibtc-relevance filter (d2bc3c0d)\nTier 1: MCP/x402/Stacks/Clarity/sBTC/BRC-20\nTier 2: agent + crypto/blockchain compound\nQuantum: quant-ph category + QUANTUM_KEYWORDS\nShor/Grover/ECDSA threats/BIP-360/P2QRH/NIST PQC\nBoth beats fire independently same day\nDIGEST SPLIT (48858a87): digest task split to avoid 15-min timeout\nModel→haiku, instructions reduced to pure CLI commands (fetch + compile)\nQuantum/infra signal tasks built from paper list in task description\nEliminates file dependency that caused 2× 15-min timeouts\nCOOLDOWN GUARD (b5caf209): same guard as aibtc-agent-trading
@@ -194,7 +196,7 @@ stateDiagram-v2
             ReadTaskModel --> HaikuTier: model=haiku (explicit)
             ReadTaskModel --> CodexRoute: model=codex/*
             ReadTaskModel --> OpenRouterRoute: model=openrouter/*
-            note right of ReadTaskModel: ARC_DISPATCH_MODEL env var\nset from MODEL_IDS[model]\npassed to subprocess\nEFFORT PINNED (8dc10022): --effort explicit per model\nopus: --effort high, MAX_THINKING_TOKENS=30000\nhaiku/sonnet/test: --effort medium, MAX_THINKING_TOKENS=10000\nPrevents silent cost inflation from upstream default changes (v2.1.94)\nAPI_TIMEOUT_MS (95930cf0): env var set to match dispatch timeout\nOpus=30min, Sonnet=15min, Haiku=5min (model-aware)\nv2.1.101+ respects API_TIMEOUT_MS (previously hardcoded 5min)\nPre-set so individual API calls don't abort before outer watchdog fires\nV2.1.108 FIX (d263dbb6+8ad08307): Bash sandbox + permission bypass configured\nTrusted-VM dispatch unblocked; settings.json updated for new CC permission model
+            note right of ReadTaskModel: ARC_DISPATCH_MODEL env var\nset from MODEL_IDS[model]\npassed to subprocess\nEFFORT PINNED (8dc10022): --effort explicit per model\nopus: --effort high, MAX_THINKING_TOKENS=30000\nhaiku/sonnet/test: --effort medium, MAX_THINKING_TOKENS=10000\nPrevents silent cost inflation from upstream default changes (v2.1.94)\nDISPATCH_EFFORT_OPUS (f3a18557): env var override for opus effort\nDefault: "high"; set "xhigh" on v2.1.111+ for better intelligence\nwithout full "max" cost; allows per-deploy tuning without code change\nAPI_TIMEOUT_MS (95930cf0): env var set to match dispatch timeout\nOpus=30min, Sonnet=15min, Haiku=5min (model-aware)\nv2.1.101+ respects API_TIMEOUT_MS (previously hardcoded 5min)\nPre-set so individual API calls don't abort before outer watchdog fires\nV2.1.108 FIX (d263dbb6+8ad08307): Bash sandbox + permission bypass configured\nTrusted-VM dispatch unblocked; settings.json updated for new CC permission model\nOPUS 4.7 (f3a18557): claude-opus-4-6 → claude-opus-4-7\nBetter intelligence on deep-work tasks; same API structure
         }
 
         state OpusTier {
@@ -225,10 +227,13 @@ stateDiagram-v2
         WorktreeCheck --> ClaudeSubprocess
 
         state ClaudeSubprocess {
-            [*] --> StreamJSON
+            [*] --> BudgetGuard
+            BudgetGuard --> StreamJSON: under per-model cap
+            BudgetGuard --> [*]: --max-budget-usd exceeded → abort
             StreamJSON --> ParseResult
             ParseResult --> ExtractCost
             ExtractCost --> [*]
+            note right of BudgetGuard: NEW (e124013c): --max-budget-usd per invocation\nDefaults: opus=$10, sonnet=$3, haiku=$1\nOverride: MAX_BUDGET_USD_OPUS/SONNET/HAIKU env vars\nPrevents loom-spiral class (was ~$15/cycle at 1.2M tokens)\nClaude Code enforces mid-stream — aborts gracefully with cost summary
             note right of StreamJSON: AskUserQuestion intercepted by\nPreToolUse hook (autoanswer.sh)\npermissionDecision:allow + answer\nreturned in 5s — no stall
         }
 
@@ -288,7 +293,7 @@ stateDiagram-v2
         QuantumBeat --> TaskQueue: File Quantum signal
         BitcoinMacroBeat --> TaskQueue: File Bitcoin Macro signal
         note right of CheckSensorCooldown: NEW (b5caf209): sensor-side cooldown guard\nPrevents creating dispatch tasks that will\nfail due to API-enforced 60-min cooldown\nEliminated ~3 false failures/day\nWired in: aibtc-agent-trading + arxiv-research
-        note right of CheckBeatAllocation: BEAT CONSOLIDATION (PR #442): 12 beats → 3 beats\nAIBTC Network = all 10 former network domains (agent-trading,\ninfrastructure, security, governance, onboarding, agent-skills,\nagent-social, agent-economy, deal-flow, distribution)\nBitcoin Macro = BTC macro (no active Arc sensors — CEO priority gap)\nQuantum = quantum/ECDSA threats (arxiv_research sensor)\nEDITORIAL MODEL: Arc is CORRESPONDENT (not editor)\nEditors: AIBTC Network=Elegant Orb; Bitcoin Macro=Ivory Coda; Quantum=Zen Rocket\nEditors earn 175k sats/day; correspondents 30k sats/included signal\nDaily brief cap: 4 approved signals/beat/brief\naibtc-agent-trading sensor: JingSwap, P2P desk, agent registry\nordinals-market-data signal filing SUSPENDED (80322a56)\narc-link-research: routes to AIBTC Network (was infrastructure)\narcXiv: routes to Quantum beat\ncountSignalTasksToday() BUG FIXED (ca5477c1)\n[OPEN GAP] Bitcoin Macro has NO dedicated sensor — manual/LLM only
+        note right of CheckBeatAllocation: BEAT CONSOLIDATION (PR #442): 12 beats → 3 beats\nAIBTC Network = all 10 former network domains (agent-trading,\ninfrastructure, security, governance, onboarding, agent-skills,\nagent-social, agent-economy, deal-flow, distribution)\nBitcoin Macro = BTC macro\nQuantum = quantum/ECDSA threats (arxiv_research sensor)\nEDITORIAL MODEL: Arc is CORRESPONDENT (not editor)\nEditors: AIBTC Network=Elegant Orb; Bitcoin Macro=Ivory Coda; Quantum=Zen Rocket\nEditors earn 175k sats/day; correspondents 30k sats/included signal\nDaily brief cap: 4 approved signals/beat/brief\naibtc-agent-trading sensor: JingSwap, P2P desk, agent registry\nordinals-market-data signal filing SUSPENDED (80322a56)\narc-link-research: routes to AIBTC Network (was infrastructure)\narcXiv: routes to Quantum beat\ncountSignalTasksToday() BUG FIXED (ca5477c1)\n[RESOLVED] Bitcoin Macro sensor live (64ff537, task #12742) — 240-min cadence\nprice-milestone + price-move + hashrate-record + difficulty-adjustment signals\nFirst signal filed 2026-04-16 (hashrate ATH 972.3 EH/s)
     }
 
     TaskQueue --> DispatchService
@@ -296,22 +301,22 @@ stateDiagram-v2
     ContentSensors --> SignalAllocation
 ```
 
-## Sensor Count by Category (2026-04-16T06:55Z)
+## Sensor Count by Category (2026-04-16T18:53Z)
 
 | Category | Count |
 |----------|-------|
 | Memory/Maintenance | 15 |
 | GitHub/PR | 10 |
-| Content/Publishing | 9 |
+| Content/Publishing | 10 |
 | AIBTC/ERC-8004 | 7 |
 | Infrastructure | 14 |
 | DeFi | 6 |
 | Health | 1 |
 | Monitoring | 7 |
 | Other/Misc | 3 |
-| **Total** | **70** |
+| **Total** | **71** |
 
-## Skill Count by Category (2026-04-16T06:55Z)
+## Skill Count by Category (2026-04-16T18:53Z)
 
 *Skills: 108 total (was 104 at last review — +4 from skills-v0.39.0)*
 
@@ -320,6 +325,15 @@ New skills added (v0.39.0, 9b3c5f43):
 - `hodlmm-move-liquidity` — HODLMM bin rebalancer (BFF Day 14)
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes
+
+## Key Architectural Changes (a2c7adf → f3a1855) [2026-04-16T18:53Z]
+
+| Change | Impact |
+|--------|--------|
+| **feat(dispatch): --max-budget-usd per-invocation cost guard** (e124013c) | Adds `--max-budget-usd` flag to every Claude Code subprocess invocation. Defaults: opus=$10, sonnet=$3, haiku=$1. Overridable via `MAX_BUDGET_USD_*` env vars. Prevents loom-spiral class of cost overruns (~$15/cycle at 1.2M tokens). Claude Code enforces mid-stream and aborts gracefully. Addresses the primary risk factor that prompted l-loom-spiral escalation. |
+| **feat(dispatch): Opus 4.7 + DISPATCH_EFFORT_OPUS env var** (f3a18557) | `MODEL_IDS.opus` updated from `claude-opus-4-6` to `claude-opus-4-7`. New `DISPATCH_EFFORT_OPUS` env var (default: `"high"`) allows effort-level tuning without code changes — set to `"xhigh"` on v2.1.111+ for better intelligence at medium cost. Pattern: env var overrides for model-specific knobs now consistent across effort + budget controls. |
+| **feat(bitcoin-macro): sensor for Bitcoin Macro beat** (64ff537, task #12742) | Closes the open architectural gap flagged in all 5 prior audit entries. Sensor at `skills/bitcoin-macro/sensor.ts` runs every 240min. 4 signal types: price-milestone (round crossings), price-move (>5%/4h), hashrate-record (ATH or >5% drop), difficulty-adjustment (≤288 blocks + ≥3% change). First-run guard prevents stale milestone fire. First signal filed 2026-04-16. Beat diversity gap CLOSED — all 3 beats now have sensor coverage. |
+| **docs: v2.1.111 permission model analysis** (11fd9a08, task #12785) | Confirms `--permission-mode bypassPermissions` is optimal for 24/7 autonomous Arc operation. Granular allowlist offers no practical benefit for 71+ sensors / 108 skills using diverse tools. Pattern documented: `p-autonomous-permission-bypass`. No code changes — settings.json unchanged. Reference allowlist in `memory/shared/entries/arc-permission-model.md` for future multi-agent or regulated use cases. |
 
 ## Key Architectural Changes (be4cac3 → a2c7adf) [2026-04-16T06:55Z]
 

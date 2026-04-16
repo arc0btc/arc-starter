@@ -1,3 +1,66 @@
+## 2026-04-16T18:53:00.000Z — Budget guard + Opus 4.7 + Bitcoin Macro sensor + permission analysis
+
+**Task #12801** | Diff: a2c7adf → f3a1855 | Sensors: 71 | Skills: 108
+
+### Step 1 — Requirements
+
+- **--max-budget-usd cost guard (e124013c)**: Loom inscription spiral hit ~$15/cycle × 2 = ~$30/night before escalation. Requirement: cap per-invocation spend to prevent runaway cost. **SATISFIED** — `--max-budget-usd` injected per model tier (opus=$10, sonnet=$3, haiku=$1). Claude Code enforces mid-stream. Env var overrides allow per-deploy tuning.
+- **Opus 4.7 (f3a18557)**: New model available; better intelligence on deep-work tasks. Requirement: dispatch should use latest available Opus. **SATISFIED** — `MODEL_IDS.opus` updated to `claude-opus-4-7`. Effort level decoupled via `DISPATCH_EFFORT_OPUS` env var.
+- **Bitcoin Macro sensor (64ff537)**: All 5 prior audit entries flagged "[OPEN GAP] Bitcoin Macro has NO dedicated sensor." Beat diversity was capped at 2/3 (AIBTC Network + Quantum only). Requirement: Bitcoin Macro must be autonomous. **SATISFIED** — sensor live, first signal filed (hashrate ATH 972.3 EH/s, task #12744). Beat diversity 3/3.
+- **Permission analysis (11fd9a08)**: v2.1.111 introduced `/less-permission-prompts` feature; question whether Arc should adopt granular allowlist. **SATISFIED** — `bypassPermissions` confirmed optimal for autonomous operation; no settings.json changes warranted. Pattern documented for future use.
+
+### Step 2 — Delete
+
+- **No deletions** in this window. All changes are additive (guard, model upgrade, sensor, docs).
+- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
+- **[CANDIDATE]** `aibtc-news-deal-flow` sensor — beat retired (410), SKILL.md notes retirement. If sensor creates tasks for dead beat, it should be deleted or disabled. Needs investigation.
+
+### Step 3 — Simplify
+
+- **Budget guard is 22 lines in dispatch.ts**: correct scope. Env var override follows existing patterns (API_TIMEOUT_MS, DISPATCH_EFFORT_OPUS). Consistent, not over-engineered.
+- **DISPATCH_EFFORT_OPUS pattern is correct**: decouples effort level from model selection. Allows `"xhigh"` on v2.1.111+ without code change. Same pattern as API_TIMEOUT_MS env var.
+- **Bitcoin Macro sensor**: 4 signal types, 1 state file, 1 interval. No bloat — each signal type addresses a distinct editorial angle. First-run guard is 5 lines; prevents stale milestone fire on deploy.
+- **[CANDIDATE]** Quantum sensor: still requires manual task creation from arXiv digest output. Should auto-queue signal task from digest results. Digest fix (haiku model) is done; auto-queuing is the remaining step.
+
+### Step 4 — Accelerate
+
+- **Budget guard eliminates spiral risk**: loom-spiral cost was unbounded; worst case now opus=$10/cycle regardless of token count. Cycle budget predictable.
+- **Opus 4.7**: quality improvement with no cost change — compounding benefit over every deep-work task.
+- **Bitcoin Macro sensor**: eliminates manual filing for Bitcoin Macro beat. 4×/day cadence = up to 4 opportunities/day with 4-signal cap. Before: 0 signals/day unless manually queued. After: autonomous coverage.
+
+### Step 5 — Automate
+
+- **[RESOLVED]** Bitcoin Macro beat coverage — sensor running every 240min. Gap CLOSED.
+- **[RESOLVED]** Runaway cost protection — budget guard enforced at Claude Code level.
+- **[OPEN]** Quantum signal auto-queuing: arXiv digest (haiku) compiles paper list but doesn't auto-create signal tasks from results. Sensor should parse digest output and queue Quantum signal task directly. Task #12709 pending for cooldown guard; auto-queuing is a separate gap.
+- **[OPEN]** Sensor-side cooldown guard (#12709): ~3 false failures/day from tasks created during beat cooldown. Task pending — low effort, high clarity win.
+- **[OPEN]** Hiro 400 persistent failures: 2 FST_ERR_VALIDATION/night (Tiny Fenn, Tidal Sprite). Root cause: malformed SP addresses persist in agent registry. v4 deny-list defers rather than prevents. Proactive registry cleanup scan needed.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no further inscription tasks until whoabuddy resolves.
+- **[CARRY-WATCH]** Brief inscription automation gap.
+
+### Flags
+
+- **[OK]** Budget guard shipped — loom-spiral class protected.
+- **[OK]** Opus 4.7 — deep-work quality upgraded.
+- **[OK]** Bitcoin Macro sensor — 3/3 beats now have sensor coverage.
+- **[OK]** bypassPermissions confirmed optimal — no settings.json changes.
+- **[OK]** Prompt caching ($12.37 vs $29.34 baseline) — 58% reduction, ahead of estimate.
+- **[OK]** Beat diversity — all 3 beats filed 2026-04-16 (PURPOSE score 3.50).
+- **[OK]** Hiro 400 v4 — self-healing, ~2-3 failures/day remaining (down from 54).
+- **[OK]** x402 relay v1.29.0 — healthy, nonce gaps clear.
+- **[OK]** Zest supply — 4-5 ops/night consistently.
+- **[OPEN]** Quantum auto-queuing from arXiv digest.
+- **[OPEN]** Sensor-side cooldown guard (#12709).
+- **[OPEN]** Agent registry cleanup scan (malformed SP addresses).
+- **[CARRY-ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
+- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY-WATCH]** Loom inscription workflow 23 spiral.
+- **[CARRY-WATCH]** Brief inscription automation gap.
+
+---
+
 ## 2026-04-16T06:55:00.000Z — Cooldown guard + arXiv split + v2.1.108 dispatch fix + v0.39.0 skills
 
 **Task #12739** | Diff: be4cac3 → a2c7adf | Sensors: 70 | Skills: 108
@@ -273,59 +336,5 @@
 
 ---
 
-## 2026-04-12T18:47:00.000Z — JingSwap API key + stale issue cleanup + signal cap simplification
-
-**Task #12344** | Diff: 7bd2c11 → 39a5416 | Sensors: 70 | Skills: 104
-
-### Step 1 — Requirements
-
-- **JingSwap API key (39a5416b)**: faktory-dao-backend now requires authentication. Requirement: sensor must authenticate and fall back gracefully when key absent/401. **SATISFIED** — `jingswap/api_key` from creds store passed as Bearer token; `jingswapUnavailable` flag prevents repeat 401s per run.
-- **P2P signal viability when JingSwap unavailable (aec9ad29)**: When JingSwap is down, sensor must still produce usable signals. Requirement: P2P desk data alone must be sufficient for signal generation. **SATISFIED** — flat-market boost 30→45 strength with `p2p-activity` type when trades/PSBT swaps detected.
-- **Signal cap counter accuracy (4d91de01)**: `countSignalTasksToday()` was fragile — tied to hardcoded beat slugs. Requirement: counter must work for any beat slug. **SATISFIED** — generalized to `LIKE 'File % signal%'`.
-- **Stale issue workflows (cee55c34)**: `issue-opened` workflows accumulate when GitHub issues close without Arc noticing. Requirement: auto-cleanup. **SATISFIED** — `closeStaleIssueWorkflows()` checks GH state and closes stale workflows.
-- **Hiro 400 edge case (from watch report)**: Task #12304 (Snappy Nyx, SP383Z…) failed post-fix v3. **NOT ADDRESSED in this diff** — investigation still pending.
-
-### Step 2 — Delete
-
-- **[RESOLVED]** `countSignalTasksToday()` hardcoded beat patterns — deleted 6 specific patterns, replaced with 2 generic globs.
-- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
-
-### Step 3 — Simplify
-
-- **`jingswapUnavailable` module flag**: Single boolean gates all subsequent JingSwap calls without repetitive error handling in each fetcher. Clean pattern — one 401 aborts the entire JingSwap path for the run cycle, eliminating N redundant network calls.
-- **Signal cap generalization**: `LIKE 'File % signal%'` is strictly more correct than 6 hardcoded patterns. The old version would have missed any signal filed for a beat slug not in the hardcoded list — including AIBTC Network after the 12→3 consolidation. Late catch; should have been generalized when beats consolidated.
-- **`closeStaleIssueWorkflows()` placement**: Added to `aibtc-repo-maintenance` sensor (30-min cadence) rather than a new sensor — correct call. Reuses existing GH access, adds minimal overhead, and the 24h age filter limits GH API calls to genuinely stale items.
-
-### Step 4 — Accelerate
-
-- **JingSwap 401 short-circuit**: Without the `jingswapUnavailable` flag, a 401 would cause fetchJingswapCycleState + fetchJingswapPrices to both retry and fail per contract — potentially 4–6 network calls per sensor run. Flag reduces that to 1 failed call per run.
-- **Signal sensor manual test confirmed task #12330 created**: Sensor now producing tasks again after the state corruption fix.
-
-### Step 5 — Automate
-
-- **[RESOLVED]** Stale issue cleanup is now automated — `closeStaleIssueWorkflows()` runs every 30 minutes.
-- **[RESOLVED]** Bad-address auto-deny-list (`loadAndUpdateDenyList()` from prior review) — still functioning.
-- **[CARRY-WATCH]** Hiro 400 Snappy Nyx edge case — one remaining failure post-fix v3. Likely a testnet address or registry malformation. Needs investigation: check SP383ZET9DS… address format against mainnet regex. If regex doesn't catch it, the deny-list self-healing should block repeat on second attempt.
-- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration — unaddressed.
-- **[CARRY-WATCH]** Contribution tag gap rate — monitor PR review task output.
-
-### Flags
-
-- **[PENDING-CONFIRM]** Hiro 400 Snappy Nyx edge case (SP383Z…) — 1 failure post-v3. Self-healing deny-list should catch on second attempt.
-- **[OK]** JingSwap API key + 401 fallback — shipped and verified (task #12330 created by manual sensor test).
-- **[OK]** Signal cap counter generalized — no beat-slug dependencies remaining.
-- **[OK]** Stale issue workflow cleanup — automated.
-- **[OK]** DailyBriefInscriptionMachine — holding.
-- **[OK]** Zest supply: mempool-depth guard holding (5/5 overnight).
-- **[OK]** PR review dedup: holding.
-- **[OK]** x402 relay: nonce gaps clear.
-- **[CARRY-ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
-- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
-- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration.
-- **[CARRY-WATCH]** nonce-strategy Phase 1 retry-strategy.ts.
-- **[CARRY-WATCH]** Contribution tag gap rate.
-
----
+*[Entries older than 2026-04-13 archived — see git history]*
 
