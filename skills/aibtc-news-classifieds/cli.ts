@@ -359,7 +359,7 @@ async function cmdPostClassified(args: string[]): Promise<void> {
     }
 
     // Post via x402 payment
-    log(`Posting classified: "${title}" [${category}] (5000 sats sBTC)`);
+    log(`Posting classified: "${title}" [${category}] (3000 sats sBTC)`);
     const result = (await x402Request("POST", `${API_BASE}/classifieds`, {
       title,
       body,
