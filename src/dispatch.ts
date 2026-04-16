@@ -57,6 +57,26 @@ const SKILLS_DIR = join(ROOT, "skills");
 /** Daily cost ceiling (USD). Above this, only P1-2 tasks dispatch. D4 directive: $200/day cap. */
 const DAILY_BUDGET_USD = 200;
 
+/** Per-invocation budget caps (USD). Prevents runaway cycles (e.g. loom-spiral at ~$15/cycle).
+ *  Overridable via env: MAX_BUDGET_USD_OPUS, MAX_BUDGET_USD_SONNET, MAX_BUDGET_USD_HAIKU. */
+const DEFAULT_MAX_BUDGET_USD: Record<ModelTier, number> = {
+  opus: 10,
+  sonnet: 3,
+  haiku: 1,
+};
+
+
+/** Per-invocation budget cap for a given model tier.
+ *  Reads from env override first, falls back to DEFAULT_MAX_BUDGET_USD. */
+function getMaxBudgetUsd(model: ModelTier): number {
+  const envKey = `MAX_BUDGET_USD_${model.toUpperCase()}`;
+  const envVal = process.env[envKey];
+  if (envVal !== undefined) {
+    const parsed = parseFloat(envVal);
+    if (!isNaN(parsed) && parsed > 0) return parsed;
+  }
+  return DEFAULT_MAX_BUDGET_USD[model];
+}
 
 /** Maximum time (ms) a Claude subprocess can run before being killed.
  *  Model-aware: Haiku tasks get 5min (simple execution), Sonnet 15min,
@@ -463,6 +483,8 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
     "--output-format",
     "stream-json",
     "--no-session-persistence",
+    "--max-budget-usd",
+    String(getMaxBudgetUsd(model)),
   ];
 
   if (Bun.env.DANGEROUS === "true") {
