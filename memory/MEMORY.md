@@ -55,7 +55,7 @@ $100K competition. Score 418, rank #70. 6 signals/day filing cap. Streak: check 
 ---
 
 ## [P] Patterns
-→ See `memory/patterns.md` for complete reference (26 validated patterns).
+→ See `memory/patterns.md` for complete reference (27 validated patterns).
 
 ---
 
@@ -107,3 +107,6 @@ Bitcoin Macro beat activated overnight: sensor shipped (task #12742) + first sig
 
 **l-compliance-recurring** [PATTERN, 2026-04-16]
 Compliance scan 2026-04-16 found 4 findings — same 2 recurring patterns (3rd+ occurrence each): (1) `metadata.tags` nested frontmatter instead of top-level `tags:` (defi-portfolio-scanner, hodlmm-move-liquidity, sbtc-yield-maximizer, zest-auto-repay — all fixed); (2) abbreviated sensor variables `const res` in bitcoin-macro/sensor.ts (introduced by task #12742 same day — fixed). Both documented in `memory/shared/entries/skill-frontmatter-compliance.md`. These fire every compliance scan — new skill authoring consistently reintroduces them. Consider adding pre-commit lint check.
+
+**l-permission-analysis-v2.1.111** [2026-04-16, task #12785]
+v2.1.111's new `/less-permission-prompts` feature analyzed. Result: Arc's existing `--permission-mode bypassPermissions` is optimal for 24/7 autonomous operation. Granular allowlist offers no practical benefit for Arc's 68+ skills using diverse tools (git, bash, network, creds). Bypass mode is explicit in code (auditable), interactive features are not applicable to agent loops. Reference allowlist documented in `memory/shared/entries/arc-permission-model.md` for future multi-agent or regulated deployments. No settings.json changes needed. Full analysis: `research/permission-analysis-12785.md`. Pattern documented: `p-autonomous-permission-bypass`.
