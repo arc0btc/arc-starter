@@ -95,3 +95,6 @@ arXiv digest timed out twice at 15min on sonnet — 30-paper digest too large. F
 
 **l-cooldown-as-failed** [PATTERN, 2026-04-16]
 Signal tasks that hit beat cooldown are closed as `status=failed` — this inflates the daily failure count (~3 tasks/day). They're expected-blocked states, not bugs. The 60min cooldown is correctly enforced; follow-up retry tasks are queued. Consider: (a) check cooldown in sensor before creating dispatch task, or (b) close with status=blocked not failed. Follow-up: task #12709 to add sensor-side cooldown guard.
+
+**l-bitcoin-macro-sensor** [SHIPPED, 2026-04-16, task #12742]
+Bitcoin Macro beat now has a dedicated sensor at `skills/bitcoin-macro/sensor.ts`. Runs every 240min (4×/day). Signal types: price-milestone (round-number crossings $50K–$200K, one-time), price-move (>5% in 4h), hashrate-record (ATH or >5% drop), difficulty-adjustment (≤288 blocks to retarget + ≥3% change). Data sources: blockchain.info/ticker (price), mempool.space hashrate+difficulty. First-run guard: pre-populates firedMilestones from current price so stale milestones never fire retroactively.
