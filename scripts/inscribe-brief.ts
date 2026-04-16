@@ -1,8 +1,7 @@
 #!/usr/bin/env bun
 // scripts/inscribe-brief.ts
-// Daily brief inscription as a child ordinal + editor notification.
-// Runs ONE phase per invocation, then queues a --script continuation task.
-// Dispatch retries failures (max_retries=3). The task queue IS the state machine.
+// End-to-end daily brief inscription as a child ordinal + editor notification.
+// Replaces the workflow state machine (7-8 LLM dispatch cycles) with pure TypeScript.
 //
 // Usage:
 //   bun run scripts/inscribe-brief.ts run --date 2026-04-14
@@ -27,10 +26,8 @@ const BRIEFS_DIR = resolve(ROOT, "db/briefs");
 const BATCH_DIR = resolve(ROOT, "db/inbox-notify");
 const CHILD_INSCRIPTION_CLI = resolve(ROOT, "skills/child-inscription/child-inscription.ts");
 
-const MAX_POLL_ATTEMPTS = 30; // 30 × 2min defer = 1 hour max wait
-const TASK_PRIORITY = 3;
-const TASK_SOURCE_PREFIX = "script:inscribe-brief";
-const TASK_SKILLS = "bitcoin-wallet,child-inscription";
+const MAX_POLL_ATTEMPTS = 12;
+const POLL_INTERVAL_MS = 60_000;
 
 mkdirSync(INSCRIPTIONS_DIR, { recursive: true });
 mkdirSync(BRIEFS_DIR, { recursive: true });
@@ -54,7 +51,6 @@ interface InscriptionRecord {
   reveal_amount?: number;
   inscription_id?: string;
   editors_notified?: string[];
-  poll_attempts?: number;
   created_at: string;
   updated_at: string;
   error?: string;
@@ -66,6 +62,15 @@ interface InscriptionRecord {
 
 function log(msg: string): void {
   console.error(`[${new Date().toISOString()}] [inscribe-brief] ${msg}`);
+}
+
+function statusIndex(status: InscriptionStatus): number {
+  return STATUS_ORDER.indexOf(status);
+}
+
+function pastPhase(record: InscriptionRecord, phase: InscriptionStatus): boolean {
+  if (!record.status) return false;
+  return statusIndex(record.status) >= statusIndex(phase);
 }
 
 function stateFilePath(date: string): string {
@@ -113,35 +118,16 @@ function parseJson(combined: string): Record<string, unknown> | null {
   return null;
 }
 
-/** Queue a continuation task for the next phase via arc CLI. Throws on failure. */
-function queueContinuation(date: string, nextPhase: string, defer?: string): void {
-  const script = `bun run scripts/inscribe-brief.ts run --date ${date}`;
-  const subject = `Inscribe brief ${date} (phase: ${nextPhase})`;
-  const args = [
-    "bash", "bin/arc", "tasks", "add",
-    "--script", script,
-    "--priority", String(TASK_PRIORITY),
-    "--subject", subject,
-    "--source", `${TASK_SOURCE_PREFIX}:${date}`,
-    "--skills", TASK_SKILLS,
-  ];
-  if (defer) {
-    args.push("--defer", defer);
-  }
-  const proc = Bun.spawnSync(args, { cwd: ROOT });
-  const out = new TextDecoder().decode(proc.stdout).trim();
-  const err = new TextDecoder().decode(proc.stderr).trim();
-  if (proc.exitCode !== 0) {
-    throw new Error(`Failed to queue continuation (${nextPhase}): ${err || out || `exit ${proc.exitCode}`}`);
-  }
-  log(`Queued continuation (${nextPhase}${defer ? `, defer ${defer}` : ""}): ${out || "ok"}`);
-}
-
 // ---------------------------------------------------------------------------
-// Phase: Fetch brief
+// Phase 1: Fetch brief
 // ---------------------------------------------------------------------------
 
-async function phaseFetch(record: InscriptionRecord): Promise<InscriptionRecord> {
+async function fetchBrief(record: InscriptionRecord): Promise<InscriptionRecord> {
+  if (pastPhase(record, "fetched")) {
+    log(`Skip fetchBrief — already at ${record.status}`);
+    return record;
+  }
+
   log(`=== FETCH BRIEF for ${record.date} ===`);
   const resp = await fetch(`${API_BASE}/brief/${record.date}`);
   if (!resp.ok) {
@@ -170,15 +156,20 @@ async function phaseFetch(record: InscriptionRecord): Promise<InscriptionRecord>
   record.status = "fetched";
   await writeState(record);
 
-  log(`Brief fetched: ${data.text.length} chars, ${record.signal_count} signals`);
+  log(`Brief fetched: ${data.text.length} chars, ${record.signal_count} signals → ${contentFile}`);
   return record;
 }
 
 // ---------------------------------------------------------------------------
-// Phase: Estimate fees
+// Phase 2: Estimate fees
 // ---------------------------------------------------------------------------
 
-async function phaseEstimate(record: InscriptionRecord): Promise<InscriptionRecord> {
+async function estimateFees(record: InscriptionRecord): Promise<InscriptionRecord> {
+  if (pastPhase(record, "estimated")) {
+    log(`Skip estimateFees — already at ${record.status}`);
+    return record;
+  }
+
   log(`=== ESTIMATE FEES ===`);
   const { stdout, stderr, exitCode } = await runChild([
     "bun", "run", CHILD_INSCRIPTION_CLI, "estimate",
@@ -207,24 +198,20 @@ async function phaseEstimate(record: InscriptionRecord): Promise<InscriptionReco
 }
 
 // ---------------------------------------------------------------------------
-// Phase: Check balance + commit (merged — balance is a gate, not a status)
+// Phase 3: Check balance (gate — no status change)
 // ---------------------------------------------------------------------------
 
-async function phaseCommit(record: InscriptionRecord): Promise<InscriptionRecord> {
-  // Balance gate
+async function checkBalance(record: InscriptionRecord): Promise<void> {
   log(`=== CHECK BALANCE ===`);
-  const balResp = await fetch(`${MEMPOOL_API}/address/${ARC_BTC_ADDRESS}`);
-  if (!balResp.ok) {
-    throw new Error(`Mempool API returned ${balResp.status}`);
+  const resp = await fetch(`${MEMPOOL_API}/address/${ARC_BTC_ADDRESS}`);
+  if (!resp.ok) {
+    throw new Error(`Mempool API returned ${resp.status}`);
   }
 
-  const balData = (await balResp.json()) as {
+  const data = (await resp.json()) as {
     chain_stats: { funded_txo_sum: number; spent_txo_sum: number };
-    mempool_stats: { funded_txo_sum: number; spent_txo_sum: number };
   };
-  const confirmed = balData.chain_stats.funded_txo_sum - balData.chain_stats.spent_txo_sum;
-  const pending = balData.mempool_stats.funded_txo_sum - balData.mempool_stats.spent_txo_sum;
-  const balance = confirmed + pending;
+  const balance = data.chain_stats.funded_txo_sum - data.chain_stats.spent_txo_sum;
   const needed = record.estimated_cost_sats ?? 0;
 
   if (balance < needed) {
@@ -235,8 +222,18 @@ async function phaseCommit(record: InscriptionRecord): Promise<InscriptionRecord
   }
 
   log(`Balance: ${balance} sats (need ${needed}) — sufficient`);
+}
 
-  // Commit
+// ---------------------------------------------------------------------------
+// Phase 4: Commit transaction
+// ---------------------------------------------------------------------------
+
+async function commitTx(record: InscriptionRecord): Promise<InscriptionRecord> {
+  if (pastPhase(record, "committed")) {
+    log(`Skip commitTx — already at ${record.status}`);
+    return record;
+  }
+
   log(`=== COMMIT TRANSACTION ===`);
   const { stdout, stderr, exitCode } = await runChild([
     "bun", "run", CHILD_INSCRIPTION_CLI, "inscribe",
@@ -258,7 +255,6 @@ async function phaseCommit(record: InscriptionRecord): Promise<InscriptionRecord
   record.commit_txid = result.commitTxid as string;
   record.reveal_amount = result.revealAmount as number;
   record.fee_rate = result.feeRate as number;
-  record.poll_attempts = 0;
   record.status = "committed";
   await writeState(record);
 
@@ -267,49 +263,51 @@ async function phaseCommit(record: InscriptionRecord): Promise<InscriptionRecord
 }
 
 // ---------------------------------------------------------------------------
-// Phase: Check confirmation (single check, not a loop)
+// Phase 5: Poll for confirmation
 // ---------------------------------------------------------------------------
 
-async function phaseConfirm(record: InscriptionRecord): Promise<InscriptionRecord> {
-  log(`=== CHECK CONFIRMATION for ${record.commit_txid} ===`);
+async function pollConfirmation(record: InscriptionRecord): Promise<InscriptionRecord> {
+  if (pastPhase(record, "confirmed")) {
+    log(`Skip pollConfirmation — already at ${record.status}`);
+    return record;
+  }
 
-  const attempts = (record.poll_attempts ?? 0) + 1;
-  record.poll_attempts = attempts;
+  log(`=== POLL CONFIRMATION for ${record.commit_txid} ===`);
 
-  const resp = await fetch(`${MEMPOOL_API}/tx/${record.commit_txid}`);
-  if (resp.ok) {
-    const data = (await resp.json()) as { status?: { confirmed?: boolean; block_height?: number } };
-    if (data.status?.confirmed) {
-      log(`Confirmed at block ${data.status.block_height} (poll attempt ${attempts})`);
-      record.status = "confirmed";
-      await writeState(record);
-      return record;
+  for (let attempt = 1; attempt <= MAX_POLL_ATTEMPTS; attempt++) {
+    const resp = await fetch(`${MEMPOOL_API}/tx/${record.commit_txid}`);
+    if (!resp.ok) {
+      log(`Poll ${attempt}/${MAX_POLL_ATTEMPTS}: mempool API returned ${resp.status}`);
+    } else {
+      const data = (await resp.json()) as { status?: { confirmed?: boolean; block_height?: number } };
+      if (data.status?.confirmed) {
+        log(`Confirmed at block ${data.status.block_height}`);
+        record.status = "confirmed";
+        await writeState(record);
+        return record;
+      }
+      log(`Poll ${attempt}/${MAX_POLL_ATTEMPTS}: not confirmed yet`);
+    }
+
+    if (attempt < MAX_POLL_ATTEMPTS) {
+      await Bun.sleep(POLL_INTERVAL_MS);
     }
   }
 
-  // Not confirmed yet
-  await writeState(record);
-
-  if (attempts >= MAX_POLL_ATTEMPTS) {
-    // Reset poll_attempts so dispatch retries get a fresh budget
-    record.poll_attempts = 0;
-    await writeState(record);
-    throw new Error(
-      `Commit tx ${record.commit_txid} unconfirmed after ${attempts} attempts (~${attempts * 2} minutes). ` +
-      `May need RBF or manual intervention.`
-    );
-  }
-
-  log(`Not confirmed (attempt ${attempts}/${MAX_POLL_ATTEMPTS}) — queuing deferred retry`);
-  queueContinuation(record.date, "confirm-poll", "2m");
-  return record;
+  log(`Commit tx still unconfirmed after ${MAX_POLL_ATTEMPTS} polls. Re-run to resume.`);
+  process.exit(0);
 }
 
 // ---------------------------------------------------------------------------
-// Phase: Reveal transaction
+// Phase 6: Reveal transaction
 // ---------------------------------------------------------------------------
 
-async function phaseReveal(record: InscriptionRecord): Promise<InscriptionRecord> {
+async function revealTx(record: InscriptionRecord): Promise<InscriptionRecord> {
+  if (pastPhase(record, "revealed")) {
+    log(`Skip revealTx — already at ${record.status}`);
+    return record;
+  }
+
   log(`=== REVEAL TRANSACTION ===`);
   const { stdout, stderr, exitCode } = await runChild([
     "bun", "run", CHILD_INSCRIPTION_CLI, "reveal",
@@ -335,10 +333,15 @@ async function phaseReveal(record: InscriptionRecord): Promise<InscriptionRecord
 }
 
 // ---------------------------------------------------------------------------
-// Phase: Record on aibtc.news API
+// Phase 7: Record on aibtc.news API
 // ---------------------------------------------------------------------------
 
-async function phaseRecord(record: InscriptionRecord): Promise<InscriptionRecord> {
+async function recordOnApi(record: InscriptionRecord): Promise<InscriptionRecord> {
+  if (pastPhase(record, "recorded")) {
+    log(`Skip recordOnApi — already at ${record.status}`);
+    return record;
+  }
+
   log(`=== RECORD ON API ===`);
   const { stdout, stderr, exitCode } = await runChild([
     "bash", "bin/arc", "skills", "run", "--name", "aibtc-news-classifieds", "--",
@@ -346,13 +349,11 @@ async function phaseRecord(record: InscriptionRecord): Promise<InscriptionRecord
   ]);
 
   if (exitCode !== 0) {
-    // 409 = already recorded (idempotent duplicate) — treat as success
-    const combined = stderr + stdout;
-    if (combined.includes("409")) {
-      log(`API returned 409 (already recorded) — treating as success`);
-    } else {
-      throw new Error(`API recording failed (exit ${exitCode}): ${stderr.slice(0, 300)}`);
-    }
+    // Non-fatal: inscription is already on-chain regardless
+    log(`API recording failed (exit ${exitCode}): ${stderr.slice(0, 300)}`);
+    record.error = `API record failed: ${stderr.slice(0, 200)}`;
+    await writeState(record);
+    // Continue to notification — the inscription exists on-chain
   }
 
   record.status = "recorded";
@@ -363,10 +364,15 @@ async function phaseRecord(record: InscriptionRecord): Promise<InscriptionRecord
 }
 
 // ---------------------------------------------------------------------------
-// Phase: Notify editors
+// Phase 8: Notify editors
 // ---------------------------------------------------------------------------
 
-async function phaseNotify(record: InscriptionRecord): Promise<InscriptionRecord> {
+async function notifyEditors(record: InscriptionRecord): Promise<InscriptionRecord> {
+  if (pastPhase(record, "completed")) {
+    log(`Skip notifyEditors — already completed`);
+    return record;
+  }
+
   log(`=== NOTIFY EDITORS ===`);
   initDatabase();
   const db = getDatabase();
@@ -375,6 +381,13 @@ async function phaseNotify(record: InscriptionRecord): Promise<InscriptionRecord
     { beat_slug: string; editor_name: string; btc_address: string; stx_address: string | null },
     []
   >("SELECT beat_slug, editor_name, btc_address, stx_address FROM editor_registry").all();
+
+  if (editors.length === 0) {
+    log("No editors in registry — skipping notification");
+    record.status = "completed";
+    await writeState(record);
+    return record;
+  }
 
   // Filter to editors with stx_address (required for x402)
   const notifiable = editors.filter((e) => e.stx_address);
@@ -411,7 +424,7 @@ async function phaseNotify(record: InscriptionRecord): Promise<InscriptionRecord
   await Bun.write(batchFile, JSON.stringify(batchData, null, 2));
   log(`Batch file written: ${batchFile} (${notifiable.length} editors)`);
 
-  // Queue script task for the actual send — dispatch runs it directly
+  // Queue script task — dispatch runs it directly, no LLM involved
   const names = notifiable.map((e) => e.editor_name).join(", ");
   const subject = `Notify editors of ${record.date} brief inscription: ${names}`;
   const script = `arc skills run --name inbox-notify -- send-batch --file db/inbox-notify/${batchId}.json`;
@@ -419,10 +432,7 @@ async function phaseNotify(record: InscriptionRecord): Promise<InscriptionRecord
   const proc = Bun.spawnSync(
     ["bash", "bin/arc", "tasks", "add",
       "--subject", subject,
-      "--script", script,
-      "--priority", String(TASK_PRIORITY),
-      "--source", `${TASK_SOURCE_PREFIX}:notify:${record.date}`,
-      "--skills", TASK_SKILLS],
+      "--script", script],
     { cwd: ROOT }
   );
   const taskOut = new TextDecoder().decode(proc.stdout).trim();
@@ -437,7 +447,7 @@ async function phaseNotify(record: InscriptionRecord): Promise<InscriptionRecord
 }
 
 // ---------------------------------------------------------------------------
-// Step dispatcher — runs exactly one phase per invocation
+// Commands
 // ---------------------------------------------------------------------------
 
 async function cmdRun(date: string): Promise<void> {
@@ -445,7 +455,7 @@ async function cmdRun(date: string): Promise<void> {
 
   if (record?.status === "completed") {
     log(`Inscription for ${date} already completed: ${record.inscription_id}`);
-    console.log(JSON.stringify({ status: "completed", inscription_id: record.inscription_id }));
+    console.log(JSON.stringify(record, null, 2));
     return;
   }
 
@@ -459,33 +469,16 @@ async function cmdRun(date: string): Promise<void> {
     } as InscriptionRecord;
   }
 
-  // Determine and execute the next phase
-  const status = record.status;
-  if (!status) {
-    record = await phaseFetch(record);
-  } else if (status === "fetched") {
-    record = await phaseEstimate(record);
-  } else if (status === "estimated") {
-    record = await phaseCommit(record);
-  } else if (status === "committed") {
-    record = await phaseConfirm(record);
-  } else if (status === "confirmed") {
-    record = await phaseReveal(record);
-  } else if (status === "revealed") {
-    record = await phaseRecord(record);
-  } else if (status === "recorded") {
-    record = await phaseNotify(record);
-  }
+  record = await fetchBrief(record);
+  record = await estimateFees(record);
+  await checkBalance(record);
+  record = await commitTx(record);
+  record = await pollConfirmation(record);
+  record = await revealTx(record);
+  record = await recordOnApi(record);
+  record = await notifyEditors(record);
 
-  // Queue continuation if not completed.
-  // Skip only when phaseConfirm queued its own deferred retry (status stayed "committed").
-  const needsContinuation = record.status !== "completed" && record.status !== "committed";
-  if (needsContinuation) {
-    const nextPhase = STATUS_ORDER[STATUS_ORDER.indexOf(record.status) + 1] ?? "next";
-    queueContinuation(date, nextPhase);
-  }
-
-  console.log(JSON.stringify({ status: record.status, phase_completed: record.status }));
+  console.log(JSON.stringify(record, null, 2));
 }
 
 async function cmdStatus(date: string): Promise<void> {
@@ -499,8 +492,7 @@ async function cmdStatus(date: string): Promise<void> {
 
   if (record.commit_txid && record.status === "committed") {
     console.log(`\nCommit tx: https://mempool.space/tx/${record.commit_txid}`);
-    console.log(`Poll attempts: ${record.poll_attempts ?? 0}/${MAX_POLL_ATTEMPTS}`);
-    console.log("Re-run to check confirmation.");
+    console.log("Awaiting confirmation. Re-run to resume polling.");
   }
   if (record.inscription_id) {
     console.log(`\nInscription: https://ordinals.com/inscription/${record.inscription_id}`);
@@ -545,14 +537,13 @@ switch (command) {
     break;
   }
   default:
-    console.log(`inscribe-brief — Daily brief inscription pipeline (step-per-invocation)
+    console.log(`inscribe-brief — Daily brief inscription pipeline
 
 Usage:
-  bun run scripts/inscribe-brief.ts run --date YYYY-MM-DD      Execute next phase
+  bun run scripts/inscribe-brief.ts run --date YYYY-MM-DD      Full inscription pipeline
   bun run scripts/inscribe-brief.ts status --date YYYY-MM-DD   Check inscription state
 
-Each invocation runs one phase, then queues a continuation task for the next.
-State is persisted to db/inscriptions/{date}.json after each step.
-Dispatch handles retries (max 3 attempts per phase).`);
+The script is idempotent: re-running resumes from the last completed phase.
+State is persisted to db/inscriptions/{date}.json after each step.`);
     break;
 }
