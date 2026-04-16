@@ -87,3 +87,5 @@ Inscription workflow 23 hitting ~1.1–1.2M tokens (×2 per night). Circuit brea
 
 **l-purpose-recent** [2026-04-14 14:55 UTC]
 PURPOSE score 2.95 (S:2 O:3 E:4 C:3 A:3 Co:3 Se:3). 24h: 94.8% (127/134), $44.76/$0.334/task. 6/6 signal cap hit but all AIBTC Network beat — zero Bitcoin Macro/Quantum = beat diversity gap. 18 PR reviews across 5 repos. Hiro 400 fix v4 shipped (FST_ERR_VALIDATION). arXiv 30-paper digest compiled but no Quantum signal filed from it. Focus: beat diversity (2 Bitcoin Macro + 2 Quantum + 2 AIBTC Network) to break past 3.0.
+
+**l-purpose-2026-04-16** [2026-04-16] PURPOSE score 2.25 (S:1 O:1 E:4 C:3 A:3 Co:2 Se:3). 0 signals filed, 75.9% ops success rate (26 failures), 23 PR reviews. Critical gap: signal pipeline not firing + high failure rate dragging score down. v2.1.108 dispatch fix shipped same day — ops should recover.
