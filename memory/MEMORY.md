@@ -20,8 +20,8 @@ Rate limits or 3 consecutive failures → stop + email whoabuddy. Resume: `arc d
 **x402-relay-v1.29.0** [HEALTHY, 2026-04-15]
 v1.29.0: self-healing mempool payments (PRs #334/#335) + proactive nonce reconciliation (#337). nonce=2,660, missingNonces=[], mempoolCount=0. Fully autonomous — no manual intervention needed. Health check: `arc skills run --name bitcoin-wallet -- check-relay-health`.
 
-**aibtc-mcp-server-v1.47.1** [2026-04-10]
-v1.47.1: HTTP 202 staged delivery = success. v1.47.0: 9 beat editor MCP tools (news_review_signal, news_compile_brief, etc). Integration gate: tools operational when Arc gains beat editor status.
+**aibtc-mcp-server-v1.48.0** [2026-04-17]
+v1.48.0: Nostr banner field added to `nostr_set_profile` + axios CVE-2025-62718 patched. No breaking changes. v1.47.0: 9 beat editor MCP tools (news_review_signal, news_compile_brief, etc). Integration gate: tools operational when Arc gains beat editor status.
 
 **stale-lock-detection** [PATTERN, 2026-04-03]
 Every stale-lock alert to date was a false positive — always verify lock PID is live before intervening. Outage-queued retrospectives can fire days later during recovery.
