@@ -38,6 +38,8 @@ interface GithubPR {
   closingIssueNumbers?: number[];
   /** True if arc0btc already submitted an APPROVED or COMMENTED review on this PR. */
   arcHasReview?: boolean;
+  /** Current HEAD commit SHA of the PR branch. */
+  headCommitSha?: string;
 }
 
 type WorkflowState =
@@ -110,6 +112,7 @@ function fetchGitHubPRs(repos: string[]): GithubPR[] {
           state
           merged
           reviewDecision
+          headRefOid
           closingIssuesReferences(first: 5) {
             nodes { number }
           }
@@ -141,6 +144,7 @@ function fetchGitHubPRs(repos: string[]): GithubPR[] {
     state: string;
     merged?: boolean;
     reviewDecision?: string | null;
+    headRefOid?: string;
     closingIssuesReferences?: { nodes?: Array<{ number: number }> };
     reviews?: { nodes?: Array<{ author?: { login: string }; state: string }> };
   };
@@ -189,6 +193,7 @@ function fetchGitHubPRs(repos: string[]): GithubPR[] {
         arcHasReview: (node.reviews?.nodes || []).some(
           (r) => r.author?.login === "arc0btc" && (r.state === "APPROVED" || r.state === "COMMENTED"),
         ) || undefined,
+        headCommitSha: node.headRefOid || undefined,
       });
     }
   }
@@ -234,6 +239,7 @@ function syncGitHubPRs(): number {
           author: pr.author,
           fromIssue: pr.closingIssueNumbers?.[0] ?? undefined,
           isAutomated: isAutomated || undefined,
+          headCommitSha: pr.headCommitSha,
           lastChecked: new Date().toISOString(),
         }),
       });
@@ -278,6 +284,7 @@ function syncGitHubPRs(): number {
         title: pr.title,
         url: pr.url,
         author: pr.author,
+        headCommitSha: pr.headCommitSha,
         lastChecked: new Date().toISOString(),
       };
 
@@ -306,6 +313,9 @@ function syncGitHubPRs(): number {
       if (newState === "merged" || newState === "closed") {
         completeWorkflow(workflow.id);
       }
+    } else if (pr.headCommitSha) {
+      // State unchanged — still update headCommitSha so the SHA dedup guard sees the latest commit
+      updateWorkflowContext(workflow.id, { headCommitSha: pr.headCommitSha });
     }
   }
 
@@ -361,6 +371,20 @@ export default async function workflowsSensor(): Promise<string> {
         // Dedup: skip if any task (pending, active, or completed) already exists for this source,
         // or if another sensor already has a pending task for the same PR
         if (!crossSensorDup && !taskExistsForSource(source)) {
+          // SHA-based dedup for PR reviews: skip if the PR head commit hasn't changed
+          // since the last review was queued. Prevents re-reviewing the same commit
+          // multiple times when the workflow cycles (e.g. changes-requested → review-requested).
+          if (source.startsWith("pr-review:")) {
+            let ctx: Record<string, unknown> = {};
+            try { ctx = JSON.parse(workflow.context); } catch { /* ignore */ }
+            const headSha = ctx.headCommitSha as string | undefined;
+            const lastReviewed = ctx.lastReviewedCommit as string | undefined;
+            if (headSha && headSha === lastReviewed) {
+              // Same commit already queued for review — skip until author pushes new commits
+              continue;
+            }
+          }
+
           insertTask({
             subject: action.subject,
             description: action.description,
@@ -370,6 +394,17 @@ export default async function workflowsSensor(): Promise<string> {
             source,
             parent_id: action.parentTaskId ?? undefined,
           });
+
+          // For PR reviews, record the HEAD SHA so we don't re-queue for the same commit
+          if (source.startsWith("pr-review:")) {
+            let ctx: Record<string, unknown> = {};
+            try { ctx = JSON.parse(workflow.context); } catch { /* ignore */ }
+            const headSha = ctx.headCommitSha as string | undefined;
+            if (headSha) {
+              updateWorkflowContext(workflow.id, { lastReviewedCommit: headSha });
+            }
+          }
+
           if (action.contextUpdate) {
             updateWorkflowContext(workflow.id, action.contextUpdate);
           }

@@ -230,6 +230,10 @@ interface PrLifecycleContext {
   issueUrl?: string;
   reviewCycle?: number;
   isAutomated?: boolean;
+  /** Current HEAD commit SHA of the PR, updated each sensor run. */
+  headCommitSha?: string;
+  /** HEAD SHA at the time the most recent review task was queued. */
+  lastReviewedCommit?: string;
 }
 
 function shouldSkipPrReview(ctx: PrLifecycleContext): boolean {
