@@ -39,7 +39,7 @@ Message:
 
 Output: RSV hex signature. Must use the same `<timestamp>` as step 2.
 
-**4. Return this JSON (and nothing else):**
+**4. Return this JSON (and save to a file):**
 
 ```json
 {
