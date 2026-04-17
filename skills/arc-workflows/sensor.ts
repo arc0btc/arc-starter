@@ -2,6 +2,7 @@ import { claimSensorRun, createSensorLogger } from "../../src/sensors.ts";
 import {
   insertTask,
   taskExistsForSource,
+  pendingTaskExistsForSource,
   getAllActiveWorkflows,
   updateWorkflowState,
   updateWorkflowContext,
@@ -352,8 +353,14 @@ export default async function workflowsSensor(): Promise<string> {
         // Use action-specific source if provided (e.g. quest phases),
         // otherwise use state-specific source to prevent cross-state dedup collisions
         const source = action.source || `workflow:${workflow.id}:${workflow.current_state}`;
-        // Dedup: skip if any task (pending, active, or completed) already exists for this source
-        if (!taskExistsForSource(source)) {
+        // Cross-sensor dedup: for pr-review tasks, also check the un-suffixed source
+        // (github-mentions uses "pr-review:repo#N", workflows use "pr-review:repo#N:v1").
+        // Only block on pending/active — completed tasks shouldn't prevent re-reviews.
+        const baseSource = source.replace(/:v\d+$/, "");
+        const crossSensorDup = baseSource !== source && pendingTaskExistsForSource(baseSource);
+        // Dedup: skip if any task (pending, active, or completed) already exists for this source,
+        // or if another sensor already has a pending task for the same PR
+        if (!crossSensorDup && !taskExistsForSource(source)) {
           insertTask({
             subject: action.subject,
             description: action.description,

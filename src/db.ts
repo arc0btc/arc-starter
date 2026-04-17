@@ -656,6 +656,17 @@ export function recentTaskExistsForSource(source: string, withinMinutes: number)
   return row !== null;
 }
 
+/**
+ * Prefix-based dedup: returns true if ANY task exists whose source starts with the given prefix.
+ * Use for cross-sensor dedup where source keys share a common prefix but diverge on suffix
+ * (e.g. "pr-review:repo#N" vs "pr-review:repo#N:v1").
+ */
+export function taskExistsForSourcePrefix(prefix: string): boolean {
+  const db = getDatabase();
+  const row = db.query("SELECT 1 FROM tasks WHERE source LIKE ? LIMIT 1").get(`${prefix}%`);
+  return row !== null;
+}
+
 export function recentTaskExistsForSourcePrefix(prefix: string, withinMinutes: number): boolean {
   const db = getDatabase();
   const row = db

@@ -1,5 +1,5 @@
 import { claimSensorRun, createSensorLogger, readHookState, insertTaskIfNew } from "../../src/sensors.ts";
-import { pendingTaskExistsForSource, recentTaskExistsForSource } from "../../src/db.ts";
+import { pendingTaskExistsForSource, recentTaskExistsForSource, taskExistsForSourcePrefix } from "../../src/db.ts";
 import { AIBTC_WATCHED_REPOS, classifyRepo, type RepoClass } from "../../src/constants.ts";
 
 const SENSOR_NAME = "github-mentions";
@@ -173,12 +173,16 @@ export default async function githubMentionsSensor(): Promise<string> {
             ? `issue:${n.repo}#${subjectNum}`
             : null;
 
-      // Dual-key dedup: skip if either thread or canonical source has a pending/active task.
-      // For Issues, also suppress re-creation within 24h — prevents flood when many people
-      // @mention Arc on the same thread (each completed task would otherwise allow the next).
+      // Dual-key dedup: skip if either thread or canonical source has an existing task.
+      // Watched-repo PRs use prefix-based ALL-status dedup to catch arc-workflows' ":v1" tasks
+      // and prevent re-queuing after completion. Non-watched PRs use pending-only (single source).
+      // Issues suppress re-creation within 24h to prevent flood from multiple @mentions.
+      const prPrefixDedup = isPROnWatchedRepo && canonicalSource && taskExistsForSourcePrefix(canonicalSource);
+      const pendingDedup = !isPROnWatchedRepo && canonicalSource && pendingTaskExistsForSource(canonicalSource);
       if (
         pendingTaskExistsForSource(threadSource) ||
-        (canonicalSource && pendingTaskExistsForSource(canonicalSource)) ||
+        prPrefixDedup ||
+        pendingDedup ||
         (canonicalSource && n.type === "Issue" && recentTaskExistsForSource(canonicalSource, 1440))
       ) {
         continue;
