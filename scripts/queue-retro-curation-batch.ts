@@ -217,6 +217,7 @@ async function fetchRoster(d: string): Promise<{ count: number; entries: RosterE
 function queueTask(args: {
   subject: string;
   description: string;
+  batchNumber: number;
 }): { id: string | null; output: string } {
   const proc = Bun.spawnSync(
     [
@@ -225,7 +226,7 @@ function queueTask(args: {
       "--description", args.description,
       "--priority", String(TASK_PRIORITY),
       "--skills", TASK_SKILLS,
-      "--source", `script:retro-curation:${date}`,
+      "--source", `script:retro-curation:${date}:batch-${args.batchNumber}`,
     ],
     { cwd: ROOT }
   );
@@ -234,8 +235,14 @@ function queueTask(args: {
   if (proc.exitCode !== 0) {
     throw new Error(`arc tasks add failed (exit ${proc.exitCode}): ${stderr || stdout}`);
   }
+  if (/^Skipped:/m.test(stdout) || /^Skipped:/m.test(stderr)) {
+    throw new Error(`arc tasks add silently skipped (dedup hit): ${stdout || stderr}`);
+  }
   const idMatch = stdout.match(/#(\d+)/);
-  return { id: idMatch?.[1] ?? null, output: stdout || stderr };
+  if (!idMatch) {
+    throw new Error(`arc tasks add produced no task id: ${stdout || stderr}`);
+  }
+  return { id: idMatch[1], output: stdout || stderr };
 }
 
 // ---- Main ----
@@ -322,9 +329,10 @@ async function main(): Promise<void> {
     `## After the batch`,
     ``,
     `1. Read state file: \`db/payouts/track-b-curation-state-${date}.json\``,
-    `2. Append the 5 reviewed IDs to \`reviewed_ids\` array, increment \`batches_queued\`, write back atomically (Bun.write with full JSON).`,
+    `2. Append the 5 reviewed IDs to \`reviewed_ids\` array (do NOT increment batches_queued — the next queue script does that for you). Write back atomically (Bun.write with full JSON).`,
     `3. Queue the next batch: \`bun run scripts/queue-retro-curation-batch.ts --date ${date}\``,
     `   - If the script prints \`{"status":"complete",...}\`, set \`state.completed=true\` in the state file and DO NOT queue another batch.`,
+    `   - If the script throws ("silently skipped" / "no task id" / "failed"), report it in your summary and STOP — do not silently succeed.`,
     `4. Exit with a one-line summary: \`Batch ${batchNumber} done — N approved, M displaced, K rejected, P replaced. Next: queued #<task-id> | complete.\``,
     ``,
     `## Hard rules`,
@@ -346,7 +354,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  const result = queueTask({ subject, description });
+  const result = queueTask({ subject, description, batchNumber });
   state.batches_queued = batchNumber;
   await writeState(state);
 
