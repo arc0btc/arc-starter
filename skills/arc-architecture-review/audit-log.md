@@ -1,3 +1,66 @@
+## 2026-04-17T07:00:00.000Z — Contract preflight + pre-commit lint hook + sensor cap guards
+
+**Task #12878** | Diff: f3a1855 → 7f011ce | Sensors: 71 | Skills: 110
+
+### Step 1 — Requirements
+
+- **Contract preflight wiring (b08c9566)**: Zest tx-runner and STX send-runner were burning nonce slots on transactions that would fail Hiro broadcast. Requirement: validate balance before acquiring nonce. **SATISFIED** — `contract-preflight` skill (d3b67d7b) wraps stxer simulation; wired into both tx paths. Preflight runs before nonce acquisition — aborts without nonce cost on known-bad transactions.
+- **Pre-commit lint hook (6b40fd75)**: Compliance scan 2026-04-16 found same 2 violation patterns for the 3rd+ time (nested `metadata.tags`, abbreviated sensor vars). Requirement: catch at commit time, not 6h later. **SATISFIED** — `lint-skills --staged` hook installed via `arc skills run --name arc-skill-manager -- install-hooks`. Closes `l-compliance-recurring`.
+- **Sensor cap + flat-data guards (90607ba9)**: retro-2026-04-17 identified ~2 dispatch cycles/day wasted on cap-hit signals, ~1-2 on flat-data (zero deltas, low strength). Requirement: sensor must not queue tasks it knows will fail. **SATISFIED** — dual cap check (local DB + aibtc.news API) + delta guard (all deltas=0 AND strength<50 → skip).
+- **stacking-delegation skill (370d183b)**: v0.40.0 BFF competition winner — read-only STX stacking monitor. Requirement: extend DeFi coverage. **SATISFIED** — skill installed, no sensor needed.
+
+### Step 2 — Delete
+
+- **No deletions** in this window. All changes are additive guards and skills.
+- **[CARRY-CANDIDATE]** `aibtc-news-deal-flow` sensor: beat retired (410 since v0.37.0), still present. If sensor creates tasks for dead beat, it should be audited and deleted. 3rd carry — prioritize investigation.
+- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
+- **[NOTE]** Pre-commit hook is not git-tracked — each fresh clone needs `install-hooks` run. Consider adding to `arc services install` or CLAUDE.md onboarding.
+
+### Step 3 — Simplify
+
+- **Contract preflight placement is correct**: checking balance before nonce acquisition is the right layer. Simulation call is cheap (read-only); nonce coordination is the expensive resource. Fail early before touching the coordinator.
+- **Dual cap check is correct architecture**: local DB is fast but stale; API is authoritative but slow. Default to local, fall back to API only when local shows headroom. If API call fails, fail open (don't block sensor). Correct tradeoff.
+- **Flat-data guard is clean**: two conditions (all deltas=0 AND strength<50) — neither alone is sufficient. Zero deltas with high strength could still be newsworthy (unusual stability). Correct logic.
+
+### Step 4 — Accelerate
+
+- **Contract preflight**: eliminates the class of "nonce burned on failed broadcast" failures. For Zest supply cycles, this means invalid balance states no longer consume a nonce slot in the coordinator.
+- **Cap + flat-data guards**: ~3-4 wasted dispatch cycles/day eliminated. Each was consuming Sonnet budget (~$0.28/cycle) for a task that would fail. At $0.28 × 4 × 30 = ~$33/month saved at current cost/cycle.
+
+### Step 5 — Automate
+
+- **[RESOLVED]** Cap-hit signal waste — API cap check + flat-data guard shipped in aibtc-agent-trading sensor.
+- **[RESOLVED]** Compliance violation recurrence — pre-commit hook prevents new violations at commit time.
+- **[OPEN]** Quantum signal auto-queuing: arXiv digest (haiku) compiles paper list but doesn't auto-create signal task. Still requires a dispatch cycle to read digest and queue Quantum task. Gap persists.
+- **[OPEN]** Agent registry cleanup scan (#12721): malformed SP addresses persist in registry. v4 deny-list defers them but root cause unresolved. Watch report 2026-04-17: "3 FST_ERR_VALIDATION STX welcomes, cleanup still pending."
+- **[OPEN]** Pre-commit hook not git-tracked — fresh clones won't have it until `install-hooks` is run. Gap in onboarding.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no further inscription tasks until whoabuddy resolves.
+
+### Flags
+
+- **[OK]** Contract preflight wired — Zest + STX send balance checks before nonce acquisition.
+- **[OK]** Pre-commit lint hook — compliance violations caught at commit time.
+- **[OK]** Cap + flat-data guards — ~3-4 wasted dispatch cycles/day eliminated.
+- **[OK]** stacking-delegation + contract-preflight skills installed (110 total).
+- **[OK]** MEMORY.md consolidated 125→88 lines.
+- **[OK]** Budget guard ($10/$3/$1 caps) — holding from prior cycle.
+- **[OK]** Prompt caching 58% reduction — holding.
+- **[OK]** Bitcoin Macro sensor — 3/3 beats covered.
+- **[OK]** x402 relay v1.29.0 — healthy.
+- **[OK]** Zest supply 4-5 ops/night — holding.
+- **[OK]** Hiro 400 v4 self-healing — ~2-3 failures/day (down from 54).
+- **[OPEN]** Quantum auto-queuing from arXiv digest.
+- **[OPEN]** Agent registry cleanup (#12721).
+- **[OPEN]** Pre-commit hook not tracked in git — install-hooks gap for fresh clones.
+- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY-CANDIDATE]** aibtc-news-deal-flow sensor — 3rd carry, needs investigation.
+- **[CARRY-WATCH]** Loom inscription workflow spiral.
+- **[CARRY-WATCH]** Brief inscription automation gap.
+
+---
+
 ## 2026-04-16T18:53:00.000Z — Budget guard + Opus 4.7 + Bitcoin Macro sensor + permission analysis
 
 **Task #12801** | Diff: a2c7adf → f3a1855 | Sensors: 71 | Skills: 108
@@ -231,110 +294,5 @@
 
 ---
 
-## 2026-04-13T18:48:00.000Z — Approved PR workflow auto-resolution
-
-**Task #12455** | Diff: c6b2543 → 8d446e6 | Sensors: 70 | Skills: 104
-
-### Step 1 — Requirements
-
-- **resolveApprovedPrWorkflows() (8d446e6)**: PR workflows in `approved` state were accumulating when PRs were merged/closed on GitHub without Arc noticing. Requirement: auto-transition approved→merged/closed when GitHub state changes. **SATISFIED** — `aibtc-repo-maintenance` sensor now checks all active pr-lifecycle workflows in `approved` state each 30-min run, queries GH via `gh pr view --json state,mergedAt`, and completes workflows that have been merged or closed.
-
-### Step 2 — Delete
-
-- **No deletions** in this window. Change is purely additive — new function in existing sensor.
-- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
-
-### Step 3 — Simplify
-
-- **Placement correct**: `resolveApprovedPrWorkflows()` added to `aibtc-repo-maintenance` sensor (which already has GH access and 30-min cadence) rather than a new sensor. Avoids sensor sprawl.
-- **GH API call per workflow**: Function iterates over all approved workflows and calls `gh pr view` for each. At current scale (typically <10 approved workflows) this is fine. If approved workflow count grows significantly, consider batching via GraphQL (same pattern as `fetchGitHubPRs()`).
-- **No dedup guard needed**: Each call is idempotent — `completeWorkflow()` is safe to call on an already-completed workflow.
-
-### Step 4 — Accelerate
-
-- **Eliminates approved-state workflow accumulation**: Prior to this fix, approved workflows sat indefinitely after PR merge/close, contributing to stuck-workflow noise. Now auto-resolved within one 30-min sensor cycle.
-
-### Step 5 — Automate
-
-- **[RESOLVED]** Approved PR workflow accumulation — auto-transition now runs every 30 min.
-- **[CARRY-WATCH]** Brief inscription automation gap — no automation chains overnight-brief → daily-brief-inscription (task #12399 confirmed gap, P3 task needed).
-- **[CARRY-WATCH]** Loom inscription workflow 23 token spiral — whoabuddy escalation pending.
-- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration.
-- **[CARRY-WATCH]** Contribution tag gap rate.
-
-### Flags
-
-- **[OK]** Approved PR workflow auto-resolution — shipped and running.
-- **[OK]** Hiro 400 v4 deny-list — 3-layer validation complete, 1 residual failure/night (down from 54).
-- **[OK]** JingSwap API key + 401 fallback — holding.
-- **[OK]** Signal cap counter generalized — holding.
-- **[OK]** Stale issue workflow cleanup — holding.
-- **[OK]** DailyBriefInscriptionMachine — holding.
-- **[OK]** Zest supply: mempool-depth guard holding.
-- **[OK]** PR review dedup: holding.
-- **[OK]** x402 relay: nonce gaps clear.
-- **[CARRY-ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
-- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
-- **[CARRY-WATCH]** Brief inscription automation gap.
-- **[CARRY-WATCH]** Loom inscription workflow 23 spiral.
-- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration.
-- **[CARRY-WATCH]** Contribution tag gap rate.
-
----
-
-## 2026-04-13T06:50:00.000Z — Hiro 400 fix v4 + bitcoin-wallet skill name consistency
-
-**Task #12389** | Diff: 39a5416 → c6b2543 | Sensors: 70 | Skills: 104
-
-### Step 1 — Requirements
-
-- **Hiro 400 fix v4 (2ab3431c)**: Structurally-valid SP-mainnet addresses can still fail Hiro's broadcast API (`FST_ERR_VALIDATION`, "params/principal must match pattern"). Fix v3 regex alone is insufficient for this class. Requirement: ensure known-bad addresses are blocked at CLI execution time — before any Hiro API call. **SATISFIED** — `cmdStxSend` reads `db/hook-state/aibtc-welcome-hiro-rejected.json` (150+ known-bad addrs) before calling `runStxSend`. Fail-open if state file unreadable.
-- **Skill name inconsistency (2ab3431c)**: `wallet` referenced in SKILL.md (13 occurrences) and welcome task description instead of `bitcoin-wallet`. Requirement: skill name must match registered name to prevent task context errors. **SATISFIED** — all references corrected.
-
-### Step 2 — Delete
-
-- **No net deletions** in this window. Deny-list is an additive guard on top of regex — not replacing the regex. Belt-and-suspenders is correct for address validation.
-- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
-
-### Step 3 — Simplify
-
-- **3-layer address validation is the right architecture**: L1 = sensor regex (prevents queuing), L2 = stx-send-runner.ts regex (prevents dispatch execution), L3 = CLI deny-list (blocks known-bad structurally-valid addresses). Each layer catches a different failure class. Not over-engineered — each layer was added because the prior one had a confirmed gap.
-- **Fail-open CLI guard is correct**: If the state file is unreadable (e.g., permission error, corrupt JSON), the guard allows the send rather than blocking all welcomes. Correct tradeoff — a missed deny-list check is recoverable (one more Hiro 400, address re-added to list); a blocked welcome flood is worse.
-- **Skill name fix is pure housekeeping**: 13 replacements, no logic change. Late catch — should have been caught when the skill was registered. Lesson: `SKILL.md` name field and all usage examples should be validated against the directory name at skill creation time.
-
-### Step 4 — Accelerate
-
-- **Deny-list short-circuits Hiro API calls**: 150+ addresses now fail in microseconds (JSON file read + array lookup) rather than burning a full Hiro API round-trip. For agents that re-trigger welcome (e.g., recurring sensor picks up same invalid address), this eliminates every subsequent wasted call.
-- **Skill name fix removes context gap**: tasks previously loaded skill `wallet` (not found) rather than `bitcoin-wallet` — skill context missing from dispatch. Fixed.
-
-### Step 5 — Automate
-
-- **[RESOLVED]** Hiro 400 deny-list is now self-healing end-to-end: loadAndUpdateDenyList() (sensor) populates the list on task failure; cmdStxSend (CLI) consults it at execution time. No manual updates needed for new bad addresses.
-- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration — sensor should read last scores before creating eval task.
-- **[CARRY-WATCH]** nonce-strategy Phase 1 retry-strategy.ts — retry path should query nonce tracker state.
-- **[CARRY-WATCH]** Contribution tag gap rate — monitor PR review task output.
-
-### Flags
-
-- **[RESOLVED]** Hiro 400 failures — v4 at CLI execution layer; deny-list covers 150+ known-bad addrs. Three-layer validation complete.
-- **[OK]** JingSwap API key + 401 fallback — holding.
-- **[OK]** Signal cap counter generalized — holding.
-- **[OK]** Stale issue workflow cleanup — automated, holding.
-- **[OK]** DailyBriefInscriptionMachine — circuit breaker holding.
-- **[OK]** Zest supply: mempool-depth guard holding.
-- **[OK]** PR review dedup: holding.
-- **[OK]** x402 relay: nonce gaps clear.
-- **[CARRY-ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
-- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
-- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration.
-- **[CARRY-WATCH]** nonce-strategy Phase 1 retry-strategy.ts.
-- **[CARRY-WATCH]** Contribution tag gap rate.
-
----
-
-*[Entries older than 2026-04-13 archived — see git history]*
+*[Entries older than 2026-04-14 archived — see git history]*
 
