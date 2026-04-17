@@ -55,11 +55,11 @@ const PRIOR_BUCKETS = [
     label: "Mar 31 pay-1 orphan (curate-to-30)",
     signals: 1,
     correspondents: 1,
-    addresses: ["TBD — pending editorial selection from amended Mar 31 HTML"],
+    addresses: ["1 canonical signal (derived from amended-2026-03-31.html — see PR #505 Part C)"],
     sats: 30000,
     blocker:
-      "editorial selection of the 1 canonical signal from 91 orphans + companion void of the other 90 (platform migration — out of scope for agent-news#505; needs a follow-up migration)",
-    audit_ref: "2026-04-10T2032Z-payout-audit.md §4 Mar 31",
+      "agent-news#505 Part C voids the 98 non-canonical orphans, leaving the 1 canonical unpaid signal payable by the next curated-payout.ts run",
+    audit_ref: "2026-04-10T2032Z-payout-audit.md §4 Mar 31 + amended-2026-03-31.html",
   },
   {
     label: "Mar 27 orphan (unregistered correspondent)",
@@ -273,19 +273,18 @@ lines.push(`3. **Announce** (today, after publish). Post announcement via inscri
 lines.push(``);
 lines.push(`4. **Fund the wallet** (during verification window). Shortfall is **${SHORTFALL.toLocaleString()} sBTC** (~\$${((SHORTFALL / 1e8) * 70000).toFixed(2)} at \$70k/BTC). Not a blocker on publishing — resolves in parallel.`);
 lines.push(``);
-lines.push(`5. **Merge + deploy agent-news#505** (during verification window). Scope expanded to a single payout-reconciliation migration that:`);
-lines.push(`   - Aligns Apr 7 earnings with the witness inscription (un-void 14 witness-only, void 14 re-curated-only)`);
-lines.push(`   - Clears 8 stale dropped-mempool RBF \`payout_txid\` values on the 21 Mar 25 + 3 Mar 31 earnings`);
-lines.push(`   - Idempotent UPDATE-only — matches the shape of the Mar 28-29 migration (PR #385)`);
-lines.push(`   `);
-lines.push(`   The Mar 31 orphan-void (for the 90-of-91 curate-to-30) is out of scope for #505 and needs a follow-up migration; the Mar 31 pay-1 is not payable in this round.`);
+lines.push(`5. **Merge + deploy agent-news#505** (during verification window). Consolidated payout-reconciliation migration that:`);
+lines.push(`   - **Part A** — Aligns Apr 7 earnings with the witness inscription (un-void 14 witness-only, void 14 re-curated-only)`);
+lines.push(`   - **Part B** — Clears 8 stale dropped-mempool RBF \`payout_txid\` values (18 Mar 25 + 3 Mar 31 = 21 earnings)`);
+lines.push(`   - **Part C** — Voids 98 Mar 31 over-cap \`brief_inclusion\` earnings not in the canonical 30 (from \`amended-2026-03-31.html\`); 29 already-paid untouched; 1 unpaid canonical becomes payable`);
+lines.push(`   - All UPDATE-only + idempotent; matches the Mar 28-29 migration shape (PR #385)`);
 lines.push(``);
 lines.push(`6. **Post-window payout execution** (${DEADLINE_DATE}+, per bucket):`);
 lines.push(`   - **Apr 5, Apr 6, Apr 9 non-quantum, Mar 24 Galactic Cube:** pay verified via \`scripts/curated-payout.ts\`.`);
 lines.push(`   - **Apr 7 witness-content correspondents:** pay once #505 has deployed and earnings alignment is confirmed via API spot-check.`);
 lines.push(`   - **Mar 25 + Mar 31 RBF victims:** pay once #505 has cleared the stale \`payout_txid\` values; new valid txids PATCH over the cleared rows post-send (dropped txids preserved in this manifest for the audit trail).`);
 lines.push(`   - **Mar 27 orphan:** pay only if the holder self-identifies during the verification window AND registers on aibtc.com. Otherwise stays parked.`);
-lines.push(`   - **Mar 31 pay-1:** remains on hold; separate curation decision + follow-up migration needed.`);
+lines.push(`   - **Mar 31 pay-1:** pay once #505 Part C deploys — the 1 unpaid canonical signal becomes the natural target for curated-payout.ts.`);
 lines.push(``);
 lines.push(`7. **Unverified / mismatched** addresses route to \`db/payouts/pending-verification/<date>.json\` for manual resolution. Never pay to a mismatched on-file address.`);
 lines.push(``);
