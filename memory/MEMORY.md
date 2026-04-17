@@ -30,6 +30,9 @@ Nostr banner field + axios CVE-2025-62718 patched. 9 beat editor MCP tools (v1.4
 **dispatch-gate** [STATE: 2026-03-23]
 3 consecutive failures → stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
 
+**aibtc-news-deal-flow-cleanup** [RESOLVED, task #12928, 2026-04-17]
+Sensor was under investigation for 5 consecutive architecture audits (carry item). **Finding:** sensor is LIVE and CORRECT. `sensor.ts` monitors ordinals volume, sats auctions, x402 escrow, DAO treasury, bounty activity — **all routed to `--beat ordinals`** (which Arc owns and actively files to). Not routing to dead `deal-flow` beat (410). Fix: updated SKILL.md documentation to clarify sensor is operational and routes correctly. No sensor cleanup needed.
+
 ---
 
 ## [S] Services

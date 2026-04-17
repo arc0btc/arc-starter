@@ -1,101 +1,61 @@
 ---
 name: aibtc-news-deal-flow
-description: Editorial voice for Deal Flow beat on aibtc.news — Real-time market signals, sats, Ordinals, bounties
-updated: 2026-04-15
+description: Archived sensor for Ordinals market signals — rerouted from retired deal-flow beat
+updated: 2026-04-17
 tags:
   - publishing
   - news
   - ai-btc
   - markets
+  - archived
 ---
 
-# AIBTC News — Deal Flow Editorial Voice
+# AIBTC News — Deal Flow Sensor (Archived, Rerouted)
 
-> **Beat retired (aibtcdev/skills v0.39.0):** The `deal-flow` beat has been consolidated into `aibtc-network`. Attempting to file signals to `deal-flow` will return HTTP 410 Gone. File under `aibtc-network` instead — it covers all agent economy activity including ordinals trades, bounty completions, x402 payments, and contract deployments.
+> **Status:** The `deal-flow` beat was retired in aibtcdev/skills v0.39.0 and consolidated into `aibtc-network`. **The sensor in this skill has been updated** (task #12928, 2026-04-17) and now routes all signals to the `ordinals` beat, which Arc owns and actively files to.
 
-> **BEAT OWNERSHIP NOTE:** Arc owns the `ordinals` and `dev-tools` beats. The `deal-flow` beat is owned by another agent. Signals from this sensor that cover ordinals-relevant market data should be filed to `--beat ordinals`. Dev-tools-relevant signals should go to `--beat dev-tools`. Do NOT file to `deal-flow` or any beat Arc has not claimed.
+> **Sensor operational:** `sensor.ts` monitors ordinals volume, sats auctions, x402 escrow activity, DAO treasury movements, and bounty activity, creating tasks to file signals to `--beat ordinals` (verified as correct destination for Arc). No cleanup needed — sensor is live and functioning correctly.
 
-Specialized editorial guidance for covering market signals on aibtc.news. This skill provides beat-specific signal templates, research hooks, and editorial standards for filing signals about real-time Bitcoin market activity, sats transactions, Ordinals marketplace dynamics, and bounty/auction events.
+This skill is a reference archive for a sensor that was originally written to monitor deal-flow market activity. The sensor continues to operate but has been rerouted to file signals to the `ordinals` beat instead of the retired deal-flow beat.
 
-## Beat Overview
+## Sensor Coverage (Ordinals Beat)
 
-**Deal Flow** covers:
-- Sats marketplace activity (bounty platform transactions, auctions)
-- Ordinals inscription volume and marketplace metrics
-- Bitcoin NFT market trends and price movements
-- DAO treasury movements (Bitcoin-denominated)
-- x402 agent commerce and escrow activity
-- Bounty program launches and completions
-- DeFi yield farming events and liquidity changes
+The `sensor.ts` file automatically monitors and creates signal-filing tasks for:
+- Ordinals inscription volume and marketplace metrics (weekly volume threshold: $2M)
+- Rare sats auction activity (Unisat indexer, special-rarity sats)
+- x402 agent escrow volume (weekly volume threshold: $100K)
+- DAO treasury movements (change threshold: 1 BTC)
+- Bounty program launches and activity (detected via stacks-based contracts)
 
-## Editorial Voice
+## Sensor Logic
 
-All Deal Flow signals follow **The Economist** style with market precision:
+The sensor (`sensor.ts`) runs every 60 minutes and checks four market data sources:
 
-### Structure Template
+1. **Ordinals Volume** — CoinGecko NFT API (Bitcoin Frogs, NodeMonkes, Bitcoin Puppets). Creates task when 7-day volume ≥ $2M.
+2. **Rare Sats Activity** — Unisat indexer API. Creates task when non-common-rarity sat inscriptions detected. Requires `unisat/api_key` credential.
+3. **x402 Escrow Volume** — Stacks API contract query. Aggregates STX transfers over 7 days, estimates USD value. Creates task when volume ≥ $100K.
+4. **DAO Treasury Movement** — Stacks API balance tracking. Creates task when change ≥ 1 BTC.
+5. **Bounty Activity** — Monitors stacks-based bounty contracts for launch transactions. Requires configured `bountyContract` in hook state.
 
-```
-Claim: Market fact (what happened)
-Evidence: Transaction data, marketplace metrics, or on-chain link
-Implication: Market sentiment or ecosystem consequence
-```
-
-### Example Signal
-
-**Beat:** Deal Flow
-**Claim:** Ordinals marketplace volume hit $2.3M weekly, highest since November.
-**Evidence:** Aggregate transaction data 2026-02-28; top marketplace Gamma posted $1.1M volume; avg inscription price $150.
-**Implication:** Rising creator interest suggests sustained artist adoption; price floor strengthening indicates buyer confidence.
-**Headline:** Ordinals marketplace hits weekly high
-
-### Key Topics
-
-| Topic | Example Signal | Keywords |
-|-------|-------|---------|
-| Ordinals Volume | Weekly inscriptions exceed 100k | volume, inscriptions, marketplace |
-| Marketplace Activity | Gamma marketplace hits new high | gamma, ordswap, transaction |
-| Sats Auctions | Rare sat auction closes at 100k sats | rare-sats, auction, bid |
-| Bounty Activity | Sats bounty platform launches $50k pool | bounty, sats, reward |
-| x402 Commerce | Agent escrow volume climbs to $10M | x402, escrow, agent-commerce |
-| DAO Treasury | Protocol DAO treasury exceeds 10 BTC | dao, treasury, governance |
-
-## Signal Checklist
-
-Before filing a deal-flow signal, verify:
-
-- [ ] **Specificity:** Is this _this deal_ not a market trend?
-- [ ] **Verifiability:** Can someone check blockchain, marketplace API, or verified sources?
-- [ ] **Timeliness:** Is this news (hours/days old) not old gossip?
-- [ ] **Quantified:** Do I have numbers (sats, volume, percentage)?
-- [ ] **Tone:** Have I avoided hype and used precise data?
+All generated tasks include `--beat ordinals` in their instructions and load `aibtc-news-editorial` skill to handle filing.
 
 ## Related Skills
 
-- **aibtc-news** — Base correspondent skill (CLI, beat management, signal filing)
+- **aibtc-news-editorial** — Main correspondent skill for filing to ordinals beat
 - **wallet** — Bitcoin message signing (BIP-137)
 - **ordinals** — Query Ordinals inscriptions and marketplace data
 - **stacks-contract** — Query x402 and DAO treasury state
 
-## Research Hooks
-
-**Automated signals to consider filing:**
-1. Ordinals weekly volume >$2M (marketplace activity)
-2. Sats auction reaching >50k sats per lot (rare-sats demand)
-3. x402 escrow volume >$5M weekly (agent commerce scaling)
-4. Bounty program launches with >10 sats reward (ecosystem activity)
-5. DAO treasury changes >1 BTC (governance/funding)
-
 ## When to Load
 
-Load alongside `aibtc-news` when filing signals for the Deal Flow beat (Ordinals volume, sats auctions, x402 commerce, DAO treasuries). For other beats, use `aibtc-news-editorial` instead.
-
-## Integration
-
-This skill is typically loaded alongside **aibtc-news** when filing signals on the Deal Flow beat:
+This skill is primarily for **reference and documentation** of the sensor. It is loaded automatically when the sensor creates signal-filing tasks. Manual loading is not typically needed; instead, use `aibtc-news-editorial` directly when filing signals to the ordinals beat:
 
 ```bash
 arc tasks add \
-  --subject "File Deal Flow signal" \
-  --skills aibtc-news,aibtc-news-deal-flow
+  --subject "File ordinals signal: [topic]" \
+  --skills aibtc-news-editorial \
+  --model sonnet
 ```
+
+The sensor itself is autonomous and requires no manual intervention.
 
