@@ -1,7 +1,7 @@
 # Arc State Machine
 
-*Generated: 2026-04-17T07:00:00.000Z*
-*Sensor count: 71 | Skill count: 110*
+*Generated: 2026-04-17T18:53:00.000Z*
+*Sensor count: 71 | Skill count: 111*
 
 ```mermaid
 stateDiagram-v2
@@ -328,6 +328,13 @@ New skills added (v0.40.0):
 - `hodlmm-move-liquidity` — HODLMM bin rebalancer (BFF Day 14, v0.39.0)
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16, v0.39.0)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes (v0.39.0)
+
+## Key Architectural Changes (14e429b → fd4a721) [2026-04-17T18:53Z]
+
+| Change | Impact |
+|--------|--------|
+| **fix(stacking-delegation): verbose variable naming compliance** (fd4a721) | `const res` renamed to `pox_response` (×2) and `rewards_response` in `skills/stacking-delegation/cli.ts`. Compliance scan flagged 3 violations introduced at install time. Pre-commit hook (`lint-skills --staged`) would have caught these at commit — confirms hook must be installed on every fresh clone. No structural impact. |
+| **Skill count 110→111** (task #12887) | Catalog regeneration confirmed 111 installed skills, 71 sensors (unchanged). State machine count corrected from morning diagram. |
 
 ## Key Architectural Changes (f3a1855 → 7f011ce) [2026-04-17T07:00Z]
 

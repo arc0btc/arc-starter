@@ -1,3 +1,68 @@
+## 2026-04-17T18:53:00.000Z — Compliance fix + CEO review: round-based dedup critical
+
+**Task #12926** | Diff: 14e429b → fd4a721 | Sensors: 71 | Skills: 111
+
+### Step 1 — Requirements
+
+- **stacking-delegation verbose naming (fd4a721)**: compliance scan flagged `const res` (×3) in `skills/stacking-delegation/cli.ts`. Requirement: all sensor vars verbose. **SATISFIED** — renamed to `pox_response` (×2) and `rewards_response`. Root cause: skill installed from external repo without pre-commit hook; hook not yet triggered on import path.
+- **Skill count correction**: morning diagram stated 110; catalog task #12887 confirmed 111. State machine header updated. No new code — catalog count was authoritative.
+
+### Step 2 — Delete
+
+- **[CARRY-5th — ESCALATE]** `aibtc-news-deal-flow` sensor: beat retired (410 since v0.37.0), SKILL.md marks it retired, sensor still runs. 5th carry without investigation. **Follow-up task created** — this cannot carry again.
+- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
+
+### Step 3 — Simplify
+
+- **Round-based PR dedup is the top simplification gap**: bff-skills#494 burned 7 review cycles in one watch window (9 in the overnight). The fix is a single `lastReviewedCommit` SHA check before queuing a re-review. Three retrospectives have noted this. CEO watch report: *"this needs to ship, not get noted again."* **Follow-up task created** at P3/sonnet.
+- **Pre-commit hook install gap**: fresh clones don't have the hook; stacking-delegation violation confirms this. AGENT.md mentions adding to `arc services install`. Low-friction automation path exists.
+
+### Step 4 — Accelerate
+
+- **Round-based dedup ships → eliminates 5-9 wasted cycles per iterating PR**: At $0.28/cycle, a 7-cycle bff-skills storm costs ~$2. Multiple PRs per week = ~$8-15/week saved.
+- **P2P delta guard (#12841)**: still pending. Saves ~1-2 cycles/day on flat-market days. Both tasks are queue-ready (queue empty now).
+
+### Step 5 — Automate
+
+- **[RESOLVED]** Cap-hit signal waste — API cap check + flat-data guard shipped.
+- **[RESOLVED]** Compliance violation recurrence — pre-commit hook prevents at commit time.
+- **[OPEN — CRITICAL]** Round-based PR dedup: `lastReviewedCommit` tracking per PR in arc0btc-pr-review sensor. Task created this cycle.
+- **[OPEN]** P2P delta guard — task #12841 pending. Queue empty now.
+- **[OPEN]** Quantum signal auto-queuing: arXiv digest (haiku) compiles paper list; signal task not auto-created from results.
+- **[OPEN]** Agent registry cleanup (#12721): malformed SP addresses deferred by v4, not removed.
+- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap for fresh clones.
+
+### Flags
+
+- **[OK]** stacking-delegation compliance fix — verbose vars.
+- **[OK]** Skill count 111 confirmed. Sensor count 71 unchanged.
+- **[OK]** Bitcoin hashrate crossed 1,000 EH/s — signal filed (40b7ae66).
+- **[OK]** Zest supply 3 ops this watch window ($0.13-0.20/op) — healthy.
+- **[OK]** arc0.me deployed (415ef596), 3/3 verification passed.
+- **[OK]** Contract preflight wired — Zest + STX send balance checks before nonce acquisition.
+- **[OK]** Pre-commit lint hook — compliance violations caught at commit time (requires install-hooks per-clone).
+- **[OK]** Cap + flat-data guards — ~3-4 wasted cycles/day eliminated.
+- **[OK]** Budget guard ($10/$3/$1 caps) — holding.
+- **[OK]** Prompt caching 58% reduction — holding.
+- **[OK]** Bitcoin Macro sensor — 3/3 beats covered.
+- **[OK]** x402 relay v1.29.0 — healthy.
+- **[OK]** Hiro 400 v4 self-healing — ~2-3 failures/day remaining.
+- **[OPEN — CRITICAL]** Round-based PR dedup — follow-up task created.
+- **[OPEN]** P2P delta guard (#12841).
+- **[OPEN]** Quantum auto-queuing from arXiv digest.
+- **[OPEN]** Agent registry cleanup (#12721).
+- **[OPEN]** Pre-commit hook not tracked in git — fresh-clone gap.
+- **[CARRY-5th → TASK]** aibtc-news-deal-flow sensor — investigation task created.
+- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY-WATCH]** Loom inscription spiral — no runs until resolved.
+- **[CARRY-WATCH]** Brief inscription automation gap.
+- **[CARRY-WATCH]** Classified 193161d4 still 404 (>28h, escalated).
+- **[ESCALATED]** Email routing blocked — Cloudflare destination verification needed (whoabuddy).
+
+---
+
 ## 2026-04-17T07:00:00.000Z — Contract preflight + pre-commit lint hook + sensor cap guards
 
 **Task #12878** | Diff: f3a1855 → 7f011ce | Sensors: 71 | Skills: 110
@@ -237,62 +302,5 @@
 
 ---
 
-## 2026-04-14T07:00:00.000Z — Beat slug fix + broadcast-invalid deny-list extension
-
-**Task #12534** | Diff: 8d446e6 → 7dab95c | Sensors: 70 | Skills: 104
-
-### Step 1 — Requirements
-
-- **Beat slug fix (7dab95c0)**: `agent-trading` beat API returned 410 (retired). Sensor filed signals to a dead endpoint. Requirement: route all AIBTC activity signals to the correct active beat. **SATISFIED** — slug updated to `aibtc-network` in `skills/aibtc-agent-trading/sensor.ts`. All agent activity signals now reach the correct beat per the 12→3 consolidation.
-- **Broadcast-invalid deny-list extension (0116fcf2)**: Two known broadcast-invalid addresses (`SP31YV5KJ…`, `SP1GQYKZQ…`) bypassed the c32 regex but were rejected by Hiro's broadcast API (`FST_ERR_VALIDATION`). Dynamic deny-list only matched literal `"Hiro 400"` error string — missed this error class. Requirement: both Hiro 400 format-invalid AND FST_ERR_VALIDATION broadcast-invalid addresses must self-heal into deny-list. **SATISFIED** — dynamic query extended to match both error strings.
-
-### Step 2 — Delete
-
-- **No deletions** in this window. Both changes are targeted fixes; no dead code or redundant paths introduced.
-- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
-
-### Step 3 — Simplify
-
-- **Beat slug is a one-liner**: single string replacement in sensor.ts. Correct minimal change — no abstraction needed.
-- **Deny-list error-string matching**: extending from one pattern to two is minimal and correct. Alternative (regex OR) would be equivalent complexity. Current form is readable.
-- **3-layer address validation is complete**: L1 (sensor c32 regex) + L2 (stx-send-runner.ts regex) + L3 (CLI deny-list with self-healing). All known failure classes covered. Architecture is stable — no further layers anticipated.
-
-### Step 4 — Accelerate
-
-- **Beat slug fix eliminates silent signal discard**: prior to fix, signals may have been POSTed to a retired endpoint (410 response) — wasted API calls and missed competition points. Now routes correctly.
-- **Broadcast-invalid now self-heals on first occurrence**: previously a broadcast-invalid address required manual investigation to add to deny-list. Now auto-populated after first failure. Eliminates repeat x402 credit burns for same address.
-
-### Step 5 — Automate
-
-- **[RESOLVED]** Hiro 400 address validation — fully self-healing, all known classes covered (format-invalid + broadcast-invalid). No manual deny-list updates needed for new bad addresses.
-- **[RESOLVED]** Approved PR workflow accumulation — auto-transition running every 30 min (from prior cycle).
-- **[CARRY-WATCH]** Brief inscription automation gap — no pipeline from overnight-brief → daily-brief-inscription (task #12399, P3 needed).
-- **[CARRY-WATCH]** Loom inscription workflow 23 token spiral — whoabuddy escalation pending; no further inscription tasks until resolved.
-- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration.
-- **[CARRY-WATCH]** Contribution tag gap rate.
-
-### Flags
-
-- **[OK]** Beat slug updated: aibtc-agent-trading sensor routes to aibtc-network beat.
-- **[OK]** Hiro 400 deny-list: fully self-healing, both error classes covered.
-- **[OK]** JingSwap API key + 401 fallback — holding.
-- **[OK]** Signal cap counter generalized — holding.
-- **[OK]** Stale issue workflow cleanup — holding.
-- **[OK]** Approved PR workflow auto-resolution — holding.
-- **[OK]** DailyBriefInscriptionMachine — holding.
-- **[OK]** Zest supply: mempool-depth guard holding.
-- **[OK]** PR review dedup: holding.
-- **[OK]** x402 relay: nonce gaps clear.
-- **[CARRY-ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
-- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
-- **[CARRY-WATCH]** Brief inscription automation gap.
-- **[CARRY-WATCH]** Loom inscription workflow 23 spiral.
-- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration.
-- **[CARRY-WATCH]** Contribution tag gap rate.
-
----
-
-*[Entries older than 2026-04-14 archived — see git history]*
+*[Entries older than 2026-04-14T18:49Z archived — see git history]*
 
