@@ -12,7 +12,6 @@ metadata:
   arguments: "doctor | run --action=status | run --action=monitor | run --action=repay | run --action=emergency-repay"
   entry: "zest-auto-repay/zest-auto-repay.ts"
   requires: "wallet, signing, settings"
-  tags: "defi, write, mainnet-only, requires-funds, l2"
 ---
 
 ## What it does

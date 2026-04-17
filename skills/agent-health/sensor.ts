@@ -228,7 +228,7 @@ async function queryLoomDb(
   // SQL often contains single-quoted literals like datetime('now') or status='failed'.
   // These would prematurely terminate the outer single-quoted shell argument.
   // The POSIX workaround is: replace each ' with '\'' (end quote, literal ', reopen quote).
-  const evalScript = `import{Database}from"bun:sqlite";const db=new Database("${dbPath}",{readonly:true});const r=db.prepare("${escapedSql}").all();process.stdout.write(JSON.stringify(r));`;
+  const evalScript = `import{Database}from"bun:sqlite";const db=new Database("${dbPath}",{readonly:true});const results=db.prepare("${escapedSql}").all();process.stdout.write(JSON.stringify(results));`;
   const shellEscapedEval = evalScript.replace(/'/g, "'\\''");
 
   const bunCmd = `cd ~/arc-starter && bun --eval '${shellEscapedEval}'`;

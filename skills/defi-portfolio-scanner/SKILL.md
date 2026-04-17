@@ -12,7 +12,6 @@ metadata:
   arguments: "doctor | scan --address <stx-address> | summary --address <stx-address>"
   entry: "defi-portfolio-scanner/defi-portfolio-scanner.ts"
   requires: ""
-  tags: "defi, read-only, mainnet-only, l2"
 ---
 
 # defi-portfolio-scanner

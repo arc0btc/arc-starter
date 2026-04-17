@@ -12,7 +12,6 @@ metadata:
   arguments: "doctor | install-packs | status | run"
   entry: "sbtc-yield-maximizer/sbtc-yield-maximizer.ts"
   requires: "wallet, signing, settings"
-  tags: "defi, write, mainnet-only, requires-funds, l2"
 ---
 
 # sBTC Yield Maximizer

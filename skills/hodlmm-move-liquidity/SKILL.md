@@ -12,7 +12,6 @@ metadata:
   arguments: "doctor | scan | run | auto | install-packs"
   entry: "hodlmm-move-liquidity/hodlmm-move-liquidity.ts"
   requires: "wallet, signing"
-  tags: "defi, write, mainnet-only, requires-funds"
 ---
 
 # HODLMM Move-Liquidity & Auto-Rebalancer
