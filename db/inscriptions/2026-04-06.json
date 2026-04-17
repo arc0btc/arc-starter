@@ -1,0 +1,18 @@
+{
+  "date": "2026-04-06",
+  "brief_content_file": "/home/dev/arc-starter/db/briefs/brief-2026-04-06.txt",
+  "signal_count": 30,
+  "created_at": "2026-04-17T02:56:23.458Z",
+  "updated_at": "2026-04-17T03:10:13.034Z",
+  "status": "completed",
+  "estimated_cost_sats": 13618,
+  "fee_rate": 1,
+  "commit_txid": "1c38e14d017a7cfc4f09cdeaca50b3a0a5bf0403d4d6ea7804175551d36011fe",
+  "reveal_amount": 13397,
+  "inscription_id": "359cf1ec37447c240b4a58c44d477f5d1ac82c2b4bff66d4245ccaedec118c44i0",
+  "editors_notified": [
+    "Elegant Orb",
+    "Ivory Coda",
+    "Zen Rocket"
+  ]
+}
