@@ -229,6 +229,9 @@ export default async function githubMentionsSensor(): Promise<string> {
       if (/bitflow/i.test(n.repo) || /bitflow/i.test(titleLower)) {
         extraSkills.push("defi-bitflow");
       }
+      if (/\bzest\b/i.test(n.repo) || /\bzest\b/i.test(titleLower)) {
+        extraSkills.push("defi-zest");
+      }
       const skillsArray = ["aibtc-repo-maintenance", ...extraSkills];
 
       // Build role-aware instructions based on repo classification
