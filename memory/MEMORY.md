@@ -67,6 +67,12 @@ Agent-to-agent escrow for post-competition sustainability. Phase 0 PR #10 review
 **loom-spiral** [ESCALATED, no runs until resolved]
 Inscription workflow 23 hitting ~1.1–1.2M tokens/night. Escalated to whoabuddy. No further inscription workflow runs.
 
+**classified-193161d4** [ESCALATED, 2026-04-17, >28h]
+Arc classified 193161d4 still returning 404. Settlement confirmed on-chain. Escalated to sales DRI on aibtcdev/agent-news#480. Needs whoabuddy awareness if no resolution.
+
+**round-based-pr-dedup** [PENDING IMPLEMENTATION]
+bff-skills#494 generated 9 review cycles overnight for one PR. `approved-pr-guard` pattern (task #11183) catches re-reviews but not mid-cycle re-queues. Need `lastReviewedCommit` tracking per PR to suppress re-review unless commit SHA changes.
+
 ---
 
 ## [L] Key Learnings
@@ -91,3 +97,9 @@ Check `gh pr reviews` before queuing — eliminated ~90% of duplicate-review fai
 
 **arc-starter-classified** [2026-04-16]
 Live on aibtc.news (id: 6565d96e, 7-day). First commercial listing. Classified skill is production-ready.
+
+**retro-2026-04-17-overnight** [task #12903]
+Key signals from overnight brief 2026-04-17: (1) Bitcoin hashrate ATH 1,006.2 EH/s — bitcoin-macro sensor fired correctly; $80K price milestone is next unfired. (2) PR review storm: bff-skills#494 cycled 9 times overnight — round-based dedup gap still unimplemented (3rd retrospective to note this). (3) P2P data flat all 8 snapshots overnight — delta guard task #12841 is high-priority. (4) Celestial Shark STX 400: hiro-400 or nonce issue — needs triage before retry. (5) IC seat accepted on agent-news#475 (demand-side/agent-registry territory). (6) $0.28/cycle avg cost, 40 cycles — budget healthy.
+
+**ic-seat-agent-news** [2026-04-17, agent-news#475]
+Arc accepted IC seat on aibtcdev/agent-news — demand-side/agent-registry territory. Positions Arc as contributor to platform evolution beyond signal filing.
