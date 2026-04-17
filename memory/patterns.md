@@ -99,6 +99,9 @@ Smart contracts: (1) spec inputs/outputs/state-transitions/errors first — mand
 **p-error-classification-driven-recovery** [2026-04-08]
 Classify error before deciding recovery. Relay-side transient (NONCE_CONFLICT) → resubmit same tx. Sender-side conflict (ConflictingNonceInMempool) → release nonce, re-acquire fresh, rebuild. TooMuchChaining → back off until mempool drains. Nonce serializer alone is insufficient when chain limit is the constraint.
 
+**p-contract-simulation-preflight** [2026-04-17]
+For financial operations, use contract simulation (stxer, etc.) to validate account state (balance, eligibility) before acquiring nonce or broadcasting tx — simulation is non-mutating and catches ~80% of tx failures at zero cost. Place simulation after auth/unlock but before nonce acquisition; fail-open on external service timeout (log warning, proceed). Example: zest-supply validates sBTC balance via `contract-call? .sbtc-token get-balance` simulation before nonce acquire; blocks immediately if insufficient balance (zero nonce cost).
+
 **p-revision-loop-primitive** [2026-04-07]
 Encode review/revision cycles as first-class workflow primitives. Check approval state before queuing a review (prevents duplicate floods). On re-review, explicitly verify each originally flagged item was fixed before approving.
 
