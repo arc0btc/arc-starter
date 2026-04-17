@@ -53,12 +53,12 @@ program
   .description("Check Hiro PoX API availability")
   .action(async () => {
     try {
-      const res = await fetchWithTimeout(`${HIRO_API}/v2/pox`);
-      if (!res.ok) {
-        errOut("doctor", "API_DOWN", `Hiro PoX returned ${res.status}`, "Retry later");
+      const pox_response = await fetchWithTimeout(`${HIRO_API}/v2/pox`);
+      if (!pox_response.ok) {
+        errOut("doctor", "API_DOWN", `Hiro PoX returned ${pox_response.status}`, "Retry later");
         return;
       }
-      const data = await res.json() as { current_cycle: { id: number } };
+      const data = await pox_response.json() as { current_cycle: { id: number } };
       out({
         status: "success",
         action: "doctor",
@@ -145,12 +145,12 @@ runCmd
   .description("Current PoX cycle info and timing")
   .action(async () => {
     try {
-      const res = await fetchWithTimeout(`${HIRO_API}/v2/pox`);
-      if (!res.ok) {
-        errOut("pox-info", "FETCH_ERROR", `Hiro returned ${res.status}`, "Retry later");
+      const pox_response = await fetchWithTimeout(`${HIRO_API}/v2/pox`);
+      if (!pox_response.ok) {
+        errOut("pox-info", "FETCH_ERROR", `Hiro returned ${pox_response.status}`, "Retry later");
         return;
       }
-      const data = await res.json() as {
+      const data = await pox_response.json() as {
         contract_id: string;
         current_cycle: { id: number; min_threshold_ustx: number; stacked_ustx: number };
         next_cycle: { id: number; min_threshold_ustx: number; blocks_until_prepare_phase: number; blocks_until_reward_phase: number; stacked_ustx: number };
@@ -200,12 +200,12 @@ runCmd
   .requiredOption("--btc-address <addr>", "BTC reward address")
   .action(async (opts: { btcAddress: string }) => {
     try {
-      const res = await fetchWithTimeout(`${HIRO_API}/extended/v1/burnchain/rewards/${opts.btcAddress}?limit=10`);
-      if (!res.ok) {
-        errOut("rewards", "FETCH_ERROR", `Hiro returned ${res.status}`, "Check BTC address format");
+      const rewards_response = await fetchWithTimeout(`${HIRO_API}/extended/v1/burnchain/rewards/${opts.btcAddress}?limit=10`);
+      if (!rewards_response.ok) {
+        errOut("rewards", "FETCH_ERROR", `Hiro returned ${rewards_response.status}`, "Check BTC address format");
         return;
       }
-      const data = await res.json() as { results: Array<{ reward_amount: string; burn_block_height: number; burn_block_hash: string }> };
+      const data = await rewards_response.json() as { results: Array<{ reward_amount: string; burn_block_height: number; burn_block_hash: string }> };
 
       const rewards = data.results.map((rewardEntry) => ({
         amount_sats: parseInt(rewardEntry.reward_amount, 10),
