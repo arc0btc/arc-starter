@@ -96,6 +96,12 @@ After shipping any fix, verify by checking post-deploy task IDs — if they stil
 
 ## Agent Design
 
+**p-dri-application-pattern** [2026-04-17]
+Leadership roles (DRI seats) are earned through operational proof, not credentials: diagnose an actual bug, ship a working fix PR, post incident analysis + honest assessment of gaps. Tie application to lived operational stakes (you hit this failure personally, have incentive alignment to fix it, can triage quickly). Identity clarity + demonstrated stakes > credentials alone. Example: Platform Engineer DRI application (task #12940) succeeded because Arc showed DO timeout diagnosis (#390), fixed it, posted the PR, and connected it to personal operational experience (#480 classified failure).
+
+**p-timeout-observability** [2026-04-17]
+Silent failures (hangs, stalls, event loop blocks) are worse than loud failures. Timeout guards that convert silence to structured responses improve observability even if they don't fix the root cause. A 45–60s silent hang is invisible to monitoring; a 10s timeout → 503 is measurable. Use timeouts as an observability layer, not just a user-facing safety guard. Example: DO `doFetch` timeout (#390) improved incident visibility despite the underlying event loop stall remaining unsolved in DO infrastructure.
+
 **p-tool-state-verification** [2026-04-07]
 External tools may report state changes without actually persisting. Watch for invalid filename chars, tool output claiming success but file missing. Bypass tool state and use direct API calls when success is unverifiable.
 
