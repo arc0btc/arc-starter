@@ -44,6 +44,94 @@ const WRITE_COMMANDS = new Set([
 const command = process.argv[2];
 const isWriteCommand = command !== undefined && WRITE_COMMANDS.has(command);
 
+// Contract pre-flight: simulate sBTC balance before nonce acquisition for supply ops.
+// Fail-open: stxer unreachable or timeout → log warning and proceed (do not block the tx).
+// Only runs for zest-supply with sBTC — the highest-value check for Zest write ops.
+if (isWriteCommand && command === "zest-supply") {
+  const rawArgs = process.argv.slice(3);
+  const assetIdx = rawArgs.indexOf("--asset");
+  const amountIdx = rawArgs.indexOf("--amount");
+  const asset = assetIdx >= 0 ? rawArgs[assetIdx + 1] : undefined;
+  const supplyAmount = amountIdx >= 0 ? parseInt(rawArgs[amountIdx + 1] ?? "", 10) : NaN;
+
+  if (asset?.toLowerCase() === "sbtc" && !isNaN(supplyAmount)) {
+    const ARC_SENDER = "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B";
+    const SBTC_CONTRACT = "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token";
+    const STXER_SIMS = "https://api.stxer.xyz/devtools/v2/simulations";
+    const expression = "(contract-call? 'SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token get-balance tx-sender)";
+
+    try {
+      const ctrl = new AbortController();
+      const preflightTimer = setTimeout(() => ctrl.abort(), 15_000);
+      try {
+        const sessionResp = await fetch(STXER_SIMS, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ skip_tracing: true }),
+          signal: ctrl.signal,
+        });
+        if (!sessionResp.ok) throw new Error(`session create: ${sessionResp.status}`);
+        const { id: sessionId } = await sessionResp.json() as { id: string };
+
+        const simResp = await fetch(`${STXER_SIMS}/${sessionId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({ steps: [{ Eval: [ARC_SENDER, "", SBTC_CONTRACT, expression] }] }),
+          signal: ctrl.signal,
+        });
+        if (!simResp.ok) throw new Error(`simulation: ${simResp.status}`);
+
+        const simData = await simResp.json() as { steps: Array<{ Eval: { Ok?: string; Err?: string } }> };
+        const step = simData.steps[0]?.Eval;
+
+        if (step?.Ok && step.Ok.startsWith("0701")) {
+          // (ok uint N): hex = "07"(ok) + "01"(uint) + 32-char big-endian uint value
+          const balance = BigInt("0x" + step.Ok.substring(4));
+          const decoded = `(ok uint ${balance})`;
+          const safeToBroadcast = balance >= BigInt(supplyAmount);
+          console.error(`[preflight] session=${sessionId} decoded=${decoded} safe_to_broadcast=${safeToBroadcast}`);
+          if (!safeToBroadcast) {
+            console.log(JSON.stringify({
+              success: false,
+              error: `Pre-flight blocked: insufficient sBTC balance. Have ${balance} sats, need ${supplyAmount} sats. No nonce consumed.`,
+              preflight: { session_id: sessionId, decoded, safe_to_broadcast: false },
+            }));
+            wm.lock();
+            process.exit(1);
+          }
+        } else if (step?.Ok?.startsWith("08")) {
+          // (err ...) — contract call failed
+          const decoded = `(err ${step.Ok.substring(4)})`;
+          console.error(`[preflight] session=${sessionId} decoded=${decoded} safe_to_broadcast=false`);
+          console.log(JSON.stringify({
+            success: false,
+            error: `Pre-flight blocked: sBTC balance check returned error. ${decoded}`,
+            preflight: { session_id: sessionId, decoded, safe_to_broadcast: false },
+          }));
+          wm.lock();
+          process.exit(1);
+        } else if (step?.Err) {
+          console.error(`[preflight] session=${sessionId} runtime_error=${step.Err} safe_to_broadcast=false`);
+          console.log(JSON.stringify({
+            success: false,
+            error: `Pre-flight blocked: simulation runtime error. ${step.Err}`,
+            preflight: { session_id: sessionId, decoded: step.Err, safe_to_broadcast: false },
+          }));
+          wm.lock();
+          process.exit(1);
+        } else {
+          console.error(`[preflight] session=${sessionId} unexpected response format — proceeding`);
+        }
+      } finally {
+        clearTimeout(preflightTimer);
+      }
+    } catch (prefErr) {
+      // Fail-open: stxer unreachable, timeout, or parse error
+      console.error(`[preflight] skipped (fail-open): ${prefErr instanceof Error ? prefErr.message : String(prefErr)}`);
+    }
+  }
+}
+
 // Mempool depth guard: refuse to submit if too many pending txs are already
 // in the mempool for this sender. Prevents TooMuchChaining (Stacks limit ~25).
 const MEMPOOL_DEPTH_LIMIT = 20;

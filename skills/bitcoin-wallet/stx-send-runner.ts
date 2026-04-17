@@ -117,6 +117,63 @@ try {
 try {
   const account = wm.getAccount() as Account;
 
+  // Contract pre-flight: check available STX balance before nonce acquisition.
+  // Fail-open: stxer unreachable or timeout → log warning and proceed.
+  // Skip when caller provides an explicit nonce (gap-fill / RBF flows assume balance is sufficient).
+  if (explicitNonce === undefined) {
+    const SBTC_CTX = "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token";
+    const STXER_SIMS = "https://api.stxer.xyz/devtools/v2/simulations";
+    const balanceExpr = "(stx-get-balance tx-sender)";
+    try {
+      const ctrl = new AbortController();
+      const preflightTimer = setTimeout(() => ctrl.abort(), 15_000);
+      try {
+        const sessionResp = await fetch(STXER_SIMS, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ skip_tracing: true }),
+          signal: ctrl.signal,
+        });
+        if (!sessionResp.ok) throw new Error(`session create: ${sessionResp.status}`);
+        const { id: sessionId } = await sessionResp.json() as { id: string };
+
+        const simResp = await fetch(`${STXER_SIMS}/${sessionId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({ steps: [{ Eval: [account.stxAddress, "", SBTC_CTX, balanceExpr] }] }),
+          signal: ctrl.signal,
+        });
+        if (!simResp.ok) throw new Error(`simulation: ${simResp.status}`);
+
+        const simData = await simResp.json() as { steps: Array<{ Eval: { Ok?: string; Err?: string } }> };
+        const step = simData.steps[0]?.Eval;
+
+        if (step?.Ok && step.Ok.startsWith("01")) {
+          // stx-get-balance returns raw uint (no ok wrapper): hex = "01" + 32-char big-endian value
+          const balanceMicroStx = BigInt("0x" + step.Ok.substring(2));
+          const safeToBroadcast = balanceMicroStx >= amountMicroStx;
+          console.error(`[preflight] session=${sessionId} stx_balance=${balanceMicroStx} needed=${amountMicroStx} safe_to_broadcast=${safeToBroadcast}`);
+          if (!safeToBroadcast) {
+            console.log(JSON.stringify({
+              success: false,
+              error: `Pre-flight blocked: insufficient STX balance. Have ${balanceMicroStx} uSTX (${Number(balanceMicroStx) / 1_000_000} STX), need ${amountMicroStx} uSTX. No nonce consumed.`,
+              preflight: { session_id: sessionId, safe_to_broadcast: false },
+            }));
+            wm.lock();
+            process.exit(1);
+          }
+        } else {
+          console.error(`[preflight] session=${sessionId} unexpected stx-get-balance response — proceeding`);
+        }
+      } finally {
+        clearTimeout(preflightTimer);
+      }
+    } catch (prefErr) {
+      // Fail-open: stxer unreachable, timeout, or parse error
+      console.error(`[preflight] skipped (fail-open): ${prefErr instanceof Error ? prefErr.message : String(prefErr)}`);
+    }
+  }
+
   // Use nonce-tracker to serialise concurrent STX sends across dispatch cycles.
   // Skip when caller provides an explicit nonce (gap-fill / RBF flows).
   let nonce = explicitNonce;
