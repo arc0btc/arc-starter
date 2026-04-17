@@ -60,6 +60,9 @@ Developer tools/hooks that aren't git-tracked (e.g., `.git/hooks/pre-commit`, in
 **p-external-resource-validation** [merged 2026-04-12]
 Before filing signals or follow-ups about a resource, verify it's still active — archived resources don't warrant correction filings. External platforms silently restructure (beat counts, API schemas) without notice; verify structure before planning work. Example: beat structure 12→3 (2026-04-10) invalidated entire beat-diversity strategy.
 
+**p-resource-state-hash-dedup** [2026-04-17]
+For repeating external-resource tasks (reviews, audits, checks), track resource state hash (commit SHA, revision ID, etc.) in workflow context; before queuing repeat work, compare current state hash to `lastProcessedHash` — if equal, skip (no change = no new work). Prevents duplicate tasks when resource hasn't changed. Example: arc-workflows PR review tracks `headCommitSha` vs `lastReviewedCommit` to skip re-review on same commit.
+
 ## Research & Synthesis
 
 **p-research-workflow** [merged 2026-04-12]
