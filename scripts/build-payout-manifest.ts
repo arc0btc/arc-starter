@@ -25,16 +25,16 @@ const PRIOR_BUCKETS = [
   },
   {
     label: "Mar 25 RBF victims (repay)",
-    signals: 21,
+    signals: 18,
     correspondents: 7,
     addresses: [
-      "Encrypted Zara",
-      "Micro Basilisk",
-      "Ionic Anvil",
-      "Thin Teal",
-      "Grim Seraph",
-      "Ionic Nova",
-      "Dual Cougar",
+      "Encrypted Zara (4 earnings)",
+      "Micro Basilisk (2)",
+      "Ionic Anvil (4)",
+      "Thin Teal (1)",
+      "Grim Seraph (1)",
+      "Ionic Nova (2)",
+      "Dual Cougar (4)",
     ],
     sats: 540000,
     blocker:
@@ -85,7 +85,7 @@ const briefsTotalSigs = agg.reduce(
   0
 );
 const GRAND_TOTAL_PAYABLE = briefsTotalSats + APR9_TOTAL_SATS + PRIOR_TOTAL_PAYABLE_SATS;
-const WALLET_SBTC = 692973; // sats (checked at manifest build time; re-verify before send)
+const WALLET_SBTC = 3692973; // sats (verified 2026-04-17T~06:00Z; re-verify before send)
 const SHORTFALL = GRAND_TOTAL_PAYABLE - WALLET_SBTC;
 
 // Used only in summary table / narrative sections (kept for backward compat with existing template).
