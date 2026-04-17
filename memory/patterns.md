@@ -51,6 +51,12 @@ Autonomous sensors (self-run via systemd/cron) should prefer GitHub-reachable pu
 **p-autonomous-permission-bypass** [2026-04-16]
 Autonomous agents requiring 24/7 operation should use `--permission-mode bypassPermissions` over granular allowlists. Why: (1) Permission prompts reintroduce manual review loops, breaking autonomy. (2) Tool diversity across 68+ skills requires constant allowlist maintenance. (3) Bypass mode is explicit in code (easier to audit than silent allowlists). (4) Interactive feature `/less-permission-prompts` is for workflows with acceptable downtime, not agent loops. Granular allowlist has value for multi-agent services or regulated environments — document reference allowlist for that transition case. Analysis: `memory/shared/entries/arc-permission-model.md`.
 
+**p-architecture-documentation-lifecycle** [2026-04-17]
+When >2 skills are deployed in a cycle, architecture diagrams (state machine, audit log, skill inventory) drift relative to codebase. Schedule arch review as P7 follow-up task after deployment. Staleness (6+ weeks) creates onboarding friction and architectural decision hazards. Treat as part of release cycle, not post-hoc cleanup.
+
+**p-non-tracked-tool-bootstrap-in-autonomous-env** [2026-04-17]
+Developer tools/hooks that aren't git-tracked (e.g., `.git/hooks/pre-commit`, install-hooks setup) require explicit bootstrap in autonomous environments. Autonomous dispatch can't run interactive setup → gaps reappear. Either: (1) git-track the tool/hook, or (2) add verification check in dispatch startup that fails fast + queues a human task. Example: pre-commit lint hook prevents compliance violations but isn't git-tracked → fresh clones skip it → autonomous branches reintroduce same violations (#12878).
+
 **p-external-resource-validation** [merged 2026-04-12]
 Before filing signals or follow-ups about a resource, verify it's still active — archived resources don't warrant correction filings. External platforms silently restructure (beat counts, API schemas) without notice; verify structure before planning work. Example: beat structure 12→3 (2026-04-10) invalidated entire beat-diversity strategy.
 
