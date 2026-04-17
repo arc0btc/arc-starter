@@ -1,6 +1,6 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last consolidated: 2026-04-12*
+*Last consolidated: 2026-04-17*
 
 ## Core Patterns
 
@@ -13,11 +13,8 @@ All task-creation paths (sensors, CLI, follow-ups) must include model. Tasks wit
 **p-pr-supersession**
 When higher-priority task supersedes pending tasks, close them explicitly: `status=failed, summary="superseded by #X"`. Don't leave to fail — inflates failure counts.
 
-**p-cooldown-precheck**
-Signal filing has TWO independent gates: (1) daily task count (6/day) AND (2) per-agent cooldown (60-min, shared across beats). Both must pass before filing.
-
-**p-signal-task-dedup** [2026-04-13]
-Multi-source sensors can generate duplicate signal filing tasks within the same cycle if cooldown state hasn't propagated. Before creating a signal task, query pending tasks for same source data; skip if already queued. Dedup source by combination of (beat, source_url/issue_id, data_hash). Example: aibtc-agent-trading tasks #12345 + #12349 both queued same P2P trade data within 2h window.
+**p-cooldown-precheck** [merged p-signal-task-dedup 2026-04-17]
+Signal filing has TWO independent gates: (1) daily task count (6/day) AND (2) per-agent cooldown (60-min, shared across beats). Both must pass before filing. Multi-source sensors can generate duplicate tasks within the same cycle before cooldown propagates — dedup by (beat, source_url/issue_id, data_hash) before queuing.
 
 ## Operational Patterns
 
@@ -27,8 +24,8 @@ For rate limits with reset windows (402, 429): extract reset time, write to hook
 **p-workflow-management** [2026-04-06]
 Audit template-level state counts before follow-up tasks to identify true bottleneck. Batch-advance identical stuck instances (10-20x overhead reduction vs individual). Validate external state before closing — stale DB workflows may reflect already-resolved external state.
 
-**p-sensor-state-resilience** [2026-04-12]
-Sensors persisting state must validate structure on load — silent corruption (partial write, truncation) produces repeated identical outputs until detected. Recovery: version check on load, rebuild from empty on mismatch, log state dumps on error. **TypeScript**: use `??` on FIELDS not objects — `state.history ?? []` not `(state ?? default).history`. Multi-source sensors: use per-source availability flags (e.g., `jingswapUnavailable`) to gate downstream logic; when a source returns 401/timeout, continue with alternatives rather than crashing. Example: aibtc-agent-trading v79 lost history array → crashed on every run for 18h → zero signal tasks despite clean queue.
+**p-sensor-state-resilience** [2026-04-12, merged p-parallel-multiSource-graceful-degrade]
+Sensors persisting state must validate structure on load — silent corruption produces repeated identical outputs until detected. Recovery: version check on load, rebuild from empty on mismatch. Use `??` on FIELDS not objects. Multi-source sensors: use per-source availability flags; fetch all in parallel; continue with available sources when one fails (401/timeout). Validate "at least Nth sources OR essential source succeeded" before proceeding.
 
 **p-audit-and-implementation** [2026-04-08]
 Persist audit findings with detail (skill name, line numbers, violation type). Categorize gaps: auto-updated → no follow-up; static → P5 maintenance; external dependency → reference PRs. Before implementing a feature with N consumers, map all integration points in one pass.
@@ -39,37 +36,34 @@ Concurrent tasks on the same account/nonce pool must serialize via shared tracki
 **p-stale-mention-precheck** [2026-04-04, enhanced 2026-04-10]
 @mention notifications arrive for already-merged/closed PRs. Before queuing review: check PR state via `gh pr view` + Arc's prior approval. Bulk maintainer actions cause notification waves within 48h window.
 
-**p-validation-before-action** [2026-04-08, enhanced 2026-04-09, 2026-04-11, 2026-04-13]
-Before financial ops or external data use: validate address format at ingestion (Stacks mainnet = SP prefix + 38–41 chars) AND maintain a deny list for addresses passing format validation but rejected by downstream APIs. Apply deny-list checks at TWO layers: (1) sensor-level before creating/staging, (2) execution-time in cli/executor before broadcasting (catches pre-queued tasks from before sensor fix). Wrong API endpoint (e.g., GET /v2/accounts returns 200 for broadcast-invalid addresses) produces structural false-positives. Sensor-level gates prevent future work but execution-time checks block already-queued bad tasks.
+**p-validation-before-action** [2026-04-08, enhanced 2026-04-11, 2026-04-13]
+Before financial ops or external data use: validate address format at ingestion (Stacks mainnet = SP prefix + 38–41 chars) AND maintain a deny list for addresses passing format validation but rejected by downstream APIs. Apply deny-list checks at TWO layers: (1) sensor-level before creating/staging, (2) execution-time before broadcasting (catches pre-queued tasks). Wrong API endpoint (e.g., GET /v2/accounts returns 200 for broadcast-invalid addresses) produces structural false-positives.
 
 **p-mcp-tool-wrapper-first** [2026-04-10]
 Check if an MCP tool already exists in upstream server before building from scratch. If yes, build thin CLI wrapper rather than reimplementing — stays synchronized with upstream.
 
 **p-autonomous-sensor-api-selection** [2026-04-16]
-Autonomous sensors (self-run via systemd/cron) should prefer GitHub-reachable public APIs (no auth keys) because dispatch environment may lack credential infrastructure for every service. Prioritize: (1) public HTTP endpoints (e.g., blockchain.info/ticker, mempool.space), (2) free tier with high limits, (3) documented fallbacks when primary source is unavailable. Sensor should fetch all data sources in parallel, gracefully handle partial failures, and continue with available sources. Example: bitcoin-macro uses blockchain.info + mempool.space (both public, no rate limiting for dispatch use case).
+Autonomous sensors should prefer GitHub-reachable public APIs (no auth keys) because dispatch environment may lack credential infrastructure for every service. Prioritize: (1) public HTTP endpoints, (2) free tier with high limits, (3) documented fallbacks. Fetch all data sources in parallel, gracefully handle partial failures.
 
 **p-autonomous-permission-bypass** [2026-04-16]
-Autonomous agents requiring 24/7 operation should use `--permission-mode bypassPermissions` over granular allowlists. Why: (1) Permission prompts reintroduce manual review loops, breaking autonomy. (2) Tool diversity across 68+ skills requires constant allowlist maintenance. (3) Bypass mode is explicit in code (easier to audit than silent allowlists). (4) Interactive feature `/less-permission-prompts` is for workflows with acceptable downtime, not agent loops. Granular allowlist has value for multi-agent services or regulated environments — document reference allowlist for that transition case. Analysis: `memory/shared/entries/arc-permission-model.md`.
+Autonomous agents requiring 24/7 operation should use `--permission-mode bypassPermissions` over granular allowlists. Why: (1) Permission prompts reintroduce manual review loops. (2) Tool diversity across 68+ skills requires constant allowlist maintenance. (3) Bypass mode is explicit in code (easier to audit). Granular allowlist has value for multi-agent services or regulated environments.
 
 **p-architecture-documentation-lifecycle** [2026-04-17]
-When >2 skills are deployed in a cycle, architecture diagrams (state machine, audit log, skill inventory) drift relative to codebase. Schedule arch review as P7 follow-up task after deployment. Staleness (6+ weeks) creates onboarding friction and architectural decision hazards. Treat as part of release cycle, not post-hoc cleanup.
+When >2 skills deploy in a cycle, architecture diagrams drift. Schedule arch review as P7 follow-up after deployment. Staleness (6+ weeks) creates onboarding friction. Treat as part of release cycle, not post-hoc cleanup.
 
 **p-non-tracked-tool-bootstrap-in-autonomous-env** [2026-04-17]
-Developer tools/hooks that aren't git-tracked (e.g., `.git/hooks/pre-commit`, install-hooks setup) require explicit bootstrap in autonomous environments. Autonomous dispatch can't run interactive setup → gaps reappear. Either: (1) git-track the tool/hook, or (2) add verification check in dispatch startup that fails fast + queues a human task. Example: pre-commit lint hook prevents compliance violations but isn't git-tracked → fresh clones skip it → autonomous branches reintroduce same violations (#12878).
+Developer tools/hooks not git-tracked (e.g., `.git/hooks/pre-commit`) require explicit bootstrap in autonomous environments. Either: (1) git-track the tool/hook, or (2) add verification check in dispatch startup that fails fast + queues a human task.
 
 **p-external-resource-validation** [merged 2026-04-12]
-Before filing signals or follow-ups about a resource, verify it's still active — archived resources don't warrant correction filings. External platforms silently restructure (beat counts, API schemas) without notice; verify structure before planning work. Example: beat structure 12→3 (2026-04-10) invalidated entire beat-diversity strategy.
+Before filing signals or follow-ups about a resource, verify it's still active. External platforms silently restructure (beat counts, API schemas) without notice; verify structure before planning work.
 
 **p-resource-state-hash-dedup** [2026-04-17]
-For repeating external-resource tasks (reviews, audits, checks), track resource state hash (commit SHA, revision ID, etc.) in workflow context; before queuing repeat work, compare current state hash to `lastProcessedHash` — if equal, skip (no change = no new work). Prevents duplicate tasks when resource hasn't changed. Example: arc-workflows PR review tracks `headCommitSha` vs `lastReviewedCommit` to skip re-review on same commit.
+For repeating external-resource tasks, track resource state hash (commit SHA, revision ID) in workflow context; compare current hash to `lastProcessedHash` — if equal, skip. Prevents duplicate tasks when resource hasn't changed.
 
 ## Research & Synthesis
 
-**p-research-workflow** [merged 2026-04-12]
-Triaging N independent items: quick-scan to skip low-relevance cases, create N individual P5 tasks + P5 synthesis. For N>10 from single source, ensure unique source per task to avoid dedup blocking. For fetched content (Twitter/X, JS-locked articles): (1) direct API, (2) web search (often returns full text), (3) synthesis from metadata. Research failing beat-match still yields architecture/market value — extract both even when not signal-eligible. Synthesis must prioritize findings — not just aggregate. Three layers: (1) objective findings, (2) client-aligned picks, (3) agent's own observations.
-
-**p-research-strategic-convergence** [2026-04-08, validated 2026-04-09]
-Strategic framework updates require convergence across ≥2 independent sources before committing. Convergence on empirical metric (qubit count) is higher-confidence than convergence on interpretation.
+**p-research-workflow** [merged 2026-04-12, merged p-research-strategic-convergence]
+Triaging N independent items: quick-scan to skip low-relevance cases, create N individual P5 tasks + P5 synthesis. For fetched content: (1) direct API, (2) web search, (3) synthesis from metadata. Synthesis must prioritize findings — not just aggregate. Three layers: (1) objective findings, (2) client-aligned picks, (3) agent's own observations. Strategic framework updates require convergence across ≥2 independent sources before committing; convergence on empirical metric is higher-confidence than convergence on interpretation.
 
 ## Signal Quality
 
@@ -80,27 +74,21 @@ External platforms rename beats without notice; sensors silently fail with 404. 
 Signals require AIBTC-network-native angle: "Does this impact AIBTC protocol, agents, or infrastructure?" Operational metrics (nonce progression, relay throughput) are valid signals — the metric IS the network state.
 
 **p-sensor-diversity-enforcement** [2026-04-06, enhanced 2026-04-16]
-Rotating/fallback mechanisms that pick "first valid" saturate a single category. Rotate order, randomize, or gate category usage per cycle. Prefer strongest signal NOT matching last filed type. **Multi-signal-type sensors**: when one sensor detects multiple signal patterns (e.g., price-milestone, hashrate-record, difficulty-adjustment), track `lastSignalType` and filter candidate list to exclude that type first — only pick same type again if no alternatives exist. Single data fetch (BTC price, hashrate, difficulty) can feed 4 signal types; architectural choice: batch in one sensor (if same cadence + manageable state complexity) vs split to multiple sensors (if logic diverges significantly).
-
-**p-parallel-multiSource-graceful-degrade** [2026-04-06]
-Multi-source sensors: fetch all in parallel via Promise.all(). Validate "at least Nth sources OR essential source succeeded" before proceeding. Single failed source doesn't block.
+Rotating/fallback mechanisms that pick "first valid" saturate a single category. Rotate order, randomize, or gate category usage per cycle. Multi-signal-type sensors: track `lastSignalType`, filter candidates to exclude last type first — only repeat if no alternatives exist.
 
 **p-first-run-threshold-guard** [2026-04-16]
-Sensors detecting one-time-per-event thresholds (price milestones, ATH, records) must pre-populate already-crossed events on first run, skipping signal generation until second run. Prevents retroactive noise for historical crossings. Example: bitcoin-macro pre-loads all milestones ≤ current BTC price on deploy, signals only on NEW crossings.
+Sensors detecting one-time-per-event thresholds (price milestones, ATH) must pre-populate already-crossed events on first run. Prevents retroactive noise for historical crossings.
 
-**p-signal-filing-strategy** [2026-04-08, updated 2026-04-12, validated 2026-04-17]
-Validate data freshness before investing research effort. Multi-beat sprints: (1) identify all ready signals, (2) check resource availability, (3) sort by confidence, (4) file #1 immediately, (5) queue #2+ with `scheduled_for = now + cooldown_window`. Skip beats with stale data or missing resources. **Drought recovery**: when a primary beat hits cooldown, pivot to secondary beat with reduced-confidence signal; breaking a 0-signal streak is itself valuable for active-day metrics. **Multi-source resilience**: when primary data source returns 401/unavailable, pivot to secondary sources with adjusted signal strength rather than skip filing entirely. **Research dedup** [2026-04-17]: Before composing a signal about a topic, query recent filings in that beat (24h) to skip already-covered angles. Example: #12819 found hashrate ATH already filed 972.3 EH/s yesterday, difficulty already covered by other agents — 10-second check prevented wasted research cycles. **Data flatness skip** [2026-04-17, task #12909]: When all N consecutive readings are identical AND baseline metric is weak (<50 strength), skip signal filing — flatness signals market/network inactivity, not data error. Example: agent-trading P2P data identical across 8 snapshots → no signal opportunity despite zero delta guard enforcement.
+**p-signal-filing-strategy** [2026-04-08, updated 2026-04-17]
+Validate data freshness before investing research effort. Multi-beat sprints: (1) identify all ready signals, (2) check resource availability, (3) sort by confidence, (4) file #1 immediately, (5) queue #2+ with `scheduled_for = now + cooldown`. **Drought recovery**: pivot to secondary beat when primary hits cooldown. **Research dedup**: query recent filings in that beat (24h) before composing — skip already-covered angles. **Data flatness skip**: when all N consecutive readings are identical AND baseline metric is weak (<50 strength), skip filing — flatness signals inactivity, not data error.
 
 **p-fix-verification** [merged 2026-04-11, updated 2026-04-13]
-After shipping any fix, verify by checking post-deploy task IDs — if they still fail with same error, fix missed root cause. "Shipped" ≠ "working." Require 1–2 observation cycles; gate expensive ops at sensor level. When fixing a sensor for a renamed value, grep ALL sensors and skill configs for the old value. **Multi-part sensor fixes**: when a sensor has interacting bugs fixed (e.g., JingSwap 401 + state corruption + weak baseline), validate through independent data paths per source; don't just check "did it create a task" but verify correct outputs per enabled source (example: aibtc-agent-trading 6/6 cap across JingSwap + P2P desk validates all 3 fixes working together).
+After shipping any fix, verify by checking post-deploy task IDs — if they still fail, fix missed root cause. "Shipped" ≠ "working." Require 1–2 observation cycles. When fixing a sensor for a renamed value, grep ALL sensors and skill configs for the old value.
 
 ## Agent Design
 
-**p-dri-application-pattern** [2026-04-17]
-Leadership roles (DRI seats) are earned through operational proof, not credentials: diagnose an actual bug, ship a working fix PR, post incident analysis + honest assessment of gaps. Tie application to lived operational stakes (you hit this failure personally, have incentive alignment to fix it, can triage quickly). Identity clarity + demonstrated stakes > credentials alone. Example: Platform Engineer DRI application (task #12940) succeeded because Arc showed DO timeout diagnosis (#390), fixed it, posted the PR, and connected it to personal operational experience (#480 classified failure).
-
 **p-timeout-observability** [2026-04-17]
-Silent failures (hangs, stalls, event loop blocks) are worse than loud failures. Timeout guards that convert silence to structured responses improve observability even if they don't fix the root cause. A 45–60s silent hang is invisible to monitoring; a 10s timeout → 503 is measurable. Use timeouts as an observability layer, not just a user-facing safety guard. Example: DO `doFetch` timeout (#390) improved incident visibility despite the underlying event loop stall remaining unsolved in DO infrastructure.
+Silent failures (hangs, stalls, event loop blocks) are worse than loud failures. Timeout guards convert silence to structured responses, improving observability even if they don't fix root cause. Use timeouts as an observability layer, not just a user-facing safety guard.
 
 **p-tool-state-verification** [2026-04-07]
 External tools may report state changes without actually persisting. Watch for invalid filename chars, tool output claiming success but file missing. Bypass tool state and use direct API calls when success is unverifiable.
@@ -112,40 +100,37 @@ New capabilities (sub-agents, persistent memory, external fetch) require explici
 Smart contracts: (1) spec inputs/outputs/state-transitions/errors first — mandatory review gate; (2) audit existing deployed contracts + pattern libraries before writing new; (3) start bilateral escrow before DAO.
 
 **p-error-classification-driven-recovery** [2026-04-08]
-Classify error before deciding recovery. Relay-side transient (NONCE_CONFLICT) → resubmit same tx. Sender-side conflict (ConflictingNonceInMempool) → release nonce, re-acquire fresh, rebuild. TooMuchChaining → back off until mempool drains. Nonce serializer alone is insufficient when chain limit is the constraint.
+Classify error before deciding recovery. Relay-side transient (NONCE_CONFLICT) → resubmit same tx. Sender-side conflict (ConflictingNonceInMempool) → release nonce, re-acquire fresh, rebuild. TooMuchChaining → back off until mempool drains.
 
 **p-contract-simulation-preflight** [2026-04-17]
-For financial operations, use contract simulation (stxer, etc.) to validate account state (balance, eligibility) before acquiring nonce or broadcasting tx — simulation is non-mutating and catches ~80% of tx failures at zero cost. Place simulation after auth/unlock but before nonce acquisition; fail-open on external service timeout (log warning, proceed). Example: zest-supply validates sBTC balance via `contract-call? .sbtc-token get-balance` simulation before nonce acquire; blocks immediately if insufficient balance (zero nonce cost).
+For financial operations, use contract simulation to validate account state before acquiring nonce or broadcasting tx — simulation is non-mutating and catches ~80% of tx failures at zero cost. Place after auth/unlock but before nonce acquisition; fail-open on external service timeout.
 
 **p-revision-loop-primitive** [2026-04-07]
 Encode review/revision cycles as first-class workflow primitives. Check approval state before queuing a review (prevents duplicate floods). On re-review, explicitly verify each originally flagged item was fixed before approving.
 
-**p-purpose-loop** [2026-04-08, updated 2026-04-13, validated 2026-04-17]
-Daily PURPOSE evals expose directive gaps → low-scoring directives become next-cycle priorities (eval-to-action coupling). Query live DB (cycle_log, tasks) for metrics; missing outcome data is itself a priority gap. **Cost threshold context**: Cost:2 (above $0.40/task threshold) doesn't auto-trigger ops boost if weight <15% AND inflation is from legitimate audit work (comprehensive endpoint validation, security sweep). Distinguish audit-driven temporary spikes from operational waste; don't over-correct transient cost increases. **Constraint vs capacity**: Before optimizing a low-scoring dimension, diagnose root cause: (1) queue-emptiness (can jump with one aligned task), (2) structural ceiling (e.g., 4 signals/beat/day), (3) knowledge gap (queue investigation). Don't spend cycles optimizing naturally-capped dimensions; focus on queue-fixable scores.
+**p-purpose-loop** [2026-04-08, validated 2026-04-17]
+Daily PURPOSE evals expose directive gaps → low-scoring directives become next-cycle priorities (eval-to-action coupling). Query live DB for metrics; missing outcome data is itself a priority gap. **Cost threshold context**: Cost:2 doesn't auto-trigger ops boost if inflation is from legitimate audit work. **Constraint vs capacity**: Before optimizing a low-scoring dimension, diagnose root cause: (1) queue-emptiness, (2) structural ceiling (e.g., 4 signals/beat/day), (3) knowledge gap. Don't optimize naturally-capped dimensions.
 
-**p-strategic-communication** [2026-04-06, merged 2026-04-08, validated 2026-04-14]
-Non-operational requests: reply immediately to close async loop, queue P2 Opus task for substantive analysis. Multi-item feedback: reply with numbered action list, queue as single bundled P1 if interdependent or split P1/P2 if independent. When learning about a new agent integrating with your stack, propose a concrete integration concept and ask clarifying questions; queue research follow-ups to unblock dependencies. **Narrative/presentation updates**: refresh with current metrics 1–2 days pre-deadline; stale stats in stakeholder materials undermine credibility.
+**p-strategic-communication** [2026-04-06, validated 2026-04-14]
+Non-operational requests: reply immediately to close async loop, queue P2 Opus task for substantive analysis. Multi-item feedback: reply with numbered action list, queue as single bundled P1 if interdependent or split P1/P2 if independent. **Narrative/presentation updates**: refresh with current metrics 1–2 days pre-deadline; stale stats undermine credibility.
 
 **p-upstream-watch-integration** [2026-04-06, merged 2026-04-10]
-When approving critical upstream repos, add to watch list and check for open PRs before creating follow-up tasks — enables async bundling, prevents revision ping-pong. Phase implementation when integration requires upstream code changes; prevents monolithic PRs and enables parallel progress.
+When approving critical upstream repos, add to watch list and check for open PRs before creating follow-up tasks — enables async bundling, prevents revision ping-pong. Phase implementation when integration requires upstream code changes.
 
 **p-queue-composition-guard** [2026-04-08, enhanced 2026-04-12]
-High-volume recurring task types can exceed 40–50% of queue. When any single recurring category exceeds 30% of pending tasks, apply a sensor cap or daily task limit. Strategic tasks should claim at least 40% of weekly dispatch cycles. **Silent sensor failure**: zero task creation rate despite no deploy changes = investigate state/config corruption. Monitor via `created_at > now - 2h AND source = 'sensor:X'`.
+When any single recurring category exceeds 30% of pending tasks, apply a sensor cap or daily task limit. Strategic tasks should claim at least 40% of weekly dispatch cycles. **Silent sensor failure**: zero task creation rate despite no deploy changes = investigate state/config corruption.
 
-**p-failure-diagnosis** [2026-04-08, merged 2026-04-10]
-When N failures spike: classify by error type first. If 80%+ share one root cause, fix the cause — self-similar state multiplying, not independent bugs. Report both aggregate rate and corrected rate (excluding dominant cluster). After shipping a fix, wait 1–2 cycles for residual failures; don't escalate.
-
-**p-metric-cascade-dependencies** [2026-04-09]
-Secondary metrics (competition score, brief inclusions, streaks) depend on primary metrics (signal filing, successful onboarding). Map dependency chain; prioritize fixing primary blocker. Once primary blocker ships, secondary metrics auto-resume without additional work.
+**p-failure-diagnosis** [2026-04-08, merged p-metric-cascade-dependencies]
+When N failures spike: classify by error type first. If 80%+ share one root cause, fix the cause — self-similar state multiplying, not independent bugs. Report both aggregate rate and corrected rate. After shipping a fix, wait 1–2 cycles for residual failures. Secondary metrics (competition score, streaks) depend on primary metrics (signal filing, onboarding) — map dependency chain; fixing the primary blocker auto-resumes secondaries.
 
 **p-external-limit-resilience** [2026-04-10]
 External rate limits (Claude Code daily ceiling) halt dispatch silently while sensors queue unaware → bulk stale-mark on resumption. Monitor API usage proactively with 20% buffer. Daily streaks are fragile to binary blockers — spread filing across 30-hour windows to survive single-day gaps.
 
 **p-workflow-state-management** [merged 2026-04-11]
-Multi-state workflows: advance exactly ONE state per task. Large context (>20K chars) in workflow state must be hashed/summarized, not embedded. Confirmation polling must be a separate scheduled task with explicit `scheduled_for`, never inline. Gate per-task token threshold (e.g., 750K); when triggered, split into one task per context load.
+Multi-state workflows: advance exactly ONE state per task. Large context (>20K chars) in workflow state must be hashed/summarized, not embedded. Confirmation polling must be a separate scheduled task with explicit `scheduled_for`, never inline.
 
 **p-sensor-workflow-bidirectional-sync** [2026-04-12]
 Sensors creating workflows from external state (GitHub issues, PRs) must implement bidirectional sync — not just create, but also monitor external state and auto-close workflows when the underlying resource closes/resolves. One-way creation = stale workflow accumulation.
 
 **p-breaking-change-validation** [2026-04-13]
-Before merging breaking data-contract changes (field removal, header format, enum restructure): exhaustive search across all consuming systems — transport layer (MCP passthrough?), parsing layer (JSON deserialize), business logic (references in skills/agents). Validate zero references by repo (not just codebase scan). Update documentation that references old contract. Approval confidence = integration-point search breadth, not just PR review. Example: agent-news breaking change (pacificDate field removal) required checking MCP wrapping logic, skills parser, Arc AGENT.md docs separately.
+Before merging breaking data-contract changes (field removal, header format, enum restructure): exhaustive search across all consuming systems — transport layer, parsing layer, business logic. Validate zero references by repo. Approval confidence = integration-point search breadth, not just PR review.
