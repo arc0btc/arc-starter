@@ -76,4 +76,21 @@ bun skills/arc-skill-manager/cli.ts list
 bun skills/arc-skill-manager/cli.ts show <name>
 bun skills/arc-skill-manager/cli.ts create <name> --description "text"
 bun skills/arc-skill-manager/cli.ts consolidate-memory [check|commit]
+bun skills/arc-skill-manager/cli.ts lint-skills               # lint all skills
+bun skills/arc-skill-manager/cli.ts lint-skills --staged      # lint staged files (pre-commit)
+bun skills/arc-skill-manager/cli.ts install-hooks             # install .git/hooks/pre-commit
 ```
+
+## Pre-commit Hook
+
+A git pre-commit hook (`lint-skills --staged`) prevents the two recurring compliance violations:
+
+1. **Nested `metadata.tags`** — SKILL.md frontmatter must use top-level `tags:`, not `metadata: { tags: [...] }`
+2. **Abbreviated sensor variables** — `sensor.ts` must not use `const res`, `const err`, `const val`, etc.
+
+Install the hook once per clone:
+```
+arc skills run --name arc-skill-manager -- install-hooks
+```
+
+The hook is not tracked in git (lives in `.git/hooks/`). Re-run `install-hooks` on fresh clones.

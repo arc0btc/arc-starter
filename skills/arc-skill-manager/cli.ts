@@ -214,6 +214,175 @@ function cmdMemoryCommit(): void {
   process.stdout.write("Committed memory/MEMORY.md consolidation.\n");
 }
 
+// ---- Lint: skill frontmatter + sensor naming ----
+
+interface LintViolation {
+  file: string;
+  line?: number;
+  message: string;
+}
+
+/** Parse YAML-style frontmatter block delimited by --- lines. Returns raw block string or null. */
+function extractFrontmatter(content: string): string | null {
+  const lines = content.split("\n");
+  if (lines[0]?.trim() !== "---") return null;
+  const endIdx = lines.findIndex((l, i) => i > 0 && l.trim() === "---");
+  if (endIdx === -1) return null;
+  return lines.slice(1, endIdx).join("\n");
+}
+
+/** Lint a SKILL.md file for frontmatter compliance. */
+function lintSkillMd(filePath: string, content: string): LintViolation[] {
+  const violations: LintViolation[] = [];
+  const frontmatter = extractFrontmatter(content);
+
+  if (frontmatter === null) {
+    violations.push({ file: filePath, message: "Missing or malformed frontmatter (expected --- delimiters)" });
+    return violations;
+  }
+
+  // Check required top-level fields: name, description, tags
+  const hasName = /^name\s*:/m.test(frontmatter);
+  const hasDescription = /^description\s*:/m.test(frontmatter);
+  const hasTopLevelTags = /^tags\s*:/m.test(frontmatter);
+
+  if (!hasName) violations.push({ file: filePath, message: "Frontmatter missing required field: name" });
+  if (!hasDescription) violations.push({ file: filePath, message: "Frontmatter missing required field: description" });
+  if (!hasTopLevelTags) {
+    violations.push({ file: filePath, message: "Frontmatter missing required field: tags (must be top-level)" });
+  }
+
+  // Detect nested metadata.tags pattern: a `metadata:` block that contains `tags:`
+  const metadataBlockRe = /^metadata\s*:/m;
+  if (metadataBlockRe.test(frontmatter)) {
+    // Check if tags appear indented under metadata (nested)
+    const lines = frontmatter.split("\n");
+    let inMetadata = false;
+    for (const line of lines) {
+      if (/^metadata\s*:/.test(line)) { inMetadata = true; continue; }
+      if (inMetadata) {
+        if (/^\S/.test(line)) { inMetadata = false; continue; } // new top-level key
+        if (/^\s+tags\s*:/.test(line)) {
+          violations.push({ file: filePath, message: "tags must be top-level in frontmatter, not nested under metadata:" });
+          break;
+        }
+      }
+    }
+  }
+
+  return violations;
+}
+
+/** Abbreviated variable name patterns that violate verbose naming convention. */
+const ABBREVIATED_VAR_RE = /\bconst\s+(res|val|err|ret|r|v|e)\s*[=:]/;
+
+/** Lint a sensor.ts file for abbreviated variable names. */
+function lintSensorTs(filePath: string, content: string): LintViolation[] {
+  const violations: LintViolation[] = [];
+  const lines = content.split("\n");
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (ABBREVIATED_VAR_RE.test(line)) {
+      const match = line.match(ABBREVIATED_VAR_RE);
+      violations.push({
+        file: filePath,
+        line: i + 1,
+        message: `Abbreviated variable name '${match![1]}' — use a descriptive name (e.g. 'response', 'error')`,
+      });
+    }
+  }
+
+  return violations;
+}
+
+/** Get staged file paths from git. Returns empty array if not in a git repo or on error. */
+function getStagedFiles(): string[] {
+  const result = Bun.spawnSync(["git", "diff", "--cached", "--name-only", "--diff-filter=ACMR"], {
+    cwd: ROOT,
+  });
+  if (result.exitCode !== 0) return [];
+  return result.stdout.toString().trim().split("\n").filter(Boolean);
+}
+
+function cmdLintSkills(args: string[]): void {
+  const { flags, positional: _ } = parseFlags(args);
+  const staged = flags["staged"] === true || flags["staged"] === "true";
+  const filesFlag = flags["files"] as string | undefined;
+
+  let targetFiles: string[];
+
+  if (filesFlag) {
+    targetFiles = filesFlag.split(",").map((f) => f.trim()).filter(Boolean);
+  } else if (staged) {
+    targetFiles = getStagedFiles();
+  } else {
+    // Lint all SKILL.md and sensor.ts files under skills/
+    const skillMds = Bun.spawnSync(["git", "ls-files", "skills/"], { cwd: ROOT });
+    targetFiles = skillMds.stdout
+      .toString()
+      .trim()
+      .split("\n")
+      .filter((f) => f.endsWith("/SKILL.md") || f.endsWith("/sensor.ts"));
+  }
+
+  const skillMdFiles = targetFiles.filter((f) => /skills\/[^/]+\/SKILL\.md$/.test(f));
+  const sensorFiles = targetFiles.filter((f) => /skills\/[^/]+\/sensor\.ts$/.test(f));
+
+  const allViolations: LintViolation[] = [];
+
+  for (const file of skillMdFiles) {
+    const fullPath = join(ROOT, file);
+    if (!existsSync(fullPath)) continue;
+    const content = readFileSync(fullPath, "utf-8");
+    allViolations.push(...lintSkillMd(file, content));
+  }
+
+  for (const file of sensorFiles) {
+    const fullPath = join(ROOT, file);
+    if (!existsSync(fullPath)) continue;
+    const content = readFileSync(fullPath, "utf-8");
+    allViolations.push(...lintSensorTs(file, content));
+  }
+
+  if (allViolations.length === 0) {
+    process.stdout.write(`OK — ${skillMdFiles.length} SKILL.md + ${sensorFiles.length} sensor.ts checked, no violations.\n`);
+    return;
+  }
+
+  for (const v of allViolations) {
+    const loc = v.line !== undefined ? `${v.file}:${v.line}` : v.file;
+    process.stderr.write(`LINT: ${loc}: ${v.message}\n`);
+  }
+  process.stderr.write(`\n${allViolations.length} violation(s) found. Fix before committing.\n`);
+  process.exit(1);
+}
+
+function cmdInstallHooks(): void {
+  const hooksDir = join(ROOT, ".git", "hooks");
+  const hookPath = join(hooksDir, "pre-commit");
+
+  const hookScript = `#!/bin/sh
+# Arc skill frontmatter + sensor naming lint
+# Installed by: arc skills run --name arc-skill-manager -- install-hooks
+
+cd "$(git rev-parse --show-toplevel)"
+exec bun skills/arc-skill-manager/cli.ts lint-skills --staged
+`;
+
+  Bun.write(hookPath, hookScript);
+
+  // Make executable
+  const chmodResult = Bun.spawnSync(["chmod", "+x", hookPath]);
+  if (chmodResult.exitCode !== 0) {
+    process.stderr.write(`Error: chmod +x ${hookPath} failed\n`);
+    process.exit(1);
+  }
+
+  process.stdout.write(`Installed pre-commit hook at .git/hooks/pre-commit\n`);
+  process.stdout.write(`Hook runs: bun skills/arc-skill-manager/cli.ts lint-skills --staged\n`);
+}
+
 function printUsage(): void {
   process.stdout.write(`manage-skills CLI
 
@@ -233,12 +402,24 @@ SUBCOMMANDS
   consolidate-memory [check|commit]
     Memory consolidation. 'check' reports stats (default). 'commit' stages and commits.
 
+  lint-skills [--staged] [--files FILE1,FILE2,...]
+    Validate SKILL.md frontmatter and sensor.ts variable naming.
+    --staged: lint only git-staged files (used by pre-commit hook)
+    --files:  lint specific comma-separated file paths
+    (no flags): lint all skills/ SKILL.md and sensor.ts files
+
+  install-hooks
+    Install .git/hooks/pre-commit to run lint-skills on every commit.
+
 EXAMPLES
   bun skills/arc-skill-manager/cli.ts list
   bun skills/arc-skill-manager/cli.ts show manage-skills
   bun skills/arc-skill-manager/cli.ts create my-skill --description "Does something useful"
   bun skills/arc-skill-manager/cli.ts consolidate-memory check
   bun skills/arc-skill-manager/cli.ts consolidate-memory commit
+  bun skills/arc-skill-manager/cli.ts lint-skills
+  bun skills/arc-skill-manager/cli.ts lint-skills --staged
+  bun skills/arc-skill-manager/cli.ts install-hooks
 `);
 }
 
@@ -260,6 +441,12 @@ async function main(): Promise<void> {
       break;
     case "consolidate-memory":
       cmdConsolidateMemory(args.slice(1));
+      break;
+    case "lint-skills":
+      cmdLintSkills(args.slice(1));
+      break;
+    case "install-hooks":
+      await cmdInstallHooks();
       break;
     case "help":
     case "--help":
