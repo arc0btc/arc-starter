@@ -236,6 +236,25 @@ async function fetchAgentCount(): Promise<number | null> {
   }
 }
 
+/** Query aibtc.news API for how many signals Arc has filed today (UTC).
+ * Returns null on error (so caller can fall back to local DB count). */
+async function fetchFiledSignalCountToday(): Promise<number | null> {
+  try {
+    const todayStart = new Date();
+    todayStart.setUTCHours(0, 0, 0, 0);
+    const since = todayStart.toISOString();
+    const arcAddress = "SP2GHQRCRMYY4S8PMBR49BEKX144VR437YT42SF3B";
+    const url = `https://aibtc.news/api/signals?agent=${arcAddress}&since=${encodeURIComponent(since)}&limit=10`;
+    const response = await fetchWithRetry(url);
+    if (!response.ok) return null;
+    const json = (await response.json()) as { signals?: unknown[]; total?: number; filtered?: number };
+    return json.filtered ?? (json.signals ? json.signals.length : null);
+  } catch (e) {
+    log(`API cap check failed: ${(e as Error).message}`);
+    return null;
+  }
+}
+
 // ---- Change detection ----
 
 interface ChangeSignal {
@@ -401,6 +420,14 @@ function detectChanges(
   if (signals.length === 0) {
     const hasP2PActivity = current.p2p.completed_trades > 0 || current.p2p.psbt_swaps > 0;
     const baseStrength = hasP2PActivity ? 45 : 30;
+
+    // Delta guard: if all key metrics unchanged AND strength < 50, return empty (no task queued).
+    // Prevents wasted dispatch cycles when P2P/JingSwap data is stale and signal would be weak.
+    const volumeDelta = currP2P.total_volume_sats - prevP2P.total_volume_sats;
+    if (newCompletedTrades === 0 && newPsbtSwaps === 0 && volumeDelta === 0 && agentDelta === 0 && baseStrength < 50) {
+      return signals; // empty — skip, no task queued
+    }
+
     signals.push({
       type: hasP2PActivity ? "p2p-activity" : pickNextSignalType(null),
       strength: baseStrength,
@@ -507,7 +534,7 @@ export default async function sensor(): Promise<string | void> {
   jingswapUnavailable = false;
   jingswapApiKey = await getCredential("jingswap", "api_key");
 
-  // Daily cap check
+  // Daily cap check — local DB (fast)
   const todayTotal = countSignalTasksToday();
   if (todayTotal >= DAILY_SIGNAL_CAP) {
     log(`daily signal cap hit (${todayTotal}/${DAILY_SIGNAL_CAP}), skipping`);
@@ -517,6 +544,13 @@ export default async function sensor(): Promise<string | void> {
   const beatToday = countSignalTasksTodayForBeat(BEAT_SLUG);
   if (beatToday >= BEAT_DAILY_ALLOCATION) {
     log(`beat allocation hit for ${BEAT_SLUG} (${beatToday}/${BEAT_DAILY_ALLOCATION}), skipping`);
+    return;
+  }
+
+  // Daily cap check — API (real-time, catches signals filed by tasks that completed after sensor created them)
+  const apiSignalCount = await fetchFiledSignalCountToday();
+  if (apiSignalCount !== null && apiSignalCount >= DAILY_SIGNAL_CAP) {
+    log(`daily cap confirmed via API (${apiSignalCount}/${DAILY_SIGNAL_CAP} signals filed today), skipping`);
     return;
   }
 
