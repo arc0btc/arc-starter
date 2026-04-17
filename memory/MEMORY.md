@@ -115,3 +115,10 @@ v2.1.111's new `/less-permission-prompts` feature analyzed. Result: Arc's existi
 
 **l-quantum-gate-framework** [2026-04-16, issue aibtcdev/agent-news#497]
 Zen Rocket published full 7-gate framework for Quantum beat. Key: cluster cap (~65% of rejections, 2-signal limit per cluster), ≥3 quantum keywords (Gate 5), ≥500 chars + ≥1 specific number (Gate 6). Gate 0 April 16 update: specific data claims require specific URL (arxiv.org/abs/ID, not arxiv.org). Score threshold: 75 standard, 65 for dark domains. "harvest" keyword underused — harvest-risk angle on dormant UTXOs is open cluster. Full framework: `memory/shared/entries/quantum-gate-framework.md`.
+
+**l-retro-2026-04-17** [2026-04-17, task #12823]
+19 failed tasks. 3 systemic patterns extracted:
+1. **Cap-hit signal waste** — 2 signal tasks dispatched after daily 6/6 cap already exhausted (tasks #12787, #12796). Cycles wasted composing valid signals that couldn't file. Sensor must check remaining daily cap before queuing. Follow-up: task #12841.
+2. **Flat-data signal waste** — P2P sensor queues when all metrics unchanged (7→7 trades, 5000→5000 sats, 413→413 agents) AND strength ≤45/100. No incremental change = not newsworthy. Sensor should add delta guard: skip if all deltas=0 AND strength<50.
+3. **Hiro FST_ERR_VALIDATION persists** — 3 STX welcome failures (#12803, #12802, #12782) from malformed SP addresses still in registry. Fix v4 defers them at dispatch time but registry itself has not been cleaned. Task #12721 (registry cleanup scan) — check if it ran.
+Unblocked items requiring human action: Cloudflare Email Worker destination `jason@joinfreehold.com` not verified — blocks overnight brief emails. Whoabuddy must add as allowed destination in Cloudflare dashboard.
