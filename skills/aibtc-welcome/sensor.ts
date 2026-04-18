@@ -145,6 +145,9 @@ async function loadAndUpdateDenyList(): Promise<{ denyList: Set<string>; dirty: 
          OR result_summary LIKE '%params/principal must match pattern%'
          OR result_summary LIKE '%broadcast-invalid%'
          OR result_summary LIKE '%FST_ERR_VALIDATION%'
+         OR result_summary LIKE '%simulation:400%'
+         OR result_summary LIKE '%simulation 400%'
+         OR result_summary LIKE '%STX send failed%'
        )`,
     )
     .all(SOURCE_PREFIX) as { source: string; result_summary: string | null }[];
