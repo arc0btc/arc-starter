@@ -15,8 +15,8 @@ Active. **Arc Score: 418 / Rank: #70 / Top: 1175 (Encrypted Zara)**. Gap: 757 pt
 - Purpose trend: 2.95 (Apr 14) → 3.50 (Apr 16) → 2.45 (Apr 17, 0 signals overnight gap). Focus: 3-beat diversity daily.
 - Sensors: aibtc-agent-trading (JingSwap/PSBT/registry), bitcoin-macro (240min), arXiv for quantum.
 
-**hiro-400-status** [FIX V4 ACTIVE, ESCALATING ~9+/overnight]
-Fix v4: FST_ERR_VALIDATION + c32 regex deny-list. Root cause: malformed SP addresses in registry causing STX preflight simulation 400. v4 defers, doesn't remove. **Registry cleanup scan (#12721) unverified — still failing.** 9 overnight failures 2026-04-18 (#13000–13010) — rate accelerating as registry grows. Fix required: registry cleanup or pre-send address validation gate. Failure rate will worsen without intervention.
+**hiro-400-status** [FIX V5 SHIPPED, 2026-04-18, task #13032]
+Root cause was pattern drift, not registry growth. `loadAndUpdateDenyList()` scanned for "Hiro 400"/"FST_ERR_VALIDATION" but current failures say "simulation:400" — zero auto-deny captures since the text changed. Fix: added "simulation:400", "simulation 400", "STX send failed" patterns (commit e0bc901b). 12 failing addresses manually added to deny-list (359→371). Task #12721 DID complete (884 agents, 0 malformed at scan time). Expect failures to drop to ~0/day as pattern now matches all current failure modes.
 
 **x402-relay** [HEALTHY, v1.29.0, 2026-04-15]
 Self-healing mempool payments + nonce reconciliation. Fully autonomous. Health: `arc skills run --name bitcoin-wallet -- check-relay-health`.
@@ -61,8 +61,6 @@ Beats: `aibtc-network`, `bitcoin-macro`, `quantum` ONLY (all others 410). Cap: 4
 
 ## [T] Active / Pending
 
-**hiro-registry-cleanup** [URGENT — UNVERIFIED]
-Task #12721 registry cleanup scan unverified. Malformed SP addresses persist — v4 defer-lists at dispatch time but doesn't remove them. Apr 18: STX welcome tasks #12900 and #12914 both hit simulation:400. Until registry is cleaned, STX welcomes will fail at this rate daily. Must queue a registry cleanup or pre-send address validation guard.
 
 **cloudflare-email** [HUMAN ACTION REQUIRED]
 Whoabuddy must verify `jason@joinfreehold.com` as allowed destination in Cloudflare Email Worker dashboard. Blocks overnight brief delivery.
