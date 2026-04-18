@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-04-17T18:53:00.000Z*
+*Generated: 2026-04-18T06:55:00.000Z*
 *Sensor count: 71 | Skill count: 111*
 
 ```mermaid
@@ -47,6 +47,7 @@ stateDiagram-v2
             blog_publishing
             aibtc_news_editorial
             aibtc_news_deal_flow
+            note right of aibtc_news_deal_flow: [RESOLVED] 5th-carry investigation (db172ec6, task #12928)\nSensor is LIVE and CORRECT — routes to ordinals beat (Arc-owned)\nNot routing to dead deal-flow beat (410)\nSKILL.md updated; carry item CLOSED
             aibtc_agent_trading
             ordinals_market_data
             social_x_posting
@@ -96,7 +97,7 @@ stateDiagram-v2
             context_review
             compliance_review
             arc_workflows
-            note right of arc_workflows: drives workflow state machine\nstate-specific source keys (8ce27fb9)\ndedup scoped to workflow:{id}:{state}\nprevents cross-state dedup collisions\nPrLifecycleMachine owns ALL PR review dispatch (061c807d)\nAUTOMATED_PR_PATTERNS exported from state-machine.ts\ncontext preserved on state transitions (not overwritten)\ngithub-mentions defers review_requested/assign to workflow engine\nSkills format: JSON.stringify() not .join(",") (f3b5159d)\narc-self-review: trigger state includes workflow transition cmd (806ce147)\nGH CLI GraphQL migration: fetchGitHubPRs() now uses gh api graphql\nbatched multi-repo query (was per-repo REST + credentials fetch)\nremoves fetchWithRetry + getCredential dependencies\nTERMINAL-STATE AUTO-COMPLETE (6b743823):\nNew PRs seen already closed/merged → completeWorkflow() immediately\nExisting workflows with no outgoing transitions → completeWorkflow()\nPrevents stuck workflow accumulation (fixed 159 stuck workflows task #10919)\nAPPROVED-PR GUARD (4292cef2): arcHasReview field in GithubPR\nGraphQL fetches last 20 reviews per PR (batched, no extra calls)\nmapPRStateToWorkflowState() → "approved" if Arc has any review\nRegression guard: approved → opened/review-requested blocked\nPR query: first:50 → last:50 (0fee0799) — most recent PRs now\nincluded even in high-activity repos (>50 total PRs)\nAUTO-CLOSE AUTOMATED PRs (46389bb8): buildReviewAction() returned null\nfor dependabot/release-please in 'opened' state → meta-sensor noop loop\nNow returns transition→closed for skipped PRs → auto-advances without human\nFixed 21 stuck automated PR workflows (pr-lifecycle completion 69%→normal)\nDAILY-BRIEF-INSCRIPTION MACHINE (f7e9124c): token spiral circuit breaker\nNew DailyBriefInscriptionMachine (8 states):\npending→brief_fetched→balance_ok→committed→commit_confirmed→revealed→confirmed→completed\nHard rules: one state per task, context <2KB, NO full brief text in workflow\nBrief stored as dataHash (SHA-256) + briefSummary (max 200 chars)\nConfirmation polling always spawns separate scheduled task (never inline)\nHardened existing InscriptionMachine task descriptions with explicit guards\nNew TEMPLATES.md documents workflow templates in arc-workflows\nNew daily-brief-inscribe SKILL.md: dependencies + state table (skill count 103→104)
+            note right of arc_workflows: drives workflow state machine\nstate-specific source keys (8ce27fb9)\ndedup scoped to workflow:{id}:{state}\nprevents cross-state dedup collisions\nPrLifecycleMachine owns ALL PR review dispatch (061c807d)\nAUTOMATED_PR_PATTERNS exported from state-machine.ts\ncontext preserved on state transitions (not overwritten)\ngithub-mentions defers review_requested/assign to workflow engine\nSkills format: JSON.stringify() not .join(",") (f3b5159d)\narc-self-review: trigger state includes workflow transition cmd (806ce147)\nGH CLI GraphQL migration: fetchGitHubPRs() now uses gh api graphql\nbatched multi-repo query (was per-repo REST + credentials fetch)\nremoves fetchWithRetry + getCredential dependencies\nTERMINAL-STATE AUTO-COMPLETE (6b743823):\nNew PRs seen already closed/merged → completeWorkflow() immediately\nExisting workflows with no outgoing transitions → completeWorkflow()\nPrevents stuck workflow accumulation (fixed 159 stuck workflows task #10919)\nAPPROVED-PR GUARD (4292cef2): arcHasReview field in GithubPR\nGraphQL fetches last 20 reviews per PR (batched, no extra calls)\nmapPRStateToWorkflowState() → "approved" if Arc has any review\nRegression guard: approved → opened/review-requested blocked\nPR query: first:50 → last:50 (0fee0799) — most recent PRs now\nincluded even in high-activity repos (>50 total PRs)\nAUTO-CLOSE AUTOMATED PRs (46389bb8): buildReviewAction() returned null\nfor dependabot/release-please in 'opened' state → meta-sensor noop loop\nNow returns transition→closed for skipped PRs → auto-advances without human\nFixed 21 stuck automated PR workflows (pr-lifecycle completion 69%→normal)\nDAILY-BRIEF-INSCRIPTION MACHINE (f7e9124c): token spiral circuit breaker\nNew DailyBriefInscriptionMachine (8 states):\npending→brief_fetched→balance_ok→committed→commit_confirmed→revealed→confirmed→completed\nHard rules: one state per task, context <2KB, NO full brief text in workflow\nBrief stored as dataHash (SHA-256) + briefSummary (max 200 chars)\nConfirmation polling always spawns separate scheduled task (never inline)\nHardened existing InscriptionMachine task descriptions with explicit guards\nNew TEMPLATES.md documents workflow templates in arc-workflows\nNew daily-brief-inscribe SKILL.md: dependencies + state table (skill count 103→104)\nLASTREVIEWEDCOMMIT SHA DEDUP (cad8fb5c): headCommitSha tracked per PR\nin workflow context (via headRefOid from GitHub GraphQL)\nBefore queuing pr-review task: skip if headCommitSha === lastReviewedCommit\nUpdate lastReviewedCommit when review task is created\nFixes bff-skills#494 storm (9 review cycles overnight per PR)\nEach distinct commit reviewed exactly once regardless of workflow state cycling\n[RESOLVED] Round-based PR dedup — 3rd-retrospective carry item CLOSED
         }
 
         state MemoryMaintenanceSensors {
@@ -328,6 +329,13 @@ New skills added (v0.40.0):
 - `hodlmm-move-liquidity` — HODLMM bin rebalancer (BFF Day 14, v0.39.0)
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16, v0.39.0)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes (v0.39.0)
+
+## Key Architectural Changes (fd4a721 → 6b95f77) [2026-04-18T06:55Z]
+
+| Change | Impact |
+|--------|--------|
+| **feat(arc-workflows): lastReviewedCommit SHA dedup for PR review tasks** (cad8fb5c) | `headCommitSha` tracked per PR workflow via `headRefOid` from GitHub GraphQL. Before queuing a `pr-review` task, sensor checks if `headCommitSha === lastReviewedCommit` — same commit never reviewed twice. Fixes bff-skills#494 storm (9 review cycles overnight). `lastReviewedCommit` updated on task creation. Closes the 3rd-retrospective carry item for round-based PR dedup. |
+| **docs(aibtc-news-deal-flow): clarify sensor operational status** (db172ec6) | 5 consecutive audits flagged this sensor as a carry item suggesting deletion. Investigation (task #12928) confirmed sensor is LIVE and CORRECT — monitors ordinals volume, sats auctions, x402 escrow, DAO treasury, bounty activity, routing to `ordinals` beat (Arc-owned). Not routing to dead `deal-flow` beat (410). SKILL.md updated with accurate description. Carry item closed — no code changes needed. |
 
 ## Key Architectural Changes (14e429b → fd4a721) [2026-04-17T18:53Z]
 

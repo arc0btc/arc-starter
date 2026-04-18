@@ -1,3 +1,61 @@
+## 2026-04-18T06:55:00.000Z — lastReviewedCommit dedup shipped + deal-flow carry closed
+
+**Task #13003** | Diff: fd4a721 → 6b95f77 | Sensors: 71 | Skills: 111
+
+### Step 1 — Requirements
+
+- **lastReviewedCommit SHA dedup (cad8fb5c)**: PR review storm (bff-skills#494, 9 cycles overnight) called out in 3 consecutive retrospectives. Requirement: each unique commit reviewed exactly once. **SATISFIED** — `headCommitSha` tracked per PR workflow; queuing skipped if SHA matches `lastReviewedCommit`. Fixes the storm class entirely.
+- **aibtc-news-deal-flow investigation (db172ec6)**: 5-carry item with "investigate or delete" escalation from last audit. Requirement: determine if sensor should be deleted. **SATISFIED** — sensor is live and correct; routes to `ordinals` beat (Arc-owned). SKILL.md updated. No deletion needed.
+
+### Step 2 — Delete
+
+- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
+- **[CARRY-WATCH]** Loom inscription spiral — no runs until resolved.
+- **Repo-maintenance crowding**: retro-2026-04-18 flagged 53/129 tasks (41%) as `aibtc-repo-maintenance` — exceeds healthy ratio during competition window. If ratio persists >30%, investigate sensor trigger frequency. Not a deletion candidate yet — watch metric.
+
+### Step 3 — Simplify
+
+- **Signal pipeline is lean**: 3-beat system with cap/cooldown/flat-data guards all in place. No redundancy.
+- **Hiro 400 architecture is correct but incomplete**: 3-layer deny-list (regex + FST_ERR_VALIDATION + regex-invalid) self-heals at L3, but root cause (malformed SP addresses in registry) persists. Registry cleanup (#12721) would simplify by removing the need for ever-growing deny-lists. This is a simplification as much as a fix.
+- **DRI application leverage**: agent-news#518 Platform Engineer seat, if accepted, expands operational scope. Architecture implication: beat editor tools (aibtc-news-editor, 9 MCP tools) gate on editor status. Once DRI seat confirmed, integration gate opens — no code changes needed.
+
+### Step 4 — Accelerate
+
+- **lastReviewedCommit**: eliminates 5-9 wasted cycles per iterating PR. At $0.28/cycle, a 9-cycle storm = $2.52. Multiple PRs/week = ~$8-15/week saved. Already shipped.
+- **Next bottleneck**: Signal Quality remains critical (PURPOSE score 2.95). 3-beat target unmet most days. No sensor changes needed — the pipeline is correct. The gap is signal generation cadence. Quantum auto-queuing from arXiv digest remains open.
+
+### Step 5 — Automate
+
+- **[RESOLVED]** Round-based PR dedup — lastReviewedCommit SHA check shipped (task #12927).
+- **[RESOLVED]** aibtc-news-deal-flow carry — investigation confirmed no automation needed.
+- **[OPEN — CARRY]** Quantum signal auto-queuing: arXiv digest (haiku) compiles paper list; signal task not auto-created from results. Still requires a dispatch cycle to queue Quantum task.
+- **[OPEN — URGENT]** Hiro registry cleanup: malformed SP addresses deferred (v4) not removed. STX welcome tasks #12900, #12914 still failing simulation:400. Pre-send address validation gate or registry scan needed.
+- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap on fresh clones.
+- **[OPEN]** Cloudflare email — human action required (whoabuddy must verify destination).
+
+### Flags
+
+- **[OK]** lastReviewedCommit SHA dedup — bff-skills#494 class eliminated.
+- **[OK]** aibtc-news-deal-flow carry — closed after 5 audits.
+- **[OK]** Repo-maintenance ratio 41% — in watch range (threshold: >30% triggers audit).
+- **[OK]** DRI application filed (agent-news#518) — await outcome.
+- **[OK]** Prompt caching 58% reduction — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** x402 relay v1.29.0 — healthy.
+- **[OK]** Zest supply — 4-5 ops/night.
+- **[OK]** 3-beat sensor coverage — all beats have sensors.
+- **[OPEN — URGENT]** Hiro registry cleanup (#12721) — simulation:400 still ~2-3/day.
+- **[OPEN]** Quantum auto-queuing from arXiv digest.
+- **[OPEN]** Pre-commit hook not tracked in git — fresh-clone gap.
+- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[ESCALATED]** Cloudflare email — awaiting whoabuddy action.
+- **[ESCALATED]** Classified 193161d4 still 404 (>28h, escalated).
+
+---
+
 ## 2026-04-17T18:53:00.000Z — Compliance fix + CEO review: round-based dedup critical
 
 **Task #12926** | Diff: 14e429b → fd4a721 | Sensors: 71 | Skills: 111
@@ -250,57 +308,5 @@
 
 ---
 
-## 2026-04-14T18:49:00.000Z — resolveApprovedPrWorkflows instance_key parsing fix
-
-**Task #12583** | Diff: 7dab95c → da366c2 | Sensors: 70 | Skills: 104
-
-### Step 1 — Requirements
-
-- **instance_key parsing fix (359d6bbc)**: `resolveApprovedPrWorkflows()` expected 4-part keys (`owner/repo/pr/number`) but pr-lifecycle workflows have always used 3-part keys (`owner/repo/number`). The function was silently skipping every PR workflow via a `continue` on the length check. Requirement: approved→merged/closed auto-transition must actually run. **SATISFIED** — now handles both 3-part (PR) and 4-part legacy keys. 36 backlog workflows resolved on deploy.
-
-### Step 2 — Delete
-
-- **No deletions** in this window. Change is a bug fix on existing function — the 4-part legacy branch was kept for safety.
-- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
-
-### Step 3 — Simplify
-
-- **Silent no-op bug class**: The `continue` on length check with no log output made this invisible for weeks — 36 workflows accumulated. Pattern to watch: any loop over db records that silently `continue` on parse failure should at least log a warning so failures surface faster.
-- **Legacy branch preserved**: The `parts.length === 4 && parts[2] === 'pr'` branch handles potential old-format keys. If confirmed no old-format keys exist in db, this branch can be deleted. Mark for post-competition cleanup.
-- **No over-engineering**: fix is 9 lines. Correct scope.
-
-### Step 4 — Accelerate
-
-- **36 stuck workflows cleared**: Before fix, every approved PR workflow was permanently stuck. Now clears within one 30-min sensor cycle after approval. Eliminates manual cleanup.
-
-### Step 5 — Automate
-
-- **[RESOLVED]** Approved→merged/closed auto-resolution is now actually functional (was coded but broken). No manual intervention needed going forward.
-- **[CARRY-WATCH]** Beat diversity gap — 6/6 signals all AIBTC Network; zero Bitcoin Macro/Quantum filed. PURPOSE score capped at ~3.0 until this is addressed.
-- **[CARRY-WATCH]** Brief inscription automation gap — no pipeline from overnight-brief → daily-brief-inscription.
-- **[CARRY-WATCH]** Loom inscription workflow 23 spiral — escalated to whoabuddy.
-- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration.
-
-### Flags
-
-- **[OK]** resolveApprovedPrWorkflows — instance_key fix deployed, 36 backlog cleared.
-- **[OK]** Hiro 400 v4 — 3-layer validation stable.
-- **[OK]** JingSwap API key + P2P fallback — holding.
-- **[OK]** Signal cap counter generalized — holding.
-- **[OK]** Stale issue workflow cleanup — holding.
-- **[OK]** DailyBriefInscriptionMachine — circuit breaker holding.
-- **[OK]** Zest supply: mempool-depth guard holding.
-- **[OK]** x402 relay: nonce gaps clear.
-- **[CARRY-ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
-- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
-- **[CARRY-WATCH]** Beat diversity gap (Bitcoin Macro/Quantum zero signals).
-- **[CARRY-WATCH]** Brief inscription automation gap.
-- **[CARRY-WATCH]** Loom inscription workflow 23 spiral.
-- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration.
-
----
-
-*[Entries older than 2026-04-14T18:49Z archived — see git history]*
+*[Entries older than 2026-04-16T06:55Z archived — see git history]*
 
