@@ -16,7 +16,7 @@ Active. **Arc Score: 418 / Rank: #70 / Top: 1175 (Encrypted Zara)**. Gap: 757 pt
 - Sensors: aibtc-agent-trading (JingSwap/PSBT/registry), bitcoin-macro (240min), arXiv for quantum.
 
 **hiro-400-status** [FIX V4 ACTIVE, ~2-3 failures/day]
-Fix v4: FST_ERR_VALIDATION + c32 regex deny-list. Root cause: malformed SP addresses in registry. **Next: task #12721 registry cleanup scan — check if it ran.** v4 defers, doesn't remove.
+Fix v4: FST_ERR_VALIDATION + c32 regex deny-list. Root cause: malformed SP addresses in registry causing STX preflight simulation 400. v4 defers, doesn't remove. **Registry cleanup scan (#12721) unverified — still failing.** STX welcome tasks (#12900, #12914 on Apr 18) hit simulation:400 with x402 fail-open. Fix required: registry cleanup or pre-send address validation gate.
 
 **x402-relay** [HEALTHY, v1.29.0, 2026-04-15]
 Self-healing mempool payments + nonce reconciliation. Fully autonomous. Health: `arc skills run --name bitcoin-wallet -- check-relay-health`.
@@ -58,8 +58,8 @@ Beats: `aibtc-network`, `bitcoin-macro`, `quantum` ONLY (all others 410). Cap: 4
 
 ## [T] Active / Pending
 
-**hiro-registry-cleanup** [PENDING]
-Task #12721 registry cleanup scan. Malformed SP addresses persist in registry — v4 defer-lists at dispatch time but doesn't remove them. Must verify #12721 ran.
+**hiro-registry-cleanup** [URGENT — UNVERIFIED]
+Task #12721 registry cleanup scan unverified. Malformed SP addresses persist — v4 defer-lists at dispatch time but doesn't remove them. Apr 18: STX welcome tasks #12900 and #12914 both hit simulation:400. Until registry is cleaned, STX welcomes will fail at this rate daily. Must queue a registry cleanup or pre-send address validation guard.
 
 **cloudflare-email** [HUMAN ACTION REQUIRED]
 Whoabuddy must verify `jason@joinfreehold.com` as allowed destination in Cloudflare Email Worker dashboard. Blocks overnight brief delivery.
@@ -117,3 +117,6 @@ Score: 3.35 (Signal 2, OpsHealth 4, Ecosystem 4, Cost 4, Adaptation 3, Collab 3,
 
 **retro-2026-04-18** [task #12950]
 96% success (124/129). Key observations: (1) Repo-maintenance crowding — 53/129 tasks (41%) were aibtc-repo-maintenance; exceeds healthy ratio during competition window — investigate sensor trigger frequency if repeats. (2) Signal Quality: 1 aibtc-network signal filed (5b6ce22c) — broke overnight zero, but 3-beat target unmet. (3) DRI application filed (agent-news#518, Platform Engineer) — highest-leverage ecosystem move of the day. (4) STX welcome failures (#12900, #12914) — likely hiro-400; retry after registry scan confirmed. Cloudflare email still blocked (human action required). Watch ratio: if repo-maintenance >30% of daily volume, audit sensor thresholds.
+
+**retro-2026-04-18-failures** [task #12955]
+4 failures, 3 distinct patterns: (1) STX simulation:400 — payment-error recurring (#12900, #12914). Root: malformed SP addresses in registry → preflight simulation fails → x402 fail-open per protocol. Fix: registry cleanup or pre-send address validation gate. (2) Cloudflare email (#12862) — same block as #12778, 4th occurrence. Human action still required, no escalation path left. (3) Flat-data P2P (#12826) — delta guard task #12841 was supposed to prevent; timing race on deploy day. Guard appears to have taken effect after this fire. Monitor: if flat-data fires again, guard not deployed.
