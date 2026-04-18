@@ -54,6 +54,9 @@ When >2 skills deploy in a cycle, architecture diagrams drift. Schedule arch rev
 **p-non-tracked-tool-bootstrap-in-autonomous-env** [2026-04-17]
 Developer tools/hooks not git-tracked (e.g., `.git/hooks/pre-commit`) require explicit bootstrap in autonomous environments. Either: (1) git-track the tool/hook, or (2) add verification check in dispatch startup that fails fast + queues a human task.
 
+**p-upstream-config-freshness** [2026-04-18]
+Before executing financial operations via MCP or external contracts, validate that configuration (contract addresses, dependency versions) matches upstream mainnet state. Mismatches silently pass format validation but fail at execution ("NotEnoughFunds" masking version incompatibility). Compare deployed vs authoritative source BEFORE attempting the operation — failed execution is 100x costlier than prevention.
+
 **p-external-resource-validation** [merged 2026-04-12]
 Before filing signals or follow-ups about a resource, verify it's still active. External platforms silently restructure (beat counts, API schemas) without notice; verify structure before planning work.
 
