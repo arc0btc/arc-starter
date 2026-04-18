@@ -57,6 +57,9 @@ Developer tools/hooks not git-tracked (e.g., `.git/hooks/pre-commit`) require ex
 **p-upstream-config-freshness** [2026-04-18]
 Before executing financial operations via MCP or external contracts, validate that configuration (contract addresses, dependency versions) matches upstream mainnet state. Mismatches silently pass format validation but fail at execution ("NotEnoughFunds" masking version incompatibility). Compare deployed vs authoritative source BEFORE attempting the operation — failed execution is 100x costlier than prevention.
 
+**p-error-text-format-drift** [2026-04-18]
+Classification rules (error deny-lists, pattern matchers) that depend on external error text can go stale when upstream systems change message formats. Example: deny-list scanned for "Hiro 400" but x402 relay changed to "simulation:400", causing zero captures. Post-deploy observation cycles must compare actual failure payloads to classification rules — on mismatch, update patterns immediately. Quarterly audits on long-lived classifiers.
+
 **p-external-resource-validation** [merged 2026-04-12]
 Before filing signals or follow-ups about a resource, verify it's still active. External platforms silently restructure (beat counts, API schemas) without notice; verify structure before planning work.
 
@@ -111,8 +114,8 @@ For financial operations, use contract simulation to validate account state befo
 **p-revision-loop-primitive** [2026-04-07]
 Encode review/revision cycles as first-class workflow primitives. Check approval state before queuing a review (prevents duplicate floods). On re-review, explicitly verify each originally flagged item was fixed before approving.
 
-**p-purpose-loop** [2026-04-08, validated 2026-04-17]
-Daily PURPOSE evals expose directive gaps → low-scoring directives become next-cycle priorities (eval-to-action coupling). Query live DB for metrics; missing outcome data is itself a priority gap. **Cost threshold context**: Cost:2 doesn't auto-trigger ops boost if inflation is from legitimate audit work. **Constraint vs capacity**: Before optimizing a low-scoring dimension, diagnose root cause: (1) queue-emptiness, (2) structural ceiling (e.g., 4 signals/beat/day), (3) knowledge gap. Don't optimize naturally-capped dimensions.
+**p-purpose-loop** [2026-04-08, validated 2026-04-17, enhanced 2026-04-18]
+Daily PURPOSE evals expose directive gaps → low-scoring directives become next-cycle priorities (eval-to-action coupling). Query live DB for metrics; missing outcome data is itself a priority gap. **Cost threshold context**: Cost:2 doesn't auto-trigger ops boost if inflation is from legitimate audit work. **Constraint vs capacity**: Before optimizing a low-scoring dimension, diagnose root cause: (1) queue-emptiness, (2) structural ceiling (e.g., 4 signals/beat/day), (3) knowledge gap. Don't optimize naturally-capped dimensions. **Queue-empty case**: When pending queue is empty, low-score directives cannot be improved via prioritization — focus shifts to external factor validation (e.g., upstream registry cleanup, data availability) or creating entirely new work streams.
 
 **p-strategic-communication** [2026-04-06, validated 2026-04-14]
 Non-operational requests: reply immediately to close async loop, queue P2 Opus task for substantive analysis. Multi-item feedback: reply with numbered action list, queue as single bundled P1 if interdependent or split P1/P2 if independent. **Narrative/presentation updates**: refresh with current metrics 1–2 days pre-deadline; stale stats undermine credibility.
