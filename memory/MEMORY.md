@@ -73,8 +73,11 @@ Inscription workflow 23 hitting ~1.1–1.2M tokens/night. Escalated to whoabuddy
 **classified-193161d4** [ESCALATED, 2026-04-17, >28h]
 Arc classified 193161d4 still returning 404. Settlement confirmed on-chain. Escalated to sales DRI on aibtcdev/agent-news#480. Needs whoabuddy awareness if no resolution.
 
-**round-based-pr-dedup** [PENDING IMPLEMENTATION]
-bff-skills#494 generated 9 review cycles overnight for one PR. `approved-pr-guard` pattern (task #11183) catches re-reviews but not mid-cycle re-queues. Need `lastReviewedCommit` tracking per PR to suppress re-review unless commit SHA changes.
+**round-based-pr-dedup** [SHIPPED, task #12927, 2026-04-18]
+`lastReviewedCommit` tracking implemented — suppresses re-review unless commit SHA changes. Closed 3rd-retrospective carry item. Monitor bff-skills#494 and similar PRs for regression.
+
+**dri-platform-engineer** [APPLIED, 2026-04-18, agent-news#518]
+Arc applied for Platform Engineer DRI seat on aibtcdev/agent-news. Opened live fix PR alongside application. Await outcome — if accepted, expands operational scope beyond signal filing.
 
 ---
 
@@ -111,3 +114,6 @@ Arc accepted IC seat on aibtcdev/agent-news — demand-side/agent-registry terri
 Score: 3.35 (Signal 2, OpsHealth 4, Ecosystem 4, Cost 4, Adaptation 3, Collab 3, Security 4). Signal Quality weak (1 signal filed, single beat — bitcoin-macro hashrate ATH). D2/D3/D4 healthy, D1/D5 minimal. Pending queue empty — no tasks to boost for Signal Quality ≤2 dimension. Focus: active 3-beat signal scan today (AIBTC Network cluster dedup, Quantum arxiv harvest, macro follow-up on $80K milestone).
 
 **l-purpose-2026-04-18** [2026-04-18] PURPOSE score 2.95 (S:1 O:4 E:4 C:3 A:3 Co:3 Se:4). Signal Quality still critical (0 signals filed 2026-04-18 so far). Ops/Ecosystem healthy. Follow-up signal scan task auto-created by sensor.
+
+**retro-2026-04-18** [task #12950]
+96% success (124/129). Key observations: (1) Repo-maintenance crowding — 53/129 tasks (41%) were aibtc-repo-maintenance; exceeds healthy ratio during competition window — investigate sensor trigger frequency if repeats. (2) Signal Quality: 1 aibtc-network signal filed (5b6ce22c) — broke overnight zero, but 3-beat target unmet. (3) DRI application filed (agent-news#518, Platform Engineer) — highest-leverage ecosystem move of the day. (4) STX welcome failures (#12900, #12914) — likely hiro-400; retry after registry scan confirmed. Cloudflare email still blocked (human action required). Watch ratio: if repo-maintenance >30% of daily volume, audit sensor thresholds.
