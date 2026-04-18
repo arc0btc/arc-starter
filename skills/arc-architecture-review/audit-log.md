@@ -1,3 +1,57 @@
+## 2026-04-18T18:56:00.000Z — hiro-400 v5 pattern drift fix + competition signal gap
+
+**Task #13048** | Diff: 6b95f77 → e0bc901 | Sensors: 71 | Skills: 111
+
+### Step 1 — Requirements
+
+- **Hiro-400 v5 pattern fix (e0bc901b)**: 9–13 STX welcome failures/day despite v4 deny-list. Root cause: deny-list query matched "Hiro 400" / "FST_ERR_VALIDATION" but current Hiro API returns "simulation:400". Pattern drift meant zero new addresses auto-captured since the Hiro text changed. Requirement: deny-list must self-populate from current failure patterns. **SATISFIED** — added "simulation:400", "simulation 400", "STX send failed" patterns; 12 known-bad addresses manually backfilled (359→371). Expect ~0 failures/day from here.
+
+### Step 2 — Delete
+
+- **No deletions** in this window. Single targeted fix.
+- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+
+### Step 3 — Simplify
+
+- **Deny-list architecture is now complete**: 3-layer validation (sensor regex L1, stx-send-runner regex L2, CLI deny-list L3) with self-healing at L3 for all current failure modes. No redundancy, no over-engineering. The v5 fix required 4 lines — the architecture was correct, only the pattern strings were stale.
+- **Signal pipeline simplicity gap**: Quantum beat still requires a manual dispatch cycle after arXiv digest. Auto-queuing from digest output would eliminate one task in the loop. Still open after 4 audits.
+- **Competition signal gap is structural**: With 4 days left and 757-point gap, the only lever is signal filing cadence. Architecture is correct; the gap is execution frequency. No simplification needed — just fire the sensors.
+
+### Step 4 — Accelerate
+
+- **Hiro-400 v5**: each failed welcome = ~$0.12 + ~2min dispatch. At 10 failures/watch × 4 watches/day = ~$4.80/day burned. If v5 reduces to 0, that's ~$20 saved over the competition window. More importantly, unblocks the welcome pipeline — 200+ agents/month in queue.
+- **Signal bottleneck**: CEO directive — quantum arXiv harvest + $80K bitcoin-macro check unfired for 2+ consecutive watches. Both sensors exist and are wired. Trigger: quantum needs a recent arXiv digest, bitcoin-macro needs price < $80K (currently ~$78K range based on prior signals). Neither is blocked by architecture.
+
+### Step 5 — Automate
+
+- **[RESOLVED v5]** Hiro-400 self-healing — pattern drift fix shipped. Deny-list now matches "simulation:400" failure text.
+- **[RESOLVED]** lastReviewedCommit SHA dedup — PR review storm class eliminated (prior entry).
+- **[OPEN — CARRY]** Quantum signal auto-queuing: arXiv digest compiles papers but doesn't auto-create signal task. 5th carry — at this point it should be tasked explicitly.
+- **[OPEN]** Cloudflare email destination — human action still required (whoabuddy).
+- **[OPEN]** Pre-commit hook not git-tracked — fresh-clone gap, install-hooks required.
+- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
+
+### Flags
+
+- **[OK]** Hiro-400 v5 — pattern drift fixed; expect failures → ~0.
+- **[OK]** Zest supply resumed — borrow-helper v2-1-7, 6 ops confirmed today.
+- **[OK]** lastReviewedCommit SHA dedup — PR storm class resolved.
+- **[OK]** Prompt caching 58% reduction — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** x402 relay v1.29.0 — healthy.
+- **[OK]** 3-beat sensor coverage — all beats have sensors.
+- **[WATCH]** Signal quality: 1 aibtc-network signal filed 2026-04-18, quantum + bitcoin-macro unfired 2+ watches. 4 days left in competition. CEO: "beat diversity — not ops volume — is the gap."
+- **[OPEN — CARRY×5]** Quantum auto-queuing from arXiv digest.
+- **[OPEN]** Pre-commit hook not tracked in git — install-hooks gap.
+- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[ESCALATED]** Cloudflare email — awaiting whoabuddy action.
+
+---
+
 ## 2026-04-18T06:55:00.000Z — lastReviewedCommit dedup shipped + deal-flow carry closed
 
 **Task #13003** | Diff: fd4a721 → 6b95f77 | Sensors: 71 | Skills: 111
