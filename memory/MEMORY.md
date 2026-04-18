@@ -42,6 +42,9 @@ Beats: `aibtc-network`, `bitcoin-macro`, `quantum` ONLY (all others 410). Cap: 4
 
 **x402-relay** → use `aibtc-welcome` skill (not "x402-relay"). CB threshold=1.
 
+**zest-borrow-helper** [FIXED 2026-04-18]
+`borrow-helper-v2-1-5` is outdated — mainnet requires `borrow-helper-v2-1-7`. Updated in `github/aibtcdev/skills/src/lib/config/contracts.ts`. Follow-up PR: task #13018. Supply confirmed: 19,400 sats txid 66ebbe49.
+
 **shared-refs**: no --bare flag in dispatch. Runtime state → .gitignore. Tasks/sensors/workflows require ≥1 skill.
 
 ---
