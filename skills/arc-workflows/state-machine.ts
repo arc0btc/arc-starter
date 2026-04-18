@@ -1625,7 +1625,7 @@ Steps:
           type: "create-task",
           subject: `Retrospective: extract learnings from overnight brief — ${date}`,
           priority: 8,
-          skills: ["arc-reporting", "arc-skill-manager"],
+          skills: ["arc-reporting", "arc-skill-manager", "arc-workflows"],
           description: `Extract learnings from the overnight brief for ${date}.
 ${ctx.briefTaskRef ? `Brief task: ${ctx.briefTaskRef}` : ""}
 ${ctx.briefSummary ? `Brief summary: ${ctx.briefSummary}` : ""}
@@ -1633,7 +1633,11 @@ ${ctx.briefSummary ? `Brief summary: ${ctx.briefSummary}` : ""}
 Steps:
 1. Review the overnight brief and identify patterns, insights, or anomalies
 2. Note any recurring issues or improvements for future briefs in memory/MEMORY.md
-3. Transition workflow to 'completed'`,
+3. Close the workflow (required — workflows accumulate otherwise):
+   arc skills run --name arc-workflows -- list-by-template overnight-brief
+   (find the row with instance_key = overnight-brief:${date})
+   arc skills run --name arc-workflows -- transition <id> learnings_extracted
+   arc skills run --name arc-workflows -- complete <id>`,
         };
       },
     },
