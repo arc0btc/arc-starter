@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-04-18T18:56:00.000Z*
+*Generated: 2026-04-19T07:10:00.000Z*
 *Sensor count: 71 | Skill count: 111*
 
 ```mermaid
@@ -39,7 +39,7 @@ stateDiagram-v2
             arc0btc_security_audit
             aibtc_dev_ops
             aibtc_repo_maintenance
-            note right of github_mentions: review_requested/assign on watched repos\ndeferred to PrLifecycleMachine (8a984348)\nno longer creates PR review tasks directly\nstill handles mention/team_mention\nIssue @mention flood guard (10964091)\n24h recentTaskExistsForSource blocks re-creation after complete\nPullRequest re-review unaffected\nAPPROVED-PR GUARD (37645ac8): arcHasReviewedPR() calls\ngh pr view --json reviews before task creation\nskips mention/team_mention if Arc already reviewed\nPrevents flood from re-@mention after prior approval\n(genuine re-reviews still flow via arc-workflows reviewCycle)\nDEFI-ZEST ENRICHMENT (42bcd9fb): keyword enrichment added for Zest-related notifications
+            note right of github_mentions: review_requested/assign on watched repos\ndeferred to PrLifecycleMachine (8a984348)\nno longer creates PR review tasks directly\nstill handles mention/team_mention\nIssue @mention flood guard (10964091)\n24h recentTaskExistsForSource blocks re-creation after complete\nPullRequest re-review unaffected\nAPPROVED-PR GUARD (37645ac8): arcHasReviewedPR() calls\ngh pr view --json reviews before task creation\nskips mention/team_mention if Arc already reviewed\nPrevents flood from re-@mention after prior approval\n(genuine re-reviews still flow via arc-workflows reviewCycle)\nDEFI-ZEST ENRICHMENT (42bcd9fb): keyword enrichment added for Zest-related notifications\n4h THREAD COOLDOWN (b6a42c57): recentTaskExistsForSource(threadSource, 240)\nGuards non-issue, non-watched-PR threads (busy threads generated 5-6 tasks/day)\nIssues already have 24h cooldown; this adds equivalent for thread tasks\nFix for repo-maintenance crowding at 41-44% (threshold: 30%)
             note right of aibtc_repo_maintenance: sensor simplified (8a984348)\nPR review task creation moved to PrLifecycleMachine\nno direct insertTask/pendingTaskExistsForSource\nwatched repos from AIBTC_WATCHED_REPOS constant\nSTALE ISSUE CLEANUP (cee55c34): closeStaleIssueWorkflows()\nQueries all issue-opened workflows for pr-lifecycle template\nFilters to created_at older than 24h (avoids API calls for new issues)\ngh issue view --json state; if CLOSED → updateWorkflowState + completeWorkflow\nPrevents stale issue-lifecycle workflow accumulation (fixed lingering issue workflows)\nAPPROVED-PR RESOLUTION (8d446e6): resolveApprovedPrWorkflows()\nChecks all active pr-lifecycle workflows in 'approved' state\ngh pr view --json state,mergedAt per approved workflow\nMERGED or mergedAt set → transition to merged + complete\nCLOSED → transition to closed + complete\nPrevents approved-state workflow accumulation after PR lifecycle ends\nINSTANCE-KEY FIX (359d6bbc): PR workflows use 3-part keys (owner/repo/number)\nnot 4-part (owner/repo/pr/number) — function was silently skipping all PRs\nFix: length===3 → direct parse; length===4 && parts[2]==='pr' → legacy parse\n36 backlog approved→merged/closed workflows resolved on fix deploy
         }
 
@@ -329,6 +329,14 @@ New skills added (v0.40.0):
 - `hodlmm-move-liquidity` — HODLMM bin rebalancer (BFF Day 14, v0.39.0)
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16, v0.39.0)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes (v0.39.0)
+
+## Key Architectural Changes (e0bc901 → 3410310) [2026-04-19T07:10Z]
+
+| Change | Impact |
+|--------|--------|
+| **fix(github-mentions): 4h cooldown for thread-based tasks** (b6a42c57) | Busy threads (e.g. thread 2359240542) were generating 5-6 tasks/day each because pending-only dedup allowed re-creation after every completed task. Fix: `recentTaskExistsForSource(threadSource, 240)` guard for non-issue, non-watched-PR threads. Brings repo-maintenance task ratio from 41-44% back toward the 30% threshold. Issues already had a 24h cooldown; this adds a parallel 4h equivalent for thread sources. |
+| **fix(context): correct stale skill name refs in AGENT.md files** (34103100) | `aibtc-news-editorial/AGENT.md`, `aibtc-repo-maintenance/AGENT.md`, and `arc-ceo-strategy/AGENT.md` contained references to defunct skill names (`aibtc-news`, `aibtc-maintenance`, `quantum-computing`). Dispatch agents using these AGENT.md files would create tasks with invalid `--skills` arrays, silently losing context. Fix: corrected all 3 files to use current names. Exposes systemic gap: AGENT.md validation is not covered by the pre-commit lint hook. |
+| **fix(arc-workflows): overnight-brief workflow must close after writing learnings** (707c0b7a) | Overnight-brief retrospective tasks were writing learnings to MEMORY.md but not calling `completeWorkflow()`. Result: 6 stuck overnight-brief workflows accumulated. Fix: workflow closure now enforced after learning write. Pattern: workflow completion is not automatic — tasks must explicitly close their parent workflow. |
 
 ## Key Architectural Changes (6b95f77 → e0bc901) [2026-04-18T18:56Z]
 

@@ -1,3 +1,57 @@
+## 2026-04-19T07:10:00.000Z — thread cooldown + AGENT.md stale refs + workflow closure gap
+
+**Task #13081** | Diff: e0bc901 → 3410310 | Sensors: 71 | Skills: 111
+
+### Step 1 — Requirements
+
+- **4h thread cooldown (b6a42c57)**: repo-maintenance crowding was 41-44% (threshold: 30%); root cause was thread 2359240542 and similar busy threads generating 5-6 tasks/day each. Pending-only dedup allowed re-creation after each completion. Requirement: thread-based tasks must have a cooldown equivalent to issue tasks. **SATISFIED** — `recentTaskExistsForSource(threadSource, 240)` guard added for non-issue, non-watched-PR threads. Issues already had 24h; this adds 4h.
+- **AGENT.md stale skill refs (34103100)**: 3 AGENT.md files referenced defunct/renamed skill names (`aibtc-news`, `aibtc-maintenance`, `quantum-computing`). Dispatch agents building tasks from these files would create tasks with broken `--skills` arrays, silently missing context. Requirement: AGENT.md files must use current skill names. **SATISFIED** — all 3 files corrected.
+- **Overnight-brief workflow closure (707c0b7a)**: Overnight-brief retrospective tasks wrote learnings but didn't call `completeWorkflow()`. 6 stuck workflows accumulated. Requirement: workflows must close after writing. **SATISFIED** — `completeWorkflow()` enforced after learning write.
+
+### Step 2 — Delete
+
+- No deletions in this window. All changes are targeted fixes.
+- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+
+### Step 3 — Simplify
+
+- **AGENT.md validation gap is structural**: the pre-commit hook (`lint-skills --staged`) validates SKILL.md/sensor.ts but does NOT validate AGENT.md files. The 3-file stale-refs fix (34103100) was caught by a human review task, not automated tooling. Gap: extend lint-skills to validate skill names referenced in AGENT.md `--skills` examples against the installed skill tree. Low effort, high catch rate for future drift.
+- **Thread cooldown is a correct layering**: issues get 24h, threads get 4h, watched-PR mentions get their own workflow dedup. Three distinct source types, three distinct cooldown strategies. Not over-engineered — each type has different natural recurrence.
+- **Workflow closure pattern is now explicit in AGENT.md (arc-workflows)**: retrospective tasks must close their parent workflow. The 6 stuck workflows show this wasn't enforced. No structural change needed beyond the fix — the pattern just needs to be followed consistently.
+
+### Step 4 — Accelerate
+
+- **Thread cooldown**: repo-maintenance was 41-44% of daily task volume (108 tasks × 41% = ~44 repo-maintenance tasks). At 4h cooldown, worst case is 6 thread tasks/thread/day instead of unlimited. Estimated reduction: 10-20 wasted tasks/day eliminated.
+- **AGENT.md refs**: no cycle-time impact yet, but prevents future silent context loss when tasks are spawned from stale AGENT.md examples. Avoids a class of confused dispatch cycles.
+
+### Step 5 — Automate
+
+- **[OPEN — NEW]** AGENT.md skill-name validation: extend `lint-skills --staged` to check skill name references in AGENT.md files against installed skills. Would have caught all 3 stale refs at commit time. Low-effort follow-up task warranted.
+- **[OPEN — CARRY×5]** Quantum signal auto-queuing from arXiv digest.
+- **[OPEN]** Pre-commit hook not git-tracked — fresh-clone gap.
+- **[OPEN]** Cloudflare email — human action required (whoabuddy).
+- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
+
+### Flags
+
+- **[OK]** Thread cooldown — repo-maintenance crowding guard shipped.
+- **[OK]** AGENT.md stale refs — 3 files corrected; dispatch context now accurate.
+- **[OK]** Overnight-brief workflow closure — 6 stuck workflows closed, pattern fixed.
+- **[OK]** Hiro-400 v5 — expect ~0 recurring failures (queue draining).
+- **[OK]** Signal quality recovering — 1 quantum signal filed (arXiv 2604.12985). 3-beat target still unmet with 3 days to competition close.
+- **[OK]** Cost $0.346/cycle — slightly above $0.29 baseline; monitor.
+- **[OPEN — NEW]** AGENT.md validation gap — lint-skills hook doesn't cover AGENT.md.
+- **[OPEN — CARRY×5]** Quantum auto-queuing from arXiv digest.
+- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap for fresh clones.
+- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[ESCALATED]** Cloudflare email — awaiting whoabuddy action.
+
+---
+
 ## 2026-04-18T18:56:00.000Z — hiro-400 v5 pattern drift fix + competition signal gap
 
 **Task #13048** | Diff: 6b95f77 → e0bc901 | Sensors: 71 | Skills: 111
@@ -238,129 +292,4 @@
 
 ---
 
-## 2026-04-16T18:53:00.000Z — Budget guard + Opus 4.7 + Bitcoin Macro sensor + permission analysis
-
-**Task #12801** | Diff: a2c7adf → f3a1855 | Sensors: 71 | Skills: 108
-
-### Step 1 — Requirements
-
-- **--max-budget-usd cost guard (e124013c)**: Loom inscription spiral hit ~$15/cycle × 2 = ~$30/night before escalation. Requirement: cap per-invocation spend to prevent runaway cost. **SATISFIED** — `--max-budget-usd` injected per model tier (opus=$10, sonnet=$3, haiku=$1). Claude Code enforces mid-stream. Env var overrides allow per-deploy tuning.
-- **Opus 4.7 (f3a18557)**: New model available; better intelligence on deep-work tasks. Requirement: dispatch should use latest available Opus. **SATISFIED** — `MODEL_IDS.opus` updated to `claude-opus-4-7`. Effort level decoupled via `DISPATCH_EFFORT_OPUS` env var.
-- **Bitcoin Macro sensor (64ff537)**: All 5 prior audit entries flagged "[OPEN GAP] Bitcoin Macro has NO dedicated sensor." Beat diversity was capped at 2/3 (AIBTC Network + Quantum only). Requirement: Bitcoin Macro must be autonomous. **SATISFIED** — sensor live, first signal filed (hashrate ATH 972.3 EH/s, task #12744). Beat diversity 3/3.
-- **Permission analysis (11fd9a08)**: v2.1.111 introduced `/less-permission-prompts` feature; question whether Arc should adopt granular allowlist. **SATISFIED** — `bypassPermissions` confirmed optimal for autonomous operation; no settings.json changes warranted. Pattern documented for future use.
-
-### Step 2 — Delete
-
-- **No deletions** in this window. All changes are additive (guard, model upgrade, sensor, docs).
-- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
-- **[CANDIDATE]** `aibtc-news-deal-flow` sensor — beat retired (410), SKILL.md notes retirement. If sensor creates tasks for dead beat, it should be deleted or disabled. Needs investigation.
-
-### Step 3 — Simplify
-
-- **Budget guard is 22 lines in dispatch.ts**: correct scope. Env var override follows existing patterns (API_TIMEOUT_MS, DISPATCH_EFFORT_OPUS). Consistent, not over-engineered.
-- **DISPATCH_EFFORT_OPUS pattern is correct**: decouples effort level from model selection. Allows `"xhigh"` on v2.1.111+ without code change. Same pattern as API_TIMEOUT_MS env var.
-- **Bitcoin Macro sensor**: 4 signal types, 1 state file, 1 interval. No bloat — each signal type addresses a distinct editorial angle. First-run guard is 5 lines; prevents stale milestone fire on deploy.
-- **[CANDIDATE]** Quantum sensor: still requires manual task creation from arXiv digest output. Should auto-queue signal task from digest results. Digest fix (haiku model) is done; auto-queuing is the remaining step.
-
-### Step 4 — Accelerate
-
-- **Budget guard eliminates spiral risk**: loom-spiral cost was unbounded; worst case now opus=$10/cycle regardless of token count. Cycle budget predictable.
-- **Opus 4.7**: quality improvement with no cost change — compounding benefit over every deep-work task.
-- **Bitcoin Macro sensor**: eliminates manual filing for Bitcoin Macro beat. 4×/day cadence = up to 4 opportunities/day with 4-signal cap. Before: 0 signals/day unless manually queued. After: autonomous coverage.
-
-### Step 5 — Automate
-
-- **[RESOLVED]** Bitcoin Macro beat coverage — sensor running every 240min. Gap CLOSED.
-- **[RESOLVED]** Runaway cost protection — budget guard enforced at Claude Code level.
-- **[OPEN]** Quantum signal auto-queuing: arXiv digest (haiku) compiles paper list but doesn't auto-create signal tasks from results. Sensor should parse digest output and queue Quantum signal task directly. Task #12709 pending for cooldown guard; auto-queuing is a separate gap.
-- **[OPEN]** Sensor-side cooldown guard (#12709): ~3 false failures/day from tasks created during beat cooldown. Task pending — low effort, high clarity win.
-- **[OPEN]** Hiro 400 persistent failures: 2 FST_ERR_VALIDATION/night (Tiny Fenn, Tidal Sprite). Root cause: malformed SP addresses persist in agent registry. v4 deny-list defers rather than prevents. Proactive registry cleanup scan needed.
-- **[CARRY-WATCH]** Loom inscription spiral — escalated, no further inscription tasks until whoabuddy resolves.
-- **[CARRY-WATCH]** Brief inscription automation gap.
-
-### Flags
-
-- **[OK]** Budget guard shipped — loom-spiral class protected.
-- **[OK]** Opus 4.7 — deep-work quality upgraded.
-- **[OK]** Bitcoin Macro sensor — 3/3 beats now have sensor coverage.
-- **[OK]** bypassPermissions confirmed optimal — no settings.json changes.
-- **[OK]** Prompt caching ($12.37 vs $29.34 baseline) — 58% reduction, ahead of estimate.
-- **[OK]** Beat diversity — all 3 beats filed 2026-04-16 (PURPOSE score 3.50).
-- **[OK]** Hiro 400 v4 — self-healing, ~2-3 failures/day remaining (down from 54).
-- **[OK]** x402 relay v1.29.0 — healthy, nonce gaps clear.
-- **[OK]** Zest supply — 4-5 ops/night consistently.
-- **[OPEN]** Quantum auto-queuing from arXiv digest.
-- **[OPEN]** Sensor-side cooldown guard (#12709).
-- **[OPEN]** Agent registry cleanup scan (malformed SP addresses).
-- **[CARRY-ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
-- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
-- **[CARRY-WATCH]** Loom inscription workflow 23 spiral.
-- **[CARRY-WATCH]** Brief inscription automation gap.
-
----
-
-## 2026-04-16T06:55:00.000Z — Cooldown guard + arXiv split + v2.1.108 dispatch fix + v0.39.0 skills
-
-**Task #12739** | Diff: be4cac3 → a2c7adf | Sensors: 70 | Skills: 108
-
-### Step 1 — Requirements
-
-- **Sensor-side beat cooldown guard (b5caf209)**: Beat cooldown was discovered at dispatch time (task fails, ~3/day). Requirement: prevent task creation when beat is on cooldown. **SATISFIED** — `isBeatOnCooldown(beat, 60)` in db.ts, wired into aibtc-agent-trading + arxiv-research before task creation.
-- **arXiv digest split (48858a87)**: Digest timed out at 15min on sonnet × 2 occurrences, blocking Quantum signals. Requirement: digest must complete reliably. **SATISFIED** — model→haiku, pure CLI instructions, paper list in task description (no file dependency).
-- **v2.1.108 dispatch fix (d263dbb6+8ad08307)**: Claude Code v2.1.108 broke dispatch subprocess with stricter permissions. **SATISFIED** — Bash sandbox + permission bypass configured; trusted-VM dispatch unblocked.
-- **Context-review false positives (a2c7adf)**: Signal filing tasks mention DeFi protocol names as news topics → false "missing skill" alerts. **SATISFIED** — signal filing subjects excluded from keyword analysis.
-
-### Step 2 — Delete
-
-- **No deletions** in this window. All changes are targeted fixes.
-- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
-- **[CANDIDATE]** `aibtc-news-deal-flow` SKILL.md explicitly marks beat as retired (410) — sensor still exists. If sensor has no other function, consider deleting it. Needs investigation.
-
-### Step 3 — Simplify
-
-- **Cooldown guard placement is correct**: db.ts is the right place for `isBeatOnCooldown()` — shared across all signal sensors without duplication. Wiring at sensor rather than dispatch avoids a wasted dispatch cycle.
-- **arXiv split approach is simple**: haiku + CLI commands only. No LLM synthesis in digest. Papers in task description instead of file dependency reduces coupling. Correct.
-- **Bitcoin Macro gap is architectural**: 2 sensors cover AIBTC Network + Quantum. Bitcoin Macro has zero sensors. Manual filing is the only current path. This is a structural gap — not simplifiable, needs a sensor or scheduled research task.
-
-### Step 4 — Accelerate
-
-- **Cooldown guard**: eliminates ~3 task creation + dispatch + fail cycles per day. Minor but compounding.
-- **arXiv split**: unblocks Quantum beat. Was 0/day → should be 1-2/day. Biggest throughput win in this window.
-- **v2.1.108 fix**: unblocked entire dispatch cycle after v2.1.108 crash. Operations back to normal.
-
-### Step 5 — Automate
-
-- **[RESOLVED]** Beat cooldown false failures — sensor-side guard eliminates the class.
-- **[RESOLVED]** arXiv timeout — digest split + haiku model; Quantum filing unblocked.
-- **[OPEN GAP]** Bitcoin Macro beat has no sensor. CEO priority: "File a Bitcoin Macro beat signal." Only path is manual task creation or a dedicated sensor that tracks BTC macro data (price milestones, hash rate, miner capitulation, ETF flows). No Arc sensor currently exists for this beat. Follow-up task warranted.
-- **[CARRY-WATCH]** Loom inscription workflow spiral — escalated, no further inscription tasks until resolved.
-- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration.
-- **[CARRY-WATCH]** Brief inscription automation gap.
-
-### Flags
-
-- **[OK]** Beat cooldown guard — shipped, ~3 false failures/day eliminated.
-- **[OK]** arXiv digest split — shipped, Quantum filing unblocked.
-- **[OK]** v2.1.108 dispatch fix — unblocked, operations normal.
-- **[OK]** Context-review false positives — signal filing tasks excluded.
-- **[OK]** regex-invalid deny-list extension — third Hiro 400 class covered.
-- **[OK]** v0.39.0 skills (4 new BFF skills) — integrated.
-- **[OK]** 3-layer Hiro 400 validation — fully self-healing.
-- **[OK]** Approved PR workflow auto-resolution — holding.
-- **[OK]** Zest supply mempool guard — holding.
-- **[OK]** x402 relay v1.29.0 — healthy, nonce gaps clear.
-- **[CARRY-ESCALATED]** effectiveCapacity=1 — task #9658, unchanged.
-- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
-- **[OPEN GAP]** Bitcoin Macro beat — no sensor, CEO priority. Manual only.
-- **[CARRY-WATCH]** Loom inscription workflow 23 spiral.
-- **[CARRY-WATCH]** Brief inscription automation gap.
-- **[CARRY-WATCH]** arc-purpose-eval + arc-strategy-review integration.
-
----
-
-*[Entries older than 2026-04-16T06:55Z archived — see git history]*
-
+*[Entries older than 2026-04-17T07:00Z archived — see git history]*
