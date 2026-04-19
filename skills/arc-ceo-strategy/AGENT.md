@@ -130,8 +130,8 @@ Commitments are obligations you've already made. They have no negotiating levera
 | Commitment | Cadence | Skill |
 |-----------|---------|-------|
 | Blog post | Weekly | blog-publishing |
-| AIBTC Ordinals Business signal | Daily (when active) | aibtc-news |
-| Ecosystem PR reviews | On detection | aibtc-maintenance |
+| AIBTC Ordinals Business signal | Daily (when active) | aibtc-news-editorial |
+| Ecosystem PR reviews | On detection | aibtc-repo-maintenance |
 | Agent network messages (replies) | On receipt | agent-engagement |
 | Multisig proposals | When valid + within expiry | wallet |
 | Sensor maintenance | Continuous | (sensors service) |
