@@ -1,3 +1,55 @@
+## 2026-04-19T19:00:00.000Z — AGENT.md skill-name validation shipped; compliance surface complete
+
+**Task #13105** | Diff: 3410310 → 7fb077c | Sensors: 71 | Skills: 111
+
+### Step 1 — Requirements
+
+- **AGENT.md skill-name validation (7fb077c0)**: prior audit flagged `[OPEN — NEW]` gap — lint-skills hook validated SKILL.md and sensor.ts but not AGENT.md. Stale refs required a manual code-review task to find. Requirement: catch stale skill names in AGENT.md at commit time. **SATISFIED** — `lint-skills --staged` now scans `--skills` flag values in AGENT.md files against installed skill tree. Full compliance surface covered.
+
+### Step 2 — Delete
+
+- No deletions in this window. Single targeted extension.
+- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+ (3 days).
+- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+
+### Step 3 — Simplify
+
+- **Pre-commit hook coverage is now structurally complete**: three compliance surfaces, one hook entry point — SKILL.md frontmatter rules + sensor.ts var naming + AGENT.md skill name refs. No further extension needed; the architecture is correct and covers all known drift vectors.
+- **Competition signal gap is the only open structural issue**: $80K bitcoin price milestone still unfired, quantum arXiv harvest underway. No sensor change needed — execution cadence is the gap.
+
+### Step 4 — Accelerate
+
+- **AGENT.md validation**: each prior stale-ref discovery required a dedicated code review task (~$0.08–0.28/cycle). At 3 occurrences observed so far, that's 3 avoidable cycles. More importantly, stale refs cause silent context loss in dispatch — prevented at commit time now.
+
+### Step 5 — Automate
+
+- **[RESOLVED]** AGENT.md skill-name validation — pre-commit hook extended (7fb077c0).
+- **[OPEN — CARRY×6]** Quantum signal auto-queuing from arXiv digest. Competition closes 2026-04-22.
+- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap on fresh clones.
+- **[OPEN]** Cloudflare email destination — human action required (whoabuddy).
+- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
+
+### Flags
+
+- **[OK]** AGENT.md validation — pre-commit hook now covers full compliance surface.
+- **[OK]** Hiro-400 v5 — queue fully drained; ~0 recurring failures confirmed overnight.
+- **[OK]** Signal quality recovering — 4 signals filed overnight (3 beats covered).
+- **[OK]** Thread cooldown — repo-maintenance crowding root-caused and fixed.
+- **[OK]** Prompt caching 58% reduction — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** x402 relay v1.29.0 — healthy.
+- **[OK]** 3-beat sensor coverage — all beats covered.
+- **[WATCH]** Competition closes 2026-04-22 (3 days). $80K bitcoin milestone + additional quantum signals still needed.
+- **[OPEN — CARRY×6]** Quantum auto-queuing from arXiv digest.
+- **[OPEN]** Pre-commit hook not tracked in git — install-hooks gap for fresh clones.
+- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[ESCALATED]** Cloudflare email — awaiting whoabuddy action.
+
+---
+
 ## 2026-04-19T07:10:00.000Z — thread cooldown + AGENT.md stale refs + workflow closure gap
 
 **Task #13081** | Diff: e0bc901 → 3410310 | Sensors: 71 | Skills: 111
@@ -229,67 +281,6 @@
 
 ---
 
-## 2026-04-17T07:00:00.000Z — Contract preflight + pre-commit lint hook + sensor cap guards
-
-**Task #12878** | Diff: f3a1855 → 7f011ce | Sensors: 71 | Skills: 110
-
-### Step 1 — Requirements
-
-- **Contract preflight wiring (b08c9566)**: Zest tx-runner and STX send-runner were burning nonce slots on transactions that would fail Hiro broadcast. Requirement: validate balance before acquiring nonce. **SATISFIED** — `contract-preflight` skill (d3b67d7b) wraps stxer simulation; wired into both tx paths. Preflight runs before nonce acquisition — aborts without nonce cost on known-bad transactions.
-- **Pre-commit lint hook (6b40fd75)**: Compliance scan 2026-04-16 found same 2 violation patterns for the 3rd+ time (nested `metadata.tags`, abbreviated sensor vars). Requirement: catch at commit time, not 6h later. **SATISFIED** — `lint-skills --staged` hook installed via `arc skills run --name arc-skill-manager -- install-hooks`. Closes `l-compliance-recurring`.
-- **Sensor cap + flat-data guards (90607ba9)**: retro-2026-04-17 identified ~2 dispatch cycles/day wasted on cap-hit signals, ~1-2 on flat-data (zero deltas, low strength). Requirement: sensor must not queue tasks it knows will fail. **SATISFIED** — dual cap check (local DB + aibtc.news API) + delta guard (all deltas=0 AND strength<50 → skip).
-- **stacking-delegation skill (370d183b)**: v0.40.0 BFF competition winner — read-only STX stacking monitor. Requirement: extend DeFi coverage. **SATISFIED** — skill installed, no sensor needed.
-
-### Step 2 — Delete
-
-- **No deletions** in this window. All changes are additive guards and skills.
-- **[CARRY-CANDIDATE]** `aibtc-news-deal-flow` sensor: beat retired (410 since v0.37.0), still present. If sensor creates tasks for dead beat, it should be audited and deleted. 3rd carry — prioritize investigation.
-- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
-- **[NOTE]** Pre-commit hook is not git-tracked — each fresh clone needs `install-hooks` run. Consider adding to `arc services install` or CLAUDE.md onboarding.
-
-### Step 3 — Simplify
-
-- **Contract preflight placement is correct**: checking balance before nonce acquisition is the right layer. Simulation call is cheap (read-only); nonce coordination is the expensive resource. Fail early before touching the coordinator.
-- **Dual cap check is correct architecture**: local DB is fast but stale; API is authoritative but slow. Default to local, fall back to API only when local shows headroom. If API call fails, fail open (don't block sensor). Correct tradeoff.
-- **Flat-data guard is clean**: two conditions (all deltas=0 AND strength<50) — neither alone is sufficient. Zero deltas with high strength could still be newsworthy (unusual stability). Correct logic.
-
-### Step 4 — Accelerate
-
-- **Contract preflight**: eliminates the class of "nonce burned on failed broadcast" failures. For Zest supply cycles, this means invalid balance states no longer consume a nonce slot in the coordinator.
-- **Cap + flat-data guards**: ~3-4 wasted dispatch cycles/day eliminated. Each was consuming Sonnet budget (~$0.28/cycle) for a task that would fail. At $0.28 × 4 × 30 = ~$33/month saved at current cost/cycle.
-
-### Step 5 — Automate
-
-- **[RESOLVED]** Cap-hit signal waste — API cap check + flat-data guard shipped in aibtc-agent-trading sensor.
-- **[RESOLVED]** Compliance violation recurrence — pre-commit hook prevents new violations at commit time.
-- **[OPEN]** Quantum signal auto-queuing: arXiv digest (haiku) compiles paper list but doesn't auto-create signal task. Still requires a dispatch cycle to read digest and queue Quantum task. Gap persists.
-- **[OPEN]** Agent registry cleanup scan (#12721): malformed SP addresses persist in registry. v4 deny-list defers them but root cause unresolved. Watch report 2026-04-17: "3 FST_ERR_VALIDATION STX welcomes, cleanup still pending."
-- **[OPEN]** Pre-commit hook not git-tracked — fresh clones won't have it until `install-hooks` is run. Gap in onboarding.
-- **[CARRY-WATCH]** Loom inscription spiral — escalated, no further inscription tasks until whoabuddy resolves.
-
-### Flags
-
-- **[OK]** Contract preflight wired — Zest + STX send balance checks before nonce acquisition.
-- **[OK]** Pre-commit lint hook — compliance violations caught at commit time.
-- **[OK]** Cap + flat-data guards — ~3-4 wasted dispatch cycles/day eliminated.
-- **[OK]** stacking-delegation + contract-preflight skills installed (110 total).
-- **[OK]** MEMORY.md consolidated 125→88 lines.
-- **[OK]** Budget guard ($10/$3/$1 caps) — holding from prior cycle.
-- **[OK]** Prompt caching 58% reduction — holding.
-- **[OK]** Bitcoin Macro sensor — 3/3 beats covered.
-- **[OK]** x402 relay v1.29.0 — healthy.
-- **[OK]** Zest supply 4-5 ops/night — holding.
-- **[OK]** Hiro 400 v4 self-healing — ~2-3 failures/day (down from 54).
-- **[OPEN]** Quantum auto-queuing from arXiv digest.
-- **[OPEN]** Agent registry cleanup (#12721).
-- **[OPEN]** Pre-commit hook not tracked in git — install-hooks gap for fresh clones.
-- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
-- **[CARRY-CANDIDATE]** aibtc-news-deal-flow sensor — 3rd carry, needs investigation.
-- **[CARRY-WATCH]** Loom inscription workflow spiral.
-- **[CARRY-WATCH]** Brief inscription automation gap.
-
 ---
 
-*[Entries older than 2026-04-17T07:00Z archived — see git history]*
+*[Entries older than 2026-04-17T18:53Z archived — see git history]*

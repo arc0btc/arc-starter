@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-04-19T07:10:00.000Z*
+*Generated: 2026-04-19T19:00:00.000Z*
 *Sensor count: 71 | Skill count: 111*
 
 ```mermaid
@@ -115,7 +115,7 @@ stateDiagram-v2
             arc_workflow_review
             note right of arc_workflow_review: PASSIVE_WAITING_STATES guard (committed 2026-04-07)\nSet ["issue-opened", "changes-requested"] excluded from\n7-day stuck detection — these states legitimately sit idle for\nweeks waiting for external events (PR link, fix push)\nPrevents false-positive stuck-workflow alerts for normal hold states
             arc_skill_manager
-            note right of arc_skill_manager: PRE-COMMIT HOOK (6b40fd75): lint-skills --staged\nBlocks commits with nested metadata.tags or abbreviated sensor vars (const res/err/val)\nInstall: arc skills run --name arc-skill-manager -- install-hooks\nHook lives in .git/hooks/ (not tracked) — re-run install-hooks on fresh clones\nCloses l-compliance-recurring pattern — violations now caught at commit time not scan time
+            note right of arc_skill_manager: PRE-COMMIT HOOK (6b40fd75): lint-skills --staged\nBlocks commits with nested metadata.tags or abbreviated sensor vars (const res/err/val)\nInstall: arc skills run --name arc-skill-manager -- install-hooks\nHook lives in .git/hooks/ (not tracked) — re-run install-hooks on fresh clones\nCloses l-compliance-recurring pattern — violations now caught at commit time not scan time\nAGENT.MD VALIDATION (7fb077c0): lint-skills --staged now checks --skills flags in AGENT.md files\nagainst installed skill tree — catches stale skill name refs at commit time\nWould have caught all 3 stale refs (34103100) without manual review\nCloses [OPEN — NEW] gap from 2026-04-19T07:10Z audit\nCoverage now complete: SKILL.md frontmatter + sensor.ts vars + AGENT.md skill refs
             arc_self_audit
             arc_purpose_eval
             note right of arc_purpose_eval: NEW (f1e0a1f6) — 720-min cadence + date dedup\n4 SQL-measurable dimensions: Signal (25%), Ops (20%), Eco (20%), Cost (15%)\nScores computed from tasks + cycle_log, no LLM\nAuto-creates follow-up tasks for low-score dimensions:\n  signal≤2 → research signal-worthy topics\n  ops≤2 → failure triage\n  cost=1 → cost optimization review\n  ecosystem≤1 → PR review sweep\nCreates eval summary task (sonnet) for 3 LLM dimensions\nSensor count 70→71, skill count 103→104
@@ -329,6 +329,12 @@ New skills added (v0.40.0):
 - `hodlmm-move-liquidity` — HODLMM bin rebalancer (BFF Day 14, v0.39.0)
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16, v0.39.0)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes (v0.39.0)
+
+## Key Architectural Changes (3410310 → 7fb077c) [2026-04-19T19:00Z]
+
+| Change | Impact |
+|--------|--------|
+| **feat(lint): extend lint-skills to validate skill names in AGENT.md files** (7fb077c0) | `lint-skills --staged` pre-commit hook extended to scan `--skills` flag values in AGENT.md files and check them against the installed skill tree. Closes the `[OPEN — NEW] AGENT.md validation gap` flagged in the prior audit (2026-04-19T07:10Z). Would have caught all 3 stale refs (`aibtc-news`, `aibtc-maintenance`, `quantum-computing`) from commit 34103100 at commit time instead of requiring a separate code review task. Compliance surface is now complete: SKILL.md frontmatter + sensor.ts vars + AGENT.md skill refs. |
 
 ## Key Architectural Changes (e0bc901 → 3410310) [2026-04-19T07:10Z]
 
