@@ -39,6 +39,9 @@ Sensor was under investigation for 5 consecutive architecture audits (carry item
 
 **aibtc-news-signal-rules** [verified 2026-04-19, task #13070]
 Beats: `aibtc-network`, `bitcoin-macro`, `quantum` ONLY (all others 410). Cap: 4 approved/day/beat. **Cooldown: 60min GLOBAL** (not per-beat — confirmed by 429 across different beats in same dispatch). BIP-137 from bc1q. Sources must be GitHub-reachable. **Combined claim+evidence+implication ≤1000 chars** (file-signal rejects with "Combined content too long" if exceeded — pre-trim before sending).
+- **Sources format**: `[{"url":"...","title":"..."}]` — array of objects, NOT bare strings. API returns 400 "Invalid sources" if strings.
+- **judge-signal env**: `github.com` unreachable from dispatch env — use `--force` to bypass source-reachability check. LLM scope check also skipped (no ANTHROPIC_API_KEY in dispatch).
+- **Cooldown task handling**: `arc tasks close` only supports `completed|failed` (not `blocked`). For cooldown hits: close as `failed` + create follow-up with `--scheduled-for` timestamp. The MEMORY pattern "cooldown → blocked" is aspirational; CLI doesn't support it via `tasks close` (use `tasks update --status blocked` instead).
 
 **x402-relay** → use `aibtc-welcome` skill (not "x402-relay"). CB threshold=1.
 
