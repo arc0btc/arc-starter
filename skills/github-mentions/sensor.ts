@@ -177,14 +177,18 @@ export default async function githubMentionsSensor(): Promise<string> {
       // Watched-repo PRs use prefix-based ALL-status dedup to catch arc-workflows' ":v1" tasks
       // and prevent re-queuing after completion. Non-watched PRs use pending-only (single source).
       // Issues suppress re-creation within 24h to prevent flood from multiple @mentions.
+      // Thread-based tasks (no canonical source) suppress re-creation within 4h to prevent
+      // busy threads from crowding the queue with repeated engagement tasks.
       const prPrefixDedup = isPROnWatchedRepo && canonicalSource && taskExistsForSourcePrefix(canonicalSource);
       const pendingDedup = !isPROnWatchedRepo && canonicalSource && pendingTaskExistsForSource(canonicalSource);
       if (
         pendingTaskExistsForSource(threadSource) ||
         prPrefixDedup ||
         pendingDedup ||
-        (canonicalSource && n.type === "Issue" && recentTaskExistsForSource(canonicalSource, 1440))
+        (canonicalSource && n.type === "Issue" && recentTaskExistsForSource(canonicalSource, 1440)) ||
+        (!canonicalSource && recentTaskExistsForSource(threadSource, 240))
       ) {
+        gated++;
         continue;
       }
 
