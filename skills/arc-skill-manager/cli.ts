@@ -273,6 +273,42 @@ function lintSkillMd(filePath: string, content: string): LintViolation[] {
   return violations;
 }
 
+/** Extract all skill name lists from --skills flags in a text. Returns flat unique list of names. */
+function extractSkillsArgs(content: string): string[] {
+  const names: string[] = [];
+  const re = /--skills\s+([\w,\-]+)/g;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(content)) !== null) {
+    const parts = match[1].split(",").map((s) => s.trim()).filter(Boolean);
+    names.push(...parts);
+  }
+  return [...new Set(names)];
+}
+
+/** Lint an AGENT.md file for stale/invalid skill name references in --skills flags. */
+function lintAgentMd(filePath: string, content: string, installedSkills: Set<string>): LintViolation[] {
+  const violations: LintViolation[] = [];
+  const lines = content.split("\n");
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const skillsMatch = line.match(/--skills\s+([\w,\-]+)/);
+    if (!skillsMatch) continue;
+    const names = skillsMatch[1].split(",").map((s) => s.trim()).filter(Boolean);
+    for (const name of names) {
+      if (!installedSkills.has(name)) {
+        violations.push({
+          file: filePath,
+          line: i + 1,
+          message: `--skills references unknown skill '${name}' — not found in skills/`,
+        });
+      }
+    }
+  }
+
+  return violations;
+}
+
 /** Abbreviated variable name patterns that violate verbose naming convention. */
 const ABBREVIATED_VAR_RE = /\bconst\s+(res|val|err|ret|r|v|e)\s*[=:]/;
 
@@ -317,17 +353,21 @@ function cmdLintSkills(args: string[]): void {
   } else if (staged) {
     targetFiles = getStagedFiles();
   } else {
-    // Lint all SKILL.md and sensor.ts files under skills/
+    // Lint all SKILL.md, AGENT.md and sensor.ts files under skills/
     const skillMds = Bun.spawnSync(["git", "ls-files", "skills/"], { cwd: ROOT });
     targetFiles = skillMds.stdout
       .toString()
       .trim()
       .split("\n")
-      .filter((f) => f.endsWith("/SKILL.md") || f.endsWith("/sensor.ts"));
+      .filter((f) => f.endsWith("/SKILL.md") || f.endsWith("/AGENT.md") || f.endsWith("/sensor.ts"));
   }
 
   const skillMdFiles = targetFiles.filter((f) => /skills\/[^/]+\/SKILL\.md$/.test(f));
+  const agentMdFiles = targetFiles.filter((f) => /skills\/[^/]+\/AGENT\.md$/.test(f));
   const sensorFiles = targetFiles.filter((f) => /skills\/[^/]+\/sensor\.ts$/.test(f));
+
+  // Build installed skill name set for AGENT.md validation
+  const installedSkills = new Set(discoverSkills().map((s) => s.name));
 
   const allViolations: LintViolation[] = [];
 
@@ -338,6 +378,13 @@ function cmdLintSkills(args: string[]): void {
     allViolations.push(...lintSkillMd(file, content));
   }
 
+  for (const file of agentMdFiles) {
+    const fullPath = join(ROOT, file);
+    if (!existsSync(fullPath)) continue;
+    const content = readFileSync(fullPath, "utf-8");
+    allViolations.push(...lintAgentMd(file, content, installedSkills));
+  }
+
   for (const file of sensorFiles) {
     const fullPath = join(ROOT, file);
     if (!existsSync(fullPath)) continue;
@@ -346,7 +393,7 @@ function cmdLintSkills(args: string[]): void {
   }
 
   if (allViolations.length === 0) {
-    process.stdout.write(`OK — ${skillMdFiles.length} SKILL.md + ${sensorFiles.length} sensor.ts checked, no violations.\n`);
+    process.stdout.write(`OK — ${skillMdFiles.length} SKILL.md + ${agentMdFiles.length} AGENT.md + ${sensorFiles.length} sensor.ts checked, no violations.\n`);
     return;
   }
 
@@ -403,10 +450,10 @@ SUBCOMMANDS
     Memory consolidation. 'check' reports stats (default). 'commit' stages and commits.
 
   lint-skills [--staged] [--files FILE1,FILE2,...]
-    Validate SKILL.md frontmatter and sensor.ts variable naming.
+    Validate SKILL.md frontmatter, AGENT.md skill name refs, and sensor.ts variable naming.
     --staged: lint only git-staged files (used by pre-commit hook)
     --files:  lint specific comma-separated file paths
-    (no flags): lint all skills/ SKILL.md and sensor.ts files
+    (no flags): lint all skills/ SKILL.md, AGENT.md, and sensor.ts files
 
   install-hooks
     Install .git/hooks/pre-commit to run lint-skills on every commit.
