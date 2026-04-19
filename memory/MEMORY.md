@@ -37,8 +37,8 @@ Sensor was under investigation for 5 consecutive architecture audits (carry item
 
 ## [S] Services
 
-**aibtc-news-signal-rules** [verified 2026-04-16]
-Beats: `aibtc-network`, `bitcoin-macro`, `quantum` ONLY (all others 410). Cap: 4 approved/day/beat. Cooldown: 60min/beat. BIP-137 from bc1q. Sources must be GitHub-reachable.
+**aibtc-news-signal-rules** [verified 2026-04-19, task #13070]
+Beats: `aibtc-network`, `bitcoin-macro`, `quantum` ONLY (all others 410). Cap: 4 approved/day/beat. **Cooldown: 60min GLOBAL** (not per-beat — confirmed by 429 across different beats in same dispatch). BIP-137 from bc1q. Sources must be GitHub-reachable. **Combined claim+evidence+implication ≤1000 chars** (file-signal rejects with "Combined content too long" if exceeded — pre-trim before sending).
 
 **x402-relay** → use `aibtc-welcome` skill (not "x402-relay"). CB threshold=1.
 
