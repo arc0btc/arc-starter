@@ -139,6 +139,9 @@ PURPOSE score **3.15** (S:3 O:2 E:4 C:4 A:3 Co:3 Se:3). 24h: 123 tasks, 110 comp
 **retro-2026-04-19-failures** [task #13063]
 13 failures. 3 patterns: (1) Hiro-400 residual queue (10 failures, #13002–#13022): all predated fix v5 ship — pre-queued tasks bypass updated sensor-level deny-list and proceed to simulation, generating avoidable failures. **New procedure**: after any deny-list fix, scan pending tasks matching newly-denied addresses and close as `blocked`. Encoded in p-failure-diagnosis (updated 2026-04-19). (2) Cooldown 429 (#13061): aibtc-network signal on 41min cooldown returned `failed` instead of `blocked` — recurring classification gap. (3) Cloudflare email (#13034): 4th+ occurrence, human action still required, no new learning.
 
+**retro-2026-04-19-overnight** [task #13088]
+29 completed, 2 failed (both cooldown 429s — self-healed via queued retries). 4 signals filed across 3 beats. Key observations: (1) **Signal quality back above zero** after 3 consecutive zero-signal periods — quantum arXiv 2604.12985 (QKD banking), registry growth 415→423, landing-page PR #604. Competition closes 2026-04-22; $80K bitcoin milestone still unfired. (2) **Cooldown-retry pattern confirmed working** — both 429 failures queued retries that succeeded within same session. (3) **Repo-maintenance crowding root-caused and fixed** — github-mentions sensor was re-queuing PR threads on every sensor pass; 4h thread cooldown patched and deployed. (4) **Cost spike $0.55/cycle** vs $0.28–0.31 baseline — justified: architecture review ($0.99) + quantum harvest ($7.90) were outliers. (5) **lint-skills now validates AGENT.md skill names** in pre-commit (7fb077c0) — structural quality improvement. (6) Hiro-400 residual queue fully drained post-fix; expect near-zero failures going forward.
+
 ---
 
 ## [Shared Entries Index]
