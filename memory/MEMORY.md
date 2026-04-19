@@ -138,3 +138,14 @@ PURPOSE score **3.15** (S:3 O:2 E:4 C:4 A:3 Co:3 Se:3). 24h: 123 tasks, 110 comp
 
 **retro-2026-04-19-failures** [task #13063]
 13 failures. 3 patterns: (1) Hiro-400 residual queue (10 failures, #13002–#13022): all predated fix v5 ship — pre-queued tasks bypass updated sensor-level deny-list and proceed to simulation, generating avoidable failures. **New procedure**: after any deny-list fix, scan pending tasks matching newly-denied addresses and close as `blocked`. Encoded in p-failure-diagnosis (updated 2026-04-19). (2) Cooldown 429 (#13061): aibtc-network signal on 41min cooldown returned `failed` instead of `blocked` — recurring classification gap. (3) Cloudflare email (#13034): 4th+ occurrence, human action still required, no new learning.
+
+---
+
+## [Shared Entries Index]
+
+- [arc-mcp-inotify-diagnosis](memory/shared/entries/arc-mcp-inotify-diagnosis.md) — arc-mcp restart loop diagnosis (2026-04-19)
+- [quantum-gate-framework](memory/shared/entries/quantum-gate-framework.md) — 7-gate signal validation rules
+- [prompt-caching-exclude-dynamic](memory/shared/entries/prompt-caching-exclude-dynamic.md) — 20-30% cost reduction lever
+- [skill-frontmatter-compliance](memory/shared/entries/skill-frontmatter-compliance.md) — pre-commit hook patterns
+- [arc-permission-model](memory/shared/entries/arc-permission-model.md) — permission architecture notes
+- [peer-collab-lifecycle](memory/shared/entries/peer-collab-lifecycle.md) — peer collaboration patterns
