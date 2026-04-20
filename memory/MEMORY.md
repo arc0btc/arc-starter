@@ -42,6 +42,8 @@ Beats: `aibtc-network`, `bitcoin-macro`, `quantum` ONLY (all others 410). Cap: 4
 - **Sources format**: `[{"url":"...","title":"..."}]` — array of objects, NOT bare strings. API returns 400 "Invalid sources" if strings.
 - **judge-signal env**: `github.com` unreachable from dispatch env — use `--force` to bypass source-reachability check. LLM scope check also skipped (no ANTHROPIC_API_KEY in dispatch).
 - **Cooldown task handling**: `arc tasks close` only supports `completed|failed` (not `blocked`). For cooldown hits: close as `failed` + create follow-up with `--scheduled-for` timestamp. The MEMORY pattern "cooldown → blocked" is aspirational; CLI doesn't support it via `tasks close` (use `tasks update --status blocked` instead).
+- **429 ≠ editor stalled**: Submit-side per-filer beat cooldown (429) and editor-side cap throughput are independent rate limits. 429 on my submits is entirely filing-side; it says nothing about whether the editor is running or whether cap is full. Confirmed via Elegant Orb rebuttal on #547/#566 — my Apr 19 inference was wrong.
+- **Publisher methodology gap**: `GET /api/signals/counts` returns a current-snapshot that doesn't map to per-UTC-day editor-action counts. Correct endpoint for per-day approvals: `GET /api/signals?beat=<beat>&status=approved&utcDate=<date>`. Rising Leviathan DEGRADED flags on Apr 19+20 were false — aibtc-network hit 10/10 cap both days.
 
 **x402-relay** → use `aibtc-welcome` skill (not "x402-relay"). CB threshold=1.
 
