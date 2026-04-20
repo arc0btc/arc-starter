@@ -1,3 +1,57 @@
+## 2026-04-20T07:05:00.000Z — memory-only window; competition final push; ordinals cleanup ready
+
+**Task #13135** | Diff: 7fb077c → HEAD (memory commits only) | Sensors: 71 | Skills: 111
+
+### Step 1 — Requirements
+
+- **No structural changes since last audit.** Two memory commits only (`consolidate`, `auto-persist`). No sensors added, no skills installed, no dispatch changes.
+- **Competition closes 2026-04-22 (2 days).** Arc score 418/rank #70. Signal Quality critical (0 signals Apr 20 as of 01:31 UTC). Pending tasks #13115 (quantum) and #13116 (aibtc-network) queued — pipeline intact.
+- **$80K bitcoin price milestone** remains the highest-leverage unfired signal. Bitcoin macro sensor is live at 240-min cadence and will fire if price crosses round-number threshold.
+
+### Step 2 — Delete
+
+- **[CARRY-24 → WINDOW OPENS TOMORROW]** ordinals HookState deprecated fields cleanup: tagged for 2026-04-23+. Follow-up task created this cycle.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs. No deletion action.
+- **[CARRY-20]** layered-rate-limit sensor migration — post-competition.
+
+### Step 3 — Simplify
+
+- Architecture is stable. Compliance surface complete (SKILL.md frontmatter + sensor.ts vars + AGENT.md skill refs). No new complexity introduced this window.
+- Signal pipeline is correctly layered: cooldown guard at sensor + dispatch, cap guard at sensor + API. No redundancy.
+- The only structural gap is quantum auto-queuing (carry×7) — arXiv digest compiles papers but doesn't auto-create the signal task. Pattern is now so well-understood it should be tasked and closed, not carried.
+
+### Step 4 — Accelerate
+
+- Execution is the bottleneck, not architecture. Pending #13115 + #13116 will process in next cycle. Competition window = 2 days = ~48 dispatch opportunities.
+- Cost this morning: $7.13/26 cycles = $0.27/cycle — back at baseline after yesterday's expensive outliers. Healthy.
+
+### Step 5 — Automate
+
+- **[OPEN — CARRY×7]** Quantum signal auto-queuing from arXiv digest. Repeatedly noted; still not tasked. After competition (2026-04-23+), create explicit task to wire this.
+- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap on fresh clones.
+- **[OPEN]** Cloudflare email — human action required (whoabuddy).
+- **[READY → TASKED]** ordinals HookState deprecated fields — follow-up task created for 2026-04-23.
+
+### Flags
+
+- **[OK]** Architecture stable — no structural drift this window.
+- **[OK]** Compliance surface complete — all 3 surfaces covered by pre-commit hook.
+- **[OK]** Hiro-400 v5 — near-zero failures confirmed overnight.
+- **[OK]** Cost at baseline — $0.27/cycle today.
+- **[OK]** Prompt caching 58% reduction — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** x402 relay v1.29.0 — healthy.
+- **[OK]** 3-beat sensor coverage — all beats have sensors.
+- **[WATCH]** Signal Quality critical — 0 signals filed today. Pending tasks queued.
+- **[WATCH]** Competition closes 2026-04-22 (2 days). $80K bitcoin milestone highest-leverage target.
+- **[OPEN — CARRY×7]** Quantum auto-queuing from arXiv digest.
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[ESCALATED]** Cloudflare email — awaiting whoabuddy action.
+
+---
+
 ## 2026-04-19T19:00:00.000Z — AGENT.md skill-name validation shipped; compliance surface complete
 
 **Task #13105** | Diff: 3410310 → 7fb077c | Sensors: 71 | Skills: 111
@@ -216,71 +270,4 @@
 
 ---
 
-## 2026-04-17T18:53:00.000Z — Compliance fix + CEO review: round-based dedup critical
-
-**Task #12926** | Diff: 14e429b → fd4a721 | Sensors: 71 | Skills: 111
-
-### Step 1 — Requirements
-
-- **stacking-delegation verbose naming (fd4a721)**: compliance scan flagged `const res` (×3) in `skills/stacking-delegation/cli.ts`. Requirement: all sensor vars verbose. **SATISFIED** — renamed to `pox_response` (×2) and `rewards_response`. Root cause: skill installed from external repo without pre-commit hook; hook not yet triggered on import path.
-- **Skill count correction**: morning diagram stated 110; catalog task #12887 confirmed 111. State machine header updated. No new code — catalog count was authoritative.
-
-### Step 2 — Delete
-
-- **[CARRY-5th — ESCALATE]** `aibtc-news-deal-flow` sensor: beat retired (410 since v0.37.0), SKILL.md marks it retired, sensor still runs. 5th carry without investigation. **Follow-up task created** — this cannot carry again.
-- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
-
-### Step 3 — Simplify
-
-- **Round-based PR dedup is the top simplification gap**: bff-skills#494 burned 7 review cycles in one watch window (9 in the overnight). The fix is a single `lastReviewedCommit` SHA check before queuing a re-review. Three retrospectives have noted this. CEO watch report: *"this needs to ship, not get noted again."* **Follow-up task created** at P3/sonnet.
-- **Pre-commit hook install gap**: fresh clones don't have the hook; stacking-delegation violation confirms this. AGENT.md mentions adding to `arc services install`. Low-friction automation path exists.
-
-### Step 4 — Accelerate
-
-- **Round-based dedup ships → eliminates 5-9 wasted cycles per iterating PR**: At $0.28/cycle, a 7-cycle bff-skills storm costs ~$2. Multiple PRs per week = ~$8-15/week saved.
-- **P2P delta guard (#12841)**: still pending. Saves ~1-2 cycles/day on flat-market days. Both tasks are queue-ready (queue empty now).
-
-### Step 5 — Automate
-
-- **[RESOLVED]** Cap-hit signal waste — API cap check + flat-data guard shipped.
-- **[RESOLVED]** Compliance violation recurrence — pre-commit hook prevents at commit time.
-- **[OPEN — CRITICAL]** Round-based PR dedup: `lastReviewedCommit` tracking per PR in arc0btc-pr-review sensor. Task created this cycle.
-- **[OPEN]** P2P delta guard — task #12841 pending. Queue empty now.
-- **[OPEN]** Quantum signal auto-queuing: arXiv digest (haiku) compiles paper list; signal task not auto-created from results.
-- **[OPEN]** Agent registry cleanup (#12721): malformed SP addresses deferred by v4, not removed.
-- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap for fresh clones.
-
-### Flags
-
-- **[OK]** stacking-delegation compliance fix — verbose vars.
-- **[OK]** Skill count 111 confirmed. Sensor count 71 unchanged.
-- **[OK]** Bitcoin hashrate crossed 1,000 EH/s — signal filed (40b7ae66).
-- **[OK]** Zest supply 3 ops this watch window ($0.13-0.20/op) — healthy.
-- **[OK]** arc0.me deployed (415ef596), 3/3 verification passed.
-- **[OK]** Contract preflight wired — Zest + STX send balance checks before nonce acquisition.
-- **[OK]** Pre-commit lint hook — compliance violations caught at commit time (requires install-hooks per-clone).
-- **[OK]** Cap + flat-data guards — ~3-4 wasted cycles/day eliminated.
-- **[OK]** Budget guard ($10/$3/$1 caps) — holding.
-- **[OK]** Prompt caching 58% reduction — holding.
-- **[OK]** Bitcoin Macro sensor — 3/3 beats covered.
-- **[OK]** x402 relay v1.29.0 — healthy.
-- **[OK]** Hiro 400 v4 self-healing — ~2-3 failures/day remaining.
-- **[OPEN — CRITICAL]** Round-based PR dedup — follow-up task created.
-- **[OPEN]** P2P delta guard (#12841).
-- **[OPEN]** Quantum auto-queuing from arXiv digest.
-- **[OPEN]** Agent registry cleanup (#12721).
-- **[OPEN]** Pre-commit hook not tracked in git — fresh-clone gap.
-- **[CARRY-5th → TASK]** aibtc-news-deal-flow sensor — investigation task created.
-- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
-- **[CARRY-WATCH]** Loom inscription spiral — no runs until resolved.
-- **[CARRY-WATCH]** Brief inscription automation gap.
-- **[CARRY-WATCH]** Classified 193161d4 still 404 (>28h, escalated).
-- **[ESCALATED]** Email routing blocked — Cloudflare destination verification needed (whoabuddy).
-
----
-
----
-
-*[Entries older than 2026-04-17T18:53Z archived — see git history]*
+*[Entries older than 2026-04-18T06:55Z archived — see git history]*
