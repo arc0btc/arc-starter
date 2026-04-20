@@ -1,3 +1,59 @@
+## 2026-04-20T19:02:00.000Z — memory-only window; competition final push; 2 signals approved overnight
+
+**Task #13177** | Diff: ad4f27ee → HEAD (memory/housekeeping commits only) | Sensors: 71 | Skills: 111
+
+### Step 1 — Requirements
+
+- **No structural changes since last audit.** Three memory auto-persist commits + one chore loop commit — no sensor, skill, or dispatch changes. Architecture is frozen in its final competition configuration.
+- **Competition closes 2026-04-22 23:00 UTC (2 days).** Arc score 418 / rank #70. Gap: 757 pts. 2 signals approved overnight (quantum arXiv 2603.28846v2 + aibtc-network 423-agent registry). Signal Quality still the drag on PURPOSE.
+- **Unfired high-value targets**: $80K bitcoin price milestone (bitcoin-macro sensor live, price ~$78K), fresh quantum arXiv harvest.
+- **Recent cycles performing well**: 10 cycles since 16:33Z, costs $0.034–$0.299/cycle, avg ~$0.15/cycle.
+
+### Step 2 — Delete
+
+- **[CARRY-24 → WINDOW OPENS 2026-04-23]** ordinals HookState deprecated fields — cleanup scheduled post-competition. Task created last cycle. Hold.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs. Hold.
+- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+. Hold.
+- No new deletion candidates in this window.
+
+### Step 3 — Simplify
+
+- Architecture structurally correct and stable. All three compliance surfaces covered (SKILL.md + sensor.ts + AGENT.md). No new complexity introduced.
+- Signal pipeline is well-layered: sensor cooldown guard + API cap guard + dispatch cap — no redundancy, no gaps.
+- **One lingering structural gap**: Quantum signal auto-queuing (carry×8). arXiv digest (haiku) compiles papers but dispatch must manually create the signal task from digest output. After competition window closes, this should be wired end-to-end — carry item is now 8 entries old.
+
+### Step 4 — Accelerate
+
+- No bottlenecks in the pipeline itself. Execution cadence is the only lever for competition. Two unfired signals remain actionable.
+- Cost baseline holding: $0.29/task today, well below $0.40 target. Prompt caching 58% reduction confirmed.
+
+### Step 5 — Automate
+
+- **[OPEN — CARRY×8]** Quantum signal auto-queuing from arXiv digest. Competition closes in 2 days — add to post-competition task list for 2026-04-23.
+- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap on fresh clones.
+- **[ESCALATED]** Cloudflare email — whoabuddy action required.
+- **[CARRY-24]** ordinals HookState cleanup — 2026-04-23+.
+
+### Flags
+
+- **[OK]** Architecture stable — no structural drift, no drift vectors active.
+- **[OK]** Compliance surface complete — all 3 surfaces covered.
+- **[OK]** Hiro-400 v5 — pattern drift fixed; near-zero failures holding.
+- **[OK]** Cost at baseline — $0.15/cycle this afternoon, $0.29/task today.
+- **[OK]** Prompt caching 58% reduction — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** x402 relay v1.29.0 — healthy.
+- **[OK]** 3-beat sensor coverage — all beats have sensors.
+- **[WATCH]** Competition closes 2026-04-22 (2 days). 2 signals approved overnight. $80K BTC milestone + quantum harvest still unfired.
+- **[OPEN — CARRY×8]** Quantum auto-queuing from arXiv digest — post-competition task.
+- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap.
+- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[ESCALATED]** Cloudflare email — awaiting whoabuddy action.
+
+---
+
 ## 2026-04-20T07:05:00.000Z — memory-only window; competition final push; ordinals cleanup ready
 
 **Task #13135** | Diff: 7fb077c → HEAD (memory commits only) | Sensors: 71 | Skills: 111
