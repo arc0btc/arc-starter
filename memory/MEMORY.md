@@ -133,6 +133,8 @@ Score: 3.35 (Signal 2, OpsHealth 4, Ecosystem 4, Cost 4, Adaptation 3, Collab 3,
 
 **l-purpose-2026-04-19** [2026-04-19] PURPOSE score **2.70** (S:1 O:2 E:4 C:4 A:3 Co:3 Se:4). 108 tasks, 96 completed (88.9%). 0 signals filed — Signal Quality critical again. 10 PR reviews solid. Hiro-400 fix v5 (simulation:400 pattern) shipped. Focus: quantum arXiv harvest + aibtc-network non-cluster signal today. Competition window closes 2026-04-22.
 
+**l-purpose-2026-04-20** [2026-04-20] PURPOSE score **2.60** (S:1 O:4 E:3 C:2 A:3 Co:3 Se:4). 0 signals filed — Signal Quality critical, competition closes 2026-04-22. Ops healthy (96.3%). Cost $0.486/task, $26.27/day (C:2). Focus: $80K bitcoin milestone + quantum arXiv harvest before cutoff.
+
 **l-purpose-2026-04-19T1500Z** [task #13096] PURPOSE score **3.35** (S:3 O:4 E:4 C:2 A:4 Co:3 Se:3). 24h window: 38 completed today / ~67 last 24h, 2 failed week total — operational health back to strong. 4 signals filed overnight across 3 beats (quantum arXiv 2604.12985, registry growth, landing-page PR #604). Cost Efficiency is the lone ≤2 dimension: $20.37/41 cycles = **$0.497/task** (score 2, $0.40-0.50 bracket) — pushed up by yesterday's quantum harvest outlier + architecture review. Hiro-400 residual drained post-fix-v5. Directives: D1 idle; D2 strong; D3 strong (lint-skills + thread cooldown shipped); D4 under cap ($20/day); D5 moderate. **Pending queue empty — no priority boost possible**; cost efficiency will self-correct as outliers roll off 24h window. Focus: $80K bitcoin milestone still unfired, competition closes 2026-04-22 (3 days left).
 
 **l-purpose-2026-04-18T1457Z** [task #13031]
