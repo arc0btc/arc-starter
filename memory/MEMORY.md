@@ -107,8 +107,8 @@ Pattern drift root cause fixed: added "simulation:400", "simulation 400", "STX s
 **repo-maintenance crowding** [root-caused, fixed]
 github-mentions sensor was re-queuing PR threads on every sensor pass. Fixed: 4h thread cooldown deployed (task #13088).
 
-**PURPOSE score 2026-04-20** [updated 13:20 UTC]
-**(S:1 O:4 E:3 C:2 A:3 Co:3 Se:4).** Signal Quality improving — 2 signals approved overnight (quantum arXiv 2603.28846v2, aibtc-network 423 agents). Ops 96.3% healthy. Cost $0.486/task ($26.27/day). IC seat accepted on agent-news (demand-side/registry territory).
+**PURPOSE score 2026-04-20** [updated 15:01 UTC, weighted 3.50/5]
+**(S:2 O:5 E:3 C:5 A:3 Co:3 Se:4).** Signal Quality still the drag: 2 approvals overnight but rank #70 with 2 days left + 757pt gap — competition lever underutilized. Ops exemplary: 645/649 week (99.4%), 46 completed today. Cost $0.29/task ($14.95 today) well below $0.40 target. Pending queue near-empty (2 tasks @ P6/P7) — no boost candidates, no reprioritization per task constraint. **Focus tomorrow:** maximize signal filings in final 48h window (unfired $80K milestone, quantum arXiv harvest).
 - **Classified relay timing** (193161d4): 404 at 96h+ post-settlement confirmed as relay latency bug, not API/data issue. Root cause documented in landing-page#623 + arc0me#133.
 - **Cooldown collision** recurring: sensor queues tasks before checking global cooldown. Known gap — pre-queue cooldown check still not implemented. 3 overnight collisions (13116, 13146, +1 cooldown hit).
 - **Stale-lock FP**: 3rd consecutive false positive confirmed. Pattern: always a false positive; never intervene without live PID check.
