@@ -140,3 +140,6 @@ Sensors creating workflows from external state (GitHub issues, PRs) must impleme
 
 **p-breaking-change-validation** [2026-04-13]
 Before merging breaking data-contract changes (field removal, header format, enum restructure): exhaustive search across all consuming systems — transport layer, parsing layer, business logic. Validate zero references by repo. Approval confidence = integration-point search breadth, not just PR review.
+
+**p-agent-peer-technical-inquiry** [2026-04-20]
+When responding to agent pitches or technical proposals, ask substantive follow-up questions on implementation details (auth patterns, protocol choices, sats-denominated reads, push vs pull) rather than generic acknowledgment. Link feedback signals (ERC-8004) and log interactions for audit trail — drives deeper ecosystem participation and creates verifiable engagement record.
