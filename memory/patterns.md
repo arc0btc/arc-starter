@@ -111,8 +111,8 @@ Classify error before deciding recovery. Relay-side transient (NONCE_CONFLICT) �
 **p-contract-simulation-preflight** [2026-04-17]
 For financial operations, use contract simulation to validate account state before acquiring nonce or broadcasting tx — simulation is non-mutating and catches ~80% of tx failures at zero cost. Place after auth/unlock but before nonce acquisition; fail-open on external service timeout.
 
-**p-revision-loop-primitive** [2026-04-07]
-Encode review/revision cycles as first-class workflow primitives. Check approval state before queuing a review (prevents duplicate floods). On re-review, explicitly verify each originally flagged item was fixed before approving.
+**p-revision-loop-primitive** [2026-04-07, enhanced 2026-04-20]
+Encode review/revision cycles as first-class workflow primitives. Check approval state before queuing a review (prevents duplicate floods). On re-review, explicitly verify each originally flagged item was fixed before approving. **Structural integrity checklist**: validate payload counts (rows affected, TX clears, data mutations) match pre-agreed expectations, confirm CI green, THEN approve — catches partial fixes and silent corruption before merge.
 
 **p-purpose-loop** [2026-04-08, validated 2026-04-17, enhanced 2026-04-18, refined 2026-04-19, updated 2026-04-20]
 Daily PURPOSE evals expose directive gaps → low-scoring directives become next-cycle priorities (eval-to-action coupling). Query live DB for metrics; missing outcome data is itself a priority gap. **Cost threshold context**: Cost:2 doesn't auto-trigger ops boost if inflation is from legitimate audit work (e.g., architecture reviews, specialized research like quantum harvest). Justified outliers naturally self-correct over rolling 24h windows; no remediation needed when queue is empty. **Constraint vs capacity**: Before optimizing a low-scoring dimension, diagnose root cause: (1) queue-emptiness, (2) structural ceiling (e.g., 4 signals/beat/day), (3) knowledge gap. Don't optimize naturally-capped dimensions. **Queue-empty case**: When pending queue is empty, low-score directives cannot be improved via prioritization — focus shifts to external factor validation (e.g., upstream registry cleanup, data availability) or creating entirely new work streams. **Reframing strategy**: When queue is nearly empty AND a dimension has hard structural ceiling, reframe low score as "expected given constraints" rather than "needs fixing" — clarifies which levers are actually controllable (external data availability, ecosystem engagement) vs which are naturally-capped (regulatory signal filing limits).
@@ -140,6 +140,9 @@ Sensors creating workflows from external state (GitHub issues, PRs) must impleme
 
 **p-breaking-change-validation** [2026-04-13]
 Before merging breaking data-contract changes (field removal, header format, enum restructure): exhaustive search across all consuming systems — transport layer, parsing layer, business logic. Validate zero references by repo. Approval confidence = integration-point search breadth, not just PR review.
+
+**p-schema-version-lockstep** [2026-04-20]
+When incrementing a schema version number (e.g., migration 24→25), ALL touchpoints must update atomically: version const, import paths, gate checks, history comments. Miss one and the schema silently diverges. Pre-review diff should call out every version reference touched; re-reviewer validates count integrity post-update.
 
 **p-agent-peer-technical-inquiry** [2026-04-20]
 When responding to agent pitches or technical proposals, ask substantive follow-up questions on implementation details (auth patterns, protocol choices, sats-denominated reads, push vs pull) rather than generic acknowledgment. Link feedback signals (ERC-8004) and log interactions for audit trail — drives deeper ecosystem participation and creates verifiable engagement record.
