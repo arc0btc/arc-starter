@@ -737,15 +737,28 @@
     </div>
   </div>
 
-  <!-- SLIDE 12: Live task feed -->
+  <!-- SLIDE 12: Live task feed (both agents) -->
   <div class="slide" data-slide="11" data-live="tasks">
     <div class="section-header">
       <h3><span class="live-badge"></span> Live right now</h3>
-      <h2>What Arc did today.</h2>
+      <h2>What both agents did today.</h2>
     </div>
-    <div class="wide-content task-feed" id="task-feed">
-      <div class="task-feed-item visible" style="justify-content: center; border: none; background: none;">
-        <span style="color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;">loading tasks&hellip;</span>
+    <div class="grid-2">
+      <div>
+        <div style="font-size: 0.85rem; color: var(--orange); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; text-align: center;">Arc (arc0.btc)</div>
+        <div class="task-feed" id="task-feed-arc">
+          <div class="task-feed-item visible" style="justify-content: center; border: none; background: none;">
+            <span style="color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">loading&hellip;</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size: 0.85rem; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; text-align: center;">Rising Leviathan (Publisher)</div>
+        <div class="task-feed" id="task-feed-loom">
+          <div class="task-feed-item visible" style="justify-content: center; border: none; background: none;">
+            <span style="color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">loading&hellip;</span>
+          </div>
+        </div>
       </div>
     </div>
     <div style="margin-top: 1rem; text-align: center;">
@@ -977,32 +990,46 @@
       sensors + ' sensors \u2022 ' + clis + ' CLIs \u2022 live from this machine';
   }
 
-  async function loadTasks() {
-    const data = await fetch('/api/tasks?status=completed&limit=10').then(r => r.json());
-    const feed = document.getElementById('task-feed');
-    const tasks = data.tasks;
-
+  function renderFeed(containerId, tasks, delay) {
+    const feed = document.getElementById(containerId);
     feed.innerHTML = '';
     tasks.forEach((t, i) => {
       const item = document.createElement('div');
       item.className = 'task-feed-item';
       item.innerHTML =
         '<span class="task-id">#' + t.id + '</span>' +
-        '<span class="task-subject">' + escHtml(t.subject) + '</span>' +
-        '<span class="task-status completed">completed</span>';
+        '<span class="task-subject">' + escHtml(t.subject) + '</span>';
       feed.appendChild(item);
-      setTimeout(() => item.classList.add('visible'), 80 + i * 120);
+      setTimeout(() => item.classList.add('visible'), delay + i * 100);
     });
+    if (!tasks.length) {
+      feed.innerHTML = '<div class="task-feed-item visible" style="justify-content:center;border:none;background:none;"><span style="color:var(--text-dim);font-size:0.85rem;">no tasks yet today</span></div>';
+    }
+  }
 
-    const [status, costs] = await Promise.all([
+  async function loadTasks() {
+    const [arcData, loomData, arcStatus, arcCosts, loomStatus, loomCosts] = await Promise.all([
+      fetch('/api/tasks?limit=8').then(r => r.json()),
+      fetch(LOOM + '/api/tasks?limit=8').then(r => r.json()).catch(() => null),
       fetch('/api/status').then(r => r.json()),
       fetch('/api/costs').then(r => r.json()),
+      fetch(LOOM + '/api/status').then(r => r.json()).catch(() => null),
+      fetch(LOOM + '/api/costs').then(r => r.json()).catch(() => null),
     ]);
-    const t = sumCosts(costs);
+
+    renderFeed('task-feed-arc', arcData.tasks, 80);
+    renderFeed('task-feed-loom', loomData ? loomData.tasks : [], 300);
+
+    const arcT = sumCosts(arcCosts);
+    const loomT = loomCosts ? sumCosts(loomCosts) : { tokens_in: 0, tokens_out: 0, cycles: 0 };
+    const totalTasks = arcStatus.completed_today + (loomStatus ? loomStatus.completed_today : 0);
+    const totalCycles = arcT.cycles + loomT.cycles;
+    const totalTokens = arcT.tokens_in + arcT.tokens_out + loomT.tokens_in + loomT.tokens_out;
+
     document.getElementById('task-feed-summary').innerHTML =
-      '<span class="live-badge"></span>' + status.completed_today +
-      ' completed today \u2022 ' + t.cycles + ' cycles \u2022 ' +
-      fmtTokens(t.tokens_in + t.tokens_out) + ' tokens processed';
+      '<span class="live-badge"></span>' + totalTasks +
+      ' tasks \u2022 ' + totalCycles + ' cycles \u2022 ' +
+      fmtTokens(totalTokens) + ' tokens \u2022 2 agents today';
   }
 
   function animateValue(id, targetText) {
