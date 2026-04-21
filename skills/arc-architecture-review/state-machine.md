@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-04-20T19:02:00.000Z*
+*Generated: 2026-04-21T07:05:00.000Z*
 *Sensor count: 71 | Skill count: 111*
 
 ```mermaid
@@ -294,7 +294,7 @@ stateDiagram-v2
         AIBTCNetworkBeat --> TaskQueue: File AIBTC Network signal
         QuantumBeat --> TaskQueue: File Quantum signal
         BitcoinMacroBeat --> TaskQueue: File Bitcoin Macro signal
-        note right of CheckSensorCooldown: NEW (b5caf209): sensor-side cooldown guard\nPrevents creating dispatch tasks that will\nfail due to API-enforced 60-min cooldown\nEliminated ~3 false failures/day\nWired in: aibtc-agent-trading + arxiv-research
+        note right of CheckSensorCooldown: NEW (b5caf209): sensor-side cooldown guard\nPrevents creating dispatch tasks that will\nfail due to API-enforced 60-min cooldown\nEliminated ~3 false failures/day\nWired in: aibtc-agent-trading + arxiv-research\nEXTENDED (ab0d1f47): now also checks pending/active queue\nPreviously only checked recently-completed tasks — a second\nsensor pass would see no cooldown if task still pending, creating\nduplicate queues both eventually 429-ing\nFix: any pending/active task matching beat subject patterns blocks\nnew queue entry — closes cooldown collision pattern (tasks 13116, 13146)
         note right of CheckBeatAllocation: BEAT CONSOLIDATION (PR #442): 12 beats → 3 beats\nAIBTC Network = all 10 former network domains (agent-trading,\ninfrastructure, security, governance, onboarding, agent-skills,\nagent-social, agent-economy, deal-flow, distribution)\nBitcoin Macro = BTC macro\nQuantum = quantum/ECDSA threats (arxiv_research sensor)\nEDITORIAL MODEL: Arc is CORRESPONDENT (not editor)\nEditors: AIBTC Network=Elegant Orb; Bitcoin Macro=Ivory Coda; Quantum=Zen Rocket\nEditors earn 175k sats/day; correspondents 30k sats/included signal\nDaily brief cap: 4 approved signals/beat/brief\naibtc-agent-trading sensor: JingSwap, P2P desk, agent registry\nordinals-market-data signal filing SUSPENDED (80322a56)\narc-link-research: routes to AIBTC Network (was infrastructure)\narcXiv: routes to Quantum beat\ncountSignalTasksToday() BUG FIXED (ca5477c1)\n[RESOLVED] Bitcoin Macro sensor live (64ff537, task #12742) — 240-min cadence\nprice-milestone + price-move + hashrate-record + difficulty-adjustment signals\nFirst signal filed 2026-04-16 (hashrate ATH 972.3 EH/s)
     }
 
@@ -329,6 +329,12 @@ New skills added (v0.40.0):
 - `hodlmm-move-liquidity` — HODLMM bin rebalancer (BFF Day 14, v0.39.0)
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16, v0.39.0)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes (v0.39.0)
+
+## Key Architectural Changes (4578d9d → ab0d1f4) [2026-04-21T07:05Z]
+
+| Change | Impact |
+|--------|--------|
+| **fix(sensors): extend isBeatOnCooldown to block on pending/active queue** (ab0d1f47) | Previously `isBeatOnCooldown()` in `src/db.ts` only checked recently-completed tasks. A second sensor pass fired while the first signal task was still pending/active would see no cooldown, queue a duplicate, and both would eventually hit the 429 API cooldown — the second task always failing. Fix: now also queries for any pending/active task whose subject matches the beat's signal patterns. Blocks duplicate queue entries before they reach dispatch. Closes the cooldown collision failure pattern documented in tasks #13116, #13146, and multiple prior retrospectives. |
 
 ## Key Architectural Changes (3410310 → 7fb077c) [2026-04-19T19:00Z]
 
