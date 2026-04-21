@@ -627,19 +627,19 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
           <div class="stat-card" style="padding: 1rem;">
             <div class="stat-value" style="font-size: 2.8rem;" id="arc-completed">--</div>
-            <div class="stat-label" style="font-size: 0.8rem;">today</div>
+            <div class="stat-label" style="font-size: 0.8rem;">tasks today</div>
+          </div>
+          <div class="stat-card" style="padding: 1rem;">
+            <div class="stat-value" style="font-size: 2.8rem;" id="arc-cycles">--</div>
+            <div class="stat-label" style="font-size: 0.8rem;">dispatch cycles</div>
+          </div>
+          <div class="stat-card" style="padding: 1rem;">
+            <div class="stat-value" style="font-size: 2.8rem;" id="arc-tokens">--</div>
+            <div class="stat-label" style="font-size: 0.8rem;">tokens processed</div>
           </div>
           <div class="stat-card" style="padding: 1rem;">
             <div class="stat-value" style="font-size: 2.8rem;" id="arc-skills">--</div>
-            <div class="stat-label" style="font-size: 0.8rem;">skills</div>
-          </div>
-          <div class="stat-card" style="padding: 1rem;">
-            <div class="stat-value" style="font-size: 2.8rem;" id="arc-cost">--</div>
-            <div class="stat-label" style="font-size: 0.8rem;">spent today</div>
-          </div>
-          <div class="stat-card" style="padding: 1rem;">
-            <div class="stat-value" style="font-size: 2.8rem;" id="arc-pending">--</div>
-            <div class="stat-label" style="font-size: 0.8rem;">pending</div>
+            <div class="stat-label" style="font-size: 0.8rem;">skills loaded</div>
           </div>
         </div>
       </div>
@@ -649,19 +649,19 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
           <div class="stat-card" style="padding: 1rem;">
             <div class="stat-value" style="font-size: 2.8rem;" id="loom-completed">--</div>
-            <div class="stat-label" style="font-size: 0.8rem;">today</div>
+            <div class="stat-label" style="font-size: 0.8rem;">tasks today</div>
+          </div>
+          <div class="stat-card" style="padding: 1rem;">
+            <div class="stat-value" style="font-size: 2.8rem;" id="loom-cycles">--</div>
+            <div class="stat-label" style="font-size: 0.8rem;">dispatch cycles</div>
+          </div>
+          <div class="stat-card" style="padding: 1rem;">
+            <div class="stat-value" style="font-size: 2.8rem;" id="loom-tokens">--</div>
+            <div class="stat-label" style="font-size: 0.8rem;">tokens processed</div>
           </div>
           <div class="stat-card" style="padding: 1rem;">
             <div class="stat-value" style="font-size: 2.8rem;" id="loom-skills">--</div>
-            <div class="stat-label" style="font-size: 0.8rem;">skills</div>
-          </div>
-          <div class="stat-card" style="padding: 1rem;">
-            <div class="stat-value" style="font-size: 2.8rem;" id="loom-cost">--</div>
-            <div class="stat-label" style="font-size: 0.8rem;">spent today</div>
-          </div>
-          <div class="stat-card" style="padding: 1rem;">
-            <div class="stat-value" style="font-size: 2.8rem;" id="loom-pending">--</div>
-            <div class="stat-label" style="font-size: 0.8rem;">pending</div>
+            <div class="stat-label" style="font-size: 0.8rem;">skills loaded</div>
           </div>
         </div>
       </div>
@@ -895,34 +895,60 @@
     }
   }
 
+  function sumCosts(data) {
+    const rows = data.costs || [];
+    let tokens_in = 0, tokens_out = 0, cycles = 0;
+    for (const h of rows) {
+      tokens_in += h.tokens_in || 0;
+      tokens_out += h.tokens_out || 0;
+      cycles += h.cycles || 0;
+    }
+    return { tokens_in, tokens_out, cycles };
+  }
+
+  function fmtTokens(n) {
+    if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B';
+    if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+    if (n >= 1e3) return (n / 1e3).toFixed(0) + 'K';
+    return String(n);
+  }
+
   async function loadStatus() {
-    const [arcStatus, arcSkills, loomStatus, loomSkills] = await Promise.all([
+    const [arcStatus, arcSkills, arcCosts, loomStatus, loomSkills, loomCosts] = await Promise.all([
       fetch('/api/status').then(r => r.json()),
       fetch('/api/skills').then(r => r.json()),
+      fetch('/api/costs').then(r => r.json()),
       fetch(LOOM + '/api/status').then(r => r.json()).catch(() => null),
       fetch(LOOM + '/api/skills').then(r => r.json()).catch(() => null),
+      fetch(LOOM + '/api/costs').then(r => r.json()).catch(() => null),
     ]);
+
+    const arcT = sumCosts(arcCosts);
 
     // Arc column
     animateValue('arc-completed', arcStatus.completed_today);
+    animateValue('arc-cycles', arcT.cycles);
+    animateValue('arc-tokens', fmtTokens(arcT.tokens_in + arcT.tokens_out));
     animateValue('arc-skills', arcSkills.skills.length);
-    animateValue('arc-cost', '$' + arcStatus.cost_today_usd.toFixed(2));
-    animateValue('arc-pending', arcStatus.pending);
 
     // Loom column
-    if (loomStatus && loomSkills) {
+    if (loomStatus && loomSkills && loomCosts) {
+      const loomT = sumCosts(loomCosts);
       animateValue('loom-completed', loomStatus.completed_today);
+      animateValue('loom-cycles', loomT.cycles);
+      animateValue('loom-tokens', fmtTokens(loomT.tokens_in + loomT.tokens_out));
       animateValue('loom-skills', loomSkills.skills.length);
-      animateValue('loom-cost', '$' + loomStatus.cost_today_usd.toFixed(2));
-      animateValue('loom-pending', loomStatus.pending);
     } else {
-      ['loom-completed','loom-skills','loom-cost','loom-pending'].forEach(id =>
+      ['loom-completed','loom-cycles','loom-tokens','loom-skills'].forEach(id =>
         animateValue(id, '\u2014'));
     }
 
-    const combined = arcStatus.completed_today + (loomStatus ? loomStatus.completed_today : 0);
+    const combinedTasks = arcStatus.completed_today + (loomStatus ? loomStatus.completed_today : 0);
+    const combinedTokens = (arcT.tokens_in + arcT.tokens_out) +
+      (loomCosts ? sumCosts(loomCosts).tokens_in + sumCosts(loomCosts).tokens_out : 0);
     document.getElementById('live-timestamp').innerHTML =
-      '<span class="live-badge"></span>' + combined + ' tasks across 2 agents today \u2022 ' +
+      '<span class="live-badge"></span>' + combinedTasks + ' tasks \u2022 ' +
+      fmtTokens(combinedTokens) + ' tokens \u2022 2 agents \u2022 ' +
       new Date().toLocaleTimeString();
   }
 
@@ -968,11 +994,15 @@
       setTimeout(() => item.classList.add('visible'), 80 + i * 120);
     });
 
-    const status = await fetch('/api/status').then(r => r.json());
+    const [status, costs] = await Promise.all([
+      fetch('/api/status').then(r => r.json()),
+      fetch('/api/costs').then(r => r.json()),
+    ]);
+    const t = sumCosts(costs);
     document.getElementById('task-feed-summary').innerHTML =
       '<span class="live-badge"></span>' + status.completed_today +
-      ' completed today \u2022 ' + status.failed_today + ' failed \u2022 $' +
-      status.cost_today_usd.toFixed(2) + ' spent';
+      ' completed today \u2022 ' + t.cycles + ' cycles \u2022 ' +
+      fmtTokens(t.tokens_in + t.tokens_out) + ' tokens processed';
   }
 
   function animateValue(id, targetText) {
