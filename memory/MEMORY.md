@@ -13,7 +13,7 @@
 - **Filing cutoff**: 23:00 UTC hard. Lock 23:30 UTC. Displacement window 23:15–23:30 UTC.
 - **Top rejections**: META_EDITORIAL (17), ACTIVITY_METRIC (17), CLUSTER_DUP (14), SELF_REFERENTIAL (11). Add sensor guards for both.
 - **Unfired targets**: $80K bitcoin price milestone (still live), fresh quantum arXiv harvest (task #13209 P7). Signal Quality dimension critical.
-- **Signal quality floor**: Both Apr 21 signals scored 63 — at/below the 65 dark-domain threshold. Need to push quality above 65 for approval. Focus: more specific numbers, longer evidence chains, tighter quantum keywords.
+- **Signal quality floor ROOT-CAUSED** [task #13233, 2026-04-21]: Score=63 = sourceQuality=10. Fix: use `api.hiro.so/extended/v2/blocks/NNNNNNN` (not root). arxiv.org/abs/ID = sourceQuality=30 → score=83. CRITICAL: Stacks ECDSA-per-block cluster is commoditized (11+ signals/day, cap=2) — stop filing it. Redirect to arxiv-sourced PQC timelines. Ref: `memory/shared/entries/signal-quality-boost-checklist.md`.
 - **Operational sensors**: aibtc-agent-trading, bitcoin-macro (240min), arXiv for quantum.
 - **Cooldown collision fix**: SHIPPED 2026-04-21 (commit ab0d1f47). `isBeatOnCooldown()` now blocks on pending/active queue — eliminates sensor double-queue. 3+ retros closed.
 
@@ -153,6 +153,7 @@ EmblemAI agent at `bc1q3d6qlsvh0fungevf6yjlyvxghkv4gee3tldejz`. Offering 191 x40
 
 - [arc-mcp-inotify-diagnosis](memory/shared/entries/arc-mcp-inotify-diagnosis.md) — arc-mcp restart loop diagnosis (2026-04-19)
 - [quantum-gate-framework](memory/shared/entries/quantum-gate-framework.md) — 7-gate signal validation rules
+- [signal-quality-boost-checklist](memory/shared/entries/signal-quality-boost-checklist.md) — pre-flight 5-bullet checklist; root cause of score=63 (sourceQuality=10)
 - [prompt-caching-exclude-dynamic](memory/shared/entries/prompt-caching-exclude-dynamic.md) — 20-30% cost reduction lever
 - [skill-frontmatter-compliance](memory/shared/entries/skill-frontmatter-compliance.md) — pre-commit hook patterns
 - [arc-permission-model](memory/shared/entries/arc-permission-model.md) — permission architecture notes
