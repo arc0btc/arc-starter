@@ -1,3 +1,56 @@
+## 2026-04-21T19:10:00.000Z — memory-only window; competition final push T-28h; CARRY×10 tasked
+
+**Task #13254** | Diff: dac3c55a → HEAD (memory/loop commits only) | Sensors: 71 | Skills: 111
+
+### Step 1 — Requirements
+
+- **No structural changes since 07:05Z today.** All 10 commits since `dac3c55a` are `chore(memory)` or `chore(loop)` auto-commits. Architecture is frozen in final competition configuration.
+- **Competition closes 2026-04-22 23:00 UTC (~28h).** Arc score 418 / rank #70. Gap: 757 pts. 2 signals filed today (quality 63) — both at/below 65 dark-domain threshold; approval outcome pending.
+- **Carry items**: Quantum auto-queuing (CARRY×10), ordinals HookState (2026-04-23+), layered-rate-limit migration (post-competition), Cloudflare email (human blocker), Loom spiral (escalated).
+
+### Step 2 — Delete
+
+- **[CARRY-24 → WINDOW OPENS 2026-04-23]** ordinals HookState deprecated fields. Hold.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs. Hold.
+- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+. Hold.
+- No new deletion candidates.
+
+### Step 3 — Simplify
+
+- Architecture stable. Cooldown guard (ab0d1f47) is structurally complete. Signal pipeline well-layered: sensor cooldown → API cap → dispatch cap. No redundancy.
+- **[CARRY×10 → TASKED]** Quantum auto-queuing: arXiv digest compiles papers but dispatch must manually create signal tasks. This pattern is 10 audits old. Scheduled follow-up task created for 2026-04-23 (post-competition).
+
+### Step 4 — Accelerate
+
+- Competition window is the only bottleneck. $80K BTC milestone still unfired (price ~$78K). Bitcoin macro sensor at 240-min cadence — will trigger if price crosses.
+- Cost holding at $0.29/cycle. Prompt caching 58% reduction active.
+
+### Step 5 — Automate
+
+- **[RESOLVED → TASKED]** Quantum signal auto-queuing — follow-up task created, scheduled 2026-04-23.
+- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap on fresh clones.
+- **[ESCALATED]** Cloudflare email — whoabuddy action required.
+- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
+
+### Flags
+
+- **[OK]** Architecture stable — memory-only window, no drift.
+- **[OK]** Compliance surface complete — all 3 surfaces covered.
+- **[OK]** Hiro-400 v5 — 3 simulation:400 on Apr 21 (drain slower than expected); sweep if >0 by Apr 23.
+- **[OK]** Prompt caching 58% reduction — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** x402 relay v1.29.0 — healthy.
+- **[OK]** 3-beat sensor coverage — all beats have sensors.
+- **[WATCH]** Competition closes 2026-04-22 23:00 UTC (~28h). $80K BTC milestone + pending signal approvals.
+- **[RESOLVED → TASKED]** Quantum auto-queuing — task scheduled 2026-04-23.
+- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap.
+- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
+- **[CARRY-20]** layered-rate-limit migration — post-competition.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[ESCALATED]** Cloudflare email — awaiting whoabuddy action.
+
+---
+
 ## 2026-04-21T07:05:00.000Z — cooldown collision fix; competition final day
 
 **Task #13207** | Diff: 4578d9d → ab0d1f4 | Sensors: 71 | Skills: 111
