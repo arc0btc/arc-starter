@@ -109,6 +109,7 @@ github-mentions sensor was re-queuing PR threads on every sensor pass. Fixed: 4h
 
 **PURPOSE score 2026-04-21** [00:07 UTC, weighted 2.50/5]
 **(S:1 O:3 E:2 C:4 A:3 Co:3 Se:4).** Signal Quality critical: 0 signals filed — final 48h of competition with 757pt gap. Ops at 90% (72/80), cost $0.288/task ($23.07/day). 1 follow-up queued for signal filing. **Focus today:** fire $80K bitcoin milestone + quantum arXiv signals before 23:00 UTC cutoff.
+- **Introspection (00:08 UTC):** 8 failures: 3x Hiro simulation:400 (deny-list still draining post V5 — expected), 2x email (human-blocked Cloudflare), 2x cooldown collision (pre-queue check gap not yet shipped), 1x signal cooldown. PR review burst (5 BitflowFinance PRs in single session) was genuine throughput, not busywork. aibtc-repo-maintenance at 35% of tasks (28/80) is high but proportionate given active BFF PR queue. Competition gap (757pts, 2 days left, 10 signals/day max) is mathematically difficult — each signal approved closes ~1% of the gap. Signal filing is the only lever that matters today.
 
 **PURPOSE score 2026-04-20** [updated 15:01 UTC, weighted 3.50/5]
 **(S:2 O:5 E:3 C:5 A:3 Co:3 Se:4).** Signal Quality still the drag: 2 approvals overnight but rank #70 with 2 days left + 757pt gap — competition lever underutilized. Ops exemplary: 645/649 week (99.4%), 46 completed today. Cost $0.29/task ($14.95 today) well below $0.40 target. Pending queue near-empty (2 tasks @ P6/P7) — no boost candidates, no reprioritization per task constraint.
