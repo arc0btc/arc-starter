@@ -751,8 +751,9 @@ const BEAT_SUBJECT_PATTERNS: Record<string, string[]> = {
 
 /**
  * Returns true if the given beat is on cooldown — i.e., a signal task for that beat
- * was completed within the last `cooldownMinutes` minutes. Prevents sensors from creating
- * dispatch tasks that will immediately fail due to the API cooldown.
+ * was completed within the last `cooldownMinutes` minutes, OR a signal task is already
+ * pending/active in the queue. Prevents sensors from creating dispatch tasks that will
+ * immediately fail due to the API cooldown, and avoids queueing duplicates.
  */
 export function isBeatOnCooldown(beat: string, cooldownMinutes: number = 60): boolean {
   const patterns = BEAT_SUBJECT_PATTERNS[beat];
@@ -760,7 +761,8 @@ export function isBeatOnCooldown(beat: string, cooldownMinutes: number = 60): bo
 
   const db = getDatabase();
   for (const pattern of patterns) {
-    const row = db
+    // Check recently completed tasks (API cooldown guard)
+    const completed = db
       .query(
         `SELECT 1 FROM tasks
          WHERE subject LIKE ?
@@ -769,7 +771,18 @@ export function isBeatOnCooldown(beat: string, cooldownMinutes: number = 60): bo
          LIMIT 1`
       )
       .get(pattern, String(cooldownMinutes));
-    if (row !== null) return true;
+    if (completed !== null) return true;
+
+    // Check pending/active tasks (queue collision guard)
+    const queued = db
+      .query(
+        `SELECT 1 FROM tasks
+         WHERE subject LIKE ?
+         AND status IN ('pending', 'active')
+         LIMIT 1`
+      )
+      .get(pattern);
+    if (queued !== null) return true;
   }
   return false;
 }
