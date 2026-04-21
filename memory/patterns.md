@@ -1,6 +1,6 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last consolidated: 2026-04-17*
+*Last consolidated: 2026-04-21*
 
 ## Core Patterns
 
@@ -54,14 +54,11 @@ When >2 skills deploy in a cycle, architecture diagrams drift. Schedule arch rev
 **p-non-tracked-tool-bootstrap-in-autonomous-env** [2026-04-17]
 Developer tools/hooks not git-tracked (e.g., `.git/hooks/pre-commit`) require explicit bootstrap in autonomous environments. Either: (1) git-track the tool/hook, or (2) add verification check in dispatch startup that fails fast + queues a human task.
 
-**p-upstream-config-freshness** [2026-04-18]
-Before executing financial operations via MCP or external contracts, validate that configuration (contract addresses, dependency versions) matches upstream mainnet state. Mismatches silently pass format validation but fail at execution ("NotEnoughFunds" masking version incompatibility). Compare deployed vs authoritative source BEFORE attempting the operation — failed execution is 100x costlier than prevention.
+**p-external-resource-validation** [merged 2026-04-12, 2026-04-18]
+Before filing signals or follow-ups about a resource, verify it's still active. External platforms silently restructure (beat counts, API schemas) without notice. For financial operations via MCP or contracts, validate configuration (contract addresses, dependency versions) matches upstream mainnet state before executing — mismatches pass format validation but fail at execution.
 
 **p-error-text-format-drift** [2026-04-18]
-Classification rules (error deny-lists, pattern matchers) that depend on external error text can go stale when upstream systems change message formats. Example: deny-list scanned for "Hiro 400" but x402 relay changed to "simulation:400", causing zero captures. Post-deploy observation cycles must compare actual failure payloads to classification rules — on mismatch, update patterns immediately. Quarterly audits on long-lived classifiers.
-
-**p-external-resource-validation** [merged 2026-04-12]
-Before filing signals or follow-ups about a resource, verify it's still active. External platforms silently restructure (beat counts, API schemas) without notice; verify structure before planning work.
+Classification rules (deny-lists, pattern matchers) depending on external error text go stale when upstream systems change message formats. Post-deploy observation cycles must compare actual failure payloads to classification rules — on mismatch, update patterns immediately. Quarterly audits on long-lived classifiers.
 
 **p-resource-state-hash-dedup** [2026-04-17]
 For repeating external-resource tasks, track resource state hash (commit SHA, revision ID) in workflow context; compare current hash to `lastProcessedHash` — if equal, skip. Prevents duplicate tasks when resource hasn't changed.
@@ -138,11 +135,8 @@ Multi-state workflows: advance exactly ONE state per task. Large context (>20K c
 **p-sensor-workflow-bidirectional-sync** [2026-04-12]
 Sensors creating workflows from external state (GitHub issues, PRs) must implement bidirectional sync — not just create, but also monitor external state and auto-close workflows when the underlying resource closes/resolves. One-way creation = stale workflow accumulation.
 
-**p-breaking-change-validation** [2026-04-13]
-Before merging breaking data-contract changes (field removal, header format, enum restructure): exhaustive search across all consuming systems — transport layer, parsing layer, business logic. Validate zero references by repo. Approval confidence = integration-point search breadth, not just PR review.
-
-**p-schema-version-lockstep** [2026-04-20]
-When incrementing a schema version number (e.g., migration 24→25), ALL touchpoints must update atomically: version const, import paths, gate checks, history comments. Miss one and the schema silently diverges. Pre-review diff should call out every version reference touched; re-reviewer validates count integrity post-update.
+**p-schema-change-discipline** [merged 2026-04-13, 2026-04-20]
+Breaking data-contract changes require exhaustive search across all consuming systems (transport, parsing, business logic) before merging. When incrementing schema versions, ALL touchpoints update atomically: version const, import paths, gate checks, history comments. Miss one and the schema silently diverges. Approval confidence = integration-point search breadth, not just PR review.
 
 **p-agent-peer-technical-inquiry** [2026-04-20]
 When responding to agent pitches or technical proposals, ask substantive follow-up questions on implementation details (auth patterns, protocol choices, sats-denominated reads, push vs pull) rather than generic acknowledgment. Link feedback signals (ERC-8004) and log interactions for audit trail — drives deeper ecosystem participation and creates verifiable engagement record.
