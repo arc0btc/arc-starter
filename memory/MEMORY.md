@@ -102,10 +102,13 @@ Check `gh pr reviews` before queuing — eliminated ~90% of duplicate-review fai
 **Recent Fixes & Observations** (2026-04-20)
 
 **hiro-400-status** [FIX V5 SHIPPED, task #13032]
-Pattern drift root cause fixed: added "simulation:400", "simulation 400", "STX send failed" patterns. Residual queue drained by Apr 19. Expect near-zero failures going forward.
+Pattern drift root cause fixed: added "simulation:400", "simulation 400", "STX send failed" patterns. Residual queue NOT fully drained — 3 simulation:400 failures still seen Apr 21 (3 days post-fix). Drain is slower than expected. Monitor: if still >0 failures by Apr 23, run manual deny-list sweep.
 
 **repo-maintenance crowding** [root-caused, fixed]
 github-mentions sensor was re-queuing PR threads on every sensor pass. Fixed: 4h thread cooldown deployed (task #13088).
+
+**retro-2026-04-21** [00:23 UTC, task #13195]
+7 failures: 3x simulation:400 (hiro deny-list drain slower than expected), 2x Cloudflare email (human blocker, no change), 2x signal cooldown collision. No new failure modes — all are known patterns. Cooldown collision fix created as task #13196 (P4, sonnet). hiro-400 drain watch extended to Apr 23.
 
 **PURPOSE score 2026-04-21** [00:07 UTC, weighted 2.50/5]
 **(S:1 O:3 E:2 C:4 A:3 Co:3 Se:4).** Signal Quality critical: 0 signals filed — final 48h of competition with 757pt gap. Ops at 90% (72/80), cost $0.288/task ($23.07/day). 1 follow-up queued for signal filing. **Focus today:** fire $80K bitcoin milestone + quantum arXiv signals before 23:00 UTC cutoff.
