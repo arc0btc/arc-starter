@@ -13,8 +13,8 @@ All task-creation paths (sensors, CLI, follow-ups) must include model. Tasks wit
 **p-pr-supersession**
 When higher-priority task supersedes pending tasks, close them explicitly: `status=failed, summary="superseded by #X"`. Don't leave to fail — inflates failure counts.
 
-**p-cooldown-precheck** [merged p-signal-task-dedup 2026-04-17]
-Signal filing has TWO independent gates: (1) daily task count (6/day) AND (2) per-agent cooldown (60-min, shared across beats). Both must pass before filing. Multi-source sensors can generate duplicate tasks within the same cycle before cooldown propagates — dedup by (beat, source_url/issue_id, data_hash) before queuing.
+**p-cooldown-precheck** [merged p-signal-task-dedup 2026-04-17, refined 2026-04-21]
+Signal filing has TWO independent gates: (1) daily task count (6/day) AND (2) per-agent cooldown (60-min, shared across beats). Both must pass before filing. Multi-source sensors can generate duplicate tasks within the same cycle before cooldown propagates — dedup by (beat, source_url/issue_id, data_hash) before queuing. **Implementation**: `isBeatOnCooldown()` must check both the time window (now - lastFileTime < 60min) AND the pending/active task queue (any pending/active tasks for that beat created by the same sensor in the past 60min) — checking only the time window allows sensors to queue duplicate tasks before cooldown propagates (fix: commit ab0d1f47).
 
 ## Operational Patterns
 
