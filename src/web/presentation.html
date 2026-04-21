@@ -320,6 +320,104 @@
 
   .stacks-rail-desc { font-size: 1.05rem; }
 
+  .skill-pill {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-dim);
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  .skill-pill.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .skill-pill.has-sensor {
+    border-color: var(--orange-dim);
+    color: var(--orange);
+  }
+  .skill-pill.has-cli {
+    color: var(--text);
+  }
+  .skill-pill.hot {
+    border-color: var(--orange);
+    color: var(--text-bright);
+    background: rgba(245, 158, 11, 0.1);
+  }
+
+  .live-badge {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    margin-right: 0.4rem;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .task-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 50vh;
+    overflow: hidden;
+  }
+
+  .task-feed-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: all 0.4s ease;
+  }
+  .task-feed-item.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .task-feed-item .task-id {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--orange);
+    font-size: 0.8rem;
+    min-width: 60px;
+  }
+  .task-feed-item .task-subject {
+    color: var(--text);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .task-feed-item .task-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+  }
+  .task-feed-item .task-status.completed {
+    color: var(--accent-green);
+    background: rgba(34, 197, 94, 0.1);
+  }
+  .task-feed-item .task-status.active {
+    color: var(--orange);
+    background: rgba(245, 158, 11, 0.1);
+  }
+
   @media (max-width: 900px) {
     .slide { padding: 1.5rem 1.5rem 3rem; }
     h1 { font-size: 2.5rem; }
@@ -516,69 +614,74 @@
     </div>
   </div>
 
-  <!-- SLIDE 8: The numbers -->
-  <div class="slide" data-slide="7">
+  <!-- SLIDE 8: Two agents, live (LIVE) -->
+  <div class="slide" data-slide="7" data-live="status">
     <div class="section-header">
-      <h3>Proof it works</h3>
-      <h2>What one agent looks like in production.</h2>
+      <h3><span class="live-badge"></span> Two agents. Live data. Right now.</h3>
+      <h2>The network in production.</h2>
     </div>
     <div class="grid-2">
-      <div class="card stat-card card-glow">
-        <div class="stat-value">10K<span style="font-size: 1.8rem;">+</span></div>
-        <div class="stat-label">Dispatch Cycles</div>
-        <div class="stat-sub">24/7 since February</div>
+      <!-- Arc column -->
+      <div class="card card-glow" style="padding: 1.5rem;">
+        <div style="font-size: 0.85rem; color: var(--orange); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; text-align: center;">Arc (arc0.btc)</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="stat-card" style="padding: 1rem;">
+            <div class="stat-value" style="font-size: 2.8rem;" id="arc-completed">--</div>
+            <div class="stat-label" style="font-size: 0.8rem;">today</div>
+          </div>
+          <div class="stat-card" style="padding: 1rem;">
+            <div class="stat-value" style="font-size: 2.8rem;" id="arc-skills">--</div>
+            <div class="stat-label" style="font-size: 0.8rem;">skills</div>
+          </div>
+          <div class="stat-card" style="padding: 1rem;">
+            <div class="stat-value" style="font-size: 2.8rem;" id="arc-cost">--</div>
+            <div class="stat-label" style="font-size: 0.8rem;">spent today</div>
+          </div>
+          <div class="stat-card" style="padding: 1rem;">
+            <div class="stat-value" style="font-size: 2.8rem;" id="arc-pending">--</div>
+            <div class="stat-label" style="font-size: 0.8rem;">pending</div>
+          </div>
+        </div>
       </div>
-      <div class="card stat-card">
-        <div class="stat-value">111 / 71</div>
-        <div class="stat-label">Skills / Sensors</div>
-        <div class="stat-sub">composable capabilities</div>
+      <!-- Loom column -->
+      <div class="card" style="padding: 1.5rem;">
+        <div style="font-size: 0.85rem; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; text-align: center;">Rising Leviathan (Publisher)</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="stat-card" style="padding: 1rem;">
+            <div class="stat-value" style="font-size: 2.8rem;" id="loom-completed">--</div>
+            <div class="stat-label" style="font-size: 0.8rem;">today</div>
+          </div>
+          <div class="stat-card" style="padding: 1rem;">
+            <div class="stat-value" style="font-size: 2.8rem;" id="loom-skills">--</div>
+            <div class="stat-label" style="font-size: 0.8rem;">skills</div>
+          </div>
+          <div class="stat-card" style="padding: 1rem;">
+            <div class="stat-value" style="font-size: 2.8rem;" id="loom-cost">--</div>
+            <div class="stat-label" style="font-size: 0.8rem;">spent today</div>
+          </div>
+          <div class="stat-card" style="padding: 1rem;">
+            <div class="stat-value" style="font-size: 2.8rem;" id="loom-pending">--</div>
+            <div class="stat-label" style="font-size: 0.8rem;">pending</div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="grid-2" style="margin-top: 1.5rem;">
-      <div class="card stat-card">
-        <div class="stat-value">4.8B</div>
-        <div class="stat-label">Tokens Processed</div>
-        <div class="stat-sub">in 53 days</div>
-      </div>
-      <div class="card stat-card">
-        <div class="stat-value">~250</div>
-        <div class="stat-label">Tasks / Day</div>
-        <div class="stat-sub">autonomous decisions</div>
-      </div>
+    <div style="margin-top: 1.25rem; text-align: center;">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-dim);" id="live-timestamp">fetching&hellip;</span>
     </div>
   </div>
 
-  <!-- SLIDE 9: Built on Stacks rails -->
-  <div class="slide" data-slide="8">
+  <!-- SLIDE 9: Live skills wall -->
+  <div class="slide" data-slide="8" data-live="skills">
     <div class="section-header">
-      <h3>The Stacks build</h3>
-      <h2>Built on rails you already know.</h2>
+      <h3>Live from this machine</h3>
+      <h2>111 skills. Here&rsquo;s what Arc can do.</h2>
     </div>
-    <div class="wide-content" style="display: flex; flex-direction: column; gap: 0.75rem;">
-      <div class="stacks-rail">
-        <div class="stacks-rail-name">sBTC on Zest</div>
-        <div class="stacks-rail-desc">Nightly yield ops. No custody.</div>
-      </div>
-      <div class="stacks-rail">
-        <div class="stacks-rail-name">Hermetica</div>
-        <div class="stacks-rail-desc">Bitcoin earning Bitcoin. Self-custodial. hBTC live.</div>
-      </div>
-      <div class="stacks-rail">
-        <div class="stacks-rail-name">Bitflow DEX</div>
-        <div class="stacks-rail-desc">Agent-routed swaps.</div>
-      </div>
-      <div class="stacks-rail">
-        <div class="stacks-rail-name">x402 payments</div>
-        <div class="stacks-rail-desc">Pay-per-call between agents. 100 sats buys attention.</div>
-      </div>
-      <div class="stacks-rail">
-        <div class="stacks-rail-name">BNS</div>
-        <div class="stacks-rail-desc">Human-readable identity. <span class="mono highlight">arc0.btc</span></div>
-      </div>
-      <div class="stacks-rail">
-        <div class="stacks-rail-name">Clarity</div>
-        <div class="stacks-rail-desc">Identity, reputation, escrow, inbox &mdash; all on-chain.</div>
-      </div>
+    <div class="wide-content" id="skills-wall" style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; max-height: 60vh; overflow: hidden; align-content: flex-start;">
+      <span style="color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;">loading skills&hellip;</span>
+    </div>
+    <div style="margin-top: 1.25rem; text-align: center;">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-dim);" id="skills-summary">loading&hellip;</span>
     </div>
   </div>
 
@@ -634,8 +737,24 @@
     </div>
   </div>
 
-  <!-- SLIDE 12: What would YOUR agent do? -->
-  <div class="slide" data-slide="11">
+  <!-- SLIDE 12: Live task feed -->
+  <div class="slide" data-slide="11" data-live="tasks">
+    <div class="section-header">
+      <h3><span class="live-badge"></span> Live right now</h3>
+      <h2>What Arc did today.</h2>
+    </div>
+    <div class="wide-content task-feed" id="task-feed">
+      <div class="task-feed-item visible" style="justify-content: center; border: none; background: none;">
+        <span style="color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;">loading tasks&hellip;</span>
+      </div>
+    </div>
+    <div style="margin-top: 1rem; text-align: center;">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-dim);" id="task-feed-summary">loading&hellip;</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 13: What would YOUR agent do? -->
+  <div class="slide" data-slide="12">
     <div class="section-header">
       <h3>The invitation</h3>
       <h2>What would <span class="highlight">your</span> agent do?</h2>
@@ -669,8 +788,8 @@
     </div>
   </div>
 
-  <!-- SLIDE 13: Closing -->
-  <div class="slide cta-slide" data-slide="12">
+  <!-- SLIDE 14: Closing -->
+  <div class="slide cta-slide" data-slide="13">
     <h1>The agent economy<br>is already running.</h1>
     <div style="margin-top: 2rem; font-size: 1.35rem; font-weight: 500; color: var(--text); max-width: 900px; text-align: center; line-height: 1.5;">
       <span style="display: block; color: var(--text-dim);">Last year: &ldquo;What happens when AI gets wallets?&rdquo;</span>
@@ -710,6 +829,7 @@
   const slides = document.querySelectorAll('.slide');
   const total = slides.length;
   let current = 0;
+  const loaded = new Set();
 
   document.getElementById('total').textContent = total;
 
@@ -720,6 +840,7 @@
     slides[current].classList.add('active');
     document.getElementById('current').textContent = current + 1;
     document.getElementById('progress').style.width = ((current + 1) / total * 100) + '%';
+    loadLiveData(slides[current]);
   }
 
   document.addEventListener('keydown', (e) => {
@@ -753,6 +874,126 @@
   });
 
   document.getElementById('progress').style.width = (1 / total * 100) + '%';
+
+  // ---- Live data fetching ----
+
+  const LOOM = 'http://192.168.1.14:3000';
+
+  async function loadLiveData(slide) {
+    const type = slide.dataset.live;
+    if (!type) return;
+    // Always re-fetch status (it changes), cache skills/tasks
+    if (type !== 'status' && loaded.has(type)) return;
+    loaded.add(type);
+
+    try {
+      if (type === 'status') await loadStatus();
+      if (type === 'skills') await loadSkills();
+      if (type === 'tasks') await loadTasks();
+    } catch (e) {
+      console.warn('Live data fetch failed:', e);
+    }
+  }
+
+  async function loadStatus() {
+    const [arcStatus, arcSkills, loomStatus, loomSkills] = await Promise.all([
+      fetch('/api/status').then(r => r.json()),
+      fetch('/api/skills').then(r => r.json()),
+      fetch(LOOM + '/api/status').then(r => r.json()).catch(() => null),
+      fetch(LOOM + '/api/skills').then(r => r.json()).catch(() => null),
+    ]);
+
+    // Arc column
+    animateValue('arc-completed', arcStatus.completed_today);
+    animateValue('arc-skills', arcSkills.skills.length);
+    animateValue('arc-cost', '$' + arcStatus.cost_today_usd.toFixed(2));
+    animateValue('arc-pending', arcStatus.pending);
+
+    // Loom column
+    if (loomStatus && loomSkills) {
+      animateValue('loom-completed', loomStatus.completed_today);
+      animateValue('loom-skills', loomSkills.skills.length);
+      animateValue('loom-cost', '$' + loomStatus.cost_today_usd.toFixed(2));
+      animateValue('loom-pending', loomStatus.pending);
+    } else {
+      ['loom-completed','loom-skills','loom-cost','loom-pending'].forEach(id =>
+        animateValue(id, '\u2014'));
+    }
+
+    const combined = arcStatus.completed_today + (loomStatus ? loomStatus.completed_today : 0);
+    document.getElementById('live-timestamp').innerHTML =
+      '<span class="live-badge"></span>' + combined + ' tasks across 2 agents today \u2022 ' +
+      new Date().toLocaleTimeString();
+  }
+
+  async function loadSkills() {
+    const data = await fetch('/api/skills').then(r => r.json());
+    const wall = document.getElementById('skills-wall');
+    const skills = data.skills.sort((a, b) => b.usage_count - a.usage_count);
+    const sensors = skills.filter(s => s.has_sensor).length;
+    const clis = skills.filter(s => s.has_cli).length;
+
+    wall.innerHTML = '';
+    skills.forEach((s, i) => {
+      const pill = document.createElement('span');
+      pill.className = 'skill-pill' +
+        (s.has_sensor ? ' has-sensor' : '') +
+        (s.has_cli ? ' has-cli' : '') +
+        (s.usage_count > 50 ? ' hot' : '');
+      pill.textContent = s.name;
+      pill.title = s.description;
+      wall.appendChild(pill);
+      setTimeout(() => pill.classList.add('visible'), 20 + i * 15);
+    });
+
+    document.getElementById('skills-summary').innerHTML =
+      '<span class="live-badge"></span>' + skills.length + ' skills \u2022 ' +
+      sensors + ' sensors \u2022 ' + clis + ' CLIs \u2022 live from this machine';
+  }
+
+  async function loadTasks() {
+    const data = await fetch('/api/tasks?status=completed&limit=10').then(r => r.json());
+    const feed = document.getElementById('task-feed');
+    const tasks = data.tasks;
+
+    feed.innerHTML = '';
+    tasks.forEach((t, i) => {
+      const item = document.createElement('div');
+      item.className = 'task-feed-item';
+      item.innerHTML =
+        '<span class="task-id">#' + t.id + '</span>' +
+        '<span class="task-subject">' + escHtml(t.subject) + '</span>' +
+        '<span class="task-status completed">completed</span>';
+      feed.appendChild(item);
+      setTimeout(() => item.classList.add('visible'), 80 + i * 120);
+    });
+
+    const status = await fetch('/api/status').then(r => r.json());
+    document.getElementById('task-feed-summary').innerHTML =
+      '<span class="live-badge"></span>' + status.completed_today +
+      ' completed today \u2022 ' + status.failed_today + ' failed \u2022 $' +
+      status.cost_today_usd.toFixed(2) + ' spent';
+  }
+
+  function animateValue(id, targetText) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.transition = 'none';
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(10px)';
+    setTimeout(() => {
+      el.textContent = targetText;
+      el.style.transition = 'all 0.5s ease';
+      el.style.opacity = '1';
+      el.style.transform = 'translateY(0)';
+    }, 50);
+  }
+
+  function escHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
 </script>
 
 </body>
