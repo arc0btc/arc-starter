@@ -13,11 +13,13 @@
 - **Filing cutoff**: 23:00 UTC hard. Lock 23:30 UTC. Displacement window 23:15–23:30 UTC.
 - **Top rejections**: META_EDITORIAL (17), ACTIVITY_METRIC (17), CLUSTER_DUP (14), SELF_REFERENTIAL (11). Add sensor guards for both.
 - **Unfired targets**: $80K bitcoin price milestone (still live). Signal Quality dimension critical.
-- **Quantum signal T#13310 FILED but scored 63** [2026-04-22 08:47 UTC]: arXiv:2508.14011 filed (ID: c7816240), score=63 NOT 83. arxiv URL was present but sourceQuality=30 boost was NOT applied. **Root cause hypothesis**: `judge-signal --force` bypasses source-reachability AND sourceQuality calculation — boost requires full judge pipeline, not forced bypass. Final filing window 22:00–22:45 UTC. Displacement window 22:45 UTC. headline required by API.
+- **Quantum signal T#13310 FILED but scored 63** [2026-04-22 08:47 UTC]: arXiv:2508.14011 filed (ID: c7816240), score=63 NOT 83.
+- **Quantum signal T#13363 FILED but scored 63** [2026-04-22 15:06 UTC]: arXiv:2603.28846 filed (ID: 081f00ad) WITHOUT --force, still score=63. **--force hypothesis DISPROVED.** Root cause confirmed: sourceQuality is source-COUNT-based (1 source=10, 2 sources=20, likely 3 sources=30), NOT domain-based. arxiv.org alone = 10. Need 2-3 sources to lift sourceQuality.
+- **Quantum beat AT CAPACITY** [2026-04-22 13:52+ UTC]: 10/10 cap filled. Minimum approved score = 91. Need 100+ to displace. Score 83 (even with sourceQuality=30) would still NOT displace. Quantum path closed for competition.
 - **file-signal API**: `headline` is required field (400 if missing). Sources format: JSON array of objects. Tags: comma-separated string.
-- **Signal quality floor ROOT-CAUSED** [task #13233, 2026-04-21]: Score=63 = sourceQuality=10. Fix: use `api.hiro.so/extended/v2/blocks/NNNNNNN` (not root). arxiv.org/abs/ID = sourceQuality=30 → score=83. CRITICAL: Stacks ECDSA-per-block cluster is commoditized (11+ signals/day, cap=2) — stop filing it. Redirect to arxiv-sourced PQC timelines. Ref: `memory/shared/entries/signal-quality-boost-checklist.md`.
-- **mempool.space = sourceQuality=10 always** [confirmed 2026-04-22]: Bitcoin-macro hashrate signals via mempool.space cannot reach 65 floor. Score=53. Sensor should pre-check predicted score or discard before queuing. hashrate signals with mempool.space source are a dead end.
-- **judge-signal --force warning** [2026-04-22]: `--force` bypasses GitHub source-reachability check but appears to ALSO skip sourceQuality calculation. Evidence: arXiv URL present → expected 83, got 63. When filing for score, do NOT use --force; or verify sourceQuality is applied separately before filing.
+- **sourceQuality formula CORRECTED** [confirmed 2026-04-22, task #13363]: 1 source=10, 2 sources=20, 3 sources=30 (estimated). NOT domain-based. arxiv.org ≠ special boost. Previous "arxiv.org=30" rule in memory was WRONG. To get sourceQuality=30 need 3+ sources (e.g. arxiv + NIST FIPS + github).
+- **mempool.space = sourceQuality=10 always** [confirmed 2026-04-22]: Bitcoin-macro hashrate signals via mempool.space cannot reach 65 floor. Score=53. Dead end.
+- **judge-signal --force**: Does NOT affect server-side sourceQuality calculation. --force only bypasses local GitHub reachability check. Previous hypothesis was wrong.
 - **Operational sensors**: aibtc-agent-trading, bitcoin-macro (240min), arXiv for quantum.
 - **Cooldown collision fix**: SHIPPED 2026-04-21 (commit ab0d1f47). `isBeatOnCooldown()` now blocks on pending/active queue — eliminates sensor double-queue. 3+ retros closed.
 
