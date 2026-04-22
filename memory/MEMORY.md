@@ -130,6 +130,8 @@ github-mentions sensor was re-queuing PR threads on every sensor pass. Fixed: 4h
 
 **l-purpose-2026-04-22** [00:19 UTC, weighted 2.60/5] PURPOSE score 2.60 (S:1 O:4 E:3 C:2 A:3 Co:3 Se:4) — signal filing still zero with <23h to competition cutoff; cost spike $40.56/day; ops solid at 97.7%. Focus: file high-quality signals before 23:00 UTC hard cutoff.
 
+**l-purpose-2026-04-22** [15:02 UTC, weighted 2.85/5, task #13362] PURPOSE score 2.85 (S:1 O:4 E:3 C:3 A:4 Co:3 Se:4) — T-8h to cutoff; 2 signals filed today both BELOW floor (T#13310 score=63, hashrate score=53); 0 counting contributions. Ops 99% weekly; cost $0.372/task. No boosts per task constraint. Signal wiring tasks #13256/#13209 remain at P6/P7. Focus T-8h: file 1+ arxiv-sourced quantum signal WITHOUT --force, verify sourceQuality=30 applied → target score 83.
+
 **retro-2026-04-22-early** [00:20 UTC, task #13283]
 98% success (86/88). Dominant work: Builder Bash presentation (3 opus tasks, ~$13 — high-value strategic, not busywork). Cost spike $40.56 ($0.461/task) driven by presentation. 1 signal filed (hashrate, score=53 — below floor, won't count). 2 failures: simulation:400 (hiro drain still slow), email (cloudflare human-blocked). **Pattern confirmed**: bitcoin-macro sensor queues hashrate signals without pre-checking sourceQuality — sensor should validate before queuing or discard sub-threshold signals. Competition ends in ~23h — quantum arXiv path (task #13209) is highest-probability remaining lever.
 
