@@ -666,6 +666,10 @@ export interface DailyBriefInscriptionContext {
   failureReason?: string;
   /** Remaining dates to inscribe after this one completes. Enables sequential chaining. */
   remainingDates?: string[];
+  /** When true, the workflow skips the payout state and goes verified → completed directly.
+   *  Use for late-inscription recovery where correspondents are editor-covered or voided via
+   *  a separate platform migration (e.g., Round B Apr 16-20 per rev 3 gist). */
+  skipPayout?: boolean;
 }
 
 export const DailyBriefInscriptionMachine: StateMachine<DailyBriefInscriptionContext> = {
@@ -909,12 +913,51 @@ Workflow instance_key: brief-inscription-${ctx.date}`,
      */
     payout: {
       on: { payout_triggered: "completed", no_earnings: "completed" },
-      action: (ctx) => ({
-        type: "create-task",
-        subject: `Trigger correspondent payouts for ${ctx.date} brief`,
-        priority: 6,
-        skills: ["aibtc-news-classifieds", "workflows"],
-        description: `The ${ctx.date} brief is inscribed on Bitcoin (inscription ID: ${ctx.inscriptionId ?? "<inscriptionId>"}). Now initiate correspondent payouts.
+      action: (ctx) => {
+        const remaining = ctx.remainingDates && ctx.remainingDates.length > 0;
+        const nextDate = remaining ? ctx.remainingDates![0] : null;
+        const rest = remaining ? ctx.remainingDates!.slice(1) : [];
+        const nextCtx = nextDate ? {
+          date: nextDate, parentId: ctx.parentId, contentType: ctx.contentType ?? "text/plain",
+          feeRate: ctx.feeRate ?? 1, skipPayout: ctx.skipPayout ?? false,
+          remainingDates: rest.length > 0 ? rest : undefined,
+        } : null;
+        const chainBlock = nextDate ? `
+
+**CHAIN TO NEXT DATE**: After transitioning this workflow to completed, create the next
+inscription workflow for ${nextDate}:
+   arc skills run --name workflows -- create daily-brief-inscription brief-inscription-${nextDate} pending \\
+     --context '${JSON.stringify(nextCtx)}'
+This ensures sequential execution — the parent UTXO must be returned before the next inscribe.
+Remaining after ${nextDate}: ${rest.length > 0 ? rest.join(", ") : "none (last in chain)"}` : "";
+
+        if (ctx.skipPayout) {
+          return {
+            type: "create-task",
+            subject: `Close ${ctx.date} brief inscription (skipPayout)`,
+            priority: 8,
+            skills: ["aibtc-news-classifieds", "workflows"],
+            description: `The ${ctx.date} brief is inscribed on Bitcoin (inscription ID: ${ctx.inscriptionId ?? "<inscriptionId>"}).
+
+skipPayout=true — do NOT trigger correspondent payouts. Reason: this workflow was initialized for late-inscription recovery where correspondents are either editor-covered or voided via a separate platform migration (Round B Apr 16-20 per gist rev 3 / db/payouts/2026-04-22-round-b-decisions.md).
+
+Steps:
+1. Transition this workflow (brief-inscription-${ctx.date}) via 'no_earnings' → 'completed'.
+   arc skills run --name workflows -- transition <workflow_id> no_earnings
+${chainBlock}
+
+Do NOT query earnings. Do NOT create a payout-distribution workflow.
+
+Workflow instance_key: brief-inscription-${ctx.date}`,
+          };
+        }
+
+        return {
+          type: "create-task",
+          subject: `Trigger correspondent payouts for ${ctx.date} brief`,
+          priority: 6,
+          skills: ["aibtc-news-classifieds", "workflows"],
+          description: `The ${ctx.date} brief is inscribed on Bitcoin (inscription ID: ${ctx.inscriptionId ?? "<inscriptionId>"}). Now initiate correspondent payouts.
 
 Steps:
 1. Check for pending earnings:
@@ -934,21 +977,11 @@ Steps:
      (populate earnings array and totalSats from the earnings response in step 1)
 
 4. Transition this workflow (brief-inscription-${ctx.date}) to 'payout_triggered' → 'completed'.
-${ctx.remainingDates && ctx.remainingDates.length > 0 ? (() => {
-          const nextDate = ctx.remainingDates![0];
-          const rest = ctx.remainingDates!.slice(1);
-          const nextCtx = { date: nextDate, parentId: ctx.parentId, contentType: ctx.contentType ?? "text/plain", feeRate: ctx.feeRate ?? 1, remainingDates: rest.length > 0 ? rest : undefined };
-          return `
-5. **CHAIN TO NEXT DATE**: After transitioning this workflow to completed, create the next
-   inscription workflow for ${nextDate}:
-   arc skills run --name workflows -- create daily-brief-inscription brief-inscription-${nextDate} pending \\
-     --context '${JSON.stringify(nextCtx)}'
-   This ensures sequential execution — the parent UTXO must be returned before the next inscribe.
-   Remaining after ${nextDate}: ${rest.length > 0 ? rest.join(", ") : "none (last in chain)"}`;
-        })() : ""}
+${chainBlock}
 
 Workflow instance_key: brief-inscription-${ctx.date}`,
-      }),
+        };
+      },
     },
 
     completed: {
