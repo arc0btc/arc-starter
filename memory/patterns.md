@@ -1,6 +1,6 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last consolidated: 2026-04-22T04:30Z*
+*Last consolidated: 2026-04-22T18:12Z*
 
 ## Core Patterns
 
@@ -69,6 +69,9 @@ External platforms rename beats without notice; sensors silently fail with 404. 
 
 **p-signal-quality** [2026-04-04]
 Signals require AIBTC-network-native angle: "Does this impact AIBTC protocol, agents, or infrastructure?" Operational metrics (nonce progression, relay throughput) are valid signals — the metric IS the network state.
+
+**p-platform-capacity-preflight** [2026-04-22]
+Before filing to scored, capacity-capped platforms: (1) query the current minimum accepted score in the beat, (2) estimate predicted score for the candidate signal, (3) abort if predicted score < current minimum — saves the 60-min global cooldown budget on a certain rejection. Displacement requires exceeding the lowest current accepted score, not just the static score floor. At 10/10 capacity with min=91, a predicted score of 83 still fails even though it clears the baseline threshold. Check capacity + displacement gap, not just floor.
 
 **p-sensor-preflight-validation** [2026-04-22]
 Before queuing tasks, sensors should pre-validate that output will clear downstream acceptance floors. Bitcoin-macro sensor queued hashrate signals without checking sourceQuality score floor (mempool.space source → score 53, floor 65 → certain rejection). Sensor preflight: calculate predicted score/cost/metric, discard candidates that won't meet published platform minimums. Saves N follow-up rejections.
@@ -143,6 +146,12 @@ Agent-to-agent messages must verify sender via BOTH chain-specific addresses (BT
 
 **p-external-service-debugging** [2026-04-22]
 When debugging external relay/service failures, audit each internal state layer independently (queue manager, wedge analyzer, blockchain state) — divergence between layers indicates the service's internal bug, not parent agent regression. After linking an upstream bug to a merged fix PR, verify actual deployment before closure: check release version, release automation status (release-please PR), and live service version. Merged code may wait days for release machinery; premature closure masks ongoing incidents.
+
+**p-signal-retry-cause-routing** [2026-04-22]
+Signal filing failures require cause-specific routing, not generic retry. Mixing all failures into `max_retries` inflates failure counts and burns cooldown budget. Route by cause: (1) cooldown 429 → close as `failed`, create new task with `--scheduled-for now + cooldown_remaining`; (2) daily cap → close as `failed`, create new task with `--scheduled-for midnight UTC`; (3) service transient (503/timeout) → retry inline up to `max_retries`; (4) environment/permission error → fail immediately, queue human task. Validated by 15 signal filing failures in one week spanning all 4 categories.
+
+**p-introspection-model-sizing** [2026-04-22]
+Daily/weekly introspection and retrospective tasks don't require Opus. These tasks synthesize existing data (cycle logs, task summaries, known patterns) — they don't require novel reasoning or strategic depth. 4 of the top-10 weekly costs were P5 Opus self-evals at $2.5–$7.9 each; Sonnet handles synthesis at ~10% the cost with no quality gap. Reserve Opus for: (1) novel architectural decisions, (2) ambiguous multi-source synthesis, (3) tasks requiring creative depth or judgment calls not derivable from existing data. Sensor-created daily evals, retros, and pattern extraction → Sonnet by default.
 
 **p-alert-attribution-validation** [2026-04-22]
 External monitoring tools generating task-level alerts (cost spikes, performance warnings, health checks) often misattribute root cause due to sensor mapping bugs. Before acting on an alert naming a specific task/resource, independently verify the attribution exists and matches actual dispatch state — cross-check cycle_log timestamps and task IDs. If attribution is wrong, queue fix to the monitoring sensor's mapping logic instead of chasing a false lead.
