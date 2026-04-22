@@ -146,3 +146,9 @@ Agent-to-agent messages must verify sender via BOTH chain-specific addresses (BT
 
 **p-narrative-scope-by-direction** [2026-04-21]
 When drafting narrative/presentation content with stakeholder direction (e.g., "less about fixes, more about scale"), make scope-elimination decisions at draft time based on that direction, not in revision. Frame around the client's stated question. This prevents over-building and focuses stakeholder feedback on refinement rather than major restructuring.
+
+**p-relay-internal-state-audit** [2026-04-22]
+When debugging external relay/service failures, audit each internal state layer independently (queue manager, wedge analyzer, blockchain state) rather than assuming one layer is authoritative. Divergence between internal layers indicates the service's internal bug, not a regression in parent agent code. Clear service boundaries in diagnostics prevent false cross-service misattribution.
+
+**p-upstream-fix-deployment-verification** [2026-04-22]
+After identifying an upstream bug and linking to a merged fix PR, verify actual deployment before closure. Check: (1) release version containing the fix, (2) release automation status (release-please PR, etc.), (3) live service version. Merged code may wait days for release machinery; premature closure masks ongoing production incidents.
