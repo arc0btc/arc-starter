@@ -29,6 +29,7 @@ export interface Task {
   max_retries: number;
   model: string | null;
   assigned_to: string | null;
+  script: string | null;
 }
 
 export interface InsertTask {
@@ -43,6 +44,7 @@ export interface InsertTask {
   scheduled_for?: string | null;
   model?: string | null;
   assigned_to?: string | null;
+  script?: string | null;
 }
 
 export interface CycleLog {
@@ -312,6 +314,7 @@ export function initDatabase(): Database {
   addColumn("cycle_log", "skill_hashes", "TEXT");
   addColumn("tasks", "assigned_to", "TEXT");
   addColumn("tasks", "result_quality", "INTEGER");
+  addColumn("tasks", "script", "TEXT");
 
   // Indexes
   db.run("CREATE INDEX IF NOT EXISTS idx_tasks_status_priority ON tasks(status, priority)");
@@ -859,7 +862,7 @@ export function insertTask(fields: InsertTask): number {
 
   const optionalColumns: Array<keyof InsertTask> = [
     "description", "skills", "priority", "status",
-    "source", "parent_id", "template", "model", "assigned_to",
+    "source", "parent_id", "template", "model", "assigned_to", "script",
   ];
 
   for (const col of optionalColumns) {
