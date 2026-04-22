@@ -280,8 +280,11 @@ async function gatherCycleMetrics(config: AgentConfig): Promise<CycleMetrics> {
 
     const n = rows.length;
 
-    // Identify spike cycles (exceed either threshold)
-    const spikeCycles = rows
+    // Identify spike cycles (exceed either threshold).
+    // Carry task_id directly from the row to avoid the started_at string-match
+    // round-trip: if two cycle_log rows share the same second-precision timestamp,
+    // rows.find() could return the wrong row and attribute the wrong task subject.
+    const spikeEntries = rows
       .filter(
         (row) =>
           Number(row.tokens_in ?? 0) > config.thresholds.tokens_in_per_cycle ||
@@ -293,20 +296,17 @@ async function gatherCycleMetrics(config: AgentConfig): Promise<CycleMetrics> {
         cost_usd: Number(row.cost_usd ?? 0),
         model: row.model != null ? String(row.model) : null,
         duration_ms: row.duration_ms != null ? Number(row.duration_ms) : null,
-        task_subject: null as string | null, // populated below if task_id present
+        task_subject: null as string | null,
+        task_id: row.task_id != null ? Number(row.task_id) : null,
       }));
 
-    // Attempt to resolve task subjects for spike cycles
-    for (const spike of spikeCycles) {
-      const matchRow = rows.find(
-        (r) =>
-          String(r.started_at ?? "") === spike.started_at && r.task_id != null,
-      );
-      if (matchRow?.task_id != null) {
+    // Resolve task subjects using the row's own task_id — no secondary lookup needed
+    for (const spike of spikeEntries) {
+      if (spike.task_id != null) {
         try {
           const taskRows = await queryLoomDb(
             config,
-            `SELECT subject FROM tasks WHERE id = ${Number(matchRow.task_id)} LIMIT 1`,
+            `SELECT subject FROM tasks WHERE id = ${spike.task_id} LIMIT 1`,
           );
           if (taskRows.length > 0 && taskRows[0].subject != null) {
             spike.task_subject = String(taskRows[0].subject);
@@ -316,6 +316,9 @@ async function gatherCycleMetrics(config: AgentConfig): Promise<CycleMetrics> {
         }
       }
     }
+
+    // Strip internal task_id field before returning (not part of the public type)
+    const spikeCycles = spikeEntries.map(({ task_id: _tid, ...rest }) => rest);
 
     return {
       cycles_checked: n,
