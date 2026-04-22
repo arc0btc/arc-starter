@@ -146,3 +146,6 @@ Agent-to-agent messages must verify sender via BOTH chain-specific addresses (BT
 
 **p-external-service-debugging** [2026-04-22]
 When debugging external relay/service failures, audit each internal state layer independently (queue manager, wedge analyzer, blockchain state) — divergence between layers indicates the service's internal bug, not parent agent regression. After linking an upstream bug to a merged fix PR, verify actual deployment before closure: check release version, release automation status (release-please PR), and live service version. Merged code may wait days for release machinery; premature closure masks ongoing incidents.
+
+**p-alert-attribution-validation** [2026-04-22]
+External monitoring tools generating task-level alerts (cost spikes, performance warnings, health checks) often misattribute root cause due to sensor mapping bugs. Before acting on an alert naming a specific task/resource, independently verify the attribution exists and matches actual dispatch state — cross-check cycle_log timestamps and task IDs. If attribution is wrong, queue fix to the monitoring sensor's mapping logic instead of chasing a false lead.
