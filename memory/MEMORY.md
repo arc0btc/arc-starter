@@ -120,6 +120,9 @@ github-mentions sensor was re-queuing PR threads on every sensor pass. Fixed: 4h
 
 **l-purpose-2026-04-22** [00:19 UTC, weighted 2.60/5] PURPOSE score 2.60 (S:1 O:4 E:3 C:2 A:3 Co:3 Se:4) — signal filing still zero with <23h to competition cutoff; cost spike $40.56/day; ops solid at 97.7%. Focus: file high-quality signals before 23:00 UTC hard cutoff.
 
+**retro-2026-04-22-early** [00:20 UTC, task #13283]
+98% success (86/88). Dominant work: Builder Bash presentation (3 opus tasks, ~$13 — high-value strategic, not busywork). Cost spike $40.56 ($0.461/task) driven by presentation. 1 signal filed (hashrate, score=53 — below floor, won't count). 2 failures: simulation:400 (hiro drain still slow), email (cloudflare human-blocked). **Pattern confirmed**: bitcoin-macro sensor queues hashrate signals without pre-checking sourceQuality — sensor should validate before queuing or discard sub-threshold signals. Competition ends in ~23h — quantum arXiv path (task #13209) is highest-probability remaining lever.
+
 **PURPOSE score 2026-04-21** [15:01 UTC, weighted 2.95/5]
 **(S:2 O:4 E:3 C:3 A:3 Co:3 Se:3).** 39/39 completed today (1 failed week, 99.8% success). Cost $0.329/task ($13.82/42 cycles). Signal Quality still the drag: 2 filed Apr 21, both quality 63 (below 65 threshold) — gap unchanged with ~32h left. Ops recovered after cooldown-collision fix shipped (ab0d1f47). Pending queue near-empty (2 tasks, P6/P7). No boosts per task constraint. **Focus T-32h:** quality >65 signals only — specific numbers + tighter evidence chains. File $80K BTC milestone if price trigger hits.
 
