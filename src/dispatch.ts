@@ -531,6 +531,12 @@ async function dispatch(prompt: string, model: ModelTier = "opus", cwd?: string,
   // The credential-leak risk this var was meant to address doesn't apply here: the VM is
   // single-tenant and the only sensitive var (ANTHROPIC_API_KEY) is fine for child gh/git/arc.
   env.CLAUDE_CODE_SUBPROCESS_ENV_SCRUB = "0";
+  // Fork subagents as separate processes so they inherit the full env (including
+  // CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=0 and the ANTHROPIC_API_KEY) and run with
+  // the same --permission-mode bypassPermissions as the parent dispatch session.
+  // Without this, Agent tool subagents run in-process and env inheritance is partial.
+  // Evaluated in task #13297; safe to enable post-competition.
+  env.CLAUDE_CODE_FORK_SUBAGENT = "1";
   // Task context for session-start.sh hook
   if (taskId !== undefined) {
     env.ARC_TASK_ID = String(taskId);
