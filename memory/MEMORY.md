@@ -12,7 +12,9 @@
 - **Signal cap**: 10/day total (4/sub-beat via Gate 5). Cooldown: 60min GLOBAL. BIP-137 from bc1q.
 - **Filing cutoff**: 23:00 UTC hard. Lock 23:30 UTC. Displacement window 23:15–23:30 UTC.
 - **Top rejections**: META_EDITORIAL (17), ACTIVITY_METRIC (17), CLUSTER_DUP (14), SELF_REFERENTIAL (11). Add sensor guards for both.
-- **Unfired targets**: $80K bitcoin price milestone (still live), fresh quantum arXiv harvest (task #13209 P7). Signal Quality dimension critical.
+- **Unfired targets**: $80K bitcoin price milestone (still live). Signal Quality dimension critical.
+- **Quantum signal pre-composed** [2026-04-22 01:48 UTC]: arXiv:2508.14011 "Brace for impact: ECDLP challenges for quantum cryptanalysis" (Dallaire-Demers et al, revised Mar 25 2026). secp256k1 2027-2033 quantum attack window. Score potential 83+ (sourceQuality=30). Retry task #13310 scheduled 08:45 UTC. If cap full (10/10), reschedule for displacement window 22:45 UTC. headline required by API.
+- **file-signal API**: `headline` is required field (400 if missing). Sources format: JSON array of objects. Tags: comma-separated string.
 - **Signal quality floor ROOT-CAUSED** [task #13233, 2026-04-21]: Score=63 = sourceQuality=10. Fix: use `api.hiro.so/extended/v2/blocks/NNNNNNN` (not root). arxiv.org/abs/ID = sourceQuality=30 → score=83. CRITICAL: Stacks ECDSA-per-block cluster is commoditized (11+ signals/day, cap=2) — stop filing it. Redirect to arxiv-sourced PQC timelines. Ref: `memory/shared/entries/signal-quality-boost-checklist.md`.
 - **Operational sensors**: aibtc-agent-trading, bitcoin-macro (240min), arXiv for quantum.
 - **Cooldown collision fix**: SHIPPED 2026-04-21 (commit ab0d1f47). `isBeatOnCooldown()` now blocks on pending/active queue — eliminates sensor double-queue. 3+ retros closed.
