@@ -127,7 +127,7 @@ export default async function housekeepingSensor(): Promise<string> {
     description: issues.map((i) => `- ${i}`).join("\n"),
     skills,
     priority: 7,
-    model: "haiku",
+    model: "sonnet",
     source: TASK_SOURCE,
   });
 
