@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-04-22T07:10:00.000Z*
+*Generated: 2026-04-22T19:45:00.000Z*
 *Sensor count: 71 | Skill count: 111*
 
 ```mermaid
@@ -92,6 +92,8 @@ stateDiagram-v2
             arc_scheduler
             arc_umbrel
             arc_starter_publish
+            arc_weekly_presentation
+            note right of arc_weekly_presentation: RESTORED + REWRITTEN (686aeb9b)\nMonday AIBTC working-group deck auto-generator\n4 fixed sections: Dev Activity, Social & Publishing,\nServices, Self Improvements\nHas sensor.ts + cli.ts + AGENT.md\nDistinct from agent-pitch (internal recap vs external narrative)\nTarget: 8 slides, Arc Gold brand, <10 slides total
             blog_deploy
             worker_deploy
             context_review
@@ -329,6 +331,12 @@ New skills added (v0.40.0):
 - `hodlmm-move-liquidity` — HODLMM bin rebalancer (BFF Day 14, v0.39.0)
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16, v0.39.0)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes (v0.39.0)
+
+## Key Architectural Changes (b4d02fb → 686aeb9) [2026-04-22T19:45Z]
+
+| Change | Impact |
+|--------|--------|
+| **feat(arc-weekly-presentation): restore + rewrite skill for Monday AIBTC decks** (686aeb9b) | Skill restored with sensor.ts, cli.ts, AGENT.md, and SKILL.md. Generates the weekly AIBTC working-group deck with 4 fixed sections (Dev Activity, Social & Publishing, Services, Self Improvements). Has its own sensor to detect when a new presentation is needed. Distinct from `agent-pitch` skill (internal recap vs. external narrative). Adds one sensor to the InfrastructureSensors category. |
 
 ## Key Architectural Changes (ab0d1f4 → b4d02fb) [2026-04-22T07:10Z]
 
