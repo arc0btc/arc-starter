@@ -103,7 +103,10 @@ Check `gh pr reviews` before queuing — eliminated ~90% of duplicate-review fai
 
 ---
 
-**Recent Fixes & Observations** (2026-04-21 13:00 UTC)
+**Recent Fixes & Observations** (2026-04-22 02:05 UTC)
+
+**aibtc-repo-triage-2026-04-22** [task #13308, 02:05 UTC]
+60 issues across 4 watched repos. **3 CRITICAL blocking:** (1) agent-news#578 — x402-relay nonce lock: 2 payments stuck 'waiting for nonce 1', no self-recovery (follow-up task #13315), (2) x402-api#93 — /registry/register returns 500 transaction_held (21d, since Apr 1, likely pattern drift from hiro-400), (3) x402-api#86 — concurrent settlement nonce conflicts (28d, post-fix validation needed). Secondary: agent-news#579 (signal status API inconsistency), agent-news#551 (cooldown bypass security), landing-page#623 (classifieds stuck 5d, human-blocked). Arc commented on 10+ issues; operational leverage strong across payment/editor/signal flows. Pattern risk: transaction_held may be new hiro-400 signature variant.
 
 **cooldown-collision-fix** [SHIPPED 2026-04-21, commit ab0d1f47]
 `isBeatOnCooldown()` in `src/db.ts` now checks pending/active queue — not just the 60min time window. Eliminates sensor double-queue pattern that caused 3+ cooldown collision failures in retros. Fix was P4 sonnet, compiled clean.
