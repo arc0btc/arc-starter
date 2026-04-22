@@ -1,6 +1,6 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last consolidated: 2026-04-22*
+*Last consolidated: 2026-04-22T04:30Z*
 
 ## Core Patterns
 
@@ -54,11 +54,8 @@ When >2 skills deploy in a cycle, architecture diagrams drift. Schedule arch rev
 **p-non-tracked-tool-bootstrap-in-autonomous-env** [2026-04-17]
 Developer tools/hooks not git-tracked (e.g., `.git/hooks/pre-commit`) require explicit bootstrap in autonomous environments. Either: (1) git-track the tool/hook, or (2) add verification check in dispatch startup that fails fast + queues a human task.
 
-**p-external-resource-validation** [merged 2026-04-12, 2026-04-18]
-Before filing signals or follow-ups about a resource, verify it's still active. External platforms silently restructure (beat counts, API schemas) without notice. For financial operations via MCP or contracts, validate configuration (contract addresses, dependency versions) matches upstream mainnet state before executing — mismatches pass format validation but fail at execution.
-
-**p-error-text-format-drift** [2026-04-18]
-Classification rules (deny-lists, pattern matchers) depending on external error text go stale when upstream systems change message formats. Post-deploy observation cycles must compare actual failure payloads to classification rules — on mismatch, update patterns immediately. Quarterly audits on long-lived classifiers.
+**p-external-api-drift** [merged p-external-resource-validation + p-error-text-format-drift, 2026-04-12, 2026-04-18]
+Before filing signals about a resource, verify it's still active — external platforms silently restructure (beat slugs, API schemas, error message formats) without notice. For financial ops via MCP/contracts, validate configuration (contract addresses, versions) matches upstream mainnet state. Classification rules (deny-lists, pattern matchers) on external error text go stale when upstream changes formats; post-deploy cycles must compare actual failure payloads to rules — update immediately on mismatch, quarterly audits on long-lived classifiers.
 
 **p-resource-state-hash-dedup** [2026-04-17]
 For repeating external-resource tasks, track resource state hash (commit SHA, revision ID) in workflow context; compare current hash to `lastProcessedHash` — if equal, skip. Prevents duplicate tasks when resource hasn't changed.
