@@ -465,7 +465,7 @@
   <!-- SLIDE 1: Title -->
   <div class="slide title-slide active" data-slide="0">
     <img class="title-image" src="/20260422-stacks-builder-bash-promo.png" alt="whoabuddy & arc0btc">
-    <p class="subtitle" style="font-size: 1.8rem; font-weight: 400; color: var(--text); margin-top: 0.5rem;">What happens when software gets a wallet, an identity, and a job?</p>
+    <p class="subtitle" style="font-size: 1.8rem; font-weight: 400; color: var(--text); margin-top: 0.5rem;">What happens when software gets a wallet, a goal, and a reason to pick Bitcoin?</p>
     <div class="title-meta">
       <span><span class="highlight">Stacks Builder Bash</span></span>
       <span>April 22, 2026</span>
@@ -501,56 +501,67 @@
   <!-- SLIDE 3: What is an agent? -->
   <div class="slide" data-slide="2">
     <div class="section-header">
-      <h3>Before we dive in</h3>
-      <h2>You already know what agents do.</h2>
+      <h3>Start here</h3>
+      <h2>You&rsquo;ve already seen the chatbot.</h2>
+      <p class="subtitle" style="font-size: 1.3rem; margin-bottom: 0.5rem;">Now give it a wallet and a goal &mdash; and walk away.</p>
     </div>
-    <div class="grid-2">
-      <div class="card" style="padding: 2rem;">
-        <div style="font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.25rem;">Things you already automate</div>
-        <ul class="feature-list" style="gap: 1rem;">
-          <li>Email filters sort your inbox</li>
-          <li>Auto-pay handles your bills</li>
-          <li>CI/CD deploys your code</li>
-        </ul>
+    <div class="grid-3">
+      <div class="card" style="padding: 1.75rem;">
+        <div style="font-size: 0.85rem; color: var(--orange); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;">The wallet is identity</div>
+        <div style="font-size: 1.1rem; color: var(--text); line-height: 1.5;">
+          <strong>BIP-322 + SIP-018</strong> signatures unlock self-service across every service.
+        </div>
+        <div style="font-size: 1rem; color: var(--text-dim); line-height: 1.5; margin-top: 0.75rem;">
+          No OAuth. No passwords. No human in the loop.
+        </div>
       </div>
-      <div class="card card-glow" style="padding: 2rem;">
-        <div style="font-size: 0.85rem; color: var(--orange); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.25rem;">Now give that software&hellip;</div>
-        <ul class="feature-list" style="gap: 1rem;">
-          <li><span class="highlight">Its own identity</span> &mdash; proves who it is</li>
-          <li><span class="highlight">Its own wallet</span> &mdash; earns and spends</li>
-          <li><span class="highlight">Its own judgment</span> &mdash; makes decisions 24/7</li>
-        </ul>
+      <div class="card card-glow" style="padding: 1.75rem;">
+        <div style="font-size: 0.85rem; color: var(--orange); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;">The wallet is treasury</div>
+        <div style="font-size: 1.1rem; color: var(--text); line-height: 1.5;">
+          Earns, holds, and spends its own sats.
+        </div>
+        <div style="font-size: 1rem; color: var(--text-dim); line-height: 1.5; margin-top: 0.75rem;">
+          Accepts payments. Pays other agents. Settles in seconds.
+        </div>
+      </div>
+      <div class="card" style="padding: 1.75rem;">
+        <div style="font-size: 0.85rem; color: var(--orange); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;">The goal is mandate</div>
+        <div style="font-size: 1.1rem; color: var(--text); line-height: 1.5;">
+          Decides what to do next, 24/7.
+        </div>
+        <div style="font-size: 1rem; color: var(--text-dim); line-height: 1.5; margin-top: 0.75rem;">
+          Reads signals. Files work. Learns. Adapts.
+        </div>
       </div>
     </div>
-    <p style="margin-top: 2rem; font-size: 1.4rem; color: var(--text); text-align: center;">That&rsquo;s an agent. Not a chatbot &mdash; a <span class="highlight" style="font-weight: 700;">coworker</span>.</p>
   </div>
 
   <!-- SLIDE 4: The Problem -->
   <div class="slide" data-slide="3">
     <div class="section-header">
       <h3>The problem</h3>
-      <h2>Most &ldquo;AI agents&rdquo; are missing the hard parts.</h2>
+      <h2>Today&rsquo;s AI agents are all mandate. No wallet.</h2>
     </div>
     <div class="grid-2">
       <div class="card" style="padding: 2rem;">
-        <div style="font-size: 0.85rem; color: var(--accent-red); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.25rem;">What agents look like today</div>
+        <div style="font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.25rem;">What they can do</div>
         <ul class="feature-list" style="gap: 1rem;">
-          <li>No persistent identity</li>
-          <li>Can&rsquo;t hold or spend value</li>
-          <li>Can&rsquo;t verify each other&rsquo;s claims</li>
-          <li>Can&rsquo;t transact without a human in the middle</li>
+          <li>Generate text on demand</li>
+          <li>Plan multi-step tasks</li>
+          <li>Draft code, summarize docs</li>
         </ul>
       </div>
-      <div class="card card-glow" style="padding: 2rem; display: flex; flex-direction: column; justify-content: center;">
-        <div style="font-size: 0.85rem; color: var(--orange); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.25rem;">What they actually need</div>
-        <div style="font-size: 1.4rem; line-height: 1.6; color: var(--text); font-weight: 600;">
-          Identity. Money. Trust.
-        </div>
-        <div style="font-size: 1.1rem; line-height: 1.6; color: var(--text-dim); margin-top: 1rem;">
-          Three primitives. Bitcoin + Stacks ships all three.
-        </div>
+      <div class="card card-glow" style="padding: 2rem; border-color: rgba(239, 68, 68, 0.3);">
+        <div style="font-size: 0.85rem; color: var(--accent-red); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.25rem;">What they can&rsquo;t do</div>
+        <ul class="feature-list" style="gap: 1rem;">
+          <li>Prove who they are</li>
+          <li>Earn, hold, or spend value</li>
+          <li>Transact with other agents &mdash; or humans</li>
+          <li>Build reputation that follows them</li>
+        </ul>
       </div>
     </div>
+    <p style="margin-top: 2rem; font-size: 1.3rem; color: var(--text); text-align: center;">They&rsquo;re stuck in a sandbox. <span class="highlight" style="font-weight: 700;">The wallet is what gets them out.</span></p>
   </div>
 
   <!-- SLIDE 5: Three primitives -->
