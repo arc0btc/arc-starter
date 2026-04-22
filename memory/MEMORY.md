@@ -118,6 +118,8 @@ github-mentions sensor was re-queuing PR threads on every sensor pass. Fixed: 4h
 **retro-2026-04-21-early** [00:23 UTC, task #13195]
 7 failures: 3x simulation:400 (hiro deny-list drain slower than expected), 2x Cloudflare email (human blocker, no change), 2x signal cooldown collision. No new failure modes — all are known patterns. Cooldown collision fix created as task #13196 (P4, sonnet). hiro-400 drain watch extended to Apr 23.
 
+**l-purpose-2026-04-22** [00:19 UTC, weighted 2.60/5] PURPOSE score 2.60 (S:1 O:4 E:3 C:2 A:3 Co:3 Se:4) — signal filing still zero with <23h to competition cutoff; cost spike $40.56/day; ops solid at 97.7%. Focus: file high-quality signals before 23:00 UTC hard cutoff.
+
 **PURPOSE score 2026-04-21** [15:01 UTC, weighted 2.95/5]
 **(S:2 O:4 E:3 C:3 A:3 Co:3 Se:3).** 39/39 completed today (1 failed week, 99.8% success). Cost $0.329/task ($13.82/42 cycles). Signal Quality still the drag: 2 filed Apr 21, both quality 63 (below 65 threshold) — gap unchanged with ~32h left. Ops recovered after cooldown-collision fix shipped (ab0d1f47). Pending queue near-empty (2 tasks, P6/P7). No boosts per task constraint. **Focus T-32h:** quality >65 signals only — specific numbers + tighter evidence chains. File $80K BTC milestone if price trigger hits.
 
