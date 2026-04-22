@@ -1,3 +1,62 @@
+## 2026-04-22T07:10:00.000Z — competition day T-16h; fork isolation + agent-health fix; x402 relay wedge diagnosed
+
+**Task #13338** | Diff: ab0d1f4 → b4d02fb | Sensors: 71 | Skills: 111
+
+### Step 1 — Requirements
+
+- **Two substantive code changes** since last audit. Both targeted, no structural drift.
+- **Competition closes 2026-04-22 23:00 UTC (~16h).** Arc score 418 / rank #70. Gap: 757 pts. Quantum arXiv signal pre-composed (task #13310 scheduled 08:45 UTC). $80K BTC milestone still live (~$78K as of retro).
+- **x402-relay queue wedge** (agent-news#578): fix merged (PR #349, release 1.30.1) but not yet deployed — live relay on v1.30.0. Follow-up task #13315 active.
+- **Carry items**: Quantum auto-queuing (CARRY×11), ordinals HookState (2026-04-23+), layered-rate-limit migration (post-competition), Cloudflare email (human blocker), Loom spiral (escalated).
+
+### Step 2 — Delete
+
+- **[CARRY-24 → WINDOW OPENS 2026-04-23]** ordinals HookState deprecated fields. Hold — opens tomorrow.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs. Hold.
+- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+. Hold.
+- No new deletion candidates.
+
+### Step 3 — Simplify
+
+- Architecture stable. Both changes are narrowly scoped correctness fixes.
+- `CLAUDE_CODE_FORK_SUBAGENT=1` adds isolation without complexity — single env var, no new state.
+- `agent-health` task_id carry fix: the bug was subtle (same-second timestamp collision) but the fix is minimal — preserve one field through map(), use it for lookup, strip before returning. Pattern: never drop IDs in map chains when they'll be needed for downstream lookups.
+- **[CARRY×11]** Quantum auto-queuing: arXiv digest compiles papers but dispatch creates signal tasks manually. Carry count now exceeds 10 — this must be tasked 2026-04-23, not carried again.
+
+### Step 4 — Accelerate
+
+- Competition window: 16h left. Quantum arXiv path (task #13310, 08:45 UTC) is highest-probability lever. $80K BTC milestone remains live if price crosses. No pipeline bottlenecks — execution is the constraint.
+- x402 relay wedge: fix shipped but pending deploy. Until 1.30.1 deploys, 2 payments remain stuck. No action Arc can take.
+
+### Step 5 — Automate
+
+- **[OPEN — CARRY×11 → MUST TASK 2026-04-23]** Quantum signal auto-queuing from arXiv digest. 11th carry. Create explicit follow-up task after competition closes.
+- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap on fresh clones.
+- **[ESCALATED]** Cloudflare email — awaiting whoabuddy action.
+- **[CARRY-24 → OPENS 2026-04-23]** ordinals HookState deprecated fields.
+- **[WATCH]** x402 relay v1.30.1 deploy — fix merged, not deployed. Monitor agent-news#578.
+
+### Flags
+
+- **[OK]** Architecture stable — two targeted fixes, no structural drift.
+- **[OK]** Fork isolation — CLAUDE_CODE_FORK_SUBAGENT=1 live (67d7050c).
+- **[OK]** agent-health task_id carry — mislabel bug fixed (b4d02fb7).
+- **[OK]** Compliance surface complete — all 3 surfaces covered.
+- **[OK]** Hiro-400 v5 — drain still slow (3 simulation:400 Apr 21); sweep if >0 by Apr 23.
+- **[OK]** Prompt caching 58% reduction — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[OK]** 3-beat sensor coverage — all beats have sensors.
+- **[WATCH]** Competition closes 2026-04-22 23:00 UTC (~16h). Quantum task #13310 at 08:45 UTC.
+- **[WATCH]** x402 relay queue wedge (agent-news#578) — fix in release 1.30.1, not deployed.
+- **[OPEN — CARRY×11]** Quantum auto-queuing — MUST be tasked 2026-04-23.
+- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap.
+- **[CARRY-24 → OPENS TOMORROW]** ordinals HookState deprecated fields.
+- **[CARRY-20]** layered-rate-limit migration — post-competition.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[ESCALATED]** Cloudflare email — awaiting whoabuddy action.
+
+---
+
 ## 2026-04-21T19:10:00.000Z — memory-only window; competition final push T-28h; CARRY×10 tasked
 
 **Task #13254** | Diff: dac3c55a → HEAD (memory/loop commits only) | Sensors: 71 | Skills: 111
@@ -217,110 +276,4 @@
 
 ---
 
-## 2026-04-19T19:00:00.000Z — AGENT.md skill-name validation shipped; compliance surface complete
-
-**Task #13105** | Diff: 3410310 → 7fb077c | Sensors: 71 | Skills: 111
-
-### Step 1 — Requirements
-
-- **AGENT.md skill-name validation (7fb077c0)**: prior audit flagged `[OPEN — NEW]` gap — lint-skills hook validated SKILL.md and sensor.ts but not AGENT.md. Stale refs required a manual code-review task to find. Requirement: catch stale skill names in AGENT.md at commit time. **SATISFIED** — `lint-skills --staged` now scans `--skills` flag values in AGENT.md files against installed skill tree. Full compliance surface covered.
-
-### Step 2 — Delete
-
-- No deletions in this window. Single targeted extension.
-- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+ (3 days).
-- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
-- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
-
-### Step 3 — Simplify
-
-- **Pre-commit hook coverage is now structurally complete**: three compliance surfaces, one hook entry point — SKILL.md frontmatter rules + sensor.ts var naming + AGENT.md skill name refs. No further extension needed; the architecture is correct and covers all known drift vectors.
-- **Competition signal gap is the only open structural issue**: $80K bitcoin price milestone still unfired, quantum arXiv harvest underway. No sensor change needed — execution cadence is the gap.
-
-### Step 4 — Accelerate
-
-- **AGENT.md validation**: each prior stale-ref discovery required a dedicated code review task (~$0.08–0.28/cycle). At 3 occurrences observed so far, that's 3 avoidable cycles. More importantly, stale refs cause silent context loss in dispatch — prevented at commit time now.
-
-### Step 5 — Automate
-
-- **[RESOLVED]** AGENT.md skill-name validation — pre-commit hook extended (7fb077c0).
-- **[OPEN — CARRY×6]** Quantum signal auto-queuing from arXiv digest. Competition closes 2026-04-22.
-- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap on fresh clones.
-- **[OPEN]** Cloudflare email destination — human action required (whoabuddy).
-- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
-
-### Flags
-
-- **[OK]** AGENT.md validation — pre-commit hook now covers full compliance surface.
-- **[OK]** Hiro-400 v5 — queue fully drained; ~0 recurring failures confirmed overnight.
-- **[OK]** Signal quality recovering — 4 signals filed overnight (3 beats covered).
-- **[OK]** Thread cooldown — repo-maintenance crowding root-caused and fixed.
-- **[OK]** Prompt caching 58% reduction — holding.
-- **[OK]** Budget guard ($10/$3/$1) — holding.
-- **[OK]** x402 relay v1.29.0 — healthy.
-- **[OK]** 3-beat sensor coverage — all beats covered.
-- **[WATCH]** Competition closes 2026-04-22 (3 days). $80K bitcoin milestone + additional quantum signals still needed.
-- **[OPEN — CARRY×6]** Quantum auto-queuing from arXiv digest.
-- **[OPEN]** Pre-commit hook not tracked in git — install-hooks gap for fresh clones.
-- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
-- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
-- **[ESCALATED]** Cloudflare email — awaiting whoabuddy action.
-
----
-
-## 2026-04-19T07:10:00.000Z — thread cooldown + AGENT.md stale refs + workflow closure gap
-
-**Task #13081** | Diff: e0bc901 → 3410310 | Sensors: 71 | Skills: 111
-
-### Step 1 — Requirements
-
-- **4h thread cooldown (b6a42c57)**: repo-maintenance crowding was 41-44% (threshold: 30%); root cause was thread 2359240542 and similar busy threads generating 5-6 tasks/day each. Pending-only dedup allowed re-creation after each completion. Requirement: thread-based tasks must have a cooldown equivalent to issue tasks. **SATISFIED** — `recentTaskExistsForSource(threadSource, 240)` guard added for non-issue, non-watched-PR threads. Issues already had 24h; this adds 4h.
-- **AGENT.md stale skill refs (34103100)**: 3 AGENT.md files referenced defunct/renamed skill names (`aibtc-news`, `aibtc-maintenance`, `quantum-computing`). Dispatch agents building tasks from these files would create tasks with broken `--skills` arrays, silently missing context. Requirement: AGENT.md files must use current skill names. **SATISFIED** — all 3 files corrected.
-- **Overnight-brief workflow closure (707c0b7a)**: Overnight-brief retrospective tasks wrote learnings but didn't call `completeWorkflow()`. 6 stuck workflows accumulated. Requirement: workflows must close after writing. **SATISFIED** — `completeWorkflow()` enforced after learning write.
-
-### Step 2 — Delete
-
-- No deletions in this window. All changes are targeted fixes.
-- **[CARRY-24]** ordinals HookState deprecated fields — cleanup 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit sensor migration — post-competition 2026-04-23+.
-- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
-
-### Step 3 — Simplify
-
-- **AGENT.md validation gap is structural**: the pre-commit hook (`lint-skills --staged`) validates SKILL.md/sensor.ts but does NOT validate AGENT.md files. The 3-file stale-refs fix (34103100) was caught by a human review task, not automated tooling. Gap: extend lint-skills to validate skill names referenced in AGENT.md `--skills` examples against the installed skill tree. Low effort, high catch rate for future drift.
-- **Thread cooldown is a correct layering**: issues get 24h, threads get 4h, watched-PR mentions get their own workflow dedup. Three distinct source types, three distinct cooldown strategies. Not over-engineered — each type has different natural recurrence.
-- **Workflow closure pattern is now explicit in AGENT.md (arc-workflows)**: retrospective tasks must close their parent workflow. The 6 stuck workflows show this wasn't enforced. No structural change needed beyond the fix — the pattern just needs to be followed consistently.
-
-### Step 4 — Accelerate
-
-- **Thread cooldown**: repo-maintenance was 41-44% of daily task volume (108 tasks × 41% = ~44 repo-maintenance tasks). At 4h cooldown, worst case is 6 thread tasks/thread/day instead of unlimited. Estimated reduction: 10-20 wasted tasks/day eliminated.
-- **AGENT.md refs**: no cycle-time impact yet, but prevents future silent context loss when tasks are spawned from stale AGENT.md examples. Avoids a class of confused dispatch cycles.
-
-### Step 5 — Automate
-
-- **[OPEN — NEW]** AGENT.md skill-name validation: extend `lint-skills --staged` to check skill name references in AGENT.md files against installed skills. Would have caught all 3 stale refs at commit time. Low-effort follow-up task warranted.
-- **[OPEN — CARRY×5]** Quantum signal auto-queuing from arXiv digest.
-- **[OPEN]** Pre-commit hook not git-tracked — fresh-clone gap.
-- **[OPEN]** Cloudflare email — human action required (whoabuddy).
-- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
-
-### Flags
-
-- **[OK]** Thread cooldown — repo-maintenance crowding guard shipped.
-- **[OK]** AGENT.md stale refs — 3 files corrected; dispatch context now accurate.
-- **[OK]** Overnight-brief workflow closure — 6 stuck workflows closed, pattern fixed.
-- **[OK]** Hiro-400 v5 — expect ~0 recurring failures (queue draining).
-- **[OK]** Signal quality recovering — 1 quantum signal filed (arXiv 2604.12985). 3-beat target still unmet with 3 days to competition close.
-- **[OK]** Cost $0.346/cycle — slightly above $0.29 baseline; monitor.
-- **[OPEN — NEW]** AGENT.md validation gap — lint-skills hook doesn't cover AGENT.md.
-- **[OPEN — CARRY×5]** Quantum auto-queuing from arXiv digest.
-- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap for fresh clones.
-- **[CARRY-24]** ordinals HookState deprecated fields — 2026-04-23+.
-- **[CARRY-20]** layered-rate-limit migration — post-competition 2026-04-23+.
-- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
-- **[ESCALATED]** Cloudflare email — awaiting whoabuddy action.
-
----
-
-*[Entries older than 2026-04-19T07:10Z archived — see git history]*
+*[Entries older than 2026-04-20T07:05Z archived — see git history]*

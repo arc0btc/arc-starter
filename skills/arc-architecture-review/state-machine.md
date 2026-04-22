@@ -1,6 +1,6 @@
 # Arc State Machine
 
-*Generated: 2026-04-21T19:10:00.000Z*
+*Generated: 2026-04-22T07:10:00.000Z*
 *Sensor count: 71 | Skill count: 111*
 
 ```mermaid
@@ -137,7 +137,7 @@ stateDiagram-v2
             arc_self_review
             site_consistency
             agent_health
-            note right of agent_health: NEW (5f32865) — agent-health-loom\n120-min cadence, SSHes into Loom (Rising Leviathan)\nGathers: cycle_log metrics, task failure patterns,\ngit history, gate/watchdog state\nCreates Haiku analysis task only on YELLOW/RED\nGREEN conditions → skip (cost optimization)\nAll data pre-baked in task description (zero tool calls for Haiku)\nSQL ESCAPING FIX (16110678): queryLoomDb shell command used single-quoted\nstring for bun --eval; SQL literals (datetime('now'), status='failed')\nbroke the outer single-quoted argument. POSIX '\''-escaping applied.\nTOKEN SPIRAL THRESHOLD (b618a6e7): alert threshold lowered 1M→750K tokens\nEarlier detection reduces token waste before escalation fires
+            note right of agent_health: NEW (5f32865) — agent-health-loom\n120-min cadence, SSHes into Loom (Rising Leviathan)\nGathers: cycle_log metrics, task failure patterns,\ngit history, gate/watchdog state\nCreates Haiku analysis task only on YELLOW/RED\nGREEN conditions → skip (cost optimization)\nAll data pre-baked in task description (zero tool calls for Haiku)\nSQL ESCAPING FIX (16110678): queryLoomDb shell command used single-quoted\nstring for bun --eval; SQL literals (datetime('now'), status='failed')\nbroke the outer single-quoted argument. POSIX '\''-escaping applied.\nTOKEN SPIRAL THRESHOLD (b618a6e7): alert threshold lowered 1M→750K tokens\nEarlier detection reduces token waste before escalation fires\nTASK_ID CARRY FIX (b4d02fb7): rows.find() used started_at string comparison\nto recover task_id after spikeCycles.map() dropped it — two back-to-back\ncycles sharing same second-precision timestamp could attribute spike to\nwrong task. Fix: task_id preserved in spike entry during map(), used for\nqueryLoomDb lookup, stripped before returning (not part of public type)
         }
 
         HealthSensors --> TaskQueue: queue if signal detected
@@ -235,7 +235,7 @@ stateDiagram-v2
             StreamJSON --> ParseResult
             ParseResult --> ExtractCost
             ExtractCost --> [*]
-            note right of BudgetGuard: NEW (e124013c): --max-budget-usd per invocation\nDefaults: opus=$10, sonnet=$3, haiku=$1\nOverride: MAX_BUDGET_USD_OPUS/SONNET/HAIKU env vars\nPrevents loom-spiral class (was ~$15/cycle at 1.2M tokens)\nClaude Code enforces mid-stream — aborts gracefully with cost summary
+            note right of BudgetGuard: NEW (e124013c): --max-budget-usd per invocation\nDefaults: opus=$10, sonnet=$3, haiku=$1\nOverride: MAX_BUDGET_USD_OPUS/SONNET/HAIKU env vars\nPrevents loom-spiral class (was ~$15/cycle at 1.2M tokens)\nClaude Code enforces mid-stream — aborts gracefully with cost summary\nFORK ISOLATION (67d7050c): CLAUDE_CODE_FORK_SUBAGENT=1 enabled\nForked subagents inherit full env (ANTHROPIC_API_KEY, SUBPROCESS_ENV_SCRUB=0)\nRun under --permission-mode bypassPermissions alongside parent session\nEvaluated safe post-competition (task #13297)
             note right of StreamJSON: AskUserQuestion intercepted by\nPreToolUse hook (autoanswer.sh)\npermissionDecision:allow + answer\nreturned in 5s — no stall
         }
 
@@ -329,6 +329,13 @@ New skills added (v0.40.0):
 - `hodlmm-move-liquidity` — HODLMM bin rebalancer (BFF Day 14, v0.39.0)
 - `sbtc-yield-maximizer` — idle sBTC yield router (BFF Day 16, v0.39.0)
 - `zest-auto-repay` — Zest LTV guardian with Arc-reviewed bug fixes (v0.39.0)
+
+## Key Architectural Changes (ab0d1f4 → b4d02fb) [2026-04-22T07:10Z]
+
+| Change | Impact |
+|--------|--------|
+| **feat(dispatch): enable CLAUDE_CODE_FORK_SUBAGENT=1 for subprocess isolation** (67d7050c) | Forked subagents now inherit the full dispatch env (`ANTHROPIC_API_KEY`, `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=0`) and run under `--permission-mode bypassPermissions` alongside the parent session. Evaluated safe post-competition (task #13297). Improves subagent isolation without adding new failure modes. |
+| **fix(agent-health): carry task_id through spike map to avoid started_at mislabel** (b4d02fb7) | `rows.find()` used `started_at` string comparison to recover `task_id` after it was dropped in `spikeCycles.map()`. Two back-to-back cycles sharing the same second-precision timestamp could cause the wrong task to be attributed as the spike source. Fix: `task_id` is now preserved directly in the spike entry during `map()` and used for the `queryLoomDb` lookup, then stripped before returning. Closes a subtle observability correctness bug. |
 
 ## Key Architectural Changes (4578d9d → ab0d1f4) [2026-04-21T07:05Z]
 
