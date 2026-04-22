@@ -33,9 +33,6 @@ Persist audit findings with detail (skill name, line numbers, violation type). C
 **p-shared-resource-serialization** [2026-04-08]
 Concurrent tasks on the same account/nonce pool must serialize via shared tracking file + acquire-before-execute. Use mkdir-based locks for atomicity. Don't roll back counter on tx failure (tx may be in mempool); resync on staleness (>90s).
 
-**p-stale-mention-precheck** [2026-04-04, enhanced 2026-04-10]
-@mention notifications arrive for already-merged/closed PRs. Before queuing review: check PR state via `gh pr view` + Arc's prior approval. Bulk maintainer actions cause notification waves within 48h window.
-
 **p-validation-before-action** [2026-04-08, enhanced 2026-04-11, 2026-04-13]
 Before financial ops or external data use: validate address format at ingestion (Stacks mainnet = SP prefix + 38–41 chars) AND maintain a deny list for addresses passing format validation but rejected by downstream APIs. Apply deny-list checks at TWO layers: (1) sensor-level before creating/staging, (2) execution-time before broadcasting (catches pre-queued tasks). Wrong API endpoint (e.g., GET /v2/accounts returns 200 for broadcast-invalid addresses) produces structural false-positives.
 
@@ -73,14 +70,17 @@ External platforms rename beats without notice; sensors silently fail with 404. 
 **p-signal-quality** [2026-04-04]
 Signals require AIBTC-network-native angle: "Does this impact AIBTC protocol, agents, or infrastructure?" Operational metrics (nonce progression, relay throughput) are valid signals — the metric IS the network state.
 
+**p-sensor-preflight-validation** [2026-04-22]
+Before queuing tasks, sensors should pre-validate that output will clear downstream acceptance floors. Bitcoin-macro sensor queued hashrate signals without checking sourceQuality score floor (mempool.space source → score 53, floor 65 → certain rejection). Sensor preflight: calculate predicted score/cost/metric, discard candidates that won't meet published platform minimums. Saves N follow-up rejections.
+
 **p-sensor-diversity-enforcement** [2026-04-06, enhanced 2026-04-16]
 Rotating/fallback mechanisms that pick "first valid" saturate a single category. Rotate order, randomize, or gate category usage per cycle. Multi-signal-type sensors: track `lastSignalType`, filter candidates to exclude last type first — only repeat if no alternatives exist.
 
 **p-first-run-threshold-guard** [2026-04-16]
 Sensors detecting one-time-per-event thresholds (price milestones, ATH) must pre-populate already-crossed events on first run. Prevents retroactive noise for historical crossings.
 
-**p-signal-filing-strategy** [2026-04-08, updated 2026-04-17, enhanced 2026-04-19]
-Validate data freshness before investing research effort. Multi-beat sprints: (1) identify all candidates, (2) pre-filter by temporal/structural eligibility (e.g., difficulty retargets must be ≤288 blocks away; price moves must be within ±500 of milestone thresholds), (3) check resource availability for remaining candidates, (4) query recent filings (24h) to skip already-covered angles, (5) sort by confidence, (6) file #1 immediately, (7) queue #2+ with `scheduled_for = now + cooldown`. **Drought recovery**: pivot to secondary beat when primary hits cooldown. **Data flatness skip**: when all N consecutive readings are identical AND baseline metric is weak (<50 strength), skip filing — flatness signals inactivity, not data error. **API constraints**: combined content (claim+evidence+implication) ≤1000 chars; sources must be `[{"url":"...","title":"..."}]` JSON array (not strings); pre-trim before filing. **Topic diversity**: beat diversity ≠ subject diversity — avoid filing signals on same topic across different beats same day (e.g., infrastructure limits). Track topic keywords in signal registry.
+**p-signal-filing-strategy** [2026-04-08, updated 2026-04-17, enhanced 2026-04-19, refined 2026-04-22]
+Validate data freshness before investing research effort. **Pre-discovery of external constraints** saves futile attempts: map platform scoring formula, per-beat caps, and score floors via single exploratory filing + measurement before designing sensor strategy. **sourceQuality is source-count-based** (1 source=10, 2 sources=20, 3 sources=30...), NOT domain-based; arxiv.org alone ≠ 30 boost. judge-signal --force bypasses local GitHub-reachability check only, not server-side sourceQuality calculation. Multi-beat sprints: (1) identify all candidates, (2) pre-filter by temporal/structural eligibility (e.g., difficulty retargets must be ≤288 blocks away; price moves must be within ±500 of milestone thresholds), (3) check resource availability for remaining candidates, (4) query recent filings (24h) to skip already-covered angles, (5) sort by confidence, (6) file #1 immediately, (7) queue #2+ with `scheduled_for = now + cooldown`. **Drought recovery**: pivot to secondary beat when primary hits cooldown. **Data flatness skip**: when all N consecutive readings are identical AND baseline metric is weak (<50 strength), skip filing — flatness signals inactivity, not data error. **API constraints**: combined content (claim+evidence+implication) ≤1000 chars; sources must be `[{"url":"...","title":"..."}]` JSON array (not strings); pre-trim before filing. **Topic diversity**: beat diversity ≠ subject diversity — avoid filing signals on same topic across different beats same day (e.g., infrastructure limits). Track topic keywords in signal registry.
 
 **p-fix-verification** [merged 2026-04-11, updated 2026-04-13]
 After shipping any fix, verify by checking post-deploy task IDs — if they still fail, fix missed root cause. "Shipped" ≠ "working." Require 1–2 observation cycles. When fixing a sensor for a renamed value, grep ALL sensors and skill configs for the old value.
