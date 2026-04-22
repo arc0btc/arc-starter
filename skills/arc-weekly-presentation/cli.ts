@@ -113,8 +113,8 @@ function formatDateRange(start: string, end: string): string {
 }
 
 function runGit(args: string[]): string {
-  const res = Bun.spawnSync({ cmd: ["git", ...args], cwd: ROOT });
-  return res.stdout.toString();
+  const git_result = Bun.spawnSync({ cmd: ["git", ...args], cwd: ROOT });
+  return git_result.stdout.toString();
 }
 
 // ---- Git collection ----
@@ -133,8 +133,8 @@ function getNewSkillsFromGit(since: string): SelfImprovements["newSkills"] {
     const path = join(ROOT, line);
     if (!existsSync(path)) continue;
     const content = readFileSync(path, "utf-8");
-    const desc = content.match(/^description:\s*(.+)$/m);
-    out.push({ name, description: desc ? desc[1].trim() : "" });
+    const description_match = content.match(/^description:\s*(.+)$/m);
+    out.push({ name, description: description_match ? description_match[1].trim() : "" });
   }
   return out;
 }
@@ -153,8 +153,8 @@ function getUpdatedSkillsFromGit(since: string, exclude: Set<string>): SelfImpro
     const skillMd = join(ROOT, "skills", name, "SKILL.md");
     if (!existsSync(skillMd)) continue;
     const content = readFileSync(skillMd, "utf-8");
-    const desc = content.match(/^description:\s*(.+)$/m);
-    out.push({ name, description: desc ? desc[1].trim() : "" });
+    const description_match = content.match(/^description:\s*(.+)$/m);
+    out.push({ name, description: description_match ? description_match[1].trim() : "" });
   }
   return out;
 }
@@ -464,7 +464,7 @@ function titleSlide(d: WeekData): string {
   </div>`;
 }
 
-function devActivitySlide(d: WeekData, idx: number): string {
+function devActivitySlide(d: WeekData, slide_index: number): string {
   const items = d.devActivity.prs.length
     ? d.devActivity.prs.slice(0, 8).map(p => `<li>${escapeHtml(truncate(p.title, 80))}</li>`).join("")
     : `<li class="empty">No shipped changes this week</li>`;
@@ -472,7 +472,7 @@ function devActivitySlide(d: WeekData, idx: number): string {
     ? d.devActivity.contributors.slice(0, 6).map(c => `<span class="pill">${escapeHtml(c)}</span>`).join("")
     : "";
   return `
-  <div class="slide" data-slide="${idx}">
+  <div class="slide" data-slide="${slide_index}">
     <div class="arc-logo">ARC</div>
     <h3>Dev Activity</h3>
     <h2>${fmt(d.devActivity.commits)} commits &middot; ${fmt(d.devActivity.prs.length)} shipped</h2>
@@ -481,7 +481,7 @@ function devActivitySlide(d: WeekData, idx: number): string {
   </div>`;
 }
 
-function socialSlide(d: WeekData, idx: number): string {
+function socialSlide(d: WeekData, slide_index: number): string {
   const blog = d.socialActivity.blogPosts.length
     ? d.socialActivity.blogPosts.slice(0, 6).map(b => `<li>${escapeHtml(truncate(b.title, 70))}</li>`).join("")
     : `<li class="empty">No blog posts this week</li>`;
@@ -492,7 +492,7 @@ function socialSlide(d: WeekData, idx: number): string {
     ? d.socialActivity.newsBeats.slice(0, 6).map(b => `<span class="pill">${escapeHtml(truncate(b, 40))}</span>`).join("")
     : `<span class="pill">no aibtc.news activity</span>`;
   return `
-  <div class="slide" data-slide="${idx}">
+  <div class="slide" data-slide="${slide_index}">
     <div class="arc-logo">ARC</div>
     <h3>Social &amp; Publishing</h3>
     <h2>${fmt(d.socialActivity.blogPosts.length)} posts &middot; ${fmt(d.socialActivity.xPosts.length)} on X</h2>
@@ -506,12 +506,12 @@ function socialSlide(d: WeekData, idx: number): string {
   </div>`;
 }
 
-function servicesSlide(d: WeekData, idx: number): string {
+function servicesSlide(d: WeekData, slide_index: number): string {
   const items = d.servicesUpdates.items.length
     ? d.servicesUpdates.items.slice(0, 8).map(i => `<li>${escapeHtml(truncate(i.title, 80))}</li>`).join("")
     : `<li class="empty">No service updates this week</li>`;
   return `
-  <div class="slide" data-slide="${idx}">
+  <div class="slide" data-slide="${slide_index}">
     <div class="arc-logo">ARC</div>
     <h3>Services</h3>
     <h2><span class="highlight mono">${escapeHtml(d.servicesUpdates.siteUrl)}</span></h2>
