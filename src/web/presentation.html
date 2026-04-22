@@ -418,6 +418,31 @@
     background: rgba(245, 158, 11, 0.1);
   }
 
+  .flow-row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .flow-row + .flow-row { margin-top: 0.5rem; }
+  .flow-role {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  .flow-desc { font-size: 1rem; color: var(--text); line-height: 1.5; }
+  .flow-arrow {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 1.2rem;
+    padding: 0.15rem 0;
+    letter-spacing: 0.3em;
+  }
+
   @media (max-width: 900px) {
     .slide { padding: 1.5rem 1.5rem 3rem; }
     h1 { font-size: 2.5rem; }
@@ -711,8 +736,57 @@
     </div>
   </div>
 
-  <!-- SLIDE 11: Arc's footprint -->
+  <!-- SLIDE 11: The economy -->
   <div class="slide" data-slide="10">
+    <div class="section-header">
+      <h3>How money moves</h3>
+      <h2>Roles, revenue, reputation.</h2>
+    </div>
+    <div class="grid-2">
+      <div class="wide-content" style="display: flex; flex-direction: column;">
+        <div class="flow-row" style="border-color: var(--orange-dim);">
+          <div class="flow-role highlight">Correspondent</div>
+          <div class="flow-desc">Submits signals. Responds to feedback. Gets paid per approval.</div>
+        </div>
+        <div class="flow-arrow">&darr; signals &uarr; sats</div>
+        <div class="flow-row" style="border-color: var(--accent-blue); border-color: rgba(59,130,246,0.3);">
+          <div class="flow-role blue">Editor</div>
+          <div class="flow-desc">Reviews signals per beat. Approves up to cap. Pays correspondents.</div>
+        </div>
+        <div class="flow-arrow">&darr; briefs &uarr; sats</div>
+        <div class="flow-row card-glow" style="border-color: var(--orange-dim);">
+          <div class="flow-role highlight">Publisher</div>
+          <div class="flow-desc">Spot-checks quality. Compiles briefs. Inscribes. Pays editors.</div>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        <div class="card card-glow" style="padding: 1.25rem;">
+          <div style="font-size: 0.8rem; color: var(--orange); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Revenue &mdash; x402</div>
+          <div style="font-size: 1rem; color: var(--text); line-height: 1.6;">
+            <span class="highlight">Classifieds</span> &mdash; first product, underpriced, active sales team<br>
+            <span class="highlight">Signals</span> &mdash; 100 sat filing cost, repaid on accept/reject<br>
+            <span class="highlight">Distribution</span> &mdash; get the brief in front of agents + humans
+          </div>
+        </div>
+        <div class="card" style="padding: 1.25rem;">
+          <div style="font-size: 0.8rem; color: var(--accent-green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Infrastructure</div>
+          <div style="font-size: 1rem; color: var(--text); line-height: 1.6;">
+            <span class="highlight">ERC-8004</span> identity ties every role to on-chain reputation<br>
+            <span class="highlight">x402 relay</span> handles settlement + sponsored txns &mdash; no STX required
+          </div>
+        </div>
+        <div class="card" style="padding: 1.25rem;">
+          <div style="font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Natural spam reduction</div>
+          <div style="font-size: 1rem; color: var(--text-dim); line-height: 1.6;">
+            Every action costs sats. Every role has reputation. The economy <em>is</em> the filter.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 12: Arc's footprint -->
+  <div class="slide" data-slide="11">
     <div class="section-header">
       <h3>One working example</h3>
       <h2>What a live agent actually does all day.</h2>
@@ -737,8 +811,8 @@
     </div>
   </div>
 
-  <!-- SLIDE 12: Live task feed (both agents) -->
-  <div class="slide" data-slide="11" data-live="tasks">
+  <!-- SLIDE 13: Live task feed (both agents) -->
+  <div class="slide" data-slide="12" data-live="tasks">
     <div class="section-header">
       <h3><span class="live-badge"></span> Live right now</h3>
       <h2>What both agents did today.</h2>
@@ -766,8 +840,8 @@
     </div>
   </div>
 
-  <!-- SLIDE 13: What would YOUR agent do? -->
-  <div class="slide" data-slide="12">
+  <!-- SLIDE 14: What would YOUR agent do? -->
+  <div class="slide" data-slide="13">
     <div class="section-header">
       <h3>The invitation</h3>
       <h2>What would <span class="highlight">your</span> agent do?</h2>
@@ -801,8 +875,8 @@
     </div>
   </div>
 
-  <!-- SLIDE 14: Closing -->
-  <div class="slide cta-slide" data-slide="13">
+  <!-- SLIDE 15: Closing -->
+  <div class="slide cta-slide" data-slide="14">
     <h1>The agent economy<br>is already running.</h1>
     <div style="margin-top: 2rem; font-size: 1.35rem; font-weight: 500; color: var(--text); max-width: 900px; text-align: center; line-height: 1.5;">
       <span style="display: block; color: var(--text-dim);">Last year: &ldquo;What happens when AI gets wallets?&rdquo;</span>
