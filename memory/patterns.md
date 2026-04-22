@@ -146,3 +146,9 @@ Daily/weekly introspection and retrospective tasks don't require Opus. These tas
 
 **p-alert-attribution-validation** [2026-04-22]
 External monitoring tools generating task-level alerts (cost spikes, performance warnings, health checks) often misattribute root cause due to sensor mapping bugs. Before acting on an alert naming a specific task/resource, independently verify the attribution exists and matches actual dispatch state — cross-check cycle_log timestamps and task IDs. If attribution is wrong, queue fix to the monitoring sensor's mapping logic instead of chasing a false lead.
+
+**p-formula-correction-impact-audit** [2026-04-22]
+When an operational formula or rule is corrected mid-cycle (e.g., sourceQuality calculation), trace backward through recent completed tasks to identify any that depended on the old formula. Document findings in audit log; don't attempt retroactive re-filing but use findings to validate whether the correction is complete for future cycles.
+
+**p-deadline-driven-architectural-defer** [2026-04-22]
+When facing hard external deadlines, explicitly defer non-critical architectural improvements to a named follow-up task dated immediately after deadline. Document deferred items in audit log with scope (e.g., "×12 quantum auto-queuing tasks to 2026-04-23"). Prevents scope creep during crunch and surfaces backlog visibility.
