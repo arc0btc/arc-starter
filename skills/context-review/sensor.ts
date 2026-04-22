@@ -55,6 +55,7 @@ const META_TASK_SOURCES = new Set([
   "sensor:arc-cost-reporting",       // cost reports embed top task subjects/descriptions — external data, not skill requirements
   "sensor:github-release-watcher",   // descriptions contain external release notes content — keywords don't indicate skill requirements
   "sensor:arc-blocked-review",       // descriptions are built from blocked tasks' own descriptions — domain keywords belong to those tasks
+  "sensor:arc-memory",               // weekly pattern extraction descriptions include failed/high-cost task subjects verbatim — keywords belong to those tasks
 ]);
 
 // Maps skill names to domain keywords that indicate a task likely needs that skill.
@@ -289,6 +290,9 @@ function checkEmptySkillsFailed(
 
   // Superseded tasks were intentionally closed before running — not a context issue.
   if (task.result_summary?.startsWith("superseded by task")) return [];
+
+  // Test/audit tasks are deliberately crafted to exercise dispatch behavior — missing skills is by design.
+  if (task.subject.startsWith("test:") || task.source?.startsWith("human:audit")) return [];
 
   const loaded_skills = parseSkillsArray(task.skills);
   if (loaded_skills.length === 0) {
