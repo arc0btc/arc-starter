@@ -1,6 +1,6 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last consolidated: 2026-04-21*
+*Last consolidated: 2026-04-22*
 
 ## Core Patterns
 
@@ -14,7 +14,7 @@ All task-creation paths (sensors, CLI, follow-ups) must include model. Tasks wit
 When higher-priority task supersedes pending tasks, close them explicitly: `status=failed, summary="superseded by #X"`. Don't leave to fail — inflates failure counts.
 
 **p-cooldown-precheck** [merged p-signal-task-dedup 2026-04-17, refined 2026-04-21]
-Signal filing has TWO independent gates: (1) daily task count (6/day) AND (2) per-agent cooldown (60-min, shared across beats). Both must pass before filing. Multi-source sensors can generate duplicate tasks within the same cycle before cooldown propagates — dedup by (beat, source_url/issue_id, data_hash) before queuing. **Implementation**: `isBeatOnCooldown()` must check both the time window (now - lastFileTime < 60min) AND the pending/active task queue (any pending/active tasks for that beat created by the same sensor in the past 60min) — checking only the time window allows sensors to queue duplicate tasks before cooldown propagates (fix: commit ab0d1f47).
+Signal filing has TWO independent gates: (1) daily task count (6/day) AND (2) per-agent cooldown (60-min, shared across beats). Both must pass before filing. Multi-source sensors can generate duplicate tasks within the same cycle before cooldown propagates — dedup by (beat, source_url/issue_id, data_hash) before queuing. `isBeatOnCooldown()` must check both the time window AND the pending/active task queue (commit ab0d1f47).
 
 ## Operational Patterns
 
@@ -111,11 +111,11 @@ For financial operations, use contract simulation to validate account state befo
 **p-revision-loop-primitive** [2026-04-07, enhanced 2026-04-20]
 Encode review/revision cycles as first-class workflow primitives. Check approval state before queuing a review (prevents duplicate floods). On re-review, explicitly verify each originally flagged item was fixed before approving. **Structural integrity checklist**: validate payload counts (rows affected, TX clears, data mutations) match pre-agreed expectations, confirm CI green, THEN approve — catches partial fixes and silent corruption before merge.
 
-**p-purpose-loop** [2026-04-08, validated 2026-04-17, enhanced 2026-04-18, refined 2026-04-19, updated 2026-04-20]
-Daily PURPOSE evals expose directive gaps → low-scoring directives become next-cycle priorities (eval-to-action coupling). Query live DB for metrics; missing outcome data is itself a priority gap. **Cost threshold context**: Cost:2 doesn't auto-trigger ops boost if inflation is from legitimate audit work (e.g., architecture reviews, specialized research like quantum harvest). Justified outliers naturally self-correct over rolling 24h windows; no remediation needed when queue is empty. **Constraint vs capacity**: Before optimizing a low-scoring dimension, diagnose root cause: (1) queue-emptiness, (2) structural ceiling (e.g., 4 signals/beat/day), (3) knowledge gap. Don't optimize naturally-capped dimensions. **Queue-empty case**: When pending queue is empty, low-score directives cannot be improved via prioritization — focus shifts to external factor validation (e.g., upstream registry cleanup, data availability) or creating entirely new work streams. **Reframing strategy**: When queue is nearly empty AND a dimension has hard structural ceiling, reframe low score as "expected given constraints" rather than "needs fixing" — clarifies which levers are actually controllable (external data availability, ecosystem engagement) vs which are naturally-capped (regulatory signal filing limits).
+**p-purpose-loop** [2026-04-08, updated 2026-04-20]
+Daily PURPOSE evals expose directive gaps → low-scoring directives become next-cycle priorities. Query live DB; missing outcome data is itself a priority gap. **Constraint vs capacity**: diagnose root cause before optimizing: (1) queue-emptiness, (2) structural ceiling (e.g., 4 signals/beat/day), (3) knowledge gap — don't optimize naturally-capped dimensions. When queue is empty, focus shifts to external factor validation or creating new work streams. Cost outliers from legitimate audit work self-correct over 24h windows without remediation.
 
-**p-strategic-communication** [2026-04-06, validated 2026-04-14, enhanced 2026-04-21, updated 2026-04-21]
-Non-operational requests: reply immediately to close async loop, queue P2 Opus task for substantive analysis. Multi-item feedback: reply with numbered action list, queue as single bundled P1 if interdependent or split P1/P2 if independent. **Narrative/presentation updates** (time-sensitive): (1) query live DB (`db/arc.sqlite`) for freshest authoritative metrics, fallback to git log + MEMORY, (2) reuse visual/structural templates from recent similar work (fonts, colors, section patterns) to reduce decision overhead, (3) explicitly document open decisions (scope, tone, demo hooks) to guide stakeholder feedback rather than assuming, (4) commit draft to git, (5) send async for review, (6) polish based on feedback. This enables rapid iteration with clear audit trail. Stale metrics undermine credibility — refresh at draft time, not days later.
+**p-strategic-communication** [2026-04-06, updated 2026-04-21]
+Non-operational requests: reply immediately, queue P2 Opus for substantive analysis. Multi-item feedback: numbered action list, bundle into P1 if interdependent. **Narrative/presentation**: (1) query live DB for freshest metrics — stale metrics undermine credibility, (2) reuse templates from recent similar work, (3) document open decisions explicitly to guide feedback, (4) commit draft, (5) send async, (6) polish. Make scope-elimination decisions at draft time based on stated direction (e.g., "less fixes, more scale"), not in revision — prevents over-building.
 
 **p-upstream-watch-integration** [2026-04-06, merged 2026-04-10]
 When approving critical upstream repos, add to watch list and check for open PRs before creating follow-up tasks — enables async bundling, prevents revision ping-pong. Phase implementation when integration requires upstream code changes.
@@ -144,11 +144,5 @@ When responding to agent pitches or technical proposals, ask substantive follow-
 **p-multi-chain-identity-verification** [2026-04-21]
 Agent-to-agent messages must verify sender via BOTH chain-specific addresses (BTC address hash + Stacks address) against known rotated wallets before processing. Compare both addresses to memory entries; legitimate agents rotate wallets intentionally. Mismatched pairs or old address reuse indicate compromised wallets (old address = hostile). Prevents message-forwarding attacks on multi-chain agents.
 
-**p-narrative-scope-by-direction** [2026-04-21]
-When drafting narrative/presentation content with stakeholder direction (e.g., "less about fixes, more about scale"), make scope-elimination decisions at draft time based on that direction, not in revision. Frame around the client's stated question. This prevents over-building and focuses stakeholder feedback on refinement rather than major restructuring.
-
-**p-relay-internal-state-audit** [2026-04-22]
-When debugging external relay/service failures, audit each internal state layer independently (queue manager, wedge analyzer, blockchain state) rather than assuming one layer is authoritative. Divergence between internal layers indicates the service's internal bug, not a regression in parent agent code. Clear service boundaries in diagnostics prevent false cross-service misattribution.
-
-**p-upstream-fix-deployment-verification** [2026-04-22]
-After identifying an upstream bug and linking to a merged fix PR, verify actual deployment before closure. Check: (1) release version containing the fix, (2) release automation status (release-please PR, etc.), (3) live service version. Merged code may wait days for release machinery; premature closure masks ongoing production incidents.
+**p-external-service-debugging** [2026-04-22]
+When debugging external relay/service failures, audit each internal state layer independently (queue manager, wedge analyzer, blockchain state) — divergence between layers indicates the service's internal bug, not parent agent regression. After linking an upstream bug to a merged fix PR, verify actual deployment before closure: check release version, release automation status (release-please PR), and live service version. Merged code may wait days for release machinery; premature closure masks ongoing incidents.
