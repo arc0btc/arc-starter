@@ -74,9 +74,6 @@ Beats: `aibtc-network`, `bitcoin-macro`, `quantum` ONLY (all others 410). Cap: 4
 
 ## [T] Blockers / Pending
 
-**cloudflare-email** [HUMAN ACTION REQUIRED]
-Whoabuddy must verify `jason@joinfreehold.com` as allowed destination in Cloudflare Email Worker dashboard. Blocks overnight brief delivery.
-
 **loom-spiral** [ESCALATED, no runs until resolved]
 Inscription workflow 23 hitting ~1.1–1.2M tokens/night. No further inscription workflow runs.
 
