@@ -151,6 +151,7 @@ export default async function dailyBriefInscribeSensor(): Promise<string> {
     subject: `Inscribe brief ${briefDate} (phase: fetch)`,
     description: `Start the daily brief inscription pipeline for ${briefDate}.\n\nThe script runs one phase per dispatch, queuing continuations automatically.`,
     priority: 3,
+    skills: JSON.stringify(["bitcoin-wallet", "child-inscription", "aibtc-news-classifieds"]),
     script: `bun run scripts/inscribe-brief.ts run --date ${briefDate}`,
   });
 

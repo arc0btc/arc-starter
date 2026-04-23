@@ -26,8 +26,9 @@ const BRIEFS_DIR = resolve(ROOT, "db/briefs");
 const BATCH_DIR = resolve(ROOT, "db/inbox-notify");
 const CHILD_INSCRIPTION_CLI = resolve(ROOT, "skills/child-inscription/child-inscription.ts");
 
-const MAX_POLL_ATTEMPTS = 12;
+const MAX_POLL_ATTEMPTS = 3;
 const POLL_INTERVAL_MS = 60_000;
+const POLL_CONTINUATION_DELAY_MS = 5 * 60_000;
 
 mkdirSync(INSCRIPTIONS_DIR, { recursive: true });
 mkdirSync(BRIEFS_DIR, { recursive: true });
@@ -240,7 +241,7 @@ async function commitTx(record: InscriptionRecord): Promise<InscriptionRecord> {
     "--parent-id", PARENT_INSCRIPTION_ID,
     "--content-type", "text/plain",
     "--content-file", record.brief_content_file,
-    "--fee-rate", "slow",
+    "--fee-rate", "medium",
   ]);
 
   if (exitCode !== 0) {
@@ -294,7 +295,27 @@ async function pollConfirmation(record: InscriptionRecord): Promise<InscriptionR
     }
   }
 
-  log(`Commit tx still unconfirmed after ${MAX_POLL_ATTEMPTS} polls. Re-run to resume.`);
+  log(`Commit tx still unconfirmed after ${MAX_POLL_ATTEMPTS} polls — queuing continuation (+${POLL_CONTINUATION_DELAY_MS / 1000}s)`);
+  const scheduledFor = new Date(Date.now() + POLL_CONTINUATION_DELAY_MS).toISOString();
+  const proc = Bun.spawnSync(
+    [
+      "bash", "bin/arc", "tasks", "add",
+      "--subject", `Inscribe brief ${record.date} (phase: poll-confirm)`,
+      "--script", `bun run scripts/inscribe-brief.ts run --date ${record.date}`,
+      "--skills", "bitcoin-wallet,child-inscription,aibtc-news-classifieds",
+      "--priority", "3",
+      "--source", `task:inscribe-brief:${record.date}`,
+      "--scheduled-for", scheduledFor,
+      "--force",
+    ],
+    { cwd: ROOT, stdout: "pipe", stderr: "pipe" }
+  );
+  const stdout = new TextDecoder().decode(proc.stdout).trim();
+  if (proc.exitCode !== 0 || !stdout.startsWith("Created task")) {
+    const err = new TextDecoder().decode(proc.stderr).trim();
+    throw new Error(`Failed to queue poll-confirm continuation: ${err || stdout || `exit ${proc.exitCode}`}`);
+  }
+  log(`Continuation queued: ${stdout}. Exiting.`);
   process.exit(0);
 }
 
