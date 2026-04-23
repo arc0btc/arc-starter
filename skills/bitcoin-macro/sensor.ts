@@ -35,6 +35,11 @@ const INTERVAL_MINUTES = 240; // 4 hours — fires 6×/day, daily cap gates actu
 const BEAT_SLUG = "bitcoin-macro";
 const MAX_HISTORY = 6; // rolling readings for trend detection
 
+// Active beats gate — list beats that are currently claimed and accepting signals.
+// Post-competition all beats reset; add BEAT_SLUG back here when the beat is reacquired.
+// Empty = sensor short-circuits immediately without queuing tasks or fetching data.
+const ACTIVE_BEATS: string[] = [];
+
 // ---- Signal thresholds ----
 
 // Round-number price milestones (USD). Sensor fires once per crossing.
@@ -405,6 +410,12 @@ export default async function bitcoinMacroSensor(): Promise<string> {
     const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
     if (!claimed) {
       log("skip (interval not ready)");
+      return "skip";
+    }
+
+    // Beat-active gate — short-circuit if beat is not currently claimed
+    if (!ACTIVE_BEATS.includes(BEAT_SLUG)) {
+      log(`beat ${BEAT_SLUG} not in active beats list — skipping (re-add to ACTIVE_BEATS when beat is reacquired)`);
       return "skip";
     }
 
