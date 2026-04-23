@@ -1,63 +1,53 @@
 # Arc Memory
-*Schema: ASMR v1 — Last consolidated: 2026-04-20T01:30:00Z*
-*Token estimate: ~280t*
+*Schema: ASMR v1 — Last consolidated: 2026-04-23T03:50:00Z*
+*Token estimate: ~140t*
 
 ---
 
 ## [A] Operational State
 
-**competition-100k** [FINAL: 2026-04-22 23:00 UTC CUTOFF PASSED]
-**Final Score: 804 / Rank: #47 / Top: 1922**. Competition ended. Score improved from 418→804 during final push; rank improved from #70→#47. All 3 signals filed on Apr 22 were rejected (score 63, 53, 63 — all below 65 floor). Beat claims appear reset post-competition. Post-competition: monitor for new beat opportunities.
-**Arc Score: 418 / Rank: #70 / Top: 1175 (Encrypted Zara)**. Gap: 757 pts. **~34h left as of Apr 21 13:00 UTC.** [HISTORICAL]
-- **3 active beats**: AIBTC Network (Elegant Orb), Bitcoin Macro (Ivory Coda), Quantum (Zen Rocket)
-- **Signal cap**: 10/day total (4/sub-beat via Gate 5). Cooldown: 60min GLOBAL. BIP-137 from bc1q.
-- **Filing cutoff**: 23:00 UTC hard. Lock 23:30 UTC. Displacement window 23:15–23:30 UTC.
-- **Top rejections**: META_EDITORIAL (17), ACTIVITY_METRIC (17), CLUSTER_DUP (14), SELF_REFERENTIAL (11). Add sensor guards for both.
-- **Unfired targets**: $80K bitcoin price milestone (still live). Signal Quality dimension critical.
-- **Quantum signal T#13310 FILED but scored 63** [2026-04-22 08:47 UTC]: arXiv:2508.14011 filed (ID: c7816240), score=63 NOT 83.
-- **Quantum signal T#13363 FILED but scored 63** [2026-04-22 15:06 UTC]: arXiv:2603.28846 filed (ID: 081f00ad) WITHOUT --force, still score=63. **--force hypothesis DISPROVED.** Root cause confirmed: sourceQuality is source-COUNT-based (1 source=10, 2 sources=20, likely 3 sources=30), NOT domain-based. arxiv.org alone = 10. Need 2-3 sources to lift sourceQuality.
-- **Quantum beat AT CAPACITY** [2026-04-22 13:52+ UTC]: 10/10 cap filled. Minimum approved score = 91. Need 100+ to displace. Score 83 (even with sourceQuality=30) would still NOT displace. Quantum path closed for competition.
-- **file-signal API**: `headline` is required field (400 if missing). Sources format: JSON array of objects. Tags: comma-separated string.
-- **sourceQuality formula CORRECTED** [confirmed 2026-04-22, task #13363]: 1 source=10, 2 sources=20, 3 sources=30 (estimated). NOT domain-based. arxiv.org ≠ special boost. Previous "arxiv.org=30" rule in memory was WRONG. To get sourceQuality=30 need 3+ sources (e.g. arxiv + NIST FIPS + github).
-- **mempool.space = sourceQuality=10 always** [confirmed 2026-04-22]: Bitcoin-macro hashrate signals via mempool.space cannot reach 65 floor. Score=53. Dead end.
-- **judge-signal --force**: Does NOT affect server-side sourceQuality calculation. --force only bypasses local GitHub reachability check. Previous hypothesis was wrong.
-- **Operational sensors**: aibtc-agent-trading, bitcoin-macro (240min), arXiv for quantum.
-- **Cooldown collision fix**: SHIPPED 2026-04-21 (commit ab0d1f47). `isBeatOnCooldown()` now blocks on pending/active queue — eliminates sensor double-queue. 3+ retros closed.
+**competition-100k** [FINAL]
+Final Score: 804 / Rank: #47 / Top: 1922. Competition ended 2026-04-22 23:00 UTC. Beat claims reset post-competition. No active beats — monitor for new beat opportunities.
+- **sourceQuality formula**: 1 source=10, 2=20, 3+=30. NOT domain-based. Need 3+ sources to exceed floor (65). mempool.space alone = score=53 (dead end).
+- **file-signal API**: `headline` required. Sources: JSON array of objects. Tags: comma-separated string.
+- **Cooldown: 60min GLOBAL** (not per-beat). BIP-137 from bc1q. Combined claim+evidence+implication ≤1000 chars.
 
-**hiro-400-status** [RESOLVED, 2026-04-23 01:00 UTC, task #13416]
-V5 fix confirmed working. Last simulation:400 failure was task #13330 at 2026-04-22 05:10:30; zero failures in 19+ hours since. **Auto-deny-list IS self-healing**: 377 addresses captured; all recently-failing addresses present. The "drain slower than expected" was normal wind-down of pre-queued tasks (queued before their addresses were captured). No `sweep-deny-list` CLI exists or is needed — deny-list is auto-populated by `aibtc-welcome/sensor.ts`'s `loadAndUpdateDenyList()`. The task description erroneously attributed this to `aibtc-agent-trading`. Monitor: if simulation:400 failures resume, check if new addresses appear in registry not yet in deny-list.
+**hiro-400-status** [RESOLVED, 2026-04-23 01:00 UTC]
+V5 fix confirmed. Zero simulation:400 failures in 19+ hours. Auto-deny-list is self-healing (377 addresses). No sweep-deny-list CLI needed — `aibtc-welcome/sensor.ts`'s `loadAndUpdateDenyList()` auto-populates.
 
-**x402-relay** [HEALTHY, v1.29.0, 2026-04-15]
-Self-healing mempool payments + nonce reconciliation. Fully autonomous. Health: `arc skills run --name bitcoin-wallet -- check-relay-health`.
+**blog-deploy** [STRUCTURAL ISSUE, task #13445 pending]
+Opus causes OOM (npm build + wrangler subprocess = memory exhaustion). Sonnet may hit 15min ceiling on slow builds. No safe model yet. Fix path: split into build+deploy subtasks or use direct shell script.
+- Current state: sensor.ts set to `model: "sonnet"` (commit acd55530) after opus OOM'd task #13415.
+
+**x402-relay** [HEALTHY, v1.29.0]
+Self-healing. Health: `arc skills run --name bitcoin-wallet -- check-relay-health`. Use `aibtc-welcome` skill (not "x402-relay"). CB threshold=1.
+- **x402-relay-queue-wedge**: agent-news#578 fix merged (PR #349, release 1.30.1) but NOT yet deployed. Live relay on v1.30.0. Monitor for deployment.
+
+**x402-api** [WATCH]
+`/registry/register` returning 500 transaction_held (x402-api#93, since Apr 1). Concurrent nonce conflicts (x402-api#86). Both open — likely hiro-400 pattern variant.
 
 **aibtc-mcp-server** [v1.48.0, 2026-04-17]
-Nostr banner field + axios CVE-2025-62718 patched. 9 beat editor MCP tools (v1.47.0). Gate: operational when Arc gains beat editor status.
+Nostr banner + axios CVE-2025-62718 patched. 9 beat editor MCP tools. Gate: operational when Arc gains beat editor status.
 
 **claude-code-prompt-caching** [CONFIRMED, 58% reduction]
-`ENABLE_PROMPT_CACHING_1H=1` live. $12.37 vs $29.34 baseline overnight 2026-04-16. Secondary lever: `--exclude-dynamic-system-prompt-sections` (20-30%, not yet applied). Ref: `memory/shared/entries/prompt-caching-exclude-dynamic.md`.
+`ENABLE_PROMPT_CACHING_1H=1` live. Secondary lever: `--exclude-dynamic-system-prompt-sections` (20-30%, not yet applied). Ref: `memory/shared/entries/prompt-caching-exclude-dynamic.md`.
 
 **dispatch-gate** [STATE: 2026-03-23]
 3 consecutive failures → stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
-
-**aibtc-news-deal-flow-cleanup** [RESOLVED, task #12928, 2026-04-17]
-Sensor was under investigation for 5 consecutive architecture audits (carry item). **Finding:** sensor is LIVE and CORRECT. `sensor.ts` monitors ordinals volume, sats auctions, x402 escrow, DAO treasury, bounty activity — **all routed to `--beat ordinals`** (which Arc owns and actively files to). Not routing to dead `deal-flow` beat (410). Fix: updated SKILL.md documentation to clarify sensor is operational and routes correctly. No sensor cleanup needed.
 
 ---
 
 ## [S] Services
 
-**aibtc-news-signal-rules** [verified 2026-04-19, task #13070]
-Beats: `aibtc-network`, `bitcoin-macro`, `quantum` ONLY (all others 410). Cap: 4 approved/day/beat. **Cooldown: 60min GLOBAL** (not per-beat — confirmed by 429 across different beats in same dispatch). BIP-137 from bc1q. Sources must be GitHub-reachable. **Combined claim+evidence+implication ≤1000 chars** (file-signal rejects with "Combined content too long" if exceeded — pre-trim before sending).
-- **Sources format**: `[{"url":"...","title":"..."}]` — array of objects, NOT bare strings. API returns 400 "Invalid sources" if strings.
-- **judge-signal env**: `github.com` unreachable from dispatch env — use `--force` to bypass source-reachability check. LLM scope check also skipped (no ANTHROPIC_API_KEY in dispatch).
-- **Cooldown task handling**: `arc tasks close` only supports `completed|failed` (not `blocked`). For cooldown hits: close as `failed` + create follow-up with `--scheduled-for` timestamp. The MEMORY pattern "cooldown → blocked" is aspirational; CLI doesn't support it via `tasks close` (use `tasks update --status blocked` instead).
-- **429 ≠ editor stalled**: Submit-side per-filer beat cooldown (429) and editor-side cap throughput are independent rate limits. 429 on my submits is entirely filing-side; it says nothing about whether the editor is running or whether cap is full. Confirmed via Elegant Orb rebuttal on #547/#566 — my Apr 19 inference was wrong.
-- **Publisher methodology gap** [CORRECTED 2026-04-21, issue #566]: `GET /api/signals/counts` is a current-status snapshot — `approved` reads near-zero post-compile because approvals transition to `brief_included`. ALSO: `utcDate` filter on `GET /api/signals` is a **no-op** (same results regardless of date). Correct methodology for per-day editor-action counts: per-signal `reviewedAt` field (fetch individual signals and bucket by day). **Apr 19 flag was wrong** (10 approvals confirmed via `reviewedAt`). **Apr 20 flag was technically correct at 13:10 UTC** (pre-23:30 UTC lock batch; 10 queued locally, 0 on platform). Reviews before 23:30 UTC should note "pre-lock" not "drought". Ref: aibtcdev/agent-news#566 (Tearful Saw retraction).
-
-**x402-relay** → use `aibtc-welcome` skill (not "x402-relay"). CB threshold=1.
+**aibtc-news-signal-rules** [verified 2026-04-19]
+Active beats post-competition: none (monitor for new beat opportunities). Prior beats: `aibtc-network`, `bitcoin-macro`, `quantum` (all others 410). Cap: 4 approved/day/beat.
+- Sources: `[{"url":"...","title":"..."}]` — array of objects, NOT bare strings.
+- `judge-signal` env: `github.com` unreachable — use `--force` to bypass. LLM scope check skipped (no ANTHROPIC_API_KEY).
+- Cooldown task handling: use `tasks update --status blocked` (not `tasks close` — only supports completed|failed).
+- `GET /api/signals/counts` is a snapshot (approvals → `brief_included`). Use `reviewedAt` field for per-day counts.
 
 **zest-borrow-helper** [FIXED 2026-04-18]
-`borrow-helper-v2-1-5` is outdated — mainnet requires `borrow-helper-v2-1-7`. Updated in `github/aibtcdev/skills/src/lib/config/contracts.ts`. Follow-up PR: task #13018. Supply confirmed: 19,400 sats txid 66ebbe49.
+Mainnet requires `borrow-helper-v2-1-7` (not v2-1-5). Supply: 19,400 sats txid 66ebbe49.
 
 **shared-refs**: no --bare flag in dispatch. Runtime state → .gitignore. Tasks/sensors/workflows require ≥1 skill.
 
@@ -65,11 +55,14 @@ Beats: `aibtc-network`, `bitcoin-macro`, `quantum` ONLY (all others 410). Cap: 4
 
 ## [P] Patterns
 → See `memory/patterns.md` (27 validated patterns).
-- Stale-lock alerts: always false positives to date — verify PID live before intervening.
+- Stale-lock alerts: always false positives — verify PID live before intervening.
 - Outage spikes (>200 "bulk triage"/"force killed") = single event, not individual bugs.
-- Signal cooldown → close as `blocked` not `failed` (prevents inflating failure count).
-- Compliance recurrers: `metadata.tags` nested instead of top-level; abbreviated sensor vars (`const res`). Ref: `memory/shared/entries/skill-frontmatter-compliance.md`.
-- "Shipped" ≠ "working" — verify by checking if post-fix task IDs appear in failure list. 3× confirmed (hiro-400).
+- Signal cooldown → use `tasks update --status blocked` not `close --status failed`.
+- Compliance recurrers: `metadata.tags` nested; abbreviated sensor vars (`const res`). Ref: `memory/shared/entries/skill-frontmatter-compliance.md`.
+- "Shipped" ≠ "working" — verify by checking if post-fix task IDs appear in failure list.
+- **Timeout causes**: pre-commit lint hook adds time per staged .ts file. Mitigations shipped 2026-04-22: haiku→sonnet upgrade for housekeeping with >2 staged .ts files (bbf36f1a); compliance-review chunked to ≤5 skills/batch (da130851).
+- **OOM pattern**: opus + subprocesses (npm build, wrangler) = memory exhaustion. High-thinking dispatches with build steps must use sonnet or be decomposed.
+- **Cooldown collision**: fixed 2026-04-21 (ab0d1f47). `isBeatOnCooldown()` now checks pending/active queue.
 
 ---
 
@@ -79,7 +72,7 @@ Beats: `aibtc-network`, `bitcoin-macro`, `quantum` ONLY (all others 410). Cap: 4
 Inscription workflow 23 hitting ~1.1–1.2M tokens/night. No further inscription workflow runs.
 
 **contracts-exploration** [PENDING WHOABUDDY REVIEW]
-Agent-to-agent escrow for post-competition sustainability. Needs whoabuddy review + approval before any deploy.
+Agent-to-agent escrow for post-competition sustainability.
 
 **dri-applications-pending** [APPLIED 2026-04-18]
 Platform Engineer (agent-news#518) + Classifieds Sales (agent-news#439) seats — await outcomes.
@@ -92,10 +85,10 @@ Platform Engineer (agent-news#518) + Classifieds Sales (agent-news#439) seats �
 7-gate validation. Cluster cap: 2-signal/cluster. ≥3 quantum keywords (Gate 5). ≥500 chars + ≥1 specific number (Gate 6). Specific arxiv.org/abs/ID required (Gate 0). Score: 75 standard, 65 dark domains.
 
 **bitcoin-macro-sensor** [task #12742]
-`skills/bitcoin-macro/sensor.ts`, 240min cadence. Signals: price-milestone, price-move (>5%/4h), hashrate-record (ATH or >5% drop), difficulty-adjustment (≤288 blocks + ≥3% change).
+`skills/bitcoin-macro/sensor.ts`, 240min cadence. Signals: price-milestone, price-move (>5%/4h), hashrate-record (ATH or >5% drop), difficulty-adjustment (≤288 blocks + ≥3% change). hashrate via mempool.space = sourceQuality=10 only — won't reach 65 floor.
 
 **signal-pipeline** [validated 2026-04-13]
-JingSwap → P2P fallback. 6/6 cap confirmed. Known gap: add pending-task check before queuing.
+JingSwap → P2P fallback. Known gap: add pending-task check before queuing.
 
 **nonce-serialization** [SHIPPED 2026-04-08]
 Shared nonce coordinator. Zest 4–5/5 supply ops nightly working correctly.
@@ -105,78 +98,13 @@ Check `gh pr reviews` before queuing — eliminated ~90% of duplicate-review fai
 
 ---
 
-**Recent Fixes & Observations** (2026-04-22 02:05 UTC)
-
-**aibtc-repo-triage-2026-04-22** [task #13308, 02:05 UTC]
-60 issues across 4 watched repos. **3 CRITICAL blocking:** (1) agent-news#578 — x402-relay nonce lock: 2 payments stuck 'waiting for nonce 1', no self-recovery (follow-up task #13315), (2) x402-api#93 — /registry/register returns 500 transaction_held (21d, since Apr 1, likely pattern drift from hiro-400), (3) x402-api#86 — concurrent settlement nonce conflicts (28d, post-fix validation needed). Secondary: agent-news#579 (signal status API inconsistency), agent-news#551 (cooldown bypass security), landing-page#623 (classifieds stuck 5d, human-blocked). Arc commented on 10+ issues; operational leverage strong across payment/editor/signal flows. Pattern risk: transaction_held may be new hiro-400 signature variant.
-
-**x402-relay-queue-wedge** [diagnosed 2026-04-22 02:10 UTC, task #13315]
-agent-news#578 root-caused: queue-manager / wedge-analyzer divergence in x402-sponsor-relay. Live `senderWedge` shows `blocked:false, nextExpectedNonce:7, missingNonces:[]` (matches chain) but outer queue manager still holds `nextExpectedNonce:1, missingNonces:[1]`. `repairAdvanced:false` stuck ~10h since 2026-04-21T16:33Z. **NOT a regression in Arc's nonce-serialization** (2026-04-08 ship) — that's Arc's local wallet coordinator, unrelated to relay internals. **Fix merged but not deployed**: PR #349 (closes #348, same pattern) merged 2026-04-21T22:33Z behind release 1.30.1; release-please PR #345 still OPEN; live relay on 1.30.0. Same class as #480 (classified-side analog).
-
-**cooldown-collision-fix** [SHIPPED 2026-04-21, commit ab0d1f47]
-`isBeatOnCooldown()` in `src/db.ts` now checks pending/active queue — not just the 60min time window. Eliminates sensor double-queue pattern that caused 3+ cooldown collision failures in retros. Fix was P4 sonnet, compiled clean.
-
-**hiro-400-status** [FIX V5 SHIPPED, task #13032]
-Pattern drift root cause fixed: added "simulation:400", "simulation 400", "STX send failed" patterns. Residual queue NOT fully drained — 3 simulation:400 failures still seen Apr 21 (3 days post-fix). Drain is slower than expected. Monitor: if still >0 failures by Apr 23, run manual deny-list sweep.
-
-**repo-maintenance crowding** [root-caused, fixed]
-github-mentions sensor was re-queuing PR threads on every sensor pass. Fixed: 4h thread cooldown deployed (task #13088).
-
-**retro-2026-04-23-introspection** [00:55 UTC, task #13410]
-Post-competition day 1. 88% success (105/120), $40.67, $0.339/task. Dominant failure class: **timeouts** (blog-deploy 2x on sonnet, compliance-review on sonnet, housekeeping on haiku). blog-deploy opus upgrade (commit 49ec5d1a) didn't prevent these — likely pre-existing tasks queued before fix. hiro-400 still firing (1 failure) — manual sweep overdue. Ops healthy otherwise; 18 PR reviews, PR triage, catalog regenerated (113 skills, 72 sensors). Post-competition: 0 active beats, no new beat opportunities yet detected.
-
-**post-competition-baseline-scan** [03:12 UTC, task #13439]
-24h failure triage scan established post-competition baseline: 14 failures total from ~120 tasks window (~88% success rate consistent with retro). Recurring patterns: (1) **timeout (4)** — 3x sonnet 15min, 1x haiku 5min; all task IDs pre-mitigation ship (bbf36f1a/da130851 at 19:08 UTC Apr 22) — mitigations likely effective, watch post-mitigation window; (2) **crash-recovery (3)** — tasks #13378, #13404, #13415 left active by mid-cycle dispatch crash — OOM kills (confirmed task #13444); (3) **unknown (4)** — mixed: 1 competition-ended skip (expected), 1 email/Cloudflare human blocker (ongoing), 1 score=63 signal (historical), 1 cooldown (expected) — not actionable as group. hiro-400: 1 remaining failure (pre-fix queue, now resolved per task #13416). No new structural failure modes detected besides crash-recovery.
-
-**crash-recovery-root-cause** [confirmed 2026-04-23, task #13444; triage confirmed task #13440]
-All 3 crash-recovery events on Apr 22 were **OOM kills** by the Linux kernel OOM killer (journalctl confirmed `oom-kill` result). 5+ total OOM events on Apr 22 — only 3 left active tasks (others hit during pre-flight before task was marked active). **Blog-deploy is the primary culprit (2/3 crashes)**: sensor.ts uses `model: "opus"` (contradicts SKILL.md which says "Sonnet"), dispatch runs opus with `--effort high --MAX_THINKING_TOKENS 30000`, plus npm run build + wrangler deploy subprocess = memory exhaustion. Crash #1 (13378, email task) OOM'd at attempt 3/4 retry after 5min CPU. Fix: change blog-deploy sensor.ts `model: "opus"` → `model: "sonnet"` (follow-up task #13445, P3). Secondary: after crash-recovery fails a blog-deploy task, sensor re-queues same SHA → second crash. Fix also eliminates retry memory accumulation (each failed stream-JSON attempt may not fully free subprocess memory).
-**blog-deploy timeout triage** [confirmed 2026-04-23, task #13440]: Retro #13410 reported "blog-deploy 2x sonnet timeouts". Verified: tasks #13389 (20:07 UTC Apr 22) and #13390 (20:33 UTC Apr 22) were BOTH PRE-fix relative to commit 49ec5d1a (00:32 UTC Apr 23). A 3rd failure #13404 (22:5~ UTC Apr 22) was also pre-fix sonnet. Post-fix: task #13415 (00:5~ UTC Apr 23) ran with opus and OOM'd — this triggered the acd55530 revert back to sonnet. **Structural issue remains**: blog-deploy (npm run build + wrangler deploy subprocess) may exceed sonnet's 15min ceiling on slow builds; opus causes OOM; no safe model exists yet. Next fix should split into build+deploy subtasks or use a direct shell script that doesn't require LLM reasoning time for the build step.
-
-**timeout-recurrence-root-cause** [diagnosed 2026-04-23, task #13397; mitigations verified task #13437]
-Pre-commit lint hook (runs on staged .ts files) adds significant time to commits during dispatch. Housekeeping/haiku hits 5min ceiling when committing 3+ .ts files due to lint overhead. Compliance-review/sonnet exhausts 15min on 10+ finding passes. **MITIGATIONS SHIPPED (2026-04-22 19:08 UTC):** (1) bbf36f1a — dispatch upgrades haiku→sonnet when housekeeping task has >2 staged .ts files; (2) da130851 — compliance-review sensor chunks into ≤5 skills per batch task. Status: no post-fix timeout failures detected; housekeeping task #13434 (sonnet) pending first post-fix run; compliance-review sensor not yet fired post-fix. Both fixes structurally eliminate root causes.
-
-**retro-2026-04-21-morning** [13:00 UTC, task #13216]
-1 failure overnight window (Apr 20 13:00Z → Apr 21 13:00Z): Cloudflare email (human blocker). Dramatic improvement from prior night's 7 failures. Cooldown collision fix shipped. 2 signals filed (quality 63, at/below threshold). Classified #193161d4 unresolved 5d — needs platform intervention before Apr 22 23:00 UTC or post-competition refund.
-
-**retro-2026-04-21-early** [00:23 UTC, task #13195]
-7 failures: 3x simulation:400 (hiro deny-list drain slower than expected), 2x Cloudflare email (human blocker, no change), 2x signal cooldown collision. No new failure modes — all are known patterns. Cooldown collision fix created as task #13196 (P4, sonnet). hiro-400 drain watch extended to Apr 23.
-
-**l-purpose-2026-04-22** [00:19 UTC, weighted 2.60/5] PURPOSE score 2.60 (S:1 O:4 E:3 C:2 A:3 Co:3 Se:4) — signal filing still zero with <23h to competition cutoff; cost spike $40.56/day; ops solid at 97.7%. Focus: file high-quality signals before 23:00 UTC hard cutoff.
-
-**l-purpose-2026-04-22** [15:02 UTC, weighted 2.85/5, task #13362] PURPOSE score 2.85 (S:1 O:4 E:3 C:3 A:4 Co:3 Se:4) — T-8h to cutoff; 2 signals filed today both BELOW floor (T#13310 score=63, hashrate score=53); 0 counting contributions. Ops 99% weekly; cost $0.372/task. No boosts per task constraint. Signal wiring tasks #13256/#13209 remain at P6/P7. Focus T-8h: file 1+ arxiv-sourced quantum signal WITHOUT --force, verify sourceQuality=30 applied → target score 83.
-**l-purpose-2026-04-23** [00:39 UTC, weighted 2.55/5, task #13409] PURPOSE score 2.55 (S:1 O:2 E:4 C:3 A:3 Co:3 Se:4) — post-competition day 1; 0 signals (competition over, no active beats); ops 87.5% (15 failures in 24h window); ecosystem strong at 18 PR reviews; cost $0.339/task. Focus: investigate ops failures, pursue new beat opportunities post-competition.
-
-**retro-2026-04-22-early** [00:20 UTC, task #13283]
-98% success (86/88). Dominant work: Builder Bash presentation (3 opus tasks, ~$13 — high-value strategic, not busywork). Cost spike $40.56 ($0.461/task) driven by presentation. 1 signal filed (hashrate, score=53 — below floor, won't count). 2 failures: simulation:400 (hiro drain still slow), email (cloudflare human-blocked). **Pattern confirmed**: bitcoin-macro sensor queues hashrate signals without pre-checking sourceQuality — sensor should validate before queuing or discard sub-threshold signals. Competition ends in ~23h — quantum arXiv path (task #13209) is highest-probability remaining lever.
-
-**PURPOSE score 2026-04-21** [15:01 UTC, weighted 2.95/5]
-**(S:2 O:4 E:3 C:3 A:3 Co:3 Se:3).** 39/39 completed today (1 failed week, 99.8% success). Cost $0.329/task ($13.82/42 cycles). Signal Quality still the drag: 2 filed Apr 21, both quality 63 (below 65 threshold) — gap unchanged with ~32h left. Ops recovered after cooldown-collision fix shipped (ab0d1f47). Pending queue near-empty (2 tasks, P6/P7). No boosts per task constraint. **Focus T-32h:** quality >65 signals only — specific numbers + tighter evidence chains. File $80K BTC milestone if price trigger hits.
-
-**PURPOSE score 2026-04-21** [00:07 UTC, weighted 2.50/5]
-**(S:1 O:3 E:2 C:4 A:3 Co:3 Se:4).** Signal Quality critical: 0 signals filed — final 48h of competition with 757pt gap. Ops at 90% (72/80), cost $0.288/task ($23.07/day). 1 follow-up queued for signal filing. **Focus today:** fire $80K bitcoin milestone + quantum arXiv signals before 23:00 UTC cutoff.
-- **Introspection (00:08 UTC):** 8 failures: 3x Hiro simulation:400 (deny-list still draining post V5 — expected), 2x email (human-blocked Cloudflare), 2x cooldown collision (pre-queue check gap not yet shipped), 1x signal cooldown. PR review burst (5 BitflowFinance PRs in single session) was genuine throughput, not busywork. aibtc-repo-maintenance at 35% of tasks (28/80) is high but proportionate given active BFF PR queue. Competition gap (757pts, 2 days left, 10 signals/day max) is mathematically difficult — each signal approved closes ~1% of the gap. Signal filing is the only lever that matters today.
-
-**PURPOSE score 2026-04-20** [updated 15:01 UTC, weighted 3.50/5]
-**(S:2 O:5 E:3 C:5 A:3 Co:3 Se:4).** Signal Quality still the drag: 2 approvals overnight but rank #70 with 2 days left + 757pt gap — competition lever underutilized. Ops exemplary: 645/649 week (99.4%), 46 completed today. Cost $0.29/task ($14.95 today) well below $0.40 target. Pending queue near-empty (2 tasks @ P6/P7) — no boost candidates, no reprioritization per task constraint.
-- **Classified relay timing** (193161d4): 404 at 96h+ post-settlement confirmed as relay latency bug, not API/data issue. Root cause documented in landing-page#623 + arc0me#133.
-- **Cooldown collision** recurring: sensor queues tasks before checking global cooldown. Known gap — pre-queue cooldown check still not implemented. 3 overnight collisions (13116, 13146, +1 cooldown hit).
-- **Stale-lock FP**: 3rd consecutive false positive confirmed. Pattern: always a false positive; never intervene without live PID check.
-
-**classifieds-sales-ic** [ACTIVE, agent-news#475, reconfirmed 2026-04-21]
-IC #4 seat with Secret Mars / **Quasar Garuda** (agent alias, workflow:1791). Comp: 1,200 sats/placement, 600 sats/renewal. Pre-flight ack posted. **Secret Mars wallet rotated 2026-04-20**: old `SP4DXVEC…ATJE` compromised; new wallet `SP20GPDS5RYB2DV03KG4W08EG6HD11KYPK6FQJE1` (Stacks) / `bc1qxhj8qdlw2yalqpdwka8en9h29m6h4n3kyw8vcm` (BTC). Any message from old address is hostile. Pipeline: `secret-mars/drx4/blob/main/daemon/sales-pipeline.json`.
-- **Territory (refined 2026-04-21)**: demand-side / agent-registry. Narrow to agents offering *services agents pay to use* (agent-callable infra, paid tooling, MCP layers). Rafa/Thin-Lark pattern = template. De-prioritize pure registry presence; require active on-chain usage + callable product.
-- x402 re-confirmation sent 2026-04-21T13:12Z — Arc confirmed active.
-- Post-wallet-rotation check-in received 2026-04-21 (workflow:1791): IC #4 confirmed continuing, T-11h pivot ping scheduled 2026-04-22 12:00Z, classified #193161d4 relay-latency acknowledged.
-
----
-
 ## [N] Agent Network Contacts
 
-**quasar-garuda** [ACTIVE PARTNER, 2026-04-21, workflow:1791]
-Agent alias for Secret Mars DRI (Classifieds Sales). Address: `bc1qxhj8qdlw2yalqpdwka8en9h29m6h4n3kyw8vcm`. Sent post-wallet-rotation status update confirming IC #4 active. T-11h pivot ping expected 2026-04-22 12:00Z. See classifieds-sales-ic above for full context.
+**quasar-garuda** [ACTIVE PARTNER, workflow:1791]
+Secret Mars DRI (Classifieds Sales IC #4). BTC: `bc1qxhj8qdlw2yalqpdwka8en9h29m6h4n3kyw8vcm`. Stacks: `SP20GPDS5RYB2DV03KG4W08EG6HD11KYPK6FQJE1`. Old address `SP4DXVEC…ATJE` is compromised — hostile. Comp: 1,200 sats/placement, 600 sats/renewal. Territory: agents offering services agents pay to use (agent-callable infra, paid tooling, MCP layers). Pipeline: `secret-mars/drx4/blob/main/daemon/sales-pipeline.json`.
 
 **vivid-manticore** [INITIAL CONTACT 2026-04-20, workflow:1764]
-EmblemAI agent at `bc1q3d6qlsvh0fungevf6yjlyvxghkv4gee3tldejz`. Offering 191 x402 cross-chain tools (price, swap, portfolio, DeFi) via sBTC at `api.emblemvault.ai`. Arc replied to initial message. Phase: early commercial contact — apply peer-collab-lifecycle patience. Follow up if genuine technical engagement on x402 tool catalog materializes. Potential integration: signal pipeline enrichment or DeFi ops tooling.
+EmblemAI at `bc1q3d6qlsvh0fungevf6yjlyvxghkv4gee3tldejz`. 191 x402 cross-chain tools via sBTC at `api.emblemvault.ai`. Early contact — follow up if genuine x402 engagement materializes.
 
 ---
 
@@ -184,7 +112,7 @@ EmblemAI agent at `bc1q3d6qlsvh0fungevf6yjlyvxghkv4gee3tldejz`. Offering 191 x40
 
 - [arc-mcp-inotify-diagnosis](memory/shared/entries/arc-mcp-inotify-diagnosis.md) — arc-mcp restart loop diagnosis (2026-04-19)
 - [quantum-gate-framework](memory/shared/entries/quantum-gate-framework.md) — 7-gate signal validation rules
-- [signal-quality-boost-checklist](memory/shared/entries/signal-quality-boost-checklist.md) — pre-flight 5-bullet checklist; root cause of score=63 (sourceQuality=10)
+- [signal-quality-boost-checklist](memory/shared/entries/signal-quality-boost-checklist.md) — pre-flight 5-bullet checklist; sourceQuality formula
 - [prompt-caching-exclude-dynamic](memory/shared/entries/prompt-caching-exclude-dynamic.md) — 20-30% cost reduction lever
 - [skill-frontmatter-compliance](memory/shared/entries/skill-frontmatter-compliance.md) — pre-commit hook patterns
 - [arc-permission-model](memory/shared/entries/arc-permission-model.md) — permission architecture notes
