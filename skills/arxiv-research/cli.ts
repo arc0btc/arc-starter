@@ -5,6 +5,7 @@
 
 import { existsSync, readdirSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
+import { insertTask, pendingTaskExistsForSource, isBeatOnCooldown } from "../../src/db.ts";
 
 const ROOT = join(import.meta.dir, "..", "..");
 const ARXIV_DIR = join(ROOT, "research", "arxiv");
@@ -177,6 +178,33 @@ function scorePaper(paper: ArxivPaper): ScoredPaper {
   if (paper.primary_category === "cs.AI") score += 1;
 
   return { ...paper, relevance_score: score, relevance_tags: [...tags] };
+}
+
+// ---- Quantum beat keyword matching (title + abstract) ----
+// Mirrors sensor.ts QUANTUM_KEYWORDS but applied to full paper content after fetch.
+
+const QUANTUM_KEYWORDS = [
+  /\bpost[-\s]?quantum/i,
+  /\bquantum[-\s]?(attack|threat|resist|safe|secur)/i,
+  /\b(break|break.*ECDSA|attack.*ECDSA|ECDSA.*break)/i,
+  /\bquantum.*bitcoin/i,
+  /\bbitcoin.*quantum/i,
+  /\bquantum.*cryptocurren/i,
+  /\bShor'?s algorithm/i,
+  /\bGrover'?s algorithm/i,
+  /\bquantum.*key.*distribut/i,
+  /\bquantum[-\s]?resistant/i,
+  /\bquantum[-\s]?proof/i,
+  /\blattice[-\s]?based.*crypt/i,
+  /\bNIST.*post[-\s]?quantum/i,
+  /\bP2QRH\b/,
+  /\bBIP[-\s]?360\b/,
+  /\bquantum.*hash/i,
+  /\bquantum.*elliptic/i,
+];
+
+function isQuantumBeatPaper(title: string, abstract: string): boolean {
+  return QUANTUM_KEYWORDS.some((re) => re.test(title) || re.test(abstract));
 }
 
 // ---- Subcommands ----
@@ -358,6 +386,68 @@ async function cmdCompile(args: string[]): Promise<void> {
     relevant_papers: relevant.length,
     topics: Object.fromEntries(groups.entries().map(([k, v]) => [k, v.length])),
   }, null, 2) + "\n");
+}
+
+// ---- Signal task auto-queuing ----
+
+async function cmdQueueSignals(): Promise<void> {
+  const fetchFile = join(ARXIV_DIR, ".latest_fetch.json");
+  if (!existsSync(fetchFile)) {
+    process.stderr.write("No fetched papers found. Run 'fetch' first.\n");
+    process.exit(0);
+  }
+
+  const raw = await Bun.file(fetchFile).text();
+  const papers: ScoredPaper[] = JSON.parse(raw);
+  const today = new Date().toISOString().split("T")[0];
+
+  // Quantum beat: match on both title and abstract (richer than sensor's title-only pass)
+  const quantumPapers = papers.filter((p) => isQuantumBeatPaper(p.title, p.abstract));
+
+  if (quantumPapers.length === 0) {
+    process.stdout.write("No quantum-relevant papers found in latest fetch.\n");
+    return;
+  }
+
+  process.stderr.write(`Found ${quantumPapers.length} quantum-relevant paper(s).\n`);
+
+  if (isBeatOnCooldown("quantum", 60)) {
+    process.stdout.write("Beat cooldown active for quantum (60min) — skipping signal task creation.\n");
+    return;
+  }
+
+  const quantumSource = `cli:arxiv-research:quantum-signal-${today}`;
+  if (pendingTaskExistsForSource(quantumSource)) {
+    process.stdout.write("Quantum signal task already queued for today.\n");
+    return;
+  }
+
+  const paperList = quantumPapers
+    .slice(0, 5)
+    .map((p) => {
+      const snippet = p.abstract.slice(0, 200).replace(/\n/g, " ");
+      return `- ${p.title} (${p.arxiv_id})\n  ${snippet}...`;
+    })
+    .join("\n");
+
+  insertTask({
+    subject: `File quantum beat signal from arXiv digest (${quantumPapers.length} paper(s))`,
+    description:
+      `${quantumPapers.length} quantum-relevant paper(s) found in today's arXiv fetch (title+abstract match):\n\n` +
+      paperList + "\n\n" +
+      "Instructions:\n" +
+      "1. Confirm papers address quantum computing impacts on Bitcoin (ECDSA/SHA-256 threats, post-quantum BIPs, Shor/Grover relevance, NIST PQC standards)\n" +
+      "2. Pick the top 1-2 most newsworthy papers\n" +
+      "3. Compose a signal: arc skills run --name aibtc-news-editorial -- compose-signal --beat quantum\n" +
+      "4. File the signal: arc skills run --name aibtc-news-editorial -- file-signal --beat quantum --headline \"...\" --claim \"...\" --evidence \"...\" --implication \"...\" --sources '[{\"url\":\"https://arxiv.org/abs/{id}\",\"title\":\"{title}\"}]' --tags \"quantum,bitcoin,post-quantum\" --force",
+    skills: JSON.stringify(["aibtc-news-editorial", "arxiv-research"]),
+    priority: 6,
+    model: "sonnet",
+    status: "pending",
+    source: quantumSource,
+  });
+
+  process.stdout.write(`Quantum signal task queued (${quantumPapers.length} matching papers).\n`);
 }
 
 // ---- KV Publishing ----
@@ -563,10 +653,16 @@ SUBCOMMANDS
     Publish a digest to the arc0.me research feed (Cloudflare KV).
     Without flags, publishes the latest digest.
 
+  queue-signals
+    Read .latest_fetch.json and auto-create signal filing tasks for quantum-relevant
+    papers (title+abstract match). Respects beat cooldown and dedup guards.
+    Run after 'compile' — wired into AGENT.md digest workflow.
+
 EXAMPLES
   arc skills run --name arxiv-research -- fetch
   arc skills run --name arxiv-research -- fetch --categories "cs.CL,cs.MA" --max 100
   arc skills run --name arxiv-research -- compile --date 2026-03-05
+  arc skills run --name arxiv-research -- queue-signals
   arc skills run --name arxiv-research -- list
   arc skills run --name arxiv-research -- publish-digest
   arc skills run --name arxiv-research -- publish-digest --date 2026-03-06
@@ -591,6 +687,9 @@ async function main(): Promise<void> {
       break;
     case "publish-digest":
       await cmdPublish(args.slice(1));
+      break;
+    case "queue-signals":
+      await cmdQueueSignals();
       break;
     case "help":
     case "--help":
