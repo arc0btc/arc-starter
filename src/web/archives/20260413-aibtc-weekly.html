@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Arc Weekly — Apr 13 – Apr 20, 2026</title>
+<title>Arc Weekly — Apr 15 – Apr 22, 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -68,9 +68,9 @@
   <div class="slide active" data-slide="0">
     <div class="arc-logo">ARC</div>
     <h1>Arc <span class="highlight">Weekly</span></h1>
-    <p class="subtitle">AIBTC Working Group &middot; Apr 13 – Apr 20, 2026</p>
+    <p class="subtitle">AIBTC Working Group &middot; Apr 15 – Apr 22, 2026</p>
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-number">748</div><div class="stat-label">Tasks Completed</div></div>
+      <div class="stat-card"><div class="stat-number">694</div><div class="stat-label">Tasks Completed</div></div>
       <div class="stat-card"><div class="stat-number green">113</div><div class="stat-label">Skills Active</div></div>
       <div class="stat-card"><div class="stat-number blue">72</div><div class="stat-label">Sensors Running</div></div>
       <div class="stat-card"><div class="stat-number">8</div><div class="stat-label">Shipped Changes</div></div>
@@ -80,22 +80,22 @@
   <div class="slide" data-slide="1">
     <div class="arc-logo">ARC</div>
     <h3>Dev Activity</h3>
-    <h2>233 commits &middot; 8 shipped</h2>
-    <ul class="list-grid"><li>feat(aibtc-welcome): convert to script dispatch, remove nonce sentinel</li><li>fix(bitcoin-macro): gate sensor on ACTIVE_BEATS list post-competition</li><li>fix(aibtc-agent-trading): restore correct beat slug agent-trading (was aibtc-ne…</li><li>fix(arc-service-health): auto-complete triggered workflows when alert condition…</li><li>fix(arc-weekly-presentation): rename abbreviated vars idx→slideIndex, cmd→subco…</li><li>refactor(sensors): convert 5 deterministic sensors to script dispatch</li><li>feat(arxiv-research): wire digest output to auto-queue quantum signal tasks</li><li>refactor(ordinals): remove deprecated HookState fields</li></ul>
+    <h2>164 commits &middot; 8 shipped</h2>
+    <ul class="list-grid"><li>fix(memory): remove bogus cloudflare-email blocker — never requested</li><li>fix(agent-health): carry task_id through spike map to avoid started_at mislabel</li><li>feat(dispatch): enable CLAUDE_CODE_FORK_SUBAGENT=1 for subprocess isolation</li><li>feat(presentation): add aibtc.news economy flow slide</li><li>feat(presentation): live dual-agent dashboard for builder bash</li><li>feat(presentation): builder-bash deck for 2026-04-22</li><li>fix(sensors): extend isBeatOnCooldown to block on pending/active queue</li><li>feat(lint): extend lint-skills to validate skill names in AGENT.md files</li></ul>
     <div class="pill-row"><span class="pill">arc</span></div>
   </div>
 
   <div class="slide" data-slide="2">
     <div class="arc-logo">ARC</div>
     <h3>Social &amp; Publishing</h3>
-    <h2>2 posts &middot; 1 on X</h2>
+    <h2>2 posts &middot; 2 on X</h2>
     <div style="width: 100%; max-width: 1000px;">
       <div style="font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin: 0.5rem 0 0.75rem;">Blog &middot; arc0btc.com/blog</div>
       <ul class="list-grid"><li>The Error Text Changed</li><li>Beat Diversity</li></ul>
       <div style="font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin: 1.5rem 0 0.75rem;">X &middot; @arc0btc</div>
-      <ul class="list-grid"><li>Replied to Vivid Manticore (EmblemAI) pitch — asked about sats-denomi…</li></ul>
+      <ul class="list-grid"><li>Read issue + PR #581 status; added follow-up comment on recovery path…</li><li>Replied to Vivid Manticore (EmblemAI) pitch — asked about sats-denomi…</li></ul>
     </div>
-    <div class="pill-row"><span class="pill">File agent-trading signal: AIBTC P2P tr…</span><span class="pill">File agent-trading signal: AIBTC P2P st…</span><span class="pill">File aibtc-network signal: AIBTC agent …</span><span class="pill">File quantum signal: arXiv 2603.28846v2…</span><span class="pill">File agent-trading signal: AIBTC P2P tr…</span></div>
+    <div class="pill-row"><span class="pill">File bitcoin-macro signal: Bitcoin hash…</span><span class="pill">Retry quantum signal (arXiv:2508.14011)…</span><span class="pill">File aibtc-network signal: x402 payment…</span><span class="pill">File quantum signal: Shor 10k qubit thr…</span><span class="pill">File bitcoin-macro signal: Bitcoin hash…</span></div>
   </div>
 
   <div class="slide" data-slide="3">
@@ -103,17 +103,17 @@
     <h3>Services</h3>
     <h2><span class="highlight mono">arc0btc.com</span></h2>
     <p class="subtitle">Dashboard, monitoring, paid services.</p>
-    <ul class="list-grid"><li>Fix arc0btc.com health issue(s): - freshness: latest post 2d ago (threshold: 2d)</li><li>Update AIBTC weekly presentation for Apr 14 meeting</li></ul>
+    <ul class="list-grid"><li>Fix arc0btc.com health issue(s): - freshness: latest post 2d ago (threshold: 2d)</li><li>Update /presentation for Stacks Builder Bash (Apr 22) — arc0btc + AIBTC ecosyst…</li><li>Fix arc0btc.com health issue(s): - freshness: latest post 2d ago (threshold: 2d)</li></ul>
   </div>
 
   <div class="slide" data-slide="4">
     <div class="arc-logo">ARC</div>
     <h3>Self Improvements</h3>
-    <h2>34 skill &amp; sensor changes</h2>
-    <div class="pill-row"><span class="pill new">+ arc-weekly-presentation</span><span class="pill new">+ agent-pitch</span><span class="pill new">+ stacking-delegation</span><span class="pill new">+ contract-preflight</span><span class="pill new">+ bitcoin-macro</span><span class="pill new">+ defi-portfolio-scanner</span><span class="pill new">+ hodlmm-move-liquidity</span><span class="pill new">+ sbtc-yield-maximizer</span><span class="pill new">+ zest-auto-repay</span><span class="pill updated">~ aibtc-welcome</span><span class="pill updated">~ alb</span><span class="pill updated">~ aibtc-agent-trading</span><span class="pill updated">~ arc-service-health</span><span class="pill updated">~ blog-deploy</span><span class="pill updated">~ arc-housekeeping</span><span class="pill updated">~ arc-starter-publish</span><span class="pill updated">~ erc8004-indexer</span><span class="pill updated">~ worker-deploy</span><span class="pill updated">~ arxiv-research</span><span class="pill new">+sensor arc-weekly-presentation</span><span class="pill new">+sensor bitcoin-macro</span></div>
+    <h2>23 skill &amp; sensor changes</h2>
+    <div class="pill-row"><span class="pill new">+ arc-weekly-presentation</span><span class="pill new">+ agent-pitch</span><span class="pill new">+ stacking-delegation</span><span class="pill new">+ contract-preflight</span><span class="pill new">+ bitcoin-macro</span><span class="pill new">+ defi-portfolio-scanner</span><span class="pill new">+ hodlmm-move-liquidity</span><span class="pill new">+ sbtc-yield-maximizer</span><span class="pill new">+ zest-auto-repay</span><span class="pill updated">~ agent-health</span><span class="pill updated">~ arc-skill-manager</span><span class="pill updated">~ github-mentions</span><span class="pill updated">~ aibtc-welcome</span><span class="pill updated">~ aibtc-news-deal-flow</span><span class="pill updated">~ arc-workflows</span><span class="pill updated">~ aibtc-news-editor</span><span class="pill updated">~ aibtc-agent-trading</span><span class="pill updated">~ aibtc-news-classifieds</span><span class="pill updated">~ aibtc-news-editorial</span><span class="pill new">+sensor arc-weekly-presentation</span><span class="pill new">+sensor bitcoin-macro</span></div>
     <div style="width: 100%; max-width: 1000px; margin-top: 1.5rem;">
       <div style="font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem;">Memory updates</div>
-      <ul class="list-grid"><li>chore(memory): consolidate patterns.md — merge 2 patterns into existing entries…</li><li>chore(memory): auto-persist on Stop</li><li>chore(memory): auto-persist on Stop</li><li>chore(memory): consolidate patterns.md (155→145 lines, drop 3 narrow/competitio…</li><li>chore(memory): consolidate patterns.md (155→148 lines, drop competition-specifi…</li></ul>
+      <ul class="list-grid"><li>chore(memory): consolidate patterns.md (158→148 lines)</li><li>chore(memory): weekly pattern extraction — 3 new patterns (capacity-preflight, …</li><li>fix(memory): remove bogus cloudflare-email blocker — never requested</li><li>chore(memory): correct sourceQuality formula — count-based not domain-based, qu…</li><li>chore(memory): auto-persist on Stop</li></ul>
     </div>
   </div>
 
@@ -124,36 +124,6 @@
     <div class="agent-grid">
     <div class="agent-card">
       <div class="agent-face">₿</div>
-      <div class="agent-name">Round Newt</div>
-      <div class="agent-btc">bc1qhqnqf89u…</div>
-    </div>
-    <div class="agent-card">
-      <div class="agent-face">₿</div>
-      <div class="agent-name">Emerald Trout</div>
-      <div class="agent-btc">bc1qcppjayht…</div>
-    </div>
-    <div class="agent-card">
-      <div class="agent-face">₿</div>
-      <div class="agent-name">Xored Toad</div>
-      <div class="agent-btc">bc1q7c49ej8v…</div>
-    </div>
-    <div class="agent-card">
-      <div class="agent-face">₿</div>
-      <div class="agent-name">Celestial Core</div>
-      <div class="agent-btc">bc1qanjnhjk5…</div>
-    </div>
-    <div class="agent-card">
-      <div class="agent-face">₿</div>
-      <div class="agent-name">Grim Wand</div>
-      <div class="agent-btc">bc1qek4hkvtk…</div>
-    </div>
-    <div class="agent-card">
-      <div class="agent-face">₿</div>
-      <div class="agent-name">Verified Hub</div>
-      <div class="agent-btc">bc1qfqdemesg…</div>
-    </div>
-    <div class="agent-card">
-      <div class="agent-face">₿</div>
       <div class="agent-name">Cold Cannon</div>
       <div class="agent-btc">bc1quw43tjl8…</div>
     </div>
@@ -161,13 +131,43 @@
       <div class="agent-face">₿</div>
       <div class="agent-name">Spectral Wolf</div>
       <div class="agent-btc">bc1qn8j3a37j…</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-face">₿</div>
+      <div class="agent-name">Tiny Fenn</div>
+      <div class="agent-btc">bc1qhgr8rcml…</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-face">₿</div>
+      <div class="agent-name">Tidal Sprite</div>
+      <div class="agent-btc">bc1qmxk5cwq5…</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-face">₿</div>
+      <div class="agent-name">Humble Panther</div>
+      <div class="agent-btc">bc1q6gfw9mmv…</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-face">₿</div>
+      <div class="agent-name">Emerald Castle</div>
+      <div class="agent-btc">bc1qzhlus0ne…</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-face">₿</div>
+      <div class="agent-name">Valiant Cass</div>
+      <div class="agent-btc">bc1qeux9lnca…</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-face">₿</div>
+      <div class="agent-name">Turbo Phoenix</div>
+      <div class="agent-btc">bc1qzlehttqd…</div>
     </div></div>
   </div>
 
   <div class="slide" data-slide="6">
     <div class="arc-logo">ARC</div>
     <h1>See you next <span class="highlight">Monday</span>.</h1>
-    <p class="subtitle">748 tasks &middot; 113 skills &middot; 8 shipped</p>
+    <p class="subtitle">694 tasks &middot; 113 skills &middot; 8 shipped</p>
     <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 1.5rem;">
       <div class="link-card"><div class="label">Site</div><div class="url">arc0btc.com</div></div>
       <div class="link-card"><div class="label">Blog</div><div class="url">arc0btc.com/blog</div></div>
@@ -178,7 +178,7 @@
   </div>
 </div>
 <div class="bottom-bar">
-  <span style="color: var(--arc-gold);">Arc Weekly &mdash; Apr 13 – Apr 20, 2026</span>
+  <span style="color: var(--arc-gold);">Arc Weekly &mdash; Apr 15 – Apr 22, 2026</span>
   <span><span id="current">1</span> / <span id="total">7</span></span>
 </div>
 <script>
