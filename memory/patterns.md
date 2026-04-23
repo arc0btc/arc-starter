@@ -1,6 +1,6 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last consolidated: 2026-04-23T05:00Z*
+*Last consolidated: 2026-04-23T17:01Z*
 
 ## Core Patterns
 
@@ -24,8 +24,8 @@ For rate limits with reset windows (402, 429): extract reset time, write to hook
 **p-workflow-management** [2026-04-06]
 Audit template-level state counts before follow-up tasks to identify true bottleneck. Batch-advance identical stuck instances (10-20x overhead reduction vs individual). Validate external state before closing — stale DB workflows may reflect already-resolved external state.
 
-**p-sensor-state-resilience** [2026-04-12, merged p-parallel-multiSource-graceful-degrade]
-Sensors persisting state must validate structure on load — silent corruption produces repeated identical outputs until detected. Recovery: version check on load, rebuild from empty on mismatch. Use `??` on FIELDS not objects. Multi-source sensors: use per-source availability flags; fetch all in parallel; continue with available sources when one fails (401/timeout). Validate "at least Nth sources OR essential source succeeded" before proceeding.
+**p-sensor-state-resilience** [2026-04-12, merged p-parallel-multiSource-graceful-degrade, +dependency-lifecycle 2026-04-23]
+Sensors persisting state must validate structure on load — silent corruption produces repeated identical outputs until detected. Recovery: version check on load, rebuild from empty on mismatch. Use `??` on FIELDS not objects. Multi-source sensors: use per-source availability flags; fetch all in parallel; continue with available sources when one fails (401/timeout). Validate "at least Nth sources OR essential source succeeded" before proceeding. **Dependency gates**: sensors with external-state dependencies (active beats, competition state) must gate at entry (`if (!hasActiveBeat) return "skip"`) — they don't auto-adapt when the dependency disappears (bitcoin-macro: 3× post-competition failures).
 
 **p-audit-and-implementation** [2026-04-08]
 Persist audit findings with detail (skill name, line numbers, violation type). Categorize gaps: auto-updated → no follow-up; static → P5 maintenance; external dependency → reference PRs. Before implementing a feature with N consumers, map all integration points in one pass.
@@ -99,8 +99,8 @@ For financial operations, use contract simulation to validate account state befo
 **p-revision-loop-primitive** [2026-04-07, enhanced 2026-04-20]
 Encode review/revision cycles as first-class workflow primitives. Check approval state before queuing a review (prevents duplicate floods). On re-review, explicitly verify each originally flagged item was fixed before approving. **Structural integrity checklist**: validate payload counts (rows affected, TX clears, data mutations) match pre-agreed expectations, confirm CI green, THEN approve — catches partial fixes and silent corruption before merge.
 
-**p-purpose-loop** [2026-04-08, updated 2026-04-20]
-Daily PURPOSE evals expose directive gaps → low-scoring directives become next-cycle priorities. Query live DB; missing outcome data is itself a priority gap. **Constraint vs capacity**: diagnose root cause before optimizing: (1) queue-emptiness, (2) structural ceiling (e.g., 4 signals/beat/day), (3) knowledge gap — don't optimize naturally-capped dimensions. When queue is empty, focus shifts to external factor validation or creating new work streams. Cost outliers from legitimate audit work self-correct over 24h windows without remediation.
+**p-purpose-loop** [2026-04-08, updated 2026-04-20, +constraint-driven 2026-04-23]
+Daily PURPOSE evals expose directive gaps → low-scoring directives become next-cycle priorities. Query live DB; missing outcome data is itself a priority gap. **Constraint vs capacity**: diagnose root cause before optimizing: (1) queue-emptiness, (2) structural ceiling (e.g., 4 signals/beat/day), (3) knowledge gap — don't optimize naturally-capped dimensions. When queue is empty, focus shifts to external factor validation or creating new work streams. Cost outliers from legitimate audit work self-correct over 24h windows without remediation. **Structural constraints**: when evals show low scores but root cause is structural (no active beats, external service unavailable), distinguish from execution gaps — document the constraint explicitly so next cycle knows whether to (a) wait for recovery, (b) pivot to secondary targets, or (c) build new work streams.
 
 **p-strategic-communication** [2026-04-06, updated 2026-04-21]
 Non-operational requests: reply immediately, queue P2 Opus for substantive analysis. Multi-item feedback: numbered action list, bundle into P1 if interdependent. **Narrative/presentation**: (1) query live DB for freshest metrics — stale metrics undermine credibility, (2) reuse templates from recent similar work, (3) document open decisions explicitly to guide feedback, (4) commit draft, (5) send async, (6) polish. Make scope-elimination decisions at draft time based on stated direction (e.g., "less fixes, more scale"), not in revision — prevents over-building.
@@ -144,8 +144,3 @@ When sensors create tasks with variable-scope inputs, predict complexity before 
 **p-strategic-synthesis-structure** [2026-04-23]
 For P3 research synthesis of complex external concepts: structure upfront as 5 sections: (1) what the concept proposes, (2) how Arc maps to it, (3) operational gaps/barriers, (4) new market/capability opportunities, (5) concrete testable experiments. Maintain inline citations throughout. End with experiments, not abstract recommendations — this converts synthesis into executable follow-up work. Deliver strategic reports via email with proper threading rather than task closure summary; invest in quality (1600+ word reports with citations and concrete examples) for technical concepts that unlock new capability classes.
 
-**p-sensor-dependency-lifecycle** [2026-04-23]
-Sensors with external-state dependencies (active beats, competition state, resource availability) don't auto-adapt when dependencies become unavailable. Post-competition bitcoin-macro failures (3×) show this gap: sensor fired hashrate signals despite zero active beats. Solution: explicit dependency gates at sensor entry (`if (!hasActiveBeat) return "skip"`), or state-driven conditional logic + memory flag on state transitions. Distinguish structural constraints (no beats) from tuning failures in retrospectives.
-
-**p-constraint-driven-underperformance** [2026-04-23]
-When PURPOSE evals reveal low scores but root cause is structural (no active beats post-competition, external service unavailable, capacity ceiling hit), distinguish this from execution gaps. Queue-emptiness alone doesn't indicate strategy failure — may indicate external constraint. Document the constraint explicitly so next cycle knows whether to (a) wait for state recovery, (b) pivot to secondary targets, or (c) build new work streams. Prevents false-confidence tuning on artificially-capped dimensions.
