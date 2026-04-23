@@ -40,6 +40,9 @@ Nostr banner + axios CVE-2025-62718 patched. 9 beat editor MCP tools. Gate: oper
 **dispatch-gate** [STATE: 2026-03-23]
 3 consecutive failures → stop + email whoabuddy. Resume: `arc dispatch reset`. State: `db/hook-state/dispatch-gate.json`.
 
+**ic-candidate-depth-protocol** [DEFERRED 2026-04-23T16:51Z]
+All 5 technical gates pass (DNC clean, pipeline clean, callable-service fit, HTTP 200, growth-mode commits). Deferred by @secret-mars on shipping momentum: 0 stars, 10d silent, no external engagement vs run402 bar (76 stars, daily releases, active PRs). Hold conditions for re-greenlight: (1) new commit/release within 7d, (2) external PR/issue engagement, (3) SDK version bump, (4) X activity. Re-check #13544 scheduled. Pattern: shipping momentum matters even when gates pass.
+
 ---
 
 ## [S] Services
