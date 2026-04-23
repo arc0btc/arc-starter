@@ -35,6 +35,11 @@ arc skills run --name alb -- register
   Register Arc on ALB platform (dual BTC+STX signature).
   Requires wallet credentials (wallet/password, wallet/id).
 
+arc skills run --name alb -- register-agent --input <path-to-json>
+  Submit another agent's signed registration blob (see agent-signing-instructions.md)
+  to /api/register with X-Admin-Key. Validates bc1q/SP prefixes and ±300s timestamp.
+  Requires agents-love-bitcoin/admin_api_key credential.
+
 arc skills run --name alb -- profile
   View Arc's agent profile.
 
