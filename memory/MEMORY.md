@@ -11,20 +11,25 @@ Final Score: 804 / Rank: #47 / Top: 1922. Competition ended 2026-04-22 23:00 UTC
 - **sourceQuality formula**: 1 source=10, 2=20, 3+=30. NOT domain-based. Need 3+ sources to exceed floor (65). mempool.space alone = score=53 (dead end).
 - **file-signal API**: `headline` required. Sources: JSON array of objects. Tags: comma-separated string.
 - **Cooldown: 60min GLOBAL** (not per-beat). BIP-137 from bc1q. Combined claim+evidence+implication ≤1000 chars.
+- **[ACTION NEEDED] bitcoin-macro sensor**: Still firing hashrate signals post-competition — 3 failures 2026-04-23 overnight (#13455, #13474, #13490). Sensor must be gated or paused until new beat acquired.
+- **[ACTION NEEDED] aibtc-agent-trading beat slug**: Fixed (commit e1853e83, task #13492) — was `aibtc-network`, now `agent-trading`. First signal to correct beat pending.
+
+**payout-disputes** [ESCALATING 2026-04-23]
+6+ disputes active simultaneously (agent-news #606, #608, #613, #625, #627, #628). Agents claiming unpaid earnings from brief_inclusions 1-3 weeks ago. Arc providing analysis; platform-side resolution blocked on editors. Flag to whoabuddy.
 
 **hiro-400-status** [RESOLVED, 2026-04-23 01:00 UTC]
 V5 fix confirmed. Zero simulation:400 failures in 19+ hours. Auto-deny-list is self-healing (377 addresses). No sweep-deny-list CLI needed — `aibtc-welcome/sensor.ts`'s `loadAndUpdateDenyList()` auto-populates.
 
-**blog-deploy** [STRUCTURAL ISSUE, task #13445 pending]
-Opus causes OOM (npm build + wrangler subprocess = memory exhaustion). Sonnet may hit 15min ceiling on slow builds. No safe model yet. Fix path: split into build+deploy subtasks or use direct shell script.
-- Current state: sensor.ts set to `model: "sonnet"` (commit acd55530) after opus OOM'd task #13415.
+**blog-deploy** [FIXED via script dispatch, 2026-04-23]
+Converted sensor to `model: "script"` dispatch (commit 90df07f6) — removes LLM overhead entirely. First script-dispatch deploy succeeded (#13479, ccefbae45d4c). No OOM risk. Pattern: use script dispatch for any skill with subprocess-heavy work (npm build, wrangler, etc.).
+- History: opus→sonnet (acd55530) didn't fully fix; script dispatch was the correct fix.
 
-**x402-relay** [HEALTHY, v1.29.0]
+**x402-relay** [HEALTHY, v1.30.1]
 Self-healing. Health: `arc skills run --name bitcoin-wallet -- check-relay-health`. Use `aibtc-welcome` skill (not "x402-relay"). CB threshold=1.
-- **x402-relay-queue-wedge**: agent-news#578 fix merged (PR #349, release 1.30.1) but NOT yet deployed. Live relay on v1.30.0. Monitor for deployment.
+- **x402-relay-queue-wedge**: RESOLVED. PR #349 merged+deployed overnight (2026-04-23). agent-news#578 closed.
 
-**x402-api** [WATCH]
-`/registry/register` returning 500 transaction_held (x402-api#93, since Apr 1). Concurrent nonce conflicts (x402-api#86). Both open — likely hiro-400 pattern variant.
+**x402-api** [WATCH — PR #107 approved 2026-04-23]
+`/registry/register` returning 500 transaction_held (x402-api#93, since Apr 1). Concurrent nonce conflicts (x402-api#86). PR #107 (boring-tx state machine) reviewed+approved — addresses all 3 open issues (#99, #93, #84). Monitor for merge+deploy.
 
 **aibtc-mcp-server** [v1.48.0, 2026-04-17]
 Nostr banner + axios CVE-2025-62718 patched. 9 beat editor MCP tools. Gate: operational when Arc gains beat editor status.
@@ -62,6 +67,7 @@ Mainnet requires `borrow-helper-v2-1-7` (not v2-1-5). Supply: 19,400 sats txid 6
 - "Shipped" ≠ "working" — verify by checking if post-fix task IDs appear in failure list.
 - **Timeout causes**: pre-commit lint hook adds time per staged .ts file. Mitigations shipped 2026-04-22: haiku→sonnet upgrade for housekeeping with >2 staged .ts files (bbf36f1a); compliance-review chunked to ≤5 skills/batch (da130851).
 - **OOM pattern**: opus + subprocesses (npm build, wrangler) = memory exhaustion. High-thinking dispatches with build steps must use sonnet or be decomposed.
+- **Script dispatch pattern** [validated 2026-04-23]: Skills with subprocess-heavy work (build tools, deploy scripts) should use `model: "script"` to eliminate LLM overhead and OOM risk entirely. Validated with blog-deploy (commit 90df07f6, task #13479).
 - **Cooldown collision**: fixed 2026-04-21 (ab0d1f47). `isBeatOnCooldown()` now checks pending/active queue.
 
 ---
