@@ -36,7 +36,8 @@ arc skills run --name blog-deploy -- status
 
 - Cadence: 5 minutes
 - Trigger: arc0me-site HEAD SHA differs from `last_deployed_sha` in hook state
-- Task priority: 7 (Sonnet) — needs credential access, multi-step execution, error handling
+- Task model: `script` — runs `arc skills run --name blog-deploy -- deploy` directly, no LLM dispatch
+- Task priority: 7
 - Deduplicates: won't queue a second task if one is already pending
 
 ## Deploy Pipeline
