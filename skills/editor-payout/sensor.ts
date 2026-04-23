@@ -36,14 +36,20 @@ export default async function editorPayoutSensor(): Promise<string> {
   // Only fire in the 09:00-14:00 UTC window (post-inscription)
   if (hour < 9 || hour > 14) return "skip";
 
-  // Dedup: only fire once per UTC calendar day
-  const state = await readHookState(SENSOR_NAME);
-  if (state?.lastPayoutDate === utcDate) return "skip";
+  // The brief that was inscribed at 07:00 UTC covers yesterday — editor
+  // payouts settle against that brief's signal reviews, not today's.
+  const yesterday = new Date(now);
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+  const briefDate = yesterday.toISOString().slice(0, 10);
 
-  // Gate 1: inscription must have completed for today
+  // Dedup: only fire once per briefDate
+  const state = await readHookState(SENSOR_NAME);
+  if (state?.lastPayoutDate === briefDate) return "skip";
+
+  // Gate 1: inscribe sensor must have fired today (which inscribed yesterday's brief)
   const inscribeState = await readHookState("daily-brief-inscribe");
   if (!inscribeState?.last_fired_date || inscribeState.last_fired_date !== utcDate) {
-    log(`Inscription not completed for ${utcDate} — skipping`);
+    log(`Inscribe sensor has not fired today (${utcDate}) — skipping payout for brief ${briefDate}`);
     return "skip";
   }
 
@@ -55,12 +61,12 @@ export default async function editorPayoutSensor(): Promise<string> {
        AND status = 'completed'
        AND created_at >= ?
      LIMIT 1`
-  ).get(utcDate);
+  ).get(briefDate);
 
   if (spotCheckDone) {
-    log(`Spot-check completed for ${utcDate} (task #${spotCheckDone.id})`);
+    log(`Spot-check completed for ${briefDate} (task #${spotCheckDone.id})`);
   } else {
-    log(`No completed spot-check for ${utcDate} — proceeding (informational only)`);
+    log(`No completed spot-check for ${briefDate} — proceeding (informational only)`);
   }
 
   // Gate 2: editor registry must have entries
@@ -73,11 +79,11 @@ export default async function editorPayoutSensor(): Promise<string> {
     return "skip";
   }
 
-  // Check for approved signals per beat in today's brief
+  // Check for approved signals per beat in the inscribed brief
   let beatSignalCounts: Record<string, number> = {};
   try {
     const resp = await fetchWithRetry(
-      `${API_BASE}/signals?status=brief_included&date=${utcDate}&limit=200`
+      `${API_BASE}/signals?status=brief_included&date=${briefDate}&limit=200`
     );
     if (resp.ok) {
       const data = (await resp.json()) as { signals?: Array<{ beat: string; beatSlug?: string }> };
@@ -93,52 +99,37 @@ export default async function editorPayoutSensor(): Promise<string> {
 
   const beatsWithSignals = editors.filter((e) => (beatSignalCounts[e.beat_slug] ?? 0) > 0);
   if (beatsWithSignals.length === 0) {
-    log(`No beats with signals in today's brief — nothing to pay`);
+    log(`No beats with signals in brief ${briefDate} — nothing to pay`);
     await writeHookState(SENSOR_NAME, {
       ...(state ?? { version: 0 }),
       last_ran: now.toISOString(),
       last_result: "ok:no-signals",
       version: (state?.version ?? 0) + 1,
-      lastPayoutDate: utcDate,
+      lastPayoutDate: briefDate,
     });
     return "ok";
   }
 
-  // All gates passed — create payout task (LIVE mode)
+  // All gates passed — queue the deterministic script task
   await writeHookState(SENSOR_NAME, {
     ...(state ?? { version: 0 }),
     last_ran: now.toISOString(),
     last_result: "ok",
     version: (state?.version ?? 0) + 1,
-    lastPayoutDate: utcDate,
+    lastPayoutDate: briefDate,
   });
 
-  const beatSummary = beatsWithSignals
-    .map((e) => `${e.beat_slug}: ${beatSignalCounts[e.beat_slug]} signal(s) → ${e.editor_name} (${EDITOR_RATE_SATS.toLocaleString()} sats)`)
-    .join("\n  ");
   const totalSats = beatsWithSignals.length * EDITOR_RATE_SATS;
 
-  const id = insertTaskIfNew(TASK_SOURCE, {
-    subject: `Pay ${beatsWithSignals.length} editor(s) for ${utcDate} brief (${totalSats.toLocaleString()} sats)`,
-    description: [
-      `Editor payouts for the ${utcDate} daily brief.`,
-      ``,
-      `## Beats with signals`,
-      `  ${beatSummary}`,
-      ``,
-      `## Total: ${totalSats.toLocaleString()} sats across ${beatsWithSignals.length} editor(s)`,
-      ``,
-      `## Steps`,
-      `1. Run: arc skills run --name editor-payout -- execute --date ${utcDate}`,
-      `2. Verify sBTC transfers sent and record txids.`,
-      `3. Close task with a summary of payments.`,
-    ].join("\n"),
+  const id = insertTaskIfNew(`${TASK_SOURCE}:${briefDate}`, {
+    subject: `Pay ${beatsWithSignals.length} editor(s) for ${briefDate} brief (${totalSats.toLocaleString()} sats)`,
     priority: 5,
     skills: JSON.stringify(["editor-payout", "bitcoin-wallet"]),
+    script: `arc skills run --name editor-payout -- execute --date ${briefDate}`,
   });
 
   if (id !== null) {
-    log(`Payout task created: #${id} — ${beatsWithSignals.length} editor(s), ${totalSats} sats`);
+    log(`Payout script task created: #${id} — ${beatsWithSignals.length} editor(s), ${totalSats} sats, date=${briefDate}`);
   }
 
   return id !== null ? "ok" : "skip";
