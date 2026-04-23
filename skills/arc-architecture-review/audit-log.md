@@ -1,3 +1,57 @@
+## 2026-04-23T19:45:00.000Z — script dispatch at 6 skills; ACTIVE_BEATS gate pattern; workflow lifecycle fix
+
+**Task #13526** | Diff: 3f6c59d → 625edddd | Sensors: 72 | Skills: 113
+
+### Step 1 — Requirements
+
+- **4 substantive structural changes** since last audit (07:45Z today). All post-competition cleanup.
+- **aibtc-welcome converted to script dispatch** (b8edb44f): welcome sequence (STX → x402 → contacts) is fully deterministic. ~170 lines removed. 6th skill to use script dispatch.
+- **bitcoin-macro gated on ACTIVE_BEATS** (11bb7e10): addresses 3 post-competition hashrate failures (#13455, #13474, #13490). Empty array = zero cost when no beat is held.
+- **aibtc-agent-trading beat slug restored to `agent-trading`** (e1853e83): competition beat reset restored original slug. Was `aibtc-network` during competition; now correct.
+- **arc-service-health auto-complete triggered workflows** (9905dbea): 50 stuck workflows accumulated since Apr 11. Fix: sensor auto-completes when alert condition clears.
+
+### Step 2 — Delete
+
+- **Script dispatch pattern at 6**: erc8004-indexer, blog-deploy, worker-deploy, arc-starter-publish, arc-housekeeping, aibtc-welcome. Each conversion reduces code surface and LLM overhead.
+- **[CARRY-20 → NOW OPEN]** layered-rate-limit sensor migration — post-competition window has arrived. Was deferred since competition start. Must be explicitly tasked.
+- **[OPEN]** Pre-commit hook not git-tracked — install-hooks gap on fresh clones. Still open.
+
+### Step 3 — Simplify
+
+- **ACTIVE_BEATS gate pattern** is the right abstraction for beat-dependent sensors. Currently only bitcoin-macro has it. `aibtc-agent-trading` and `arxiv-research` should adopt the same pattern — prevents wasted dispatch cycles when beats are inactive. This is a 3-line change per sensor.
+- **arc-service-health auto-complete**: workflow termination should be sensor-driven when the triggering condition resolves. 50 accumulated workflows confirms the gap was structural. Pattern applies to all alert-style sensors (stale-lock, service-health, etc.).
+
+### Step 4 — Accelerate
+
+- **aibtc-welcome as script dispatch**: high-volume operation (new agents detected regularly). LLM overhead was unjustified for a fixed 3-step sequence. Savings compound.
+- **bitcoin-macro gate**: eliminates 3+ failed dispatch cycles/day when beat is inactive. Idle sensors should cost zero — this is now the benchmark.
+
+### Step 5 — Automate
+
+- **[NEW CANDIDATE]** ACTIVE_BEATS gate for `aibtc-agent-trading` and `arxiv-research` — standardize the pattern before acquiring new beats to prevent another post-competition cleanup.
+- **[CARRY-20 → MUST TASK]** layered-rate-limit migration — create explicit task.
+- **[OPEN]** Pre-commit hook not git-tracked.
+
+### Flags
+
+- **[RESOLVED]** bitcoin-macro post-competition failures — ACTIVE_BEATS gate shipped (11bb7e10).
+- **[RESOLVED]** arc-service-health stuck workflows — 50 cleared, auto-complete fix live (9905dbea).
+- **[OK]** Script dispatch at 6 skills — pattern proven, extending correctly.
+- **[OK]** aibtc-welcome simplified — ~170 lines removed, deterministic CLI.
+- **[OK]** Architecture stable — 4 targeted fixes, no structural drift.
+- **[OK]** Compliance surface complete — SKILL.md frontmatter + sensor.ts vars + AGENT.md skill refs.
+- **[OK]** Prompt caching 58% reduction — holding.
+- **[OK]** Budget guard ($10/$3/$1) — holding.
+- **[WATCH]** payout-disputes: 10 active disputes, ~660k sats unresolved. Escalated to whoabuddy.
+- **[WATCH]** aibtc-agent-trading: beat slug restored — first signal to `agent-trading` still pending.
+- **[NEW CANDIDATE]** ACTIVE_BEATS gate for aibtc-agent-trading + arxiv-research.
+- **[CARRY-20 → NOW OPEN]** layered-rate-limit migration.
+- **[OPEN]** Pre-commit hook not git-tracked.
+- **[CARRY-WATCH]** Loom inscription spiral — escalated, no runs.
+- **[ESCALATED]** Cloudflare email — awaiting whoabuddy action.
+
+---
+
 ## 2026-04-23T07:45:00.000Z — post-competition day 1; script dispatch pattern emerges; two carry items resolved
 
 **Task #13470** | Diff: 686aeb9 → 3f6c59d | Sensors: 72 | Skills: 113
