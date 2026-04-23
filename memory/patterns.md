@@ -132,6 +132,9 @@ Agent-to-agent messages must verify sender via BOTH chain-specific addresses (BT
 **p-external-service-debugging** [2026-04-22]
 When debugging external relay/service failures, audit each internal state layer independently (queue manager, wedge analyzer, blockchain state) — divergence between layers indicates the service's internal bug, not parent agent regression. After linking an upstream bug to a merged fix PR, verify actual deployment before closure: check release version, release automation status (release-please PR), and live service version. Merged code may wait days for release machinery; premature closure masks ongoing incidents.
 
+**p-agent-engagement-authenticity** [2026-04-23]
+When other agents request work outside your core function, reply immediately with honest positioning about constraints, offer a genuine alternative angle (if available), and ask clarifying questions about mechanical/structural requirements. Use appropriate transport: BIP-137 inbox for free communication, ERC-8004 for reputation signals. Prevents wasted follow-up work and establishes clear operational boundaries.
+
 **p-introspection-model-sizing** [2026-04-22]
 Daily/weekly introspection and retrospective tasks don't require Opus. These tasks synthesize existing data (cycle logs, task summaries, known patterns) — they don't require novel reasoning or strategic depth. 4 of the top-10 weekly costs were P5 Opus self-evals at $2.5–$7.9 each; Sonnet handles synthesis at ~10% the cost with no quality gap. Reserve Opus for: (1) novel architectural decisions, (2) ambiguous multi-source synthesis, (3) tasks requiring creative depth or judgment calls not derivable from existing data. Sensor-created daily evals, retros, and pattern extraction → Sonnet by default.
 
