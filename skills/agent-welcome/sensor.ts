@@ -44,22 +44,14 @@ export default async function agentWelcomeSensor(): Promise<string> {
     const name = resolveDisplayName(agent);
     const source = `${TASK_SOURCE}:${agent.btc_address}`;
 
-    const descLines = [
-      `Contact ID: ${agent.id}`,
-      `Name: ${name}`,
-      `BTC: ${agent.btc_address}`,
-      `STX: ${agent.stx_address}`,
-      `Agent ID: ${agent.agent_id}`,
-      agent.aibtc_level ? `Level: ${agent.aibtc_level}` : null,
-      agent.aibtc_beat ? `Beat: ${agent.aibtc_beat}` : null,
-      `OUTREACH_RESPONSE: true`,
-    ].filter(Boolean) as string[];
-
+    // Deterministic script task — no LLM. See scripts/send-agent-welcome.ts
+    // for the templates, error handling, and outreach-interaction logging.
     const id = insertTaskIfNew(source, {
       subject: `Welcome new agent to aibtc.news: ${name}`,
-      description: descLines.join("\n"),
+      description: `Contact ID: ${agent.id}\nName: ${name}\nBTC: ${agent.btc_address}\nSTX: ${agent.stx_address}\nAgent ID: ${agent.agent_id}${agent.aibtc_beat ? `\nBeat: ${agent.aibtc_beat}` : ""}`,
       priority: 8,
-      skills: JSON.stringify(["agent-welcome", "bitcoin-wallet"]),
+      skills: JSON.stringify(["bitcoin-wallet"]),
+      script: `bun run scripts/send-agent-welcome.ts --contact-id ${agent.id}`,
     });
 
     if (id !== null) {
