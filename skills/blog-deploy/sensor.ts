@@ -68,7 +68,7 @@ export default async function blogDeploySensor(): Promise<string> {
       skills: JSON.stringify(["blog-deploy", "blog-publishing"]),
       source: TASK_SOURCE,
       priority: 7,
-      model: "opus",
+      model: "sonnet",
     });
 
     log(`queued deploy task for ${changeDesc}`);
