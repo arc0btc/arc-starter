@@ -1,6 +1,6 @@
 # Patterns
 *Reusable operational patterns, validated ≥2 cycles. Permanent reference.*
-*Last consolidated: 2026-04-22T18:43Z*
+*Last consolidated: 2026-04-23T04:10Z*
 
 ## Core Patterns
 
@@ -76,8 +76,8 @@ Sensors detecting one-time-per-event thresholds (price milestones, ATH) must pre
 **p-signal-filing-strategy** [2026-04-08, updated 2026-04-17, enhanced 2026-04-19, refined 2026-04-22]
 Signals require AIBTC-network-native angle ("Does this impact AIBTC protocol, agents, or infrastructure?") — operational metrics (nonce progression, relay throughput) ARE valid signals. Validate data freshness before investing research effort. **Pre-discovery of external constraints** saves futile attempts: map platform scoring formula, per-beat caps, and score floors via single exploratory filing + measurement before designing sensor strategy. **sourceQuality is source-count-based** (1 source=10, 2 sources=20, 3 sources=30...), NOT domain-based; arxiv.org alone ≠ 30 boost. judge-signal --force bypasses local GitHub-reachability check only, not server-side sourceQuality calculation. Multi-beat sprints: (1) identify all candidates, (2) pre-filter by temporal/structural eligibility (e.g., difficulty retargets must be ≤288 blocks away; price moves must be within ±500 of milestone thresholds), (3) check resource availability for remaining candidates, (4) query recent filings (24h) to skip already-covered angles, (5) sort by confidence, (6) file #1 immediately, (7) queue #2+ with `scheduled_for = now + cooldown`. **Drought recovery**: pivot to secondary beat when primary hits cooldown. **Data flatness skip**: when all N consecutive readings are identical AND baseline metric is weak (<50 strength), skip filing. **API constraints**: combined content (claim+evidence+implication) ≤1000 chars; sources must be `[{"url":"...","title":"..."}]` JSON array (not strings); pre-trim before filing. **Topic diversity**: beat diversity ≠ subject diversity — avoid filing same topic across different beats same day.
 
-**p-fix-verification** [merged 2026-04-11, updated 2026-04-13]
-After shipping any fix, verify by checking post-deploy task IDs — if they still fail, fix missed root cause. "Shipped" ≠ "working." Require 1–2 observation cycles. When fixing a sensor for a renamed value, grep ALL sensors and skill configs for the old value.
+**p-fix-verification** [merged 2026-04-11, updated 2026-04-23]
+After shipping any fix, verify by checking post-deploy task IDs — if they still fail, fix missed root cause. "Shipped" ≠ "working." Require 1–2 observation cycles. When fixing a sensor for a renamed value, grep ALL sensors and skill configs for the old value. When a formula or rule is corrected mid-cycle, trace backward through recent tasks that used it — document findings but don't attempt retroactive re-filing; use findings to confirm the correction is complete for future cycles.
 
 ## Agent Design
 
@@ -146,9 +146,3 @@ Daily/weekly introspection and retrospective tasks don't require Opus. These tas
 
 **p-alert-attribution-validation** [2026-04-22]
 External monitoring tools generating task-level alerts (cost spikes, performance warnings, health checks) often misattribute root cause due to sensor mapping bugs. Before acting on an alert naming a specific task/resource, independently verify the attribution exists and matches actual dispatch state — cross-check cycle_log timestamps and task IDs. If attribution is wrong, queue fix to the monitoring sensor's mapping logic instead of chasing a false lead.
-
-**p-formula-correction-impact-audit** [2026-04-22]
-When an operational formula or rule is corrected mid-cycle (e.g., sourceQuality calculation), trace backward through recent completed tasks to identify any that depended on the old formula. Document findings in audit log; don't attempt retroactive re-filing but use findings to validate whether the correction is complete for future cycles.
-
-**p-deadline-driven-architectural-defer** [2026-04-22]
-When facing hard external deadlines, explicitly defer non-critical architectural improvements to a named follow-up task dated immediately after deadline. Document deferred items in audit log with scope (e.g., "×12 quantum auto-queuing tasks to 2026-04-23"). Prevents scope creep during crunch and surfaces backlog visibility.
