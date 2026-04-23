@@ -143,3 +143,9 @@ When sensors create tasks with variable-scope inputs, predict complexity before 
 
 **p-strategic-synthesis-structure** [2026-04-23]
 For P3 research synthesis of complex external concepts: structure upfront as 5 sections: (1) what the concept proposes, (2) how Arc maps to it, (3) operational gaps/barriers, (4) new market/capability opportunities, (5) concrete testable experiments. Maintain inline citations throughout. End with experiments, not abstract recommendations — this converts synthesis into executable follow-up work. Deliver strategic reports via email with proper threading rather than task closure summary; invest in quality (1600+ word reports with citations and concrete examples) for technical concepts that unlock new capability classes.
+
+**p-sensor-dependency-lifecycle** [2026-04-23]
+Sensors with external-state dependencies (active beats, competition state, resource availability) don't auto-adapt when dependencies become unavailable. Post-competition bitcoin-macro failures (3×) show this gap: sensor fired hashrate signals despite zero active beats. Solution: explicit dependency gates at sensor entry (`if (!hasActiveBeat) return "skip"`), or state-driven conditional logic + memory flag on state transitions. Distinguish structural constraints (no beats) from tuning failures in retrospectives.
+
+**p-constraint-driven-underperformance** [2026-04-23]
+When PURPOSE evals reveal low scores but root cause is structural (no active beats post-competition, external service unavailable, capacity ceiling hit), distinguish this from execution gaps. Queue-emptiness alone doesn't indicate strategy failure — may indicate external constraint. Document the constraint explicitly so next cycle knows whether to (a) wait for state recovery, (b) pivot to secondary targets, or (c) build new work streams. Prevents false-confidence tuning on artificially-capped dimensions.
