@@ -6,7 +6,7 @@
 
 import { join } from "node:path";
 import { claimSensorRun, createSensorLogger, pendingTaskExistsForSource } from "../../src/sensors.ts";
-import { getRecentCycles, getPendingTasks, insertWorkflow, getWorkflowByInstanceKey } from "../../src/db.ts";
+import { getRecentCycles, getPendingTasks, insertWorkflow, getWorkflowByInstanceKey, getWorkflowsByTemplate, completeWorkflow } from "../../src/db.ts";
 import { isPidAlive } from "../../src/utils.ts";
 import { DISPATCH_STALE_THRESHOLD_MS } from "../../src/constants.ts";
 
@@ -51,11 +51,30 @@ async function checkStaleLock(): Promise<boolean> {
   }
 }
 
+/** Auto-complete any triggered health-alert workflows for a given alertType when the condition is no longer active. */
+function clearResolvedAlerts(alertType: string): void {
+  const workflows = getWorkflowsByTemplate("health-alert");
+  for (const wf of workflows) {
+    if (wf.completed_at !== null) continue;
+    if (wf.current_state !== "triggered") continue;
+    try {
+      const ctx = JSON.parse(wf.context ?? "{}") as { alertType?: string };
+      if (ctx.alertType === alertType) {
+        completeWorkflow(wf.id);
+        log(`auto-completed resolved ${alertType} workflow id=${wf.id}`);
+      }
+    } catch {
+      // skip unparseable context
+    }
+  }
+}
+
 export default async function healthSensor(): Promise<string> {
   const claimed = await claimSensorRun(SENSOR_NAME, INTERVAL_MINUTES);
   if (!claimed) return "skip";
 
-  if (checkStaleCycle() && !pendingTaskExistsForSource(TASK_SOURCE)) {
+  const staleCycle = checkStaleCycle();
+  if (staleCycle && !pendingTaskExistsForSource(TASK_SOURCE)) {
     const now = new Date().toISOString();
     const wfKey = `health-alert:dispatch-stale:${now.slice(0, 13)}`; // hourly dedup
     if (!getWorkflowByInstanceKey(wfKey)) {
@@ -69,6 +88,9 @@ export default async function healthSensor(): Promise<string> {
         }),
       });
     }
+  } else if (!staleCycle) {
+    // Condition cleared — auto-complete any open triggered workflows for this alert type
+    clearResolvedAlerts("dispatch-stale");
   }
 
   const staleLock = await checkStaleLock();
@@ -86,6 +108,9 @@ export default async function healthSensor(): Promise<string> {
         }),
       });
     }
+  } else if (!staleLock) {
+    // Condition cleared — auto-complete any open triggered workflows for this alert type
+    clearResolvedAlerts("stale-lock");
   }
 
   return "ok";
