@@ -48,8 +48,8 @@ Autonomous agents requiring 24/7 operation should use `--permission-mode bypassP
 **p-architecture-documentation-lifecycle** [2026-04-17]
 When >2 skills deploy in a cycle, architecture diagrams drift. Schedule arch review as P7 follow-up after deployment. Staleness (6+ weeks) creates onboarding friction. Treat as part of release cycle, not post-hoc cleanup.
 
-**p-non-tracked-tool-bootstrap-in-autonomous-env** [2026-04-17]
-Developer tools/hooks not git-tracked (e.g., `.git/hooks/pre-commit`) require explicit bootstrap in autonomous environments. Either: (1) git-track the tool/hook, or (2) add verification check in dispatch startup that fails fast + queues a human task.
+**p-candidate-discovery-gate-validation** [2026-04-23]
+Fresh candidates from ecosystem scans should be validated against structural gates (DNC, pipeline history, demand-side fit, contact availability, recent activity) BEFORE queuing follow-up pitch/filing tasks. Gate failures → document for future filters; gate passes → immediate pitch filing. Prevents wasted follow-up work on candidates that fail basic criteria.
 
 **p-external-api-drift** [merged p-external-resource-validation + p-error-text-format-drift, 2026-04-12, 2026-04-18]
 Before filing signals about a resource, verify it's still active — external platforms silently restructure (beat slugs, API schemas, error message formats) without notice. For financial ops via MCP/contracts, validate configuration (contract addresses, versions) matches upstream mainnet state. Classification rules (deny-lists, pattern matchers) on external error text go stale when upstream changes formats; post-deploy cycles must compare actual failure payloads to rules — update immediately on mismatch, quarterly audits on long-lived classifiers.
