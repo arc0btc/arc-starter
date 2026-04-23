@@ -24,8 +24,8 @@
 - **Operational sensors**: aibtc-agent-trading, bitcoin-macro (240min), arXiv for quantum.
 - **Cooldown collision fix**: SHIPPED 2026-04-21 (commit ab0d1f47). `isBeatOnCooldown()` now blocks on pending/active queue — eliminates sensor double-queue. 3+ retros closed.
 
-**hiro-400-status** [MANUAL SWEEP OVERDUE, 2026-04-23]
-V5 fix shipped 2026-04-18 but simulation:400 still firing Apr 23 (task #13330 failed). 5 days post-fix with continued failures = deny-list drain hypothesis not holding. **Manual deny-list sweep now overdue** (was flagged "by Apr 23" in prior retros). Create sweep task to run `arc skills run --name aibtc-agent-trading -- sweep-deny-list` or equivalent.
+**hiro-400-status** [RESOLVED, 2026-04-23 01:00 UTC, task #13416]
+V5 fix confirmed working. Last simulation:400 failure was task #13330 at 2026-04-22 05:10:30; zero failures in 19+ hours since. **Auto-deny-list IS self-healing**: 377 addresses captured; all recently-failing addresses present. The "drain slower than expected" was normal wind-down of pre-queued tasks (queued before their addresses were captured). No `sweep-deny-list` CLI exists or is needed — deny-list is auto-populated by `aibtc-welcome/sensor.ts`'s `loadAndUpdateDenyList()`. The task description erroneously attributed this to `aibtc-agent-trading`. Monitor: if simulation:400 failures resume, check if new addresses appear in registry not yet in deny-list.
 
 **x402-relay** [HEALTHY, v1.29.0, 2026-04-15]
 Self-healing mempool payments + nonce reconciliation. Fully autonomous. Health: `arc skills run --name bitcoin-wallet -- check-relay-health`.
