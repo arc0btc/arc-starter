@@ -202,12 +202,12 @@ function validateBlob(raw: unknown): AgentSignatureBlob {
   }
   const btc = b.btc_address as string;
   const stx = b.stx_address as string;
-  const ts = b.timestamp as string;
+  const timestamp = b.timestamp as string;
   if (!btc.startsWith("bc1q")) throw new Error(`btc_address must be P2WPKH (bc1q…), got: ${btc}`);
   if (!stx.startsWith("SP")) throw new Error(`stx_address must be mainnet (SP…), got: ${stx}`);
-  const tsNum = parseInt(ts, 10);
-  if (!Number.isFinite(tsNum)) throw new Error(`timestamp not a valid integer: ${ts}`);
-  const drift = Math.abs(Math.floor(Date.now() / 1000) - tsNum);
+  const timestampNum = parseInt(timestamp, 10);
+  if (!Number.isFinite(timestampNum)) throw new Error(`timestamp not a valid integer: ${timestamp}`);
+  const drift = Math.abs(Math.floor(Date.now() / 1000) - timestampNum);
   if (drift > 300) throw new Error(`timestamp drift ${drift}s exceeds ±300s window — ask agent to re-sign`);
   return b as unknown as AgentSignatureBlob;
 }

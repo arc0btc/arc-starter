@@ -113,7 +113,7 @@ function formatDateRange(start: string, end: string): string {
 }
 
 function runGit(args: string[]): string {
-  const git_result = Bun.spawnSync({ cmd: ["git", ...args], cwd: ROOT });
+  const git_result = Bun.spawnSync(["git", ...args], { cwd: ROOT });
   return git_result.stdout.toString();
 }
 
