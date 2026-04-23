@@ -23,7 +23,7 @@ import { getCredential } from "../../src/credentials.ts";
 
 const SENSOR_NAME = "aibtc-agent-trading";
 const INTERVAL_MINUTES = 120; // every 2 hours
-const BEAT_SLUG = "aibtc-network"; // agent-trading beat retired 2026-04-14; all content now routes to aibtc-network
+const BEAT_SLUG = "agent-trading";
 const MAX_HISTORY = 8; // rolling window for change detection
 
 // ---- API endpoints ----
